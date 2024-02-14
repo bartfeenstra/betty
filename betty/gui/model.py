@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import QFormLayout, QLabel, QComboBox, QLineEdit, QWidget, 
 
 from betty.app import App
 from betty.gui.locale import LocalizedWidget
+from betty.locale import Localizable
 from betty.model import UserFacingEntity, Entity
 from betty.project import EntityReference, EntityReferenceSequence
 
@@ -70,13 +71,13 @@ class EntityReferenceSequenceCollector(LocalizedWidget):
         self,
         app: App,
         entity_references: EntityReferenceSequence[UserFacingEntity & Entity],
-        label_builder: Callable[[], str] | None = None,
-        caption_builder: Callable[[], str] | None = None,
+        label_text: Localizable | None = None,
+        caption_text: Localizable | None = None,
     ):
         super().__init__(app)
         self._entity_references = entity_references
-        self._label_builder = label_builder
-        self._caption_builder = caption_builder
+        self._label_text = label_text
+        self._caption_text = caption_text
         self._entity_reference_collectors: list[EntityReferenceCollector] = [
             EntityReferenceCollector(self._app, entity_reference)
             for entity_reference
@@ -86,7 +87,7 @@ class EntityReferenceSequenceCollector(LocalizedWidget):
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
 
-        if label_builder:
+        if label_text:
             self._label = QLabel()
             self._layout.addWidget(self._label)
 
@@ -98,7 +99,7 @@ class EntityReferenceSequenceCollector(LocalizedWidget):
         self._entity_reference_collection_widgets: list[QWidget] = []
         self._entity_reference_remove_buttons: list[QPushButton] = []
 
-        if caption_builder:
+        if caption_text:
             self._caption = QLabel()
             self._layout.addWidget(self._caption)
 
@@ -148,10 +149,10 @@ class EntityReferenceSequenceCollector(LocalizedWidget):
         layout.addWidget(entity_reference_remove_button)
 
     def _set_translatables(self) -> None:
-        if self._label_builder:
-            self._label.setText(self._label_builder())
-        if self._caption_builder:
-            self._caption.setText(self._caption_builder())
+        if self._label_text:
+            self._label.setText(self._label_text.localize(self._app.localizer))
+        if self._caption_text:
+            self._caption.setText(self._caption_text.localize(self._app.localizer))
         self._add_entity_reference_button.setText(self._app.localizer._('Add an entity'))
         for entity_reference_remove_button in self._entity_reference_remove_buttons:
             entity_reference_remove_button.setText(self._app.localizer._('Remove'))

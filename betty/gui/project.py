@@ -15,7 +15,7 @@ from urllib.parse import urlparse
 from PyQt6.QtCore import Qt, QThread
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QFileDialog, QPushButton, QWidget, QVBoxLayout, QHBoxLayout, QMenu, QStackedLayout, \
-    QGridLayout, QCheckBox, QFormLayout, QLabel, QLineEdit, QButtonGroup, QRadioButton, QFrame
+    QGridLayout, QCheckBox, QFormLayout, QLabel, QLineEdit, QButtonGroup, QRadioButton, QFrame, QScrollArea, QSizePolicy
 from babel import Locale
 from babel.localedata import locale_identifiers
 
@@ -43,6 +43,7 @@ class _PaneButton(QPushButton):
         self.setFlat(True)
         self.setProperty('pane-selector', 'true')
         self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Fixed)
         self._project_window = project_window
         self.released.connect(lambda: self._project_window._navigate_to_pane(pane_name))
 
@@ -433,8 +434,20 @@ class ProjectWindow(BettyMainWindow):
         central_widget.setLayout(central_layout)
         self.setCentralWidget(central_widget)
 
+        self._pane_selectors_container_widget = QWidget()
+        self._pane_selectors_container_widget.setFixedWidth(225)
+
+        self._pane_selectors_container = QScrollArea()
+        self._pane_selectors_container.setFrameShape(QFrame.Shape.NoFrame)
+        self._pane_selectors_container.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self._pane_selectors_container.setWidget(self._pane_selectors_container_widget)
+        self._pane_selectors_container.setWidgetResizable(True)
+        self._pane_selectors_container.setFixedWidth(225)
+        central_layout.addWidget(self._pane_selectors_container)
+
         self._pane_selectors_layout = QVBoxLayout()
-        central_layout.addLayout(self._pane_selectors_layout)
+        self._pane_selectors_layout.setContentsMargins(0, 0, 25, 0)
+        self._pane_selectors_container_widget.setLayout(self._pane_selectors_layout)
 
         self._builtin_pane_selectors_layout = QVBoxLayout()
         self._pane_selectors_layout.addLayout(self._builtin_pane_selectors_layout)
@@ -450,9 +463,10 @@ class ProjectWindow(BettyMainWindow):
         self._pane_selectors_layout.addStretch()
 
         self._panes_layout = QStackedLayout()
-        central_layout.addLayout(self._panes_layout)
+        central_layout.addLayout(self._panes_layout, 999999999)
 
         self._panes: dict[str, QWidget] = {}
+        self._pane_containers: dict[str, QWidget] = {}
         self._pane_selectors: dict[str, QPushButton] = {}
 
         self._add_pane('general', _GeneralPane(self._app))
@@ -493,15 +507,22 @@ class ProjectWindow(BettyMainWindow):
         self.project_menu.addAction(self.serve_action)
 
     def _add_pane(self, pane_name: str, pane: QWidget) -> None:
+        pane_container = QScrollArea()
+        pane_container.setFrameShape(QFrame.Shape.NoFrame)
+        pane_container.setWidget(pane)
+        pane_container.setWidgetResizable(True)
+        pane.setMinimumWidth(300)
+        pane.setMaximumWidth(1000)
+        self._pane_containers[pane_name] = pane_container
         self._panes[pane_name] = pane
-        self._panes_layout.addWidget(pane)
+        self._panes_layout.addWidget(pane_container)
         self._pane_selectors[pane_name] = _PaneButton(pane_name, self)
 
     def _navigate_to_pane(self, pane_name: str) -> None:
         for pane_selector in self._pane_selectors.values():
             pane_selector.setFlat(True)
         self._pane_selectors[pane_name].setFlat(False)
-        self._panes_layout.setCurrentWidget(self._panes[pane_name])
+        self._panes_layout.setCurrentWidget(self._pane_containers[pane_name])
 
     def show(self) -> None:
         self._app.project.configuration.autowrite = True
