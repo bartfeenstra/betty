@@ -124,7 +124,7 @@ class TestGenerate:
             ))
             await generate(app)
         await assert_betty_html(app, f'/{camel_case_to_kebab_case(get_entity_type_name(entity_type))}/index.html', check_links=True)
-        await assert_betty_json(app, f'/{camel_case_to_kebab_case(get_entity_type_name(entity_type))}/index.json', 'fileCollection')
+        await assert_betty_json(app, f'/{camel_case_to_kebab_case(get_entity_type_name(entity_type))}/index.json')
 
     async def test_third_party_entity(self) -> None:
         entity_type = _ThirdPartyEntity
@@ -158,13 +158,13 @@ class TestGenerate:
                 app.project.ancestry.add(file)
                 await generate(app)
             await assert_betty_html(app, '/file/%s/index.html' % file.id, check_links=True)
-            await assert_betty_json(app, '/file/%s/index.json' % file.id, 'file')
+            await assert_betty_json(app, '/file/%s/index.json' % file.id)
 
     async def test_places(self) -> None:
         async with App() as app:
             await generate(app)
         await assert_betty_html(app, '/place/index.html', check_links=True)
-        await assert_betty_json(app, '/place/index.json', 'placeCollection')
+        await assert_betty_json(app, '/place/index.json')
 
     async def test_place(self) -> None:
         async with App() as app:
@@ -175,13 +175,13 @@ class TestGenerate:
             app.project.ancestry.add(place)
             await generate(app)
         await assert_betty_html(app, '/place/%s/index.html' % place.id, check_links=True)
-        await assert_betty_json(app, '/place/%s/index.json' % place.id, 'place')
+        await assert_betty_json(app, '/place/%s/index.json' % place.id)
 
     async def test_people(self) -> None:
         async with App() as app:
             await generate(app)
         await assert_betty_html(app, '/person/index.html', check_links=True)
-        await assert_betty_json(app, '/person/index.json', 'personCollection')
+        await assert_betty_json(app, '/person/index.json')
 
     async def test_person(self) -> None:
         person = Person(id='PERSON1')
@@ -197,7 +197,6 @@ class TestGenerate:
         await assert_betty_json(
             app,
             f'/person/{person.id}/index.json',
-            'person',
         )
 
     async def test_events(self) -> None:
@@ -227,13 +226,13 @@ class TestGenerate:
             app.project.ancestry.add(citation, source)
             await generate(app)
         await assert_betty_html(app, '/citation/%s/index.html' % citation.id, check_links=True)
-        await assert_betty_json(app, '/citation/%s/index.json' % citation.id, 'citation')
+        await assert_betty_json(app, '/citation/%s/index.json' % citation.id)
 
     async def test_sources(self) -> None:
         async with App() as app:
             await generate(app)
         await assert_betty_html(app, '/source/index.html', check_links=True)
-        await assert_betty_json(app, '/source/index.json', 'sourceCollection')
+        await assert_betty_json(app, '/source/index.json')
 
     async def test_source(self) -> None:
         async with App() as app:
@@ -244,7 +243,7 @@ class TestGenerate:
             app.project.ancestry.add(source)
             await generate(app)
         await assert_betty_html(app, '/source/%s/index.html' % source.id, check_links=True)
-        await assert_betty_json(app, '/source/%s/index.json' % source.id, 'source')
+        await assert_betty_json(app, '/source/%s/index.json' % source.id)
 
 
 class TestResourceOverride:

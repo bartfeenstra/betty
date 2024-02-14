@@ -32,7 +32,7 @@ from betty.model import get_entity_type_name, UserFacingEntity, Entity, Generate
 from betty.model.ancestry import is_public
 from betty.openapi import Specification
 from betty.serde.dump import DictDump, Dump
-from betty.string import camel_case_to_kebab_case, camel_case_to_snake_case
+from betty.string import camel_case_to_kebab_case, camel_case_to_snake_case, upper_camel_case_to_lower_camel_case
 from betty.task import Context
 
 _GenerationProcessPoolTaskP = ParamSpec('_GenerationProcessPoolTaskP')
@@ -314,7 +314,7 @@ async def _generate_entity_type_list_json(
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
     entity_type_path = app.project.configuration.www_directory_path / entity_type_name_fs
     data: DictDump[Dump] = {
-        '$schema': app.static_url_generator.generate('schema.json#/definitions/%sCollection' % entity_type_name, absolute=True),
+        '$schema': app.static_url_generator.generate(f'schema.json#/definitions/{upper_camel_case_to_lower_camel_case(entity_type_name)}Collection', absolute=True),
         'collection': []
     }
     for entity in app.project.ancestry[entity_type]:

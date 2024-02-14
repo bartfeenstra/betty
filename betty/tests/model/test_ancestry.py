@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import copy
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any
@@ -23,7 +24,7 @@ from betty.project import LocaleConfiguration
 from betty.serde.dump import DictDump, Dump
 
 
-async def assert_dumps_linked_data(dumpable: LinkedDataDumpable, schema_definition: str) -> DictDump[Dump]:
+async def assert_dumps_linked_data(dumpable: LinkedDataDumpable, schema_definition: str | None = None) -> DictDump[Dump]:
     app = App()
     app.project.configuration.locales['en-US'].alias = 'en'
     app.project.configuration.locales.append(LocaleConfiguration(
@@ -32,7 +33,12 @@ async def assert_dumps_linked_data(dumpable: LinkedDataDumpable, schema_definiti
     ))
     async with app:
         actual = await dumpable.dump_linked_data(app)
-    json.validate(actual, schema_definition, app)
+    # Allow for a copy to be made in case the actual data does not contain $schema by design.
+    actual_to_be_validated = actual
+    if schema_definition:
+        actual_to_be_validated = copy(actual)
+        actual_to_be_validated['$schema'] = app.static_url_generator.generate(f'schema.json#/definitions/{schema_definition}', absolute=True)
+    json.validate(actual_to_be_validated, app)
     return actual
 
 
@@ -168,7 +174,7 @@ class TestNote:
             text='The Note',
         )
         expected: dict[str, Any] = {
-            '$schema': '/schema.json#/definitions/note',
+            '$schema': 'https://example.com/schema.json#/definitions/note',
             '@id': '/note/the_note/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_note',
@@ -194,7 +200,7 @@ class TestNote:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(note, 'note')
+        actual = await assert_dumps_linked_data(note)
         assert expected == actual
 
     async def test_dump_linked_data_should_dump_private(self) -> None:
@@ -204,7 +210,7 @@ class TestNote:
             private=True,
         )
         expected: dict[str, Any] = {
-            '$schema': '/schema.json#/definitions/note',
+            '$schema': 'https://example.com/schema.json#/definitions/note',
             '@id': '/note/the_note/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_note',
@@ -217,7 +223,7 @@ class TestNote:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(note, 'note')
+        actual = await assert_dumps_linked_data(note)
         assert expected == actual
 
 
@@ -425,7 +431,7 @@ class TestFile:
                 path=Path(f.name),
             )
             expected: dict[str, Any] = {
-                '$schema': '/schema.json#/definitions/file',
+                '$schema': 'https://example.com/schema.json#/definitions/file',
                 '@id': '/file/the_file/index.json',
                 'id': 'the_file',
                 'private': False,
@@ -452,7 +458,7 @@ class TestFile:
                     },
                 ],
             }
-            actual = await assert_dumps_linked_data(file, 'file')
+            actual = await assert_dumps_linked_data(file)
             assert expected == actual
 
     async def test_dump_linked_data_should_dump_full(self) -> None:
@@ -475,7 +481,7 @@ class TestFile:
                 ),
             ))
             expected: dict[str, Any] = {
-                '$schema': '/schema.json#/definitions/file',
+                '$schema': 'https://example.com/schema.json#/definitions/file',
                 '@id': '/file/the_file/index.json',
                 'id': 'the_file',
                 'private': False,
@@ -509,7 +515,7 @@ class TestFile:
                     },
                 ],
             }
-            actual = await assert_dumps_linked_data(file, 'file')
+            actual = await assert_dumps_linked_data(file)
             assert expected == actual
 
     async def test_dump_linked_data_should_dump_private(self) -> None:
@@ -533,7 +539,7 @@ class TestFile:
                 ),
             ))
             expected: dict[str, Any] = {
-                '$schema': '/schema.json#/definitions/file',
+                '$schema': 'https://example.com/schema.json#/definitions/file',
                 '@id': '/file/the_file/index.json',
                 'id': 'the_file',
                 'private': True,
@@ -554,7 +560,7 @@ class TestFile:
                     },
                 ],
             }
-            actual = await assert_dumps_linked_data(file, 'file')
+            actual = await assert_dumps_linked_data(file)
             assert expected == actual
 
 
@@ -634,7 +640,7 @@ class TestSource:
             name='The Source',
         )
         expected: dict[str, Any] = {
-            '$schema': '/schema.json#/definitions/source',
+            '$schema': 'https://example.com/schema.json#/definitions/source',
             '@context': {
                 'name': 'https://schema.org/name',
             },
@@ -665,7 +671,7 @@ class TestSource:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(source, 'source')
+        actual = await assert_dumps_linked_data(source)
         assert expected == actual
 
     async def test_dump_linked_data_should_dump_full(self) -> None:
@@ -692,7 +698,7 @@ class TestSource:
             source=source,
         )
         expected: dict[str, Any] = {
-            '$schema': '/schema.json#/definitions/source',
+            '$schema': 'https://example.com/schema.json#/definitions/source',
             '@context': {
                 'name': 'https://schema.org/name',
             },
@@ -740,7 +746,7 @@ class TestSource:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(source, 'source')
+        actual = await assert_dumps_linked_data(source)
         assert expected == actual
 
     async def test_dump_linked_data_should_dump_private(self) -> None:
@@ -768,7 +774,7 @@ class TestSource:
             source=source,
         )
         expected: dict[str, Any] = {
-            '$schema': '/schema.json#/definitions/source',
+            '$schema': 'https://example.com/schema.json#/definitions/source',
             '@id': '/source/the_source/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_source',
@@ -781,7 +787,7 @@ class TestSource:
             ],
             'containedBy': '/source/the_containing_source/index.json',
         }
-        actual = await assert_dumps_linked_data(source, 'source')
+        actual = await assert_dumps_linked_data(source)
         actual.pop('links')
         assert expected == actual
 
@@ -806,7 +812,7 @@ class TestSource:
             private=True,
         )
         expected: dict[str, Any] = {
-            '$schema': '/schema.json#/definitions/source',
+            '$schema': 'https://example.com/schema.json#/definitions/source',
             '@id': '/source/the_source/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_source',
@@ -819,7 +825,7 @@ class TestSource:
             ],
             'containedBy': '/source/the_containing_source/index.json',
         }
-        actual = await assert_dumps_linked_data(source, 'source')
+        actual = await assert_dumps_linked_data(source)
         actual.pop('links')
         assert expected == actual
 
@@ -876,7 +882,7 @@ class TestCitation:
             source=Source(name='The Source'),
         )
         expected: dict[str, Any] = {
-            '$schema': '/schema.json#/definitions/citation',
+            '$schema': 'https://example.com/schema.json#/definitions/citation',
             '@id': '/citation/the_citation/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_citation',
@@ -902,7 +908,7 @@ class TestCitation:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(citation, 'citation')
+        actual = await assert_dumps_linked_data(citation)
         assert expected == actual
 
     async def test_dump_linked_data_should_dump_full(self) -> None:
@@ -918,7 +924,7 @@ class TestCitation:
             event_type=Birth,
         ))
         expected: dict[str, Any] = {
-            '$schema': '/schema.json#/definitions/citation',
+            '$schema': 'https://example.com/schema.json#/definitions/citation',
             '@id': '/citation/the_citation/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_citation',
@@ -947,7 +953,7 @@ class TestCitation:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(citation, 'citation')
+        actual = await assert_dumps_linked_data(citation)
         assert expected == actual
 
     async def test_dump_linked_data_should_dump_private(self) -> None:
@@ -964,7 +970,7 @@ class TestCitation:
             event_type=Birth,
         ))
         expected: dict[str, Any] = {
-            '$schema': '/schema.json#/definitions/citation',
+            '$schema': 'https://example.com/schema.json#/definitions/citation',
             '@id': '/citation/the_citation/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_citation',
@@ -981,7 +987,7 @@ class TestCitation:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(citation, 'citation')
+        actual = await assert_dumps_linked_data(citation)
         assert expected == actual
 
 
@@ -1175,7 +1181,7 @@ class TestPlace:
             names=[PlaceName(name=name)],
         )
         expected: dict[str, Any] = {
-            '$schema': '/schema.json#/definitions/place',
+            '$schema': 'https://example.com/schema.json#/definitions/place',
             '@context': {
                 'names': 'https://schema.org/name',
                 'enclosedBy': 'https://schema.org/containedInPlace',
@@ -1214,7 +1220,7 @@ class TestPlace:
             ],
             'private': False,
         }
-        actual = await assert_dumps_linked_data(place, 'place')
+        actual = await assert_dumps_linked_data(place)
         assert expected == actual
 
     async def test_dump_linked_data_should_dump_full(self) -> None:
@@ -1242,7 +1248,7 @@ class TestPlace:
         Enclosure(encloses=place, enclosed_by=Place(id='the_enclosing_place'))
         Enclosure(encloses=Place(id='the_enclosed_place'), enclosed_by=place)
         expected: dict[str, Any] = {
-            '$schema': '/schema.json#/definitions/place',
+            '$schema': 'https://example.com/schema.json#/definitions/place',
             '@context': {
                 'names': 'https://schema.org/name',
                 'enclosedBy': 'https://schema.org/containedInPlace',
@@ -1302,7 +1308,7 @@ class TestPlace:
             ],
             'private': False,
         }
-        actual = await assert_dumps_linked_data(place, 'place')
+        actual = await assert_dumps_linked_data(place)
         assert expected == actual
 
 
@@ -1421,7 +1427,7 @@ class TestEvent:
             event_type=Birth,
         )
         expected: dict[str, Any] = {
-            '$schema': '/schema.json#/definitions/event',
+            '$schema': 'https://example.com/schema.json#/definitions/event',
             '@context': {
                 'presences': 'https://schema.org/performer',
             },
@@ -1454,7 +1460,7 @@ class TestEvent:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(event, 'event')
+        actual = await assert_dumps_linked_data(event)
         assert expected == actual
 
     async def test_dump_linked_data_should_dump_full(self) -> None:
@@ -1476,7 +1482,7 @@ class TestEvent:
             ),
         ))
         expected: dict[str, Any] = {
-            '$schema': '/schema.json#/definitions/event',
+            '$schema': 'https://example.com/schema.json#/definitions/event',
             '@context': {
                 'place': 'https://schema.org/location',
                 'presences': 'https://schema.org/performer',
@@ -1539,7 +1545,7 @@ class TestEvent:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(event, 'event')
+        actual = await assert_dumps_linked_data(event)
         assert expected == actual
 
     async def test_dump_linked_data_should_dump_private(self) -> None:
@@ -1562,7 +1568,7 @@ class TestEvent:
             ),
         ))
         expected: dict[str, Any] = {
-            '$schema': '/schema.json#/definitions/event',
+            '$schema': 'https://example.com/schema.json#/definitions/event',
             '@context': {
                 'place': 'https://schema.org/location',
                 'presences': 'https://schema.org/performer',
@@ -1592,7 +1598,7 @@ class TestEvent:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(event, 'event')
+        actual = await assert_dumps_linked_data(event)
         assert expected == actual
 
 
@@ -1755,7 +1761,7 @@ class TestPerson:
         person_id = 'the_person'
         person = Person(id=person_id)
         expected: dict[str, Any] = {
-            '$schema': '/schema.json#/definitions/person',
+            '$schema': 'https://example.com/schema.json#/definitions/person',
             '@context': {
                 'names': 'https://schema.org/name',
                 'parents': 'https://schema.org/parent',
@@ -1792,7 +1798,7 @@ class TestPerson:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(person, 'person')
+        actual = await assert_dumps_linked_data(person)
         assert expected == actual
 
     async def test_dump_linked_data_should_dump_full(self) -> None:
@@ -1838,7 +1844,7 @@ class TestPerson:
         ))
 
         expected: dict[str, Any] = {
-            '$schema': '/schema.json#/definitions/person',
+            '$schema': 'https://example.com/schema.json#/definitions/person',
             '@context': {
                 'names': 'https://schema.org/name',
                 'parents': 'https://schema.org/parent',
@@ -1906,7 +1912,7 @@ class TestPerson:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(person, 'person')
+        actual = await assert_dumps_linked_data(person)
         assert expected == actual
 
     async def test_dump_linked_data_should_dump_private(self) -> None:
@@ -1950,7 +1956,7 @@ class TestPerson:
         ))
 
         expected: dict[str, Any] = {
-            '$schema': '/schema.json#/definitions/person',
+            '$schema': 'https://example.com/schema.json#/definitions/person',
             '@context': {
                 'names': 'https://schema.org/name',
                 'parents': 'https://schema.org/parent',
@@ -1990,7 +1996,7 @@ class TestPerson:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(person, 'person')
+        actual = await assert_dumps_linked_data(person)
         assert expected == actual
 
 
