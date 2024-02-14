@@ -123,6 +123,6 @@ async def assert_betty_json(
         betty_json = await f.read()
     betty_json_data = stdjson.loads(betty_json)
     if schema_definition:
-        json.validate(betty_json_data, schema_definition, app)
+        json.validate(betty_json_data, app)
 
     return betty_json_file_path

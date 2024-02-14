@@ -123,13 +123,7 @@
       "required": [
         "$schema",
         "id",
-        "parents",
-        "children",
-        "siblings",
-        "citations",
-        "links",
-        "presences",
-        "private"
+        "parents"
       ],
       "patternProperties": {
         "^@": {
@@ -600,6 +594,9 @@
     "link": {
       "type": "object",
       "properties": {
+        "$schema": {
+          "$ref": "#/definitions/schema"
+        },
         "label": {
           "type": "string",
           "description": "The human-readable label, or link text."

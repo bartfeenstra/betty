@@ -213,7 +213,7 @@ class Note(UserFacingEntity, HasPrivacy, Entity):
 
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
-        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/note')
+        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/note', absolute=True)
         dump['@type'] = 'https://schema.org/Thing'
         if self.public:
             dump['text'] = self.text
@@ -463,7 +463,7 @@ class File(Described, HasPrivacy, HasLinks, HasMediaType, HasNotes, HasCitations
 
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
-        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/file')
+        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/file', absolute=True)
         dump['entities'] = [
             app.static_url_generator.generate(f'/{camel_case_to_kebab_case(get_entity_type_name(entity))}/{quote(entity.id)}/index.json')
             for entity
@@ -603,7 +603,7 @@ class Source(Dated, HasFiles, HasLinks, HasPrivacy, UserFacingEntity, Entity):
 
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
-        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/source')
+        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/source', absolute=True)
         dump['@type'] = 'https://schema.org/Thing'
         dump['contains'] = [
             app.static_url_generator.generate(f'/source/{quote(contained.id)}/index.json')
@@ -719,7 +719,7 @@ class Citation(Dated, HasFiles, HasPrivacy, UserFacingEntity, Entity):
 
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
-        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/citation')
+        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/citation', absolute=True)
         dump['@type'] = 'https://schema.org/Thing'
         dump['facts'] = [
             app.static_url_generator.generate(f'/{camel_case_to_kebab_case(get_entity_type_name(fact))}/{quote(fact.id)}/index.json')
@@ -938,7 +938,7 @@ class Place(HasLinks, HasFiles, HasPrivacy, UserFacingEntity, Entity):
 
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
-        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/place')
+        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/place', absolute=True)
         dump_context(
             dump,
             names='name',
@@ -1242,7 +1242,7 @@ class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, UserFacingEnti
 
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
-        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/event')
+        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/event', absolute=True)
         dump_context(dump, presences='performer')
         dump['@type'] = 'https://schema.org/Event'
         dump['type'] = self.event_type.name()
@@ -1513,7 +1513,7 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, UserFacingEntity, Ent
 
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
-        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/person')
+        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/person', absolute=True)
         dump_context(
             dump,
             names='name',
