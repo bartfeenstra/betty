@@ -15,7 +15,7 @@ from urllib.parse import urlparse
 from PyQt6.QtCore import Qt, QThread
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QFileDialog, QPushButton, QWidget, QVBoxLayout, QHBoxLayout, QMenu, QStackedLayout, \
-    QGridLayout, QCheckBox, QFormLayout, QLabel, QLineEdit, QButtonGroup, QRadioButton
+    QGridLayout, QCheckBox, QFormLayout, QLabel, QLineEdit, QButtonGroup, QRadioButton, QFrame
 from babel import Locale
 from babel.localedata import locale_identifiers
 
@@ -429,21 +429,37 @@ class ProjectWindow(BettyMainWindow):
         self._set_window_title()
 
         central_widget = QWidget()
-        central_layout = QGridLayout()
+        central_layout = QHBoxLayout()
         central_widget.setLayout(central_layout)
         self.setCentralWidget(central_widget)
 
         self._pane_selectors_layout = QVBoxLayout()
-        central_layout.addLayout(self._pane_selectors_layout, 0, 0, Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
+        central_layout.addLayout(self._pane_selectors_layout)
+
+        self._builtin_pane_selectors_layout = QVBoxLayout()
+        self._pane_selectors_layout.addLayout(self._builtin_pane_selectors_layout)
+
+        pane_selectors_divider = QFrame()
+        pane_selectors_divider.setFrameShape(QFrame.Shape.HLine)
+        pane_selectors_divider.setFrameShadow(QFrame.Shadow.Sunken)
+        self._pane_selectors_layout.addWidget(pane_selectors_divider)
+
+        self._extension_pane_selectors_layout = QVBoxLayout()
+        self._pane_selectors_layout.addLayout(self._extension_pane_selectors_layout)
+
+        self._pane_selectors_layout.addStretch()
 
         self._panes_layout = QStackedLayout()
-        central_layout.addLayout(self._panes_layout, 0, 1, Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight)
+        central_layout.addLayout(self._panes_layout)
 
         self._panes: dict[str, QWidget] = {}
         self._pane_selectors: dict[str, QPushButton] = {}
+
         self._add_pane('general', _GeneralPane(self._app))
+        self._builtin_pane_selectors_layout.addWidget(self._pane_selectors['general'])
         self._navigate_to_pane('general')
         self._add_pane('localization', _LocalizationPane(self._app))
+        self._builtin_pane_selectors_layout.addWidget(self._pane_selectors['localization'])
         self._extension_types = [extension_type for extension_type in self._app.discover_extension_types() if issubclass(extension_type, UserFacingExtension)]
         for extension_type in self._extension_types:
             self._add_pane(f'extension-{extension_type.name()}', _ExtensionPane(self._app, extension_type))
@@ -480,7 +496,6 @@ class ProjectWindow(BettyMainWindow):
         self._panes[pane_name] = pane
         self._panes_layout.addWidget(pane)
         self._pane_selectors[pane_name] = _PaneButton(pane_name, self)
-        self._pane_selectors_layout.addWidget(self._pane_selectors[pane_name])
 
     def _navigate_to_pane(self, pane_name: str) -> None:
         for pane_selector in self._pane_selectors.values():
@@ -504,8 +519,17 @@ class ProjectWindow(BettyMainWindow):
         self.serve_action.setText(self._app.localizer._('Serve site'))
         self._pane_selectors['general'].setText(self._app.localizer._('General'))
         self._pane_selectors['localization'].setText(self._app.localizer._('Localization'))
-        for extension_type in self._extension_types:
-            self._pane_selectors[f'extension-{extension_type.name()}'].setText(extension_type.label().localize(self._app.localizer))
+
+        # Sort extension pane selector buttons by their human-readable label.
+        extension_pane_selector_labels = [
+            (extension_type, extension_type.label().localize(self._app.localizer))
+            for extension_type
+            in self._extension_types
+        ]
+        for extension_type, extension_label in sorted(extension_pane_selector_labels, key=lambda x: x[1]):
+            extension_pane_name = f'extension-{extension_type.name()}'
+            self._pane_selectors[extension_pane_name].setText(extension_type.label().localize(self._app.localizer))
+            self._extension_pane_selectors_layout.addWidget(self._pane_selectors[extension_pane_name])
 
     def _set_window_title(self) -> None:
         self.setWindowTitle('%s - Betty' % self._app.project.configuration.title)
