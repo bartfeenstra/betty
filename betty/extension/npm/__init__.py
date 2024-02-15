@@ -10,7 +10,7 @@ import logging
 import os
 import shutil
 import sys
-from asyncio import subprocess as aiosubprocess
+from asyncio.subprocess import Process
 from contextlib import suppress
 from pathlib import Path
 from subprocess import CalledProcessError
@@ -30,7 +30,7 @@ from betty.subprocess import run_process
 async def npm(
     arguments: Sequence[str],
     cwd: Path | None = None,
-) -> aiosubprocess.Process:
+) -> Process:
     """
     Run an npm command.
     """
