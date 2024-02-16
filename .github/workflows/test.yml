@@ -16,6 +16,8 @@ jobs:
     strategy:
       matrix:
         include:
+          # The number of builds that submit code coverage configured here MUST be identical
+          # to the number of `after_n_builds` in /home/bart/code/bartfeenstra/betty/codecov.yml.
           - name: 'Python 3.12'
             os: ubuntu-latest
             python: '3.12'
@@ -139,3 +141,5 @@ jobs:
 
       - name: Upload code coverage
         uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
