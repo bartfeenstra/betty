@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import functools
-import json as stdjson
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Callable, TypeVar, Any, AsyncIterator, Awaitable, ParamSpec
@@ -13,10 +12,11 @@ from aiofiles.tempfile import TemporaryDirectory
 from html5lib.html5parser import ParseError
 from jinja2.environment import Template
 
-from betty import fs, json
+from betty import fs
 from betty.app import App
 from betty.app.extension import Extension
 from betty.jinja2 import Environment
+from betty.json.schema import Schema
 from betty.locale import Localey
 
 T = TypeVar('T')
@@ -118,11 +118,14 @@ async def assert_betty_json(
     """
     Assert that an entity's JSON resource exists and is valid.
     """
+    import json
+
     betty_json_file_path = app.project.configuration.www_directory_path / Path(url_path.lstrip('/'))
     async with aiofiles.open(betty_json_file_path) as f:
         betty_json = await f.read()
-    betty_json_data = stdjson.loads(betty_json)
+    betty_json_data = json.loads(betty_json)
     if schema_definition:
-        json.validate(betty_json_data, app)
+        schema = Schema(app)
+        await schema.validate(betty_json_data)
 
     return betty_json_file_path

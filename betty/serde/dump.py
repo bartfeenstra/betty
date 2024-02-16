@@ -3,7 +3,7 @@ Provide a serialization API.
 """
 from __future__ import annotations
 
-from typing import TypeVar, Sequence, Mapping, overload, Literal, TypeAlias
+from typing import TypeVar, Sequence, Mapping, overload, Literal, TypeAlias, Any
 
 T = TypeVar('T')
 U = TypeVar('U')
@@ -85,6 +85,27 @@ def none_void(value: VoidableDump) -> VoidableDump:
     Passthrough a value, but convert None to Void.
     """
     return None if value is Void else value
+
+
+@overload
+def dump_default(dump: DictDump[Dump], key: str, default_type: type[dict[Any, Any]]) -> DictDump[Dump]:
+    pass
+
+
+@overload
+def dump_default(dump: DictDump[Dump], key: str, default_type: type[list[Any]]) -> ListDump[Dump]:
+    pass
+
+
+def dump_default(dump, key, default_type):
+    """
+    Add a key and value to a dump, if the key does not exist yet.
+    """
+    try:
+        assert isinstance(dump[key], default_type)
+    except KeyError:
+        dump[key] = default_type()
+    return dump[key]  # type: ignore[return-value]
 
 
 class Dumpable:

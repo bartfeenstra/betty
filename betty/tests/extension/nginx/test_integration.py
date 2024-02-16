@@ -1,12 +1,9 @@
-import json
 import sys
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-import aiofiles
 import html5lib
-import jsonschema
 import pytest
 import requests
 from requests import Response
@@ -16,6 +13,7 @@ from betty.app import App
 from betty.extension import Nginx
 from betty.extension.nginx import NginxConfiguration
 from betty.extension.nginx.serve import DockerizedNginxServer
+from betty.json.schema import Schema
 from betty.project import ProjectConfiguration, ExtensionConfiguration, LocaleConfiguration
 from betty.serve import Server
 
@@ -39,8 +37,9 @@ class TestNginx:
     async def assert_betty_json(self, response: Response) -> None:
         assert 'application/json' == response.headers['Content-Type']
         data = response.json()
-        async with aiofiles.open(Path(__file__).parents[3] / 'assets' / 'public' / 'static' / 'schema.json') as f:
-            jsonschema.validate(data, json.loads(await f.read()))
+        async with App() as app:
+            schema = Schema(app)
+            await schema.validate(data)
 
     def monolingual_configuration(self) -> ProjectConfiguration:
         return ProjectConfiguration(

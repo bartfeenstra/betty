@@ -26,7 +26,8 @@ from aiofiles.threadpool.text import AsyncTextIOWrapper
 
 from betty.app import App
 from betty.asyncio import sync, gather
-from betty.linked_data import LinkedDataDumpable
+from betty.json.linked_data import LinkedDataDumpable
+from betty.json.schema import Schema
 from betty.locale import get_display_name
 from betty.model import get_entity_type_name, UserFacingEntity, Entity, GeneratedEntityId
 from betty.model.ancestry import is_public
@@ -178,6 +179,7 @@ async def generate(app: App) -> None:
     async with _GenerationProcessPool(app, task_context) as process_pool:
         process_pool.delegate(_generate_dispatch)
         process_pool.delegate(_generate_sitemap)
+        process_pool.delegate(_generate_json_schema)
         process_pool.delegate(_generate_openapi)
 
         for locale in locales:
@@ -314,7 +316,7 @@ async def _generate_entity_type_list_json(
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
     entity_type_path = app.project.configuration.www_directory_path / entity_type_name_fs
     data: DictDump[Dump] = {
-        '$schema': app.static_url_generator.generate(f'schema.json#/definitions/{upper_camel_case_to_lower_camel_case(entity_type_name)}Collection', absolute=True),
+        '$schema': app.static_url_generator.generate(f'schema.json#/definitions/response/{upper_camel_case_to_lower_camel_case(entity_type_name)}Collection', absolute=True),
         'collection': []
     }
     for entity in app.project.ancestry[entity_type]:
@@ -413,6 +415,17 @@ async def _generate_sitemap(
     })
     async with aiofiles.open(app.project.configuration.www_directory_path / 'sitemap.xml', 'w') as f:
         await f.write(rendered_sitemap_index)
+
+
+async def _generate_json_schema(
+    task_context: GenerationContext,
+) -> None:
+    app = task_context.app
+    getLogger().info(app.localizer._('Generating JSON Schema...'))
+    schema = Schema(app)
+    rendered_json = json.dumps(await schema.build())
+    async with await create_file(app.project.configuration.www_directory_path / 'schema.json') as f:
+        await f.write(rendered_json)
 
 
 async def _generate_openapi(

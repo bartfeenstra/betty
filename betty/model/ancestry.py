@@ -15,14 +15,15 @@ from urllib.parse import quote
 from geopy import Point
 
 from betty.classtools import repr_instance
-from betty.linked_data import LinkedDataDumpable, dump_context, dump_link
-from betty.locale import Localized, Datey, Str, Localizable
+from betty.json.linked_data import LinkedDataDumpable, dump_context, dump_link, add_json_ld
+from betty.json.schema import add_property, ref_json_schema
+from betty.locale import Localized, Datey, Str, Localizable, ref_datey
 from betty.media_type import MediaType
 from betty.model import many_to_many, Entity, one_to_many, many_to_one, many_to_one_to_many, \
     MultipleTypesEntityCollection, EntityCollection, UserFacingEntity, EntityTypeAssociationRegistry, \
     PickleableEntityGraph, GeneratedEntityId, get_entity_type_name
 from betty.model.event_type import EventType, UnknownEventType
-from betty.serde.dump import DictDump, Dump
+from betty.serde.dump import DictDump, Dump, dump_default
 from betty.string import camel_case_to_kebab_case
 
 if TYPE_CHECKING:
@@ -97,6 +98,20 @@ class HasPrivacy(LinkedDataDumpable):
         dump['private'] = self.private
         return dump
 
+    @classmethod
+    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(app)
+        add_property(schema, 'private', {
+            '$ref': '#/definitions/privacy',
+        })
+        definitions = dump_default(schema, 'definitions', dict)
+        if 'privacy' not in definitions:
+            definitions['privacy'] = {
+                'type': 'boolean',
+                'description': 'Whether this entity is private (true), or public (false).'
+            }
+        return schema
+
 
 def is_private(target: Any) -> bool:
     """
@@ -159,9 +174,229 @@ class Dated(LinkedDataDumpable):
             dump['date'] = await self.date.dump_linked_data(app)
         return dump
 
+    @classmethod
+    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(app)
+        schema['type'] = 'object'
+        schema['additionalProperties'] = False
+        add_property(schema, 'date', await ref_datey(schema, app), False)
+        return schema
+
+
+class Described(LinkedDataDumpable):
+    def __init__(
+        self,
+        *args: Any,
+        description: str | None = None,
+        **kwargs: Any,
+    ):
+        super().__init__(*args, **kwargs)
+        self.description = description
+
+    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(app)
+        if self.description is not None:
+            dump['description'] = self.description
+            dump_context(dump, description='description')
+        return dump
+
+    @classmethod
+    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(app)
+        add_property(schema, 'description', {
+            '$ref': '#/definitions/description',
+        }, False)
+        definitions = dump_default(schema, 'definitions', dict)
+        if 'description' not in definitions:
+            definitions['description'] = {
+                'type': 'string',
+            }
+        return schema
+
+
+class HasMediaType(LinkedDataDumpable):
+    def __init__(
+        self,
+        *args: Any,
+        media_type: MediaType | None = None,
+        **kwargs: Any,
+    ):
+        super().__init__(*args, **kwargs)
+        self.media_type = media_type
+
+    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(app)
+        if is_public(self):
+            if self.media_type is not None:
+                dump['mediaType'] = str(self.media_type)
+        return dump
+
+    @classmethod
+    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(app)
+        add_property(schema, 'mediaType', ref_media_type(schema), False)
+        return schema
+
+
+def ref_media_type(root_schema: DictDump[Dump]) -> DictDump[Dump]:
+    """
+    Reference the MediaType schema.
+    """
+    definitions = dump_default(root_schema, 'definitions', dict)
+    if 'mediaType' not in definitions:
+        definitions['mediaType'] = {
+            'type': 'string',
+            'description': 'An IANA media type (https://www.iana.org/assignments/media-types/media-types.xhtml).'
+        }
+    return {
+        '$ref': '#/definitions/mediaType',
+    }
+
+
+class Link(HasMediaType, Localized, Described, LinkedDataDumpable):
+    url: str
+    relationship: str | None
+    label: str | None
+
+    def __init__(
+        self,
+        url: str,
+        *,
+        relationship: str | None = None,
+        label: str | None = None,
+        description: str | None = None,
+        media_type: MediaType | None = None,
+        locale: str | None = None,
+    ):
+        super().__init__(
+            media_type=media_type,
+            description=description,
+            locale=locale,
+        )
+        self.url = url
+        self.label = label
+        self.relationship = relationship
+
+    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(app)
+        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/link', absolute=True)
+        dump['url'] = self.url
+        if self.label is not None:
+            dump['label'] = self.label
+        if self.relationship is not None:
+            dump['relationship'] = self.relationship
+        return dump
+
+    @classmethod
+    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(app)
+        schema['type'] = 'object'
+        schema['additionalProperties'] = False
+        add_json_ld(schema)
+        add_property(schema, '$schema', ref_json_schema(schema))
+        add_property(schema, 'label', {
+            'type': 'string',
+            'description': 'The human-readable label, or link text.'
+        }, False)
+        add_property(schema, 'url', {
+            'type': 'string',
+            'format': 'uri',
+            'description': 'The full URL to the other resource.'
+        })
+        add_property(schema, 'relationship', {
+            'type': 'string',
+            'description': 'The relationship between this resource and the link target (https://en.wikipedia.org/wiki/Link_relation).'
+        }, False)
+        return schema
+
+
+async def ref_link(root_schema: DictDump[Dump], app: App) -> DictDump[Dump]:
+    """
+    Reference the Link schema.
+    """
+    definitions = dump_default(root_schema, 'definitions', dict)
+    if 'link' not in definitions:
+        definitions['link'] = await Link.linked_data_schema(app)
+    return {
+        '$ref': '#/definitions/link',
+    }
+
+
+async def ref_link_collection(root_schema: DictDump[Dump], app: App) -> DictDump[Dump]:
+    """
+    Reference the schema for a collection of Link instances.
+    """
+    definitions = dump_default(root_schema, 'definitions', dict)
+    if 'linkCollection' not in definitions:
+        definitions['linkCollection'] = {
+            'type': 'array',
+            'items': await ref_link(root_schema, app),
+        }
+    return {
+        '$ref': '#/definitions/linkCollection',
+    }
+
+
+class HasLinks(LinkedDataDumpable):
+    def __init__(
+        self,
+        *args: Any,
+        links: MutableSequence[Link] | None = None,
+        **kwargs: Any,
+    ):
+        super().__init__(*args, **kwargs)
+        self._links: MutableSequence[Link] = links if links else []
+
+    @property
+    def links(self) -> MutableSequence[Link]:
+        return self._links
+
+    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(app)
+        await dump_link(
+            dump,
+            app,
+            *(self.links if is_public(self) else ()),
+        )
+        return dump
+
+    @classmethod
+    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(app)
+        add_property(schema, 'links', await ref_link_collection(schema, app))
+        return schema
+
+
+class HasLinksEntity(HasLinks):
+    async def dump_linked_data(  # type: ignore[misc]
+        self: HasLinksEntity & Entity,
+        app: App,
+    ) -> DictDump[Dump]:
+        dump: DictDump[Dump] = await super().dump_linked_data(app)  # type: ignore[misc]
+
+        if not isinstance(self.id, GeneratedEntityId):
+            await dump_link(dump, app, Link(
+                app.static_url_generator.generate(f'/{camel_case_to_kebab_case(get_entity_type_name(self.type))}/{self.id}/index.json'),
+                relationship='canonical',
+                media_type=MediaType('application/ld+json'),
+            ))
+            if is_public(self):
+                await dump_link(dump, app, *(
+                    Link(
+                        app.url_generator.generate(self, media_type='text/html', locale=locale),
+                        relationship='alternate',
+                        media_type=MediaType('text/html'),
+                        locale=locale,
+                    )
+                    for locale
+                    in app.project.configuration.locales
+                ))
+
+        return dump
+
 
 @many_to_one('entity', 'betty.model.ancestry.HasNotes', 'notes')
-class Note(UserFacingEntity, HasPrivacy, Entity):
+class Note(UserFacingEntity, HasPrivacy, HasLinksEntity, Entity):
     entity: HasNotes
 
     def __init__(
@@ -213,11 +448,18 @@ class Note(UserFacingEntity, HasPrivacy, Entity):
 
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
-        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/note', absolute=True)
         dump['@type'] = 'https://schema.org/Thing'
         if self.public:
             dump['text'] = self.text
         return dump
+
+    @classmethod
+    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(app)
+        add_property(schema, 'text', {
+            'type': 'string'
+        }, False)
+        return schema
 
 
 @one_to_many('notes', 'betty.model.ancestry.Note', 'entity')
@@ -257,99 +499,13 @@ class HasNotes(LinkedDataDumpable):
         ]
         return dump
 
-
-class Described(LinkedDataDumpable):
-    def __init__(
-        self,
-        *args: Any,
-        description: str | None = None,
-        **kwargs: Any,
-    ):
-        super().__init__(*args, **kwargs)
-        self.description = description
-
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-        if self.description is not None:
-            dump['description'] = self.description
-            dump_context(dump, description='description')
-        return dump
-
-
-class HasMediaType(LinkedDataDumpable):
-    def __init__(
-        self,
-        *args: Any,
-        media_type: MediaType | None = None,
-        **kwargs: Any,
-    ):
-        super().__init__(*args, **kwargs)
-        self.media_type = media_type
-
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-        if is_public(self):
-            if self.media_type is not None:
-                dump['mediaType'] = str(self.media_type)
-        return dump
-
-
-class Link(HasMediaType, Localized, Described, LinkedDataDumpable):
-    url: str
-    relationship: str | None
-    label: str | None
-
-    def __init__(
-        self,
-        url: str,
-        *,
-        relationship: str | None = None,
-        label: str | None = None,
-        description: str | None = None,
-        media_type: MediaType | None = None,
-        locale: str | None = None,
-    ):
-        super().__init__(
-            media_type=media_type,
-            description=description,
-            locale=locale,
-        )
-        self.url = url
-        self.label = label
-        self.relationship = relationship
-
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-        dump['url'] = self.url
-        if self.label is not None:
-            dump['label'] = self.label
-        if self.relationship is not None:
-            dump['relationship'] = self.relationship
-        return dump
-
-
-class HasLinks(LinkedDataDumpable):
-    def __init__(
-        self,
-        *args: Any,
-        links: MutableSequence[Link] | None = None,
-        **kwargs: Any,
-    ):
-        super().__init__(*args, **kwargs)
-        self._links: MutableSequence[Link] = links if links else []
-
-    @property
-    def links(self) -> MutableSequence[Link]:
-        return self._links
-
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-        await dump_link(
-            dump,
-            app,
-            *(self.links if is_public(self) else ()),
-        )
-        return dump
+    @classmethod
+    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(app)
+        add_property(schema, 'notes', {
+            '$ref': '#/definitions/entity/noteCollection',
+        })
+        return schema
 
 
 @many_to_many('citations', 'betty.model.ancestry.Citation', 'facts')
@@ -389,9 +545,17 @@ class HasCitations(LinkedDataDumpable):
         ]
         return dump
 
+    @classmethod
+    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(app)
+        add_property(schema, 'citations', {
+            '$ref': '#/definitions/entity/citationCollection',
+        })
+        return schema
+
 
 @many_to_many('entities', 'betty.model.ancestry.HasFiles', 'files')
-class File(Described, HasPrivacy, HasLinks, HasMediaType, HasNotes, HasCitations, UserFacingEntity, Entity):
+class File(Described, HasPrivacy, HasLinksEntity, HasMediaType, HasNotes, HasCitations, UserFacingEntity, Entity):
     def __init__(
         self,
         path: Path,
@@ -463,7 +627,6 @@ class File(Described, HasPrivacy, HasLinks, HasMediaType, HasNotes, HasCitations
 
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
-        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/file', absolute=True)
         dump['entities'] = [
             app.static_url_generator.generate(f'/{camel_case_to_kebab_case(get_entity_type_name(entity))}/{quote(entity.id)}/index.json')
             for entity
@@ -471,6 +634,18 @@ class File(Described, HasPrivacy, HasLinks, HasMediaType, HasNotes, HasCitations
             if not isinstance(entity.id, GeneratedEntityId)
         ]
         return dump
+
+    @classmethod
+    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(app)
+        add_property(schema, 'entities', {
+            'type': 'array',
+            'items': {
+                'type': 'string',
+                'format': 'uri'
+            }
+        })
+        return schema
 
 
 @many_to_many('files', 'betty.model.ancestry.File', 'entities')
@@ -508,7 +683,7 @@ class HasFiles:
 @many_to_one('contained_by', 'betty.model.ancestry.Source', 'contains')
 @one_to_many('contains', 'betty.model.ancestry.Source', 'contained_by')
 @one_to_many('citations', 'betty.model.ancestry.Citation', 'source')
-class Source(Dated, HasFiles, HasLinks, HasPrivacy, UserFacingEntity, Entity):
+class Source(Dated, HasFiles, HasLinksEntity, HasPrivacy, UserFacingEntity, Entity):
     contained_by: Source | None
 
     def __init__(
@@ -603,7 +778,6 @@ class Source(Dated, HasFiles, HasLinks, HasPrivacy, UserFacingEntity, Entity):
 
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
-        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/source', absolute=True)
         dump['@type'] = 'https://schema.org/Thing'
         dump['contains'] = [
             app.static_url_generator.generate(f'/source/{quote(contained.id)}/index.json')
@@ -629,6 +803,34 @@ class Source(Dated, HasFiles, HasLinks, HasPrivacy, UserFacingEntity, Entity):
                 dump['publisher'] = self.publisher
         return dump
 
+    @classmethod
+    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(app)
+        add_property(schema, 'name', {
+            'type': 'string',
+        }, False)
+        add_property(schema, 'author', {
+            'type': 'string',
+        }, False)
+        add_property(schema, 'publisher', {
+            'type': 'string',
+        }, False)
+        add_property(schema, 'contains', {
+            'type': 'array',
+            'items': {
+                'type': 'string',
+                'format': 'uri',
+            },
+        })
+        add_property(schema, 'citations', {
+            '$ref': '#/definitions/entity/citationCollection',
+        })
+        add_property(schema, 'containedBy', {
+            'type': 'string',
+            'format': 'uri',
+        }, False)
+        return schema
+
 
 class AnonymousSource(Source):
     @property  # type: ignore[override]
@@ -648,7 +850,7 @@ class AnonymousSource(Source):
 
 @many_to_many('facts', 'betty.model.ancestry.HasCitations', 'citations')
 @many_to_one('source', 'betty.model.ancestry.Source', 'citations')
-class Citation(Dated, HasFiles, HasPrivacy, UserFacingEntity, Entity):
+class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, Entity):
     def __init__(
         self,
         *,
@@ -719,7 +921,6 @@ class Citation(Dated, HasFiles, HasPrivacy, UserFacingEntity, Entity):
 
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
-        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/citation', absolute=True)
         dump['@type'] = 'https://schema.org/Thing'
         dump['facts'] = [
             app.static_url_generator.generate(f'/{camel_case_to_kebab_case(get_entity_type_name(fact))}/{quote(fact.id)}/index.json')
@@ -730,6 +931,22 @@ class Citation(Dated, HasFiles, HasPrivacy, UserFacingEntity, Entity):
         if self.source is not None and not isinstance(self.source.id, GeneratedEntityId):
             dump['source'] = app.static_url_generator.generate(f'/source/{quote(self.source.id)}/index.json')
         return dump
+
+    @classmethod
+    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(app)
+        add_property(schema, 'source', {
+            'type': 'string',
+            'format': 'uri'
+        }, False)
+        add_property(schema, 'facts', {
+            'type': 'array',
+            'items': {
+                'type': 'string',
+                'format': 'uri'
+            }
+        })
+        return schema
 
 
 class AnonymousCitation(Citation):
@@ -783,6 +1000,14 @@ class PlaceName(Localized, Dated, LinkedDataDumpable):
         dump['name'] = self.name
         return dump
 
+    @classmethod
+    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(app)
+        add_property(schema, 'name', {
+            'type': 'string'
+        })
+        return schema
+
 
 @many_to_one_to_many(
     'betty.model.ancestry.Place',
@@ -823,7 +1048,7 @@ class Enclosure(Dated, HasCitations, Entity):
 @one_to_many('events', 'betty.model.ancestry.Event', 'place')
 @one_to_many('enclosed_by', 'betty.model.ancestry.Enclosure', 'encloses')
 @one_to_many('encloses', 'betty.model.ancestry.Enclosure', 'enclosed_by')
-class Place(HasLinks, HasFiles, HasPrivacy, UserFacingEntity, Entity):
+class Place(HasLinksEntity, HasFiles, HasPrivacy, UserFacingEntity, Entity):
     def __init__(
         self,
         *,
@@ -938,7 +1163,6 @@ class Place(HasLinks, HasFiles, HasPrivacy, UserFacingEntity, Entity):
 
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
-        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/place', absolute=True)
         dump_context(
             dump,
             names='name',
@@ -987,6 +1211,35 @@ class Place(HasLinks, HasFiles, HasPrivacy, UserFacingEntity, Entity):
             )
         return dump
 
+    @classmethod
+    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(app)
+        add_property(schema, 'names', {
+            'type': 'array',
+            'items': await PlaceName.linked_data_schema(app),
+        })
+        add_property(schema, 'enclosedBy', {
+            '$ref': '#/definitions/entity/placeCollection'
+        }, False)
+        add_property(schema, 'encloses', {
+            '$ref': '#/definitions/entity/placeCollection'
+        })
+        coordinate_schema: DictDump[Dump] = {
+            'type': 'number',
+        }
+        coordinates_schema: DictDump[Dump] = {
+            'type': 'object',
+            'additionalProperties': False,
+        }
+        add_property(coordinates_schema, 'latitude', coordinate_schema, False)
+        add_property(coordinates_schema, 'longitude', coordinate_schema, False)
+        add_json_ld(coordinates_schema, schema)
+        add_property(schema, 'coordinates', coordinates_schema, False)
+        add_property(schema, 'events', {
+            '$ref': '#/definitions/entity/eventCollection'
+        })
+        return schema
+
 
 class PresenceRole:
     @classmethod
@@ -996,6 +1249,21 @@ class PresenceRole:
     @property
     def label(self) -> Str:
         raise NotImplementedError(repr(self))
+
+
+def ref_role(root_schema: DictDump[Dump]) -> DictDump[Dump]:
+    """
+    Reference the PresenceRole schema.
+    """
+    definitions = dump_default(root_schema, 'definitions', dict)
+    if 'role' not in definitions:
+        definitions['role'] = {
+            'type': 'string',
+            'description': "A person's role in an event.",
+        }
+    return {
+        '$ref': '#/definitions/role',
+    }
 
 
 class Subject(PresenceRole):
@@ -1128,7 +1396,7 @@ class Presence(HasPrivacy, Entity):
 
 @many_to_one('place', 'betty.model.ancestry.Place', 'events')
 @one_to_many('presences', 'betty.model.ancestry.Presence', 'event')
-class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, UserFacingEntity, Entity):
+class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, HasLinksEntity, UserFacingEntity, Entity):
     place: Place | None
 
     def __init__(
@@ -1242,7 +1510,6 @@ class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, UserFacingEnti
 
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
-        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/event', absolute=True)
         dump_context(dump, presences='performer')
         dump['@type'] = 'https://schema.org/Event'
         dump['type'] = self.event_type.name()
@@ -1273,6 +1540,38 @@ class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, UserFacingEnti
             dump['role'] = presence.role.name()
         return dump
 
+    @classmethod
+    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(app)
+        add_property(schema, 'type', {
+            'type': 'string',
+        })
+        add_property(schema, 'place', {
+            'type': 'string',
+            'format': 'uri',
+        }, False)
+        presence_schema: DictDump[Dump] = {
+            'type': 'object',
+            'additionalProperties': False,
+        }
+        add_property(presence_schema, 'role', ref_role(schema), False)
+        add_property(presence_schema, 'person', {
+            'type': 'string',
+            'format': 'uri',
+        })
+        add_json_ld(presence_schema, schema)
+        add_property(schema, 'presences', {
+            'type': 'array',
+            'items': presence_schema,
+        })
+        add_property(schema, 'eventStatus', {
+            'type': 'string',
+        })
+        add_property(schema, 'eventAttendanceMode', {
+            'type': 'string',
+        })
+        return schema
+
 
 @many_to_one('person', 'betty.model.ancestry.Person', 'names')
 class PersonName(Localized, HasCitations, HasPrivacy, Entity):
@@ -1288,6 +1587,7 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
+        locale: str | None = None,
     ):
         if not individual and not affiliation:
             raise ValueError('The individual and affiliation names must not both be empty.')
@@ -1296,6 +1596,7 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
             privacy=privacy,
             public=public,
             private=private,
+            locale=locale,
         )
         self._individual = individual
         self._affiliation = affiliation
@@ -1359,12 +1660,23 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
                 dump['affiliation'] = self.affiliation
         return dump
 
+    @classmethod
+    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(app)
+        add_property(schema, 'individual', {
+            'type': 'string',
+        }, False)
+        add_property(schema, 'affiliation', {
+            'type': 'string',
+        }, False)
+        return schema
+
 
 @many_to_many('parents', 'betty.model.ancestry.Person', 'children')
 @many_to_many('children', 'betty.model.ancestry.Person', 'parents')
 @one_to_many('presences', 'betty.model.ancestry.Presence', 'person')
 @one_to_many('names', 'betty.model.ancestry.PersonName', 'person')
-class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, UserFacingEntity, Entity):
+class Person(HasFiles, HasCitations, HasLinksEntity, HasPrivacy, UserFacingEntity, Entity):
     def __init__(
         self,
         *,
@@ -1513,7 +1825,6 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, UserFacingEntity, Ent
 
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
-        dump['$schema'] = app.static_url_generator.generate('schema.json#/definitions/person', absolute=True)
         dump_context(
             dump,
             names='name',
@@ -1566,6 +1877,38 @@ class Person(HasFiles, HasCitations, HasLinks, HasPrivacy, UserFacingEntity, Ent
         if presence.public:
             dump['role'] = presence.role.name()
         return dump
+
+    @classmethod
+    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(app)
+        add_property(schema, 'names', {
+            'type': 'array',
+            'items': await PersonName.linked_data_schema(app),
+        })
+        add_property(schema, 'parents', {
+            '$ref': '#/definitions/entity/personCollection',
+        })
+        add_property(schema, 'children', {
+            '$ref': '#/definitions/entity/personCollection',
+        })
+        add_property(schema, 'siblings', {
+            '$ref': '#/definitions/entity/personCollection',
+        })
+        presence_schema: DictDump[Dump] = {
+            'type': 'object',
+            'additionalProperties': False,
+        }
+        add_property(presence_schema, 'role', ref_role(schema), False)
+        add_property(presence_schema, 'event', {
+            'type': 'string',
+            'format': 'uri',
+        })
+        add_json_ld(presence_schema, schema)
+        add_property(schema, 'presences', {
+            'type': 'array',
+            'items': presence_schema,
+        })
+        return schema
 
 
 class Ancestry(MultipleTypesEntityCollection[Entity]):

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-02-01 15:27+0000\n"
+"POT-Creation-Date: 2024-02-17 18:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -414,6 +414,9 @@ msgid "Generated pages for {count} {entity_type} in {locale}."
 msgstr ""
 
 msgid "Generated the listing page for {entity_type} in {locale}."
+msgstr ""
+
+msgid "Generating JSON Schema..."
 msgstr ""
 
 msgid "Generating OpenAPI specification..."

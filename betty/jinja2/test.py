@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import Any, TypeVar
 
-from betty.linked_data import LinkedDataDumpable
+from betty.json.linked_data import LinkedDataDumpable
 from betty.locale import DateRange
 from betty.model import Entity, GeneratedEntityId, UserFacingEntity, get_entity_type
 from betty.model.ancestry import HasLinks, HasFiles, Subject, Witness, is_private, is_public, Event

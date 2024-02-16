@@ -12,12 +12,11 @@ from uuid import uuid4
 
 from betty.classtools import repr_instance
 from betty.importlib import import_any, fully_qualified_type_name
-from betty.linked_data import LinkedDataDumpable, dump_link
+from betty.json.linked_data import LinkedDataDumpable, add_json_ld
+from betty.json.schema import ref_json_schema
 from betty.locale import Str
-from betty.media_type import MediaType
 from betty.serde.dump import DictDump, Dump
-from betty.string import camel_case_to_kebab_case
-
+from betty.string import camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -86,32 +85,37 @@ class Entity(LinkedDataDumpable):
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
 
+        entity_type_name = get_entity_type_name(self.type)
+        dump['$schema'] = app.static_url_generator.generate(
+            f'schema.json#/definitions/entity/{upper_camel_case_to_lower_camel_case(entity_type_name)}',
+            absolute=True,
+        )
+
         if not isinstance(self.id, GeneratedEntityId):
-            from betty.model.ancestry import is_public, Link
-
-            static_url = app.static_url_generator.generate(f'/{camel_case_to_kebab_case(get_entity_type_name(self.type))}/{self.id}/index.json')
-
+            dump['@id'] = app.static_url_generator.generate(
+                f'/{camel_case_to_kebab_case(entity_type_name)}/{self.id}/index.json',
+                absolute=True,
+            )
             dump['id'] = self.id
-            dump['@id'] = static_url
-
-            await dump_link(dump, app, Link(
-                static_url,
-                relationship='canonical',
-                media_type=MediaType('application/ld+json'),
-            ))
-            if is_public(self):
-                await dump_link(dump, app, *(
-                    Link(
-                        app.url_generator.generate(self, media_type='text/html', locale=locale),
-                        relationship='alternate',
-                        media_type=MediaType('text/html'),
-                        locale=locale,
-                    )
-                    for locale
-                    in app.project.configuration.locales
-                ))
 
         return dump
+
+    @classmethod
+    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(app)
+        schema['type'] = 'object'
+        schema['properties'] = {
+            '$schema': ref_json_schema(schema),
+            'id': {
+                'type': 'string',
+            },
+        }
+        schema['required'] = [
+            '$schema',
+        ]
+        schema['additionalProperties'] = False
+        add_json_ld(schema)
+        return schema
 
 
 AncestryEntityId: TypeAlias = tuple[type[Entity], str]

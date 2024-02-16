@@ -4,9 +4,9 @@ Provide `JSON-LD <https://json-ld.org/>`_ utilities.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, overload, Any
+from typing import TYPE_CHECKING
 
-from betty.serde.dump import DictDump, Dump, ListDump
+from betty.serde.dump import DictDump, Dump, dump_default
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -20,26 +20,12 @@ class LinkedDataDumpable:
         """
         return {}
 
-
-@overload
-def dump_default(dump: DictDump[Dump], key: str, default_type: type[dict[Any, Any]]) -> DictDump[Dump]:
-    pass
-
-
-@overload
-def dump_default(dump: DictDump[Dump], key: str, default_type: type[list[Any]]) -> ListDump[Dump]:
-    pass
-
-
-def dump_default(dump, key, default_type):
-    """
-    Add a key and value to a dump, if the key does not exist yet.
-    """
-    try:
-        assert isinstance(dump[key], default_type)
-    except KeyError:
-        dump[key] = default_type()
-    return dump[key]  # type: ignore[return-value]
+    @classmethod
+    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+        """
+        Define the `JSON Schema <https://json-schema.org/>`_ for `self.dump_linked_data()`.
+        """
+        return {}
 
 
 def dump_context(dump: DictDump[Dump], **contexts: str | Sequence[str]) -> None:
@@ -58,3 +44,26 @@ async def dump_link(dump: DictDump[Dump], app: App, *links: Link) -> None:
     link_dump = dump_default(dump, 'links', list)
     for link in links:
         link_dump.append(await link.dump_linked_data(app))
+
+
+def ref_json_ld(root_schema: DictDump[Dump]) -> DictDump[Dump]:
+    """
+    Reference the JSON-LD schema.
+    """
+    definitions = dump_default(root_schema, 'definitions', dict)
+    if 'jsonLd' not in definitions:
+        definitions['jsonLd'] = {
+            'description': 'A JSON-LD annotation.',
+        }
+    return {
+        '$ref': '#/definitions/jsonLd',
+    }
+
+
+def add_json_ld(schema: DictDump[Dump], root_schema: DictDump[Dump] | None = None) -> None:
+    """
+    Allow JSON-LD properties to be added to a schema.
+    """
+    schema['patternProperties'] = {
+        '^@': ref_json_ld(root_schema or schema),
+    }

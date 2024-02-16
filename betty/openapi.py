@@ -4,9 +4,9 @@ Provide the OpenAPI specification.
 from betty import about
 from betty.app import App
 from betty.asyncio import wait
-from betty.model import get_entity_type_name
+from betty.model import get_entity_type_name, UserFacingEntity
 from betty.serde.dump import DictDump, Dump
-from betty.string import camel_case_to_kebab_case
+from betty.string import camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
 
 
 class Specification:
@@ -33,7 +33,7 @@ class Specification:
                         'content': {
                             'application/json': {
                                 'schema': {
-                                    '$ref': '#/components/schemas/betty/error',
+                                    '$ref': '#/components/schemas/betty/response/error',
                                 },
                             },
                         },
@@ -43,7 +43,7 @@ class Specification:
                         'content': {
                             'application/json': {
                                 'schema': {
-                                    '$ref': '#/components/schemas/betty/error',
+                                    '$ref': '#/components/schemas/betty/response/error',
                                 },
                             },
                         },
@@ -53,7 +53,7 @@ class Specification:
                         'content': {
                             'application/json': {
                                 'schema': {
-                                    '$ref': '#/components/schemas/betty/error',
+                                    '$ref': '#/components/schemas/betty/response/error',
                                 },
                             },
                         },
@@ -66,7 +66,7 @@ class Specification:
                         'required': True,
                         'description': 'The ID for the resource to retrieve.',
                         'schema': {
-                            'type': 'localizering',
+                            'type': 'string',
                         },
                     },
                 },
@@ -80,6 +80,8 @@ class Specification:
 
         # Add entity operations.
         for entity_type in self._app.entity_types:
+            if not issubclass(entity_type, UserFacingEntity):
+                continue
             entity_type_name = get_entity_type_name(entity_type)
             entity_type_url_name = camel_case_to_kebab_case(get_entity_type_name(entity_type))
             if self._app.project.configuration.clean_urls:
@@ -96,7 +98,11 @@ class Specification:
                             '200': {
                                 'description': f'The collection of {entity_type_name} entities.',
                                 'content': {
-                                    'application/json': {},
+                                    'application/json': {
+                                        'schema': {
+                                            '$ref': f'#/components/schemas/betty/response/{upper_camel_case_to_lower_camel_case(entity_type_name)}Collection',
+                                        },
+                                    },
                                 },
                             },
                         },
@@ -109,7 +115,11 @@ class Specification:
                             '200': {
                                 'description': f'The {entity_type_name} entity.',
                                 'content': {
-                                    'application/json': {},
+                                    'application/json': {
+                                        'schema': {
+                                            '$ref': f'#/components/schemas/betty/entity/{upper_camel_case_to_lower_camel_case(entity_type_name)}',
+                                        },
+                                    },
                                 },
                             },
                         },
