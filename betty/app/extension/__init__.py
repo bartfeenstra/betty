@@ -9,7 +9,7 @@ from typing import Any, TypeVar, Iterable, TYPE_CHECKING, Generic, \
     Iterator, Sequence, Self
 
 from betty import fs
-from betty.app.extension.requirement import Requirement
+from betty.app.extension.requirement import Requirement, AllRequirements
 from betty.asyncio import gather
 from betty.config import ConfigurationT, Configurable
 from betty.dispatch import Dispatcher, TargetedDispatcher
@@ -52,34 +52,40 @@ class CyclicDependencyError(ExtensionError, RuntimeError):
         super().__init__(f'The following extensions have cyclic dependencies: {extension_names}')
 
 
-class Dependencies(Requirement):
+class Dependencies(AllRequirements):
     def __init__(self, dependent_type: type[Extension]):
-        super().__init__()
+        dependency_requirements = []
+        for dependency_type in dependent_type.depends_on():
+            try:
+                dependency_requirement = dependency_type.enable_requirement()
+            except RecursionError:
+                raise CyclicDependencyError([dependency_type])
+            else:
+                dependency_requirements.append(dependency_requirement)
+        super().__init__(*dependency_requirements)
         self._dependent_type = dependent_type
 
     @classmethod
     def for_dependent(cls, dependent_type: type[Extension]) -> Self:
         return cls(dependent_type)
 
-    def is_met(self) -> bool:
-        for dependency_type in self._dependent_type.depends_on():
-            try:
-                if not dependency_type.enable_requirement().is_met():
-                    return False
-            except RecursionError:
-                raise CyclicDependencyError([dependency_type])
-        return True
-
     def summary(self) -> Str:
         return Str._(
             '{dependent_label} requires {dependency_labels}.',
             dependent_label=format_extension_type(self._dependent_type),
-            dependency_labels=', '.join(map(format_extension_type, self._dependent_type.depends_on())),
+            dependency_labels=Str.call(
+                lambda localizer: ', '.join(
+                    map(
+                        lambda extension_type: format_extension_type(extension_type).localize(localizer),
+                        self._dependent_type.depends_on(),
+                    ),
+                ),
+            ),
         )
 
 
 class Dependents(Requirement):
-    def __init__(self, dependency: Extension, dependents: Iterable[Extension]):
+    def __init__(self, dependency: Extension, dependents: Sequence[Extension]):
         super().__init__()
         self._dependency = dependency
         self._dependents = dependents
@@ -88,12 +94,11 @@ class Dependents(Requirement):
         return Str._(
             '{dependency_label} is required by {dependency_labels}.',
             dependency_label=format_extension_type(type(self._dependency)),
-            dependent_labels=', '.join(
-                map(
-                    format_extension_type,
-                    map(type, self._dependents),
-                )
-            ),
+            dependent_labels=Str.call(lambda localizer: ', '.join([
+                format_extension_type(type(dependent)).localize(localizer)
+                for dependent
+                in self._dependents
+            ])),
         )
 
     def is_met(self) -> bool:
@@ -228,13 +233,13 @@ def get_extension_type_by_extension(extension: Extension) -> type[Extension]:
     return get_extension_type(type(extension))
 
 
-def format_extension_type(extension_type: type[Extension]) -> str:
+def format_extension_type(extension_type: type[Extension]) -> Str:
     """
     Format an extension type to a human-readable label.
     """
     if issubclass(extension_type, UserFacingExtension):
-        return f'{extension_type.label()} ({extension_type.name()})'
-    return extension_type.name()
+        return Str.call(lambda localizer: f'{extension_type.label().localize(localizer)} ({extension_type.name()})')
+    return Str.plain(extension_type.name())
 
 
 class ConfigurableExtension(Extension, Generic[ConfigurationT], Configurable[ConfigurationT]):

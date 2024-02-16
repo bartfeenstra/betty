@@ -45,10 +45,13 @@ class Requirement(Localizable):
         return self
 
 
-class RequirementError(RuntimeError, UserFacingError):
+class RequirementError(UserFacingError, RuntimeError):
     def __init__(self, requirement: Requirement):
         super().__init__(requirement)
         self._requirement = requirement
+
+    def __reduce__(self) -> tuple[type[Self], tuple[Localizable]]:
+        return type(self), (self._requirement,)
 
     def requirement(self) -> Requirement:
         return self._requirement
