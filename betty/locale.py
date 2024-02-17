@@ -32,9 +32,10 @@ from polib import pofile
 from betty import fs
 from betty.asyncio import sync
 from betty.fs import hashfile, FileSystem, ASSETS_DIRECTORY_PATH, ROOT_DIRECTORY_PATH
-from betty.linked_data import LinkedDataDumpable, dump_context, dump_default
+from betty.json.linked_data import LinkedDataDumpable, dump_context, add_json_ld
+from betty.json.schema import ref_locale, add_property
 from betty.os import ChDir
-from betty.serde.dump import DictDump, Dump
+from betty.serde.dump import DictDump, Dump, dump_default
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -130,6 +131,13 @@ class Localized(LinkedDataDumpable):
         if self.locale is not None:
             dump['locale'] = self.locale
         return dump
+
+    @classmethod
+    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(app)
+        properties = dump_default(schema, 'properties', dict)
+        properties['locale'] = ref_locale(schema)
+        return schema
 
 
 class IncompleteDateError(ValueError):
@@ -255,6 +263,40 @@ class Date(LinkedDataDumpable):
         if self.comparable:
             dump_context(dump, iso8601=(start_schema_org, end_schema_org))
 
+    @classmethod
+    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(app)
+        schema['type'] = 'object'
+        schema['additionalProperties'] = False
+        add_json_ld(schema)
+        add_property(schema, 'year', {
+            'type': 'number'
+        }, False)
+        add_property(schema, 'month', {
+            'type': 'number'
+        }, False)
+        add_property(schema, 'day', {
+            'type': 'number'
+        }, False)
+        add_property(schema, 'iso8601', {
+            'type': 'string',
+            'pattern': '^\\d\\d\\d\\d-\\d\\d-\\d\\d$',
+            'description': 'An ISO 8601 date.'
+        }, False)
+        return schema
+
+
+async def ref_date(root_schema: DictDump[Dump], app: App) -> DictDump[Dump]:
+    """
+    Reference the Date schema.
+    """
+    definitions = dump_default(root_schema, 'definitions', dict)
+    if 'date' not in definitions:
+        definitions['date'] = await Date.linked_data_schema(app)
+    return {
+        '$ref': '#/definitions/date',
+    }
+
 
 @total_ordering
 class DateRange(LinkedDataDumpable):
@@ -350,6 +392,15 @@ class DateRange(LinkedDataDumpable):
             )
         return dump
 
+    @classmethod
+    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(app)
+        schema['type'] = 'object'
+        schema['additionalProperties'] = False
+        add_property(schema, 'start', await ref_date(schema, app), False)
+        add_property(schema, 'end', await ref_date(schema, app), False)
+        return schema
+
     async def datey_dump_linked_data(
         self,
         dump: DictDump[Dump],
@@ -422,6 +473,35 @@ class DateRange(LinkedDataDumpable):
         if not isinstance(other, DateRange):
             return NotImplemented
         return (self.start, self.end, self.start_is_boundary, self.end_is_boundary) == (other.start, other.end, other.start_is_boundary, other.end_is_boundary)
+
+
+async def ref_date_range(root_schema: DictDump[Dump], app: App) -> DictDump[Dump]:
+    """
+    Reference the DateRange schema.
+    """
+    definitions = dump_default(root_schema, 'definitions', dict)
+    if 'dateRange' not in definitions:
+        definitions['dateRange'] = await DateRange.linked_data_schema(app)
+    return {
+        '$ref': '#/definitions/dateRange',
+    }
+
+
+async def ref_datey(root_schema: DictDump[Dump], app: App) -> DictDump[Dump]:
+    """
+    Reference the Datey schema.
+    """
+    definitions = dump_default(root_schema, 'definitions', dict)
+    if 'datey' not in definitions:
+        definitions['datey'] = {
+            'oneOf': [
+                await ref_date(root_schema, app),
+                await ref_date_range(root_schema, app),
+            ]
+        }
+    return {
+        '$ref': '#/definitions/datey',
+    }
 
 
 Datey: TypeAlias = Date | DateRange

@@ -9,9 +9,9 @@ import dill
 import pytest
 from geopy import Point
 
-import betty.json as json
 from betty.app import App
-from betty.linked_data import LinkedDataDumpable
+from betty.json.schema import Schema
+from betty.json.linked_data import LinkedDataDumpable
 from betty.locale import Date, Str, DateRange
 from betty.media_type import MediaType
 from betty.model import Entity, one_to_one
@@ -38,7 +38,8 @@ async def assert_dumps_linked_data(dumpable: LinkedDataDumpable, schema_definiti
     if schema_definition:
         actual_to_be_validated = copy(actual)
         actual_to_be_validated['$schema'] = app.static_url_generator.generate(f'schema.json#/definitions/{schema_definition}', absolute=True)
-    json.validate(actual_to_be_validated, app)
+    schema = Schema(app)
+    await schema.validate(actual_to_be_validated)
     return actual
 
 
@@ -174,25 +175,28 @@ class TestNote:
             text='The Note',
         )
         expected: dict[str, Any] = {
-            '$schema': 'https://example.com/schema.json#/definitions/note',
-            '@id': '/note/the_note/index.json',
+            '$schema': 'https://example.com/schema.json#/definitions/entity/note',
+            '@id': 'https://example.com/note/the_note/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_note',
             'private': False,
             'text': 'The Note',
             'links': [
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/note/the_note/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/ld+json',
                 },
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/en/note/the_note/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
                     'locale': 'en-US',
                 },
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/nl/note/the_note/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
@@ -210,13 +214,14 @@ class TestNote:
             private=True,
         )
         expected: dict[str, Any] = {
-            '$schema': 'https://example.com/schema.json#/definitions/note',
-            '@id': '/note/the_note/index.json',
+            '$schema': 'https://example.com/schema.json#/definitions/entity/note',
+            '@id': 'https://example.com/note/the_note/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_note',
             'private': True,
             'links': [
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/note/the_note/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/ld+json',
@@ -290,6 +295,7 @@ class TestLink:
     async def test_dump_linked_data_should_dump_minimal(self) -> None:
         link = Link('https://example.com')
         expected: dict[str, Any] = {
+            '$schema': 'https://example.com/schema.json#/definitions/link',
             'url': 'https://example.com',
         }
         actual = await assert_dumps_linked_data(link, 'link')
@@ -304,6 +310,7 @@ class TestLink:
             media_type=MediaType('text/html'),
         )
         expected: dict[str, Any] = {
+            '$schema': 'https://example.com/schema.json#/definitions/link',
             'url': 'https://example.com',
             'relationship': 'external',
             'label': 'The Link',
@@ -431,8 +438,8 @@ class TestFile:
                 path=Path(f.name),
             )
             expected: dict[str, Any] = {
-                '$schema': 'https://example.com/schema.json#/definitions/file',
-                '@id': '/file/the_file/index.json',
+                '$schema': 'https://example.com/schema.json#/definitions/entity/file',
+                '@id': 'https://example.com/file/the_file/index.json',
                 'id': 'the_file',
                 'private': False,
                 'entities': [],
@@ -440,17 +447,20 @@ class TestFile:
                 'notes': [],
                 'links': [
                     {
+                        '$schema': 'https://example.com/schema.json#/definitions/link',
                         'url': '/file/the_file/index.json',
                         'relationship': 'canonical',
                         'mediaType': 'application/ld+json',
                     },
                     {
+                        '$schema': 'https://example.com/schema.json#/definitions/link',
                         'url': '/en/file/the_file/index.html',
                         'relationship': 'alternate',
                         'mediaType': 'text/html',
                         'locale': 'en-US',
                     },
                     {
+                        '$schema': 'https://example.com/schema.json#/definitions/link',
                         'url': '/nl/file/the_file/index.html',
                         'relationship': 'alternate',
                         'mediaType': 'text/html',
@@ -481,8 +491,8 @@ class TestFile:
                 ),
             ))
             expected: dict[str, Any] = {
-                '$schema': 'https://example.com/schema.json#/definitions/file',
-                '@id': '/file/the_file/index.json',
+                '$schema': 'https://example.com/schema.json#/definitions/entity/file',
+                '@id': 'https://example.com/file/the_file/index.json',
                 'id': 'the_file',
                 'private': False,
                 'mediaType': 'text/plain',
@@ -497,17 +507,20 @@ class TestFile:
                 ],
                 'links': [
                     {
+                        '$schema': 'https://example.com/schema.json#/definitions/link',
                         'url': '/file/the_file/index.json',
                         'relationship': 'canonical',
                         'mediaType': 'application/ld+json',
                     },
                     {
+                        '$schema': 'https://example.com/schema.json#/definitions/link',
                         'url': '/en/file/the_file/index.html',
                         'relationship': 'alternate',
                         'mediaType': 'text/html',
                         'locale': 'en-US',
                     },
                     {
+                        '$schema': 'https://example.com/schema.json#/definitions/link',
                         'url': '/nl/file/the_file/index.html',
                         'relationship': 'alternate',
                         'mediaType': 'text/html',
@@ -539,8 +552,8 @@ class TestFile:
                 ),
             ))
             expected: dict[str, Any] = {
-                '$schema': 'https://example.com/schema.json#/definitions/file',
-                '@id': '/file/the_file/index.json',
+                '$schema': 'https://example.com/schema.json#/definitions/entity/file',
+                '@id': 'https://example.com/file/the_file/index.json',
                 'id': 'the_file',
                 'private': True,
                 'entities': [
@@ -554,6 +567,7 @@ class TestFile:
                 ],
                 'links': [
                     {
+                        '$schema': 'https://example.com/schema.json#/definitions/link',
                         'url': '/file/the_file/index.json',
                         'relationship': 'canonical',
                         'mediaType': 'application/ld+json',
@@ -640,11 +654,11 @@ class TestSource:
             name='The Source',
         )
         expected: dict[str, Any] = {
-            '$schema': 'https://example.com/schema.json#/definitions/source',
+            '$schema': 'https://example.com/schema.json#/definitions/entity/source',
             '@context': {
                 'name': 'https://schema.org/name',
             },
-            '@id': '/source/the_source/index.json',
+            '@id': 'https://example.com/source/the_source/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_source',
             'private': False,
@@ -653,17 +667,20 @@ class TestSource:
             'citations': [],
             'links': [
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/source/the_source/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/ld+json',
                 },
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/en/source/the_source/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
                     'locale': 'en-US',
                 },
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/nl/source/the_source/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
@@ -698,11 +715,11 @@ class TestSource:
             source=source,
         )
         expected: dict[str, Any] = {
-            '$schema': 'https://example.com/schema.json#/definitions/source',
+            '$schema': 'https://example.com/schema.json#/definitions/entity/source',
             '@context': {
                 'name': 'https://schema.org/name',
             },
-            '@id': '/source/the_source/index.json',
+            '@id': 'https://example.com/source/the_source/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_source',
             'private': False,
@@ -724,25 +741,29 @@ class TestSource:
             },
             'links': [
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
+                    'url': 'https://example.com/the-source',
+                    'label': 'The Source Online',
+                },
+                {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/source/the_source/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/ld+json',
                 },
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/en/source/the_source/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
                     'locale': 'en-US',
                 },
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/nl/source/the_source/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
                     'locale': 'nl-NL',
-                },
-                {
-                    'url': 'https://example.com/the-source',
-                    'label': 'The Source Online',
                 },
             ],
         }
@@ -774,8 +795,8 @@ class TestSource:
             source=source,
         )
         expected: dict[str, Any] = {
-            '$schema': 'https://example.com/schema.json#/definitions/source',
-            '@id': '/source/the_source/index.json',
+            '$schema': 'https://example.com/schema.json#/definitions/entity/source',
+            '@id': 'https://example.com/source/the_source/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_source',
             'private': True,
@@ -812,8 +833,8 @@ class TestSource:
             private=True,
         )
         expected: dict[str, Any] = {
-            '$schema': 'https://example.com/schema.json#/definitions/source',
-            '@id': '/source/the_source/index.json',
+            '$schema': 'https://example.com/schema.json#/definitions/entity/source',
+            '@id': 'https://example.com/source/the_source/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_source',
             'private': False,
@@ -882,25 +903,28 @@ class TestCitation:
             source=Source(name='The Source'),
         )
         expected: dict[str, Any] = {
-            '$schema': 'https://example.com/schema.json#/definitions/citation',
-            '@id': '/citation/the_citation/index.json',
+            '$schema': 'https://example.com/schema.json#/definitions/entity/citation',
+            '@id': 'https://example.com/citation/the_citation/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_citation',
             'private': False,
             'facts': [],
             'links': [
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/citation/the_citation/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/ld+json',
                 },
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/en/citation/the_citation/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
                     'locale': 'en-US',
                 },
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/nl/citation/the_citation/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
@@ -924,8 +948,8 @@ class TestCitation:
             event_type=Birth,
         ))
         expected: dict[str, Any] = {
-            '$schema': 'https://example.com/schema.json#/definitions/citation',
-            '@id': '/citation/the_citation/index.json',
+            '$schema': 'https://example.com/schema.json#/definitions/entity/citation',
+            '@id': 'https://example.com/citation/the_citation/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_citation',
             'private': False,
@@ -935,17 +959,20 @@ class TestCitation:
             ],
             'links': [
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/citation/the_citation/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/ld+json',
                 },
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/en/citation/the_citation/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
                     'locale': 'en-US',
                 },
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/nl/citation/the_citation/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
@@ -970,8 +997,8 @@ class TestCitation:
             event_type=Birth,
         ))
         expected: dict[str, Any] = {
-            '$schema': 'https://example.com/schema.json#/definitions/citation',
-            '@id': '/citation/the_citation/index.json',
+            '$schema': 'https://example.com/schema.json#/definitions/entity/citation',
+            '@id': 'https://example.com/citation/the_citation/index.json',
             '@type': 'https://schema.org/Thing',
             'id': 'the_citation',
             'private': True,
@@ -981,6 +1008,7 @@ class TestCitation:
             ],
             'links': [
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/citation/the_citation/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/ld+json',
@@ -1181,14 +1209,14 @@ class TestPlace:
             names=[PlaceName(name=name)],
         )
         expected: dict[str, Any] = {
-            '$schema': 'https://example.com/schema.json#/definitions/place',
+            '$schema': 'https://example.com/schema.json#/definitions/entity/place',
             '@context': {
                 'names': 'https://schema.org/name',
                 'enclosedBy': 'https://schema.org/containedInPlace',
                 'encloses': 'https://schema.org/containsPlace',
                 'events': 'https://schema.org/event'
             },
-            '@id': '/place/the_place/index.json',
+            '@id': 'https://example.com/place/the_place/index.json',
             '@type': 'https://schema.org/Place',
             'id': place_id,
             'names': [
@@ -1201,17 +1229,20 @@ class TestPlace:
             'events': [],
             'links': [
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/place/the_place/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/ld+json',
                 },
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/en/place/the_place/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
                     'locale': 'en-US',
                 },
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/nl/place/the_place/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
@@ -1248,7 +1279,7 @@ class TestPlace:
         Enclosure(encloses=place, enclosed_by=Place(id='the_enclosing_place'))
         Enclosure(encloses=Place(id='the_enclosed_place'), enclosed_by=place)
         expected: dict[str, Any] = {
-            '$schema': 'https://example.com/schema.json#/definitions/place',
+            '$schema': 'https://example.com/schema.json#/definitions/entity/place',
             '@context': {
                 'names': 'https://schema.org/name',
                 'enclosedBy': 'https://schema.org/containedInPlace',
@@ -1256,7 +1287,7 @@ class TestPlace:
                 'events': 'https://schema.org/event',
                 'coordinates': 'https://schema.org/geo',
             },
-            '@id': '/place/the_place/index.json',
+            '@id': 'https://example.com/place/the_place/index.json',
             '@type': 'https://schema.org/Place',
             'id': place_id,
             'names': [
@@ -1270,25 +1301,29 @@ class TestPlace:
             ],
             'links': [
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
+                    'url': 'https://example.com/the-place',
+                    'label': 'The Place Online',
+                },
+                {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/place/the_place/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/ld+json',
                 },
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/en/place/the_place/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
                     'locale': 'en-US',
                 },
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/nl/place/the_place/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
                     'locale': 'nl-NL',
-                },
-                {
-                    'url': 'https://example.com/the-place',
-                    'label': 'The Place Online',
                 },
             ],
             'coordinates': {
@@ -1427,11 +1462,11 @@ class TestEvent:
             event_type=Birth,
         )
         expected: dict[str, Any] = {
-            '$schema': 'https://example.com/schema.json#/definitions/event',
+            '$schema': 'https://example.com/schema.json#/definitions/entity/event',
             '@context': {
                 'presences': 'https://schema.org/performer',
             },
-            '@id': '/event/the_event/index.json',
+            '@id': 'https://example.com/event/the_event/index.json',
             '@type': 'https://schema.org/Event',
             'id': 'the_event',
             'private': False,
@@ -1442,17 +1477,20 @@ class TestEvent:
             'citations': [],
             'links': [
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/event/the_event/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/ld+json',
                 },
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/en/event/the_event/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
                     'locale': 'en-US',
                 },
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/nl/event/the_event/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
@@ -1482,12 +1520,12 @@ class TestEvent:
             ),
         ))
         expected: dict[str, Any] = {
-            '$schema': 'https://example.com/schema.json#/definitions/event',
+            '$schema': 'https://example.com/schema.json#/definitions/entity/event',
             '@context': {
                 'place': 'https://schema.org/location',
                 'presences': 'https://schema.org/performer',
             },
-            '@id': '/event/the_event/index.json',
+            '@id': 'https://example.com/event/the_event/index.json',
             '@type': 'https://schema.org/Event',
             'id': 'the_event',
             'private': False,
@@ -1527,17 +1565,20 @@ class TestEvent:
             'place': '/place/the_place/index.json',
             'links': [
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/event/the_event/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/ld+json',
                 },
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/en/event/the_event/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
                     'locale': 'en-US',
                 },
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/nl/event/the_event/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
@@ -1568,12 +1609,12 @@ class TestEvent:
             ),
         ))
         expected: dict[str, Any] = {
-            '$schema': 'https://example.com/schema.json#/definitions/event',
+            '$schema': 'https://example.com/schema.json#/definitions/entity/event',
             '@context': {
                 'place': 'https://schema.org/location',
                 'presences': 'https://schema.org/performer',
             },
-            '@id': '/event/the_event/index.json',
+            '@id': 'https://example.com/event/the_event/index.json',
             '@type': 'https://schema.org/Event',
             'id': 'the_event',
             'private': True,
@@ -1592,6 +1633,7 @@ class TestEvent:
             'place': '/place/the_place/index.json',
             'links': [
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/event/the_event/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/ld+json',
@@ -1761,14 +1803,14 @@ class TestPerson:
         person_id = 'the_person'
         person = Person(id=person_id)
         expected: dict[str, Any] = {
-            '$schema': 'https://example.com/schema.json#/definitions/person',
+            '$schema': 'https://example.com/schema.json#/definitions/entity/person',
             '@context': {
                 'names': 'https://schema.org/name',
                 'parents': 'https://schema.org/parent',
                 'children': 'https://schema.org/child',
                 'siblings': 'https://schema.org/sibling',
             },
-            '@id': '/person/the_person/index.json',
+            '@id': 'https://example.com/person/the_person/index.json',
             '@type': 'https://schema.org/Person',
             'id': person_id,
             'private': False,
@@ -1780,17 +1822,20 @@ class TestPerson:
             'citations': [],
             'links': [
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/person/the_person/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/ld+json',
                 },
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/en/person/the_person/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
                     'locale': 'en-US',
                 },
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/nl/person/the_person/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
@@ -1823,6 +1868,7 @@ class TestPerson:
             person=person,
             individual=person_individual_name,
             affiliation=person_affiliation_name,
+            locale='en-US',
         )
         person.parents.add(parent)
         person.children.add(child)
@@ -1844,25 +1890,27 @@ class TestPerson:
         ))
 
         expected: dict[str, Any] = {
-            '$schema': 'https://example.com/schema.json#/definitions/person',
+            '$schema': 'https://example.com/schema.json#/definitions/entity/person',
             '@context': {
                 'names': 'https://schema.org/name',
                 'parents': 'https://schema.org/parent',
                 'children': 'https://schema.org/child',
                 'siblings': 'https://schema.org/sibling',
             },
-            '@id': '/person/the_person/index.json',
+            '@id': 'https://example.com/person/the_person/index.json',
             '@type': 'https://schema.org/Person',
             'id': person_id,
             'private': False,
             'names': [
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/entity/personName',
                     '@context': {
                         'individual': 'https://schema.org/givenName',
                         'affiliation': 'https://schema.org/familyName',
                     },
                     'individual': person_individual_name,
                     'affiliation': person_affiliation_name,
+                    'locale': 'en-US',
                     'citations': [],
                     'private': False,
                 },
@@ -1890,25 +1938,29 @@ class TestPerson:
             ],
             'links': [
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
+                    'url': 'https://example.com/the-person',
+                    'label': 'The Person Online',
+                },
+                {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/person/the_person/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/ld+json',
                 },
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/en/person/the_person/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
                     'locale': 'en-US',
                 },
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/nl/person/the_person/index.html',
                     'relationship': 'alternate',
                     'mediaType': 'text/html',
                     'locale': 'nl-NL',
-                },
-                {
-                    'url': 'https://example.com/the-person',
-                    'label': 'The Person Online',
                 },
             ],
         }
@@ -1956,14 +2008,14 @@ class TestPerson:
         ))
 
         expected: dict[str, Any] = {
-            '$schema': 'https://example.com/schema.json#/definitions/person',
+            '$schema': 'https://example.com/schema.json#/definitions/entity/person',
             '@context': {
                 'names': 'https://schema.org/name',
                 'parents': 'https://schema.org/parent',
                 'children': 'https://schema.org/child',
                 'siblings': 'https://schema.org/sibling',
             },
-            '@id': '/person/the_person/index.json',
+            '@id': 'https://example.com/person/the_person/index.json',
             '@type': 'https://schema.org/Person',
             'id': person_id,
             'names': [],
@@ -1990,6 +2042,7 @@ class TestPerson:
             ],
             'links': [
                 {
+                    '$schema': 'https://example.com/schema.json#/definitions/link',
                     'url': '/person/the_person/index.json',
                     'relationship': 'canonical',
                     'mediaType': 'application/ld+json',
