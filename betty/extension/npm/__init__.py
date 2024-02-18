@@ -14,27 +14,33 @@ from asyncio import subprocess as aiosubprocess
 from contextlib import suppress
 from pathlib import Path
 from subprocess import CalledProcessError
-from typing import Sequence, Any
+from typing import Sequence
 
 from aiofiles.tempfile import TemporaryDirectory
 
-from betty import subprocess
 from betty.app.extension import Extension, discover_extension_types
 from betty.app.extension.requirement import Requirement, AnyRequirement, AllRequirements
 from betty.asyncio import sync
 from betty.cache import CacheScope
 from betty.fs import iterfiles
 from betty.locale import Str, DEFAULT_LOCALIZER
+from betty.subprocess import run_process
 
 
-async def npm(arguments: Sequence[str], **kwargs: Any) -> aiosubprocess.Process:
+async def npm(
+    arguments: Sequence[str],
+    cwd: Path | None = None,
+) -> aiosubprocess.Process:
     """
     Run an npm command.
     """
-    # Use a shell on Windows so subprocess can find the executables it needs (see
-    # https://bugs.python.org/issue17023).
-    runner = subprocess.run_shell if sys.platform.startswith('win32') else subprocess.run_exec
-    return await runner(['npm', *arguments], **kwargs)
+    return await run_process(
+        ['npm', *arguments],
+        cwd=cwd,
+        # Use a shell on Windows so subprocess can find the executables it needs (see
+        # https://bugs.python.org/issue17023).
+        shell=sys.platform.startswith('win32'),
+    )
 
 
 class _NpmRequirement(Requirement):

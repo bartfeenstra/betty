@@ -3,50 +3,34 @@ Provide a subprocess API.
 """
 import logging
 import os
-import subprocess as stdsubprocess
-from asyncio import subprocess
-from textwrap import indent
-from typing import Sequence, Any, Callable, Awaitable, ParamSpec
+from asyncio import create_subprocess_exec, create_subprocess_shell
+from asyncio.subprocess import Process
+from pathlib import Path
+from subprocess import CalledProcessError, PIPE
+from traceback import format_exception
 
 
-P = ParamSpec('P')
-
-
-async def run_exec(runnee: Sequence[str], **kwargs: Any) -> subprocess.Process:
+async def run_process(
+    runnee: list[str],
+    cwd: Path | None = None,
+    shell: bool = False,
+) -> Process:
     """
-    Run a command.
+    Run a command in a subprocess.
     """
-    return await _run(
-        subprocess.create_subprocess_exec,
-        runnee,
-        runnee[0],
-        *runnee[1:],
-        **kwargs,
-    )
+    command = " ".join(runnee)
+    logger = logging.getLogger(__name__)
+    logger.debug(f'Running subprocess `{command}`...')
 
-
-async def run_shell(runnee: Sequence[str], **kwargs: Any) -> subprocess.Process:
-    """
-    Run a command in a shell.
-    """
-    return await _run(
-        subprocess.create_subprocess_shell,
-        runnee,
-        ' '.join(runnee),
-        **kwargs,
-    )
-
-
-async def _run(
-    runner: Callable[P, Awaitable[subprocess.Process]],
-    runnee: Sequence[str],
-    *args: P.args,
-    **kwargs: P.kwargs,
-) -> subprocess.Process:
-    kwargs['stdout'] = subprocess.PIPE
-    kwargs['stderr'] = subprocess.PIPE
-    process = await runner(*args, **kwargs)
-    await process.wait()
+    try:
+        if shell:
+            process = await create_subprocess_shell(' '.join(runnee), cwd=cwd, stderr=PIPE, stdout=PIPE)
+        else:
+            process = await create_subprocess_exec(*runnee, cwd=cwd, stderr=PIPE, stdout=PIPE)
+        await process.wait()
+    except BaseException as error:
+        logger.debug(f'Subprocess `{command}` raised an error:\n{" ".join(format_exception(error))}')
+        raise
 
     if process.returncode == 0:
         return process
@@ -56,13 +40,15 @@ async def _run(
     stderr = process.stderr
     stderr_str = '' if stderr is None else '\n'.join((await stderr.read()).decode().split(os.linesep))
 
-    error = stdsubprocess.CalledProcessError(
-        process.returncode,  # type: ignore[arg-type]
+    if stdout_str:
+        logger.debug(f'Subprocess `{command}` stdout:\n{stdout_str}')
+    if stderr_str:
+        logger.debug(f'Subprocess `{command}` stderr:\n{stderr_str}')
+
+    assert process.returncode is not None
+    raise CalledProcessError(
+        process.returncode,
         ' '.join(runnee),
         stdout_str,
         stderr_str,
     )
-    logging.getLogger(__name__).warning(
-        f'{str(error)}\nSTDOUT:\n{indent(stdout_str, "    ")}\nSTDERR:{indent(stderr_str, "   ")}',
-    )
-    raise error

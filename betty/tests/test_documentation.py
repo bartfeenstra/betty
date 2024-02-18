@@ -1,6 +1,5 @@
 import json
 import re
-import subprocess as stdsubprocess
 import sys
 from asyncio import StreamReader
 from pathlib import Path
@@ -9,11 +8,11 @@ import aiofiles
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
-from betty import subprocess
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.os import ChDir
 from betty.project import ProjectConfiguration
 from betty.serde.format import Format, Json, Yaml
+from betty.subprocess import run_process
 
 
 class TestDocumentation:
@@ -26,7 +25,7 @@ class TestDocumentation:
             async with aiofiles.open(working_directory_path / 'betty.json', 'w') as f:
                 await f.write(json.dumps(configuration))
             async with ChDir(working_directory_path):
-                process = await subprocess.run_exec(['betty', '--help'], stdout=stdsubprocess.PIPE)
+                process = await run_process(['betty', '--help'])
             stdout = process.stdout
             assert isinstance(stdout, StreamReader)
             expected = (await stdout.read()).decode().strip()

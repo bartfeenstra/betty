@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import subprocess
 from pathlib import Path
 from shutil import copy2
 
@@ -24,7 +23,7 @@ class _Trees(UserFacingExtension, CssProvider, JsProvider, Generator, NpmBuilder
 
     async def npm_build(self, working_directory_path: Path, assets_directory_path: Path) -> None:
         await self.app.extensions[_Npm].install(type(self), working_directory_path)
-        await npm(('run', 'webpack'), cwd=working_directory_path, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        await npm(('run', 'webpack'), cwd=working_directory_path)
         await self._copy_npm_build(working_directory_path / 'webpack-build', assets_directory_path)
         logging.getLogger(__name__).info(self._app.localizer._('Built the interactive family trees.'))
 

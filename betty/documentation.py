@@ -11,10 +11,11 @@ from tempfile import TemporaryDirectory
 
 from aiofiles.os import makedirs
 
-from betty import subprocess, serve
+from betty import serve
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.locale import Str, Localizer
 from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
+from betty.subprocess import run_process
 
 
 async def _build_cache(cache_directory_path: Path) -> Path:
@@ -27,15 +28,16 @@ async def _build_cache(cache_directory_path: Path) -> Path:
 async def _build(output_directory_path: Path) -> None:
     with suppress(FileExistsError):
         await makedirs(output_directory_path)
-    with TemporaryDirectory() as working_directory_path:
+    with TemporaryDirectory() as working_directory_path_str:
+        working_directory_path = Path(working_directory_path_str)
         # sphinx-apidoc must output to the documentation directory, but because we do not want
         # to 'pollute' that with generated files that must not be committed, do our work in a
         # temporary directory and copy the documentation source files there.
-        source_directory_path = Path(working_directory_path) / 'source'
+        source_directory_path = working_directory_path / 'source'
         await asyncio.to_thread(shutil.copytree, ROOT_DIRECTORY_PATH / 'documentation', source_directory_path)
         try:
 
-            await subprocess.run_exec(
+            await run_process(
                 [
                     'sphinx-apidoc',
                     '--force',
@@ -47,9 +49,9 @@ async def _build(output_directory_path: Path) -> None:
                     str(ROOT_DIRECTORY_PATH / 'betty'),
                     str(ROOT_DIRECTORY_PATH / 'betty' / 'tests'),
                 ],
-                cwd=str(working_directory_path),
+                cwd=working_directory_path,
             )
-            await subprocess.run_exec(
+            await run_process(
                 [
                     'sphinx-build',
                     '-b',
@@ -57,7 +59,7 @@ async def _build(output_directory_path: Path) -> None:
                     str(source_directory_path),
                     str(output_directory_path),
                 ],
-                cwd=str(working_directory_path),
+                cwd=working_directory_path,
             )
         except CalledProcessError as e:
             if e.stderr is not None:
