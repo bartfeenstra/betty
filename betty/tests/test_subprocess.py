@@ -3,24 +3,22 @@ from subprocess import CalledProcessError
 
 import pytest
 
-from betty import subprocess
+from betty.subprocess import run_process
 
 
-class TestRunExec:
-    async def test_without_errors(self) -> None:
-        process = await subprocess.run_exec(['true'])
+class TestRunProcess:
+    @pytest.mark.parametrize('shell', [
+        True,
+        False,
+    ])
+    async def test_without_errors(self, shell: bool) -> None:
+        process = await run_process(['true'], shell=shell)
         assert isinstance(process, Process)
 
-    async def test_with_errors(self) -> None:
+    @pytest.mark.parametrize('shell', [
+        True,
+        False,
+    ])
+    async def test_with_errors(self, shell: bool) -> None:
         with pytest.raises(CalledProcessError):
-            await subprocess.run_exec(['false'])
-
-
-class TestRunShell:
-    async def test_without_errors(self) -> None:
-        process = await subprocess.run_shell(['true'])
-        assert isinstance(process, Process)
-
-    async def test_with_errors(self) -> None:
-        with pytest.raises(CalledProcessError):
-            await subprocess.run_shell(['false'])
+            await run_process(['false'], shell=shell)
