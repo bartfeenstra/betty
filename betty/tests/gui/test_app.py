@@ -11,7 +11,7 @@ from pytestqt.qtbot import QtBot
 
 from betty import fs
 from betty.app import App
-from betty.gui.app import WelcomeWindow, _AboutBettyWindow, BettyMainWindow, ApplicationConfiguration
+from betty.gui.app import WelcomeWindow, _AboutBettyWindow, BettyPrimaryWindow, ApplicationConfiguration
 from betty.gui.error import ExceptionError
 from betty.gui.project import ProjectWindow
 from betty.gui.serve import ServeDemoWindow
@@ -35,7 +35,7 @@ class TestBettyMainWindow:
         mocker.patch('betty.gui.serve.ServeDemoWindow._start')
 
         async with App() as app:
-            sut = BettyMainWindow(app)
+            sut = BettyPrimaryWindow(app)
             qtbot.addWidget(sut)
             sut.show()
 
@@ -46,7 +46,7 @@ class TestBettyMainWindow:
     @patch_cache
     async def test_clear_caches(self, navigate: Navigate, qtbot: QtBot) -> None:
         async with App() as app:
-            sut = BettyMainWindow(app)
+            sut = BettyPrimaryWindow(app)
             qtbot.addWidget(sut)
             sut.show()
 
@@ -64,7 +64,7 @@ class TestBettyMainWindow:
         qtbot: QtBot,
     ) -> None:
         async with App() as app:
-            sut = BettyMainWindow(app)
+            sut = BettyPrimaryWindow(app)
             qtbot.addWidget(sut)
             sut.show()
 

@@ -7,17 +7,19 @@ from contextlib import suppress
 from pathlib import Path
 from typing import Any
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QObject
 from PyQt6.QtWidgets import QWidget, QFormLayout, QPushButton, QFileDialog, QLineEdit, QHBoxLayout, QVBoxLayout, \
     QGridLayout, QLabel
 
 from betty.app import App
 from betty.extension import Gramps
 from betty.extension.gramps.config import FamilyTreeConfiguration
-from betty.gui import BettyWindow, mark_valid, mark_invalid
+from betty.gui import mark_valid, mark_invalid
 from betty.gui.error import catch_exceptions
 from betty.gui.locale import LocalizedObject
 from betty.gui.text import Text
+from betty.gui.window import BettyMainWindow
+from betty.locale import Localizable, Str
 from betty.serde.error import SerdeError
 
 
@@ -64,7 +66,7 @@ class _FamilyTrees(LocalizedObject, QWidget):
             button.setText(self._app.localizer._('Remove'))
 
     def _add_family_tree(self) -> None:
-        window = _AddFamilyTreeWindow(self._app, self)
+        window = _AddFamilyTreeWindow(self._app, parent=self)
         window.show()
 
 
@@ -78,12 +80,17 @@ class _GrampsGuiWidget(LocalizedObject, QWidget):
         self._layout.addWidget(self._family_trees)
 
 
-class _AddFamilyTreeWindow(BettyWindow):
+class _AddFamilyTreeWindow(BettyMainWindow):
     window_width = 500
     window_height = 100
 
-    def __init__(self, app: App, *args: Any, **kwargs: Any):
-        super().__init__(app, *args, **kwargs)
+    def __init__(
+        self,
+        app: App,
+        *,
+        parent: QObject | None = None,
+    ):
+        super().__init__(app, parent=parent)
         self._family_tree = FamilyTreeConfiguration()
 
         self._layout = QFormLayout()
@@ -147,5 +154,5 @@ class _AddFamilyTreeWindow(BettyWindow):
         self._cancel.setText(self._app.localizer._('Cancel'))
 
     @property
-    def title(self) -> str:
-        return self._app.localizer._('Add a family tree')
+    def window_title(self) -> Localizable:
+        return Str._('Add a family tree')

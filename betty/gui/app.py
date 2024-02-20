@@ -5,27 +5,34 @@ import webbrowser
 from datetime import datetime
 from os import path
 from pathlib import Path
-from typing import Any
 from urllib.parse import urlencode
 
-from PyQt6.QtCore import Qt, QCoreApplication
+from PyQt6.QtCore import Qt, QCoreApplication, QObject
 from PyQt6.QtGui import QIcon, QAction
 from PyQt6.QtWidgets import QFormLayout, QWidget, QVBoxLayout, QHBoxLayout, QFileDialog, QPushButton
 
 from betty import about
 from betty.about import report
+from betty.app import App
 from betty.asyncio import sync, wait
-from betty.gui import BettyWindow, get_configuration_file_filter
+from betty.gui import get_configuration_file_filter
 from betty.gui.error import catch_exceptions
 from betty.gui.locale import TranslationsLocaleCollector
 from betty.gui.serve import ServeDemoWindow, ServeDocsWindow
 from betty.gui.text import Text
+from betty.gui.window import BettyMainWindow
+from betty.locale import Str, Localizable
 from betty.project import ProjectConfiguration
 
 
-class BettyMainWindow(BettyWindow):
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
+class BettyPrimaryWindow(BettyMainWindow):
+    def __init__(
+        self,
+        app: App,
+        *,
+        parent: QObject | None = None,
+    ):
+        super().__init__(app, parent=parent)
         self.setWindowIcon(QIcon(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'betty-512x512.png')))
 
         menu_bar = self.menuBar()
@@ -101,8 +108,8 @@ class BettyMainWindow(BettyWindow):
         help_menu.addAction(self.about_action)
 
     @property
-    def title(self) -> str:
-        return 'Betty'
+    def window_title(self) -> Localizable:
+        return Str.plain('Betty')
 
     def _set_translatables(self) -> None:
         super()._set_translatables()
@@ -152,12 +159,12 @@ class BettyMainWindow(BettyWindow):
 
     @catch_exceptions
     def _docs(self) -> None:
-        serve_window = ServeDocsWindow(self._app, self)
+        serve_window = ServeDocsWindow(self._app, parent=self)
         serve_window.show()
 
     @catch_exceptions
     def _about_betty(self) -> None:
-        about_window = _AboutBettyWindow(self._app, self)
+        about_window = _AboutBettyWindow(self._app, parent=self)
         about_window.show()
 
     @catch_exceptions
@@ -197,7 +204,7 @@ class BettyMainWindow(BettyWindow):
 
     @catch_exceptions
     def _demo(self) -> None:
-        serve_window = ServeDemoWindow(self._app, self)
+        serve_window = ServeDemoWindow(self._app, parent=self)
         serve_window.show()
 
     @catch_exceptions
@@ -207,7 +214,7 @@ class BettyMainWindow(BettyWindow):
 
     @catch_exceptions
     def open_application_configuration(self) -> None:
-        window = ApplicationConfiguration(self._app, self)
+        window = ApplicationConfiguration(self._app, parent=self)
         window.show()
 
 
@@ -227,15 +234,18 @@ class _WelcomeAction(QPushButton):
     pass
 
 
-class WelcomeWindow(BettyMainWindow):
+class WelcomeWindow(BettyPrimaryWindow):
     # Allow the window to be as narrow as it can be.
     window_width = 1
     # This is a best guess at the minimum required height, because if we set this to 1, like the width, some of the
     # text will be clipped.
     window_height = 600
 
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self,
+        app: App,
+    ):
+        super().__init__(app)
 
         central_layout = QVBoxLayout()
         central_layout.addStretch()
@@ -287,13 +297,17 @@ class WelcomeWindow(BettyMainWindow):
         self.demo_button.setText(self._app.localizer._('View a demo site'))
 
 
-class _AboutBettyWindow(BettyWindow):
+class _AboutBettyWindow(BettyMainWindow):
     window_width = 500
     window_height = 100
 
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
-
+    def __init__(
+        self,
+        app: App,
+        *,
+        parent: QObject | None = None,
+    ):
+        super().__init__(app, parent=parent)
         self._label = Text()
         self._label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setCentralWidget(self._label)
@@ -311,16 +325,21 @@ class _AboutBettyWindow(BettyWindow):
         ])))
 
     @property
-    def title(self) -> str:
-        return self._app.localizer._('About Betty')
+    def window_title(self) -> Localizable:
+        return Str._('About Betty')
 
 
-class ApplicationConfiguration(BettyWindow):
+class ApplicationConfiguration(BettyMainWindow):
     window_width = 400
     window_height = 150
 
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self,
+        app: App,
+        *,
+        parent: QObject | None = None,
+    ):
+        super().__init__(app, parent=parent)
 
         self._form = QFormLayout()
         form_widget = QWidget()
@@ -331,5 +350,5 @@ class ApplicationConfiguration(BettyWindow):
             self._form.addRow(*row)
 
     @property
-    def title(self) -> str:
-        return self._app.localizer._('Configuration')
+    def window_title(self) -> Localizable:
+        return Str._('Configuration')

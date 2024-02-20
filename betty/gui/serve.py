@@ -5,16 +5,17 @@ from __future__ import annotations
 
 from typing import Any
 
-from PyQt6.QtCore import Qt, QThread, pyqtSignal
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, QObject
 from PyQt6.QtWidgets import QVBoxLayout, QWidget, QPushButton
 
 from betty import documentation, fs
 from betty.app import App
 from betty.asyncio import sync
 from betty.extension import demo
-from betty.gui import BettyWindow
 from betty.gui.error import catch_exceptions
 from betty.gui.text import Text
+from betty.gui.window import BettyMainWindow
+from betty.locale import Str, Localizable
 from betty.project import Project
 from betty.serve import Server, AppServer
 
@@ -46,12 +47,17 @@ class _ServeThread(QThread):
         await self._server.stop()
 
 
-class _ServeWindow(BettyWindow):
+class _ServeWindow(BettyMainWindow):
     window_width = 500
     window_height = 100
 
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self,
+        app: App,
+        *,
+        parent: QObject | None = None,
+    ):
+        super().__init__(app, parent=parent)
 
         self.__thread: _ServeThread | None = None
 
@@ -124,8 +130,8 @@ class ServeProjectWindow(_ServeWindow):
         return AppServer.get(self._app)
 
     @property
-    def title(self) -> str:
-        return self._app.localizer._('Serving your site...')
+    def window_title(self) -> Localizable:
+        return Str._('Serving your site...')
 
     def _build_instruction(self) -> str:
         return self._app.localizer._('You can now view your site at <a href="{url}">{url}</a>.').format(
@@ -143,8 +149,8 @@ class ServeDemoWindow(_ServeWindow):
         )
 
     @property
-    def title(self) -> str:
-        return self._app.localizer._('Serving the Betty demo...')
+    def window_title(self) -> Localizable:
+        return Str._('Serving the Betty demo...')
 
 
 class ServeDocsWindow(_ServeWindow):
@@ -160,5 +166,5 @@ class ServeDocsWindow(_ServeWindow):
         )
 
     @property
-    def title(self) -> str:
-        return self._app.localizer._('Serving the Betty documentation...')
+    def window_title(self) -> Localizable:
+        return Str._('Serving the Betty documentation...')
