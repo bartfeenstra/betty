@@ -50,7 +50,7 @@ class RequirementError(UserFacingError, RuntimeError):
         super().__init__(requirement)
         self._requirement = requirement
 
-    def __reduce__(self) -> tuple[type[Self], tuple[Localizable]]:
+    def __reduce__(self) -> tuple[type[Self], tuple[Requirement]]:
         return type(self), (self._requirement,)
 
     def requirement(self) -> Requirement:
