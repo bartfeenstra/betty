@@ -3,6 +3,9 @@ The *Maps* extension
 The :py:class:`betty.extension.Maps` extension renders interactive maps using `Leaflet <https://leafletjs.com/>`_ and
 `OpenStreetMap <https://www.openstreetmap.org/>`_.
 
+.. important::
+    This extension requires :doc:`npm </usage/npm>`.
+
 Enable this extension through Betty Desktop, or in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
 .. md-tab-set::
