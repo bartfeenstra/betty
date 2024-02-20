@@ -7,17 +7,17 @@ from typing import Any
 
 from PyQt6.QtCore import QRect
 from PyQt6.QtGui import QPainter, QBrush, QColor, QPaintEvent
-from PyQt6.QtWidgets import QVBoxLayout, QLabel, QPushButton, QColorDialog, QHBoxLayout, QFormLayout
+from PyQt6.QtWidgets import QVBoxLayout, QLabel, QPushButton, QColorDialog, QHBoxLayout, QFormLayout, QWidget
 
 from betty.app import App
 from betty.extension import CottonCandy
 from betty.extension.cotton_candy import _ColorConfiguration, CottonCandyConfiguration
-from betty.gui.locale import LocalizedWidget
+from betty.gui.locale import LocalizedObject
 from betty.gui.model import EntityReferenceSequenceCollector
 from betty.locale import Str, Localizable
 
 
-class _ColorConfigurationSwatch(LocalizedWidget):
+class _ColorConfigurationSwatch(LocalizedObject, QWidget):
     def __init__(self, app: App, color: _ColorConfiguration, *args: Any, **kwargs: Any):
         super().__init__(app, *args, **kwargs)
         self._color = color
@@ -32,7 +32,7 @@ class _ColorConfigurationSwatch(LocalizedWidget):
         painter.drawRect(swatch)
 
 
-class _ColorConfigurationWidget(LocalizedWidget):
+class _ColorConfigurationWidget(LocalizedObject, QWidget):
     def __init__(self, app: App, color: _ColorConfiguration, color_default: str, *args: Any, **kwargs: Any):
         super().__init__(app, *args, **kwargs)
         self._color = color
@@ -63,11 +63,12 @@ class _ColorConfigurationWidget(LocalizedWidget):
         self._reset.clicked.connect(_reset)
 
     def _set_translatables(self) -> None:
+        super()._set_translatables()
         self._configure.setText(self._app.localizer._('Configure'))
         self._reset.setText(self._app.localizer._('Reset'))
 
 
-class _ColorConfigurationsWidget(LocalizedWidget):
+class _ColorConfigurationsWidget(LocalizedObject, QWidget):
     def __init__(self, app: App, colors: list[tuple[_ColorConfiguration, Localizable, str]], *args: Any, **kwargs: Any):
         super().__init__(app, *args, **kwargs)
         self._colors = colors
@@ -84,11 +85,12 @@ class _ColorConfigurationsWidget(LocalizedWidget):
             self._layout.addRow(color_label, color_widget)
 
     def _set_translatables(self) -> None:
+        super()._set_translatables()
         for i, (__, color_label, ___) in enumerate(self._colors):
             self._color_labels[i].setText(color_label.localize(self._app.localizer))
 
 
-class _CottonCandyGuiWidget(LocalizedWidget):
+class _CottonCandyGuiWidget(LocalizedObject, QWidget):
     def __init__(self, app: App, *args: Any, **kwargs: Any):
         super().__init__(app, *args, **kwargs)
         self._app = app

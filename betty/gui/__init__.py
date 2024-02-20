@@ -7,12 +7,12 @@ from typing import Any, TypeVar
 
 from PyQt6.QtCore import pyqtSlot, QObject
 from PyQt6.QtGui import QIcon, QPalette
-from PyQt6.QtWidgets import QApplication, QWidget
+from PyQt6.QtWidgets import QApplication, QWidget, QMainWindow
 
 from betty.app import App
 from betty.error import UserFacingError
 from betty.gui.error import ExceptionError, UnexpectedExceptionError
-from betty.gui.locale import LocalizedWindow
+from betty.gui.locale import LocalizedObject
 from betty.locale import Str
 from betty.serde.format import FormatRepository, FormatStr
 
@@ -53,7 +53,7 @@ def mark_invalid(widget: QWidget, reason: str) -> None:
     widget.setToolTip(reason)
 
 
-class BettyWindow(LocalizedWindow):
+class BettyWindow(LocalizedObject, QMainWindow):
     window_width = 800
     window_height = 600
 
@@ -68,6 +68,7 @@ class BettyWindow(LocalizedWindow):
         self.move(geometry.topLeft())
 
     def _set_translatables(self) -> None:
+        super()._set_translatables()
         self.setWindowTitle(f'{self.title} - Betty')
 
     @property

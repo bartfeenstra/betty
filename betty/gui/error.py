@@ -13,7 +13,7 @@ from PyQt6.QtGui import QCloseEvent, QIcon
 from PyQt6.QtWidgets import QWidget, QMessageBox
 
 from betty.app import App
-from betty.gui.locale import LocalizedMessageBox
+from betty.gui.locale import LocalizedObject
 
 if TYPE_CHECKING:
     from betty.gui import QWidgetT
@@ -77,7 +77,7 @@ class _ExceptionCatcher(Generic[P, T]):
 catch_exceptions = _ExceptionCatcher
 
 
-class Error(LocalizedMessageBox):
+class Error(LocalizedObject, QMessageBox):
     def __init__(
         self,
         app: App,
