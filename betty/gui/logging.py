@@ -2,7 +2,6 @@
 Provide logging for the Graphical User Interface.
 """
 import logging
-from typing import Any
 
 from PyQt6.QtCore import QObject, pyqtSignal, Qt
 from PyQt6.QtWidgets import QWidget, QVBoxLayout
@@ -22,8 +21,8 @@ class LogRecord(Text):
 
     _formatter = logging.Formatter()
 
-    def __init__(self, record: logging.LogRecord, *args: Any, **kwargs: Any):
-        super().__init__(self._formatter.format(record), *args, **kwargs)
+    def __init__(self, record: logging.LogRecord):
+        super().__init__(self._formatter.format(record))
         self.setProperty('level', self._normalize_level(record.levelno))
 
     def _normalize_level(self, record_level: int) -> int:
@@ -34,8 +33,8 @@ class LogRecord(Text):
 
 
 class LogRecordViewer(QWidget):
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
+    def __init__(self):
+        super().__init__()
         self._log_record_layout = QVBoxLayout()
         self.setLayout(self._log_record_layout)
 
