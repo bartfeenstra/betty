@@ -9,7 +9,6 @@ import re
 from asyncio import Task
 from contextlib import suppress
 from pathlib import Path
-from typing import Any
 from urllib.parse import urlparse
 
 from PyQt6.QtCore import Qt, QThread, QObject
@@ -39,8 +38,8 @@ from betty.serde.load import AssertionFailed
 
 
 class _PaneButton(QPushButton):
-    def __init__(self, pane_name: str, project_window: ProjectWindow, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
+    def __init__(self, pane_name: str, project_window: ProjectWindow):
+        super().__init__()
         self.setFlat(True)
         self.setProperty('pane-selector', 'true')
         self.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -50,8 +49,8 @@ class _PaneButton(QPushButton):
 
 
 class _GenerateHtmlListForm(LocalizedObject, QWidget):
-    def __init__(self, app: App, *args: Any, **kwargs: Any):
-        super().__init__(app, *args, **kwargs)
+    def __init__(self, app: App):
+        super().__init__(app)
         self._form = QFormLayout()
         self.setLayout(self._form)
         self._form_label = QLabel()
@@ -99,8 +98,8 @@ class _GenerateHtmlListForm(LocalizedObject, QWidget):
 
 
 class _GeneralPane(LocalizedObject, QWidget):
-    def __init__(self, app: App, *args: Any, **kwargs: Any):
-        super().__init__(app, *args, **kwargs)
+    def __init__(self, app: App):
+        super().__init__(app)
 
         self._form = QFormLayout()
         self.setLayout(self._form)
@@ -206,8 +205,8 @@ class _GeneralPane(LocalizedObject, QWidget):
 
 
 class _LocalesConfigurationWidget(LocalizedObject, QWidget):
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
+    def __init__(self, app: App):
+        super().__init__(app)
 
         self._layout = QGridLayout()
         self.setLayout(self._layout)
@@ -260,8 +259,8 @@ class _LocalesConfigurationWidget(LocalizedObject, QWidget):
 
 
 class _LocalizationPane(LocalizedObject, QWidget):
-    def __init__(self, app: App, *args: Any, **kwargs: Any):
-        super().__init__(app, *args, **kwargs)
+    def __init__(self, app: App):
+        super().__init__(app)
 
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
@@ -367,8 +366,8 @@ class _AddLocaleWindow(BettyMainWindow):
 
 
 class _ExtensionPane(LocalizedObject, QWidget):
-    def __init__(self, app: App, extension_type: type[UserFacingExtension], *args: Any, **kwargs: Any):
-        super().__init__(app, *args, **kwargs)
+    def __init__(self, app: App, extension_type: type[UserFacingExtension]):
+        super().__init__(app)
         self._extension_type = extension_type
 
         layout = QVBoxLayout()
@@ -591,8 +590,8 @@ class ProjectWindow(BettyPrimaryWindow):
 
 
 class _GenerateThread(QThread):
-    def __init__(self, project: Project, generate_window: _GenerateWindow, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
+    def __init__(self, project: Project, generate_window: _GenerateWindow):
+        super().__init__()
         self._project = project
         self._generate_window = generate_window
         self._task: Task[None] | None = None
