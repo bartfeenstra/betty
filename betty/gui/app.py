@@ -241,10 +241,7 @@ class WelcomeWindow(BettyPrimaryWindow):
     # text will be clipped.
     window_height = 600
 
-    def __init__(
-        self,
-        app: App,
-    ):
+    def __init__(self, app: App):
         super().__init__(app)
 
         central_layout = QVBoxLayout()
@@ -308,6 +305,7 @@ class _AboutBettyWindow(BettyMainWindow):
         parent: QObject | None = None,
     ):
         super().__init__(app, parent=parent)
+
         self._label = Text()
         self._label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setCentralWidget(self._label)

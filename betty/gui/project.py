@@ -6,13 +6,13 @@ from __future__ import annotations
 import asyncio
 import copy
 import re
-from asyncio import Task
+from asyncio import Task, CancelledError
 from contextlib import suppress
 from pathlib import Path
 from urllib.parse import urlparse
 
 from PyQt6.QtCore import Qt, QThread, QObject
-from PyQt6.QtGui import QAction
+from PyQt6.QtGui import QAction, QCloseEvent
 from PyQt6.QtWidgets import QFileDialog, QPushButton, QWidget, QVBoxLayout, QHBoxLayout, QMenu, QStackedLayout, \
     QGridLayout, QCheckBox, QFormLayout, QLabel, QLineEdit, QButtonGroup, QRadioButton, QFrame, QScrollArea, QSizePolicy
 from babel import Locale
@@ -440,8 +440,6 @@ class ProjectWindow(BettyPrimaryWindow):
     ):
         super().__init__(app)
 
-        self._set_window_title()
-
         central_widget = QWidget()
         central_layout = QHBoxLayout()
         central_widget.setLayout(central_layout)
@@ -565,8 +563,9 @@ class ProjectWindow(BettyPrimaryWindow):
             self._pane_selectors[extension_pane_name].setText(extension_type.label().localize(self._app.localizer))
             self._extension_pane_selectors_layout.addWidget(self._pane_selectors[extension_pane_name])
 
-    def _set_window_title(self) -> None:
-        self.setWindowTitle('%s - Betty' % self._app.project.configuration.title)
+    @property
+    def window_title(self) -> Localizable:
+        return Str.plain('{project_title} - Betty', project_title=self._app.project.configuration.title)
 
     @catch_exceptions
     def _save_project_as(self) -> None:
@@ -598,7 +597,9 @@ class _GenerateThread(QThread):
 
     @sync
     async def run(self) -> None:
-        self._task = asyncio.create_task(self._generate())
+        with suppress(CancelledError):
+            self._task = asyncio.create_task(self._generate())
+            await self._task
 
     async def _generate(self) -> None:
         with catch_exceptions(parent=self._generate_window, close_parent=True):
@@ -631,13 +632,11 @@ class _GenerateWindow(BettyMainWindow):
         central_widget.setLayout(central_layout)
         self.setCentralWidget(central_widget)
 
-        self._log_record_viewer = LogRecordViewer()
-        central_layout.addWidget(self._log_record_viewer)
-
         button_layout = QHBoxLayout()
         central_layout.addLayout(button_layout)
 
         self._cancel_button = QPushButton()
+        self._cancel_button.released.connect(self.close)
         button_layout.addWidget(self._cancel_button)
 
         self._serve_button = QPushButton()
@@ -645,10 +644,15 @@ class _GenerateWindow(BettyMainWindow):
         self._serve_button.released.connect(self._serve)
         button_layout.addWidget(self._serve_button)
 
+        self._log_record_viewer = LogRecordViewer()
+        central_layout.addWidget(self._log_record_viewer)
         self._logging_handler = LogRecordViewerHandler(self._log_record_viewer)
+        load.getLogger().addHandler(self._logging_handler)
+        generate.getLogger().addHandler(self._logging_handler)
+
         self._thread = _GenerateThread(self._app.project, self)
         self._thread.finished.connect(self._finish_generate)
-        self._cancel_button.released.connect(self._thread.cancel)
+        self._thread.start()
 
     @property
     def window_title(self) -> Localizable:
@@ -656,24 +660,24 @@ class _GenerateWindow(BettyMainWindow):
 
     @catch_exceptions
     def _serve(self) -> None:
-        serve_window = ServeProjectWindow(self._app, parent=self)
+        serve_window = ServeProjectWindow(self._app, parent=self.parent())
         serve_window.show()
 
-    def show(self) -> None:
-        super().show()
-        load.getLogger().addHandler(self._logging_handler)
-        generate.getLogger().addHandler(self._logging_handler)
-        self._thread.start()
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        super().closeEvent(a0)
+        self._thread.cancel()
+        self._finalize()
 
     def _finish_generate(self) -> None:
         self._cancel_button.setDisabled(True)
         self._serve_button.setDisabled(False)
-        self.setWindowFlags(self.windowFlags() | Qt.WindowType.WindowCloseButtonHint)
+        self._finalize()
+
+    def _finalize(self) -> None:
         load.getLogger().removeHandler(self._logging_handler)
         generate.getLogger().removeHandler(self._logging_handler)
 
     def _set_translatables(self) -> None:
         super()._set_translatables()
-        self._cancel_button.setText(self._app.localizer._('Cancel'))
         self._cancel_button.setText(self._app.localizer._('Cancel'))
         self._serve_button.setText(self._app.localizer._('View site'))

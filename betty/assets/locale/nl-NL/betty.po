@@ -350,6 +350,9 @@ msgstr "Nette URL's"
 msgid "Clear all caches"
 msgstr "Leeg alle caches"
 
+msgid "Close"
+msgstr "Sluiten"
+
 msgid "Conference"
 msgstr "Conferentie"
 

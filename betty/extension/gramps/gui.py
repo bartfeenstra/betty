@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from contextlib import suppress
 from pathlib import Path
-from typing import Any
 
 from PyQt6.QtCore import Qt, QObject
 from PyQt6.QtWidgets import QWidget, QFormLayout, QPushButton, QFileDialog, QLineEdit, QHBoxLayout, QVBoxLayout, \
@@ -24,8 +23,8 @@ from betty.serde.error import SerdeError
 
 
 class _FamilyTrees(LocalizedObject, QWidget):
-    def __init__(self, app: App, *args: Any, **kwargs: Any):
-        super().__init__(app, *args, **kwargs)
+    def __init__(self, app: App):
+        super().__init__(app)
 
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
@@ -71,8 +70,8 @@ class _FamilyTrees(LocalizedObject, QWidget):
 
 
 class _GrampsGuiWidget(LocalizedObject, QWidget):
-    def __init__(self, app: App, *args: Any, **kwargs: Any):
-        super().__init__(app, *args, **kwargs)
+    def __init__(self, app: App):
+        super().__init__(app)
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
 

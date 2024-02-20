@@ -357,6 +357,9 @@ msgstr "Saubere URLs"
 msgid "Clear all caches"
 msgstr "Alle Caches löschen"
 
+msgid "Close"
+msgstr "Schließen"
+
 msgid "Conference"
 msgstr "Konferenz"
 
