@@ -16,12 +16,12 @@ from betty.extension import Gramps
 from betty.extension.gramps.config import FamilyTreeConfiguration
 from betty.gui import BettyWindow, mark_valid, mark_invalid
 from betty.gui.error import catch_exceptions
-from betty.gui.locale import LocalizedWidget
+from betty.gui.locale import LocalizedObject
 from betty.gui.text import Text
 from betty.serde.error import SerdeError
 
 
-class _FamilyTrees(LocalizedWidget):
+class _FamilyTrees(LocalizedObject, QWidget):
     def __init__(self, app: App, *args: Any, **kwargs: Any):
         super().__init__(app, *args, **kwargs)
 
@@ -58,6 +58,7 @@ class _FamilyTrees(LocalizedWidget):
         self._layout.insertWidget(0, self._family_trees_widget, alignment=Qt.AlignmentFlag.AlignTop)
 
     def _set_translatables(self) -> None:
+        super()._set_translatables()
         self._add_family_tree_button.setText(self._app.localizer._('Add a family tree'))
         for button in self._family_trees_remove_buttons:
             button.setText(self._app.localizer._('Remove'))
@@ -67,7 +68,7 @@ class _FamilyTrees(LocalizedWidget):
         window.show()
 
 
-class _GrampsGuiWidget(LocalizedWidget):
+class _GrampsGuiWidget(LocalizedObject, QWidget):
     def __init__(self, app: App, *args: Any, **kwargs: Any):
         super().__init__(app, *args, **kwargs)
         self._layout = QVBoxLayout()
@@ -140,6 +141,7 @@ class _AddFamilyTreeWindow(BettyWindow):
         buttons_layout.addWidget(self._cancel)
 
     def _set_translatables(self) -> None:
+        super()._set_translatables()
         self._file_path_label.setText(self._app.localizer._('File path'))
         self._save_and_close.setText(self._app.localizer._('Save and close'))
         self._cancel.setText(self._app.localizer._('Cancel'))

@@ -8,13 +8,13 @@ from typing import Callable, cast, Iterator
 from PyQt6.QtWidgets import QFormLayout, QLabel, QComboBox, QLineEdit, QWidget, QPushButton, QVBoxLayout, QHBoxLayout
 
 from betty.app import App
-from betty.gui.locale import LocalizedWidget
+from betty.gui.locale import LocalizedObject
 from betty.locale import Localizable
 from betty.model import UserFacingEntity, Entity
 from betty.project import EntityReference, EntityReferenceSequence
 
 
-class EntityReferenceCollector(LocalizedWidget):
+class EntityReferenceCollector(LocalizedObject, QWidget):
     def __init__(
         self,
         app: App,
@@ -58,6 +58,7 @@ class EntityReferenceCollector(LocalizedWidget):
         self._set_translatables()
 
     def _set_translatables(self) -> None:
+        super()._set_translatables()
         if self._entity_reference.entity_type:
             self._entity_id_label.setText(self._app.localizer._('{entity_type_label} ID').format(
                 entity_type_label=self._entity_reference.entity_type.entity_type_label().localize(self._app.localizer),
@@ -66,7 +67,7 @@ class EntityReferenceCollector(LocalizedWidget):
             self._entity_id_label.setText(self._app.localizer._('Entity ID'))
 
 
-class EntityReferenceSequenceCollector(LocalizedWidget):
+class EntityReferenceSequenceCollector(LocalizedObject, QWidget):
     def __init__(
         self,
         app: App,
@@ -149,6 +150,7 @@ class EntityReferenceSequenceCollector(LocalizedWidget):
         layout.addWidget(entity_reference_remove_button)
 
     def _set_translatables(self) -> None:
+        super()._set_translatables()
         if self._label_text:
             self._label.setText(self._label_text.localize(self._app.localizer))
         if self._caption_text:

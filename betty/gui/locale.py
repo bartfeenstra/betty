@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import Any
 
 from PyQt6 import QtGui
-from PyQt6.QtWidgets import QComboBox, QLabel, QWidget, QMainWindow, QMessageBox
+from PyQt6.QtWidgets import QComboBox, QLabel, QWidget
 
 from betty.app import App
 from betty.asyncio import wait
@@ -14,13 +14,13 @@ from betty.gui.text import Caption
 from betty.locale import negotiate_locale, get_display_name
 
 
-class _LocalizedObject:
+class LocalizedObject:
     def __init__(self, app: App, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._app = app
 
     def showEvent(  # type: ignore[misc]
-        self: '_LocalizedObject & QWidget',
+        self: LocalizedObject & QWidget,
         a0: QtGui.QShowEvent | None,
     ) -> None:
         super().showEvent(a0)  # type: ignore[misc]
@@ -31,30 +31,9 @@ class _LocalizedObject:
         pass
 
 
-class LocalizedWidget(
-    _LocalizedObject,
-    QWidget,
-):
-    pass
-
-
-class LocalizedMessageBox(
-    _LocalizedObject,
-    QMessageBox,
-):
-    pass
-
-
-class LocalizedWindow(
-    _LocalizedObject,
-    QMainWindow,
-):
-    pass
-
-
-class TranslationsLocaleCollector:
+class TranslationsLocaleCollector(LocalizedObject):
     def __init__(self, app: App, allowed_locales: set[str]):
-        self._app = app
+        super().__init__(app)
         self._allowed_locales = allowed_locales
 
         allowed_locale_names: list[tuple[str, str]] = []
@@ -93,6 +72,7 @@ class TranslationsLocaleCollector:
         ]
 
     def _set_translatables(self) -> None:
+        super()._set_translatables()
         localizer = self._app.localizer
         localizers = self._app.localizers
         self._configuration_locale_label.setText(localizer._('Locale'))
