@@ -3,22 +3,22 @@ Translations
 
 Betty ships with the following translations:
 
-English (``en-US``)
-    Translations are 100% complete.
 Dutch (``nl-NL``)
     Translations are {{{ translation-coverage-nl-NL }}}% complete.
+English (``en-US``)
+    Translations are 100% complete.
 French (``fr-FR``)
     Translations are {{{ translation-coverage-fr-FR }}}% complete.
-Ukrainian (``uk``)
-    Translations are {{{ translation-coverage-uk }}}% complete.
 German (``de-DE``)
     Translations are {{{ translation-coverage-de-DE }}}% complete.
+Ukrainian (``uk``)
+    Translations are {{{ translation-coverage-uk }}}% complete.
 
-Extensions and projects can override these translations through `asset management <assets>`.
+Extensions and projects can override these translations through `asset management <assets>`_.
 
 Betty uses `gettext <https://www.gnu.org/software/gettext/>`_ to manage its translations. For each language, there must
 be a ``./locale/$locale/LC_MESSAGES/betty.po`` file that contains the translations for that language. These translations
-are compiled lazily whenever Betty needs them,, so you won't have to go through the trouble of creating ``*.mo`` files
+are compiled lazily whenever Betty needs them, so you won't have to go through the trouble of creating ``*.mo`` files
 yourself.
 
 Translations are loaded in the following order, where translations loaded later will override earlier translations:
