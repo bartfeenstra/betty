@@ -12,30 +12,28 @@ from betty.extension import Gramps
 from betty.extension.gramps.config import FamilyTreeConfiguration, GrampsConfiguration
 from betty.extension.gramps.gui import _AddFamilyTreeWindow
 from betty.project import ExtensionConfiguration
-from betty.tests.conftest import AssertWindow, AssertNotWindow
+from betty.tests.conftest import BettyQtBot
 
 
 async def test_add_family_tree_set_path(
-    assert_not_window: AssertNotWindow[_AddFamilyTreeWindow],
-    assert_window: AssertWindow[_AddFamilyTreeWindow],
-    qtbot: QtBot,
+    betty_qtbot: BettyQtBot,
     tmp_path: Path,
 ) -> None:
     async with App() as app:
         app.project.configuration.extensions.append(ExtensionConfiguration(Gramps))
         sut = app.extensions[Gramps]
         widget = sut.gui_build()
-        qtbot.addWidget(widget)
+        betty_qtbot.qtbot.addWidget(widget)
         widget.show()
 
-        qtbot.mouseClick(widget._family_trees._add_family_tree_button, Qt.MouseButton.LeftButton)
-        add_family_tree_window = assert_window(_AddFamilyTreeWindow)
+        betty_qtbot.qtbot.mouseClick(widget._family_trees._add_family_tree_button, Qt.MouseButton.LeftButton)
+        add_family_tree_window = betty_qtbot.assert_window(_AddFamilyTreeWindow)
 
         file_path = tmp_path / 'family-tree.gpkg'
         add_family_tree_window._file_path.setText(str(file_path))
 
-        qtbot.mouseClick(add_family_tree_window._save_and_close, Qt.MouseButton.LeftButton)
-        assert_not_window(_AddFamilyTreeWindow)
+        betty_qtbot.qtbot.mouseClick(add_family_tree_window._save_and_close, Qt.MouseButton.LeftButton)
+        betty_qtbot.assert_not_window(_AddFamilyTreeWindow)
 
         assert len(sut.configuration.family_trees) == 1
         family_tree = sut.configuration.family_trees[0]
@@ -43,25 +41,24 @@ async def test_add_family_tree_set_path(
 
 
 async def test_add_family_tree_find_path(
-    assert_window: AssertWindow[_AddFamilyTreeWindow],
     mocker: MockerFixture,
-    qtbot: QtBot,
+    betty_qtbot: BettyQtBot,
     tmp_path: Path,
 ) -> None:
     async with App() as app:
         app.project.configuration.extensions.append(ExtensionConfiguration(Gramps))
         sut = app.extensions[Gramps]
         widget = sut.gui_build()
-        qtbot.addWidget(widget)
+        betty_qtbot.qtbot.addWidget(widget)
         widget.show()
 
-        qtbot.mouseClick(widget._family_trees._add_family_tree_button, Qt.MouseButton.LeftButton)
+        betty_qtbot.qtbot.mouseClick(widget._family_trees._add_family_tree_button, Qt.MouseButton.LeftButton)
 
-        add_family_tree_window = assert_window(_AddFamilyTreeWindow)
+        add_family_tree_window = betty_qtbot.assert_window(_AddFamilyTreeWindow)
         file_path = tmp_path / 'family-tree.gpkg'
         mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[str(file_path), None]))
-        qtbot.mouseClick(add_family_tree_window._file_path_find, Qt.MouseButton.LeftButton)
-        qtbot.mouseClick(add_family_tree_window._save_and_close, Qt.MouseButton.LeftButton)
+        betty_qtbot.qtbot.mouseClick(add_family_tree_window._file_path_find, Qt.MouseButton.LeftButton)
+        betty_qtbot.qtbot.mouseClick(add_family_tree_window._save_and_close, Qt.MouseButton.LeftButton)
 
         assert len(sut.configuration.family_trees) == 1
         family_tree = sut.configuration.family_trees[0]
