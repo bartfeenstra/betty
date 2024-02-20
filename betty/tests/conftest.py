@@ -5,10 +5,10 @@ from __future__ import annotations
 
 import gc
 import logging
-from typing import Callable, Iterator, TypeVar, cast, AsyncIterator, TypeAlias
+from typing import Iterator, TypeVar, cast, AsyncIterator
 
 import pytest
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QObject
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QMainWindow, QMenu, QWidget
 from _pytest.logging import LogCaptureFixture
@@ -67,154 +67,110 @@ async def qapp(qapp_args: list[str]) -> AsyncIterator[BettyApplication]:
     gc.collect()
 
 
-Navigate: TypeAlias = Callable[[QMainWindow | QMenu, list[str]], None]
+QObjectT = TypeVar('QObjectT', bound=QObject)
+QMainWindowT = TypeVar('QMainWindowT', bound=QMainWindow)
 
 
-@pytest.fixture
-def navigate(qtbot: QtBot) -> Navigate:
-    """
-    Navigate a window's menus and actions.
-    """
-    def _navigate(item: QMainWindow | QMenu | QAction, attributes: list[str]) -> None:
+class BettyQtBot:
+    def __init__(self, qtbot: QtBot, qapp: BettyApplication):
+        self.qtbot = qtbot
+        self.qapp = qapp
+
+    def assert_interactive(self, item: QAction | QWidget | None) -> None:
+        def _assert_interactive() -> None:
+            assert item is not None
+            assert item.isEnabled()
+            assert item.isVisible()
+        self.qtbot.wait_until(_assert_interactive)
+
+    def navigate(self, item: QMainWindow | QMenu | QAction, attributes: list[str]) -> None:
+        """
+        Navigate a window's menus and actions.
+        """
         if attributes:
             attribute = attributes.pop(0)
             item = getattr(item, attribute)
             if isinstance(item, QMenu):
-                qtbot.mouseClick(item, Qt.MouseButton.LeftButton)
+                self.mouse_click(item)
             elif isinstance(item, QAction):
+                self.assert_interactive(item)
                 item.trigger()
             else:
                 raise RuntimeError('Can only navigate to menus and actions, but attribute "%s" contains %s.' % (attribute, type(item)))
 
-            _navigate(item, attributes)
-    return _navigate
+            self.navigate(item, attributes)
 
+    def assert_window(self, window_type: type[QMainWindowT] | QMainWindowT) -> QMainWindowT:
+        """
+        Assert that a window is shown.
+        """
+        windows = []
 
-QWidgetT = TypeVar('QWidgetT', bound=QWidget)
-
-
-AssertTopLevelWidget: TypeAlias = Callable[['type[QWidgetT] | QWidgetT'], QWidgetT]
-
-
-@pytest.fixture
-def assert_top_level_widget(qapp: BettyApplication, qtbot: QtBot) -> AssertTopLevelWidget[QWidgetT]:
-    """
-    Assert that a widget is top-level.
-    """
-    def _wait_assert_top_level_widget(widget_type: type[QWidgetT] | QWidgetT) -> QWidgetT:
-        if isinstance(widget_type, QWidget):
-            assert widget_type.isVisible()
-
-        widgets = []
-
-        def __assert_top_level_widget() -> None:
-            nonlocal widgets
-            widgets = [
-                widget
-                for widget
-                in qapp.topLevelWidgets()
-                if widget.isVisible() and (isinstance(widget, widget_type) if isinstance(widget_type, type) else widget is widget_type)
+        def _assert_window() -> None:
+            nonlocal windows
+            windows = [
+                window
+                for window
+                in self.qapp.topLevelWidgets()
+                if window.isVisible() and (isinstance(window, window_type) if isinstance(window_type, type) else window is window_type)
             ]
-            assert len(widgets) == 1
-        qtbot.waitUntil(__assert_top_level_widget)
-        widget = widgets[0]
-        qtbot.addWidget(widget)
-        return cast(QWidgetT, widget)
-    return _wait_assert_top_level_widget
+            assert len(windows) == 1
+        self.qtbot.waitUntil(_assert_window)
+        window = windows[0]
+        self.qtbot.addWidget(window)
+        return cast(QMainWindowT, window)
 
-
-AssertNotTopLevelWidget: TypeAlias = Callable[['type[QWidget] | QWidgetT'], None]
-
-
-@pytest.fixture
-def assert_not_top_level_widget(qapp: BettyApplication, qtbot: QtBot) -> AssertNotTopLevelWidget[QWidgetT]:
-    """
-    Assert that a widget is not top-level.
-    """
-    def _assert_not_top_level_widget(widget_type: type[QWidget] | QWidgetT) -> None:
-        if isinstance(widget_type, QWidget):
-            assert widget_type.isHidden()
-        widgets = [
-            widget
-            for widget
-            in qapp.topLevelWidgets()
-            if widget.isVisible() and (isinstance(widget, widget_type) if isinstance(widget_type, type) else widget is widget_type)
+    def assert_not_window(self, window_type: type[QMainWindow] | QMainWindow) -> None:
+        """
+        Assert that a window is not shown.
+        """
+        if isinstance(window_type, QMainWindow):
+            assert not window_type.isVisible()
+        windows = [
+            window
+            for window
+            in self.qapp.topLevelWidgets()
+            if window.isVisible() and (isinstance(window, window_type) if isinstance(window_type, type) else window is window_type)
         ]
-        assert len(widgets) == 0
-    return _assert_not_top_level_widget
+        assert len(windows) == 0
 
-
-QMainWindowT = TypeVar('QMainWindowT', bound=QMainWindow)
-
-
-AssertWindow: TypeAlias = Callable[[type[QMainWindowT] | QMainWindowT], QMainWindowT]
-
-
-@pytest.fixture
-def assert_window(assert_top_level_widget: AssertTopLevelWidget[QMainWindowT]) -> AssertWindow[QMainWindowT]:
-    """
-    Assert that a window is shown.
-    """
-    def _assert_window(window_type: type[QMainWindowT] | QMainWindowT) -> QMainWindowT:
-        return assert_top_level_widget(window_type)
-    return _assert_window
-
-
-AssertNotWindow: TypeAlias = Callable[[type[QMainWindowT] | QMainWindowT], None]
-
-
-@pytest.fixture
-def assert_not_window(assert_not_top_level_widget: AssertNotTopLevelWidget[QWidget]) -> AssertNotWindow[QMainWindow]:
-    """
-    Assert that a window is not shown.
-    """
-    def _assert_not_window(window_type: type[QMainWindow] | QMainWindow) -> None:
-        assert_not_top_level_widget(window_type)
-    return _assert_not_window
-
-
-AssertError: TypeAlias = Callable[[type[ErrorT]], ErrorT]
-
-
-@pytest.fixture
-def assert_error(qapp: BettyApplication, qtbot: QtBot) -> AssertError[ErrorT]:
-    """
-    Assert that an error is shown.
-    """
-    def _wait_assert_error(error_type: type[ErrorT]) -> ErrorT:
+    def assert_error(self, error_type: type[ErrorT]) -> ErrorT:
+        """
+        Assert that an error is shown.
+        """
         widget = None
 
         def _assert_error_modal() -> None:
             nonlocal widget
-            widget = qapp.activeModalWidget()
+            widget = self.qapp.activeModalWidget()
             assert isinstance(widget, error_type)
-        qtbot.waitUntil(_assert_error_modal)
-        qtbot.addWidget(widget)
+        self.qtbot.waitUntil(_assert_error_modal)
+        self.qtbot.addWidget(widget)
         return cast(ErrorT, widget)
-    return _wait_assert_error
 
-
-AssertValid: TypeAlias = Callable[[QWidget], None]
-
-
-@pytest.fixture
-def assert_valid() -> AssertValid:
-    """
-    Assert that the given widget contains valid input.
-    """
-    def _assert_valid(widget: QWidget) -> None:
+    def assert_valid(self, widget: QWidget) -> None:
+        """
+        Assert that the given widget contains valid input.
+        """
         assert widget.property('invalid') in {'false', None}
-    return _assert_valid
 
+    def assert_invalid(self, widget: QWidget) -> None:
+        """
+        Assert that the given widget contains invalid input.
+        """
+        assert 'true' == widget.property('invalid')
 
-AssertInvalid: TypeAlias = Callable[[QWidget], None]
+    def mouse_click(self, widget: QWidget | None, button: Qt.MouseButton = Qt.MouseButton.LeftButton) -> None:
+        """
+        Assert that the given widget can be clicked.
+        """
+        self.assert_interactive(widget)
+        self.qtbot.mouseClick(widget, button)
 
 
 @pytest.fixture
-def assert_invalid() -> AssertInvalid:
+def betty_qtbot(qtbot: QtBot, qapp: BettyApplication) -> BettyQtBot:
     """
-    Assert that the given widget contains invalid input.
+    Provide utilities to control Betty's Qt implementations.
     """
-    def _assert_invalid(widget: QWidget) -> None:
-        assert 'true' == widget.property('invalid')
-    return _assert_invalid
+    return BettyQtBot(qtbot, qapp)
