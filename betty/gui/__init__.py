@@ -2,17 +2,15 @@
 from __future__ import annotations
 
 from logging import getLogger
-from os import path
 from typing import Any, TypeVar
 
 from PyQt6.QtCore import pyqtSlot, QObject
-from PyQt6.QtGui import QIcon, QPalette
-from PyQt6.QtWidgets import QApplication, QWidget, QMainWindow
+from PyQt6.QtGui import QPalette
+from PyQt6.QtWidgets import QApplication, QWidget
 
 from betty.app import App
 from betty.error import UserFacingError
 from betty.gui.error import ExceptionError, UnexpectedExceptionError
-from betty.gui.locale import LocalizedObject
 from betty.locale import Str
 from betty.serde.format import FormatRepository, FormatStr
 
@@ -51,29 +49,6 @@ def mark_invalid(widget: QWidget, reason: str) -> None:
     widget.setProperty('invalid', 'true')
     widget.setStyle(widget.style())
     widget.setToolTip(reason)
-
-
-class BettyWindow(LocalizedObject, QMainWindow):
-    window_width = 800
-    window_height = 600
-
-    def __init__(self, app: App, *args: Any, **kwargs: Any):
-        super().__init__(app, *args, **kwargs)
-        self.resize(self.window_width, self.window_height)
-        self.setWindowIcon(QIcon(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'betty-512x512.png')))
-        geometry = self.frameGeometry()
-        screen = QApplication.primaryScreen()
-        assert screen is not None
-        geometry.moveCenter(screen.availableGeometry().center())
-        self.move(geometry.topLeft())
-
-    def _set_translatables(self) -> None:
-        super()._set_translatables()
-        self.setWindowTitle(f'{self.title} - Betty')
-
-    @property
-    def title(self) -> str:
-        raise NotImplementedError(repr(self))
 
 
 class BettyApplication(QApplication):

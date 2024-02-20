@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from PyQt6.QtCore import Qt, QThread
+from PyQt6.QtCore import Qt, QThread, QObject
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QFileDialog, QPushButton, QWidget, QVBoxLayout, QHBoxLayout, QMenu, QStackedLayout, \
     QGridLayout, QCheckBox, QFormLayout, QLabel, QLineEdit, QButtonGroup, QRadioButton, QFrame, QScrollArea, QSizePolicy
@@ -23,15 +23,16 @@ from betty import load, generate
 from betty.app import App
 from betty.app.extension import UserFacingExtension
 from betty.asyncio import sync, wait
-from betty.gui import get_configuration_file_filter, BettyWindow, GuiBuilder, mark_invalid, mark_valid
-from betty.gui.app import BettyMainWindow
+from betty.gui import get_configuration_file_filter, GuiBuilder, mark_invalid, mark_valid
+from betty.gui.app import BettyPrimaryWindow
 from betty.gui.error import catch_exceptions
 from betty.gui.locale import LocalizedObject
 from betty.gui.locale import TranslationsLocaleCollector
 from betty.gui.logging import LogRecordViewerHandler, LogRecordViewer
 from betty.gui.serve import ServeProjectWindow
 from betty.gui.text import Text, Caption
-from betty.locale import get_display_name, to_locale
+from betty.gui.window import BettyMainWindow
+from betty.locale import get_display_name, to_locale, Str, Localizable
 from betty.model import UserFacingEntity, Entity
 from betty.project import LocaleConfiguration, Project
 from betty.serde.load import AssertionFailed
@@ -288,16 +289,21 @@ class _LocalizationPane(LocalizedObject, QWidget):
         self._add_locale_button.setText(self._app.localizer._('Add a locale'))
 
     def _add_locale(self) -> None:
-        window = _AddLocaleWindow(self._app, self)
+        window = _AddLocaleWindow(self._app, parent=self)
         window.show()
 
 
-class _AddLocaleWindow(BettyWindow):
+class _AddLocaleWindow(BettyMainWindow):
     window_width = 500
     window_height = 250
 
-    def __init__(self, app: App, *args: Any, **kwargs: Any):
-        super().__init__(app, *args, **kwargs)
+    def __init__(
+        self,
+        app: App,
+        *,
+        parent: QObject | None = None,
+    ):
+        super().__init__(app, parent=parent)
 
         self._layout = QFormLayout()
         self._widget = QWidget()
@@ -340,8 +346,8 @@ class _AddLocaleWindow(BettyWindow):
         self._alias_caption.setText(self._app.localizer._('An optional alias is used instead of the locale code to identify this locale, such as in URLs. If US English is the only English language variant on your site, you may want to alias its language code from <code>en-US</code> to <code>en</code>, for instance.'))
 
     @property
-    def title(self) -> str:
-        return self._app.localizer._('Add a locale')
+    def window_title(self) -> Localizable:
+        return Str._('Add a locale')
 
     @catch_exceptions
     def _save_and_close_locale(self) -> None:
@@ -428,9 +434,12 @@ class _ExtensionPane(LocalizedObject, QWidget):
         ))
 
 
-class ProjectWindow(BettyMainWindow):
-    def __init__(self, app: App, *args: Any, **kwargs: Any):
-        super().__init__(app, *args, **kwargs)
+class ProjectWindow(BettyPrimaryWindow):
+    def __init__(
+        self,
+        app: App,
+    ):
+        super().__init__(app)
 
         self._set_window_title()
 
@@ -572,12 +581,12 @@ class ProjectWindow(BettyMainWindow):
 
     @catch_exceptions
     def _generate(self) -> None:
-        generate_window = _GenerateWindow(self._app, self)
+        generate_window = _GenerateWindow(self._app, parent=self)
         generate_window.show()
 
     @catch_exceptions
     def _serve(self) -> None:
-        serve_window = ServeProjectWindow(self._app, self)
+        serve_window = ServeProjectWindow(self._app, parent=self)
         serve_window.show()
 
 
@@ -603,12 +612,17 @@ class _GenerateThread(QThread):
             self._task.cancel()
 
 
-class _GenerateWindow(BettyWindow):
+class _GenerateWindow(BettyMainWindow):
     window_width = 500
     window_height = 100
 
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self,
+        app: App,
+        *,
+        parent: QObject | None = None,
+    ):
+        super().__init__(app, parent=parent)
 
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setWindowFlags(self.windowFlags() ^ Qt.WindowType.WindowCloseButtonHint)
@@ -638,12 +652,12 @@ class _GenerateWindow(BettyWindow):
         self._cancel_button.released.connect(self._thread.cancel)
 
     @property
-    def title(self) -> str:
-        return self._app.localizer._('Generating your site...')
+    def window_title(self) -> Localizable:
+        return Str._('Generating your site...')
 
     @catch_exceptions
     def _serve(self) -> None:
-        serve_window = ServeProjectWindow(self._app, self)
+        serve_window = ServeProjectWindow(self._app, parent=self)
         serve_window.show()
 
     def show(self) -> None:
