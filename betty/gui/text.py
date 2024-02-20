@@ -23,3 +23,13 @@ class Caption(Text):
         super().__init__(text)
         font = QFont()
         self.setFont(font)
+
+
+class Code(Text):
+    def __init__(self, text: str | None = None):
+        super().__init__(text)
+        font = QFont()
+        self.setFont(font)
+
+    def setText(self, a0: str | None) -> None:
+        super().setText(f'<pre>{a0}</pre>' if a0 else a0)

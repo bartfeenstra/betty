@@ -16,6 +16,7 @@ from pytestqt.qtbot import QtBot
 
 from betty.app import AppConfiguration, App
 from betty.gui import BettyApplication
+from betty.gui.app import BettyPrimaryWindow
 from betty.gui.error import ErrorT
 
 _qapp_instance: BettyApplication | None = None
@@ -117,7 +118,8 @@ class BettyQtBot:
             assert len(windows) == 1
         self.qtbot.waitUntil(_assert_window)
         window = windows[0]
-        self.qtbot.addWidget(window)
+        if isinstance(window, BettyPrimaryWindow):
+            self.qtbot.addWidget(window)
         return cast(QMainWindowT, window)
 
     def assert_not_window(self, window_type: type[QMainWindow] | QMainWindow) -> None:
@@ -147,7 +149,6 @@ class BettyQtBot:
             widget = self.qapp.activeModalWidget()
             assert isinstance(widget, error_type)
         self.qtbot.waitUntil(_assert_error_modal)
-        self.qtbot.addWidget(widget)
         return cast(ErrorT, widget)
 
     def assert_valid(self, widget: QWidget) -> None:

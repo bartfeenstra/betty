@@ -647,6 +647,9 @@ class _GenerateWindow(BettyMainWindow):
         self._serve_button.released.connect(self._serve)
         button_layout.addWidget(self._serve_button)
 
+        self._log_record_viewer = LogRecordViewer()
+        central_layout.addWidget(self._log_record_viewer)
+
         self._logging_handler = LogRecordViewerHandler(self._log_record_viewer)
         load.getLogger().addHandler(self._logging_handler)
         generate.getLogger().addHandler(self._logging_handler)

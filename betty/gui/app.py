@@ -29,10 +29,9 @@ class BettyPrimaryWindow(BettyMainWindow):
     def __init__(
         self,
         app: App,
-        *,
-        parent: QObject | None = None,
+        /,
     ):
-        super().__init__(app, parent=parent)
+        super().__init__(app)
         self.setWindowIcon(QIcon(path.join(path.dirname(__file__), 'assets', 'public', 'static', 'betty-512x512.png')))
 
         menu_bar = self.menuBar()
