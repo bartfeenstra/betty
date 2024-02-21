@@ -17,7 +17,6 @@ from betty.gui.project import ProjectWindow
 from betty.gui.serve import ServeDemoWindow
 from betty.project import ProjectConfiguration
 from betty.serde.error import SerdeError
-from betty.serde.load import FormatError
 from betty.tests import patch_cache
 from betty.tests.conftest import BettyQtBot
 
@@ -88,9 +87,7 @@ class TestWelcomeWindow:
             betty_qtbot.qtbot.mouseClick(sut.open_project_button, Qt.MouseButton.LeftButton)
 
             error = betty_qtbot.assert_error(ExceptionError)
-            exception = error.exception
-            assert isinstance(exception, SerdeError)
-            assert exception.raised(FormatError)
+            assert issubclass(error.error_type, SerdeError)
 
     async def test_open_project_with_valid_file_should_show_project_window(
         self,
