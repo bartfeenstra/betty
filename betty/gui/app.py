@@ -16,7 +16,7 @@ from betty.about import report
 from betty.app import App
 from betty.asyncio import sync, wait
 from betty.gui import get_configuration_file_filter
-from betty.gui.error import catch_exceptions
+from betty.gui.error import ExceptionCatcher
 from betty.gui.locale import TranslationsLocaleCollector
 from betty.gui.serve import ServeDemoWindow, ServeDocsWindow
 from betty.gui.text import Text
@@ -125,9 +125,9 @@ class BettyPrimaryWindow(BettyMainWindow):
         self._docs_action.setText(self._app.localizer._('View documentation'))
         self.about_action.setText(self._app.localizer._('About Betty'))
 
-    @catch_exceptions
     def report_bug(self) -> None:
-        body = f'''
+        with ExceptionCatcher(self):
+            body = f'''
 ## Summary
 
 ## Steps to reproduce
@@ -139,83 +139,83 @@ class BettyPrimaryWindow(BettyMainWindow):
 {report()}
 ```
 '''.strip()
-        webbrowser.open_new_tab('https://github.com/bartfeenstra/betty/issues/new?' + urlencode({
-            'body': body,
-            'labels': 'bug',
-        }))
+            webbrowser.open_new_tab('https://github.com/bartfeenstra/betty/issues/new?' + urlencode({
+                'body': body,
+                'labels': 'bug',
+            }))
 
-    @catch_exceptions
     def request_feature(self) -> None:
-        body = '''
+        with ExceptionCatcher(self):
+            body = '''
 ## Summary
 
 ## Expected behavior
 
 '''.strip()
-        webbrowser.open_new_tab('https://github.com/bartfeenstra/betty/issues/new?' + urlencode({
-            'body': body,
-            'labels': 'enhancement',
-        }))
+            webbrowser.open_new_tab('https://github.com/bartfeenstra/betty/issues/new?' + urlencode({
+                'body': body,
+                'labels': 'enhancement',
+            }))
 
-    @catch_exceptions
     def _docs(self) -> None:
-        serve_window = ServeDocsWindow(self._app, parent=self)
-        serve_window.show()
+        with ExceptionCatcher(self):
+            serve_window = ServeDocsWindow(self._app, parent=self)
+            serve_window.show()
 
-    @catch_exceptions
     def _about_betty(self) -> None:
-        about_window = _AboutBettyWindow(self._app, parent=self)
-        about_window.show()
+        with ExceptionCatcher(self):
+            about_window = _AboutBettyWindow(self._app, parent=self)
+            about_window.show()
 
-    @catch_exceptions
     def open_project(self) -> None:
-        from betty.gui.project import ProjectWindow
+        with ExceptionCatcher(self):
+            from betty.gui.project import ProjectWindow
 
-        configuration_file_path_str, __ = QFileDialog.getOpenFileName(
-            self,
-            self._app.localizer._('Open your project from...'),
-            '',
-            get_configuration_file_filter().localize(self._app.localizer),
-        )
-        if not configuration_file_path_str:
-            return
-        wait(self._app.project.configuration.read(Path(configuration_file_path_str)))
-        project_window = ProjectWindow(self._app)
-        project_window.show()
-        self.close()
+            configuration_file_path_str, __ = QFileDialog.getOpenFileName(
+                self,
+                self._app.localizer._('Open your project from...'),
+                '',
+                get_configuration_file_filter().localize(self._app.localizer),
+            )
+            if not configuration_file_path_str:
+                return
+            wait(self._app.project.configuration.read(Path(configuration_file_path_str)))
+            project_window = ProjectWindow(self._app)
+            project_window.show()
+            self.close()
 
-    @catch_exceptions
     def new_project(self) -> None:
-        from betty.gui.project import ProjectWindow
+        with ExceptionCatcher(self):
+            from betty.gui.project import ProjectWindow
 
-        configuration_file_path_str, __ = QFileDialog.getSaveFileName(
-            self,
-            self._app.localizer._('Save your new project to...'),
-            '',
-            get_configuration_file_filter().localize(self._app.localizer),
-        )
-        if not configuration_file_path_str:
-            return
-        configuration = ProjectConfiguration()
-        wait(configuration.write(Path(configuration_file_path_str)))
-        project_window = ProjectWindow(self._app)
-        project_window.show()
-        self.close()
+            configuration_file_path_str, __ = QFileDialog.getSaveFileName(
+                self,
+                self._app.localizer._('Save your new project to...'),
+                '',
+                get_configuration_file_filter().localize(self._app.localizer),
+            )
+            if not configuration_file_path_str:
+                return
+            configuration = ProjectConfiguration()
+            wait(configuration.write(Path(configuration_file_path_str)))
+            project_window = ProjectWindow(self._app)
+            project_window.show()
+            self.close()
 
-    @catch_exceptions
     def _demo(self) -> None:
-        serve_window = ServeDemoWindow(self._app, parent=self)
-        serve_window.show()
+        with ExceptionCatcher(self):
+            serve_window = ServeDemoWindow(self._app, parent=self)
+            serve_window.show()
 
-    @catch_exceptions
     @sync
     async def clear_caches(self) -> None:
-        await self._app.cache.clear()
+        async with ExceptionCatcher(self):
+            await self._app.cache.clear()
 
-    @catch_exceptions
     def open_application_configuration(self) -> None:
-        window = ApplicationConfiguration(self._app, parent=self)
-        window.show()
+        with ExceptionCatcher(self):
+            window = ApplicationConfiguration(self._app, parent=self)
+            window.show()
 
 
 class _WelcomeText(Text):

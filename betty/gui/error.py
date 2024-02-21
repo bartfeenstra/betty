@@ -3,10 +3,10 @@ Provide error handling for the Graphical User Interface.
 """
 from __future__ import annotations
 
-import functools
 import traceback
+from asyncio import CancelledError
 from types import TracebackType
-from typing import Callable, Any, TypeVar, Generic, TYPE_CHECKING, ParamSpec
+from typing import Any, TypeVar, Generic, ParamSpec
 
 from PyQt6.QtCore import QMetaObject, Qt, Q_ARG, QObject
 from PyQt6.QtGui import QCloseEvent, QIcon
@@ -15,66 +15,60 @@ from PyQt6.QtWidgets import QWidget, QMessageBox
 from betty.app import App
 from betty.gui.locale import LocalizedObject
 
-if TYPE_CHECKING:
-    from betty.gui import QWidgetT
-
-
 T = TypeVar('T')
 P = ParamSpec('P')
 
+BaseExceptionT = TypeVar('BaseExceptionT', bound=BaseException)
 
-class _ExceptionCatcher(Generic[P, T]):
+
+class ExceptionCatcher(Generic[P, T]):
+    """
+    Catch any exception and show an error window instead.
+    """
+
+    _SUPPRESS_EXCEPTION_TYPES = (
+        CancelledError,
+    )
+
     def __init__(
-            self,
-            f: Callable[P, T] | None = None,
-            parent: QWidget | None = None,
-            close_parent: bool = False,
-            instance: QWidget | None = None,
+        self,
+        parent: QObject,
+        *,
+        close_parent: bool = False,
     ):
-        if f:
-            functools.update_wrapper(self, f)
-        self._f = f
-        if close_parent and not parent:
-            raise ValueError('No parent was given to close.')
-        self._parent = instance if parent is None else parent
+        self._parent = parent
         self._close_parent = close_parent
-        self._instance = instance
-
-    def __get__(self, instance: QWidgetT | None, owner: type[QWidgetT] | None = None) -> Any:
-        if instance is None:
-            return self
-        assert isinstance(instance, QWidget)
-        return type(self)(self._f, instance, self._close_parent, instance)
-
-    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T:
-        if not self._f:
-            raise RuntimeError('This exception catcher is not callable, but you can use it as a context manager instead using a `with` statement.')
-        if self._instance is not None:
-            args = (self._instance, *args)  # type: ignore[assignment]
-        with self:
-            return self._f(*args, **kwargs)
 
     def __enter__(self) -> None:
         pass
 
     def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool | None:
+        return self._catch(exc_type, exc_val)
+
+    async def __aenter__(self) -> None:
+        pass
+
+    async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool | None:
+        return self._catch(exc_type, exc_val)
+
+    def _catch(self, exception_type: type[BaseExceptionT] | None, exception: BaseExceptionT | None) -> bool | None:
         from betty.gui import BettyApplication
 
-        if exc_val is None:
+        if exception_type is None or exception is None:
             return None
+
+        if isinstance(exception, self._SUPPRESS_EXCEPTION_TYPES):
+            return None
+
         QMetaObject.invokeMethod(
             BettyApplication.instance(),
             '_catch_exception',
             Qt.ConnectionType.QueuedConnection,
-            Q_ARG(Exception, exc_val),
+            Q_ARG(Exception, exception),
             Q_ARG(QObject, self._parent),
             Q_ARG(bool, self._close_parent),
         )
         return True
-
-
-# Alias the class so its original name follows the PEP code style, but the alias follows the decorator code style.
-catch_exceptions = _ExceptionCatcher
 
 
 class Error(LocalizedObject, QMessageBox):

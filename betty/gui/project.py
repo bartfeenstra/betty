@@ -24,7 +24,7 @@ from betty.app.extension import UserFacingExtension
 from betty.asyncio import sync, wait
 from betty.gui import get_configuration_file_filter, GuiBuilder, mark_invalid, mark_valid
 from betty.gui.app import BettyPrimaryWindow
-from betty.gui.error import catch_exceptions
+from betty.gui.error import ExceptionCatcher
 from betty.gui.locale import LocalizedObject
 from betty.gui.locale import TranslationsLocaleCollector
 from betty.gui.logging import LogRecordViewerHandler, LogRecordViewer
@@ -348,21 +348,21 @@ class _AddLocaleWindow(BettyMainWindow):
     def window_title(self) -> Localizable:
         return Str._('Add a locale')
 
-    @catch_exceptions
     def _save_and_close_locale(self) -> None:
-        locale = self._locale_collector.locale.currentData()
-        alias: str | None = self._alias.text().strip()
-        if alias == '':
-            alias = None
-        try:
-            self._app.project.configuration.locales.append(LocaleConfiguration(
-                locale,
-                alias=alias,
-            ))
-        except AssertionFailed as e:
-            mark_invalid(self._alias, str(e))
-            return
-        self.close()
+        with ExceptionCatcher(self):
+            locale = self._locale_collector.locale.currentData()
+            alias: str | None = self._alias.text().strip()
+            if alias == '':
+                alias = None
+            try:
+                self._app.project.configuration.locales.append(LocaleConfiguration(
+                    locale,
+                    alias=alias,
+                ))
+            except AssertionFailed as e:
+                mark_invalid(self._alias, str(e))
+                return
+            self.close()
 
 
 class _ExtensionPane(LocalizedObject, QWidget):
@@ -380,22 +380,22 @@ class _ExtensionPane(LocalizedObject, QWidget):
         self._extension_description = Text()
         enable_layout.addRow(self._extension_description)
 
-        @catch_exceptions
         def _update_enabled(enabled: bool) -> None:
-            if enabled:
-                self._app.project.configuration.extensions.enable(extension_type)
-                extension = self._app.extensions[extension_type]
-                if isinstance(extension, GuiBuilder):
-                    layout.addWidget(extension.gui_build())
-            else:
-                self._app.project.configuration.extensions.disable(extension_type)
-                extension_gui_item = layout.itemAt(1)
-                if extension_gui_item is not None:
-                    extension_gui_widget = extension_gui_item.widget()
-                    assert extension_gui_widget is not None
-                    layout.removeWidget(extension_gui_widget)
-                    extension_gui_widget.setParent(None)
-                    del extension_gui_widget
+            with ExceptionCatcher(self):
+                if enabled:
+                    self._app.project.configuration.extensions.enable(extension_type)
+                    extension = self._app.extensions[extension_type]
+                    if isinstance(extension, GuiBuilder):
+                        layout.addWidget(extension.gui_build())
+                else:
+                    self._app.project.configuration.extensions.disable(extension_type)
+                    extension_gui_item = layout.itemAt(1)
+                    if extension_gui_item is not None:
+                        extension_gui_widget = extension_gui_item.widget()
+                        assert extension_gui_widget is not None
+                        layout.removeWidget(extension_gui_widget)
+                        extension_gui_widget.setParent(None)
+                        del extension_gui_widget
 
         self._extension_enabled = QCheckBox()
         self._extension_enabled_caption = Caption()
@@ -568,25 +568,25 @@ class ProjectWindow(BettyPrimaryWindow):
     def _set_window_title(self) -> None:
         self.setWindowTitle('%s - Betty' % self._app.project.configuration.title)
 
-    @catch_exceptions
     def _save_project_as(self) -> None:
-        configuration_file_path_str, __ = QFileDialog.getSaveFileName(
-            self,
-            self._app.localizer._('Save your project to...'),
-            '',
-            get_configuration_file_filter().localize(self._app.localizer),
-        )
-        wait(self._app.project.configuration.write(Path(configuration_file_path_str)))
+        with ExceptionCatcher(self):
+            configuration_file_path_str, __ = QFileDialog.getSaveFileName(
+                self,
+                self._app.localizer._('Save your project to...'),
+                '',
+                get_configuration_file_filter().localize(self._app.localizer),
+            )
+            wait(self._app.project.configuration.write(Path(configuration_file_path_str)))
 
-    @catch_exceptions
     def _generate(self) -> None:
-        generate_window = _GenerateWindow(self._app, parent=self)
-        generate_window.show()
+        with ExceptionCatcher(self):
+            generate_window = _GenerateWindow(self._app, parent=self)
+            generate_window.show()
 
-    @catch_exceptions
     def _serve(self) -> None:
-        serve_window = ServeProjectWindow(self._app, parent=self)
-        serve_window.show()
+        with ExceptionCatcher(self):
+            serve_window = ServeProjectWindow(self._app, parent=self)
+            serve_window.show()
 
 
 class _GenerateThread(QThread):
@@ -601,7 +601,7 @@ class _GenerateThread(QThread):
         self._task = asyncio.create_task(self._generate())
 
     async def _generate(self) -> None:
-        with catch_exceptions(parent=self._generate_window, close_parent=True):
+        with ExceptionCatcher(self._generate_window, close_parent=True):
             async with App(project=self._project) as app:
                 await load.load(app)
                 await generate.generate(app)
@@ -654,10 +654,10 @@ class _GenerateWindow(BettyMainWindow):
     def window_title(self) -> Localizable:
         return Str._('Generating your site...')
 
-    @catch_exceptions
     def _serve(self) -> None:
-        serve_window = ServeProjectWindow(self._app, parent=self)
-        serve_window.show()
+        with ExceptionCatcher(self):
+            serve_window = ServeProjectWindow(self._app, parent=self)
+            serve_window.show()
 
     def show(self) -> None:
         super().show()
