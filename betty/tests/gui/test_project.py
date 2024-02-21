@@ -146,10 +146,10 @@ class TestLocalizationPane:
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()
 
-            betty_qtbot.qtbot.mouseClick(sut._add_locale_button, Qt.MouseButton.LeftButton)
+            betty_qtbot.mouse_click(sut._add_locale_button)
             betty_qtbot.assert_window(_AddLocaleWindow)
 
-    async def test_remove_locale(self, qtbot: QtBot) -> None:
+    async def test_remove_locale(self, betty_qtbot: BettyQtBot) -> None:
         locale = 'de-DE'
         async with App() as app:
             app.project.configuration.locales.append(
@@ -157,14 +157,11 @@ class TestLocalizationPane:
                 LocaleConfiguration(locale),
             )
             sut = _LocalizationPane(app)
-            qtbot.addWidget(sut)
+            betty_qtbot.qtbot.addWidget(sut)
             sut.show()
             widget = sut._locales_configuration_widget
             assert widget is not None
-            qtbot.mouseClick(
-                widget._remove_buttons[locale],
-                Qt.MouseButton.LeftButton
-            )
+            betty_qtbot.mouse_click(widget._remove_buttons[locale])
 
             assert locale not in app.project.configuration.locales
 
@@ -249,7 +246,7 @@ class TestAddLocaleWindow:
             locale = 'nl-NL'
             sut._locale_collector.locale.setCurrentText(get_display_name(locale))
 
-            betty_qtbot.qtbot.mouseClick(sut._save_and_close, Qt.MouseButton.LeftButton)
+            betty_qtbot.mouse_click(sut._save_and_close)
             betty_qtbot.assert_not_window(sut)
 
             assert locale in sut._app.project.configuration.locales
@@ -269,7 +266,7 @@ class TestAddLocaleWindow:
             sut._locale_collector.locale.setCurrentText(get_display_name(locale))
             sut._alias.setText(alias)
 
-            betty_qtbot.qtbot.mouseClick(sut._save_and_close, Qt.MouseButton.LeftButton)
+            betty_qtbot.mouse_click(sut._save_and_close)
             betty_qtbot.assert_not_window(sut)
 
             assert locale in sut._app.project.configuration.locales
@@ -289,7 +286,7 @@ class TestAddLocaleWindow:
             sut._locale_collector.locale.setCurrentText(get_display_name(locale))
             sut._alias.setText(alias)
 
-            betty_qtbot.qtbot.mouseClick(sut._save_and_close, Qt.MouseButton.LeftButton)
+            betty_qtbot.mouse_click(sut._save_and_close)
 
             betty_qtbot.assert_window(sut)
             betty_qtbot.assert_invalid(sut._alias)
