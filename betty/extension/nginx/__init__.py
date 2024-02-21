@@ -12,7 +12,7 @@ from betty.config import Configuration
 from betty.extension.nginx.artifact import generate_configuration_file, generate_dockerfile_file
 from betty.generate import Generator, GenerationContext
 from betty.gui import GuiBuilder
-from betty.gui.error import catch_exceptions
+from betty.gui.error import ExceptionCatcher
 from betty.locale import Str
 from betty.serde.dump import Dump, VoidableDump, minimize, Void, VoidableDictDump
 from betty.serde.load import Asserter, Fields, OptionalField, Assertions
@@ -171,11 +171,11 @@ class _NginxGuiWidget(QWidget):
         www_directory_path_layout = QHBoxLayout()
         www_directory_path_layout.addWidget(self._nginx_www_directory_path)
 
-        @catch_exceptions
         def find_www_directory_path() -> None:
-            found_www_directory_path = QFileDialog.getExistingDirectory(self, 'Serve your site from...', directory=self._nginx_www_directory_path.text())
-            if '' != found_www_directory_path:
-                self._nginx_www_directory_path.setText(found_www_directory_path)
+            with ExceptionCatcher(self):
+                found_www_directory_path = QFileDialog.getExistingDirectory(self, 'Serve your site from...', directory=self._nginx_www_directory_path.text())
+                if '' != found_www_directory_path:
+                    self._nginx_www_directory_path.setText(found_www_directory_path)
         self._nginx_www_directory_path_find = QPushButton('...')
         self._nginx_www_directory_path_find.released.connect(find_www_directory_path)
         www_directory_path_layout.addWidget(self._nginx_www_directory_path_find)

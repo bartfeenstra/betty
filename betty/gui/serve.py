@@ -12,7 +12,7 @@ from betty import documentation, fs
 from betty.app import App
 from betty.asyncio import sync
 from betty.extension import demo
-from betty.gui.error import catch_exceptions
+from betty.gui.error import ExceptionCatcher
 from betty.gui.text import Text
 from betty.gui.window import BettyMainWindow
 from betty.locale import Str, Localizable
@@ -36,7 +36,7 @@ class _ServeThread(QThread):
 
     @sync
     async def run(self) -> None:
-        with catch_exceptions(parent=self._serve_window, close_parent=True):
+        with ExceptionCatcher(self._serve_window, close_parent=True):
             async with App(project=self._project) as self._app:
                 await self._server.start()
                 self.server_started.emit()

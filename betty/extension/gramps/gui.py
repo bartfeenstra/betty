@@ -15,7 +15,7 @@ from betty.app import App
 from betty.extension import Gramps
 from betty.extension.gramps.config import FamilyTreeConfiguration
 from betty.gui import mark_valid, mark_invalid
-from betty.gui.error import catch_exceptions
+from betty.gui.error import ExceptionCatcher
 from betty.gui.locale import LocalizedObject
 from betty.gui.text import Text
 from betty.gui.window import BettyMainWindow
@@ -116,15 +116,15 @@ class _AddFamilyTreeWindow(BettyMainWindow):
         file_path_layout = QHBoxLayout()
         file_path_layout.addWidget(self._file_path)
 
-        @catch_exceptions
         def find_family_tree_file_path() -> None:
-            found_family_tree_file_path, __ = QFileDialog.getOpenFileName(
-                self._widget,
-                self._app.localizer._('Load the family tree from...'),
-                directory=self._file_path.text(),
-            )
-            if '' != found_family_tree_file_path:
-                self._file_path.setText(found_family_tree_file_path)
+            with ExceptionCatcher(self):
+                found_family_tree_file_path, __ = QFileDialog.getOpenFileName(
+                    self._widget,
+                    self._app.localizer._('Load the family tree from...'),
+                    directory=self._file_path.text(),
+                )
+                if '' != found_family_tree_file_path:
+                    self._file_path.setText(found_family_tree_file_path)
         self._file_path_find = QPushButton('...')
         self._file_path_find.released.connect(find_family_tree_file_path)
         file_path_layout.addWidget(self._file_path_find)
@@ -134,10 +134,10 @@ class _AddFamilyTreeWindow(BettyMainWindow):
         buttons_layout = QHBoxLayout()
         self._layout.addRow(buttons_layout)
 
-        @catch_exceptions
         def save_and_close_family_tree() -> None:
-            self._app.extensions[Gramps].configuration.family_trees.append(self._family_tree)
-            self.close()
+            with ExceptionCatcher(self):
+                self._app.extensions[Gramps].configuration.family_trees.append(self._family_tree)
+                self.close()
         self._save_and_close = QPushButton()
         self._save_and_close.setDisabled(True)
         self._save_and_close.released.connect(save_and_close_family_tree)
