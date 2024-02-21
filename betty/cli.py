@@ -18,6 +18,7 @@ from click import get_current_context, Context, Option, Command, Parameter
 from betty import about, generate, load, documentation, fs
 from betty.app import App
 from betty.asyncio import sync, wait
+from betty.bootstrap import bootstrap
 from betty.error import UserFacingError
 from betty.extension import demo
 from betty.gui import BettyApplication
@@ -99,6 +100,8 @@ async def _init_ctx_app(
     __: Option | Parameter | None = None,
     configuration_file_path: str | None = None,
 ) -> None:
+    bootstrap()
+
     ctx.ensure_object(dict)
 
     if 'initialized' in ctx.obj:

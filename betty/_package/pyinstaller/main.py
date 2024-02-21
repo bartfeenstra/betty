@@ -3,6 +3,7 @@ from multiprocessing import freeze_support
 
 from betty.app import App
 from betty.asyncio import sync
+from betty.bootstrap import bootstrap
 from betty.gui import BettyApplication
 from betty.gui.app import WelcomeWindow
 
@@ -12,6 +13,7 @@ async def main() -> None:
     """
     Launch Betty for PyInstaller builds.
     """
+    bootstrap()
     freeze_support()
     async with App() as app:
         qapp = BettyApplication([sys.argv[0]], app=app)

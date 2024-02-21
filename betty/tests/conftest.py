@@ -15,8 +15,13 @@ from _pytest.logging import LogCaptureFixture
 from pytestqt.qtbot import QtBot
 
 from betty.app import AppConfiguration, App
+from betty.bootstrap import bootstrap
 from betty.gui import BettyApplication
 from betty.gui.error import ErrorT
+
+
+bootstrap()
+
 
 _qapp_instance: BettyApplication | None = None
 
