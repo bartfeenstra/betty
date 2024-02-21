@@ -8,7 +8,7 @@ from typing import cast, Sequence
 
 import yaml
 
-from betty.locale import Str, Localizer
+from betty.locale import Str, Localizer, Localizable
 from betty.serde.dump import Dump, VoidableDump
 from betty.serde.load import FormatError
 
@@ -106,7 +106,7 @@ class FormatRepository:
         ))
 
 
-class FormatStr(Str):
+class FormatStr(Localizable):
     def __init__(self, formats: Sequence[Format]):
         self._formats = formats
 
