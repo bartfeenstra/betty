@@ -1,4 +1,5 @@
 import json
+from asyncio import sleep
 from pathlib import Path
 
 import aiofiles
@@ -202,18 +203,19 @@ class TestLocalizationPane:
 
 
 class TestGenerateWindow:
-    async def test_cancel_button_should_close_window(
-        self,
-        betty_qtbot: BettyQtBot,
-    ) -> None:
+    async def test_cancel_button_should_close_window(self, mocker: MockerFixture, betty_qtbot: BettyQtBot) -> None:
+        async def _generate(app: App) -> None:
+            # Ensure this takes a very long time, longer than any timeout. That way,
+            # if cancellation fails, this test may never pass.
+            await sleep(999999999)
+        mocker.patch('betty.generate.generate', new_callable=lambda: _generate)
+
         async with App() as app:
             sut = _GenerateWindow(app)
             betty_qtbot.qtbot.addWidget(sut)
 
-            with betty_qtbot.qtbot.waitSignal(sut._thread.finished):
-                sut.show()
-                betty_qtbot.qtbot.mouseClick(sut._cancel_button, Qt.MouseButton.LeftButton)
-
+            sut.show()
+            betty_qtbot.mouse_click(sut._cancel_button)
             betty_qtbot.assert_not_window(sut)
 
     async def test_serve_button_should_open_serve_window(
