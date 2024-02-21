@@ -12,7 +12,7 @@ from betty.app import App
 from betty.error import UserFacingError
 from betty.gui.error import ExceptionError, UnexpectedExceptionError
 from betty.locale import Str
-from betty.serde.format import FormatRepository, FormatStr
+from betty.serde.format import FormatRepository
 
 QWidgetT = TypeVar('QWidgetT', bound=QWidget)
 
@@ -24,7 +24,12 @@ def get_configuration_file_filter() -> Str:
     formats = FormatRepository()
     return Str._(
         'Betty project configuration ({supported_formats})',
-        supported_formats=FormatStr(formats.formats),
+        supported_formats=' '.join(
+            f'*.{extension}'
+            for format
+            in formats.formats
+            for extension in format.extensions
+        ),
     )
 
 
