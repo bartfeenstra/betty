@@ -1,7 +1,7 @@
 """Provide the Graphical User Interface (GUI) for Betty Desktop."""
 from __future__ import annotations
 
-from logging import getLogger
+import pickle
 from typing import Any, TypeVar
 
 from PyQt6.QtCore import pyqtSlot, QObject
@@ -128,19 +128,23 @@ class BettyApplication(QApplication):
         self._app = app
 
     @pyqtSlot(
-        Exception,
+        type,
+        bytes,
+        str,
         QObject,
         bool,
     )
-    def _catch_exception(
+    def _catch_error(
         self,
-        e: Exception,
-        parent: QObject,
+        error_type: type[Exception],
+        pickled_error_message: bytes,
+        error_traceback: str | None,
+        parent: QWidget,
         close_parent: bool,
     ) -> None:
-        if isinstance(e, UserFacingError):
-            window = ExceptionError(self._app, e, parent, close_parent=close_parent)
+        error_message = pickle.loads(pickled_error_message)
+        if issubclass(error_type, UserFacingError):
+            window = ExceptionError(parent, self._app, error_type, error_message, close_parent=close_parent)
         else:
-            getLogger(__name__).exception(e)
-            window = UnexpectedExceptionError(self._app, e, parent, close_parent=close_parent)
+            window = UnexpectedExceptionError(parent, self._app, error_type, error_message, error_traceback, close_parent=close_parent)
         window.show()

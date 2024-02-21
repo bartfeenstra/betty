@@ -3,17 +3,20 @@ Provide error handling for the Graphical User Interface.
 """
 from __future__ import annotations
 
+import pickle
 import traceback
 from asyncio import CancelledError
 from types import TracebackType
-from typing import Any, TypeVar, Generic, ParamSpec
+from typing import TypeVar, Generic, ParamSpec
 
 from PyQt6.QtCore import QMetaObject, Qt, Q_ARG, QObject
 from PyQt6.QtGui import QCloseEvent, QIcon
-from PyQt6.QtWidgets import QWidget, QMessageBox
+from PyQt6.QtWidgets import QMessageBox, QWidget
 
 from betty.app import App
+from betty.error import UserFacingError
 from betty.gui.locale import LocalizedObject
+from betty.locale import Str, Localizable
 
 T = TypeVar('T')
 P = ParamSpec('P')
@@ -62,9 +65,11 @@ class ExceptionCatcher(Generic[P, T]):
 
         QMetaObject.invokeMethod(
             BettyApplication.instance(),
-            '_catch_exception',
+            '_catch_error',
             Qt.ConnectionType.QueuedConnection,
-            Q_ARG(Exception, exception),
+            Q_ARG(type, type(exception)),
+            Q_ARG(bytes, pickle.dumps(exception if isinstance(exception, UserFacingError) else Str.plain(str(exception)))),
+            Q_ARG(str, ''.join(traceback.format_exception(exception))),
             Q_ARG(QObject, self._parent),
             Q_ARG(bool, self._close_parent),
         )
@@ -74,16 +79,17 @@ class ExceptionCatcher(Generic[P, T]):
 class Error(LocalizedObject, QMessageBox):
     def __init__(
         self,
+        parent: QObject,
         app: App,
-        message: str,
-        *args: Any,
+        message: Localizable,
+        *,
         close_parent: bool = False,
-        **kwargs: Any,
     ):
-        super().__init__(app, *args, **kwargs)
+        super().__init__(app, parent)
+        self._message = message
+        if close_parent and not isinstance(parent, QWidget):
+            raise ValueError('If `close_parent` is true, `parent` must be `QWidget`.')
         self._close_parent = close_parent
-        self.setWindowTitle('{error} - Betty'.format(error=self._app.localizer._("Error")))
-        self.setText(message)
 
         standard_button_type = QMessageBox.StandardButton.Close
         self.setStandardButtons(standard_button_type)
@@ -101,21 +107,44 @@ class Error(LocalizedObject, QMessageBox):
                 parent.close()
         super().closeEvent(a0)
 
+    def _set_translatables(self) -> None:
+        super()._set_translatables()
+        self.setWindowTitle('{error} - Betty'.format(error=self._app.localizer._("Error")))
+        self.setText(self._message.localize(self._app.localizer))
+
 
 ErrorT = TypeVar('ErrorT', bound=Error)
 
 
 class ExceptionError(Error):
-    def __init__(self, app: App, exception: Exception, *args: Any, **kwargs: Any):
-        super().__init__(app, str(exception), *args, **kwargs)
-        self.exception = exception
+    def __init__(
+        self,
+        parent: QWidget,
+        app: App,
+        error_type: type[BaseException],
+        error_message: Localizable,
+        *,
+        close_parent: bool = False,
+    ):
+        super().__init__(parent, app, error_message, close_parent=close_parent)
+        self.error_type = error_type
 
 
 class UnexpectedExceptionError(ExceptionError):
-    def __init__(self, app: App, exception: Exception, *args: Any, **kwargs: Any):
-        super().__init__(app, exception, *args, **kwargs)
+    def __init__(
+        self,
+        parent: QWidget,
+        app: App,
+        error_type: type[BaseException],
+        error_message: Localizable,
+        error_traceback: str | None,
+        *,
+        close_parent: bool = False,
+    ):
+        super().__init__(parent, app, error_type, error_message, close_parent=close_parent)
         self.setText(self._app.localizer._('An unexpected error occurred and Betty could not complete the task. Please <a href="{report_url}">report this problem</a> and include the following details, so the team behind Betty can address it.').format(
             report_url='https://github.com/bartfeenstra/betty/issues',
         ))
         self.setTextFormat(Qt.TextFormat.RichText)
-        self.setDetailedText(''.join(traceback.format_exception(type(exception), exception, exception.__traceback__)))
+        if error_traceback:
+            self.setDetailedText(error_traceback)
