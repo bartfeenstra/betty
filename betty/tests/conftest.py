@@ -124,15 +124,17 @@ class BettyQtBot:
         """
         Assert that a window is not shown.
         """
-        if isinstance(window_type, QMainWindow):
-            assert not window_type.isVisible()
-        windows = [
-            window
-            for window
-            in self.qapp.topLevelWidgets()
-            if window.isVisible() and (isinstance(window, window_type) if isinstance(window_type, type) else window is window_type)
-        ]
-        assert len(windows) == 0
+        def _assert_not_window() -> None:
+            if isinstance(window_type, QMainWindow):
+                assert not window_type.isVisible()
+            windows = [
+                window
+                for window
+                in self.qapp.topLevelWidgets()
+                if window.isVisible() and (isinstance(window, window_type) if isinstance(window_type, type) else window is window_type)
+            ]
+            assert len(windows) == 0
+        self.qtbot.waitUntil(_assert_not_window)
 
     def assert_error(self, error_type: type[ErrorT]) -> ErrorT:
         """
