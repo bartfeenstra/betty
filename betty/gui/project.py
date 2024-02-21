@@ -440,8 +440,6 @@ class ProjectWindow(BettyPrimaryWindow):
     ):
         super().__init__(app)
 
-        self._set_window_title()
-
         central_widget = QWidget()
         central_layout = QHBoxLayout()
         central_widget.setLayout(central_layout)
@@ -565,8 +563,9 @@ class ProjectWindow(BettyPrimaryWindow):
             self._pane_selectors[extension_pane_name].setText(extension_type.label().localize(self._app.localizer))
             self._extension_pane_selectors_layout.addWidget(self._pane_selectors[extension_pane_name])
 
-    def _set_window_title(self) -> None:
-        self.setWindowTitle('%s - Betty' % self._app.project.configuration.title)
+    @property
+    def window_title(self) -> Localizable:
+        return Str.plain(self._app.project.configuration.title)
 
     def _save_project_as(self) -> None:
         with ExceptionCatcher(self):
