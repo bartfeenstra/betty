@@ -5,15 +5,14 @@ from __future__ import annotations
 
 import datetime
 from collections import defaultdict
-from contextlib import suppress
 from pathlib import Path
 from typing import Callable, Any, cast, \
-    MutableMapping, Mapping, TypeVar
+    Mapping, TypeVar
 
 import aiofiles
 from aiofiles import os as aiofiles_os
 from jinja2 import Environment as Jinja2Environment, select_autoescape, FileSystemLoader, pass_context, \
-    Template as Jinja2Template, TemplateNotFound, BaseLoader
+    Template as Jinja2Template, BaseLoader
 from jinja2.runtime import StrictUndefined, Context, DebugUndefined, new_context
 
 from betty import task
@@ -264,17 +263,6 @@ class Environment(Jinja2Environment):
                 self.globals.update(extension.globals)
                 self.filters.update(extension.filters)
                 self.tests.update(extension.tests)
-
-    def negotiate_template(
-        self,
-        names: list[str],
-        parent: str | None = None,
-        globals: MutableMapping[str, Any] | None = None,
-    ) -> Template:
-        for name in names:
-            with suppress(TemplateNotFound):
-                return cast(Template, self.get_template(name, parent, globals))
-        raise TemplateNotFound(names[-1], f'Cannot find any of the following templates: {", ".join(names)}.')
 
 
 Template.environment_class = Environment
