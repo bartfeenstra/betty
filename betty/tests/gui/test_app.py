@@ -4,7 +4,6 @@ from pathlib import Path
 
 import aiofiles
 import pytest
-from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
 from pytest_mock import MockerFixture
 from pytestqt.qtbot import QtBot
@@ -84,7 +83,7 @@ class TestWelcomeWindow:
             # Purposefully leave the file empty so it is invalid.
             configuration_file_path.write_text('')
             mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[str(configuration_file_path), None]))
-            betty_qtbot.qtbot.mouseClick(sut.open_project_button, Qt.MouseButton.LeftButton)
+            betty_qtbot.mouse_click(sut.open_project_button)
 
             error = betty_qtbot.assert_error(ExceptionError)
             assert issubclass(error.error_type, SerdeError)
@@ -106,7 +105,7 @@ class TestWelcomeWindow:
             sut.show()
 
             mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[str(configuration.configuration_file_path), None]))
-            betty_qtbot.qtbot.mouseClick(sut.open_project_button, Qt.MouseButton.LeftButton)
+            betty_qtbot.mouse_click(sut.open_project_button)
 
             window = betty_qtbot.assert_window(ProjectWindow)
             assert window._app.project.configuration.title == title
@@ -124,7 +123,7 @@ class TestWelcomeWindow:
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()
 
-            betty_qtbot.qtbot.mouseClick(sut.demo_button, Qt.MouseButton.LeftButton)
+            betty_qtbot.mouse_click(sut.demo_button)
 
             betty_qtbot.assert_window(ServeDemoWindow)
 
