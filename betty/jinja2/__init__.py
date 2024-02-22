@@ -191,6 +191,7 @@ class Environment(Jinja2Environment):
         template_directory_paths = [str(path / 'templates') for path, _ in app.assets.paths]
         super().__init__(
             loader=FileSystemLoader(template_directory_paths),
+            auto_reload=app.project.configuration.debug,
             enable_async=True,
             undefined=DebugUndefined if app.project.configuration.debug else StrictUndefined,
             autoescape=select_autoescape(['html.j2']),
