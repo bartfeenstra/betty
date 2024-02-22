@@ -292,13 +292,12 @@ class App(Configurable[AppConfiguration]):
         return self._static_url_generator
 
     @property
-    @sync
-    async def localizer(self) -> Localizer:
+    def localizer(self) -> Localizer:
         """
         Get the application's localizer.
         """
         if self._localizer is None:
-            self._localizer = await self.localizers.get_negotiated(self.configuration.locale or DEFAULT_LOCALE)
+            self._localizer = wait(self.localizers.get_negotiated(self.configuration.locale or DEFAULT_LOCALE))
         return self._localizer
 
     @localizer.deleter
@@ -366,19 +365,17 @@ class App(Configurable[AppConfiguration]):
         return self._http_client
 
     @http_client.deleter
-    @sync
-    async def http_client(self) -> None:
+    def http_client(self) -> None:
         if self._http_client is not None:
-            await self._http_client.close()
+            wait(self._http_client.close())
             self._http_client = None
 
     @property
-    @sync
-    async def entity_types(self) -> set[type[Entity]]:
+    def entity_types(self) -> set[type[Entity]]:
         if self._entity_types is None:
             from betty.model.ancestry import Citation, Enclosure, Event, File, Note, Person, PersonName, Presence, Place, Source
 
-            self._entity_types = reduce(operator.or_, await self.dispatcher.dispatch(EntityTypeProvider)(), set()) | {
+            self._entity_types = reduce(operator.or_, wait(self.dispatcher.dispatch(EntityTypeProvider)()), set()) | {
                 Citation,
                 Enclosure,
                 Event,
@@ -397,10 +394,9 @@ class App(Configurable[AppConfiguration]):
         self._entity_types = None
 
     @property
-    @sync
-    async def event_types(self) -> set[type[EventType]]:
+    def event_types(self) -> set[type[EventType]]:
         if self._event_types is None:
-            self._event_types = set(await self.dispatcher.dispatch(EventTypeProvider)()) | {
+            self._event_types = set(wait(self.dispatcher.dispatch(EventTypeProvider)())) | {
                 Birth,
                 Baptism,
                 Adoption,

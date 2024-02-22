@@ -17,7 +17,6 @@ from aiofiles.os import makedirs, symlink
 from aiofiles.tempfile import TemporaryDirectory, AiofilesContextManagerTempDir
 
 from betty.app import App
-from betty.asyncio import sync
 from betty.error import UserFacingError
 from betty.locale import Str, Localizer
 
@@ -177,8 +176,7 @@ class BuiltinServer(Server):
             return url
         raise NoPublicUrlBecauseServerNotStartedError()
 
-    @sync
-    async def _serve(self) -> None:
+    def _serve(self) -> None:
         with contextlib.redirect_stderr(StringIO()):
             assert self._http_server
             self._http_server.serve_forever()
