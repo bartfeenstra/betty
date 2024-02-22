@@ -8,10 +8,12 @@ import re
 import warnings
 from base64 import b64encode
 from contextlib import suppress
+from io import BytesIO
 from pathlib import Path
 from typing import Callable, Iterable, Any, Iterator, TypeVar, AsyncIterator
 from urllib.parse import quote
 
+import aiofiles
 from PIL import Image
 from PIL.Image import DecompressionBombWarning
 from aiofiles.os import makedirs
@@ -277,7 +279,13 @@ async def _execute_filter_image_image(
     with warnings.catch_warnings():
         # Ignore warnings about decompression bombs, because we know where the files come from.
         warnings.simplefilter('ignore', category=DecompressionBombWarning)
-        image = Image.open(file.path, formats=[file.media_type.subtype])
+        # We want to read the image asynchronously and prevent Pillow from keeping too many file
+        # descriptors open simultaneously, so we read the image ourselves and store the contents
+        # in a synchronous file object.
+        image_data = BytesIO()
+        async with aiofiles.open(file.path, 'rb') as f:
+            image_data.write(await f.read())
+        image = Image.open(image_data, formats=[file.media_type.subtype])
     try:
         await _execute_filter_image(image, file, cache_directory_path, destination_directory_path, destination_name, width, height)
     finally:
