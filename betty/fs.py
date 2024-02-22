@@ -81,30 +81,38 @@ class FileSystem:
     def paths(self) -> Sequence[tuple[Path, str | None]]:
         return list(self._paths)
 
-    def prepend(self, path: Path, fs_encoding: str | None = None) -> None:
-        self._paths.appendleft((path, fs_encoding))
+    def prepend(self, fs_directory_path: Path, fs_encoding: str | None = None) -> None:
+        self._paths.appendleft((fs_directory_path, fs_encoding))
 
     def clear(self) -> None:
         self._paths.clear()
 
-    def open(self, *file_paths: Path) -> _Open:
-        return _Open(self, file_paths)
+    def open(self, *fs_file_paths: Path) -> _Open:
+        return _Open(self, fs_file_paths)
 
-    async def copy2(self, source_path: Path, destination_path: Path) -> Path:
+    async def copy2(self, fs_file_path: Path, destination_file_path: Path) -> Path:
         for fs_path, _ in self._paths:
             with suppress(FileNotFoundError):
-                await asyncio.to_thread(copy2, fs_path / source_path, destination_path)
-                return destination_path
-        tried_paths = [str(fs_path / source_path) for fs_path, _ in self._paths]
+                await asyncio.to_thread(copy2, fs_path / fs_file_path, destination_file_path)
+                return destination_file_path
+        tried_paths = [str(fs_path / fs_file_path) for fs_path, _ in self._paths]
         raise FileNotFoundError('Could not find any of %s.' % ', '.join(tried_paths))
 
-    async def copytree(self, source_path: Path, destination_path: Path) -> AsyncIterable[Path]:
-        file_destination_paths = set()
-        for fs_path, _ in self._paths:
-            async for file_source_path in iterfiles(fs_path / source_path):
-                file_destination_path = destination_path / file_source_path.relative_to(fs_path / source_path)
-                if file_destination_path not in file_destination_paths:
-                    file_destination_paths.add(file_destination_path)
-                    await makedirs(file_destination_path.parent, exist_ok=True)
-                    await asyncio.to_thread(copy2, file_source_path, file_destination_path)
-                    yield file_destination_path
+    async def copytree(self, fs_directory_path: Path, destination_directory_path: Path) -> AsyncIterable[Path]:
+        async for fs_file_path, actual_file_path in self.iterfiles(fs_directory_path):
+            file_destination_path = destination_directory_path / fs_file_path.relative_to(fs_directory_path)
+            await makedirs(file_destination_path.parent, exist_ok=True)
+            await asyncio.to_thread(copy2, actual_file_path, file_destination_path)
+            yield file_destination_path
+
+    async def iterfiles(self, fs_directory_path: Path) -> AsyncIterable[tuple[Path, Path]]:
+        """
+        Recursively iterate over any files found in a directory.
+        """
+        seen_fs_file_paths = set()
+        for actual_directory_path, _ in self._paths:
+            async for actual_file_path in iterfiles(actual_directory_path / fs_directory_path):
+                fs_file_path = actual_file_path.relative_to(actual_directory_path)
+                if fs_file_path not in seen_fs_file_paths:
+                    seen_fs_file_paths.add(fs_file_path)
+                    yield fs_file_path, actual_file_path

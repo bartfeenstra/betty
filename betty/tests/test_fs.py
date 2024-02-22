@@ -41,20 +41,20 @@ class TestHashfile:
 
 class TestFileSystem:
     async def test_open(self) -> None:
-        async with TemporaryDirectory() as source_path_str_1:
-            source_path_1 = Path(source_path_str_1)
-            async with TemporaryDirectory() as source_path_str_2:
-                source_path_2 = Path(source_path_str_2)
-                async with aiofiles.open(source_path_1 / 'apples', 'w') as f:
+        async with TemporaryDirectory() as actual_override_directory_path_str:
+            actual_override_directory_path = Path(actual_override_directory_path_str)
+            async with TemporaryDirectory() as actual_fallback_directory_path_str:
+                actual_fallback_directory_path = Path(actual_fallback_directory_path_str)
+                async with aiofiles.open(actual_override_directory_path / 'apples', 'w') as f:
                     await f.write('apples')
-                async with aiofiles.open(source_path_2 / 'apples', 'w') as f:
+                async with aiofiles.open(actual_fallback_directory_path / 'apples', 'w') as f:
                     await f.write('notapples')
-                async with aiofiles.open(source_path_1 / 'oranges', 'w') as f:
+                async with aiofiles.open(actual_override_directory_path / 'oranges', 'w') as f:
                     await f.write('oranges')
-                async with aiofiles.open(source_path_2 / 'bananas', 'w') as f:
+                async with aiofiles.open(actual_fallback_directory_path / 'bananas', 'w') as f:
                     await f.write('bananas')
 
-                sut = FileSystem((source_path_1, None), (source_path_2, None))
+                sut = FileSystem((actual_override_directory_path, None), (actual_fallback_directory_path, None))
 
                 async with sut.open(Path('apples')) as f:
                     assert 'apples' == await f.read()
@@ -67,74 +67,74 @@ class TestFileSystem:
                     async with sut.open(Path('mangos')):
                         pass
 
-    async def test_open_with_first_file_path_alternative_first_source_path(self) -> None:
-        async with TemporaryDirectory() as source_path_str_1:
-            source_path_1 = Path(source_path_str_1)
-            async with TemporaryDirectory() as source_path_str_2:
-                source_path_2 = Path(source_path_str_2)
-                async with aiofiles.open(source_path_1 / 'pinkladies', 'w') as f:
+    async def test_open_with_first_file_path_alternative_first_actual_directory_path(self) -> None:
+        async with TemporaryDirectory() as actual_override_directory_path_str:
+            actual_override_directory_path = Path(actual_override_directory_path_str)
+            async with TemporaryDirectory() as actual_fallback_directory_path_str:
+                actual_fallback_directory_path = Path(actual_fallback_directory_path_str)
+                async with aiofiles.open(actual_override_directory_path / 'pinkladies', 'w') as f:
                     await f.write('pinkladies')
-                async with aiofiles.open(source_path_2 / 'pinkladies', 'w') as f:
+                async with aiofiles.open(actual_fallback_directory_path / 'pinkladies', 'w') as f:
                     await f.write('notpinkladies')
-                async with aiofiles.open(source_path_1 / 'apples', 'w') as f:
+                async with aiofiles.open(actual_override_directory_path / 'apples', 'w') as f:
                     await f.write('notpinkladies')
-                async with aiofiles.open(source_path_2 / 'apples', 'w') as f:
+                async with aiofiles.open(actual_fallback_directory_path / 'apples', 'w') as f:
                     await f.write('notpinkladies')
 
-                sut = FileSystem((source_path_1, None), (source_path_2, None))
+                sut = FileSystem((actual_override_directory_path, None), (actual_fallback_directory_path, None))
 
                 async with sut.open(Path('pinkladies'), Path('apples')) as f:
                     assert 'pinkladies' == await f.read()
 
-    async def test_open_with_first_file_path_alternative_second_source_path(self) -> None:
-        async with TemporaryDirectory() as source_path_str_1:
-            source_path_1 = Path(source_path_str_1)
-            async with TemporaryDirectory() as source_path_str_2:
-                source_path_2 = Path(source_path_str_2)
-                async with aiofiles.open(source_path_2 / 'pinkladies', 'w') as f:
+    async def test_open_with_first_file_path_alternative_second_actual_directory_path(self) -> None:
+        async with TemporaryDirectory() as actual_override_directory_path_str:
+            actual_override_directory_path = Path(actual_override_directory_path_str)
+            async with TemporaryDirectory() as actual_fallback_directory_path_str:
+                actual_fallback_directory_path = Path(actual_fallback_directory_path_str)
+                async with aiofiles.open(actual_fallback_directory_path / 'pinkladies', 'w') as f:
                     await f.write('pinkladies')
-                async with aiofiles.open(source_path_1 / 'apples', 'w') as f:
+                async with aiofiles.open(actual_override_directory_path / 'apples', 'w') as f:
                     await f.write('notpinkladies')
-                async with aiofiles.open(source_path_2 / 'apples', 'w') as f:
+                async with aiofiles.open(actual_fallback_directory_path / 'apples', 'w') as f:
                     await f.write('notpinkladies')
 
-                sut = FileSystem((source_path_1, None), (source_path_2, None))
+                sut = FileSystem((actual_override_directory_path, None), (actual_fallback_directory_path, None))
 
                 async with sut.open(Path('pinkladies'), Path('apples')) as f:
                     assert 'pinkladies' == await f.read()
 
-    async def test_open_with_second_file_path_alternative_first_source_path(self) -> None:
-        async with TemporaryDirectory() as source_path_str_1:
-            source_path_1 = Path(source_path_str_1)
-            async with TemporaryDirectory() as source_path_str_2:
-                source_path_2 = Path(source_path_str_2)
-                async with aiofiles.open(source_path_1 / 'apples', 'w') as f:
+    async def test_open_with_second_file_path_alternative_first_actual_directory_path(self) -> None:
+        async with TemporaryDirectory() as actual_override_directory_path_str:
+            actual_override_directory_path = Path(actual_override_directory_path_str)
+            async with TemporaryDirectory() as actual_fallback_directory_path_str:
+                actual_fallback_directory_path = Path(actual_fallback_directory_path_str)
+                async with aiofiles.open(actual_override_directory_path / 'apples', 'w') as f:
                     await f.write('apples')
-                async with aiofiles.open(source_path_2 / 'apples', 'w') as f:
+                async with aiofiles.open(actual_fallback_directory_path / 'apples', 'w') as f:
                     await f.write('notapples')
 
-                sut = FileSystem((source_path_1, None), (source_path_2, None))
+                sut = FileSystem((actual_override_directory_path, None), (actual_fallback_directory_path, None))
 
                 async with sut.open(Path('pinkladies'), Path('apples')) as f:
                     assert 'apples' == await f.read()
 
     async def test_copy2(self) -> None:
-        async with TemporaryDirectory() as source_path_str_1:
-            source_path_1 = Path(source_path_str_1)
-            async with TemporaryDirectory() as source_path_str_2:
-                source_path_2 = Path(source_path_str_2)
-                async with aiofiles.open(source_path_1 / 'apples', 'w') as f:
+        async with TemporaryDirectory() as actual_override_directory_path_str:
+            actual_override_directory_path = Path(actual_override_directory_path_str)
+            async with TemporaryDirectory() as actual_fallback_directory_path_str:
+                actual_fallback_directory_path = Path(actual_fallback_directory_path_str)
+                async with aiofiles.open(actual_override_directory_path / 'apples', 'w') as f:
                     await f.write('apples')
-                async with aiofiles.open(source_path_2 / 'apples', 'w') as f:
+                async with aiofiles.open(actual_fallback_directory_path / 'apples', 'w') as f:
                     await f.write('notapples')
-                async with aiofiles.open(source_path_1 / 'oranges', 'w') as f:
+                async with aiofiles.open(actual_override_directory_path / 'oranges', 'w') as f:
                     await f.write('oranges')
-                async with aiofiles.open(source_path_2 / 'bananas', 'w') as f:
+                async with aiofiles.open(actual_fallback_directory_path / 'bananas', 'w') as f:
                     await f.write('bananas')
 
                 async with TemporaryDirectory() as destination_path_str:
                     destination_path = Path(destination_path_str)
-                    sut = FileSystem((source_path_1, None), (source_path_2, None))
+                    sut = FileSystem((actual_override_directory_path, None), (actual_fallback_directory_path, None))
 
                     await sut.copy2(Path('apples'), destination_path)
                     await sut.copy2(Path('oranges'), destination_path)
@@ -151,24 +151,24 @@ class TestFileSystem:
                         await sut.copy2(Path('mangos'), destination_path)
 
     async def test_copytree(self) -> None:
-        async with TemporaryDirectory() as source_path_str_1:
-            source_path_1 = Path(source_path_str_1)
-            (source_path_1 / 'basket').mkdir()
-            async with TemporaryDirectory() as source_path_str_2:
-                source_path_2 = Path(source_path_str_2)
-                (source_path_2 / 'basket').mkdir()
-                async with aiofiles.open(source_path_1 / 'basket' / 'apples', 'w') as f:
+        async with TemporaryDirectory() as actual_override_directory_path_str:
+            actual_override_directory_path = Path(actual_override_directory_path_str)
+            (actual_override_directory_path / 'basket').mkdir()
+            async with TemporaryDirectory() as actual_fallback_directory_path_str:
+                actual_fallback_directory_path = Path(actual_fallback_directory_path_str)
+                (actual_fallback_directory_path / 'basket').mkdir()
+                async with aiofiles.open(actual_override_directory_path / 'basket' / 'apples', 'w') as f:
                     await f.write('apples')
-                async with aiofiles.open(source_path_2 / 'basket' / 'apples', 'w') as f:
+                async with aiofiles.open(actual_fallback_directory_path / 'basket' / 'apples', 'w') as f:
                     await f.write('notapples')
-                async with aiofiles.open(source_path_1 / 'basket' / 'oranges', 'w') as f:
+                async with aiofiles.open(actual_override_directory_path / 'basket' / 'oranges', 'w') as f:
                     await f.write('oranges')
-                async with aiofiles.open(source_path_2 / 'basket' / 'bananas', 'w') as f:
+                async with aiofiles.open(actual_fallback_directory_path / 'basket' / 'bananas', 'w') as f:
                     await f.write('bananas')
 
                 async with TemporaryDirectory() as destination_path_str:
                     destination_path = Path(destination_path_str)
-                    sut = FileSystem((source_path_1, None), (source_path_2, None))
+                    sut = FileSystem((actual_override_directory_path, None), (actual_fallback_directory_path, None))
 
                     async for _ in sut.copytree(Path(''), destination_path):
                         pass
@@ -179,3 +179,29 @@ class TestFileSystem:
                         assert 'oranges' == await f.read()
                     async with sut.open(destination_path / 'basket' / 'bananas') as f:
                         assert 'bananas' == await f.read()
+
+    async def test_iterfiles(self) -> None:
+        async with TemporaryDirectory() as actual_override_directory_path_str:
+            actual_override_directory_path = Path(actual_override_directory_path_str)
+            (actual_override_directory_path / 'basket').mkdir()
+            async with TemporaryDirectory() as actual_fallback_directory_path_str:
+                actual_fallback_directory_path = Path(actual_fallback_directory_path_str)
+                (actual_fallback_directory_path / 'basket').mkdir()
+                (actual_override_directory_path / 'basket' / 'apples').touch()
+                (actual_fallback_directory_path / 'basket' / 'apples').touch()
+                (actual_override_directory_path / 'basket' / 'oranges').touch()
+                (actual_fallback_directory_path / 'basket' / 'bananas').touch()
+
+                sut = FileSystem((actual_override_directory_path, None), (actual_fallback_directory_path, None))
+
+                actual = {
+                    (fs_file_path, actual_file_path)
+                    async for fs_file_path, actual_file_path
+                    in sut.iterfiles(Path('basket'))
+                }
+                expected = {
+                    (Path('basket') / 'apples', actual_override_directory_path / 'basket' / 'apples'),
+                    (Path('basket') / 'oranges', actual_override_directory_path / 'basket' / 'oranges'),
+                    (Path('basket') / 'bananas', actual_fallback_directory_path / 'basket' / 'bananas'),
+                }
+                assert actual == expected

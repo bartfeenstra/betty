@@ -12,11 +12,12 @@ from typing import Callable, Any, cast, \
 
 import aiofiles
 from aiofiles import os as aiofiles_os
-from jinja2 import Environment as Jinja2Environment, select_autoescape, FileSystemLoader, pass_context, \
-    Template as Jinja2Template
+from jinja2 import Environment as Jinja2Environment, select_autoescape, pass_context, \
+    Template as Jinja2Template, BaseLoader, DictLoader
 from jinja2.runtime import StrictUndefined, Context, DebugUndefined, new_context
 
 from betty.app import App
+from betty.asyncio import wait, gather
 from betty.html import CssProvider, JsProvider
 from betty.jinja2.filter import FILTERS
 from betty.jinja2.test import TESTS
@@ -173,15 +174,16 @@ class Template(Jinja2Template):
 
 
 class Environment(Jinja2Environment):
+    _TEMPLATES_PATH = Path('templates')
+
     template_class = Template
     globals: dict[str, Any]
     filters: dict[str, Callable[..., Any]]
     tests: dict[str, Callable[..., bool]]
 
     def __init__(self, app: App):
-        template_directory_paths = [str(path / 'templates') for path, _ in app.assets.paths]
         super().__init__(
-            loader=FileSystemLoader(template_directory_paths),
+            loader=wait(self._new_preloader(app)),
             auto_reload=app.project.configuration.debug,
             enable_async=True,
             undefined=DebugUndefined if app.project.configuration.debug else StrictUndefined,
@@ -204,6 +206,17 @@ class Environment(Jinja2Environment):
         self.filters.update(FILTERS)
         self.tests.update(TESTS)
         self._init_extensions()
+
+    async def _new_preloader(self, app: App) -> BaseLoader:
+        return DictLoader(dict(await gather(*[
+            self._read_template(fs_template_path, actual_template_path)
+            async for fs_template_path, actual_template_path,
+            in app.assets.iterfiles(self._TEMPLATES_PATH)
+        ])))
+
+    async def _read_template(self, fs_template_path: Path, actual_template_path: Path) -> tuple[str, str]:
+        async with aiofiles.open(actual_template_path) as f:
+            return str(fs_template_path.relative_to(self._TEMPLATES_PATH)), await f.read()
 
     def _init_i18n(self) -> None:
         self.install_gettext_callables(  # type: ignore[attr-defined]
