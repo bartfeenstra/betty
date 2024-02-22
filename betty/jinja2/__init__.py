@@ -12,7 +12,7 @@ from typing import Callable, Any, cast, \
 import aiofiles
 from aiofiles import os as aiofiles_os
 from jinja2 import Environment as Jinja2Environment, select_autoescape, FileSystemLoader, pass_context, \
-    Template as Jinja2Template, BaseLoader
+    Template as Jinja2Template
 from jinja2.runtime import StrictUndefined, Context, DebugUndefined, new_context
 
 from betty import task
@@ -25,7 +25,6 @@ from betty.locale import Date, Localizer, \
 from betty.model import Entity, get_entity_type, \
     AncestryEntityId
 from betty.model.ancestry import Citation, AnonymousCitation, AnonymousSource
-from betty.path import rootname
 from betty.project import ProjectConfiguration
 from betty.render import Renderer
 from betty.serde.dump import Dumpable, DictDump, VoidableDump, Void, Dump
@@ -273,12 +272,6 @@ class Jinja2Renderer(Renderer):
     def __init__(self, environment: Environment, configuration: ProjectConfiguration):
         self._environment = environment
         self._configuration = configuration
-        self._loaders: dict[Path, BaseLoader] = {}
-
-    def get_loader(self, root_path: Path) -> BaseLoader:
-        if root_path not in self._loaders:
-            self._loaders[root_path] = FileSystemLoader(root_path)
-        return self._loaders[root_path]
 
     @property
     def file_extensions(self) -> set[str]:
@@ -291,14 +284,14 @@ class Jinja2Renderer(Renderer):
         task_context: task.Context | None = None,
         localizer: Localizer | None = None,
     ) -> Path:
-        file_destination_path = file_path.parent / file_path.stem
+        destination_file_path = file_path.parent / file_path.stem
         data: dict[str, Any] = {}
         if task_context is not None:
             data['task_context'] = task_context
         if localizer is not None:
             data['localizer'] = localizer
         try:
-            relative_file_destination_path = file_destination_path.relative_to(self._configuration.www_directory_path)
+            relative_file_destination_path = destination_file_path.relative_to(self._configuration.www_directory_path)
         except ValueError:
             pass
         else:
@@ -308,13 +301,10 @@ class Jinja2Renderer(Renderer):
                 if resource_parts[0] in map(lambda x: x.alias, self._configuration.locales.values()):
                     resource = '/'.join(resource_parts[1:])
             data['page_resource'] = resource
-        root_path = rootname(file_path)
-        rendered = await self.get_loader(root_path).load(
-            self._environment,
-            '/'.join(Path(file_path).relative_to(root_path).parts),
-            self._environment.globals,
-        ).render_async(data)
-        async with aiofiles.open(file_destination_path, 'w', encoding='utf-8') as f:
+        async with aiofiles.open(file_path) as f:
+            template_source = await f.read()
+        rendered = await self._environment.from_string(template_source, self._environment.globals).render_async(data)
+        async with aiofiles.open(destination_file_path, 'w', encoding='utf-8') as f:
             await f.write(rendered)
         await aiofiles_os.remove(file_path)
-        return file_destination_path
+        return destination_file_path
