@@ -20,5 +20,5 @@ class TestSpecification:
         app = App()
         app.project.configuration.clean_urls = clean_urls
         sut = Specification(app)
-        specification = sut.build()
+        specification = await sut.build()
         jsonschema.validate(specification, schema)

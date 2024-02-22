@@ -434,7 +434,7 @@ async def _generate_openapi(
     app = task_context.app
     getLogger().info(app.localizer._('Generating OpenAPI specification...'))
     api_directory_path = app.project.configuration.www_directory_path / 'api'
-    rendered_json = json.dumps(Specification(app).build())
+    rendered_json = json.dumps(await Specification(app).build())
     async with await create_json_resource(api_directory_path) as f:
         await f.write(rendered_json)
 

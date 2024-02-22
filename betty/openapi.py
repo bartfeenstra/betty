@@ -3,7 +3,6 @@ Provide the OpenAPI specification.
 """
 from betty import about
 from betty.app import App
-from betty.asyncio import wait
 from betty.model import get_entity_type_name, UserFacingEntity
 from betty.serde.dump import DictDump, Dump
 from betty.string import camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
@@ -13,7 +12,7 @@ class Specification:
     def __init__(self, app: App):
         self._app = app
 
-    def build(self) -> DictDump[Dump]:
+    async def build(self) -> DictDump[Dump]:
         specification: DictDump[Dump] = {
             'openapi': '3.1.0',
             'servers': [
@@ -23,7 +22,7 @@ class Specification:
             ],
             'info': {
                 'title': 'Betty',
-                'version': wait(about.version_label()),
+                'version': await about.version_label(),
             },
             'paths': {},
             'components': {
