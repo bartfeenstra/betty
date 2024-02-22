@@ -10,7 +10,7 @@ from setuptools import find_packages
 from betty._package.pyinstaller.hooks import HOOKS_DIRECTORY_PATH
 from betty.app import App
 from betty.app.extension import discover_extension_types, Extension
-from betty.asyncio import sync, gather
+from betty.asyncio import gather
 from betty.extension.npm import _Npm, build_assets, NpmBuilder
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.project import ExtensionConfiguration
@@ -34,7 +34,6 @@ async def _build_assets() -> None:
         ]))
 
 
-@sync
 async def a_pyz_exe_coll() -> tuple[Analysis, PYZ, EXE, COLLECT]:
     """
     Build PyInstaller's spec components.

@@ -20,7 +20,7 @@ from aiofiles.tempfile import TemporaryDirectory
 
 from betty.app.extension import Extension, discover_extension_types
 from betty.app.extension.requirement import Requirement, AnyRequirement, AllRequirements
-from betty.asyncio import sync
+from betty.asyncio import wait
 from betty.cache import CacheScope
 from betty.fs import iterfiles
 from betty.locale import Str, DEFAULT_LOCALIZER
@@ -59,10 +59,9 @@ class _NpmRequirement(Requirement):
         return Str._('`npm` is not available')
 
     @classmethod
-    @sync
-    async def check(cls) -> _NpmRequirement:
+    def check(cls) -> _NpmRequirement:
         try:
-            await npm(['--version'])
+            wait(npm(['--version']))
             logging.getLogger(__name__).debug(cls._met_summary().localize(DEFAULT_LOCALIZER))
             return cls(True)
         except (CalledProcessError, FileNotFoundError):

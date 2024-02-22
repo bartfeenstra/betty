@@ -7,7 +7,6 @@ import requests
 from aiofiles.os import makedirs
 
 from betty.app import App
-from betty.asyncio import sync
 from betty.extension import Nginx
 from betty.extension.nginx import NginxConfiguration
 from betty.extension.nginx.serve import DockerizedNginxServer
@@ -16,7 +15,6 @@ from betty.project import ExtensionConfiguration
 
 @pytest.mark.skipif(sys.platform in {'darwin', 'win32'}, reason='macOS and Windows do not natively support Docker.')
 class TestDockerizedNginxServer:
-    @sync
     async def test(self):
         content = 'Hello, and welcome to my site!'
         async with App() as app:
