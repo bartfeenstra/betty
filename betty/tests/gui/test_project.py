@@ -3,7 +3,6 @@ from asyncio import sleep
 from pathlib import Path
 
 import aiofiles
-from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
 from pytest_mock import MockerFixture
 from pytestqt.qtbot import QtBot
@@ -225,11 +224,9 @@ class TestGenerateWindow:
             sut = _GenerateWindow(app)
             betty_qtbot.qtbot.addWidget(sut)
 
-            with betty_qtbot.qtbot.waitSignal(sut._thread.finished):
-                sut.show()
-                betty_qtbot.qtbot.mouseClick(sut._cancel_button, Qt.MouseButton.LeftButton)
-
-            betty_qtbot.qtbot.mouseClick(sut._serve_button, Qt.MouseButton.LeftButton)
+            sut.show()
+            betty_qtbot.qtbot.waitSignal(sut._thread.finished).wait()
+            betty_qtbot.mouse_click(sut._serve_button)
             betty_qtbot.assert_window(ServeProjectWindow)
 
 
