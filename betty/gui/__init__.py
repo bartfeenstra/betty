@@ -9,8 +9,7 @@ from PyQt6.QtGui import QPalette
 from PyQt6.QtWidgets import QApplication, QWidget
 
 from betty.app import App
-from betty.error import UserFacingError
-from betty.gui.error import ExceptionError, UnexpectedExceptionError
+from betty.gui.error import ExceptionError, _UnexpectedExceptionError
 from betty.locale import Str
 from betty.serde.format import FormatRepository
 
@@ -75,6 +74,10 @@ class BettyApplication(QApplication):
                 margin-bottom: 0.3em;
             }}
 
+            Code {{
+                font-family: monospace;
+            }}
+
             QLineEdit[invalid="true"] {{
                 border: 1px solid red;
                 color: red;
@@ -130,21 +133,34 @@ class BettyApplication(QApplication):
     @pyqtSlot(
         type,
         bytes,
+        QObject,
+        bool,
+    )
+    def _show_user_facing_error(
+        self,
+        error_type: type[Exception],
+        pickled_error_message: bytes,
+        parent: QObject,
+        close_parent: bool,
+    ) -> None:
+        error_message = pickle.loads(pickled_error_message)
+        window = ExceptionError(self._app, error_message, error_type, parent=parent, close_parent=close_parent)
+        window.show()
+
+    @pyqtSlot(
+        type,
+        str,
         str,
         QObject,
         bool,
     )
-    def _catch_error(
+    def _show_unexpected_exception(
         self,
         error_type: type[Exception],
-        pickled_error_message: bytes,
-        error_traceback: str | None,
-        parent: QWidget,
+        error_message: str,
+        error_traceback: str,
+        parent: QObject,
         close_parent: bool,
     ) -> None:
-        error_message = pickle.loads(pickled_error_message)
-        if issubclass(error_type, UserFacingError):
-            window = ExceptionError(parent, self._app, error_type, error_message, close_parent=close_parent)
-        else:
-            window = UnexpectedExceptionError(parent, self._app, error_type, error_message, error_traceback, close_parent=close_parent)
+        window = _UnexpectedExceptionError(self._app, error_type, error_message, error_traceback, parent=parent, close_parent=close_parent)
         window.show()
