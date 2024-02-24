@@ -104,6 +104,9 @@ msgstr "\"{locale}\" ist kein gültiger IETF BCP 47 language tag."
 msgid "\"{path}\" is not a directory."
 msgstr "\"{path}\" ist kein Verzeichnis."
 
+msgid "\"{scope}\" cache cleared."
+msgstr ""
+
 #, python-format
 msgid "%(date)s in %(place)s"
 msgstr "%(date)s in %(place)s"

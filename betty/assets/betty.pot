@@ -66,6 +66,9 @@ msgstr ""
 msgid "\"{path}\" is not a directory."
 msgstr ""
 
+msgid "\"{scope}\" cache cleared."
+msgstr ""
+
 #, python-format
 msgid "%(date)s in %(place)s"
 msgstr ""

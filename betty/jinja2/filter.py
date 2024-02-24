@@ -206,7 +206,15 @@ async def filter_file(context: Context, file: File) -> str:
     app = context_app(context)
     job_context = context_job_context(context)
 
-    if job_context is None or job_context.claim(f'filter_file:{file.id}'):
+    execute_filter = True
+    if job_context:
+        job_cache_item_id = f'filter_file:{file.id}'
+        async with job_context.cache.getset(job_cache_item_id, wait=False) as (cache_item, setter):
+            if cache_item is None and setter is not None:
+                await setter(None)
+            else:
+                execute_filter = False
+    if execute_filter:
         file_destination_path = app.project.configuration.www_directory_path / 'file' / file.id / 'file' / file.path.name
         await makedirs(file_destination_path.parent, exist_ok=True)
         await link_or_copy(file.path, file_destination_path)
@@ -259,8 +267,15 @@ async def filter_image(
     else:
         raise ValueError('Cannot convert a file without a media type to an image.')
 
-    cache_item_id = f'filter_image:{hashfile(file.path)}:{"" if width is None else width}:{"" if height is None else height}'
-    if job_context is None or job_context.claim(cache_item_id):
+    cache_item_id = f'{hashfile(file.path)}:{"" if width is None else width}:{"" if height is None else height}'
+    execute_filter = True
+    if job_context:
+        async with job_context.cache.with_scope('filter_image').getset(cache_item_id, wait=False) as (cache_item, setter):
+            if cache_item is None and setter is not None:
+                await setter(True)
+            else:
+                execute_filter = False
+    if execute_filter:
         loop = get_running_loop()
         await loop.run_in_executor(
             app.process_pool,
@@ -268,13 +283,12 @@ async def filter_image(
             image_loader,
             file.path,
             file.media_type,
-            app.cache.path / 'image' / filter_base64(cache_item_id),
+            app.binary_file_cache.with_scope('image').cache_item_file_path(cache_item_id),
             file_directory_path,
             destination_name,
             width,
             height,
         )
-
     destination_public_path = f'/file/{quote(destination_name)}'
 
     return destination_public_path
