@@ -7,7 +7,7 @@ from betty.extension import Wikipedia
 from betty.load import load
 from betty.model.ancestry import Link
 from betty.project import ExtensionConfiguration
-from betty.task import Context
+from betty.job import Context
 from betty.tests import patch_cache
 from betty.wikipedia import Summary
 
@@ -37,7 +37,7 @@ class TestWikipedia:
             app.project.configuration.extensions.append(ExtensionConfiguration(Wikipedia))
             actual = await app.jinja2_environment.from_string(
                 '{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}').render_async(
-                task_context=Context(),
+                job_context=Context(),
                 links=links,
             )
 

@@ -10,7 +10,7 @@ from types import TracebackType
 
 class RateLimiter:
     """
-    Rate-limit tasks.
+    Rate-limit operations.
 
     This class implements the `Token Bucket algorithm <https://en.wikipedia.org/wiki/Token_bucket>`_.
     """

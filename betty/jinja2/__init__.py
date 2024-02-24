@@ -15,11 +15,11 @@ from jinja2 import Environment as Jinja2Environment, select_autoescape, FileSyst
     Template as Jinja2Template
 from jinja2.runtime import StrictUndefined, Context, DebugUndefined, new_context
 
-from betty import task
 from betty.app import App
 from betty.html import CssProvider, JsProvider
 from betty.jinja2.filter import FILTERS
 from betty.jinja2.test import TESTS
+from betty.job import Context as JobContext
 from betty.locale import Date, Localizer, \
     DEFAULT_LOCALIZER
 from betty.model import Entity, get_entity_type, \
@@ -39,12 +39,12 @@ def context_app(context: Context) -> App:
     return cast(Environment, context.environment).app
 
 
-def context_task_context(context: Context) -> task.Context | None:
+def context_job_context(context: Context) -> JobContext | None:
     """
-    Get the current task context from the Jinja2 context.
+    Get the current job context from the Jinja2 context.
     """
-    task_context = context.resolve_or_missing('task_context')
-    return task_context if isinstance(task_context, task.Context) else None
+    job_context = context.resolve_or_missing('job_context')
+    return job_context if isinstance(job_context, JobContext) else None
 
 
 def context_localizer(context: Context) -> Localizer:
@@ -281,13 +281,13 @@ class Jinja2Renderer(Renderer):
         self,
         file_path: Path,
         *,
-        task_context: task.Context | None = None,
+        job_context: JobContext | None = None,
         localizer: Localizer | None = None,
     ) -> Path:
         destination_file_path = file_path.parent / file_path.stem
         data: dict[str, Any] = {}
-        if task_context is not None:
-            data['task_context'] = task_context
+        if job_context is not None:
+            data['job_context'] = job_context
         if localizer is not None:
             data['localizer'] = localizer
         try:

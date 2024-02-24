@@ -789,19 +789,12 @@ class Project(Configurable[ProjectConfiguration]):
         self,
         *,
         project_id: str | None = None,
+        ancestry: Ancestry | None = None,
     ):
         super().__init__()
         self._id = project_id
         self._configuration = ProjectConfiguration()
-        self._ancestry = Ancestry()
-
-    def __getstate__(self) -> tuple[str | None, VoidableDump, Path, Ancestry]:
-        return self._id, self._configuration.dump(), self._configuration.configuration_file_path, self._ancestry
-
-    def __setstate__(self, state: tuple[str | None, Dump, Path, Ancestry]) -> None:
-        self._id, dump, configuration_file_path, self._ancestry = state
-        self._configuration = ProjectConfiguration.load(dump)
-        self._configuration.configuration_file_path = configuration_file_path
+        self._ancestry = ancestry or Ancestry()
 
     @property
     def id(self) -> str:

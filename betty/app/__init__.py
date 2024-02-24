@@ -3,9 +3,7 @@
 from __future__ import annotations
 
 import operator
-import os as stdos
 import weakref
-from collections.abc import Callable
 from contextlib import suppress
 from functools import reduce
 from graphlib import CycleError, TopologicalSorter
@@ -155,21 +153,6 @@ class App(Configurable[AppConfiguration]):
         return App(
             app_configuration,
             project,
-        )
-
-    def __reduce__(self) -> tuple[
-        Callable[[VoidableDump, Project], Self],
-        tuple[
-            VoidableDump,
-            Project,
-        ],
-    ]:
-        return (
-            App._unreduce,
-            (
-                self._configuration.dump(),
-                self._project,
-            ),
         )
 
     async def __aenter__(self) -> Self:
@@ -340,17 +323,6 @@ class App(Configurable[AppConfiguration]):
     @renderer.deleter
     def renderer(self) -> None:
         self._renderer = None
-
-    @property
-    def concurrency(self) -> int:
-        with suppress(KeyError):
-            return int(stdos.environ['BETTY_CONCURRENCY'])
-        # Assume that any machine that runs Betty has at least two CPU cores.
-        return stdos.cpu_count() or 2
-
-    @property
-    def async_concurrency(self) -> int:
-        return self.concurrency ** 2
 
     @property
     def http_client(self) -> aiohttp.ClientSession:

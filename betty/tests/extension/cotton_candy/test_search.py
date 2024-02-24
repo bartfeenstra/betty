@@ -8,7 +8,7 @@ from betty.extension.cotton_candy.search import Index
 from betty.locale import DEFAULT_LOCALIZER
 from betty.model.ancestry import Person, Place, PlaceName, PersonName, File
 from betty.project import LocaleConfiguration
-from betty.task import Context
+from betty.job import Context
 
 
 class TestIndex:

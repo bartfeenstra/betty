@@ -4,7 +4,7 @@ Provide the Render API.
 from pathlib import Path
 
 from betty.locale import Localizer
-from betty.task import Context
+from betty.job import Context
 
 
 class Renderer:
@@ -16,7 +16,7 @@ class Renderer:
         self,
         file_path: Path,
         *,
-        task_context: Context | None = None,
+        job_context: Context | None = None,
         localizer: Localizer | None = None,
     ) -> Path:
         raise NotImplementedError(repr(self))
@@ -41,14 +41,14 @@ class SequentialRenderer(Renderer):
         self,
         file_path: Path,
         *,
-        task_context: Context | None = None,
+        job_context: Context | None = None,
         localizer: Localizer | None = None,
     ) -> Path:
         for renderer in self._renderers:
             if file_path.suffix in renderer.file_extensions:
                 return await self.render_file(await renderer.render_file(
                     file_path,
-                    task_context=task_context,
+                    job_context=job_context,
                     localizer=localizer,
                 ))
         return file_path

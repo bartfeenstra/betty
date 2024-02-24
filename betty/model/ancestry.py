@@ -6,7 +6,6 @@ from __future__ import annotations
 from collections.abc import MutableSequence
 from contextlib import suppress
 from enum import Enum
-from functools import partial
 from pathlib import Path
 from reprlib import recursive_repr
 from typing import Iterable, Any, TYPE_CHECKING
@@ -21,7 +20,7 @@ from betty.locale import Localized, Datey, Str, Localizable, ref_datey
 from betty.media_type import MediaType
 from betty.model import many_to_many, Entity, one_to_many, many_to_one, many_to_one_to_many, \
     MultipleTypesEntityCollection, EntityCollection, UserFacingEntity, EntityTypeAssociationRegistry, \
-    PickleableEntityGraph, GeneratedEntityId, get_entity_type_name
+    GeneratedEntityId, get_entity_type_name
 from betty.model.event_type import EventType, UnknownEventType
 from betty.serde.dump import DictDump, Dump, dump_default
 from betty.string import camel_case_to_kebab_case
@@ -419,17 +418,6 @@ class Note(UserFacingEntity, HasPrivacy, HasLinksEntity, Entity):
         if entity is not None:
             self.entity = entity
 
-    def __reduce__(self) -> Any:
-        return (
-            partial(
-                Note,
-                self.text,
-                id=self.id,
-                privacy=self.privacy,
-            ),
-            (),
-        )
-
     @classmethod
     def entity_type_label(cls) -> Str:
         return Str._('Note')
@@ -583,20 +571,6 @@ class File(Described, HasPrivacy, HasLinksEntity, HasMediaType, HasNotes, HasCit
         )
         self._path = path
 
-    def __reduce__(self) -> Any:
-        return (
-            partial(
-                File,
-                self.path,
-                id=self.id,
-                media_type=self.media_type,
-                description=self.description,
-                privacy=self.privacy,
-                links=self.links,
-            ),
-            (),
-        )
-
     @property
     def entities(self) -> EntityCollection[Entity]:  # type: ignore[empty-body]
         pass
@@ -718,21 +692,6 @@ class Source(Dated, HasFiles, HasLinksEntity, HasPrivacy, UserFacingEntity, Enti
             self.contained_by = contained_by
         if contains is not None:
             self.contains = contains  # type: ignore[assignment]
-
-    def __reduce__(self) -> Any:
-        return (
-            partial(
-                Source,
-                self.name,
-                id=self.id,
-                author=self.author,
-                publisher=self.publisher,
-                date=self.date,
-                links=self.links,
-                privacy=self.privacy,
-            ),
-            (),
-        )
 
     def _get_effective_privacy(self) -> Privacy:
         privacy = super()._get_effective_privacy()
@@ -877,18 +836,6 @@ class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, En
         self.location = location
         self.source = source
 
-    def __reduce__(self) -> Any:
-        return (
-            partial(
-                Citation,
-                id=self.id,
-                location=self.location,
-                date=self.date,
-                privacy=self.privacy,
-            ),
-            (),
-        )
-
     def _get_effective_privacy(self) -> Privacy:
         privacy = super()._get_effective_privacy()
         if self.source:
@@ -1030,12 +977,6 @@ class Enclosure(Dated, HasCitations, Entity):
         self.encloses = encloses
         self.enclosed_by = enclosed_by
 
-    def __reduce__(self) -> Any:
-        return (
-            Enclosure,
-            (),
-        )
-
     @classmethod
     def entity_type_label(cls) -> Str:
         return Str._('Enclosure')
@@ -1078,19 +1019,6 @@ class Place(HasLinksEntity, HasFiles, HasPrivacy, UserFacingEntity, Entity):
             self.enclosed_by = enclosed_by  # type: ignore[assignment]
         if encloses is not None:
             self.encloses = encloses  # type: ignore[assignment]
-
-    def __reduce__(self) -> Any:
-        return (
-            partial(
-                Place,
-                id=self.id,
-                names=self.names,
-                coordinates=self._coordinates,
-                links=self.links,
-                privacy=self.privacy,
-            ),
-            (),
-        )
 
     @property
     def enclosed_by(self) -> EntityCollection[Enclosure]:  # type: ignore[empty-body]
@@ -1360,16 +1288,6 @@ class Presence(HasPrivacy, Entity):
         self.role = role
         self.event = event
 
-    def __reduce__(self) -> Any:
-        return (
-            Presence,
-            (
-                None,
-                self.role,
-                None,
-            ),
-        )
-
     @classmethod
     def entity_type_label(cls) -> Str:
         return Str._('Presence')
@@ -1452,19 +1370,6 @@ class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, HasLinksEntity
             return Str._('{event_type}', **format_kwargs)
         else:
             return Str._('{event_type} ({event_description})', **format_kwargs)
-
-    def __reduce__(self) -> Any:
-        return (
-            partial(
-                Event,
-                id=self.id,
-                event_type=self.event_type,
-                date=self.date,
-                privacy=self.privacy,
-                description=self.description,
-            ),
-            (),
-        )
 
     @recursive_repr()
     def __repr__(self) -> str:
@@ -1604,18 +1509,6 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
         # individual and affiliation names.
         self.person = person
 
-    def __reduce__(self) -> Any:
-        return (
-            partial(
-                PersonName,
-                id=self.id,
-                individual=self.individual,
-                affiliation=self.affiliation,
-                privacy=self.privacy,
-            ),
-            (),
-        )
-
     def _get_effective_privacy(self) -> Privacy:
         privacy = super()._get_effective_privacy()
         if self.person:
@@ -1709,17 +1602,6 @@ class Person(HasFiles, HasCitations, HasLinksEntity, HasPrivacy, UserFacingEntit
             self.presences = presences  # type: ignore[assignment]
         if names is not None:
             self.names = names  # type: ignore[assignment]
-
-    def __reduce__(self) -> Any:
-        return (
-            partial(
-                Person,
-                id=self.id,
-                links=self.links,
-                privacy=self.privacy,
-            ),
-            (),
-        )
 
     @property
     def parents(self) -> EntityCollection[Person]:  # type: ignore[empty-body]
@@ -1915,13 +1797,6 @@ class Ancestry(MultipleTypesEntityCollection[Entity]):
     def __init__(self):
         super().__init__()
         self._check_graph = True
-
-    def __getstate__(self) -> PickleableEntityGraph:
-        return PickleableEntityGraph(*self)
-
-    def __setstate__(self, state: PickleableEntityGraph) -> None:
-        self._collections = {}
-        self.add_unchecked_graph(*state.build())
 
     def add_unchecked_graph(self, *entities: Entity) -> None:
         self._check_graph = False

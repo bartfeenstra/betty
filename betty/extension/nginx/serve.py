@@ -5,7 +5,6 @@ import logging
 from pathlib import Path
 from typing import Any
 
-import dill
 import docker
 from aiofiles.tempfile import TemporaryDirectory, AiofilesContextManagerTempDir
 from docker.errors import DockerException
@@ -13,21 +12,27 @@ from docker.errors import DockerException
 from betty.app import App
 from betty.extension.nginx.artifact import generate_dockerfile_file, generate_configuration_file
 from betty.extension.nginx.docker import Container
+from betty.project import Project
 from betty.serve import NoPublicUrlBecauseServerNotStartedError, AppServer
 
 
 class DockerizedNginxServer(AppServer):
     def __init__(self, app: App) -> None:
-        super().__init__(
-            # Create a new app so we can modify it later.
-            dill.loads(dill.dumps(app))
-        )
+        from betty.extension import Nginx
+
+        project = Project(ancestry=app.project.ancestry)
+        project.configuration.autowrite = False
+        project.configuration.configuration_file_path = app.project.configuration.configuration_file_path
+        project.configuration.update(app.project.configuration)
+        project.configuration.debug = True
+        app = App(app.configuration, project)
+        # Work around https://github.com/bartfeenstra/betty/issues/1056.
+        app.extensions[Nginx].configuration.https = False
+        super().__init__(app)
         self._container: Container | None = None
         self._output_directory: AiofilesContextManagerTempDir[None, Any, Any] | None = None
 
     async def start(self) -> None:
-        from betty.extension import Nginx
-
         await super().start()
         logging.getLogger(__name__).info('Starting a Dockerized nginx web server...')
         self._output_directory = TemporaryDirectory()
@@ -35,10 +40,6 @@ class DockerizedNginxServer(AppServer):
         nginx_configuration_file_path = Path(output_directory_name) / 'nginx.conf'
         docker_directory_path = Path(output_directory_name)
         dockerfile_file_path = docker_directory_path / 'Dockerfile'
-
-        self._app.project.configuration.debug = True
-        # Work around https://github.com/bartfeenstra/betty/issues/1056.
-        self._app.extensions[Nginx].configuration.https = False
 
         await generate_configuration_file(
             self._app,

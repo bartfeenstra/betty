@@ -197,12 +197,12 @@ async def filter_file(context: Context, file: File) -> str:
 
     :return: The public path to the preprocessed file. This can be used on a web page.
     """
-    from betty.jinja2 import context_app, context_task_context
+    from betty.jinja2 import context_app, context_job_context
 
     app = context_app(context)
-    task_context = context_task_context(context)
-    task_id = f'filter_file:{file.id}'
-    if task_context is None or task_context.claim(task_id):
+    job_context = context_job_context(context)
+    job_id = f'filter_file:{file.id}'
+    if job_context is None or job_context.claim(job_id):
         file_destination_path = app.project.configuration.www_directory_path / 'file' / file.id / 'file' / file.path.name
         await _do_filter_file(file.path, file_destination_path)
 
@@ -226,10 +226,10 @@ async def filter_image(
 
     :return: The public path to the preprocessed file. This can be embedded in a web page.
     """
-    from betty.jinja2 import context_app, context_task_context
+    from betty.jinja2 import context_app, context_job_context
 
     app = context_app(context)
-    task_context = context_task_context(context)
+    job_context = context_job_context(context)
 
     destination_name = '%s-' % file.id
     if height and width:
@@ -257,8 +257,8 @@ async def filter_image(
     else:
         raise ValueError('Cannot convert a file without a media type to an image.')
 
-    task_id = f'filter_image:{file.id}:{width or ""}:{height or ""}'
-    if task_context is None or task_context.claim(task_id):
+    job_id = f'filter_image:{file.id}:{width or ""}:{height or ""}'
+    if job_context is None or job_context.claim(job_id):
         cache_directory_path = CACHE_DIRECTORY_PATH / 'image'
         await task_callable(file, cache_directory_path, file_directory_path, destination_name, width, height)
 
