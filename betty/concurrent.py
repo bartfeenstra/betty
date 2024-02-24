@@ -2,20 +2,21 @@
 Provide utilities for concurrent programming.
 """
 import asyncio
+import threading
 import time
 from asyncio import sleep
 from math import floor
 from threading import Lock
 from types import TracebackType
+from typing import Self
+
+from betty.asyncio import gather
 
 
-class AsynchronizedLock:
+class _Lock:
     """
-    Make a sychronous (blocking) lock asynchronous (non-blocking).
+    Provide an asynchronous lock.
     """
-
-    def __init__(self, lock: Lock):
-        self._lock = lock
 
     async def __aenter__(self):
         await self.acquire()
@@ -23,15 +24,75 @@ class AsynchronizedLock:
     async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> None:
         self.release()
 
-    async def acquire(self) -> None:
-        while not self._lock.acquire(False):
-            # Sleeping for zero seconds does not actually sleep, but gives the event
-            # loop a chance to progress other tasks while we wait for another chance
-            # to acquire the lock.
-            await sleep(0)
+    async def acquire(self, *, wait: bool = True) -> bool:
+        raise NotImplementedError
+
+    def release(self) -> None:
+        raise NotImplementedError
+
+
+async def asynchronize_acquire(lock: Lock, *, wait: bool = True) -> bool:
+    """
+    Acquire a synchronous lock asynchronously.
+    """
+    while not lock.acquire(blocking=False):
+        if not wait:
+            return False
+        # Sleeping for zero seconds does not actually sleep, but gives the event
+        # loop a chance to progress other tasks while we wait for another chance
+        # to acquire the lock.
+        await sleep(0)
+    return True
+
+
+class AsynchronizedLock(_Lock):
+    """
+    Make a sychronous (blocking) lock asynchronous (non-blocking).
+    """
+
+    __slots__ = '_lock'
+
+    def __init__(self, lock: Lock):
+        self._lock = lock
+
+    async def acquire(self, *, wait: bool = True) -> bool:
+        return await asynchronize_acquire(self._lock, wait=wait)
 
     def release(self) -> None:
         self._lock.release()
+
+    @classmethod
+    def threading(cls) -> Self:
+        return cls(threading.Lock())
+
+
+class MultiLock(_Lock):
+    """
+    Provide a lock that only acquires if all of the given locks can be acquired.
+    """
+
+    __slots__ = '_locked', '_locks'
+
+    def __init__(self, *locks: _Lock):
+        self._locks = locks
+        self._locked = False
+
+    async def acquire(self, *, wait: bool = True) -> bool:
+        acquisitions = await gather(*(lock.acquire(wait=wait) for lock in self._locks))
+        # We require all locks to be acquired, or none at all
+        # If one or more fail, release the others.
+        if False in acquisitions:
+            for lock, acquisition in zip(self._locks, acquisitions):
+                if acquisition:
+                    lock.release()
+            return False
+        self._locked = True
+        return True
+
+    def release(self) -> None:
+        self._locked = False
+        for lock in self._locks:
+            lock.release()
 
 
 class RateLimiter:
@@ -39,12 +100,14 @@ class RateLimiter:
     Rate-limit operations.
 
     This class implements the `Token Bucket algorithm <https://en.wikipedia.org/wiki/Token_bucket>`_.
+
+    This class is thread-safe.
     """
 
     _PERIOD = 1
 
     def __init__(self, maximum: int):
-        self._lock = AsynchronizedLock(Lock())
+        self._lock = AsynchronizedLock.threading()
         self._maximum = maximum
         self._available: int | float = maximum
         # A Token Bucket fills as time passes. However, we want callers to be able to start

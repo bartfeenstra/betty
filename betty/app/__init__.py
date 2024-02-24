@@ -11,7 +11,7 @@ from graphlib import CycleError, TopologicalSorter
 from multiprocessing import get_context
 from pathlib import Path
 from types import TracebackType
-from typing import TYPE_CHECKING, Mapping, Self, final
+from typing import TYPE_CHECKING, Mapping, Self, final, Any
 
 import aiohttp
 
@@ -19,10 +19,11 @@ from betty import fs
 from betty.app.extension import ListExtensions, Extension, Extensions, build_extension_type_graph, \
     CyclicDependencyError, ExtensionDispatcher, ConfigurableExtension, discover_extension_types
 from betty.asyncio import sync, wait
-from betty.cache import FileCache
+from betty.cache import Cache, FileCache
+from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.config import Configurable, FileBasedConfiguration
 from betty.dispatch import Dispatcher
-from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH
+from betty.fs import FileSystem
 from betty.locale import LocalizerRepository, get_data, DEFAULT_LOCALE, Localizer, Str
 from betty.model import Entity, EntityTypeProvider
 from betty.model.event_type import EventType, EventTypeProvider, Birth, Baptism, Adoption, Death, Funeral, Cremation, \
@@ -113,12 +114,27 @@ class AppConfiguration(FileBasedConfiguration):
         }, True)
 
 
+class _BackwardsCompatiblePickledFileCache(PickledFileCache[Any], FileCache):
+    """
+    Provide a Backwards Compatible cache.
+
+    .. deprecated:: 0.3.3
+       This class is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x.
+    """
+
+    @property
+    def path(self) -> Path:
+        return self._path
+
+
 @final
 class App(Configurable[AppConfiguration]):
     def __init__(
         self,
         configuration: AppConfiguration | None = None,
         project: Project | None = None,
+        cache: Cache[Any] & FileCache | None = None,
+        binary_file_cache: BinaryFileCache | None = None,
     ):
         super().__init__()
         self._started = False
@@ -143,7 +159,8 @@ class App(Configurable[AppConfiguration]):
         self._jinja2_environment: Environment | None = None
         self._renderer: Renderer | None = None
         self._http_client: aiohttp.ClientSession | None = None
-        self._cache: FileCache | None = None
+        self._cache = cache
+        self._binary_file_cache = binary_file_cache
         self._process_pool: Executor | None = None
 
     @classmethod
@@ -242,7 +259,7 @@ class App(Configurable[AppConfiguration]):
     def assets(self) -> FileSystem:
         if self._assets is None:
             assets = FileSystem()
-            assets.prepend(ASSETS_DIRECTORY_PATH, 'utf-8')
+            assets.prepend(fs.ASSETS_DIRECTORY_PATH, 'utf-8')
             for extension in self.extensions.flatten():
                 extension_assets_directory_path = extension.assets_directory_path()
                 if extension_assets_directory_path is not None:
@@ -290,6 +307,8 @@ class App(Configurable[AppConfiguration]):
     @localizer.deleter
     def localizer(self) -> None:
         self._localizer = None
+        del self.cache
+        del self.binary_file_cache
 
     @property
     def localizers(self) -> LocalizerRepository:
@@ -421,10 +440,24 @@ class App(Configurable[AppConfiguration]):
         }
 
     @property
-    def cache(self) -> FileCache:
+    def cache(self) -> Cache[Any] & FileCache:
         if self._cache is None:
-            self._cache = FileCache(self.localizer, fs.CACHE_DIRECTORY_PATH)
+            self._cache = _BackwardsCompatiblePickledFileCache(self.localizer, fs.CACHE_DIRECTORY_PATH)
         return self._cache
+
+    @cache.deleter
+    def cache(self) -> None:
+        self._cache = None
+
+    @property
+    def binary_file_cache(self) -> BinaryFileCache:
+        if self._binary_file_cache is None:
+            self._binary_file_cache = BinaryFileCache(self.localizer, fs.CACHE_DIRECTORY_PATH)
+        return self._binary_file_cache
+
+    @binary_file_cache.deleter
+    def binary_file_cache(self) -> None:
+        self._binary_file_cache = None
 
     @property
     def process_pool(self) -> Executor:

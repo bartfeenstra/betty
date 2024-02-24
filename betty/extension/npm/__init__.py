@@ -22,6 +22,7 @@ from aiofiles.tempfile import TemporaryDirectory
 from betty.app.extension import Extension, discover_extension_types
 from betty.app.extension.requirement import Requirement, AnyRequirement, AllRequirements
 from betty.asyncio import wait
+from betty.cache.file import BinaryFileCache
 from betty.fs import iterfiles
 from betty.locale import Str, DEFAULT_LOCALIZER
 from betty.subprocess import run_process
@@ -226,16 +227,16 @@ class _Npm(Extension):
             await self._app.renderer.render_file(file_path)
         await npm(['install', '--production'], cwd=working_directory_path)
 
-    def _get_cached_assets_build_directory_path(self, extension_type: type[_NpmBuilder & Extension]) -> Path:
-        path = self._app.cache.path / self.name() / extension_type.name()
+    def _get_assets_build_cache(self, extension_type: type[_NpmBuilder & Extension]) -> BinaryFileCache:
+        cache = self._app.binary_file_cache.with_scope(self.name()).with_scope(extension_type.name())
         if extension_type.npm_cache_scope() == _NpmBuilderCacheScope.PROJECT:
-            path /= self.app.project.name
-        return path
+            cache = cache.with_scope(self.app.project.name)
+        return cache
 
     async def ensure_assets(self, extension: _NpmBuilder & Extension) -> Path:
         assets_build_directory_paths = [
             _get_assets_build_directory_path(type(extension)),
-            self._get_cached_assets_build_directory_path(type(extension)),
+            self._get_assets_build_cache(type(extension)).path,
         ]
         for assets_build_directory_path in assets_build_directory_paths:
             if is_assets_build_directory_path(assets_build_directory_path):
@@ -243,9 +244,9 @@ class _Npm(Extension):
 
         if self._npm_requirement:
             self._npm_requirement.assert_met()
-        return await self._build_cached_assets(extension)
+        return (await self._build_cached_assets(extension)).path
 
-    async def _build_cached_assets(self, extension: _NpmBuilder & Extension) -> Path:
-        assets_directory_path = self._get_cached_assets_build_directory_path(type(extension))
-        await _build_assets_to_directory_path(extension, assets_directory_path)
-        return assets_directory_path
+    async def _build_cached_assets(self, extension: _NpmBuilder & Extension) -> BinaryFileCache:
+        cache = self._get_assets_build_cache(type(extension))
+        await _build_assets_to_directory_path(extension, cache.path)
+        return cache

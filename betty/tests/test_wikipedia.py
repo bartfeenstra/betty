@@ -1,19 +1,20 @@
 from __future__ import annotations
 
-from pathlib import Path
+from json import dumps
 from time import sleep
 from typing import Any
 from unittest.mock import call
 
 import aiohttp
 import pytest
-from aiofiles.tempfile import TemporaryDirectory
 from geopy import Point
 from pytest_mock import MockerFixture
 
+from betty.cache.file import BinaryFileCache
+from betty.cache.memory import MemoryCache
+from betty.locale import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.project import LocaleConfiguration
-from betty.tests import patch_cache
 
 try:
     from unittest.mock import AsyncMock
@@ -91,6 +92,7 @@ class TestRetriever:
         response_pages_json: dict[str, Any],
         aioresponses: aioresponses,
         mocker: MockerFixture,
+        binary_file_cache: BinaryFileCache,
     ) -> None:
         mocker.patch('sys.stderr')
         page_language = 'en'
@@ -101,56 +103,52 @@ class TestRetriever:
                 'pages': [response_pages_json],
             },
         }
-        aioresponses.get(api_url, payload=api_response_body)
-        async with TemporaryDirectory() as cache_directory_path_str:
-            async with aiohttp.ClientSession() as session:
-                translations = await _Retriever(
-                    session,
-                    Path(
-                        cache_directory_path_str,  # type: ignore[arg-type]
-                    ),
-                ).get_translations(page_language, page_name)
+        aioresponses.get(api_url, body=dumps(api_response_body).encode('utf-8'))
+        async with aiohttp.ClientSession() as session:
+            translations = await _Retriever(
+                session,
+                MemoryCache[Any](DEFAULT_LOCALIZER),
+                binary_file_cache,
+            ).get_translations(page_language, page_name)
         assert expected == translations
 
     async def test_get_translations_with_client_error_should_raise_retrieval_error(
         self,
         aioresponses: aioresponses,
         mocker: MockerFixture,
+        binary_file_cache: BinaryFileCache,
     ) -> None:
         mocker.patch('sys.stderr')
         page_language = 'en'
         page_name = 'Amsterdam & Omstreken'
         api_url = 'https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks&lllimit=500&format=json&formatversion=2'
         aioresponses.get(api_url, exception=aiohttp.ClientError())
-        async with TemporaryDirectory() as cache_directory_path_str:
-            async with aiohttp.ClientSession() as session:
-                actual = await _Retriever(
-                    session,
-                    Path(
-                        cache_directory_path_str,  # type: ignore[arg-type]
-                    ),
-                ).get_translations(page_language, page_name)
-                assert {} == actual
+        async with aiohttp.ClientSession() as session:
+            actual = await _Retriever(
+                session,
+                MemoryCache[Any](DEFAULT_LOCALIZER),
+                binary_file_cache,
+            ).get_translations(page_language, page_name)
+            assert {} == actual
 
     async def test_get_translations_with_invalid_json_response_should_return_none(
         self,
         aioresponses: aioresponses,
         mocker: MockerFixture,
+        binary_file_cache: BinaryFileCache,
     ) -> None:
         mocker.patch('sys.stderr')
         page_language = 'en'
         page_name = 'Amsterdam & Omstreken'
         api_url = 'https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks&lllimit=500&format=json&formatversion=2'
         aioresponses.get(api_url, body='{Haha Im not rly JSON}')
-        async with TemporaryDirectory() as cache_directory_path_str:
-            async with aiohttp.ClientSession() as session:
-                actual = await _Retriever(
-                    session,
-                    Path(
-                        cache_directory_path_str,  # type: ignore[arg-type]
-                    ),
-                ).get_translations(page_language, page_name)
-                assert {} == actual
+        async with aiohttp.ClientSession() as session:
+            actual = await _Retriever(
+                session,
+                MemoryCache[Any](DEFAULT_LOCALIZER),
+                binary_file_cache,
+            ).get_translations(page_language, page_name)
+            assert {} == actual
 
     @pytest.mark.parametrize('response_json', [
         {},
@@ -172,28 +170,28 @@ class TestRetriever:
         self,
         response_json: dict[str, Any],
         mocker: MockerFixture,
+        binary_file_cache: BinaryFileCache,
         aioresponses: aioresponses,
     ) -> None:
         mocker.patch('sys.stderr')
         page_language = 'en'
         page_name = 'Amsterdam & Omstreken'
         api_url = 'https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstrekens&prop=langlinks&lllimit=500&format=json&formatversion=2'
-        aioresponses.get(api_url, payload=response_json)
-        async with TemporaryDirectory() as cache_directory_path_str:
-            async with aiohttp.ClientSession() as session:
-                actual = await _Retriever(
-                    session,
-                    Path(
-                        cache_directory_path_str,  # type: ignore[arg-type]
-                    ),
-                ).get_translations(page_language, page_name)
-                assert {} == actual
+
+        aioresponses.get(api_url, body=dumps(response_json).encode('utf-8'))
+        async with aiohttp.ClientSession() as session:
+            actual = await _Retriever(
+                session,
+                MemoryCache[Any](DEFAULT_LOCALIZER),
+                binary_file_cache,
+            ).get_translations(page_language, page_name)
+            assert {} == actual
 
     @pytest.mark.parametrize('extract_key', [
         'extract',
         'extract_html',
     ])
-    async def test_get_summary_should_return(self, extract_key: str, aioresponses: aioresponses) -> None:
+    async def test_get_summary_should_return(self, extract_key: str, aioresponses: aioresponses, binary_file_cache: BinaryFileCache) -> None:
         page_language = 'en'
         page_name = 'Amsterdam & Omstreken'
         api_url = 'https://en.wikipedia.org/api/rest_v1/page/summary/Amsterdam & Omstreken'
@@ -213,29 +211,27 @@ class TestRetriever:
             },
             extract_key: extract_4,
         }
-        aioresponses.get(api_url, payload=api_response_body_1)
+        aioresponses.get(api_url, body=dumps(api_response_body_1).encode('utf-8'))
         aioresponses.get(api_url, exception=aiohttp.ClientError())
-        aioresponses.get(api_url, payload=api_response_body_4)
-        async with TemporaryDirectory() as cache_directory_path_str:
-            async with aiohttp.ClientSession() as session:
-                retriever = _Retriever(
-                    session,
-                    Path(
-                        cache_directory_path_str,  # type: ignore[arg-type]
-                    ),
-                    1,
-                )
-                # The first retrieval should make a successful request and set the cache.
-                summary_1 = await retriever.get_summary(page_language, page_name)
-                # The second retrieval should hit the cache from the first request.
-                summary_2 = await retriever.get_summary(page_language, page_name)
-                # The third retrieval should result in a failed request, and hit the cache from the first request.
-                sleep(2)
-                summary_3 = await retriever.get_summary(page_language, page_name)
-                # The fourth retrieval should make a successful request and set the cache again.
-                summary_4 = await retriever.get_summary(page_language, page_name)
-                # The fifth retrieval should hit the cache from the fourth request.
-                summary_5 = await retriever.get_summary(page_language, page_name)
+        aioresponses.get(api_url, body=dumps(api_response_body_4).encode('utf-8'))
+        async with aiohttp.ClientSession() as session:
+            retriever = _Retriever(
+                session,
+                MemoryCache[Any](DEFAULT_LOCALIZER),
+                binary_file_cache,
+                1,
+            )
+            # The first retrieval should make a successful request and set the cache.
+            summary_1 = await retriever.get_summary(page_language, page_name)
+            # The second retrieval should hit the cache from the first request.
+            summary_2 = await retriever.get_summary(page_language, page_name)
+            # The third retrieval should result in a failed request, and hit the cache from the first request.
+            sleep(2)
+            summary_3 = await retriever.get_summary(page_language, page_name)
+            # The fourth retrieval should make a successful request and set the cache again.
+            summary_4 = await retriever.get_summary(page_language, page_name)
+            # The fifth retrieval should hit the cache from the fourth request.
+            summary_5 = await retriever.get_summary(page_language, page_name)
         for summary in [summary_1, summary_2, summary_3]:
             assert summary
             assert summary_url == summary.url
@@ -251,22 +247,21 @@ class TestRetriever:
         self,
         aioresponses: aioresponses,
         mocker: MockerFixture,
+        binary_file_cache: BinaryFileCache,
     ) -> None:
         mocker.patch('sys.stderr')
         page_language = 'en'
         page_name = 'Amsterdam & Omstreken'
         api_url = 'https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=extracts&exintro&format=json&formatversion=2'
         aioresponses.get(api_url, exception=aiohttp.ClientError())
-        async with TemporaryDirectory() as cache_directory_path_str:
-            async with aiohttp.ClientSession() as session:
-                retriever = _Retriever(
-                    session,
-                    Path(
-                        cache_directory_path_str,  # type: ignore[arg-type]
-                    ),
-                )
-                actual = await retriever.get_summary(page_language, page_name)
-                assert None is actual
+        async with aiohttp.ClientSession() as session:
+            retriever = _Retriever(
+                session,
+                MemoryCache[Any](DEFAULT_LOCALIZER),
+                binary_file_cache,
+            )
+            actual = await retriever.get_summary(page_language, page_name)
+            assert None is actual
 
     @pytest.mark.parametrize('expected, response_pages_json', [
         (None, {},),
@@ -299,6 +294,7 @@ class TestRetriever:
         response_pages_json: dict[str, Any],
         aioresponses: aioresponses,
         mocker: MockerFixture,
+        binary_file_cache: BinaryFileCache,
     ) -> None:
         mocker.patch('sys.stderr')
         page_language = 'en'
@@ -309,20 +305,17 @@ class TestRetriever:
                 'pages': [response_pages_json],
             },
         }
-        aioresponses.get(api_url, payload=api_response_body)
-        async with TemporaryDirectory() as cache_directory_path_str:
-            async with aiohttp.ClientSession() as session:
-                actual = await _Retriever(
-                    session,
-                    Path(
-                        cache_directory_path_str,  # type: ignore[arg-type]
-                    ),
-                ).get_place_coordinates(page_language, page_name)
+        aioresponses.get(api_url, body=dumps(api_response_body).encode('utf-8'))
+        async with aiohttp.ClientSession() as session:
+            actual = await _Retriever(
+                session,
+                MemoryCache[Any](DEFAULT_LOCALIZER),
+                binary_file_cache,
+            ).get_place_coordinates(page_language, page_name)
         assert expected == actual
 
 
 class TestPopulator:
-    @patch_cache
     async def test_populate_link_should_convert_http_to_https(self, mocker: MockerFixture) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
@@ -337,7 +330,6 @@ class TestPopulator:
         (MediaType('text/html'), MediaType('text/html')),
         (MediaType('text/html'), None),
     ])
-    @patch_cache
     async def test_populate_link_should_set_media_type(
         self,
         expected: MediaType,
@@ -359,7 +351,6 @@ class TestPopulator:
         ('external', 'external'),
         ('external', None),
     ])
-    @patch_cache
     async def test_populate_link_should_set_relationship(
         self,
         expected: str,
@@ -379,7 +370,6 @@ class TestPopulator:
         ('nl', 'nl', None),
         ('nl', 'en', 'nl'),
     ])
-    @patch_cache
     async def test_populate_link_should_set_locale(
         self,
         expected: str,
@@ -399,7 +389,6 @@ class TestPopulator:
         ('This is the original description', 'This is the original description'),
         ('Read more on Wikipedia.', None),
     ])
-    @patch_cache
     async def test_populate_link_should_set_description(
         self,
         expected: str,
@@ -421,7 +410,6 @@ class TestPopulator:
         ('Amsterdam', 'Amsterdam'),
         ('The city of Amsterdam', None),
     ])
-    @patch_cache
     async def test_populate_link_should_set_label(
         self,
         expected: str,
@@ -437,7 +425,6 @@ class TestPopulator:
             await sut.populate_link(link, 'en', summary)
         assert expected == link.label
 
-    @patch_cache
     async def test_populate_should_ignore_resource_without_link_support(self, mocker: MockerFixture) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         source = Source('The Source')
@@ -450,7 +437,6 @@ class TestPopulator:
             sut = _Populator(app, m_retriever)
             await sut.populate()
 
-    @patch_cache
     async def test_populate_should_ignore_resource_without_links(self, mocker: MockerFixture) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         resource = Source(
@@ -463,7 +449,6 @@ class TestPopulator:
             await sut.populate()
         assert [] == resource.links
 
-    @patch_cache
     async def test_populate_should_ignore_non_wikipedia_links(self, mocker: MockerFixture) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         link = Link('https://example.com')
@@ -478,7 +463,6 @@ class TestPopulator:
             await sut.populate()
         assert [link] == resource.links
 
-    @patch_cache
     async def test_populate_should_populate_existing_link(self, mocker: MockerFixture) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever', spec=_Retriever, new_callable=AsyncMock)
         page_language = 'en'
@@ -507,7 +491,6 @@ class TestPopulator:
         assert link.description is not None
         assert 'external' == link.relationship
 
-    @patch_cache
     async def test_populate_should_add_translation_links(self, mocker: MockerFixture) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever', spec=_Retriever, new_callable=AsyncMock)
         page_language = 'en'
@@ -565,7 +548,6 @@ class TestPopulator:
         assert link_nl.description is not None
         assert 'external' == link_nl.relationship
 
-    @patch_cache
     async def test_populate_place_should_add_coordinates(self, mocker: MockerFixture) -> None:
         m_retriever = mocker.patch('betty.wikipedia._Retriever', spec=_Retriever, new_callable=AsyncMock)
         page_language = 'en'

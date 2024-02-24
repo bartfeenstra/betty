@@ -2,15 +2,15 @@ import sys
 from os import path
 
 import betty
-from betty import about
+from betty import about, fs
 from betty.asyncio import wait
-from betty.fs import ROOT_DIRECTORY_PATH, FileSystem, ASSETS_DIRECTORY_PATH
+from betty.fs import ROOT_DIRECTORY_PATH, FileSystem
 from betty.locale import LocalizerRepository
 
 betty_replacements: dict[str, str] = {}
 
 assets = FileSystem()
-assets.prepend(ASSETS_DIRECTORY_PATH, 'utf-8')
+assets.prepend(fs.ASSETS_DIRECTORY_PATH, 'utf-8')
 localizers = LocalizerRepository(assets)
 for locale in localizers.locales:
     coverage = wait(localizers.coverage(locale))

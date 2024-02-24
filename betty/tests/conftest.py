@@ -4,6 +4,7 @@ Integrate Betty with pytest.
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 from typing import Iterator, TypeVar, cast, AsyncIterator
 from warnings import filterwarnings
 
@@ -12,12 +13,15 @@ from PyQt6.QtCore import Qt, QObject
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QMainWindow, QMenu, QWidget
 from _pytest.logging import LogCaptureFixture
+from aiofiles.tempfile import TemporaryDirectory
 from pytestqt.qtbot import QtBot
 
 from betty.app import AppConfiguration, App
+from betty.cache.file import BinaryFileCache
 from betty.gui import BettyApplication
 from betty.gui.app import BettyPrimaryWindow
 from betty.gui.error import ErrorT
+from betty.locale import DEFAULT_LOCALIZER
 from betty.warnings import BettyDeprecationWarning
 
 _qapp_instance: BettyApplication | None = None
@@ -58,6 +62,17 @@ def set_logging(caplog: LogCaptureFixture) -> Iterator[None]:
     """
     with caplog.at_level(logging.CRITICAL):
         yield
+
+
+@pytest.fixture(scope='function')
+async def binary_file_cache() -> AsyncIterator[BinaryFileCache]:
+    """
+    Create a temporary file cache.
+    """
+    async with TemporaryDirectory() as cache_directory:
+        yield BinaryFileCache(DEFAULT_LOCALIZER, Path(
+            cache_directory,  # type: ignore[arg-type]
+        ))
 
 
 @pytest.fixture(scope='function')

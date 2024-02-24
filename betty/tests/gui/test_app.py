@@ -1,36 +1,33 @@
 import json
-from os import path
 from pathlib import Path
 
 import aiofiles
-import pytest
 from PyQt6.QtWidgets import QFileDialog
 from pytest_mock import MockerFixture
 from pytestqt.qtbot import QtBot
 
-from betty import fs
 from betty.app import App
+from betty.cache.file import BinaryFileCache
 from betty.gui.app import WelcomeWindow, _AboutBettyWindow, ApplicationConfiguration, BettyPrimaryWindow
 from betty.gui.error import ExceptionError
 from betty.gui.project import ProjectWindow
 from betty.gui.serve import ServeDemoWindow
 from betty.project import ProjectConfiguration
 from betty.serde.error import SerdeError
-from betty.tests import patch_cache
 from betty.tests.conftest import BettyQtBot
 from betty.tests.test_serve import SleepingAppServer
 
 
 class TestBettyMainWindow:
-    @patch_cache
     async def test_view_demo_site(
         self,
         mocker: MockerFixture,
+        binary_file_cache: BinaryFileCache,
         betty_qtbot: BettyQtBot,
     ) -> None:
         mocker.patch('betty.extension.demo.DemoServer', new_callable=lambda: SleepingAppServer)
 
-        async with App() as app:
+        async with App(binary_file_cache=binary_file_cache) as app:
             sut = BettyPrimaryWindow(app)
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()
@@ -39,19 +36,16 @@ class TestBettyMainWindow:
 
             betty_qtbot.assert_window(ServeDemoWindow)
 
-    @patch_cache
-    async def test_clear_caches(self, betty_qtbot: BettyQtBot) -> None:
-        async with App() as app:
+    async def test_clear_caches(self, betty_qtbot: BettyQtBot, binary_file_cache: BinaryFileCache) -> None:
+        async with App(binary_file_cache=binary_file_cache) as app:
             sut = BettyPrimaryWindow(app)
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()
 
-            cached_file_path = path.join(fs.CACHE_DIRECTORY_PATH, 'KeepMeAroundPlease')
-            open(cached_file_path, 'w').close()
+            await app.cache.set('KeepMeAroundPlease', '')
             betty_qtbot.navigate(sut, ['clear_caches_action'])
 
-            with pytest.raises(FileNotFoundError):
-                open(cached_file_path)
+            assert await app.cache.get('KeepMeAroundPlease') is None
 
     async def test_open_about_window(
         self,
