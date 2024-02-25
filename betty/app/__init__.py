@@ -13,10 +13,11 @@ from typing import TYPE_CHECKING, Mapping, Self, final
 
 import aiohttp
 
+from betty import fs
 from betty.app.extension import ListExtensions, Extension, Extensions, build_extension_type_graph, \
     CyclicDependencyError, ExtensionDispatcher, ConfigurableExtension, discover_extension_types
 from betty.asyncio import sync, wait
-from betty.cache import Cache
+from betty.cache import FileCache
 from betty.config import Configurable, FileBasedConfiguration
 from betty.dispatch import Dispatcher
 from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH, HOME_DIRECTORY_PATH
@@ -140,7 +141,7 @@ class App(Configurable[AppConfiguration]):
         self._jinja2_environment: Environment | None = None
         self._renderer: Renderer | None = None
         self._http_client: aiohttp.ClientSession | None = None
-        self._cache: Cache | None = None
+        self._cache: FileCache | None = None
 
     @classmethod
     def _unreduce(cls, dumped_app_configuration: VoidableDump, project: Project) -> Self:
@@ -417,7 +418,7 @@ class App(Configurable[AppConfiguration]):
         }
 
     @property
-    def cache(self) -> Cache:
+    def cache(self) -> FileCache:
         if self._cache is None:
-            self._cache = Cache(self.localizer)
+            self._cache = FileCache(self.localizer, fs.CACHE_DIRECTORY_PATH)
         return self._cache
