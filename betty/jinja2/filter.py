@@ -28,8 +28,8 @@ from jinja2.runtime import Context, Macro
 from markupsafe import Markup, escape
 from pdf2image.pdf2image import convert_from_path
 
-from betty import _resizeimage
-from betty.fs import hashfile, CACHE_DIRECTORY_PATH
+from betty import _resizeimage, fs
+from betty.fs import hashfile
 from betty.functools import walk
 from betty.locale import negotiate_localizeds, Localized, Datey, negotiate_locale, Localey, get_data, Localizable
 from betty.model import get_entity_type_name
@@ -259,7 +259,7 @@ async def filter_image(
 
     job_id = f'filter_image:{file.id}:{width or ""}:{height or ""}'
     if job_context is None or job_context.claim(job_id):
-        cache_directory_path = CACHE_DIRECTORY_PATH / 'image'
+        cache_directory_path = fs.CACHE_DIRECTORY_PATH / 'image'
         await task_callable(file, cache_directory_path, file_directory_path, destination_name, width, height)
 
     destination_public_path = f'/file/{quote(destination_name)}'

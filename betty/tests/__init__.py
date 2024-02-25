@@ -25,19 +25,18 @@ P = ParamSpec('P')
 
 def patch_cache(f: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
     """
-    Patch Betty's cache with a temporary directory.
+    Patch Betty's default global file cache with a temporary directory.
     """
     @functools.wraps(f)
     async def _patch_cache(*args: P.args, **kwargs: P.kwargs) -> T:
         original_cache_directory_path = fs.CACHE_DIRECTORY_PATH
-        cache_directory = TemporaryDirectory()
-        fs.CACHE_DIRECTORY_PATH = Path(await cache_directory.__aenter__())
-        try:
-            return await f(*args, **kwargs)
+        async with TemporaryDirectory() as cache_directory:
+            fs.CACHE_DIRECTORY_PATH = Path(cache_directory)
+            try:
+                return await f(*args, **kwargs)
 
-        finally:
-            fs.CACHE_DIRECTORY_PATH = original_cache_directory_path
-            await cache_directory.__aexit__(None, None, None)
+            finally:
+                fs.CACHE_DIRECTORY_PATH = original_cache_directory_path
 
     return _patch_cache
 

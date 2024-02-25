@@ -20,7 +20,7 @@ from betty.asyncio import sync, wait
 from betty.cache import FileCache
 from betty.config import Configurable, FileBasedConfiguration
 from betty.dispatch import Dispatcher
-from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH, HOME_DIRECTORY_PATH
+from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH
 from betty.locale import LocalizerRepository, get_data, DEFAULT_LOCALE, Localizer, Str
 from betty.model import Entity, EntityTypeProvider
 from betty.model.event_type import EventType, EventTypeProvider, Birth, Baptism, Adoption, Death, Funeral, Cremation, \
@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from betty.serve import Server
     from betty.url import StaticUrlGenerator, LocalizedUrlGenerator
 
-CONFIGURATION_DIRECTORY_PATH = HOME_DIRECTORY_PATH / 'configuration'
+CONFIGURATION_DIRECTORY_PATH = fs.HOME_DIRECTORY_PATH / 'configuration'
 
 
 class _AppExtensions(ListExtensions):
