@@ -10,8 +10,7 @@ from shutil import copy2, copytree
 from aiofiles.os import makedirs
 
 from betty.app.extension import Extension, UserFacingExtension
-from betty.cache import CacheScope
-from betty.extension.npm import _Npm, NpmBuilder, npm
+from betty.extension.npm import _Npm, NpmBuilder, npm, _NpmBuilderCacheScope
 from betty.generate import Generator, GenerationContext
 from betty.html import CssProvider, JsProvider
 from betty.locale import Str
@@ -36,8 +35,8 @@ class _Maps(UserFacingExtension, CssProvider, JsProvider, Generator, NpmBuilder)
             await asyncio.to_thread(copytree, source_directory_path / 'images', destination_directory_path / 'images')
 
     @classmethod
-    def npm_cache_scope(cls) -> CacheScope:
-        return CacheScope.BETTY
+    def npm_cache_scope(cls) -> _NpmBuilderCacheScope:
+        return _NpmBuilderCacheScope.BETTY
 
     async def generate(self, job_context: GenerationContext) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
