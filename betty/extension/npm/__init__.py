@@ -12,6 +12,7 @@ import shutil
 import sys
 from asyncio import subprocess as aiosubprocess
 from contextlib import suppress
+from enum import unique, IntFlag, auto
 from pathlib import Path
 from subprocess import CalledProcessError
 from typing import Sequence
@@ -21,7 +22,6 @@ from aiofiles.tempfile import TemporaryDirectory
 from betty.app.extension import Extension, discover_extension_types
 from betty.app.extension.requirement import Requirement, AnyRequirement, AllRequirements
 from betty.asyncio import wait
-from betty.cache import CacheScope
 from betty.fs import iterfiles
 from betty.locale import Str, DEFAULT_LOCALIZER
 from betty.subprocess import run_process
@@ -123,13 +123,19 @@ class _AssetsRequirement(Requirement):
         return self._details
 
 
+@unique
+class _NpmBuilderCacheScope(IntFlag):
+    BETTY = auto()
+    PROJECT = auto()
+
+
 class NpmBuilder:
     async def npm_build(self, working_directory_path: Path, assets_directory_path: Path) -> None:
         raise NotImplementedError(repr(self))
 
     @classmethod
-    def npm_cache_scope(cls) -> CacheScope:
-        return CacheScope.PROJECT
+    def npm_cache_scope(cls) -> _NpmBuilderCacheScope:
+        return _NpmBuilderCacheScope.PROJECT
 
 
 def discover_npm_builders() -> set[type[NpmBuilder & Extension]]:
@@ -220,7 +226,7 @@ class _Npm(Extension):
 
     def _get_cached_assets_build_directory_path(self, extension_type: type[NpmBuilder & Extension]) -> Path:
         path = self.cache_directory_path / extension_type.name()
-        if extension_type.npm_cache_scope() == CacheScope.PROJECT:
+        if extension_type.npm_cache_scope() == _NpmBuilderCacheScope.PROJECT:
             path /= self.app.project.id
         return path
 

@@ -5,16 +5,9 @@ import asyncio
 import logging
 import shutil
 from contextlib import suppress
-from enum import unique, IntFlag, auto
 
 from betty import fs
 from betty.locale import Localizer
-
-
-@unique
-class CacheScope(IntFlag):
-    BETTY = auto()
-    PROJECT = auto()
 
 
 class Cache:
