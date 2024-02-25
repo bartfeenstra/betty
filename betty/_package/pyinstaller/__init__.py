@@ -11,17 +11,17 @@ from betty._package.pyinstaller.hooks import HOOKS_DIRECTORY_PATH
 from betty.app import App
 from betty.app.extension import discover_extension_types, Extension
 from betty.asyncio import gather
-from betty.extension.npm import _Npm, build_assets, NpmBuilder
+from betty.extension.npm import _Npm, build_assets, _NpmBuilder
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.project import ExtensionConfiguration
 
 
 async def _build_assets() -> None:
-    npm_builder_extension_types: list[type[NpmBuilder & Extension]] = [
+    npm_builder_extension_types: list[type[_NpmBuilder & Extension]] = [
         extension_type
         for extension_type
         in discover_extension_types()
-        if issubclass(extension_type, NpmBuilder)
+        if issubclass(extension_type, _NpmBuilder)
     ]
     async with App() as app:
         app.project.configuration.extensions.append(ExtensionConfiguration(_Npm))

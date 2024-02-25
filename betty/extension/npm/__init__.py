@@ -86,7 +86,7 @@ def is_assets_build_directory_path(path: Path) -> bool:
 
 
 class _AssetsRequirement(Requirement):
-    def __init__(self, extension_types: set[type[NpmBuilder & Extension]]):
+    def __init__(self, extension_types: set[type[_NpmBuilder & Extension]]):
         super().__init__()
         self._extension_types = extension_types
         self._summary = Str._('Pre-built assets')
@@ -105,7 +105,7 @@ class _AssetsRequirement(Requirement):
             self._details = Str.plain('')
 
     @property
-    def _extension_types_with_built_assets(self) -> set[type[NpmBuilder & Extension]]:
+    def _extension_types_with_built_assets(self) -> set[type[_NpmBuilder & Extension]]:
         return {
             extension_type
             for extension_type
@@ -129,7 +129,7 @@ class _NpmBuilderCacheScope(IntFlag):
     PROJECT = auto()
 
 
-class NpmBuilder:
+class _NpmBuilder:
     async def npm_build(self, working_directory_path: Path, assets_directory_path: Path) -> None:
         raise NotImplementedError(repr(self))
 
@@ -138,7 +138,7 @@ class NpmBuilder:
         return _NpmBuilderCacheScope.PROJECT
 
 
-def discover_npm_builders() -> set[type[NpmBuilder & Extension]]:
+def discover_npm_builders() -> set[type[_NpmBuilder & Extension]]:
     """
     Gather all extensions that are npm builders.
     """
@@ -146,28 +146,28 @@ def discover_npm_builders() -> set[type[NpmBuilder & Extension]]:
         extension_type
         for extension_type
         in discover_extension_types()
-        if issubclass(extension_type, NpmBuilder)
+        if issubclass(extension_type, _NpmBuilder)
     }
 
 
-def _get_assets_directory_path(extension_type: type[NpmBuilder & Extension]) -> Path:
+def _get_assets_directory_path(extension_type: type[_NpmBuilder & Extension]) -> Path:
     assert issubclass(extension_type, Extension)
-    assert issubclass(extension_type, NpmBuilder)
+    assert issubclass(extension_type, _NpmBuilder)
     assets_directory_path = extension_type.assets_directory_path()
     if not assets_directory_path:
         raise RuntimeError(f'Extension {extension_type} does not have an assets directory.')
     return assets_directory_path / _Npm.name()
 
 
-def _get_assets_src_directory_path(extension_type: type[NpmBuilder & Extension]) -> Path:
+def _get_assets_src_directory_path(extension_type: type[_NpmBuilder & Extension]) -> Path:
     return _get_assets_directory_path(extension_type) / 'src'
 
 
-def _get_assets_build_directory_path(extension_type: type[NpmBuilder & Extension]) -> Path:
+def _get_assets_build_directory_path(extension_type: type[_NpmBuilder & Extension]) -> Path:
     return _get_assets_directory_path(extension_type) / 'build'
 
 
-async def build_assets(extension: NpmBuilder & Extension) -> Path:
+async def build_assets(extension: _NpmBuilder & Extension) -> Path:
     """
     Build the npm assets for an extension.
     """
@@ -176,9 +176,9 @@ async def build_assets(extension: NpmBuilder & Extension) -> Path:
     return assets_directory_path
 
 
-async def _build_assets_to_directory_path(extension: NpmBuilder & Extension, assets_directory_path: Path) -> None:
+async def _build_assets_to_directory_path(extension: _NpmBuilder & Extension, assets_directory_path: Path) -> None:
     assert isinstance(extension, Extension)
-    assert isinstance(extension, NpmBuilder)
+    assert isinstance(extension, _NpmBuilder)
     with suppress(FileNotFoundError):
         await asyncio.to_thread(shutil.rmtree, assets_directory_path)
     os.makedirs(assets_directory_path)
@@ -209,7 +209,7 @@ class _Npm(Extension):
             super().enable_requirement(),
         )
 
-    async def install(self, extension_type: type[NpmBuilder & Extension], working_directory_path: Path) -> None:
+    async def install(self, extension_type: type[_NpmBuilder & Extension], working_directory_path: Path) -> None:
         self._ensure_requirement()
         if self._npm_requirement:
             self._npm_requirement.assert_met()
@@ -224,13 +224,13 @@ class _Npm(Extension):
             await self._app.renderer.render_file(file_path)
         await npm(['install', '--production'], cwd=working_directory_path)
 
-    def _get_cached_assets_build_directory_path(self, extension_type: type[NpmBuilder & Extension]) -> Path:
+    def _get_cached_assets_build_directory_path(self, extension_type: type[_NpmBuilder & Extension]) -> Path:
         path = self._app.cache.path / self.name() / extension_type.name()
         if extension_type.npm_cache_scope() == _NpmBuilderCacheScope.PROJECT:
             path /= self.app.project.id
         return path
 
-    async def ensure_assets(self, extension: NpmBuilder & Extension) -> Path:
+    async def ensure_assets(self, extension: _NpmBuilder & Extension) -> Path:
         assets_build_directory_paths = [
             _get_assets_build_directory_path(type(extension)),
             self._get_cached_assets_build_directory_path(type(extension)),
@@ -243,7 +243,7 @@ class _Npm(Extension):
             self._npm_requirement.assert_met()
         return await self._build_cached_assets(extension)
 
-    async def _build_cached_assets(self, extension: NpmBuilder & Extension) -> Path:
+    async def _build_cached_assets(self, extension: _NpmBuilder & Extension) -> Path:
         assets_directory_path = self._get_cached_assets_build_directory_path(type(extension))
         await _build_assets_to_directory_path(extension, assets_directory_path)
         return assets_directory_path
