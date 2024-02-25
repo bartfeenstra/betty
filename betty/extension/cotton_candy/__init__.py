@@ -20,7 +20,7 @@ from jinja2.runtime import Context
 from betty.app.extension import ConfigurableExtension, Extension, Theme
 from betty.config import Configuration
 from betty.extension.cotton_candy.search import Index
-from betty.extension.npm import _Npm, NpmBuilder, npm
+from betty.extension.npm import _Npm, _NpmBuilder, npm
 from betty.functools import walk
 from betty.generate import Generator, GenerationContext
 from betty.gui import GuiBuilder
@@ -175,7 +175,7 @@ class CottonCandyConfiguration(Configuration):
         })
 
 
-class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Generator, GuiBuilder, NpmBuilder, Jinja2Provider):
+class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Generator, GuiBuilder, _NpmBuilder, Jinja2Provider):
     @classmethod
     def depends_on(cls) -> set[type[Extension]]:
         return {_Npm}

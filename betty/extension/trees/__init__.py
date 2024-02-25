@@ -9,13 +9,13 @@ from shutil import copy2
 from aiofiles.os import makedirs
 
 from betty.app.extension import Extension, UserFacingExtension
-from betty.extension.npm import _Npm, NpmBuilder, npm, _NpmBuilderCacheScope
+from betty.extension.npm import _Npm, _NpmBuilder, npm, _NpmBuilderCacheScope
 from betty.generate import Generator, GenerationContext
 from betty.html import CssProvider, JsProvider
 from betty.locale import Str
 
 
-class _Trees(UserFacingExtension, CssProvider, JsProvider, Generator, NpmBuilder):
+class _Trees(UserFacingExtension, CssProvider, JsProvider, Generator, _NpmBuilder):
     @classmethod
     def depends_on(cls) -> set[type[Extension]]:
         return {_Npm}

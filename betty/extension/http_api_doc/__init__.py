@@ -9,12 +9,12 @@ from shutil import copy2
 from aiofiles.os import makedirs
 
 from betty.app.extension import Extension, UserFacingExtension
-from betty.extension.npm import _Npm, NpmBuilder, _NpmBuilderCacheScope
+from betty.extension.npm import _Npm, _NpmBuilder, _NpmBuilderCacheScope
 from betty.generate import Generator, GenerationContext
 from betty.locale import Str
 
 
-class _HttpApiDoc(UserFacingExtension, Generator, NpmBuilder):
+class _HttpApiDoc(UserFacingExtension, Generator, _NpmBuilder):
     @classmethod
     def depends_on(cls) -> set[type[Extension]]:
         return {_Npm}
