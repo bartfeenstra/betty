@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Any, TypeVar, Iterable, TYPE_CHECKING, Generic, \
     Iterator, Sequence, Self
 
-from betty import fs
 from betty.app.extension.requirement import Requirement, AllRequirements
 from betty.asyncio import gather
 from betty.config import ConfigurationT, Configurable
@@ -168,10 +167,6 @@ class Extension:
         This may be anywhere in your Python package.
         """
         return None
-
-    @property
-    def cache_directory_path(self) -> Path:
-        return fs.CACHE_DIRECTORY_PATH / self.name()
 
     @property
     def app(self) -> App:
