@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import asyncio
 import calendar
-import contextlib
 import datetime
 import gettext
 import glob
@@ -14,7 +13,7 @@ import operator
 import threading
 from collections import defaultdict
 from collections.abc import AsyncIterator
-from contextlib import suppress
+from contextlib import suppress, redirect_stdout, chdir
 from functools import total_ordering
 from io import StringIO
 from pathlib import Path
@@ -34,7 +33,6 @@ from betty.asyncio import wait
 from betty.fs import hashfile, FileSystem, ASSETS_DIRECTORY_PATH, ROOT_DIRECTORY_PATH
 from betty.json.linked_data import LinkedDataDumpable, dump_context, add_json_ld
 from betty.json.schema import ref_locale, add_property
-from betty.os import ChDir
 from betty.serde.dump import DictDump, Dump, dump_default
 
 if TYPE_CHECKING:
@@ -714,7 +712,7 @@ class LocalizerRepository:
 
             cache_directory_path.mkdir(exist_ok=True, parents=True)
 
-            with contextlib.redirect_stdout(StringIO()):
+            with redirect_stdout(StringIO()):
                 CommandLineInterface().run([
                     '',
                     'compile',
@@ -902,7 +900,7 @@ async def init_translation(locale: str) -> None:
     Initialize a new translation.
     """
     po_file_path = _LOCALE_DIRECTORY_PATH / locale / 'betty.po'
-    with contextlib.redirect_stdout(StringIO()):
+    with redirect_stdout(StringIO()):
         if await exists(po_file_path):
             logging.getLogger(__name__).info(f'Translations for {locale} already exist at {po_file_path}.')
             return
@@ -933,8 +931,8 @@ async def update_translations(_output_assets_directory_path: Path = ASSETS_DIREC
     # or we'll be seeing some unusual additions to the translations.
     source_paths.remove(str(Path('betty') / 'tests'))
     pot_file_path = _output_assets_directory_path / 'betty.pot'
-    with contextlib.redirect_stdout(StringIO()):
-        async with ChDir(ROOT_DIRECTORY_PATH):
+    with redirect_stdout(StringIO()):
+        with chdir(ROOT_DIRECTORY_PATH):
             CommandLineInterface().run([
                 '',
                 'extract',
