@@ -4,13 +4,11 @@ Provide OS interaction utilities.
 from __future__ import annotations
 
 import asyncio
-import os
 import shutil
 from contextlib import suppress
 from pathlib import Path
-from types import TracebackType
 
-from aiofiles.os import link, makedirs
+from aiofiles.os import link
 
 
 async def link_or_copy(source_path: Path, destination_path: Path) -> None:
@@ -28,25 +26,3 @@ async def link_or_copy(source_path: Path, destination_path: Path) -> None:
     except OSError:
         with suppress(shutil.SameFileError):
             await asyncio.to_thread(shutil.copyfile, source_path, destination_path)
-
-
-class ChDir:
-    def __init__(self, directory_path: Path):
-        self._directory_path = directory_path
-        self._owd: str | None = None
-
-    async def __aenter__(self) -> None:
-        await self.change()
-
-    async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> None:
-        await self.revert()
-
-    async def change(self) -> None:
-        self._owd = await asyncio.to_thread(os.getcwd)
-        await makedirs(self._directory_path, exist_ok=True)
-        await asyncio.to_thread(os.chdir, self._directory_path)
-
-    async def revert(self) -> None:
-        owd = self._owd
-        if owd is not None:
-            await asyncio.to_thread(os.chdir, owd)

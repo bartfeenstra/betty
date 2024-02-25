@@ -8,7 +8,7 @@ import weakref
 from _weakref import ReferenceType
 from collections import OrderedDict
 from collections.abc import Callable
-from contextlib import suppress
+from contextlib import suppress, chdir
 from pathlib import Path
 from reprlib import recursive_repr
 from tempfile import TemporaryDirectory
@@ -22,7 +22,6 @@ from betty.asyncio import wait, sync
 from betty.classtools import repr_instance
 from betty.functools import slice_to_range
 from betty.locale import Str
-from betty.os import ChDir
 from betty.serde.dump import Dumpable, Dump, minimize, VoidableDump, Void
 from betty.serde.error import SerdeErrorCollection
 from betty.serde.format import FormatRepository
@@ -120,14 +119,13 @@ class FileBasedConfiguration(Configuration):
         # Change the working directory to allow absolute paths to be turned relative to the configuration file's directory
         # path.
         formats = FormatRepository()
-        async with ChDir(configuration_file_path.parent):
-            dump = formats.format_for(configuration_file_path.suffix[1:]).dump(self.dump())
-            try:
-                async with aiofiles.open(configuration_file_path, mode='w') as f:
-                    await f.write(dump)
-            except FileNotFoundError:
-                await makedirs(configuration_file_path.parent)
-                await self.write()
+        dump = formats.format_for(configuration_file_path.suffix[1:]).dump(self.dump())
+        try:
+            async with aiofiles.open(configuration_file_path, mode='w') as f:
+                await f.write(dump)
+        except FileNotFoundError:
+            await makedirs(configuration_file_path.parent)
+            await self.write()
         self._configuration_file_path = configuration_file_path
 
     async def read(self, configuration_file_path: Path | None = None) -> None:
@@ -138,7 +136,7 @@ class FileBasedConfiguration(Configuration):
         with SerdeErrorCollection().assert_valid() as errors:
             # Change the working directory to allow relative paths to be resolved against the configuration file's directory
             # path.
-            async with ChDir(self.configuration_file_path.parent):
+            with chdir(self.configuration_file_path.parent):
                 async with aiofiles.open(self.configuration_file_path) as f:
                     read_configuration = await f.read()
                 with errors.catch(Str.plain(

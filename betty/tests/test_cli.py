@@ -1,4 +1,5 @@
 import json
+from contextlib import chdir
 from pathlib import Path
 from typing import Any
 
@@ -15,7 +16,6 @@ from pytest_mock import MockerFixture
 from betty import fs
 from betty.error import UserFacingError
 from betty.locale import Str
-from betty.os import ChDir
 from betty.project import ProjectConfiguration, ExtensionConfiguration
 from betty.serde.dump import Dump
 from betty.serve import AppServer
@@ -123,7 +123,7 @@ class TestMain:
                     },
                 }
                 await config_file.write(json.dumps(dump))
-            async with ChDir(working_directory_path):
+            with chdir(working_directory_path):
                 runner = CliRunner()
                 result = runner.invoke(main, ('test',), catch_exceptions=False)
                 assert 1 == result.exit_code
