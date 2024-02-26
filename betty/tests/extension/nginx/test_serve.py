@@ -1,5 +1,5 @@
 import sys
-from time import sleep
+from asyncio import sleep
 
 import aiofiles
 import pytest
@@ -28,9 +28,16 @@ class TestDockerizedNginxServer:
             async with aiofiles.open(app.project.configuration.www_directory_path / 'index.html', 'w') as f:
                 await f.write(content)
             async with DockerizedNginxServer(app) as server:
-                # Wait for the server to start.
-                sleep(1)
-                response = requests.get(server.public_url)
-                assert 200 == response.status_code
+                attempts = 0
+                while True:
+                    attempts += 1
+                    response = requests.get(server.public_url)
+                    try:
+                        assert response.status_code == 200
+                        break
+                    except AssertionError:
+                        if attempts > 5:
+                            raise
+                    await sleep(1)
                 assert content == response.content.decode('utf-8')
                 assert 'no-cache' == response.headers['Cache-Control']
