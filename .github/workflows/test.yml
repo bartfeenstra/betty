@@ -131,6 +131,10 @@ jobs:
 
         # @todo Remove anything after this until the next @todo
       - name: Run the tests
+        run: pip install pytest-repeat
+        shell: bash
+
+      - name: Run the tests
         run: ./bin/test-pytest --count=9 -vvv -k 'TestBettyMainWindow and test_view_demo_site' ./betty/tests/gui/test_app.py
         shell: bash
       - name: Run the tests
