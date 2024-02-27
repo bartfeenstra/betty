@@ -129,6 +129,32 @@ jobs:
           restore-keys: |
             cypress-
 
+        # @todo Remove anything after this until the next @todo
+      - name: Run the tests
+        run: ./bin/test-pytest -vvv -k 'TestBettyMainWindow and test_view_demo_site' ./betty/tests/gui/test_app.py
+        shell: bash
+      - name: Run the tests
+        run: ./bin/test-pytest -vvv -k 'TestBettyMainWindow and test_clear_caches' ./betty/tests/gui/test_app.py
+        shell: bash
+      - name: Run the tests
+        run: ./bin/test-pytest -vvv -k 'TestBettyMainWindow and test_open_about_window' ./betty/tests/gui/test_app.py
+        shell: bash
+
+      - name: Run the tests
+        run: ./bin/test-pytest -vvv -k 'TestWelcomeWindow and test_open_project_with_invalid_file_should_error' ./betty/tests/gui/test_app.py
+        shell: bash
+      - name: Run the tests
+        run: ./bin/test-pytest -vvv -k 'TestWelcomeWindow and test_open_project_with_valid_file_should_show_project_window' ./betty/tests/gui/test_app.py
+        shell: bash
+      - name: Run the tests
+        run: ./bin/test-pytest -vvv -k 'TestWelcomeWindow and test_view_demo_site' ./betty/tests/gui/test_app.py
+        shell: bash
+
+      - name: Run the tests
+        run: ./bin/test-pytest -vvv -k 'TestApplicationConfiguration and test_application_configuration_autowrite' ./betty/tests/gui/test_app.py
+        shell: bash
+        # @todo Remove anything before this until the previous @todo
+
       - name: Run the tests
         if: startsWith(runner.os, 'Linux')
         run: BETTY_TEST_SKIP_PYINSTALLER=true ./bin/test
