@@ -278,6 +278,7 @@ class _LocalizationPane(LocalizedObject, QWidget):
     def _build_locales_configuration(self) -> None:
         with suppress(AttributeError):
             self._layout.removeWidget(self._locales_configuration_widget)
+            self._locales_configuration_widget.close()
             self._locales_configuration_widget.setParent(None)
             del self._locales_configuration_widget
         self._locales_configuration_widget = _LocalesConfigurationWidget(self._app)
@@ -394,6 +395,7 @@ class _ExtensionPane(LocalizedObject, QWidget):
                         extension_gui_widget = extension_gui_item.widget()
                         assert extension_gui_widget is not None
                         layout.removeWidget(extension_gui_widget)
+                        extension_gui_widget.close()
                         extension_gui_widget.setParent(None)
                         del extension_gui_widget
 
