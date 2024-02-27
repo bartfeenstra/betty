@@ -43,6 +43,7 @@ class _FamilyTrees(LocalizedObject, QWidget):
 
     def _build_family_trees(self) -> None:
         with suppress(AttributeError):
+            self._family_trees_widget.close()
             self._family_trees_widget.setParent(None)
         self._family_trees_widget = QWidget()
         self._family_trees_layout = QGridLayout()
