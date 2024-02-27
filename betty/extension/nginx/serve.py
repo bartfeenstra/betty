@@ -57,6 +57,7 @@ class DockerizedNginxServer(AppServer):
             nginx_configuration_file_path,
         )
         await self._container.start()
+        await self.assert_available()
 
     async def stop(self) -> None:
         if self._container is not None:

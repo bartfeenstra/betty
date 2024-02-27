@@ -1,5 +1,5 @@
 import sys
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -13,6 +13,7 @@ from betty.app import App
 from betty.extension import Nginx
 from betty.extension.nginx import NginxConfiguration
 from betty.extension.nginx.serve import DockerizedNginxServer
+from betty.functools import Do
 from betty.json.schema import Schema
 from betty.project import ProjectConfiguration, ExtensionConfiguration, LocaleConfiguration
 from betty.serve import Server
@@ -103,97 +104,118 @@ class TestNginx:
             clean_urls=True,
         )
 
+    def _build_assert_status_code(self, http_status_code: int) -> Callable[[Response], None]:
+        def _assert(response: Response) -> None:
+            assert http_status_code == response.status_code
+        return _assert
+
     async def test_front_page(self):
-        async with self.server(self.monolingual_configuration()) as server:
-            response = requests.get(server.public_url)
-            assert 200 == response.status_code
-            await self.assert_betty_html(response)
+        async with self.server(self.monolingual_clean_urls_configuration()) as server:
+            await Do(requests.get, server.public_url).until(
+                self._build_assert_status_code(200),
+                self.assert_betty_html,
+            )
 
     async def test_default_html_404(self):
-        async with self.server(self.monolingual_configuration()) as server:
-            response = requests.get('%s/non-existent' % server.public_url)
-            assert 404 == response.status_code
-            await self.assert_betty_html(response)
+        async with self.server(self.monolingual_clean_urls_configuration()) as server:
+            await Do(requests.get, f'{server.public_url}/non-existent-path/').until(
+                self._build_assert_status_code(404),
+                self.assert_betty_html,
+            )
 
     async def test_negotiated_json_404(self):
         async with self.server(self.monolingual_clean_urls_configuration()) as server:
-            response = requests.get('%s/non-existent' % server.public_url, headers={
+            await Do(requests.get, f'{server.public_url}/non-existent-path/', headers={
                 'Accept': 'application/json',
-            })
-            assert 404 == response.status_code
-            await self.assert_betty_json(response)
+            }).until(
+                self._build_assert_status_code(404),
+                self.assert_betty_json,
+            )
 
     async def test_default_localized_front_page(self):
-        async with self.server(self.multilingual_configuration()) as server:
-            response = requests.get(server.public_url)
+        async def _assert_response(response: Response) -> None:
             assert 200 == response.status_code
-            # assert 'en' == response.headers['Content-Language']
+            assert 'en' == response.headers['Content-Language']
             assert f'{server.public_url}/en/' == response.url
             await self.assert_betty_html(response)
+        async with self.server(self.multilingual_configuration()) as server:
+            await Do(requests.get, server.public_url).until(_assert_response)
 
     async def test_explicitly_localized_404(self):
-        async with self.server(self.multilingual_configuration()) as server:
-            response = requests.get('%s/nl/non-existent' % server.public_url)
+        async def _assert_response(response: Response) -> None:
             assert 404 == response.status_code
             assert 'nl' == response.headers['Content-Language']
             await self.assert_betty_html(response)
+        async with self.server(self.multilingual_configuration()) as server:
+            await Do(requests.get, f'{server.public_url}/nl/non-existent-path/').until(_assert_response)
 
     async def test_negotiated_localized_front_page(self):
-        async with self.server(self.multilingual_clean_urls_configuration()) as server:
-            response = requests.get(server.public_url, headers={
-                'Accept-Language': 'nl-NL',
-            })
+        async def _assert_response(response: Response) -> None:
             assert 200 == response.status_code
             assert 'nl' == response.headers['Content-Language']
             assert f'{server.public_url}/nl/' == response.url
             await self.assert_betty_html(response)
+        async with self.server(self.multilingual_clean_urls_configuration()) as server:
+            await Do(requests.get, server.public_url, headers={
+                'Accept-Language': 'nl-NL',
+            }).until(_assert_response)
 
     async def test_negotiated_localized_negotiated_json_404(self):
         async with self.server(self.multilingual_clean_urls_configuration()) as server:
-            response = requests.get('%s/non-existent' % server.public_url, headers={
+            await Do(requests.get, f'{server.public_url}/non-existent-path/', headers={
                 'Accept': 'application/json',
                 'Accept-Language': 'nl-NL',
-            })
-            assert 404 == response.status_code
-            await self.assert_betty_json(response)
+            }).until(
+                self._build_assert_status_code(404),
+                self.assert_betty_json,
+            )
 
     async def test_default_html_resource(self):
         async with self.server(self.monolingual_clean_urls_configuration()) as server:
-            response = requests.get('%s/place/' % server.public_url)
-            assert 200 == response.status_code
-            await self.assert_betty_html(response)
+            await Do(requests.get, f'{server.public_url}/place/').until(
+                self._build_assert_status_code(200),
+                self.assert_betty_html,
+            )
 
     async def test_negotiated_html_resource(self):
         async with self.server(self.monolingual_clean_urls_configuration()) as server:
-            response = requests.get('%s/place/' % server.public_url, headers={
+            await Do(requests.get, f'{server.public_url}/place/', headers={
                 'Accept': 'text/html',
-            })
-            assert 200 == response.status_code
-            await self.assert_betty_html(response)
+            }).until(
+                self._build_assert_status_code(200),
+                self.assert_betty_html,
+            )
 
     async def test_negotiated_json_resource(self):
         async with self.server(self.monolingual_clean_urls_configuration()) as server:
-            response = requests.get('%s/place/' % server.public_url, headers={
+            await Do(requests.get, f'{server.public_url}/place/', headers={
                 'Accept': 'application/json',
-            })
-            assert 200 == response.status_code
-            await self.assert_betty_json(response)
+            }).until(
+                self._build_assert_status_code(200),
+                self.assert_betty_json,
+            )
 
     async def test_default_html_static_resource(self):
         async with self.server(self.multilingual_clean_urls_configuration()) as server:
-            response = requests.get('%s/non-existent-path/' % server.public_url)
-            await self.assert_betty_html(response)
+            await Do(requests.get, f'{server.public_url}/non-existent-path/').until(
+                self._build_assert_status_code(404),
+                self.assert_betty_html,
+            )
 
     async def test_negotiated_html_static_resource(self, tmp_path: Path):
         async with self.server(self.multilingual_clean_urls_configuration()) as server:
-            response = requests.get('%s/non-existent-path/' % server.public_url, headers={
+            await Do(requests.get, f'{server.public_url}/non-existent-path/', headers={
                 'Accept': 'text/html',
-            })
-            await self.assert_betty_html(response)
+            }).until(
+                self._build_assert_status_code(404),
+                self.assert_betty_html,
+            )
 
     async def test_negotiated_json_static_resource(self):
         async with self.server(self.multilingual_clean_urls_configuration()) as server:
-            response = requests.get('%s/non-existent-path/' % server.public_url, headers={
+            await Do(requests.get, f'{server.public_url}/non-existent-path/', headers={
                 'Accept': 'application/json',
-            })
-            await self.assert_betty_json(response)
+            }).until(
+                self._build_assert_status_code(404),
+                self.assert_betty_json,
+            )

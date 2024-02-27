@@ -424,6 +424,7 @@ class DemoServer(Server):
         except BaseException:
             await self.stop()
             raise
+        await self.assert_available()
 
     async def stop(self) -> None:
         await self._exit_stack.aclose()

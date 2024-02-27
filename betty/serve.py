@@ -15,9 +15,11 @@ from typing import Sequence, Any
 
 from aiofiles.os import makedirs, symlink
 from aiofiles.tempfile import TemporaryDirectory, AiofilesContextManagerTempDir
+from aiohttp import ClientSession
 
 from betty.app import App
 from betty.error import UserFacingError
+from betty.functools import Do
 from betty.locale import Str, Localizer
 
 DEFAULT_PORT = 8000
@@ -83,6 +85,18 @@ class Server:
 
     async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> None:
         await self.stop()
+
+    async def assert_available(self) -> None:
+        # @todo In Betty 0.4.0, require the app's existing client session.
+        async with ClientSession() as session:
+            try:
+                await Do[Any, None](self._assert_available, session).until()
+            except BaseException:
+                raise UserFacingError(Str._('The server was unreachable after starting.'))
+
+    async def _assert_available(self, session: ClientSession) -> None:
+        async with session.get(self.public_url) as response:
+            assert response.status == 200
 
 
 class AppServer(Server):
@@ -166,6 +180,7 @@ class BuiltinServer(Server):
             raise OsError(Str._('Cannot find an available port to bind the web server to.'))
         self._thread = threading.Thread(target=self._serve)
         self._thread.start()
+        await self.assert_available()
 
     @property
     def public_url(self) -> str:

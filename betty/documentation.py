@@ -91,13 +91,10 @@ class DocumentationServer(Server):
 
     async def start(self) -> None:
         await super().start()
-        try:
-            www_directory_path = await _build_cache(self._cache_directory_path)
-            self._server = serve.BuiltinServer(www_directory_path, localizer=self._localizer)
-            await self._exit_stack.enter_async_context(self._server)
-        except BaseException:
-            await self.stop()
-            raise
+        www_directory_path = await _build_cache(self._cache_directory_path)
+        self._server = serve.BuiltinServer(www_directory_path, localizer=self._localizer)
+        await self._exit_stack.enter_async_context(self._server)
+        await self.assert_available()
 
     async def stop(self) -> None:
         await self._exit_stack.aclose()

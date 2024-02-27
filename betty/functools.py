@@ -3,7 +3,10 @@ Provide functional programming utilities.
 """
 from __future__ import annotations
 
-from typing import Any, Iterable, Sized, TypeVar, Callable, Iterator, Generic, cast
+from asyncio import sleep
+from inspect import isawaitable
+from time import time
+from typing import Any, Iterable, Sized, TypeVar, Callable, Iterator, Generic, cast, ParamSpec, Awaitable
 
 T = TypeVar('T')
 U = TypeVar('U')
@@ -87,3 +90,52 @@ def filter_suppress(raising_filter: Callable[[T], Any], exception_type: type[Bas
             yield item
         except exception_type:
             continue
+
+
+_DoFReturnT = TypeVar('_DoFReturnT')
+_DoFP = ParamSpec('_DoFP')
+
+
+class Do(Generic[_DoFP, _DoFReturnT]):
+    def __init__(
+        self,
+        f: Callable[_DoFP, _DoFReturnT | Awaitable[_DoFReturnT]],
+        *args: _DoFP.args,
+        **kwargs: _DoFP.kwargs,
+    ):
+        self._f = f
+        self._args = args
+        self._kwargs = kwargs
+
+    async def until(
+        self,
+        *conditions: Callable[[_DoFReturnT], None | bool | Awaitable[None | bool]],
+        retries: int = 5,
+        timeout: int = 300,
+        interval: int | float = 0.1,
+    ) -> _DoFReturnT:
+        start_time = time()
+        while True:
+            retries -= 1
+            try:
+                f_result_or_coroutine = self._f(*self._args, **self._kwargs)
+                if isawaitable(f_result_or_coroutine):
+                    f_result = await f_result_or_coroutine
+                else:
+                    f_result = f_result_or_coroutine
+                for condition in conditions:
+                    condition_result_or_coroutine = condition(f_result)
+                    if isawaitable(condition_result_or_coroutine):
+                        condition_result = await condition_result_or_coroutine
+                    else:
+                        condition_result = cast(None | bool, condition_result_or_coroutine)
+                    if condition_result is False:
+                        raise RuntimeError(f'Condition {condition} was not met for {f_result}.')
+            except BaseException:
+                if retries == 0:
+                    raise
+                if time() - start_time > timeout:
+                    raise
+                await sleep(interval)
+            else:
+                return f_result
