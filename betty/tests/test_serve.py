@@ -1,11 +1,11 @@
-from asyncio import sleep
-
 import aiofiles
-from aiofiles.os import makedirs
 import requests
+from aiofiles.os import makedirs
 from pytest_mock import MockerFixture
+from requests import Response
 
 from betty.app import App
+from betty.functools import Do
 from betty.serve import BuiltinAppServer
 
 
@@ -18,16 +18,8 @@ class TestBuiltinServer:
         async with aiofiles.open(app.project.configuration.www_directory_path / 'index.html', 'w') as f:
             await f.write(content)
         async with BuiltinAppServer(app) as server:
-            attempts = 0
-            while True:
-                attempts += 1
-                response = requests.get(server.public_url)
-                try:
-                    assert response.status_code == 200
-                    break
-                except AssertionError:
-                    if attempts > 5:
-                        raise
-                await sleep(1)
-            assert content == response.content.decode('utf-8')
-            assert 'no-cache' == response.headers['Cache-Control']
+            def _assert_response(response: Response) -> None:
+                assert response.status_code == 200
+                assert content == response.content.decode('utf-8')
+                assert 'no-cache' == response.headers['Cache-Control']
+            await Do(requests.get, server.public_url).until(_assert_response)

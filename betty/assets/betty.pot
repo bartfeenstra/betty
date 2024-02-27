@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-02-24 13:08+0000\n"
+"POT-Creation-Date: 2024-02-27 14:53+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -726,6 +726,9 @@ msgid "The following errors occurred"
 msgstr ""
 
 msgid "The lifetime threshold must consist of digits only."
+msgstr ""
+
+msgid "The server was unreachable after starting."
 msgstr ""
 
 #, python-format

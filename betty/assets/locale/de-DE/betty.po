@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-02-24 13:08+0000\n"
+"POT-Creation-Date: 2024-02-27 14:53+0000\n"
 "PO-Revision-Date: 2024-02-08 13:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de\n"
@@ -940,6 +940,9 @@ msgstr "Die folgenden Fehler sind aufgetreten"
 
 msgid "The lifetime threshold must consist of digits only."
 msgstr "Die Lebensdauer-Schwelle darf nur Ziffern enthalten."
+
+msgid "The server was unreachable after starting."
+msgstr ""
 
 #, python-format
 msgid "The translations for {locale_name} are {coverage_percentage}%% complete."

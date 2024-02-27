@@ -1,15 +1,16 @@
 import sys
-from asyncio import sleep
 
 import aiofiles
 import pytest
 import requests
 from aiofiles.os import makedirs
+from requests import Response
 
 from betty.app import App
 from betty.extension import Nginx
 from betty.extension.nginx import NginxConfiguration
 from betty.extension.nginx.serve import DockerizedNginxServer
+from betty.functools import Do
 from betty.project import ExtensionConfiguration
 
 
@@ -28,16 +29,8 @@ class TestDockerizedNginxServer:
             async with aiofiles.open(app.project.configuration.www_directory_path / 'index.html', 'w') as f:
                 await f.write(content)
             async with DockerizedNginxServer(app) as server:
-                attempts = 0
-                while True:
-                    attempts += 1
-                    response = requests.get(server.public_url)
-                    try:
-                        assert response.status_code == 200
-                        break
-                    except AssertionError:
-                        if attempts > 5:
-                            raise
-                    await sleep(1)
-                assert content == response.content.decode('utf-8')
-                assert 'no-cache' == response.headers['Cache-Control']
+                def _assert_response(response: Response) -> None:
+                    assert response.status_code == 200
+                    assert content == response.content.decode('utf-8')
+                    assert 'no-cache' == response.headers['Cache-Control']
+                await Do(requests.get, server.public_url).until(_assert_response)
