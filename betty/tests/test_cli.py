@@ -1,5 +1,6 @@
 import json
-from contextlib import chdir
+from contextlib import chdir, redirect_stdout, redirect_stderr
+from io import StringIO
 from pathlib import Path
 from typing import Any
 
@@ -10,7 +11,7 @@ from _pytest.logging import LogCaptureFixture
 from aiofiles.os import makedirs
 from aiofiles.tempfile import TemporaryDirectory
 from click import Command
-from click.testing import CliRunner
+from click.testing import CliRunner, Result
 from pytest_mock import MockerFixture
 
 from betty import fs
@@ -49,55 +50,44 @@ class DummyExtension(Extension, CommandProvider):
         }
 
 
+def _run(
+    *args: str,
+    expected_exit_code: int = 0,
+) -> Result:
+    runner = CliRunner(mix_stderr=False)
+    stdouterr = StringIO()
+    with redirect_stdout(stdouterr), redirect_stderr(stdouterr):
+        result = runner.invoke(main, args, catch_exceptions=False)
+    assert result.exit_code == expected_exit_code, f'The Betty command `{" ".join(args)}` unexpectedly exited with code {result.exit_code}, but {expected_exit_code} was expected.'
+    return result
+
+
 class TestMain:
-    async def test_without_arguments(self, mocker: MockerFixture) -> None:
-        mocker.patch('sys.stderr')
-        mocker.patch('sys.stdout')
-        runner = CliRunner()
-        result = runner.invoke(main, catch_exceptions=False)
-        assert 0 == result.exit_code
+    async def test_without_arguments(self) -> None:
+        _run()
 
-    async def test_help_without_configuration(self, mocker: MockerFixture) -> None:
-        mocker.patch('sys.stderr')
-        mocker.patch('sys.stdout')
-        runner = CliRunner()
-        result = runner.invoke(main, ('--help',), catch_exceptions=False)
-        assert 0 == result.exit_code
+    async def test_help_without_configuration(self) -> None:
+        _run('--help')
 
-    async def test_configuration_without_help(self, mocker: MockerFixture) -> None:
-        mocker.patch('sys.stderr')
-        mocker.patch('sys.stdout')
+    async def test_configuration_without_help(self) -> None:
         configuration = ProjectConfiguration()
         await configuration.write()
-        runner = CliRunner()
-        result = runner.invoke(main, ('-c', str(configuration.configuration_file_path)), catch_exceptions=False)
-        assert 2 == result.exit_code
+        _run('-c', str(configuration.configuration_file_path), expected_exit_code=2)
 
-    async def test_help_with_configuration(self, mocker: MockerFixture) -> None:
-        mocker.patch('sys.stderr')
-        mocker.patch('sys.stdout')
+    async def test_help_with_configuration(self) -> None:
         configuration = ProjectConfiguration(
             extensions=[ExtensionConfiguration(DummyExtension)],
         )
         await configuration.write()
-        runner = CliRunner()
-        result = runner.invoke(main, ('-c', str(configuration.configuration_file_path), '--help',), catch_exceptions=False)
-        assert 0 == result.exit_code
+        _run('-c', str(configuration.configuration_file_path), '--help')
 
-    async def test_help_with_invalid_configuration_file_path(self, mocker: MockerFixture) -> None:
-        mocker.patch('sys.stderr')
-        mocker.patch('sys.stdout')
+    async def test_help_with_invalid_configuration_file_path(self) -> None:
         async with TemporaryDirectory() as working_directory_path_str:
             working_directory_path = Path(working_directory_path_str)
             configuration_file_path = working_directory_path / 'non-existent-betty.json'
+            _run('-c', str(configuration_file_path), '--help', expected_exit_code=1)
 
-            runner = CliRunner()
-            result = runner.invoke(main, ('-c', str(configuration_file_path), '--help',), catch_exceptions=False)
-            assert 1 == result.exit_code
-
-    async def test_help_with_invalid_configuration(self, mocker: MockerFixture) -> None:
-        mocker.patch('sys.stderr')
-        mocker.patch('sys.stdout')
+    async def test_help_with_invalid_configuration(self) -> None:
         async with TemporaryDirectory() as working_directory_path_str:
             working_directory_path = Path(working_directory_path_str)
             configuration_file_path = working_directory_path / 'betty.json'
@@ -105,13 +95,9 @@ class TestMain:
             async with aiofiles.open(configuration_file_path, 'w') as f:
                 await f.write(json.dumps(dump))
 
-            runner = CliRunner()
-            result = runner.invoke(main, ('-c', str(configuration_file_path), '--help',), catch_exceptions=False)
-            assert 1 == result.exit_code
+            _run('-c', str(configuration_file_path), '--help', expected_exit_code=1)
 
-    async def test_with_discovered_configuration(self, mocker: MockerFixture) -> None:
-        mocker.patch('sys.stderr')
-        mocker.patch('sys.stdout')
+    async def test_with_discovered_configuration(self) -> None:
         async with TemporaryDirectory() as working_directory_path_str:
             working_directory_path = Path(working_directory_path_str)
             async with aiofiles.open(working_directory_path / 'betty.json', 'w') as config_file:
@@ -124,9 +110,7 @@ class TestMain:
                 }
                 await config_file.write(json.dumps(dump))
             with chdir(working_directory_path):
-                runner = CliRunner()
-                result = runner.invoke(main, ('test',), catch_exceptions=False)
-                assert 1 == result.exit_code
+                _run('test', expected_exit_code=1)
 
 
 class TestCatchExceptions:
@@ -148,9 +132,7 @@ class TestCatchExceptions:
 
 class TestVersion:
     async def test(self) -> None:
-        runner = CliRunner()
-        result = runner.invoke(main, ('--version'), catch_exceptions=False)
-        assert 0 == result.exit_code
+        result = _run('--version')
         assert 'Betty' in result.stdout
 
 
@@ -159,29 +141,23 @@ class TestClearCaches:
     async def test(self) -> None:
         cached_file_path = fs.CACHE_DIRECTORY_PATH / 'KeepMeAroundPlease'
         open(cached_file_path, 'w').close()
-        runner = CliRunner()
-        result = runner.invoke(main, ('clear-caches',), catch_exceptions=False)
-        assert 0 == result.exit_code
+        _run('clear-caches')
         with pytest.raises(FileNotFoundError):
             open(cached_file_path)
 
 
 class TestDemo:
+    @patch_cache
     async def test(self, mocker: MockerFixture) -> None:
         mocker.patch('betty.serve.BuiltinServer', new_callable=lambda: _KeyboardInterruptedAppServer)
-        mocker.patch('webbrowser.open_new_tab')
-        runner = CliRunner()
-        result = runner.invoke(main, ('demo',), catch_exceptions=False)
-        assert 0 == result.exit_code
+        _run('demo')
 
 
 class TestDocs:
+    @patch_cache
     async def test(self, mocker: MockerFixture) -> None:
         mocker.patch('betty.serve.BuiltinServer', new_callable=lambda: _KeyboardInterruptedAppServer)
-        mocker.patch('webbrowser.open_new_tab')
-        runner = CliRunner()
-        result = runner.invoke(main, ('docs',), catch_exceptions=False)
-        assert 0 == result.exit_code
+        _run('docs')
 
 
 class TestGenerate:
@@ -191,9 +167,7 @@ class TestGenerate:
 
         configuration = ProjectConfiguration()
         await configuration.write()
-        runner = CliRunner()
-        result = runner.invoke(main, ('-c', str(configuration.configuration_file_path), 'generate',), catch_exceptions=False)
-        assert 0 == result.exit_code
+        _run('-c', str(configuration.configuration_file_path), 'generate')
 
         m_load.assert_called_once()
         await_args = m_load.await_args
@@ -218,12 +192,10 @@ class _KeyboardInterruptedAppServer(AppServer):
         raise KeyboardInterrupt
 
 
-class Serve:
+class TestServe:
     async def test(self, mocker: MockerFixture) -> None:
         mocker.patch('betty.serve.BuiltinServer', new_callable=lambda: _KeyboardInterruptedAppServer)
         configuration = ProjectConfiguration()
         await configuration.write()
         await makedirs(configuration.www_directory_path)
-        runner = CliRunner()
-        result = runner.invoke(main, ('-c', str(configuration.configuration_file_path), 'serve',), catch_exceptions=False)
-        assert 0 == result.exit_code
+        _run('-c', str(configuration.configuration_file_path), 'serve')
