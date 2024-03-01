@@ -69,6 +69,24 @@ class TestGrampsLoader:
         name = names[0]
         assert 'Amsterdam' == name.name
 
+    async def test_place_should_include_note(self) -> None:
+        ancestry = await self._load_partial("""
+<places>
+    <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="Unknown">
+        <noteref hlink="_e1cb35d7e6c1984b0e8361e1aee"/>
+    </placeobj>
+</places>
+<notes>
+    <note handle="_e1cb35d7e6c1984b0e8361e1aee" change="1551643112" id="N0000" type="Transcript">
+        <text>I left this for you.</text>
+    </note>
+</notes>
+""")
+        place = ancestry[Place]['P0000']
+        assert place.notes
+        note = place.notes[0]
+        assert note.id == 'N0000'
+
     @pytest.mark.parametrize('expected_latitude, expected_longitude, latitude, longitude', [
         (4.9, 52.366667, '4.9', '52.366667'),
         (41.5, -81.0, '41.5', '-81.0'),
@@ -255,6 +273,24 @@ class TestGrampsLoader:
         citation = ancestry[Citation]['C0000']
         assert citation in person.citations
 
+    async def test_person_should_include_note(self) -> None:
+        ancestry = await self._load_partial("""
+<people>
+    <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
+        <noteref hlink="_e1cb35d7e6c1984b0e8361e1aee"/>
+    </person>
+</people>
+<notes>
+    <note handle="_e1cb35d7e6c1984b0e8361e1aee" change="1551643112" id="N0000" type="Transcript">
+        <text>I left this for you.</text>
+    </note>
+</notes>
+""")
+        person = ancestry[Person]['I0000']
+        assert person.notes
+        note = person.notes[0]
+        assert note.id == 'N0000'
+
     async def test_family_should_set_parents(self) -> None:
         ancestry = await self._load_partial("""
 <people>
@@ -421,6 +457,25 @@ class TestGrampsLoader:
 """)
         event = ancestry[Event]['E0000']
         assert 'Something happened!' == event.description
+
+    async def test_event_should_include_note(self) -> None:
+        ancestry = await self._load_partial("""
+<events>
+    <event handle="_e56068c37402fda8741678a115a" change="1577021208" id="E0000">
+        <type>Birth</type>
+        <noteref hlink="_e1cb35d7e6c1984b0e8361e1aee"/>
+    </event>
+</events>
+<notes>
+    <note handle="_e1cb35d7e6c1984b0e8361e1aee" change="1551643112" id="N0000" type="Transcript">
+        <text>I left this for you.</text>
+    </note>
+</notes>
+""")
+        event = ancestry[Event]['E0000']
+        assert event.notes
+        note = event.notes[0]
+        assert note.id == 'N0000'
 
     @pytest.mark.parametrize('expected, dateval_val', [
         (Date(), '0000-00-00'),
@@ -740,6 +795,43 @@ class TestGrampsLoader:
         containing_source = ancestry[Source]['R0000']
         assert containing_source == source.contained_by
 
+    async def test_source_from_repository_should_include_note(self) -> None:
+        ancestry = await self._load_partial("""
+<repositories>
+    <repository handle="_e2c257f50fd27b1c841d7497448" change="1558277216" id="R0000">
+        <rname>Library of Alexandria</rname>
+        <noteref hlink="_e1cb35d7e6c1984b0e8361e1aee"/>
+    </repository>
+</repositories>
+<notes>
+    <note handle="_e1cb35d7e6c1984b0e8361e1aee" change="1551643112" id="N0000" type="Transcript">
+        <text>I left this for you.</text>
+    </note>
+</notes>
+""")
+        source = ancestry[Source]['R0000']
+        assert source.notes
+        note = source.notes[0]
+        assert note.id == 'N0000'
+
+    async def test_source_from_source_should_include_note(self) -> None:
+        ancestry = await self._load_partial("""
+<sources>
+    <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
+        <noteref hlink="_e1cb35d7e6c1984b0e8361e1aee"/>
+    </source>
+</sources>
+<notes>
+    <note handle="_e1cb35d7e6c1984b0e8361e1aee" change="1551643112" id="N0000" type="Transcript">
+        <text>I left this for you.</text>
+    </note>
+</notes>
+""")
+        source = ancestry[Source]['S0000']
+        assert source.notes
+        note = source.notes[0]
+        assert note.id == 'N0000'
+
     @pytest.mark.parametrize('expected, attribute_value', [
         (Privacy.PRIVATE, 'private'),
         (Privacy.PUBLIC, 'public'),
@@ -793,6 +885,25 @@ class TestGrampsLoader:
 """ % attribute_value)
         file = ancestry[File]['O0000']
         assert expected == file.privacy
+
+    async def test_file_should_include_note(self) -> None:
+        ancestry = await self._load_partial("""
+<objects>
+    <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
+        <file src="/tmp/file.txt" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <noteref hlink="_e1cb35d7e6c1984b0e8361e1aee"/>
+    </object>
+</objects>
+<notes>
+    <note handle="_e1cb35d7e6c1984b0e8361e1aee" change="1551643112" id="N0000" type="Transcript">
+        <text>I left this for you.</text>
+    </note>
+</notes>
+""")
+        file = ancestry[File]['O0000']
+        assert file.notes
+        note = file.notes[0]
+        assert note.id == 'N0000'
 
     @pytest.mark.parametrize('expected, attribute_value', [
         (Privacy.PRIVATE, 'private'),

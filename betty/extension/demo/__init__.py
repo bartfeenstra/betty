@@ -11,7 +11,7 @@ from betty.load import Loader
 from betty.locale import Date, DateRange, Str
 from betty.model import Entity
 from betty.model.ancestry import Place, PlaceName, Person, Presence, Subject, PersonName, Link, Source, Citation, Event, \
-    Enclosure
+    Enclosure, Note
 from betty.model.event_type import Marriage, Birth, Death
 from betty.project import LocaleConfiguration, ExtensionConfiguration, EntityReference, Project
 from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
@@ -112,6 +112,10 @@ class _Demo(Extension, Loader):
         self._load(Enclosure(encloses=north_holland, enclosed_by=netherlands))
         self._load(north_holland)
 
+        amsterdam_note = Note("""
+Did you know that while Amsterdam is the country's official capital, The Hague is the Netherlands' administrative center and seat of government?
+        """)
+
         amsterdam = Place(
             id='betty-demo-amsterdam',
             names=[
@@ -122,6 +126,7 @@ class _Demo(Extension, Loader):
                 ),
             ],
             links=[Link('https://nl.wikipedia.org/wiki/Amsterdam')],
+            notes=[amsterdam_note],
         )
         self._load(Enclosure(encloses=amsterdam, enclosed_by=north_holland))
         self._load(amsterdam)
@@ -317,9 +322,14 @@ class _Demo(Extension, Loader):
         )
         self._load(death_of_liberta_lankester)
 
+        liberta_lankester_note = Note("""
+Did you know that Liberta "Betty" Lankester is Betty's namesake?
+        """)
+
         liberta_lankester = Person(
             id='betty-demo-liberta-lankester',
             parents=(dirk_jacobus_lankester, jannigje_palsen),
+            notes=[liberta_lankester_note],
         )
         self._load(
             PersonName(

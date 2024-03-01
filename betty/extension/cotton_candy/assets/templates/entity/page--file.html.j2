@@ -9,19 +9,9 @@
             </a>
         </div>
     {% endif %}
-    {% if file.notes %}
-        <section id="notes">
-            <h2>
-                {% trans %}Notes{% endtrans %}
-                {% with url = page_resource | url ~ '#notes'%}
-                    {% include 'permalink.html.j2' %}
-                {% endwith %}
-            </h2>
-            {% for note in file.notes %}
-                {{ note.text | paragraphs }}
-            {% endfor %}
-        </section>
-    {% endif %}
+    {% with notes = file.notes %}
+        {% include 'section-notes.html.j2' %}
+    {% endwith %}
     {% set entities = file.entities | select('public') | list %}
     {% if entities | length > 0 %}
         <section id="appearances">

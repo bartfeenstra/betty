@@ -36,6 +36,10 @@
         </section>
     {% endif %}
 
+    {% with notes = place.notes %}
+        {% include 'section-notes.html.j2' %}
+    {% endwith %}
+
     {% set events = (places + [place]) | unique | map(attribute='events') | flatten | select('public') | rejectattr('date', 'none') | selectattr('date.comparable') | list %}
     {% include 'timeline.html.j2' %}
 

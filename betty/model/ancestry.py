@@ -657,7 +657,7 @@ class HasFiles:
 @many_to_one('contained_by', 'betty.model.ancestry.Source', 'contains')
 @one_to_many('contains', 'betty.model.ancestry.Source', 'contained_by')
 @one_to_many('citations', 'betty.model.ancestry.Citation', 'source')
-class Source(Dated, HasFiles, HasLinksEntity, HasPrivacy, UserFacingEntity, Entity):
+class Source(Dated, HasFiles, HasNotes, HasLinksEntity, HasPrivacy, UserFacingEntity, Entity):
     contained_by: Source | None
 
     def __init__(
@@ -669,6 +669,7 @@ class Source(Dated, HasFiles, HasLinksEntity, HasPrivacy, UserFacingEntity, Enti
         publisher: str | None = None,
         contained_by: Source | None = None,
         contains: Iterable[Source] | None = None,
+        notes: Iterable[Note] | None = None,
         date: Datey | None = None,
         files: Iterable[File] | None = None,
         links: MutableSequence[Link] | None = None,
@@ -678,6 +679,7 @@ class Source(Dated, HasFiles, HasLinksEntity, HasPrivacy, UserFacingEntity, Enti
     ):
         super().__init__(
             id,
+            notes=notes,
             date=date,
             files=files,
             links=links,
@@ -989,7 +991,7 @@ class Enclosure(Dated, HasCitations, Entity):
 @one_to_many('events', 'betty.model.ancestry.Event', 'place')
 @one_to_many('enclosed_by', 'betty.model.ancestry.Enclosure', 'encloses')
 @one_to_many('encloses', 'betty.model.ancestry.Enclosure', 'enclosed_by')
-class Place(HasLinksEntity, HasFiles, HasPrivacy, UserFacingEntity, Entity):
+class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, Entity):
     def __init__(
         self,
         *,
@@ -998,6 +1000,7 @@ class Place(HasLinksEntity, HasFiles, HasPrivacy, UserFacingEntity, Entity):
         events: Iterable[Event] | None = None,
         enclosed_by: Iterable[Enclosure] | None = None,
         encloses: Iterable[Enclosure] | None = None,
+        notes: Iterable[Note] | None = None,
         coordinates: Point | None = None,
         links: MutableSequence[Link] | None = None,
         privacy: Privacy | None = None,
@@ -1006,6 +1009,7 @@ class Place(HasLinksEntity, HasFiles, HasPrivacy, UserFacingEntity, Entity):
     ):
         super().__init__(
             id,
+            notes=notes,
             links=links,
             privacy=privacy,
             public=public,
@@ -1314,7 +1318,7 @@ class Presence(HasPrivacy, Entity):
 
 @many_to_one('place', 'betty.model.ancestry.Place', 'events')
 @one_to_many('presences', 'betty.model.ancestry.Presence', 'event')
-class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, HasLinksEntity, UserFacingEntity, Entity):
+class Event(Dated, HasFiles, HasCitations, HasNotes, Described, HasPrivacy, HasLinksEntity, UserFacingEntity, Entity):
     place: Place | None
 
     def __init__(
@@ -1325,6 +1329,7 @@ class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, HasLinksEntity
         date: Datey | None = None,
         files: Iterable[File] | None = None,
         citations: Iterable[Citation] | None = None,
+        notes: Iterable[Note] | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
@@ -1336,6 +1341,7 @@ class Event(Dated, HasFiles, HasCitations, Described, HasPrivacy, HasLinksEntity
             date=date,
             files=files,
             citations=citations,
+            notes=notes,
             privacy=privacy,
             public=public,
             private=private,
@@ -1569,7 +1575,7 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
 @many_to_many('children', 'betty.model.ancestry.Person', 'parents')
 @one_to_many('presences', 'betty.model.ancestry.Presence', 'person')
 @one_to_many('names', 'betty.model.ancestry.PersonName', 'person')
-class Person(HasFiles, HasCitations, HasLinksEntity, HasPrivacy, UserFacingEntity, Entity):
+class Person(HasFiles, HasCitations, HasNotes, HasLinksEntity, HasPrivacy, UserFacingEntity, Entity):
     def __init__(
         self,
         *,
@@ -1577,6 +1583,7 @@ class Person(HasFiles, HasCitations, HasLinksEntity, HasPrivacy, UserFacingEntit
         files: Iterable[File] | None = None,
         citations: Iterable[Citation] | None = None,
         links: MutableSequence[Link] | None = None,
+        notes: Iterable[Note] | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
@@ -1590,6 +1597,7 @@ class Person(HasFiles, HasCitations, HasLinksEntity, HasPrivacy, UserFacingEntit
             files=files,
             citations=citations,
             links=links,
+            notes=notes,
             privacy=privacy,
             public=public,
             private=private,

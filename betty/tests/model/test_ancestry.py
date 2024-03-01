@@ -664,6 +664,7 @@ class TestSource:
             'name': 'The Source',
             'contains': [],
             'citations': [],
+            'notes': [],
             'links': [
                 {
                     '$schema': 'https://example.com/schema.json#/definitions/link',
@@ -731,6 +732,7 @@ class TestSource:
             'citations': [
                 '/citation/the_citation/index.json',
             ],
+            'notes': [],
             'containedBy': '/source/the_containing_source/index.json',
             'date': {
                 'year': 2000,
@@ -805,6 +807,7 @@ class TestSource:
             'citations': [
                 '/citation/the_citation/index.json',
             ],
+            'notes': [],
             'containedBy': '/source/the_containing_source/index.json',
         }
         actual = await assert_dumps_linked_data(source)
@@ -843,6 +846,7 @@ class TestSource:
             'citations': [
                 '/citation/the_citation/index.json',
             ],
+            'notes': [],
             'containedBy': '/source/the_containing_source/index.json',
         }
         actual = await assert_dumps_linked_data(source)
@@ -1226,6 +1230,7 @@ class TestPlace:
             'enclosedBy': [],
             'encloses': [],
             'events': [],
+            'notes': [],
             'links': [
                 {
                     '$schema': 'https://example.com/schema.json#/definitions/link',
@@ -1298,6 +1303,7 @@ class TestPlace:
             'events': [
                 '/event/E1/index.json',
             ],
+            'notes': [],
             'links': [
                 {
                     '$schema': 'https://example.com/schema.json#/definitions/link',
@@ -1474,6 +1480,7 @@ class TestEvent:
             'eventStatus': 'https://schema.org/EventScheduled',
             'presences': [],
             'citations': [],
+            'notes': [],
             'links': [
                 {
                     '$schema': 'https://example.com/schema.json#/definitions/link',
@@ -1541,6 +1548,7 @@ class TestEvent:
             'citations': [
                 '/citation/the_citation/index.json',
             ],
+            'notes': [],
             'date': {
                 'start': {
                     '@context': {
@@ -1629,6 +1637,7 @@ class TestEvent:
             'citations': [
                 '/citation/the_citation/index.json',
             ],
+            'notes': [],
             'place': '/place/the_place/index.json',
             'links': [
                 {
@@ -1819,6 +1828,7 @@ class TestPerson:
             'siblings': [],
             'presences': [],
             'citations': [],
+            'notes': [],
             'links': [
                 {
                     '$schema': 'https://example.com/schema.json#/definitions/link',
@@ -1935,6 +1945,7 @@ class TestPerson:
             'citations': [
                 '/citation/the_citation/index.json',
             ],
+            'notes': [],
             'links': [
                 {
                     '$schema': 'https://example.com/schema.json#/definitions/link',
@@ -2039,6 +2050,7 @@ class TestPerson:
             'citations': [
                 '/citation/the_citation/index.json',
             ],
+            'notes': [],
             'links': [
                 {
                     '$schema': 'https://example.com/schema.json#/definitions/link',
