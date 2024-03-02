@@ -1,0 +1,14 @@
+{% set notes = notes | select('public') | list %}
+{% if notes | length > 0 %}
+    <section id="notes">
+        <h2>
+            {% trans %}Notes{% endtrans %}
+            {% with url = page_resource | url ~ '#notes'%}
+                {% include 'permalink.html.j2' %}
+            {% endwith %}
+        </h2>
+        {% for note in notes %}
+            {{ note.text | paragraphs }}
+        {% endfor %}
+    </section>
+{% endif %}

@@ -23,7 +23,7 @@ from betty.media_type import MediaType
 from betty.model import Entity, EntityGraphBuilder, AliasedEntity, AliasableEntity
 from betty.model.ancestry import Ancestry, Note, File, Source, Citation, Place, Event, Person, PersonName, Subject, \
     Witness, Beneficiary, Attendee, Presence, PlaceName, Enclosure, HasLinks, Link, HasFiles, HasCitations, \
-    HasPrivacy, Speaker, Celebrant, Organizer
+    HasPrivacy, Speaker, Celebrant, Organizer, HasNotes
 from betty.model.event_type import Birth, Baptism, Adoption, Cremation, Death, Funeral, Burial, Will, Engagement, \
     Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, Emigration, Occupation, \
     Retirement, Correspondence, Confirmation, Missing, UnknownEventType, EventType, Conference
@@ -150,7 +150,6 @@ class GrampsLoader:
         self._load_notes(database)
         # @todo Localize all log messages
         logger.info(f'Loaded {self._added_entity_counts[Note]} notes.')
-
         self._load_objects(database, self._gramps_tree_directory_path)
         logger.info(f'Loaded {self._added_entity_counts[File]} files.')
 
@@ -269,7 +268,7 @@ class GrampsLoader:
             self._load_note(element)
 
     def _load_note(self, element: ElementTree.Element) -> None:
-        handle = element.get('handle')
+        note_handle = element.get('handle')
         note_id = element.get('id')
         assert note_id is not None
         text_element = self._xpath1(element, './ns:text')
@@ -281,7 +280,12 @@ class GrampsLoader:
         )
         if element.get('priv') == '1':
             note.private = True
-        self.add_entity(AliasedEntity(note, handle))
+        self.add_entity(AliasedEntity(note, note_handle))
+
+    def _load_noteref(self, owner: AliasableEntity[HasNotes & Entity], element: ElementTree.Element) -> None:
+        note_handles = self._load_handles('noteref', element)
+        for note_handle in note_handles:
+            self.add_association(owner.type, owner.id, 'notes', Note, note_handle)
 
     def _load_objects(self, database: ElementTree.Element, gramps_tree_directory_path: Path) -> None:
         for element in self._xpath(database, './ns:objects/ns:object'):
@@ -307,11 +311,16 @@ class GrampsLoader:
         if element.get('priv') == '1':
             file.private = True
         self._load_attribute_privacy(file, element, 'attribute')
-        self.add_entity(AliasedEntity(file, file_handle))
+        aliased_file = AliasedEntity(file, file_handle)
+        self.add_entity(
+            aliased_file,  # type: ignore[arg-type]
+        )
         for citation_handle in self._load_handles('citationref', element):
             self.add_association(File, file_handle, 'citations', Citation, citation_handle)
-        for note_handle in self._load_handles('noteref', element):
-            self.add_association(File, file_handle, 'notes', Note, note_handle)
+        self._load_noteref(
+            aliased_file,  # type: ignore[arg-type]
+            element,
+        )
 
     def _load_people(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, './ns:people/ns:person'):
@@ -373,6 +382,10 @@ class GrampsLoader:
             element,
         )
         self._load_objref(
+            aliased_person,  # type: ignore[arg-type]
+            element,
+        )
+        self._load_noteref(
             aliased_person,  # type: ignore[arg-type]
             element,
         )
@@ -480,7 +493,16 @@ class GrampsLoader:
 
         self._load_urls(place, element)
 
-        self.add_entity(AliasedEntity(place, place_handle))
+        aliased_place = AliasedEntity(place, place_handle)
+
+        self._load_noteref(
+            aliased_place,  # type: ignore[arg-type]
+            element,
+        )
+
+        self.add_entity(
+            aliased_place,  # type: ignore[arg-type]
+        )
 
         for enclosed_by_handle in self._load_handles('placeref', element):
             aliased_enclosure = AliasedEntity(Enclosure(encloses=None, enclosed_by=None))
@@ -582,6 +604,10 @@ class GrampsLoader:
             aliased_event,  # type: ignore[arg-type]
             element,
         )
+        self._load_noteref(
+            aliased_event,  # type: ignore[arg-type]
+            element,
+        )
         self.add_entity(
             aliased_event,  # type: ignore[arg-type]
         )
@@ -599,8 +625,14 @@ class GrampsLoader:
         )
 
         self._load_urls(source, element)
-
-        self.add_entity(AliasedEntity(source, repository_source_handle))
+        aliased_source = AliasedEntity(source, repository_source_handle)
+        self._load_noteref(
+            aliased_source,  # type: ignore[arg-type]
+            element,
+        )
+        self.add_entity(
+            aliased_source,  # type: ignore[arg-type]
+        )
 
     def _load_sources(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, './ns:sources/ns:source'):
@@ -636,6 +668,10 @@ class GrampsLoader:
 
         aliased_source = AliasedEntity(source, source_handle)
         self._load_objref(
+            aliased_source,  # type: ignore[arg-type]
+            element,
+        )
+        self._load_noteref(
             aliased_source,  # type: ignore[arg-type]
             element,
         )

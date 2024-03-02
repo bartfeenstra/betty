@@ -37,6 +37,10 @@
         </section>
     {% endif %}
 
+    {% with notes = person.notes %}
+        {% include 'section-notes.html.j2' %}
+    {% endwith %}
+
     {% set parents = person.parents | list %}
     {% set siblings = person.siblings | list %}
     {% set children = person.children | list %}

@@ -14,6 +14,10 @@
         {% endwith %}
     {% endif %}
 
+    {% with notes = event.notes %}
+        {% include 'section-notes.html.j2' %}
+    {% endwith %}
+
     {% set ns = namespace(witnesses=[]) %}
     {% for presence in event.presences | select('public') %}
         {% if presence.role is witness_role %}

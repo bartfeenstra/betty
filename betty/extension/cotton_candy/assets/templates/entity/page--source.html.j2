@@ -3,6 +3,10 @@
 {% set page_title = source.name %}
 {% block page_content %}
     {% include 'entity/meta--source.html.j2' %}
+    {% with notes = source.notes %}
+        {% include 'section-notes.html.j2' %}
+    {% endwith %}
+
     {% set sources = [source] + source | walk('contains') | select('public') | list %}
     {% set have_files = sources %}
     {% set have_files = have_files + sources | map(attribute='citations') | flatten | list %}
