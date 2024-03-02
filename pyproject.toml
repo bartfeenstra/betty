@@ -54,6 +54,7 @@ classifiers = [
     'Natural Language :: Dutch',
     'Natural Language :: English',
     'Natural Language :: French',
+    'Natural Language :: German',
     'Natural Language :: Ukrainian',
     'Typing :: Typed ',
 ]
