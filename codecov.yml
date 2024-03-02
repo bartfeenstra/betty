@@ -3,4 +3,4 @@ codecov:
     # The number of builds configured here MUST be identical to the number
     # of matrix options in /.github/workflows/test.yml that submit code coverage
     # reports to Codecov.io.
-    after_n_builds: 4
+    after_n_builds: 5
