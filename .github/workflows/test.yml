@@ -18,6 +18,9 @@ jobs:
         include:
           # The number of builds that submit code coverage configured here MUST be identical
           # to the number of `after_n_builds` in /home/bart/code/bartfeenstra/betty/codecov.yml.
+          - name: 'Python 3.13.0a4'
+            os: ubuntu-latest
+            python: '3.13.0-alpha.4'
           - name: 'Python 3.12'
             os: ubuntu-latest
             python: '3.12'
@@ -92,6 +95,8 @@ jobs:
             libx11-xcb-dev # For Qt
             '^libxcb.*-dev' # For Qt
             libxkbcommon-x11-0 # For Qt
+            libxml2 # For lxml
+            libxslt1-dev # For lxml
             libxss1 # For Cypress
             libxtst6 # For Cypress
             xauth # For Cypress
