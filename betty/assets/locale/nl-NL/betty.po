@@ -575,7 +575,7 @@ msgid ""
 "({completed_job_percentage}%)."
 msgstr ""
 "{completed_job_count} van de {total_job_count} items "
-"gegenereerd({completed_job_percentage}%)."
+"gegenereerd ({completed_job_percentage}%)."
 
 msgid "Generating JSON Schema..."
 msgstr "JSON Schema aan het genereren..."
