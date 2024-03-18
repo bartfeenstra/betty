@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import operator
 import weakref
 from contextlib import suppress
@@ -22,6 +23,7 @@ from betty.config import Configurable, FileBasedConfiguration
 from betty.dispatch import Dispatcher
 from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH
 from betty.locale import LocalizerRepository, get_data, DEFAULT_LOCALE, Localizer, Str
+from betty.logging import Logger
 from betty.model import Entity, EntityTypeProvider
 from betty.model.event_type import EventType, EventTypeProvider, Birth, Baptism, Adoption, Death, Funeral, Cremation, \
     Burial, Will, Engagement, Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, \
@@ -422,3 +424,6 @@ class App(Configurable[AppConfiguration]):
         if self._cache is None:
             self._cache = FileCache(self.localizer, fs.CACHE_DIRECTORY_PATH)
         return self._cache
+
+    def getLogger(self, name: str | None = None) -> Logger:
+        return Logger(logging.getLogger(name), self.localizer)

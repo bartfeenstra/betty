@@ -22,7 +22,7 @@ from aiofiles.threadpool.text import AsyncTextIOWrapper
 from betty.app import App
 from betty.json.linked_data import LinkedDataDumpable
 from betty.json.schema import Schema
-from betty.locale import get_display_name
+from betty.locale import get_display_name, Str
 from betty.model import get_entity_type_name, UserFacingEntity, Entity, GeneratedEntityId
 from betty.model.ancestry import is_public
 from betty.openapi import Specification
@@ -177,7 +177,7 @@ async def _generate_public(
 ) -> None:
     app = job_context.app
     locale_label = get_display_name(locale, app.localizer.locale)
-    getLogger().debug(app.localizer._('Generating localized public files in {locale}...').format(
+    app.getLogger().debug(Str._('Generating localized public files in {locale}...').format(
         locale=locale_label,
     ))
     async for file_path in app.assets.copytree(Path('public') / 'localized', app.project.configuration.localize_www_directory_path(locale)):
@@ -337,7 +337,7 @@ async def _generate_json_schema(
     job_context: GenerationContext,
 ) -> None:
     app = job_context.app
-    getLogger().debug(app.localizer._('Generating JSON Schema...'))
+    app.getLogger().debug(Str._('Generating JSON Schema...'))
     schema = Schema(app)
     rendered_json = json.dumps(await schema.build())
     async with await create_file(app.project.configuration.www_directory_path / 'schema.json') as f:
@@ -348,7 +348,7 @@ async def _generate_openapi(
     job_context: GenerationContext,
 ) -> None:
     app = job_context.app
-    getLogger().debug(app.localizer._('Generating OpenAPI specification...'))
+    app.getLogger().debug(Str._('Generating OpenAPI specification...'))
     api_directory_path = app.project.configuration.www_directory_path / 'api'
     rendered_json = json.dumps(await Specification(app).build())
     async with await create_json_resource(api_directory_path) as f:
