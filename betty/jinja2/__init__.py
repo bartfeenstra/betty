@@ -6,6 +6,7 @@ from __future__ import annotations
 import datetime
 from collections import defaultdict
 from pathlib import Path
+from threading import Lock
 from typing import Callable, Any, cast, \
     Mapping, TypeVar
 
@@ -22,9 +23,8 @@ from betty.jinja2.test import TESTS
 from betty.job import Context as JobContext
 from betty.locale import Date, Localizer, \
     DEFAULT_LOCALIZER
-from betty.model import Entity, get_entity_type, \
-    AncestryEntityId
-from betty.model.ancestry import Citation, AnonymousCitation, AnonymousSource
+from betty.model import Entity, get_entity_type
+from betty.model.ancestry import Citation
 from betty.project import ProjectConfiguration
 from betty.render import Renderer
 from betty.serde.dump import Dumpable, DictDump, VoidableDump, Void, Dump
@@ -58,30 +58,23 @@ def context_localizer(context: Context) -> Localizer:
 
 
 class _Citer:
+    __slots__ = '_lock', '_cited'
+
     def __init__(self):
-        self._citations: list[Citation] = []
-        self._anonymous_source = AnonymousSource()
-        self._anonymous_citations: dict[AncestryEntityId | None, Citation] = {}
+        self._lock = Lock()
+        self._cited: list[Citation] = []
 
     def __iter__(self) -> enumerate[Citation]:
-        return enumerate(self._citations, 1)
+        return enumerate(self._cited, 1)
 
     def __len__(self) -> int:
-        return len(self._citations)
+        return len(self._cited)
 
     def cite(self, citation: Citation) -> int:
-        if citation.private:
-            source_key = None if citation.source is None else citation.source.ancestry_id
-            try:
-                citation = self._anonymous_citations[source_key]
-            except KeyError:
-                citation = AnonymousCitation(
-                    source=citation.source or self._anonymous_source,
-                )
-                self._anonymous_citations[source_key] = citation
-        if citation not in self._citations:
-            self._citations.append(citation)
-        return self._citations.index(citation) + 1
+        with self._lock:
+            if citation not in self._cited:
+                self._cited.append(citation)
+            return self._cited.index(citation) + 1
 
 
 class _Breadcrumb(Dumpable):

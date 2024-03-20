@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-02-27 14:53+0000\n"
+"POT-Creation-Date: 2024-03-22 10:41+0000\n"
 "PO-Revision-Date: 2024-02-08 13:08+0000\n"
 "Last-Translator: Rainer Thieringer <rainerthi@gmail.com>\n"
 "Language: uk\n"
@@ -871,6 +871,9 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
+msgid "This citation's details are unavailable to protect people's privacy."
+msgstr ""
+
 msgid "This field is required."
 msgstr ""
 
@@ -906,6 +909,9 @@ msgstr "Ім’я даних цієї особи недоступне для з�
 
 msgid "This person's name is unknown."
 msgstr "Ім'я цієї людини невідоме."
+
+msgid "This source's details are unavailable to protect people's privacy."
+msgstr ""
 
 msgid "Timeline"
 msgstr "Хронологія"

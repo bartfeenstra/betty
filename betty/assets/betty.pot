@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-02-27 14:53+0000\n"
+"POT-Creation-Date: 2024-03-22 10:41+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -763,6 +763,9 @@ msgid_plural "They had %(child_count)s children."
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "This citation's details are unavailable to protect people's privacy."
+msgstr ""
+
 msgid "This field is required."
 msgstr ""
 
@@ -797,6 +800,9 @@ msgid "This person's name is unavailable to protect their privacy."
 msgstr ""
 
 msgid "This person's name is unknown."
+msgstr ""
+
+msgid "This source's details are unavailable to protect people's privacy."
 msgstr ""
 
 msgid "Timeline"

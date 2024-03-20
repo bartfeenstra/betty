@@ -1,0 +1,17 @@
+{% if citer | length > 0 %}
+    <section id="references">
+        <h2>
+            {% trans %}References{% endtrans %}
+            {% with url = page_resource | url ~ '#references'%}
+                {% include 'permalink.html.j2' %}
+            {% endwith %}
+        </h2>
+        <ol>
+        {% for number, citation in citer %}
+            <li id="reference-{{ number }}" class="reference">
+                {% include 'entity/label--citation.html.j2' %}
+            </li>
+        {% endfor %}
+        </ol>
+    </section>
+{% endif %}

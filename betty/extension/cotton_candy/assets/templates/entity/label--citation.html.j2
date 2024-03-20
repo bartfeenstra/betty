@@ -3,30 +3,39 @@
 {% set citation_context = entity_contexts['Citation'] %}
 <span>
     {% if citation.source and citation.source.public -%}
-        {%- if citation.source.author -%}
-            <span class="citation-author">{{ citation.source.author }}</span>
-        {%- endif %}
-        <span class="citation-title">{% with source=citation.source %}{% include 'entity/label--source.html.j2' %}{% endwith %}</span>
-        {%- if citation.source.publisher -%}
-            <span class="citation-publisher">{{ citation.source.publisher }}</span>
+        {% if citation.source.public -%}
+            {%- if citation.source.author -%}
+                <span class="citation-author">{{ citation.source.author }}</span>
+            {%- endif %}
+            <span class="citation-title">{% with source=citation.source %}{% include 'entity/label--source.html.j2' %}{% endwith %}</span>
+            {%- if citation.source.publisher -%}
+                <span class="citation-publisher">{{ citation.source.publisher }}</span>
+            {%- endif -%}
+        {% else %}
+            <span class="private" title="{% trans %}This source's details are unavailable to protect people's privacy.{% endtrans %}">{% trans %}private{% endtrans %}</span>
         {%- endif -%}
     {% endif %}
-    {%- if citation.location -%}
-            <span class="citation-location">
-                {% if citation_context == citation %}
-                    {{ citation.location | localize }}
+    {%- if citation.public -%}
+        {%- if citation.location -%}
+                {% set location = citation.location | localize %}
+                <span class="citation-location">
+                    {% if citation_context == citation %}
+                        {{ location }}
                     {% else %}
-                    {% if citation is not has_generated_entity_id %}
-                        <a href="{{ citation | url }}">
+                        {% if citation is not has_generated_entity_id %}
+                            <a href="{{ citation | url }}">
+                        {% endif %}
+                        {{ location }}
+                        {% if citation is not has_generated_entity_id %}
+                            </a>
+                        {% endif %}
                     {% endif %}
-                {{ citation.location | localize }}
-                {% if citation is not has_generated_entity_id %}
-                    </a>
-                {% endif %}
-                {% endif %}
-            </span>
-    {%- endif -%}
-    {%- if citation.date -%}
-        <span class="citation-date">{% trans date = citation.date | format_datey %}Accessed {{ date }}{% endtrans %}</span>
+                </span>
+        {%- endif -%}
+        {%- if citation.date -%}
+            <span class="citation-date">{% trans date = citation.date | format_datey %}Accessed {{ date }}{% endtrans %}</span>
+        {%- endif -%}
+    {%- else -%}
+        <span class="citation-location private" title="{% trans %}This citation's details are unavailable to protect people's privacy.{% endtrans %}">{% trans %}private{% endtrans %}</span>
     {%- endif -%}
 </span>

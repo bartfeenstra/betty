@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-02-27 14:53+0000\n"
+"POT-Creation-Date: 2024-03-22 10:41+0000\n"
 "PO-Revision-Date: 2024-02-08 13:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de\n"
@@ -978,6 +978,9 @@ msgid_plural "They had %(child_count)s children."
 msgstr[0] "Er oder sie hatte ein Kind."
 msgstr[1] "Er oder sie hatten %(child_count)s Kinder."
 
+msgid "This citation's details are unavailable to protect people's privacy."
+msgstr ""
+
 msgid "This field is required."
 msgstr "Diese Feld ist erforderlich."
 
@@ -1015,6 +1018,9 @@ msgstr "Der Name dieser Person ist zum Schutz ihrer Privatsphäre nicht verfügb
 
 msgid "This person's name is unknown."
 msgstr "Der Name dieser Person ist nicht bekannt."
+
+msgid "This source's details are unavailable to protect people's privacy."
+msgstr ""
 
 msgid "Timeline"
 msgstr "Zeitschiene"
