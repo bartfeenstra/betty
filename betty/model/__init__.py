@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import builtins
 import functools
+import weakref
 from collections import defaultdict
 from contextlib import contextmanager
 from reprlib import recursive_repr
@@ -930,7 +931,14 @@ class _BidirectionalAssociateCollection(Generic[AssociateT, OwnerT], SingleTypeE
     ):
         super().__init__(association.associate_type)
         self._association = association
-        self._owner = owner
+        self.__owner = weakref.ref(owner)
+
+    @property
+    def _owner(self) -> OwnerT & Entity:
+        owner = self.__owner()
+        if owner is None:
+            raise RuntimeError("This associate collection's owner no longer exists in memory.")
+        return owner
 
     def _on_add(self, *entities: AssociateT & Entity) -> None:
         super()._on_add(*entities)
