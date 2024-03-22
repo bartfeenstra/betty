@@ -230,7 +230,8 @@ class _Retriever:
             image = Image(
                 file_path,
                 MediaType(image_info['mime']),
-                image_info['canonicaltitle'],
+                # Strip "File:" or any translated equivalent from the beginning of the image's title.
+                image_info['canonicaltitle'][image_info['canonicaltitle'].index(':') + 1:],
                 image_info['descriptionurl'],
             )
 
