@@ -12,6 +12,7 @@ from typing import Iterable, Any, TYPE_CHECKING
 from urllib.parse import quote
 
 from geopy import Point
+from typing_extensions import deprecated
 
 from betty.classtools import repr_instance
 from betty.json.linked_data import LinkedDataDumpable, dump_context, dump_link, add_json_ld
@@ -793,6 +794,7 @@ class Source(Dated, HasFiles, HasNotes, HasLinksEntity, HasPrivacy, UserFacingEn
         return schema
 
 
+@deprecated(f'This class is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. No direct replacement is available. Instead, set the privacy for {Source} entities accordingly.')
 class AnonymousSource(Source):
     @property  # type: ignore[override]
     def name(self) -> str:
@@ -898,6 +900,7 @@ class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, En
         return schema
 
 
+@deprecated(f'This class is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. No direct replacement is available. Instead, set the privacy for {Citation} entities accordingly.')
 class AnonymousCitation(Citation):
     @property  # type: ignore[override]
     def location(self) -> Str:
