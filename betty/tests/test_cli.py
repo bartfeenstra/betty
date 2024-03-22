@@ -149,14 +149,14 @@ class TestClearCaches:
 class TestDemo:
     @patch_cache
     async def test(self, mocker: MockerFixture) -> None:
-        mocker.patch('betty.serve.BuiltinServer', new_callable=lambda: _KeyboardInterruptedAppServer)
+        mocker.patch('betty.extension.demo.DemoServer', new_callable=lambda: _KeyboardInterruptedAppServer)
         _run('demo')
 
 
 class TestDocs:
     @patch_cache
     async def test(self, mocker: MockerFixture) -> None:
-        mocker.patch('betty.serve.BuiltinServer', new_callable=lambda: _KeyboardInterruptedAppServer)
+        mocker.patch('betty.documentation.DocumentationServer', new_callable=lambda: _KeyboardInterruptedAppServer)
         _run('docs')
 
 

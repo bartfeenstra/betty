@@ -7,12 +7,28 @@ from pathlib import Path
 
 import aiofiles
 import pytest
+import requests
 from aiofiles.tempfile import TemporaryDirectory
+from pytest_mock import MockerFixture
+from requests import Response
 
+from betty.documentation import DocumentationServer
 from betty.fs import ROOT_DIRECTORY_PATH
+from betty.functools import Do
+from betty.locale import DEFAULT_LOCALIZER
 from betty.project import ProjectConfiguration
 from betty.serde.format import Format, Json, Yaml
 from betty.subprocess import run_process
+
+
+class TestDocumentationServer:
+    async def test(self, mocker: MockerFixture, tmp_path: Path) -> None:
+        mocker.patch('webbrowser.open_new_tab')
+        async with DocumentationServer(tmp_path, localizer=DEFAULT_LOCALIZER) as server:
+            def _assert_response(response: Response) -> None:
+                assert response.status_code == 200
+                assert 'Betty Documentation' in response.content.decode('utf-8')
+            await Do(requests.get, server.public_url).until(_assert_response)
 
 
 class TestDocumentation:
