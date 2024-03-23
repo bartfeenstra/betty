@@ -3,19 +3,34 @@ from asyncio import sleep
 from pathlib import Path
 
 import aiofiles
-from PyQt6.QtWidgets import QFileDialog
+from PyQt6.QtWidgets import QFileDialog, QWidget, QLabel
 from pytest_mock import MockerFixture
 from pytestqt.qtbot import QtBot
 
 from betty.app import App
+from betty.app.extension import UserFacingExtension
+from betty.gui import GuiBuilder
 from betty.gui.project import ProjectWindow, _AddLocaleWindow, _GenerateWindow, _LocalizationPane, \
-    _GeneralPane, _GenerateHtmlListForm
+    _GeneralPane, _GenerateHtmlListForm, _ExtensionPane
 from betty.gui.serve import ServeProjectWindow
-from betty.locale import get_display_name
+from betty.locale import get_display_name, Str
 from betty.model.ancestry import File
-from betty.project import ProjectConfiguration, LocaleConfiguration
+from betty.project import ProjectConfiguration, LocaleConfiguration, ExtensionConfiguration
 from betty.serde.dump import minimize
 from betty.tests.conftest import BettyQtBot
+
+
+class ProjectWindowTestExtension(UserFacingExtension, GuiBuilder):
+    @classmethod
+    def label(cls) -> Str:
+        return Str.plain(cls.name())
+
+    @classmethod
+    def description(cls) -> Str:
+        return cls.label()
+
+    def gui_build(self) -> QWidget:
+        return QLabel('Hello, world!')
 
 
 class TestProjectWindow:
@@ -40,6 +55,57 @@ class TestProjectWindow:
         async with aiofiles.open(save_as_configuration_file_path) as f:
             actual_dump = json.loads(await f.read())
         assert actual_dump == expected_dump
+
+    async def test_enable_extension(
+        self,
+        mocker: MockerFixture,
+        betty_qtbot: BettyQtBot,
+        tmp_path: Path,
+    ) -> None:
+        mocker.patch('betty.app.extension.discover_extension_types', return_value=(ProjectWindowTestExtension,))
+        configuration = ProjectConfiguration()
+        await configuration.write(tmp_path / 'betty.json')
+        async with App() as app:
+            sut = ProjectWindow(app)
+            betty_qtbot.qtbot.addWidget(sut)
+            sut.show()
+
+            extension_pane_name = f'extension-{ProjectWindowTestExtension.name()}'
+            extension_pane_selector = sut._pane_selectors[extension_pane_name]
+            betty_qtbot.mouse_click(extension_pane_selector)
+            extension_pane = sut._panes[extension_pane_name]
+            assert isinstance(extension_pane, _ExtensionPane)
+            betty_qtbot.assert_not_interactive(extension_pane._extension_gui)
+            extension_enable_checkbox = extension_pane._extension_enabled
+            betty_qtbot.assert_interactive(extension_enable_checkbox)
+            extension_enable_checkbox.click()
+            betty_qtbot.assert_interactive(extension_pane._extension_gui)
+
+    async def test_disable_extension(
+        self,
+        mocker: MockerFixture,
+        betty_qtbot: BettyQtBot,
+        tmp_path: Path,
+    ) -> None:
+        mocker.patch('betty.app.extension.discover_extension_types', return_value=(ProjectWindowTestExtension,))
+        configuration = ProjectConfiguration()
+        await configuration.write(tmp_path / 'betty.json')
+        async with App() as app:
+            app.project.configuration.extensions.append(ExtensionConfiguration(ProjectWindowTestExtension))
+            sut = ProjectWindow(app)
+            betty_qtbot.qtbot.addWidget(sut)
+            sut.show()
+
+            extension_pane_name = f'extension-{ProjectWindowTestExtension.name()}'
+            extension_pane_selector = sut._pane_selectors[extension_pane_name]
+            betty_qtbot.mouse_click(extension_pane_selector)
+            extension_pane = sut._panes[extension_pane_name]
+            assert isinstance(extension_pane, _ExtensionPane)
+            betty_qtbot.assert_interactive(extension_pane._extension_gui)
+            extension_enable_checkbox = extension_pane._extension_enabled
+            betty_qtbot.assert_interactive(extension_enable_checkbox)
+            extension_enable_checkbox.click()
+            betty_qtbot.assert_not_interactive(extension_pane._extension_gui)
 
 
 class Test_GenerateHtmlListForm:
