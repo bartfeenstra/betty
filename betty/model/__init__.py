@@ -5,6 +5,7 @@ from __future__ import annotations
 import builtins
 import functools
 import weakref
+from _weakref import ReferenceType
 from collections import defaultdict
 from contextlib import contextmanager
 from reprlib import recursive_repr
@@ -191,6 +192,8 @@ class EntityTypeInvalidError(EntityTypeError, ImportError):
 
 
 class EntityCollection(Generic[TargetT]):
+    __slots__ = ()
+
     def __init__(self):
         super().__init__()
 
@@ -689,12 +692,14 @@ class EntityTypeAssociationRegistry:
 
 
 class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
+    __slots__ = '_entities', '_target_type'
+
     def __init__(
         self,
         target_type: type[TargetT],
     ):
         super().__init__()
-        self._entities: list[TargetT & Entity] = []
+        self._entities: list[ReferenceType[TargetT & Entity]] = []
         self._target_type = target_type
 
     @recursive_repr()
@@ -704,14 +709,14 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
     def add(self, *entities: TargetT & Entity) -> None:
         added_entities = [*self._unknown(*entities)]
         for entity in added_entities:
-            self._entities.append(entity)
+            self._entities.append(weakref.ref(entity))
         if added_entities:
             self._on_add(*added_entities)
 
     def remove(self, *entities: TargetT & Entity) -> None:
         removed_entities = [*self._known(*entities)]
         for entity in removed_entities:
-            self._entities.remove(entity)
+            self._entities.remove(weakref.ref(entity))
         if removed_entities:
             self._on_remove(*removed_entities)
 
@@ -719,7 +724,10 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
         self.remove(*self)
 
     def __iter__(self) -> Iterator[TargetT & Entity]:
-        return self._entities.__iter__()
+        for entity_reference in self._entities:
+            entity = entity_reference()
+            if entity is not None:
+                yield entity
 
     def __len__(self) -> int:
         return len(self._entities)
@@ -744,13 +752,16 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
         return self._getitem_by_entity_id(key)
 
     def _getitem_by_index(self, index: int) -> TargetT & Entity:
-        return self._entities[index]
+        entity = self._entities[index]()
+        if entity is None:
+            raise IndexError
+        return entity
 
     def _getitem_by_indices(self, indices: slice) -> list[TargetT & Entity]:
         return self.view[indices]
 
     def _getitem_by_entity_id(self, entity_id: str) -> TargetT & Entity:
-        for entity in self._entities:
+        for entity in self:
             if entity_id == entity.id:
                 return entity
         raise KeyError(f'Cannot find a {self._target_type} entity with ID "{entity_id}".')
@@ -766,7 +777,7 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
         self.remove(entity)
 
     def _delitem_by_entity_id(self, entity_id: str) -> None:
-        for entity in self._entities:
+        for entity in self:
             if entity_id == entity.id:
                 self.remove(entity)
                 return
@@ -779,13 +790,13 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
         return False
 
     def _contains_by_entity(self, other_entity: TargetT & Entity) -> bool:
-        for entity in self._entities:
+        for entity in self:
             if other_entity is entity:
                 return True
         return False
 
     def _contains_by_entity_id(self, entity_id: str) -> bool:
-        for entity in self._entities:
+        for entity in self:
             if entity.id == entity_id:
                 return True
         return False
@@ -795,6 +806,8 @@ SingleTypeEntityCollectionT = TypeVar('SingleTypeEntityCollectionT', bound=Singl
 
 
 class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
+    __slots__ = '_collections'
+
     def __init__(self):
         super().__init__()
         self._collections: dict[type[Entity], SingleTypeEntityCollection[Entity]] = {}
@@ -924,14 +937,16 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
 
 
 class _BidirectionalAssociateCollection(Generic[AssociateT, OwnerT], SingleTypeEntityCollection[AssociateT]):
+    __slots__ = '__owner', '_association'
+
     def __init__(
         self,
         owner: OwnerT & Entity,
         association: BidirectionalEntityTypeAssociation[OwnerT, AssociateT],
     ):
         super().__init__(association.associate_type)
-        self._association = association
         self.__owner = weakref.ref(owner)
+        self._association = association
 
     @property
     def _owner(self) -> OwnerT & Entity:
