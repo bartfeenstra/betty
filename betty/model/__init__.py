@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import builtins
 import functools
-import weakref
-from _weakref import ReferenceType
+from weakref import ref, ReferenceType
 from collections import defaultdict
 from contextlib import contextmanager
 from reprlib import recursive_repr
 from typing import TypeVar, Generic, Iterable, Any, overload, cast, Iterator, Callable, Self, TypeAlias, TYPE_CHECKING
 from uuid import uuid4
+
+from typing_extensions import deprecated
 
 from betty.classtools import repr_instance
 from betty.importlib import import_any, fully_qualified_type_name
@@ -709,14 +710,14 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
     def add(self, *entities: TargetT & Entity) -> None:
         added_entities = [*self._unknown(*entities)]
         for entity in added_entities:
-            self._entities.append(weakref.ref(entity))
+            self._entities.append(ref(entity))
         if added_entities:
             self._on_add(*added_entities)
 
     def remove(self, *entities: TargetT & Entity) -> None:
         removed_entities = [*self._known(*entities)]
         for entity in removed_entities:
-            self._entities.remove(weakref.ref(entity))
+            self._entities.remove(ref(entity))
         if removed_entities:
             self._on_remove(*removed_entities)
 
@@ -751,12 +752,14 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
             return self._getitem_by_indices(key)
         return self._getitem_by_entity_id(key)
 
+    @deprecated(f'Getting an entity by index is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. No direct replacement is available.')
     def _getitem_by_index(self, index: int) -> TargetT & Entity:
         entity = self._entities[index]()
         if entity is None:
             raise IndexError
         return entity
 
+    @deprecated(f'Getting entities by indices is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. No direct replacement is available.')
     def _getitem_by_indices(self, indices: slice) -> list[TargetT & Entity]:
         return self.view[indices]
 
@@ -864,9 +867,11 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
             get_entity_type(entity_type_name),
         )
 
+    @deprecated(f'Getting an entity by index is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. No direct replacement is available.')
     def _getitem_by_index(self, index: int) -> TargetT & Entity:
         return self.view[index]
 
+    @deprecated(f'Getting entities by indices is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. No direct replacement is available.')
     def _getitem_by_indices(self, indices: slice) -> list[TargetT & Entity]:
         return self.view[indices]
 
@@ -945,7 +950,7 @@ class _BidirectionalAssociateCollection(Generic[AssociateT, OwnerT], SingleTypeE
         association: BidirectionalEntityTypeAssociation[OwnerT, AssociateT],
     ):
         super().__init__(association.associate_type)
-        self.__owner = weakref.ref(owner)
+        self.__owner = ref(owner)
         self._association = association
 
     @property
