@@ -6,6 +6,7 @@ from __future__ import annotations
 import gc
 import logging
 from typing import Iterator, TypeVar, cast, AsyncIterator
+from warnings import filterwarnings
 
 import pytest
 from PyQt6.QtCore import Qt, QObject
@@ -18,8 +19,21 @@ from betty.app import AppConfiguration, App
 from betty.gui import BettyApplication
 from betty.gui.app import BettyPrimaryWindow
 from betty.gui.error import ErrorT
+from betty.warnings import BettyDeprecationWarning
 
 _qapp_instance: BettyApplication | None = None
+
+
+@pytest.fixture(scope='function', autouse=True)
+def raise_deprecation_warnings_as_errors() -> Iterator[None]:
+    """
+    Raise Betty's own deprecation warnings as errors.
+    """
+    filterwarnings(
+        'error',
+        category=BettyDeprecationWarning,
+    )
+    yield
 
 
 async def _mock_app_configuration_read(self: AppConfiguration) -> None:
