@@ -20,6 +20,7 @@ from betty.model.ancestry import Ancestry, Person, Event, Place, Source
 from betty.serde.dump import Dump, VoidableDump, void_none, minimize, Void, VoidableDictDump
 from betty.serde.load import AssertionFailed, Fields, Assertions, Assertion, RequiredField, OptionalField, \
     Asserter
+from betty.warnings import deprecate
 
 DEFAULT_LIFETIME_THRESHOLD = 125
 
@@ -568,8 +569,11 @@ class ProjectConfiguration(FileBasedConfiguration):
         debug: bool = False,
         locales: Iterable[LocaleConfiguration] | None = None,
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
+        name: str | None = None,
     ):
         super().__init__()
+        self._name = name
+        self._computed_name: str | None = None
         self._base_url = 'https://example.com' if base_url is None else base_url
         self._root_path = root_path
         self._clean_urls = clean_urls
@@ -600,6 +604,15 @@ class ProjectConfiguration(FileBasedConfiguration):
         self._locales = LocaleConfigurationMapping(locales or ())
         self._locales.on_change(self)
         self._lifetime_threshold = lifetime_threshold
+
+    @property
+    def name(self) -> str | None:
+        return self._name
+
+    @name.setter
+    def name(self, name: str) -> None:
+        self._name = name
+        self._dispatch_change()
 
     @property
     def project_directory_path(self) -> Path:
@@ -726,6 +739,10 @@ class ProjectConfiguration(FileBasedConfiguration):
             configuration = cls()
         asserter = Asserter()
         asserter.assert_record(Fields(
+            OptionalField(
+                'name',
+                Assertions(asserter.assert_str()) | asserter.assert_setattr(configuration, 'name'),
+            ),
             RequiredField(
                 'base_url',
                 Assertions(asserter.assert_str()) | asserter.assert_setattr(configuration, 'base_url'),
@@ -771,6 +788,7 @@ class ProjectConfiguration(FileBasedConfiguration):
 
     def dump(self) -> VoidableDictDump[Dump]:
         return minimize({  # type: ignore[return-value]
+            'name': void_none(self.name),
             'base_url': self.base_url,
             'title': self.title,
             'root_path': void_none(self.root_path),
@@ -792,13 +810,27 @@ class Project(Configurable[ProjectConfiguration]):
         ancestry: Ancestry | None = None,
     ):
         super().__init__()
+        if project_id is not None:
+            deprecate(
+                f'Initializing {type(self)} with a project ID is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. Instead, set {type(self)}.configuration.name.',
+                stacklevel=2,
+            )
         self._id = project_id
         self._configuration = ProjectConfiguration()
-        self._ancestry = ancestry or Ancestry()
+        self._ancestry = Ancestry() if ancestry is None else ancestry
 
     @property
     def id(self) -> str:
-        return self._id or hashlib.md5(str(self.configuration.configuration_file_path).encode('utf-8')).hexdigest()
+        deprecate(f'{type(self)}.id is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. Insead, use {type(self)}.name.')
+        if self._id is None:
+            return self.name
+        return self._id
+
+    @property
+    def name(self) -> str:
+        if self._configuration.name is None:
+            return hashlib.md5(str(self._configuration.configuration_file_path).encode('utf-8')).hexdigest()
+        return self._configuration.name
 
     @property
     def ancestry(self) -> Ancestry:

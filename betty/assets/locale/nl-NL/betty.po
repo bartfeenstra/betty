@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-03-22 10:41+0000\n"
+"POT-Creation-Date: 2024-03-27 23:37+0000\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -691,6 +691,9 @@ msgstr "Menu"
 msgid "Missing"
 msgstr "Vermist"
 
+msgid "Name"
+msgstr "Naam"
+
 msgid "New project..."
 msgstr "Nieuw project..."
 
@@ -935,6 +938,9 @@ msgstr "De volgende problemen zijn voorgekomen"
 msgid "The lifetime threshold must consist of digits only."
 msgstr "De levensgrens mag alleen uit cijfers bestaan."
 
+msgid "The project's machine name."
+msgstr "De machinenaam van het project"
+
 msgid "The server was unreachable after starting."
 msgstr "De server was onbereikbaar na het starten."
 
@@ -971,7 +977,9 @@ msgstr[0] "Men had een kind."
 msgstr[1] "Men had %(child_count)skinderen."
 
 msgid "This citation's details are unavailable to protect people's privacy."
-msgstr "De gegevens van deze verwijzing zijn niet beschikbaar vanwege privacyredenen."
+msgstr ""
+"De gegevens van deze verwijzing zijn niet beschikbaar vanwege "
+"privacyredenen."
 
 msgid "This field is required."
 msgstr "Dit veld is vereist."

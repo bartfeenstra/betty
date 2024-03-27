@@ -28,6 +28,8 @@ from betty.model.event_type import Birth, Baptism, Adoption, Cremation, Death, F
     Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, Emigration, Occupation, \
     Retirement, Correspondence, Confirmation, Missing, UnknownEventType, EventType, Conference
 from betty.path import rootname
+from betty.project import Project
+from betty.warnings import deprecate
 
 
 class GrampsLoadFileError(GrampsError, RuntimeError):
@@ -45,12 +47,21 @@ class XPathError(GrampsError, RuntimeError):
 class GrampsLoader:
     def __init__(
         self,
-        ancestry: Ancestry,
-            *,
-            localizer: Localizer,
+        project_or_ancestry: Project | Ancestry,
+        *,
+        localizer: Localizer,
     ):
         super().__init__()
-        self._ancestry = ancestry
+        if isinstance(project_or_ancestry, Ancestry):
+            deprecate(
+                f'Initializing {type(self)} with {Ancestry} is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. Instead, provide {Project}.',
+                stacklevel=2,
+            )
+            self._ancestry = project_or_ancestry
+            self._project = None
+        else:
+            self._ancestry = project_or_ancestry.ancestry
+            self._project = project_or_ancestry
         self._ancestry_builder = EntityGraphBuilder()
         self._added_entity_counts: dict[type[Entity], int] = defaultdict(lambda: 0)
         self._tree: ElementTree.ElementTree | None = None
@@ -310,8 +321,10 @@ class GrampsLoader:
             file.description = description
         if element.get('priv') == '1':
             file.private = True
-        self._load_attribute_privacy(file, element, 'attribute')
         aliased_file = AliasedEntity(file, file_handle)
+
+        self._load_attributes(file, element, 'attribute')
+
         self.add_entity(
             aliased_file,  # type: ignore[arg-type]
         )
@@ -374,7 +387,8 @@ class GrampsLoader:
         self._load_eventrefs(person_handle, element)
         if element.get('priv') == '1':
             person.private = True
-        self._load_attribute_privacy(person, element, 'attribute')
+
+        self._load_attributes(person, element, 'attribute')
 
         aliased_person = AliasedEntity(person, person_handle)
         self._load_citationref(
@@ -457,7 +471,9 @@ class GrampsLoader:
         presence = Presence(None, role, None)
         if eventref.get('priv') == '1':
             presence.private = True
-        self._load_attribute_privacy(presence, eventref, 'attribute')
+
+        self._load_attributes(presence, eventref, 'attribute')
+
         self.add_entity(presence)
         self.add_association(Presence, presence.id, 'person', Person, person_id)
         self.add_association(Presence, presence.id, 'event', Event, event_handle)
@@ -592,7 +608,6 @@ class GrampsLoader:
 
         if element.get('priv') == '1':
             event.private = True
-        self._load_attribute_privacy(event, element, 'attribute')
 
         aliased_event = AliasedEntity(event, event_handle)
         self._load_objref(
@@ -607,6 +622,9 @@ class GrampsLoader:
             aliased_event,  # type: ignore[arg-type]
             element,
         )
+
+        self._load_attributes(event, element, 'attribute')
+
         self.add_entity(
             aliased_event,  # type: ignore[arg-type]
         )
@@ -663,7 +681,8 @@ class GrampsLoader:
 
         if element.get('priv') == '1':
             source.private = True
-        self._load_attribute_privacy(source, element, 'srcattribute')
+
+        self._load_attributes(source, element, 'srcattribute')
 
         aliased_source = AliasedEntity(source, source_handle)
         self._load_objref(
@@ -692,7 +711,6 @@ class GrampsLoader:
         citation.date = self._load_date(element)
         if element.get('priv') == '1':
             citation.private = True
-        self._load_attribute_privacy(citation, element, 'srcattribute')
 
         with suppress(XPathError):
             citation.location = Str.plain(self._xpath1(element, './ns:page').text)
@@ -702,6 +720,9 @@ class GrampsLoader:
             aliased_citation,  # type: ignore[arg-type]
             element,
         )
+
+        self._load_attributes(citation, element, 'srcattribute')
+
         self.add_entity(
             aliased_citation,  # type: ignore[arg-type]
         )
@@ -754,6 +775,14 @@ class GrampsLoader:
         ))
 
     def _load_attribute(self, name: str, element: ElementTree.Element, tag: str) -> str | None:
-        with suppress(XPathError):
-            return self._xpath1(element, './ns:%s[@type="betty:%s"]' % (tag, name)).get('value')
+        prefixes = ['betty']
+        if self._project is not None and self._project.configuration.name is not None:
+            prefixes.insert(0, f'betty-{self._project.configuration.name}')
+        for prefix in prefixes:
+            with suppress(XPathError):
+                return self._xpath1(element, f'./ns:{tag}[@type="{prefix}:{name}"]').get('value')
         return None
+
+    def _load_attributes(self, entity: Entity, element: ElementTree.Element, tag: str) -> None:
+        if isinstance(entity, HasPrivacy):
+            self._load_attribute_privacy(entity, element, tag)
