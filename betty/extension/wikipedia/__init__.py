@@ -31,7 +31,11 @@ class _Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader):
     @property
     def _retriever(self) -> wikipedia._Retriever:
         if self.__retriever is None:
-            self.__retriever = wikipedia._Retriever(self.app.http_client, self._app.cache.path / self.name())
+            self.__retriever = wikipedia._Retriever(
+                self.app.http_client,
+                self._app.cache,
+                self._app.binary_file_cache.with_scope(self.name()),
+            )
         return self.__retriever
 
     @_retriever.deleter

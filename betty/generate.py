@@ -20,6 +20,7 @@ from aiofiles.os import makedirs
 from aiofiles.threadpool.text import AsyncTextIOWrapper
 
 from betty.app import App
+from betty.job import Context
 from betty.json.linked_data import LinkedDataDumpable
 from betty.json.schema import Schema
 from betty.locale import get_display_name
@@ -28,7 +29,6 @@ from betty.model.ancestry import is_public
 from betty.openapi import Specification
 from betty.serde.dump import DictDump, Dump
 from betty.string import camel_case_to_kebab_case, camel_case_to_snake_case, upper_camel_case_to_lower_camel_case
-from betty.job import Context
 from betty.warnings import deprecated
 
 
@@ -62,10 +62,10 @@ async def generate(app: App) -> None:
     logger = logging.getLogger(__name__)
     job_context = GenerationContext(app)
 
+    logger.info(app.localizer._('Generating your site to {output_directory}.').format(output_directory=app.project.configuration.output_directory_path))
     with suppress(FileNotFoundError):
         await asyncio.to_thread(shutil.rmtree, app.project.configuration.output_directory_path)
     await makedirs(app.project.configuration.output_directory_path, exist_ok=True)
-    logger.info(app.localizer._('Generating your site to {output_directory}.').format(output_directory=app.project.configuration.output_directory_path))
 
     # The static public assets may be overridden depending on the number of locales rendered, so ensure they are
     # generated before anything else.
@@ -101,8 +101,8 @@ async def _log_jobs(app: App, jobs: Sequence[Task[None]]) -> None:
 async def _log_jobs_forever(app: App, jobs: Sequence[Task[None]]) -> None:
     with suppress(CancelledError):
         while True:
-            await sleep(5)
             await _log_jobs(app, jobs)
+            await sleep(5)
 
 
 _JobP = ParamSpec('_JobP')

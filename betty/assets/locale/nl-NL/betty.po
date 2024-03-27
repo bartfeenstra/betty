@@ -103,6 +103,9 @@ msgstr "\"{locale}\" is geen geldige IETF BCP 47 taaltag."
 msgid "\"{path}\" is not a directory."
 msgstr "\"{path}\" is geen directory."
 
+msgid "\"{scope}\" cache cleared."
+msgstr "\"{scope}\"-cache geleegd."
+
 #, python-format
 msgid "%(date)s in %(place)s"
 msgstr "%(date)s te %(place)s"
