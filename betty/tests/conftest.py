@@ -3,7 +3,6 @@ Integrate Betty with pytest.
 """
 from __future__ import annotations
 
-import gc
 import logging
 from typing import Iterator, TypeVar, cast, AsyncIterator
 from warnings import filterwarnings
@@ -79,7 +78,6 @@ async def qapp(qapp_args: list[str]) -> AsyncIterator[BettyApplication]:
         yield _qapp_instance
     else:
         yield qapp_instance
-    gc.collect()
 
 
 QObjectT = TypeVar('QObjectT', bound=QObject)
