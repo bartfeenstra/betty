@@ -491,7 +491,7 @@ class ToMany(Generic[OwnerT, AssociateT], ToManyEntityTypeAssociation[OwnerT, As
         setattr(
             owner,
             self._owner_private_attr_name,
-            SingleTypeEntityCollection[AssociateT](self.associate_type)
+            UnownedSingleTypeEntityCollection[AssociateT](self.associate_type)
         )
 
 
@@ -882,7 +882,7 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
         try:
             return cast(SingleTypeEntityCollection[EntityT], self._collections[entity_type])
         except KeyError:
-            self._collections[entity_type] = SingleTypeEntityCollection(entity_type)
+            self._collections[entity_type] = self._create_collection(entity_type)
             return cast(SingleTypeEntityCollection[EntityT], self._collections[entity_type])
 
     def _create_collection(self, entity_type: type[EntityT]) -> SingleTypeEntityCollection[EntityT]:
@@ -1156,7 +1156,7 @@ class EntityGraphBuilder(_EntityGraphBuilder):
 
 
 @contextmanager
-def record_added(entities: EntityCollection[EntityT]) -> Iterator[OwnedMultipleTypesEntityCollection[EntityT]]:
+def record_added(entities: EntityCollection[EntityT]) -> Iterator[MultipleTypesEntityCollection[EntityT]]:
     """
     Record all entities that are added to a collection.
     """

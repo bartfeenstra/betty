@@ -8,7 +8,8 @@ from betty.model import get_entity_type_name, Entity, get_entity_type, ToAny, \
     EntityTypeAssociationRegistry, SingleTypeEntityCollection, MultipleTypesEntityCollection, \
     one_to_many, many_to_one_to_many, many_to_many, \
     EntityCollection, to_many, many_to_one, to_one, one_to_one, EntityTypeImportError, ToOne, \
-    EntityGraphBuilder, AliasableEntity, AliasedEntity, unalias
+    EntityGraphBuilder, AliasableEntity, AliasedEntity, unalias, OwnedMultipleTypesEntityCollection, \
+    UnownedMultipleTypesEntityCollection, OwnedSingleTypeEntityCollection, UnownedSingleTypeEntityCollection
 from betty.model.ancestry import Person
 
 
@@ -107,7 +108,10 @@ class SingleTypeEntityCollectionTestEntity(Entity):
     pass
 
 
-class TestSingleTypeEntityCollection:
+class SingleTypeEntityCollectionTestBase:
+    def _new_sut(self) -> SingleTypeEntityCollection[Entity]:
+        raise NotImplementedError
+
     async def test_add(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
         entity1 = SingleTypeEntityCollectionTestEntity()
@@ -280,6 +284,16 @@ class TestSingleTypeEntityCollection:
         assert value not in sut
 
 
+class TestOwnedSingleTypeEntityCollection(SingleTypeEntityCollectionTestBase):
+    def _new_sut(self) -> OwnedSingleTypeEntityCollection[Entity]:
+        return OwnedSingleTypeEntityCollection(Entity)
+
+
+class TestUnownedSingleTypeEntityCollection(SingleTypeEntityCollectionTestBase):
+    def _new_sut(self) -> UnownedSingleTypeEntityCollection[Entity]:
+        return UnownedSingleTypeEntityCollection(Entity)
+
+
 class MultipleTypesEntityCollectionTestEntityOne(Entity):
     pass
 
@@ -288,9 +302,12 @@ class MultipleTypesEntityCollectionTestEntityOther(Entity):
     pass
 
 
-class TestMultipleTypesEntityCollection:
+class MultipleTypesEntityCollectionTestBase:
+    def _new_sut(self) -> MultipleTypesEntityCollection[Entity]:
+        raise NotImplementedError
+
     async def test_add(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = self._new_sut()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other1 = MultipleTypesEntityCollectionTestEntityOther()
         entity_other2 = MultipleTypesEntityCollectionTestEntityOther()
@@ -300,7 +317,7 @@ class TestMultipleTypesEntityCollection:
         assert [entity_other1, entity_other2, entity_other3] == list(sut[MultipleTypesEntityCollectionTestEntityOther])
 
     async def test_add_with_duplicate_entities(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = self._new_sut()
         entity1 = MultipleTypesEntityCollectionTestEntityOne()
         entity2 = MultipleTypesEntityCollectionTestEntityOther()
         entity3 = MultipleTypesEntityCollectionTestEntityOne()
@@ -320,7 +337,7 @@ class TestMultipleTypesEntityCollection:
         assert [entity2, entity4, entity6, entity8] == list(sut[MultipleTypesEntityCollectionTestEntityOther])
 
     async def test_remove(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = self._new_sut()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
         sut[MultipleTypesEntityCollectionTestEntityOne].add(entity_one)
@@ -331,7 +348,7 @@ class TestMultipleTypesEntityCollection:
         assert [] == list(list(sut))
 
     async def test_getitem_by_index(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = self._new_sut()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
         sut.add(entity_one, entity_other)
@@ -341,7 +358,7 @@ class TestMultipleTypesEntityCollection:
             sut[2]
 
     async def test_getitem_by_indices(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = self._new_sut()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
         sut.add(entity_one, entity_other)
@@ -349,7 +366,7 @@ class TestMultipleTypesEntityCollection:
         assert [entity_other] == list(sut[1::1])
 
     async def test_getitem_by_entity_type(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = self._new_sut()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
         sut.add(entity_one, entity_other)
@@ -359,7 +376,7 @@ class TestMultipleTypesEntityCollection:
         assert [] == list(sut[Entity])
 
     async def test_getitem_by_entity_type_name(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = self._new_sut()
         # Use an existing ancestry entity type, because converting an entity type name to an entity type only works for
         # entity types in a single module namespace.
         entity = Person()
@@ -370,7 +387,7 @@ class TestMultipleTypesEntityCollection:
             sut['NonExistentEntityType']
 
     async def test_delitem_by_entity(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = self._new_sut()
         entity1 = MultipleTypesEntityCollectionTestEntityOne()
         entity2 = MultipleTypesEntityCollectionTestEntityOne()
         entity3 = MultipleTypesEntityCollectionTestEntityOne()
@@ -381,7 +398,7 @@ class TestMultipleTypesEntityCollection:
         assert [entity1, entity3] == list(sut)
 
     async def test_delitem_by_entity_type(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = self._new_sut()
         entity = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
         sut.add(entity, entity_other)
@@ -391,7 +408,7 @@ class TestMultipleTypesEntityCollection:
         assert [entity_other] == list(sut)
 
     async def test_delitem_by_entity_type_name(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = self._new_sut()
         entity = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
         sut.add(entity, entity_other)
@@ -401,7 +418,7 @@ class TestMultipleTypesEntityCollection:
         assert [entity_other] == list(sut)
 
     async def test_iter(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = self._new_sut()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
         sut[MultipleTypesEntityCollectionTestEntityOne].add(entity_one)
@@ -409,7 +426,7 @@ class TestMultipleTypesEntityCollection:
         assert [entity_one, entity_other] == list(list(sut))
 
     async def test_len(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = self._new_sut()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
         sut[MultipleTypesEntityCollectionTestEntityOne].add(entity_one)
@@ -417,7 +434,7 @@ class TestMultipleTypesEntityCollection:
         assert 2 == len(sut)
 
     async def test_contain_by_entity(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = self._new_sut()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other1 = MultipleTypesEntityCollectionTestEntityOther()
         entity_other2 = MultipleTypesEntityCollectionTestEntityOther()
@@ -433,11 +450,21 @@ class TestMultipleTypesEntityCollection:
         [],
     ])
     async def test_contains_by_unsupported_type(self, value: Any) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = self._new_sut()
         entity = MultipleTypesEntityCollectionTestEntityOne()
         sut.add(entity)
 
         assert value not in sut
+
+
+class TestOwnedMultipleTypesEntityCollection(MultipleTypesEntityCollectionTestBase):
+    def _new_sut(self) -> OwnedMultipleTypesEntityCollection[Entity]:
+        return OwnedMultipleTypesEntityCollection()
+
+
+class TestUnownedMultipleTypesEntityCollection(MultipleTypesEntityCollectionTestBase):
+    def _new_sut(self) -> UnownedMultipleTypesEntityCollection[Entity]:
+        return UnownedMultipleTypesEntityCollection()
 
 
 @to_one(
@@ -593,7 +620,7 @@ class TestEntityGraphBuilder:
             to_one_right.id,
         )
 
-        built_entities = MultipleTypesEntityCollection[Entity]()
+        built_entities = OwnedMultipleTypesEntityCollection[Entity]()
         built_entities.add(*sut.build())
 
         unaliased_to_one_left = unalias(to_one_left)
@@ -628,7 +655,7 @@ class TestEntityGraphBuilder:
             one_to_one_right.id,
         )
 
-        built_entities = MultipleTypesEntityCollection[Entity]()
+        built_entities = OwnedMultipleTypesEntityCollection[Entity]()
         built_entities.add(*sut.build())
 
         unaliased_one_to_one_left = unalias(one_to_one_left)
@@ -664,7 +691,7 @@ class TestEntityGraphBuilder:
             many_to_one_right.id,
         )
 
-        built_entities = MultipleTypesEntityCollection[Entity]()
+        built_entities = OwnedMultipleTypesEntityCollection[Entity]()
         built_entities.add(*sut.build())
 
         unaliased_many_to_one_left = unalias(many_to_one_left)
@@ -700,7 +727,7 @@ class TestEntityGraphBuilder:
             to_many_right.id,
         )
 
-        built_entities = MultipleTypesEntityCollection[Entity]()
+        built_entities = OwnedMultipleTypesEntityCollection[Entity]()
         built_entities.add(*sut.build())
 
         unaliased_to_many_left = unalias(to_many_left)
@@ -735,7 +762,7 @@ class TestEntityGraphBuilder:
             one_to_many_right.id,
         )
 
-        built_entities = MultipleTypesEntityCollection[Entity]()
+        built_entities = OwnedMultipleTypesEntityCollection[Entity]()
         built_entities.add(*sut.build())
 
         unaliased_one_to_many_left = unalias(one_to_many_left)
@@ -771,7 +798,7 @@ class TestEntityGraphBuilder:
             many_to_many_right.id,
         )
 
-        built_entities = MultipleTypesEntityCollection[Entity]()
+        built_entities = OwnedMultipleTypesEntityCollection[Entity]()
         built_entities.add(*sut.build())
 
         unaliased_many_to_many_left = unalias(many_to_many_left)
@@ -817,7 +844,7 @@ class TestEntityGraphBuilder:
             many_to_one_to_many_middle.id,
         )
 
-        built_entities = MultipleTypesEntityCollection[Entity]()
+        built_entities = OwnedMultipleTypesEntityCollection[Entity]()
         built_entities.add(*sut.build())
 
         unaliased_many_to_one_to_many_left = unalias(many_to_one_to_many_left)

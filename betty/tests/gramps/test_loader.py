@@ -84,7 +84,7 @@ class TestGrampsLoader:
 """)
         place = ancestry[Place]['P0000']
         assert place.notes
-        note = place.notes[0]
+        note = place.notes.view[0]
         assert note.id == 'N0000'
 
     @pytest.mark.parametrize('expected_latitude, expected_longitude, latitude, longitude', [
@@ -156,10 +156,10 @@ class TestGrampsLoader:
     </placeobj>
 </places>
 """)
-        assert ancestry[Place]['P0000'] == ancestry[Place]['P0002'].enclosed_by[0].enclosed_by
-        assert ancestry[Place]['P0001'] == ancestry[Place]['P0002'].enclosed_by[1].enclosed_by
-        assert ancestry[Place]['P0002'] == ancestry[Place]['P0000'].encloses[0].encloses
-        assert ancestry[Place]['P0002'] == ancestry[Place]['P0001'].encloses[0].encloses
+        assert ancestry[Place]['P0000'] == ancestry[Place]['P0002'].enclosed_by.view[0].enclosed_by
+        assert ancestry[Place]['P0001'] == ancestry[Place]['P0002'].enclosed_by.view[1].enclosed_by
+        assert ancestry[Place]['P0002'] == ancestry[Place]['P0000'].encloses.view[0].encloses
+        assert ancestry[Place]['P0002'] == ancestry[Place]['P0001'].encloses.view[0].encloses
 
     async def test_person_should_include_names(self) -> None:
         ancestry = await self._load_partial("""
@@ -182,12 +182,12 @@ class TestGrampsLoader:
 """)
         person = ancestry[Person]['I0000']
 
-        assert 'Jane' == person.names[0].individual
-        assert 'Doe' == person.names[0].affiliation
-        assert 'Jane' == person.names[1].individual
-        assert 'Doh' == person.names[1].affiliation
-        assert 'Jen' == person.names[2].individual
-        assert 'Van Doughie' == person.names[2].affiliation
+        assert 'Jane' == person.names.view[0].individual
+        assert 'Doe' == person.names.view[0].affiliation
+        assert 'Jane' == person.names.view[1].individual
+        assert 'Doh' == person.names.view[1].affiliation
+        assert 'Jen' == person.names.view[2].individual
+        assert 'Van Doughie' == person.names.view[2].affiliation
 
     async def test_person_should_include_birth(self) -> None:
         ancestry = await self._load_partial("""
@@ -288,7 +288,7 @@ class TestGrampsLoader:
 """)
         person = ancestry[Person]['I0000']
         assert person.notes
-        note = person.notes[0]
+        note = person.notes.view[0]
         assert note.id == 'N0000'
 
     async def test_family_should_set_parents(self) -> None:
@@ -474,7 +474,7 @@ class TestGrampsLoader:
 """)
         event = ancestry[Event]['E0000']
         assert event.notes
-        note = event.notes[0]
+        note = event.notes.view[0]
         assert note.id == 'N0000'
 
     @pytest.mark.parametrize('expected, dateval_val', [
@@ -811,7 +811,7 @@ class TestGrampsLoader:
 """)
         source = ancestry[Source]['R0000']
         assert source.notes
-        note = source.notes[0]
+        note = source.notes.view[0]
         assert note.id == 'N0000'
 
     async def test_source_from_source_should_include_note(self) -> None:
@@ -829,7 +829,7 @@ class TestGrampsLoader:
 """)
         source = ancestry[Source]['S0000']
         assert source.notes
-        note = source.notes[0]
+        note = source.notes.view[0]
         assert note.id == 'N0000'
 
     @pytest.mark.parametrize('expected, attribute_value', [
@@ -902,7 +902,7 @@ class TestGrampsLoader:
 """)
         file = ancestry[File]['O0000']
         assert file.notes
-        note = file.notes[0]
+        note = file.notes.view[0]
         assert note.id == 'N0000'
 
     @pytest.mark.parametrize('expected, attribute_value', [
