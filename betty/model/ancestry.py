@@ -12,7 +12,6 @@ from typing import Iterable, Any, TYPE_CHECKING
 from urllib.parse import quote
 
 from geopy import Point
-from typing_extensions import deprecated
 
 from betty.classtools import repr_instance
 from betty.json.linked_data import LinkedDataDumpable, dump_context, dump_link, add_json_ld
@@ -20,11 +19,12 @@ from betty.json.schema import add_property, ref_json_schema
 from betty.locale import Localized, Datey, Str, Localizable, ref_datey
 from betty.media_type import MediaType
 from betty.model import many_to_many, Entity, one_to_many, many_to_one, many_to_one_to_many, \
-    MultipleTypesEntityCollection, EntityCollection, UserFacingEntity, EntityTypeAssociationRegistry, \
-    GeneratedEntityId, get_entity_type_name
+    EntityCollection, UserFacingEntity, EntityTypeAssociationRegistry, \
+    GeneratedEntityId, get_entity_type_name, OwnedMultipleTypesEntityCollection
 from betty.model.event_type import EventType, UnknownEventType
 from betty.serde.dump import DictDump, Dump, dump_default
 from betty.string import camel_case_to_kebab_case
+from betty.warnings import deprecated
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -1804,7 +1804,7 @@ class Person(HasFiles, HasCitations, HasNotes, HasLinksEntity, HasPrivacy, UserF
         return schema
 
 
-class Ancestry(MultipleTypesEntityCollection[Entity]):
+class Ancestry(OwnedMultipleTypesEntityCollection[Entity]):
     def __init__(self):
         super().__init__()
         self._check_graph = True

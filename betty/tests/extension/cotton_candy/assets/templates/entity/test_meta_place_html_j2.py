@@ -28,12 +28,12 @@ class Test(TemplateTestCase):
             id='P1',
             names=[PlaceName(name='The Enclosing Place')],
         )
-        Enclosure(encloses=place, enclosed_by=enclosing_place)
+        enclose_by = Enclosure(encloses=place, enclosed_by=enclosing_place)  # noqa: F841
         all_enclosing_place = Place(
             id='P2',
             names=[PlaceName(name='The All-enclosing Place')],
         )
-        Enclosure(encloses=enclosing_place, enclosed_by=all_enclosing_place)
+        enclosed_by_2nd = Enclosure(encloses=enclosing_place, enclosed_by=all_enclosing_place)  # noqa: F841
         expected = '<div class="meta">in <span><a href="/place/P1/index.html"><span>The Enclosing Place</span></a></span>, <span><a href="/place/P2/index.html"><span>The All-enclosing Place</span></a></span></div>'
         async with self._render(data={
             'entity': place,
