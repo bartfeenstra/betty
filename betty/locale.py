@@ -18,6 +18,7 @@ from functools import total_ordering
 from io import StringIO
 from pathlib import Path
 from typing import Any, Iterator, Sequence, Mapping, Callable, TypeAlias, cast, TYPE_CHECKING
+from warnings import warn
 
 import aiofiles
 import babel
@@ -763,7 +764,7 @@ class Localizable:
 
     def __str__(self) -> str:
         localized = self.localize(DEFAULT_LOCALIZER)
-        logging.getLogger(__name__).warning(f'{type(self)} ("{localized}") SHOULD NOT be cast to a string. Instead, call {type(self)}.localize() to ensure it is always formatted in the desired locale.')
+        warn(f'{type(self)} ("{localized}") SHOULD NOT be cast to a string. Instead, call {type(self)}.localize() to ensure it is always formatted in the desired locale.')
         return localized
 
 
