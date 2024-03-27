@@ -1,16 +1,18 @@
 """Expand an ancestry by deriving additional data from existing data."""
 from __future__ import annotations
 
+from logging import getLogger
+
 from betty.app.extension import Extension, UserFacingExtension
 from betty.deriver import Deriver
-from betty.load import PostLoader, getLogger
+from betty.load import PostLoader
 from betty.locale import Str
 from betty.model.event_type import DerivableEventType
 
 
 class _Deriver(UserFacingExtension, PostLoader):
     async def post_load(self) -> None:
-        logger = getLogger()
+        logger = getLogger(__name__)
         logger.info(self._app.localizer._('Deriving...'))
 
         deriver = Deriver(

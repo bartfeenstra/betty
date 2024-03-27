@@ -29,8 +29,10 @@ from betty.openapi import Specification
 from betty.serde.dump import DictDump, Dump
 from betty.string import camel_case_to_kebab_case, camel_case_to_snake_case, upper_camel_case_to_lower_camel_case
 from betty.job import Context
+from betty.warnings import deprecated
 
 
+@deprecated('This function is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. Instead, use `logging.logging.getLogger(__name__)`.')
 def getLogger() -> logging.Logger:
     """
     Get the site generation logger.
@@ -57,7 +59,7 @@ async def generate(app: App) -> None:
     """
     Generate a new site.
     """
-    logger = getLogger()
+    logger = logging.getLogger(__name__)
     job_context = GenerationContext(app)
 
     with suppress(FileNotFoundError):
@@ -88,7 +90,7 @@ async def generate(app: App) -> None:
 async def _log_jobs(app: App, jobs: Sequence[Task[None]]) -> None:
     total_job_count = len(jobs)
     completed_job_count = len([job for job in jobs if job.done()])
-    getLogger().info(app.localizer._(
+    logging.getLogger(__name__).info(app.localizer._(
         'Generated {completed_job_count} out of {total_job_count} items ({completed_job_percentage}%).').format(
         completed_job_count=completed_job_count,
         total_job_count=total_job_count,
@@ -177,7 +179,7 @@ async def _generate_public(
 ) -> None:
     app = job_context.app
     locale_label = get_display_name(locale, app.localizer.locale)
-    getLogger().debug(app.localizer._('Generating localized public files in {locale}...').format(
+    logging.getLogger(__name__).debug(app.localizer._('Generating localized public files in {locale}...').format(
         locale=locale_label,
     ))
     async for file_path in app.assets.copytree(Path('public') / 'localized', app.project.configuration.localize_www_directory_path(locale)):
@@ -192,7 +194,7 @@ async def _generate_static_public(
     app: App,
     job_context: Context,
 ) -> None:
-    getLogger().info(app.localizer._('Generating static public files...'))
+    logging.getLogger(__name__).info(app.localizer._('Generating static public files...'))
     async for file_path in app.assets.copytree(Path('public') / 'static', app.project.configuration.www_directory_path):
         await app.renderer.render_file(
             file_path,
@@ -337,7 +339,7 @@ async def _generate_json_schema(
     job_context: GenerationContext,
 ) -> None:
     app = job_context.app
-    getLogger().debug(app.localizer._('Generating JSON Schema...'))
+    logging.getLogger(__name__).debug(app.localizer._('Generating JSON Schema...'))
     schema = Schema(app)
     rendered_json = json.dumps(await schema.build())
     async with await create_file(app.project.configuration.www_directory_path / 'schema.json') as f:
@@ -348,7 +350,7 @@ async def _generate_openapi(
     job_context: GenerationContext,
 ) -> None:
     app = job_context.app
-    getLogger().debug(app.localizer._('Generating OpenAPI specification...'))
+    logging.getLogger(__name__).debug(app.localizer._('Generating OpenAPI specification...'))
     api_directory_path = app.project.configuration.www_directory_path / 'api'
     rendered_json = json.dumps(await Specification(app).build())
     async with await create_json_resource(api_directory_path) as f:
