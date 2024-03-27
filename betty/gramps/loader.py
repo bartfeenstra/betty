@@ -445,15 +445,14 @@ class GrampsLoader:
             role = self._PRESENCE_ROLE_MAP[gramps_presence_role]
         except KeyError:
             role = Attendee()
-            getLogger(__name__).warning(
-                Str._(
-                    'Betty is unfamiliar with person "{person_id}"\'s Gramps presence role of "{gramps_presence_role}" for the event with Gramps handle "{event_handle}". The role was imported, but set to "{betty_presence_role}".',
-                    person_id=person_id,
-                    event_handle=event_handle,
-                    gramps_presence_role=gramps_presence_role,
-                    betty_presence_role=role.label,
-                )
-            )
+            getLogger(__name__).warning(self._localizer._(
+                'Betty is unfamiliar with person "{person_id}"\'s Gramps presence role of "{gramps_presence_role}" for the event with Gramps handle "{event_handle}". The role was imported, but set to "{betty_presence_role}".',
+            ).format(
+                person_id=person_id,
+                event_handle=event_handle,
+                gramps_presence_role=gramps_presence_role,
+                betty_presence_role=role.label,
+            ))
 
         presence = Presence(None, role, None)
         if eventref.get('priv') == '1':
@@ -520,8 +519,9 @@ class GrampsLoader:
             try:
                 return Point.from_string(coordinates)
             except ValueError:
-                getLogger(__name__).warning(Str._(
+                getLogger(__name__).warning(self._localizer._(
                     'Cannot load coordinates "{coordinates}", because they are in an unknown format.',
+                ).format(
                     coordinates=coordinates,
                 ))
         return None
@@ -566,14 +566,13 @@ class GrampsLoader:
             event_type: type[EventType] = self._EVENT_TYPE_MAP[gramps_type]
         except KeyError:
             event_type = UnknownEventType
-            getLogger(__name__).warning(
-                Str._(
-                    'Betty is unfamiliar with Gramps event "{event_id}"\'s type of "{gramps_event_type}". The event was imported, but its type was set to "{betty_event_type}".',
-                    event_id=event_id,
-                    gramps_event_type=gramps_type,
-                    betty_event_type=event_type.label(),
-                )
-            )
+            getLogger(__name__).warning(self._localizer._(
+                'Betty is unfamiliar with Gramps event "{event_id}"\'s type of "{gramps_event_type}". The event was imported, but its type was set to "{betty_event_type}".',
+            ).format(
+                event_id=event_id,
+                gramps_event_type=gramps_type,
+                betty_event_type=event_type.label(),
+            ))
 
         event = Event(
             id=event_id,
@@ -745,14 +744,14 @@ class GrampsLoader:
         if privacy_value == 'public':
             entity.public = True
             return
-        getLogger(__name__).warning(
-            Str._(
-                'The betty:privacy Gramps attribute must have a value of "public" or "private", but "{privacy_value}" was given for {entity_type} {entity_id} ({entity_label}), which was ignored.',
-                privacy_value=privacy_value,
-                entity_type=entity.entity_type_label(),
-                entity_id=entity.id,
-                entity_label=entity.label,
-            ))
+        getLogger(__name__).warning(self._localizer._(
+            'The betty:privacy Gramps attribute must have a value of "public" or "private", but "{privacy_value}" was given for {entity_type} {entity_id} ({entity_label}), which was ignored.',
+        ).format(
+            privacy_value=privacy_value,
+            entity_type=entity.entity_type_label(),
+            entity_id=entity.id,
+            entity_label=entity.label,
+        ))
 
     def _load_attribute(self, name: str, element: ElementTree.Element, tag: str) -> str | None:
         with suppress(XPathError):
