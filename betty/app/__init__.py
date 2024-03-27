@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import operator
 import weakref
+from concurrent.futures import Executor, ProcessPoolExecutor
 from contextlib import suppress
 from functools import reduce
 from graphlib import CycleError, TopologicalSorter
+from multiprocessing import get_context
 from pathlib import Path
 from types import TracebackType
 from typing import TYPE_CHECKING, Mapping, Self, final
@@ -142,6 +144,7 @@ class App(Configurable[AppConfiguration]):
         self._renderer: Renderer | None = None
         self._http_client: aiohttp.ClientSession | None = None
         self._cache: FileCache | None = None
+        self._process_pool: Executor | None = None
 
     @classmethod
     def _unreduce(cls, dumped_app_configuration: VoidableDump, project: Project) -> Self:
@@ -422,3 +425,11 @@ class App(Configurable[AppConfiguration]):
         if self._cache is None:
             self._cache = FileCache(self.localizer, fs.CACHE_DIRECTORY_PATH)
         return self._cache
+
+    @property
+    def process_pool(self) -> Executor:
+        if self._process_pool is None:
+            # Avoid `fork` so as not to start worker processes with unneeded resources.
+            # Settle for `spawn` so all environments use the same start method.
+            self._process_pool = ProcessPoolExecutor(mp_context=get_context('spawn'))
+        return self._process_pool

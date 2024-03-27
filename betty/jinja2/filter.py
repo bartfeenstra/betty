@@ -6,7 +6,9 @@ from __future__ import annotations
 import json as stdjson
 import re
 import warnings
+from asyncio import get_running_loop
 from base64 import b64encode
+from collections.abc import Awaitable
 from contextlib import suppress
 from io import BytesIO
 from pathlib import Path
@@ -28,10 +30,12 @@ from jinja2.runtime import Context, Macro
 from markupsafe import Markup, escape
 from pdf2image.pdf2image import convert_from_path
 
-from betty import _resizeimage, fs
+from betty import _resizeimage
+from betty.asyncio import sync
 from betty.fs import hashfile
 from betty.functools import walk
 from betty.locale import negotiate_localizeds, Localized, Datey, negotiate_locale, Localey, get_data, Localizable
+from betty.media_type import MediaType
 from betty.model import get_entity_type_name
 from betty.model.ancestry import File, Dated
 from betty.os import link_or_copy
@@ -201,17 +205,13 @@ async def filter_file(context: Context, file: File) -> str:
 
     app = context_app(context)
     job_context = context_job_context(context)
-    job_id = f'filter_file:{file.id}'
-    if job_context is None or job_context.claim(job_id):
+
+    if job_context is None or job_context.claim(f'filter_file:{file.id}'):
         file_destination_path = app.project.configuration.www_directory_path / 'file' / file.id / 'file' / file.path.name
-        await _do_filter_file(file.path, file_destination_path)
+        await makedirs(file_destination_path.parent, exist_ok=True)
+        await link_or_copy(file.path, file_destination_path)
 
     return f'/file/{quote(file.id)}/file/{quote(file.path.name)}'
-
-
-async def _do_filter_file(file_source_path: Path, file_destination_path: Path) -> None:
-    await makedirs(file_destination_path.parent, exist_ok=True)
-    await link_or_copy(file_source_path, file_destination_path)
 
 
 @pass_context
@@ -228,16 +228,20 @@ async def filter_image(
     """
     from betty.jinja2 import context_app, context_job_context
 
+    # Treat SVGs as regular files.
+    if file.media_type and file.media_type.type == 'image' and 'svg+xml' == file.media_type.subtype:
+        return await filter_file(context, file)
+
     app = context_app(context)
     job_context = context_job_context(context)
 
-    destination_name = '%s-' % file.id
+    destination_name = f'{file.id}-'
     if height and width:
-        destination_name += '%dx%d' % (width, height)
+        destination_name += f'{width}x{height}'
     elif height:
-        destination_name += '-x%d' % height
+        destination_name += f'-x{height}'
     elif width:
-        destination_name += '%dx-' % width
+        destination_name += f'{width}x-'
     else:
         raise ValueError('At least the width or height must be given.')
 
@@ -245,106 +249,107 @@ async def filter_image(
 
     if file.media_type:
         if file.media_type.type == 'image':
-            if 'svg+xml' == file.media_type.subtype:
-                return await filter_file(context, file)
-            task_callable = _execute_filter_image_image
+            image_loader = _load_image_image
             destination_name += file.path.suffix
         elif file.media_type.type == 'application' and file.media_type.subtype == 'pdf':
-            task_callable = _execute_filter_image_application_pdf
+            image_loader = _load_image_application_pdf
             destination_name += '.' + 'jpg'
         else:
-            raise ValueError('Cannot convert a file of media type "%s" to an image.' % file.media_type)
+            raise ValueError(f'Cannot convert a file of media type "{file.media_type}" to an image.')
     else:
         raise ValueError('Cannot convert a file without a media type to an image.')
 
-    job_id = f'filter_image:{file.id}:{width or ""}:{height or ""}'
-    if job_context is None or job_context.claim(job_id):
-        cache_directory_path = fs.CACHE_DIRECTORY_PATH / 'image'
-        await task_callable(file, cache_directory_path, file_directory_path, destination_name, width, height)
+    cache_item_id = f'filter_image:{hashfile(file.path)}:{"" if width is None else width}:{"" if height is None else height}'
+    if job_context is None or job_context.claim(cache_item_id):
+        loop = get_running_loop()
+        await loop.run_in_executor(
+            app.process_pool,
+            _execute_filter_image,
+            image_loader,
+            file.path,
+            file.media_type,
+            app.cache.path / 'image' / filter_base64(cache_item_id),
+            file_directory_path,
+            destination_name,
+            width,
+            height,
+        )
 
     destination_public_path = f'/file/{quote(destination_name)}'
 
     return destination_public_path
 
 
-async def _execute_filter_image_image(
-    file: File,
-    cache_directory_path: Path,
-    destination_directory_path: Path,
-    destination_name: str,
-    width: int | None,
-    height: int | None,
-) -> None:
-    assert file.media_type
-    with warnings.catch_warnings():
-        # Ignore warnings about decompression bombs, because we know where the files come from.
-        warnings.simplefilter('ignore', category=DecompressionBombWarning)
-        # We want to read the image asynchronously and prevent Pillow from keeping too many file
-        # descriptors open simultaneously, so we read the image ourselves and store the contents
-        # in a synchronous file object.
-        image_data = BytesIO()
-        async with aiofiles.open(file.path, 'rb') as f:
-            image_data.write(await f.read())
-        image = Image.open(image_data, formats=[file.media_type.subtype])
-    try:
-        await _execute_filter_image(image, file, cache_directory_path, destination_directory_path, destination_name, width, height)
-    finally:
-        image.close()
+async def _load_image_image(
+    file_path: Path,
+    media_type: MediaType,
+) -> Image:
+    # We want to read the image asynchronously and prevent Pillow from keeping too many file
+    # descriptors open simultaneously, so we read the image ourselves and store the contents
+    # in a synchronous file object.
+    async with aiofiles.open(file_path, 'rb') as f:
+        image_f = BytesIO(await f.read())
+    # Ignore warnings about decompression bombs, because we know where the files come from.
+    with warnings.catch_warnings(action='ignore', category=DecompressionBombWarning):
+        image = Image.open(image_f, formats=[media_type.subtype])
+    return image
 
 
-async def _execute_filter_image_application_pdf(
-    file: File,
-    cache_directory_path: Path,
-    destination_directory_path: Path,
-    destination_name: str,
-    width: int | None,
-    height: int | None,
-) -> None:
-    with warnings.catch_warnings():
-        # Ignore warnings about decompression bombs, because we know where the files come from.
-        warnings.simplefilter('ignore', category=DecompressionBombWarning)
-        image = convert_from_path(file.path, fmt='jpeg')[0]
-    try:
-        await _execute_filter_image(image, file, cache_directory_path, destination_directory_path, destination_name, width, height)
-    finally:
-        image.close()
+async def _load_image_application_pdf(
+    file_path: Path,
+    media_type: MediaType,
+) -> Image:
+    # Ignore warnings about decompression bombs, because we know where the files come from.
+    with warnings.catch_warnings(action='ignore', category=DecompressionBombWarning):
+        image = convert_from_path(file_path, fmt='jpeg')[0]
+    return image
 
 
+@sync
 async def _execute_filter_image(
-    image: Image,
-    file: File,
-    cache_directory_path: Path,
+    image_loader: Callable[[Path, MediaType], Awaitable[Image]],
+    file_path: Path,
+    media_type: MediaType,
+    cache_item_file_path: Path,
     destination_directory_path: Path,
     destination_name: str,
     width: int | None,
     height: int | None,
 ) -> None:
-    assert file.media_type
-    await makedirs(destination_directory_path, exist_ok=True)
-    cache_file_path = cache_directory_path / ('%s-%s' % (hashfile(file.path), destination_name))
     destination_file_path = destination_directory_path / destination_name
-
+    await makedirs(destination_directory_path, exist_ok=True)
     try:
-        await link_or_copy(cache_file_path, destination_file_path)
+        await link_or_copy(cache_item_file_path, destination_file_path)
     except FileNotFoundError:
-        await makedirs(cache_directory_path, exist_ok=True)
-        with image:
+        image = await image_loader(file_path, media_type)
+        try:
             if width is not None:
                 width = min(width, image.width)
             if height is not None:
                 height = min(height, image.height)
 
-            if width is not None and height is not None:
-                converted = _resizeimage.resize_cover(image, (width, height))
-            elif width is not None:
-                converted = _resizeimage.resize_width(image, width)
-            elif height is not None:
-                converted = _resizeimage.resize_height(image, height)
-            else:
-                raise ValueError('Width and height cannot both be None.')
-            converted.save(cache_file_path, format=file.media_type.subtype)
-        await makedirs(destination_directory_path, exist_ok=True)
-        await link_or_copy(cache_file_path, destination_file_path)
+            await makedirs(cache_item_file_path.parent, exist_ok=True)
+            converted_image = await _execute_filter_image_convert(image, width, height)
+            converted_image.save(cache_item_file_path, format=media_type.subtype)
+            del converted_image
+        finally:
+            image.close()
+            del image
+        await link_or_copy(cache_item_file_path, destination_file_path)
+
+
+async def _execute_filter_image_convert(
+    image: Image,
+    width: int | None,
+    height: int | None,
+) -> Image:
+    if width is not None and height is not None:
+        return _resizeimage.resize_cover(image, (width, height))
+    if width is not None:
+        return _resizeimage.resize_width(image, width)
+    if height is not None:
+        return _resizeimage.resize_height(image, height)
+    raise ValueError('Width and height cannot both be None.')
 
 
 @pass_context
