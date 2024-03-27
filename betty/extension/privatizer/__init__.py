@@ -2,9 +2,10 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from logging import getLogger
 
 from betty.app.extension import UserFacingExtension
-from betty.load import PostLoader, getLogger
+from betty.load import PostLoader
 from betty.locale import Str
 from betty.model import Entity
 from betty.model.ancestry import Person, HasPrivacy
@@ -24,7 +25,7 @@ class _Privatizer(UserFacingExtension, PostLoader):
         return Str._('Determine if people can be proven to have died. If not, mark them and their associated entities private.')
 
     def privatize(self) -> None:
-        logger = getLogger()
+        logger = getLogger(__name__)
         logger.info(self._app.localizer._('Privatizing...'))
 
         privatizer = PrivatizerApi(

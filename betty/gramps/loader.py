@@ -8,6 +8,7 @@ import re
 import tarfile
 from collections import defaultdict
 from contextlib import suppress
+from logging import getLogger
 from pathlib import Path
 from typing import Iterable, Any, IO, cast
 from xml.etree import ElementTree
@@ -17,7 +18,6 @@ from aiofiles.tempfile import TemporaryDirectory
 from geopy import Point
 
 from betty.gramps.error import GrampsError
-from betty.load import getLogger
 from betty.locale import DateRange, Datey, Date, Str, Localizer
 from betty.media_type import MediaType
 from betty.model import Entity, EntityGraphBuilder, AliasedEntity, AliasableEntity
@@ -60,7 +60,7 @@ class GrampsLoader:
 
     async def load_file(self, file_path: Path) -> None:
         file_path = file_path.resolve()
-        logger = getLogger()
+        logger = getLogger(__name__)
         logger.info(self._localizer._('Loading "{file_path}"...').format(
             file_path=str(file_path),
         ))
@@ -143,7 +143,7 @@ class GrampsLoader:
         self._tree = tree
         self._gramps_tree_directory_path = gramps_tree_directory_path.resolve()
 
-        logger = getLogger()
+        logger = getLogger(__name__)
 
         database = self._tree.getroot()
 
@@ -445,7 +445,7 @@ class GrampsLoader:
             role = self._PRESENCE_ROLE_MAP[gramps_presence_role]
         except KeyError:
             role = Attendee()
-            getLogger().warning(
+            getLogger(__name__).warning(
                 Str._(
                     'Betty is unfamiliar with person "{person_id}"\'s Gramps presence role of "{gramps_presence_role}" for the event with Gramps handle "{event_handle}". The role was imported, but set to "{betty_presence_role}".',
                     person_id=person_id,
@@ -520,7 +520,7 @@ class GrampsLoader:
             try:
                 return Point.from_string(coordinates)
             except ValueError:
-                getLogger().warning(Str._(
+                getLogger(__name__).warning(Str._(
                     'Cannot load coordinates "{coordinates}", because they are in an unknown format.',
                     coordinates=coordinates,
                 ))
@@ -566,7 +566,7 @@ class GrampsLoader:
             event_type: type[EventType] = self._EVENT_TYPE_MAP[gramps_type]
         except KeyError:
             event_type = UnknownEventType
-            getLogger().warning(
+            getLogger(__name__).warning(
                 Str._(
                     'Betty is unfamiliar with Gramps event "{event_id}"\'s type of "{gramps_event_type}". The event was imported, but its type was set to "{betty_event_type}".',
                     event_id=event_id,
@@ -745,7 +745,7 @@ class GrampsLoader:
         if privacy_value == 'public':
             entity.public = True
             return
-        getLogger().warning(
+        getLogger(__name__).warning(
             Str._(
                 'The betty:privacy Gramps attribute must have a value of "public" or "private", but "{privacy_value}" was given for {entity_type} {entity_id} ({entity_label}), which was ignored.',
                 privacy_value=privacy_value,

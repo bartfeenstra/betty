@@ -8,6 +8,7 @@ import copy
 import re
 from asyncio import Task, CancelledError
 from contextlib import suppress
+from logging import getLogger
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -653,8 +654,7 @@ class _GenerateWindow(BettyMainWindow):
         central_layout.addWidget(self._log_record_viewer)
 
         self._logging_handler = LogRecordViewerHandler(self._log_record_viewer)
-        load.getLogger().addHandler(self._logging_handler)
-        generate.getLogger().addHandler(self._logging_handler)
+        getLogger(__name__).addHandler(self._logging_handler)
 
         self._thread = _GenerateThread(self._app.project, self)
         self._thread.finished.connect(self._finish_generate)
@@ -680,8 +680,7 @@ class _GenerateWindow(BettyMainWindow):
         self._finalize()
 
     def _finalize(self) -> None:
-        load.getLogger().removeHandler(self._logging_handler)
-        generate.getLogger().removeHandler(self._logging_handler)
+        getLogger(__name__).removeHandler(self._logging_handler)
 
     def _set_translatables(self) -> None:
         super()._set_translatables()
