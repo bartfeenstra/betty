@@ -21,7 +21,7 @@ class MediaType:
         # invalid.
         if not media_type.startswith(type_part):
             raise InvalidMediaType(f'"{media_type}" is not a valid media type.')
-        self._parameters: dict[str, str] = message['Content-Type'].params
+        self._parameters: dict[str, str] = dict(message['Content-Type'].params)
         self._type, self._subtype = type_part.split('/')
         if not self._subtype:
             raise InvalidMediaType('The subtype must not be empty.')
