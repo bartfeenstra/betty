@@ -30,11 +30,11 @@ class TestTemplate(TemplateTestCase):
 
         enclosed_name = PlaceName(name='public enclosed name')
         enclosed = Place(names=[enclosed_name])
-        Enclosure(encloses=enclosed, enclosed_by=place)
+        encloses = Enclosure(encloses=enclosed, enclosed_by=place)  # noqa: F841
 
         enclosing_name = PlaceName(name='public enclosing name')
         enclosing = Place(names=[enclosing_name])
-        Enclosure(encloses=place, enclosed_by=enclosing)
+        enclosed_by = Enclosure(encloses=place, enclosed_by=enclosing)  # noqa: F841
 
         public_enclosed_event = Event(
             event_type=Birth,

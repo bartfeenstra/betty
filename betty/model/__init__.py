@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import builtins
 import functools
-import weakref
 from collections import defaultdict
 from contextlib import contextmanager
 from reprlib import recursive_repr
 from typing import TypeVar, Generic, Iterable, Any, overload, cast, Iterator, Callable, Self, TypeAlias, TYPE_CHECKING
 from uuid import uuid4
+from weakref import ref, ReferenceType
 
 from betty.classtools import repr_instance
 from betty.importlib import import_any, fully_qualified_type_name
@@ -18,6 +18,7 @@ from betty.json.schema import ref_json_schema
 from betty.locale import Str
 from betty.serde.dump import DictDump, Dump
 from betty.string import camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
+from betty.warnings import deprecate, deprecated
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -191,6 +192,8 @@ class EntityTypeInvalidError(EntityTypeError, ImportError):
 
 
 class EntityCollection(Generic[TargetT]):
+    __slots__ = ()
+
     def __init__(self):
         super().__init__()
 
@@ -488,7 +491,7 @@ class ToMany(Generic[OwnerT, AssociateT], ToManyEntityTypeAssociation[OwnerT, As
         setattr(
             owner,
             self._owner_private_attr_name,
-            SingleTypeEntityCollection[AssociateT](self.associate_type)
+            UnownedSingleTypeEntityCollection[AssociateT](self.associate_type)
         )
 
 
@@ -689,6 +692,17 @@ class EntityTypeAssociationRegistry:
 
 
 class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
+    """
+    Provide a collection of entities of a single type.
+
+    Instantiating this class directly has been deprecated as of Betty 0.3.2,
+    and this class will be made abstract in Betty 0.4.x. Instead, use
+    :py:class:`betty.model.OwnedSingleTypeEntityCollection`
+    :py:class:`betty.model.UnownedSingleTypeEntityCollection`.
+    """
+
+    __slots__ = '_entities', '_target_type'
+
     def __init__(
         self,
         target_type: type[TargetT],
@@ -696,6 +710,11 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
         super().__init__()
         self._entities: list[TargetT & Entity] = []
         self._target_type = target_type
+        if type(self) is SingleTypeEntityCollection:
+            deprecate(
+                f'Instantiating {type(self)} directly has been deprecated as of Betty 0.3.2, and this class will be made abstract in Betty 0.4.x. Instead, use {OwnedSingleTypeEntityCollection} or {UnownedSingleTypeEntityCollection}.',
+                stacklevel=2,
+            )
 
     @recursive_repr()
     def __repr__(self) -> str:
@@ -743,14 +762,16 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
             return self._getitem_by_indices(key)
         return self._getitem_by_entity_id(key)
 
+    @deprecated('Getting an entity by index is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. No direct replacement is available.')
     def _getitem_by_index(self, index: int) -> TargetT & Entity:
-        return self._entities[index]
+        return self.view[index]
 
+    @deprecated('Getting entities by indices is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. No direct replacement is available.')
     def _getitem_by_indices(self, indices: slice) -> list[TargetT & Entity]:
         return self.view[indices]
 
     def _getitem_by_entity_id(self, entity_id: str) -> TargetT & Entity:
-        for entity in self._entities:
+        for entity in self:
             if entity_id == entity.id:
                 return entity
         raise KeyError(f'Cannot find a {self._target_type} entity with ID "{entity_id}".')
@@ -766,7 +787,7 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
         self.remove(entity)
 
     def _delitem_by_entity_id(self, entity_id: str) -> None:
-        for entity in self._entities:
+        for entity in self:
             if entity_id == entity.id:
                 self.remove(entity)
                 return
@@ -779,13 +800,13 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
         return False
 
     def _contains_by_entity(self, other_entity: TargetT & Entity) -> bool:
-        for entity in self._entities:
+        for entity in self:
             if other_entity is entity:
                 return True
         return False
 
     def _contains_by_entity_id(self, entity_id: str) -> bool:
-        for entity in self._entities:
+        for entity in self:
             if entity.id == entity_id:
                 return True
         return False
@@ -794,10 +815,59 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
 SingleTypeEntityCollectionT = TypeVar('SingleTypeEntityCollectionT', bound=SingleTypeEntityCollection[AssociateT])
 
 
+class OwnedSingleTypeEntityCollection(Generic[TargetT], SingleTypeEntityCollection[TargetT]):
+    pass
+
+
+class UnownedSingleTypeEntityCollection(Generic[TargetT], SingleTypeEntityCollection[TargetT]):
+    def __init__(
+        self,
+        target_type: type[TargetT],
+    ):
+        super().__init__(target_type)
+        self._entities: list[ReferenceType[TargetT & Entity]] = []  # type: ignore[assignment]
+
+    def add(self, *entities: TargetT & Entity) -> None:
+        added_entities = [*self._unknown(*entities)]
+        for entity in added_entities:
+            self._entities.append(ref(entity))
+        if added_entities:
+            self._on_add(*added_entities)
+
+    def remove(self, *entities: TargetT & Entity) -> None:
+        removed_entities = [*self._known(*entities)]
+        for entity in removed_entities:
+            self._entities.remove(ref(entity))
+        if removed_entities:
+            self._on_remove(*removed_entities)
+
+    def __iter__(self) -> Iterator[TargetT & Entity]:
+        for entity_reference in self._entities:
+            entity = entity_reference()
+            if entity is not None:
+                yield entity
+
+
 class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
+    """
+    Provide a collection of entities that can be of any of multiple types.
+
+    Instantiating this class directly has been deprecated as of Betty 0.3.2,
+    and this class will be made abstract in Betty 0.4.x. Instead, use
+    :py:class:`betty.model.OwnedMultipleTypesEntityCollection`
+    :py:class:`betty.model.UnownedMultipleTypesEntityCollection`.
+    """
+
+    __slots__ = '_collections'
+
     def __init__(self):
         super().__init__()
         self._collections: dict[type[Entity], SingleTypeEntityCollection[Entity]] = {}
+        if type(self) is MultipleTypesEntityCollection:
+            deprecate(
+                f'Instantiating {type(self)} directly has been deprecated as of Betty 0.3.2, and this class will be made abstract in Betty 0.4.x. Instead, use {OwnedMultipleTypesEntityCollection} or {UnownedMultipleTypesEntityCollection}.',
+                stacklevel=2,
+            )
 
     @recursive_repr()
     def __repr__(self) -> str:
@@ -812,8 +882,11 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
         try:
             return cast(SingleTypeEntityCollection[EntityT], self._collections[entity_type])
         except KeyError:
-            self._collections[entity_type] = SingleTypeEntityCollection(entity_type)
+            self._collections[entity_type] = self._create_collection(entity_type)
             return cast(SingleTypeEntityCollection[EntityT], self._collections[entity_type])
+
+    def _create_collection(self, entity_type: type[EntityT]) -> SingleTypeEntityCollection[EntityT]:
+        return OwnedSingleTypeEntityCollection(entity_type)
 
     @overload
     def __getitem__(self, index: int) -> TargetT & Entity:
@@ -851,9 +924,11 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
             get_entity_type(entity_type_name),
         )
 
+    @deprecated('Getting an entity by index is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. No direct replacement is available.')
     def _getitem_by_index(self, index: int) -> TargetT & Entity:
         return self.view[index]
 
+    @deprecated('Getting entities by indices is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. No direct replacement is available.')
     def _getitem_by_indices(self, indices: slice) -> list[TargetT & Entity]:
         return self.view[indices]
 
@@ -923,15 +998,26 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
             self._on_remove(*removed_entities)
 
 
-class _BidirectionalAssociateCollection(Generic[AssociateT, OwnerT], SingleTypeEntityCollection[AssociateT]):
+class OwnedMultipleTypesEntityCollection(Generic[TargetT], MultipleTypesEntityCollection[TargetT]):
+    pass
+
+
+class UnownedMultipleTypesEntityCollection(Generic[TargetT], MultipleTypesEntityCollection[TargetT]):
+    def _create_collection(self, entity_type: type[EntityT]) -> SingleTypeEntityCollection[EntityT]:
+        return UnownedSingleTypeEntityCollection(entity_type)
+
+
+class _BidirectionalAssociateCollection(Generic[AssociateT, OwnerT], UnownedSingleTypeEntityCollection[AssociateT]):
+    __slots__ = '__owner', '_association'
+
     def __init__(
         self,
         owner: OwnerT & Entity,
         association: BidirectionalEntityTypeAssociation[OwnerT, AssociateT],
     ):
         super().__init__(association.associate_type)
+        self.__owner = ref(owner)
         self._association = association
-        self.__owner = weakref.ref(owner)
 
     @property
     def _owner(self) -> OwnerT & Entity:
@@ -1075,7 +1161,7 @@ def record_added(entities: EntityCollection[EntityT]) -> Iterator[MultipleTypesE
     Record all entities that are added to a collection.
     """
     original = [*entities]
-    added = MultipleTypesEntityCollection[EntityT]()
+    added = OwnedMultipleTypesEntityCollection[EntityT]()
     yield added
     added.add(*[
         entity

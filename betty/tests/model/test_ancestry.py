@@ -477,18 +477,21 @@ class TestFile:
                 path=Path(f.name),
                 media_type=MediaType('text/plain'),
             )
-            file.notes.add(Note(
+            note = Note(
                 id='the_note',
                 text='The Note',
-            ))
-            file.entities.add(Person(id='the_person'))
-            file.citations.add(Citation(
+            )
+            file.notes.add(note)
+            person = Person(id='the_person')
+            file.entities.add(person)
+            citation = Citation(
                 id='the_citation',
                 source=Source(
                     id='the_source',
                     name='The Source',
                 ),
-            ))
+            )
+            file.citations.add(citation)
             expected: dict[str, Any] = {
                 '$schema': 'https://example.com/schema.json#/definitions/entity/file',
                 '@id': 'https://example.com/file/the_file/index.json',
@@ -538,18 +541,21 @@ class TestFile:
                 private=True,
                 media_type=MediaType('text/plain'),
             )
-            file.notes.add(Note(
+            note = Note(
                 id='the_note',
                 text='The Note',
-            ))
-            file.entities.add(Person(id='the_person'))
-            file.citations.add(Citation(
+            )
+            file.notes.add(note)
+            person = Person(id='the_person')
+            file.entities.add(person)
+            citation = Citation(
                 id='the_citation',
                 source=Source(
                     id='the_source',
                     name='The Source',
                 ),
-            ))
+            )
+            file.citations.add(citation)
             expected: dict[str, Any] = {
                 '$schema': 'https://example.com/schema.json#/definitions/entity/file',
                 '@id': 'https://example.com/file/the_file/index.json',
@@ -694,23 +700,25 @@ class TestSource:
     async def test_dump_linked_data_should_dump_full(self) -> None:
         link = Link('https://example.com/the-source')
         link.label = 'The Source Online'
+        contained_by = Source(
+            id='the_containing_source',
+            name='The Containing Source',
+        )
+        contains = Source(
+            id='the_contained_source',
+            name='The Contained Source',
+        )
         source = Source(
             id='the_source',
             name='The Source',
             author='The Author',
             publisher='The Publisher',
             date=Date(2000, 1, 1),
-            contained_by=Source(
-                id='the_containing_source',
-                name='The Containing Source',
-            ),
-            contains=[Source(
-                id='the_contained_source',
-                name='The Contained Source',
-            )],
+            contained_by=contained_by,
+            contains=[contains],
             links=[link],
         )
-        Citation(
+        citation = Citation(  # noqa: F841
             id='the_citation',
             source=source,
         )
@@ -774,24 +782,26 @@ class TestSource:
     async def test_dump_linked_data_should_dump_private(self) -> None:
         link = Link('https://example.com/the-source')
         link.label = 'The Source Online'
+        contained_by = Source(
+            id='the_containing_source',
+            name='The Containing Source',
+        )
+        contains = Source(
+            id='the_contained_source',
+            name='The Contained Source',
+        )
         source = Source(
             id='the_source',
             name='The Source',
             author='The Author',
             publisher='The Publisher',
             date=Date(2000, 1, 1),
-            contained_by=Source(
-                id='the_containing_source',
-                name='The Containing Source',
-            ),
-            contains=[Source(
-                id='the_contained_source',
-                name='The Contained Source',
-            )],
+            contained_by=contained_by,
+            contains=[contains],
             links=[link],
             private=True,
         )
-        Citation(
+        citation = Citation(  # noqa: F841
             id='the_citation',
             source=source,
         )
@@ -829,7 +839,7 @@ class TestSource:
             contained_by=contained_by_source,
             contains=[contains_source],
         )
-        Citation(
+        citation = Citation(  # noqa: F841
             id='the_citation',
             source=source,
             private=True,
@@ -946,10 +956,11 @@ class TestCitation:
                 name='The Source',
             ),
         )
-        citation.facts.add(Event(
+        event = Event(
             id='the_event',
             event_type=Birth,
-        ))
+        )
+        citation.facts.add(event)
         expected: dict[str, Any] = {
             '$schema': 'https://example.com/schema.json#/definitions/entity/citation',
             '@id': 'https://example.com/citation/the_citation/index.json',
@@ -995,10 +1006,11 @@ class TestCitation:
             ),
             private=True,
         )
-        citation.facts.add(Event(
+        event = Event(
             id='the_event',
             event_type=Birth,
-        ))
+        )
+        citation.facts.add(event)
         expected: dict[str, Any] = {
             '$schema': 'https://example.com/schema.json#/definitions/entity/citation',
             '@id': 'https://example.com/citation/the_citation/index.json',
@@ -1265,6 +1277,10 @@ class TestPlace:
         latitude = 12.345
         longitude = -54.321
         coordinates = Point(latitude, longitude)
+        event = Event(
+            id='E1',
+            event_type=Birth,
+        )
         link = Link('https://example.com/the-place')
         link.label = 'The Place Online'
         place = Place(
@@ -1273,15 +1289,12 @@ class TestPlace:
                 name=name,
                 locale=locale,
             )],
-            events=[Event(
-                id='E1',
-                event_type=Birth,
-            )],
+            events=[event],
             links=[link],
         )
         place.coordinates = coordinates
-        Enclosure(encloses=place, enclosed_by=Place(id='the_enclosing_place'))
-        Enclosure(encloses=Place(id='the_enclosed_place'), enclosed_by=place)
+        enclosed_by = Enclosure(encloses=place, enclosed_by=Place(id='the_enclosing_place'))  # noqa: F841
+        encloses = Enclosure(encloses=Place(id='the_enclosed_place'), enclosed_by=place)  # noqa: F841
         expected: dict[str, Any] = {
             '$schema': 'https://example.com/schema.json#/definitions/entity/place',
             '@context': {
@@ -1517,14 +1530,15 @@ class TestEvent:
                 names=[PlaceName(name='The Place')],
             ),
         )
-        Presence(Person(id='the_person'), Subject(), event)
-        event.citations.add(Citation(
+        presence = Presence(Person(id='the_person'), Subject(), event)  # noqa: F841
+        citation = Citation(
             id='the_citation',
             source=Source(
                 id='the_source',
                 name='The Source',
             ),
-        ))
+        )
+        event.citations.add(citation)
         expected: dict[str, Any] = {
             '$schema': 'https://example.com/schema.json#/definitions/entity/event',
             '@context': {
@@ -1607,14 +1621,15 @@ class TestEvent:
                 names=[PlaceName(name='The Place')],
             ),
         )
-        Presence(Person(id='the_person'), Subject(), event)
-        event.citations.add(Citation(
+        presence = Presence(Person(id='the_person'), Subject(), event)  # noqa: F841
+        citation = Citation(
             id='the_citation',
             source=Source(
                 id='the_source',
                 name='The Source',
             ),
-        ))
+        )
+        event.citations.add(citation)
         expected: dict[str, Any] = {
             '$schema': 'https://example.com/schema.json#/definitions/entity/event',
             '@context': {
@@ -1873,7 +1888,7 @@ class TestPerson:
             id=person_id,
             public=True,
         )
-        PersonName(
+        person_name = PersonName(  # noqa: F841
             person=person,
             individual=person_individual_name,
             affiliation=person_affiliation_name,
@@ -1886,14 +1901,15 @@ class TestPerson:
             label='The Person Online',
         )
         person.links.append(link)
-        person.citations.add(Citation(
+        citation = Citation(
             id='the_citation',
             source=Source(
                 id='the_source',
                 name='The Source',
             ),
-        ))
-        Presence(person, Subject(), Event(
+        )
+        person.citations.add(citation)
+        presence = Presence(person, Subject(), Event(  # noqa: F841
             id='the_event',
             event_type=Birth,
         ))
@@ -2005,14 +2021,15 @@ class TestPerson:
         link = Link('https://example.com/the-person')
         link.label = 'The Person Online'
         person.links.append(link)
-        person.citations.add(Citation(
+        citation = Citation(
             id='the_citation',
             source=Source(
                 id='the_source',
                 name='The Source',
             ),
-        ))
-        Presence(person, Subject(), Event(
+        )
+        person.citations.add(citation)
+        presence = Presence(person, Subject(), Event(  # noqa: F841
             id='the_event',
             event_type=Birth,
         ))
