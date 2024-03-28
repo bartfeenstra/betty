@@ -16,6 +16,7 @@ from betty.model.ancestry import File
 from betty.project import ProjectConfiguration, LocaleConfiguration
 from betty.serde.dump import minimize
 from betty.tests.conftest import BettyQtBot
+from betty.tests.test_serve import SleepingAppServer
 
 
 class TestProjectWindow:
@@ -229,7 +230,7 @@ class TestGenerateWindow:
         mocker: MockerFixture,
         betty_qtbot: BettyQtBot,
     ) -> None:
-        mocker.patch('webbrowser.open_new_tab')
+        mocker.patch('betty.serve.BuiltinServer', new_callable=lambda: SleepingAppServer)
         async with App() as app:
             sut = _GenerateWindow(app)
             betty_qtbot.qtbot.addWidget(sut)
