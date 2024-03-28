@@ -396,23 +396,24 @@ class _ExtensionPane(LocalizedObject, QWidget):
         self._extension_description = Text()
         enable_layout.addRow(self._extension_description)
 
+        self._extension_gui: QWidget | None = None
+
         def _update_enabled(enabled: bool) -> None:
             with ExceptionCatcher(self):
                 if enabled:
                     self._app.project.configuration.extensions.enable(extension_type)
                     extension = self._app.extensions[extension_type]
                     if isinstance(extension, GuiBuilder):
-                        layout.addWidget(extension.gui_build())
+                        self._extension_gui = extension.gui_build()
+                        layout.addWidget(self._extension_gui)
                 else:
                     self._app.project.configuration.extensions.disable(extension_type)
-                    extension_gui_item = layout.itemAt(1)
-                    if extension_gui_item is not None:
-                        extension_gui_widget = extension_gui_item.widget()
-                        assert extension_gui_widget is not None
-                        layout.removeWidget(extension_gui_widget)
-                        extension_gui_widget.close()
-                        extension_gui_widget.setParent(None)
-                        del extension_gui_widget
+                    if self._extension_gui is not None:
+                        layout.removeWidget(self._extension_gui)
+                        self._extension_gui.close()
+                        self._extension_gui.setParent(None)
+                        self._extension_gui.deleteLater()
+                        self._extension_gui = None
 
         self._extension_enabled = QCheckBox()
         self._extension_enabled_caption = Caption()
@@ -424,7 +425,8 @@ class _ExtensionPane(LocalizedObject, QWidget):
         if extension_type in self._app.extensions:
             extension = self._app.extensions[extension_type]
             if isinstance(extension, GuiBuilder):
-                layout.addWidget(extension.gui_build())
+                self._extension_gui = extension.gui_build()
+                layout.addWidget(self._extension_gui)
 
     def _set_extension_status(self) -> None:
         self._extension_enabled.setDisabled(False)
