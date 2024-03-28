@@ -18,6 +18,7 @@ from betty.project import ProjectConfiguration
 from betty.serde.error import SerdeError
 from betty.tests import patch_cache
 from betty.tests.conftest import BettyQtBot
+from betty.tests.test_serve import SleepingAppServer
 
 
 class TestBettyMainWindow:
@@ -27,8 +28,7 @@ class TestBettyMainWindow:
         mocker: MockerFixture,
         betty_qtbot: BettyQtBot,
     ) -> None:
-        mocker.patch('webbrowser.open_new_tab')
-        mocker.patch('betty.gui.serve.ServeDemoWindow._start')
+        mocker.patch('betty.extension.demo.DemoServer', new_callable=lambda: SleepingAppServer)
 
         async with App() as app:
             sut = BettyPrimaryWindow(app)
@@ -115,8 +115,7 @@ class TestWelcomeWindow:
         mocker: MockerFixture,
         betty_qtbot: BettyQtBot
     ) -> None:
-        mocker.patch('webbrowser.open_new_tab')
-        mocker.patch('betty.gui.serve.ServeDemoWindow._start')
+        mocker.patch('betty.extension.demo.DemoServer', new_callable=lambda: SleepingAppServer)
 
         async with App() as app:
             sut = WelcomeWindow(app)

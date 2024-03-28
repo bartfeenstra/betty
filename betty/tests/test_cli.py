@@ -2,7 +2,6 @@ import json
 from contextlib import chdir, redirect_stdout, redirect_stderr
 from io import StringIO
 from pathlib import Path
-from typing import Any
 
 import aiofiles
 import click
@@ -19,8 +18,8 @@ from betty.error import UserFacingError
 from betty.locale import Str
 from betty.project import ProjectConfiguration, ExtensionConfiguration
 from betty.serde.dump import Dump
-from betty.serve import AppServer
 from betty.tests import patch_cache
+from betty.tests.test_serve import KeyboardInterruptedAppServer
 
 try:
     from unittest.mock import AsyncMock
@@ -149,14 +148,14 @@ class TestClearCaches:
 class TestDemo:
     @patch_cache
     async def test(self, mocker: MockerFixture) -> None:
-        mocker.patch('betty.extension.demo.DemoServer', new_callable=lambda: _KeyboardInterruptedAppServer)
+        mocker.patch('betty.extension.demo.DemoServer', new_callable=lambda: KeyboardInterruptedAppServer)
         _run('demo')
 
 
 class TestDocs:
     @patch_cache
     async def test(self, mocker: MockerFixture) -> None:
-        mocker.patch('betty.documentation.DocumentationServer', new_callable=lambda: _KeyboardInterruptedAppServer)
+        mocker.patch('betty.documentation.DocumentationServer', new_callable=lambda: KeyboardInterruptedAppServer)
         _run('docs')
 
 
@@ -184,17 +183,9 @@ class TestGenerate:
         assert {} == render_kwargs
 
 
-class _KeyboardInterruptedAppServer(AppServer):
-    def __init__(self, *_: Any, **__: Any):
-        super().__init__(App())
-
-    async def start(self) -> None:
-        raise KeyboardInterrupt
-
-
 class TestServe:
     async def test(self, mocker: MockerFixture) -> None:
-        mocker.patch('betty.serve.BuiltinServer', new_callable=lambda: _KeyboardInterruptedAppServer)
+        mocker.patch('betty.serve.BuiltinServer', new_callable=lambda: KeyboardInterruptedAppServer)
         configuration = ProjectConfiguration()
         await configuration.write()
         await makedirs(configuration.www_directory_path)
