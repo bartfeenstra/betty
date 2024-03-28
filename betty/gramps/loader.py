@@ -587,7 +587,7 @@ class GrampsLoader:
             ).format(
                 event_id=event_id,
                 gramps_event_type=gramps_type,
-                betty_event_type=event_type.label(),
+                betty_event_type=event_type.label().localize(self._localizer),
             ))
 
         event = Event(
@@ -769,9 +769,9 @@ class GrampsLoader:
             'The betty:privacy Gramps attribute must have a value of "public" or "private", but "{privacy_value}" was given for {entity_type} {entity_id} ({entity_label}), which was ignored.',
         ).format(
             privacy_value=privacy_value,
-            entity_type=entity.entity_type_label(),
+            entity_type=entity.entity_type_label().localize(self._localizer),
             entity_id=entity.id,
-            entity_label=entity.label,
+            entity_label=entity.label.localize(self._localizer),
         ))
 
     def _load_attribute(self, name: str, element: ElementTree.Element, tag: str) -> str | None:
