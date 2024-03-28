@@ -764,7 +764,10 @@ class Localizable:
 
     def __str__(self) -> str:
         localized = self.localize(DEFAULT_LOCALIZER)
-        warn(f'{type(self)} ("{localized}") SHOULD NOT be cast to a string. Instead, call {type(self)}.localize() to ensure it is always formatted in the desired locale.')
+        warn(
+            f'{type(self)} ("{localized}") SHOULD NOT be cast to a string. Instead, call {type(self)}.localize() to ensure it is always formatted in the desired locale.',
+            stacklevel=2,
+        )
         return localized
 
 
