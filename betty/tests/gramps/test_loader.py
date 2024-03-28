@@ -11,26 +11,28 @@ from betty.locale import Date, DateRange, DEFAULT_LOCALIZER
 from betty.model.ancestry import Ancestry, Citation, Note, Source, File, Event, Person, Place, Privacy
 from betty.model.event_type import Birth, Death, UnknownEventType
 from betty.path import rootname
+from betty.project import Project
 
 
 class TestGrampsLoader:
     async def test_load_gramps(self) -> None:
-        sut = GrampsLoader(Ancestry(), localizer=DEFAULT_LOCALIZER)
+        sut = GrampsLoader(Project(), localizer=DEFAULT_LOCALIZER)
         await sut.load_gramps(Path(__file__).parent / 'assets' / 'minimal.gramps')
 
     async def test_load_gpkg(self) -> None:
-        sut = GrampsLoader(Ancestry(), localizer=DEFAULT_LOCALIZER)
+        sut = GrampsLoader(Project(), localizer=DEFAULT_LOCALIZER)
         await sut.load_gpkg(Path(__file__).parent / 'assets' / 'minimal.gpkg')
 
-    async def load(self, xml: str) -> Ancestry:
-        ancestry = Ancestry()
-        loader = GrampsLoader(ancestry, localizer=DEFAULT_LOCALIZER)
+    async def _load(self, xml: str) -> Ancestry:
+        project = Project()
+        project.configuration.name = TestGrampsLoader.__name__
+        loader = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
         async with TemporaryDirectory() as tree_directory_path_str:
             await loader.load_xml(xml.strip(), Path(tree_directory_path_str))
-        return ancestry
+        return project.ancestry
 
     async def _load_partial(self, xml: str) -> Ancestry:
-        return await self.load(f"""
+        return await self._load(f"""
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"
 "http://gramps-project.org/xml/1.7.1/grampsxml.dtd">
@@ -46,13 +48,13 @@ class TestGrampsLoader:
 
     async def test_load_xml_with_string(self) -> None:
         gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.xml'
-        sut = GrampsLoader(Ancestry(), localizer=DEFAULT_LOCALIZER)
+        sut = GrampsLoader(Project(), localizer=DEFAULT_LOCALIZER)
         async with aiofiles.open(gramps_file_path) as f:
             await sut.load_xml(await f.read(), rootname(gramps_file_path))
 
     async def test_load_xml_with_file_path(self) -> None:
         gramps_file_path = Path(__file__).parent / 'assets' / 'minimal.xml'
-        sut = GrampsLoader(Ancestry(), localizer=DEFAULT_LOCALIZER)
+        sut = GrampsLoader(Project(), localizer=DEFAULT_LOCALIZER)
         await sut.load_xml(gramps_file_path, rootname(gramps_file_path))
 
     async def test_place_should_include_name(self) -> None:
@@ -832,21 +834,33 @@ class TestGrampsLoader:
         note = source.notes[0]
         assert note.id == 'N0000'
 
-    @pytest.mark.parametrize('expected, attribute_value', [
-        (Privacy.PRIVATE, 'private'),
-        (Privacy.PUBLIC, 'public'),
-        (Privacy.UNDETERMINED, 'publi'),
-        (Privacy.UNDETERMINED, 'privat'),
+    @pytest.mark.parametrize('expected, global_attribute_value, project_attribute_value', [
+        # Global attributes only.
+        (Privacy.PRIVATE, 'private', None),
+        (Privacy.PUBLIC, 'public', None),
+        (Privacy.UNDETERMINED, 'publi', None),
+        (Privacy.UNDETERMINED, 'privat', None),
+        # Project-specific attributes only.
+        (Privacy.PRIVATE, None, 'private'),
+        (Privacy.PUBLIC, None, 'public'),
+        (Privacy.UNDETERMINED, None, 'publi'),
+        (Privacy.UNDETERMINED, None, 'privat'),
+        # Project-specific attributes overriding global ones.
+        (Privacy.PRIVATE, 'public', 'private'),
+        (Privacy.PUBLIC, 'private', 'public'),
     ])
-    async def test_person_should_include_privacy_from_attribute(self, expected: Privacy, attribute_value: str) -> None:
-        ancestry = await self._load_partial("""
+    async def test_person_should_include_privacy_from_attribute(self, expected: Privacy, global_attribute_value: str | None, project_attribute_value: str | None) -> None:
+        global_attribute = '' if global_attribute_value is None else f'<attribute type="betty:privacy" value="{global_attribute_value}"/>'
+        project_attribute = '' if project_attribute_value is None else f'<attribute type="betty-TestGrampsLoader:privacy" value="{project_attribute_value}"/>'
+        ancestry = await self._load_partial(f"""
 <people>
     <person handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="I0000">
         <gender>U</gender>
-        <attribute type="betty:privacy" value="%s"/>
+        {global_attribute}
+        {project_attribute}
     </person>
 </people>
-""" % attribute_value)
+""")
         person = ancestry[Person]['I0000']
         assert expected == person.privacy
 

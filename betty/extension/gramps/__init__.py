@@ -25,7 +25,7 @@ class _Gramps(ConfigurableExtension[GrampsConfiguration], UserFacingExtension, L
             file_path = family_tree.file_path
             if file_path:
                 await GrampsLoader(
-                    self._app.project.ancestry,
+                    self._app.project,
                     localizer=self._app.localizer,
                 ).load_file(file_path)
 

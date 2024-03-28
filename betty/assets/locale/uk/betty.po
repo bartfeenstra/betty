@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-03-22 10:41+0000\n"
+"POT-Creation-Date: 2024-03-27 23:37+0000\n"
 "PO-Revision-Date: 2024-02-08 13:08+0000\n"
 "Last-Translator: Rainer Thieringer <rainerthi@gmail.com>\n"
 "Language: uk\n"
@@ -612,6 +612,9 @@ msgstr "Меню"
 msgid "Missing"
 msgstr "Відсутній"
 
+msgid "Name"
+msgstr ""
+
 msgid "New project..."
 msgstr ""
 
@@ -831,6 +834,9 @@ msgid "The following errors occurred"
 msgstr ""
 
 msgid "The lifetime threshold must consist of digits only."
+msgstr ""
+
+msgid "The project's machine name."
 msgstr ""
 
 msgid "The server was unreachable after starting."

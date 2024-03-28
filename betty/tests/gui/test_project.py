@@ -56,6 +56,16 @@ class Test_GenerateHtmlListForm:
 
 
 class TestGeneralPane:
+    async def test_name(self, qtbot: QtBot) -> None:
+        async with App() as app:
+            sut = _GeneralPane(app)
+            qtbot.addWidget(sut)
+            sut.show()
+
+            name = 'MyFirstAncestrySite'
+            sut._configuration_name.setText(name)
+            assert app.project.configuration.name == name
+
     async def test_title(self, qtbot: QtBot) -> None:
         async with App() as app:
             sut = _GeneralPane(app)

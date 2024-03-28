@@ -68,7 +68,13 @@ All configuration options
   If multiple family trees contain entities of the same type and with the same ID (e.g. a person with ID ``I1234``) each
   entity will overwrite any previously loaded entity.
 
-
+Attributes
+----------
+Gramps allows arbitrary attributes to be added to some of its data types. Betty can parse these to load additional
+information. Each of Betty's Gramps attributes follows the same structure: ``betty:...`` (to load the attribute for any
+Betty project) or ``betty-MyProject:..`` (to load an attribute for the Betty project with machine name ``MyProject``),
+where ``...`` is the name that identifies the attribute's meaning. For the 'privacy` attribute, the Gramps attribute's full
+name would be ``betty:privacy`` or ``betty-MyProject:privacy``.
 
 Privacy
 -------

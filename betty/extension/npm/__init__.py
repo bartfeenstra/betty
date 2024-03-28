@@ -227,7 +227,7 @@ class _Npm(Extension):
     def _get_cached_assets_build_directory_path(self, extension_type: type[_NpmBuilder & Extension]) -> Path:
         path = self._app.cache.path / self.name() / extension_type.name()
         if extension_type.npm_cache_scope() == _NpmBuilderCacheScope.PROJECT:
-            path /= self.app.project.id
+            path /= self.app.project.name
         return path
 
     async def ensure_assets(self, extension: _NpmBuilder & Extension) -> Path:

@@ -16,6 +16,7 @@ structure. Example configuration:
           root_path: /betty
           clean_urls: true
           title: Betty's ancestry
+          name: betty-ancestry
           author: Bart Feenstra
           lifetime_threshold: 125
           locales:
@@ -39,6 +40,7 @@ structure. Example configuration:
             "root_path" : "/betty",
             "clean_urls" : true,
             "title": "Betty's ancestry",
+            "name": "betty-ancestry",
             "author": "Bart Feenstra",
             "lifetime_threshold": 125,
             "locales": {
@@ -65,7 +67,8 @@ All configuration options
 - ``debug`` (optional): ``true`` to output more detailed logs and disable optimizations that make debugging harder. Defaults to ``false``.
 - ``root_path`` (optional): The relative path under the public URL at which the site will be published.
 - ``clean_urls`` (optional): A boolean indicating whether to use clean URLs, e.g. ``/path`` instead of ``/path/index.html``. Defaults to ``false``.
-- ``title`` (optional): The project's title.
+- ``title`` (optional): The project's human-readable title.
+- ``name`` (optional): The project's machine name.
 - ``author`` (optional): The project's author and copyright holder.
 - ``lifetime_threshold`` (optional); The number of years people are expected to live at most, e.g. after which they're presumed to have died. Defaults to ``125``.
 - ``locales`` (optional); An array of locales, each of which is an object with the following keys:

@@ -104,6 +104,7 @@ class _GeneralPane(LocalizedObject, QWidget):
 
         self._form = QFormLayout()
         self.setLayout(self._form)
+        self._build_name()
         self._build_title()
         self._build_author()
         self._build_url()
@@ -112,6 +113,17 @@ class _GeneralPane(LocalizedObject, QWidget):
         self._build_clean_urls()
         self._generate_html_list_form = _GenerateHtmlListForm(app)
         self._form.addRow(self._generate_html_list_form)
+
+    def _build_name(self) -> None:
+        def _update_configuration_name(name: str) -> None:
+            self._app.project.configuration.name = name
+        self._configuration_name = QLineEdit()
+        self._configuration_name.setText(self._app.project.configuration.name)
+        self._configuration_name.textChanged.connect(_update_configuration_name)
+        self._configuration_name_label = QLabel()
+        self._form.addRow(self._configuration_name_label, self._configuration_name)
+        self._configuration_name_caption = Caption()
+        self._form.addRow(self._configuration_name_caption)
 
     def _build_title(self) -> None:
         def _update_configuration_title(title: str) -> None:
@@ -194,6 +206,8 @@ class _GeneralPane(LocalizedObject, QWidget):
 
     def _set_translatables(self) -> None:
         super()._set_translatables()
+        self._configuration_name_label.setText(self._app.localizer._('Name'))
+        self._configuration_name_caption.setText(self._app.localizer._("The project's machine name."))
         self._configuration_author_label.setText(self._app.localizer._('Author'))
         self._configuration_url_label.setText(self._app.localizer._('URL'))
         self._configuration_title_label.setText(self._app.localizer._('Title'))

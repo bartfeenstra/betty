@@ -520,6 +520,12 @@ class TestEntityTypeConfigurationMapping(ConfigurationMappingTestBase[type[Entit
 
 
 class TestProjectConfiguration:
+    async def test_name(self) -> None:
+        sut = ProjectConfiguration()
+        name = 'MyFirstBettySite'
+        sut.name = name
+        assert sut.name == name
+
     async def test_base_url(self) -> None:
         sut = ProjectConfiguration()
         base_url = 'https://example.com'
@@ -568,6 +574,13 @@ class TestProjectConfiguration:
         assert not sut.debug
         assert '' == sut.root_path
         assert not sut.clean_urls
+
+    async def test_load_should_load_name(self) -> None:
+        name = 'MyFirstBettySite'
+        dump: Any = ProjectConfiguration().dump()
+        dump['name'] = name
+        sut = ProjectConfiguration.load(dump)
+        assert sut.name == name
 
     async def test_load_should_load_title(self) -> None:
         title = 'My first Betty site'
@@ -706,6 +719,13 @@ class TestProjectConfiguration:
         sut.title = title
         dump: Any = sut.dump()
         assert title == dump['title']
+
+    async def test_dump_should_dump_name(self) -> None:
+        name = 'MyFirstBettySite'
+        sut = ProjectConfiguration()
+        sut.name = name
+        dump: Any = sut.dump()
+        assert dump['name'] == name
 
     async def test_dump_should_dump_author(self) -> None:
         author = 'Bart'

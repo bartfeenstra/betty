@@ -31,7 +31,8 @@ class _Demo(Extension, Loader):
     def project(cls) -> Project:
         from betty.extension import CottonCandy, Demo
 
-        project = Project(project_id=cls.name())
+        project = Project()
+        project.configuration.name = cls.name()
         project.configuration.extensions.append(ExtensionConfiguration(Demo))
         project.configuration.extensions.append(ExtensionConfiguration(
             CottonCandy,
