@@ -228,7 +228,7 @@ class App(Configurable[AppConfiguration]):
                     extension = extension_type(self)
                 extensions_batch.append(extension)
                 extension_types_sorter.done(extension_type)
-            extensions.append(extensions_batch)
+            extensions.append(sorted(extensions_batch, key=lambda extension: extension.name()))
         self._extensions._update(extensions)
         del self.assets
         del self.localizers
