@@ -183,7 +183,9 @@ async def _build_assets_to_directory_path(extension: _NpmBuilder & Extension, as
         await asyncio.to_thread(shutil.rmtree, assets_directory_path)
     os.makedirs(assets_directory_path)
     async with TemporaryDirectory() as working_directory_path_str:
-        working_directory_path = Path(working_directory_path_str)
+        working_directory_path = Path(
+            working_directory_path_str,  # type: ignore[arg-type]
+        )
         await extension.npm_build(Path(working_directory_path), assets_directory_path)
 
 

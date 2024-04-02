@@ -28,7 +28,12 @@ class TestGrampsLoader:
         project.configuration.name = TestGrampsLoader.__name__
         loader = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
         async with TemporaryDirectory() as tree_directory_path_str:
-            await loader.load_xml(xml.strip(), Path(tree_directory_path_str))
+            await loader.load_xml(
+                xml.strip(),
+                Path(
+                    tree_directory_path_str,  # type: ignore[arg-type]
+                ),
+            )
         return project.ancestry
 
     async def _load_partial(self, xml: str) -> Ancestry:

@@ -283,7 +283,7 @@ async def filter_image(
 async def _load_image_image(
     file_path: Path,
     media_type: MediaType,
-) -> Image:
+) -> Image.Image:
     # We want to read the image asynchronously and prevent Pillow from keeping too many file
     # descriptors open simultaneously, so we read the image ourselves and store the contents
     # in a synchronous file object.
@@ -298,7 +298,7 @@ async def _load_image_image(
 async def _load_image_application_pdf(
     file_path: Path,
     media_type: MediaType,
-) -> Image:
+) -> Image.Image:
     # Ignore warnings about decompression bombs, because we know where the files come from.
     with warnings.catch_warnings(action='ignore', category=DecompressionBombWarning):
         image = convert_from_path(file_path, fmt='jpeg')[0]
@@ -307,7 +307,7 @@ async def _load_image_application_pdf(
 
 @sync
 async def _execute_filter_image(
-    image_loader: Callable[[Path, MediaType], Awaitable[Image]],
+    image_loader: Callable[[Path, MediaType], Awaitable[Image.Image]],
     file_path: Path,
     media_type: MediaType,
     cache_item_file_path: Path,
@@ -339,10 +339,10 @@ async def _execute_filter_image(
 
 
 async def _execute_filter_image_convert(
-    image: Image,
+    image: Image.Image,
     width: int | None,
     height: int | None,
-) -> Image:
+) -> Image.Image:
     if width is not None and height is not None:
         return _resizeimage.resize_cover(image, (width, height))
     if width is not None:

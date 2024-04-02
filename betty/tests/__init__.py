@@ -30,8 +30,10 @@ def patch_cache(f: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
     @functools.wraps(f)
     async def _patch_cache(*args: P.args, **kwargs: P.kwargs) -> T:
         original_cache_directory_path = fs.CACHE_DIRECTORY_PATH
-        async with TemporaryDirectory() as cache_directory:
-            fs.CACHE_DIRECTORY_PATH = Path(cache_directory)
+        async with TemporaryDirectory() as cache_directory_path_str:
+            fs.CACHE_DIRECTORY_PATH = Path(
+                cache_directory_path_str,  # type: ignore[arg-type]
+            )
             try:
                 return await f(*args, **kwargs)
 
