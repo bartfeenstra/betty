@@ -31,7 +31,7 @@ from polib import pofile
 
 from betty import fs
 from betty.asyncio import wait
-from betty.fs import hashfile, FileSystem, ASSETS_DIRECTORY_PATH, ROOT_DIRECTORY_PATH
+from betty.fs import hashfile, FileSystem, ROOT_DIRECTORY_PATH
 from betty.json.linked_data import LinkedDataDumpable, dump_context, add_json_ld
 from betty.json.schema import ref_locale, add_property
 from betty.serde.dump import DictDump, Dump, dump_default
@@ -42,7 +42,7 @@ if TYPE_CHECKING:
 
 DEFAULT_LOCALE = 'en-US'
 
-_LOCALE_DIRECTORY_PATH = ASSETS_DIRECTORY_PATH / 'locale'
+_LOCALE_DIRECTORY_PATH = fs.ASSETS_DIRECTORY_PATH / 'locale'
 
 
 class LocaleNotFoundError(RuntimeError):
@@ -915,7 +915,7 @@ async def init_translation(locale: str) -> None:
             'init',
             '--no-wrap',
             '-i',
-            str(ASSETS_DIRECTORY_PATH / 'betty.pot'),
+            str(fs.ASSETS_DIRECTORY_PATH / 'betty.pot'),
             '-o',
             str(po_file_path),
             '-l',
@@ -926,7 +926,7 @@ async def init_translation(locale: str) -> None:
         logging.getLogger(__name__).info(f'Translations for {locale} initialized at {po_file_path}.')
 
 
-async def update_translations(_output_assets_directory_path: Path = ASSETS_DIRECTORY_PATH) -> None:
+async def update_translations(_output_assets_directory_path: Path = fs.ASSETS_DIRECTORY_PATH) -> None:
     """
     Update all existing translations based on changes in translatable strings.
     """
@@ -954,7 +954,7 @@ async def update_translations(_output_assets_directory_path: Path = ASSETS_DIREC
                 *source_paths,
             ])
             for po_file_path_str in glob.glob('betty/assets/locale/*/betty.po'):
-                po_file_path = (_output_assets_directory_path / (ROOT_DIRECTORY_PATH / po_file_path_str).relative_to(ASSETS_DIRECTORY_PATH)).resolve()
+                po_file_path = (_output_assets_directory_path / (ROOT_DIRECTORY_PATH / po_file_path_str).relative_to(fs.ASSETS_DIRECTORY_PATH)).resolve()
                 await makedirs(po_file_path.parent, exist_ok=True)
                 po_file_path.touch()
                 locale = po_file_path.parent.name

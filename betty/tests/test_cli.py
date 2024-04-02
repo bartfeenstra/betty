@@ -1,7 +1,10 @@
+import functools
 import json
+from collections.abc import Callable, Awaitable
 from contextlib import chdir, redirect_stdout, redirect_stderr
 from io import StringIO
 from pathlib import Path
+from typing import TypeVar, ParamSpec
 
 import aiofiles
 import click
@@ -18,7 +21,6 @@ from betty.error import UserFacingError
 from betty.locale import Str
 from betty.project import ProjectConfiguration, ExtensionConfiguration
 from betty.serde.dump import Dump
-from betty.tests import patch_cache
 from betty.tests.test_serve import KeyboardInterruptedAppServer
 
 try:
@@ -29,6 +31,29 @@ except ImportError:
 from betty.cli import main, CommandProvider, global_command, catch_exceptions
 from betty.app import App
 from betty.app.extension import Extension
+
+T = TypeVar('T')
+P = ParamSpec('P')
+
+
+def _patch_cache(f: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
+    """
+    Patch Betty's default global file cache with a temporary directory.
+    """
+    @functools.wraps(f)
+    async def _patch_cache(*args: P.args, **kwargs: P.kwargs) -> T:
+        original_cache_directory_path = fs.CACHE_DIRECTORY_PATH
+        async with TemporaryDirectory() as cache_directory:
+            fs.CACHE_DIRECTORY_PATH = Path(
+                cache_directory,  # type: ignore[arg-type]
+            )
+            try:
+                return await f(*args, **kwargs)
+
+            finally:
+                fs.CACHE_DIRECTORY_PATH = original_cache_directory_path
+
+    return _patch_cache
 
 
 class DummyCommandError(BaseException):
@@ -142,24 +167,23 @@ class TestVersion:
 
 
 class TestClearCaches:
-    @patch_cache
+    @_patch_cache
     async def test(self) -> None:
-        cached_file_path = fs.CACHE_DIRECTORY_PATH / 'KeepMeAroundPlease'
-        open(cached_file_path, 'w').close()
-        _run('clear-caches')
-        with pytest.raises(FileNotFoundError):
-            open(cached_file_path)
+        async with App() as app:
+            await app.cache.set('KeepMeAroundPlease', '')
+            _run('clear-caches')
+            assert await app.cache.get('KeepMeAroundPlease') is None
 
 
 class TestDemo:
-    @patch_cache
+    @_patch_cache
     async def test(self, mocker: MockerFixture) -> None:
         mocker.patch('betty.extension.demo.DemoServer', new_callable=lambda: KeyboardInterruptedAppServer)
         _run('demo')
 
 
 class TestDocs:
-    @patch_cache
+    @_patch_cache
     async def test(self, mocker: MockerFixture) -> None:
         mocker.patch('betty.documentation.DocumentationServer', new_callable=lambda: KeyboardInterruptedAppServer)
         _run('docs')

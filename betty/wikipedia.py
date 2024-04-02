@@ -7,22 +7,22 @@ import asyncio
 import hashlib
 import json
 import logging
-import mimetypes
 import re
-from collections.abc import Sequence, MutableSequence
+from collections.abc import Sequence, MutableSequence, Callable, Awaitable
 from contextlib import suppress
-from os.path import getmtime
 from pathlib import Path
 from time import time
 from typing import cast, Any
 from urllib.parse import quote
 
-import aiofiles
 import aiohttp
+from aiohttp import ClientResponse
 from geopy import Point
 
 from betty.app import App
 from betty.asyncio import gather
+from betty.cache import Cache, CacheItemValueT
+from betty.cache.file import BinaryFileCache
 from betty.concurrent import RateLimiter
 from betty.functools import filter_suppress
 from betty.locale import Localized, negotiate_locale, to_locale, get_data, LocaleNotFoundError, Localey
@@ -106,57 +106,82 @@ class Image:
         return self._wikimedia_commons_url
 
 
+class _Fetcher:
+    _WIKIPEDIA_RATE_LIMIT = 200
+
+    def __init__(
+        self,
+        http_client: aiohttp.ClientSession,
+        cache: Cache[str],
+        binary_file_cache: BinaryFileCache,
+        # Default to seven days.
+        ttl: int = 86400 * 7,
+    ):
+        self._cache = cache
+        self._binary_file_cache = binary_file_cache
+        self._ttl = ttl
+        self._http_client = http_client
+        self._rate_limiter = RateLimiter(self._WIKIPEDIA_RATE_LIMIT)
+        self._images: dict[str, Image | None] = {}
+        self._logger = logging.getLogger(__name__)
+
+    async def _fetch(
+        self,
+        url: str,
+        cache: Cache[CacheItemValueT],
+        response_mapper: Callable[[ClientResponse], Awaitable[CacheItemValueT]],
+    ) -> tuple[CacheItemValueT, str]:
+        cache_item_id = hashlib.md5(url.encode('utf-8')).hexdigest()
+
+        response_data: CacheItemValueT | None = None
+        async with cache.getset(cache_item_id) as (cache_item, setter):
+            if cache_item and cache_item.modified + self._ttl > time():
+                response_data = await cache_item.value()
+            else:
+                async with self._rate_limiter:
+                    self._logger.debug(f'Fetching {url}...')
+                    try:
+                        async with self._http_client.get(url) as response:
+                            response_data = await response_mapper(response)
+                    except aiohttp.ClientError as error:
+                        self._logger.warning(f'Could not successfully connect to {url}: {error}')
+                    except asyncio.TimeoutError:
+                        self._logger.warning(f'Timeout when connecting to {url}')
+                    else:
+                        await setter(response_data)
+
+        if response_data is None:
+            if cache_item:
+                response_data = await cache_item.value()
+            else:
+                raise RetrievalError(f'Could neither fetch {url}, nor find an old version in the cache.')
+
+        return response_data, cache_item_id
+
+    async def fetch(self, url: str) -> str:
+        response_data, _ = await self._fetch(url, self._cache, ClientResponse.text)
+        return response_data
+
+    async def fetch_file(self, url: str) -> Path:
+        _, cache_item_id = await self._fetch(url, self._binary_file_cache, ClientResponse.read)
+        return self._binary_file_cache.cache_item_file_path(cache_item_id)
+
+
 class _Retriever:
     def __init__(
         self,
         http_client: aiohttp.ClientSession,
-        cache_directory_path: Path,
+        cache: Cache[str],
+        binary_file_cache: BinaryFileCache,
         # Default to seven days.
         ttl: int = 86400 * 7,
     ):
-        self._cache_directory_path = cache_directory_path
-        self._cache_directory_path.mkdir(exist_ok=True, parents=True)
-        self._ttl = ttl
-        self._http_client = http_client
-        self._rate_limiter = RateLimiter(200)
+        self._fetcher = _Fetcher(http_client, cache, binary_file_cache, ttl)
         self._images: dict[str, Image | None] = {}
 
-    async def _request(self, url: str, extension: str | None = None) -> Any:
-        cache_file_path = self._cache_directory_path / hashlib.md5(url.encode("utf-8")).hexdigest()
-        if extension:
-            cache_file_path = cache_file_path.with_suffix(f'.{extension}')
-
-        response_data = None
-        with suppress(FileNotFoundError):
-            if getmtime(cache_file_path) + self._ttl > time():
-                async with aiofiles.open(cache_file_path, mode='r+b') as f:
-                    response_data = await f.read()
-
-        if response_data is None:
-            logger = logging.getLogger(__name__)
-            try:
-                logger.debug(f'Fetching {url}...')
-                async with self._rate_limiter:
-                    async with self._http_client.get(url) as response:
-                        response_data = await response.read()
-                async with aiofiles.open(cache_file_path, 'w+b') as f:
-                    await f.write(response_data)
-            except aiohttp.ClientError as error:
-                logger.warning(f'Could not successfully connect to Wikipedia at {url}: {error}')
-            except asyncio.TimeoutError:
-                logger.warning(f'Timeout when connecting to Wikipedia at {url}')
-
-        if response_data is None:
-            try:
-                async with aiofiles.open(cache_file_path, mode='r+b') as f:
-                    response_data = await f.read()
-            except FileNotFoundError:
-                raise RetrievalError('Could neither fetch %s, nor find an old version in the cache.' % url)
-
-        return response_data
-
     async def _get_query_api_data(self, url: str) -> dict[str, Any]:
-        api_data = json.loads(await self._request(url))
+        response_data = await self._fetcher.fetch(url)
+        api_data = json.loads(response_data)
         try:
             return api_data['query']['pages'][0]  # type: ignore[no-any-return]
         except (LookupError, TypeError) as error:
@@ -185,9 +210,9 @@ class _Retriever:
         logger = logging.getLogger(__name__)
         try:
             url = f'https://{page_language}.wikipedia.org/api/rest_v1/page/summary/{page_name}'
-            request_data = await self._request(url)
+            response_data = await self._fetcher.fetch(url)
             try:
-                api_data = json.loads(request_data)
+                api_data = json.loads(response_data)
                 return Summary(
                     page_language,
                     page_name,
@@ -220,15 +245,8 @@ class _Retriever:
             except KeyError as error:
                 raise RetrievalError(f'Could not successfully parse the JSON content returned by {url}: {error}')
 
-            extension = None
-            for mimetypes_extension, mimetypes_media_type in mimetypes.types_map.items():
-                if mimetypes_media_type == image_info['mime']:
-                    extension = mimetypes_extension
-            await self._request(image_info['url'], extension)
-
-            file_path = (self._cache_directory_path / hashlib.md5(image_info['url'].encode("utf-8")).hexdigest()).with_suffix(f'.{extension}')
             image = Image(
-                file_path,
+                await self._fetcher.fetch_file(image_info['url']),
                 MediaType(image_info['mime']),
                 # Strip "File:" or any translated equivalent from the beginning of the image's title.
                 image_info['canonicaltitle'][image_info['canonicaltitle'].index(':') + 1:],
