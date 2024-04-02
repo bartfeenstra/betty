@@ -12,7 +12,6 @@ from typing import Iterable, Any, TYPE_CHECKING
 from urllib.parse import quote
 
 from geopy import Point
-from typing_extensions import deprecated
 
 from betty.classtools import repr_instance
 from betty.json.linked_data import LinkedDataDumpable, dump_context, dump_link, add_json_ld
@@ -25,6 +24,7 @@ from betty.model import many_to_many, Entity, one_to_many, many_to_one, many_to_
 from betty.model.event_type import EventType, UnknownEventType
 from betty.serde.dump import DictDump, Dump, dump_default
 from betty.string import camel_case_to_kebab_case
+from betty.warnings import deprecated
 
 if TYPE_CHECKING:
     from betty.app import App
