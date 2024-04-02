@@ -7,7 +7,9 @@ from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Self, Generic, TypeAlias, AsyncContextManager, overload, Literal
 
-from typing_extensions import TypeVar, deprecated
+from typing_extensions import TypeVar
+
+from betty.warnings import deprecated
 
 CacheItemValueT = TypeVar('CacheItemValueT')
 CacheItemValueCoT = TypeVar('CacheItemValueCoT', covariant=True)

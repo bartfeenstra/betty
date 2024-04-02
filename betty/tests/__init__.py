@@ -9,7 +9,6 @@ import aiofiles
 import html5lib
 from html5lib.html5parser import ParseError
 from jinja2.environment import Template
-from typing_extensions import deprecated
 
 from betty.app import App
 from betty.app.extension import Extension
@@ -18,6 +17,7 @@ from betty.json.schema import Schema
 from betty.locale import Localey
 from betty.tests.conftest import binary_file_cache
 from betty.tests.test_cli import _patch_cache
+from betty.warnings import deprecated
 
 T = TypeVar('T')
 P = ParamSpec('P')

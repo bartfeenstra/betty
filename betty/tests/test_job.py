@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import pytest
+
 from betty.job import Context
+from betty.warnings import BettyDeprecationWarning
 
 
 class TestContext:
@@ -8,5 +11,6 @@ class TestContext:
         sut = Context()
         job_ids = ('job ID 1', 'job ID 2', 'job ID 3')
         for job_id in job_ids:
-            assert sut.claim(job_id)
-            assert not sut.claim(job_id)
+            with pytest.warns(BettyDeprecationWarning):
+                assert sut.claim(job_id)
+                assert not sut.claim(job_id)

@@ -7,11 +7,10 @@ from __future__ import annotations
 import threading
 from typing import Any
 
-from typing_extensions import deprecated
-
 from betty.cache import Cache
 from betty.cache.memory import MemoryCache
 from betty.locale import Localizer, DEFAULT_LOCALIZER
+from betty.warnings import deprecated
 
 
 class Context:
