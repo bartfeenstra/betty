@@ -104,7 +104,12 @@ class TestRetriever:
         aioresponses.get(api_url, payload=api_response_body)
         async with TemporaryDirectory() as cache_directory_path_str:
             async with aiohttp.ClientSession() as session:
-                translations = await _Retriever(session, Path(cache_directory_path_str)).get_translations(page_language, page_name)
+                translations = await _Retriever(
+                    session,
+                    Path(
+                        cache_directory_path_str,  # type: ignore[arg-type]
+                    ),
+                ).get_translations(page_language, page_name)
         assert expected == translations
 
     async def test_get_translations_with_client_error_should_raise_retrieval_error(
@@ -119,7 +124,12 @@ class TestRetriever:
         aioresponses.get(api_url, exception=aiohttp.ClientError())
         async with TemporaryDirectory() as cache_directory_path_str:
             async with aiohttp.ClientSession() as session:
-                actual = await _Retriever(session, Path(cache_directory_path_str)).get_translations(page_language, page_name)
+                actual = await _Retriever(
+                    session,
+                    Path(
+                        cache_directory_path_str,  # type: ignore[arg-type]
+                    ),
+                ).get_translations(page_language, page_name)
                 assert {} == actual
 
     async def test_get_translations_with_invalid_json_response_should_return_none(
@@ -134,7 +144,12 @@ class TestRetriever:
         aioresponses.get(api_url, body='{Haha Im not rly JSON}')
         async with TemporaryDirectory() as cache_directory_path_str:
             async with aiohttp.ClientSession() as session:
-                actual = await _Retriever(session, Path(cache_directory_path_str)).get_translations(page_language, page_name)
+                actual = await _Retriever(
+                    session,
+                    Path(
+                        cache_directory_path_str,  # type: ignore[arg-type]
+                    ),
+                ).get_translations(page_language, page_name)
                 assert {} == actual
 
     @pytest.mark.parametrize('response_json', [
@@ -166,7 +181,12 @@ class TestRetriever:
         aioresponses.get(api_url, payload=response_json)
         async with TemporaryDirectory() as cache_directory_path_str:
             async with aiohttp.ClientSession() as session:
-                actual = await _Retriever(session, Path(cache_directory_path_str)).get_translations(page_language, page_name)
+                actual = await _Retriever(
+                    session,
+                    Path(
+                        cache_directory_path_str,  # type: ignore[arg-type]
+                    ),
+                ).get_translations(page_language, page_name)
                 assert {} == actual
 
     @pytest.mark.parametrize('extract_key', [
@@ -198,7 +218,13 @@ class TestRetriever:
         aioresponses.get(api_url, payload=api_response_body_4)
         async with TemporaryDirectory() as cache_directory_path_str:
             async with aiohttp.ClientSession() as session:
-                retriever = _Retriever(session, Path(cache_directory_path_str), 1)
+                retriever = _Retriever(
+                    session,
+                    Path(
+                        cache_directory_path_str,  # type: ignore[arg-type]
+                    ),
+                    1,
+                )
                 # The first retrieval should make a successful request and set the cache.
                 summary_1 = await retriever.get_summary(page_language, page_name)
                 # The second retrieval should hit the cache from the first request.
@@ -233,7 +259,12 @@ class TestRetriever:
         aioresponses.get(api_url, exception=aiohttp.ClientError())
         async with TemporaryDirectory() as cache_directory_path_str:
             async with aiohttp.ClientSession() as session:
-                retriever = _Retriever(session, Path(cache_directory_path_str))
+                retriever = _Retriever(
+                    session,
+                    Path(
+                        cache_directory_path_str,  # type: ignore[arg-type]
+                    ),
+                )
                 actual = await retriever.get_summary(page_language, page_name)
                 assert None is actual
 
@@ -281,7 +312,12 @@ class TestRetriever:
         aioresponses.get(api_url, payload=api_response_body)
         async with TemporaryDirectory() as cache_directory_path_str:
             async with aiohttp.ClientSession() as session:
-                actual = await _Retriever(session, Path(cache_directory_path_str)).get_place_coordinates(page_language, page_name)
+                actual = await _Retriever(
+                    session,
+                    Path(
+                        cache_directory_path_str,  # type: ignore[arg-type]
+                    ),
+                ).get_place_coordinates(page_language, page_name)
         assert expected == actual
 
 

@@ -121,8 +121,12 @@ class GrampsLoader:
                 async with TemporaryDirectory() as cache_directory_path_str:
                     tarfile.open(
                         fileobj=tar_file,
-                    ).extractall(cache_directory_path_str)
-                    await self.load_gramps(Path(cache_directory_path_str) / 'data.gramps')
+                    ).extractall(
+                        cache_directory_path_str,  # type: ignore[arg-type]
+                    )
+                    await self.load_gramps(Path(
+                        cache_directory_path_str,  # type: ignore[arg-type]
+                    ) / 'data.gramps')
             except tarfile.ReadError:
                 raise GrampsLoadFileError(Str._(
                     'Could not extract {file_path} as a tar (*.tar) file after extracting the outer gzip (*.gz) file.',

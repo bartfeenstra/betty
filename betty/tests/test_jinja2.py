@@ -33,7 +33,9 @@ class TestJinja2Renderer:
             template = '{% if true %}true{% endif %}'
             expected_output = 'true'
             async with TemporaryDirectory() as working_directory_path_str:
-                working_directory_path = Path(working_directory_path_str)
+                working_directory_path = Path(
+                    working_directory_path_str,  # type: ignore[arg-type]
+                )
                 template_file_path = working_directory_path / 'betty.txt.j2'
                 async with aiofiles.open(template_file_path, 'w') as f:
                     await f.write(template)

@@ -34,7 +34,9 @@ class TestDocumentationServer:
 class TestDocumentation:
     async def test_should_contain_cli_help(self) -> None:
         async with TemporaryDirectory() as working_directory_path_str:
-            working_directory_path = Path(working_directory_path_str)
+            working_directory_path = Path(
+                working_directory_path_str,  # type: ignore[arg-type]
+            )
             configuration = {
                 'base_url': 'https://example.com',
             }

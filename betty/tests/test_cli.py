@@ -82,13 +82,17 @@ class TestMain:
 
     async def test_help_with_invalid_configuration_file_path(self) -> None:
         async with TemporaryDirectory() as working_directory_path_str:
-            working_directory_path = Path(working_directory_path_str)
+            working_directory_path = Path(
+                working_directory_path_str,  # type: ignore[arg-type]
+            )
             configuration_file_path = working_directory_path / 'non-existent-betty.json'
             _run('-c', str(configuration_file_path), '--help', expected_exit_code=1)
 
     async def test_help_with_invalid_configuration(self) -> None:
         async with TemporaryDirectory() as working_directory_path_str:
-            working_directory_path = Path(working_directory_path_str)
+            working_directory_path = Path(
+                working_directory_path_str,  # type: ignore[arg-type]
+            )
             configuration_file_path = working_directory_path / 'betty.json'
             dump: Dump = {}
             async with aiofiles.open(configuration_file_path, 'w') as f:
@@ -98,7 +102,9 @@ class TestMain:
 
     async def test_with_discovered_configuration(self) -> None:
         async with TemporaryDirectory() as working_directory_path_str:
-            working_directory_path = Path(working_directory_path_str)
+            working_directory_path = Path(
+                working_directory_path_str,  # type: ignore[arg-type]
+            )
             async with aiofiles.open(working_directory_path / 'betty.json', 'w') as config_file:
                 url = 'https://example.com'
                 dump: Dump = {
