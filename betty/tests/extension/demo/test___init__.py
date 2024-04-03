@@ -1,8 +1,14 @@
+from __future__ import annotations
+
+from typing import Any
+
 import requests
 from pytest_mock import MockerFixture
 from requests import Response
 
 from betty.app import App
+from betty.cache import Cache, FileCache
+from betty.cache.file import BinaryFileCache
 from betty.extension import Demo
 from betty.extension.demo import DemoServer
 from betty.functools import Do
@@ -25,9 +31,17 @@ class TestDemo:
 
 
 class TestDemoServer:
-    async def test(self, mocker: MockerFixture) -> None:
+    async def test(
+        self,
+        app_cache: Cache[Any] & FileCache,
+        binary_file_cache: BinaryFileCache,
+        mocker: MockerFixture,
+    ) -> None:
         mocker.patch('webbrowser.open_new_tab')
-        async with DemoServer() as server:
+        async with DemoServer(
+            app_cache=app_cache,
+            binary_file_cache=binary_file_cache,
+        ) as server:
             def _assert_response(response: Response) -> None:
                 assert response.status_code == 200
                 assert 'Betty' in response.content.decode('utf-8')

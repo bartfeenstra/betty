@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Iterator, TypeVar, cast, AsyncIterator
+from typing import Iterator, TypeVar, cast, AsyncIterator, Any
 from warnings import filterwarnings
 
 import pytest
@@ -13,10 +13,10 @@ from PyQt6.QtCore import Qt, QObject
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QMainWindow, QMenu, QWidget
 from _pytest.logging import LogCaptureFixture
-from aiofiles.tempfile import TemporaryDirectory
 from pytestqt.qtbot import QtBot
 
-from betty.app import AppConfiguration, App
+from betty.app import AppConfiguration, App, _BackwardsCompatiblePickledFileCache
+from betty.cache import Cache, FileCache
 from betty.cache.file import BinaryFileCache
 from betty.gui import BettyApplication
 from betty.gui.app import BettyPrimaryWindow
@@ -65,12 +65,19 @@ def set_logging(caplog: LogCaptureFixture) -> Iterator[None]:
 
 
 @pytest.fixture(scope='function')
-async def binary_file_cache() -> AsyncIterator[BinaryFileCache]:
+async def app_cache(tmp_path: Path) -> Cache[Any] & FileCache:
     """
-    Create a temporary file cache.
+    Create a temporary cache to replace ``App.cache``.
     """
-    async with TemporaryDirectory() as cache_directory_path_str:
-        yield BinaryFileCache(DEFAULT_LOCALIZER, Path(cache_directory_path_str))
+    return _BackwardsCompatiblePickledFileCache(DEFAULT_LOCALIZER, tmp_path)
+
+
+@pytest.fixture(scope='function')
+async def binary_file_cache(tmp_path: Path) -> BinaryFileCache:
+    """
+    Create a temporary binary file cache.
+    """
+    return BinaryFileCache(DEFAULT_LOCALIZER, tmp_path)
 
 
 @pytest.fixture(scope='function')
