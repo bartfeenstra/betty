@@ -2,10 +2,13 @@
 from __future__ import annotations
 
 from contextlib import AsyncExitStack
+from typing import Any
 
 from betty import load, generate, serve
 from betty.app import App
 from betty.app.extension import Extension
+from betty.cache import Cache, FileCache
+from betty.cache.file import BinaryFileCache
 from betty.extension.cotton_candy import CottonCandyConfiguration
 from betty.load import Loader
 from betty.locale import Date, DateRange, Str
@@ -405,10 +408,20 @@ Did you know that Liberta "Betty" Lankester is Betty's namesake?
 
 
 class DemoServer(Server):
-    def __init__(self):
+    def __init__(
+        self,
+        *,
+        app_cache: Cache[Any] & FileCache | None = None,
+        binary_file_cache: BinaryFileCache | None = None,
+    ):
         from betty.extension import Demo
 
-        self._app = App(None, Demo.project())
+        self._app = App(
+            None,
+            Demo.project(),
+            cache=app_cache,
+            binary_file_cache=binary_file_cache,
+        )
         super().__init__(localizer=self._app.localizer)
         self._server: Server | None = None
         self._exit_stack = AsyncExitStack()
