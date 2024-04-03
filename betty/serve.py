@@ -154,9 +154,7 @@ class BuiltinServer(Server):
             # To mimic the root path, symlink the project's WWW directory into a temporary
             # directory, so we do not have to make changes to any existing files.
             self._temporary_root_directory = TemporaryDirectory()
-            temporary_root_directory_path = Path(
-                await self._temporary_root_directory.__aenter__(),  # type: ignore[arg-type, func-returns-value]
-            )
+            temporary_root_directory_path = Path(await self._temporary_root_directory.__aenter__())
             temporary_www_directory = temporary_root_directory_path
             for root_path_component in self._root_path.split('/'):
                 temporary_www_directory /= root_path_component
