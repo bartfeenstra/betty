@@ -6,7 +6,7 @@ from __future__ import annotations
 import logging
 from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import Iterator, TypeVar, cast, Any
+from typing import Iterator, TypeVar, cast
 from warnings import filterwarnings
 
 import pytest
@@ -16,12 +16,11 @@ from PyQt6.QtWidgets import QMainWindow, QMenu, QWidget
 from _pytest.logging import LogCaptureFixture
 from pytestqt.qtbot import QtBot
 
-from betty.app import AppConfiguration, App, _BackwardsCompatiblePickledFileCache
-from betty.cache import Cache, FileCache
+from betty.app import App
 from betty.cache.file import BinaryFileCache
 from betty.gui import BettyApplication
 from betty.gui.app import BettyPrimaryWindow
-from betty.gui.error import ErrorT
+from betty.gui.error import ExceptionError
 from betty.locale import DEFAULT_LOCALIZER
 from betty.warnings import BettyDeprecationWarning
 
@@ -38,22 +37,6 @@ def raise_deprecation_warnings_as_errors() -> Iterator[None]:
     yield
 
 
-async def _mock_app_configuration_read(self: AppConfiguration) -> None:
-    return None
-
-
-@pytest.fixture(scope='session', autouse=True)
-def mock_app_configuration() -> Iterator[None]:
-    """
-    Prevent App from loading its application configuration from the current user session, as it would pollute the tests.
-    """
-    AppConfiguration._read = AppConfiguration.read  # type: ignore[attr-defined]
-    AppConfiguration.read = _mock_app_configuration_read  # type: ignore[assignment, method-assign]
-    yield
-    AppConfiguration.read = AppConfiguration._read  # type: ignore[attr-defined, method-assign]
-    del AppConfiguration._read  # type: ignore[attr-defined]
-
-
 @pytest.fixture(autouse=True)
 def set_logging(caplog: LogCaptureFixture) -> Iterator[None]:
     """
@@ -61,14 +44,6 @@ def set_logging(caplog: LogCaptureFixture) -> Iterator[None]:
     """
     with caplog.at_level(logging.CRITICAL):
         yield
-
-
-@pytest.fixture(scope='function')
-async def app_cache(tmp_path: Path) -> Cache[Any] & FileCache:
-    """
-    Create a temporary cache to replace ``App.cache``.
-    """
-    return _BackwardsCompatiblePickledFileCache(DEFAULT_LOCALIZER, tmp_path)
 
 
 @pytest.fixture
@@ -88,14 +63,12 @@ def qapp_cls() -> type[BettyApplication]:
 
 
 @pytest.fixture
-async def new_temporary_app(app_cache: Cache[Any] & FileCache, binary_file_cache: BinaryFileCache) -> AsyncIterator[App]:
+async def new_temporary_app() -> AsyncIterator[App]:
     """
     Create a new, temporary :py:class:`betty.app.App`.
     """
-    yield App(
-        cache=app_cache,
-        binary_file_cache=binary_file_cache,
-    )
+    async with (App.new_temporary() as app, app):
+        yield app
 
 
 QObjectT = TypeVar('QObjectT', bound=QObject)
@@ -169,18 +142,27 @@ class BettyQtBot:
             assert len(windows) == 0
         self.qtbot.waitUntil(_assert_not_window)
 
-    def assert_error(self, error_type: type[ErrorT]) -> ErrorT:
+    def assert_exception_error(
+        self,
+        *,
+        contained_error_type: type[BaseException] | None = None,
+    ) -> ExceptionError:
         """
-        Assert that an error is shown.
+        Assert that an exception error is shown.
         """
-        widget = None
+        exception_error: ExceptionError | None = None
 
         def _assert_error_modal() -> None:
-            nonlocal widget
+            nonlocal exception_error
             widget = self.qapp.activeModalWidget()
-            assert isinstance(widget, error_type)
+            assert isinstance(widget, ExceptionError), f'Failed asserting that an error window of type {ExceptionError} is shown. Instead, {type(widget)} was found.'
+            if contained_error_type is not None:
+                assert issubclass(widget.error_type, contained_error_type), \
+                    f'Failed asserting that an error window is shown for a raised error of type {contained_error_type}. Instead the following error was raised:\n{widget.error_type}\n{widget._message.text()}'
+            exception_error = widget
         self.qtbot.waitUntil(_assert_error_modal)
-        return cast(ErrorT, widget)
+        assert exception_error is not None
+        return exception_error
 
     def assert_valid(self, widget: QWidget) -> None:
         """

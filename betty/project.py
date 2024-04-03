@@ -211,6 +211,11 @@ class ExtensionConfiguration(Configuration):
     def extension_configuration(self) -> Configuration | None:
         return self._extension_configuration
 
+    def update(self, other: Self) -> None:
+        self._extension_type = other._extension_type
+        self._enabled = other._enabled
+        self._extension_configuration = other._extension_configuration
+
     @classmethod
     def load(
         cls,

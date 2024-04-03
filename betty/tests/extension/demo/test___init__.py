@@ -1,14 +1,10 @@
 from __future__ import annotations
 
-from typing import Any
-
 import requests
 from pytest_mock import MockerFixture
 from requests import Response
 
 from betty.app import App
-from betty.cache import Cache, FileCache
-from betty.cache.file import BinaryFileCache
 from betty.extension import Demo
 from betty.extension.demo import DemoServer
 from betty.functools import Do
@@ -20,28 +16,23 @@ from betty.project import ExtensionConfiguration
 class TestDemo:
     async def test_load(self, mocker: MockerFixture) -> None:
         mocker.patch('webbrowser.open_new_tab')
-        app = App()
-        app.project.configuration.extensions.append(ExtensionConfiguration(Demo))
-        await load(app)
-        assert 0 != len(app.project.ancestry[Person])
-        assert 0 != len(app.project.ancestry[Place])
-        assert 0 != len(app.project.ancestry[Event])
-        assert 0 != len(app.project.ancestry[Source])
-        assert 0 != len(app.project.ancestry[Citation])
+        async with (App.new_temporary() as app, app):
+            app.project.configuration.extensions.append(ExtensionConfiguration(Demo))
+            await load(app)
+            assert 0 != len(app.project.ancestry[Person])
+            assert 0 != len(app.project.ancestry[Place])
+            assert 0 != len(app.project.ancestry[Event])
+            assert 0 != len(app.project.ancestry[Source])
+            assert 0 != len(app.project.ancestry[Citation])
 
 
 class TestDemoServer:
     async def test(
         self,
-        app_cache: Cache[Any] & FileCache,
-        binary_file_cache: BinaryFileCache,
         mocker: MockerFixture,
     ) -> None:
         mocker.patch('webbrowser.open_new_tab')
-        async with DemoServer(
-            app_cache=app_cache,
-            binary_file_cache=binary_file_cache,
-        ) as server:
+        async with DemoServer() as server:
             def _assert_response(response: Response) -> None:
                 assert response.status_code == 200
                 assert 'Betty' in response.content.decode('utf-8')

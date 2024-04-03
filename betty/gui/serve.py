@@ -8,7 +8,7 @@ from typing import Any
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QObject
 from PyQt6.QtWidgets import QVBoxLayout, QWidget, QPushButton
 
-from betty import documentation, fs
+from betty import documentation
 from betty.app import App
 from betty.asyncio import sync
 from betty.extension import demo
@@ -37,7 +37,7 @@ class _ServeThread(QThread):
     @sync
     async def run(self) -> None:
         with ExceptionCatcher(self._serve_window, close_parent=True):
-            async with App(project=self._project) as self._app:
+            async with App.new_from_environment(project=self._project) as self._app:
                 await self._server.start()
                 self.server_started.emit()
                 await self._server.show()
@@ -156,7 +156,7 @@ class ServeDemoWindow(_ServeWindow):
 class ServeDocsWindow(_ServeWindow):
     def _server(self) -> Server:
         return documentation.DocumentationServer(
-            fs.CACHE_DIRECTORY_PATH,
+            self._app.binary_file_cache.path,
             localizer=self._app.localizer,
         )
 

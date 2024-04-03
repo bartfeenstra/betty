@@ -15,9 +15,10 @@ import click
 from PyQt6.QtWidgets import QMainWindow
 from click import get_current_context, Context, Option, Command, Parameter
 
-from betty import about, generate, load, documentation, fs
+from betty import about, generate, load, documentation
 from betty.app import App
 from betty.asyncio import sync, wait
+from betty.contextlib import SynchronizedContextManager
 from betty.error import UserFacingError
 from betty.extension import demo
 from betty.gui import BettyApplication
@@ -108,7 +109,9 @@ async def _init_ctx_app(
     logging.getLogger().addHandler(CliHandler())
     logger = logging.getLogger(__name__)
 
-    app = App()
+    app = ctx.with_resource(  # type: ignore[attr-defined]
+        SynchronizedContextManager(App.new_from_environment())
+    )
     ctx.obj['commands'] = {
         'docs': _docs,
         'clear-caches': _clear_caches,
@@ -240,10 +243,9 @@ def main(app: App, verbose: bool, more_verbose: bool, most_verbose: bool) -> Non
 
 
 @click.command(help='Clear all caches.')
-@global_command
-async def _clear_caches() -> None:
-    async with App() as app:
-        await app.cache.clear()
+@app_command
+async def _clear_caches(app: App) -> None:
+    await app.cache.clear()
 
 
 @click.command(help='Explore a demonstration site.')
@@ -266,16 +268,16 @@ async def _demo() -> None:
 )
 @global_command
 async def _gui(configuration_file_path: Path | None) -> None:
-    async with App() as app:
-        qapp = BettyApplication([sys.argv[0]], app=app)
-        window: QMainWindow
-        if configuration_file_path is None:
-            window = WelcomeWindow(app)
-        else:
-            await app.project.configuration.read(configuration_file_path)
-            window = ProjectWindow(app)
-        window.show()
-        sys.exit(qapp.exec())
+    async with App.new_from_environment() as app:
+        async with BettyApplication([sys.argv[0]]).with_app(app) as qapp:
+            window: QMainWindow
+            if configuration_file_path is None:
+                window = WelcomeWindow(app)
+            else:
+                await app.project.configuration.read(configuration_file_path)
+                window = ProjectWindow(app)
+            window.show()
+            sys.exit(qapp.exec())
 
 
 @click.command(help='Generate a static site.')
@@ -297,15 +299,16 @@ async def _serve(app: App) -> None:
 @click.command(help='View the documentation.')
 @global_command
 async def _docs():
-    async with App() as app:
-        server = documentation.DocumentationServer(
-            fs.CACHE_DIRECTORY_PATH,
-            localizer=app.localizer,
-        )
-        async with server:
-            await server.show()
-            while True:
-                await asyncio.sleep(999)
+    async with App.new_from_environment() as app:
+        async with app:
+            server = documentation.DocumentationServer(
+                app.binary_file_cache.path,
+                localizer=app.localizer,
+            )
+            async with server:
+                await server.show()
+                while True:
+                    await asyncio.sleep(999)
 
 
 if wait(about.is_development()):

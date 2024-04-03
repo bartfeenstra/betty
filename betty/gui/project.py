@@ -620,7 +620,7 @@ class _GenerateThread(QThread):
 
     async def _generate(self) -> None:
         with ExceptionCatcher(self._generate_window, close_parent=True):
-            async with App(project=self._project) as app:
+            async with App.new_from_environment(project=self._project) as app:
                 await load.load(app)
                 await generate.generate(app)
 

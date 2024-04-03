@@ -66,22 +66,22 @@ class TestDeriver:
         )
         Presence(person, Subject(), event)
 
-        app = App()
-        app.project.configuration.extensions.append(ExtensionConfiguration(Deriver))
-        app.project.ancestry.add(person)
-        with record_added(app.project.ancestry) as added:
-            await load(app)
+        async with (App.new_temporary() as app, app):
+            app.project.configuration.extensions.append(ExtensionConfiguration(Deriver))
+            app.project.ancestry.add(person)
+            with record_added(app.project.ancestry) as added:
+                await load(app)
 
-        assert 3 == len(person.presences)
-        start = [presence for presence in person.presences if presence.event and issubclass(presence.event.event_type, StartOfLifeEventType)][0]
-        assert start is not None
-        assert start.event is not None
-        assert isinstance(start.event, Event)
-        assert DateRange(None, Date(1, 1, 1), end_is_boundary=True) == start.event.date
-        end = [presence for presence in person.presences if presence.event and issubclass(presence.event.event_type, EndOfLifeEventType)][0]
-        assert end is not None
-        assert end.event is not None
-        assert DateRange(Date(1, 1, 1), start_is_boundary=True) == end.event.date
-        assert 2 == len(added[Event])
-        assert start.event in added[Event]
-        assert end.event in added[Event]
+            assert 3 == len(person.presences)
+            start = [presence for presence in person.presences if presence.event and issubclass(presence.event.event_type, StartOfLifeEventType)][0]
+            assert start is not None
+            assert start.event is not None
+            assert isinstance(start.event, Event)
+            assert DateRange(None, Date(1, 1, 1), end_is_boundary=True) == start.event.date
+            end = [presence for presence in person.presences if presence.event and issubclass(presence.event.event_type, EndOfLifeEventType)][0]
+            assert end is not None
+            assert end.event is not None
+            assert DateRange(Date(1, 1, 1), start_is_boundary=True) == end.event.date
+            assert 2 == len(added[Event])
+            assert start.event in added[Event]
+            assert end.event in added[Event]

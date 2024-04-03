@@ -9,8 +9,8 @@ import pytest
 from geopy import Point
 
 from betty.app import App
-from betty.json.schema import Schema
 from betty.json.linked_data import LinkedDataDumpable
+from betty.json.schema import Schema
 from betty.locale import Date, Str, DateRange
 from betty.media_type import MediaType
 from betty.model import Entity, one_to_one
@@ -24,22 +24,22 @@ from betty.serde.dump import DictDump, Dump
 
 
 async def assert_dumps_linked_data(dumpable: LinkedDataDumpable, schema_definition: str | None = None) -> DictDump[Dump]:
-    app = App()
-    app.project.configuration.locales['en-US'].alias = 'en'
-    app.project.configuration.locales.append(LocaleConfiguration(
-        'nl-NL',
-        alias='nl',
-    ))
-    async with app:
-        actual = await dumpable.dump_linked_data(app)
-    # Allow for a copy to be made in case the actual data does not contain $schema by design.
-    actual_to_be_validated = actual
-    if schema_definition:
-        actual_to_be_validated = copy(actual)
-        actual_to_be_validated['$schema'] = app.static_url_generator.generate(f'schema.json#/definitions/{schema_definition}', absolute=True)
-    schema = Schema(app)
-    await schema.validate(actual_to_be_validated)
-    return actual
+    async with App.new_temporary() as app:
+        app.project.configuration.locales['en-US'].alias = 'en'
+        app.project.configuration.locales.append(LocaleConfiguration(
+            'nl-NL',
+            alias='nl',
+        ))
+        async with app:
+            actual = await dumpable.dump_linked_data(app)
+        # Allow for a copy to be made in case the actual data does not contain $schema by design.
+        actual_to_be_validated = actual
+        if schema_definition:
+            actual_to_be_validated = copy(actual)
+            actual_to_be_validated['$schema'] = app.static_url_generator.generate(f'schema.json#/definitions/{schema_definition}', absolute=True)
+        schema = Schema(app)
+        await schema.validate(actual_to_be_validated)
+        return actual
 
 
 class DummyEntity(Entity):

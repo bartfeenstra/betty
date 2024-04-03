@@ -1,34 +1,46 @@
 """Provide test utilities and define all tests for Betty itself."""
 from __future__ import annotations
 
+import functools
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Callable, TypeVar, Any, AsyncIterator, Awaitable, ParamSpec
 
 import aiofiles
 import html5lib
+from aiofiles.tempfile import TemporaryDirectory
 from html5lib.html5parser import ParseError
 from jinja2.environment import Template
 
+from betty import fs
 from betty.app import App
 from betty.app.extension import Extension
 from betty.jinja2 import Environment
 from betty.json.schema import Schema
 from betty.locale import Localey
-from betty.tests.conftest import binary_file_cache
-from betty.tests.test_cli import _patch_cache
 from betty.warnings import deprecated
 
 T = TypeVar('T')
 P = ParamSpec('P')
 
 
-@deprecated(f'The `@patch_cache` decorator is deprecated as of Betty 0.3.3, and will be removed in Bety 0.4.x. Use the `{binary_file_cache.__name__}` fixture instead.')
+@deprecated('The `@patch_cache` decorator is deprecated as of Betty 0.3.3, and will be removed in Bety 0.4.x. Use the `binary_file_cache` fixture instead.')
 def patch_cache(f: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
     """
     Patch Betty's default global file cache with a temporary directory.
     """
-    return _patch_cache(f)
+    @functools.wraps(f)
+    async def _patch_cache(*args: P.args, **kwargs: P.kwargs) -> T:
+        original_cache_directory_path = fs.CACHE_DIRECTORY_PATH
+        async with TemporaryDirectory() as cache_directory:
+            fs.CACHE_DIRECTORY_PATH = Path(cache_directory)
+            try:
+                return await f(*args, **kwargs)
+
+            finally:
+                fs.CACHE_DIRECTORY_PATH = original_cache_directory_path
+
+    return _patch_cache
 
 
 class TemplateTestCase:
@@ -67,16 +79,15 @@ class TemplateTestCase:
         else:
             class_name = self.__class__.__name__
             raise RuntimeError(f'You must define one of `template_string`, `template_file`, `{class_name}.template_string`, or `{class_name}.template_file`.')
-        app = App()
-        app.project.configuration.debug = True
-        if data is None:
-            data = {}
-        if locale is not None:
-            data['localizer'] = app.localizers[locale]
-        async with app:
+        async with (App.new_temporary() as app, app):
+            app.project.configuration.debug = True
+            if data is None:
+                data = {}
+            if locale is not None:
+                data['localizer'] = app.localizers[locale]
             app.project.configuration.extensions.enable(*self.extensions)
             rendered = await template_factory(app.jinja2_environment, template).render_async(**data)
-        yield rendered, app
+            yield rendered, app
 
 
 async def assert_betty_html(

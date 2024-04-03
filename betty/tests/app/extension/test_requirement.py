@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import pytest
 
-from betty.app import App
 from betty.app.extension.requirement import RequirementCollection, RequirementError, AllRequirements, AnyRequirement, \
     Requirement
 from betty.locale import Str, DEFAULT_LOCALIZER
@@ -154,20 +153,17 @@ class TestAnyRequirement:
             def is_met(self) -> bool:
                 return False
 
-        async with App():
-            assert AnyRequirement(_UnmetRequirement(), _UnmetRequirement(), _MetRequirement()).is_met()
+        assert AnyRequirement(_UnmetRequirement(), _UnmetRequirement(), _MetRequirement()).is_met()
 
     async def test_is_met_without_any_met(self) -> None:
         class _UnmetRequirement(Requirement):
             def is_met(self) -> bool:
                 return False
 
-        async with App():
-            assert not AnyRequirement(_UnmetRequirement(), _UnmetRequirement(), _UnmetRequirement()).is_met()
+        assert not AnyRequirement(_UnmetRequirement(), _UnmetRequirement(), _UnmetRequirement()).is_met()
 
     async def test_summary(self) -> None:
-        async with App():
-            assert isinstance(AnyRequirement().summary(), Str)
+        assert isinstance(AnyRequirement().summary(), Str)
 
 
 class TestAllRequirements:
@@ -180,17 +176,14 @@ class TestAllRequirements:
             def is_met(self) -> bool:
                 return False
 
-        async with App():
-            assert not AllRequirements(_MetRequirement(), _MetRequirement(), _UnmetRequirement()).is_met()
+        assert not AllRequirements(_MetRequirement(), _MetRequirement(), _UnmetRequirement()).is_met()
 
     async def test_is_met_with_all_met(self) -> None:
         class _MetRequirement(Requirement):
             def is_met(self) -> bool:
                 return True
 
-        async with App():
-            assert AllRequirements(_MetRequirement(), _MetRequirement(), _MetRequirement()).is_met()
+        assert AllRequirements(_MetRequirement(), _MetRequirement(), _MetRequirement()).is_met()
 
     async def test_summary(self) -> None:
-        async with App():
-            assert isinstance(AllRequirements().summary(), Str)
+        assert isinstance(AllRequirements().summary(), Str)

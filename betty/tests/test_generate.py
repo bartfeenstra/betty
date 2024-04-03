@@ -34,89 +34,85 @@ class _ThirdPartyExtension(Extension, EntityTypeProvider):
 
 class TestGenerate:
     async def test_html_lang(self) -> None:
-        app = App()
-        app.project.configuration.locales['en-US'].alias = 'en'
-        app.project.configuration.locales.append(LocaleConfiguration(
-            'nl-NL',
-            alias='nl',
-        ))
-        async with app:
+        async with (App.new_temporary() as app, app):
+            app.project.configuration.locales['en-US'].alias = 'en'
+            app.project.configuration.locales.append(LocaleConfiguration(
+                'nl-NL',
+                alias='nl',
+            ))
             await generate(app)
             async with aiofiles.open(await assert_betty_html(app, '/nl/index.html', check_links=True)) as f:
                 html = await f.read()
                 assert '<html lang="nl-NL"' in html
 
     async def test_root_redirect(self) -> None:
-        app = App()
-        app.project.configuration.locales.replace(
-            LocaleConfiguration(
-                'nl-NL',
-                alias='nl',
-            ),
-            LocaleConfiguration(
-                'en-US',
-                alias='en',
-            ),
-        )
-        async with app:
+        async with (App.new_temporary() as app, app):
+            app.project.configuration.locales.replace(
+                LocaleConfiguration(
+                    'nl-NL',
+                    alias='nl',
+                ),
+                LocaleConfiguration(
+                    'en-US',
+                    alias='en',
+                ),
+            )
             await generate(app)
-        async with aiofiles.open(await assert_betty_html(app, '/index.html', check_links=True)) as f:
-            meta_redirect = '<meta http-equiv="refresh" content="0; url=/nl/index.html">'
-            assert meta_redirect in await f.read()
+            async with aiofiles.open(await assert_betty_html(app, '/index.html', check_links=True)) as f:
+                meta_redirect = '<meta http-equiv="refresh" content="0; url=/nl/index.html">'
+                assert meta_redirect in await f.read()
 
     async def test_links(self) -> None:
-        app = App()
-        app.project.configuration.locales.replace(
-            LocaleConfiguration(
-                'nl-NL',
-                alias='nl',
-            ),
-            LocaleConfiguration(
-                'en-US',
-                alias='en',
-            ),
-        )
-        async with app:
+        async with (App.new_temporary() as app, app):
+            app.project.configuration.locales.replace(
+                LocaleConfiguration(
+                    'nl-NL',
+                    alias='nl',
+                ),
+                LocaleConfiguration(
+                    'en-US',
+                    alias='en',
+                ),
+            )
             await generate(app)
-        async with aiofiles.open(await assert_betty_html(app, '/nl/index.html', check_links=True)) as f:
-            html = await f.read()
-            assert '<link rel="canonical" href="https://example.com/nl/index.html" hreflang="nl-NL" type="text/html">' in html
-            assert '<link rel="alternate" href="/en/index.html" hreflang="en-US" type="text/html">' in html
-        async with aiofiles.open(await assert_betty_html(app, '/en/index.html', check_links=True)) as f:
-            html = await f.read()
-            assert '<link rel="canonical" href="https://example.com/en/index.html" hreflang="en-US" type="text/html">' in html
-            assert '<link rel="alternate" href="/nl/index.html" hreflang="nl-NL" type="text/html">' in html
+            async with aiofiles.open(await assert_betty_html(app, '/nl/index.html', check_links=True)) as f:
+                html = await f.read()
+                assert '<link rel="canonical" href="https://example.com/nl/index.html" hreflang="nl-NL" type="text/html">' in html
+                assert '<link rel="alternate" href="/en/index.html" hreflang="en-US" type="text/html">' in html
+            async with aiofiles.open(await assert_betty_html(app, '/en/index.html', check_links=True)) as f:
+                html = await f.read()
+                assert '<link rel="canonical" href="https://example.com/en/index.html" hreflang="en-US" type="text/html">' in html
+                assert '<link rel="alternate" href="/nl/index.html" hreflang="nl-NL" type="text/html">' in html
 
     async def test_links_for_entity_pages(self) -> None:
-        app = App()
-        app.project.configuration.locales.replace(
-            LocaleConfiguration(
-                'nl-NL',
-                alias='nl',
-            ),
-            LocaleConfiguration(
-                'en-US',
-                alias='en',
-            ),
-        )
-        async with app:
+        async with (App.new_temporary() as app, app):
+            app.project.configuration.locales.replace(
+                LocaleConfiguration(
+                    'nl-NL',
+                    alias='nl',
+                ),
+                LocaleConfiguration(
+                    'en-US',
+                    alias='en',
+                ),
+            )
             person = Person(id='PERSON1')
             app.project.ancestry.add(person)
             await generate(app)
-        async with aiofiles.open(await assert_betty_html(app, f'/nl/person/{person.id}/index.html', check_links=True)) as f:
-            html = await f.read()
-        assert f'<link rel="canonical" href="https://example.com/nl/person/{person.id}/index.html" hreflang="nl-NL" type="text/html">' in html
-        assert f'<link rel="alternate" href="/en/person/{person.id}/index.html" hreflang="en-US" type="text/html">' in html
-        assert f'<link rel="alternate" href="/person/{person.id}/index.json" hreflang="und" type="application/json">' in html
-        async with aiofiles.open(await assert_betty_html(app, f'/en/person/{person.id}/index.html', check_links=True)) as f:
-            html = await f.read()
-        assert f'<link rel="canonical" href="https://example.com/en/person/{person.id}/index.html" hreflang="en-US" type="text/html">' in html
-        assert f'<link rel="alternate" href="/nl/person/{person.id}/index.html" hreflang="nl-NL" type="text/html">' in html
-        assert f'<link rel="alternate" href="/person/{person.id}/index.json" hreflang="und" type="application/json">' in html
+            async with aiofiles.open(await assert_betty_html(app, f'/nl/person/{person.id}/index.html', check_links=True)) as f:
+                html = await f.read()
+            assert f'<link rel="canonical" href="https://example.com/nl/person/{person.id}/index.html" hreflang="nl-NL" type="text/html">' in html
+            assert f'<link rel="alternate" href="/en/person/{person.id}/index.html" hreflang="en-US" type="text/html">' in html
+            assert f'<link rel="alternate" href="/person/{person.id}/index.json" hreflang="und" type="application/json">' in html
+            async with aiofiles.open(await assert_betty_html(app, f'/en/person/{person.id}/index.html', check_links=True)) as f:
+                html = await f.read()
+            assert f'<link rel="canonical" href="https://example.com/en/person/{person.id}/index.html" hreflang="en-US" type="text/html">' in html
+            assert f'<link rel="alternate" href="/nl/person/{person.id}/index.html" hreflang="nl-NL" type="text/html">' in html
+            assert f'<link rel="alternate" href="/person/{person.id}/index.json" hreflang="und" type="application/json">' in html
 
     async def test_third_party_entities(self) -> None:
         entity_type = _ThirdPartyEntity
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             app.project.configuration.extensions.append(ExtensionConfiguration(_ThirdPartyExtension))
             app.project.configuration.entity_types.append(EntityTypeConfiguration(
                 entity_type=entity_type,
@@ -128,7 +124,7 @@ class TestGenerate:
 
     async def test_third_party_entity(self) -> None:
         entity_type = _ThirdPartyEntity
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             app.project.configuration.extensions.append(ExtensionConfiguration(_ThirdPartyExtension))
             entity = _ThirdPartyEntity(
                 id='ENTITY1',
@@ -139,7 +135,7 @@ class TestGenerate:
             await assert_betty_json(app, f'/{camel_case_to_kebab_case(get_entity_type_name(entity_type))}/{entity.id}/index.json')
 
     async def test_files(self) -> None:
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             app.project.configuration.entity_types.append(EntityTypeConfiguration(
                 entity_type=File,
                 generate_html_list=True,
@@ -149,7 +145,7 @@ class TestGenerate:
         await assert_betty_json(app, '/file/index.json', 'fileCollection')
 
     async def test_file(self) -> None:
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             with NamedTemporaryFile() as f:
                 file = File(
                     id='FILE1',
@@ -161,13 +157,13 @@ class TestGenerate:
             await assert_betty_json(app, '/file/%s/index.json' % file.id)
 
     async def test_places(self) -> None:
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             await generate(app)
         await assert_betty_html(app, '/place/index.html', check_links=True)
         await assert_betty_json(app, '/place/index.json')
 
     async def test_place(self) -> None:
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             place = Place(
                 id='PLACE1',
                 names=[PlaceName(name='one')],
@@ -178,35 +174,34 @@ class TestGenerate:
         await assert_betty_json(app, '/place/%s/index.json' % place.id)
 
     async def test_people(self) -> None:
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             await generate(app)
         await assert_betty_html(app, '/person/index.html', check_links=True)
         await assert_betty_json(app, '/person/index.json')
 
     async def test_person(self) -> None:
         person = Person(id='PERSON1')
-        app = App()
-        app.project.ancestry.add(person)
-        async with app:
+        async with (App.new_temporary() as app, app):
+            app.project.ancestry.add(person)
             await generate(app)
-        await assert_betty_html(
-            app,
-            f'/person/{person.id}/index.html',
-            check_links=True,
-        )
-        await assert_betty_json(
-            app,
-            f'/person/{person.id}/index.json',
-        )
+            await assert_betty_html(
+                app,
+                f'/person/{person.id}/index.html',
+                check_links=True,
+            )
+            await assert_betty_json(
+                app,
+                f'/person/{person.id}/index.json',
+            )
 
     async def test_events(self) -> None:
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             await generate(app)
         await assert_betty_html(app, '/event/index.html', check_links=True)
         await assert_betty_json(app, '/event/index.json', 'eventCollection')
 
     async def test_event(self) -> None:
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             event = Event(
                 id='EVENT1',
                 event_type=Birth,
@@ -217,7 +212,7 @@ class TestGenerate:
         await assert_betty_json(app, '/event/%s/index.json' % event.id, 'event')
 
     async def test_citation(self) -> None:
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             source = Source('A Little Birdie')
             citation = Citation(
                 id='CITATION1',
@@ -229,13 +224,13 @@ class TestGenerate:
         await assert_betty_json(app, '/citation/%s/index.json' % citation.id)
 
     async def test_sources(self) -> None:
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             await generate(app)
         await assert_betty_html(app, '/source/index.html', check_links=True)
         await assert_betty_json(app, '/source/index.json')
 
     async def test_source(self) -> None:
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             source = Source(
                 id='SOURCE1',
                 name='A Little Birdie',
@@ -248,7 +243,7 @@ class TestGenerate:
 
 class TestResourceOverride:
     async def test(self) -> None:
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             localized_assets_directory_path = Path(app.project.configuration.assets_directory_path) / 'public' / 'localized'
             localized_assets_directory_path.mkdir(parents=True)
             async with aiofiles.open(str(localized_assets_directory_path / 'index.html.j2'), 'w') as f:
@@ -263,7 +258,7 @@ class TestSitemapGenerate:
     async def test_validate(self) -> None:
         from lxml import etree
 
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             await generate(app)
         schema_doc = etree.parse(Path(__file__).parent / 'test_generate_assets' / 'sitemap.xsd')
         schema = etree.XMLSchema(schema_doc)

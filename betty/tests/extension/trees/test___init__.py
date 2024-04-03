@@ -1,15 +1,14 @@
 import aiofiles
 
 from betty.app import App
-from betty.cache.file import BinaryFileCache
 from betty.extension import Trees
 from betty.generate import generate
 from betty.project import ExtensionConfiguration
 
 
 class TestTrees:
-    async def test_generate(self, binary_file_cache: BinaryFileCache) -> None:
-        async with App(binary_file_cache=binary_file_cache) as app:
+    async def test_generate(self) -> None:
+        async with (App.new_temporary() as app, app):
             app.project.configuration.debug = True
             app.project.configuration.extensions.append(ExtensionConfiguration(Trees))
             await generate(app)

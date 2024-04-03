@@ -4,7 +4,6 @@ from typing import Any, Iterator
 
 import pytest
 
-from betty.app import App
 from betty.extension.cotton_candy import _ColorConfiguration, CottonCandyConfiguration, person_timeline_events
 from betty.locale import Datey, Date, DateRange
 from betty.model import Entity, get_entity_type_name, UserFacingEntity, GeneratedEntityId
@@ -29,9 +28,8 @@ class TestColorConfiguration:
     ])
     async def test_hex_with_invalid_value(self, hex_value: str) -> None:
         sut = _ColorConfiguration('#ffffff')
-        async with App():
-            with pytest.raises(AssertionFailed):
-                sut.hex = hex_value
+        with pytest.raises(AssertionFailed):
+            sut.hex = hex_value
 
     async def test_load_with_valid_hex_value(self) -> None:
         hex_value = '#000000'
