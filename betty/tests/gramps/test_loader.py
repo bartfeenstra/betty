@@ -30,9 +30,7 @@ class TestGrampsLoader:
         async with TemporaryDirectory() as tree_directory_path_str:
             await loader.load_xml(
                 xml.strip(),
-                Path(
-                    tree_directory_path_str,  # type: ignore[arg-type]
-                ),
+                Path(tree_directory_path_str),
             )
         return project.ancestry
 

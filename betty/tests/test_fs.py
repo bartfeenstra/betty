@@ -10,9 +10,7 @@ from betty.fs import iterfiles, FileSystem, hashfile
 class TestIterfiles:
     async def test_iterfiles(self) -> None:
         async with TemporaryDirectory() as working_directory_path_str:
-            working_directory_path = Path(
-                working_directory_path_str,  # type: ignore[arg-type]
-            )
+            working_directory_path = Path(working_directory_path_str)
             working_subdirectory_path = working_directory_path / 'subdir'
             working_subdirectory_path.mkdir()
             async with aiofiles.open(working_directory_path / 'rootfile', 'a'):
@@ -44,13 +42,9 @@ class TestHashfile:
 class TestFileSystem:
     async def test_open(self) -> None:
         async with TemporaryDirectory() as source_path_str_1:
-            source_path_1 = Path(
-                source_path_str_1,  # type: ignore[arg-type]
-            )
+            source_path_1 = Path(source_path_str_1)
             async with TemporaryDirectory() as source_path_str_2:
-                source_path_2 = Path(
-                    source_path_str_2,  # type: ignore[arg-type]
-                )
+                source_path_2 = Path(source_path_str_2)
                 async with aiofiles.open(source_path_1 / 'apples', 'w') as f:
                     await f.write('apples')
                 async with aiofiles.open(source_path_2 / 'apples', 'w') as f:
@@ -75,13 +69,9 @@ class TestFileSystem:
 
     async def test_open_with_first_file_path_alternative_first_source_path(self) -> None:
         async with TemporaryDirectory() as source_path_str_1:
-            source_path_1 = Path(
-                source_path_str_1,  # type: ignore[arg-type]
-            )
+            source_path_1 = Path(source_path_str_1)
             async with TemporaryDirectory() as source_path_str_2:
-                source_path_2 = Path(
-                    source_path_str_2,  # type: ignore[arg-type]
-                )
+                source_path_2 = Path(source_path_str_2)
                 async with aiofiles.open(source_path_1 / 'pinkladies', 'w') as f:
                     await f.write('pinkladies')
                 async with aiofiles.open(source_path_2 / 'pinkladies', 'w') as f:
@@ -98,13 +88,9 @@ class TestFileSystem:
 
     async def test_open_with_first_file_path_alternative_second_source_path(self) -> None:
         async with TemporaryDirectory() as source_path_str_1:
-            source_path_1 = Path(
-                source_path_str_1,  # type: ignore[arg-type]
-            )
+            source_path_1 = Path(source_path_str_1)
             async with TemporaryDirectory() as source_path_str_2:
-                source_path_2 = Path(
-                    source_path_str_2,  # type: ignore[arg-type]
-                )
+                source_path_2 = Path(source_path_str_2)
                 async with aiofiles.open(source_path_2 / 'pinkladies', 'w') as f:
                     await f.write('pinkladies')
                 async with aiofiles.open(source_path_1 / 'apples', 'w') as f:
@@ -119,13 +105,9 @@ class TestFileSystem:
 
     async def test_open_with_second_file_path_alternative_first_source_path(self) -> None:
         async with TemporaryDirectory() as source_path_str_1:
-            source_path_1 = Path(
-                source_path_str_1,  # type: ignore[arg-type]
-            )
+            source_path_1 = Path(source_path_str_1)
             async with TemporaryDirectory() as source_path_str_2:
-                source_path_2 = Path(
-                    source_path_str_2,  # type: ignore[arg-type]
-                )
+                source_path_2 = Path(source_path_str_2)
                 async with aiofiles.open(source_path_1 / 'apples', 'w') as f:
                     await f.write('apples')
                 async with aiofiles.open(source_path_2 / 'apples', 'w') as f:
@@ -138,13 +120,9 @@ class TestFileSystem:
 
     async def test_copy2(self) -> None:
         async with TemporaryDirectory() as source_path_str_1:
-            source_path_1 = Path(
-                source_path_str_1,  # type: ignore[arg-type]
-            )
+            source_path_1 = Path(source_path_str_1)
             async with TemporaryDirectory() as source_path_str_2:
-                source_path_2 = Path(
-                    source_path_str_2,  # type: ignore[arg-type]
-                )
+                source_path_2 = Path(source_path_str_2)
                 async with aiofiles.open(source_path_1 / 'apples', 'w') as f:
                     await f.write('apples')
                 async with aiofiles.open(source_path_2 / 'apples', 'w') as f:
@@ -155,9 +133,7 @@ class TestFileSystem:
                     await f.write('bananas')
 
                 async with TemporaryDirectory() as destination_path_str:
-                    destination_path = Path(
-                        destination_path_str,  # type: ignore[arg-type]
-                    )
+                    destination_path = Path(destination_path_str)
                     sut = FileSystem((source_path_1, None), (source_path_2, None))
 
                     await sut.copy2(Path('apples'), destination_path)
@@ -176,14 +152,10 @@ class TestFileSystem:
 
     async def test_copytree(self) -> None:
         async with TemporaryDirectory() as source_path_str_1:
-            source_path_1 = Path(
-                source_path_str_1,  # type: ignore[arg-type]
-            )
+            source_path_1 = Path(source_path_str_1)
             (source_path_1 / 'basket').mkdir()
             async with TemporaryDirectory() as source_path_str_2:
-                source_path_2 = Path(
-                    source_path_str_2,  # type: ignore[arg-type]
-                )
+                source_path_2 = Path(source_path_str_2)
                 (source_path_2 / 'basket').mkdir()
                 async with aiofiles.open(source_path_1 / 'basket' / 'apples', 'w') as f:
                     await f.write('apples')
@@ -195,9 +167,7 @@ class TestFileSystem:
                     await f.write('bananas')
 
                 async with TemporaryDirectory() as destination_path_str:
-                    destination_path = Path(
-                        destination_path_str,  # type: ignore[arg-type]
-                    )
+                    destination_path = Path(destination_path_str)
                     sut = FileSystem((source_path_1, None), (source_path_2, None))
 
                     async for _ in sut.copytree(Path(''), destination_path):

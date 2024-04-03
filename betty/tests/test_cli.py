@@ -44,9 +44,7 @@ def _patch_cache(f: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
     async def _patch_cache(*args: P.args, **kwargs: P.kwargs) -> T:
         original_cache_directory_path = fs.CACHE_DIRECTORY_PATH
         async with TemporaryDirectory() as cache_directory:
-            fs.CACHE_DIRECTORY_PATH = Path(
-                cache_directory,  # type: ignore[arg-type]
-            )
+            fs.CACHE_DIRECTORY_PATH = Path(cache_directory)
             try:
                 return await f(*args, **kwargs)
 
@@ -107,17 +105,13 @@ class TestMain:
 
     async def test_help_with_invalid_configuration_file_path(self) -> None:
         async with TemporaryDirectory() as working_directory_path_str:
-            working_directory_path = Path(
-                working_directory_path_str,  # type: ignore[arg-type]
-            )
+            working_directory_path = Path(working_directory_path_str)
             configuration_file_path = working_directory_path / 'non-existent-betty.json'
             _run('-c', str(configuration_file_path), '--help', expected_exit_code=1)
 
     async def test_help_with_invalid_configuration(self) -> None:
         async with TemporaryDirectory() as working_directory_path_str:
-            working_directory_path = Path(
-                working_directory_path_str,  # type: ignore[arg-type]
-            )
+            working_directory_path = Path(working_directory_path_str)
             configuration_file_path = working_directory_path / 'betty.json'
             dump: Dump = {}
             async with aiofiles.open(configuration_file_path, 'w') as f:
@@ -127,9 +121,7 @@ class TestMain:
 
     async def test_with_discovered_configuration(self) -> None:
         async with TemporaryDirectory() as working_directory_path_str:
-            working_directory_path = Path(
-                working_directory_path_str,  # type: ignore[arg-type]
-            )
+            working_directory_path = Path(working_directory_path_str)
             async with aiofiles.open(working_directory_path / 'betty.json', 'w') as config_file:
                 url = 'https://example.com'
                 dump: Dump = {

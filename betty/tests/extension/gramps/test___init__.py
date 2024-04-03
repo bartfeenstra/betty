@@ -117,9 +117,7 @@ class TestGramps:
 </database>
 """.strip()
         async with TemporaryDirectory() as working_directory_path_str:
-            working_directory_path = Path(
-                working_directory_path_str,  # type: ignore[arg-type]
-            )
+            working_directory_path = Path(working_directory_path_str)
             gramps_family_tree_one_path = working_directory_path / 'one.xml'
             async with aiofiles.open(gramps_family_tree_one_path, mode='w') as f:
                 await f.write(family_tree_one_xml)

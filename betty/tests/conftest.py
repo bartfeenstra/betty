@@ -69,10 +69,8 @@ async def binary_file_cache() -> AsyncIterator[BinaryFileCache]:
     """
     Create a temporary file cache.
     """
-    async with TemporaryDirectory() as cache_directory:
-        yield BinaryFileCache(DEFAULT_LOCALIZER, Path(
-            cache_directory,  # type: ignore[arg-type]
-        ))
+    async with TemporaryDirectory() as cache_directory_path_str:
+        yield BinaryFileCache(DEFAULT_LOCALIZER, Path(cache_directory_path_str))
 
 
 @pytest.fixture(scope='function')

@@ -10,9 +10,7 @@ from betty.os import link_or_copy
 class TestLinkOrCopy:
     async def test(self) -> None:
         async with TemporaryDirectory() as working_directory_path_str:
-            working_directory_path = Path(
-                working_directory_path_str,  # type: ignore[arg-type]
-            )
+            working_directory_path = Path(working_directory_path_str)
             content = 'I will say zis only once.'
             source_path = working_directory_path / 'source'
             destination_path = working_directory_path / 'destination'
@@ -26,9 +24,7 @@ class TestLinkOrCopy:
         m_link = mocker.patch('os.link')
         m_link.side_effect = OSError
         async with TemporaryDirectory() as working_directory_path_str:
-            working_directory_path = Path(
-                working_directory_path_str,  # type: ignore[arg-type]
-            )
+            working_directory_path = Path(working_directory_path_str)
             content = 'I will say zis only once.'
             source_path = working_directory_path / 'source'
             destination_path = working_directory_path / 'destination'

@@ -30,9 +30,7 @@ class TestPotFile:
 
     async def test(self) -> None:
         async with TemporaryDirectory() as working_directory_path_str:
-            working_directory_path = Path(
-                working_directory_path_str,  # type: ignore[arg-type]
-            )
+            working_directory_path = Path(working_directory_path_str)
             await update_translations(working_directory_path)
             actual_pot_contents = await self._readlines(ASSETS_DIRECTORY_PATH)
             expected_pot_contents = await self._readlines(working_directory_path)
@@ -382,9 +380,7 @@ class TestLocalizerRepository:
     async def test_getitem(self) -> None:
         locale = 'nl-NL'
         async with TemporaryDirectory() as assets_directory_path_str:
-            assets_directory_path = Path(
-                assets_directory_path_str,  # type: ignore[arg-type]
-            )
+            assets_directory_path = Path(assets_directory_path_str)
             fs = FileSystem((assets_directory_path, None))
             lc_messages_directory_path = assets_directory_path / 'locale' / locale
             lc_messages_directory_path.mkdir(parents=True)

@@ -20,10 +20,8 @@ class TestPickledFileCache(CacheTestBase[Any]):
         *,
         scopes: Sequence[str] | None = None,
     ) -> AsyncIterator[PickledFileCache[Any]]:
-        async with TemporaryDirectory() as cache_directory_str:
-            yield PickledFileCache(DEFAULT_LOCALIZER, Path(
-                cache_directory_str,  # type: ignore[arg-type]
-            ), scopes=scopes)
+        async with TemporaryDirectory() as cache_directory_path_str:
+            yield PickledFileCache(DEFAULT_LOCALIZER, Path(cache_directory_path_str), scopes=scopes)
 
     def _values(self) -> Iterator[Any]:
         yield True
@@ -42,10 +40,8 @@ class TestBinaryFileCache(CacheTestBase[bytes]):
         *,
         scopes: Sequence[str] | None = None,
     ) -> AsyncIterator[BinaryFileCache]:
-        async with TemporaryDirectory() as cache_directory_str:
-            yield BinaryFileCache(DEFAULT_LOCALIZER, Path(
-                cache_directory_str,  # type: ignore[arg-type]
-            ), scopes=scopes)
+        async with TemporaryDirectory() as cache_directory_path_str:
+            yield BinaryFileCache(DEFAULT_LOCALIZER, Path(cache_directory_path_str), scopes=scopes)
 
     def _values(self) -> Iterator[bytes]:
         yield b'SomeBytes'

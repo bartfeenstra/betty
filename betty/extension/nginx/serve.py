@@ -36,13 +36,9 @@ class DockerizedNginxServer(AppServer):
         await super().start()
         logging.getLogger(__name__).info('Starting a Dockerized nginx web server...')
         self._output_directory = TemporaryDirectory()
-        output_directory_name = await self._output_directory.__aenter__()  # type: ignore[func-returns-value]
-        nginx_configuration_file_path = Path(
-            output_directory_name,  # type: ignore[arg-type]
-        ) / 'nginx.conf'
-        docker_directory_path = Path(
-            output_directory_name,  # type: ignore[arg-type]
-        )
+        output_directory_path_str = await self._output_directory.__aenter__()
+        nginx_configuration_file_path = Path(output_directory_path_str) / 'nginx.conf'
+        docker_directory_path = Path(output_directory_path_str)
         dockerfile_file_path = docker_directory_path / 'Dockerfile'
 
         await generate_configuration_file(
