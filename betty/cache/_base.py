@@ -56,9 +56,10 @@ class _CommonCacheBase(Cache[CacheItemValueContraT], Generic[CacheItemValueContr
     def _with_scope(self, scope: str) -> Self:
         raise NotImplementedError
 
-    async def get(self, cache_item_id: str) -> CacheItem[CacheItemValueContraT] | None:
+    @asynccontextmanager
+    async def get(self, cache_item_id: str) -> AsyncIterator[CacheItem[CacheItemValueContraT] | None]:
         async with await self._lock(cache_item_id):
-            return await self._get(cache_item_id)
+            yield await self._get(cache_item_id)
 
     async def _get(self, cache_item_id: str) -> CacheItem[CacheItemValueContraT] | None:
         raise NotImplementedError

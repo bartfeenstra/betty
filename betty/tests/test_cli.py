@@ -164,7 +164,8 @@ class TestClearCaches:
         async with App() as app:
             await app.cache.set('KeepMeAroundPlease', '')
             _run('clear-caches')
-            assert await app.cache.get('KeepMeAroundPlease') is None
+            async with app.cache.get('KeepMeAroundPlease') as cache_item:
+                assert cache_item is None
 
 
 class TestDemo:
