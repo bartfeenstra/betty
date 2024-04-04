@@ -45,7 +45,8 @@ class TestBettyMainWindow:
             await app.cache.set('KeepMeAroundPlease', '')
             betty_qtbot.navigate(sut, ['clear_caches_action'])
 
-            assert await app.cache.get('KeepMeAroundPlease') is None
+            async with app.cache.get('KeepMeAroundPlease') as cache_item:
+                assert cache_item is None
 
     async def test_open_about_window(
         self,

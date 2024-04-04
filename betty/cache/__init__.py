@@ -47,7 +47,7 @@ class Cache(Generic[CacheItemValueContraT]):
         """
         raise NotImplementedError
 
-    async def get(self, cache_item_id: str) -> CacheItem[CacheItemValueContraT] | None:
+    def get(self, cache_item_id: str) -> AsyncContextManager[CacheItem[CacheItemValueContraT] | None]:
         """
         Get the cache item with the given ID.
         """

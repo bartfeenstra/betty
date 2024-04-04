@@ -30,7 +30,8 @@ class CacheTestBase(Generic[CacheItemValueT]):
     ])
     async def test_get_without_hit(self, scopes: Sequence[str]) -> None:
         async with self._new_sut(scopes=scopes) as sut:
-            assert await sut.get('id') is None
+            async with sut.get('id') as cache_item:
+                assert cache_item is None
 
     @pytest.mark.parametrize('scopes', [
         (),
@@ -40,9 +41,9 @@ class CacheTestBase(Generic[CacheItemValueT]):
         for value in self._values():
             async with self._new_sut(scopes=scopes) as sut:
                 await sut.set('id', value)
-                cache_item = await sut.get('id')
-                assert cache_item is not None
-                assert await cache_item.value() == value
+                async with sut.get('id') as cache_item:
+                    assert cache_item is not None
+                    assert await cache_item.value() == value
 
     @pytest.mark.parametrize('scopes', [
         (),
@@ -53,9 +54,9 @@ class CacheTestBase(Generic[CacheItemValueT]):
         for value in self._values():
             async with self._new_sut(scopes=scopes) as sut:
                 await sut.set('id', value, modified=modified)
-                cache_item = await sut.get('id')
-                assert cache_item is not None
-                assert cache_item.modified == modified
+                async with sut.get('id') as cache_item:
+                    assert cache_item is not None
+                    assert cache_item.modified == modified
 
     @pytest.mark.parametrize('scopes', [
         (),
@@ -67,9 +68,9 @@ class CacheTestBase(Generic[CacheItemValueT]):
                 async with sut.getset('id') as (cache_item, setter):
                     assert cache_item is None
                     await setter(value)
-                cache_item = await sut.get('id')
-                assert cache_item is not None
-                assert await cache_item.value() == value
+                async with sut.get('id') as cache_item:
+                    assert cache_item is not None
+                    assert await cache_item.value() == value
 
     @pytest.mark.parametrize('scopes', [
         (),
@@ -109,7 +110,8 @@ class CacheTestBase(Generic[CacheItemValueT]):
         async with self._new_sut(scopes=scopes) as sut:
             await sut.set('id', next(self._values()))
             await sut.delete('id')
-            assert await sut.get('id') is None
+            async with sut.get('id') as cache_item:
+                assert cache_item is None
 
     @pytest.mark.parametrize('scopes', [
         (),
@@ -119,4 +121,5 @@ class CacheTestBase(Generic[CacheItemValueT]):
         async with self._new_sut(scopes=scopes) as sut:
             await sut.set('id', next(self._values()))
             await sut.clear()
-            assert await sut.get('id') is None
+            async with sut.get('id') as cache_item:
+                assert cache_item is None
