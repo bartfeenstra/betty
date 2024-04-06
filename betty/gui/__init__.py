@@ -2,9 +2,11 @@
 from __future__ import annotations
 
 import pickle
-from typing import Any, TypeVar
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+from typing import Any, TypeVar, Self
 
-from PyQt6.QtCore import pyqtSlot, QObject
+from PyQt6.QtCore import pyqtSlot, QObject, QCoreApplication
 from PyQt6.QtGui import QPalette
 from PyQt6.QtWidgets import QApplication, QWidget
 
@@ -56,6 +58,12 @@ def mark_invalid(widget: QWidget, reason: str) -> None:
 
 
 class BettyApplication(QApplication):
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self._app: App | None = None
+        self.setApplicationName('Betty')
+        self.setStyleSheet(self._stylesheet())
+
     def _is_dark_mode(self) -> bool:
         palette = self.palette()
         window_lightness = palette.color(QPalette.ColorRole.Window).lightness()
@@ -124,12 +132,6 @@ class BettyApplication(QApplication):
             }}
             """
 
-    def __init__(self, *args: Any, app: App, **kwargs: Any):
-        super().__init__(*args, **kwargs)
-        self.setApplicationName('Betty')
-        self.setStyleSheet(self._stylesheet())
-        self._app = app
-
     @pyqtSlot(
         type,
         bytes,
@@ -144,7 +146,7 @@ class BettyApplication(QApplication):
         close_parent: bool,
     ) -> None:
         error_message = pickle.loads(pickled_error_message)
-        window = ExceptionError(self._app, error_message, error_type, parent=parent, close_parent=close_parent)
+        window = ExceptionError(self.app, error_message, error_type, parent=parent, close_parent=close_parent)
         window.show()
 
     @pyqtSlot(
@@ -162,5 +164,25 @@ class BettyApplication(QApplication):
         parent: QObject,
         close_parent: bool,
     ) -> None:
-        window = _UnexpectedExceptionError(self._app, error_type, error_message, error_traceback, parent=parent, close_parent=close_parent)
+        window = _UnexpectedExceptionError(self.app, error_type, error_message, error_traceback, parent=parent, close_parent=close_parent)
         window.show()
+
+    @classmethod
+    def instance(cls) -> Self:
+        qapp = QCoreApplication.instance()
+        assert isinstance(qapp, cls)
+        return qapp
+
+    @asynccontextmanager
+    async def with_app(self, app: App) -> AsyncIterator[Self]:
+        if self._app is not None:
+            raise RuntimeError(f'This {type(self)} already has an {App}.')
+        self._app = app
+        yield self
+        self._app = None
+
+    @property
+    def app(self) -> App:
+        if self._app is None:
+            raise RuntimeError(f'This {type(self)} does not have an {App} yet.')
+        return self._app
