@@ -31,7 +31,7 @@ from betty.model.event_type import EventType, EventTypeProvider, Birth, Baptism,
     Emigration, Occupation, Retirement, Correspondence, Confirmation
 from betty.project import Project
 from betty.render import Renderer, SequentialRenderer
-from betty.serde.dump import minimize, void_none, Dump, VoidableDump, Void
+from betty.serde.dump import minimize, void_none, Dump, VoidableDump
 from betty.serde.load import AssertionFailed, Fields, Assertions, OptionalField, Asserter
 
 if TYPE_CHECKING:
@@ -162,19 +162,6 @@ class App(Configurable[AppConfiguration]):
         self._cache = cache
         self._binary_file_cache = binary_file_cache
         self._process_pool: Executor | None = None
-
-    @classmethod
-    def _unreduce(cls, dumped_app_configuration: VoidableDump, project: Project) -> Self:
-        if dumped_app_configuration is Void:
-            app_configuration = None
-        else:
-            app_configuration = AppConfiguration.load(
-                dumped_app_configuration,  # type: ignore[arg-type]
-            )
-        return App(
-            app_configuration,
-            project,
-        )
 
     async def __aenter__(self) -> Self:
         await self.start()
