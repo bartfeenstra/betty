@@ -4,8 +4,9 @@ Integrate Betty with pytest.
 from __future__ import annotations
 
 import logging
+from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import Iterator, TypeVar, cast, AsyncIterator, Any
+from typing import Iterator, TypeVar, cast, Any
 from warnings import filterwarnings
 
 import pytest
@@ -24,10 +25,8 @@ from betty.gui.error import ErrorT
 from betty.locale import DEFAULT_LOCALIZER
 from betty.warnings import BettyDeprecationWarning
 
-_qapp_instance: BettyApplication | None = None
 
-
-@pytest.fixture(scope='function', autouse=True)
+@pytest.fixture(autouse=True)
 def raise_deprecation_warnings_as_errors() -> Iterator[None]:
     """
     Raise Betty's own deprecation warnings as errors.
@@ -55,7 +54,7 @@ def mock_app_configuration() -> Iterator[None]:
     del AppConfiguration._read  # type: ignore[attr-defined]
 
 
-@pytest.fixture(scope='function', autouse=True)
+@pytest.fixture(autouse=True)
 def set_logging(caplog: LogCaptureFixture) -> Iterator[None]:
     """
     Reduce noisy logging output during tests.
@@ -72,7 +71,7 @@ async def app_cache(tmp_path: Path) -> Cache[Any] & FileCache:
     return _BackwardsCompatiblePickledFileCache(DEFAULT_LOCALIZER, tmp_path)
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture
 async def binary_file_cache(tmp_path: Path) -> BinaryFileCache:
     """
     Create a temporary binary file cache.
@@ -80,24 +79,23 @@ async def binary_file_cache(tmp_path: Path) -> BinaryFileCache:
     return BinaryFileCache(DEFAULT_LOCALIZER, tmp_path)
 
 
-@pytest.fixture(scope='function')
-async def qapp(qapp_args: list[str]) -> AsyncIterator[BettyApplication]:
+@pytest.fixture(scope='session')
+def qapp_cls() -> type[BettyApplication]:
     """
-    Instantiate the BettyApplication instance that will be used by the tests.
-
-    You can use the ``qapp`` fixture in tests which require a ``BettyApplication``
-    to run, but where you don't need full ``qtbot`` functionality.
-
-    This overrides pytest-qt's built-in qapp fixture and adds forced garbage collection after each function.
+    Override pytest-qt's fixture of the same name to provide the Betty QApplication class.
     """
-    qapp_instance = cast(BettyApplication | None, BettyApplication.instance())
-    if qapp_instance is None:
-        global _qapp_instance
-        async with App() as app:
-            _qapp_instance = BettyApplication(qapp_args, app=app)
-        yield _qapp_instance
-    else:
-        yield qapp_instance
+    return BettyApplication
+
+
+@pytest.fixture
+async def new_temporary_app(app_cache: Cache[Any] & FileCache, binary_file_cache: BinaryFileCache) -> AsyncIterator[App]:
+    """
+    Create a new, temporary :py:class:`betty.app.App`.
+    """
+    yield App(
+        cache=app_cache,
+        binary_file_cache=binary_file_cache,
+    )
 
 
 QObjectT = TypeVar('QObjectT', bound=QObject)
@@ -108,6 +106,7 @@ class BettyQtBot:
     def __init__(self, qtbot: QtBot, qapp: BettyApplication):
         self.qtbot = qtbot
         self.qapp = qapp
+        self.app = qapp.app
 
     def assert_interactive(self, item: QAction | QWidget | None) -> None:
         def _assert_interactive() -> None:
@@ -204,8 +203,9 @@ class BettyQtBot:
 
 
 @pytest.fixture
-def betty_qtbot(qtbot: QtBot, qapp: BettyApplication) -> BettyQtBot:
+async def betty_qtbot(qtbot: QtBot, qapp: BettyApplication, new_temporary_app: App) -> AsyncIterator[BettyQtBot]:
     """
     Provide utilities to control Betty's Qt implementations.
     """
-    return BettyQtBot(qtbot, qapp)
+    async with qapp.with_app(new_temporary_app):
+        yield BettyQtBot(qtbot, qapp)
