@@ -88,7 +88,7 @@ ConfigurationT = TypeVar('ConfigurationT', bound=Configuration)
 class FileBasedConfiguration(Configuration):
     def __init__(self):
         super().__init__()
-        self._project_directory: TemporaryDirectory | None = None  # type: ignore[type-arg]
+        self._configuration_directory: TemporaryDirectory | None = None  # type: ignore[type-arg]
         self._configuration_file_path: Path | None = None
         self._autowrite = False
 
@@ -149,15 +149,15 @@ class FileBasedConfiguration(Configuration):
         self.update(loaded_configuration)
 
     def __del__(self) -> None:
-        if hasattr(self, '_project_directory') and self._project_directory is not None:
-            self._project_directory.cleanup()
+        if hasattr(self, '_configuration_directory') and self._configuration_directory is not None:
+            self._configuration_directory.cleanup()
 
     @property
     def configuration_file_path(self) -> Path:
         if self._configuration_file_path is None:
-            if self._project_directory is None:
-                self._project_directory = TemporaryDirectory()
-            wait(self._write(Path(self._project_directory.name) / f'{type(self).__name__}.json'))
+            if self._configuration_directory is None:
+                self._configuration_directory = TemporaryDirectory()
+            wait(self._write(Path(self._configuration_directory.name) / f'{type(self).__name__}.json'))
         return cast(Path, self._configuration_file_path)
 
     @configuration_file_path.setter
