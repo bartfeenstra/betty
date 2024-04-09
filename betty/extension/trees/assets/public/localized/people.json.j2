@@ -16,4 +16,4 @@
         }
     }) %}
 {% endfor %}
-{{ ns.people | json }}
+{{ ns.people | json | safe }}
