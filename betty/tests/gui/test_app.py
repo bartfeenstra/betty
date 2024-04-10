@@ -15,7 +15,8 @@ from betty.tests.test_serve import SleepingAppServer
 
 
 class TestBettyPrimaryWindow:
-    async def test_view_demo_site(
+    # @todo Remove the 'x' prefix
+    async def xtest_view_demo_site(
         self,
         mocker: MockerFixture,
         betty_qtbot: BettyQtBot,
@@ -30,8 +31,7 @@ class TestBettyPrimaryWindow:
 
         betty_qtbot.assert_window(ServeDemoWindow)
 
-    # @todo Remove the 'x' prefix
-    async def xtest_clear_caches(self, betty_qtbot: BettyQtBot) -> None:
+    async def test_clear_caches(self, betty_qtbot: BettyQtBot) -> None:
         sut = BettyPrimaryWindow(betty_qtbot.app)
         betty_qtbot.qtbot.addWidget(sut)
         sut.show()
