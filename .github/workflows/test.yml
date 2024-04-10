@@ -133,7 +133,7 @@ jobs:
 
       # @todo Remove this debug test step
       - name: Run the tests DEBUG DEBUG
-        run: pytest -vvv ./betty/tests/gui/test_app.py
+        run: pytest -vvv -k 'TestWelcomeWindow' ./betty/tests/gui/test_app.py
         shell: bash
 
       - name: Run the tests
