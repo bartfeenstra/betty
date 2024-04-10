@@ -14,7 +14,7 @@ from betty.tests.conftest import BettyQtBot
 from betty.tests.test_serve import SleepingAppServer
 
 
-class TestBettyMainWindow:
+class TestBettyPrimaryWindow:
     async def test_view_demo_site(
         self,
         mocker: MockerFixture,

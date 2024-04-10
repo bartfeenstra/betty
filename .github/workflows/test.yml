@@ -18,18 +18,20 @@ jobs:
         include:
           # The number of builds that submit code coverage configured here MUST be identical
           # to the number of `after_n_builds` in /home/bart/code/bartfeenstra/betty/codecov.yml.
-          - name: 'Python 3.12'
-            os: ubuntu-latest
-            python: '3.12'
-          - name: 'Python 3.11'
-            os: ubuntu-latest
-            python: '3.11'
+          # @todo Uncomment the matrix
+#          - name: 'Python 3.12'
+#            os: ubuntu-latest
+#            python: '3.12'
+#          - name: 'Python 3.11'
+#            os: ubuntu-latest
+#            python: '3.11'
           - name: 'macOS'
             os: macos-latest
             python: '3.12'
-          - name: 'Windows'
-            os: windows-latest
-            python: '3.12'
+          # @todo Uncomment the matrix
+#          - name: 'Windows'
+#            os: windows-latest
+#            python: '3.12'
 
     steps:
       - name: Check out the source code
@@ -128,6 +130,11 @@ jobs:
           key: cypress-${{ runner.os }}-${{ hashFiles('./package.json') }}
           restore-keys: |
             cypress-
+
+      # @todo Remove this debug test step
+      - name: Run the tests DEBUG DEBUG
+        run: pytest -vvv ./betty/tests/gui/
+        shell: bash
 
       - name: Run the tests
         if: startsWith(runner.os, 'Linux')
