@@ -199,6 +199,20 @@ class App(Configurable[AppConfiguration]):
 
     @classmethod
     @asynccontextmanager
+    async def new_from_app(
+        cls,
+        app: App,
+        *,
+        project: Project | None = None,
+    ) -> AsyncIterator[Self]:
+        yield cls(
+            AppConfiguration(app.configuration._configuration_directory_path),
+            app.project if project is None else project,
+            app._cache_directory_path,
+        )
+
+    @classmethod
+    @asynccontextmanager
     async def new_temporary(
         cls,
         *,

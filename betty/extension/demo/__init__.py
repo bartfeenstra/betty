@@ -15,6 +15,7 @@ from betty.model.ancestry import Place, PlaceName, Person, Presence, Subject, Pe
 from betty.model.event_type import Marriage, Birth, Death
 from betty.project import LocaleConfiguration, ExtensionConfiguration, EntityReference, Project
 from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
+from betty.warnings import deprecate
 
 
 class _Demo(Extension, Loader):
@@ -407,10 +408,18 @@ Did you know that Liberta "Betty" Lankester is Betty's namesake?
 class DemoServer(Server):
     def __init__(
         self,
+        *,
+        app: App | None = None,
     ):
         super().__init__(localizer=DEFAULT_LOCALIZER)
+        self._app = app
         self._server: Server | None = None
         self._exit_stack = AsyncExitStack()
+        if app is None:
+            deprecate(
+                f'Initializing {type(self)} with a project ID is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. Instead, set {type(self)}.configuration.name.',
+                stacklevel=2,
+            )
 
     @classmethod
     def label(cls) -> Str:
@@ -426,17 +435,26 @@ class DemoServer(Server):
         from betty.extension import Demo
 
         await super().start()
-        app = await self._exit_stack.enter_async_context(App.new_from_environment(
-            project=Demo.project(),
-        ))
-        self._localizer = app.localizer
+        project = Demo.project()
+        if self._app is None:
+            isolated_app_factory = App.new_from_environment(
+                project=project,
+            )
+        else:
+            isolated_app_factory = App.new_from_app(
+                self._app,
+                project=project,
+            )
+        isolated_app = await self._exit_stack.enter_async_context(isolated_app_factory)
+        await self._exit_stack.enter_async_context(isolated_app)
+        self._localizer = isolated_app.localizer
         try:
-            await self._exit_stack.enter_async_context(app)
-            await load.load(app)
-            self._server = serve.BuiltinAppServer(app)
+            await self._exit_stack.enter_async_context(isolated_app)
+            await load.load(isolated_app)
+            self._server = serve.BuiltinAppServer(isolated_app)
             await self._exit_stack.enter_async_context(self._server)
-            app.project.configuration.base_url = self._server.public_url
-            await generate.generate(app)
+            isolated_app.project.configuration.base_url = self._server.public_url
+            await generate.generate(isolated_app)
         except BaseException:
             await self.stop()
             raise
