@@ -30,8 +30,7 @@ class TestBettyPrimaryWindow:
 
         betty_qtbot.assert_window(ServeDemoWindow)
 
-    # @todo Remove the 'x' prefix
-    async def xtest_clear_caches(self, betty_qtbot: BettyQtBot) -> None:
+    async def test_clear_caches(self, betty_qtbot: BettyQtBot) -> None:
         sut = BettyPrimaryWindow(betty_qtbot.app)
         betty_qtbot.qtbot.addWidget(sut)
         sut.show()
@@ -42,8 +41,7 @@ class TestBettyPrimaryWindow:
         async with betty_qtbot.app.cache.get('KeepMeAroundPlease') as cache_item:
             assert cache_item is None
 
-    # @todo Remove the 'x' prefix
-    async def xtest_open_about_window(
+    async def test_open_about_window(
         self,
         betty_qtbot: BettyQtBot,
     ) -> None:
@@ -75,8 +73,7 @@ class TestWelcomeWindow:
 
         betty_qtbot.assert_exception_error(contained_error_type=SerdeError)
 
-    # @todo Remove the 'x' prefix
-    async def xtest_open_project_with_valid_file_should_show_project_window(
+    async def test_open_project_with_valid_file_should_show_project_window(
         self,
         mocker: MockerFixture,
         betty_qtbot: BettyQtBot,
@@ -97,8 +94,7 @@ class TestWelcomeWindow:
         betty_qtbot.assert_window(ProjectWindow)
         assert betty_qtbot.app.project.configuration.title == title
 
-    # @todo Remove the 'x' prefix
-    async def xtest_view_demo_site(
+    async def test_view_demo_site(
         self,
         mocker: MockerFixture,
         betty_qtbot: BettyQtBot,
