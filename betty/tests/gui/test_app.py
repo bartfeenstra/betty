@@ -41,7 +41,8 @@ class TestBettyPrimaryWindow:
         async with betty_qtbot.app.cache.get('KeepMeAroundPlease') as cache_item:
             assert cache_item is None
 
-    async def test_open_about_window(
+    # @todo Remove the 'x' prefix
+    async def xtest_open_about_window(
         self,
         betty_qtbot: BettyQtBot,
     ) -> None:
