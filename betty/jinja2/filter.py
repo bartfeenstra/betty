@@ -6,7 +6,7 @@ from __future__ import annotations
 import json as stdjson
 import re
 import warnings
-from asyncio import get_running_loop
+from asyncio import get_running_loop, run
 from base64 import b64encode
 from collections.abc import Awaitable
 from contextlib import suppress
@@ -31,7 +31,6 @@ from markupsafe import Markup, escape
 from pdf2image.pdf2image import convert_from_path
 
 from betty import _resizeimage
-from betty.asyncio import sync
 from betty.fs import hashfile
 from betty.functools import walk
 from betty.locale import negotiate_localizeds, Localized, Datey, negotiate_locale, Localey, get_data, Localizable
@@ -319,8 +318,29 @@ async def _load_image_application_pdf(
     return image
 
 
-@sync
-async def _execute_filter_image(
+def _execute_filter_image(
+    image_loader: Callable[[Path, MediaType], Awaitable[Image.Image]],
+    file_path: Path,
+    media_type: MediaType,
+    cache_item_file_path: Path,
+    destination_directory_path: Path,
+    destination_name: str,
+    width: int | None,
+    height: int | None,
+) -> None:
+    run(__execute_filter_image(
+        image_loader,
+        file_path,
+        media_type,
+        cache_item_file_path,
+        destination_directory_path,
+        destination_name,
+        width,
+        height,
+    ))
+
+
+async def __execute_filter_image(
     image_loader: Callable[[Path, MediaType], Awaitable[Image.Image]],
     file_path: Path,
     media_type: MediaType,

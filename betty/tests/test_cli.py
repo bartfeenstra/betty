@@ -121,7 +121,7 @@ class TestMain:
                 dump: Dump = {
                     'base_url': url,
                     'extensions': {
-                        DummyExtension.name(): None,
+                        DummyExtension.name(): {},
                     },
                 }
                 await config_file.write(json.dumps(dump))

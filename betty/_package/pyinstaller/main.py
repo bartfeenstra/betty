@@ -1,16 +1,19 @@
 import sys
+from asyncio import run
 
 from betty.app import App
-from betty.asyncio import sync
 from betty.gui import BettyApplication
 from betty.gui.app import WelcomeWindow
 
 
-@sync
-async def main() -> None:
+def main() -> None:
     """
     Launch Betty for PyInstaller builds.
     """
+    run(_main())
+
+
+async def _main() -> None:
     async with App.new_from_environment() as app:
         async with BettyApplication([sys.argv[0]]).with_app(app) as qapp:
             window = WelcomeWindow(app)

@@ -20,7 +20,7 @@ from aiofiles.tempfile import TemporaryDirectory
 from betty import fs
 from betty.app.extension import ListExtensions, Extension, Extensions, build_extension_type_graph, \
     CyclicDependencyError, ExtensionDispatcher, ConfigurableExtension, discover_extension_types
-from betty.asyncio import sync, wait
+from betty.asyncio import wait_to_thread
 from betty.cache import Cache, FileCache
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.config import Configurable, FileBasedConfiguration
@@ -167,7 +167,7 @@ class App(Configurable[AppConfiguration]):
         self._localizer: Localizer | None = None
         self._localizers: LocalizerRepository | None = None
         with suppress(FileNotFoundError):
-            wait(self.configuration.read())
+            wait_to_thread(self.configuration.read())
         self._project = project or Project()
         self.project.configuration.extensions.on_change(self._update_extensions)
 
@@ -353,7 +353,7 @@ class App(Configurable[AppConfiguration]):
         Get the application's localizer.
         """
         if self._localizer is None:
-            self._localizer = wait(self.localizers.get_negotiated(self.configuration.locale or DEFAULT_LOCALE))
+            self._localizer = wait_to_thread(self.localizers.get_negotiated(self.configuration.locale or DEFAULT_LOCALE))
         return self._localizer
 
     @localizer.deleter
@@ -408,13 +408,13 @@ class App(Configurable[AppConfiguration]):
                     'User-Agent': f'Betty (https://github.com/bartfeenstra/betty) on behalf of {self._project.configuration.base_url}{self._project.configuration.root_path}',
                 },
             )
-            weakref.finalize(self, sync(self._http_client.close))
+            weakref.finalize(self, lambda: None if self._http_client is None else wait_to_thread(self._http_client.close()))
         return self._http_client
 
     @http_client.deleter
     def http_client(self) -> None:
         if self._http_client is not None:
-            wait(self._http_client.close())
+            wait_to_thread(self._http_client.close())
             self._http_client = None
 
     @property
@@ -422,7 +422,7 @@ class App(Configurable[AppConfiguration]):
         if self._entity_types is None:
             from betty.model.ancestry import Citation, Enclosure, Event, File, Note, Person, PersonName, Presence, Place, Source
 
-            self._entity_types = reduce(operator.or_, wait(self.dispatcher.dispatch(EntityTypeProvider)()), set()) | {
+            self._entity_types = reduce(operator.or_, wait_to_thread(self.dispatcher.dispatch(EntityTypeProvider)()), set()) | {
                 Citation,
                 Enclosure,
                 Event,
@@ -443,7 +443,7 @@ class App(Configurable[AppConfiguration]):
     @property
     def event_types(self) -> set[type[EventType]]:
         if self._event_types is None:
-            self._event_types = set(wait(self.dispatcher.dispatch(EventTypeProvider)())) | {
+            self._event_types = set(wait_to_thread(self.dispatcher.dispatch(EventTypeProvider)())) | {
                 Birth,
                 Baptism,
                 Adoption,

@@ -685,7 +685,7 @@ class TestProjectConfiguration:
     async def test_load_unknown_extension_type_name_should_error(self) -> None:
         dump: Any = ProjectConfiguration().dump()
         dump['extensions'] = {
-            'non.existent.type': None,
+            'non.existent.type': {},
         }
         with raises_error(error_type=AssertionFailed):
             ProjectConfiguration.load(dump)
@@ -693,7 +693,7 @@ class TestProjectConfiguration:
     async def test_load_not_an_extension_type_name_should_error(self) -> None:
         dump: Any = ProjectConfiguration().dump()
         dump['extensions'] = {
-            '%s.%s' % (self.__class__.__module__, self.__class__.__name__): None,
+            '%s.%s' % (self.__class__.__module__, self.__class__.__name__): {},
         }
         with raises_error(error_type=AssertionFailed):
             ProjectConfiguration.load(dump)

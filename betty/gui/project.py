@@ -22,7 +22,7 @@ from babel.localedata import locale_identifiers
 from betty import load, generate
 from betty.app import App
 from betty.app.extension import UserFacingExtension
-from betty.asyncio import sync, wait
+from betty.asyncio import wait_to_thread
 from betty.gui import get_configuration_file_filter, GuiBuilder, mark_invalid, mark_valid
 from betty.gui.app import BettyPrimaryWindow
 from betty.gui.error import ExceptionCatcher
@@ -592,7 +592,7 @@ class ProjectWindow(BettyPrimaryWindow):
                 '',
                 get_configuration_file_filter().localize(self._app.localizer),
             )
-            wait(self._app.project.configuration.write(Path(configuration_file_path_str)))
+            wait_to_thread(self._app.project.configuration.write(Path(configuration_file_path_str)))
 
     def _generate(self) -> None:
         with ExceptionCatcher(self):
@@ -612,8 +612,10 @@ class _GenerateThread(QThread):
         self._generate_window = generate_window
         self._task: Task[None] | None = None
 
-    @sync
-    async def run(self) -> None:
+    def run(self) -> None:
+        asyncio.run(self._run())
+
+    async def _run(self) -> None:
         with suppress(CancelledError):
             self._task = asyncio.create_task(self._generate())
             await self._task

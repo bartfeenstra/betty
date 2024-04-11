@@ -14,7 +14,7 @@ from PyQt6.QtWidgets import QFormLayout, QWidget, QVBoxLayout, QHBoxLayout, QFil
 from betty import about
 from betty.about import report
 from betty.app import App
-from betty.asyncio import sync, wait
+from betty.asyncio import wait_to_thread
 from betty.gui import get_configuration_file_filter
 from betty.gui.error import ExceptionCatcher
 from betty.gui.locale import TranslationsLocaleCollector
@@ -178,7 +178,7 @@ class BettyPrimaryWindow(BettyMainWindow):
             )
             if not configuration_file_path_str:
                 return
-            wait(self._app.project.configuration.read(Path(configuration_file_path_str)))
+            wait_to_thread(self._app.project.configuration.read(Path(configuration_file_path_str)))
             project_window = ProjectWindow(self._app)
             project_window.show()
             self.close()
@@ -196,7 +196,7 @@ class BettyPrimaryWindow(BettyMainWindow):
             if not configuration_file_path_str:
                 return
             configuration = ProjectConfiguration()
-            wait(configuration.write(Path(configuration_file_path_str)))
+            wait_to_thread(configuration.write(Path(configuration_file_path_str)))
             project_window = ProjectWindow(self._app)
             project_window.show()
             self.close()
@@ -206,8 +206,10 @@ class BettyPrimaryWindow(BettyMainWindow):
             serve_window = ServeDemoWindow(self._app, parent=self)
             serve_window.show()
 
-    @sync
-    async def clear_caches(self) -> None:
+    def clear_caches(self) -> None:
+        wait_to_thread(self._clear_caches())
+
+    async def _clear_caches(self) -> None:
         async with ExceptionCatcher(self):
             await self._app.cache.clear()
 
@@ -315,7 +317,7 @@ class _AboutBettyWindow(BettyMainWindow):
         super()._set_translatables()
         self._label.setText(''.join(map(lambda x: '<p>%s</p>' % x, [
             self._app.localizer._('Version: {version}').format(
-                version=wait(about.version_label()),
+                version=wait_to_thread(about.version_label()),
             ),
             self._app.localizer._('Copyright 2019-{year} Bart Feenstra & contributors. Betty is made available to you under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License, Version 3</a> (GPLv3).').format(
                 year=datetime.now().year,

@@ -3,6 +3,7 @@ Integrate Betty's Graphical User Interface with the Serve API.
 """
 from __future__ import annotations
 
+import asyncio
 from typing import Any
 
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QObject
@@ -10,7 +11,7 @@ from PyQt6.QtWidgets import QVBoxLayout, QWidget, QPushButton
 
 from betty import documentation
 from betty.app import App
-from betty.asyncio import sync
+from betty.asyncio import wait_to_thread
 from betty.extension import demo
 from betty.gui.error import ExceptionCatcher
 from betty.gui.text import Text
@@ -34,17 +35,18 @@ class _ServeThread(QThread):
     def server(self) -> Server:
         return self._server
 
-    @sync
-    async def run(self) -> None:
+    def run(self) -> None:
+        asyncio.run(self._run())
+
+    async def _run(self) -> None:
         with ExceptionCatcher(self._serve_window, close_parent=True):
             async with App.new_from_environment(project=self._project) as self._app:
                 await self._server.start()
                 self.server_started.emit()
                 await self._server.show()
 
-    @sync
-    async def stop(self) -> None:
-        await self._server.stop()
+    def stop(self) -> None:
+        wait_to_thread(self._server.stop())
 
 
 class _ServeWindow(BettyMainWindow):

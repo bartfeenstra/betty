@@ -4,7 +4,7 @@ Provide context manager utilities.
 from types import TracebackType
 from typing import AsyncContextManager, TypeVar, Generic
 
-from betty.asyncio import wait
+from betty.asyncio import wait_to_thread
 
 ContextT = TypeVar('ContextT')
 
@@ -14,7 +14,7 @@ class SynchronizedContextManager(Generic[ContextT]):
         self._context_manager = context_manager
 
     def __enter__(self) -> ContextT:
-        return wait(self._context_manager.__aenter__())
+        return wait_to_thread(self._context_manager.__aenter__())
 
     def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool | None:
-        return wait(self._context_manager.__aexit__(exc_type, exc_val, exc_tb))
+        return wait_to_thread(self._context_manager.__aexit__(exc_type, exc_val, exc_tb))
