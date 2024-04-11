@@ -3,7 +3,6 @@ Provide Cotton Candy's Graphical User Interface.
 """
 from __future__ import annotations
 
-from contextlib import suppress
 from typing import Any
 
 from PyQt6.QtCore import QRect
