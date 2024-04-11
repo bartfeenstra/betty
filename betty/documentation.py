@@ -54,6 +54,8 @@ async def _build(output_directory_path: Path) -> None:
             await run_process(
                 [
                     'sphinx-build',
+                    '-j',
+                    'auto',
                     '-b',
                     'dirhtml',
                     str(source_directory_path),
