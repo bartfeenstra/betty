@@ -191,6 +191,8 @@ class EntityTypeInvalidError(EntityTypeError, ImportError):
 
 
 class EntityCollection(Generic[TargetT]):
+    __slots__ = ()
+
     def __init__(self):
         super().__init__()
 
@@ -689,6 +691,8 @@ class EntityTypeAssociationRegistry:
 
 
 class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
+    __slots__ = '_entities', '_target_type'
+
     def __init__(
         self,
         target_type: type[TargetT],
@@ -795,6 +799,8 @@ SingleTypeEntityCollectionT = TypeVar('SingleTypeEntityCollectionT', bound=Singl
 
 
 class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
+    __slots__ = '_collections'
+
     def __init__(self):
         super().__init__()
         self._collections: dict[type[Entity], SingleTypeEntityCollection[Entity]] = {}
@@ -924,6 +930,8 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
 
 
 class _BidirectionalAssociateCollection(Generic[AssociateT, OwnerT], SingleTypeEntityCollection[AssociateT]):
+    __slots__ = '__owner', '_association'
+
     def __init__(
         self,
         owner: OwnerT & Entity,
