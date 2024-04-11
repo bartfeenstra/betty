@@ -249,9 +249,9 @@ async def _clear_caches(app: App) -> None:
 
 
 @click.command(help='Explore a demonstration site.')
-@global_command
-async def _demo() -> None:
-    async with demo.DemoServer() as server:
+@app_command
+async def _demo(app: App) -> None:
+    async with demo.DemoServer(app=app) as server:
         await server.show()
         while True:
             await asyncio.sleep(999)

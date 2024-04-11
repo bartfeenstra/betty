@@ -37,7 +37,7 @@ class DockerizedNginxServer(Server):
         isolated_project.configuration.update(self._app.project.configuration)
         isolated_project.configuration.debug = True
 
-        isolated_app = await self._exit_stack.enter_async_context(App.new_from_environment(project=isolated_project))
+        isolated_app = await self._exit_stack.enter_async_context(App.new_from_app(self._app, project=isolated_project))
         await self._exit_stack.enter_async_context(isolated_app)
         isolated_app.configuration.update(self._app.configuration)
         # Work around https://github.com/bartfeenstra/betty/issues/1056.

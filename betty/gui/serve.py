@@ -141,7 +141,7 @@ class ServeProjectWindow(_ServeWindow):
 
 class ServeDemoWindow(_ServeWindow):
     def _server(self) -> Server:
-        return demo.DemoServer()
+        return demo.DemoServer(app=self._app)
 
     def _build_instruction(self) -> str:
         return self._app.localizer._('You can now view a Betty demonstration site at <a href="{url}">{url}</a>.').format(

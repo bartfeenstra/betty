@@ -449,7 +449,6 @@ class DemoServer(Server):
             isolated_app = await self._exit_stack.enter_async_context(isolated_app_factory)
             await self._exit_stack.enter_async_context(isolated_app)
             self._localizer = isolated_app.localizer
-            await self._exit_stack.enter_async_context(isolated_app)
             await load.load(isolated_app)
             self._server = serve.BuiltinAppServer(isolated_app)
             await self._exit_stack.enter_async_context(self._server)

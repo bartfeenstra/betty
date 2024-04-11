@@ -487,7 +487,7 @@ class App(Configurable[AppConfiguration]):
                     for server in extension.servers
                 ),
                 serve.BuiltinAppServer(self),
-                DemoServer(),
+                DemoServer(app=self),
             ]
         }
 
