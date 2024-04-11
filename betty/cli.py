@@ -17,7 +17,7 @@ from click import get_current_context, Context, Option, Command, Parameter
 
 from betty import about, generate, load, documentation
 from betty.app import App
-from betty.asyncio import sync, wait
+from betty.asyncio import wait_to_thread
 from betty.contextlib import SynchronizedContextManager
 from betty.error import UserFacingError
 from betty.extension import demo
@@ -49,8 +49,7 @@ def catch_exceptions() -> Iterator[None]:
     except KeyboardInterrupt:
         print('Quitting...')
         sys.exit(0)
-        pass
-    except Exception as e:
+    except BaseException as e:
         logger = logging.getLogger(__name__)
         if isinstance(e, UserFacingError):
             logger.error(str(e))
@@ -74,8 +73,8 @@ def _command(
             async def _app_command():
                 async with app:
                     await f(app, *args, **kwargs)
-            return wait(_app_command())
-        return wait(f(*args, **kwargs))
+            return wait_to_thread(_app_command())
+        return wait_to_thread(f(*args, **kwargs))
     return _command
 
 
@@ -94,10 +93,16 @@ def app_command(f: Callable[Concatenate[App, P], Awaitable[None]]) -> Callable[P
 
 
 @catch_exceptions()
-@sync
-async def _init_ctx_app(
+def _init_ctx_app(
     ctx: Context,
     __: Option | Parameter | None = None,
+    configuration_file_path: str | None = None,
+) -> None:
+    wait_to_thread(__init_ctx_app(ctx, configuration_file_path))
+
+
+async def __init_ctx_app(
+    ctx: Context,
     configuration_file_path: str | None = None,
 ) -> None:
     ctx.ensure_object(dict)
@@ -118,7 +123,7 @@ async def _init_ctx_app(
         'demo': _demo,
         'gui': _gui,
     }
-    if wait(about.is_development()):
+    if wait_to_thread(about.is_development()):
         ctx.obj['commands']['init-translation'] = _init_translation
         ctx.obj['commands']['update-translations'] = _update_translations
     ctx.obj['app'] = app
@@ -231,8 +236,8 @@ class _BettyCommands(click.MultiCommand):
     callback=_build_init_ctx_verbosity(logging.NOTSET, logging.NOTSET),
 )
 @click.version_option(
-    wait(about.version_label()),
-    message=wait(about.report()),
+    wait_to_thread(about.version_label()),
+    message=wait_to_thread(about.report()),
     prog_name='Betty',
 )
 def main(app: App, verbose: bool, more_verbose: bool, most_verbose: bool) -> None:
@@ -311,7 +316,7 @@ async def _docs():
                     await asyncio.sleep(999)
 
 
-if wait(about.is_development()):
+if wait_to_thread(about.is_development()):
     @click.command(short_help='Initialize a new translation', help='Initialize a new translation.\n\nThis is available only when developing Betty.')
     @click.argument('locale')
     @global_command

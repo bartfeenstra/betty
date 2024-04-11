@@ -30,7 +30,7 @@ from langcodes import Language
 from polib import pofile
 
 from betty import fs
-from betty.asyncio import wait
+from betty.asyncio import wait_to_thread
 from betty.fs import hashfile, FileSystem, ROOT_DIRECTORY_PATH
 from betty.json.linked_data import LinkedDataDumpable, dump_context, add_json_ld
 from betty.json.schema import ref_locale, add_property
@@ -673,7 +673,7 @@ class LocalizerRepository:
         try:
             return self._localizers[locale]
         except KeyError:
-            return wait(self._build_translation(locale))
+            return wait_to_thread(self._build_translation(locale))
 
     async def get_negotiated(self, *preferred_locales: str) -> Localizer:
         preferred_locales = (*preferred_locales, DEFAULT_LOCALE)

@@ -21,7 +21,7 @@ from aiofiles.tempfile import TemporaryDirectory
 
 from betty.app.extension import Extension, discover_extension_types
 from betty.app.extension.requirement import Requirement, AnyRequirement, AllRequirements
-from betty.asyncio import wait
+from betty.asyncio import wait_to_thread
 from betty.cache.file import BinaryFileCache
 from betty.fs import iterfiles
 from betty.locale import Str, DEFAULT_LOCALIZER
@@ -62,7 +62,7 @@ class _NpmRequirement(Requirement):
     @classmethod
     def check(cls) -> _NpmRequirement:
         try:
-            wait(npm(['--version']))
+            wait_to_thread(npm(['--version']))
             logging.getLogger(__name__).debug(cls._met_summary().localize(DEFAULT_LOCALIZER))
             return cls(True)
         except (CalledProcessError, FileNotFoundError):

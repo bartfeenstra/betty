@@ -18,7 +18,7 @@ from typing import Generic, Iterable, Iterator, SupportsIndex, Hashable, \
 import aiofiles
 from aiofiles.os import makedirs
 
-from betty.asyncio import wait, sync
+from betty.asyncio import wait_to_thread
 from betty.classtools import repr_instance
 from betty.functools import slice_to_range
 from betty.locale import Str
@@ -105,9 +105,8 @@ class FileBasedConfiguration(Configuration):
             self.remove_on_change(self._on_change_write)
         self._autowrite = autowrite
 
-    @sync
-    async def _on_change_write(self) -> None:
-        await self.write()
+    def _on_change_write(self) -> None:
+        wait_to_thread(self.write())
 
     async def write(self, configuration_file_path: Path | None = None) -> None:
         if configuration_file_path is not None:
@@ -158,7 +157,7 @@ class FileBasedConfiguration(Configuration):
         if self._configuration_file_path is None:
             if self._configuration_directory is None:
                 self._configuration_directory = TemporaryDirectory()
-            wait(self._write(Path(self._configuration_directory.name) / f'{type(self).__name__}.json'))
+            wait_to_thread(self._write(Path(self._configuration_directory.name) / f'{type(self).__name__}.json'))
         return cast(Path, self._configuration_file_path)
 
     @configuration_file_path.setter

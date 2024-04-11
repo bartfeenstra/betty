@@ -3,11 +3,12 @@ Provide asynchronous programming utilities.
 """
 from __future__ import annotations
 
-import asyncio
-from asyncio import TaskGroup
+from asyncio import TaskGroup, get_running_loop, run
 from functools import wraps
 from threading import Thread
 from typing import Callable, Awaitable, TypeVar, Generic, cast, ParamSpec, Coroutine, Any
+
+from betty.warnings import deprecated
 
 P = ParamSpec('P')
 T = TypeVar('T')
@@ -30,25 +31,34 @@ async def gather(*coroutines: Coroutine[Any, None, T]) -> tuple[T, ...]:
     )
 
 
+@deprecated('This function is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x. Instead, use `betty.asyncio.wait_to_thread()` or `asyncio.run()`.')
 def wait(f: Awaitable[T]) -> T:
     """
-    Wait for an awaitable.
+    Wait for an awaitable, either in a new event loop or another thread.
     """
     try:
-        loop = asyncio.get_running_loop()
+        loop = get_running_loop()
     except RuntimeError:
         loop = None
     if loop:
-        synced = _SyncedAwaitable(f)
-        synced.start()
-        synced.join()
-        return synced.return_value
+        return wait_to_thread(f)
     else:
-        return asyncio.run(
+        return run(
             f,  # type: ignore[arg-type]
         )
 
 
+def wait_to_thread(f: Awaitable[T]) -> T:
+    """
+    Wait for an awaitable in another thread.
+    """
+    synced = _WaiterThread(f)
+    synced.start()
+    synced.join()
+    return synced.return_value
+
+
+@deprecated('This function is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x. Instead, use `betty.asyncio.wait_to_thread()` or `asyncio.run()`.')
 def sync(f: Callable[P, Awaitable[T]]) -> Callable[P, T]:
     """
     Decorate an asynchronous callable to become synchronous.
@@ -59,7 +69,7 @@ def sync(f: Callable[P, Awaitable[T]]) -> Callable[P, T]:
     return _synced
 
 
-class _SyncedAwaitable(Thread, Generic[T]):
+class _WaiterThread(Thread, Generic[T]):
     def __init__(self, awaitable: Awaitable[T]):
         super().__init__()
         self._awaitable = awaitable
@@ -72,8 +82,10 @@ class _SyncedAwaitable(Thread, Generic[T]):
             raise self._e
         return cast(T, self._return_value)
 
-    @sync
-    async def run(self) -> None:
+    def run(self) -> None:
+        run(self._run())
+
+    async def _run(self) -> None:
         try:
             self._return_value = await self._awaitable
         except BaseException as e:
