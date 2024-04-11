@@ -18,7 +18,7 @@ from betty.project import ExtensionConfiguration
 class TestDockerizedNginxServer:
     async def test(self):
         content = 'Hello, and welcome to my site!'
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             app.project.configuration.extensions.append(
                 ExtensionConfiguration(
                     Nginx,

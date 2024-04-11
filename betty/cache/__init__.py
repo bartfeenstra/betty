@@ -7,9 +7,8 @@ from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Self, Generic, TypeAlias, AsyncContextManager, overload, Literal
 
+import typing_extensions
 from typing_extensions import TypeVar
-
-from betty.warnings import deprecated
 
 CacheItemValueT = TypeVar('CacheItemValueT')
 CacheItemValueCoT = TypeVar('CacheItemValueCoT', covariant=True)
@@ -91,7 +90,7 @@ class Cache(Generic[CacheItemValueContraT]):
         raise NotImplementedError
 
 
-@deprecated(f"This class is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x. It exists only for App.cache's backwards compatibility. Use {Cache} instead.")
+@typing_extensions.deprecated(f"This class is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x. It exists only for App.cache's backwards compatibility. Use {Cache} instead.")
 class FileCache:
     @property
     def path(self) -> Path:  # type: ignore[empty-body]

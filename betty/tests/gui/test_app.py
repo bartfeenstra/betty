@@ -4,12 +4,8 @@ from pathlib import Path
 import aiofiles
 from PyQt6.QtWidgets import QFileDialog
 from pytest_mock import MockerFixture
-from pytestqt.qtbot import QtBot
 
-from betty.app import App
-from betty.cache.file import BinaryFileCache
 from betty.gui.app import WelcomeWindow, _AboutBettyWindow, ApplicationConfiguration, BettyPrimaryWindow
-from betty.gui.error import ExceptionError
 from betty.gui.project import ProjectWindow
 from betty.gui.serve import ServeDemoWindow
 from betty.project import ProjectConfiguration
@@ -18,48 +14,44 @@ from betty.tests.conftest import BettyQtBot
 from betty.tests.test_serve import SleepingAppServer
 
 
-class TestBettyMainWindow:
+class TestBettyPrimaryWindow:
     async def test_view_demo_site(
         self,
         mocker: MockerFixture,
-        binary_file_cache: BinaryFileCache,
         betty_qtbot: BettyQtBot,
     ) -> None:
         mocker.patch('betty.extension.demo.DemoServer', new_callable=lambda: SleepingAppServer)
 
-        async with App(binary_file_cache=binary_file_cache) as app:
-            sut = BettyPrimaryWindow(app)
-            betty_qtbot.qtbot.addWidget(sut)
-            sut.show()
+        sut = BettyPrimaryWindow(betty_qtbot.app)
+        betty_qtbot.qtbot.addWidget(sut)
+        sut.show()
 
-            betty_qtbot.navigate(sut, ['_demo_action'])
+        betty_qtbot.navigate(sut, ['_demo_action'])
 
-            betty_qtbot.assert_window(ServeDemoWindow)
+        betty_qtbot.assert_window(ServeDemoWindow)
 
-    async def test_clear_caches(self, betty_qtbot: BettyQtBot, binary_file_cache: BinaryFileCache) -> None:
-        async with App(binary_file_cache=binary_file_cache) as app:
-            sut = BettyPrimaryWindow(app)
-            betty_qtbot.qtbot.addWidget(sut)
-            sut.show()
+    async def test_clear_caches(self, betty_qtbot: BettyQtBot) -> None:
+        sut = BettyPrimaryWindow(betty_qtbot.app)
+        betty_qtbot.qtbot.addWidget(sut)
+        sut.show()
 
-            await app.cache.set('KeepMeAroundPlease', '')
-            betty_qtbot.navigate(sut, ['clear_caches_action'])
+        await betty_qtbot.app.cache.set('KeepMeAroundPlease', '')
+        betty_qtbot.navigate(sut, ['clear_caches_action'])
 
-            async with app.cache.get('KeepMeAroundPlease') as cache_item:
-                assert cache_item is None
+        async with betty_qtbot.app.cache.get('KeepMeAroundPlease') as cache_item:
+            assert cache_item is None
 
     async def test_open_about_window(
         self,
         betty_qtbot: BettyQtBot,
     ) -> None:
-        async with App() as app:
-            sut = BettyPrimaryWindow(app)
-            betty_qtbot.qtbot.addWidget(sut)
-            sut.show()
+        sut = BettyPrimaryWindow(betty_qtbot.app)
+        betty_qtbot.qtbot.addWidget(sut)
+        sut.show()
 
-            betty_qtbot.navigate(sut, ['about_action'])
+        betty_qtbot.navigate(sut, ['about_action'])
 
-            betty_qtbot.assert_window(_AboutBettyWindow)
+        betty_qtbot.assert_window(_AboutBettyWindow)
 
 
 class TestWelcomeWindow:
@@ -69,19 +61,17 @@ class TestWelcomeWindow:
         betty_qtbot: BettyQtBot,
         tmp_path: Path,
     ) -> None:
-        async with App() as app:
-            sut = WelcomeWindow(app)
-            betty_qtbot.qtbot.addWidget(sut)
-            sut.show()
+        sut = WelcomeWindow(betty_qtbot.app)
+        betty_qtbot.qtbot.addWidget(sut)
+        sut.show()
 
-            configuration_file_path = tmp_path / 'betty.json'
-            # Purposefully leave the file empty so it is invalid.
-            configuration_file_path.write_text('')
-            mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[str(configuration_file_path), None]))
-            betty_qtbot.mouse_click(sut.open_project_button)
+        configuration_file_path = tmp_path / 'betty.json'
+        # Purposefully leave the file empty so it is invalid.
+        configuration_file_path.write_text('')
+        mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[str(configuration_file_path), None]))
+        betty_qtbot.mouse_click(sut.open_project_button)
 
-            error = betty_qtbot.assert_error(ExceptionError)
-            assert issubclass(error.error_type, SerdeError)
+        betty_qtbot.assert_exception_error(contained_error_type=SerdeError)
 
     async def test_open_project_with_valid_file_should_show_project_window(
         self,
@@ -93,48 +83,45 @@ class TestWelcomeWindow:
             title=title,
         )
         await configuration.write()
-        async with App() as app:
-            await app.project.configuration.write()
-            sut = WelcomeWindow(app)
-            betty_qtbot.qtbot.addWidget(sut)
-            sut.show()
+        await betty_qtbot.app.project.configuration.write()
+        sut = WelcomeWindow(betty_qtbot.app)
+        betty_qtbot.qtbot.addWidget(sut)
+        sut.show()
 
-            mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[str(configuration.configuration_file_path), None]))
-            betty_qtbot.mouse_click(sut.open_project_button)
+        mocker.patch.object(QFileDialog, 'getOpenFileName', mocker.MagicMock(return_value=[str(configuration.configuration_file_path), None]))
+        betty_qtbot.mouse_click(sut.open_project_button)
 
-            window = betty_qtbot.assert_window(ProjectWindow)
-            assert window._app.project.configuration.title == title
+        betty_qtbot.assert_window(ProjectWindow)
+        assert betty_qtbot.app.project.configuration.title == title
 
     async def test_view_demo_site(
         self,
         mocker: MockerFixture,
-        betty_qtbot: BettyQtBot
+        betty_qtbot: BettyQtBot,
     ) -> None:
         mocker.patch('betty.extension.demo.DemoServer', new_callable=lambda: SleepingAppServer)
 
-        async with App() as app:
-            sut = WelcomeWindow(app)
-            betty_qtbot.qtbot.addWidget(sut)
-            sut.show()
+        sut = WelcomeWindow(betty_qtbot.app)
+        betty_qtbot.qtbot.addWidget(sut)
+        sut.show()
 
-            betty_qtbot.mouse_click(sut.demo_button)
+        betty_qtbot.mouse_click(sut.demo_button)
 
-            betty_qtbot.assert_window(ServeDemoWindow)
+        betty_qtbot.assert_window(ServeDemoWindow)
 
 
 class TestApplicationConfiguration:
-    async def test_application_configuration_autowrite(self, qtbot: QtBot) -> None:
-        async with App() as app:
-            app.configuration.autowrite = True
+    async def test_application_configuration_autowrite(self, betty_qtbot: BettyQtBot) -> None:
+        betty_qtbot.app.configuration.autowrite = True
 
-            sut = ApplicationConfiguration(app)
-            qtbot.addWidget(sut)
-            sut.show()
+        sut = ApplicationConfiguration(betty_qtbot.app)
+        betty_qtbot.qtbot.addWidget(sut)
+        sut.show()
 
-            locale = 'nl-NL'
-            app.configuration.locale = locale
+        locale = 'nl-NL'
+        betty_qtbot.app.configuration.locale = locale
 
-        async with aiofiles.open(app.configuration.configuration_file_path) as f:
+        async with aiofiles.open(betty_qtbot.app.configuration.configuration_file_path) as f:
             read_configuration_dump = json.loads(await f.read())
-        assert read_configuration_dump == app.configuration.dump()
+        assert read_configuration_dump == betty_qtbot.app.configuration.dump()
         assert read_configuration_dump['locale'] == locale

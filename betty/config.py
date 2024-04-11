@@ -144,7 +144,8 @@ class FileBasedConfiguration(Configuration):
                     configuration_file_path=str(self.configuration_file_path.resolve()),
                 )):
                     loaded_configuration = self.load(
-                        formats.format_for(self.configuration_file_path.suffix[1:]).load(read_configuration)
+                        formats.format_for(self.configuration_file_path.suffix[1:]).load(read_configuration),
+                        self,
                     )
         self.update(loaded_configuration)
 

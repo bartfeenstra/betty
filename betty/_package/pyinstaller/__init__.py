@@ -23,7 +23,7 @@ async def _build_assets() -> None:
         in discover_extension_types()
         if issubclass(extension_type, _NpmBuilder)
     ]
-    async with App() as app:
+    async with (App.new_temporary() as app, app):
         app.project.configuration.extensions.append(ExtensionConfiguration(_Npm))
         for extension_type in npm_builder_extension_types:
             app.project.configuration.extensions.append(ExtensionConfiguration(extension_type))

@@ -158,6 +158,9 @@ class ExceptionError(Error):
         self.error_type = error_type
 
 
+ExceptionErrorT = TypeVar('ExceptionErrorT', bound=ExceptionError)
+
+
 class _UnexpectedExceptionError(ExceptionError):
     def __init__(
         self,

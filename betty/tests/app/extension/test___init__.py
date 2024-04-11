@@ -30,7 +30,7 @@ class TestExtensionDispatcher:
             return self._multiplier * term
 
     async def test(self) -> None:
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             extensions = ListExtensions([
                 [self._MultiplyingExtension(app, 1), self._MultiplyingExtension(app, 3)],
                 [self._MultiplyingExtension(app, 2), self._MultiplyingExtension(app, 4)]

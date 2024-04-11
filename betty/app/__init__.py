@@ -4,16 +4,18 @@ from __future__ import annotations
 
 import operator
 import weakref
+from collections.abc import AsyncIterator
 from concurrent.futures import Executor, ProcessPoolExecutor
-from contextlib import suppress
+from contextlib import suppress, asynccontextmanager
 from functools import reduce
 from graphlib import CycleError, TopologicalSorter
 from multiprocessing import get_context
 from pathlib import Path
 from types import TracebackType
-from typing import TYPE_CHECKING, Mapping, Self, final, Any
+from typing import TYPE_CHECKING, Mapping, Self, Any, final
 
 import aiohttp
+from aiofiles.tempfile import TemporaryDirectory
 
 from betty import fs
 from betty.app.extension import ListExtensions, Extension, Extensions, build_extension_type_graph, \
@@ -23,7 +25,7 @@ from betty.cache import Cache, FileCache
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.config import Configurable, FileBasedConfiguration
 from betty.dispatch import Dispatcher
-from betty.fs import FileSystem
+from betty.fs import FileSystem, CACHE_DIRECTORY_PATH
 from betty.locale import LocalizerRepository, get_data, DEFAULT_LOCALE, Localizer, Str
 from betty.model import Entity, EntityTypeProvider
 from betty.model.event_type import EventType, EventTypeProvider, Birth, Baptism, Adoption, Death, Funeral, Cremation, \
@@ -33,6 +35,7 @@ from betty.project import Project
 from betty.render import Renderer, SequentialRenderer
 from betty.serde.dump import minimize, void_none, Dump, VoidableDump
 from betty.serde.load import AssertionFailed, Fields, Assertions, OptionalField, Asserter
+from betty.warnings import deprecate
 
 if TYPE_CHECKING:
     from betty.jinja2 import Environment
@@ -53,15 +56,23 @@ class _AppExtensions(ListExtensions):
 class AppConfiguration(FileBasedConfiguration):
     def __init__(
         self,
+        configuration_directory_path: Path | None = None,
         *,
         locale: str | None = None,
     ):
+        if configuration_directory_path is None:
+            deprecate(
+                f'Initializing {type(self)} without a configuration directory path is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x.',
+                stacklevel=2,
+            )
+            configuration_directory_path = CONFIGURATION_DIRECTORY_PATH
         super().__init__()
+        self._configuration_directory_path = configuration_directory_path
         self._locale: str | None = locale
 
     @property
     def configuration_file_path(self) -> Path:
-        return CONFIGURATION_DIRECTORY_PATH / 'app.json'
+        return self._configuration_directory_path / 'app.json'
 
     @configuration_file_path.setter
     def configuration_file_path(self, __) -> None:
@@ -133,11 +144,20 @@ class App(Configurable[AppConfiguration]):
         self,
         configuration: AppConfiguration | None = None,
         project: Project | None = None,
-        cache: Cache[Any] & FileCache | None = None,
-        binary_file_cache: BinaryFileCache | None = None,
+        cache_directory_path: Path | None = None,
     ):
         super().__init__()
         self._started = False
+        if configuration is None:
+            deprecate(
+                f'Initializing {type(self)} without `configuration` is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x.',
+                stacklevel=2,
+            )
+        if cache_directory_path is None:
+            deprecate(
+                f'Initializing {type(self)} without `cache_directory_path` is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x.',
+                stacklevel=2,
+            )
         self._configuration = configuration or AppConfiguration()
         self._configuration.on_change(self._on_locale_change)
         self._assets: FileSystem | None = None
@@ -159,9 +179,54 @@ class App(Configurable[AppConfiguration]):
         self._jinja2_environment: Environment | None = None
         self._renderer: Renderer | None = None
         self._http_client: aiohttp.ClientSession | None = None
-        self._cache = cache
-        self._binary_file_cache = binary_file_cache
+        self._cache_directory_path = CACHE_DIRECTORY_PATH if cache_directory_path is None else cache_directory_path
+        self._cache: Cache[Any] & FileCache | None = None
+        self._binary_file_cache: BinaryFileCache | None = None
         self._process_pool: Executor | None = None
+
+    @classmethod
+    @asynccontextmanager
+    async def new_from_environment(
+        cls,
+        *,
+        project: Project | None = None,
+    ) -> AsyncIterator[Self]:
+        yield cls(
+            AppConfiguration(CONFIGURATION_DIRECTORY_PATH),
+            project,
+            CACHE_DIRECTORY_PATH,
+        )
+
+    @classmethod
+    @asynccontextmanager
+    async def new_from_app(
+        cls,
+        app: App,
+        *,
+        project: Project | None = None,
+    ) -> AsyncIterator[Self]:
+        yield cls(
+            AppConfiguration(app.configuration._configuration_directory_path),
+            app.project if project is None else project,
+            app._cache_directory_path,
+        )
+
+    @classmethod
+    @asynccontextmanager
+    async def new_temporary(
+        cls,
+        *,
+        project: Project | None = None,
+    ) -> AsyncIterator[Self]:
+        async with (
+            TemporaryDirectory() as configuration_directory_path_str,
+            TemporaryDirectory() as cache_directory_path_str,
+        ):
+            yield cls(
+                AppConfiguration(Path(configuration_directory_path_str)),
+                project,
+                cache_directory_path=Path(cache_directory_path_str),
+            )
 
     async def __aenter__(self) -> Self:
         await self.start()
@@ -176,8 +241,8 @@ class App(Configurable[AppConfiguration]):
         self._started = True
 
     async def stop(self) -> None:
-        self._started = False
         del self.http_client
+        self._started = False
 
     def __del__(self) -> None:
         if self._started:
@@ -422,14 +487,14 @@ class App(Configurable[AppConfiguration]):
                     for server in extension.servers
                 ),
                 serve.BuiltinAppServer(self),
-                DemoServer(),
+                DemoServer(app=self),
             ]
         }
 
     @property
     def cache(self) -> Cache[Any] & FileCache:
         if self._cache is None:
-            self._cache = _BackwardsCompatiblePickledFileCache(self.localizer, fs.CACHE_DIRECTORY_PATH)
+            self._cache = _BackwardsCompatiblePickledFileCache(self.localizer, self._cache_directory_path)
         return self._cache
 
     @cache.deleter
@@ -439,7 +504,7 @@ class App(Configurable[AppConfiguration]):
     @property
     def binary_file_cache(self) -> BinaryFileCache:
         if self._binary_file_cache is None:
-            self._binary_file_cache = BinaryFileCache(self.localizer, fs.CACHE_DIRECTORY_PATH)
+            self._binary_file_cache = BinaryFileCache(self.localizer, self._cache_directory_path)
         return self._binary_file_cache
 
     @binary_file_cache.deleter

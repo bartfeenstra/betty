@@ -28,7 +28,7 @@ class TestJinja2Provider:
 
 class TestJinja2Renderer:
     async def test_render_file(self) -> None:
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             sut = Jinja2Renderer(app.jinja2_environment, app.project.configuration)
             template = '{% if true %}true{% endif %}'
             expected_output = 'true'

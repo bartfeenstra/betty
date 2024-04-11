@@ -10,6 +10,7 @@ import pytest
 from geopy import Point
 from pytest_mock import MockerFixture
 
+from betty.app import App
 from betty.cache.file import BinaryFileCache
 from betty.cache.memory import MemoryCache
 from betty.locale import DEFAULT_LOCALIZER
@@ -23,7 +24,6 @@ except ImportError:
 
 from aioresponses import aioresponses
 
-from betty.app import App
 from betty.model.ancestry import Source, Link, Citation, Place
 from betty.wikipedia import Summary, _Retriever, NotAPageError, _parse_url, _Populator
 
@@ -320,7 +320,7 @@ class TestPopulator:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         page_language = 'nl'
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             sut = _Populator(app, m_retriever)
             await sut.populate_link(link, page_language)
         assert 'https://en.wikipedia.org/wiki/Amsterdam' == link.url
@@ -341,7 +341,7 @@ class TestPopulator:
             'http://en.wikipedia.org/wiki/Amsterdam',
             media_type=media_type,
         )
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             sut = _Populator(app, m_retriever)
             await sut.populate_link(link, 'en')
         assert expected == link.media_type
@@ -360,7 +360,7 @@ class TestPopulator:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.relationship = relationship
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             sut = _Populator(app, m_retriever)
             await sut.populate_link(link, 'en')
         assert expected == link.relationship
@@ -380,7 +380,7 @@ class TestPopulator:
         m_retriever = mocker.patch('betty.wikipedia._Retriever')
         link = Link('http://%s.wikipedia.org/wiki/Amsterdam' % page_language)
         link.locale = locale
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             sut = _Populator(app, m_retriever)
             await sut.populate_link(link, page_language)
         assert expected == link.locale
@@ -401,7 +401,7 @@ class TestPopulator:
             description=description,
         )
         page_language = 'en'
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             sut = _Populator(app, m_retriever)
             await sut.populate_link(link, page_language)
         assert expected == link.description
@@ -420,7 +420,7 @@ class TestPopulator:
         link = Link('http://en.wikipedia.org/wiki/Amsterdam')
         link.label = label
         summary = Summary('en', 'The_city_of_Amsterdam', 'The city of Amsterdam', 'Amsterdam, such a lovely place!')
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             sut = _Populator(app, m_retriever)
             await sut.populate_link(link, 'en', summary)
         assert expected == link.label
@@ -432,7 +432,7 @@ class TestPopulator:
             id='the_citation',
             source=source,
         )
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
@@ -443,7 +443,7 @@ class TestPopulator:
             id='the_source',
             name='The Source',
         )
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
@@ -457,7 +457,7 @@ class TestPopulator:
             name='The Source',
             links=[link],
         )
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
@@ -479,7 +479,7 @@ class TestPopulator:
             name='The Source',
             links=[link],
         )
-        async with App() as app:
+        async with (App.new_temporary() as app, app):
             app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
@@ -519,13 +519,12 @@ class TestPopulator:
             name='The Source',
             links=[link_en],
         )
-        app = App()
-        app.project.configuration.locales['en-US'].alias = 'en'
-        app.project.configuration.locales.append(LocaleConfiguration(
-            'nl-NL',
-            alias='nl',
-        ))
-        async with app:
+        async with (App.new_temporary() as app, app):
+            app.project.configuration.locales['en-US'].alias = 'en'
+            app.project.configuration.locales.append(LocaleConfiguration(
+                'nl-NL',
+                alias='nl',
+            ))
             app.project.ancestry.add(resource)
             sut = _Populator(app, m_retriever)
             await sut.populate()
@@ -558,8 +557,7 @@ class TestPopulator:
 
         link = Link(f'https://{page_language}.wikipedia.org/wiki/{page_name}')
         place = Place(links=[link])
-        app = App()
-        async with app:
+        async with (App.new_temporary() as app, app):
             app.project.ancestry.add(place)
             sut = _Populator(app, m_retriever)
             await sut.populate()

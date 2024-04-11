@@ -126,7 +126,7 @@ class TestGramps:
             async with aiofiles.open(gramps_family_tree_two_path, mode='w') as f:
                 await f.write(family_tree_two_xml)
 
-            async with App() as app:
+            async with (App.new_temporary() as app, app):
                 app.project.configuration.extensions.append(ExtensionConfiguration(
                     Gramps,
                     extension_configuration=GrampsConfiguration(

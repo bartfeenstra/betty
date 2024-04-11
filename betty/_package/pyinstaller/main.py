@@ -11,11 +11,11 @@ async def main() -> None:
     """
     Launch Betty for PyInstaller builds.
     """
-    async with App() as app:
-        qapp = BettyApplication([sys.argv[0]], app=app)
-        window = WelcomeWindow(app)
-        window.show()
-        sys.exit(qapp.exec())
+    async with App.new_from_environment() as app:
+        async with BettyApplication([sys.argv[0]]).with_app(app) as qapp:
+            window = WelcomeWindow(app)
+            window.show()
+            sys.exit(qapp.exec())
 
 if __name__ == "__main__":
     main()

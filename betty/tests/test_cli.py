@@ -1,8 +1,6 @@
-import functools
 import json
-from collections.abc import Callable, Awaitable
-from contextlib import chdir, redirect_stdout, redirect_stderr
-from io import StringIO
+from collections.abc import AsyncIterator
+from contextlib import chdir
 from pathlib import Path
 from typing import TypeVar, ParamSpec
 
@@ -16,12 +14,13 @@ from click import Command
 from click.testing import CliRunner, Result
 from pytest_mock import MockerFixture
 
-from betty import fs
+from betty.documentation import DocumentationServer
 from betty.error import UserFacingError
+from betty.extension.demo import DemoServer
 from betty.locale import Str
-from betty.project import ProjectConfiguration, ExtensionConfiguration
+from betty.project import ExtensionConfiguration
 from betty.serde.dump import Dump
-from betty.tests.test_serve import KeyboardInterruptedAppServer
+from betty.serve import BuiltinAppServer
 
 try:
     from unittest.mock import AsyncMock
@@ -34,24 +33,6 @@ from betty.app.extension import Extension
 
 T = TypeVar('T')
 P = ParamSpec('P')
-
-
-def _patch_cache(f: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
-    """
-    Patch Betty's default global file cache with a temporary directory.
-    """
-    @functools.wraps(f)
-    async def _patch_cache(*args: P.args, **kwargs: P.kwargs) -> T:
-        original_cache_directory_path = fs.CACHE_DIRECTORY_PATH
-        async with TemporaryDirectory() as cache_directory:
-            fs.CACHE_DIRECTORY_PATH = Path(cache_directory)
-            try:
-                return await f(*args, **kwargs)
-
-            finally:
-                fs.CACHE_DIRECTORY_PATH = original_cache_directory_path
-
-    return _patch_cache
 
 
 class DummyCommandError(BaseException):
@@ -77,39 +58,52 @@ def _run(
     expected_exit_code: int = 0,
 ) -> Result:
     runner = CliRunner(mix_stderr=False)
-    stdouterr = StringIO()
-    with redirect_stdout(stdouterr), redirect_stderr(stdouterr):
-        result = runner.invoke(main, args, catch_exceptions=False)
-    assert result.exit_code == expected_exit_code, f'The Betty command `{" ".join(args)}` unexpectedly exited with code {result.exit_code}, but {expected_exit_code} was expected.'
+    result = runner.invoke(main, args, catch_exceptions=False)
+    if result.exit_code != expected_exit_code:
+        raise AssertionError(f'''
+The Betty command `{" ".join(args)}` unexpectedly exited with code {result.exit_code}, but {expected_exit_code} was expected.
+Stdout:
+{result.stdout}
+Stdout:
+{result.stdout}
+''')
     return result
 
 
+@pytest.fixture
+async def new_temporary_app(mocker: MockerFixture) -> AsyncIterator[App]:
+    async with App.new_temporary() as app:
+        m_new_from_environment = mocker.AsyncMock()
+        m_new_from_environment.__aenter__.return_value = app
+        mocker.patch('betty.app.App.new_from_environment', return_value=m_new_from_environment)
+        yield app
+
+
 class TestMain:
-    async def test_without_arguments(self) -> None:
+    async def test_without_arguments(self, new_temporary_app: App) -> None:
         _run()
 
-    async def test_help_without_configuration(self) -> None:
+    async def test_help_without_configuration(self, new_temporary_app: App) -> None:
         _run('--help')
 
-    async def test_configuration_without_help(self) -> None:
-        configuration = ProjectConfiguration()
-        await configuration.write()
-        _run('-c', str(configuration.configuration_file_path), expected_exit_code=2)
+    async def test_configuration_without_help(self, new_temporary_app: App) -> None:
+        await new_temporary_app.project.configuration.write()
+        _run('-c', str(new_temporary_app.project.configuration.configuration_file_path), expected_exit_code=2)
 
-    async def test_help_with_configuration(self) -> None:
-        configuration = ProjectConfiguration(
-            extensions=[ExtensionConfiguration(DummyExtension)],
-        )
-        await configuration.write()
-        _run('-c', str(configuration.configuration_file_path), '--help')
+    async def test_help_with_configuration(self, new_temporary_app: App) -> None:
+        new_temporary_app.project.configuration.extensions.append(ExtensionConfiguration(DummyExtension))
+        await new_temporary_app.project.configuration.write()
 
-    async def test_help_with_invalid_configuration_file_path(self) -> None:
+        _run('-c', str(new_temporary_app.project.configuration.configuration_file_path), '--help')
+
+    async def test_help_with_invalid_configuration_file_path(self, new_temporary_app: App) -> None:
         async with TemporaryDirectory() as working_directory_path_str:
             working_directory_path = Path(working_directory_path_str)
             configuration_file_path = working_directory_path / 'non-existent-betty.json'
+
             _run('-c', str(configuration_file_path), '--help', expected_exit_code=1)
 
-    async def test_help_with_invalid_configuration(self) -> None:
+    async def test_help_with_invalid_configuration(self, new_temporary_app: App) -> None:
         async with TemporaryDirectory() as working_directory_path_str:
             working_directory_path = Path(working_directory_path_str)
             configuration_file_path = working_directory_path / 'betty.json'
@@ -119,7 +113,7 @@ class TestMain:
 
             _run('-c', str(configuration_file_path), '--help', expected_exit_code=1)
 
-    async def test_with_discovered_configuration(self) -> None:
+    async def test_with_discovered_configuration(self, new_temporary_app: App) -> None:
         async with TemporaryDirectory() as working_directory_path_str:
             working_directory_path = Path(working_directory_path_str)
             async with aiofiles.open(working_directory_path / 'betty.json', 'w') as config_file:
@@ -153,63 +147,72 @@ class TestCatchExceptions:
 
 
 class TestVersion:
-    async def test(self) -> None:
+    async def test(self, new_temporary_app: App) -> None:
         result = _run('--version')
         assert 'Betty' in result.stdout
 
 
 class TestClearCaches:
-    @_patch_cache
-    async def test(self) -> None:
-        async with App() as app:
-            await app.cache.set('KeepMeAroundPlease', '')
-            _run('clear-caches')
-            async with app.cache.get('KeepMeAroundPlease') as cache_item:
+    async def test(self, new_temporary_app: App) -> None:
+        async with new_temporary_app:
+            await new_temporary_app.cache.set('KeepMeAroundPlease', '')
+        _run('clear-caches')
+        async with new_temporary_app:
+            async with new_temporary_app.cache.get('KeepMeAroundPlease') as cache_item:
                 assert cache_item is None
 
 
+class KeyboardInterruptedDemoServer(DemoServer):
+    async def start(self) -> None:
+        raise KeyboardInterrupt
+
+
 class TestDemo:
-    @_patch_cache
-    async def test(self, mocker: MockerFixture) -> None:
-        mocker.patch('betty.extension.demo.DemoServer', new_callable=lambda: KeyboardInterruptedAppServer)
+    async def test(self, mocker: MockerFixture, new_temporary_app: App) -> None:
+        mocker.patch('betty.extension.demo.DemoServer', new=KeyboardInterruptedDemoServer)
+
         _run('demo')
 
 
+class KeyboardInterruptedDocumentationServer(DocumentationServer):
+    async def start(self) -> None:
+        raise KeyboardInterrupt
+
+
 class TestDocs:
-    @_patch_cache
-    async def test(self, mocker: MockerFixture) -> None:
-        mocker.patch('betty.documentation.DocumentationServer', new_callable=lambda: KeyboardInterruptedAppServer)
+    async def test(self, mocker: MockerFixture, new_temporary_app: App) -> None:
+        mocker.patch('betty.documentation.DocumentationServer', new=KeyboardInterruptedDocumentationServer)
+
         _run('docs')
 
 
 class TestGenerate:
-    async def test(self, mocker: MockerFixture) -> None:
+    async def test(self, mocker: MockerFixture, new_temporary_app: App) -> None:
         m_generate = mocker.patch('betty.generate.generate', new_callable=AsyncMock)
         m_load = mocker.patch('betty.load.load', new_callable=AsyncMock)
 
-        configuration = ProjectConfiguration()
-        await configuration.write()
-        _run('-c', str(configuration.configuration_file_path), 'generate')
+        await new_temporary_app.project.configuration.write()
+        _run('-c', str(new_temporary_app.project.configuration.configuration_file_path), 'generate')
 
         m_load.assert_called_once()
         await_args = m_load.await_args
         assert await_args is not None
-        parse_args, parse_kwargs = await_args
-        assert 1 == len(parse_args)
-        assert isinstance(parse_args[0], App)
-        assert {} == parse_kwargs
+        load_args, _ = await_args
+        assert load_args[0] is new_temporary_app
 
         m_generate.assert_called_once()
-        render_args, render_kwargs = m_generate.call_args
-        assert 1 == len(render_args)
-        assert isinstance(render_args[0], App)
-        assert {} == render_kwargs
+        generate_args, _ = m_generate.call_args
+        assert generate_args[0] is new_temporary_app
+
+
+class KeyboardInterruptedBuiltinAppServer(BuiltinAppServer):
+    async def start(self) -> None:
+        raise KeyboardInterrupt
 
 
 class TestServe:
-    async def test(self, mocker: MockerFixture) -> None:
-        mocker.patch('betty.serve.BuiltinServer', new_callable=lambda: KeyboardInterruptedAppServer)
-        configuration = ProjectConfiguration()
-        await configuration.write()
-        await makedirs(configuration.www_directory_path)
-        _run('-c', str(configuration.configuration_file_path), 'serve')
+    async def test(self, mocker: MockerFixture, new_temporary_app: App) -> None:
+        mocker.patch('betty.serve.BuiltinAppServer', new=KeyboardInterruptedBuiltinAppServer)
+        await new_temporary_app.project.configuration.write()
+        await makedirs(new_temporary_app.project.configuration.www_directory_path)
+        _run('-c', str(new_temporary_app.project.configuration.configuration_file_path), 'serve')
