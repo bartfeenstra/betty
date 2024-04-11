@@ -30,8 +30,10 @@ class _ColorConfigurationSwatch(LocalizedObject, QWidget):
         # @todo On macOS, this sometimes errors with
         # @todo "RuntimeError: wrapped C/C++ object of type _ColorConfigurationSwatch has been deleted".
         # @todo Ignore the error until it is fixed.
-        with suppress(RuntimeError):
+        try:
             painter = QPainter(self)
+        except RuntimeError:
+            return
         swatch = QRect(self.rect())
         painter.fillRect(swatch, QBrush(QColor.fromString(self._color.hex)))
         painter.drawRect(swatch)
