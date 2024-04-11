@@ -3,6 +3,7 @@ Provide Cotton Candy's Graphical User Interface.
 """
 from __future__ import annotations
 
+from contextlib import suppress
 from typing import Any
 
 from PyQt6.QtCore import QRect
@@ -26,7 +27,11 @@ class _ColorConfigurationSwatch(LocalizedObject, QWidget):
         self.setFixedWidth(24)
 
     def paintEvent(self, a0: QPaintEvent | None) -> None:
-        painter = QPainter(self)
+        # @todo On macOS, this sometimes errors with
+        # @todo "RuntimeError: wrapped C/C++ object of type _ColorConfigurationSwatch has been deleted".
+        # @todo Ignore the error until it is fixed.
+        with suppress(RuntimeError):
+            painter = QPainter(self)
         swatch = QRect(self.rect())
         painter.fillRect(swatch, QBrush(QColor.fromString(self._color.hex)))
         painter.drawRect(swatch)
