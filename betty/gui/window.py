@@ -39,3 +39,10 @@ class BettyMainWindow(LocalizedObject, QMainWindow):
     @property
     def window_title(self) -> Localizable:
         raise NotImplementedError(repr(self))
+
+    def close(self) -> bool:
+        for child in self.children():
+            if isinstance(child, QMainWindow):
+                child.close()
+                child.deleteLater()
+        return super().close()

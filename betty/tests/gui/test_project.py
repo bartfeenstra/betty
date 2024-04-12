@@ -7,10 +7,12 @@ from PyQt6.QtWidgets import QFileDialog
 from pytest_mock import MockerFixture
 
 from betty.app import App
+from betty.app.extension import UserFacingExtension
+from betty.app.extension.requirement import Requirement
 from betty.gui.project import ProjectWindow, _AddLocaleWindow, _GenerateWindow, _LocalizationPane, \
-    _GeneralPane, _GenerateHtmlListForm
+    _GeneralPane, _GenerateHtmlListForm, _ExtensionPane
 from betty.gui.serve import ServeProjectWindow
-from betty.locale import get_display_name
+from betty.locale import get_display_name, Str
 from betty.model.ancestry import File
 from betty.project import LocaleConfiguration
 from betty.serde.dump import minimize
@@ -18,7 +20,76 @@ from betty.tests.conftest import BettyQtBot
 from betty.tests.test_serve import SleepingAppServer
 
 
+class UnmetRequirement(Requirement):
+    def is_met(self) -> bool:
+        return False
+
+    def summary(self) -> Str:
+        return Str.plain('I have never met this requirement!')
+
+
+class ProjectWindowTestExtension(UserFacingExtension):
+    @classmethod
+    def label(cls) -> Str:
+        return Str.plain(cls.name())
+
+    @classmethod
+    def description(cls) -> Str:
+        return cls.label()
+
+
+class ProjectWindowTestExtensionWithUnmetEnableRequirement(ProjectWindowTestExtension):
+    @classmethod
+    def enable_requirement(cls) -> Requirement:
+        return UnmetRequirement()
+
+
+class ProjectWindowTestExtensionWithUnmetDisableRequirement(ProjectWindowTestExtension):
+    @classmethod
+    def disable_requirement(cls) -> Requirement:
+        return UnmetRequirement()
+
+
 class TestProjectWindow:
+    async def test_enable_extension_with_unmet_enable_requirement(
+        self,
+        mocker: MockerFixture,
+        betty_qtbot: BettyQtBot,
+        tmp_path: Path,
+    ) -> None:
+        mocker.patch('betty.app.extension.discover_extension_types', return_value=(ProjectWindowTestExtensionWithUnmetEnableRequirement,))
+        sut = ProjectWindow(betty_qtbot.app)
+        betty_qtbot.qtbot.addWidget(sut)
+        sut.show()
+
+        extension_pane_name = f'extension-{ProjectWindowTestExtensionWithUnmetEnableRequirement.name()}'
+        extension_pane_selector = sut._pane_selectors[extension_pane_name]
+        betty_qtbot.mouse_click(extension_pane_selector)
+        extension_pane = sut._panes[extension_pane_name]
+        assert isinstance(extension_pane, _ExtensionPane)
+        assert not extension_pane._extension_enabled.isChecked()
+        betty_qtbot.assert_not_interactive(extension_pane._extension_enabled)
+
+    async def test_disable_extension_with_unmet_disable_requirement(
+        self,
+        mocker: MockerFixture,
+        betty_qtbot: BettyQtBot,
+        tmp_path: Path,
+    ) -> None:
+        mocker.patch('betty.app.extension.discover_extension_types', return_value=(ProjectWindowTestExtensionWithUnmetDisableRequirement,))
+        betty_qtbot.app.project.configuration.extensions.enable(ProjectWindowTestExtensionWithUnmetDisableRequirement)
+        sut = ProjectWindow(betty_qtbot.app)
+        betty_qtbot.qtbot.addWidget(sut)
+        sut.show()
+
+        extension_pane_name = f'extension-{ProjectWindowTestExtensionWithUnmetDisableRequirement.name()}'
+        extension_pane_selector = sut._pane_selectors[extension_pane_name]
+        betty_qtbot.mouse_click(extension_pane_selector)
+        extension_pane = sut._panes[extension_pane_name]
+        assert isinstance(extension_pane, _ExtensionPane)
+        assert extension_pane._extension_enabled.isChecked()
+        betty_qtbot.assert_not_interactive(extension_pane._extension_enabled)
+
     async def test_save_project_as_should_create_duplicate_configuration_file(
         self,
         mocker: MockerFixture,
