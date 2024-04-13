@@ -12,5 +12,5 @@ autopep8 --in-place -r ./betty
 
 # Fix JS code style violations.
 while read -r configuration_path; do
-    ./node_modules/.bin/eslint --fix -c "$configuration_path" "$(dirname "${configuration_path}")/**/*.js"
+    ./node_modules/.bin/eslint --fix -c "$configuration_path" --ext .js --ext .ts "$(dirname "${configuration_path}")"
 done < <(find ./ -name .eslintrc.yaml)

@@ -9,3 +9,4 @@ pip install '.[ci]'
 
 # Install JavaScript dependencies.
 npm install
+npx playwright install --with-deps

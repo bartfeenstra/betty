@@ -1,8 +1,0 @@
-root: true
-extends: standard
-plugins:
-  - cypress
-env:
-  cypress/globals: true
-ignorePatterns:
-  - app/

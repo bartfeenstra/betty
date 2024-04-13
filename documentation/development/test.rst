@@ -14,7 +14,7 @@ These impact the ``./bin/test`` command:
 * ``BETTY_TEST_SKIP_STYLELINT=true``: Skip Stylelint tests.
 * ``BETTY_TEST_SKIP_ESLINT=true``: Skip ESLint tests.
 * ``BETTY_TEST_SKIP_BUSTED=true``: Skip the Busted test build.
-* ``BETTY_TEST_SKIP_CYPRESS=true``: Skip Cypress tests.
+* ``BETTY_TEST_SKIP_PLAYWRIGHT=true``: Skip Playwright tests.
 * ``BETTY_TEST_SKIP_PYINSTALLER=true``: Skip the PyInstaller test build.
 
 Fixing problems automatically
