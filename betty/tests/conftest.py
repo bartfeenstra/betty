@@ -81,12 +81,20 @@ class BettyQtBot:
         self.qapp = qapp
         self.app = qapp.app
 
+    def _is_interactive(self, item: QAction | QWidget | None) -> bool:
+        if item is None:
+            return False
+        if not item.isEnabled():
+            return False
+        if not item.isVisible():
+            return False
+        return True
+
     def assert_interactive(self, item: QAction | QWidget | None) -> None:
-        def _assert_interactive() -> None:
-            assert item is not None
-            assert item.isEnabled()
-            assert item.isVisible()
-        self.qtbot.wait_until(_assert_interactive)
+        self.qtbot.wait_until(lambda: self._is_interactive(item))
+
+    def assert_not_interactive(self, item: QAction | QWidget | None) -> None:
+        self.qtbot.wait_until(lambda: not self._is_interactive(item))
 
     def navigate(self, item: QMainWindow | QMenu | QAction, attributes: list[str]) -> None:
         """

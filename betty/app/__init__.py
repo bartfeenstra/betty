@@ -19,7 +19,7 @@ from aiofiles.tempfile import TemporaryDirectory
 
 from betty import fs
 from betty.app.extension import ListExtensions, Extension, Extensions, build_extension_type_graph, \
-    CyclicDependencyError, ExtensionDispatcher, ConfigurableExtension, discover_extension_types
+    CyclicDependencyError, ExtensionDispatcher, ConfigurableExtension
 from betty.asyncio import wait_to_thread
 from betty.cache import Cache, FileCache
 from betty.cache.file import BinaryFileCache, PickledFileCache
@@ -257,7 +257,9 @@ class App(Configurable[AppConfiguration]):
         return self._project
 
     def discover_extension_types(self) -> set[type[Extension]]:
-        return {*discover_extension_types(), *map(type, self._extensions.flatten())}
+        from betty.app import extension
+
+        return {*extension.discover_extension_types(), *map(type, self._extensions.flatten())}
 
     @property
     def extensions(self) -> Extensions:

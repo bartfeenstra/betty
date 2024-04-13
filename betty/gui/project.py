@@ -434,13 +434,17 @@ class _ExtensionPane(LocalizedObject, QWidget):
             disable_requirement = self._app.extensions[self._extension_type].disable_requirement()
             if not disable_requirement.is_met():
                 self._extension_enabled.setDisabled(True)
-                self._extension_enabled_caption.setText(str(disable_requirement.reduce()))
+                reduced_disable_requirement = disable_requirement.reduce()
+                if reduced_disable_requirement is not None:
+                    self._extension_enabled_caption.setText(reduced_disable_requirement.localize(self._app.localizer))
         else:
             self._extension_enabled.setChecked(False)
             enable_requirement = self._extension_type.enable_requirement()
             if not enable_requirement.is_met():
                 self._extension_enabled.setDisabled(True)
-                self._extension_enabled_caption.setText(str(enable_requirement.reduce()))
+                reduced_enable_requirement = enable_requirement.reduce()
+                if reduced_enable_requirement is not None:
+                    self._extension_enabled_caption.setText(reduced_enable_requirement.localize(self._app.localizer))
 
     def _set_translatables(self) -> None:
         super()._set_translatables()
