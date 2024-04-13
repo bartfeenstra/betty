@@ -26,13 +26,7 @@ class _ColorConfigurationSwatch(LocalizedObject, QWidget):
         self.setFixedWidth(24)
 
     def paintEvent(self, a0: QPaintEvent | None) -> None:
-        # @todo On macOS, this sometimes errors with
-        # @todo "RuntimeError: wrapped C/C++ object of type _ColorConfigurationSwatch has been deleted".
-        # @todo Ignore the error until it is fixed.
-        try:
-            painter = QPainter(self)
-        except RuntimeError:
-            return
+        painter = QPainter(self)
         swatch = QRect(self.rect())
         painter.fillRect(swatch, QBrush(QColor.fromString(self._color.hex)))
         painter.drawRect(swatch)
