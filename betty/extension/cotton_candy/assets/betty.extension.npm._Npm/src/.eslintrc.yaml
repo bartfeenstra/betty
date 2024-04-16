@@ -1,6 +1,8 @@
 root: true
 parserOptions:
   ecmaVersion: 6
+  project:
+    - ./tsconfig.json
   sourceType: module
 env:
   browser: true
@@ -9,3 +11,12 @@ env:
 extends:
   - standard
   - eslint:recommended
+plugins:
+  - '@typescript-eslint'
+overrides:
+  - files: '*.ts'
+    extends:
+      - plugin:@typescript-eslint/strict-type-checked
+      - plugin:@typescript-eslint/stylistic-type-checked
+    rules:
+      '@typescript-eslint/explicit-function-return-type': 'error'

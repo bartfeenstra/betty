@@ -34,6 +34,9 @@ module.exports = {
       filename: '[name].css'
     })
   ],
+  resolve: {
+    extensions: ['', '.ts', '.js', '*']
+  },
   module: {
     rules: [
       {
@@ -67,7 +70,7 @@ module.exports = {
         ]
       },
       {
-        test: /\.js$/,
+        test: /\.(js|ts)$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
@@ -79,7 +82,8 @@ module.exports = {
                   useBuiltIns: 'usage',
                   corejs: 3
                 }
-              ]
+              ],
+              '@babel/preset-typescript'
             ],
             cacheDirectory: configuration.cacheDirectory
           }
