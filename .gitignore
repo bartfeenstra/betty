@@ -19,5 +19,6 @@ __pycache__
 # Test artifacts.
 /.coverage
 /.coverage.*
-/cypress/screenshots
-/cypress/app
+/playwright/.cache/
+/playwright/results/
+/playwright/report/

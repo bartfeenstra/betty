@@ -7,5 +7,5 @@ cd "$(dirname "$0")/.."
 echo 'Running ESLint...'
 
 while read -r configuration_path; do
-    ./node_modules/.bin/eslint -c "$configuration_path" "$(dirname "${configuration_path}")/**/*.js"
+    ./node_modules/.bin/eslint -c "$configuration_path" --ext .js --ext .ts "$(dirname "${configuration_path}")"
 done < <(find ./ -name .eslintrc.yaml)

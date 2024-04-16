@@ -1,0 +1,12 @@
+root: true
+extends:
+  - standard
+  - plugin:@typescript-eslint/strict
+plugins:
+  - '@typescript-eslint'
+parserOptions:
+  project:
+    - ./tsconfig.json
+overrides:
+  - files: playwright/tests/**
+    extends: plugin:playwright/recommended

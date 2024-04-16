@@ -81,21 +81,11 @@ jobs:
         run: |
           sudo apt-get update
           apt_packages=(
-            libasound2 # For Cypress
             libegl1-mesa # For Qt
-            libgbm-dev # For Cypress
-            libgconf-2-4 # For Cypress
-            libgtk2.0-0 # For Cypress
-            libgtk-3-0 # For Cypress
-            libnotify-dev # For Cypress
-            libnss3 # For Cypress
             libx11-xcb-dev # For Qt
             '^libxcb.*-dev' # For Qt
             libxkbcommon-x11-0 # For Qt
-            libxss1 # For Cypress
-            libxtst6 # For Cypress
-            xauth # For Cypress
-            xvfb # For Cypress and pytest-xvfb
+            xvfb # For pytest-xvfb
           )
           sudo apt-get install "${apt_packages[@]}"
 
@@ -115,20 +105,6 @@ jobs:
         run: ./bin/build-ci
         shell: bash
 
-      - name: Get the Cypress cache directory
-        if: startsWith(runner.os, 'Linux')
-        run: echo "cypress_cache_dir=$(./node_modules/.bin/cypress cache path)" >> $GITHUB_ENV
-        shell: bash
-
-      - name: Cache Cypress
-        if: startsWith(runner.os, 'Linux')
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.cypress_cache_dir }}
-          key: cypress-${{ runner.os }}-${{ hashFiles('./package.json') }}
-          restore-keys: |
-            cypress-
-
       - name: Run the tests
         if: startsWith(runner.os, 'Linux')
         run: BETTY_TEST_SKIP_PYINSTALLER=true ./bin/test
@@ -136,7 +112,7 @@ jobs:
 
       - name: Run the tests
         if: ${{ ! startsWith(runner.os, 'Linux') }}
-        run: BETTY_TEST_SKIP_SHELLCHECK=true BETTY_TEST_SKIP_FLAKE8=true BETTY_TEST_SKIP_MYPY=true BETTY_TEST_SKIP_STYLELINT=true BETTY_TEST_SKIP_ESLINT=true BETTY_TEST_SKIP_BUSTED=true BETTY_TEST_SKIP_CYPRESS=true BETTY_TEST_SKIP_PYINSTALLER=true ./bin/test
+        run: BETTY_TEST_SKIP_SHELLCHECK=true BETTY_TEST_SKIP_FLAKE8=true BETTY_TEST_SKIP_MYPY=true BETTY_TEST_SKIP_STYLELINT=true BETTY_TEST_SKIP_ESLINT=true BETTY_TEST_SKIP_BUSTED=true BETTY_TEST_SKIP_PLAYWRIGHT=true BETTY_TEST_SKIP_PYINSTALLER=true ./bin/test
         shell: bash
 
       - name: Upload code coverage

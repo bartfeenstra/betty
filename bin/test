@@ -26,8 +26,8 @@ if [ -z "${BETTY_TEST_SKIP_BUSTED-}" ]; then
   ./bin/test-busted
 fi
 ./bin/test-pytest
-if [ -z "${BETTY_TEST_SKIP_CYPRESS-}" ]; then
-  ./bin/test-cypress
+if [ -z "${BETTY_TEST_SKIP_PLAYWRIGHT-}" ]; then
+  ./bin/test-playwright
 fi
 if [ -z "${BETTY_TEST_SKIP_PYINSTALLER-}" ]; then
   ./bin/test-build-pyinstaller
