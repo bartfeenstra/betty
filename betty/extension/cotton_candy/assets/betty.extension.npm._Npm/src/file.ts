@@ -7,34 +7,32 @@ const _NEXT_FILE_KEYS = ['ArrowRight']
 let _positionX = null
 let _positionY = null
 
-function _initializeFiles () {
+function _initializeFiles () :void {
   _initializeFileExtendedOpen()
   _initializeFileExtendedClose()
   _initializeFileExtendedKeyPresses()
 }
 
-function _initializeFileExtendedOpen () {
+function _initializeFileExtendedOpen () :void {
   const links = document.getElementsByClassName('file-extended-open')
-  for (let i = 0; i < links.length; i++) {
-    const link = links[i]
-    link.addEventListener('click', _openExtended)
+  for (const link of links) {
+    (link as Element).addEventListener('click', _openExtended)
   }
 }
 
-function _openExtended () {
+function _openExtended () :void {
   _positionX = window.scrollX
   _positionY = window.scrollY
 }
 
-function _initializeFileExtendedClose () {
+function _initializeFileExtendedClose () :void {
   const links = document.getElementsByClassName('file-extended-close')
-  for (let i = 0; i < links.length; i++) {
-    const link = links[i]
-    link.addEventListener('click', _closeExtended)
+  for (const link of links) {
+    (link as Element).addEventListener('click', _closeExtended)
   }
 }
 
-function _closeExtended (e) {
+function _closeExtended (e: Event) :void {
   window.location = '#'
   window.scrollTo({
     left: _positionX,
@@ -45,20 +43,20 @@ function _closeExtended (e) {
   e.preventDefault()
 }
 
-function _initializeFileExtendedKeyPresses () {
+function _initializeFileExtendedKeyPresses () :void {
   document.addEventListener('keydown', function (e) {
-    if (_CLOSE_KEYS.indexOf(e.key) !== -1) {
-      const close = document.querySelector('.file-extended:target .file-extended-close a')
+    if (_CLOSE_KEYS.includes(e.key)) {
+      const close = document.querySelector<HTMLElement>('.file-extended:target .file-extended-close a')
       if (close) {
         close.click()
       }
-    } else if (_PREVIOUS_FILE_KEYS.indexOf(e.key) !== -1) {
-      const previous = document.querySelector('.file-extended:target .file-extended-previous a')
+    } else if (_PREVIOUS_FILE_KEYS.includes(e.key)) {
+      const previous = document.querySelector<HTMLElement>('.file-extended:target .file-extended-previous a')
       if (previous) {
         previous.click()
       }
-    } else if (_NEXT_FILE_KEYS.indexOf(e.key) !== -1) {
-      const next = document.querySelector('.file-extended:target .file-extended-next a')
+    } else if (_NEXT_FILE_KEYS.includes(e.key)) {
+      const next = document.querySelector<HTMLElement>('.file-extended:target .file-extended-next a')
       if (next) {
         next.click()
       }
