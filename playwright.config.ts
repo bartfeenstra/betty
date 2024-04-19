@@ -1,5 +1,5 @@
 import {defineConfig, devices} from '@playwright/test'
-import {execSync} from "node:child_process";
+import {execSync} from 'node:child_process'
 
 export default defineConfig({
   testDir: './playwright/tests',

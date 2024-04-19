@@ -1,3 +1,5 @@
+'use strict'
+
 interface IndexEntry {
   text: string
   result: string

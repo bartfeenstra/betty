@@ -1,3 +1,5 @@
+'use strict'
+
 import * as path from 'node:path'
 import { buildApp, Server, test as base } from '../index'
 import { expect } from '@playwright/test'

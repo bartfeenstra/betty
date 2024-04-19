@@ -123,7 +123,7 @@ class Server implements Disposable {
       this.host,
       () => {
         this.portNumber = this.attemptedPortNumber
-      }
+      },
     )
   }
 
