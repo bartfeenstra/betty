@@ -24,7 +24,7 @@ class Search {
   private documentY: number
   private index: Index | null = null
 
-  constructor () {
+  public constructor () {
     this.search = document.getElementById('search')
     this.form = this.search.getElementsByTagName('form').item(0)
     this.queryElement = document.getElementById('search-query') as HTMLInputElement
