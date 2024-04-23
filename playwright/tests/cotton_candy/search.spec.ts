@@ -1,6 +1,9 @@
 import * as path from 'node:path'
 import { buildApp, Server, test as base } from '../index'
 import { expect } from '@playwright/test'
+import * as url from 'node:url'
+
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
 const test = base.extend<{
   site: string,
