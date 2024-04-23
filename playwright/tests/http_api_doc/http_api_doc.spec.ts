@@ -20,4 +20,5 @@ const test = base.extend<{
 test('load the HTTP API documentation', async ({ page, site }) => {
   await page.goto(site + '/api/index.html')
   expect(await page.content()).toContain('Betty')
+  expect(await page.content()).toContain('api/index.json')
 })
