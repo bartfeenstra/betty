@@ -1,7 +1,7 @@
 'use strict'
 
 import { test as base } from '@playwright/test'
-import { access, mkdtemp, writeFile } from 'node:fs/promises'
+import { access, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { createServer, IncomingMessage, Server as HttpServer, ServerResponse } from 'node:http'
 import * as path from 'node:path'
 import { tmpdir } from 'node:os'
@@ -143,7 +143,12 @@ const test = base.extend<{
     {}, // eslint-disable-line no-empty-pattern
     use
   ) => {
-    await use(await mkdtemp(path.join(tmpdir(), 'betty-playwright-')))
+    const temporaryDirectoryPath = await mkdtemp(path.join(tmpdir(), 'betty-playwright-'))
+    await use(temporaryDirectoryPath)
+    await rm(temporaryDirectoryPath, {
+      force: true,
+      recursive: true
+    })
   }
 })
 
