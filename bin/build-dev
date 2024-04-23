@@ -9,6 +9,7 @@ pip install -e '.[development]'
 
 # Install JavaScript dependencies.
 npm install
+npm install --no-save "@types/node@$(node -e 'console.log(process.versions.node.split(".")[0])')"
 # Install Playwright browser dependencies, but allow those
 # to fail as Playwright runs on very few systems only.
 npx playwright install --with-deps || true
