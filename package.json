@@ -5,6 +5,10 @@
   "devDependencies": {
     "@playwright/test": "^1.43.1",
     "@types/node": "*",
+    "betty.extension.CottonCandy":  "file:./betty/extension/cotton_candy/assets/betty.extension.npm._Npm/src",
+    "betty.extension.HttpApiDoc":  "file:./betty/extension/http_api_doc/assets/betty.extension.npm._Npm/src",
+    "betty.extension.Maps":  "file:./betty/extension/maps/assets/betty.extension.npm._Npm/src",
+    "betty.extension.Trees":  "file:./betty/extension/trees/assets/betty.extension.npm._Npm/src",
     "eslint": "^8.52.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-compat": "^4.2.0",
