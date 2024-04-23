@@ -4,7 +4,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.43.1",
-    "@types/node": "^20.12.7",
+    "@types/node": "*",
     "eslint": "^8.52.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-compat": "^4.2.0",
