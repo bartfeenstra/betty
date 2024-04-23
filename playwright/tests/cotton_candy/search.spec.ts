@@ -38,5 +38,5 @@ test('search, find, and navigate to a resource', async ({ page, site }) => {
   await expect(page.locator('#search-results')).toBeVisible()
   await page.keyboard.press('ArrowDown')
   await page.locator(':focus').press('Enter')
-  await expect(page.url()).toBe(site + '/person/I0001/index.html')
+  expect(page.url()).toBe(site + '/person/I0001/index.html')
 })
