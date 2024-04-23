@@ -6,12 +6,13 @@ const test = base.extend<{
   site: string,
 }>({
   site: async ({ temporaryDirectoryPath }, use) => {
-    const projectDirectoryPath = await buildApp(temporaryDirectoryPath, {
+    using server = new Server(path.join(temporaryDirectoryPath, 'output', 'www'))
+    await buildApp(temporaryDirectoryPath, {
+      base_url: await server.getPublicUrl(),
       extensions: {
         'betty.extension.HttpApiDoc': {}
       }
     })
-    using server = new Server(path.join(projectDirectoryPath, 'output', 'www'))
     await use(await server.getPublicUrl())
   }
 })

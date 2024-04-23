@@ -6,6 +6,7 @@ export default defineConfig({
   outputDir: './playwright/results',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
+  timeout: 60000,
   retries: 2,
   workers: parseInt(execSync('nproc').toString()),
   use: {
