@@ -21,5 +21,6 @@
   },
   "scripts": {
     "webpack": "webpack --config webpack.config.js"
-  }
+  },
+  "type": "module"
 }

@@ -1,6 +1,6 @@
 root: true
 parserOptions:
-  ecmaVersion: 6
+  ecmaVersion: 2022
   project:
     - ./tsconfig.json
   sourceType: module

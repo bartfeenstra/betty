@@ -1,11 +1,15 @@
 'use strict'
 
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const path = require('path')
-const configuration = require('./webpack.config.json')
+import { CleanWebpackPlugin } from 'clean-webpack-plugin'
+import MiniCssExtractPlugin from 'mini-css-extract-plugin'
+import path from 'path'
+import { readFile } from 'node:fs/promises'
+import url from 'node:url'
 
-module.exports = {
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
+const configuration = JSON.parse(await readFile('./webpack.config.json'))
+
+export default {
   mode: configuration.debug ? 'development' : 'production',
   entry: {
     maps: path.resolve(__dirname, 'maps.js')

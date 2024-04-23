@@ -17,5 +17,6 @@
     "stylelint-no-unsupported-browser-features": "^7.0.0",
     "typescript": "^5.4.5",
     "typescript-eslint": "^7.6.0"
-  }
+  },
+  "type": "module"
 }
