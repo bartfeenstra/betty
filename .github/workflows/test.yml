@@ -79,7 +79,9 @@ jobs:
       - name: Install APT dependencies
         if: startsWith(runner.os, 'Linux')
         run: |
-          sudo apt-get update
+          # Allow the update to fail due to https://github.com/microsoft/linux-package-repositories/issues/130
+          # @todo Remove this workaround once the original problem is fixed.
+          sudo apt-get update || true
           apt_packages=(
             libegl1-mesa # For Qt
             libx11-xcb-dev # For Qt
