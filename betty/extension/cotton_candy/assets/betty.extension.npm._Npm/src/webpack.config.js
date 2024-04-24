@@ -12,7 +12,7 @@ const configuration = JSON.parse(await readFile('./webpack.config.json'))
 export default {
   mode: configuration.debug ? 'development' : 'production',
   entry: {
-    cotton_candy: path.resolve(__dirname, 'main.js')
+    cotton_candy: path.resolve(__dirname, 'main.ts')
   },
   output: {
     path: path.resolve(__dirname, 'webpack-build'),
