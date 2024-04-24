@@ -21,7 +21,9 @@ class TestPickledFileCache(CacheTestBase[Any]):
         scopes: Sequence[str] | None = None,
     ) -> AsyncIterator[PickledFileCache[Any]]:
         async with TemporaryDirectory() as cache_directory_path_str:
-            yield PickledFileCache(DEFAULT_LOCALIZER, Path(cache_directory_path_str), scopes=scopes)
+            yield PickledFileCache(
+                DEFAULT_LOCALIZER, Path(cache_directory_path_str), scopes=scopes
+            )
 
     def _values(self) -> Iterator[Any]:
         yield True
@@ -41,23 +43,48 @@ class TestBinaryFileCache(CacheTestBase[bytes]):
         scopes: Sequence[str] | None = None,
     ) -> AsyncIterator[BinaryFileCache]:
         async with TemporaryDirectory() as cache_directory_path_str:
-            yield BinaryFileCache(DEFAULT_LOCALIZER, Path(cache_directory_path_str), scopes=scopes)
+            yield BinaryFileCache(
+                DEFAULT_LOCALIZER, Path(cache_directory_path_str), scopes=scopes
+            )
 
     def _values(self) -> Iterator[bytes]:
-        yield b'SomeBytes'
+        yield b"SomeBytes"
 
-    @pytest.mark.parametrize('scopes', [
-        (),
-        ('scopey', 'dopey'),
-    ])
+    @pytest.mark.parametrize(
+        "scopes",
+        [
+            (),
+            ("scopey", "dopey"),
+        ],
+    )
     def test_path(self, scopes: Sequence[str], tmp_path: Path) -> None:
         sut = BinaryFileCache(DEFAULT_LOCALIZER, Path(tmp_path), scopes=scopes)
         assert sut.path == tmp_path.joinpath(*scopes)
 
-    @pytest.mark.parametrize('expected_path_components, scopes', [
-        (('aWQ=',), ()),
-        (('scopey', 'dopey', 'aWQ=',), ('scopey', 'dopey',)),
-    ])
-    def test_cache_item_file_path(self, expected_path_components: Sequence[str], scopes: Sequence[str], tmp_path: Path) -> None:
+    @pytest.mark.parametrize(
+        "expected_path_components, scopes",
+        [
+            (("aWQ=",), ()),
+            (
+                (
+                    "scopey",
+                    "dopey",
+                    "aWQ=",
+                ),
+                (
+                    "scopey",
+                    "dopey",
+                ),
+            ),
+        ],
+    )
+    def test_cache_item_file_path(
+        self,
+        expected_path_components: Sequence[str],
+        scopes: Sequence[str],
+        tmp_path: Path,
+    ) -> None:
         sut = BinaryFileCache(DEFAULT_LOCALIZER, Path(tmp_path), scopes=scopes)
-        assert sut.cache_item_file_path('id') == tmp_path.joinpath(*expected_path_components)
+        assert sut.cache_item_file_path("id") == tmp_path.joinpath(
+            *expected_path_components
+        )

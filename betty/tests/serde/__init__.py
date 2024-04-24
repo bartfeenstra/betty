@@ -1,4 +1,5 @@
 """Test the betty.serde module."""
+
 from __future__ import annotations
 
 from contextlib import contextmanager
@@ -61,9 +62,7 @@ def assert_error(
         expected_error_type = type(error)
         expected_error_message = str(error)
         expected_error_contexts = [
-            error.localize(DEFAULT_LOCALIZER)
-            for error
-            in error.contexts
+            error.localize(DEFAULT_LOCALIZER) for error in error.contexts
         ]
     else:
         expected_error_type = error_type  # type: ignore[assignment]
@@ -72,23 +71,29 @@ def assert_error(
         if error_contexts is not None:
             expected_error_contexts = error_contexts
 
-    errors = [actual_error for actual_error in actual_errors if isinstance(actual_error, expected_error_type)]
+    errors = [
+        actual_error
+        for actual_error in actual_errors
+        if isinstance(actual_error, expected_error_type)
+    ]
     if expected_error_message is not None:
-        errors = [actual_error for actual_error in actual_errors if str(actual_error).startswith(expected_error_message)]
+        errors = [
+            actual_error
+            for actual_error in actual_errors
+            if str(actual_error).startswith(expected_error_message)
+        ]
     if expected_error_contexts is not None:
         errors = [
             actual_error
-            for actual_error
-            in actual_errors
-            if expected_error_contexts == [
-                error.localize(DEFAULT_LOCALIZER)
-                for error
-                in actual_error.contexts
-            ]
+            for actual_error in actual_errors
+            if expected_error_contexts
+            == [error.localize(DEFAULT_LOCALIZER) for error in actual_error.contexts]
         ]
     if errors:
         return errors
-    raise SerdeAssertionError('Failed raising a serialization or deserialization error.')
+    raise SerdeAssertionError(
+        "Failed raising a serialization or deserialization error."
+    )
 
 
 @contextmanager

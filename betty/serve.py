@@ -1,6 +1,7 @@
 """
 Provide the Serve API to serve resources within the application.
 """
+
 from __future__ import annotations
 
 import contextlib
@@ -31,7 +32,9 @@ class ServerNotStartedError(RuntimeError):
 
 class NoPublicUrlBecauseServerNotStartedError(ServerNotStartedError):
     def __init__(self):
-        super().__init__('Cannot get the public URL for a server that has not started yet.')
+        super().__init__(
+            "Cannot get the public URL for a server that has not started yet."
+        )
 
 
 class OsError(UserFacingError, OSError):
@@ -48,7 +51,7 @@ class Server:
 
     @classmethod
     def name(cls) -> str:
-        return f'{cls.__module__}.{cls.__name__}'
+        return f"{cls.__module__}.{cls.__name__}"
 
     @classmethod
     def label(cls) -> Str:
@@ -64,9 +67,11 @@ class Server:
         """
         Show the served site to the user.
         """
-        logging.getLogger(__name__).info(self._localizer._('Serving your site at {url}...').format(
-            url=self.public_url,
-        ))
+        logging.getLogger(__name__).info(
+            self._localizer._("Serving your site at {url}...").format(
+                url=self.public_url,
+            )
+        )
         webbrowser.open_new_tab(self.public_url)
 
     async def stop(self) -> None:
@@ -83,7 +88,12 @@ class Server:
         await self.start()
         return self
 
-    async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> None:
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         await self.stop()
 
     async def assert_available(self) -> None:
@@ -92,7 +102,9 @@ class Server:
             try:
                 await Do[Any, None](self._assert_available, session).until()
             except BaseException:
-                raise UserFacingError(Str._('The server was unreachable after starting.'))
+                raise UserFacingError(
+                    Str._("The server was unreachable after starting.")
+                )
 
     async def _assert_available(self, session: ClientSession) -> None:
         async with session.get(self.public_url) as response:
@@ -109,10 +121,14 @@ class AppServer(Server):
         for server in app.servers.values():
             if isinstance(server, AppServer):
                 return server
-        raise RuntimeError(f'Cannot find a project server. This must never happen, because {BuiltinAppServer} should be the fallback.')
+        raise RuntimeError(
+            f"Cannot find a project server. This must never happen, because {BuiltinAppServer} should be the fallback."
+        )
 
     async def start(self) -> None:
-        await makedirs(self._app.project.configuration.www_directory_path, exist_ok=True)
+        await makedirs(
+            self._app.project.configuration.www_directory_path, exist_ok=True
+        )
         await super().start()
 
 
@@ -124,7 +140,7 @@ class ServerProvider:
 
 class _BuiltinServerRequestHandler(SimpleHTTPRequestHandler):
     def end_headers(self) -> None:
-        self.send_header('Cache-Control', 'no-cache')
+        self.send_header("Cache-Control", "no-cache")
         super().end_headers()
 
 
@@ -142,11 +158,13 @@ class BuiltinServer(Server):
         self._http_server: HTTPServer | None = None
         self._port: int | None = None
         self._thread: threading.Thread | None = None
-        self._temporary_root_directory: AiofilesContextManagerTempDir[None, Any, Any] | None = None
+        self._temporary_root_directory: (
+            AiofilesContextManagerTempDir[None, Any, Any] | None
+        ) = None
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Python built-in')
+        return Str._("Python built-in")
 
     async def start(self) -> None:
         await super().start()
@@ -154,20 +172,24 @@ class BuiltinServer(Server):
             # To mimic the root path, symlink the project's WWW directory into a temporary
             # directory, so we do not have to make changes to any existing files.
             self._temporary_root_directory = TemporaryDirectory()
-            temporary_root_directory_path = Path(await self._temporary_root_directory.__aenter__())
+            temporary_root_directory_path = Path(
+                await self._temporary_root_directory.__aenter__()
+            )
             temporary_www_directory = temporary_root_directory_path
-            for root_path_component in self._root_path.split('/'):
+            for root_path_component in self._root_path.split("/"):
                 temporary_www_directory /= root_path_component
             if temporary_www_directory != temporary_root_directory_path:
                 await symlink(self._www_directory_path, temporary_www_directory)
             www_directory_path = temporary_root_directory_path
         else:
             www_directory_path = self._www_directory_path
-        logging.getLogger(__name__).info(self._localizer._("Starting Python's built-in web server..."))
+        logging.getLogger(__name__).info(
+            self._localizer._("Starting Python's built-in web server...")
+        )
         for self._port in range(DEFAULT_PORT, 65535):
             with contextlib.suppress(OSError):
                 self._http_server = HTTPServer(
-                    ('', self._port),
+                    ("", self._port),
                     lambda request, client_address, server: _BuiltinServerRequestHandler(
                         request,
                         client_address,
@@ -177,7 +199,9 @@ class BuiltinServer(Server):
                 )
                 break
         if self._http_server is None:
-            raise OsError(Str._('Cannot find an available port to bind the web server to.'))
+            raise OsError(
+                Str._("Cannot find an available port to bind the web server to.")
+            )
         self._thread = threading.Thread(target=self._serve)
         self._thread.start()
         await self.assert_available()
@@ -185,9 +209,9 @@ class BuiltinServer(Server):
     @property
     def public_url(self) -> str:
         if self._port is not None:
-            url = f'http://localhost:{self._port}'
+            url = f"http://localhost:{self._port}"
             if self._root_path:
-                url = f'{url}/{self._root_path}'
+                url = f"{url}/{self._root_path}"
             return url
         raise NoPublicUrlBecauseServerNotStartedError()
 
@@ -213,7 +237,7 @@ class BuiltinAppServer(AppServer):
         self._server = BuiltinServer(
             self._app.project.configuration.www_directory_path,
             root_path=self._app.project.configuration.root_path,
-            localizer=self._app.localizer
+            localizer=self._app.localizer,
         )
 
     @classmethod

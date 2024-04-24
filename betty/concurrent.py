@@ -1,6 +1,7 @@
 """
 Provide utilities for concurrent programming.
 """
+
 import asyncio
 import threading
 import time
@@ -21,7 +22,12 @@ class _Lock:
     async def __aenter__(self):
         await self.acquire()
 
-    async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> None:
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         self.release()
 
     async def acquire(self, *, wait: bool = True) -> bool:
@@ -50,7 +56,7 @@ class AsynchronizedLock(_Lock):
     Make a sychronous (blocking) lock asynchronous (non-blocking).
     """
 
-    __slots__ = '_lock'
+    __slots__ = "_lock"
 
     def __init__(self, lock: Lock):
         self._lock = lock
@@ -71,7 +77,7 @@ class MultiLock(_Lock):
     Provide a lock that only acquires if all of the given locks can be acquired.
     """
 
-    __slots__ = '_locked', '_locks'
+    __slots__ = "_locked", "_locks"
 
     def __init__(self, *locks: _Lock):
         self._locks = locks
@@ -129,7 +135,12 @@ class RateLimiter:
     async def __aenter__(self) -> None:
         await self.wait()
 
-    async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> None:
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         return
 
     async def wait(self) -> None:

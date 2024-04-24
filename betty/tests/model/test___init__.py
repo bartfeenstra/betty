@@ -4,11 +4,29 @@ from typing import Any, Iterator
 
 import pytest
 
-from betty.model import get_entity_type_name, Entity, get_entity_type, ToAny, \
-    EntityTypeAssociationRegistry, SingleTypeEntityCollection, MultipleTypesEntityCollection, \
-    one_to_many, many_to_one_to_many, many_to_many, \
-    EntityCollection, to_many, many_to_one, to_one, one_to_one, EntityTypeImportError, ToOne, \
-    EntityGraphBuilder, AliasableEntity, AliasedEntity, unalias
+from betty.model import (
+    get_entity_type_name,
+    Entity,
+    get_entity_type,
+    ToAny,
+    EntityTypeAssociationRegistry,
+    SingleTypeEntityCollection,
+    MultipleTypesEntityCollection,
+    one_to_many,
+    many_to_one_to_many,
+    many_to_many,
+    EntityCollection,
+    to_many,
+    many_to_one,
+    to_one,
+    one_to_one,
+    EntityTypeImportError,
+    ToOne,
+    EntityGraphBuilder,
+    AliasableEntity,
+    AliasedEntity,
+    unalias,
+)
 from betty.model.ancestry import Person
 
 
@@ -18,7 +36,7 @@ class EntityTestEntity(Entity):
 
 class TestEntity:
     async def test_id(self) -> None:
-        entity_id = '000000001'
+        entity_id = "000000001"
         sut = EntityTestEntity(entity_id)
         assert entity_id == sut.id
 
@@ -29,10 +47,13 @@ class GetEntityTypeNameTestEntity(Entity):
 
 class TestGetEntityTypeName:
     async def test_with_betty_entity(self) -> None:
-        assert 'Person' == get_entity_type_name(Person)
+        assert "Person" == get_entity_type_name(Person)
 
     async def test_with_other_entity(self) -> None:
-        assert 'betty.tests.model.test___init__.GetEntityTypeNameTestEntity' == get_entity_type_name(GetEntityTypeNameTestEntity)
+        assert (
+            "betty.tests.model.test___init__.GetEntityTypeNameTestEntity"
+            == get_entity_type_name(GetEntityTypeNameTestEntity)
+        )
 
 
 class GetEntityTypeTestEntity(Entity):
@@ -41,21 +62,25 @@ class GetEntityTypeTestEntity(Entity):
 
 class TestGetEntityType:
     async def test_with_betty_entity_type_name(self) -> None:
-        assert Person == get_entity_type('Person')
+        assert Person == get_entity_type("Person")
 
     async def test_with_other_entity_type_name(self) -> None:
-        assert GetEntityTypeTestEntity == get_entity_type('betty.tests.model.test___init__.GetEntityTypeTestEntity')
+        assert GetEntityTypeTestEntity == get_entity_type(
+            "betty.tests.model.test___init__.GetEntityTypeTestEntity"
+        )
 
     async def test_with_unknown_entity_type_name(self) -> None:
         with pytest.raises(EntityTypeImportError):
-            get_entity_type('betty_non_existent.UnknownEntity')
+            get_entity_type("betty_non_existent.UnknownEntity")
 
 
 class _TestEntityTypeAssociationRegistry_ParentEntity(Entity):
     pass
 
 
-class _TestEntityTypeAssociationRegistry_ChildEntity(_TestEntityTypeAssociationRegistry_ParentEntity):
+class _TestEntityTypeAssociationRegistry_ChildEntity(
+    _TestEntityTypeAssociationRegistry_ParentEntity
+):
     pass
 
 
@@ -64,24 +89,24 @@ class _TestEntityTypeAssociationRegistry_Associate(Entity):
 
 
 class TestEntityTypeAssociationRegistry:
-    @pytest.fixture(scope='class', autouse=True)
+    @pytest.fixture(scope="class", autouse=True)
     def associations(self) -> Iterator[tuple[ToAny[Any, Any], ToAny[Any, Any]]]:
         parent_association = ToOne[
             _TestEntityTypeAssociationRegistry_ParentEntity,
-            _TestEntityTypeAssociationRegistry_ChildEntity
+            _TestEntityTypeAssociationRegistry_ChildEntity,
         ](
             _TestEntityTypeAssociationRegistry_ParentEntity,
-            'parent_associate',
-            'betty.tests.model.test___init__._TestEntityTypeAssociationRegistry_Associate',
+            "parent_associate",
+            "betty.tests.model.test___init__._TestEntityTypeAssociationRegistry_Associate",
         )
         EntityTypeAssociationRegistry._register(parent_association)
         child_association = ToOne[
             _TestEntityTypeAssociationRegistry_ChildEntity,
-            _TestEntityTypeAssociationRegistry_ParentEntity
+            _TestEntityTypeAssociationRegistry_ParentEntity,
         ](
             _TestEntityTypeAssociationRegistry_ChildEntity,
-            'child_associate',
-            'betty.tests.model.test___init__._TestEntityTypeAssociationRegistry_Associate',
+            "child_associate",
+            "betty.tests.model.test___init__._TestEntityTypeAssociationRegistry_Associate",
         )
         EntityTypeAssociationRegistry._register(child_association)
         yield parent_association, child_association
@@ -93,14 +118,23 @@ class TestEntityTypeAssociationRegistry:
         associations: tuple[ToAny[Any, Any], ToAny[Any, Any]],
     ) -> None:
         parent_registration, _ = associations
-        assert {parent_registration} == EntityTypeAssociationRegistry.get_all_associations(_TestEntityTypeAssociationRegistry_ParentEntity)
+        assert {
+            parent_registration
+        } == EntityTypeAssociationRegistry.get_all_associations(
+            _TestEntityTypeAssociationRegistry_ParentEntity
+        )
 
     async def test_get_associations_with_child_class_should_return_child_associations(
         self,
         associations: tuple[ToAny[Any, Any], ToAny[Any, Any]],
     ) -> None:
         parent_association, child_association = associations
-        assert {parent_association, child_association} == EntityTypeAssociationRegistry.get_all_associations(_TestEntityTypeAssociationRegistry_ChildEntity)
+        assert {
+            parent_association,
+            child_association,
+        } == EntityTypeAssociationRegistry.get_all_associations(
+            _TestEntityTypeAssociationRegistry_ChildEntity
+        )
 
 
 class SingleTypeEntityCollectionTestEntity(Entity):
@@ -132,11 +166,41 @@ class TestSingleTypeEntityCollection:
         entity8 = SingleTypeEntityCollectionTestEntity()
         entity9 = SingleTypeEntityCollectionTestEntity()
         # Ensure duplicates are skipped.
-        sut.add(entity1, entity2, entity3, entity1, entity2, entity3, entity1, entity2, entity3)
+        sut.add(
+            entity1,
+            entity2,
+            entity3,
+            entity1,
+            entity2,
+            entity3,
+            entity1,
+            entity2,
+            entity3,
+        )
         assert [entity1, entity2, entity3] == list(sut)
         # Ensure skipped duplicates do not affect further new values.
-        sut.add(entity1, entity2, entity3, entity4, entity5, entity6, entity7, entity8, entity9)
-        assert [entity1, entity2, entity3, entity4, entity5, entity6, entity7, entity8, entity9] == list(sut)
+        sut.add(
+            entity1,
+            entity2,
+            entity3,
+            entity4,
+            entity5,
+            entity6,
+            entity7,
+            entity8,
+            entity9,
+        )
+        assert [
+            entity1,
+            entity2,
+            entity3,
+            entity4,
+            entity5,
+            entity6,
+            entity7,
+            entity8,
+            entity9,
+        ] == list(sut)
 
     async def test_remove(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
@@ -217,15 +281,15 @@ class TestSingleTypeEntityCollection:
 
     async def test_getitem_by_entity_id(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
-        entity1 = SingleTypeEntityCollectionTestEntity('1')
-        entity2 = SingleTypeEntityCollectionTestEntity('2')
-        entity3 = SingleTypeEntityCollectionTestEntity('3')
+        entity1 = SingleTypeEntityCollectionTestEntity("1")
+        entity2 = SingleTypeEntityCollectionTestEntity("2")
+        entity3 = SingleTypeEntityCollectionTestEntity("3")
         sut.add(entity1, entity2, entity3)
-        assert entity1 is sut['1']
-        assert entity2 is sut['2']
-        assert entity3 is sut['3']
+        assert entity1 is sut["1"]
+        assert entity2 is sut["2"]
+        assert entity3 is sut["3"]
         with pytest.raises(KeyError):
-            sut['4']
+            sut["4"]
 
     async def test_delitem_by_entity(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
@@ -240,12 +304,12 @@ class TestSingleTypeEntityCollection:
 
     async def test_delitem_by_entity_id(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
-        entity1 = SingleTypeEntityCollectionTestEntity('1')
-        entity2 = SingleTypeEntityCollectionTestEntity('2')
-        entity3 = SingleTypeEntityCollectionTestEntity('3')
+        entity1 = SingleTypeEntityCollectionTestEntity("1")
+        entity2 = SingleTypeEntityCollectionTestEntity("2")
+        entity3 = SingleTypeEntityCollectionTestEntity("3")
         sut.add(entity1, entity2, entity3)
 
-        del sut['2']
+        del sut["2"]
 
         assert [entity1, entity3] == list(sut)
 
@@ -267,11 +331,14 @@ class TestSingleTypeEntityCollection:
         assert entity1.id in sut
         assert entity2.id not in sut
 
-    @pytest.mark.parametrize('value', [
-        True,
-        False,
-        [],
-    ])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            True,
+            False,
+            [],
+        ],
+    )
     async def test_contains_by_unsupported_typed(self, value: Any) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
         entity = SingleTypeEntityCollectionTestEntity()
@@ -297,7 +364,9 @@ class TestMultipleTypesEntityCollection:
         entity_other3 = MultipleTypesEntityCollectionTestEntityOther()
         sut.add(entity_one, entity_other1, entity_other2, entity_other3)
         assert [entity_one] == list(sut[MultipleTypesEntityCollectionTestEntityOne])
-        assert [entity_other1, entity_other2, entity_other3] == list(sut[MultipleTypesEntityCollectionTestEntityOther])
+        assert [entity_other1, entity_other2, entity_other3] == list(
+            sut[MultipleTypesEntityCollectionTestEntityOther]
+        )
 
     async def test_add_with_duplicate_entities(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
@@ -311,13 +380,39 @@ class TestMultipleTypesEntityCollection:
         entity8 = MultipleTypesEntityCollectionTestEntityOther()
         entity9 = MultipleTypesEntityCollectionTestEntityOne()
         # Ensure duplicates are skipped.
-        sut.add(entity1, entity2, entity3, entity1, entity2, entity3, entity1, entity2, entity3)
-        assert [entity1, entity3] == list(sut[MultipleTypesEntityCollectionTestEntityOne])
+        sut.add(
+            entity1,
+            entity2,
+            entity3,
+            entity1,
+            entity2,
+            entity3,
+            entity1,
+            entity2,
+            entity3,
+        )
+        assert [entity1, entity3] == list(
+            sut[MultipleTypesEntityCollectionTestEntityOne]
+        )
         assert [entity2] == list(sut[MultipleTypesEntityCollectionTestEntityOther])
         # Ensure skipped duplicates do not affect further new values.
-        sut.add(entity1, entity2, entity3, entity4, entity5, entity6, entity7, entity8, entity9)
-        assert [entity1, entity3, entity5, entity7, entity9] == list(sut[MultipleTypesEntityCollectionTestEntityOne])
-        assert [entity2, entity4, entity6, entity8] == list(sut[MultipleTypesEntityCollectionTestEntityOther])
+        sut.add(
+            entity1,
+            entity2,
+            entity3,
+            entity4,
+            entity5,
+            entity6,
+            entity7,
+            entity8,
+            entity9,
+        )
+        assert [entity1, entity3, entity5, entity7, entity9] == list(
+            sut[MultipleTypesEntityCollectionTestEntityOne]
+        )
+        assert [entity2, entity4, entity6, entity8] == list(
+            sut[MultipleTypesEntityCollectionTestEntityOther]
+        )
 
     async def test_remove(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
@@ -364,10 +459,10 @@ class TestMultipleTypesEntityCollection:
         # entity types in a single module namespace.
         entity = Person()
         sut.add(entity)
-        assert [entity] == list(sut['Person'])
+        assert [entity] == list(sut["Person"])
         # Ensure that getting previously unseen entity types automatically creates and returns a new collection.
         with pytest.raises(ValueError):
-            sut['NonExistentEntityType']
+            sut["NonExistentEntityType"]
 
     async def test_delitem_by_entity(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
@@ -427,11 +522,14 @@ class TestMultipleTypesEntityCollection:
         assert entity_other1 in sut
         assert entity_other2 not in sut
 
-    @pytest.mark.parametrize('value', [
-        True,
-        False,
-        [],
-    ])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            True,
+            False,
+            [],
+        ],
+    )
     async def test_contains_by_unsupported_type(self, value: Any) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         entity = MultipleTypesEntityCollectionTestEntityOne()
@@ -441,8 +539,8 @@ class TestMultipleTypesEntityCollection:
 
 
 @to_one(
-    'to_one',
-    'betty.tests.model.test___init__._EntityGraphBuilder_ToOne_Right',
+    "to_one",
+    "betty.tests.model.test___init__._EntityGraphBuilder_ToOne_Right",
 )
 class _EntityGraphBuilder_ToOne_Left(Entity):
     to_one: _EntityGraphBuilder_ToOne_Right | None
@@ -453,44 +551,44 @@ class _EntityGraphBuilder_ToOne_Right(Entity):
 
 
 @one_to_one(
-    'to_one',
-    'betty.tests.model.test___init__._EntityGraphBuilder_OneToOne_Right',
-    'to_one',
+    "to_one",
+    "betty.tests.model.test___init__._EntityGraphBuilder_OneToOne_Right",
+    "to_one",
 )
 class _EntityGraphBuilder_OneToOne_Left(Entity):
     to_one: _EntityGraphBuilder_OneToOne_Right | None
 
 
 @one_to_one(
-    'to_one',
-    'betty.tests.model.test___init__._EntityGraphBuilder_OneToOne_Left',
-    'to_one',
+    "to_one",
+    "betty.tests.model.test___init__._EntityGraphBuilder_OneToOne_Left",
+    "to_one",
 )
 class _EntityGraphBuilder_OneToOne_Right(Entity):
     to_one: _EntityGraphBuilder_OneToOne_Left | None
 
 
 @many_to_one(
-    'to_one',
-    'betty.tests.model.test___init__._EntityGraphBuilder_ManyToOne_Right',
-    'to_many',
+    "to_one",
+    "betty.tests.model.test___init__._EntityGraphBuilder_ManyToOne_Right",
+    "to_many",
 )
 class _EntityGraphBuilder_ManyToOne_Left(Entity):
     to_one: _EntityGraphBuilder_ManyToOne_Right | None
 
 
 @one_to_many(
-    'to_many',
-    'betty.tests.model.test___init__._EntityGraphBuilder_ManyToOne_Left',
-    'to_one',
+    "to_many",
+    "betty.tests.model.test___init__._EntityGraphBuilder_ManyToOne_Left",
+    "to_one",
 )
 class _EntityGraphBuilder_ManyToOne_Right(Entity):
     to_many: EntityCollection[_EntityGraphBuilder_ManyToOne_Left]
 
 
 @to_many(
-    'to_many',
-    'betty.tests.model.test___init__._EntityGraphBuilder_ToMany_Right',
+    "to_many",
+    "betty.tests.model.test___init__._EntityGraphBuilder_ToMany_Right",
 )
 class _EntityGraphBuilder_ToMany_Left(Entity):
     to_many: EntityCollection[_EntityGraphBuilder_ToMany_Right]
@@ -501,57 +599,57 @@ class _EntityGraphBuilder_ToMany_Right(Entity):
 
 
 @one_to_many(
-    'to_many',
-    'betty.tests.model.test___init__._EntityGraphBuilder_OneToMany_Right',
-    'to_one',
+    "to_many",
+    "betty.tests.model.test___init__._EntityGraphBuilder_OneToMany_Right",
+    "to_one",
 )
 class _EntityGraphBuilder_OneToMany_Left(Entity):
     to_many: EntityCollection[_EntityGraphBuilder_OneToMany_Right]
 
 
 @many_to_one(
-    'to_one',
-    'betty.tests.model.test___init__._EntityGraphBuilder_OneToMany_Left',
-    'to_many',
+    "to_one",
+    "betty.tests.model.test___init__._EntityGraphBuilder_OneToMany_Left",
+    "to_many",
 )
 class _EntityGraphBuilder_OneToMany_Right(Entity):
     to_one: _EntityGraphBuilder_OneToMany_Left | None
 
 
 @many_to_many(
-    'to_many',
-    'betty.tests.model.test___init__._EntityGraphBuilder_ManyToMany_Right',
-    'to_many',
+    "to_many",
+    "betty.tests.model.test___init__._EntityGraphBuilder_ManyToMany_Right",
+    "to_many",
 )
 class _EntityGraphBuilder_ManyToMany_Left(Entity):
     to_many: EntityCollection[_EntityGraphBuilder_ManyToMany_Right]
 
 
 @many_to_many(
-    'to_many',
-    'betty.tests.model.test___init__._EntityGraphBuilder_ManyToMany_Left',
-    'to_many',
+    "to_many",
+    "betty.tests.model.test___init__._EntityGraphBuilder_ManyToMany_Left",
+    "to_many",
 )
 class _EntityGraphBuilder_ManyToMany_Right(Entity):
     to_many: EntityCollection[_EntityGraphBuilder_ManyToMany_Left]
 
 
 @one_to_many(
-    'to_many',
-    'betty.tests.model.test___init__._EntityGraphBuilder_ManyToOneToMany_Middle',
-    'to_one_left',
+    "to_many",
+    "betty.tests.model.test___init__._EntityGraphBuilder_ManyToOneToMany_Middle",
+    "to_one_left",
 )
 class _EntityGraphBuilder_ManyToOneToMany_Left(Entity):
     to_many: EntityCollection[_EntityGraphBuilder_ManyToOneToMany_Middle]
 
 
 @many_to_one_to_many(
-    'betty.tests.model.test___init__._EntityGraphBuilder_ManyToOneToMany_Left',
-    'to_many',
-    'to_one_left',
-    'to_one_right',
-    'betty.tests.model.test___init__._EntityGraphBuilder_ManyToOneToMany_Right',
-    'to_many',
+    "betty.tests.model.test___init__._EntityGraphBuilder_ManyToOneToMany_Left",
+    "to_many",
+    "to_one_left",
+    "to_one_right",
+    "betty.tests.model.test___init__._EntityGraphBuilder_ManyToOneToMany_Right",
+    "to_many",
 )
 class _EntityGraphBuilder_ManyToOneToMany_Middle(Entity):
     to_one_left: _EntityGraphBuilder_ManyToOneToMany_Left | None
@@ -559,25 +657,28 @@ class _EntityGraphBuilder_ManyToOneToMany_Middle(Entity):
 
 
 @one_to_many(
-    'to_many',
-    'betty.tests.model.test___init__._EntityGraphBuilder_ManyToOneToMany_Middle',
-    'to_one_right',
+    "to_many",
+    "betty.tests.model.test___init__._EntityGraphBuilder_ManyToOneToMany_Middle",
+    "to_one_right",
 )
 class _EntityGraphBuilder_ManyToOneToMany_Right(Entity):
     to_many: EntityCollection[_EntityGraphBuilder_ManyToOneToMany_Middle]
 
 
 class TestEntityGraphBuilder:
-    @pytest.mark.parametrize('to_one_left, to_one_right', [
-        (
-            _EntityGraphBuilder_ToOne_Left(),
-            _EntityGraphBuilder_ToOne_Right(),
-        ),
-        (
-            AliasedEntity(_EntityGraphBuilder_ToOne_Left()),
-            AliasedEntity(_EntityGraphBuilder_ToOne_Right()),
-        ),
-    ])
+    @pytest.mark.parametrize(
+        "to_one_left, to_one_right",
+        [
+            (
+                _EntityGraphBuilder_ToOne_Left(),
+                _EntityGraphBuilder_ToOne_Right(),
+            ),
+            (
+                AliasedEntity(_EntityGraphBuilder_ToOne_Left()),
+                AliasedEntity(_EntityGraphBuilder_ToOne_Right()),
+            ),
+        ],
+    )
     async def test_build_to_one(
         self,
         to_one_left: AliasableEntity[_EntityGraphBuilder_ToOne_Left],
@@ -588,7 +689,7 @@ class TestEntityGraphBuilder:
         sut.add_association(
             _EntityGraphBuilder_ToOne_Left,
             to_one_left.id,
-            'to_one',
+            "to_one",
             _EntityGraphBuilder_ToOne_Right,
             to_one_right.id,
         )
@@ -599,20 +700,31 @@ class TestEntityGraphBuilder:
         unaliased_to_one_left = unalias(to_one_left)
         unaliased_to_one_right = unalias(to_one_right)
 
-        assert unaliased_to_one_left is built_entities[_EntityGraphBuilder_ToOne_Left][unaliased_to_one_left.id]
-        assert unaliased_to_one_right is built_entities[_EntityGraphBuilder_ToOne_Right][unaliased_to_one_right.id]
+        assert (
+            unaliased_to_one_left
+            is built_entities[_EntityGraphBuilder_ToOne_Left][unaliased_to_one_left.id]
+        )
+        assert (
+            unaliased_to_one_right
+            is built_entities[_EntityGraphBuilder_ToOne_Right][
+                unaliased_to_one_right.id
+            ]
+        )
         assert unaliased_to_one_right is unaliased_to_one_left.to_one
 
-    @pytest.mark.parametrize('one_to_one_left, one_to_one_right', [
-        (
-            _EntityGraphBuilder_OneToOne_Left(),
-            _EntityGraphBuilder_OneToOne_Right(),
-        ),
-        (
-            AliasedEntity(_EntityGraphBuilder_OneToOne_Left()),
-            AliasedEntity(_EntityGraphBuilder_OneToOne_Right()),
-        ),
-    ])
+    @pytest.mark.parametrize(
+        "one_to_one_left, one_to_one_right",
+        [
+            (
+                _EntityGraphBuilder_OneToOne_Left(),
+                _EntityGraphBuilder_OneToOne_Right(),
+            ),
+            (
+                AliasedEntity(_EntityGraphBuilder_OneToOne_Left()),
+                AliasedEntity(_EntityGraphBuilder_OneToOne_Right()),
+            ),
+        ],
+    )
     async def test_build_one_to_one(
         self,
         one_to_one_left: AliasableEntity[_EntityGraphBuilder_OneToOne_Left],
@@ -623,7 +735,7 @@ class TestEntityGraphBuilder:
         sut.add_association(
             _EntityGraphBuilder_OneToOne_Left,
             one_to_one_left.id,
-            'to_one',
+            "to_one",
             _EntityGraphBuilder_OneToOne_Right,
             one_to_one_right.id,
         )
@@ -634,21 +746,34 @@ class TestEntityGraphBuilder:
         unaliased_one_to_one_left = unalias(one_to_one_left)
         unaliased_one_to_one_right = unalias(one_to_one_right)
 
-        assert unaliased_one_to_one_left is built_entities[_EntityGraphBuilder_OneToOne_Left][unaliased_one_to_one_left.id]
-        assert unaliased_one_to_one_right is built_entities[_EntityGraphBuilder_OneToOne_Right][unaliased_one_to_one_right.id]
+        assert (
+            unaliased_one_to_one_left
+            is built_entities[_EntityGraphBuilder_OneToOne_Left][
+                unaliased_one_to_one_left.id
+            ]
+        )
+        assert (
+            unaliased_one_to_one_right
+            is built_entities[_EntityGraphBuilder_OneToOne_Right][
+                unaliased_one_to_one_right.id
+            ]
+        )
         assert unaliased_one_to_one_right is unaliased_one_to_one_left.to_one
         assert unaliased_one_to_one_left is unaliased_one_to_one_right.to_one
 
-    @pytest.mark.parametrize('many_to_one_left, many_to_one_right', [
-        (
-            _EntityGraphBuilder_ManyToOne_Left(),
-            _EntityGraphBuilder_ManyToOne_Right(),
-        ),
-        (
-            AliasedEntity(_EntityGraphBuilder_ManyToOne_Left()),
-            AliasedEntity(_EntityGraphBuilder_ManyToOne_Right()),
-        ),
-    ])
+    @pytest.mark.parametrize(
+        "many_to_one_left, many_to_one_right",
+        [
+            (
+                _EntityGraphBuilder_ManyToOne_Left(),
+                _EntityGraphBuilder_ManyToOne_Right(),
+            ),
+            (
+                AliasedEntity(_EntityGraphBuilder_ManyToOne_Left()),
+                AliasedEntity(_EntityGraphBuilder_ManyToOne_Right()),
+            ),
+        ],
+    )
     async def test_build_many_to_one(
         self,
         many_to_one_left: AliasableEntity[_EntityGraphBuilder_ManyToOne_Left],
@@ -659,7 +784,7 @@ class TestEntityGraphBuilder:
         sut.add_association(
             _EntityGraphBuilder_ManyToOne_Left,
             many_to_one_left.id,
-            'to_one',
+            "to_one",
             _EntityGraphBuilder_ManyToOne_Right,
             many_to_one_right.id,
         )
@@ -670,21 +795,34 @@ class TestEntityGraphBuilder:
         unaliased_many_to_one_left = unalias(many_to_one_left)
         unaliased_many_to_one_right = unalias(many_to_one_right)
 
-        assert unaliased_many_to_one_left is built_entities[_EntityGraphBuilder_ManyToOne_Left][unaliased_many_to_one_left.id]
-        assert unaliased_many_to_one_right is built_entities[_EntityGraphBuilder_ManyToOne_Right][unaliased_many_to_one_right.id]
+        assert (
+            unaliased_many_to_one_left
+            is built_entities[_EntityGraphBuilder_ManyToOne_Left][
+                unaliased_many_to_one_left.id
+            ]
+        )
+        assert (
+            unaliased_many_to_one_right
+            is built_entities[_EntityGraphBuilder_ManyToOne_Right][
+                unaliased_many_to_one_right.id
+            ]
+        )
         assert unaliased_many_to_one_right is unaliased_many_to_one_left.to_one
         assert unaliased_many_to_one_left in unaliased_many_to_one_right.to_many
 
-    @pytest.mark.parametrize('to_many_left, to_many_right', [
-        (
-            _EntityGraphBuilder_ToMany_Left(),
-            _EntityGraphBuilder_ToMany_Right(),
-        ),
-        (
-            AliasedEntity(_EntityGraphBuilder_ToMany_Left()),
-            AliasedEntity(_EntityGraphBuilder_ToMany_Right()),
-        ),
-    ])
+    @pytest.mark.parametrize(
+        "to_many_left, to_many_right",
+        [
+            (
+                _EntityGraphBuilder_ToMany_Left(),
+                _EntityGraphBuilder_ToMany_Right(),
+            ),
+            (
+                AliasedEntity(_EntityGraphBuilder_ToMany_Left()),
+                AliasedEntity(_EntityGraphBuilder_ToMany_Right()),
+            ),
+        ],
+    )
     async def test_build_to_many(
         self,
         to_many_left: AliasableEntity[_EntityGraphBuilder_ToMany_Left],
@@ -695,7 +833,7 @@ class TestEntityGraphBuilder:
         sut.add_association(
             _EntityGraphBuilder_ToMany_Left,
             to_many_left.id,
-            'to_many',
+            "to_many",
             _EntityGraphBuilder_ToMany_Right,
             to_many_right.id,
         )
@@ -706,20 +844,33 @@ class TestEntityGraphBuilder:
         unaliased_to_many_left = unalias(to_many_left)
         unaliased_to_many_right = unalias(to_many_right)
 
-        assert unaliased_to_many_left is built_entities[_EntityGraphBuilder_ToMany_Left][unaliased_to_many_left.id]
-        assert unaliased_to_many_right is built_entities[_EntityGraphBuilder_ToMany_Right][unaliased_to_many_right.id]
+        assert (
+            unaliased_to_many_left
+            is built_entities[_EntityGraphBuilder_ToMany_Left][
+                unaliased_to_many_left.id
+            ]
+        )
+        assert (
+            unaliased_to_many_right
+            is built_entities[_EntityGraphBuilder_ToMany_Right][
+                unaliased_to_many_right.id
+            ]
+        )
         assert unaliased_to_many_right in unaliased_to_many_left.to_many
 
-    @pytest.mark.parametrize('one_to_many_left, one_to_many_right', [
-        (
-            _EntityGraphBuilder_OneToMany_Left(),
-            _EntityGraphBuilder_OneToMany_Right(),
-        ),
-        (
-            AliasedEntity(_EntityGraphBuilder_OneToMany_Left()),
-            AliasedEntity(_EntityGraphBuilder_OneToMany_Right()),
-        ),
-    ])
+    @pytest.mark.parametrize(
+        "one_to_many_left, one_to_many_right",
+        [
+            (
+                _EntityGraphBuilder_OneToMany_Left(),
+                _EntityGraphBuilder_OneToMany_Right(),
+            ),
+            (
+                AliasedEntity(_EntityGraphBuilder_OneToMany_Left()),
+                AliasedEntity(_EntityGraphBuilder_OneToMany_Right()),
+            ),
+        ],
+    )
     async def test_build_one_to_many(
         self,
         one_to_many_left: AliasableEntity[_EntityGraphBuilder_OneToMany_Left],
@@ -730,7 +881,7 @@ class TestEntityGraphBuilder:
         sut.add_association(
             _EntityGraphBuilder_OneToMany_Left,
             one_to_many_left.id,
-            'to_many',
+            "to_many",
             _EntityGraphBuilder_OneToMany_Right,
             one_to_many_right.id,
         )
@@ -741,21 +892,34 @@ class TestEntityGraphBuilder:
         unaliased_one_to_many_left = unalias(one_to_many_left)
         unaliased_one_to_many_right = unalias(one_to_many_right)
 
-        assert unaliased_one_to_many_left is built_entities[_EntityGraphBuilder_OneToMany_Left][unaliased_one_to_many_left.id]
-        assert unaliased_one_to_many_right is built_entities[_EntityGraphBuilder_OneToMany_Right][unaliased_one_to_many_right.id]
+        assert (
+            unaliased_one_to_many_left
+            is built_entities[_EntityGraphBuilder_OneToMany_Left][
+                unaliased_one_to_many_left.id
+            ]
+        )
+        assert (
+            unaliased_one_to_many_right
+            is built_entities[_EntityGraphBuilder_OneToMany_Right][
+                unaliased_one_to_many_right.id
+            ]
+        )
         assert unaliased_one_to_many_right in unaliased_one_to_many_left.to_many
         assert unaliased_one_to_many_left is unaliased_one_to_many_right.to_one
 
-    @pytest.mark.parametrize('many_to_many_left, many_to_many_right', [
-        (
-            _EntityGraphBuilder_ManyToMany_Left(),
-            _EntityGraphBuilder_ManyToMany_Right(),
-        ),
-        (
-            AliasedEntity(_EntityGraphBuilder_ManyToMany_Left()),
-            AliasedEntity(_EntityGraphBuilder_ManyToMany_Right()),
-        ),
-    ])
+    @pytest.mark.parametrize(
+        "many_to_many_left, many_to_many_right",
+        [
+            (
+                _EntityGraphBuilder_ManyToMany_Left(),
+                _EntityGraphBuilder_ManyToMany_Right(),
+            ),
+            (
+                AliasedEntity(_EntityGraphBuilder_ManyToMany_Left()),
+                AliasedEntity(_EntityGraphBuilder_ManyToMany_Right()),
+            ),
+        ],
+    )
     async def test_build_many_to_many(
         self,
         many_to_many_left: AliasableEntity[_EntityGraphBuilder_ManyToMany_Left],
@@ -766,7 +930,7 @@ class TestEntityGraphBuilder:
         sut.add_association(
             _EntityGraphBuilder_ManyToMany_Left,
             many_to_many_left.id,
-            'to_many',
+            "to_many",
             _EntityGraphBuilder_ManyToMany_Right,
             many_to_many_right.id,
         )
@@ -777,42 +941,61 @@ class TestEntityGraphBuilder:
         unaliased_many_to_many_left = unalias(many_to_many_left)
         unaliased_many_to_many_right = unalias(many_to_many_right)
 
-        assert unaliased_many_to_many_left is built_entities[_EntityGraphBuilder_ManyToMany_Left][unaliased_many_to_many_left.id]
-        assert unaliased_many_to_many_right is built_entities[_EntityGraphBuilder_ManyToMany_Right][unaliased_many_to_many_right.id]
+        assert (
+            unaliased_many_to_many_left
+            is built_entities[_EntityGraphBuilder_ManyToMany_Left][
+                unaliased_many_to_many_left.id
+            ]
+        )
+        assert (
+            unaliased_many_to_many_right
+            is built_entities[_EntityGraphBuilder_ManyToMany_Right][
+                unaliased_many_to_many_right.id
+            ]
+        )
         assert unaliased_many_to_many_right in unaliased_many_to_many_left.to_many
         assert unaliased_many_to_many_left in unaliased_many_to_many_right.to_many
 
-    @pytest.mark.parametrize('many_to_one_to_many_left, many_to_one_to_many_middle, many_to_one_to_many_right', [
-        (
-            _EntityGraphBuilder_ManyToOneToMany_Left(),
-            _EntityGraphBuilder_ManyToOneToMany_Middle(),
-            _EntityGraphBuilder_ManyToOneToMany_Right(),
-        ),
-        (
-            AliasedEntity(_EntityGraphBuilder_ManyToOneToMany_Left()),
-            AliasedEntity(_EntityGraphBuilder_ManyToOneToMany_Middle()),
-            AliasedEntity(_EntityGraphBuilder_ManyToOneToMany_Right()),
-        ),
-    ])
+    @pytest.mark.parametrize(
+        "many_to_one_to_many_left, many_to_one_to_many_middle, many_to_one_to_many_right",
+        [
+            (
+                _EntityGraphBuilder_ManyToOneToMany_Left(),
+                _EntityGraphBuilder_ManyToOneToMany_Middle(),
+                _EntityGraphBuilder_ManyToOneToMany_Right(),
+            ),
+            (
+                AliasedEntity(_EntityGraphBuilder_ManyToOneToMany_Left()),
+                AliasedEntity(_EntityGraphBuilder_ManyToOneToMany_Middle()),
+                AliasedEntity(_EntityGraphBuilder_ManyToOneToMany_Right()),
+            ),
+        ],
+    )
     async def test_build_many_to_one_to_many(
         self,
-        many_to_one_to_many_left: AliasableEntity[_EntityGraphBuilder_ManyToOneToMany_Left],
-        many_to_one_to_many_middle: AliasableEntity[_EntityGraphBuilder_ManyToOneToMany_Middle],
-        many_to_one_to_many_right: AliasableEntity[_EntityGraphBuilder_ManyToOneToMany_Right],
+        many_to_one_to_many_left: AliasableEntity[
+            _EntityGraphBuilder_ManyToOneToMany_Left
+        ],
+        many_to_one_to_many_middle: AliasableEntity[
+            _EntityGraphBuilder_ManyToOneToMany_Middle
+        ],
+        many_to_one_to_many_right: AliasableEntity[
+            _EntityGraphBuilder_ManyToOneToMany_Right
+        ],
     ) -> None:
         sut = EntityGraphBuilder()
         sut.add_entity(many_to_one_to_many_left, many_to_one_to_many_middle, many_to_one_to_many_right)  # type: ignore[arg-type]
         sut.add_association(
             _EntityGraphBuilder_ManyToOneToMany_Left,
             many_to_one_to_many_left.id,
-            'to_many',
+            "to_many",
             _EntityGraphBuilder_ManyToOneToMany_Middle,
             many_to_one_to_many_middle.id,
         )
         sut.add_association(
             _EntityGraphBuilder_ManyToOneToMany_Right,
             many_to_one_to_many_right.id,
-            'to_many',
+            "to_many",
             _EntityGraphBuilder_ManyToOneToMany_Middle,
             many_to_one_to_many_middle.id,
         )
@@ -824,17 +1007,39 @@ class TestEntityGraphBuilder:
         unaliased_many_to_one_to_many_middle = unalias(many_to_one_to_many_middle)
         unaliased_many_to_one_to_many_right = unalias(many_to_one_to_many_right)
 
-        assert unaliased_many_to_one_to_many_left is built_entities[_EntityGraphBuilder_ManyToOneToMany_Left][unaliased_many_to_one_to_many_left.id]
-        assert unaliased_many_to_one_to_many_right is built_entities[_EntityGraphBuilder_ManyToOneToMany_Right][unaliased_many_to_one_to_many_right.id]
-        assert unaliased_many_to_one_to_many_middle in unaliased_many_to_one_to_many_left.to_many
-        assert unaliased_many_to_one_to_many_left == unaliased_many_to_one_to_many_middle.to_one_left
-        assert unaliased_many_to_one_to_many_right == unaliased_many_to_one_to_many_middle.to_one_right
-        assert unaliased_many_to_one_to_many_middle in unaliased_many_to_one_to_many_right.to_many
+        assert (
+            unaliased_many_to_one_to_many_left
+            is built_entities[_EntityGraphBuilder_ManyToOneToMany_Left][
+                unaliased_many_to_one_to_many_left.id
+            ]
+        )
+        assert (
+            unaliased_many_to_one_to_many_right
+            is built_entities[_EntityGraphBuilder_ManyToOneToMany_Right][
+                unaliased_many_to_one_to_many_right.id
+            ]
+        )
+        assert (
+            unaliased_many_to_one_to_many_middle
+            in unaliased_many_to_one_to_many_left.to_many
+        )
+        assert (
+            unaliased_many_to_one_to_many_left
+            == unaliased_many_to_one_to_many_middle.to_one_left
+        )
+        assert (
+            unaliased_many_to_one_to_many_right
+            == unaliased_many_to_one_to_many_middle.to_one_right
+        )
+        assert (
+            unaliased_many_to_one_to_many_middle
+            in unaliased_many_to_one_to_many_right.to_many
+        )
 
 
 @to_one(
-    'one',
-    'betty.tests.model.test___init__._TestToOne_One',
+    "one",
+    "betty.tests.model.test___init__._TestToOne_One",
 )
 class _TestToOne_Some(Entity):
     one: _TestToOne_One | None
@@ -846,10 +1051,11 @@ class _TestToOne_One(Entity):
 
 class TestToOne:
     async def test(self) -> None:
-        assert {'one'} == {
+        assert {"one"} == {
             association.owner_attr_name
-            for association
-            in EntityTypeAssociationRegistry.get_all_associations(_TestToOne_Some)
+            for association in EntityTypeAssociationRegistry.get_all_associations(
+                _TestToOne_Some
+            )
         }
 
         entity_some = _TestToOne_Some()
@@ -863,18 +1069,18 @@ class TestToOne:
 
 
 @one_to_one(
-    'other_one',
-    'betty.tests.model.test___init__._TestOneToOne_OtherOne',
-    'one',
+    "other_one",
+    "betty.tests.model.test___init__._TestOneToOne_OtherOne",
+    "one",
 )
 class _TestOneToOne_One(Entity):
     other_one: _TestOneToOne_OtherOne | None
 
 
 @one_to_one(
-    'one',
-    'betty.tests.model.test___init__._TestOneToOne_One',
-    'other_one',
+    "one",
+    "betty.tests.model.test___init__._TestOneToOne_One",
+    "other_one",
 )
 class _TestOneToOne_OtherOne(Entity):
     one: _TestOneToOne_One | None
@@ -882,10 +1088,11 @@ class _TestOneToOne_OtherOne(Entity):
 
 class TestOneToOne:
     async def test(self) -> None:
-        assert {'one'} == {
+        assert {"one"} == {
             association.owner_attr_name
-            for association
-            in EntityTypeAssociationRegistry.get_all_associations(_TestOneToOne_OtherOne)
+            for association in EntityTypeAssociationRegistry.get_all_associations(
+                _TestOneToOne_OtherOne
+            )
         }
 
         entity_one = _TestOneToOne_One()
@@ -901,18 +1108,18 @@ class TestOneToOne:
 
 
 @many_to_one(
-    'one',
-    'betty.tests.model.test___init__._TestManyToOne_One',
-    'many',
+    "one",
+    "betty.tests.model.test___init__._TestManyToOne_One",
+    "many",
 )
 class _TestManyToOne_Many(Entity):
     one: _TestManyToOne_One | None
 
 
 @one_to_many(
-    'many',
-    'betty.tests.model.test___init__._TestManyToOne_Many',
-    'one',
+    "many",
+    "betty.tests.model.test___init__._TestManyToOne_Many",
+    "one",
 )
 class _TestManyToOne_One(Entity):
     many: EntityCollection[_TestManyToOne_Many]
@@ -920,10 +1127,11 @@ class _TestManyToOne_One(Entity):
 
 class TestManyToOne:
     async def test(self) -> None:
-        assert {'one'} == {
+        assert {"one"} == {
             association.owner_attr_name
-            for association
-            in EntityTypeAssociationRegistry.get_all_associations(_TestManyToOne_Many)
+            for association in EntityTypeAssociationRegistry.get_all_associations(
+                _TestManyToOne_Many
+            )
         }
 
         entity_many = _TestManyToOne_Many()
@@ -939,8 +1147,8 @@ class TestManyToOne:
 
 
 @to_many(
-    'many',
-    'betty.tests.model.test___init__._TestToMany_Many',
+    "many",
+    "betty.tests.model.test___init__._TestToMany_Many",
 )
 class _TestToMany_One(Entity):
     many: EntityCollection[_TestToMany_Many]
@@ -952,10 +1160,11 @@ class _TestToMany_Many(Entity):
 
 class TestToMany:
     async def test(self) -> None:
-        assert {'many'} == {
+        assert {"many"} == {
             association.owner_attr_name
-            for association
-            in EntityTypeAssociationRegistry.get_all_associations(_TestToMany_One)
+            for association in EntityTypeAssociationRegistry.get_all_associations(
+                _TestToMany_One
+            )
         }
 
         entity_one = _TestToMany_One()
@@ -969,18 +1178,18 @@ class TestToMany:
 
 
 @one_to_many(
-    'many',
-    'betty.tests.model.test___init__._TestOneToMany_Many',
-    'one',
+    "many",
+    "betty.tests.model.test___init__._TestOneToMany_Many",
+    "one",
 )
 class _TestOneToMany_One(Entity):
     many: SingleTypeEntityCollection[_TestOneToMany_Many]
 
 
 @many_to_one(
-    'one',
-    'betty.tests.model.test___init__._TestOneToMany_One',
-    'many',
+    "one",
+    "betty.tests.model.test___init__._TestOneToMany_One",
+    "many",
 )
 class _TestOneToMany_Many(Entity):
     one: _TestOneToMany_One | None
@@ -988,10 +1197,11 @@ class _TestOneToMany_Many(Entity):
 
 class TestOneToMany:
     async def test(self) -> None:
-        assert {'many'} == {
+        assert {"many"} == {
             association.owner_attr_name
-            for association
-            in EntityTypeAssociationRegistry.get_all_associations(_TestOneToMany_One)
+            for association in EntityTypeAssociationRegistry.get_all_associations(
+                _TestOneToMany_One
+            )
         }
 
         entity_one = _TestOneToMany_One()
@@ -1007,18 +1217,18 @@ class TestOneToMany:
 
 
 @many_to_many(
-    'other_many',
-    'betty.tests.model.test___init__._TestManyToMany_OtherMany',
-    'many',
+    "other_many",
+    "betty.tests.model.test___init__._TestManyToMany_OtherMany",
+    "many",
 )
 class _TestManyToMany_Many(Entity):
     other_many: EntityCollection[_TestManyToMany_OtherMany]
 
 
 @many_to_many(
-    'many',
-    'betty.tests.model.test___init__._TestManyToMany_Many',
-    'other_many',
+    "many",
+    "betty.tests.model.test___init__._TestManyToMany_Many",
+    "other_many",
 )
 class _TestManyToMany_OtherMany(Entity):
     many: EntityCollection[_TestManyToMany_Many]
@@ -1026,10 +1236,11 @@ class _TestManyToMany_OtherMany(Entity):
 
 class TestManyToMany:
     async def test(self) -> None:
-        assert {'other_many'} == {
+        assert {"other_many"} == {
             association.owner_attr_name
-            for association
-            in EntityTypeAssociationRegistry.get_all_associations(_TestManyToMany_Many)
+            for association in EntityTypeAssociationRegistry.get_all_associations(
+                _TestManyToMany_Many
+            )
         }
 
         entity_many = _TestManyToMany_Many()
@@ -1045,12 +1256,12 @@ class TestManyToMany:
 
 
 @many_to_one_to_many(
-    'betty.tests.model.test___init__._TestManyToOneToMany_Left',
-    'one',
-    'left_many',
-    'right_many',
-    'betty.tests.model.test___init__._TestManyToOneToMany_Right',
-    'one',
+    "betty.tests.model.test___init__._TestManyToOneToMany_Left",
+    "one",
+    "left_many",
+    "right_many",
+    "betty.tests.model.test___init__._TestManyToOneToMany_Right",
+    "one",
 )
 class _TestManyToOneToMany_Middle(Entity):
     left_many: _TestManyToOneToMany_Left | None
@@ -1058,18 +1269,18 @@ class _TestManyToOneToMany_Middle(Entity):
 
 
 @one_to_many(
-    'one',
-    'betty.tests.model.test___init__._TestManyToOneToMany_Middle',
-    'left_many',
+    "one",
+    "betty.tests.model.test___init__._TestManyToOneToMany_Middle",
+    "left_many",
 )
 class _TestManyToOneToMany_Left(Entity):
     one: EntityCollection[_TestManyToOneToMany_Middle]
 
 
 @one_to_many(
-    'one',
-    'betty.tests.model.test___init__._TestManyToOneToMany_Middle',
-    'right_many',
+    "one",
+    "betty.tests.model.test___init__._TestManyToOneToMany_Middle",
+    "right_many",
 )
 class _TestManyToOneToMany_Right(Entity):
     one: EntityCollection[_TestManyToOneToMany_Middle]
@@ -1077,10 +1288,11 @@ class _TestManyToOneToMany_Right(Entity):
 
 class TestManyToOneToMany:
     async def test(self) -> None:
-        assert {'left_many', 'right_many'} == {
+        assert {"left_many", "right_many"} == {
             association.owner_attr_name
-            for association
-            in EntityTypeAssociationRegistry.get_all_associations(_TestManyToOneToMany_Middle)
+            for association in EntityTypeAssociationRegistry.get_all_associations(
+                _TestManyToOneToMany_Middle
+            )
         }
 
         entity_one = _TestManyToOneToMany_Middle()

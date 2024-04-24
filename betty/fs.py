@@ -1,6 +1,7 @@
 """
 Provide file system utilities.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -23,13 +24,13 @@ from betty import _ROOT_DIRECTORY_PATH
 ROOT_DIRECTORY_PATH = _ROOT_DIRECTORY_PATH
 
 
-ASSETS_DIRECTORY_PATH = ROOT_DIRECTORY_PATH / 'betty' / 'assets'
+ASSETS_DIRECTORY_PATH = ROOT_DIRECTORY_PATH / "betty" / "assets"
 
 
-HOME_DIRECTORY_PATH = Path.home() / '.betty'
+HOME_DIRECTORY_PATH = Path.home() / ".betty"
 
 
-CACHE_DIRECTORY_PATH = HOME_DIRECTORY_PATH / 'cache'
+CACHE_DIRECTORY_PATH = HOME_DIRECTORY_PATH / "cache"
 """
 Define the path to the cache directory.
 
@@ -55,7 +56,9 @@ def hashfile(path: Path) -> str:
     This function relies on the file path and last modified time for uniqueness.
     File contents are ignored.
     """
-    return hashlib.md5(':'.join([str(getmtime(path)), str(path)]).encode('utf-8')).hexdigest()
+    return hashlib.md5(
+        ":".join([str(getmtime(path)), str(path)]).encode("utf-8")
+    ).hexdigest()
 
 
 class _Open:
@@ -68,11 +71,18 @@ class _Open:
         for file_path in map(Path, self._file_paths):
             for fs_path, fs_encoding in self._fs._paths:
                 with suppress(FileNotFoundError):
-                    self._file = aiofiles.open(fs_path / file_path, encoding=fs_encoding)
+                    self._file = aiofiles.open(
+                        fs_path / file_path, encoding=fs_encoding
+                    )
                     return await self._file.__aenter__()
         raise FileNotFoundError
 
-    async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> None:
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         if self._file is not None:
             await self._file.__aexit__(None, None, None)
 
@@ -103,15 +113,21 @@ class FileSystem:
                 await asyncio.to_thread(copy2, fs_path / source_path, destination_path)
                 return destination_path
         tried_paths = [str(fs_path / source_path) for fs_path, _ in self._paths]
-        raise FileNotFoundError('Could not find any of %s.' % ', '.join(tried_paths))
+        raise FileNotFoundError("Could not find any of %s." % ", ".join(tried_paths))
 
-    async def copytree(self, source_path: Path, destination_path: Path) -> AsyncIterable[Path]:
+    async def copytree(
+        self, source_path: Path, destination_path: Path
+    ) -> AsyncIterable[Path]:
         file_destination_paths = set()
         for fs_path, _ in self._paths:
             async for file_source_path in iterfiles(fs_path / source_path):
-                file_destination_path = destination_path / file_source_path.relative_to(fs_path / source_path)
+                file_destination_path = destination_path / file_source_path.relative_to(
+                    fs_path / source_path
+                )
                 if file_destination_path not in file_destination_paths:
                     file_destination_paths.add(file_destination_path)
                     await makedirs(file_destination_path.parent, exist_ok=True)
-                    await asyncio.to_thread(copy2, file_source_path, file_destination_path)
+                    await asyncio.to_thread(
+                        copy2, file_source_path, file_destination_path
+                    )
                     yield file_destination_path

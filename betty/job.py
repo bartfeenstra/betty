@@ -19,7 +19,9 @@ class Context:
         self._claims_lock = threading.Lock()
         self._claimed_job_ids: set[str] = set()
 
-    @deprecated('This method is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x. Use `Context.cache` instead.')
+    @deprecated(
+        "This method is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x. Use `Context.cache` instead."
+    )
     def claim(self, job_id: str) -> bool:
         with self._claims_lock:
             if job_id in self._claimed_job_ids:

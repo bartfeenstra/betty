@@ -1,6 +1,7 @@
 """
 Provide the Cache API.
 """
+
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
@@ -10,9 +11,9 @@ from typing import Self, Generic, TypeAlias, AsyncContextManager, overload, Lite
 import typing_extensions
 from typing_extensions import TypeVar
 
-CacheItemValueT = TypeVar('CacheItemValueT')
-CacheItemValueCoT = TypeVar('CacheItemValueCoT', covariant=True)
-CacheItemValueContraT = TypeVar('CacheItemValueContraT', contravariant=True)
+CacheItemValueT = TypeVar("CacheItemValueT")
+CacheItemValueCoT = TypeVar("CacheItemValueCoT", covariant=True)
+CacheItemValueContraT = TypeVar("CacheItemValueContraT", contravariant=True)
 
 
 class CacheItem(Generic[CacheItemValueCoT]):
@@ -46,27 +47,52 @@ class Cache(Generic[CacheItemValueContraT]):
         """
         raise NotImplementedError
 
-    def get(self, cache_item_id: str) -> AsyncContextManager[CacheItem[CacheItemValueContraT] | None]:
+    def get(
+        self, cache_item_id: str
+    ) -> AsyncContextManager[CacheItem[CacheItemValueContraT] | None]:
         """
         Get the cache item with the given ID.
         """
         raise NotImplementedError
 
-    async def set(self, cache_item_id: str, value: CacheItemValueContraT, *, modified: int | float | None = None) -> None:
+    async def set(
+        self,
+        cache_item_id: str,
+        value: CacheItemValueContraT,
+        *,
+        modified: int | float | None = None,
+    ) -> None:
         """
         Add or update a cache item.
         """
         raise NotImplementedError
 
     @overload
-    def getset(self, cache_item_id: str) -> AsyncContextManager[tuple[CacheItem[CacheItemValueContraT] | None, CacheItemValueSetter[CacheItemValueContraT]]]:
+    def getset(self, cache_item_id: str) -> AsyncContextManager[
+        tuple[
+            CacheItem[CacheItemValueContraT] | None,
+            CacheItemValueSetter[CacheItemValueContraT],
+        ]
+    ]:
         pass
 
     @overload
-    def getset(self, cache_item_id: str, *, wait: Literal[False] = False) -> AsyncContextManager[tuple[CacheItem[CacheItemValueContraT] | None, CacheItemValueSetter[CacheItemValueContraT] | None]]:
+    def getset(
+        self, cache_item_id: str, *, wait: Literal[False] = False
+    ) -> AsyncContextManager[
+        tuple[
+            CacheItem[CacheItemValueContraT] | None,
+            CacheItemValueSetter[CacheItemValueContraT] | None,
+        ]
+    ]:
         pass
 
-    def getset(self, cache_item_id: str, *, wait: bool = True) -> AsyncContextManager[tuple[CacheItem[CacheItemValueContraT] | None, CacheItemValueSetter[CacheItemValueContraT] | None]]:
+    def getset(self, cache_item_id: str, *, wait: bool = True) -> AsyncContextManager[
+        tuple[
+            CacheItem[CacheItemValueContraT] | None,
+            CacheItemValueSetter[CacheItemValueContraT] | None,
+        ]
+    ]:
         """
         Get the cache item with the given ID, and provide a setter to add or update it within the same atomic operation.
 
@@ -90,7 +116,9 @@ class Cache(Generic[CacheItemValueContraT]):
         raise NotImplementedError
 
 
-@typing_extensions.deprecated(f"This class is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x. It exists only for App.cache's backwards compatibility. Use {Cache} instead.")
+@typing_extensions.deprecated(
+    f"This class is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x. It exists only for App.cache's backwards compatibility. Use {Cache} instead."
+)
 class FileCache:
     @property
     def path(self) -> Path:  # type: ignore[empty-body]

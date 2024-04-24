@@ -10,14 +10,19 @@ from betty.openapi import Specification
 
 
 class TestSpecification:
-    @pytest.mark.parametrize('clean_urls', [
-        True,
-        False,
-    ])
+    @pytest.mark.parametrize(
+        "clean_urls",
+        [
+            True,
+            False,
+        ],
+    )
     async def test_build(self, clean_urls: bool) -> None:
-        async with aiofiles.open(Path(__file__).parent / 'test_openapi_assets' / 'openapi-schema.json') as f:
+        async with aiofiles.open(
+            Path(__file__).parent / "test_openapi_assets" / "openapi-schema.json"
+        ) as f:
             schema = stdjson.loads(await f.read())
-        async with (App.new_temporary() as app, app):
+        async with App.new_temporary() as app, app:
             app.project.configuration.clean_urls = clean_urls
             sut = Specification(app)
             specification = await sut.build()

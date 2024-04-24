@@ -1,17 +1,27 @@
 """
 Provide asynchronous programming utilities.
 """
+
 from __future__ import annotations
 
 from asyncio import TaskGroup, get_running_loop, run
 from functools import wraps
 from threading import Thread
-from typing import Callable, Awaitable, TypeVar, Generic, cast, ParamSpec, Coroutine, Any
+from typing import (
+    Callable,
+    Awaitable,
+    TypeVar,
+    Generic,
+    cast,
+    ParamSpec,
+    Coroutine,
+    Any,
+)
 
 from betty.warnings import deprecated
 
-P = ParamSpec('P')
-T = TypeVar('T')
+P = ParamSpec("P")
+T = TypeVar("T")
 
 
 async def gather(*coroutines: Coroutine[Any, None, T]) -> tuple[T, ...]:
@@ -24,14 +34,12 @@ async def gather(*coroutines: Coroutine[Any, None, T]) -> tuple[T, ...]:
     async with TaskGroup() as task_group:
         for coroutine in coroutines:
             tasks.append(task_group.create_task(coroutine))
-    return tuple(
-        task.result()
-        for task
-        in tasks
-    )
+    return tuple(task.result() for task in tasks)
 
 
-@deprecated('This function is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x. Instead, use `betty.asyncio.wait_to_thread()` or `asyncio.run()`.')
+@deprecated(
+    "This function is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x. Instead, use `betty.asyncio.wait_to_thread()` or `asyncio.run()`."
+)
 def wait(f: Awaitable[T]) -> T:
     """
     Wait for an awaitable, either in a new event loop or another thread.
@@ -58,14 +66,18 @@ def wait_to_thread(f: Awaitable[T]) -> T:
     return synced.return_value
 
 
-@deprecated('This function is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x. Instead, use `betty.asyncio.wait_to_thread()` or `asyncio.run()`.')
+@deprecated(
+    "This function is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x. Instead, use `betty.asyncio.wait_to_thread()` or `asyncio.run()`."
+)
 def sync(f: Callable[P, Awaitable[T]]) -> Callable[P, T]:
     """
     Decorate an asynchronous callable to become synchronous.
     """
+
     @wraps(f)
     def _synced(*args: P.args, **kwargs: P.kwargs) -> T:
         return wait(f(*args, **kwargs))
+
     return _synced
 
 

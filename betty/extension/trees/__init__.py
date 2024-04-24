@@ -1,4 +1,5 @@
 """Provide interactive family trees by integrating Betty with `Cytoscape.js <https://cytoscape.org/>`_."""
+
 from __future__ import annotations
 
 import asyncio
@@ -20,16 +21,32 @@ class _Trees(UserFacingExtension, CssProvider, JsProvider, Generator, _NpmBuilde
     def depends_on(cls) -> set[type[Extension]]:
         return {_Npm}
 
-    async def npm_build(self, working_directory_path: Path, assets_directory_path: Path) -> None:
+    async def npm_build(
+        self, working_directory_path: Path, assets_directory_path: Path
+    ) -> None:
         await self.app.extensions[_Npm].install(type(self), working_directory_path)
-        await npm(('run', 'webpack'), cwd=working_directory_path)
-        await self._copy_npm_build(working_directory_path / 'webpack-build', assets_directory_path)
-        logging.getLogger(__name__).info(self._app.localizer._('Built the interactive family trees.'))
+        await npm(("run", "webpack"), cwd=working_directory_path)
+        await self._copy_npm_build(
+            working_directory_path / "webpack-build", assets_directory_path
+        )
+        logging.getLogger(__name__).info(
+            self._app.localizer._("Built the interactive family trees.")
+        )
 
-    async def _copy_npm_build(self, source_directory_path: Path, destination_directory_path: Path) -> None:
+    async def _copy_npm_build(
+        self, source_directory_path: Path, destination_directory_path: Path
+    ) -> None:
         await makedirs(destination_directory_path, exist_ok=True)
-        await asyncio.to_thread(copy2, source_directory_path / 'trees.css', destination_directory_path / 'trees.css')
-        await asyncio.to_thread(copy2, source_directory_path / 'trees.js', destination_directory_path / 'trees.js')
+        await asyncio.to_thread(
+            copy2,
+            source_directory_path / "trees.css",
+            destination_directory_path / "trees.css",
+        )
+        await asyncio.to_thread(
+            copy2,
+            source_directory_path / "trees.js",
+            destination_directory_path / "trees.js",
+        )
 
     @classmethod
     def npm_cache_scope(cls) -> _NpmBuilderCacheScope:
@@ -37,28 +54,32 @@ class _Trees(UserFacingExtension, CssProvider, JsProvider, Generator, _NpmBuilde
 
     async def generate(self, job_context: GenerationContext) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
-        await self._copy_npm_build(assets_directory_path, self.app.project.configuration.www_directory_path)
+        await self._copy_npm_build(
+            assets_directory_path, self.app.project.configuration.www_directory_path
+        )
 
     @classmethod
     def assets_directory_path(cls) -> Path | None:
-        return Path(__file__).parent / 'assets'
+        return Path(__file__).parent / "assets"
 
     @property
     def public_css_paths(self) -> list[str]:
         return [
-            self.app.static_url_generator.generate('trees.css'),
+            self.app.static_url_generator.generate("trees.css"),
         ]
 
     @property
     def public_js_paths(self) -> list[str]:
         return [
-            self.app.static_url_generator.generate('trees.js'),
+            self.app.static_url_generator.generate("trees.js"),
         ]
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Trees')
+        return Str._("Trees")
 
     @classmethod
     def description(cls) -> Str:
-        return Str._('Display interactive family trees using <a href="https://cytoscape.org/">Cytoscape</a>.')
+        return Str._(
+            'Display interactive family trees using <a href="https://cytoscape.org/">Cytoscape</a>.'
+        )

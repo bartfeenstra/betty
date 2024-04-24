@@ -7,8 +7,8 @@ cd "$(dirname "$0")/.."
 if [ -z "${BETTY_TEST_SKIP_SHELLCHECK-}" ]; then
   ./bin/test-shellcheck
 fi
-if [ -z "${BETTY_TEST_SKIP_FLAKE8-}" ]; then
-  ./bin/test-flake8
+if [ -z "${BETTY_TEST_SKIP_BLACK-}" ]; then
+  ./bin/test-black
 fi
 if [ -z "${BETTY_TEST_SKIP_PYDOCSTYLE-}" ]; then
   ./bin/test-pydocstyle

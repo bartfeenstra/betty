@@ -1,8 +1,14 @@
 from typing import Any
 
 from betty.app import App
-from betty.app.extension import Extension, ListExtensions, ExtensionDispatcher, build_extension_type_graph, \
-    discover_extension_types, ExtensionTypeGraph
+from betty.app.extension import (
+    Extension,
+    ListExtensions,
+    ExtensionDispatcher,
+    build_extension_type_graph,
+    discover_extension_types,
+    ExtensionTypeGraph,
+)
 
 
 class TestExtension:
@@ -30,11 +36,19 @@ class TestExtensionDispatcher:
             return self._multiplier * term
 
     async def test(self) -> None:
-        async with (App.new_temporary() as app, app):
-            extensions = ListExtensions([
-                [self._MultiplyingExtension(app, 1), self._MultiplyingExtension(app, 3)],
-                [self._MultiplyingExtension(app, 2), self._MultiplyingExtension(app, 4)]
-            ])
+        async with App.new_temporary() as app, app:
+            extensions = ListExtensions(
+                [
+                    [
+                        self._MultiplyingExtension(app, 1),
+                        self._MultiplyingExtension(app, 3),
+                    ],
+                    [
+                        self._MultiplyingExtension(app, 2),
+                        self._MultiplyingExtension(app, 4),
+                    ],
+                ]
+            )
             sut = ExtensionDispatcher(extensions)
             actual_returned_somethings = await sut.dispatch(self._Multiplier)(3)
             expected_returned_somethings = [3, 9, 6, 12]
@@ -51,6 +65,7 @@ class TestBuildExtensionTypeGraph:
 
         class IsolatedExtensionTwo(Extension):
             pass
+
         extension_types = {
             IsolatedExtensionOne,
             IsolatedExtensionTwo,
@@ -69,6 +84,7 @@ class TestBuildExtensionTypeGraph:
             @classmethod
             def depends_on(cls) -> set[type[Extension]]:
                 return {IsDependencyExtension}
+
         extension_types = {
             HasDependencyExtension,
         }
@@ -86,6 +102,7 @@ class TestBuildExtensionTypeGraph:
             @classmethod
             def depends_on(cls) -> set[type[Extension]]:
                 return {IsDependencyExtension}
+
         extension_types = {
             HasDependencyExtension,
             IsDependencyExtension,
@@ -109,6 +126,7 @@ class TestBuildExtensionTypeGraph:
             @classmethod
             def depends_on(cls) -> set[type[Extension]]:
                 return {IsAndHasDependencyExtension}
+
         extension_types = {
             HasDependencyExtension,
         }
@@ -127,6 +145,7 @@ class TestBuildExtensionTypeGraph:
             @classmethod
             def comes_after(cls) -> set[type[Extension]]:
                 return {ComesBeforeExtension}
+
         extension_types = {
             ComesAfterExtension,
         }
@@ -143,6 +162,7 @@ class TestBuildExtensionTypeGraph:
             @classmethod
             def comes_after(cls) -> set[type[Extension]]:
                 return {ComesBeforeExtension}
+
         extension_types = {
             ComesBeforeExtension,
             ComesAfterExtension,
@@ -161,6 +181,7 @@ class TestBuildExtensionTypeGraph:
             @classmethod
             def comes_before(cls) -> set[type[Extension]]:
                 return {ComesAfterExtension}
+
         extension_types = {
             ComesBeforeExtension,
         }
@@ -177,6 +198,7 @@ class TestBuildExtensionTypeGraph:
             @classmethod
             def comes_before(cls) -> set[type[Extension]]:
                 return {ComesAfterExtension}
+
         extension_types = {
             ComesAfterExtension,
             ComesBeforeExtension,

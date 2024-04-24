@@ -1,12 +1,21 @@
 """Provide Betty's extension API."""
+
 from __future__ import annotations
 
 import functools
 from collections import defaultdict
 from importlib.metadata import entry_points, EntryPoint
 from pathlib import Path
-from typing import Any, TypeVar, Iterable, TYPE_CHECKING, Generic, \
-    Iterator, Sequence, Self
+from typing import (
+    Any,
+    TypeVar,
+    Iterable,
+    TYPE_CHECKING,
+    Generic,
+    Iterator,
+    Sequence,
+    Self,
+)
 
 from betty.app.extension.requirement import Requirement, AllRequirements
 from betty.asyncio import gather
@@ -33,7 +42,9 @@ class ExtensionTypeImportError(ExtensionTypeError, ImportError):
     """
 
     def __init__(self, extension_type_name: str):
-        super().__init__(f'Cannot find and import an extension with name "{extension_type_name}".')
+        super().__init__(
+            f'Cannot find and import an extension with name "{extension_type_name}".'
+        )
 
 
 class ExtensionTypeInvalidError(ExtensionTypeError, ImportError):
@@ -42,13 +53,17 @@ class ExtensionTypeInvalidError(ExtensionTypeError, ImportError):
     """
 
     def __init__(self, extension_type: type):
-        super().__init__(f'{extension_type.__module__}.{extension_type.__name__} is not an extension type class. Extension types must extend {Extension.__module__}.{Extension.__name__}.')
+        super().__init__(
+            f"{extension_type.__module__}.{extension_type.__name__} is not an extension type class. Extension types must extend {Extension.__module__}.{Extension.__name__}."
+        )
 
 
 class CyclicDependencyError(ExtensionError, RuntimeError):
     def __init__(self, extension_types: Iterable[type[Extension]]):
-        extension_names = ', '.join([extension.name() for extension in extension_types])
-        super().__init__(f'The following extensions have cyclic dependencies: {extension_names}')
+        extension_names = ", ".join([extension.name() for extension in extension_types])
+        super().__init__(
+            f"The following extensions have cyclic dependencies: {extension_names}"
+        )
 
 
 class Dependencies(AllRequirements):
@@ -70,12 +85,14 @@ class Dependencies(AllRequirements):
 
     def summary(self) -> Str:
         return Str._(
-            '{dependent_label} requires {dependency_labels}.',
+            "{dependent_label} requires {dependency_labels}.",
             dependent_label=format_extension_type(self._dependent_type),
             dependency_labels=Str.call(
-                lambda localizer: ', '.join(
+                lambda localizer: ", ".join(
                     map(
-                        lambda extension_type: format_extension_type(extension_type).localize(localizer),
+                        lambda extension_type: format_extension_type(
+                            extension_type
+                        ).localize(localizer),
                         self._dependent_type.depends_on(),
                     ),
                 ),
@@ -91,13 +108,16 @@ class Dependents(Requirement):
 
     def summary(self) -> Str:
         return Str._(
-            '{dependency_label} is required by {dependency_labels}.',
+            "{dependency_label} is required by {dependency_labels}.",
             dependency_label=format_extension_type(type(self._dependency)),
-            dependent_labels=Str.call(lambda localizer: ', '.join([
-                format_extension_type(type(dependent)).localize(localizer)
-                for dependent
-                in self._dependents
-            ])),
+            dependent_labels=Str.call(
+                lambda localizer: ", ".join(
+                    [
+                        format_extension_type(type(dependent)).localize(localizer)
+                        for dependent in self._dependents
+                    ]
+                )
+            ),
         )
 
     def is_met(self) -> bool:
@@ -109,9 +129,9 @@ class Dependents(Requirement):
     def for_dependency(cls, dependency: Extension) -> Self:
         dependents = [
             dependency.app.extensions[extension_type]
-            for extension_type
-            in discover_extension_types()
-            if dependency.__class__ in extension_type.depends_on() and extension_type in dependency.app.extensions
+            for extension_type in discover_extension_types()
+            if dependency.__class__ in extension_type.depends_on()
+            and extension_type in dependency.app.extensions
         ]
         return cls(dependency, dependents)
 
@@ -128,7 +148,7 @@ class Extension:
 
     @classmethod
     def name(cls) -> str:
-        return '%s.%s' % (cls.__module__, cls.__name__)
+        return "%s.%s" % (cls.__module__, cls.__name__)
 
     @classmethod
     def depends_on(cls) -> set[type[Extension]]:
@@ -173,7 +193,7 @@ class Extension:
         return self._app
 
 
-ExtensionT = TypeVar('ExtensionT', bound=Extension)
+ExtensionT = TypeVar("ExtensionT", bound=Extension)
 
 
 class UserFacingExtension(Extension):
@@ -191,11 +211,15 @@ class Theme(UserFacingExtension):
 
 
 @functools.singledispatch
-def get_extension_type(extension_type_definition: str | type[Extension] | Extension) -> type[Extension]:
+def get_extension_type(
+    extension_type_definition: str | type[Extension] | Extension,
+) -> type[Extension]:
     """
     Get the extension type for an extension, extension type, or extension type name.
     """
-    raise ExtensionTypeError(f'Cannot get the extension type for "{extension_type_definition}".')
+    raise ExtensionTypeError(
+        f'Cannot get the extension type for "{extension_type_definition}".'
+    )
 
 
 @get_extension_type.register(str)
@@ -233,12 +257,18 @@ def format_extension_type(extension_type: type[Extension]) -> Str:
     Format an extension type to a human-readable label.
     """
     if issubclass(extension_type, UserFacingExtension):
-        return Str.call(lambda localizer: f'{extension_type.label().localize(localizer)} ({extension_type.name()})')
+        return Str.call(
+            lambda localizer: f"{extension_type.label().localize(localizer)} ({extension_type.name()})"
+        )
     return Str.plain(extension_type.name())
 
 
-class ConfigurableExtension(Extension, Generic[ConfigurationT], Configurable[ConfigurationT]):
-    def __init__(self, *args: Any, configuration: ConfigurationT | None = None, **kwargs: Any):
+class ConfigurableExtension(
+    Extension, Generic[ConfigurationT], Configurable[ConfigurationT]
+):
+    def __init__(
+        self, *args: Any, configuration: ConfigurationT | None = None, **kwargs: Any
+    ):
         assert type(self) is not ConfigurableExtension
         super().__init__(*args, **kwargs)
         self._configuration = configuration or self.default_configuration()
@@ -301,30 +331,39 @@ class ExtensionDispatcher(Dispatcher):
         self._extensions = extensions
 
     def dispatch(self, target_type: type[Any]) -> TargetedDispatcher:
-        target_method_names = [method_name for method_name in dir(target_type) if not method_name.startswith('_')]
+        target_method_names = [
+            method_name
+            for method_name in dir(target_type)
+            if not method_name.startswith("_")
+        ]
         if len(target_method_names) != 1:
-            raise ValueError(f"A dispatch's target type must have a single method to dispatch to, but {target_type} has {len(target_method_names)}.")
+            raise ValueError(
+                f"A dispatch's target type must have a single method to dispatch to, but {target_type} has {len(target_method_names)}."
+            )
         target_method_name = target_method_names[0]
 
         async def _dispatch(*args: Any, **kwargs: Any) -> list[Any]:
             return [
                 result
-                for target_extension_batch
-                in self._extensions
-                for result
-                in await gather(*(
-                    getattr(target_extension, target_method_name)(*args, **kwargs)
-                    for target_extension in target_extension_batch
-                    if isinstance(target_extension, target_type)
-                ))
+                for target_extension_batch in self._extensions
+                for result in await gather(
+                    *(
+                        getattr(target_extension, target_method_name)(*args, **kwargs)
+                        for target_extension in target_extension_batch
+                        if isinstance(target_extension, target_type)
+                    )
+                )
             ]
+
         return _dispatch
 
 
 ExtensionTypeGraph = dict[type[Extension], set[type[Extension]]]
 
 
-def build_extension_type_graph(extension_types: Iterable[type[Extension]]) -> ExtensionTypeGraph:
+def build_extension_type_graph(
+    extension_types: Iterable[type[Extension]],
+) -> ExtensionTypeGraph:
     """
     Build a dependency graph of the given extension types.
     """
@@ -344,7 +383,9 @@ def build_extension_type_graph(extension_types: Iterable[type[Extension]]) -> Ex
     return extension_types_graph
 
 
-def _extend_extension_type_graph(graph: ExtensionTypeGraph, extension_type: type[Extension]) -> None:
+def _extend_extension_type_graph(
+    graph: ExtensionTypeGraph, extension_type: type[Extension]
+) -> None:
     dependencies = extension_type.depends_on()
     # Ensure each extension type appears in the graph, even if they're isolated.
     graph.setdefault(extension_type, set())
@@ -361,6 +402,8 @@ def discover_extension_types() -> set[type[Extension]]:
     """
     betty_entry_points: Sequence[EntryPoint]
     betty_entry_points = entry_points(  # type: ignore[assignment, unused-ignore]
-        group='betty.extensions',  # type: ignore[call-arg, unused-ignore]
+        group="betty.extensions",  # type: ignore[call-arg, unused-ignore]
     )
-    return {import_any(betty_entry_point.value) for betty_entry_point in betty_entry_points}
+    return {
+        import_any(betty_entry_point.value) for betty_entry_point in betty_entry_points
+    }

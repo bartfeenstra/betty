@@ -8,44 +8,44 @@ from betty.tests import TemplateTestCase
 
 class TestTemplate(TemplateTestCase):
     extensions = {CottonCandy}
-    template_file = 'entity/page--citation.html.j2'
+    template_file = "entity/page--citation.html.j2"
 
     async def test_privacy(self, tmp_path: Path) -> None:
-        file_path = tmp_path / 'file'
+        file_path = tmp_path / "file"
         file_path.touch()
 
         source = Source()
-        source.name = 'source name'
+        source.name = "source name"
 
         citation = Citation(
             source=source,
-            location=Str.plain('citation location'),
+            location=Str.plain("citation location"),
         )
 
         public_file = File(
             path=file_path,
-            description='public file description',
+            description="public file description",
         )
         public_file.entities.add(citation)
 
         private_file = File(
             path=file_path,
             private=True,
-            description='private file description',
+            description="private file description",
         )
         private_file.entities.add(citation)
 
-        public_fact_name = 'public fact'
-        public_fact = Person(id='FACT1')
+        public_fact_name = "public fact"
+        public_fact = Person(id="FACT1")
         PersonName(
             person=public_fact,
             individual=public_fact_name,
         )
         citation.facts.add(public_fact)
 
-        private_fact_name = 'private fact'
+        private_fact_name = "private fact"
         private_fact = Person(
-            id='FACT2',
+            id="FACT2",
             private=True,
         )
         PersonName(
@@ -56,9 +56,9 @@ class TestTemplate(TemplateTestCase):
 
         async with self._render(
             data={
-                'page_resource': citation,
-                'entity_type': Citation,
-                'entity': citation,
+                "page_resource": citation,
+                "entity_type": Citation,
+                "entity": citation,
             },
         ) as (actual, _):
             assert citation.location is not None

@@ -1,6 +1,7 @@
 """
 Provide the Command Line Interface.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -29,8 +30,8 @@ from betty.logging import CliHandler
 from betty.serde.load import AssertionFailed
 from betty.serve import AppServer
 
-T = TypeVar('T')
-P = ParamSpec('P')
+T = TypeVar("T")
+P = ParamSpec("P")
 
 
 class CommandProvider:
@@ -47,7 +48,7 @@ def catch_exceptions() -> Iterator[None]:
     try:
         yield
     except KeyboardInterrupt:
-        print('Quitting...')
+        print("Quitting...")
         sys.exit(0)
     except BaseException as e:
         logger = logging.getLogger(__name__)
@@ -68,13 +69,15 @@ def _command(
         if is_app_command:
             # We must get the current Click context from the main thread.
             # Once that is done, we can wait for the async commands to complete, which MAY be done in a thread.
-            app = get_current_context().obj['app']
+            app = get_current_context().obj["app"]
 
             async def _app_command():
                 async with app:
                     await f(app, *args, **kwargs)
+
             return wait_to_thread(_app_command())
         return wait_to_thread(f(*args, **kwargs))
+
     return _command
 
 
@@ -107,9 +110,9 @@ async def __init_ctx_app(
 ) -> None:
     ctx.ensure_object(dict)
 
-    if 'initialized' in ctx.obj:
+    if "initialized" in ctx.obj:
         return
-    ctx.obj['initialized'] = True
+    ctx.obj["initialized"] = True
 
     logging.getLogger().addHandler(CliHandler())
     logger = logging.getLogger(__name__)
@@ -117,22 +120,20 @@ async def __init_ctx_app(
     app = ctx.with_resource(  # type: ignore[attr-defined]
         SynchronizedContextManager(App.new_from_environment())
     )
-    ctx.obj['commands'] = {
-        'docs': _docs,
-        'clear-caches': _clear_caches,
-        'demo': _demo,
-        'gui': _gui,
+    ctx.obj["commands"] = {
+        "docs": _docs,
+        "clear-caches": _clear_caches,
+        "demo": _demo,
+        "gui": _gui,
     }
     if wait_to_thread(about.is_development()):
-        ctx.obj['commands']['init-translation'] = _init_translation
-        ctx.obj['commands']['update-translations'] = _update_translations
-    ctx.obj['app'] = app
+        ctx.obj["commands"]["init-translation"] = _init_translation
+        ctx.obj["commands"]["update-translations"] = _update_translations
+    ctx.obj["app"] = app
 
     if configuration_file_path is None:
         try_configuration_file_paths = [
-            Path.cwd() / f'betty{extension}'
-            for extension
-            in {'.json', '.yaml', '.yml'}
+            Path.cwd() / f"betty{extension}" for extension in {".json", ".yaml", ".yml"}
         ]
     else:
         try_configuration_file_paths = [Path.cwd() / configuration_file_path]
@@ -144,22 +145,26 @@ async def __init_ctx_app(
             except FileNotFoundError:
                 continue
             else:
-                ctx.obj['commands']['generate'] = _generate
-                ctx.obj['commands']['serve'] = _serve
+                ctx.obj["commands"]["generate"] = _generate
+                ctx.obj["commands"]["serve"] = _serve
                 for extension in app.extensions.flatten():
                     if isinstance(extension, CommandProvider):
                         for command_name, command in extension.commands.items():
-                            ctx.obj['commands'][command_name] = command
-                logger.info(app.localizer._('Loaded the configuration from {configuration_file_path}.').format(
-                    configuration_file_path=str(try_configuration_file_path)),
+                            ctx.obj["commands"][command_name] = command
+                logger.info(
+                    app.localizer._(
+                        "Loaded the configuration from {configuration_file_path}."
+                    ).format(configuration_file_path=str(try_configuration_file_path)),
                 )
                 return
 
         if configuration_file_path is not None:
-            raise AssertionFailed(Str._(
-                'Configuration file "{configuration_file_path}" does not exist.',
-                configuration_file_path=configuration_file_path,
-            ))
+            raise AssertionFailed(
+                Str._(
+                    'Configuration file "{configuration_file_path}" does not exist.',
+                    configuration_file_path=configuration_file_path,
+                )
+            )
 
 
 def _build_init_ctx_verbosity(
@@ -172,10 +177,17 @@ def _build_init_ctx_verbosity(
         is_verbose: bool = False,
     ) -> None:
         if is_verbose:
-            for logger_name, logger_level in (('betty', betty_logger_level), (None, root_logger_level)):
+            for logger_name, logger_level in (
+                ("betty", betty_logger_level),
+                (None, root_logger_level),
+            ):
                 logger = logging.getLogger(logger_name)
-                if logger_level is not None and logger.getEffectiveLevel() > logger_level:
+                if (
+                    logger_level is not None
+                    and logger.getEffectiveLevel() > logger_level
+                ):
                     logger.setLevel(logger_level)
+
     return _init_ctx_verbosity
 
 
@@ -183,62 +195,62 @@ class _BettyCommands(click.MultiCommand):
     @catch_exceptions()
     def list_commands(self, ctx: Context) -> list[str]:
         _init_ctx_app(ctx)
-        return list(ctx.obj['commands'].keys())
+        return list(ctx.obj["commands"].keys())
 
     @catch_exceptions()
     def get_command(self, ctx: Context, cmd_name: str) -> Command | None:
         _init_ctx_app(ctx)
         with suppress(KeyError):
-            return cast(Command, ctx.obj['commands'][cmd_name])
+            return cast(Command, ctx.obj["commands"][cmd_name])
         return None
 
 
 @click.command(
     cls=_BettyCommands,
     # Set an empty help text so Click does not automatically use the function's docstring.
-    help='',
+    help="",
 )
 @click.option(
-    '--configuration',
-    '-c',
-    'app',
+    "--configuration",
+    "-c",
+    "app",
     is_eager=True,
-    help='The path to a Betty project configuration file. Defaults to betty.json|yaml|yml in the current working directory. This will make additional commands available.',
+    help="The path to a Betty project configuration file. Defaults to betty.json|yaml|yml in the current working directory. This will make additional commands available.",
     callback=_init_ctx_app,
 )
 @click.option(
-    '-v',
-    '--verbose',
+    "-v",
+    "--verbose",
     is_eager=True,
     default=False,
     is_flag=True,
-    help='Show verbose output, including informative log messages.',
+    help="Show verbose output, including informative log messages.",
     callback=_build_init_ctx_verbosity(logging.INFO),
 )
 @click.option(
-    '-vv',
-    '--more-verbose',
-    'more_verbose',
+    "-vv",
+    "--more-verbose",
+    "more_verbose",
     is_eager=True,
     default=False,
     is_flag=True,
-    help='Show more verbose output, including debug log messages.',
+    help="Show more verbose output, including debug log messages.",
     callback=_build_init_ctx_verbosity(logging.DEBUG),
 )
 @click.option(
-    '-vvv',
-    '--most-verbose',
-    'most_verbose',
+    "-vvv",
+    "--most-verbose",
+    "most_verbose",
     is_eager=True,
     default=False,
     is_flag=True,
-    help='Show most verbose output, including all log messages.',
+    help="Show most verbose output, including all log messages.",
     callback=_build_init_ctx_verbosity(logging.NOTSET, logging.NOTSET),
 )
 @click.version_option(
     wait_to_thread(about.version_label()),
     message=wait_to_thread(about.report()),
-    prog_name='Betty',
+    prog_name="Betty",
 )
 def main(app: App, verbose: bool, more_verbose: bool, most_verbose: bool) -> None:
     """
@@ -247,13 +259,13 @@ def main(app: App, verbose: bool, more_verbose: bool, most_verbose: bool) -> Non
     pass
 
 
-@click.command(help='Clear all caches.')
+@click.command(help="Clear all caches.")
 @app_command
 async def _clear_caches(app: App) -> None:
     await app.cache.clear()
 
 
-@click.command(help='Explore a demonstration site.')
+@click.command(help="Explore a demonstration site.")
 @app_command
 async def _demo(app: App) -> None:
     async with demo.DemoServer(app=app) as server:
@@ -264,12 +276,14 @@ async def _demo(app: App) -> None:
 
 @click.command(help="Open Betty's graphical user interface (GUI).")
 @click.option(
-    '--configuration',
-    '-c',
-    'configuration_file_path',
+    "--configuration",
+    "-c",
+    "configuration_file_path",
     is_eager=True,
-    help='The path to a Betty project configuration file. Defaults to betty.json|yaml|yml in the current working directory.',
-    callback=lambda _, __, configuration_file_path: Path(configuration_file_path) if configuration_file_path else None,
+    help="The path to a Betty project configuration file. Defaults to betty.json|yaml|yml in the current working directory.",
+    callback=lambda _, __, configuration_file_path: (
+        Path(configuration_file_path) if configuration_file_path else None
+    ),
 )
 @global_command
 async def _gui(configuration_file_path: Path | None) -> None:
@@ -285,14 +299,14 @@ async def _gui(configuration_file_path: Path | None) -> None:
             sys.exit(qapp.exec())
 
 
-@click.command(help='Generate a static site.')
+@click.command(help="Generate a static site.")
 @app_command
 async def _generate(app: App) -> None:
     await load.load(app)
     await generate.generate(app)
 
 
-@click.command(help='Serve a generated site.')
+@click.command(help="Serve a generated site.")
 @app_command
 async def _serve(app: App) -> None:
     async with AppServer.get(app) as server:
@@ -301,7 +315,7 @@ async def _serve(app: App) -> None:
             await asyncio.sleep(999)
 
 
-@click.command(help='View the documentation.')
+@click.command(help="View the documentation.")
 @global_command
 async def _docs():
     async with App.new_from_environment() as app:
@@ -317,13 +331,20 @@ async def _docs():
 
 
 if wait_to_thread(about.is_development()):
-    @click.command(short_help='Initialize a new translation', help='Initialize a new translation.\n\nThis is available only when developing Betty.')
-    @click.argument('locale')
+
+    @click.command(
+        short_help="Initialize a new translation",
+        help="Initialize a new translation.\n\nThis is available only when developing Betty.",
+    )
+    @click.argument("locale")
     @global_command
     async def _init_translation(locale: str) -> None:
         await init_translation(locale)
 
-    @click.command(short_help='Update all existing translations', help='Update all existing translations.\n\nThis is available only when developing Betty.')
+    @click.command(
+        short_help="Update all existing translations",
+        help="Update all existing translations.\n\nThis is available only when developing Betty.",
+    )
     @global_command
     async def _update_translations() -> None:
         await update_translations()

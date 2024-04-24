@@ -1,6 +1,7 @@
 """
 Provide configuration for the :py:class:`betty.extension.Gramps` extension.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -35,24 +36,27 @@ class FamilyTreeConfiguration(Configuration):
 
     @classmethod
     def load(
-            cls,
-            dump: Dump,
-            configuration: Self | None = None,
+        cls,
+        dump: Dump,
+        configuration: Self | None = None,
     ) -> Self:
         if configuration is None:
             configuration = cls()
         asserter = Asserter()
-        asserter.assert_record(Fields(
-            RequiredField(
-                'file',
-                Assertions(asserter.assert_path()) | asserter.assert_setattr(configuration, 'file_path'),
-            ),
-        ))(dump)
+        asserter.assert_record(
+            Fields(
+                RequiredField(
+                    "file",
+                    Assertions(asserter.assert_path())
+                    | asserter.assert_setattr(configuration, "file_path"),
+                ),
+            )
+        )(dump)
         return configuration
 
     def dump(self) -> VoidableDump:
         return {
-            'file': str(self.file_path),
+            "file": str(self.file_path),
         }
 
 
@@ -89,22 +93,31 @@ class GrampsConfiguration(Configuration):
 
     @classmethod
     def load(
-            cls,
-            dump: Dump,
-            configuration: Self | None = None,
+        cls,
+        dump: Dump,
+        configuration: Self | None = None,
     ) -> Self:
         if configuration is None:
             configuration = cls()
         asserter = Asserter()
-        asserter.assert_record(Fields(
-            OptionalField(
-                'family_trees',
-                Assertions(configuration._family_trees.assert_load(configuration.family_trees)),
-            ),
-        ))(dump)
+        asserter.assert_record(
+            Fields(
+                OptionalField(
+                    "family_trees",
+                    Assertions(
+                        configuration._family_trees.assert_load(
+                            configuration.family_trees
+                        )
+                    ),
+                ),
+            )
+        )(dump)
         return configuration
 
     def dump(self) -> VoidableDump:
-        return minimize({
-            'family_trees': self.family_trees.dump(),
-        }, True)
+        return minimize(
+            {
+                "family_trees": self.family_trees.dump(),
+            },
+            True,
+        )

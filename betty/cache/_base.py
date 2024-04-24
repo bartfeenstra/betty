@@ -5,13 +5,19 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Generic, Self, overload, AsyncContextManager, Literal
 
-from betty.cache import CacheItemValueCoT, Cache, CacheItem, CacheItemValueContraT, CacheItemValueSetter
+from betty.cache import (
+    CacheItemValueCoT,
+    Cache,
+    CacheItem,
+    CacheItemValueContraT,
+    CacheItemValueSetter,
+)
 from betty.concurrent import _Lock, AsynchronizedLock, MultiLock
 from betty.locale import Localizer
 
 
 class _StaticCacheItem(CacheItem[CacheItemValueCoT], Generic[CacheItemValueCoT]):
-    __slots__ = '_value', '_modified'
+    __slots__ = "_value", "_modified"
 
     def __init__(
         self,
@@ -39,7 +45,9 @@ class _CommonCacheBase(Cache[CacheItemValueContraT], Generic[CacheItemValueContr
         self._localizer = localizer
         self._scopes = scopes or ()
         self._scoped_caches: dict[str, Self] = {}
-        self._locks: MutableMapping[str, _Lock] = defaultdict(AsynchronizedLock.threading)
+        self._locks: MutableMapping[str, _Lock] = defaultdict(
+            AsynchronizedLock.threading
+        )
         self._locks_lock = AsynchronizedLock.threading()
 
     async def _lock(self, cache_item_id: str) -> _Lock:
@@ -57,35 +65,68 @@ class _CommonCacheBase(Cache[CacheItemValueContraT], Generic[CacheItemValueContr
         raise NotImplementedError
 
     @asynccontextmanager
-    async def get(self, cache_item_id: str) -> AsyncIterator[CacheItem[CacheItemValueContraT] | None]:
+    async def get(
+        self, cache_item_id: str
+    ) -> AsyncIterator[CacheItem[CacheItemValueContraT] | None]:
         async with await self._lock(cache_item_id):
             yield await self._get(cache_item_id)
 
     async def _get(self, cache_item_id: str) -> CacheItem[CacheItemValueContraT] | None:
         raise NotImplementedError
 
-    async def set(self, cache_item_id: str, value: CacheItemValueContraT, *, modified: int | float | None = None) -> None:
+    async def set(
+        self,
+        cache_item_id: str,
+        value: CacheItemValueContraT,
+        *,
+        modified: int | float | None = None,
+    ) -> None:
         async with await self._lock(cache_item_id):
             await self._set(cache_item_id, value, modified=modified)
 
-    async def _set(self, cache_item_id: str, value: CacheItemValueContraT, *, modified: int | float | None = None) -> None:
+    async def _set(
+        self,
+        cache_item_id: str,
+        value: CacheItemValueContraT,
+        *,
+        modified: int | float | None = None,
+    ) -> None:
         raise NotImplementedError
 
     @overload
-    def getset(self, cache_item_id: str) -> AsyncContextManager[tuple[CacheItem[CacheItemValueContraT] | None, CacheItemValueSetter[CacheItemValueContraT]]]:
+    def getset(self, cache_item_id: str) -> AsyncContextManager[
+        tuple[
+            CacheItem[CacheItemValueContraT] | None,
+            CacheItemValueSetter[CacheItemValueContraT],
+        ]
+    ]:
         pass
 
     @overload
-    def getset(self, cache_item_id: str, *, wait: Literal[False] = False) -> AsyncContextManager[tuple[CacheItem[CacheItemValueContraT] | None, CacheItemValueSetter[CacheItemValueContraT] | None]]:
+    def getset(
+        self, cache_item_id: str, *, wait: Literal[False] = False
+    ) -> AsyncContextManager[
+        tuple[
+            CacheItem[CacheItemValueContraT] | None,
+            CacheItemValueSetter[CacheItemValueContraT] | None,
+        ]
+    ]:
         pass
 
     @asynccontextmanager  # type: ignore[misc]
-    async def getset(self, cache_item_id: str, *, wait: bool = True) -> AsyncIterator[tuple[CacheItem[CacheItemValueContraT] | None, CacheItemValueSetter[CacheItemValueContraT] | None]]:
+    async def getset(self, cache_item_id: str, *, wait: bool = True) -> AsyncIterator[
+        tuple[
+            CacheItem[CacheItemValueContraT] | None,
+            CacheItemValueSetter[CacheItemValueContraT] | None,
+        ]
+    ]:
         lock = await self._lock(cache_item_id)
         if await lock.acquire(wait=wait):
             try:
+
                 async def _setter(value: CacheItemValueContraT) -> None:
                     await self._set(cache_item_id, value)
+
                 yield await self._get(cache_item_id), _setter
                 return
             finally:
@@ -104,9 +145,13 @@ class _CommonCacheBase(Cache[CacheItemValueContraT], Generic[CacheItemValueContr
             await self._clear()
         logger = logging.getLogger(__name__)
         if self._scopes:
-            logger.info(self._localizer._('"{scope}" cache cleared.').format(scope='.'.join(self._scopes)))
+            logger.info(
+                self._localizer._('"{scope}" cache cleared.').format(
+                    scope=".".join(self._scopes)
+                )
+            )
         else:
-            logger.info(self._localizer._('All caches cleared.'))
+            logger.info(self._localizer._("All caches cleared."))
 
     async def _clear(self) -> None:
         raise NotImplementedError

@@ -1,12 +1,13 @@
 """
 Provide error handling utilities.
 """
+
 import traceback
 from typing import TypeVar, Self
 
 from betty.locale import Localizable, DEFAULT_LOCALIZER, Localizer
 
-BaseExceptionT = TypeVar('BaseExceptionT', bound=BaseException)
+BaseExceptionT = TypeVar("BaseExceptionT", bound=BaseException)
 
 
 def serialize(error: BaseExceptionT) -> BaseExceptionT:

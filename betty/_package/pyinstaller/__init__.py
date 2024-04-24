@@ -1,4 +1,5 @@
 """Integrate Betty with PyInstaller."""
+
 import sys
 from glob import glob
 from pathlib import Path
@@ -19,59 +20,65 @@ from betty.project import ExtensionConfiguration
 async def _build_assets() -> None:
     npm_builder_extension_types: list[type[_NpmBuilder & Extension]] = [
         extension_type
-        for extension_type
-        in discover_extension_types()
+        for extension_type in discover_extension_types()
         if issubclass(extension_type, _NpmBuilder)
     ]
-    async with (App.new_temporary() as app, app):
+    async with App.new_temporary() as app, app:
         app.project.configuration.extensions.append(ExtensionConfiguration(_Npm))
         for extension_type in npm_builder_extension_types:
-            app.project.configuration.extensions.append(ExtensionConfiguration(extension_type))
-        await gather(*([
-            build_assets(app.extensions[extension_type])  # type: ignore[arg-type]
-            for extension_type
-            in npm_builder_extension_types
-        ]))
+            app.project.configuration.extensions.append(
+                ExtensionConfiguration(extension_type)
+            )
+        await gather(
+            *(
+                [
+                    build_assets(app.extensions[extension_type])  # type: ignore[arg-type]
+                    for extension_type in npm_builder_extension_types
+                ]
+            )
+        )
 
 
 async def a_pyz_exe_coll() -> tuple[Analysis, PYZ, EXE, COLLECT]:
     """
     Build PyInstaller's spec components.
     """
-    if sys.platform == 'linux':
-        exe_name = 'betty'
-    elif sys.platform == 'darwin':
-        exe_name = 'betty.app'
-    elif sys.platform == 'win32':
-        exe_name = 'betty.exe'
+    if sys.platform == "linux":
+        exe_name = "betty"
+    elif sys.platform == "darwin":
+        exe_name = "betty.app"
+    elif sys.platform == "win32":
+        exe_name = "betty.exe"
     else:
-        raise RuntimeError(f'Unsupported platform {sys.platform}.')
+        raise RuntimeError(f"Unsupported platform {sys.platform}.")
 
     await _build_assets()
     block_cipher = None
     datas = []
     data_file_path_patterns = [
-        'betty/assets/**',
-        'betty/extension/*/assets/**',
+        "betty/assets/**",
+        "betty/extension/*/assets/**",
     ]
     for data_file_path_pattern in data_file_path_patterns:
-        for data_file_path_str in glob(data_file_path_pattern, recursive=True, root_dir=ROOT_DIRECTORY_PATH):
+        for data_file_path_str in glob(
+            data_file_path_pattern, recursive=True, root_dir=ROOT_DIRECTORY_PATH
+        ):
             data_file_path = Path(data_file_path_str)
             if data_file_path.is_file():
                 datas.append((data_file_path_str, str(data_file_path.parent)))
     hiddenimports = [
         *find_packages(
-            '.',
+            ".",
             exclude=[
-                'betty.tests',
-                'betty.tests.*',
+                "betty.tests",
+                "betty.tests.*",
             ],
         ),
-        'babel.numbers'
+        "babel.numbers",
     ]
     a = Analysis(
-        ['betty/_package/pyinstaller/main.py'],
-        pathex=['./'],
+        ["betty/_package/pyinstaller/main.py"],
+        pathex=["./"],
         binaries=[],
         datas=datas,
         hiddenimports=hiddenimports,
@@ -101,12 +108,14 @@ async def a_pyz_exe_coll() -> tuple[Analysis, PYZ, EXE, COLLECT]:
         upx=True,
         upx_exclude=[],
         console=False,
-        icon=str(ROOT_DIRECTORY_PATH / 'betty' / 'assets' / 'public' / 'static' / 'betty.ico'),
+        icon=str(
+            ROOT_DIRECTORY_PATH / "betty" / "assets" / "public" / "static" / "betty.ico"
+        ),
     )
     coll = COLLECT(
         exe,
         a.datas,
         a.zipfiles,
-        name='betty',
+        name="betty",
     )
     return a, pyz, exe, coll

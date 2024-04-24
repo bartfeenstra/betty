@@ -1,4 +1,5 @@
 """Integrate Betty with `ReDoc <https://redocly.com/redoc/>`_."""
+
 from __future__ import annotations
 
 import asyncio
@@ -19,10 +20,22 @@ class _HttpApiDoc(UserFacingExtension, Generator, _NpmBuilder):
     def depends_on(cls) -> set[type[Extension]]:
         return {_Npm}
 
-    async def npm_build(self, working_directory_path: Path, assets_directory_path: Path) -> None:
+    async def npm_build(
+        self, working_directory_path: Path, assets_directory_path: Path
+    ) -> None:
         await self.app.extensions[_Npm].install(type(self), working_directory_path)
-        await asyncio.to_thread(copy2, working_directory_path / 'node_modules' / 'redoc' / 'bundles' / 'redoc.standalone.js', assets_directory_path / 'http-api-doc.js')
-        logging.getLogger(__name__).info(self._app.localizer._('Built the HTTP API documentation.'))
+        await asyncio.to_thread(
+            copy2,
+            working_directory_path
+            / "node_modules"
+            / "redoc"
+            / "bundles"
+            / "redoc.standalone.js",
+            assets_directory_path / "http-api-doc.js",
+        )
+        logging.getLogger(__name__).info(
+            self._app.localizer._("Built the HTTP API documentation.")
+        )
 
     @classmethod
     def npm_cache_scope(cls) -> _NpmBuilderCacheScope:
@@ -31,16 +44,22 @@ class _HttpApiDoc(UserFacingExtension, Generator, _NpmBuilder):
     async def generate(self, job_context: GenerationContext) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
         await makedirs(self.app.project.configuration.www_directory_path, exist_ok=True)
-        await asyncio.to_thread(copy2, assets_directory_path / 'http-api-doc.js', self.app.project.configuration.www_directory_path / 'http-api-doc.js')
+        await asyncio.to_thread(
+            copy2,
+            assets_directory_path / "http-api-doc.js",
+            self.app.project.configuration.www_directory_path / "http-api-doc.js",
+        )
 
     @classmethod
     def assets_directory_path(cls) -> Path | None:
-        return Path(__file__).parent / 'assets'
+        return Path(__file__).parent / "assets"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('HTTP API Documentation')
+        return Str._("HTTP API Documentation")
 
     @classmethod
     def description(cls) -> Str:
-        return Str._('Display the HTTP API documentation in a user-friendly way using <a href="https://github.com/Redocly/redoc">ReDoc</a>.')
+        return Str._(
+            'Display the HTTP API documentation in a user-friendly way using <a href="https://github.com/Redocly/redoc">ReDoc</a>.'
+        )

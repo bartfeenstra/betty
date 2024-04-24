@@ -1,6 +1,7 @@
 """
 Provide error handling for the Graphical User Interface.
 """
+
 from __future__ import annotations
 
 import pickle
@@ -12,7 +13,14 @@ from typing import TypeVar, Generic, ParamSpec
 
 from PyQt6.QtCore import QMetaObject, Qt, Q_ARG, QObject
 from PyQt6.QtGui import QCloseEvent
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QScrollArea, QFrame
+from PyQt6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QPushButton,
+    QScrollArea,
+    QFrame,
+)
 
 from betty.app import App
 from betty.error import UserFacingError
@@ -20,10 +28,10 @@ from betty.gui.text import Code, Text
 from betty.gui.window import BettyMainWindow
 from betty.locale import Str, Localizable
 
-T = TypeVar('T')
-P = ParamSpec('P')
+T = TypeVar("T")
+P = ParamSpec("P")
 
-BaseExceptionT = TypeVar('BaseExceptionT', bound=BaseException)
+BaseExceptionT = TypeVar("BaseExceptionT", bound=BaseException)
 
 
 class ExceptionCatcher(Generic[P, T]):
@@ -31,9 +39,7 @@ class ExceptionCatcher(Generic[P, T]):
     Catch any exception and show an error window instead.
     """
 
-    _SUPPRESS_EXCEPTION_TYPES = (
-        CancelledError,
-    )
+    _SUPPRESS_EXCEPTION_TYPES = (CancelledError,)
 
     def __init__(
         self,
@@ -47,16 +53,30 @@ class ExceptionCatcher(Generic[P, T]):
     def __enter__(self) -> None:
         pass
 
-    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool | None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> bool | None:
         return self._catch(exc_type, exc_val)
 
     async def __aenter__(self) -> None:
         pass
 
-    async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool | None:
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> bool | None:
         return self._catch(exc_type, exc_val)
 
-    def _catch(self, exception_type: type[BaseExceptionT] | None, exception: BaseExceptionT | None) -> bool | None:
+    def _catch(
+        self,
+        exception_type: type[BaseExceptionT] | None,
+        exception: BaseExceptionT | None,
+    ) -> bool | None:
         from betty.gui import BettyApplication
 
         if exception_type is None or exception is None:
@@ -68,7 +88,7 @@ class ExceptionCatcher(Generic[P, T]):
         if isinstance(exception, UserFacingError):
             QMetaObject.invokeMethod(
                 BettyApplication.instance(),
-                '_show_user_facing_error',
+                "_show_user_facing_error",
                 Qt.ConnectionType.QueuedConnection,
                 Q_ARG(type, exception_type),
                 Q_ARG(bytes, pickle.dumps(exception)),
@@ -79,11 +99,11 @@ class ExceptionCatcher(Generic[P, T]):
             getLogger(__name__).exception(exception)
             QMetaObject.invokeMethod(
                 BettyApplication.instance(),
-                '_show_unexpected_exception',
+                "_show_unexpected_exception",
                 Qt.ConnectionType.QueuedConnection,
                 Q_ARG(type, exception_type),
                 Q_ARG(str, str(exception)),
-                Q_ARG(str, ''.join(format_exception(exception))),
+                Q_ARG(str, "".join(format_exception(exception))),
                 Q_ARG(QObject, self._parent),
                 Q_ARG(bool, self._close_parent),
             )
@@ -105,7 +125,7 @@ class Error(BettyMainWindow):
         super().__init__(app, parent=parent)
         self._message_localizable = message
         if close_parent and not isinstance(parent, QWidget):
-            raise ValueError('If `close_parent` is true, `parent` must be `QWidget`.')
+            raise ValueError("If `close_parent` is true, `parent` must be `QWidget`.")
         self._close_parent = close_parent
         self.setWindowModality(Qt.WindowModality.WindowModal)
 
@@ -126,12 +146,12 @@ class Error(BettyMainWindow):
 
     @property
     def window_title(self) -> Localizable:
-        return Str.plain('{error} - Betty', error=Str._('Error'))
+        return Str.plain("{error} - Betty", error=Str._("Error"))
 
     def _set_translatables(self) -> None:
         super()._set_translatables()
         self._message.setText(self._message_localizable.localize(self._app.localizer))
-        self._dismiss.setText(self._app.localizer._('Close'))
+        self._dismiss.setText(self._app.localizer._("Close"))
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         if self._close_parent:
@@ -141,7 +161,7 @@ class Error(BettyMainWindow):
         super().closeEvent(a0)
 
 
-ErrorT = TypeVar('ErrorT', bound=Error)
+ErrorT = TypeVar("ErrorT", bound=Error)
 
 
 class ExceptionError(Error):
@@ -158,7 +178,7 @@ class ExceptionError(Error):
         self.error_type = error_type
 
 
-ExceptionErrorT = TypeVar('ExceptionErrorT', bound=ExceptionError)
+ExceptionErrorT = TypeVar("ExceptionErrorT", bound=ExceptionError)
 
 
 class _UnexpectedExceptionError(ExceptionError):
@@ -176,7 +196,7 @@ class _UnexpectedExceptionError(ExceptionError):
             app,
             Str._(
                 'An unexpected error occurred and Betty could not complete the task. Please <a href="{report_url}">report this problem</a> and include the following details, so the team behind Betty can address it.',
-                report_url='https://github.com/bartfeenstra/betty/issues',
+                report_url="https://github.com/bartfeenstra/betty/issues",
             ),
             error_type,
             parent=parent,
@@ -189,6 +209,8 @@ class _UnexpectedExceptionError(ExceptionError):
 
         self._exception_details = QScrollArea()
         self._exception_details.setFrameShape(QFrame.Shape.NoFrame)
-        self._exception_details.setWidget(Code(error_traceback + error_traceback + error_traceback + error_traceback))
+        self._exception_details.setWidget(
+            Code(error_traceback + error_traceback + error_traceback + error_traceback)
+        )
         self._exception_details.setWidgetResizable(True)
         self._central_layout.addWidget(self._exception_details)

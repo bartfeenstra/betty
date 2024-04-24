@@ -15,9 +15,11 @@ async def version() -> str | None:
     """
     Get the current Betty installation's version, if it has any.
     """
-    async with aiofiles.open(Path(__file__).parent / 'assets' / 'VERSION', encoding='utf-8') as f:
+    async with aiofiles.open(
+        Path(__file__).parent / "assets" / "VERSION", encoding="utf-8"
+    ) as f:
         release_version = (await f.read()).strip()
-    if release_version == '0.0.0':
+    if release_version == "0.0.0":
         return None
     return release_version
 
@@ -26,7 +28,7 @@ async def version_label() -> str:
     """
     Get the human-readable label for the current Betty installation's version.
     """
-    return await version() or 'development'
+    return await version() or "development"
 
 
 async def is_stable() -> bool:
@@ -45,11 +47,16 @@ async def is_development() -> bool:
 
 def _indent_mapping(items: dict[str, str]) -> str:
     max_indentation = max(map(len, items.keys())) + 4
-    return '\n'.join(map(lambda x: '\n'.join(_indent_mapping_item(x[0], x[1], max_indentation)), items.items()))
+    return "\n".join(
+        map(
+            lambda x: "\n".join(_indent_mapping_item(x[0], x[1], max_indentation)),
+            items.items(),
+        )
+    )
 
 
 def _indent_mapping_item(key: str, value: str, max_indentation: int) -> Iterator[str]:
-    lines = value.split('\n')
+    lines = value.split("\n")
     yield f'{key}{" " * (max_indentation - len(key))}    {lines[0]}'
     for line in lines[1:]:
         yield f'{" " * max_indentation}    {line}'
@@ -61,16 +68,19 @@ async def report() -> str:
 
     :returns: A human-readable string in US English, using monospace indentation.
     """
-    return _indent_mapping({
-        'Betty': await version_label(),
-        'Operating system': platform.platform(),
-        'Python': sys.version,
-        'Python packages': _indent_mapping({
-            x.metadata['Name']: x.version
-            for x
-            in sorted(
-                distributions(),
-                key=lambda x: x.metadata['Name'].lower(),  # type: ignore[no-any-return, unused-ignore]
-            )
-        }),
-    })
+    return _indent_mapping(
+        {
+            "Betty": await version_label(),
+            "Operating system": platform.platform(),
+            "Python": sys.version,
+            "Python packages": _indent_mapping(
+                {
+                    x.metadata["Name"]: x.version
+                    for x in sorted(
+                        distributions(),
+                        key=lambda x: x.metadata["Name"].lower(),  # type: ignore[no-any-return, unused-ignore]
+                    )
+                }
+            ),
+        }
+    )

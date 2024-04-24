@@ -4,6 +4,6 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
-echo 'Running Flake8...'
+echo 'Running Black...'
 
-flake8 --config ./flake8.ini ./betty "$@"
+black --check --color --diff "$@" .

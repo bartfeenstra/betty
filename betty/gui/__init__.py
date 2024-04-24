@@ -1,4 +1,5 @@
 """Provide the Graphical User Interface (GUI) for Betty Desktop."""
+
 from __future__ import annotations
 
 import pickle
@@ -15,7 +16,7 @@ from betty.gui.error import ExceptionError, _UnexpectedExceptionError
 from betty.locale import Str
 from betty.serde.format import FormatRepository
 
-QWidgetT = TypeVar('QWidgetT', bound=QWidget)
+QWidgetT = TypeVar("QWidgetT", bound=QWidget)
 
 
 def get_configuration_file_filter() -> Str:
@@ -24,11 +25,10 @@ def get_configuration_file_filter() -> Str:
     """
     formats = FormatRepository()
     return Str._(
-        'Betty project configuration ({supported_formats})',
-        supported_formats=' '.join(
-            f'*.{extension}'
-            for format
-            in formats.formats
+        "Betty project configuration ({supported_formats})",
+        supported_formats=" ".join(
+            f"*.{extension}"
+            for format in formats.formats
             for extension in format.extensions
         ),
     )
@@ -43,16 +43,16 @@ def mark_valid(widget: QWidget) -> None:
     """
     Mark a widget as currently containing valid input.
     """
-    widget.setProperty('invalid', 'false')
+    widget.setProperty("invalid", "false")
     widget.setStyle(widget.style())
-    widget.setToolTip('')
+    widget.setToolTip("")
 
 
 def mark_invalid(widget: QWidget, reason: str) -> None:
     """
     Mark a widget as currently containing invalid input.
     """
-    widget.setProperty('invalid', 'true')
+    widget.setProperty("invalid", "true")
     widget.setStyle(widget.style())
     widget.setToolTip(reason)
 
@@ -61,7 +61,7 @@ class BettyApplication(QApplication):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._app: App | None = None
-        self.setApplicationName('Betty')
+        self.setApplicationName("Betty")
         self.setStyleSheet(self._stylesheet())
 
     def _is_dark_mode(self) -> bool:
@@ -72,9 +72,9 @@ class BettyApplication(QApplication):
 
     def _stylesheet(self) -> str:
         if self._is_dark_mode():
-            caption_color = '#eeeeee'
+            caption_color = "#eeeeee"
         else:
-            caption_color = '#333333'
+            caption_color = "#333333"
         return f"""
             Caption {{
                 color: {caption_color};
@@ -146,7 +146,13 @@ class BettyApplication(QApplication):
         close_parent: bool,
     ) -> None:
         error_message = pickle.loads(pickled_error_message)
-        window = ExceptionError(self.app, error_message, error_type, parent=parent, close_parent=close_parent)
+        window = ExceptionError(
+            self.app,
+            error_message,
+            error_type,
+            parent=parent,
+            close_parent=close_parent,
+        )
         window.show()
 
     @pyqtSlot(
@@ -164,7 +170,14 @@ class BettyApplication(QApplication):
         parent: QObject,
         close_parent: bool,
     ) -> None:
-        window = _UnexpectedExceptionError(self.app, error_type, error_message, error_traceback, parent=parent, close_parent=close_parent)
+        window = _UnexpectedExceptionError(
+            self.app,
+            error_type,
+            error_message,
+            error_traceback,
+            parent=parent,
+            close_parent=close_parent,
+        )
         window.show()
 
     @classmethod
@@ -176,7 +189,7 @@ class BettyApplication(QApplication):
     @asynccontextmanager
     async def with_app(self, app: App) -> AsyncIterator[Self]:
         if self._app is not None:
-            raise RuntimeError(f'This {type(self)} already has an {App}.')
+            raise RuntimeError(f"This {type(self)} already has an {App}.")
         self._app = app
         yield self
         self._app = None
@@ -184,5 +197,5 @@ class BettyApplication(QApplication):
     @property
     def app(self) -> App:
         if self._app is None:
-            raise RuntimeError(f'This {type(self)} does not have an {App} yet.')
+            raise RuntimeError(f"This {type(self)} does not have an {App} yet.")
         return self._app

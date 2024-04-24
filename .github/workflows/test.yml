@@ -112,7 +112,7 @@ jobs:
 
       - name: Run the tests
         if: ${{ ! startsWith(runner.os, 'Linux') }}
-        run: BETTY_TEST_SKIP_SHELLCHECK=true BETTY_TEST_SKIP_FLAKE8=true BETTY_TEST_SKIP_MYPY=true BETTY_TEST_SKIP_STYLELINT=true BETTY_TEST_SKIP_ESLINT=true BETTY_TEST_SKIP_BUSTED=true BETTY_TEST_SKIP_PLAYWRIGHT=true BETTY_TEST_SKIP_PYINSTALLER=true ./bin/test
+        run: BETTY_TEST_SKIP_SHELLCHECK=true BETTY_TEST_SKIP_BLACK=true BETTY_TEST_SKIP_MYPY=true BETTY_TEST_SKIP_STYLELINT=true BETTY_TEST_SKIP_ESLINT=true BETTY_TEST_SKIP_BUSTED=true BETTY_TEST_SKIP_PLAYWRIGHT=true BETTY_TEST_SKIP_PYINSTALLER=true ./bin/test
         shell: bash
 
       - name: Upload code coverage

@@ -1,6 +1,7 @@
 """
 Provide the Render API.
 """
+
 from pathlib import Path
 
 from betty.locale import Localizer
@@ -27,10 +28,8 @@ class SequentialRenderer(Renderer):
         self._renderers = renderers
         self._file_extensions = {
             file_extension
-            for renderer
-            in self._renderers
-            for file_extension
-            in renderer.file_extensions
+            for renderer in self._renderers
+            for file_extension in renderer.file_extensions
         }
 
     @property
@@ -46,9 +45,11 @@ class SequentialRenderer(Renderer):
     ) -> Path:
         for renderer in self._renderers:
             if file_path.suffix in renderer.file_extensions:
-                return await self.render_file(await renderer.render_file(
-                    file_path,
-                    job_context=job_context,
-                    localizer=localizer,
-                ))
+                return await self.render_file(
+                    await renderer.render_file(
+                        file_path,
+                        job_context=job_context,
+                        localizer=localizer,
+                    )
+                )
         return file_path

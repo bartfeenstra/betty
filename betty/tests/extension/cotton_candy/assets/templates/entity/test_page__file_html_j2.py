@@ -10,21 +10,21 @@ from betty.tests import TemplateTestCase
 class TemplateTestEntity(HasFiles, HasPrivacy, Entity):
     @classmethod
     def entity_type_label(cls) -> Str:
-        return Str._('Test')
+        return Str._("Test")
 
     @classmethod
     def entity_type_label_plural(cls) -> Str:
-        return Str._('Tests')
+        return Str._("Tests")
 
 
 class TestTemplate(TemplateTestCase):
     extensions = {CottonCandy}
-    template_file = 'entity/page--file.html.j2'
+    template_file = "entity/page--file.html.j2"
 
     async def test_privacy(self) -> None:
         file = File(
             path=Path(),
-            description='file description',
+            description="file description",
         )
 
         public_entity = TemplateTestEntity(None)
@@ -36,9 +36,9 @@ class TestTemplate(TemplateTestCase):
 
         async with self._render(
             data={
-                'page_resource': file,
-                'entity_type': File,
-                'entity': file,
+                "page_resource": file,
+                "entity_type": File,
+                "entity": file,
             },
         ) as (actual, _):
             assert file.description is not None

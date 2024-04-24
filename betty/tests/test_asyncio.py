@@ -8,7 +8,7 @@ from betty.warnings import BettyDeprecationWarning
 
 class TestWait:
     async def test(self) -> None:
-        expected = 'Hello, oh asynchronous, world!'
+        expected = "Hello, oh asynchronous, world!"
 
         async def _async() -> str:
             return expected
@@ -20,7 +20,7 @@ class TestWait:
 
 class TestWaitToThread:
     async def test(self) -> None:
-        expected = 'Hello, oh asynchronous, world!'
+        expected = "Hello, oh asynchronous, world!"
 
         async def _async() -> str:
             return expected
@@ -31,9 +31,10 @@ class TestWaitToThread:
 
 class TestSync:
     async def test_call_decorated_coroutinefunction_should_return_result(self) -> None:
-        expected = 'Hello, oh asynchronous, world!'
+        expected = "Hello, oh asynchronous, world!"
 
         with pytest.warns(BettyDeprecationWarning):
+
             @sync
             async def _async() -> str:
                 return expected
@@ -41,10 +42,13 @@ class TestSync:
             actual = _async()
         assert expected == actual
 
-    async def test_call_decorated_callable_coroutinemethod_should_return_result(self) -> None:
-        expected = 'Hello, oh asynchronous, world!'
+    async def test_call_decorated_callable_coroutinemethod_should_return_result(
+        self,
+    ) -> None:
+        expected = "Hello, oh asynchronous, world!"
 
         with pytest.warns(BettyDeprecationWarning):
+
             class _Sync:
                 @sync
                 async def __call__(self, *args: Any, **kwargs: Any) -> str:
@@ -53,8 +57,10 @@ class TestSync:
             actual = _Sync()()
         assert expected == actual
 
-    async def test_call_wrapped_coroutinecallable_object_should_return_result(self) -> None:
-        expected = 'Hello, oh asynchronous, world!'
+    async def test_call_wrapped_coroutinecallable_object_should_return_result(
+        self,
+    ) -> None:
+        expected = "Hello, oh asynchronous, world!"
 
         class _Sync:
             async def __call__(self, *args: Any, **kwargs: Any) -> str:
@@ -65,9 +71,10 @@ class TestSync:
         assert expected == actual
 
     async def test_call_nested_sync_and_async(self) -> None:
-        expected = 'Hello, oh asynchronous, world!'
+        expected = "Hello, oh asynchronous, world!"
 
         with pytest.warns(BettyDeprecationWarning):
+
             @sync
             async def _async_one() -> str:
                 return _sync()

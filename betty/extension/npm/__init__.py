@@ -3,6 +3,7 @@ Provide tools to integrate extensions with `npm <https://www.npmjs.com/>`_.
 
 This extension and module are internal.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -36,11 +37,11 @@ async def npm(
     Run an npm command.
     """
     return await run_process(
-        ['npm', *arguments],
+        ["npm", *arguments],
         cwd=cwd,
         # Use a shell on Windows so subprocess can find the executables it needs (see
         # https://bugs.python.org/issue17023).
-        shell=sys.platform.startswith('win32'),
+        shell=sys.platform.startswith("win32"),
     )
 
 
@@ -49,24 +50,30 @@ class _NpmRequirement(Requirement):
         super().__init__()
         self._met = met
         self._summary = self._met_summary() if met else self._unmet_summary()
-        self._details = Str._('npm (https://www.npmjs.com/) must be available for features that require Node.js packages to be installed. Ensure that the `npm` executable is available in your `PATH`.')
+        self._details = Str._(
+            "npm (https://www.npmjs.com/) must be available for features that require Node.js packages to be installed. Ensure that the `npm` executable is available in your `PATH`."
+        )
 
     @classmethod
     def _met_summary(cls) -> Str:
-        return Str._('`npm` is available')
+        return Str._("`npm` is available")
 
     @classmethod
     def _unmet_summary(cls) -> Str:
-        return Str._('`npm` is not available')
+        return Str._("`npm` is not available")
 
     @classmethod
     def check(cls) -> _NpmRequirement:
         try:
-            wait_to_thread(npm(['--version']))
-            logging.getLogger(__name__).debug(cls._met_summary().localize(DEFAULT_LOCALIZER))
+            wait_to_thread(npm(["--version"]))
+            logging.getLogger(__name__).debug(
+                cls._met_summary().localize(DEFAULT_LOCALIZER)
+            )
             return cls(True)
         except (CalledProcessError, FileNotFoundError):
-            logging.getLogger(__name__).debug(cls._unmet_summary().localize(DEFAULT_LOCALIZER))
+            logging.getLogger(__name__).debug(
+                cls._unmet_summary().localize(DEFAULT_LOCALIZER)
+            )
             return cls(False)
 
     def is_met(self) -> bool:
@@ -90,28 +97,31 @@ class _AssetsRequirement(Requirement):
     def __init__(self, extension_types: set[type[_NpmBuilder & Extension]]):
         super().__init__()
         self._extension_types = extension_types
-        self._summary = Str._('Pre-built assets')
+        self._summary = Str._("Pre-built assets")
         self._details: Str
         if not self.is_met():
             extension_names = sorted(
                 extension_type.name()
-                for extension_type
-                in self._extension_types - self._extension_types_with_built_assets
+                for extension_type in self._extension_types
+                - self._extension_types_with_built_assets
             )
             self._details = Str._(
-                'Pre-built assets are unavailable for {extension_names}.',
-                extension_names=', '.join(extension_names,
-                                          ))
+                "Pre-built assets are unavailable for {extension_names}.",
+                extension_names=", ".join(
+                    extension_names,
+                ),
+            )
         else:
-            self._details = Str.plain('')
+            self._details = Str.plain("")
 
     @property
     def _extension_types_with_built_assets(self) -> set[type[_NpmBuilder & Extension]]:
         return {
             extension_type
-            for extension_type
-            in self._extension_types
-            if is_assets_build_directory_path(_get_assets_build_directory_path(extension_type))
+            for extension_type in self._extension_types
+            if is_assets_build_directory_path(
+                _get_assets_build_directory_path(extension_type)
+            )
         }
 
     def is_met(self) -> bool:
@@ -131,7 +141,9 @@ class _NpmBuilderCacheScope(IntFlag):
 
 
 class _NpmBuilder:
-    async def npm_build(self, working_directory_path: Path, assets_directory_path: Path) -> None:
+    async def npm_build(
+        self, working_directory_path: Path, assets_directory_path: Path
+    ) -> None:
         raise NotImplementedError(repr(self))
 
     @classmethod
@@ -145,8 +157,7 @@ def discover_npm_builders() -> set[type[_NpmBuilder & Extension]]:
     """
     return {
         extension_type
-        for extension_type
-        in discover_extension_types()
+        for extension_type in discover_extension_types()
         if issubclass(extension_type, _NpmBuilder)
     }
 
@@ -156,16 +167,22 @@ def _get_assets_directory_path(extension_type: type[_NpmBuilder & Extension]) ->
     assert issubclass(extension_type, _NpmBuilder)
     assets_directory_path = extension_type.assets_directory_path()
     if not assets_directory_path:
-        raise RuntimeError(f'Extension {extension_type} does not have an assets directory.')
+        raise RuntimeError(
+            f"Extension {extension_type} does not have an assets directory."
+        )
     return assets_directory_path / _Npm.name()
 
 
-def _get_assets_src_directory_path(extension_type: type[_NpmBuilder & Extension]) -> Path:
-    return _get_assets_directory_path(extension_type) / 'src'
+def _get_assets_src_directory_path(
+    extension_type: type[_NpmBuilder & Extension],
+) -> Path:
+    return _get_assets_directory_path(extension_type) / "src"
 
 
-def _get_assets_build_directory_path(extension_type: type[_NpmBuilder & Extension]) -> Path:
-    return _get_assets_directory_path(extension_type) / 'build'
+def _get_assets_build_directory_path(
+    extension_type: type[_NpmBuilder & Extension],
+) -> Path:
+    return _get_assets_directory_path(extension_type) / "build"
 
 
 async def build_assets(extension: _NpmBuilder & Extension) -> Path:
@@ -177,7 +194,9 @@ async def build_assets(extension: _NpmBuilder & Extension) -> Path:
     return assets_directory_path
 
 
-async def _build_assets_to_directory_path(extension: _NpmBuilder & Extension, assets_directory_path: Path) -> None:
+async def _build_assets_to_directory_path(
+    extension: _NpmBuilder & Extension, assets_directory_path: Path
+) -> None:
     assert isinstance(extension, Extension)
     assert isinstance(extension, _NpmBuilder)
     with suppress(FileNotFoundError):
@@ -200,7 +219,9 @@ class _Npm(Extension):
             cls._assets_requirement = _AssetsRequirement(discover_npm_builders())
             assert cls._npm_requirement is not None
             assert cls._assets_requirement is not None
-            cls._requirement = AnyRequirement(cls._npm_requirement, cls._assets_requirement)
+            cls._requirement = AnyRequirement(
+                cls._npm_requirement, cls._assets_requirement
+            )
         return cls._requirement
 
     @classmethod
@@ -210,7 +231,11 @@ class _Npm(Extension):
             super().enable_requirement(),
         )
 
-    async def install(self, extension_type: type[_NpmBuilder & Extension], working_directory_path: Path) -> None:
+    async def install(
+        self,
+        extension_type: type[_NpmBuilder & Extension],
+        working_directory_path: Path,
+    ) -> None:
         self._ensure_requirement()
         if self._npm_requirement:
             self._npm_requirement.assert_met()
@@ -223,10 +248,14 @@ class _Npm(Extension):
         )
         async for file_path in iterfiles(working_directory_path):
             await self._app.renderer.render_file(file_path)
-        await npm(['install', '--production'], cwd=working_directory_path)
+        await npm(["install", "--production"], cwd=working_directory_path)
 
-    def _get_assets_build_cache(self, extension_type: type[_NpmBuilder & Extension]) -> BinaryFileCache:
-        cache = self._app.binary_file_cache.with_scope(self.name()).with_scope(extension_type.name())
+    def _get_assets_build_cache(
+        self, extension_type: type[_NpmBuilder & Extension]
+    ) -> BinaryFileCache:
+        cache = self._app.binary_file_cache.with_scope(self.name()).with_scope(
+            extension_type.name()
+        )
         if extension_type.npm_cache_scope() == _NpmBuilderCacheScope.PROJECT:
             cache = cache.with_scope(self.app.project.name)
         return cache
@@ -244,7 +273,9 @@ class _Npm(Extension):
             self._npm_requirement.assert_met()
         return (await self._build_cached_assets(extension)).path
 
-    async def _build_cached_assets(self, extension: _NpmBuilder & Extension) -> BinaryFileCache:
+    async def _build_cached_assets(
+        self, extension: _NpmBuilder & Extension
+    ) -> BinaryFileCache:
         cache = self._get_assets_build_cache(type(extension))
         await _build_assets_to_directory_path(extension, cache.path)
         return cache

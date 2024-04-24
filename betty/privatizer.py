@@ -1,6 +1,7 @@
 """
 Provide an API to determine if information should be kept private.
 """
+
 from __future__ import annotations
 
 import logging
@@ -11,8 +12,19 @@ from typing import Iterator, TypeAlias, Any
 from betty.functools import walk
 from betty.locale import DateRange, Date, Localizer
 from betty.model import Entity
-from betty.model.ancestry import Person, Event, HasFiles, HasCitations, HasNotes, Source, \
-    Presence, Privacy, HasPrivacy, Subject, Place
+from betty.model.ancestry import (
+    Person,
+    Event,
+    HasFiles,
+    HasCitations,
+    HasNotes,
+    Source,
+    Presence,
+    Privacy,
+    HasPrivacy,
+    Subject,
+    Place,
+)
 from betty.model.event_type import EndOfLifeEventType
 
 Expirable: TypeAlias = Person | Event | Date | None
@@ -116,7 +128,9 @@ class Privatizer:
                 continue
             self.privatize(enclosure.enclosed_by)
 
-    def _privatize_has_citations(self, has_citations: HasCitations & HasPrivacy) -> None:
+    def _privatize_has_citations(
+        self, has_citations: HasCitations & HasPrivacy
+    ) -> None:
         if not has_citations.private:
             return
 
@@ -151,7 +165,9 @@ class Privatizer:
             self._mark_private(note, has_notes)
             self.privatize(note)
 
-    def _ancestors_by_generation(self, person: Person, generations_ago: int = 1) -> Iterator[tuple[Person, int]]:
+    def _ancestors_by_generation(
+        self, person: Person, generations_ago: int = 1
+    ) -> Iterator[tuple[Person, int]]:
         for parent in person.parents:
             yield parent, generations_ago
             yield from self._ancestors_by_generation(parent, generations_ago + 1)
@@ -163,7 +179,9 @@ class Privatizer:
 
         # A dead person is not private, regardless of when they died.
         for presence in person.presences:
-            if presence.event and issubclass(presence.event.event_type, EndOfLifeEventType):
+            if presence.event and issubclass(
+                presence.event.event_type, EndOfLifeEventType
+            ):
                 if presence.event.date is None:
                     person.public = True
                     return
@@ -181,16 +199,20 @@ class Privatizer:
                 return
 
         # If any descendant has any expired event, the person is considered not private.
-        for descendant in walk(person, 'children'):
+        for descendant in walk(person, "children"):
             if self.has_expired(descendant, 1):
                 person.public = True
                 return
 
         person.private = True
-        logging.getLogger(__name__).debug(self._localizer._('Privatized person {privatized_person_id} ({privatized_person}) because they are likely still alive.').format(
-            privatized_person_id=person.id,
-            privatized_person=person.label.localize(self._localizer),
-        ))
+        logging.getLogger(__name__).debug(
+            self._localizer._(
+                "Privatized person {privatized_person_id} ({privatized_person}) because they are likely still alive."
+            ).format(
+                privatized_person_id=person.id,
+                privatized_person=person.label.localize(self._localizer),
+            )
+        )
 
     def _determine_place_privacy(self, place: Place) -> None:
         # Do not change existing explicit privacy declarations.
@@ -210,10 +232,14 @@ class Privatizer:
                 return
 
         place.private = True
-        logging.getLogger(__name__).debug(self._localizer._('Privatized place {privatized_place_id} ({privatized_place}) because it is not associated with any public information.').format(
-            privatized_place_id=place.id,
-            privatized_place=place.label.localize(self._localizer),
-        ))
+        logging.getLogger(__name__).debug(
+            self._localizer._(
+                "Privatized place {privatized_place_id} ({privatized_place}) because it is not associated with any public information."
+            ).format(
+                privatized_place_id=place.id,
+                privatized_place=place.label.localize(self._localizer),
+            )
+        )
 
     def has_expired(
         self,
@@ -233,7 +259,9 @@ class Privatizer:
 
     def _person_has_expired(self, person: Person, generations_ago: int) -> bool:
         for presence in person.presences:
-            if presence.event is not None and self._event_has_expired(presence.event, generations_ago):
+            if presence.event is not None and self._event_has_expired(
+                presence.event, generations_ago
+            ):
                 return True
         return False
 
@@ -256,7 +284,11 @@ class Privatizer:
         if not date.comparable:
             return False
 
-        return date <= Date(datetime.now().year - self._lifetime_threshold * generations_ago, datetime.now().month, datetime.now().day)
+        return date <= Date(
+            datetime.now().year - self._lifetime_threshold * generations_ago,
+            datetime.now().month,
+            datetime.now().day,
+        )
 
     def _mark_private(self, target: HasPrivacy, reason: Any) -> None:
         # Do not change existing explicit privacy declarations.
@@ -268,11 +300,19 @@ class Privatizer:
             self._seen.remove(target)
 
         if isinstance(target, Entity) and isinstance(reason, Entity):
-            logging.getLogger(__name__).debug(self._localizer._('Privatized {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity}).').format(
-                privatized_entity_type=target.entity_type_label().localize(self._localizer),
-                privatized_entity_id=target.id,
-                privatized_entity=target.label.localize(self._localizer),
-                reason_entity_type=reason.entity_type_label().localize(self._localizer),
-                reason_entity_id=reason.id,
-                reason_entity=reason.label.localize(self._localizer),
-            ))
+            logging.getLogger(__name__).debug(
+                self._localizer._(
+                    "Privatized {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity})."
+                ).format(
+                    privatized_entity_type=target.entity_type_label().localize(
+                        self._localizer
+                    ),
+                    privatized_entity_id=target.id,
+                    privatized_entity=target.label.localize(self._localizer),
+                    reason_entity_type=reason.entity_type_label().localize(
+                        self._localizer
+                    ),
+                    reason_entity_id=reason.id,
+                    reason_entity=reason.label.localize(self._localizer),
+                )
+            )

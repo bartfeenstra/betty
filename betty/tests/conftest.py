@@ -1,6 +1,7 @@
 """
 Integrate Betty with pytest.
 """
+
 from __future__ import annotations
 
 import logging
@@ -31,7 +32,7 @@ def raise_deprecation_warnings_as_errors() -> Iterator[None]:
     Raise Betty's own deprecation warnings as errors.
     """
     filterwarnings(
-        'error',
+        "error",
         category=BettyDeprecationWarning,
     )
     yield
@@ -54,7 +55,7 @@ async def binary_file_cache(tmp_path: Path) -> BinaryFileCache:
     return BinaryFileCache(DEFAULT_LOCALIZER, tmp_path)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def qapp_cls() -> type[BettyApplication]:
     """
     Override pytest-qt's fixture of the same name to provide the Betty QApplication class.
@@ -67,12 +68,12 @@ async def new_temporary_app() -> AsyncIterator[App]:
     """
     Create a new, temporary :py:class:`betty.app.App`.
     """
-    async with (App.new_temporary() as app, app):
+    async with App.new_temporary() as app, app:
         yield app
 
 
-QObjectT = TypeVar('QObjectT', bound=QObject)
-QMainWindowT = TypeVar('QMainWindowT', bound=QMainWindow)
+QObjectT = TypeVar("QObjectT", bound=QObject)
+QMainWindowT = TypeVar("QMainWindowT", bound=QMainWindow)
 
 
 class BettyQtBot:
@@ -96,7 +97,9 @@ class BettyQtBot:
     def assert_not_interactive(self, item: QAction | QWidget | None) -> None:
         self.qtbot.wait_until(lambda: not self._is_interactive(item))
 
-    def navigate(self, item: QMainWindow | QMenu | QAction, attributes: list[str]) -> None:
+    def navigate(
+        self, item: QMainWindow | QMenu | QAction, attributes: list[str]
+    ) -> None:
         """
         Navigate a window's menus and actions.
         """
@@ -109,11 +112,16 @@ class BettyQtBot:
                 self.assert_interactive(item)
                 item.trigger()
             else:
-                raise RuntimeError('Can only navigate to menus and actions, but attribute "%s" contains %s.' % (attribute, type(item)))
+                raise RuntimeError(
+                    'Can only navigate to menus and actions, but attribute "%s" contains %s.'
+                    % (attribute, type(item))
+                )
 
             self.navigate(item, attributes)
 
-    def assert_window(self, window_type: type[QMainWindowT] | QMainWindowT) -> QMainWindowT:
+    def assert_window(
+        self, window_type: type[QMainWindowT] | QMainWindowT
+    ) -> QMainWindowT:
         """
         Assert that a window is shown.
         """
@@ -123,11 +131,16 @@ class BettyQtBot:
             nonlocal windows
             windows = [
                 window
-                for window
-                in self.qapp.topLevelWidgets()
-                if window.isVisible() and (isinstance(window, window_type) if isinstance(window_type, type) else window is window_type)
+                for window in self.qapp.topLevelWidgets()
+                if window.isVisible()
+                and (
+                    isinstance(window, window_type)
+                    if isinstance(window_type, type)
+                    else window is window_type
+                )
             ]
             assert len(windows) == 1
+
         self.qtbot.waitUntil(_assert_window)
         window = windows[0]
         if isinstance(window, BettyPrimaryWindow):
@@ -138,16 +151,22 @@ class BettyQtBot:
         """
         Assert that a window is not shown.
         """
+
         def _assert_not_window() -> None:
             if isinstance(window_type, QMainWindow):
                 assert not window_type.isVisible()
             windows = [
                 window
-                for window
-                in self.qapp.topLevelWidgets()
-                if window.isVisible() and (isinstance(window, window_type) if isinstance(window_type, type) else window is window_type)
+                for window in self.qapp.topLevelWidgets()
+                if window.isVisible()
+                and (
+                    isinstance(window, window_type)
+                    if isinstance(window_type, type)
+                    else window is window_type
+                )
             ]
             assert len(windows) == 0
+
         self.qtbot.waitUntil(_assert_not_window)
 
     def assert_exception_error(
@@ -163,11 +182,15 @@ class BettyQtBot:
         def _assert_error_modal() -> None:
             nonlocal exception_error
             widget = self.qapp.activeModalWidget()
-            assert isinstance(widget, ExceptionError), f'Failed asserting that an error window of type {ExceptionError} is shown. Instead, {type(widget)} was found.'
+            assert isinstance(
+                widget, ExceptionError
+            ), f"Failed asserting that an error window of type {ExceptionError} is shown. Instead, {type(widget)} was found."
             if contained_error_type is not None:
-                assert issubclass(widget.error_type, contained_error_type), \
-                    f'Failed asserting that an error window is shown for a raised error of type {contained_error_type}. Instead the following error was raised:\n{widget.error_type}\n{widget._message.text()}'
+                assert issubclass(
+                    widget.error_type, contained_error_type
+                ), f"Failed asserting that an error window is shown for a raised error of type {contained_error_type}. Instead the following error was raised:\n{widget.error_type}\n{widget._message.text()}"
             exception_error = widget
+
         self.qtbot.waitUntil(_assert_error_modal)
         assert exception_error is not None
         return exception_error
@@ -176,15 +199,17 @@ class BettyQtBot:
         """
         Assert that the given widget contains valid input.
         """
-        assert widget.property('invalid') in {'false', None}
+        assert widget.property("invalid") in {"false", None}
 
     def assert_invalid(self, widget: QWidget) -> None:
         """
         Assert that the given widget contains invalid input.
         """
-        assert 'true' == widget.property('invalid')
+        assert "true" == widget.property("invalid")
 
-    def mouse_click(self, widget: QWidget | None, button: Qt.MouseButton = Qt.MouseButton.LeftButton) -> None:
+    def mouse_click(
+        self, widget: QWidget | None, button: Qt.MouseButton = Qt.MouseButton.LeftButton
+    ) -> None:
         """
         Assert that the given widget can be clicked.
         """
@@ -193,7 +218,9 @@ class BettyQtBot:
 
 
 @pytest.fixture
-async def betty_qtbot(qtbot: QtBot, qapp: BettyApplication, new_temporary_app: App) -> AsyncIterator[BettyQtBot]:
+async def betty_qtbot(
+    qtbot: QtBot, qapp: BettyApplication, new_temporary_app: App
+) -> AsyncIterator[BettyQtBot]:
     """
     Provide utilities to control Betty's Qt implementations.
     """

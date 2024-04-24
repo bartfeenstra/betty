@@ -1,6 +1,7 @@
 """
 Provide locale management for the Graphical User Interface.
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -40,20 +41,25 @@ class TranslationsLocaleCollector(LocalizedObject):
         for allowed_locale in allowed_locales:
             locale_name = get_display_name(allowed_locale)
             if locale_name is not None:
-                allowed_locale_names.append((
-                    allowed_locale,
-                    locale_name,
-                ))
+                allowed_locale_names.append(
+                    (
+                        allowed_locale,
+                        locale_name,
+                    )
+                )
         allowed_locale_names = sorted(allowed_locale_names, key=lambda x: x[1])
 
         def _update_configuration_locale() -> None:
             self._app.configuration.locale = self._configuration_locale.currentData()
+
         self._configuration_locale = QComboBox()
         for i, (locale, locale_name) in enumerate(allowed_locale_names):
             self._configuration_locale.addItem(locale_name, locale)
             if locale == self._app.configuration.locale:
                 self._configuration_locale.setCurrentIndex(i)
-        self._configuration_locale.currentIndexChanged.connect(_update_configuration_locale)
+        self._configuration_locale.currentIndexChanged.connect(
+            _update_configuration_locale
+        )
         self._configuration_locale_label = QLabel()
         self._configuration_locale_caption = Caption()
 
@@ -75,7 +81,7 @@ class TranslationsLocaleCollector(LocalizedObject):
         super()._set_translatables()
         localizer = self._app.localizer
         localizers = self._app.localizers
-        self._configuration_locale_label.setText(localizer._('Locale'))
+        self._configuration_locale_label.setText(localizer._("Locale"))
         locale = self.locale.currentData()
         if locale:
             translations_locale = negotiate_locale(
@@ -83,16 +89,34 @@ class TranslationsLocaleCollector(LocalizedObject):
                 list(localizers.locales),
             )
             if translations_locale is None:
-                self._configuration_locale_caption.setText(localizer._('There are no translations for {locale_name}.').format(
-                    locale_name=get_display_name(locale, localizer.locale),
-                ))
+                self._configuration_locale_caption.setText(
+                    localizer._("There are no translations for {locale_name}.").format(
+                        locale_name=get_display_name(locale, localizer.locale),
+                    )
+                )
             else:
-                negotiated_locale_translations_coverage = wait_to_thread(localizers.coverage(translations_locale))
+                negotiated_locale_translations_coverage = wait_to_thread(
+                    localizers.coverage(translations_locale)
+                )
                 if negotiated_locale_translations_coverage[1] == 0:
                     negotiated_locale_translations_coverage_percentage = 0
                 else:
-                    negotiated_locale_translations_coverage_percentage = round(100 / (negotiated_locale_translations_coverage[1] / negotiated_locale_translations_coverage[0]))
-                self._configuration_locale_caption.setText(localizer._('The translations for {locale_name} are {coverage_percentage}%% complete.').format(
-                    locale_name=get_display_name(translations_locale, localizer.locale),
-                    coverage_percentage=round(negotiated_locale_translations_coverage_percentage)
-                ))
+                    negotiated_locale_translations_coverage_percentage = round(
+                        100
+                        / (
+                            negotiated_locale_translations_coverage[1]
+                            / negotiated_locale_translations_coverage[0]
+                        )
+                    )
+                self._configuration_locale_caption.setText(
+                    localizer._(
+                        "The translations for {locale_name} are {coverage_percentage}%% complete."
+                    ).format(
+                        locale_name=get_display_name(
+                            translations_locale, localizer.locale
+                        ),
+                        coverage_percentage=round(
+                            negotiated_locale_translations_coverage_percentage
+                        ),
+                    )
+                )

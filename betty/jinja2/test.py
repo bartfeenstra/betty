@@ -1,6 +1,7 @@
 """
 Provide Betty's default Jinja2 tests.
 """
+
 from __future__ import annotations
 
 from typing import Any, TypeVar
@@ -8,10 +9,18 @@ from typing import Any, TypeVar
 from betty.json.linked_data import LinkedDataDumpable
 from betty.locale import DateRange
 from betty.model import Entity, GeneratedEntityId, UserFacingEntity, get_entity_type
-from betty.model.ancestry import HasLinks, HasFiles, Subject, Witness, is_private, is_public, Event
+from betty.model.ancestry import (
+    HasLinks,
+    HasFiles,
+    Subject,
+    Witness,
+    is_private,
+    is_public,
+    Event,
+)
 from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 def test_linked_data_dumpable(value: Any) -> bool:
@@ -99,17 +108,17 @@ def test_end_of_life_event(event: Event) -> bool:
 
 
 TESTS = {
-    'date_range': test_date_range,
-    'end_of_life_event': test_end_of_life_event,
-    'entity': test_entity,
-    'has_files': test_has_files,
-    'has_generated_entity_id': test_has_generated_entity_id,
-    'has_links': test_has_links,
-    'linked_data_dumpable': test_linked_data_dumpable,
-    'private': is_private,
-    'public': is_public,
-    'start_of_life_event': test_start_of_life_event,
-    'subject_role': test_subject_role,
-    'user_facing_entity': test_user_facing_entity,
-    'witness_role': test_witness_role,
+    "date_range": test_date_range,
+    "end_of_life_event": test_end_of_life_event,
+    "entity": test_entity,
+    "has_files": test_has_files,
+    "has_generated_entity_id": test_has_generated_entity_id,
+    "has_links": test_has_links,
+    "linked_data_dumpable": test_linked_data_dumpable,
+    "private": is_private,
+    "public": is_public,
+    "start_of_life_event": test_start_of_life_event,
+    "subject_role": test_subject_role,
+    "user_facing_entity": test_user_facing_entity,
+    "witness_role": test_witness_role,
 }

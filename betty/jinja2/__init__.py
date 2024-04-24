@@ -1,19 +1,24 @@
 """
 Provide rendering utilities using `Jinja2 <https://jinja.palletsprojects.com>`_.
 """
+
 from __future__ import annotations
 
 import datetime
 from collections import defaultdict
 from pathlib import Path
 from threading import Lock
-from typing import Callable, Any, cast, \
-    Mapping, TypeVar
+from typing import Callable, Any, cast, Mapping, TypeVar
 
 import aiofiles
 from aiofiles import os as aiofiles_os
-from jinja2 import Environment as Jinja2Environment, select_autoescape, FileSystemLoader, pass_context, \
-    Template as Jinja2Template
+from jinja2 import (
+    Environment as Jinja2Environment,
+    select_autoescape,
+    FileSystemLoader,
+    pass_context,
+    Template as Jinja2Template,
+)
 from jinja2.runtime import StrictUndefined, Context, DebugUndefined, new_context
 
 from betty.app import App
@@ -21,15 +26,14 @@ from betty.html import CssProvider, JsProvider
 from betty.jinja2.filter import FILTERS
 from betty.jinja2.test import TESTS
 from betty.job import Context as JobContext
-from betty.locale import Date, Localizer, \
-    DEFAULT_LOCALIZER
+from betty.locale import Date, Localizer, DEFAULT_LOCALIZER
 from betty.model import Entity, get_entity_type
 from betty.model.ancestry import Citation
 from betty.project import ProjectConfiguration
 from betty.render import Renderer
 from betty.serde.dump import Dumpable, DictDump, VoidableDump, Void, Dump
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 def context_app(context: Context) -> App:
@@ -43,7 +47,7 @@ def context_job_context(context: Context) -> JobContext | None:
     """
     Get the current job context from the Jinja2 context.
     """
-    job_context = context.resolve_or_missing('job_context')
+    job_context = context.resolve_or_missing("job_context")
     return job_context if isinstance(job_context, JobContext) else None
 
 
@@ -51,14 +55,16 @@ def context_localizer(context: Context) -> Localizer:
     """
     Get the current localizer from the Jinja2 context.
     """
-    localizer = context.resolve_or_missing('localizer')
+    localizer = context.resolve_or_missing("localizer")
     if isinstance(localizer, Localizer):
         return localizer
-    raise RuntimeError('No `localizer` context variable exists in this Jinja2 template.')
+    raise RuntimeError(
+        "No `localizer` context variable exists in this Jinja2 template."
+    )
 
 
 class _Citer:
-    __slots__ = '_lock', '_cited'
+    __slots__ = "_lock", "_cited"
 
     def __init__(self):
         self._lock = Lock()
@@ -84,9 +90,9 @@ class _Breadcrumb(Dumpable):
 
     def dump(self) -> DictDump[Dump]:
         return {
-            '@type': 'ListItem',
-            'name': self._label,
-            'item': self._url,
+            "@type": "ListItem",
+            "name": self._label,
+            "item": self._url,
         }
 
 
@@ -101,15 +107,14 @@ class _Breadcrumbs(Dumpable):
         if not self._breadcrumbs:
             return Void
         return {
-            '@context': 'https://schema.org',
-            '@type': 'BreadcrumbList',
-            'itemListElement': [
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
                 {
-                    'position': position,
+                    "position": position,
                     **breadcrumb.dump(),
                 }
-                for position, breadcrumb
-                in enumerate(self._breadcrumbs, 1)
+                for position, breadcrumb in enumerate(self._breadcrumbs, 1)
             ],
         }
 
@@ -120,7 +125,9 @@ class EntityContexts:
         for entity in entities:
             self._contexts[entity.type] = entity
 
-    def __getitem__(self, entity_type_or_type_name: type[Entity] | str) -> Entity | None:
+    def __getitem__(
+        self, entity_type_or_type_name: type[Entity] | str
+    ) -> Entity | None:
         if isinstance(entity_type_or_type_name, str):
             entity_type = get_entity_type(entity_type_or_type_name)
         else:
@@ -164,8 +171,8 @@ class Template(Jinja2Template):
             vars,
             shared,
             {
-                'citer': _Citer(),
-                'breadcrumbs': _Breadcrumbs(),
+                "citer": _Citer(),
+                "breadcrumbs": _Breadcrumbs(),
                 **self.globals,
             },
             locals,
@@ -179,25 +186,29 @@ class Environment(Jinja2Environment):
     tests: dict[str, Callable[..., bool]]
 
     def __init__(self, app: App):
-        template_directory_paths = [str(path / 'templates') for path, _ in app.assets.paths]
+        template_directory_paths = [
+            str(path / "templates") for path, _ in app.assets.paths
+        ]
         super().__init__(
             loader=FileSystemLoader(template_directory_paths),
             auto_reload=app.project.configuration.debug,
             enable_async=True,
-            undefined=DebugUndefined if app.project.configuration.debug else StrictUndefined,
-            autoescape=select_autoescape(['html.j2']),
+            undefined=(
+                DebugUndefined if app.project.configuration.debug else StrictUndefined
+            ),
+            autoescape=select_autoescape(["html.j2"]),
             trim_blocks=True,
             lstrip_blocks=True,
             extensions=[
-                'jinja2.ext.do',
-                'jinja2.ext.i18n',
+                "jinja2.ext.do",
+                "jinja2.ext.i18n",
             ],
         )
 
         self.app = app
 
         if app.project.configuration.debug:
-            self.add_extension('jinja2.ext.debug')
+            self.add_extension("jinja2.ext.debug")
 
         self._init_i18n()
         self._init_globals()
@@ -212,14 +223,16 @@ class Environment(Jinja2Environment):
             pgettext=self._pgettext,
             npgettext=self._npgettext,
         )
-        self.policies['ext.i18n.trimmed'] = True
+        self.policies["ext.i18n.trimmed"] = True
 
     @pass_context
     def _gettext(self, context: Context, message: str) -> str:
         return context_localizer(context).gettext(message)
 
     @pass_context
-    def _ngettext(self, context: Context, message_singular: str, message_plural: str, n: int) -> str:
+    def _ngettext(
+        self, context: Context, message_singular: str, message_plural: str, n: int
+    ) -> str:
         return context_localizer(context).ngettext(message_singular, message_plural, n)
 
     @pass_context
@@ -227,28 +240,37 @@ class Environment(Jinja2Environment):
         return context_localizer(context).pgettext(gettext_context, message)
 
     @pass_context
-    def _npgettext(self, context: Context, gettext_context: str, message_singular: str, message_plural: str, n: int) -> str:
-        return context_localizer(context).npgettext(gettext_context, message_singular, message_plural, n)
+    def _npgettext(
+        self,
+        context: Context,
+        gettext_context: str,
+        message_singular: str,
+        message_plural: str,
+        n: int,
+    ) -> str:
+        return context_localizer(context).npgettext(
+            gettext_context, message_singular, message_plural, n
+        )
 
     def _init_globals(self) -> None:
-        self.globals['app'] = self.app
+        self.globals["app"] = self.app
         today = datetime.date.today()
-        self.globals['today'] = Date(today.year, today.month, today.day)
+        self.globals["today"] = Date(today.year, today.month, today.day)
         # Ideally we would use the Dispatcher for this. However, it is asynchronous only.
-        self.globals['public_css_paths'] = [
+        self.globals["public_css_paths"] = [
             path
             for extension in self.app.extensions.flatten()
             if isinstance(extension, CssProvider)
             for path in extension.public_css_paths
         ]
-        self.globals['public_js_paths'] = [
+        self.globals["public_js_paths"] = [
             path
             for extension in self.app.extensions.flatten()
             if isinstance(extension, JsProvider)
             for path in extension.public_js_paths
         ]
-        self.globals['entity_contexts'] = EntityContexts()
-        self.globals['localizer'] = DEFAULT_LOCALIZER
+        self.globals["entity_contexts"] = EntityContexts()
+        self.globals["localizer"] = DEFAULT_LOCALIZER
 
     def _init_extensions(self) -> None:
         for extension in self.app.extensions.flatten():
@@ -268,7 +290,7 @@ class Jinja2Renderer(Renderer):
 
     @property
     def file_extensions(self) -> set[str]:
-        return {'.j2'}
+        return {".j2"}
 
     async def render_file(
         self,
@@ -280,24 +302,30 @@ class Jinja2Renderer(Renderer):
         destination_file_path = file_path.parent / file_path.stem
         data: dict[str, Any] = {}
         if job_context is not None:
-            data['job_context'] = job_context
+            data["job_context"] = job_context
         if localizer is not None:
-            data['localizer'] = localizer
+            data["localizer"] = localizer
         try:
-            relative_file_destination_path = destination_file_path.relative_to(self._configuration.www_directory_path)
+            relative_file_destination_path = destination_file_path.relative_to(
+                self._configuration.www_directory_path
+            )
         except ValueError:
             pass
         else:
-            resource = '/'.join(relative_file_destination_path.parts)
+            resource = "/".join(relative_file_destination_path.parts)
             if self._configuration.locales.multilingual:
-                resource_parts = resource.lstrip('/').split('/')
-                if resource_parts[0] in map(lambda x: x.alias, self._configuration.locales.values()):
-                    resource = '/'.join(resource_parts[1:])
-            data['page_resource'] = resource
+                resource_parts = resource.lstrip("/").split("/")
+                if resource_parts[0] in map(
+                    lambda x: x.alias, self._configuration.locales.values()
+                ):
+                    resource = "/".join(resource_parts[1:])
+            data["page_resource"] = resource
         async with aiofiles.open(file_path) as f:
             template_source = await f.read()
-        rendered = await self._environment.from_string(template_source, self._environment.globals).render_async(data)
-        async with aiofiles.open(destination_file_path, 'w', encoding='utf-8') as f:
+        rendered = await self._environment.from_string(
+            template_source, self._environment.globals
+        ).render_async(data)
+        async with aiofiles.open(destination_file_path, "w", encoding="utf-8") as f:
             await f.write(rendered)
         await aiofiles_os.remove(file_path)
         return destination_file_path

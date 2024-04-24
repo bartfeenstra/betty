@@ -1,8 +1,18 @@
 """
 Provide logging utilities.
 """
+
 import sys
-from logging import CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET, StreamHandler, LogRecord
+from logging import (
+    CRITICAL,
+    ERROR,
+    WARNING,
+    INFO,
+    DEBUG,
+    NOTSET,
+    StreamHandler,
+    LogRecord,
+)
 
 
 class CliHandler(
@@ -28,4 +38,4 @@ class CliHandler(
         return self._color(s, self.COLOR_LEVELS[NOTSET])
 
     def _color(self, s: str, color: int) -> str:
-        return '\033[%dm%s\033[0m' % (color, s)
+        return "\033[%dm%s\033[0m" % (color, s)

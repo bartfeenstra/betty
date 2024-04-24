@@ -20,5 +20,6 @@ async def _main() -> None:
             window.show()
             sys.exit(qapp.exec())
 
+
 if __name__ == "__main__":
     main()
