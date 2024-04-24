@@ -1,6 +1,7 @@
 """
 Provide serialization formats.
 """
+
 from __future__ import annotations
 
 import json
@@ -32,20 +33,22 @@ class Format:
 class Json(Format):
     @property
     def extensions(self) -> set[str]:
-        return {'json'}
+        return {"json"}
 
     @property
     def label(self) -> Str:
-        return Str.plain('JSON')
+        return Str.plain("JSON")
 
     def load(self, dump: str) -> Dump:
         try:
             return cast(Dump, json.loads(dump))
         except json.JSONDecodeError as e:
-            raise FormatError(Str._(
-                'Invalid JSON: {error}.',
-                error=str(e),
-            ))
+            raise FormatError(
+                Str._(
+                    "Invalid JSON: {error}.",
+                    error=str(e),
+                )
+            )
 
     def dump(self, dump: VoidableDump) -> str:
         return json.dumps(dump)
@@ -54,20 +57,22 @@ class Json(Format):
 class Yaml(Format):
     @property
     def extensions(self) -> set[str]:
-        return {'yaml', 'yml'}
+        return {"yaml", "yml"}
 
     @property
     def label(self) -> Str:
-        return Str.plain('YAML')
+        return Str.plain("YAML")
 
     def load(self, dump: str) -> Dump:
         try:
             return cast(Dump, yaml.safe_load(dump))
         except yaml.YAMLError as e:
-            raise FormatError(Str._(
-                'Invalid YAML: {error}.',
-                error=str(e),
-            ))
+            raise FormatError(
+                Str._(
+                    "Invalid YAML: {error}.",
+                    error=str(e),
+                )
+            )
 
     def dump(self, dump: VoidableDump) -> str:
         return yaml.safe_dump(dump)
@@ -90,20 +95,20 @@ class FormatRepository:
     @property
     def extensions(self) -> tuple[str, ...]:
         return tuple(
-            extension
-            for _format in self._formats
-            for extension in _format.extensions
+            extension for _format in self._formats for extension in _format.extensions
         )
 
     def format_for(self, extension: str) -> Format:
         for format in self._formats:
             if extension in format.extensions:
                 return format
-        raise FormatError(Str._(
-            'Unknown file format ".{extension}". Supported formats are: {supported_formats}.',
-            extension=extension,
-            supported_formats=FormatStr(self.formats),
-        ))
+        raise FormatError(
+            Str._(
+                'Unknown file format ".{extension}". Supported formats are: {supported_formats}.',
+                extension=extension,
+                supported_formats=FormatStr(self.formats),
+            )
+        )
 
 
 class FormatStr(Localizable):
@@ -111,8 +116,10 @@ class FormatStr(Localizable):
         self._formats = formats
 
     def localize(self, localizer: Localizer) -> str:
-        return ', '.join([
-            f'.{extension} ({format.label.localize(localizer)})'
-            for format in self._formats
-            for extension in format.extensions
-        ])
+        return ", ".join(
+            [
+                f".{extension} ({format.label.localize(localizer)})"
+                for format in self._formats
+                for extension in format.extensions
+            ]
+        )

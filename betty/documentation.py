@@ -1,6 +1,7 @@
 """
 Provide the Documentation API.
 """
+
 import asyncio
 import logging
 import shutil
@@ -19,7 +20,7 @@ from betty.subprocess import run_process
 
 
 async def _build_cache(cache_directory_path: Path) -> Path:
-    cache_directory_path /= 'docs'
+    cache_directory_path /= "docs"
     if not cache_directory_path.exists():
         await _build(cache_directory_path)
     return cache_directory_path
@@ -33,31 +34,35 @@ async def _build(output_directory_path: Path) -> None:
         # sphinx-apidoc must output to the documentation directory, but because we do not want
         # to 'pollute' that with generated files that must not be committed, do our work in a
         # temporary directory and copy the documentation source files there.
-        source_directory_path = working_directory_path / 'source'
-        await asyncio.to_thread(shutil.copytree, ROOT_DIRECTORY_PATH / 'documentation', source_directory_path)
+        source_directory_path = working_directory_path / "source"
+        await asyncio.to_thread(
+            shutil.copytree,
+            ROOT_DIRECTORY_PATH / "documentation",
+            source_directory_path,
+        )
         try:
 
             await run_process(
                 [
-                    'sphinx-apidoc',
-                    '--force',
-                    '--separate',
-                    '-d',
-                    '999',
-                    '-o',
+                    "sphinx-apidoc",
+                    "--force",
+                    "--separate",
+                    "-d",
+                    "999",
+                    "-o",
                     str(source_directory_path),
-                    str(ROOT_DIRECTORY_PATH / 'betty'),
-                    str(ROOT_DIRECTORY_PATH / 'betty' / 'tests'),
+                    str(ROOT_DIRECTORY_PATH / "betty"),
+                    str(ROOT_DIRECTORY_PATH / "betty" / "tests"),
                 ],
                 cwd=working_directory_path,
             )
             await run_process(
                 [
-                    'sphinx-build',
-                    '-j',
-                    'auto',
-                    '-b',
-                    'dirhtml',
+                    "sphinx-build",
+                    "-j",
+                    "auto",
+                    "-b",
+                    "dirhtml",
                     str(source_directory_path),
                     str(output_directory_path),
                 ],
@@ -83,7 +88,7 @@ class DocumentationServer(Server):
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Betty documentation')
+        return Str._("Betty documentation")
 
     @property
     def public_url(self) -> str:
@@ -94,7 +99,9 @@ class DocumentationServer(Server):
     async def start(self) -> None:
         await super().start()
         www_directory_path = await _build_cache(self._cache_directory_path)
-        self._server = serve.BuiltinServer(www_directory_path, localizer=self._localizer)
+        self._server = serve.BuiltinServer(
+            www_directory_path, localizer=self._localizer
+        )
         await self._exit_stack.enter_async_context(self._server)
         await self.assert_available()
 

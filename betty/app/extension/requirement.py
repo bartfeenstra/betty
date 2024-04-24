@@ -1,6 +1,7 @@
 """
 Provide an API that lets code express arbitrary requirements.
 """
+
 from __future__ import annotations
 
 from textwrap import indent
@@ -30,7 +31,7 @@ class Requirement(Localizable):
         details = self.details()
         if details is not None:
             string += f'\n{"-" * len(string)}'
-            string += f'\n{details.localize(localizer)}'
+            string += f"\n{details.localize(localizer)}"
         return string
 
     def reduce(self) -> Requirement | None:
@@ -60,7 +61,9 @@ class RequirementError(UserFacingError, RuntimeError):
 class RequirementCollection(Requirement):
     def __init__(self, *requirements: Requirement | None):
         super().__init__()
-        self._requirements: list[Requirement] = [requirement for requirement in requirements if requirement]
+        self._requirements: list[Requirement] = [
+            requirement for requirement in requirements if requirement
+        ]
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, type(self)):
@@ -85,7 +88,9 @@ class RequirementCollection(Requirement):
             reduced_requirement = requirement.reduce()
             if reduced_requirement:
                 if type(reduced_requirement) is type(self):
-                    reduced_requirements.extend(cast(RequirementCollection, reduced_requirement)._requirements)
+                    reduced_requirements.extend(
+                        cast(RequirementCollection, reduced_requirement)._requirements
+                    )
                 else:
                     reduced_requirements.append(reduced_requirement)
         if len(reduced_requirements) == 1:
@@ -98,7 +103,7 @@ class RequirementCollection(Requirement):
 class AnyRequirement(RequirementCollection):
     def __init__(self, *requirements: Requirement | None):
         super().__init__(*requirements)
-        self._summary = Str._('One or more of these requirements must be met')
+        self._summary = Str._("One or more of these requirements must be met")
 
     def is_met(self) -> bool:
         for requirement in self._requirements:
@@ -113,7 +118,7 @@ class AnyRequirement(RequirementCollection):
 class AllRequirements(RequirementCollection):
     def __init__(self, *requirements: Requirement | None):
         super().__init__(*requirements)
-        self._summary = Str._('All of these requirements must be met')
+        self._summary = Str._("All of these requirements must be met")
 
     def is_met(self) -> bool:
         for requirement in self._requirements:

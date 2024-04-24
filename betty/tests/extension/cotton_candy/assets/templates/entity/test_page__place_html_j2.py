@@ -7,16 +7,16 @@ from betty.tests import TemplateTestCase
 
 class TestTemplate(TemplateTestCase):
     extensions = {CottonCandy}
-    template_file = 'entity/page--place.html.j2'
+    template_file = "entity/page--place.html.j2"
 
     async def test_privacy(self) -> None:
-        place_name = PlaceName(name='place name')
+        place_name = PlaceName(name="place name")
         place = Place(names=[place_name])
 
         public_place_event = Event(
             event_type=Birth,
             date=Date(1970, 1, 1),
-            description='public place event',
+            description="public place event",
             place=place,
         )
 
@@ -24,15 +24,15 @@ class TestTemplate(TemplateTestCase):
             event_type=Birth,
             date=Date(1970, 1, 1),
             private=True,
-            description='private place event',
+            description="private place event",
             place=place,
         )
 
-        enclosed_name = PlaceName(name='public enclosed name')
+        enclosed_name = PlaceName(name="public enclosed name")
         enclosed = Place(names=[enclosed_name])
         Enclosure(encloses=enclosed, enclosed_by=place)
 
-        enclosing_name = PlaceName(name='public enclosing name')
+        enclosing_name = PlaceName(name="public enclosing name")
         enclosing = Place(names=[enclosing_name])
         Enclosure(encloses=place, enclosed_by=enclosing)
 
@@ -40,7 +40,7 @@ class TestTemplate(TemplateTestCase):
             event_type=Birth,
             date=Date(1970, 1, 1),
             place=place,
-            description='public enclosed event',
+            description="public enclosed event",
         )
 
         private_enclosed_event = Event(
@@ -48,14 +48,14 @@ class TestTemplate(TemplateTestCase):
             date=Date(1970, 1, 1),
             private=True,
             place=place,
-            description='private enclosed event',
+            description="private enclosed event",
         )
 
         async with self._render(
             data={
-                'page_resource': place,
-                'entity_type': Place,
-                'entity': place,
+                "page_resource": place,
+                "entity_type": Place,
+                "entity": place,
             },
         ) as (actual, _):
             assert place_name.name in actual

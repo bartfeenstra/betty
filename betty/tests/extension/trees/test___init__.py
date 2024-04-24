@@ -8,13 +8,17 @@ from betty.project import ExtensionConfiguration
 
 class TestTrees:
     async def test_generate(self) -> None:
-        async with (App.new_temporary() as app, app):
+        async with App.new_temporary() as app, app:
             app.project.configuration.debug = True
             app.project.configuration.extensions.append(ExtensionConfiguration(Trees))
             await generate(app)
-        async with aiofiles.open(app.project.configuration.www_directory_path / 'trees.js', encoding='utf-8') as f:
+        async with aiofiles.open(
+            app.project.configuration.www_directory_path / "trees.js", encoding="utf-8"
+        ) as f:
             betty_js = await f.read()
-        assert 'trees.js' in betty_js
-        async with aiofiles.open(app.project.configuration.www_directory_path / 'trees.css', encoding='utf-8') as f:
+        assert "trees.js" in betty_js
+        async with aiofiles.open(
+            app.project.configuration.www_directory_path / "trees.css", encoding="utf-8"
+        ) as f:
             betty_css = await f.read()
-        assert '.tree' in betty_css
+        assert ".tree" in betty_css

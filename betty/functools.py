@@ -1,15 +1,27 @@
 """
 Provide functional programming utilities.
 """
+
 from __future__ import annotations
 
 from asyncio import sleep
 from inspect import isawaitable
 from time import time
-from typing import Any, Iterable, Sized, TypeVar, Callable, Iterator, Generic, cast, ParamSpec, Awaitable
+from typing import (
+    Any,
+    Iterable,
+    Sized,
+    TypeVar,
+    Callable,
+    Iterator,
+    Generic,
+    cast,
+    ParamSpec,
+    Awaitable,
+)
 
-T = TypeVar('T')
-U = TypeVar('U')
+T = TypeVar("T")
+U = TypeVar("U")
 
 
 def walk(item: Any, attribute_name: str) -> Iterable[Any]:
@@ -80,7 +92,11 @@ class _Result(Generic[T]):
             return _Result(None, e)
 
 
-def filter_suppress(raising_filter: Callable[[T], Any], exception_type: type[BaseException], items: Iterable[T]) -> Iterator[T]:
+def filter_suppress(
+    raising_filter: Callable[[T], Any],
+    exception_type: type[BaseException],
+    items: Iterable[T],
+) -> Iterator[T]:
     """
     Filter values, skipping those for which the application of `raising_filter` raises errors.
     """
@@ -92,8 +108,8 @@ def filter_suppress(raising_filter: Callable[[T], Any], exception_type: type[Bas
             continue
 
 
-_DoFReturnT = TypeVar('_DoFReturnT')
-_DoFP = ParamSpec('_DoFP')
+_DoFReturnT = TypeVar("_DoFReturnT")
+_DoFP = ParamSpec("_DoFP")
 
 
 class Do(Generic[_DoFP, _DoFReturnT]):
@@ -128,9 +144,13 @@ class Do(Generic[_DoFP, _DoFReturnT]):
                     if isawaitable(condition_result_or_coroutine):
                         condition_result = await condition_result_or_coroutine
                     else:
-                        condition_result = cast(None | bool, condition_result_or_coroutine)
+                        condition_result = cast(
+                            None | bool, condition_result_or_coroutine
+                        )
                     if condition_result is False:
-                        raise RuntimeError(f'Condition {condition} was not met for {f_result}.')
+                        raise RuntimeError(
+                            f"Condition {condition} was not met for {f_result}."
+                        )
             except BaseException:
                 if retries == 0:
                     raise

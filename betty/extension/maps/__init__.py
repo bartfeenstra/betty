@@ -1,4 +1,5 @@
 """Integrate Betty with `Leaflet.js <https://leafletjs.com/>`_."""
+
 from __future__ import annotations
 
 import asyncio
@@ -21,18 +22,38 @@ class _Maps(UserFacingExtension, CssProvider, JsProvider, Generator, _NpmBuilder
     def depends_on(cls) -> set[type[Extension]]:
         return {_Npm}
 
-    async def npm_build(self, working_directory_path: Path, assets_directory_path: Path) -> None:
+    async def npm_build(
+        self, working_directory_path: Path, assets_directory_path: Path
+    ) -> None:
         await self.app.extensions[_Npm].install(type(self), working_directory_path)
-        await npm(('run', 'webpack'), cwd=working_directory_path)
-        await self._copy_npm_build(working_directory_path / 'webpack-build', assets_directory_path)
-        logging.getLogger(__name__).info(self._app.localizer._('Built the interactive maps.'))
+        await npm(("run", "webpack"), cwd=working_directory_path)
+        await self._copy_npm_build(
+            working_directory_path / "webpack-build", assets_directory_path
+        )
+        logging.getLogger(__name__).info(
+            self._app.localizer._("Built the interactive maps.")
+        )
 
-    async def _copy_npm_build(self, source_directory_path: Path, destination_directory_path: Path) -> None:
+    async def _copy_npm_build(
+        self, source_directory_path: Path, destination_directory_path: Path
+    ) -> None:
         await makedirs(destination_directory_path, exist_ok=True)
-        await asyncio.to_thread(copy2, source_directory_path / 'maps.css', destination_directory_path / 'maps.css')
-        await asyncio.to_thread(copy2, source_directory_path / 'maps.js', destination_directory_path / 'maps.js')
+        await asyncio.to_thread(
+            copy2,
+            source_directory_path / "maps.css",
+            destination_directory_path / "maps.css",
+        )
+        await asyncio.to_thread(
+            copy2,
+            source_directory_path / "maps.js",
+            destination_directory_path / "maps.js",
+        )
         with suppress(FileNotFoundError):
-            await asyncio.to_thread(copytree, source_directory_path / 'images', destination_directory_path / 'images')
+            await asyncio.to_thread(
+                copytree,
+                source_directory_path / "images",
+                destination_directory_path / "images",
+            )
 
     @classmethod
     def npm_cache_scope(cls) -> _NpmBuilderCacheScope:
@@ -41,28 +62,32 @@ class _Maps(UserFacingExtension, CssProvider, JsProvider, Generator, _NpmBuilder
     async def generate(self, job_context: GenerationContext) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
         await makedirs(self.app.project.configuration.www_directory_path, exist_ok=True)
-        await self._copy_npm_build(assets_directory_path, self.app.project.configuration.www_directory_path)
+        await self._copy_npm_build(
+            assets_directory_path, self.app.project.configuration.www_directory_path
+        )
 
     @classmethod
     def assets_directory_path(cls) -> Path | None:
-        return Path(__file__).parent / 'assets'
+        return Path(__file__).parent / "assets"
 
     @property
     def public_css_paths(self) -> list[str]:
         return [
-            self.app.static_url_generator.generate('maps.css'),
+            self.app.static_url_generator.generate("maps.css"),
         ]
 
     @property
     def public_js_paths(self) -> list[str]:
         return [
-            self.app.static_url_generator.generate('maps.js'),
+            self.app.static_url_generator.generate("maps.js"),
         ]
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Maps')
+        return Str._("Maps")
 
     @classmethod
     def description(cls) -> Str:
-        return Str._('Display lists of places as interactive maps using <a href="https://leafletjs.com/">Leaflet</a>.')
+        return Str._(
+            'Display lists of places as interactive maps using <a href="https://leafletjs.com/">Leaflet</a>.'
+        )

@@ -6,6 +6,7 @@ refactored yet.
 
 New code MUST NOT use this module.
 """
+
 import math
 
 from PIL.Image import Image
@@ -39,7 +40,7 @@ def resize_cover(image: Image, size: tuple[int, int]) -> Image:
     ratio = max(size[0] / img_size[0], size[1] / img_size[1])
     new_size = [
         int(math.ceil(img_size[0] * ratio)),
-        int(math.ceil(img_size[1] * ratio))
+        int(math.ceil(img_size[1] * ratio)),
     ]
     img = img.resize((new_size[0], new_size[1]))
     img = resize_crop(img, size)

@@ -99,10 +99,9 @@ setuptools = [
 ]
 test = [
     'aioresponses ~= 0.7, >= 0.7.6',
-    'autopep8 ~= 2.0, >= 2.0.2',
     'basedmypy ~= 2.0, >= 2.2.1',
+    'black ~= 24.4, >= 24.4.0',
     'coverage ~= 7.2, >= 7.2.4',
-    'flake8 ~= 7.0',
     'html5lib ~= 1.1',
     'lxml ~= 5.0; sys.platform != "win32"',
     'pip-licenses ~= 4.3, >= 4.3.0',

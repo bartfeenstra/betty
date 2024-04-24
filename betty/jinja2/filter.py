@@ -1,6 +1,7 @@
 """
 Provide Betty's default Jinja2 filters.
 """
+
 from __future__ import annotations
 
 import json as stdjson
@@ -21,8 +22,7 @@ from PIL.Image import DecompressionBombWarning
 from aiofiles.os import makedirs
 from geopy import units
 from geopy.format import DEGREES_FORMAT
-from jinja2 import pass_context, \
-    pass_eval_context
+from jinja2 import pass_context, pass_eval_context
 from jinja2.async_utils import auto_aiter, auto_await
 from jinja2.filters import prepare_map, make_attrgetter
 from jinja2.nodes import EvalContext
@@ -33,15 +33,27 @@ from pdf2image.pdf2image import convert_from_path
 from betty import _resizeimage
 from betty.fs import hashfile
 from betty.functools import walk
-from betty.locale import negotiate_localizeds, Localized, Datey, negotiate_locale, Localey, get_data, Localizable
+from betty.locale import (
+    negotiate_localizeds,
+    Localized,
+    Datey,
+    negotiate_locale,
+    Localey,
+    get_data,
+    Localizable,
+)
 from betty.media_type import MediaType
 from betty.model import get_entity_type_name
 from betty.model.ancestry import File, Dated
 from betty.os import link_or_copy
 from betty.serde.dump import minimize, none_void, void_none
-from betty.string import camel_case_to_snake_case, camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
+from betty.string import (
+    camel_case_to_snake_case,
+    camel_case_to_kebab_case,
+    upper_camel_case_to_lower_camel_case,
+)
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 @pass_context
@@ -60,7 +72,7 @@ def filter_url(
 
     return context_app(context).url_generator.generate(
         resource,
-        media_type or 'text/html',
+        media_type or "text/html",
         *args,
         locale=locale or context_localizer(context).locale,  # type: ignore[misc]
         **kwargs,
@@ -133,7 +145,7 @@ def filter_walk(value: Any, attribute_name: str) -> Iterable[Any]:
     return walk(value, attribute_name)
 
 
-_paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
+_paragraph_re = re.compile(r"(?:\r\n|\r|\n){2,}")
 
 
 @pass_eval_context
@@ -143,8 +155,10 @@ def filter_paragraphs(eval_ctx: EvalContext, text: str) -> str | Markup:
 
     Taken from http://jinja.pocoo.org/docs/2.10/api/#custom-filters.
     """
-    result = u'\n\n'.join(u'<p>%s</p>' % p.replace('\n', Markup('<br>\n'))
-                          for p in _paragraph_re.split(escape(text)))
+    result = "\n\n".join(
+        "<p>%s</p>" % p.replace("\n", Markup("<br>\n"))
+        for p in _paragraph_re.split(escape(text))
+    )
     if eval_ctx.autoescape:
         result = Markup(result)
     return result
@@ -157,12 +171,12 @@ def filter_format_degrees(degrees: int) -> str:
     arcminutes = units.arcminutes(degrees=degrees - int(degrees))
     arcseconds = units.arcseconds(arcminutes=arcminutes - int(arcminutes))
     format_dict = dict(
-        deg='°',
+        deg="°",
         arcmin="'",
         arcsec='"',
         degrees=degrees,
         minutes=round(abs(arcminutes)),
-        seconds=round(abs(arcseconds))
+        seconds=round(abs(arcseconds)),
     )
     return DEGREES_FORMAT % format_dict  # type: ignore[no-any-return]
 
@@ -179,7 +193,9 @@ async def filter_unique(value: Iterable[T]) -> AsyncIterator[T]:
 
 
 @pass_context
-async def filter_map(context: Context, values: Iterable[Any], *args: Any, **kwargs: Any) -> Any:
+async def filter_map(
+    context: Context, values: Iterable[Any], *args: Any, **kwargs: Any
+) -> Any:
     """
     Map an iterable's values.
 
@@ -207,18 +223,27 @@ async def filter_file(context: Context, file: File) -> str:
 
     execute_filter = True
     if job_context:
-        job_cache_item_id = f'filter_file:{file.id}'
-        async with job_context.cache.getset(job_cache_item_id, wait=False) as (cache_item, setter):
+        job_cache_item_id = f"filter_file:{file.id}"
+        async with job_context.cache.getset(job_cache_item_id, wait=False) as (
+            cache_item,
+            setter,
+        ):
             if cache_item is None and setter is not None:
                 await setter(None)
             else:
                 execute_filter = False
     if execute_filter:
-        file_destination_path = app.project.configuration.www_directory_path / 'file' / file.id / 'file' / file.path.name
+        file_destination_path = (
+            app.project.configuration.www_directory_path
+            / "file"
+            / file.id
+            / "file"
+            / file.path.name
+        )
         await makedirs(file_destination_path.parent, exist_ok=True)
         await link_or_copy(file.path, file_destination_path)
 
-    return f'/file/{quote(file.id)}/file/{quote(file.path.name)}'
+    return f"/file/{quote(file.id)}/file/{quote(file.path.name)}"
 
 
 @pass_context
@@ -236,40 +261,48 @@ async def filter_image(
     from betty.jinja2 import context_app, context_job_context
 
     # Treat SVGs as regular files.
-    if file.media_type and file.media_type.type == 'image' and 'svg+xml' == file.media_type.subtype:
+    if (
+        file.media_type
+        and file.media_type.type == "image"
+        and "svg+xml" == file.media_type.subtype
+    ):
         return await filter_file(context, file)
 
     app = context_app(context)
     job_context = context_job_context(context)
 
-    destination_name = f'{file.id}-'
+    destination_name = f"{file.id}-"
     if height and width:
-        destination_name += f'{width}x{height}'
+        destination_name += f"{width}x{height}"
     elif height:
-        destination_name += f'-x{height}'
+        destination_name += f"-x{height}"
     elif width:
-        destination_name += f'{width}x-'
+        destination_name += f"{width}x-"
     else:
-        raise ValueError('At least the width or height must be given.')
+        raise ValueError("At least the width or height must be given.")
 
-    file_directory_path = app.project.configuration.www_directory_path / 'file'
+    file_directory_path = app.project.configuration.www_directory_path / "file"
 
     if file.media_type:
-        if file.media_type.type == 'image':
+        if file.media_type.type == "image":
             image_loader = _load_image_image
             destination_name += file.path.suffix
-        elif file.media_type.type == 'application' and file.media_type.subtype == 'pdf':
+        elif file.media_type.type == "application" and file.media_type.subtype == "pdf":
             image_loader = _load_image_application_pdf
-            destination_name += '.' + 'jpg'
+            destination_name += "." + "jpg"
         else:
-            raise ValueError(f'Cannot convert a file of media type "{file.media_type}" to an image.')
+            raise ValueError(
+                f'Cannot convert a file of media type "{file.media_type}" to an image.'
+            )
     else:
-        raise ValueError('Cannot convert a file without a media type to an image.')
+        raise ValueError("Cannot convert a file without a media type to an image.")
 
     cache_item_id = f'{hashfile(file.path)}:{"" if width is None else width}:{"" if height is None else height}'
     execute_filter = True
     if job_context:
-        async with job_context.cache.with_scope('filter_image').getset(cache_item_id, wait=False) as (cache_item, setter):
+        async with job_context.cache.with_scope("filter_image").getset(
+            cache_item_id, wait=False
+        ) as (cache_item, setter):
             if cache_item is None and setter is not None:
                 await setter(True)
             else:
@@ -282,13 +315,15 @@ async def filter_image(
             image_loader,
             file.path,
             file.media_type,
-            app.binary_file_cache.with_scope('image').cache_item_file_path(cache_item_id),
+            app.binary_file_cache.with_scope("image").cache_item_file_path(
+                cache_item_id
+            ),
             file_directory_path,
             destination_name,
             width,
             height,
         )
-    destination_public_path = f'/file/{quote(destination_name)}'
+    destination_public_path = f"/file/{quote(destination_name)}"
 
     return destination_public_path
 
@@ -300,10 +335,10 @@ async def _load_image_image(
     # We want to read the image asynchronously and prevent Pillow from keeping too many file
     # descriptors open simultaneously, so we read the image ourselves and store the contents
     # in a synchronous file object.
-    async with aiofiles.open(file_path, 'rb') as f:
+    async with aiofiles.open(file_path, "rb") as f:
         image_f = BytesIO(await f.read())
     # Ignore warnings about decompression bombs, because we know where the files come from.
-    with warnings.catch_warnings(action='ignore', category=DecompressionBombWarning):
+    with warnings.catch_warnings(action="ignore", category=DecompressionBombWarning):
         image = Image.open(image_f, formats=[media_type.subtype])
     return image
 
@@ -313,8 +348,8 @@ async def _load_image_application_pdf(
     media_type: MediaType,
 ) -> Image.Image:
     # Ignore warnings about decompression bombs, because we know where the files come from.
-    with warnings.catch_warnings(action='ignore', category=DecompressionBombWarning):
-        image = convert_from_path(file_path, fmt='jpeg')[0]
+    with warnings.catch_warnings(action="ignore", category=DecompressionBombWarning):
+        image = convert_from_path(file_path, fmt="jpeg")[0]
     return image
 
 
@@ -328,16 +363,18 @@ def _execute_filter_image(
     width: int | None,
     height: int | None,
 ) -> None:
-    run(__execute_filter_image(
-        image_loader,
-        file_path,
-        media_type,
-        cache_item_file_path,
-        destination_directory_path,
-        destination_name,
-        width,
-        height,
-    ))
+    run(
+        __execute_filter_image(
+            image_loader,
+            file_path,
+            media_type,
+            cache_item_file_path,
+            destination_directory_path,
+            destination_name,
+            width,
+            height,
+        )
+    )
 
 
 async def __execute_filter_image(
@@ -383,11 +420,13 @@ async def _execute_filter_image_convert(
         return _resizeimage.resize_width(image, width)
     if height is not None:
         return _resizeimage.resize_height(image, height)
-    raise ValueError('Width and height cannot both be None.')
+    raise ValueError("Width and height cannot both be None.")
 
 
 @pass_context
-def filter_negotiate_localizeds(context: Context, localizeds: Iterable[Localized]) -> Localized | None:
+def filter_negotiate_localizeds(
+    context: Context, localizeds: Iterable[Localized]
+) -> Localized | None:
     """
     Try to find an object whose locale matches the context's current locale.
     """
@@ -397,24 +436,34 @@ def filter_negotiate_localizeds(context: Context, localizeds: Iterable[Localized
 
 
 @pass_context
-def filter_sort_localizeds(context: Context, localizeds: Iterable[Localized], localized_attribute: str, sort_attribute: str) -> Iterable[Localized]:
+def filter_sort_localizeds(
+    context: Context,
+    localizeds: Iterable[Localized],
+    localized_attribute: str,
+    sort_attribute: str,
+) -> Iterable[Localized]:
     """
     Sort localized objects.
     """
     from betty.jinja2 import context_localizer
 
-    get_localized_attr = make_attrgetter(
-        context.environment, localized_attribute)
+    get_localized_attr = make_attrgetter(context.environment, localized_attribute)
     get_sort_attr = make_attrgetter(context.environment, sort_attribute)
 
     def _get_sort_key(x: Localized) -> Any:
-        return get_sort_attr(negotiate_localizeds(context_localizer(context).locale, get_localized_attr(x)))
+        return get_sort_attr(
+            negotiate_localizeds(
+                context_localizer(context).locale, get_localized_attr(x)
+            )
+        )
 
     return sorted(localizeds, key=_get_sort_key)
 
 
 @pass_context
-def filter_select_localizeds(context: Context, localizeds: Iterable[Localized], include_unspecified: bool = False) -> Iterable[Localized]:
+def filter_select_localizeds(
+    context: Context, localizeds: Iterable[Localized], include_unspecified: bool = False
+) -> Iterable[Localized]:
     """
     Select all objects whose locale matches the context's current locale.
 
@@ -423,14 +472,26 @@ def filter_select_localizeds(context: Context, localizeds: Iterable[Localized], 
     from betty.jinja2 import context_localizer
 
     for localized in localizeds:
-        if include_unspecified and localized.locale in {None, 'mis', 'mul', 'und', 'zxx'}:
+        if include_unspecified and localized.locale in {
+            None,
+            "mis",
+            "mul",
+            "und",
+            "zxx",
+        }:
             yield localized
-        if localized.locale is not None and negotiate_locale(context_localizer(context).locale, [localized.locale]) is not None:
+        if (
+            localized.locale is not None
+            and negotiate_locale(context_localizer(context).locale, [localized.locale])
+            is not None
+        ):
             yield localized
 
 
 @pass_context
-def filter_negotiate_dateds(context: Context, dateds: Iterable[Dated], date: Datey | None) -> Dated | None:
+def filter_negotiate_dateds(
+    context: Context, dateds: Iterable[Dated], date: Datey | None
+) -> Dated | None:
     """
     Try to find an object whose date falls in the given date.
 
@@ -442,16 +503,20 @@ def filter_negotiate_dateds(context: Context, dateds: Iterable[Dated], date: Dat
 
 
 @pass_context
-def filter_select_dateds(context: Context, dateds: Iterable[Dated], date: Datey | None) -> Iterator[Dated]:
+def filter_select_dateds(
+    context: Context, dateds: Iterable[Dated], date: Datey | None
+) -> Iterator[Dated]:
     """
     Select all objects whose date falls in the given date.
 
     :param date: A date to select by. If None, then today's date is used.
     """
     if date is None:
-        date = context.resolve_or_missing('today')
+        date = context.resolve_or_missing("today")
     return filter(
-        lambda dated: dated.date is None or dated.date.comparable and dated.date in date,
+        lambda dated: dated.date is None
+        or dated.date.comparable
+        and dated.date in date,
         dateds,
     )
 
@@ -460,36 +525,36 @@ def filter_base64(input: str) -> str:
     """
     Base-64-encode a string.
     """
-    return b64encode(input.encode('utf-8')).decode('utf-8')
+    return b64encode(input.encode("utf-8")).decode("utf-8")
 
 
 FILTERS = {
-    'base64': filter_base64,
-    'camel_case_to_kebab_case': camel_case_to_kebab_case,
-    'camel_case_to_snake_case': camel_case_to_snake_case,
-    'entity_type_name': get_entity_type_name,
-    'file': filter_file,
-    'flatten': filter_flatten,
-    'format_datey': filter_format_datey,
-    'format_degrees': filter_format_degrees,
-    'image': filter_image,
-    'json': filter_json,
-    'locale_get_data': get_data,
-    'localize': filter_localize,
-    'map': filter_map,
-    'minimize': minimize,
-    'negotiate_dateds': filter_negotiate_dateds,
-    'negotiate_localizeds': filter_negotiate_localizeds,
-    'none_void': none_void,
-    'paragraphs': filter_paragraphs,
-    'select_dateds': filter_select_dateds,
-    'select_localizeds': filter_select_localizeds,
-    'static_url': filter_static_url,
-    'sort_localizeds': filter_sort_localizeds,
-    'str': str,
-    'unique': filter_unique,
-    'upper_camel_case_to_lower_camel_case': upper_camel_case_to_lower_camel_case,
-    'url': filter_url,
-    'void_none': void_none,
-    'walk': filter_walk,
+    "base64": filter_base64,
+    "camel_case_to_kebab_case": camel_case_to_kebab_case,
+    "camel_case_to_snake_case": camel_case_to_snake_case,
+    "entity_type_name": get_entity_type_name,
+    "file": filter_file,
+    "flatten": filter_flatten,
+    "format_datey": filter_format_datey,
+    "format_degrees": filter_format_degrees,
+    "image": filter_image,
+    "json": filter_json,
+    "locale_get_data": get_data,
+    "localize": filter_localize,
+    "map": filter_map,
+    "minimize": minimize,
+    "negotiate_dateds": filter_negotiate_dateds,
+    "negotiate_localizeds": filter_negotiate_localizeds,
+    "none_void": none_void,
+    "paragraphs": filter_paragraphs,
+    "select_dateds": filter_select_dateds,
+    "select_localizeds": filter_select_localizeds,
+    "static_url": filter_static_url,
+    "sort_localizeds": filter_sort_localizeds,
+    "str": str,
+    "unique": filter_unique,
+    "upper_camel_case_to_lower_camel_case": upper_camel_case_to_lower_camel_case,
+    "url": filter_url,
+    "void_none": void_none,
+    "walk": filter_walk,
 }

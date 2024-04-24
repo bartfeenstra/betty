@@ -14,7 +14,12 @@ class Text(QLabel):
             self.setText(text)
         self.setTextFormat(Qt.TextFormat.RichText)
         self.setWordWrap(True)
-        self.setTextInteractionFlags(Qt.TextInteractionFlag.LinksAccessibleByKeyboard | Qt.TextInteractionFlag.LinksAccessibleByMouse | Qt.TextInteractionFlag.TextSelectableByKeyboard | Qt.TextInteractionFlag.TextSelectableByMouse)
+        self.setTextInteractionFlags(
+            Qt.TextInteractionFlag.LinksAccessibleByKeyboard
+            | Qt.TextInteractionFlag.LinksAccessibleByMouse
+            | Qt.TextInteractionFlag.TextSelectableByKeyboard
+            | Qt.TextInteractionFlag.TextSelectableByMouse
+        )
         self.setOpenExternalLinks(True)
 
 
@@ -32,4 +37,4 @@ class Code(Text):
         self.setFont(font)
 
     def setText(self, a0: str | None) -> None:
-        super().setText(f'<pre>{a0}</pre>' if a0 else a0)
+        super().setText(f"<pre>{a0}</pre>" if a0 else a0)

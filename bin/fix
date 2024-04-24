@@ -5,10 +5,10 @@ set -Eeuo pipefail
 cd "$(dirname "$0")/.."
 
 # Fix Python code style violations.
-autopep8 --in-place -r ./betty
+black .
 
 # Fix CSS code style violations.
 ./node_modules/.bin/stylelint --fix "./betty/**/*.css"
 
 # Fix JS code style violations.
-./node_modules/.bin/eslint --fix -c ./eslint.config.js ./betty ./playwright "$@"
+./node_modules/.bin/eslint --fix -c ./eslint.config.js ./betty ./playwright

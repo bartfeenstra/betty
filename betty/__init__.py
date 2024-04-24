@@ -1,7 +1,8 @@
 """The Betty package root."""
+
 from pathlib import Path
 
-from betty import _patch  # noqa: F401
+from betty import _patch
 
 
 # This lives here so it can be imported before any third-party Python modules are available.

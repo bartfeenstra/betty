@@ -1,6 +1,7 @@
 """
 Provide logging for the Graphical User Interface.
 """
+
 import logging
 
 from PyQt6.QtCore import QObject, pyqtSignal, Qt
@@ -23,7 +24,7 @@ class LogRecord(Text):
 
     def __init__(self, record: logging.LogRecord):
         super().__init__(self._formatter.format(record))
-        self.setProperty('level', self._normalize_level(record.levelno))
+        self.setProperty("level", self._normalize_level(record.levelno))
 
     def _normalize_level(self, record_level: int) -> int:
         for level in self._LEVELS:

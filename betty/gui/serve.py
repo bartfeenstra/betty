@@ -1,6 +1,7 @@
 """
 Integrate Betty's Graphical User Interface with the Serve API.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -24,7 +25,14 @@ from betty.serve import Server, AppServer
 class _ServeThread(QThread):
     server_started = pyqtSignal()
 
-    def __init__(self, project: Project, server: Server, serve_window: _ServeWindow, *args: Any, **kwargs: Any):
+    def __init__(
+        self,
+        project: Project,
+        server: Server,
+        serve_window: _ServeWindow,
+        *args: Any,
+        **kwargs: Any,
+    ):
         super().__init__(*args, **kwargs)
         self._project = project
         self._server = server
@@ -68,7 +76,7 @@ class _ServeWindow(BettyMainWindow):
         central_widget.setLayout(self._central_layout)
         self.setCentralWidget(central_widget)
 
-        self._loading_instruction = Text(self._app.localizer._('Loading...'))
+        self._loading_instruction = Text(self._app.localizer._("Loading..."))
         self._loading_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._central_layout.addWidget(self._loading_instruction)
 
@@ -78,7 +86,7 @@ class _ServeWindow(BettyMainWindow):
     @property
     def _thread(self) -> _ServeThread:
         if self.__thread is None:
-            raise RuntimeError('This window has not been shown yet.')
+            raise RuntimeError("This window has not been shown yet.")
         return self.__thread
 
     def _build_instruction(self) -> str:
@@ -95,11 +103,13 @@ class _ServeWindow(BettyMainWindow):
         instance_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._central_layout.addWidget(instance_instruction)
 
-        general_instruction = Text(self._app.localizer._('Keep this window open to keep the site running.'))
+        general_instruction = Text(
+            self._app.localizer._("Keep this window open to keep the site running.")
+        )
         general_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._central_layout.addWidget(general_instruction)
 
-        stop_server_button = QPushButton(self._app.localizer._('Stop the site'), self)
+        stop_server_button = QPushButton(self._app.localizer._("Stop the site"), self)
         stop_server_button.released.connect(
             self.close,
         )
@@ -133,10 +143,12 @@ class ServeProjectWindow(_ServeWindow):
 
     @property
     def window_title(self) -> Localizable:
-        return Str._('Serving your site...')
+        return Str._("Serving your site...")
 
     def _build_instruction(self) -> str:
-        return self._app.localizer._('You can now view your site at <a href="{url}">{url}</a>.').format(
+        return self._app.localizer._(
+            'You can now view your site at <a href="{url}">{url}</a>.'
+        ).format(
             url=self._thread.server.public_url,
         )
 
@@ -146,13 +158,15 @@ class ServeDemoWindow(_ServeWindow):
         return demo.DemoServer(app=self._app)
 
     def _build_instruction(self) -> str:
-        return self._app.localizer._('You can now view a Betty demonstration site at <a href="{url}">{url}</a>.').format(
+        return self._app.localizer._(
+            'You can now view a Betty demonstration site at <a href="{url}">{url}</a>.'
+        ).format(
             url=self._thread.server.public_url,
         )
 
     @property
     def window_title(self) -> Localizable:
-        return Str._('Serving the Betty demo...')
+        return Str._("Serving the Betty demo...")
 
 
 class ServeDocsWindow(_ServeWindow):
@@ -163,10 +177,12 @@ class ServeDocsWindow(_ServeWindow):
         )
 
     def _build_instruction(self) -> str:
-        return self._app.localizer._('You can now view the documentation at <a href="{url}">{url}</a>.').format(
+        return self._app.localizer._(
+            'You can now view the documentation at <a href="{url}">{url}</a>.'
+        ).format(
             url=self._thread.server.public_url,
         )
 
     @property
     def window_title(self) -> Localizable:
-        return Str._('Serving the Betty documentation...')
+        return Str._("Serving the Betty documentation...")

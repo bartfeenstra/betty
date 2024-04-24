@@ -1,4 +1,5 @@
 """Integrate Betty with `Gramps <https://gramps-project.org>`_."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -15,7 +16,9 @@ from betty.gui import GuiBuilder
 from betty.load import Loader
 
 
-class _Gramps(ConfigurableExtension[GrampsConfiguration], UserFacingExtension, Loader, GuiBuilder):
+class _Gramps(
+    ConfigurableExtension[GrampsConfiguration], UserFacingExtension, Loader, GuiBuilder
+):
     @classmethod
     def default_configuration(cls) -> GrampsConfiguration:
         return GrampsConfiguration()
@@ -31,11 +34,13 @@ class _Gramps(ConfigurableExtension[GrampsConfiguration], UserFacingExtension, L
 
     @classmethod
     def label(cls) -> Str:
-        return Str.plain('Gramps')
+        return Str.plain("Gramps")
 
     @classmethod
     def description(cls) -> Str:
-        return Str._('Load <a href="https://gramps-project.org/">Gramps</a> family trees.')
+        return Str._(
+            'Load <a href="https://gramps-project.org/">Gramps</a> family trees.'
+        )
 
     def gui_build(self) -> _GrampsGuiWidget:
         from betty.extension.gramps.gui import _GrampsGuiWidget

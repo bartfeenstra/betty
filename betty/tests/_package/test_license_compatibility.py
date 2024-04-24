@@ -8,30 +8,31 @@ from pkg_resources import get_distribution
 
 
 class TestPackageLicenses:
-    _GPL_V3_COMPATIBLE_DISTRIBUTIONS = (
-        'PyQt6-sip',
-    )
+    _GPL_V3_COMPATIBLE_DISTRIBUTIONS = ("PyQt6-sip",)
 
     _GPL_V3_COMPATIBLE_LICENSES = (
-        'Apache Software License',
-        'BSD License',
-        'GPL v3',
-        'GNU General Public License v3 (GPLv3)',
-        'GNU Library or Lesser General Public License (LGPL)',
-        'GNU Lesser General Public License v2 or later (LGPLv2+)',
-        'Historical Permission Notice and Disclaimer (HPND)',
-        'MIT License',
-        'Mozilla Public License 2.0 (MPL 2.0)',
-        'Python Software Foundation License',
+        "Apache Software License",
+        "BSD License",
+        "GPL v3",
+        "GNU General Public License v3 (GPLv3)",
+        "GNU Library or Lesser General Public License (LGPL)",
+        "GNU Lesser General Public License v2 or later (LGPLv2+)",
+        "Historical Permission Notice and Disclaimer (HPND)",
+        "MIT License",
+        "Mozilla Public License 2.0 (MPL 2.0)",
+        "Python Software Foundation License",
     )
 
     def assert_is_compatible(self, package_license: dict[str, Any]) -> None:
         for compatible_license in self._GPL_V3_COMPATIBLE_LICENSES:
-            if compatible_license in package_license['License']:
+            if compatible_license in package_license["License"]:
                 return
-        assert False, "%s is released under the %s, which is not known to be compatible with Betty's own license" % (
-            package_license['Name'],
-            package_license['License'],
+        assert False, (
+            "%s is released under the %s, which is not known to be compatible with Betty's own license"
+            % (
+                package_license["Name"],
+                package_license["License"],
+            )
         )
 
     async def test_runtime_dependency_license_compatibility(self) -> None:
@@ -42,21 +43,27 @@ class TestPackageLicenses:
         def _get_dependency_distribution_names(name: str) -> Iterator[str]:
             yield name
             # Work around https://github.com/sphinx-doc/sphinx/issues/11567.
-            if name.startswith('sphinxcontrib-'):
+            if name.startswith("sphinxcontrib-"):
                 return
             for dependency in get_distribution(name).requires():
                 yield from _get_dependency_distribution_names(dependency.project_name)
-        distribution_names = list(filter(lambda x: x not in self._GPL_V3_COMPATIBLE_DISTRIBUTIONS, _get_dependency_distribution_names('betty')))
+
+        distribution_names = list(
+            filter(
+                lambda x: x not in self._GPL_V3_COMPATIBLE_DISTRIBUTIONS,
+                _get_dependency_distribution_names("betty"),
+            )
+        )
 
         piplicenses_stdout = io.StringIO()
         argv = sys.argv
         stdout = sys.stdout
         try:
             sys.argv = [
-                '',
-                '--format',
-                'json',
-                '--packages',
+                "",
+                "--format",
+                "json",
+                "--packages",
                 *distribution_names,
             ]
             sys.stdout = piplicenses_stdout

@@ -18,8 +18,15 @@ import aiohttp
 from aiofiles.tempfile import TemporaryDirectory
 
 from betty import fs
-from betty.app.extension import ListExtensions, Extension, Extensions, build_extension_type_graph, \
-    CyclicDependencyError, ExtensionDispatcher, ConfigurableExtension
+from betty.app.extension import (
+    ListExtensions,
+    Extension,
+    Extensions,
+    build_extension_type_graph,
+    CyclicDependencyError,
+    ExtensionDispatcher,
+    ConfigurableExtension,
+)
 from betty.asyncio import wait_to_thread
 from betty.cache import Cache, FileCache
 from betty.cache.file import BinaryFileCache, PickledFileCache
@@ -28,13 +35,40 @@ from betty.dispatch import Dispatcher
 from betty.fs import FileSystem, CACHE_DIRECTORY_PATH
 from betty.locale import LocalizerRepository, get_data, DEFAULT_LOCALE, Localizer, Str
 from betty.model import Entity, EntityTypeProvider
-from betty.model.event_type import EventType, EventTypeProvider, Birth, Baptism, Adoption, Death, Funeral, Cremation, \
-    Burial, Will, Engagement, Marriage, MarriageAnnouncement, Divorce, DivorceAnnouncement, Residence, Immigration, \
-    Emigration, Occupation, Retirement, Correspondence, Confirmation
+from betty.model.event_type import (
+    EventType,
+    EventTypeProvider,
+    Birth,
+    Baptism,
+    Adoption,
+    Death,
+    Funeral,
+    Cremation,
+    Burial,
+    Will,
+    Engagement,
+    Marriage,
+    MarriageAnnouncement,
+    Divorce,
+    DivorceAnnouncement,
+    Residence,
+    Immigration,
+    Emigration,
+    Occupation,
+    Retirement,
+    Correspondence,
+    Confirmation,
+)
 from betty.project import Project
 from betty.render import Renderer, SequentialRenderer
 from betty.serde.dump import minimize, void_none, Dump, VoidableDump
-from betty.serde.load import AssertionFailed, Fields, Assertions, OptionalField, Asserter
+from betty.serde.load import (
+    AssertionFailed,
+    Fields,
+    Assertions,
+    OptionalField,
+    Asserter,
+)
 from betty.warnings import deprecate
 
 if TYPE_CHECKING:
@@ -42,7 +76,7 @@ if TYPE_CHECKING:
     from betty.serve import Server
     from betty.url import StaticUrlGenerator, LocalizedUrlGenerator
 
-CONFIGURATION_DIRECTORY_PATH = fs.HOME_DIRECTORY_PATH / 'configuration'
+CONFIGURATION_DIRECTORY_PATH = fs.HOME_DIRECTORY_PATH / "configuration"
 
 
 class _AppExtensions(ListExtensions):
@@ -62,7 +96,7 @@ class AppConfiguration(FileBasedConfiguration):
     ):
         if configuration_directory_path is None:
             deprecate(
-                f'Initializing {type(self)} without a configuration directory path is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x.',
+                f"Initializing {type(self)} without a configuration directory path is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x.",
                 stacklevel=2,
             )
             configuration_directory_path = CONFIGURATION_DIRECTORY_PATH
@@ -72,7 +106,7 @@ class AppConfiguration(FileBasedConfiguration):
 
     @property
     def configuration_file_path(self) -> Path:
-        return self._configuration_directory_path / 'app.json'
+        return self._configuration_directory_path / "app.json"
 
     @configuration_file_path.setter
     def configuration_file_path(self, __) -> None:
@@ -91,10 +125,12 @@ class AppConfiguration(FileBasedConfiguration):
         try:
             get_data(locale)
         except ValueError:
-            raise AssertionFailed(Str._(
-                '"{locale}" is not a valid IETF BCP 47 language tag.',
-                locale=locale,
-            ))
+            raise AssertionFailed(
+                Str._(
+                    '"{locale}" is not a valid IETF BCP 47 language tag.',
+                    locale=locale,
+                )
+            )
         self._locale = locale
         self._dispatch_change()
 
@@ -104,25 +140,26 @@ class AppConfiguration(FileBasedConfiguration):
 
     @classmethod
     def load(
-            cls,
-            dump: Dump,
-            configuration: Self | None = None,
+        cls,
+        dump: Dump,
+        configuration: Self | None = None,
     ) -> Self:
         if configuration is None:
             configuration = cls()
         asserter = Asserter()
-        asserter.assert_record(Fields(
-            OptionalField(
-                'locale',
-                Assertions(asserter.assert_str()) | asserter.assert_setattr(configuration, 'locale')),
-        ),
+        asserter.assert_record(
+            Fields(
+                OptionalField(
+                    "locale",
+                    Assertions(asserter.assert_str())
+                    | asserter.assert_setattr(configuration, "locale"),
+                ),
+            ),
         )(dump)
         return configuration
 
     def dump(self) -> VoidableDump:
-        return minimize({
-            'locale': void_none(self.locale)
-        }, True)
+        return minimize({"locale": void_none(self.locale)}, True)
 
 
 class _BackwardsCompatiblePickledFileCache(PickledFileCache[Any], FileCache):
@@ -150,12 +187,12 @@ class App(Configurable[AppConfiguration]):
         self._started = False
         if configuration is None:
             deprecate(
-                f'Initializing {type(self)} without `configuration` is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x.',
+                f"Initializing {type(self)} without `configuration` is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x.",
                 stacklevel=2,
             )
         if cache_directory_path is None:
             deprecate(
-                f'Initializing {type(self)} without `cache_directory_path` is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x.',
+                f"Initializing {type(self)} without `cache_directory_path` is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x.",
                 stacklevel=2,
             )
         self._configuration = configuration or AppConfiguration()
@@ -179,7 +216,11 @@ class App(Configurable[AppConfiguration]):
         self._jinja2_environment: Environment | None = None
         self._renderer: Renderer | None = None
         self._http_client: aiohttp.ClientSession | None = None
-        self._cache_directory_path = CACHE_DIRECTORY_PATH if cache_directory_path is None else cache_directory_path
+        self._cache_directory_path = (
+            CACHE_DIRECTORY_PATH
+            if cache_directory_path is None
+            else cache_directory_path
+        )
         self._cache: Cache[Any] & FileCache | None = None
         self._binary_file_cache: BinaryFileCache | None = None
         self._process_pool: Executor | None = None
@@ -232,12 +273,17 @@ class App(Configurable[AppConfiguration]):
         await self.start()
         return self
 
-    async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> None:
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         await self.stop()
 
     async def start(self) -> None:
         if self._started:
-            raise RuntimeError('This app has started already.')
+            raise RuntimeError("This app has started already.")
         self._started = True
 
     async def stop(self) -> None:
@@ -246,7 +292,7 @@ class App(Configurable[AppConfiguration]):
 
     def __del__(self) -> None:
         if self._started:
-            raise RuntimeError(f'{self} was started, but never stopped.')
+            raise RuntimeError(f"{self} was started, but never stopped.")
 
     def _on_locale_change(self) -> None:
         del self.localizer
@@ -259,7 +305,10 @@ class App(Configurable[AppConfiguration]):
     def discover_extension_types(self) -> set[type[Extension]]:
         from betty.app import extension
 
-        return {*extension.discover_extension_types(), *map(type, self._extensions.flatten())}
+        return {
+            *extension.discover_extension_types(),
+            *map(type, self._extensions.flatten()),
+        }
 
     @property
     def extensions(self) -> Extensions:
@@ -271,10 +320,14 @@ class App(Configurable[AppConfiguration]):
 
     def _update_extensions(self) -> None:
         extension_types_enabled_in_configuration = set()
-        for app_extension_configuration in self.project.configuration.extensions.values():
+        for (
+            app_extension_configuration
+        ) in self.project.configuration.extensions.values():
             if app_extension_configuration.enabled:
                 app_extension_configuration.extension_type.enable_requirement().assert_met()
-                extension_types_enabled_in_configuration.add(app_extension_configuration.extension_type)
+                extension_types_enabled_in_configuration.add(
+                    app_extension_configuration.extension_type
+                )
 
         extension_types_sorter = TopologicalSorter(
             build_extension_type_graph(extension_types_enabled_in_configuration)
@@ -282,24 +335,35 @@ class App(Configurable[AppConfiguration]):
         try:
             extension_types_sorter.prepare()
         except CycleError:
-            raise CyclicDependencyError([
-                app_extension_configuration.extension_type
-                for app_extension_configuration
-                in self.project.configuration.extensions.values()
-            ])
+            raise CyclicDependencyError(
+                [
+                    app_extension_configuration.extension_type
+                    for app_extension_configuration in self.project.configuration.extensions.values()
+                ]
+            )
 
         extensions = []
         while extension_types_sorter.is_active():
             extension_types_batch = extension_types_sorter.get_ready()
             extensions_batch = []
             for extension_type in extension_types_batch:
-                if issubclass(extension_type, ConfigurableExtension) and extension_type in self.project.configuration.extensions:
-                    extension: Extension = extension_type(self, configuration=self.project.configuration.extensions[extension_type].extension_configuration)
+                if (
+                    issubclass(extension_type, ConfigurableExtension)
+                    and extension_type in self.project.configuration.extensions
+                ):
+                    extension: Extension = extension_type(
+                        self,
+                        configuration=self.project.configuration.extensions[
+                            extension_type
+                        ].extension_configuration,
+                    )
                 else:
                     extension = extension_type(self)
                 extensions_batch.append(extension)
                 extension_types_sorter.done(extension_type)
-            extensions.append(sorted(extensions_batch, key=lambda extension: extension.name()))
+            extensions.append(
+                sorted(extensions_batch, key=lambda extension: extension.name())
+            )
         self._extensions._update(extensions)
         del self.assets
         del self.localizers
@@ -313,11 +377,11 @@ class App(Configurable[AppConfiguration]):
     def assets(self) -> FileSystem:
         if self._assets is None:
             assets = FileSystem()
-            assets.prepend(fs.ASSETS_DIRECTORY_PATH, 'utf-8')
+            assets.prepend(fs.ASSETS_DIRECTORY_PATH, "utf-8")
             for extension in self.extensions.flatten():
                 extension_assets_directory_path = extension.assets_directory_path()
                 if extension_assets_directory_path is not None:
-                    assets.prepend(extension_assets_directory_path, 'utf-8')
+                    assets.prepend(extension_assets_directory_path, "utf-8")
             assets.prepend(self.project.configuration.assets_directory_path)
             self._assets = assets
         return self._assets
@@ -346,7 +410,9 @@ class App(Configurable[AppConfiguration]):
         from betty.url import StaticPathUrlGenerator
 
         if self._static_url_generator is None:
-            self._static_url_generator = StaticPathUrlGenerator(self.project.configuration)
+            self._static_url_generator = StaticPathUrlGenerator(
+                self.project.configuration
+            )
         return self._static_url_generator
 
     @property
@@ -355,7 +421,11 @@ class App(Configurable[AppConfiguration]):
         Get the application's localizer.
         """
         if self._localizer is None:
-            self._localizer = wait_to_thread(self.localizers.get_negotiated(self.configuration.locale or DEFAULT_LOCALE))
+            self._localizer = wait_to_thread(
+                self.localizers.get_negotiated(
+                    self.configuration.locale or DEFAULT_LOCALE
+                )
+            )
         return self._localizer
 
     @localizer.deleter
@@ -378,6 +448,7 @@ class App(Configurable[AppConfiguration]):
     def jinja2_environment(self) -> Environment:
         if not self._jinja2_environment:
             from betty.jinja2 import Environment
+
             self._jinja2_environment = Environment(self)
 
         return self._jinja2_environment
@@ -391,9 +462,11 @@ class App(Configurable[AppConfiguration]):
         if not self._renderer:
             from betty.jinja2 import Jinja2Renderer
 
-            self._renderer = SequentialRenderer([
-                Jinja2Renderer(self.jinja2_environment, self.project.configuration),
-            ])
+            self._renderer = SequentialRenderer(
+                [
+                    Jinja2Renderer(self.jinja2_environment, self.project.configuration),
+                ]
+            )
 
         return self._renderer
 
@@ -407,10 +480,17 @@ class App(Configurable[AppConfiguration]):
             self._http_client = aiohttp.ClientSession(
                 connector=aiohttp.TCPConnector(limit_per_host=5),
                 headers={
-                    'User-Agent': f'Betty (https://github.com/bartfeenstra/betty) on behalf of {self._project.configuration.base_url}{self._project.configuration.root_path}',
+                    "User-Agent": f"Betty (https://github.com/bartfeenstra/betty) on behalf of {self._project.configuration.base_url}{self._project.configuration.root_path}",
                 },
             )
-            weakref.finalize(self, lambda: None if self._http_client is None else wait_to_thread(self._http_client.close()))
+            weakref.finalize(
+                self,
+                lambda: (
+                    None
+                    if self._http_client is None
+                    else wait_to_thread(self._http_client.close())
+                ),
+            )
         return self._http_client
 
     @http_client.deleter
@@ -422,9 +502,24 @@ class App(Configurable[AppConfiguration]):
     @property
     def entity_types(self) -> set[type[Entity]]:
         if self._entity_types is None:
-            from betty.model.ancestry import Citation, Enclosure, Event, File, Note, Person, PersonName, Presence, Place, Source
+            from betty.model.ancestry import (
+                Citation,
+                Enclosure,
+                Event,
+                File,
+                Note,
+                Person,
+                PersonName,
+                Presence,
+                Place,
+                Source,
+            )
 
-            self._entity_types = reduce(operator.or_, wait_to_thread(self.dispatcher.dispatch(EntityTypeProvider)()), set()) | {
+            self._entity_types = reduce(
+                operator.or_,
+                wait_to_thread(self.dispatcher.dispatch(EntityTypeProvider)()),
+                set(),
+            ) | {
                 Citation,
                 Enclosure,
                 Event,
@@ -445,7 +540,9 @@ class App(Configurable[AppConfiguration]):
     @property
     def event_types(self) -> set[type[EventType]]:
         if self._event_types is None:
-            self._event_types = set(wait_to_thread(self.dispatcher.dispatch(EventTypeProvider)())) | {
+            self._event_types = set(
+                wait_to_thread(self.dispatcher.dispatch(EventTypeProvider)())
+            ) | {
                 Birth,
                 Baptism,
                 Adoption,
@@ -480,8 +577,7 @@ class App(Configurable[AppConfiguration]):
 
         return {
             server.name(): server
-            for server
-            in [
+            for server in [
                 *(
                     server
                     for extension in self.extensions.flatten()
@@ -496,7 +592,9 @@ class App(Configurable[AppConfiguration]):
     @property
     def cache(self) -> Cache[Any] & FileCache:
         if self._cache is None:
-            self._cache = _BackwardsCompatiblePickledFileCache(self.localizer, self._cache_directory_path)
+            self._cache = _BackwardsCompatiblePickledFileCache(
+                self.localizer, self._cache_directory_path
+            )
         return self._cache
 
     @cache.deleter
@@ -506,7 +604,9 @@ class App(Configurable[AppConfiguration]):
     @property
     def binary_file_cache(self) -> BinaryFileCache:
         if self._binary_file_cache is None:
-            self._binary_file_cache = BinaryFileCache(self.localizer, self._cache_directory_path)
+            self._binary_file_cache = BinaryFileCache(
+                self.localizer, self._cache_directory_path
+            )
         return self._binary_file_cache
 
     @binary_file_cache.deleter
@@ -518,5 +618,5 @@ class App(Configurable[AppConfiguration]):
         if self._process_pool is None:
             # Avoid `fork` so as not to start worker processes with unneeded resources.
             # Settle for `spawn` so all environments use the same start method.
-            self._process_pool = ProcessPoolExecutor(mp_context=get_context('spawn'))
+            self._process_pool = ProcessPoolExecutor(mp_context=get_context("spawn"))
         return self._process_pool

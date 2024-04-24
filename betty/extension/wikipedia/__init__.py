@@ -1,4 +1,5 @@
 """Integrate Betty with `Wikipedia <https://wikipedia.org>`_."""
+
 from __future__ import annotations
 
 import logging
@@ -45,21 +46,24 @@ class _Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader):
     @property
     def filters(self) -> dict[str, Callable[..., Any]]:
         return {
-            'wikipedia': self._filter_wikipedia_links,
+            "wikipedia": self._filter_wikipedia_links,
         }
 
     @pass_context
-    async def _filter_wikipedia_links(self, context: Context, links: Iterable[Link]) -> Iterable[Summary]:
+    async def _filter_wikipedia_links(
+        self, context: Context, links: Iterable[Link]
+    ) -> Iterable[Summary]:
         return filter(
             None,
-            await gather(*(
-                self._filter_wikipedia_link(
-                    context_localizer(context).locale,
-                    link,
+            await gather(
+                *(
+                    self._filter_wikipedia_link(
+                        context_localizer(context).locale,
+                        link,
+                    )
+                    for link in links
                 )
-                for link
-                in links
-            )),
+            ),
         )
 
     async def _filter_wikipedia_link(self, locale: str, link: Link) -> Summary | None:
@@ -78,17 +82,19 @@ class _Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader):
 
     @classmethod
     def assets_directory_path(cls) -> Path | None:
-        return Path(__file__).parent / 'assets'
+        return Path(__file__).parent / "assets"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Wikipedia')
+        return Str._("Wikipedia")
 
     @classmethod
     def description(cls) -> Str:
-        return Str._("""
+        return Str._(
+            """
 Display <a href="https://www.wikipedia.org/">Wikipedia</a> summaries for resources with external links. In your custom <a href="https://jinja2docs.readthedocs.io/en/stable/">Jinja2</a> templates, use the following: <pre><code>
 {{% with resource=resource_with_links %}}
     {{% include 'wikipedia.html.j2' %}}
 {{% endwith %}}
-</code></pre>""")
+</code></pre>"""
+        )

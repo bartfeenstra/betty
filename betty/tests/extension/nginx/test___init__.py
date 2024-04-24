@@ -9,10 +9,15 @@ from betty.project import ExtensionConfiguration, LocaleConfiguration
 
 
 class TestNginx:
-    _LEADING_WHITESPACE_PATTERN = re.compile(r'^\s*(.*?)$')
+    _LEADING_WHITESPACE_PATTERN = re.compile(r"^\s*(.*?)$")
 
     def _normalize_configuration(self, configuration: str) -> str:
-        return '\n'.join(filter(None, map(self._normalize_configuration_line, configuration.splitlines())))
+        return "\n".join(
+            filter(
+                None,
+                map(self._normalize_configuration_line, configuration.splitlines()),
+            )
+        )
 
     def _normalize_configuration_line(self, line: str) -> Optional[str]:
         match = self._LEADING_WHITESPACE_PATTERN.fullmatch(line)
@@ -22,17 +27,20 @@ class TestNginx:
 
     async def _assert_configuration_equals(self, expected: str, app: App):
         await generate(app)
-        with open(app.project.configuration.output_directory_path / 'nginx' / 'nginx.conf') as f:
+        with open(
+            app.project.configuration.output_directory_path / "nginx" / "nginx.conf"
+        ) as f:
             actual = f.read()
-        assert self._normalize_configuration(expected) == self._normalize_configuration(actual)
+        assert self._normalize_configuration(expected) == self._normalize_configuration(
+            actual
+        )
 
     async def test_post_render_config(self):
-        async with (App.new_temporary() as app, app):
-            app.project.configuration.base_url = 'http://example.com'
-            app.project.configuration.extensions.append(
-                ExtensionConfiguration(Nginx)
-            )
-            expected = r'''
+        async with App.new_temporary() as app, app:
+            app.project.configuration.base_url = "http://example.com"
+            app.project.configuration.extensions.append(ExtensionConfiguration(Nginx))
+            expected = (
+                r"""
 server {
     add_header Vary Accept-Language;
     add_header Cache-Control "max-age=86400";
@@ -59,26 +67,27 @@ server {
         try_files $uri $uri/ =404;
     }
 }
-''' % app.project.configuration.www_directory_path
+"""
+                % app.project.configuration.www_directory_path
+            )
             await self._assert_configuration_equals(expected, app)
 
     async def test_post_render_config_multilingual(self):
-        async with (App.new_temporary() as app, app):
-            app.project.configuration.base_url = 'http://example.com'
+        async with App.new_temporary() as app, app:
+            app.project.configuration.base_url = "http://example.com"
             app.project.configuration.locales.replace(
                 LocaleConfiguration(
-                    'en-US',
-                    alias='en',
+                    "en-US",
+                    alias="en",
                 ),
                 LocaleConfiguration(
-                    'nl-NL',
-                    alias='nl',
+                    "nl-NL",
+                    alias="nl",
                 ),
             )
-            app.project.configuration.extensions.append(
-                ExtensionConfiguration(Nginx)
-            )
-            expected = r'''
+            app.project.configuration.extensions.append(ExtensionConfiguration(Nginx))
+            expected = (
+                r"""
 server {
     add_header Vary Accept-Language;
     add_header Cache-Control "max-age=86400";
@@ -136,25 +145,28 @@ server {
         try_files $uri $uri/ =404;
     }
 }
-''' % app.project.configuration.www_directory_path
+"""
+                % app.project.configuration.www_directory_path
+            )
             await self._assert_configuration_equals(expected, app)
 
     async def test_post_render_config_multilingual_with_clean_urls(self):
-        async with (App.new_temporary() as app, app):
-            app.project.configuration.base_url = 'http://example.com'
+        async with App.new_temporary() as app, app:
+            app.project.configuration.base_url = "http://example.com"
             app.project.configuration.clean_urls = True
             app.project.configuration.locales.replace(
                 LocaleConfiguration(
-                    'en-US',
-                    alias='en',
+                    "en-US",
+                    alias="en",
                 ),
                 LocaleConfiguration(
-                    'nl-NL',
-                    alias='nl',
+                    "nl-NL",
+                    alias="nl",
                 ),
             )
             app.project.configuration.extensions.append(ExtensionConfiguration(Nginx))
-            expected = r'''
+            expected = (
+                r"""
 server {
     add_header Vary Accept-Language;
     add_header Cache-Control "max-age=86400";
@@ -228,15 +240,18 @@ server {
         try_files $uri $uri/ =404;
     }
 }
-''' % app.project.configuration.www_directory_path
+"""
+                % app.project.configuration.www_directory_path
+            )
             await self._assert_configuration_equals(expected, app)
 
     async def test_post_render_config_with_clean_urls(self):
-        async with (App.new_temporary() as app, app):
-            app.project.configuration.base_url = 'http://example.com'
+        async with App.new_temporary() as app, app:
+            app.project.configuration.base_url = "http://example.com"
             app.project.configuration.clean_urls = True
             app.project.configuration.extensions.append(ExtensionConfiguration(Nginx))
-            expected = r'''
+            expected = (
+                r"""
 server {
     add_header Vary Accept-Language;
     add_header Cache-Control "max-age=86400";
@@ -269,14 +284,17 @@ server {
 
         try_files $uri $uri/ =404;
     }
-}''' % app.project.configuration.www_directory_path
+}"""
+                % app.project.configuration.www_directory_path
+            )
             await self._assert_configuration_equals(expected, app)
 
     async def test_post_render_config_with_https(self):
-        async with (App.new_temporary() as app, app):
-            app.project.configuration.base_url = 'https://example.com'
+        async with App.new_temporary() as app, app:
+            app.project.configuration.base_url = "https://example.com"
             app.project.configuration.extensions.append(ExtensionConfiguration(Nginx))
-            expected = r'''
+            expected = (
+                r"""
 server {
     listen 80;
     server_name example.com;
@@ -309,18 +327,22 @@ server {
     try_files $uri $uri/ =404;
     }
 }
-''' % app.project.configuration.www_directory_path
+"""
+                % app.project.configuration.www_directory_path
+            )
             await self._assert_configuration_equals(expected, app)
 
     async def test_post_render_config_with_overridden_www_directory_path(self):
-        async with (App.new_temporary() as app, app):
-            app.project.configuration.extensions.append(ExtensionConfiguration(
-                Nginx,
-                extension_configuration=NginxConfiguration(
-                    www_directory_path='/tmp/overridden-www',
-                ),
-            ))
-            expected = '''
+        async with App.new_temporary() as app, app:
+            app.project.configuration.extensions.append(
+                ExtensionConfiguration(
+                    Nginx,
+                    extension_configuration=NginxConfiguration(
+                        www_directory_path="/tmp/overridden-www",
+                    ),
+                )
+            )
+            expected = """
 server {
     listen 80;
     server_name example.com;
@@ -353,5 +375,5 @@ server {
     try_files $uri $uri/ =404;
     }
 }
-'''
+"""
             await self._assert_configuration_equals(expected, app)

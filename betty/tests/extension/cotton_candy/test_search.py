@@ -13,36 +13,44 @@ from betty.project import LocaleConfiguration
 
 class TestIndex:
     async def test_empty(self) -> None:
-        async with (App.new_temporary() as app, app):
+        async with App.new_temporary() as app, app:
             app.project.configuration.extensions.enable(CottonCandy)
-            app.project.configuration.locales['en-US'].alias = 'en'
-            app.project.configuration.locales.append(LocaleConfiguration(
-                'nl-NL',
-                alias='nl',
-            ))
-            indexed = [item async for item in Index(app, Context(), DEFAULT_LOCALIZER).build()]
+            app.project.configuration.locales["en-US"].alias = "en"
+            app.project.configuration.locales.append(
+                LocaleConfiguration(
+                    "nl-NL",
+                    alias="nl",
+                )
+            )
+            indexed = [
+                item async for item in Index(app, Context(), DEFAULT_LOCALIZER).build()
+            ]
 
             assert [] == indexed
 
     async def test_person_without_names(self) -> None:
-        person_id = 'P1'
+        person_id = "P1"
         person = Person(id=person_id)
 
-        async with (App.new_temporary() as app, app):
+        async with App.new_temporary() as app, app:
             app.project.configuration.extensions.enable(CottonCandy)
-            app.project.configuration.locales['en-US'].alias = 'en'
-            app.project.configuration.locales.append(LocaleConfiguration(
-                'nl-NL',
-                alias='nl',
-            ))
+            app.project.configuration.locales["en-US"].alias = "en"
+            app.project.configuration.locales.append(
+                LocaleConfiguration(
+                    "nl-NL",
+                    alias="nl",
+                )
+            )
             app.project.ancestry.add(person)
-            indexed = [item async for item in Index(app, Context(), DEFAULT_LOCALIZER).build()]
+            indexed = [
+                item async for item in Index(app, Context(), DEFAULT_LOCALIZER).build()
+            ]
 
             assert [] == indexed
 
     async def test_private_person(self) -> None:
-        person_id = 'P1'
-        individual_name = 'Jane'
+        person_id = "P1"
+        individual_name = "Jane"
         person = Person(
             id=person_id,
             private=True,
@@ -52,78 +60,107 @@ class TestIndex:
             individual=individual_name,
         )
 
-        async with (App.new_temporary() as app, app):
+        async with App.new_temporary() as app, app:
             app.project.configuration.extensions.enable(CottonCandy)
-            app.project.configuration.locales['en-US'].alias = 'en'
-            app.project.configuration.locales.append(LocaleConfiguration(
-                'nl-NL',
-                alias='nl',
-            ))
+            app.project.configuration.locales["en-US"].alias = "en"
+            app.project.configuration.locales.append(
+                LocaleConfiguration(
+                    "nl-NL",
+                    alias="nl",
+                )
+            )
             app.project.ancestry.add(person)
-            indexed = [item async for item in Index(app, Context(), DEFAULT_LOCALIZER).build()]
+            indexed = [
+                item async for item in Index(app, Context(), DEFAULT_LOCALIZER).build()
+            ]
 
             assert [] == indexed
 
-    @pytest.mark.parametrize('expected, locale', [
-        ('/nl/person/P1/index.html', 'nl-NL'),
-        ('/en/person/P1/index.html', 'en-US'),
-    ])
-    async def test_person_with_individual_name(self, expected: str, locale: str) -> None:
-        person_id = 'P1'
-        individual_name = 'Jane'
+    @pytest.mark.parametrize(
+        "expected, locale",
+        [
+            ("/nl/person/P1/index.html", "nl-NL"),
+            ("/en/person/P1/index.html", "en-US"),
+        ],
+    )
+    async def test_person_with_individual_name(
+        self, expected: str, locale: str
+    ) -> None:
+        person_id = "P1"
+        individual_name = "Jane"
         person = Person(id=person_id)
         PersonName(
             person=person,
             individual=individual_name,
         )
 
-        async with (App.new_temporary() as app, app):
+        async with App.new_temporary() as app, app:
             app.project.configuration.extensions.enable(CottonCandy)
-            app.project.configuration.locales['en-US'].alias = 'en'
-            app.project.configuration.locales.append(LocaleConfiguration(
-                'nl-NL',
-                alias='nl',
-            ))
+            app.project.configuration.locales["en-US"].alias = "en"
+            app.project.configuration.locales.append(
+                LocaleConfiguration(
+                    "nl-NL",
+                    alias="nl",
+                )
+            )
             app.project.ancestry.add(person)
-            indexed = [item async for item in Index(app, Context(), app.localizers[locale]).build()]
+            indexed = [
+                item
+                async for item in Index(app, Context(), app.localizers[locale]).build()
+            ]
 
-            assert 'jane' == indexed[0]['text']
-            assert expected in indexed[0]['result']
+            assert "jane" == indexed[0]["text"]
+            assert expected in indexed[0]["result"]
 
-    @pytest.mark.parametrize('expected, locale', [
-        ('/nl/person/P1/index.html', 'nl-NL'),
-        ('/en/person/P1/index.html', 'en-US'),
-    ])
-    async def test_person_with_affiliation_name(self, expected: str, locale: str) -> None:
-        person_id = 'P1'
-        affiliation_name = 'Doughnut'
+    @pytest.mark.parametrize(
+        "expected, locale",
+        [
+            ("/nl/person/P1/index.html", "nl-NL"),
+            ("/en/person/P1/index.html", "en-US"),
+        ],
+    )
+    async def test_person_with_affiliation_name(
+        self, expected: str, locale: str
+    ) -> None:
+        person_id = "P1"
+        affiliation_name = "Doughnut"
         person = Person(id=person_id)
         PersonName(
             person=person,
             affiliation=affiliation_name,
         )
 
-        async with (App.new_temporary() as app, app):
+        async with App.new_temporary() as app, app:
             app.project.configuration.extensions.enable(CottonCandy)
-            app.project.configuration.locales['en-US'].alias = 'en'
-            app.project.configuration.locales.append(LocaleConfiguration(
-                'nl-NL',
-                alias='nl',
-            ))
+            app.project.configuration.locales["en-US"].alias = "en"
+            app.project.configuration.locales.append(
+                LocaleConfiguration(
+                    "nl-NL",
+                    alias="nl",
+                )
+            )
             app.project.ancestry.add(person)
-            indexed = [item async for item in Index(app, Context(), app.localizers[locale]).build()]
+            indexed = [
+                item
+                async for item in Index(app, Context(), app.localizers[locale]).build()
+            ]
 
-            assert 'doughnut' == indexed[0]['text']
-            assert expected in indexed[0]['result']
+            assert "doughnut" == indexed[0]["text"]
+            assert expected in indexed[0]["result"]
 
-    @pytest.mark.parametrize('expected, locale', [
-        ('/nl/person/P1/index.html', 'nl-NL'),
-        ('/en/person/P1/index.html', 'en-US'),
-    ])
-    async def test_person_with_individual_and_affiliation_names(self, expected: str, locale: str) -> None:
-        person_id = 'P1'
-        individual_name = 'Jane'
-        affiliation_name = 'Doughnut'
+    @pytest.mark.parametrize(
+        "expected, locale",
+        [
+            ("/nl/person/P1/index.html", "nl-NL"),
+            ("/en/person/P1/index.html", "en-US"),
+        ],
+    )
+    async def test_person_with_individual_and_affiliation_names(
+        self, expected: str, locale: str
+    ) -> None:
+        person_id = "P1"
+        individual_name = "Jane"
+        affiliation_name = "Doughnut"
         person = Person(id=person_id)
         PersonName(
             person=person,
@@ -131,119 +168,146 @@ class TestIndex:
             affiliation=affiliation_name,
         )
 
-        async with (App.new_temporary() as app, app):
+        async with App.new_temporary() as app, app:
             app.project.configuration.extensions.enable(CottonCandy)
-            app.project.configuration.locales['en-US'].alias = 'en'
-            app.project.configuration.locales.append(LocaleConfiguration(
-                'nl-NL',
-                alias='nl',
-            ))
+            app.project.configuration.locales["en-US"].alias = "en"
+            app.project.configuration.locales.append(
+                LocaleConfiguration(
+                    "nl-NL",
+                    alias="nl",
+                )
+            )
             app.project.ancestry.add(person)
-            indexed = [item async for item in Index(app, Context(), app.localizers[locale]).build()]
+            indexed = [
+                item
+                async for item in Index(app, Context(), app.localizers[locale]).build()
+            ]
 
-            assert 'jane doughnut' == indexed[0]['text']
-            assert expected in indexed[0]['result']
+            assert "jane doughnut" == indexed[0]["text"]
+            assert expected in indexed[0]["result"]
 
-    @pytest.mark.parametrize('expected, locale', [
-        ('/nl/place/P1/index.html', 'nl-NL'),
-        ('/en/place/P1/index.html', 'en-US'),
-    ])
+    @pytest.mark.parametrize(
+        "expected, locale",
+        [
+            ("/nl/place/P1/index.html", "nl-NL"),
+            ("/en/place/P1/index.html", "en-US"),
+        ],
+    )
     async def test_place(self, expected: str, locale: str) -> None:
-        place_id = 'P1'
+        place_id = "P1"
         place = Place(
             id=place_id,
             names=[
                 PlaceName(
-                    name='Netherlands',
-                    locale='en',
+                    name="Netherlands",
+                    locale="en",
                 ),
                 PlaceName(
-                    name='Nederland',
-                    locale='nl',
+                    name="Nederland",
+                    locale="nl",
                 ),
             ],
         )
 
-        async with (App.new_temporary() as app, app):
+        async with App.new_temporary() as app, app:
             app.project.configuration.extensions.enable(CottonCandy)
-            app.project.configuration.locales['en-US'].alias = 'en'
-            app.project.configuration.locales.append(LocaleConfiguration(
-                'nl-NL',
-                alias='nl',
-            ))
+            app.project.configuration.locales["en-US"].alias = "en"
+            app.project.configuration.locales.append(
+                LocaleConfiguration(
+                    "nl-NL",
+                    alias="nl",
+                )
+            )
             app.project.ancestry.add(place)
-            indexed = [item async for item in Index(app, Context(), app.localizers[locale]).build()]
+            indexed = [
+                item
+                async for item in Index(app, Context(), app.localizers[locale]).build()
+            ]
 
-            assert 'netherlands nederland' == indexed[0]['text']
-            assert expected in indexed[0]['result']
+            assert "netherlands nederland" == indexed[0]["text"]
+            assert expected in indexed[0]["result"]
 
     async def test_private_place(self) -> None:
-        place_id = 'P1'
+        place_id = "P1"
         place = Place(
             id=place_id,
             names=[
                 PlaceName(
-                    name='Netherlands',
-                    locale='en',
+                    name="Netherlands",
+                    locale="en",
                 ),
             ],
             private=True,
         )
 
-        async with (App.new_temporary() as app, app):
+        async with App.new_temporary() as app, app:
             app.project.configuration.extensions.enable(CottonCandy)
-            app.project.configuration.locales['en-US'].alias = 'en'
+            app.project.configuration.locales["en-US"].alias = "en"
             app.project.ancestry.add(place)
-            indexed = [item async for item in Index(app, Context(), DEFAULT_LOCALIZER).build()]
+            indexed = [
+                item async for item in Index(app, Context(), DEFAULT_LOCALIZER).build()
+            ]
 
             assert [] == indexed
 
     async def test_file_without_description(self) -> None:
-        file_id = 'F1'
+        file_id = "F1"
         file = File(
             id=file_id,
             path=Path(__file__),
         )
 
-        async with (App.new_temporary() as app, app):
+        async with App.new_temporary() as app, app:
             app.project.configuration.extensions.enable(CottonCandy)
-            app.project.configuration.locales['en-US'].alias = 'en'
-            app.project.configuration.locales.append(LocaleConfiguration(
-                'nl-NL',
-                alias='nl',
-            ))
+            app.project.configuration.locales["en-US"].alias = "en"
+            app.project.configuration.locales.append(
+                LocaleConfiguration(
+                    "nl-NL",
+                    alias="nl",
+                )
+            )
             app.project.ancestry.add(file)
-            indexed = [item async for item in Index(app, Context(), DEFAULT_LOCALIZER).build()]
+            indexed = [
+                item async for item in Index(app, Context(), DEFAULT_LOCALIZER).build()
+            ]
 
             assert [] == indexed
 
-    @pytest.mark.parametrize('expected, locale', [
-        ('/nl/file/F1/index.html', 'nl-NL'),
-        ('/en/file/F1/index.html', 'en-US'),
-    ])
+    @pytest.mark.parametrize(
+        "expected, locale",
+        [
+            ("/nl/file/F1/index.html", "nl-NL"),
+            ("/en/file/F1/index.html", "en-US"),
+        ],
+    )
     async def test_file(self, expected: str, locale: str) -> None:
-        file_id = 'F1'
+        file_id = "F1"
         file = File(
             id=file_id,
             path=Path(__file__),
             description='"file" is Dutch for "traffic jam"',
         )
 
-        async with (App.new_temporary() as app, app):
+        async with App.new_temporary() as app, app:
             app.project.configuration.extensions.enable(CottonCandy)
-            app.project.configuration.locales['en-US'].alias = 'en'
-            app.project.configuration.locales.append(LocaleConfiguration(
-                'nl-NL',
-                alias='nl',
-            ))
+            app.project.configuration.locales["en-US"].alias = "en"
+            app.project.configuration.locales.append(
+                LocaleConfiguration(
+                    "nl-NL",
+                    alias="nl",
+                )
+            )
             app.project.ancestry.add(file)
-            indexed = [item async for item in Index(app, Context(), app.localizers[locale]).build()]
+            indexed = [
+                item
+                async for item in Index(app, Context(), app.localizers[locale]).build()
+            ]
 
-            assert '"file" is dutch for "traffic jam"' == indexed[0]['text']
-            assert expected in indexed[0]['result']
+            assert '"file" is dutch for "traffic jam"' == indexed[0]["text"]
+            assert expected in indexed[0]["result"]
 
     async def test_private_file(self) -> None:
-        file_id = 'F1'
+        file_id = "F1"
         file = File(
             id=file_id,
             path=Path(__file__),
@@ -251,10 +315,12 @@ class TestIndex:
             private=True,
         )
 
-        async with (App.new_temporary() as app, app):
+        async with App.new_temporary() as app, app:
             app.project.configuration.extensions.enable(CottonCandy)
-            app.project.configuration.locales['en-US'].alias = 'en'
+            app.project.configuration.locales["en-US"].alias = "en"
             app.project.ancestry.add(file)
-            indexed = [item async for item in Index(app, Context(), DEFAULT_LOCALIZER).build()]
+            indexed = [
+                item async for item in Index(app, Context(), DEFAULT_LOCALIZER).build()
+            ]
 
             assert [] == indexed

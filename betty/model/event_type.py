@@ -1,6 +1,7 @@
 """
 Provide Betty's ancestry event types.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -19,7 +20,7 @@ class EventTypeProvider:
 
 class EventType:
     def __new__(cls):
-        raise RuntimeError('Event types cannot be instantiated.')
+        raise RuntimeError("Event types cannot be instantiated.")
 
     @classmethod
     def name(cls) -> str:
@@ -41,11 +42,11 @@ class EventType:
 class UnknownEventType(EventType):
     @classmethod
     def name(cls) -> str:
-        return 'unknown'
+        return "unknown"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Unknown')
+        return Str._("Unknown")
 
 
 class DerivableEventType(EventType):
@@ -91,11 +92,11 @@ class PostDeathEventType(EventType):
 class Birth(CreatableDerivableEventType, StartOfLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return 'birth'
+        return "birth"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Birth')
+        return Str._("Birth")
 
     @classmethod
     def comes_before(cls) -> set[type[EventType]]:
@@ -105,31 +106,31 @@ class Birth(CreatableDerivableEventType, StartOfLifeEventType):
 class Baptism(DuringLifeEventType, StartOfLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return 'baptism'
+        return "baptism"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Baptism')
+        return Str._("Baptism")
 
 
 class Adoption(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return 'adoption'
+        return "adoption"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Adoption')
+        return Str._("Adoption")
 
 
 class Death(CreatableDerivableEventType, EndOfLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return 'death'
+        return "death"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Death')
+        return Str._("Death")
 
     @classmethod
     def comes_after(cls) -> set[type[EventType]]:
@@ -139,61 +140,65 @@ class Death(CreatableDerivableEventType, EndOfLifeEventType):
     def may_create(cls, person: Person, lifetime_threshold: int) -> bool:
         from betty.privatizer import Privatizer
 
-        return Privatizer(lifetime_threshold, localizer=DEFAULT_LOCALIZER).has_expired(person, 1)
+        return Privatizer(lifetime_threshold, localizer=DEFAULT_LOCALIZER).has_expired(
+            person, 1
+        )
 
 
-class FinalDispositionEventType(PostDeathEventType, DerivableEventType, EndOfLifeEventType):
+class FinalDispositionEventType(
+    PostDeathEventType, DerivableEventType, EndOfLifeEventType
+):
     pass
 
 
 class Funeral(FinalDispositionEventType):
     @classmethod
     def name(cls) -> str:
-        return 'funeral'
+        return "funeral"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Funeral')
+        return Str._("Funeral")
 
 
 class Cremation(FinalDispositionEventType):
     @classmethod
     def name(cls) -> str:
-        return 'cremation'
+        return "cremation"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Cremation')
+        return Str._("Cremation")
 
 
 class Burial(FinalDispositionEventType):
     @classmethod
     def name(cls) -> str:
-        return 'burial'
+        return "burial"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Burial')
+        return Str._("Burial")
 
 
 class Will(PostDeathEventType):
     @classmethod
     def name(cls) -> str:
-        return 'will'
+        return "will"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Will')
+        return Str._("Will")
 
 
 class Engagement(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return 'engagement'
+        return "engagement"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Engagement')
+        return Str._("Engagement")
 
     @classmethod
     def comes_before(cls) -> set[type[EventType]]:
@@ -203,21 +208,21 @@ class Engagement(DuringLifeEventType):
 class Marriage(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return 'marriage'
+        return "marriage"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Marriage')
+        return Str._("Marriage")
 
 
 class MarriageAnnouncement(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return 'marriage-announcement'
+        return "marriage-announcement"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Announcement of marriage')
+        return Str._("Announcement of marriage")
 
     @classmethod
     def comes_before(cls) -> set[type[EventType]]:
@@ -227,11 +232,11 @@ class MarriageAnnouncement(DuringLifeEventType):
 class Divorce(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return 'divorce'
+        return "divorce"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Divorce')
+        return Str._("Divorce")
 
     @classmethod
     def comes_after(cls) -> set[type[EventType]]:
@@ -241,11 +246,11 @@ class Divorce(DuringLifeEventType):
 class DivorceAnnouncement(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return 'divorce-announcement'
+        return "divorce-announcement"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Announcement of divorce')
+        return Str._("Announcement of divorce")
 
     @classmethod
     def comes_after(cls) -> set[type[EventType]]:
@@ -259,88 +264,88 @@ class DivorceAnnouncement(DuringLifeEventType):
 class Residence(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return 'residence'
+        return "residence"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Residence')
+        return Str._("Residence")
 
 
 class Immigration(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return 'immigration'
+        return "immigration"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Immigration')
+        return Str._("Immigration")
 
 
 class Emigration(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return 'emigration'
+        return "emigration"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Emigration')
+        return Str._("Emigration")
 
 
 class Occupation(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return 'occupation'
+        return "occupation"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Occupation')
+        return Str._("Occupation")
 
 
 class Retirement(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return 'retirement'
+        return "retirement"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Retirement')
+        return Str._("Retirement")
 
 
 class Correspondence(EventType):
     @classmethod
     def name(cls) -> str:
-        return 'correspondence'
+        return "correspondence"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Correspondence')
+        return Str._("Correspondence")
 
 
 class Confirmation(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return 'confirmation'
+        return "confirmation"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Confirmation')
+        return Str._("Confirmation")
 
 
 class Missing(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return 'missing'
+        return "missing"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Missing')
+        return Str._("Missing")
 
 
 class Conference(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return 'conference'
+        return "conference"
 
     @classmethod
     def label(cls) -> Str:
-        return Str._('Conference')
+        return Str._("Conference")

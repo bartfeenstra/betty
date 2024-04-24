@@ -7,8 +7,7 @@ from betty.app import App
 from betty.extension import Gramps
 from betty.extension.gramps.config import FamilyTreeConfiguration, GrampsConfiguration
 from betty.load import load
-from betty.model.ancestry import Citation, Note, Source, File, \
-    Event, Person, Place
+from betty.model.ancestry import Citation, Note, Source, File, Event, Person, Place
 from betty.project import ExtensionConfiguration
 
 
@@ -118,38 +117,44 @@ class TestGramps:
 """.strip()
         async with TemporaryDirectory() as working_directory_path_str:
             working_directory_path = Path(working_directory_path_str)
-            gramps_family_tree_one_path = working_directory_path / 'one.xml'
-            async with aiofiles.open(gramps_family_tree_one_path, mode='w') as f:
+            gramps_family_tree_one_path = working_directory_path / "one.xml"
+            async with aiofiles.open(gramps_family_tree_one_path, mode="w") as f:
                 await f.write(family_tree_one_xml)
 
-            gramps_family_tree_two_path = working_directory_path / 'two.xml'
-            async with aiofiles.open(gramps_family_tree_two_path, mode='w') as f:
+            gramps_family_tree_two_path = working_directory_path / "two.xml"
+            async with aiofiles.open(gramps_family_tree_two_path, mode="w") as f:
                 await f.write(family_tree_two_xml)
 
-            async with (App.new_temporary() as app, app):
-                app.project.configuration.extensions.append(ExtensionConfiguration(
-                    Gramps,
-                    extension_configuration=GrampsConfiguration(
-                        family_trees=[
-                            FamilyTreeConfiguration(file_path=gramps_family_tree_one_path),
-                            FamilyTreeConfiguration(file_path=gramps_family_tree_two_path),
-                        ],
-                    ),
-                ))
+            async with App.new_temporary() as app, app:
+                app.project.configuration.extensions.append(
+                    ExtensionConfiguration(
+                        Gramps,
+                        extension_configuration=GrampsConfiguration(
+                            family_trees=[
+                                FamilyTreeConfiguration(
+                                    file_path=gramps_family_tree_one_path
+                                ),
+                                FamilyTreeConfiguration(
+                                    file_path=gramps_family_tree_two_path
+                                ),
+                            ],
+                        ),
+                    )
+                )
                 await load(app)
-            assert 'O0001' in app.project.ancestry[File]
-            assert 'O0002' in app.project.ancestry[File]
-            assert 'I0001' in app.project.ancestry[Person]
-            assert 'I0002' in app.project.ancestry[Person]
-            assert 'P0001' in app.project.ancestry[Place]
-            assert 'P0002' in app.project.ancestry[Place]
-            assert 'E0001' in app.project.ancestry[Event]
-            assert 'E0002' in app.project.ancestry[Event]
-            assert 'S0001' in app.project.ancestry[Source]
-            assert 'S0002' in app.project.ancestry[Source]
-            assert 'R0001' in app.project.ancestry[Source]
-            assert 'R0002' in app.project.ancestry[Source]
-            assert 'C0001' in app.project.ancestry[Citation]
-            assert 'C0002' in app.project.ancestry[Citation]
-            assert 'N0001' in app.project.ancestry[Note]
-            assert 'N0002' in app.project.ancestry[Note]
+            assert "O0001" in app.project.ancestry[File]
+            assert "O0002" in app.project.ancestry[File]
+            assert "I0001" in app.project.ancestry[Person]
+            assert "I0002" in app.project.ancestry[Person]
+            assert "P0001" in app.project.ancestry[Place]
+            assert "P0002" in app.project.ancestry[Place]
+            assert "E0001" in app.project.ancestry[Event]
+            assert "E0002" in app.project.ancestry[Event]
+            assert "S0001" in app.project.ancestry[Source]
+            assert "S0002" in app.project.ancestry[Source]
+            assert "R0001" in app.project.ancestry[Source]
+            assert "R0002" in app.project.ancestry[Source]
+            assert "C0001" in app.project.ancestry[Citation]
+            assert "C0002" in app.project.ancestry[Citation]
+            assert "N0001" in app.project.ancestry[Note]
+            assert "N0002" in app.project.ancestry[Note]

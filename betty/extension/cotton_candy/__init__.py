@@ -1,6 +1,7 @@
 """
 Provide Betty's default theme.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -24,18 +25,29 @@ from betty.extension.npm import _Npm, _NpmBuilder, npm
 from betty.functools import walk
 from betty.generate import Generator, GenerationContext
 from betty.gui import GuiBuilder
-from betty.jinja2 import Jinja2Provider, context_app, context_localizer, context_job_context
+from betty.jinja2 import (
+    Jinja2Provider,
+    context_app,
+    context_localizer,
+    context_job_context,
+)
 from betty.locale import Date, Str, Datey
 from betty.model import Entity, UserFacingEntity, GeneratedEntityId
 from betty.model.ancestry import Event, Person, Presence, is_public, Subject
 from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
 from betty.project import EntityReferenceSequence, EntityReference
 from betty.serde.dump import minimize, Dump, VoidableDump
-from betty.serde.load import AssertionFailed, Fields, Assertions, OptionalField, Asserter
+from betty.serde.load import (
+    AssertionFailed,
+    Fields,
+    Assertions,
+    OptionalField,
+    Asserter,
+)
 
 
 class _ColorConfiguration(Configuration):
-    _HEX_PATTERN = re.compile(r'^#[a-zA-Z0-9]{6}$')
+    _HEX_PATTERN = re.compile(r"^#[a-zA-Z0-9]{6}$")
 
     def __init__(self, hex_value: str):
         super().__init__()
@@ -44,10 +56,12 @@ class _ColorConfiguration(Configuration):
 
     def _validate_hex(self, hex_value: str) -> str:
         if not self._HEX_PATTERN.match(hex_value):
-            raise AssertionFailed(Str._(
-                '"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.',
-                hex_value=hex_value,
-            ))
+            raise AssertionFailed(
+                Str._(
+                    '"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.',
+                    hex_value=hex_value,
+                )
+            )
         return hex_value
 
     @property
@@ -57,10 +71,12 @@ class _ColorConfiguration(Configuration):
     @hex.setter
     def hex(self, hex_value: str) -> None:
         if not self._HEX_PATTERN.match(hex_value):
-            raise AssertionFailed(Str._(
-                '"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.',
-                hex_value=hex_value,
-            ))
+            raise AssertionFailed(
+                Str._(
+                    '"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.',
+                    hex_value=hex_value,
+                )
+            )
         self._hex = hex_value
         self._dispatch_change()
 
@@ -86,22 +102,26 @@ class _ColorConfiguration(Configuration):
 
 
 class CottonCandyConfiguration(Configuration):
-    DEFAULT_PRIMARY_INACTIVE_COLOR = '#ffc0cb'
-    DEFAULT_PRIMARY_ACTIVE_COLOR = '#ff69b4'
-    DEFAULT_LINK_INACTIVE_COLOR = '#149988'
-    DEFAULT_LINK_ACTIVE_COLOR = '#2a615a'
+    DEFAULT_PRIMARY_INACTIVE_COLOR = "#ffc0cb"
+    DEFAULT_PRIMARY_ACTIVE_COLOR = "#ff69b4"
+    DEFAULT_LINK_INACTIVE_COLOR = "#149988"
+    DEFAULT_LINK_ACTIVE_COLOR = "#2a615a"
 
     def __init__(
         self,
         *,
-        featured_entities: Sequence[EntityReference[UserFacingEntity & Entity]] | None = None,
+        featured_entities: (
+            Sequence[EntityReference[UserFacingEntity & Entity]] | None
+        ) = None,
         primary_inactive_color: str = DEFAULT_PRIMARY_INACTIVE_COLOR,
         primary_active_color: str = DEFAULT_PRIMARY_ACTIVE_COLOR,
         link_inactive_color: str = DEFAULT_LINK_INACTIVE_COLOR,
         link_active_color: str = DEFAULT_LINK_ACTIVE_COLOR,
     ):
         super().__init__()
-        self._featured_entities = EntityReferenceSequence['UserFacingEntity & Entity'](featured_entities or ())
+        self._featured_entities = EntityReferenceSequence["UserFacingEntity & Entity"](
+            featured_entities or ()
+        )
         self._featured_entities.on_change(self)
         self._primary_inactive_color = _ColorConfiguration(primary_inactive_color)
         self._primary_inactive_color.on_change(self)
@@ -141,52 +161,83 @@ class CottonCandyConfiguration(Configuration):
         if configuration is None:
             configuration = cls()
         asserter = Asserter()
-        asserter.assert_record(Fields(
-            OptionalField(
-                'featured_entities',
-                Assertions(configuration._featured_entities.assert_load(configuration._featured_entities)),
-            ),
-            OptionalField(
-                'primary_inactive_color',
-                Assertions(configuration._primary_inactive_color.assert_load(configuration._primary_inactive_color)),
-            ),
-            OptionalField(
-                'primary_active_color',
-                Assertions(configuration._primary_active_color.assert_load(configuration._primary_active_color)),
-            ),
-            OptionalField(
-                'link_inactive_color',
-                Assertions(configuration._link_inactive_color.assert_load(configuration._link_inactive_color)),
-            ),
-            OptionalField(
-                'link_active_color',
-                Assertions(configuration._link_active_color.assert_load(configuration._link_active_color)),
-            ),
-        ))(dump)
+        asserter.assert_record(
+            Fields(
+                OptionalField(
+                    "featured_entities",
+                    Assertions(
+                        configuration._featured_entities.assert_load(
+                            configuration._featured_entities
+                        )
+                    ),
+                ),
+                OptionalField(
+                    "primary_inactive_color",
+                    Assertions(
+                        configuration._primary_inactive_color.assert_load(
+                            configuration._primary_inactive_color
+                        )
+                    ),
+                ),
+                OptionalField(
+                    "primary_active_color",
+                    Assertions(
+                        configuration._primary_active_color.assert_load(
+                            configuration._primary_active_color
+                        )
+                    ),
+                ),
+                OptionalField(
+                    "link_inactive_color",
+                    Assertions(
+                        configuration._link_inactive_color.assert_load(
+                            configuration._link_inactive_color
+                        )
+                    ),
+                ),
+                OptionalField(
+                    "link_active_color",
+                    Assertions(
+                        configuration._link_active_color.assert_load(
+                            configuration._link_active_color
+                        )
+                    ),
+                ),
+            )
+        )(dump)
         return configuration
 
     def dump(self) -> VoidableDump:
-        return minimize({
-            'featured_entities': self.featured_entities.dump(),
-            'primary_inactive_color': self._primary_inactive_color.dump(),
-            'primary_active_color': self._primary_active_color.dump(),
-            'link_inactive_color': self._link_inactive_color.dump(),
-            'link_active_color': self._link_active_color.dump(),
-        })
+        return minimize(
+            {
+                "featured_entities": self.featured_entities.dump(),
+                "primary_inactive_color": self._primary_inactive_color.dump(),
+                "primary_active_color": self._primary_active_color.dump(),
+                "link_inactive_color": self._link_inactive_color.dump(),
+                "link_active_color": self._link_active_color.dump(),
+            }
+        )
 
 
-class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Generator, GuiBuilder, _NpmBuilder, Jinja2Provider):
+class _CottonCandy(
+    Theme,
+    ConfigurableExtension[CottonCandyConfiguration],
+    Generator,
+    GuiBuilder,
+    _NpmBuilder,
+    Jinja2Provider,
+):
     @classmethod
     def depends_on(cls) -> set[type[Extension]]:
         return {_Npm}
 
     @classmethod
     def assets_directory_path(cls) -> Path | None:
-        return Path(__file__).parent / 'assets'
+        return Path(__file__).parent / "assets"
 
     @classmethod
     def label(cls) -> Str:
-        return Str.plain('Cotton Candy')
+        return Str.plain("Cotton Candy")
 
     @classmethod
     def default_configuration(cls) -> CottonCandyConfiguration:
@@ -204,34 +255,51 @@ class _CottonCandy(Theme, ConfigurableExtension[CottonCandyConfiguration], Gener
     @property
     def globals(self) -> dict[str, Any]:
         return {
-            'search_index': _global_search_index,
+            "search_index": _global_search_index,
         }
 
     @property
     def filters(self) -> dict[str, Callable[..., Any]]:
         return {
-            'person_timeline_events': lambda person: person_timeline_events(
-                person,
-                self.app.project.configuration.lifetime_threshold
+            "person_timeline_events": lambda person: person_timeline_events(
+                person, self.app.project.configuration.lifetime_threshold
             ),
-            'person_descendant_families': person_descendant_families,
+            "person_descendant_families": person_descendant_families,
         }
 
-    async def npm_build(self, working_directory_path: Path, assets_directory_path: Path) -> None:
+    async def npm_build(
+        self, working_directory_path: Path, assets_directory_path: Path
+    ) -> None:
         await self.app.extensions[_Npm].install(type(self), working_directory_path)
-        await npm(('run', 'webpack'), cwd=working_directory_path)
-        await self._copy_npm_build(working_directory_path / 'webpack-build', assets_directory_path)
-        logging.getLogger(__name__).info(self._app.localizer._('Built the Cotton Candy front-end assets.'))
+        await npm(("run", "webpack"), cwd=working_directory_path)
+        await self._copy_npm_build(
+            working_directory_path / "webpack-build", assets_directory_path
+        )
+        logging.getLogger(__name__).info(
+            self._app.localizer._("Built the Cotton Candy front-end assets.")
+        )
 
-    async def _copy_npm_build(self, source_directory_path: Path, destination_directory_path: Path) -> None:
+    async def _copy_npm_build(
+        self, source_directory_path: Path, destination_directory_path: Path
+    ) -> None:
         await makedirs(destination_directory_path, exist_ok=True)
-        await asyncio.to_thread(copy2, source_directory_path / 'cotton_candy.css', destination_directory_path / 'cotton_candy.css')
-        await asyncio.to_thread(copy2, source_directory_path / 'cotton_candy.js', destination_directory_path / 'cotton_candy.js')
+        await asyncio.to_thread(
+            copy2,
+            source_directory_path / "cotton_candy.css",
+            destination_directory_path / "cotton_candy.css",
+        )
+        await asyncio.to_thread(
+            copy2,
+            source_directory_path / "cotton_candy.js",
+            destination_directory_path / "cotton_candy.js",
+        )
 
     async def generate(self, job_context: GenerationContext) -> None:
         assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
         await makedirs(self.app.project.configuration.www_directory_path, exist_ok=True)
-        await self._copy_npm_build(assets_directory_path, self.app.project.configuration.www_directory_path)
+        await self._copy_npm_build(
+            assets_directory_path, self.app.project.configuration.www_directory_path
+        )
 
 
 @pass_context
@@ -267,7 +335,9 @@ def person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable[
         yield event
 
 
-def person_descendant_families(person: Person) -> Iterable[tuple[Sequence[Person], Sequence[Person]]]:
+def person_descendant_families(
+    person: Person,
+) -> Iterable[tuple[Sequence[Person], Sequence[Person]]]:
     """
     Gather a person's families they are a parent in.
     """
@@ -346,12 +416,13 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
         )
 
     if start_date is None or end_date is None:
-        reference_dates = list(sorted(
-            cast(Datey, cast(Event, presence.event).date)
-            for presence
-            in person.presences
-            if _is_person_timeline_presence(presence)
-        ))
+        reference_dates = list(
+            sorted(
+                cast(Datey, cast(Event, presence.event).date)
+                for presence in person.presences
+                if _is_person_timeline_presence(presence)
+            )
+        )
         if reference_dates:
             if not start_date:
                 start_date = reference_dates[0]
@@ -359,18 +430,24 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
                 end_date = reference_dates[-1]
 
     if start_date is not None and end_date is not None:
-        associated_people = filter(is_public, (
-            # All ancestors.
-            *walk(person, 'parents'),
-            # All descendants.
-            *walk(person, 'children'),
-            # All siblings.
-            *person.siblings,
-        ))
+        associated_people = filter(
+            is_public,
+            (
+                # All ancestors.
+                *walk(person, "parents"),
+                # All descendants.
+                *walk(person, "children"),
+                # All siblings.
+                *person.siblings,
+            ),
+        )
         for associated_person in associated_people:
             # For associated events, we are only interested in people's start- or end-of-life events.
             for associated_presence in associated_person.presences:
-                if not associated_presence.event or not issubclass(associated_presence.event.event_type, (StartOfLifeEventType, EndOfLifeEventType)):
+                if not associated_presence.event or not issubclass(
+                    associated_presence.event.event_type,
+                    (StartOfLifeEventType, EndOfLifeEventType),
+                ):
                     continue
                 if isinstance(associated_presence.event.id, GeneratedEntityId):
                     continue

@@ -15,8 +15,8 @@ from betty.project import ExtensionConfiguration
 
 class TestDemo:
     async def test_load(self, mocker: MockerFixture) -> None:
-        mocker.patch('webbrowser.open_new_tab')
-        async with (App.new_temporary() as app, app):
+        mocker.patch("webbrowser.open_new_tab")
+        async with App.new_temporary() as app, app:
             app.project.configuration.extensions.append(ExtensionConfiguration(Demo))
             await load(app)
             assert 0 != len(app.project.ancestry[Person])
@@ -31,10 +31,12 @@ class TestDemoServer:
         self,
         mocker: MockerFixture,
     ) -> None:
-        mocker.patch('webbrowser.open_new_tab')
-        async with (App.new_temporary() as app, app):
+        mocker.patch("webbrowser.open_new_tab")
+        async with App.new_temporary() as app, app:
             async with DemoServer(app=app) as server:
+
                 def _assert_response(response: Response) -> None:
                     assert response.status_code == 200
-                    assert 'Betty' in response.content.decode('utf-8')
+                    assert "Betty" in response.content.decode("utf-8")
+
                 await Do(requests.get, server.public_url).until(_assert_response)

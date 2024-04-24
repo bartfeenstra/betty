@@ -1,6 +1,7 @@
 """
 Provide utilities for raising warnings.
 """
+
 import warnings
 
 import typing_extensions
@@ -30,4 +31,6 @@ class deprecated(typing_extensions.deprecated):
     """
 
     def __init__(self, message: str, stacklevel: int = 1):
-        super().__init__(message, category=BettyDeprecationWarning, stacklevel=stacklevel)
+        super().__init__(
+            message, category=BettyDeprecationWarning, stacklevel=stacklevel
+        )
