@@ -1,5 +1,5 @@
 {
-  "main": "trees.js",
+  "main": "trees.ts",
   "engines": {
     "node": ">= 16"
   },
