@@ -33,17 +33,12 @@ class _ColorConfigurationSwatch(LocalizedObject, QWidget):
         self._color.on_change(self.repaint)
         self.setFixedHeight(24)
         self.setFixedWidth(24)
+        self._swatch = QRect(self.rect())
 
     def paintEvent(self, a0: QPaintEvent | None) -> None:
-        try:
-            painter = QPainter(self)
-        except TypeError:
-            # Work around a so far inexplicable bug where this method would be called, but `self` would no longer refer
-            # to a valid QObject.
-            return
-        swatch = QRect(self.rect())
-        painter.fillRect(swatch, QBrush(QColor.fromString(self._color.hex)))
-        painter.drawRect(swatch)
+        painter = QPainter(self)
+        painter.fillRect(self._swatch, QBrush(QColor.fromString(self._color.hex)))
+        painter.drawRect(self._swatch)
 
 
 class _ColorConfigurationWidget(LocalizedObject, QWidget):
