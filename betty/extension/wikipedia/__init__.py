@@ -19,7 +19,7 @@ from betty.model.ancestry import Link
 from betty.wikipedia import Summary, _parse_url, NotAPageError, RetrievalError
 
 
-class _Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader):
+class Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self.__retriever: wikipedia._Retriever | None = None

@@ -15,7 +15,7 @@ from betty.generate import Generator, GenerationContext
 from betty.locale import Str
 
 
-class _HttpApiDoc(UserFacingExtension, Generator, _NpmBuilder):
+class HttpApiDoc(UserFacingExtension, Generator, _NpmBuilder):
     @classmethod
     def depends_on(cls) -> set[type[Extension]]:
         return {_Npm}

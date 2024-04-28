@@ -16,7 +16,7 @@ from betty.gui import GuiBuilder
 from betty.load import Loader
 
 
-class _Gramps(
+class Gramps(
     ConfigurableExtension[GrampsConfiguration], UserFacingExtension, Loader, GuiBuilder
 ):
     @classmethod

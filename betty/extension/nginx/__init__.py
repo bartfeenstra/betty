@@ -106,7 +106,7 @@ class NginxConfiguration(Configuration):
         return minimize(dump, True)
 
 
-class _Nginx(
+class Nginx(
     ConfigurableExtension[NginxConfiguration], Generator, ServerProvider, GuiBuilder
 ):
     @classmethod
