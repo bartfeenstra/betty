@@ -24,15 +24,6 @@ function exec (command: string, options: object): Promise<string | Buffer> {
   })
 }
 
-async function buildApp (projectDirectoryPath: string, bettyConfiguration: object): Promise<void> {
-  // We do not know the real base URL, but as Betty requires one, set an obviously fake value.
-  bettyConfiguration.base_url = 'https://example.com'
-  await writeFile(path.join(projectDirectoryPath, 'betty.json'), JSON.stringify(bettyConfiguration))
-  await exec('betty generate', {
-    cwd: projectDirectoryPath
-  })
-}
-
 interface ServerResponseMeta {
   contentType: string
   content: ReadStream
@@ -137,8 +128,21 @@ class Server implements Disposable {
 }
 
 const test = base.extend<{
+  generateSite: (projectDirectoryPath: string, bettyConfiguration: object) => Promise<void>,
   temporaryDirectoryPath: string,
 }>({
+  generateSite: async ({temporaryDirectoryPath}, use) => {
+    await use(async (projectDirectoryPath: string, bettyConfiguration: object): Promise<void> => {
+      await writeFile(path.join(projectDirectoryPath, 'betty.json'), JSON.stringify(bettyConfiguration))
+      await exec('betty generate', {
+        cwd: projectDirectoryPath,
+        env: {
+          ...process.env,
+          'BETTY_CACHE_DIRECTORY': temporaryDirectoryPath,
+        },
+      })
+    })
+  },
   temporaryDirectoryPath: async (
     {}, // eslint-disable-line no-empty-pattern
     use
@@ -153,7 +157,6 @@ const test = base.extend<{
 })
 
 export {
-  buildApp,
   Server,
   test
 }

@@ -1,5 +1,5 @@
 import * as path from 'node:path'
-import { buildApp, Server, test as base } from '../index'
+import { Server, test as base } from '../index'
 import { expect } from '@playwright/test'
 import * as url from 'node:url'
 
@@ -8,9 +8,9 @@ const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const test = base.extend<{
   site: string,
 }>({
-  site: async ({ temporaryDirectoryPath }, use) => {
+  site: async ({ generateSite, temporaryDirectoryPath }, use) => {
     using server = new Server(path.join(temporaryDirectoryPath, 'output', 'www'))
-    await buildApp(temporaryDirectoryPath, {
+    await generateSite(temporaryDirectoryPath, {
       base_url: await server.getPublicUrl(),
       extensions: {
         'betty.extension.CottonCandy': {},

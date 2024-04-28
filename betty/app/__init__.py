@@ -10,6 +10,7 @@ from contextlib import suppress, asynccontextmanager
 from functools import reduce
 from graphlib import CycleError, TopologicalSorter
 from multiprocessing import get_context
+from os import environ
 from pathlib import Path
 from types import TracebackType
 from typing import TYPE_CHECKING, Mapping, Self, Any, final
@@ -235,7 +236,7 @@ class App(Configurable[AppConfiguration]):
         yield cls(
             AppConfiguration(CONFIGURATION_DIRECTORY_PATH),
             project,
-            CACHE_DIRECTORY_PATH,
+            Path(environ.get("BETTY_CACHE_DIRECTORY", CACHE_DIRECTORY_PATH)),
         )
 
     @classmethod
