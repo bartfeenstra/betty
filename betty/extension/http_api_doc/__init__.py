@@ -17,6 +17,10 @@ from betty.locale import Str
 
 class HttpApiDoc(UserFacingExtension, Generator, _NpmBuilder):
     @classmethod
+    def name(cls) -> str:
+        return "betty.extension.HttpApiDoc"
+
+    @classmethod
     def depends_on(cls) -> set[type[Extension]]:
         return {_Npm}
 

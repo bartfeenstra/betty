@@ -20,6 +20,10 @@ class Gramps(
     ConfigurableExtension[GrampsConfiguration], UserFacingExtension, Loader, GuiBuilder
 ):
     @classmethod
+    def name(cls) -> str:
+        return "betty.extension.Gramps"
+
+    @classmethod
     def default_configuration(cls) -> GrampsConfiguration:
         return GrampsConfiguration()
 

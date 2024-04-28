@@ -19,6 +19,10 @@ from betty.locale import Str
 
 class Maps(UserFacingExtension, CssProvider, JsProvider, Generator, _NpmBuilder):
     @classmethod
+    def name(cls) -> str:
+        return "betty.extension.Maps"
+
+    @classmethod
     def depends_on(cls) -> set[type[Extension]]:
         return {_Npm}
 

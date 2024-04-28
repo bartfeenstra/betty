@@ -18,6 +18,10 @@ from betty.locale import Str
 
 class Trees(UserFacingExtension, CssProvider, JsProvider, Generator, _NpmBuilder):
     @classmethod
+    def name(cls) -> str:
+        return "betty.extension.Trees"
+
+    @classmethod
     def depends_on(cls) -> set[type[Extension]]:
         return {_Npm}
 

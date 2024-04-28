@@ -38,6 +38,10 @@ from betty.warnings import deprecate
 
 class Demo(Extension, Loader):
     @classmethod
+    def name(cls) -> str:
+        return "betty.extension.Demo"
+
+    @classmethod
     def depends_on(cls) -> set[type[Extension]]:
         from betty.extension import CottonCandy, HttpApiDoc, Maps, Trees, Wikipedia
 

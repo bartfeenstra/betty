@@ -12,6 +12,10 @@ from betty.model.event_type import DerivableEventType
 
 
 class Deriver(UserFacingExtension, PostLoader):
+    @classmethod
+    def name(cls) -> str:
+        return "betty.extension.Deriver"
+
     async def post_load(self) -> None:
         logger = getLogger(__name__)
         logger.info(self._app.localizer._("Deriving..."))

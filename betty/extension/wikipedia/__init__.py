@@ -20,6 +20,10 @@ from betty.wikipedia import Summary, _parse_url, NotAPageError, RetrievalError
 
 
 class Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader):
+    @classmethod
+    def name(cls) -> str:
+        return "betty.extension.Wikipedia"
+
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self.__retriever: wikipedia._Retriever | None = None

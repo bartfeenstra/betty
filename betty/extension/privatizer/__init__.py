@@ -14,6 +14,10 @@ from betty.privatizer import Privatizer as PrivatizerApi
 
 
 class Privatizer(UserFacingExtension, PostLoader):
+    @classmethod
+    def name(cls) -> str:
+        return "betty.extension.Privatizer"
+
     async def post_load(self) -> None:
         self.privatize()
 
