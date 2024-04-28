@@ -228,6 +228,10 @@ class CottonCandy(
     Jinja2Provider,
 ):
     @classmethod
+    def name(cls) -> str:
+        return "betty.extension.CottonCandy"
+
+    @classmethod
     def depends_on(cls) -> set[type[Extension]]:
         return {_Npm}
 
