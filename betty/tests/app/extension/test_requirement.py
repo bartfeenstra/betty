@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from betty.app.extension.requirement import (
+from betty.requirement import (
     RequirementCollection,
     RequirementError,
     AllRequirements,
