@@ -8,7 +8,7 @@ from pytest_mock import MockerFixture
 
 from betty.app import App
 from betty.app.extension import UserFacingExtension
-from betty.app.extension.requirement import Requirement
+from betty.requirement import Requirement
 from betty.gui import GuiBuilder
 from betty.gui.project import (
     ProjectWindow,

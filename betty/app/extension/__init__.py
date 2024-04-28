@@ -17,7 +17,7 @@ from typing import (
     Self,
 )
 
-from betty.app.extension.requirement import Requirement, AllRequirements
+from betty.requirement import Requirement, AllRequirements
 from betty.asyncio import gather
 from betty.config import ConfigurationT, Configurable
 from betty.dispatch import Dispatcher, TargetedDispatcher

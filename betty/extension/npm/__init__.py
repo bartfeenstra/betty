@@ -21,7 +21,7 @@ from typing import Sequence
 from aiofiles.tempfile import TemporaryDirectory
 
 from betty.app.extension import Extension, discover_extension_types
-from betty.app.extension.requirement import Requirement, AnyRequirement, AllRequirements
+from betty.requirement import Requirement, AnyRequirement, AllRequirements
 from betty.asyncio import wait_to_thread
 from betty.cache.file import BinaryFileCache
 from betty.fs import iterfiles
