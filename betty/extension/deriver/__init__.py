@@ -5,18 +5,18 @@ from __future__ import annotations
 from logging import getLogger
 
 from betty.app.extension import Extension, UserFacingExtension
-from betty.deriver import Deriver
+from betty.deriver import Deriver as DeriverApi
 from betty.load import PostLoader
 from betty.locale import Str
 from betty.model.event_type import DerivableEventType
 
 
-class _Deriver(UserFacingExtension, PostLoader):
+class Deriver(UserFacingExtension, PostLoader):
     async def post_load(self) -> None:
         logger = getLogger(__name__)
         logger.info(self._app.localizer._("Deriving..."))
 
-        deriver = Deriver(
+        deriver = DeriverApi(
             self.app.project.ancestry,
             self.app.project.configuration.lifetime_threshold,
             {

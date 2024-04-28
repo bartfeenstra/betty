@@ -16,7 +16,7 @@ from betty.html import CssProvider, JsProvider
 from betty.locale import Str
 
 
-class _Trees(UserFacingExtension, CssProvider, JsProvider, Generator, _NpmBuilder):
+class Trees(UserFacingExtension, CssProvider, JsProvider, Generator, _NpmBuilder):
     @classmethod
     def depends_on(cls) -> set[type[Extension]]:
         return {_Npm}

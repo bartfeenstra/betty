@@ -36,7 +36,7 @@ from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
 from betty.warnings import deprecate
 
 
-class _Demo(Extension, Loader):
+class Demo(Extension, Loader):
     @classmethod
     def depends_on(cls) -> set[type[Extension]]:
         from betty.extension import CottonCandy, HttpApiDoc, Maps, Trees, Wikipedia

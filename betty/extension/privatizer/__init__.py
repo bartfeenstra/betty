@@ -13,7 +13,7 @@ from betty.model.ancestry import Person, HasPrivacy
 from betty.privatizer import Privatizer as PrivatizerApi
 
 
-class _Privatizer(UserFacingExtension, PostLoader):
+class Privatizer(UserFacingExtension, PostLoader):
     async def post_load(self) -> None:
         self.privatize()
 

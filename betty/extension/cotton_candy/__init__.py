@@ -219,7 +219,7 @@ class CottonCandyConfiguration(Configuration):
         )
 
 
-class _CottonCandy(
+class CottonCandy(
     Theme,
     ConfigurableExtension[CottonCandyConfiguration],
     Generator,
