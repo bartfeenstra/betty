@@ -12,7 +12,7 @@ const configuration = JSON.parse(await readFile('./webpack.config.json'))
 export default {
   mode: configuration.debug ? 'development' : 'production',
   entry: {
-    trees: path.resolve(__dirname, 'trees.js')
+    trees: path.resolve(__dirname, 'trees.ts')
   },
   output: {
     path: path.resolve(__dirname, 'webpack-build'),
@@ -55,7 +55,7 @@ export default {
         ]
       },
       {
-        test: /\.js$/,
+        test: /\.(js|ts)$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
@@ -67,7 +67,8 @@ export default {
                   useBuiltIns: 'usage',
                   corejs: 3
                 }
-              ]
+              ],
+              '@babel/preset-typescript'
             ],
             cacheDirectory: configuration.cacheDirectory
           }

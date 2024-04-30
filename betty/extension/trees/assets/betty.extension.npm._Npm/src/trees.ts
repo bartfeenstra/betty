@@ -2,7 +2,7 @@
 
 import './trees.css'
 
-import cytoscape from 'cytoscape'
+import cytoscape, {CytoscapeOptions, ElementsDefinition, NodeDataDefinition} from 'cytoscape'
 import dagre from 'cytoscape-dagre'
 
 cytoscape.use(dagre)
@@ -16,31 +16,17 @@ interface Person {
   url: string,
 }
 
-interface EdgeData {
-  source: string
-  target: string
-}
-
-interface Edge {
-  data: EdgeData
-}
-
-interface Elements {
-  nodes: string[]
-  edges: Edge[]
-}
-
-async function initializeAncestryTrees ():Promise<void> {
+function initializeAncestryTrees () :void {
   const trees = document.getElementsByClassName('tree')
-  for (const tree of trees) {
-    await initializeAncestryTree(tree as HTMLElement, tree.dataset.bettyPersonId)
-  }
+  Array.from(trees).forEach(async (tree: HTMLElement) => {
+    await initializeAncestryTree(tree, tree.dataset.bettyPersonId)
+  })
 }
 
 async function initializeAncestryTree (tree: HTMLElement, personId: string):Promise<void> {
   const response = await fetch(tree.dataset.bettyPeople)
-  const people: Person[] = await response.json()
-  const elements = {
+  const people = await response.json() as Record<string, Person>
+  const elements: ElementsDefinition = {
     nodes: [],
     edges: []
   }
@@ -48,52 +34,52 @@ async function initializeAncestryTree (tree: HTMLElement, personId: string):Prom
   personToNode(person, elements.nodes)
   parentsToElements(person, elements, people)
   childrenToElements(person, elements, people)
-  const cy = cytoscape({
-    container: document.getElementsByClassName('tree')[0],
+  const cytoscapeOptions: CytoscapeOptions = {
+    container: document.getElementsByClassName('tree')[0] as HTMLElement,
     layout: {
       name: 'dagre'
     },
-    wheelSensitivity: 0.25,
     style: [
       {
         selector: 'node',
         style: {
-          content: 'data(label)',
-          shape: 'round-rectangle',
-          'text-valign': 'center',
-          'text-halign': 'center',
-          'background-color': '#eee',
-          width: 'label',
-          height: 'label',
-          padding: '9px'
+          label: 'data(label)',
+          // shape: 'round-rectangle',
+          // // 'text-valign': 'center',
+          // // 'text-halign': 'center',
+          // 'background-color': '#eee',
+          // width: 'label',
+          // height: 'label',
+          // // padding: '9px'
         }
       },
-      {
-        selector: 'node.public',
-        style: {
-          color: '#149988'
-        }
-      },
-      {
-        selector: 'node.public.hover',
-        style: {
-          color: '#2a615a'
-        }
-      },
-      {
-        selector: 'edge',
-        style: {
-          'curve-style': 'taxi',
-          'taxi-direction': 'downward',
-          width: 4,
-          'target-arrow-shape': 'triangle',
-          'line-color': '#777',
-          'target-arrow-color': '#777'
-        }
-      }
+      // {
+      //   selector: 'node.public',
+      //   style: {
+      //     color: '#149988'
+      //   }
+      // },
+      // {
+      //   selector: 'node.public.hover',
+      //   style: {
+      //     color: '#2a615a'
+      //   }
+      // },
+      // {
+      //   selector: 'edge',
+      //   style: {
+      //     'curve-style': 'taxi',
+      //     'taxi-direction': 'downward',
+      //     width: 4,
+      //     'target-arrow-shape': 'triangle',
+      //     'line-color': '#777',
+      //     'target-arrow-color': '#777'
+      //   }
+      // }
     ],
     elements
-  })
+  }
+  const cy = cytoscape(cytoscapeOptions)
   cy.zoom({
     level: 1,
     position: cy.getElementById(personId).position()
@@ -109,42 +95,42 @@ async function initializeAncestryTree (tree: HTMLElement, personId: string):Prom
   })
 }
 
-function personToNode (person: Person, nodes):void {
+function personToNode (person: Person, nodes: NodeDataDefinition[]):void {
   nodes.push({
     data: {
       id: person.id,
       label: person.label,
-      url: person.url
+      url: person.url,
     },
     selectable: false,
     grabbable: false,
     pannable: true,
-    classes: person.private ? [] : ['public']
+    classes: person.private ? [] : ['public'],
   })
 }
 
-function parentsToElements (child: Person, elements: Elements, people: Record<string, Person>):void {
+function parentsToElements (child: Person, elements: ElementsDefinition, people: Record<string, Person>):void {
   for (const parentId of child.parentIds) {
     const parent = people[parentId]
     elements.edges.push({
       data: {
         source: parent.id,
-        target: child.id
-      }
+        target: child.id,
+      },
     })
     personToNode(parent, elements.nodes)
     parentsToElements(parent, elements, people)
   }
 }
 
-function childrenToElements (parent: Person, elements: Elements, people: Record<string, Person>):void {
+function childrenToElements (parent: Person, elements: ElementsDefinition, people: Record<string, Person>):void {
   for (const childId of parent.childIds) {
     const child = people[childId]
     elements.edges.push({
       data: {
         source: parent.id,
-        target: child.id
-      }
+        target: child.id,
+      },
     })
     personToNode(child, elements.nodes)
     childrenToElements(child, elements, people)
