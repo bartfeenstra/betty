@@ -1,4 +1,4 @@
-{% import 'macro/citation.html.j2' as citation_macros %}
+{% import 'macro/citation.html.j2' as citation_macros with context %}
 {% set person_name = person_name | default(entity) %}
 {% set embedded = embedded | default(False) %}
 {% set person_context = entity_contexts['Person'] %}
