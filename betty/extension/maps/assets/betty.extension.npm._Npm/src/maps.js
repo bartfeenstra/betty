@@ -47,7 +47,7 @@ async function initializePlaceList (placeList) {
   })
   map.addLayer(markerGroup)
   await Promise.all(Array.from(placeList.querySelectorAll('[data-betty-place]')).map(async (placeDatum) => {
-    const response = fetch(placeDatum.dataset.bettyPlace)
+    const response = await fetch(placeDatum.dataset.bettyPlace)
     const place = await response.json()
     if (!place.coordinates) {
       return
