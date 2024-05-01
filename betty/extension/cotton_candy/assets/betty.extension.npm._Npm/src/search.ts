@@ -41,8 +41,10 @@ class Search {
 
     this.queryElement.addEventListener(
       'keyup',
-      async () => { // eslint-disable-line @typescript-eslint/no-misused-promises
-        await this.perform(this.queryElement.value)
+      () => {
+        void (async () :Promise<void> => {
+          await this.perform(this.queryElement.value)
+        })()
       }
     )
 
@@ -178,8 +180,10 @@ class Search {
 
 document.addEventListener(
   'DOMContentLoaded',
-  async () => { // eslint-disable-line @typescript-eslint/no-misused-promises
-    const search = new Search()
-    await search.initialize()
+  () => {
+    void (async () :Promise<void> => {
+      const search = new Search()
+      await search.initialize()
+    })()
   }
 )

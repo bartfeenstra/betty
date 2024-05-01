@@ -53,15 +53,17 @@ class Server implements Disposable {
     this.wwwDirectoryPath = wwwDirectoryPath
 
     this.httpServer = createServer(
-      async (request: IncomingMessage, response: ServerResponse) => { // eslint-disable-line @typescript-eslint/no-misused-promises
-        const responseMeta = await this.prepareFile(request.url)
-        response.writeHead(
-          responseMeta.code,
-          {
-            'Content-Type': responseMeta.contentType
-          }
-        )
-        responseMeta.content.pipe(response)
+      (request: IncomingMessage, response: ServerResponse) => {
+        void (async () :Promise<void> => {
+          const responseMeta = await this.prepareFile(request.url)
+          response.writeHead(
+            responseMeta.code,
+            {
+              'Content-Type': responseMeta.contentType
+            }
+          )
+          responseMeta.content.pipe(response)
+        })()
       }
     )
     this.httpServer.on('error', (error) => {
