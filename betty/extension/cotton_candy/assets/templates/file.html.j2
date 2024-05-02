@@ -20,24 +20,24 @@
     {% endif %}
 {% endif %}
 
-{% set file_id_base64 = file.id | base64 %}
-<div class="file" id="file-{{ file_id_base64 }}">
-    <a href="#file-extended-{{ file_id_base64 }}" class="file-extended-open file-summary">
+{% set file_hashid = file.id | hashid %}
+<div class="file" id="file-{{ file_hashid }}">
+    <a href="#file-extended-{{ file_hashid }}" class="file-extended-open file-summary">
         <div class="file-summary">
             {% include summary_media_type_paths | reverse | list %}
         </div>
     </a>
-    <div id="file-extended-{{ file_id_base64 }}" class="file-extended">
+    <div id="file-extended-{{ file_hashid }}" class="file-extended">
         <ul class="file-controls">
             <li><a href="{{ file | file | static_url }}" title="View original in full">⇔</a></li>
             <li><a href="{{ file | file | static_url }}" download="{{ file.path.name }}" title="Download this file">⇓</a></li>
             <li><a href="{{ file | url }}" title="More details">ℹ</a></li>
-            <li class="file-extended-close"><a href="#file-{{ file_id_base64 }}" title="Close this file">×</a></li>
+            <li class="file-extended-close"><a href="#file-{{ file_hashid }}" title="Close this file">×</a></li>
             {% if previous_file is defined %}
-                <li class="file-nav file-extended-previous"><a href="#file-extended-{{ previous_file.id | base64 }}" title="{{ previous_file.description }}">←</a></li>
+                <li class="file-nav file-extended-previous"><a href="#file-extended-{{ previous_file.id | hashid }}" title="{{ previous_file.description }}">←</a></li>
             {% endif %}
             {% if next_file is defined %}
-                <li class="file-nav file-extended-next"><a href="#file-extended-{{ next_file.id | base64 }}" title="{{ next_file.description }}">→</a></li>
+                <li class="file-nav file-extended-next"><a href="#file-extended-{{ next_file.id | hashid }}" title="{{ next_file.description }}">→</a></li>
             {% endif %}
         </ul>
         <div class="file-content">

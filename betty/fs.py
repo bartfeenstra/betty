@@ -20,6 +20,7 @@ from aiofiles.os import makedirs
 from aiofiles.threadpool.text import AsyncTextIOWrapper
 
 from betty import _ROOT_DIRECTORY_PATH
+from betty.warnings import deprecated
 
 ROOT_DIRECTORY_PATH = _ROOT_DIRECTORY_PATH
 
@@ -49,6 +50,9 @@ async def iterfiles(path: Path) -> AsyncIterable[Path]:
             yield Path(dir_path) / filename
 
 
+@deprecated(
+    "This function is deprecated as of Betty 0.3.4, and will be removed in Betty 0.4.x. Instead, use `betty.hashid.hashid_file_meta()`."
+)
 def hashfile(path: Path) -> str:
     """
     Get a hash for a file.

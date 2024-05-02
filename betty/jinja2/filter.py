@@ -31,8 +31,8 @@ from markupsafe import Markup, escape
 from pdf2image.pdf2image import convert_from_path
 
 from betty import _resizeimage
-from betty.fs import hashfile
 from betty.functools import walk
+from betty.hashid import hashid_file_meta, hashid
 from betty.locale import (
     negotiate_localizeds,
     Localized,
@@ -52,6 +52,7 @@ from betty.string import (
     camel_case_to_kebab_case,
     upper_camel_case_to_lower_camel_case,
 )
+from betty.warnings import deprecated
 
 T = TypeVar("T")
 
@@ -297,7 +298,7 @@ async def filter_image(
     else:
         raise ValueError("Cannot convert a file without a media type to an image.")
 
-    cache_item_id = f'{hashfile(file.path)}:{"" if width is None else width}:{"" if height is None else height}'
+    cache_item_id = f'{hashid_file_meta(file.path)}:{"" if width is None else width}:{"" if height is None else height}'
     execute_filter = True
     if job_context:
         async with job_context.cache.with_scope("filter_image").getset(
@@ -521,11 +522,21 @@ def filter_select_dateds(
     )
 
 
+@deprecated(
+    "This function is deprecated as of Betty 0.3.4, and will be removed in Betty 0.4.x. Instead, use the `hashid` filter."
+)
 def filter_base64(input: str) -> str:
     """
     Base-64-encode a string.
     """
     return b64encode(input.encode("utf-8")).decode("utf-8")
+
+
+def filter_hashid(input: str) -> str:
+    """
+    Create a hash ID.
+    """
+    return hashid(input)
 
 
 FILTERS = {
@@ -537,6 +548,7 @@ FILTERS = {
     "flatten": filter_flatten,
     "format_datey": filter_format_datey,
     "format_degrees": filter_format_degrees,
+    "hashid": filter_hashid,
     "image": filter_image,
     "json": filter_json,
     "locale_get_data": get_data,

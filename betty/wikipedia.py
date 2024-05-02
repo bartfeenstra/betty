@@ -5,7 +5,6 @@ Fetch information from Wikipedia.
 from __future__ import annotations
 
 import asyncio
-import hashlib
 import json
 import logging
 import re
@@ -26,6 +25,7 @@ from betty.cache import Cache, CacheItemValueT
 from betty.cache.file import BinaryFileCache
 from betty.concurrent import RateLimiter
 from betty.functools import filter_suppress
+from betty.hashid import hashid
 from betty.locale import (
     Localized,
     negotiate_locale,
@@ -139,7 +139,7 @@ class _Fetcher:
         cache: Cache[CacheItemValueT],
         response_mapper: Callable[[ClientResponse], Awaitable[CacheItemValueT]],
     ) -> tuple[CacheItemValueT, str]:
-        cache_item_id = hashlib.md5(url.encode("utf-8")).hexdigest()
+        cache_item_id = hashid(url)
 
         response_data: CacheItemValueT | None = None
         async with cache.getset(cache_item_id) as (cache_item, setter):
