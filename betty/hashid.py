@@ -10,33 +10,42 @@ from pathlib import Path
 
 import aiofiles
 
-_hasher = md5
+
+def _hashid_bytes(key: bytes) -> str:
+    return md5(key, usedforsecurity=False).hexdigest()
 
 
-def hashid(content: bytes | str) -> str:
+def hashid(key: bytes | str) -> str:
     """
-    Create an ID.
+    Create a hash ID for a key.
     """
-    if isinstance(content, str):
-        content = content.encode()
-    return _hasher(content).hexdigest()
+    if isinstance(key, str):
+        key = key.encode()
+    return _hashid_bytes(key)
 
 
-async def hashid_file_meta(path: Path) -> str:
+def hashid_sequence(*keys: bytes | str) -> str:
     """
-    Create an ID for a file based on its metadata.
+    Create a hash ID from a sequence of keys.
+    """
+    return hashid(":".join(map(hashid, keys)))
+
+
+async def hashid_file_meta(file_path: Path) -> str:
+    """
+    Create a hash ID for a file based on its metadata.
 
     This function relies on the file path and last modified time for uniqueness.
     File contents are ignored. This may be suitable for large files whose
     exact contents may not be very relevant in the context the ID is used in.
     """
-    return hashid(f"{getmtime(path)}:{path}")
+    return hashid(f"{getmtime(file_path)}:{file_path}")
 
 
-async def hashid_file_content(path: Path) -> str:
+async def hashid_file_content(file_path: Path) -> str:
     """
-    Create an ID for a file based on its contents.
+    Create a hash ID for a file based on its contents.
     """
-    async with aiofiles.open(path, "rb") as f:
-        content = await f.read()
-    return hashid(content)
+    async with aiofiles.open(file_path, "rb") as f:
+        file_content = await f.read()
+    return _hashid_bytes(file_content)
