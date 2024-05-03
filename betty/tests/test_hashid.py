@@ -2,7 +2,7 @@ from pathlib import Path
 
 import aiofiles
 
-from betty.hashid import hashid_file_content, hashid_file_meta, hashid
+from betty.hashid import hashid_file_content, hashid_file_meta, hashid, hashid_sequence
 
 content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
 content_hash = "35899082e51edf667f14477ac000cbba"
@@ -11,6 +11,11 @@ content_hash = "35899082e51edf667f14477ac000cbba"
 class TestHashid:
     async def test(self) -> None:
         assert hashid(content) == content_hash
+
+
+class TestHashidSequence:
+    async def test(self) -> None:
+        assert hashid_sequence(content, content) == "d8f2f5dfbd5cff92bb9e112f1a7f48fe"
 
 
 class TestHashidFileMeta:
