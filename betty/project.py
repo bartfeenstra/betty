@@ -4,7 +4,6 @@ Provide the project API.
 
 from __future__ import annotations
 
-import hashlib
 from contextlib import suppress
 from pathlib import Path
 from reprlib import recursive_repr
@@ -20,6 +19,7 @@ from betty.config import (
     ConfigurationMapping,
     ConfigurationSequence,
 )
+from betty.hashid import hashid
 from betty.locale import get_data, Str
 from betty.model import Entity, get_entity_type_name, UserFacingEntity, EntityT
 from betty.model.ancestry import Ancestry, Person, Event, Place, Source
@@ -945,9 +945,7 @@ class Project(Configurable[ProjectConfiguration]):
     @property
     def name(self) -> str:
         if self._configuration.name is None:
-            return hashlib.md5(
-                str(self._configuration.configuration_file_path).encode("utf-8")
-            ).hexdigest()
+            return hashid(str(self._configuration.configuration_file_path))
         return self._configuration.name
 
     @property

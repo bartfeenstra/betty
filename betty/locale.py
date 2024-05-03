@@ -41,7 +41,8 @@ from polib import pofile
 
 from betty import fs
 from betty.asyncio import wait_to_thread
-from betty.fs import hashfile, FileSystem, ROOT_DIRECTORY_PATH
+from betty.fs import FileSystem, ROOT_DIRECTORY_PATH
+from betty.hashid import hashid_file_meta
 from betty.json.linked_data import LinkedDataDumpable, dump_context, add_json_ld
 from betty.json.schema import ref_locale, add_property
 from betty.serde.dump import DictDump, Dump, dump_default
@@ -891,7 +892,7 @@ class LocalizerRepository:
     ) -> gettext.GNUTranslations | None:
         po_file_path = assets_directory_path / "locale" / locale / "betty.po"
         try:
-            translation_version = hashfile(po_file_path)
+            translation_version = wait_to_thread(hashid_file_meta(po_file_path))
         except FileNotFoundError:
             return None
         cache_directory_path = fs.CACHE_DIRECTORY_PATH / "locale" / translation_version

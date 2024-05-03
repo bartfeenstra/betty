@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import asyncio
 import shutil
-from base64 import b64encode
 from collections.abc import Sequence
 from contextlib import suppress
 from os import utime
@@ -19,6 +18,7 @@ from aiofiles.ospath import getmtime
 
 from betty.cache import CacheItem, CacheItemValueContraT, CacheItemValueCoT
 from betty.cache._base import _CommonCacheBase
+from betty.hashid import hashid
 from betty.locale import Localizer
 
 
@@ -83,7 +83,7 @@ class _FileCache(
         )
 
     def _cache_item_file_path(self, cache_item_id: str) -> Path:
-        return self._path / b64encode(cache_item_id.encode("utf-8")).decode("utf-8")
+        return self._path / hashid(cache_item_id)
 
     def _dump_value(self, value: CacheItemValueContraT) -> bytes:
         raise NotImplementedError

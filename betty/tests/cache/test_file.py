@@ -64,12 +64,12 @@ class TestBinaryFileCache(CacheTestBase[bytes]):
     @pytest.mark.parametrize(
         "expected_path_components, scopes",
         [
-            (("aWQ=",), ()),
+            (("b80bb7740288fda1f201890375a60c8f",), ()),
             (
                 (
                     "scopey",
                     "dopey",
-                    "aWQ=",
+                    "b80bb7740288fda1f201890375a60c8f",
                 ),
                 (
                     "scopey",

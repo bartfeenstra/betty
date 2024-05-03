@@ -5,7 +5,6 @@ Jinja2 `filters <https://jinja.palletsprojects.com/en/3.1.x/templates/#filters>`
 and specifically designed to transform data.
 In addition to Jinja2's built-in filters, Betty provides the following:
 
-- :py:func:`base64 <betty.jinja2.filter.filter_base64>`
 - :py:func:`camel_case_to_kebab_case <betty.string.camel_case_to_kebab_case>`
 - :py:func:`camel_case_to_snake_case <betty.string.camel_case_to_snake_case>`
 - :py:func:`entity_type_name <betty.model.get_entity_type_name>`
@@ -13,6 +12,7 @@ In addition to Jinja2's built-in filters, Betty provides the following:
 - :py:func:`flatten <betty.jinja2.filter.filter_flatten>`
 - :py:func:`format_datey <betty.jinja2.filter.filter_format_datey>`
 - :py:func:`format_degrees <betty.jinja2.filter.filter_format_degrees>`
+- :py:func:`hashid <betty.jinja2.filter.filter_hashid>`
 - :py:func:`image <betty.jinja2.filter.filter_image>`
 - :py:func:`json <betty.jinja2.filter.filter_json>`
 - :py:func:`locale_get_data <betty.locale.get_data>`

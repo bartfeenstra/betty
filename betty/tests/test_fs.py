@@ -2,9 +2,10 @@ from pathlib import Path
 
 import aiofiles
 import pytest
-from aiofiles.tempfile import TemporaryDirectory
+from aiofiles.tempfile import TemporaryDirectory, NamedTemporaryFile
 
 from betty.fs import iterfiles, FileSystem, hashfile
+from betty.warnings import BettyDeprecationWarning
 
 
 class TestIterfiles:
@@ -32,32 +33,15 @@ class TestIterfiles:
 
 
 class TestHashfile:
-    async def test_hashfile_with_identical_file(self) -> None:
-        file_path = (
-            Path(__file__).parents[1]
-            / "assets"
-            / "public"
-            / "static"
-            / "betty-16x16.png"
-        )
-        assert hashfile(file_path) == hashfile(file_path)
+    async def test_with_identical_file(self) -> None:
+        async with NamedTemporaryFile() as f:
+            with pytest.warns(BettyDeprecationWarning):
+                assert hashfile(Path(f.name)) == hashfile(Path(f.name))  # type: ignore[arg-type]
 
-    async def test_hashfile_with_different_files(self) -> None:
-        file_path_1 = (
-            Path(__file__).parents[1]
-            / "assets"
-            / "public"
-            / "static"
-            / "betty-16x16.png"
-        )
-        file_path_2 = (
-            Path(__file__).parents[1]
-            / "assets"
-            / "public"
-            / "static"
-            / "betty-512x512.png"
-        )
-        assert hashfile(file_path_1) != hashfile(file_path_2)
+    async def test_with_different_files(self) -> None:
+        async with NamedTemporaryFile() as f_left, NamedTemporaryFile() as f_right:
+            with pytest.warns(BettyDeprecationWarning):
+                assert hashfile(Path(f_left.name)) != hashfile(Path(f_right.name))  # type: ignore[arg-type]
 
 
 class TestFileSystem:
