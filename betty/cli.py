@@ -50,7 +50,7 @@ def catch_exceptions() -> Iterator[None]:
     except KeyboardInterrupt:
         print("Quitting...")
         sys.exit(0)
-    except BaseException as e:
+    except BaseException as e:  # noqa: B036
         logger = logging.getLogger(__name__)
         if isinstance(e, UserFacingError):
             logger.error(str(e))

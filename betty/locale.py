@@ -108,7 +108,7 @@ def get_data(locale: Localey) -> Locale:
         return locale
     try:
         return Locale.parse(to_babel_identifier(locale))
-    except BaseException as e:
+    except Exception as e:
         raise LocaleNotFoundError(locale) from e
 
 

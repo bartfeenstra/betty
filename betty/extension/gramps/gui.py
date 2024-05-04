@@ -63,21 +63,25 @@ class _FamilyTrees(LocalizedObject, QWidget):
         self._family_trees_widget.setLayout(self._family_trees_layout)
         self._layout.addWidget(self._family_trees_widget)
 
-        for i, family_tree in enumerate(
+        for index, family_tree in enumerate(
             self._app.extensions[Gramps].configuration.family_trees
         ):
-
-            def _remove_family_tree() -> None:
-                del self._app.extensions[Gramps].configuration.family_trees[i]
-
-            self._family_trees_layout.addWidget(Text(str(family_tree.file_path)), i, 0)
-            self._family_trees_remove_buttons.insert(i, QPushButton())
-            self._family_trees_remove_buttons[i].released.connect(_remove_family_tree)
-            self._family_trees_layout.addWidget(
-                self._family_trees_remove_buttons[i], i, 1
-            )
+            self._build_family_tree(family_tree, index)
         self._layout.insertWidget(
             0, self._family_trees_widget, alignment=Qt.AlignmentFlag.AlignTop
+        )
+
+    def _build_family_tree(
+        self, family_tree: FamilyTreeConfiguration, index: int
+    ) -> None:
+        def _remove_family_tree() -> None:
+            del self._app.extensions[Gramps].configuration.family_trees[index]
+
+        self._family_trees_layout.addWidget(Text(str(family_tree.file_path)), index, 0)
+        self._family_trees_remove_buttons.insert(index, QPushButton())
+        self._family_trees_remove_buttons[index].released.connect(_remove_family_tree)
+        self._family_trees_layout.addWidget(
+            self._family_trees_remove_buttons[index], index, 1
         )
 
     def _set_translatables(self) -> None:

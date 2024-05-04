@@ -312,7 +312,7 @@ class _LocalesConfigurationWidget(LocalizedObject, QWidget):
             if locale_name is None:
                 continue
             locales_data.append((locale, locale_name))
-        for locale_index, (locale, locale_name) in enumerate(
+        for locale_index, (locale, _locale_name) in enumerate(
             sorted(
                 locales_data,
                 key=lambda locale_data: locale_data[1],
@@ -697,7 +697,7 @@ class ProjectWindow(BettyPrimaryWindow):
             (extension_type, extension_type.label().localize(self._app.localizer))
             for extension_type in self._extension_types
         ]
-        for extension_type, extension_label in sorted(
+        for extension_type, _extension_label in sorted(
             extension_pane_selector_labels, key=lambda x: x[1]
         ):
             extension_pane_name = f"extension-{extension_type.name()}"

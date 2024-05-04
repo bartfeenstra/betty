@@ -101,7 +101,7 @@ class Server:
         async with ClientSession() as session:
             try:
                 await Do[Any, None](self._assert_available, session).until()
-            except BaseException:
+            except Exception:
                 raise UserFacingError(
                     Str._("The server was unreachable after starting.")
                 )

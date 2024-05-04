@@ -223,7 +223,7 @@ async def _generate_dispatch(
     job_context: GenerationContext,
 ) -> None:
     app = job_context.app
-    await app.dispatcher.dispatch(Generator)(job_context),
+    await app.dispatcher.dispatch(Generator)(job_context)
 
 
 async def _generate_public(
