@@ -1,20 +1,16 @@
-# Virtual environments.
-/.tox
-/venv
-
 # JavaScript development dependencies.
 /node_modules
 /package-lock.json
 
-# Python build artifacts.
+# Python bytecode
 __pycache__
-/betty.egg-info
-/build
-/dist
 *.pyc
 *.pyc.*
 
-# PyInstaller build artifacts.
+# Setuptools build artifacts.
+/betty.egg-info
+/build
+/dist
 
 # Test artifacts.
 /.coverage
