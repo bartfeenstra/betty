@@ -106,7 +106,9 @@ class TestIndex:
             app.project.ancestry.add(person)
             indexed = [
                 item
-                async for item in Index(app, Context(), app.localizers[locale]).build()
+                async for item in Index(
+                    app, Context(), await app.localizers.get(locale)
+                ).build()
             ]
 
             assert "jane" == indexed[0]["text"]
@@ -142,7 +144,9 @@ class TestIndex:
             app.project.ancestry.add(person)
             indexed = [
                 item
-                async for item in Index(app, Context(), app.localizers[locale]).build()
+                async for item in Index(
+                    app, Context(), await app.localizers.get(locale)
+                ).build()
             ]
 
             assert "doughnut" == indexed[0]["text"]
@@ -180,7 +184,9 @@ class TestIndex:
             app.project.ancestry.add(person)
             indexed = [
                 item
-                async for item in Index(app, Context(), app.localizers[locale]).build()
+                async for item in Index(
+                    app, Context(), await app.localizers.get(locale)
+                ).build()
             ]
 
             assert "jane doughnut" == indexed[0]["text"]
@@ -221,7 +227,9 @@ class TestIndex:
             app.project.ancestry.add(place)
             indexed = [
                 item
-                async for item in Index(app, Context(), app.localizers[locale]).build()
+                async for item in Index(
+                    app, Context(), await app.localizers.get(locale)
+                ).build()
             ]
 
             assert "netherlands nederland" == indexed[0]["text"]
@@ -300,7 +308,9 @@ class TestIndex:
             app.project.ancestry.add(file)
             indexed = [
                 item
-                async for item in Index(app, Context(), app.localizers[locale]).build()
+                async for item in Index(
+                    app, Context(), await app.localizers.get(locale)
+                ).build()
             ]
 
             assert '"file" is dutch for "traffic jam"' == indexed[0]["text"]

@@ -23,6 +23,7 @@ from betty.locale import (
     to_locale,
     update_translations,
 )
+from betty.warnings import BettyDeprecationWarning
 
 
 class TestPotFile:
@@ -650,4 +651,6 @@ msgstr "Onderwerp"
             async with aiofiles.open(lc_messages_directory_path / "betty.po", "w") as f:
                 await f.write(po)
             sut = LocalizerRepository(fs)
-            assert "Onderwerp" == sut[locale]._("Subject")
+            with pytest.warns(BettyDeprecationWarning):
+                actual = sut[locale]._("Subject")
+            assert "Onderwerp" == actual

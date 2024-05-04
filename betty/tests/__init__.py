@@ -94,7 +94,7 @@ class TemplateTestCase:
             if data is None:
                 data = {}
             if locale is not None:
-                data["localizer"] = app.localizers[locale]
+                data["localizer"] = await app.localizers.get(locale)
             app.project.configuration.extensions.enable(*self.extensions)
             rendered = await template_factory(
                 app.jinja2_environment, template
