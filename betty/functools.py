@@ -37,12 +37,12 @@ def walk(item: Any, attribute_name: str) -> Iterable[Any]:
 
     # Otherwise loop over the children and yield their attributes.
     try:
-        child = iter(child)
+        child_children = iter(child)
     except TypeError:
         return
-    for child in child:
-        yield child
-        yield from walk(child, attribute_name)
+    for child_child in child_children:
+        yield child_child
+        yield from walk(child_child, attribute_name)
 
 
 def slice_to_range(indices: slice, iterable: Sized) -> Iterable[int]:
@@ -88,7 +88,7 @@ class _Result(Generic[T]):
             return cast(_Result[U], self)
         try:
             return _Result(f(self.value))
-        except BaseException as e:
+        except Exception as e:
             return _Result(None, e)
 
 

@@ -27,7 +27,7 @@ class TestPackageLicenses:
         for compatible_license in self._GPL_V3_COMPATIBLE_LICENSES:
             if compatible_license in package_license["License"]:
                 return
-        assert False, (
+        raise AssertionError(
             "%s is released under the %s, which is not known to be compatible with Betty's own license"
             % (
                 package_license["Name"],

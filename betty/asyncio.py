@@ -100,5 +100,7 @@ class _WaiterThread(Thread, Generic[T]):
     async def _run(self) -> None:
         try:
             self._return_value = await self._awaitable
-        except BaseException as e:
+        except BaseException as e:  # noqa: B036
+            # Store the exception, so it can be reraised when the calling thread
+            # gets self.return_value.
             self._e = e
