@@ -458,26 +458,31 @@ class _Populator:
                 try:
                     file = self._image_files[image]
                 except KeyError:
-                    file = File(
-                        id=f"wikipedia-{image.title}",
-                        path=image.path,
-                        media_type=image.media_type,
-                        links=[
+                    links = []
+                    for (
+                        locale_configuration
+                    ) in self._app.project.configuration.locales.values():
+                        localizer = await self._app.localizers.get(
+                            locale_configuration.locale
+                        )
+                        links.append(
                             Link(
                                 f"{image.wikimedia_commons_url}?uselang={locale_configuration.alias}",
-                                label=self._app.localizers[
-                                    locale_configuration.locale
-                                ]._("Description, licensing, and image history"),
-                                description=self._app.localizers[
-                                    locale_configuration.locale
-                                ]._(
+                                label=localizer._(
+                                    "Description, licensing, and image history"
+                                ),
+                                description=localizer._(
                                     "Find out more about this image on Wikimedia Commons."
                                 ),
                                 locale=locale_configuration.locale,
                                 media_type=MediaType("text/html"),
                             )
-                            for locale_configuration in self._app.project.configuration.locales.values()
-                        ],
+                        )
+                    file = File(
+                        id=f"wikipedia-{image.title}",
+                        path=image.path,
+                        media_type=image.media_type,
+                        links=links,
                     )
                     self._image_files[image] = file
 

@@ -244,7 +244,7 @@ async def _generate_public(
         await app.renderer.render_file(
             file_path,
             job_context=job_context,
-            localizer=app.localizers[locale],
+            localizer=await app.localizers.get(locale),
         )
 
 
@@ -283,7 +283,7 @@ async def _generate_entity_type_list_html(
     )
     rendered_html = await template.render_async(
         job_context=job_context,
-        localizer=app.localizers[locale],
+        localizer=await app.localizers.get(locale),
         page_resource=f"/{entity_type_name_fs}/index.html",
         entity_type=entity_type,
         entities=app.project.ancestry[entity_type],
@@ -343,7 +343,7 @@ async def _generate_entity_html(
         ]
     ).render_async(
         job_context=job_context,
-        localizer=app.localizers[locale],
+        localizer=await app.localizers.get(locale),
         page_resource=entity,
         entity_type=entity.type,
         entity=entity,
