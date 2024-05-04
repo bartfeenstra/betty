@@ -41,9 +41,9 @@ Betty does not help you gather or manage the data for your family history. For t
 
 Find Betty on
 -------------
-- :si-icon:`fontawesome/brands/twitter` `Twitter <https://twitter.com/Betty_Project>`_
-- :si-icon:`fontawesome/brands/github` `Github <https://github.com/bartfeenstra/betty>`_
-- :si-icon:`fontawesome/brands/python` `PyPI <https://pypi.org/project/betty>`_
+- `Twitter <https://twitter.com/Betty_Project>`_
+- `Github <https://github.com/bartfeenstra/betty>`_
+- `PyPI <https://pypi.org/project/betty>`_
 
 In this section
 ---------------
