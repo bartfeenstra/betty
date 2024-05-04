@@ -15,7 +15,7 @@ from betty.project import ExtensionConfiguration
 
 class TestDemo:
     async def test_load(self, mocker: MockerFixture) -> None:
-        mocker.patch("webbrowser.open_new_tab")
+        mocker.patch("betty.wikipedia._Populator.populate")
         async with App.new_temporary() as app, app:
             app.project.configuration.extensions.append(ExtensionConfiguration(Demo))
             await load(app)
@@ -31,6 +31,7 @@ class TestDemoServer:
         self,
         mocker: MockerFixture,
     ) -> None:
+        mocker.patch("betty.wikipedia._Populator.populate")
         mocker.patch("webbrowser.open_new_tab")
         async with App.new_temporary() as app, app:
             async with DemoServer(app=app) as server:
