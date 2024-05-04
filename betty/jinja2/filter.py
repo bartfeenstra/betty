@@ -298,7 +298,7 @@ async def filter_image(
     else:
         raise ValueError("Cannot convert a file without a media type to an image.")
 
-    cache_item_id = f'{hashid_file_meta(file.path)}:{"" if width is None else width}:{"" if height is None else height}'
+    cache_item_id = f'{await hashid_file_meta(file.path)}:{"" if width is None else width}:{"" if height is None else height}'
     execute_filter = True
     if job_context:
         async with job_context.cache.with_scope("filter_image").getset(
