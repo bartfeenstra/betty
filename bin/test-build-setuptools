@@ -14,3 +14,18 @@ if [ $build_exit_code -ne 0 ]; then
   echo "$build_output"
   exit $build_exit_code
 fi
+wheel_path="$(pwd)/dist/betty-0.0.0-py3-none-any.whl"
+(
+  working_directory_path="$(mktemp -d)"
+  trap 'rm -r "$working_directory_path"' EXIT
+  cd "$working_directory_path"
+  python -m virtualenv venv
+  # shellcheck disable=SC1091
+  if python -c 'import sys; exit(0 if sys.platform == "win32" else 1)'; then
+    . ./venv/Scripts/activate
+  else
+    . ./venv/bin/activate
+  fi
+  pip install "$wheel_path"
+  betty --version
+)

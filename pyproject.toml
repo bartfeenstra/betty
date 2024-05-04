@@ -127,6 +127,7 @@ test = [
     'types-pyyaml ~= 6.0, >= 6.0.6',
     'types-requests ~= 2.29, >= 2.29.0.0',
     'types-setuptools ~= 69.0',
+    'virtualenv ~= 20.26',
     'betty[pyinstaller]',
     'betty[setuptools]',
 ]
