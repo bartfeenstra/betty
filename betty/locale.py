@@ -11,10 +11,9 @@ import gettext
 import glob
 import logging
 import operator
-import threading
 from collections import defaultdict
 from collections.abc import AsyncIterator
-from contextlib import suppress, redirect_stdout, chdir
+from contextlib import suppress, redirect_stdout, redirect_stderr
 from functools import total_ordering
 from io import StringIO
 from pathlib import Path
@@ -41,6 +40,7 @@ from polib import pofile
 
 from betty import fs
 from betty.asyncio import wait_to_thread
+from betty.concurrent import _Lock, AsynchronizedLock
 from betty.fs import FileSystem, ROOT_DIRECTORY_PATH
 from betty.hashid import hashid_file_meta
 from betty.json.linked_data import LinkedDataDumpable, dump_context, add_json_ld
@@ -842,7 +842,7 @@ class LocalizerRepository:
     def __init__(self, assets: FileSystem):
         self._assets = assets
         self._localizers: dict[str, Localizer] = {}
-        self._locks: dict[str, threading.Lock] = defaultdict(threading.Lock)
+        self._locks: Mapping[str, _Lock] = defaultdict(AsynchronizedLock.threading)
 
     @property
     def locales(self) -> Iterator[str]:
@@ -855,17 +855,14 @@ class LocalizerRepository:
 
     async def get(self, locale: Localey) -> Localizer:
         locale = to_locale(locale)
-        try:
-            return self._localizers[locale]
-        except KeyError:
-            return await self._build_translation(locale)
+        async with self._locks[locale]:
+            try:
+                return self._localizers[locale]
+            except KeyError:
+                return await self._build_translation(locale)
 
     def __getitem__(self, locale: Localey) -> Localizer:
-        locale = to_locale(locale)
-        try:
-            return self._localizers[locale]
-        except KeyError:
-            return wait_to_thread(self._build_translation(locale))
+        return wait_to_thread(self.get(locale))
 
     async def get_negotiated(self, *preferred_locales: str) -> Localizer:
         preferred_locales = (*preferred_locales, DEFAULT_LOCALE)
@@ -878,8 +875,8 @@ class LocalizerRepository:
     async def _build_translation(self, locale: str) -> Localizer:
         translations = gettext.NullTranslations()
         for assets_directory_path, __ in reversed(self._assets.paths):
-            opened_translations = await asyncio.to_thread(
-                self._open_translations, locale, assets_directory_path
+            opened_translations = await self._open_translations(
+                locale, assets_directory_path
             )
             if opened_translations:
                 opened_translations.add_fallback(translations)
@@ -887,7 +884,7 @@ class LocalizerRepository:
         self._localizers[locale] = Localizer(locale, translations)
         return self._localizers[locale]
 
-    def _open_translations(
+    async def _open_translations(
         self, locale: str, assets_directory_path: Path
     ) -> gettext.GNUTranslations | None:
         po_file_path = assets_directory_path / "locale" / locale / "betty.po"
@@ -898,28 +895,24 @@ class LocalizerRepository:
         cache_directory_path = fs.CACHE_DIRECTORY_PATH / "locale" / translation_version
         mo_file_path = cache_directory_path / "betty.mo"
 
-        with self._locks[locale]:
-            with suppress(FileNotFoundError):
-                with open(mo_file_path, "rb") as f:
-                    return gettext.GNUTranslations(f)
+        with suppress(FileNotFoundError):
+            with open(mo_file_path, "rb") as f:
+                return gettext.GNUTranslations(f)
 
-            cache_directory_path.mkdir(exist_ok=True, parents=True)
+        cache_directory_path.mkdir(exist_ok=True, parents=True)
 
-            with redirect_stdout(StringIO()):
-                CommandLineInterface().run(
-                    [
-                        "",
-                        "compile",
-                        "-i",
-                        str(po_file_path),
-                        "-o",
-                        str(mo_file_path),
-                        "-l",
-                        str(get_data(locale)),
-                        "-D",
-                        "betty",
-                    ]
-                )
+        await run_babel(
+            "",
+            "compile",
+            "-i",
+            str(po_file_path),
+            "-o",
+            str(mo_file_path),
+            "-l",
+            str(get_data(locale)),
+            "-D",
+            "betty",
+        )
         with open(mo_file_path, "rb") as f:
             return gettext.GNUTranslations(f)
 
@@ -1128,6 +1121,18 @@ def negotiate_localizeds(
     return None
 
 
+def _run_babel(*args: str) -> None:
+    with redirect_stderr(StringIO()):
+        CommandLineInterface().run(list(args))
+
+
+async def run_babel(*args: str) -> None:
+    """
+    Run a Babel Command Line Interface (CLI) command.
+    """
+    await asyncio.to_thread(_run_babel, *args)
+
+
 async def init_translation(locale: str) -> None:
     """
     Initialize a new translation.
@@ -1141,20 +1146,18 @@ async def init_translation(locale: str) -> None:
             return
 
         locale_data = get_data(locale)
-        CommandLineInterface().run(
-            [
-                "",
-                "init",
-                "--no-wrap",
-                "-i",
-                str(fs.ASSETS_DIRECTORY_PATH / "betty.pot"),
-                "-o",
-                str(po_file_path),
-                "-l",
-                str(locale_data),
-                "-D",
-                "betty",
-            ]
+        await run_babel(
+            "",
+            "init",
+            "--no-wrap",
+            "-i",
+            str(fs.ASSETS_DIRECTORY_PATH / "betty.pot"),
+            "-o",
+            str(po_file_path),
+            "-l",
+            str(locale_data),
+            "-D",
+            "betty",
         )
         logging.getLogger(__name__).info(
             f"Translations for {locale} initialized at {po_file_path}."
@@ -1172,48 +1175,42 @@ async def update_translations(
     # or we'll be seeing some unusual additions to the translations.
     source_paths.remove(str(Path("betty") / "tests"))
     pot_file_path = _output_assets_directory_path / "betty.pot"
-    with redirect_stdout(StringIO()):
-        with chdir(ROOT_DIRECTORY_PATH):
-            CommandLineInterface().run(
-                [
-                    "",
-                    "extract",
-                    "--no-location",
-                    "--no-wrap",
-                    "--sort-output",
-                    "-F",
-                    "babel.ini",
-                    "-o",
-                    str(pot_file_path),
-                    "--project",
-                    "Betty",
-                    "--copyright-holder",
-                    "Bart Feenstra & contributors",
-                    *source_paths,
-                ]
+    await run_babel(
+        "",
+        "extract",
+        "--no-location",
+        "--no-wrap",
+        "--sort-output",
+        "-F",
+        "babel.ini",
+        "-o",
+        str(pot_file_path),
+        "--project",
+        "Betty",
+        "--copyright-holder",
+        "Bart Feenstra & contributors",
+        *(str(ROOT_DIRECTORY_PATH / source_path) for source_path in source_paths),
+    )
+    for po_file_path_str in glob.glob("betty/assets/locale/*/betty.po"):
+        po_file_path = (
+            _output_assets_directory_path
+            / (ROOT_DIRECTORY_PATH / po_file_path_str).relative_to(
+                fs.ASSETS_DIRECTORY_PATH
             )
-            for po_file_path_str in glob.glob("betty/assets/locale/*/betty.po"):
-                po_file_path = (
-                    _output_assets_directory_path
-                    / (ROOT_DIRECTORY_PATH / po_file_path_str).relative_to(
-                        fs.ASSETS_DIRECTORY_PATH
-                    )
-                ).resolve()
-                await makedirs(po_file_path.parent, exist_ok=True)
-                po_file_path.touch()
-                locale = po_file_path.parent.name
-                locale_data = get_data(locale)
-                CommandLineInterface().run(
-                    [
-                        "",
-                        "update",
-                        "-i",
-                        str(pot_file_path),
-                        "-o",
-                        str(po_file_path),
-                        "-l",
-                        str(locale_data),
-                        "-D",
-                        "betty",
-                    ]
-                )
+        ).resolve()
+        await makedirs(po_file_path.parent, exist_ok=True)
+        po_file_path.touch()
+        locale = po_file_path.parent.name
+        locale_data = get_data(locale)
+        await run_babel(
+            "",
+            "update",
+            "-i",
+            str(pot_file_path),
+            "-o",
+            str(po_file_path),
+            "-l",
+            str(locale_data),
+            "-D",
+            "betty",
+        )
