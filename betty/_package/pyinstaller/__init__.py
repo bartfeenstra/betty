@@ -8,33 +8,9 @@ from PyInstaller.building.api import PYZ, EXE, COLLECT
 from PyInstaller.building.build_main import Analysis
 from setuptools import find_packages
 
+from betty._package import prebuild
 from betty._package.pyinstaller.hooks import HOOKS_DIRECTORY_PATH
-from betty.app import App
-from betty.app.extension import discover_extension_types
-from betty.extension.webpack import (
-    Webpack,
-    WebpackEntrypointProvider,
-)
 from betty.fs import ROOT_DIRECTORY_PATH
-from betty.job import Context
-
-
-async def prebuild_webpack_assets() -> None:
-    """
-    Prebuild Webpack assets for inclusion in package builds.
-    """
-    job_context = Context()
-    async with App.new_temporary() as app, app:
-        app.project.configuration.extensions.enable(Webpack)
-        webpack = app.extensions[Webpack]
-        app.project.configuration.extensions.enable(
-            *{
-                extension_type
-                for extension_type in discover_extension_types()
-                if issubclass(extension_type, WebpackEntrypointProvider)
-            }
-        )
-        await webpack.prebuild(job_context=job_context)
 
 
 async def a_pyz_exe_coll() -> tuple[Analysis, PYZ, EXE, COLLECT]:
@@ -50,7 +26,7 @@ async def a_pyz_exe_coll() -> tuple[Analysis, PYZ, EXE, COLLECT]:
     else:
         raise RuntimeError(f"Unsupported platform {sys.platform}.")
 
-    await prebuild_webpack_assets()
+    await prebuild()
     block_cipher = None
     datas = []
     data_file_path_patterns = [

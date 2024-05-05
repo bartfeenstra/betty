@@ -4,6 +4,8 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
+./bin/clean-build
+
 if [ -z "${BETTY_TEST_SKIP_SHELLCHECK-}" ]; then
   ./bin/test-shellcheck
 fi
