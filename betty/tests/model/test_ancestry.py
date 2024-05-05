@@ -672,6 +672,16 @@ class TestSource:
         sut.contains = [contains_source]  # type: ignore[assignment]
         assert [contains_source] == list(sut.contains)
 
+    async def test_walk_contains_without_contains(self) -> None:
+        sut = Source()
+        assert [] == list(sut.walk_contains)
+
+    async def test_walk_contains_with_contains(self) -> None:
+        sut = Source()
+        contains = Source(contained_by=sut)
+        contains_contains = Source(contained_by=contains)
+        assert [contains, contains_contains] == list(sut.walk_contains)
+
     async def test_citations(self) -> None:
         sut = Source()
         assert [] == list(sut.citations)
@@ -1245,6 +1255,30 @@ class TestPlace:
         sut.encloses.remove(enclosure)
         assert [] == list(sut.encloses)
         assert enclosure.enclosed_by is None
+
+    async def test_walk_encloses_without_encloses(self) -> None:
+        sut = Place(
+            id="P1",
+            names=[PlaceName(name="The Place")],
+        )
+        assert [] == list(sut.walk_encloses)
+
+    async def test_walk_encloses_with_encloses(self) -> None:
+        sut = Place(
+            id="P1",
+            names=[PlaceName(name="The Place")],
+        )
+        encloses_place = Place(
+            id="P2",
+            names=[PlaceName(name="The Other Place")],
+        )
+        encloses = Enclosure(encloses_place, sut)
+        encloses_encloses_place = Place(
+            id="P2",
+            names=[PlaceName(name="The Other Other Place")],
+        )
+        encloses_encloses = Enclosure(encloses_encloses_place, encloses_place)
+        assert [encloses, encloses_encloses] == list(sut.walk_encloses)
 
     async def test_id(self) -> None:
         place_id = "C1"
@@ -1871,6 +1905,30 @@ class TestPerson:
         parent = Person(id="3")
         parent.children = [sut, sibling]  # type: ignore[assignment]
         assert [sibling] == list(sut.siblings)
+
+    async def test_ancestors_without_parents(self) -> None:
+        sut = Person(id="person")
+        assert [] == list(sut.ancestors)
+
+    async def test_ancestors_with_parent(self) -> None:
+        sut = Person(id="1")
+        parent = Person(id="3")
+        sut.parents.add(parent)
+        grandparent = Person(id="2")
+        parent.parents.add(grandparent)
+        assert [parent, grandparent] == list(sut.ancestors)
+
+    async def test_descendants_without_parents(self) -> None:
+        sut = Person(id="person")
+        assert [] == list(sut.descendants)
+
+    async def test_descendants_with_parent(self) -> None:
+        sut = Person(id="1")
+        child = Person(id="3")
+        sut.children.add(child)
+        grandchild = Person(id="2")
+        child.children.add(grandchild)
+        assert [child, grandchild] == list(sut.descendants)
 
     async def test_associated_files(self) -> None:
         file1 = File(path=Path())

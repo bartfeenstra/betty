@@ -24,6 +24,7 @@ from betty.model.ancestry import (
     Citation,
 )
 from betty.tests import TemplateTestCase
+from betty.warnings import BettyDeprecationWarning
 
 
 class TestJinja2Provider:
@@ -97,13 +98,14 @@ class TestFilterWalk(TemplateTestCase):
         ],
     )
     async def test(self, expected: str, template: str, data: WalkData) -> None:
-        async with self._render(
-            template_string=template,
-            data={
-                "data": data,
-            },
-        ) as (actual, _):
-            assert expected == actual
+        with pytest.warns(BettyDeprecationWarning):
+            async with self._render(
+                template_string=template,
+                data={
+                    "data": data,
+                },
+            ) as (actual, _):
+                assert expected == actual
 
 
 class TestFilterParagraphs(TemplateTestCase):

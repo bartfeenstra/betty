@@ -18,7 +18,6 @@ from betty.app.extension import ConfigurableExtension, Extension, Theme
 from betty.config import Configuration
 from betty.extension.cotton_candy.search import Index
 from betty.extension.webpack import Webpack, WebpackEntrypointProvider
-from betty.functools import walk
 from betty.gui import GuiBuilder
 from betty.html import CssProvider
 from betty.jinja2 import (
@@ -427,9 +426,9 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
             is_public,
             (
                 # All ancestors.
-                *walk(person, "parents"),
+                *person.ancestors,
                 # All descendants.
-                *walk(person, "children"),
+                *person.descendants,
                 # All siblings.
                 *person.siblings,
             ),

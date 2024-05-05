@@ -31,4 +31,3 @@ In addition to Jinja2's built-in filters, Betty provides the following:
 - :py:func:`upper_camel_case_to_lower_camel_case <betty.string.upper_camel_case_to_lower_camel_case>`
 - :py:func:`url <betty.jinja2.filter.filter_url>`
 - :py:func:`void_none <betty.serde.dump.void_none>`
-- :py:func:`walk <betty.jinja2.filter.filter_walk>`

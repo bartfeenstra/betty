@@ -17,7 +17,7 @@
 </div>
 
 <div class="featured-entity-feature">
-    {% set places = place | walk('encloses') | select('entity', 'Place') | list %}
+    {% set places = place.walk_encloses | map(attribute='encloses') | select('entity', 'Place') | list %}
     {% if place.coordinates %}
         {% set places = places + [place] %}
     {% endif %}
