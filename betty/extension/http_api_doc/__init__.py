@@ -2,61 +2,33 @@
 
 from __future__ import annotations
 
-import asyncio
-import logging
+from collections.abc import Sequence
 from pathlib import Path
-from shutil import copy2
-
-from aiofiles.os import makedirs
 
 from betty.app.extension import Extension, UserFacingExtension
-from betty.extension.npm import _Npm, _NpmBuilder, _NpmBuilderCacheScope
-from betty.generate import Generator, GenerationContext
+from betty.extension.webpack import Webpack, WebpackEntrypointProvider
 from betty.locale import Str
 
 
-class HttpApiDoc(UserFacingExtension, Generator, _NpmBuilder):
+class HttpApiDoc(UserFacingExtension, WebpackEntrypointProvider):
     @classmethod
     def name(cls) -> str:
         return "betty.extension.HttpApiDoc"
 
     @classmethod
     def depends_on(cls) -> set[type[Extension]]:
-        return {_Npm}
-
-    async def npm_build(
-        self, working_directory_path: Path, assets_directory_path: Path
-    ) -> None:
-        await self.app.extensions[_Npm].install(type(self), working_directory_path)
-        await asyncio.to_thread(
-            copy2,
-            working_directory_path
-            / "node_modules"
-            / "redoc"
-            / "bundles"
-            / "redoc.standalone.js",
-            assets_directory_path / "http-api-doc.js",
-        )
-        logging.getLogger(__name__).info(
-            self._app.localizer._("Built the HTTP API documentation.")
-        )
+        return {Webpack}
 
     @classmethod
-    def npm_cache_scope(cls) -> _NpmBuilderCacheScope:
-        return _NpmBuilderCacheScope.BETTY
-
-    async def generate(self, job_context: GenerationContext) -> None:
-        assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
-        await makedirs(self.app.project.configuration.www_directory_path, exist_ok=True)
-        await asyncio.to_thread(
-            copy2,
-            assets_directory_path / "http-api-doc.js",
-            self.app.project.configuration.www_directory_path / "http-api-doc.js",
-        )
-
-    @classmethod
-    def assets_directory_path(cls) -> Path | None:
+    def assets_directory_path(cls) -> Path:
         return Path(__file__).parent / "assets"
+
+    @classmethod
+    def webpack_entrypoint_directory_path(cls) -> Path:
+        return Path(__file__).parent / "webpack"
+
+    def webpack_entrypoint_cache_keys(self) -> Sequence[str]:
+        return ()
 
     @classmethod
     def label(cls) -> Str:

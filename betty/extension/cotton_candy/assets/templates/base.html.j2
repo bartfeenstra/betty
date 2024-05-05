@@ -4,8 +4,6 @@
 <head>
     {% include 'head.html.j2' %}
     <link rel="manifest" href="{{ '/betty.webmanifest' | static_url }}">
-    <link rel="stylesheet" href="{{ '/cotton_candy.css' | static_url }}">
-    <script src="{{ '/cotton_candy.js' | static_url }}" defer></script>
 </head>
 <body>
 <script>
@@ -118,5 +116,9 @@
     </footer>
 </div>
 {% include 'linked-data.html.j2' %}
+{% include 'stylesheets.html.j2' %}
+{% do 'betty.extension.CottonCandy' | webpack_entrypoint_js %}
+{% include 'webpack-entry-loader.html.j2' %}
+{% include 'scripts.html.j2' %}
 </body>
 </html>

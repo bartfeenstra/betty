@@ -5,9 +5,9 @@ Integrate Betty with pytest.
 from __future__ import annotations
 
 import logging
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Iterator
 from pathlib import Path
-from typing import Iterator, TypeVar, cast
+from typing import TypeVar, cast
 from warnings import filterwarnings
 
 import pytest

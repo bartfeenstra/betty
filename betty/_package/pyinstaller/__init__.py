@@ -10,33 +10,31 @@ from setuptools import find_packages
 
 from betty._package.pyinstaller.hooks import HOOKS_DIRECTORY_PATH
 from betty.app import App
-from betty.app.extension import discover_extension_types, Extension
-from betty.asyncio import gather
-from betty.extension.npm import _Npm, build_assets, _NpmBuilder
+from betty.app.extension import discover_extension_types
+from betty.extension.webpack import (
+    Webpack,
+    WebpackEntrypointProvider,
+)
 from betty.fs import ROOT_DIRECTORY_PATH
-from betty.project import ExtensionConfiguration
+from betty.job import Context
 
 
-async def _build_assets() -> None:
-    npm_builder_extension_types: list[type[_NpmBuilder & Extension]] = [
-        extension_type
-        for extension_type in discover_extension_types()
-        if issubclass(extension_type, _NpmBuilder)
-    ]
+async def prebuild_webpack_assets() -> None:
+    """
+    Prebuild Webpack assets for inclusion in package builds.
+    """
+    job_context = Context()
     async with App.new_temporary() as app, app:
-        app.project.configuration.extensions.append(ExtensionConfiguration(_Npm))
-        for extension_type in npm_builder_extension_types:
-            app.project.configuration.extensions.append(
-                ExtensionConfiguration(extension_type)
-            )
-        await gather(
-            *(
-                [
-                    build_assets(app.extensions[extension_type])  # type: ignore[arg-type]
-                    for extension_type in npm_builder_extension_types
-                ]
-            )
+        app.project.configuration.extensions.enable(Webpack)
+        webpack = app.extensions[Webpack]
+        app.project.configuration.extensions.enable(
+            *{
+                extension_type
+                for extension_type in discover_extension_types()
+                if issubclass(extension_type, WebpackEntrypointProvider)
+            }
         )
+        await webpack.prebuild(job_context=job_context)
 
 
 async def a_pyz_exe_coll() -> tuple[Analysis, PYZ, EXE, COLLECT]:
@@ -52,12 +50,18 @@ async def a_pyz_exe_coll() -> tuple[Analysis, PYZ, EXE, COLLECT]:
     else:
         raise RuntimeError(f"Unsupported platform {sys.platform}.")
 
-    await _build_assets()
+    await prebuild_webpack_assets()
     block_cipher = None
     datas = []
     data_file_path_patterns = [
+        # Assets.
         "betty/assets/**",
         "betty/extension/*/assets/**",
+        # Webpack.
+        ".browserslistrc",
+        "betty/extension/*/webpack/**",
+        "tsconfig.json",
+        "prebuild/**",
     ]
     for data_file_path_pattern in data_file_path_patterns:
         for data_file_path_str in glob(

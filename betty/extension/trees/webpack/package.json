@@ -1,0 +1,9 @@
+{
+  "engines": {
+    "node": ">= 16"
+  },
+  "dependencies": {
+    "cytoscape": "^3.23.0",
+    "cytoscape-dagre": "^2.5.0"
+  }
+}

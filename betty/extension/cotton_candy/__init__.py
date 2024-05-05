@@ -4,27 +4,23 @@ Provide Betty's default theme.
 
 from __future__ import annotations
 
-import asyncio
-import logging
 import re
 from collections import defaultdict
 from collections.abc import Sequence, AsyncIterable
 from pathlib import Path
-from shutil import copy2
 from typing import Any, Callable, Iterable, Self, cast
 
 from PyQt6.QtWidgets import QWidget
-from aiofiles.os import makedirs
 from jinja2 import pass_context
 from jinja2.runtime import Context
 
 from betty.app.extension import ConfigurableExtension, Extension, Theme
 from betty.config import Configuration
 from betty.extension.cotton_candy.search import Index
-from betty.extension.npm import _Npm, _NpmBuilder, npm
+from betty.extension.webpack import Webpack, WebpackEntrypointProvider
 from betty.functools import walk
-from betty.generate import Generator, GenerationContext
 from betty.gui import GuiBuilder
+from betty.html import CssProvider
 from betty.jinja2 import (
     Jinja2Provider,
     context_app,
@@ -221,11 +217,11 @@ class CottonCandyConfiguration(Configuration):
 
 class CottonCandy(
     Theme,
+    CssProvider,
     ConfigurableExtension[CottonCandyConfiguration],
-    Generator,
     GuiBuilder,
-    _NpmBuilder,
     Jinja2Provider,
+    WebpackEntrypointProvider,
 ):
     @classmethod
     def name(cls) -> str:
@@ -233,11 +229,38 @@ class CottonCandy(
 
     @classmethod
     def depends_on(cls) -> set[type[Extension]]:
-        return {_Npm}
+        return {Webpack}
 
     @classmethod
-    def assets_directory_path(cls) -> Path | None:
+    def comes_after(cls) -> set[type[Extension]]:
+        from betty.extension import Maps, Trees
+
+        return {Maps, Trees}
+
+    @classmethod
+    def assets_directory_path(cls) -> Path:
         return Path(__file__).parent / "assets"
+
+    @classmethod
+    def webpack_entrypoint_directory_path(cls) -> Path:
+        return Path(__file__).parent / "webpack"
+
+    def webpack_entrypoint_cache_keys(self) -> Sequence[str]:
+        return (
+            self._app.project.configuration.root_path,
+            self._configuration.primary_inactive_color.hex,
+            self._configuration.primary_active_color.hex,
+            self._configuration.link_inactive_color.hex,
+            self._configuration.link_active_color.hex,
+        )
+
+    @property
+    def public_css_paths(self) -> list[str]:
+        return [
+            self.app.static_url_generator.generate(
+                "css/betty.extension.CottonCandy.css"
+            ),
+        ]
 
     @classmethod
     def label(cls) -> Str:
@@ -270,40 +293,6 @@ class CottonCandy(
             ),
             "person_descendant_families": person_descendant_families,
         }
-
-    async def npm_build(
-        self, working_directory_path: Path, assets_directory_path: Path
-    ) -> None:
-        await self.app.extensions[_Npm].install(type(self), working_directory_path)
-        await npm(("run", "webpack"), cwd=working_directory_path)
-        await self._copy_npm_build(
-            working_directory_path / "webpack-build", assets_directory_path
-        )
-        logging.getLogger(__name__).info(
-            self._app.localizer._("Built the Cotton Candy front-end assets.")
-        )
-
-    async def _copy_npm_build(
-        self, source_directory_path: Path, destination_directory_path: Path
-    ) -> None:
-        await makedirs(destination_directory_path, exist_ok=True)
-        await asyncio.to_thread(
-            copy2,
-            source_directory_path / "cotton_candy.css",
-            destination_directory_path / "cotton_candy.css",
-        )
-        await asyncio.to_thread(
-            copy2,
-            source_directory_path / "cotton_candy.js",
-            destination_directory_path / "cotton_candy.js",
-        )
-
-    async def generate(self, job_context: GenerationContext) -> None:
-        assets_directory_path = await self.app.extensions[_Npm].ensure_assets(self)
-        await makedirs(self.app.project.configuration.www_directory_path, exist_ok=True)
-        await self._copy_npm_build(
-            assets_directory_path, self.app.project.configuration.www_directory_path
-        )
 
 
 @pass_context

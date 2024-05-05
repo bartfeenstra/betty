@@ -15,5 +15,5 @@ class TestHttpApiDoc:
                 app.project.configuration.www_directory_path / "api" / "index.html"
             ).is_file()
             assert (
-                app.project.configuration.www_directory_path / "http-api-doc.js"
+                app.project.configuration.www_directory_path / "js" / "http-api-doc.js"
             ).is_file()

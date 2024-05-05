@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import datetime
 from collections import defaultdict
-from collections.abc import MutableMapping, Iterator
+from collections.abc import MutableMapping, Iterator, Sequence
 from pathlib import Path
 from threading import Lock
 from typing import Callable, Any, cast, TypeVar
@@ -22,6 +22,7 @@ from jinja2 import (
 from jinja2.runtime import StrictUndefined, Context, DebugUndefined
 
 from betty.app import App
+from betty.app.extension import Extension
 from betty.html import CssProvider, JsProvider
 from betty.jinja2.filter import FILTERS
 from betty.jinja2.test import TESTS
@@ -154,6 +155,9 @@ class Jinja2Provider:
     def tests(self) -> dict[str, Callable[..., bool]]:
         return {}
 
+    def new_context_vars(self) -> dict[str, Any]:
+        return {}
+
 
 class Environment(Jinja2Environment):
     globals: dict[str, Any]
@@ -204,6 +208,11 @@ class Environment(Jinja2Environment):
     @property
     def context_class(self) -> type[Context]:  # type: ignore[override]
         if self._context_class is None:
+            jinja2_providers: Sequence[Jinja2Provider & Extension] = [
+                extension
+                for extension in self.app.extensions.flatten()
+                if isinstance(extension, Jinja2Provider)
+            ]
 
             class _Context(Context):
                 def __init__(
@@ -218,6 +227,10 @@ class Environment(Jinja2Environment):
                         parent["citer"] = _Citer()
                     if "breadcrumbs" not in parent:
                         parent["breadcrumbs"] = _Breadcrumbs()
+                    for jinja2_provider in jinja2_providers:
+                        for key, value in jinja2_provider.new_context_vars().items():
+                            if key not in parent:
+                                parent[key] = value
                     super().__init__(
                         environment,
                         parent,
