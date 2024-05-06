@@ -16,7 +16,8 @@ from aiofiles.tempfile import TemporaryDirectory
 
 from betty import fs
 from betty._npm import NpmRequirement, NpmUnavailable
-from betty.app.extension import Extension
+from betty.app import App
+from betty.app.extension import Extension, discover_extension_types
 from betty.extension.webpack import build
 from betty.extension.webpack.build import webpack_build_id
 from betty.extension.webpack.jinja2.filter import FILTERS
@@ -41,6 +42,24 @@ def _prebuilt_webpack_build_directory_path(
         / "webpack"
         / f"build-{webpack_build_id(entrypoint_providers)}"
     )
+
+
+async def _prebuild_webpack_assets() -> None:
+    """
+    Prebuild Webpack assets for inclusion in package builds.
+    """
+    job_context = Context()
+    async with App.new_temporary() as app, app:
+        app.project.configuration.extensions.enable(Webpack)
+        webpack = app.extensions[Webpack]
+        app.project.configuration.extensions.enable(
+            *{
+                extension_type
+                for extension_type in discover_extension_types()
+                if issubclass(extension_type, WebpackEntrypointProvider)
+            }
+        )
+        await webpack.prebuild(job_context=job_context)
 
 
 class WebpackEntrypointProvider:
