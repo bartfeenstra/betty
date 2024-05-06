@@ -20,10 +20,15 @@ from typing import (
     Awaitable,
 )
 
+from betty.warnings import deprecated
+
 T = TypeVar("T")
 U = TypeVar("U")
 
 
+@deprecated(
+    "This function is deprecated as of Betty 0.3.5, and will be removed in Betty 0.4.x. Instead, use a custom function, tailored to your data type."
+)
 def walk(item: Any, attribute_name: str) -> Iterable[Any]:
     """
     Walk over a graph of objects by following a single attribute.

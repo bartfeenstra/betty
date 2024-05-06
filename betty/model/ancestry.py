@@ -4,7 +4,7 @@ Provide Betty's main data model.
 
 from __future__ import annotations
 
-from collections.abc import MutableSequence
+from collections.abc import MutableSequence, Iterator
 from contextlib import suppress
 from enum import Enum
 from pathlib import Path
@@ -792,6 +792,12 @@ class Source(
     def citations(self) -> None:
         pass
 
+    @property
+    def walk_contains(self) -> Iterator[Source]:
+        for source in self.contains:
+            yield source
+            yield from source.contains
+
     @classmethod
     def entity_type_label(cls) -> Str:
         return Str._("Source")
@@ -1164,6 +1170,13 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
     @events.deleter
     def events(self) -> None:
         pass
+
+    @property
+    def walk_encloses(self) -> Iterator[Enclosure]:
+        for enclosure in self.encloses:
+            yield enclosure
+            if enclosure.encloses is not None:
+                yield from enclosure.encloses.walk_encloses
 
     @classmethod
     def entity_type_label(cls) -> Str:
@@ -1852,6 +1865,12 @@ class Person(
         return Str._("People")
 
     @property
+    def ancestors(self) -> Iterator[Person]:
+        for parent in self.parents:
+            yield parent
+            yield from parent.ancestors
+
+    @property
     def siblings(self) -> list[Person]:
         siblings = []
         for parent in self.parents:
@@ -1859,6 +1878,12 @@ class Person(
                 if sibling != self and sibling not in siblings:
                     siblings.append(sibling)
         return siblings
+
+    @property
+    def descendants(self) -> Iterator[Person]:
+        for child in self.children:
+            yield child
+            yield from child.descendants
 
     @property
     def associated_files(self) -> Iterable[File]:

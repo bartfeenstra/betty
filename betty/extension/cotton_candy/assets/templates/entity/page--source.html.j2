@@ -7,7 +7,7 @@
         {% include 'section-notes.html.j2' %}
     {% endwith %}
 
-    {% set sources = [source] + source | walk('contains') | select('public') | list %}
+    {% set sources = [source] + source.walk_contains | select('public') | list %}
     {% set have_files = sources %}
     {% set have_files = have_files + sources | map(attribute='citations') | flatten | list %}
     {% with files = have_files | select('public') | map(attribute='files') | flatten | unique %}

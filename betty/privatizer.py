@@ -9,7 +9,6 @@ from contextlib import suppress
 from datetime import datetime
 from typing import Iterator, TypeAlias, Any
 
-from betty.functools import walk
 from betty.locale import DateRange, Date, Localizer
 from betty.model import Entity
 from betty.model.ancestry import (
@@ -199,7 +198,7 @@ class Privatizer:
                 return
 
         # If any descendant has any expired event, the person is considered not private.
-        for descendant in walk(person, "children"):
+        for descendant in person.descendants:
             if self.has_expired(descendant, 1):
                 person.public = True
                 return
