@@ -7,13 +7,21 @@ from __future__ import annotations
 import logging
 from collections.abc import AsyncIterator, Iterator
 from pathlib import Path
-from typing import TypeVar, cast
+from typing import TypeVar, cast, TypeGuard
 from warnings import filterwarnings
 
 import pytest
 from PyQt6.QtCore import Qt, QObject
 from PyQt6.QtGui import QAction
-from PyQt6.QtWidgets import QMainWindow, QMenu, QWidget
+from PyQt6.QtWidgets import (
+    QMainWindow,
+    QMenu,
+    QWidget,
+    QLineEdit,
+    QTextEdit,
+    QAbstractButton,
+    QGroupBox,
+)
 from _pytest.logging import LogCaptureFixture
 from pytestqt.qtbot import QtBot
 
@@ -91,8 +99,11 @@ class BettyQtBot:
             return False
         return True
 
-    def assert_interactive(self, item: QAction | QWidget | None) -> None:
+    def assert_interactive(
+        self, item: QAction | QWidget | None
+    ) -> TypeGuard[QAction | QWidget]:
         self.qtbot.wait_until(lambda: self._is_interactive(item))
+        return True
 
     def assert_not_interactive(self, item: QAction | QWidget | None) -> None:
         self.qtbot.wait_until(lambda: not self._is_interactive(item))
@@ -215,6 +226,22 @@ class BettyQtBot:
         """
         self.assert_interactive(widget)
         self.qtbot.mouseClick(widget, button)
+
+    def set_text(self, widget: QLineEdit | QTextEdit | None, text: str) -> None:
+        """
+        Set (input) text for a form widget.
+        """
+        if self.assert_interactive(widget):
+            widget.setText(text)
+
+    def set_checked(
+        self, widget: QAbstractButton | QGroupBox | None, checked: bool
+    ) -> None:
+        """
+        Check or uncheck a form widget.
+        """
+        if self.assert_interactive(widget):
+            widget.setChecked(checked)
 
 
 @pytest.fixture
