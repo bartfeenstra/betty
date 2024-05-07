@@ -87,7 +87,7 @@ class DockerizedNginxServer(Server):
     @classmethod
     def is_available(cls) -> bool:
         try:
-            docker.from_env().info()
+            docker.from_env()
             return True
         except DockerException as e:
             logging.getLogger(__name__).warning(e)

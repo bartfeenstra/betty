@@ -26,7 +26,6 @@ class TestTestsExist:
         "betty.dispatch",
         "betty.error",
         "betty.extension.__init__",
-        "betty.extension.nginx.artifact",
         "betty.extension.nginx.docker",
         "betty.extension.webpack.jinja2.__init__",
         "betty.extension.webpack.jinja2.filter",
