@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from json import dumps
+from pathlib import Path
 from time import sleep
 from typing import Any
 from unittest.mock import call
@@ -25,7 +26,14 @@ except ImportError:
 from aioresponses import aioresponses
 
 from betty.model.ancestry import Source, Link, Citation, Place
-from betty.wikipedia import Summary, _Retriever, NotAPageError, _parse_url, _Populator
+from betty.wikipedia import (
+    Summary,
+    _Retriever,
+    NotAPageError,
+    _parse_url,
+    _Populator,
+    Image,
+)
 
 
 class TestParseUrl:
@@ -655,3 +663,28 @@ class TestPopulator:
             await sut.populate()
 
         assert coordinates is place.coordinates
+
+    async def test_populate_has_links(
+        self, aioresponses: aioresponses, mocker: MockerFixture
+    ) -> None:
+        m_retriever = mocker.patch(
+            "betty.wikipedia._Retriever", spec=_Retriever, new_callable=AsyncMock
+        )
+        page_language = "en"
+        page_name = "Almelo"
+        image = Image(
+            Path(__file__),
+            MediaType("application/octet-stream"),
+            "",
+            "https://example.com",
+        )
+        m_retriever.get_image.return_value = image
+
+        link = Link(f"https://{page_language}.wikipedia.org/wiki/{page_name}")
+        place = Place(links=[link])
+        async with App.new_temporary() as app, app:
+            app.project.ancestry.add(place)
+            sut = _Populator(app, m_retriever)
+            await sut.populate()
+
+        assert place.files[0].path == image.path

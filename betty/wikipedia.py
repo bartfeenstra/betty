@@ -8,7 +8,15 @@ import asyncio
 import json
 import logging
 import re
-from collections.abc import Sequence, MutableSequence, Callable, Awaitable
+from collections import defaultdict
+from collections.abc import (
+    Sequence,
+    MutableSequence,
+    Callable,
+    Awaitable,
+    Mapping,
+    MutableMapping,
+)
 from contextlib import suppress
 from pathlib import Path
 from time import time
@@ -23,7 +31,7 @@ from betty.app import App
 from betty.asyncio import gather
 from betty.cache import Cache, CacheItemValueT
 from betty.cache.file import BinaryFileCache
-from betty.concurrent import RateLimiter
+from betty.concurrent import RateLimiter, _Lock, AsynchronizedLock
 from betty.functools import filter_suppress
 from betty.hashid import hashid
 from betty.locale import (
@@ -315,7 +323,10 @@ class _Populator:
     def __init__(self, app: App, retriever: _Retriever):
         self._app = app
         self._retriever = retriever
-        self._image_files: dict[Image, File] = {}
+        self._image_files: MutableMapping[Image, File] = {}
+        self._image_files_locks: Mapping[Image, _Lock] = defaultdict(
+            AsynchronizedLock.threading
+        )
 
     async def populate(self) -> None:
         locales = list(
@@ -330,13 +341,12 @@ class _Populator:
         )
 
     async def _populate_entity(self, entity: HasLinks, locales: Sequence[str]) -> None:
-        await self._populate_has_links(entity, locales)
-
+        populations = [self._populate_has_links(entity, locales)]
         if isinstance(entity, HasFiles):
-            await self._populate_has_files(entity)
-
+            populations.append(self._populate_has_files(entity))
         if isinstance(entity, Place):
-            await self._populate_place(entity)
+            populations.append(self._populate_place(entity))
+        await gather(*populations)
 
     async def _populate_has_links(
         self, has_links: HasLinks, locales: Sequence[str]
@@ -428,64 +438,77 @@ class _Populator:
         await self._populate_place_coordinates(place)
 
     async def _populate_place_coordinates(self, place: Place) -> None:
-        if place.coordinates:
-            return
+        await gather(
+            *(
+                self._populate_place_coordinates_link(place, link)
+                for link in place.links
+            )
+        )
 
-        for link in place.links:
-            try:
-                page_language, page_name = _parse_url(link.url)
-            except NotAPageError:
-                continue
-            else:
-                coordinates = await self._retriever.get_place_coordinates(
-                    page_language, page_name
-                )
-                if coordinates:
-                    place.coordinates = coordinates
-                    return
+    async def _populate_place_coordinates_link(self, place: Place, link: Link) -> None:
+        try:
+            page_language, page_name = _parse_url(link.url)
+        except NotAPageError:
+            return
+        else:
+            coordinates = await self._retriever.get_place_coordinates(
+                page_language, page_name
+            )
+            if coordinates:
+                place.coordinates = coordinates
 
     async def _populate_has_files(self, has_files: HasFiles & HasLinks) -> None:
-        for link in has_files.links:
-            try:
-                page_language, page_name = _parse_url(link.url)
-            except NotAPageError:
-                continue
-            else:
-                image = await self._retriever.get_image(page_language, page_name)
-                if not image:
-                    continue
+        await gather(
+            *(
+                self._populate_has_files_link(has_files, link)
+                for link in has_files.links
+            )
+        )
 
-                try:
-                    file = self._image_files[image]
-                except KeyError:
-                    links = []
-                    for (
-                        locale_configuration
-                    ) in self._app.project.configuration.locales.values():
-                        localizer = await self._app.localizers.get(
-                            locale_configuration.locale
-                        )
-                        links.append(
-                            Link(
-                                f"{image.wikimedia_commons_url}?uselang={locale_configuration.alias}",
-                                label=localizer._(
-                                    "Description, licensing, and image history"
-                                ),
-                                description=localizer._(
-                                    "Find out more about this image on Wikimedia Commons."
-                                ),
-                                locale=locale_configuration.locale,
-                                media_type=MediaType("text/html"),
-                            )
-                        )
-                    file = File(
-                        id=f"wikipedia-{image.title}",
-                        path=image.path,
-                        media_type=image.media_type,
-                        links=links,
-                    )
-                    self._image_files[image] = file
-
-                has_files.files.add(file)
-                self._app.project.ancestry.add(file)
+    async def _populate_has_files_link(
+        self, has_files: HasFiles & HasLinks, link: Link
+    ) -> None:
+        try:
+            page_language, page_name = _parse_url(link.url)
+        except NotAPageError:
+            return
+        else:
+            image = await self._retriever.get_image(page_language, page_name)
+            if not image:
                 return
+            has_files.files.add(await self._image_file(image))
+
+    async def _image_file(self, image: Image) -> File:
+        async with self._image_files_locks[image]:
+            try:
+                return self._image_files[image]
+            except KeyError:
+                links = []
+                for (
+                    locale_configuration
+                ) in self._app.project.configuration.locales.values():
+                    localizer = await self._app.localizers.get(
+                        locale_configuration.locale
+                    )
+                    links.append(
+                        Link(
+                            f"{image.wikimedia_commons_url}?uselang={locale_configuration.alias}",
+                            label=localizer._(
+                                "Description, licensing, and image history"
+                            ),
+                            description=localizer._(
+                                "Find out more about this image on Wikimedia Commons."
+                            ),
+                            locale=locale_configuration.locale,
+                            media_type=MediaType("text/html"),
+                        )
+                    )
+                file = File(
+                    id=f"wikipedia-{image.title}",
+                    path=image.path,
+                    media_type=image.media_type,
+                    links=links,
+                )
+                self._image_files[image] = file
+                self._app.project.ancestry.add(file)
+                return file
