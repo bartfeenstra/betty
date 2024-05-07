@@ -311,12 +311,6 @@ class ConfigurationCollection(
     def _item_type(cls) -> type[ConfigurationT]:
         raise NotImplementedError(repr(cls))
 
-    @classmethod
-    def _create_default_item(
-        cls, configuration_key: ConfigurationKeyT
-    ) -> ConfigurationT:
-        raise NotImplementedError(repr(cls))
-
     def keys(self) -> Iterator[ConfigurationKeyT]:
         raise NotImplementedError(repr(self))
 
@@ -384,7 +378,8 @@ class ConfigurationSequence(
         yield from self._configurations
 
     def update(self, other: Self) -> None:
-        raise NotImplementedError(repr(self))
+        self._clear_without_dispatch()
+        self.append(*other)
 
     @classmethod
     def load(
@@ -632,6 +627,12 @@ class ConfigurationMapping(
 
     def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
         raise NotImplementedError(repr(self))
+
+    @classmethod
+    def _create_default_item(
+        cls, configuration_key: ConfigurationKeyT
+    ) -> ConfigurationT:
+        raise NotImplementedError(repr(cls))
 
 
 class Configurable(Generic[ConfigurationT]):

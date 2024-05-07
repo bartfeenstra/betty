@@ -55,20 +55,14 @@ class FamilyTreeConfiguration(Configuration):
         return configuration
 
     def dump(self) -> VoidableDump:
-        return {
-            "file": str(self.file_path),
-        }
+        return {"file": str(self.file_path) if self.file_path else None}
+
+    def update(self, other: Self) -> None:
+        self.file_path = other.file_path
+        self._dispatch_change()
 
 
 class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfiguration]):
-    def update(self, other: Self) -> None:
-        self._clear_without_dispatch()
-        self.append(*other)
-
-    @classmethod
-    def _create_default_item(cls, configuration_key: int) -> FamilyTreeConfiguration:
-        return FamilyTreeConfiguration()
-
     @classmethod
     def _item_type(cls) -> type[FamilyTreeConfiguration]:
         return FamilyTreeConfiguration
