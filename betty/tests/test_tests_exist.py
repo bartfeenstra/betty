@@ -13,7 +13,6 @@ class TestTestsExist:
     # as more coverage is added to Betty over time.
     _BASELINE_MODULES = {
         "betty.__init__",
-        "betty._npm",
         "betty._package.__init__",
         "betty._package.pyinstaller.__init__",
         "betty._package.pyinstaller.hooks.__init__",
@@ -64,6 +63,13 @@ class TestTestsExist:
         if ROOT_DIRECTORY_PATH / "betty" / "tests" in file_path.parents:
             return
 
+        module_name = ".".join(
+            (
+                *file_path.relative_to(ROOT_DIRECTORY_PATH).parent.parts,
+                file_path.stem,
+            )
+        )
+
         expected_test_file_path = (
             ROOT_DIRECTORY_PATH
             / "betty"
@@ -72,23 +78,23 @@ class TestTestsExist:
             / f"test_{file_path.name}"
         )
         if expected_test_file_path.exists():
+            for baseline_module in self._BASELINE_MODULES:
+                if module_name == baseline_module or module_name.startswith(
+                    f"{baseline_module}."
+                ):
+                    raise AssertionError(
+                        f"Module {module_name} has a matching test file, but unexpectedly matches the baseline module {baseline_module}."
+                    )
             return
-        module = ".".join(
-            (
-                *file_path.relative_to(ROOT_DIRECTORY_PATH).parent.parts,
-                file_path.stem,
-            )
-        )
-        if module in self._BASELINE_MODULES:
+
+        if module_name in self._BASELINE_MODULES:
             return
 
         if await self._test_python_module_contains_docstring_only(file_path):
             return
 
         raise AssertionError(
-            f"""
-Module {module} does not have a matching test file. Expected {expected_test_file_path} to exist.
-"""
+            f"Module {module_name} does not have a matching test file. Expected {expected_test_file_path} to exist."
         )
 
     async def _test_python_module_contains_docstring_only(
