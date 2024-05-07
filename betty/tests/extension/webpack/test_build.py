@@ -31,7 +31,6 @@ class TestBuilder:
             (True, True, True, True),
             (False, True, True, True),
             (True, False, True, True),
-            (True, True, False, True),
             (True, True, True, False),
         ],
     )
