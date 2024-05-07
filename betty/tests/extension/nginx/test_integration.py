@@ -1,10 +1,8 @@
-import sys
 from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
 from pathlib import Path
 
 import html5lib
-import pytest
 import requests
 from requests import Response
 
@@ -23,10 +21,6 @@ from betty.project import (
 from betty.serve import Server
 
 
-@pytest.mark.skipif(
-    sys.platform in {"darwin", "win32"},
-    reason="macOS and Windows do not natively support Docker.",
-)
 class TestNginx:
     @asynccontextmanager
     async def server(

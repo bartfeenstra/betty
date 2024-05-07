@@ -1,7 +1,4 @@
-import sys
-
 import aiofiles
-import pytest
 import requests
 from aiofiles.os import makedirs
 from requests import Response
@@ -14,10 +11,6 @@ from betty.functools import Do
 from betty.project import ExtensionConfiguration
 
 
-@pytest.mark.skipif(
-    sys.platform in {"darwin", "win32"},
-    reason="macOS and Windows do not natively support Docker.",
-)
 class TestDockerizedNginxServer:
     async def test(self):
         content = "Hello, and welcome to my site!"
