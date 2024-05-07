@@ -25,21 +25,26 @@ class DummyEntrypointProviderExtension(WebpackEntrypointProvider, Extension):
 
 
 class TestBuilder:
-    @pytest.mark.parametrize(
-        "with_entrypoint_provider, debug, npm_install_cache_available, webpack_build_cache_available",
-        [
-            (True, True, True, True),
-            (False, True, True, True),
-            (True, False, True, True),
-            (True, True, True, False),
-        ],
-    )
-    async def test_build(
+    async def test_build(self, tmp_path: Path) -> None:
+        await self._test_build(tmp_path, True, True, True, True)
+
+    async def test_build_without_entrypoint_provider(self, tmp_path: Path) -> None:
+        await self._test_build(tmp_path, False, True, True, True)
+
+    async def test_build_without_debug(self, tmp_path: Path) -> None:
+        await self._test_build(tmp_path, True, False, True, True)
+
+    async def test_build_without_npm_install_cache_available(
+        self, tmp_path: Path
+    ) -> None:
+        await self._test_build(tmp_path, True, True, False, True)
+
+    async def _test_build(
         self,
+        tmp_path: Path,
         with_entrypoint_provider: bool,
         debug: bool,
         npm_install_cache_available: bool,
-        tmp_path: Path,
         webpack_build_cache_available: bool,
     ) -> None:
         async with App.new_temporary() as app:
@@ -55,7 +60,7 @@ class TestBuilder:
                     if with_entrypoint_provider
                     else []
                 ),
-                False,
+                debug,
                 app.renderer,
                 job_context=job_context,
                 localizer=DEFAULT_LOCALIZER,
