@@ -3,7 +3,7 @@ from typing import Optional
 
 from betty.app import App
 from betty.extension import Nginx
-from betty.extension.nginx import NginxConfiguration
+from betty.extension.nginx.config import NginxConfiguration
 from betty.generate import generate
 from betty.project import ExtensionConfiguration, LocaleConfiguration
 
