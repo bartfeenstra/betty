@@ -1,13 +1,17 @@
 from __future__ import annotations
 
+import asyncio
+from collections.abc import AsyncIterator
 from json import dumps
 from pathlib import Path
 from time import sleep
 from typing import Any
 from unittest.mock import AsyncMock, call
 
+import aiofiles
 import aiohttp
 import pytest
+from aiohttp import ClientError
 from aioresponses import aioresponses
 from geopy import Point
 from pytest_mock import MockerFixture
@@ -26,7 +30,168 @@ from betty.wikipedia import (
     _parse_url,
     _Populator,
     Image,
+    _Fetcher,
+    RetrievalError,
 )
+
+
+class TestFetcher:
+    @pytest.fixture
+    async def sut(self, binary_file_cache: BinaryFileCache) -> AsyncIterator[_Fetcher]:
+        async with aiohttp.ClientSession() as http_client:
+            yield _Fetcher(
+                http_client, MemoryCache(DEFAULT_LOCALIZER), binary_file_cache
+            )
+
+    async def test_fetch_should_return(
+        self, aioresponses: aioresponses, sut: _Fetcher
+    ) -> None:
+        url = "https://example.com"
+        content = "The name's Text. Plain Text."
+        aioresponses.get(url, body=content)
+
+        # The first fetch uses cold caches. This should result in the HTTP client being called.
+        fetched_once = await sut.fetch(url)
+        assert fetched_once == content
+
+        # The second fetch should result in the cache being called.
+        fetched_twice = await sut.fetch(url)
+        assert fetched_twice == content
+
+        # Assert the HTTP client was indeed called only once.
+        aioresponses.assert_called_once()
+
+    @pytest.mark.parametrize(
+        "error",
+        [
+            ClientError(),
+            asyncio.TimeoutError(),
+        ],
+    )
+    async def test_fetch_with_cold_cache_and_get_error_should_error(
+        self, aioresponses: aioresponses, error: Exception, sut: _Fetcher
+    ) -> None:
+        url = "https://example.com"
+        aioresponses.get(url, exception=error)
+
+        with pytest.raises(RetrievalError):
+            await sut.fetch(url)
+
+    @pytest.mark.parametrize(
+        "error",
+        [
+            ClientError(),
+            asyncio.TimeoutError(),
+        ],
+    )
+    async def test_fetch_with_warm_cache_and_get_error_should_return(
+        self,
+        aioresponses: aioresponses,
+        binary_file_cache: BinaryFileCache,
+        error: Exception,
+        sut: _Fetcher,
+    ) -> None:
+        async with aiohttp.ClientSession() as http_client:
+            sut = _Fetcher(
+                http_client,
+                MemoryCache(DEFAULT_LOCALIZER),
+                binary_file_cache,
+                # A negative TTL ensures every cache item is considered expired a long time ago.
+                -999999999,
+            )
+            url = "https://example.com"
+            content = "The name's Text. Plain Text."
+            aioresponses.get(url, body=content)
+
+            # The first fetch uses cold caches. This should result in the HTTP client being called.
+            fetched_once = await sut.fetch(url)
+            assert fetched_once == content
+
+            aioresponses.get(url, exception=error)
+
+            # The second fetch should result in:
+            # - the cache being called, but the item being ignored due to our negative TTL
+            # - the call to the HTTP client raising an error
+            # - the expired cached content being returned
+            fetched_twice = await sut.fetch(url)
+            assert fetched_twice == content
+
+    async def test_fetch_file_should_return(
+        self, aioresponses: aioresponses, sut: _Fetcher
+    ) -> None:
+        url = "https://example.com"
+        content = b"The name's Text. Plain Text."
+        aioresponses.get(url, body=content)
+
+        # The first fetch uses cold caches. This should result in the HTTP client being called.
+        fetched_once = await sut.fetch_file(url)
+        async with aiofiles.open(fetched_once, "rb") as f:
+            assert await f.read() == content
+
+        # The second fetch should result in the cache being called.
+        fetched_twice = await sut.fetch_file(url)
+        async with aiofiles.open(fetched_twice, "rb") as f:
+            assert await f.read() == content
+
+        # Assert the HTTP client was indeed called only once.
+        aioresponses.assert_called_once()
+
+    @pytest.mark.parametrize(
+        "error",
+        [
+            ClientError(),
+            asyncio.TimeoutError(),
+        ],
+    )
+    async def test_fetch_file_with_cold_cache_and_get_error_should_error(
+        self, aioresponses: aioresponses, error: Exception, sut: _Fetcher
+    ) -> None:
+        url = "https://example.com"
+        aioresponses.get(url, exception=error)
+
+        with pytest.raises(RetrievalError):
+            await sut.fetch_file(url)
+
+    @pytest.mark.parametrize(
+        "error",
+        [
+            ClientError(),
+            asyncio.TimeoutError(),
+        ],
+    )
+    async def test_fetch_file_with_warm_cache_and_get_error_should_return(
+        self,
+        aioresponses: aioresponses,
+        binary_file_cache: BinaryFileCache,
+        error: Exception,
+        sut: _Fetcher,
+    ) -> None:
+        async with aiohttp.ClientSession() as http_client:
+            sut = _Fetcher(
+                http_client,
+                MemoryCache(DEFAULT_LOCALIZER),
+                binary_file_cache,
+                # A negative TTL ensures every cache item is considered expired a long time ago.
+                -999999999,
+            )
+            url = "https://example.com"
+            content = b"The name's Text. Plain Text."
+            aioresponses.get(url, body=content)
+
+            # The first fetch uses cold caches. This should result in the HTTP client being called.
+            fetched_once = await sut.fetch_file(url)
+            async with aiofiles.open(fetched_once, "rb") as f:
+                assert await f.read() == content
+
+            aioresponses.get(url, exception=error)
+
+            # The second fetch should result in:
+            # - the cache being called, but the item being ignored due to our negative TTL
+            # - the call to the HTTP client raising an error
+            # - the expired cached content being returned
+            fetched_twice = await sut.fetch_file(url)
+            async with aiofiles.open(fetched_twice, "rb") as f:
+                assert await f.read() == content
 
 
 class TestParseUrl:
@@ -648,8 +813,9 @@ class TestPopulator:
         m_retriever.get_place_coordinates.return_value = coordinates
         m_retriever.get_image.return_value = None
 
-        link = Link(f"https://{page_language}.wikipedia.org/wiki/{page_name}")
-        place = Place(links=[link])
+        wikipedia_link = Link(f"https://{page_language}.wikipedia.org/wiki/{page_name}")
+        other_link = Link("https://example.com")
+        place = Place(links=[wikipedia_link, other_link])
         async with App.new_temporary() as app, app:
             app.project.ancestry.add(place)
             sut = _Populator(app, m_retriever)
