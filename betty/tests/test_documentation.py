@@ -17,6 +17,7 @@ from betty.fs import ROOT_DIRECTORY_PATH
 from betty.functools import Do
 from betty.locale import DEFAULT_LOCALIZER
 from betty.project import ProjectConfiguration
+from betty.serde.dump import DictDump, Dump
 from betty.serde.format import Format, Json, Yaml
 from betty.subprocess import run_process
 
@@ -37,8 +38,11 @@ class TestDocumentation:
     async def test_should_contain_cli_help(self) -> None:
         async with TemporaryDirectory() as working_directory_path_str:
             working_directory_path = Path(working_directory_path_str)
-            configuration = {
+            configuration: DictDump[Dump] = {
                 "base_url": "https://example.com",
+                "extensions": {
+                    "betty.extension.Nginx": {},
+                },
             }
             async with aiofiles.open(working_directory_path / "betty.json", "w") as f:
                 await f.write(json.dumps(configuration))

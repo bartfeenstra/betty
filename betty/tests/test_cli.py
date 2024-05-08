@@ -53,7 +53,7 @@ class DummyExtension(Extension, CommandProvider):
         }
 
 
-def _run(
+def run(
     *args: str,
     expected_exit_code: int = 0,
 ) -> Result:
@@ -65,8 +65,8 @@ def _run(
 The Betty command `{" ".join(args)}` unexpectedly exited with code {result.exit_code}, but {expected_exit_code} was expected.
 Stdout:
 {result.stdout}
-Stdout:
-{result.stdout}
+Stderr:
+{result.stderr}
 """
         )
     return result
@@ -85,14 +85,14 @@ async def new_temporary_app(mocker: MockerFixture) -> AsyncIterator[App]:
 
 class TestMain:
     async def test_without_arguments(self, new_temporary_app: App) -> None:
-        _run()
+        run()
 
     async def test_help_without_configuration(self, new_temporary_app: App) -> None:
-        _run("--help")
+        run("--help")
 
     async def test_configuration_without_help(self, new_temporary_app: App) -> None:
         await new_temporary_app.project.configuration.write()
-        _run(
+        run(
             "-c",
             str(new_temporary_app.project.configuration.configuration_file_path),
             expected_exit_code=2,
@@ -104,7 +104,7 @@ class TestMain:
         )
         await new_temporary_app.project.configuration.write()
 
-        _run(
+        run(
             "-c",
             str(new_temporary_app.project.configuration.configuration_file_path),
             "--help",
@@ -117,7 +117,7 @@ class TestMain:
             working_directory_path = Path(working_directory_path_str)
             configuration_file_path = working_directory_path / "non-existent-betty.json"
 
-            _run("-c", str(configuration_file_path), "--help", expected_exit_code=1)
+            run("-c", str(configuration_file_path), "--help", expected_exit_code=1)
 
     async def test_help_with_invalid_configuration(
         self, new_temporary_app: App
@@ -129,7 +129,7 @@ class TestMain:
             async with aiofiles.open(configuration_file_path, "w") as f:
                 await f.write(json.dumps(dump))
 
-            _run("-c", str(configuration_file_path), "--help", expected_exit_code=1)
+            run("-c", str(configuration_file_path), "--help", expected_exit_code=1)
 
     async def test_with_discovered_configuration(self, new_temporary_app: App) -> None:
         async with TemporaryDirectory() as working_directory_path_str:
@@ -146,7 +146,7 @@ class TestMain:
                 }
                 await config_file.write(json.dumps(dump))
             with chdir(working_directory_path):
-                _run("test", expected_exit_code=1)
+                run("test", expected_exit_code=1)
 
 
 class TestCatchExceptions:
@@ -168,7 +168,7 @@ class TestCatchExceptions:
 
 class TestVersion:
     async def test(self, new_temporary_app: App) -> None:
-        result = _run("--version")
+        result = run("--version")
         assert "Betty" in result.stdout
 
 
@@ -176,7 +176,7 @@ class TestClearCaches:
     async def test(self, new_temporary_app: App) -> None:
         async with new_temporary_app:
             await new_temporary_app.cache.set("KeepMeAroundPlease", "")
-        _run("clear-caches")
+        run("clear-caches")
         async with new_temporary_app:
             async with new_temporary_app.cache.get("KeepMeAroundPlease") as cache_item:
                 assert cache_item is None
@@ -193,7 +193,7 @@ class TestDemo:
             "betty.extension.demo.DemoServer", new=KeyboardInterruptedDemoServer
         )
 
-        _run("demo")
+        run("demo")
 
 
 class KeyboardInterruptedDocumentationServer(DocumentationServer):
@@ -208,7 +208,7 @@ class TestDocs:
             new=KeyboardInterruptedDocumentationServer,
         )
 
-        _run("docs")
+        run("docs")
 
 
 class TestGenerate:
@@ -217,7 +217,7 @@ class TestGenerate:
         m_load = mocker.patch("betty.load.load", new_callable=AsyncMock)
 
         await new_temporary_app.project.configuration.write()
-        _run(
+        run(
             "-c",
             str(new_temporary_app.project.configuration.configuration_file_path),
             "generate",
@@ -246,7 +246,7 @@ class TestServe:
         )
         await new_temporary_app.project.configuration.write()
         await makedirs(new_temporary_app.project.configuration.www_directory_path)
-        _run(
+        run(
             "-c",
             str(new_temporary_app.project.configuration.configuration_file_path),
             "serve",

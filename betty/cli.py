@@ -21,10 +21,6 @@ from betty.app import App
 from betty.asyncio import wait_to_thread
 from betty.contextlib import SynchronizedContextManager
 from betty.error import UserFacingError
-from betty.extension import demo
-from betty.gui import BettyApplication
-from betty.gui.app import WelcomeWindow
-from betty.gui.project import ProjectWindow
 from betty.locale import update_translations, init_translation, Str
 from betty.logging import CliHandler
 from betty.serde.load import AssertionFailed
@@ -268,7 +264,9 @@ async def _clear_caches(app: App) -> None:
 @click.command(help="Explore a demonstration site.")
 @app_command
 async def _demo(app: App) -> None:
-    async with demo.DemoServer(app=app) as server:
+    from betty.extension.demo import DemoServer
+
+    async with DemoServer(app=app) as server:
         await server.show()
         while True:
             await asyncio.sleep(999)
@@ -288,6 +286,10 @@ async def _demo(app: App) -> None:
 @global_command
 async def _gui(configuration_file_path: Path | None) -> None:
     async with App.new_from_environment() as app:
+        from betty.gui import BettyApplication
+        from betty.gui.app import WelcomeWindow
+        from betty.gui.project import ProjectWindow
+
         async with BettyApplication([sys.argv[0]]).with_app(app) as qapp:
             window: QMainWindow
             if configuration_file_path is None:
