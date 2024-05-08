@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-08 16:40+0100\n"
+"POT-Creation-Date: 2024-05-08 17:53+0100\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -475,6 +475,9 @@ msgstr ""
 msgid "Divorce"
 msgstr "Echtscheiding"
 
+msgid "Download images from the Wikipedia links in your ancestry"
+msgstr "Download afbeeldingen gebaseerd op de Wikipedialinks in je familiegeschiedenis"
+
 #, python-format
 msgid "E.g. \"%(example)s\""
 msgstr "Bijvoorbeeld \"%(example)s\""
@@ -745,6 +748,9 @@ msgstr "Plaats"
 
 msgid "Places"
 msgstr "Plaatsen"
+
+msgid "Populate images"
+msgstr "Afbeeldingen aanvullen"
 
 msgid "Pre-built Webpack front-end assets are available"
 msgstr "Vooraf gebouwde Webpack front-end assets zijn beschikbaar."

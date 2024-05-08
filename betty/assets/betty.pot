@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-08 16:40+0100\n"
+"POT-Creation-Date: 2024-05-08 17:53+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -328,6 +328,9 @@ msgstr ""
 msgid "Divorce"
 msgstr ""
 
+msgid "Download images from the Wikipedia links in your ancestry"
+msgstr ""
+
 #, python-format
 msgid "E.g. \"%(example)s\""
 msgstr ""
@@ -579,6 +582,9 @@ msgid "Place"
 msgstr ""
 
 msgid "Places"
+msgstr ""
+
+msgid "Populate images"
 msgstr ""
 
 msgid "Pre-built Webpack front-end assets are available"

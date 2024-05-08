@@ -10,8 +10,11 @@ from jinja2 import pass_context
 from jinja2.runtime import Context
 
 from betty import wikipedia
-from betty.app.extension import UserFacingExtension
+from betty.app.extension import UserFacingExtension, ConfigurableExtension
 from betty.asyncio import gather
+from betty.extension.wikipedia.config import WikipediaConfiguration
+from betty.extension.wikipedia.gui import _WikipediaGuiWidget
+from betty.gui import GuiBuilder
 from betty.jinja2 import Jinja2Provider, context_localizer
 from betty.load import PostLoader
 from betty.locale import negotiate_locale, Str
@@ -19,7 +22,13 @@ from betty.model.ancestry import Link
 from betty.wikipedia import Summary, _parse_url, NotAPageError, RetrievalError
 
 
-class Wikipedia(UserFacingExtension, Jinja2Provider, PostLoader):
+class Wikipedia(
+    ConfigurableExtension[WikipediaConfiguration],
+    UserFacingExtension,
+    Jinja2Provider,
+    PostLoader,
+    GuiBuilder,
+):
     @classmethod
     def name(cls) -> str:
         return "betty.extension.Wikipedia"
@@ -102,3 +111,10 @@ Display <a href="https://www.wikipedia.org/">Wikipedia</a> summaries for resourc
 {{% endwith %}}
 </code></pre>"""
         )
+
+    @classmethod
+    def default_configuration(cls) -> WikipediaConfiguration:
+        return WikipediaConfiguration()
+
+    def gui_build(self) -> _WikipediaGuiWidget:
+        return _WikipediaGuiWidget(self._app, self._configuration)
