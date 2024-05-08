@@ -27,4 +27,35 @@ Enable this extension through Betty Desktop, or in your project's :doc:`configur
 
 Configuration
 -------------
-This extension is not configurable.
+This extension is configurable through Betty Desktop or in the configuration file:
+
+.. md-tab-set::
+
+   .. md-tab-item:: YAML
+
+      .. code-block:: yaml
+
+          extensions:
+            betty.extension.Wikipedia:
+              configuration:
+                populate_images: false
+
+   .. md-tab-item:: JSON
+
+      .. code-block:: json
+
+          {
+            "extensions": {
+              "betty.extension.Wikipedia": {
+                "configuration" : {
+                  "populate_images": false
+                }
+              }
+            }
+          }
+
+
+All configuration options
+^^^^^^^^^^^^^^^^^^^^^^^^^
+- ``populate_images`` (optional): A boolean indicating whether to download images from the Wikipedia
+  links in the ancestry. Defaults to ``true``.
