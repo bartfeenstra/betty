@@ -5,7 +5,7 @@ from pathlib import Path
 
 from click import Command
 
-from betty.app.extension import ConfigurableExtension
+from betty.app.extension import ConfigurableExtension, UserFacingExtension
 from betty.cli import CommandProvider
 from betty.extension.nginx.artifact import (
     generate_configuration_file,
@@ -22,6 +22,7 @@ from betty.serve import ServerProvider, Server
 
 class Nginx(
     ConfigurableExtension[NginxConfiguration],
+    UserFacingExtension,
     Generator,
     ServerProvider,
     GuiBuilder,
