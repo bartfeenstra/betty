@@ -4,10 +4,11 @@ from json import dumps
 from pathlib import Path
 from time import sleep
 from typing import Any
-from unittest.mock import call
+from unittest.mock import AsyncMock, call
 
 import aiohttp
 import pytest
+from aioresponses import aioresponses
 from geopy import Point
 from pytest_mock import MockerFixture
 
@@ -16,16 +17,8 @@ from betty.cache.file import BinaryFileCache
 from betty.cache.memory import MemoryCache
 from betty.locale import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
-from betty.project import LocaleConfiguration
-
-try:
-    from unittest.mock import AsyncMock
-except ImportError:
-    from mock.mock import AsyncMock
-
-from aioresponses import aioresponses
-
 from betty.model.ancestry import Source, Link, Citation, Place
+from betty.project import LocaleConfiguration
 from betty.wikipedia import (
     Summary,
     _Retriever,
