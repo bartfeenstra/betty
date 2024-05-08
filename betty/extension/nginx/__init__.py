@@ -3,11 +3,15 @@
 from collections.abc import Sequence
 from pathlib import Path
 
+from click import Command
+
 from betty.app.extension import ConfigurableExtension
+from betty.cli import CommandProvider
 from betty.extension.nginx.artifact import (
     generate_configuration_file,
     generate_dockerfile_file,
 )
+from betty.extension.nginx.cli import _serve
 from betty.extension.nginx.config import NginxConfiguration
 from betty.extension.nginx.gui import _NginxGuiWidget
 from betty.generate import Generator, GenerationContext
@@ -17,7 +21,11 @@ from betty.serve import ServerProvider, Server
 
 
 class Nginx(
-    ConfigurableExtension[NginxConfiguration], Generator, ServerProvider, GuiBuilder
+    ConfigurableExtension[NginxConfiguration],
+    Generator,
+    ServerProvider,
+    GuiBuilder,
+    CommandProvider,
 ):
     @classmethod
     def label(cls) -> Str:
@@ -63,3 +71,9 @@ class Nginx(
 
     def gui_build(self) -> _NginxGuiWidget:
         return _NginxGuiWidget(self._app, self._configuration)
+
+    @property
+    def commands(self) -> dict[str, Command]:
+        return {
+            "serve-nginx-docker": _serve,
+        }
