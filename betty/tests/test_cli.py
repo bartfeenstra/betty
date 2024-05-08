@@ -3,6 +3,7 @@ from collections.abc import AsyncIterator
 from contextlib import chdir
 from pathlib import Path
 from typing import TypeVar, ParamSpec
+from unittest.mock import AsyncMock
 
 import aiofiles
 import click
@@ -14,6 +15,9 @@ from click import Command
 from click.testing import CliRunner, Result
 from pytest_mock import MockerFixture
 
+from betty.app import App
+from betty.app.extension import Extension
+from betty.cli import main, CommandProvider, global_command, catch_exceptions
 from betty.documentation import DocumentationServer
 from betty.error import UserFacingError
 from betty.extension.demo import DemoServer
@@ -21,15 +25,6 @@ from betty.locale import Str
 from betty.project import ExtensionConfiguration
 from betty.serde.dump import Dump
 from betty.serve import BuiltinAppServer
-
-try:
-    from unittest.mock import AsyncMock
-except ImportError:
-    from mock.mock import AsyncMock
-
-from betty.cli import main, CommandProvider, global_command, catch_exceptions
-from betty.app import App
-from betty.app.extension import Extension
 
 T = TypeVar("T")
 P = ParamSpec("P")
