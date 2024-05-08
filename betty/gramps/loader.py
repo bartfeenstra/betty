@@ -8,7 +8,10 @@ import gzip
 import re
 import tarfile
 from collections import defaultdict
+from collections.abc import MutableMapping, Mapping
 from contextlib import suppress
+from dataclasses import dataclass
+from enum import Enum
 from logging import getLogger
 from pathlib import Path
 from typing import Iterable, Any, IO, cast
@@ -20,7 +23,7 @@ from geopy import Point
 
 from betty.gramps.error import GrampsError
 from betty.locale import DateRange, Datey, Date, Str, Localizer
-from betty.media_type import MediaType
+from betty.media_type import MediaType, InvalidMediaType
 from betty.model import Entity, EntityGraphBuilder, AliasedEntity, AliasableEntity
 from betty.model.ancestry import (
     Ancestry,
@@ -90,6 +93,23 @@ class GrampsFileNotFoundError(GrampsError, FileNotFoundError):
 
 class XPathError(GrampsError, RuntimeError):
     pass
+
+
+class GrampsEntityType(Enum):
+    CITATION = "citation"
+    EVENT = "event"
+    OBJECT = "object"
+    PERSON = "person"
+    SOURCE = "source"
+
+
+@dataclass(frozen=True)
+class GrampsEntityReference:
+    entity_type: GrampsEntityType
+    entity_id: str
+
+    def __str__(self) -> str:
+        return f"{self.entity_type.value} ({self.entity_id})"
 
 
 class GrampsLoader:
@@ -404,7 +424,12 @@ class GrampsLoader:
             file.private = True
         aliased_file = AliasedEntity(file, file_handle)
 
-        self._load_attributes(file, element, "attribute")
+        self._load_attributes_for(
+            file,
+            GrampsEntityReference(GrampsEntityType.OBJECT, file.id),
+            element,
+            "attribute",
+        )
 
         self.add_entity(
             aliased_file,  # type: ignore[arg-type]
@@ -470,7 +495,12 @@ class GrampsLoader:
         if element.get("priv") == "1":
             person.private = True
 
-        self._load_attributes(person, element, "attribute")
+        self._load_attributes_for(
+            person,
+            GrampsEntityReference(GrampsEntityType.PERSON, person.id),
+            element,
+            "attribute",
+        )
 
         aliased_person = AliasedEntity(person, person_handle)
         self._load_citationref(
@@ -558,7 +588,12 @@ class GrampsLoader:
         if eventref.get("priv") == "1":
             presence.private = True
 
-        self._load_attributes(presence, eventref, "attribute")
+        self._load_attributes_for(
+            presence,
+            GrampsEntityReference(GrampsEntityType.PERSON, person_id),
+            eventref,
+            "attribute",
+        )
 
         self.add_entity(presence)
         self.add_association(Presence, presence.id, "person", Person, person_id)
@@ -725,7 +760,12 @@ class GrampsLoader:
             element,
         )
 
-        self._load_attributes(event, element, "attribute")
+        self._load_attributes_for(
+            event,
+            GrampsEntityReference(GrampsEntityType.EVENT, event.id),
+            element,
+            "attribute",
+        )
 
         self.add_entity(
             aliased_event,  # type: ignore[arg-type]
@@ -786,7 +826,12 @@ class GrampsLoader:
         if element.get("priv") == "1":
             source.private = True
 
-        self._load_attributes(source, element, "srcattribute")
+        self._load_attributes_for(
+            source,
+            GrampsEntityReference(GrampsEntityType.SOURCE, source.id),
+            element,
+            "srcattribute",
+        )
 
         aliased_source = AliasedEntity(source, source_handle)
         self._load_objref(
@@ -825,7 +870,12 @@ class GrampsLoader:
             element,
         )
 
-        self._load_attributes(citation, element, "srcattribute")
+        self._load_attributes_for(
+            citation,
+            GrampsEntityReference(GrampsEntityType.CITATION, citation.id),
+            element,
+            "srcattribute",
+        )
 
         self.add_entity(
             aliased_citation,  # type: ignore[arg-type]
@@ -894,21 +944,102 @@ class GrampsLoader:
             )
         )
 
+    _LINK_ATTRIBUTE_PATTERN = re.compile(r"^link-([^:]+?):(.+?)$")
+
+    def _load_attribute_links(
+        self,
+        entity: HasLinks & Entity,
+        gramps_entity_reference: GrampsEntityReference,
+        element: ElementTree.Element,
+        tag: str,
+    ) -> None:
+        logger = getLogger(__name__)
+
+        attributes = self._load_attributes(element, tag)
+        links_attributes: MutableMapping[str, MutableMapping[str, str]] = defaultdict(
+            dict
+        )
+        for attribute_type, attribute_value in attributes.items():
+            match = self._LINK_ATTRIBUTE_PATTERN.fullmatch(attribute_type)
+            if match is None:
+                continue
+            link_name = match.group(1)
+            link_attribute_name = match.group(2)
+            links_attributes[link_name][link_attribute_name] = attribute_value
+        for link_name, link_attributes in links_attributes.items():
+            if "url" not in link_attributes:
+                logger.warning(
+                    self._localizer._(
+                        'The Gramps {gramps_entity_reference} entity requires a "betty:link-{link_name}:url" attribute. This link was ignored.',
+                    ).format(
+                        gramps_entity_reference=gramps_entity_reference,
+                        link_name=link_name,
+                    )
+                )
+                continue
+            link = Link(link_attributes["url"])
+            entity.links.append(link)
+            if "description" in link_attributes:
+                link.description = link_attributes["description"]
+            if "label" in link_attributes:
+                link.label = link_attributes["label"]
+            if "locale" in link_attributes:
+                link.locale = link_attributes["locale"]
+            if "media_type" in link_attributes:
+                try:
+                    media_type = MediaType(link_attributes["media_type"])
+                except InvalidMediaType:
+                    logger.warning(
+                        self._localizer._(
+                            'The Gramps {gramps_entity_reference} entity has a "betty:link-{link_name}:media_type" attribute with value "{media_type}", which is not a valid IANA media type. This media type was ignored.',
+                        ).format(
+                            gramps_entity_reference=gramps_entity_reference,
+                            link_name=link_name,
+                            media_type=link_attributes["media_type"],
+                        )
+                    )
+                else:
+                    link.media_type = media_type
+            if "relationship" in link_attributes:
+                link.relationship = link_attributes["relationship"]
+
     def _load_attribute(
         self, name: str, element: ElementTree.Element, tag: str
     ) -> str | None:
-        prefixes = ["betty"]
-        if self._project is not None and self._project.configuration.name is not None:
-            prefixes.insert(0, f"betty-{self._project.configuration.name}")
-        for prefix in prefixes:
-            with suppress(XPathError):
-                return self._xpath1(
-                    element, f'./ns:{tag}[@type="{prefix}:{name}"]'
-                ).get("value")
-        return None
+        try:
+            return self._load_attributes(element, tag)[name]
+        except KeyError:
+            return None
 
     def _load_attributes(
-        self, entity: Entity, element: ElementTree.Element, tag: str
+        self, element: ElementTree.Element, tag: str
+    ) -> Mapping[str, str]:
+        prefixes = ["betty"]
+        hash(element)
+        if self._project is not None and self._project.configuration.name is not None:
+            prefixes.append(f"betty-{self._project.configuration.name}")
+        attributes: MutableMapping[str, str] = {}
+        for prefix in prefixes:
+            with suppress(XPathError):
+                attribute_elements = self._xpath(element, f"./ns:{tag}")
+                for attribute_element in attribute_elements:
+                    attribute_type = attribute_element.attrib["type"]
+                    attribute_value = attribute_element.get("value")
+                    if (
+                        attribute_type.startswith(f"{prefix}:")
+                        and attribute_value is not None
+                    ):
+                        attributes[attribute_type[len(prefix) + 1 :]] = attribute_value
+        return attributes
+
+    def _load_attributes_for(
+        self,
+        entity: Entity,
+        gramps_entity_reference: GrampsEntityReference,
+        element: ElementTree.Element,
+        tag: str,
     ) -> None:
         if isinstance(entity, HasPrivacy):
             self._load_attribute_privacy(entity, element, tag)
+        if isinstance(entity, HasLinks):
+            self._load_attribute_links(entity, gramps_entity_reference, element, tag)

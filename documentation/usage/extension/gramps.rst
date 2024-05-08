@@ -77,13 +77,55 @@ where ``...`` is the name that identifies the attribute's meaning. For the 'priv
 name would be ``betty:privacy`` or ``betty-MyProject:privacy``.
 
 Privacy
--------
+^^^^^^^
 
 Gramps has limited built-in support for people's privacy. To fully control privacy for people, as well as events, files,
 sources, and citations, add a ``betty:privacy`` attribute to any of these types, with a value of ``private`` to explicitly
 declare the data always private or ``public`` to declare the data always public. Any other value will leave the privacy
 undecided, as well as person records marked public using Gramps' built-in privacy selector. In such cases, the
 ``betty.extension.Privatizer`` extension may decide if the data is public or private.
+
+Links
+^^^^^
+
+Gramps has limited built-in support to add links to entities. For those Gramps entities that support attributes,
+you may add links using those:
+
+.. list-table:: Link attributes
+   :header-rows: 1
+
+   * - Name
+     - Required/optional
+     - Description
+   * - ``betty:link-LINKNAME:url``
+     - **required**
+     - The URL the link targets.
+   * - ``betty:link-LINKNAME:description``
+     - optional
+     - A human-friendly longer link description.
+   * - ``betty:link-LINKNAME:label``
+     - optional
+     - A human-friendly short link label.
+   * - ``betty:link-LINKNAME:locale``
+     - optional
+     - An `IETF BCP 47 language tag <https://en.wikipedia.org/wiki/IETF_language_tag>`_.
+   * - ``betty:link-LINKNAME:media_type``
+     - optional
+     - An `IANA media type <https://www.iana.org/assignments/media-types/media-types.xhtml>`_.
+   * - ``betty:link-LINKNAME:relationship``
+     - optional
+     - An `IANA link relationship <https://www.iana.org/assignments/link-relations/link-relations.xhtml>`_.
+
+Where ``LINKNAME`` may be any value of your choosing, but must be unique per link. For example, where ``LINKNAME`` is ``cheese``:
+
+.. list-table::
+
+   * - ``betty:link-cheese:url``
+     - ``https://en.wikipedia.org/wiki/Cheese``
+   * - ``betty:link-cheese:label``
+     - ``Learn about cheese``
+   * - ``betty:link-cheese:description``
+     - ``Read the Wikipedia article about cheese``
 
 Dates
 -----
