@@ -8,6 +8,7 @@ from aiofiles.tempfile import TemporaryDirectory
 
 from betty.gramps.loader import GrampsLoader
 from betty.locale import Date, DateRange, DEFAULT_LOCALIZER
+from betty.media_type import MediaType
 from betty.model.ancestry import (
     Ancestry,
     Citation,
@@ -959,6 +960,79 @@ class TestGrampsLoader:
         assert source.notes
         note = source.notes[0]
         assert note.id == "N0000"
+
+    async def test_source_from_source_should_include_attribute_links(self) -> None:
+        link_minimal_url = "http://example.com"
+        link_full_url = "https://example.com"
+        link_full_description = "Check out the world's Example Domain!"
+        link_full_label = "Example.com"
+        link_full_locale = "en"
+        link_full_media_type = "text/plain"
+        link_full_relationship = "external"
+        ancestry = await self._load_partial(
+            f"""
+<sources>
+    <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
+      <srcattribute type="betty:link-minimal:url" value="{link_minimal_url}"/>
+      <srcattribute type="betty:link-full:url" value="{link_full_url}"/>
+      <srcattribute type="betty:link-full:description" value="{link_full_description}"/>
+      <srcattribute type="betty:link-full:label" value="{link_full_label}"/>
+      <srcattribute type="betty:link-full:locale" value="{link_full_locale}"/>
+      <srcattribute type="betty:link-full:media_type" value="{link_full_media_type}"/>
+      <srcattribute type="betty:link-full:relationship" value="{link_full_relationship}"/>
+    </source>
+</sources>
+"""
+        )
+        source = ancestry[Source]["S0000"]
+        assert source.links
+        link_minimal = source.links[0]
+        link_full = source.links[1]
+        assert link_minimal.url == link_minimal_url
+        assert link_minimal.description is None
+        assert link_minimal.label is None
+        assert link_minimal.locale is None
+        assert link_minimal.media_type is None
+        assert link_minimal.relationship is None
+        assert link_full.url == link_full_url
+        assert link_full.description == link_full_description
+        assert link_full.label == link_full_label
+        assert link_full.locale == link_full_locale
+        assert link_full.media_type == MediaType(link_full_media_type)
+        assert link_full.relationship == link_full_relationship
+
+    async def test_source_from_source_should_warn_about_attribute_link_without_url(
+        self,
+    ) -> None:
+        ancestry = await self._load_partial(
+            """
+<sources>
+    <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
+      <srcattribute type="betty:link-invalid:label" value="Example.com"/>
+    </source>
+</sources>
+"""
+        )
+        source = ancestry[Source]["S0000"]
+        assert not source.links
+
+    async def test_source_from_source_should_warn_about_attribute_link_invalid_media_type(
+        self,
+    ) -> None:
+        ancestry = await self._load_partial(
+            """
+<sources>
+    <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
+      <srcattribute type="betty:link-one:url" value="https://example.com"/>
+      <srcattribute type="betty:link-one:media_type" value="not-a-valid-media-type"/>
+    </source>
+</sources>
+"""
+        )
+        source = ancestry[Source]["S0000"]
+        assert source.links
+        link_one = source.links[0]
+        assert link_one.media_type is None
 
     @pytest.mark.parametrize(
         "expected, global_attribute_value, project_attribute_value",
