@@ -75,6 +75,19 @@ class Summary(Localized):
         self._title = title
         self._content = content
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Summary):
+            return False
+        if self.name != other.name:
+            return False
+        if self.url != other.url:
+            return False
+        if self.title != other.title:
+            return False
+        if self.content != other.content:
+            return False
+        return True
+
     @property
     def name(self) -> str:
         return self._name
@@ -104,6 +117,11 @@ class Image:
         self._media_type = media_type
         self._title = title
         self._wikimedia_commons_url = wikimedia_commons_url
+
+    def __hash__(self) -> int:
+        return hash(
+            (self.path, self.media_type, self.title, self.wikimedia_commons_url)
+        )
 
     @property
     def path(self) -> Path:
@@ -192,13 +210,9 @@ class _Fetcher:
 class _Retriever:
     def __init__(
         self,
-        http_client: aiohttp.ClientSession,
-        cache: Cache[str],
-        binary_file_cache: BinaryFileCache,
-        # Default to seven days.
-        ttl: int = 86400 * 7,
+        fetcher: _Fetcher,
     ):
-        self._fetcher = _Fetcher(http_client, cache, binary_file_cache, ttl)
+        self._fetcher = fetcher
         self._images: dict[str, Image | None] = {}
 
     async def _get_query_api_data(self, url: str) -> dict[str, Any]:
@@ -229,7 +243,7 @@ class _Retriever:
             return {}
         try:
             translations_data = api_data["langlinks"]
-        except KeyError:
+        except LookupError:
             # There may not be any translations.
             return {}
         return {
@@ -238,36 +252,42 @@ class _Retriever:
         }
 
     async def get_summary(self, page_language: str, page_name: str) -> Summary | None:
-        logger = logging.getLogger(__name__)
         try:
             url = f"https://{page_language}.wikipedia.org/api/rest_v1/page/summary/{page_name}"
             response_data = await self._fetcher.fetch(url)
             try:
                 api_data = json.loads(response_data)
-                return Summary(
-                    page_language,
-                    page_name,
-                    api_data["titles"]["normalized"],
-                    (
-                        api_data["extract_html"]
-                        if "extract_html" in api_data
-                        else api_data["extract"]
-                    ),
-                )
-            except (json.JSONDecodeError, KeyError) as error:
+            except json.JSONDecodeError as error:
                 raise RetrievalError(
                     f"Could not successfully parse the JSON content returned by {url}: {error}"
                 )
+            else:
+                try:
+                    return Summary(
+                        page_language,
+                        page_name,
+                        api_data["titles"]["normalized"],
+                        (
+                            api_data["extract_html"]
+                            if "extract_html" in api_data
+                            else api_data["extract"]
+                        ),
+                    )
+                except LookupError as error:
+                    raise RetrievalError(
+                        f"Could not successfully parse the JSON content returned by {url}: {error}"
+                    )
         except RetrievalError as error:
+            logger = logging.getLogger(__name__)
             logger.warning(str(error))
-        return None
+            return None
 
     async def get_image(self, page_language: str, page_name: str) -> Image | None:
         try:
             api_data = await self._get_page_query_api_data(page_language, page_name)
             try:
                 page_image_name = api_data["pageimage"]
-            except KeyError:
+            except LookupError:
                 # There may not be any images.
                 return None
 
@@ -279,11 +299,10 @@ class _Retriever:
 
             try:
                 image_info = image_info_api_data["imageinfo"][0]
-            except KeyError as error:
+            except LookupError as error:
                 raise RetrievalError(
                     f"Could not successfully parse the JSON content returned by {url}: {error}"
                 )
-
             image = Image(
                 await self._fetcher.fetch_file(image_info["url"]),
                 MediaType(image_info["mime"]),
@@ -303,20 +322,25 @@ class _Retriever:
     async def get_place_coordinates(
         self, page_language: str, page_name: str
     ) -> Point | None:
-        api_data = await self._get_page_query_api_data(page_language, page_name)
         try:
-            coordinates = api_data["coordinates"][0]
-        except KeyError:
-            # There may not be any coordinates.
-            return None
-        try:
-            if coordinates["globe"] != "earth":
+            api_data = await self._get_page_query_api_data(page_language, page_name)
+            try:
+                coordinates = api_data["coordinates"][0]
+            except LookupError:
+                # There may not be any coordinates.
                 return None
-            return Point(coordinates["lat"], coordinates["lon"])
-        except KeyError as error:
-            raise RetrievalError(
-                f"Could not successfully parse the JSON content: {error}"
-            )
+            try:
+                if coordinates["globe"] != "earth":
+                    return None
+                return Point(coordinates["lat"], coordinates["lon"])
+            except LookupError as error:
+                raise RetrievalError(
+                    f"Could not successfully parse the JSON content: {error}"
+                )
+        except RetrievalError as error:
+            logger = logging.getLogger(__name__)
+            logger.warning(str(error))
+            return None
 
 
 class _Populator:

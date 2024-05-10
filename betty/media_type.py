@@ -27,6 +27,9 @@ class MediaType:
         if not self._subtype:
             raise InvalidMediaType("The subtype must not be empty.")
 
+    def __hash__(self) -> int:
+        return hash(self._str)
+
     @property
     def type(self) -> str:
         return self._type

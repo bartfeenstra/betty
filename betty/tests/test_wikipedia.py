@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import asyncio
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Mapping
 from json import dumps
 from pathlib import Path
-from time import sleep
 from typing import Any
 from unittest.mock import AsyncMock, call
 
@@ -194,6 +193,29 @@ class TestFetcher:
                 assert await f.read() == content
 
 
+class _MapFetcher(_Fetcher):
+    def __init__(
+        self,
+        *,
+        fetch_map: Mapping[str, str] | None = None,
+        fetch_file_map: Mapping[str, Path] | None = None,
+    ):
+        self._fetch_map = {} if fetch_map is None else fetch_map
+        self._fetch_file_map = {} if fetch_file_map is None else fetch_file_map
+
+    async def fetch(self, url: str) -> str:
+        try:
+            return self._fetch_map[url]
+        except KeyError:
+            raise RetrievalError
+
+    async def fetch_file(self, url: str) -> Path:
+        try:
+            return self._fetch_file_map[url]
+        except KeyError:
+            raise RetrievalError
+
+
 class TestParseUrl:
     @pytest.mark.parametrize(
         "expected, url",
@@ -259,14 +281,66 @@ class TestSummary:
         sut = Summary("nl", "Amsterdam", "Title for Amsterdam", content)
         assert content == sut.content
 
+    @pytest.mark.parametrize(
+        "expected, left, right",
+        [
+            (
+                True,
+                Summary("en", "name", "title", "content"),
+                Summary("en", "name", "title", "content"),
+            ),
+            (
+                False,
+                Summary("en", "name", "title", "content"),
+                Summary("nl", "name", "title", "content"),
+            ),
+            (
+                False,
+                Summary("en", "name", "title", "content"),
+                Summary("en", "not-a-name", "title", "content"),
+            ),
+            (
+                False,
+                Summary("en", "name", "title", "content"),
+                Summary("en", "name", "not-a-title", "content"),
+            ),
+            (
+                False,
+                Summary("en", "name", "title", "content"),
+                Summary("en", "name", "title", "not-a-content"),
+            ),
+            (
+                False,
+                Summary("en", "name", "title", "content"),
+                123,
+            ),
+        ],
+    )
+    async def test_eq(self, expected: bool, left: Summary, right: object) -> None:
+        assert (left == right) is expected
+
 
 class TestRetriever:
     @pytest.mark.parametrize(
-        "expected, response_pages_json",
+        "expected, fetch_json",
         [
             (
                 {},
                 {},
+            ),
+            (
+                {},
+                {
+                    "query": {},
+                },
+            ),
+            (
+                {},
+                {
+                    "query": {
+                        "pages": [{}],
+                    },
+                },
             ),
             (
                 {
@@ -274,16 +348,22 @@ class TestRetriever:
                     "uk": "Амстердам",
                 },
                 {
-                    "langlinks": [
-                        {
-                            "lang": "nl",
-                            "title": "Amsterdam",
-                        },
-                        {
-                            "lang": "uk",
-                            "title": "Амстердам",
-                        },
-                    ],
+                    "query": {
+                        "pages": [
+                            {
+                                "langlinks": [
+                                    {
+                                        "lang": "nl",
+                                        "title": "Amsterdam",
+                                    },
+                                    {
+                                        "lang": "uk",
+                                        "title": "Амстердам",
+                                    },
+                                ],
+                            }
+                        ],
+                    },
                 },
             ),
         ],
@@ -291,66 +371,32 @@ class TestRetriever:
     async def test_get_translations_should_return(
         self,
         expected: dict[str, str],
-        response_pages_json: dict[str, Any],
-        aioresponses: aioresponses,
+        fetch_json: dict[str, Any],
         mocker: MockerFixture,
         binary_file_cache: BinaryFileCache,
     ) -> None:
         mocker.patch("sys.stderr")
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
-        api_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
-        api_response_body = {
-            "query": {
-                "pages": [response_pages_json],
-            },
-        }
-        aioresponses.get(api_url, body=dumps(api_response_body).encode("utf-8"))
-        async with aiohttp.ClientSession() as session:
-            translations = await _Retriever(
-                session,
-                MemoryCache[Any](DEFAULT_LOCALIZER),
-                binary_file_cache,
-            ).get_translations(page_language, page_name)
+        fetch_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
+        fetcher = _MapFetcher(fetch_map={fetch_url: dumps(fetch_json)})
+        translations = await _Retriever(fetcher).get_translations(
+            page_language, page_name
+        )
         assert expected == translations
-
-    async def test_get_translations_with_client_error_should_raise_retrieval_error(
-        self,
-        aioresponses: aioresponses,
-        mocker: MockerFixture,
-        binary_file_cache: BinaryFileCache,
-    ) -> None:
-        mocker.patch("sys.stderr")
-        page_language = "en"
-        page_name = "Amsterdam & Omstreken"
-        api_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks&lllimit=500&format=json&formatversion=2"
-        aioresponses.get(api_url, exception=aiohttp.ClientError())
-        async with aiohttp.ClientSession() as session:
-            actual = await _Retriever(
-                session,
-                MemoryCache[Any](DEFAULT_LOCALIZER),
-                binary_file_cache,
-            ).get_translations(page_language, page_name)
-            assert {} == actual
 
     async def test_get_translations_with_invalid_json_response_should_return_none(
         self,
-        aioresponses: aioresponses,
         mocker: MockerFixture,
         binary_file_cache: BinaryFileCache,
     ) -> None:
         mocker.patch("sys.stderr")
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
-        api_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks&lllimit=500&format=json&formatversion=2"
-        aioresponses.get(api_url, body="{Haha Im not rly JSON}")
-        async with aiohttp.ClientSession() as session:
-            actual = await _Retriever(
-                session,
-                MemoryCache[Any](DEFAULT_LOCALIZER),
-                binary_file_cache,
-            ).get_translations(page_language, page_name)
-            assert {} == actual
+        fetch_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks&lllimit=500&format=json&formatversion=2"
+        fetcher = _MapFetcher(fetch_map={fetch_url: "{Haha Im not rly JSON}"})
+        actual = await _Retriever(fetcher).get_translations(page_language, page_name)
+        assert {} == actual
 
     @pytest.mark.parametrize(
         "response_json",
@@ -366,141 +412,218 @@ class TestRetriever:
         response_json: dict[str, Any],
         mocker: MockerFixture,
         binary_file_cache: BinaryFileCache,
-        aioresponses: aioresponses,
     ) -> None:
         mocker.patch("sys.stderr")
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
-        api_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstrekens&prop=langlinks&lllimit=500&format=json&formatversion=2"
-
-        aioresponses.get(api_url, body=dumps(response_json).encode("utf-8"))
-        async with aiohttp.ClientSession() as session:
-            actual = await _Retriever(
-                session,
-                MemoryCache[Any](DEFAULT_LOCALIZER),
-                binary_file_cache,
-            ).get_translations(page_language, page_name)
-            assert {} == actual
+        fetch_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstrekens&prop=langlinks&lllimit=500&format=json&formatversion=2"
+        fetcher = _MapFetcher(fetch_map={fetch_url: dumps(response_json)})
+        actual = await _Retriever(fetcher).get_translations(page_language, page_name)
+        assert {} == actual
 
     @pytest.mark.parametrize(
-        "extract_key",
+        "expected, fetch_json",
         [
-            "extract",
-            "extract_html",
+            # Missing keys in the fetch response.
+            (
+                None,
+                {},
+            ),
+            (
+                None,
+                {
+                    "titles": {},
+                },
+            ),
+            (
+                None,
+                {
+                    "titles": {},
+                    "extract": "De hoofdstad van Nederland.",
+                },
+            ),
+            (
+                None,
+                {
+                    "extract": "De hoofdstad van Nederland.",
+                },
+            ),
+            # Success.
+            (
+                Summary(
+                    "en",
+                    "Amsterdam & Omstreken",
+                    "Amstelredam",
+                    "De hoofdstad van Nederland.",
+                ),
+                {
+                    "titles": {
+                        "normalized": "Amstelredam",
+                    },
+                    "extract": "De hoofdstad van Nederland.",
+                },
+            ),
+            (
+                Summary(
+                    "en",
+                    "Amsterdam & Omstreken",
+                    "Amstelredam",
+                    "De hoofdstad van Nederland.",
+                ),
+                {
+                    "titles": {
+                        "normalized": "Amstelredam",
+                    },
+                    "extract_html": "De hoofdstad van Nederland.",
+                },
+            ),
         ],
     )
     async def test_get_summary_should_return(
         self,
-        extract_key: str,
-        aioresponses: aioresponses,
+        expected: Summary | None,
+        fetch_json: dict[str, Any],
         binary_file_cache: BinaryFileCache,
     ) -> None:
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
-        api_url = (
+        fetch_url = (
             "https://en.wikipedia.org/api/rest_v1/page/summary/Amsterdam & Omstreken"
         )
-        summary_url = "https://en.wikipedia.org/wiki/Amsterdam & Omstreken"
-        title = "Amstelredam"
-        extract_1 = "De hoofdstad van Nederland."
-        extract_4 = "Niet de hoofdstad van Holland."
-        api_response_body_1 = {
-            "titles": {
-                "normalized": title,
-            },
-            extract_key: extract_1,
-        }
-        api_response_body_4 = {
-            "titles": {
-                "normalized": title,
-            },
-            extract_key: extract_4,
-        }
-        aioresponses.get(api_url, body=dumps(api_response_body_1).encode("utf-8"))
-        aioresponses.get(api_url, exception=aiohttp.ClientError())
-        aioresponses.get(api_url, body=dumps(api_response_body_4).encode("utf-8"))
-        async with aiohttp.ClientSession() as session:
-            retriever = _Retriever(
-                session,
-                MemoryCache[Any](DEFAULT_LOCALIZER),
-                binary_file_cache,
-                1,
-            )
-            # The first retrieval should make a successful request and set the cache.
-            summary_1 = await retriever.get_summary(page_language, page_name)
-            # The second retrieval should hit the cache from the first request.
-            summary_2 = await retriever.get_summary(page_language, page_name)
-            # The third retrieval should result in a failed request, and hit the cache from the first request.
-            sleep(2)
-            summary_3 = await retriever.get_summary(page_language, page_name)
-            # The fourth retrieval should make a successful request and set the cache again.
-            summary_4 = await retriever.get_summary(page_language, page_name)
-            # The fifth retrieval should hit the cache from the fourth request.
-            summary_5 = await retriever.get_summary(page_language, page_name)
-        for summary in [summary_1, summary_2, summary_3]:
-            assert summary
-            assert summary_url == summary.url
-            assert title == summary.title
-            assert extract_1 == summary.content
-        for summary in [summary_4, summary_5]:
-            assert summary
-            assert summary_url == summary.url
-            assert title == summary.title
-            assert extract_4 == summary.content
-
-    async def test_get_summary_with_client_error_should_raise_retrieval_error(
-        self,
-        aioresponses: aioresponses,
-        mocker: MockerFixture,
-        binary_file_cache: BinaryFileCache,
-    ) -> None:
-        mocker.patch("sys.stderr")
-        page_language = "en"
-        page_name = "Amsterdam & Omstreken"
-        api_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=extracts&exintro&format=json&formatversion=2"
-        aioresponses.get(api_url, exception=aiohttp.ClientError())
-        async with aiohttp.ClientSession() as session:
-            retriever = _Retriever(
-                session,
-                MemoryCache[Any](DEFAULT_LOCALIZER),
-                binary_file_cache,
-            )
-            actual = await retriever.get_summary(page_language, page_name)
-            assert None is actual
+        fetcher = _MapFetcher(fetch_map={fetch_url: dumps(fetch_json)})
+        retriever = _Retriever(fetcher)
+        actual = await retriever.get_summary(page_language, page_name)
+        assert actual == expected
 
     @pytest.mark.parametrize(
-        "expected, response_pages_json",
+        "expected, fetch_json",
         [
+            # Missing keys in the fetch response.
             (
                 None,
                 {},
+            ),
+            (
+                None,
+                {
+                    "query": {},
+                },
+            ),
+            (
+                None,
+                {
+                    "query": {
+                        "pages": [],
+                    },
+                },
+            ),
+            (
+                None,
+                {
+                    "query": {
+                        "pages": [{}],
+                    },
+                },
+            ),
+            (
+                None,
+                {
+                    "query": {
+                        "pages": [
+                            {
+                                "coordinates": [],
+                            }
+                        ],
+                    },
+                },
+            ),
+            (
+                None,
+                {
+                    "query": {
+                        "pages": [
+                            {
+                                "coordinates": [
+                                    {
+                                        "lon": 6.66666667,
+                                        "globe": "earth",
+                                    },
+                                ],
+                            }
+                        ],
+                    },
+                },
+            ),
+            (
+                None,
+                {
+                    "query": {
+                        "pages": [
+                            {
+                                "coordinates": [
+                                    {
+                                        "lat": 52.35,
+                                        "globe": "earth",
+                                    },
+                                ],
+                            }
+                        ],
+                    },
+                },
+            ),
+            (
+                None,
+                {
+                    "query": {
+                        "pages": [
+                            {
+                                "coordinates": [
+                                    {
+                                        "lat": 52.35,
+                                        "lon": 6.66666667,
+                                    },
+                                ],
+                            }
+                        ],
+                    },
+                },
             ),
             # Almelo.
             (
                 Point(52.35, 6.66666667),
                 {
-                    "coordinates": [
-                        {
-                            "lat": 52.35,
-                            "lon": 6.66666667,
-                            "primary": True,
-                            "globe": "earth",
-                        },
-                    ],
+                    "query": {
+                        "pages": [
+                            {
+                                "coordinates": [
+                                    {
+                                        "lat": 52.35,
+                                        "lon": 6.66666667,
+                                        "globe": "earth",
+                                    },
+                                ],
+                            }
+                        ],
+                    },
                 },
             ),
             # Tranquility Base.
             (
                 None,
                 {
-                    "coordinates": [
-                        {
-                            "lat": 0.6875,
-                            "lon": 23.43333333,
-                            "primary": True,
-                            "globe": "moon",
-                        },
-                    ],
+                    "query": {
+                        "pages": [
+                            {
+                                "coordinates": [
+                                    {
+                                        "lat": 0.6875,
+                                        "lon": 23.43333333,
+                                        "globe": "moon",
+                                    },
+                                ],
+                            }
+                        ],
+                    },
                 },
             ),
         ],
@@ -508,28 +631,181 @@ class TestRetriever:
     async def test_get_place_coordinates_should_return(
         self,
         expected: Point | None,
-        response_pages_json: dict[str, Any],
-        aioresponses: aioresponses,
+        fetch_json: dict[str, Any],
         mocker: MockerFixture,
         binary_file_cache: BinaryFileCache,
     ) -> None:
         mocker.patch("sys.stderr")
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
-        api_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
-        api_response_body = {
-            "query": {
-                "pages": [response_pages_json],
-            },
-        }
-        aioresponses.get(api_url, body=dumps(api_response_body).encode("utf-8"))
-        async with aiohttp.ClientSession() as session:
-            actual = await _Retriever(
-                session,
-                MemoryCache[Any](DEFAULT_LOCALIZER),
-                binary_file_cache,
-            ).get_place_coordinates(page_language, page_name)
+        fetch_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
+        fetcher = _MapFetcher(fetch_map={fetch_url: dumps(fetch_json)})
+        actual = await _Retriever(fetcher).get_place_coordinates(
+            page_language, page_name
+        )
         assert expected == actual
+
+    @pytest.mark.parametrize(
+        "expected, page_fetch_json, file_fetch_json",
+        [
+            # Missing JSON keys for the page API fetch.
+            (
+                None,
+                {},
+                None,
+            ),
+            (
+                None,
+                {"query": {}},
+                None,
+            ),
+            (
+                None,
+                {"query": {"pages": []}},
+                None,
+            ),
+            (
+                None,
+                {
+                    "query": {
+                        "pages": [
+                            {},
+                        ]
+                    }
+                },
+                None,
+            ),
+            # Missing JSON keys for the file API fetch.
+            (
+                None,
+                {
+                    "query": {
+                        "pages": [
+                            {
+                                "pageimage": "Amsterdam & Omstreken",
+                            },
+                        ]
+                    }
+                },
+                {},
+            ),
+            (
+                None,
+                {
+                    "query": {
+                        "pages": [
+                            {
+                                "pageimage": "Amsterdam & Omstreken",
+                            },
+                        ]
+                    }
+                },
+                {"query": {}},
+            ),
+            (
+                None,
+                {
+                    "query": {
+                        "pages": [
+                            {
+                                "pageimage": "Amsterdam & Omstreken",
+                            },
+                        ]
+                    }
+                },
+                {"query": {"pages": []}},
+            ),
+            (
+                None,
+                {
+                    "query": {
+                        "pages": [
+                            {
+                                "pageimage": "Amsterdam & Omstreken",
+                            },
+                        ]
+                    }
+                },
+                {
+                    "query": {
+                        "pages": [
+                            {
+                                "imageinfo": [],
+                            },
+                        ]
+                    }
+                },
+            ),
+            # A successful response.
+            (
+                Image(
+                    Path(__file__),
+                    MediaType("image/svg+xml"),
+                    "An Example Image",
+                    "https://example.com/description",
+                ),
+                {
+                    "query": {
+                        "pages": [
+                            {
+                                "pageimage": "Amsterdam & Omstreken",
+                            }
+                        ],
+                    },
+                },
+                {
+                    "query": {
+                        "pages": [
+                            {
+                                "imageinfo": [
+                                    {
+                                        "url": "https://example.com/image",
+                                        "mime": "image/svg+xml",
+                                        "canonicaltitle": "File:An Example Image",
+                                        "descriptionurl": "https://example.com/description",
+                                    },
+                                ],
+                            }
+                        ],
+                    },
+                },
+            ),
+        ],
+    )
+    async def test_get_image_should_return(
+        self,
+        expected: Image | None,
+        page_fetch_json: dict[str, Any],
+        file_fetch_json: dict[str, Any] | None,
+        mocker: MockerFixture,
+        binary_file_cache: BinaryFileCache,
+        tmp_path: Path,
+    ) -> None:
+        mocker.patch("sys.stderr")
+
+        page_language = "en"
+        page_name = "Amsterdam & Omstreken"
+        page_fetch_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
+        file_fetch_url = "https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&titles=File:Amsterdam%20%26%20Omstreken&iiprop=url|mime|canonicaltitle&format=json&formatversion=2"
+
+        fetch_map = {page_fetch_url: dumps(page_fetch_json)}
+        fetch_file_map = {}
+        if file_fetch_json is not None:
+            fetch_map[file_fetch_url] = dumps(file_fetch_json)
+        image_file_path = tmp_path / "image"
+        if expected is not None:
+            fetch_file_map["https://example.com/image"] = image_file_path
+        fetcher = _MapFetcher(fetch_map=fetch_map, fetch_file_map=fetch_file_map)
+
+        actual = await _Retriever(fetcher).get_image(page_language, page_name)
+        if expected is None:
+            assert actual is None
+        else:
+            assert actual is not None
+            assert actual.media_type == expected.media_type
+            assert actual.title == expected.title
+            assert actual.wikimedia_commons_url == expected.wikimedia_commons_url
+            assert actual.path is image_file_path
 
 
 class TestPopulator:
@@ -823,9 +1099,7 @@ class TestPopulator:
 
         assert coordinates is place.coordinates
 
-    async def test_populate_has_links(
-        self, aioresponses: aioresponses, mocker: MockerFixture
-    ) -> None:
+    async def test_populate_has_links(self, mocker: MockerFixture) -> None:
         m_retriever = mocker.patch(
             "betty.wikipedia._Retriever", spec=_Retriever, new_callable=AsyncMock
         )
