@@ -9,7 +9,6 @@ from typing import Callable, Iterable, Any
 from jinja2 import pass_context
 from jinja2.runtime import Context
 
-from betty import wikipedia
 from betty.app.extension import UserFacingExtension, ConfigurableExtension
 from betty.asyncio import gather
 from betty.extension.wikipedia.config import WikipediaConfiguration
@@ -19,7 +18,15 @@ from betty.jinja2 import Jinja2Provider, context_localizer
 from betty.load import PostLoader
 from betty.locale import negotiate_locale, Str
 from betty.model.ancestry import Link
-from betty.wikipedia import Summary, _parse_url, NotAPageError, RetrievalError
+from betty.wikipedia import (
+    Summary,
+    _parse_url,
+    NotAPageError,
+    RetrievalError,
+    _Fetcher,
+    _Retriever,
+    _Populator,
+)
 
 
 class Wikipedia(
@@ -35,20 +42,22 @@ class Wikipedia(
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self.__retriever: wikipedia._Retriever | None = None
-        self.__populator: wikipedia._Populator | None = None
+        self.__retriever: _Retriever | None = None
+        self.__populator: _Populator | None = None
 
     async def post_load(self) -> None:
-        populator = wikipedia._Populator(self.app, self._retriever)
+        populator = _Populator(self.app, self._retriever)
         await populator.populate()
 
     @property
-    def _retriever(self) -> wikipedia._Retriever:
+    def _retriever(self) -> _Retriever:
         if self.__retriever is None:
-            self.__retriever = wikipedia._Retriever(
-                self.app.http_client,
-                self._app.cache,
-                self._app.binary_file_cache.with_scope(self.name()),
+            self.__retriever = _Retriever(
+                _Fetcher(
+                    self.app.http_client,
+                    self._app.cache,
+                    self._app.binary_file_cache.with_scope(self.name()),
+                ),
             )
         return self.__retriever
 
