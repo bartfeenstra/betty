@@ -7,4 +7,4 @@ cd "$(dirname "$0")/.."
 echo 'Running pytest...'
 
 coverage erase
-pytest --cov --cov-append --cov-config=.coveragerc --no-cov-on-fail "$@"
+pytest --cov --cov-append --cov-config=.coveragerc --no-cov-on-fail -n auto "$@"
