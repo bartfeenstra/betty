@@ -357,11 +357,11 @@ class ConfigurationSequence(
 
     @overload
     def __getitem__(self, configuration_key: int) -> ConfigurationT:
-        pass
+        pass  # pragma: no cover
 
     @overload
     def __getitem__(self, configuration_key: slice) -> Sequence[ConfigurationT]:
-        pass
+        pass  # pragma: no cover
 
     def __getitem__(
         self, configuration_key: int | slice

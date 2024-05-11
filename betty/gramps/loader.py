@@ -84,15 +84,15 @@ from betty.warnings import deprecate
 
 
 class GrampsLoadFileError(GrampsError, RuntimeError):
-    pass
+    pass  # pragma: no cover
 
 
 class GrampsFileNotFoundError(GrampsError, FileNotFoundError):
-    pass
+    pass  # pragma: no cover
 
 
 class XPathError(GrampsError, RuntimeError):
-    pass
+    pass  # pragma: no cover
 
 
 class GrampsEntityType(Enum):

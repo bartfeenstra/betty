@@ -29,11 +29,11 @@ if TYPE_CHECKING:
 
 
 class ExtensionError(BaseException):
-    pass
+    pass  # pragma: no cover
 
 
 class ExtensionTypeError(ExtensionError, ValueError):
-    pass
+    pass  # pragma: no cover
 
 
 class ExtensionTypeImportError(ExtensionTypeError, ImportError):
@@ -207,7 +207,7 @@ class UserFacingExtension(Extension):
 
 
 class Theme(UserFacingExtension):
-    pass
+    pass  # pragma: no cover
 
 
 @functools.singledispatch

@@ -50,7 +50,7 @@ class UnknownEventType(EventType):
 
 
 class DerivableEventType(EventType):
-    pass
+    pass  # pragma: no cover
 
 
 class CreatableDerivableEventType(DerivableEventType):
@@ -66,7 +66,7 @@ class PreBirthEventType(EventType):
 
 
 class StartOfLifeEventType(EventType):
-    pass
+    pass  # pragma: no cover
 
 
 class DuringLifeEventType(EventType):
@@ -80,7 +80,7 @@ class DuringLifeEventType(EventType):
 
 
 class EndOfLifeEventType(EventType):
-    pass
+    pass  # pragma: no cover
 
 
 class PostDeathEventType(EventType):
@@ -148,7 +148,7 @@ class Death(CreatableDerivableEventType, EndOfLifeEventType):
 class FinalDispositionEventType(
     PostDeathEventType, DerivableEventType, EndOfLifeEventType
 ):
-    pass
+    pass  # pragma: no cover
 
 
 class Funeral(FinalDispositionEventType):

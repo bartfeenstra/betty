@@ -9,7 +9,7 @@ from typing import Any
 
 
 class InvalidMediaType(ValueError):
-    pass
+    pass  # pragma: no cover
 
 
 class MediaType:

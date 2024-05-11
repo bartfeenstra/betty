@@ -152,7 +152,7 @@ class Localized(LinkedDataDumpable):
 
 
 class IncompleteDateError(ValueError):
-    pass
+    pass  # pragma: no cover
 
 
 def _dump_date_iso8601(date: Date) -> str | None:
