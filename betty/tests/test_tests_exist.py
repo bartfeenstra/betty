@@ -44,7 +44,6 @@ class TestTestsExist:
         "betty.jinja2.test",
         "betty.json.linked_data",
         "betty.load",
-        "betty.model.event_type",
         "betty.path",
         "betty.render",
         "betty.serde.dump",
