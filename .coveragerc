@@ -3,9 +3,9 @@ concurrency =
     multiprocessing
     thread
 omit =
-    betty/_package/*
+    betty/_package/**
     betty/_resizeimage.py
-    betty/tests/*
+    betty/tests/**
 source = betty
 
 [report]
@@ -15,9 +15,9 @@ exclude_also =
     ^\s*raise NotImplementedError
     if TYPE_CHECKING:
 omit =
-    betty/_package/*
+    betty/_package/**
     betty/_resizeimage.py
-    betty/tests/*
+    betty/tests/**
 show_missing = True
 skip_covered = True
 skip_empty = True
