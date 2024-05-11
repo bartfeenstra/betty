@@ -1,10 +1,18 @@
 from __future__ import annotations
 
+import pytest
+
 from betty.locale import Date
 from betty.model.ancestry import Person, Presence, Subject, Event
-from betty.model.event_type import Death, Birth
+from betty.model.event_type import Death, Birth, EventType
 
 _LIFETIME_THRESHOLD = 125
+
+
+class TestEventType:
+    async def test_new(self) -> None:
+        with pytest.raises(RuntimeError):
+            EventType()
 
 
 class TestDeath:

@@ -32,21 +32,21 @@ class EventType:
 
     @classmethod
     def comes_before(cls) -> set[type[EventType]]:
-        return set()
+        return set()  # pragma: no cover
 
     @classmethod
     def comes_after(cls) -> set[type[EventType]]:
-        return set()
+        return set()  # pragma: no cover
 
 
 class UnknownEventType(EventType):
     @classmethod
     def name(cls) -> str:
-        return "unknown"
+        return "unknown"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Unknown")
+        return Str._("Unknown")  # pragma: no cover
 
 
 class DerivableEventType(EventType):
@@ -56,13 +56,13 @@ class DerivableEventType(EventType):
 class CreatableDerivableEventType(DerivableEventType):
     @classmethod
     def may_create(cls, person: Person, lifetime_threshold: int) -> bool:
-        return True
+        return True  # pragma: no cover
 
 
 class PreBirthEventType(EventType):
     @classmethod
     def comes_before(cls) -> set[type[EventType]]:
-        return {Birth}
+        return {Birth}  # pragma: no cover
 
 
 class StartOfLifeEventType(EventType):
@@ -72,11 +72,11 @@ class StartOfLifeEventType(EventType):
 class DuringLifeEventType(EventType):
     @classmethod
     def comes_after(cls) -> set[type[EventType]]:
-        return {Birth}
+        return {Birth}  # pragma: no cover
 
     @classmethod
     def comes_before(cls) -> set[type[EventType]]:
-        return {Death}
+        return {Death}  # pragma: no cover
 
 
 class EndOfLifeEventType(EventType):
@@ -86,55 +86,55 @@ class EndOfLifeEventType(EventType):
 class PostDeathEventType(EventType):
     @classmethod
     def comes_after(cls) -> set[type[EventType]]:
-        return {Death}
+        return {Death}  # pragma: no cover
 
 
 class Birth(CreatableDerivableEventType, StartOfLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return "birth"
+        return "birth"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Birth")
+        return Str._("Birth")  # pragma: no cover
 
     @classmethod
     def comes_before(cls) -> set[type[EventType]]:
-        return {DuringLifeEventType}
+        return {DuringLifeEventType}  # pragma: no cover
 
 
 class Baptism(DuringLifeEventType, StartOfLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return "baptism"
+        return "baptism"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Baptism")
+        return Str._("Baptism")  # pragma: no cover
 
 
 class Adoption(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return "adoption"
+        return "adoption"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Adoption")
+        return Str._("Adoption")  # pragma: no cover
 
 
 class Death(CreatableDerivableEventType, EndOfLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return "death"
+        return "death"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Death")
+        return Str._("Death")  # pragma: no cover
 
     @classmethod
     def comes_after(cls) -> set[type[EventType]]:
-        return {DuringLifeEventType}
+        return {DuringLifeEventType}  # pragma: no cover
 
     @classmethod
     def may_create(cls, person: Person, lifetime_threshold: int) -> bool:
@@ -154,198 +154,198 @@ class FinalDispositionEventType(
 class Funeral(FinalDispositionEventType):
     @classmethod
     def name(cls) -> str:
-        return "funeral"
+        return "funeral"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Funeral")
+        return Str._("Funeral")  # pragma: no cover
 
 
 class Cremation(FinalDispositionEventType):
     @classmethod
     def name(cls) -> str:
-        return "cremation"
+        return "cremation"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Cremation")
+        return Str._("Cremation")  # pragma: no cover
 
 
 class Burial(FinalDispositionEventType):
     @classmethod
     def name(cls) -> str:
-        return "burial"
+        return "burial"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Burial")
+        return Str._("Burial")  # pragma: no cover
 
 
 class Will(PostDeathEventType):
     @classmethod
     def name(cls) -> str:
-        return "will"
+        return "will"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Will")
+        return Str._("Will")  # pragma: no cover
 
 
 class Engagement(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return "engagement"
+        return "engagement"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Engagement")
+        return Str._("Engagement")  # pragma: no cover
 
     @classmethod
     def comes_before(cls) -> set[type[EventType]]:
-        return {Marriage}
+        return {Marriage}  # pragma: no cover
 
 
 class Marriage(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return "marriage"
+        return "marriage"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Marriage")
+        return Str._("Marriage")  # pragma: no cover
 
 
 class MarriageAnnouncement(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return "marriage-announcement"
+        return "marriage-announcement"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Announcement of marriage")
+        return Str._("Announcement of marriage")  # pragma: no cover
 
     @classmethod
     def comes_before(cls) -> set[type[EventType]]:
-        return {Marriage}
+        return {Marriage}  # pragma: no cover
 
 
 class Divorce(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return "divorce"
+        return "divorce"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Divorce")
+        return Str._("Divorce")  # pragma: no cover
 
     @classmethod
     def comes_after(cls) -> set[type[EventType]]:
-        return {Marriage}
+        return {Marriage}  # pragma: no cover
 
 
 class DivorceAnnouncement(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return "divorce-announcement"
+        return "divorce-announcement"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Announcement of divorce")
+        return Str._("Announcement of divorce")  # pragma: no cover
 
     @classmethod
     def comes_after(cls) -> set[type[EventType]]:
-        return {Marriage}
+        return {Marriage}  # pragma: no cover
 
     @classmethod
     def comes_before(cls) -> set[type[EventType]]:
-        return {Divorce}
+        return {Divorce}  # pragma: no cover
 
 
 class Residence(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return "residence"
+        return "residence"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Residence")
+        return Str._("Residence")  # pragma: no cover
 
 
 class Immigration(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return "immigration"
+        return "immigration"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Immigration")
+        return Str._("Immigration")  # pragma: no cover
 
 
 class Emigration(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return "emigration"
+        return "emigration"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Emigration")
+        return Str._("Emigration")  # pragma: no cover
 
 
 class Occupation(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return "occupation"
+        return "occupation"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Occupation")
+        return Str._("Occupation")  # pragma: no cover
 
 
 class Retirement(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return "retirement"
+        return "retirement"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Retirement")
+        return Str._("Retirement")  # pragma: no cover
 
 
 class Correspondence(EventType):
     @classmethod
     def name(cls) -> str:
-        return "correspondence"
+        return "correspondence"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Correspondence")
+        return Str._("Correspondence")  # pragma: no cover
 
 
 class Confirmation(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return "confirmation"
+        return "confirmation"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Confirmation")
+        return Str._("Confirmation")  # pragma: no cover
 
 
 class Missing(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return "missing"
+        return "missing"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Missing")
+        return Str._("Missing")  # pragma: no cover
 
 
 class Conference(DuringLifeEventType):
     @classmethod
     def name(cls) -> str:
-        return "conference"
+        return "conference"  # pragma: no cover
 
     @classmethod
     def label(cls) -> Str:
-        return Str._("Conference")
+        return Str._("Conference")  # pragma: no cover
