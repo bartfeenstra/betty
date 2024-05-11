@@ -77,12 +77,30 @@ class DummyEntity(Entity):
     pass
 
 
-class _HasPrivacy(HasPrivacy):
-    def __init__(self, privacy: Privacy = Privacy.UNDETERMINED):
-        super().__init__(privacy=privacy)
-
-
 class TestHasPrivacy:
+    @pytest.mark.parametrize(
+        "privacy, public, private",
+        [
+            (Privacy.PUBLIC, True, True),
+            (Privacy.PUBLIC, False, True),
+            (Privacy.PUBLIC, True, False),
+            (Privacy.PUBLIC, False, False),
+            (Privacy.PUBLIC, True, None),
+            (Privacy.PUBLIC, False, None),
+            (Privacy.PUBLIC, None, True),
+            (Privacy.PUBLIC, None, False),
+            (None, True, True),
+            (None, True, False),
+            (None, False, True),
+            (None, False, False),
+        ],
+    )
+    async def test___init___with_value_error(
+        self, privacy: Privacy | None, public: bool | None, private: bool | None
+    ) -> None:
+        with pytest.raises(ValueError):
+            HasPrivacy(privacy=privacy, public=public, private=private)
+
     @pytest.mark.parametrize(
         "privacy",
         [
@@ -92,19 +110,19 @@ class TestHasPrivacy:
         ],
     )
     async def test_get_privacy(self, privacy: Privacy) -> None:
-        sut = _HasPrivacy(privacy)
+        sut = HasPrivacy(privacy=privacy)
         assert sut.privacy is privacy
         assert sut.own_privacy is privacy
 
     async def test_set_privacy(self) -> None:
-        sut = _HasPrivacy()
+        sut = HasPrivacy()
         privacy = Privacy.PUBLIC
         sut.privacy = privacy
         assert sut.privacy is privacy
         assert sut.own_privacy is privacy
 
     async def test_del_privacy(self) -> None:
-        sut = _HasPrivacy()
+        sut = HasPrivacy()
         sut.privacy = Privacy.PUBLIC
         del sut.privacy
         assert sut.privacy is Privacy.UNDETERMINED
@@ -119,11 +137,11 @@ class TestHasPrivacy:
         ],
     )
     async def test_get_public(self, expected: bool, privacy: Privacy) -> None:
-        sut = _HasPrivacy(privacy)
+        sut = HasPrivacy(privacy=privacy)
         assert expected is sut.public
 
     async def test_set_public(self) -> None:
-        sut = _HasPrivacy()
+        sut = HasPrivacy()
         sut.public = True
         assert sut.public
         assert sut.privacy is Privacy.PUBLIC
@@ -137,11 +155,11 @@ class TestHasPrivacy:
         ],
     )
     async def test_get_private(self, expected: bool, privacy: Privacy) -> None:
-        sut = _HasPrivacy(privacy)
+        sut = HasPrivacy(privacy=privacy)
         assert expected is sut.private
 
     async def test_set_private(self) -> None:
-        sut = _HasPrivacy()
+        sut = HasPrivacy()
         sut.private = True
         assert sut.private
         assert sut.privacy is Privacy.PRIVATE
@@ -151,9 +169,9 @@ class TestIsPrivate:
     @pytest.mark.parametrize(
         "expected, target",
         [
-            (True, _HasPrivacy(Privacy.PRIVATE)),
-            (False, _HasPrivacy(Privacy.PUBLIC)),
-            (False, _HasPrivacy(Privacy.UNDETERMINED)),
+            (True, HasPrivacy(privacy=Privacy.PRIVATE)),
+            (False, HasPrivacy(privacy=Privacy.PUBLIC)),
+            (False, HasPrivacy(privacy=Privacy.UNDETERMINED)),
             (False, object()),
         ],
     )
@@ -165,9 +183,9 @@ class TestIsPublic:
     @pytest.mark.parametrize(
         "expected, target",
         [
-            (False, _HasPrivacy(Privacy.PRIVATE)),
-            (True, _HasPrivacy(Privacy.PUBLIC)),
-            (True, _HasPrivacy(Privacy.UNDETERMINED)),
+            (False, HasPrivacy(privacy=Privacy.PRIVATE)),
+            (True, HasPrivacy(privacy=Privacy.PUBLIC)),
+            (True, HasPrivacy(privacy=Privacy.UNDETERMINED)),
             (True, object()),
         ],
     )

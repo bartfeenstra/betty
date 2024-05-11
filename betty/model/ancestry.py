@@ -471,11 +471,11 @@ class Note(UserFacingEntity, HasPrivacy, HasLinksEntity, Entity):
 
     @classmethod
     def entity_type_label(cls) -> Str:
-        return Str._("Note")
+        return Str._("Note")  # pragma: no cover
 
     @classmethod
     def entity_type_label_plural(cls) -> Str:
-        return Str._("Notes")
+        return Str._("Notes")  # pragma: no cover
 
     @property
     def text(self) -> str:
@@ -516,15 +516,15 @@ class HasNotes(LinkedDataDumpable):
 
     @property
     def notes(self) -> EntityCollection[Note]:  # type: ignore[empty-body]
-        pass
+        pass  # pragma: no cover
 
     @notes.setter
     def notes(self, notes: Iterable[Note]) -> None:
-        pass
+        pass  # pragma: no cover
 
     @notes.deleter
     def notes(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
@@ -565,15 +565,15 @@ class HasCitations(LinkedDataDumpable):
 
     @property
     def citations(self) -> EntityCollection[Citation]:  # type: ignore[empty-body]
-        pass
+        pass  # pragma: no cover
 
     @citations.setter
     def citations(self, citations: Iterable[Citation]) -> None:
-        pass
+        pass  # pragma: no cover
 
     @citations.deleter
     def citations(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
@@ -639,23 +639,23 @@ class File(
 
     @property
     def entities(self) -> EntityCollection[Entity]:  # type: ignore[empty-body]
-        pass
+        pass  # pragma: no cover
 
     @entities.setter
     def entities(self, entities: Iterable[Entity]) -> None:
-        pass
+        pass  # pragma: no cover
 
     @entities.deleter
     def entities(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @classmethod
     def entity_type_label(cls) -> Str:
-        return Str._("File")
+        return Str._("File")  # pragma: no cover
 
     @classmethod
     def entity_type_label_plural(cls) -> Str:
-        return Str._("Files")
+        return Str._("Files")  # pragma: no cover
 
     @property
     def path(self) -> Path:
@@ -704,15 +704,15 @@ class HasFiles:
 
     @property
     def files(self) -> EntityCollection[File]:  # type: ignore[empty-body]
-        pass
+        pass  # pragma: no cover
 
     @files.setter
     def files(self, files: Iterable[File]) -> None:
-        pass
+        pass  # pragma: no cover
 
     @files.deleter
     def files(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @property
     def associated_files(self) -> Iterable[File]:
@@ -770,15 +770,15 @@ class Source(
 
     @property
     def contains(self) -> EntityCollection[Source]:  # type: ignore[empty-body]
-        pass
+        pass  # pragma: no cover
 
     @contains.setter
     def contains(self, contains: Iterable[Source]) -> None:
-        pass
+        pass  # pragma: no cover
 
     @contains.deleter
     def contains(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @property
     def citations(self) -> EntityCollection[Citation]:  # type: ignore[empty-body]
@@ -786,11 +786,11 @@ class Source(
 
     @citations.setter
     def citations(self, citations: Iterable[Citation]) -> None:
-        pass
+        pass  # pragma: no cover
 
     @citations.deleter
     def citations(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @property
     def walk_contains(self) -> Iterator[Source]:
@@ -800,11 +800,11 @@ class Source(
 
     @classmethod
     def entity_type_label(cls) -> Str:
-        return Str._("Source")
+        return Str._("Source")  # pragma: no cover
 
     @classmethod
     def entity_type_label_plural(cls) -> Str:
-        return Str._("Sources")
+        return Str._("Sources")  # pragma: no cover
 
     @property
     def label(self) -> Str:
@@ -911,12 +911,12 @@ class AnonymousSource(Source):
     @name.setter
     def name(self, _) -> None:
         # This is a no-op as the name is 'hardcoded'.
-        pass
+        pass  # pragma: no cover
 
     @name.deleter
     def name(self) -> None:
         # This is a no-op as the name is 'hardcoded'.
-        pass
+        pass  # pragma: no cover
 
 
 @many_to_many("facts", "betty.model.ancestry.HasCitations", "citations")
@@ -956,23 +956,23 @@ class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, En
 
     @property
     def facts(self) -> EntityCollection[HasCitations & Entity]:  # type: ignore[empty-body]
-        pass
+        pass  # pragma: no cover
 
     @facts.setter
     def facts(self, facts: Iterable[HasCitations & Entity]) -> None:
-        pass
+        pass  # pragma: no cover
 
     @facts.deleter
     def facts(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @classmethod
     def entity_type_label(cls) -> Str:
-        return Str._("Citation")
+        return Str._("Citation")  # pragma: no cover
 
     @classmethod
     def entity_type_label_plural(cls) -> Str:
-        return Str._("Citations")
+        return Str._("Citations")  # pragma: no cover
 
     @property
     def label(self) -> Str:
@@ -1014,17 +1014,19 @@ class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, En
 class AnonymousCitation(Citation):
     @property  # type: ignore[override]
     def location(self) -> Str:
-        return Str._("private (in order to protect people's privacy)")
+        return Str._(
+            "private (in order to protect people's privacy)"
+        )  # pragma: no cover
 
     @location.setter
     def location(self, _) -> None:
         # This is a no-op as the location is 'hardcoded'.
-        pass
+        pass  # pragma: no cover
 
     @location.deleter
     def location(self) -> None:
         # This is a no-op as the location is 'hardcoded'.
-        pass
+        pass  # pragma: no cover
 
 
 class PlaceName(Localized, Dated, LinkedDataDumpable):
@@ -1092,11 +1094,11 @@ class Enclosure(Dated, HasCitations, Entity):
 
     @classmethod
     def entity_type_label(cls) -> Str:
-        return Str._("Enclosure")
+        return Str._("Enclosure")  # pragma: no cover
 
     @classmethod
     def entity_type_label_plural(cls) -> Str:
-        return Str._("Enclosures")
+        return Str._("Enclosures")  # pragma: no cover
 
 
 @one_to_many("events", "betty.model.ancestry.Event", "place")
@@ -1137,39 +1139,39 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
 
     @property
     def enclosed_by(self) -> EntityCollection[Enclosure]:  # type: ignore[empty-body]
-        pass
+        pass  # pragma: no cover
 
     @enclosed_by.setter
     def enclosed_by(self, enclosed_by: Iterable[Enclosure]) -> None:
-        pass
+        pass  # pragma: no cover
 
     @enclosed_by.deleter
     def enclosed_by(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @property
     def encloses(self) -> EntityCollection[Enclosure]:  # type: ignore[empty-body]
-        pass
+        pass  # pragma: no cover
 
     @encloses.setter
     def encloses(self, encloses: Iterable[Enclosure]) -> None:
-        pass
+        pass  # pragma: no cover
 
     @encloses.deleter
     def encloses(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @property
     def events(self) -> EntityCollection[Event]:  # type: ignore[empty-body]
-        pass
+        pass  # pragma: no cover
 
     @events.setter
     def events(self, events: Iterable[Event]) -> None:
-        pass
+        pass  # pragma: no cover
 
     @events.deleter
     def events(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @property
     def walk_encloses(self) -> Iterator[Enclosure]:
@@ -1180,11 +1182,11 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
 
     @classmethod
     def entity_type_label(cls) -> Str:
-        return Str._("Place")
+        return Str._("Place")  # pragma: no cover
 
     @classmethod
     def entity_type_label_plural(cls) -> Str:
-        return Str._("Places")
+        return Str._("Places")  # pragma: no cover
 
     @property
     def names(self) -> list[PlaceName]:
@@ -1327,67 +1329,67 @@ class Subject(PresenceRole):
 
     @property
     def label(self) -> Str:
-        return Str._("Subject")
+        return Str._("Subject")  # pragma: no cover
 
 
 class Witness(PresenceRole):
     @classmethod
     def name(cls) -> str:
-        return "witness"
+        return "witness"  # pragma: no cover
 
     @property
     def label(self) -> Str:
-        return Str._("Witness")
+        return Str._("Witness")  # pragma: no cover
 
 
 class Beneficiary(PresenceRole):
     @classmethod
     def name(cls) -> str:
-        return "beneficiary"
+        return "beneficiary"  # pragma: no cover
 
     @property
     def label(self) -> Str:
-        return Str._("Beneficiary")
+        return Str._("Beneficiary")  # pragma: no cover
 
 
 class Attendee(PresenceRole):
     @classmethod
     def name(cls) -> str:
-        return "attendee"
+        return "attendee"  # pragma: no cover
 
     @property
     def label(self) -> Str:
-        return Str._("Attendee")
+        return Str._("Attendee")  # pragma: no cover
 
 
 class Speaker(PresenceRole):
     @classmethod
     def name(cls) -> str:
-        return "speaker"
+        return "speaker"  # pragma: no cover
 
     @property
     def label(self) -> Str:
-        return Str._("Speaker")
+        return Str._("Speaker")  # pragma: no cover
 
 
 class Celebrant(PresenceRole):
     @classmethod
     def name(cls) -> str:
-        return "celebrant"
+        return "celebrant"  # pragma: no cover
 
     @property
     def label(self) -> Str:
-        return Str._("Celebrant")
+        return Str._("Celebrant")  # pragma: no cover
 
 
 class Organizer(PresenceRole):
     @classmethod
     def name(cls) -> str:
-        return "organizer"
+        return "organizer"  # pragma: no cover
 
     @property
     def label(self) -> Str:
-        return Str._("Organizer")
+        return Str._("Organizer")  # pragma: no cover
 
 
 @many_to_one_to_many(
@@ -1416,11 +1418,11 @@ class Presence(HasPrivacy, Entity):
 
     @classmethod
     def entity_type_label(cls) -> Str:
-        return Str._("Presence")
+        return Str._("Presence")  # pragma: no cover
 
     @classmethod
     def entity_type_label_plural(cls) -> Str:
-        return Str._("Presences")
+        return Str._("Presences")  # pragma: no cover
 
     @property
     def label(self) -> Str:
@@ -1523,23 +1525,23 @@ class Event(
 
     @property
     def presences(self) -> EntityCollection[Presence]:  # type: ignore[empty-body]
-        pass
+        pass  # pragma: no cover
 
     @presences.setter
     def presences(self, presences: Iterable[Presence]) -> None:
-        pass
+        pass  # pragma: no cover
 
     @presences.deleter
     def presences(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @classmethod
     def entity_type_label(cls) -> Str:
-        return Str._("Event")
+        return Str._("Event")  # pragma: no cover
 
     @classmethod
     def entity_type_label_plural(cls) -> Str:
-        return Str._("Events")
+        return Str._("Events")  # pragma: no cover
 
     @property
     def event_type(self) -> type[EventType]:
@@ -1705,11 +1707,11 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
 
     @classmethod
     def entity_type_label(cls) -> Str:
-        return Str._("Person name")
+        return Str._("Person name")  # pragma: no cover
 
     @classmethod
     def entity_type_label_plural(cls) -> Str:
-        return Str._("Person names")
+        return Str._("Person names")  # pragma: no cover
 
     @property
     def individual(self) -> str | None:
@@ -1810,59 +1812,59 @@ class Person(
 
     @property
     def parents(self) -> EntityCollection[Person]:  # type: ignore[empty-body]
-        pass
+        pass  # pragma: no cover
 
     @parents.setter
     def parents(self, parents: Iterable[Person]) -> None:
-        pass
+        pass  # pragma: no cover
 
     @parents.deleter
     def parents(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @property
     def children(self) -> EntityCollection[Person]:  # type: ignore[empty-body]
-        pass
+        pass  # pragma: no cover
 
     @children.setter
     def children(self, children: Iterable[Person]) -> None:
-        pass
+        pass  # pragma: no cover
 
     @children.deleter
     def children(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @property
     def presences(self) -> EntityCollection[Presence]:  # type: ignore[empty-body]
-        pass
+        pass  # pragma: no cover
 
     @presences.setter
     def presences(self, presences: Iterable[Presence]) -> None:
-        pass
+        pass  # pragma: no cover
 
     @presences.deleter
     def presences(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @property
     def names(self) -> EntityCollection[PersonName]:  # type: ignore[empty-body]
-        pass
+        pass  # pragma: no cover
 
     @names.setter
     def names(self, names: Iterable[PersonName]) -> None:
-        pass
+        pass  # pragma: no cover
 
     @names.deleter
     def names(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @classmethod
     def entity_type_label(cls) -> Str:
-        return Str._("Person")
+        return Str._("Person")  # pragma: no cover
 
     @classmethod
     def entity_type_label_plural(cls) -> Str:
-        return Str._("People")
+        return Str._("People")  # pragma: no cover
 
     @property
     def ancestors(self) -> Iterator[Person]:
