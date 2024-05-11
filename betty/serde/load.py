@@ -48,15 +48,15 @@ NumberT = TypeVar("NumberT", bound=Number)
 
 
 class LoadError(SerdeError):
-    pass
+    pass  # pragma: no cover
 
 
 class AssertionFailed(LoadError):
-    pass
+    pass  # pragma: no cover
 
 
 class FormatError(LoadError):
-    pass
+    pass  # pragma: no cover
 
 
 Assertion: TypeAlias = Callable[
@@ -116,12 +116,12 @@ class _Field(Generic[ValueT, ReturnT]):
 
 @dataclass(frozen=True)
 class RequiredField(Generic[ValueT, ReturnT], _Field[ValueT, ReturnT]):
-    pass
+    pass  # pragma: no cover
 
 
 @dataclass(frozen=True)
 class OptionalField(Generic[ValueT, ReturnT], _Field[ValueT, ReturnT]):
-    pass
+    pass  # pragma: no cover
 
 
 class Fields:
@@ -306,13 +306,13 @@ class Asserter:
     def assert_field(
         self, field: RequiredField[ValueT, ReturnT]
     ) -> Assertion[ValueT, ReturnT]:
-        pass
+        pass  # pragma: no cover
 
     @overload
     def assert_field(
         self, field: OptionalField[ValueT, ReturnT]
     ) -> Assertion[ValueT, ReturnT | type[Void]]:
-        pass
+        pass  # pragma: no cover
 
     def assert_field(
         self, field: _Field[ValueT, ReturnT]

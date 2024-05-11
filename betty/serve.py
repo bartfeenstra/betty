@@ -27,7 +27,7 @@ DEFAULT_PORT = 8000
 
 
 class ServerNotStartedError(RuntimeError):
-    pass
+    pass  # pragma: no cover
 
 
 class NoPublicUrlBecauseServerNotStartedError(ServerNotStartedError):
@@ -38,7 +38,7 @@ class NoPublicUrlBecauseServerNotStartedError(ServerNotStartedError):
 
 
 class OsError(UserFacingError, OSError):
-    pass
+    pass  # pragma: no cover
 
 
 class Server:

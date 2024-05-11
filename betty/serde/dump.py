@@ -11,7 +11,7 @@ U = TypeVar("U")
 
 
 class Void:
-    pass
+    pass  # pragma: no cover
 
 
 DumpType: TypeAlias = bool | int | float | str | None | list["Dump"] | dict[str, "Dump"]
@@ -44,12 +44,12 @@ _MinimizableDump: TypeAlias = (
 def minimize(
     dump: _MinimizableDump[VoidableDump], voidable: Literal[True] = True
 ) -> VoidableDump:
-    pass
+    pass  # pragma: no cover
 
 
 @overload
 def minimize(dump: _MinimizableDump[VoidableDump], voidable: Literal[False]) -> Dump:
-    pass
+    pass  # pragma: no cover
 
 
 def minimize(
@@ -90,14 +90,14 @@ def none_void(value: VoidableDump) -> VoidableDump:
 def dump_default(
     dump: DictDump[Dump], key: str, default_type: type[dict[Any, Any]]
 ) -> DictDump[Dump]:
-    pass
+    pass  # pragma: no cover
 
 
 @overload
 def dump_default(
     dump: DictDump[Dump], key: str, default_type: type[list[Any]]
 ) -> ListDump[Dump]:
-    pass
+    pass  # pragma: no cover
 
 
 def dump_default(dump, key, default_type):

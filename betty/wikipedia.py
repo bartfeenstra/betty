@@ -47,15 +47,15 @@ from betty.model.ancestry import Link, HasLinks, Place, File, HasFiles
 
 
 class WikipediaError(BaseException):
-    pass
+    pass  # pragma: no cover
 
 
 class NotAPageError(WikipediaError, ValueError):
-    pass
+    pass  # pragma: no cover
 
 
 class RetrievalError(WikipediaError, RuntimeError):
-    pass
+    pass  # pragma: no cover
 
 
 _URL_PATTERN = re.compile(r"^https?://([a-z]+)\.wikipedia\.org/wiki/([^/?#]+).*$")

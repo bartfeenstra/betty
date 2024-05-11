@@ -252,7 +252,7 @@ def main(app: App, verbose: bool, more_verbose: bool, most_verbose: bool) -> Non
     """
     Launch Betty's Command-Line Interface.
     """
-    pass
+    pass  # pragma: no cover
 
 
 @click.command(help="Clear all caches.")

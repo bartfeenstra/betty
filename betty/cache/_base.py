@@ -100,7 +100,7 @@ class _CommonCacheBase(Cache[CacheItemValueContraT], Generic[CacheItemValueContr
             CacheItemValueSetter[CacheItemValueContraT],
         ]
     ]:
-        pass
+        pass  # pragma: no cover
 
     @overload
     def getset(
@@ -111,7 +111,7 @@ class _CommonCacheBase(Cache[CacheItemValueContraT], Generic[CacheItemValueContr
             CacheItemValueSetter[CacheItemValueContraT] | None,
         ]
     ]:
-        pass
+        pass  # pragma: no cover
 
     @asynccontextmanager  # type: ignore[misc]
     async def getset(self, cache_item_id: str, *, wait: bool = True) -> AsyncIterator[
