@@ -7,4 +7,6 @@ cd "$(dirname "$0")/.."
 echo 'Running pytest...'
 
 coverage erase
-pytest --cov --cov-append --cov-config=.coveragerc --no-cov-on-fail "$@"
+COVERAGE_PROCESS_START="$(pwd)/.coveragerc" PYTHONPATH="$(cd site; pwd)" coverage run --module pytest "$@"
+coverage combine
+coverage report --skip-covered --skip-empty

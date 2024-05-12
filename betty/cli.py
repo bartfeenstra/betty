@@ -7,6 +7,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import sys
+from asyncio import run
 from contextlib import suppress, contextmanager
 from functools import wraps
 from pathlib import Path
@@ -16,12 +17,11 @@ import click
 from PyQt6.QtWidgets import QMainWindow
 from click import get_current_context, Context, Option, Command, Parameter
 
-from betty import about, generate, load, documentation
+from betty import about, generate, load, documentation, locale
 from betty.app import App
-from betty.asyncio import wait_to_thread
 from betty.contextlib import SynchronizedContextManager
 from betty.error import UserFacingError
-from betty.locale import update_translations, init_translation, Str
+from betty.locale import Str
 from betty.logging import CliHandler
 from betty.serde.load import AssertionFailed
 from betty.serve import AppServer
@@ -46,7 +46,7 @@ def catch_exceptions() -> Iterator[None]:
     except KeyboardInterrupt:
         print("Quitting...")
         sys.exit(0)
-    except BaseException as e:  # noqa: B036
+    except Exception as e:
         logger = logging.getLogger(__name__)
         if isinstance(e, UserFacingError):
             logger.error(str(e))
@@ -55,40 +55,41 @@ def catch_exceptions() -> Iterator[None]:
         sys.exit(1)
 
 
-def _command(
-    f: Callable[P, Awaitable[None]] | Callable[Concatenate[App, P], Awaitable[None]],
-    is_app_command: bool,
-) -> Callable[P, None]:
-    @wraps(f)
-    @catch_exceptions()
-    def _command(*args: P.args, **kwargs: P.kwargs) -> None:
-        if is_app_command:
-            # We must get the current Click context from the main thread.
-            # Once that is done, we can wait for the async commands to complete, which MAY be done in a thread.
-            app = get_current_context().obj["app"]
-
-            async def _app_command():
-                async with app:
-                    await f(app, *args, **kwargs)
-
-            return wait_to_thread(_app_command())
-        return wait_to_thread(f(*args, **kwargs))
-
-    return _command
-
-
 def global_command(f: Callable[P, Awaitable[None]]) -> Callable[P, None]:
     """
     Decorate a command to be global.
     """
-    return _command(f, False)
+
+    @wraps(f)
+    @catch_exceptions()
+    def _command(*args: P.args, **kwargs: P.kwargs) -> None:
+        # Use a wrapper, because the decorator uses Awaitable, but asyncio.run requires Coroutine.
+        async def __command():
+            await f(*args, **kwargs)
+
+        return run(__command())
+
+    return _command
 
 
 def app_command(f: Callable[Concatenate[App, P], Awaitable[None]]) -> Callable[P, None]:
     """
-    Decorate a command to receive an app.
+    Decorate a command to receive the currently running :py:class:`betty.app.App` as its first argument.
     """
-    return _command(f, True)
+
+    @wraps(f)
+    @catch_exceptions()
+    def _command(*args: P.args, **kwargs: P.kwargs) -> None:
+        # Use a wrapper, because the decorator uses Awaitable, but asyncio.run requires Coroutine.
+        app = get_current_context().obj["app"]
+
+        async def __command():
+            async with app:
+                await f(app, *args, **kwargs)
+
+        return run(__command())
+
+    return _command
 
 
 @catch_exceptions()
@@ -97,7 +98,7 @@ def _init_ctx_app(
     __: Option | Parameter | None = None,
     configuration_file_path: str | None = None,
 ) -> None:
-    wait_to_thread(__init_ctx_app(ctx, configuration_file_path))
+    run(__init_ctx_app(ctx, configuration_file_path))
 
 
 async def __init_ctx_app(
@@ -122,7 +123,7 @@ async def __init_ctx_app(
         "demo": _demo,
         "gui": _gui,
     }
-    if wait_to_thread(about.is_development()):
+    if await about.is_development():
         ctx.obj["commands"]["init-translation"] = _init_translation
         ctx.obj["commands"]["update-translations"] = _update_translations
     ctx.obj["app"] = app
@@ -183,6 +184,7 @@ def _build_init_ctx_verbosity(
                     and logger.getEffectiveLevel() > logger_level
                 ):
                     logger.setLevel(logger_level)
+                    raise RuntimeError([logger_level, logger, logger.level])
 
     return _init_ctx_verbosity
 
@@ -244,8 +246,8 @@ class _BettyCommands(click.MultiCommand):
     callback=_build_init_ctx_verbosity(logging.NOTSET, logging.NOTSET),
 )
 @click.version_option(
-    wait_to_thread(about.version_label()),
-    message=wait_to_thread(about.report()),
+    run(about.version_label()),
+    message=run(about.report()),
     prog_name="Betty",
 )
 def main(app: App, verbose: bool, more_verbose: bool, most_verbose: bool) -> None:
@@ -283,22 +285,21 @@ async def _demo(app: App) -> None:
         Path(configuration_file_path) if configuration_file_path else None
     ),
 )
-@global_command
-async def _gui(configuration_file_path: Path | None) -> None:
-    async with App.new_from_environment() as app:
-        from betty.gui import BettyApplication
-        from betty.gui.app import WelcomeWindow
-        from betty.gui.project import ProjectWindow
+@app_command
+async def _gui(app: App, configuration_file_path: Path | None) -> None:
+    from betty.gui import BettyApplication
+    from betty.gui.app import WelcomeWindow
+    from betty.gui.project import ProjectWindow
 
-        async with BettyApplication([sys.argv[0]]).with_app(app) as qapp:
-            window: QMainWindow
-            if configuration_file_path is None:
-                window = WelcomeWindow(app)
-            else:
-                await app.project.configuration.read(configuration_file_path)
-                window = ProjectWindow(app)
-            window.show()
-            sys.exit(qapp.exec())
+    async with BettyApplication([sys.argv[0]]).with_app(app) as qapp:
+        window: QMainWindow
+        if configuration_file_path is None:
+            window = WelcomeWindow(app)
+        else:
+            await app.project.configuration.read(configuration_file_path)
+            window = ProjectWindow(app)
+        window.show()
+        sys.exit(qapp.exec())
 
 
 @click.command(help="Generate a static site.")
@@ -318,35 +319,34 @@ async def _serve(app: App) -> None:
 
 
 @click.command(help="View the documentation.")
+@app_command
+async def _docs(app: App):
+    server = documentation.DocumentationServer(
+        app.binary_file_cache.path,
+        localizer=app.localizer,
+    )
+    async with server:
+        await server.show()
+        while True:
+            await asyncio.sleep(999)
+
+
+@click.command(
+    short_help="Initialize a new translation",
+    help="Initialize a new translation.\n\nThis is available only when developing Betty.",
+)
+@click.argument("locale")
 @global_command
-async def _docs():
-    async with App.new_from_environment() as app:
-        async with app:
-            server = documentation.DocumentationServer(
-                app.binary_file_cache.path,
-                localizer=app.localizer,
-            )
-            async with server:
-                await server.show()
-                while True:
-                    await asyncio.sleep(999)
+async def _init_translation(locale: str) -> None:
+    from betty.locale import init_translation
+
+    await init_translation(locale)
 
 
-if wait_to_thread(about.is_development()):
-
-    @click.command(
-        short_help="Initialize a new translation",
-        help="Initialize a new translation.\n\nThis is available only when developing Betty.",
-    )
-    @click.argument("locale")
-    @global_command
-    async def _init_translation(locale: str) -> None:
-        await init_translation(locale)
-
-    @click.command(
-        short_help="Update all existing translations",
-        help="Update all existing translations.\n\nThis is available only when developing Betty.",
-    )
-    @global_command
-    async def _update_translations() -> None:
-        await update_translations()
+@click.command(
+    short_help="Update all existing translations",
+    help="Update all existing translations.\n\nThis is available only when developing Betty.",
+)
+@global_command
+async def _update_translations() -> None:
+    await locale.update_translations()
