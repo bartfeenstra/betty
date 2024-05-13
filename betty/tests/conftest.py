@@ -28,7 +28,6 @@ from pytestqt.qtbot import QtBot
 from betty.app import App
 from betty.cache.file import BinaryFileCache
 from betty.gui import BettyApplication
-from betty.gui.app import BettyPrimaryWindow
 from betty.gui.error import ExceptionError
 from betty.locale import DEFAULT_LOCALIZER
 from betty.warnings import BettyDeprecationWarning
@@ -154,7 +153,7 @@ class BettyQtBot:
 
         self.qtbot.waitUntil(_assert_window)
         window = windows[0]
-        if isinstance(window, BettyPrimaryWindow):
+        if isinstance(window, QMainWindow):
             self.qtbot.addWidget(window)
         return cast(QMainWindowT, window)
 

@@ -2,7 +2,7 @@
 Provide Command Line Interface functionality.
 """
 
-from asyncio import sleep
+import asyncio
 
 import click
 
@@ -17,4 +17,4 @@ async def _serve(app: App) -> None:
     async with serve.DockerizedNginxServer(app) as server:
         await server.show()
         while True:
-            await sleep(999)
+            await asyncio.sleep(999)
