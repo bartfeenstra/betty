@@ -4,7 +4,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.43.1",
-    "@stylistic/eslint-plugin": "^1.7.2",
+    "@stylistic/eslint-plugin": "^2.1.0",
     "@types/node": "*",
     "@types/webpack": "^5.28.5",
     "betty.extension.CottonCandy": "file:./betty/extension/cotton_candy/webpack",
