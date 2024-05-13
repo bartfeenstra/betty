@@ -5,7 +5,6 @@ concurrency =
 omit =
     betty/_package/**
     betty/_resizeimage.py
-    betty/tests/**
 parallel = True
 source = betty
 
@@ -18,7 +17,6 @@ exclude_also =
 omit =
     betty/_package/**
     betty/_resizeimage.py
-    betty/tests/**
 show_missing = True
 skip_covered = True
 skip_empty = True
