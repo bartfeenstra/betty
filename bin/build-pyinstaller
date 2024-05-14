@@ -21,6 +21,10 @@ pip install -e '.[pyinstaller]'
 # Install JavaScript dependencies.
 npm install
 
+# Prepare the workspace directories.
+./bin/clean-build
+
+# Build the package.
 pyinstaller ./pyinstaller.spec
 
 cp "./betty/_package/pyinstaller/datas/$PLATFORM/README.txt" ./dist/betty/
