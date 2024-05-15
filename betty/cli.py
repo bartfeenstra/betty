@@ -184,7 +184,6 @@ def _build_init_ctx_verbosity(
                     and logger.getEffectiveLevel() > logger_level
                 ):
                     logger.setLevel(logger_level)
-                    raise RuntimeError([logger_level, logger, logger.level])
 
     return _init_ctx_verbosity
 
