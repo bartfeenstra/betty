@@ -316,3 +316,24 @@ class TestUpdateTranslations:
         m_update_translations = mocker.patch("betty.locale.update_translations")
         await to_thread(run, "update-translations")
         m_update_translations.assert_awaited_once()
+
+
+class TestVerbosity:
+    @pytest.mark.parametrize(
+        "verbosity",
+        [
+            "-v",
+            "-vv",
+            "-vvv",
+        ],
+    )
+    async def test(self, new_temporary_app: App, verbosity: str) -> None:
+        new_temporary_app.project.configuration.extensions.enable(NoOpExtension)
+        await new_temporary_app.project.configuration.write()
+        await to_thread(
+            run,
+            verbosity,
+            "-c",
+            str(new_temporary_app.project.configuration.configuration_file_path),
+            "noop",
+        )
