@@ -24,6 +24,7 @@ from typing import (
 from uuid import uuid4
 
 from betty.classtools import repr_instance
+from betty.functools import Uniquifier
 from betty.importlib import import_any, fully_qualified_type_name
 from betty.json.linked_data import LinkedDataDumpable, add_json_ld
 from betty.json.schema import ref_json_schema
@@ -261,18 +262,14 @@ class EntityCollection(Generic[TargetT]):
         raise NotImplementedError(repr(self))
 
     def _known(self, *entities: TargetT & Entity) -> Iterable[TargetT & Entity]:
-        seen = []
-        for entity in entities:
-            if entity in self and entity not in seen:
+        for entity in Uniquifier(entities):
+            if entity in self:
                 yield entity
-                seen.append(entity)
 
     def _unknown(self, *entities: TargetT & Entity) -> Iterable[TargetT & Entity]:
-        seen = []
-        for entity in entities:
-            if entity not in self and entity not in seen:
+        for entity in Uniquifier(entities):
+            if entity not in self:
                 yield entity
-                seen.append(entity)
 
 
 EntityCollectionT = TypeVar("EntityCollectionT", bound=EntityCollection[EntityT])

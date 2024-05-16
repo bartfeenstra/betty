@@ -5,7 +5,9 @@ Provide functional programming utilities.
 from __future__ import annotations
 
 from asyncio import sleep
+from collections.abc import MutableSequence
 from inspect import isawaitable
+from itertools import chain
 from time import time
 from typing import (
     Any,
@@ -164,3 +166,19 @@ class Do(Generic[_DoFP, _DoFReturnT]):
                 await sleep(interval)
             else:
                 return f_result
+
+
+class Uniquifier(Generic[T]):
+    def __init__(self, *values: Iterable[T]):
+        self._values = chain(*values)
+        self._seen: MutableSequence[T] = []
+
+    def __iter__(self) -> Iterator[T]:
+        return self
+
+    def __next__(self) -> T:
+        value = next(self._values)
+        if value in self._seen:
+            return next(self)
+        self._seen.append(value)
+        return value

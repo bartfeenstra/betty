@@ -1,10 +1,12 @@
 from collections.abc import Awaitable, Callable, Iterable
-from typing import Any, Self
+from typing import Any, Self, TypeVar
 
 import pytest
 
-from betty.functools import walk, slice_to_range, Do
+from betty.functools import walk, slice_to_range, Do, Uniquifier
 from betty.warnings import BettyDeprecationWarning
+
+T = TypeVar("T")
 
 
 class TestWalk:
@@ -169,3 +171,23 @@ class TestDo:
             await Do[Any, int](self._do_raise_exception).until(
                 timeout=0, retries=999999999
             )
+
+
+class TestUniquifier:
+    @pytest.mark.parametrize(
+        "expected, values",
+        [
+            ([], []),
+            ([], [[]]),
+            (["one"], [["one"]]),
+            (["one"], [["one", "one"]]),
+            (["one", "two"], [["one", "two"]]),
+            (["one", "two"], [["one", "two", "one"]]),
+            (["one"], [["one"], ["one"]]),
+            (["one", "two"], [["one"], ["one", "two"]]),
+            (["one", "two"], [["one"], ["one", "two", "one"]]),
+        ],
+    )
+    async def test(self, expected: list[T], values: Iterable[Iterable[T]]) -> None:
+        sut = Uniquifier(*values)
+        assert list(sut) == expected
