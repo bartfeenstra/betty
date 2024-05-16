@@ -15,6 +15,7 @@ from urllib.parse import quote
 from geopy import Point
 
 from betty.classtools import repr_instance
+from betty.functools import Uniquifier
 from betty.json.linked_data import (
     LinkedDataDumpable,
     dump_context,
@@ -1558,12 +1559,7 @@ class Event(
             ],
         ]
         # Preserve the original order.
-        seen = set()
-        for file in files:
-            if file in seen:
-                continue
-            seen.add(file)
-            yield file
+        yield from Uniquifier(files)
 
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
@@ -1905,12 +1901,7 @@ class Person(
             ],
         ]
         # Preserve the original order.
-        seen = set()
-        for file in files:
-            if file in seen:
-                continue
-            seen.add(file)
-            yield file
+        yield from Uniquifier(files)
 
     @property
     def label(self) -> Str:

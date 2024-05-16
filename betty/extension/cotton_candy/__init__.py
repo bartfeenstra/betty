@@ -18,6 +18,7 @@ from betty.app.extension import ConfigurableExtension, Extension, Theme
 from betty.config import Configuration
 from betty.extension.cotton_candy.search import Index
 from betty.extension.webpack import Webpack, WebpackEntrypointProvider
+from betty.functools import Uniquifier
 from betty.gui import GuiBuilder
 from betty.html import CssProvider
 from betty.jinja2 import (
@@ -319,12 +320,7 @@ def person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable[
     """
     Gather all events for a person's timeline.
     """
-    seen = []
-    for event in _person_timeline_events(person, lifetime_threshold):
-        if event in seen:
-            continue
-        seen.append(event)
-        yield event
+    yield from Uniquifier(_person_timeline_events(person, lifetime_threshold))
 
 
 def person_descendant_families(
