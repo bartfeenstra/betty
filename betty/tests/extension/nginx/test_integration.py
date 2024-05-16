@@ -24,8 +24,8 @@ from betty.serve import Server
 
 
 @pytest.mark.skipif(
-    sys.platform in {"darwin", "win32"},
-    reason="macOS and Windows do not natively support Docker.",
+    sys.platform == "darwin",
+    reason="Github Actions' macOS images do not support Docker",
 )
 class TestNginx:
     @asynccontextmanager

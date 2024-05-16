@@ -19,8 +19,8 @@ from betty.serve import NoPublicUrlBecauseServerNotStartedError
 
 class TestDockerizedNginxServer:
     @pytest.mark.skipif(
-        sys.platform in {"darwin", "win32"},
-        reason="macOS and Windows do not natively support Docker.",
+        sys.platform == "darwin",
+        reason="Github Actions' macOS images do not support Docker",
     )
     async def test_context_manager(self):
         content = "Hello, and welcome to my site!"
