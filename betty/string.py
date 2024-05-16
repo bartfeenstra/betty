@@ -25,4 +25,18 @@ def upper_camel_case_to_lower_camel_case(string: str) -> str:
     """
     Convert upper camel case to lower camel case.
     """
+    if not string:
+        return string
     return string[0].lower() + string[1:]
+
+
+def snake_case_to_upper_camel_case(string: str) -> str:
+    """
+    Convert snake case to upper camel case.
+    """
+    return "".join(
+        map(
+            lambda substring: substring[0].upper() + substring[1:] if substring else "",
+            string.split("_"),
+        )
+    )
