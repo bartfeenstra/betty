@@ -19,6 +19,7 @@ from click import get_current_context, Context, Option, Command, Parameter
 
 from betty import about, generate, load, documentation, locale
 from betty.app import App
+from betty.asyncio import wait_to_thread
 from betty.contextlib import SynchronizedContextManager
 from betty.error import UserFacingError
 from betty.locale import Str
@@ -245,8 +246,8 @@ class _BettyCommands(click.MultiCommand):
     callback=_build_init_ctx_verbosity(logging.NOTSET, logging.NOTSET),
 )
 @click.version_option(
-    run(about.version_label()),
-    message=run(about.report()),
+    wait_to_thread(about.version_label()),
+    message=wait_to_thread(about.report()),
     prog_name="Betty",
 )
 def main(app: App, verbose: bool, more_verbose: bool, most_verbose: bool) -> None:
