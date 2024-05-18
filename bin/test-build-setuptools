@@ -29,3 +29,6 @@ wheel_path="$(pwd)/dist/betty-0.0.0-py3-none-any.whl"
   pip install "$wheel_path"
   betty --version
 )
+
+# Remove any stale artifacts.
+./bin/clean-build

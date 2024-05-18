@@ -14,3 +14,6 @@ if [ $build_exit_code -ne 0 ]; then
   echo "$build_output"
   exit $build_exit_code
 fi
+
+# Remove any stale artifacts.
+./bin/clean-build
