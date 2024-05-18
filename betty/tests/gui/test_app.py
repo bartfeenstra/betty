@@ -16,7 +16,7 @@ from betty.gui.serve import ServeDemoWindow
 from betty.project import ProjectConfiguration
 from betty.serde.error import SerdeError
 from betty.tests.conftest import BettyQtBot
-from betty.tests.test_serve import SleepingAppServer
+from betty.tests.test_cli import NoOpServer
 
 
 class TestBettyPrimaryWindow:
@@ -25,9 +25,7 @@ class TestBettyPrimaryWindow:
         mocker: MockerFixture,
         betty_qtbot: BettyQtBot,
     ) -> None:
-        mocker.patch(
-            "betty.extension.demo.DemoServer", new_callable=lambda: SleepingAppServer
-        )
+        mocker.patch("betty.extension.demo.DemoServer", new=NoOpServer)
 
         sut = BettyPrimaryWindow(betty_qtbot.app)
         betty_qtbot.qtbot.addWidget(sut)
@@ -116,9 +114,7 @@ class TestWelcomeWindow:
         mocker: MockerFixture,
         betty_qtbot: BettyQtBot,
     ) -> None:
-        mocker.patch(
-            "betty.extension.demo.DemoServer", new_callable=lambda: SleepingAppServer
-        )
+        mocker.patch("betty.extension.demo.DemoServer", new=NoOpServer)
 
         sut = WelcomeWindow(betty_qtbot.app)
         betty_qtbot.qtbot.addWidget(sut)

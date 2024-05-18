@@ -1,6 +1,3 @@
-from asyncio import create_task, sleep, Task
-from typing import Any
-
 import aiofiles
 import requests
 from aiofiles.os import makedirs
@@ -9,21 +6,7 @@ from requests import Response
 
 from betty.app import App
 from betty.functools import Do
-from betty.serve import BuiltinAppServer, AppServer
-
-
-class SleepingAppServer(AppServer):
-    def __init__(self, app: App, *_: Any, **__: Any):
-        super().__init__(app)
-        self._task: Task[None] | None = None
-
-    async def start(self) -> None:
-        self._task = create_task(sleep(999999999))
-        await self._task
-
-    async def stop(self) -> None:
-        if self._task is not None:
-            self._task.cancel()
+from betty.serve import BuiltinAppServer
 
 
 class TestBuiltinServer:

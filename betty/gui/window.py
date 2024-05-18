@@ -9,6 +9,7 @@ from os import path
 from PyQt6.QtCore import QObject
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QApplication, QMainWindow
+from typing_extensions import override
 
 from betty.app import App
 from betty.gui.locale import LocalizedObject
@@ -44,6 +45,7 @@ class BettyMainWindow(LocalizedObject, QMainWindow):
         geometry.moveCenter(screen.availableGeometry().center())
         self.move(geometry.topLeft())
 
+    @override
     def _set_translatables(self) -> None:
         self.setWindowTitle(
             f"{self.window_title.localize(self._app.localizer)} - Betty"
@@ -53,6 +55,7 @@ class BettyMainWindow(LocalizedObject, QMainWindow):
     def window_title(self) -> Localizable:
         raise NotImplementedError(repr(self))
 
+    @override
     def close(self) -> bool:
         for child in self.children():
             if isinstance(child, QMainWindow):

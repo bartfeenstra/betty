@@ -212,13 +212,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/gui/locale.py": TestKnownToBeMissing,
     "betty/gui/logging.py": TestKnownToBeMissing,
     "betty/gui/model.py": TestKnownToBeMissing,
-    "betty/gui/project.py": {
-        "ProjectWindow": {
-            "show": TestKnownToBeMissing,
-        },
-    },
-    "betty/gui/serve.py": TestKnownToBeMissing,
-    "betty/gui/text.py": TestKnownToBeMissing,
     "betty/gui/window.py": TestKnownToBeMissing,
     "betty/importlib.py": {
         "fully_qualified_type_name": TestKnownToBeMissing,
