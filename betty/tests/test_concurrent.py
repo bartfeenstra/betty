@@ -99,7 +99,7 @@ class TestRateLimiter:
             (1, 101),
         ],
     )
-    async def test(self, expected: int, iterations: int) -> None:
+    async def test_wait(self, expected: int, iterations: int) -> None:
         sut = RateLimiter(100)
 
         async def _task() -> None:

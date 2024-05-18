@@ -12,7 +12,7 @@ from betty.project import LocaleConfiguration
 
 
 class TestIndex:
-    async def test_empty(self) -> None:
+    async def test_build_empty(self) -> None:
         async with App.new_temporary() as app, app:
             app.project.configuration.extensions.enable(CottonCandy)
             app.project.configuration.locales["en-US"].alias = "en"
@@ -28,7 +28,7 @@ class TestIndex:
 
             assert [] == indexed
 
-    async def test_person_without_names(self) -> None:
+    async def test_build_person_without_names(self) -> None:
         person_id = "P1"
         person = Person(id=person_id)
 
@@ -48,7 +48,7 @@ class TestIndex:
 
             assert [] == indexed
 
-    async def test_private_person(self) -> None:
+    async def test_build_private_person(self) -> None:
         person_id = "P1"
         individual_name = "Jane"
         person = Person(
@@ -83,7 +83,7 @@ class TestIndex:
             ("/en/person/P1/index.html", "en-US"),
         ],
     )
-    async def test_person_with_individual_name(
+    async def test_build_person_with_individual_name(
         self, expected: str, locale: str
     ) -> None:
         person_id = "P1"
@@ -121,7 +121,7 @@ class TestIndex:
             ("/en/person/P1/index.html", "en-US"),
         ],
     )
-    async def test_person_with_affiliation_name(
+    async def test_build_person_with_affiliation_name(
         self, expected: str, locale: str
     ) -> None:
         person_id = "P1"
@@ -159,7 +159,7 @@ class TestIndex:
             ("/en/person/P1/index.html", "en-US"),
         ],
     )
-    async def test_person_with_individual_and_affiliation_names(
+    async def test_build_person_with_individual_and_affiliation_names(
         self, expected: str, locale: str
     ) -> None:
         person_id = "P1"
@@ -199,7 +199,7 @@ class TestIndex:
             ("/en/place/P1/index.html", "en-US"),
         ],
     )
-    async def test_place(self, expected: str, locale: str) -> None:
+    async def test_build_place(self, expected: str, locale: str) -> None:
         place_id = "P1"
         place = Place(
             id=place_id,
@@ -235,7 +235,7 @@ class TestIndex:
             assert "netherlands nederland" == indexed[0]["text"]
             assert expected in indexed[0]["result"]
 
-    async def test_private_place(self) -> None:
+    async def test_build_private_place(self) -> None:
         place_id = "P1"
         place = Place(
             id=place_id,
@@ -258,7 +258,7 @@ class TestIndex:
 
             assert [] == indexed
 
-    async def test_file_without_description(self) -> None:
+    async def test_build_file_without_description(self) -> None:
         file_id = "F1"
         file = File(
             id=file_id,
@@ -288,7 +288,7 @@ class TestIndex:
             ("/en/file/F1/index.html", "en-US"),
         ],
     )
-    async def test_file(self, expected: str, locale: str) -> None:
+    async def test_build_file(self, expected: str, locale: str) -> None:
         file_id = "F1"
         file = File(
             id=file_id,
@@ -316,7 +316,7 @@ class TestIndex:
             assert '"file" is dutch for "traffic jam"' == indexed[0]["text"]
             assert expected in indexed[0]["result"]
 
-    async def test_private_file(self) -> None:
+    async def test_build_private_file(self) -> None:
         file_id = "F1"
         file = File(
             id=file_id,
