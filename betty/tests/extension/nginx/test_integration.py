@@ -1,6 +1,8 @@
 import sys
-from collections.abc import Callable, Awaitable
+from collections.abc import Callable, AsyncIterator
+from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import AsyncContextManager
 
 import html5lib
 import pytest
@@ -28,15 +30,19 @@ from betty.serve import Server
 )
 class TestNginx:
     @pytest.fixture
-    async def new_server(
+    def new_server(
         self, new_temporary_app: App
-    ) -> Callable[[ProjectConfiguration], Awaitable[Server]]:
-        async def _server(configuration: ProjectConfiguration) -> Server:
+    ) -> Callable[[ProjectConfiguration], AsyncContextManager[Server]]:
+        @asynccontextmanager
+        async def _new_server(
+            configuration: ProjectConfiguration,
+        ) -> AsyncIterator[Server]:
             new_temporary_app.project.configuration.update(configuration)
             await generate.generate(new_temporary_app)
-            return DockerizedNginxServer(new_temporary_app)
+            async with DockerizedNginxServer(new_temporary_app) as server:
+                yield server
 
-        return _server
+        return _new_server
 
     async def assert_betty_html(self, response: Response) -> None:
         assert "text/html" == response.headers["Content-Type"]
@@ -44,13 +50,14 @@ class TestNginx:
         parser.parse(response.text)
         assert "Betty" in response.text
 
-    async def assert_betty_json(self, response: Response) -> None:
+    # @todo Turn this into a fixture so we can inject a temporary App
+    async def assert_betty_json(
+        self, response: Response, new_temporary_app: App
+    ) -> None:
         assert "application/json" == response.headers["Content-Type"]
         data = response.json()
-        async with App.new_temporary() as app:
-            async with app:
-                schema = Schema(app)
-                await schema.validate(data)
+        schema = Schema(new_temporary_app)
+        await schema.validate(data)
 
     @pytest.fixture
     def monolingual_configuration(self, tmp_path: Path) -> ProjectConfiguration:

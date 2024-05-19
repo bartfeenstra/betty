@@ -10,7 +10,6 @@ from betty.extension.demo import DemoServer
 from betty.functools import Do
 from betty.load import load
 from betty.model.ancestry import Person, Place, Event, Source, Citation
-from betty.project import ExtensionConfiguration
 
 
 class TestDemo:

@@ -26,6 +26,7 @@ from betty.html import CssProvider
 from betty.jinja2 import Jinja2Provider
 from betty.job import Context
 from betty.locale import Str
+from betty.project import Project, ProjectConfiguration
 from betty.requirement import (
     Requirement,
     AllRequirements,
@@ -49,17 +50,23 @@ async def _prebuild_webpack_assets() -> None:
     Prebuild Webpack assets for inclusion in package builds.
     """
     job_context = Context()
-    async with App.new_temporary() as app, app:
-        app.project.configuration.extensions.enable(Webpack)
-        webpack = app.extensions[Webpack]
-        app.project.configuration.extensions.enable(
-            *{
-                extension_type
-                for extension_type in discover_extension_types()
-                if issubclass(extension_type, WebpackEntrypointProvider)
-            }
+    async with TemporaryDirectory() as project_configuration_directory_path_str:
+        project = Project(
+            ProjectConfiguration(
+                configuration_file_path=Path(project_configuration_directory_path_str)
+            )
         )
-        await webpack.prebuild(job_context=job_context)
+        async with App.new_temporary(project) as app, app:
+            app.project.configuration.extensions.enable(Webpack)
+            webpack = app.extensions[Webpack]
+            app.project.configuration.extensions.enable(
+                *{
+                    extension_type
+                    for extension_type in discover_extension_types()
+                    if issubclass(extension_type, WebpackEntrypointProvider)
+                }
+            )
+            await webpack.prebuild(job_context=job_context)
 
 
 class WebpackEntrypointProvider:

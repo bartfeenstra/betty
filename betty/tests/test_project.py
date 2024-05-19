@@ -640,7 +640,7 @@ class TestEntityTypeConfigurationMapping(
 class TestProjectConfiguration:
     @pytest.fixture
     def sut(self, tmp_path: Path) -> ProjectConfiguration:
-        return ProjectConfiguration(configuration_file_path=tmp_path)
+        return ProjectConfiguration(configuration_file_path=tmp_path / "betty.json")
 
     async def test_name(self, sut: ProjectConfiguration) -> None:
         name = "MyFirstBettySite"

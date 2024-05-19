@@ -39,7 +39,6 @@ from betty.serde.dump import Dumpable, Dump, minimize, VoidableDump, Void
 from betty.serde.error import SerdeErrorCollection
 from betty.serde.format import FormatRepository
 from betty.serde.load import Asserter, Assertion, Assertions
-from betty.warnings import deprecate
 
 T = TypeVar("T")
 

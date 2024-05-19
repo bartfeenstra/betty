@@ -71,7 +71,7 @@ async def new_temporary_app(
     mocker: MockerFixture, tmp_path: Path
 ) -> AsyncIterator[App]:
     async with App.new_temporary(
-        project=Project(
+        Project(
             configuration=ProjectConfiguration(
                 configuration_file_path=tmp_path / "betty.json"
             )

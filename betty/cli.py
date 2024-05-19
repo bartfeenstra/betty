@@ -11,6 +11,7 @@ from asyncio import run
 from contextlib import suppress, contextmanager
 from functools import wraps
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Callable, TypeVar, cast, Iterator, Awaitable, ParamSpec, Concatenate
 
 import click
@@ -24,6 +25,7 @@ from betty.contextlib import SynchronizedContextManager
 from betty.error import UserFacingError
 from betty.locale import Str
 from betty.logging import CliHandler
+from betty.project import Project, ProjectConfiguration
 from betty.serde.load import AssertionFailed
 from betty.serve import AppServer
 
@@ -115,8 +117,22 @@ async def __init_ctx_app(
     logging.getLogger().addHandler(CliHandler())
     logger = logging.getLogger(__name__)
 
+    project_configuration_directory_path_str = ctx.with_resource(  # type: ignore[attr-defined]
+        TemporaryDirectory()
+    )
     app = ctx.with_resource(  # type: ignore[attr-defined]
-        SynchronizedContextManager(App.new_from_environment())
+        SynchronizedContextManager(
+            App.new_from_environment(
+                Project(
+                    configuration=ProjectConfiguration(
+                        configuration_file_path=Path(
+                            project_configuration_directory_path_str
+                        )
+                        / "betty.json"
+                    )
+                )
+            )
+        )
     )
     ctx.obj["commands"] = {
         "docs": _docs,

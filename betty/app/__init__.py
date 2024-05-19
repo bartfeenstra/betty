@@ -167,8 +167,9 @@ class _BackwardsCompatiblePickledFileCache(PickledFileCache[Any], FileCache):
 class App(Configurable[AppConfiguration]):
     def __init__(
         self,
+        project: Project,
+        *,
         configuration: AppConfiguration | None = None,
-        project: Project | None = None,
         cache_directory_path: Path | None = None,
     ):
         super().__init__()
@@ -183,11 +184,6 @@ class App(Configurable[AppConfiguration]):
                 f"Initializing {type(self)} without `cache_directory_path` is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x.",
                 stacklevel=2,
             )
-        if project is None:
-            deprecate(
-                f"Initializing {type(self)} without `project` is deprecated as of Betty 0.3.6, and will be removed in Betty 0.4.x.",
-                stacklevel=2,
-            )
         self._configuration = configuration or AppConfiguration()
         self._configuration.on_change(self._on_locale_change)
         self._assets: FileSystem | None = None
@@ -198,7 +194,7 @@ class App(Configurable[AppConfiguration]):
         self._localizers: LocalizerRepository | None = None
         with suppress(FileNotFoundError):
             wait_to_thread(self.configuration.read())
-        self._project = project or Project()
+        self._project = project
         self.project.configuration.extensions.on_change(self._update_extensions)
 
         self._dispatcher: ExtensionDispatcher | None = None
@@ -222,13 +218,14 @@ class App(Configurable[AppConfiguration]):
     @asynccontextmanager
     async def new_from_environment(
         cls,
-        *,
-        project: Project | None = None,
+        project: Project,
     ) -> AsyncIterator[Self]:
         yield cls(
-            AppConfiguration(CONFIGURATION_DIRECTORY_PATH),
             project,
-            Path(environ.get("BETTY_CACHE_DIRECTORY", CACHE_DIRECTORY_PATH)),
+            configuration=AppConfiguration(CONFIGURATION_DIRECTORY_PATH),
+            cache_directory_path=Path(
+                environ.get("BETTY_CACHE_DIRECTORY", CACHE_DIRECTORY_PATH)
+            ),
         )
 
     @classmethod
@@ -240,25 +237,26 @@ class App(Configurable[AppConfiguration]):
         project: Project | None = None,
     ) -> AsyncIterator[Self]:
         yield cls(
-            AppConfiguration(app.configuration.configuration_file_path.parent),
             app.project if project is None else project,
-            app._cache_directory_path,
+            configuration=AppConfiguration(
+                app.configuration.configuration_file_path.parent
+            ),
+            cache_directory_path=app._cache_directory_path,
         )
 
     @classmethod
     @asynccontextmanager
     async def new_temporary(
         cls,
-        *,
-        project: Project | None = None,
+        project: Project,
     ) -> AsyncIterator[Self]:
         async with (
             TemporaryDirectory() as configuration_directory_path_str,
             TemporaryDirectory() as cache_directory_path_str,
         ):
             yield cls(
-                AppConfiguration(Path(configuration_directory_path_str)),
                 project,
+                configuration=AppConfiguration(Path(configuration_directory_path_str)),
                 cache_directory_path=Path(cache_directory_path_str),
             )
 

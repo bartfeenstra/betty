@@ -19,7 +19,7 @@ from betty.project import ExtensionConfiguration
 
 
 class TestPrivatizer:
-    async def test_post_load(self) -> None:
+    async def test_post_load(self, new_temporary_app: App) -> None:
         person = Person(id="P0")
         Presence(person, Subject(), Event(event_type=Birth))
 
@@ -46,12 +46,11 @@ class TestPrivatizer:
         )
         citation.files.add(citation_file)
 
-        async with App.new_temporary() as app, app:
-            app.project.configuration.extensions.append(
-                ExtensionConfiguration(Privatizer)
-            )
-            app.project.ancestry.add(person, source, citation)
-            await load(app)
+        new_temporary_app.project.configuration.extensions.append(
+            ExtensionConfiguration(Privatizer)
+        )
+        new_temporary_app.project.ancestry.add(person, source, citation)
+        await load(new_temporary_app)
 
         assert person.private
         assert source_file.private

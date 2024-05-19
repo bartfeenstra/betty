@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 from contextlib import AsyncExitStack
+from pathlib import Path
+
+from aiofiles.tempfile import TemporaryDirectory
 
 from betty import load, generate, serve
 from betty.app import App
@@ -31,6 +34,7 @@ from betty.project import (
     ExtensionConfiguration,
     EntityReference,
     Project,
+    ProjectConfiguration,
 )
 from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
 from betty.warnings import deprecate
@@ -51,10 +55,14 @@ class Demo(Extension, Loader):
         self._app.project.ancestry.add(*entities)
 
     @classmethod
-    def project(cls) -> Project:
+    def project(cls, configuration_file_path: Path) -> Project:
         from betty.extension import CottonCandy, Demo
 
-        project = Project()
+        project = Project(
+            configuration=ProjectConfiguration(
+                configuration_file_path=configuration_file_path
+            )
+        )
         project.configuration.name = cls.name()
         project.configuration.extensions.append(ExtensionConfiguration(Demo))
         project.configuration.extensions.append(
@@ -500,7 +508,13 @@ class DemoServer(Server):
         from betty.extension import Demo
 
         await super().start()
-        project = Demo.project()
+        project_configuration_directory_path_str = self._exit_stack.enter_async_context(
+            TemporaryDirectory()
+        )
+        project = Demo.project(
+            configuration_file_path=Path(project_configuration_directory_path_str)
+            / "betty.json"
+        )
         if self._app is None:
             isolated_app_factory = App.new_from_environment(
                 project=project,
