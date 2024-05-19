@@ -316,7 +316,7 @@ class TestSummary:
             ),
         ],
     )
-    async def test_eq(self, expected: bool, left: Summary, right: object) -> None:
+    async def test___eq__(self, expected: bool, left: Summary, right: object) -> None:
         assert (left == right) is expected
 
 

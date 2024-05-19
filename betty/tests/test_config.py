@@ -88,7 +88,7 @@ class ConfigurationCollectionTestBase(Generic[ConfigurationKeyT, ConfigurationT]
         )
         assert 2 == len(sut)
 
-    async def test_eq(self) -> None:
+    async def test___eq__(self) -> None:
         configurations = self.get_configurations()
         sut = self.get_sut(
             [
