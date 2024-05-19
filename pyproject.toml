@@ -103,6 +103,7 @@ test = [
     'coverage ~= 7.2, >= 7.2.4',
     'html5lib ~= 1.1',
     'lxml ~= 5.0; sys.platform != "win32"',
+    'packaging ~= 24.0',
     'pip-licenses ~= 4.3, >= 4.3.0',
     'pytest ~= 7.3, >= 7.3.1',
     'pytest-aioresponses ~= 0.2, >= 0.2.0 ',

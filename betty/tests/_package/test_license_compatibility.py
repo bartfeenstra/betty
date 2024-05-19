@@ -1,26 +1,38 @@
 import io
 import json
 import sys
+from importlib.metadata import metadata, PackageNotFoundError
 from typing import Iterator, Any
 
 import piplicenses
-from pkg_resources import get_distribution
+from packaging.requirements import Requirement
 
 
 class TestPackageLicenses:
-    _GPL_V3_COMPATIBLE_DISTRIBUTIONS = ("PyQt6-sip",)
+    _GPL_V3_COMPATIBLE_DISTRIBUTIONS = (
+        # We do not include basedtyping in any Betty distribution.
+        "basedtyping",
+        # We do not include PyInstaller in any Betty distributions.
+        "pyinstaller",
+        # The SIP license has been confirmed compatible by SIP.
+        "PyQt6-sip",
+    )
 
     _GPL_V3_COMPATIBLE_LICENSES = (
         "Apache Software License",
+        "Apache-2.0",
         "BSD License",
+        "BSD-3-Clause",
         "GPL v3",
         "GNU General Public License v3 (GPLv3)",
         "GNU Library or Lesser General Public License (LGPL)",
         "GNU Lesser General Public License v2 or later (LGPLv2+)",
         "Historical Permission Notice and Disclaimer (HPND)",
+        "MIT",
         "MIT License",
         "Mozilla Public License 2.0 (MPL 2.0)",
         "Python Software Foundation License",
+        "The Unlicense (Unlicense)",
     )
 
     def assert_is_compatible(self, package_license: dict[str, Any]) -> None:
@@ -39,14 +51,30 @@ class TestPackageLicenses:
         """
         Assert that all runtime dependencies have licenses compatible with the GPLv3, so we can legally bundle them.
         """
+        seen_distribution_names: set[str] = set()
 
-        def _get_dependency_distribution_names(name: str) -> Iterator[str]:
-            yield name
-            # Work around https://github.com/sphinx-doc/sphinx/issues/11567.
-            if name.startswith("sphinxcontrib-"):
+        def _get_dependency_distribution_names(distribution_name: str) -> Iterator[str]:
+            if distribution_name in seen_distribution_names:
                 return
-            for dependency in get_distribution(name).requires():
-                yield from _get_dependency_distribution_names(dependency.project_name)
+            seen_distribution_names.add(distribution_name)
+
+            yield distribution_name
+            # Work around https://github.com/sphinx-doc/sphinx/issues/11567.
+            if distribution_name.startswith("sphinxcontrib-"):
+                return
+            try:
+                distribution_metadata = metadata(distribution_name)
+            except PackageNotFoundError:
+                # Packages may not be found if they are only installed under certain conditions.
+                # This is the case for many backports, which are installed only on older Python versions.
+                return
+            else:
+                for requirement_string in distribution_metadata.get_all(
+                    "Requires-Dist", ()
+                ):
+                    yield from _get_dependency_distribution_names(
+                        Requirement(requirement_string).name
+                    )
 
         distribution_names = list(
             filter(
