@@ -89,7 +89,7 @@ class TestWelcomeWindow:
     ) -> None:
         title = "My First Ancestry Site"
         configuration = ProjectConfiguration(
-            title=title,
+            title=title
         )
         await configuration.write()
         await betty_qtbot.app.project.configuration.write()
@@ -138,8 +138,10 @@ class TestApplicationConfiguration:
         locale = "nl-NL"
         betty_qtbot.app.configuration.locale = locale
 
+        configuration_file_path = betty_qtbot.app.configuration.configuration_file_path
+        assert configuration_file_path is not None
         async with aiofiles.open(
-            betty_qtbot.app.configuration.configuration_file_path
+            configuration_file_path
         ) as f:
             read_configuration_dump = json.loads(await f.read())
         assert read_configuration_dump == betty_qtbot.app.configuration.dump()

@@ -1,16 +1,25 @@
 from pathlib import Path
 
+import pytest
+
+from betty.app import App
 from betty.extension import CottonCandy
 from betty.locale import Str
 from betty.model.ancestry import Source, File, Citation, Person, PersonName
-from betty.tests import TemplateTestCase
+from betty.tests import TemplateTester
 
 
-class TestTemplate(TemplateTestCase):
-    extensions = {CottonCandy}
-    template_file = "entity/page--source.html.j2"
+class TestTemplate:
+    @pytest.fixture
+    def template_tester(self, new_temporary_app: App) -> TemplateTester:
+        new_temporary_app.project.configuration.extensions.enable(CottonCandy)
+        return TemplateTester(
+            new_temporary_app, template_file="entity/page--source.html.j2"
+        )
 
-    async def test_privacy(self, tmp_path: Path) -> None:
+    async def test_privacy(
+        self, template_tester: TemplateTester, tmp_path: Path
+    ) -> None:
         file_path = tmp_path / "file"
         file_path.touch()
 
@@ -354,13 +363,13 @@ class TestTemplate(TemplateTestCase):
             private_citation_for_private_contained_source
         )
 
-        async with self._render(
+        async with template_tester.render(
             data={
                 "page_resource": source,
                 "entity_type": Source,
                 "entity": source,
             },
-        ) as (actual, _):
+        ) as actual:
             assert source.name in actual
             assert public_file.description is not None
             assert public_file.description in actual

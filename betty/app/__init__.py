@@ -101,7 +101,8 @@ class AppConfiguration(FileBasedConfiguration):
                 stacklevel=2,
             )
             configuration_directory_path = CONFIGURATION_DIRECTORY_PATH
-        super().__init__(configuration_directory_path / "app.json")
+        super().__init__()
+        self.configuration_file_path = configuration_directory_path / "app.json"
         self._locale: str | None = locale
 
     @property

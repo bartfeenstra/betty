@@ -1,10 +1,13 @@
 from pathlib import Path
 
+import pytest
+
+from betty.app import App
 from betty.extension import CottonCandy
 from betty.locale import Str, DEFAULT_LOCALIZER
 from betty.model import Entity
 from betty.model.ancestry import File, HasFiles, HasPrivacy
-from betty.tests import TemplateTestCase
+from betty.tests import TemplateTester
 
 
 class TemplateTestEntity(HasFiles, HasPrivacy, Entity):
@@ -17,11 +20,15 @@ class TemplateTestEntity(HasFiles, HasPrivacy, Entity):
         return Str._("Tests")
 
 
-class TestTemplate(TemplateTestCase):
-    extensions = {CottonCandy}
-    template_file = "entity/page--file.html.j2"
+class TestTemplate:
+    @pytest.fixture
+    def template_tester(self, new_temporary_app: App) -> TemplateTester:
+        new_temporary_app.project.configuration.extensions.enable(CottonCandy)
+        return TemplateTester(
+            new_temporary_app, template_file="entity/page--file.html.j2"
+        )
 
-    async def test_privacy(self) -> None:
+    async def test_privacy(self, template_tester: TemplateTester) -> None:
         file = File(
             path=Path(),
             description="file description",
@@ -34,13 +41,13 @@ class TestTemplate(TemplateTestCase):
         private_entity.private = True
         file.entities.add(private_entity)
 
-        async with self._render(
+        async with template_tester.render(
             data={
                 "page_resource": file,
                 "entity_type": File,
                 "entity": file,
             },
-        ) as (actual, _):
+        ) as actual:
             assert file.description is not None
             assert file.description in actual
             assert str(public_entity.label.localize(DEFAULT_LOCALIZER)) in actual

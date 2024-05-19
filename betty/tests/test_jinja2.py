@@ -23,7 +23,7 @@ from betty.model.ancestry import (
     Place,
     Citation,
 )
-from betty.tests import TemplateTestCase
+from betty.tests import TemplateTester
 from betty.warnings import BettyDeprecationWarning
 
 
@@ -38,23 +38,25 @@ class TestJinja2Provider:
 
 
 class TestJinja2Renderer:
-    async def test_render_file(self) -> None:
-        async with App.new_temporary() as app, app:
-            sut = Jinja2Renderer(app.jinja2_environment, app.project.configuration)
-            template = "{% if true %}true{% endif %}"
-            expected_output = "true"
-            async with TemporaryDirectory() as working_directory_path_str:
-                working_directory_path = Path(working_directory_path_str)
-                template_file_path = working_directory_path / "betty.txt.j2"
-                async with aiofiles.open(template_file_path, "w") as f:
-                    await f.write(template)
-                await sut.render_file(template_file_path)
-                async with aiofiles.open(working_directory_path / "betty.txt") as f:
-                    assert expected_output == (await f.read()).strip()
-                assert not template_file_path.exists()
+    async def test_render_file(self, new_temporary_app: App) -> None:
+        sut = Jinja2Renderer(
+            new_temporary_app.jinja2_environment,
+            new_temporary_app.project.configuration,
+        )
+        template = "{% if true %}true{% endif %}"
+        expected_output = "true"
+        async with TemporaryDirectory() as working_directory_path_str:
+            working_directory_path = Path(working_directory_path_str)
+            template_file_path = working_directory_path / "betty.txt.j2"
+            async with aiofiles.open(template_file_path, "w") as f:
+                await f.write(template)
+            await sut.render_file(template_file_path)
+            async with aiofiles.open(working_directory_path / "betty.txt") as f:
+                assert expected_output == (await f.read()).strip()
+            assert not template_file_path.exists()
 
 
-class TestFilterFlatten(TemplateTestCase):
+class TestFilterFlatten:
     @pytest.mark.parametrize(
         "expected, template",
         [
@@ -66,12 +68,14 @@ class TestFilterFlatten(TemplateTestCase):
             ),
         ],
     )
-    async def test(self, expected: str, template: str) -> None:
-        async with self._render(template_string=template) as (actual, _):
+    async def test(
+        self, expected: str, template: str, template_tester: TemplateTester
+    ) -> None:
+        async with template_tester.render(template_string=template) as actual:
             assert expected == actual
 
 
-class TestFilterWalk(TemplateTestCase):
+class TestFilterWalk:
     class WalkData:
         def __init__(self, label: str, children: Iterable[Self] | None = None):
             self._label = label
@@ -97,18 +101,24 @@ class TestFilterWalk(TemplateTestCase):
             ),
         ],
     )
-    async def test(self, expected: str, template: str, data: WalkData) -> None:
+    async def test(
+        self,
+        expected: str,
+        template: str,
+        data: WalkData,
+        template_tester: TemplateTester,
+    ) -> None:
         with pytest.warns(BettyDeprecationWarning):
-            async with self._render(
+            async with template_tester.render(
                 template_string=template,
                 data={
                     "data": data,
                 },
-            ) as (actual, _):
+            ) as actual:
                 assert expected == actual
 
 
-class TestFilterParagraphs(TemplateTestCase):
+class TestFilterParagraphs:
     @pytest.mark.parametrize(
         "expected, template",
         [
@@ -119,12 +129,14 @@ class TestFilterParagraphs(TemplateTestCase):
             ),
         ],
     )
-    async def test(self, expected: str, template: str) -> None:
-        async with self._render(template_string=template) as (actual, _):
+    async def test(
+        self, expected: str, template: str, template_tester: TemplateTester
+    ) -> None:
+        async with template_tester.render(template_string=template) as actual:
             assert expected == actual
 
 
-class TestFilterFormatDegrees(TemplateTestCase):
+class TestFilterFormatDegrees:
     @pytest.mark.parametrize(
         "expected, template",
         [
@@ -132,29 +144,31 @@ class TestFilterFormatDegrees(TemplateTestCase):
             ("52° 22&#39; 1&#34;", "{{ 52.367 | format_degrees }}"),
         ],
     )
-    async def test(self, expected: str, template: str) -> None:
-        async with self._render(template_string=template) as (actual, _):
+    async def test(
+        self, expected: str, template: str, template_tester: TemplateTester
+    ) -> None:
+        async with template_tester.render(template_string=template) as actual:
             assert expected == actual
 
 
-class TestFilterUnique(TemplateTestCase):
-    async def test(self) -> None:
+class TestFilterUnique:
+    async def test(self, template_tester: TemplateTester) -> None:
         data: list[Any] = [
             999,
             {},
             999,
             {},
         ]
-        async with self._render(
+        async with template_tester.render(
             template_string='{{ data | unique | join(", ") }}',
             data={
                 "data": data,
             },
-        ) as (actual, _):
+        ) as actual:
             assert "999 == {}", actual
 
 
-class TestFilterMap(TemplateTestCase):
+class TestFilterMap:
     class MapData:
         def __init__(self, label: str):
             self.label = label
@@ -174,17 +188,23 @@ class TestFilterMap(TemplateTestCase):
             ),
         ],
     )
-    async def test(self, expected: str, template: str, data: MapData) -> None:
-        async with self._render(
+    async def test(
+        self,
+        expected: str,
+        template: str,
+        data: MapData,
+        template_tester: TemplateTester,
+    ) -> None:
+        async with template_tester.render(
             template_string=template,
             data={
                 "data": data,
             },
-        ) as (actual, _):
+        ) as actual:
             assert expected == actual
 
 
-class TestFilterFile(TemplateTestCase):
+class TestFilterFile:
     @pytest.mark.parametrize(
         "expected, template, file",
         [
@@ -206,21 +226,24 @@ class TestFilterFile(TemplateTestCase):
             ),
         ],
     )
-    async def test(self, expected: str, template: str, file: File) -> None:
-        async with self._render(
+    async def test(
+        self, expected: str, template: str, file: File, template_tester: TemplateTester
+    ) -> None:
+        async with template_tester.render(
             template_string=template,
             data={
                 "file": file,
             },
-        ) as (actual, app):
+        ) as actual:
             assert expected == actual
             for file_path in actual.split(":"):
                 assert (
-                    app.project.configuration.www_directory_path / file_path[1:]
+                    template_tester.app.project.configuration.www_directory_path
+                    / file_path[1:]
                 ).exists()
 
 
-class TestFilterImage(TemplateTestCase):
+class TestFilterImage:
     image_path = (
         Path(__file__).parents[1] / "assets" / "public" / "static" / "betty-512x512.png"
     )
@@ -266,27 +289,30 @@ class TestFilterImage(TemplateTestCase):
             ),
         ],
     )
-    async def test(self, expected: str, template: str, file: File) -> None:
-        async with self._render(
+    async def test(
+        self, expected: str, template: str, file: File, template_tester: TemplateTester
+    ) -> None:
+        async with template_tester.render(
             template_string=template,
             data={
                 "file": file,
             },
-        ) as (actual, app):
+        ) as actual:
             assert expected == actual
             for file_path in actual.split(":"):
                 assert (
-                    app.project.configuration.www_directory_path / file_path[1:]
+                    template_tester.app.project.configuration.www_directory_path
+                    / file_path[1:]
                 ).exists()
 
-    async def test_without_width(self) -> None:
+    async def test_without_width(self, template_tester: TemplateTester) -> None:
         file = File(
             id="F1",
             path=self.image_path,
             media_type=MediaType("image/png"),
         )
         with pytest.raises(ValueError):
-            async with self._render(
+            async with template_tester.render(
                 template_string="{{ file | image }}",
                 data={
                     "file": file,
@@ -295,7 +321,7 @@ class TestFilterImage(TemplateTestCase):
                 pass
 
 
-class TestGlobalCiter(TemplateTestCase):
+class TestGlobalCiter:
     async def test_cite(self) -> None:
         citation1 = Citation()
         citation2 = Citation()
@@ -323,20 +349,20 @@ class TestGlobalCiter(TemplateTestCase):
         assert 2 == len(sut)
 
 
-class TestFormatDatey(TemplateTestCase):
-    async def test(self) -> None:
+class TestFormatDatey:
+    async def test(self, template_tester: TemplateTester) -> None:
         template = "{{ date | format_datey }}"
         date = Date(1970, 1, 1)
-        async with self._render(
+        async with template_tester.render(
             template_string=template,
             data={
                 "date": date,
             },
-        ) as (actual, _):
+        ) as actual:
             assert "January 1 == 1970", actual
 
 
-class TestFilterSortLocalizeds(TemplateTestCase):
+class TestFilterSortLocalizeds:
     class WithLocalizedNames:
         def __init__(self, identifier: str, names: list[PlaceName]):
             self.id = identifier
@@ -345,7 +371,7 @@ class TestFilterSortLocalizeds(TemplateTestCase):
         def __repr__(self) -> str:
             return self.id
 
-    async def test(self) -> None:
+    async def test(self, template_tester: TemplateTester) -> None:
         template = '{{ data | sort_localizeds(localized_attribute="names", sort_attribute="name") }}'
         data = [
             self.WithLocalizedNames(
@@ -384,26 +410,26 @@ class TestFilterSortLocalizeds(TemplateTestCase):
                 ],
             ),
         ]
-        async with self._render(
+        async with template_tester.render(
             template_string=template,
             data={
                 "data": data,
             },
-        ) as (actual, _):
+        ) as actual:
             assert "[first == second, third]", actual
 
-    async def test_with_empty_iterable(self) -> None:
+    async def test_with_empty_iterable(self, template_tester: TemplateTester) -> None:
         template = '{{ data | sort_localizeds(localized_attribute="names", sort_attribute="name") }}'
-        async with self._render(
+        async with template_tester.render(
             template_string=template,
             data={
                 "data": [],
             },
-        ) as (actual, _):
+        ) as actual:
             assert "[]" == actual
 
 
-class TestFilterSelectLocalizeds(TemplateTestCase):
+class TestFilterSelectLocalizeds:
     @pytest.mark.parametrize(
         "expected, locale, data",
         [
@@ -460,19 +486,25 @@ class TestFilterSelectLocalizeds(TemplateTestCase):
             ),
         ],
     )
-    async def test(self, expected: str, locale: str, data: Iterable[Localized]) -> None:
+    async def test(
+        self,
+        expected: str,
+        locale: str,
+        data: Iterable[Localized],
+        template_tester: TemplateTester,
+    ) -> None:
         template = '{{ data | select_localizeds | map(attribute="name") | join(", ") }}'
 
-        async with self._render(
+        async with template_tester.render(
             template_string=template,
             data={
                 "data": data,
             },
             locale=locale,
-        ) as (actual, _):
+        ) as actual:
             assert expected == actual
 
-    async def test_include_unspecified(self) -> None:
+    async def test_include_unspecified(self, template_tester: TemplateTester) -> None:
         template = '{{ data | select_localizeds(include_unspecified=true) | map(attribute="name") | join(", ") }}'
         data = [
             PlaceName(
@@ -496,17 +528,17 @@ class TestFilterSelectLocalizeds(TemplateTestCase):
             ),
         ]
 
-        async with self._render(
+        async with template_tester.render(
             template_string=template,
             data={
                 "data": data,
             },
             locale="en-US",
-        ) as (actual, _):
+        ) as actual:
             assert "Apple == Apple, Apple, Apple, Apple", actual
 
 
-class TestFilterSelectDateds(TemplateTestCase):
+class TestFilterSelectDateds:
     class DatedDummy(Dated):
         def __init__(self, value: str, date: Datey | None = None):
             super().__init__(date=date)
@@ -586,13 +618,17 @@ class TestFilterSelectDateds(TemplateTestCase):
             ),
         ],
     )
-    async def test(self, expected: str, data: dict[str, Any]) -> None:
+    async def test(
+        self, expected: str, data: dict[str, Any], template_tester: TemplateTester
+    ) -> None:
         template = '{{ dateds | select_dateds(date=date) | join(", ") }}'
-        async with self._render(template_string=template, data=data) as (actual, _):
+        async with template_tester.render(
+            template_string=template, data=data
+        ) as actual:
             assert expected == actual
 
 
-class TestTestSubjectRole(TemplateTestCase):
+class TestTestSubjectRole:
     @pytest.mark.parametrize(
         "expected, data",
         [
@@ -602,18 +638,20 @@ class TestTestSubjectRole(TemplateTestCase):
             ("false", 9),
         ],
     )
-    async def test(self, expected: str, data: dict[str, Any]) -> None:
+    async def test(
+        self, expected: str, data: dict[str, Any], template_tester: TemplateTester
+    ) -> None:
         template = "{% if data is subject_role %}true{% else %}false{% endif %}"
-        async with self._render(
+        async with template_tester.render(
             template_string=template,
             data={
                 "data": data,
             },
-        ) as (actual, _):
+        ) as actual:
             assert expected == actual
 
 
-class TestTestWitnessRole(TemplateTestCase):
+class TestTestWitnessRole:
     @pytest.mark.parametrize(
         "expected, data",
         [
@@ -623,18 +661,20 @@ class TestTestWitnessRole(TemplateTestCase):
             ("false", 9),
         ],
     )
-    async def test(self, expected: str, data: dict[str, Any]) -> None:
+    async def test(
+        self, expected: str, data: dict[str, Any], template_tester: TemplateTester
+    ) -> None:
         template = "{% if data is witness_role %}true{% else %}false{% endif %}"
-        async with self._render(
+        async with template_tester.render(
             template_string=template,
             data={
                 "data": data,
             },
-        ) as (actual, _):
+        ) as actual:
             assert expected == actual
 
 
-class TestTestEntity(TemplateTestCase):
+class TestTestEntity:
     @pytest.mark.parametrize(
         "expected, entity_type, data",
         [
@@ -661,13 +701,17 @@ class TestTestEntity(TemplateTestCase):
         ],
     )
     async def test(
-        self, expected: str, entity_type: type[Entity], data: dict[str, Any]
+        self,
+        expected: str,
+        entity_type: type[Entity],
+        data: dict[str, Any],
+        template_tester: TemplateTester,
     ) -> None:
         template = f'{{% if data is entity("{get_entity_type_name(entity_type)}") %}}true{{% else %}}false{{% endif %}}'
-        async with self._render(
+        async with template_tester.render(
             template_string=template,
             data={
                 "data": data,
             },
-        ) as (actual, _):
+        ) as actual:
             assert expected == actual

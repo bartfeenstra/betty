@@ -346,7 +346,7 @@ class TestIndex:
 
         new_temporary_app.project.configuration.extensions.enable(CottonCandy)
         new_temporary_app.project.configuration.locales["en-US"].alias = "en"
-        app.project.ancestry.add(file)
+        new_temporary_app.project.ancestry.add(file)
         indexed = [
             item
             async for item in Index(

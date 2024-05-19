@@ -16,7 +16,7 @@ from betty.extension.nginx.artifact import (
     generate_configuration_file,
 )
 from betty.extension.nginx.docker import Container
-from betty.project import Project
+from betty.project import Project, ProjectConfiguration
 from betty.serve import NoPublicUrlBecauseServerNotStartedError, Server
 
 
@@ -37,7 +37,7 @@ class DockerizedNginxServer(Server):
             TemporaryDirectory()
         )
 
-        isolated_project = Project(ancestry=self._app.project.ancestry)
+        isolated_project = Project(ancestry=self._app.project.ancestry, configuration=ProjectConfiguration())
         isolated_project.configuration.autowrite = False
         isolated_project.configuration.configuration_file_path = (
             self._app.project.configuration.configuration_file_path

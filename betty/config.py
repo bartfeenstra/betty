@@ -12,7 +12,6 @@ from collections.abc import Callable
 from contextlib import suppress, chdir
 from pathlib import Path
 from reprlib import recursive_repr
-from tempfile import TemporaryDirectory
 from typing import (
     Generic,
     Iterable,
@@ -25,7 +24,6 @@ from typing import (
     Any,
     Sequence,
     overload,
-    cast,
     Self,
     TypeAlias,
 )
@@ -111,14 +109,8 @@ ConfigurationT = TypeVar("ConfigurationT", bound=Configuration)
 
 
 class FileBasedConfiguration(Configuration):
-    def __init__(self, configuration_file_path: Path | None = None):
-        if configuration_file_path is None:
-            deprecate(
-                f"Initializing {type(self)} without a configuration file path is deprecated as of Betty 0.3.6, and will be removed in Betty 0.4.x.",
-                stacklevel=2,
-            )
+    def __init__(self):
         super().__init__()
-        self._configuration_directory: TemporaryDirectory | None = None  # type: ignore[type-arg]
         self._configuration_file_path: Path | None = None
         self._autowrite = False
 
@@ -141,8 +133,13 @@ class FileBasedConfiguration(Configuration):
     async def write(self, configuration_file_path: Path | None = None) -> None:
         if configuration_file_path is not None:
             self.configuration_file_path = configuration_file_path
+        else:
+            configuration_file_path = self.configuration_file_path
 
-        await self._write(self.configuration_file_path)
+        if configuration_file_path is None:
+            return
+
+        await self._write(configuration_file_path)
 
     async def _write(self, configuration_file_path: Path) -> None:
         # Change the working directory to allow absolute paths to be turned relative to the configuration file's directory
@@ -165,49 +162,38 @@ class FileBasedConfiguration(Configuration):
     async def read(self, configuration_file_path: Path | None = None) -> None:
         if configuration_file_path is not None:
             self.configuration_file_path = configuration_file_path
+        else:
+            configuration_file_path = self.configuration_file_path
+
+        if configuration_file_path is None:
+            return
 
         formats = FormatRepository()
         with SerdeErrorCollection().assert_valid() as errors:
             # Change the working directory to allow relative paths to be resolved against the configuration file's directory
             # path.
-            with chdir(self.configuration_file_path.parent):
-                async with aiofiles.open(self.configuration_file_path) as f:
+            with chdir(configuration_file_path.parent):
+                async with aiofiles.open(configuration_file_path) as f:
                     read_configuration = await f.read()
                 with errors.catch(
                     Str.plain(
                         "in {configuration_file_path}",
                         configuration_file_path=str(
-                            self.configuration_file_path.resolve()
+                            configuration_file_path.resolve()
                         ),
                     )
                 ):
                     loaded_configuration = self.load(
                         formats.format_for(
-                            self.configuration_file_path.suffix[1:]
+                            configuration_file_path.suffix[1:]
                         ).load(read_configuration),
                         self,
                     )
         self.update(loaded_configuration)
 
-    def __del__(self) -> None:
-        if (
-            hasattr(self, "_configuration_directory")
-            and self._configuration_directory is not None
-        ):
-            self._configuration_directory.cleanup()
-
     @property
-    def configuration_file_path(self) -> Path:
-        if self._configuration_file_path is None:
-            if self._configuration_directory is None:
-                self._configuration_directory = TemporaryDirectory()
-            wait_to_thread(
-                self._write(
-                    Path(self._configuration_directory.name)
-                    / f"{type(self).__name__}.json"
-                )
-            )
-        return cast(Path, self._configuration_file_path)
+    def configuration_file_path(self) -> Path | None:
+        return self._configuration_file_path
 
     @configuration_file_path.setter
     def configuration_file_path(self, configuration_file_path: Path) -> None:

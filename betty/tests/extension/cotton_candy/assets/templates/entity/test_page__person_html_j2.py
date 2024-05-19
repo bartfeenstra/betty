@@ -1,17 +1,24 @@
 from pathlib import Path
 
+import pytest
+
+from betty.app import App
 from betty.extension import CottonCandy
 from betty.locale import Date
 from betty.model.ancestry import Person, PersonName, File, Event, Presence, Subject
 from betty.model.event_type import Birth
-from betty.tests import TemplateTestCase
+from betty.tests import TemplateTester
 
 
-class TestTemplate(TemplateTestCase):
-    extensions = {CottonCandy}
-    template_file = "entity/page--person.html.j2"
+class TestTemplate:
+    @pytest.fixture
+    def template_tester(self, new_temporary_app: App) -> TemplateTester:
+        new_temporary_app.project.configuration.extensions.enable(CottonCandy)
+        return TemplateTester(
+            new_temporary_app, template_file="entity/page--person.html.j2"
+        )
 
-    async def test_descendant_names(self) -> None:
+    async def test_descendant_names(self, template_tester: TemplateTester) -> None:
         person = Person(id="P0")
         partner_one = Person(id="P1")
         child_one = Person(id="P1C1")
@@ -29,17 +36,19 @@ class TestTemplate(TemplateTestCase):
             person=child_two,
             affiliation="FamilyTwoAssociationName",
         )
-        async with self._render(
+        async with template_tester.render(
             data={
                 "page_resource": person,
                 "entity_type": Person,
                 "entity": person,
             },
-        ) as (actual, _):
+        ) as actual:
             assert "Descendant names include FamilyOneAssociationName." in actual
             assert "Descendant names include FamilyTwoAssociationName." in actual
 
-    async def test_privacy(self, tmp_path: Path) -> None:
+    async def test_privacy(
+        self, tmp_path: Path, template_tester: TemplateTester
+    ) -> None:
         file_path = tmp_path / "file"
         file_path.touch()
 
@@ -195,13 +204,13 @@ class TestTemplate(TemplateTestCase):
         )
         Presence(person, Subject(), public_event_public_presence)
         Presence(person, Subject(), private_event_public_presence)
-        async with self._render(
+        async with template_tester.render(
             data={
                 "page_resource": person,
                 "entity_type": Person,
                 "entity": person,
             },
-        ) as (actual, _):
+        ) as actual:
             assert public_name_individual in actual
             assert public_name_affiliation in actual
             assert public_parent_public_name_individual in actual

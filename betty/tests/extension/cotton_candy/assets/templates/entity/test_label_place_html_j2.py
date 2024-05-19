@@ -4,15 +4,20 @@ from typing import Any
 
 import pytest
 
+from betty.app import App
 from betty.extension import CottonCandy
 from betty.locale import DateRange, Date
 from betty.model.ancestry import Place, PlaceName
-from betty.tests import TemplateTestCase
+from betty.tests import TemplateTester
 
 
-class Test(TemplateTestCase):
-    extensions = {CottonCandy}
-    template_file = "entity/label--place.html.j2"
+class Test:
+    @pytest.fixture
+    def template_tester(self, new_temporary_app: App) -> TemplateTester:
+        new_temporary_app.project.configuration.extensions.enable(CottonCandy)
+        return TemplateTester(
+            new_temporary_app, template_file="entity/label--place.html.j2"
+        )
 
     @pytest.mark.parametrize(
         "expected, data, locale",
@@ -97,7 +102,11 @@ class Test(TemplateTestCase):
         ],
     )
     async def test(
-        self, expected: str, data: dict[str, Any], locale: str | None
+        self,
+        expected: str,
+        data: dict[str, Any],
+        locale: str | None,
+        template_tester: TemplateTester,
     ) -> None:
-        async with self._render(data=data, locale=locale) as (actual, _):
+        async with template_tester.render(data=data, locale=locale) as actual:
             assert expected == actual

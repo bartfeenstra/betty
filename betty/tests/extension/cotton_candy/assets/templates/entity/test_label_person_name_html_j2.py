@@ -1,13 +1,20 @@
+import pytest
+
+from betty.app import App
 from betty.extension import CottonCandy
 from betty.model.ancestry import PersonName, Citation, Source, Person
-from betty.tests import TemplateTestCase
+from betty.tests import TemplateTester
 
 
-class Test(TemplateTestCase):
-    extensions = {CottonCandy}
-    template_file = "entity/label--person-name.html.j2"
+class Test:
+    @pytest.fixture
+    def template_tester(self, new_temporary_app: App) -> TemplateTester:
+        new_temporary_app.project.configuration.extensions.enable(CottonCandy)
+        return TemplateTester(
+            new_temporary_app, template_file="entity/label--person-name.html.j2"
+        )
 
-    async def test_with_full_name(self) -> None:
+    async def test_with_full_name(self, template_tester: TemplateTester) -> None:
         person = Person()
         person_name = PersonName(
             person=person,
@@ -15,42 +22,42 @@ class Test(TemplateTestCase):
             affiliation="Dough",
         )
         expected = '<span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span> <span property="foaf:familyName">Dough</span></span>'
-        async with self._render(
+        async with template_tester.render(
             data={
                 "person_name": person_name,
             }
-        ) as (actual, _):
+        ) as actual:
             assert expected == actual
 
-    async def test_with_individual_name(self) -> None:
+    async def test_with_individual_name(self, template_tester: TemplateTester) -> None:
         person = Person()
         person_name = PersonName(
             person=person,
             individual="Jane",
         )
         expected = '<span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span></span>'
-        async with self._render(
+        async with template_tester.render(
             data={
                 "person_name": person_name,
             }
-        ) as (actual, _):
+        ) as actual:
             assert expected == actual
 
-    async def test_with_affiliation_name(self) -> None:
+    async def test_with_affiliation_name(self, template_tester: TemplateTester) -> None:
         person = Person()
         person_name = PersonName(
             person=person,
             affiliation="Dough",
         )
         expected = '<span class="person-label" typeof="foaf:Person">… <span property="foaf:familyName">Dough</span></span>'
-        async with self._render(
+        async with template_tester.render(
             data={
                 "person_name": person_name,
             }
-        ) as (actual, _):
+        ) as actual:
             assert expected == actual
 
-    async def test_embedded(self) -> None:
+    async def test_embedded(self, template_tester: TemplateTester) -> None:
         person = Person()
         person_name = PersonName(
             person=person,
@@ -61,15 +68,15 @@ class Test(TemplateTestCase):
         citation = Citation(source=source)
         person_name.citations.add(citation)
         expected = '<span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span> <span property="foaf:familyName">Dough</span></span>'
-        async with self._render(
+        async with template_tester.render(
             data={
                 "person_name": person_name,
                 "embedded": True,
             }
-        ) as (actual, _):
+        ) as actual:
             assert expected == actual
 
-    async def test_with_citation(self) -> None:
+    async def test_with_citation(self, template_tester: TemplateTester) -> None:
         person = Person()
         person_name = PersonName(
             person=person,
@@ -79,9 +86,9 @@ class Test(TemplateTestCase):
         citation = Citation(source=source)
         person_name.citations.add(citation)
         expected = '<span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span></span><a href="#reference-1" class="citation">[1]</a>'
-        async with self._render(
+        async with template_tester.render(
             data={
                 "person_name": person_name,
             }
-        ) as (actual, _):
+        ) as actual:
             assert expected == actual

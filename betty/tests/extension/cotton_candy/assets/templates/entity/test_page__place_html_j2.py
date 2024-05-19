@@ -1,15 +1,22 @@
+import pytest
+
+from betty.app import App
 from betty.extension import CottonCandy
 from betty.locale import Date
 from betty.model.ancestry import Place, PlaceName, Event, Enclosure
 from betty.model.event_type import Birth
-from betty.tests import TemplateTestCase
+from betty.tests import TemplateTester
 
 
-class TestTemplate(TemplateTestCase):
-    extensions = {CottonCandy}
-    template_file = "entity/page--place.html.j2"
+class TestTemplate:
+    @pytest.fixture
+    def template_tester(self, new_temporary_app: App) -> TemplateTester:
+        new_temporary_app.project.configuration.extensions.enable(CottonCandy)
+        return TemplateTester(
+            new_temporary_app, template_file="entity/page--place.html.j2"
+        )
 
-    async def test_privacy(self) -> None:
+    async def test_privacy(self, template_tester: TemplateTester) -> None:
         place_name = PlaceName(name="place name")
         place = Place(names=[place_name])
 
@@ -51,13 +58,13 @@ class TestTemplate(TemplateTestCase):
             description="private enclosed event",
         )
 
-        async with self._render(
+        async with template_tester.render(
             data={
                 "page_resource": place,
                 "entity_type": Place,
                 "entity": place,
             },
-        ) as (actual, _):
+        ) as actual:
             assert place_name.name in actual
             assert public_place_event.description is not None
             assert public_place_event.description in actual

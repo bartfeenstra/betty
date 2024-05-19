@@ -24,7 +24,7 @@ from betty.cli import main, CommandProvider, global_command, catch_exceptions
 from betty.error import UserFacingError
 from betty.gui.app import BettyPrimaryWindow
 from betty.locale import Str, DEFAULT_LOCALIZER
-from betty.project import ExtensionConfiguration
+from betty.project import ExtensionConfiguration, Project, ProjectConfiguration
 from betty.serde.dump import Dump
 from betty.serve import Server, AppServer
 from betty.tests.conftest import BettyQtBot
@@ -67,8 +67,15 @@ Stderr:
 
 
 @pytest.fixture
-async def new_temporary_app(mocker: MockerFixture) -> AsyncIterator[App]:
-    async with App.new_temporary() as app:
+async def new_temporary_app(
+    mocker: MockerFixture, tmp_path: Path
+) -> AsyncIterator[App]:
+    # @todo can we get rid of tmp_path entirely here?
+    async with App.new_temporary(
+        project=Project(
+            configuration=ProjectConfiguration()
+        )
+    ) as app:
         m_new_from_environment = mocker.AsyncMock()
         m_new_from_environment.__aenter__.return_value = app
         mocker.patch(

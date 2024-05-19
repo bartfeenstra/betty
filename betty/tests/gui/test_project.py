@@ -70,8 +70,10 @@ class TestProjectWindow:
         title = "My First Ancestry Site"
         betty_qtbot.app.project.configuration.title = title
 
+        configuration_file_path = betty_qtbot.app.project.configuration.configuration_file_path
+        assert configuration_file_path
         async with aiofiles.open(
-            betty_qtbot.app.project.configuration.configuration_file_path
+            configuration_file_path
         ) as f:
             read_configuration_dump = json.loads(await f.read())
         assert read_configuration_dump == betty_qtbot.app.project.configuration.dump()

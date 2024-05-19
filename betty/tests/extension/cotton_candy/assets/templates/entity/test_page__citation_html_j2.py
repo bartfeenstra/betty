@@ -1,16 +1,25 @@
 from pathlib import Path
 
+import pytest
+
+from betty.app import App
 from betty.extension import CottonCandy
 from betty.locale import Str, DEFAULT_LOCALIZER
 from betty.model.ancestry import Citation, Source, File, Person, PersonName
-from betty.tests import TemplateTestCase
+from betty.tests import TemplateTester
 
 
-class TestTemplate(TemplateTestCase):
-    extensions = {CottonCandy}
-    template_file = "entity/page--citation.html.j2"
+class TestTemplate:
+    @pytest.fixture
+    def template_tester(self, new_temporary_app: App) -> TemplateTester:
+        new_temporary_app.project.configuration.extensions.enable(CottonCandy)
+        return TemplateTester(
+            new_temporary_app, template_file="entity/page--citation.html.j2"
+        )
 
-    async def test_privacy(self, tmp_path: Path) -> None:
+    async def test_privacy(
+        self, template_tester: TemplateTester, tmp_path: Path
+    ) -> None:
         file_path = tmp_path / "file"
         file_path.touch()
 
@@ -54,13 +63,13 @@ class TestTemplate(TemplateTestCase):
         )
         citation.facts.add(private_fact)
 
-        async with self._render(
+        async with template_tester.render(
             data={
                 "page_resource": citation,
                 "entity_type": Citation,
                 "entity": citation,
             },
-        ) as (actual, _):
+        ) as actual:
             assert citation.location is not None
             assert citation.location.localize(DEFAULT_LOCALIZER) in actual
             assert public_file.description is not None

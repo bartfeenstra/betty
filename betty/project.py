@@ -656,10 +656,8 @@ class ProjectConfiguration(FileBasedConfiguration):
         locales: Iterable[LocaleConfiguration] | None = None,
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
         name: str | None = None,
-        *,
-        configuration_file_path: Path | None = None,
     ):
-        super().__init__(configuration_file_path)
+        super().__init__()
         self._name = name
         self._computed_name: str | None = None
         self._base_url = "https://example.com" if base_url is None else base_url
@@ -706,8 +704,8 @@ class ProjectConfiguration(FileBasedConfiguration):
         self._dispatch_change()
 
     @property
-    def project_directory_path(self) -> Path:
-        return self.configuration_file_path.parent
+    def project_directory_path(self) -> Path | None:
+        return self.configuration_file_path.parent if self.configuration_file_path else None
 
     @property
     def output_directory_path(self) -> Path:

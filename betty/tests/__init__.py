@@ -9,6 +9,7 @@ from typing import Callable, TypeVar, Any, AsyncIterator, Awaitable, ParamSpec
 
 import aiofiles
 import html5lib
+import pytest
 from aiofiles.tempfile import TemporaryDirectory
 from html5lib.html5parser import ParseError
 from jinja2.environment import Template
@@ -47,21 +48,29 @@ def patch_cache(f: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
     return _patch_cache
 
 
-class TemplateAsserter:
-    template_string: str | None = None
-    template_file: str | None = None
-    extensions = set[type[Extension]]()
+class TemplateTester:
+    def __init__(
+        self,
+        app: App,
+        template_string: str | None = None,
+        template_file: str | None = None,
+        extensions: set[type[Extension]] | None = None,
+    ):
+        self.app = app
+        self._template_string = template_string
+        self._template_file = template_file
+        self._extensions = extensions
 
     @asynccontextmanager
-    async def _render(
+    async def render(
         self,
         *,
         data: dict[str, Any] | None = None,
         template_file: str | None = None,
         template_string: str | None = None,
         locale: Localey | None = None,
-    ) -> AsyncIterator[tuple[str, App]]:
-        if self.template_string is not None and self.template_file is not None:
+    ) -> AsyncIterator[str]:
+        if self._template_string is not None and self._template_file is not None:
             class_name = self.__class__.__name__
             raise RuntimeError(
                 f"{class_name} must define either `{class_name}.template_string` or `{class_name}.template_file`, but not both."
@@ -78,28 +87,31 @@ class TemplateAsserter:
         elif template_file is not None:
             template = template_file
             template_factory = Environment.get_template
-        elif self.template_string is not None:
-            template = self.template_string
+        elif self._template_string is not None:
+            template = self._template_string
             template_factory = Environment.from_string
-        elif self.template_file is not None:
-            template = self.template_file
+        elif self._template_file is not None:
+            template = self._template_file
             template_factory = Environment.get_template
         else:
             class_name = self.__class__.__name__
             raise RuntimeError(
                 f"You must define one of `template_string`, `template_file`, `{class_name}.template_string`, or `{class_name}.template_file`."
             )
-        async with App.new_temporary() as app, app:
-            app.project.configuration.debug = True
-            if data is None:
-                data = {}
-            if locale is not None:
-                data["localizer"] = await app.localizers.get(locale)
-            app.project.configuration.extensions.enable(*self.extensions)
-            rendered = await template_factory(
-                app.jinja2_environment, template
-            ).render_async(**data)
-            yield rendered, app
+        self.app.project.configuration.debug = True
+        if data is None:
+            data = {}
+        if locale is not None:
+            data["localizer"] = await self.app.localizers.get(locale)
+        rendered = await template_factory(
+            self.app.jinja2_environment, template
+        ).render_async(**data)
+        yield rendered
+
+
+@pytest.fixture
+def template_tester(new_temporary_app: App) -> TemplateTester:
+    return TemplateTester(new_temporary_app)
 
 
 async def assert_betty_html(
