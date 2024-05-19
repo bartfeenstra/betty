@@ -34,7 +34,8 @@ class TestDockerizedNginxServer:
         )
         await makedirs(new_temporary_app.project.configuration.www_directory_path)
         async with aiofiles.open(
-            new_temporary_app.project.configuration.www_directory_path / "index.html", "w"
+            new_temporary_app.project.configuration.www_directory_path / "index.html",
+            "w",
         ) as f:
             await f.write(content)
         async with DockerizedNginxServer(new_temporary_app) as server:
@@ -52,7 +53,9 @@ class TestDockerizedNginxServer:
         with pytest.raises(NoPublicUrlBecauseServerNotStartedError):
             sut.public_url
 
-    async def test_is_available_is_available(self, mocker: MockerFixture, new_temporary_app: App) -> None:
+    async def test_is_available_is_available(
+        self, mocker: MockerFixture, new_temporary_app: App
+    ) -> None:
         new_temporary_app.project.configuration.extensions.enable(Nginx)
         sut = DockerizedNginxServer(new_temporary_app)
 
@@ -61,7 +64,9 @@ class TestDockerizedNginxServer:
 
         assert sut.is_available()
 
-    async def test_is_available_is_unavailable(self, mocker: MockerFixture, new_temporary_app: App) -> None:
+    async def test_is_available_is_unavailable(
+        self, mocker: MockerFixture, new_temporary_app: App
+    ) -> None:
         new_temporary_app.project.configuration.extensions.enable(Nginx)
         sut = DockerizedNginxServer(new_temporary_app)
 

@@ -109,9 +109,9 @@ ConfigurationT = TypeVar("ConfigurationT", bound=Configuration)
 
 
 class FileBasedConfiguration(Configuration):
-    def __init__(self):
+    def __init__(self, configuration_file_path: Path):
         super().__init__()
-        self._configuration_file_path: Path | None = None
+        self._configuration_file_path = configuration_file_path
         self._autowrite = False
 
     @property
@@ -133,13 +133,8 @@ class FileBasedConfiguration(Configuration):
     async def write(self, configuration_file_path: Path | None = None) -> None:
         if configuration_file_path is not None:
             self.configuration_file_path = configuration_file_path
-        else:
-            configuration_file_path = self.configuration_file_path
 
-        if configuration_file_path is None:
-            return
-
-        await self._write(configuration_file_path)
+        await self._write(self.configuration_file_path)
 
     async def _write(self, configuration_file_path: Path) -> None:
         # Change the working directory to allow absolute paths to be turned relative to the configuration file's directory
@@ -162,37 +157,32 @@ class FileBasedConfiguration(Configuration):
     async def read(self, configuration_file_path: Path | None = None) -> None:
         if configuration_file_path is not None:
             self.configuration_file_path = configuration_file_path
-        else:
-            configuration_file_path = self.configuration_file_path
-
-        if configuration_file_path is None:
-            return
 
         formats = FormatRepository()
         with SerdeErrorCollection().assert_valid() as errors:
             # Change the working directory to allow relative paths to be resolved against the configuration file's directory
             # path.
-            with chdir(configuration_file_path.parent):
-                async with aiofiles.open(configuration_file_path) as f:
+            with chdir(self.configuration_file_path.parent):
+                async with aiofiles.open(self.configuration_file_path) as f:
                     read_configuration = await f.read()
                 with errors.catch(
                     Str.plain(
                         "in {configuration_file_path}",
                         configuration_file_path=str(
-                            configuration_file_path.resolve()
+                            self.configuration_file_path.resolve()
                         ),
                     )
                 ):
                     loaded_configuration = self.load(
                         formats.format_for(
-                            configuration_file_path.suffix[1:]
+                            self.configuration_file_path.suffix[1:]
                         ).load(read_configuration),
                         self,
                     )
         self.update(loaded_configuration)
 
     @property
-    def configuration_file_path(self) -> Path | None:
+    def configuration_file_path(self) -> Path:
         return self._configuration_file_path
 
     @configuration_file_path.setter
@@ -202,14 +192,6 @@ class FileBasedConfiguration(Configuration):
         formats = FormatRepository()
         formats.format_for(configuration_file_path.suffix[1:])
         self._configuration_file_path = configuration_file_path
-
-    @configuration_file_path.deleter
-    def configuration_file_path(self) -> None:
-        if self._autowrite:
-            raise RuntimeError(
-                "Cannot remove the configuration file path while autowrite is enabled."
-            )
-        self._configuration_file_path = None
 
 
 ConfigurationKey: TypeAlias = SupportsIndex | Hashable | type[Any]

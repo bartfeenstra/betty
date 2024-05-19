@@ -57,30 +57,38 @@ class GrampsTester:
         )
 
 
-# @todo Do we still need this?
 @pytest.fixture
-def gramps_tester() -> GrampsTester:
-    return GrampsTester(Project())
+def gramps_project(tmp_path: Path) -> Project:
+    return Project(
+        configuration=ProjectConfiguration(
+            configuration_file_path=tmp_path / "betty.json"
+        )
+    )
+
+
+@pytest.fixture
+def gramps_tester(gramps_project: Project) -> GrampsTester:
+    return GrampsTester(gramps_project)
 
 
 class TestGrampsLoader:
-    async def test_load_gramps(self) -> None:
-        sut = GrampsLoader(Project(), localizer=DEFAULT_LOCALIZER)
+    async def test_load_gramps(self, gramps_project: Project) -> None:
+        sut = GrampsLoader(gramps_project, localizer=DEFAULT_LOCALIZER)
         await sut.load_gramps(Path(__file__).parent / "assets" / "minimal.gramps")
 
-    async def test_load_gpkg(self) -> None:
-        sut = GrampsLoader(Project(), localizer=DEFAULT_LOCALIZER)
+    async def test_load_gpkg(self, gramps_project: Project) -> None:
+        sut = GrampsLoader(gramps_project, localizer=DEFAULT_LOCALIZER)
         await sut.load_gpkg(Path(__file__).parent / "assets" / "minimal.gpkg")
 
-    async def test_load_xml_with_string(self) -> None:
+    async def test_load_xml_with_string(self, gramps_project: Project) -> None:
         gramps_file_path = Path(__file__).parent / "assets" / "minimal.xml"
-        sut = GrampsLoader(Project(), localizer=DEFAULT_LOCALIZER)
+        sut = GrampsLoader(gramps_project, localizer=DEFAULT_LOCALIZER)
         async with aiofiles.open(gramps_file_path) as f:
             await sut.load_xml(await f.read(), rootname(gramps_file_path))
 
-    async def test_load_xml_with_file_path(self) -> None:
+    async def test_load_xml_with_file_path(self, gramps_project: Project) -> None:
         gramps_file_path = Path(__file__).parent / "assets" / "minimal.xml"
-        sut = GrampsLoader(Project(), localizer=DEFAULT_LOCALIZER)
+        sut = GrampsLoader(gramps_project, localizer=DEFAULT_LOCALIZER)
         await sut.load_xml(gramps_file_path, rootname(gramps_file_path))
 
     async def test_place_should_include_name(self, gramps_tester: GrampsTester) -> None:

@@ -83,13 +83,11 @@ class TestWelcomeWindow:
         betty_qtbot.assert_exception_error(contained_error_type=SerdeError)
 
     async def test_open_project_with_valid_file_should_show_project_window(
-        self,
-        mocker: MockerFixture,
-        betty_qtbot: BettyQtBot,
+        self, mocker: MockerFixture, betty_qtbot: BettyQtBot, tmp_path: Path
     ) -> None:
         title = "My First Ancestry Site"
         configuration = ProjectConfiguration(
-            title=title
+            title=title, configuration_file_path=tmp_path / "betty.json"
         )
         await configuration.write()
         await betty_qtbot.app.project.configuration.write()
@@ -138,10 +136,8 @@ class TestApplicationConfiguration:
         locale = "nl-NL"
         betty_qtbot.app.configuration.locale = locale
 
-        configuration_file_path = betty_qtbot.app.configuration.configuration_file_path
-        assert configuration_file_path is not None
         async with aiofiles.open(
-            configuration_file_path
+            betty_qtbot.app.configuration.configuration_file_path
         ) as f:
             read_configuration_dump = json.loads(await f.read())
         assert read_configuration_dump == betty_qtbot.app.configuration.dump()

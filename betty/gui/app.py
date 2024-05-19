@@ -229,8 +229,10 @@ class BettyPrimaryWindow(BettyMainWindow):
             )
             if not configuration_file_path_str:
                 return
-            configuration = ProjectConfiguration()
-            wait_to_thread(configuration.write(Path(configuration_file_path_str)))
+            configuration = ProjectConfiguration(
+                configuration_file_path=Path(configuration_file_path_str)
+            )
+            wait_to_thread(configuration.write())
             project_window = ProjectWindow(self._app)
             project_window.show()
             self.close()

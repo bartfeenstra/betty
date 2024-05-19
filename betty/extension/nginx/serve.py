@@ -37,7 +37,9 @@ class DockerizedNginxServer(Server):
             TemporaryDirectory()
         )
 
-        isolated_project = Project(ancestry=self._app.project.ancestry, configuration=ProjectConfiguration())
+        isolated_project = Project(
+            ancestry=self._app.project.ancestry, configuration=ProjectConfiguration()
+        )
         isolated_project.configuration.autowrite = False
         isolated_project.configuration.configuration_file_path = (
             self._app.project.configuration.configuration_file_path

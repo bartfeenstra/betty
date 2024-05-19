@@ -70,10 +70,11 @@ Stderr:
 async def new_temporary_app(
     mocker: MockerFixture, tmp_path: Path
 ) -> AsyncIterator[App]:
-    # @todo can we get rid of tmp_path entirely here?
     async with App.new_temporary(
         project=Project(
-            configuration=ProjectConfiguration()
+            configuration=ProjectConfiguration(
+                configuration_file_path=tmp_path / "betty.json"
+            )
         )
     ) as app:
         m_new_from_environment = mocker.AsyncMock()

@@ -656,8 +656,10 @@ class ProjectConfiguration(FileBasedConfiguration):
         locales: Iterable[LocaleConfiguration] | None = None,
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
         name: str | None = None,
+        *,
+        configuration_file_path: Path,
     ):
-        super().__init__()
+        super().__init__(configuration_file_path)
         self._name = name
         self._computed_name: str | None = None
         self._base_url = "https://example.com" if base_url is None else base_url
@@ -704,8 +706,8 @@ class ProjectConfiguration(FileBasedConfiguration):
         self._dispatch_change()
 
     @property
-    def project_directory_path(self) -> Path | None:
-        return self.configuration_file_path.parent if self.configuration_file_path else None
+    def project_directory_path(self) -> Path:
+        return self.configuration_file_path.parent
 
     @property
     def output_directory_path(self) -> Path:
@@ -829,7 +831,9 @@ class ProjectConfiguration(FileBasedConfiguration):
         configuration: Self | None = None,
     ) -> Self:
         if configuration is None:
-            configuration = cls()
+            raise RuntimeError(
+                f"Calling {cls}.load() without a configuration value is deprecated as of Betty 0.3.6, and will be removed in Betty 0.4.x."
+            )
         asserter = Asserter()
         asserter.assert_record(
             Fields(
@@ -920,9 +924,9 @@ class Project(Configurable[ProjectConfiguration]):
     def __init__(
         self,
         *,
+        configuration: ProjectConfiguration,
         project_id: str | None = None,
         ancestry: Ancestry | None = None,
-        configuration: ProjectConfiguration | None = None,
     ):
         super().__init__()
         if project_id is not None:
@@ -931,7 +935,7 @@ class Project(Configurable[ProjectConfiguration]):
                 stacklevel=2,
             )
         self._id = project_id
-        self._configuration = configuration or ProjectConfiguration()
+        self._configuration = configuration
         self._ancestry = Ancestry() if ancestry is None else ancestry
 
     @property

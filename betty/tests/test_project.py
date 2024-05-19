@@ -840,7 +840,9 @@ class TestProjectConfiguration:
         with raises_error(error_type=AssertionFailed):
             ProjectConfiguration.load(dump, sut)
 
-    async def test_load_should_error_if_invalid_config(self, sut: ProjectConfiguration) -> None:
+    async def test_load_should_error_if_invalid_config(
+        self, sut: ProjectConfiguration
+    ) -> None:
         dump: Dump = {}
         with raises_error(error_type=AssertionFailed):
             ProjectConfiguration.load(dump, sut)
