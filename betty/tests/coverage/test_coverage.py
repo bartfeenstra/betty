@@ -362,7 +362,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/gui/error.py": TestKnownToBeMissing,
     "betty/gui/locale.py": TestKnownToBeMissing,
     "betty/gui/logging.py": TestKnownToBeMissing,
-    "betty/gui/model.py": TestKnownToBeMissing,
     "betty/gui/project.py": {
         "AddLocaleWindow": {
             "window_title": TestKnownToBeMissing,
