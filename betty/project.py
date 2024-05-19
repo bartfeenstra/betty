@@ -656,8 +656,10 @@ class ProjectConfiguration(FileBasedConfiguration):
         locales: Iterable[LocaleConfiguration] | None = None,
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
         name: str | None = None,
+        *,
+        configuration_file_path: Path | None = None,
     ):
-        super().__init__()
+        super().__init__(configuration_file_path)
         self._name = name
         self._computed_name: str | None = None
         self._base_url = "https://example.com" if base_url is None else base_url
@@ -922,6 +924,7 @@ class Project(Configurable[ProjectConfiguration]):
         *,
         project_id: str | None = None,
         ancestry: Ancestry | None = None,
+        configuration: ProjectConfiguration | None = None,
     ):
         super().__init__()
         if project_id is not None:
@@ -930,7 +933,7 @@ class Project(Configurable[ProjectConfiguration]):
                 stacklevel=2,
             )
         self._id = project_id
-        self._configuration = ProjectConfiguration()
+        self._configuration = configuration or ProjectConfiguration()
         self._ancestry = Ancestry() if ancestry is None else ancestry
 
     @property

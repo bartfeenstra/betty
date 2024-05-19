@@ -14,30 +14,25 @@ from betty.project import ExtensionConfiguration
 
 
 class TestDemo:
-    async def test_load(self, mocker: MockerFixture) -> None:
+    async def test_load(self, mocker: MockerFixture, new_temporary_app: App) -> None:
         mocker.patch("betty.wikipedia._Populator.populate")
-        async with App.new_temporary() as app, app:
-            app.project.configuration.extensions.append(ExtensionConfiguration(Demo))
-            await load(app)
-            assert 0 != len(app.project.ancestry[Person])
-            assert 0 != len(app.project.ancestry[Place])
-            assert 0 != len(app.project.ancestry[Event])
-            assert 0 != len(app.project.ancestry[Source])
-            assert 0 != len(app.project.ancestry[Citation])
+        new_temporary_app.project.configuration.extensions.enable(Demo)
+        await load(new_temporary_app)
+        assert 0 != len(new_temporary_app.project.ancestry[Person])
+        assert 0 != len(new_temporary_app.project.ancestry[Place])
+        assert 0 != len(new_temporary_app.project.ancestry[Event])
+        assert 0 != len(new_temporary_app.project.ancestry[Source])
+        assert 0 != len(new_temporary_app.project.ancestry[Citation])
 
 
 class TestDemoServer:
-    async def test(
-        self,
-        mocker: MockerFixture,
-    ) -> None:
+    async def test(self, mocker: MockerFixture, new_temporary_app: App) -> None:
         mocker.patch("betty.wikipedia._Populator.populate")
         mocker.patch("webbrowser.open_new_tab")
-        async with App.new_temporary() as app, app:
-            async with DemoServer(app=app) as server:
+        async with DemoServer(app=new_temporary_app) as server:
 
-                def _assert_response(response: Response) -> None:
-                    assert response.status_code == 200
-                    assert "Betty" in response.content.decode("utf-8")
+            def _assert_response(response: Response) -> None:
+                assert response.status_code == 200
+                assert "Betty" in response.content.decode("utf-8")
 
-                await Do(requests.get, server.public_url).until(_assert_response)
+            await Do(requests.get, server.public_url).until(_assert_response)

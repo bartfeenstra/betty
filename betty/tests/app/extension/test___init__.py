@@ -35,24 +35,23 @@ class TestExtensionDispatcher:
         async def multiply(self, term: int) -> Any:
             return self._multiplier * term
 
-    async def test(self) -> None:
-        async with App.new_temporary() as app, app:
-            extensions = ListExtensions(
+    async def test(self, new_temporary_app: App) -> None:
+        extensions = ListExtensions(
+            [
                 [
-                    [
-                        self._MultiplyingExtension(app, 1),
-                        self._MultiplyingExtension(app, 3),
-                    ],
-                    [
-                        self._MultiplyingExtension(app, 2),
-                        self._MultiplyingExtension(app, 4),
-                    ],
-                ]
-            )
-            sut = ExtensionDispatcher(extensions)
-            actual_returned_somethings = await sut.dispatch(self._Multiplier)(3)
-            expected_returned_somethings = [3, 9, 6, 12]
-            assert expected_returned_somethings == actual_returned_somethings
+                    self._MultiplyingExtension(new_temporary_app, 1),
+                    self._MultiplyingExtension(new_temporary_app, 3),
+                ],
+                [
+                    self._MultiplyingExtension(new_temporary_app, 2),
+                    self._MultiplyingExtension(new_temporary_app, 4),
+                ],
+            ]
+        )
+        sut = ExtensionDispatcher(extensions)
+        actual_returned_somethings = await sut.dispatch(self._Multiplier)(3)
+        expected_returned_somethings = [3, 9, 6, 12]
+        assert expected_returned_somethings == actual_returned_somethings
 
 
 class TestBuildExtensionTypeGraph:

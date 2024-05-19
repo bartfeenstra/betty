@@ -115,145 +115,143 @@ class ConfigurableExtension(
 
 
 class TestApp:
-    async def test_extensions_with_one_extension(self) -> None:
-        async with App.new_temporary() as sut, sut:
-            sut.project.configuration.extensions.append(
-                ExtensionConfiguration(NonConfigurableExtension)
-            )
-            assert isinstance(
-                sut.extensions[NonConfigurableExtension], NonConfigurableExtension
-            )
+    async def test_extensions_with_one_extension(self, new_temporary_app: App) -> None:
+        new_temporary_app.project.configuration.extensions.enable(
+            NonConfigurableExtension
+        )
+        assert isinstance(
+            new_temporary_app.extensions[NonConfigurableExtension],
+            NonConfigurableExtension,
+        )
 
-    async def test_extensions_with_one_configurable_extension(self) -> None:
+    async def test_extensions_with_one_configurable_extension(
+        self, new_temporary_app: App
+    ) -> None:
         check = 1337
-        async with App.new_temporary() as sut, sut:
-            sut.project.configuration.extensions.append(
-                ExtensionConfiguration(
-                    ConfigurableExtension,
-                    extension_configuration=ConfigurableExtensionConfiguration(
-                        check=check,
-                    ),
-                )
+        new_temporary_app.project.configuration.extensions.append(
+            ExtensionConfiguration(
+                ConfigurableExtension,
+                extension_configuration=ConfigurableExtensionConfiguration(
+                    check=check,
+                ),
             )
-            assert isinstance(
-                sut.extensions[ConfigurableExtension], ConfigurableExtension
-            )
-            assert check == sut.extensions[ConfigurableExtension].configuration.check
+        )
+        assert isinstance(
+            new_temporary_app.extensions[ConfigurableExtension], ConfigurableExtension
+        )
+        assert (
+            check
+            == new_temporary_app.extensions[ConfigurableExtension].configuration.check
+        )
 
     async def test_extensions_with_one_extension_with_single_chained_dependency(
-        self,
+        self, new_temporary_app: App
     ) -> None:
-        async with App.new_temporary() as sut, sut:
-            sut.project.configuration.extensions.append(
-                ExtensionConfiguration(
-                    DependsOnNonConfigurableExtensionExtensionExtension
-                )
-            )
-            carrier: list[TrackableExtension] = []
-            await sut.dispatcher.dispatch(Tracker)(carrier)
-            assert 3 == len(carrier)
-            assert isinstance(carrier[0], NonConfigurableExtension)
-            assert isinstance(carrier[1], DependsOnNonConfigurableExtensionExtension)
-            assert isinstance(
-                carrier[2], DependsOnNonConfigurableExtensionExtensionExtension
-            )
+        new_temporary_app.project.configuration.extensions.enable(
+            DependsOnNonConfigurableExtensionExtensionExtension
+        )
+        carrier: list[TrackableExtension] = []
+        await new_temporary_app.dispatcher.dispatch(Tracker)(carrier)
+        assert 3 == len(carrier)
+        assert isinstance(carrier[0], NonConfigurableExtension)
+        assert isinstance(carrier[1], DependsOnNonConfigurableExtensionExtension)
+        assert isinstance(
+            carrier[2], DependsOnNonConfigurableExtensionExtensionExtension
+        )
 
     async def test_extensions_with_multiple_extensions_with_duplicate_dependencies(
-        self,
+        self, new_temporary_app: App
     ) -> None:
-        async with App.new_temporary() as sut, sut:
-            sut.project.configuration.extensions.append(
-                ExtensionConfiguration(DependsOnNonConfigurableExtensionExtension)
-            )
-            sut.project.configuration.extensions.append(
-                ExtensionConfiguration(AlsoDependsOnNonConfigurableExtensionExtension)
-            )
-            carrier: list[TrackableExtension] = []
-            await sut.dispatcher.dispatch(Tracker)(carrier)
-            assert 3 == len(carrier)
-            assert isinstance(carrier[0], NonConfigurableExtension)
-            assert DependsOnNonConfigurableExtensionExtension in [
-                type(extension) for extension in carrier
-            ]
-            assert AlsoDependsOnNonConfigurableExtensionExtension in [
-                type(extension) for extension in carrier
-            ]
+        new_temporary_app.project.configuration.extensions.enable(
+            DependsOnNonConfigurableExtensionExtension,
+            AlsoDependsOnNonConfigurableExtensionExtension,
+        )
+        carrier: list[TrackableExtension] = []
+        await new_temporary_app.dispatcher.dispatch(Tracker)(carrier)
+        assert 3 == len(carrier)
+        assert isinstance(carrier[0], NonConfigurableExtension)
+        assert DependsOnNonConfigurableExtensionExtension in [
+            type(extension) for extension in carrier
+        ]
+        assert AlsoDependsOnNonConfigurableExtensionExtension in [
+            type(extension) for extension in carrier
+        ]
 
     async def test_extensions_with_multiple_extensions_with_cyclic_dependencies(
-        self,
+        self, new_temporary_app: App
     ) -> None:
         with pytest.raises(CyclicDependencyError):
-            async with App.new_temporary() as sut, sut:
-                sut.project.configuration.extensions.append(
-                    ExtensionConfiguration(CyclicDependencyOneExtension)
-                )
-                sut.extensions
+            new_temporary_app.project.configuration.extensions.enable(
+                CyclicDependencyOneExtension
+            )
+            new_temporary_app.extensions
 
-    async def test_extensions_with_comes_before_with_other_extension(self) -> None:
-        async with App.new_temporary() as sut, sut:
-            sut.project.configuration.extensions.append(
-                ExtensionConfiguration(NonConfigurableExtension)
-            )
-            sut.project.configuration.extensions.append(
-                ExtensionConfiguration(ComesBeforeNonConfigurableExtensionExtension)
-            )
-            carrier: list[TrackableExtension] = []
-            await sut.dispatcher.dispatch(Tracker)(carrier)
-            assert 2 == len(carrier)
-            assert isinstance(carrier[0], ComesBeforeNonConfigurableExtensionExtension)
-            assert isinstance(carrier[1], NonConfigurableExtension)
+    async def test_extensions_with_comes_before_with_other_extension(
+        self, new_temporary_app: App
+    ) -> None:
+        new_temporary_app.project.configuration.extensions.enable(
+            NonConfigurableExtension, ComesBeforeNonConfigurableExtensionExtension
+        )
+        carrier: list[TrackableExtension] = []
+        await new_temporary_app.dispatcher.dispatch(Tracker)(carrier)
+        assert 2 == len(carrier)
+        assert isinstance(carrier[0], ComesBeforeNonConfigurableExtensionExtension)
+        assert isinstance(carrier[1], NonConfigurableExtension)
 
-    async def test_extensions_with_comes_before_without_other_extension(self) -> None:
-        async with App.new_temporary() as sut, sut:
-            sut.project.configuration.extensions.append(
-                ExtensionConfiguration(ComesBeforeNonConfigurableExtensionExtension)
-            )
-            carrier: list[TrackableExtension] = []
-            await sut.dispatcher.dispatch(Tracker)(carrier)
-            assert 1 == len(carrier)
-            assert isinstance(carrier[0], ComesBeforeNonConfigurableExtensionExtension)
+    async def test_extensions_with_comes_before_without_other_extension(
+        self, new_temporary_app: App
+    ) -> None:
+        new_temporary_app.project.configuration.extensions.enable(
+            ComesBeforeNonConfigurableExtensionExtension
+        )
+        carrier: list[TrackableExtension] = []
+        await new_temporary_app.dispatcher.dispatch(Tracker)(carrier)
+        assert 1 == len(carrier)
+        assert isinstance(carrier[0], ComesBeforeNonConfigurableExtensionExtension)
 
-    async def test_extensions_with_comes_after_with_other_extension(self) -> None:
-        async with App.new_temporary() as sut, sut:
-            sut.project.configuration.extensions.append(
-                ExtensionConfiguration(ComesAfterNonConfigurableExtensionExtension)
-            )
-            sut.project.configuration.extensions.append(
-                ExtensionConfiguration(NonConfigurableExtension)
-            )
-            carrier: list[TrackableExtension] = []
-            await sut.dispatcher.dispatch(Tracker)(carrier)
-            assert 2 == len(carrier)
-            assert isinstance(carrier[0], NonConfigurableExtension)
-            assert isinstance(carrier[1], ComesAfterNonConfigurableExtensionExtension)
+    async def test_extensions_with_comes_after_with_other_extension(
+        self, new_temporary_app: App
+    ) -> None:
+        new_temporary_app.project.configuration.extensions.enable(
+            ComesAfterNonConfigurableExtensionExtension, NonConfigurableExtension
+        )
+        carrier: list[TrackableExtension] = []
+        await new_temporary_app.dispatcher.dispatch(Tracker)(carrier)
+        assert 2 == len(carrier)
+        assert isinstance(carrier[0], NonConfigurableExtension)
+        assert isinstance(carrier[1], ComesAfterNonConfigurableExtensionExtension)
 
-    async def test_extensions_with_comes_after_without_other_extension(self) -> None:
-        async with App.new_temporary() as sut, sut:
-            sut.project.configuration.extensions.append(
-                ExtensionConfiguration(ComesAfterNonConfigurableExtensionExtension)
-            )
-            carrier: list[TrackableExtension] = []
-            await sut.dispatcher.dispatch(Tracker)(carrier)
-            assert 1 == len(carrier)
-            assert isinstance(carrier[0], ComesAfterNonConfigurableExtensionExtension)
+    async def test_extensions_with_comes_after_without_other_extension(
+        self, new_temporary_app: App
+    ) -> None:
+        new_temporary_app.project.configuration.extensions.enable(
+            ComesAfterNonConfigurableExtensionExtension
+        )
+        carrier: list[TrackableExtension] = []
+        await new_temporary_app.dispatcher.dispatch(Tracker)(carrier)
+        assert 1 == len(carrier)
+        assert isinstance(carrier[0], ComesAfterNonConfigurableExtensionExtension)
 
-    async def test_extensions_addition_to_configuration(self) -> None:
-        async with App.new_temporary() as sut, sut:
-            # Get the extensions before making configuration changes to warm the cache.
-            sut.extensions
-            sut.project.configuration.extensions.append(
-                ExtensionConfiguration(NonConfigurableExtension)
-            )
-            assert isinstance(
-                sut.extensions[NonConfigurableExtension], NonConfigurableExtension
-            )
+    async def test_extensions_addition_to_configuration(
+        self, new_temporary_app: App
+    ) -> None:
+        # Get the extensions before making configuration changes to warm the cache.
+        new_temporary_app.extensions
+        new_temporary_app.project.configuration.extensions.enable(
+            NonConfigurableExtension
+        )
+        assert isinstance(
+            new_temporary_app.extensions[NonConfigurableExtension],
+            NonConfigurableExtension,
+        )
 
-    async def test_extensions_removal_from_configuration(self) -> None:
-        async with App.new_temporary() as sut, sut:
-            sut.project.configuration.extensions.append(
-                ExtensionConfiguration(NonConfigurableExtension)
-            )
-            # Get the extensions before making configuration changes to warm the cache.
-            sut.extensions
-            del sut.project.configuration.extensions[NonConfigurableExtension]
-            assert NonConfigurableExtension not in sut.extensions
+    async def test_extensions_removal_from_configuration(
+        self, new_temporary_app: App
+    ) -> None:
+        new_temporary_app.project.configuration.extensions.enable(
+            NonConfigurableExtension
+        )
+        # Get the extensions before making configuration changes to warm the cache.
+        new_temporary_app.extensions
+        del new_temporary_app.project.configuration.extensions[NonConfigurableExtension]
+        assert NonConfigurableExtension not in new_temporary_app.extensions

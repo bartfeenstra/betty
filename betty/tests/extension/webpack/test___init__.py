@@ -40,7 +40,7 @@ class TestWebpack:
     _SENTINEL = "s3nt1n3l"
 
     async def test_generate_with_npm(
-        self, mocker: MockerFixture, tmp_path: Path
+        self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
     ) -> None:
         webpack_build_directory_path = tmp_path
         m_build = mocker.patch("betty.extension.webpack.build.Builder.build")
@@ -51,17 +51,16 @@ class TestWebpack:
         ) as f:
             await f.write(self._SENTINEL)
 
-        async with App.new_temporary() as app:
-            app.project.configuration.extensions.enable(Webpack)
-            await generate(app)
+        new_temporary_app.project.configuration.extensions.enable(Webpack)
+        await generate(new_temporary_app)
 
         async with aiofiles.open(
-            app.project.configuration.www_directory_path / self._SENTINEL
+            new_temporary_app.project.configuration.www_directory_path / self._SENTINEL
         ) as f:
             assert await f.read() == self._SENTINEL
 
     async def test_generate_without_npm_with_prebuild(
-        self, mocker: MockerFixture, tmp_path: Path
+        self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
     ) -> None:
         m_build = mocker.patch("betty.extension.webpack.build.Builder.build")
         m_build.side_effect = NpmUnavailable()
@@ -78,19 +77,18 @@ class TestWebpack:
         original_prebuilt_assets_directory_path = fs.PREBUILT_ASSETS_DIRECTORY_PATH
         fs.PREBUILT_ASSETS_DIRECTORY_PATH = tmp_path
         try:
-            async with App.new_temporary() as app:
-                app.project.configuration.extensions.enable(Webpack)
-                await generate(app)
+            new_temporary_app.project.configuration.extensions.enable(Webpack)
+            await generate(new_temporary_app)
         finally:
             fs.PREBUILT_ASSETS_DIRECTORY_PATH = original_prebuilt_assets_directory_path
 
         async with aiofiles.open(
-            app.project.configuration.www_directory_path / self._SENTINEL
+            new_temporary_app.project.configuration.www_directory_path / self._SENTINEL
         ) as f:
             assert await f.read() == self._SENTINEL
 
     async def test_generate_without_npm_without_prebuild(
-        self, mocker: MockerFixture, tmp_path: Path
+        self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
     ) -> None:
         prebuilt_assets_directory_path = tmp_path
 
@@ -102,17 +100,18 @@ class TestWebpack:
             Path(prebuilt_assets_directory_path) / "does-not-exist"
         )
         try:
-            async with App.new_temporary() as app:
-                app.project.configuration.extensions.enable(Webpack)
-                with pytest.raises(ExceptionGroup) as exc_info:
-                    await generate(app)
-                error = exc_info.value
-                assert isinstance(error, ExceptionGroup)
-                assert error.subgroup(RequirementError) is not None
+            new_temporary_app.project.configuration.extensions.enable(Webpack)
+            with pytest.raises(ExceptionGroup) as exc_info:
+                await generate(new_temporary_app)
+            error = exc_info.value
+            assert isinstance(error, ExceptionGroup)
+            assert error.subgroup(RequirementError) is not None
         finally:
             fs.PREBUILT_ASSETS_DIRECTORY_PATH = original_prebuilt_assets_directory_path
 
-    async def test_prebuild(self, mocker: MockerFixture, tmp_path: Path) -> None:
+    async def test_prebuild(
+        self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
+    ) -> None:
         webpack_build_directory_path = (
             tmp_path / "webpack" / f"build-{webpack_build_id(())}"
         )
@@ -131,10 +130,9 @@ class TestWebpack:
         fs.PREBUILT_ASSETS_DIRECTORY_PATH = prebuilt_assets_directory_path
         try:
             job_context = Context()
-            async with App.new_temporary() as app:
-                app.project.configuration.extensions.enable(Webpack)
-                webpack = app.extensions[Webpack]
-                await webpack.prebuild(job_context)
+            new_temporary_app.project.configuration.extensions.enable(Webpack)
+            webpack = new_temporary_app.extensions[Webpack]
+            await webpack.prebuild(job_context)
         finally:
             fs.PREBUILT_ASSETS_DIRECTORY_PATH = original_prebuilt_assets_directory_path
 

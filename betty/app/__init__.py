@@ -101,21 +101,8 @@ class AppConfiguration(FileBasedConfiguration):
                 stacklevel=2,
             )
             configuration_directory_path = CONFIGURATION_DIRECTORY_PATH
-        super().__init__()
-        self._configuration_directory_path = configuration_directory_path
+        super().__init__(configuration_directory_path / "app.json")
         self._locale: str | None = locale
-
-    @property
-    def configuration_file_path(self) -> Path:
-        return self._configuration_directory_path / "app.json"
-
-    @configuration_file_path.setter
-    def configuration_file_path(self, __) -> None:
-        pass
-
-    @configuration_file_path.deleter
-    def configuration_file_path(self) -> None:
-        pass
 
     @property
     def locale(self) -> str | None:
@@ -196,6 +183,11 @@ class App(Configurable[AppConfiguration]):
                 f"Initializing {type(self)} without `cache_directory_path` is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x.",
                 stacklevel=2,
             )
+        if project is None:
+            deprecate(
+                f"Initializing {type(self)} without `project` is deprecated as of Betty 0.3.6, and will be removed in Betty 0.4.x.",
+                stacklevel=2,
+            )
         self._configuration = configuration or AppConfiguration()
         self._configuration.on_change(self._on_locale_change)
         self._assets: FileSystem | None = None
@@ -248,7 +240,7 @@ class App(Configurable[AppConfiguration]):
         project: Project | None = None,
     ) -> AsyncIterator[Self]:
         yield cls(
-            AppConfiguration(app.configuration._configuration_directory_path),
+            AppConfiguration(app.configuration.configuration_file_path.parent),
             app.project if project is None else project,
             app._cache_directory_path,
         )

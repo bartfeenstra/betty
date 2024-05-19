@@ -41,6 +41,7 @@ from betty.serde.dump import Dumpable, Dump, minimize, VoidableDump, Void
 from betty.serde.error import SerdeErrorCollection
 from betty.serde.format import FormatRepository
 from betty.serde.load import Asserter, Assertion, Assertions
+from betty.warnings import deprecate
 
 T = TypeVar("T")
 
@@ -110,7 +111,12 @@ ConfigurationT = TypeVar("ConfigurationT", bound=Configuration)
 
 
 class FileBasedConfiguration(Configuration):
-    def __init__(self):
+    def __init__(self, configuration_file_path: Path | None = None):
+        if configuration_file_path is None:
+            deprecate(
+                f"Initializing {type(self)} without a configuration file path is deprecated as of Betty 0.3.6, and will be removed in Betty 0.4.x.",
+                stacklevel=2,
+            )
         super().__init__()
         self._configuration_directory: TemporaryDirectory | None = None  # type: ignore[type-arg]
         self._configuration_file_path: Path | None = None
@@ -142,10 +148,15 @@ class FileBasedConfiguration(Configuration):
         # Change the working directory to allow absolute paths to be turned relative to the configuration file's directory
         # path.
         formats = FormatRepository()
-        dump = formats.format_for(configuration_file_path.suffix[1:]).dump(self.dump())
+        dump = self.dump()
+        if dump is Void:
+            dump = {}
+        serialized_dump = formats.format_for(configuration_file_path.suffix[1:]).dump(
+            dump
+        )
         try:
             async with aiofiles.open(configuration_file_path, mode="w") as f:
-                await f.write(dump)
+                await f.write(serialized_dump)
         except FileNotFoundError:
             await makedirs(configuration_file_path.parent)
             await self.write()

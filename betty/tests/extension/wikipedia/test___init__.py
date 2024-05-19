@@ -12,7 +12,7 @@ from betty.wikipedia import Summary
 
 
 class TestWikipedia:
-    async def test_filter(self, mocker: MockerFixture) -> None:
+    async def test_filter(self, mocker: MockerFixture, new_temporary_app: App) -> None:
         language = "en"
         name = "Amsterdam"
         title = "Amstelredam"
@@ -31,27 +31,27 @@ class TestWikipedia:
             Link("https://example.com"),
         ]
 
-        async with App.new_temporary() as app, app:
-            app.project.configuration.extensions.append(
-                ExtensionConfiguration(Wikipedia)
-            )
-            actual = await app.jinja2_environment.from_string(
-                "{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}"
-            ).render_async(
-                job_context=Context(),
-                links=links,
-            )
+        new_temporary_app.project.configuration.extensions.append(
+            ExtensionConfiguration(Wikipedia)
+        )
+        actual = await new_temporary_app.jinja2_environment.from_string(
+            "{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}"
+        ).render_async(
+            job_context=Context(),
+            links=links,
+        )
 
         m_get_summary.assert_called_once()
         assert extract == actual
 
-    async def test_post_load(self, mocker: MockerFixture) -> None:
+    async def test_post_load(
+        self, mocker: MockerFixture, new_temporary_app: App
+    ) -> None:
         m_populate = mocker.patch("betty.wikipedia._Populator.populate")
 
-        async with App.new_temporary() as app, app:
-            app.project.configuration.extensions.append(
-                ExtensionConfiguration(Wikipedia)
-            )
-            await load(app)
+        new_temporary_app.project.configuration.extensions.append(
+            ExtensionConfiguration(Wikipedia)
+        )
+        await load(new_temporary_app)
 
         m_populate.assert_called_once()

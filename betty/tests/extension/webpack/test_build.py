@@ -38,33 +38,33 @@ class TestBuilder:
         self,
         with_entrypoint_provider: bool,
         debug: bool,
+        new_temporary_app: App,
         npm_install_cache_available: bool,
         tmp_path: Path,
         webpack_build_cache_available: bool,
     ) -> None:
-        async with App.new_temporary() as app:
-            if with_entrypoint_provider:
-                app.project.configuration.extensions.enable(
-                    DummyEntrypointProviderExtension
-                )
-            job_context = Context()
-            sut = Builder(
-                tmp_path,
-                (
-                    [app.extensions[DummyEntrypointProviderExtension]]
-                    if with_entrypoint_provider
-                    else []
-                ),
-                False,
-                app.renderer,
-                job_context=job_context,
-                localizer=DEFAULT_LOCALIZER,
+        if with_entrypoint_provider:
+            new_temporary_app.project.configuration.extensions.enable(
+                DummyEntrypointProviderExtension
             )
-            if npm_install_cache_available:
-                webpack_build_directory_path = await sut.build()
-                if not webpack_build_cache_available:
-                    await to_thread(rmtree, webpack_build_directory_path)
+        job_context = Context()
+        sut = Builder(
+            tmp_path,
+            (
+                [new_temporary_app.extensions[DummyEntrypointProviderExtension]]
+                if with_entrypoint_provider
+                else []
+            ),
+            False,
+            new_temporary_app.renderer,
+            job_context=job_context,
+            localizer=DEFAULT_LOCALIZER,
+        )
+        if npm_install_cache_available:
             webpack_build_directory_path = await sut.build()
+            if not webpack_build_cache_available:
+                await to_thread(rmtree, webpack_build_directory_path)
+        webpack_build_directory_path = await sut.build()
         assert (webpack_build_directory_path / "css" / "vendor.css").exists()
         assert (
             webpack_build_directory_path / "js" / "webpack-entry-loader.js"

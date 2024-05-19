@@ -47,7 +47,7 @@ def patch_cache(f: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
     return _patch_cache
 
 
-class TemplateTestCase:
+class TemplateAsserter:
     template_string: str | None = None
     template_file: str | None = None
     extensions = set[type[Extension]]()

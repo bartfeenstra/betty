@@ -48,29 +48,36 @@ from betty.project import LocaleConfiguration
 from betty.serde.dump import DictDump, Dump
 
 
-async def assert_dumps_linked_data(
-    dumpable: LinkedDataDumpable, schema_definition: str | None = None
-) -> DictDump[Dump]:
-    async with App.new_temporary() as app:
-        app.project.configuration.locales["en-US"].alias = "en"
-        app.project.configuration.locales.append(
+class Asserter:
+    def __init__(self, app: App):
+        self._app = app
+
+    async def assert_dumps_linked_data(
+        self, dumpable: LinkedDataDumpable, schema_definition: str | None = None
+    ) -> DictDump[Dump]:
+        self._app.project.configuration.locales["en-US"].alias = "en"
+        self._app.project.configuration.locales.append(
             LocaleConfiguration(
                 "nl-NL",
                 alias="nl",
             )
         )
-        async with app:
-            actual = await dumpable.dump_linked_data(app)
+        actual = await dumpable.dump_linked_data(self._app)
         # Allow for a copy to be made in case the actual data does not contain $schema by design.
         actual_to_be_validated = actual
         if schema_definition:
             actual_to_be_validated = copy(actual)
-            actual_to_be_validated["$schema"] = app.static_url_generator.generate(
+            actual_to_be_validated["$schema"] = self._app.static_url_generator.generate(
                 f"schema.json#/definitions/{schema_definition}", absolute=True
             )
-        schema = Schema(app)
+        schema = Schema(self._app)
         await schema.validate(actual_to_be_validated)
         return actual
+
+
+@pytest.fixture
+def asserter(new_temporary_app: App) -> Asserter:
+    return Asserter(new_temporary_app)
 
 
 class DummyEntity(Entity):
@@ -236,7 +243,7 @@ class TestNote:
         )
         assert text == sut.text
 
-    async def test_dump_linked_data_should_dump_full(self) -> None:
+    async def test_dump_linked_data_should_dump_full(self, asserter: Asserter) -> None:
         note = Note(
             id="the_note",
             text="The Note",
@@ -271,10 +278,12 @@ class TestNote:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(note)
+        actual = await asserter.assert_dumps_linked_data(note)
         assert expected == actual
 
-    async def test_dump_linked_data_should_dump_private(self) -> None:
+    async def test_dump_linked_data_should_dump_private(
+        self, asserter: Asserter
+    ) -> None:
         note = Note(
             id="the_note",
             text="The Note",
@@ -295,7 +304,7 @@ class TestNote:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(note)
+        actual = await asserter.assert_dumps_linked_data(note)
         assert expected == actual
 
 
@@ -361,16 +370,18 @@ class TestLink:
     async def test_dump_linked_data(self) -> None:
         pass
 
-    async def test_dump_linked_data_should_dump_minimal(self) -> None:
+    async def test_dump_linked_data_should_dump_minimal(
+        self, asserter: Asserter
+    ) -> None:
         link = Link("https://example.com")
         expected: dict[str, Any] = {
             "$schema": "https://example.com/schema.json#/definitions/link",
             "url": "https://example.com",
         }
-        actual = await assert_dumps_linked_data(link, "link")
+        actual = await asserter.assert_dumps_linked_data(link, "link")
         assert expected == actual
 
-    async def test_dump_linked_data_should_dump_full(self) -> None:
+    async def test_dump_linked_data_should_dump_full(self, asserter: Asserter) -> None:
         link = Link(
             "https://example.com",
             label="The Link",
@@ -386,7 +397,7 @@ class TestLink:
             "locale": "nl-NL",
             "mediaType": "text/html",
         }
-        actual = await assert_dumps_linked_data(link, "link")
+        actual = await asserter.assert_dumps_linked_data(link, "link")
         assert expected == actual
 
 
@@ -501,7 +512,9 @@ class TestFile:
         )
         assert [] == list(sut.citations)
 
-    async def test_dump_linked_data_should_dump_minimal(self) -> None:
+    async def test_dump_linked_data_should_dump_minimal(
+        self, asserter: Asserter
+    ) -> None:
         with NamedTemporaryFile() as f:
             file = File(
                 id="the_file",
@@ -538,10 +551,10 @@ class TestFile:
                     },
                 ],
             }
-            actual = await assert_dumps_linked_data(file)
+            actual = await asserter.assert_dumps_linked_data(file)
             assert expected == actual
 
-    async def test_dump_linked_data_should_dump_full(self) -> None:
+    async def test_dump_linked_data_should_dump_full(self, asserter: Asserter) -> None:
         with NamedTemporaryFile() as f:
             file = File(
                 id="the_file",
@@ -602,10 +615,12 @@ class TestFile:
                     },
                 ],
             }
-            actual = await assert_dumps_linked_data(file)
+            actual = await asserter.assert_dumps_linked_data(file)
             assert expected == actual
 
-    async def test_dump_linked_data_should_dump_private(self) -> None:
+    async def test_dump_linked_data_should_dump_private(
+        self, asserter: Asserter
+    ) -> None:
         with NamedTemporaryFile() as f:
             file = File(
                 id="the_file",
@@ -652,7 +667,7 @@ class TestFile:
                     },
                 ],
             }
-            actual = await assert_dumps_linked_data(file)
+            actual = await asserter.assert_dumps_linked_data(file)
             assert expected == actual
 
 
@@ -736,7 +751,9 @@ class TestSource:
         sut.private = True
         assert sut.private is True
 
-    async def test_dump_linked_data_should_dump_minimal(self) -> None:
+    async def test_dump_linked_data_should_dump_minimal(
+        self, asserter: Asserter
+    ) -> None:
         source = Source(
             id="the_source",
             name="The Source",
@@ -777,10 +794,10 @@ class TestSource:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(source)
+        actual = await asserter.assert_dumps_linked_data(source)
         assert expected == actual
 
-    async def test_dump_linked_data_should_dump_full(self) -> None:
+    async def test_dump_linked_data_should_dump_full(self, asserter: Asserter) -> None:
         link = Link("https://example.com/the-source")
         link.label = "The Source Online"
         source = Source(
@@ -859,10 +876,12 @@ class TestSource:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(source)
+        actual = await asserter.assert_dumps_linked_data(source)
         assert expected == actual
 
-    async def test_dump_linked_data_should_dump_private(self) -> None:
+    async def test_dump_linked_data_should_dump_private(
+        self, asserter: Asserter
+    ) -> None:
         link = Link("https://example.com/the-source")
         link.label = "The Source Online"
         source = Source(
@@ -903,11 +922,13 @@ class TestSource:
             "notes": [],
             "containedBy": "/source/the_containing_source/index.json",
         }
-        actual = await assert_dumps_linked_data(source)
+        actual = await asserter.assert_dumps_linked_data(source)
         actual.pop("links")
         assert expected == actual
 
-    async def test_dump_linked_data_should_dump_with_private_associations(self) -> None:
+    async def test_dump_linked_data_should_dump_with_private_associations(
+        self, asserter: Asserter
+    ) -> None:
         contained_by_source = Source(
             id="the_containing_source",
             name="The Containing Source",
@@ -942,7 +963,7 @@ class TestSource:
             "notes": [],
             "containedBy": "/source/the_containing_source/index.json",
         }
-        actual = await assert_dumps_linked_data(source)
+        actual = await asserter.assert_dumps_linked_data(source)
         actual.pop("links")
         assert expected == actual
 
@@ -993,7 +1014,9 @@ class TestCitation:
         sut.private = True
         assert sut.private is True
 
-    async def test_dump_linked_data_should_dump_minimal(self) -> None:
+    async def test_dump_linked_data_should_dump_minimal(
+        self, asserter: Asserter
+    ) -> None:
         citation = Citation(
             id="the_citation",
             source=Source(name="The Source"),
@@ -1028,10 +1051,10 @@ class TestCitation:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(citation)
+        actual = await asserter.assert_dumps_linked_data(citation)
         assert expected == actual
 
-    async def test_dump_linked_data_should_dump_full(self) -> None:
+    async def test_dump_linked_data_should_dump_full(self, asserter: Asserter) -> None:
         citation = Citation(
             id="the_citation",
             source=Source(
@@ -1076,10 +1099,12 @@ class TestCitation:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(citation)
+        actual = await asserter.assert_dumps_linked_data(citation)
         assert expected == actual
 
-    async def test_dump_linked_data_should_dump_private(self) -> None:
+    async def test_dump_linked_data_should_dump_private(
+        self, asserter: Asserter
+    ) -> None:
         citation = Citation(
             id="the_citation",
             source=Source(
@@ -1111,7 +1136,7 @@ class TestCitation:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(citation)
+        actual = await asserter.assert_dumps_linked_data(citation)
         assert expected == actual
 
 
@@ -1331,7 +1356,9 @@ class TestPlace:
         sut.coordinates = coordinates
         assert coordinates == sut.coordinates
 
-    async def test_dump_linked_data_should_dump_minimal(self) -> None:
+    async def test_dump_linked_data_should_dump_minimal(
+        self, asserter: Asserter
+    ) -> None:
         place_id = "the_place"
         name = "The Place"
         place = Place(
@@ -1382,10 +1409,10 @@ class TestPlace:
             ],
             "private": False,
         }
-        actual = await assert_dumps_linked_data(place)
+        actual = await asserter.assert_dumps_linked_data(place)
         assert expected == actual
 
-    async def test_dump_linked_data_should_dump_full(self) -> None:
+    async def test_dump_linked_data_should_dump_full(self, asserter: Asserter) -> None:
         place_id = "the_place"
         name = "The Place"
         locale = "nl-NL"
@@ -1479,7 +1506,7 @@ class TestPlace:
             ],
             "private": False,
         }
-        actual = await assert_dumps_linked_data(place)
+        actual = await asserter.assert_dumps_linked_data(place)
         assert expected == actual
 
 
@@ -1595,7 +1622,9 @@ class TestEvent:
         sut.citations = [citation]  # type: ignore[assignment]
         assert [file1 == file2, file3, file4], list(sut.associated_files)
 
-    async def test_dump_linked_data_should_dump_minimal(self) -> None:
+    async def test_dump_linked_data_should_dump_minimal(
+        self, asserter: Asserter
+    ) -> None:
         event = Event(
             id="the_event",
             event_type=Birth,
@@ -1638,10 +1667,10 @@ class TestEvent:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(event)
+        actual = await asserter.assert_dumps_linked_data(event)
         assert expected == actual
 
-    async def test_dump_linked_data_should_dump_full(self) -> None:
+    async def test_dump_linked_data_should_dump_full(self, asserter: Asserter) -> None:
         event = Event(
             id="the_event",
             event_type=Birth,
@@ -1729,10 +1758,12 @@ class TestEvent:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(event)
+        actual = await asserter.assert_dumps_linked_data(event)
         assert expected == actual
 
-    async def test_dump_linked_data_should_dump_private(self) -> None:
+    async def test_dump_linked_data_should_dump_private(
+        self, asserter: Asserter
+    ) -> None:
         event = Event(
             id="the_event",
             event_type=Birth,
@@ -1786,7 +1817,7 @@ class TestEvent:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(event)
+        actual = await asserter.assert_dumps_linked_data(event)
         assert expected == actual
 
 
@@ -1969,7 +2000,9 @@ class TestPerson:
         Presence(sut, Subject(), event)
         assert [file1, file2, file3, file4, file5, file6], list(sut.associated_files)
 
-    async def test_dump_linked_data_should_dump_minimal(self) -> None:
+    async def test_dump_linked_data_should_dump_minimal(
+        self, asserter: Asserter
+    ) -> None:
         person_id = "the_person"
         person = Person(id=person_id)
         expected: dict[str, Any] = {
@@ -2014,10 +2047,10 @@ class TestPerson:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(person)
+        actual = await asserter.assert_dumps_linked_data(person)
         assert expected == actual
 
-    async def test_dump_linked_data_should_dump_full(self) -> None:
+    async def test_dump_linked_data_should_dump_full(self, asserter: Asserter) -> None:
         parent_id = "the_parent"
         parent = Person(id=parent_id)
 
@@ -2142,10 +2175,12 @@ class TestPerson:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(person)
+        actual = await asserter.assert_dumps_linked_data(person)
         assert expected == actual
 
-    async def test_dump_linked_data_should_dump_private(self) -> None:
+    async def test_dump_linked_data_should_dump_private(
+        self, asserter: Asserter
+    ) -> None:
         parent_id = "the_parent"
         parent = Person(id=parent_id)
 
@@ -2234,7 +2269,7 @@ class TestPerson:
                 },
             ],
         }
-        actual = await assert_dumps_linked_data(person)
+        actual = await asserter.assert_dumps_linked_data(person)
         assert expected == actual
 
 

@@ -30,6 +30,7 @@ from betty.cache.file import BinaryFileCache
 from betty.gui import BettyApplication
 from betty.gui.error import ExceptionError
 from betty.locale import DEFAULT_LOCALIZER
+from betty.project import Project, ProjectConfiguration
 from betty.warnings import BettyDeprecationWarning
 
 
@@ -71,11 +72,20 @@ def qapp_cls() -> type[BettyApplication]:
 
 
 @pytest.fixture
-async def new_temporary_app() -> AsyncIterator[App]:
+async def new_temporary_app(tmp_path: Path) -> AsyncIterator[App]:
     """
     Create a new, temporary :py:class:`betty.app.App`.
     """
-    async with App.new_temporary() as app, app:
+    async with (
+        App.new_temporary(
+            project=Project(
+                configuration=ProjectConfiguration(
+                    configuration_file_path=tmp_path / "project"
+                )
+            )
+        ) as app,
+        app,
+    ):
         yield app
 
 
