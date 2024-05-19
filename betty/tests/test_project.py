@@ -261,7 +261,7 @@ class TestLocaleConfiguration:
             ),
         ],
     )
-    async def test_eq(
+    async def test___eq__(
         self, expected: bool, sut: LocaleConfiguration, other: Any
     ) -> None:
         assert expected == (sut == other)
@@ -413,7 +413,7 @@ class TestExtensionConfiguration:
             ),
         ],
     )
-    async def test_eq(
+    async def test___eq__(
         self, expected: bool, one: ExtensionConfiguration, other: ExtensionConfiguration
     ) -> None:
         assert expected == (one == other)
@@ -577,7 +577,7 @@ class TestEntityTypeConfiguration:
             ),
         ],
     )
-    async def test_eq(
+    async def test___eq__(
         self,
         expected: bool,
         one: EntityTypeConfiguration,

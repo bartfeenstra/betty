@@ -313,7 +313,7 @@ class TestSingleTypeEntityCollection:
 
         assert [entity1, entity3] == list(sut)
 
-    async def test_contains_by_entity(self) -> None:
+    async def test___contains___by_entity(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
@@ -322,7 +322,7 @@ class TestSingleTypeEntityCollection:
         assert entity1 in sut
         assert entity2 not in sut
 
-    async def test_contains_by_entity_id(self) -> None:
+    async def test___contains___by_entity_id(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
@@ -339,7 +339,7 @@ class TestSingleTypeEntityCollection:
             [],
         ],
     )
-    async def test_contains_by_unsupported_typed(self, value: Any) -> None:
+    async def test___contains___by_unsupported_typed(self, value: Any) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
         entity = SingleTypeEntityCollectionTestEntity()
         sut.add(entity)
@@ -530,7 +530,7 @@ class TestMultipleTypesEntityCollection:
             [],
         ],
     )
-    async def test_contains_by_unsupported_type(self, value: Any) -> None:
+    async def test___contains___by_unsupported_type(self, value: Any) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         entity = MultipleTypesEntityCollectionTestEntityOne()
         sut.add(entity)

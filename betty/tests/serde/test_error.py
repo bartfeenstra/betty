@@ -28,7 +28,7 @@ class TestSerdeError:
 
 
 class TestSerdeErrorCollection:
-    async def test_localizewithout_errors(self) -> None:
+    async def test_localize_without_errors(self) -> None:
         sut = SerdeErrorCollection()
         assert "" == sut.localize(DEFAULT_LOCALIZER)
 

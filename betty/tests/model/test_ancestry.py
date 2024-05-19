@@ -1161,10 +1161,10 @@ class TestPlaceName:
             (False, PlaceName(name="Ikke"), "not-a-place-name"),
         ],
     )
-    async def test_eq(self, expected: bool, a: PlaceName, b: Any) -> None:
+    async def test___eq__(self, expected: bool, a: PlaceName, b: Any) -> None:
         assert expected == (a == b)
 
-    async def test_str(self) -> None:
+    async def test___str__(self) -> None:
         name = "Ikke"
         sut = PlaceName(name=name)
         assert name == str(sut)

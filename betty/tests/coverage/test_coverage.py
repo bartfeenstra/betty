@@ -14,7 +14,7 @@ from collections.abc import (
 from configparser import ConfigParser
 from glob import glob
 from importlib import import_module
-from inspect import getmembers, isfunction, isclass
+from inspect import getmembers, isfunction, isclass, isdatadescriptor
 from pathlib import Path
 from typing import Protocol, Any, cast, TypeAlias
 
@@ -64,9 +64,28 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/app/__init__.py": {
         "App": {
+            "__aenter__": TestKnownToBeMissing,
+            "__aexit__": TestKnownToBeMissing,
+            "__del__": TestKnownToBeMissing,
             "discover_extension_types": TestKnownToBeMissing,
+            "assets": TestKnownToBeMissing,
+            "binary_file_cache": TestKnownToBeMissing,
+            "cache": TestKnownToBeMissing,
+            "dispatcher": TestKnownToBeMissing,
+            "entity_types": TestKnownToBeMissing,
+            "event_types": TestKnownToBeMissing,
+            "http_client": TestKnownToBeMissing,
+            "jinja2_environment": TestKnownToBeMissing,
+            "localizer": TestKnownToBeMissing,
+            "localizers": TestKnownToBeMissing,
+            "process_pool": TestKnownToBeMissing,
+            "project": TestKnownToBeMissing,
+            "renderer": TestKnownToBeMissing,
+            "servers": TestKnownToBeMissing,
             "start": TestKnownToBeMissing,
+            "static_url_generator": TestKnownToBeMissing,
             "stop": TestKnownToBeMissing,
+            "url_generator": TestKnownToBeMissing,
         },
         "AppConfiguration": TestKnownToBeMissing,
     },
@@ -76,7 +95,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Dependencies": TestKnownToBeMissing,
         "Dependents": TestKnownToBeMissing,
         "Extension": {
+            "app": TestKnownToBeMissing,
             "disable_requirement": TestKnownToBeMissing,
+        },
+        "ExtensionDispatcher": {
+            "dispatch": TestKnownToBeMissing,
         },
         # This is an empty class.
         "ExtensionError": TestKnownToBeMissing,
@@ -117,16 +140,50 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "CommandProvider": TestKnownToBeMissing,
         "global_command": TestKnownToBeMissing,
     },
+    "betty/concurrent.py": {
+        "AsynchronizedLock": {
+            "release": TestKnownToBeMissing,
+        },
+        "MultiLock": {
+            "release": TestKnownToBeMissing,
+        },
+        "RateLimiter": {
+            "__aenter__": TestKnownToBeMissing,
+            "__aexit__": TestKnownToBeMissing,
+        },
+    },
     "betty/config.py": {
         "Configurable": TestKnownToBeMissing,
         "Configuration": TestKnownToBeMissing,
         "ConfigurationCollection": TestKnownToBeMissing,
         "ConfigurationMapping": {
+            "__getitem__": TestKnownToBeMissing,
+            "__iter__": TestKnownToBeMissing,
+            "dump": TestKnownToBeMissing,
             "replace": TestKnownToBeMissing,
+            "to_index": TestKnownToBeMissing,
+            "to_key": TestKnownToBeMissing,
+            "update": TestKnownToBeMissing,
+        },
+        "ConfigurationSequence": {
+            "__getitem__": TestKnownToBeMissing,
+            "__iter__": TestKnownToBeMissing,
+            "dump": TestKnownToBeMissing,
+            "to_index": TestKnownToBeMissing,
+            "to_key": TestKnownToBeMissing,
+            "update": TestKnownToBeMissing,
         },
         "FileBasedConfiguration": {
+            "__del__": TestKnownToBeMissing,
+            "autowrite": TestKnownToBeMissing,
             "read": TestKnownToBeMissing,
             "write": TestKnownToBeMissing,
+        },
+    },
+    "betty/contextlib.py": {
+        "SynchronizedContextManager": {
+            "__enter__": TestKnownToBeMissing,
+            "__exit__": TestKnownToBeMissing,
         },
     },
     "betty/deriver.py": {
@@ -134,25 +191,99 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Derivation": TestKnownToBeMissing
     },
     "betty/dispatch.py": TestKnownToBeMissing,
+    "betty/documentation.py": {
+        "DocumentationServer": {
+            "public_url": TestKnownToBeMissing,
+            "start": TestKnownToBeMissing,
+            "stop": TestKnownToBeMissing,
+        },
+    },
     "betty/error.py": TestKnownToBeMissing,
     "betty/extension/__init__.py": TestKnownToBeMissing,
     "betty/extension/cotton_candy/__init__.py": {
         "person_descendant_families": TestKnownToBeMissing,
         "person_timeline_events": TestKnownToBeMissing,
         "CottonCandy": TestKnownToBeMissing,
+        "CottonCandyConfiguration": {
+            "featured_entities": TestKnownToBeMissing,
+            "link_active_color": TestKnownToBeMissing,
+            "link_inactive_color": TestKnownToBeMissing,
+            "primary_active_color": TestKnownToBeMissing,
+            "primary_inactive_color": TestKnownToBeMissing,
+        },
+    },
+    "betty/extension/demo/__init__.py": {
+        "DemoServer": {
+            "public_url": TestKnownToBeMissing,
+            "start": TestKnownToBeMissing,
+            "stop": TestKnownToBeMissing,
+        },
+    },
+    "betty/extension/gramps/__init__.py": {
+        "Gramps": {
+            "gui_build": TestKnownToBeMissing,
+        },
     },
     "betty/extension/gramps/config.py": {
+        "FamilyTreeConfiguration": {
+            "file_path": TestKnownToBeMissing,
+        },
         "FamilyTreeConfigurationSequence": TestKnownToBeMissing,
+        "GrampsConfiguration": {
+            "family_trees": TestKnownToBeMissing,
+        },
+    },
+    "betty/extension/http_api_doc/__init__.py": {
+        "HttpApiDoc": {
+            "webpack_entrypoint_cache_keys": TestKnownToBeMissing,
+        },
+    },
+    "betty/extension/maps/__init__.py": {
+        "Maps": {
+            "webpack_entrypoint_cache_keys": TestKnownToBeMissing,
+        },
+    },
+    "betty/extension/nginx/__init__.py": {
+        "Nginx": {
+            "commands": TestKnownToBeMissing,
+            "gui_build": TestKnownToBeMissing,
+            "https": TestKnownToBeMissing,
+            "servers": TestKnownToBeMissing,
+            "www_directory_path": TestKnownToBeMissing,
+        },
+    },
+    "betty/extension/nginx/config.py": {
+        "NginxConfiguration": {
+            "https": TestKnownToBeMissing,
+            "www_directory_path": TestKnownToBeMissing,
+        },
     },
     "betty/extension/nginx/docker.py": TestKnownToBeMissing,
+    "betty/extension/nginx/serve.py": {
+        "DockerizedNginxServer": {
+            "start": TestKnownToBeMissing,
+            "stop": TestKnownToBeMissing,
+        },
+    },
     "betty/extension/privatizer/__init__.py": {
         "Privatizer": {
             "privatize": TestKnownToBeMissing,
         },
     },
+    "betty/extension/trees/__init__.py": {
+        "Trees": {
+            "webpack_entrypoint_cache_keys": TestKnownToBeMissing,
+        },
+    },
     "betty/extension/webpack/__init__.py": {
+        "PrebuiltAssetsRequirement": {
+            "summary": TestKnownToBeMissing,
+        },
         "Webpack": {
             "build_requirement": TestKnownToBeMissing,
+            "filters": TestKnownToBeMissing,
+            "new_context_vars": TestKnownToBeMissing,
+            "public_css_paths": TestKnownToBeMissing,
         },
         # This is an interface.
         "WebpackEntrypointProvider": TestKnownToBeMissing,
@@ -162,14 +293,31 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/extension/webpack/jinja2/__init__.py": TestKnownToBeMissing,
     "betty/extension/webpack/jinja2/filter.py": TestKnownToBeMissing,
+    "betty/extension/wikipedia/__init__.py": {
+        "Wikipedia": {
+            "filters": TestKnownToBeMissing,
+            "gui_build": TestKnownToBeMissing,
+        },
+    },
+    "betty/extension/wikipedia/config.py": {
+        "WikipediaConfiguration": {
+            "populate_images": TestKnownToBeMissing,
+        },
+    },
     "betty/fs.py": {
         "FileSystem": {
+            "__len__": TestKnownToBeMissing,
             "clear": TestKnownToBeMissing,
+            "paths": TestKnownToBeMissing,
             "prepend": TestKnownToBeMissing,
         },
     },
     "betty/functools.py": {
         "filter_suppress": TestKnownToBeMissing,
+        "Uniquifier": {
+            "__iter__": TestKnownToBeMissing,
+            "__next__": TestKnownToBeMissing,
+        },
     },
     "betty/generate.py": {
         "create_file": TestKnownToBeMissing,
@@ -200,18 +348,45 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/gui/__init__.py": TestKnownToBeMissing,
     "betty/gui/app.py": {
+        "ApplicationConfiguration": {
+            "window_title": TestKnownToBeMissing,
+        },
         "BettyPrimaryWindow": {
             "new_project": TestKnownToBeMissing,
             "open_application_configuration": TestKnownToBeMissing,
             "open_project": TestKnownToBeMissing,
             "report_bug": TestKnownToBeMissing,
             "request_feature": TestKnownToBeMissing,
+            "window_title": TestKnownToBeMissing,
         },
     },
     "betty/gui/error.py": TestKnownToBeMissing,
     "betty/gui/locale.py": TestKnownToBeMissing,
     "betty/gui/logging.py": TestKnownToBeMissing,
     "betty/gui/model.py": TestKnownToBeMissing,
+    "betty/gui/project.py": {
+        "AddLocaleWindow": {
+            "window_title": TestKnownToBeMissing,
+        },
+        "GenerateWindow": {
+            "window_title": TestKnownToBeMissing,
+        },
+        "ProjectWindow": {
+            "close": TestKnownToBeMissing,
+            "window_title": TestKnownToBeMissing,
+        },
+    },
+    "betty/gui/serve.py": {
+        "ServeDemoWindow": {
+            "window_title": TestKnownToBeMissing,
+        },
+        "ServeDocsWindow": {
+            "window_title": TestKnownToBeMissing,
+        },
+        "ServeProjectWindow": {
+            "window_title": TestKnownToBeMissing,
+        },
+    },
     "betty/gui/window.py": TestKnownToBeMissing,
     "betty/importlib.py": {
         "fully_qualified_type_name": TestKnownToBeMissing,
@@ -220,6 +395,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/jinja2/__init__.py": TestKnownToBeMissing,
     "betty/jinja2/filter.py": TestKnownToBeMissing,
     "betty/jinja2/test.py": TestKnownToBeMissing,
+    "betty/job.py": {
+        "Context": {
+            "cache": TestKnownToBeMissing,
+        },
+    },
     "betty/json/linked_data.py": TestKnownToBeMissing,
     "betty/json/schema.py": {
         "add_property": TestKnownToBeMissing,
@@ -232,10 +412,19 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/load.py": TestKnownToBeMissing,
     "betty/locale.py": {
         "Date": {
+            "__contains__": TestKnownToBeMissing,
+            "__ge__": TestKnownToBeMissing,
+            "__le__": TestKnownToBeMissing,
             "datey_dump_linked_data": TestKnownToBeMissing,
+            "dump_linked_data": TestKnownToBeMissing,
         },
         "DateRange": {
+            "__contains__": TestKnownToBeMissing,
+            "__ge__": TestKnownToBeMissing,
+            "__le__": TestKnownToBeMissing,
+            "comparable": TestKnownToBeMissing,
             "datey_dump_linked_data": TestKnownToBeMissing,
+            "dump_linked_data": TestKnownToBeMissing,
         },
         "get_data": TestKnownToBeMissing,
         "get_display_name": TestKnownToBeMissing,
@@ -248,9 +437,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Localized": TestKnownToBeMissing,
         "Localizer": TestKnownToBeMissing,
         "LocalizerRepository": {
+            "__getitem__": TestKnownToBeMissing,
             "coverage": TestKnownToBeMissing,
             "get": TestKnownToBeMissing,
             "get_negotiated": TestKnownToBeMissing,
+            "locales": TestKnownToBeMissing,
         },
         "ref_date": TestKnownToBeMissing,
         "ref_date_range": TestKnownToBeMissing,
@@ -261,6 +452,25 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "to_locale": TestKnownToBeMissing,
         "update_translations": TestKnownToBeMissing,
     },
+    "betty/logging.py": {
+        "CliHandler": {
+            "format": TestKnownToBeMissing,
+        },
+    },
+    "betty/media_type.py": {
+        # This is an empty class.
+        "InvalidMediaType": TestKnownToBeMissing,
+        "MediaType": {
+            "__eq__": TestKnownToBeMissing,
+            "__hash__": TestKnownToBeMissing,
+            "__str__": TestKnownToBeMissing,
+            "parameters": TestKnownToBeMissing,
+            "subtype": TestKnownToBeMissing,
+            "subtypes": TestKnownToBeMissing,
+            "suffix": TestKnownToBeMissing,
+            "type": TestKnownToBeMissing,
+        },
+    },
     "betty/model/__init__.py": {
         "record_added": TestKnownToBeMissing,
         "unalias": TestKnownToBeMissing,
@@ -268,6 +478,13 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "BidirectionalEntityTypeAssociation": TestKnownToBeMissing,
         "BidirectionalToManyEntityTypeAssociation": TestKnownToBeMissing,
         "BidirectionalToOneEntityTypeAssociation": TestKnownToBeMissing,
+        "Entity": {
+            "__hash__": TestKnownToBeMissing,
+            "ancestry_id": TestKnownToBeMissing,
+            "dump_linked_data": TestKnownToBeMissing,
+            "label": TestKnownToBeMissing,
+            "type": TestKnownToBeMissing,
+        },
         "EntityGraphBuilder": {
             "add_association": TestKnownToBeMissing,
             "add_entity": TestKnownToBeMissing,
@@ -280,6 +497,22 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         # This is an interface.
         "EntityTypeProvider": TestKnownToBeMissing,
         "GeneratedEntityId": TestKnownToBeMissing,
+        "MultipleTypesEntityCollection": {
+            "__delitem__": TestKnownToBeMissing,
+            "__getitem__": TestKnownToBeMissing,
+            "__iter__": TestKnownToBeMissing,
+            "__len__": TestKnownToBeMissing,
+            "clear": TestKnownToBeMissing,
+        },
+        "SingleTypeEntityCollection": {
+            "__delitem__": TestKnownToBeMissing,
+            "__getitem__": TestKnownToBeMissing,
+            "__iter__": TestKnownToBeMissing,
+            "__len__": TestKnownToBeMissing,
+        },
+        "ToMany": {
+            "initialize": TestKnownToBeMissing,
+        },
         "ToManyEntityTypeAssociation": TestKnownToBeMissing,
         "ToOneEntityTypeAssociation": TestKnownToBeMissing,
         # This is an interface.
@@ -300,11 +533,72 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         # This is static.
         "Beneficiary": TestKnownToBeMissing,
         "Celebrant": TestKnownToBeMissing,
+        "Citation": {
+            "label": TestKnownToBeMissing,
+        },
+        "Dated": {
+            "dump_linked_data": TestKnownToBeMissing,
+        },
+        "Described": {
+            "dump_linked_data": TestKnownToBeMissing,
+        },
+        "Event": {
+            "label": TestKnownToBeMissing,
+        },
+        "File": {
+            "label": TestKnownToBeMissing,
+        },
         "HasLinksEntity": TestKnownToBeMissing,
+        "HasCitations": {
+            "dump_linked_data": TestKnownToBeMissing,
+        },
+        "HasFiles": {
+            "associated_files": TestKnownToBeMissing,
+        },
+        "HasLinks": {
+            "dump_linked_data": TestKnownToBeMissing,
+        },
+        "HasMediaType": {
+            "dump_linked_data": TestKnownToBeMissing,
+        },
+        "HasNotes": {
+            "dump_linked_data": TestKnownToBeMissing,
+        },
+        "HasPrivacy": {
+            "dump_linked_data": TestKnownToBeMissing,
+            "own_privacy": TestKnownToBeMissing,
+            "privacy": TestKnownToBeMissing,
+            "private": TestKnownToBeMissing,
+            "public": TestKnownToBeMissing,
+        },
+        "Note": {
+            "entity": TestKnownToBeMissing,
+            "label": TestKnownToBeMissing,
+        },
         # This is static.
         "Organizer": TestKnownToBeMissing,
+        "Person": {
+            "label": TestKnownToBeMissing,
+        },
+        "PersonName": {
+            "dump_linked_data": TestKnownToBeMissing,
+            "label": TestKnownToBeMissing,
+        },
+        "Place": {
+            "associated_files": TestKnownToBeMissing,
+            "label": TestKnownToBeMissing,
+        },
+        "PlaceName": {
+            "dump_linked_data": TestKnownToBeMissing,
+        },
+        "Presence": {
+            "label": TestKnownToBeMissing,
+        },
         "PresenceRole": TestKnownToBeMissing,
         "Privacy": TestKnownToBeMissing,
+        "Source": {
+            "label": TestKnownToBeMissing,
+        },
         # This is static.
         "Speaker": TestKnownToBeMissing,
         # This is static.
@@ -346,10 +640,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "UnknownEventType": TestKnownToBeMissing,
         "Will": TestKnownToBeMissing,
     },
-    "betty/media_type.py": {
-        # This is an empty class.
-        "InvalidMediaType": TestKnownToBeMissing,
-    },
     "betty/path.py": TestKnownToBeMissing,
     "betty/privatizer.py": {
         "Privatizer": {
@@ -357,13 +647,46 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/project.py": {
+        "EntityReference": {
+            "__eq__": TestKnownToBeMissing,
+            "entity_type_is_constrained": TestKnownToBeMissing,
+            "update": TestKnownToBeMissing,
+        },
+        "EntityTypeConfiguration": {
+            "update": TestKnownToBeMissing,
+        },
+        "ExtensionConfiguration": {
+            "dump": TestKnownToBeMissing,
+            "extension_configuration": TestKnownToBeMissing,
+            "update": TestKnownToBeMissing,
+        },
         "ExtensionConfigurationMapping": {
             "disable": TestKnownToBeMissing,
             "enable": TestKnownToBeMissing,
         },
+        "LocaleConfiguration": {
+            "__hash__": TestKnownToBeMissing,
+            "dump": TestKnownToBeMissing,
+            "hash": TestKnownToBeMissing,
+            "update": TestKnownToBeMissing,
+        },
+        "LocaleConfigurationMapping": {
+            "multilingual": TestKnownToBeMissing,
+        },
         "Project": TestKnownToBeMissing,
         "ProjectConfiguration": {
+            "assets_directory_path": TestKnownToBeMissing,
+            "debug": TestKnownToBeMissing,
+            "entity_types": TestKnownToBeMissing,
+            "extensions": TestKnownToBeMissing,
+            "lifetime_threshold": TestKnownToBeMissing,
+            "locales": TestKnownToBeMissing,
             "localize_www_directory_path": TestKnownToBeMissing,
+            "output_directory_path": TestKnownToBeMissing,
+            "project_directory_path": TestKnownToBeMissing,
+            "title": TestKnownToBeMissing,
+            "update": TestKnownToBeMissing,
+            "www_directory_path": TestKnownToBeMissing,
         },
     },
     "betty/render.py": TestKnownToBeMissing,
@@ -378,11 +701,18 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/serde/error.py": {
         "SerdeError": {
+            "contexts": TestKnownToBeMissing,
             "raised": TestKnownToBeMissing,
         },
         "SerdeErrorCollection": {
+            "__iter__": TestKnownToBeMissing,
+            "__len__": TestKnownToBeMissing,
+            "__reduce__": TestKnownToBeMissing,
             "append": TestKnownToBeMissing,
             "assert_valid": TestKnownToBeMissing,
+            "invalid": TestKnownToBeMissing,
+            "raised": TestKnownToBeMissing,
+            "valid": TestKnownToBeMissing,
         },
     },
     "betty/serde/format.py": {
@@ -390,6 +720,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Format": TestKnownToBeMissing,
         "FormatRepository": TestKnownToBeMissing,
         "FormatStr": TestKnownToBeMissing,
+        "Json": {
+            "extensions": TestKnownToBeMissing,
+            "label": TestKnownToBeMissing,
+        },
+        "Yaml": {
+            "extensions": TestKnownToBeMissing,
+            "label": TestKnownToBeMissing,
+        },
     },
     "betty/serde/load.py": {
         "Asserter": {
@@ -415,6 +753,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/serve.py": {
         "AppServer": TestKnownToBeMissing,
         "BuiltinAppServer": TestKnownToBeMissing,
+        "BuiltinServer": {
+            "public_url": TestKnownToBeMissing,
+            "start": TestKnownToBeMissing,
+            "stop": TestKnownToBeMissing,
+        },
         "NoPublicUrlBecauseServerNotStartedError": TestKnownToBeMissing,
         # This is an empty class.
         "OsError": TestKnownToBeMissing,
@@ -441,6 +784,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "NotAPageError": TestKnownToBeMissing,
         # This is an empty class.
         "RetrievalError": TestKnownToBeMissing,
+        "Summary": {
+            "name": TestKnownToBeMissing,
+        },
         # This is an empty class.
         "WikipediaError": TestKnownToBeMissing,
     },
@@ -714,7 +1060,7 @@ class _ModuleClassCoverageTester:
                 yield f"The source class {self._src_class.__module__}.{self._src_class.__name__} has a matching test class at {self._test_classes[expected_test_class_name].__module__}.{self._test_classes[expected_test_class_name].__name__}, which was unexpectedly declared as known to be missing."
                 return
             assert self._ignore is not TestKnownToBeMissing
-            for error in self._test_functions(
+            for error in self._test_members(
                 self._test_classes[expected_test_class_name],
                 self._ignore,  # type: ignore[arg-type]
             ):
@@ -726,53 +1072,81 @@ class _ModuleClassCoverageTester:
 
         yield f"Failed to find the test class {self._test_module_name}.{expected_test_class_name} for the source class {self._src_module_name}.{self._src_class.__name__}."
 
-    def _test_functions(
+    _EXCLUDE_DUNDER_METHODS = (
+        "__init__",
+        "__new__",
+        "__repr__",
+        "__weakref__",
+    )
+
+    def _is_member(self, name: str, member: object) -> bool:
+        if isfunction(member):
+            # Include dunder methods such as __eq__.
+            if (
+                name.startswith("__")
+                and name.endswith("__")
+                and name not in self._EXCLUDE_DUNDER_METHODS
+            ):
+                return True
+            # Skip private members.
+            return not name.startswith("_")
+        if isdatadescriptor(member):
+            # Skip private members.
+            return not name.startswith("_")
+        return False
+
+    def _test_members(
         self, test_class: type, ignore: _ModuleClassExistsIgnore
     ) -> Iterable[str]:
-        src_base_function_names = [
-            name
+        src_base_members = [
+            member
             for src_base_class in self._src_class.__bases__
-            for name, _ in getmembers(src_base_class, isfunction)
+            for name, member in getmembers(src_base_class)
+            if self._is_member(name, member)
         ]
-        src_functions = [
-            function
-            for name, function in getmembers(self._src_class, isfunction)
-            if name not in src_base_function_names and not name.startswith("_")
-        ]
-        for src_function in src_functions:
-            yield from self._test_function(
-                test_class, src_function, ignore.get(src_function.__name__, None)
-            )
+        for src_member_name, src_member in getmembers(self._src_class):
+            if (
+                self._is_member(src_member_name, src_member)
+                and src_member not in src_base_members
+            ):
+                yield from self._test_member(
+                    test_class,
+                    src_member_name,
+                    src_member,
+                    ignore.get(src_member_name, None),
+                )
 
-    def _test_function(
+    def _test_member(
         self,
         test_class: type,
-        src_function: Callable[..., Any],
+        src_member_name: str,
+        src_member: Callable[..., Any],
         ignore: _ModuleFunctionIgnore,
     ) -> Iterable[str]:
-        expected_test_function_name = f"test_{src_function.__name__}"
-        expected_test_function_name_prefix = f"{expected_test_function_name}_"
-        test_functions = [
-            function
-            for name, function in getmembers(test_class, isfunction)
-            if name == expected_test_function_name
-            or name.startswith(expected_test_function_name_prefix)
+        expected_test_member_name = f"test_{src_member_name}"
+        expected_test_member_name_prefix = f"{expected_test_member_name}_"
+        test_members = [
+            member
+            for name, member in getmembers(test_class)
+            if self._is_member(name, member)
+            and name == expected_test_member_name
+            or name.startswith(expected_test_member_name_prefix)
         ]
-        if test_functions:
+        if test_members:
             if ignore is TestKnownToBeMissing:
-                formatted_test_functions = ", ".join(
+                formatted_test_members = ", ".join(
                     map(
-                        lambda test_function: f"{test_function.__name__}()",
-                        test_functions,
+                        lambda test_member: f"{test_member.__name__}()",
+                        test_members,
                     )
                 )
-                yield f"The source function {self._src_class.__module__}.{self._src_class.__name__}.{src_function.__name__}() has (a) matching test method(s) {formatted_test_functions} in {test_class.__module__}.{test_class.__name__}, which was unexpectedly declared as known to be missing."
+                yield f"The source member {self._src_class.__module__}.{self._src_class.__name__}.{src_member_name}() has (a) matching test method(s) {formatted_test_members} in {test_class.__module__}.{test_class.__name__}, which was unexpectedly declared as known to be missing."
             return
 
         if ignore is TestKnownToBeMissing:
             return
 
-        yield f"Failed to find a test method named {expected_test_function_name}() or any methods whose names start with `{expected_test_function_name_prefix}` in {self._test_module_name}.{test_class.__name__} for the source function {self._src_module_name}.{self._src_class.__name__}.{src_function.__name__}()."
+        yield f"Failed to find a test method named {expected_test_member_name}() or any methods whose names start with `{expected_test_member_name_prefix}` in {self._test_module_name}.{test_class.__name__} for the source member {self._src_module_name}.{self._src_class.__name__}.{src_member_name}()."
 
 
 class Test_ModuleCoverageTester:

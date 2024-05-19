@@ -155,7 +155,7 @@ class TestDate:
             (True, Date(1970, 3)),
         ],
     )
-    async def test_lt(self, expected: bool, other: Datey) -> None:
+    async def test___lt__(self, expected: bool, other: Datey) -> None:
         assert expected == (Date(1970, 2, 2) < other)
 
     @pytest.mark.parametrize(
@@ -171,7 +171,7 @@ class TestDate:
             (False, None),
         ],
     )
-    async def test_eq(self, expected: bool, other: Datey) -> None:
+    async def test___eq__(self, expected: bool, other: Datey) -> None:
         assert expected == (Date(1970, 1, 1) == other)
         assert expected == (other == Date(1970, 1, 1))
 
@@ -183,7 +183,7 @@ class TestDate:
             (False, Date(1970, 2, 3)),
         ],
     )
-    async def test_gt(self, expected: bool, other: Datey) -> None:
+    async def test___gt__(self, expected: bool, other: Datey) -> None:
         assert expected == (Date(1970, 2, 2) > other)
 
 
@@ -286,7 +286,7 @@ class TestDateRange:
             (False, DateRange(Date(1970, 2, 1), Date(1970, 2, 3))),
         ],
     )
-    async def test_lt_with_start_date(self, expected: bool, other: Datey) -> None:
+    async def test___lt___with_start_date(self, expected: bool, other: Datey) -> None:
         assert expected == (DateRange(Date(1970, 2, 2)) < other)
 
     @pytest.mark.parametrize(
@@ -306,7 +306,7 @@ class TestDateRange:
             (False, DateRange(Date(1970, 2, 1), Date(1970, 2, 3))),
         ],
     )
-    async def test_lt_with_end_date(self, expected: bool, other: Datey) -> None:
+    async def test___lt___with_end_date(self, expected: bool, other: Datey) -> None:
         assert expected == (DateRange(None, Date(1970, 2, 2)) < other)
 
     @pytest.mark.parametrize(
@@ -327,7 +327,7 @@ class TestDateRange:
             (False, DateRange(Date(1970, 2, 1), Date(1970, 2, 3))),
         ],
     )
-    async def test_lt_with_both_dates(self, expected: bool, other: Datey) -> None:
+    async def test___lt___with_both_dates(self, expected: bool, other: Datey) -> None:
         assert expected == (DateRange(Date(1970, 2, 1), Date(1970, 2, 3)) < other)
 
     @pytest.mark.parametrize(
@@ -343,7 +343,7 @@ class TestDateRange:
             (False, None),
         ],
     )
-    async def test_eq(self, expected: bool, other: Datey) -> None:
+    async def test___eq__(self, expected: bool, other: Datey) -> None:
         assert expected == (DateRange(Date(1970, 2, 2)) == other)
 
     @pytest.mark.parametrize(
@@ -363,7 +363,7 @@ class TestDateRange:
             (True, DateRange(Date(1970, 2, 1), Date(1970, 2, 3))),
         ],
     )
-    async def test_gt(self, expected: bool, other: Datey) -> None:
+    async def test___gt__(self, expected: bool, other: Datey) -> None:
         assert expected == (DateRange(Date(1970, 2, 2)) > other)
 
 
