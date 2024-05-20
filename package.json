@@ -16,7 +16,7 @@
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-compat": "^4.2.0",
     "eslint-plugin-import": "^2.29.0",
-    "eslint-plugin-n": "^16.2.0",
+    "eslint-plugin-n": "^17.7.0",
     "eslint-plugin-playwright": "^1.6.0",
     "eslint-plugin-promise": "^6.1.1",
     "stylelint": "^15.11.0",
