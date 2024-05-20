@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import (
     QWidget,
     QCheckBox,
 )
+from typing_extensions import override
 
 from betty.app import App
 from betty.extension.wikipedia.config import WikipediaConfiguration
@@ -37,6 +38,7 @@ class _WikipediaGuiWidget(LocalizedObject, QWidget):
         self._populate_images_caption = Caption()
         layout.addRow(self._populate_images_caption)
 
+    @override
     def _set_translatables(self) -> None:
         super()._set_translatables()
         self._populate_images.setText(self._app.localizer._("Populate images"))

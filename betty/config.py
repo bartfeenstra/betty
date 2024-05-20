@@ -32,6 +32,7 @@ from typing import (
 
 import aiofiles
 from aiofiles.os import makedirs
+from typing_extensions import override
 
 from betty.asyncio import wait_to_thread
 from betty.classtools import repr_instance
@@ -53,6 +54,10 @@ ConfigurationListener: TypeAlias = "Configuration | _ConfigurationListener"
 
 
 class Configuration(Dumpable):
+    """
+    Any configuration object.
+    """
+
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._asserter = Asserter()
@@ -77,12 +82,21 @@ class Configuration(Dumpable):
         return weakref.ref(listener)
 
     def on_change(self, listener: ConfigurationListener) -> None:
+        """
+        Add an on-change listener.
+        """
         self._on_change_listeners.append(self._prepare_listener(listener))
 
     def remove_on_change(self, listener: ConfigurationListener) -> None:
+        """
+        Remove an on-change listener.
+        """
         self._on_change_listeners.append(self._prepare_listener(listener))
 
     def update(self, other: Self) -> None:
+        """
+        Update this configuration with the values from ``other``.
+        """
         raise NotImplementedError(repr(self))
 
     @classmethod
@@ -100,6 +114,10 @@ class Configuration(Dumpable):
     def assert_load(
         cls: type[ConfigurationT], configuration: ConfigurationT | None = None
     ) -> Assertion[Dump, ConfigurationT]:
+        """
+        Assert that the dumped configuration can be loaded.
+        """
+
         def _assert_load(dump: Dump) -> ConfigurationT:
             return cls.load(dump, configuration)
 
@@ -113,6 +131,10 @@ ConfigurationT = TypeVar("ConfigurationT", bound=Configuration)
 
 
 class FileBasedConfiguration(Configuration):
+    """
+    Any configuration that is stored in a file on disk.
+    """
+
     def __init__(self):
         super().__init__()
         self._configuration_directory: TemporaryDirectory | None = None  # type: ignore[type-arg]
@@ -121,6 +143,9 @@ class FileBasedConfiguration(Configuration):
 
     @property
     def autowrite(self) -> bool:
+        """
+        Whether to write this configuration to file whenever it changes.
+        """
         return self._autowrite
 
     @autowrite.setter
@@ -136,6 +161,15 @@ class FileBasedConfiguration(Configuration):
         wait_to_thread(self.write())
 
     async def write(self, configuration_file_path: Path | None = None) -> None:
+        """
+        Write the configuration to file.
+
+        If a configuration file path is given, it will become this configuration's new
+        file path, and it will be written to.
+
+        If no configuration file path is given, the previously set file path will be
+        written to, if that file exists.
+        """
         if configuration_file_path is not None:
             self.configuration_file_path = configuration_file_path
 
@@ -155,6 +189,15 @@ class FileBasedConfiguration(Configuration):
         self._configuration_file_path = configuration_file_path
 
     async def read(self, configuration_file_path: Path | None = None) -> None:
+        """
+        Read the configuration from file.
+
+        If a configuration file path is given, it will become this configuration's new
+        file path, and its contents will be read.
+
+        If no configuration file path is given, the previously set file path will be read,
+        if that file exists.
+        """
         if configuration_file_path is not None:
             self.configuration_file_path = configuration_file_path
 
@@ -190,6 +233,9 @@ class FileBasedConfiguration(Configuration):
 
     @property
     def configuration_file_path(self) -> Path:
+        """
+        The path to the configuration's file.
+        """
         if self._configuration_file_path is None:
             if self._configuration_directory is None:
                 self._configuration_directory = TemporaryDirectory()
@@ -225,6 +271,10 @@ ConfigurationKeyT = TypeVar("ConfigurationKeyT", bound=ConfigurationKey)
 class ConfigurationCollection(
     Configuration, Generic[ConfigurationKeyT, ConfigurationT]
 ):
+    """
+    Any collection of :py:class:`betty.config.Configuration` values.
+    """
+
     _configurations: (
         MutableSequence[ConfigurationT]
         | MutableMapping[ConfigurationKeyT, ConfigurationT]
@@ -253,6 +303,7 @@ class ConfigurationCollection(
     def __len__(self) -> int:
         return len(self._configurations)
 
+    @override
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, self.__class__):
             return NotImplemented
@@ -262,6 +313,7 @@ class ConfigurationCollection(
             return False
         return True
 
+    @override
     @recursive_repr()
     def __repr__(self) -> str:
         return repr_instance(self, configurations=list(self.values()))
@@ -273,6 +325,9 @@ class ConfigurationCollection(
             del self._configurations[configuration_key]  # type: ignore[call-overload]
 
     def remove(self, *configuration_keys: ConfigurationKeyT) -> None:
+        """
+        Remove the given keys from the collection.
+        """
         self._remove_without_dispatch(*configuration_keys)
         self._dispatch_change()
 
@@ -280,6 +335,9 @@ class ConfigurationCollection(
         self._remove_without_dispatch(*self.keys())
 
     def clear(self) -> None:
+        """
+        Clear all items from the collection.
+        """
         self._clear_without_dispatch()
         self._dispatch_change()
 
@@ -290,16 +348,28 @@ class ConfigurationCollection(
         configuration.remove_on_change(self)
 
     def to_index(self, configuration_key: ConfigurationKeyT) -> int:
+        """
+        Get the index for the given key.
+        """
         raise NotImplementedError(repr(self))
 
     def to_indices(self, *configuration_keys: ConfigurationKeyT) -> Iterator[int]:
+        """
+        Get the indices for the given keys.
+        """
         for configuration_key in configuration_keys:
             yield self.to_index(configuration_key)
 
     def to_key(self, index: int) -> ConfigurationKeyT:
+        """
+        Get the key for the item at the given index.
+        """
         raise NotImplementedError(repr(self))
 
     def to_keys(self, *indices: int | slice) -> Iterator[ConfigurationKeyT]:
+        """
+        Get the keys for the items at the given indices.
+        """
         unique_indices = set()
         for index in indices:
             if isinstance(index, slice):
@@ -315,36 +385,67 @@ class ConfigurationCollection(
         raise NotImplementedError(repr(cls))
 
     def keys(self) -> Iterator[ConfigurationKeyT]:
+        """
+        Get all keys in this collection.
+        """
         raise NotImplementedError(repr(self))
 
     def values(self) -> Iterator[ConfigurationT]:
+        """
+        Get all values in this collection.
+        """
         raise NotImplementedError(repr(self))
 
     def prepend(self, *configurations: ConfigurationT) -> None:
+        """
+        Prepend the given values to the beginning of the sequence.
+        """
         raise NotImplementedError(repr(self))
 
     def append(self, *configurations: ConfigurationT) -> None:
+        """
+        Append the given values to the end of the sequence.
+        """
         raise NotImplementedError(repr(self))
 
     def insert(self, index: int, *configurations: ConfigurationT) -> None:
+        """
+        Insert the given values at the given index.
+        """
         raise NotImplementedError(repr(self))
 
     def move_to_beginning(self, *configuration_keys: ConfigurationKeyT) -> None:
+        """
+        Move the given keys (and their values) to the beginning of the sequence.
+        """
         raise NotImplementedError(repr(self))
 
     def move_towards_beginning(self, *configuration_keys: ConfigurationKeyT) -> None:
+        """
+        Move the given keys (and their values) one place towards the beginning of the sequence.
+        """
         raise NotImplementedError(repr(self))
 
     def move_to_end(self, *configuration_keys: ConfigurationKeyT) -> None:
+        """
+        Move the given keys (and their values) to the end of the sequence.
+        """
         raise NotImplementedError(repr(self))
 
     def move_towards_end(self, *configuration_keys: ConfigurationKeyT) -> None:
+        """
+        Move the given keys (and their values) one place towards the end of the sequence.
+        """
         raise NotImplementedError(repr(self))
 
 
 class ConfigurationSequence(
     ConfigurationCollection[int, ConfigurationT], Generic[ConfigurationT]
 ):
+    """
+    A sequence of configuration values.
+    """
+
     def __init__(
         self,
         configurations: Iterable[ConfigurationT] | None = None,
@@ -352,38 +453,48 @@ class ConfigurationSequence(
         self._configurations: MutableSequence[ConfigurationT] = []
         super().__init__(configurations)
 
+    @override
     def to_index(self, configuration_key: int) -> int:
         return configuration_key
 
+    @override
     def to_key(self, index: int) -> int:
         return index
 
+    @override
     @overload
     def __getitem__(self, configuration_key: int) -> ConfigurationT:
         pass  # pragma: no cover
 
+    @override
     @overload
     def __getitem__(self, configuration_key: slice) -> Sequence[ConfigurationT]:
         pass  # pragma: no cover
 
+    @override
     def __getitem__(
         self, configuration_key: int | slice
     ) -> ConfigurationT | Sequence[ConfigurationT]:
         return self._configurations[configuration_key]
 
+    @override
     def __iter__(self) -> Iterator[ConfigurationT]:
         return (configuration for configuration in self._configurations)
 
+    @override
     def keys(self) -> Iterator[int]:
         return iter(range(0, len(self._configurations)))
 
+    @override
     def values(self) -> Iterator[ConfigurationT]:
         yield from self._configurations
 
+    @override
     def update(self, other: Self) -> None:
         self._clear_without_dispatch()
         self.append(*other)
 
+    @override
     @classmethod
     def load(
         cls,
@@ -403,29 +514,34 @@ class ConfigurationSequence(
             )
         return configuration
 
+    @override
     def dump(self) -> VoidableDump:
         return minimize(
             [configuration.dump() for configuration in self._configurations]
         )
 
+    @override
     def prepend(self, *configurations: ConfigurationT) -> None:
         for configuration in configurations:
             self._on_add(configuration)
             self._configurations.insert(0, configuration)
         self._dispatch_change()
 
+    @override
     def append(self, *configurations: ConfigurationT) -> None:
         for configuration in configurations:
             self._on_add(configuration)
             self._configurations.append(configuration)
         self._dispatch_change()
 
+    @override
     def insert(self, index: int, *configurations: ConfigurationT) -> None:
         for configuration in reversed(configurations):
             self._on_add(configuration)
             self._configurations.insert(index, configuration)
         self._dispatch_change()
 
+    @override
     def move_to_beginning(self, *configuration_keys: int) -> None:
         self.move_to_end(
             *configuration_keys,
@@ -436,11 +552,13 @@ class ConfigurationSequence(
             ],
         )
 
+    @override
     def move_towards_beginning(self, *configuration_keys: int) -> None:
         for index in configuration_keys:
             self._configurations.insert(index - 1, self._configurations.pop(index))
         self._dispatch_change()
 
+    @override
     def move_to_end(self, *configuration_keys: int) -> None:
         for index in configuration_keys:
             self._configurations.append(self._configurations[index])
@@ -448,6 +566,7 @@ class ConfigurationSequence(
             self._configurations.pop(index)
         self._dispatch_change()
 
+    @override
     def move_towards_end(self, *configuration_keys: int) -> None:
         for index in reversed(configuration_keys):
             self._configurations.insert(index + 1, self._configurations.pop(index))
@@ -458,6 +577,10 @@ class ConfigurationMapping(
     ConfigurationCollection[ConfigurationKeyT, ConfigurationT],
     Generic[ConfigurationKeyT, ConfigurationT],
 ):
+    """
+    A key-value mapping where values are :py:class:`betty.config.Configuration`.
+    """
+
     def __init__(
         self,
         configurations: Iterable[ConfigurationT] | None = None,
@@ -470,12 +593,15 @@ class ConfigurationMapping(
     def _minimize_item_dump(self) -> bool:
         return False
 
+    @override
     def to_index(self, configuration_key: ConfigurationKeyT) -> int:
         return list(self._configurations.keys()).index(configuration_key)
 
+    @override
     def to_key(self, index: int) -> ConfigurationKeyT:
         return list(self._configurations.keys())[index]
 
+    @override
     def __getitem__(self, configuration_key: ConfigurationKeyT) -> ConfigurationT:
         try:
             return self._configurations[configuration_key]
@@ -483,22 +609,29 @@ class ConfigurationMapping(
             self.append(self._create_default_item(configuration_key))
             return self._configurations[configuration_key]
 
+    @override
     def __iter__(self) -> Iterator[ConfigurationKeyT]:
         return (configuration_key for configuration_key in self._configurations)
 
     def _keys_without_scope(self) -> Iterator[ConfigurationKeyT]:
         return (configuration_key for configuration_key in self._configurations)
 
+    @override
     def keys(self) -> Iterator[ConfigurationKeyT]:
         return self._keys_without_scope()
 
+    @override
     def values(self) -> Iterator[ConfigurationT]:
         yield from self._configurations.values()
 
+    @override
     def update(self, other: Self) -> None:
         self.replace(*other.values())
 
     def replace(self, *values: ConfigurationT) -> None:
+        """
+        Replace any existing values with the given ones.
+        """
         self_keys = list(self.keys())
         other = {self._get_key(value): value for value in values}
         other_values = list(values)
@@ -522,6 +655,7 @@ class ConfigurationMapping(
         # Ensure everything is in the correct order. This will also trigger reactors.
         self.move_to_beginning(*other_keys)
 
+    @override
     @classmethod
     def load(
         cls,
@@ -538,6 +672,7 @@ class ConfigurationMapping(
         configuration.replace(*mapping.values())
         return configuration
 
+    @override
     def dump(self) -> VoidableDump:
         dump = {}
         for configuration_item in self._configurations.values():
@@ -549,6 +684,7 @@ class ConfigurationMapping(
                 dump[configuration_key] = item_dump
         return minimize(dump)
 
+    @override
     def prepend(self, *configurations: ConfigurationT) -> None:
         for configuration in configurations:
             configuration_key = self._get_key(configuration)
@@ -563,6 +699,7 @@ class ConfigurationMapping(
             configuration.on_change(self)
         self._move_to_end_without_trigger(*map(self._get_key, configurations))
 
+    @override
     def append(self, *configurations: ConfigurationT) -> None:
         self._append_without_trigger(*configurations)
         self._dispatch_change()
@@ -578,15 +715,18 @@ class ConfigurationMapping(
             *current_configuration_keys[index:],
         )
 
+    @override
     def insert(self, index: int, *configurations: ConfigurationT) -> None:
         self._insert_without_trigger(index, *configurations)
         self._dispatch_change()
 
+    @override
     def move_to_beginning(self, *configuration_keys: ConfigurationKeyT) -> None:
         for configuration_key in reversed(configuration_keys):
             self._configurations.move_to_end(configuration_key, False)
         self._dispatch_change()
 
+    @override
     def move_towards_beginning(self, *configuration_keys: ConfigurationKeyT) -> None:
         self._move_by_offset(-1, *configuration_keys)
 
@@ -596,10 +736,12 @@ class ConfigurationMapping(
         for configuration_key in configuration_keys:
             self._configurations.move_to_end(configuration_key)
 
+    @override
     def move_to_end(self, *configuration_keys: ConfigurationKeyT) -> None:
         self._move_to_end_without_trigger(*configuration_keys)
         self._dispatch_change()
 
+    @override
     def move_towards_end(self, *configuration_keys: ConfigurationKeyT) -> None:
         self._move_by_offset(1, *configuration_keys)
 
@@ -639,6 +781,10 @@ class ConfigurationMapping(
 
 
 class Configurable(Generic[ConfigurationT]):
+    """
+    Any configurable object.
+    """
+
     _configuration: ConfigurationT
 
     def __init__(self, *args: Any, **kwargs: Any):
@@ -646,6 +792,9 @@ class Configurable(Generic[ConfigurationT]):
 
     @property
     def configuration(self) -> ConfigurationT:
+        """
+        The object's configuration.
+        """
         if not hasattr(self, "_configuration"):
             raise RuntimeError(
                 f"{self} has no configuration. {type(self)}.__init__() must ensure it is set."

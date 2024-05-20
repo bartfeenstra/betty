@@ -5,6 +5,8 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Generic, Self, overload, AsyncContextManager, Literal
 
+from typing_extensions import override
+
 from betty.cache import (
     CacheItemValueCoT,
     Cache,
@@ -27,9 +29,11 @@ class _StaticCacheItem(CacheItem[CacheItemValueCoT], Generic[CacheItemValueCoT])
         self._value = value
         self._modified = datetime.now().timestamp() if modified is None else modified
 
+    @override
     async def value(self) -> CacheItemValueCoT:
         return self._value
 
+    @override
     @property
     def modified(self) -> int | float:
         return self._modified
@@ -54,6 +58,7 @@ class _CommonCacheBase(Cache[CacheItemValueContraT], Generic[CacheItemValueContr
         async with self._locks_lock:
             return self._locks[cache_item_id]
 
+    @override
     def with_scope(self, scope: str) -> Self:
         try:
             return self._scoped_caches[scope]
@@ -64,6 +69,7 @@ class _CommonCacheBase(Cache[CacheItemValueContraT], Generic[CacheItemValueContr
     def _with_scope(self, scope: str) -> Self:
         raise NotImplementedError
 
+    @override
     @asynccontextmanager
     async def get(
         self, cache_item_id: str
@@ -74,6 +80,7 @@ class _CommonCacheBase(Cache[CacheItemValueContraT], Generic[CacheItemValueContr
     async def _get(self, cache_item_id: str) -> CacheItem[CacheItemValueContraT] | None:
         raise NotImplementedError
 
+    @override
     async def set(
         self,
         cache_item_id: str,
@@ -137,6 +144,7 @@ class _CommonCacheBase(Cache[CacheItemValueContraT], Generic[CacheItemValueContr
                 lock.release()
         yield None, None
 
+    @override
     async def delete(self, cache_item_id: str) -> None:
         async with await self._lock(cache_item_id):
             await self._delete(cache_item_id)
@@ -144,6 +152,7 @@ class _CommonCacheBase(Cache[CacheItemValueContraT], Generic[CacheItemValueContr
     async def _delete(self, cache_item_id: str) -> None:
         raise NotImplementedError
 
+    @override
     async def clear(self) -> None:
         async with MultiLock(self._locks_lock, *self._locks.values()):
             await self._clear()

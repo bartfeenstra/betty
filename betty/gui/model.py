@@ -16,6 +16,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
 )
+from typing_extensions import override
 
 from betty.gui.locale import LocalizedObject
 from betty.model import UserFacingEntity, Entity
@@ -27,6 +28,10 @@ if TYPE_CHECKING:
 
 
 class EntityReferenceCollector(LocalizedObject, QWidget):
+    """
+    A form widget that allows users to configure an entity reference.
+    """
+
     def __init__(
         self,
         app: App,
@@ -87,6 +92,7 @@ class EntityReferenceCollector(LocalizedObject, QWidget):
 
         self._set_translatables()
 
+    @override
     def _set_translatables(self) -> None:
         super()._set_translatables()
         if self._entity_reference.entity_type:
@@ -102,6 +108,10 @@ class EntityReferenceCollector(LocalizedObject, QWidget):
 
 
 class EntityReferenceSequenceCollector(LocalizedObject, QWidget):
+    """
+    A form widget that allows users to configure a sequence of entity references.
+    """
+
     def __init__(
         self,
         app: App,
@@ -192,6 +202,7 @@ class EntityReferenceSequenceCollector(LocalizedObject, QWidget):
         )
         layout.addWidget(entity_reference_remove_button)
 
+    @override
     def _set_translatables(self) -> None:
         super()._set_translatables()
         if self._label_text:

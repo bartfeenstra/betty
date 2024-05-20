@@ -7,12 +7,24 @@ from __future__ import annotations
 from email.message import EmailMessage
 from typing import Any
 
+from typing_extensions import override
+
 
 class InvalidMediaType(ValueError):
+    """
+    Raised when an identifier is not a valid media type.
+    """
+
     pass  # pragma: no cover
 
 
 class MediaType:
+    """
+    Define a `media type <https://en.wikipedia.org/wiki/Media_type>`_.
+
+    Media types are also commonly known as content types or MIME types.
+    """
+
     def __init__(self, media_type: str):
         self._str = media_type
         message = EmailMessage()
@@ -32,18 +44,30 @@ class MediaType:
 
     @property
     def type(self) -> str:
+        """
+        The suffix, e.g. ``application`` for ``application/ld+json``.
+        """
         return self._type
 
     @property
     def subtype(self) -> str:
+        """
+        The subtype, e.g. ``"vnd.oasis.opendocument.text"`` for ``"application/vnd.oasis.opendocument.text"``.
+        """
         return self._subtype
 
     @property
     def subtypes(self) -> list[str]:
+        """
+        The subtype parts, e.g. ``["vnd", "oasis", "opendocument", "text"]`` for ``"application/vnd.oasis.opendocument.text"``.
+        """
         return self._subtype.split("+")[0].split(".")
 
     @property
     def suffix(self) -> str | None:
+        """
+        The suffix, e.g. ``+json`` for ``application/ld+json``.
+        """
         if "+" not in self._subtype:
             return None
 
@@ -51,11 +75,16 @@ class MediaType:
 
     @property
     def parameters(self) -> dict[str, str]:
+        """
+        The parameters, e.g. ``{"charset": "UTF-8"}`` for ``"text/html; charset=UTF-8"``.
+        """
         return self._parameters
 
+    @override
     def __str__(self) -> str:
         return self._str
 
+    @override
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, MediaType):
             return NotImplemented

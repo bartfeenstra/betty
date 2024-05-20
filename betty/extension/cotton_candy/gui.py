@@ -17,6 +17,7 @@ from PyQt6.QtWidgets import (
     QFormLayout,
     QWidget,
 )
+from typing_extensions import override
 
 from betty.extension import CottonCandy, Webpack
 from betty.extension.cotton_candy import _ColorConfiguration, CottonCandyConfiguration
@@ -38,6 +39,7 @@ class _ColorConfigurationSwatch(LocalizedObject, QWidget):
         self.setFixedWidth(24)
         self._swatch = QRect(self.rect())
 
+    @override
     def paintEvent(self, a0: QPaintEvent | None) -> None:
         painter = QPainter(self)
         painter.fillRect(self._swatch, QBrush(QColor.fromString(self._color.hex)))
@@ -80,6 +82,7 @@ class _ColorConfigurationWidget(LocalizedObject, QWidget):
 
         self._reset.clicked.connect(_reset)
 
+    @override
     def _set_translatables(self) -> None:
         super()._set_translatables()
         self._configure.setText(self._app.localizer._("Configure"))
@@ -108,6 +111,7 @@ class _ColorConfigurationsWidget(LocalizedObject, QWidget):
             self._color_configurations.append(color_widget)
             self._layout.addRow(color_label, color_widget)
 
+    @override
     def _set_translatables(self) -> None:
         super()._set_translatables()
         for i, (__, color_label, ___) in enumerate(self._colors):

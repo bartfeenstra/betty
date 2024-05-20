@@ -10,10 +10,17 @@ from betty.string import camel_case_to_kebab_case, upper_camel_case_to_lower_cam
 
 
 class Specification:
+    """
+    Build OpenAPI specifications.
+    """
+
     def __init__(self, app: App):
         self._app = app
 
     async def build(self) -> DictDump[Dump]:
+        """
+        Build the OpenAPI specification.
+        """
         specification: DictDump[Dump] = {
             "openapi": "3.1.0",
             "servers": [

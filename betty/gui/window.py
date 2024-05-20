@@ -20,7 +20,14 @@ if TYPE_CHECKING:
 
 
 class BettyMainWindow(LocalizedObject, QMainWindow):
+    """
+    A generic window.
+    """
+
+    #: The window's default width in pixels.
     window_width = 800
+
+    #: The window's default height in pixels.
     window_height = 600
 
     def __init__(
@@ -56,6 +63,9 @@ class BettyMainWindow(LocalizedObject, QMainWindow):
 
     @property
     def window_title(self) -> Localizable:
+        """
+        The human-readable short title of this window.
+        """
         raise NotImplementedError(repr(self))
 
     @override

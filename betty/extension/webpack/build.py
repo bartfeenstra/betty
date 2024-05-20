@@ -83,6 +83,10 @@ def _webpack_build_directory_path(
 
 
 class Builder:
+    """
+    Build Webpack assets.
+    """
+
     def __init__(
         self,
         working_directory_path: Path,
@@ -233,6 +237,12 @@ class Builder:
         await to_thread((webpack_build_directory_path / "css" / "vendor.css").touch)
 
     async def build(self) -> Path:
+        """
+        Built the Webpack assets.
+
+        :return: The path to the directory from which the assets can be copied to their
+            final destination.
+        """
         npm_project_directory_path = await _npm_project_directory_path(
             self._working_directory_path, self._entrypoint_providers, self._debug
         )

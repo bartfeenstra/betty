@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import Any, TYPE_CHECKING
 
 from PyQt6.QtWidgets import QComboBox, QLabel, QWidget
+from typing_extensions import override
 
 from betty.asyncio import wait_to_thread
 from betty.gui.text import Caption
@@ -18,10 +19,15 @@ if TYPE_CHECKING:
 
 
 class LocalizedObject:
+    """
+    A `PyQt6.QtWidgets.QWidget` mix-in to localize widgets, and re-localize them when the locale changes.
+    """
+
     def __init__(self, app: App, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._app = app
 
+    @override
     def showEvent(  # type: ignore[misc]
         self: LocalizedObject & QWidget,
         a0: QtGui.QShowEvent | None,
@@ -35,6 +41,10 @@ class LocalizedObject:
 
 
 class TranslationsLocaleCollector(LocalizedObject):
+    """
+    Helps users select a locale for which translations are available.
+    """
+
     def __init__(self, app: App, allowed_locales: set[str]):
         super().__init__(app)
         self._allowed_locales = allowed_locales
@@ -70,15 +80,22 @@ class TranslationsLocaleCollector(LocalizedObject):
 
     @property
     def locale(self) -> QComboBox:
+        """
+        The selected locale.
+        """
         return self._configuration_locale
 
     @property
-    def rows(self) -> list[list[Any]]:
+    def rows(self) -> list[list[QWidget]]:
+        """
+        The :py:class:`PyQt6.QtWidgets.QFormLayout` rows provided by the collector.
+        """
         return [
             [self._configuration_locale_label, self._configuration_locale],
             [self._configuration_locale_caption],
         ]
 
+    @override
     def _set_translatables(self) -> None:
         super()._set_translatables()
         localizer = self._app.localizer

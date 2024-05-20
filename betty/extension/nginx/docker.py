@@ -5,12 +5,17 @@ Integrate Betty with Docker.
 import asyncio
 from pathlib import Path
 from types import TracebackType
+from typing import cast
 
 import docker
 from docker.models.containers import Container as DockerContainer
 
 
 class Container:
+    """
+    A Docker container with nginx, configured to serve a Betty site.
+    """
+
     _IMAGE_TAG = "betty-serve"
 
     def __init__(
@@ -37,6 +42,9 @@ class Container:
         await self.stop()
 
     async def start(self) -> None:
+        """
+        Start the container.
+        """
         await asyncio.to_thread(self._start)
 
     def _start(self) -> None:
@@ -47,6 +55,9 @@ class Container:
         self._container.exec_run(["nginx", "-s", "reload"])
 
     async def stop(self) -> None:
+        """
+        Stop the container.
+        """
         await asyncio.to_thread(self._stop)
 
     def _stop(self) -> None:
@@ -74,7 +85,13 @@ class Container:
         return self.__container
 
     @property
-    def ip(self) -> DockerContainer:
-        return self._client.api.inspect_container(self._container.id)[
-            "NetworkSettings"
-        ]["Networks"]["bridge"]["IPAddress"]
+    def ip(self) -> str:
+        """
+        The container's public IP address.
+        """
+        return cast(
+            str,
+            self._client.api.inspect_container(self._container.id)["NetworkSettings"][
+                "Networks"
+            ]["bridge"]["IPAddress"],
+        )

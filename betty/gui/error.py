@@ -19,6 +19,7 @@ from PyQt6.QtWidgets import (
     QScrollArea,
     QFrame,
 )
+from typing_extensions import override
 
 from betty.error import UserFacingError
 from betty.gui.text import Code, Text
@@ -113,6 +114,10 @@ class ExceptionCatcher(Generic[P, T]):
 
 
 class Error(BettyMainWindow):
+    """
+    An error window.
+    """
+
     window_height = 300
     window_width = 500
 
@@ -146,15 +151,18 @@ class Error(BettyMainWindow):
         self._dismiss.released.connect(self.close)
         self._controls.addWidget(self._dismiss)
 
+    @override
     @property
     def window_title(self) -> Localizable:
         return Str.plain("{error} - Betty", error=Str._("Error"))
 
+    @override
     def _set_translatables(self) -> None:
         super()._set_translatables()
         self._message.setText(self._message_localizable.localize(self._app.localizer))
         self._dismiss.setText(self._app.localizer._("Close"))
 
+    @override
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         if self._close_parent:
             parent = self.parent()
@@ -167,6 +175,10 @@ ErrorT = TypeVar("ErrorT", bound=Error)
 
 
 class ExceptionError(Error):
+    """
+    An error window for a specific exception.
+    """
+
     def __init__(
         self,
         app: App,
@@ -184,6 +196,10 @@ ExceptionErrorT = TypeVar("ExceptionErrorT", bound=ExceptionError)
 
 
 class _UnexpectedExceptionError(ExceptionError):
+    """
+    An error window for a specific unexpected exception.
+    """
+
     def __init__(
         self,
         app: App,

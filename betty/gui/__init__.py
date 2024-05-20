@@ -9,6 +9,7 @@ from typing import Any, TypeVar, Self, TYPE_CHECKING
 from PyQt6.QtCore import pyqtSlot, QObject, QCoreApplication
 from PyQt6.QtGui import QPalette
 from PyQt6.QtWidgets import QApplication, QWidget
+from typing_extensions import override
 
 from betty.app import App
 from betty.gui.error import ExceptionError, _UnexpectedExceptionError
@@ -37,7 +38,14 @@ def get_configuration_file_filter() -> Str:
 
 
 class GuiBuilder:
+    """
+    Allow extensions to provide their own Graphical User Interface component.
+    """
+
     def gui_build(self) -> QWidget:
+        """
+        Build this extension's Graphical User Interface component.
+        """
         raise NotImplementedError(repr(self))
 
 
@@ -60,6 +68,10 @@ def mark_invalid(widget: QWidget, reason: str) -> None:
 
 
 class BettyApplication(QApplication):
+    """
+    A Betty Qt application.
+    """
+
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._app: App | None = None
@@ -179,6 +191,7 @@ class BettyApplication(QApplication):
         )
         window.show()
 
+    @override
     @classmethod
     def instance(cls) -> Self:
         qapp = QCoreApplication.instance()
@@ -187,6 +200,9 @@ class BettyApplication(QApplication):
 
     @asynccontextmanager
     async def with_app(self, app: App) -> AsyncIterator[Self]:
+        """
+        Temporarily set assign a Betty application to this Qt application.
+        """
         if self._app is not None:
             raise RuntimeError(f"This {type(self)} already has an {App}.")
         self._app = app
@@ -195,6 +211,9 @@ class BettyApplication(QApplication):
 
     @property
     def app(self) -> App:
+        """
+        Get this Qt application's Betty application.
+        """
         if self._app is None:
             raise RuntimeError(f"This {type(self)} does not have an {App} yet.")
         return self._app

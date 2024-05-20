@@ -49,14 +49,26 @@ if TYPE_CHECKING:
 
 
 class WikipediaError(BaseException):
+    """
+    An error raised by Betty's Wikipedia API.
+    """
+
     pass  # pragma: no cover
 
 
 class NotAPageError(WikipediaError, ValueError):
+    """
+    Raised when a URL does not point to a Wikipedia page.
+    """
+
     pass  # pragma: no cover
 
 
 class RetrievalError(WikipediaError, RuntimeError):
+    """
+    An error that occurred when retrieving content from Wikipedia.
+    """
+
     pass  # pragma: no cover
 
 
@@ -71,6 +83,10 @@ def _parse_url(url: str) -> tuple[str, str]:
 
 
 class Summary(Localized):
+    """
+    A Wikipedia page summary.
+    """
+
     def __init__(self, locale: str, name: str, title: str, content: str):
         super().__init__(locale=locale)
         self._name = name
@@ -92,22 +108,38 @@ class Summary(Localized):
 
     @property
     def name(self) -> str:
+        """
+        The page's machine name.
+        """
         return self._name
 
     @property
     def url(self) -> str:
+        """
+        The URL to the web page.
+        """
         return "https://%s.wikipedia.org/wiki/%s" % (self.locale, self._name)
 
     @property
     def title(self) -> str:
+        """
+        The page's human-readable title.
+        """
         return self._title
 
     @property
     def content(self) -> str:
+        """
+        The page's human-readable summary content.
+        """
         return self._content
 
 
 class Image:
+    """
+    An image from Wikimedia Commons.
+    """
+
     def __init__(
         self,
         path: Path,
@@ -127,18 +159,30 @@ class Image:
 
     @property
     def path(self) -> Path:
+        """
+        The path to the image on disk.
+        """
         return self._path
 
     @property
     def media_type(self) -> MediaType:
+        """
+        The image's media type.
+        """
         return self._media_type
 
     @property
     def title(self) -> str:
+        """
+        The human-readable image title.
+        """
         return self._title
 
     @property
     def wikimedia_commons_url(self) -> str:
+        """
+        The URL to the Wikimedia Commons web page for this image.
+        """
         return self._wikimedia_commons_url
 
 

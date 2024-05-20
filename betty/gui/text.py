@@ -11,6 +11,10 @@ from typing_extensions import override
 
 
 class Text(QLabel):
+    """
+    Display plain text.
+    """
+
     def __init__(self, text: str | None = None):
         super().__init__()
         if text:
@@ -28,6 +32,10 @@ class Text(QLabel):
 
 @final
 class Caption(Text):
+    """
+    Display caption text.
+    """
+
     def __init__(self, text: str | None = None):
         super().__init__(text)
         font = QFont()
@@ -36,6 +44,10 @@ class Caption(Text):
 
 @final
 class Code(Text):
+    """
+    Display source code as text.
+    """
+
     def __init__(self, text: str | None = None):
         super().__init__(text)
         font = QFont()

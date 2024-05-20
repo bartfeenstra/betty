@@ -12,6 +12,7 @@ from shutil import copytree
 from typing import Any, TYPE_CHECKING
 
 from aiofiles.tempfile import TemporaryDirectory
+from typing_extensions import override
 
 from betty import fs
 from betty._npm import NpmRequirement, NpmUnavailable
@@ -65,6 +66,10 @@ async def _prebuild_webpack_assets() -> None:
 
 
 class WebpackEntrypointProvider:
+    """
+    An extension that provides Webpack entrypoints.
+    """
+
     @classmethod
     def webpack_entrypoint_directory_path(cls) -> Path:
         """
@@ -84,9 +89,15 @@ class WebpackEntrypointProvider:
 
 
 class PrebuiltAssetsRequirement(Requirement):
+    """
+    Check if prebuilt assets are available.
+    """
+
+    @override
     def is_met(self) -> bool:
         return (fs.PREBUILT_ASSETS_DIRECTORY_PATH / "webpack").is_dir()
 
+    @override
     def summary(self) -> Str:
         return (
             Str._("Pre-built Webpack front-end assets are available")
@@ -96,6 +107,10 @@ class PrebuiltAssetsRequirement(Requirement):
 
 
 class Webpack(Extension, CssProvider, Jinja2Provider, Generator):
+    """
+    Integrate Betty with `Webpack <https://webpack.js.org/>`_.
+    """
+
     _npm_requirement = NpmRequirement()
     _prebuilt_assets_requirement = PrebuiltAssetsRequirement()
     _requirement = AnyRequirement(
@@ -103,32 +118,41 @@ class Webpack(Extension, CssProvider, Jinja2Provider, Generator):
         _prebuilt_assets_requirement,
     )
 
+    @override
     @classmethod
     def name(cls) -> str:
         return "betty.extension.Webpack"
 
+    @override
     @classmethod
     def enable_requirement(cls) -> Requirement:
         return AllRequirements(super().enable_requirement(), cls._requirement)
 
     def build_requirement(self) -> Requirement:
+        """
+        Get the requirement that must be satisfied for Webpack builds to be available.
+        """
         return self._npm_requirement
 
+    @override
     @classmethod
     def assets_directory_path(cls) -> Path:
         return Path(__file__).parent / "assets"
 
+    @override
     @property
     def public_css_paths(self) -> list[str]:
         return [
             self.app.static_url_generator.generate("css/vendor.css"),
         ]
 
+    @override
     def new_context_vars(self) -> dict[str, Any]:
         return {
             "webpack_js_entrypoints": set(),
         }
 
+    @override
     @property
     def filters(self) -> dict[str, Callable[..., Any]]:
         return FILTERS
@@ -143,6 +167,7 @@ class Webpack(Extension, CssProvider, Jinja2Provider, Generator):
             if isinstance(extension, WebpackEntrypointProvider)
         ]
 
+    @override
     async def generate(self, job_context: GenerationContext) -> None:
         build_directory_path = await self._generate_ensure_build_directory(
             job_context=job_context,
@@ -152,6 +177,9 @@ class Webpack(Extension, CssProvider, Jinja2Provider, Generator):
         )
 
     async def prebuild(self, job_context: Context) -> None:
+        """
+        Prebuild the Webpack assets.
+        """
         async with TemporaryDirectory() as working_directory_path_str:
             build_directory_path = await self._new_builder(
                 Path(working_directory_path_str),

@@ -16,6 +16,10 @@ if TYPE_CHECKING:
 
 
 class Context:
+    """
+    Define a job context.
+    """
+
     def __init__(self, localizer: Localizer | None = None):
         self._cache: Cache[Any] = MemoryCache(localizer or DEFAULT_LOCALIZER)
         self._claims_lock = threading.Lock()
@@ -25,6 +29,9 @@ class Context:
         "This method is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x. Use `Context.cache` instead."
     )
     def claim(self, job_id: str) -> bool:
+        """
+        Claim a job within this context.
+        """
         with self._claims_lock:
             if job_id in self._claimed_job_ids:
                 return False

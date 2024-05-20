@@ -2,12 +2,18 @@
 
 from typing import Self
 
+from typing_extensions import override
+
 from betty.config import Configuration
 from betty.serde.dump import Dump, VoidableDump, minimize, Void, VoidableDictDump
 from betty.serde.load import Asserter, Fields, OptionalField, Assertions
 
 
 class NginxConfiguration(Configuration):
+    """
+    Provide configuration for the :py:class:`betty.extension.nginx.Nginx` extension.
+    """
+
     def __init__(
         self,
         *,
@@ -20,6 +26,12 @@ class NginxConfiguration(Configuration):
 
     @property
     def https(self) -> bool | None:
+        """
+        Whether the nginx server should use HTTPS.
+
+        :return: ``True`` to use HTTPS (and HTTP/2), ``False`` to use HTTP (and HTTP 1), ``None``
+            to let this behavior depend on whether the project's base URL uses HTTPS or not.
+        """
         return self._https
 
     @https.setter
@@ -29,6 +41,9 @@ class NginxConfiguration(Configuration):
 
     @property
     def www_directory_path(self) -> str | None:
+        """
+        The nginx server's public web root directory path.
+        """
         return self._www_directory_path
 
     @www_directory_path.setter
@@ -36,11 +51,13 @@ class NginxConfiguration(Configuration):
         self._www_directory_path = www_directory_path
         self._dispatch_change()
 
+    @override
     def update(self, other: Self) -> None:
         self._https = other._https
         self._www_directory_path = other._www_directory_path
         self._dispatch_change()
 
+    @override
     @classmethod
     def load(
         cls,
@@ -70,6 +87,7 @@ class NginxConfiguration(Configuration):
         )(dump)
         return configuration
 
+    @override
     def dump(self) -> VoidableDump:
         dump: VoidableDictDump[VoidableDump] = {
             "https": self.https,

@@ -5,6 +5,8 @@ Provide error handling utilities.
 import traceback
 from typing import TypeVar, Self
 
+from typing_extensions import override
+
 from betty.locale import Localizable, DEFAULT_LOCALIZER, Localizer
 
 BaseExceptionT = TypeVar("BaseExceptionT", bound=BaseException)
@@ -51,5 +53,6 @@ class UserFacingError(Exception, Localizable):
     def __str__(self) -> str:
         return self.localize(DEFAULT_LOCALIZER)
 
+    @override
     def localize(self, localizer: Localizer) -> str:
         return self._localizable_message.localize(localizer)

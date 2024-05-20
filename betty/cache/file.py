@@ -13,6 +13,7 @@ from typing import Generic, Self, TYPE_CHECKING
 
 import aiofiles
 from aiofiles.ospath import getmtime
+from typing_extensions import override
 
 from betty.cache import CacheItem, CacheItemValueContraT, CacheItemValueCoT
 from betty.cache._base import _CommonCacheBase
@@ -35,10 +36,12 @@ class _FileCacheItem(CacheItem[CacheItemValueCoT], Generic[CacheItemValueCoT]):
         self._modified = modified
         self._path = path
 
+    @override
     @property
     def modified(self) -> int | float:
         return self._modified
 
+    @override
     async def value(self) -> CacheItemValueCoT:
         async with aiofiles.open(self._path, "rb") as f:
             value_bytes = await f.read()
@@ -51,11 +54,13 @@ class _FileCacheItem(CacheItem[CacheItemValueCoT], Generic[CacheItemValueCoT]):
 class _PickledFileCacheItem(
     _FileCacheItem[CacheItemValueCoT], Generic[CacheItemValueCoT]
 ):
+    @override
     async def _load_value(self, value_bytes: bytes) -> CacheItemValueCoT:
         return loads(value_bytes)  # type: ignore[no-any-return]
 
 
 class _BinaryFileCacheItem(_FileCacheItem[bytes]):
+    @override
     async def _load_value(self, value_bytes: bytes) -> bytes:
         return value_bytes
 
@@ -79,6 +84,7 @@ class _FileCache(
         super().__init__(localizer, scopes=scopes)
         self._root_path = cache_directory_path
 
+    @override
     def _with_scope(self, scope: str) -> Self:
         return type(self)(
             self._localizer, self._root_path, scopes=(*self._scopes, scope)
@@ -90,6 +96,7 @@ class _FileCache(
     def _dump_value(self, value: CacheItemValueContraT) -> bytes:
         raise NotImplementedError
 
+    @override
     async def _get(self, cache_item_id: str) -> CacheItem[CacheItemValueContraT] | None:
         try:
             cache_item_file_path = self._cache_item_file_path(cache_item_id)
@@ -100,6 +107,7 @@ class _FileCache(
         except OSError:
             return None
 
+    @override
     async def _set(
         self,
         cache_item_id: str,
@@ -126,10 +134,12 @@ class _FileCache(
         if modified is not None:
             await asyncio.to_thread(utime, cache_item_file_path, (modified, modified))
 
+    @override
     async def _delete(self, cache_item_id: str) -> None:
         with suppress(FileNotFoundError):
             await aiofiles.os.remove(self._cache_item_file_path(cache_item_id))
 
+    @override
     async def _clear(self) -> None:
         with suppress(FileNotFoundError):
             await asyncio.to_thread(shutil.rmtree, self._path)
@@ -148,6 +158,7 @@ class PickledFileCache(
 
     _cache_item_cls = _PickledFileCacheItem
 
+    @override
     def _dump_value(self, value: CacheItemValueContraT) -> bytes:
         return dumps(value)
 
@@ -159,12 +170,21 @@ class BinaryFileCache(_FileCache[bytes]):
 
     _cache_item_cls = _BinaryFileCacheItem
 
+    @override
     def _dump_value(self, value: bytes) -> bytes:
         return value
 
     @property
     def path(self) -> Path:
+        """
+        The path to the cache's root directory.
+        """
         return self._path
 
     def cache_item_file_path(self, cache_item_id: str) -> Path:
+        """
+        Get the file path for a cache item with the given ID.
+
+        The cache item itself may or may not exist.
+        """
         return self._cache_item_file_path(cache_item_id)

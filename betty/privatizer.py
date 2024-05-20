@@ -30,6 +30,10 @@ Expirable: TypeAlias = Person | Event | Date | None
 
 
 class Privatizer:
+    """
+    Privatize resources.
+    """
+
     def __init__(
         self,
         lifetime_threshold: int,
@@ -41,6 +45,9 @@ class Privatizer:
         self._seen: list[HasPrivacy] = []
 
     def privatize(self, subject: HasPrivacy) -> None:
+        """
+        Privatize a resource.
+        """
         if subject.privacy is Privacy.PUBLIC:
             return
 
@@ -245,6 +252,9 @@ class Privatizer:
         subject: Expirable,
         generations_ago: int = 0,
     ) -> bool:
+        """
+        Check if a subject of the given generation has expired.
+        """
         if isinstance(subject, Person):
             return self._person_has_expired(subject, generations_ago)
 

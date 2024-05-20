@@ -1,8 +1,12 @@
-"""Expand an ancestry by deriving additional data from existing data."""
+"""
+Expand an ancestry by deriving additional data from existing data.
+"""
 
 from __future__ import annotations
 
 from logging import getLogger
+
+from typing_extensions import override
 
 from betty.app.extension import Extension, UserFacingExtension
 from betty.deriver import Deriver as DeriverApi
@@ -12,10 +16,16 @@ from betty.model.event_type import DerivableEventType
 
 
 class Deriver(UserFacingExtension, PostLoader):
+    """
+    Expand an ancestry by deriving additional data from existing data.
+    """
+
+    @override
     @classmethod
     def name(cls) -> str:
         return "betty.extension.Deriver"
 
+    @override
     async def post_load(self) -> None:
         logger = getLogger(__name__)
         logger.info(self._app.localizer._("Deriving..."))
@@ -32,16 +42,19 @@ class Deriver(UserFacingExtension, PostLoader):
         )
         await deriver.derive()
 
+    @override
     @classmethod
     def comes_before(cls) -> set[type[Extension]]:
         from betty.extension import Privatizer
 
         return {Privatizer}
 
+    @override
     @classmethod
     def label(cls) -> Str:
         return Str._("Deriver")
 
+    @override
     @classmethod
     def description(cls) -> Str:
         return Str._(

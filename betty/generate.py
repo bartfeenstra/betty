@@ -63,17 +63,31 @@ def getLogger() -> logging.Logger:
 
 
 class Generator:
+    """
+    An extension that generates (part of) projects' sites.
+    """
+
     async def generate(self, job_context: GenerationContext) -> None:
+        """
+        Generate (part of) a project's site.
+        """
         raise NotImplementedError(repr(self))
 
 
 class GenerationContext(Context):
+    """
+    A site generation job context.
+    """
+
     def __init__(self, app: App):
         super().__init__()
         self._app = app
 
     @property
     def app(self) -> App:
+        """
+        The Betty application this job context is run within.
+        """
         return self._app
 
 

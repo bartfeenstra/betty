@@ -11,28 +11,43 @@ U = TypeVar("U")
 
 
 class Void:
-    pass  # pragma: no cover
+    """
+    A sentinel that describes the absence of a value.
+
+    Using this sentinel allows for actual values to be ``None``. Like ``None``,
+    ``Void`` is only ever used through its type, and never instantiated.
+    """
+
+    def __new__(cls):  # pragma: no cover  # noqa D102
+        raise RuntimeError("The Void sentinel cannot be instantiated.")
 
 
+#: The Python types that define a serialized dump.
 DumpType: TypeAlias = bool | int | float | str | None | list["Dump"] | dict[str, "Dump"]
 DumpTypeT = TypeVar("DumpTypeT", bound=DumpType)
 
+#: A serialized dump.
 Dump: TypeAlias = (
     bool | int | float | str | None | Sequence["Dump"] | Mapping[str, "Dump"]
 )
 DumpT = TypeVar("DumpT", bound=Dump)
 DumpU = TypeVar("DumpU", bound=Dump)
 
+#: A serialized dump that may be :py:class:`betty.serde.dump.Void`.
 VoidableDump: TypeAlias = Dump | type[Void]
 VoidableDumpT = TypeVar("VoidableDumpT", bound=VoidableDump)
 VoidableDumpU = TypeVar("VoidableDumpU", bound=VoidableDump)
 
+#: A dump which is a list whose values are serialized dumps.
 ListDump: TypeAlias = list[DumpT]
 
+#: A dump which is a dictionary whose keys are strings and values are serialized dumps.
 DictDump: TypeAlias = dict[str, DumpT]
 
+#: A dump which is a list whose values are serialized dumps, or that may be :py:class:`betty.serde.dump.Void`
 VoidableListDump: TypeAlias = list[VoidableDumpT]
 
+#: A dump which is a dictionary whose keys are strings and values are serialized dumps, or that may be :py:class:`betty.serde.dump.Void`
 VoidableDictDump: TypeAlias = dict[str, VoidableDumpT]
 
 _MinimizableDump: TypeAlias = (
@@ -112,6 +127,10 @@ def dump_default(dump, key, default_type):
 
 
 class Dumpable:
+    """
+    Instances can be dumped to serializable data.
+    """
+
     def dump(self) -> VoidableDump:
         """
         Dump this instance to a portable format.

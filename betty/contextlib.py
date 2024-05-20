@@ -11,6 +11,10 @@ ContextT = TypeVar("ContextT")
 
 
 class SynchronizedContextManager(Generic[ContextT]):
+    """
+    Make an asynchronous context manager synchronous.
+    """
+
     def __init__(self, context_manager: AsyncContextManager[ContextT]):
         self._context_manager = context_manager
 

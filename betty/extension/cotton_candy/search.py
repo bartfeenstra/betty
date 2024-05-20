@@ -18,6 +18,10 @@ if TYPE_CHECKING:
 
 
 class Index:
+    """
+    Build search indexes.
+    """
+
     def __init__(
         self,
         app: App,
@@ -29,6 +33,9 @@ class Index:
         self._localizer = localizer
 
     async def build(self) -> AsyncIterable[dict[str, str]]:
+        """
+        Build the search index.
+        """
         async for entry in self._build_people():
             yield entry
         async for entry in self._build_places():

@@ -19,6 +19,7 @@ from xml.etree import ElementTree
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
 from geopy import Point
+from typing_extensions import override
 
 from betty.gramps.error import GrampsError
 from betty.locale import DateRange, Datey, Date, Str, Localizer
@@ -86,18 +87,34 @@ if TYPE_CHECKING:
 
 
 class GrampsLoadFileError(GrampsError, RuntimeError):
+    """
+    An error occurred when loading a Gramps family tree file.
+    """
+
     pass  # pragma: no cover
 
 
 class GrampsFileNotFoundError(GrampsError, FileNotFoundError):
+    """
+    A Gramps family tree file could not be file.
+    """
+
     pass  # pragma: no cover
 
 
 class XPathError(GrampsError, RuntimeError):
+    """
+    An error occurred when evaluating an XPath selector on Gramps XML.
+    """
+
     pass  # pragma: no cover
 
 
 class GrampsEntityType(Enum):
+    """
+    The supported Gramps entity types.
+    """
+
     CITATION = "citation"
     EVENT = "event"
     OBJECT = "object"
@@ -107,14 +124,23 @@ class GrampsEntityType(Enum):
 
 @dataclass(frozen=True)
 class GrampsEntityReference:
+    """
+    A reference to an entity in a Gramps family tree.
+    """
+
     entity_type: GrampsEntityType
     entity_id: str
 
+    @override
     def __str__(self) -> str:
         return f"{self.entity_type.value} ({self.entity_id})"
 
 
 class GrampsLoader:
+    """
+    Load Gramps family history data into a project.
+    """
+
     def __init__(
         self,
         project_or_ancestry: Project | Ancestry,
@@ -140,6 +166,9 @@ class GrampsLoader:
         self._localizer = localizer
 
     async def load_file(self, file_path: Path) -> None:
+        """
+        Load family history data from any of the supported Gramps file types.
+        """
         file_path = file_path.resolve()
         logger = getLogger(__name__)
         logger.info(
@@ -178,6 +207,9 @@ class GrampsLoader:
         )
 
     async def load_gramps(self, gramps_path: Path) -> None:
+        """
+        Load family history data from a Gramps *.gramps file.
+        """
         gramps_path = gramps_path.resolve()
         try:
             with gzip.open(gramps_path, mode="r") as f:
@@ -190,6 +222,9 @@ class GrampsLoader:
             raise GrampsLoadFileError(Str.plain(error)) from error
 
     async def load_gpkg(self, gpkg_path: Path) -> None:
+        """
+        Load family history data from a Gramps *.gpkg file.
+        """
         gpkg_path = gpkg_path.resolve()
         try:
             tar_file: IO[bytes] = gzip.open(gpkg_path)  # type: ignore[assignment]
@@ -217,6 +252,11 @@ class GrampsLoader:
             ) from error
 
     async def load_xml(self, xml: str | Path, gramps_tree_directory_path: Path) -> None:
+        """
+        Load family history data from XML.
+
+        :param xml: The raw XML or the path to an XML file.
+        """
         if isinstance(xml, Path):
             async with aiofiles.open(xml) as f:
                 xml = await f.read()
@@ -233,6 +273,9 @@ class GrampsLoader:
     async def load_tree(
         self, tree: ElementTree.ElementTree, gramps_tree_directory_path: Path
     ) -> None:
+        """
+        Load family history data from a Gramps XML tree.
+        """
         if self._loaded:
             raise RuntimeError("This loader has been used up.")
 
@@ -276,10 +319,16 @@ class GrampsLoader:
         self._ancestry.add_unchecked_graph(*self._ancestry_builder.build())
 
     def add_entity(self, entity: AliasableEntity[Entity]) -> None:
+        """
+        Add entities to the ancestry.
+        """
         self._ancestry_builder.add_entity(entity)
         self._added_entity_counts[entity.type] += 1
 
     def add_association(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Add an association between two entities to the ancestry.
+        """
         self._ancestry_builder.add_association(*args, **kwargs)
 
     _NS = {

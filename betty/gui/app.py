@@ -17,6 +17,7 @@ from PyQt6.QtWidgets import (
     QFileDialog,
     QPushButton,
 )
+from typing_extensions import override
 
 from betty import about
 from betty.about import report
@@ -33,6 +34,10 @@ from betty.project import ProjectConfiguration
 
 
 class BettyPrimaryWindow(BettyMainWindow):
+    """
+    A primary, top-level, independent application window.
+    """
+
     def __init__(
         self,
         app: App,
@@ -112,10 +117,12 @@ class BettyPrimaryWindow(BettyMainWindow):
         )
         help_menu.addAction(self.about_action)
 
+    @override
     @property
     def window_title(self) -> Localizable:
         return Str.plain("Betty")
 
+    @override
     def _set_translatables(self) -> None:
         super()._set_translatables()
         self.new_project_action.setText(self._app.localizer._("New project..."))
@@ -135,6 +142,9 @@ class BettyPrimaryWindow(BettyMainWindow):
         self.about_action.setText(self._app.localizer._("About Betty"))
 
     def report_bug(self) -> None:
+        """
+        Open the web page where users can report bugs.
+        """
         with ExceptionCatcher(self):
             body = f"""
 ## Summary
@@ -159,6 +169,9 @@ class BettyPrimaryWindow(BettyMainWindow):
             )
 
     def request_feature(self) -> None:
+        """
+        Open the web page where users can request new features.
+        """
         with ExceptionCatcher(self):
             body = """
 ## Summary
@@ -187,6 +200,9 @@ class BettyPrimaryWindow(BettyMainWindow):
             about_window.show()
 
     def open_project(self) -> None:
+        """
+        Open a project window.
+        """
         with ExceptionCatcher(self):
             from betty.gui.project import ProjectWindow
 
@@ -206,6 +222,9 @@ class BettyPrimaryWindow(BettyMainWindow):
             self.close()
 
     def new_project(self) -> None:
+        """
+        Open a window for a new project.
+        """
         with ExceptionCatcher(self):
             from betty.gui.project import ProjectWindow
 
@@ -229,6 +248,9 @@ class BettyPrimaryWindow(BettyMainWindow):
             serve_window.show()
 
     def clear_caches(self) -> None:
+        """
+        Clear Betty's caches.
+        """
         wait_to_thread(self._clear_caches())
 
     async def _clear_caches(self) -> None:
@@ -236,6 +258,9 @@ class BettyPrimaryWindow(BettyMainWindow):
             await self._app.cache.clear()
 
     def open_application_configuration(self) -> None:
+        """
+        Open the Betty application configuration window.
+        """
         with ExceptionCatcher(self):
             window = ApplicationConfiguration(self._app, parent=self)
             window.show()
@@ -258,6 +283,10 @@ class _WelcomeAction(QPushButton):
 
 
 class WelcomeWindow(BettyPrimaryWindow):
+    """
+    The window to show when launching the Betty Graphical User Interface.
+    """
+
     # Allow the window to be as narrow as it can be.
     window_width = 1
     # This is a best guess at the minimum required height, because if we set this to 1, like the width, some of the
@@ -306,6 +335,7 @@ class WelcomeWindow(BettyPrimaryWindow):
         self.demo_button.released.connect(self._demo)
         central_layout.addWidget(self.demo_button)
 
+    @override
     def _set_translatables(self) -> None:
         super()._set_translatables()
         self._welcome.setText(self._app.localizer._("Welcome to Betty"))
@@ -370,12 +400,17 @@ class _AboutBettyWindow(BettyMainWindow):
             )
         )
 
+    @override
     @property
     def window_title(self) -> Localizable:
         return Str._("About Betty")
 
 
 class ApplicationConfiguration(BettyMainWindow):
+    """
+    A window to administer Betty application configuration.
+    """
+
     window_width = 400
     window_height = 150
 
@@ -397,6 +432,7 @@ class ApplicationConfiguration(BettyMainWindow):
         for row in self._locale_collector.rows:
             self._form.addRow(*row)
 
+    @override
     @property
     def window_title(self) -> Localizable:
         return Str._("Configuration")

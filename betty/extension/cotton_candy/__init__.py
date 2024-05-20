@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Callable, Iterable, Self, cast, TYPE_CHECKING
 
 from jinja2 import pass_context
+from typing_extensions import override
 
 from betty.app.extension import ConfigurableExtension, Extension, Theme
 from betty.config import Configuration
@@ -78,9 +79,11 @@ class _ColorConfiguration(Configuration):
         self._hex = hex_value
         self._dispatch_change()
 
+    @override
     def update(self, other: Self) -> None:
         self.hex = other.hex
 
+    @override
     @classmethod
     def load(
         cls,
@@ -95,11 +98,16 @@ class _ColorConfiguration(Configuration):
             configuration.hex = hex_value
         return configuration
 
+    @override
     def dump(self) -> VoidableDump:
         return self._hex
 
 
 class CottonCandyConfiguration(Configuration):
+    """
+    Provide configuration for the :py:class:`betty.extension.cotton_candy.CottonCandy` extension.
+    """
+
     DEFAULT_PRIMARY_INACTIVE_COLOR = "#ffc0cb"
     DEFAULT_PRIMARY_ACTIVE_COLOR = "#ff69b4"
     DEFAULT_LINK_INACTIVE_COLOR = "#149988"
@@ -132,24 +140,40 @@ class CottonCandyConfiguration(Configuration):
 
     @property
     def featured_entities(self) -> EntityReferenceSequence[UserFacingEntity & Entity]:
+        """
+        The entities featured on the front page.
+        """
         return self._featured_entities
 
     @property
     def primary_inactive_color(self) -> _ColorConfiguration:
+        """
+        The color for inactive primary/CTA elements.
+        """
         return self._primary_inactive_color
 
     @property
     def primary_active_color(self) -> _ColorConfiguration:
+        """
+        The color for active primary/CTA elements.
+        """
         return self._primary_active_color
 
     @property
     def link_inactive_color(self) -> _ColorConfiguration:
+        """
+        The color for inactive hyperlinks.
+        """
         return self._link_inactive_color
 
     @property
     def link_active_color(self) -> _ColorConfiguration:
+        """
+        The color for active hyperlinks.
+        """
         return self._link_active_color
 
+    @override
     @classmethod
     def load(
         cls,
@@ -205,6 +229,7 @@ class CottonCandyConfiguration(Configuration):
         )(dump)
         return configuration
 
+    @override
     def dump(self) -> VoidableDump:
         return minimize(
             {
@@ -225,28 +250,38 @@ class CottonCandy(
     Jinja2Provider,
     WebpackEntrypointProvider,
 ):
+    """
+    Provide Betty's default front-end theme.
+    """
+
+    @override
     @classmethod
     def name(cls) -> str:
         return "betty.extension.CottonCandy"
 
+    @override
     @classmethod
     def depends_on(cls) -> set[type[Extension]]:
         return {Webpack}
 
+    @override
     @classmethod
     def comes_after(cls) -> set[type[Extension]]:
         from betty.extension import Maps, Trees
 
         return {Maps, Trees}
 
+    @override
     @classmethod
     def assets_directory_path(cls) -> Path:
         return Path(__file__).parent / "assets"
 
+    @override
     @classmethod
     def webpack_entrypoint_directory_path(cls) -> Path:
         return Path(__file__).parent / "webpack"
 
+    @override
     def webpack_entrypoint_cache_keys(self) -> Sequence[str]:
         return (
             self._app.project.configuration.root_path,
@@ -256,6 +291,7 @@ class CottonCandy(
             self._configuration.link_active_color.hex,
         )
 
+    @override
     @property
     def public_css_paths(self) -> list[str]:
         return [
@@ -264,29 +300,35 @@ class CottonCandy(
             ),
         ]
 
+    @override
     @classmethod
     def label(cls) -> Str:
         return Str.plain("Cotton Candy")
 
+    @override
     @classmethod
     def default_configuration(cls) -> CottonCandyConfiguration:
         return CottonCandyConfiguration()
 
+    @override
     @classmethod
     def description(cls) -> Str:
         return Str._("Cotton Candy is Betty's default theme.")
 
+    @override
     def gui_build(self) -> QWidget:
         from betty.extension.cotton_candy.gui import _CottonCandyGuiWidget
 
         return _CottonCandyGuiWidget(self._app)
 
+    @override
     @property
     def globals(self) -> dict[str, Any]:
         return {
             "search_index": _global_search_index,
         }
 
+    @override
     @property
     def filters(self) -> dict[str, Callable[..., Any]]:
         return {

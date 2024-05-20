@@ -8,6 +8,8 @@ from contextlib import suppress
 from typing import Any, TYPE_CHECKING
 from urllib.parse import quote
 
+from typing_extensions import override
+
 from betty.locale import negotiate_locale, Localey, to_locale
 from betty.model import get_entity_type_name, Entity
 from betty.string import camel_case_to_kebab_case
@@ -18,6 +20,10 @@ if TYPE_CHECKING:
 
 
 class LocalizedUrlGenerator:
+    """
+    Generate URLs for localizable resources.
+    """
+
     def generate(
         self,
         resource: Any,
@@ -25,22 +31,37 @@ class LocalizedUrlGenerator:
         absolute: bool = False,
         locale: Localey | None = None,
     ) -> str:
+        """
+        Generate a URL for a resource.
+        """
         raise NotImplementedError(repr(self))
 
 
 class StaticUrlGenerator:
+    """
+    Generate URLs for static (non-localizable) resources.
+    """
+
     def generate(
         self,
         resource: Any,
         absolute: bool = False,
     ) -> str:
+        """
+        Generate a URL for a resource.
+        """
         raise NotImplementedError(repr(self))
 
 
 class LocalizedPathUrlGenerator(LocalizedUrlGenerator):
+    """
+    Generate URLs for localizable file paths.
+    """
+
     def __init__(self, app: App):
         self._app = app
 
+    @override
     def generate(
         self,
         resource: Any,
@@ -57,9 +78,14 @@ class LocalizedPathUrlGenerator(LocalizedUrlGenerator):
 
 
 class StaticPathUrlGenerator(StaticUrlGenerator):
+    """
+    Generate URLs for static (non-localized) file paths.
+    """
+
     def __init__(self, configuration: ProjectConfiguration):
         self._configuration = configuration
 
+    @override
     def generate(
         self,
         resource: Any,
@@ -74,6 +100,7 @@ class _EntityUrlGenerator(LocalizedUrlGenerator):
         self._entity_type = entity_type
         self._pattern = f"{camel_case_to_kebab_case(get_entity_type_name(entity_type))}/{{entity_id}}/index.{{extension}}"
 
+    @override
     def generate(
         self,
         resource: Entity,
@@ -106,6 +133,10 @@ class _EntityUrlGenerator(LocalizedUrlGenerator):
 
 
 class AppUrlGenerator(LocalizedUrlGenerator):
+    """
+    Generate URLs for all resources provided by a Betty application.
+    """
+
     def __init__(self, app: App):
         self._generators = [
             *(
@@ -115,6 +146,7 @@ class AppUrlGenerator(LocalizedUrlGenerator):
             LocalizedPathUrlGenerator(app),
         ]
 
+    @override
     def generate(
         self,
         resource: Any,

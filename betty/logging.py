@@ -14,10 +14,16 @@ from logging import (
     LogRecord,
 )
 
+from typing_extensions import override
+
 
 class CliHandler(
     StreamHandler,  # type: ignore[type-arg]
 ):
+    """
+    A logging handler for Betty's Command Line Interface.
+    """
+
     COLOR_LEVELS = {
         CRITICAL: 91,
         ERROR: 91,
@@ -30,6 +36,7 @@ class CliHandler(
     def __init__(self):
         StreamHandler.__init__(self, sys.stderr)
 
+    @override
     def format(self, record: LogRecord) -> str:
         s = StreamHandler.format(self, record)
         for level, color in self.COLOR_LEVELS.items():

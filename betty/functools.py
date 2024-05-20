@@ -120,15 +120,19 @@ _DoFP = ParamSpec("_DoFP")
 
 
 class Do(Generic[_DoFP, _DoFReturnT]):
+    """
+    A functional implementation of do-while functionality, with retries and timeouts.
+    """
+
     def __init__(
         self,
-        f: Callable[_DoFP, _DoFReturnT | Awaitable[_DoFReturnT]],
-        *args: _DoFP.args,
-        **kwargs: _DoFP.kwargs,
+        do: Callable[_DoFP, _DoFReturnT | Awaitable[_DoFReturnT]],
+        *do_args: _DoFP.args,
+        **do_kwargs: _DoFP.kwargs,
     ):
-        self._f = f
-        self._args = args
-        self._kwargs = kwargs
+        self._do = do
+        self._do_args = do_args
+        self._do_kwargs = do_kwargs
 
     async def until(
         self,
@@ -137,17 +141,23 @@ class Do(Generic[_DoFP, _DoFReturnT]):
         timeout: int = 300,
         interval: int | float = 0.1,
     ) -> _DoFReturnT:
+        """
+        Perform the 'do' until it succeeds or as long as the given arguments allow.
+
+        :param timeout: The timeout in seconds.
+        :param interval: The interval between 'loops' in seconds.
+        """
         start_time = time()
         while True:
             retries -= 1
             try:
-                f_result_or_coroutine = self._f(*self._args, **self._kwargs)
-                if isawaitable(f_result_or_coroutine):
-                    f_result = await f_result_or_coroutine
+                do_result_or_coroutine = self._do(*self._do_args, **self._do_kwargs)
+                if isawaitable(do_result_or_coroutine):
+                    do_result = await do_result_or_coroutine
                 else:
-                    f_result = f_result_or_coroutine
+                    do_result = do_result_or_coroutine
                 for condition in conditions:
-                    condition_result_or_coroutine = condition(f_result)
+                    condition_result_or_coroutine = condition(do_result)
                     if isawaitable(condition_result_or_coroutine):
                         condition_result = await condition_result_or_coroutine
                     else:
@@ -156,7 +166,7 @@ class Do(Generic[_DoFP, _DoFReturnT]):
                         )
                     if condition_result is False:
                         raise RuntimeError(
-                            f"Condition {condition} was not met for {f_result}."
+                            f"Condition {condition} was not met for {do_result}."
                         )
             except BaseException:
                 if retries == 0:
@@ -165,10 +175,19 @@ class Do(Generic[_DoFP, _DoFReturnT]):
                     raise
                 await sleep(interval)
             else:
-                return f_result
+                return do_result
 
 
 class Uniquifier(Generic[T]):
+    """
+    Yield the first occurrences of values in a sequence.
+
+    For the purpose of filtering duplicate values from an iterable,
+    this works similar to :py:class:`set`, except that this class
+    supports non-hashable values. It is therefore slightly slower
+    than :py:class:`set`.
+    """
+
     def __init__(self, *values: Iterable[T]):
         self._values = chain(*values)
         self._seen: MutableSequence[T] = []

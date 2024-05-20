@@ -20,10 +20,17 @@ T = TypeVar("T")
 
 
 class Schema:
+    """
+    Build JSON Schemas for a Betty application.
+    """
+
     def __init__(self, app: App):
         self._app = app
 
     async def build(self) -> DictDump[Dump]:
+        """
+        Build the JSON Schema.
+        """
         from betty.model import get_entity_type_name
 
         schema: DictDump[Dump] = {
