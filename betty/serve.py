@@ -11,17 +11,19 @@ import webbrowser
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 from io import StringIO
 from pathlib import Path
-from types import TracebackType
-from typing import Sequence, Any
+from typing import Sequence, Any, TYPE_CHECKING
 
 from aiofiles.os import makedirs, symlink
 from aiofiles.tempfile import TemporaryDirectory, AiofilesContextManagerTempDir
 from aiohttp import ClientSession
 
-from betty.app import App
 from betty.error import UserFacingError
 from betty.functools import Do
 from betty.locale import Str, Localizer
+
+if TYPE_CHECKING:
+    from betty.app import App
+    from types import TracebackType
 
 DEFAULT_PORT = 8000
 
@@ -101,10 +103,10 @@ class Server:
         async with ClientSession() as session:
             try:
                 await Do[Any, None](self._assert_available, session).until()
-            except Exception:
+            except Exception as error:
                 raise UserFacingError(
                     Str._("The server was unreachable after starting.")
-                )
+                ) from error
 
     async def _assert_available(self, session: ClientSession) -> None:
         async with session.get(self.public_url) as response:
@@ -190,7 +192,9 @@ class BuiltinServer(Server):
             with contextlib.suppress(OSError):
                 self._http_server = HTTPServer(
                     ("", self._port),
-                    lambda request, client_address, server: _BuiltinServerRequestHandler(
+                    lambda request,
+                    client_address,
+                    server: _BuiltinServerRequestHandler(
                         request,
                         client_address,
                         server,

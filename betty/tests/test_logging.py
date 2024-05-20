@@ -9,7 +9,7 @@ from betty.logging import CliHandler
 
 class TestCliHandler:
     @pytest.mark.parametrize(
-        "expected, message, level",
+        ("expected", "message", "level"),
         [
             (
                 "\033[91mSomething went wrong!\033[0m\n",

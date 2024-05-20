@@ -8,9 +8,12 @@ from logging import getLogger
 from betty.app.extension import UserFacingExtension
 from betty.load import PostLoader
 from betty.locale import Str
-from betty.model import Entity
 from betty.model.ancestry import Person, HasPrivacy
 from betty.privatizer import Privatizer as PrivatizerApi
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from betty.model import Entity
 
 
 class Privatizer(UserFacingExtension, PostLoader):

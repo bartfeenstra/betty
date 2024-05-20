@@ -1,12 +1,15 @@
 from __future__ import annotations
 
-from pathlib import Path
 
 from PyQt6.QtWidgets import QFileDialog
-from pytest_mock import MockerFixture
 
 from betty.extension import Nginx
-from betty.tests.conftest import BettyQtBot
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from betty.tests.conftest import BettyQtBot
+    from pytest_mock import MockerFixture
+    from pathlib import Path
 
 
 class TestNginxGuiWidget:

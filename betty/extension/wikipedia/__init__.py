@@ -4,10 +4,9 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Callable, Iterable, Any
+from typing import Callable, Iterable, Any, TYPE_CHECKING
 
 from jinja2 import pass_context
-from jinja2.runtime import Context
 
 from betty.app.extension import UserFacingExtension, ConfigurableExtension
 from betty.asyncio import gather
@@ -17,7 +16,6 @@ from betty.gui import GuiBuilder
 from betty.jinja2 import Jinja2Provider, context_localizer
 from betty.load import PostLoader
 from betty.locale import negotiate_locale, Str
-from betty.model.ancestry import Link
 from betty.wikipedia import (
     Summary,
     _parse_url,
@@ -27,6 +25,10 @@ from betty.wikipedia import (
     _Retriever,
     _Populator,
 )
+
+if TYPE_CHECKING:
+    from jinja2.runtime import Context
+    from betty.model.ancestry import Link
 
 
 class Wikipedia(

@@ -7,10 +7,9 @@ This module is internal.
 from __future__ import annotations
 
 from asyncio import to_thread
-from collections.abc import Callable, Sequence
 from pathlib import Path
 from shutil import copytree
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from aiofiles.tempfile import TemporaryDirectory
 
@@ -32,6 +31,9 @@ from betty.requirement import (
     AnyRequirement,
     RequirementError,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
 
 
 def _prebuilt_webpack_build_directory_path(

@@ -1,5 +1,9 @@
+"""
+Provide Sphinx configuration.
+"""
+
 import sys
-from os import path
+from pathlib import Path
 
 import betty
 from betty import about, fs
@@ -18,11 +22,11 @@ for locale in localizers.locales:
         int(round(100 / (coverage[1] / coverage[0])))
     )
 
-sys.path.insert(0, path.dirname(path.dirname(betty.__file__)))
+sys.path.insert(0, str(Path(betty.__file__).parent.parent))
 project = "Betty"
 version = wait_to_thread(about.version()) or ""
 release = wait_to_thread(about.version_label())
-copyright = "Bart Feenstra and contributors"
+copyright = "Bart Feenstra and contributors"  # noqa A001
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
     "jinja2": ("https://jinja.palletsprojects.com/en/latest/", None),

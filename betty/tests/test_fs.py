@@ -62,11 +62,11 @@ class TestFileSystem:
                 sut = FileSystem((source_path_1, None), (source_path_2, None))
 
                 async with sut.open(Path("apples")) as f:
-                    assert "apples" == await f.read()
+                    assert await f.read() == "apples"
                 async with sut.open(Path("oranges")) as f:
-                    assert "oranges" == await f.read()
+                    assert await f.read() == "oranges"
                 async with sut.open(Path("bananas")) as f:
-                    assert "bananas" == await f.read()
+                    assert await f.read() == "bananas"
 
                 with pytest.raises(FileNotFoundError):
                     async with sut.open(Path("mangos")):
@@ -91,7 +91,7 @@ class TestFileSystem:
                 sut = FileSystem((source_path_1, None), (source_path_2, None))
 
                 async with sut.open(Path("pinkladies"), Path("apples")) as f:
-                    assert "pinkladies" == await f.read()
+                    assert await f.read() == "pinkladies"
 
     async def test_open_with_first_file_path_alternative_second_source_path(
         self,
@@ -110,7 +110,7 @@ class TestFileSystem:
                 sut = FileSystem((source_path_1, None), (source_path_2, None))
 
                 async with sut.open(Path("pinkladies"), Path("apples")) as f:
-                    assert "pinkladies" == await f.read()
+                    assert await f.read() == "pinkladies"
 
     async def test_open_with_second_file_path_alternative_first_source_path(
         self,
@@ -127,7 +127,7 @@ class TestFileSystem:
                 sut = FileSystem((source_path_1, None), (source_path_2, None))
 
                 async with sut.open(Path("pinkladies"), Path("apples")) as f:
-                    assert "apples" == await f.read()
+                    assert await f.read() == "apples"
 
     async def test_copy2(self) -> None:
         async with TemporaryDirectory() as source_path_str_1:
@@ -152,11 +152,11 @@ class TestFileSystem:
                     await sut.copy2(Path("bananas"), destination_path)
 
                     async with sut.open(destination_path / "apples") as f:
-                        assert "apples" == await f.read()
+                        assert await f.read() == "apples"
                     async with sut.open(destination_path / "oranges") as f:
-                        assert "oranges" == await f.read()
+                        assert await f.read() == "oranges"
                     async with sut.open(destination_path / "bananas") as f:
-                        assert "bananas" == await f.read()
+                        assert await f.read() == "bananas"
 
                     with pytest.raises(FileNotFoundError):
                         await sut.copy2(Path("mangos"), destination_path)
@@ -185,12 +185,12 @@ class TestFileSystem:
                     destination_path = Path(destination_path_str)
                     sut = FileSystem((source_path_1, None), (source_path_2, None))
 
-                    async for _ in sut.copytree(Path(""), destination_path):
+                    async for _ in sut.copytree(Path(), destination_path):
                         pass
 
                     async with sut.open(destination_path / "basket" / "apples") as f:
-                        assert "apples" == await f.read()
+                        assert await f.read() == "apples"
                     async with sut.open(destination_path / "basket" / "oranges") as f:
-                        assert "oranges" == await f.read()
+                        assert await f.read() == "oranges"
                     async with sut.open(destination_path / "basket" / "bananas") as f:
-                        assert "bananas" == await f.read()
+                        assert await f.read() == "bananas"

@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 from betty.extension import Wikipedia
-from betty.tests.conftest import BettyQtBot
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from betty.tests.conftest import BettyQtBot
 
 
 class TestWikipediaGuiWidget:

@@ -74,12 +74,10 @@ class Deriver:
         self, person: Person, derivable_event_type: type[DerivableEventType]
     ) -> tuple[int, int]:
         # Gather any existing events that could be derived, or create a new derived event if needed.
-        derivable_events: list[tuple[Event, Derivation]] = list(
-            map(
-                lambda event: (event, Derivation.UPDATE),
-                _get_derivable_events(person, derivable_event_type),
-            )
-        )
+        derivable_events: list[tuple[Event, Derivation]] = [
+            (event, Derivation.UPDATE)
+            for event in _get_derivable_events(person, derivable_event_type)
+        ]
         if not derivable_events:
             if list(
                 filter(

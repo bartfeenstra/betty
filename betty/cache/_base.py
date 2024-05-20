@@ -94,7 +94,9 @@ class _CommonCacheBase(Cache[CacheItemValueContraT], Generic[CacheItemValueContr
         raise NotImplementedError
 
     @overload
-    def getset(self, cache_item_id: str) -> AsyncContextManager[
+    def getset(
+        self, cache_item_id: str
+    ) -> AsyncContextManager[
         tuple[
             CacheItem[CacheItemValueContraT] | None,
             CacheItemValueSetter[CacheItemValueContraT],
@@ -114,7 +116,9 @@ class _CommonCacheBase(Cache[CacheItemValueContraT], Generic[CacheItemValueContr
         pass  # pragma: no cover
 
     @asynccontextmanager  # type: ignore[misc]
-    async def getset(self, cache_item_id: str, *, wait: bool = True) -> AsyncIterator[
+    async def getset(
+        self, cache_item_id: str, *, wait: bool = True
+    ) -> AsyncIterator[
         tuple[
             CacheItem[CacheItemValueContraT] | None,
             CacheItemValueSetter[CacheItemValueContraT] | None,

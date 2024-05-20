@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Iterator
+from typing import Any, Iterator, TYPE_CHECKING
 
 import pytest
 
@@ -27,9 +27,11 @@ from betty.model.ancestry import (
 )
 from betty.model.event_type import Birth, UnknownEventType, EventType, Death
 from betty.project import EntityReference, DEFAULT_LIFETIME_THRESHOLD
-from betty.serde.dump import Dump
 from betty.serde.load import AssertionFailed
 from betty.tests.serde import raises_error
+
+if TYPE_CHECKING:
+    from betty.serde.dump import Dump
 
 
 class TestColorConfiguration:
@@ -206,19 +208,21 @@ _BEFORE_REFERENCE_DATE = Date(1900, 1, 1)
 _AFTER_REFERENCE_DATE = Date(2000, 1, 1)
 
 
-def _parameterize_with_associated_events() -> Iterator[
-    tuple[
-        bool,
-        PresenceRole,
-        str | None,
-        Privacy,
-        type[EventType],
-        Datey | None,
-        Privacy,
-        type[EventType],
-        Datey | None,
+def _parameterize_with_associated_events() -> (
+    Iterator[
+        tuple[
+            bool,
+            PresenceRole,
+            str | None,
+            Privacy,
+            type[EventType],
+            Datey | None,
+            Privacy,
+            type[EventType],
+            Datey | None,
+        ]
     ]
-]:
+):
     ids = (
         (True, "E1"),
         (False, None),
@@ -290,7 +294,7 @@ def _parameterize_with_associated_events() -> Iterator[
 
 class TestPersonLifetimeEvents:
     @pytest.mark.parametrize(
-        "expected, event_id, event_privacy, event_datey",
+        ("expected", "event_id", "event_privacy", "event_datey"),
         [
             # Events without dates are omitted from timelines.
             (False, "E1", Privacy.PUBLIC, None),

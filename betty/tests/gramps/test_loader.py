@@ -85,9 +85,9 @@ class TestGrampsLoader:
         )
         place = ancestry[Place]["P0000"]
         names = place.names
-        assert 1 == len(names)
+        assert len(names) == 1
         name = names[0]
-        assert "Amsterdam" == name.name
+        assert name.name == "Amsterdam"
 
     async def test_place_should_include_note(self) -> None:
         ancestry = await self._load_partial(
@@ -110,7 +110,7 @@ class TestGrampsLoader:
         assert note.id == "N0000"
 
     @pytest.mark.parametrize(
-        "expected_latitude, expected_longitude, latitude, longitude",
+        ("expected_latitude", "expected_longitude", "latitude", "longitude"),
         [
             (4.9, 52.366667, "4.9", "52.366667"),
             (41.5, -81.0, "41.5", "-81.0"),
@@ -223,12 +223,12 @@ class TestGrampsLoader:
         )
         person = ancestry[Person]["I0000"]
 
-        assert "Jane" == person.names[0].individual
-        assert "Doe" == person.names[0].affiliation
-        assert "Jane" == person.names[1].individual
-        assert "Doh" == person.names[1].affiliation
-        assert "Jen" == person.names[2].individual
-        assert "Van Doughie" == person.names[2].affiliation
+        assert person.names[0].individual == "Jane"
+        assert person.names[0].affiliation == "Doe"
+        assert person.names[1].individual == "Jane"
+        assert person.names[1].affiliation == "Doh"
+        assert person.names[2].individual == "Jen"
+        assert person.names[2].affiliation == "Van Doughie"
 
     async def test_person_should_include_birth(self) -> None:
         ancestry = await self._load_partial(
@@ -255,7 +255,7 @@ class TestGrampsLoader:
         ][0]
         assert birth is not None
         assert birth.event is not None
-        assert "E0000" == birth.event.id
+        assert birth.event.id == "E0000"
         assert Birth is birth.event.event_type
 
     async def test_person_should_include_death(self) -> None:
@@ -283,7 +283,7 @@ class TestGrampsLoader:
         ][0]
         assert death is not None
         assert death.event is not None
-        assert "E0000" == death.event.id
+        assert death.event.id == "E0000"
 
     async def test_person_should_be_private(self) -> None:
         ancestry = await self._load_partial(
@@ -500,9 +500,9 @@ class TestGrampsLoader:
         )
         event = ancestry[Event]["E0000"]
         assert isinstance(event.date, Date)
-        assert 1970 == event.date.year
-        assert 1 == event.date.month
-        assert 1 == event.date.day
+        assert event.date.year == 1970
+        assert event.date.month == 1
+        assert event.date.day == 1
 
     async def test_event_should_include_people(self) -> None:
         ancestry = await self._load_partial(
@@ -535,7 +535,7 @@ class TestGrampsLoader:
 """
         )
         event = ancestry[Event]["E0000"]
-        assert "Something happened!" == event.description
+        assert event.description == "Something happened!"
 
     async def test_event_should_include_note(self) -> None:
         ancestry = await self._load_partial(
@@ -559,7 +559,7 @@ class TestGrampsLoader:
         assert note.id == "N0000"
 
     @pytest.mark.parametrize(
-        "expected, dateval_val",
+        ("expected", "dateval_val"),
         [
             (Date(), "0000-00-00"),
             (Date(None, None, 1), "0000-00-01"),
@@ -615,9 +615,9 @@ class TestGrampsLoader:
         assert isinstance(date, DateRange)
         assert date.start is None
         assert date.end is not None
-        assert 1970 == date.end.year
-        assert 1 == date.end.month
-        assert 1 == date.end.day
+        assert date.end.year == 1970
+        assert date.end.month == 1
+        assert date.end.day == 1
         assert date.end_is_boundary
         assert not date.end.fuzzy
 
@@ -636,9 +636,9 @@ class TestGrampsLoader:
         assert isinstance(date, DateRange)
         assert date.start is not None
         assert date.end is None
-        assert 1970 == date.start.year
-        assert 1 == date.start.month
-        assert 1 == date.start.day
+        assert date.start.year == 1970
+        assert date.start.month == 1
+        assert date.start.day == 1
         assert date.start_is_boundary
         assert not date.start.fuzzy
 
@@ -655,9 +655,9 @@ class TestGrampsLoader:
         )
         date = ancestry[Event]["E0000"].date
         assert isinstance(date, Date)
-        assert 1970 == date.year
-        assert 1 == date.month
-        assert 1 == date.day
+        assert date.year == 1970
+        assert date.month == 1
+        assert date.day == 1
         assert not date.fuzzy
 
     async def test_date_should_load_estimated(self) -> None:
@@ -673,9 +673,9 @@ class TestGrampsLoader:
         )
         date = ancestry[Event]["E0000"].date
         assert isinstance(date, Date)
-        assert 1970 == date.year
-        assert 1 == date.month
-        assert 1 == date.day
+        assert date.year == 1970
+        assert date.month == 1
+        assert date.day == 1
         assert date.fuzzy
 
     async def test_date_should_load_about(self) -> None:
@@ -691,9 +691,9 @@ class TestGrampsLoader:
         )
         date = ancestry[Event]["E0000"].date
         assert isinstance(date, Date)
-        assert 1970 == date.year
-        assert 1 == date.month
-        assert 1 == date.day
+        assert date.year == 1970
+        assert date.month == 1
+        assert date.day == 1
         assert date.fuzzy
 
     async def test_daterange_should_load(self) -> None:
@@ -713,14 +713,14 @@ class TestGrampsLoader:
         assert isinstance(start, Date)
         end = date.end
         assert isinstance(end, Date)
-        assert 1970 == start.year
-        assert 1 == start.month
-        assert 1 == start.day
+        assert start.year == 1970
+        assert start.month == 1
+        assert start.day == 1
         assert not start.fuzzy
         assert date.start_is_boundary
-        assert 1999 == end.year
-        assert 12 == end.month
-        assert 31 == end.day
+        assert end.year == 1999
+        assert end.month == 12
+        assert end.day == 31
         assert date.end_is_boundary
         assert not end.fuzzy
 
@@ -781,13 +781,13 @@ class TestGrampsLoader:
         assert isinstance(start, Date)
         end = date.end
         assert isinstance(end, Date)
-        assert 1970 == start.year
-        assert 1 == start.month
-        assert 1 == start.day
+        assert start.year == 1970
+        assert start.month == 1
+        assert start.day == 1
         assert not start.fuzzy
-        assert 1999 == end.year
-        assert 12 == end.month
-        assert 31 == end.day
+        assert end.year == 1999
+        assert end.month == 12
+        assert end.day == 31
         assert not end.fuzzy
 
     async def test_datespan_should_load_calculated(self) -> None:
@@ -841,7 +841,7 @@ class TestGrampsLoader:
 """
         )
         source = ancestry[Source]["R0000"]
-        assert "Library of Alexandria" == source.name
+        assert source.name == "Library of Alexandria"
 
     async def test_source_from_repository_should_include_link(self) -> None:
         ancestry = await self._load_partial(
@@ -855,10 +855,10 @@ class TestGrampsLoader:
 """
         )
         links = ancestry[Source]["R0000"].links
-        assert 1 == len(links)
+        assert len(links) == 1
         link = list(links)[0]
-        assert "https://alexandria.example.com" == link.url
-        assert "Library of Alexandria Catalogue" == link.label
+        assert link.url == "https://alexandria.example.com"
+        assert link.label == "Library of Alexandria Catalogue"
 
     async def test_source_from_source_should_include_title(self) -> None:
         ancestry = await self._load_partial(
@@ -871,7 +871,7 @@ class TestGrampsLoader:
 """
         )
         source = ancestry[Source]["S0000"]
-        assert "A Whisper" == source.name
+        assert source.name == "A Whisper"
 
     async def test_source_from_source_should_include_author(self) -> None:
         ancestry = await self._load_partial(
@@ -884,7 +884,7 @@ class TestGrampsLoader:
 """
         )
         source = ancestry[Source]["S0000"]
-        assert "A Little Birdie" == source.author
+        assert source.author == "A Little Birdie"
 
     async def test_source_from_source_should_include_publisher(self) -> None:
         ancestry = await self._load_partial(
@@ -897,7 +897,7 @@ class TestGrampsLoader:
 """
         )
         source = ancestry[Source]["S0000"]
-        assert "Somewhere over the rainbow" == source.publisher
+        assert source.publisher == "Somewhere over the rainbow"
 
     async def test_source_from_source_should_include_repository(self) -> None:
         ancestry = await self._load_partial(
@@ -1035,7 +1035,7 @@ class TestGrampsLoader:
         assert link_one.media_type is None
 
     @pytest.mark.parametrize(
-        "expected, global_attribute_value, project_attribute_value",
+        ("expected", "global_attribute_value", "project_attribute_value"),
         [
             # Global attributes only.
             (Privacy.PRIVATE, "private", None),
@@ -1083,7 +1083,7 @@ class TestGrampsLoader:
         assert expected == person.privacy
 
     @pytest.mark.parametrize(
-        "expected, attribute_value",
+        ("expected", "attribute_value"),
         [
             (Privacy.PRIVATE, "private"),
             (Privacy.PUBLIC, "public"),
@@ -1109,7 +1109,7 @@ class TestGrampsLoader:
         assert expected == event.privacy
 
     @pytest.mark.parametrize(
-        "expected, attribute_value",
+        ("expected", "attribute_value"),
         [
             (Privacy.PRIVATE, "private"),
             (Privacy.PUBLIC, "public"),
@@ -1156,7 +1156,7 @@ class TestGrampsLoader:
         assert note.id == "N0000"
 
     @pytest.mark.parametrize(
-        "expected, attribute_value",
+        ("expected", "attribute_value"),
         [
             (Privacy.PRIVATE, "private"),
             (Privacy.PUBLIC, "public"),
@@ -1182,7 +1182,7 @@ class TestGrampsLoader:
         assert expected == source.privacy
 
     @pytest.mark.parametrize(
-        "expected, attribute_value",
+        ("expected", "attribute_value"),
         [
             (Privacy.PRIVATE, "private"),
             (Privacy.PUBLIC, "public"),
@@ -1226,4 +1226,4 @@ class TestGrampsLoader:
 """
         )
         note = ancestry[Note]["N0000"]
-        assert "I left this for you." == note.text
+        assert note.text == "I left this for you."

@@ -4,7 +4,7 @@ Provide entity management widgets for the Graphical User Interface.
 
 from __future__ import annotations
 
-from typing import Callable, cast, Iterator
+from typing import Callable, cast, Iterator, TYPE_CHECKING
 
 from PyQt6.QtWidgets import (
     QFormLayout,
@@ -17,11 +17,13 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
 )
 
-from betty.app import App
 from betty.gui.locale import LocalizedObject
-from betty.locale import Localizable
 from betty.model import UserFacingEntity, Entity
 from betty.project import EntityReference, EntityReferenceSequence
+
+if TYPE_CHECKING:
+    from betty.locale import Localizable
+    from betty.app import App
 
 
 class EntityReferenceCollector(LocalizedObject, QWidget):

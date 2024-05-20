@@ -10,19 +10,24 @@ import logging
 import os
 import shutil
 from asyncio import create_task, Task, as_completed, Semaphore, CancelledError, sleep
-from collections.abc import AsyncIterator
 from contextlib import suppress
-from math import floor
 from pathlib import Path
-from typing import cast, AsyncContextManager, ParamSpec, Callable, Awaitable, Sequence
+from typing import (
+    cast,
+    AsyncContextManager,
+    ParamSpec,
+    Callable,
+    Awaitable,
+    Sequence,
+    TYPE_CHECKING,
+)
 
 import aiofiles
 from aiofiles.os import makedirs
 from aiofiles.threadpool.text import AsyncTextIOWrapper
+from math import floor
 
-from betty.app import App
 from betty.job import Context
-from betty.json.linked_data import LinkedDataDumpable
 from betty.json.schema import Schema
 from betty.locale import get_display_name
 from betty.model import (
@@ -33,13 +38,18 @@ from betty.model import (
 )
 from betty.model.ancestry import is_public
 from betty.openapi import Specification
-from betty.serde.dump import DictDump, Dump
 from betty.string import (
     camel_case_to_kebab_case,
     camel_case_to_snake_case,
     upper_camel_case_to_lower_camel_case,
 )
 from betty.warnings import deprecated
+
+if TYPE_CHECKING:
+    from betty.app import App
+    from betty.json.linked_data import LinkedDataDumpable
+    from betty.serde.dump import DictDump, Dump
+    from collections.abc import AsyncIterator
 
 
 @deprecated(
@@ -96,15 +106,15 @@ async def generate(app: App) -> None:
     log_job.cancel()
     await _log_jobs(app, jobs)
 
-    os.chmod(app.project.configuration.output_directory_path, 0o755)
+    app.project.configuration.output_directory_path.chmod(0o755)
     for directory_path_str, subdirectory_names, file_names in os.walk(
         app.project.configuration.output_directory_path
     ):
         directory_path = Path(directory_path_str)
         for subdirectory_name in subdirectory_names:
-            os.chmod(directory_path / subdirectory_name, 0o755)
+            (directory_path / subdirectory_name).chmod(0o755)
         for file_name in file_names:
-            os.chmod(directory_path / file_name, 0o644)
+            (directory_path / file_name).chmod(0o644)
 
 
 async def _log_jobs(app: App, jobs: Sequence[Task[None]]) -> None:

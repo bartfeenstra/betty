@@ -3,13 +3,12 @@ from __future__ import annotations
 from copy import copy
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import pytest
 from geopy import Point
 
 from betty.app import App
-from betty.json.linked_data import LinkedDataDumpable
 from betty.json.schema import Schema
 from betty.locale import Date, Str, DateRange
 from betty.media_type import MediaType
@@ -45,7 +44,10 @@ from betty.model.ancestry import (
 )
 from betty.model.event_type import Birth, UnknownEventType
 from betty.project import LocaleConfiguration
-from betty.serde.dump import DictDump, Dump
+
+if TYPE_CHECKING:
+    from betty.serde.dump import DictDump, Dump
+    from betty.json.linked_data import LinkedDataDumpable
 
 
 async def assert_dumps_linked_data(
@@ -79,7 +81,7 @@ class DummyEntity(Entity):
 
 class TestHasPrivacy:
     @pytest.mark.parametrize(
-        "privacy, public, private",
+        ("privacy", "public", "private"),
         [
             (Privacy.PUBLIC, True, True),
             (Privacy.PUBLIC, False, True),
@@ -98,7 +100,7 @@ class TestHasPrivacy:
     async def test___init___with_value_error(
         self, privacy: Privacy | None, public: bool | None, private: bool | None
     ) -> None:
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError):  # noqa PT011
             HasPrivacy(privacy=privacy, public=public, private=private)
 
     @pytest.mark.parametrize(
@@ -129,7 +131,7 @@ class TestHasPrivacy:
         assert sut.own_privacy is Privacy.UNDETERMINED
 
     @pytest.mark.parametrize(
-        "expected, privacy",
+        ("expected", "privacy"),
         [
             (True, Privacy.UNDETERMINED),
             (True, Privacy.PUBLIC),
@@ -147,7 +149,7 @@ class TestHasPrivacy:
         assert sut.privacy is Privacy.PUBLIC
 
     @pytest.mark.parametrize(
-        "expected, privacy",
+        ("expected", "privacy"),
         [
             (False, Privacy.UNDETERMINED),
             (False, Privacy.PUBLIC),
@@ -167,7 +169,7 @@ class TestHasPrivacy:
 
 class TestIsPrivate:
     @pytest.mark.parametrize(
-        "expected, target",
+        ("expected", "target"),
         [
             (True, HasPrivacy(privacy=Privacy.PRIVATE)),
             (False, HasPrivacy(privacy=Privacy.PUBLIC)),
@@ -181,7 +183,7 @@ class TestIsPrivate:
 
 class TestIsPublic:
     @pytest.mark.parametrize(
-        "expected, target",
+        ("expected", "target"),
         [
             (False, HasPrivacy(privacy=Privacy.PRIVATE)),
             (True, HasPrivacy(privacy=Privacy.PUBLIC)),
@@ -195,7 +197,7 @@ class TestIsPublic:
 
 class TestMergePrivacies:
     @pytest.mark.parametrize(
-        "expected, privacies",
+        ("expected", "privacies"),
         [
             (Privacy.PUBLIC, (Privacy.PUBLIC,)),
             (Privacy.UNDETERMINED, (Privacy.UNDETERMINED,)),
@@ -1126,7 +1128,7 @@ class TestHasCitations:
 
 class TestPlaceName:
     @pytest.mark.parametrize(
-        "expected, a, b",
+        ("expected", "a", "b"),
         [
             (True, PlaceName(name="Ikke"), PlaceName(name="Ikke")),
             (
@@ -1500,7 +1502,7 @@ class TestPresence:
         assert event == sut.event
 
     @pytest.mark.parametrize(
-        "expected, person_privacy, presence_privacy, event_privacy",
+        ("expected", "person_privacy", "presence_privacy", "event_privacy"),
         [
             (Privacy.PUBLIC, Privacy.PUBLIC, Privacy.PUBLIC, Privacy.PUBLIC),
             (Privacy.PRIVATE, Privacy.PRIVATE, Privacy.PUBLIC, Privacy.PUBLIC),

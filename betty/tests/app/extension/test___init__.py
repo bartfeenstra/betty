@@ -213,6 +213,6 @@ class TestBuildExtensionTypeGraph:
 class TestDiscoverExtensionTypes:
     async def test(self) -> None:
         extension_types = discover_extension_types()
-        assert 1 <= len(extension_types)
+        assert len(extension_types) >= 1
         for extension_type in extension_types:
             assert issubclass(extension_type, Extension)

@@ -24,9 +24,8 @@ class TestWalk:
         ],
     )
     async def test_with_invalid_attribute(self, item: Any) -> None:
-        with pytest.warns(BettyDeprecationWarning):
-            with pytest.raises(AttributeError):
-                list(walk(item, "invalid_attribute_name"))
+        with pytest.warns(BettyDeprecationWarning), pytest.raises(AttributeError):
+            list(walk(item, "invalid_attribute_name"))
 
     async def test_one_to_one_without_descendants(self) -> None:
         with pytest.warns(BettyDeprecationWarning):
@@ -72,7 +71,7 @@ class TestWalk:
 
 class TestSliceToRange:
     @pytest.mark.parametrize(
-        "expected_range_items, ranged_slice",
+        ("expected_range_items", "ranged_slice"),
         [
             ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], slice(0, 16, 1)),
             ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], slice(0, None, 1)),
@@ -175,7 +174,7 @@ class TestDo:
 
 class TestUniquifier:
     @pytest.mark.parametrize(
-        "expected, values",
+        ("expected", "values"),
         [
             ([], []),
             ([], [[]]),

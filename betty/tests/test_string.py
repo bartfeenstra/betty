@@ -10,7 +10,7 @@ from betty.string import (
 
 class TestCamelCaseToSnakeCase:
     @pytest.mark.parametrize(
-        "expected, string",
+        ("expected", "string"),
         [
             ("snake_case", "snakeCase"),
             ("snake_case", "SnakeCase"),
@@ -23,7 +23,7 @@ class TestCamelCaseToSnakeCase:
 
 class TestCamelCaseToKebabCase:
     @pytest.mark.parametrize(
-        "expected, string",
+        ("expected", "string"),
         [
             ("snake-case", "snakeCase"),
             ("snake-case", "SnakeCase"),
@@ -39,7 +39,7 @@ class TestCamelCaseToKebabCase:
 
 class TestUpperCamelCaseToLowerCamelCase:
     @pytest.mark.parametrize(
-        "expected, string",
+        ("expected", "string"),
         [
             ("snakeCase", "snakeCase"),
             ("snakeCase", "SnakeCase"),
@@ -55,7 +55,7 @@ class TestUpperCamelCaseToLowerCamelCase:
 
 class TestSnakeCaseToUpperCamelCase:
     @pytest.mark.parametrize(
-        "expected, string",
+        ("expected", "string"),
         [
             ("SnakeCase", "snake_case"),
             ("SnakeCase", "_snake_case"),

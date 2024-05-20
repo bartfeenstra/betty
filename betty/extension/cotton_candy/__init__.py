@@ -6,13 +6,10 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
-from collections.abc import Sequence, AsyncIterable
 from pathlib import Path
-from typing import Any, Callable, Iterable, Self, cast
+from typing import Any, Callable, Iterable, Self, cast, TYPE_CHECKING
 
-from PyQt6.QtWidgets import QWidget
 from jinja2 import pass_context
-from jinja2.runtime import Context
 
 from betty.app.extension import ConfigurableExtension, Extension, Theme
 from betty.config import Configuration
@@ -40,6 +37,11 @@ from betty.serde.load import (
     OptionalField,
     Asserter,
 )
+
+if TYPE_CHECKING:
+    from PyQt6.QtWidgets import QWidget
+    from jinja2.runtime import Context
+    from collections.abc import Sequence, AsyncIterable
 
 
 class _ColorConfiguration(Configuration):
@@ -332,7 +334,7 @@ def person_descendant_families(
     parents = {}
     children = defaultdict(set)
     for child in person.children:
-        family = tuple(sorted(map(lambda parent: parent.id, child.parents)))
+        family = tuple(sorted((parent.id for parent in child.parents)))
         if family not in parents:
             parents[family] = tuple(child.parents)
         children[family].add(child)
@@ -404,12 +406,10 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
         )
 
     if start_date is None or end_date is None:
-        reference_dates = list(
-            sorted(
-                cast(Datey, cast(Event, presence.event).date)
-                for presence in person.presences
-                if _is_person_timeline_presence(presence)
-            )
+        reference_dates = sorted(
+            cast(Datey, cast(Event, presence.event).date)
+            for presence in person.presences
+            if _is_person_timeline_presence(presence)
         )
         if reference_dates:
             if not start_date:

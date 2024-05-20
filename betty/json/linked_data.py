@@ -4,12 +4,12 @@ Provide `JSON-LD <https://json-ld.org/>`_ utilities.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from betty.serde.dump import DictDump, Dump, dump_default
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from betty.app import App
     from betty.model.ancestry import Link
 

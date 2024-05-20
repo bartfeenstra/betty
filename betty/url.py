@@ -5,14 +5,16 @@ Provide a URL generation API.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import Any
+from typing import Any, TYPE_CHECKING
 from urllib.parse import quote
 
-from betty.app import App
 from betty.locale import negotiate_locale, Localey, to_locale
 from betty.model import get_entity_type_name, Entity
-from betty.project import ProjectConfiguration
 from betty.string import camel_case_to_kebab_case
+
+if TYPE_CHECKING:
+    from betty.project import ProjectConfiguration
+    from betty.app import App
 
 
 class LocalizedUrlGenerator:
@@ -82,11 +84,11 @@ class _EntityUrlGenerator(LocalizedUrlGenerator):
         if not isinstance(resource, self._entity_type):
             raise ValueError("%s is not a %s" % (type(resource), self._entity_type))
 
-        if "text/html" == media_type:
+        if media_type == "text/html":
             extension = "html"
             if locale is None:
                 locale = self._app.localizer.locale
-        elif "application/json" == media_type:
+        elif media_type == "application/json":
             extension = "json"
             locale = None
         else:
@@ -155,7 +157,7 @@ def _generate_from_path(
             except KeyError:
                 raise ValueError(
                     f'Cannot generate URLs in "{locale}", because it cannot be resolved to any of the enabled project locales: {", ".join(project_locales)}'
-                )
+                ) from None
         url += locale_configuration.alias + "/"
     url += path.strip("/")
     if configuration.clean_urls and url.endswith("/index.html"):

@@ -4,15 +4,12 @@ Provide Betty's main data model.
 
 from __future__ import annotations
 
-from collections.abc import MutableSequence, Iterator
 from contextlib import suppress
 from enum import Enum
-from pathlib import Path
 from reprlib import recursive_repr
 from typing import Iterable, Any, TYPE_CHECKING
 from urllib.parse import quote
 
-from geopy import Point
 
 from betty.classtools import repr_instance
 from betty.functools import Uniquifier
@@ -44,6 +41,9 @@ from betty.string import camel_case_to_kebab_case
 from betty.warnings import deprecated
 
 if TYPE_CHECKING:
+    from geopy import Point
+    from pathlib import Path
+    from collections.abc import MutableSequence, Iterator
     from betty.app import App
 
 
@@ -250,9 +250,8 @@ class HasMediaType(LinkedDataDumpable):
 
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
-        if is_public(self):
-            if self.media_type is not None:
-                dump["mediaType"] = str(self.media_type)
+        if is_public(self) and self.media_type is not None:
+            dump["mediaType"] = str(self.media_type)
         return dump
 
     @classmethod
@@ -454,7 +453,7 @@ class Note(UserFacingEntity, HasPrivacy, HasLinksEntity, Entity):
         self,
         text: str,
         *,
-        id: str | None = None,
+        id: str | None = None,  # noqa A002  # noqa A002
         entity: HasNotes | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,
@@ -615,7 +614,7 @@ class File(
         self,
         path: Path,
         *,
-        id: str | None = None,
+        id: str | None = None,  # noqa A002  # noqa A002
         media_type: MediaType | None = None,
         description: str | None = None,
         notes: Iterable[Note] | None = None,
@@ -732,7 +731,7 @@ class Source(
         self,
         name: str | None = None,
         *,
-        id: str | None = None,
+        id: str | None = None,  # noqa A002  # noqa A002
         author: str | None = None,
         publisher: str | None = None,
         contained_by: Source | None = None,
@@ -926,7 +925,7 @@ class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, En
     def __init__(
         self,
         *,
-        id: str | None = None,
+        id: str | None = None,  # noqa A002  # noqa A002
         facts: Iterable[HasCitations] | None = None,
         source: Source | None = None,
         location: Str | None = None,
@@ -1109,7 +1108,7 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
     def __init__(
         self,
         *,
-        id: str | None = None,
+        id: str | None = None,  # noqa A002
         names: list[PlaceName] | None = None,
         events: Iterable[Event] | None = None,
         enclosed_by: Iterable[Enclosure] | None = None,
@@ -1459,7 +1458,7 @@ class Event(
     def __init__(
         self,
         *,
-        id: str | None = None,
+        id: str | None = None,  # noqa A002
         event_type: type[EventType] = UnknownEventType,
         date: Datey | None = None,
         files: Iterable[File] | None = None,
@@ -1664,7 +1663,7 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
     def __init__(
         self,
         *,
-        id: str | None = None,
+        id: str | None = None,  # noqa A002
         person: Person | None = None,
         individual: str | None = None,
         affiliation: str | None = None,
@@ -1774,7 +1773,7 @@ class Person(
     def __init__(
         self,
         *,
-        id: str | None = None,
+        id: str | None = None,  # noqa A002
         files: Iterable[File] | None = None,
         citations: Iterable[Citation] | None = None,
         links: MutableSequence[Link] | None = None,

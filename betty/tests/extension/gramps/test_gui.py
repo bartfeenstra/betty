@@ -3,13 +3,16 @@ from __future__ import annotations
 from pathlib import Path
 
 from PyQt6.QtWidgets import QFileDialog
-from pytest_mock import MockerFixture
 
 from betty.extension import Gramps
 from betty.extension.gramps.config import FamilyTreeConfiguration, GrampsConfiguration
 from betty.extension.gramps.gui import _AddFamilyTreeWindow
 from betty.project import ExtensionConfiguration
-from betty.tests.conftest import BettyQtBot
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from betty.tests.conftest import BettyQtBot
+    from pytest_mock import MockerFixture
 
 
 async def test_add_family_tree_set_path(

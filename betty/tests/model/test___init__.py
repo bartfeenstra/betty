@@ -47,12 +47,12 @@ class GetEntityTypeNameTestEntity(Entity):
 
 class TestGetEntityTypeName:
     async def test_with_betty_entity(self) -> None:
-        assert "Person" == get_entity_type_name(Person)
+        assert get_entity_type_name(Person) == "Person"
 
     async def test_with_other_entity(self) -> None:
         assert (
-            "betty.tests.model.test___init__.GetEntityTypeNameTestEntity"
-            == get_entity_type_name(GetEntityTypeNameTestEntity)
+            get_entity_type_name(GetEntityTypeNameTestEntity)
+            == "betty.tests.model.test___init__.GetEntityTypeNameTestEntity"
         )
 
 
@@ -249,7 +249,7 @@ class TestSingleTypeEntityCollection:
         entity2 = SingleTypeEntityCollectionTestEntity()
         entity3 = SingleTypeEntityCollectionTestEntity()
         sut.add(entity1, entity2, entity3)
-        assert 3 == len(sut)
+        assert len(sut) == 3
 
     async def test_iter(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
@@ -257,7 +257,7 @@ class TestSingleTypeEntityCollection:
         entity2 = SingleTypeEntityCollectionTestEntity()
         entity3 = SingleTypeEntityCollectionTestEntity()
         sut.add(entity1, entity2, entity3)
-        assert [entity1, entity2, entity3] == list(list(sut))
+        assert [entity1, entity2, entity3] == list(sut)
 
     async def test_getitem_by_index(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
@@ -421,9 +421,9 @@ class TestMultipleTypesEntityCollection:
         sut[MultipleTypesEntityCollectionTestEntityOne].add(entity_one)
         sut[MultipleTypesEntityCollectionTestEntityOther].add(entity_other)
         sut.remove(entity_one)
-        assert [entity_other] == list(list(sut))
+        assert [entity_other] == list(sut)
         sut.remove(entity_other)
-        assert [] == list(list(sut))
+        assert [] == list(sut)
 
     async def test_getitem_by_index(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
@@ -461,7 +461,7 @@ class TestMultipleTypesEntityCollection:
         sut.add(entity)
         assert [entity] == list(sut["Person"])
         # Ensure that getting previously unseen entity types automatically creates and returns a new collection.
-        with pytest.raises(ValueError):
+        with pytest.raises(EntityTypeImportError):
             sut["NonExistentEntityType"]
 
     async def test_delitem_by_entity(self) -> None:
@@ -501,7 +501,7 @@ class TestMultipleTypesEntityCollection:
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
         sut[MultipleTypesEntityCollectionTestEntityOne].add(entity_one)
         sut[MultipleTypesEntityCollectionTestEntityOther].add(entity_other)
-        assert [entity_one, entity_other] == list(list(sut))
+        assert [entity_one, entity_other] == list(sut)
 
     async def test_len(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
@@ -509,7 +509,7 @@ class TestMultipleTypesEntityCollection:
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
         sut[MultipleTypesEntityCollectionTestEntityOne].add(entity_one)
         sut[MultipleTypesEntityCollectionTestEntityOther].add(entity_other)
-        assert 2 == len(sut)
+        assert len(sut) == 2
 
     async def test_contain_by_entity(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
@@ -667,7 +667,7 @@ class _EntityGraphBuilder_ManyToOneToMany_Right(Entity):
 
 class TestEntityGraphBuilder:
     @pytest.mark.parametrize(
-        "to_one_left, to_one_right",
+        ("to_one_left", "to_one_right"),
         [
             (
                 _EntityGraphBuilder_ToOne_Left(),
@@ -713,7 +713,7 @@ class TestEntityGraphBuilder:
         assert unaliased_to_one_right is unaliased_to_one_left.to_one
 
     @pytest.mark.parametrize(
-        "one_to_one_left, one_to_one_right",
+        ("one_to_one_left", "one_to_one_right"),
         [
             (
                 _EntityGraphBuilder_OneToOne_Left(),
@@ -762,7 +762,7 @@ class TestEntityGraphBuilder:
         assert unaliased_one_to_one_left is unaliased_one_to_one_right.to_one
 
     @pytest.mark.parametrize(
-        "many_to_one_left, many_to_one_right",
+        ("many_to_one_left", "many_to_one_right"),
         [
             (
                 _EntityGraphBuilder_ManyToOne_Left(),
@@ -811,7 +811,7 @@ class TestEntityGraphBuilder:
         assert unaliased_many_to_one_left in unaliased_many_to_one_right.to_many
 
     @pytest.mark.parametrize(
-        "to_many_left, to_many_right",
+        ("to_many_left", "to_many_right"),
         [
             (
                 _EntityGraphBuilder_ToMany_Left(),
@@ -859,7 +859,7 @@ class TestEntityGraphBuilder:
         assert unaliased_to_many_right in unaliased_to_many_left.to_many
 
     @pytest.mark.parametrize(
-        "one_to_many_left, one_to_many_right",
+        ("one_to_many_left", "one_to_many_right"),
         [
             (
                 _EntityGraphBuilder_OneToMany_Left(),
@@ -908,7 +908,7 @@ class TestEntityGraphBuilder:
         assert unaliased_one_to_many_left is unaliased_one_to_many_right.to_one
 
     @pytest.mark.parametrize(
-        "many_to_many_left, many_to_many_right",
+        ("many_to_many_left", "many_to_many_right"),
         [
             (
                 _EntityGraphBuilder_ManyToMany_Left(),
@@ -957,7 +957,11 @@ class TestEntityGraphBuilder:
         assert unaliased_many_to_many_left in unaliased_many_to_many_right.to_many
 
     @pytest.mark.parametrize(
-        "many_to_one_to_many_left, many_to_one_to_many_middle, many_to_one_to_many_right",
+        (
+            "many_to_one_to_many_left",
+            "many_to_one_to_many_middle",
+            "many_to_one_to_many_right",
+        ),
         [
             (
                 _EntityGraphBuilder_ManyToOneToMany_Left(),
@@ -984,7 +988,11 @@ class TestEntityGraphBuilder:
         ],
     ) -> None:
         sut = EntityGraphBuilder()
-        sut.add_entity(many_to_one_to_many_left, many_to_one_to_many_middle, many_to_one_to_many_right)  # type: ignore[arg-type]
+        sut.add_entity(
+            many_to_one_to_many_left,  # type: ignore[arg-type]
+            many_to_one_to_many_middle,  # type: ignore[arg-type]
+            many_to_one_to_many_right,  # type: ignore[arg-type]
+        )
         sut.add_association(
             _EntityGraphBuilder_ManyToOneToMany_Left,
             many_to_one_to_many_left.id,

@@ -5,14 +5,13 @@ Integrate Betty's Graphical User Interface with the Serve API.
 from __future__ import annotations
 
 import asyncio
-from typing import final
+from typing import final, TYPE_CHECKING
 
 from PyQt6.QtCore import Qt, pyqtSignal, QObject, QThread
 from PyQt6.QtWidgets import QVBoxLayout, QWidget, QPushButton
 from typing_extensions import override
 
 from betty import documentation
-from betty.app import App
 from betty.asyncio import wait_to_thread
 from betty.extension import demo
 from betty.gui.error import ExceptionCatcher
@@ -20,6 +19,9 @@ from betty.gui.text import Text
 from betty.gui.window import BettyMainWindow
 from betty.locale import Str, Localizable
 from betty.serve import Server, AppServer
+
+if TYPE_CHECKING:
+    from betty.app import App
 
 
 class _ServeThread(QThread):

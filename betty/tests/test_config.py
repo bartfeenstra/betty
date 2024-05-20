@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Iterable, Generic
+from typing import Iterable, Generic, TYPE_CHECKING
 
 import pytest
 
@@ -15,16 +15,20 @@ from betty.config import (
     ConfigurationKeyT,
     ConfigurationT,
 )
-from betty.serde.dump import Dump, VoidableDump
 from betty.serde.load import FormatError, Asserter
+
+if TYPE_CHECKING:
+    from betty.serde.dump import Dump, VoidableDump
 
 
 class TestFileBasedConfiguration:
     async def test_configuration_file_path_should_error_unknown_format(self) -> None:
         configuration = FileBasedConfiguration()
-        with NamedTemporaryFile(mode="r+", suffix=".abc") as f:
-            with pytest.raises(FormatError):
-                configuration.configuration_file_path = Path(f.name)
+        with (
+            NamedTemporaryFile(mode="r+", suffix=".abc") as f,
+            pytest.raises(FormatError),
+        ):
+            configuration.configuration_file_path = Path(f.name)
 
 
 class ConfigurationCollectionTestConfiguration(
@@ -86,7 +90,7 @@ class ConfigurationCollectionTestBase(Generic[ConfigurationKeyT, ConfigurationT]
                 configurations[1],
             ]
         )
-        assert 2 == len(sut)
+        assert len(sut) == 2
 
     async def test___eq__(self) -> None:
         configurations = self.get_configurations()

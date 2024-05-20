@@ -8,15 +8,17 @@ from __future__ import annotations
 
 import logging
 import sys
-from asyncio import subprocess as aiosubprocess
-from pathlib import Path
-from typing import Sequence
+from typing import Sequence, TYPE_CHECKING
 
 from betty.asyncio import wait_to_thread
 from betty.error import UserFacingError
 from betty.locale import Str, DEFAULT_LOCALIZER
 from betty.requirement import Requirement
 from betty.subprocess import run_process
+
+if TYPE_CHECKING:
+    from pathlib import Path
+    from asyncio import subprocess as aiosubprocess
 
 
 _NPM_UNAVAILABLE_MESSAGE = Str._(
@@ -45,7 +47,7 @@ async def npm(
             shell=sys.platform.startswith("win32"),
         )
     except FileNotFoundError:
-        raise NpmUnavailable()
+        raise NpmUnavailable() from None
 
 
 class NpmRequirement(Requirement):

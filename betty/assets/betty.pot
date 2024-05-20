@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-18 19:57+0100\n"
+"POT-Creation-Date: 2024-05-20 14:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -110,6 +110,9 @@ msgid "About"
 msgstr ""
 
 msgid "About Betty"
+msgstr ""
+
+msgid "Access denied"
 msgstr ""
 
 #, python-format
@@ -455,6 +458,15 @@ msgstr ""
 msgid "I'm sorry, dear, but it seems there are no sources."
 msgstr ""
 
+msgid "I'm sorry, dear, but it seems this page does not exist."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems you're not logged in."
+msgstr ""
+
 msgid "Immigration"
 msgstr ""
 
@@ -564,6 +576,9 @@ msgid "Other attendees"
 msgstr ""
 
 msgid "Output more detailed logs and disable optimizations that make debugging harder."
+msgstr ""
+
+msgid "Page not found"
 msgstr ""
 
 msgid "People"
@@ -833,6 +848,9 @@ msgid "URL"
 msgstr ""
 
 msgid "URLs look like <code>/path</code> instead of <code>/path/index.html</code>. This requires a web server that supports it."
+msgstr ""
+
+msgid "Unauthorized"
 msgstr ""
 
 msgid "Unknown"

@@ -5,9 +5,7 @@ Integrate Betty with pytest.
 from __future__ import annotations
 
 import logging
-from collections.abc import AsyncIterator, Iterator
-from pathlib import Path
-from typing import TypeVar, cast, TypeGuard
+from typing import TypeVar, cast, TypeGuard, TYPE_CHECKING
 from warnings import filterwarnings
 
 import pytest
@@ -22,8 +20,6 @@ from PyQt6.QtWidgets import (
     QAbstractButton,
     QGroupBox,
 )
-from _pytest.logging import LogCaptureFixture
-from pytestqt.qtbot import QtBot
 
 from betty.app import App
 from betty.cache.file import BinaryFileCache
@@ -32,9 +28,15 @@ from betty.gui.error import ExceptionError
 from betty.locale import DEFAULT_LOCALIZER
 from betty.warnings import BettyDeprecationWarning
 
+if TYPE_CHECKING:
+    from _pytest.logging import LogCaptureFixture
+    from pytestqt.qtbot import QtBot
+    from pathlib import Path
+    from collections.abc import AsyncIterator, Iterator
+
 
 @pytest.fixture(autouse=True)
-def raise_deprecation_warnings_as_errors() -> Iterator[None]:
+def _raise_deprecation_warnings_as_errors() -> None:
     """
     Raise Betty's own deprecation warnings as errors.
     """
@@ -42,11 +44,11 @@ def raise_deprecation_warnings_as_errors() -> Iterator[None]:
         "error",
         category=BettyDeprecationWarning,
     )
-    yield
 
 
+# @todo Do we need this, and when and how?
 @pytest.fixture(autouse=True)
-def set_logging(caplog: LogCaptureFixture) -> Iterator[None]:
+def _set_logging(caplog: LogCaptureFixture) -> Iterator[None]:
     """
     Reduce noisy logging output during tests.
     """
@@ -54,7 +56,7 @@ def set_logging(caplog: LogCaptureFixture) -> Iterator[None]:
         yield
 
 
-@pytest.fixture
+@pytest.fixture()
 async def binary_file_cache(tmp_path: Path) -> BinaryFileCache:
     """
     Create a temporary binary file cache.
@@ -70,7 +72,7 @@ def qapp_cls() -> type[BettyApplication]:
     return BettyApplication
 
 
-@pytest.fixture
+@pytest.fixture()
 async def new_temporary_app() -> AsyncIterator[App]:
     """
     Create a new, temporary :py:class:`betty.app.App`.
@@ -215,7 +217,7 @@ class BettyQtBot:
         """
         Assert that the given widget contains invalid input.
         """
-        assert "true" == widget.property("invalid")
+        assert widget.property("invalid") == "true"
 
     def mouse_click(
         self, widget: QWidget | None, button: Qt.MouseButton = Qt.MouseButton.LeftButton
@@ -243,7 +245,7 @@ class BettyQtBot:
             widget.setChecked(checked)
 
 
-@pytest.fixture
+@pytest.fixture()
 async def betty_qtbot(
     qtbot: QtBot, qapp: BettyApplication, new_temporary_app: App
 ) -> AsyncIterator[BettyQtBot]:

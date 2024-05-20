@@ -4,7 +4,7 @@ Provide Cotton Candy's Graphical User Interface.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from PyQt6.QtCore import QRect
 from PyQt6.QtGui import QPainter, QBrush, QColor, QPaintEvent
@@ -18,13 +18,15 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from betty.app import App
 from betty.extension import CottonCandy, Webpack
 from betty.extension.cotton_candy import _ColorConfiguration, CottonCandyConfiguration
 from betty.gui.locale import LocalizedObject
 from betty.gui.model import EntityReferenceSequenceCollector
 from betty.gui.text import Caption
 from betty.locale import Str, Localizable
+
+if TYPE_CHECKING:
+    from betty.app import App
 
 
 class _ColorConfigurationSwatch(LocalizedObject, QWidget):

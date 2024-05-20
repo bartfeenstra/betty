@@ -1,22 +1,18 @@
 from __future__ import annotations
 
 import asyncio
-from collections.abc import AsyncIterator, Mapping
 from json import dumps
 from pathlib import Path
-from typing import Any
+from typing import Any, TYPE_CHECKING
 from unittest.mock import AsyncMock, call
 
 import aiofiles
 import aiohttp
 import pytest
 from aiohttp import ClientError
-from aioresponses import aioresponses
 from geopy import Point
-from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.cache.file import BinaryFileCache
 from betty.cache.memory import MemoryCache
 from betty.locale import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
@@ -33,9 +29,15 @@ from betty.wikipedia import (
     RetrievalError,
 )
 
+if TYPE_CHECKING:
+    from betty.cache.file import BinaryFileCache
+    from pytest_mock import MockerFixture
+    from aioresponses import aioresponses
+    from collections.abc import AsyncIterator, Mapping
+
 
 class TestFetcher:
-    @pytest.fixture
+    @pytest.fixture()
     async def sut(self, binary_file_cache: BinaryFileCache) -> AsyncIterator[_Fetcher]:
         async with aiohttp.ClientSession() as http_client:
             yield _Fetcher(
@@ -207,18 +209,18 @@ class _MapFetcher(_Fetcher):
         try:
             return self._fetch_map[url]
         except KeyError:
-            raise RetrievalError
+            raise RetrievalError from None
 
     async def fetch_file(self, url: str) -> Path:
         try:
             return self._fetch_file_map[url]
         except KeyError:
-            raise RetrievalError
+            raise RetrievalError from None
 
 
 class TestParseUrl:
     @pytest.mark.parametrize(
-        "expected, url",
+        ("expected", "url"),
         [
             (
                 ("en", "Amsterdam"),
@@ -227,10 +229,6 @@ class TestParseUrl:
             (
                 ("nl", "Amsterdam"),
                 "https://nl.wikipedia.org/wiki/Amsterdam",
-            ),
-            (
-                ("en", "Amsterdam"),
-                "http://en.wikipedia.org/wiki/Amsterdam",
             ),
             (
                 ("en", "Amsterdam"),
@@ -269,7 +267,7 @@ class TestParseUrl:
 class TestSummary:
     async def test_url(self) -> None:
         sut = Summary("nl", "Amsterdam", "Title for Amsterdam", "Content for Amsterdam")
-        assert "https://nl.wikipedia.org/wiki/Amsterdam" == sut.url
+        assert sut.url == "https://nl.wikipedia.org/wiki/Amsterdam"
 
     async def test_title(self) -> None:
         title = "Title for Amsterdam"
@@ -282,7 +280,7 @@ class TestSummary:
         assert content == sut.content
 
     @pytest.mark.parametrize(
-        "expected, left, right",
+        ("expected", "left", "right"),
         [
             (
                 True,
@@ -322,7 +320,7 @@ class TestSummary:
 
 class TestRetriever:
     @pytest.mark.parametrize(
-        "expected, fetch_json",
+        ("expected", "fetch_json"),
         [
             (
                 {},
@@ -422,7 +420,7 @@ class TestRetriever:
         assert {} == actual
 
     @pytest.mark.parametrize(
-        "expected, fetch_json",
+        ("expected", "fetch_json"),
         [
             # Missing keys in the fetch response.
             (
@@ -496,7 +494,7 @@ class TestRetriever:
         assert actual == expected
 
     @pytest.mark.parametrize(
-        "expected, fetch_json",
+        ("expected", "fetch_json"),
         [
             # Missing keys in the fetch response.
             (
@@ -646,7 +644,7 @@ class TestRetriever:
         assert expected == actual
 
     @pytest.mark.parametrize(
-        "expected, page_fetch_json, file_fetch_json",
+        ("expected", "page_fetch_json", "file_fetch_json"),
         [
             # Missing JSON keys for the page API fetch.
             (
@@ -818,10 +816,10 @@ class TestPopulator:
         async with App.new_temporary() as app, app:
             sut = _Populator(app, m_retriever)
             await sut.populate_link(link, page_language)
-        assert "https://en.wikipedia.org/wiki/Amsterdam" == link.url
+        assert link.url == "https://en.wikipedia.org/wiki/Amsterdam"
 
     @pytest.mark.parametrize(
-        "expected, media_type",
+        ("expected", "media_type"),
         [
             (MediaType("text/plain"), MediaType("text/plain")),
             (MediaType("text/html"), MediaType("text/html")),
@@ -845,7 +843,7 @@ class TestPopulator:
         assert expected == link.media_type
 
     @pytest.mark.parametrize(
-        "expected, relationship",
+        ("expected", "relationship"),
         [
             ("alternate", "alternate"),
             ("external", "external"),
@@ -867,7 +865,7 @@ class TestPopulator:
         assert expected == link.relationship
 
     @pytest.mark.parametrize(
-        "expected, page_language, locale",
+        ("expected", "page_language", "locale"),
         [
             ("nl-NL", "nl", "nl-NL"),
             ("nl", "nl", None),
@@ -890,7 +888,7 @@ class TestPopulator:
         assert expected == link.locale
 
     @pytest.mark.parametrize(
-        "expected, description",
+        ("expected", "description"),
         [
             ("This is the original description", "This is the original description"),
             ("Read more on Wikipedia.", None),
@@ -914,7 +912,7 @@ class TestPopulator:
         assert expected == link.description
 
     @pytest.mark.parametrize(
-        "expected, label",
+        ("expected", "label"),
         [
             ("Amsterdam", "Amsterdam"),
             ("The city of Amsterdam", None),
@@ -1009,12 +1007,12 @@ class TestPopulator:
             sut = _Populator(app, m_retriever)
             await sut.populate()
         m_retriever.get_summary.assert_called_once_with(page_language, page_name)
-        assert 1 == len(resource.links)
-        assert "Amsterdam" == link.label
-        assert "en" == link.locale
+        assert len(resource.links) == 1
+        assert link.label == "Amsterdam"
+        assert link.locale == "en"
         assert MediaType("text/html") == link.media_type
         assert link.description is not None
-        assert "external" == link.relationship
+        assert link.relationship == "external"
 
     async def test_populate_should_add_translation_links(
         self, mocker: MockerFixture
@@ -1069,13 +1067,13 @@ class TestPopulator:
             ]
         )
         m_retriever.get_translations.assert_called_once_with(page_language, page_name)
-        assert 2 == len(resource.links)
+        assert len(resource.links) == 2
         link_nl = [link for link in resource.links if link != link_en][0]
-        assert "Amsterdam" == link_nl.label
-        assert "nl" == link_nl.locale
+        assert link_nl.label == "Amsterdam"
+        assert link_nl.locale == "nl"
         assert MediaType("text/html") == link_nl.media_type
         assert link_nl.description is not None
-        assert "external" == link_nl.relationship
+        assert link_nl.relationship == "external"
 
     async def test_populate_place_should_add_coordinates(
         self, mocker: MockerFixture

@@ -9,28 +9,16 @@ import json
 import logging
 import re
 from collections import defaultdict
-from collections.abc import (
-    Sequence,
-    MutableSequence,
-    Callable,
-    Awaitable,
-    Mapping,
-    MutableMapping,
-)
 from contextlib import suppress
-from pathlib import Path
 from time import time
-from typing import cast, Any
+from typing import cast, Any, TYPE_CHECKING
 from urllib.parse import quote
 
 import aiohttp
 from aiohttp import ClientResponse
 from geopy import Point
 
-from betty.app import App
 from betty.asyncio import gather
-from betty.cache import Cache, CacheItemValueT
-from betty.cache.file import BinaryFileCache
 from betty.concurrent import RateLimiter, _Lock, AsynchronizedLock
 from betty.functools import filter_suppress
 from betty.hashid import hashid
@@ -44,6 +32,20 @@ from betty.locale import (
 )
 from betty.media_type import MediaType
 from betty.model.ancestry import Link, HasLinks, Place, File, HasFiles
+
+if TYPE_CHECKING:
+    from betty.app import App
+    from betty.cache.file import BinaryFileCache
+    from betty.cache import Cache, CacheItemValueT
+    from pathlib import Path
+    from collections.abc import (
+        Sequence,
+        MutableSequence,
+        Callable,
+        Awaitable,
+        Mapping,
+        MutableMapping,
+    )
 
 
 class WikipediaError(BaseException):
@@ -223,7 +225,7 @@ class _Retriever:
         except (LookupError, TypeError) as error:
             raise RetrievalError(
                 f"Could not successfully parse the JSON format returned by {url}: {error}"
-            )
+            ) from error
 
     async def _get_page_query_api_data(
         self, page_language: str, page_name: str
@@ -260,7 +262,7 @@ class _Retriever:
             except json.JSONDecodeError as error:
                 raise RetrievalError(
                     f"Could not successfully parse the JSON content returned by {url}: {error}"
-                )
+                ) from error
             else:
                 try:
                     return Summary(
@@ -276,7 +278,7 @@ class _Retriever:
                 except LookupError as error:
                     raise RetrievalError(
                         f"Could not successfully parse the JSON content returned by {url}: {error}"
-                    )
+                    ) from error
         except RetrievalError as error:
             logger = logging.getLogger(__name__)
             logger.warning(str(error))
@@ -302,7 +304,7 @@ class _Retriever:
             except LookupError as error:
                 raise RetrievalError(
                     f"Could not successfully parse the JSON content returned by {url}: {error}"
-                )
+                ) from error
             image = Image(
                 await self._fetcher.fetch_file(image_info["url"]),
                 MediaType(image_info["mime"]),
@@ -336,7 +338,7 @@ class _Retriever:
             except LookupError as error:
                 raise RetrievalError(
                     f"Could not successfully parse the JSON content: {error}"
-                )
+                ) from error
         except RetrievalError as error:
             logger = logging.getLogger(__name__)
             logger.warning(str(error))
@@ -353,9 +355,7 @@ class _Populator:
         )
 
     async def populate(self) -> None:
-        locales = list(
-            map(lambda x: x.alias, self._app.project.configuration.locales.values())
-        )
+        locales = [x.alias for x in self._app.project.configuration.locales.values()]
         await gather(
             *(
                 self._populate_entity(entity, locales)

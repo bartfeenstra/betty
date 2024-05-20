@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 from contextlib import suppress
-from types import TracebackType
 
 from betty.contextlib import SynchronizedContextManager
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from types import TracebackType
 
 
 class DummyAsynchronousContextManager:
@@ -42,9 +45,8 @@ class TestSynchronizedContextManager:
         asynchronous_context_manager = DummyAsynchronousContextManager()
         sut = SynchronizedContextManager(asynchronous_context_manager)
         error = RuntimeError()
-        with suppress(RuntimeError):
-            with sut:
-                raise error
+        with suppress(RuntimeError), sut:
+            raise error
         assert asynchronous_context_manager.entered
         assert asynchronous_context_manager.exited
         assert asynchronous_context_manager.exc_type is RuntimeError

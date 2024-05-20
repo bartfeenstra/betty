@@ -13,5 +13,5 @@ def repr_instance(instance: object, **attributes: Any) -> str:
         instance.__class__.__module__,
         instance.__class__.__name__,
         hex(id(instance)),
-        (" " + ", ".join(map(lambda x: f"{x[0]}={x[1]}", attributes.items()))).rstrip(),
+        (" " + ", ".join((f"{x[0]}={x[1]}" for x in attributes.items()))).rstrip(),
     )

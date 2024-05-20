@@ -5,7 +5,6 @@ Provide functional programming utilities.
 from __future__ import annotations
 
 from asyncio import sleep
-from collections.abc import MutableSequence
 from inspect import isawaitable
 from itertools import chain
 from time import time
@@ -20,9 +19,13 @@ from typing import (
     cast,
     ParamSpec,
     Awaitable,
+    TYPE_CHECKING,
 )
 
 from betty.warnings import deprecated
+
+if TYPE_CHECKING:
+    from collections.abc import MutableSequence
 
 T = TypeVar("T")
 U = TypeVar("U")
@@ -58,7 +61,7 @@ def slice_to_range(indices: slice, iterable: Sized) -> Iterable[int]:
     """
     length = len(iterable)
 
-    if indices.start is None:
+    if indices.start is None:  # noqa SIM108
         start = 0
     else:
         # Ensure the stop index is within range.
@@ -70,10 +73,7 @@ def slice_to_range(indices: slice, iterable: Sized) -> Iterable[int]:
         # Ensure the stop index is within range.
         stop = max(-length, min(length, indices.stop))
 
-    if indices.step is None:
-        step = 1
-    else:
-        step = indices.step
+    step = 1 if indices.step is None else indices.step
 
     return range(start, stop, step)
 

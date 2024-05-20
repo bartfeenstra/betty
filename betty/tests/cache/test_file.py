@@ -62,7 +62,7 @@ class TestBinaryFileCache(CacheTestBase[bytes]):
         assert sut.path == tmp_path.joinpath(*scopes)
 
     @pytest.mark.parametrize(
-        "expected_path_components, scopes",
+        ("expected_path_components", "scopes"),
         [
             (("b80bb7740288fda1f201890375a60c8f",), ()),
             (

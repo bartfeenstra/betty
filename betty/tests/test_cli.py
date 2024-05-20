@@ -1,10 +1,11 @@
 import json
+import logging
 from asyncio import to_thread
 from collections.abc import AsyncIterator
 from contextlib import chdir
 from multiprocessing import get_context
 from pathlib import Path
-from typing import TypeVar, ParamSpec, Any
+from typing import TypeVar, ParamSpec, Any, TYPE_CHECKING
 from unittest.mock import AsyncMock
 
 import aiofiles
@@ -25,9 +26,11 @@ from betty.error import UserFacingError
 from betty.gui.app import BettyPrimaryWindow
 from betty.locale import Str, DEFAULT_LOCALIZER
 from betty.project import ExtensionConfiguration
-from betty.serde.dump import Dump
 from betty.serve import Server, AppServer
 from betty.tests.conftest import BettyQtBot
+
+if TYPE_CHECKING:
+    from betty.serde.dump import Dump
 
 T = TypeVar("T")
 P = ParamSpec("P")
@@ -66,7 +69,7 @@ Stderr:
     return result
 
 
-@pytest.fixture
+@pytest.fixture()
 async def new_temporary_app(mocker: MockerFixture) -> AsyncIterator[App]:
     async with App.new_temporary() as app:
         m_new_from_environment = mocker.AsyncMock()
@@ -150,19 +153,21 @@ class TestMain:
 
 class TestCatchExceptions:
     async def test_logging_user_facing_error(self, caplog: LogCaptureFixture) -> None:
-        error_message = Str.plain("Something went wrong!")
-        with pytest.raises(SystemExit):
-            with catch_exceptions():
-                raise UserFacingError(error_message)
-            assert f"ERROR:root:{error_message}" == caplog.text
+        error_message = "Something went wrong!"
+        with pytest.raises(SystemExit), caplog.at_level(
+            logging.NOTSET
+        ), catch_exceptions():
+            raise UserFacingError(Str.plain(error_message))
+        assert error_message in caplog.text
 
     async def test_logging_uncaught_exception(self, caplog: LogCaptureFixture) -> None:
         error_message = "Something went wrong!"
-        with pytest.raises(SystemExit):
-            with catch_exceptions():
-                raise Exception(error_message)
-            assert caplog.text.startswith(f"ERROR:root:{error_message}")
-            assert "Traceback" in caplog.text
+        with pytest.raises(SystemExit), caplog.at_level(
+            logging.NOTSET
+        ), catch_exceptions():
+            raise Exception(error_message)
+        assert error_message in caplog.text
+        assert "Traceback" in caplog.text
 
 
 class TestVersion:
@@ -176,9 +181,10 @@ class TestClearCaches:
         async with new_temporary_app:
             await new_temporary_app.cache.set("KeepMeAroundPlease", "")
         await to_thread(run, "clear-caches")
-        async with new_temporary_app:
-            async with new_temporary_app.cache.get("KeepMeAroundPlease") as cache_item:
-                assert cache_item is None
+        async with new_temporary_app, new_temporary_app.cache.get(
+            "KeepMeAroundPlease"
+        ) as cache_item:
+            assert cache_item is None
 
 
 class NoOpServer(Server):

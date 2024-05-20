@@ -12,7 +12,6 @@ from collections.abc import (
     Iterable,
 )
 from configparser import ConfigParser
-from glob import glob
 from importlib import import_module
 from inspect import getmembers, isfunction, isclass, isdatadescriptor
 from pathlib import Path
@@ -836,15 +835,14 @@ class CoverageTester:
     def _get_coveragerc_ignore_modules(self) -> Iterable[Path]:
         coveragerc = ConfigParser()
         coveragerc.read(ROOT_DIRECTORY_PATH / ".coveragerc")
-        omit = coveragerc.get("run", "omit").split("\n")
+        omit = coveragerc.get("run", "omit").strip().split("\n")
         for omit_pattern in omit:
-            for module_path_str in glob(omit_pattern, recursive=True):
-                if not module_path_str.endswith(".py"):
+            for module_path in Path().glob(omit_pattern):
+                if module_path.suffix != ".py":
                     continue
-                module_path = Path(module_path_str).resolve()
                 if not module_path.is_file():
                     continue
-                yield module_path
+                yield module_path.resolve()
 
     def _get_ignore_src_module_paths(
         self,
@@ -910,7 +908,7 @@ class _ModuleCoverageTester:
 
     async def test(self) -> AsyncIterable[str]:
         # Skip private modules.
-        if True in map(lambda x: x.startswith("_"), self._src_module_name.split(".")):
+        if True in (x.startswith("_") for x in self._src_module_name.split(".")):
             return
 
         if self._test_module_path.exists():
@@ -942,7 +940,8 @@ class _ModuleCoverageTester:
                         self._src_module_name,
                         test_module_name,
                         cast(
-                            _ModuleClassIgnore, self._ignore.get(src_class.__name__, {})  # type: ignore[union-attr]
+                            _ModuleClassIgnore,
+                            self._ignore.get(src_class.__name__, {}),  # type: ignore[union-attr]
                         ),
                     ).test():
                         yield error
@@ -967,7 +966,9 @@ class _ModuleCoverageTester:
                 return False
         return True
 
-    def _get_module_data(self, module_path: Path) -> tuple[
+    def _get_module_data(
+        self, module_path: Path
+    ) -> tuple[
         str,
         Sequence[_Importable & Callable[..., Any]],
         Sequence[_Importable & type],
@@ -1135,10 +1136,7 @@ class _ModuleClassCoverageTester:
         if test_members:
             if ignore is TestKnownToBeMissing:
                 formatted_test_members = ", ".join(
-                    map(
-                        lambda test_member: f"{test_member.__name__}()",
-                        test_members,
-                    )
+                    (f"{test_member.__name__}()" for test_member in test_members)
                 )
                 yield f"The source member {self._src_class.__module__}.{self._src_class.__name__}.{src_member_name}() has (a) matching test method(s) {formatted_test_members} in {test_class.__module__}.{test_class.__name__}, which was unexpectedly declared as known to be missing."
             return
@@ -1151,7 +1149,7 @@ class _ModuleClassCoverageTester:
 
 class Test_ModuleCoverageTester:
     @pytest.mark.parametrize(
-        "errors_expected, module, ignore",
+        ("errors_expected", "module", "ignore"),
         [
             (False, _module_private, TestKnownToBeMissing),
             (False, _module_private, {}),
@@ -1178,7 +1176,7 @@ class Test_ModuleCoverageTester:
 
 class Test_ModuleFunctionCoverageTester:
     @pytest.mark.parametrize(
-        "errors_expected, module, ignore",
+        ("errors_expected", "module", "ignore"),
         [
             (True, module_function_with_test, TestKnownToBeMissing),
             (False, module_function_without_test, TestKnownToBeMissing),
@@ -1202,7 +1200,7 @@ class Test_ModuleFunctionCoverageTester:
 
 class Test_ModuleClassCoverageTester:
     @pytest.mark.parametrize(
-        "errors_expected, module, ignore",
+        ("errors_expected", "module", "ignore"),
         [
             (True, module_class_with_test, TestKnownToBeMissing),
             (False, module_class_without_test, TestKnownToBeMissing),

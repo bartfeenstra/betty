@@ -334,7 +334,7 @@ class Asserter:
 
         def _assert_record(value: Any) -> MutableMapping[str, Any]:
             dict_value = self.assert_dict()(value)
-            known_keys = set(map(lambda x: x.name, fields))
+            known_keys = {x.name for x in fields}
             unknown_keys = set(dict_value.keys()) - known_keys
             with SerdeErrorCollection().assert_valid() as errors:
                 for unknown_key in unknown_keys:
@@ -344,7 +344,7 @@ class Asserter:
                                 "Unknown key: {unknown_key}. Did you mean {known_keys}?",
                                 unknown_key=f'"{unknown_key}"',
                                 known_keys=", ".join(
-                                    map(lambda x: f'"{x}"', sorted(known_keys))
+                                    (f'"{x}"' for x in sorted(known_keys))
                                 ),
                             )
                         )
@@ -387,7 +387,7 @@ class Asserter:
                         '"{locale}" is not a valid IETF BCP 47 language tag.',
                         locale=value,
                     )
-                )
+                ) from None
 
         return _assert_locale
 
@@ -420,21 +420,21 @@ class Asserter:
                         'Cannot find and import "{extension_type}".',
                         extension_type=str(value),
                     )
-                )
+                ) from None
             except ExtensionTypeInvalidError:
                 raise AssertionFailed(
                     Str._(
                         '"{extension_type}" is not a valid Betty extension type.',
                         extension_type=str(value),
                     )
-                )
+                ) from None
             except ExtensionTypeError:
                 raise AssertionFailed(
                     Str._(
                         'Cannot determine the extension type for "{extension_type}". Did you perhaps make a typo, or could it be that the extension type comes from another package that is not yet installed?',
                         extension_type=str(value),
                     )
-                )
+                ) from None
 
         return _assert_extension_type
 
@@ -451,20 +451,20 @@ class Asserter:
                         'Cannot find and import "{entity_type}".',
                         entity_type=str(value),
                     )
-                )
+                ) from None
             except EntityTypeInvalidError:
                 raise AssertionFailed(
                     Str._(
                         '"{entity_type}" is not a valid Betty entity type.',
                         entity_type=str(value),
                     )
-                )
+                ) from None
             except EntityTypeError:
                 raise AssertionFailed(
                     Str._(
                         'Cannot determine the entity type for "{entity_type}". Did you perhaps make a typo, or could it be that the entity type comes from another package that is not yet installed?',
                         entity_type=str(value),
                     )
-                )
+                ) from None
 
         return _assert_entity_type

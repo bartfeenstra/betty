@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
 from datetime import datetime
 from pathlib import Path
 
@@ -23,6 +22,10 @@ from betty.model.ancestry import (
 from betty.model.event_type import Death, Birth, Marriage
 from betty.privatizer import Privatizer
 from betty.project import DEFAULT_LIFETIME_THRESHOLD
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
@@ -322,7 +325,7 @@ class TestPrivatizer:
         assert presence_as_subject.private
         assert presence_as_attendee.private
 
-    @pytest.mark.parametrize("expected, privacy, event", _expand_person(0))
+    @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(0))
     async def test_privatize_person_without_relatives(
         self,
         expected: bool,
@@ -337,7 +340,7 @@ class TestPrivatizer:
         )
         assert expected == person.private
 
-    @pytest.mark.parametrize("expected, privacy, event", _expand_person(1))
+    @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(1))
     async def test_privatize_person_with_child(
         self,
         expected: bool,
@@ -354,7 +357,7 @@ class TestPrivatizer:
         )
         assert expected == person.private
 
-    @pytest.mark.parametrize("expected, privacy, event", _expand_person(2))
+    @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(2))
     async def test_privatize_person_with_grandchild(
         self,
         expected: bool,
@@ -373,7 +376,7 @@ class TestPrivatizer:
         )
         assert expected == person.private
 
-    @pytest.mark.parametrize("expected, privacy, event", _expand_person(3))
+    @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(3))
     async def test_privatize_person_with_great_grandchild(
         self,
         expected: bool,
@@ -394,7 +397,7 @@ class TestPrivatizer:
         )
         assert expected == person.private
 
-    @pytest.mark.parametrize("expected, privacy, event", _expand_person(-1))
+    @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(-1))
     async def test_privatize_person_with_parent(
         self,
         expected: bool,
@@ -411,7 +414,7 @@ class TestPrivatizer:
         )
         assert expected == person.private
 
-    @pytest.mark.parametrize("expected, privacy, event", _expand_person(-2))
+    @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(-2))
     async def test_privatize_person_with_grandparent(
         self,
         expected: bool,
@@ -430,7 +433,7 @@ class TestPrivatizer:
         )
         assert expected == person.private
 
-    @pytest.mark.parametrize("expected, privacy, event", _expand_person(-3))
+    @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(-3))
     async def test_privatize_person_with_great_grandparent(
         self,
         expected: bool,
@@ -578,7 +581,7 @@ class TestPrivatizer:
         assert citation.private
 
     @pytest.mark.parametrize(
-        "expected, privacy, events, encloses",
+        ("expected", "privacy", "events", "encloses"),
         [
             (Privacy.PUBLIC, Privacy.PUBLIC, [], []),
             (Privacy.PRIVATE, Privacy.PRIVATE, [], []),

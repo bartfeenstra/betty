@@ -1,8 +1,11 @@
 import pytest
 
-from betty.serde.dump import Dump
 from betty.serde.format import Yaml, Json
 from betty.serde.load import FormatError
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from betty.serde.dump import Dump
 
 
 class TestJson:
@@ -23,7 +26,7 @@ class TestJson:
         dump: Dump = {"hello": [123, "World!"]}
         sut = Json()
         json_dump = sut.dump(dump)
-        assert '{"hello": [123, "World!"]}' == json_dump
+        assert json_dump == '{"hello": [123, "World!"]}'
 
 
 class TestYaml:
@@ -44,4 +47,4 @@ class TestYaml:
         dump: Dump = {"hello": [123, "World!"]}
         sut = Yaml()
         yaml_dump = sut.dump(dump)
-        assert "hello:\n- 123\n- World!\n" == yaml_dump
+        assert yaml_dump == "hello:\n- 123\n- World!\n"

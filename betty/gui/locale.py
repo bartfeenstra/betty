@@ -4,15 +4,17 @@ Provide locale management for the Graphical User Interface.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
-from PyQt6 import QtGui
 from PyQt6.QtWidgets import QComboBox, QLabel, QWidget
 
-from betty.app import App
 from betty.asyncio import wait_to_thread
 from betty.gui.text import Caption
 from betty.locale import negotiate_locale, get_display_name
+
+if TYPE_CHECKING:
+    from betty.app import App
+    from PyQt6 import QtGui
 
 
 class LocalizedObject:

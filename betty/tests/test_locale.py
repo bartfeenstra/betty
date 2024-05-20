@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import difflib
-from collections.abc import Sequence
 from pathlib import Path
-from typing import Iterator, cast, Any
+from typing import Iterator, cast, Any, TYPE_CHECKING
 
 import aiofiles
 import pytest
@@ -24,6 +23,9 @@ from betty.locale import (
     update_translations,
 )
 from betty.warnings import BettyDeprecationWarning
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 class TestPotFile:
@@ -52,8 +54,8 @@ class TestPotFile:
                 list(actual_pot_contents),
                 list(expected_pot_contents),
             )
-            assert 0 == len(
-                list(diff)
+            assert (
+                len(list(diff)) == 0
             ), "The gettext *.po files are not up to date. Did you run `betty update-translations`?"
 
 
@@ -80,7 +82,7 @@ class TestDate:
         assert fuzzy == sut.fuzzy
 
     @pytest.mark.parametrize(
-        "expected, year, month, day",
+        ("expected", "year", "month", "day"),
         [
             (True, 1970, 1, 1),
             (False, None, 1, 1),
@@ -98,7 +100,7 @@ class TestDate:
         assert expected == sut.comparable
 
     @pytest.mark.parametrize(
-        "expected, year, month, day",
+        ("expected", "year", "month", "day"),
         [
             (True, 1970, 1, 1),
             (False, None, 1, 1),
@@ -116,11 +118,11 @@ class TestDate:
         assert expected == sut.complete
 
     async def test_to_range_when_incomparable_should_raise(self) -> None:
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError):  # noqa PT011
             Date(None, 1, 1).to_range()
 
     @pytest.mark.parametrize(
-        "year, month, day",
+        ("year", "month", "day"),
         [
             (1970, 1, 1),
             (None, None, None),
@@ -132,7 +134,7 @@ class TestDate:
         assert (year, month, day) == Date(year, month, day).parts
 
     @pytest.mark.parametrize(
-        "expected, other",
+        ("expected", "other"),
         [
             (False, Date(1970, 2, 1)),
             (True, Date(1970, 2, 2)),
@@ -144,7 +146,7 @@ class TestDate:
         assert expected == (other in Date(1970, 2, 2))
 
     @pytest.mark.parametrize(
-        "expected, other",
+        ("expected", "other"),
         [
             (False, Date(1970, 2, 1)),
             (False, Date(1970, 2, 2)),
@@ -159,7 +161,7 @@ class TestDate:
         assert expected == (Date(1970, 2, 2) < other)
 
     @pytest.mark.parametrize(
-        "expected, other",
+        ("expected", "other"),
         [
             (True, Date(1970, 1, 1)),
             (False, Date(1970, 1, None)),
@@ -176,7 +178,7 @@ class TestDate:
         assert expected == (other == Date(1970, 1, 1))
 
     @pytest.mark.parametrize(
-        "expected, other",
+        ("expected", "other"),
         [
             (True, Date(1970, 2, 1)),
             (False, Date(1970, 2, 2)),
@@ -262,15 +264,14 @@ class TestDateRange:
 
     # Mirror the arguments because we want the containment check to work in either direction.
     @pytest.mark.parametrize(
-        "expected, other, sut",
-        _TEST_IN_PARAMETERS
-        + list(map(lambda x: (x[0], x[2], x[1]), _TEST_IN_PARAMETERS)),
+        ("expected", "other", "sut"),
+        _TEST_IN_PARAMETERS + [(x[0], x[2], x[1]) for x in _TEST_IN_PARAMETERS],
     )
     async def test_in(self, expected: bool, other: Datey, sut: Datey) -> None:
         assert expected == (other in sut)
 
     @pytest.mark.parametrize(
-        "expected, other",
+        ("expected", "other"),
         [
             (False, Date(1970, 2, 1)),
             (False, Date(1970, 2, 2)),
@@ -290,7 +291,7 @@ class TestDateRange:
         assert expected == (DateRange(Date(1970, 2, 2)) < other)
 
     @pytest.mark.parametrize(
-        "expected, other",
+        ("expected", "other"),
         [
             (False, Date(1970, 2, 1)),
             (True, Date(1970, 2, 2)),
@@ -310,7 +311,7 @@ class TestDateRange:
         assert expected == (DateRange(None, Date(1970, 2, 2)) < other)
 
     @pytest.mark.parametrize(
-        "expected, other",
+        ("expected", "other"),
         [
             (False, Date(1970, 2, 1)),
             (True, Date(1970, 2, 2)),
@@ -331,7 +332,7 @@ class TestDateRange:
         assert expected == (DateRange(Date(1970, 2, 1), Date(1970, 2, 3)) < other)
 
     @pytest.mark.parametrize(
-        "expected, other",
+        ("expected", "other"),
         [
             (True, DateRange(Date(1970, 2, 2))),
             (False, DateRange(Date(1970, 2, None))),
@@ -347,7 +348,7 @@ class TestDateRange:
         assert expected == (DateRange(Date(1970, 2, 2)) == other)
 
     @pytest.mark.parametrize(
-        "expected, other",
+        ("expected", "other"),
         [
             (True, Date(1970, 2, 1)),
             (True, Date(1970, 2, 2)),
@@ -369,7 +370,7 @@ class TestDateRange:
 
 class TestNegotiateLocale:
     @pytest.mark.parametrize(
-        "expected, preferred_locale, available_locales",
+        ("expected", "preferred_locale", "available_locales"),
         [
             ("nl", "nl", ["nl"]),
             ("nl-NL", "nl", ["nl-NL"]),
@@ -401,7 +402,7 @@ class TestNegotiateLocalizeds:
             return "%s(%s)" % (self.__class__.__name__, self.locale)
 
     @pytest.mark.parametrize(
-        "expected, preferred_locale, localizeds",
+        ("expected", "preferred_locale", "localizeds"),
         [
             (DummyLocalized(locale="nl"), "nl", [DummyLocalized(locale="nl")]),
             (DummyLocalized(locale="nl-NL"), "nl", [DummyLocalized(locale="nl-NL")]),
@@ -467,7 +468,7 @@ class TestDefaultLocalizer:
         ("around January 1", Date(None, 1, 1, fuzzy=True)),
     ]
 
-    @pytest.mark.parametrize("expected, date", _FORMAT_DATE_TEST_PARAMETERS)
+    @pytest.mark.parametrize(("expected", "date"), _FORMAT_DATE_TEST_PARAMETERS)
     async def test_format_date(self, expected: str, date: Date) -> None:
         sut = DEFAULT_LOCALIZER
         assert expected == sut.format_date(date)
@@ -598,7 +599,9 @@ class TestDefaultLocalizer:
         ),
     ]
 
-    @pytest.mark.parametrize("expected, date_range", _FORMAT_DATE_RANGE_TEST_PARAMETERS)
+    @pytest.mark.parametrize(
+        ("expected", "date_range"), _FORMAT_DATE_RANGE_TEST_PARAMETERS
+    )
     async def test_format_date_range(
         self, expected: str, date_range: DateRange
     ) -> None:
@@ -609,7 +612,7 @@ class TestDefaultLocalizer:
         list[tuple[str, Datey]], _FORMAT_DATE_TEST_PARAMETERS
     ) + cast(list[tuple[str, Datey]], _FORMAT_DATE_RANGE_TEST_PARAMETERS)
 
-    @pytest.mark.parametrize("expected, datey", _FORMAT_DATEY_TEST_PARAMETERS)
+    @pytest.mark.parametrize(("expected", "datey"), _FORMAT_DATEY_TEST_PARAMETERS)
     async def test_format_datey(self, expected: str, datey: Datey) -> None:
         sut = DEFAULT_LOCALIZER
         assert expected == sut.format_datey(datey)
@@ -653,4 +656,4 @@ msgstr "Onderwerp"
             sut = LocalizerRepository(fs)
             with pytest.warns(BettyDeprecationWarning):
                 actual = sut[locale]._("Subject")
-            assert "Onderwerp" == actual
+            assert actual == "Onderwerp"

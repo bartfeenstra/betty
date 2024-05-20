@@ -91,7 +91,7 @@ class _NginxGuiWidget(QWidget):
                     "Serve your site from...",
                     directory=self._nginx_www_directory_path.text(),
                 )
-                if "" != found_www_directory_path:
+                if found_www_directory_path != "":
                     self._nginx_www_directory_path.setText(found_www_directory_path)
 
         self._nginx_www_directory_path_find = QPushButton("...")

@@ -7,9 +7,12 @@ from __future__ import annotations
 import asyncio
 import shutil
 from contextlib import suppress
-from pathlib import Path
 
 from aiofiles.os import link
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 async def link_or_copy(source_path: Path, destination_path: Path) -> None:

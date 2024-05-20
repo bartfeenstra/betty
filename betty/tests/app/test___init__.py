@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Self
+from typing import Self, TYPE_CHECKING
 
 import pytest
 
@@ -13,8 +13,10 @@ from betty.app.extension import (
 from betty.config import Configuration
 from betty.model import Entity
 from betty.project import ExtensionConfiguration
-from betty.serde.dump import Dump, VoidableDump
 from betty.serde.load import Fields, Assertions, RequiredField, Asserter
+
+if TYPE_CHECKING:
+    from betty.serde.dump import Dump, VoidableDump
 
 
 class DummyEntity(Entity):
@@ -151,7 +153,7 @@ class TestApp:
             )
             carrier: list[TrackableExtension] = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
-            assert 3 == len(carrier)
+            assert len(carrier) == 3
             assert isinstance(carrier[0], NonConfigurableExtension)
             assert isinstance(carrier[1], DependsOnNonConfigurableExtensionExtension)
             assert isinstance(
@@ -170,7 +172,7 @@ class TestApp:
             )
             carrier: list[TrackableExtension] = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
-            assert 3 == len(carrier)
+            assert len(carrier) == 3
             assert isinstance(carrier[0], NonConfigurableExtension)
             assert DependsOnNonConfigurableExtensionExtension in [
                 type(extension) for extension in carrier
@@ -182,12 +184,12 @@ class TestApp:
     async def test_extensions_with_multiple_extensions_with_cyclic_dependencies(
         self,
     ) -> None:
-        with pytest.raises(CyclicDependencyError):
-            async with App.new_temporary() as sut, sut:
+        async with App.new_temporary() as sut, sut:
+            with pytest.raises(CyclicDependencyError):  # noqa PT012
                 sut.project.configuration.extensions.append(
                     ExtensionConfiguration(CyclicDependencyOneExtension)
                 )
-                sut.extensions
+                sut.extensions  # noqa B018
 
     async def test_extensions_with_comes_before_with_other_extension(self) -> None:
         async with App.new_temporary() as sut, sut:
@@ -199,7 +201,7 @@ class TestApp:
             )
             carrier: list[TrackableExtension] = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
-            assert 2 == len(carrier)
+            assert len(carrier) == 2
             assert isinstance(carrier[0], ComesBeforeNonConfigurableExtensionExtension)
             assert isinstance(carrier[1], NonConfigurableExtension)
 
@@ -210,7 +212,7 @@ class TestApp:
             )
             carrier: list[TrackableExtension] = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
-            assert 1 == len(carrier)
+            assert len(carrier) == 1
             assert isinstance(carrier[0], ComesBeforeNonConfigurableExtensionExtension)
 
     async def test_extensions_with_comes_after_with_other_extension(self) -> None:
@@ -223,7 +225,7 @@ class TestApp:
             )
             carrier: list[TrackableExtension] = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
-            assert 2 == len(carrier)
+            assert len(carrier) == 2
             assert isinstance(carrier[0], NonConfigurableExtension)
             assert isinstance(carrier[1], ComesAfterNonConfigurableExtensionExtension)
 
@@ -234,13 +236,13 @@ class TestApp:
             )
             carrier: list[TrackableExtension] = []
             await sut.dispatcher.dispatch(Tracker)(carrier)
-            assert 1 == len(carrier)
+            assert len(carrier) == 1
             assert isinstance(carrier[0], ComesAfterNonConfigurableExtensionExtension)
 
     async def test_extensions_addition_to_configuration(self) -> None:
         async with App.new_temporary() as sut, sut:
             # Get the extensions before making configuration changes to warm the cache.
-            sut.extensions
+            sut.extensions  # noqa B018
             sut.project.configuration.extensions.append(
                 ExtensionConfiguration(NonConfigurableExtension)
             )
@@ -254,6 +256,6 @@ class TestApp:
                 ExtensionConfiguration(NonConfigurableExtension)
             )
             # Get the extensions before making configuration changes to warm the cache.
-            sut.extensions
+            sut.extensions  # noqa B018
             del sut.project.configuration.extensions[NonConfigurableExtension]
             assert NonConfigurableExtension not in sut.extensions

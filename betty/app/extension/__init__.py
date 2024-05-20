@@ -5,7 +5,6 @@ from __future__ import annotations
 import functools
 from collections import defaultdict
 from importlib.metadata import entry_points, EntryPoint
-from pathlib import Path
 from typing import (
     Any,
     TypeVar,
@@ -25,6 +24,7 @@ from betty.importlib import import_any
 from betty.locale import Str
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from betty.app import App
 
 
@@ -73,7 +73,7 @@ class Dependencies(AllRequirements):
             try:
                 dependency_requirement = dependency_type.enable_requirement()
             except RecursionError:
-                raise CyclicDependencyError([dependency_type])
+                raise CyclicDependencyError([dependency_type]) from None
             else:
                 dependency_requirements.append(dependency_requirement)
         super().__init__(*dependency_requirements)
@@ -89,11 +89,9 @@ class Dependencies(AllRequirements):
             dependent_label=format_extension_type(self._dependent_type),
             dependency_labels=Str.call(
                 lambda localizer: ", ".join(
-                    map(
-                        lambda extension_type: format_extension_type(
-                            extension_type
-                        ).localize(localizer),
-                        self._dependent_type.depends_on(),
+                    (
+                        format_extension_type(extension_type).localize(localizer)
+                        for extension_type in self._dependent_type.depends_on()
                     ),
                 ),
             ),
@@ -320,10 +318,7 @@ class ListExtensions(Extensions):
                 extension_type = import_any(extension_type)
             except ImportError:
                 return False
-        for extension in self.flatten():
-            if type(extension) is extension_type:
-                return True
-        return False
+        return any(type(extension) is extension_type for extension in self.flatten())
 
 
 class ExtensionDispatcher(Dispatcher):

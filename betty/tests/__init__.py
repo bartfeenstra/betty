@@ -5,21 +5,31 @@ from __future__ import annotations
 import functools
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Callable, TypeVar, Any, AsyncIterator, Awaitable, ParamSpec
+from typing import (
+    Callable,
+    TypeVar,
+    Any,
+    AsyncIterator,
+    Awaitable,
+    ParamSpec,
+    TYPE_CHECKING,
+)
 
 import aiofiles
 import html5lib
 from aiofiles.tempfile import TemporaryDirectory
 from html5lib.html5parser import ParseError
-from jinja2.environment import Template
 
 from betty import fs
 from betty.app import App
 from betty.app.extension import Extension
 from betty.jinja2 import Environment
 from betty.json.schema import Schema
-from betty.locale import Localey
 from betty.warnings import deprecated
+
+if TYPE_CHECKING:
+    from betty.locale import Localey
+    from jinja2.environment import Template
 
 T = TypeVar("T")
 P = ParamSpec("P")
@@ -119,7 +129,7 @@ async def assert_betty_html(
     try:
         html5lib.HTMLParser(strict=True).parse(betty_html)
     except ParseError as e:
-        raise ValueError(f'HTML parse error "{e}" in:\n{betty_html}')
+        raise ValueError(f'HTML parse error "{e}" in:\n{betty_html}') from None
 
     return betty_html_file_path
 

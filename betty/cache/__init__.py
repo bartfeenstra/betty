@@ -5,11 +5,13 @@ Provide the Cache API.
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
-from pathlib import Path
 from typing import Self, Generic, TypeAlias, AsyncContextManager, overload, Literal
 
 import typing_extensions
 from typing_extensions import TypeVar
+
+if typing_extensions.TYPE_CHECKING:
+    from pathlib import Path
 
 CacheItemValueT = TypeVar("CacheItemValueT")
 CacheItemValueCoT = TypeVar("CacheItemValueCoT", covariant=True)
@@ -68,7 +70,9 @@ class Cache(Generic[CacheItemValueContraT]):
         raise NotImplementedError
 
     @overload
-    def getset(self, cache_item_id: str) -> AsyncContextManager[
+    def getset(
+        self, cache_item_id: str
+    ) -> AsyncContextManager[
         tuple[
             CacheItem[CacheItemValueContraT] | None,
             CacheItemValueSetter[CacheItemValueContraT],
@@ -87,7 +91,9 @@ class Cache(Generic[CacheItemValueContraT]):
     ]:
         pass
 
-    def getset(self, cache_item_id: str, *, wait: bool = True) -> AsyncContextManager[
+    def getset(
+        self, cache_item_id: str, *, wait: bool = True
+    ) -> AsyncContextManager[
         tuple[
             CacheItem[CacheItemValueContraT] | None,
             CacheItemValueSetter[CacheItemValueContraT] | None,

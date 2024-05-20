@@ -9,18 +9,19 @@ import hashlib
 import os
 from collections import deque
 from contextlib import suppress
-from os.path import getmtime
 from pathlib import Path
 from shutil import copy2
-from types import TracebackType
-from typing import AsyncIterable, AsyncContextManager, Sequence
+from typing import AsyncIterable, AsyncContextManager, Sequence, TYPE_CHECKING
 
 import aiofiles
 from aiofiles.os import makedirs
-from aiofiles.threadpool.text import AsyncTextIOWrapper
 
 from betty import _ROOT_DIRECTORY_PATH
 from betty.warnings import deprecated
+
+if TYPE_CHECKING:
+    from aiofiles.threadpool.text import AsyncTextIOWrapper
+    from types import TracebackType
 
 ROOT_DIRECTORY_PATH = _ROOT_DIRECTORY_PATH
 
@@ -63,9 +64,7 @@ def hashfile(path: Path) -> str:
     This function relies on the file path and last modified time for uniqueness.
     File contents are ignored.
     """
-    return hashlib.md5(
-        ":".join([str(getmtime(path)), str(path)]).encode("utf-8")
-    ).hexdigest()
+    return hashlib.md5(f"{path.stat().st_mtime}:{path}".encode("utf-8")).hexdigest()
 
 
 class _Open:

@@ -92,7 +92,7 @@ class TestMultiLock:
 
 class TestRateLimiter:
     @pytest.mark.parametrize(
-        "expected, iterations",
+        ("expected", "iterations"),
         [
             (0, 100),
             # This is one higher than the rate limiter's maximum, to ensure we spend at least one full period.

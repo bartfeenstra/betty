@@ -8,11 +8,9 @@ import pickle
 from asyncio import CancelledError
 from logging import getLogger
 from traceback import format_exception
-from types import TracebackType
-from typing import TypeVar, Generic, ParamSpec
+from typing import TypeVar, Generic, ParamSpec, TYPE_CHECKING
 
 from PyQt6.QtCore import QMetaObject, Qt, Q_ARG, QObject
-from PyQt6.QtGui import QCloseEvent
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -22,11 +20,15 @@ from PyQt6.QtWidgets import (
     QFrame,
 )
 
-from betty.app import App
 from betty.error import UserFacingError
 from betty.gui.text import Code, Text
 from betty.gui.window import BettyMainWindow
 from betty.locale import Str, Localizable
+
+if TYPE_CHECKING:
+    from PyQt6.QtGui import QCloseEvent
+    from betty.app import App
+    from types import TracebackType
 
 T = TypeVar("T")
 P = ParamSpec("P")
