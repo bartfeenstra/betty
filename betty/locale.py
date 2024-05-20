@@ -7,12 +7,10 @@ from __future__ import annotations
 import calendar
 import datetime
 import gettext
-import glob
 import logging
 import operator
 from asyncio import to_thread
 from collections import defaultdict
-from collections.abc import AsyncIterator
 from contextlib import suppress, redirect_stdout, redirect_stderr
 from functools import total_ordering
 from io import StringIO
@@ -41,7 +39,7 @@ from polib import pofile
 from betty import fs
 from betty.asyncio import wait_to_thread
 from betty.concurrent import _Lock, AsynchronizedLock
-from betty.fs import FileSystem, ROOT_DIRECTORY_PATH
+from betty.fs import FileSystem, ROOT_DIRECTORY_PATH, ASSETS_DIRECTORY_PATH
 from betty.hashid import hashid_file_meta
 from betty.json.linked_data import LinkedDataDumpable, dump_context, add_json_ld
 from betty.json.schema import ref_locale, add_property
@@ -49,6 +47,7 @@ from betty.serde.dump import DictDump, Dump, dump_default
 from betty.warnings import deprecated
 
 if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
     from betty.app import App
 
 
@@ -480,8 +479,7 @@ class DateRange(LinkedDataDumpable):
             True,
             False,
             True,
-        ): lambda self_start, self_end, other_start, other_end: self_start
-        < other_end
+        ): lambda self_start, self_end, other_start, other_end: self_start < other_end
         or self_end <= other_end,
         (
             True,
@@ -508,8 +506,7 @@ class DateRange(LinkedDataDumpable):
             False,
             False,
             True,
-        ): lambda self_start, self_end, other_start, other_end: self_start
-        < other_end,
+        ): lambda self_start, self_end, other_start, other_end: self_start < other_end,
         (
             True,
             False,
@@ -521,22 +518,19 @@ class DateRange(LinkedDataDumpable):
             True,
             True,
             True,
-        ): lambda self_start, self_end, other_start, other_end: self_end
-        <= other_start,
+        ): lambda self_start, self_end, other_start, other_end: self_end <= other_start,
         (
             False,
             True,
             True,
             False,
-        ): lambda self_start, self_end, other_start, other_end: self_end
-        <= other_start,
+        ): lambda self_start, self_end, other_start, other_end: self_end <= other_start,
         (
             False,
             True,
             False,
             True,
-        ): lambda self_start, self_end, other_start, other_end: self_end
-        < other_end,
+        ): lambda self_start, self_end, other_start, other_end: self_end < other_end,
         (
             False,
             True,
@@ -788,14 +782,14 @@ class Localizer:
         try:
             date_parts_format = self._date_parts_formatters[
                 tuple(
-                    map(lambda x: x is not None, date.parts),  # type: ignore[index]
+                    (x is not None for x in date.parts),  # type: ignore[index]
                 )
             ]
         except KeyError:
             raise IncompleteDateError(
                 "This date does not have enough parts to be rendered."
-            )
-        parts = map(lambda x: 1 if x is None else x, date.parts)
+            ) from None
+        parts = (1 if x is None else x for x in date.parts)
         return dates.format_date(
             datetime.date(*parts), date_parts_format, self._locale_data
         )
@@ -852,10 +846,8 @@ class LocalizerRepository:
             self._locales = set()
             self._locales.add(DEFAULT_LOCALE)
             for assets_directory_path, __ in reversed(self._assets.paths):
-                for po_file_path in glob.glob(
-                    str(assets_directory_path / "locale" / "*" / "betty.po")
-                ):
-                    self._locales.add(Path(po_file_path).parent.name)
+                for po_file_path in assets_directory_path.glob("locale/*/betty.po"):
+                    self._locales.add(po_file_path.parent.name)
         yield from self._locales
 
     async def get(self, locale: Localey) -> Localizer:
@@ -903,9 +895,8 @@ class LocalizerRepository:
         cache_directory_path = fs.CACHE_DIRECTORY_PATH / "locale" / translation_version
         mo_file_path = cache_directory_path / "betty.mo"
 
-        with suppress(FileNotFoundError):
-            with open(mo_file_path, "rb") as f:
-                return gettext.GNUTranslations(f)
+        with suppress(FileNotFoundError), open(mo_file_path, "rb") as f:
+            return gettext.GNUTranslations(f)
 
         cache_directory_path.mkdir(exist_ok=True, parents=True)
 
@@ -1178,10 +1169,15 @@ async def update_translations(
     """
     Update all existing translations based on changes in translatable strings.
     """
-    source_paths = glob.glob("betty/*")
-    # Remove the tests directory from the extraction,
-    # or we'll be seeing some unusual additions to the translations.
-    source_paths.remove(str(Path("betty") / "tests"))
+    source_directory_path = ROOT_DIRECTORY_PATH / "betty"
+    test_directory_path = source_directory_path / "tests"
+    source_paths = [
+        path
+        for path in source_directory_path.rglob("*")
+        # Remove the tests directory from the extraction, or we'll
+        # be seeing some unusual additions to the translations.
+        if test_directory_path not in path.parents and path.suffix in (".j2", ".py")
+    ]
     pot_file_path = _output_assets_directory_path / "betty.pot"
     await run_babel(
         "",
@@ -1199,16 +1195,17 @@ async def update_translations(
         "Bart Feenstra & contributors",
         *(str(ROOT_DIRECTORY_PATH / source_path) for source_path in source_paths),
     )
-    for po_file_path_str in glob.glob("betty/assets/locale/*/betty.po"):
-        po_file_path = (
-            _output_assets_directory_path
-            / (ROOT_DIRECTORY_PATH / po_file_path_str).relative_to(
-                fs.ASSETS_DIRECTORY_PATH
-            )
+    for input_po_file_path in Path(ASSETS_DIRECTORY_PATH).glob("locale/*/betty.po"):
+        # During production, the input and output paths are identical. During testing,
+        # _output_assets_directory_path provides an alternative output, so the changes
+        # to the translations can be tested in isolation.
+        output_po_file_path = (
+            _output_assets_directory_path / input_po_file_path
         ).resolve()
-        await makedirs(po_file_path.parent, exist_ok=True)
-        po_file_path.touch()
-        locale = po_file_path.parent.name
+        await makedirs(output_po_file_path.parent, exist_ok=True)
+        output_po_file_path.touch()
+
+        locale = output_po_file_path.parent.name
         locale_data = get_data(locale)
         await run_babel(
             "",
@@ -1216,7 +1213,7 @@ async def update_translations(
             "-i",
             str(pot_file_path),
             "-o",
-            str(po_file_path),
+            str(output_po_file_path),
             "-l",
             str(locale_data),
             "-D",

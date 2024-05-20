@@ -356,9 +356,8 @@ class TestAsserter:
 
     async def test_assert_directory_path_without_directory_path(self) -> None:
         sut = Asserter()
-        with NamedTemporaryFile() as f:
-            with raises_error(error_type=AssertionFailed):
-                sut.assert_directory_path()(f.name)
+        with NamedTemporaryFile() as f, raises_error(error_type=AssertionFailed):
+            sut.assert_directory_path()(f.name)
 
     async def test_assert_directory_path_with_valid_path(self) -> None:
         sut = Asserter()

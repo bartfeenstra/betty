@@ -5,11 +5,13 @@ Provide caching that stores cache items in volatile memory.
 from __future__ import annotations
 
 from collections.abc import MutableMapping, Sequence
-from typing import TypeAlias, Generic, Self, cast
+from typing import TypeAlias, Generic, Self, cast, TYPE_CHECKING
 
 from betty.cache import CacheItem, CacheItemValueContraT
 from betty.cache._base import _CommonCacheBase, _StaticCacheItem
-from betty.locale import Localizer
+
+if TYPE_CHECKING:
+    from betty.locale import Localizer
 
 _MemoryCacheStore: TypeAlias = MutableMapping[
     str,

@@ -4,6 +4,7 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
-echo 'Running Black...'
+echo 'Running Ruff...'
 
-black --check --color --diff "$@" .
+ruff check .
+ruff format --check .

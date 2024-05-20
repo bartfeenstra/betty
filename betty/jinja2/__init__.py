@@ -6,10 +6,8 @@ from __future__ import annotations
 
 import datetime
 from collections import defaultdict
-from collections.abc import MutableMapping, Iterator, Sequence
-from pathlib import Path
 from threading import Lock
-from typing import Callable, Any, cast, TypeVar
+from typing import Callable, Any, cast, TypeVar, TYPE_CHECKING
 
 import aiofiles
 from aiofiles import os as aiofiles_os
@@ -21,18 +19,22 @@ from jinja2 import (
 )
 from jinja2.runtime import StrictUndefined, Context, DebugUndefined
 
-from betty.app import App
-from betty.app.extension import Extension
 from betty.html import CssProvider, JsProvider
 from betty.jinja2.filter import FILTERS
 from betty.jinja2.test import TESTS
 from betty.job import Context as JobContext
 from betty.locale import Date, Localizer, DEFAULT_LOCALIZER
 from betty.model import Entity, get_entity_type
-from betty.model.ancestry import Citation
-from betty.project import ProjectConfiguration
 from betty.render import Renderer
 from betty.serde.dump import Dumpable, DictDump, VoidableDump, Void, Dump
+
+if TYPE_CHECKING:
+    from betty.app.extension import Extension
+    from betty.app import App
+    from betty.project import ProjectConfiguration
+    from betty.model.ancestry import Citation
+    from pathlib import Path
+    from collections.abc import MutableMapping, Iterator, Sequence
 
 T = TypeVar("T")
 
@@ -41,7 +43,7 @@ def context_app(context: Context) -> App:
     """
     Get the current app from the Jinja2 context.
     """
-    return cast(Environment, context.environment).app
+    return cast(Environment, context.environment).app  # type: ignore[has-type, no-any-return]
 
 
 def context_job_context(context: Context) -> JobContext | None:
@@ -221,7 +223,7 @@ class Environment(Jinja2Environment):
                     parent: dict[str, Any],
                     name: str | None,
                     blocks: dict[str, Callable[[Context], Iterator[str]]],
-                    globals: MutableMapping[str, Any] | None = None,
+                    globals: MutableMapping[str, Any] | None = None,  # noqa A002
                 ):
                     if "citer" not in parent:
                         parent["citer"] = _Citer()
@@ -330,8 +332,8 @@ class Jinja2Renderer(Renderer):
             resource = "/".join(relative_file_destination_path.parts)
             if self._configuration.locales.multilingual:
                 resource_parts = resource.lstrip("/").split("/")
-                if resource_parts[0] in map(
-                    lambda x: x.alias, self._configuration.locales.values()
+                if resource_parts[0] in (
+                    x.alias for x in self._configuration.locales.values()
                 ):
                     resource = "/".join(resource_parts[1:])
             data["page_resource"] = resource

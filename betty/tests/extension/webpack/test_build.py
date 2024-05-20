@@ -26,7 +26,12 @@ class DummyEntrypointProviderExtension(WebpackEntrypointProvider, Extension):
 
 class TestBuilder:
     @pytest.mark.parametrize(
-        "with_entrypoint_provider, debug, npm_install_cache_available, webpack_build_cache_available",
+        (
+            "with_entrypoint_provider",
+            "debug",
+            "npm_install_cache_available",
+            "webpack_build_cache_available",
+        ),
         [
             (True, True, True, True),
             (False, True, True, True),

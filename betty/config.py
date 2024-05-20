@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import inspect
 import weakref
-from _weakref import ReferenceType
 from collections import OrderedDict
 from collections.abc import Callable
 from contextlib import suppress, chdir
@@ -28,6 +27,7 @@ from typing import (
     cast,
     Self,
     TypeAlias,
+    TYPE_CHECKING,
 )
 
 import aiofiles
@@ -41,6 +41,9 @@ from betty.serde.dump import Dumpable, Dump, minimize, VoidableDump, Void
 from betty.serde.error import SerdeErrorCollection
 from betty.serde.format import FormatRepository
 from betty.serde.load import Asserter, Assertion, Assertions
+
+if TYPE_CHECKING:
+    from _weakref import ReferenceType
 
 T = TypeVar("T")
 
@@ -156,26 +159,26 @@ class FileBasedConfiguration(Configuration):
             self.configuration_file_path = configuration_file_path
 
         formats = FormatRepository()
-        with SerdeErrorCollection().assert_valid() as errors:
-            # Change the working directory to allow relative paths to be resolved against the configuration file's directory
-            # path.
-            with chdir(self.configuration_file_path.parent):
-                async with aiofiles.open(self.configuration_file_path) as f:
-                    read_configuration = await f.read()
-                with errors.catch(
-                    Str.plain(
-                        "in {configuration_file_path}",
-                        configuration_file_path=str(
-                            self.configuration_file_path.resolve()
-                        ),
-                    )
-                ):
-                    loaded_configuration = self.load(
-                        formats.format_for(
-                            self.configuration_file_path.suffix[1:]
-                        ).load(read_configuration),
-                        self,
-                    )
+        with (
+            SerdeErrorCollection().assert_valid() as errors,
+            # Change the working directory to allow relative paths to be resolved
+            # against the configuration file's directory path.
+            chdir(self.configuration_file_path.parent),
+        ):
+            async with aiofiles.open(self.configuration_file_path) as f:
+                read_configuration = await f.read()
+            with errors.catch(
+                Str.plain(
+                    "in {configuration_file_path}",
+                    configuration_file_path=str(self.configuration_file_path.resolve()),
+                )
+            ):
+                loaded_configuration = self.load(
+                    formats.format_for(self.configuration_file_path.suffix[1:]).load(
+                        read_configuration
+                    ),
+                    self,
+                )
         self.update(loaded_configuration)
 
     def __del__(self) -> None:
@@ -484,7 +487,7 @@ class ConfigurationMapping(
         return (configuration_key for configuration_key in self._configurations)
 
     def _keys_without_scope(self) -> Iterator[ConfigurationKeyT]:
-        return (configuration_key for configuration_key in self._configurations.keys())
+        return (configuration_key for configuration_key in self._configurations)
 
     def keys(self) -> Iterator[ConfigurationKeyT]:
         return self._keys_without_scope()

@@ -77,7 +77,7 @@ class TestIndex:
             assert [] == indexed
 
     @pytest.mark.parametrize(
-        "expected, locale",
+        ("expected", "locale"),
         [
             ("/nl/person/P1/index.html", "nl-NL"),
             ("/en/person/P1/index.html", "en-US"),
@@ -111,11 +111,11 @@ class TestIndex:
                 ).build()
             ]
 
-            assert "jane" == indexed[0]["text"]
+            assert indexed[0]["text"] == "jane"
             assert expected in indexed[0]["result"]
 
     @pytest.mark.parametrize(
-        "expected, locale",
+        ("expected", "locale"),
         [
             ("/nl/person/P1/index.html", "nl-NL"),
             ("/en/person/P1/index.html", "en-US"),
@@ -149,11 +149,11 @@ class TestIndex:
                 ).build()
             ]
 
-            assert "doughnut" == indexed[0]["text"]
+            assert indexed[0]["text"] == "doughnut"
             assert expected in indexed[0]["result"]
 
     @pytest.mark.parametrize(
-        "expected, locale",
+        ("expected", "locale"),
         [
             ("/nl/person/P1/index.html", "nl-NL"),
             ("/en/person/P1/index.html", "en-US"),
@@ -189,11 +189,11 @@ class TestIndex:
                 ).build()
             ]
 
-            assert "jane doughnut" == indexed[0]["text"]
+            assert indexed[0]["text"] == "jane doughnut"
             assert expected in indexed[0]["result"]
 
     @pytest.mark.parametrize(
-        "expected, locale",
+        ("expected", "locale"),
         [
             ("/nl/place/P1/index.html", "nl-NL"),
             ("/en/place/P1/index.html", "en-US"),
@@ -232,7 +232,7 @@ class TestIndex:
                 ).build()
             ]
 
-            assert "netherlands nederland" == indexed[0]["text"]
+            assert indexed[0]["text"] == "netherlands nederland"
             assert expected in indexed[0]["result"]
 
     async def test_build_private_place(self) -> None:
@@ -282,7 +282,7 @@ class TestIndex:
             assert [] == indexed
 
     @pytest.mark.parametrize(
-        "expected, locale",
+        ("expected", "locale"),
         [
             ("/nl/file/F1/index.html", "nl-NL"),
             ("/en/file/F1/index.html", "en-US"),
@@ -313,7 +313,7 @@ class TestIndex:
                 ).build()
             ]
 
-            assert '"file" is dutch for "traffic jam"' == indexed[0]["text"]
+            assert indexed[0]["text"] == '"file" is dutch for "traffic jam"'
             assert expected in indexed[0]["result"]
 
     async def test_build_private_file(self) -> None:

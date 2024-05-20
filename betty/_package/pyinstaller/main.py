@@ -14,11 +14,12 @@ def main() -> None:
 
 
 async def _main() -> None:
-    async with App.new_from_environment() as app:
-        async with BettyApplication([sys.argv[0]]).with_app(app) as qapp:
-            window = WelcomeWindow(app)
-            window.show()
-            sys.exit(qapp.exec())
+    async with App.new_from_environment() as app, BettyApplication(
+        [sys.argv[0]]
+    ).with_app(app) as qapp:
+        window = WelcomeWindow(app)
+        window.show()
+        sys.exit(qapp.exec())
 
 
 if __name__ == "__main__":

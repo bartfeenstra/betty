@@ -5,7 +5,6 @@ Perform Webpack builds.
 from __future__ import annotations
 
 from asyncio import to_thread
-from collections.abc import Sequence, MutableMapping
 from json import dumps, loads
 from logging import getLogger
 from pathlib import Path
@@ -16,15 +15,16 @@ import aiofiles
 from aiofiles.os import makedirs
 
 from betty import _npm
-from betty.app.extension import Extension
 from betty.asyncio import gather
 from betty.fs import ROOT_DIRECTORY_PATH, iterfiles
 from betty.hashid import hashid, hashid_sequence, hashid_file_content
-from betty.job import Context
-from betty.locale import Localizer
-from betty.render import Renderer
 
 if TYPE_CHECKING:
+    from betty.app.extension import Extension
+    from betty.job import Context
+    from betty.locale import Localizer
+    from betty.render import Renderer
+    from collections.abc import Sequence, MutableMapping
     from betty.extension.webpack import WebpackEntrypointProvider
 
 

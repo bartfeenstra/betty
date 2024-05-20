@@ -32,9 +32,8 @@ class CacheTestBase(Generic[CacheItemValueT]):
         ],
     )
     async def test_get_without_hit(self, scopes: Sequence[str]) -> None:
-        async with self._new_sut(scopes=scopes) as sut:
-            async with sut.get("id") as cache_item:
-                assert cache_item is None
+        async with self._new_sut(scopes=scopes) as sut, sut.get("id") as cache_item:
+            assert cache_item is None
 
     @pytest.mark.parametrize(
         "scopes",

@@ -15,7 +15,7 @@ class Test(TemplateTestCase):
     template_file = "entity/label--place.html.j2"
 
     @pytest.mark.parametrize(
-        "expected, data, locale",
+        ("expected", "data", "locale"),
         [
             (
                 '<span><a href="/place/P0/index.html"><span>The Place</span></a></span>',

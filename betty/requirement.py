@@ -106,10 +106,7 @@ class AnyRequirement(RequirementCollection):
         self._summary = Str._("One or more of these requirements must be met")
 
     def is_met(self) -> bool:
-        for requirement in self._requirements:
-            if requirement.is_met():
-                return True
-        return False
+        return any(requirement.is_met() for requirement in self._requirements)
 
     def summary(self) -> Str:
         return self._summary
@@ -121,10 +118,7 @@ class AllRequirements(RequirementCollection):
         self._summary = Str._("All of these requirements must be met")
 
     def is_met(self) -> bool:
-        for requirement in self._requirements:
-            if not requirement.is_met():
-                return False
-        return True
+        return all(requirement.is_met() for requirement in self._requirements)
 
     def summary(self) -> Str:
         return self._summary

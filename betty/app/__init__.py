@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import operator
 import weakref
-from collections.abc import AsyncIterator
 from concurrent.futures import Executor, ProcessPoolExecutor
 from contextlib import suppress, asynccontextmanager
 from functools import reduce
@@ -12,7 +11,6 @@ from graphlib import CycleError, TopologicalSorter
 from multiprocessing import get_context
 from os import environ
 from pathlib import Path
-from types import TracebackType
 from typing import TYPE_CHECKING, Mapping, Self, Any, final
 
 import aiohttp
@@ -32,7 +30,6 @@ from betty.asyncio import wait_to_thread
 from betty.cache import Cache, FileCache
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.config import Configurable, FileBasedConfiguration
-from betty.dispatch import Dispatcher
 from betty.fs import FileSystem, CACHE_DIRECTORY_PATH
 from betty.locale import LocalizerRepository, get_data, DEFAULT_LOCALE, Localizer, Str
 from betty.model import Entity, EntityTypeProvider
@@ -73,6 +70,9 @@ from betty.serde.load import (
 from betty.warnings import deprecate
 
 if TYPE_CHECKING:
+    from betty.dispatch import Dispatcher
+    from types import TracebackType
+    from collections.abc import AsyncIterator
     from betty.jinja2 import Environment
     from betty.serve import Server
     from betty.url import StaticUrlGenerator, LocalizedUrlGenerator
@@ -131,7 +131,7 @@ class AppConfiguration(FileBasedConfiguration):
                     '"{locale}" is not a valid IETF BCP 47 language tag.',
                     locale=locale,
                 )
-            )
+            ) from None
         self._locale = locale
         self._dispatch_change()
 
@@ -341,7 +341,7 @@ class App(Configurable[AppConfiguration]):
                     app_extension_configuration.extension_type
                     for app_extension_configuration in self.project.configuration.extensions.values()
                 ]
-            )
+            ) from None
 
         extensions = []
         while extension_types_sorter.is_active():

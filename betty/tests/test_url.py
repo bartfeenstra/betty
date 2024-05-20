@@ -1,22 +1,24 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import pytest
 
 from betty.app import App
-from betty.locale import Localey
 from betty.model import UserFacingEntity, Entity
 from betty.model.ancestry import Person, Place, File, Source, PlaceName, Event, Citation
 from betty.model.event_type import Death
 from betty.project import LocaleConfiguration
 from betty.url import LocalizedPathUrlGenerator, _EntityUrlGenerator, AppUrlGenerator
 
+if TYPE_CHECKING:
+    from betty.locale import Localey
+
 
 class TestLocalizedPathUrlGenerator:
     @pytest.mark.parametrize(
-        "expected, resource",
+        ("expected", "resource"),
         [
             ("", "/"),
             ("/index.html", "/index.html"),
@@ -34,7 +36,7 @@ class TestLocalizedPathUrlGenerator:
             assert expected == sut.generate(resource, "text/html")
 
     @pytest.mark.parametrize(
-        "expected, resource",
+        ("expected", "resource"),
         [
             ("", "index.html"),
             ("", "/index.html"),
@@ -49,7 +51,7 @@ class TestLocalizedPathUrlGenerator:
             assert expected == sut.generate(resource, "text/html")
 
     @pytest.mark.parametrize(
-        "expected, resource",
+        ("expected", "resource"),
         [
             ("https://example.com", "/"),
             ("https://example.com/example", "example"),
@@ -61,7 +63,7 @@ class TestLocalizedPathUrlGenerator:
             assert expected == sut.generate(resource, "text/html", absolute=True)
 
     @pytest.mark.parametrize(
-        "expected, url_generator_locale",
+        ("expected", "url_generator_locale"),
         [
             ("/en/index.html", None),
             ("/nl/index.html", "nl"),
@@ -103,20 +105,20 @@ class TestEntityUrlGenerator:
         async with App.new_temporary() as app, app:
             sut = _EntityUrlGenerator(app, EntityUrlGeneratorTestUrlyEntity)
             assert (
-                "/betty.tests.test_url.-entity-url-generator-test-urly-entity/I1/index.html"
-                == sut.generate(EntityUrlGeneratorTestUrlyEntity("I1"), "text/html")
+                sut.generate(EntityUrlGeneratorTestUrlyEntity("I1"), "text/html")
+                == "/betty.tests.test_url.-entity-url-generator-test-urly-entity/I1/index.html"
             )
 
     async def test_generate_with_invalid_value(self) -> None:
         async with App.new_temporary() as app, app:
             sut = _EntityUrlGenerator(app, EntityUrlGeneratorTestUrlyEntity)
-            with pytest.raises(ValueError):
+            with pytest.raises(ValueError):  # noqa PT011
                 sut.generate(EntityUrlGeneratorTestNonUrlyEntity(), "text/html")
 
 
 class TestAppUrlGenerator:
     @pytest.mark.parametrize(
-        "expected, resource",
+        ("expected", "resource"),
         [
             ("/index.html", "/index.html"),
             ("/person/P1/index.html", Person(id="P1")),

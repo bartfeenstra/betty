@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import builtins
 import functools
 import weakref
 from collections import defaultdict
@@ -29,10 +28,11 @@ from betty.importlib import import_any, fully_qualified_type_name
 from betty.json.linked_data import LinkedDataDumpable, add_json_ld
 from betty.json.schema import ref_json_schema
 from betty.locale import Str
-from betty.serde.dump import DictDump, Dump
 from betty.string import camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
 
 if TYPE_CHECKING:
+    from betty.serde.dump import DictDump, Dump
+    import builtins
     from betty.app import App
 
 
@@ -47,6 +47,8 @@ class GeneratedEntityId(str):
     original data set (such as a third-party family tree loaded into Betty), so IDs can be generated.
     """
 
+    __slots__ = ()
+
     def __new__(cls, entity_id: str | None = None):
         return super().__new__(cls, entity_id or str(uuid4()))
 
@@ -54,7 +56,7 @@ class GeneratedEntityId(str):
 class Entity(LinkedDataDumpable):
     def __init__(
         self,
-        id: str | None = None,
+        id: str | None = None,  # noqa A002
         *args: Any,
         **kwargs: Any,
     ):
@@ -865,16 +867,10 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
         return False
 
     def _contains_by_entity(self, other_entity: TargetT & Entity) -> bool:
-        for entity in self._entities:
-            if other_entity is entity:
-                return True
-        return False
+        return any(other_entity is entity for entity in self._entities)
 
     def _contains_by_entity_id(self, entity_id: str) -> bool:
-        for entity in self._entities:
-            if entity.id == entity_id:
-                return True
-        return False
+        return any(entity.id == entity_id for entity in self._entities)
 
 
 SingleTypeEntityCollectionT = TypeVar(
@@ -1003,10 +999,7 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
         return False
 
     def _contains_by_entity(self, other_entity: Any) -> bool:
-        for entity in self:
-            if other_entity is entity:
-                return True
-        return False
+        return any(other_entity is entity for entity in self)
 
     def add(self, *entities: TargetT & Entity) -> None:
         added_entities = [*self._unknown(*entities)]
@@ -1116,7 +1109,7 @@ class _EntityGraphBuilder:
     def __init__(self):
         self._entities: _EntityGraphBuilderEntities = defaultdict(dict)
         self._associations: _EntityGraphBuilderAssociations = defaultdict(
-            lambda: defaultdict(lambda: defaultdict(lambda: list()))
+            lambda: defaultdict(lambda: defaultdict(list))
         )
         self._built = False
 

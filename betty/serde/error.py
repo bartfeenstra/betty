@@ -22,9 +22,7 @@ class SerdeError(UserFacingError, ValueError):
         self._contexts: tuple[Localizable, ...] = ()
 
     def localize(self, localizer: Localizer) -> str:
-        localized_contexts = map(
-            lambda context: context.localize(localizer), self._contexts
-        )
+        localized_contexts = (context.localize(localizer) for context in self._contexts)
         return (
             super().localize(localizer)
             + "\n"
@@ -66,7 +64,7 @@ class SerdeErrorCollection(SerdeError):
         yield from self._errors
 
     def localize(self, localizer: Localizer) -> str:
-        return "\n\n".join(map(lambda error: error.localize(localizer), self._errors))
+        return "\n\n".join((error.localize(localizer) for error in self._errors))
 
     def __reduce__(self) -> tuple[type[Self], tuple[list[SerdeError]]]:  # type: ignore[override]
         return type(self), (self._errors,)
@@ -75,10 +73,7 @@ class SerdeErrorCollection(SerdeError):
         return len(self._errors)
 
     def raised(self, error_type: type[SerdeError]) -> bool:
-        for error in self._errors:
-            if error.raised(error_type):
-                return True
-        return False
+        return any(error.raised(error_type) for error in self._errors)
 
     @property
     def valid(self) -> bool:

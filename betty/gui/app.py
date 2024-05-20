@@ -4,12 +4,11 @@ Provide the desktop application/Graphical User Interface.
 
 import webbrowser
 from datetime import datetime
-from os import path
 from pathlib import Path
 from urllib.parse import urlencode
 
 from PyQt6.QtCore import Qt, QCoreApplication, QObject
-from PyQt6.QtGui import QIcon, QAction
+from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import (
     QFormLayout,
     QWidget,
@@ -40,17 +39,6 @@ class BettyPrimaryWindow(BettyMainWindow):
         /,
     ):
         super().__init__(app)
-        self.setWindowIcon(
-            QIcon(
-                path.join(
-                    path.dirname(__file__),
-                    "assets",
-                    "public",
-                    "static",
-                    "betty-512x512.png",
-                )
-            )
-        )
 
         menu_bar = self.menuBar()
         assert menu_bar is not None
@@ -363,9 +351,9 @@ class _AboutBettyWindow(BettyMainWindow):
         super()._set_translatables()
         self._label.setText(
             "".join(
-                map(
-                    lambda x: "<p>%s</p>" % x,
-                    [
+                (
+                    "<p>%s</p>" % x
+                    for x in [
                         self._app.localizer._("Version: {version}").format(
                             version=wait_to_thread(about.version_label()),
                         ),
@@ -377,7 +365,7 @@ class _AboutBettyWindow(BettyMainWindow):
                         self._app.localizer._(
                             'Follow Betty on <a href="https://twitter.com/Betty_Project">Twitter</a> and <a href="https://github.com/bartfeenstra/betty">Github</a>.'
                         ),
-                    ],
+                    ]
                 )
             )
         )

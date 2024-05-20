@@ -1,8 +1,6 @@
 """Integrate Betty with PyInstaller."""
 
 import sys
-from glob import glob
-from pathlib import Path
 
 from PyInstaller.building.api import PYZ, EXE, COLLECT
 from PyInstaller.building.build_main import Analysis
@@ -40,12 +38,14 @@ async def a_pyz_exe_coll() -> tuple[Analysis, PYZ, EXE, COLLECT]:
         "prebuild/**",
     ]
     for data_file_path_pattern in data_file_path_patterns:
-        for data_file_path_str in glob(
-            data_file_path_pattern, recursive=True, root_dir=ROOT_DIRECTORY_PATH
-        ):
-            data_file_path = Path(data_file_path_str)
+        for data_file_path in ROOT_DIRECTORY_PATH.glob(data_file_path_pattern):
             if data_file_path.is_file():
-                datas.append((data_file_path_str, str(data_file_path.parent)))
+                datas.append(
+                    (
+                        str(data_file_path),
+                        str(data_file_path.parent.relative_to(ROOT_DIRECTORY_PATH)),
+                    )
+                )
     hiddenimports = [
         *find_packages(
             ".",

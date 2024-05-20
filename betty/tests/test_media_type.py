@@ -7,7 +7,14 @@ from betty.media_type import MediaType, InvalidMediaType
 
 class TestMediaType:
     @pytest.mark.parametrize(
-        "expected_type, expected_subtype, expected_subtypes, expected_suffix, expected_parameters, media_type",
+        (
+            "expected_type",
+            "expected_subtype",
+            "expected_subtypes",
+            "expected_suffix",
+            "expected_parameters",
+            "media_type",
+        ),
         [
             # The simplest possible media type.
             ("text", "plain", ["plain"], None, {}, "text/plain"),

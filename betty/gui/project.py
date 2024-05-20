@@ -8,11 +8,10 @@ import asyncio
 import copy
 import re
 from asyncio import Task, CancelledError
-from collections.abc import MutableSequence
 from contextlib import suppress
 from logging import getLogger
 from pathlib import Path
-from typing import final
+from typing import final, TYPE_CHECKING
 from urllib.parse import urlparse
 
 from PyQt6.QtCore import Qt, QThread, QObject
@@ -64,6 +63,9 @@ from betty.project import LocaleConfiguration, Project
 from betty.serde.load import AssertionFailed
 from betty.typing import internal
 
+if TYPE_CHECKING:
+    from collections.abc import MutableSequence
+
 
 class _PaneButton(QPushButton):
     def __init__(self, pane_name: str, project_window: ProjectWindow):
@@ -93,19 +95,15 @@ class GenerateHtmlListForm(LocalizedObject, QWidget):
         self._update()
 
     def _update(self) -> None:
-        entity_types = list(
-            sorted(
-                [
-                    entity_type
-                    for entity_type in self._app.entity_types
-                    if issubclass(entity_type, UserFacingEntity)
-                ],
-                key=lambda x: x.entity_type_label_plural().localize(
-                    self._app.localizer
-                ),
-            )
+        entity_types = sorted(
+            [
+                entity_type
+                for entity_type in self._app.entity_types
+                if issubclass(entity_type, UserFacingEntity)
+            ],
+            key=lambda x: x.entity_type_label_plural().localize(self._app.localizer),
         )
-        for entity_type in self._checkboxes.keys():
+        for entity_type in self._checkboxes:
             if entity_type not in entity_types:
                 self._form.removeWidget(self._checkboxes[entity_type])
                 del self._checkboxes[entity_type]

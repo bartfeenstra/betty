@@ -9,11 +9,17 @@ import re
 import warnings
 from asyncio import get_running_loop, run
 from base64 import b64encode
-from collections.abc import Awaitable
 from contextlib import suppress
 from io import BytesIO
-from pathlib import Path
-from typing import Callable, Iterable, Any, Iterator, TypeVar, AsyncIterator
+from typing import (
+    Callable,
+    Iterable,
+    Any,
+    Iterator,
+    TypeVar,
+    AsyncIterator,
+    TYPE_CHECKING,
+)
 from urllib.parse import quote
 
 import aiofiles
@@ -25,7 +31,6 @@ from geopy.format import DEGREES_FORMAT
 from jinja2 import pass_context, pass_eval_context
 from jinja2.async_utils import auto_aiter, auto_await
 from jinja2.filters import prepare_map, make_attrgetter
-from jinja2.nodes import EvalContext
 from jinja2.runtime import Context, Macro
 from markupsafe import Markup, escape
 from pdf2image.pdf2image import convert_from_path
@@ -42,9 +47,7 @@ from betty.locale import (
     get_data,
     Localizable,
 )
-from betty.media_type import MediaType
 from betty.model import get_entity_type_name
-from betty.model.ancestry import File, Dated
 from betty.os import link_or_copy
 from betty.serde.dump import minimize, none_void, void_none
 from betty.string import (
@@ -53,6 +56,13 @@ from betty.string import (
     upper_camel_case_to_lower_camel_case,
 )
 from betty.warnings import deprecated
+
+if TYPE_CHECKING:
+    from jinja2.nodes import EvalContext
+    from betty.model.ancestry import File, Dated
+    from betty.media_type import MediaType
+    from pathlib import Path
+    from collections.abc import Awaitable
 
 T = TypeVar("T")
 
@@ -171,23 +181,23 @@ def filter_format_degrees(degrees: int) -> str:
     """
     arcminutes = units.arcminutes(degrees=degrees - int(degrees))
     arcseconds = units.arcseconds(arcminutes=arcminutes - int(arcminutes))
-    format_dict = dict(
-        deg="°",
-        arcmin="'",
-        arcsec='"',
-        degrees=degrees,
-        minutes=round(abs(arcminutes)),
-        seconds=round(abs(arcseconds)),
-    )
+    format_dict = {
+        "deg": "°",
+        "arcmin": "'",
+        "arcsec": '"',
+        "degrees": degrees,
+        "minutes": round(abs(arcminutes)),
+        "seconds": round(abs(arcseconds)),
+    }
     return DEGREES_FORMAT % format_dict  # type: ignore[no-any-return]
 
 
-async def filter_unique(value: Iterable[T]) -> AsyncIterator[T]:
+async def filter_unique(values: Iterable[T]) -> AsyncIterator[T]:
     """
     Iterate over an iterable of values and only yield those values that have not been yielded before.
     """
     seen = []
-    async for value in auto_aiter(value):
+    async for value in auto_aiter(values):
         if value not in seen:
             yield value
             seen.append(value)
@@ -265,7 +275,7 @@ async def filter_image(
     if (
         file.media_type
         and file.media_type.type == "image"
-        and "svg+xml" == file.media_type.subtype
+        and file.media_type.subtype == "svg+xml"
     ):
         return await filter_file(context, file)
 
@@ -525,18 +535,18 @@ def filter_select_dateds(
 @deprecated(
     "This function is deprecated as of Betty 0.3.4, and will be removed in Betty 0.4.x. Instead, use the `hashid` filter."
 )
-def filter_base64(input: str) -> str:
+def filter_base64(source: str) -> str:
     """
     Base-64-encode a string.
     """
-    return b64encode(input.encode("utf-8")).decode("utf-8")
+    return b64encode(source.encode("utf-8")).decode("utf-8")
 
 
-def filter_hashid(input: str) -> str:
+def filter_hashid(source: str) -> str:
     """
     Create a hash ID.
     """
-    return hashid(input)
+    return hashid(source)
 
 
 @pass_context

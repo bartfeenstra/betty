@@ -9,14 +9,8 @@ cd "$(dirname "$0")/.."
 if [ -z "${BETTY_TEST_SKIP_SHELLCHECK-}" ]; then
   ./bin/test-shellcheck
 fi
-if [ -z "${BETTY_TEST_SKIP_BLACK-}" ]; then
-  ./bin/test-black
-fi
-if [ -z "${BETTY_TEST_SKIP_FLAKE8-}" ]; then
-  ./bin/test-flake8
-fi
-if [ -z "${BETTY_TEST_SKIP_PYDOCSTYLE-}" ]; then
-  ./bin/test-pydocstyle
+if [ -z "${BETTY_TEST_SKIP_RUFF-}" ]; then
+  ./bin/test-ruff
 fi
 if [ -z "${BETTY_TEST_SKIP_MYPY-}" ]; then
   ./bin/test-mypy

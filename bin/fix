@@ -5,7 +5,8 @@ set -Eeuo pipefail
 cd "$(dirname "$0")/.."
 
 # Fix Python code style violations.
-black .
+ruff check --fix .
+ruff format .
 
 # Fix CSS code style violations.
 ./node_modules/.bin/stylelint --fix "./betty/**/*.css"

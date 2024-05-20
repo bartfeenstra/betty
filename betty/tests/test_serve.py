@@ -24,6 +24,6 @@ class TestBuiltinServer:
                 def _assert_response(response: Response) -> None:
                     assert response.status_code == 200
                     assert content == response.content.decode("utf-8")
-                    assert "no-cache" == response.headers["Cache-Control"]
+                    assert response.headers["Cache-Control"] == "no-cache"
 
                 await Do(requests.get, server.public_url).until(_assert_response)

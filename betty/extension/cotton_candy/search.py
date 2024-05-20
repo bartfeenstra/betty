@@ -4,15 +4,17 @@ Provide Cotton Candy's search functionality.
 
 from __future__ import annotations
 
-from collections.abc import AsyncIterable
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
-from betty.app import App
-from betty.locale import Localizer
 from betty.model import get_entity_type_name, Entity
 from betty.model.ancestry import Person, Place, File
 from betty.string import camel_case_to_snake_case
-from betty.job import Context
+
+if TYPE_CHECKING:
+    from betty.locale import Localizer
+    from betty.job import Context
+    from betty.app import App
+    from collections.abc import AsyncIterable
 
 
 class Index:
@@ -89,7 +91,7 @@ class Index:
             return None
 
         return {
-            "text": " ".join(map(lambda x: x.name.lower(), place.names)),
+            "text": " ".join((x.name.lower() for x in place.names)),
             "result": await self._render_entity(place),
         }
 

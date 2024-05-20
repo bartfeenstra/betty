@@ -32,26 +32,24 @@ class TestNginx:
     async def server(
         self, configuration: ProjectConfiguration
     ) -> AsyncIterator[Server]:
-        async with App.new_temporary() as app:
-            async with app:
-                app.project.configuration.update(configuration)
-                await generate.generate(app)
-                async with DockerizedNginxServer(app) as server:
-                    yield server
+        async with App.new_temporary() as app, app:
+            app.project.configuration.update(configuration)
+            await generate.generate(app)
+            async with DockerizedNginxServer(app) as server:
+                yield server
 
     async def assert_betty_html(self, response: Response) -> None:
-        assert "text/html" == response.headers["Content-Type"]
+        assert response.headers["Content-Type"] == "text/html"
         parser = html5lib.HTMLParser()
         parser.parse(response.text)
         assert "Betty" in response.text
 
     async def assert_betty_json(self, response: Response) -> None:
-        assert "application/json" == response.headers["Content-Type"]
+        assert response.headers["Content-Type"] == "application/json"
         data = response.json()
-        async with App.new_temporary() as app:
-            async with app:
-                schema = Schema(app)
-                await schema.validate(data)
+        async with App.new_temporary() as app, app:
+            schema = Schema(app)
+            await schema.validate(data)
 
     def monolingual_configuration(self) -> ProjectConfiguration:
         return ProjectConfiguration(
@@ -160,8 +158,8 @@ class TestNginx:
 
     async def test_default_localized_front_page(self):
         async def _assert_response(response: Response) -> None:
-            assert 200 == response.status_code
-            assert "en" == response.headers["Content-Language"]
+            assert response.status_code == 200
+            assert response.headers["Content-Language"] == "en"
             assert f"{server.public_url}/en/" == response.url
             await self.assert_betty_html(response)
 
@@ -170,8 +168,8 @@ class TestNginx:
 
     async def test_explicitly_localized_404(self):
         async def _assert_response(response: Response) -> None:
-            assert 404 == response.status_code
-            assert "nl" == response.headers["Content-Language"]
+            assert response.status_code == 404
+            assert response.headers["Content-Language"] == "nl"
             await self.assert_betty_html(response)
 
         async with self.server(self.multilingual_configuration()) as server:
@@ -181,8 +179,8 @@ class TestNginx:
 
     async def test_negotiated_localized_front_page(self):
         async def _assert_response(response: Response) -> None:
-            assert 200 == response.status_code
-            assert "nl" == response.headers["Content-Language"]
+            assert response.status_code == 200
+            assert response.headers["Content-Language"] == "nl"
             assert f"{server.public_url}/nl/" == response.url
             await self.assert_betty_html(response)
 

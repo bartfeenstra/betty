@@ -4,16 +4,19 @@ Manage windows.
 
 from __future__ import annotations
 
-from os import path
+from pathlib import Path
+from typing import TYPE_CHECKING
 
-from PyQt6.QtCore import QObject
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QApplication, QMainWindow
 from typing_extensions import override
 
-from betty.app import App
 from betty.gui.locale import LocalizedObject
-from betty.locale import Localizable
+
+if TYPE_CHECKING:
+    from betty.locale import Localizable
+    from betty.app import App
+    from PyQt6.QtCore import QObject
 
 
 class BettyMainWindow(LocalizedObject, QMainWindow):
@@ -30,12 +33,12 @@ class BettyMainWindow(LocalizedObject, QMainWindow):
         self.resize(self.window_width, self.window_height)
         self.setWindowIcon(
             QIcon(
-                path.join(
-                    path.dirname(__file__),
-                    "assets",
-                    "public",
-                    "static",
-                    "betty-512x512.png",
+                str(
+                    Path(__file__).parent
+                    / "assets"
+                    / "public"
+                    / "static"
+                    / "betty-512x512.png"
                 )
             )
         )

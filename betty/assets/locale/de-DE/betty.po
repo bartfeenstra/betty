@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-18 19:57+0100\n"
+"POT-Creation-Date: 2024-05-20 15:17+0100\n"
 "PO-Revision-Date: 2024-02-08 13:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de\n"
@@ -163,6 +163,9 @@ msgstr "Über"
 
 msgid "About Betty"
 msgstr "Über Betty"
+
+msgid "Access denied"
+msgstr ""
 
 #, python-format
 msgid "Accessed %(date)s"
@@ -621,6 +624,15 @@ msgstr "Es tut mir leid, aber sieht so aus, als ob es keine Orte gibt."
 msgid "I'm sorry, dear, but it seems there are no sources."
 msgstr "Es tut mir leid, aber sieht so aus, als ob es keine Quellen gibt."
 
+msgid "I'm sorry, dear, but it seems this page does not exist."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems you're not logged in."
+msgstr ""
+
 msgid "Immigration"
 msgstr "Einwanderung"
 
@@ -735,6 +747,9 @@ msgid ""
 msgstr ""
 "Ausgabe detaillierterer Protokolle und deaktivieren von Optimierungen, "
 "die die Fehlersuche erschweren."
+
+msgid "Page not found"
+msgstr ""
 
 msgid "People"
 msgstr "Personen"
@@ -1063,6 +1078,9 @@ msgstr ""
 "URLs sind als <code>/path</code> aufgebaut statt als "
 "<code>/path/index.html</code>. Die erfordert einen Webserver, der das "
 "unterstützt."
+
+msgid "Unauthorized"
+msgstr ""
 
 msgid "Unknown"
 msgstr "Unbekannt"

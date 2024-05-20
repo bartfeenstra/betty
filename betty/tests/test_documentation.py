@@ -17,9 +17,12 @@ from betty.fs import ROOT_DIRECTORY_PATH
 from betty.functools import Do
 from betty.locale import DEFAULT_LOCALIZER
 from betty.project import ProjectConfiguration
-from betty.serde.dump import DictDump, Dump
 from betty.serde.format import Format, Json, Yaml
 from betty.subprocess import run_process
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from betty.serde.dump import DictDump, Dump
 
 
 class TestDocumentationServer:
@@ -54,10 +57,7 @@ class TestDocumentation:
             if sys.platform.startswith("win32"):
                 expected = expected.replace("\r\n", "\n")
             expected = "\n".join(
-                map(
-                    lambda line: f"    {line}" if line.strip() else "",
-                    expected.split("\n"),
-                )
+                (f"    {line}" if line.strip() else "" for line in expected.split("\n"))
             )
             async with aiofiles.open(
                 ROOT_DIRECTORY_PATH / "documentation" / "usage" / "cli.rst"
@@ -66,14 +66,14 @@ class TestDocumentation:
             assert expected in actual
 
     @pytest.mark.parametrize(
-        "language, format",
+        ("language", "serde_format"),
         [
             ("yaml", Yaml()),
             ("json", Json()),
         ],
     )
     async def test_should_contain_valid_configuration(
-        self, language: str, format: Format
+        self, language: str, serde_format: Format
     ) -> None:
         async with aiofiles.open(
             ROOT_DIRECTORY_PATH
@@ -92,4 +92,4 @@ class TestDocumentation:
         dump = match[1]
         assert dump is not None
         configuration = ProjectConfiguration()
-        configuration.load(format.load(dump))
+        configuration.load(serde_format.load(dump))

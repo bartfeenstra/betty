@@ -6,12 +6,10 @@ from __future__ import annotations
 
 import asyncio
 import shutil
-from collections.abc import Sequence
 from contextlib import suppress
 from os import utime
-from pathlib import Path
 from pickle import dumps, loads
-from typing import Generic, Self
+from typing import Generic, Self, TYPE_CHECKING
 
 import aiofiles
 from aiofiles.ospath import getmtime
@@ -19,7 +17,11 @@ from aiofiles.ospath import getmtime
 from betty.cache import CacheItem, CacheItemValueContraT, CacheItemValueCoT
 from betty.cache._base import _CommonCacheBase
 from betty.hashid import hashid
-from betty.locale import Localizer
+
+if TYPE_CHECKING:
+    from betty.locale import Localizer
+    from pathlib import Path
+    from collections.abc import Sequence
 
 
 class _FileCacheItem(CacheItem[CacheItemValueCoT], Generic[CacheItemValueCoT]):

@@ -8,13 +8,12 @@ import gzip
 import re
 import tarfile
 from collections import defaultdict
-from collections.abc import MutableMapping, Mapping
 from contextlib import suppress
 from dataclasses import dataclass
 from enum import Enum
 from logging import getLogger
 from pathlib import Path
-from typing import Iterable, Any, IO, cast
+from typing import Iterable, Any, IO, cast, TYPE_CHECKING
 from xml.etree import ElementTree
 
 import aiofiles
@@ -81,6 +80,9 @@ from betty.model.event_type import (
 from betty.path import rootname
 from betty.project import Project
 from betty.warnings import deprecate
+
+if TYPE_CHECKING:
+    from collections.abc import MutableMapping, Mapping
 
 
 class GrampsLoadFileError(GrampsError, RuntimeError):
@@ -184,8 +186,8 @@ class GrampsLoader:
                 xml,
                 rootname(gramps_path),
             )
-        except OSError as e:
-            raise GrampsLoadFileError(Str.plain(e))
+        except OSError as error:
+            raise GrampsLoadFileError(Str.plain(error)) from error
 
     async def load_gpkg(self, gpkg_path: Path) -> None:
         gpkg_path = gpkg_path.resolve()
@@ -199,20 +201,20 @@ class GrampsLoader:
                     await self.load_gramps(
                         Path(cache_directory_path_str) / "data.gramps"
                     )
-            except tarfile.ReadError:
+            except tarfile.ReadError as error:
                 raise GrampsLoadFileError(
                     Str._(
                         "Could not extract {file_path} as a tar (*.tar) file after extracting the outer gzip (*.gz) file.",
                         file_path=str(gpkg_path),
                     )
-                )
-        except OSError:
+                ) from error
+        except OSError as error:
             raise GrampsLoadFileError(
                 Str._(
                     "Could not extract {file_path} as a gzip (*.gz) file.",
                     file_path=str(gpkg_path),
                 )
-            )
+            ) from error
 
     async def load_xml(self, xml: str | Path, gramps_tree_directory_path: Path) -> None:
         if isinstance(xml, Path):
@@ -224,8 +226,8 @@ class GrampsLoader:
                     xml,
                 )
             )
-        except ElementTree.ParseError as e:
-            raise GrampsLoadFileError(Str.plain(e))
+        except ElementTree.ParseError as error:
+            raise GrampsLoadFileError(Str.plain(error)) from error
         await self.load_tree(tree, gramps_tree_directory_path)
 
     async def load_tree(

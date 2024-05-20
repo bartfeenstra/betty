@@ -39,8 +39,9 @@ class TestRequirement:
             def details(self) -> Str:
                 return Str._("Dolor sit amet")
 
-        assert "Lorem ipsum\n-----------\nDolor sit amet" == _Requirement().localize(
-            DEFAULT_LOCALIZER
+        assert (
+            _Requirement().localize(DEFAULT_LOCALIZER)
+            == "Lorem ipsum\n-----------\nDolor sit amet"
         )
 
     async def test_localize_without_details(self) -> None:
@@ -48,7 +49,7 @@ class TestRequirement:
             def summary(self) -> Str:
                 return Str._("Lorem ipsum")
 
-        assert "Lorem ipsum" == _Requirement().localize(DEFAULT_LOCALIZER)
+        assert _Requirement().localize(DEFAULT_LOCALIZER) == "Lorem ipsum"
 
 
 class TestRequirementCollection:
@@ -95,7 +96,7 @@ class TestRequirementCollection:
             def summary(self) -> Str:
                 return Str._("Lorem ipsum")
 
-        assert "Lorem ipsum" == _RequirementCollection().localize(DEFAULT_LOCALIZER)
+        assert _RequirementCollection().localize(DEFAULT_LOCALIZER) == "Lorem ipsum"
 
     async def test_localize_with_requirements(self) -> None:
         class _RequirementCollection(RequirementCollection):
@@ -106,9 +107,10 @@ class TestRequirementCollection:
             def summary(self) -> Str:
                 return Str._("Lorem ipsum")
 
-        assert "Lorem ipsum\n- Lorem ipsum" == _RequirementCollection(
-            _Requirement()
-        ).localize(DEFAULT_LOCALIZER)
+        assert (
+            _RequirementCollection(_Requirement()).localize(DEFAULT_LOCALIZER)
+            == "Lorem ipsum\n- Lorem ipsum"
+        )
 
     async def test_reduce_without_requirements(self) -> None:
         class _RequirementCollection(RequirementCollection):

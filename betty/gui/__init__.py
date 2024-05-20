@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import pickle
-from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import Any, TypeVar, Self
+from typing import Any, TypeVar, Self, TYPE_CHECKING
 
 from PyQt6.QtCore import pyqtSlot, QObject, QCoreApplication
 from PyQt6.QtGui import QPalette
@@ -16,6 +15,9 @@ from betty.gui.error import ExceptionError, _UnexpectedExceptionError
 from betty.locale import Str
 from betty.serde.format import FormatRepository
 
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
+
 QWidgetT = TypeVar("QWidgetT", bound=QWidget)
 
 
@@ -23,13 +25,13 @@ def get_configuration_file_filter() -> Str:
     """
     Get the Qt file filter for project configuration files.
     """
-    formats = FormatRepository()
+    serde_formats = FormatRepository()
     return Str._(
         "Betty project configuration ({supported_formats})",
         supported_formats=" ".join(
             f"*.{extension}"
-            for format in formats.formats
-            for extension in format.extensions
+            for serde_format in serde_formats.formats
+            for extension in serde_format.extensions
         ),
     )
 
@@ -71,10 +73,7 @@ class BettyApplication(QApplication):
         return window_lightness < window_text_lightness
 
     def _stylesheet(self) -> str:
-        if self._is_dark_mode():
-            caption_color = "#eeeeee"
-        else:
-            caption_color = "#333333"
+        caption_color = "#eeeeee" if self._is_dark_mode() else "#333333"
         return f"""
             Caption {{
                 color: {caption_color};

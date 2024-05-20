@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-18 19:57+0100\n"
+"POT-Creation-Date: 2024-05-20 15:17+0100\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -162,6 +162,9 @@ msgstr "Over"
 
 msgid "About Betty"
 msgstr "Over Betty"
+
+msgid "Access denied"
+msgstr ""
 
 #, python-format
 msgid "Accessed %(date)s"
@@ -618,6 +621,15 @@ msgstr "Het spijt me, schat, maar het lijkt erop dat er geen plaatsen zijn."
 msgid "I'm sorry, dear, but it seems there are no sources."
 msgstr "Het spijt me, schat, maar het lijkt erop dat er geen bronnen zijn."
 
+msgid "I'm sorry, dear, but it seems this page does not exist."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems you're not logged in."
+msgstr ""
+
 msgid "Immigration"
 msgstr "Immigratie"
 
@@ -732,6 +744,9 @@ msgid ""
 msgstr ""
 "Produceer gedetailleerdere logs en schakel optimalisaties uit die "
 "debuggen moeilijker maken."
+
+msgid "Page not found"
+msgstr ""
 
 msgid "People"
 msgstr "Personen"
@@ -1062,6 +1077,9 @@ msgstr ""
 "URL's zien eruit als <code>/path</code> in plaats van "
 "<code>/path/index.html</code>. Dit vereist een web server die dit "
 "ondersteunt."
+
+msgid "Unauthorized"
+msgstr ""
 
 msgid "Unknown"
 msgstr "Onbekend"

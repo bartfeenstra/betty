@@ -10,7 +10,6 @@ from betty.app.extension import Extension
 from betty.extension.cotton_candy import CottonCandyConfiguration
 from betty.load import Loader
 from betty.locale import Date, DateRange, Str, DEFAULT_LOCALIZER
-from betty.model import Entity
 from betty.model.ancestry import (
     Place,
     PlaceName,
@@ -34,6 +33,10 @@ from betty.project import (
 )
 from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
 from betty.warnings import deprecate
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from betty.model import Entity
 
 
 class Demo(Extension, Loader):

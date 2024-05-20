@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from contextlib import suppress
 from pathlib import Path
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from PyQt6.QtCore import Qt, QObject
 from PyQt6.QtWidgets import (
@@ -21,7 +21,6 @@ from PyQt6.QtWidgets import (
     QLabel,
 )
 
-from betty.app import App
 from betty.extension import Gramps
 from betty.extension.gramps.config import FamilyTreeConfiguration
 from betty.gui import mark_valid, mark_invalid
@@ -31,6 +30,9 @@ from betty.gui.text import Text
 from betty.gui.window import BettyMainWindow
 from betty.locale import Localizable, Str
 from betty.serde.error import SerdeError
+
+if TYPE_CHECKING:
+    from betty.app import App
 
 
 class _FamilyTrees(LocalizedObject, QWidget):
@@ -149,7 +151,7 @@ class _AddFamilyTreeWindow(BettyMainWindow):
                     self._app.localizer._("Load the family tree from..."),
                     directory=self._file_path.text(),
                 )
-                if "" != found_family_tree_file_path:
+                if found_family_tree_file_path != "":
                     self._file_path.setText(found_family_tree_file_path)
 
         self._file_path_find = QPushButton("...")

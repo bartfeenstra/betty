@@ -11,10 +11,18 @@ from asyncio import run
 from contextlib import suppress, contextmanager
 from functools import wraps
 from pathlib import Path
-from typing import Callable, TypeVar, cast, Iterator, Awaitable, ParamSpec, Concatenate
+from typing import (
+    Callable,
+    TypeVar,
+    cast,
+    Iterator,
+    Awaitable,
+    ParamSpec,
+    Concatenate,
+    TYPE_CHECKING,
+)
 
 import click
-from PyQt6.QtWidgets import QMainWindow
 from click import get_current_context, Context, Option, Command, Parameter
 
 from betty import about, generate, load, documentation, locale
@@ -22,10 +30,13 @@ from betty.app import App
 from betty.asyncio import wait_to_thread
 from betty.contextlib import SynchronizedContextManager
 from betty.error import UserFacingError
-from betty.locale import Str
+from betty.locale import Str, DEFAULT_LOCALIZER
 from betty.logging import CliHandler
 from betty.serde.load import AssertionFailed
 from betty.serve import AppServer
+
+if TYPE_CHECKING:
+    from PyQt6.QtWidgets import QMainWindow
 
 T = TypeVar("T")
 P = ParamSpec("P")
@@ -45,12 +56,12 @@ def catch_exceptions() -> Iterator[None]:
     try:
         yield
     except KeyboardInterrupt:
-        print("Quitting...")
+        print("Quitting...")  # noqa T201
         sys.exit(0)
     except Exception as e:
         logger = logging.getLogger(__name__)
         if isinstance(e, UserFacingError):
-            logger.error(str(e))
+            logger.error(e.localize(DEFAULT_LOCALIZER))
         else:
             logger.exception(e)
         sys.exit(1)

@@ -48,7 +48,7 @@ class Json(Format):
                     "Invalid JSON: {error}.",
                     error=str(e),
                 )
-            )
+            ) from None
 
     def dump(self, dump: VoidableDump) -> str:
         return json.dumps(dump)
@@ -72,7 +72,7 @@ class Yaml(Format):
                     "Invalid YAML: {error}.",
                     error=str(e),
                 )
-            )
+            ) from None
 
     def dump(self, dump: VoidableDump) -> str:
         return yaml.safe_dump(dump)
@@ -83,25 +83,27 @@ class FormatRepository:
         self,
     ):
         super().__init__()
-        self._formats = (
+        self._serde_formats = (
             Json(),
             Yaml(),
         )
 
     @property
     def formats(self) -> tuple[Format, ...]:
-        return self._formats
+        return self._serde_formats
 
     @property
     def extensions(self) -> tuple[str, ...]:
         return tuple(
-            extension for _format in self._formats for extension in _format.extensions
+            extension
+            for _format in self._serde_formats
+            for extension in _format.extensions
         )
 
     def format_for(self, extension: str) -> Format:
-        for format in self._formats:
-            if extension in format.extensions:
-                return format
+        for serde_format in self._serde_formats:
+            if extension in serde_format.extensions:
+                return serde_format
         raise FormatError(
             Str._(
                 'Unknown file format ".{extension}". Supported formats are: {supported_formats}.',
@@ -112,14 +114,14 @@ class FormatRepository:
 
 
 class FormatStr(Localizable):
-    def __init__(self, formats: Sequence[Format]):
-        self._formats = formats
+    def __init__(self, serde_formats: Sequence[Format]):
+        self._serde_formats = serde_formats
 
     def localize(self, localizer: Localizer) -> str:
         return ", ".join(
             [
-                f".{extension} ({format.label.localize(localizer)})"
-                for format in self._formats
-                for extension in format.extensions
+                f".{extension} ({serde_format.label.localize(localizer)})"
+                for serde_format in self._serde_formats
+                for extension in serde_format.extensions
             ]
         )

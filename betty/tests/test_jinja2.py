@@ -56,7 +56,7 @@ class TestJinja2Renderer:
 
 class TestFilterFlatten(TemplateTestCase):
     @pytest.mark.parametrize(
-        "expected, template",
+        ("expected", "template"),
         [
             ("", '{{ [] | flatten | join(", ") }}'),
             ("", '{{ [[], [], []] | flatten | join(", ") }}'),
@@ -81,7 +81,7 @@ class TestFilterWalk(TemplateTestCase):
             return self._label
 
     @pytest.mark.parametrize(
-        "expected, template, data",
+        ("expected", "template", "data"),
         [
             ("", '{{ data | walk("children") | join }}', WalkData("parent")),
             (
@@ -110,7 +110,7 @@ class TestFilterWalk(TemplateTestCase):
 
 class TestFilterParagraphs(TemplateTestCase):
     @pytest.mark.parametrize(
-        "expected, template",
+        ("expected", "template"),
         [
             ("<p></p>", '{{ "" | paragraphs }}'),
             (
@@ -126,7 +126,7 @@ class TestFilterParagraphs(TemplateTestCase):
 
 class TestFilterFormatDegrees(TemplateTestCase):
     @pytest.mark.parametrize(
-        "expected, template",
+        ("expected", "template"),
         [
             ("0° 0&#39; 0&#34;", "{{ 0 | format_degrees }}"),
             ("52° 22&#39; 1&#34;", "{{ 52.367 | format_degrees }}"),
@@ -160,7 +160,7 @@ class TestFilterMap(TemplateTestCase):
             self.label = label
 
     @pytest.mark.parametrize(
-        "expected, template, data",
+        ("expected", "template", "data"),
         [
             (
                 "kiwi, apple, banana",
@@ -186,7 +186,7 @@ class TestFilterMap(TemplateTestCase):
 
 class TestFilterFile(TemplateTestCase):
     @pytest.mark.parametrize(
-        "expected, template, file",
+        ("expected", "template", "file"),
         [
             (
                 "/file/F1/file/test_jinja2.py",
@@ -226,7 +226,7 @@ class TestFilterImage(TemplateTestCase):
     )
 
     @pytest.mark.parametrize(
-        "expected, template, file",
+        ("expected", "template", "file"),
         [
             (
                 "/file/F1-99x-.png",
@@ -285,7 +285,7 @@ class TestFilterImage(TemplateTestCase):
             path=self.image_path,
             media_type=MediaType("image/png"),
         )
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError):  # noqa PT011
             async with self._render(
                 template_string="{{ file | image }}",
                 data={
@@ -300,9 +300,9 @@ class TestGlobalCiter(TemplateTestCase):
         citation1 = Citation()
         citation2 = Citation()
         sut = _Citer()
-        assert 1 == sut.cite(citation1)
-        assert 2 == sut.cite(citation2)
-        assert 1 == sut.cite(citation1)
+        assert sut.cite(citation1) == 1
+        assert sut.cite(citation2) == 2
+        assert sut.cite(citation1) == 1
 
     async def test_iter(self) -> None:
         citation1 = Citation()
@@ -320,7 +320,7 @@ class TestGlobalCiter(TemplateTestCase):
         sut.cite(citation1)
         sut.cite(citation2)
         sut.cite(citation1)
-        assert 2 == len(sut)
+        assert len(sut) == 2
 
 
 class TestFormatDatey(TemplateTestCase):
@@ -400,12 +400,12 @@ class TestFilterSortLocalizeds(TemplateTestCase):
                 "data": [],
             },
         ) as (actual, _):
-            assert "[]" == actual
+            assert actual == "[]"
 
 
 class TestFilterSelectLocalizeds(TemplateTestCase):
     @pytest.mark.parametrize(
-        "expected, locale, data",
+        ("expected", "locale", "data"),
         [
             ("", "en", []),
             (
@@ -516,7 +516,7 @@ class TestFilterSelectDateds(TemplateTestCase):
             return self._value
 
     @pytest.mark.parametrize(
-        "expected, data",
+        ("expected", "data"),
         [
             (
                 "Apple",
@@ -594,7 +594,7 @@ class TestFilterSelectDateds(TemplateTestCase):
 
 class TestTestSubjectRole(TemplateTestCase):
     @pytest.mark.parametrize(
-        "expected, data",
+        ("expected", "data"),
         [
             ("true", Subject()),
             ("false", Subject),
@@ -615,7 +615,7 @@ class TestTestSubjectRole(TemplateTestCase):
 
 class TestTestWitnessRole(TemplateTestCase):
     @pytest.mark.parametrize(
-        "expected, data",
+        ("expected", "data"),
         [
             ("true", Witness()),
             ("false", Witness),
@@ -636,7 +636,7 @@ class TestTestWitnessRole(TemplateTestCase):
 
 class TestTestEntity(TemplateTestCase):
     @pytest.mark.parametrize(
-        "expected, entity_type, data",
+        ("expected", "entity_type", "data"),
         [
             ("true", Person, Person(id="P1")),
             (

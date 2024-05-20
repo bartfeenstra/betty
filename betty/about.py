@@ -48,9 +48,9 @@ async def is_development() -> bool:
 def _indent_mapping(items: dict[str, str]) -> str:
     max_indentation = max(map(len, items.keys())) + 4
     return "\n".join(
-        map(
-            lambda x: "\n".join(_indent_mapping_item(x[0], x[1], max_indentation)),
-            items.items(),
+        (
+            "\n".join(_indent_mapping_item(x[0], x[1], max_indentation))
+            for x in items.items()
         )
     )
 

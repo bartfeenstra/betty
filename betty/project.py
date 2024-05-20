@@ -5,9 +5,8 @@ Provide the project API.
 from __future__ import annotations
 
 from contextlib import suppress
-from pathlib import Path
 from reprlib import recursive_repr
-from typing import Any, Generic, final, Iterable, cast, Self
+from typing import Any, Generic, final, Iterable, cast, Self, TYPE_CHECKING
 from urllib.parse import urlparse
 
 from betty.app.extension import Extension, ConfigurableExtension
@@ -41,6 +40,9 @@ from betty.serde.load import (
     Asserter,
 )
 from betty.warnings import deprecate
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 DEFAULT_LIFETIME_THRESHOLD = 125
 

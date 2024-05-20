@@ -35,8 +35,8 @@ def snake_case_to_upper_camel_case(string: str) -> str:
     Convert snake case to upper camel case.
     """
     return "".join(
-        map(
-            lambda substring: substring[0].upper() + substring[1:] if substring else "",
-            string.split("_"),
+        (
+            substring[0].upper() + substring[1:] if substring else ""
+            for substring in string.split("_")
         )
     )

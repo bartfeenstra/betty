@@ -115,8 +115,8 @@ class TestDeriver:
                 localizer=DEFAULT_LOCALIZER,
             ).derive()
 
-        assert 0 == len(added)
-        assert 0 == len(person.presences)
+        assert len(added) == 0
+        assert len(person.presences) == 0
 
     @pytest.mark.parametrize(
         "event_type",
@@ -146,8 +146,8 @@ class TestDeriver:
                 localizer=DEFAULT_LOCALIZER,
             ).derive()
 
-        assert 0 == len(added)
-        assert 1 == len(person.presences)
+        assert len(added) == 0
+        assert len(person.presences) == 1
         assert derivable_event.date is None
 
     @pytest.mark.parametrize(
@@ -179,11 +179,11 @@ class TestDeriver:
                 localizer=DEFAULT_LOCALIZER,
             ).derive()
 
-        assert 0 == len(added)
+        assert len(added) == 0
         assert derivable_event.date is None
 
     @pytest.mark.parametrize(
-        "expected_datey, before_datey, derivable_datey",
+        ("expected_datey", "before_datey", "derivable_datey"),
         [
             (None, None, None),
             (Date(2000, 1, 1), Date(1970, 1, 1), Date(2000, 1, 1)),
@@ -407,12 +407,12 @@ class TestDeriver:
                 localizer=DEFAULT_LOCALIZER,
             ).derive()
 
-        assert 0 == len(added)
+        assert len(added) == 0
         if expected_datey is None:
             assert expected_datey == derivable_event.date
 
     @pytest.mark.parametrize(
-        "expected_datey, before_datey",
+        ("expected_datey", "before_datey"),
         [
             (
                 None,
@@ -466,7 +466,7 @@ class TestDeriver:
             ).derive()
 
         if expected_datey is None:
-            assert 0 == len(added)
+            assert len(added) == 0
         else:
             assert len(added[Event]) > 0
             for derived_event in added[Event]:
@@ -482,7 +482,7 @@ class TestDeriver:
                 assert expected_datey == derived_presence.event.date
 
     @pytest.mark.parametrize(
-        "expected_datey, after_datey, derivable_datey",
+        ("expected_datey", "after_datey", "derivable_datey"),
         [
             (None, None, None),
             (Date(2000, 1, 1), Date(1970, 1, 1), Date(2000, 1, 1)),
@@ -706,12 +706,12 @@ class TestDeriver:
                 localizer=DEFAULT_LOCALIZER,
             ).derive()
 
-        assert 0 == len(added)
+        assert len(added) == 0
         if expected_datey is None:
             assert expected_datey == derivable_event.date
 
     @pytest.mark.parametrize(
-        "expected_datey, after_datey",
+        ("expected_datey", "after_datey"),
         [
             (None, None),
             (None, Date()),
@@ -766,7 +766,7 @@ class TestDeriver:
             ).derive()
 
         if expected_datey is None:
-            assert 0 == len(added)
+            assert len(added) == 0
         else:
             assert len(added[Event]) > 0
             for derived_event in added[Event]:
@@ -815,5 +815,5 @@ class TestDeriver:
                 localizer=DEFAULT_LOCALIZER,
             ).derive()
 
-        assert 0 == len(added)
+        assert len(added) == 0
         assert [*person.presences] == [presence]

@@ -5,12 +5,14 @@ Provide utilities for running jobs concurrently.
 from __future__ import annotations
 
 import threading
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
-from betty.cache import Cache
 from betty.cache.memory import MemoryCache
 from betty.locale import Localizer, DEFAULT_LOCALIZER
 from betty.warnings import deprecated
+
+if TYPE_CHECKING:
+    from betty.cache import Cache
 
 
 class Context:

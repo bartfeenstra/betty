@@ -43,7 +43,7 @@ class TestDockerizedNginxServer:
                 def _assert_response(response: Response) -> None:
                     assert response.status_code == 200
                     assert content == response.content.decode("utf-8")
-                    assert "no-cache" == response.headers["Cache-Control"]
+                    assert response.headers["Cache-Control"] == "no-cache"
 
                 await Do(requests.get, server.public_url).until(_assert_response)
 
@@ -52,7 +52,7 @@ class TestDockerizedNginxServer:
             app.project.configuration.extensions.enable(Nginx)
             sut = DockerizedNginxServer(app)
             with pytest.raises(NoPublicUrlBecauseServerNotStartedError):
-                sut.public_url
+                sut.public_url  # noqa B018
 
     async def test_is_available_is_available(self, mocker: MockerFixture) -> None:
         async with App.new_temporary() as app, app:

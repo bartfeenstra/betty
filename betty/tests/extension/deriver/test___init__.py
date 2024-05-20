@@ -80,7 +80,7 @@ class TestDeriver:
             with record_added(app.project.ancestry) as added:
                 await load(app)
 
-            assert 3 == len(person.presences)
+            assert len(person.presences) == 3
             start = [
                 presence
                 for presence in person.presences
@@ -102,6 +102,6 @@ class TestDeriver:
             assert end is not None
             assert end.event is not None
             assert DateRange(Date(1, 1, 1), start_is_boundary=True) == end.event.date
-            assert 2 == len(added[Event])
+            assert len(added[Event]) == 2
             assert start.event in added[Event]
             assert end.event in added[Event]

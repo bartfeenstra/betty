@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Iterable, Self
+from typing import Any, Iterable, Self, TYPE_CHECKING
 
 import pytest
 
@@ -19,7 +19,6 @@ from betty.project import (
     EntityTypeConfiguration,
     EntityTypeConfigurationMapping,
 )
-from betty.serde.dump import Dump, VoidableDump
 from betty.serde.load import (
     AssertionFailed,
     Asserter,
@@ -32,6 +31,9 @@ from betty.tests.test_config import (
     ConfigurationMappingTestBase,
     ConfigurationSequenceTestBase,
 )
+
+if TYPE_CHECKING:
+    from betty.serde.dump import Dump, VoidableDump
 
 
 class EntityReferenceTestEntityOne(Entity):
@@ -189,7 +191,9 @@ class TestEntityReferenceSequence(
     ) -> EntityReferenceSequence[Entity]:
         return EntityReferenceSequence(configurations)
 
-    def get_configurations(self) -> tuple[
+    def get_configurations(
+        self,
+    ) -> tuple[
         EntityReference[Entity],
         EntityReference[Entity],
         EntityReference[Entity],
@@ -233,7 +237,7 @@ class TestLocaleConfiguration:
             )
 
     @pytest.mark.parametrize(
-        "expected, sut, other",
+        ("expected", "sut", "other"),
         [
             (
                 False,
@@ -380,7 +384,7 @@ class TestExtensionConfiguration:
         assert extension_type_configuration == sut.extension_configuration
 
     @pytest.mark.parametrize(
-        "expected, one, other",
+        ("expected", "one", "other"),
         [
             (
                 True,
@@ -540,7 +544,7 @@ class TestEntityTypeConfiguration:
         assert expected == sut.dump()
 
     @pytest.mark.parametrize(
-        "expected, one, other",
+        ("expected", "one", "other"),
         [
             (
                 True,
@@ -686,10 +690,10 @@ class TestProjectConfiguration:
         dump: Any = ProjectConfiguration().dump()
         sut = ProjectConfiguration.load(dump)
         assert dump["base_url"] == sut.base_url
-        assert "Betty" == sut.title
+        assert sut.title == "Betty"
         assert sut.author is None
         assert not sut.debug
-        assert "" == sut.root_path
+        assert sut.root_path == ""
         assert not sut.clean_urls
 
     async def test_load_should_load_name(self) -> None:
@@ -834,10 +838,10 @@ class TestProjectConfiguration:
         sut = ProjectConfiguration()
         dump: Any = sut.dump()
         assert dump["base_url"] == sut.base_url
-        assert "Betty" == sut.title
+        assert sut.title == "Betty"
         assert sut.author is None
         assert not sut.debug
-        assert "" == sut.root_path
+        assert sut.root_path == ""
         assert not sut.clean_urls
 
     async def test_dump_should_dump_title(self) -> None:

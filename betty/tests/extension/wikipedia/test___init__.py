@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pytest_mock import MockerFixture
 
 from betty.app import App
 from betty.extension import Wikipedia
@@ -9,6 +8,10 @@ from betty.load import load
 from betty.model.ancestry import Link
 from betty.project import ExtensionConfiguration
 from betty.wikipedia import Summary
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pytest_mock import MockerFixture
 
 
 class TestWikipedia:

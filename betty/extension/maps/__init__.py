@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from pathlib import Path
 
 from betty.app.extension import Extension, UserFacingExtension
 from betty.extension.webpack import Webpack, WebpackEntrypointProvider
 from betty.locale import Str
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 class Maps(UserFacingExtension, WebpackEntrypointProvider):

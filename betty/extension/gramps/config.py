@@ -4,12 +4,14 @@ Provide configuration for the :py:class:`betty.extension.Gramps` extension.
 
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Iterable, Any, Self
+from typing import Iterable, Any, Self, TYPE_CHECKING
 
 from betty.config import Configuration, ConfigurationSequence
 from betty.serde.dump import minimize, Dump, VoidableDump
 from betty.serde.load import Asserter, Fields, RequiredField, Assertions, OptionalField
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class FamilyTreeConfiguration(Configuration):
