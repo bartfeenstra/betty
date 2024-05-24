@@ -28,8 +28,18 @@ version = wait_to_thread(about.version()) or ""
 release = wait_to_thread(about.version_label())
 copyright = "Bart Feenstra and contributors"  # noqa A001
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3/", None),
+    "aiohttp": ("https://docs.aiohttp.org/en/stable/", None),
+    "babel": ("https://babel.pocoo.org/en/stable/", None),
+    "click": ("https://click.palletsprojects.com/en/latest/", None),
+    "docker": ("https://docker-py.readthedocs.io/en/stable/", None),
+    "geopy": ("https://geopy.readthedocs.io/en/stable/", None),
     "jinja2": ("https://jinja.palletsprojects.com/en/latest/", None),
+    "jsonschema": ("https://python-jsonschema.readthedocs.io/en/stable/", None),
+    "markupsafe": ("https://markupsafe.palletsprojects.com/en/latest/", None),
+    "pillow": ("https://pillow.readthedocs.io/en/stable/", None),
+    "polib": ("https://polib.readthedocs.io/en/latest/", None),
+    "python": ("https://docs.python.org/3/", None),
+    "referencing": ("https://referencing.readthedocs.io/en/stable/", None),
 }
 html_favicon = str(
     ROOT_DIRECTORY_PATH / "betty" / "assets" / "public" / "static" / "betty.ico"
@@ -52,6 +62,7 @@ extensions = [
     "betty.sphinx.extension.replacements",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosectionlabel",
+    "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
     "sphinx_autodoc_typehints",
     "sphinx_design",
