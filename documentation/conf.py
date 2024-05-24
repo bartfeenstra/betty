@@ -70,6 +70,7 @@ extensions = [
 ]
 nitpicky = True
 modindex_common_prefix = ["betty."]
+collapse_navigation = True
 
 # sphinx.ext.autodoc configuration.
 autodoc_member_order = "alphabetical"
