@@ -62,6 +62,8 @@ async def _build(output_directory_path: Path) -> None:
                 "sphinx-build",
                 "-b",
                 "dirhtml",
+                "-j",
+                "auto",
                 str(source_directory_path),
                 str(output_directory_path),
             ],
