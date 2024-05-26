@@ -1200,7 +1200,8 @@ async def update_translations(
         # _output_assets_directory_path provides an alternative output, so the changes
         # to the translations can be tested in isolation.
         output_po_file_path = (
-            _output_assets_directory_path / input_po_file_path
+            _output_assets_directory_path
+            / input_po_file_path.relative_to(ASSETS_DIRECTORY_PATH)
         ).resolve()
         await makedirs(output_po_file_path.parent, exist_ok=True)
         output_po_file_path.touch()
