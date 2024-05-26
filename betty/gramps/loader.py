@@ -197,7 +197,7 @@ class GrampsLoader:
                 async with TemporaryDirectory() as cache_directory_path_str:
                     tarfile.open(
                         fileobj=tar_file,
-                    ).extractall(cache_directory_path_str)
+                    ).extractall(cache_directory_path_str, filter="data")
                     await self.load_gramps(
                         Path(cache_directory_path_str) / "data.gramps"
                     )
