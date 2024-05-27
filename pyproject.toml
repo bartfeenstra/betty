@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    'setuptools ~= 69.0',
+    'setuptools >= 69,< 71',
 ]
 build-backend = 'setuptools.build_meta'
 
@@ -93,7 +93,7 @@ pyinstaller = [
     'pyinstaller ~= 6.1, >= 6.1.0',
 ]
 setuptools = [
-    'setuptools ~= 69.0',
+    'setuptools >= 69,< 71',
     'twine ~= 5.0',
     'wheel ~= 0.40, >= 0.40.0',
 ]
