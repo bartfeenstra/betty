@@ -32,7 +32,7 @@ async def run_process(
             process = await create_subprocess_exec(
                 *runnee, cwd=cwd, stderr=PIPE, stdout=PIPE
             )
-        await process.wait()
+        stdout, stderr = await process.communicate()
     except BaseException as error:
         logger.debug(
             f'Subprocess `{command}` raised an error:\n{" ".join(format_exception(error))}'
@@ -42,18 +42,8 @@ async def run_process(
     if process.returncode == 0:
         return process
 
-    stdout = process.stdout
-    stdout_str = (
-        ""
-        if stdout is None
-        else "\n".join((await stdout.read()).decode().split(os.linesep))
-    )
-    stderr = process.stderr
-    stderr_str = (
-        ""
-        if stderr is None
-        else "\n".join((await stderr.read()).decode().split(os.linesep))
-    )
+    stdout_str = "\n".join(stdout.decode().split(os.linesep))
+    stderr_str = "\n".join(stderr.decode().split(os.linesep))
 
     if stdout_str:
         logger.debug(f"Subprocess `{command}` stdout:\n{stdout_str}")
