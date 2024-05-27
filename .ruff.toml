@@ -14,8 +14,6 @@ extend-select = [
     'TCH',
 ]
 ignore = [
-    'D101',
-    'D102',
     'D105',
     'D107',
     'D200',
@@ -29,6 +27,8 @@ ignore = [
 [lint.per-file-ignores]
 "betty/tests/*" = [
     'D100',
+    'D101',
+    'D102',
     'D103',
     'D106',
 ]

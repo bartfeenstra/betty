@@ -35,6 +35,7 @@ from babel import dates, Locale
 from babel.messages.frontend import CommandLineInterface
 from langcodes import Language
 from polib import pofile
+from typing_extensions import override
 
 from betty import fs
 from betty.asyncio import wait_to_thread
@@ -57,6 +58,10 @@ _LOCALE_DIRECTORY_PATH = fs.ASSETS_DIRECTORY_PATH / "locale"
 
 
 class LocaleNotFoundError(RuntimeError):
+    """
+    Raise when a locale could not be found.
+    """
+
     def __init__(self, locale: str) -> None:
         super().__init__(f'Cannot find locale "{locale}"')
         self.locale = locale
@@ -125,6 +130,10 @@ def get_display_name(
 
 
 class Localized(LinkedDataDumpable):
+    """
+    A resource that is localized, e.g. contains information in a specific locale.
+    """
+
     locale: str | None
 
     def __init__(
@@ -136,12 +145,14 @@ class Localized(LinkedDataDumpable):
         super().__init__(*args, **kwargs)
         self.locale = locale
 
+    @override
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
         if self.locale is not None:
             dump["locale"] = self.locale
         return dump
 
+    @override
     @classmethod
     async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
         schema = await super().linked_data_schema(app)
@@ -151,6 +162,10 @@ class Localized(LinkedDataDumpable):
 
 
 class IncompleteDateError(ValueError):
+    """
+    Raised when a datey was unexpectedly incomplete.
+    """
+
     pass  # pragma: no cover
 
 
@@ -164,6 +179,10 @@ def _dump_date_iso8601(date: Date) -> str | None:
 
 
 class Date(LinkedDataDumpable):
+    """
+    A (Gregorian) date.
+    """
+
     year: int | None
     month: int | None
     day: int | None
@@ -181,6 +200,7 @@ class Date(LinkedDataDumpable):
         self.day = day
         self.fuzzy = fuzzy
 
+    @override
     def __repr__(self) -> str:
         return "<%s.%s(%s, %s, %s)>" % (
             self.__class__.__module__,
@@ -192,17 +212,29 @@ class Date(LinkedDataDumpable):
 
     @property
     def comparable(self) -> bool:
+        """
+        If this date is comparable to other dateys.
+        """
         return self.year is not None
 
     @property
     def complete(self) -> bool:
+        """
+        Whether this date is complete.
+        """
         return self.year is not None and self.month is not None and self.day is not None
 
     @property
     def parts(self) -> tuple[int | None, int | None, int | None]:
+        """
+        The date parts: a 3-tuple of the year, month, and day.
+        """
         return self.year, self.month, self.day
 
     def to_range(self) -> DateRange:
+        """
+        Convert this date to a date range.
+        """
         if not self.comparable:
             raise ValueError(
                 "Cannot convert non-comparable date %s to a date range." % self
@@ -253,6 +285,7 @@ class Date(LinkedDataDumpable):
     def __le__(self, other: Any) -> bool:
         return self._compare(other, operator.le)
 
+    @override
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Date):
             return NotImplemented
@@ -264,6 +297,7 @@ class Date(LinkedDataDumpable):
     def __gt__(self, other: Any) -> bool:
         return self._compare(other, operator.gt)
 
+    @override
     async def dump_linked_data(
         self, app: App, schemas_org: list[str] | None = None
     ) -> DictDump[Dump]:
@@ -284,9 +318,13 @@ class Date(LinkedDataDumpable):
         start_schema_org: str,
         end_schema_org: str,
     ) -> None:
+        """
+        Dump this instance to `JSON-LD <https://json-ld.org/>`_ for a 'datey' field.
+        """
         if self.comparable:
             dump_context(dump, iso8601=(start_schema_org, end_schema_org))
 
+    @override
     @classmethod
     async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
         schema = await super().linked_data_schema(app)
@@ -323,6 +361,10 @@ async def ref_date(root_schema: DictDump[Dump], app: App) -> DictDump[Dump]:
 
 @total_ordering
 class DateRange(LinkedDataDumpable):
+    """
+    A date range can describe a period of time between, before, after, or around start and/or end dates.
+    """
+
     start: Date | None
     start_is_boundary: bool
     end: Date | None
@@ -340,6 +382,7 @@ class DateRange(LinkedDataDumpable):
         self.end = end
         self.end_is_boundary = end_is_boundary
 
+    @override
     def __repr__(self) -> str:
         return "%s.%s(%s, %s, start_is_boundary=%s, end_is_boundary=%s)" % (
             self.__class__.__module__,
@@ -352,6 +395,9 @@ class DateRange(LinkedDataDumpable):
 
     @property
     def comparable(self) -> bool:
+        """
+        If this date is comparable to other dateys.
+        """
         return (
             self.start is not None
             and self.start.comparable
@@ -413,6 +459,7 @@ class DateRange(LinkedDataDumpable):
                     return True
         return False
 
+    @override
     async def dump_linked_data(
         self,
         app: App,
@@ -432,6 +479,7 @@ class DateRange(LinkedDataDumpable):
             )
         return dump
 
+    @override
     @classmethod
     async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
         schema = await super().linked_data_schema(app)
@@ -447,6 +495,9 @@ class DateRange(LinkedDataDumpable):
         start_schema_org: str,
         end_schema_org: str,
     ) -> None:
+        """
+        Dump this instance to `JSON-LD <https://json-ld.org/>`_ for a 'datey' field.
+        """
         if self.start and self.start.comparable:
             start = dump_default(dump, "start", dict)
             dump_context(start, iso8601=start_schema_org)
@@ -593,6 +644,7 @@ class DateRange(LinkedDataDumpable):
         else:
             return self._LT_DATE_COMPARATORS[signature](self_start, self_end, other)
 
+    @override
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, Date):
             return False
@@ -645,6 +697,10 @@ DateRangeFormatters: TypeAlias = Mapping[
 
 
 class Localizer:
+    """
+    Provide localization functionality for a specific locale.
+    """
+
     def __init__(self, locale: str, translations: gettext.NullTranslations):
         self._locale = locale
         self._locale_data = get_data(locale)
@@ -655,23 +711,51 @@ class Localizer:
 
     @property
     def locale(self) -> str:
+        """
+        The locale.
+        """
         return self._locale
 
     def _(self, message: str) -> str:
+        """
+        Like :py:meth:`gettext.gettext`.
+
+        Arguments are identical to those of :py:meth:`gettext.gettext`.
+        """
         return self._translations.gettext(message)
 
     def gettext(self, message: str) -> str:
+        """
+        Like :py:meth:`gettext.gettext`.
+
+        Arguments are identical to those of :py:meth:`gettext.gettext`.
+        """
         return self._translations.gettext(message)
 
     def ngettext(self, message_singular: str, message_plural: str, n: int) -> str:
+        """
+        Like :py:meth:`gettext.ngettext`.
+
+        Arguments are identical to those of :py:meth:`gettext.ngettext`.
+        """
         return self._translations.ngettext(message_singular, message_plural, n)
 
     def pgettext(self, context: str, message: str) -> str:
+        """
+        Like :py:meth:`gettext.pgettext`.
+
+        Arguments are identical to those of :py:meth:`gettext.pgettext`.
+        """
         return self._translations.pgettext(context, message)
 
     def npgettext(
         self, context: str, message_singular: str, message_plural: str, n: int
     ) -> str:
+        """
+        Like :py:meth:`gettext.npgettext`.
+
+        Arguments are identical to those of :py:meth:`gettext.npgettext`.
+        """
         return self._translations.npgettext(
             context, message_singular, message_plural, n
         )
@@ -769,6 +853,9 @@ class Localizer:
         return self.format_date_range(date)
 
     def format_date(self, date: Date) -> str:
+        """
+        Format a date to a human-readable string.
+        """
         try:
             return self._date_formatters[(date.fuzzy,)].format(
                 date=self._format_date_parts(date),
@@ -795,6 +882,9 @@ class Localizer:
         )
 
     def format_date_range(self, date_range: DateRange) -> str:
+        """
+        Format a date range to a human-readable string.
+        """
         formatter_configuration: tuple[
             bool | None, bool | None, bool | None, bool | None
         ] = (None, None, None, None)
@@ -834,6 +924,10 @@ DEFAULT_LOCALIZER = Localizer(DEFAULT_LOCALE, gettext.NullTranslations())
 
 
 class LocalizerRepository:
+    """
+    Exposes the available localizers.
+    """
+
     def __init__(self, assets: FileSystem):
         self._assets = assets
         self._localizers: dict[str, Localizer] = {}
@@ -842,6 +936,9 @@ class LocalizerRepository:
 
     @property
     def locales(self) -> Iterator[str]:
+        """
+        The available locales.
+        """
         if self._locales is None:
             self._locales = set()
             self._locales.add(DEFAULT_LOCALE)
@@ -851,6 +948,9 @@ class LocalizerRepository:
         yield from self._locales
 
     async def get(self, locale: Localey) -> Localizer:
+        """
+        Get the localizer for the given locale.
+        """
         locale = to_locale(locale)
         async with self._locks[locale]:
             try:
@@ -865,6 +965,9 @@ class LocalizerRepository:
         return wait_to_thread(self.get(locale))
 
     async def get_negotiated(self, *preferred_locales: str) -> Localizer:
+        """
+        Get the best matching available locale for the given preferred locales.
+        """
         preferred_locales = (*preferred_locales, DEFAULT_LOCALE)
         negotiated_locale = negotiate_locale(
             preferred_locales,
@@ -916,6 +1019,12 @@ class LocalizerRepository:
             return gettext.GNUTranslations(f)
 
     async def coverage(self, locale: Localey) -> tuple[int, int]:
+        """
+        Get the translation coverage for the given locale.
+
+        :return: A 2-tuple of the number of available translations and the
+            number of translatable source strings.
+        """
         translatables = {
             translatable async for translatable in self._get_translatables()
         }
@@ -951,9 +1060,19 @@ class LocalizerRepository:
 
 
 class Localizable:
+    """
+    A localizable object.
+
+    Objects of this type can convert themselves to localized strings at the point of use.
+    """
+
     def localize(self, localizer: Localizer) -> str:
+        """
+        Localize ``self`` to a human-readable string.
+        """
         raise NotImplementedError
 
+    @override
     def __str__(self) -> str:
         localized = self.localize(DEFAULT_LOCALIZER)
         warn(
@@ -964,6 +1083,10 @@ class Localizable:
 
 
 class Str(Localizable):
+    """
+    Create new localizable strings.
+    """
+
     def _localize_format_kwargs(
         self, localizer: Localizer, **format_kwargs: str | Localizable
     ) -> dict[str, str]:
@@ -974,18 +1097,44 @@ class Str(Localizable):
 
     @classmethod
     def plain(cls, plain: Any, **format_kwargs: str | Localizable) -> Str:
+        """
+        Create a new localizable that outputs the given plain text string.
+
+        Keyword arguments are identical to those of :py:met:`str.format`, except that
+        any :py:class:`betty.locale.Localizable` will be localized before string
+        formatting.
+        """
         return _PlainStr(str(plain), **format_kwargs)
 
     @classmethod
     def call(cls, call: Callable[[Localizer], str]) -> Str:
+        """
+        Create a new localizable that outputs the callable's return value.
+        """
         return _CallStr(call)
 
     @classmethod
     def _(cls, message: str, **format_kwargs: str | Localizable) -> Str:
+        """
+        Like :py:meth:`gettext.gettext`.
+
+        Positional arguments are identical to those of :py:meth:`gettext.gettext`.
+        Keyword arguments are identical to those of :py:met:`str.format`, except that
+        any :py:class:`betty.locale.Localizable` will be localized before string
+        formatting.
+        """
         return cls.gettext(message, **format_kwargs)
 
     @classmethod
     def gettext(cls, message: str, **format_kwargs: str | Localizable) -> Str:
+        """
+        Like :py:meth:`gettext.gettext`.
+
+        Positional arguments are identical to those of :py:meth:`gettext.gettext`.
+        Keyword arguments are identical to those of :py:met:`str.format`, except that
+        any :py:class:`betty.locale.Localizable` will be localized before string
+        formatting.
+        """
         return _GettextStr("gettext", message, **format_kwargs)
 
     @classmethod
@@ -996,6 +1145,14 @@ class Str(Localizable):
         n: int,
         **format_kwargs: str | Localizable,
     ) -> Str:
+        """
+        Like :py:meth:`gettext.ngettext`.
+
+        Positional arguments are identical to those of :py:meth:`gettext.ngettext`.
+        Keyword arguments are identical to those of :py:met:`str.format`, except that
+        any :py:class:`betty.locale.Localizable` will be localized before string
+        formatting.
+        """
         return _GettextStr(
             "ngettext", message_singular, message_plural, n, **format_kwargs
         )
@@ -1004,6 +1161,14 @@ class Str(Localizable):
     def pgettext(
         cls, context: str, message: str, **format_kwargs: str | Localizable
     ) -> Str:
+        """
+        Like :py:meth:`gettext.pgettext`.
+
+        Positional arguments are identical to those of :py:meth:`gettext.pgettext`.
+        Keyword arguments are identical to those of :py:met:`str.format`, except that
+        any :py:class:`betty.locale.Localizable` will be localized before string
+        formatting.
+        """
         return _GettextStr("pgettext", context, message, **format_kwargs)
 
     @classmethod
@@ -1015,6 +1180,14 @@ class Str(Localizable):
         n: int,
         **format_kwargs: str | Localizable,
     ) -> Str:
+        """
+        Like :py:meth:`gettext.npgettext`.
+
+        Positional arguments are identical to those of :py:meth:`gettext.npgettext`.
+        Keyword arguments are identical to those of :py:met:`str.format`, except that
+        any :py:class:`betty.locale.Localizable` will be localized before string
+        formatting.
+        """
         return _GettextStr(
             "npgettext", context, message_singular, message_plural, n, **format_kwargs
         )
@@ -1025,6 +1198,7 @@ class _PlainStr(Str):
         self._plain = plain
         self._format_kwargs = format_kwargs
 
+    @override
     def localize(self, localizer: Localizer) -> str:
         return self._plain.format(
             **self._localize_format_kwargs(localizer, **self._format_kwargs)
@@ -1035,6 +1209,7 @@ class _CallStr(Str):
     def __init__(self, call: Callable[[Localizer], str]):
         self._call = call
 
+    @override
     def localize(self, localizer: Localizer) -> str:
         return self._call(localizer)
 
@@ -1050,6 +1225,7 @@ class _GettextStr(Str):
         self._gettext_args = gettext_args
         self._format_kwargs = format_kwargs
 
+    @override
     def localize(self, localizer: Localizer) -> str:
         return cast(
             str, getattr(localizer, self._gettext_method_name)(*self._gettext_args)

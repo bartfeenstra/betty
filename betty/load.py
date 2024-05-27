@@ -19,12 +19,30 @@ def getLogger() -> logging.Logger:
 
 
 class Loader:
+    """
+    Load (part of) the project's ancestry.
+
+    Extensions may subclass this to add data to the ancestry, if they choose to do so.
+    """
+
     async def load(self) -> None:
+        """
+        Load ancestry data.
+        """
         raise NotImplementedError(repr(self))
 
 
 class PostLoader:
+    """
+    Act on the project's ancestry having been loaded.
+    """
+
     async def post_load(self) -> None:
+        """
+        Act on the ancestry having been loaded.
+
+        This method is called immediately after :py:meth:`betty.load.Loader.load`.
+        """
         raise NotImplementedError(repr(self))
 
 

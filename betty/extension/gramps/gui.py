@@ -20,6 +20,7 @@ from PyQt6.QtWidgets import (
     QGridLayout,
     QLabel,
 )
+from typing_extensions import override
 
 from betty.extension import Gramps
 from betty.extension.gramps.config import FamilyTreeConfiguration
@@ -86,6 +87,7 @@ class _FamilyTrees(LocalizedObject, QWidget):
             self._family_trees_remove_buttons[index], index, 1
         )
 
+    @override
     def _set_translatables(self) -> None:
         super()._set_translatables()
         self._add_family_tree_button.setText(self._app.localizer._("Add a family tree"))
@@ -179,12 +181,14 @@ class _AddFamilyTreeWindow(BettyMainWindow):
         self._cancel.released.connect(self.close)
         buttons_layout.addWidget(self._cancel)
 
+    @override
     def _set_translatables(self) -> None:
         super()._set_translatables()
         self._file_path_label.setText(self._app.localizer._("File path"))
         self._save_and_close.setText(self._app.localizer._("Save and close"))
         self._cancel.setText(self._app.localizer._("Cancel"))
 
+    @override
     @property
     def window_title(self) -> Localizable:
         return Str._("Add a family tree")

@@ -10,6 +10,7 @@ from reprlib import recursive_repr
 from typing import Iterable, Any, TYPE_CHECKING
 from urllib.parse import quote
 
+from typing_extensions import override
 
 from betty.classtools import repr_instance
 from betty.functools import Uniquifier
@@ -48,12 +49,28 @@ if TYPE_CHECKING:
 
 
 class Privacy(Enum):
+    """
+    The available privacy modes.
+    """
+
+    #: The resource is explicitly made public.
     PUBLIC = 1
+
+    #: The resource is explicitly made private.
     PRIVATE = 2
+
+    #: The resource has no explicit privacy. This means that:
+    #:
+    #: - it may be changed at will
+    #: - when checking access, UNDETERMINED evaluates to PUBLIC.
     UNDETERMINED = 3
 
 
 class HasPrivacy(LinkedDataDumpable):
+    """
+    A resource that has privacy.
+    """
+
     def __init__(
         self,
         *args: Any,
@@ -78,6 +95,13 @@ class HasPrivacy(LinkedDataDumpable):
 
     @property
     def own_privacy(self) -> Privacy:
+        """
+        The resource's own privacy.
+
+        This returns the value that was set for :py:attr:`betty.model.ancestry.HasPrivacy.privacy` and ignores computed privacies.
+
+        For access control and permissions checking, use :py:attr:`betty.model.ancestry.HasPrivacy.privacy`.
+        """
         return self._privacy
 
     def _get_effective_privacy(self) -> Privacy:
@@ -85,6 +109,9 @@ class HasPrivacy(LinkedDataDumpable):
 
     @property
     def privacy(self) -> Privacy:
+        """
+        The resource's privacy.
+        """
         return self._get_effective_privacy()
 
     @privacy.setter
@@ -97,6 +124,9 @@ class HasPrivacy(LinkedDataDumpable):
 
     @property
     def private(self) -> bool:
+        """
+        Whether this resource is private.
+        """
         return self.privacy is Privacy.PRIVATE
 
     @private.setter
@@ -105,6 +135,9 @@ class HasPrivacy(LinkedDataDumpable):
 
     @property
     def public(self) -> bool:
+        """
+        Whether this resource is public.
+        """
         # Undetermined privacy defaults to public.
         return self.privacy is not Privacy.PRIVATE
 
@@ -112,11 +145,13 @@ class HasPrivacy(LinkedDataDumpable):
     def public(self, public: True) -> None:
         self.privacy = Privacy.PUBLIC
 
+    @override
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
         dump["private"] = self.private
         return dump
 
+    @override
     @classmethod
     async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
         schema = await super().linked_data_schema(app)
@@ -178,6 +213,10 @@ def merge_privacies(*privacies: Privacy | HasPrivacy | None) -> Privacy:
 
 
 class Dated(LinkedDataDumpable):
+    """
+    A resource with date information.
+    """
+
     def __init__(
         self,
         *args: Any,
@@ -187,12 +226,14 @@ class Dated(LinkedDataDumpable):
         super().__init__(*args, **kwargs)
         self.date = date
 
+    @override
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
         if self.date and is_public(self):
             dump["date"] = await self.date.dump_linked_data(app)
         return dump
 
+    @override
     @classmethod
     async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
         schema = await super().linked_data_schema(app)
@@ -203,6 +244,13 @@ class Dated(LinkedDataDumpable):
 
 
 class Described(LinkedDataDumpable):
+    """
+    A resource with a description.
+    """
+
+    #: The human-readable description.
+    description: str | None
+
     def __init__(
         self,
         *args: Any,
@@ -212,6 +260,7 @@ class Described(LinkedDataDumpable):
         super().__init__(*args, **kwargs)
         self.description = description
 
+    @override
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
         if self.description is not None:
@@ -219,6 +268,7 @@ class Described(LinkedDataDumpable):
             dump_context(dump, description="description")
         return dump
 
+    @override
     @classmethod
     async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
         schema = await super().linked_data_schema(app)
@@ -239,6 +289,10 @@ class Described(LinkedDataDumpable):
 
 
 class HasMediaType(LinkedDataDumpable):
+    """
+    A resource with an `IANA media type <https://www.iana.org/assignments/media-types/media-types.xhtml>`_.
+    """
+
     def __init__(
         self,
         *args: Any,
@@ -248,12 +302,14 @@ class HasMediaType(LinkedDataDumpable):
         super().__init__(*args, **kwargs)
         self.media_type = media_type
 
+    @override
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
         if is_public(self) and self.media_type is not None:
             dump["mediaType"] = str(self.media_type)
         return dump
 
+    @override
     @classmethod
     async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
         schema = await super().linked_data_schema(app)
@@ -277,8 +333,15 @@ def ref_media_type(root_schema: DictDump[Dump]) -> DictDump[Dump]:
 
 
 class Link(HasMediaType, Localized, Described, LinkedDataDumpable):
+    """
+    An external link.
+    """
+
+    #: The link's absolute URL
     url: str
+    #: The link's `IANA link relationship <https://www.iana.org/assignments/link-relations/link-relations.xhtml>`_.
     relationship: str | None
+    #: The link's human-readable label.
     label: str | None
 
     def __init__(
@@ -300,6 +363,7 @@ class Link(HasMediaType, Localized, Described, LinkedDataDumpable):
         self.label = label
         self.relationship = relationship
 
+    @override
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
         dump["$schema"] = app.static_url_generator.generate(
@@ -312,6 +376,7 @@ class Link(HasMediaType, Localized, Described, LinkedDataDumpable):
             dump["relationship"] = self.relationship
         return dump
 
+    @override
     @classmethod
     async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
         schema = await super().linked_data_schema(app)
@@ -377,6 +442,10 @@ async def ref_link_collection(root_schema: DictDump[Dump], app: App) -> DictDump
 
 
 class HasLinks(LinkedDataDumpable):
+    """
+    A resource that has external links.
+    """
+
     def __init__(
         self,
         *args: Any,
@@ -388,8 +457,12 @@ class HasLinks(LinkedDataDumpable):
 
     @property
     def links(self) -> MutableSequence[Link]:
+        """
+        The extenal links.
+        """
         return self._links
 
+    @override
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
         await dump_link(
@@ -399,6 +472,7 @@ class HasLinks(LinkedDataDumpable):
         )
         return dump
 
+    @override
     @classmethod
     async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
         schema = await super().linked_data_schema(app)
@@ -407,6 +481,11 @@ class HasLinks(LinkedDataDumpable):
 
 
 class HasLinksEntity(HasLinks):
+    """
+    An entity that has external links.
+    """
+
+    @override
     async def dump_linked_data(  # type: ignore[misc]
         self: HasLinksEntity & Entity,
         app: App,
@@ -447,6 +526,11 @@ class HasLinksEntity(HasLinks):
 
 @many_to_one("entity", "betty.model.ancestry.HasNotes", "notes")
 class Note(UserFacingEntity, HasPrivacy, HasLinksEntity, Entity):
+    """
+    A note is a bit of textual information that can be associated with another entity.
+    """
+
+    #: The entity the note belongs to.
     entity: HasNotes
 
     def __init__(
@@ -469,22 +553,29 @@ class Note(UserFacingEntity, HasPrivacy, HasLinksEntity, Entity):
         if entity is not None:
             self.entity = entity
 
+    @override
     @classmethod
     def entity_type_label(cls) -> Str:
         return Str._("Note")  # pragma: no cover
 
+    @override
     @classmethod
     def entity_type_label_plural(cls) -> Str:
         return Str._("Notes")  # pragma: no cover
 
     @property
     def text(self) -> str:
+        """
+        The note's human-readable text.
+        """
         return self._text
 
+    @override
     @property
     def label(self) -> Str:
         return Str.plain(self.text)
 
+    @override
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
         dump["@type"] = "https://schema.org/Thing"
@@ -492,6 +583,7 @@ class Note(UserFacingEntity, HasPrivacy, HasLinksEntity, Entity):
             dump["text"] = self.text
         return dump
 
+    @override
     @classmethod
     async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
         schema = await super().linked_data_schema(app)
@@ -501,6 +593,10 @@ class Note(UserFacingEntity, HasPrivacy, HasLinksEntity, Entity):
 
 @one_to_many("notes", "betty.model.ancestry.Note", "entity")
 class HasNotes(LinkedDataDumpable):
+    """
+    An entity that has notes associated with it.
+    """
+
     def __init__(  # type: ignore[misc]
         self: HasNotes & Entity,
         *args: Any,
@@ -516,6 +612,9 @@ class HasNotes(LinkedDataDumpable):
 
     @property
     def notes(self) -> EntityCollection[Note]:  # type: ignore[empty-body]
+        """
+        The notes.
+        """
         pass  # pragma: no cover
 
     @notes.setter
@@ -526,6 +625,7 @@ class HasNotes(LinkedDataDumpable):
     def notes(self) -> None:
         pass  # pragma: no cover
 
+    @override
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
         dump["notes"] = [
@@ -535,6 +635,7 @@ class HasNotes(LinkedDataDumpable):
         ]
         return dump
 
+    @override
     @classmethod
     async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
         schema = await super().linked_data_schema(app)
@@ -550,6 +651,10 @@ class HasNotes(LinkedDataDumpable):
 
 @many_to_many("citations", "betty.model.ancestry.Citation", "facts")
 class HasCitations(LinkedDataDumpable):
+    """
+    An entity with citations that support it.
+    """
+
     def __init__(  # type: ignore[misc]
         self: HasCitations & Entity,
         *args: Any,
@@ -565,6 +670,9 @@ class HasCitations(LinkedDataDumpable):
 
     @property
     def citations(self) -> EntityCollection[Citation]:  # type: ignore[empty-body]
+        """
+        The citations supporting this entity.
+        """
         pass  # pragma: no cover
 
     @citations.setter
@@ -575,6 +683,7 @@ class HasCitations(LinkedDataDumpable):
     def citations(self) -> None:
         pass  # pragma: no cover
 
+    @override
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
         dump["citations"] = [
@@ -586,6 +695,7 @@ class HasCitations(LinkedDataDumpable):
         ]
         return dump
 
+    @override
     @classmethod
     async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
         schema = await super().linked_data_schema(app)
@@ -610,6 +720,17 @@ class File(
     UserFacingEntity,
     Entity,
 ):
+    """
+    A file on disk.
+
+    This includes but is not limited to:
+
+    - images
+    - video
+    - audio
+    - PDF documents
+    """
+
     def __init__(
         self,
         path: Path,
@@ -639,6 +760,9 @@ class File(
 
     @property
     def entities(self) -> EntityCollection[Entity]:  # type: ignore[empty-body]
+        """
+        The entities associated with this file.
+        """
         pass  # pragma: no cover
 
     @entities.setter
@@ -649,22 +773,29 @@ class File(
     def entities(self) -> None:
         pass  # pragma: no cover
 
+    @override
     @classmethod
     def entity_type_label(cls) -> Str:
         return Str._("File")  # pragma: no cover
 
+    @override
     @classmethod
     def entity_type_label_plural(cls) -> Str:
         return Str._("Files")  # pragma: no cover
 
     @property
     def path(self) -> Path:
+        """
+        The file's path on disk.
+        """
         return self._path
 
+    @override
     @property
     def label(self) -> Str:
         return Str.plain(self.description) if self.description else super().label
 
+    @override
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
         dump["entities"] = [
@@ -676,6 +807,7 @@ class File(
         ]
         return dump
 
+    @override
     @classmethod
     async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
         schema = await super().linked_data_schema(app)
@@ -689,6 +821,10 @@ class File(
 
 @many_to_many("files", "betty.model.ancestry.File", "entities")
 class HasFiles:
+    """
+    An entity that has associated :py:class:`betty.model.ancestry.File` entities.
+    """
+
     def __init__(  # type: ignore[misc]
         self: HasFiles & Entity,
         *args: Any,
@@ -704,6 +840,9 @@ class HasFiles:
 
     @property
     def files(self) -> EntityCollection[File]:  # type: ignore[empty-body]
+        """
+        The files directly associated with this entity.
+        """
         pass  # pragma: no cover
 
     @files.setter
@@ -716,6 +855,9 @@ class HasFiles:
 
     @property
     def associated_files(self) -> Iterable[File]:
+        """
+        All files directly or indirectly associated with this entity.
+        """
         return self.files
 
 
@@ -725,6 +867,11 @@ class HasFiles:
 class Source(
     Dated, HasFiles, HasNotes, HasLinksEntity, HasPrivacy, UserFacingEntity, Entity
 ):
+    """
+    A source of information.
+    """
+
+    #: The source this one is directly contained by.
     contained_by: Source | None
 
     def __init__(
@@ -762,6 +909,7 @@ class Source(
         if contains is not None:
             self.contains = contains  # type: ignore[assignment]
 
+    @override
     def _get_effective_privacy(self) -> Privacy:
         privacy = super()._get_effective_privacy()
         if self.contained_by:
@@ -770,6 +918,9 @@ class Source(
 
     @property
     def contains(self) -> EntityCollection[Source]:  # type: ignore[empty-body]
+        """
+        The sources directly contained by this one.
+        """
         pass  # pragma: no cover
 
     @contains.setter
@@ -782,6 +933,9 @@ class Source(
 
     @property
     def citations(self) -> EntityCollection[Citation]:  # type: ignore[empty-body]
+        """
+        The citations/references to this source.
+        """
         pass
 
     @citations.setter
@@ -794,22 +948,29 @@ class Source(
 
     @property
     def walk_contains(self) -> Iterator[Source]:
+        """
+        All directly and indirectly contained sources.
+        """
         for source in self.contains:
             yield source
             yield from source.contains
 
+    @override
     @classmethod
     def entity_type_label(cls) -> Str:
         return Str._("Source")  # pragma: no cover
 
+    @override
     @classmethod
     def entity_type_label_plural(cls) -> Str:
         return Str._("Sources")  # pragma: no cover
 
+    @override
     @property
     def label(self) -> Str:
         return Str.plain(self.name) if self.name else super().label
 
+    @override
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
         dump["@type"] = "https://schema.org/Thing"
@@ -843,6 +1004,7 @@ class Source(
                 dump["publisher"] = self.publisher
         return dump
 
+    @override
     @classmethod
     async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
         schema = await super().linked_data_schema(app)
@@ -903,9 +1065,9 @@ class Source(
 @deprecated(
     f"This class is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. No direct replacement is available. Instead, set the privacy for {Source} entities accordingly."
 )
-class AnonymousSource(Source):
+class AnonymousSource(Source):  # noqa D101
     @property  # type: ignore[override]
-    def name(self) -> str:
+    def name(self) -> str:  # noqa D102
         return "private"
 
     @name.setter
@@ -922,6 +1084,10 @@ class AnonymousSource(Source):
 @many_to_many("facts", "betty.model.ancestry.HasCitations", "citations")
 @many_to_one("source", "betty.model.ancestry.Source", "citations")
 class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, Entity):
+    """
+    A citation (a reference to a source).
+    """
+
     def __init__(
         self,
         *,
@@ -948,6 +1114,7 @@ class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, En
         self.location = location
         self.source = source
 
+    @override
     def _get_effective_privacy(self) -> Privacy:
         privacy = super()._get_effective_privacy()
         if self.source:
@@ -956,6 +1123,9 @@ class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, En
 
     @property
     def facts(self) -> EntityCollection[HasCitations & Entity]:  # type: ignore[empty-body]
+        """
+        The facts (other resources) supported by this citation.
+        """
         pass  # pragma: no cover
 
     @facts.setter
@@ -966,18 +1136,22 @@ class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, En
     def facts(self) -> None:
         pass  # pragma: no cover
 
+    @override
     @classmethod
     def entity_type_label(cls) -> Str:
         return Str._("Citation")  # pragma: no cover
 
+    @override
     @classmethod
     def entity_type_label_plural(cls) -> Str:
         return Str._("Citations")  # pragma: no cover
 
+    @override
     @property
     def label(self) -> Str:
         return self.location or Str.plain("")
 
+    @override
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
         dump["@type"] = "https://schema.org/Thing"
@@ -996,6 +1170,7 @@ class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, En
             )
         return dump
 
+    @override
     @classmethod
     async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
         schema = await super().linked_data_schema(app)
@@ -1011,9 +1186,9 @@ class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, En
 @deprecated(
     f"This class is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. No direct replacement is available. Instead, set the privacy for {Citation} entities accordingly."
 )
-class AnonymousCitation(Citation):
+class AnonymousCitation(Citation):  # noqa D101
     @property  # type: ignore[override]
-    def location(self) -> Str:
+    def location(self) -> Str:  # noqa D102
         return Str._(
             "private (in order to protect people's privacy)"
         )  # pragma: no cover
@@ -1030,6 +1205,12 @@ class AnonymousCitation(Citation):
 
 
 class PlaceName(Localized, Dated, LinkedDataDumpable):
+    """
+    A place name.
+
+    A name has a locale and a date during which the name was in use.
+    """
+
     def __init__(
         self,
         name: str,
@@ -1043,27 +1224,35 @@ class PlaceName(Localized, Dated, LinkedDataDumpable):
         )
         self._name = name
 
+    @override
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, self.__class__):
             return NotImplemented  # pragma: no cover
         return self._name == other._name and self.locale == other.locale
 
+    @override
     @recursive_repr()
     def __repr__(self) -> str:
         return repr_instance(self, name=self.name, locale=self.locale)
 
+    @override
     def __str__(self) -> str:
         return self._name
 
     @property
     def name(self) -> str:
+        """
+        The human-readable name.
+        """
         return self._name
 
+    @override
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
         dump["name"] = self.name
         return dump
 
+    @override
     @classmethod
     async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
         schema = await super().linked_data_schema(app)
@@ -1080,7 +1269,15 @@ class PlaceName(Localized, Dated, LinkedDataDumpable):
     "encloses",
 )
 class Enclosure(Dated, HasCitations, Entity):
+    """
+    The enclosure of one place by another.
+
+    Enclosures describe the outer (```enclosed_by`) and inner(``encloses``) places, and their relationship.
+    """
+
+    #: The inner place.
     encloses: Place | None
+    #: The outer place.
     enclosed_by: Place | None
 
     def __init__(
@@ -1092,10 +1289,12 @@ class Enclosure(Dated, HasCitations, Entity):
         self.encloses = encloses
         self.enclosed_by = enclosed_by
 
+    @override
     @classmethod
     def entity_type_label(cls) -> Str:
         return Str._("Enclosure")  # pragma: no cover
 
+    @override
     @classmethod
     def entity_type_label_plural(cls) -> Str:
         return Str._("Enclosures")  # pragma: no cover
@@ -1105,6 +1304,14 @@ class Enclosure(Dated, HasCitations, Entity):
 @one_to_many("enclosed_by", "betty.model.ancestry.Enclosure", "encloses")
 @one_to_many("encloses", "betty.model.ancestry.Enclosure", "enclosed_by")
 class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, Entity):
+    """
+    A place.
+
+    A place is a physical location on earth. It may be identifiable by GPS coordinates only, or
+    be a well-known city, with names in many languages, imagery, and its own Wikipedia page, or
+    any type of place in between.
+    """
+
     def __init__(
         self,
         *,
@@ -1139,6 +1346,9 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
 
     @property
     def enclosed_by(self) -> EntityCollection[Enclosure]:  # type: ignore[empty-body]
+        """
+        The places this one is or was directly enclosed by.
+        """
         pass  # pragma: no cover
 
     @enclosed_by.setter
@@ -1151,6 +1361,9 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
 
     @property
     def encloses(self) -> EntityCollection[Enclosure]:  # type: ignore[empty-body]
+        """
+        The places that are or were directly enclosed by this one.
+        """
         pass  # pragma: no cover
 
     @encloses.setter
@@ -1163,6 +1376,9 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
 
     @property
     def events(self) -> EntityCollection[Event]:  # type: ignore[empty-body]
+        """
+        The events that happened in or at this place.
+        """
         pass  # pragma: no cover
 
     @events.setter
@@ -1175,31 +1391,43 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
 
     @property
     def walk_encloses(self) -> Iterator[Enclosure]:
+        """
+        All enclosed places.
+        """
         for enclosure in self.encloses:
             yield enclosure
             if enclosure.encloses is not None:
                 yield from enclosure.encloses.walk_encloses
 
+    @override
     @classmethod
     def entity_type_label(cls) -> Str:
         return Str._("Place")  # pragma: no cover
 
+    @override
     @classmethod
     def entity_type_label_plural(cls) -> Str:
         return Str._("Places")  # pragma: no cover
 
     @property
     def names(self) -> list[PlaceName]:
+        """
+        The place's names.
+        """
         return self._names
 
     @property
     def coordinates(self) -> Point | None:
+        """
+        The place's coordinates.
+        """
         return self._coordinates
 
     @coordinates.setter
     def coordinates(self, coordinates: Point):
         self._coordinates = coordinates
 
+    @override
     @property
     def label(self) -> Str:
         # @todo Negotiate this by locale and date.
@@ -1207,12 +1435,14 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
             return Str.plain(self.names[0].name)
         return super().label
 
+    @override
     @property
     def associated_files(self) -> Iterable[File]:
         yield from self.files
         for event in self.events:
             yield from event.files
 
+    @override
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
         dump_context(
@@ -1262,6 +1492,7 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
             )
         return dump
 
+    @override
     @classmethod
     async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
         schema = await super().linked_data_schema(app)
@@ -1298,12 +1529,22 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
 
 
 class PresenceRole:
+    """
+    A person's role at an event.
+    """
+
     @classmethod
     def name(cls) -> str:
+        """
+        The machine name.
+        """
         raise NotImplementedError(repr(cls))
 
     @property
     def label(self) -> Str:
+        """
+        The human-readable label.
+        """
         raise NotImplementedError(repr(self))
 
 
@@ -1323,70 +1564,122 @@ def ref_role(root_schema: DictDump[Dump]) -> DictDump[Dump]:
 
 
 class Subject(PresenceRole):
+    """
+    Someone was the subject of the event.
+
+    The meaning of this role depends on the event type. For example, for :py:class:`betty.model.event_type.Marriage`,
+    the subjects are the people who got married. For :py:class:`betty.model.event_type.Death` it is the person who
+    died.
+    """
+
+    @override
     @classmethod
     def name(cls) -> str:
         return "subject"
 
+    @override
     @property
     def label(self) -> Str:
         return Str._("Subject")  # pragma: no cover
 
 
 class Witness(PresenceRole):
+    """
+    Someone `witnessed <https://en.wikipedia.org/wiki/Witness>`_ the event.
+    """
+
+    @override
     @classmethod
     def name(cls) -> str:
         return "witness"  # pragma: no cover
 
+    @override
     @property
     def label(self) -> Str:
         return Str._("Witness")  # pragma: no cover
 
 
 class Beneficiary(PresenceRole):
+    """
+    Someone was a `benificiary <https://en.wikipedia.org/wiki/Beneficiary>`_ in the event, such as a :py:class:`betty.model.event_type.Will`.
+    """
+
+    @override
     @classmethod
     def name(cls) -> str:
         return "beneficiary"  # pragma: no cover
 
+    @override
     @property
     def label(self) -> Str:
         return Str._("Beneficiary")  # pragma: no cover
 
 
 class Attendee(PresenceRole):
+    """
+    Someone attended the event (further details unknown).
+    """
+
+    @override
     @classmethod
     def name(cls) -> str:
         return "attendee"  # pragma: no cover
 
+    @override
     @property
     def label(self) -> Str:
         return Str._("Attendee")  # pragma: no cover
 
 
 class Speaker(PresenceRole):
+    """
+    Someone performed public speaking at the event.
+    """
+
+    @override
     @classmethod
     def name(cls) -> str:
         return "speaker"  # pragma: no cover
 
+    @override
     @property
     def label(self) -> Str:
         return Str._("Speaker")  # pragma: no cover
 
 
 class Celebrant(PresenceRole):
+    """
+    Someone was the `celebrant <https://en.wikipedia.org/wiki/Officiant>`_ at the event.
+
+    This includes but is not limited to:
+
+    - civil servant
+    - religious leader
+    - civilian
+    """
+
+    @override
     @classmethod
     def name(cls) -> str:
         return "celebrant"  # pragma: no cover
 
+    @override
     @property
     def label(self) -> Str:
         return Str._("Celebrant")  # pragma: no cover
 
 
 class Organizer(PresenceRole):
+    """
+    Someone organized the event.
+    """
+
+    @override
     @classmethod
     def name(cls) -> str:
         return "organizer"  # pragma: no cover
 
+    @override
     @property
     def label(self) -> Str:
         return Str._("Organizer")  # pragma: no cover
@@ -1401,8 +1694,15 @@ class Organizer(PresenceRole):
     "presences",
 )
 class Presence(HasPrivacy, Entity):
+    """
+    The presence of a :py:class:`betty.model.ancestry.Person` at an :py:class:`betty.model.ancestry.Event`.
+    """
+
+    #: The person whose presence is described.
     person: Person | None
+    #: The event the person was present at.
     event: Event | None
+    #: The role the person performed at the event.
     role: PresenceRole
 
     def __init__(
@@ -1416,14 +1716,17 @@ class Presence(HasPrivacy, Entity):
         self.role = role
         self.event = event
 
+    @override
     @classmethod
     def entity_type_label(cls) -> Str:
         return Str._("Presence")  # pragma: no cover
 
+    @override
     @classmethod
     def entity_type_label_plural(cls) -> Str:
         return Str._("Presences")  # pragma: no cover
 
+    @override
     @property
     def label(self) -> Str:
         return Str._(
@@ -1432,6 +1735,7 @@ class Presence(HasPrivacy, Entity):
             event=self.event.label if self.event else Str._("Unknown"),
         )
 
+    @override
     def _get_effective_privacy(self) -> Privacy:
         return merge_privacies(
             super()._get_effective_privacy(),
@@ -1453,6 +1757,11 @@ class Event(
     UserFacingEntity,
     Entity,
 ):
+    """
+    An event that took place.
+    """
+
+    #: The place the event happened.
     place: Place | None
 
     def __init__(
@@ -1485,6 +1794,7 @@ class Event(
         if place is not None:
             self.place = place
 
+    @override
     @property
     def label(self) -> Str:
         format_kwargs: dict[str, str | Localizable] = {
@@ -1519,12 +1829,16 @@ class Event(
         else:
             return Str._("{event_type} ({event_description})", **format_kwargs)
 
+    @override
     @recursive_repr()
     def __repr__(self) -> str:
         return repr_instance(self, id=self._id, type=self._event_type)
 
     @property
     def presences(self) -> EntityCollection[Presence]:  # type: ignore[empty-body]
+        """
+        People's presences at this event.
+        """
         pass  # pragma: no cover
 
     @presences.setter
@@ -1535,18 +1849,24 @@ class Event(
     def presences(self) -> None:
         pass  # pragma: no cover
 
+    @override
     @classmethod
     def entity_type_label(cls) -> Str:
         return Str._("Event")  # pragma: no cover
 
+    @override
     @classmethod
     def entity_type_label_plural(cls) -> Str:
         return Str._("Events")  # pragma: no cover
 
     @property
     def event_type(self) -> type[EventType]:
+        """
+        The type of event.
+        """
         return self._event_type
 
+    @override
     @property
     def associated_files(self) -> Iterable[File]:
         files = [
@@ -1560,6 +1880,7 @@ class Event(
         # Preserve the original order.
         yield from Uniquifier(files)
 
+    @override
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
         dump_context(dump, presences="performer")
@@ -1598,6 +1919,7 @@ class Event(
             dump["role"] = presence.role.name()
         return dump
 
+    @override
     @classmethod
     async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
         schema = await super().linked_data_schema(app)
@@ -1658,6 +1980,11 @@ class Event(
 
 @many_to_one("person", "betty.model.ancestry.Person", "names")
 class PersonName(Localized, HasCitations, HasPrivacy, Entity):
+    """
+    A name for a :py:class:`betty.model.ancestry.Person`.
+    """
+
+    #: The person whose name this is.
     person: Person | None
 
     def __init__(
@@ -1689,33 +2016,54 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
         # individual and affiliation names.
         self.person = person
 
+    @override
     def _get_effective_privacy(self) -> Privacy:
         privacy = super()._get_effective_privacy()
         if self.person:
             return merge_privacies(privacy, self.person.privacy)
         return privacy
 
+    @override
     def __repr__(self) -> str:
         return repr_instance(
             self, id=self.id, individual=self.individual, affiliation=self.affiliation
         )
 
+    @override
     @classmethod
     def entity_type_label(cls) -> Str:
         return Str._("Person name")  # pragma: no cover
 
+    @override
     @classmethod
     def entity_type_label_plural(cls) -> Str:
         return Str._("Person names")  # pragma: no cover
 
     @property
     def individual(self) -> str | None:
+        """
+        The name's individual component.
+
+        Also known as:
+
+        - first name
+        - given name
+        """
         return self._individual
 
     @property
     def affiliation(self) -> str | None:
+        """
+        The name's affiliation, or family component.
+
+        Also known as:
+
+        - last name
+        - surname
+        """
         return self._affiliation
 
+    @override
     @property
     def label(self) -> Str:
         return Str._(
@@ -1724,6 +2072,7 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
             affiliation_name="…" if not self.affiliation else self.affiliation,
         )
 
+    @override
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
         if self.public:
@@ -1735,6 +2084,7 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
                 dump["affiliation"] = self.affiliation
         return dump
 
+    @override
     @classmethod
     async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
         schema = await super().linked_data_schema(app)
@@ -1770,6 +2120,10 @@ class Person(
     UserFacingEntity,
     Entity,
 ):
+    """
+    A person.
+    """
+
     def __init__(
         self,
         *,
@@ -1807,6 +2161,9 @@ class Person(
 
     @property
     def parents(self) -> EntityCollection[Person]:  # type: ignore[empty-body]
+        """
+        All parents.
+        """
         pass  # pragma: no cover
 
     @parents.setter
@@ -1819,6 +2176,9 @@ class Person(
 
     @property
     def children(self) -> EntityCollection[Person]:  # type: ignore[empty-body]
+        """
+        All children.
+        """
         pass  # pragma: no cover
 
     @children.setter
@@ -1831,6 +2191,9 @@ class Person(
 
     @property
     def presences(self) -> EntityCollection[Presence]:  # type: ignore[empty-body]
+        """
+        All presences at events.
+        """
         pass  # pragma: no cover
 
     @presences.setter
@@ -1843,6 +2206,9 @@ class Person(
 
     @property
     def names(self) -> EntityCollection[PersonName]:  # type: ignore[empty-body]
+        """
+        The person's names.
+        """
         pass  # pragma: no cover
 
     @names.setter
@@ -1853,22 +2219,30 @@ class Person(
     def names(self) -> None:
         pass  # pragma: no cover
 
+    @override
     @classmethod
     def entity_type_label(cls) -> Str:
         return Str._("Person")  # pragma: no cover
 
+    @override
     @classmethod
     def entity_type_label_plural(cls) -> Str:
         return Str._("People")  # pragma: no cover
 
     @property
     def ancestors(self) -> Iterator[Person]:
+        """
+        All ancestors.
+        """
         for parent in self.parents:
             yield parent
             yield from parent.ancestors
 
     @property
     def siblings(self) -> list[Person]:
+        """
+        All siblings.
+        """
         siblings = []
         for parent in self.parents:
             for sibling in parent.children:
@@ -1878,10 +2252,14 @@ class Person(
 
     @property
     def descendants(self) -> Iterator[Person]:
+        """
+        All descendants.
+        """
         for child in self.children:
             yield child
             yield from child.descendants
 
+    @override
     @property
     def associated_files(self) -> Iterable[File]:
         files = [
@@ -1902,6 +2280,7 @@ class Person(
         # Preserve the original order.
         yield from Uniquifier(files)
 
+    @override
     @property
     def label(self) -> Str:
         for name in self.names:
@@ -1909,6 +2288,7 @@ class Person(
                 return name.label
         return super().label
 
+    @override
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
         dump_context(
@@ -1960,6 +2340,7 @@ class Person(
             dump["role"] = presence.role.name()
         return dump
 
+    @override
     @classmethod
     async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
         schema = await super().linked_data_schema(app)
@@ -2018,11 +2399,21 @@ class Person(
 
 
 class Ancestry(MultipleTypesEntityCollection[Entity]):
+    """
+    An ancestry contains all the entities of a single family tree/genealogical data set.
+    """
+
     def __init__(self):
         super().__init__()
         self._check_graph = True
 
     def add_unchecked_graph(self, *entities: Entity) -> None:
+        """
+        Add entities to the ancestry but do not automatically add associates as well.
+
+        It is the caller's responsibility to ensure all associates are added to the ancestry.
+        If this is done, calling this method is faster than the usual entity collection methods.
+        """
         self._check_graph = False
         try:
             self.add(*entities)

@@ -94,6 +94,13 @@ class _Open:
 
 
 class FileSystem:
+    """
+    A layered file system.
+
+    A file system unifies several directory paths on disk, overlaying them on
+    each other. Paths added later act as fallbacks, e.g. earlier paths have priority.
+    """
+
     def __init__(self, *paths: tuple[Path, str | None]):
         self._paths = deque(paths)
 
@@ -102,18 +109,38 @@ class FileSystem:
 
     @property
     def paths(self) -> Sequence[tuple[Path, str | None]]:
+        """
+        The paths to the individual layers.
+        """
         return list(self._paths)
 
     def prepend(self, path: Path, fs_encoding: str | None = None) -> None:
+        """
+        Prepend a layer path, e.g. override existing layers with the given one.
+        """
         self._paths.appendleft((path, fs_encoding))
 
     def clear(self) -> None:
+        """
+        Clear all layers from the file system.
+        """
         self._paths.clear()
 
     def open(self, *file_paths: Path) -> _Open:
+        """
+        Open a file.
+
+        :param file_paths: One or more file paths within the file system. The first file path to exist
+        will cause this function to return. Previously missing file paths will not cause errors.
+
+        :raise FileNotFoundError: Raised when none of the provided paths matches an existing file.
+        """
         return _Open(self, file_paths)
 
     async def copy2(self, source_path: Path, destination_path: Path) -> Path:
+        """
+        Copy a file to a destination using :py:func:`shutil.copy2`.
+        """
         for fs_path, _ in self._paths:
             with suppress(FileNotFoundError):
                 await asyncio.to_thread(copy2, fs_path / source_path, destination_path)
@@ -124,6 +151,9 @@ class FileSystem:
     async def copytree(
         self, source_path: Path, destination_path: Path
     ) -> AsyncIterable[Path]:
+        """
+        Recursively copy the files in a directory tree to another directory.
+        """
         file_destination_paths = set()
         for fs_path, _ in self._paths:
             async for file_source_path in iterfiles(fs_path / source_path):

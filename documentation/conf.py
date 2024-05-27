@@ -73,9 +73,12 @@ modindex_common_prefix = ["betty."]
 collapse_navigation = True
 
 # sphinx.ext.autodoc configuration.
+autodoc_class_signature = "separated"
 autodoc_member_order = "alphabetical"
 
 # sphinx_autodoc_typehints configuration.
 set_type_checking_flag = True
 typehints_fully_qualified = True
+typehints_use_signature = True
+typehints_use_signature_return = True
 always_document_param_types = True

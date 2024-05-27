@@ -11,6 +11,8 @@ from threading import Lock
 from types import TracebackType
 from typing import Self
 
+from typing_extensions import override
+
 from betty.asyncio import gather
 
 
@@ -31,9 +33,15 @@ class _Lock:
         self.release()
 
     async def acquire(self, *, wait: bool = True) -> bool:
+        """
+        Acquire the lock.
+        """
         raise NotImplementedError
 
     def release(self) -> None:
+        """
+        Release the lock.
+        """
         raise NotImplementedError
 
 
@@ -61,14 +69,19 @@ class AsynchronizedLock(_Lock):
     def __init__(self, lock: Lock):
         self._lock = lock
 
+    @override
     async def acquire(self, *, wait: bool = True) -> bool:
         return await asynchronize_acquire(self._lock, wait=wait)
 
+    @override
     def release(self) -> None:
         self._lock.release()
 
     @classmethod
     def threading(cls) -> Self:
+        """
+        Create a new thread-safe, asynchronous lock.
+        """
         return cls(threading.Lock())
 
 
@@ -83,6 +96,7 @@ class MultiLock(_Lock):
         self._locks = locks
         self._locked = False
 
+    @override
     async def acquire(self, *, wait: bool = True) -> bool:
         acquisitions = await gather(*(lock.acquire(wait=wait) for lock in self._locks))
         # We require all locks to be acquired, or none at all
@@ -95,6 +109,7 @@ class MultiLock(_Lock):
         self._locked = True
         return True
 
+    @override
     def release(self) -> None:
         self._locked = False
         for lock in self._locks:
@@ -144,6 +159,9 @@ class RateLimiter:
         return
 
     async def wait(self) -> None:
+        """
+        Wait until an operation may be performed (again).
+        """
         async with self._lock:
             while self._available < 1:
                 self._add_tokens()

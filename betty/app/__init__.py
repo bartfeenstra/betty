@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, Mapping, Self, Any, final
 
 import aiohttp
 from aiofiles.tempfile import TemporaryDirectory
+from typing_extensions import override
 
 from betty import fs
 from betty.app.extension import (
@@ -89,6 +90,10 @@ class _AppExtensions(ListExtensions):
 
 
 class AppConfiguration(FileBasedConfiguration):
+    """
+    Provide configuration for :py:class:`betty.app.App`.
+    """
+
     def __init__(
         self,
         configuration_directory_path: Path | None = None,
@@ -105,12 +110,13 @@ class AppConfiguration(FileBasedConfiguration):
         self._configuration_directory_path = configuration_directory_path
         self._locale: str | None = locale
 
+    @override
     @property
     def configuration_file_path(self) -> Path:
         return self._configuration_directory_path / "app.json"
 
     @configuration_file_path.setter
-    def configuration_file_path(self, __) -> None:
+    def configuration_file_path(self, __: Path) -> None:
         pass
 
     @configuration_file_path.deleter
@@ -119,6 +125,9 @@ class AppConfiguration(FileBasedConfiguration):
 
     @property
     def locale(self) -> str | None:
+        """
+        The application locale.
+        """
         return self._locale
 
     @locale.setter
@@ -135,10 +144,12 @@ class AppConfiguration(FileBasedConfiguration):
         self._locale = locale
         self._dispatch_change()
 
+    @override
     def update(self, other: Self) -> None:
         self._locale = other._locale
         self._dispatch_change()
 
+    @override
     @classmethod
     def load(
         cls,
@@ -159,6 +170,7 @@ class AppConfiguration(FileBasedConfiguration):
         )(dump)
         return configuration
 
+    @override
     def dump(self) -> VoidableDump:
         return minimize({"locale": void_none(self.locale)}, True)
 
@@ -171,6 +183,7 @@ class _BackwardsCompatiblePickledFileCache(PickledFileCache[Any], FileCache):
        This class is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x.
     """
 
+    @override
     @property
     def path(self) -> Path:
         return self._path
@@ -178,6 +191,10 @@ class _BackwardsCompatiblePickledFileCache(PickledFileCache[Any], FileCache):
 
 @final
 class App(Configurable[AppConfiguration]):
+    """
+    The Betty application.
+    """
+
     def __init__(
         self,
         configuration: AppConfiguration | None = None,
@@ -233,6 +250,9 @@ class App(Configurable[AppConfiguration]):
         *,
         project: Project | None = None,
     ) -> AsyncIterator[Self]:
+        """
+        Create a new application from the environment.
+        """
         yield cls(
             AppConfiguration(CONFIGURATION_DIRECTORY_PATH),
             project,
@@ -247,6 +267,9 @@ class App(Configurable[AppConfiguration]):
         *,
         project: Project | None = None,
     ) -> AsyncIterator[Self]:
+        """
+        Create a new application from an existing application.
+        """
         yield cls(
             AppConfiguration(app.configuration._configuration_directory_path),
             app.project if project is None else project,
@@ -260,6 +283,12 @@ class App(Configurable[AppConfiguration]):
         *,
         project: Project | None = None,
     ) -> AsyncIterator[Self]:
+        """
+        Creat a new, temporary, isolated application.
+
+        The application will not use any persistent caches, or leave
+        any traces on the system.
+        """
         async with (
             TemporaryDirectory() as configuration_directory_path_str,
             TemporaryDirectory() as cache_directory_path_str,
@@ -283,11 +312,17 @@ class App(Configurable[AppConfiguration]):
         await self.stop()
 
     async def start(self) -> None:
+        """
+        Start the application.
+        """
         if self._started:
             raise RuntimeError("This app has started already.")
         self._started = True
 
     async def stop(self) -> None:
+        """
+        Stop the application.
+        """
         del self.http_client
         self._started = False
 
@@ -301,9 +336,15 @@ class App(Configurable[AppConfiguration]):
 
     @property
     def project(self) -> Project:
+        """
+        The project.
+        """
         return self._project
 
     def discover_extension_types(self) -> set[type[Extension]]:
+        """
+        Discover the available extension types.
+        """
         from betty.app import extension
 
         return {
@@ -313,6 +354,9 @@ class App(Configurable[AppConfiguration]):
 
     @property
     def extensions(self) -> Extensions:
+        """
+        The enabled extensions.
+        """
         if not self._extensions_initialized:
             self._extensions_initialized = True
             self._update_extensions()
@@ -376,6 +420,9 @@ class App(Configurable[AppConfiguration]):
 
     @property
     def assets(self) -> FileSystem:
+        """
+        The assets file system.
+        """
         if self._assets is None:
             assets = FileSystem()
             assets.prepend(fs.ASSETS_DIRECTORY_PATH, "utf-8")
@@ -393,6 +440,9 @@ class App(Configurable[AppConfiguration]):
 
     @property
     def dispatcher(self) -> Dispatcher:
+        """
+        The event dispatcher.
+        """
         if self._dispatcher is None:
             self._dispatcher = ExtensionDispatcher(self.extensions)
 
@@ -400,6 +450,9 @@ class App(Configurable[AppConfiguration]):
 
     @property
     def url_generator(self) -> LocalizedUrlGenerator:
+        """
+        The (localized) URL generator.
+        """
         from betty.url import AppUrlGenerator
 
         if self._url_generator is None:
@@ -408,6 +461,9 @@ class App(Configurable[AppConfiguration]):
 
     @property
     def static_url_generator(self) -> StaticUrlGenerator:
+        """
+        The static URL generator.
+        """
         from betty.url import StaticPathUrlGenerator
 
         if self._static_url_generator is None:
@@ -437,6 +493,9 @@ class App(Configurable[AppConfiguration]):
 
     @property
     def localizers(self) -> LocalizerRepository:
+        """
+        The available localizers.
+        """
         if self._localizers is None:
             self._localizers = LocalizerRepository(self.assets)
         return self._localizers
@@ -447,6 +506,9 @@ class App(Configurable[AppConfiguration]):
 
     @property
     def jinja2_environment(self) -> Environment:
+        """
+        The Jinja2 environment.
+        """
         if not self._jinja2_environment:
             from betty.jinja2 import Environment
 
@@ -460,6 +522,9 @@ class App(Configurable[AppConfiguration]):
 
     @property
     def renderer(self) -> Renderer:
+        """
+        The (file) content renderer.
+        """
         if not self._renderer:
             from betty.jinja2 import Jinja2Renderer
 
@@ -477,6 +542,9 @@ class App(Configurable[AppConfiguration]):
 
     @property
     def http_client(self) -> aiohttp.ClientSession:
+        """
+        The HTTP client.
+        """
         if not self._http_client:
             self._http_client = aiohttp.ClientSession(
                 connector=aiohttp.TCPConnector(limit_per_host=5),
@@ -502,6 +570,9 @@ class App(Configurable[AppConfiguration]):
 
     @property
     def entity_types(self) -> set[type[Entity]]:
+        """
+        The available entity types.
+        """
         if self._entity_types is None:
             from betty.model.ancestry import (
                 Citation,
@@ -540,6 +611,9 @@ class App(Configurable[AppConfiguration]):
 
     @property
     def event_types(self) -> set[type[EventType]]:
+        """
+        The available event types.
+        """
         if self._event_types is None:
             self._event_types = set(
                 wait_to_thread(self.dispatcher.dispatch(EventTypeProvider)())
@@ -573,6 +647,9 @@ class App(Configurable[AppConfiguration]):
 
     @property
     def servers(self) -> Mapping[str, Server]:
+        """
+        The available web servers.
+        """
         from betty import serve
         from betty.extension.demo import DemoServer
 
@@ -592,6 +669,9 @@ class App(Configurable[AppConfiguration]):
 
     @property
     def cache(self) -> Cache[Any] & FileCache:
+        """
+        The cache.
+        """
         if self._cache is None:
             self._cache = _BackwardsCompatiblePickledFileCache(
                 self.localizer, self._cache_directory_path
@@ -604,6 +684,9 @@ class App(Configurable[AppConfiguration]):
 
     @property
     def binary_file_cache(self) -> BinaryFileCache:
+        """
+        The binary file cache.
+        """
         if self._binary_file_cache is None:
             self._binary_file_cache = BinaryFileCache(
                 self.localizer, self._cache_directory_path
@@ -616,6 +699,11 @@ class App(Configurable[AppConfiguration]):
 
     @property
     def process_pool(self) -> Executor:
+        """
+        The shared process pool.
+
+        Use this to run CPU/computationally-heavy tasks in other processes.
+        """
         if self._process_pool is None:
             # Avoid `fork` so as not to start worker processes with unneeded resources.
             # Settle for `spawn` so all environments use the same start method.

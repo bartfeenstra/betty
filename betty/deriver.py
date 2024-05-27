@@ -18,12 +18,25 @@ from betty.model.event_type import (
 
 
 class Derivation(Enum):
+    """
+    Derivation types.
+    """
+
+    #: No derivation took place.
     NONE = 1
+
+    #: The derivation created new data.
     CREATE = 2
+
+    #: The derivation updated existing data.
     UPDATE = 3
 
 
 class Deriver:
+    """
+    Derive information from ancestries, and create new entities or update existing ones.
+    """
+
     def __init__(
         self,
         ancestry: Ancestry,
@@ -39,6 +52,9 @@ class Deriver:
         self._localizer = localizer
 
     async def derive(self) -> None:
+        """
+        Derive additional data.
+        """
         logger = logging.getLogger(__name__)
         for derivable_event_type in self._derivable_event_type:
             created_derivations = 0

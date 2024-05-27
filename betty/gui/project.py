@@ -83,6 +83,10 @@ class _PaneButton(QPushButton):
 @final
 @internal
 class GenerateHtmlListForm(LocalizedObject, QWidget):
+    """
+    A form widget to configure whether to generate entity listing HTML pages for the project's entity types.
+    """
+
     def __init__(self, app: App):
         super().__init__(app)
         self._form = QFormLayout()
@@ -143,6 +147,10 @@ class GenerateHtmlListForm(LocalizedObject, QWidget):
 @final
 @internal
 class GeneralPane(LocalizedObject, QWidget):
+    """
+    A pane to administer general project configuration.
+    """
+
     def __init__(self, app: App):
         super().__init__(app)
 
@@ -305,6 +313,10 @@ class GeneralPane(LocalizedObject, QWidget):
 @final
 @internal
 class LocalesConfigurationWidget(LocalizedObject, QWidget):
+    """
+    A form widget to configuration project locales.
+    """
+
     def __init__(self, app: App):
         super().__init__(app)
 
@@ -409,6 +421,10 @@ class LocalesConfigurationWidget(LocalizedObject, QWidget):
 @final
 @internal
 class LocalizationPane(LocalizedObject, QWidget):
+    """
+    A pane for project localization configuration.
+    """
+
     def __init__(self, app: App):
         super().__init__(app)
 
@@ -424,6 +440,10 @@ class LocalizationPane(LocalizedObject, QWidget):
 @final
 @internal
 class AddLocaleWindow(BettyMainWindow):
+    """
+    A window to add a new project locale.
+    """
+
     window_width = 500
     window_height = 250
 
@@ -504,6 +524,10 @@ class AddLocaleWindow(BettyMainWindow):
 @final
 @internal
 class ExtensionPane(LocalizedObject, QWidget):
+    """
+    A configuration pane for a single extension.
+    """
+
     def __init__(self, app: App, extension_type: type[UserFacingExtension]):
         super().__init__(app)
         self._extension_type = extension_type
@@ -591,6 +615,10 @@ class ExtensionPane(LocalizedObject, QWidget):
 
 @final
 class ProjectWindow(BettyPrimaryWindow):
+    """
+    A window to administer a project.
+    """
+
     def __init__(
         self,
         app: App,
@@ -749,6 +777,9 @@ class ProjectWindow(BettyPrimaryWindow):
         return Str.plain(self._app.project.configuration.title)
 
     def save_project_as(self) -> None:
+        """
+        Copy this project and save it as a new one.
+        """
         with ExceptionCatcher(self):
             configuration_file_path_str, __ = QFileDialog.getSaveFileName(
                 self,
@@ -761,11 +792,17 @@ class ProjectWindow(BettyPrimaryWindow):
             )
 
     def generate(self) -> None:
+        """
+        Generate a site for the project.
+        """
         with ExceptionCatcher(self):
             generate_window = GenerateWindow(self._app, parent=self)
             generate_window.show()
 
     def serve(self) -> None:
+        """
+        Serve the project's generated site.
+        """
         with ExceptionCatcher(self):
             serve_window = ServeProjectWindow(self._app, parent=self)
             serve_window.show()
@@ -801,6 +838,10 @@ class _GenerateThread(QThread):
 @final
 @internal
 class GenerateWindow(BettyMainWindow):
+    """
+    A window to control a site generation job.
+    """
+
     window_width = 500
     window_height = 100
 

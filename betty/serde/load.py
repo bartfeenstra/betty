@@ -20,6 +20,8 @@ from typing import (
     TypeAlias,
 )
 
+from typing_extensions import override
+
 from betty.functools import _Result
 from betty.locale import LocaleNotFoundError, get_data, Str
 from betty.model import (
@@ -48,14 +50,26 @@ NumberT = TypeVar("NumberT", bound=Number)
 
 
 class LoadError(SerdeError):
+    """
+    Raised for any error while deserializing data.
+    """
+
     pass  # pragma: no cover
 
 
 class AssertionFailed(LoadError):
+    """
+    Raised when an assertion failed while deserializing data.
+    """
+
     pass  # pragma: no cover
 
 
 class FormatError(LoadError):
+    """
+    Raised when data that is being deserialized is provided in an unknown (undeserializable) format.
+    """
+
     pass  # pragma: no cover
 
 
@@ -88,6 +102,19 @@ class _Assertions(Generic[CallValueT, CallReturnT, FValueT]):
 class Assertions(
     _Assertions[CallValueT, CallReturnT, CallValueT], Generic[CallValueT, CallReturnT]
 ):
+    """
+    Start an assertions chain.
+
+    Assertion chains let you chain/link/combine assertions into pipelines that take an input
+    value and, if the assertions pass, return an output value. Each chain may be (re)used as many
+    times as needed.
+
+    Assertions chains are `monads <https://en.wikipedia.org/wiki/Monad_(functional_programming)>`_.
+    While uncommon in Python, this allows us to create these chains in a type-safe way, and tools
+    like mypy can confirm that all assertions in any given chain are compatible with each other.
+    """
+
+    @override
     def __call__(self, value: CallValueT) -> _Result[CallReturnT]:
         return _Result(value).map(self._assertion)
 
@@ -104,6 +131,7 @@ class _AssertionExtension(
         super().__init__(_assertion)
         self._extended_assertion = extended_assertion
 
+    @override
     def __call__(self, value: CallValueT) -> _Result[CallReturnT]:
         return self._extended_assertion(value).map(self._assertion)
 
@@ -116,15 +144,27 @@ class _Field(Generic[ValueT, ReturnT]):
 
 @dataclass(frozen=True)
 class RequiredField(Generic[ValueT, ReturnT], _Field[ValueT, ReturnT]):
+    """
+    A required key-value mapping field.
+    """
+
     pass  # pragma: no cover
 
 
 @dataclass(frozen=True)
 class OptionalField(Generic[ValueT, ReturnT], _Field[ValueT, ReturnT]):
+    """
+    An optional key-value mapping field.
+    """
+
     pass  # pragma: no cover
 
 
 class Fields:
+    """
+    A sequence of fields, used to assert key-value mappings.
+    """
+
     def __init__(self, *fields: _Field[Any, Any]):
         self._fields = fields
 
@@ -138,6 +178,10 @@ _AssertionBuilder = "_AssertionBuilderFunction[ValueT, ReturnT] | _AssertionBuil
 
 
 class Asserter:
+    """
+    Provide deserialization assertions.
+    """
+
     def _assert_type_violation_error_message(
         self,
         asserted_type: type[DumpType],
@@ -175,6 +219,10 @@ class Asserter:
         if_assertion: Assertion[ValueT, ReturnT],
         else_assertions: Assertion[ValueT, ReturnU],
     ) -> Assertion[ValueT, ReturnT | ReturnU]:
+        """
+        Assert that at least one of the given assertions passed.
+        """
+
         def _assert_or(value: Any) -> ReturnT | ReturnU:
             assertions = (if_assertion, else_assertions)
             errors = SerdeErrorCollection()
@@ -189,33 +237,56 @@ class Asserter:
         return _assert_or
 
     def assert_none(self) -> Assertion[Any, None]:
+        """
+        Assert that a value is ``None``.
+        """
+
         def _assert_none(value: Any) -> None:
             self._assert_type(value, type(None))
 
         return _assert_none
 
     def assert_bool(self) -> Assertion[Any, bool]:
+        """
+        Assert that a value is a Python ``bool``.
+        """
+
         def _assert_bool(value: Any) -> bool:
             return self._assert_type(value, bool)
 
         return _assert_bool
 
     def assert_int(self) -> Assertion[Any, int]:
+        """
+        Assert that a value is a Python ``int``.
+        """
+
         def _assert_int(value: Any) -> int:
             return self._assert_type(value, int, bool)
 
         return _assert_int
 
     def assert_float(self) -> Assertion[Any, float]:
+        """
+        Assert that a value is a Python ``float``.
+        """
+
         def _assert_float(value: Any) -> float:
             return self._assert_type(value, float)
 
         return _assert_float
 
-    def assert_number(self) -> Assertion[Any, int | float]:
+    def assert_number(self) -> Assertion[Any, Number]:
+        """
+        Assert that a value is a number (a Python ``int`` or ``float``).
+        """
         return self.assert_or(self.assert_int(), self.assert_float())
 
     def assert_positive_number(self) -> Assertion[Any, Number]:
+        """
+        Assert that a vaue is a positive nu,ber.
+        """
+
         def _assert_positive_number(
             value: Any,
         ) -> Number:
@@ -227,18 +298,30 @@ class Asserter:
         return _assert_positive_number
 
     def assert_str(self) -> Assertion[Any, str]:
+        """
+        Assert that a value is a Python ``str``.
+        """
+
         def _assert_str(value: Any) -> str:
             return self._assert_type(value, str)
 
         return _assert_str
 
     def assert_list(self) -> Assertion[Any, list[Any]]:
+        """
+        Assert that a value is a Python ``list``.
+        """
+
         def _assert_list(value: Any) -> list[Any]:
             return self._assert_type(value, list)
 
         return _assert_list
 
     def assert_dict(self) -> Assertion[Any, dict[str, Any]]:
+        """
+        Assert that a value is a Python ``dict``.
+        """
+
         def _assert_dict(value: Any) -> dict[str, Any]:
             return self._assert_type(value, dict)
 
@@ -247,6 +330,10 @@ class Asserter:
     def assert_assertions(
         self, assertions: _Assertions[ValueT, ReturnT, Any]
     ) -> Assertion[Any, ReturnT]:
+        """
+        Assert that an assertions chain passes, and return the chain's output.
+        """
+
         def _assert_assertions(value: Any) -> ReturnT:
             return assertions(value).value
 
@@ -255,6 +342,10 @@ class Asserter:
     def assert_sequence(
         self, item_assertion: Assertions[ValueT, ReturnT]
     ) -> Assertion[Any, MutableSequence[ReturnT]]:
+        """
+        Assert that a value is a sequence and that all item values are of the given type.
+        """
+
         def _assert_sequence(value: ValueT) -> MutableSequence[ReturnT]:
             list_value = self.assert_list()(value)
             sequence = []
@@ -271,6 +362,10 @@ class Asserter:
     def assert_mapping(
         self, item_assertion: Assertions[ValueT, ReturnT]
     ) -> Assertion[Any, MutableMapping[str, ReturnT]]:
+        """
+        Assert that a value is a key-value mapping and assert that all item values are of the given type.
+        """
+
         def _assert_mapping(value: ValueT) -> MutableMapping[str, ReturnT]:
             dict_value = self.assert_dict()(value)
             mapping = {}
@@ -285,6 +380,10 @@ class Asserter:
         return _assert_mapping
 
     def assert_fields(self, fields: Fields) -> Assertion[Any, MutableMapping[str, Any]]:
+        """
+        Assert that a value is a key-value mapping of arbitrary value types, and assert several of its values.
+        """
+
         def _assert_fields(value: Any) -> MutableMapping[str, Any]:
             value_dict = self.assert_dict()(value)
             mapping = {}
@@ -317,6 +416,10 @@ class Asserter:
     def assert_field(
         self, field: _Field[ValueT, ReturnT]
     ) -> Assertion[ValueT, ReturnT | type[Void]]:
+        """
+        Assert that a value is a key-value mapping of arbitrary value types, and assert a single of its values.
+        """
+
         def _assert_field(value: Any) -> ReturnT | type[Void]:
             fields = self.assert_fields(Fields(field))(value)
             try:
@@ -329,6 +432,13 @@ class Asserter:
         return _assert_field
 
     def assert_record(self, fields: Fields) -> Assertion[Any, MutableMapping[str, Any]]:
+        """
+        Assert that a value is a record: a key-value mapping of arbitrary value types, with a known structure.
+
+        To validate a key-value mapping as a records, assertions for all possible keys
+        MUST be provided. Any keys present in the value for which no field assertions
+        are provided will cause the entire record assertion to fail.
+        """
         if not len(list(fields)):
             raise ValueError("One or more fields are required.")
 
@@ -353,6 +463,10 @@ class Asserter:
         return _assert_record
 
     def assert_path(self) -> Assertion[Any, Path]:
+        """
+        Assert that a value is a path to a file or directory on disk that may or may not exist.
+        """
+
         def _assert_path(value: Any) -> Path:
             self.assert_str()(value)
             return Path(value).expanduser().resolve()
@@ -360,6 +474,10 @@ class Asserter:
         return _assert_path
 
     def assert_directory_path(self) -> Assertion[Any, Path]:
+        """
+        Assert that a value is a path to an existing directory.
+        """
+
         def _assert_directory_path(value: Any) -> Path:
             directory_path = self.assert_path()(value)
             if directory_path.is_dir():
@@ -374,6 +492,10 @@ class Asserter:
         return _assert_directory_path
 
     def assert_locale(self) -> Assertion[Any, str]:
+        """
+        Assert that a value is a valid `IETF BCP 47 language tag <https://en.wikipedia.org/wiki/IETF_language_tag>`_.
+        """
+
         def _assert_locale(
             value: Any,
         ) -> str:
@@ -394,6 +516,10 @@ class Asserter:
     def assert_setattr(
         self, instance: object, attr_name: str
     ) -> Assertion[ValueT, ValueT]:
+        """
+        Set a value for the given object's attribute.
+        """
+
         def _assert_setattr(value: ValueT) -> ValueT:
             setattr(instance, attr_name, value)
             return value
@@ -401,6 +527,12 @@ class Asserter:
         return _assert_setattr
 
     def assert_extension_type(self) -> Assertion[Any, type[Extension]]:
+        """
+        Assert that a value is an extension type.
+
+        This assertion passes if the value is fully qualified :py:class:`betty.app.extension.Extension` subclass name.
+        """
+
         def _assert_extension_type(
             value: Any,
         ) -> type[Extension]:
@@ -439,6 +571,12 @@ class Asserter:
         return _assert_extension_type
 
     def assert_entity_type(self) -> Assertion[Any, type[Entity]]:
+        """
+        Assert that a value is an entity type.
+
+        This assertion passes if the value is fully qualified :py:class:`betty.model.Entity` subclass name.
+        """
+
         def _assert_entity_type(
             value: Any,
         ) -> type[Entity]:

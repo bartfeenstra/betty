@@ -9,6 +9,7 @@ from pathlib import Path
 import docker
 from aiofiles.tempfile import TemporaryDirectory
 from docker.errors import DockerException
+from typing_extensions import override
 
 from betty.app import App
 from betty.extension.nginx.artifact import (
@@ -21,12 +22,17 @@ from betty.serve import NoPublicUrlBecauseServerNotStartedError, Server
 
 
 class DockerizedNginxServer(Server):
+    """
+    An nginx server that runs within a Docker container.
+    """
+
     def __init__(self, app: App) -> None:
         super().__init__(app.localizer)
         self._app = app
         self._exit_stack = AsyncExitStack()
         self._container: Container | None = None
 
+    @override
     async def start(self) -> None:
         from betty.extension import Nginx
 
@@ -75,9 +81,11 @@ class DockerizedNginxServer(Server):
         await self._exit_stack.enter_async_context(self._container)
         await self.assert_available()
 
+    @override
     async def stop(self) -> None:
         await self._exit_stack.aclose()
 
+    @override
     @property
     def public_url(self) -> str:
         if self._container is not None:
@@ -86,6 +94,9 @@ class DockerizedNginxServer(Server):
 
     @classmethod
     def is_available(cls) -> bool:
+        """
+        Check if Docker is available.
+        """
         try:
             docker.from_env()
             return True

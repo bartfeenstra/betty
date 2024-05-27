@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Callable, Iterable, Any, TYPE_CHECKING
 
 from jinja2 import pass_context
+from typing_extensions import override
 
 from betty.app.extension import UserFacingExtension, ConfigurableExtension
 from betty.asyncio import gather
@@ -38,6 +39,11 @@ class Wikipedia(
     PostLoader,
     GuiBuilder,
 ):
+    """
+    Integrates Betty with `Wikipedia <https://wikipedia.org>`_.
+    """
+
+    @override
     @classmethod
     def name(cls) -> str:
         return "betty.extension.Wikipedia"
@@ -47,6 +53,7 @@ class Wikipedia(
         self.__retriever: _Retriever | None = None
         self.__populator: _Populator | None = None
 
+    @override
     async def post_load(self) -> None:
         populator = _Populator(self.app, self._retriever)
         await populator.populate()
@@ -67,6 +74,7 @@ class Wikipedia(
     def _retriever(self) -> None:
         self.__retriever = None
 
+    @override
     @property
     def filters(self) -> dict[str, Callable[..., Any]]:
         return {
@@ -104,14 +112,17 @@ class Wikipedia(
             logger.warning(str(error))
             return None
 
+    @override
     @classmethod
     def assets_directory_path(cls) -> Path | None:
         return Path(__file__).parent / "assets"
 
+    @override
     @classmethod
     def label(cls) -> Str:
         return Str._("Wikipedia")
 
+    @override
     @classmethod
     def description(cls) -> Str:
         return Str._(
@@ -123,9 +134,11 @@ Display <a href="https://www.wikipedia.org/">Wikipedia</a> summaries for resourc
 </code></pre>"""
         )
 
+    @override
     @classmethod
     def default_configuration(cls) -> WikipediaConfiguration:
         return WikipediaConfiguration()
 
+    @override
     def gui_build(self) -> _WikipediaGuiWidget:
         return _WikipediaGuiWidget(self._app, self._configuration)

@@ -19,6 +19,10 @@ CacheItemValueContraT = TypeVar("CacheItemValueContraT", contravariant=True)
 
 
 class CacheItem(Generic[CacheItemValueCoT]):
+    """
+    A cache item.
+    """
+
     @property
     def modified(self) -> int | float:
         """
@@ -125,10 +129,10 @@ class Cache(Generic[CacheItemValueContraT]):
 @typing_extensions.deprecated(
     f"This class is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x. It exists only for App.cache's backwards compatibility. Use {Cache} instead."
 )
-class FileCache:
+class FileCache:  # noqa D101
     @property
-    def path(self) -> Path:  # type: ignore[empty-body]
+    def path(self) -> Path:  # type: ignore[empty-body]  # noqa D102
         pass
 
-    async def clear(self) -> None:
+    async def clear(self) -> None:  # noqa D102
         pass

@@ -18,6 +18,7 @@ from jinja2 import (
     pass_context,
 )
 from jinja2.runtime import StrictUndefined, Context, DebugUndefined
+from typing_extensions import override
 
 from betty.html import CssProvider, JsProvider
 from betty.jinja2.filter import FILTERS
@@ -91,6 +92,7 @@ class _Breadcrumb(Dumpable):
         self._label = label
         self._url = url
 
+    @override
     def dump(self) -> DictDump[Dump]:
         return {
             "@type": "ListItem",
@@ -106,6 +108,7 @@ class _Breadcrumbs(Dumpable):
     def append(self, label: str, url: str) -> None:
         self._breadcrumbs.append(_Breadcrumb(label, url))
 
+    @override
     def dump(self) -> VoidableDump:
         if not self._breadcrumbs:
             return Void
@@ -123,6 +126,17 @@ class _Breadcrumbs(Dumpable):
 
 
 class EntityContexts:
+    """
+    Track the current entity contexts.
+
+    To allow templates to respond to their environment, this class allows
+    our templates to set and get one entity per entity type for the current context.
+
+    Use cases include rendering an entity label as plain text if the template is in
+    that entity's context, but as a hyperlink if the template is not in the entity's
+    context.
+    """
+
     def __init__(self, *entities: Entity) -> None:
         self._contexts: dict[type[Entity], Entity | None] = defaultdict(lambda: None)
         for entity in entities:
@@ -138,6 +152,9 @@ class EntityContexts:
         return self._contexts[entity_type]
 
     def __call__(self, *entities: Entity) -> EntityContexts:
+        """
+        Create a new context with the given entities.
+        """
         updated_contexts = EntityContexts()
         for entity in entities:
             updated_contexts._contexts[entity.type] = entity
@@ -145,23 +162,51 @@ class EntityContexts:
 
 
 class Jinja2Provider:
+    """
+    Integrate an :py:class:`betty.app.extension.Extension` with the Jinja2 API.
+    """
+
     @property
     def globals(self) -> dict[str, Any]:
+        """
+        Jinja2 globals provided by this extension.
+
+        Keys are the globals' names, and values are the globals' values.
+        """
         return {}
 
     @property
     def filters(self) -> dict[str, Callable[..., Any]]:
+        """
+        Jinja2 filters provided by this extension.
+
+        Keys are filter names, and values are the filters themselves.
+        """
         return {}
 
     @property
     def tests(self) -> dict[str, Callable[..., bool]]:
+        """
+        Jinja2 tests provided by this extension.
+
+        Keys are test names, and values are the tests themselves.
+        """
         return {}
 
     def new_context_vars(self) -> dict[str, Any]:
+        """
+        Create new variables for a new :py:class:`jinja2.runtime.Context`.
+
+        Keys are the variable names, and values are variable values.
+        """
         return {}
 
 
 class Environment(Jinja2Environment):
+    """
+    Betty's Jinja2 environment.
+    """
+
     globals: dict[str, Any]
     filters: dict[str, Callable[..., Any]]
     tests: dict[str, Callable[..., bool]]
@@ -207,6 +252,7 @@ class Environment(Jinja2Environment):
         )
         self.policies["ext.i18n.trimmed"] = True
 
+    @override
     @property
     def context_class(self) -> type[Context]:  # type: ignore[override]
         if self._context_class is None:
@@ -301,14 +347,20 @@ class Environment(Jinja2Environment):
 
 
 class Jinja2Renderer(Renderer):
+    """
+    Render content as Jinja2 templates.
+    """
+
     def __init__(self, environment: Environment, configuration: ProjectConfiguration):
         self._environment = environment
         self._configuration = configuration
 
+    @override
     @property
     def file_extensions(self) -> set[str]:
         return {".j2"}
 
+    @override
     async def render_file(
         self,
         file_path: Path,

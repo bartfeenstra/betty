@@ -9,6 +9,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from aiofiles.os import makedirs
+from typing_extensions import override
 
 from betty import serve, fs
 from betty.fs import ROOT_DIRECTORY_PATH
@@ -72,6 +73,10 @@ async def _build(output_directory_path: Path) -> None:
 
 
 class DocumentationServer(Server):
+    """
+    Serve the documentation site.
+    """
+
     def __init__(
         self,
         cache_directory_path: Path,
@@ -83,16 +88,19 @@ class DocumentationServer(Server):
         self._server: Server | None = None
         self._exit_stack = AsyncExitStack()
 
+    @override
     @classmethod
     def label(cls) -> Str:
         return Str._("Betty documentation")
 
+    @override
     @property
     def public_url(self) -> str:
         if self._server is not None:
             return self._server.public_url
         raise NoPublicUrlBecauseServerNotStartedError()
 
+    @override
     async def start(self) -> None:
         await super().start()
         www_directory_path = await _ensure_documentation_directory(
@@ -104,6 +112,7 @@ class DocumentationServer(Server):
         await self._exit_stack.enter_async_context(self._server)
         await self.assert_available()
 
+    @override
     async def stop(self) -> None:
         await self._exit_stack.aclose()
         await super().stop()

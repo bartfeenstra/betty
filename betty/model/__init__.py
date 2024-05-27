@@ -22,6 +22,8 @@ from typing import (
 )
 from uuid import uuid4
 
+from typing_extensions import override
+
 from betty.classtools import repr_instance
 from betty.functools import Uniquifier
 from betty.importlib import import_any, fully_qualified_type_name
@@ -49,11 +51,15 @@ class GeneratedEntityId(str):
 
     __slots__ = ()
 
-    def __new__(cls, entity_id: str | None = None):
+    def __new__(cls, entity_id: str | None = None):  # noqa D102
         return super().__new__(cls, entity_id or str(uuid4()))
 
 
 class Entity(LinkedDataDumpable):
+    """
+    An entity is a uniquely identifiable data container.
+    """
+
     def __init__(
         self,
         id: str | None = None,  # noqa A002
@@ -68,36 +74,60 @@ class Entity(LinkedDataDumpable):
 
     @classmethod
     def entity_type_label(cls) -> Str:
+        """
+        The human-readable entity type label, singular.
+        """
         raise NotImplementedError(repr(cls))
 
     @classmethod
     def entity_type_label_plural(cls) -> Str:
+        """
+        The human-readable entity type label, plural.
+        """
         raise NotImplementedError(repr(cls))
 
+    @override
     @recursive_repr()
     def __repr__(self) -> str:
         return repr_instance(self, id=self._id)
 
     @property
     def type(self) -> builtins.type[Self]:
+        """
+        The entity type.
+        """
         return self.__class__
 
     @property
     def id(self) -> str:
+        """
+        The entity ID.
+
+        This MUST be unique per entity type, per ancestry.
+        """
         return self._id
 
     @property
     def ancestry_id(self) -> tuple[builtins.type[Self], str]:
+        """
+        The ancestry ID.
+
+        This MUST be unique per ancestry.
+        """
         return self.type, self.id
 
     @property
     def label(self) -> Str:
+        """
+        The entity's human-readable label.
+        """
         return Str._(
             "{entity_type} {entity_id}",
             entity_type=self.entity_type_label(),
             entity_id=self.id,
         )
 
+    @override
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         dump = await super().dump_linked_data(app)
 
@@ -116,6 +146,7 @@ class Entity(LinkedDataDumpable):
 
         return dump
 
+    @override
     @classmethod
     async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
         schema = await super().linked_data_schema(app)
@@ -138,11 +169,22 @@ AncestryEntityId: TypeAlias = tuple[type[Entity], str]
 
 
 class UserFacingEntity:
+    """
+    A sentinel to mark an entity type as being visible to users (e.g. not internal).
+    """
+
     pass
 
 
 class EntityTypeProvider:
+    """
+    Provide additional entity types.
+    """
+
     async def entity_types(self) -> set[type[Entity]]:
+        """
+        The entity types.
+        """
         raise NotImplementedError(repr(self))
 
 
@@ -184,6 +226,10 @@ def get_entity_type(entity_type_name: str) -> type[Entity]:
 
 
 class EntityTypeError(ValueError):
+    """
+    A error occurred when trying to determine and import an entity type.
+    """
+
     pass
 
 
@@ -210,6 +256,10 @@ class EntityTypeInvalidError(EntityTypeError, ImportError):
 
 
 class EntityCollection(Generic[TargetT]):
+    """
+    Provide a collection of entities.
+    """
+
     __slots__ = ()
 
     def __init__(self):
@@ -223,19 +273,34 @@ class EntityCollection(Generic[TargetT]):
 
     @property
     def view(self) -> list[TargetT & Entity]:
+        """
+        A view of the entities at the time of calling.
+        """
         return [*self]
 
     def add(self, *entities: TargetT & Entity) -> None:
+        """
+        Add the given entities.
+        """
         raise NotImplementedError(repr(self))
 
     def remove(self, *entities: TargetT & Entity) -> None:
+        """
+        Remove the given entities.
+        """
         raise NotImplementedError(repr(self))
 
     def replace(self, *entities: TargetT & Entity) -> None:
+        """
+        Replace all entities with the given ones.
+        """
         self.remove(*(entity for entity in self if entity not in entities))
         self.add(*entities)
 
     def clear(self) -> None:
+        """
+        Clear all entities from the collection.
+        """
         raise NotImplementedError(repr(self))
 
     def __iter__(self) -> Iterator[TargetT & Entity]:
@@ -299,6 +364,7 @@ class _EntityTypeAssociation(Generic[OwnerT, AssociateT]):
             )
         )
 
+    @override
     def __repr__(self) -> str:
         return repr_instance(
             self,
@@ -357,6 +423,10 @@ class _EntityTypeAssociation(Generic[OwnerT, AssociateT]):
 class BidirectionalEntityTypeAssociation(
     Generic[OwnerT, AssociateT], _EntityTypeAssociation[OwnerT, AssociateT]
 ):
+    """
+    A bidirectional entity type association.
+    """
+
     def __init__(
         self,
         owner_type: type[OwnerT],
@@ -381,6 +451,7 @@ class BidirectionalEntityTypeAssociation(
             )
         )
 
+    @override
     def __repr__(self) -> str:
         return repr_instance(
             self,
@@ -392,9 +463,15 @@ class BidirectionalEntityTypeAssociation(
 
     @property
     def associate_attr_name(self) -> str:
+        """
+        The association's attribute name on the associate type.
+        """
         return self._associate_attr_name
 
     def inverse(self) -> BidirectionalEntityTypeAssociation[AssociateT, OwnerT]:
+        """
+        Get the inverse association.
+        """
         association = EntityTypeAssociationRegistry.get_association(
             self.associate_type, self.associate_attr_name
         )
@@ -405,6 +482,11 @@ class BidirectionalEntityTypeAssociation(
 class ToOneEntityTypeAssociation(
     Generic[OwnerT, AssociateT], _EntityTypeAssociation[OwnerT, AssociateT]
 ):
+    """
+    A unidirectional to-one entity type association.
+    """
+
+    @override
     def register(self) -> None:
         super().register()
         setattr(
@@ -417,23 +499,33 @@ class ToOneEntityTypeAssociation(
             ),
         )
 
+    @override
     def initialize(self, owner: OwnerT & Entity) -> None:
         setattr(owner, self._owner_private_attr_name, None)
 
     def get(self, owner: OwnerT & Entity) -> AssociateT & Entity | None:
+        """
+        Get the associate from the given owner.
+        """
         return getattr(owner, self._owner_private_attr_name)  # type: ignore[no-any-return]
 
     def set(
         self, owner: OwnerT & Entity, associate: AssociateT & Entity | None
     ) -> None:
+        """
+        Set the associate for the given owner.
+        """
         setattr(owner, self._owner_private_attr_name, associate)
 
+    @override
     def delete(self, owner: OwnerT & Entity) -> None:
         self.set(owner, None)
 
+    @override
     def associate(self, owner: OwnerT & Entity, associate: AssociateT & Entity) -> None:
         self.set(owner, associate)
 
+    @override
     def disassociate(
         self, owner: OwnerT & Entity, associate: AssociateT & Entity
     ) -> None:
@@ -444,6 +536,11 @@ class ToOneEntityTypeAssociation(
 class ToManyEntityTypeAssociation(
     Generic[OwnerT, AssociateT], _EntityTypeAssociation[OwnerT, AssociateT]
 ):
+    """
+    A to-many entity type association.
+    """
+
+    @override
     def register(self) -> None:
         super().register()
         setattr(
@@ -457,6 +554,9 @@ class ToManyEntityTypeAssociation(
         )
 
     def get(self, owner: OwnerT & Entity) -> EntityCollection[AssociateT & Entity]:
+        """
+        Get the associates from the given owner.
+        """
         return cast(
             EntityCollection["AssociateT & Entity"],
             getattr(owner, self._owner_private_attr_name),
@@ -465,14 +565,20 @@ class ToManyEntityTypeAssociation(
     def set(
         self, owner: OwnerT & Entity, entities: Iterable[AssociateT & Entity]
     ) -> None:
+        """
+        Set the associates on the given owner.
+        """
         self.get(owner).replace(*entities)
 
+    @override
     def delete(self, owner: OwnerT & Entity) -> None:
         self.get(owner).clear()
 
+    @override
     def associate(self, owner: OwnerT & Entity, associate: AssociateT & Entity) -> None:
         self.get(owner).add(associate)
 
+    @override
     def disassociate(
         self, owner: OwnerT & Entity, associate: AssociateT & Entity
     ) -> None:
@@ -484,6 +590,11 @@ class BidirectionalToOneEntityTypeAssociation(
     ToOneEntityTypeAssociation[OwnerT, AssociateT],
     BidirectionalEntityTypeAssociation[OwnerT, AssociateT],
 ):
+    """
+    A bidirectional *-to-one entity type association.
+    """
+
+    @override
     def set(
         self, owner: OwnerT & Entity, associate: AssociateT & Entity | None
     ) -> None:
@@ -502,6 +613,11 @@ class BidirectionalToManyEntityTypeAssociation(
     ToManyEntityTypeAssociation[OwnerT, AssociateT],
     BidirectionalEntityTypeAssociation[OwnerT, AssociateT],
 ):
+    """
+    A bidirectional *-to-many entity type association.
+    """
+
+    @override
     def initialize(self, owner: OwnerT & Entity) -> None:
         setattr(
             owner,
@@ -516,6 +632,10 @@ class BidirectionalToManyEntityTypeAssociation(
 class ToOne(
     Generic[OwnerT, AssociateT], ToOneEntityTypeAssociation[OwnerT, AssociateT]
 ):
+    """
+    A unidirectional to-one entity type association.
+    """
+
     pass
 
 
@@ -523,6 +643,10 @@ class OneToOne(
     Generic[OwnerT, AssociateT],
     BidirectionalToOneEntityTypeAssociation[OwnerT, AssociateT],
 ):
+    """
+    A bidirectional one-to-one entity type association.
+    """
+
     pass
 
 
@@ -530,12 +654,21 @@ class ManyToOne(
     Generic[OwnerT, AssociateT],
     BidirectionalToOneEntityTypeAssociation[OwnerT, AssociateT],
 ):
+    """
+    A bidirectional many-to-one entity type association.
+    """
+
     pass
 
 
 class ToMany(
     Generic[OwnerT, AssociateT], ToManyEntityTypeAssociation[OwnerT, AssociateT]
 ):
+    """
+    A unidirectional to-many entity type association.
+    """
+
+    @override
     def initialize(self, owner: OwnerT & Entity) -> None:
         setattr(
             owner,
@@ -548,6 +681,10 @@ class OneToMany(
     Generic[OwnerT, AssociateT],
     BidirectionalToManyEntityTypeAssociation[OwnerT, AssociateT],
 ):
+    """
+    A bidirectional one-to-many entity type association.
+    """
+
     pass
 
 
@@ -555,6 +692,10 @@ class ManyToMany(
     Generic[OwnerT, AssociateT],
     BidirectionalToManyEntityTypeAssociation[OwnerT, AssociateT],
 ):
+    """
+    A bidirectional many-to-many entity type association.
+    """
+
     pass
 
 
@@ -717,10 +858,17 @@ def many_to_one_to_many(
 
 
 class EntityTypeAssociationRegistry:
+    """
+    Inspect any known entity type associations.
+    """
+
     _associations = set[ToAny[Any, Any]]()
 
     @classmethod
     def get_all_associations(cls, owner: type | object) -> set[ToAny[Any, Any]]:
+        """
+        Get all associations for an owner.
+        """
         owner_type = owner if isinstance(owner, type) else type(owner)
         return {
             association
@@ -732,6 +880,9 @@ class EntityTypeAssociationRegistry:
     def get_association(
         cls, owner: type[OwnerT] | OwnerT & Entity, owner_attr_name: str
     ) -> ToAny[OwnerT, Any]:
+        """
+        Get the association for a given owner and attribute name.
+        """
         for association in cls.get_all_associations(owner):
             if association.owner_attr_name == owner_attr_name:
                 return association
@@ -743,6 +894,9 @@ class EntityTypeAssociationRegistry:
     def get_associates(
         cls, owner: EntityT, association: ToAny[EntityT, AssociateT]
     ) -> Iterable[AssociateT]:
+        """
+        Get the associates for a given owner and association.
+        """
         associates: AssociateT | None | Iterable[AssociateT] = getattr(
             owner, f"_{association.owner_attr_name}"
         )
@@ -759,18 +913,28 @@ class EntityTypeAssociationRegistry:
 
     @classmethod
     def initialize(cls, *owners: Entity) -> None:
+        """
+        Initialize the given owners' associations.
+        """
         for owner in owners:
             for association in cls.get_all_associations(owner):
                 association.initialize(owner)
 
     @classmethod
     def finalize(cls, *owners: Entity) -> None:
+        """
+        Finalize all associations from the given owners.
+        """
         for owner in owners:
             for association in cls.get_all_associations(owner):
                 association.finalize(owner)
 
 
 class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
+    """
+    Collect entities of a single type.
+    """
+
     __slots__ = "_entities", "_target_type"
 
     def __init__(
@@ -781,10 +945,12 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
         self._entities: list[TargetT & Entity] = []
         self._target_type = target_type
 
+    @override
     @recursive_repr()
     def __repr__(self) -> str:
         return repr_instance(self, target_type=self._target_type, length=len(self))
 
+    @override
     def add(self, *entities: TargetT & Entity) -> None:
         added_entities = [*self._unknown(*entities)]
         for entity in added_entities:
@@ -792,6 +958,7 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
         if added_entities:
             self._on_add(*added_entities)
 
+    @override
     def remove(self, *entities: TargetT & Entity) -> None:
         removed_entities = [*self._known(*entities)]
         for entity in removed_entities:
@@ -799,12 +966,15 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
         if removed_entities:
             self._on_remove(*removed_entities)
 
+    @override
     def clear(self) -> None:
         self.remove(*self)
 
+    @override
     def __iter__(self) -> Iterator[TargetT & Entity]:
         return self._entities.__iter__()
 
+    @override
     def __len__(self) -> int:
         return len(self._entities)
 
@@ -820,6 +990,7 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
     def __getitem__(self, entity_id: str) -> TargetT & Entity:
         pass
 
+    @override
     def __getitem__(
         self, key: int | slice | str
     ) -> TargetT & Entity | list[TargetT & Entity]:
@@ -843,6 +1014,7 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
             f'Cannot find a {self._target_type} entity with ID "{entity_id}".'
         )
 
+    @override
     def __delitem__(self, key: str | TargetT & Entity) -> None:
         if isinstance(key, self._target_type):
             return self._delitem_by_entity(cast("TargetT & Entity", key))
@@ -859,6 +1031,7 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
                 self.remove(entity)
                 return
 
+    @override
     def __contains__(self, value: Any) -> bool:
         if isinstance(value, self._target_type):
             return self._contains_by_entity(cast("TargetT & Entity", value))
@@ -879,12 +1052,17 @@ SingleTypeEntityCollectionT = TypeVar(
 
 
 class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
+    """
+    Collect entities of multiple types.
+    """
+
     __slots__ = "_collections"
 
     def __init__(self):
         super().__init__()
         self._collections: dict[type[Entity], SingleTypeEntityCollection[Entity]] = {}
 
+    @override
     @recursive_repr()
     def __repr__(self) -> str:
         return repr_instance(
@@ -925,6 +1103,7 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
     ) -> SingleTypeEntityCollection[EntityT]:
         pass
 
+    @override
     def __getitem__(
         self,
         key: int | slice | str | type[EntityT],
@@ -960,6 +1139,7 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
     def _getitem_by_indices(self, indices: slice) -> list[TargetT & Entity]:
         return self.view[indices]
 
+    @override
     def __delitem__(self, key: str | type[TargetT & Entity] | TargetT & Entity) -> None:
         if isinstance(key, type):
             return self._delitem_by_type(
@@ -985,14 +1165,17 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
             get_entity_type(entity_type_name),  # type: ignore[arg-type]
         )
 
+    @override
     def __iter__(self) -> Iterator[TargetT & Entity]:
         for collection in self._collections.values():
             for entity in collection:
                 yield cast("TargetT & Entity", entity)
 
+    @override
     def __len__(self) -> int:
         return sum(map(len, self._collections.values()))
 
+    @override
     def __contains__(self, value: Any) -> bool:
         if isinstance(value, Entity):
             return self._contains_by_entity(value)
@@ -1001,6 +1184,7 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
     def _contains_by_entity(self, other_entity: Any) -> bool:
         return any(other_entity is entity for entity in self)
 
+    @override
     def add(self, *entities: TargetT & Entity) -> None:
         added_entities = [*self._unknown(*entities)]
         for entity in added_entities:
@@ -1008,6 +1192,7 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
         if added_entities:
             self._on_add(*added_entities)
 
+    @override
     def remove(self, *entities: TargetT & Entity) -> None:
         removed_entities = [*self._known(*entities)]
         for entity in removed_entities:
@@ -1015,6 +1200,7 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
         if removed_entities:
             self._on_remove(*removed_entities)
 
+    @override
     def clear(self) -> None:
         removed_entities = (*self,)
         for collection in self._collections.values():
@@ -1046,11 +1232,13 @@ class _BidirectionalAssociateCollection(
             )
         return owner
 
+    @override
     def _on_add(self, *entities: AssociateT & Entity) -> None:
         super()._on_add(*entities)
         for associate in entities:
             self._association.inverse().associate(associate, self._owner)
 
+    @override
     def _on_remove(self, *entities: AssociateT & Entity) -> None:
         super()._on_remove(*entities)
         for associate in entities:
@@ -1058,24 +1246,44 @@ class _BidirectionalAssociateCollection(
 
 
 class AliasedEntity(Generic[EntityT]):
+    """
+    An aliased entity wraps an entity and gives aliases its ID.
+
+    Aliases are used when deserializing ancestries from sources where intermediate IDs
+    are used to declare associations between entities. By wrapping an entity in an alias,
+    the alias can use the intermediate ID, allowing it to be inserted into APIs such as
+    :py:class:`betty.model.EntityGraphBuilder` who will use the alias ID to finalize
+    associations before the original entities are returned.
+    """
+
     def __init__(self, original_entity: EntityT, aliased_entity_id: str | None = None):
         self._entity = original_entity
         self._id = (
             GeneratedEntityId() if aliased_entity_id is None else aliased_entity_id
         )
 
+    @override
     def __repr__(self) -> str:
         return repr_instance(self, id=self.id)
 
     @property
     def type(self) -> builtins.type[Entity]:
+        """
+        The type of the aliased entity.
+        """
         return self._entity.type
 
     @property
     def id(self) -> str:
+        """
+        The alias entity ID.
+        """
         return self._id
 
     def unalias(self) -> EntityT:
+        """
+        Get the original entity.
+        """
         return self._entity
 
 
@@ -1156,7 +1364,24 @@ class _EntityGraphBuilder:
 
 
 class EntityGraphBuilder(_EntityGraphBuilder):
+    """
+    Assemble entities and their associations.
+
+    (De)serializing data often means that special care must be taken with the associations,
+    relationships, or links between data points, as those form a graph, a network, a tangled
+    web of data. When deserializing entity A with an association to entity B, that association
+    cannot be finalized until entity B is parsed as well. But, if entity B subsequently has
+    an association with entity A (the association is bidirectional), this results in an endless
+    cycle.
+
+    This class prevents the problem by letting you add entities and associations separately.
+    Associations are finalized when you are done adding, avoiding cycle errors.
+    """
+
     def add_entity(self, *entities: AliasableEntity[Entity]) -> None:
+        """
+        Add entities to the graph.
+        """
         self._assert_unbuilt()
 
         for entity in entities:
@@ -1170,6 +1395,9 @@ class EntityGraphBuilder(_EntityGraphBuilder):
         associate_type: type[Entity],
         associate_id: str,
     ) -> None:
+        """
+        Add an association between two entities to the graph.
+        """
         self._assert_unbuilt()
 
         self._associations[owner_type][owner_attr_name][owner_id].append(

@@ -15,6 +15,10 @@ if TYPE_CHECKING:
 
 
 class LinkedDataDumpable:
+    """
+    Describe an object that can be dumped to linked data.
+    """
+
     async def dump_linked_data(self, app: App) -> DictDump[Dump]:
         """
         Dump this instance to `JSON-LD <https://json-ld.org/>`_.
@@ -24,7 +28,7 @@ class LinkedDataDumpable:
     @classmethod
     async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
         """
-        Define the `JSON Schema <https://json-schema.org/>`_ for `self.dump_linked_data()`.
+        Define the `JSON Schema <https://json-schema.org/>`_ for :py:meth:`betty.json.linked_data.LinkedDataDumpable.dump_linked_data`.
         """
         return {}
 
@@ -49,7 +53,7 @@ async def dump_link(dump: DictDump[Dump], app: App, *links: Link) -> None:
 
 def ref_json_ld(root_schema: DictDump[Dump]) -> DictDump[Dump]:
     """
-    Reference the JSON-LD schema.
+    Reference the `JSON-LD <https://json-ld.org/>`_ schema.
     """
     definitions = dump_default(root_schema, "definitions", dict)
     if "jsonLd" not in definitions:
@@ -65,7 +69,7 @@ def add_json_ld(
     schema: DictDump[Dump], root_schema: DictDump[Dump] | None = None
 ) -> None:
     """
-    Allow JSON-LD properties to be added to a schema.
+    Allow `JSON-LD <https://json-ld.org/>`_ properties to be added to a schema.
     """
     schema["patternProperties"] = {
         "^@": ref_json_ld(root_schema or schema),

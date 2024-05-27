@@ -43,8 +43,15 @@ P = ParamSpec("P")
 
 
 class CommandProvider:
+    """
+    Provide additional commands.
+    """
+
     @property
     def commands(self) -> dict[str, Command]:
+        """
+        The commands to provide.
+        """
         raise NotImplementedError(repr(self))
 
 

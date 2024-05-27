@@ -1,8 +1,12 @@
-"""Provide demonstration site functionality."""
+"""
+Provide demonstration site functionality.
+"""
 
 from __future__ import annotations
 
 from contextlib import AsyncExitStack
+
+from typing_extensions import override
 
 from betty import load, generate, serve
 from betty.app import App
@@ -40,10 +44,16 @@ if TYPE_CHECKING:
 
 
 class Demo(Extension, Loader):
+    """
+    Provide demonstration site functionality.
+    """
+
+    @override
     @classmethod
     def name(cls) -> str:
         return "betty.extension.Demo"
 
+    @override
     @classmethod
     def depends_on(cls) -> set[type[Extension]]:
         from betty.extension import CottonCandy, HttpApiDoc, Maps, Trees, Wikipedia
@@ -55,6 +65,9 @@ class Demo(Extension, Loader):
 
     @classmethod
     def project(cls) -> Project:
+        """
+        Create a new demonstration project.
+        """
         from betty.extension import CottonCandy, Demo
 
         project = Project()
@@ -97,6 +110,7 @@ class Demo(Extension, Loader):
         )
         return project
 
+    @override
     async def load(self) -> None:
         netherlands = Place(
             id="betty-demo-netherlands",
@@ -474,6 +488,10 @@ Did you know that Liberta "Betty" Lankester is Betty's namesake?
 
 
 class DemoServer(Server):
+    """
+    Serve the Betty demonstration site.
+    """
+
     def __init__(
         self,
         *,
@@ -489,16 +507,19 @@ class DemoServer(Server):
                 stacklevel=2,
             )
 
+    @override
     @classmethod
     def label(cls) -> Str:
         return Str._("Demo")
 
+    @override
     @property
     def public_url(self) -> str:
         if self._server is not None:
             return self._server.public_url
         raise NoPublicUrlBecauseServerNotStartedError()
 
+    @override
     async def start(self) -> None:
         from betty.extension import Demo
 
@@ -529,6 +550,7 @@ class DemoServer(Server):
             raise
         await self.assert_available()
 
+    @override
     async def stop(self) -> None:
         await self._exit_stack.aclose()
         await super().stop()

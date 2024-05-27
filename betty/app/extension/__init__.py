@@ -16,6 +16,8 @@ from typing import (
     Self,
 )
 
+from typing_extensions import override
+
 from betty.requirement import Requirement, AllRequirements
 from betty.asyncio import gather
 from betty.config import ConfigurationT, Configurable
@@ -29,10 +31,18 @@ if TYPE_CHECKING:
 
 
 class ExtensionError(BaseException):
+    """
+    A generic extension API error.
+    """
+
     pass  # pragma: no cover
 
 
 class ExtensionTypeError(ExtensionError, ValueError):
+    """
+    A generic error regarding an extension type.
+    """
+
     pass  # pragma: no cover
 
 
@@ -59,6 +69,10 @@ class ExtensionTypeInvalidError(ExtensionTypeError, ImportError):
 
 
 class CyclicDependencyError(ExtensionError, RuntimeError):
+    """
+    Raised when extensions define a cyclic dependency, e.g. two extensions depend on each other.
+    """
+
     def __init__(self, extension_types: Iterable[type[Extension]]):
         extension_names = ", ".join([extension.name() for extension in extension_types])
         super().__init__(
@@ -67,6 +81,10 @@ class CyclicDependencyError(ExtensionError, RuntimeError):
 
 
 class Dependencies(AllRequirements):
+    """
+    Check a dependent's dependency requirements.
+    """
+
     def __init__(self, dependent_type: type[Extension]):
         dependency_requirements = []
         for dependency_type in dependent_type.depends_on():
@@ -81,8 +99,12 @@ class Dependencies(AllRequirements):
 
     @classmethod
     def for_dependent(cls, dependent_type: type[Extension]) -> Self:
+        """
+        Create a new requirement for the given dependent.
+        """
         return cls(dependent_type)
 
+    @override
     def summary(self) -> Str:
         return Str._(
             "{dependent_label} requires {dependency_labels}.",
@@ -99,11 +121,16 @@ class Dependencies(AllRequirements):
 
 
 class Dependents(Requirement):
+    """
+    Check a dependency's dependent requirements.
+    """
+
     def __init__(self, dependency: Extension, dependents: Sequence[Extension]):
         super().__init__()
         self._dependency = dependency
         self._dependents = dependents
 
+    @override
     def summary(self) -> Str:
         return Str._(
             "{dependency_label} is required by {dependency_labels}.",
@@ -118,6 +145,7 @@ class Dependents(Requirement):
             ),
         )
 
+    @override
     def is_met(self) -> bool:
         # This class is never instantiated unless there is at least one enabled dependent, which means this requirement
         # is always met.
@@ -125,6 +153,9 @@ class Dependents(Requirement):
 
     @classmethod
     def for_dependency(cls, dependency: Extension) -> Self:
+        """
+        Create a new requirement for the given dependency.
+        """
         dependents = [
             dependency.app.extensions[extension_type]
             for extension_type in discover_extension_types()
@@ -146,18 +177,34 @@ class Extension:
 
     @classmethod
     def name(cls) -> str:
+        """
+        The machine name.
+        """
         return "%s.%s" % (cls.__module__, cls.__name__)
 
     @classmethod
     def depends_on(cls) -> set[type[Extension]]:
+        """
+        The extensions this one depends on, and comes after.
+        """
         return set()
 
     @classmethod
     def comes_after(cls) -> set[type[Extension]]:
+        """
+        The extensions that this one comes after.
+
+        The other extensions may or may not be enabled.
+        """
         return set()
 
     @classmethod
     def comes_before(cls) -> set[type[Extension]]:
+        """
+        The extensions that this one comes before.
+
+        The other extensions may or may not be enabled.
+        """
         return set()
 
     @classmethod
@@ -188,6 +235,9 @@ class Extension:
 
     @property
     def app(self) -> App:
+        """
+        The Betty application the extension runs within.
+        """
         return self._app
 
 
@@ -195,16 +245,30 @@ ExtensionT = TypeVar("ExtensionT", bound=Extension)
 
 
 class UserFacingExtension(Extension):
+    """
+    A sentinel to mark an extension as being visible to users (e.g. not internal).
+    """
+
     @classmethod
     def label(cls) -> Str:
+        """
+        Get the human-readable extension label.
+        """
         raise NotImplementedError(repr(cls))
 
     @classmethod
     def description(cls) -> Str:
+        """
+        Get the human-readable extension description.
+        """
         raise NotImplementedError(repr(cls))
 
 
 class Theme(UserFacingExtension):
+    """
+    An extension that is a front-end theme.
+    """
+
     pass  # pragma: no cover
 
 
@@ -264,6 +328,10 @@ def format_extension_type(extension_type: type[Extension]) -> Str:
 class ConfigurableExtension(
     Extension, Generic[ConfigurationT], Configurable[ConfigurationT]
 ):
+    """
+    A configurable extension.
+    """
+
     def __init__(
         self, *args: Any, configuration: ConfigurationT | None = None, **kwargs: Any
     ):
@@ -273,17 +341,35 @@ class ConfigurableExtension(
 
     @classmethod
     def default_configuration(cls) -> ConfigurationT:
+        """
+        Get this extension's default configuration.
+        """
         raise NotImplementedError(repr(cls))
 
 
 class Extensions:
+    """
+    Manage available extensions.
+    """
+
     def __getitem__(self, extension_type: type[ExtensionT] | str) -> ExtensionT:
         raise NotImplementedError(repr(self))
 
     def __iter__(self) -> Iterator[Iterator[Extension]]:
+        """
+        Iterate over all extensions, in topologically sorted batches.
+
+        Each item is a batch of extensions. Items are ordered because later items depend
+        on earlier items. The extensions in each item do not depend on each other and their
+        order has no meaning. However, implementations SHOULD sort the extensions in each
+        item in a stable fashion for reproducability.
+        """
         raise NotImplementedError(repr(self))
 
     def flatten(self) -> Iterator[Extension]:
+        """
+        Get a sequence of topologically sorted extensions.
+        """
         raise NotImplementedError(repr(self))
 
     def __contains__(self, extension_type: type[Extension] | str | Any) -> bool:
@@ -291,10 +377,15 @@ class Extensions:
 
 
 class ListExtensions(Extensions):
+    """
+    Manage available extensions, backed by a list.
+    """
+
     def __init__(self, extensions: list[list[Extension]]):
         super().__init__()
         self._extensions = extensions
 
+    @override
     def __getitem__(self, extension_type: type[ExtensionT] | str) -> ExtensionT:
         if isinstance(extension_type, str):
             extension_type = import_any(extension_type)
@@ -303,15 +394,18 @@ class ListExtensions(Extensions):
                 return extension  # type: ignore[return-value]
         raise KeyError(f'Unknown extension of type "{extension_type}"')
 
+    @override
     def __iter__(self) -> Iterator[Iterator[Extension]]:
         # Use a generator so we discourage calling code from storing the result.
         for batch in self._extensions:
             yield (extension for extension in batch)
 
+    @override
     def flatten(self) -> Iterator[Extension]:
         for batch in self:
             yield from batch
 
+    @override
     def __contains__(self, extension_type: type[Extension] | str) -> bool:
         if isinstance(extension_type, str):
             try:
@@ -322,9 +416,14 @@ class ListExtensions(Extensions):
 
 
 class ExtensionDispatcher(Dispatcher):
+    """
+    Dispatch events to extensions.
+    """
+
     def __init__(self, extensions: Extensions):
         self._extensions = extensions
 
+    @override
     def dispatch(self, target_type: type[Any]) -> TargetedDispatcher:
         target_method_names = [
             method_name

@@ -5,6 +5,8 @@ from __future__ import annotations
 from collections import defaultdict
 from logging import getLogger
 
+from typing_extensions import override
+
 from betty.app.extension import UserFacingExtension
 from betty.load import PostLoader
 from betty.locale import Str
@@ -17,17 +19,25 @@ if TYPE_CHECKING:
 
 
 class Privatizer(UserFacingExtension, PostLoader):
+    """
+    Extend the Betty Application with privatization features.
+    """
+
+    @override
     @classmethod
     def name(cls) -> str:
         return "betty.extension.Privatizer"
 
+    @override
     async def post_load(self) -> None:
         self.privatize()
 
+    @override
     @classmethod
     def label(cls) -> Str:
         return Str._("Privatizer")
 
+    @override
     @classmethod
     def description(cls) -> Str:
         return Str._(
@@ -35,6 +45,9 @@ class Privatizer(UserFacingExtension, PostLoader):
         )
 
     def privatize(self) -> None:
+        """
+        Privatize the project's ancestry.
+        """
         logger = getLogger(__name__)
         logger.info(self._app.localizer._("Privatizing..."))
 

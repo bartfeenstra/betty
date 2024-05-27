@@ -122,6 +122,10 @@ class _ServeWindow(BettyMainWindow):
 
 @final
 class ServeProjectWindow(_ServeWindow):
+    """
+    A window to control the server for the current project.
+    """
+
     @override
     def _new_server(self) -> Server:
         return AppServer.get(self._app)
@@ -142,6 +146,10 @@ class ServeProjectWindow(_ServeWindow):
 
 @final
 class ServeDemoWindow(_ServeWindow):
+    """
+    A window to control the demonstration site server.
+    """
+
     @override
     def _new_server(self) -> Server:
         return demo.DemoServer(app=self._app)
@@ -162,6 +170,10 @@ class ServeDemoWindow(_ServeWindow):
 
 @final
 class ServeDocsWindow(_ServeWindow):
+    """
+    A window to control the documentation server.
+    """
+
     @override
     def _new_server(self) -> Server:
         return documentation.DocumentationServer(

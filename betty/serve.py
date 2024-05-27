@@ -16,6 +16,7 @@ from typing import Sequence, Any, TYPE_CHECKING
 from aiofiles.os import makedirs, symlink
 from aiofiles.tempfile import TemporaryDirectory, AiofilesContextManagerTempDir
 from aiohttp import ClientSession
+from typing_extensions import override
 
 from betty.error import UserFacingError
 from betty.functools import Do
@@ -29,10 +30,18 @@ DEFAULT_PORT = 8000
 
 
 class ServerNotStartedError(RuntimeError):
+    """
+    Raised when a web server has not (fully) started yet.
+    """
+
     pass  # pragma: no cover
 
 
 class NoPublicUrlBecauseServerNotStartedError(ServerNotStartedError):
+    """
+    A public URL is not yet available because the server has not (fully) started yet.
+    """
+
     def __init__(self):
         super().__init__(
             "Cannot get the public URL for a server that has not started yet."
@@ -40,6 +49,10 @@ class NoPublicUrlBecauseServerNotStartedError(ServerNotStartedError):
 
 
 class OsError(UserFacingError, OSError):
+    """
+    Raised for I/O errors.
+    """
+
     pass  # pragma: no cover
 
 
@@ -53,10 +66,16 @@ class Server:
 
     @classmethod
     def name(cls) -> str:
+        """
+        Get the server's machine name.
+        """
         return f"{cls.__module__}.{cls.__name__}"
 
     @classmethod
     def label(cls) -> Str:
+        """
+        Get the server's human-readable label.
+        """
         raise NotImplementedError(repr(cls))
 
     async def start(self) -> None:
@@ -84,6 +103,9 @@ class Server:
 
     @property
     def public_url(self) -> str:
+        """
+        The server's public URL.
+        """
         raise NotImplementedError(repr(self))
 
     async def __aenter__(self) -> Server:
@@ -99,6 +121,9 @@ class Server:
         await self.stop()
 
     async def assert_available(self) -> None:
+        """
+        Assert that this server is available.
+        """
         # @todo In Betty 0.4.0, require the app's existing client session.
         async with ClientSession() as session:
             try:
@@ -109,17 +134,30 @@ class Server:
                 ) from error
 
     async def _assert_available(self, session: ClientSession) -> None:
+        """
+        Assert that this server is available.
+
+        If this method returns, the server is considered available.
+        If this method raises an exception, the server is considered unavailable.
+        """
         async with session.get(self.public_url) as response:
             assert response.status == 200
 
 
 class AppServer(Server):
+    """
+    A web server for a Betty application.
+    """
+
     def __init__(self, app: App) -> None:
         super().__init__(localizer=app.localizer)
         self._app = app
 
     @staticmethod
     def get(app: App) -> AppServer:
+        """
+        Get a web server for the given Betty application.
+        """
         for server in app.servers.values():
             if isinstance(server, AppServer):
                 return server
@@ -127,6 +165,7 @@ class AppServer(Server):
             f"Cannot find a project server. This must never happen, because {BuiltinAppServer} should be the fallback."
         )
 
+    @override
     async def start(self) -> None:
         await makedirs(
             self._app.project.configuration.www_directory_path, exist_ok=True
@@ -135,18 +174,30 @@ class AppServer(Server):
 
 
 class ServerProvider:
+    """
+    Provide one or more web servers.
+    """
+
     @property
     def servers(self) -> Sequence[Server]:
+        """
+        Provide one or more web servers.
+        """
         raise NotImplementedError(repr(self))
 
 
 class _BuiltinServerRequestHandler(SimpleHTTPRequestHandler):
+    @override
     def end_headers(self) -> None:
         self.send_header("Cache-Control", "no-cache")
         super().end_headers()
 
 
 class BuiltinServer(Server):
+    """
+    A built-in server for a WWW directory.
+    """
+
     def __init__(
         self,
         www_directory_path: Path,
@@ -164,10 +215,12 @@ class BuiltinServer(Server):
             AiofilesContextManagerTempDir[None, Any, Any] | None
         ) = None
 
+    @override
     @classmethod
     def label(cls) -> Str:
         return Str._("Python built-in")
 
+    @override
     async def start(self) -> None:
         await super().start()
         if self._root_path:
@@ -210,6 +263,7 @@ class BuiltinServer(Server):
         self._thread.start()
         await self.assert_available()
 
+    @override
     @property
     def public_url(self) -> str:
         if self._port is not None:
@@ -224,6 +278,7 @@ class BuiltinServer(Server):
             assert self._http_server
             self._http_server.serve_forever()
 
+    @override
     async def stop(self) -> None:
         await super().stop()
         if self._http_server is not None:
@@ -236,6 +291,10 @@ class BuiltinServer(Server):
 
 
 class BuiltinAppServer(AppServer):
+    """
+    A built-in server for a Betty application.
+    """
+
     def __init__(self, app: App) -> None:
         super().__init__(app)
         self._server = BuiltinServer(
@@ -244,18 +303,22 @@ class BuiltinAppServer(AppServer):
             localizer=self._app.localizer,
         )
 
+    @override
     @classmethod
     def label(cls) -> Str:
         return BuiltinServer.label()
 
+    @override
     @property
     def public_url(self) -> str:
         return self._server.public_url
 
+    @override
     async def start(self) -> None:
         await super().start()
         await self._server.start()
 
+    @override
     async def stop(self) -> None:
         await super().stop()
         await self._server.stop()
