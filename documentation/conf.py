@@ -55,7 +55,7 @@ html_context = {
     "conf_py_path": "/documentation/",
     "betty_replacements": betty_replacements,
 }
-html_theme = "sphinx_immaterial"
+html_theme = "furo"
 highlight_language = "none"
 templates_path = ["_templates"]
 extensions = [
@@ -66,7 +66,6 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx_autodoc_typehints",
     "sphinx_design",
-    "sphinx_immaterial",
 ]
 nitpicky = True
 modindex_common_prefix = ["betty."]
