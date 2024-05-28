@@ -64,7 +64,8 @@ extensions = [
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
-    "sphinx_autodoc_typehints",
+    # @todo What to do?
+    # "sphinx_autodoc_typehints",
     "sphinx_design",
 ]
 nitpicky = True
@@ -76,8 +77,9 @@ autodoc_class_signature = "separated"
 autodoc_member_order = "alphabetical"
 
 # sphinx_autodoc_typehints configuration.
+always_use_bars_union = True
 set_type_checking_flag = True
-typehints_fully_qualified = True
+typehints_defaults = "comma"
 typehints_use_signature = True
 typehints_use_signature_return = True
 always_document_param_types = True

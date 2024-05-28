@@ -14,7 +14,7 @@ German (``de-DE``)
 Ukrainian (``uk``)
     Translations are {{{ translation-coverage-uk }}}% complete.
 
-Extensions and projects can override these translations through `asset management <assets>`_.
+Extensions and projects can override these translations through :doc:`asset management </usage/assets>`_.
 
 Betty uses `gettext <https://www.gnu.org/software/gettext/>`_ to manage its translations. For each language, there must
 be a ``./locale/$locale/LC_MESSAGES/betty.po`` file that contains the translations for that language. These translations

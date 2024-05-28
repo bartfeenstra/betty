@@ -1,8 +1,7 @@
 The *Privatizer* extension
 ========================
-The :py:class:`betty.extension.Privatizer` extension marks entities :doc:`private </usage/model/ancestry/privacy>` to prevent sensitive information from being published accidentally. It is most
-powerful in achieving this when used in combination with the :doc:`anonymizer <anonymizer>` and :doc:`cleaner <cleaner>`
-extensions.
+The :py:class:`betty.extension.Privatizer` extension marks entities :doc:`private </usage/ancestry/privacy>`
+to prevent sensitive information from being published accidentally.
 
 Entities in Betty have privacy. This is a *ternary* property, with the following possible values:
 
