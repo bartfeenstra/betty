@@ -158,6 +158,9 @@ betty = [
     '../.browserslistrc',
     '../tsconfig.json',
     'extension/*/webpack/**',
+
+    # Prebuilt assets.
+    '../prebuild/**',
 ]
 
 [tool.setuptools.exclude-package-data]

@@ -35,6 +35,7 @@ async def a_pyz_exe_coll() -> tuple[Analysis, PYZ, EXE, COLLECT]:
         ".browserslistrc",
         "betty/extension/*/webpack/**",
         "tsconfig.json",
+        # Prebuilt assets.
         "prebuild/**",
     ]
     for data_file_path_pattern in data_file_path_patterns:
