@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-30 20:57+0200\n"
+"POT-Creation-Date: 2024-05-30 23:17+0200\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -662,6 +662,30 @@ msgstr "Laad de stamboom van..."
 
 msgid "Loaded the configuration from {configuration_file_path}."
 msgstr "Configuratie vanuit \"{configuration_file_path}\" geladen."
+
+msgid "Loaded {citation_count} citations."
+msgstr "{citation_count} verwijzingen geladen"
+
+msgid "Loaded {event_count} events."
+msgstr "{event_count} gebeurtenissen geladen"
+
+msgid "Loaded {file_count} files."
+msgstr "{file_count} bestanden geladen"
+
+msgid "Loaded {note_count} notes."
+msgstr "{note_count} notities geladen"
+
+msgid "Loaded {person_count} people."
+msgstr "{person_count} personen geladen"
+
+msgid "Loaded {place_count} places."
+msgstr "{place_count} plaatsen geladen"
+
+msgid "Loaded {repository_count} repositories as sources."
+msgstr "{repository_count} bibliotheken als bronnen geladen"
+
+msgid "Loaded {source_count} sources."
+msgstr "{source_count} bronnen geladen"
 
 msgid "Loading \"{file_path}\"..."
 msgstr "\"{file_path}\" aan het laden..."

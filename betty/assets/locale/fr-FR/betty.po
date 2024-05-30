@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-30 20:57+0200\n"
+"POT-Creation-Date: 2024-05-30 23:17+0200\n"
 "PO-Revision-Date: 2024-02-08 13:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: fr\n"
@@ -580,6 +580,30 @@ msgid "Load the family tree from..."
 msgstr ""
 
 msgid "Loaded the configuration from {configuration_file_path}."
+msgstr ""
+
+msgid "Loaded {citation_count} citations."
+msgstr ""
+
+msgid "Loaded {event_count} events."
+msgstr ""
+
+msgid "Loaded {file_count} files."
+msgstr ""
+
+msgid "Loaded {note_count} notes."
+msgstr ""
+
+msgid "Loaded {person_count} people."
+msgstr ""
+
+msgid "Loaded {place_count} places."
+msgstr ""
+
+msgid "Loaded {repository_count} repositories as sources."
+msgstr ""
+
+msgid "Loaded {source_count} sources."
 msgstr ""
 
 msgid "Loading \"{file_path}\"..."
