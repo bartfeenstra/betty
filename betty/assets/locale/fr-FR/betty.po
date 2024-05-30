@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-20 15:17+0100\n"
+"POT-Creation-Date: 2024-05-30 20:57+0200\n"
 "PO-Revision-Date: 2024-02-08 13:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: fr\n"
@@ -785,6 +785,9 @@ msgstr ""
 msgid "Serve site"
 msgstr ""
 
+msgid "Serve your site from..."
+msgstr ""
+
 msgid "Serving the Betty demo..."
 msgstr ""
 
@@ -996,6 +999,15 @@ msgstr ""
 "<kbd>esc</kbd> pour abondonner la recherche. Relancez la recherche avec "
 "<kbd>%(shortcut)s</kbd>."
 
+msgid "Use HTTP"
+msgstr ""
+
+msgid "Use HTTPS and HTTP/2"
+msgstr ""
+
+msgid "Use HTTPS and HTTP/2 if the site's URL starts with https://"
+msgstr ""
+
 msgid "Version: {version}"
 msgstr ""
 
@@ -1012,6 +1024,9 @@ msgid "View documentation"
 msgstr ""
 
 msgid "View site"
+msgstr ""
+
+msgid "WWW directory"
 msgstr ""
 
 msgid "Welcome to Betty"
