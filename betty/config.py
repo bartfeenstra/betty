@@ -224,13 +224,6 @@ class FileBasedConfiguration(Configuration):
                 )
         self.update(loaded_configuration)
 
-    def __del__(self) -> None:
-        if (
-            hasattr(self, "_configuration_directory")
-            and self._configuration_directory is not None
-        ):
-            self._configuration_directory.cleanup()
-
     @property
     def configuration_file_path(self) -> Path:
         """
