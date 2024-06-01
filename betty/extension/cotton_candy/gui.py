@@ -4,6 +4,7 @@ Provide Cotton Candy's Graphical User Interface.
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any, TYPE_CHECKING
 
 from PyQt6.QtCore import QRect
@@ -16,11 +17,14 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QFormLayout,
     QWidget,
+    QLineEdit,
+    QFileDialog,
 )
 from typing_extensions import override
 
 from betty.extension import CottonCandy, Webpack
 from betty.extension.cotton_candy import _ColorConfiguration, CottonCandyConfiguration
+from betty.gui.error import ExceptionCatcher
 from betty.gui.locale import LocalizedObject
 from betty.gui.model import EntityReferenceSequenceCollector
 from betty.gui.text import Caption
@@ -122,6 +126,7 @@ class _CottonCandyGuiWidget(LocalizedObject, QWidget):
     def __init__(self, app: App, *args: Any, **kwargs: Any):
         super().__init__(app, *args, **kwargs)
         self._app = app
+        self._configuration = app.extensions[CottonCandy].configuration
 
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
@@ -130,22 +135,22 @@ class _CottonCandyGuiWidget(LocalizedObject, QWidget):
             app,
             [
                 (
-                    app.extensions[CottonCandy].configuration.primary_inactive_color,
+                    self._configuration.primary_inactive_color,
                     Str._("Primary color (inactive)"),
                     CottonCandyConfiguration.DEFAULT_PRIMARY_INACTIVE_COLOR,
                 ),
                 (
-                    app.extensions[CottonCandy].configuration.primary_active_color,
+                    self._configuration.primary_active_color,
                     Str._("Primary color (active)"),
                     CottonCandyConfiguration.DEFAULT_PRIMARY_ACTIVE_COLOR,
                 ),
                 (
-                    app.extensions[CottonCandy].configuration.link_inactive_color,
+                    self._configuration.link_inactive_color,
                     Str._("Link color (inactive)"),
                     CottonCandyConfiguration.DEFAULT_LINK_INACTIVE_COLOR,
                 ),
                 (
-                    app.extensions[CottonCandy].configuration.link_active_color,
+                    self._configuration.link_active_color,
                     Str._("Link color (active)"),
                     CottonCandyConfiguration.DEFAULT_LINK_ACTIVE_COLOR,
                 ),
@@ -167,9 +172,47 @@ class _CottonCandyGuiWidget(LocalizedObject, QWidget):
         self._featured_entities_entity_references_collector = (
             EntityReferenceSequenceCollector(
                 self._app,
-                self._app.extensions[CottonCandy].configuration.featured_entities,
+                self._configuration.featured_entities,
                 Str._("Featured entities"),
                 Str._("These entities are featured on your site's front page."),
             )
         )
         self._layout.addWidget(self._featured_entities_entity_references_collector)
+
+        self._form_widget = QWidget()
+        self._form_layout = QFormLayout()
+        self._form_widget.setLayout(self._form_layout)
+        self._layout.addWidget(self._form_widget)
+
+        def _update_configuration_logo(logo: str) -> None:
+            self._configuration.logo = None if logo == "" else Path(logo)
+
+        self._logo = QLineEdit()
+        self._logo.setText(
+            str(self._configuration.logo) if self._configuration.logo else ""
+        )
+        self._logo.textChanged.connect(_update_configuration_logo)
+        logo_layout = QHBoxLayout()
+        logo_layout.addWidget(self._logo)
+
+        def find_logo() -> None:
+            with ExceptionCatcher(self):
+                found_logo, _ = QFileDialog.getOpenFileName(
+                    self,
+                    self._app.localizer._("Find logo..."),
+                    directory=self._logo.text(),
+                )
+                if found_logo != "":
+                    self._logo.setText(found_logo)
+
+        self._logo_find = QPushButton("...")
+        self._logo_find.released.connect(find_logo)
+        logo_layout.addWidget(self._logo_find)
+        self._logo_layout_label = QLabel()
+        self._logo_caption = Caption()
+        self._form_layout.addRow(self._logo_layout_label, logo_layout)
+        self._form_layout.addRow(self._logo_caption)
+
+    def _set_translatables(self) -> None:
+        self._logo_layout_label.setText(self._app.localizer._("Logo"))
+        self._logo_caption.setText(self._app.localizer._("Defaults to the Betty logo"))

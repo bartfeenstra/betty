@@ -258,9 +258,7 @@ class ExtensionConfiguration(Configuration):
             extension_type, ConfigurableExtension
         ):
             extension_configuration = extension_type.default_configuration()
-        if extension_configuration is not None:
-            extension_configuration.on_change(self)
-        self._extension_configuration = extension_configuration
+        self._set_extension_configuration(extension_configuration)
 
     @override
     def __eq__(self, other: Any) -> bool:
@@ -300,11 +298,18 @@ class ExtensionConfiguration(Configuration):
         """
         return self._extension_configuration
 
+    def _set_extension_configuration(
+        self, extension_configuration: Configuration | None
+    ) -> None:
+        if extension_configuration is not None:
+            extension_configuration.on_change(self)
+        self._extension_configuration = extension_configuration
+
     @override
     def update(self, other: Self) -> None:
         self._extension_type = other._extension_type
         self._enabled = other._enabled
-        self._extension_configuration = other._extension_configuration
+        self._set_extension_configuration(other._extension_configuration)
 
     @override
     @classmethod
