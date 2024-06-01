@@ -288,31 +288,60 @@ class GrampsLoader:
         database = self._tree.getroot()
 
         self._load_notes(database)
-        # @todo Localize all log messages
-        logger.info(f"Loaded {self._added_entity_counts[Note]} notes.")
+        logger.info(
+            self._localizer._("Loaded {note_count} notes.").format(
+                note_count=self._added_entity_counts[Note]
+            )
+        )
         self._load_objects(database, self._gramps_tree_directory_path)
-        logger.info(f"Loaded {self._added_entity_counts[File]} files.")
+        logger.info(
+            self._localizer._("Loaded {file_count} files.").format(
+                file_count=self._added_entity_counts[File]
+            )
+        )
 
         self._load_repositories(database)
         repository_count = self._added_entity_counts[Source]
-        logger.info(f"Loaded {repository_count} repositories as sources.")
+        logger.info(
+            self._localizer._(
+                "Loaded {repository_count} repositories as sources."
+            ).format(repository_count=repository_count)
+        )
 
         self._load_sources(database)
         logger.info(
-            f"Loaded {self._added_entity_counts[Source] - repository_count} sources."
+            self._localizer._("Loaded {source_count} sources.").format(
+                source_count=self._added_entity_counts[Source] - repository_count
+            )
         )
 
         self._load_citations(database)
-        logger.info(f"Loaded {self._added_entity_counts[Citation]} citations.")
+        logger.info(
+            self._localizer._("Loaded {citation_count} citations.").format(
+                citation_count=self._added_entity_counts[Citation]
+            )
+        )
 
         self._load_places(database)
-        logger.info(f"Loaded {self._added_entity_counts[Place]} places.")
+        logger.info(
+            self._localizer._("Loaded {place_count} places.").format(
+                place_count=self._added_entity_counts[Place]
+            )
+        )
 
         self._load_events(database)
-        logger.info(f"Loaded {self._added_entity_counts[Event]} events.")
+        logger.info(
+            self._localizer._("Loaded {event_count} events.").format(
+                event_count=self._added_entity_counts[Event]
+            )
+        )
 
         self._load_people(database)
-        logger.info(f"Loaded {self._added_entity_counts[Person]} people.")
+        logger.info(
+            self._localizer._("Loaded {person_count} people.").format(
+                person_count=self._added_entity_counts[Person]
+            )
+        )
 
         self._load_families(database)
 
