@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-06-01 21:25+0200\n"
+"POT-Creation-Date: 2024-06-02 00:21+0200\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -650,6 +650,10 @@ msgstr "Houd dit venster open om de site beschikbaar te houden."
 
 msgid "Language"
 msgstr "Taal"
+
+#, python-format
+msgid "Last modified on %(last_modified)s"
+msgstr "Laatst bijgewerkt op %(last_modified)s"
 
 msgid "Lifetime threshold"
 msgstr "Levensgrens"

@@ -435,6 +435,7 @@ async def _generate_sitemap(
         )
         rendered_sitemap = await sitemap_template.render_async(
             {
+                "job_context": job_context,
                 "urls": sitemap,
             }
         )
@@ -447,6 +448,7 @@ async def _generate_sitemap(
         "sitemap-index.xml.j2"
     ).render_async(
         {
+            "job_context": job_context,
             "sitemaps_urls": sitemaps_urls,
         }
     )

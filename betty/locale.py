@@ -32,6 +32,7 @@ import babel
 from aiofiles.os import makedirs
 from aiofiles.ospath import exists
 from babel import dates, Locale
+from babel.dates import format_date
 from babel.messages.frontend import CommandLineInterface
 from langcodes import Language
 from polib import pofile
@@ -917,6 +918,14 @@ class Localizer:
 
         return self._date_range_formatters[formatter_configuration].format(
             **formatter_arguments
+        )
+
+    def format_datetime_datetime(self, datetime_datetime: datetime.datetime) -> str:
+        """
+        Format a datetime date to a human-readable string.
+        """
+        return format_date(
+            datetime_datetime, "long", locale=to_babel_identifier(self.locale)
         )
 
 
