@@ -48,6 +48,7 @@ This extension is configurable through Betty Desktop or in the configuration fil
                     entity_id: P123
                   - entity_type: Place
                     entity_id: Amsterdam
+                logo: my-ancestry-logo.png
 
    .. md-tab-item:: JSON
 
@@ -70,7 +71,8 @@ This extension is configurable through Betty Desktop or in the configuration fil
                       "entity_type": "Place",
                       "entity_id": "Amsterdam"
                     }
-                  ]
+                  ],
+                  "logo": "my-ancestry-logo.png"
                 }
               }
             }
@@ -90,3 +92,4 @@ All configuration options
 
   - ``entity_type`` (required): The name of the entity type to feature, e.g. ``Person``.
   - ``entity_id`` (required):  The ID of the entity type to feature, e.g. ``P123``.
+- ``logo`` (optional): The path to your site's logo file. Defaults to the Betty logo.

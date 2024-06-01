@@ -12,11 +12,13 @@ from typing import Any, Callable, Iterable, Self, cast, TYPE_CHECKING
 from jinja2 import pass_context
 from typing_extensions import override
 
+from betty import fs
 from betty.app.extension import ConfigurableExtension, Extension, Theme
 from betty.config import Configuration
 from betty.extension.cotton_candy.search import Index
 from betty.extension.webpack import Webpack, WebpackEntrypointProvider
 from betty.functools import Uniquifier
+from betty.generate import Generator, GenerationContext
 from betty.gui import GuiBuilder
 from betty.html import CssProvider
 from betty.jinja2 import (
@@ -29,8 +31,9 @@ from betty.locale import Date, Str, Datey
 from betty.model import Entity, UserFacingEntity, GeneratedEntityId
 from betty.model.ancestry import Event, Person, Presence, is_public, Subject
 from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
+from betty.os import link_or_copy
 from betty.project import EntityReferenceSequence, EntityReference
-from betty.serde.dump import minimize, Dump, VoidableDump
+from betty.serde.dump import minimize, Dump, VoidableDump, Void
 from betty.serde.load import (
     AssertionFailed,
     Fields,
@@ -123,6 +126,7 @@ class CottonCandyConfiguration(Configuration):
         primary_active_color: str = DEFAULT_PRIMARY_ACTIVE_COLOR,
         link_inactive_color: str = DEFAULT_LINK_INACTIVE_COLOR,
         link_active_color: str = DEFAULT_LINK_ACTIVE_COLOR,
+        logo: Path | None = None,
     ):
         super().__init__()
         self._featured_entities = EntityReferenceSequence["UserFacingEntity & Entity"](
@@ -137,6 +141,7 @@ class CottonCandyConfiguration(Configuration):
         self._link_inactive_color.on_change(self)
         self._link_active_color = _ColorConfiguration(link_active_color)
         self._link_active_color.on_change(self)
+        self._logo = logo
 
     @property
     def featured_entities(self) -> EntityReferenceSequence[UserFacingEntity & Entity]:
@@ -172,6 +177,18 @@ class CottonCandyConfiguration(Configuration):
         The color for active hyperlinks.
         """
         return self._link_active_color
+
+    @property
+    def logo(self) -> Path | None:
+        """
+        The path to the logo.
+        """
+        return self._logo
+
+    @logo.setter
+    def logo(self, logo: Path | None) -> None:
+        self._logo = logo
+        self._dispatch_change()
 
     @override
     @classmethod
@@ -225,6 +242,11 @@ class CottonCandyConfiguration(Configuration):
                         )
                     ),
                 ),
+                OptionalField(
+                    "logo",
+                    Assertions(asserter.assert_path())
+                    | asserter.assert_setattr(configuration, "logo"),
+                ),
             )
         )(dump)
         return configuration
@@ -238,6 +260,7 @@ class CottonCandyConfiguration(Configuration):
                 "primary_active_color": self._primary_active_color.dump(),
                 "link_inactive_color": self._link_inactive_color.dump(),
                 "link_active_color": self._link_active_color.dump(),
+                "logo": str(self._logo) if self._logo else Void,
             }
         )
 
@@ -246,6 +269,7 @@ class CottonCandy(
     Theme,
     CssProvider,
     ConfigurableExtension[CottonCandyConfiguration],
+    Generator,
     GuiBuilder,
     Jinja2Provider,
     WebpackEntrypointProvider,
@@ -314,6 +338,22 @@ class CottonCandy(
     @classmethod
     def description(cls) -> Str:
         return Str._("Cotton Candy is Betty's default theme.")
+
+    @property
+    def logo(self) -> Path:
+        """
+        The path to the logo file.
+        """
+        return (
+            self._configuration.logo
+            or fs.ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png"
+        )
+
+    @override
+    async def generate(self, job_context: GenerationContext) -> None:
+        await link_or_copy(
+            self.logo, self._app.project.configuration.www_directory_path / "logo.png"
+        )
 
     @override
     def gui_build(self) -> QWidget:

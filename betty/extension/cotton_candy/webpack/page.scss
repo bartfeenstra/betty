@@ -51,9 +51,10 @@ footer {
  * Navigation.
  */
 #site-title {
-  background-image: $betty-32-32-png-url;
+  background-image: $logo-url;
   background-position: center;
   background-repeat: no-repeat;
+  background-size: contain;
   display: block;
   filter: grayscale(0.25);
   float: left;

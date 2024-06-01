@@ -31,6 +31,7 @@ from betty.serde.load import AssertionFailed
 from betty.tests.serde import raises_error
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from betty.serde.dump import Dump
 
 
@@ -87,6 +88,17 @@ class CottonCandyConfigurationTestEntitytest_load_with_featured_entities:
 
 
 class TestCottonCandyConfiguration:
+    async def test___init___with_logo(self, tmp_path: Path) -> None:
+        logo = tmp_path / "logo.png"
+        sut = CottonCandyConfiguration(logo=logo)
+        assert sut.logo == logo
+
+    async def test_logo(self, tmp_path: Path) -> None:
+        logo = tmp_path / "logo.png"
+        sut = CottonCandyConfiguration()
+        sut.logo = logo
+        assert sut.logo == logo
+
     async def test_load_with_minimal_configuration(self) -> None:
         dump: dict[str, Any] = {}
         CottonCandyConfiguration().load(dump)
@@ -143,6 +155,14 @@ class TestCottonCandyConfiguration:
         sut = CottonCandyConfiguration.load(dump)
         assert hex_value == sut.link_active_color.hex
 
+    async def test_load_with_logo(self, tmp_path: Path) -> None:
+        logo = tmp_path / "logo.png"
+        dump: Dump = {
+            "logo": str(logo),
+        }
+        sut = CottonCandyConfiguration.load(dump)
+        assert sut.logo == logo
+
     async def test_dump_with_minimal_configuration(self) -> None:
         sut = CottonCandyConfiguration()
         expected = {
@@ -196,6 +216,13 @@ class TestCottonCandyConfiguration:
         dump = sut.dump()
         assert isinstance(dump, dict)
         assert hex_value == dump["link_active_color"]
+
+    async def test_dump_with_logo(self, tmp_path: Path) -> None:
+        logo = tmp_path / "logo.png"
+        sut = CottonCandyConfiguration(logo=logo)
+        dump = sut.dump()
+        assert isinstance(dump, dict)
+        assert dump["logo"] == str(logo)
 
 
 __REFERENCE_DATE = Date(1970, 1, 1)

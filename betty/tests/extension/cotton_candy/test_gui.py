@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QColorDialog
 from pytest_mock import MockerFixture
@@ -227,3 +229,19 @@ class TestCottonCandyGuiWidget:
                 CottonCandy
             ].configuration.link_active_color.hex
         )
+
+    async def test_set_logo(self, betty_qtbot: BettyQtBot, tmp_path: Path) -> None:
+        logo = tmp_path / "logo.png"
+        betty_qtbot.app.project.configuration.extensions.enable(CottonCandy)
+        sut = _CottonCandyGuiWidget(betty_qtbot.app)
+        sut._logo.setText(str(logo))
+        assert betty_qtbot.app.extensions[CottonCandy].configuration.logo == logo
+
+    async def test_unset_logo(self, betty_qtbot: BettyQtBot, tmp_path: Path) -> None:
+        betty_qtbot.app.project.configuration.extensions.enable(CottonCandy)
+        betty_qtbot.app.extensions[CottonCandy].configuration.logo = (
+            tmp_path / "logo.png"
+        )
+        sut = _CottonCandyGuiWidget(betty_qtbot.app)
+        sut._logo.setText("")
+        assert betty_qtbot.app.extensions[CottonCandy].configuration.logo is None

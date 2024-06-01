@@ -5,6 +5,7 @@ Provide demonstration site functionality.
 from __future__ import annotations
 
 from contextlib import AsyncExitStack
+from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
@@ -37,7 +38,6 @@ from betty.project import (
 )
 from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
 from betty.warnings import deprecate
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from betty.model import Entity

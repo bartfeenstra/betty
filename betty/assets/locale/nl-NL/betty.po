@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-30 23:17+0200\n"
+"POT-Creation-Date: 2024-06-01 21:25+0200\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -435,6 +435,9 @@ msgstr "Debugmodus"
 msgid "Default locale"
 msgstr "Standaardtaalregio"
 
+msgid "Defaults to the Betty logo"
+msgstr "Valt terug op het logo van Betty"
+
 msgid "Demo"
 msgstr "Demo"
 
@@ -543,6 +546,9 @@ msgstr "Bestandspad"
 
 msgid "Files"
 msgstr "Bestanden"
+
+msgid "Find logo..."
+msgstr "Logo zoeken..."
 
 msgid "Find out more about this image on Wikimedia Commons."
 msgstr "Vind meer informatie over deze afbeelding op Wikimedia Commons."
@@ -701,6 +707,9 @@ msgstr "Taalregioaliassen mogen geen schuine streep bevatten."
 
 msgid "Localization"
 msgstr "Taalregio"
+
+msgid "Logo"
+msgstr "Logo"
 
 msgid "MMMM"
 msgstr "MMMM"
