@@ -20,6 +20,9 @@ npm install
 # Prepare the workspace directories.
 ./bin/clean-build
 
+# Prebuild assets.
+python -c 'from asyncio import run; from betty._package import prebuild; run(prebuild())'
+
 # Build the package.
 python setup.py sdist
 python setup.py bdist_wheel
