@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-20 14:26+0100\n"
+"POT-Creation-Date: 2024-05-30 20:57+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -692,6 +692,9 @@ msgstr ""
 msgid "Serve site"
 msgstr ""
 
+msgid "Serve your site from..."
+msgstr ""
+
 msgid "Serving the Betty demo..."
 msgstr ""
 
@@ -869,6 +872,15 @@ msgstr ""
 msgid "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> to exit the search. Search again with <kbd>%(shortcut)s</kbd>."
 msgstr ""
 
+msgid "Use HTTP"
+msgstr ""
+
+msgid "Use HTTPS and HTTP/2"
+msgstr ""
+
+msgid "Use HTTPS and HTTP/2 if the site's URL starts with https://"
+msgstr ""
+
 msgid "Version: {version}"
 msgstr ""
 
@@ -885,6 +897,9 @@ msgid "View documentation"
 msgstr ""
 
 msgid "View site"
+msgstr ""
+
+msgid "WWW directory"
 msgstr ""
 
 msgid "Welcome to Betty"

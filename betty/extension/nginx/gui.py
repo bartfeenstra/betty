@@ -11,19 +11,20 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QFileDialog,
     QPushButton,
+    QLabel,
 )
 
 from betty.app import App
 from betty.extension.nginx.config import NginxConfiguration
 from betty.gui.error import ExceptionCatcher
+from betty.gui.locale import LocalizedObject
 
 
-class _NginxGuiWidget(QWidget):
+class _NginxGuiWidget(LocalizedObject, QWidget):
     def __init__(
         self, app: App, configuration: NginxConfiguration, *args: Any, **kwargs: Any
     ):
-        super().__init__(*args, **kwargs)
-        self._app = app
+        super().__init__(app, *args, **kwargs)
         self._configuration = configuration
         layout = QFormLayout()
 
@@ -35,9 +36,7 @@ class _NginxGuiWidget(QWidget):
             if checked:
                 self._configuration.https = None
 
-        self._nginx_https_base_url = QRadioButton(
-            "Use HTTPS and HTTP/2 if the site's URL starts with https://"
-        )
+        self._nginx_https_base_url = QRadioButton()
         self._nginx_https_base_url.setChecked(self._configuration.https is None)
         self._nginx_https_base_url.toggled.connect(_update_configuration_https_base_url)
         layout.addRow(self._nginx_https_base_url)
@@ -47,7 +46,7 @@ class _NginxGuiWidget(QWidget):
             if checked:
                 self._configuration.https = True
 
-        self._nginx_https_https = QRadioButton("Use HTTPS and HTTP/2")
+        self._nginx_https_https = QRadioButton()
         self._nginx_https_https.setChecked(self._configuration.https is True)
         self._nginx_https_https.toggled.connect(_update_configuration_https_https)
         layout.addRow(self._nginx_https_https)
@@ -57,7 +56,7 @@ class _NginxGuiWidget(QWidget):
             if checked:
                 self._configuration.https = False
 
-        self._nginx_https_http = QRadioButton("Use HTTP")
+        self._nginx_https_http = QRadioButton()
         self._nginx_https_http.setChecked(self._configuration.https is False)
         self._nginx_https_http.toggled.connect(_update_configuration_https_http)
         layout.addRow(self._nginx_https_http)
@@ -88,7 +87,7 @@ class _NginxGuiWidget(QWidget):
             with ExceptionCatcher(self):
                 found_www_directory_path = QFileDialog.getExistingDirectory(
                     self,
-                    "Serve your site from...",
+                    self._app.localizer._("Serve your site from..."),
                     directory=self._nginx_www_directory_path.text(),
                 )
                 if found_www_directory_path != "":
@@ -97,4 +96,17 @@ class _NginxGuiWidget(QWidget):
         self._nginx_www_directory_path_find = QPushButton("...")
         self._nginx_www_directory_path_find.released.connect(find_www_directory_path)
         www_directory_path_layout.addWidget(self._nginx_www_directory_path_find)
-        layout.addRow("WWW directory", www_directory_path_layout)
+        self._www_directory_path_layout_label = QLabel()
+        layout.addRow(self._www_directory_path_layout_label, www_directory_path_layout)
+
+    def _set_translatables(self) -> None:
+        self._nginx_https_base_url.setText(
+            self._app.localizer._(
+                "Use HTTPS and HTTP/2 if the site's URL starts with https://"
+            )
+        )
+        self._nginx_https_https.setText(self._app.localizer._("Use HTTPS and HTTP/2"))
+        self._nginx_https_http.setText(self._app.localizer._("Use HTTP"))
+        self._www_directory_path_layout_label.setText(
+            self._app.localizer._("WWW directory")
+        )
