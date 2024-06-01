@@ -39,4 +39,5 @@ test('search, find, and navigate to a resource', async ({ page, site }) => {
   await page.keyboard.press('ArrowDown')
   await page.locator(':focus').press('Enter')
   expect(page.url()).toBe(site + '/person/I0001/index.html')
+  await page.close()
 })
