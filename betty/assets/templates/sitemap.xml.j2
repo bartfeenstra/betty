@@ -3,6 +3,7 @@
     {% for url in urls %}
         <url>
             <loc>{{ url }}</loc>
+            <lastmod>{{ job_context.start.isoformat() }}</lastmod>
         </url>
     {% endfor %}
 </urlset>

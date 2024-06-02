@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-06-01 21:25+0200\n"
+"POT-Creation-Date: 2024-06-02 00:21+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -486,6 +486,10 @@ msgid "Keep this window open to keep the site running."
 msgstr ""
 
 msgid "Language"
+msgstr ""
+
+#, python-format
+msgid "Last modified on %(last_modified)s"
 msgstr ""
 
 msgid "Lifetime threshold"

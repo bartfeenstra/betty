@@ -7,3 +7,6 @@
 {% if 'betty.extension.HttpApiDoc' in app.extensions %}
     <p><a href="{{ '/api/index.html' | static_url }}">{% trans %}API documentation{% endtrans %}</a></p>
 {% endif %}
+{% if job_context is defined %}
+    <p>{% trans last_modified = localizer.format_datetime_datetime(job_context.start) %}Last modified on {{ last_modified }}{% endtrans %}</p>
+{% endif %}

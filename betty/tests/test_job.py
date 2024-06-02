@@ -14,3 +14,7 @@ class TestContext:
             with pytest.warns(BettyDeprecationWarning):
                 assert sut.claim(job_id)
                 assert not sut.claim(job_id)
+
+    async def test_start(self) -> None:
+        sut = Context()
+        sut.start  # noqa B018

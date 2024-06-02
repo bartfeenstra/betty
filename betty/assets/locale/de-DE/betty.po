@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-06-01 21:25+0200\n"
+"POT-Creation-Date: 2024-06-02 00:21+0200\n"
 "PO-Revision-Date: 2024-02-08 13:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de\n"
@@ -653,6 +653,10 @@ msgstr "Lass dieses Fenster geöffnet, damit die Website weiterläuft."
 
 msgid "Language"
 msgstr "Sprache"
+
+#, python-format
+msgid "Last modified on %(last_modified)s"
+msgstr ""
 
 msgid "Lifetime threshold"
 msgstr "Lebenszeitschwelle"

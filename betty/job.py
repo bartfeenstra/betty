@@ -5,6 +5,7 @@ Provide utilities for running jobs concurrently.
 from __future__ import annotations
 
 import threading
+from datetime import datetime
 from typing import Any, TYPE_CHECKING
 
 from betty.cache.memory import MemoryCache
@@ -24,6 +25,7 @@ class Context:
         self._cache: Cache[Any] = MemoryCache(localizer or DEFAULT_LOCALIZER)
         self._claims_lock = threading.Lock()
         self._claimed_job_ids: set[str] = set()
+        self._start = datetime.now()
 
     @deprecated(
         "This method is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x. Use `Context.cache` instead."
@@ -46,3 +48,10 @@ class Context:
         The cache is volatile and will be discarded once the job context is completed.
         """
         return self._cache
+
+    @property
+    def start(self) -> datetime:
+        """
+        When the job started.
+        """
+        return self._start
