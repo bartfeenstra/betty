@@ -86,8 +86,8 @@
         {% endif %}
         {% block page_content %}{% endblock %}
         {% if page_resource is has_links %}
-            {% set links = page_resource.links | rejectattr('label', 'none') | list %}
-            {% set links = links | select_localizeds(include_unspecified=true) | list + links | selectattr('locale', 'none') | list %}
+            {% set links = page_resource.links | list %}
+            {% set links = (links | select_localizeds(include_unspecified=true) | list + links | selectattr('locale', 'none') | list) | unique | list %}
             {% if links | length > 0 %}
                 <section id="external-links">
                     <h2>
@@ -99,7 +99,7 @@
                     <ul>
                     {% for link in links %}
                         <li>
-                            <a href="{{ link.url }}"{% if link.locale is not none %} hreflang="{{ link.locale }}"{% endif %}{% if link.relationship is not none %} rel="{{ link.relationship }}"{% endif %}{% if link.media_type is not none %} type="{{ link.media_type }}"{% endif %}>{{ link.label }}</a>
+                            <a href="{{ link.url }}"{% if link.locale is not none %} hreflang="{{ link.locale }}"{% endif %}{% if link.relationship is not none %} rel="{{ link.relationship }}"{% endif %}{% if link.media_type is not none %} type="{{ link.media_type }}"{% endif %}>{{ link.label or link.url }}</a>
                             {% if link.description is not none %}
                                 <div class="meta">{{ link.description }}</div>
                             {% endif %}

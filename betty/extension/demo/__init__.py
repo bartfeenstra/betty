@@ -150,7 +150,10 @@ class Demo(Extension, Loader):
                     locale="fr",
                 ),
             ],
-            links=[Link("https://en.wikipedia.org/wiki/North_Holland")],
+            links=[
+                Link("https://en.wikipedia.org/wiki/North_Holland"),
+                Link("https://www.noord-holland.nl/Home"),
+            ],
         )
         self._load(Enclosure(encloses=north_holland, enclosed_by=netherlands))
         self._load(north_holland)
@@ -170,7 +173,10 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
                     locale="uk",
                 ),
             ],
-            links=[Link("https://nl.wikipedia.org/wiki/Amsterdam")],
+            links=[
+                Link("https://nl.wikipedia.org/wiki/Amsterdam"),
+                Link("https://www.amsterdam.nl/"),
+            ],
             notes=[amsterdam_note],
         )
         self._load(Enclosure(encloses=amsterdam, enclosed_by=north_holland))
@@ -202,11 +208,19 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
         )
         self._load(cite_first_person_account)
 
+        noord_hollands_archief = Source(
+            id="betty-demo-noord-hollands-archief",
+            name="Noord-Hollands Archief",
+            links=[Link("https://noord-hollandsarchief.nl/")],
+        )
+        self._load(noord_hollands_archief)
+
         bevolkingsregister_amsterdam = Source(
             id="betty-demo-bevolkingsregister-amsterdam",
             name="Bevolkingsregister Amsterdam",
             author="Gemeente Amsterdam",
             publisher="Gemeente Amsterdam",
+            contained_by=noord_hollands_archief,
         )
         self._load(bevolkingsregister_amsterdam)
 
