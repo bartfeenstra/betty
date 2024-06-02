@@ -52,15 +52,17 @@ footer {
  */
 #site-title {
   background-image: $logo-url;
+  background-origin: content-box;
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
   display: block;
   filter: grayscale(0.25);
   float: left;
-  height: 3rem;
+  height: 2rem;
+  padding: 0.5rem;
   text-indent: -999em;
-  width: 3rem;
+  width: 2rem;
 }
 
 #site-title:hover {
