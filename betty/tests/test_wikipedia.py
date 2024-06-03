@@ -1,20 +1,17 @@
 from __future__ import annotations
 
-import asyncio
 from json import dumps
 from pathlib import Path
 from typing import Any, TYPE_CHECKING
 from unittest.mock import AsyncMock, call
 
-import aiofiles
-import aiohttp
 import pytest
-from aiohttp import ClientError
 from geopy import Point
+from multidict import CIMultiDict
+from typing_extensions import override
 
 from betty.app import App
-from betty.cache.memory import MemoryCache
-from betty.locale import DEFAULT_LOCALIZER
+from betty.fetch import Fetcher, FetchResponse
 from betty.media_type import MediaType
 from betty.model.ancestry import Source, Link, Citation, Place
 from betty.project import LocaleConfiguration
@@ -25,192 +22,37 @@ from betty.wikipedia import (
     _parse_url,
     _Populator,
     Image,
-    _Fetcher,
     RetrievalError,
 )
 
 if TYPE_CHECKING:
     from betty.cache.file import BinaryFileCache
     from pytest_mock import MockerFixture
-    from aioresponses import aioresponses
-    from collections.abc import AsyncIterator, Mapping
+    from collections.abc import Mapping
 
 
-class TestFetcher:
-    @pytest.fixture()
-    async def sut(self, binary_file_cache: BinaryFileCache) -> AsyncIterator[_Fetcher]:
-        async with aiohttp.ClientSession() as http_client:
-            yield _Fetcher(
-                http_client, MemoryCache(DEFAULT_LOCALIZER), binary_file_cache
-            )
-
-    async def test_fetch_should_return(
-        self, aioresponses: aioresponses, sut: _Fetcher
-    ) -> None:
-        url = "https://example.com"
-        content = "The name's Text. Plain Text."
-        aioresponses.get(url, body=content)
-
-        # The first fetch uses cold caches. This should result in the HTTP client being called.
-        fetched_once = await sut.fetch(url)
-        assert fetched_once == content
-
-        # The second fetch should result in the cache being called.
-        fetched_twice = await sut.fetch(url)
-        assert fetched_twice == content
-
-        # Assert the HTTP client was indeed called only once.
-        aioresponses.assert_called_once()
-
-    @pytest.mark.parametrize(
-        "error",
-        [
-            ClientError(),
-            asyncio.TimeoutError(),
-        ],
-    )
-    async def test_fetch_with_cold_cache_and_get_error_should_error(
-        self, aioresponses: aioresponses, error: Exception, sut: _Fetcher
-    ) -> None:
-        url = "https://example.com"
-        aioresponses.get(url, exception=error)
-
-        with pytest.raises(RetrievalError):
-            await sut.fetch(url)
-
-    @pytest.mark.parametrize(
-        "error",
-        [
-            ClientError(),
-            asyncio.TimeoutError(),
-        ],
-    )
-    async def test_fetch_with_warm_cache_and_get_error_should_return(
-        self,
-        aioresponses: aioresponses,
-        binary_file_cache: BinaryFileCache,
-        error: Exception,
-        sut: _Fetcher,
-    ) -> None:
-        async with aiohttp.ClientSession() as http_client:
-            sut = _Fetcher(
-                http_client,
-                MemoryCache(DEFAULT_LOCALIZER),
-                binary_file_cache,
-                # A negative TTL ensures every cache item is considered expired a long time ago.
-                -999999999,
-            )
-            url = "https://example.com"
-            content = "The name's Text. Plain Text."
-            aioresponses.get(url, body=content)
-
-            # The first fetch uses cold caches. This should result in the HTTP client being called.
-            fetched_once = await sut.fetch(url)
-            assert fetched_once == content
-
-            aioresponses.get(url, exception=error)
-
-            # The second fetch should result in:
-            # - the cache being called, but the item being ignored due to our negative TTL
-            # - the call to the HTTP client raising an error
-            # - the expired cached content being returned
-            fetched_twice = await sut.fetch(url)
-            assert fetched_twice == content
-
-    async def test_fetch_file_should_return(
-        self, aioresponses: aioresponses, sut: _Fetcher
-    ) -> None:
-        url = "https://example.com"
-        content = b"The name's Text. Plain Text."
-        aioresponses.get(url, body=content)
-
-        # The first fetch uses cold caches. This should result in the HTTP client being called.
-        fetched_once = await sut.fetch_file(url)
-        async with aiofiles.open(fetched_once, "rb") as f:
-            assert await f.read() == content
-
-        # The second fetch should result in the cache being called.
-        fetched_twice = await sut.fetch_file(url)
-        async with aiofiles.open(fetched_twice, "rb") as f:
-            assert await f.read() == content
-
-        # Assert the HTTP client was indeed called only once.
-        aioresponses.assert_called_once()
-
-    @pytest.mark.parametrize(
-        "error",
-        [
-            ClientError(),
-            asyncio.TimeoutError(),
-        ],
-    )
-    async def test_fetch_file_with_cold_cache_and_get_error_should_error(
-        self, aioresponses: aioresponses, error: Exception, sut: _Fetcher
-    ) -> None:
-        url = "https://example.com"
-        aioresponses.get(url, exception=error)
-
-        with pytest.raises(RetrievalError):
-            await sut.fetch_file(url)
-
-    @pytest.mark.parametrize(
-        "error",
-        [
-            ClientError(),
-            asyncio.TimeoutError(),
-        ],
-    )
-    async def test_fetch_file_with_warm_cache_and_get_error_should_return(
-        self,
-        aioresponses: aioresponses,
-        binary_file_cache: BinaryFileCache,
-        error: Exception,
-        sut: _Fetcher,
-    ) -> None:
-        async with aiohttp.ClientSession() as http_client:
-            sut = _Fetcher(
-                http_client,
-                MemoryCache(DEFAULT_LOCALIZER),
-                binary_file_cache,
-                # A negative TTL ensures every cache item is considered expired a long time ago.
-                -999999999,
-            )
-            url = "https://example.com"
-            content = b"The name's Text. Plain Text."
-            aioresponses.get(url, body=content)
-
-            # The first fetch uses cold caches. This should result in the HTTP client being called.
-            fetched_once = await sut.fetch_file(url)
-            async with aiofiles.open(fetched_once, "rb") as f:
-                assert await f.read() == content
-
-            aioresponses.get(url, exception=error)
-
-            # The second fetch should result in:
-            # - the cache being called, but the item being ignored due to our negative TTL
-            # - the call to the HTTP client raising an error
-            # - the expired cached content being returned
-            fetched_twice = await sut.fetch_file(url)
-            async with aiofiles.open(fetched_twice, "rb") as f:
-                assert await f.read() == content
+def _new_json_fetch_response(json_data: Any) -> FetchResponse:
+    return FetchResponse(CIMultiDict(), dumps(json_data).encode("utf-8"), "utf-8")
 
 
-class _MapFetcher(_Fetcher):
+class _MapFetcher(Fetcher):
     def __init__(
         self,
         *,
-        fetch_map: Mapping[str, str] | None = None,
+        fetch_map: Mapping[str, FetchResponse] | None = None,
         fetch_file_map: Mapping[str, Path] | None = None,
     ):
-        self._fetch_map = {} if fetch_map is None else fetch_map
-        self._fetch_file_map = {} if fetch_file_map is None else fetch_file_map
+        self._fetch_map = fetch_map or {}
+        self._fetch_file_map = fetch_file_map or {}
 
-    async def fetch(self, url: str) -> str:
+    @override
+    async def fetch(self, url: str) -> FetchResponse:
         try:
             return self._fetch_map[url]
         except KeyError:
             raise RetrievalError from None
 
+    @override
     async def fetch_file(self, url: str) -> Path:
         try:
             return self._fetch_file_map[url]
@@ -377,7 +219,9 @@ class TestRetriever:
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
         fetch_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
-        fetcher = _MapFetcher(fetch_map={fetch_url: dumps(fetch_json)})
+        fetcher = _MapFetcher(
+            fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
+        )
         translations = await _Retriever(fetcher).get_translations(
             page_language, page_name
         )
@@ -392,7 +236,15 @@ class TestRetriever:
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
         fetch_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks&lllimit=500&format=json&formatversion=2"
-        fetcher = _MapFetcher(fetch_map={fetch_url: "{Haha Im not rly JSON}"})
+        fetcher = _MapFetcher(
+            fetch_map={
+                fetch_url: FetchResponse(
+                    CIMultiDict(),
+                    "{Haha Im not rly JSON}".encode("utf-8"),
+                    "utf-8",
+                )
+            }
+        )
         actual = await _Retriever(fetcher).get_translations(page_language, page_name)
         assert {} == actual
 
@@ -415,7 +267,9 @@ class TestRetriever:
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
         fetch_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstrekens&prop=langlinks&lllimit=500&format=json&formatversion=2"
-        fetcher = _MapFetcher(fetch_map={fetch_url: dumps(response_json)})
+        fetcher = _MapFetcher(
+            fetch_map={fetch_url: _new_json_fetch_response(response_json)}
+        )
         actual = await _Retriever(fetcher).get_translations(page_language, page_name)
         assert {} == actual
 
@@ -488,7 +342,9 @@ class TestRetriever:
         fetch_url = (
             "https://en.wikipedia.org/api/rest_v1/page/summary/Amsterdam & Omstreken"
         )
-        fetcher = _MapFetcher(fetch_map={fetch_url: dumps(fetch_json)})
+        fetcher = _MapFetcher(
+            fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
+        )
         retriever = _Retriever(fetcher)
         actual = await retriever.get_summary(page_language, page_name)
         assert actual == expected
@@ -637,7 +493,9 @@ class TestRetriever:
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
         fetch_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
-        fetcher = _MapFetcher(fetch_map={fetch_url: dumps(fetch_json)})
+        fetcher = _MapFetcher(
+            fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
+        )
         actual = await _Retriever(fetcher).get_place_coordinates(
             page_language, page_name
         )
@@ -786,10 +644,10 @@ class TestRetriever:
         page_fetch_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
         file_fetch_url = "https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&titles=File:Amsterdam%20%26%20Omstreken&iiprop=url|mime|canonicaltitle&format=json&formatversion=2"
 
-        fetch_map = {page_fetch_url: dumps(page_fetch_json)}
+        fetch_map = {page_fetch_url: _new_json_fetch_response(page_fetch_json)}
         fetch_file_map = {}
         if file_fetch_json is not None:
-            fetch_map[file_fetch_url] = dumps(file_fetch_json)
+            fetch_map[file_fetch_url] = _new_json_fetch_response(file_fetch_json)
         image_file_path = tmp_path / "image"
         if expected is not None:
             fetch_file_map["https://example.com/image"] = image_file_path
