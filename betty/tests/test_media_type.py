@@ -30,7 +30,7 @@ class TestMediaType:
                 "application/vnd.oasis.opendocument.text",
             ),
             # A media type with a subtype suffix.
-            ("application", "ld+json", ["ld"], "json", {}, "application/ld+json"),
+            ("application", "ld", ["ld"], "+json", {}, "application/ld+json"),
             # A media type with a parameter.
             (
                 "text",

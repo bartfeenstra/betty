@@ -25,6 +25,8 @@ class MediaType:
     Media types are also commonly known as content types or MIME types.
     """
 
+    _suffix: str | None
+
     def __init__(self, media_type: str):
         self._str = media_type
         message = EmailMessage()
@@ -35,9 +37,16 @@ class MediaType:
         if not media_type.startswith(type_part):
             raise InvalidMediaType(f'"{media_type}" is not a valid media type.')
         self._parameters: dict[str, str] = dict(message["Content-Type"].params)
-        self._type, self._subtype = type_part.split("/")
-        if not self._subtype:
+        self._type, type_part_remainder = type_part.split("/")
+        if not type_part_remainder:
             raise InvalidMediaType("The subtype must not be empty.")
+        plus_position = type_part_remainder.find("+")
+        if plus_position > 0:
+            self._subtype = type_part_remainder[0:plus_position]
+            self._suffix = type_part_remainder[plus_position:]
+        else:
+            self._subtype = type_part_remainder
+            self._suffix = None
 
     def __hash__(self) -> int:
         return hash(self._str)
@@ -45,7 +54,7 @@ class MediaType:
     @property
     def type(self) -> str:
         """
-        The suffix, e.g. ``application`` for ``application/ld+json``.
+        The type, e.g. ``application`` for ``application/ld+json``.
         """
         return self._type
 
@@ -66,12 +75,9 @@ class MediaType:
     @property
     def suffix(self) -> str | None:
         """
-        The suffix, e.g. ``+json`` for ``application/ld+json``.
+        The suffix, e.g. ``json`` for ``application/ld+json``.
         """
-        if "+" not in self._subtype:
-            return None
-
-        return self._subtype.split("+")[-1]
+        return self._suffix
 
     @property
     def parameters(self) -> dict[str, str]:
@@ -88,8 +94,9 @@ class MediaType:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, MediaType):
             return NotImplemented
-        return (self.type, self.subtype, self.parameters) == (
+        return (self.type, self.subtype, self.suffix, self.parameters) == (
             other.type,
             other.subtype,
+            self.suffix,
             other.parameters,
         )

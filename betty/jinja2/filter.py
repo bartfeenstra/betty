@@ -275,7 +275,8 @@ async def filter_image(
     if (
         file.media_type
         and file.media_type.type == "image"
-        and file.media_type.subtype == "svg+xml"
+        and file.media_type.subtype == "svg"
+        and file.media_type.suffix == "+xml"
     ):
         return await filter_file(context, file)
 
