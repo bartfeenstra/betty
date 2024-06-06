@@ -415,6 +415,14 @@ class TestFile:
         )
         assert file_id == sut.id
 
+    async def test_name_with_name(self, tmp_path: Path) -> None:
+        name = "a-file.a-suffix"
+        sut = File(
+            tmp_path / "file",
+            name=name,
+        )
+        assert sut.name == name
+
     async def test_private(self) -> None:
         file_id = "BETTY01"
         file_path = Path("~")

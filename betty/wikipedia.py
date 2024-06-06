@@ -9,8 +9,9 @@ import re
 from collections import defaultdict
 from contextlib import suppress, contextmanager
 from json import JSONDecodeError
+from pathlib import Path
 from typing import cast, Any, TYPE_CHECKING
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 
 from geopy import Point
 
@@ -32,7 +33,6 @@ from betty.model.ancestry import Link, HasLinks, Place, File, HasFiles
 if TYPE_CHECKING:
     from betty.fetch import Fetcher
     from betty.app import App
-    from pathlib import Path
     from collections.abc import (
         Sequence,
         MutableSequence,
@@ -140,11 +140,13 @@ class Image:
         media_type: MediaType,
         title: str,
         wikimedia_commons_url: str,
+        name: str,
     ):
         self._path = path
         self._media_type = media_type
         self._title = title
         self._wikimedia_commons_url = wikimedia_commons_url
+        self._name = name
 
     def __hash__(self) -> int:
         return hash(
@@ -178,6 +180,13 @@ class Image:
         The URL to the Wikimedia Commons web page for this image.
         """
         return self._wikimedia_commons_url
+
+    @property
+    def name(self) -> str:
+        """
+        The image's file name.
+        """
+        return self._name
 
 
 class _Retriever:
@@ -295,6 +304,7 @@ class _Retriever:
                     image_info["canonicaltitle"].index(":") + 1 :
                 ],
                 image_info["descriptionurl"],
+                Path(urlparse(image_info["url"]).path).name,
             )
 
             return image
@@ -503,6 +513,7 @@ class _Populator:
                     )
                 file = File(
                     id=f"wikipedia-{image.title}",
+                    name=image.name,
                     path=image.path,
                     media_type=image.media_type,
                     links=links,

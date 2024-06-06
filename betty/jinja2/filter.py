@@ -249,12 +249,12 @@ async def filter_file(context: Context, file: File) -> str:
             / "file"
             / file.id
             / "file"
-            / file.path.name
+            / file.name
         )
         await makedirs(file_destination_path.parent, exist_ok=True)
         await link_or_copy(file.path, file_destination_path)
 
-    return f"/file/{quote(file.id)}/file/{quote(file.path.name)}"
+    return f"/file/{quote(file.id)}/file/{quote(file.name)}"
 
 
 @pass_context
