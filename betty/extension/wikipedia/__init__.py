@@ -22,7 +22,6 @@ from betty.wikipedia import (
     _parse_url,
     NotAPageError,
     RetrievalError,
-    _Fetcher,
     _Retriever,
     _Populator,
 )
@@ -61,13 +60,7 @@ class Wikipedia(
     @property
     def _retriever(self) -> _Retriever:
         if self.__retriever is None:
-            self.__retriever = _Retriever(
-                _Fetcher(
-                    self.app.http_client,
-                    self._app.cache,
-                    self._app.binary_file_cache.with_scope(self.name()),
-                ),
-            )
+            self.__retriever = _Retriever(self._app.fetcher)
         return self.__retriever
 
     @_retriever.deleter

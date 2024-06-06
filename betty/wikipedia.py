@@ -4,24 +4,20 @@ Fetch information from Wikipedia.
 
 from __future__ import annotations
 
-import asyncio
-import json
 import logging
 import re
 from collections import defaultdict
-from contextlib import suppress
-from time import time
+from contextlib import suppress, contextmanager
+from json import JSONDecodeError
 from typing import cast, Any, TYPE_CHECKING
 from urllib.parse import quote
 
-import aiohttp
-from aiohttp import ClientResponse
 from geopy import Point
 
 from betty.asyncio import gather
-from betty.concurrent import RateLimiter, _Lock, AsynchronizedLock
+from betty.concurrent import _Lock, AsynchronizedLock, RateLimiter
+from betty.fetch import FetchError
 from betty.functools import filter_suppress
-from betty.hashid import hashid
 from betty.locale import (
     Localized,
     negotiate_locale,
@@ -34,17 +30,15 @@ from betty.media_type import MediaType
 from betty.model.ancestry import Link, HasLinks, Place, File, HasFiles
 
 if TYPE_CHECKING:
+    from betty.fetch import Fetcher
     from betty.app import App
-    from betty.cache.file import BinaryFileCache
-    from betty.cache import Cache, CacheItemValueT
     from pathlib import Path
     from collections.abc import (
         Sequence,
         MutableSequence,
-        Callable,
-        Awaitable,
         Mapping,
         MutableMapping,
+        Iterator,
     )
 
 
@@ -186,90 +180,43 @@ class Image:
         return self._wikimedia_commons_url
 
 
-class _Fetcher:
+class _Retriever:
     _WIKIPEDIA_RATE_LIMIT = 200
 
     def __init__(
         self,
-        http_client: aiohttp.ClientSession,
-        cache: Cache[str],
-        binary_file_cache: BinaryFileCache,
-        # Default to seven days.
-        ttl: int = 86400 * 7,
-    ):
-        self._cache = cache
-        self._binary_file_cache = binary_file_cache
-        self._ttl = ttl
-        self._http_client = http_client
-        self._rate_limiter = RateLimiter(self._WIKIPEDIA_RATE_LIMIT)
-        self._images: dict[str, Image | None] = {}
-        self._logger = logging.getLogger(__name__)
-
-    async def _fetch(
-        self,
-        url: str,
-        cache: Cache[CacheItemValueT],
-        response_mapper: Callable[[ClientResponse], Awaitable[CacheItemValueT]],
-    ) -> tuple[CacheItemValueT, str]:
-        cache_item_id = hashid(url)
-
-        response_data: CacheItemValueT | None = None
-        async with cache.getset(cache_item_id) as (cache_item, setter):
-            if cache_item and cache_item.modified + self._ttl > time():
-                response_data = await cache_item.value()
-            else:
-                async with self._rate_limiter:
-                    self._logger.debug(f"Fetching {url}...")
-                    try:
-                        async with self._http_client.get(url) as response:
-                            response_data = await response_mapper(response)
-                    except aiohttp.ClientError as error:
-                        self._logger.warning(
-                            f"Could not successfully connect to {url}: {error}"
-                        )
-                    except asyncio.TimeoutError:
-                        self._logger.warning(f"Timeout when connecting to {url}")
-                    else:
-                        await setter(response_data)
-
-        if response_data is None:
-            if cache_item:
-                response_data = await cache_item.value()
-            else:
-                raise RetrievalError(
-                    f"Could neither fetch {url}, nor find an old version in the cache."
-                )
-
-        return response_data, cache_item_id
-
-    async def fetch(self, url: str) -> str:
-        response_data, _ = await self._fetch(url, self._cache, ClientResponse.text)
-        return response_data
-
-    async def fetch_file(self, url: str) -> Path:
-        _, cache_item_id = await self._fetch(
-            url, self._binary_file_cache, ClientResponse.read
-        )
-        return self._binary_file_cache.cache_item_file_path(cache_item_id)
-
-
-class _Retriever:
-    def __init__(
-        self,
-        fetcher: _Fetcher,
+        fetcher: Fetcher,
     ):
         self._fetcher = fetcher
         self._images: dict[str, Image | None] = {}
+        self._rate_limiter = RateLimiter(self._WIKIPEDIA_RATE_LIMIT)
 
-    async def _get_query_api_data(self, url: str) -> dict[str, Any]:
-        response_data = await self._fetcher.fetch(url)
-        api_data = json.loads(response_data)
+    @contextmanager
+    def _catch_exceptions(self) -> Iterator[None]:
         try:
-            return api_data["query"]["pages"][0]  # type: ignore[no-any-return]
+            yield
+        except (FetchError, RetrievalError) as error:
+            logging.getLogger(__name__).warning(str(error))
+
+    async def _fetch_json(self, url: str, *selectors: str | int) -> Any:
+        async with self._rate_limiter:
+            response = await self._fetcher.fetch(url)
+        try:
+            data = response.json
+        except JSONDecodeError as error:
+            raise RetrievalError(f"Invalid JSON returned by {url}: {error}") from error
+
+        try:
+            for selector in selectors:
+                data = data[selector]
         except (LookupError, TypeError) as error:
             raise RetrievalError(
                 f"Could not successfully parse the JSON format returned by {url}: {error}"
             ) from error
+        return data
+
+    async def _get_query_api_data(self, url: str) -> dict[str, Any]:
+        return cast(dict[str, Any], await self._fetch_json(url, "query", "pages", 0))
 
     async def _get_page_query_api_data(
         self, page_language: str, page_name: str
@@ -298,38 +245,27 @@ class _Retriever:
         }
 
     async def get_summary(self, page_language: str, page_name: str) -> Summary | None:
-        try:
+        with self._catch_exceptions():
             url = f"https://{page_language}.wikipedia.org/api/rest_v1/page/summary/{page_name}"
-            response_data = await self._fetcher.fetch(url)
+            api_data = await self._fetch_json(url)
             try:
-                api_data = json.loads(response_data)
-            except json.JSONDecodeError as error:
+                return Summary(
+                    page_language,
+                    page_name,
+                    api_data["titles"]["normalized"],
+                    (
+                        api_data["extract_html"]
+                        if "extract_html" in api_data
+                        else api_data["extract"]
+                    ),
+                )
+            except LookupError as error:
                 raise RetrievalError(
                     f"Could not successfully parse the JSON content returned by {url}: {error}"
                 ) from error
-            else:
-                try:
-                    return Summary(
-                        page_language,
-                        page_name,
-                        api_data["titles"]["normalized"],
-                        (
-                            api_data["extract_html"]
-                            if "extract_html" in api_data
-                            else api_data["extract"]
-                        ),
-                    )
-                except LookupError as error:
-                    raise RetrievalError(
-                        f"Could not successfully parse the JSON content returned by {url}: {error}"
-                    ) from error
-        except RetrievalError as error:
-            logger = logging.getLogger(__name__)
-            logger.warning(str(error))
-            return None
 
     async def get_image(self, page_language: str, page_name: str) -> Image | None:
-        try:
+        with self._catch_exceptions():
             api_data = await self._get_page_query_api_data(page_language, page_name)
             try:
                 page_image_name = api_data["pageimage"]
@@ -349,8 +285,10 @@ class _Retriever:
                 raise RetrievalError(
                     f"Could not successfully parse the JSON content returned by {url}: {error}"
                 ) from error
+            async with self._rate_limiter:
+                image_path = await self._fetcher.fetch_file(image_info["url"])
             image = Image(
-                await self._fetcher.fetch_file(image_info["url"]),
+                image_path,
                 MediaType(image_info["mime"]),
                 # Strip "File:" or any translated equivalent from the beginning of the image's title.
                 image_info["canonicaltitle"][
@@ -360,15 +298,11 @@ class _Retriever:
             )
 
             return image
-        except RetrievalError as error:
-            logger = logging.getLogger(__name__)
-            logger.warning(str(error))
-            return None
 
     async def get_place_coordinates(
         self, page_language: str, page_name: str
     ) -> Point | None:
-        try:
+        with self._catch_exceptions():
             api_data = await self._get_page_query_api_data(page_language, page_name)
             try:
                 coordinates = api_data["coordinates"][0]
@@ -383,10 +317,6 @@ class _Retriever:
                 raise RetrievalError(
                     f"Could not successfully parse the JSON content: {error}"
                 ) from error
-        except RetrievalError as error:
-            logger = logging.getLogger(__name__)
-            logger.warning(str(error))
-            return None
 
 
 class _Populator:

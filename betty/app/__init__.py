@@ -31,6 +31,7 @@ from betty.asyncio import wait_to_thread
 from betty.cache import Cache, FileCache
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.config import Configurable, FileBasedConfiguration
+from betty.fetch import Fetcher
 from betty.fs import FileSystem, CACHE_DIRECTORY_PATH
 from betty.locale import LocalizerRepository, get_data, DEFAULT_LOCALE, Localizer, Str
 from betty.model import Entity, EntityTypeProvider
@@ -234,6 +235,7 @@ class App(Configurable[AppConfiguration]):
         self._jinja2_environment: Environment | None = None
         self._renderer: Renderer | None = None
         self._http_client: aiohttp.ClientSession | None = None
+        self._fetcher: Fetcher | None = None
         self._cache_directory_path = (
             CACHE_DIRECTORY_PATH
             if cache_directory_path is None
@@ -567,6 +569,19 @@ class App(Configurable[AppConfiguration]):
         if self._http_client is not None:
             wait_to_thread(self._http_client.close())
             self._http_client = None
+
+    @property
+    def fetcher(self) -> Fetcher:
+        """
+        The fetcher.
+        """
+        if self._fetcher is None:
+            self._fetcher = Fetcher(
+                self.http_client,
+                self.cache.with_scope("fetch"),
+                self.binary_file_cache.with_scope("fetch"),
+            )
+        return self._fetcher
 
     @property
     def entity_types(self) -> set[type[Entity]]:

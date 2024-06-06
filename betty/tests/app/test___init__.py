@@ -259,3 +259,7 @@ class TestApp:
             sut.extensions  # noqa B018
             del sut.project.configuration.extensions[NonConfigurableExtension]
             assert NonConfigurableExtension not in sut.extensions
+
+    async def test_fetcher(self) -> None:
+        async with App.new_temporary() as sut, sut:
+            assert sut.fetcher is not None

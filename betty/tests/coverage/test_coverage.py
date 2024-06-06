@@ -303,6 +303,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "populate_images": TestKnownToBeMissing,
         },
     },
+    "betty/fetch.py": {
+        "FetchResponse": {
+            # This is inherited from @dataclass.
+            "__eq__": TestKnownToBeMissing,
+        },
+    },
     "betty/fs.py": {
         "FileSystem": {
             "__len__": TestKnownToBeMissing,
@@ -408,7 +414,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "validate": TestKnownToBeMissing,
         },
     },
-    "betty/load.py": TestKnownToBeMissing,
+    "betty/load.py": {
+        # This is deprecated.
+        "getLogger": TestKnownToBeMissing,
+        # This is an interface.
+        "Loader": TestKnownToBeMissing,
+        # This is an interface.
+        "PostLoader": TestKnownToBeMissing,
+    },
     "betty/locale.py": {
         "Date": {
             "__contains__": TestKnownToBeMissing,
