@@ -736,6 +736,7 @@ class File(
         path: Path,
         *,
         id: str | None = None,  # noqa A002  # noqa A002
+        name: str | None = None,
         media_type: MediaType | None = None,
         description: str | None = None,
         notes: Iterable[Note] | None = None,
@@ -757,6 +758,14 @@ class File(
             links=links,
         )
         self._path = path
+        self._name = name
+
+    @property
+    def name(self) -> str:
+        """
+        The file name.
+        """
+        return self._name or self.path.name
 
     @property
     def entities(self) -> EntityCollection[Entity]:  # type: ignore[empty-body]

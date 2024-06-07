@@ -599,6 +599,7 @@ class TestRetriever:
                     MediaType("image/svg+xml"),
                     "An Example Image",
                     "https://example.com/description",
+                    "example.svg",
                 ),
                 {
                     "query": {
@@ -966,6 +967,7 @@ class TestPopulator:
             MediaType("application/octet-stream"),
             "",
             "https://example.com",
+            "example",
         )
         m_retriever.get_image.return_value = image
 
