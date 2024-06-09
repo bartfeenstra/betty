@@ -15,17 +15,17 @@
     </a>
 </div>
 
-{% if entity is has_files %}
-    {% set images = entity | associated_files | selectattr('media_type.type', 'eq', 'image') | list %}
-    {% if images | length > 0 %}
+{% if entity is has_file_references %}
+    {% set image_references = entity | associated_file_references | selectattr('file', 'public') | selectattr('file.media_type.type', 'eq', 'image') | list %}
+    {% if image_references | length > 0 %}
         <div class="featured-entity-feature">
             <a href="{{ entity | url }}" class="featured-entity-feature-link">
-                {% set image = images[0] %}
+                {% set image_reference = image_references[0] %}
                 <picture>
                     {% for width, height, breakpoint_width in [(500, 500, 500), (1500, 1500, 1000), (2500, 2500, 1500)] %}
-                        <source srcset="{{ image | image((width, height)) | static_url }}" media="(min-width: {{ breakpoint_width }}px)">
+                        <source srcset="{{ image_reference | filter_image_resize_cover((width, height)) | static_url }}" media="(min-width: {{ breakpoint_width }}px)">
                     {% endfor %}
-                    <img src="{{ image | image((500, 500)) | static_url }}"{% if image.description %} alt="{{ image.description }}"{% endif %}>
+                    <img src="{{ image_reference | filter_image_resize_cover((500, 500)) | static_url }}"{% if image_reference.file.description %} alt="{{ image_reference.file.description }}"{% endif %}>
                 </picture>
             </a>
         </div>

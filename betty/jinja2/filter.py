@@ -35,13 +35,14 @@ from markupsafe import Markup, escape
 from pdf2image.pdf2image import convert_from_path
 
 from betty.hashid import hashid_file_meta, hashid
-from betty.image import resize_cover, Size
+from betty.image import resize_cover, Size, FocusArea
 from betty.locale import (
     negotiate_locale,
     Localey,
     get_data,
 )
 from betty.locale.localized import Localized, negotiate_localizeds
+from betty.model.ancestry import File, FileReference
 from betty.os import link_or_copy
 from betty.serde.dump import minimize, none_void, void_none
 from betty.string import (
@@ -54,7 +55,7 @@ if TYPE_CHECKING:
     from betty.locale.date import Datey
     from betty.locale.localizable import Localizable
     from jinja2.nodes import EvalContext
-    from betty.model.ancestry import File, Dated
+    from betty.model.ancestry import Dated
     from betty.media_type import MediaType
     from pathlib import Path
     from collections.abc import Awaitable
@@ -246,10 +247,12 @@ async def filter_file(context: Context, file: File) -> str:
 
 
 @pass_context
-async def filter_image(
+async def filter_image_resize_cover(
     context: Context,
-    file: File,
+    filey: File | FileReference,
     size: Size | None = None,
+    *,
+    focus: FocusArea | None = None,
 ) -> str:
     """
     Preprocess an image file for use in a page.
@@ -257,6 +260,17 @@ async def filter_image(
     :return: The public path to the preprocessed file. This can be embedded in a web page.
     """
     from betty.jinja2 import context_project, context_job_context
+
+    file = filey if isinstance(filey, File) else filey.file
+    assert file is not None
+    file_reference = filey if isinstance(filey, FileReference) else None
+
+    if (
+        focus is None
+        and file_reference is not None
+        and file_reference.focus is not None
+    ):
+        focus = file_reference.focus
 
     # Treat SVGs as regular files.
     if (
@@ -279,6 +293,8 @@ async def filter_image(
             destination_name += f"{width}x-"
         else:
             destination_name += f"{width}x{height}"
+    if focus is not None:
+        destination_name += f"-{focus[0]}x{focus[1]}x{focus[2]}x{focus[3]}"
 
     file_directory_path = project.configuration.www_directory_path / "file"
 
@@ -320,6 +336,7 @@ async def filter_image(
             file_directory_path,
             destination_name,
             size,
+            focus,
         )
     destination_public_path = f"/file/{quote(destination_name)}"
 
@@ -359,6 +376,7 @@ def _execute_filter_image(
     destination_directory_path: Path,
     destination_name: str,
     size: Size | None,
+    focus: FocusArea | None,
 ) -> None:
     run(
         __execute_filter_image(
@@ -369,6 +387,7 @@ def _execute_filter_image(
             destination_directory_path,
             destination_name,
             size,
+            focus,
         )
     )
 
@@ -381,6 +400,7 @@ async def __execute_filter_image(
     destination_directory_path: Path,
     destination_name: str,
     size: Size | None,
+    focus: FocusArea | None,
 ) -> None:
     destination_file_path = destination_directory_path / destination_name
     await makedirs(destination_directory_path, exist_ok=True)
@@ -398,7 +418,7 @@ async def __execute_filter_image(
         image = await image_loader(file_path, media_type)
         try:
             await makedirs(cache_item_file_path.parent, exist_ok=True)
-            converted_image = resize_cover(image, size)
+            converted_image = resize_cover(image, size, focus=focus)
             converted_image.save(cache_item_file_path, format=media_type.subtype)
             del converted_image
         finally:
@@ -542,7 +562,7 @@ FILTERS = {
     "format_datey": filter_format_datey,
     "format_degrees": filter_format_degrees,
     "hashid": filter_hashid,
-    "image": filter_image,
+    "filter_image_resize_cover": filter_image_resize_cover,
     "json": filter_json,
     "locale_get_data": get_data,
     "localize": filter_localize,

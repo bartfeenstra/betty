@@ -14,7 +14,7 @@ from betty.model import Entity
 from betty.model.ancestry import (
     Person,
     Event,
-    HasFiles,
+    HasFileReferences,
     HasCitations,
     HasNotes,
     Source,
@@ -85,8 +85,8 @@ class Privatizer:
         if isinstance(subject, HasCitations):
             self._privatize_has_citations(subject)
 
-        if isinstance(subject, HasFiles):
-            self._privatize_has_files(subject)
+        if isinstance(subject, HasFileReferences):
+            self._privatize_has_file_references(subject)
 
         if isinstance(subject, HasNotes):
             self._privatize_has_notes(subject)
@@ -158,13 +158,16 @@ class Privatizer:
             self._mark_private(citation, source)
             self.privatize(citation)
 
-    def _privatize_has_files(self, has_files: HasFiles & HasPrivacy) -> None:
-        if not has_files.private:
+    def _privatize_has_file_references(
+        self, has_file_references: HasFileReferences & HasPrivacy
+    ) -> None:
+        if not has_file_references.private:
             return
 
-        for file in has_files.files:
-            self._mark_private(file, has_files)
-            self.privatize(file)
+        for file_reference in has_file_references.file_references:
+            if file_reference.file is not None:
+                self._mark_private(file_reference.file, has_file_references)
+                self.privatize(file_reference.file)
 
     def _privatize_has_notes(self, has_notes: HasNotes & HasPrivacy) -> None:
         if not has_notes.private:

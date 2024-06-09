@@ -130,7 +130,11 @@ class Do(Generic[_DoFP, _DoFReturnT]):
                 return do_result
 
 
-class Uniquifier(Generic[_T]):
+_ValueT = TypeVar("_ValueT")
+_KeyT = TypeVar("_KeyT")
+
+
+class Uniquifier(Generic[_ValueT]):
     """
     Yield the first occurrences of values in a sequence.
 
@@ -140,16 +144,26 @@ class Uniquifier(Generic[_T]):
     than :py:class:`set`.
     """
 
-    def __init__(self, *values: Iterable[_T]):
+    def __init__(
+        self,
+        *values: Iterable[_ValueT],
+        key: Callable[[_ValueT], Any] | None = None,
+    ):
         self._values = chain(*values)
-        self._seen: MutableSequence[_T] = []
+        self._key = key or self._passthrough
+        self._seen: MutableSequence[Any] = []
 
-    def __iter__(self) -> Iterator[_T]:
+    @staticmethod
+    def _passthrough(value: _ValueT) -> Any:
+        return value
+
+    def __iter__(self) -> Iterator[_ValueT]:
         return self
 
-    def __next__(self) -> _T:
+    def __next__(self) -> _ValueT:
         value = next(self._values)
-        if value in self._seen:
+        key = self._key(value)
+        if key in self._seen:
             return next(self)
-        self._seen.append(value)
+        self._seen.append(key)
         return value

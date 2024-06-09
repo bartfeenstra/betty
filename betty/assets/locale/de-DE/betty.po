@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-12 00:13+0100\n"
+"POT-Creation-Date: 2024-07-12 19:08+0100\n"
 "PO-Revision-Date: 2024-02-08 13:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de\n"
@@ -407,6 +407,12 @@ msgstr "Familie"
 
 msgid "File"
 msgstr "Datei"
+
+msgid "File reference"
+msgstr ""
+
+msgid "File references"
+msgstr ""
 
 msgid "Files"
 msgstr "Dateien"

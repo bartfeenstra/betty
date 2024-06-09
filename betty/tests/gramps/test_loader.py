@@ -361,6 +361,30 @@ class TestGrampsLoader:
         note = person.notes[0]
         assert note.id == "N0000"
 
+    async def test_person_should_include_file(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<people>
+    <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
+        <objref hlink="_e1cb35d7e6c1984b0e8361e1aee">
+            <region corner1_x="1" corner1_y="2" corner2_x="3" corner2_y="4"/>
+        </objref>
+    </person>
+</people>
+<objects>
+    <object handle="_e1cb35d7e6c1984b0e8361e1aee" change="1551643112" id="O0000">
+        <file src="/tmp/file.png" mime="image/png" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+    </object>
+</objects>
+"""
+        )
+        person = ancestry[Person]["I0000"]
+        assert person.file_references
+        file_reference = person.file_references[0]
+        assert file_reference.file
+        assert file_reference.focus == (1, 2, 3, 4)
+        assert file_reference.file.id == "O0000"
+
     async def test_family_should_set_parents(self) -> None:
         ancestry = await self._load_partial(
             """

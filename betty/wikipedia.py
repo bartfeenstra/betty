@@ -28,7 +28,14 @@ from betty.locale import (
 )
 from betty.locale.localized import Localized
 from betty.media_type import MediaType
-from betty.model.ancestry import Link, HasLinks, Place, File, HasFiles
+from betty.model.ancestry import (
+    Link,
+    HasLinks,
+    Place,
+    File,
+    HasFileReferences,
+    FileReference,
+)
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -350,8 +357,8 @@ class _Populator:
 
     async def _populate_entity(self, entity: HasLinks, locales: Sequence[str]) -> None:
         populations = [self._populate_has_links(entity, locales)]
-        if isinstance(entity, HasFiles):
-            populations.append(self._populate_has_files(entity))
+        if isinstance(entity, HasFileReferences):
+            populations.append(self._populate_has_file_references(entity))
         if isinstance(entity, Place):
             populations.append(self._populate_place(entity))
         await gather(*populations)
@@ -465,16 +472,18 @@ class _Populator:
             if coordinates:
                 place.coordinates = coordinates
 
-    async def _populate_has_files(self, has_files: HasFiles & HasLinks) -> None:
+    async def _populate_has_file_references(
+        self, has_file_references: HasFileReferences & HasLinks
+    ) -> None:
         await gather(
             *(
-                self._populate_has_files_link(has_files, link)
-                for link in has_files.links
+                self._populate_has_file_references_link(has_file_references, link)
+                for link in has_file_references.links
             )
         )
 
-    async def _populate_has_files_link(
-        self, has_files: HasFiles & HasLinks, link: Link
+    async def _populate_has_file_references_link(
+        self, has_file_references: HasFileReferences & HasLinks, link: Link
     ) -> None:
         try:
             page_language, page_name = _parse_url(link.url)
@@ -484,12 +493,14 @@ class _Populator:
             image = await self._retriever.get_image(page_language, page_name)
             if not image:
                 return
-            has_files.files.add(await self._image_file(image))
+            has_file_references.file_references.add(
+                await self._image_file_reference(image)
+            )
 
-    async def _image_file(self, image: Image) -> File:
+    async def _image_file_reference(self, image: Image) -> FileReference:
         async with self._image_files_locks[image]:
             try:
-                return self._image_files[image]
+                file = self._image_files[image]
             except KeyError:
                 links = []
                 for (
@@ -520,4 +531,6 @@ class _Populator:
                 )
                 self._image_files[image] = file
                 self._project.ancestry.add(file)
-                return file
+            file_reference = FileReference(None, file)
+            self._project.ancestry.add(file_reference)
+            return file_reference

@@ -8,9 +8,9 @@
     {% endwith %}
 
     {% set sources = [source] + source.walk_contains | select('public') | list %}
-    {% set have_files = sources %}
-    {% set have_files = have_files + sources | map(attribute='citations') | flatten | list %}
-    {% with files = have_files | select('public') | map(attribute='files') | flatten | unique %}
+    {% set have_file_references = sources %}
+    {% set have_file_references = have_file_references + sources | map(attribute='citations') | flatten | list %}
+    {% with file_references = have_file_references | selectattr('public') | map(attribute='file_references') | flatten | unique %}
         {% include 'media.html.j2' %}
     {% endwith %}
     {% set facts = sources | map(attribute='citations') | flatten | select('public') | map(attribute='facts') | flatten | select('public') | reject('has_generated_entity_id') | unique | list %}

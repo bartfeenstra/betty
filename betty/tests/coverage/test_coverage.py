@@ -514,9 +514,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "HasCitations": {
             "dump_linked_data": TestKnownToBeMissing,
         },
-        "HasFiles": {
-            "associated_files": TestKnownToBeMissing,
-        },
         "HasLinks": {
             "dump_linked_data": TestKnownToBeMissing,
         },

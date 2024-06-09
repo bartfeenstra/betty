@@ -17,6 +17,7 @@ from betty.model.ancestry import (
     Privacy,
     Place,
     Enclosure,
+    FileReference,
 )
 from betty.model.presence_role import Subject, Attendee
 from betty.model.event_type import Death, Birth, Marriage
@@ -296,7 +297,7 @@ class TestPrivatizer:
         file = File(path=Path(__file__))
         person = Person(public=True)
         person.citations.add(citation)
-        person.files.add(file)
+        FileReference(person, file)
         presence_as_subject = Presence(person, Subject(), Event(event_type=Birth))
         presence_as_attendee = Presence(person, Attendee(), Event(event_type=Marriage))
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(
@@ -313,7 +314,7 @@ class TestPrivatizer:
         file = File(path=Path(__file__))
         person = Person(private=True)
         person.citations.add(citation)
-        person.files.add(file)
+        FileReference(person, file)
         presence_as_subject = Presence(person, Subject(), Event(event_type=Birth))
         presence_as_attendee = Presence(person, Attendee(), Event(event_type=Marriage))
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(
@@ -462,7 +463,7 @@ class TestPrivatizer:
             public=True,
         )
         event.citations.add(citation)
-        event.files.add(event_file)
+        FileReference(event, event_file)
         person = Person()
         presence = Presence(person, Subject(), event)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(
@@ -483,7 +484,7 @@ class TestPrivatizer:
             private=True,
         )
         event.citations.add(citation)
-        event.files.add(file)
+        FileReference(event, file)
         person = Person()
         presence = Presence(person, Subject(), event)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(
@@ -502,7 +503,7 @@ class TestPrivatizer:
             name="The Source",
             public=True,
         )
-        source.files.add(file)
+        FileReference(source, file)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(
             source
         )
@@ -517,7 +518,7 @@ class TestPrivatizer:
             name="The Source",
             private=True,
         )
-        source.files.add(file)
+        FileReference(source, file)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(
             source
         )
@@ -532,7 +533,7 @@ class TestPrivatizer:
             source=Source(),
             public=True,
         )
-        citation.files.add(file)
+        FileReference(citation, file)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(
             citation
         )
@@ -547,7 +548,7 @@ class TestPrivatizer:
             source=Source(),
             private=True,
         )
-        citation.files.add(file)
+        FileReference(citation, file)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(
             citation
         )

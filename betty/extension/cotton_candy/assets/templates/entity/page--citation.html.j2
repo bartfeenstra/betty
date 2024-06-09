@@ -5,7 +5,7 @@
     <div class="meta">
     {% include 'entity/meta--citation.html.j2' %}
     </div>
-    {% with files = citation.files %}
+    {% with file_references = citation.file_references %}
         {% include 'media.html.j2' %}
     {% endwith %}
     {% set facts = citation.facts | select('public') | reject('has_generated_entity_id') | list %}

@@ -1,0 +1,14 @@
+{% set file_references = file_references | default(entities) | selectattr('file', 'public') | list %}
+<div class="entities featured">
+    {% for file_reference in file_references %}
+        {% if file_references[loop.index0 - 1] is defined %}
+            {% set previous_file = file_references[loop.index0 - 1].file %}
+        {% endif %}
+        {% if file_references[loop.index0 + 1] is defined %}
+            {% set next_file = file_references[loop.index0 + 1].file %}
+        {% endif %}
+        {% with file=file_reference.file, focus = file_reference.focus %}
+            {% include 'file.html.j2' %}
+        {% endwith %}
+    {% endfor %}
+</div>

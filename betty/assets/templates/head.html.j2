@@ -10,19 +10,19 @@
 <meta name="twitter:title" content="{{ page_title | default(project.configuration.title) | striptags }}">
 <meta name="twitter:card" content="summary_large_image">
 {% if page_resource is defined %}
-    {% if page_resource is has_files %}
-        {% for file in page_resource.files %}
-            {% if file.media_type.type == 'image' %}
-                {% set page_image_url = file | image((500, 500)) | static_url(absolute=true) %}
-                <meta name="og:image" content="{{ page_image_url }}">
-                <meta name="og:image:type" content="{{ file.media_type }}">
-                <meta name="twitter:image" content="{{ page_image_url }}">
-                {% if file.description %}
-                    <meta name="og:image:description" content="{{ file.description }}">
-                    <meta name="twitter:image:alt" content="{{ file.description }}">
-                {% endif %}
+    {% if page_resource is has_file_references %}
+        {% set page_image_reference = page_resource.file_references | selectattr('file', 'public') | selectattr('file.media_type.type', 'eq', 'image') | first %}
+        {% if page_image_reference is defined %}
+            {% set page_image = page_image_reference.file %}
+            {% set page_image_url = page_image_reference | filter_image_resize_cover((500, 500)) | static_url(absolute=true) %}
+            <meta name="og:image" content="{{ page_image_url }}">
+            <meta name="og:image:type" content="{{ page_image.media_type }}">
+            <meta name="twitter:image" content="{{ page_image_url }}">
+            {% if page_image.description %}
+                <meta name="og:image:description" content="{{ page_image.description }}">
+                <meta name="twitter:image:alt" content="{{ page_image.description }}">
             {% endif %}
-        {% endfor %}
+        {% endif %}
     {% endif %}
     <link rel="canonical" href="{{ page_resource | url(absolute=true) }}" hreflang="{{ localizer.locale }}" type="text/html">
     {% for project_locale in project.configuration.locales %}

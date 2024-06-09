@@ -40,10 +40,11 @@ from betty.model.ancestry import (
     Enclosure,
     HasLinks,
     Link,
-    HasFiles,
+    HasFileReferences,
     HasCitations,
     HasPrivacy,
     HasNotes,
+    FileReference,
 )
 from betty.model.event_type import (
     Birth,
@@ -961,24 +962,52 @@ class GrampsLoader:
     def _load_handles(
         self, handle_type: str, element: ElementTree.Element
     ) -> Iterable[str]:
-        for citation_handle_element in self._xpath(element, f"./ns:{handle_type}"):
-            hlink = citation_handle_element.get("hlink")
+        for handle_element in self._xpath(element, f"./ns:{handle_type}"):
+            hlink = handle_element.get("hlink")
             if hlink:
                 yield hlink
 
     def _load_handle(
         self, handle_type: str, element: ElementTree.Element
     ) -> str | None:
-        for citation_handle_element in self._xpath(element, f"./ns:{handle_type}"):
-            return citation_handle_element.get("hlink")
+        for handle_element in self._xpath(element, f"./ns:{handle_type}"):
+            return handle_element.get("hlink")
         return None
 
     def _load_objref(
-        self, owner: AliasableEntity[HasFiles & Entity], element: ElementTree.Element
+        self,
+        owner: AliasableEntity[HasFileReferences & Entity],
+        element: ElementTree.Element,
     ) -> None:
-        file_handles = self._load_handles("objref", element)
-        for file_handle in file_handles:
-            self.add_association(owner.type, owner.id, "files", File, file_handle)
+        for handle_element in self._xpath(element, "./ns:objref"):
+            file_handle = handle_element.get("hlink")
+            file_reference = FileReference()
+            try:
+                region_element = self._xpath1(handle_element, "./ns:region")
+            except XPathError:
+                pass
+            else:
+                region_left = region_element.get("corner1_x")
+                region_top = region_element.get("corner1_y")
+                region_right = region_element.get("corner2_x")
+                region_bottom = region_element.get("corner2_y")
+                file_reference.focus = (
+                    0 if region_left is None else int(region_left),
+                    0 if region_top is None else int(region_top),
+                    0 if region_right is None else int(region_right),
+                    0 if region_bottom is None else int(region_bottom),
+                )
+            self.add_entity(file_reference)
+            self.add_association(
+                owner.type,
+                owner.id,
+                "file_references",
+                FileReference,
+                file_reference.id,
+            )
+            self.add_association(
+                FileReference, file_reference.id, "file", File, file_handle
+            )
 
     def _load_urls(self, owner: HasLinks, element: ElementTree.Element) -> None:
         url_elements = self._xpath(element, "./ns:url")

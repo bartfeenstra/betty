@@ -9,7 +9,7 @@ from betty.extension.cotton_candy import (
     _ColorConfiguration,
     CottonCandyConfiguration,
     person_timeline_events,
-    associated_files,
+    associated_file_references,
 )
 from betty.locale.date import Datey, Date, DateRange
 from betty.model import (
@@ -25,8 +25,9 @@ from betty.model.ancestry import (
     File,
     Source,
     PersonName,
-    HasFiles,
+    HasFileReferences,
     Place,
+    FileReference,
 )
 from betty.model.presence_role import PresenceRole, Subject, Attendee
 from betty.model.event_type import Birth, UnknownEventType, EventType, Death
@@ -460,26 +461,31 @@ class TestPersonLifetimeEvents:
         assert expected is (sibling_event in actual)
 
 
-class TestAssociatedFiles:
-    async def test_with_plain_has_files_without_files(self) -> None:
-        class _DummyHasFiles(HasFiles):
+class TestAssociatedFileReferences:
+    async def test_with_plain_has_file_references_without_files(self) -> None:
+        class _DummyHasFileReferences(HasFileReferences):
             pass
 
-        assert list(associated_files(_DummyHasFiles())) == []
+        assert list(associated_file_references(_DummyHasFileReferences())) == []
 
-    async def test_with_plain_has_files_with_files(self) -> None:
+    async def test_with_plain_has_file_references_with_files(self) -> None:
         file1 = File(path=Path())
         file2 = File(path=Path())
 
-        class _DummyHasFiles(HasFiles):
+        class _DummyHasFileReferences(HasFileReferences, DummyEntity):
             pass
 
-        has_files = _DummyHasFiles(files=(file1, file2))
-        assert list(associated_files(has_files)) == [file1, file2]
+        has_file_references = _DummyHasFileReferences()
+        FileReference(has_file_references, file1)
+        FileReference(has_file_references, file2)
+        assert [
+            file_reference.file
+            for file_reference in associated_file_references(has_file_references)
+        ] == [file1, file2]
 
     async def test_with_event_without_files(self) -> None:
         event = Event(event_type=UnknownEventType)
-        assert list(associated_files(event)) == []
+        assert list(associated_file_references(event)) == []
 
     async def test_with_event_with_citations(self) -> None:
         file1 = File(path=Path())
@@ -487,17 +493,23 @@ class TestAssociatedFiles:
         file3 = File(path=Path())
         file4 = File(path=Path())
         event = Event(event_type=UnknownEventType)
-        event.files = [file1, file2, file1]  # type: ignore[assignment]
+        FileReference(event, file1)
+        FileReference(event, file2)
+        FileReference(event, file1)
         citation = Citation(source=Source())
-        citation.files = [file3, file4, file2]  # type: ignore[assignment]
+        FileReference(citation, file3)
+        FileReference(citation, file4)
+        FileReference(citation, file2)
         event.citations = [citation]  # type: ignore[assignment]
-        assert [file1, file2, file3, file4] == list(associated_files(event))
+        assert [
+            file_reference.file for file_reference in associated_file_references(event)
+        ] == [file1, file2, file3, file4]
 
     async def test_with_person_without_files(
         self,
     ) -> None:
         person = Person(id="1")
-        assert list(associated_files(person)) == []
+        assert list(associated_file_references(person)) == []
 
     async def test_with_person_with_files(self) -> None:
         file1 = File(path=Path())
@@ -507,24 +519,30 @@ class TestAssociatedFiles:
         file5 = File(path=Path())
         file6 = File(path=Path())
         person = Person(id="1")
-        person.files = [file1, file2, file1]  # type: ignore[assignment]
+        FileReference(person, file1)
+        FileReference(person, file2)
+        FileReference(person, file1)
         citation = Citation(source=Source())
-        citation.files = [file3, file4, file2]  # type: ignore[assignment]
+        FileReference(citation, file3)
+        FileReference(citation, file4)
+        FileReference(citation, file2)
         name = PersonName(
             person=person,
             individual="Janet",
         )
         name.citations = [citation]  # type: ignore[assignment]
         event = Event(event_type=UnknownEventType)
-        event.files = [file5, file6, file4]  # type: ignore[assignment]
+        FileReference(event, file5)
+        FileReference(event, file6)
+        FileReference(event, file4)
         Presence(person, Subject(), event)
-        assert [file1, file2, file3, file4, file5, file6] == list(
-            associated_files(person)
-        )
+        assert [
+            file_reference.file for file_reference in associated_file_references(person)
+        ] == [file1, file2, file3, file4, file5, file6]
 
     async def test_with_place_without_files(self) -> None:
         place = Place(id="1")
-        assert list(associated_files(place)) == []
+        assert list(associated_file_references(place)) == []
 
     async def test_with_place_with_files(self) -> None:
         file1 = File(path=Path())
@@ -532,8 +550,14 @@ class TestAssociatedFiles:
         file3 = File(path=Path())
         file4 = File(path=Path())
         place = Place(id="1")
-        place.files = [file1, file2, file1]  # type: ignore[assignment]
+        FileReference(place, file1)
+        FileReference(place, file2)
+        FileReference(place, file1)
         event = Event(event_type=UnknownEventType)
-        event.files = [file3, file4, file4]  # type: ignore[assignment]
+        FileReference(event, file3)
+        FileReference(event, file4)
+        FileReference(event, file4)
         event.place = place
-        assert [file1, file2, file3, file4] == list(associated_files(place))
+        assert [
+            file_reference.file for file_reference in associated_file_references(place)
+        ] == [file1, file2, file3, file4]

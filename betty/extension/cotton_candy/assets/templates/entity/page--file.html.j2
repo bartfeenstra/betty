@@ -5,15 +5,15 @@
     {% if file.media_type and file.media_type.type == 'image' %}
         <div class="featured image">
             <a href="{{ file | file | static_url }}">
-                <img src="{{ file | image((1500, 1500)) | static_url }}"{% if file.description %} alt="{{ file.description }}"{% endif %}>
+                <img src="{{ file | filter_image_resize_cover((1500, 1500)) | static_url }}"{% if file.description %} alt="{{ file.description }}"{% endif %}>
             </a>
         </div>
     {% endif %}
     {% with notes = file.notes %}
         {% include 'section-notes.html.j2' %}
     {% endwith %}
-    {% set entities = file.entities | select('public') | list %}
-    {% if entities | length > 0 %}
+    {% set referees = file.referees | map(attribute='referee') | select('public') | list %}
+    {% if referees | length > 0 %}
         <section id="appearances">
             <h2>
                 {% trans %}Appearances{% endtrans %}
@@ -22,7 +22,7 @@
                 {% endwith %}
             </h2>
             <ul class="entities">
-                {% for entity in entities %}
+                {% for entity in referees %}
                     <li class="{{ loop.cycle('odd', 'even') }}">
                         {% include ['entity/label--' + entity.plugin_id() + '.html.j2', 'entity/label.html.j2'] %}
                         {% include ['entity/meta--' + entity.plugin_id() + '.html.j2', 'entity/meta.html.j2'] ignore missing %}
