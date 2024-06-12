@@ -11,16 +11,16 @@ the event types used within your site as well as the existing events for each pe
 
 Enable this extension through Betty Desktop, or in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
-.. md-tab-set::
+.. tab-set::
 
-   .. md-tab-item:: YAML
+   .. tab-item:: YAML
 
       .. code-block:: yaml
 
           extensions:
             betty.extension.Deriver: {}
 
-   .. md-tab-item:: JSON
+   .. tab-item:: JSON
 
       .. code-block:: json
 

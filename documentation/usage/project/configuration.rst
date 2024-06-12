@@ -5,9 +5,9 @@ Project configuration files are written in YAML (``betty.yaml`` or ``betty.yml``
 and are placed in the root of the project directory. Both YAML and JSON files follow the exact same
 structure. Example configuration:
 
-.. md-tab-set::
+.. tab-set::
 
-   .. md-tab-item:: YAML
+   .. tab-item:: YAML
 
       .. code-block:: yaml
 
@@ -30,7 +30,7 @@ structure. Example configuration:
               generate_html_list: false
           extensions: {}
 
-   .. md-tab-item:: JSON
+   .. tab-item:: JSON
 
       .. code-block:: json
 

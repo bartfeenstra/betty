@@ -5,16 +5,16 @@ directory.
 
 Enable this extension through Betty Desktop, or in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
-.. md-tab-set::
+.. tab-set::
 
-   .. md-tab-item:: YAML
+   .. tab-item:: YAML
 
       .. code-block:: yaml
 
           extensions:
             betty.extension.Nginx: {}
 
-   .. md-tab-item:: JSON
+   .. tab-item:: JSON
 
       .. code-block:: json
 
@@ -28,8 +28,8 @@ Configuration
 -------------
 This extension is configurable through Betty Desktop or in the configuration file:
 
-.. md-tab-set::
-   .. md-tab-item:: YAML
+.. tab-set::
+   .. tab-item:: YAML
       .. code-block:: yaml
 
           extensions:
@@ -38,7 +38,7 @@ This extension is configurable through Betty Desktop or in the configuration fil
                 www_directory_path: /var/www/betty
                 https: true
 
-   .. md-tab-item:: JSON
+   .. tab-item:: JSON
       .. code-block:: json
 
           {

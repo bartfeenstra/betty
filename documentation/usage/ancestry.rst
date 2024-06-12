@@ -25,9 +25,9 @@ analyzed, expanded, and ultimately generated into a site.
 In code, you will be using :py:class:`betty.model.ancestry.Ancestry`, through which you can
 access any entity of any type.
 
-.. md-tab-set::
+.. tab-set::
 
-   .. md-tab-item:: Python
+   .. tab-item:: Python
 
       .. code-block:: python
 
@@ -38,7 +38,7 @@ access any entity of any type.
           ancestry.add(person)
           assert person is ancestry[Person]['a1b2']
 
-   .. md-tab-item:: Jinja2
+   .. tab-item:: Jinja2
 
       .. code-block:: jinja
 

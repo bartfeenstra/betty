@@ -30,16 +30,16 @@ to enable and configure your extension for their project.
 
 Given an extension ``my_package.my_module.MyExtension``, add the following to your extension's Python package:
 
-.. md-tab-set::
+.. tab-set::
 
-   .. md-tab-item:: pyproject.toml
+   .. tab-item:: pyproject.toml
 
       .. code-block:: toml
 
           [project.entry-points.'betty.extensions']
           'my_package.my_module.MyExtension' = 'my_package.my_module.MyExtension'
 
-   .. md-tab-item:: setup.py
+   .. tab-item:: setup.py
 
       .. code-block:: python
 
