@@ -6,16 +6,16 @@ render them on the entity's page.
 
 Enable this extension through Betty Desktop, or in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
-.. md-tab-set::
+.. tab-set::
 
-   .. md-tab-item:: YAML
+   .. tab-item:: YAML
 
       .. code-block:: yaml
 
           extensions:
             betty.extension.Wikipedia: {}
 
-   .. md-tab-item:: JSON
+   .. tab-item:: JSON
 
       .. code-block:: json
 
@@ -29,9 +29,9 @@ Configuration
 -------------
 This extension is configurable through Betty Desktop or in the configuration file:
 
-.. md-tab-set::
+.. tab-set::
 
-   .. md-tab-item:: YAML
+   .. tab-item:: YAML
 
       .. code-block:: yaml
 
@@ -40,7 +40,7 @@ This extension is configurable through Betty Desktop or in the configuration fil
               configuration:
                 populate_images: false
 
-   .. md-tab-item:: JSON
+   .. tab-item:: JSON
 
       .. code-block:: json
 

@@ -45,16 +45,16 @@ Source
 
 Enable this extension through Betty Desktop, or in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
-.. md-tab-set::
+.. tab-set::
 
-   .. md-tab-item:: YAML
+   .. tab-item:: YAML
 
       .. code-block:: yaml
 
           extensions:
             betty.extension.Privatizer: {}
 
-   .. md-tab-item:: JSON
+   .. tab-item:: JSON
 
       .. code-block:: json
 
