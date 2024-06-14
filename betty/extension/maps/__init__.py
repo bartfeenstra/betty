@@ -7,7 +7,7 @@ from pathlib import Path
 from typing_extensions import override
 
 from betty.app.extension import Extension, UserFacingExtension
-from betty.extension.webpack import Webpack, WebpackEntrypointProvider
+from betty.extension.webpack import Webpack, WebpackEntryPointProvider
 from betty.locale import Str
 from typing import TYPE_CHECKING
 
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
-class Maps(UserFacingExtension, WebpackEntrypointProvider):
+class Maps(UserFacingExtension, WebpackEntryPointProvider):
     """
     Provide interactive maps for use on web pages.
     """
@@ -37,11 +37,11 @@ class Maps(UserFacingExtension, WebpackEntrypointProvider):
 
     @override
     @classmethod
-    def webpack_entrypoint_directory_path(cls) -> Path:
+    def webpack_entry_point_directory_path(cls) -> Path:
         return Path(__file__).parent / "webpack"
 
     @override
-    def webpack_entrypoint_cache_keys(self) -> Sequence[str]:
+    def webpack_entry_point_cache_keys(self) -> Sequence[str]:
         return ()
 
     @override

@@ -9,25 +9,25 @@ from pytest_mock import MockerFixture
 from betty._npm import NpmUnavailable
 from betty.app import App
 from betty.app.extension import Extension
-from betty.extension.webpack import WebpackEntrypointProvider
+from betty.extension.webpack import WebpackEntryPointProvider
 from betty.extension.webpack.build import Builder
 from betty.job import Context
 from betty.locale import DEFAULT_LOCALIZER
 
 
-class DummyEntrypointProviderExtension(WebpackEntrypointProvider, Extension):
+class DummyEntryPointProviderExtension(WebpackEntryPointProvider, Extension):
     @classmethod
-    def webpack_entrypoint_directory_path(cls) -> Path:
-        return Path(__file__).parent / "test_build_webpack_entrypoint"
+    def webpack_entry_point_directory_path(cls) -> Path:
+        return Path(__file__).parent / "test_build_webpack_entry_point"
 
-    def webpack_entrypoint_cache_keys(self) -> Sequence[str]:
+    def webpack_entry_point_cache_keys(self) -> Sequence[str]:
         return ()
 
 
 class TestBuilder:
     @pytest.mark.parametrize(
         (
-            "with_entrypoint_provider",
+            "with_entry_point_provider",
             "debug",
             "npm_install_cache_available",
             "webpack_build_cache_available",
@@ -41,23 +41,23 @@ class TestBuilder:
     )
     async def test_build(
         self,
-        with_entrypoint_provider: bool,
+        with_entry_point_provider: bool,
         debug: bool,
         npm_install_cache_available: bool,
         tmp_path: Path,
         webpack_build_cache_available: bool,
     ) -> None:
         async with App.new_temporary() as app:
-            if with_entrypoint_provider:
+            if with_entry_point_provider:
                 app.project.configuration.extensions.enable(
-                    DummyEntrypointProviderExtension
+                    DummyEntryPointProviderExtension
                 )
             job_context = Context()
             sut = Builder(
                 tmp_path,
                 (
-                    [app.extensions[DummyEntrypointProviderExtension]]
-                    if with_entrypoint_provider
+                    [app.extensions[DummyEntryPointProviderExtension]]
+                    if with_entry_point_provider
                     else []
                 ),
                 False,
@@ -74,11 +74,11 @@ class TestBuilder:
         assert (
             webpack_build_directory_path / "js" / "webpack-entry-loader.js"
         ).exists()
-        if with_entrypoint_provider:
+        if with_entry_point_provider:
             assert (
                 webpack_build_directory_path
                 / "js"
-                / f"{DummyEntrypointProviderExtension.name()}.js"
+                / f"{DummyEntryPointProviderExtension.name()}.js"
             ).exists()
 
     async def test_build_with_npm_unavailable(

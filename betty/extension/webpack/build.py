@@ -25,37 +25,38 @@ if TYPE_CHECKING:
     from betty.locale import Localizer
     from betty.render import Renderer
     from collections.abc import Sequence, MutableMapping
-    from betty.extension.webpack import WebpackEntrypointProvider
+    from betty.extension.webpack import WebpackEntryPointProvider
 
 
 _NPM_PROJECT_DIRECTORIES_PATH = Path(__file__).parent / "webpack"
 
 
 async def _npm_project_id(
-    entrypoint_providers: Sequence[WebpackEntrypointProvider & Extension], debug: bool
+    entry_point_providers: Sequence[WebpackEntryPointProvider & Extension], debug: bool
 ) -> str:
     return hashid_sequence(
         "true" if debug else "false",
         await hashid_file_content(_NPM_PROJECT_DIRECTORIES_PATH / "package.json"),
         *[
             await hashid_file_content(
-                entrypoint_provider.webpack_entrypoint_directory_path() / "package.json"
+                entry_point_provider.webpack_entry_point_directory_path()
+                / "package.json"
             )
-            for entrypoint_provider in entrypoint_providers
+            for entry_point_provider in entry_point_providers
         ],
     )
 
 
 async def _npm_project_directory_path(
     working_directory_path: Path,
-    entrypoint_providers: Sequence[WebpackEntrypointProvider & Extension],
+    entry_point_providers: Sequence[WebpackEntryPointProvider & Extension],
     debug: bool,
 ) -> Path:
-    return working_directory_path / await _npm_project_id(entrypoint_providers, debug)
+    return working_directory_path / await _npm_project_id(entry_point_providers, debug)
 
 
 def webpack_build_id(
-    entrypoint_providers: Sequence[WebpackEntrypointProvider & Extension],
+    entry_point_providers: Sequence[WebpackEntryPointProvider & Extension],
 ) -> str:
     """
     Generate the ID for a Webpack build.
@@ -65,20 +66,20 @@ def webpack_build_id(
             "-".join(
                 map(
                     hashid,
-                    entrypoint_provider.webpack_entrypoint_cache_keys(),
+                    entry_point_provider.webpack_entry_point_cache_keys(),
                 )
             )
-            for entrypoint_provider in entrypoint_providers
+            for entry_point_provider in entry_point_providers
         )
     )
 
 
 def _webpack_build_directory_path(
     npm_project_directory_path: Path,
-    entrypoint_providers: Sequence[WebpackEntrypointProvider & Extension],
+    entry_point_providers: Sequence[WebpackEntryPointProvider & Extension],
 ) -> Path:
     return (
-        npm_project_directory_path / f"build-{webpack_build_id(entrypoint_providers)}"
+        npm_project_directory_path / f"build-{webpack_build_id(entry_point_providers)}"
     )
 
 
@@ -90,7 +91,7 @@ class Builder:
     def __init__(
         self,
         working_directory_path: Path,
-        entrypoint_providers: Sequence[WebpackEntrypointProvider & Extension],
+        entry_point_providers: Sequence[WebpackEntryPointProvider & Extension],
         debug: bool,
         renderer: Renderer,
         *,
@@ -98,7 +99,7 @@ class Builder:
         localizer: Localizer,
     ) -> None:
         self._working_directory_path = working_directory_path
-        self._entrypoint_providers = entrypoint_providers
+        self._entry_point_providers = entry_point_providers
         self._debug = debug
         self._renderer = renderer
         self._job_context = job_context
@@ -147,30 +148,30 @@ class Builder:
             ]
         )
 
-    async def _prepare_webpack_entrypoint_provider(
+    async def _prepare_webpack_entry_point_provider(
         self,
         npm_project_directory_path: Path,
-        entrypoint_provider: type[WebpackEntrypointProvider & Extension],
+        entry_point_provider: type[WebpackEntryPointProvider & Extension],
         npm_project_package_json_dependencies: MutableMapping[str, str],
         webpack_entry: MutableMapping[str, str],
     ) -> None:
-        entrypoint_provider_working_directory_path = (
-            npm_project_directory_path / "entrypoints" / entrypoint_provider.name()
+        entry_point_provider_working_directory_path = (
+            npm_project_directory_path / "entry_points" / entry_point_provider.name()
         )
         await self._copytree_and_render(
-            entrypoint_provider.webpack_entrypoint_directory_path(),
-            entrypoint_provider_working_directory_path,
+            entry_point_provider.webpack_entry_point_directory_path(),
+            entry_point_provider_working_directory_path,
         )
-        npm_project_package_json_dependencies[entrypoint_provider.name()] = (
+        npm_project_package_json_dependencies[entry_point_provider.name()] = (
             # Ensure a relative path inside the npm project directory, or else npm
-            # will not install our entrypoints' dependencies.
-            f"file:{entrypoint_provider_working_directory_path.relative_to(npm_project_directory_path)}"
+            # will not install our entry points' dependencies.
+            f"file:{entry_point_provider_working_directory_path.relative_to(npm_project_directory_path)}"
         )
         # Webpack requires relative paths to start with a leading dot and use forward slashes.
-        webpack_entry[entrypoint_provider.name()] = "/".join(
+        webpack_entry[entry_point_provider.name()] = "/".join(
             (
                 ".",
-                *(entrypoint_provider_working_directory_path / "main.ts")
+                *(entry_point_provider_working_directory_path / "main.ts")
                 .relative_to(npm_project_directory_path)
                 .parts,
             )
@@ -185,13 +186,13 @@ class Builder:
         await gather(
             self._prepare_webpack_extension(npm_project_directory_path),
             *(
-                self._prepare_webpack_entrypoint_provider(
+                self._prepare_webpack_entry_point_provider(
                     npm_project_directory_path,
-                    type(entrypoint_provider),
+                    type(entry_point_provider),
                     npm_project_package_json_dependencies,
                     webpack_entry,
                 )
-                for entrypoint_provider in self._entrypoint_providers
+                for entry_point_provider in self._entry_point_providers
             ),
         )
         webpack_configuration_json = dumps(
@@ -244,11 +245,11 @@ class Builder:
             final destination.
         """
         npm_project_directory_path = await _npm_project_directory_path(
-            self._working_directory_path, self._entrypoint_providers, self._debug
+            self._working_directory_path, self._entry_point_providers, self._debug
         )
         webpack_build_directory_path = _webpack_build_directory_path(
             npm_project_directory_path,
-            self._entrypoint_providers,
+            self._entry_point_providers,
         )
         if webpack_build_directory_path.exists():
             return webpack_build_directory_path

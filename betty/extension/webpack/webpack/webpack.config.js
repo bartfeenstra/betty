@@ -14,13 +14,13 @@ const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const configuration = JSON.parse(await readFile('./webpack.config.json'))
 
 /**
- * Collect the scripts needed for all entrypoints, and build a loader.
+ * Collect the scripts needed for all entry points, and build a loader.
  *
  * We do this, because page generation and the Webpack build take place concurrently for performance reasons.
- * When rendered, pages declare the Webpack extension entrypoints they need.
- * Using this Webpack plugin, we build a map of all scripts needed per entrypoint,
+ * When rendered, pages declare the Webpack extension entry points they need.
+ * Using this Webpack plugin, we build a map of all scripts needed per entry point,
  * as well as a loader that is run on each page. The loader then imports the
- * scripts needed for the entrypoints declared on the page.
+ * scripts needed for the entry points declared on the page.
  */
 class EntryScriptCollector {
   apply (compiler) {
@@ -93,7 +93,7 @@ const webpackConfiguration = {
     splitChunks: {
       chunks: 'all',
       cacheGroups: {
-        // The resulting CSS files are one per entrypoint, and a single vendor.css.
+        // The resulting CSS files are one per entry point, and a single vendor.css.
         // This makes for easy and unconditional importing.
         vendorCss: {
           test: /[\\/]node_modules[\\/].+?\.css$/,

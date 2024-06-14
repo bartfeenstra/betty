@@ -38,12 +38,12 @@ if TYPE_CHECKING:
 
 
 def _prebuilt_webpack_build_directory_path(
-    entrypoint_providers: Sequence[WebpackEntrypointProvider & Extension],
+    entry_point_providers: Sequence[WebpackEntryPointProvider & Extension],
 ) -> Path:
     return (
         fs.PREBUILT_ASSETS_DIRECTORY_PATH
         / "webpack"
-        / f"build-{webpack_build_id(entrypoint_providers)}"
+        / f"build-{webpack_build_id(entry_point_providers)}"
     )
 
 
@@ -59,27 +59,27 @@ async def _prebuild_webpack_assets() -> None:
             *{
                 extension_type
                 for extension_type in discover_extension_types()
-                if issubclass(extension_type, WebpackEntrypointProvider)
+                if issubclass(extension_type, WebpackEntryPointProvider)
             }
         )
         await webpack.prebuild(job_context=job_context)
 
 
-class WebpackEntrypointProvider:
+class WebpackEntryPointProvider:
     """
-    An extension that provides Webpack entrypoints.
+    An extension that provides Webpack entry points.
     """
 
     @classmethod
-    def webpack_entrypoint_directory_path(cls) -> Path:
+    def webpack_entry_point_directory_path(cls) -> Path:
         """
-        Get the path to the directory with the entrypoint assets.
+        Get the path to the directory with the entry point assets.
 
         The directory must include at least a ``package.json`` and ``main.ts``.
         """
         raise NotImplementedError
 
-    def webpack_entrypoint_cache_keys(self) -> Sequence[str]:
+    def webpack_entry_point_cache_keys(self) -> Sequence[str]:
         """
         Get the keys that make a Webpack build for this provider unique.
 
@@ -149,7 +149,7 @@ class Webpack(Extension, CssProvider, Jinja2Provider, Generator):
     @override
     def new_context_vars(self) -> dict[str, Any]:
         return {
-            "webpack_js_entrypoints": set(),
+            "webpack_js_entry_points": set(),
         }
 
     @override
@@ -158,13 +158,13 @@ class Webpack(Extension, CssProvider, Jinja2Provider, Generator):
         return FILTERS
 
     @property
-    def _project_entrypoint_providers(
+    def _project_entry_point_providers(
         self,
-    ) -> Sequence[WebpackEntrypointProvider & Extension]:
+    ) -> Sequence[WebpackEntryPointProvider & Extension]:
         return [
             extension
             for extension in self._app.extensions.flatten()
-            if isinstance(extension, WebpackEntrypointProvider)
+            if isinstance(extension, WebpackEntryPointProvider)
         ]
 
     @override
@@ -188,7 +188,7 @@ class Webpack(Extension, CssProvider, Jinja2Provider, Generator):
             await self._copy_build_directory(
                 build_directory_path,
                 _prebuilt_webpack_build_directory_path(
-                    self._project_entrypoint_providers
+                    self._project_entry_point_providers
                 ),
             )
 
@@ -200,7 +200,7 @@ class Webpack(Extension, CssProvider, Jinja2Provider, Generator):
     ) -> build.Builder:
         return build.Builder(
             working_directory_path,
-            self._project_entrypoint_providers,
+            self._project_entry_point_providers,
             self._app.project.configuration.debug,
             self._app.renderer,
             job_context=job_context,
@@ -236,7 +236,7 @@ class Webpack(Extension, CssProvider, Jinja2Provider, Generator):
 
         # Use prebuilt assets if they exist.
         prebuilt_webpack_build_directory_path = _prebuilt_webpack_build_directory_path(
-            self._project_entrypoint_providers
+            self._project_entry_point_providers
         )
         if prebuilt_webpack_build_directory_path.exists():
             return prebuilt_webpack_build_directory_path
