@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from jinja2 import pass_context
 
-from betty.extension.webpack.jinja2 import _context_js_entrypoints
+from betty.extension.webpack.jinja2 import _context_js_entry_points
 from betty.jinja2.filter import filter_public_js
 from typing import TYPE_CHECKING
 
@@ -15,14 +15,14 @@ if TYPE_CHECKING:
 
 
 @pass_context
-def filter_webpack_entrypoint_js(context: Context, entrypoint_name: str) -> None:
+def filter_webpack_entry_point_js(context: Context, entry_point_name: str) -> None:
     """
-    Add a Webpack entrypoint's JavaScript files to the current page.
+    Add a Webpack entry point's JavaScript files to the current page.
     """
     filter_public_js(context, "/js/webpack-entry-loader.js")
-    _context_js_entrypoints(context).add(entrypoint_name)
+    _context_js_entry_points(context).add(entry_point_name)
 
 
 FILTERS = {
-    "webpack_entrypoint_js": filter_webpack_entrypoint_js,
+    "webpack_entry_point_js": filter_webpack_entry_point_js,
 }

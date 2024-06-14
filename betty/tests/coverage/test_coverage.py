@@ -234,12 +234,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/extension/http_api_doc/__init__.py": {
         "HttpApiDoc": {
-            "webpack_entrypoint_cache_keys": TestKnownToBeMissing,
+            "webpack_entry_point_cache_keys": TestKnownToBeMissing,
         },
     },
     "betty/extension/maps/__init__.py": {
         "Maps": {
-            "webpack_entrypoint_cache_keys": TestKnownToBeMissing,
+            "webpack_entry_point_cache_keys": TestKnownToBeMissing,
         },
     },
     "betty/extension/nginx/__init__.py": {
@@ -271,7 +271,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/extension/trees/__init__.py": {
         "Trees": {
-            "webpack_entrypoint_cache_keys": TestKnownToBeMissing,
+            "webpack_entry_point_cache_keys": TestKnownToBeMissing,
         },
     },
     "betty/extension/webpack/__init__.py": {
@@ -285,7 +285,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "public_css_paths": TestKnownToBeMissing,
         },
         # This is an interface.
-        "WebpackEntrypointProvider": TestKnownToBeMissing,
+        "WebpackEntryPointProvider": TestKnownToBeMissing,
     },
     "betty/extension/webpack/build.py": {
         "webpack_build_id": TestKnownToBeMissing,

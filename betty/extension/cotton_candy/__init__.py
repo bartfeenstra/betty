@@ -16,7 +16,7 @@ from betty import fs
 from betty.app.extension import ConfigurableExtension, Extension, Theme
 from betty.config import Configuration
 from betty.extension.cotton_candy.search import Index
-from betty.extension.webpack import Webpack, WebpackEntrypointProvider
+from betty.extension.webpack import Webpack, WebpackEntryPointProvider
 from betty.functools import Uniquifier
 from betty.generate import Generator, GenerationContext
 from betty.gui import GuiBuilder
@@ -272,7 +272,7 @@ class CottonCandy(
     Generator,
     GuiBuilder,
     Jinja2Provider,
-    WebpackEntrypointProvider,
+    WebpackEntryPointProvider,
 ):
     """
     Provide Betty's default front-end theme.
@@ -302,11 +302,11 @@ class CottonCandy(
 
     @override
     @classmethod
-    def webpack_entrypoint_directory_path(cls) -> Path:
+    def webpack_entry_point_directory_path(cls) -> Path:
         return Path(__file__).parent / "webpack"
 
     @override
-    def webpack_entrypoint_cache_keys(self) -> Sequence[str]:
+    def webpack_entry_point_cache_keys(self) -> Sequence[str]:
         return (
             self._app.project.configuration.root_path,
             self._configuration.primary_inactive_color.hex,
