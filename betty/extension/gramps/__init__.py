@@ -26,14 +26,20 @@ async def _load_ancestry(event: LoadAncestryEvent) -> None:
         Gramps
     ].extension_configuration
     assert isinstance(gramps_configuration, GrampsConfiguration)
-    for family_tree in gramps_configuration.family_trees:
-        file_path = family_tree.file_path
+    for family_tree_configuration in gramps_configuration.family_trees:
+        file_path = family_tree_configuration.file_path
         if file_path:
             await GrampsLoader(
                 project.ancestry,
                 attribute_prefix_key=project.configuration.name,
                 factory=project.new,
                 localizer=project.app.localizer,
+                event_type_map={
+                    event_type_configuration.gramps_event_type: await project.event_types.get(
+                        event_type_configuration.event_type_id
+                    )
+                    for event_type_configuration in family_tree_configuration.event_types.values()
+                },
             ).load_file(file_path)
 
 

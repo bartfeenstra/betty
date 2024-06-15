@@ -10,6 +10,7 @@ from betty.ancestry import Ancestry
 from betty.app import App
 from betty.app.factory import AppDependentFactory
 from betty.json.schema import JsonSchemaSchema
+from betty.plugin.config import PluginConfiguration
 from betty.plugin.static import StaticPluginRepository
 from betty.project import (
     Project,
@@ -392,6 +393,12 @@ class TestProject:
     async def test_logo_without_configuration(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             assert sut.logo.exists()
+
+    async def test_event_types(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as sut:
+            sut.configuration.event_types.append(PluginConfiguration("foo", "Foo"))
+            async with sut:
+                assert await sut.event_types.get("foo")
 
 
 class TestProjectContext:

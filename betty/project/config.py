@@ -12,6 +12,8 @@ from typing_extensions import override
 
 from betty import model
 from betty.ancestry import Person, Event, Place, Source
+from betty.ancestry.event_type import EventType
+from betty.ancestry.event_type import _EventTypeShorthandBase
 from betty.assertion import (
     assert_record,
     RequiredField,
@@ -36,12 +38,17 @@ from betty.config.collections.mapping import (
 )
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
-from betty.locale.localizable import _, ShorthandStaticTranslations
+from betty.locale.localizable import _, ShorthandStaticTranslations, Localizable
 from betty.locale.localizable.config import (
     StaticTranslationsLocalizableConfigurationAttr,
 )
 from betty.model import Entity, UserFacingEntity
 from betty.plugin.assertion import assert_plugin
+from betty.plugin.config import (
+    PluginConfigurationPluginConfigurationMapping,
+    PluginConfiguration,
+    PluginConfigurationMapping,
+)
 from betty.project import extension
 from betty.project.extension import Extension, ConfigurableExtension
 from betty.serde.dump import (
@@ -374,11 +381,7 @@ class ExtensionConfigurationMapping(
         return configuration.extension_type
 
     @override
-    def _load_key(
-        self,
-        item_dump: Dump,
-        key_dump: str,
-    ) -> Dump:
+    def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
         mapping_dump = assert_mapping()(item_dump)
         mapping_dump["extension"] = key_dump
         return mapping_dump
@@ -488,11 +491,7 @@ class EntityTypeConfigurationMapping(
         return configuration.entity_type
 
     @override
-    def _load_key(
-        self,
-        item_dump: Dump,
-        key_dump: str,
-    ) -> Dump:
+    def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
         mapping_dump = assert_mapping()(item_dump)
         assert_plugin(model.ENTITY_TYPE_REPOSITORY)(key_dump)
         mapping_dump["entity_type"] = key_dump
@@ -634,6 +633,26 @@ class LocaleConfigurationMapping(OrderedConfigurationMapping[str, LocaleConfigur
         return len(self) > 1
 
 
+class EventTypeConfigurationMapping(
+    PluginConfigurationPluginConfigurationMapping[EventType]
+):
+    """
+    A configuration mapping for event types.
+    """
+
+    @override
+    def _create_plugin(self, configuration: PluginConfiguration) -> type[EventType]:
+        class _ProjectConfigurationEventType(_EventTypeShorthandBase):
+            _plugin_id = configuration.id
+            _plugin_label = configuration.label
+
+            @classmethod
+            def plugin_description(cls) -> Localizable | None:
+                return configuration.description
+
+        return _ProjectConfigurationEventType
+
+
 @final
 class ProjectConfiguration(Configuration):
     """
@@ -652,6 +671,7 @@ class ProjectConfiguration(Configuration):
         title: ShorthandStaticTranslations = "Betty",
         author: ShorthandStaticTranslations | None = None,
         entity_types: Iterable[EntityTypeConfiguration] | None = None,
+        event_types: Iterable[PluginConfiguration] | None = None,
         extensions: Iterable[ExtensionConfiguration] | None = None,
         debug: bool = False,
         locales: Iterable[LocaleConfiguration] | None = None,
@@ -689,6 +709,9 @@ class ProjectConfiguration(Configuration):
                 ),
             ]
         )
+        self._event_types = EventTypeConfigurationMapping()
+        if event_types is not None:
+            self._event_types.append(*event_types)
         self._extensions = ExtensionConfigurationMapping(extensions or ())
         self._debug = debug
         self._locales = LocaleConfigurationMapping(locales or ())
@@ -880,6 +903,13 @@ class ProjectConfiguration(Configuration):
     def logo(self, logo: Path | None) -> None:
         self._logo = logo
 
+    @property
+    def event_types(self) -> PluginConfigurationMapping[EventType, PluginConfiguration]:
+        """
+        The event types.
+        """
+        return self._event_types
+
     @override
     def update(self, other: Self) -> None:
         self._url = other._url
@@ -913,6 +943,7 @@ class ProjectConfiguration(Configuration):
             OptionalField("locales", self.locales.load),
             OptionalField("extensions", self.extensions.load),
             OptionalField("entity_types", self.entity_types.load),
+            OptionalField("event_types", self.event_types.load),
         )(dump)
 
     @override
@@ -930,6 +961,7 @@ class ProjectConfiguration(Configuration):
                 "locales": self.locales.dump(),
                 "extensions": self.extensions.dump(),
                 "entity_types": self.entity_types.dump(),
+                "event_types": self.event_types.dump(),
             },
             True,
         )

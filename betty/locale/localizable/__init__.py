@@ -15,14 +15,15 @@ from betty.attr import MutableAttr
 from betty.classtools import repr_instance
 from betty.json.linked_data import LinkedDataDumpable
 from betty.json.schema import Object
-from betty.locale import negotiate_locale, to_locale, UNDETERMINED_LOCALE
+from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localized import LocalizedStr
-from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.locale.localizer import Localizer
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
     from betty.project import Project
+from betty.locale import negotiate_locale, to_locale
+from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localizer import Localizer
 
 
 class Localizable(ABC):

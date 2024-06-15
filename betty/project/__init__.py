@@ -27,6 +27,7 @@ from typing_extensions import override
 
 from betty import fs, event_dispatcher
 from betty.ancestry import Ancestry
+from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY
 from betty.assets import AssetRepository
 from betty.asyncio import wait_to_thread
 from betty.config import (
@@ -44,6 +45,8 @@ from betty.json.schema import (
 from betty.locale.localizable import _
 from betty.locale.localizer import LocalizerRepository
 from betty.model import Entity, EntityReferenceCollectionSchema
+from betty.plugin.proxy import ProxyPluginRepository
+from betty.plugin.static import StaticPluginRepository
 from betty.project import extension
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import (
@@ -58,6 +61,7 @@ from betty.string import kebab_case_to_lower_camel_case
 from betty.typing import internal
 
 if TYPE_CHECKING:
+    from betty.ancestry.event_type import EventType
     from betty.machine_name import MachineName
     from betty.plugin import PluginIdentifier
     from collections.abc import Sequence
@@ -65,8 +69,10 @@ if TYPE_CHECKING:
     from betty.app import App
     from betty.url import LocalizedUrlGenerator, StaticUrlGenerator
     from betty.jinja2 import Environment
+    from betty.plugin import PluginRepository
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
+
 
 _ProjectDependentT = TypeVar("_ProjectDependentT")
 
@@ -100,6 +106,7 @@ class Project(Configurable[ProjectConfiguration], DependentFactory[Any], CoreCom
         self._extensions: ProjectExtensions | None = None
         self._event_dispatcher: EventDispatcher | None = None
         self._entity_types: set[type[Entity]] | None = None
+        self._event_types: PluginRepository[EventType] | None = None
 
     @classmethod
     @asynccontextmanager
@@ -327,6 +334,20 @@ class Project(Configurable[ProjectConfiguration], DependentFactory[Any], CoreCom
             self._configuration.logo
             or fs.ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png"
         )
+
+    @property
+    def event_types(self) -> PluginRepository[EventType]:
+        """
+        The event types available to this project.
+        """
+        if self._event_types is None:
+            self._assert_bootstrapped()
+            self._event_types = ProxyPluginRepository(
+                EVENT_TYPE_REPOSITORY,
+                StaticPluginRepository(*self.configuration.event_types.plugins),
+            )
+
+        return self._event_types
 
 
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)

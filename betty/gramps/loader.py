@@ -44,30 +44,8 @@ from betty.ancestry import (
     Ancestry,
 )
 from betty.ancestry.event_type import (
-    Birth,
-    Baptism,
-    Adoption,
-    Cremation,
-    Death,
-    Funeral,
-    Burial,
-    Will,
-    Engagement,
-    Marriage,
-    MarriageAnnouncement,
-    Divorce,
-    DivorceAnnouncement,
-    Residence,
-    Immigration,
-    Emigration,
-    Occupation,
-    Retirement,
-    Correspondence,
-    Confirmation,
-    Missing,
     UnknownEventType,
     EventType,
-    Conference,
 )
 from betty.ancestry.presence_role import (
     Subject,
@@ -156,6 +134,7 @@ class GrampsLoader:
         factory: Factory[Any],
         localizer: Localizer,
         attribute_prefix_key: str | None = None,
+        event_type_map: Mapping[str, type[EventType]] | None = None,
     ):
         super().__init__()
         self._ancestry = ancestry
@@ -169,6 +148,7 @@ class GrampsLoader:
         self._gramps_tree_directory_path: Path | None = None
         self._loaded = False
         self._localizer = localizer
+        self._event_type_map = event_type_map or {}
 
     async def load_file(self, file_path: Path) -> None:
         """
@@ -759,31 +739,6 @@ class GrampsLoader:
         for element in self._xpath(database, "./ns:events/ns:event"):
             self._load_event(element)
 
-    _EVENT_TYPE_MAP = {
-        "Birth": Birth,
-        "Baptism": Baptism,
-        "Adopted": Adoption,
-        "Cremation": Cremation,
-        "Death": Death,
-        "Funeral": Funeral,
-        "Burial": Burial,
-        "Will": Will,
-        "Engagement": Engagement,
-        "Marriage": Marriage,
-        "Marriage Banns": MarriageAnnouncement,
-        "Divorce": Divorce,
-        "Divorce Filing": DivorceAnnouncement,
-        "Residence": Residence,
-        "Immigration": Immigration,
-        "Emigration": Emigration,
-        "Occupation": Occupation,
-        "Retirement": Retirement,
-        "Correspondence": Correspondence,
-        "Confirmation": Confirmation,
-        "Missing": Missing,
-        "Conference": Conference,
-    }
-
     def _load_event(self, element: ElementTree.Element) -> None:
         event_handle = element.get("handle")
         event_id = element.get("id")
@@ -792,7 +747,7 @@ class GrampsLoader:
         assert gramps_type is not None
 
         try:
-            event_type: EventType = self._EVENT_TYPE_MAP[gramps_type]()
+            event_type: EventType = self._event_type_map[gramps_type]()
         except KeyError:
             event_type = UnknownEventType()
             getLogger(__name__).warning(

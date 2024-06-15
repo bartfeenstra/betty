@@ -10,6 +10,7 @@ from typing_extensions import override
 
 from betty.locale.localizable import _, Localizable
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.machine_name import MachineName
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
 

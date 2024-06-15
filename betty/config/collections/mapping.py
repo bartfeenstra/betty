@@ -118,11 +118,7 @@ class ConfigurationMapping(
     """
 
     @abstractmethod
-    def _load_key(
-        self,
-        item_dump: Dump,
-        key_dump: str,
-    ) -> Dump:
+    def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
         pass
 
     @abstractmethod

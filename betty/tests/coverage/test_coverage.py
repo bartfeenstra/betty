@@ -523,6 +523,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugin/assertion.py": {
         "assert_plugin": TestKnownToBeMissing,
     },
+    "betty/plugin/config.py": {
+        # This is tested as part of PluginConfigurationPluginConfigurationMapping.
+        "PluginConfigurationMapping": TestKnownToBeMissing,
+    },
     "betty/plugin/lazy.py": TestKnownToBeMissing,
     "betty/privatizer.py": {
         "Privatizer": {
@@ -616,6 +620,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "betty/test_utils/locale.py": TestKnownToBeMissing,
         "betty/test_utils/model/__init__.py": TestKnownToBeMissing,
         "betty/test_utils/plugin/__init__.py": TestKnownToBeMissing,
+        "betty/test_utils/plugin/config.py": TestKnownToBeMissing,
         "betty/test_utils/project/extension/__init__.py": TestKnownToBeMissing,
         "betty/test_utils/serve.py": TestKnownToBeMissing,
     },

@@ -10,6 +10,7 @@ from betty.config import Configuration
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity, UserFacingEntity
+from betty.plugin.config import PluginConfiguration
 from betty.plugin.static import StaticPluginRepository
 from betty.project.config import (
     EntityReference,
@@ -20,6 +21,7 @@ from betty.project.config import (
     ExtensionConfigurationMapping,
     EntityTypeConfiguration,
     EntityTypeConfigurationMapping,
+    EventTypeConfigurationMapping,
 )
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension
@@ -35,7 +37,7 @@ from betty.test_utils.project.extension import (
 from betty.typing import Void
 
 if TYPE_CHECKING:
-    from betty.serde.dump import Dump, VoidableDump
+    from betty.serde.dump import Dump, VoidableDump, DumpMapping
     from pytest_mock import MockerFixture
     from pathlib import Path
 
@@ -359,9 +361,7 @@ class TestLocaleConfigurationMapping(
         return LocaleConfigurationMapping(configurations)  # type: ignore[arg-type]
 
     @override
-    def get_configuration_keys(
-        self,
-    ) -> tuple[str, str, str, str]:
+    def get_configuration_keys(self) -> tuple[str, str, str, str]:
         return ("en", "nl", "uk", "fr")
 
     @override
@@ -821,6 +821,36 @@ class TestEntityTypeConfigurationMapping(
         )
 
 
+class TestEventTypeConfigurationMapping(
+    ConfigurationMappingTestBase[str, PluginConfiguration]
+):
+    @override
+    def get_configuration_keys(self) -> tuple[str, str, str, str]:
+        return "foo", "bar", "baz", "qux"
+
+    @override
+    def get_configurations(
+        self,
+    ) -> tuple[
+        PluginConfiguration,
+        PluginConfiguration,
+        PluginConfiguration,
+        PluginConfiguration,
+    ]:
+        return (
+            PluginConfiguration("foo", "Foo"),
+            PluginConfiguration("bar", "Bar"),
+            PluginConfiguration("baz", "Baz"),
+            PluginConfiguration("qux", "Qux"),
+        )
+
+    @override
+    def get_sut(
+        self, configurations: Iterable[PluginConfiguration] | None = None
+    ) -> EventTypeConfigurationMapping:
+        return EventTypeConfigurationMapping(configurations)
+
+
 class TestProjectConfiguration:
     async def test_configuration_file_path(self, tmp_path: Path) -> None:
         old_configuration_file_path = tmp_path / "betty.json"
@@ -976,6 +1006,10 @@ class TestProjectConfiguration:
         sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.logo = logo
         assert sut.logo == logo
+
+    async def test_event_types(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        assert sut.event_types is sut.event_types
 
     async def test_load_should_load_minimal(self, tmp_path: Path) -> None:
         dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
@@ -1136,6 +1170,23 @@ class TestProjectConfiguration:
         with raises_error(error_type=AssertionFailed):
             sut.load(dump)
 
+    @pytest.mark.parametrize(
+        "event_types_configuration",
+        [
+            {},
+            {"foo": {"label": "Foo"}},
+        ],
+    )
+    async def test_load_should_load_event_types(
+        self, event_types_configuration: DumpMapping[Dump], tmp_path: Path
+    ) -> None:
+        dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
+        dump["event_types"] = event_types_configuration
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        sut.load(dump)
+        if event_types_configuration:
+            assert sut.dump()["event_types"] == event_types_configuration
+
     async def test_load_should_error_if_invalid_config(self, tmp_path: Path) -> None:
         dump: Dump = {}
         sut = ProjectConfiguration(tmp_path / "betty.json")
@@ -1256,6 +1307,13 @@ class TestProjectConfiguration:
         assert (
             expected == dump["extensions"][_DummyNonConfigurableExtension.plugin_id()]
         )
+
+    async def test_dump_should_dump_event_types(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        sut.event_types.append(PluginConfiguration("foo", "Foo"))
+        dump: Any = sut.dump()
+        expected = {"foo": {"label": "Foo"}}
+        assert expected == dump["event_types"]
 
     async def test_dump_should_error_if_invalid_config(self, tmp_path: Path) -> None:
         dump: Dump = {}
