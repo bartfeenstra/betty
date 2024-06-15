@@ -13,9 +13,20 @@ import re
 from abc import ABC, abstractmethod
 from typing import TypeVar, Generic, Self, overload, TYPE_CHECKING, TypeAlias, TypeGuard
 
+from betty.error import UserFacingError
+from betty.locale.localizable import _
+
 if TYPE_CHECKING:
     from betty.locale.localizable import Localizable
     from collections.abc import AsyncIterator, Sequence
+
+
+class PluginError(UserFacingError):
+    """
+    Any error originating from the Plugin API.
+    """
+
+    pass
 
 
 PluginId: TypeAlias = str
@@ -74,7 +85,7 @@ class Plugin(ABC):
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 
 
-class PluginNotFound(ValueError):
+class PluginNotFound(PluginError):
     """
     Raised when a plugin cannot be found.
     """
@@ -84,7 +95,9 @@ class PluginNotFound(ValueError):
         """
         Create a new instance.
         """
-        return cls(f'Could not find a plugin "{plugin_id}".')
+        return cls(
+            _('Could not find a plugin "{plugin_id}".').format(plugin_id=plugin_id)
+        )
 
 
 _PluginMixinOneT = TypeVar("_PluginMixinOneT")

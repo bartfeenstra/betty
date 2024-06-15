@@ -540,9 +540,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Emigration": TestKnownToBeMissing,
         "EndOfLifeEventType": TestKnownToBeMissing,
         "Engagement": TestKnownToBeMissing,
-        # This is an abstract class.
         "EventType": TestKnownToBeMissing,
-        "EventTypeProvider": TestKnownToBeMissing,
         "FinalDispositionEventType": TestKnownToBeMissing,
         "Funeral": TestKnownToBeMissing,
         "Immigration": TestKnownToBeMissing,
@@ -584,7 +582,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             # This is an interface method.
             "plugin_label": TestKnownToBeMissing,
         },
-        # This is an interface.
+        # This is a base/sentinel class.
+        "PluginError": TestKnownToBeMissing,
         "PluginRepository": {
             # This is an interface method.
             "__aiter__": TestKnownToBeMissing,

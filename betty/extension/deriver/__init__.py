@@ -13,6 +13,7 @@ from betty.deriver import Deriver as DeriverApi
 from betty.extension.privatizer import Privatizer
 from betty.load import PostLoader
 from betty.locale.localizable import _, Localizable
+from betty.model import event_type
 from betty.model.event_type import DerivableEventType
 from betty.project.extension import Extension
 from typing import TYPE_CHECKING
@@ -40,11 +41,7 @@ class Deriver(Extension, PostLoader):
         deriver = DeriverApi(
             self.project.ancestry,
             self.project.configuration.lifetime_threshold,
-            {
-                event_type
-                for event_type in self.project.event_types
-                if issubclass(event_type, DerivableEventType)
-            },
+            set(await event_type.ENTITY_TYPE_REPOSITORY.select(DerivableEventType)),
             localizer=self.project.app.localizer,
         )
         await deriver.derive()

@@ -40,10 +40,10 @@
         {%- if formatted_start is defined or formatted_end is defined -%}
             <dl>
                 {%- if formatted_start is defined -%}
-                    <div><dt>{{ start_of_life_event.event_type.label() | localize }}</dt><dd>{{ formatted_start }}</dd></div>
+                    <div><dt>{{ start_of_life_event.event_type.plugin_label() | localize }}</dt><dd>{{ formatted_start }}</dd></div>
                 {%- endif -%}
                 {%- if formatted_end is defined -%}
-                    <div><dt>{{ end_of_life_event.event_type.label() | localize }}</dt><dd>{{ formatted_end }}</dd></div>
+                    <div><dt>{{ end_of_life_event.event_type.plugin_label() | localize }}</dt><dd>{{ formatted_end }}</dd></div>
                 {%- endif -%}
             </dl>
         {%- endif -%}

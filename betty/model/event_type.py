@@ -4,52 +4,23 @@ Provide Betty's ancestry event types.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
 from betty.locale import DEFAULT_LOCALIZER
 from betty.locale.localizable import _, Localizable
+from betty.plugin import Plugin, PluginRepository
+from betty.plugin.entry_point import EntryPointPluginRepository
 
 if TYPE_CHECKING:
     from betty.model.ancestry import Person
 
 
-class EventTypeProvider(ABC):
-    """
-    Provide additional event types.
-    """
-
-    @property
-    @abstractmethod
-    def entity_types(self) -> set[type[EventType]]:
-        """
-        The event types.
-        """
-        pass
-
-
-class EventType(ABC):
+class EventType(Plugin):
     """
     Define an :py:class:`betty.model.ancestry.Event` type.
     """
-
-    @classmethod
-    @abstractmethod
-    def name(cls) -> str:
-        """
-        Get the machine name.
-        """
-        pass
-
-    @classmethod
-    @abstractmethod
-    def label(cls) -> Localizable:
-        """
-        Get the human-readable label.
-        """
-        pass
 
     @classmethod
     def comes_before(cls) -> set[type[EventType]]:
@@ -70,24 +41,44 @@ class EventType(ABC):
         return set()  # pragma: no cover
 
 
+ENTITY_TYPE_REPOSITORY: PluginRepository[EventType] = EntryPointPluginRepository(
+    "betty.event_type"
+)
+"""
+The event type plugin repository.
+"""
+
+
+class _EventTypeShorthandBase(EventType):
+    """
+    Provide helpers for deprecated methods.
+    """
+
+    _plugin_id: str
+    _plugin_label: Localizable
+
+    @override
+    @classmethod
+    def plugin_id(cls) -> str:
+        return cls._plugin_id
+
+    @override
+    @classmethod
+    def plugin_label(cls) -> Localizable:
+        return cls._plugin_label
+
+
 @final
-class UnknownEventType(EventType):
+class UnknownEventType(_EventTypeShorthandBase):
     """
     Described an event for which no more specific type is known.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "unknown"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Unknown")  # pragma: no cover
+    _plugin_id = "unknown"
+    _plugin_label = _("Unknown")
 
 
-class DerivableEventType(EventType):
+class DerivableEventType(_EventTypeShorthandBase):
     """
     Any event that that may be updated by the deriver API.
     """
@@ -171,20 +162,13 @@ class PostDeathEventType(EventType):
 
 
 @final
-class Birth(CreatableDerivableEventType, StartOfLifeEventType):
+class Birth(CreatableDerivableEventType, StartOfLifeEventType, _EventTypeShorthandBase):
     """
     Someone was born.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "birth"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Birth")  # pragma: no cover
+    _plugin_id = "birth"
+    _plugin_label = _("Birth")
 
     @override
     @classmethod
@@ -193,54 +177,33 @@ class Birth(CreatableDerivableEventType, StartOfLifeEventType):
 
 
 @final
-class Baptism(DuringLifeEventType, StartOfLifeEventType):
+class Baptism(DuringLifeEventType, StartOfLifeEventType, _EventTypeShorthandBase):
     """
     Someone was `baptized <https://en.wikipedia.org/wiki/Baptism>`_.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "baptism"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Baptism")  # pragma: no cover
+    _plugin_id = "baptism"
+    _plugin_label = _("Baptism")
 
 
 @final
-class Adoption(DuringLifeEventType):
+class Adoption(DuringLifeEventType, _EventTypeShorthandBase):
     """
     Someone was adopted.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "adoption"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Adoption")  # pragma: no cover
+    _plugin_id = "adoption"
+    _plugin_label = _("Adoption")
 
 
 @final
-class Death(CreatableDerivableEventType, EndOfLifeEventType):
+class Death(CreatableDerivableEventType, EndOfLifeEventType, _EventTypeShorthandBase):
     """
     Someone died.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "death"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Death")  # pragma: no cover
+    _plugin_id = "death"
+    _plugin_label = _("Death")
 
     @override
     @classmethod
@@ -268,88 +231,53 @@ class FinalDispositionEventType(
 
 
 @final
-class Funeral(FinalDispositionEventType):
+class Funeral(FinalDispositionEventType, _EventTypeShorthandBase):
     """
     Someone's funeral took place.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "funeral"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Funeral")  # pragma: no cover
+    _plugin_id = "funeral"
+    _plugin_label = _("Funeral")
 
 
 @final
-class Cremation(FinalDispositionEventType):
+class Cremation(FinalDispositionEventType, _EventTypeShorthandBase):
     """
     Someone was cremated.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "cremation"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Cremation")  # pragma: no cover
+    _plugin_id = "cremation"
+    _plugin_label = _("Cremation")
 
 
 @final
-class Burial(FinalDispositionEventType):
+class Burial(FinalDispositionEventType, _EventTypeShorthandBase):
     """
     Someone was buried.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "burial"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Burial")  # pragma: no cover
+    _plugin_id = "burial"
+    _plugin_label = _("Burial")
 
 
 @final
-class Will(PostDeathEventType):
+class Will(PostDeathEventType, _EventTypeShorthandBase):
     """
     Someone's `will and testament <https://en.wikipedia.org/wiki/Will_and_testament>`_ came into effect.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "will"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Will")  # pragma: no cover
+    _plugin_id = "will"
+    _plugin_label = _("Will")
 
 
 @final
-class Engagement(DuringLifeEventType):
+class Engagement(DuringLifeEventType, _EventTypeShorthandBase):
     """
     People got engaged with the intent to marry.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "engagement"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Engagement")  # pragma: no cover
+    _plugin_id = "engagement"
+    _plugin_label = _("Engagement")
 
     @override
     @classmethod
@@ -358,37 +286,23 @@ class Engagement(DuringLifeEventType):
 
 
 @final
-class Marriage(DuringLifeEventType):
+class Marriage(DuringLifeEventType, _EventTypeShorthandBase):
     """
     People were married.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "marriage"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Marriage")  # pragma: no cover
+    _plugin_id = "marriage"
+    _plugin_label = _("Marriage")
 
 
 @final
-class MarriageAnnouncement(DuringLifeEventType):
+class MarriageAnnouncement(DuringLifeEventType, _EventTypeShorthandBase):
     """
     People's marriage was announced.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "marriage-announcement"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Announcement of marriage")  # pragma: no cover
+    _plugin_id = "marriage-announcement"
+    _plugin_label = _("Announcement of marriage")
 
     @override
     @classmethod
@@ -397,20 +311,13 @@ class MarriageAnnouncement(DuringLifeEventType):
 
 
 @final
-class Divorce(DuringLifeEventType):
+class Divorce(DuringLifeEventType, _EventTypeShorthandBase):
     """
     People were divorced.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "divorce"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Divorce")  # pragma: no cover
+    _plugin_id = "divorce"
+    _plugin_label = _("Divorce")
 
     @override
     @classmethod
@@ -419,20 +326,13 @@ class Divorce(DuringLifeEventType):
 
 
 @final
-class DivorceAnnouncement(DuringLifeEventType):
+class DivorceAnnouncement(DuringLifeEventType, _EventTypeShorthandBase):
     """
     People's divorce was announced.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "divorce-announcement"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Announcement of divorce")  # pragma: no cover
+    _plugin_id = "divorce-announcement"
+    _plugin_label = _("Announcement of divorce")
 
     @override
     @classmethod
@@ -446,155 +346,92 @@ class DivorceAnnouncement(DuringLifeEventType):
 
 
 @final
-class Residence(DuringLifeEventType):
+class Residence(DuringLifeEventType, _EventTypeShorthandBase):
     """
     Someone resided/lived in a place.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "residence"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Residence")  # pragma: no cover
+    _plugin_id = "residence"
+    _plugin_label = _("Residence")
 
 
 @final
-class Immigration(DuringLifeEventType):
+class Immigration(DuringLifeEventType, _EventTypeShorthandBase):
     """
     Someone immigrated to a place.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "immigration"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Immigration")  # pragma: no cover
+    _plugin_id = "immigration"
+    _plugin_label = _("Immigration")
 
 
 @final
-class Emigration(DuringLifeEventType):
+class Emigration(_EventTypeShorthandBase, DuringLifeEventType):
     """
     Someone emigrated from a place.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "emigration"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Emigration")  # pragma: no cover
+    _plugin_id = "emigration"
+    _plugin_label = _("Emigration")
 
 
 @final
-class Occupation(DuringLifeEventType):
+class Occupation(_EventTypeShorthandBase, DuringLifeEventType):
     """
     Someone's occupation, e.g. their main recurring activity.
 
     This may include employment, education, stay at home parent, etc.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "occupation"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Occupation")  # pragma: no cover
+    _plugin_id = "occupation"
+    _plugin_label = _("Occupation")
 
 
 @final
-class Retirement(DuringLifeEventType):
+class Retirement(_EventTypeShorthandBase, DuringLifeEventType):
     """
     Someone `retired <https://en.wikipedia.org/wiki/Retirement>`_.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "retirement"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Retirement")  # pragma: no cover
+    _plugin_id = "retirement"
+    _plugin_label = _("Retirement")
 
 
 @final
-class Correspondence(EventType):
+class Correspondence(_EventTypeShorthandBase):
     """
     People corresponded with each other.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "correspondence"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Correspondence")  # pragma: no cover
+    _plugin_id = "correspondence"
+    _plugin_label = _("Correspondence")
 
 
 @final
-class Confirmation(DuringLifeEventType):
+class Confirmation(_EventTypeShorthandBase, DuringLifeEventType):
     """
     Someone's `confirmation <https://en.wikipedia.org/wiki/Confirmation>`_ took place.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "confirmation"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Confirmation")  # pragma: no cover
+    _plugin_id = "confirmation"
+    _plugin_label = _("Confirmation")
 
 
 @final
-class Missing(DuringLifeEventType):
+class Missing(_EventTypeShorthandBase, DuringLifeEventType):
     """
     Someone went missing.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "missing"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Missing")  # pragma: no cover
+    _plugin_id = "missing"
+    _plugin_label = _("Missing")
 
 
 @final
-class Conference(DuringLifeEventType):
+class Conference(_EventTypeShorthandBase, DuringLifeEventType):
     """
     A conference between people took place.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "conference"  # pragma: no cover
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Conference")  # pragma: no cover
+    _plugin_id = "conference"
+    _plugin_label = _("Conference")
