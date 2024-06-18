@@ -748,7 +748,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "assert_extension_type": TestKnownToBeMissing,
             "assert_locale": TestKnownToBeMissing,
             "assert_none": TestKnownToBeMissing,
-            "assert_or": TestKnownToBeMissing,
             "assert_setattr": TestKnownToBeMissing,
         },
         # This is an empty class.

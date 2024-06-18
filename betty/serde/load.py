@@ -217,14 +217,14 @@ class Asserter:
     def assert_or(
         self,
         if_assertion: Assertion[ValueT, ReturnT],
-        else_assertions: Assertion[ValueT, ReturnU],
+        else_assertion: Assertion[ValueT, ReturnU],
     ) -> Assertion[ValueT, ReturnT | ReturnU]:
         """
         Assert that at least one of the given assertions passed.
         """
 
         def _assert_or(value: Any) -> ReturnT | ReturnU:
-            assertions = (if_assertion, else_assertions)
+            assertions = (if_assertion, else_assertion)
             errors = SerdeErrorCollection()
             for assertion in assertions:
                 try:
