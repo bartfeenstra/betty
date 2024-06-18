@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 from tempfile import NamedTemporaryFile
-from typing import Any
+from typing import Any, TypeVar
 
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
+from betty.locale import Str
 from betty.serde.dump import Void
 from betty.serde.load import (
     Asserter,
@@ -15,11 +16,45 @@ from betty.serde.load import (
     OptionalField,
     Assertions,
     RequiredField,
+    Assertion,
 )
 from betty.tests.serde import raises_error
 
 
+_T = TypeVar("_T")
+
+
+def _always_valid(value: _T) -> _T:
+    return value
+
+
+def _always_invalid(value: _T) -> _T:
+    raise AssertionFailed(Str.plain(""))
+
+
 class TestAsserter:
+    @pytest.mark.parametrize(
+        ("if_assertion", "else_assertion", "value"),
+        [
+            (_always_valid, _always_valid, 123),
+            (_always_valid, _always_invalid, 123),
+            (_always_invalid, _always_valid, 123),
+        ],
+    )
+    async def test_assert_or_with_valid_assertions(
+        self,
+        if_assertion: Assertion[Any, bool],
+        else_assertion: Assertion[Any, bool],
+        value: int,
+    ) -> None:
+        sut = Asserter()
+        assert sut.assert_or(if_assertion, else_assertion)(value) == value
+
+    async def test_assert_or_with_invalid_assertions(self) -> None:
+        sut = Asserter()
+        with raises_error(error_type=AssertionFailed):
+            sut.assert_or(_always_invalid, _always_invalid)(123)
+
     async def test_assert_bool_with_valid_value(self) -> None:
         sut = Asserter()
         sut.assert_bool()(True)
