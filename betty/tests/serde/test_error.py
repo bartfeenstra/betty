@@ -89,7 +89,7 @@ class TestSerdeErrorCollection:
         error = LoadError(Str.plain("Help!"))
         with sut.catch() as errors:
             raise error
-        assert_error(errors, error=error)
+        assert_error(errors, error=error)  # type: ignore[unreachable]
         assert_error(sut, error=error)
 
     async def test_catch_with_contexts(self) -> None:
@@ -97,5 +97,5 @@ class TestSerdeErrorCollection:
         error = LoadError(Str.plain("Help!"))
         with sut.catch(Str.plain("Somewhere")) as errors:
             raise error
-        assert_error(errors, error=error.with_context(Str.plain("Somewhere")))
+        assert_error(errors, error=error.with_context(Str.plain("Somewhere")))  # type: ignore[unreachable]
         assert_error(sut, error=error.with_context(Str.plain("Somewhere")))
