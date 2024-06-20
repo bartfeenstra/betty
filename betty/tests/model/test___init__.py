@@ -1112,7 +1112,7 @@ class TestOneToOne:
 
         del entity_other_one.one
         assert entity_other_one.one is None
-        assert entity_one.other_one is None
+        assert entity_one.other_one is None  # type: ignore[unreachable]
 
 
 @many_to_one(
@@ -1151,7 +1151,7 @@ class TestManyToOne:
 
         del entity_many.one
         assert entity_many.one is None
-        assert [] == list(entity_one.many)
+        assert [] == list(entity_one.many)  # type: ignore[unreachable]
 
 
 @to_many(

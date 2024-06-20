@@ -189,7 +189,7 @@ class BettyQtBot:
         """
         Assert that an exception error is shown.
         """
-        exception_error: ExceptionError | None = None
+        exception_error: ExceptionError
 
         def _assert_error_modal() -> None:
             nonlocal exception_error
@@ -204,8 +204,7 @@ class BettyQtBot:
             exception_error = widget
 
         self.qtbot.waitUntil(_assert_error_modal)
-        assert exception_error is not None
-        return exception_error
+        return exception_error  # noqa: F821
 
     def assert_valid(self, widget: QWidget) -> None:
         """
