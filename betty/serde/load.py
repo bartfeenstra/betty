@@ -37,16 +37,20 @@ from betty.serde.error import SerdeError, SerdeErrorCollection
 if TYPE_CHECKING:
     from betty.app.extension import Extension
 
-T = TypeVar("T")
-ValueT = TypeVar("ValueT")
-ReturnT = TypeVar("ReturnT")
-ReturnU = TypeVar("ReturnU")
-CallValueT = TypeVar("CallValueT")
-CallReturnT = TypeVar("CallReturnT")
-FValueT = TypeVar("FValueT")
-MapReturnT = TypeVar("MapReturnT")
+
+_AssertionValueT = TypeVar("_AssertionValueT")
+_AssertionReturnT = TypeVar("_AssertionReturnT")
+_AssertionReturnU = TypeVar("_AssertionReturnU")
+
+Assertion: TypeAlias = Callable[
+    [
+        _AssertionValueT,
+    ],
+    _AssertionReturnT,
+]
+
+
 Number: TypeAlias = int | float
-NumberT = TypeVar("NumberT", bound=Number)
 
 
 class LoadError(SerdeError):
@@ -73,34 +77,28 @@ class FormatError(LoadError):
     pass  # pragma: no cover
 
 
-Assertion: TypeAlias = Callable[
-    [
-        ValueT,
-    ],
-    ReturnT,
-]
+_AssertionsExtendReturnT = TypeVar("_AssertionsExtendReturnT")
+_AssertionsIntermediateValueReturnT = TypeVar("_AssertionsIntermediateValueReturnT")
 
 
-class _Assertions(Generic[CallValueT, CallReturnT, FValueT]):
-    def __init__(self, _assertion: Assertion[FValueT, CallReturnT]):
-        self._assertion = _assertion
-
+class _Assertions(Generic[_AssertionValueT, _AssertionReturnT]):
     def extend(
-        self, _assertion: Assertion[CallReturnT, MapReturnT]
-    ) -> _Assertions[CallValueT, MapReturnT, CallReturnT]:
+        self, _assertion: Assertion[_AssertionReturnT, _AssertionsExtendReturnT]
+    ) -> _Assertions[_AssertionValueT, _AssertionsExtendReturnT]:
         return _AssertionExtension(_assertion, self)
 
     def __or__(
-        self, _assertion: Assertion[CallReturnT, MapReturnT]
-    ) -> _Assertions[CallValueT, MapReturnT, CallReturnT]:
+        self, _assertion: Assertion[_AssertionReturnT, _AssertionsExtendReturnT]
+    ) -> _Assertions[_AssertionValueT, _AssertionsExtendReturnT]:
         return self.extend(_assertion)
 
-    def __call__(self, value: CallValueT) -> _Result[CallReturnT]:
+    def __call__(self, value: _AssertionValueT) -> _Result[_AssertionReturnT]:
         raise NotImplementedError(repr(self))
 
 
 class Assertions(
-    _Assertions[CallValueT, CallReturnT, CallValueT], Generic[CallValueT, CallReturnT]
+    _Assertions[_AssertionValueT, _AssertionReturnT],
+    Generic[_AssertionValueT, _AssertionReturnT],
 ):
     """
     Start an assertions chain.
@@ -114,36 +112,44 @@ class Assertions(
     like mypy can confirm that all assertions in any given chain are compatible with each other.
     """
 
+    def __init__(self, _assertion: Assertion[_AssertionValueT, _AssertionReturnT]):
+        self._assertion = _assertion
+
     @override
-    def __call__(self, value: CallValueT) -> _Result[CallReturnT]:
+    def __call__(self, value: _AssertionValueT) -> _Result[_AssertionReturnT]:
         return _Result(value).map(self._assertion)
 
 
 class _AssertionExtension(
-    _Assertions[CallValueT, CallReturnT, FValueT],
-    Generic[CallValueT, CallReturnT, FValueT],
+    _Assertions[_AssertionValueT, _AssertionReturnT],
+    Generic[_AssertionValueT, _AssertionReturnT],
 ):
     def __init__(
         self,
-        _assertion: Assertion[FValueT, CallReturnT],
-        extended_assertion: _Assertions[CallValueT, FValueT, Any],
+        assertion: Assertion[_AssertionsIntermediateValueReturnT, _AssertionReturnT],
+        extended_assertion: _Assertions[
+            _AssertionValueT, _AssertionsIntermediateValueReturnT
+        ],
     ):
-        super().__init__(_assertion)
+        self._assertion = assertion
         self._extended_assertion = extended_assertion
 
     @override
-    def __call__(self, value: CallValueT) -> _Result[CallReturnT]:
+    def __call__(self, value: _AssertionValueT) -> _Result[_AssertionReturnT]:
         return self._extended_assertion(value).map(self._assertion)
 
 
 @dataclass(frozen=True)
-class _Field(Generic[ValueT, ReturnT]):
+class _Field(Generic[_AssertionValueT, _AssertionReturnT]):
     name: str
-    assertion: _Assertions[ValueT, ReturnT, Any] | None = None
+    assertion: _Assertions[_AssertionValueT, _AssertionReturnT] | None = None
 
 
 @dataclass(frozen=True)
-class RequiredField(Generic[ValueT, ReturnT], _Field[ValueT, ReturnT]):
+class RequiredField(
+    Generic[_AssertionValueT, _AssertionReturnT],
+    _Field[_AssertionValueT, _AssertionReturnT],
+):
     """
     A required key-value mapping field.
     """
@@ -152,7 +158,10 @@ class RequiredField(Generic[ValueT, ReturnT], _Field[ValueT, ReturnT]):
 
 
 @dataclass(frozen=True)
-class OptionalField(Generic[ValueT, ReturnT], _Field[ValueT, ReturnT]):
+class OptionalField(
+    Generic[_AssertionValueT, _AssertionReturnT],
+    _Field[_AssertionValueT, _AssertionReturnT],
+):
     """
     An optional key-value mapping field.
     """
@@ -172,8 +181,8 @@ class Fields:
         return (field for field in self._fields)
 
 
-_AssertionBuilderFunction = Callable[[ValueT], ReturnT]
-_AssertionBuilderMethod = Callable[[object, ValueT], ReturnT]
+_AssertionBuilderFunction = Callable[[_AssertionValueT], _AssertionReturnT]
+_AssertionBuilderMethod = Callable[[object, _AssertionValueT], _AssertionReturnT]
 _AssertionBuilder = "_AssertionBuilderFunction[ValueT, ReturnT] | _AssertionBuilderMethod[ValueT, ReturnT]"
 
 
@@ -216,14 +225,14 @@ class Asserter:
 
     def assert_or(
         self,
-        if_assertion: Assertion[ValueT, ReturnT],
-        else_assertion: Assertion[ValueT, ReturnU],
-    ) -> Assertion[ValueT, ReturnT | ReturnU]:
+        if_assertion: Assertion[_AssertionValueT, _AssertionReturnT],
+        else_assertion: Assertion[_AssertionValueT, _AssertionReturnU],
+    ) -> Assertion[_AssertionValueT, _AssertionReturnT | _AssertionReturnU]:
         """
         Assert that at least one of the given assertions passed.
         """
 
-        def _assert_or(value: Any) -> ReturnT | ReturnU:
+        def _assert_or(value: Any) -> _AssertionReturnT | _AssertionReturnU:
             assertions = (if_assertion, else_assertion)
             errors = SerdeErrorCollection()
             for assertion in assertions:
@@ -328,25 +337,25 @@ class Asserter:
         return _assert_dict
 
     def assert_assertions(
-        self, assertions: _Assertions[ValueT, ReturnT, Any]
-    ) -> Assertion[Any, ReturnT]:
+        self, assertions: _Assertions[_AssertionValueT, _AssertionReturnT]
+    ) -> Assertion[_AssertionValueT, _AssertionReturnT]:
         """
         Assert that an assertions chain passes, and return the chain's output.
         """
 
-        def _assert_assertions(value: Any) -> ReturnT:
+        def _assert_assertions(value: _AssertionValueT) -> _AssertionReturnT:
             return assertions(value).value
 
         return _assert_assertions
 
     def assert_sequence(
-        self, item_assertion: Assertions[ValueT, ReturnT]
-    ) -> Assertion[Any, MutableSequence[ReturnT]]:
+        self, item_assertion: Assertions[Any, _AssertionReturnT]
+    ) -> Assertion[Any, MutableSequence[_AssertionReturnT]]:
         """
         Assert that a value is a sequence and that all item values are of the given type.
         """
 
-        def _assert_sequence(value: ValueT) -> MutableSequence[ReturnT]:
+        def _assert_sequence(value: Any) -> MutableSequence[_AssertionReturnT]:
             list_value = self.assert_list()(value)
             sequence = []
             with SerdeErrorCollection().assert_valid() as errors:
@@ -360,13 +369,13 @@ class Asserter:
         return _assert_sequence
 
     def assert_mapping(
-        self, item_assertion: Assertions[ValueT, ReturnT]
-    ) -> Assertion[Any, MutableMapping[str, ReturnT]]:
+        self, item_assertion: Assertions[Any, _AssertionReturnT]
+    ) -> Assertion[Any, MutableMapping[str, _AssertionReturnT]]:
         """
         Assert that a value is a key-value mapping and assert that all item values are of the given type.
         """
 
-        def _assert_mapping(value: ValueT) -> MutableMapping[str, ReturnT]:
+        def _assert_mapping(value: Any) -> MutableMapping[str, _AssertionReturnT]:
             dict_value = self.assert_dict()(value)
             mapping = {}
             with SerdeErrorCollection().assert_valid() as errors:
@@ -403,27 +412,27 @@ class Asserter:
 
     @overload
     def assert_field(
-        self, field: RequiredField[ValueT, ReturnT]
-    ) -> Assertion[ValueT, ReturnT]:
+        self, field: RequiredField[_AssertionValueT, _AssertionReturnT]
+    ) -> Assertion[_AssertionValueT, _AssertionReturnT]:
         pass  # pragma: no cover
 
     @overload
     def assert_field(
-        self, field: OptionalField[ValueT, ReturnT]
-    ) -> Assertion[ValueT, ReturnT | type[Void]]:
+        self, field: OptionalField[_AssertionValueT, _AssertionReturnT]
+    ) -> Assertion[_AssertionValueT, _AssertionReturnT | type[Void]]:
         pass  # pragma: no cover
 
     def assert_field(
-        self, field: _Field[ValueT, ReturnT]
-    ) -> Assertion[ValueT, ReturnT | type[Void]]:
+        self, field: _Field[_AssertionValueT, _AssertionReturnT]
+    ) -> Assertion[_AssertionValueT, _AssertionReturnT | type[Void]]:
         """
         Assert that a value is a key-value mapping of arbitrary value types, and assert a single of its values.
         """
 
-        def _assert_field(value: Any) -> ReturnT | type[Void]:
+        def _assert_field(value: Any) -> _AssertionReturnT | type[Void]:
             fields = self.assert_fields(Fields(field))(value)
             try:
-                return cast("ReturnT | type[Void]", fields[field.name])
+                return cast("_AssertionReturnT | type[Void]", fields[field.name])
             except KeyError:
                 if isinstance(field, RequiredField):
                     raise
@@ -515,12 +524,12 @@ class Asserter:
 
     def assert_setattr(
         self, instance: object, attr_name: str
-    ) -> Assertion[ValueT, ValueT]:
+    ) -> Assertion[_AssertionValueT, _AssertionValueT]:
         """
         Set a value for the given object's attribute.
         """
 
-        def _assert_setattr(value: ValueT) -> ValueT:
+        def _assert_setattr(value: _AssertionValueT) -> _AssertionValueT:
             setattr(instance, attr_name, value)
             return value
 
