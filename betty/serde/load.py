@@ -4,7 +4,6 @@ Provide a deserialization API.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from pathlib import Path
 from typing import (
     Iterator,
@@ -20,8 +19,6 @@ from typing import (
     TypeAlias,
 )
 
-from typing_extensions import override
-
 from betty.functools import _Result
 from betty.locale import LocaleNotFoundError, get_data, Str
 from betty.model import (
@@ -33,6 +30,7 @@ from betty.model import (
 )
 from betty.serde.dump import DumpType, DumpTypeT, Void
 from betty.serde.error import SerdeError, SerdeErrorCollection
+from betty.warnings import deprecated
 
 if TYPE_CHECKING:
     from betty.app.extension import Extension
@@ -81,27 +79,9 @@ _AssertionsExtendReturnT = TypeVar("_AssertionsExtendReturnT")
 _AssertionsIntermediateValueReturnT = TypeVar("_AssertionsIntermediateValueReturnT")
 
 
-class _Assertions(Generic[_AssertionValueT, _AssertionReturnT]):
-    def extend(
-        self, _assertion: Assertion[_AssertionReturnT, _AssertionsExtendReturnT]
-    ) -> _Assertions[_AssertionValueT, _AssertionsExtendReturnT]:
-        return _AssertionExtension(_assertion, self)
-
-    def __or__(
-        self, _assertion: Assertion[_AssertionReturnT, _AssertionsExtendReturnT]
-    ) -> _Assertions[_AssertionValueT, _AssertionsExtendReturnT]:
-        return self.extend(_assertion)
-
-    def __call__(self, value: _AssertionValueT) -> _Result[_AssertionReturnT]:
-        raise NotImplementedError(repr(self))
-
-
-class Assertions(
-    _Assertions[_AssertionValueT, _AssertionReturnT],
-    Generic[_AssertionValueT, _AssertionReturnT],
-):
+class AssertionChain(Generic[_AssertionValueT, _AssertionReturnT]):
     """
-    Start an assertions chain.
+    An assertion chain.
 
     Assertion chains let you chain/link/combine assertions into pipelines that take an input
     value and, if the assertions pass, return an output value. Each chain may be (re)used as many
@@ -115,37 +95,109 @@ class Assertions(
     def __init__(self, _assertion: Assertion[_AssertionValueT, _AssertionReturnT]):
         self._assertion = _assertion
 
-    @override
+    def extend(
+        self, _assertion: Assertion[_AssertionReturnT, _AssertionsExtendReturnT]
+    ) -> AssertionChain[_AssertionValueT, _AssertionsExtendReturnT]:
+        """
+        Extend the chain with the given assertion.
+        """
+        return _AssertionChainExtension(_assertion, self)
+
+    def __or__(
+        self, _assertion: Assertion[_AssertionReturnT, _AssertionsExtendReturnT]
+    ) -> AssertionChain[_AssertionValueT, _AssertionsExtendReturnT]:
+        return self.extend(_assertion)
+
     def __call__(self, value: _AssertionValueT) -> _Result[_AssertionReturnT]:
+        """
+        Invoke the chain with a value.
+
+        This method may be called more than once.
+        """
         return _Result(value).map(self._assertion)
 
+    @property
+    def assertion(self) -> Assertion[_AssertionValueT, _AssertionReturnT]:
+        """
+        The assertion for this chain.
+        """
+        return lambda value: self(value).value
 
-class _AssertionExtension(
-    _Assertions[_AssertionValueT, _AssertionReturnT],
+
+class _AssertionChainExtension(
+    AssertionChain[_AssertionValueT, _AssertionReturnT],
     Generic[_AssertionValueT, _AssertionReturnT],
 ):
     def __init__(
         self,
-        assertion: Assertion[_AssertionsIntermediateValueReturnT, _AssertionReturnT],
-        extended_assertion: _Assertions[
+        assertion_extension: Assertion[
+            _AssertionsIntermediateValueReturnT, _AssertionReturnT
+        ],
+        assertion_chain: AssertionChain[
             _AssertionValueT, _AssertionsIntermediateValueReturnT
         ],
     ):
-        self._assertion = assertion
-        self._extended_assertion = extended_assertion
-
-    @override
-    def __call__(self, value: _AssertionValueT) -> _Result[_AssertionReturnT]:
-        return self._extended_assertion(value).map(self._assertion)
+        super().__init__(
+            lambda value: assertion_chain(value).map(assertion_extension).value
+        )
 
 
-@dataclass(frozen=True)
+@deprecated(
+    "This class is deprecated as of Betty 0.3.8, and will be removed in Betty 0.4.x. Instead, use :py:class:`betty.serde.load.AssertionChain`."
+)
+class Assertions(  # noqa: D101
+    AssertionChain[_AssertionValueT, _AssertionReturnT],
+    Generic[_AssertionValueT, _AssertionReturnT],
+):
+    pass
+
+
+AssertionType: TypeAlias = (
+    AssertionChain[_AssertionValueT, _AssertionReturnT]
+    | Assertion[_AssertionValueT, _AssertionReturnT]
+)
+
+
 class _Field(Generic[_AssertionValueT, _AssertionReturnT]):
-    name: str
-    assertion: _Assertions[_AssertionValueT, _AssertionReturnT] | None = None
+    @overload
+    def __init__(
+        self,
+        name: str,
+        assertion: AssertionChain[_AssertionValueT, _AssertionReturnT] | None = None,
+    ):
+        pass
+
+    @overload
+    def __init__(
+        self,
+        name: str,
+        assertion: Assertion[_AssertionValueT, _AssertionReturnT] | None = None,
+    ):
+        pass
+
+    def __init__(
+        self,
+        name: str,
+        assertion: AssertionChain[_AssertionValueT, _AssertionReturnT]
+        | Assertion[_AssertionValueT, _AssertionReturnT]
+        | None = None,
+    ):
+        self._name = name
+        self._assertion = (
+            assertion
+            if assertion is None or isinstance(assertion, AssertionChain)
+            else AssertionChain(assertion)
+        )
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def assertion(self) -> AssertionChain[_AssertionValueT, _AssertionReturnT] | None:
+        return self._assertion
 
 
-@dataclass(frozen=True)
 class RequiredField(
     Generic[_AssertionValueT, _AssertionReturnT],
     _Field[_AssertionValueT, _AssertionReturnT],
@@ -157,7 +209,6 @@ class RequiredField(
     pass  # pragma: no cover
 
 
-@dataclass(frozen=True)
 class OptionalField(
     Generic[_AssertionValueT, _AssertionReturnT],
     _Field[_AssertionValueT, _AssertionReturnT],
@@ -337,19 +388,33 @@ class Asserter:
         return _assert_dict
 
     def assert_assertions(
-        self, assertions: _Assertions[_AssertionValueT, _AssertionReturnT]
+        self, assertions: AssertionType[_AssertionValueT, _AssertionReturnT]
     ) -> Assertion[_AssertionValueT, _AssertionReturnT]:
         """
         Assert that an assertions chain passes, and return the chain's output.
         """
 
         def _assert_assertions(value: _AssertionValueT) -> _AssertionReturnT:
-            return assertions(value).value
+            if isinstance(assertions, AssertionChain):
+                return assertions(value).value
+            return assertions(value)
 
         return _assert_assertions
 
+    @overload
     def assert_sequence(
-        self, item_assertion: Assertions[Any, _AssertionReturnT]
+        self, item_assertion: AssertionChain[Any, _AssertionReturnT]
+    ) -> Assertion[Any, MutableSequence[_AssertionReturnT]]:
+        pass
+
+    @overload
+    def assert_sequence(
+        self, item_assertion: Assertion[Any, _AssertionReturnT]
+    ) -> Assertion[Any, MutableSequence[_AssertionReturnT]]:
+        pass
+
+    def assert_sequence(
+        self, item_assertion: AssertionType[Any, _AssertionReturnT]
     ) -> Assertion[Any, MutableSequence[_AssertionReturnT]]:
         """
         Assert that a value is a sequence and that all item values are of the given type.
@@ -357,7 +422,7 @@ class Asserter:
 
         def _assert_sequence(value: Any) -> MutableSequence[_AssertionReturnT]:
             list_value = self.assert_list()(value)
-            sequence = []
+            sequence: MutableSequence[_AssertionReturnT] = []
             with SerdeErrorCollection().assert_valid() as errors:
                 for value_item_index, value_item_value in enumerate(list_value):
                     with errors.catch(Str.plain(value_item_index)):
@@ -368,16 +433,26 @@ class Asserter:
 
         return _assert_sequence
 
+    @overload
     def assert_mapping(
-        self, item_assertion: Assertions[Any, _AssertionReturnT]
+        self, item_assertion: AssertionChain[Any, _AssertionReturnT]
     ) -> Assertion[Any, MutableMapping[str, _AssertionReturnT]]:
+        pass
+
+    @overload
+    def assert_mapping(
+        self, item_assertion: Assertion[Any, _AssertionReturnT]
+    ) -> Assertion[Any, MutableMapping[str, _AssertionReturnT]]:
+        pass
+
+    def assert_mapping(self, item_assertion):
         """
         Assert that a value is a key-value mapping and assert that all item values are of the given type.
         """
 
         def _assert_mapping(value: Any) -> MutableMapping[str, _AssertionReturnT]:
             dict_value = self.assert_dict()(value)
-            mapping = {}
+            mapping: MutableMapping[str, _AssertionReturnT] = {}
             with SerdeErrorCollection().assert_valid() as errors:
                 for value_item_key, value_item_value in dict_value.items():
                     with errors.catch(Str.plain(value_item_key)):
@@ -395,7 +470,7 @@ class Asserter:
 
         def _assert_fields(value: Any) -> MutableMapping[str, Any]:
             value_dict = self.assert_dict()(value)
-            mapping = {}
+            mapping: MutableMapping[str, Any] = {}
             with SerdeErrorCollection().assert_valid() as errors:
                 for field in fields:
                     with errors.catch(Str.plain(field.name)):

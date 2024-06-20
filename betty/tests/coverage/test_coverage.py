@@ -752,6 +752,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
         # This is an empty class.
         "AssertionFailed": TestKnownToBeMissing,
+        # This is a deprecated class.
         "Assertions": TestKnownToBeMissing,
         "Fields": TestKnownToBeMissing,
         # This is an empty class.

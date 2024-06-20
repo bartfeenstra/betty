@@ -41,7 +41,7 @@ from betty.locale import Str
 from betty.serde.dump import Dumpable, Dump, minimize, VoidableDump, Void
 from betty.serde.error import SerdeErrorCollection
 from betty.serde.format import FormatRepository
-from betty.serde.load import Asserter, Assertion, Assertions
+from betty.serde.load import Asserter, Assertion
 
 if TYPE_CHECKING:
     from _weakref import ReferenceType
@@ -507,11 +507,7 @@ class ConfigurationSequence(
             configuration._clear_without_dispatch()
         asserter = Asserter()
         with SerdeErrorCollection().assert_valid():
-            configuration.append(
-                *asserter.assert_sequence(Assertions(cls._item_type().assert_load()))(
-                    dump
-                )
-            )
+            configuration.append(*asserter.assert_sequence(cls._item_type().load)(dump))
         return configuration
 
     @override
@@ -666,7 +662,7 @@ class ConfigurationMapping(
             configuration = cls()
         asserter = Asserter()
         dict_dump = asserter.assert_dict()(dump)
-        mapping = asserter.assert_mapping(Assertions(cls._item_type().load))(
+        mapping = asserter.assert_mapping(cls._item_type().load)(
             {key: cls._load_key(value, key) for key, value in dict_dump.items()}
         )
         configuration.replace(*mapping.values())

@@ -14,14 +14,33 @@ from betty.serde.load import (
     Number,
     Fields,
     OptionalField,
-    Assertions,
     RequiredField,
     Assertion,
+    AssertionChain,
 )
 from betty.tests.serde import raises_error
 
-
 _T = TypeVar("_T")
+
+
+class TestAssertionChain:
+    async def test___call__(self) -> None:
+        sut = AssertionChain[int, int](lambda value: value)
+        assert sut(123).value == 123
+
+    async def test___or__(self) -> None:
+        sut = AssertionChain[int, int](lambda value: value)
+        sut |= lambda value: 2 * value
+        assert sut.assertion(123) == 246
+
+    async def test_assertion(self) -> None:
+        sut = AssertionChain[int, int](lambda value: value)
+        assert sut.assertion(123) == 123
+
+    async def test_extend(self) -> None:
+        sut = AssertionChain[int, int](lambda value: value)
+        sut = sut.extend(lambda value: 2 * value)
+        assert sut.assertion(123) == 246
 
 
 def _always_valid(value: _T) -> _T:
@@ -41,7 +60,7 @@ class TestAsserter:
             (_always_invalid, _always_valid, 123),
         ],
     )
-    async def test_assert_or_with_valid_assertions(
+    async def test_assert_or_with_valid_AssertionChain(
         self,
         if_assertion: Assertion[Any, bool],
         else_assertion: Assertion[Any, bool],
@@ -50,7 +69,7 @@ class TestAsserter:
         sut = Asserter()
         assert sut.assert_or(if_assertion, else_assertion)(value) == value
 
-    async def test_assert_or_with_invalid_assertions(self) -> None:
+    async def test_assert_or_with_invalid_AssertionChain(self) -> None:
         sut = Asserter()
         with raises_error(error_type=AssertionFailed):
             sut.assert_or(_always_invalid, _always_invalid)(123)
@@ -149,20 +168,20 @@ class TestAsserter:
     async def test_assert_sequence_without_list(self) -> None:
         sut = Asserter()
         with raises_error(error_type=AssertionFailed):
-            sut.assert_sequence(Assertions(sut.assert_str()))(False)
+            sut.assert_sequence(AssertionChain(sut.assert_str()))(False)
 
     async def test_assert_sequence_with_invalid_item(self) -> None:
         sut = Asserter()
         with raises_error(error_type=AssertionFailed, error_contexts=["0"]):
-            sut.assert_sequence(Assertions(sut.assert_str()))([123])
+            sut.assert_sequence(AssertionChain(sut.assert_str()))([123])
 
     async def test_assert_sequence_with_empty_list(self) -> None:
         sut = Asserter()
-        sut.assert_sequence(Assertions(sut.assert_str()))([])
+        sut.assert_sequence(AssertionChain(sut.assert_str()))([])
 
     async def test_assert_sequence_with_valid_sequence(self) -> None:
         sut = Asserter()
-        sut.assert_sequence(Assertions(sut.assert_str()))(["Hello!"])
+        sut.assert_sequence(AssertionChain(sut.assert_str()))(["Hello!"])
 
     async def test_assert_dict_with_dict(self) -> None:
         sut = Asserter()
@@ -180,7 +199,7 @@ class TestAsserter:
                 Fields(
                     OptionalField(
                         "hello",
-                        Assertions(sut.assert_str()),
+                        AssertionChain(sut.assert_str()),
                     )
                 )
             )(None)
@@ -192,7 +211,7 @@ class TestAsserter:
                 Fields(
                     RequiredField(
                         "hello",
-                        Assertions(sut.assert_str()),
+                        AssertionChain(sut.assert_str()),
                     )
                 )
             )({})
@@ -204,7 +223,7 @@ class TestAsserter:
             Fields(
                 OptionalField(
                     "hello",
-                    Assertions(sut.assert_str()),
+                    AssertionChain(sut.assert_str()),
                 )
             )
         )({})
@@ -219,7 +238,7 @@ class TestAsserter:
             Fields(
                 RequiredField(
                     "hello",
-                    Assertions(sut.assert_str()),
+                    AssertionChain(sut.assert_str()),
                 )
             )
         )({"hello": "World!"})
@@ -234,7 +253,7 @@ class TestAsserter:
             Fields(
                 OptionalField(
                     "hello",
-                    Assertions(sut.assert_str()),
+                    AssertionChain(sut.assert_str()),
                 )
             )
         )({"hello": "World!"})
@@ -246,7 +265,7 @@ class TestAsserter:
             sut.assert_field(
                 OptionalField(
                     "hello",
-                    Assertions(sut.assert_str()),
+                    AssertionChain(sut.assert_str()),
                 )
             )(None)
 
@@ -256,7 +275,7 @@ class TestAsserter:
             sut.assert_field(
                 RequiredField(
                     "hello",
-                    Assertions(sut.assert_str()),
+                    AssertionChain(sut.assert_str()),
                 )
             )({})
 
@@ -266,7 +285,7 @@ class TestAsserter:
         actual = sut.assert_field(
             OptionalField(
                 "hello",
-                Assertions(sut.assert_str()),
+                AssertionChain(sut.assert_str()),
             )
         )({})
         assert expected == actual
@@ -277,7 +296,7 @@ class TestAsserter:
         actual = sut.assert_field(
             RequiredField(
                 "hello",
-                Assertions(sut.assert_str()),
+                AssertionChain(sut.assert_str()),
             )
         )({"hello": "World!"})
         assert expected == actual
@@ -288,7 +307,7 @@ class TestAsserter:
         actual = sut.assert_field(
             OptionalField(
                 "hello",
-                Assertions(sut.assert_str()),
+                AssertionChain(sut.assert_str()),
             )
         )({"hello": "World!"})
         assert expected == actual
@@ -296,20 +315,20 @@ class TestAsserter:
     async def test_assert_mapping_without_mapping(self) -> None:
         sut = Asserter()
         with raises_error(error_type=AssertionFailed):
-            sut.assert_mapping(Assertions(sut.assert_str()))(None)
+            sut.assert_mapping(AssertionChain(sut.assert_str()))(None)
 
     async def test_assert_mapping_with_invalid_item(self) -> None:
         sut = Asserter()
         with raises_error(error_type=AssertionFailed, error_contexts=["hello"]):
-            sut.assert_mapping(Assertions(sut.assert_str()))({"hello": False})
+            sut.assert_mapping(AssertionChain(sut.assert_str()))({"hello": False})
 
     async def test_assert_mapping_with_empty_dict(self) -> None:
         sut = Asserter()
-        sut.assert_mapping(Assertions(sut.assert_str()))({})
+        sut.assert_mapping(AssertionChain(sut.assert_str()))({})
 
     async def test_assert_mapping_with_valid_mapping(self) -> None:
         sut = Asserter()
-        sut.assert_mapping(Assertions(sut.assert_str()))({"hello": "World!"})
+        sut.assert_mapping(AssertionChain(sut.assert_str()))({"hello": "World!"})
 
     async def test_assert_record_with_optional_fields_without_items(self) -> None:
         sut = Asserter()
@@ -318,7 +337,7 @@ class TestAsserter:
             Fields(
                 OptionalField(
                     "hello",
-                    Assertions(sut.assert_str()),
+                    AssertionChain(sut.assert_str()),
                 ),
             )
         )({})
@@ -333,7 +352,7 @@ class TestAsserter:
             Fields(
                 OptionalField(
                     "hello",
-                    Assertions(sut.assert_str()) | (lambda x: x.upper()),
+                    AssertionChain(sut.assert_str()) | (lambda x: x.upper()),
                 ),
             )
         )({"hello": "World!"})
@@ -346,7 +365,7 @@ class TestAsserter:
                 Fields(
                     RequiredField(
                         "hello",
-                        Assertions(sut.assert_str()),
+                        AssertionChain(sut.assert_str()),
                     ),
                 )
             )({})
@@ -360,7 +379,7 @@ class TestAsserter:
             Fields(
                 RequiredField(
                     "hello",
-                    Assertions(sut.assert_str()) | (lambda x: x.upper()),
+                    AssertionChain(sut.assert_str()) | (lambda x: x.upper()),
                 ),
             )
         )(

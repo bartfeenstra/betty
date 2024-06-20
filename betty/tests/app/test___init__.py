@@ -13,7 +13,7 @@ from betty.app.extension import (
 from betty.config import Configuration
 from betty.model import Entity
 from betty.project import ExtensionConfiguration
-from betty.serde.load import Fields, Assertions, RequiredField, Asserter
+from betty.serde.load import Fields, RequiredField, Asserter, AssertionChain
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, VoidableDump
@@ -55,7 +55,7 @@ class ConfigurableExtensionConfiguration(Configuration):
             Fields(
                 RequiredField(
                     "check",
-                    Assertions(asserter.assert_int())
+                    AssertionChain(asserter.assert_int())
                     | asserter.assert_setattr(configuration, "check"),
                 ),
             )
