@@ -1239,7 +1239,7 @@ class PlaceName(Localized, Dated, LinkedDataDumpable):
             return NotImplemented  # pragma: no cover
         return self._name == other._name and self.locale == other.locale
 
-    @override
+    @override  # type: ignore[callable-functiontype]
     @recursive_repr()
     def __repr__(self) -> str:
         return repr_instance(self, name=self.name, locale=self.locale)
@@ -1838,7 +1838,7 @@ class Event(
         else:
             return Str._("{event_type} ({event_description})", **format_kwargs)
 
-    @override
+    @override  # type: ignore[callable-functiontype]
     @recursive_repr()
     def __repr__(self) -> str:
         return repr_instance(self, id=self._id, type=self._event_type)

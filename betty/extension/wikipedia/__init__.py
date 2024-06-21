@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Callable, Iterable, Any, TYPE_CHECKING
+from typing import Iterable, Any, TYPE_CHECKING
 
 from jinja2 import pass_context
 from typing_extensions import override
@@ -14,7 +14,7 @@ from betty.asyncio import gather
 from betty.extension.wikipedia.config import WikipediaConfiguration
 from betty.extension.wikipedia.gui import _WikipediaGuiWidget
 from betty.gui import GuiBuilder
-from betty.jinja2 import Jinja2Provider, context_localizer
+from betty.jinja2 import Jinja2Provider, context_localizer, Filters
 from betty.load import PostLoader
 from betty.locale import negotiate_locale, Str
 from betty.wikipedia import (
@@ -69,7 +69,7 @@ class Wikipedia(
 
     @override
     @property
-    def filters(self) -> dict[str, Callable[..., Any]]:
+    def filters(self) -> Filters:
         return {
             "wikipedia": self._filter_wikipedia_links,
         }

@@ -1019,7 +1019,7 @@ class _ModuleCoverageTester:
 class _ModuleFunctionCoverageTester:
     def __init__(
         self,
-        src_function: Callable[..., Any],
+        src_function: Callable[..., Any] & _Importable,
         test_classes: Sequence[type],
         src_module_name: str,
         test_module_name: str,

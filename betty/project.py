@@ -612,7 +612,7 @@ class LocaleConfiguration(Configuration):
             raise AssertionFailed(Str._("Locale aliases must not contain slashes."))
         self._alias = alias
 
-    @override
+    @override  # type: ignore[callable-functiontype]
     @recursive_repr()
     def __repr__(self) -> str:
         return repr_instance(self, locale=self.locale, alias=self.alias)

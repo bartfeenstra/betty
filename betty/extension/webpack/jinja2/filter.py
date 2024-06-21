@@ -11,6 +11,7 @@ from betty.jinja2.filter import filter_public_js
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from betty.jinja2 import Filters
     from jinja2.runtime import Context
 
 
@@ -23,6 +24,6 @@ def filter_webpack_entry_point_js(context: Context, entry_point_name: str) -> No
     _context_js_entry_points(context).add(entry_point_name)
 
 
-FILTERS = {
+FILTERS: Filters = {
     "webpack_entry_point_js": filter_webpack_entry_point_js,
 }
