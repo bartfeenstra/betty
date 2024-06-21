@@ -39,14 +39,12 @@ from polib import pofile
 from typing_extensions import override
 
 from betty import fs
-from betty.asyncio import wait_to_thread
 from betty.concurrent import _Lock, AsynchronizedLock
 from betty.fs import FileSystem, ROOT_DIRECTORY_PATH, ASSETS_DIRECTORY_PATH
 from betty.hashid import hashid_file_meta
 from betty.json.linked_data import LinkedDataDumpable, dump_context, add_json_ld
 from betty.json.schema import ref_locale, add_property
 from betty.serde.dump import DictDump, Dump, dump_default
-from betty.warnings import deprecated
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -966,12 +964,6 @@ class LocalizerRepository:
                 return self._localizers[locale]
             except KeyError:
                 return await self._build_translation(locale)
-
-    @deprecated(
-        "This method is deprecated as of Betty 0.3.4, and will be removed in Betty 0.4.x. Instead, use `LocalizerRepository.get()`."
-    )
-    def __getitem__(self, locale: Localey) -> Localizer:
-        return wait_to_thread(self.get(locale))
 
     async def get_negotiated(self, *preferred_locales: str) -> Localizer:
         """

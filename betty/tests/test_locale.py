@@ -22,7 +22,6 @@ from betty.locale import (
     to_locale,
     update_translations,
 )
-from betty.warnings import BettyDeprecationWarning
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -619,7 +618,7 @@ class TestDefaultLocalizer:
 
 
 class TestLocalizerRepository:
-    async def test_getitem(self) -> None:
+    async def test_get(self) -> None:
         locale = "nl-NL"
         async with TemporaryDirectory() as assets_directory_path_str:
             assets_directory_path = Path(assets_directory_path_str)
@@ -654,6 +653,5 @@ msgstr "Onderwerp"
             async with aiofiles.open(lc_messages_directory_path / "betty.po", "w") as f:
                 await f.write(po)
             sut = LocalizerRepository(fs)
-            with pytest.warns(BettyDeprecationWarning):
-                actual = sut[locale]._("Subject")
+            actual = (await sut.get(locale))._("Subject")
             assert actual == "Onderwerp"
