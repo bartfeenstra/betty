@@ -554,12 +554,12 @@ class Note(UserFacingEntity, HasPrivacy, HasLinksEntity, Entity):
 
     @override
     @classmethod
-    def entity_type_label(cls) -> Str:
+    def entity_type_label(cls) -> Localizable:
         return Str._("Note")  # pragma: no cover
 
     @override
     @classmethod
-    def entity_type_label_plural(cls) -> Str:
+    def entity_type_label_plural(cls) -> Localizable:
         return Str._("Notes")  # pragma: no cover
 
     @property
@@ -571,7 +571,7 @@ class Note(UserFacingEntity, HasPrivacy, HasLinksEntity, Entity):
 
     @override
     @property
-    def label(self) -> Str:
+    def label(self) -> Localizable:
         return Str.plain(self.text)
 
     @override
@@ -783,12 +783,12 @@ class File(
 
     @override
     @classmethod
-    def entity_type_label(cls) -> Str:
+    def entity_type_label(cls) -> Localizable:
         return Str._("File")  # pragma: no cover
 
     @override
     @classmethod
-    def entity_type_label_plural(cls) -> Str:
+    def entity_type_label_plural(cls) -> Localizable:
         return Str._("Files")  # pragma: no cover
 
     @property
@@ -800,7 +800,7 @@ class File(
 
     @override
     @property
-    def label(self) -> Str:
+    def label(self) -> Localizable:
         return Str.plain(self.description) if self.description else super().label
 
     @override
@@ -965,17 +965,17 @@ class Source(
 
     @override
     @classmethod
-    def entity_type_label(cls) -> Str:
+    def entity_type_label(cls) -> Localizable:
         return Str._("Source")  # pragma: no cover
 
     @override
     @classmethod
-    def entity_type_label_plural(cls) -> Str:
+    def entity_type_label_plural(cls) -> Localizable:
         return Str._("Sources")  # pragma: no cover
 
     @override
     @property
-    def label(self) -> Str:
+    def label(self) -> Localizable:
         return Str.plain(self.name) if self.name else super().label
 
     @override
@@ -1083,7 +1083,7 @@ class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, En
         id: str | None = None,  # noqa A002  # noqa A002
         facts: Iterable[HasCitations] | None = None,
         source: Source | None = None,
-        location: Str | None = None,
+        location: Localizable | None = None,
         date: Datey | None = None,
         files: Iterable[File] | None = None,
         privacy: Privacy | None = None,
@@ -1127,17 +1127,17 @@ class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, En
 
     @override
     @classmethod
-    def entity_type_label(cls) -> Str:
+    def entity_type_label(cls) -> Localizable:
         return Str._("Citation")  # pragma: no cover
 
     @override
     @classmethod
-    def entity_type_label_plural(cls) -> Str:
+    def entity_type_label_plural(cls) -> Localizable:
         return Str._("Citations")  # pragma: no cover
 
     @override
     @property
-    def label(self) -> Str:
+    def label(self) -> Localizable:
         return self.location or Str.plain("")
 
     @override
@@ -1259,12 +1259,12 @@ class Enclosure(Dated, HasCitations, Entity):
 
     @override
     @classmethod
-    def entity_type_label(cls) -> Str:
+    def entity_type_label(cls) -> Localizable:
         return Str._("Enclosure")  # pragma: no cover
 
     @override
     @classmethod
-    def entity_type_label_plural(cls) -> Str:
+    def entity_type_label_plural(cls) -> Localizable:
         return Str._("Enclosures")  # pragma: no cover
 
 
@@ -1369,12 +1369,12 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
 
     @override
     @classmethod
-    def entity_type_label(cls) -> Str:
+    def entity_type_label(cls) -> Localizable:
         return Str._("Place")  # pragma: no cover
 
     @override
     @classmethod
-    def entity_type_label_plural(cls) -> Str:
+    def entity_type_label_plural(cls) -> Localizable:
         return Str._("Places")  # pragma: no cover
 
     @property
@@ -1397,7 +1397,7 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
 
     @override
     @property
-    def label(self) -> Str:
+    def label(self) -> Localizable:
         # @todo Negotiate this by locale and date.
         with suppress(IndexError):
             return Str.plain(self.names[0].name)
@@ -1509,7 +1509,7 @@ class PresenceRole:
         raise NotImplementedError(repr(cls))
 
     @property
-    def label(self) -> Str:
+    def label(self) -> Localizable:
         """
         The human-readable label.
         """
@@ -1547,7 +1547,7 @@ class Subject(PresenceRole):
 
     @override
     @property
-    def label(self) -> Str:
+    def label(self) -> Localizable:
         return Str._("Subject")  # pragma: no cover
 
 
@@ -1563,7 +1563,7 @@ class Witness(PresenceRole):
 
     @override
     @property
-    def label(self) -> Str:
+    def label(self) -> Localizable:
         return Str._("Witness")  # pragma: no cover
 
 
@@ -1579,7 +1579,7 @@ class Beneficiary(PresenceRole):
 
     @override
     @property
-    def label(self) -> Str:
+    def label(self) -> Localizable:
         return Str._("Beneficiary")  # pragma: no cover
 
 
@@ -1595,7 +1595,7 @@ class Attendee(PresenceRole):
 
     @override
     @property
-    def label(self) -> Str:
+    def label(self) -> Localizable:
         return Str._("Attendee")  # pragma: no cover
 
 
@@ -1611,7 +1611,7 @@ class Speaker(PresenceRole):
 
     @override
     @property
-    def label(self) -> Str:
+    def label(self) -> Localizable:
         return Str._("Speaker")  # pragma: no cover
 
 
@@ -1633,7 +1633,7 @@ class Celebrant(PresenceRole):
 
     @override
     @property
-    def label(self) -> Str:
+    def label(self) -> Localizable:
         return Str._("Celebrant")  # pragma: no cover
 
 
@@ -1649,7 +1649,7 @@ class Organizer(PresenceRole):
 
     @override
     @property
-    def label(self) -> Str:
+    def label(self) -> Localizable:
         return Str._("Organizer")  # pragma: no cover
 
 
@@ -1686,17 +1686,17 @@ class Presence(HasPrivacy, Entity):
 
     @override
     @classmethod
-    def entity_type_label(cls) -> Str:
+    def entity_type_label(cls) -> Localizable:
         return Str._("Presence")  # pragma: no cover
 
     @override
     @classmethod
-    def entity_type_label_plural(cls) -> Str:
+    def entity_type_label_plural(cls) -> Localizable:
         return Str._("Presences")  # pragma: no cover
 
     @override
     @property
-    def label(self) -> Str:
+    def label(self) -> Localizable:
         return Str._(
             "Presence of {person} at {event}",
             person=self.person.label if self.person else Str._("Unknown"),
@@ -1764,7 +1764,7 @@ class Event(
 
     @override
     @property
-    def label(self) -> Str:
+    def label(self) -> Localizable:
         format_kwargs: dict[str, str | Localizable] = {
             "event_type": self._event_type.label(),
         }
@@ -1819,12 +1819,12 @@ class Event(
 
     @override
     @classmethod
-    def entity_type_label(cls) -> Str:
+    def entity_type_label(cls) -> Localizable:
         return Str._("Event")  # pragma: no cover
 
     @override
     @classmethod
-    def entity_type_label_plural(cls) -> Str:
+    def entity_type_label_plural(cls) -> Localizable:
         return Str._("Events")  # pragma: no cover
 
     @property
@@ -1999,12 +1999,12 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
 
     @override
     @classmethod
-    def entity_type_label(cls) -> Str:
+    def entity_type_label(cls) -> Localizable:
         return Str._("Person name")  # pragma: no cover
 
     @override
     @classmethod
-    def entity_type_label_plural(cls) -> Str:
+    def entity_type_label_plural(cls) -> Localizable:
         return Str._("Person names")  # pragma: no cover
 
     @property
@@ -2033,7 +2033,7 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
 
     @override
     @property
-    def label(self) -> Str:
+    def label(self) -> Localizable:
         return Str._(
             "{individual_name} {affiliation_name}",
             individual_name="…" if not self.individual else self.individual,
@@ -2189,12 +2189,12 @@ class Person(
 
     @override
     @classmethod
-    def entity_type_label(cls) -> Str:
+    def entity_type_label(cls) -> Localizable:
         return Str._("Person")  # pragma: no cover
 
     @override
     @classmethod
-    def entity_type_label_plural(cls) -> Str:
+    def entity_type_label_plural(cls) -> Localizable:
         return Str._("People")  # pragma: no cover
 
     @property
@@ -2250,7 +2250,7 @@ class Person(
 
     @override
     @property
-    def label(self) -> Str:
+    def label(self) -> Localizable:
         for name in self.names:
             if name.public:
                 return name.label

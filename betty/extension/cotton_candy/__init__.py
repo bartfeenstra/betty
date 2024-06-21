@@ -29,7 +29,7 @@ from betty.jinja2 import (
     Globals,
     Filters,
 )
-from betty.locale import Date, Str, Datey
+from betty.locale import Date, Str, Datey, Localizable
 from betty.model import Entity, UserFacingEntity, GeneratedEntityId
 from betty.model.ancestry import Event, Person, Presence, is_public, Subject
 from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
@@ -318,7 +318,7 @@ class CottonCandy(
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str.plain("Cotton Candy")
 
     @override
@@ -328,7 +328,7 @@ class CottonCandy(
 
     @override
     @classmethod
-    def description(cls) -> Str:
+    def description(cls) -> Localizable:
         return Str._("Cotton Candy is Betty's default theme.")
 
     @property

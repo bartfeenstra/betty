@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from betty.extension import CottonCandy
-from betty.locale import Str, DEFAULT_LOCALIZER
+from betty.locale import Str, DEFAULT_LOCALIZER, Localizable
 from betty.model import Entity
 from betty.model.ancestry import File, HasFiles, HasPrivacy
 from betty.tests import TemplateTestCase
@@ -9,11 +9,11 @@ from betty.tests import TemplateTestCase
 
 class TemplateTestEntity(HasFiles, HasPrivacy, Entity):
     @classmethod
-    def entity_type_label(cls) -> Str:
+    def entity_type_label(cls) -> Localizable:
         return Str._("Test")
 
     @classmethod
-    def entity_type_label_plural(cls) -> Str:
+    def entity_type_label_plural(cls) -> Localizable:
         return Str._("Tests")
 
 

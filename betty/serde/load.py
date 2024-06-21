@@ -20,7 +20,7 @@ from typing import (
     TypeAlias,
 )
 
-from betty.locale import LocaleNotFoundError, get_data, Str
+from betty.locale import LocaleNotFoundError, get_data, Str, Localizable
 from betty.model import (
     Entity,
     get_entity_type,
@@ -174,7 +174,7 @@ class Asserter:
     def _assert_type_violation_error_message(
         self,
         asserted_type: type[DumpType],
-    ) -> Str:
+    ) -> Localizable:
         messages = {
             None: Str._("This must be none/null."),
             bool: Str._("This must be a boolean."),

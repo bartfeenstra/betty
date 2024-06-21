@@ -10,7 +10,7 @@ from betty.extension.cotton_candy.gui import (
     _CottonCandyGuiWidget,
     _ColorConfigurationWidget,
 )
-from betty.locale import Str
+from betty.locale import Str, Localizable
 from betty.model import Entity, UserFacingEntity
 from betty.project import EntityReference
 from betty.tests.conftest import BettyQtBot
@@ -50,12 +50,12 @@ class TestColorConfigurationWidget:
 
 class CottonCandyGuiWidgetTestEntity(UserFacingEntity, Entity):
     @classmethod
-    def entity_type_label(cls) -> Str:
-        return Str._(cls.__name__)
+    def entity_type_label(cls) -> Localizable:
+        return Str.plain(cls.__name__)
 
     @classmethod
-    def entity_type_label_plural(cls) -> Str:
-        return Str._(cls.__name__)
+    def entity_type_label_plural(cls) -> Localizable:
+        return Str.plain(cls.__name__)
 
 
 class TestCottonCandyGuiWidget:

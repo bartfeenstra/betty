@@ -23,7 +23,7 @@ from betty.asyncio import gather
 from betty.config import ConfigurationT, Configurable
 from betty.dispatch import Dispatcher, TargetedDispatcher
 from betty.importlib import import_any
-from betty.locale import Str
+from betty.locale import Str, Localizable
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -105,7 +105,7 @@ class Dependencies(AllRequirements):
         return cls(dependent_type)
 
     @override
-    def summary(self) -> Str:
+    def summary(self) -> Localizable:
         return Str._(
             "{dependent_label} requires {dependency_labels}.",
             dependent_label=format_extension_type(self._dependent_type),
@@ -131,7 +131,7 @@ class Dependents(Requirement):
         self._dependents = dependents
 
     @override
-    def summary(self) -> Str:
+    def summary(self) -> Localizable:
         return Str._(
             "{dependency_label} is required by {dependency_labels}.",
             dependency_label=format_extension_type(type(self._dependency)),
@@ -250,14 +250,14 @@ class UserFacingExtension(Extension):
     """
 
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         """
         Get the human-readable extension label.
         """
         raise NotImplementedError(repr(cls))
 
     @classmethod
-    def description(cls) -> Str:
+    def description(cls) -> Localizable:
         """
         Get the human-readable extension description.
         """
@@ -314,7 +314,7 @@ def get_extension_type_by_extension(extension: Extension) -> type[Extension]:
     return get_extension_type(type(extension))
 
 
-def format_extension_type(extension_type: type[Extension]) -> Str:
+def format_extension_type(extension_type: type[Extension]) -> Localizable:
     """
     Format an extension type to a human-readable label.
     """

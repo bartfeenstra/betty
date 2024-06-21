@@ -17,7 +17,7 @@ from betty.extension.nginx.config import NginxConfiguration
 from betty.extension.nginx.gui import _NginxGuiWidget
 from betty.generate import Generator, GenerationContext
 from betty.gui import GuiBuilder
-from betty.locale import Str
+from betty.locale import Str, Localizable
 from betty.serve import ServerProvider, Server
 
 
@@ -35,12 +35,12 @@ class Nginx(
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str.plain("Nginx")
 
     @override
     @classmethod
-    def description(cls) -> Str:
+    def description(cls) -> Localizable:
         return Str._(
             'Generate <a href="">nginx</a> configuration for your site, as well as a <code>Dockerfile</code> to build a <a href="https://www.docker.com/">Docker</a> container around it.'
         )

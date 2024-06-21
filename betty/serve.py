@@ -20,7 +20,7 @@ from typing_extensions import override
 
 from betty.error import UserFacingError
 from betty.functools import Do
-from betty.locale import Str, Localizer
+from betty.locale import Str, Localizer, Localizable
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -72,7 +72,7 @@ class Server:
         return f"{cls.__module__}.{cls.__name__}"
 
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         """
         Get the server's human-readable label.
         """
@@ -217,7 +217,7 @@ class BuiltinServer(Server):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Python built-in")
 
     @override
@@ -305,7 +305,7 @@ class BuiltinAppServer(AppServer):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return BuiltinServer.label()
 
     @override

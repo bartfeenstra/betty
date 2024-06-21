@@ -11,7 +11,7 @@ from typing_extensions import override
 from betty.app.extension import Extension, UserFacingExtension
 from betty.deriver import Deriver as DeriverApi
 from betty.load import PostLoader
-from betty.locale import Str
+from betty.locale import Str, Localizable
 from betty.model.event_type import DerivableEventType
 
 
@@ -51,12 +51,12 @@ class Deriver(UserFacingExtension, PostLoader):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Deriver")
 
     @override
     @classmethod
-    def description(cls) -> Str:
+    def description(cls) -> Localizable:
         return Str._(
             "Create events such as births and deaths by deriving their details from existing information."
         )

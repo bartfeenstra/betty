@@ -29,7 +29,7 @@ from betty.functools import Uniquifier
 from betty.importlib import import_any, fully_qualified_type_name
 from betty.json.linked_data import LinkedDataDumpable, add_json_ld
 from betty.json.schema import ref_json_schema
-from betty.locale import Str
+from betty.locale import Str, Localizable
 from betty.string import camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
 
 if TYPE_CHECKING:
@@ -73,14 +73,14 @@ class Entity(LinkedDataDumpable):
         return hash(self.ancestry_id)
 
     @classmethod
-    def entity_type_label(cls) -> Str:
+    def entity_type_label(cls) -> Localizable:
         """
         The human-readable entity type label, singular.
         """
         raise NotImplementedError(repr(cls))
 
     @classmethod
-    def entity_type_label_plural(cls) -> Str:
+    def entity_type_label_plural(cls) -> Localizable:
         """
         The human-readable entity type label, plural.
         """
@@ -117,7 +117,7 @@ class Entity(LinkedDataDumpable):
         return self.type, self.id
 
     @property
-    def label(self) -> Str:
+    def label(self) -> Localizable:
         """
         The entity's human-readable label.
         """
