@@ -1,6 +1,6 @@
 {
   "engines": {
-    "node": ">= 16"
+    "node": ">= 20"
   },
   "devDependencies": {
     "@playwright/test": "^1.43.1",
