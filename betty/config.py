@@ -313,7 +313,7 @@ class ConfigurationCollection(
             return False
         return True
 
-    @override
+    @override  # type: ignore[callable-functiontype]
     @recursive_repr()
     def __repr__(self) -> str:
         return repr_instance(self, configurations=list(self.values()))

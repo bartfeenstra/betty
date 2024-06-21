@@ -16,4 +16,4 @@ async def _shutdown_default_executor(
             raise
 
 
-BaseEventLoop.shutdown_default_executor = _shutdown_default_executor  # type: ignore[assignment, method-assign]
+BaseEventLoop.shutdown_default_executor = _shutdown_default_executor  # type: ignore[assignment, callable-functiontype, method-assign, misc]

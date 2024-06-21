@@ -50,11 +50,11 @@ class TestSync:
         with pytest.warns(BettyDeprecationWarning):
 
             class _Sync:
-                @sync
+                @sync  # type: ignore[callable-functiontype]
                 async def __call__(self, *args: Any, **kwargs: Any) -> str:
                     return expected
 
-            actual = _Sync()()
+            actual = _Sync()()  # type: ignore[call-arg]
         assert expected == actual
 
     async def test_call_wrapped_coroutinecallable_object_should_return_result(

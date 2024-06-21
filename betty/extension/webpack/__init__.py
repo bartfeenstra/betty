@@ -9,7 +9,7 @@ from __future__ import annotations
 from asyncio import to_thread
 from pathlib import Path
 from shutil import copytree
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
@@ -23,7 +23,7 @@ from betty.extension.webpack.build import webpack_build_id
 from betty.extension.webpack.jinja2.filter import FILTERS
 from betty.generate import Generator, GenerationContext
 from betty.html import CssProvider
-from betty.jinja2 import Jinja2Provider
+from betty.jinja2 import Jinja2Provider, Filters, ContextVars
 from betty.job import Context
 from betty.locale import Str
 from betty.requirement import (
@@ -34,7 +34,7 @@ from betty.requirement import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
+    from collections.abc import Sequence
 
 
 def _prebuilt_webpack_build_directory_path(
@@ -147,14 +147,14 @@ class Webpack(Extension, CssProvider, Jinja2Provider, Generator):
         ]
 
     @override
-    def new_context_vars(self) -> dict[str, Any]:
+    def new_context_vars(self) -> ContextVars:
         return {
             "webpack_js_entry_points": set(),
         }
 
     @override
     @property
-    def filters(self) -> dict[str, Callable[..., Any]]:
+    def filters(self) -> Filters:
         return FILTERS
 
     @property

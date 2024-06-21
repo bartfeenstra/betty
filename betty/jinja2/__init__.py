@@ -7,7 +7,7 @@ from __future__ import annotations
 import datetime
 from collections import defaultdict
 from threading import Lock
-from typing import Callable, Any, cast, TypeVar, TYPE_CHECKING
+from typing import Callable, Any, cast, TypeVar, TYPE_CHECKING, TypeAlias
 
 import aiofiles
 from aiofiles import os as aiofiles_os
@@ -161,13 +161,19 @@ class EntityContexts:
         return updated_contexts
 
 
+Globals: TypeAlias = dict[str, Any]
+Filters: TypeAlias = dict[str, Callable[..., Any]]
+Tests: TypeAlias = dict[str, Callable[..., bool]]
+ContextVars: TypeAlias = dict[str, Any]
+
+
 class Jinja2Provider:
     """
     Integrate an :py:class:`betty.app.extension.Extension` with the Jinja2 API.
     """
 
     @property
-    def globals(self) -> dict[str, Any]:
+    def globals(self) -> Globals:
         """
         Jinja2 globals provided by this extension.
 
@@ -176,7 +182,7 @@ class Jinja2Provider:
         return {}
 
     @property
-    def filters(self) -> dict[str, Callable[..., Any]]:
+    def filters(self) -> Filters:
         """
         Jinja2 filters provided by this extension.
 
@@ -185,7 +191,7 @@ class Jinja2Provider:
         return {}
 
     @property
-    def tests(self) -> dict[str, Callable[..., bool]]:
+    def tests(self) -> Tests:
         """
         Jinja2 tests provided by this extension.
 
@@ -193,7 +199,7 @@ class Jinja2Provider:
         """
         return {}
 
-    def new_context_vars(self) -> dict[str, Any]:
+    def new_context_vars(self) -> ContextVars:
         """
         Create new variables for a new :py:class:`jinja2.runtime.Context`.
 
@@ -209,7 +215,7 @@ class Environment(Jinja2Environment):
 
     globals: dict[str, Any]
     filters: dict[str, Callable[..., Any]]
-    tests: dict[str, Callable[..., bool]]
+    tests: dict[str, Callable[..., bool]]  # type: ignore[assignment]
 
     def __init__(self, app: App):
         template_directory_paths = [

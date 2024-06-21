@@ -86,7 +86,7 @@ class Entity(LinkedDataDumpable):
         """
         raise NotImplementedError(repr(cls))
 
-    @override
+    @override  # type: ignore[callable-functiontype]
     @recursive_repr()
     def __repr__(self) -> str:
         return repr_instance(self, id=self._id)
@@ -945,7 +945,7 @@ class SingleTypeEntityCollection(Generic[TargetT], EntityCollection[TargetT]):
         self._entities: list[TargetT & Entity] = []
         self._target_type = target_type
 
-    @override
+    @override  # type: ignore[callable-functiontype]
     @recursive_repr()
     def __repr__(self) -> str:
         return repr_instance(self, target_type=self._target_type, length=len(self))
@@ -1062,7 +1062,7 @@ class MultipleTypesEntityCollection(Generic[TargetT], EntityCollection[TargetT])
         super().__init__()
         self._collections: dict[type[Entity], SingleTypeEntityCollection[Entity]] = {}
 
-    @override
+    @override  # type: ignore[callable-functiontype]
     @recursive_repr()
     def __repr__(self) -> str:
         return repr_instance(

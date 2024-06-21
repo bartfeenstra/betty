@@ -7,7 +7,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Callable, Iterable, Self, cast, TYPE_CHECKING
+from typing import Iterable, Self, cast, TYPE_CHECKING
 
 from jinja2 import pass_context
 from typing_extensions import override
@@ -26,6 +26,8 @@ from betty.jinja2 import (
     context_app,
     context_localizer,
     context_job_context,
+    Globals,
+    Filters,
 )
 from betty.locale import Date, Str, Datey
 from betty.model import Entity, UserFacingEntity, GeneratedEntityId
@@ -353,14 +355,14 @@ class CottonCandy(
 
     @override
     @property
-    def globals(self) -> dict[str, Any]:
+    def globals(self) -> Globals:
         return {
             "search_index": _global_search_index,
         }
 
     @override
     @property
-    def filters(self) -> dict[str, Callable[..., Any]]:
+    def filters(self) -> Filters:
         return {
             "person_timeline_events": lambda person: person_timeline_events(
                 person, self.app.project.configuration.lifetime_threshold

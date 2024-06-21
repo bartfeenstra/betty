@@ -270,7 +270,7 @@ class TestGui:
             timer.timeout.connect(window_self.close)
             timer.start(0)
 
-        BettyPrimaryWindow.showEvent = showEvent  # type: ignore[assignment, method-assign]
+        BettyPrimaryWindow.showEvent = showEvent  # type: ignore[assignment, callable-functiontype, method-assign, misc]
         run(*args)
 
     async def test_without_project(
