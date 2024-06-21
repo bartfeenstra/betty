@@ -26,21 +26,21 @@ _T = TypeVar("_T")
 class TestAssertionChain:
     async def test___call__(self) -> None:
         sut = AssertionChain[int, int](lambda value: value)
-        assert sut(123).value == 123
+        assert sut(123) == 123
 
     async def test___or__(self) -> None:
         sut = AssertionChain[int, int](lambda value: value)
         sut |= lambda value: 2 * value
-        assert sut.assertion(123) == 246
+        assert sut(123) == 246
 
     async def test_assertion(self) -> None:
         sut = AssertionChain[int, int](lambda value: value)
-        assert sut.assertion(123) == 123
+        assert sut(123) == 123
 
     async def test_extend(self) -> None:
         sut = AssertionChain[int, int](lambda value: value)
         sut = sut.extend(lambda value: 2 * value)
-        assert sut.assertion(123) == 246
+        assert sut(123) == 246
 
 
 def _always_valid(value: _T) -> _T:
