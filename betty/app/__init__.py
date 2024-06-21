@@ -32,7 +32,7 @@ from betty.cache import Cache, FileCache
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.config import Configurable, FileBasedConfiguration
 from betty.fetch import Fetcher
-from betty.fs import FileSystem, CACHE_DIRECTORY_PATH
+from betty.fs import FileSystem, HOME_DIRECTORY_PATH
 from betty.locale import LocalizerRepository, get_data, DEFAULT_LOCALE, Localizer, Str
 from betty.model import Entity, EntityTypeProvider
 from betty.model.event_type import (
@@ -236,7 +236,7 @@ class App(Configurable[AppConfiguration]):
         self._http_client: aiohttp.ClientSession | None = None
         self._fetcher: Fetcher | None = None
         self._cache_directory_path = (
-            CACHE_DIRECTORY_PATH
+            HOME_DIRECTORY_PATH / "cache"
             if cache_directory_path is None
             else cache_directory_path
         )
@@ -257,7 +257,7 @@ class App(Configurable[AppConfiguration]):
         yield cls(
             AppConfiguration(CONFIGURATION_DIRECTORY_PATH),
             project,
-            Path(environ.get("BETTY_CACHE_DIRECTORY", CACHE_DIRECTORY_PATH)),
+            Path(environ.get("BETTY_CACHE_DIRECTORY", HOME_DIRECTORY_PATH / "cache")),
         )
 
     @classmethod

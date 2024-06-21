@@ -1004,7 +1004,9 @@ class LocalizerRepository:
             translation_version = await hashid_file_meta(po_file_path)
         except FileNotFoundError:
             return None
-        cache_directory_path = fs.CACHE_DIRECTORY_PATH / "locale" / translation_version
+        cache_directory_path = (
+            fs.HOME_DIRECTORY_PATH / "cache" / "locale" / translation_version
+        )
         mo_file_path = cache_directory_path / "betty.mo"
 
         with suppress(FileNotFoundError), open(mo_file_path, "rb") as f:
