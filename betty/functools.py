@@ -22,36 +22,10 @@ from typing import (
     TYPE_CHECKING,
 )
 
-from betty.warnings import deprecated
-
 if TYPE_CHECKING:
     from collections.abc import MutableSequence
 
 _T = TypeVar("_T")
-
-
-@deprecated(
-    "This function is deprecated as of Betty 0.3.5, and will be removed in Betty 0.4.x. Instead, use a custom function, tailored to your data type."
-)
-def walk(item: Any, attribute_name: str) -> Iterable[Any]:
-    """
-    Walk over a graph of objects by following a single attribute.
-    """
-    child = getattr(item, attribute_name)
-
-    # If the child has the requested attribute, yield it,
-    if hasattr(child, attribute_name):
-        yield child
-        yield from walk(child, attribute_name)
-
-    # Otherwise loop over the children and yield their attributes.
-    try:
-        child_children = iter(child)
-    except TypeError:
-        return
-    for child_child in child_children:
-        yield child_child
-        yield from walk(child_child, attribute_name)
 
 
 def slice_to_range(indices: slice, iterable: Sized) -> Iterable[int]:

@@ -1,72 +1,11 @@
 from collections.abc import Awaitable, Callable, Iterable
-from typing import Any, Self, TypeVar
+from typing import Any, TypeVar
 
 import pytest
 
-from betty.functools import walk, slice_to_range, Do, Uniquifier
-from betty.warnings import BettyDeprecationWarning
+from betty.functools import slice_to_range, Do, Uniquifier
 
 _T = TypeVar("_T")
-
-
-class TestWalk:
-    class _Item:
-        def __init__(self, child: Self | Iterable[Self] | None):
-            self.child = child
-
-    @pytest.mark.parametrize(
-        "item",
-        [
-            None,
-            True,
-            object(),
-            [],
-        ],
-    )
-    async def test_with_invalid_attribute(self, item: Any) -> None:
-        with pytest.warns(BettyDeprecationWarning), pytest.raises(AttributeError):
-            list(walk(item, "invalid_attribute_name"))
-
-    async def test_one_to_one_without_descendants(self) -> None:
-        with pytest.warns(BettyDeprecationWarning):
-            item = self._Item(None)
-            actual = walk(item, "child")
-            expected: list[None] = []
-            assert expected == list(actual)
-
-    async def test_one_to_one_with_descendants(self) -> None:
-        with pytest.warns(BettyDeprecationWarning):
-            grandchild = self._Item(None)
-            child = self._Item(grandchild)
-            item = self._Item(child)
-            actual = walk(item, "child")
-            expected = [child, grandchild]
-            assert expected == list(actual)
-
-    async def test_one_to_many_without_descendants(self) -> None:
-        with pytest.warns(BettyDeprecationWarning):
-            item = self._Item([])
-            actual = walk(item, "child")
-            expected: list[None] = []
-            assert expected == list(actual)
-
-    async def test_with_one_to_many_descendants(self) -> None:
-        with pytest.warns(BettyDeprecationWarning):
-            grandchild = self._Item([])
-            child = self._Item([grandchild])
-            item = self._Item([child])
-            actual = walk(item, "child")
-            expected = [child, grandchild]
-            assert expected == list(actual)
-
-    async def test_with_mixed_descendants(self) -> None:
-        with pytest.warns(BettyDeprecationWarning):
-            grandchild = self._Item([])
-            child = self._Item(grandchild)
-            item = self._Item([child])
-            actual = walk(item, "child")
-            expected = [child, grandchild]
-            assert expected == list(actual)
 
 
 class TestSliceToRange:

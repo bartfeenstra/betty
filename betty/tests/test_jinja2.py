@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable, Any, Self
+from typing import Iterable, Any
 
 import aiofiles
 import pytest
@@ -24,7 +24,6 @@ from betty.model.ancestry import (
     Citation,
 )
 from betty.tests import TemplateTestCase
-from betty.warnings import BettyDeprecationWarning
 
 
 class TestJinja2Provider:
@@ -69,43 +68,6 @@ class TestFilterFlatten(TemplateTestCase):
     async def test(self, expected: str, template: str) -> None:
         async with self._render(template_string=template) as (actual, _):
             assert expected == actual
-
-
-class TestFilterWalk(TemplateTestCase):
-    class WalkData:
-        def __init__(self, label: str, children: Iterable[Self] | None = None):
-            self._label = label
-            self.children = children or []
-
-        def __str__(self) -> str:
-            return self._label
-
-    @pytest.mark.parametrize(
-        ("expected", "template", "data"),
-        [
-            ("", '{{ data | walk("children") | join }}', WalkData("parent")),
-            (
-                "child1, child1child1, child2",
-                '{{ data | walk("children") | join(", ") }}',
-                WalkData(
-                    "parent",
-                    [
-                        WalkData("child1", [WalkData("child1child1")]),
-                        WalkData("child2"),
-                    ],
-                ),
-            ),
-        ],
-    )
-    async def test(self, expected: str, template: str, data: WalkData) -> None:
-        with pytest.warns(BettyDeprecationWarning):
-            async with self._render(
-                template_string=template,
-                data={
-                    "data": data,
-                },
-            ) as (actual, _):
-                assert expected == actual
 
 
 class TestFilterParagraphs(TemplateTestCase):

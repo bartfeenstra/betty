@@ -35,7 +35,6 @@ from markupsafe import Markup, escape
 from pdf2image.pdf2image import convert_from_path
 
 from betty import _resizeimage
-from betty.functools import walk
 from betty.hashid import hashid_file_meta, hashid
 from betty.locale import (
     negotiate_localizeds,
@@ -145,13 +144,6 @@ async def filter_flatten(values_of_values: Iterable[Iterable[_T]]) -> AsyncItera
     async for values in auto_aiter(values_of_values):
         async for value in auto_aiter(values):
             yield value
-
-
-def filter_walk(value: Any, attribute_name: str) -> Iterable[Any]:
-    """
-    Walk over a data structure.
-    """
-    return walk(value, attribute_name)
 
 
 _paragraph_re = re.compile(r"(?:\r\n|\r|\n){2,}")
@@ -588,7 +580,6 @@ FILTERS = {
     "upper_camel_case_to_lower_camel_case": upper_camel_case_to_lower_camel_case,
     "url": filter_url,
     "void_none": void_none,
-    "walk": filter_walk,
     "public_css": filter_public_css,
     "public_js": filter_public_js,
 }
