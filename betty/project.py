@@ -13,7 +13,7 @@ from reprlib import recursive_repr
 from typing import Any, Generic, final, Iterable, cast, Self, TYPE_CHECKING
 from urllib.parse import urlparse
 
-from typing_extensions import override, deprecated
+from typing_extensions import override
 
 from betty.app.extension import Extension, ConfigurableExtension
 from betty.classtools import repr_instance
@@ -45,7 +45,6 @@ from betty.serde.load import (
     Asserter,
     AssertionChain,
 )
-from betty.warnings import deprecate
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -1129,30 +1128,11 @@ class Project(Configurable[ProjectConfiguration]):
     def __init__(
         self,
         *,
-        project_id: str | None = None,
         ancestry: Ancestry | None = None,
     ):
         super().__init__()
-        if project_id is not None:
-            deprecate(
-                f"Initializing {type(self)} with a project ID is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. Instead, set {type(self)}.configuration.name.",
-                stacklevel=2,
-            )
-        self._id = project_id
         self._configuration = ProjectConfiguration()
         self._ancestry = Ancestry() if ancestry is None else ancestry
-
-    @property
-    @deprecated(
-        "Project.id is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. Insead, use Project.name."
-    )
-    def id(self) -> str:
-        """
-        Get the project ID.
-        """
-        if self._id is None:
-            return self.name
-        return self._id
 
     @property
     def name(self) -> str:
