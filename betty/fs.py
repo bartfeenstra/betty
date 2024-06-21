@@ -33,16 +33,6 @@ PREBUILT_ASSETS_DIRECTORY_PATH = ROOT_DIRECTORY_PATH / "prebuild"
 HOME_DIRECTORY_PATH = Path.home() / ".betty"
 
 
-CACHE_DIRECTORY_PATH = HOME_DIRECTORY_PATH / "cache"
-"""
-Define the path to the cache directory.
-
-.. deprecated:: 0.3.3
-   This constant is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x.
-   Instead, use :py:class:`betty.cache.file.BinaryFileCache`.
-"""
-
-
 async def iterfiles(path: Path) -> AsyncIterable[Path]:
     """
     Recursively iterate over any files found in a directory.
