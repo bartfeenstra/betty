@@ -33,7 +33,6 @@ from betty.tests.coverage.fixtures import (
     module_with_test,
     module_without_test,
 )
-from betty.warnings import BettyDeprecationWarning
 
 
 class TestKnownToBeMissing:
@@ -808,8 +807,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
 class TestCoverage:
     async def test(self) -> None:
         tester = CoverageTester()
-        with pytest.warns(BettyDeprecationWarning):
-            await tester.test()
+        await tester.test()
 
 
 def _module_path_to_name(module_path: Path) -> str:
