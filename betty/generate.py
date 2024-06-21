@@ -287,6 +287,14 @@ async def _generate_static_public(
             job_context=job_context,
         )
 
+        # Ensure favicon.ico exists, otherwise servers of Betty sites would log
+        # many a 404 Not Found for it, because some clients eagerly try to see
+        # if it exists.
+        await app.assets.copy2(
+            Path("public") / "static" / "betty.ico",
+            app.project.configuration.www_directory_path / "favicon.ico",
+        )
+
 
 async def _generate_entity_type_list_html(
     job_context: GenerationContext,

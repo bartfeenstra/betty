@@ -78,10 +78,6 @@ class Server implements Disposable {
   }
 
   private async prepareFile (urlPath: string): Promise<ServerResponseMeta> {
-    // @todo Remove this favicon workaround. See https://github.com/bartfeenstra/betty/issues/1404.
-    if (urlPath === '/favicon.ico') {
-      urlPath = '/betty.ico'
-    }
     const urlPathComponents = [this.wwwDirectoryPath, urlPath]
     if (urlPath.endsWith('/')) {
       urlPathComponents.push('index.html')
