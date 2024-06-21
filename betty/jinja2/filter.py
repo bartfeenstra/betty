@@ -8,7 +8,6 @@ import json as stdjson
 import re
 import warnings
 from asyncio import get_running_loop, run
-from base64 import b64encode
 from contextlib import suppress
 from io import BytesIO
 from typing import (
@@ -55,7 +54,6 @@ from betty.string import (
     camel_case_to_kebab_case,
     upper_camel_case_to_lower_camel_case,
 )
-from betty.warnings import deprecated
 
 if TYPE_CHECKING:
     from jinja2.nodes import EvalContext
@@ -533,16 +531,6 @@ def filter_select_dateds(
     )
 
 
-@deprecated(
-    "This function is deprecated as of Betty 0.3.4, and will be removed in Betty 0.4.x. Instead, use the `hashid` filter."
-)
-def filter_base64(source: str) -> str:
-    """
-    Base-64-encode a string.
-    """
-    return b64encode(source.encode("utf-8")).decode("utf-8")
-
-
 def filter_hashid(source: str) -> str:
     """
     Create a hash ID.
@@ -573,7 +561,6 @@ def filter_public_js(context: Context, public_path: str) -> None:
 
 
 FILTERS = {
-    "base64": filter_base64,
     "camel_case_to_kebab_case": camel_case_to_kebab_case,
     "camel_case_to_snake_case": camel_case_to_snake_case,
     "entity_type_name": get_entity_type_name,
