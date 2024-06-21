@@ -448,9 +448,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Localized": TestKnownToBeMissing,
         "Localizer": TestKnownToBeMissing,
         "LocalizerRepository": {
-            "__getitem__": TestKnownToBeMissing,
             "coverage": TestKnownToBeMissing,
-            "get": TestKnownToBeMissing,
             "get_negotiated": TestKnownToBeMissing,
             "locales": TestKnownToBeMissing,
         },
