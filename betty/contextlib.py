@@ -7,18 +7,18 @@ from typing import AsyncContextManager, TypeVar, Generic
 
 from betty.asyncio import wait_to_thread
 
-ContextT = TypeVar("ContextT")
+_ContextT = TypeVar("_ContextT")
 
 
-class SynchronizedContextManager(Generic[ContextT]):
+class SynchronizedContextManager(Generic[_ContextT]):
     """
     Make an asynchronous context manager synchronous.
     """
 
-    def __init__(self, context_manager: AsyncContextManager[ContextT]):
+    def __init__(self, context_manager: AsyncContextManager[_ContextT]):
         self._context_manager = context_manager
 
-    def __enter__(self) -> ContextT:
+    def __enter__(self) -> _ContextT:
         return wait_to_thread(self._context_manager.__aenter__())
 
     def __exit__(

@@ -20,7 +20,7 @@ from typing_extensions import override
 
 from betty.requirement import Requirement, AllRequirements
 from betty.asyncio import gather
-from betty.config import ConfigurationT, Configurable
+from betty.config import Configurable, Configuration
 from betty.dispatch import Dispatcher, TargetedDispatcher
 from betty.importlib import import_any
 from betty.locale import Str, Localizable
@@ -28,6 +28,9 @@ from betty.locale import Str, Localizable
 if TYPE_CHECKING:
     from pathlib import Path
     from betty.app import App
+
+
+_ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 
 
 class ExtensionError(BaseException):
@@ -241,7 +244,7 @@ class Extension:
         return self._app
 
 
-ExtensionT = TypeVar("ExtensionT", bound=Extension)
+_ExtensionT = TypeVar("_ExtensionT", bound=Extension)
 
 
 class UserFacingExtension(Extension):
@@ -326,21 +329,21 @@ def format_extension_type(extension_type: type[Extension]) -> Localizable:
 
 
 class ConfigurableExtension(
-    Extension, Generic[ConfigurationT], Configurable[ConfigurationT]
+    Extension, Generic[_ConfigurationT], Configurable[_ConfigurationT]
 ):
     """
     A configurable extension.
     """
 
     def __init__(
-        self, *args: Any, configuration: ConfigurationT | None = None, **kwargs: Any
+        self, *args: Any, configuration: _ConfigurationT | None = None, **kwargs: Any
     ):
         assert type(self) is not ConfigurableExtension
         super().__init__(*args, **kwargs)
         self._configuration = configuration or self.default_configuration()
 
     @classmethod
-    def default_configuration(cls) -> ConfigurationT:
+    def default_configuration(cls) -> _ConfigurationT:
         """
         Get this extension's default configuration.
         """
@@ -352,7 +355,7 @@ class Extensions:
     Manage available extensions.
     """
 
-    def __getitem__(self, extension_type: type[ExtensionT] | str) -> ExtensionT:
+    def __getitem__(self, extension_type: type[_ExtensionT] | str) -> _ExtensionT:
         raise NotImplementedError(repr(self))
 
     def __iter__(self) -> Iterator[Iterator[Extension]]:
@@ -386,7 +389,7 @@ class ListExtensions(Extensions):
         self._extensions = extensions
 
     @override
-    def __getitem__(self, extension_type: type[ExtensionT] | str) -> ExtensionT:
+    def __getitem__(self, extension_type: type[_ExtensionT] | str) -> _ExtensionT:
         if isinstance(extension_type, str):
             extension_type = import_any(extension_type)
         for extension in self.flatten():

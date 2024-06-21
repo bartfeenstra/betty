@@ -31,13 +31,13 @@ if TYPE_CHECKING:
     from betty.app import App
     from types import TracebackType
 
-T = TypeVar("T")
-P = ParamSpec("P")
+_T = TypeVar("_T")
+_P = ParamSpec("_P")
 
-BaseExceptionT = TypeVar("BaseExceptionT", bound=BaseException)
+_BaseExceptionT = TypeVar("_BaseExceptionT", bound=BaseException)
 
 
-class ExceptionCatcher(Generic[P, T]):
+class ExceptionCatcher(Generic[_P, _T]):
     """
     Catch any exception and show an error window instead.
     """
@@ -77,8 +77,8 @@ class ExceptionCatcher(Generic[P, T]):
 
     def _catch(
         self,
-        exception_type: type[BaseExceptionT] | None,
-        exception: BaseExceptionT | None,
+        exception_type: type[_BaseExceptionT] | None,
+        exception: _BaseExceptionT | None,
     ) -> bool | None:
         from betty.gui import BettyApplication
 
@@ -171,7 +171,7 @@ class Error(BettyMainWindow):
         super().closeEvent(a0)
 
 
-ErrorT = TypeVar("ErrorT", bound=Error)
+_ErrorT = TypeVar("_ErrorT", bound=Error)
 
 
 class ExceptionError(Error):
@@ -192,7 +192,7 @@ class ExceptionError(Error):
         self.error_type = error_type
 
 
-ExceptionErrorT = TypeVar("ExceptionErrorT", bound=ExceptionError)
+_ExceptionErrorT = TypeVar("_ExceptionErrorT", bound=ExceptionError)
 
 
 class _UnexpectedExceptionError(ExceptionError):

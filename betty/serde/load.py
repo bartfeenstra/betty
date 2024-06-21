@@ -28,13 +28,14 @@ from betty.model import (
     EntityTypeInvalidError,
     EntityTypeError,
 )
-from betty.serde.dump import DumpType, DumpTypeT, Void
+from betty.serde.dump import DumpType, Void
 from betty.serde.error import SerdeError, SerdeErrorCollection
 
 if TYPE_CHECKING:
     from betty.app.extension import Extension
 
 
+_DumpTypeT = TypeVar("_DumpTypeT", bound=DumpType)
 _AssertionValueT = TypeVar("_AssertionValueT")
 _AssertionReturnT = TypeVar("_AssertionReturnT")
 _AssertionReturnU = TypeVar("_AssertionReturnU")
@@ -189,9 +190,9 @@ class Asserter:
     def _assert_type(
         self,
         value: Any,
-        value_required_type: type[DumpTypeT],
+        value_required_type: type[_DumpTypeT],
         value_disallowed_type: type[DumpType] | None = None,
-    ) -> DumpTypeT:
+    ) -> _DumpTypeT:
         if isinstance(value, value_required_type) and (
             value_disallowed_type is None
             or not isinstance(value, value_disallowed_type)

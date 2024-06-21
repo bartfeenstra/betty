@@ -5,7 +5,7 @@ from collections.abc import AsyncIterator
 from contextlib import chdir
 from multiprocessing import get_context
 from pathlib import Path
-from typing import TypeVar, ParamSpec, Any, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 from unittest.mock import AsyncMock
 
 import aiofiles
@@ -31,9 +31,6 @@ from betty.tests.conftest import BettyQtBot
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump
-
-T = TypeVar("T")
-P = ParamSpec("P")
 
 
 @click.command(name="noop")

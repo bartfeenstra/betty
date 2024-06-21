@@ -7,7 +7,7 @@ from __future__ import annotations
 import datetime
 from collections import defaultdict
 from threading import Lock
-from typing import Callable, Any, cast, TypeVar, TYPE_CHECKING, TypeAlias
+from typing import Callable, Any, cast, TYPE_CHECKING, TypeAlias
 
 import aiofiles
 from aiofiles import os as aiofiles_os
@@ -36,8 +36,6 @@ if TYPE_CHECKING:
     from betty.model.ancestry import Citation
     from pathlib import Path
     from collections.abc import MutableMapping, Iterator, Sequence
-
-T = TypeVar("T")
 
 
 def context_app(context: Context) -> App:

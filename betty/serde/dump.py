@@ -6,9 +6,6 @@ from __future__ import annotations
 
 from typing import TypeVar, Sequence, Mapping, overload, Literal, TypeAlias, Any
 
-T = TypeVar("T")
-U = TypeVar("U")
-
 
 class Void:
     """
@@ -24,34 +21,34 @@ class Void:
 
 #: The Python types that define a serialized dump.
 DumpType: TypeAlias = bool | int | float | str | None | list["Dump"] | dict[str, "Dump"]
-DumpTypeT = TypeVar("DumpTypeT", bound=DumpType)
+_DumpTypeT = TypeVar("_DumpTypeT", bound=DumpType)
 
 #: A serialized dump.
 Dump: TypeAlias = (
     bool | int | float | str | None | Sequence["Dump"] | Mapping[str, "Dump"]
 )
-DumpT = TypeVar("DumpT", bound=Dump)
-DumpU = TypeVar("DumpU", bound=Dump)
+_DumpT = TypeVar("_DumpT", bound=Dump)
+_DumpU = TypeVar("_DumpU", bound=Dump)
 
 #: A serialized dump that may be :py:class:`betty.serde.dump.Void`.
 VoidableDump: TypeAlias = Dump | type[Void]
-VoidableDumpT = TypeVar("VoidableDumpT", bound=VoidableDump)
-VoidableDumpU = TypeVar("VoidableDumpU", bound=VoidableDump)
+_VoidableDumpT = TypeVar("_VoidableDumpT", bound=VoidableDump)
+_VoidableDumpU = TypeVar("_VoidableDumpU", bound=VoidableDump)
 
 #: A dump which is a list whose values are serialized dumps.
-ListDump: TypeAlias = list[DumpT]
+ListDump: TypeAlias = list[_DumpT]
 
 #: A dump which is a dictionary whose keys are strings and values are serialized dumps.
-DictDump: TypeAlias = dict[str, DumpT]
+DictDump: TypeAlias = dict[str, _DumpT]
 
 #: A dump which is a list whose values are serialized dumps, or that may be :py:class:`betty.serde.dump.Void`
-VoidableListDump: TypeAlias = list[VoidableDumpT]
+VoidableListDump: TypeAlias = list[_VoidableDumpU]
 
 #: A dump which is a dictionary whose keys are strings and values are serialized dumps, or that may be :py:class:`betty.serde.dump.Void`
-VoidableDictDump: TypeAlias = dict[str, VoidableDumpT]
+VoidableDictDump: TypeAlias = dict[str, _VoidableDumpU]
 
 _MinimizableDump: TypeAlias = (
-    VoidableDump | VoidableListDump[VoidableDumpT] | VoidableDictDump[VoidableDumpT]
+    VoidableDump | VoidableListDump[_VoidableDumpU] | VoidableDictDump[_VoidableDumpU]
 )
 
 

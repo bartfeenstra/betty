@@ -4,7 +4,7 @@ Provide JSON utilities.
 
 from __future__ import annotations
 
-from typing import Any, TypeVar, TYPE_CHECKING, cast
+from typing import Any, TYPE_CHECKING, cast
 
 from jsonschema.validators import Draft202012Validator
 from referencing import Resource, Registry
@@ -14,9 +14,6 @@ from betty.string import upper_camel_case_to_lower_camel_case
 
 if TYPE_CHECKING:
     from betty.app import App
-
-
-T = TypeVar("T")
 
 
 class Schema:

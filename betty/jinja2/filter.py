@@ -64,7 +64,7 @@ if TYPE_CHECKING:
     from pathlib import Path
     from collections.abc import Awaitable
 
-T = TypeVar("T")
+_T = TypeVar("_T")
 
 
 @pass_context
@@ -140,7 +140,7 @@ def filter_json(data: Any, indent: int | None = None) -> str:
     return stdjson.dumps(data, indent=indent)
 
 
-async def filter_flatten(values_of_values: Iterable[Iterable[T]]) -> AsyncIterator[T]:
+async def filter_flatten(values_of_values: Iterable[Iterable[_T]]) -> AsyncIterator[_T]:
     """
     Flatten an iterable of iterables into a single iterable.
     """
@@ -192,7 +192,7 @@ def filter_format_degrees(degrees: int) -> str:
     return DEGREES_FORMAT % format_dict  # type: ignore[no-any-return]
 
 
-async def filter_unique(values: Iterable[T]) -> AsyncIterator[T]:
+async def filter_unique(values: Iterable[_T]) -> AsyncIterator[_T]:
     """
     Iterate over an iterable of values and only yield those values that have not been yielded before.
     """

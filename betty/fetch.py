@@ -9,16 +9,19 @@ from json import loads
 from logging import getLogger
 from pathlib import Path
 from time import time
-from typing import Any
+from typing import Any, TypeVar
 
 from aiohttp import ClientSession, ClientResponse, ClientError
 from multidict import CIMultiDict
 
-from betty.cache import Cache, CacheItemValueT
+from betty.cache import Cache
 from betty.cache.file import BinaryFileCache
 from betty.error import UserFacingError
 from betty.hashid import hashid
 from betty.locale import Str
+
+
+_CacheItemValueT = TypeVar("_CacheItemValueT")
 
 
 class FetchError(UserFacingError, RuntimeError):
@@ -80,12 +83,12 @@ class Fetcher:
     async def _fetch(
         self,
         url: str,
-        cache: Cache[CacheItemValueT],
-        response_mapper: Callable[[ClientResponse], Awaitable[CacheItemValueT]],
-    ) -> tuple[CacheItemValueT, str]:
+        cache: Cache[_CacheItemValueT],
+        response_mapper: Callable[[ClientResponse], Awaitable[_CacheItemValueT]],
+    ) -> tuple[_CacheItemValueT, str]:
         cache_item_id = hashid(url)
 
-        response_data: CacheItemValueT | None = None
+        response_data: _CacheItemValueT | None = None
         async with cache.getset(cache_item_id) as (cache_item, setter):
             if cache_item and cache_item.modified + self._ttl > time():
                 response_data = await cache_item.value()

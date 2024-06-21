@@ -9,13 +9,13 @@ import shutil
 from contextlib import suppress
 from os import utime
 from pickle import dumps, loads
-from typing import Generic, Self, TYPE_CHECKING
+from typing import Generic, Self, TYPE_CHECKING, TypeVar
 
 import aiofiles
 from aiofiles.ospath import getmtime
 from typing_extensions import override
 
-from betty.cache import CacheItem, CacheItemValueContraT, CacheItemValueCoT
+from betty.cache import CacheItem
 from betty.cache._base import _CommonCacheBase
 from betty.hashid import hashid
 
@@ -25,7 +25,11 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
-class _FileCacheItem(CacheItem[CacheItemValueCoT], Generic[CacheItemValueCoT]):
+_CacheItemValueCoT = TypeVar("_CacheItemValueCoT", covariant=True)
+_CacheItemValueContraT = TypeVar("_CacheItemValueContraT", contravariant=True)
+
+
+class _FileCacheItem(CacheItem[_CacheItemValueCoT], Generic[_CacheItemValueCoT]):
     __slots__ = "_modified", "_path"
 
     def __init__(
@@ -42,20 +46,20 @@ class _FileCacheItem(CacheItem[CacheItemValueCoT], Generic[CacheItemValueCoT]):
         return self._modified
 
     @override
-    async def value(self) -> CacheItemValueCoT:
+    async def value(self) -> _CacheItemValueCoT:
         async with aiofiles.open(self._path, "rb") as f:
             value_bytes = await f.read()
         return await self._load_value(value_bytes)
 
-    async def _load_value(self, value_bytes: bytes) -> CacheItemValueCoT:
+    async def _load_value(self, value_bytes: bytes) -> _CacheItemValueCoT:
         raise NotImplementedError
 
 
 class _PickledFileCacheItem(
-    _FileCacheItem[CacheItemValueCoT], Generic[CacheItemValueCoT]
+    _FileCacheItem[_CacheItemValueCoT], Generic[_CacheItemValueCoT]
 ):
     @override
-    async def _load_value(self, value_bytes: bytes) -> CacheItemValueCoT:
+    async def _load_value(self, value_bytes: bytes) -> _CacheItemValueCoT:
         return loads(value_bytes)  # type: ignore[no-any-return]
 
 
@@ -66,13 +70,13 @@ class _BinaryFileCacheItem(_FileCacheItem[bytes]):
 
 
 class _FileCache(
-    _CommonCacheBase[CacheItemValueContraT], Generic[CacheItemValueContraT]
+    _CommonCacheBase[_CacheItemValueContraT], Generic[_CacheItemValueContraT]
 ):
     """
     Provide a cache that persists cache items on a file system.
     """
 
-    _cache_item_cls: type[_FileCacheItem[CacheItemValueContraT]]
+    _cache_item_cls: type[_FileCacheItem[_CacheItemValueContraT]]
 
     def __init__(
         self,
@@ -93,11 +97,13 @@ class _FileCache(
     def _cache_item_file_path(self, cache_item_id: str) -> Path:
         return self._path / hashid(cache_item_id)
 
-    def _dump_value(self, value: CacheItemValueContraT) -> bytes:
+    def _dump_value(self, value: _CacheItemValueContraT) -> bytes:
         raise NotImplementedError
 
     @override
-    async def _get(self, cache_item_id: str) -> CacheItem[CacheItemValueContraT] | None:
+    async def _get(
+        self, cache_item_id: str
+    ) -> CacheItem[_CacheItemValueContraT] | None:
         try:
             cache_item_file_path = self._cache_item_file_path(cache_item_id)
             return self._cache_item_cls(
@@ -111,7 +117,7 @@ class _FileCache(
     async def _set(
         self,
         cache_item_id: str,
-        value: CacheItemValueContraT,
+        value: _CacheItemValueContraT,
         *,
         modified: int | float | None = None,
     ) -> None:
@@ -150,7 +156,7 @@ class _FileCache(
 
 
 class PickledFileCache(
-    _FileCache[CacheItemValueContraT], Generic[CacheItemValueContraT]
+    _FileCache[_CacheItemValueContraT], Generic[_CacheItemValueContraT]
 ):
     """
     Provide a cache that pickles values and persists them to files.
@@ -159,7 +165,7 @@ class PickledFileCache(
     _cache_item_cls = _PickledFileCacheItem
 
     @override
-    def _dump_value(self, value: CacheItemValueContraT) -> bytes:
+    def _dump_value(self, value: _CacheItemValueContraT) -> bytes:
         return dumps(value)
 
 
