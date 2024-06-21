@@ -11,7 +11,7 @@ from graphlib import CycleError, TopologicalSorter
 from multiprocessing import get_context
 from os import environ
 from pathlib import Path
-from typing import TYPE_CHECKING, Mapping, Self, Any, final
+from typing import TYPE_CHECKING, Self, Any, final
 
 import aiohttp
 from aiofiles.tempfile import TemporaryDirectory
@@ -76,7 +76,6 @@ if TYPE_CHECKING:
     from types import TracebackType
     from collections.abc import AsyncIterator
     from betty.jinja2 import Environment
-    from betty.serve import Server
     from betty.url import StaticUrlGenerator, LocalizedUrlGenerator
 
 CONFIGURATION_DIRECTORY_PATH = fs.HOME_DIRECTORY_PATH / "configuration"
@@ -659,28 +658,6 @@ class App(Configurable[AppConfiguration]):
     @event_types.deleter
     def event_types(self) -> None:
         self._event_types = None
-
-    @property
-    def servers(self) -> Mapping[str, Server]:
-        """
-        The available web servers.
-        """
-        from betty import serve
-        from betty.extension.demo import DemoServer
-
-        return {
-            server.name(): server
-            for server in [
-                *(
-                    server
-                    for extension in self.extensions.flatten()
-                    if isinstance(extension, serve.ServerProvider)
-                    for server in extension.servers
-                ),
-                serve.BuiltinAppServer(self),
-                DemoServer(app=self),
-            ]
-        }
 
     @property
     def cache(self) -> Cache[Any] & FileCache:

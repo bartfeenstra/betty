@@ -33,7 +33,7 @@ from betty.error import UserFacingError
 from betty.locale import Str, DEFAULT_LOCALIZER
 from betty.logging import CliHandler
 from betty.serde.load import AssertionFailed
-from betty.serve import AppServer
+from betty.serve import BuiltinAppServer
 
 if TYPE_CHECKING:
     from PyQt6.QtWidgets import QMainWindow
@@ -330,7 +330,7 @@ async def _generate(app: App) -> None:
 @click.command(help="Serve a generated site.")
 @app_command
 async def _serve(app: App) -> None:
-    async with AppServer.get(app) as server:
+    async with BuiltinAppServer(app) as server:
         await server.show()
         while True:
             await asyncio.sleep(999)

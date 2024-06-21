@@ -1,6 +1,5 @@
 """Integrate Betty with `nginx <https://nginx.org/>`_."""
 
-from collections.abc import Sequence
 from pathlib import Path
 
 from click import Command
@@ -18,14 +17,12 @@ from betty.extension.nginx.gui import _NginxGuiWidget
 from betty.generate import Generator, GenerationContext
 from betty.gui import GuiBuilder
 from betty.locale import Str, Localizable
-from betty.serve import ServerProvider, Server
 
 
 class Nginx(
     ConfigurableExtension[NginxConfiguration],
     UserFacingExtension,
     Generator,
-    ServerProvider,
     GuiBuilder,
     CommandProvider,
 ):
@@ -49,15 +46,6 @@ class Nginx(
     @classmethod
     def default_configuration(cls) -> NginxConfiguration:
         return NginxConfiguration()
-
-    @override
-    @property
-    def servers(self) -> Sequence[Server]:
-        from betty.extension.nginx.serve import DockerizedNginxServer
-
-        if DockerizedNginxServer.is_available():
-            return [DockerizedNginxServer(self._app)]
-        return []
 
     @override
     async def generate(self, job_context: GenerationContext) -> None:
