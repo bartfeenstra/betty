@@ -39,7 +39,6 @@ from betty.model import (
 from betty.model.event_type import EventType, UnknownEventType
 from betty.serde.dump import DictDump, Dump, dump_default
 from betty.string import camel_case_to_kebab_case
-from betty.warnings import deprecated
 
 if TYPE_CHECKING:
     from geopy import Point
@@ -1071,25 +1070,6 @@ class Source(
         return schema
 
 
-@deprecated(
-    f"This class is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. No direct replacement is available. Instead, set the privacy for {Source} entities accordingly."
-)
-class AnonymousSource(Source):  # noqa D101
-    @property  # type: ignore[override]
-    def name(self) -> str:  # noqa D102
-        return "private"
-
-    @name.setter
-    def name(self, _) -> None:
-        # This is a no-op as the name is 'hardcoded'.
-        pass  # pragma: no cover
-
-    @name.deleter
-    def name(self) -> None:
-        # This is a no-op as the name is 'hardcoded'.
-        pass  # pragma: no cover
-
-
 @many_to_many("facts", "betty.model.ancestry.HasCitations", "citations")
 @many_to_one("source", "betty.model.ancestry.Source", "citations")
 class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, Entity):
@@ -1190,27 +1170,6 @@ class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, En
             {"type": "array", "items": {"type": "string", "format": "uri"}},
         )
         return schema
-
-
-@deprecated(
-    f"This class is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. No direct replacement is available. Instead, set the privacy for {Citation} entities accordingly."
-)
-class AnonymousCitation(Citation):  # noqa D101
-    @property  # type: ignore[override]
-    def location(self) -> Str:  # noqa D102
-        return Str._(
-            "private (in order to protect people's privacy)"
-        )  # pragma: no cover
-
-    @location.setter
-    def location(self, _) -> None:
-        # This is a no-op as the location is 'hardcoded'.
-        pass  # pragma: no cover
-
-    @location.deleter
-    def location(self) -> None:
-        # This is a no-op as the location is 'hardcoded'.
-        pass  # pragma: no cover
 
 
 class PlaceName(Localized, Dated, LinkedDataDumpable):

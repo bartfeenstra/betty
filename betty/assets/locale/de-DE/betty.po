@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-06-02 00:21+0200\n"
+"POT-Creation-Date: 2024-06-21 17:59+0100\n"
 "PO-Revision-Date: 2024-02-08 13:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de\n"
@@ -1289,9 +1289,6 @@ msgstr ""
 
 msgid "private"
 msgstr "anonym"
-
-msgid "private (in order to protect people's privacy)"
-msgstr "private (um die Privatsphäre von Personen zu schützen)"
 
 msgctxt "enter-search-shortcut"
 msgid "s"
