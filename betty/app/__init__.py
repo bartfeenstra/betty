@@ -65,9 +65,9 @@ from betty.serde.dump import minimize, void_none, Dump, VoidableDump
 from betty.serde.load import (
     AssertionFailed,
     Fields,
-    Assertions,
     OptionalField,
     Asserter,
+    AssertionChain,
 )
 from betty.warnings import deprecate
 
@@ -164,7 +164,7 @@ class AppConfiguration(FileBasedConfiguration):
             Fields(
                 OptionalField(
                     "locale",
-                    Assertions(asserter.assert_str())
+                    AssertionChain(asserter.assert_str())
                     | asserter.assert_setattr(configuration, "locale"),
                 ),
             ),

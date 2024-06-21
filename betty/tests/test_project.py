@@ -23,7 +23,6 @@ from betty.serde.load import (
     AssertionFailed,
     Asserter,
     Fields,
-    Assertions,
     RequiredField,
 )
 from betty.tests.serde import raises_error
@@ -977,7 +976,7 @@ class DummyConfigurableExtensionConfiguration(Configuration):
         asserter = Asserter()
         asserter.assert_record(
             Fields(
-                RequiredField("check", Assertions(asserter.assert_bool())),
+                RequiredField("check", asserter.assert_bool()),
             ),
         )(dump)
         return configuration

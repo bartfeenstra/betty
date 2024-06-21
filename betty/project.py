@@ -39,11 +39,11 @@ from betty.serde.dump import (
 from betty.serde.load import (
     AssertionFailed,
     Fields,
-    Assertions,
     Assertion,
     RequiredField,
     OptionalField,
     Asserter,
+    AssertionChain,
 )
 from betty.warnings import deprecate
 
@@ -132,12 +132,12 @@ class EntityReference(Configuration, Generic[EntityT]):
                 Fields(
                     RequiredField(
                         "entity_type",
-                        Assertions(asserter.assert_entity_type())
+                        AssertionChain(asserter.assert_entity_type())
                         | asserter.assert_setattr(configuration, "entity_type"),
                     ),
                     OptionalField(
                         "entity_id",
-                        Assertions(asserter.assert_str())
+                        AssertionChain(asserter.assert_str())
                         | asserter.assert_setattr(configuration, "entity_id"),
                     ),
                 )
@@ -322,7 +322,7 @@ class ExtensionConfiguration(Configuration):
         extension_type = asserter.assert_field(
             RequiredField(
                 "extension",
-                Assertions(asserter.assert_extension_type()),
+                asserter.assert_extension_type(),
             )
         )(dump)
         if configuration is None:
@@ -337,15 +337,13 @@ class ExtensionConfiguration(Configuration):
                 ),
                 OptionalField(
                     "enabled",
-                    Assertions(asserter.assert_bool())
+                    AssertionChain(asserter.assert_bool())
                     | asserter.assert_setattr(configuration, "enabled"),
                 ),
                 OptionalField(
                     "configuration",
-                    Assertions(
-                        configuration._assert_load_extension_configuration(
-                            configuration.extension_type
-                        )
+                    configuration._assert_load_extension_configuration(
+                        configuration.extension_type
                     ),
                 ),
             )
@@ -521,7 +519,7 @@ class EntityTypeConfiguration(Configuration):
         entity_type = asserter.assert_field(
             RequiredField[Any, type[Entity]](
                 "entity_type",
-                Assertions(asserter.assert_str()) | asserter.assert_entity_type(),
+                AssertionChain(asserter.assert_str()) | asserter.assert_entity_type(),
             ),
         )(dump)
         configuration = cls(entity_type)
@@ -532,7 +530,7 @@ class EntityTypeConfiguration(Configuration):
                 ),
                 OptionalField(
                     "generate_html_list",
-                    Assertions(asserter.assert_bool())
+                    AssertionChain(asserter.assert_bool())
                     | asserter.assert_setattr(configuration, "generate_html_list"),
                 ),
             )
@@ -668,7 +666,7 @@ class LocaleConfiguration(Configuration):
     ) -> Self:
         asserter = Asserter()
         locale = asserter.assert_field(
-            RequiredField("locale", Assertions(asserter.assert_locale())),
+            RequiredField("locale", asserter.assert_locale()),
         )(dump)
         if configuration is None:
             configuration = cls(locale)
@@ -677,7 +675,7 @@ class LocaleConfiguration(Configuration):
                 RequiredField("locale"),
                 OptionalField(
                     "alias",
-                    Assertions(asserter.assert_str())
+                    AssertionChain(asserter.assert_str())
                     | asserter.assert_setattr(configuration, "alias"),
                 ),
             )
@@ -1039,59 +1037,59 @@ class ProjectConfiguration(FileBasedConfiguration):
             Fields(
                 OptionalField(
                     "name",
-                    Assertions(asserter.assert_str())
+                    AssertionChain(asserter.assert_str())
                     | asserter.assert_setattr(configuration, "name"),
                 ),
                 RequiredField(
                     "base_url",
-                    Assertions(asserter.assert_str())
+                    AssertionChain(asserter.assert_str())
                     | asserter.assert_setattr(configuration, "base_url"),
                 ),
                 OptionalField(
                     "title",
-                    Assertions(asserter.assert_str())
+                    AssertionChain(asserter.assert_str())
                     | asserter.assert_setattr(configuration, "title"),
                 ),
                 OptionalField(
                     "author",
-                    Assertions(asserter.assert_str())
+                    AssertionChain(asserter.assert_str())
                     | asserter.assert_setattr(configuration, "author"),
                 ),
                 OptionalField(
                     "root_path",
-                    Assertions(asserter.assert_str())
+                    AssertionChain(asserter.assert_str())
                     | asserter.assert_setattr(configuration, "root_path"),
                 ),
                 OptionalField(
                     "clean_urls",
-                    Assertions(asserter.assert_bool())
+                    AssertionChain(asserter.assert_bool())
                     | asserter.assert_setattr(configuration, "clean_urls"),
                 ),
                 OptionalField(
                     "debug",
-                    Assertions(asserter.assert_bool())
+                    AssertionChain(asserter.assert_bool())
                     | asserter.assert_setattr(configuration, "debug"),
                 ),
                 OptionalField(
                     "lifetime_threshold",
-                    Assertions(asserter.assert_int())
+                    AssertionChain(asserter.assert_int())
                     | asserter.assert_setattr(configuration, "lifetime_threshold"),
                 ),
                 OptionalField(
                     "locales",
-                    Assertions(
+                    AssertionChain(
                         configuration._locales.assert_load(configuration.locales)
                     ),
                 ),
                 OptionalField(
                     "extensions",
-                    Assertions(
+                    AssertionChain(
                         configuration._extensions.assert_load(configuration.extensions)
                     ),
                 ),
                 OptionalField(
                     "entity_types",
-                    Assertions(
+                    AssertionChain(
                         configuration._entity_types.assert_load(
                             configuration.entity_types
                         )

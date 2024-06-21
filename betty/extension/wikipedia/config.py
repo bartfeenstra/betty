@@ -8,7 +8,7 @@ from typing_extensions import override
 
 from betty.config import Configuration
 from betty.serde.dump import Dump, VoidableDump, minimize, VoidableDictDump
-from betty.serde.load import Asserter, Fields, OptionalField, Assertions
+from betty.serde.load import Asserter, Fields, OptionalField, AssertionChain
 
 
 class WikipediaConfiguration(Configuration):
@@ -50,7 +50,7 @@ class WikipediaConfiguration(Configuration):
             Fields(
                 OptionalField(
                     "populate_images",
-                    Assertions(asserter.assert_bool())
+                    AssertionChain(asserter.assert_bool())
                     | asserter.assert_setattr(configuration, "populate_images"),
                 ),
             )

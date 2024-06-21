@@ -37,9 +37,9 @@ from betty.serde.dump import minimize, Dump, VoidableDump, Void
 from betty.serde.load import (
     AssertionFailed,
     Fields,
-    Assertions,
     OptionalField,
     Asserter,
+    AssertionChain,
 )
 
 if TYPE_CHECKING:
@@ -204,47 +204,37 @@ class CottonCandyConfiguration(Configuration):
             Fields(
                 OptionalField(
                     "featured_entities",
-                    Assertions(
-                        configuration._featured_entities.assert_load(
-                            configuration._featured_entities
-                        )
+                    configuration._featured_entities.assert_load(
+                        configuration._featured_entities
                     ),
                 ),
                 OptionalField(
                     "primary_inactive_color",
-                    Assertions(
-                        configuration._primary_inactive_color.assert_load(
-                            configuration._primary_inactive_color
-                        )
+                    configuration._primary_inactive_color.assert_load(
+                        configuration._primary_inactive_color
                     ),
                 ),
                 OptionalField(
                     "primary_active_color",
-                    Assertions(
-                        configuration._primary_active_color.assert_load(
-                            configuration._primary_active_color
-                        )
+                    configuration._primary_active_color.assert_load(
+                        configuration._primary_active_color
                     ),
                 ),
                 OptionalField(
                     "link_inactive_color",
-                    Assertions(
-                        configuration._link_inactive_color.assert_load(
-                            configuration._link_inactive_color
-                        )
+                    configuration._link_inactive_color.assert_load(
+                        configuration._link_inactive_color
                     ),
                 ),
                 OptionalField(
                     "link_active_color",
-                    Assertions(
-                        configuration._link_active_color.assert_load(
-                            configuration._link_active_color
-                        )
+                    configuration._link_active_color.assert_load(
+                        configuration._link_active_color
                     ),
                 ),
                 OptionalField(
                     "logo",
-                    Assertions(asserter.assert_path())
+                    AssertionChain(asserter.assert_path())
                     | asserter.assert_setattr(configuration, "logo"),
                 ),
             )
