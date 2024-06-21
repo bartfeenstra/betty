@@ -183,23 +183,13 @@ class App(Configurable[AppConfiguration]):
 
     def __init__(
         self,
-        configuration: AppConfiguration | None = None,
+        configuration: AppConfiguration,
+        cache_directory_path: Path,
         project: Project | None = None,
-        cache_directory_path: Path | None = None,
     ):
         super().__init__()
         self._started = False
-        if configuration is None:
-            deprecate(
-                f"Initializing {type(self)} without `configuration` is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x.",
-                stacklevel=2,
-            )
-        if cache_directory_path is None:
-            deprecate(
-                f"Initializing {type(self)} without `cache_directory_path` is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x.",
-                stacklevel=2,
-            )
-        self._configuration = configuration or AppConfiguration()
+        self._configuration = configuration
         self._configuration.on_change(self._on_locale_change)
         self._assets: FileSystem | None = None
         self._extensions = _AppExtensions()
@@ -221,11 +211,7 @@ class App(Configurable[AppConfiguration]):
         self._renderer: Renderer | None = None
         self._http_client: aiohttp.ClientSession | None = None
         self._fetcher: Fetcher | None = None
-        self._cache_directory_path = (
-            HOME_DIRECTORY_PATH / "cache"
-            if cache_directory_path is None
-            else cache_directory_path
-        )
+        self._cache_directory_path = cache_directory_path
         self._cache: Cache[Any] | None = None
         self._binary_file_cache: BinaryFileCache | None = None
         self._process_pool: Executor | None = None
@@ -242,8 +228,8 @@ class App(Configurable[AppConfiguration]):
         """
         yield cls(
             AppConfiguration(CONFIGURATION_DIRECTORY_PATH),
-            project,
             Path(environ.get("BETTY_CACHE_DIRECTORY", HOME_DIRECTORY_PATH / "cache")),
+            project,
         )
 
     @classmethod
@@ -259,8 +245,8 @@ class App(Configurable[AppConfiguration]):
         """
         yield cls(
             AppConfiguration(app.configuration._configuration_directory_path),
-            app.project if project is None else project,
             app._cache_directory_path,
+            app.project if project is None else project,
         )
 
     @classmethod
@@ -282,8 +268,8 @@ class App(Configurable[AppConfiguration]):
         ):
             yield cls(
                 AppConfiguration(Path(configuration_directory_path_str)),
+                Path(cache_directory_path_str),
                 project,
-                cache_directory_path=Path(cache_directory_path_str),
             )
 
     async def __aenter__(self) -> Self:
