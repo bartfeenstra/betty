@@ -151,20 +151,10 @@ class AppConfiguration(FileBasedConfiguration):
         self._dispatch_change()
 
     @override
-    @classmethod
-    def load(
-        cls,
-        dump: Dump,
-        configuration: Self | None = None,
-    ) -> Self:
-        if configuration is None:
-            configuration = cls()
+    def load(self, dump: Dump) -> None:
         assert_record(
-            OptionalField(
-                "locale", assert_str() | assert_setattr(configuration, "locale")
-            )
+            OptionalField("locale", assert_str() | assert_setattr(self, "locale"))
         )(dump)
-        return configuration
 
     @override
     def dump(self) -> VoidableDump:

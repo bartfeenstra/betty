@@ -42,21 +42,13 @@ class WikipediaConfiguration(Configuration):
         self._dispatch_change()
 
     @override
-    @classmethod
-    def load(
-        cls,
-        dump: Dump,
-        configuration: Self | None = None,
-    ) -> Self:
-        if configuration is None:
-            configuration = cls()
+    def load(self, dump: Dump) -> None:
         assert_record(
             OptionalField(
                 "populate_images",
-                assert_bool() | assert_setattr(configuration, "populate_images"),
+                assert_bool() | assert_setattr(self, "populate_images"),
             )
         )(dump)
-        return configuration
 
     @override
     def dump(self) -> VoidableDump:

@@ -59,7 +59,7 @@ class _ColorConfiguration(Configuration):
         self._hex: str
         self.hex = hex_value
 
-    def _validate_hex(self, hex_value: str) -> str:
+    def _assert_hex(self, hex_value: str) -> str:
         if not self._HEX_PATTERN.match(hex_value):
             raise AssertionFailed(
                 Str._(
@@ -75,13 +75,7 @@ class _ColorConfiguration(Configuration):
 
     @hex.setter
     def hex(self, hex_value: str) -> None:
-        if not self._HEX_PATTERN.match(hex_value):
-            raise AssertionFailed(
-                Str._(
-                    '"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.',
-                    hex_value=hex_value,
-                )
-            )
+        self._assert_hex(hex_value)
         self._hex = hex_value
         self._dispatch_change()
 
@@ -90,18 +84,8 @@ class _ColorConfiguration(Configuration):
         self.hex = other.hex
 
     @override
-    @classmethod
-    def load(
-        cls,
-        dump: Dump,
-        configuration: Self | None = None,
-    ) -> Self:
-        hex_value = assert_str()(dump)
-        if configuration is None:
-            configuration = cls(hex_value)
-        else:
-            configuration.hex = hex_value
-        return configuration
+    def load(self, dump: Dump) -> None:
+        self._hex = (assert_str() | self._assert_hex)(dump)
 
     @override
     def dump(self) -> VoidableDump:
@@ -193,50 +177,15 @@ class CottonCandyConfiguration(Configuration):
         self._dispatch_change()
 
     @override
-    @classmethod
-    def load(
-        cls,
-        dump: Dump,
-        configuration: Self | None = None,
-    ) -> Self:
-        if configuration is None:
-            configuration = cls()
+    def load(self, dump: Dump) -> None:
         assert_record(
-            OptionalField(
-                "featured_entities",
-                configuration._featured_entities.assert_load(
-                    configuration._featured_entities
-                ),
-            ),
-            OptionalField(
-                "primary_inactive_color",
-                configuration._primary_inactive_color.assert_load(
-                    configuration._primary_inactive_color
-                ),
-            ),
-            OptionalField(
-                "primary_active_color",
-                configuration._primary_active_color.assert_load(
-                    configuration._primary_active_color
-                ),
-            ),
-            OptionalField(
-                "link_inactive_color",
-                configuration._link_inactive_color.assert_load(
-                    configuration._link_inactive_color
-                ),
-            ),
-            OptionalField(
-                "link_active_color",
-                configuration._link_active_color.assert_load(
-                    configuration._link_active_color
-                ),
-            ),
-            OptionalField(
-                "logo", assert_path() | assert_setattr(configuration, "logo")
-            ),
+            OptionalField("featured_entities", self.featured_entities.load),
+            OptionalField("primary_inactive_color", self.primary_inactive_color.load),
+            OptionalField("primary_active_color", self.primary_active_color.load),
+            OptionalField("link_inactive_color", self.link_inactive_color.load),
+            OptionalField("link_active_color", self.link_active_color.load),
+            OptionalField("logo", assert_path() | assert_setattr(self, "logo")),
         )(dump)
-        return configuration
 
     @override
     def dump(self) -> VoidableDump:

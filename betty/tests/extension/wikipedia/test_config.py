@@ -34,7 +34,8 @@ class TestWikipediaConfiguration:
         dump: Dump = {
             "populate_images": populate_images,
         }
-        sut = WikipediaConfiguration.load(dump)
+        sut = WikipediaConfiguration()
+        sut.load(dump)
         assert sut.populate_images == populate_images
 
     async def test_dump_with_minimal_configuration(self) -> None:
