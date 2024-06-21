@@ -26,7 +26,6 @@ from betty.locale import DateRange, Datey, Date, Str, Localizer
 from betty.media_type import MediaType, InvalidMediaType
 from betty.model import Entity, EntityGraphBuilder, AliasedEntity, AliasableEntity
 from betty.model.ancestry import (
-    Ancestry,
     Note,
     File,
     Source,
@@ -79,10 +78,9 @@ from betty.model.event_type import (
     Conference,
 )
 from betty.path import rootname
-from betty.project import Project
-from betty.warnings import deprecate
 
 if TYPE_CHECKING:
+    from betty.project import Project
     from collections.abc import MutableMapping, Mapping
 
 
@@ -143,21 +141,12 @@ class GrampsLoader:
 
     def __init__(
         self,
-        project_or_ancestry: Project | Ancestry,
+        project: Project,
         *,
         localizer: Localizer,
     ):
         super().__init__()
-        if isinstance(project_or_ancestry, Ancestry):
-            deprecate(
-                f"Initializing {type(self)} with {Ancestry} is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. Instead, provide {Project}.",
-                stacklevel=2,
-            )
-            self._ancestry = project_or_ancestry
-            self._project = None
-        else:
-            self._ancestry = project_or_ancestry.ancestry
-            self._project = project_or_ancestry
+        self._project = project
         self._ancestry_builder = EntityGraphBuilder()
         self._added_entity_counts: dict[type[Entity], int] = defaultdict(lambda: 0)
         self._tree: ElementTree.ElementTree | None = None
@@ -345,7 +334,7 @@ class GrampsLoader:
 
         self._load_families(database)
 
-        self._ancestry.add_unchecked_graph(*self._ancestry_builder.build())
+        self._project.ancestry.add_unchecked_graph(*self._ancestry_builder.build())
 
     def add_entity(self, entity: AliasableEntity[Entity]) -> None:
         """
@@ -1096,7 +1085,7 @@ class GrampsLoader:
     ) -> Mapping[str, str]:
         prefixes = ["betty"]
         hash(element)
-        if self._project is not None and self._project.configuration.name is not None:
+        if self._project.configuration.name is not None:
             prefixes.append(f"betty-{self._project.configuration.name}")
         attributes: MutableMapping[str, str] = {}
         for prefix in prefixes:
