@@ -4,7 +4,7 @@ Provide Betty's default Jinja2 tests.
 
 from __future__ import annotations
 
-from typing import Any, TypeVar
+from typing import Any
 
 from betty.json.linked_data import LinkedDataDumpable
 from betty.locale import DateRange
@@ -19,8 +19,6 @@ from betty.model.ancestry import (
     Event,
 )
 from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
-
-T = TypeVar("T")
 
 
 def test_linked_data_dumpable(value: Any) -> bool:

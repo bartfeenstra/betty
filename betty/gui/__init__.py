@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pickle
 from contextlib import asynccontextmanager
-from typing import Any, TypeVar, Self, TYPE_CHECKING
+from typing import Any, Self, TYPE_CHECKING
 
 from PyQt6.QtCore import pyqtSlot, QObject, QCoreApplication
 from PyQt6.QtGui import QPalette
@@ -18,8 +18,6 @@ from betty.serde.format import FormatRepository
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
-
-QWidgetT = TypeVar("QWidgetT", bound=QWidget)
 
 
 def get_configuration_file_filter() -> Localizable:

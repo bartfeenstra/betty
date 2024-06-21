@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Iterable, Generic, TYPE_CHECKING
+from typing import Iterable, Generic, TYPE_CHECKING, TypeVar
 
 import pytest
 
@@ -12,13 +12,16 @@ from betty.config import (
     Configuration,
     ConfigurationCollection,
     ConfigurationSequence,
-    ConfigurationKeyT,
-    ConfigurationT,
+    ConfigurationKey,
 )
 from betty.serde.load import FormatError, Asserter
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, VoidableDump
+
+
+_ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
+_ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
 
 
 class TestFileBasedConfiguration:
@@ -32,30 +35,30 @@ class TestFileBasedConfiguration:
 
 
 class ConfigurationCollectionTestConfiguration(
-    Configuration, Generic[ConfigurationKeyT]
+    Configuration, Generic[_ConfigurationKeyT]
 ):
-    def __init__(self, configuration_key: ConfigurationKeyT, configuration_value: int):
+    def __init__(self, configuration_key: _ConfigurationKeyT, configuration_value: int):
         super().__init__()
         self.key = configuration_key
         self.value = configuration_value
 
 
-class ConfigurationCollectionTestBase(Generic[ConfigurationKeyT, ConfigurationT]):
+class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _ConfigurationT]):
     def get_sut(
-        self, configurations: Iterable[ConfigurationT] | None = None
-    ) -> ConfigurationCollection[ConfigurationKeyT, ConfigurationT]:
+        self, configurations: Iterable[_ConfigurationT] | None = None
+    ) -> ConfigurationCollection[_ConfigurationKeyT, _ConfigurationT]:
         raise NotImplementedError(repr(self))
 
     def get_configuration_keys(
         self,
     ) -> tuple[
-        ConfigurationKeyT, ConfigurationKeyT, ConfigurationKeyT, ConfigurationKeyT
+        _ConfigurationKeyT, _ConfigurationKeyT, _ConfigurationKeyT, _ConfigurationKeyT
     ]:
         raise NotImplementedError(repr(self))
 
     def get_configurations(
         self,
-    ) -> tuple[ConfigurationT, ConfigurationT, ConfigurationT, ConfigurationT]:
+    ) -> tuple[_ConfigurationT, _ConfigurationT, _ConfigurationT, _ConfigurationT]:
         raise NotImplementedError(repr(self))
 
     async def test_getitem(self) -> None:
@@ -200,7 +203,7 @@ class ConfigurationCollectionTestBase(Generic[ConfigurationKeyT, ConfigurationT]
 
 
 class ConfigurationSequenceTestBase(
-    Generic[ConfigurationT], ConfigurationCollectionTestBase[int, ConfigurationT]
+    Generic[_ConfigurationT], ConfigurationCollectionTestBase[int, _ConfigurationT]
 ):
     def get_configuration_keys(self) -> tuple[int, int, int, int]:
         return 0, 1, 2, 3
@@ -260,8 +263,8 @@ class TestConfigurationSequence(
 
 
 class ConfigurationMappingTestBase(
-    Generic[ConfigurationKeyT, ConfigurationT],
-    ConfigurationCollectionTestBase[ConfigurationKeyT, ConfigurationT],
+    Generic[_ConfigurationKeyT, _ConfigurationT],
+    ConfigurationCollectionTestBase[_ConfigurationKeyT, _ConfigurationT],
 ):
     async def test_iter(self) -> None:
         configurations = self.get_configurations()

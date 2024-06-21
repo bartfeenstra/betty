@@ -13,12 +13,13 @@ from typing_extensions import TypeVar
 if typing_extensions.TYPE_CHECKING:
     from pathlib import Path
 
-CacheItemValueT = TypeVar("CacheItemValueT")
-CacheItemValueCoT = TypeVar("CacheItemValueCoT", covariant=True)
-CacheItemValueContraT = TypeVar("CacheItemValueContraT", contravariant=True)
+
+_CacheItemValueT = TypeVar("_CacheItemValueT")
+_CacheItemValueCoT = TypeVar("_CacheItemValueCoT", covariant=True)
+_CacheItemValueContraT = TypeVar("_CacheItemValueContraT", contravariant=True)
 
 
-class CacheItem(Generic[CacheItemValueCoT]):
+class CacheItem(Generic[_CacheItemValueCoT]):
     """
     A cache item.
     """
@@ -30,17 +31,17 @@ class CacheItem(Generic[CacheItemValueCoT]):
         """
         raise NotImplementedError
 
-    async def value(self) -> CacheItemValueCoT:
+    async def value(self) -> _CacheItemValueCoT:
         """
         Get this cache item's value.
         """
         raise NotImplementedError
 
 
-CacheItemValueSetter: TypeAlias = Callable[[CacheItemValueT], Awaitable[None]]
+CacheItemValueSetter: TypeAlias = Callable[[_CacheItemValueT], Awaitable[None]]
 
 
-class Cache(Generic[CacheItemValueContraT]):
+class Cache(Generic[_CacheItemValueContraT]):
     """
     Provide a cache.
 
@@ -55,7 +56,7 @@ class Cache(Generic[CacheItemValueContraT]):
 
     def get(
         self, cache_item_id: str
-    ) -> AsyncContextManager[CacheItem[CacheItemValueContraT] | None]:
+    ) -> AsyncContextManager[CacheItem[_CacheItemValueContraT] | None]:
         """
         Get the cache item with the given ID.
         """
@@ -64,7 +65,7 @@ class Cache(Generic[CacheItemValueContraT]):
     async def set(
         self,
         cache_item_id: str,
-        value: CacheItemValueContraT,
+        value: _CacheItemValueContraT,
         *,
         modified: int | float | None = None,
     ) -> None:
@@ -78,8 +79,8 @@ class Cache(Generic[CacheItemValueContraT]):
         self, cache_item_id: str
     ) -> AsyncContextManager[
         tuple[
-            CacheItem[CacheItemValueContraT] | None,
-            CacheItemValueSetter[CacheItemValueContraT],
+            CacheItem[_CacheItemValueContraT] | None,
+            CacheItemValueSetter[_CacheItemValueContraT],
         ]
     ]:
         pass
@@ -89,8 +90,8 @@ class Cache(Generic[CacheItemValueContraT]):
         self, cache_item_id: str, *, wait: Literal[False] = False
     ) -> AsyncContextManager[
         tuple[
-            CacheItem[CacheItemValueContraT] | None,
-            CacheItemValueSetter[CacheItemValueContraT] | None,
+            CacheItem[_CacheItemValueContraT] | None,
+            CacheItemValueSetter[_CacheItemValueContraT] | None,
         ]
     ]:
         pass
@@ -99,8 +100,8 @@ class Cache(Generic[CacheItemValueContraT]):
         self, cache_item_id: str, *, wait: bool = True
     ) -> AsyncContextManager[
         tuple[
-            CacheItem[CacheItemValueContraT] | None,
-            CacheItemValueSetter[CacheItemValueContraT] | None,
+            CacheItem[_CacheItemValueContraT] | None,
+            CacheItemValueSetter[_CacheItemValueContraT] | None,
         ]
     ]:
         """

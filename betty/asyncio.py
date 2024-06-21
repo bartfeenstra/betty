@@ -11,16 +11,14 @@ from typing import (
     TypeVar,
     Generic,
     cast,
-    ParamSpec,
     Coroutine,
     Any,
 )
 
-P = ParamSpec("P")
-T = TypeVar("T")
+_T = TypeVar("_T")
 
 
-async def gather(*coroutines: Coroutine[Any, None, T]) -> tuple[T, ...]:
+async def gather(*coroutines: Coroutine[Any, None, _T]) -> tuple[_T, ...]:
     """
     Gather multiple coroutines.
 
@@ -33,7 +31,7 @@ async def gather(*coroutines: Coroutine[Any, None, T]) -> tuple[T, ...]:
     return tuple(task.result() for task in tasks)
 
 
-def wait_to_thread(f: Awaitable[T]) -> T:
+def wait_to_thread(f: Awaitable[_T]) -> _T:
     """
     Wait for an awaitable in another thread.
     """
@@ -43,18 +41,18 @@ def wait_to_thread(f: Awaitable[T]) -> T:
     return synced.return_value
 
 
-class _WaiterThread(Thread, Generic[T]):
-    def __init__(self, awaitable: Awaitable[T]):
+class _WaiterThread(Thread, Generic[_T]):
+    def __init__(self, awaitable: Awaitable[_T]):
         super().__init__()
         self._awaitable = awaitable
-        self._return_value: T | None = None
+        self._return_value: _T | None = None
         self._e: BaseException | None = None
 
     @property
-    def return_value(self) -> T:
+    def return_value(self) -> _T:
         if self._e:
             raise self._e
-        return cast(T, self._return_value)
+        return cast(_T, self._return_value)
 
     def run(self) -> None:
         run(self._run())

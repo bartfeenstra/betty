@@ -27,8 +27,7 @@ from betty.warnings import deprecated
 if TYPE_CHECKING:
     from collections.abc import MutableSequence
 
-T = TypeVar("T")
-U = TypeVar("U")
+_T = TypeVar("_T")
 
 
 @deprecated(
@@ -79,10 +78,10 @@ def slice_to_range(indices: slice, iterable: Sized) -> Iterable[int]:
 
 
 def filter_suppress(
-    raising_filter: Callable[[T], Any],
+    raising_filter: Callable[[_T], Any],
     exception_type: type[BaseException],
-    items: Iterable[T],
-) -> Iterator[T]:
+    items: Iterable[_T],
+) -> Iterator[_T]:
     """
     Filter values, skipping those for which the application of `raising_filter` raises errors.
     """
@@ -157,7 +156,7 @@ class Do(Generic[_DoFP, _DoFReturnT]):
                 return do_result
 
 
-class Uniquifier(Generic[T]):
+class Uniquifier(Generic[_T]):
     """
     Yield the first occurrences of values in a sequence.
 
@@ -167,14 +166,14 @@ class Uniquifier(Generic[T]):
     than :py:class:`set`.
     """
 
-    def __init__(self, *values: Iterable[T]):
+    def __init__(self, *values: Iterable[_T]):
         self._values = chain(*values)
-        self._seen: MutableSequence[T] = []
+        self._seen: MutableSequence[_T] = []
 
-    def __iter__(self) -> Iterator[T]:
+    def __iter__(self) -> Iterator[_T]:
         return self
 
-    def __next__(self) -> T:
+    def __next__(self) -> _T:
         value = next(self._values)
         if value in self._seen:
             return next(self)

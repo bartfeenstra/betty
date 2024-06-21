@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from contextlib import suppress
 from reprlib import recursive_repr
-from typing import Any, Generic, final, Iterable, cast, Self, TYPE_CHECKING
+from typing import Any, Generic, final, Iterable, cast, Self, TYPE_CHECKING, TypeVar
 from urllib.parse import urlparse
 
 from typing_extensions import override
@@ -26,7 +26,7 @@ from betty.config import (
 )
 from betty.hashid import hashid
 from betty.locale import get_data, Str
-from betty.model import Entity, get_entity_type_name, UserFacingEntity, EntityT
+from betty.model import Entity, get_entity_type_name, UserFacingEntity
 from betty.model.ancestry import Ancestry, Person, Event, Place, Source
 from betty.serde.dump import (
     Dump,
@@ -49,18 +49,22 @@ from betty.serde.load import (
 if TYPE_CHECKING:
     from pathlib import Path
 
+
+_EntityT = TypeVar("_EntityT", bound=Entity)
+
+
 #: The default age by which people are presumed dead.
 DEFAULT_LIFETIME_THRESHOLD = 125
 
 
-class EntityReference(Configuration, Generic[EntityT]):
+class EntityReference(Configuration, Generic[_EntityT]):
     """
     Configuration that references an entity from the project's ancestry.
     """
 
     def __init__(
         self,
-        entity_type: type[EntityT] | None = None,
+        entity_type: type[_EntityT] | None = None,
         entity_id: str | None = None,
         *,
         entity_type_is_constrained: bool = False,
@@ -71,14 +75,14 @@ class EntityReference(Configuration, Generic[EntityT]):
         self._entity_type_is_constrained = entity_type_is_constrained
 
     @property
-    def entity_type(self) -> type[EntityT] | None:
+    def entity_type(self) -> type[_EntityT] | None:
         """
         The referenced entity's type.
         """
         return self._entity_type
 
     @entity_type.setter
-    def entity_type(self, entity_type: type[EntityT]) -> None:
+    def entity_type(self, entity_type: type[_EntityT]) -> None:
         if self._entity_type_is_constrained:
             raise AttributeError(
                 f"The entity type cannot be set, as it is already constrained to {self._entity_type}."
@@ -173,7 +177,7 @@ class EntityReference(Configuration, Generic[EntityT]):
 
 
 class EntityReferenceSequence(
-    Generic[EntityT], ConfigurationSequence[EntityReference[EntityT]]
+    Generic[_EntityT], ConfigurationSequence[EntityReference[_EntityT]]
 ):
     """
     Configuration for a sequence of references to entities from the project's ancestry.
@@ -181,20 +185,20 @@ class EntityReferenceSequence(
 
     def __init__(
         self,
-        entity_references: Iterable[EntityReference[EntityT]] | None = None,
+        entity_references: Iterable[EntityReference[_EntityT]] | None = None,
         *,
-        entity_type_constraint: type[EntityT] | None = None,
+        entity_type_constraint: type[_EntityT] | None = None,
     ):
         self._entity_type_constraint = entity_type_constraint
         super().__init__(entity_references)
 
     @override
     @classmethod
-    def _item_type(cls) -> type[EntityReference[EntityT]]:
+    def _item_type(cls) -> type[EntityReference[_EntityT]]:
         return EntityReference
 
     @override
-    def _on_add(self, configuration: EntityReference[EntityT]) -> None:
+    def _on_add(self, configuration: EntityReference[_EntityT]) -> None:
         super()._on_add(configuration)
 
         entity_type_constraint = self._entity_type_constraint

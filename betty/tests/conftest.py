@@ -81,8 +81,8 @@ async def new_temporary_app() -> AsyncIterator[App]:
         yield app
 
 
-QObjectT = TypeVar("QObjectT", bound=QObject)
-QMainWindowT = TypeVar("QMainWindowT", bound=QMainWindow)
+_QObjectT = TypeVar("_QObjectT", bound=QObject)
+_QMainWindowT = TypeVar("_QMainWindowT", bound=QMainWindow)
 
 
 class BettyQtBot:
@@ -132,8 +132,8 @@ class BettyQtBot:
             self.navigate(item, attributes)
 
     def assert_window(
-        self, window_type: type[QMainWindowT] | QMainWindowT
-    ) -> QMainWindowT:
+        self, window_type: type[_QMainWindowT] | _QMainWindowT
+    ) -> _QMainWindowT:
         """
         Assert that a window is shown.
         """
@@ -157,7 +157,7 @@ class BettyQtBot:
         window = windows[0]
         if isinstance(window, QMainWindow):
             self.qtbot.addWidget(window)
-        return cast(QMainWindowT, window)
+        return cast(_QMainWindowT, window)
 
     def assert_not_window(self, window_type: type[QMainWindow] | QMainWindow) -> None:
         """

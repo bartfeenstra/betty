@@ -1,21 +1,24 @@
 from asyncio import create_task, sleep
 from collections.abc import Iterator
-from typing import Sequence, AsyncContextManager, Generic
+from typing import Sequence, AsyncContextManager, Generic, TypeVar
 
 import pytest
 
-from betty.cache import Cache, CacheItemValueT
+from betty.cache import Cache
 
 
-class CacheTestBase(Generic[CacheItemValueT]):
+_CacheItemValueT = TypeVar("_CacheItemValueT")
+
+
+class CacheTestBase(Generic[_CacheItemValueT]):
     def _new_sut(
         self,
         *,
         scopes: Sequence[str] | None = None,
-    ) -> AsyncContextManager[Cache[CacheItemValueT]]:
+    ) -> AsyncContextManager[Cache[_CacheItemValueT]]:
         raise NotImplementedError
 
-    def _values(self) -> Iterator[CacheItemValueT]:
+    def _values(self) -> Iterator[_CacheItemValueT]:
         raise NotImplementedError
 
     async def test_with_scope(self) -> None:

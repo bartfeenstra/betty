@@ -13,7 +13,6 @@ from functools import wraps
 from pathlib import Path
 from typing import (
     Callable,
-    TypeVar,
     cast,
     Iterator,
     Awaitable,
@@ -38,8 +37,8 @@ from betty.serve import BuiltinAppServer
 if TYPE_CHECKING:
     from PyQt6.QtWidgets import QMainWindow
 
-T = TypeVar("T")
-P = ParamSpec("P")
+
+_P = ParamSpec("_P")
 
 
 class CommandProvider:
@@ -74,14 +73,14 @@ def catch_exceptions() -> Iterator[None]:
         sys.exit(1)
 
 
-def global_command(f: Callable[P, Awaitable[None]]) -> Callable[P, None]:
+def global_command(f: Callable[_P, Awaitable[None]]) -> Callable[_P, None]:
     """
     Decorate a command to be global.
     """
 
     @wraps(f)
     @catch_exceptions()
-    def _command(*args: P.args, **kwargs: P.kwargs) -> None:
+    def _command(*args: _P.args, **kwargs: _P.kwargs) -> None:
         # Use a wrapper, because the decorator uses Awaitable, but asyncio.run requires Coroutine.
         async def __command():
             await f(*args, **kwargs)
@@ -91,14 +90,16 @@ def global_command(f: Callable[P, Awaitable[None]]) -> Callable[P, None]:
     return _command
 
 
-def app_command(f: Callable[Concatenate[App, P], Awaitable[None]]) -> Callable[P, None]:
+def app_command(
+    f: Callable[Concatenate[App, _P], Awaitable[None]],
+) -> Callable[_P, None]:
     """
     Decorate a command to receive the currently running :py:class:`betty.app.App` as its first argument.
     """
 
     @wraps(f)
     @catch_exceptions()
-    def _command(*args: P.args, **kwargs: P.kwargs) -> None:
+    def _command(*args: _P.args, **kwargs: _P.kwargs) -> None:
         # Use a wrapper, because the decorator uses Awaitable, but asyncio.run requires Coroutine.
         app = get_current_context().obj["app"]
 

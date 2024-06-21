@@ -6,7 +6,7 @@ import pytest
 from betty.functools import walk, slice_to_range, Do, Uniquifier
 from betty.warnings import BettyDeprecationWarning
 
-T = TypeVar("T")
+_T = TypeVar("_T")
 
 
 class TestWalk:
@@ -187,6 +187,6 @@ class TestUniquifier:
             (["one", "two"], [["one"], ["one", "two", "one"]]),
         ],
     )
-    async def test(self, expected: list[T], values: Iterable[Iterable[T]]) -> None:
+    async def test(self, expected: list[_T], values: Iterable[Iterable[_T]]) -> None:
         sut = Uniquifier(*values)
         assert list(sut) == expected

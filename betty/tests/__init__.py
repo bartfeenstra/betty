@@ -31,20 +31,20 @@ if TYPE_CHECKING:
     from betty.locale import Localey
     from jinja2.environment import Template
 
-T = TypeVar("T")
-P = ParamSpec("P")
+_T = TypeVar("_T")
+_P = ParamSpec("_P")
 
 
 @deprecated(
     "The `@patch_cache` decorator is deprecated as of Betty 0.3.3, and will be removed in Bety 0.4.x. Use the `binary_file_cache` fixture instead."
 )
-def patch_cache(f: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
+def patch_cache(f: Callable[_P, Awaitable[_T]]) -> Callable[_P, Awaitable[_T]]:
     """
     Patch Betty's default global file cache with a temporary directory.
     """
 
     @functools.wraps(f)
-    async def _patch_cache(*args: P.args, **kwargs: P.kwargs) -> T:
+    async def _patch_cache(*args: _P.args, **kwargs: _P.kwargs) -> _T:
         original_cache_directory_path = fs.CACHE_DIRECTORY_PATH
         async with TemporaryDirectory() as cache_directory:
             fs.CACHE_DIRECTORY_PATH = Path(cache_directory)

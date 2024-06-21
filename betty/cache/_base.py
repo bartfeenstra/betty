@@ -3,34 +3,36 @@ from collections import defaultdict
 from collections.abc import Sequence, MutableMapping, AsyncIterator
 from contextlib import asynccontextmanager
 from datetime import datetime
-from typing import Generic, Self, overload, AsyncContextManager, Literal
+from typing import Generic, Self, overload, AsyncContextManager, Literal, TypeVar
 
 from typing_extensions import override
 
 from betty.cache import (
-    CacheItemValueCoT,
     Cache,
     CacheItem,
-    CacheItemValueContraT,
     CacheItemValueSetter,
 )
 from betty.concurrent import _Lock, AsynchronizedLock, MultiLock
 from betty.locale import Localizer
 
 
-class _StaticCacheItem(CacheItem[CacheItemValueCoT], Generic[CacheItemValueCoT]):
+_CacheItemValueCoT = TypeVar("_CacheItemValueCoT", covariant=True)
+_CacheItemValueContraT = TypeVar("_CacheItemValueContraT", contravariant=True)
+
+
+class _StaticCacheItem(CacheItem[_CacheItemValueCoT], Generic[_CacheItemValueCoT]):
     __slots__ = "_value", "_modified"
 
     def __init__(
         self,
-        value: CacheItemValueCoT,
+        value: _CacheItemValueCoT,
         modified: int | float | None = None,
     ):
         self._value = value
         self._modified = datetime.now().timestamp() if modified is None else modified
 
     @override
-    async def value(self) -> CacheItemValueCoT:
+    async def value(self) -> _CacheItemValueCoT:
         return self._value
 
     @override
@@ -39,7 +41,7 @@ class _StaticCacheItem(CacheItem[CacheItemValueCoT], Generic[CacheItemValueCoT])
         return self._modified
 
 
-class _CommonCacheBase(Cache[CacheItemValueContraT], Generic[CacheItemValueContraT]):
+class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueContraT]):
     def __init__(
         self,
         localizer: Localizer,
@@ -73,18 +75,20 @@ class _CommonCacheBase(Cache[CacheItemValueContraT], Generic[CacheItemValueContr
     @asynccontextmanager
     async def get(
         self, cache_item_id: str
-    ) -> AsyncIterator[CacheItem[CacheItemValueContraT] | None]:
+    ) -> AsyncIterator[CacheItem[_CacheItemValueContraT] | None]:
         async with await self._lock(cache_item_id):
             yield await self._get(cache_item_id)
 
-    async def _get(self, cache_item_id: str) -> CacheItem[CacheItemValueContraT] | None:
+    async def _get(
+        self, cache_item_id: str
+    ) -> CacheItem[_CacheItemValueContraT] | None:
         raise NotImplementedError
 
     @override
     async def set(
         self,
         cache_item_id: str,
-        value: CacheItemValueContraT,
+        value: _CacheItemValueContraT,
         *,
         modified: int | float | None = None,
     ) -> None:
@@ -94,7 +98,7 @@ class _CommonCacheBase(Cache[CacheItemValueContraT], Generic[CacheItemValueContr
     async def _set(
         self,
         cache_item_id: str,
-        value: CacheItemValueContraT,
+        value: _CacheItemValueContraT,
         *,
         modified: int | float | None = None,
     ) -> None:
@@ -105,8 +109,8 @@ class _CommonCacheBase(Cache[CacheItemValueContraT], Generic[CacheItemValueContr
         self, cache_item_id: str
     ) -> AsyncContextManager[
         tuple[
-            CacheItem[CacheItemValueContraT] | None,
-            CacheItemValueSetter[CacheItemValueContraT],
+            CacheItem[_CacheItemValueContraT] | None,
+            CacheItemValueSetter[_CacheItemValueContraT],
         ]
     ]:
         pass  # pragma: no cover
@@ -116,8 +120,8 @@ class _CommonCacheBase(Cache[CacheItemValueContraT], Generic[CacheItemValueContr
         self, cache_item_id: str, *, wait: Literal[False] = False
     ) -> AsyncContextManager[
         tuple[
-            CacheItem[CacheItemValueContraT] | None,
-            CacheItemValueSetter[CacheItemValueContraT] | None,
+            CacheItem[_CacheItemValueContraT] | None,
+            CacheItemValueSetter[_CacheItemValueContraT] | None,
         ]
     ]:
         pass  # pragma: no cover
@@ -127,15 +131,15 @@ class _CommonCacheBase(Cache[CacheItemValueContraT], Generic[CacheItemValueContr
         self, cache_item_id: str, *, wait: bool = True
     ) -> AsyncIterator[
         tuple[
-            CacheItem[CacheItemValueContraT] | None,
-            CacheItemValueSetter[CacheItemValueContraT] | None,
+            CacheItem[_CacheItemValueContraT] | None,
+            CacheItemValueSetter[_CacheItemValueContraT] | None,
         ]
     ]:
         lock = await self._lock(cache_item_id)
         if await lock.acquire(wait=wait):
             try:
 
-                async def _setter(value: CacheItemValueContraT) -> None:
+                async def _setter(value: _CacheItemValueContraT) -> None:
                     await self._set(cache_item_id, value)
 
                 yield await self._get(cache_item_id), _setter

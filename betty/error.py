@@ -9,10 +9,10 @@ from typing_extensions import override
 
 from betty.locale import Localizable, DEFAULT_LOCALIZER, Localizer
 
-BaseExceptionT = TypeVar("BaseExceptionT", bound=BaseException)
+_BaseExceptionT = TypeVar("_BaseExceptionT", bound=BaseException)
 
 
-def serialize(error: BaseExceptionT) -> BaseExceptionT:
+def serialize(error: _BaseExceptionT) -> _BaseExceptionT:
     """
     Serialize an exception.
 
