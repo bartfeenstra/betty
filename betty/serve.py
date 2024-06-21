@@ -11,7 +11,7 @@ import webbrowser
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 from io import StringIO
 from pathlib import Path
-from typing import Sequence, Any, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 from aiofiles.os import makedirs, symlink
 from aiofiles.tempfile import TemporaryDirectory, AiofilesContextManagerTempDir
@@ -153,37 +153,12 @@ class AppServer(Server):
         super().__init__(localizer=app.localizer)
         self._app = app
 
-    @staticmethod
-    def get(app: App) -> AppServer:
-        """
-        Get a web server for the given Betty application.
-        """
-        for server in app.servers.values():
-            if isinstance(server, AppServer):
-                return server
-        raise RuntimeError(
-            f"Cannot find a project server. This must never happen, because {BuiltinAppServer} should be the fallback."
-        )
-
     @override
     async def start(self) -> None:
         await makedirs(
             self._app.project.configuration.www_directory_path, exist_ok=True
         )
         await super().start()
-
-
-class ServerProvider:
-    """
-    Provide one or more web servers.
-    """
-
-    @property
-    def servers(self) -> Sequence[Server]:
-        """
-        Provide one or more web servers.
-        """
-        raise NotImplementedError(repr(self))
 
 
 class _BuiltinServerRequestHandler(SimpleHTTPRequestHandler):
