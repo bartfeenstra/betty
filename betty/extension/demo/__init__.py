@@ -37,7 +37,6 @@ from betty.project import (
     Project,
 )
 from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
-from betty.warnings import deprecate
 
 if TYPE_CHECKING:
     from betty.model import Entity
@@ -508,18 +507,12 @@ class DemoServer(Server):
 
     def __init__(
         self,
-        *,
-        app: App | None = None,
+        app: App,
     ):
         super().__init__(localizer=DEFAULT_LOCALIZER)
         self._app = app
         self._server: Server | None = None
         self._exit_stack = AsyncExitStack()
-        if app is None:
-            deprecate(
-                f"Initializing {type(self)} with a project ID is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. Instead, set {type(self)}.configuration.name.",
-                stacklevel=2,
-            )
 
     @override
     @classmethod
@@ -539,15 +532,10 @@ class DemoServer(Server):
 
         await super().start()
         project = Demo.project()
-        if self._app is None:
-            isolated_app_factory = App.new_from_environment(
-                project=project,
-            )
-        else:
-            isolated_app_factory = App.new_from_app(
-                self._app,
-                project=project,
-            )
+        isolated_app_factory = App.new_from_app(
+            self._app,
+            project=project,
+        )
         try:
             isolated_app = await self._exit_stack.enter_async_context(
                 isolated_app_factory
