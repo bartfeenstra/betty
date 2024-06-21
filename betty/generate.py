@@ -43,23 +43,12 @@ from betty.string import (
     camel_case_to_snake_case,
     upper_camel_case_to_lower_camel_case,
 )
-from betty.warnings import deprecated
 
 if TYPE_CHECKING:
     from betty.app import App
     from betty.json.linked_data import LinkedDataDumpable
     from betty.serde.dump import DictDump, Dump
     from collections.abc import AsyncIterator
-
-
-@deprecated(
-    "This function is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. Instead, use `logging.logging.getLogger(__name__)`."
-)
-def getLogger() -> logging.Logger:
-    """
-    Get the site generation logger.
-    """
-    return logging.getLogger(__name__)
 
 
 class Generator:
