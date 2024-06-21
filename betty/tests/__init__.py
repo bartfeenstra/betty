@@ -2,59 +2,27 @@
 
 from __future__ import annotations
 
-import functools
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import (
     Callable,
-    TypeVar,
     Any,
     AsyncIterator,
-    Awaitable,
-    ParamSpec,
     TYPE_CHECKING,
 )
 
 import aiofiles
 import html5lib
-from aiofiles.tempfile import TemporaryDirectory
 from html5lib.html5parser import ParseError
 
-from betty import fs
 from betty.app import App
 from betty.app.extension import Extension
 from betty.jinja2 import Environment
 from betty.json.schema import Schema
-from betty.warnings import deprecated
 
 if TYPE_CHECKING:
     from betty.locale import Localey
     from jinja2.environment import Template
-
-_T = TypeVar("_T")
-_P = ParamSpec("_P")
-
-
-@deprecated(
-    "The `@patch_cache` decorator is deprecated as of Betty 0.3.3, and will be removed in Bety 0.4.x. Use the `binary_file_cache` fixture instead."
-)
-def patch_cache(f: Callable[_P, Awaitable[_T]]) -> Callable[_P, Awaitable[_T]]:
-    """
-    Patch Betty's default global file cache with a temporary directory.
-    """
-
-    @functools.wraps(f)
-    async def _patch_cache(*args: _P.args, **kwargs: _P.kwargs) -> _T:
-        original_cache_directory_path = fs.CACHE_DIRECTORY_PATH
-        async with TemporaryDirectory() as cache_directory:
-            fs.CACHE_DIRECTORY_PATH = Path(cache_directory)
-            try:
-                return await f(*args, **kwargs)
-
-            finally:
-                fs.CACHE_DIRECTORY_PATH = original_cache_directory_path
-
-    return _patch_cache
 
 
 class TemplateTestCase:
