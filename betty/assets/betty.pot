@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-06-02 00:21+0200\n"
+"POT-Creation-Date: 2024-06-21 17:59+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1029,9 +1029,6 @@ msgid "npm (https://www.npmjs.com/) must be available for features that require 
 msgstr ""
 
 msgid "private"
-msgstr ""
-
-msgid "private (in order to protect people's privacy)"
 msgstr ""
 
 msgctxt "enter-search-shortcut"
