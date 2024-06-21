@@ -28,7 +28,6 @@ from betty.app.extension import (
     ConfigurableExtension,
 )
 from betty.asyncio import wait_to_thread
-from betty.cache import Cache, FileCache
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.config import Configurable, FileBasedConfiguration
 from betty.fetch import Fetcher
@@ -72,6 +71,7 @@ from betty.serde.load import (
 from betty.warnings import deprecate
 
 if TYPE_CHECKING:
+    from betty.cache import Cache
     from betty.dispatch import Dispatcher
     from types import TracebackType
     from collections.abc import AsyncIterator
@@ -175,20 +175,6 @@ class AppConfiguration(FileBasedConfiguration):
         return minimize({"locale": void_none(self.locale)}, True)
 
 
-class _BackwardsCompatiblePickledFileCache(PickledFileCache[Any], FileCache):
-    """
-    Provide a Backwards Compatible cache.
-
-    .. deprecated:: 0.3.3
-       This class is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x.
-    """
-
-    @override
-    @property
-    def path(self) -> Path:
-        return self._path
-
-
 @final
 class App(Configurable[AppConfiguration]):
     """
@@ -240,7 +226,7 @@ class App(Configurable[AppConfiguration]):
             if cache_directory_path is None
             else cache_directory_path
         )
-        self._cache: Cache[Any] & FileCache | None = None
+        self._cache: Cache[Any] | None = None
         self._binary_file_cache: BinaryFileCache | None = None
         self._process_pool: Executor | None = None
 
@@ -660,12 +646,12 @@ class App(Configurable[AppConfiguration]):
         self._event_types = None
 
     @property
-    def cache(self) -> Cache[Any] & FileCache:
+    def cache(self) -> Cache[Any]:
         """
         The cache.
         """
         if self._cache is None:
-            self._cache = _BackwardsCompatiblePickledFileCache(
+            self._cache = PickledFileCache[Any](
                 self.localizer, self._cache_directory_path
             )
         return self._cache

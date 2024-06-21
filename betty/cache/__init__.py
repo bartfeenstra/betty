@@ -7,11 +7,7 @@ from __future__ import annotations
 from collections.abc import Awaitable, Callable
 from typing import Self, Generic, TypeAlias, AsyncContextManager, overload, Literal
 
-import typing_extensions
 from typing_extensions import TypeVar
-
-if typing_extensions.TYPE_CHECKING:
-    from pathlib import Path
 
 
 _CacheItemValueT = TypeVar("_CacheItemValueT")
@@ -125,15 +121,3 @@ class Cache(Generic[_CacheItemValueContraT]):
         Clear all items from the cache.
         """
         raise NotImplementedError
-
-
-@typing_extensions.deprecated(
-    f"This class is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x. It exists only for App.cache's backwards compatibility. Use {Cache} instead."
-)
-class FileCache:  # noqa D101
-    @property
-    def path(self) -> Path:  # type: ignore[empty-body]  # noqa D102
-        pass
-
-    async def clear(self) -> None:  # noqa D102
-        pass
