@@ -14,7 +14,7 @@ from betty.app import App
 from betty.app.extension import Extension
 from betty.extension.cotton_candy import CottonCandyConfiguration
 from betty.load import Loader
-from betty.locale import Date, DateRange, Str, DEFAULT_LOCALIZER
+from betty.locale import Date, DateRange, Str, DEFAULT_LOCALIZER, Localizable
 from betty.model.ancestry import (
     Place,
     PlaceName,
@@ -523,7 +523,7 @@ class DemoServer(Server):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Demo")
 
     @override

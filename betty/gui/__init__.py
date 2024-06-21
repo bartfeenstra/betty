@@ -13,7 +13,7 @@ from typing_extensions import override
 
 from betty.app import App
 from betty.gui.error import ExceptionError, _UnexpectedExceptionError
-from betty.locale import Str
+from betty.locale import Str, Localizable
 from betty.serde.format import FormatRepository
 
 if TYPE_CHECKING:
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 QWidgetT = TypeVar("QWidgetT", bound=QWidget)
 
 
-def get_configuration_file_filter() -> Str:
+def get_configuration_file_filter() -> Localizable:
     """
     Get the Qt file filter for project configuration files.
     """

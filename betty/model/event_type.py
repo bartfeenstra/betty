@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.locale import Str, DEFAULT_LOCALIZER
+from betty.locale import Str, DEFAULT_LOCALIZER, Localizable
 
 if TYPE_CHECKING:
     from betty.model.ancestry import Person
@@ -43,7 +43,7 @@ class EventType:
         raise NotImplementedError(repr(cls))
 
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         """
         Get the human-readable label.
         """
@@ -80,7 +80,7 @@ class UnknownEventType(EventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Unknown")  # pragma: no cover
 
 
@@ -179,7 +179,7 @@ class Birth(CreatableDerivableEventType, StartOfLifeEventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Birth")  # pragma: no cover
 
     @override
@@ -200,7 +200,7 @@ class Baptism(DuringLifeEventType, StartOfLifeEventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Baptism")  # pragma: no cover
 
 
@@ -216,7 +216,7 @@ class Adoption(DuringLifeEventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Adoption")  # pragma: no cover
 
 
@@ -232,7 +232,7 @@ class Death(CreatableDerivableEventType, EndOfLifeEventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Death")  # pragma: no cover
 
     @override
@@ -272,7 +272,7 @@ class Funeral(FinalDispositionEventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Funeral")  # pragma: no cover
 
 
@@ -288,7 +288,7 @@ class Cremation(FinalDispositionEventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Cremation")  # pragma: no cover
 
 
@@ -304,7 +304,7 @@ class Burial(FinalDispositionEventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Burial")  # pragma: no cover
 
 
@@ -320,7 +320,7 @@ class Will(PostDeathEventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Will")  # pragma: no cover
 
 
@@ -336,7 +336,7 @@ class Engagement(DuringLifeEventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Engagement")  # pragma: no cover
 
     @override
@@ -357,7 +357,7 @@ class Marriage(DuringLifeEventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Marriage")  # pragma: no cover
 
 
@@ -373,7 +373,7 @@ class MarriageAnnouncement(DuringLifeEventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Announcement of marriage")  # pragma: no cover
 
     @override
@@ -394,7 +394,7 @@ class Divorce(DuringLifeEventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Divorce")  # pragma: no cover
 
     @override
@@ -415,7 +415,7 @@ class DivorceAnnouncement(DuringLifeEventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Announcement of divorce")  # pragma: no cover
 
     @override
@@ -441,7 +441,7 @@ class Residence(DuringLifeEventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Residence")  # pragma: no cover
 
 
@@ -457,7 +457,7 @@ class Immigration(DuringLifeEventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Immigration")  # pragma: no cover
 
 
@@ -473,7 +473,7 @@ class Emigration(DuringLifeEventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Emigration")  # pragma: no cover
 
 
@@ -491,7 +491,7 @@ class Occupation(DuringLifeEventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Occupation")  # pragma: no cover
 
 
@@ -507,7 +507,7 @@ class Retirement(DuringLifeEventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Retirement")  # pragma: no cover
 
 
@@ -523,7 +523,7 @@ class Correspondence(EventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Correspondence")  # pragma: no cover
 
 
@@ -539,7 +539,7 @@ class Confirmation(DuringLifeEventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Confirmation")  # pragma: no cover
 
 
@@ -555,7 +555,7 @@ class Missing(DuringLifeEventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Missing")  # pragma: no cover
 
 
@@ -571,5 +571,5 @@ class Conference(DuringLifeEventType):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Conference")  # pragma: no cover

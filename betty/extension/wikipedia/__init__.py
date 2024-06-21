@@ -16,7 +16,7 @@ from betty.extension.wikipedia.gui import _WikipediaGuiWidget
 from betty.gui import GuiBuilder
 from betty.jinja2 import Jinja2Provider, context_localizer, Filters
 from betty.load import PostLoader
-from betty.locale import negotiate_locale, Str
+from betty.locale import negotiate_locale, Str, Localizable
 from betty.wikipedia import (
     Summary,
     _parse_url,
@@ -112,12 +112,12 @@ class Wikipedia(
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Wikipedia")
 
     @override
     @classmethod
-    def description(cls) -> Str:
+    def description(cls) -> Localizable:
         return Str._(
             """
 Display <a href="https://www.wikipedia.org/">Wikipedia</a> summaries for resources with external links. In your custom <a href="https://jinja2docs.readthedocs.io/en/stable/">Jinja2</a> templates, use the following: <pre><code>

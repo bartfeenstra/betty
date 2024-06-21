@@ -6,7 +6,7 @@ import pytest
 
 from betty.app.extension import Extension, ConfigurableExtension
 from betty.config import Configuration, Configurable
-from betty.locale import Str
+from betty.locale import Str, Localizable
 from betty.model import Entity, get_entity_type_name, UserFacingEntity
 from betty.project import (
     ExtensionConfiguration,
@@ -341,7 +341,7 @@ class TestLocaleConfigurationMapping(
 
 class _DummyExtension(Extension):
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Dummy")
 
 
@@ -351,7 +351,7 @@ class _DummyConfiguration(Configuration):
 
 class _DummyConfigurableExtension(Extension, Configurable[_DummyConfiguration]):
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Configurable dummy")
 
     @classmethod

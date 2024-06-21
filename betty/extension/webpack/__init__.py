@@ -25,7 +25,7 @@ from betty.generate import Generator, GenerationContext
 from betty.html import CssProvider
 from betty.jinja2 import Jinja2Provider, Filters, ContextVars
 from betty.job import Context
-from betty.locale import Str
+from betty.locale import Str, Localizable
 from betty.requirement import (
     Requirement,
     AllRequirements,
@@ -98,7 +98,7 @@ class PrebuiltAssetsRequirement(Requirement):
         return (fs.PREBUILT_ASSETS_DIRECTORY_PATH / "webpack").is_dir()
 
     @override
-    def summary(self) -> Str:
+    def summary(self) -> Localizable:
         return (
             Str._("Pre-built Webpack front-end assets are available")
             if self.is_met()

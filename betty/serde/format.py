@@ -30,7 +30,7 @@ class Format:
         raise NotImplementedError(repr(self))
 
     @property
-    def label(self) -> Str:
+    def label(self) -> Localizable:
         """
         The format's human-readable label.
         """
@@ -61,7 +61,7 @@ class Json(Format):
 
     @override
     @property
-    def label(self) -> Str:
+    def label(self) -> Localizable:
         return Str.plain("JSON")
 
     @override
@@ -93,7 +93,7 @@ class Yaml(Format):
 
     @override
     @property
-    def label(self) -> Str:
+    def label(self) -> Localizable:
         return Str.plain("YAML")
 
     @override

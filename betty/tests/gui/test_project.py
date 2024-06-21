@@ -21,7 +21,7 @@ from betty.gui.project import (
     LocalesConfigurationWidget,
 )
 from betty.gui.serve import ServeProjectWindow
-from betty.locale import get_display_name, Str
+from betty.locale import get_display_name, Str, Localizable
 from betty.model.ancestry import File
 from betty.project import (
     LocaleConfiguration,
@@ -36,17 +36,17 @@ class UnmetRequirement(Requirement):
     def is_met(self) -> bool:
         return False
 
-    def summary(self) -> Str:
+    def summary(self) -> Localizable:
         return Str.plain("I have never met this requirement!")
 
 
 class DummyUserFacingGuiBuilderExtension(UserFacingExtension, GuiBuilder):
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str.plain(cls.name())
 
     @classmethod
-    def description(cls) -> Str:
+    def description(cls) -> Localizable:
         return cls.label()
 
     def gui_build(self) -> QWidget:

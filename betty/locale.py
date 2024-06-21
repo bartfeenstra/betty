@@ -1096,16 +1096,20 @@ class Str(Localizable):
     Create new localizable strings.
     """
 
-    def _localize_format_kwargs(
-        self, localizer: Localizer, **format_kwargs: str | Localizable
+    @classmethod
+    def localize_format_kwargs(
+        cls, localizer: Localizer, **format_kwargs: str | Localizable
     ) -> dict[str, str]:
+        """
+        Localize string formatting keyword arguments.
+        """
         return {
             key: value.localize(localizer) if isinstance(value, Localizable) else value
             for key, value in format_kwargs.items()
         }
 
     @classmethod
-    def plain(cls, plain: Any, **format_kwargs: str | Localizable) -> Str:
+    def plain(cls, plain: Any, **format_kwargs: str | Localizable) -> Localizable:
         """
         Create a new localizable that outputs the given plain text string.
 
@@ -1116,14 +1120,14 @@ class Str(Localizable):
         return _PlainStr(str(plain), **format_kwargs)
 
     @classmethod
-    def call(cls, call: Callable[[Localizer], str]) -> Str:
+    def call(cls, call: Callable[[Localizer], str]) -> Localizable:
         """
         Create a new localizable that outputs the callable's return value.
         """
         return _CallStr(call)
 
     @classmethod
-    def _(cls, message: str, **format_kwargs: str | Localizable) -> Str:
+    def _(cls, message: str, **format_kwargs: str | Localizable) -> Localizable:
         """
         Like :py:meth:`gettext.gettext`.
 
@@ -1135,7 +1139,7 @@ class Str(Localizable):
         return cls.gettext(message, **format_kwargs)
 
     @classmethod
-    def gettext(cls, message: str, **format_kwargs: str | Localizable) -> Str:
+    def gettext(cls, message: str, **format_kwargs: str | Localizable) -> Localizable:
         """
         Like :py:meth:`gettext.gettext`.
 
@@ -1153,7 +1157,7 @@ class Str(Localizable):
         message_plural: str,
         n: int,
         **format_kwargs: str | Localizable,
-    ) -> Str:
+    ) -> Localizable:
         """
         Like :py:meth:`gettext.ngettext`.
 
@@ -1169,7 +1173,7 @@ class Str(Localizable):
     @classmethod
     def pgettext(
         cls, context: str, message: str, **format_kwargs: str | Localizable
-    ) -> Str:
+    ) -> Localizable:
         """
         Like :py:meth:`gettext.pgettext`.
 
@@ -1188,7 +1192,7 @@ class Str(Localizable):
         message_plural: str,
         n: int,
         **format_kwargs: str | Localizable,
-    ) -> Str:
+    ) -> Localizable:
         """
         Like :py:meth:`gettext.npgettext`.
 
@@ -1202,7 +1206,7 @@ class Str(Localizable):
         )
 
 
-class _PlainStr(Str):
+class _PlainStr(Localizable):
     def __init__(self, plain: str, **format_kwargs: str | Localizable):
         self._plain = plain
         self._format_kwargs = format_kwargs
@@ -1210,11 +1214,11 @@ class _PlainStr(Str):
     @override
     def localize(self, localizer: Localizer) -> str:
         return self._plain.format(
-            **self._localize_format_kwargs(localizer, **self._format_kwargs)
+            **Str.localize_format_kwargs(localizer, **self._format_kwargs)
         )
 
 
-class _CallStr(Str):
+class _CallStr(Localizable):
     def __init__(self, call: Callable[[Localizer], str]):
         self._call = call
 
@@ -1223,7 +1227,7 @@ class _CallStr(Str):
         return self._call(localizer)
 
 
-class _GettextStr(Str):
+class _GettextStr(Localizable):
     def __init__(
         self,
         gettext_method_name: str,
@@ -1238,7 +1242,7 @@ class _GettextStr(Str):
     def localize(self, localizer: Localizer) -> str:
         return cast(
             str, getattr(localizer, self._gettext_method_name)(*self._gettext_args)
-        ).format(**self._localize_format_kwargs(localizer, **self._format_kwargs))
+        ).format(**Str.localize_format_kwargs(localizer, **self._format_kwargs))
 
 
 def negotiate_locale(

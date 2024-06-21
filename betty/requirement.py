@@ -32,13 +32,13 @@ class Requirement(Localizable):
             raise RequirementError(self)
         return None
 
-    def summary(self) -> Str:
+    def summary(self) -> Localizable:
         """
         Get the requirement's human-readable summary.
         """
         raise NotImplementedError(repr(self))
 
-    def details(self) -> Str | None:
+    def details(self) -> Localizable | None:
         """
         Get the requirement's human-readable additional details.
         """
@@ -148,7 +148,7 @@ class AnyRequirement(RequirementCollection):
         return any(requirement.is_met() for requirement in self._requirements)
 
     @override
-    def summary(self) -> Str:
+    def summary(self) -> Localizable:
         return self._summary
 
 
@@ -166,5 +166,5 @@ class AllRequirements(RequirementCollection):
         return all(requirement.is_met() for requirement in self._requirements)
 
     @override
-    def summary(self) -> Str:
+    def summary(self) -> Localizable:
         return self._summary

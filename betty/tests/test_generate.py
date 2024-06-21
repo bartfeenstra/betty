@@ -8,7 +8,7 @@ import pytest
 from betty.app import App
 from betty.app.extension import Extension
 from betty.generate import generate
-from betty.locale import Str
+from betty.locale import Str, Localizable
 from betty.model import (
     Entity,
     get_entity_type_name,
@@ -28,11 +28,11 @@ from betty.tests import assert_betty_html, assert_betty_json
 
 class _ThirdPartyEntity(Entity, UserFacingEntity):
     @classmethod
-    def entity_type_label(cls) -> Str:
+    def entity_type_label(cls) -> Localizable:
         return Str.plain(cls.__name__)
 
     @classmethod
-    def entity_type_label_plural(cls) -> Str:
+    def entity_type_label_plural(cls) -> Localizable:
         return Str.plain(cls.__name__)
 
 

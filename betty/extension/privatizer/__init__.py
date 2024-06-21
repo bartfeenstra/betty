@@ -9,7 +9,7 @@ from typing_extensions import override
 
 from betty.app.extension import UserFacingExtension
 from betty.load import PostLoader
-from betty.locale import Str
+from betty.locale import Str, Localizable
 from betty.model.ancestry import Person, HasPrivacy
 from betty.privatizer import Privatizer as PrivatizerApi
 from typing import TYPE_CHECKING
@@ -34,12 +34,12 @@ class Privatizer(UserFacingExtension, PostLoader):
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str._("Privatizer")
 
     @override
     @classmethod
-    def description(cls) -> Str:
+    def description(cls) -> Localizable:
         return Str._(
             "Determine if people can be proven to have died. If not, mark them and their associated entities private."
         )

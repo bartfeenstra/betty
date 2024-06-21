@@ -12,7 +12,7 @@ from typing import Sequence, TYPE_CHECKING
 
 from betty.asyncio import wait_to_thread
 from betty.error import UserFacingError
-from betty.locale import Str, DEFAULT_LOCALIZER
+from betty.locale import Str, DEFAULT_LOCALIZER, Localizable
 from betty.requirement import Requirement
 from betty.subprocess import run_process
 
@@ -54,7 +54,7 @@ class NpmRequirement(Requirement):
     def __init__(self):
         super().__init__()
         self._met: bool
-        self._summary: Str
+        self._summary: Localizable
         self._details = _NPM_UNAVAILABLE_MESSAGE
 
     def _check(self) -> None:
@@ -75,9 +75,9 @@ class NpmRequirement(Requirement):
         self._check()
         return self._met
 
-    def summary(self) -> Str:
+    def summary(self) -> Localizable:
         self._check()
         return self._summary
 
-    def details(self) -> Str:
+    def details(self) -> Localizable:
         return self._details

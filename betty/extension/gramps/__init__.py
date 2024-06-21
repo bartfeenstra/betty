@@ -10,7 +10,7 @@ from typing_extensions import override
 
 from betty.app.extension import ConfigurableExtension, UserFacingExtension
 from betty.gramps.loader import GrampsLoader
-from betty.locale import Str
+from betty.locale import Str, Localizable
 
 if TYPE_CHECKING:
     from betty.extension.gramps.gui import _GrampsGuiWidget
@@ -49,12 +49,12 @@ class Gramps(
 
     @override
     @classmethod
-    def label(cls) -> Str:
+    def label(cls) -> Localizable:
         return Str.plain("Gramps")
 
     @override
     @classmethod
-    def description(cls) -> Str:
+    def description(cls) -> Localizable:
         return Str._(
             'Load <a href="https://gramps-project.org/">Gramps</a> family trees.'
         )

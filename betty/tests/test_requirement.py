@@ -9,13 +9,13 @@ from betty.requirement import (
     AnyRequirement,
     Requirement,
 )
-from betty.locale import Str, DEFAULT_LOCALIZER
+from betty.locale import Str, DEFAULT_LOCALIZER, Localizable
 
 
 class TestRequirement:
     async def test_assert_met_should_raise_error_if_unmet(self) -> None:
         class _Requirement(Requirement):
-            def summary(self) -> Str:
+            def summary(self) -> Localizable:
                 return Str._("Lorem ipsum")
 
             def is_met(self) -> bool:
@@ -33,10 +33,10 @@ class TestRequirement:
 
     async def test_localize_with_details(self) -> None:
         class _Requirement(Requirement):
-            def summary(self) -> Str:
+            def summary(self) -> Localizable:
                 return Str._("Lorem ipsum")
 
-            def details(self) -> Str:
+            def details(self) -> Localizable:
                 return Str._("Dolor sit amet")
 
         assert (
@@ -46,7 +46,7 @@ class TestRequirement:
 
     async def test_localize_without_details(self) -> None:
         class _Requirement(Requirement):
-            def summary(self) -> Str:
+            def summary(self) -> Localizable:
                 return Str._("Lorem ipsum")
 
         assert _Requirement().localize(DEFAULT_LOCALIZER) == "Lorem ipsum"
@@ -93,18 +93,18 @@ class TestRequirementCollection:
 
     async def test_localize_without_requirements(self) -> None:
         class _RequirementCollection(RequirementCollection):
-            def summary(self) -> Str:
+            def summary(self) -> Localizable:
                 return Str._("Lorem ipsum")
 
         assert _RequirementCollection().localize(DEFAULT_LOCALIZER) == "Lorem ipsum"
 
     async def test_localize_with_requirements(self) -> None:
         class _RequirementCollection(RequirementCollection):
-            def summary(self) -> Str:
+            def summary(self) -> Localizable:
                 return Str._("Lorem ipsum")
 
         class _Requirement(Requirement):
-            def summary(self) -> Str:
+            def summary(self) -> Localizable:
                 return Str._("Lorem ipsum")
 
         assert (
@@ -205,7 +205,7 @@ class TestAnyRequirement:
         ).is_met()
 
     async def test_summary(self) -> None:
-        assert isinstance(AnyRequirement().summary(), Str)
+        assert isinstance(AnyRequirement().summary(), Localizable)
 
 
 class TestAllRequirements:
@@ -232,4 +232,4 @@ class TestAllRequirements:
         ).is_met()
 
     async def test_summary(self) -> None:
-        assert isinstance(AllRequirements().summary(), Str)
+        assert isinstance(AllRequirements().summary(), Localizable)
