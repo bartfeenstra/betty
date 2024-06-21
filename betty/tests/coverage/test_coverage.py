@@ -118,8 +118,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         # This is an interface.
         "UserFacingExtension": TestKnownToBeMissing,
     },
-    # This is deprecated.
-    "betty/app/extension/requirement.py": TestKnownToBeMissing,
     "betty/asyncio.py": {
         "gather": TestKnownToBeMissing,
     },
@@ -127,8 +125,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         # This is an interface.
         "Cache": TestKnownToBeMissing,
         "CacheItem": TestKnownToBeMissing,
-        # This is deprecated.
-        "FileCache": TestKnownToBeMissing,
     },
     "betty/cache/_base.py": TestKnownToBeMissing,
     "betty/classtools.py": TestKnownToBeMissing,
@@ -330,8 +326,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "GenerationContext": TestKnownToBeMissing,
         # This is an interface.
         "Generator": TestKnownToBeMissing,
-        # This is deprecated.
-        "getLogger": TestKnownToBeMissing,
     },
     "betty/gramps/error.py": TestKnownToBeMissing,
     "betty/gramps/loader.py": {
@@ -414,8 +408,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/load.py": {
-        # This is deprecated.
-        "getLogger": TestKnownToBeMissing,
         # This is an interface.
         "Loader": TestKnownToBeMissing,
         # This is an interface.
@@ -533,10 +525,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ref_media_type": TestKnownToBeMissing,
         "ref_role": TestKnownToBeMissing,
         "resolve_privacy": TestKnownToBeMissing,
-        # This is deprecated.
-        "AnonymousCitation": TestKnownToBeMissing,
-        # This is deprecated.
-        "AnonymousSource": TestKnownToBeMissing,
         # This is static.
         "Attendee": TestKnownToBeMissing,
         # This is static.
@@ -749,8 +737,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
         # This is an empty class.
         "AssertionFailed": TestKnownToBeMissing,
-        # This is a deprecated class.
-        "Assertions": TestKnownToBeMissing,
         "Fields": TestKnownToBeMissing,
         # This is an empty class.
         "FormatError": TestKnownToBeMissing,
