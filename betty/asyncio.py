@@ -4,11 +4,9 @@ Provide asynchronous programming utilities.
 
 from __future__ import annotations
 
-from asyncio import TaskGroup, get_running_loop, run
-from functools import wraps
+from asyncio import TaskGroup, run
 from threading import Thread
 from typing import (
-    Callable,
     Awaitable,
     TypeVar,
     Generic,
@@ -17,8 +15,6 @@ from typing import (
     Coroutine,
     Any,
 )
-
-from betty.warnings import deprecated
 
 P = ParamSpec("P")
 T = TypeVar("T")
@@ -37,25 +33,6 @@ async def gather(*coroutines: Coroutine[Any, None, T]) -> tuple[T, ...]:
     return tuple(task.result() for task in tasks)
 
 
-@deprecated(
-    "This function is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x. Instead, use `betty.asyncio.wait_to_thread()` or `asyncio.run()`."
-)
-def wait(f: Awaitable[T]) -> T:
-    """
-    Wait for an awaitable, either in a new event loop or another thread.
-    """
-    try:
-        loop = get_running_loop()
-    except RuntimeError:
-        loop = None
-    if loop:
-        return wait_to_thread(f)
-    else:
-        return run(
-            f,  # type: ignore[arg-type]
-        )
-
-
 def wait_to_thread(f: Awaitable[T]) -> T:
     """
     Wait for an awaitable in another thread.
@@ -64,21 +41,6 @@ def wait_to_thread(f: Awaitable[T]) -> T:
     synced.start()
     synced.join()
     return synced.return_value
-
-
-@deprecated(
-    "This function is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x. Instead, use `betty.asyncio.wait_to_thread()` or `asyncio.run()`."
-)
-def sync(f: Callable[P, Awaitable[T]]) -> Callable[P, T]:
-    """
-    Decorate an asynchronous callable to become synchronous.
-    """
-
-    @wraps(f)
-    def _synced(*args: P.args, **kwargs: P.kwargs) -> T:
-        return wait(f(*args, **kwargs))
-
-    return _synced
 
 
 class _WaiterThread(Thread, Generic[T]):
