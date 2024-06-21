@@ -5,7 +5,6 @@ Provide file system utilities.
 from __future__ import annotations
 
 import asyncio
-import hashlib
 import os
 from collections import deque
 from contextlib import suppress
@@ -17,7 +16,6 @@ import aiofiles
 from aiofiles.os import makedirs
 
 from betty import _ROOT_DIRECTORY_PATH
-from betty.warnings import deprecated
 
 if TYPE_CHECKING:
     from aiofiles.threadpool.text import AsyncTextIOWrapper
@@ -52,19 +50,6 @@ async def iterfiles(path: Path) -> AsyncIterable[Path]:
     for dir_path, _, filenames in os.walk(str(path)):
         for filename in filenames:
             yield Path(dir_path) / filename
-
-
-@deprecated(
-    "This function is deprecated as of Betty 0.3.4, and will be removed in Betty 0.4.x. Instead, use `betty.hashid.hashid_file_meta()`."
-)
-def hashfile(path: Path) -> str:
-    """
-    Get a hash for a file.
-
-    This function relies on the file path and last modified time for uniqueness.
-    File contents are ignored.
-    """
-    return hashlib.md5(f"{path.stat().st_mtime}:{path}".encode("utf-8")).hexdigest()
 
 
 class _Open:

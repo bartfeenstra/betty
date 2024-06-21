@@ -2,10 +2,9 @@ from pathlib import Path
 
 import aiofiles
 import pytest
-from aiofiles.tempfile import TemporaryDirectory, NamedTemporaryFile
+from aiofiles.tempfile import TemporaryDirectory
 
-from betty.fs import iterfiles, FileSystem, hashfile
-from betty.warnings import BettyDeprecationWarning
+from betty.fs import iterfiles, FileSystem
 
 
 class TestIterfiles:
@@ -30,18 +29,6 @@ class TestIterfiles:
             str(Path("subdir") / "subdirfile"),
         }
         assert expected == set(actual)
-
-
-class TestHashfile:
-    async def test_with_identical_file(self) -> None:
-        async with NamedTemporaryFile() as f:
-            with pytest.warns(BettyDeprecationWarning):
-                assert hashfile(Path(f.name)) == hashfile(Path(f.name))  # type: ignore[arg-type]
-
-    async def test_with_different_files(self) -> None:
-        async with NamedTemporaryFile() as f_left, NamedTemporaryFile() as f_right:
-            with pytest.warns(BettyDeprecationWarning):
-                assert hashfile(Path(f_left.name)) != hashfile(Path(f_right.name))  # type: ignore[arg-type]
 
 
 class TestFileSystem:
