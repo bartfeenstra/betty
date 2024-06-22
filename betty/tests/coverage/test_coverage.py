@@ -727,14 +727,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/serde/load.py": {
-        "Asserter": {
-            "assert_assertions": TestKnownToBeMissing,
-            "assert_entity_type": TestKnownToBeMissing,
-            "assert_extension_type": TestKnownToBeMissing,
-            "assert_locale": TestKnownToBeMissing,
-            "assert_none": TestKnownToBeMissing,
-            "assert_setattr": TestKnownToBeMissing,
-        },
+        "assert_assertions": TestKnownToBeMissing,
+        "assert_entity_type": TestKnownToBeMissing,
+        "assert_extension_type": TestKnownToBeMissing,
+        "assert_locale": TestKnownToBeMissing,
+        "assert_none": TestKnownToBeMissing,
+        "assert_setattr": TestKnownToBeMissing,
         # This is an empty class.
         "AssertionFailed": TestKnownToBeMissing,
         "Fields": TestKnownToBeMissing,

@@ -9,7 +9,6 @@ from aiofiles.tempfile import TemporaryDirectory
 from betty.locale import Str
 from betty.serde.dump import Void
 from betty.serde.load import (
-    Asserter,
     AssertionFailed,
     Number,
     Fields,
@@ -17,6 +16,22 @@ from betty.serde.load import (
     RequiredField,
     Assertion,
     AssertionChain,
+    assert_or,
+    assert_bool,
+    assert_directory_path,
+    assert_path,
+    assert_record,
+    assert_str,
+    assert_int,
+    assert_float,
+    assert_positive_number,
+    assert_number,
+    assert_list,
+    assert_mapping,
+    assert_sequence,
+    assert_dict,
+    assert_fields,
+    assert_field,
 )
 from betty.tests.serde import raises_error
 
@@ -51,7 +66,7 @@ def _always_invalid(value: _T) -> _T:
     raise AssertionFailed(Str.plain(""))
 
 
-class TestAsserter:
+class TestAssertOr:
     @pytest.mark.parametrize(
         ("if_assertion", "else_assertion", "value"),
         [
@@ -60,47 +75,47 @@ class TestAsserter:
             (_always_invalid, _always_valid, 123),
         ],
     )
-    async def test_assert_or_with_valid_AssertionChain(
+    async def test_with_valid_AssertionChain(
         self,
         if_assertion: Assertion[Any, bool],
         else_assertion: Assertion[Any, bool],
         value: int,
     ) -> None:
-        sut = Asserter()
-        assert sut.assert_or(if_assertion, else_assertion)(value) == value
+        assert assert_or(if_assertion, else_assertion)(value) == value
 
-    async def test_assert_or_with_invalid_AssertionChain(self) -> None:
-        sut = Asserter()
+    async def test_with_invalid_AssertionChain(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            sut.assert_or(_always_invalid, _always_invalid)(123)
+            assert_or(_always_invalid, _always_invalid)(123)
 
-    async def test_assert_bool_with_valid_value(self) -> None:
-        sut = Asserter()
-        sut.assert_bool()(True)
 
-    async def test_assert_bool_with_invalid_value(self) -> None:
-        sut = Asserter()
+class TestAssertBool:
+    async def test_with_valid_value(self) -> None:
+        assert_bool()(True)
+
+    async def test_with_invalid_value(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            sut.assert_bool()(123)
+            assert_bool()(123)
 
-    async def test_assert_int_with_valid_value(self) -> None:
-        sut = Asserter()
-        sut.assert_int()(123)
 
-    async def test_assert_int_with_invalid_value(self) -> None:
-        sut = Asserter()
+class TestAssertInt:
+    async def test_with_valid_value(self) -> None:
+        assert_int()(123)
+
+    async def test_with_invalid_value(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            sut.assert_int()(False)
+            assert_int()(False)
 
-    async def test_assert_float_with_valid_value(self) -> None:
-        sut = Asserter()
-        sut.assert_float()(1.23)
 
-    async def test_assert_float_with_invalid_value(self) -> None:
-        sut = Asserter()
+class TestAssertFloat:
+    async def test_with_valid_value(self) -> None:
+        assert_float()(1.23)
+
+    async def test_with_invalid_value(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            sut.assert_float()(False)
+            assert_float()(False)
 
+
+class TestAssertNumber:
     @pytest.mark.parametrize(
         "value",
         [
@@ -108,15 +123,15 @@ class TestAsserter:
             3.13,
         ],
     )
-    async def test_assert_number_with_valid_value(self, value: Number) -> None:
-        sut = Asserter()
-        sut.assert_number()(value)
+    async def test_with_valid_value(self, value: Number) -> None:
+        assert_number()(value)
 
-    async def test_assert_number_with_invalid_value(self) -> None:
-        sut = Asserter()
+    async def test_with_invalid_value(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            sut.assert_number()(False)
+            assert_number()(False)
 
+
+class TestAssertPositiveNumber:
     @pytest.mark.parametrize(
         "value",
         [
@@ -126,11 +141,8 @@ class TestAsserter:
             1.1,
         ],
     )
-    async def test_assert_positive_number_with_valid_value(
-        self, value: int | float
-    ) -> None:
-        sut = Asserter()
-        sut.assert_positive_number()(1.23)
+    async def test_with_valid_value(self, value: int | float) -> None:
+        assert_positive_number()(1.23)
 
     @pytest.mark.parametrize(
         "value",
@@ -140,246 +152,231 @@ class TestAsserter:
             -1.0,
         ],
     )
-    async def test_assert_positive_number_with_invalid_value(
-        self, value: int | float
-    ) -> None:
-        sut = Asserter()
+    async def test_with_invalid_value(self, value: int | float) -> None:
         with raises_error(error_type=AssertionFailed):
-            sut.assert_positive_number()(value)
+            assert_positive_number()(value)
 
-    async def test_assert_str_with_valid_value(self) -> None:
-        sut = Asserter()
-        sut.assert_str()("Hello, world!")
 
-    async def test_assert_str_with_invalid_value(self) -> None:
-        sut = Asserter()
+class TestAssertStr:
+    async def test_with_valid_value(self) -> None:
+        assert_str()("Hello, world!")
+
+    async def test_with_invalid_value(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            sut.assert_str()(False)
+            assert_str()(False)
 
-    async def test_assert_list_with_list(self) -> None:
-        sut = Asserter()
-        sut.assert_list()([])
 
-    async def test_assert_list_without_list(self) -> None:
-        sut = Asserter()
+class TestAssertList:
+    async def test_with_list(self) -> None:
+        assert_list()([])
+
+    async def test_without_list(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            sut.assert_list()(False)
+            assert_list()(False)
 
-    async def test_assert_sequence_without_list(self) -> None:
-        sut = Asserter()
+
+class TestAssertSequence:
+    async def test_without_list(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            sut.assert_sequence(AssertionChain(sut.assert_str()))(False)
+            assert_sequence(AssertionChain(assert_str()))(False)
 
-    async def test_assert_sequence_with_invalid_item(self) -> None:
-        sut = Asserter()
+    async def test_with_invalid_item(self) -> None:
         with raises_error(error_type=AssertionFailed, error_contexts=["0"]):
-            sut.assert_sequence(AssertionChain(sut.assert_str()))([123])
+            assert_sequence(AssertionChain(assert_str()))([123])
 
-    async def test_assert_sequence_with_empty_list(self) -> None:
-        sut = Asserter()
-        sut.assert_sequence(AssertionChain(sut.assert_str()))([])
+    async def test_with_empty_list(self) -> None:
+        assert_sequence(AssertionChain(assert_str()))([])
 
-    async def test_assert_sequence_with_valid_sequence(self) -> None:
-        sut = Asserter()
-        sut.assert_sequence(AssertionChain(sut.assert_str()))(["Hello!"])
+    async def test_with_valid_sequence(self) -> None:
+        assert_sequence(AssertionChain(assert_str()))(["Hello!"])
 
-    async def test_assert_dict_with_dict(self) -> None:
-        sut = Asserter()
-        sut.assert_dict()({})
 
-    async def test_assert_dict_without_dict(self) -> None:
-        sut = Asserter()
+class TestAssertDict:
+    async def test_with_dict(self) -> None:
+        assert_dict()({})
+
+    async def test_without_dict(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            sut.assert_dict()(False)
+            assert_dict()(False)
 
-    async def test_assert_fields_with_invalid_value(self) -> None:
-        sut = Asserter()
+
+class TestAssertFields:
+    async def test_with_invalid_value(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            sut.assert_fields(
+            assert_fields(
                 Fields(
                     OptionalField(
                         "hello",
-                        AssertionChain(sut.assert_str()),
+                        AssertionChain(assert_str()),
                     )
                 )
             )(None)
 
-    async def test_assert_fields_required_without_key(self) -> None:
-        sut = Asserter()
+    async def test_required_without_key(self) -> None:
         with raises_error(error_type=AssertionFailed, error_contexts=["hello"]):
-            sut.assert_fields(
+            assert_fields(
                 Fields(
                     RequiredField(
                         "hello",
-                        AssertionChain(sut.assert_str()),
+                        AssertionChain(assert_str()),
                     )
                 )
             )({})
 
-    async def test_assert_fields_optional_without_key(self) -> None:
-        sut = Asserter()
+    async def test_optional_without_key(self) -> None:
         expected: dict[str, Any] = {}
-        actual = sut.assert_fields(
+        actual = assert_fields(
             Fields(
                 OptionalField(
                     "hello",
-                    AssertionChain(sut.assert_str()),
+                    AssertionChain(assert_str()),
                 )
             )
         )({})
         assert expected == actual
 
-    async def test_assert_fields_required_key_with_key(self) -> None:
-        sut = Asserter()
+    async def test_required_key_with_key(self) -> None:
         expected = {
             "hello": "World!",
         }
-        actual = sut.assert_fields(
+        actual = assert_fields(
             Fields(
                 RequiredField(
                     "hello",
-                    AssertionChain(sut.assert_str()),
+                    AssertionChain(assert_str()),
                 )
             )
         )({"hello": "World!"})
         assert expected == actual
 
-    async def test_assert_fields_optional_key_with_key(self) -> None:
-        sut = Asserter()
+    async def test_optional_key_with_key(self) -> None:
         expected = {
             "hello": "World!",
         }
-        actual = sut.assert_fields(
+        actual = assert_fields(
             Fields(
                 OptionalField(
                     "hello",
-                    AssertionChain(sut.assert_str()),
+                    AssertionChain(assert_str()),
                 )
             )
         )({"hello": "World!"})
         assert expected == actual
 
-    async def test_assert_field_with_invalid_value(self) -> None:
-        sut = Asserter()
+
+class TestAssertField:
+    async def test_with_invalid_value(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            sut.assert_field(
+            assert_field(
                 OptionalField(
                     "hello",
-                    AssertionChain(sut.assert_str()),
+                    AssertionChain(assert_str()),
                 )
             )(None)
 
-    async def test_assert_field_required_without_key(self) -> None:
-        sut = Asserter()
+    async def test_required_without_key(self) -> None:
         with raises_error(error_type=AssertionFailed, error_contexts=["hello"]):
-            sut.assert_field(
+            assert_field(
                 RequiredField(
                     "hello",
-                    AssertionChain(sut.assert_str()),
+                    AssertionChain(assert_str()),
                 )
             )({})
 
-    async def test_assert_field_optional_without_key(self) -> None:
-        sut = Asserter()
+    async def test_optional_without_key(self) -> None:
         expected = Void
-        actual = sut.assert_field(
+        actual = assert_field(
             OptionalField(
                 "hello",
-                AssertionChain(sut.assert_str()),
+                AssertionChain(assert_str()),
             )
         )({})
         assert expected == actual
 
-    async def test_assert_field_required_key_with_key(self) -> None:
-        sut = Asserter()
+    async def test_required_key_with_key(self) -> None:
         expected = "World!"
-        actual = sut.assert_field(
+        actual = assert_field(
             RequiredField(
                 "hello",
-                AssertionChain(sut.assert_str()),
+                AssertionChain(assert_str()),
             )
         )({"hello": "World!"})
         assert expected == actual
 
-    async def test_assert_field_optional_key_with_key(self) -> None:
-        sut = Asserter()
+    async def test_optional_key_with_key(self) -> None:
         expected = "World!"
-        actual = sut.assert_field(
+        actual = assert_field(
             OptionalField(
                 "hello",
-                AssertionChain(sut.assert_str()),
+                AssertionChain(assert_str()),
             )
         )({"hello": "World!"})
         assert expected == actual
 
-    async def test_assert_mapping_without_mapping(self) -> None:
-        sut = Asserter()
+
+class TestAssertMapping:
+    async def test_without_mapping(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            sut.assert_mapping(AssertionChain(sut.assert_str()))(None)
+            assert_mapping(AssertionChain(assert_str()))(None)
 
-    async def test_assert_mapping_with_invalid_item(self) -> None:
-        sut = Asserter()
+    async def test_with_invalid_item(self) -> None:
         with raises_error(error_type=AssertionFailed, error_contexts=["hello"]):
-            sut.assert_mapping(AssertionChain(sut.assert_str()))({"hello": False})
+            assert_mapping(AssertionChain(assert_str()))({"hello": False})
 
-    async def test_assert_mapping_with_empty_dict(self) -> None:
-        sut = Asserter()
-        sut.assert_mapping(AssertionChain(sut.assert_str()))({})
+    async def test_with_empty_dict(self) -> None:
+        assert_mapping(AssertionChain(assert_str()))({})
 
-    async def test_assert_mapping_with_valid_mapping(self) -> None:
-        sut = Asserter()
-        sut.assert_mapping(AssertionChain(sut.assert_str()))({"hello": "World!"})
+    async def test_with_valid_mapping(self) -> None:
+        assert_mapping(AssertionChain(assert_str()))({"hello": "World!"})
 
-    async def test_assert_record_with_optional_fields_without_items(self) -> None:
-        sut = Asserter()
+
+class TestAssertRecord:
+    async def test_with_optional_fields_without_items(self) -> None:
         expected: dict[str, Any] = {}
-        actual = sut.assert_record(
+        actual = assert_record(
             Fields(
                 OptionalField(
                     "hello",
-                    AssertionChain(sut.assert_str()),
+                    AssertionChain(assert_str()),
                 ),
             )
         )({})
         assert expected == actual
 
-    async def test_assert_record_with_optional_fields_with_items(self) -> None:
-        sut = Asserter()
+    async def test_with_optional_fields_with_items(self) -> None:
         expected = {
             "hello": "WORLD!",
         }
-        actual = sut.assert_record(
+        actual = assert_record(
             Fields(
                 OptionalField(
                     "hello",
-                    AssertionChain(sut.assert_str()) | (lambda x: x.upper()),
+                    AssertionChain(assert_str()) | (lambda x: x.upper()),
                 ),
             )
         )({"hello": "World!"})
         assert expected == actual
 
-    async def test_assert_record_with_required_fields_without_items(self) -> None:
-        sut = Asserter()
+    async def test_with_required_fields_without_items(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            sut.assert_record(
+            assert_record(
                 Fields(
                     RequiredField(
                         "hello",
-                        AssertionChain(sut.assert_str()),
+                        AssertionChain(assert_str()),
                     ),
                 )
             )({})
 
-    async def test_assert_record_with_required_fields_with_items(self) -> None:
-        sut = Asserter()
+    async def test_with_required_fields_with_items(self) -> None:
         expected = {
             "hello": "WORLD!",
         }
-        actual = sut.assert_record(
+        actual = assert_record(
             Fields(
                 RequiredField(
                     "hello",
-                    AssertionChain(sut.assert_str()) | (lambda x: x.upper()),
+                    AssertionChain(assert_str()) | (lambda x: x.upper()),
                 ),
             )
         )(
@@ -389,31 +386,29 @@ class TestAsserter:
         )
         assert expected == actual
 
-    async def test_assert_path_without_str(self) -> None:
-        sut = Asserter()
+
+class TestAssertPath:
+    async def test_without_str(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            sut.assert_path()(False)
+            assert_path()(False)
 
-    async def test_assert_path_with_valid_path(self) -> None:
-        sut = Asserter()
-        sut.assert_path()("~/../foo/bar")
+    async def test_with_valid_path(self) -> None:
+        assert_path()("~/../foo/bar")
 
-    async def test_assert_directory_path_without_str(self) -> None:
-        sut = Asserter()
+
+class TestAssertDirectoryPath:
+    async def test_without_str(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            sut.assert_directory_path()(False)
+            assert_directory_path()(False)
 
-    async def test_assert_directory_path_without_existing_path(self) -> None:
-        sut = Asserter()
+    async def test_without_existing_path(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            sut.assert_directory_path()("~/../foo/bar")
+            assert_directory_path()("~/../foo/bar")
 
-    async def test_assert_directory_path_without_directory_path(self) -> None:
-        sut = Asserter()
+    async def test_without_directory_path(self) -> None:
         with NamedTemporaryFile() as f, raises_error(error_type=AssertionFailed):
-            sut.assert_directory_path()(f.name)
+            assert_directory_path()(f.name)
 
-    async def test_assert_directory_path_with_valid_path(self) -> None:
-        sut = Asserter()
+    async def test_with_valid_path(self) -> None:
         async with TemporaryDirectory() as directory_path_str:
-            sut.assert_directory_path()(directory_path_str)
+            assert_directory_path()(directory_path_str)

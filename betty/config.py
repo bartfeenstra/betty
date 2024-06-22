@@ -41,7 +41,7 @@ from betty.locale import Str
 from betty.serde.dump import Dumpable, Dump, minimize, VoidableDump, Void
 from betty.serde.error import SerdeErrorCollection
 from betty.serde.format import FormatRepository
-from betty.serde.load import Asserter, Assertion
+from betty.serde.load import Assertion, assert_dict, assert_mapping, assert_sequence
 
 if TYPE_CHECKING:
     from _weakref import ReferenceType
@@ -58,7 +58,6 @@ class Configuration(Dumpable):
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self._asserter = Asserter()
         self._on_change_listeners: MutableSequence[
             ReferenceType[_ConfigurationListener]
         ] = []
@@ -503,9 +502,8 @@ class ConfigurationSequence(
             configuration = cls()
         else:
             configuration._clear_without_dispatch()
-        asserter = Asserter()
         with SerdeErrorCollection().assert_valid():
-            configuration.append(*asserter.assert_sequence(cls._item_type().load)(dump))
+            configuration.append(*assert_sequence(cls._item_type().load)(dump))
         return configuration
 
     @override
@@ -658,9 +656,8 @@ class ConfigurationMapping(
     ) -> Self:
         if configuration is None:
             configuration = cls()
-        asserter = Asserter()
-        dict_dump = asserter.assert_dict()(dump)
-        mapping = asserter.assert_mapping(cls._item_type().load)(
+        dict_dump = assert_dict()(dump)
+        mapping = assert_mapping(cls._item_type().load)(
             {key: cls._load_key(value, key) for key, value in dict_dump.items()}
         )
         configuration.replace(*mapping.values())

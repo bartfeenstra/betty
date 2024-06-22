@@ -11,11 +11,13 @@ from typing_extensions import override
 from betty.config import Configuration, ConfigurationSequence
 from betty.serde.dump import minimize, Dump, VoidableDump
 from betty.serde.load import (
-    Asserter,
     Fields,
     RequiredField,
     OptionalField,
     AssertionChain,
+    assert_record,
+    assert_path,
+    assert_setattr,
 )
 
 if TYPE_CHECKING:
@@ -61,13 +63,12 @@ class FamilyTreeConfiguration(Configuration):
     ) -> Self:
         if configuration is None:
             configuration = cls()
-        asserter = Asserter()
-        asserter.assert_record(
+        assert_record(
             Fields(
                 RequiredField(
                     "file",
-                    AssertionChain(asserter.assert_path())
-                    | asserter.assert_setattr(configuration, "file_path"),
+                    AssertionChain(assert_path())
+                    | assert_setattr(configuration, "file_path"),
                 ),
             )
         )(dump)
@@ -128,8 +129,7 @@ class GrampsConfiguration(Configuration):
     ) -> Self:
         if configuration is None:
             configuration = cls()
-        asserter = Asserter()
-        asserter.assert_record(
+        assert_record(
             Fields(
                 OptionalField(
                     "family_trees",

@@ -6,7 +6,17 @@ from typing_extensions import override
 
 from betty.config import Configuration
 from betty.serde.dump import Dump, VoidableDump, minimize, Void, VoidableDictDump
-from betty.serde.load import Asserter, Fields, OptionalField, AssertionChain
+from betty.serde.load import (
+    Fields,
+    OptionalField,
+    AssertionChain,
+    assert_record,
+    assert_or,
+    assert_bool,
+    assert_none,
+    assert_setattr,
+    assert_str,
+)
 
 
 class NginxConfiguration(Configuration):
@@ -66,22 +76,17 @@ class NginxConfiguration(Configuration):
     ) -> Self:
         if configuration is None:
             configuration = cls()
-        asserter = Asserter()
-        asserter.assert_record(
+        assert_record(
             Fields(
                 OptionalField(
                     "https",
-                    AssertionChain(
-                        asserter.assert_or(
-                            asserter.assert_bool(), asserter.assert_none()
-                        )
-                    )
-                    | asserter.assert_setattr(configuration, "https"),
+                    AssertionChain(assert_or(assert_bool(), assert_none()))
+                    | assert_setattr(configuration, "https"),
                 ),
                 OptionalField(
                     "www_directory_path",
-                    AssertionChain(asserter.assert_str())
-                    | asserter.assert_setattr(configuration, "www_directory_path"),
+                    AssertionChain(assert_str())
+                    | assert_setattr(configuration, "www_directory_path"),
                 ),
             )
         )(dump)
