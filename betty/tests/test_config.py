@@ -14,7 +14,7 @@ from betty.config import (
     ConfigurationSequence,
     ConfigurationKey,
 )
-from betty.serde.load import FormatError, Asserter
+from betty.serde.load import FormatError, assert_dict
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, VoidableDump
@@ -300,13 +300,12 @@ class ConfigurationMappingTestConfigurationMapping(
         item_dump: Dump,
         key_dump: str,
     ) -> Dump:
-        asserter = Asserter()
-        dict_item_dump = asserter.assert_dict()(item_dump)
+        dict_item_dump = assert_dict()(item_dump)
         dict_item_dump[key_dump] = key_dump
         return dict_item_dump
 
     def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
-        dict_item_dump = self._asserter.assert_dict()(item_dump)
+        dict_item_dump = assert_dict()(item_dump)
         return dict_item_dump, dict_item_dump.pop("key")
 
 

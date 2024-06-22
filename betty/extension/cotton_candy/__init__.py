@@ -40,8 +40,11 @@ from betty.serde.load import (
     AssertionFailed,
     Fields,
     OptionalField,
-    Asserter,
     AssertionChain,
+    assert_str,
+    assert_record,
+    assert_path,
+    assert_setattr,
 )
 
 if TYPE_CHECKING:
@@ -95,8 +98,7 @@ class _ColorConfiguration(Configuration):
         dump: Dump,
         configuration: Self | None = None,
     ) -> Self:
-        asserter = Asserter()
-        hex_value = asserter.assert_str()(dump)
+        hex_value = assert_str()(dump)
         if configuration is None:
             configuration = cls(hex_value)
         else:
@@ -201,8 +203,7 @@ class CottonCandyConfiguration(Configuration):
     ) -> Self:
         if configuration is None:
             configuration = cls()
-        asserter = Asserter()
-        asserter.assert_record(
+        assert_record(
             Fields(
                 OptionalField(
                     "featured_entities",
@@ -236,8 +237,8 @@ class CottonCandyConfiguration(Configuration):
                 ),
                 OptionalField(
                     "logo",
-                    AssertionChain(asserter.assert_path())
-                    | asserter.assert_setattr(configuration, "logo"),
+                    AssertionChain(assert_path())
+                    | assert_setattr(configuration, "logo"),
                 ),
             )
         )(dump)

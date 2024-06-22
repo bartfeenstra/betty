@@ -65,8 +65,10 @@ from betty.serde.load import (
     AssertionFailed,
     Fields,
     OptionalField,
-    Asserter,
     AssertionChain,
+    assert_record,
+    assert_setattr,
+    assert_str,
 )
 from betty.warnings import deprecate
 
@@ -158,13 +160,12 @@ class AppConfiguration(FileBasedConfiguration):
     ) -> Self:
         if configuration is None:
             configuration = cls()
-        asserter = Asserter()
-        asserter.assert_record(
+        assert_record(
             Fields(
                 OptionalField(
                     "locale",
-                    AssertionChain(asserter.assert_str())
-                    | asserter.assert_setattr(configuration, "locale"),
+                    AssertionChain(assert_str())
+                    | assert_setattr(configuration, "locale"),
                 ),
             ),
         )(dump)
