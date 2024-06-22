@@ -7,7 +7,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from typing import (
-    Iterator,
     Callable,
     Any,
     Generic,
@@ -148,18 +147,6 @@ class OptionalField(
     """
 
     pass  # pragma: no cover
-
-
-class Fields:
-    """
-    A sequence of fields, used to assert key-value mappings.
-    """
-
-    def __init__(self, *fields: _Field[Any, Any]):
-        self._fields = fields
-
-    def __iter__(self) -> Iterator[_Field[Any, Any]]:
-        return (field for field in self._fields)
 
 
 _AssertionBuilderFunction = Callable[[_AssertionValueT], _AssertionReturnT]
@@ -358,7 +345,9 @@ def assert_mapping(
     return _assert_mapping
 
 
-def assert_fields(fields: Fields) -> Assertion[Any, MutableMapping[str, Any]]:
+def assert_fields(
+    *fields: _Field[Any, Any],
+) -> Assertion[Any, MutableMapping[str, Any]]:
     """
     Assert that a value is a key-value mapping of arbitrary value types, and assert several of its values.
     """
@@ -403,7 +392,7 @@ def assert_field(
     """
 
     def _assert_field(value: Any) -> _AssertionReturnT | type[Void]:
-        fields = assert_fields(Fields(field))(value)
+        fields = assert_fields(field)(value)
         try:
             return cast("_AssertionReturnT | type[Void]", fields[field.name])
         except KeyError:
@@ -414,7 +403,9 @@ def assert_field(
     return _assert_field
 
 
-def assert_record(fields: Fields) -> Assertion[Any, MutableMapping[str, Any]]:
+def assert_record(
+    *fields: _Field[Any, Any],
+) -> Assertion[Any, MutableMapping[str, Any]]:
     """
     Assert that a value is a record: a key-value mapping of arbitrary value types, with a known structure.
 
@@ -422,7 +413,7 @@ def assert_record(fields: Fields) -> Assertion[Any, MutableMapping[str, Any]]:
     MUST be provided. Any keys present in the value for which no field assertions
     are provided will cause the entire record assertion to fail.
     """
-    if not len(list(fields)):
+    if not len(fields):
         raise ValueError("One or more fields are required.")
 
     def _assert_record(value: Any) -> MutableMapping[str, Any]:
@@ -441,7 +432,7 @@ def assert_record(fields: Fields) -> Assertion[Any, MutableMapping[str, Any]]:
                             ),
                         )
                     )
-            return assert_fields(fields)(dict_value)
+            return assert_fields(*fields)(dict_value)
 
     return _assert_record
 

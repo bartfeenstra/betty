@@ -38,7 +38,6 @@ from betty.project import EntityReferenceSequence, EntityReference
 from betty.serde.dump import minimize, Dump, VoidableDump, Void
 from betty.serde.load import (
     AssertionFailed,
-    Fields,
     OptionalField,
     AssertionChain,
     assert_str,
@@ -204,43 +203,40 @@ class CottonCandyConfiguration(Configuration):
         if configuration is None:
             configuration = cls()
         assert_record(
-            Fields(
-                OptionalField(
-                    "featured_entities",
-                    configuration._featured_entities.assert_load(
-                        configuration._featured_entities
-                    ),
+            OptionalField(
+                "featured_entities",
+                configuration._featured_entities.assert_load(
+                    configuration._featured_entities
                 ),
-                OptionalField(
-                    "primary_inactive_color",
-                    configuration._primary_inactive_color.assert_load(
-                        configuration._primary_inactive_color
-                    ),
+            ),
+            OptionalField(
+                "primary_inactive_color",
+                configuration._primary_inactive_color.assert_load(
+                    configuration._primary_inactive_color
                 ),
-                OptionalField(
-                    "primary_active_color",
-                    configuration._primary_active_color.assert_load(
-                        configuration._primary_active_color
-                    ),
+            ),
+            OptionalField(
+                "primary_active_color",
+                configuration._primary_active_color.assert_load(
+                    configuration._primary_active_color
                 ),
-                OptionalField(
-                    "link_inactive_color",
-                    configuration._link_inactive_color.assert_load(
-                        configuration._link_inactive_color
-                    ),
+            ),
+            OptionalField(
+                "link_inactive_color",
+                configuration._link_inactive_color.assert_load(
+                    configuration._link_inactive_color
                 ),
-                OptionalField(
-                    "link_active_color",
-                    configuration._link_active_color.assert_load(
-                        configuration._link_active_color
-                    ),
+            ),
+            OptionalField(
+                "link_active_color",
+                configuration._link_active_color.assert_load(
+                    configuration._link_active_color
                 ),
-                OptionalField(
-                    "logo",
-                    AssertionChain(assert_path())
-                    | assert_setattr(configuration, "logo"),
-                ),
-            )
+            ),
+            OptionalField(
+                "logo",
+                AssertionChain(assert_path()) | assert_setattr(configuration, "logo"),
+            ),
         )(dump)
         return configuration
 
