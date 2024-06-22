@@ -51,17 +51,17 @@ class TestAssertionChain:
         sut = AssertionChain[int, int](lambda value: value)
         assert sut(123) == 123
 
-    async def test_extend(self) -> None:
+    async def test_chain(self) -> None:
         sut = AssertionChain[int, int](lambda value: value)
-        sut = sut.extend(lambda value: 2 * value)
+        sut = sut.chain(lambda value: 2 * value)
         assert sut(123) == 246
 
 
-def _always_valid(value: _T) -> _T:
+def _always_valid(value: int) -> int:
     return value
 
 
-def _always_invalid(value: _T) -> _T:
+def _always_invalid(value: int) -> int:
     raise AssertionFailed(Str.plain(""))
 
 
@@ -74,7 +74,7 @@ class TestAssertOr:
             (_always_invalid, _always_valid, 123),
         ],
     )
-    async def test_with_valid_AssertionChain(
+    async def test_with_valid_assertion(
         self,
         if_assertion: Assertion[Any, bool],
         else_assertion: Assertion[Any, bool],
@@ -82,7 +82,7 @@ class TestAssertOr:
     ) -> None:
         assert assert_or(if_assertion, else_assertion)(value) == value
 
-    async def test_with_invalid_AssertionChain(self) -> None:
+    async def test_with_invalid_assertion(self) -> None:
         with raises_error(error_type=AssertionFailed):
             assert_or(_always_invalid, _always_invalid)(123)
 
@@ -177,17 +177,17 @@ class TestAssertList:
 class TestAssertSequence:
     async def test_without_list(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            assert_sequence(AssertionChain(assert_str()))(False)
+            assert_sequence(assert_str())(False)
 
     async def test_with_invalid_item(self) -> None:
         with raises_error(error_type=AssertionFailed, error_contexts=["0"]):
-            assert_sequence(AssertionChain(assert_str()))([123])
+            assert_sequence(assert_str())([123])
 
     async def test_with_empty_list(self) -> None:
-        assert_sequence(AssertionChain(assert_str()))([])
+        assert_sequence(assert_str())([])
 
     async def test_with_valid_sequence(self) -> None:
-        assert_sequence(AssertionChain(assert_str()))(["Hello!"])
+        assert_sequence(assert_str())(["Hello!"])
 
 
 class TestAssertDict:
@@ -202,22 +202,22 @@ class TestAssertDict:
 class TestAssertFields:
     async def test_with_invalid_value(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            assert_fields(OptionalField("hello", AssertionChain(assert_str())))(None)
+            assert_fields(OptionalField("hello", assert_str()))(None)
 
     async def test_required_without_key(self) -> None:
         with raises_error(error_type=AssertionFailed, error_contexts=["hello"]):
-            assert_fields(RequiredField("hello", AssertionChain(assert_str())))({})
+            assert_fields(RequiredField("hello", assert_str()))({})
 
     async def test_optional_without_key(self) -> None:
         expected: dict[str, Any] = {}
-        actual = assert_fields(OptionalField("hello", AssertionChain(assert_str())))({})
+        actual = assert_fields(OptionalField("hello", assert_str()))({})
         assert expected == actual
 
     async def test_required_key_with_key(self) -> None:
         expected = {
             "hello": "World!",
         }
-        actual = assert_fields(RequiredField("hello", AssertionChain(assert_str())))(
+        actual = assert_fields(RequiredField("hello", assert_str()))(
             {"hello": "World!"}
         )
         assert expected == actual
@@ -226,7 +226,7 @@ class TestAssertFields:
         expected = {
             "hello": "World!",
         }
-        actual = assert_fields(OptionalField("hello", AssertionChain(assert_str())))(
+        actual = assert_fields(OptionalField("hello", assert_str()))(
             {"hello": "World!"}
         )
         assert expected == actual
@@ -235,57 +235,48 @@ class TestAssertFields:
 class TestAssertField:
     async def test_with_invalid_value(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            assert_field(OptionalField("hello", AssertionChain(assert_str())))(None)
+            assert_field(OptionalField("hello", assert_str()))(None)
 
     async def test_required_without_key(self) -> None:
         with raises_error(error_type=AssertionFailed, error_contexts=["hello"]):
-            assert_field(RequiredField("hello", AssertionChain(assert_str())))({})
+            assert_field(RequiredField("hello", assert_str()))({})
 
     async def test_optional_without_key(self) -> None:
         expected = Void
-        actual = assert_field(OptionalField("hello", AssertionChain(assert_str())))({})
+        actual = assert_field(OptionalField("hello", assert_str()))({})
         assert expected == actual
 
     async def test_required_key_with_key(self) -> None:
         expected = "World!"
-        actual = assert_field(RequiredField("hello", AssertionChain(assert_str())))(
-            {"hello": "World!"}
-        )
+        actual = assert_field(RequiredField("hello", assert_str()))({"hello": "World!"})
         assert expected == actual
 
     async def test_optional_key_with_key(self) -> None:
         expected = "World!"
-        actual = assert_field(OptionalField("hello", AssertionChain(assert_str())))(
-            {"hello": "World!"}
-        )
+        actual = assert_field(OptionalField("hello", assert_str()))({"hello": "World!"})
         assert expected == actual
 
 
 class TestAssertMapping:
     async def test_without_mapping(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            assert_mapping(AssertionChain(assert_str()))(None)
+            assert_mapping(assert_str())(None)
 
     async def test_with_invalid_item(self) -> None:
         with raises_error(error_type=AssertionFailed, error_contexts=["hello"]):
-            assert_mapping(AssertionChain(assert_str()))({"hello": False})
+            assert_mapping(assert_str())({"hello": False})
 
     async def test_with_empty_dict(self) -> None:
-        assert_mapping(AssertionChain(assert_str()))({})
+        assert_mapping(assert_str())({})
 
     async def test_with_valid_mapping(self) -> None:
-        assert_mapping(AssertionChain(assert_str()))({"hello": "World!"})
+        assert_mapping(assert_str())({"hello": "World!"})
 
 
 class TestAssertRecord:
     async def test_with_optional_fields_without_items(self) -> None:
         expected: dict[str, Any] = {}
-        actual = assert_record(
-            OptionalField(
-                "hello",
-                AssertionChain(assert_str()),
-            )
-        )({})
+        actual = assert_record(OptionalField("hello", assert_str()))({})
         assert expected == actual
 
     async def test_with_optional_fields_with_items(self) -> None:
@@ -293,31 +284,20 @@ class TestAssertRecord:
             "hello": "WORLD!",
         }
         actual = assert_record(
-            OptionalField(
-                "hello",
-                AssertionChain(assert_str()) | (lambda x: x.upper()),
-            )
+            OptionalField("hello", assert_str().chain(lambda x: x.upper()))
         )({"hello": "World!"})
         assert expected == actual
 
     async def test_with_required_fields_without_items(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            assert_record(
-                RequiredField(
-                    "hello",
-                    AssertionChain(assert_str()),
-                )
-            )({})
+            assert_record(RequiredField("hello", assert_str()))({})
 
     async def test_with_required_fields_with_items(self) -> None:
         expected = {
             "hello": "WORLD!",
         }
         actual = assert_record(
-            RequiredField(
-                "hello",
-                AssertionChain(assert_str()) | (lambda x: x.upper()),
-            )
+            RequiredField("hello", assert_str().chain(lambda x: x.upper()))
         )(
             {
                 "hello": "World!",

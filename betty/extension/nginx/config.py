@@ -8,7 +8,6 @@ from betty.config import Configuration
 from betty.serde.dump import Dump, VoidableDump, minimize, Void, VoidableDictDump
 from betty.serde.load import (
     OptionalField,
-    AssertionChain,
     assert_record,
     assert_or,
     assert_bool,
@@ -78,13 +77,12 @@ class NginxConfiguration(Configuration):
         assert_record(
             OptionalField(
                 "https",
-                AssertionChain(assert_or(assert_bool(), assert_none()))
+                assert_or(assert_bool(), assert_none())
                 | assert_setattr(configuration, "https"),
             ),
             OptionalField(
                 "www_directory_path",
-                AssertionChain(assert_str())
-                | assert_setattr(configuration, "www_directory_path"),
+                assert_str() | assert_setattr(configuration, "www_directory_path"),
             ),
         )(dump)
         return configuration

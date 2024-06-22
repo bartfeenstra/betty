@@ -10,7 +10,6 @@ from betty.config import Configuration
 from betty.serde.dump import Dump, VoidableDump, minimize, VoidableDictDump
 from betty.serde.load import (
     OptionalField,
-    AssertionChain,
     assert_record,
     assert_bool,
     assert_setattr,
@@ -54,8 +53,7 @@ class WikipediaConfiguration(Configuration):
         assert_record(
             OptionalField(
                 "populate_images",
-                AssertionChain(assert_bool())
-                | assert_setattr(configuration, "populate_images"),
+                assert_bool() | assert_setattr(configuration, "populate_images"),
             )
         )(dump)
         return configuration
