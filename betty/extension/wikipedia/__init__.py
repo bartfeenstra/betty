@@ -63,10 +63,6 @@ class Wikipedia(
             self.__retriever = _Retriever(self._app.fetcher)
         return self.__retriever
 
-    @_retriever.deleter
-    def _retriever(self) -> None:
-        self.__retriever = None
-
     @override
     @property
     def filters(self) -> Filters:

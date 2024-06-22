@@ -25,20 +25,21 @@ from typing_extensions import override
 from betty.extension import CottonCandy, Webpack
 from betty.extension.cotton_candy import _ColorConfiguration, CottonCandyConfiguration
 from betty.gui.error import ExceptionCatcher
-from betty.gui.locale import LocalizedObject
 from betty.gui.model import EntityReferenceSequenceCollector
 from betty.gui.text import Caption
 from betty.locale import Str, Localizable
+from betty.project import ProjectAwareMixin
 
 if TYPE_CHECKING:
     from betty.app import App
 
 
-class _ColorConfigurationSwatch(LocalizedObject, QWidget):
-    def __init__(self, app: App, color: _ColorConfiguration, *args: Any, **kwargs: Any):
-        super().__init__(app, *args, **kwargs)
+class _ColorConfigurationSwatch(QWidget):
+    def __init__(self, color: _ColorConfiguration, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
         self._color = color
-        self._color.on_change(self.repaint)
+        # @todo Finish this
+        # self._color.on_change(self.repaint)
         self.setFixedHeight(24)
         self.setFixedWidth(24)
         self._swatch = QRect(self.rect())
@@ -50,7 +51,7 @@ class _ColorConfigurationSwatch(LocalizedObject, QWidget):
         painter.drawRect(self._swatch)
 
 
-class _ColorConfigurationWidget(LocalizedObject, QWidget):
+class _ColorConfigurationWidget(QWidget):
     def __init__(
         self,
         app: App,
@@ -59,7 +60,7 @@ class _ColorConfigurationWidget(LocalizedObject, QWidget):
         *args: Any,
         **kwargs: Any,
     ):
-        super().__init__(app, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._color = color
         self._color_default = color_default
         self._layout = QHBoxLayout()
@@ -67,9 +68,9 @@ class _ColorConfigurationWidget(LocalizedObject, QWidget):
 
         self._label = QLabel()
         self._layout.addWidget(self._label)
-        self._swatch = _ColorConfigurationSwatch(app, self._color)
+        self._swatch = _ColorConfigurationSwatch(self._color)
         self._layout.addWidget(self._swatch)
-        self._configure = QPushButton()
+        self._configure = QPushButton(app.localizer._("Configure"))
         self._layout.addWidget(self._configure)
 
         def _configure() -> None:
@@ -78,7 +79,7 @@ class _ColorConfigurationWidget(LocalizedObject, QWidget):
                 self._color.hex = qcolor.name()
 
         self._configure.clicked.connect(_configure)
-        self._reset = QPushButton()
+        self._reset = QPushButton(app.localizer._("Reset"))
         self._layout.addWidget(self._reset)
 
         def _reset() -> None:
@@ -86,14 +87,8 @@ class _ColorConfigurationWidget(LocalizedObject, QWidget):
 
         self._reset.clicked.connect(_reset)
 
-    @override
-    def _set_translatables(self) -> None:
-        super()._set_translatables()
-        self._configure.setText(self._app.localizer._("Configure"))
-        self._reset.setText(self._app.localizer._("Reset"))
 
-
-class _ColorConfigurationsWidget(LocalizedObject, QWidget):
+class _ColorConfigurationsWidget(QWidget):
     def __init__(
         self,
         app: App,
@@ -101,30 +96,23 @@ class _ColorConfigurationsWidget(LocalizedObject, QWidget):
         *args: Any,
         **kwargs: Any,
     ):
-        super().__init__(app, *args, **kwargs)
-        self._colors = colors
+        super().__init__(*args, **kwargs)
+        self._app = app
         self._color_configurations = []
-        self._color_labels = []
         self._layout = QFormLayout()
         self.setLayout(self._layout)
 
-        for color, __, color_default in colors:
-            color_label = QLabel()
-            self._color_labels.append(color_label)
+        for color, color_label, color_default in colors:
             color_widget = _ColorConfigurationWidget(app, color, color_default)
             self._color_configurations.append(color_widget)
-            self._layout.addRow(color_label, color_widget)
-
-    @override
-    def _set_translatables(self) -> None:
-        super()._set_translatables()
-        for i, (__, color_label, ___) in enumerate(self._colors):
-            self._color_labels[i].setText(color_label.localize(self._app.localizer))
+            self._layout.addRow(
+                QLabel(color_label.localize(self._app.localizer)), color_widget
+            )
 
 
-class _CottonCandyGuiWidget(LocalizedObject, QWidget):
+class _CottonCandyGuiWidget(ProjectAwareMixin, QWidget):
     def __init__(self, app: App, *args: Any, **kwargs: Any):
-        super().__init__(app, *args, **kwargs)
+        super().__init__(app.project, *args, **kwargs)
         self._app = app
         self._configuration = app.extensions[CottonCandy].configuration
 
@@ -208,11 +196,9 @@ class _CottonCandyGuiWidget(LocalizedObject, QWidget):
         self._logo_find = QPushButton("...")
         self._logo_find.released.connect(find_logo)
         logo_layout.addWidget(self._logo_find)
-        self._logo_layout_label = QLabel()
-        self._logo_caption = Caption()
+        self._logo_layout_label = QLabel(self._app.localizer._("Logo"))
+        self._logo_caption = Caption(
+            self._app.localizer._("Defaults to the Betty logo")
+        )
         self._form_layout.addRow(self._logo_layout_label, logo_layout)
         self._form_layout.addRow(self._logo_caption)
-
-    def _set_translatables(self) -> None:
-        self._logo_layout_label.setText(self._app.localizer._("Logo"))
-        self._logo_caption.setText(self._app.localizer._("Defaults to the Betty logo"))

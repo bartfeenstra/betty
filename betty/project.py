@@ -96,7 +96,6 @@ class EntityReference(Configuration, Generic[_EntityT]):
                 f"The entity type cannot be set, as it is already constrained to {self._entity_type}."
             )
         self._entity_type = entity_type
-        self._dispatch_change()
 
     @property
     def entity_id(self) -> str | None:
@@ -108,7 +107,6 @@ class EntityReference(Configuration, Generic[_EntityT]):
     @entity_id.setter
     def entity_id(self, entity_id: str) -> None:
         self._entity_id = entity_id
-        self._dispatch_change()
 
     @entity_id.deleter
     def entity_id(self) -> None:
@@ -126,7 +124,6 @@ class EntityReference(Configuration, Generic[_EntityT]):
         self._entity_type = other._entity_type
         self._entity_type_is_constrained = other._entity_type_is_constrained
         self._entity_id = other._entity_id
-        self._dispatch_change()
 
     @override
     def load(
@@ -301,7 +298,6 @@ class ExtensionConfiguration(Configuration):
     @enabled.setter
     def enabled(self, enabled: bool) -> None:
         self._enabled = enabled
-        self._dispatch_change()
 
     @property
     def extension_configuration(self) -> Configuration | None:
@@ -313,8 +309,6 @@ class ExtensionConfiguration(Configuration):
     def _set_extension_configuration(
         self, extension_configuration: Configuration | None
     ) -> None:
-        if extension_configuration is not None:
-            extension_configuration.on_change(self)
         self._extension_configuration = extension_configuration
 
     @override
@@ -497,13 +491,11 @@ class EntityTypeConfiguration(Configuration):
                 )
             )
         self._generate_html_list = generate_html_list
-        self._dispatch_change()
 
     @override
     def update(self, other: Self) -> None:
         self._entity_type = other._entity_type
         self._generate_html_list = other._generate_html_list
-        self._dispatch_change()
 
     @override
     def load(self, dump: Dump) -> None:
@@ -627,7 +619,6 @@ class LocaleConfiguration(Configuration):
     @alias.setter
     def alias(self, alias: str | None) -> None:
         self._alias = alias
-        self._dispatch_change()
 
     @override
     def update(self, other: Self) -> None:
@@ -705,7 +696,6 @@ class LocaleConfigurationMapping(ConfigurationMapping[str, LocaleConfiguration])
             configuration = self[configuration]
         self._configurations[configuration.locale] = configuration
         self._configurations.move_to_end(configuration.locale, False)
-        self._dispatch_change()
 
     @property
     def multilingual(self) -> bool:
@@ -765,12 +755,9 @@ class ProjectConfiguration(FileBasedConfiguration):
                 ),
             ]
         )
-        self._entity_types.on_change(self)
         self._extensions = ExtensionConfigurationMapping(extensions or ())
-        self._extensions.on_change(self)
         self._debug = debug
         self._locales = LocaleConfigurationMapping(locales or ())
-        self._locales.on_change(self)
         self._lifetime_threshold = lifetime_threshold
 
     @property
@@ -783,7 +770,6 @@ class ProjectConfiguration(FileBasedConfiguration):
     @name.setter
     def name(self, name: str) -> None:
         self._name = name
-        self._dispatch_change()
 
     @property
     def project_directory_path(self) -> Path:
@@ -834,7 +820,6 @@ class ProjectConfiguration(FileBasedConfiguration):
     @title.setter
     def title(self, title: str) -> None:
         self._title = title
-        self._dispatch_change()
 
     @property
     def author(self) -> str | None:
@@ -846,7 +831,6 @@ class ProjectConfiguration(FileBasedConfiguration):
     @author.setter
     def author(self, author: str | None) -> None:
         self._author = author
-        self._dispatch_change()
 
     @property
     def base_url(self) -> str:
@@ -871,7 +855,6 @@ class ProjectConfiguration(FileBasedConfiguration):
         if not base_url_parts.netloc:
             raise AssertionFailed(Str._("The base URL must include a path."))
         self._base_url = "%s://%s" % (base_url_parts.scheme, base_url_parts.netloc)
-        self._dispatch_change()
 
     @property
     def root_path(self) -> str:
@@ -886,7 +869,6 @@ class ProjectConfiguration(FileBasedConfiguration):
     @root_path.setter
     def root_path(self, root_path: str) -> None:
         self._root_path = root_path.strip("/")
-        self._dispatch_change()
 
     @property
     def clean_urls(self) -> bool:
@@ -900,7 +882,6 @@ class ProjectConfiguration(FileBasedConfiguration):
     @clean_urls.setter
     def clean_urls(self, clean_urls: bool) -> None:
         self._clean_urls = clean_urls
-        self._dispatch_change()
 
     @property
     def locales(self) -> LocaleConfigurationMapping:
@@ -940,7 +921,6 @@ class ProjectConfiguration(FileBasedConfiguration):
     @debug.setter
     def debug(self, debug: bool) -> None:
         self._debug = debug
-        self._dispatch_change()
 
     @property
     def lifetime_threshold(self) -> int:
@@ -958,7 +938,6 @@ class ProjectConfiguration(FileBasedConfiguration):
     def lifetime_threshold(self, lifetime_threshold: int) -> None:
         assert_positive_number()(lifetime_threshold)
         self._lifetime_threshold = lifetime_threshold
-        self._dispatch_change()
 
     @override
     def update(self, other: Self) -> None:
@@ -972,7 +951,6 @@ class ProjectConfiguration(FileBasedConfiguration):
         self._locales.update(other._locales)
         self._extensions.update(other._extensions)
         self._entity_types.update(other._entity_types)
-        self._dispatch_change()
 
     @override
     def load(self, dump: Dump) -> None:
@@ -1051,3 +1029,41 @@ class Project(Configurable[ProjectConfiguration]):
         The project's ancestry.
         """
         return self._ancestry
+
+
+# @todo INVENTORIZE?
+# @todo What do we need this for?
+# @todo - GUIs
+# @todo - **anything** else?
+# @todo
+# @todo If only for GUIs, tie this into ProjectWindow?
+# @todo Without ProjectWindow we can potentially receive events, but not dispatch them
+# @todo We also still need a way to create a whole new Project instance based
+# @todo     on a single widget somewhere updating some nested configuration.
+# @todo
+# @todo
+# @todo
+# @todo
+class ProjectAwareMixin:
+    """
+    A mixin for another class whose instances are tied to specific projects.
+    """
+
+    def __init__(self, project: Project, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self._project = project
+
+    @property
+    def project(self) -> Project:
+        """
+        The project.
+        """
+        return self._project
+
+    @project.setter
+    def project(self, project: Project) -> None:
+        self._on_project_change(self._project, project)
+        self._project = project
+
+    def _on_project_change(self, old_project: Project, new_project: Project) -> None:
+        pass

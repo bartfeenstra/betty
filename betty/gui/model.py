@@ -16,9 +16,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
 )
-from typing_extensions import override
 
-from betty.gui.locale import LocalizedObject
 from betty.model import UserFacingEntity, Entity
 from betty.project import EntityReference, EntityReferenceSequence
 
@@ -27,7 +25,7 @@ if TYPE_CHECKING:
     from betty.app import App
 
 
-class EntityReferenceCollector(LocalizedObject, QWidget):
+class EntityReferenceCollector(QWidget):
     """
     A form widget that allows users to configure an entity reference.
     """
@@ -39,7 +37,8 @@ class EntityReferenceCollector(LocalizedObject, QWidget):
         label_builder: Callable[[], str] | None = None,
         caption_builder: Callable[[], str] | None = None,
     ):
-        super().__init__(app)
+        super().__init__()
+        self._app = app
         self._entity_reference = entity_reference
         self._label_builder = label_builder
         self._caption_builder = caption_builder
@@ -88,13 +87,6 @@ class EntityReferenceCollector(LocalizedObject, QWidget):
         self._entity_id = QLineEdit()
         self._entity_id.textChanged.connect(_update_entity_id)
         self._entity_id_label = QLabel()
-        self._layout.addRow(self._entity_id_label, self._entity_id)
-
-        self._set_translatables()
-
-    @override
-    def _set_translatables(self) -> None:
-        super()._set_translatables()
         if self._entity_reference.entity_type:
             self._entity_id_label.setText(
                 self._app.localizer._("{entity_type_label} ID").format(
@@ -105,9 +97,10 @@ class EntityReferenceCollector(LocalizedObject, QWidget):
             )
         else:
             self._entity_id_label.setText(self._app.localizer._("Entity ID"))
+        self._layout.addRow(self._entity_id_label, self._entity_id)
 
 
-class EntityReferenceSequenceCollector(LocalizedObject, QWidget):
+class EntityReferenceSequenceCollector(QWidget):
     """
     A form widget that allows users to configure a sequence of entity references.
     """
@@ -119,10 +112,9 @@ class EntityReferenceSequenceCollector(LocalizedObject, QWidget):
         label_text: Localizable | None = None,
         caption_text: Localizable | None = None,
     ):
-        super().__init__(app)
+        super().__init__()
+        self._app = app
         self._entity_references = entity_references
-        self._label_text = label_text
-        self._caption_text = caption_text
         self._entity_reference_collectors: list[EntityReferenceCollector] = [
             EntityReferenceCollector(self._app, entity_reference)
             for entity_reference in entity_references
@@ -132,7 +124,7 @@ class EntityReferenceSequenceCollector(LocalizedObject, QWidget):
         self.setLayout(self._layout)
 
         if label_text:
-            self._label = QLabel()
+            self._label = QLabel(label_text.localize(self._app.localizer))
             self._layout.addWidget(self._label)
 
         self._entity_reference_collectors_widget = QWidget()
@@ -146,16 +138,16 @@ class EntityReferenceSequenceCollector(LocalizedObject, QWidget):
         self._entity_reference_remove_buttons: list[QPushButton] = []
 
         if caption_text:
-            self._caption = QLabel()
+            self._caption = QLabel(caption_text.localize(self._app.localizer))
             self._layout.addWidget(self._caption)
 
-        self._add_entity_reference_button = QPushButton()
+        self._add_entity_reference_button = QPushButton(
+            self._app.localizer._("Add an entity")
+        )
         self._add_entity_reference_button.released.connect(self._add_entity_reference)
         self._layout.addWidget(self._add_entity_reference_button)
 
         self._build_entity_references_collection()
-
-        self._set_translatables()
 
     def _add_entity_reference(self) -> None:
         entity_reference = EntityReference["UserFacingEntity & Entity"]()
@@ -163,7 +155,6 @@ class EntityReferenceSequenceCollector(LocalizedObject, QWidget):
         self._build_entity_reference_collection(
             len(self._entity_references) - 1, entity_reference
         )
-        self._set_translatables()
 
     def _remove_entity_reference(self, i: int) -> None:
         del self._entity_references[i]
@@ -195,22 +186,9 @@ class EntityReferenceSequenceCollector(LocalizedObject, QWidget):
         self._entity_reference_collectors.append(entity_reference_collector)
         layout.addWidget(entity_reference_collector)
 
-        entity_reference_remove_button = QPushButton()
+        entity_reference_remove_button = QPushButton(self._app.localizer._("Remove"))
         self._entity_reference_remove_buttons.insert(i, entity_reference_remove_button)
         entity_reference_remove_button.released.connect(
             lambda: self._remove_entity_reference(i)
         )
         layout.addWidget(entity_reference_remove_button)
-
-    @override
-    def _set_translatables(self) -> None:
-        super()._set_translatables()
-        if self._label_text:
-            self._label.setText(self._label_text.localize(self._app.localizer))
-        if self._caption_text:
-            self._caption.setText(self._caption_text.localize(self._app.localizer))
-        self._add_entity_reference_button.setText(
-            self._app.localizer._("Add an entity")
-        )
-        for entity_reference_remove_button in self._entity_reference_remove_buttons:
-            entity_reference_remove_button.setText(self._app.localizer._("Remove"))

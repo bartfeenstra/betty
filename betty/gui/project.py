@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import final, TYPE_CHECKING
 from urllib.parse import urlparse
 
-from PyQt6.QtCore import Qt, QThread, QObject
+from PyQt6.QtCore import Qt, QThread
 from PyQt6.QtGui import QAction, QCloseEvent
 from PyQt6.QtWidgets import (
     QFileDialog,
@@ -51,7 +51,6 @@ from betty.gui import (
 )
 from betty.gui.app import BettyPrimaryWindow
 from betty.gui.error import ExceptionCatcher
-from betty.gui.locale import LocalizedObject
 from betty.gui.locale import TranslationsLocaleCollector
 from betty.gui.logging import LogRecordViewerHandler, LogRecordViewer
 from betty.gui.serve import ServeProjectWindow
@@ -59,7 +58,12 @@ from betty.gui.text import Text, Caption
 from betty.gui.window import BettyMainWindow
 from betty.locale import get_display_name, to_locale, Str, Localizable
 from betty.model import UserFacingEntity, Entity
-from betty.project import LocaleConfiguration, Project, EntityTypeConfiguration
+from betty.project import (
+    LocaleConfiguration,
+    Project,
+    EntityTypeConfiguration,
+    ProjectAwareMixin,
+)
 from betty.serde.load import AssertionFailed
 from betty.typing import internal
 
@@ -68,8 +72,9 @@ if TYPE_CHECKING:
 
 
 class _PaneButton(QPushButton):
-    def __init__(self, pane_name: str, project_window: ProjectWindow):
+    def __init__(self, pane_name: str, pane_label: str, project_window: ProjectWindow):
         super().__init__()
+        self.setText(pane_label)
         self.setFlat(True)
         self.setProperty("pane-selector", "true")
         self.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -82,16 +87,19 @@ class _PaneButton(QPushButton):
 
 @final
 @internal
-class GenerateHtmlListForm(LocalizedObject, QWidget):
+class GenerateHtmlListForm(QWidget):
     """
     A form widget to configure whether to generate entity listing HTML pages for the project's entity types.
     """
 
     def __init__(self, app: App):
-        super().__init__(app)
+        super().__init__()
+        self._app = app
         self._form = QFormLayout()
         self.setLayout(self._form)
-        self._form_label = QLabel()
+        self._form_label = QLabel(
+            self._app.localizer._("Generate entity listing pages")
+        )
         self._form.addRow(self._form_label)
         self._checkboxes_form = QFormLayout()
         self._form.addRow(self._checkboxes_form)
@@ -133,7 +141,9 @@ class GenerateHtmlListForm(LocalizedObject, QWidget):
                 )
             entity_type_configuration.generate_html_list = generate_html_list
 
-        self._checkboxes[entity_type] = QCheckBox()
+        self._checkboxes[entity_type] = QCheckBox(
+            entity_type.entity_type_label_plural().localize(self._app.localizer)
+        )
         self._checkboxes[entity_type].setChecked(
             entity_type in self._app.project.configuration.entity_types
             and self._app.project.configuration.entity_types[
@@ -143,26 +153,17 @@ class GenerateHtmlListForm(LocalizedObject, QWidget):
         self._checkboxes[entity_type].toggled.connect(_update)
         self._update_for_entity_type(entity_type, row_i)
 
-    @override
-    def _set_translatables(self) -> None:
-        super()._set_translatables()
-        self._form_label.setText(self._app.localizer._("Generate entity listing pages"))
-        for entity_type in self._app.entity_types:
-            if issubclass(entity_type, UserFacingEntity):
-                self._checkboxes[entity_type].setText(
-                    entity_type.entity_type_label_plural().localize(self._app.localizer)
-                )
-
 
 @final
 @internal
-class GeneralPane(LocalizedObject, QWidget):
+class GeneralPane(QWidget):
     """
     A pane to administer general project configuration.
     """
 
     def __init__(self, app: App):
-        super().__init__(app)
+        super().__init__()
+        self._app = app
 
         self._form = QFormLayout()
         self.setLayout(self._form)
@@ -183,9 +184,11 @@ class GeneralPane(LocalizedObject, QWidget):
         self._configuration_name = QLineEdit()
         self._configuration_name.setText(self._app.project.configuration.name)
         self._configuration_name.textChanged.connect(_update_configuration_name)
-        self._configuration_name_label = QLabel()
+        self._configuration_name_label = QLabel(self._app.localizer._("Name"))
         self._form.addRow(self._configuration_name_label, self._configuration_name)
-        self._configuration_name_caption = Caption()
+        self._configuration_name_caption = Caption(
+            self._app.localizer._("The project's machine name.")
+        )
         self._form.addRow(self._configuration_name_caption)
 
     def _build_title(self) -> None:
@@ -195,7 +198,7 @@ class GeneralPane(LocalizedObject, QWidget):
         self._configuration_title = QLineEdit()
         self._configuration_title.setText(self._app.project.configuration.title)
         self._configuration_title.textChanged.connect(_update_configuration_title)
-        self._configuration_title_label = QLabel()
+        self._configuration_title_label = QLabel(self._app.localizer._("Title"))
         self._form.addRow(self._configuration_title_label, self._configuration_title)
 
     def _build_author(self) -> None:
@@ -205,7 +208,7 @@ class GeneralPane(LocalizedObject, QWidget):
         self._configuration_author = QLineEdit()
         self._configuration_author.setText(str(self._app.project.configuration.author))
         self._configuration_author.textChanged.connect(_update_configuration_author)
-        self._configuration_author_label = QLabel()
+        self._configuration_author_label = QLabel(self._app.localizer._("Author"))
         self._form.addRow(self._configuration_author_label, self._configuration_author)
 
     def _build_url(self) -> None:
@@ -230,7 +233,7 @@ class GeneralPane(LocalizedObject, QWidget):
             + self._app.project.configuration.root_path
         )
         self._configuration_url.textChanged.connect(_update_configuration_url)
-        self._configuration_url_label = QLabel()
+        self._configuration_url_label = QLabel(self._app.localizer._("URL"))
         self._form.addRow(self._configuration_url_label, self._configuration_url)
 
     def _build_lifetime_threshold(self) -> None:
@@ -260,75 +263,59 @@ class GeneralPane(LocalizedObject, QWidget):
         self._configuration_lifetime_threshold.textChanged.connect(
             _update_configuration_lifetime_threshold
         )
-        self._configuration_lifetime_threshold_label = QLabel()
+        self._configuration_lifetime_threshold_label = QLabel(
+            self._app.localizer._("Lifetime threshold")
+        )
         self._form.addRow(
             self._configuration_lifetime_threshold_label,
             self._configuration_lifetime_threshold,
         )
-        self._configuration_lifetime_threshold_caption = Caption()
+        self._configuration_lifetime_threshold_caption = Caption(
+            self._app.localizer._("The age at which people are presumed dead.")
+        )
         self._form.addRow(self._configuration_lifetime_threshold_caption)
 
     def _build_mode(self) -> None:
         def _update_configuration_debug(mode: bool) -> None:
             self._app.project.configuration.debug = mode
 
-        self._development_debug = QCheckBox()
+        self._development_debug = QCheckBox(self._app.localizer._("Debugging mode"))
         self._development_debug.setChecked(self._app.project.configuration.debug)
         self._development_debug.toggled.connect(_update_configuration_debug)
         self._form.addRow(self._development_debug)
-        self._development_debug_caption = Caption()
+        self._development_debug_caption = Caption(
+            self._app.localizer._(
+                "Output more detailed logs and disable optimizations that make debugging harder."
+            )
+        )
         self._form.addRow(self._development_debug_caption)
 
     def _build_clean_urls(self) -> None:
         def _update_configuration_clean_urls(clean_urls: bool) -> None:
             self._app.project.configuration.clean_urls = clean_urls
 
-        self._clean_urls = QCheckBox()
+        self._clean_urls = QCheckBox(self._app.localizer._("Clean URLs"))
         self._clean_urls.setChecked(self._app.project.configuration.clean_urls)
         self._clean_urls.toggled.connect(_update_configuration_clean_urls)
         self._form.addRow(self._clean_urls)
-        self._clean_urls_caption = Caption()
-        self._form.addRow(self._clean_urls_caption)
-
-    @override
-    def _set_translatables(self) -> None:
-        super()._set_translatables()
-        self._configuration_name_label.setText(self._app.localizer._("Name"))
-        self._configuration_name_caption.setText(
-            self._app.localizer._("The project's machine name.")
-        )
-        self._configuration_author_label.setText(self._app.localizer._("Author"))
-        self._configuration_url_label.setText(self._app.localizer._("URL"))
-        self._configuration_title_label.setText(self._app.localizer._("Title"))
-        self._configuration_lifetime_threshold_label.setText(
-            self._app.localizer._("Lifetime threshold")
-        )
-        self._configuration_lifetime_threshold_caption.setText(
-            self._app.localizer._("The age at which people are presumed dead.")
-        )
-        self._development_debug.setText(self._app.localizer._("Debugging mode"))
-        self._development_debug_caption.setText(
-            self._app.localizer._(
-                "Output more detailed logs and disable optimizations that make debugging harder."
-            )
-        )
-        self._clean_urls.setText(self._app.localizer._("Clean URLs"))
-        self._clean_urls_caption.setText(
+        self._clean_urls_caption = Caption(
             self._app.localizer._(
                 "URLs look like <code>/path</code> instead of <code>/path/index.html</code>. This requires a web server that supports it."
             )
         )
+        self._form.addRow(self._clean_urls_caption)
 
 
 @final
 @internal
-class LocalesConfigurationWidget(LocalizedObject, QWidget):
+class LocalesConfigurationWidget(QWidget):
     """
     A form widget to configuration project locales.
     """
 
     def __init__(self, app: App):
-        super().__init__(app)
+        super().__init__()
+        self._app = app
 
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
@@ -339,21 +326,22 @@ class LocalesConfigurationWidget(LocalizedObject, QWidget):
         self._locales_layout = QGridLayout()
         self._locales_widget.setLayout(self._locales_layout)
 
-        self._default_locale_heading = Text()
+        self._default_locale_heading = Text(self._app.localizer._("Default locale"))
         self._locales_layout.addWidget(self._default_locale_heading)
 
         self._remove_buttons: dict[str, QPushButton] = {}
         self._default_buttons: dict[str, QRadioButton] = {}
         self._default_locale_button_group = QButtonGroup()
 
-        self._add_locale_button = QPushButton()
+        self._add_locale_button = QPushButton(self._app.localizer._("Add a locale"))
         self._add_locale_button.released.connect(self._add_locale)
         self._layout.addWidget(self._add_locale_button)
 
         self._built_locales: MutableSequence[str] = []
-        self._app.project.configuration.locales.on_change(
-            self._rebuild_locales_configuration
-        )
+        # @todo Finish this
+        # self._app.project.configuration.locales.on_change(
+        #     self._rebuild_locales_configuration
+        # )
         self._rebuild_locales_configuration()
 
     def _rebuild_locales_configuration(self) -> None:
@@ -371,7 +359,6 @@ class LocalesConfigurationWidget(LocalizedObject, QWidget):
             if current_locale not in built_locales:
                 self._build_locale_configuration(current_locale)
             self._add_locale_configuration(current_locale, row_index)
-        self._set_translatables()
         self._built_locales = current_locales
 
     def _add_locale_configuration(self, locale: str, row_index: int):
@@ -396,7 +383,9 @@ class LocalesConfigurationWidget(LocalizedObject, QWidget):
         del self._remove_buttons[locale]
 
     def _build_locale_configuration(self, locale: str) -> None:
-        self._default_buttons[locale] = QRadioButton()
+        self._default_buttons[locale] = QRadioButton(
+            get_display_name(locale, self._app.localizer.locale)
+        )
 
         def _update_locales_configuration_default() -> None:
             self._app.project.configuration.locales.default = locale  # type: ignore[assignment]
@@ -409,19 +398,9 @@ class LocalesConfigurationWidget(LocalizedObject, QWidget):
         def _remove_locale() -> None:
             del self._app.project.configuration.locales[locale]
 
-        remove_button = QPushButton()
+        remove_button = QPushButton(self._app.localizer._("Remove"))
         remove_button.released.connect(_remove_locale)
         self._remove_buttons[locale] = remove_button
-
-    @override
-    def _set_translatables(self) -> None:
-        super()._set_translatables()
-        self._default_locale_heading.setText(self._app.localizer._("Default locale"))
-        self._add_locale_button.setText(self._app.localizer._("Add a locale"))
-        for locale, button in self._default_buttons.items():
-            button.setText(get_display_name(locale, self._app.localizer.locale))
-        for button in self._remove_buttons.values():
-            button.setText(self._app.localizer._("Remove"))
 
     def _add_locale(self) -> None:
         window = AddLocaleWindow(self._app, parent=self)
@@ -430,13 +409,14 @@ class LocalesConfigurationWidget(LocalizedObject, QWidget):
 
 @final
 @internal
-class LocalizationPane(LocalizedObject, QWidget):
+class LocalizationPane(QWidget):
     """
     A pane for project localization configuration.
     """
 
     def __init__(self, app: App):
-        super().__init__(app)
+        super().__init__()
+        self._app = app
 
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
@@ -461,7 +441,7 @@ class AddLocaleWindow(BettyMainWindow):
         self,
         app: App,
         *,
-        parent: QObject | None = None,
+        parent: QWidget | None = None,
     ):
         super().__init__(app, parent=parent)
 
@@ -481,9 +461,13 @@ class AddLocaleWindow(BettyMainWindow):
             self._layout.addRow(*row)
 
         self._alias = QLineEdit()
-        self._alias_label = QLabel()
+        self._alias_label = QLabel(self._app.localizer._("Alias"))
         self._layout.addRow(self._alias_label, self._alias)
-        self._alias_caption = Caption()
+        self._alias_caption = Caption(
+            self._app.localizer._(
+                "An optional alias is used instead of the locale code to identify this locale, such as in URLs. If US English is the only English language variant on your site, you may want to alias its language code from <code>en-US</code> to <code>en</code>, for instance."
+            )
+        )
         self._layout.addRow(self._alias_caption)
 
         buttons_layout = QHBoxLayout()
@@ -498,23 +482,13 @@ class AddLocaleWindow(BettyMainWindow):
         buttons_layout.addWidget(self._cancel)
 
     @override
-    def _set_translatables(self) -> None:
-        super()._set_translatables()
-        self._alias_label.setText(self._app.localizer._("Alias"))
-        self._alias_caption.setText(
-            self._app.localizer._(
-                "An optional alias is used instead of the locale code to identify this locale, such as in URLs. If US English is the only English language variant on your site, you may want to alias its language code from <code>en-US</code> to <code>en</code>, for instance."
-            )
-        )
-
-    @override
     @property
     def window_title(self) -> Localizable:
         return Str._("Add a locale")
 
     def _save_and_close_locale(self) -> None:
         with ExceptionCatcher(self):
-            locale = self._locale_collector.locale.currentData()
+            locale = self._locale_collector.locale
             alias: str | None = self._alias.text().strip()
             if alias == "":
                 alias = None
@@ -533,13 +507,14 @@ class AddLocaleWindow(BettyMainWindow):
 
 @final
 @internal
-class ExtensionPane(LocalizedObject, QWidget):
+class ExtensionPane(QWidget):
     """
     A configuration pane for a single extension.
     """
 
     def __init__(self, app: App, extension_type: type[UserFacingExtension]):
-        super().__init__(app)
+        super().__init__()
+        self._app = app
         self._extension_type = extension_type
 
         layout = QVBoxLayout()
@@ -549,7 +524,9 @@ class ExtensionPane(LocalizedObject, QWidget):
         enable_layout = QFormLayout()
         layout.addLayout(enable_layout)
 
-        self._extension_description = Text()
+        self._extension_description = Text(
+            self._extension_type.description().localize(self._app.localizer)
+        )
         enable_layout.addRow(self._extension_description)
 
         self._extension_gui: QWidget | None = None
@@ -571,7 +548,11 @@ class ExtensionPane(LocalizedObject, QWidget):
                         self._extension_gui.deleteLater()
                         self._extension_gui = None
 
-        self._extension_enabled = QCheckBox()
+        self._extension_enabled = QCheckBox(
+            self._app.localizer._("Enable {extension}").format(
+                extension=self._extension_type.label().localize(self._app.localizer),
+            )
+        )
         self._extension_enabled_caption = Caption()
         self._set_extension_status()
         self._extension_enabled.toggled.connect(_update_enabled)
@@ -610,21 +591,9 @@ class ExtensionPane(LocalizedObject, QWidget):
                         reduced_enable_requirement.localize(self._app.localizer)
                     )
 
-    @override
-    def _set_translatables(self) -> None:
-        super()._set_translatables()
-        self._extension_description.setText(
-            self._extension_type.description().localize(self._app.localizer)
-        )
-        self._extension_enabled.setText(
-            self._app.localizer._("Enable {extension}").format(
-                extension=self._extension_type.label().localize(self._app.localizer),
-            )
-        )
-
 
 @final
-class ProjectWindow(BettyPrimaryWindow):
+class ProjectWindow(ProjectAwareMixin, BettyPrimaryWindow):
     """
     A window to administer a project.
     """
@@ -633,7 +602,7 @@ class ProjectWindow(BettyPrimaryWindow):
         self,
         app: App,
     ):
-        super().__init__(app)
+        super().__init__(app.project, app)
 
         central_widget = QWidget()
         central_layout = QHBoxLayout()
@@ -677,53 +646,58 @@ class ProjectWindow(BettyPrimaryWindow):
         self._pane_containers: dict[str, QWidget] = {}
         self._pane_selectors: dict[str, QPushButton] = {}
 
-        self._add_pane("general", GeneralPane(self._app))
-        self._builtin_pane_selectors_layout.addWidget(self._pane_selectors["general"])
-        self._navigate_to_pane("general")
-        self._add_pane("localization", LocalizationPane(self._app))
-        self._builtin_pane_selectors_layout.addWidget(
-            self._pane_selectors["localization"]
-        )
         self._extension_types = [
             extension_type
             for extension_type in self._app.discover_extension_types()
             if issubclass(extension_type, UserFacingExtension)
         ]
+        self._add_pane("general", Str._("General"), GeneralPane(self._app))
+        self._builtin_pane_selectors_layout.addWidget(self._pane_selectors["general"])
+        self._navigate_to_pane("general")
+        self._add_pane(
+            "localization", Str._("Localization"), LocalizationPane(self._app)
+        )
+        self._builtin_pane_selectors_layout.addWidget(
+            self._pane_selectors["localization"]
+        )
         for extension_type in self._extension_types:
             self._add_pane(
                 f"extension-{extension_type.name()}",
+                extension_type.label(),
                 ExtensionPane(self._app, extension_type),
             )
 
         menu_bar = self.menuBar()
         assert menu_bar is not None
 
-        self.project_menu = QMenu()
+        self.project_menu = QMenu("&" + self._app.localizer._("Project"))
         menu_bar.addMenu(self.project_menu)
         menu_bar.insertMenu(self.help_menu.menuAction(), self.project_menu)
 
-        self.save_project_as_action = QAction(self)
+        self.save_project_as_action = QAction(
+            self._app.localizer._("Save this project as..."), self
+        )
         self.save_project_as_action.setShortcut("Ctrl+Shift+S")
         self.save_project_as_action.triggered.connect(
             lambda _: self.save_project_as(),
         )
         self.project_menu.addAction(self.save_project_as_action)
 
-        self.generate_action = QAction(self)
+        self.generate_action = QAction(self._app.localizer._("Generate site"), self)
         self.generate_action.setShortcut("Ctrl+G")
         self.generate_action.triggered.connect(
             lambda _: self.generate(),
         )
         self.project_menu.addAction(self.generate_action)
 
-        self.serve_action = QAction(self)
+        self.serve_action = QAction(self._app.localizer._("Serve site"), self)
         self.serve_action.setShortcut("Ctrl+Alt+S")
         self.serve_action.triggered.connect(
             lambda _: self.serve(),
         )
         self.project_menu.addAction(self.serve_action)
 
-    def _add_pane(self, pane_name: str, pane: QWidget) -> None:
+    def _add_pane(self, pane_name: str, pane_label: Localizable, pane: QWidget) -> None:
         pane_container = QScrollArea()
         pane_container.setFrameShape(QFrame.Shape.NoFrame)
         pane_container.setWidget(pane)
@@ -733,36 +707,8 @@ class ProjectWindow(BettyPrimaryWindow):
         self._pane_containers[pane_name] = pane_container
         self._panes[pane_name] = pane
         self._panes_layout.addWidget(pane_container)
-        self._pane_selectors[pane_name] = _PaneButton(pane_name, self)
-
-    def _navigate_to_pane(self, pane_name: str) -> None:
-        for pane_selector in self._pane_selectors.values():
-            pane_selector.setFlat(True)
-        self._pane_selectors[pane_name].setFlat(False)
-        self._panes_layout.setCurrentWidget(self._pane_containers[pane_name])
-
-    @override
-    def show(self) -> None:
-        self._app.project.configuration.autowrite = True
-        super().show()
-
-    @override
-    def close(self) -> bool:
-        self._app.project.configuration.autowrite = False
-        return super().close()
-
-    @override
-    def _set_translatables(self) -> None:
-        super()._set_translatables()
-        self.project_menu.setTitle("&" + self._app.localizer._("Project"))
-        self.save_project_as_action.setText(
-            self._app.localizer._("Save this project as...")
-        )
-        self.generate_action.setText(self._app.localizer._("Generate site"))
-        self.serve_action.setText(self._app.localizer._("Serve site"))
-        self._pane_selectors["general"].setText(self._app.localizer._("General"))
-        self._pane_selectors["localization"].setText(
-            self._app.localizer._("Localization")
+        self._pane_selectors[pane_name] = _PaneButton(
+            pane_name, pane_label.localize(self._app.localizer), self
         )
 
         # Sort extension pane selector buttons by their human-readable label.
@@ -774,12 +720,20 @@ class ProjectWindow(BettyPrimaryWindow):
             extension_pane_selector_labels, key=lambda x: x[1]
         ):
             extension_pane_name = f"extension-{extension_type.name()}"
+            if extension_pane_name not in self._pane_selectors:
+                continue
             self._pane_selectors[extension_pane_name].setText(
                 extension_type.label().localize(self._app.localizer)
             )
             self._extension_pane_selectors_layout.addWidget(
                 self._pane_selectors[extension_pane_name]
             )
+
+    def _navigate_to_pane(self, pane_name: str) -> None:
+        for pane_selector in self._pane_selectors.values():
+            pane_selector.setFlat(True)
+        self._pane_selectors[pane_name].setFlat(False)
+        self._panes_layout.setCurrentWidget(self._pane_containers[pane_name])
 
     @override
     @property
@@ -859,7 +813,7 @@ class GenerateWindow(BettyMainWindow):
         self,
         app: App,
         *,
-        parent: QObject | None = None,
+        parent: QWidget | None = None,
     ):
         super().__init__(app, parent=parent)
 
@@ -877,11 +831,11 @@ class GenerateWindow(BettyMainWindow):
         button_layout = QHBoxLayout()
         central_layout.addLayout(button_layout)
 
-        self._cancel_button = QPushButton()
+        self._cancel_button = QPushButton(self._app.localizer._("Cancel"))
         self._cancel_button.released.connect(self.close)
         button_layout.addWidget(self._cancel_button)
 
-        self._serve_button = QPushButton()
+        self._serve_button = QPushButton(self._app.localizer._("View site"))
         self._serve_button.setDisabled(True)
         self._serve_button.released.connect(self._serve)
         button_layout.addWidget(self._serve_button)
@@ -903,7 +857,7 @@ class GenerateWindow(BettyMainWindow):
 
     def _serve(self) -> None:
         with ExceptionCatcher(self):
-            serve_window = ServeProjectWindow(self._app, parent=self.parent())
+            serve_window = ServeProjectWindow(self._app, parent=self.parentWidget())
             serve_window.show()
 
     @override
@@ -919,10 +873,3 @@ class GenerateWindow(BettyMainWindow):
 
     def _finalize(self) -> None:
         getLogger(__name__).removeHandler(self._logging_handler)
-
-    @override
-    def _set_translatables(self) -> None:
-        super()._set_translatables()
-        self._cancel_button.setText(self._app.localizer._("Cancel"))
-        self._cancel_button.setText(self._app.localizer._("Cancel"))
-        self._serve_button.setText(self._app.localizer._("View site"))

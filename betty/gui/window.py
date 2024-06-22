@@ -8,18 +8,15 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from PyQt6.QtGui import QIcon
-from PyQt6.QtWidgets import QApplication, QMainWindow
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget
 from typing_extensions import override
-
-from betty.gui.locale import LocalizedObject
 
 if TYPE_CHECKING:
     from betty.locale import Localizable
     from betty.app import App
-    from PyQt6.QtCore import QObject
 
 
-class BettyMainWindow(LocalizedObject, QMainWindow):
+class BettyMainWindow(QMainWindow):
     """
     A generic window.
     """
@@ -34,9 +31,10 @@ class BettyMainWindow(LocalizedObject, QMainWindow):
         self,
         app: App,
         *,
-        parent: QObject | None = None,
+        parent: QWidget | None = None,
     ):
-        super().__init__(app, parent)
+        super().__init__(parent)
+        self._app = app
         self.resize(self.window_width, self.window_height)
         self.setWindowIcon(
             QIcon(
@@ -54,9 +52,6 @@ class BettyMainWindow(LocalizedObject, QMainWindow):
         assert screen is not None
         geometry.moveCenter(screen.availableGeometry().center())
         self.move(geometry.topLeft())
-
-    @override
-    def _set_translatables(self) -> None:
         self.setWindowTitle(
             f"{self.window_title.localize(self._app.localizer)} - Betty"
         )

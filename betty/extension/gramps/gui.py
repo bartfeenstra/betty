@@ -8,7 +8,7 @@ from contextlib import suppress
 from pathlib import Path
 from typing import Any, TYPE_CHECKING
 
-from PyQt6.QtCore import Qt, QObject
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QWidget,
     QFormLayout,
@@ -26,19 +26,20 @@ from betty.extension import Gramps
 from betty.extension.gramps.config import FamilyTreeConfiguration
 from betty.gui import mark_valid, mark_invalid
 from betty.gui.error import ExceptionCatcher
-from betty.gui.locale import LocalizedObject
 from betty.gui.text import Text
 from betty.gui.window import BettyMainWindow
 from betty.locale import Localizable, Str
+from betty.project import ProjectAwareMixin
 from betty.serde.error import SerdeError
 
 if TYPE_CHECKING:
     from betty.app import App
 
 
-class _FamilyTrees(LocalizedObject, QWidget):
+class _FamilyTrees(QWidget):
     def __init__(self, app: App, *args: Any, **kwargs: Any):
-        super().__init__(app, *args, **kwargs)
+        super().__init__(*args, **kwargs)
+        self._app = app
 
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
@@ -48,11 +49,14 @@ class _FamilyTrees(LocalizedObject, QWidget):
         self._family_trees_remove_buttons: list[QPushButton]
 
         self._build_family_trees()
-        self._app.extensions[Gramps].configuration.family_trees.on_change(
-            self._build_family_trees
-        )
+        # @todo Finish this
+        # self._app.extensions[Gramps].configuration.family_trees.on_change(
+        #     self._build_family_trees
+        # )
 
-        self._add_family_tree_button = QPushButton()
+        self._add_family_tree_button = QPushButton(
+            self._app.localizer._("Add a family tree")
+        )
         self._add_family_tree_button.released.connect(self._add_family_tree)
         self._layout.addWidget(self._add_family_tree_button, 1)
 
@@ -81,27 +85,23 @@ class _FamilyTrees(LocalizedObject, QWidget):
             del self._app.extensions[Gramps].configuration.family_trees[index]
 
         self._family_trees_layout.addWidget(Text(str(family_tree.file_path)), index, 0)
-        self._family_trees_remove_buttons.insert(index, QPushButton())
+        self._family_trees_remove_buttons.insert(
+            index, QPushButton(self._app.localizer._("Remove"))
+        )
         self._family_trees_remove_buttons[index].released.connect(_remove_family_tree)
         self._family_trees_layout.addWidget(
             self._family_trees_remove_buttons[index], index, 1
         )
-
-    @override
-    def _set_translatables(self) -> None:
-        super()._set_translatables()
-        self._add_family_tree_button.setText(self._app.localizer._("Add a family tree"))
-        for button in self._family_trees_remove_buttons:
-            button.setText(self._app.localizer._("Remove"))
 
     def _add_family_tree(self) -> None:
         window = _AddFamilyTreeWindow(self._app, parent=self)
         window.show()
 
 
-class _GrampsGuiWidget(LocalizedObject, QWidget):
+class _GrampsGuiWidget(ProjectAwareMixin, QWidget):
     def __init__(self, app: App, *args: Any, **kwargs: Any):
-        super().__init__(app, *args, **kwargs)
+        super().__init__(app.project, *args, **kwargs)
+        self._app = app
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
 
@@ -117,7 +117,7 @@ class _AddFamilyTreeWindow(BettyMainWindow):
         self,
         app: App,
         *,
-        parent: QObject | None = None,
+        parent: QWidget | None = None,
     ):
         super().__init__(app, parent=parent)
         self._family_tree = FamilyTreeConfiguration(
@@ -161,7 +161,7 @@ class _AddFamilyTreeWindow(BettyMainWindow):
         self._file_path_find = QPushButton("...")
         self._file_path_find.released.connect(find_family_tree_file_path)
         file_path_layout.addWidget(self._file_path_find)
-        self._file_path_label = QLabel()
+        self._file_path_label = QLabel(self._app.localizer._("File path"))
         self._layout.addRow(self._file_path_label, file_path_layout)
 
         buttons_layout = QHBoxLayout()
@@ -174,21 +174,14 @@ class _AddFamilyTreeWindow(BettyMainWindow):
                 )
                 self.close()
 
-        self._save_and_close = QPushButton()
+        self._save_and_close = QPushButton(self._app.localizer._("Save and close"))
         self._save_and_close.setDisabled(True)
         self._save_and_close.released.connect(save_and_close_family_tree)
         buttons_layout.addWidget(self._save_and_close)
 
-        self._cancel = QPushButton()
+        self._cancel = QPushButton(self._app.localizer._("Cancel"))
         self._cancel.released.connect(self.close)
         buttons_layout.addWidget(self._cancel)
-
-    @override
-    def _set_translatables(self) -> None:
-        super()._set_translatables()
-        self._file_path_label.setText(self._app.localizer._("File path"))
-        self._save_and_close.setText(self._app.localizer._("Save and close"))
-        self._cancel.setText(self._app.localizer._("Cancel"))
 
     @override
     @property

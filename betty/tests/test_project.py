@@ -19,6 +19,8 @@ from betty.project import (
     EntityReferenceSequence,
     EntityTypeConfiguration,
     EntityTypeConfigurationMapping,
+    ProjectAwareMixin,
+    Project,
 )
 from betty.serde.error import SerdeError
 from betty.serde.load import (
@@ -1130,3 +1132,13 @@ class DummyConfigurableExtension(
     @classmethod
     def default_configuration(cls) -> DummyConfigurableExtensionConfiguration:
         return DummyConfigurableExtensionConfiguration()
+
+
+class TestProjectAwareMixin:
+    async def test_project(self) -> None:
+        init_project = Project()
+        setter_project = Project()
+        sut = ProjectAwareMixin(init_project)
+        assert sut.project == init_project
+        sut.project = setter_project
+        assert sut.project == setter_project

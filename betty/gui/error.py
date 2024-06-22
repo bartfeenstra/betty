@@ -46,7 +46,7 @@ class ExceptionCatcher(Generic[_P, _T]):
 
     def __init__(
         self,
-        parent: QObject,
+        parent: QWidget,
         *,
         close_parent: bool = False,
     ):
@@ -126,13 +126,11 @@ class Error(BettyMainWindow):
         app: App,
         message: Localizable,
         *,
-        parent: QObject,
+        parent: QWidget,
         close_parent: bool = False,
     ):
         super().__init__(app, parent=parent)
         self._message_localizable = message
-        if close_parent and not isinstance(parent, QWidget):
-            raise ValueError("If `close_parent` is true, `parent` must be `QWidget`.")
         self._close_parent = close_parent
         self.setWindowModality(Qt.WindowModality.WindowModal)
 
@@ -141,13 +139,13 @@ class Error(BettyMainWindow):
         central_widget.setLayout(self._central_layout)
         self.setCentralWidget(central_widget)
 
-        self._message = Text()
+        self._message = Text(self._message_localizable.localize(self._app.localizer))
         self._central_layout.addWidget(self._message)
 
         self._controls = QHBoxLayout()
         self._central_layout.addLayout(self._controls)
 
-        self._dismiss = QPushButton()
+        self._dismiss = QPushButton(self._app.localizer._("Close"))
         self._dismiss.released.connect(self.close)
         self._controls.addWidget(self._dismiss)
 
@@ -157,16 +155,10 @@ class Error(BettyMainWindow):
         return Str.plain("{error} - Betty", error=Str._("Error"))
 
     @override
-    def _set_translatables(self) -> None:
-        super()._set_translatables()
-        self._message.setText(self._message_localizable.localize(self._app.localizer))
-        self._dismiss.setText(self._app.localizer._("Close"))
-
-    @override
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         if self._close_parent:
-            parent = self.parent()
-            if isinstance(parent, QWidget):
+            parent = self.parentWidget()
+            if parent:
                 parent.close()
         super().closeEvent(a0)
 
@@ -185,7 +177,7 @@ class ExceptionError(Error):
         message: Localizable,
         error_type: type[BaseException],
         *,
-        parent: QObject,
+        parent: QWidget,
         close_parent: bool = False,
     ):
         super().__init__(app, message, parent=parent, close_parent=close_parent)
@@ -207,7 +199,7 @@ class _UnexpectedExceptionError(ExceptionError):
         error_message: str,
         error_traceback: str,
         *,
-        parent: QObject,
+        parent: QWidget,
         close_parent: bool = False,
     ):
         super().__init__(

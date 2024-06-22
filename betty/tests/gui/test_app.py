@@ -1,14 +1,11 @@
-import json
 from pathlib import Path
 
-import aiofiles
 from PyQt6.QtWidgets import QFileDialog
 from pytest_mock import MockerFixture
 
 from betty.gui.app import (
     WelcomeWindow,
     _AboutBettyWindow,
-    ApplicationConfiguration,
     BettyPrimaryWindow,
 )
 from betty.gui.project import ProjectWindow
@@ -123,24 +120,3 @@ class TestWelcomeWindow:
         betty_qtbot.mouse_click(sut.demo_button)
 
         betty_qtbot.assert_window(ServeDemoWindow)
-
-
-class TestApplicationConfiguration:
-    async def test_application_configuration_autowrite(
-        self, betty_qtbot: BettyQtBot
-    ) -> None:
-        betty_qtbot.app.configuration.autowrite = True
-
-        sut = ApplicationConfiguration(betty_qtbot.app)
-        betty_qtbot.qtbot.addWidget(sut)
-        sut.show()
-
-        locale = "nl-NL"
-        betty_qtbot.app.configuration.locale = locale
-
-        async with aiofiles.open(
-            betty_qtbot.app.configuration.configuration_file_path
-        ) as f:
-            read_configuration_dump = json.loads(await f.read())
-        assert read_configuration_dump == betty_qtbot.app.configuration.dump()
-        assert read_configuration_dump["locale"] == locale

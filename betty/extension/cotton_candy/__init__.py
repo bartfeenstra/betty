@@ -34,7 +34,7 @@ from betty.model import Entity, UserFacingEntity, GeneratedEntityId
 from betty.model.ancestry import Event, Person, Presence, is_public, Subject
 from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
 from betty.os import link_or_copy
-from betty.project import EntityReferenceSequence, EntityReference
+from betty.project import EntityReferenceSequence, EntityReference, ProjectAwareMixin
 from betty.serde.dump import minimize, Dump, VoidableDump, Void
 from betty.serde.load import (
     AssertionFailed,
@@ -77,7 +77,6 @@ class _ColorConfiguration(Configuration):
     def hex(self, hex_value: str) -> None:
         self._assert_hex(hex_value)
         self._hex = hex_value
-        self._dispatch_change()
 
     @override
     def update(self, other: Self) -> None:
@@ -118,15 +117,10 @@ class CottonCandyConfiguration(Configuration):
         self._featured_entities = EntityReferenceSequence["UserFacingEntity & Entity"](
             featured_entities or ()
         )
-        self._featured_entities.on_change(self)
         self._primary_inactive_color = _ColorConfiguration(primary_inactive_color)
-        self._primary_inactive_color.on_change(self)
         self._primary_active_color = _ColorConfiguration(primary_active_color)
-        self._primary_active_color.on_change(self)
         self._link_inactive_color = _ColorConfiguration(link_inactive_color)
-        self._link_inactive_color.on_change(self)
         self._link_active_color = _ColorConfiguration(link_active_color)
-        self._link_active_color.on_change(self)
         self._logo = logo
 
     @property
@@ -174,7 +168,6 @@ class CottonCandyConfiguration(Configuration):
     @logo.setter
     def logo(self, logo: Path | None) -> None:
         self._logo = logo
-        self._dispatch_change()
 
     @override
     def load(self, dump: Dump) -> None:
@@ -292,7 +285,7 @@ class CottonCandy(
         )
 
     @override
-    def gui_build(self) -> QWidget:
+    def gui_build(self) -> QWidget & ProjectAwareMixin:
         from betty.extension.cotton_candy.gui import _CottonCandyGuiWidget
 
         return _CottonCandyGuiWidget(self._app)

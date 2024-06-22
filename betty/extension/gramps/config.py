@@ -59,7 +59,6 @@ class FamilyTreeConfiguration(Configuration):
     @override
     def update(self, other: Self) -> None:
         self.file_path = other.file_path
-        self._dispatch_change()
 
 
 class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfiguration]):
@@ -88,7 +87,6 @@ class GrampsConfiguration(Configuration):
     ):
         super().__init__()
         self._family_trees = FamilyTreeConfigurationSequence(family_trees)
-        self._family_trees.on_change(self)
 
     @property
     def family_trees(self) -> FamilyTreeConfigurationSequence:

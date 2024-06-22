@@ -17,6 +17,7 @@ from betty.locale import Str, Localizable
 from betty.serde.format import FormatRepository
 
 if TYPE_CHECKING:
+    from betty.project import ProjectAwareMixin
     from collections.abc import AsyncIterator
 
 
@@ -40,7 +41,7 @@ class GuiBuilder:
     Allow extensions to provide their own Graphical User Interface component.
     """
 
-    def gui_build(self) -> QWidget:
+    def gui_build(self) -> QWidget & ProjectAwareMixin:
         """
         Build this extension's Graphical User Interface component.
         """
@@ -151,7 +152,7 @@ class BettyApplication(QApplication):
         self,
         error_type: type[Exception],
         pickled_error_message: bytes,
-        parent: QObject,
+        parent: QWidget,
         close_parent: bool,
     ) -> None:
         error_message = pickle.loads(pickled_error_message)
@@ -176,7 +177,7 @@ class BettyApplication(QApplication):
         error_type: type[Exception],
         error_message: str,
         error_traceback: str,
-        parent: QObject,
+        parent: QWidget,
         close_parent: bool,
     ) -> None:
         window = _UnexpectedExceptionError(

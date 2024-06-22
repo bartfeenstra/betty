@@ -67,17 +67,18 @@ class TemplateTestCase:
             raise RuntimeError(
                 f"You must define one of `template_string`, `template_file`, `{class_name}.template_string`, or `{class_name}.template_file`."
             )
-        async with App.new_temporary() as app, app:
+        async with App.new_temporary() as app:
             app.project.configuration.debug = True
-            if data is None:
-                data = {}
-            if locale is not None:
-                data["localizer"] = await app.localizers.get(locale)
             app.project.configuration.extensions.enable(*self.extensions)
-            rendered = await template_factory(
-                app.jinja2_environment, template
-            ).render_async(**data)
-            yield rendered, app
+            async with app:
+                if data is None:
+                    data = {}
+                if locale is not None:
+                    data["localizer"] = await app.localizers.get(locale)
+                rendered = await template_factory(
+                    app.jinja2_environment, template
+                ).render_async(**data)
+                yield rendered, app
 
 
 async def assert_betty_html(

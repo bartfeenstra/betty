@@ -7,7 +7,7 @@ from __future__ import annotations
 import asyncio
 from typing import final, TYPE_CHECKING
 
-from PyQt6.QtCore import Qt, pyqtSignal, QObject, QThread
+from PyQt6.QtCore import Qt, pyqtSignal, QThread
 from PyQt6.QtWidgets import QVBoxLayout, QWidget, QPushButton
 from typing_extensions import override
 
@@ -59,7 +59,7 @@ class _ServeWindow(BettyMainWindow):
         self,
         app: App,
         *,
-        parent: QObject | None = None,
+        parent: QWidget | None = None,
     ):
         super().__init__(app, parent=parent)
         self.server_started.connect(self._server_started)

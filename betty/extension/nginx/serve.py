@@ -44,7 +44,6 @@ class DockerizedNginxServer(Server):
         )
 
         isolated_project = Project(ancestry=self._app.project.ancestry)
-        isolated_project.configuration.autowrite = False
         isolated_project.configuration.configuration_file_path = (
             self._app.project.configuration.configuration_file_path
         )

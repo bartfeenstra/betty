@@ -7,7 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlencode
 
-from PyQt6.QtCore import Qt, QCoreApplication, QObject
+from PyQt6.QtCore import Qt, QCoreApplication
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import (
     QFormLayout,
@@ -52,66 +52,74 @@ class BettyPrimaryWindow(BettyMainWindow):
         assert betty_menu is not None
         self.betty_menu = betty_menu
 
-        self.new_project_action = QAction(self)
+        self.new_project_action = QAction(self._app.localizer._("New project..."), self)
         self.new_project_action.setShortcut("Ctrl+N")
         self.new_project_action.triggered.connect(
             lambda _: self.new_project(),
         )
         betty_menu.addAction(self.new_project_action)
 
-        self.open_project_action = QAction(self)
+        self.open_project_action = QAction(
+            self._app.localizer._("Open project..."), self
+        )
         self.open_project_action.setShortcut("Ctrl+O")
         self.open_project_action.triggered.connect(
             lambda _: self.open_project(),
         )
         betty_menu.addAction(self.open_project_action)
 
-        self._demo_action = QAction(self)
+        self._demo_action = QAction(self._app.localizer._("View demo site..."), self)
         self._demo_action.triggered.connect(
             lambda _: self._demo(),
         )
         betty_menu.addAction(self._demo_action)
 
-        self.open_application_configuration_action = QAction(self)
+        self.open_application_configuration_action = QAction(
+            self._app.localizer._("Settings..."), self
+        )
         self.open_application_configuration_action.triggered.connect(
             lambda _: self.open_application_configuration(),
         )
         betty_menu.addAction(self.open_application_configuration_action)
 
-        self.clear_caches_action = QAction(self)
+        self.clear_caches_action = QAction(
+            self._app.localizer._("Clear all caches"), self
+        )
         self.clear_caches_action.triggered.connect(
             lambda _: self.clear_caches(),
         )
         betty_menu.addAction(self.clear_caches_action)
 
-        self.exit_action = QAction(self)
+        self.exit_action = QAction(self._app.localizer._("Exit"), self)
         self.exit_action.setShortcut("Ctrl+Q")
         self.exit_action.triggered.connect(QCoreApplication.quit)
         betty_menu.addAction(self.exit_action)
 
-        help_menu = menu_bar.addMenu("")
+        help_menu = menu_bar.addMenu("&" + self._app.localizer._("Help"))
         assert help_menu is not None
         self.help_menu = help_menu
 
-        self.report_bug_action = QAction(self)
+        self.report_bug_action = QAction(self._app.localizer._("Report a bug"), self)
         self.report_bug_action.triggered.connect(
             lambda _: self.report_bug(),
         )
         help_menu.addAction(self.report_bug_action)
 
-        self.request_feature_action = QAction(self)
+        self.request_feature_action = QAction(
+            self._app.localizer._("Request a new feature"), self
+        )
         self.request_feature_action.triggered.connect(
             lambda _: self.request_feature(),
         )
         help_menu.addAction(self.request_feature_action)
 
-        self._docs_action = QAction(self)
+        self._docs_action = QAction(self._app.localizer._("View documentation"), self)
         self._docs_action.triggered.connect(
             lambda _: self._docs(),
         )
         help_menu.addAction(self._docs_action)
 
-        self.about_action = QAction(self)
+        self.about_action = QAction(self._app.localizer._("About Betty"), self)
         self.about_action.triggered.connect(
             lambda _: self._about_betty(),
         )
@@ -121,25 +129,6 @@ class BettyPrimaryWindow(BettyMainWindow):
     @property
     def window_title(self) -> Localizable:
         return Str.plain("Betty")
-
-    @override
-    def _set_translatables(self) -> None:
-        super()._set_translatables()
-        self.new_project_action.setText(self._app.localizer._("New project..."))
-        self.open_project_action.setText(self._app.localizer._("Open project..."))
-        self._demo_action.setText(self._app.localizer._("View demo site..."))
-        self.open_application_configuration_action.setText(
-            self._app.localizer._("Settings...")
-        )
-        self.clear_caches_action.setText(self._app.localizer._("Clear all caches"))
-        self.exit_action.setText(self._app.localizer._("Exit"))
-        self.help_menu.setTitle("&" + self._app.localizer._("Help"))
-        self.report_bug_action.setText(self._app.localizer._("Report a bug"))
-        self.request_feature_action.setText(
-            self._app.localizer._("Request a new feature")
-        )
-        self._docs_action.setText(self._app.localizer._("View documentation"))
-        self.about_action.setText(self._app.localizer._("About Betty"))
 
     def report_bug(self) -> None:
         """
@@ -305,41 +294,11 @@ class WelcomeWindow(BettyPrimaryWindow):
         central_widget.setLayout(central_layout)
         self.setCentralWidget(central_widget)
 
-        self._welcome = _WelcomeTitle()
+        self._welcome = _WelcomeTitle(self._app.localizer._("Welcome to Betty"))
         self._welcome.setAlignment(Qt.AlignmentFlag.AlignCenter)
         central_layout.addWidget(self._welcome)
 
-        self._welcome_caption = _WelcomeText()
-        central_layout.addWidget(self._welcome_caption)
-
-        self._project_instruction = _WelcomeHeading()
-        self._project_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        central_layout.addWidget(self._project_instruction)
-
-        project_layout = QHBoxLayout()
-        central_layout.addLayout(project_layout)
-
-        self.open_project_button = _WelcomeAction(self)
-        self.open_project_button.released.connect(self.open_project)
-        project_layout.addWidget(self.open_project_button)
-
-        self.new_project_button = _WelcomeAction(self)
-        self.new_project_button.released.connect(self.new_project)
-        project_layout.addWidget(self.new_project_button)
-
-        self._demo_instruction = _WelcomeHeading()
-        self._demo_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        central_layout.addWidget(self._demo_instruction)
-
-        self.demo_button = _WelcomeAction(self)
-        self.demo_button.released.connect(self._demo)
-        central_layout.addWidget(self.demo_button)
-
-    @override
-    def _set_translatables(self) -> None:
-        super()._set_translatables()
-        self._welcome.setText(self._app.localizer._("Welcome to Betty"))
-        self._welcome_caption.setText(
+        self._welcome_caption = _WelcomeText(
             self._app.localizer._(
                 'Betty helps you visualize and publish your family history by building interactive genealogy websites out of your <a href="{gramps_url}">Gramps</a> and <a href="{gedcom_url}">GEDCOM</a> family trees.'
             ).format(
@@ -347,19 +306,42 @@ class WelcomeWindow(BettyPrimaryWindow):
                 gedcom_url="https://en.wikipedia.org/wiki/GEDCOM",
             )
         )
-        self._project_instruction.setText(
+        central_layout.addWidget(self._welcome_caption)
+
+        self._project_instruction = _WelcomeHeading(
             self._app.localizer._("Work on a new or existing site of your own")
         )
-        self.open_project_button.setText(
-            self._app.localizer._("Open an existing project")
+        self._project_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        central_layout.addWidget(self._project_instruction)
+
+        project_layout = QHBoxLayout()
+        central_layout.addLayout(project_layout)
+
+        self.open_project_button = _WelcomeAction(
+            self._app.localizer._("Open an existing project"), self
         )
-        self.new_project_button.setText(self._app.localizer._("Create a new project"))
-        self._demo_instruction.setText(
+        self.open_project_button.released.connect(self.open_project)
+        project_layout.addWidget(self.open_project_button)
+
+        self.new_project_button = _WelcomeAction(
+            self._app.localizer._("Create a new project"), self
+        )
+        self.new_project_button.released.connect(self.new_project)
+        project_layout.addWidget(self.new_project_button)
+
+        self._demo_instruction = _WelcomeHeading(
             self._app.localizer._(
                 "View a demonstration of what a Betty site looks like"
             )
         )
-        self.demo_button.setText(self._app.localizer._("View a demo site"))
+        self._demo_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        central_layout.addWidget(self._demo_instruction)
+
+        self.demo_button = _WelcomeAction(
+            self._app.localizer._("View a demo site"), self
+        )
+        self.demo_button.released.connect(self._demo)
+        central_layout.addWidget(self.demo_button)
 
 
 class _AboutBettyWindow(BettyMainWindow):
@@ -370,16 +352,10 @@ class _AboutBettyWindow(BettyMainWindow):
         self,
         app: App,
         *,
-        parent: QObject | None = None,
+        parent: QWidget | None = None,
     ):
         super().__init__(app, parent=parent)
-        self._label = Text()
-        self._label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.setCentralWidget(self._label)
-
-    def _set_translatables(self) -> None:
-        super()._set_translatables()
-        self._label.setText(
+        self._label = Text(
             "".join(
                 (
                     "<p>%s</p>" % x
@@ -399,6 +375,8 @@ class _AboutBettyWindow(BettyMainWindow):
                 )
             )
         )
+        self._label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setCentralWidget(self._label)
 
     @override
     @property
@@ -418,7 +396,7 @@ class ApplicationConfiguration(BettyMainWindow):
         self,
         app: App,
         *,
-        parent: QObject | None = None,
+        parent: QWidget | None = None,
     ):
         super().__init__(app, parent=parent)
 

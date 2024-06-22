@@ -42,7 +42,7 @@ def context_app(context: Context) -> App:
     """
     Get the current app from the Jinja2 context.
     """
-    return cast(Environment, context.environment).app  # type: ignore[has-type, no-any-return]
+    return cast(Environment, context.environment).app
 
 
 def context_job_context(context: Context) -> JobContext | None:

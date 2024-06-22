@@ -1,13 +1,12 @@
+from __future__ import annotations
+
 import json
 from asyncio import sleep
-from pathlib import Path
 from unittest.mock import AsyncMock
 
 import aiofiles
-from PyQt6.QtWidgets import QFileDialog, QWidget, QLabel
-from pytest_mock import MockerFixture
+from PyQt6.QtWidgets import QFileDialog, QWidget
 
-from betty.app import App
 from betty.app.extension import UserFacingExtension
 from betty.gui import GuiBuilder
 from betty.gui.project import (
@@ -21,15 +20,22 @@ from betty.gui.project import (
     LocalesConfigurationWidget,
 )
 from betty.gui.serve import ServeProjectWindow
-from betty.locale import get_display_name, Str, Localizable
+from betty.locale import Str, Localizable
 from betty.model.ancestry import File
 from betty.project import (
     LocaleConfiguration,
+    ProjectAwareMixin,
 )
 from betty.requirement import Requirement
 from betty.serde.dump import minimize
-from betty.tests.conftest import BettyQtBot
 from betty.tests.test_cli import NoOpAppServer
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from betty.tests.conftest import BettyQtBot
+    from betty.app import App
+    from pytest_mock import MockerFixture
+    from pathlib import Path
 
 
 class UnmetRequirement(Requirement):
@@ -49,8 +55,11 @@ class DummyUserFacingGuiBuilderExtension(UserFacingExtension, GuiBuilder):
     def description(cls) -> Localizable:
         return cls.label()
 
-    def gui_build(self) -> QWidget:
-        return QLabel("Hello, world!")
+    def gui_build(self) -> QWidget & ProjectAwareMixin:
+        class _Gui(ProjectAwareMixin, QWidget):
+            pass
+
+        return _Gui(self.app.project)
 
 
 class TestProjectWindow:
@@ -59,23 +68,6 @@ class TestProjectWindow:
         betty_qtbot.qtbot.addWidget(sut)
         sut.show()
         betty_qtbot.assert_window(ProjectWindow)
-
-    async def test_autowrite(self, betty_qtbot: BettyQtBot) -> None:
-        betty_qtbot.app.project.configuration.autowrite = True
-
-        sut = ProjectWindow(betty_qtbot.app)
-        betty_qtbot.qtbot.addWidget(sut)
-        sut.show()
-
-        title = "My First Ancestry Site"
-        betty_qtbot.app.project.configuration.title = title
-
-        async with aiofiles.open(
-            betty_qtbot.app.project.configuration.configuration_file_path
-        ) as f:
-            read_configuration_dump = json.loads(await f.read())
-        assert read_configuration_dump == betty_qtbot.app.project.configuration.dump()
-        assert read_configuration_dump["title"] == title
 
     async def test_navigate_to_pane(
         self,
@@ -477,7 +469,7 @@ class TestAddLocaleWindow:
         sut.show()
 
         locale = "nl-NL"
-        sut._locale_collector.locale.setCurrentText(get_display_name(locale))
+        sut._locale_collector.locale = locale
 
         betty_qtbot.mouse_click(sut._save_and_close)
         betty_qtbot.assert_not_window(sut)
@@ -495,7 +487,7 @@ class TestAddLocaleWindow:
 
         locale = "nl-NL"
         alias = "nl"
-        sut._locale_collector.locale.setCurrentText(get_display_name(locale))
+        sut._locale_collector.locale = locale
         sut._alias.setText(alias)
 
         betty_qtbot.mouse_click(sut._save_and_close)
@@ -514,7 +506,7 @@ class TestAddLocaleWindow:
 
         locale = "nl-NL"
         alias = "/"
-        sut._locale_collector.locale.setCurrentText(get_display_name(locale))
+        sut._locale_collector.locale = locale
         sut._alias.setText(alias)
 
         betty_qtbot.mouse_click(sut._save_and_close)
