@@ -9,7 +9,6 @@ from typing_extensions import override
 from betty.config import Configuration
 from betty.serde.dump import Dump, VoidableDump, minimize, VoidableDictDump
 from betty.serde.load import (
-    Fields,
     OptionalField,
     AssertionChain,
     assert_record,
@@ -53,12 +52,10 @@ class WikipediaConfiguration(Configuration):
         if configuration is None:
             configuration = cls()
         assert_record(
-            Fields(
-                OptionalField(
-                    "populate_images",
-                    AssertionChain(assert_bool())
-                    | assert_setattr(configuration, "populate_images"),
-                ),
+            OptionalField(
+                "populate_images",
+                AssertionChain(assert_bool())
+                | assert_setattr(configuration, "populate_images"),
             )
         )(dump)
         return configuration

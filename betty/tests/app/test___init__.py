@@ -14,7 +14,6 @@ from betty.config import Configuration
 from betty.model import Entity
 from betty.project import ExtensionConfiguration
 from betty.serde.load import (
-    Fields,
     RequiredField,
     AssertionChain,
     assert_record,
@@ -58,12 +57,9 @@ class ConfigurableExtensionConfiguration(Configuration):
         if configuration is None:
             configuration = cls()
         assert_record(
-            Fields(
-                RequiredField(
-                    "check",
-                    AssertionChain(assert_int())
-                    | assert_setattr(configuration, "check"),
-                ),
+            RequiredField(
+                "check",
+                AssertionChain(assert_int()) | assert_setattr(configuration, "check"),
             )
         )(dump)
         return configuration

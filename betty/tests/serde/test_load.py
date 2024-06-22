@@ -11,7 +11,6 @@ from betty.serde.dump import Void
 from betty.serde.load import (
     AssertionFailed,
     Number,
-    Fields,
     OptionalField,
     RequiredField,
     Assertion,
@@ -203,114 +202,62 @@ class TestAssertDict:
 class TestAssertFields:
     async def test_with_invalid_value(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            assert_fields(
-                Fields(
-                    OptionalField(
-                        "hello",
-                        AssertionChain(assert_str()),
-                    )
-                )
-            )(None)
+            assert_fields(OptionalField("hello", AssertionChain(assert_str())))(None)
 
     async def test_required_without_key(self) -> None:
         with raises_error(error_type=AssertionFailed, error_contexts=["hello"]):
-            assert_fields(
-                Fields(
-                    RequiredField(
-                        "hello",
-                        AssertionChain(assert_str()),
-                    )
-                )
-            )({})
+            assert_fields(RequiredField("hello", AssertionChain(assert_str())))({})
 
     async def test_optional_without_key(self) -> None:
         expected: dict[str, Any] = {}
-        actual = assert_fields(
-            Fields(
-                OptionalField(
-                    "hello",
-                    AssertionChain(assert_str()),
-                )
-            )
-        )({})
+        actual = assert_fields(OptionalField("hello", AssertionChain(assert_str())))({})
         assert expected == actual
 
     async def test_required_key_with_key(self) -> None:
         expected = {
             "hello": "World!",
         }
-        actual = assert_fields(
-            Fields(
-                RequiredField(
-                    "hello",
-                    AssertionChain(assert_str()),
-                )
-            )
-        )({"hello": "World!"})
+        actual = assert_fields(RequiredField("hello", AssertionChain(assert_str())))(
+            {"hello": "World!"}
+        )
         assert expected == actual
 
     async def test_optional_key_with_key(self) -> None:
         expected = {
             "hello": "World!",
         }
-        actual = assert_fields(
-            Fields(
-                OptionalField(
-                    "hello",
-                    AssertionChain(assert_str()),
-                )
-            )
-        )({"hello": "World!"})
+        actual = assert_fields(OptionalField("hello", AssertionChain(assert_str())))(
+            {"hello": "World!"}
+        )
         assert expected == actual
 
 
 class TestAssertField:
     async def test_with_invalid_value(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            assert_field(
-                OptionalField(
-                    "hello",
-                    AssertionChain(assert_str()),
-                )
-            )(None)
+            assert_field(OptionalField("hello", AssertionChain(assert_str())))(None)
 
     async def test_required_without_key(self) -> None:
         with raises_error(error_type=AssertionFailed, error_contexts=["hello"]):
-            assert_field(
-                RequiredField(
-                    "hello",
-                    AssertionChain(assert_str()),
-                )
-            )({})
+            assert_field(RequiredField("hello", AssertionChain(assert_str())))({})
 
     async def test_optional_without_key(self) -> None:
         expected = Void
-        actual = assert_field(
-            OptionalField(
-                "hello",
-                AssertionChain(assert_str()),
-            )
-        )({})
+        actual = assert_field(OptionalField("hello", AssertionChain(assert_str())))({})
         assert expected == actual
 
     async def test_required_key_with_key(self) -> None:
         expected = "World!"
-        actual = assert_field(
-            RequiredField(
-                "hello",
-                AssertionChain(assert_str()),
-            )
-        )({"hello": "World!"})
+        actual = assert_field(RequiredField("hello", AssertionChain(assert_str())))(
+            {"hello": "World!"}
+        )
         assert expected == actual
 
     async def test_optional_key_with_key(self) -> None:
         expected = "World!"
-        actual = assert_field(
-            OptionalField(
-                "hello",
-                AssertionChain(assert_str()),
-            )
-        )({"hello": "World!"})
+        actual = assert_field(OptionalField("hello", AssertionChain(assert_str())))(
+            {"hello": "World!"}
+        )
         assert expected == actual
 
 
@@ -334,11 +281,9 @@ class TestAssertRecord:
     async def test_with_optional_fields_without_items(self) -> None:
         expected: dict[str, Any] = {}
         actual = assert_record(
-            Fields(
-                OptionalField(
-                    "hello",
-                    AssertionChain(assert_str()),
-                ),
+            OptionalField(
+                "hello",
+                AssertionChain(assert_str()),
             )
         )({})
         assert expected == actual
@@ -348,11 +293,9 @@ class TestAssertRecord:
             "hello": "WORLD!",
         }
         actual = assert_record(
-            Fields(
-                OptionalField(
-                    "hello",
-                    AssertionChain(assert_str()) | (lambda x: x.upper()),
-                ),
+            OptionalField(
+                "hello",
+                AssertionChain(assert_str()) | (lambda x: x.upper()),
             )
         )({"hello": "World!"})
         assert expected == actual
@@ -360,11 +303,9 @@ class TestAssertRecord:
     async def test_with_required_fields_without_items(self) -> None:
         with raises_error(error_type=AssertionFailed):
             assert_record(
-                Fields(
-                    RequiredField(
-                        "hello",
-                        AssertionChain(assert_str()),
-                    ),
+                RequiredField(
+                    "hello",
+                    AssertionChain(assert_str()),
                 )
             )({})
 
@@ -373,11 +314,9 @@ class TestAssertRecord:
             "hello": "WORLD!",
         }
         actual = assert_record(
-            Fields(
-                RequiredField(
-                    "hello",
-                    AssertionChain(assert_str()) | (lambda x: x.upper()),
-                ),
+            RequiredField(
+                "hello",
+                AssertionChain(assert_str()) | (lambda x: x.upper()),
             )
         )(
             {
