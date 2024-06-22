@@ -14,6 +14,7 @@ from typing_extensions import override
 from betty.app import App
 from betty.gui.error import ExceptionError, _UnexpectedExceptionError
 from betty.locale import Str, Localizable
+from betty.project import ProjectAwareMixin
 from betty.serde.format import FormatRepository
 
 if TYPE_CHECKING:
@@ -40,7 +41,7 @@ class GuiBuilder:
     Allow extensions to provide their own Graphical User Interface component.
     """
 
-    def gui_build(self) -> QWidget:
+    def gui_build(self) -> QWidget & ProjectAwareMixin:
         """
         Build this extension's Graphical User Interface component.
         """

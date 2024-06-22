@@ -34,7 +34,6 @@ class LocalizedObject:
     ) -> None:
         super().showEvent(a0)  # type: ignore[misc]
         self._set_translatables()
-        self._app.configuration.on_change(self._set_translatables)
 
     def _set_translatables(self) -> None:
         pass
@@ -76,7 +75,6 @@ class TranslationsLocaleCollector(LocalizedObject):
         self._configuration_locale_caption = Caption()
 
         self._set_translatables()
-        self._app.configuration.on_change(self._set_translatables)
 
     @property
     def locale(self) -> QComboBox:

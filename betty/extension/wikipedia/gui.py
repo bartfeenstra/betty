@@ -15,13 +15,14 @@ from betty.app import App
 from betty.extension.wikipedia.config import WikipediaConfiguration
 from betty.gui.locale import LocalizedObject
 from betty.gui.text import Caption
+from betty.project import ProjectAwareMixin
 
 
-class _WikipediaGuiWidget(LocalizedObject, QWidget):
+class _WikipediaGuiWidget(LocalizedObject, ProjectAwareMixin, QWidget):
     def __init__(
         self, app: App, configuration: WikipediaConfiguration, *args: Any, **kwargs: Any
     ):
-        super().__init__(app, *args, **kwargs)
+        super().__init__(app, app.project, *args, **kwargs)
         self._app = app
         self._configuration = configuration
         layout = QFormLayout()

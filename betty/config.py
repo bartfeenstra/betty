@@ -4,8 +4,6 @@ Provide the Configuration API.
 
 from __future__ import annotations
 
-import inspect
-import weakref
 from collections import OrderedDict
 from collections.abc import Callable
 from contextlib import chdir
@@ -62,34 +60,6 @@ class Configuration(Dumpable):
             ReferenceType[_ConfigurationListener]
         ] = []
 
-    def _dispatch_change(self) -> None:
-        for listener_reference in self._on_change_listeners:
-            listener = listener_reference()
-            if listener is None:
-                continue
-            listener()
-
-    def _prepare_listener(
-        self, listener: ConfigurationListener
-    ) -> ReferenceType[_ConfigurationListener]:
-        if isinstance(listener, Configuration):
-            listener = listener._dispatch_change
-        if inspect.ismethod(listener):  # type: ignore[redundant-expr]
-            return weakref.WeakMethod(listener)  # type: ignore[unreachable]
-        return weakref.ref(listener)
-
-    def on_change(self, listener: ConfigurationListener) -> None:
-        """
-        Add an on-change listener.
-        """
-        self._on_change_listeners.append(self._prepare_listener(listener))
-
-    def remove_on_change(self, listener: ConfigurationListener) -> None:
-        """
-        Remove an on-change listener.
-        """
-        self._on_change_listeners.append(self._prepare_listener(listener))
-
     def update(self, other: Self) -> None:
         """
         Update this configuration with the values from ``other``.
@@ -115,26 +85,6 @@ class FileBasedConfiguration(Configuration):
         super().__init__()
         self._configuration_directory: TemporaryDirectory | None = None  # type: ignore[type-arg]
         self._configuration_file_path: Path | None = None
-        self._autowrite = False
-
-    @property
-    def autowrite(self) -> bool:
-        """
-        Whether to write this configuration to file whenever it changes.
-        """
-        return self._autowrite
-
-    @autowrite.setter
-    def autowrite(self, autowrite: bool) -> None:
-        if autowrite:
-            if not self._autowrite:
-                self.on_change(self._on_change_write)
-        else:
-            self.remove_on_change(self._on_change_write)
-        self._autowrite = autowrite
-
-    def _on_change_write(self) -> None:
-        wait_to_thread(self.write())
 
     async def write(self, configuration_file_path: Path | None = None) -> None:
         """
@@ -231,10 +181,6 @@ class FileBasedConfiguration(Configuration):
 
     @configuration_file_path.deleter
     def configuration_file_path(self) -> None:
-        if self._autowrite:
-            raise RuntimeError(
-                "Cannot remove the configuration file path while autowrite is enabled."
-            )
         self._configuration_file_path = None
 
 
@@ -282,7 +228,10 @@ class ConfigurationCollection(
     def __repr__(self) -> str:
         return repr_instance(self, configurations=list(self.values()))
 
-    def _remove_without_dispatch(self, *configuration_keys: _ConfigurationKeyT) -> None:
+    def remove(self, *configuration_keys: _ConfigurationKeyT) -> None:
+        """
+        Remove the given keys from the collection.
+        """
         for configuration_key in configuration_keys:
             configuration = self._configurations[configuration_key]  # type: ignore[call-overload]
             del self._configurations[configuration_key]  # type: ignore[call-overload]
@@ -294,28 +243,17 @@ class ConfigurationCollection(
         """
         raise NotImplementedError(repr(self))
 
-    def remove(self, *configuration_keys: _ConfigurationKeyT) -> None:
-        """
-        Remove the given keys from the collection.
-        """
-        self._remove_without_dispatch(*configuration_keys)
-        self._dispatch_change()
-
-    def _clear_without_dispatch(self) -> None:
-        self._remove_without_dispatch(*self.keys())
-
     def clear(self) -> None:
         """
         Clear all items from the collection.
         """
-        self._clear_without_dispatch()
-        self._dispatch_change()
+        self.remove(*self.keys())
 
     def _on_add(self, configuration: _ConfigurationT) -> None:
-        configuration.on_change(self)
+        pass
 
     def _on_remove(self, configuration: _ConfigurationT) -> None:
-        configuration.remove_on_change(self)
+        pass
 
     def to_index(self, configuration_key: _ConfigurationKeyT) -> int:
         """
@@ -471,17 +409,27 @@ class ConfigurationSequence(
 
     @override
     def update(self, other: Self) -> None:
-        self._clear_without_dispatch()
-        self.append(*other)
+        self.replace(*other)
 
     @override
     def replace(self, *values: _ConfigurationT) -> None:
-        self._clear_without_dispatch()
+        self.clear()
         self.append(*values)
 
     @override
-    def load(self, dump: Dump) -> None:
-        self.replace(*assert_sequence(self.load_item)(dump))
+    @classmethod
+    def load(
+        cls,
+        dump: Dump,
+        configuration: Self | None = None,
+    ) -> Self:
+        if configuration is None:
+            configuration = cls()
+        else:
+            configuration.clear()
+        with SerdeErrorCollection().assert_valid():
+            configuration.append(*assert_sequence(cls._item_type().load)(dump))
+        return configuration
 
     @override
     def dump(self) -> VoidableDump:
@@ -494,21 +442,18 @@ class ConfigurationSequence(
         for configuration in configurations:
             self._on_add(configuration)
             self._configurations.insert(0, configuration)
-        self._dispatch_change()
 
     @override
     def append(self, *configurations: _ConfigurationT) -> None:
         for configuration in configurations:
             self._on_add(configuration)
             self._configurations.append(configuration)
-        self._dispatch_change()
 
     @override
     def insert(self, index: int, *configurations: _ConfigurationT) -> None:
         for configuration in reversed(configurations):
             self._on_add(configuration)
             self._configurations.insert(index, configuration)
-        self._dispatch_change()
 
     @override
     def move_to_beginning(self, *configuration_keys: int) -> None:
@@ -525,7 +470,6 @@ class ConfigurationSequence(
     def move_towards_beginning(self, *configuration_keys: int) -> None:
         for index in configuration_keys:
             self._configurations.insert(index - 1, self._configurations.pop(index))
-        self._dispatch_change()
 
     @override
     def move_to_end(self, *configuration_keys: int) -> None:
@@ -533,13 +477,11 @@ class ConfigurationSequence(
             self._configurations.append(self._configurations[index])
         for index in reversed(configuration_keys):
             self._configurations.pop(index)
-        self._dispatch_change()
 
     @override
     def move_towards_end(self, *configuration_keys: int) -> None:
         for index in reversed(configuration_keys):
             self._configurations.insert(index + 1, self._configurations.pop(index))
-        self._dispatch_change()
 
 
 class ConfigurationMapping(
@@ -623,9 +565,7 @@ class ConfigurationMapping(
         )
 
         # Remove items that should no longer be present.
-        self._remove_without_dispatch(
-            *(key for key in self_keys if key not in other_keys)
-        )
+        self.remove(*(key for key in self_keys if key not in other_keys))
 
         # Ensure everything is in the correct order. This will also trigger reactors.
         self.move_to_beginning(*other_keys)
@@ -659,20 +599,17 @@ class ConfigurationMapping(
         for configuration in configurations:
             configuration_key = self._get_key(configuration)
             self._configurations[configuration_key] = configuration
-            configuration.on_change(self)
         self.move_to_beginning(*map(self._get_key, configurations))
 
     def _append_without_trigger(self, *configurations: _ConfigurationT) -> None:
         for configuration in configurations:
             configuration_key = self._get_key(configuration)
             self._configurations[configuration_key] = configuration
-            configuration.on_change(self)
         self._move_to_end_without_trigger(*map(self._get_key, configurations))
 
     @override
     def append(self, *configurations: _ConfigurationT) -> None:
         self._append_without_trigger(*configurations)
-        self._dispatch_change()
 
     def _insert_without_trigger(
         self, index: int, *configurations: _ConfigurationT
@@ -688,13 +625,11 @@ class ConfigurationMapping(
     @override
     def insert(self, index: int, *configurations: _ConfigurationT) -> None:
         self._insert_without_trigger(index, *configurations)
-        self._dispatch_change()
 
     @override
     def move_to_beginning(self, *configuration_keys: _ConfigurationKeyT) -> None:
         for configuration_key in reversed(configuration_keys):
             self._configurations.move_to_end(configuration_key, False)
-        self._dispatch_change()
 
     @override
     def move_towards_beginning(self, *configuration_keys: _ConfigurationKeyT) -> None:
@@ -709,7 +644,6 @@ class ConfigurationMapping(
     @override
     def move_to_end(self, *configuration_keys: _ConfigurationKeyT) -> None:
         self._move_to_end_without_trigger(*configuration_keys)
-        self._dispatch_change()
 
     @override
     def move_towards_end(self, *configuration_keys: _ConfigurationKeyT) -> None:
@@ -727,7 +661,6 @@ class ConfigurationMapping(
                 index + offset,
                 self._configurations.pop(current_configuration_keys[index]),
             )
-        self._dispatch_change()
 
     def _get_key(self, configuration: _ConfigurationT) -> _ConfigurationKeyT:
         raise NotImplementedError(repr(self))

@@ -45,7 +45,6 @@ class NginxConfiguration(Configuration):
     @https.setter
     def https(self, https: bool | None) -> None:
         self._https = https
-        self._dispatch_change()
 
     @property
     def www_directory_path(self) -> str | None:
@@ -57,13 +56,11 @@ class NginxConfiguration(Configuration):
     @www_directory_path.setter
     def www_directory_path(self, www_directory_path: str | None) -> None:
         self._www_directory_path = www_directory_path
-        self._dispatch_change()
 
     @override
     def update(self, other: Self) -> None:
         self._https = other._https
         self._www_directory_path = other._www_directory_path
-        self._dispatch_change()
 
     @override
     def load(self, dump: Dump) -> None:

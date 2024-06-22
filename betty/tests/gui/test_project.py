@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import json
 from asyncio import sleep
 from pathlib import Path
 from unittest.mock import AsyncMock
 
 import aiofiles
-from PyQt6.QtWidgets import QFileDialog, QWidget, QLabel
+from PyQt6.QtWidgets import QFileDialog, QWidget
 from pytest_mock import MockerFixture
 
 from betty.app import App
@@ -25,6 +27,7 @@ from betty.locale import get_display_name, Str, Localizable
 from betty.model.ancestry import File
 from betty.project import (
     LocaleConfiguration,
+    ProjectAwareMixin,
 )
 from betty.requirement import Requirement
 from betty.serde.dump import minimize
@@ -49,8 +52,11 @@ class DummyUserFacingGuiBuilderExtension(UserFacingExtension, GuiBuilder):
     def description(cls) -> Localizable:
         return cls.label()
 
-    def gui_build(self) -> QWidget:
-        return QLabel("Hello, world!")
+    def gui_build(self) -> QWidget & ProjectAwareMixin:
+        class _Gui(ProjectAwareMixin, QWidget):
+            pass
+
+        return _Gui(self.app.project)
 
 
 class TestProjectWindow:
@@ -59,23 +65,6 @@ class TestProjectWindow:
         betty_qtbot.qtbot.addWidget(sut)
         sut.show()
         betty_qtbot.assert_window(ProjectWindow)
-
-    async def test_autowrite(self, betty_qtbot: BettyQtBot) -> None:
-        betty_qtbot.app.project.configuration.autowrite = True
-
-        sut = ProjectWindow(betty_qtbot.app)
-        betty_qtbot.qtbot.addWidget(sut)
-        sut.show()
-
-        title = "My First Ancestry Site"
-        betty_qtbot.app.project.configuration.title = title
-
-        async with aiofiles.open(
-            betty_qtbot.app.project.configuration.configuration_file_path
-        ) as f:
-            read_configuration_dump = json.loads(await f.read())
-        assert read_configuration_dump == betty_qtbot.app.project.configuration.dump()
-        assert read_configuration_dump["title"] == title
 
     async def test_navigate_to_pane(
         self,

@@ -30,6 +30,7 @@ from betty.gui.locale import LocalizedObject
 from betty.gui.text import Text
 from betty.gui.window import BettyMainWindow
 from betty.locale import Localizable, Str
+from betty.project import ProjectAwareMixin
 from betty.serde.error import SerdeError
 
 if TYPE_CHECKING:
@@ -48,9 +49,10 @@ class _FamilyTrees(LocalizedObject, QWidget):
         self._family_trees_remove_buttons: list[QPushButton]
 
         self._build_family_trees()
-        self._app.extensions[Gramps].configuration.family_trees.on_change(
-            self._build_family_trees
-        )
+        # @todo Finish this
+        # self._app.extensions[Gramps].configuration.family_trees.on_change(
+        #     self._build_family_trees
+        # )
 
         self._add_family_tree_button = QPushButton()
         self._add_family_tree_button.released.connect(self._add_family_tree)
@@ -99,9 +101,9 @@ class _FamilyTrees(LocalizedObject, QWidget):
         window.show()
 
 
-class _GrampsGuiWidget(LocalizedObject, QWidget):
+class _GrampsGuiWidget(LocalizedObject, ProjectAwareMixin, QWidget):
     def __init__(self, app: App, *args: Any, **kwargs: Any):
-        super().__init__(app, *args, **kwargs)
+        super().__init__(app, app.project, *args, **kwargs)
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
 

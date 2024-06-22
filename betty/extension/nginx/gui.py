@@ -18,13 +18,14 @@ from betty.app import App
 from betty.extension.nginx.config import NginxConfiguration
 from betty.gui.error import ExceptionCatcher
 from betty.gui.locale import LocalizedObject
+from betty.project import ProjectAwareMixin
 
 
-class _NginxGuiWidget(LocalizedObject, QWidget):
+class _NginxGuiWidget(LocalizedObject, ProjectAwareMixin, QWidget):
     def __init__(
         self, app: App, configuration: NginxConfiguration, *args: Any, **kwargs: Any
     ):
-        super().__init__(app, *args, **kwargs)
+        super().__init__(app, app.project, *args, **kwargs)
         self._configuration = configuration
         layout = QFormLayout()
 

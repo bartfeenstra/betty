@@ -29,6 +29,7 @@ from betty.gui.locale import LocalizedObject
 from betty.gui.model import EntityReferenceSequenceCollector
 from betty.gui.text import Caption
 from betty.locale import Str, Localizable
+from betty.project import ProjectAwareMixin
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -38,7 +39,8 @@ class _ColorConfigurationSwatch(LocalizedObject, QWidget):
     def __init__(self, app: App, color: _ColorConfiguration, *args: Any, **kwargs: Any):
         super().__init__(app, *args, **kwargs)
         self._color = color
-        self._color.on_change(self.repaint)
+        # @todo Finish this
+        # self._color.on_change(self.repaint)
         self.setFixedHeight(24)
         self.setFixedWidth(24)
         self._swatch = QRect(self.rect())
@@ -122,9 +124,9 @@ class _ColorConfigurationsWidget(LocalizedObject, QWidget):
             self._color_labels[i].setText(color_label.localize(self._app.localizer))
 
 
-class _CottonCandyGuiWidget(LocalizedObject, QWidget):
+class _CottonCandyGuiWidget(LocalizedObject, ProjectAwareMixin, QWidget):
     def __init__(self, app: App, *args: Any, **kwargs: Any):
-        super().__init__(app, *args, **kwargs)
+        super().__init__(app, app.project, *args, **kwargs)
         self._app = app
         self._configuration = app.extensions[CottonCandy].configuration
 

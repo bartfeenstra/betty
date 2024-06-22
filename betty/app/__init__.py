@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import operator
-import weakref
 from concurrent.futures import Executor, ProcessPoolExecutor
-from contextlib import suppress, asynccontextmanager
+from contextlib import suppress, asynccontextmanager, AsyncExitStack
 from functools import reduce
 from graphlib import CycleError, TopologicalSorter
 from multiprocessing import get_context
@@ -143,12 +142,10 @@ class AppConfiguration(FileBasedConfiguration):
                 )
             ) from None
         self._locale = locale
-        self._dispatch_change()
 
     @override
     def update(self, other: Self) -> None:
         self._locale = other._locale
-        self._dispatch_change()
 
     @override
     def load(self, dump: Dump) -> None:
@@ -176,7 +173,6 @@ class App(Configurable[AppConfiguration]):
         super().__init__()
         self._started = False
         self._configuration = configuration
-        self._configuration.on_change(self._on_locale_change)
         self._assets: AssetRepository | None = None
         self._extensions = _AppExtensions()
         self._extensions_initialized = False
@@ -201,6 +197,7 @@ class App(Configurable[AppConfiguration]):
         self._cache: Cache[Any] | None = None
         self._binary_file_cache: BinaryFileCache | None = None
         self._process_pool: Executor | None = None
+        self._exit_stack = AsyncExitStack()
 
     @classmethod
     @asynccontextmanager
@@ -282,16 +279,12 @@ class App(Configurable[AppConfiguration]):
         """
         Stop the application.
         """
-        del self.http_client
+        await self._exit_stack.aclose()
         self._started = False
 
     def __del__(self) -> None:
         if self._started:
             raise RuntimeError(f"{self} was started, but never stopped.")
-
-    def _on_locale_change(self) -> None:
-        del self.localizer
-        del self.localizers
 
     @property
     def project(self) -> Project:
@@ -369,11 +362,6 @@ class App(Configurable[AppConfiguration]):
                 sorted(extensions_batch, key=lambda extension: extension.name())
             )
         self._extensions._update(extensions)
-        del self.assets
-        del self.localizers
-        del self.localizer
-        del self.jinja2_environment
-        del self.renderer
         del self.entity_types
         del self.event_types
 
@@ -392,10 +380,6 @@ class App(Configurable[AppConfiguration]):
             assets.prepend(self.project.configuration.assets_directory_path)
             self._assets = assets
         return self._assets
-
-    @assets.deleter
-    def assets(self) -> None:
-        self._assets = None
 
     @property
     def dispatcher(self) -> Dispatcher:
@@ -444,12 +428,6 @@ class App(Configurable[AppConfiguration]):
             )
         return self._localizer
 
-    @localizer.deleter
-    def localizer(self) -> None:
-        self._localizer = None
-        del self.cache
-        del self.binary_file_cache
-
     @property
     def localizers(self) -> LocalizerRepository:
         """
@@ -458,10 +436,6 @@ class App(Configurable[AppConfiguration]):
         if self._localizers is None:
             self._localizers = LocalizerRepository(self.assets)
         return self._localizers
-
-    @localizers.deleter
-    def localizers(self) -> None:
-        self._localizers = None
 
     @property
     def jinja2_environment(self) -> Environment:
@@ -474,10 +448,6 @@ class App(Configurable[AppConfiguration]):
             self._jinja2_environment = Environment(self)
 
         return self._jinja2_environment
-
-    @jinja2_environment.deleter
-    def jinja2_environment(self) -> None:
-        self._jinja2_environment = None
 
     @property
     def renderer(self) -> Renderer:
@@ -495,37 +465,23 @@ class App(Configurable[AppConfiguration]):
 
         return self._renderer
 
-    @renderer.deleter
-    def renderer(self) -> None:
-        self._renderer = None
-
     @property
     def http_client(self) -> aiohttp.ClientSession:
         """
         The HTTP client.
         """
         if not self._http_client:
-            self._http_client = aiohttp.ClientSession(
-                connector=aiohttp.TCPConnector(limit_per_host=5),
-                headers={
-                    "User-Agent": f"Betty (https://github.com/bartfeenstra/betty) on behalf of {self._project.configuration.base_url}{self._project.configuration.root_path}",
-                },
-            )
-            weakref.finalize(
-                self,
-                lambda: (
-                    None
-                    if self._http_client is None
-                    else wait_to_thread(self._http_client.close())
-                ),
+            self._http_client = wait_to_thread(
+                self._exit_stack.enter_async_context(
+                    aiohttp.ClientSession(
+                        connector=aiohttp.TCPConnector(limit_per_host=5),
+                        headers={
+                            "User-Agent": f"Betty (https://github.com/bartfeenstra/betty) on behalf of {self._project.configuration.base_url}{self._project.configuration.root_path}",
+                        },
+                    )
+                )
             )
         return self._http_client
-
-    @http_client.deleter
-    def http_client(self) -> None:
-        if self._http_client is not None:
-            wait_to_thread(self._http_client.close())
-            self._http_client = None
 
     @property
     def fetcher(self) -> Fetcher:
@@ -628,10 +584,6 @@ class App(Configurable[AppConfiguration]):
             )
         return self._cache
 
-    @cache.deleter
-    def cache(self) -> None:
-        self._cache = None
-
     @property
     def binary_file_cache(self) -> BinaryFileCache:
         """
@@ -642,10 +594,6 @@ class App(Configurable[AppConfiguration]):
                 self.localizer, self._cache_directory_path
             )
         return self._binary_file_cache
-
-    @binary_file_cache.deleter
-    def binary_file_cache(self) -> None:
-        self._binary_file_cache = None
 
     @property
     def process_pool(self) -> Executor:

@@ -351,9 +351,10 @@ class LocalesConfigurationWidget(LocalizedObject, QWidget):
         self._layout.addWidget(self._add_locale_button)
 
         self._built_locales: MutableSequence[str] = []
-        self._app.project.configuration.locales.on_change(
-            self._rebuild_locales_configuration
-        )
+        # @todo Finish this
+        # self._app.project.configuration.locales.on_change(
+        #     self._rebuild_locales_configuration
+        # )
         self._rebuild_locales_configuration()
 
     def _rebuild_locales_configuration(self) -> None:
@@ -740,16 +741,6 @@ class ProjectWindow(BettyPrimaryWindow):
             pane_selector.setFlat(True)
         self._pane_selectors[pane_name].setFlat(False)
         self._panes_layout.setCurrentWidget(self._pane_containers[pane_name])
-
-    @override
-    def show(self) -> None:
-        self._app.project.configuration.autowrite = True
-        super().show()
-
-    @override
-    def close(self) -> bool:
-        self._app.project.configuration.autowrite = False
-        return super().close()
 
     @override
     def _set_translatables(self) -> None:
