@@ -39,7 +39,6 @@ from betty.serde.dump import minimize, Dump, VoidableDump, Void
 from betty.serde.load import (
     AssertionFailed,
     OptionalField,
-    AssertionChain,
     assert_str,
     assert_record,
     assert_path,
@@ -234,8 +233,7 @@ class CottonCandyConfiguration(Configuration):
                 ),
             ),
             OptionalField(
-                "logo",
-                AssertionChain(assert_path()) | assert_setattr(configuration, "logo"),
+                "logo", assert_path() | assert_setattr(configuration, "logo")
             ),
         )(dump)
         return configuration

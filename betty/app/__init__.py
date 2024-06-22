@@ -64,7 +64,6 @@ from betty.serde.dump import minimize, void_none, Dump, VoidableDump
 from betty.serde.load import (
     AssertionFailed,
     OptionalField,
-    AssertionChain,
     assert_record,
     assert_setattr,
     assert_str,
@@ -161,8 +160,7 @@ class AppConfiguration(FileBasedConfiguration):
             configuration = cls()
         assert_record(
             OptionalField(
-                "locale",
-                AssertionChain(assert_str()) | assert_setattr(configuration, "locale"),
+                "locale", assert_str() | assert_setattr(configuration, "locale")
             )
         )(dump)
         return configuration

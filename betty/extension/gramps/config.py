@@ -13,7 +13,6 @@ from betty.serde.dump import minimize, Dump, VoidableDump
 from betty.serde.load import (
     RequiredField,
     OptionalField,
-    AssertionChain,
     assert_record,
     assert_path,
     assert_setattr,
@@ -64,9 +63,7 @@ class FamilyTreeConfiguration(Configuration):
             configuration = cls()
         assert_record(
             RequiredField(
-                "file",
-                AssertionChain(assert_path())
-                | assert_setattr(configuration, "file_path"),
+                "file", assert_path() | assert_setattr(configuration, "file_path")
             )
         )(dump)
         return configuration
