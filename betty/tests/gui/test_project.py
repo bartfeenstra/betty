@@ -2,14 +2,11 @@ from __future__ import annotations
 
 import json
 from asyncio import sleep
-from pathlib import Path
 from unittest.mock import AsyncMock
 
 import aiofiles
 from PyQt6.QtWidgets import QFileDialog, QWidget
-from pytest_mock import MockerFixture
 
-from betty.app import App
 from betty.app.extension import UserFacingExtension
 from betty.gui import GuiBuilder
 from betty.gui.project import (
@@ -31,8 +28,14 @@ from betty.project import (
 )
 from betty.requirement import Requirement
 from betty.serde.dump import minimize
-from betty.tests.conftest import BettyQtBot
 from betty.tests.test_cli import NoOpAppServer
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from betty.tests.conftest import BettyQtBot
+    from betty.app import App
+    from pytest_mock import MockerFixture
+    from pathlib import Path
 
 
 class UnmetRequirement(Requirement):

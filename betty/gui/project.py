@@ -59,7 +59,7 @@ from betty.gui.text import Text, Caption
 from betty.gui.window import BettyMainWindow
 from betty.locale import get_display_name, to_locale, Str, Localizable
 from betty.model import UserFacingEntity, Entity
-from betty.project import LocaleConfiguration, Project, EntityTypeConfiguration
+from betty.project import LocaleConfiguration, Project, EntityTypeConfiguration, ProjectAwareMixin
 from betty.serde.load import AssertionFailed
 from betty.typing import internal
 
@@ -625,7 +625,7 @@ class ExtensionPane(LocalizedObject, QWidget):
 
 
 @final
-class ProjectWindow(BettyPrimaryWindow):
+class ProjectWindow(ProjectAwareMixin, BettyPrimaryWindow):
     """
     A window to administer a project.
     """
@@ -634,7 +634,7 @@ class ProjectWindow(BettyPrimaryWindow):
         self,
         app: App,
     ):
-        super().__init__(app)
+        super().__init__(app.project, app)
 
         central_widget = QWidget()
         central_layout = QHBoxLayout()

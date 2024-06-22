@@ -14,10 +14,10 @@ from typing_extensions import override
 from betty.app import App
 from betty.gui.error import ExceptionError, _UnexpectedExceptionError
 from betty.locale import Str, Localizable
-from betty.project import ProjectAwareMixin
 from betty.serde.format import FormatRepository
 
 if TYPE_CHECKING:
+    from betty.project import ProjectAwareMixin
     from collections.abc import AsyncIterator
 
 

@@ -343,9 +343,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/gui/__init__.py": TestKnownToBeMissing,
     "betty/gui/app.py": {
-        "ApplicationConfiguration": {
-            "window_title": TestKnownToBeMissing,
-        },
+        "ApplicationConfiguration": TestKnownToBeMissing,
         "BettyPrimaryWindow": {
             "new_project": TestKnownToBeMissing,
             "open_application_configuration": TestKnownToBeMissing,

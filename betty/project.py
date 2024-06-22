@@ -1031,13 +1031,33 @@ class Project(Configurable[ProjectConfiguration]):
         return self._ancestry
 
 
+# @todo INVENTORIZE?
+# @todo What do we need this for?
+# @todo - GUIs
+# @todo - **anything** else?
+# @todo
+# @todo If only for GUIs, tie this into ProjectWindow?
+# @todo Without ProjectWindow we can potentially receive events, but not dispatch them
+# @todo We also still need a way to create a whole new Project instance based
+# @todo     on a single widget somewhere updating some nested configuration.
+# @todo
+# @todo
+# @todo
+# @todo
 class ProjectAwareMixin:
+    """
+    A mixin for another class whose instances are tied to specific projects.
+    """
+
     def __init__(self, project: Project, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._project = project
 
     @property
     def project(self) -> Project:
+        """
+        The project.
+        """
         return self._project
 
     @project.setter

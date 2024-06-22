@@ -182,7 +182,8 @@ class App(Configurable[AppConfiguration]):
         with suppress(FileNotFoundError):
             wait_to_thread(self.configuration.read())
         self._project = project or Project()
-        self.project.configuration.extensions.on_change(self._update_extensions)
+        # @todo How to update the extensions before the PR to decouple core components?
+        # self.project.configuration.extensions.on_change(self._update_extensions)
 
         self._dispatcher: ExtensionDispatcher | None = None
         self._entity_types: set[type[Entity]] | None = None
