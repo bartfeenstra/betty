@@ -176,7 +176,10 @@ async def _run_jobs(
     for entity_type in app.entity_types:
         if not issubclass(entity_type, UserFacingEntity):
             continue
-        if app.project.configuration.entity_types[entity_type].generate_html_list:
+        if (
+            entity_type in app.project.configuration.entity_types
+            and app.project.configuration.entity_types[entity_type].generate_html_list
+        ):
             for locale in locales:
                 yield _run_job(
                     semaphore,

@@ -389,13 +389,6 @@ class ExtensionConfigurationMapping(
     def _minimize_item_dump(self) -> bool:
         return True
 
-    @override
-    @classmethod
-    def _create_default_item(
-        cls, configuration_key: type[Extension]
-    ) -> ExtensionConfiguration:
-        return ExtensionConfiguration(configuration_key)
-
     def __init__(
         self,
         configurations: Iterable[ExtensionConfiguration] | None = None,
@@ -574,13 +567,6 @@ class EntityTypeConfigurationMapping(
     def _item_type(cls) -> type[EntityTypeConfiguration]:
         return EntityTypeConfiguration
 
-    @override
-    @classmethod
-    def _create_default_item(
-        cls, configuration_key: type[Entity]
-    ) -> EntityTypeConfiguration:
-        return EntityTypeConfiguration(configuration_key)
-
 
 class LocaleConfiguration(Configuration):
     """
@@ -673,11 +659,6 @@ class LocaleConfigurationMapping(ConfigurationMapping[str, LocaleConfiguration])
     """
     Configure a project's locales.
     """
-
-    @override
-    @classmethod
-    def _create_default_item(cls, configuration_key: str) -> LocaleConfiguration:
-        return LocaleConfiguration(configuration_key)
 
     def __init__(
         self,
