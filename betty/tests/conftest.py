@@ -4,7 +4,6 @@ Integrate Betty with pytest.
 
 from __future__ import annotations
 
-import logging
 from typing import TypeVar, cast, TypeGuard, TYPE_CHECKING
 from warnings import filterwarnings
 
@@ -29,10 +28,9 @@ from betty.locale import DEFAULT_LOCALIZER
 from betty.warnings import BettyDeprecationWarning
 
 if TYPE_CHECKING:
-    from _pytest.logging import LogCaptureFixture
     from pytestqt.qtbot import QtBot
     from pathlib import Path
-    from collections.abc import AsyncIterator, Iterator
+    from collections.abc import AsyncIterator
 
 
 @pytest.fixture(autouse=True)
@@ -44,16 +42,6 @@ def _raise_deprecation_warnings_as_errors() -> None:
         "error",
         category=BettyDeprecationWarning,
     )
-
-
-# @todo Do we need this, and when and how?
-@pytest.fixture(autouse=True)
-def _set_logging(caplog: LogCaptureFixture) -> Iterator[None]:
-    """
-    Reduce noisy logging output during tests.
-    """
-    with caplog.at_level(logging.CRITICAL):
-        yield
 
 
 @pytest.fixture()
