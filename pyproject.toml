@@ -35,7 +35,7 @@ dependencies = [
     'Pillow ~= 10.1, >= 10.1.0',
     'PyQt6 ~= 6.5, >= 6.5.0',
     'pyyaml ~= 6.0, >= 6.0.0',
-    'referencing ~= 0.34, >= 0.34.0',
+    'referencing ~= 0.35',
     'sphinx ~= 7.2, >= 7.2.6',
     'sphinx-design ~= 0.5, >= 0.5.0',
     # Stick with 2.1.x until https://github.com/tox-dev/sphinx-autodoc-typehints/issues/462 is fixed.
