@@ -107,7 +107,7 @@ test = [
     'lxml ~= 5.0; sys.platform != "win32"',
     'packaging ~= 24.0',
     'pip-licenses ~= 4.3, >= 4.3.0',
-    'pytest ~= 7.3, >= 7.3.1',
+    'pytest ~= 8.2',
     'pytest-aioresponses ~= 0.2, >= 0.2.0 ',
     'pytest-asyncio ~= 0.23, >= 0.23.4 ',
     'pytest-mock ~= 3.10, >= 3.10.0',
