@@ -59,7 +59,7 @@ from betty.gui.text import Text, Caption
 from betty.gui.window import BettyMainWindow
 from betty.locale import get_display_name, to_locale, Str, Localizable
 from betty.model import UserFacingEntity, Entity
-from betty.project import LocaleConfiguration, Project
+from betty.project import LocaleConfiguration, Project, EntityTypeConfiguration
 from betty.serde.load import AssertionFailed
 from betty.typing import internal
 
@@ -122,13 +122,23 @@ class GenerateHtmlListForm(LocalizedObject, QWidget):
             return
 
         def _update(generate_html_list: bool) -> None:
-            self._app.project.configuration.entity_types[
-                entity_type
-            ].generate_html_list = generate_html_list
+            try:
+                entity_type_configuration = (
+                    self._app.project.configuration.entity_types[entity_type]
+                )
+            except LookupError:
+                entity_type_configuration = EntityTypeConfiguration(entity_type)
+                self._app.project.configuration.entity_types.append(
+                    (entity_type_configuration)
+                )
+            entity_type_configuration.generate_html_list = generate_html_list
 
         self._checkboxes[entity_type] = QCheckBox()
         self._checkboxes[entity_type].setChecked(
-            self._app.project.configuration.entity_types[entity_type].generate_html_list
+            entity_type in self._app.project.configuration.entity_types
+            and self._app.project.configuration.entity_types[
+                entity_type
+            ].generate_html_list
         )
         self._checkboxes[entity_type].toggled.connect(_update)
         self._update_for_entity_type(entity_type, row_i)

@@ -283,12 +283,6 @@ class ConfigurationMappingTestBase(
 class ConfigurationMappingTestConfigurationMapping(
     ConfigurationMapping[str, ConfigurationCollectionTestConfiguration[str]]
 ):
-    @classmethod
-    def _create_default_item(
-        cls, configuration_key: str
-    ) -> ConfigurationCollectionTestConfiguration[str]:
-        return ConfigurationCollectionTestConfiguration(configuration_key, 0)
-
     def _get_key(
         self, configuration: ConfigurationCollectionTestConfiguration[str]
     ) -> str:

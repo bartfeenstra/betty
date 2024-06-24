@@ -595,11 +595,7 @@ class ConfigurationMapping(
 
     @override
     def __getitem__(self, configuration_key: _ConfigurationKeyT) -> _ConfigurationT:
-        try:
-            return self._configurations[configuration_key]
-        except KeyError:
-            self.append(self._create_default_item(configuration_key))
-            return self._configurations[configuration_key]
+        return self._configurations[configuration_key]
 
     @override
     def __iter__(self) -> Iterator[_ConfigurationKeyT]:
@@ -763,12 +759,6 @@ class ConfigurationMapping(
 
     def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
         raise NotImplementedError(repr(self))
-
-    @classmethod
-    def _create_default_item(
-        cls, configuration_key: _ConfigurationKeyT
-    ) -> _ConfigurationT:
-        raise NotImplementedError(repr(cls))
 
 
 class Configurable(Generic[_ConfigurationT]):
