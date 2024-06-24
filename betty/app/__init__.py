@@ -31,7 +31,8 @@ from betty.asyncio import wait_to_thread
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.config import Configurable, FileBasedConfiguration
 from betty.fetch import Fetcher
-from betty.fs import FileSystem, HOME_DIRECTORY_PATH
+from betty.fs import HOME_DIRECTORY_PATH
+from betty.assets import AssetRepository
 from betty.locale import LocalizerRepository, get_data, DEFAULT_LOCALE, Localizer, Str
 from betty.model import Entity, EntityTypeProvider
 from betty.model.event_type import (
@@ -186,7 +187,7 @@ class App(Configurable[AppConfiguration]):
         self._started = False
         self._configuration = configuration
         self._configuration.on_change(self._on_locale_change)
-        self._assets: FileSystem | None = None
+        self._assets: AssetRepository | None = None
         self._extensions = _AppExtensions()
         self._extensions_initialized = False
         self._localization_initialized = False
@@ -387,12 +388,12 @@ class App(Configurable[AppConfiguration]):
         del self.event_types
 
     @property
-    def assets(self) -> FileSystem:
+    def assets(self) -> AssetRepository:
         """
         The assets file system.
         """
         if self._assets is None:
-            assets = FileSystem()
+            assets = AssetRepository()
             assets.prepend(fs.ASSETS_DIRECTORY_PATH, "utf-8")
             for extension in self.extensions.flatten():
                 extension_assets_directory_path = extension.assets_directory_path()

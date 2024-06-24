@@ -40,13 +40,14 @@ from typing_extensions import override
 
 from betty import fs
 from betty.concurrent import _Lock, AsynchronizedLock
-from betty.fs import FileSystem, ROOT_DIRECTORY_PATH, ASSETS_DIRECTORY_PATH
+from betty.fs import ROOT_DIRECTORY_PATH, ASSETS_DIRECTORY_PATH
 from betty.hashid import hashid_file_meta
 from betty.json.linked_data import LinkedDataDumpable, dump_context, add_json_ld
 from betty.json.schema import ref_locale, add_property
 from betty.serde.dump import DictDump, Dump, dump_default
 
 if TYPE_CHECKING:
+    from betty.assets import AssetRepository
     from collections.abc import AsyncIterator
     from betty.app import App
 
@@ -935,7 +936,7 @@ class LocalizerRepository:
     Exposes the available localizers.
     """
 
-    def __init__(self, assets: FileSystem):
+    def __init__(self, assets: AssetRepository):
         self._assets = assets
         self._localizers: dict[str, Localizer] = {}
         self._locks: Mapping[str, _Lock] = defaultdict(AsynchronizedLock.threading)
