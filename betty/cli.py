@@ -24,7 +24,7 @@ from typing import (
 import click
 from click import get_current_context, Context, Option, Command, Parameter
 
-from betty import about, generate, load, documentation, locale
+from betty import about, generate, load, documentation, locale, serve
 from betty.app import App
 from betty.asyncio import wait_to_thread
 from betty.contextlib import SynchronizedContextManager
@@ -32,7 +32,6 @@ from betty.error import UserFacingError
 from betty.locale import Str, DEFAULT_LOCALIZER
 from betty.logging import CliHandler
 from betty.serde.load import AssertionFailed
-from betty.serve import BuiltinAppServer
 
 if TYPE_CHECKING:
     from PyQt6.QtWidgets import QMainWindow
@@ -331,7 +330,7 @@ async def _generate(app: App) -> None:
 @click.command(help="Serve a generated site.")
 @app_command
 async def _serve(app: App) -> None:
-    async with BuiltinAppServer(app) as server:
+    async with serve.BuiltinAppServer(app) as server:
         await server.show()
         while True:
             await asyncio.sleep(999)
