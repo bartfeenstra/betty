@@ -17,7 +17,7 @@ authors = [
 ]
 requires-python = '~= 3.11'
 dependencies = [
-    'aiofiles ~= 23.2, >= 23.2.1',
+    'aiofiles ~= 24.1',
     'aiohttp ~= 3.9',
     'babel ~= 2.12, >= 2.12.0',
     'click ~= 8.1, >= 8.1.2',
@@ -114,7 +114,7 @@ test = [
     'pytest-qt ~= 4.2, >= 4.2.0',
     'pytest-xvfb ~= 3.0, >= 3.0.0',
     'ruff ~= 0.4.4',
-    'types-aiofiles ~= 23.2, >= 23.2.0.20240403 ',
+    'types-aiofiles ~= 23.2, >= 23.2.0.20240623',
     'types-babel ~= 2.11, >= 2.11.0.15',
     'types-click ~= 7.1, >= 7.1.8',
     'types-html5lib ~= 1.1, >= 1.1.11.20240228',
