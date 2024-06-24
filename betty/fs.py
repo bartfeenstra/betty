@@ -5,7 +5,6 @@ Provide file system utilities.
 from __future__ import annotations
 
 import asyncio
-import os
 from collections import deque
 from contextlib import suppress
 from pathlib import Path
@@ -31,15 +30,6 @@ PREBUILT_ASSETS_DIRECTORY_PATH = ROOT_DIRECTORY_PATH / "prebuild"
 
 
 HOME_DIRECTORY_PATH = Path.home() / ".betty"
-
-
-async def iterfiles(path: Path) -> AsyncIterable[Path]:
-    """
-    Recursively iterate over any files found in a directory.
-    """
-    for dir_path, _, filenames in os.walk(str(path)):
-        for filename in filenames:
-            yield Path(dir_path) / filename
 
 
 class _Open:
@@ -131,14 +121,19 @@ class FileSystem:
         """
         file_destination_paths = set()
         for fs_path, _ in self._paths:
-            async for file_source_path in iterfiles(fs_path / source_path):
-                file_destination_path = destination_path / file_source_path.relative_to(
-                    fs_path / source_path
-                )
-                if file_destination_path not in file_destination_paths:
-                    file_destination_paths.add(file_destination_path)
-                    await makedirs(file_destination_path.parent, exist_ok=True)
-                    await asyncio.to_thread(
-                        copy2, file_source_path, file_destination_path
+            for file_source_directory_path, _, file_names in (
+                fs_path / source_path
+            ).walk():
+                for file_name in file_names:
+                    file_source_path = file_source_directory_path / file_name
+                    file_destination_path = (
+                        destination_path
+                        / file_source_path.relative_to(fs_path / source_path)
                     )
-                    yield file_destination_path
+                    if file_destination_path not in file_destination_paths:
+                        file_destination_paths.add(file_destination_path)
+                        await makedirs(file_destination_path.parent, exist_ok=True)
+                        await asyncio.to_thread(
+                            copy2, file_source_path, file_destination_path
+                        )
+                        yield file_destination_path

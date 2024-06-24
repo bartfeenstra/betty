@@ -16,7 +16,7 @@ from aiofiles.os import makedirs
 
 from betty import _npm
 from betty.asyncio import gather
-from betty.fs import ROOT_DIRECTORY_PATH, iterfiles
+from betty.fs import ROOT_DIRECTORY_PATH
 from betty.hashid import hashid, hashid_sequence, hashid_file_content
 
 if TYPE_CHECKING:
@@ -120,13 +120,15 @@ class Builder:
         self, source_path: Path, destination_path: Path
     ) -> None:
         await gather(
-            *[
+            *(
                 self._copy2_and_render(
-                    file_source_path,
-                    destination_path / file_source_path.relative_to(source_path),
+                    file_directory_path / file_name,
+                    destination_path
+                    / (file_directory_path / file_name).relative_to(source_path),
                 )
-                async for file_source_path in iterfiles(source_path)
-            ]
+                for file_directory_path, _, file_names in source_path.walk()
+                for file_name in file_names
+            )
         )
 
     async def _prepare_webpack_extension(
