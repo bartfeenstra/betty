@@ -60,6 +60,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "is_stable": TestKnownToBeMissing,
         "report": TestKnownToBeMissing,
     },
+    "betty/assets.py": {
+        "AssetRepository": {
+            "__len__": TestKnownToBeMissing,
+            "clear": TestKnownToBeMissing,
+            "paths": TestKnownToBeMissing,
+            "prepend": TestKnownToBeMissing,
+        },
+    },
     "betty/app/__init__.py": {
         "App": {
             "__aenter__": TestKnownToBeMissing,
@@ -302,14 +310,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "FetchResponse": {
             # This is inherited from @dataclass.
             "__eq__": TestKnownToBeMissing,
-        },
-    },
-    "betty/fs.py": {
-        "FileSystem": {
-            "__len__": TestKnownToBeMissing,
-            "clear": TestKnownToBeMissing,
-            "paths": TestKnownToBeMissing,
-            "prepend": TestKnownToBeMissing,
         },
     },
     "betty/functools.py": {

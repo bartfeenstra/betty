@@ -8,7 +8,8 @@ import aiofiles
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
-from betty.fs import FileSystem, ASSETS_DIRECTORY_PATH
+from betty.assets import AssetRepository
+from betty.fs import ASSETS_DIRECTORY_PATH
 from betty.locale import (
     Localized,
     negotiate_localizeds,
@@ -622,7 +623,7 @@ class TestLocalizerRepository:
         locale = "nl-NL"
         async with TemporaryDirectory() as assets_directory_path_str:
             assets_directory_path = Path(assets_directory_path_str)
-            fs = FileSystem((assets_directory_path, None))
+            fs = AssetRepository((assets_directory_path, None))
             lc_messages_directory_path = assets_directory_path / "locale" / locale
             lc_messages_directory_path.mkdir(parents=True)
             po = """
