@@ -98,7 +98,7 @@ pyinstaller = [
 setuptools = [
     'setuptools ~= 70.0',
     'twine ~= 5.0',
-    'wheel ~= 0.40, >= 0.40.0',
+    'wheel ~= 0.43',
 ]
 test = [
     'aioresponses ~= 0.7, >= 0.7.6',
