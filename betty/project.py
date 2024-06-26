@@ -735,6 +735,7 @@ class ProjectConfiguration(FileBasedConfiguration):
 
     def __init__(
         self,
+        *,
         base_url: str | None = None,
         root_path: str = "",
         clean_urls: bool = False,
