@@ -736,7 +736,7 @@ class ProjectConfiguration(FileBasedConfiguration):
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
         name: str | None = None,
     ):
-        super().__init__()
+        super().__init__(configuration_file_path)
         self._name = name
         self._computed_name: str | None = None
         self._base_url = "https://example.com" if base_url is None else base_url

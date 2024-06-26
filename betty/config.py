@@ -11,7 +11,6 @@ from collections.abc import Callable
 from contextlib import chdir
 from pathlib import Path
 from reprlib import recursive_repr
-from tempfile import TemporaryDirectory
 from typing import (
     Generic,
     Iterable,
@@ -24,7 +23,6 @@ from typing import (
     Any,
     Sequence,
     overload,
-    cast,
     Self,
     TypeAlias,
     TYPE_CHECKING,
@@ -111,11 +109,9 @@ class FileBasedConfiguration(Configuration):
     Any configuration that is stored in a file on disk.
     """
 
-    def __init__(self):
+    def __init__(self, configuration_file_path: Path):
         super().__init__()
-        self._configuration_directory: TemporaryDirectory | None = None  # type: ignore[type-arg]
-        self._configuration_file_path: Path | None = None
-        self._autowrite = False
+        self._configuration_file_path = configuration_file_path
 
     @property
     def autowrite(self) -> bool:
@@ -210,16 +206,7 @@ class FileBasedConfiguration(Configuration):
         """
         The path to the configuration's file.
         """
-        if self._configuration_file_path is None:
-            if self._configuration_directory is None:
-                self._configuration_directory = TemporaryDirectory()
-            wait_to_thread(
-                self._write(
-                    Path(self._configuration_directory.name)
-                    / f"{type(self).__name__}.json"
-                )
-            )
-        return cast(Path, self._configuration_file_path)
+        return self._configuration_file_path
 
     @configuration_file_path.setter
     def configuration_file_path(self, configuration_file_path: Path) -> None:
