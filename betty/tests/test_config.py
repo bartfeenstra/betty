@@ -5,6 +5,7 @@ from tempfile import NamedTemporaryFile
 from typing import Iterable, Generic, TYPE_CHECKING, TypeVar
 
 import pytest
+from typing_extensions import override
 
 from betty.config import (
     FileBasedConfiguration,
@@ -14,7 +15,15 @@ from betty.config import (
     ConfigurationSequence,
     ConfigurationKey,
 )
-from betty.serde.load import FormatError, assert_dict
+from betty.serde.load import (
+    FormatError,
+    assert_dict,
+    assert_record,
+    RequiredField,
+    assert_str,
+    assert_setattr,
+    assert_int,
+)
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, VoidableDump
@@ -34,13 +43,41 @@ class TestFileBasedConfiguration:
             configuration.configuration_file_path = Path(f.name)
 
 
-class ConfigurationCollectionTestConfiguration(
-    Configuration, Generic[_ConfigurationKeyT]
-):
-    def __init__(self, configuration_key: _ConfigurationKeyT, configuration_value: int):
+class ConfigurationSequenceTestConfiguration(Configuration):
+    def __init__(self, configuration_value: int):
+        super().__init__()
+        self.value = configuration_value
+
+    @override
+    def load(self, dump: Dump) -> None:
+        assert_record(
+            RequiredField("value", assert_int() | assert_setattr(self, "value")),
+        )(dump)
+
+    @override
+    def dump(self) -> Dump:
+        return {"value": self.value}
+
+
+class ConfigurationMappingTestConfiguration(Configuration):
+    def __init__(self, configuration_key: str, configuration_value: int):
         super().__init__()
         self.key = configuration_key
         self.value = configuration_value
+
+    @override
+    def load(self, dump: Dump) -> None:
+        assert_record(
+            RequiredField("key", assert_str() | assert_setattr(self, "key")),
+            RequiredField("value", assert_int() | assert_setattr(self, "value")),
+        )(dump)
+
+    @override
+    def dump(self) -> Dump:
+        return {
+            "key": self.key,
+            "value": self.value,
+        }
 
 
 class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _ConfigurationT]):
@@ -60,6 +97,22 @@ class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _Configuration
         self,
     ) -> tuple[_ConfigurationT, _ConfigurationT, _ConfigurationT, _ConfigurationT]:
         raise NotImplementedError(repr(self))
+
+    async def test_replace_without_items(self) -> None:
+        sut = self.get_sut()
+        sut.clear()
+        assert len(sut) == 0
+        self.get_configurations()
+        sut.replace()
+        assert len(sut) == 0
+
+    async def test_replace_with_items(self) -> None:
+        sut = self.get_sut()
+        sut.clear()
+        assert len(sut) == 0
+        configurations = self.get_configurations()
+        sut.replace(*configurations)
+        assert len(sut) == len(configurations)
 
     async def test_getitem(self) -> None:
         configuration = self.get_configurations()[0]
@@ -83,7 +136,10 @@ class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _Configuration
         assert [] == list(sut.values())
 
     async def test_iter(self) -> None:
-        raise NotImplementedError(repr(self))
+        configurations = self.get_configurations()
+        sut = self.get_sut(configurations)
+        assert tuple(iter(sut)) == configurations
+        assert [] == list(sut.values())
 
     async def test_len(self) -> None:
         configurations = self.get_configurations()
@@ -220,20 +276,22 @@ class ConfigurationSequenceTestBase(
 
 
 class ConfigurationSequenceTestConfigurationSequence(
-    ConfigurationSequence[ConfigurationCollectionTestConfiguration[int]]
+    ConfigurationSequence[ConfigurationSequenceTestConfiguration]
 ):
-    @classmethod
-    def _item_type(cls) -> type[ConfigurationCollectionTestConfiguration[int]]:
-        return ConfigurationCollectionTestConfiguration
+    @override
+    def load_item(self, dump: Dump) -> ConfigurationSequenceTestConfiguration:
+        configuration = ConfigurationSequenceTestConfiguration(0)
+        configuration.load(dump)
+        return configuration
 
 
 class TestConfigurationSequence(
-    ConfigurationSequenceTestBase[ConfigurationCollectionTestConfiguration[int]]
+    ConfigurationSequenceTestBase[ConfigurationSequenceTestConfiguration]
 ):
     def get_sut(
         self,
         configurations: (
-            Iterable[ConfigurationCollectionTestConfiguration[int]] | None
+            Iterable[ConfigurationSequenceTestConfiguration] | None
         ) = None,
     ) -> ConfigurationSequenceTestConfigurationSequence:
         return ConfigurationSequenceTestConfigurationSequence(configurations)
@@ -241,25 +299,28 @@ class TestConfigurationSequence(
     def get_configurations(
         self,
     ) -> tuple[
-        ConfigurationCollectionTestConfiguration[int],
-        ConfigurationCollectionTestConfiguration[int],
-        ConfigurationCollectionTestConfiguration[int],
-        ConfigurationCollectionTestConfiguration[int],
+        ConfigurationSequenceTestConfiguration,
+        ConfigurationSequenceTestConfiguration,
+        ConfigurationSequenceTestConfiguration,
+        ConfigurationSequenceTestConfiguration,
     ]:
         return (
-            ConfigurationCollectionTestConfiguration(
-                self.get_configuration_keys()[0], 123
-            ),
-            ConfigurationCollectionTestConfiguration(
-                self.get_configuration_keys()[1], 456
-            ),
-            ConfigurationCollectionTestConfiguration(
-                self.get_configuration_keys()[2], 789
-            ),
-            ConfigurationCollectionTestConfiguration(
-                self.get_configuration_keys()[0], 000
-            ),
+            ConfigurationSequenceTestConfiguration(123),
+            ConfigurationSequenceTestConfiguration(456),
+            ConfigurationSequenceTestConfiguration(789),
+            ConfigurationSequenceTestConfiguration(0),
         )
+
+    async def test_load_without_items(self) -> None:
+        sut = self.get_sut()
+        sut.load([])
+        assert len(sut) == 0
+
+    async def test_load_with_items(self) -> None:
+        sut = self.get_sut()
+        configurations = self.get_configurations()
+        sut.load([item.dump() for item in configurations])
+        assert len(sut) == len(configurations)
 
 
 class ConfigurationMappingTestBase(
@@ -281,21 +342,24 @@ class ConfigurationMappingTestBase(
 
 
 class ConfigurationMappingTestConfigurationMapping(
-    ConfigurationMapping[str, ConfigurationCollectionTestConfiguration[str]]
+    ConfigurationMapping[str, ConfigurationMappingTestConfiguration]
 ):
-    def _get_key(
-        self, configuration: ConfigurationCollectionTestConfiguration[str]
-    ) -> str:
+    @override
+    def load_item(self, dump: Dump) -> ConfigurationMappingTestConfiguration:
+        configuration = ConfigurationMappingTestConfiguration("", 0)
+        configuration.load(dump)
+        return configuration
+
+    def _get_key(self, configuration: ConfigurationMappingTestConfiguration) -> str:
         return configuration.key
 
-    @classmethod
     def _load_key(
-        cls,
+        self,
         item_dump: Dump,
         key_dump: str,
     ) -> Dump:
         dict_item_dump = assert_dict()(item_dump)
-        dict_item_dump[key_dump] = key_dump
+        dict_item_dump["key"] = key_dump
         return dict_item_dump
 
     def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
@@ -304,38 +368,47 @@ class ConfigurationMappingTestConfigurationMapping(
 
 
 class TestConfigurationMapping(
-    ConfigurationMappingTestBase[str, ConfigurationCollectionTestConfiguration[str]]
+    ConfigurationMappingTestBase[str, ConfigurationMappingTestConfiguration]
 ):
     def get_configuration_keys(self) -> tuple[str, str, str, str]:
         return "foo", "bar", "baz", "qux"
 
     def get_sut(
         self,
-        configurations: (
-            Iterable[ConfigurationCollectionTestConfiguration[str]] | None
-        ) = None,
+        configurations: (Iterable[ConfigurationMappingTestConfiguration] | None) = None,
     ) -> ConfigurationMappingTestConfigurationMapping:
         return ConfigurationMappingTestConfigurationMapping(configurations)
 
     def get_configurations(
         self,
     ) -> tuple[
-        ConfigurationCollectionTestConfiguration[str],
-        ConfigurationCollectionTestConfiguration[str],
-        ConfigurationCollectionTestConfiguration[str],
-        ConfigurationCollectionTestConfiguration[str],
+        ConfigurationMappingTestConfiguration,
+        ConfigurationMappingTestConfiguration,
+        ConfigurationMappingTestConfiguration,
+        ConfigurationMappingTestConfiguration,
     ]:
         return (
-            ConfigurationCollectionTestConfiguration(
+            ConfigurationMappingTestConfiguration(
                 self.get_configuration_keys()[0], 123
             ),
-            ConfigurationCollectionTestConfiguration(
+            ConfigurationMappingTestConfiguration(
                 self.get_configuration_keys()[1], 456
             ),
-            ConfigurationCollectionTestConfiguration(
+            ConfigurationMappingTestConfiguration(
                 self.get_configuration_keys()[2], 789
             ),
-            ConfigurationCollectionTestConfiguration(
+            ConfigurationMappingTestConfiguration(
                 self.get_configuration_keys()[3], 000
             ),
         )
+
+    async def test_load_without_items(self) -> None:
+        sut = self.get_sut()
+        sut.load({})
+        assert len(sut) == 0
+
+    async def test_load_with_items(self) -> None:
+        sut = self.get_sut()
+        configurations = self.get_configurations()
+        sut.load({item.key: item.dump() for item in configurations})
+        assert len(sut) == len(configurations)

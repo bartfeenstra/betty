@@ -8,7 +8,7 @@ import inspect
 import weakref
 from collections import OrderedDict
 from collections.abc import Callable
-from contextlib import suppress, chdir
+from contextlib import chdir
 from pathlib import Path
 from reprlib import recursive_repr
 from tempfile import TemporaryDirectory
@@ -41,7 +41,7 @@ from betty.locale import Str
 from betty.serde.dump import Dumpable, Dump, minimize, VoidableDump, Void
 from betty.serde.error import SerdeErrorCollection
 from betty.serde.format import FormatRepository
-from betty.serde.load import Assertion, assert_dict, assert_mapping, assert_sequence
+from betty.serde.load import assert_dict, assert_sequence
 
 if TYPE_CHECKING:
     from _weakref import ReferenceType
@@ -96,32 +96,11 @@ class Configuration(Dumpable):
         """
         raise NotImplementedError(repr(self))
 
-    @classmethod
-    def load(
-        cls,
-        dump: Dump,
-        configuration: Self | None = None,
-    ) -> Self:
+    def load(self, dump: Dump) -> None:
         """
-        Load dumped configuration into a new configuration instance.
+        Load dumped configuration.
         """
-        raise NotImplementedError(repr(cls))
-
-    @classmethod
-    def assert_load(
-        cls: type[_ConfigurationT], configuration: _ConfigurationT | None = None
-    ) -> Assertion[Dump, _ConfigurationT]:
-        """
-        Assert that the dumped configuration can be loaded.
-        """
-
-        def _assert_load(dump: Dump) -> _ConfigurationT:
-            return cls.load(dump, configuration)
-
-        _assert_load.__qualname__ = (
-            f"{_assert_load.__qualname__} for {cls.__module__}.{cls.__qualname__}.load"
-        )
-        return _assert_load
+        raise NotImplementedError(repr(self))
 
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
@@ -213,13 +192,11 @@ class FileBasedConfiguration(Configuration):
                     configuration_file_path=str(self.configuration_file_path.resolve()),
                 )
             ):
-                loaded_configuration = self.load(
+                self.load(
                     formats.format_for(self.configuration_file_path.suffix[1:]).load(
                         read_configuration
-                    ),
-                    self,
+                    )
                 )
-        self.update(loaded_configuration)
 
     def __del__(self) -> None:
         if (
@@ -300,16 +277,6 @@ class ConfigurationCollection(
     def __len__(self) -> int:
         return len(self._configurations)
 
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, self.__class__):
-            return NotImplemented
-        if list(self.keys()) != list(other.keys()):
-            return False
-        if list(self.values()) != list(other.values()):
-            return False
-        return True
-
     @override  # type: ignore[callable-functiontype]
     @recursive_repr()
     def __repr__(self) -> str:
@@ -317,9 +284,15 @@ class ConfigurationCollection(
 
     def _remove_without_dispatch(self, *configuration_keys: _ConfigurationKeyT) -> None:
         for configuration_key in configuration_keys:
-            with suppress(LookupError):
-                self._on_remove(self._configurations[configuration_key])  # type: ignore[call-overload]
+            configuration = self._configurations[configuration_key]  # type: ignore[call-overload]
             del self._configurations[configuration_key]  # type: ignore[call-overload]
+            self._on_remove(configuration)
+
+    def replace(self, *values: _ConfigurationT) -> None:
+        """
+        Replace any existing values with the given ones.
+        """
+        raise NotImplementedError(repr(self))
 
     def remove(self, *configuration_keys: _ConfigurationKeyT) -> None:
         """
@@ -377,9 +350,13 @@ class ConfigurationCollection(
         for index in sorted(unique_indices):
             yield self.to_key(index)
 
-    @classmethod
-    def _item_type(cls) -> type[_ConfigurationT]:
-        raise NotImplementedError(repr(cls))
+    def load_item(self, dump: Dump) -> _ConfigurationT:
+        """
+        Create and load a new item from the given dump, or raise an assertion error.
+
+        :raise betty.serde.load.AssertionFailed: Raised when the dump is invalid and cannot be loaded.
+        """
+        raise NotImplementedError(repr(self))
 
     def keys(self) -> Iterator[_ConfigurationKeyT]:
         """
@@ -451,6 +428,12 @@ class ConfigurationSequence(
         super().__init__(configurations)
 
     @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return list(self.values()) == list(other.values())
+
+    @override
     def to_index(self, configuration_key: int) -> int:
         return configuration_key
 
@@ -492,19 +475,13 @@ class ConfigurationSequence(
         self.append(*other)
 
     @override
-    @classmethod
-    def load(
-        cls,
-        dump: Dump,
-        configuration: Self | None = None,
-    ) -> Self:
-        if configuration is None:
-            configuration = cls()
-        else:
-            configuration._clear_without_dispatch()
-        with SerdeErrorCollection().assert_valid():
-            configuration.append(*assert_sequence(cls._item_type().load)(dump))
-        return configuration
+    def replace(self, *values: _ConfigurationT) -> None:
+        self._clear_without_dispatch()
+        self.append(*values)
+
+    @override
+    def load(self, dump: Dump) -> None:
+        self.replace(*assert_sequence(self.load_item)(dump))
 
     @override
     def dump(self) -> VoidableDump:
@@ -582,6 +559,18 @@ class ConfigurationMapping(
         )
         super().__init__(configurations)
 
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return {
+            self._get_key(configuration): configuration
+            for configuration in self.values()
+        } == {
+            self._get_key(configuration): configuration
+            for configuration in other.values()
+        }
+
     def _minimize_item_dump(self) -> bool:
         return False
 
@@ -616,10 +605,8 @@ class ConfigurationMapping(
     def update(self, other: Self) -> None:
         self.replace(*other.values())
 
+    @override
     def replace(self, *values: _ConfigurationT) -> None:
-        """
-        Replace any existing values with the given ones.
-        """
         self_keys = list(self.keys())
         other = {self._get_key(value): value for value in values}
         other_values = list(values)
@@ -644,20 +631,16 @@ class ConfigurationMapping(
         self.move_to_beginning(*other_keys)
 
     @override
-    @classmethod
-    def load(
-        cls,
-        dump: Dump,
-        configuration: Self | None = None,
-    ) -> Self:
-        if configuration is None:
-            configuration = cls()
-        dict_dump = assert_dict()(dump)
-        mapping = assert_mapping(cls._item_type().load)(
-            {key: cls._load_key(value, key) for key, value in dict_dump.items()}
+    def load(self, dump: Dump) -> None:
+        self.clear()
+        self.replace(
+            *assert_sequence(self.load_item)(
+                [
+                    self._load_key(item_value_dump, item_key_dump)
+                    for item_key_dump, item_value_dump in assert_dict()(dump).items()
+                ]
+            )
         )
-        configuration.replace(*mapping.values())
-        return configuration
 
     @override
     def dump(self) -> VoidableDump:
@@ -749,13 +732,12 @@ class ConfigurationMapping(
     def _get_key(self, configuration: _ConfigurationT) -> _ConfigurationKeyT:
         raise NotImplementedError(repr(self))
 
-    @classmethod
     def _load_key(
-        cls,
+        self,
         item_dump: Dump,
         key_dump: str,
     ) -> Dump:
-        raise NotImplementedError(repr(cls))
+        raise NotImplementedError(repr(self))
 
     def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
         raise NotImplementedError(repr(self))

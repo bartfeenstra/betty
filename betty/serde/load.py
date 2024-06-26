@@ -19,7 +19,13 @@ from typing import (
     TypeAlias,
 )
 
-from betty.locale import LocaleNotFoundError, get_data, Str, Localizable
+from betty.locale import (
+    LocaleNotFoundError,
+    get_data,
+    Str,
+    Localizable,
+    UNDETERMINED_LOCALE,
+)
 from betty.model import (
     Entity,
     get_entity_type,
@@ -475,6 +481,11 @@ def assert_locale() -> AssertionChain[Any, str]:
         value: Any,
     ) -> str:
         value = assert_str()(value)
+
+        # Allow locales for which no system information usually exists.
+        if value == UNDETERMINED_LOCALE:
+            return value
+
         try:
             get_data(value)
             return value

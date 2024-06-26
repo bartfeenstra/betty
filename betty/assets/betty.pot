@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-06-21 17:59+0100\n"
+"POT-Creation-Date: 2024-06-26 13:52+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -220,9 +220,6 @@ msgid "Cannot generate pages for {entity_type}, because it is not a user-facing 
 msgstr ""
 
 msgid "Cannot load coordinates \"{coordinates}\", because they are in an unknown format."
-msgstr ""
-
-msgid "Cannot remove the last remaining locale {locale}"
 msgstr ""
 
 msgid "Celebrant"

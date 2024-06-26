@@ -162,7 +162,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "__getitem__": TestKnownToBeMissing,
             "__iter__": TestKnownToBeMissing,
             "dump": TestKnownToBeMissing,
-            "replace": TestKnownToBeMissing,
             "to_index": TestKnownToBeMissing,
             "to_key": TestKnownToBeMissing,
             "update": TestKnownToBeMissing,
@@ -230,7 +229,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "FamilyTreeConfiguration": {
             "file_path": TestKnownToBeMissing,
         },
-        "FamilyTreeConfigurationSequence": TestKnownToBeMissing,
         "GrampsConfiguration": {
             "family_trees": TestKnownToBeMissing,
         },

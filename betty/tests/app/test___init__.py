@@ -47,20 +47,10 @@ class ConfigurableExtensionConfiguration(Configuration):
         super().__init__()
         self.check = check
 
-    @classmethod
-    def load(
-        cls,
-        dump: Dump,
-        configuration: Self | None = None,
-    ) -> Self:
-        if configuration is None:
-            configuration = cls()
+    def load(self, dump: Dump) -> None:
         assert_record(
-            RequiredField(
-                "check", assert_int() | assert_setattr(configuration, "check")
-            )
+            RequiredField("check", assert_int() | assert_setattr(self, "check"))
         )(dump)
-        return configuration
 
     def dump(self) -> VoidableDump:
         return {"check": self.check}

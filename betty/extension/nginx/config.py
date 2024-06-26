@@ -66,26 +66,17 @@ class NginxConfiguration(Configuration):
         self._dispatch_change()
 
     @override
-    @classmethod
-    def load(
-        cls,
-        dump: Dump,
-        configuration: Self | None = None,
-    ) -> Self:
-        if configuration is None:
-            configuration = cls()
+    def load(self, dump: Dump) -> None:
         assert_record(
             OptionalField(
                 "https",
-                assert_or(assert_bool(), assert_none())
-                | assert_setattr(configuration, "https"),
+                assert_or(assert_bool(), assert_none()) | assert_setattr(self, "https"),
             ),
             OptionalField(
                 "www_directory_path",
-                assert_str() | assert_setattr(configuration, "www_directory_path"),
+                assert_str() | assert_setattr(self, "www_directory_path"),
             ),
         )(dump)
-        return configuration
 
     @override
     def dump(self) -> VoidableDump:

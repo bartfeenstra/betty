@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from typing import Any, Iterable, Self, TYPE_CHECKING
+from typing import Any, Iterable, TYPE_CHECKING
 
 import pytest
+from typing_extensions import override
 
 from betty.app.extension import Extension, ConfigurableExtension
-from betty.config import Configuration, Configurable
-from betty.locale import Str, Localizable
+from betty.config import Configuration
+from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.model import Entity, get_entity_type_name, UserFacingEntity
 from betty.project import (
     ExtensionConfiguration,
@@ -19,19 +20,24 @@ from betty.project import (
     EntityTypeConfiguration,
     EntityTypeConfigurationMapping,
 )
+from betty.serde.error import SerdeError
 from betty.serde.load import (
     AssertionFailed,
     RequiredField,
     assert_bool,
     assert_record,
+    assert_setattr,
+    assert_int,
 )
 from betty.tests.serde import raises_error
 from betty.tests.test_config import (
     ConfigurationMappingTestBase,
     ConfigurationSequenceTestBase,
 )
+from betty.serde.dump import Void
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from betty.serde.dump import Dump, VoidableDump
 
 
@@ -68,12 +74,12 @@ class TestEntityReference:
         assert entity_id == sut.entity_id
 
     async def test_load_with_constraint(self) -> None:
-        configuration = EntityReference(
+        sut = EntityReference(
             EntityReferenceTestEntityOne, entity_type_is_constrained=True
         )
         entity_id = "123"
         dump = entity_id
-        sut = EntityReference[EntityReferenceTestEntityOne].load(dump, configuration)
+        sut.load(dump)
         assert entity_id == sut.entity_id
 
     @pytest.mark.parametrize(
@@ -94,11 +100,11 @@ class TestEntityReference:
     async def test_load_with_constraint_without_string_should_error(
         self, dump: Dump
     ) -> None:
-        configuration = EntityReference(
+        sut = EntityReference(
             EntityReferenceTestEntityOne, entity_type_is_constrained=True
         )
         with raises_error(error_type=AssertionFailed):
-            EntityReference.load(dump, configuration)
+            sut.load(dump)
 
     async def test_load_without_constraint(self) -> None:
         entity_type = EntityReferenceTestEntityOne
@@ -107,7 +113,8 @@ class TestEntityReference:
             "entity_type": get_entity_type_name(entity_type),
             "entity_id": entity_id,
         }
-        sut = EntityReference[EntityReferenceTestEntityOne].load(dump)
+        sut = EntityReference[EntityReferenceTestEntityOne]()
+        sut.load(dump)
         assert entity_type == sut.entity_type
         assert entity_id == sut.entity_id
 
@@ -119,44 +126,45 @@ class TestEntityReference:
         dump: Dump = {
             "entity_id": entity_id,
         }
+        sut = EntityReference[EntityReferenceTestEntityOne]()
         with raises_error(error_type=AssertionFailed):
-            EntityReference.load(dump, sut)
+            sut.load(dump)
 
     async def test_load_without_constraint_without_string_entity_type_should_error(
         self,
     ) -> None:
-        sut = EntityReference[EntityReferenceTestEntityOne]()
         entity_id = "123"
         dump: Dump = {
             "entity_type": None,
             "entity_id": entity_id,
         }
+        sut = EntityReference[EntityReferenceTestEntityOne]()
         with raises_error(error_type=AssertionFailed):
-            EntityReference.load(dump, sut)
+            sut.load(dump)
 
     async def test_load_without_constraint_without_importable_entity_type_should_error(
         self,
     ) -> None:
-        sut = EntityReference[EntityReferenceTestEntityOne]()
         entity_id = "123"
         dump: Dump = {
             "entity_type": "betty.non_existent.Entity",
             "entity_id": entity_id,
         }
+        sut = EntityReference[EntityReferenceTestEntityOne]()
         with raises_error(error_type=AssertionFailed):
-            EntityReference.load(dump, sut)
+            sut.load(dump)
 
     async def test_load_without_constraint_without_string_entity_id_should_error(
         self,
     ) -> None:
-        sut = EntityReference[EntityReferenceTestEntityOne]()
         entity_type = EntityReferenceTestEntityOne
         dump: Dump = {
             "entity_type": get_entity_type_name(entity_type),
             "entity_id": None,
         }
+        sut = EntityReference[EntityReferenceTestEntityOne]()
         with raises_error(error_type=AssertionFailed):
-            EntityReference.load(dump, sut)
+            sut.load(dump)
 
     async def test_dump_with_constraint(self) -> None:
         sut = EntityReference[Entity](Entity, None, entity_type_is_constrained=True)
@@ -200,10 +208,23 @@ class TestEntityReferenceSequence(
     ]:
         return (
             EntityReference[Entity](),
-            EntityReference[Entity](),
-            EntityReference[Entity](),
-            EntityReference[Entity](),
+            EntityReference[Entity](Entity),
+            EntityReference[Entity](Entity, "123"),
+            EntityReference[Entity](Entity, "123", entity_type_is_constrained=True),
         )
+
+    async def test_load_item(self) -> None:
+        configurations = self.get_configurations()
+        sut = self.get_sut(configurations)
+        dumps = [configuration.dump() for configuration in configurations]
+        non_void_dumps: Sequence[Dump] = [
+            dump  # type: ignore[misc]
+            for dump in dumps
+            if dump is not Void
+        ]
+        assert non_void_dumps, "At least one configuration object must return a configuration dump that is not Void"
+        for dump in non_void_dumps:
+            sut.load_item(dump)
 
 
 class TestLocaleConfiguration:
@@ -269,6 +290,29 @@ class TestLocaleConfiguration:
     ) -> None:
         assert expected == (sut == other)
 
+    async def test_load_with_invalid_dump(self) -> None:
+        dump: Dump = {}
+        sut = LocaleConfiguration(DEFAULT_LOCALE)
+        with raises_error(error_type=SerdeError):
+            sut.load(dump)
+
+    async def test_load_with_locale(self) -> None:
+        dump: Dump = {
+            "locale": UNDETERMINED_LOCALE,
+        }
+        sut = LocaleConfiguration(DEFAULT_LOCALE)
+        sut.load(dump)
+        assert sut.locale == UNDETERMINED_LOCALE
+
+    async def test_load_with_alias(self) -> None:
+        dump: Dump = {
+            "locale": UNDETERMINED_LOCALE,
+            "alias": "UNDETERMINED_LOCALE",
+        }
+        sut = LocaleConfiguration(DEFAULT_LOCALE)
+        sut.load(dump)
+        assert sut.alias == "UNDETERMINED_LOCALE"
+
 
 class TestLocaleConfigurationMapping(
     ConfigurationMappingTestBase[str, LocaleConfiguration]
@@ -296,6 +340,19 @@ class TestLocaleConfigurationMapping(
             LocaleConfiguration(self.get_configuration_keys()[3]),
         )
 
+    async def test_load_item(self) -> None:
+        configurations = self.get_configurations()
+        sut = self.get_sut(configurations)
+        dumps = [configuration.dump() for configuration in configurations]
+        non_void_dumps: Sequence[Dump] = [
+            dump  # type: ignore[misc]
+            for dump in dumps
+            if dump is not Void
+        ]
+        assert non_void_dumps, "At least one configuration object must return a configuration dump that is not Void"
+        for dump in non_void_dumps:
+            sut.load_item(dump)
+
     async def test_delitem(self) -> None:
         configurations = self.get_configurations()
         sut = self.get_sut([configurations[0], configurations[1]])
@@ -309,8 +366,9 @@ class TestLocaleConfigurationMapping(
                 locale_configuration_a,
             ]
         )
-        with pytest.raises(AssertionFailed):
-            del sut["nl-NL"]
+        del sut["nl-NL"]
+        assert len(sut) == 1
+        assert DEFAULT_LOCALE in sut
 
     async def test_default_without_explicit_locale_configurations(self) -> None:
         sut = LocaleConfigurationMapping()
@@ -338,25 +396,44 @@ class TestLocaleConfigurationMapping(
         sut.default = locale_configuration_b
         assert locale_configuration_b == sut.default
 
+    async def test_replace_without_items(self) -> None:
+        sut = self.get_sut()
+        sut.clear()
+        assert len(sut) == 1
+        self.get_configurations()
+        sut.replace()
+        assert len(sut) == 1
+
+    async def test_replace_with_items(self) -> None:
+        sut = self.get_sut()
+        sut.clear()
+        assert len(sut) == 1
+        configurations = self.get_configurations()
+        sut.replace(*configurations)
+        assert len(sut) == len(configurations)
+
 
 class _DummyExtension(Extension):
-    @classmethod
-    def label(cls) -> Localizable:
-        return Str._("Dummy")
-
-
-class _DummyConfiguration(Configuration):
     pass
 
 
-class _DummyConfigurableExtension(Extension, Configurable[_DummyConfiguration]):
-    @classmethod
-    def label(cls) -> Localizable:
-        return Str._("Configurable dummy")
+class _DummyConfiguration(Configuration):
+    def __init__(self):
+        super().__init__()
+        self.value: int | None = None
 
+    @override
+    def load(self, dump: Dump) -> None:
+        assert_record(
+            RequiredField("value", assert_int() | assert_setattr(self, "value"))
+        )(dump)
+
+
+class _DummyConfigurableExtension(ConfigurableExtension[_DummyConfiguration]):
+    @override
     @classmethod
-    def configuration_type(cls) -> type[_DummyConfiguration]:
-        return _DummyConfiguration
+    def default_configuration(cls) -> _DummyConfiguration:
+        return _DummyConfiguration()
 
 
 class TestExtensionConfiguration:
@@ -421,6 +498,35 @@ class TestExtensionConfiguration:
     ) -> None:
         assert expected == (one == other)
 
+    async def test_load_without_extension(self) -> None:
+        with raises_error(error_type=AssertionFailed):
+            ExtensionConfiguration(_DummyExtension).load({})
+
+    async def test_load_with_extension(self) -> None:
+        sut = ExtensionConfiguration(_DummyExtension)
+        sut.load({"extension": _DummyConfigurableExtension.name()})
+        assert sut.extension_type == _DummyConfigurableExtension
+        assert sut.enabled
+
+    async def test_load_with_enabled(self) -> None:
+        sut = ExtensionConfiguration(_DummyExtension)
+        sut.load({"extension": _DummyConfigurableExtension.name(), "enabled": False})
+        assert not sut.enabled
+
+    async def test_load_with_configuration(self) -> None:
+        sut = ExtensionConfiguration(_DummyConfigurableExtension)
+        sut.load(
+            {
+                "extension": _DummyConfigurableExtension.name(),
+                "configuration": {
+                    "value": 13579,
+                },
+            }
+        )
+        extension_configuration = sut.extension_configuration
+        assert isinstance(extension_configuration, _DummyConfiguration)
+        assert extension_configuration.value == 13579
+
 
 class ExtensionTypeConfigurationMappingTestExtension0(Extension):
     pass
@@ -467,9 +573,22 @@ class TestExtensionConfigurationMapping(
         return (
             ExtensionConfiguration(self.get_configuration_keys()[0]),
             ExtensionConfiguration(self.get_configuration_keys()[1]),
-            ExtensionConfiguration(self.get_configuration_keys()[2]),
-            ExtensionConfiguration(self.get_configuration_keys()[3]),
+            ExtensionConfiguration(self.get_configuration_keys()[2], enabled=False),
+            ExtensionConfiguration(self.get_configuration_keys()[3], enabled=False),
         )
+
+    async def test_load_item(self) -> None:
+        configurations = self.get_configurations()
+        sut = self.get_sut(configurations)
+        dumps = [configuration.dump() for configuration in configurations]
+        non_void_dumps: Sequence[Dump] = [
+            dump  # type: ignore[misc]
+            for dump in dumps
+            if dump is not Void
+        ]
+        assert non_void_dumps, "At least one configuration object must return a configuration dump that is not Void"
+        for dump in non_void_dumps:
+            sut.load_item(dump)
 
 
 class EntityTypeConfigurationTestEntityOne(UserFacingEntity, Entity):
@@ -500,14 +619,16 @@ class TestEntityTypeConfiguration:
 
     async def test_load_with_empty_configuration(self) -> None:
         dump: Dump = {}
+        sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
         with raises_error(error_type=AssertionFailed):
-            EntityTypeConfiguration.load(dump)
+            sut.load(dump)
 
     async def test_load_with_minimal_configuration(self) -> None:
         dump: Dump = {
             "entity_type": get_entity_type_name(EntityTypeConfigurationTestEntityOne),
         }
-        EntityTypeConfiguration.load(dump)
+        sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
+        sut.load(dump)
 
     @pytest.mark.parametrize(
         "generate_html_list,",
@@ -521,7 +642,8 @@ class TestEntityTypeConfiguration:
             "entity_type": get_entity_type_name(EntityTypeConfigurationTestEntityOne),
             "generate_html_list": generate_html_list,
         }
-        sut = EntityTypeConfiguration.load(dump)
+        sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
+        sut.load(dump)
         assert generate_html_list == sut.generate_html_list
 
     async def test_dump_with_minimal_configuration(self) -> None:
@@ -638,6 +760,19 @@ class TestEntityTypeConfigurationMapping(
             EntityTypeConfiguration(self.get_configuration_keys()[3]),
         )
 
+    async def test_load_item(self) -> None:
+        configurations = self.get_configurations()
+        sut = self.get_sut(configurations)
+        dumps = [configuration.dump() for configuration in configurations]
+        non_void_dumps: Sequence[Dump] = [
+            dump  # type: ignore[misc]
+            for dump in dumps
+            if dump is not Void
+        ]
+        assert non_void_dumps, "At least one configuration object must return a configuration dump that is not Void"
+        for dump in non_void_dumps:
+            sut.load_item(dump)
+
 
 class TestProjectConfiguration:
     async def test_name(self) -> None:
@@ -687,7 +822,8 @@ class TestProjectConfiguration:
 
     async def test_load_should_load_minimal(self) -> None:
         dump: Any = ProjectConfiguration().dump()
-        sut = ProjectConfiguration.load(dump)
+        sut = ProjectConfiguration()
+        sut.load(dump)
         assert dump["base_url"] == sut.base_url
         assert sut.title == "Betty"
         assert sut.author is None
@@ -699,22 +835,25 @@ class TestProjectConfiguration:
         name = "MyFirstBettySite"
         dump: Any = ProjectConfiguration().dump()
         dump["name"] = name
-        sut = ProjectConfiguration.load(dump)
+        sut = ProjectConfiguration()
+        sut.load(dump)
         assert sut.name == name
 
     async def test_load_should_load_title(self) -> None:
         title = "My first Betty site"
         dump: Any = ProjectConfiguration().dump()
         dump["title"] = title
-        sut = ProjectConfiguration.load(dump)
-        assert title == sut.title
+        sut = ProjectConfiguration()
+        sut.load(dump)
+        assert sut.title == title
 
     async def test_load_should_load_author(self) -> None:
         author = "Bart"
         dump: Any = ProjectConfiguration().dump()
         dump["author"] = author
-        sut = ProjectConfiguration.load(dump)
-        assert author == sut.author
+        sut = ProjectConfiguration()
+        sut.load(dump)
+        assert sut.author == author
 
     async def test_load_should_load_locale_locale(self) -> None:
         locale = "nl-NL"
@@ -722,8 +861,9 @@ class TestProjectConfiguration:
         dump["locales"] = {
             locale: {},
         }
-        sut = ProjectConfiguration.load(dump)
-        assert LocaleConfigurationMapping([LocaleConfiguration(locale)]) == sut.locales
+        sut = ProjectConfiguration()
+        sut.load(dump)
+        assert sut.locales == LocaleConfigurationMapping([LocaleConfiguration(locale)])
 
     async def test_load_should_load_locale_alias(self) -> None:
         locale = "nl-NL"
@@ -735,17 +875,15 @@ class TestProjectConfiguration:
         dump["locales"] = {
             locale: locale_config,
         }
-        sut = ProjectConfiguration.load(dump)
-        assert (
-            LocaleConfigurationMapping(
-                [
-                    LocaleConfiguration(
-                        locale,
-                        alias=alias,
-                    ),
-                ]
-            )
-            == sut.locales
+        sut = ProjectConfiguration()
+        sut.load(dump)
+        assert sut.locales == LocaleConfigurationMapping(
+            [
+                LocaleConfiguration(
+                    locale,
+                    alias=alias,
+                ),
+            ]
         )
 
     async def test_load_should_root_path(self) -> None:
@@ -753,15 +891,17 @@ class TestProjectConfiguration:
         expected_root_path = "betty"
         dump: Any = ProjectConfiguration().dump()
         dump["root_path"] = configured_root_path
-        sut = ProjectConfiguration.load(dump)
-        assert expected_root_path == sut.root_path
+        sut = ProjectConfiguration()
+        sut.load(dump)
+        assert sut.root_path == expected_root_path
 
     async def test_load_should_clean_urls(self) -> None:
         clean_urls = True
         dump: Any = ProjectConfiguration().dump()
         dump["clean_urls"] = clean_urls
-        sut = ProjectConfiguration.load(dump)
-        assert clean_urls == sut.clean_urls
+        sut = ProjectConfiguration()
+        sut.load(dump)
+        assert sut.clean_urls == clean_urls
 
     @pytest.mark.parametrize(
         "debug",
@@ -773,8 +913,9 @@ class TestProjectConfiguration:
     async def test_load_should_load_debug(self, debug: bool) -> None:
         dump: Any = ProjectConfiguration().dump()
         dump["debug"] = debug
-        sut = ProjectConfiguration.load(dump)
-        assert debug == sut.debug
+        sut = ProjectConfiguration()
+        sut.load(dump)
+        assert sut.debug == debug
 
     async def test_load_should_load_one_extension_with_configuration(self) -> None:
         dump: Any = ProjectConfiguration().dump()
@@ -786,21 +927,23 @@ class TestProjectConfiguration:
                 "configuration": extension_configuration,
             },
         }
+        sut = ProjectConfiguration()
         expected = ExtensionConfiguration(
             DummyConfigurableExtension,
             extension_configuration=DummyConfigurableExtensionConfiguration(),
         )
-        sut = ProjectConfiguration.load(dump)
-        assert expected == sut.extensions[DummyConfigurableExtension]
+        sut.load(dump)
+        assert sut.extensions[DummyConfigurableExtension] == expected
 
     async def test_load_should_load_one_extension_without_configuration(self) -> None:
         dump: Any = ProjectConfiguration().dump()
         dump["extensions"] = {
             DummyNonConfigurableExtension.name(): {},
         }
+        sut = ProjectConfiguration()
         expected = ExtensionConfiguration(DummyNonConfigurableExtension)
-        sut = ProjectConfiguration.load(dump)
-        assert expected == sut.extensions[DummyNonConfigurableExtension]
+        sut.load(dump)
+        assert sut.extensions[DummyNonConfigurableExtension] == expected
 
     async def test_load_extension_with_invalid_configuration_should_raise_error(
         self,
@@ -809,29 +952,33 @@ class TestProjectConfiguration:
         dump["extensions"] = {
             DummyConfigurableExtension.name(): 1337,
         }
+        sut = ProjectConfiguration()
         with raises_error(error_type=AssertionFailed):
-            ProjectConfiguration.load(dump)
+            sut.load(dump)
 
     async def test_load_unknown_extension_type_name_should_error(self) -> None:
         dump: Any = ProjectConfiguration().dump()
         dump["extensions"] = {
             "non.existent.type": {},
         }
+        sut = ProjectConfiguration()
         with raises_error(error_type=AssertionFailed):
-            ProjectConfiguration.load(dump)
+            sut.load(dump)
 
     async def test_load_not_an_extension_type_name_should_error(self) -> None:
         dump: Any = ProjectConfiguration().dump()
         dump["extensions"] = {
             "%s.%s" % (self.__class__.__module__, self.__class__.__name__): {},
         }
+        sut = ProjectConfiguration()
         with raises_error(error_type=AssertionFailed):
-            ProjectConfiguration.load(dump)
+            sut.load(dump)
 
     async def test_load_should_error_if_invalid_config(self) -> None:
         dump: Dump = {}
+        sut = ProjectConfiguration()
         with raises_error(error_type=AssertionFailed):
-            ProjectConfiguration.load(dump)
+            sut.load(dump)
 
     async def test_dump_should_dump_minimal(self) -> None:
         sut = ProjectConfiguration()
@@ -947,8 +1094,9 @@ class TestProjectConfiguration:
 
     async def test_dump_should_error_if_invalid_config(self) -> None:
         dump: Dump = {}
+        sut = ProjectConfiguration()
         with raises_error(error_type=AssertionFailed):
-            ProjectConfiguration.load(dump)
+            sut.load(dump)
 
 
 class DummyNonConfigurableExtension(Extension):
@@ -965,16 +1113,10 @@ class DummyConfigurableExtensionConfiguration(Configuration):
             return NotImplemented
         return self.check == other.check
 
-    @classmethod
-    def load(
-        cls,
-        dump: Dump,
-        configuration: Self | None = None,
-    ) -> Self:
-        if configuration is None:
-            configuration = cls()
-        assert_record(RequiredField("check", assert_bool()))(dump)
-        return configuration
+    def load(self, dump: Dump) -> None:
+        assert_record(
+            RequiredField("check", assert_bool() | assert_setattr(self, "check"))
+        )(dump)
 
     def dump(self) -> VoidableDump:
         return {

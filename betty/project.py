@@ -25,7 +25,7 @@ from betty.config import (
     ConfigurationSequence,
 )
 from betty.hashid import hashid
-from betty.locale import get_data, Str
+from betty.locale import Str, DEFAULT_LOCALE
 from betty.model import Entity, get_entity_type_name, UserFacingEntity
 from betty.model.ancestry import Ancestry, Person, Event, Place, Source
 from betty.serde.dump import (
@@ -45,13 +45,13 @@ from betty.serde.load import (
     assert_entity_type,
     assert_setattr,
     assert_str,
-    assert_field,
     assert_extension_type,
     assert_bool,
     assert_dict,
     assert_locale,
     assert_int,
     assert_positive_number,
+    assert_fields,
 )
 
 if TYPE_CHECKING:
@@ -129,29 +129,24 @@ class EntityReference(Configuration, Generic[_EntityT]):
         self._dispatch_change()
 
     @override
-    @classmethod
     def load(
-        cls,
+        self,
         dump: Dump,
-        configuration: Self | None = None,
-    ) -> Self:
-        if configuration is None:
-            configuration = cls()
-        if isinstance(dump, dict) or not configuration.entity_type_is_constrained:
+    ) -> None:
+        if isinstance(dump, dict) or not self.entity_type_is_constrained:
             assert_record(
                 RequiredField(
                     "entity_type",
-                    assert_entity_type() | assert_setattr(configuration, "entity_type"),
+                    assert_entity_type() | assert_setattr(self, "entity_type"),
                 ),
                 OptionalField(
                     "entity_id",
-                    assert_str() | assert_setattr(configuration, "entity_id"),
+                    assert_str() | assert_setattr(self, "entity_id"),
                 ),
             )(dump)
         else:
             assert_str()(dump)
-            assert_setattr(configuration, "entity_id")(dump)
-        return configuration
+            assert_setattr(self, "entity_id")(dump)
 
     @override
     def dump(self) -> VoidableDump:
@@ -196,9 +191,17 @@ class EntityReferenceSequence(
         super().__init__(entity_references)
 
     @override
-    @classmethod
-    def _item_type(cls) -> type[EntityReference[_EntityT]]:
-        return EntityReference
+    def load_item(self, dump: Dump) -> EntityReference[_EntityT]:
+        configuration = EntityReference[_EntityT](
+            # Use a dummy entity type for now to satisfy the initializer.
+            # It will be overridden when loading the dump.
+            Entity  # type: ignore[arg-type]
+            if self._entity_type_constraint is None
+            else self._entity_type_constraint,
+            entity_type_is_constrained=self._entity_type_constraint is not None,
+        )
+        configuration.load(dump)
+        return configuration
 
     @override
     def _on_add(self, configuration: EntityReference[_EntityT]) -> None:
@@ -208,7 +211,10 @@ class EntityReferenceSequence(
         entity_reference_entity_type = configuration._entity_type
 
         if entity_type_constraint is None:
+            configuration._entity_type_is_constrained = False
             return
+
+        configuration._entity_type_is_constrained = True
 
         if (
             entity_reference_entity_type == entity_type_constraint
@@ -317,34 +323,38 @@ class ExtensionConfiguration(Configuration):
         self._enabled = other._enabled
         self._set_extension_configuration(other._extension_configuration)
 
-    @override
     @classmethod
-    def load(
-        cls,
-        dump: Dump,
-        configuration: Self | None = None,
-    ) -> Self:
-        extension_type = assert_field(
-            RequiredField("extension", assert_extension_type())
-        )(dump)
-        if configuration is None:
-            configuration = cls(extension_type)
-        else:
-            # This MUST NOT fail. If it does, this is a bug in the calling code that must be fixed.
-            assert extension_type is configuration.extension_type
+    def assert_load(cls) -> Assertion[Dump, ExtensionConfiguration]:
+        """
+        Build an assertion to create a new instance and load a configuration dump into it.
+        """
+
+        def _assertion(dump: Dump) -> ExtensionConfiguration:
+            dict_dump = assert_fields(
+                RequiredField("extension", assert_extension_type())
+            )(dump)
+            configuration = cls(dict_dump["extension"])
+            configuration.load(dump)
+            return configuration
+
+        return _assertion
+
+    _extension_type_assertion = assert_extension_type()
+
+    @override
+    def load(self, dump: Dump) -> None:
         assert_record(
-            RequiredField("extension"),
-            OptionalField(
-                "enabled", assert_bool() | assert_setattr(configuration, "enabled")
+            RequiredField(
+                "extension",
+                self._extension_type_assertion
+                | assert_setattr(self, "_extension_type"),
             ),
+            OptionalField("enabled", assert_bool() | assert_setattr(self, "enabled")),
             OptionalField(
                 "configuration",
-                configuration._assert_load_extension_configuration(
-                    configuration.extension_type
-                ),
+                self._assert_load_extension_configuration(self.extension_type),
             ),
         )(dump)
-        return configuration
 
     def _assert_load_extension_configuration(
         self, extension_type: type[Extension]
@@ -352,7 +362,8 @@ class ExtensionConfiguration(Configuration):
         def _assertion(value: Any) -> Configuration:
             extension_configuration = self._extension_configuration
             if isinstance(extension_configuration, Configuration):
-                return extension_configuration.load(value, extension_configuration)
+                extension_configuration.load(value)
+                return extension_configuration
             raise AssertionFailed(
                 Str._(
                     "{extension_type} is not configurable.",
@@ -396,18 +407,16 @@ class ExtensionConfigurationMapping(
         super().__init__(configurations)
 
     @override
-    @classmethod
-    def _item_type(cls) -> type[ExtensionConfiguration]:
-        return ExtensionConfiguration
+    def load_item(self, dump: Dump) -> ExtensionConfiguration:
+        return ExtensionConfiguration.assert_load()(dump)
 
     @override
     def _get_key(self, configuration: ExtensionConfiguration) -> type[Extension]:
         return configuration.extension_type
 
     @override
-    @classmethod
     def _load_key(
-        cls,
+        self,
         item_dump: Dump,
         key_dump: str,
     ) -> Dump:
@@ -497,26 +506,19 @@ class EntityTypeConfiguration(Configuration):
         self._dispatch_change()
 
     @override
-    @classmethod
-    def load(
-        cls,
-        dump: Dump,
-        configuration: Self | None = None,
-    ) -> Self:
-        entity_type = assert_field(
-            RequiredField[Any, type[Entity]](
-                "entity_type", assert_str() | assert_entity_type()
-            ),
-        )(dump)
-        configuration = cls(entity_type)
+    def load(self, dump: Dump) -> None:
         assert_record(
-            OptionalField("entity_type"),
+            RequiredField[Any, type[Entity]](
+                "entity_type",
+                assert_str()
+                | assert_entity_type()
+                | assert_setattr(self, "_entity_type"),
+            ),
             OptionalField(
                 "generate_html_list",
-                assert_bool() | assert_setattr(configuration, "generate_html_list"),
+                assert_bool() | assert_setattr(self, "generate_html_list"),
             ),
         )(dump)
-        return configuration
 
     @override
     def dump(self) -> VoidableDump:
@@ -546,9 +548,8 @@ class EntityTypeConfigurationMapping(
         return configuration.entity_type
 
     @override
-    @classmethod
     def _load_key(
-        cls,
+        self,
         item_dump: Dump,
         key_dump: str,
     ) -> Dump:
@@ -563,9 +564,12 @@ class EntityTypeConfigurationMapping(
         return dict_dump, dict_dump.pop("entity_type")
 
     @override
-    @classmethod
-    def _item_type(cls) -> type[EntityTypeConfiguration]:
-        return EntityTypeConfiguration
+    def load_item(self, dump: Dump) -> EntityTypeConfiguration:
+        # Use a dummy entity type for now to satisfy the initializer.
+        # It will be overridden when loading the dump.
+        configuration = EntityTypeConfiguration(Entity)
+        configuration.load(dump)
+        return configuration
 
 
 class LocaleConfiguration(Configuration):
@@ -631,24 +635,11 @@ class LocaleConfiguration(Configuration):
         self._alias = other._alias
 
     @override
-    @classmethod
-    def load(
-        cls,
-        dump: Dump,
-        configuration: Self | None = None,
-    ) -> Self:
-        locale = assert_field(
-            RequiredField("locale", assert_locale()),
-        )(dump)
-        if configuration is None:
-            configuration = cls(locale)
+    def load(self, dump: Dump) -> None:
         assert_record(
-            RequiredField("locale"),
-            OptionalField(
-                "alias", assert_str() | assert_setattr(configuration, "alias")
-            ),
+            RequiredField("locale", assert_locale() | assert_setattr(self, "_locale")),
+            OptionalField("alias", assert_str() | assert_setattr(self, "alias")),
         )(dump)
-        return configuration
 
     @override
     def dump(self) -> VoidableDump:
@@ -665,17 +656,24 @@ class LocaleConfigurationMapping(ConfigurationMapping[str, LocaleConfiguration])
         configurations: Iterable[LocaleConfiguration] | None = None,
     ):
         super().__init__(configurations)
+        self._ensure_locale()
+
+    @override
+    def _on_remove(self, configuration: LocaleConfiguration) -> None:
+        super()._on_remove(configuration)
+        self._ensure_locale()
+
+    def _ensure_locale(self) -> None:
         if len(self) == 0:
-            self.append(LocaleConfiguration("en-US"))
+            self.append(LocaleConfiguration(DEFAULT_LOCALE))
 
     @override
     def _get_key(self, configuration: LocaleConfiguration) -> str:
         return configuration.locale
 
     @override
-    @classmethod
     def _load_key(
-        cls,
+        self,
         item_dump: Dump,
         key_dump: str,
     ) -> Dump:
@@ -689,20 +687,10 @@ class LocaleConfigurationMapping(ConfigurationMapping[str, LocaleConfiguration])
         return dict_item_dump, dict_item_dump.pop("locale")
 
     @override
-    @classmethod
-    def _item_type(cls) -> type[LocaleConfiguration]:
-        return LocaleConfiguration
-
-    @override
-    def _on_remove(self, configuration: LocaleConfiguration) -> None:
-        if len(self._configurations) <= 1:
-            raise AssertionFailed(
-                Str._(
-                    "Cannot remove the last remaining locale {locale}",
-                    locale=get_data(configuration.locale).get_display_name()
-                    or configuration.locale,
-                )
-            )
+    def load_item(self, dump: Dump) -> LocaleConfiguration:
+        item = LocaleConfiguration("und")
+        item.load(dump)
+        return item
 
     @property
     def default(self) -> LocaleConfiguration:
@@ -986,52 +974,28 @@ class ProjectConfiguration(FileBasedConfiguration):
         self._dispatch_change()
 
     @override
-    @classmethod
-    def load(
-        cls,
-        dump: Dump,
-        configuration: Self | None = None,
-    ) -> Self:
-        if configuration is None:
-            configuration = cls()
+    def load(self, dump: Dump) -> None:
         assert_record(
-            OptionalField("name", assert_str() | assert_setattr(configuration, "name")),
-            RequiredField(
-                "base_url", assert_str() | assert_setattr(configuration, "base_url")
-            ),
+            OptionalField("name", assert_str() | assert_setattr(self, "name")),
+            RequiredField("base_url", assert_str() | assert_setattr(self, "base_url")),
+            OptionalField("title", assert_str() | assert_setattr(self, "title")),
+            OptionalField("author", assert_str() | assert_setattr(self, "author")),
             OptionalField(
-                "title", assert_str() | assert_setattr(configuration, "title")
-            ),
-            OptionalField(
-                "author", assert_str() | assert_setattr(configuration, "author")
-            ),
-            OptionalField(
-                "root_path", assert_str() | assert_setattr(configuration, "root_path")
+                "root_path", assert_str() | assert_setattr(self, "root_path")
             ),
             OptionalField(
                 "clean_urls",
-                assert_bool() | assert_setattr(configuration, "clean_urls"),
+                assert_bool() | assert_setattr(self, "clean_urls"),
             ),
-            OptionalField(
-                "debug", assert_bool() | assert_setattr(configuration, "debug")
-            ),
+            OptionalField("debug", assert_bool() | assert_setattr(self, "debug")),
             OptionalField(
                 "lifetime_threshold",
-                assert_int() | assert_setattr(configuration, "lifetime_threshold"),
+                assert_int() | assert_setattr(self, "lifetime_threshold"),
             ),
-            OptionalField(
-                "locales", configuration._locales.assert_load(configuration.locales)
-            ),
-            OptionalField(
-                "extensions",
-                configuration._extensions.assert_load(configuration.extensions),
-            ),
-            OptionalField(
-                "entity_types",
-                configuration._entity_types.assert_load(configuration.entity_types),
-            ),
+            OptionalField("locales", self.locales.load),
+            OptionalField("extensions", self.extensions.load),
+            OptionalField("entity_types", self.entity_types.load),
         )(dump)
-        return configuration
 
     @override
     def dump(self) -> VoidableDictDump[Dump]:

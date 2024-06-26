@@ -120,7 +120,9 @@ class _AddFamilyTreeWindow(BettyMainWindow):
         parent: QObject | None = None,
     ):
         super().__init__(app, parent=parent)
-        self._family_tree = FamilyTreeConfiguration()
+        self._family_tree = FamilyTreeConfiguration(
+            self._app.project.configuration.project_directory_path
+        )
 
         self._layout = QFormLayout()
 

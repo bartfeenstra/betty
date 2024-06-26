@@ -4,7 +4,8 @@ Provide configuration for the :py:class:`betty.extension.Gramps` extension.
 
 from __future__ import annotations
 
-from typing import Iterable, Any, Self, TYPE_CHECKING
+from pathlib import Path
+from typing import Iterable, Any, Self
 
 from typing_extensions import override
 
@@ -18,20 +19,13 @@ from betty.serde.load import (
     assert_setattr,
 )
 
-if TYPE_CHECKING:
-    from pathlib import Path
-
 
 class FamilyTreeConfiguration(Configuration):
     """
     Configure a single Gramps family tree.
     """
 
-    def __init__(
-        self,
-        *,
-        file_path: Path | None = None,
-    ):
+    def __init__(self, file_path: Path):
         super().__init__()
         self.file_path = file_path
 
@@ -53,20 +47,10 @@ class FamilyTreeConfiguration(Configuration):
         self._file_path = file_path
 
     @override
-    @classmethod
-    def load(
-        cls,
-        dump: Dump,
-        configuration: Self | None = None,
-    ) -> Self:
-        if configuration is None:
-            configuration = cls()
+    def load(self, dump: Dump) -> None:
         assert_record(
-            RequiredField(
-                "file", assert_path() | assert_setattr(configuration, "file_path")
-            )
+            RequiredField("file", assert_path() | assert_setattr(self, "file_path"))
         )(dump)
-        return configuration
 
     @override
     def dump(self) -> VoidableDump:
@@ -84,9 +68,12 @@ class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfigurat
     """
 
     @override
-    @classmethod
-    def _item_type(cls) -> type[FamilyTreeConfiguration]:
-        return FamilyTreeConfiguration
+    def load_item(self, dump: Dump) -> FamilyTreeConfiguration:
+        # Use a dummy path to satisfy initializer arguments.
+        # It will be overridden when loading the fump.
+        item = FamilyTreeConfiguration(Path())
+        item.load(dump)
+        return item
 
 
 class GrampsConfiguration(Configuration):
@@ -115,21 +102,8 @@ class GrampsConfiguration(Configuration):
         self._family_trees.update(other._family_trees)
 
     @override
-    @classmethod
-    def load(
-        cls,
-        dump: Dump,
-        configuration: Self | None = None,
-    ) -> Self:
-        if configuration is None:
-            configuration = cls()
-        assert_record(
-            OptionalField(
-                "family_trees",
-                configuration._family_trees.assert_load(configuration.family_trees),
-            )
-        )(dump)
-        return configuration
+    def load(self, dump: Dump) -> None:
+        assert_record(OptionalField("family_trees", self.family_trees.load))(dump)
 
     @override
     def dump(self) -> VoidableDump:

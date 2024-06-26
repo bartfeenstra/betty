@@ -33,7 +33,8 @@ class TestNginxConfiguration:
         dump: Dump = {
             "https": https,
         }
-        sut = NginxConfiguration.load(dump)
+        sut = NginxConfiguration()
+        sut.load(dump)
         assert sut.https == https
 
     async def test_load_with_www_directory_path(self, tmp_path: Path) -> None:
@@ -41,7 +42,8 @@ class TestNginxConfiguration:
         dump: Dump = {
             "www_directory_path": www_directory_path,
         }
-        sut = NginxConfiguration.load(dump)
+        sut = NginxConfiguration()
+        sut.load(dump)
         assert sut.www_directory_path == www_directory_path
 
     async def test_dump_with_minimal_configuration(self) -> None:
