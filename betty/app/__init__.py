@@ -97,31 +97,20 @@ class AppConfiguration(FileBasedConfiguration):
 
     def __init__(
         self,
-        configuration_directory_path: Path | None = None,
+        configuration_file_path: Path,
         *,
         locale: str | None = None,
     ):
-        if configuration_directory_path is None:
-            deprecate(
-                f"Initializing {type(self)} without a configuration directory path is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x.",
-                stacklevel=2,
-            )
-            configuration_directory_path = CONFIGURATION_DIRECTORY_PATH
-        super().__init__()
-        self._configuration_directory_path = configuration_directory_path
+        super().__init__(configuration_file_path)
         self._locale: str | None = locale
 
     @override
     @property
     def configuration_file_path(self) -> Path:
-        return self._configuration_directory_path / "app.json"
+        return self._configuration_file_path
 
     @configuration_file_path.setter
     def configuration_file_path(self, __: Path) -> None:
-        pass
-
-    @configuration_file_path.deleter
-    def configuration_file_path(self) -> None:
         pass
 
     @property
@@ -171,7 +160,7 @@ class App(Configurable[AppConfiguration]):
         self,
         configuration: AppConfiguration,
         cache_directory_path: Path,
-        project: Project | None = None,
+        project: Project,
     ):
         super().__init__()
         self._started = False
@@ -185,7 +174,7 @@ class App(Configurable[AppConfiguration]):
         self._localizers: LocalizerRepository | None = None
         with suppress(FileNotFoundError):
             wait_to_thread(self.configuration.read())
-        self._project = project or Project()
+        self._project = project
         self.project.configuration.extensions.on_change(self._update_extensions)
 
         self._dispatcher: ExtensionDispatcher | None = None
@@ -230,7 +219,7 @@ class App(Configurable[AppConfiguration]):
         Create a new application from an existing application.
         """
         yield cls(
-            AppConfiguration(app.configuration._configuration_directory_path),
+            AppConfiguration(app.configuration.configuration_file_path),
             app._cache_directory_path,
             app.project if project is None else project,
         )

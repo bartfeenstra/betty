@@ -8,11 +8,13 @@ site from the entire project.
 
 from __future__ import annotations
 
-from contextlib import suppress
+from collections.abc import AsyncIterator
+from contextlib import suppress, asynccontextmanager
 from reprlib import recursive_repr
 from typing import Any, Generic, final, Iterable, cast, Self, TYPE_CHECKING, TypeVar
 from urllib.parse import urlparse
 
+from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
 from betty.app.extension import Extension, ConfigurableExtension
@@ -723,7 +725,9 @@ class ProjectConfiguration(FileBasedConfiguration):
 
     def __init__(
         self,
+        project_directory_path: Path,
         *,
+        configuration_file_name: str | None = None,
         base_url: str | None = None,
         root_path: str = "",
         clean_urls: bool = False,
@@ -736,7 +740,9 @@ class ProjectConfiguration(FileBasedConfiguration):
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
         name: str | None = None,
     ):
-        super().__init__(configuration_file_path)
+        super().__init__(
+            project_directory_path / (configuration_file_name or "betty.json")
+        )
         self._name = name
         self._computed_name: str | None = None
         self._base_url = "https://example.com" if base_url is None else base_url
@@ -1027,12 +1033,28 @@ class Project(Configurable[ProjectConfiguration]):
 
     def __init__(
         self,
+        configuration: ProjectConfiguration,
         *,
         ancestry: Ancestry | None = None,
     ):
         super().__init__()
-        self._configuration = ProjectConfiguration()
+        self._configuration = configuration
         self._ancestry = Ancestry() if ancestry is None else ancestry
+
+    @classmethod
+    @asynccontextmanager
+    async def new_temporary(cls) -> AsyncIterator[Self]:
+        """
+        Creat a new, temporary, isolated project.
+
+        The project will not leave any traces on the system.
+        """
+        async with (
+            TemporaryDirectory() as project_directory_path_str,
+        ):
+            yield cls(
+                ProjectConfiguration(Path(project_directory_path_str)),
+            )
 
     @property
     def name(self) -> str:

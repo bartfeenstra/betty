@@ -111,7 +111,8 @@ class FileBasedConfiguration(Configuration):
 
     def __init__(self, configuration_file_path: Path):
         super().__init__()
-        self._configuration_file_path = configuration_file_path
+        self._autowrite = False
+        self.configuration_file_path = configuration_file_path
 
     @property
     def autowrite(self) -> bool:
@@ -194,13 +195,6 @@ class FileBasedConfiguration(Configuration):
                     )
                 )
 
-    def __del__(self) -> None:
-        if (
-            hasattr(self, "_configuration_directory")
-            and self._configuration_directory is not None
-        ):
-            self._configuration_directory.cleanup()
-
     @property
     def configuration_file_path(self) -> Path:
         """
@@ -215,14 +209,6 @@ class FileBasedConfiguration(Configuration):
         formats = FormatRepository()
         formats.format_for(configuration_file_path.suffix[1:])
         self._configuration_file_path = configuration_file_path
-
-    @configuration_file_path.deleter
-    def configuration_file_path(self) -> None:
-        if self._autowrite:
-            raise RuntimeError(
-                "Cannot remove the configuration file path while autowrite is enabled."
-            )
-        self._configuration_file_path = None
 
 
 ConfigurationKey: TypeAlias = SupportsIndex | Hashable | type[Any]
