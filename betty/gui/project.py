@@ -59,7 +59,12 @@ from betty.gui.text import Text, Caption
 from betty.gui.window import BettyMainWindow
 from betty.locale import get_display_name, to_locale, Str, Localizable
 from betty.model import UserFacingEntity, Entity
-from betty.project import LocaleConfiguration, Project, EntityTypeConfiguration, ProjectAwareMixin
+from betty.project import (
+    LocaleConfiguration,
+    Project,
+    EntityTypeConfiguration,
+    ProjectAwareMixin,
+)
 from betty.serde.load import AssertionFailed
 from betty.typing import internal
 

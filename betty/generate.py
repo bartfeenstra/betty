@@ -38,6 +38,7 @@ from betty.model import (
 )
 from betty.model.ancestry import is_public
 from betty.openapi import Specification
+from betty.project import Project
 from betty.string import (
     camel_case_to_kebab_case,
     camel_case_to_snake_case,
@@ -68,39 +69,39 @@ class GenerationContext(Context):
     A site generation job context.
     """
 
-    def __init__(self, app: App):
+    def __init__(self, project: Project):
         super().__init__()
-        self._app = app
+        self._project = project
 
     @property
-    def app(self) -> App:
+    def project(self) -> Project:
         """
-        The Betty application this job context is run within.
+        The Betty project this job context is run within.
         """
-        return self._app
+        return self._project
 
 
-async def generate(app: App) -> None:
+async def generate(project: Project) -> None:
     """
     Generate a new site.
     """
     logger = logging.getLogger(__name__)
-    job_context = GenerationContext(app)
+    job_context = GenerationContext(project)
 
     logger.info(
-        app.localizer._("Generating your site to {output_directory}.").format(
-            output_directory=app.project.configuration.output_directory_path
+        project.app.localizer._("Generating your site to {output_directory}.").format(
+            output_directory=project.configuration.output_directory_path
         )
     )
     with suppress(FileNotFoundError):
         await asyncio.to_thread(
-            shutil.rmtree, app.project.configuration.output_directory_path
+            shutil.rmtree, project.configuration.output_directory_path
         )
-    await makedirs(app.project.configuration.output_directory_path, exist_ok=True)
+    await makedirs(project.configuration.output_directory_path, exist_ok=True)
 
     # The static public assets may be overridden depending on the number of locales rendered, so ensure they are
     # generated before anything else.
-    await _generate_static_public(app, job_context)
+    await _generate_static_public(job_context)
 
     jobs = [job async for job in _run_jobs(app, job_context)]
     log_job = create_task(_log_jobs_forever(app, jobs))
@@ -109,9 +110,9 @@ async def generate(app: App) -> None:
     log_job.cancel()
     await _log_jobs(app, jobs)
 
-    app.project.configuration.output_directory_path.chmod(0o755)
+    project.configuration.output_directory_path.chmod(0o755)
     for directory_path_str, subdirectory_names, file_names in os.walk(
-        app.project.configuration.output_directory_path
+        project.configuration.output_directory_path
     ):
         directory_path = Path(directory_path_str)
         for subdirectory_name in subdirectory_names:
@@ -168,7 +169,7 @@ async def _run_jobs(
     yield _run_job(semaphore, _generate_json_schema, job_context)
     yield _run_job(semaphore, _generate_openapi, job_context)
 
-    locales = app.project.configuration.locales
+    locales = project.configuration.locales
 
     for locale in locales:
         yield _run_job(semaphore, _generate_public, job_context, locale)
@@ -177,8 +178,8 @@ async def _run_jobs(
         if not issubclass(entity_type, UserFacingEntity):
             continue
         if (
-            entity_type in app.project.configuration.entity_types
-            and app.project.configuration.entity_types[entity_type].generate_html_list
+            entity_type in project.configuration.entity_types
+            and project.configuration.entity_types[entity_type].generate_html_list
         ):
             for locale in locales:
                 yield _run_job(
@@ -191,7 +192,7 @@ async def _run_jobs(
         yield _run_job(
             semaphore, _generate_entity_type_list_json, job_context, entity_type
         )
-        for entity in app.project.ancestry[entity_type]:
+        for entity in project.ancestry[entity_type]:
             if isinstance(entity.id, GeneratedEntityId):
                 continue
 
@@ -238,7 +239,7 @@ async def create_json_resource(path: Path) -> AsyncContextManager[AsyncTextIOWra
 async def _generate_dispatch(
     job_context: GenerationContext,
 ) -> None:
-    app = job_context.app
+    project = job_context.project
     await app.dispatcher.dispatch(Generator)(job_context)
 
 
@@ -246,18 +247,18 @@ async def _generate_public(
     job_context: GenerationContext,
     locale: str,
 ) -> None:
-    app = job_context.app
+    project = job_context.project
     locale_label = get_display_name(locale, app.localizer.locale)
     logging.getLogger(__name__).debug(
         app.localizer._("Generating localized public files in {locale}...").format(
             locale=locale_label,
         )
     )
-    async for file_path in app.assets.copytree(
+    async for file_path in project.assets.copytree(
         Path("public") / "localized",
-        app.project.configuration.localize_www_directory_path(locale),
+        project.configuration.localize_www_directory_path(locale),
     ):
-        await app.renderer.render_file(
+        await project.renderer.render_file(
             file_path,
             job_context=job_context,
             localizer=await app.localizers.get(locale),
@@ -265,16 +266,16 @@ async def _generate_public(
 
 
 async def _generate_static_public(
-    app: App,
-    job_context: Context,
+    job_context: GenerationContext
 ) -> None:
+    project = job_context.project
     logging.getLogger(__name__).info(
-        app.localizer._("Generating static public files...")
+        project.app.localizer._("Generating static public files...")
     )
-    async for file_path in app.assets.copytree(
-        Path("public") / "static", app.project.configuration.www_directory_path
+    async for file_path in project.assets.copytree(
+        Path("public") / "static", project.configuration.www_directory_path
     ):
-        await app.renderer.render_file(
+        await project.renderer.render_file(
             file_path,
             job_context=job_context,
         )
@@ -282,9 +283,9 @@ async def _generate_static_public(
         # Ensure favicon.ico exists, otherwise servers of Betty sites would log
         # many a 404 Not Found for it, because some clients eagerly try to see
         # if it exists.
-        await app.assets.copy2(
+        await project.assets.copy2(
             Path("public") / "static" / "betty.ico",
-            app.project.configuration.www_directory_path / "favicon.ico",
+            project.configuration.www_directory_path / "favicon.ico",
         )
 
 
@@ -293,13 +294,13 @@ async def _generate_entity_type_list_html(
     locale: str,
     entity_type: type[Entity],
 ) -> None:
-    app = job_context.app
+    project = job_context.project
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
     entity_type_path = (
-        app.project.configuration.localize_www_directory_path(locale)
+        project.configuration.localize_www_directory_path(locale)
         / entity_type_name_fs
     )
-    template = app.jinja2_environment.select_template(
+    template = project.jinja2_environment.select_template(
         [
             f"entity/page-list--{entity_type_name_fs}.html.j2",
             "entity/page-list.html.j2",
@@ -310,7 +311,7 @@ async def _generate_entity_type_list_html(
         localizer=await app.localizers.get(locale),
         page_resource=f"/{entity_type_name_fs}/index.html",
         entity_type=entity_type,
-        entities=app.project.ancestry[entity_type],
+        entities=project.ancestry[entity_type],
     )
     async with await create_html_resource(entity_type_path) as f:
         await f.write(rendered_html)
@@ -320,11 +321,11 @@ async def _generate_entity_type_list_json(
     job_context: GenerationContext,
     entity_type: type[Entity & LinkedDataDumpable],
 ) -> None:
-    app = job_context.app
+    project = job_context.project
     entity_type_name = get_entity_type_name(entity_type)
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
     entity_type_path = (
-        app.project.configuration.www_directory_path / entity_type_name_fs
+        project.configuration.www_directory_path / entity_type_name_fs
     )
     data: DictDump[Dump] = {
         "$schema": app.static_url_generator.generate(
@@ -333,7 +334,7 @@ async def _generate_entity_type_list_json(
         ),
         "collection": [],
     }
-    for entity in app.project.ancestry[entity_type]:
+    for entity in project.ancestry[entity_type]:
         cast(list[str], data["collection"]).append(
             app.url_generator.generate(
                 entity,
@@ -352,11 +353,11 @@ async def _generate_entity_html(
     entity_type: type[Entity],
     entity_id: str,
 ) -> None:
-    app = job_context.app
-    entity = app.project.ancestry[entity_type][entity_id]
+    project = job_context.project
+    entity = project.ancestry[entity_type][entity_id]
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity))
     entity_path = (
-        app.project.configuration.localize_www_directory_path(locale)
+        project.configuration.localize_www_directory_path(locale)
         / entity_type_name_fs
         / entity.id
     )
@@ -381,13 +382,13 @@ async def _generate_entity_json(
     entity_type: type[Entity & LinkedDataDumpable],
     entity_id: str,
 ) -> None:
-    app = job_context.app
+    project = job_context.project
     entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
     entity_path = (
-        app.project.configuration.www_directory_path / entity_type_name_fs / entity_id
+        project.configuration.www_directory_path / entity_type_name_fs / entity_id
     )
     entity = cast(
-        "Entity & LinkedDataDumpable", app.project.ancestry[entity_type][entity_id]
+        "Entity & LinkedDataDumpable", project.ancestry[entity_type][entity_id]
     )
     rendered_json = json.dumps(await entity.dump_linked_data(app))
     async with await create_json_resource(entity_path) as f:
@@ -397,14 +398,14 @@ async def _generate_entity_json(
 async def _generate_sitemap(
     job_context: GenerationContext,
 ) -> None:
-    app = job_context.app
+    project = job_context.project
     sitemap_template = app.jinja2_environment.get_template("sitemap.xml.j2")
     sitemaps = []
     sitemap: list[str] = []
     sitemap_length = 0
     sitemaps.append(sitemap)
-    for locale in app.project.configuration.locales:
-        for entity in app.project.ancestry:
+    for locale in project.configuration.locales:
+        for entity in project.ancestry:
             if isinstance(entity.id, GeneratedEntityId):
                 continue
             if not isinstance(entity, UserFacingEntity):
@@ -440,7 +441,7 @@ async def _generate_sitemap(
             }
         )
         async with aiofiles.open(
-            app.project.configuration.www_directory_path / f"sitemap-{index}.xml", "w"
+            project.configuration.www_directory_path / f"sitemap-{index}.xml", "w"
         ) as f:
             await f.write(rendered_sitemap)
 
@@ -453,7 +454,7 @@ async def _generate_sitemap(
         }
     )
     async with aiofiles.open(
-        app.project.configuration.www_directory_path / "sitemap.xml", "w"
+        project.configuration.www_directory_path / "sitemap.xml", "w"
     ) as f:
         await f.write(rendered_sitemap_index)
 
@@ -461,12 +462,12 @@ async def _generate_sitemap(
 async def _generate_json_schema(
     job_context: GenerationContext,
 ) -> None:
-    app = job_context.app
+    project = job_context.project
     logging.getLogger(__name__).debug(app.localizer._("Generating JSON Schema..."))
     schema = Schema(app)
     rendered_json = json.dumps(await schema.build())
     async with await create_file(
-        app.project.configuration.www_directory_path / "schema.json"
+        project.configuration.www_directory_path / "schema.json"
     ) as f:
         await f.write(rendered_json)
 
@@ -474,11 +475,11 @@ async def _generate_json_schema(
 async def _generate_openapi(
     job_context: GenerationContext,
 ) -> None:
-    app = job_context.app
+    project = job_context.project
     logging.getLogger(__name__).debug(
         app.localizer._("Generating OpenAPI specification...")
     )
-    api_directory_path = app.project.configuration.www_directory_path / "api"
+    api_directory_path = project.configuration.www_directory_path / "api"
     rendered_json = json.dumps(await Specification(app).build())
     async with await create_json_resource(api_directory_path) as f:
         await f.write(rendered_json)

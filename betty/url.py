@@ -132,9 +132,9 @@ class _EntityUrlGenerator(LocalizedUrlGenerator):
         )
 
 
-class AppUrlGenerator(LocalizedUrlGenerator):
+class ProjectUrlGenerator(LocalizedUrlGenerator):
     """
-    Generate URLs for all resources provided by a Betty application.
+    Generate URLs for all resources provided by a Betty project.
     """
 
     def __init__(self, app: App):

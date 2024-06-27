@@ -8,14 +8,29 @@ site from the entire project.
 
 from __future__ import annotations
 
+import operator
 from contextlib import suppress
+from functools import reduce
+from graphlib import CycleError, TopologicalSorter
 from reprlib import recursive_repr
 from typing import Any, Generic, final, Iterable, cast, Self, TYPE_CHECKING, TypeVar
 from urllib.parse import urlparse
 
 from typing_extensions import override
 
-from betty.app.extension import Extension, ConfigurableExtension
+from betty import fs
+from betty.app import App
+from betty.app.extension import (
+    Extension,
+    ConfigurableExtension,
+    ExtensionDispatcher,
+    CyclicDependencyError,
+    build_extension_type_graph,
+    Extensions,
+    ListExtensions,
+)
+from betty.assets import AssetRepository
+from betty.asyncio import wait_to_thread
 from betty.classtools import repr_instance
 from betty.config import (
     Configuration,
@@ -24,10 +39,43 @@ from betty.config import (
     ConfigurationMapping,
     ConfigurationSequence,
 )
+from betty.core import CoreComponent
+from betty.dispatch import Dispatcher
 from betty.hashid import hashid
+from betty.jinja2 import Environment
 from betty.locale import Str, DEFAULT_LOCALE
-from betty.model import Entity, get_entity_type_name, UserFacingEntity
+from betty.model import (
+    Entity,
+    get_entity_type_name,
+    UserFacingEntity,
+    EntityTypeProvider,
+)
 from betty.model.ancestry import Ancestry, Person, Event, Place, Source
+from betty.model.event_type import (
+    Birth,
+    Baptism,
+    Adoption,
+    Death,
+    Funeral,
+    Cremation,
+    Burial,
+    Will,
+    Engagement,
+    Marriage,
+    MarriageAnnouncement,
+    Divorce,
+    DivorceAnnouncement,
+    Residence,
+    Immigration,
+    Emigration,
+    Occupation,
+    Retirement,
+    Correspondence,
+    Confirmation,
+    EventTypeProvider,
+    EventType,
+)
+from betty.render import Renderer, SequentialRenderer
 from betty.serde.dump import (
     Dump,
     VoidableDump,
@@ -53,6 +101,7 @@ from betty.serde.load import (
     assert_positive_number,
     assert_fields,
 )
+from betty.url import LocalizedUrlGenerator, StaticUrlGenerator
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -996,7 +1045,15 @@ class ProjectConfiguration(FileBasedConfiguration):
         )
 
 
-class Project(Configurable[ProjectConfiguration]):
+class _ProjectExtensions(ListExtensions):
+    def __init__(self):
+        super().__init__([])
+
+    def _update(self, extensions: list[list[Extension]]) -> None:
+        self._extensions = extensions
+
+
+class Project(Configurable[ProjectConfiguration], CoreComponent):
     """
     Define a Betty project.
 
@@ -1005,12 +1062,26 @@ class Project(Configurable[ProjectConfiguration]):
 
     def __init__(
         self,
+        app: App,
         *,
         ancestry: Ancestry | None = None,
     ):
         super().__init__()
+        self._app = app
         self._configuration = ProjectConfiguration()
         self._ancestry = Ancestry() if ancestry is None else ancestry
+        self._url_generator: LocalizedUrlGenerator | None = None
+        self._static_url_generator: StaticUrlGenerator | None = None
+        self._assets: AssetRepository | None = None
+        self._extensions = _ProjectExtensions()
+        self._extensions_initialized = False
+        self._dispatcher: ExtensionDispatcher | None = None
+        self._jinja2_environment: Environment | None = None
+        self._renderer: Renderer | None = None
+
+    @property
+    def app(self) -> App:
+        return self._app
 
     @property
     def name(self) -> str:
@@ -1030,40 +1101,214 @@ class Project(Configurable[ProjectConfiguration]):
         """
         return self._ancestry
 
+    @property
+    def extensions(self) -> Extensions:
+        """
+        The enabled extensions.
+        """
+        if not self._extensions_initialized:
+            self._extensions_initialized = True
+            self._update_extensions()
 
-# @todo INVENTORIZE?
-# @todo What do we need this for?
-# @todo - GUIs
-# @todo - **anything** else?
-# @todo
-# @todo If only for GUIs, tie this into ProjectWindow?
-# @todo Without ProjectWindow we can potentially receive events, but not dispatch them
-# @todo We also still need a way to create a whole new Project instance based
-# @todo     on a single widget somewhere updating some nested configuration.
-# @todo
-# @todo
-# @todo
-# @todo
-class ProjectAwareMixin:
-    """
-    A mixin for another class whose instances are tied to specific projects.
-    """
+        return self._extensions
 
-    def __init__(self, project: Project, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
-        self._project = project
+    def _update_extensions(self) -> None:
+        extension_types_enabled_in_configuration = set()
+        for app_extension_configuration in self.configuration.extensions.values():
+            if app_extension_configuration.enabled:
+                app_extension_configuration.extension_type.enable_requirement().assert_met()
+                extension_types_enabled_in_configuration.add(
+                    app_extension_configuration.extension_type
+                )
+
+        extension_types_sorter = TopologicalSorter(
+            build_extension_type_graph(extension_types_enabled_in_configuration)
+        )
+        try:
+            extension_types_sorter.prepare()
+        except CycleError:
+            raise CyclicDependencyError(
+                [
+                    app_extension_configuration.extension_type
+                    for app_extension_configuration in self.configuration.extensions.values()
+                ]
+            ) from None
+
+        extensions = []
+        while extension_types_sorter.is_active():
+            extension_types_batch = extension_types_sorter.get_ready()
+            extensions_batch = []
+            for extension_type in extension_types_batch:
+                if (
+                    issubclass(extension_type, ConfigurableExtension)
+                    and extension_type in self.configuration.extensions
+                ):
+                    extension: Extension = extension_type(
+                        self,
+                        configuration=self.configuration.extensions[
+                            extension_type
+                        ].extension_configuration,
+                    )
+                else:
+                    extension = extension_type(self)
+                extensions_batch.append(extension)
+                extension_types_sorter.done(extension_type)
+            extensions.append(
+                sorted(extensions_batch, key=lambda extension: extension.name())
+            )
+        self._extensions._update(extensions)
+        del self.entity_types
+        del self.event_types
 
     @property
-    def project(self) -> Project:
+    def assets(self) -> AssetRepository:
         """
-        The project.
+        The assets file system.
         """
-        return self._project
+        if self._assets is None:
+            assets = AssetRepository()
+            assets.prepend(fs.ASSETS_DIRECTORY_PATH, "utf-8")
+            for extension in self.extensions.flatten():
+                extension_assets_directory_path = extension.assets_directory_path()
+                if extension_assets_directory_path is not None:
+                    assets.prepend(extension_assets_directory_path, "utf-8")
+            assets.prepend(self.configuration.assets_directory_path)
+            self._assets = assets
+        return self._assets
 
-    @project.setter
-    def project(self, project: Project) -> None:
-        self._on_project_change(self._project, project)
-        self._project = project
+    @property
+    def dispatcher(self) -> Dispatcher:
+        """
+        The event dispatcher.
+        """
+        if self._dispatcher is None:
+            self._dispatcher = ExtensionDispatcher(self.extensions)
 
-    def _on_project_change(self, old_project: Project, new_project: Project) -> None:
-        pass
+        return self._dispatcher
+
+    @property
+    def renderer(self) -> Renderer:
+        """
+        The (file) content renderer.
+        """
+        if not self._renderer:
+            from betty.jinja2 import Jinja2Renderer
+
+            self._renderer = SequentialRenderer(
+                [
+                    Jinja2Renderer(self.jinja2_environment, self.configuration),
+                ]
+            )
+
+        return self._renderer
+
+    @property
+    def jinja2_environment(self) -> Environment:
+        """
+        The Jinja2 environment.
+        """
+        if not self._jinja2_environment:
+            from betty.jinja2 import Environment
+
+            self._jinja2_environment = Environment(self)
+
+        return self._jinja2_environment
+
+    @property
+    def entity_types(self) -> set[type[Entity]]:
+        """
+        The available entity types.
+        """
+        if self._entity_types is None:
+            from betty.model.ancestry import (
+                Citation,
+                Enclosure,
+                Event,
+                File,
+                Note,
+                Person,
+                PersonName,
+                Presence,
+                Place,
+                Source,
+            )
+
+            self._entity_types = reduce(
+                operator.or_,
+                wait_to_thread(self.dispatcher.dispatch(EntityTypeProvider)()),
+                set(),
+            ) | {
+                Citation,
+                Enclosure,
+                Event,
+                File,
+                Note,
+                Person,
+                PersonName,
+                Presence,
+                Place,
+                Source,
+            }
+        return self._entity_types
+
+    @entity_types.deleter
+    def entity_types(self) -> None:
+        self._entity_types = None
+
+    @property
+    def event_types(self) -> set[type[EventType]]:
+        """
+        The available event types.
+        """
+        if self._event_types is None:
+            self._event_types = set(
+                wait_to_thread(self.dispatcher.dispatch(EventTypeProvider)())
+            ) | {
+                Birth,
+                Baptism,
+                Adoption,
+                Death,
+                Funeral,
+                Cremation,
+                Burial,
+                Will,
+                Engagement,
+                Marriage,
+                MarriageAnnouncement,
+                Divorce,
+                DivorceAnnouncement,
+                Residence,
+                Immigration,
+                Emigration,
+                Occupation,
+                Retirement,
+                Correspondence,
+                Confirmation,
+            }
+        return self._event_types
+
+    @event_types.deleter
+    def event_types(self) -> None:
+        self._event_types = None
+
+    @property
+    def url_generator(self) -> LocalizedUrlGenerator:
+        """
+        The (localized) URL generator.
+        """
+        from betty.url import ProjectUrlGenerator
+
+        if self._url_generator is None:
+            self._url_generator = ProjectUrlGenerator(self)
+        return self._url_generator
+
+    @property
+    def static_url_generator(self) -> StaticUrlGenerator:
+        """
+        The static URL generator.
+        """
+        from betty.url import StaticPathUrlGenerator
+
+        if self._static_url_generator is None:
+            self._static_url_generator = StaticPathUrlGenerator(self.configuration)
+        return self._static_url_generator

@@ -32,7 +32,7 @@ from betty.serde.dump import Dumpable, DictDump, VoidableDump, Void, Dump
 if TYPE_CHECKING:
     from betty.app.extension import Extension
     from betty.app import App
-    from betty.project import ProjectConfiguration
+    from betty.project import ProjectConfiguration, Project
     from betty.model.ancestry import Citation
     from pathlib import Path
     from collections.abc import MutableMapping, Iterator, Sequence
@@ -215,16 +215,16 @@ class Environment(Jinja2Environment):
     filters: dict[str, Callable[..., Any]]
     tests: dict[str, Callable[..., bool]]  # type: ignore[assignment]
 
-    def __init__(self, app: App):
+    def __init__(self, project: Project):
         template_directory_paths = [
-            str(path / "templates") for path, _ in app.assets.paths
+            str(path / "templates") for path, _ in project.assets.paths
         ]
         super().__init__(
             loader=FileSystemLoader(template_directory_paths),
-            auto_reload=app.project.configuration.debug,
+            auto_reload=project.configuration.debug,
             enable_async=True,
             undefined=(
-                DebugUndefined if app.project.configuration.debug else StrictUndefined
+                DebugUndefined if project.configuration.debug else StrictUndefined
             ),
             autoescape=select_autoescape(["html.j2"]),
             trim_blocks=True,
@@ -236,9 +236,9 @@ class Environment(Jinja2Environment):
         )
 
         self._context_class: type[Context] | None = None
-        self.app = app
+        self.project = project
 
-        if app.project.configuration.debug:
+        if project.configuration.debug:
             self.add_extension("jinja2.ext.debug")
 
         self._init_i18n()
@@ -262,7 +262,7 @@ class Environment(Jinja2Environment):
         if self._context_class is None:
             jinja2_providers: Sequence[Jinja2Provider & Extension] = [
                 extension
-                for extension in self.app.extensions.flatten()
+                for extension in self.project.extensions.flatten()
                 if isinstance(extension, Jinja2Provider)
             ]
 
@@ -323,19 +323,19 @@ class Environment(Jinja2Environment):
         )
 
     def _init_globals(self) -> None:
-        self.globals["app"] = self.app
+        self.globals["app"] = self.project.app
         today = datetime.date.today()
         self.globals["today"] = Date(today.year, today.month, today.day)
         # Ideally we would use the Dispatcher for this. However, it is asynchronous only.
         self.globals["public_css_paths"] = [
             path
-            for extension in self.app.extensions.flatten()
+            for extension in self.project.extensions.flatten()
             if isinstance(extension, CssProvider)
             for path in extension.public_css_paths
         ]
         self.globals["public_js_paths"] = [
             path
-            for extension in self.app.extensions.flatten()
+            for extension in self.project.extensions.flatten()
             if isinstance(extension, JsProvider)
             for path in extension.public_js_paths
         ]
@@ -343,7 +343,7 @@ class Environment(Jinja2Environment):
         self.globals["localizer"] = DEFAULT_LOCALIZER
 
     def _init_extensions(self) -> None:
-        for extension in self.app.extensions.flatten():
+        for extension in self.project.extensions.flatten():
             if isinstance(extension, Jinja2Provider):
                 self.globals.update(extension.globals)
                 self.filters.update(extension.filters)
