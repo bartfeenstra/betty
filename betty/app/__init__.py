@@ -27,12 +27,13 @@ from betty.app.extension import (
     ExtensionDispatcher,
     ConfigurableExtension,
 )
+from betty.assets import AssetRepository
 from betty.asyncio import wait_to_thread
 from betty.cache.file import BinaryFileCache, PickledFileCache
+from betty.cache.no_op import NoOpCache
 from betty.config import Configurable, FileBasedConfiguration
 from betty.fetch import Fetcher
 from betty.fs import HOME_DIRECTORY_PATH
-from betty.assets import AssetRepository
 from betty.locale import LocalizerRepository, get_data, DEFAULT_LOCALE, Localizer, Str
 from betty.model import Entity, EntityTypeProvider
 from betty.model.event_type import (
@@ -75,7 +76,7 @@ if TYPE_CHECKING:
     from betty.cache import Cache
     from betty.dispatch import Dispatcher
     from types import TracebackType
-    from collections.abc import AsyncIterator
+    from collections.abc import AsyncIterator, Callable
     from betty.jinja2 import Environment
     from betty.url import StaticUrlGenerator, LocalizedUrlGenerator
 
@@ -171,6 +172,8 @@ class App(Configurable[AppConfiguration]):
         self,
         configuration: AppConfiguration,
         cache_directory_path: Path,
+        *,
+        cache_factory: Callable[[Self], Cache[Any]],
         project: Project | None = None,
     ):
         super().__init__()
@@ -199,6 +202,7 @@ class App(Configurable[AppConfiguration]):
         self._fetcher: Fetcher | None = None
         self._cache_directory_path = cache_directory_path
         self._cache: Cache[Any] | None = None
+        self._cache_factory = cache_factory
         self._binary_file_cache: BinaryFileCache | None = None
         self._process_pool: Executor | None = None
 
@@ -215,7 +219,10 @@ class App(Configurable[AppConfiguration]):
         yield cls(
             AppConfiguration(CONFIGURATION_DIRECTORY_PATH),
             Path(environ.get("BETTY_CACHE_DIRECTORY", HOME_DIRECTORY_PATH / "cache")),
-            project,
+            project=project,
+            cache_factory=lambda app: PickledFileCache[Any](
+                app.localizer, app._cache_directory_path
+            ),
         )
 
     @classmethod
@@ -232,7 +239,10 @@ class App(Configurable[AppConfiguration]):
         yield cls(
             AppConfiguration(app.configuration._configuration_directory_path),
             app._cache_directory_path,
-            app.project if project is None else project,
+            project=app.project if project is None else project,
+            cache_factory=lambda app: PickledFileCache[Any](
+                app.localizer, app._cache_directory_path
+            ),
         )
 
     @classmethod
@@ -255,7 +265,8 @@ class App(Configurable[AppConfiguration]):
             yield cls(
                 AppConfiguration(Path(configuration_directory_path_str)),
                 Path(cache_directory_path_str),
-                project,
+                project=project,
+                cache_factory=lambda app: NoOpCache(),
             )
 
     async def __aenter__(self) -> Self:
@@ -623,9 +634,7 @@ class App(Configurable[AppConfiguration]):
         The cache.
         """
         if self._cache is None:
-            self._cache = PickledFileCache[Any](
-                self.localizer, self._cache_directory_path
-            )
+            self._cache = self._cache_factory(self)
         return self._cache
 
     @cache.deleter
