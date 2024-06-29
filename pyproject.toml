@@ -38,8 +38,7 @@ dependencies = [
     'referencing ~= 0.35',
     'sphinx ~= 7.2, >= 7.2.6',
     'sphinx-design ~= 0.6',
-    # Stick with 2.1.x until https://github.com/tox-dev/sphinx-autodoc-typehints/issues/462 is fixed.
-    'sphinx-autodoc-typehints ~= 2.0, < 2.2',
+    'sphinx-autodoc-typehints ~= 2.2',
     'typing_extensions ~= 4.10, >= 4.10.0',
 ]
 classifiers = [
