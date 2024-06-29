@@ -7,11 +7,11 @@ from xml.etree.ElementTree import Element
 
 from html5lib import parse
 
-from betty.app import App
 from betty.asyncio import gather
 from betty.fetch import Fetcher, FetchError
 from betty.media_type import MediaType, InvalidMediaType
 from betty.model.ancestry import Link, HasLinks
+from betty.project.__init__ import Project
 
 
 class Loader:
@@ -42,20 +42,21 @@ class PostLoader:
         raise NotImplementedError(repr(self))
 
 
-async def load(app: App) -> None:
+async def load(project: Project) -> None:
     """
     Load an ancestry.
     """
-    await app.dispatcher.dispatch(Loader)()
-    await app.dispatcher.dispatch(PostLoader)()
-    await _fetch_link_titles(app)
+    # @todo This does not receive the project!
+    await project.app.dispatcher.dispatch(Loader)()
+    await project.app.dispatcher.dispatch(PostLoader)()
+    await _fetch_link_titles(project)
 
 
-async def _fetch_link_titles(app: App) -> None:
+async def _fetch_link_titles(project: Project) -> None:
     await gather(
         *(
-            _fetch_link_title(app.fetcher, link)
-            for entity in app.project.ancestry
+            _fetch_link_title(project.app.fetcher, link)
+            for entity in project.ancestry
             if isinstance(entity, HasLinks)
             for link in entity.links
         )

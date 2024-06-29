@@ -26,7 +26,7 @@ from betty.model.ancestry import (
     Privacy,
 )
 from betty.model.event_type import Birth, UnknownEventType, EventType, Death
-from betty.project import EntityReference, DEFAULT_LIFETIME_THRESHOLD
+from betty.project.__init__ import EntityReference, DEFAULT_LIFETIME_THRESHOLD
 from betty.serde.load import AssertionFailed
 from betty.tests.serde import raises_error
 

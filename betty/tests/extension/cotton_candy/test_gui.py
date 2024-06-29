@@ -12,7 +12,7 @@ from betty.extension.cotton_candy.gui import (
 )
 from betty.locale import Str, Localizable
 from betty.model import Entity, UserFacingEntity
-from betty.project import EntityReference
+from betty.project.__init__ import EntityReference
 from betty.tests.conftest import BettyQtBot
 
 

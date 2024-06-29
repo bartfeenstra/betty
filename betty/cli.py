@@ -10,15 +10,16 @@ import sys
 from asyncio import run
 from contextlib import suppress, contextmanager
 from functools import wraps
+from importlib.metadata import EntryPoint, entry_points
 from pathlib import Path
 from typing import (
     Callable,
     cast,
     Iterator,
-    Awaitable,
     ParamSpec,
     Concatenate,
     TYPE_CHECKING,
+    Any,
 )
 
 import click
@@ -29,28 +30,31 @@ from betty.app import App
 from betty.asyncio import wait_to_thread
 from betty.contextlib import SynchronizedContextManager
 from betty.error import UserFacingError
-from betty.locale import Str, DEFAULT_LOCALIZER
+from betty.importlib import import_any
+from betty.locale import DEFAULT_LOCALIZER
 from betty.logging import CliHandler
-from betty.serde.load import AssertionFailed
 
 if TYPE_CHECKING:
+    from betty.project.__init__ import Project
+    from collections.abc import Coroutine, Sequence, Mapping
     from PyQt6.QtWidgets import QMainWindow
 
 
 _P = ParamSpec("_P")
 
 
-class CommandProvider:
+def discover_commands() -> Mapping[str, type[Command]]:
     """
-    Provide additional commands.
+    Gather the available extension types.
     """
-
-    @property
-    def commands(self) -> dict[str, Command]:
-        """
-        The commands to provide.
-        """
-        raise NotImplementedError(repr(self))
+    betty_entry_points: Sequence[EntryPoint]
+    betty_entry_points = entry_points(  # type: ignore[assignment, unused-ignore]
+        group="betty.command",  # type: ignore[call-arg, unused-ignore]
+    )
+    return {
+        betty_entry_point.name: import_any(betty_entry_point.value)
+        for betty_entry_point in betty_entry_points
+    }
 
 
 @contextmanager
@@ -72,26 +76,22 @@ def catch_exceptions() -> Iterator[None]:
         sys.exit(1)
 
 
-def global_command(f: Callable[_P, Awaitable[None]]) -> Callable[_P, None]:
+def command(f: Callable[_P, Coroutine[Any, Any, None]]) -> Callable[_P, None]:
     """
-    Decorate a command to be global.
+    Mark something a Betty command.
     """
 
     @wraps(f)
     @catch_exceptions()
     def _command(*args: _P.args, **kwargs: _P.kwargs) -> None:
-        # Use a wrapper, because the decorator uses Awaitable, but asyncio.run requires Coroutine.
-        async def __command():
-            await f(*args, **kwargs)
-
-        return run(__command())
+        return run(f(*args, **kwargs))
 
     return _command
 
 
-def app_command(
-    f: Callable[Concatenate[App, _P], Awaitable[None]],
-) -> Callable[_P, None]:
+def pass_app(
+    f: Callable[Concatenate[App, _P], Any],
+) -> Callable[_P, Any]:
     """
     Decorate a command to receive the currently running :py:class:`betty.app.App` as its first argument.
     """
@@ -99,31 +99,44 @@ def app_command(
     @wraps(f)
     @catch_exceptions()
     def _command(*args: _P.args, **kwargs: _P.kwargs) -> None:
-        # Use a wrapper, because the decorator uses Awaitable, but asyncio.run requires Coroutine.
-        app = get_current_context().obj["app"]
+        return f(get_current_context().obj["app"], *args, **kwargs)
 
-        async def __command():
-            async with app:
-                await f(app, *args, **kwargs)
+    return _command
 
-        return run(__command())
+
+def pass_project(
+    f: Callable[Concatenate[App, _P], Any],
+) -> Callable[_P, Any]:
+    """
+    Decorate a command to receive the currently running :py:class:`betty.app.Project` as its first argument.
+    """
+
+    @wraps(f)
+    @catch_exceptions()
+    @click.option(
+        "--configuration",
+        "-c",
+        "configuration_file_path",
+        is_eager=True,
+        help="The path to a Betty project configuration file. Defaults to betty.json|yaml|yml in the current working directory.",
+        # @todo Actually create a project
+        callback=lambda _, __, configuration_file_path: (
+            Path(configuration_file_path) if configuration_file_path else None
+        ),
+    )
+    def _command(*args: _P.args, **kwargs: _P.kwargs) -> None:
+        # @todo Actully pass on the project
+        return f(get_current_context().obj["app"], *args, **kwargs)
 
     return _command
 
 
 @catch_exceptions()
-def _init_ctx_app(
-    ctx: Context,
-    __: Option | Parameter | None = None,
-    configuration_file_path: str | None = None,
-) -> None:
-    run(__init_ctx_app(ctx, configuration_file_path))
+def _init_ctx_app(ctx: Context, __: Option | Parameter | None = None, *_: Any) -> None:
+    run(__init_ctx_app(ctx))
 
 
-async def __init_ctx_app(
-    ctx: Context,
-    configuration_file_path: str | None = None,
-) -> None:
+async def __init_ctx_app(ctx: Context) -> None:
     ctx.ensure_object(dict)
 
     if "initialized" in ctx.obj:
@@ -131,56 +144,22 @@ async def __init_ctx_app(
     ctx.obj["initialized"] = True
 
     logging.getLogger().addHandler(CliHandler())
-    logger = logging.getLogger(__name__)
 
     app = ctx.with_resource(  # type: ignore[attr-defined]
         SynchronizedContextManager(App.new_from_environment())
     )
     ctx.obj["commands"] = {
+        **discover_commands(),
         "docs": _docs,
         "clear-caches": _clear_caches,
         "demo": _demo,
-        "gui": _gui,
+        "generate": _generate,
+        "serve": _serve,
     }
     if await about.is_development():
         ctx.obj["commands"]["init-translation"] = _init_translation
         ctx.obj["commands"]["update-translations"] = _update_translations
     ctx.obj["app"] = app
-
-    if configuration_file_path is None:
-        try_configuration_file_paths = [
-            Path.cwd() / f"betty{extension}" for extension in {".json", ".yaml", ".yml"}
-        ]
-    else:
-        try_configuration_file_paths = [Path.cwd() / configuration_file_path]
-
-    async with app:
-        for try_configuration_file_path in try_configuration_file_paths:
-            try:
-                await app.project.configuration.read(try_configuration_file_path)
-            except FileNotFoundError:
-                continue
-            else:
-                ctx.obj["commands"]["generate"] = _generate
-                ctx.obj["commands"]["serve"] = _serve
-                for extension in app.extensions.flatten():
-                    if isinstance(extension, CommandProvider):
-                        for command_name, command in extension.commands.items():
-                            ctx.obj["commands"][command_name] = command
-                logger.info(
-                    app.localizer._(
-                        "Loaded the configuration from {configuration_file_path}."
-                    ).format(configuration_file_path=str(try_configuration_file_path)),
-                )
-                return
-
-        if configuration_file_path is not None:
-            raise AssertionFailed(
-                Str._(
-                    'Configuration file "{configuration_file_path}" does not exist.',
-                    configuration_file_path=configuration_file_path,
-                )
-            )
 
 
 def _build_init_ctx_verbosity(
@@ -276,13 +255,13 @@ def main(app: App, verbose: bool, more_verbose: bool, most_verbose: bool) -> Non
 
 
 @click.command(help="Clear all caches.")
-@app_command
+@pass_app
 async def _clear_caches(app: App) -> None:
     await app.cache.clear()
 
 
 @click.command(help="Explore a demonstration site.")
-@app_command
+@pass_app
 async def _demo(app: App) -> None:
     from betty.extension.demo import DemoServer
 
@@ -293,51 +272,41 @@ async def _demo(app: App) -> None:
 
 
 @click.command(help="Open Betty's graphical user interface (GUI).")
-@click.option(
-    "--configuration",
-    "-c",
-    "configuration_file_path",
-    is_eager=True,
-    help="The path to a Betty project configuration file. Defaults to betty.json|yaml|yml in the current working directory.",
-    callback=lambda _, __, configuration_file_path: (
-        Path(configuration_file_path) if configuration_file_path else None
-    ),
-)
-@app_command
-async def _gui(app: App, configuration_file_path: Path | None) -> None:
+@pass_project
+async def _gui(project: Project, configuration_file_path: Path | None) -> None:
     from betty.gui import BettyApplication
     from betty.gui.app import WelcomeWindow
     from betty.gui.project import ProjectWindow
 
-    async with BettyApplication([sys.argv[0]]).with_app(app) as qapp:
+    async with BettyApplication([sys.argv[0]]).with_app(project.app) as qapp:
         window: QMainWindow
         if configuration_file_path is None:
-            window = WelcomeWindow(app)
+            window = WelcomeWindow(project.app)
         else:
-            await app.project.configuration.read(configuration_file_path)
-            window = ProjectWindow(app)
+            await project.configuration.read(configuration_file_path)
+            window = ProjectWindow(project)
         window.show()
         sys.exit(qapp.exec())
 
 
 @click.command(help="Generate a static site.")
-@app_command
-async def _generate(app: App) -> None:
-    await load.load(app)
-    await generate.generate(app)
+@pass_project
+async def _generate(project: Project) -> None:
+    await load.load(project)
+    await generate.generate(project)
 
 
 @click.command(help="Serve a generated site.")
-@app_command
-async def _serve(app: App) -> None:
-    async with serve.BuiltinAppServer(app) as server:
+@pass_project
+async def _serve(project: Project) -> None:
+    async with serve.BuiltinProjectServer(project) as server:
         await server.show()
         while True:
             await asyncio.sleep(999)
 
 
 @click.command(help="View the documentation.")
-@app_command
+@pass_app
 async def _docs(app: App):
     server = documentation.DocumentationServer(
         app.binary_file_cache.path,
@@ -354,7 +323,7 @@ async def _docs(app: App):
     help="Initialize a new translation.\n\nThis is available only when developing Betty.",
 )
 @click.argument("locale")
-@global_command
+@command
 async def _init_translation(locale: str) -> None:
     from betty.locale import init_translation
 
@@ -365,6 +334,6 @@ async def _init_translation(locale: str) -> None:
     short_help="Update all existing translations",
     help="Update all existing translations.\n\nThis is available only when developing Betty.",
 )
-@global_command
+@command
 async def _update_translations() -> None:
     await locale.update_translations()

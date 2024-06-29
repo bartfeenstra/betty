@@ -8,7 +8,7 @@ from betty.extension.nginx.artifact import (
     generate_dockerfile_file,
 )
 from betty.extension.nginx.config import NginxConfiguration
-from betty.project import ExtensionConfiguration, LocaleConfiguration
+from betty.project.__init__ import ExtensionConfiguration, LocaleConfiguration
 
 
 class TestGenerateConfigurationFile:

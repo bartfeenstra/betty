@@ -20,7 +20,7 @@ from typing_extensions import override
 
 from betty.gui.locale import LocalizedObject
 from betty.model import UserFacingEntity, Entity
-from betty.project import EntityReference, EntityReferenceSequence
+from betty.project.__init__ import EntityReference, EntityReferenceSequence
 
 if TYPE_CHECKING:
     from betty.locale import Localizable

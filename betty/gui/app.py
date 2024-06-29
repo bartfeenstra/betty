@@ -30,7 +30,7 @@ from betty.gui.serve import ServeDemoWindow, ServeDocsWindow
 from betty.gui.text import Text
 from betty.gui.window import BettyMainWindow
 from betty.locale import Str, Localizable
-from betty.project import ProjectConfiguration
+from betty.project.__init__ import ProjectConfiguration
 
 
 class BettyPrimaryWindow(BettyMainWindow):

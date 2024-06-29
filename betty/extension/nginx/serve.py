@@ -11,13 +11,12 @@ from aiofiles.tempfile import TemporaryDirectory
 from docker.errors import DockerException
 from typing_extensions import override
 
-from betty.app import App
 from betty.extension.nginx.artifact import (
     generate_dockerfile_file,
     generate_configuration_file,
 )
 from betty.extension.nginx.docker import Container
-from betty.project import Project
+from betty.project.__init__ import Project
 from betty.serve import NoPublicUrlBecauseServerNotStartedError, Server
 
 
@@ -26,9 +25,9 @@ class DockerizedNginxServer(Server):
     An nginx server that runs within a Docker container.
     """
 
-    def __init__(self, app: App) -> None:
-        super().__init__(app.localizer)
-        self._app = app
+    def __init__(self, project: Project) -> None:
+        super().__init__(project.app.localizer)
+        self._project = project
         self._exit_stack = AsyncExitStack()
         self._container: Container | None = None
 
@@ -43,18 +42,16 @@ class DockerizedNginxServer(Server):
             TemporaryDirectory()
         )
 
-        isolated_project = Project(ancestry=self._app.project.ancestry)
+        isolated_project = await self._exit_stack.enter_async_context(
+            Project(self._project.app, ancestry=self._project.ancestry)
+        )
         isolated_project.configuration.autowrite = False
         isolated_project.configuration.configuration_file_path = (
-            self._app.project.configuration.configuration_file_path
+            self._project.configuration.configuration_file_path
         )
-        isolated_project.configuration.update(self._app.project.configuration)
+        isolated_project.configuration.update(self._project.configuration)
         isolated_project.configuration.debug = True
 
-        isolated_app = await self._exit_stack.enter_async_context(
-            App.new_from_app(self._app, project=isolated_project)
-        )
-        await self._exit_stack.enter_async_context(isolated_app)
         isolated_app.configuration.update(self._app.configuration)
         # Work around https://github.com/bartfeenstra/betty/issues/1056.
         isolated_app.extensions[Nginx].configuration.https = False
@@ -64,17 +61,17 @@ class DockerizedNginxServer(Server):
         dockerfile_file_path = docker_directory_path / "Dockerfile"
 
         await generate_configuration_file(
-            isolated_app,
+            project,
             destination_file_path=nginx_configuration_file_path,
             https=False,
             www_directory_path="/var/www/betty",
         )
         await generate_dockerfile_file(
-            isolated_app,
+            project,
             destination_file_path=dockerfile_file_path,
         )
         self._container = Container(
-            isolated_app.project.configuration.www_directory_path,
+            project.configuration.www_directory_path,
             docker_directory_path,
             nginx_configuration_file_path,
         )

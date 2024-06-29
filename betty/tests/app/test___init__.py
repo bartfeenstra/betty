@@ -12,7 +12,7 @@ from betty.app.extension import (
 )
 from betty.config import Configuration
 from betty.model import Entity
-from betty.project import ExtensionConfiguration
+from betty.project.__init__ import ExtensionConfiguration
 from betty.serde.load import (
     RequiredField,
     assert_record,

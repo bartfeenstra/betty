@@ -43,7 +43,7 @@ from betty.model.ancestry import (
     merge_privacies,
 )
 from betty.model.event_type import Birth, UnknownEventType
-from betty.project import LocaleConfiguration
+from betty.project.__init__ import LocaleConfiguration
 
 if TYPE_CHECKING:
     from betty.serde.dump import DictDump, Dump

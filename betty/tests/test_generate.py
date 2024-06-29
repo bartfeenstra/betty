@@ -17,7 +17,7 @@ from betty.model import (
 )
 from betty.model.ancestry import Person, Place, Source, PlaceName, File, Event, Citation
 from betty.model.event_type import Birth
-from betty.project import (
+from betty.project.__init__ import (
     LocaleConfiguration,
     EntityTypeConfiguration,
     ExtensionConfiguration,

@@ -14,7 +14,7 @@ from betty.app import App
 from betty.fetch import Fetcher, FetchResponse
 from betty.media_type import MediaType
 from betty.model.ancestry import Source, Link, Citation, Place
-from betty.project import LocaleConfiguration
+from betty.project.__init__ import LocaleConfiguration
 from betty.wikipedia import (
     Summary,
     _Retriever,

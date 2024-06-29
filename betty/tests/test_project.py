@@ -9,7 +9,7 @@ from betty.app.extension import Extension, ConfigurableExtension
 from betty.config import Configuration
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.model import Entity, get_entity_type_name, UserFacingEntity
-from betty.project import (
+from betty.project.__init__ import (
     ExtensionConfiguration,
     ExtensionConfigurationMapping,
     ProjectConfiguration,

@@ -128,7 +128,7 @@ class ServeProjectWindow(_ServeWindow):
 
     @override
     def _new_server(self) -> Server:
-        return serve.BuiltinAppServer(self._app)
+        return serve.BuiltinProjectServer(self._app)
 
     @override
     @property

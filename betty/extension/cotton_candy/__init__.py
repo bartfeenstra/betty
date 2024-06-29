@@ -34,7 +34,7 @@ from betty.model import Entity, UserFacingEntity, GeneratedEntityId
 from betty.model.ancestry import Event, Person, Presence, is_public, Subject
 from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
 from betty.os import link_or_copy
-from betty.project import EntityReferenceSequence, EntityReference
+from betty.project.__init__ import EntityReferenceSequence, EntityReference
 from betty.serde.dump import minimize, Dump, VoidableDump, Void
 from betty.serde.load import (
     AssertionFailed,

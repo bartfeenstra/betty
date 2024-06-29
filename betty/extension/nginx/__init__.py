@@ -2,11 +2,8 @@
 
 from pathlib import Path
 
-from click import Command
 from typing_extensions import override
 
-from betty.app.extension import ConfigurableExtension, UserFacingExtension
-from betty.cli import CommandProvider
 from betty.extension.nginx.artifact import (
     generate_configuration_file,
     generate_dockerfile_file,
@@ -17,6 +14,7 @@ from betty.extension.nginx.gui import _NginxGuiWidget
 from betty.generate import Generator, GenerationContext
 from betty.gui import GuiBuilder
 from betty.locale import Str, Localizable
+from betty.project.extension import ConfigurableExtension, UserFacingExtension
 
 
 class Nginx(
@@ -24,7 +22,6 @@ class Nginx(
     UserFacingExtension,
     Generator,
     GuiBuilder,
-    CommandProvider,
 ):
     """
     Integrate Betty with nginx (and Docker).
@@ -78,10 +75,3 @@ class Nginx(
     @override
     def gui_build(self) -> _NginxGuiWidget:
         return _NginxGuiWidget(self._app, self._configuration)
-
-    @override
-    @property
-    def commands(self) -> dict[str, Command]:
-        return {
-            "serve-nginx-docker": _serve,
-        }

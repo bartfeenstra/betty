@@ -20,13 +20,13 @@ from click.testing import CliRunner, Result
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.app.extension import Extension
-from betty.cli import main, CommandProvider, global_command, catch_exceptions
+from betty.project.extension import Extension
+from betty.cli import main, command, catch_exceptions
 from betty.error import UserFacingError
 from betty.gui.app import BettyPrimaryWindow
 from betty.locale import Str, DEFAULT_LOCALIZER
-from betty.project import ExtensionConfiguration
-from betty.serve import Server, AppServer
+from betty.project.__init__ import ExtensionConfiguration
+from betty.serve import Server, ProjectServer
 from betty.tests.conftest import BettyQtBot
 
 if TYPE_CHECKING:
@@ -34,7 +34,7 @@ if TYPE_CHECKING:
 
 
 @click.command(name="noop")
-@global_command
+@command
 async def _noop_command() -> None:
     pass
 
@@ -199,7 +199,7 @@ class NoOpServer(Server):
         pass
 
 
-class NoOpAppServer(NoOpServer, AppServer):
+class NoOpProjectServer(NoOpServer, ProjectServer):
     pass
 
 
@@ -246,7 +246,7 @@ class TestGenerate:
 class TestServe:
     async def test(self, mocker: MockerFixture, new_temporary_app: App) -> None:
         mocker.patch("asyncio.sleep", side_effect=KeyboardInterrupt)
-        mocker.patch("betty.serve.BuiltinAppServer", new=NoOpAppServer)
+        mocker.patch("betty.serve.BuiltinAppServer", new=NoOpProjectServer)
         await new_temporary_app.project.configuration.write()
         await makedirs(new_temporary_app.project.configuration.www_directory_path)
 

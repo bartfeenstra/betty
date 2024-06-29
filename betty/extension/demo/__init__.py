@@ -4,13 +4,12 @@ Provide demonstration site functionality.
 
 from __future__ import annotations
 
-from contextlib import AsyncExitStack
+from contextlib import AsyncExitStack, asynccontextmanager
 from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
 from betty import load, generate, serve
-from betty.app import App
 from betty.app.extension import Extension
 from betty.extension.cotton_candy import CottonCandyConfiguration
 from betty.load import Loader
@@ -30,7 +29,7 @@ from betty.model.ancestry import (
     Note,
 )
 from betty.model.event_type import Marriage, Birth, Death
-from betty.project import (
+from betty.project.__init__ import (
     LocaleConfiguration,
     ExtensionConfiguration,
     EntityReference,
@@ -39,6 +38,8 @@ from betty.project import (
 from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
 
 if TYPE_CHECKING:
+    from betty.app import App
+    from collections.abc import AsyncIterator
     from betty.model import Entity
 
 
@@ -63,7 +64,8 @@ class Demo(Extension, Loader):
         self._app.project.ancestry.add(*entities)
 
     @classmethod
-    def project(cls) -> Project:
+    @asynccontextmanager
+    async def project(cls) -> AsyncIterator[Project]:
         """
         Create a new demonstration project.
         """
@@ -107,7 +109,8 @@ class Demo(Extension, Loader):
                 alias="de",
             ),
         )
-        return project
+        async with project:
+            yield project
 
     @override
     async def load(self) -> None:
@@ -531,22 +534,15 @@ class DemoServer(Server):
         from betty.extension import Demo
 
         await super().start()
-        project = Demo.project()
-        isolated_app_factory = App.new_from_app(
-            self._app,
-            project=project,
-        )
         try:
-            isolated_app = await self._exit_stack.enter_async_context(
-                isolated_app_factory
-            )
-            await self._exit_stack.enter_async_context(isolated_app)
-            self._localizer = isolated_app.localizer
-            await load.load(isolated_app)
-            self._server = serve.BuiltinAppServer(isolated_app)
+            project = Demo.project()
+            self._localizer = self._app.localizer
+            await load.load(project)
+            self._server = serve.BuiltinProjectServer(project)
             await self._exit_stack.enter_async_context(self._server)
-            isolated_app.project.configuration.base_url = self._server.public_url
-            await generate.generate(isolated_app)
+            project.configuration.base_url = self._server.public_url
+            await self._exit_stack.enter_async_context(project)
+            await generate.generate(project)
         except BaseException:
             await self.stop()
             raise

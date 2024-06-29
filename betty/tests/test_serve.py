@@ -6,7 +6,7 @@ from requests import Response
 
 from betty.app import App
 from betty.functools import Do
-from betty.serve import BuiltinAppServer
+from betty.serve import BuiltinProjectServer
 
 
 class TestBuiltinServer:
@@ -19,7 +19,7 @@ class TestBuiltinServer:
                 app.project.configuration.www_directory_path / "index.html", "w"
             ) as f:
                 await f.write(content)
-            async with BuiltinAppServer(app) as server:
+            async with BuiltinProjectServer(app) as server:
 
                 def _assert_response(response: Response) -> None:
                     assert response.status_code == 200

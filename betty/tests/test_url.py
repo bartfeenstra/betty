@@ -9,8 +9,12 @@ from betty.app import App
 from betty.model import UserFacingEntity, Entity
 from betty.model.ancestry import Person, Place, File, Source, PlaceName, Event, Citation
 from betty.model.event_type import Death
-from betty.project import LocaleConfiguration
-from betty.url import LocalizedPathUrlGenerator, _EntityUrlGenerator, AppUrlGenerator
+from betty.project.__init__ import LocaleConfiguration
+from betty.url import (
+    LocalizedPathUrlGenerator,
+    _EntityUrlGenerator,
+    ProjectUrlGenerator,
+)
 
 if TYPE_CHECKING:
     from betty.locale import Localey
@@ -161,5 +165,5 @@ class TestAppUrlGenerator:
     )
     async def test_generate(self, expected: str, resource: Any) -> None:
         async with App.new_temporary() as app, app:
-            sut = AppUrlGenerator(app)
+            sut = ProjectUrlGenerator(app)
             assert expected == sut.generate(resource, "text/html")

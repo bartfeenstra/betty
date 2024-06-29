@@ -15,7 +15,7 @@ from betty.model.ancestry import (
     Citation,
 )
 from betty.model.event_type import Birth
-from betty.project import ExtensionConfiguration
+from betty.project.__init__ import ExtensionConfiguration
 
 
 class TestPrivatizer:

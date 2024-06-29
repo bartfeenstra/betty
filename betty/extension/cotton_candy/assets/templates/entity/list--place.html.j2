@@ -1,8 +1,8 @@
 {% set place_context = entity_contexts['Place'] %}
 {% set featured = featured | default(True) %}
 {% set places = places | default(entities) | select('public') | list | sort_localizeds(localized_attribute='names', sort_attribute='name') | list %}
-<div class="places{% if 'betty.extension.Maps' in app.extensions %} with-map{% endif %}">
-    {% if 'betty.extension.Maps' in app.extensions and places | rejectattr('coordinates', 'none') | list | length > 0 %}
+<div class="places{% if 'betty.extension.Maps' in project.app.extensions %} with-map{% endif %}">
+    {% if 'betty.extension.Maps' in project.app.extensions and places | rejectattr('coordinates', 'none') | list | length > 0 %}
         {% include 'map.html.j2' %}
     {% endif %}
     <ul class="entities{% if hide_list | default(false) %} visually-hidden{% endif %}{% if map_hides_list | default(false) %} js-visually-hidden{% endif %}">

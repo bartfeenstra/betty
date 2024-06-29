@@ -26,6 +26,7 @@ from betty.gui import BettyApplication
 from betty.gui.error import ExceptionError
 from betty.locale import DEFAULT_LOCALIZER
 from betty.warnings import BettyDeprecationWarning
+from betty.project.__init__ import Project
 
 if TYPE_CHECKING:
     from pytestqt.qtbot import QtBot
@@ -65,8 +66,16 @@ async def new_temporary_app() -> AsyncIterator[App]:
     """
     Create a new, temporary :py:class:`betty.app.App`.
     """
-    async with App.new_temporary() as app, app:
+    async with App.new_temporary() as app:
         yield app
+
+
+@pytest.fixture()
+async def new_temporary_project(new_temporary_app: App) -> Project:
+    """
+    Create a new, temporary :py:class:`betty.project.Project`.
+    """
+    return Project(new_temporary_app)
 
 
 _QObjectT = TypeVar("_QObjectT", bound=QObject)

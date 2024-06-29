@@ -21,7 +21,7 @@ from betty.model.ancestry import (
 )
 from betty.model.event_type import Death, Birth, Marriage
 from betty.privatizer import Privatizer
-from betty.project import DEFAULT_LIFETIME_THRESHOLD
+from betty.project.__init__ import DEFAULT_LIFETIME_THRESHOLD
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:

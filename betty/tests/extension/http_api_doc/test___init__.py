@@ -1,7 +1,7 @@
 from betty.app import App
 from betty.extension import HttpApiDoc
 from betty.generate import generate
-from betty.project import ExtensionConfiguration
+from betty.project.__init__ import ExtensionConfiguration
 
 
 class TestHttpApiDoc:

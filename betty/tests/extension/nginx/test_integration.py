@@ -15,7 +15,7 @@ from betty.extension.nginx.config import NginxConfiguration
 from betty.extension.nginx.serve import DockerizedNginxServer
 from betty.functools import Do
 from betty.json.schema import Schema
-from betty.project import (
+from betty.project.__init__ import (
     ProjectConfiguration,
     ExtensionConfiguration,
     LocaleConfiguration,

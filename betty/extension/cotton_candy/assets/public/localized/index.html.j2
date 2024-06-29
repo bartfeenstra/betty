@@ -1,11 +1,11 @@
 {% extends 'base.html.j2' %}
 {% set page_title %}
-    {% trans project_title=app.project.configuration.title %}
+    {% trans project_title=project.configuration.title %}
         Welcome to {{ project_title }}
     {% endtrans %}
 {% endset %}
 {% block page_content %}
-    {% if 'betty.extension.Demo' in app.extensions %}
+    {% if 'betty.extension.Demo' in project.app.extensions %}
         <p>
             {% trans %}
                 Betty is an application that takes a family tree and builds a website out of it, much like the one you
@@ -15,7 +15,7 @@
         </p>
         <p>
             {% set liberta_lankester_label -%}
-                <a href="{{ app.project.ancestry['Person']['betty-demo-liberta-lankester'] | url }}">Liberta 'Betty' Lankester</a>
+                <a href="{{ project.ancestry['Person']['betty-demo-liberta-lankester'] | url }}">Liberta 'Betty' Lankester</a>
             {%- endset %}
             {% trans liberta_lankester_label = liberta_lankester_label %}
                 Betty was named after {{ liberta_lankester_label }}, and this website shows a small sample of her family
@@ -24,12 +24,12 @@
             {% endtrans %}
         </p>
     {% endif %}
-    {% if app.extensions['betty.extension.CottonCandy'].configuration.featured_entities %}
+    {% if project.app.extensions['betty.extension.CottonCandy'].configuration.featured_entities %}
         <div class="featured">
             <div class="featured-entities">
-                {% for entity_reference in app.extensions['betty.extension.CottonCandy'].configuration.featured_entities %}
+                {% for entity_reference in project.app.extensions['betty.extension.CottonCandy'].configuration.featured_entities %}
                     <div class="featured-entity">
-                        {% with entity = app.project.ancestry[entity_reference.entity_type][entity_reference.entity_id] %}
+                        {% with entity = project.ancestry[entity_reference.entity_type][entity_reference.entity_id] %}
                             {% include [
                                 'entity/featured--' + (entity | entity_type_name | camel_case_to_kebab_case) + '.html.j2',
                                 'entity/featured.html.j2',

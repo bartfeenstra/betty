@@ -23,13 +23,13 @@ from betty.gui.project import (
 from betty.gui.serve import ServeProjectWindow
 from betty.locale import get_display_name, Str, Localizable
 from betty.model.ancestry import File
-from betty.project import (
+from betty.project.__init__ import (
     LocaleConfiguration,
 )
 from betty.requirement import Requirement
 from betty.serde.dump import minimize
 from betty.tests.conftest import BettyQtBot
-from betty.tests.test_cli import NoOpAppServer
+from betty.tests.test_cli import NoOpProjectServer
 
 
 class UnmetRequirement(Requirement):
@@ -149,7 +149,7 @@ class TestProjectWindow:
         betty_qtbot.assert_window(GenerateWindow)
 
     async def test_serve(self, betty_qtbot: BettyQtBot, mocker: MockerFixture) -> None:
-        mocker.patch("betty.serve.BuiltinAppServer", new=NoOpAppServer)
+        mocker.patch("betty.serve.BuiltinAppServer", new=NoOpProjectServer)
 
         sut = ProjectWindow(betty_qtbot.app)
         betty_qtbot.qtbot.addWidget(sut)
@@ -161,7 +161,7 @@ class TestProjectWindow:
     async def test_serve_action(
         self, betty_qtbot: BettyQtBot, mocker: MockerFixture
     ) -> None:
-        mocker.patch("betty.serve.BuiltinAppServer", new=NoOpAppServer)
+        mocker.patch("betty.serve.BuiltinAppServer", new=NoOpProjectServer)
 
         sut = ProjectWindow(betty_qtbot.app)
         betty_qtbot.qtbot.addWidget(sut)
@@ -402,8 +402,8 @@ class TestGenerateWindow:
         mocker: MockerFixture,
         betty_qtbot: BettyQtBot,
     ) -> None:
-        mocker.patch("betty.extension.demo.DemoServer", new=NoOpAppServer)
-        mocker.patch("betty.serve.BuiltinAppServer", new=NoOpAppServer)
+        mocker.patch("betty.extension.demo.DemoServer", new=NoOpProjectServer)
+        mocker.patch("betty.serve.BuiltinAppServer", new=NoOpProjectServer)
         sut = GenerateWindow(betty_qtbot.app)
         betty_qtbot.qtbot.addWidget(sut)
 

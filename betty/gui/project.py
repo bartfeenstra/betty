@@ -59,7 +59,7 @@ from betty.gui.text import Text, Caption
 from betty.gui.window import BettyMainWindow
 from betty.locale import get_display_name, to_locale, Str, Localizable
 from betty.model import UserFacingEntity, Entity
-from betty.project import LocaleConfiguration, Project, EntityTypeConfiguration
+from betty.project.__init__ import LocaleConfiguration, Project, EntityTypeConfiguration
 from betty.serde.load import AssertionFailed
 from betty.typing import internal
 
@@ -629,11 +629,9 @@ class ProjectWindow(BettyPrimaryWindow):
     A window to administer a project.
     """
 
-    def __init__(
-        self,
-        app: App,
-    ):
-        super().__init__(app)
+    def __init__(self, project: Project):
+        super().__init__(project.app)
+        self._project = project
 
         central_widget = QWidget()
         central_layout = QHBoxLayout()

@@ -14,7 +14,7 @@ from betty.model.event_type import (
     StartOfLifeEventType,
     EndOfLifeEventType,
 )
-from betty.project import ExtensionConfiguration
+from betty.project.__init__ import ExtensionConfiguration
 
 
 class Ignored(EventType):

@@ -1,13 +1,13 @@
-<title>{% if page_title is defined %}{{ page_title | striptags }} - {% endif %}{{ app.project.configuration.title }}</title>
+<title>{% if page_title is defined %}{{ page_title | striptags }} - {% endif %}{{ project.configuration.title }}</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="generator" content="Betty (https://betty.readthedocs.io)">
-{% if app.project.configuration.author %}
-    <meta name="author" content="{{ app.project.configuration.author }}">
+{% if project.configuration.author %}
+    <meta name="author" content="{{ project.configuration.author }}">
 {% endif %}
-<meta name="og:title" content="{{ page_title | default(app.project.configuration.title) | striptags }}">
-<meta name="og:site_name" content="{{ app.project.configuration.title }}">
-<meta name="twitter:title" content="{{ page_title | default(app.project.configuration.title) | striptags }}">
+<meta name="og:title" content="{{ page_title | default(project.configuration.title) | striptags }}">
+<meta name="og:site_name" content="{{ project.configuration.title }}">
+<meta name="twitter:title" content="{{ page_title | default(project.configuration.title) | striptags }}">
 <meta name="twitter:card" content="summary_large_image">
 {% if page_resource is defined %}
     {% if page_resource is has_files %}
@@ -25,7 +25,7 @@
         {% endfor %}
     {% endif %}
     <link rel="canonical" href="{{ page_resource | url(absolute=true) }}" hreflang="{{ localizer.locale }}" type="text/html">
-    {% for project_locale in app.project.configuration.locales %}
+    {% for project_locale in project.configuration.locales %}
         {% if project_locale != localizer.locale %}
             <link rel="alternate" href="{{ page_resource | url(locale=project_locale) }}" hreflang="{{ project_locale }}" type="text/html">
 

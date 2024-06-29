@@ -11,7 +11,7 @@ from betty.model.event_type import (
     CreatableDerivableEventType,
     EventType,
 )
-from betty.project import DEFAULT_LIFETIME_THRESHOLD
+from betty.project.__init__ import DEFAULT_LIFETIME_THRESHOLD
 
 
 class DeriverTestEventType(EventType):

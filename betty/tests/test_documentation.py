@@ -16,7 +16,7 @@ from betty.documentation import DocumentationServer
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.functools import Do
 from betty.locale import DEFAULT_LOCALIZER
-from betty.project import ProjectConfiguration
+from betty.project.__init__ import ProjectConfiguration
 from betty.serde.format import Format, Json, Yaml
 from betty.subprocess import run_process
 from typing import TYPE_CHECKING

@@ -13,7 +13,7 @@ from betty.extension import Nginx
 from betty.extension.nginx.config import NginxConfiguration
 from betty.extension.nginx.serve import DockerizedNginxServer
 from betty.functools import Do
-from betty.project import ExtensionConfiguration
+from betty.project.__init__ import ExtensionConfiguration
 from betty.serve import NoPublicUrlBecauseServerNotStartedError
 
 

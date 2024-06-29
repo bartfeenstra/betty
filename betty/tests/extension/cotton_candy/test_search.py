@@ -8,7 +8,7 @@ from betty.extension.cotton_candy.search import Index
 from betty.job import Context
 from betty.locale import DEFAULT_LOCALIZER
 from betty.model.ancestry import Person, Place, PlaceName, PersonName, File
-from betty.project import LocaleConfiguration
+from betty.project.__init__ import LocaleConfiguration
 
 
 class TestIndex:
@@ -316,7 +316,7 @@ class TestIndex:
             assert indexed[0]["text"] == '"file" is dutch for "traffic jam"'
             assert expected in indexed[0]["result"]
 
-    async def test_build_private_file(self) -> None:
+    async def test_build_private_file(self, new_temporary_app: App) -> None:
         file_id = "F1"
         file = File(
             id=file_id,
@@ -325,12 +325,20 @@ class TestIndex:
             private=True,
         )
 
-        async with App.new_temporary() as app, app:
-            app.project.configuration.extensions.enable(CottonCandy)
-            app.project.configuration.locales["en-US"].alias = "en"
-            app.project.ancestry.add(file)
+        # @todo It's problematic to use the same App and Project everywhere, especially if we
+        # @todo do not allow runtime changes.
+        # @todo Right now, someone using new_temporary_app() would have to enter app AS WELL AS app.project?
+        # @todo Because if the fixtures automatically enter the contexts, no more configuration is possible
+        # @todo
+        async with new_temporary_app:
+            new_temporary_app.project.configuration.extensions.enable(CottonCandy)
+            new_temporary_app.project.configuration.locales["en-US"].alias = "en"
+            new_temporary_app.project.ancestry.add(file)
             indexed = [
-                item async for item in Index(app, Context(), DEFAULT_LOCALIZER).build()
+                item
+                async for item in Index(
+                    new_temporary_app, Context(), DEFAULT_LOCALIZER
+                ).build()
             ]
 
             assert [] == indexed

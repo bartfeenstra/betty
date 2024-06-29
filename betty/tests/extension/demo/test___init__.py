@@ -9,7 +9,7 @@ from betty.extension.demo import DemoServer
 from betty.functools import Do
 from betty.load import load
 from betty.model.ancestry import Person, Place, Event, Source, Citation
-from betty.project import ExtensionConfiguration
+from betty.project.__init__ import ExtensionConfiguration
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:

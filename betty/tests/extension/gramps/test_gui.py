@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import QFileDialog
 from betty.extension import Gramps
 from betty.extension.gramps.config import FamilyTreeConfiguration, GrampsConfiguration
 from betty.extension.gramps.gui import _AddFamilyTreeWindow
-from betty.project import ExtensionConfiguration
+from betty.project.__init__ import ExtensionConfiguration
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:

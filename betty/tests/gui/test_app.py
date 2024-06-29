@@ -13,7 +13,7 @@ from betty.gui.app import (
 )
 from betty.gui.project import ProjectWindow
 from betty.gui.serve import ServeDemoWindow
-from betty.project import ProjectConfiguration
+from betty.project.__init__ import ProjectConfiguration
 from betty.serde.error import SerdeError
 from betty.tests.conftest import BettyQtBot
 from betty.tests.test_cli import NoOpServer

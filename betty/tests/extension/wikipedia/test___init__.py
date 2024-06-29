@@ -6,7 +6,7 @@ from betty.extension import Wikipedia
 from betty.job import Context
 from betty.load import load
 from betty.model.ancestry import Link
-from betty.project import ExtensionConfiguration
+from betty.project.__init__ import ExtensionConfiguration
 from betty.wikipedia import Summary
 from typing import TYPE_CHECKING
 

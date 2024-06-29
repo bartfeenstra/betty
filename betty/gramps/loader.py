@@ -80,7 +80,7 @@ from betty.model.event_type import (
 from betty.path import rootname
 
 if TYPE_CHECKING:
-    from betty.project import Project
+    from betty.project.__init__ import Project
     from collections.abc import MutableMapping, Mapping
 
 
