@@ -176,6 +176,7 @@ class App(Configurable[AppConfiguration]):
         super().__init__()
         self._started = False
         self._configuration = configuration
+        configuration.mutable = False
         self._assets: AssetRepository | None = None
         self._extensions = _AppExtensions()
         self._extensions_initialized = False

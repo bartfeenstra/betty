@@ -1005,11 +1005,13 @@ class Project(Configurable[ProjectConfiguration]):
 
     def __init__(
         self,
+        configuration: ProjectConfiguration,
         *,
         ancestry: Ancestry | None = None,
     ):
         super().__init__()
-        self._configuration = ProjectConfiguration()
+        self._configuration = configuration
+        configuration.mutable = False
         self._ancestry = Ancestry() if ancestry is None else ancestry
 
     @property

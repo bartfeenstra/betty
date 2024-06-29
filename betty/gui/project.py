@@ -533,20 +533,21 @@ class ExtensionPane(QWidget):
 
         def _update_enabled(enabled: bool) -> None:
             with ExceptionCatcher(self):
-                if enabled:
-                    self._app.project.configuration.extensions.enable(extension_type)
-                    extension = self._app.extensions[extension_type]
-                    if isinstance(extension, GuiBuilder):
-                        self._extension_gui = extension.gui_build()
-                        layout.addWidget(self._extension_gui)
-                else:
-                    self._app.project.configuration.extensions.disable(extension_type)
-                    if self._extension_gui is not None:
-                        layout.removeWidget(self._extension_gui)
-                        self._extension_gui.close()
-                        self._extension_gui.setParent(None)
-                        self._extension_gui.deleteLater()
-                        self._extension_gui = None
+                with self._app.project.configuration.extensions.update_transaction() as transaction:
+                    if enabled:
+                        transaction.enable(extension_type)
+                        extension = self._app.extensions[extension_type]
+                        if isinstance(extension, GuiBuilder):
+                            self._extension_gui = extension.gui_build()
+                            layout.addWidget(self._extension_gui)
+                    else:
+                        transaction.disable(extension_type)
+                        if self._extension_gui is not None:
+                            layout.removeWidget(self._extension_gui)
+                            self._extension_gui.close()
+                            self._extension_gui.setParent(None)
+                            self._extension_gui.deleteLater()
+                            self._extension_gui = None
 
         self._extension_enabled = QCheckBox(
             self._app.localizer._("Enable {extension}").format(

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from collections.abc import Callable
-from contextlib import chdir
+from contextlib import chdir, contextmanager
 from pathlib import Path
 from reprlib import recursive_repr
 from tempfile import TemporaryDirectory
@@ -24,8 +24,7 @@ from typing import (
     overload,
     cast,
     Self,
-    TypeAlias,
-)
+    TypeAlias, Literal, )
 
 import aiofiles
 from aiofiles.os import makedirs
@@ -40,9 +39,18 @@ from betty.serde.error import SerdeErrorCollection
 from betty.serde.format import FormatRepository
 from betty.serde.load import assert_dict, assert_sequence
 
-
 _ConfigurationListener: TypeAlias = Callable[[], None]
 ConfigurationListener: TypeAlias = "Configuration | _ConfigurationListener"
+
+
+class ConfigurationError(Exception):
+    pass
+
+
+class ImmutableConfiguration(ConfigurationError):
+    @classmethod
+    def new(cls, configuration: Configuration) -> Self:
+        return cls(f"{configuration} has been made immutable and changes can no longer be made.")
 
 
 class Configuration(Dumpable):
@@ -50,11 +58,51 @@ class Configuration(Dumpable):
     Any configuration object.
     """
 
+    def __init__(self, *args: Any, **kwargs:Any):
+        super().__init__(*args,**kwargs)
+        self._mutable = True
+
+    @property
+    def mutable(self) -> bool:
+        return self._mutable
+
+    @mutable.setter
+    def mutable(self, mutable: Literal[False]) -> None:
+        assert not mutable
+        self._mutable = False
+
+    def assert_mutable(self) -> None:
+        if not self._mutable:
+            raise ImmutableConfiguration.new(self)
+
+    def clone(self) -> Self:
+        """
+        Clone the configuration into a new instance.
+
+        This is a deep clone/copy for any data structures that are copied by
+        reference and are owned by this instance, including but not limited to:
+        - other :py:class:`betty.config.Configuration` instances
+        - standard Python data structures such as lists and dictionaries
+        Data structures that are copied by reference by are **not** owned by this
+        instance **MUST NOT** be cloned/copied.
+
+        Clones **MUST** be equal. This means that any dependencies, including
+        environment variables, **MUST** be injected.
+        """
+        raise NotImplementedError(repr(self))
+
     def update(self, other: Self) -> None:
         """
         Update this configuration with the values from ``other``.
         """
         raise NotImplementedError(repr(self))
+
+    @contextmanager
+    def update_transaction(self) -> Iterator[Self]:
+        self.assert_mutable()
+        transaction = self.clone()
+        yield transaction
+        self.update(transaction)
 
     def load(self, dump: Dump) -> None:
         """
@@ -217,6 +265,10 @@ class ConfigurationCollection(
     @recursive_repr()
     def __repr__(self) -> str:
         return repr_instance(self, configurations=list(self.values()))
+
+    @override
+    def clone(self) -> Self:
+        return self.__class__(item.clone() for item in self.values())
 
     def remove(self, *configuration_keys: _ConfigurationKeyT) -> None:
         """
