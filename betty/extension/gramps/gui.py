@@ -33,12 +33,15 @@ from betty.locale import Localizable, Str
 from betty.serde.error import SerdeError
 
 if TYPE_CHECKING:
-    from betty.app import App
+    from betty.project import Project
+
+    pass
 
 
 class _FamilyTrees(LocalizedObject, QWidget):
-    def __init__(self, app: App, *args: Any, **kwargs: Any):
-        super().__init__(app, *args, **kwargs)
+    def __init__(self, project: Project, *args: Any, **kwargs: Any):
+        super().__init__(project.app, *args, **kwargs)
+        self._project = project
 
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
@@ -48,7 +51,7 @@ class _FamilyTrees(LocalizedObject, QWidget):
         self._family_trees_remove_buttons: list[QPushButton]
 
         self._build_family_trees()
-        self._app.extensions[Gramps].configuration.family_trees.on_change(
+        self._project.extensions[Gramps].configuration.family_trees.on_change(
             self._build_family_trees
         )
 
@@ -67,7 +70,7 @@ class _FamilyTrees(LocalizedObject, QWidget):
         self._layout.addWidget(self._family_trees_widget)
 
         for index, family_tree in enumerate(
-            self._app.extensions[Gramps].configuration.family_trees
+            self._project.extensions[Gramps].configuration.family_trees
         ):
             self._build_family_tree(family_tree, index)
         self._layout.insertWidget(
@@ -78,7 +81,7 @@ class _FamilyTrees(LocalizedObject, QWidget):
         self, family_tree: FamilyTreeConfiguration, index: int
     ) -> None:
         def _remove_family_tree() -> None:
-            del self._app.extensions[Gramps].configuration.family_trees[index]
+            del self._project.extensions[Gramps].configuration.family_trees[index]
 
         self._family_trees_layout.addWidget(Text(str(family_tree.file_path)), index, 0)
         self._family_trees_remove_buttons.insert(index, QPushButton())
@@ -95,17 +98,17 @@ class _FamilyTrees(LocalizedObject, QWidget):
             button.setText(self._app.localizer._("Remove"))
 
     def _add_family_tree(self) -> None:
-        window = _AddFamilyTreeWindow(self._app, parent=self)
+        window = _AddFamilyTreeWindow(self._project, parent=self)
         window.show()
 
 
 class _GrampsGuiWidget(LocalizedObject, QWidget):
-    def __init__(self, app: App, *args: Any, **kwargs: Any):
-        super().__init__(app, *args, **kwargs)
+    def __init__(self, project: Project, *args: Any, **kwargs: Any):
+        super().__init__(project.app, *args, **kwargs)
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
 
-        self._family_trees = _FamilyTrees(self._app)
+        self._family_trees = _FamilyTrees(project)
         self._layout.addWidget(self._family_trees)
 
 
@@ -115,13 +118,14 @@ class _AddFamilyTreeWindow(BettyMainWindow):
 
     def __init__(
         self,
-        app: App,
+        project: Project,
         *,
         parent: QObject | None = None,
     ):
-        super().__init__(app, parent=parent)
+        super().__init__(project.app, parent=parent)
+        self._project = project
         self._family_tree = FamilyTreeConfiguration(
-            self._app.project.configuration.project_directory_path
+            self._project.configuration.project_directory_path
         )
 
         self._layout = QFormLayout()
@@ -169,7 +173,7 @@ class _AddFamilyTreeWindow(BettyMainWindow):
 
         def save_and_close_family_tree() -> None:
             with ExceptionCatcher(self):
-                self._app.extensions[Gramps].configuration.family_trees.append(
+                self._project.extensions[Gramps].configuration.family_trees.append(
                     self._family_tree
                 )
                 self.close()

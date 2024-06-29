@@ -31,6 +31,7 @@ from betty.gui.text import Caption
 from betty.locale import Str, Localizable
 
 if TYPE_CHECKING:
+    from betty.project import Project
     from betty.app import App
 
 
@@ -123,16 +124,16 @@ class _ColorConfigurationsWidget(LocalizedObject, QWidget):
 
 
 class _CottonCandyGuiWidget(LocalizedObject, QWidget):
-    def __init__(self, app: App, *args: Any, **kwargs: Any):
-        super().__init__(app, *args, **kwargs)
-        self._app = app
-        self._configuration = app.extensions[CottonCandy].configuration
+    def __init__(self, project: Project, *args: Any, **kwargs: Any):
+        super().__init__(project.app, *args, **kwargs)
+        self._project = project
+        self._configuration = project.extensions[CottonCandy].configuration
 
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
 
         self._color_configurations_widget = _ColorConfigurationsWidget(
-            app,
+            project.app,
             [
                 (
                     self._configuration.primary_inactive_color,
@@ -159,10 +160,10 @@ class _CottonCandyGuiWidget(LocalizedObject, QWidget):
         self._layout.addWidget(self._color_configurations_widget)
         self._color_configurations_widget_caption = Caption()
         self._layout.addWidget(self._color_configurations_widget_caption)
-        if not self._app.extensions[Webpack].build_requirement().is_met():
+        if not self._project.extensions[Webpack].build_requirement().is_met():
             self._color_configurations_widget.setDisabled(True)
             self._color_configurations_widget_caption.setText(
-                self._app.extensions[Webpack]
+                self._project.extensions[Webpack]
                 .build_requirement()
                 .localize(self._app.localizer)
             )
@@ -171,7 +172,7 @@ class _CottonCandyGuiWidget(LocalizedObject, QWidget):
         self._layout.addWidget(self._featured_entities_label)
         self._featured_entities_entity_references_collector = (
             EntityReferenceSequenceCollector(
-                self._app,
+                self._project,
                 self._configuration.featured_entities,
                 Str._("Featured entities"),
                 Str._("These entities are featured on your site's front page."),

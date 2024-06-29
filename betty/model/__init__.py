@@ -33,9 +33,9 @@ from betty.locale import Str, Localizable
 from betty.string import camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
 
 if TYPE_CHECKING:
+    from betty.project import Project
     from betty.serde.dump import DictDump, Dump
     import builtins
-    from betty.app import App
 
 
 class GeneratedEntityId(str):
@@ -125,17 +125,17 @@ class Entity(LinkedDataDumpable):
         )
 
     @override
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
+    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(project)
 
         entity_type_name = get_entity_type_name(self.type)
-        dump["$schema"] = app.static_url_generator.generate(
+        dump["$schema"] = project.static_url_generator.generate(
             f"schema.json#/definitions/entity/{upper_camel_case_to_lower_camel_case(entity_type_name)}",
             absolute=True,
         )
 
         if not isinstance(self.id, GeneratedEntityId):
-            dump["@id"] = app.static_url_generator.generate(
+            dump["@id"] = project.static_url_generator.generate(
                 f"/{camel_case_to_kebab_case(entity_type_name)}/{self.id}/index.json",
                 absolute=True,
             )
@@ -145,8 +145,8 @@ class Entity(LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
-        schema = await super().linked_data_schema(app)
+    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(project)
         schema["type"] = "object"
         schema["properties"] = {
             "$schema": ref_json_schema(schema),

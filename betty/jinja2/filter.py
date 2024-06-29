@@ -76,9 +76,9 @@ def filter_url(
     """
     Generate a localized URL for a localizable resource.
     """
-    from betty.jinja2 import context_app, context_localizer
+    from betty.jinja2 import context_project, context_localizer
 
-    return context_app(context).url_generator.generate(
+    return context_project(context).url_generator.generate(
         resource,
         media_type or "text/html",
         *args,
@@ -96,9 +96,9 @@ def filter_static_url(
     """
     Generate a static URL for a static resource.
     """
-    from betty.jinja2 import context_app
+    from betty.jinja2 import context_project
 
-    return context_app(context).static_url_generator.generate(
+    return context_project(context).static_url_generator.generate(
         resource,
         absolute=absolute,
     )
@@ -217,9 +217,9 @@ async def filter_file(context: Context, file: File) -> str:
 
     :return: The public path to the preprocessed file. This can be used on a web page.
     """
-    from betty.jinja2 import context_app, context_job_context
+    from betty.jinja2 import context_project, context_job_context
 
-    app = context_app(context)
+    project = context_project(context)
     job_context = context_job_context(context)
 
     execute_filter = True
@@ -235,7 +235,7 @@ async def filter_file(context: Context, file: File) -> str:
                 execute_filter = False
     if execute_filter:
         file_destination_path = (
-            app.project.configuration.www_directory_path
+            project.configuration.www_directory_path
             / "file"
             / file.id
             / "file"
@@ -259,7 +259,7 @@ async def filter_image(
 
     :return: The public path to the preprocessed file. This can be embedded in a web page.
     """
-    from betty.jinja2 import context_app, context_job_context
+    from betty.jinja2 import context_project, context_job_context
 
     # Treat SVGs as regular files.
     if (
@@ -270,7 +270,7 @@ async def filter_image(
     ):
         return await filter_file(context, file)
 
-    app = context_app(context)
+    project = context_project(context)
     job_context = context_job_context(context)
 
     destination_name = f"{file.id}-"
@@ -283,7 +283,7 @@ async def filter_image(
     else:
         raise ValueError("At least the width or height must be given.")
 
-    file_directory_path = app.project.configuration.www_directory_path / "file"
+    file_directory_path = project.configuration.www_directory_path / "file"
 
     if file.media_type:
         if file.media_type.type == "image":
@@ -312,12 +312,12 @@ async def filter_image(
     if execute_filter:
         loop = get_running_loop()
         await loop.run_in_executor(
-            app.process_pool,
+            project.app.process_pool,
             _execute_filter_image,
             image_loader,
             file.path,
             file.media_type,
-            app.binary_file_cache.with_scope("image").cache_item_file_path(
+            project.app.binary_file_cache.with_scope("image").cache_item_file_path(
                 cache_item_id
             ),
             file_directory_path,

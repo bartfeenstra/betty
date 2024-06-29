@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from betty.app import App
 from betty.extension import Deriver
 from betty.load import load
 from betty.locale import DateRange, Date
@@ -14,7 +13,11 @@ from betty.model.event_type import (
     StartOfLifeEventType,
     EndOfLifeEventType,
 )
-from betty.project import ExtensionConfiguration
+from betty.project import ExtensionConfiguration, Project
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from betty.app import App
 
 
 class Ignored(EventType):
@@ -66,7 +69,7 @@ class ComesBeforeAndAfterCreatableDerivable(
 
 
 class TestDeriver:
-    async def test_post_load(self) -> None:
+    async def test_post_load(self, new_temporary_app: App) -> None:
         person = Person(id="P0")
         event = Event(
             event_type=Residence,
@@ -74,11 +77,12 @@ class TestDeriver:
         )
         Presence(person, Subject(), event)
 
-        async with App.new_temporary() as app, app:
-            app.project.configuration.extensions.append(ExtensionConfiguration(Deriver))
-            app.project.ancestry.add(person)
-            with record_added(app.project.ancestry) as added:
-                await load(app)
+        project = Project(new_temporary_app)
+        project.configuration.extensions.append(ExtensionConfiguration(Deriver))
+        project.ancestry.add(person)
+        async with project:
+            with record_added(project.ancestry) as added:
+                await load(project)
 
             assert len(person.presences) == 3
             start = [

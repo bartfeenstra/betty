@@ -12,10 +12,10 @@ Getting started
    ``"my_package.my_module.MyExtension"``. This name is also used to enable the extension in
    :doc:`project configuration files </usage/project/configuration>`.
 
-#. Create a new class that extends :py:class:`betty.app.extension.Extension`, for example:
+#. Create a new class that extends :py:class:`betty.project.extension.Extension`, for example:
   .. code-block:: python
 
-      from betty.app.extension import Extension
+      from betty.project.extension import Extension
 
       class MyExtension(Extension):
         pass
@@ -56,12 +56,12 @@ Given an extension ``my_package.my_module.MyExtension``, add the following to yo
 Asset management
 ----------------
 Extensions can enable :doc:`asset management </usage/assets>` to provide translations, templates, and more, by overriding
-:py:meth:`betty.app.extension.Extension.assets_directory_path` to return the path on disk where the extension's assets
+:py:meth:`betty.project.extension.Extension.assets_directory_path` to return the path on disk where the extension's assets
 are located. This may be anywhere in your Python package.
 
 .. code-block:: python
 
-    from betty.app.extension import Extension
+    from betty.project.extension import Extension
 
     class MyExtension(Extension):
         @classmethod
@@ -78,13 +78,13 @@ Dependencies
 Extensions have fine-grained control over which other extensions they require, and the order in
 which they appear in the extension dependency tree:
 
-:py:meth:`betty.app.extension.Extension.depends_on`
+:py:meth:`betty.project.extension.Extension.depends_on`
     Declare required other extensions. This ensures those extensions are enabled and appear before
     your extension in the extension dependency tree.
-:py:meth:`betty.app.extension.Extension.comes_after`
+:py:meth:`betty.project.extension.Extension.comes_after`
     Declare other extensions that are not required, but if they **are** enabled, then your extension
     will appear after them in the extension dependency tree.
-:py:meth:`betty.app.extension.Extension.comes_before`
+:py:meth:`betty.project.extension.Extension.comes_before`
     Declare other extensions that are not required, but if they **are** enabled, then your extension
     will appear before them in the extension dependency tree.
 
@@ -92,12 +92,12 @@ Dispatching
 -----------
 Extensions can handle dispatched events by extending from any of the following classes:
 
-:py:class:`betty.app.extension.ConfigurableExtension`
+:py:class:`betty.project.extension.ConfigurableExtension`
     Enable configuration management for the extension.
-:py:class:`betty.app.extension.Theme`
+:py:class:`betty.project.extension.Theme`
     Mark the extension as being a theme, e.g. an extension that determines the overall look and
     feel of a site.
-:py:class:`betty.app.extension.UserFacingExtension`
+:py:class:`betty.project.extension.UserFacingExtension`
     Mark the extension as being suitable for end user interaction, e.g. it is not internal.
 :py:class:`betty.generate.Generator`
     Dispatched when the site is being generated. This is used to tell extensions when to

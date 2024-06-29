@@ -13,7 +13,9 @@ from betty.serde.dump import DictDump, Dump, dump_default
 from betty.string import upper_camel_case_to_lower_camel_case
 
 if TYPE_CHECKING:
-    from betty.app import App
+    from betty.project import Project
+
+    pass
 
 
 class Schema:
@@ -21,8 +23,8 @@ class Schema:
     Build JSON Schemas for a Betty application.
     """
 
-    def __init__(self, app: App):
-        self._app = app
+    def __init__(self, project: Project):
+        self._project = project
 
     async def build(self) -> DictDump[Dump]:
         """
@@ -32,7 +34,7 @@ class Schema:
 
         schema: DictDump[Dump] = {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "$id": self._app.static_url_generator.generate(
+            "$id": self._project.static_url_generator.generate(
                 "schema.json", absolute=True
             ),
         }
@@ -42,11 +44,11 @@ class Schema:
         response_definitions = dump_default(definitions, "response", dict)
 
         # Add entity schemas.
-        for entity_type in self._app.entity_types:
+        for entity_type in self._project.entity_types:
             entity_type_schema_name = upper_camel_case_to_lower_camel_case(
                 get_entity_type_name(entity_type)
             )
-            entity_type_schema = await entity_type.linked_data_schema(self._app)
+            entity_type_schema = await entity_type.linked_data_schema(self._project)
             entity_type_schema_definitions = cast(
                 DictDump[Dump], entity_type_schema.pop("definitions", {})
             )

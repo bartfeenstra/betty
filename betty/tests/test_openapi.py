@@ -7,6 +7,7 @@ import pytest
 
 from betty.app import App
 from betty.openapi import Specification
+from betty.project import Project
 
 
 class TestSpecification:
@@ -17,13 +18,14 @@ class TestSpecification:
             False,
         ],
     )
-    async def test_build(self, clean_urls: bool) -> None:
+    async def test_build(self, clean_urls: bool, new_temporary_app: App) -> None:
         async with aiofiles.open(
             Path(__file__).parent / "test_openapi_assets" / "openapi-schema.json"
         ) as f:
             schema = stdjson.loads(await f.read())
-        async with App.new_temporary() as app, app:
-            app.project.configuration.clean_urls = clean_urls
-            sut = Specification(app)
+        project = Project(new_temporary_app)
+        project.configuration.clean_urls = clean_urls
+        async with project:
+            sut = Specification(project)
             specification = await sut.build()
             jsonschema.validate(specification, schema)

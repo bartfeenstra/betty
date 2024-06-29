@@ -2,21 +2,18 @@
 
 from pathlib import Path
 
-from click import Command
 from typing_extensions import override
 
-from betty.app.extension import ConfigurableExtension, UserFacingExtension
-from betty.cli import CommandProvider
 from betty.extension.nginx.artifact import (
     generate_configuration_file,
     generate_dockerfile_file,
 )
-from betty.extension.nginx.cli import _serve
 from betty.extension.nginx.config import NginxConfiguration
 from betty.extension.nginx.gui import _NginxGuiWidget
 from betty.generate import Generator, GenerationContext
 from betty.gui import GuiBuilder
 from betty.locale import Str, Localizable
+from betty.project.extension import ConfigurableExtension, UserFacingExtension
 
 
 class Nginx(
@@ -24,7 +21,6 @@ class Nginx(
     UserFacingExtension,
     Generator,
     GuiBuilder,
-    CommandProvider,
 ):
     """
     Integrate Betty with nginx (and Docker).
@@ -49,8 +45,8 @@ class Nginx(
 
     @override
     async def generate(self, job_context: GenerationContext) -> None:
-        await generate_configuration_file(self._app)
-        await generate_dockerfile_file(self._app)
+        await generate_configuration_file(job_context.project)
+        await generate_dockerfile_file(job_context.project)
 
     @override
     @classmethod
@@ -63,7 +59,7 @@ class Nginx(
         Whether the nginx server should use HTTPS.
         """
         if self._configuration.https is None:
-            return self._app.project.configuration.base_url.startswith("https")
+            return self._project.configuration.base_url.startswith("https")
         return self._configuration.https
 
     @property
@@ -72,16 +68,9 @@ class Nginx(
         The nginx server's public web root directory path.
         """
         return self._configuration.www_directory_path or str(
-            self._app.project.configuration.www_directory_path
+            self._project.configuration.www_directory_path
         )
 
     @override
     def gui_build(self) -> _NginxGuiWidget:
-        return _NginxGuiWidget(self._app, self._configuration)
-
-    @override
-    @property
-    def commands(self) -> dict[str, Command]:
-        return {
-            "serve-nginx-docker": _serve,
-        }
+        return _NginxGuiWidget(self._project, self._configuration)

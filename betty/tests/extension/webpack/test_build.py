@@ -8,7 +8,8 @@ from pytest_mock import MockerFixture
 
 from betty._npm import NpmUnavailable
 from betty.app import App
-from betty.app.extension import Extension
+from betty.project import Project
+from betty.project.extension import Extension
 from betty.extension.webpack import WebpackEntryPointProvider
 from betty.extension.webpack.build import Builder
 from betty.job import Context
@@ -43,25 +44,25 @@ class TestBuilder:
         self,
         with_entry_point_provider: bool,
         debug: bool,
+        new_temporary_app: App,
         npm_install_cache_available: bool,
         tmp_path: Path,
         webpack_build_cache_available: bool,
     ) -> None:
-        async with App.new_temporary() as app:
-            if with_entry_point_provider:
-                app.project.configuration.extensions.enable(
-                    DummyEntryPointProviderExtension
-                )
-            job_context = Context()
+        project = Project(new_temporary_app)
+        if with_entry_point_provider:
+            project.configuration.extensions.enable(DummyEntryPointProviderExtension)
+        job_context = Context()
+        async with project:
             sut = Builder(
                 tmp_path,
                 (
-                    [app.extensions[DummyEntryPointProviderExtension]]
+                    [project.extensions[DummyEntryPointProviderExtension]]
                     if with_entry_point_provider
                     else []
                 ),
                 False,
-                app.renderer,
+                project.renderer,
                 job_context=job_context,
                 localizer=DEFAULT_LOCALIZER,
             )

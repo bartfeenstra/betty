@@ -1,7 +1,8 @@
 from typing import Any
 
 from betty.app import App
-from betty.app.extension import (
+from betty.project import Project
+from betty.project.extension import (
     Extension,
     ListExtensions,
     ExtensionDispatcher,
@@ -28,24 +29,24 @@ class TestExtensionDispatcher:
             raise NotImplementedError(repr(self))
 
     class _MultiplyingExtension(_Multiplier, Extension):
-        def __init__(self, app: App, multiplier: int):
-            super().__init__(app)
+        def __init__(self, project: Project, multiplier: int):
+            super().__init__(project)
             self._multiplier = multiplier
 
         async def multiply(self, term: int) -> Any:
             return self._multiplier * term
 
-    async def test(self) -> None:
-        async with App.new_temporary() as app, app:
+    async def test(self, new_temporary_app: App) -> None:
+        async with Project(new_temporary_app) as project:
             extensions = ListExtensions(
                 [
                     [
-                        self._MultiplyingExtension(app, 1),
-                        self._MultiplyingExtension(app, 3),
+                        self._MultiplyingExtension(project, 1),
+                        self._MultiplyingExtension(project, 3),
                     ],
                     [
-                        self._MultiplyingExtension(app, 2),
-                        self._MultiplyingExtension(app, 4),
+                        self._MultiplyingExtension(project, 2),
+                        self._MultiplyingExtension(project, 4),
                     ],
                 ]
             )

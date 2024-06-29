@@ -23,7 +23,7 @@ from betty.functools import Do
 from betty.locale import Str, Localizer, Localizable
 
 if TYPE_CHECKING:
-    from betty.app import App
+    from betty.project import Project
     from types import TracebackType
 
 DEFAULT_PORT = 8000
@@ -144,20 +144,18 @@ class Server:
             assert response.status == 200
 
 
-class AppServer(Server):
+class ProjectServer(Server):
     """
-    A web server for a Betty application.
+    A web server for a Betty project.
     """
 
-    def __init__(self, app: App) -> None:
-        super().__init__(localizer=app.localizer)
-        self._app = app
+    def __init__(self, project: Project) -> None:
+        super().__init__(localizer=project.app.localizer)
+        self._project = project
 
     @override
     async def start(self) -> None:
-        await makedirs(
-            self._app.project.configuration.www_directory_path, exist_ok=True
-        )
+        await makedirs(self._project.configuration.www_directory_path, exist_ok=True)
         await super().start()
 
 
@@ -265,17 +263,17 @@ class BuiltinServer(Server):
             await self._temporary_root_directory.__aexit__(None, None, None)
 
 
-class BuiltinAppServer(AppServer):
+class BuiltinProjectServer(ProjectServer):
     """
-    A built-in server for a Betty application.
+    A built-in server for a Betty project.
     """
 
-    def __init__(self, app: App) -> None:
-        super().__init__(app)
+    def __init__(self, project: Project) -> None:
+        super().__init__(project)
         self._server = BuiltinServer(
-            self._app.project.configuration.www_directory_path,
-            root_path=self._app.project.configuration.root_path,
-            localizer=self._app.localizer,
+            project.configuration.www_directory_path,
+            root_path=project.configuration.root_path,
+            localizer=project.app.localizer,
         )
 
     @override

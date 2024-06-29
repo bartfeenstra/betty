@@ -8,7 +8,7 @@ import asyncio
 import copy
 import re
 from asyncio import Task, CancelledError
-from contextlib import suppress
+from contextlib import suppress, AsyncExitStack
 from logging import getLogger
 from pathlib import Path
 from typing import final, TYPE_CHECKING
@@ -40,8 +40,6 @@ from babel.localedata import locale_identifiers
 from typing_extensions import override
 
 from betty import load, generate
-from betty.app import App
-from betty.app.extension import UserFacingExtension
 from betty.asyncio import wait_to_thread
 from betty.gui import (
     get_configuration_file_filter,
@@ -60,6 +58,7 @@ from betty.gui.window import BettyMainWindow
 from betty.locale import get_display_name, to_locale, Str, Localizable
 from betty.model import UserFacingEntity, Entity
 from betty.project import LocaleConfiguration, Project, EntityTypeConfiguration
+from betty.project.extension import UserFacingExtension
 from betty.serde.load import AssertionFailed
 from betty.typing import internal
 
@@ -87,8 +86,9 @@ class GenerateHtmlListForm(LocalizedObject, QWidget):
     A form widget to configure whether to generate entity listing HTML pages for the project's entity types.
     """
 
-    def __init__(self, app: App):
-        super().__init__(app)
+    def __init__(self, project: Project):
+        super().__init__(project.app)
+        self._project = project
         self._form = QFormLayout()
         self.setLayout(self._form)
         self._form_label = QLabel()
@@ -102,7 +102,7 @@ class GenerateHtmlListForm(LocalizedObject, QWidget):
         entity_types = sorted(
             [
                 entity_type
-                for entity_type in self._app.entity_types
+                for entity_type in self._project.entity_types
                 if issubclass(entity_type, UserFacingEntity)
             ],
             key=lambda x: x.entity_type_label_plural().localize(self._app.localizer),
@@ -123,22 +123,20 @@ class GenerateHtmlListForm(LocalizedObject, QWidget):
 
         def _update(generate_html_list: bool) -> None:
             try:
-                entity_type_configuration = (
-                    self._app.project.configuration.entity_types[entity_type]
-                )
+                entity_type_configuration = self._project.configuration.entity_types[
+                    entity_type
+                ]
             except LookupError:
                 entity_type_configuration = EntityTypeConfiguration(entity_type)
-                self._app.project.configuration.entity_types.append(
+                self._project.configuration.entity_types.append(
                     (entity_type_configuration)
                 )
             entity_type_configuration.generate_html_list = generate_html_list
 
         self._checkboxes[entity_type] = QCheckBox()
         self._checkboxes[entity_type].setChecked(
-            entity_type in self._app.project.configuration.entity_types
-            and self._app.project.configuration.entity_types[
-                entity_type
-            ].generate_html_list
+            entity_type in self._project.configuration.entity_types
+            and self._project.configuration.entity_types[entity_type].generate_html_list
         )
         self._checkboxes[entity_type].toggled.connect(_update)
         self._update_for_entity_type(entity_type, row_i)
@@ -147,7 +145,7 @@ class GenerateHtmlListForm(LocalizedObject, QWidget):
     def _set_translatables(self) -> None:
         super()._set_translatables()
         self._form_label.setText(self._app.localizer._("Generate entity listing pages"))
-        for entity_type in self._app.entity_types:
+        for entity_type in self._project.entity_types:
             if issubclass(entity_type, UserFacingEntity):
                 self._checkboxes[entity_type].setText(
                     entity_type.entity_type_label_plural().localize(self._app.localizer)
@@ -161,8 +159,9 @@ class GeneralPane(LocalizedObject, QWidget):
     A pane to administer general project configuration.
     """
 
-    def __init__(self, app: App):
-        super().__init__(app)
+    def __init__(self, project: Project):
+        super().__init__(project.app)
+        self._project = project
 
         self._form = QFormLayout()
         self.setLayout(self._form)
@@ -173,15 +172,15 @@ class GeneralPane(LocalizedObject, QWidget):
         self._build_lifetime_threshold()
         self._build_mode()
         self._build_clean_urls()
-        self._generate_html_list_form = GenerateHtmlListForm(app)
+        self._generate_html_list_form = GenerateHtmlListForm(project)
         self._form.addRow(self._generate_html_list_form)
 
     def _build_name(self) -> None:
         def _update_configuration_name(name: str) -> None:
-            self._app.project.configuration.name = name
+            self._project.configuration.name = name
 
         self._configuration_name = QLineEdit()
-        self._configuration_name.setText(self._app.project.configuration.name)
+        self._configuration_name.setText(self._project.configuration.name)
         self._configuration_name.textChanged.connect(_update_configuration_name)
         self._configuration_name_label = QLabel()
         self._form.addRow(self._configuration_name_label, self._configuration_name)
@@ -190,20 +189,20 @@ class GeneralPane(LocalizedObject, QWidget):
 
     def _build_title(self) -> None:
         def _update_configuration_title(title: str) -> None:
-            self._app.project.configuration.title = title
+            self._project.configuration.title = title
 
         self._configuration_title = QLineEdit()
-        self._configuration_title.setText(self._app.project.configuration.title)
+        self._configuration_title.setText(self._project.configuration.title)
         self._configuration_title.textChanged.connect(_update_configuration_title)
         self._configuration_title_label = QLabel()
         self._form.addRow(self._configuration_title_label, self._configuration_title)
 
     def _build_author(self) -> None:
         def _update_configuration_author(author: str) -> None:
-            self._app.project.configuration.author = author
+            self._project.configuration.author = author
 
         self._configuration_author = QLineEdit()
-        self._configuration_author.setText(str(self._app.project.configuration.author))
+        self._configuration_author.setText(str(self._project.configuration.author))
         self._configuration_author.textChanged.connect(_update_configuration_author)
         self._configuration_author_label = QLabel()
         self._form.addRow(self._configuration_author_label, self._configuration_author)
@@ -213,21 +212,20 @@ class GeneralPane(LocalizedObject, QWidget):
             url_parts = urlparse(url)
             base_url = "%s://%s" % (url_parts.scheme, url_parts.netloc)
             root_path = url_parts.path
-            configuration = copy.copy(self._app.project.configuration)
+            configuration = copy.copy(self._project.configuration)
             try:
                 configuration.base_url = base_url
                 configuration.root_path = root_path
             except AssertionFailed as e:
                 mark_invalid(self._configuration_url, str(e))
                 return
-            self._app.project.configuration.base_url = base_url
-            self._app.project.configuration.root_path = root_path
+            self._project.configuration.base_url = base_url
+            self._project.configuration.root_path = root_path
             mark_valid(self._configuration_url)
 
         self._configuration_url = QLineEdit()
         self._configuration_url.setText(
-            self._app.project.configuration.base_url
-            + self._app.project.configuration.root_path
+            self._project.configuration.base_url + self._project.configuration.root_path
         )
         self._configuration_url.textChanged.connect(_update_configuration_url)
         self._configuration_url_label = QLabel()
@@ -247,7 +245,7 @@ class GeneralPane(LocalizedObject, QWidget):
                 return
             lifetime_threshold = int(lifetime_threshold_value)
             try:
-                self._app.project.configuration.lifetime_threshold = lifetime_threshold
+                self._project.configuration.lifetime_threshold = lifetime_threshold
                 mark_valid(self._configuration_lifetime_threshold)
             except AssertionFailed as e:
                 mark_invalid(self._configuration_lifetime_threshold, str(e))
@@ -255,7 +253,7 @@ class GeneralPane(LocalizedObject, QWidget):
         self._configuration_lifetime_threshold = QLineEdit()
         self._configuration_lifetime_threshold.setFixedWidth(32)
         self._configuration_lifetime_threshold.setText(
-            str(self._app.project.configuration.lifetime_threshold)
+            str(self._project.configuration.lifetime_threshold)
         )
         self._configuration_lifetime_threshold.textChanged.connect(
             _update_configuration_lifetime_threshold
@@ -270,10 +268,10 @@ class GeneralPane(LocalizedObject, QWidget):
 
     def _build_mode(self) -> None:
         def _update_configuration_debug(mode: bool) -> None:
-            self._app.project.configuration.debug = mode
+            self._project.configuration.debug = mode
 
         self._development_debug = QCheckBox()
-        self._development_debug.setChecked(self._app.project.configuration.debug)
+        self._development_debug.setChecked(self._project.configuration.debug)
         self._development_debug.toggled.connect(_update_configuration_debug)
         self._form.addRow(self._development_debug)
         self._development_debug_caption = Caption()
@@ -281,10 +279,10 @@ class GeneralPane(LocalizedObject, QWidget):
 
     def _build_clean_urls(self) -> None:
         def _update_configuration_clean_urls(clean_urls: bool) -> None:
-            self._app.project.configuration.clean_urls = clean_urls
+            self._project.configuration.clean_urls = clean_urls
 
         self._clean_urls = QCheckBox()
-        self._clean_urls.setChecked(self._app.project.configuration.clean_urls)
+        self._clean_urls.setChecked(self._project.configuration.clean_urls)
         self._clean_urls.toggled.connect(_update_configuration_clean_urls)
         self._form.addRow(self._clean_urls)
         self._clean_urls_caption = Caption()
@@ -327,8 +325,9 @@ class LocalesConfigurationWidget(LocalizedObject, QWidget):
     A form widget to configuration project locales.
     """
 
-    def __init__(self, app: App):
-        super().__init__(app)
+    def __init__(self, project: Project):
+        super().__init__(project.app)
+        self._project = project
 
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
@@ -351,14 +350,14 @@ class LocalesConfigurationWidget(LocalizedObject, QWidget):
         self._layout.addWidget(self._add_locale_button)
 
         self._built_locales: MutableSequence[str] = []
-        self._app.project.configuration.locales.on_change(
+        self._project.configuration.locales.on_change(
             self._rebuild_locales_configuration
         )
         self._rebuild_locales_configuration()
 
     def _rebuild_locales_configuration(self) -> None:
         built_locales = self._built_locales
-        current_locales = [*self._app.project.configuration.locales]
+        current_locales = [*self._project.configuration.locales]
         for built_locale in built_locales:
             if built_locale not in current_locales:
                 self._remove_locale_configuration(built_locale)
@@ -378,13 +377,13 @@ class LocalesConfigurationWidget(LocalizedObject, QWidget):
         self._locales_layout.addWidget(self._default_buttons[locale], row_index + 1, 0)
         self._locales_layout.addWidget(self._remove_buttons[locale], row_index + 1, 1)
 
-        is_default = locale == self._app.project.configuration.locales.default.locale
+        is_default = locale == self._project.configuration.locales.default.locale
 
         self._default_buttons[locale].setChecked(is_default)
 
         # Allow this locale configuration to be removed only if there are others, and if it is not default one.
         self._remove_buttons[locale].setEnabled(
-            (len(self._app.project.configuration.locales) > 1 and not is_default)
+            (len(self._project.configuration.locales) > 1 and not is_default)
         )
 
     def _remove_locale_configuration(self, locale: str) -> None:
@@ -399,7 +398,7 @@ class LocalesConfigurationWidget(LocalizedObject, QWidget):
         self._default_buttons[locale] = QRadioButton()
 
         def _update_locales_configuration_default() -> None:
-            self._app.project.configuration.locales.default = locale  # type: ignore[assignment]
+            self._project.configuration.locales.default = locale  # type: ignore[assignment]
 
         self._default_buttons[locale].clicked.connect(
             _update_locales_configuration_default
@@ -407,7 +406,7 @@ class LocalesConfigurationWidget(LocalizedObject, QWidget):
         self._default_locale_button_group.addButton(self._default_buttons[locale])
 
         def _remove_locale() -> None:
-            del self._app.project.configuration.locales[locale]
+            del self._project.configuration.locales[locale]
 
         remove_button = QPushButton()
         remove_button.released.connect(_remove_locale)
@@ -424,7 +423,7 @@ class LocalesConfigurationWidget(LocalizedObject, QWidget):
             button.setText(self._app.localizer._("Remove"))
 
     def _add_locale(self) -> None:
-        window = AddLocaleWindow(self._app, parent=self)
+        window = AddLocaleWindow(self._project, parent=self)
         window.show()
 
 
@@ -435,15 +434,15 @@ class LocalizationPane(LocalizedObject, QWidget):
     A pane for project localization configuration.
     """
 
-    def __init__(self, app: App):
-        super().__init__(app)
+    def __init__(self, project: Project):
+        super().__init__(project.app)
 
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
 
         self._layout.addStretch()
 
-        self._locales_configuration_widget = LocalesConfigurationWidget(self._app)
+        self._locales_configuration_widget = LocalesConfigurationWidget(project)
         self._layout.insertWidget(0, self._locales_configuration_widget)
 
 
@@ -459,11 +458,12 @@ class AddLocaleWindow(BettyMainWindow):
 
     def __init__(
         self,
-        app: App,
+        project: Project,
         *,
         parent: QObject | None = None,
     ):
-        super().__init__(app, parent=parent)
+        super().__init__(project.app, parent=parent)
+        self._project = project
 
         self._layout = QFormLayout()
         self._widget = QWidget()
@@ -519,7 +519,7 @@ class AddLocaleWindow(BettyMainWindow):
             if alias == "":
                 alias = None
             try:
-                self._app.project.configuration.locales.append(
+                self._project.configuration.locales.append(
                     LocaleConfiguration(
                         locale,
                         alias=alias,
@@ -538,8 +538,9 @@ class ExtensionPane(LocalizedObject, QWidget):
     A configuration pane for a single extension.
     """
 
-    def __init__(self, app: App, extension_type: type[UserFacingExtension]):
-        super().__init__(app)
+    def __init__(self, project: Project, extension_type: type[UserFacingExtension]):
+        super().__init__(project.app)
+        self._project = project
         self._extension_type = extension_type
 
         layout = QVBoxLayout()
@@ -557,13 +558,13 @@ class ExtensionPane(LocalizedObject, QWidget):
         def _update_enabled(enabled: bool) -> None:
             with ExceptionCatcher(self):
                 if enabled:
-                    self._app.project.configuration.extensions.enable(extension_type)
-                    extension = self._app.extensions[extension_type]
+                    self._project.configuration.extensions.enable(extension_type)
+                    extension = self._project.extensions[extension_type]
                     if isinstance(extension, GuiBuilder):
                         self._extension_gui = extension.gui_build()
                         layout.addWidget(self._extension_gui)
                 else:
-                    self._app.project.configuration.extensions.disable(extension_type)
+                    self._project.configuration.extensions.disable(extension_type)
                     if self._extension_gui is not None:
                         layout.removeWidget(self._extension_gui)
                         self._extension_gui.close()
@@ -578,8 +579,8 @@ class ExtensionPane(LocalizedObject, QWidget):
         enable_layout.addRow(self._extension_enabled)
         enable_layout.addRow(self._extension_enabled_caption)
 
-        if extension_type in self._app.extensions:
-            extension = self._app.extensions[extension_type]
+        if extension_type in self._project.extensions:
+            extension = self._project.extensions[extension_type]
             if isinstance(extension, GuiBuilder):
                 self._extension_gui = extension.gui_build()
                 layout.addWidget(self._extension_gui)
@@ -587,9 +588,9 @@ class ExtensionPane(LocalizedObject, QWidget):
     def _set_extension_status(self) -> None:
         self._extension_enabled.setDisabled(False)
         self._extension_enabled_caption.setText("")
-        if self._extension_type in self._app.extensions:
+        if self._extension_type in self._project.extensions:
             self._extension_enabled.setChecked(True)
-            disable_requirement = self._app.extensions[
+            disable_requirement = self._project.extensions[
                 self._extension_type
             ].disable_requirement()
             if not disable_requirement.is_met():
@@ -629,99 +630,112 @@ class ProjectWindow(BettyPrimaryWindow):
     A window to administer a project.
     """
 
-    def __init__(
-        self,
-        app: App,
-    ):
-        super().__init__(app)
+    def __init__(self, project: Project):
+        """
+        :param project: The project must not be bootstrapped yet, and will be owned by the window.
+        """
+        super().__init__(project.app)
+        self._async_exit_stack = AsyncExitStack()
+        self._project = project
+        self._built = False
 
-        central_widget = QWidget()
-        central_layout = QHBoxLayout()
-        central_widget.setLayout(central_layout)
-        self.setCentralWidget(central_widget)
+    def _bootstrap(self) -> None:
+        if not self._built:
+            wait_to_thread(self._async_exit_stack.enter_async_context(self._project))
 
-        self._pane_selectors_container_widget = QWidget()
-        self._pane_selectors_container_widget.setFixedWidth(225)
+            central_widget = QWidget()
+            central_layout = QHBoxLayout()
+            central_widget.setLayout(central_layout)
+            self.setCentralWidget(central_widget)
 
-        self._pane_selectors_container = QScrollArea()
-        self._pane_selectors_container.setFrameShape(QFrame.Shape.NoFrame)
-        self._pane_selectors_container.setHorizontalScrollBarPolicy(
-            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
-        )
-        self._pane_selectors_container.setWidget(self._pane_selectors_container_widget)
-        self._pane_selectors_container.setWidgetResizable(True)
-        self._pane_selectors_container.setFixedWidth(225)
-        central_layout.addWidget(self._pane_selectors_container)
+            self._pane_selectors_container_widget = QWidget()
+            self._pane_selectors_container_widget.setFixedWidth(225)
 
-        self._pane_selectors_layout = QVBoxLayout()
-        self._pane_selectors_layout.setContentsMargins(0, 0, 25, 0)
-        self._pane_selectors_container_widget.setLayout(self._pane_selectors_layout)
-
-        self._builtin_pane_selectors_layout = QVBoxLayout()
-        self._pane_selectors_layout.addLayout(self._builtin_pane_selectors_layout)
-
-        pane_selectors_divider = QFrame()
-        pane_selectors_divider.setFrameShape(QFrame.Shape.HLine)
-        pane_selectors_divider.setFrameShadow(QFrame.Shadow.Sunken)
-        self._pane_selectors_layout.addWidget(pane_selectors_divider)
-
-        self._extension_pane_selectors_layout = QVBoxLayout()
-        self._pane_selectors_layout.addLayout(self._extension_pane_selectors_layout)
-
-        self._pane_selectors_layout.addStretch()
-
-        self._panes_layout = QStackedLayout()
-        central_layout.addLayout(self._panes_layout, 999999999)
-
-        self._panes: dict[str, QWidget] = {}
-        self._pane_containers: dict[str, QWidget] = {}
-        self._pane_selectors: dict[str, QPushButton] = {}
-
-        self._add_pane("general", GeneralPane(self._app))
-        self._builtin_pane_selectors_layout.addWidget(self._pane_selectors["general"])
-        self._navigate_to_pane("general")
-        self._add_pane("localization", LocalizationPane(self._app))
-        self._builtin_pane_selectors_layout.addWidget(
-            self._pane_selectors["localization"]
-        )
-        self._extension_types = [
-            extension_type
-            for extension_type in self._app.discover_extension_types()
-            if issubclass(extension_type, UserFacingExtension)
-        ]
-        for extension_type in self._extension_types:
-            self._add_pane(
-                f"extension-{extension_type.name()}",
-                ExtensionPane(self._app, extension_type),
+            self._pane_selectors_container = QScrollArea()
+            self._pane_selectors_container.setFrameShape(QFrame.Shape.NoFrame)
+            self._pane_selectors_container.setHorizontalScrollBarPolicy(
+                Qt.ScrollBarPolicy.ScrollBarAlwaysOff
             )
+            self._pane_selectors_container.setWidget(
+                self._pane_selectors_container_widget
+            )
+            self._pane_selectors_container.setWidgetResizable(True)
+            self._pane_selectors_container.setFixedWidth(225)
+            central_layout.addWidget(self._pane_selectors_container)
 
-        menu_bar = self.menuBar()
-        assert menu_bar is not None
+            self._pane_selectors_layout = QVBoxLayout()
+            self._pane_selectors_layout.setContentsMargins(0, 0, 25, 0)
+            self._pane_selectors_container_widget.setLayout(self._pane_selectors_layout)
 
-        self.project_menu = QMenu()
-        menu_bar.addMenu(self.project_menu)
-        menu_bar.insertMenu(self.help_menu.menuAction(), self.project_menu)
+            self._builtin_pane_selectors_layout = QVBoxLayout()
+            self._pane_selectors_layout.addLayout(self._builtin_pane_selectors_layout)
 
-        self.save_project_as_action = QAction(self)
-        self.save_project_as_action.setShortcut("Ctrl+Shift+S")
-        self.save_project_as_action.triggered.connect(
-            lambda _: self.save_project_as(),
-        )
-        self.project_menu.addAction(self.save_project_as_action)
+            pane_selectors_divider = QFrame()
+            pane_selectors_divider.setFrameShape(QFrame.Shape.HLine)
+            pane_selectors_divider.setFrameShadow(QFrame.Shadow.Sunken)
+            self._pane_selectors_layout.addWidget(pane_selectors_divider)
 
-        self.generate_action = QAction(self)
-        self.generate_action.setShortcut("Ctrl+G")
-        self.generate_action.triggered.connect(
-            lambda _: self.generate(),
-        )
-        self.project_menu.addAction(self.generate_action)
+            self._extension_pane_selectors_layout = QVBoxLayout()
+            self._pane_selectors_layout.addLayout(self._extension_pane_selectors_layout)
 
-        self.serve_action = QAction(self)
-        self.serve_action.setShortcut("Ctrl+Alt+S")
-        self.serve_action.triggered.connect(
-            lambda _: self.serve(),
-        )
-        self.project_menu.addAction(self.serve_action)
+            self._pane_selectors_layout.addStretch()
+
+            self._panes_layout = QStackedLayout()
+            central_layout.addLayout(self._panes_layout, 999999999)
+
+            self._panes: dict[str, QWidget] = {}
+            self._pane_containers: dict[str, QWidget] = {}
+            self._pane_selectors: dict[str, QPushButton] = {}
+
+            self._add_pane("general", GeneralPane(self._project))
+            self._builtin_pane_selectors_layout.addWidget(
+                self._pane_selectors["general"]
+            )
+            self._navigate_to_pane("general")
+            self._add_pane("localization", LocalizationPane(self._project))
+            self._builtin_pane_selectors_layout.addWidget(
+                self._pane_selectors["localization"]
+            )
+            self._extension_types = [
+                extension_type
+                for extension_type in self._project.discover_extension_types()
+                if issubclass(extension_type, UserFacingExtension)
+            ]
+            for extension_type in self._extension_types:
+                self._add_pane(
+                    f"extension-{extension_type.name()}",
+                    ExtensionPane(self._project, extension_type),
+                )
+
+            menu_bar = self.menuBar()
+            assert menu_bar is not None
+
+            self.project_menu = QMenu()
+            menu_bar.addMenu(self.project_menu)
+            menu_bar.insertMenu(self.help_menu.menuAction(), self.project_menu)
+
+            self.save_project_as_action = QAction(self)
+            self.save_project_as_action.setShortcut("Ctrl+Shift+S")
+            self.save_project_as_action.triggered.connect(
+                lambda _: self.save_project_as(),
+            )
+            self.project_menu.addAction(self.save_project_as_action)
+
+            self.generate_action = QAction(self)
+            self.generate_action.setShortcut("Ctrl+G")
+            self.generate_action.triggered.connect(
+                lambda _: self.generate(),
+            )
+            self.project_menu.addAction(self.generate_action)
+
+            self.serve_action = QAction(self)
+            self.serve_action.setShortcut("Ctrl+Alt+S")
+            self.serve_action.triggered.connect(
+                lambda _: self.serve(),
+            )
+            self.project_menu.addAction(self.serve_action)
+
+            self._built = True
 
     def _add_pane(self, pane_name: str, pane: QWidget) -> None:
         pane_container = QScrollArea()
@@ -743,12 +757,14 @@ class ProjectWindow(BettyPrimaryWindow):
 
     @override
     def show(self) -> None:
-        self._app.project.configuration.autowrite = True
+        self._bootstrap()
+        self._project.configuration.autowrite = True
         super().show()
 
     @override
     def close(self) -> bool:
-        self._app.project.configuration.autowrite = False
+        self._project.configuration.autowrite = False
+        wait_to_thread(self._async_exit_stack.aclose())
         return super().close()
 
     @override
@@ -784,7 +800,7 @@ class ProjectWindow(BettyPrimaryWindow):
     @override
     @property
     def window_title(self) -> Localizable:
-        return Str.plain(self._app.project.configuration.title)
+        return Str.plain(self._project.configuration.title)
 
     def save_project_as(self) -> None:
         """
@@ -798,7 +814,7 @@ class ProjectWindow(BettyPrimaryWindow):
                 get_configuration_file_filter().localize(self._app.localizer),
             )
             wait_to_thread(
-                self._app.project.configuration.write(Path(configuration_file_path_str))
+                self._project.configuration.write(Path(configuration_file_path_str))
             )
 
     def generate(self) -> None:
@@ -806,7 +822,7 @@ class ProjectWindow(BettyPrimaryWindow):
         Generate a site for the project.
         """
         with ExceptionCatcher(self):
-            generate_window = GenerateWindow(self._app, parent=self)
+            generate_window = GenerateWindow(self._project, parent=self)
             generate_window.show()
 
     def serve(self) -> None:
@@ -814,7 +830,7 @@ class ProjectWindow(BettyPrimaryWindow):
         Serve the project's generated site.
         """
         with ExceptionCatcher(self):
-            serve_window = ServeProjectWindow(self._app, parent=self)
+            serve_window = ServeProjectWindow(self._project, parent=self)
             serve_window.show()
 
 
@@ -836,9 +852,8 @@ class _GenerateThread(QThread):
 
     async def _generate(self) -> None:
         with ExceptionCatcher(self._generate_window, close_parent=True):
-            async with App.new_from_environment(project=self._project) as app:
-                await load.load(app)
-                await generate.generate(app)
+            await load.load(self._project)
+            await generate.generate(self._project)
 
     def cancel(self) -> None:
         if self._task:
@@ -857,11 +872,12 @@ class GenerateWindow(BettyMainWindow):
 
     def __init__(
         self,
-        app: App,
+        project: Project,
         *,
         parent: QObject | None = None,
     ):
-        super().__init__(app, parent=parent)
+        super().__init__(project.app, parent=parent)
+        self._project = project
 
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setWindowFlags(self.windowFlags() ^ Qt.WindowType.WindowCloseButtonHint)
@@ -892,7 +908,7 @@ class GenerateWindow(BettyMainWindow):
         self._logging_handler = LogRecordViewerHandler(self._log_record_viewer)
         getLogger(__name__).addHandler(self._logging_handler)
 
-        self._thread = _GenerateThread(self._app.project, self)
+        self._thread = _GenerateThread(self._project, self)
         self._thread.finished.connect(self._finish_generate)
         self._thread.start()
 
@@ -903,7 +919,7 @@ class GenerateWindow(BettyMainWindow):
 
     def _serve(self) -> None:
         with ExceptionCatcher(self):
-            serve_window = ServeProjectWindow(self._app, parent=self.parent())
+            serve_window = ServeProjectWindow(self._project, parent=self.parent())
             serve_window.show()
 
     @override

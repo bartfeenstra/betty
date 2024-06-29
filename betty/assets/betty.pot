@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-06-26 13:52+0100\n"
+"POT-Creation-Date: 2024-07-04 12:41+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -272,6 +272,9 @@ msgid "Could not extract {file_path} as a gzip (*.gz) file."
 msgstr ""
 
 msgid "Could not extract {file_path} as a tar (*.tar) file after extracting the outer gzip (*.gz) file."
+msgstr ""
+
+msgid "Could not find any of the following configuration files in {project_directory_path}: {configuration_file_names}."
 msgstr ""
 
 msgid "Could not find the file \"{file_path}\"."

@@ -13,7 +13,7 @@ from betty.extension import Nginx
 from betty.extension.nginx.config import NginxConfiguration
 from betty.extension.nginx.serve import DockerizedNginxServer
 from betty.functools import Do
-from betty.project import ExtensionConfiguration
+from betty.project import ExtensionConfiguration, Project
 from betty.serve import NoPublicUrlBecauseServerNotStartedError
 
 
@@ -23,9 +23,15 @@ class TestDockerizedNginxServer:
         reason="macOS and Windows do not natively support Docker.",
     )
     async def test_context_manager(self):
+        def _assert_response(response: Response) -> None:
+            assert response.status_code == 200
+            assert content == response.content.decode("utf-8")
+            assert response.headers["Cache-Control"] == "no-cache"
+
         content = "Hello, and welcome to my site!"
         async with App.new_temporary() as app, app:
-            app.project.configuration.extensions.append(
+            project = Project(app)
+            project.configuration.extensions.append(
                 ExtensionConfiguration(
                     Nginx,
                     extension_configuration=NginxConfiguration(
@@ -33,43 +39,40 @@ class TestDockerizedNginxServer:
                     ),
                 )
             )
-            await makedirs(app.project.configuration.www_directory_path)
+            await makedirs(project.configuration.www_directory_path)
             async with aiofiles.open(
-                app.project.configuration.www_directory_path / "index.html", "w"
+                project.configuration.www_directory_path / "index.html", "w"
             ) as f:
                 await f.write(content)
-            async with DockerizedNginxServer(app) as server:
-
-                def _assert_response(response: Response) -> None:
-                    assert response.status_code == 200
-                    assert content == response.content.decode("utf-8")
-                    assert response.headers["Cache-Control"] == "no-cache"
-
+            async with project, DockerizedNginxServer(project) as server:
                 await Do(requests.get, server.public_url).until(_assert_response)
 
     async def test_public_url_unstarted(self) -> None:
         async with App.new_temporary() as app, app:
-            app.project.configuration.extensions.enable(Nginx)
-            sut = DockerizedNginxServer(app)
-            with pytest.raises(NoPublicUrlBecauseServerNotStartedError):
-                sut.public_url  # noqa B018
+            project = Project(app)
+            project.configuration.extensions.enable(Nginx)
+            async with project:
+                sut = DockerizedNginxServer(project)
+                with pytest.raises(NoPublicUrlBecauseServerNotStartedError):
+                    sut.public_url  # noqa B018
 
     async def test_is_available_is_available(self, mocker: MockerFixture) -> None:
+        m_from_env = mocker.patch("docker.from_env")
+        m_from_env.return_value = mocker.Mock("docker.client.DockerClient")
         async with App.new_temporary() as app, app:
-            app.project.configuration.extensions.enable(Nginx)
-            sut = DockerizedNginxServer(app)
-
-            m_from_env = mocker.patch("docker.from_env")
-            m_from_env.return_value = mocker.Mock("docker.client.DockerClient")
-
-            assert sut.is_available()
+            project = Project(app)
+            project.configuration.extensions.enable(Nginx)
+            async with project:
+                sut = DockerizedNginxServer(project)
+                assert sut.is_available()
 
     async def test_is_available_is_unavailable(self, mocker: MockerFixture) -> None:
+        m_from_env = mocker.patch("docker.from_env")
+        m_from_env.side_effect = DockerException()
         async with App.new_temporary() as app, app:
-            app.project.configuration.extensions.enable(Nginx)
-            sut = DockerizedNginxServer(app)
+            project = Project(app)
+            project.configuration.extensions.enable(Nginx)
+            async with project:
+                sut = DockerizedNginxServer(project)
 
-            m_from_env = mocker.patch("docker.from_env")
-            m_from_env.side_effect = DockerException()
-
-            assert not sut.is_available()
+                assert not sut.is_available()

@@ -15,8 +15,7 @@ from betty.model import get_entity_type_name, Entity
 from betty.string import camel_case_to_kebab_case
 
 if TYPE_CHECKING:
-    from betty.project import ProjectConfiguration
-    from betty.app import App
+    from betty.project import ProjectConfiguration, Project
 
 
 class LocalizedUrlGenerator:
@@ -58,8 +57,8 @@ class LocalizedPathUrlGenerator(LocalizedUrlGenerator):
     Generate URLs for localizable file paths.
     """
 
-    def __init__(self, app: App):
-        self._app = app
+    def __init__(self, project: Project):
+        self._project = project
 
     @override
     def generate(
@@ -70,10 +69,10 @@ class LocalizedPathUrlGenerator(LocalizedUrlGenerator):
         locale: Localey | None = None,
     ) -> str:
         return _generate_from_path(
-            self._app.project.configuration,
+            self._project.configuration,
             resource,
             absolute,
-            self._app.localizer.locale if locale is None else locale,
+            self._project.app.localizer.locale if locale is None else locale,
         )
 
 
@@ -95,8 +94,8 @@ class StaticPathUrlGenerator(StaticUrlGenerator):
 
 
 class _EntityUrlGenerator(LocalizedUrlGenerator):
-    def __init__(self, app: App, entity_type: type[Entity]):
-        self._app = app
+    def __init__(self, project: Project, entity_type: type[Entity]):
+        self._project = project
         self._entity_type = entity_type
         self._pattern = f"{camel_case_to_kebab_case(get_entity_type_name(entity_type))}/{{entity_id}}/index.{{extension}}"
 
@@ -114,7 +113,7 @@ class _EntityUrlGenerator(LocalizedUrlGenerator):
         if media_type == "text/html":
             extension = "html"
             if locale is None:
-                locale = self._app.localizer.locale
+                locale = self._project.app.localizer.locale
         elif media_type == "application/json":
             extension = "json"
             locale = None
@@ -122,7 +121,7 @@ class _EntityUrlGenerator(LocalizedUrlGenerator):
             raise ValueError(f'Unknown entity media type "{media_type}".')
 
         return _generate_from_path(
-            self._app.project.configuration,
+            self._project.configuration,
             self._pattern.format(
                 entity_id=quote(resource.id),
                 extension=extension,
@@ -132,18 +131,18 @@ class _EntityUrlGenerator(LocalizedUrlGenerator):
         )
 
 
-class AppUrlGenerator(LocalizedUrlGenerator):
+class ProjectUrlGenerator(LocalizedUrlGenerator):
     """
-    Generate URLs for all resources provided by a Betty application.
+    Generate URLs for all resources provided by a Betty project.
     """
 
-    def __init__(self, app: App):
+    def __init__(self, project: Project):
         self._generators = [
             *(
-                _EntityUrlGenerator(app, entity_type)
-                for entity_type in app.entity_types
+                _EntityUrlGenerator(project, entity_type)
+                for entity_type in project.entity_types
             ),
-            LocalizedPathUrlGenerator(app),
+            LocalizedPathUrlGenerator(project),
         ]
 
     @override

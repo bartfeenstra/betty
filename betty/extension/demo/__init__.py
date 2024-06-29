@@ -4,14 +4,13 @@ Provide demonstration site functionality.
 
 from __future__ import annotations
 
-from contextlib import AsyncExitStack
+from contextlib import AsyncExitStack, asynccontextmanager
 from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
 from betty import load, generate, serve
-from betty.app import App
-from betty.app.extension import Extension
+from betty.project.extension import Extension
 from betty.extension.cotton_candy import CottonCandyConfiguration
 from betty.load import Loader
 from betty.locale import Date, DateRange, Str, DEFAULT_LOCALIZER, Localizable
@@ -39,6 +38,8 @@ from betty.project import (
 from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
 
 if TYPE_CHECKING:
+    from betty.app import App
+    from collections.abc import AsyncIterator
     from betty.model import Entity
 
 
@@ -60,54 +61,7 @@ class Demo(Extension, Loader):
         return {CottonCandy, HttpApiDoc, Maps, Trees, Wikipedia}
 
     def _load(self, *entities: Entity) -> None:
-        self._app.project.ancestry.add(*entities)
-
-    @classmethod
-    def project(cls) -> Project:
-        """
-        Create a new demonstration project.
-        """
-        from betty.extension import CottonCandy, Demo
-
-        project = Project()
-        project.configuration.name = cls.name()
-        project.configuration.extensions.append(ExtensionConfiguration(Demo))
-        project.configuration.extensions.append(
-            ExtensionConfiguration(
-                CottonCandy,
-                extension_configuration=CottonCandyConfiguration(
-                    featured_entities=[
-                        EntityReference(Place, "betty-demo-amsterdam"),
-                        EntityReference(Person, "betty-demo-liberta-lankester"),
-                        EntityReference(Place, "betty-demo-netherlands"),
-                    ],
-                ),
-            )
-        )
-        # Include all of the translations Betty ships with.
-        project.configuration.locales.replace(
-            LocaleConfiguration(
-                "en-US",
-                alias="en",
-            ),
-            LocaleConfiguration(
-                "nl-NL",
-                alias="nl",
-            ),
-            LocaleConfiguration(
-                "fr-FR",
-                alias="fr",
-            ),
-            LocaleConfiguration(
-                "uk",
-                alias="uk",
-            ),
-            LocaleConfiguration(
-                "de-DE",
-                alias="de",
-            ),
-        )
-        return project
+        self._project.ancestry.add(*entities)
 
     @override
     async def load(self) -> None:
@@ -528,25 +482,17 @@ class DemoServer(Server):
 
     @override
     async def start(self) -> None:
-        from betty.extension import Demo
-
         await super().start()
-        project = Demo.project()
-        isolated_app_factory = App.new_from_app(
-            self._app,
-            project=project,
-        )
         try:
-            isolated_app = await self._exit_stack.enter_async_context(
-                isolated_app_factory
+            project = await self._exit_stack.enter_async_context(
+                demo_project(self._app)
             )
-            await self._exit_stack.enter_async_context(isolated_app)
-            self._localizer = isolated_app.localizer
-            await load.load(isolated_app)
-            self._server = serve.BuiltinAppServer(isolated_app)
+            self._localizer = self._app.localizer
+            await load.load(project)
+            self._server = serve.BuiltinProjectServer(project)
             await self._exit_stack.enter_async_context(self._server)
-            isolated_app.project.configuration.base_url = self._server.public_url
-            await generate.generate(isolated_app)
+            project.configuration.base_url = self._server.public_url
+            await generate.generate(project)
         except BaseException:
             await self.stop()
             raise
@@ -556,3 +502,52 @@ class DemoServer(Server):
     async def stop(self) -> None:
         await self._exit_stack.aclose()
         await super().stop()
+
+
+@asynccontextmanager
+async def demo_project(app: App) -> AsyncIterator[Project]:
+    """
+    Create a new demonstration project.
+    """
+    from betty.extension import CottonCandy
+
+    project = Project(app)
+    project.configuration.name = Demo.name()
+    project.configuration.extensions.append(ExtensionConfiguration(Demo))
+    project.configuration.extensions.append(
+        ExtensionConfiguration(
+            CottonCandy,
+            extension_configuration=CottonCandyConfiguration(
+                featured_entities=[
+                    EntityReference(Place, "betty-demo-amsterdam"),
+                    EntityReference(Person, "betty-demo-liberta-lankester"),
+                    EntityReference(Place, "betty-demo-netherlands"),
+                ],
+            ),
+        )
+    )
+    # Include all of the translations Betty ships with.
+    project.configuration.locales.replace(
+        LocaleConfiguration(
+            "en-US",
+            alias="en",
+        ),
+        LocaleConfiguration(
+            "nl-NL",
+            alias="nl",
+        ),
+        LocaleConfiguration(
+            "fr-FR",
+            alias="fr",
+        ),
+        LocaleConfiguration(
+            "uk",
+            alias="uk",
+        ),
+        LocaleConfiguration(
+            "de-DE",
+            alias="de",
+        ),
+    )
+    async with project:
+        yield project

@@ -3,8 +3,8 @@ Provide the OpenAPI specification.
 """
 
 from betty import about
-from betty.app import App
 from betty.model import get_entity_type_name, UserFacingEntity
+from betty.project import Project
 from betty.serde.dump import DictDump, Dump
 from betty.string import camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
 
@@ -14,8 +14,8 @@ class Specification:
     Build OpenAPI specifications.
     """
 
-    def __init__(self, app: App):
-        self._app = app
+    def __init__(self, project: Project):
+        self._project = project
 
     async def build(self) -> DictDump[Dump]:
         """
@@ -25,7 +25,9 @@ class Specification:
             "openapi": "3.1.0",
             "servers": [
                 {
-                    "url": self._app.static_url_generator.generate("/", absolute=True),
+                    "url": self._project.static_url_generator.generate(
+                        "/", absolute=True
+                    ),
                 }
             ],
             "info": {
@@ -79,7 +81,7 @@ class Specification:
                 },
                 "schemas": {
                     "betty": {
-                        "$ref": self._app.static_url_generator.generate(
+                        "$ref": self._project.static_url_generator.generate(
                             "/schema.json#/definitions"
                         ),
                     },
@@ -88,14 +90,14 @@ class Specification:
         }
 
         # Add entity operations.
-        for entity_type in self._app.entity_types:
+        for entity_type in self._project.entity_types:
             if not issubclass(entity_type, UserFacingEntity):
                 continue
             entity_type_name = get_entity_type_name(entity_type)
             entity_type_url_name = camel_case_to_kebab_case(
                 get_entity_type_name(entity_type)
             )
-            if self._app.project.configuration.clean_urls:
+            if self._project.configuration.clean_urls:
                 collection_path = f"/{entity_type_url_name}/"
                 single_path = f"/{entity_type_url_name}/{{id}}/"
             else:

@@ -6,20 +6,22 @@ from requests import Response
 
 from betty.app import App
 from betty.functools import Do
-from betty.serve import BuiltinAppServer
+from betty.project import Project
+from betty.serve import BuiltinProjectServer
 
 
-class TestBuiltinServer:
-    async def test(self, mocker: MockerFixture) -> None:
+class TestBuiltinProjectServer:
+    async def test(self, mocker: MockerFixture, new_temporary_app: App) -> None:
         mocker.patch("webbrowser.open_new_tab")
         content = "Hello, and welcome to my site!"
-        async with App.new_temporary() as app, app:
-            await makedirs(app.project.configuration.www_directory_path)
+        project = Project(new_temporary_app)
+        async with project:
+            await makedirs(project.configuration.www_directory_path)
             async with aiofiles.open(
-                app.project.configuration.www_directory_path / "index.html", "w"
+                project.configuration.www_directory_path / "index.html", "w"
             ) as f:
                 await f.write(content)
-            async with BuiltinAppServer(app) as server:
+            async with BuiltinProjectServer(project) as server:
 
                 def _assert_response(response: Response) -> None:
                     assert response.status_code == 200

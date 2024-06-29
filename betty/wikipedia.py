@@ -31,8 +31,8 @@ from betty.media_type import MediaType
 from betty.model.ancestry import Link, HasLinks, Place, File, HasFiles
 
 if TYPE_CHECKING:
+    from betty.project import Project
     from betty.fetch import Fetcher
-    from betty.app import App
     from collections.abc import (
         Sequence,
         MutableSequence,
@@ -330,8 +330,8 @@ class _Retriever:
 
 
 class _Populator:
-    def __init__(self, app: App, retriever: _Retriever):
-        self._app = app
+    def __init__(self, project: Project, retriever: _Retriever):
+        self._project = project
         self._retriever = retriever
         self._image_files: MutableMapping[Image, File] = {}
         self._image_files_locks: Mapping[Image, _Lock] = defaultdict(
@@ -339,11 +339,11 @@ class _Populator:
         )
 
     async def populate(self) -> None:
-        locales = [x.alias for x in self._app.project.configuration.locales.values()]
+        locales = [x.alias for x in self._project.configuration.locales.values()]
         await gather(
             *(
                 self._populate_entity(entity, locales)
-                for entity in self._app.project.ancestry
+                for entity in self._project.ancestry
                 if isinstance(entity, HasLinks)
             )
         )
@@ -437,7 +437,7 @@ class _Populator:
             # There are valid reasons for links in locales that aren't supported.
             with suppress(ValueError):
                 link.description = (
-                    await self._app.localizers.get_negotiated(link.locale)
+                    await self._project.app.localizers.get_negotiated(link.locale)
                 )._("Read more on Wikipedia.")
         if summary is not None and link.label is None:
             link.label = summary.title
@@ -494,8 +494,8 @@ class _Populator:
                 links = []
                 for (
                     locale_configuration
-                ) in self._app.project.configuration.locales.values():
-                    localizer = await self._app.localizers.get(
+                ) in self._project.configuration.locales.values():
+                    localizer = await self._project.app.localizers.get(
                         locale_configuration.locale
                     )
                     links.append(
@@ -519,5 +519,5 @@ class _Populator:
                     links=links,
                 )
                 self._image_files[image] = file
-                self._app.project.ancestry.add(file)
+                self._project.ancestry.add(file)
                 return file

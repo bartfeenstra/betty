@@ -4,6 +4,7 @@ from betty.app import App
 from betty.load import load
 from betty.model import Entity
 from betty.model.ancestry import HasLinksEntity, Link
+from betty.project import Project
 
 
 class DummyHasLinks(HasLinksEntity, Entity):
@@ -25,8 +26,10 @@ class TestLoad:
         )
 
         link = Link(link_url)
-        new_temporary_app.project.ancestry.add(DummyHasLinks(links=[link]))
-        await load(new_temporary_app)
+        project = Project(new_temporary_app)
+        project.ancestry.add(DummyHasLinks(links=[link]))
+        async with project:
+            await load(project)
 
         assert link.label is None
         assert link.description is None
@@ -54,8 +57,10 @@ class TestLoad:
         )
 
         link = Link(link_url)
-        new_temporary_app.project.ancestry.add(DummyHasLinks(links=[link]))
-        await load(new_temporary_app)
+        project = Project(new_temporary_app)
+        project.ancestry.add(DummyHasLinks(links=[link]))
+        async with project:
+            await load(project)
 
         assert link.label is None
         assert link.description is None
@@ -86,8 +91,10 @@ class TestLoad:
         )
 
         link = Link(link_url)
-        new_temporary_app.project.ancestry.add(DummyHasLinks(links=[link]))
-        await load(new_temporary_app)
+        project = Project(new_temporary_app)
+        project.ancestry.add(DummyHasLinks(links=[link]))
+        async with project:
+            await load(project)
 
         assert link.label == link_page_title
 
@@ -114,8 +121,10 @@ class TestLoad:
         )
 
         link = Link(link_url)
-        new_temporary_app.project.ancestry.add(DummyHasLinks(links=[link]))
-        await load(new_temporary_app)
+        project = Project(new_temporary_app)
+        project.ancestry.add(DummyHasLinks(links=[link]))
+        async with project:
+            await load(project)
 
         assert link.label is None
 
@@ -147,7 +156,9 @@ class TestLoad:
         )
 
         link = Link(link_url)
-        new_temporary_app.project.ancestry.add(DummyHasLinks(links=[link]))
-        await load(new_temporary_app)
+        project = Project(new_temporary_app)
+        project.ancestry.add(DummyHasLinks(links=[link]))
+        async with project:
+            await load(project)
 
         assert link.description == link_page_meta_description
