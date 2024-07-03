@@ -36,7 +36,7 @@ jobs:
       matrix:
         include:
           - name: macOS
-            os: macos-11
+            os: macos-latest
             dist_name: betty-macos
             python: '3.12'
           - name: Windows
