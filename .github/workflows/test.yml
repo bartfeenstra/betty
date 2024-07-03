@@ -75,6 +75,8 @@ jobs:
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
+        with:
+          node-version-file: ./package.json
 
       - name: Install APT dependencies
         if: startsWith(runner.os, 'Linux')
