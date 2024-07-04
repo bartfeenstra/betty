@@ -1,4 +1,4 @@
-from betty.typing import internal
+from betty.typing import internal, public
 
 
 class TestInternal:
@@ -6,6 +6,17 @@ class TestInternal:
         sentinel = object()
 
         @internal
+        def _target() -> object:
+            return sentinel
+
+        assert _target() is sentinel
+
+
+class TestPublic:
+    def test(self) -> None:
+        sentinel = object()
+
+        @public
         def _target() -> object:
             return sentinel
 
