@@ -9,13 +9,15 @@ site from the entire project.
 from __future__ import annotations
 
 import operator
-from contextlib import suppress
+from contextlib import suppress, asynccontextmanager
 from functools import reduce
 from graphlib import TopologicalSorter, CycleError
+from pathlib import Path
 from reprlib import recursive_repr
 from typing import Any, Generic, final, Iterable, cast, Self, TYPE_CHECKING, TypeVar
 from urllib.parse import urlparse
 
+from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
 from betty import fs
@@ -101,10 +103,10 @@ from betty.assertion import (
 from betty.assertion.error import AssertionFailed
 
 if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
     from betty.app import App
     from betty.dispatch import Dispatcher
     from betty.url import LocalizedUrlGenerator, StaticUrlGenerator
-    from pathlib import Path
     from betty.jinja2 import Environment
 
 
@@ -773,6 +775,7 @@ class ProjectConfiguration(FileBasedConfiguration):
 
     def __init__(
         self,
+        configuration_file_path: Path,
         *,
         base_url: str | None = None,
         root_path: str = "",
@@ -786,7 +789,7 @@ class ProjectConfiguration(FileBasedConfiguration):
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
         name: str | None = None,
     ):
-        super().__init__()
+        super().__init__(configuration_file_path)
         self._name = name
         self._computed_name: str | None = None
         self._base_url = "https://example.com" if base_url is None else base_url
@@ -1078,12 +1081,13 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
     def __init__(
         self,
         app: App,
+        configuration: ProjectConfiguration,
         *,
         ancestry: Ancestry | None = None,
     ):
         super().__init__()
         self._app = app
-        self._configuration = ProjectConfiguration()
+        self._configuration = configuration
         self._ancestry = Ancestry() if ancestry is None else ancestry
 
         self._assets: AssetRepository | None = None
@@ -1096,6 +1100,26 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
         self._dispatcher: ExtensionDispatcher | None = None
         self._entity_types: set[type[Entity]] | None = None
         self._event_types: set[type[EventType]] | None = None
+
+    @classmethod
+    @asynccontextmanager
+    async def new_temporary(
+        cls, app: App, *, ancestry: Ancestry | None = None
+    ) -> AsyncIterator[Self]:
+        """
+        Creat a new, temporary, isolated project.
+
+        The project will not leave any traces on the system, except when it uses
+        global Betty functionality such as caches.
+        """
+        async with (
+            TemporaryDirectory() as project_directory_path_str,
+        ):
+            yield cls(
+                app,
+                ProjectConfiguration(Path(project_directory_path_str) / "betty.json"),
+                ancestry=ancestry,
+            )
 
     @property
     def app(self) -> App:

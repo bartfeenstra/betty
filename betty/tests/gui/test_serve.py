@@ -35,7 +35,7 @@ class TestServeProjectWindow:
     ) -> None:
         mocker.patch("betty.extension.demo.DemoServer", new=NoOpProjectServer)
         mocker.patch("betty.serve.BuiltinProjectServer", new=NoOpProjectServer)
-        async with Project(new_temporary_app) as project:
+        async with Project.new_temporary(new_temporary_app) as project, project:
             sut = ServeProjectWindow(project)
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()

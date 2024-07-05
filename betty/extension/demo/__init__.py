@@ -512,43 +512,43 @@ async def demo_project(app: App) -> AsyncIterator[Project]:
     """
     from betty.extension import CottonCandy
 
-    project = Project(app)
-    project.configuration.name = Demo.name()
-    project.configuration.extensions.append(ExtensionConfiguration(Demo))
-    project.configuration.extensions.append(
-        ExtensionConfiguration(
-            CottonCandy,
-            extension_configuration=CottonCandyConfiguration(
-                featured_entities=[
-                    EntityReference(Place, "betty-demo-amsterdam"),
-                    EntityReference(Person, "betty-demo-liberta-lankester"),
-                    EntityReference(Place, "betty-demo-netherlands"),
-                ],
+    async with Project.new_temporary(app) as project:
+        project.configuration.name = Demo.name()
+        project.configuration.extensions.append(ExtensionConfiguration(Demo))
+        project.configuration.extensions.append(
+            ExtensionConfiguration(
+                CottonCandy,
+                extension_configuration=CottonCandyConfiguration(
+                    featured_entities=[
+                        EntityReference(Place, "betty-demo-amsterdam"),
+                        EntityReference(Person, "betty-demo-liberta-lankester"),
+                        EntityReference(Place, "betty-demo-netherlands"),
+                    ],
+                ),
+            )
+        )
+        # Include all of the translations Betty ships with.
+        project.configuration.locales.replace(
+            LocaleConfiguration(
+                "en-US",
+                alias="en",
+            ),
+            LocaleConfiguration(
+                "nl-NL",
+                alias="nl",
+            ),
+            LocaleConfiguration(
+                "fr-FR",
+                alias="fr",
+            ),
+            LocaleConfiguration(
+                "uk",
+                alias="uk",
+            ),
+            LocaleConfiguration(
+                "de-DE",
+                alias="de",
             ),
         )
-    )
-    # Include all of the translations Betty ships with.
-    project.configuration.locales.replace(
-        LocaleConfiguration(
-            "en-US",
-            alias="en",
-        ),
-        LocaleConfiguration(
-            "nl-NL",
-            alias="nl",
-        ),
-        LocaleConfiguration(
-            "fr-FR",
-            alias="fr",
-        ),
-        LocaleConfiguration(
-            "uk",
-            alias="uk",
-        ),
-        LocaleConfiguration(
-            "de-DE",
-            alias="de",
-        ),
-    )
-    async with project:
-        yield project
+        async with project:
+            yield project

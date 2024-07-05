@@ -29,8 +29,9 @@ class TestDockerizedNginxServer:
             assert response.headers["Cache-Control"] == "no-cache"
 
         content = "Hello, and welcome to my site!"
-        async with App.new_temporary() as app, app:
-            project = Project(app)
+        async with App.new_temporary() as app, app, Project.new_temporary(
+            app
+        ) as project:
             project.configuration.extensions.append(
                 ExtensionConfiguration(
                     Nginx,
@@ -48,8 +49,9 @@ class TestDockerizedNginxServer:
                 await Do(requests.get, server.public_url).until(_assert_response)
 
     async def test_public_url_unstarted(self) -> None:
-        async with App.new_temporary() as app, app:
-            project = Project(app)
+        async with App.new_temporary() as app, app, Project.new_temporary(
+            app
+        ) as project:
             project.configuration.extensions.enable(Nginx)
             async with project:
                 sut = DockerizedNginxServer(project)
@@ -59,8 +61,9 @@ class TestDockerizedNginxServer:
     async def test_is_available_is_available(self, mocker: MockerFixture) -> None:
         m_from_env = mocker.patch("docker.from_env")
         m_from_env.return_value = mocker.Mock("docker.client.DockerClient")
-        async with App.new_temporary() as app, app:
-            project = Project(app)
+        async with App.new_temporary() as app, app, Project.new_temporary(
+            app
+        ) as project:
             project.configuration.extensions.enable(Nginx)
             async with project:
                 sut = DockerizedNginxServer(project)
@@ -69,8 +72,9 @@ class TestDockerizedNginxServer:
     async def test_is_available_is_unavailable(self, mocker: MockerFixture) -> None:
         m_from_env = mocker.patch("docker.from_env")
         m_from_env.side_effect = DockerException()
-        async with App.new_temporary() as app, app:
-            project = Project(app)
+        async with App.new_temporary() as app, app, Project.new_temporary(
+            app
+        ) as project:
             project.configuration.extensions.enable(Nginx)
             async with project:
                 sut = DockerizedNginxServer(project)

@@ -26,13 +26,13 @@ class TestLoad:
         )
 
         link = Link(link_url)
-        project = Project(new_temporary_app)
-        project.ancestry.add(DummyHasLinks(links=[link]))
-        async with project:
-            await load(project)
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.ancestry.add(DummyHasLinks(links=[link]))
+            async with project:
+                await load(project)
 
-        assert link.label is None
-        assert link.description is None
+            assert link.label is None
+            assert link.description is None
 
     @pytest.mark.parametrize(
         ("link_page_content_type"),
@@ -57,13 +57,13 @@ class TestLoad:
         )
 
         link = Link(link_url)
-        project = Project(new_temporary_app)
-        project.ancestry.add(DummyHasLinks(links=[link]))
-        async with project:
-            await load(project)
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.ancestry.add(DummyHasLinks(links=[link]))
+            async with project:
+                await load(project)
 
-        assert link.label is None
-        assert link.description is None
+            assert link.label is None
+            assert link.description is None
 
     @pytest.mark.parametrize(
         ("link_page_content_type"),
@@ -91,12 +91,12 @@ class TestLoad:
         )
 
         link = Link(link_url)
-        project = Project(new_temporary_app)
-        project.ancestry.add(DummyHasLinks(links=[link]))
-        async with project:
-            await load(project)
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.ancestry.add(DummyHasLinks(links=[link]))
+            async with project:
+                await load(project)
 
-        assert link.label == link_page_title
+            assert link.label == link_page_title
 
     @pytest.mark.parametrize(
         ("link_page_content_type"),
@@ -121,12 +121,12 @@ class TestLoad:
         )
 
         link = Link(link_url)
-        project = Project(new_temporary_app)
-        project.ancestry.add(DummyHasLinks(links=[link]))
-        async with project:
-            await load(project)
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.ancestry.add(DummyHasLinks(links=[link]))
+            async with project:
+                await load(project)
 
-        assert link.label is None
+            assert link.label is None
 
     @pytest.mark.parametrize(
         ("link_page_content_type", "meta_attr_name", "meta_attr_value"),
@@ -156,9 +156,9 @@ class TestLoad:
         )
 
         link = Link(link_url)
-        project = Project(new_temporary_app)
-        project.ancestry.add(DummyHasLinks(links=[link]))
-        async with project:
-            await load(project)
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.ancestry.add(DummyHasLinks(links=[link]))
+            async with project:
+                await load(project)
 
-        assert link.description == link_page_meta_description
+            assert link.description == link_page_meta_description

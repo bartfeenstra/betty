@@ -9,9 +9,7 @@ import weakref
 from collections import OrderedDict
 from collections.abc import Callable
 from contextlib import chdir
-from pathlib import Path
 from reprlib import recursive_repr
-from tempfile import TemporaryDirectory
 from typing import (
     Generic,
     Iterable,
@@ -24,7 +22,6 @@ from typing import (
     Any,
     Sequence,
     overload,
-    cast,
     Self,
     TypeAlias,
     TYPE_CHECKING,
@@ -45,6 +42,7 @@ from betty.serde.format import FormatRepository
 from betty.typing import Void
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from _weakref import ReferenceType
 
 
@@ -112,10 +110,9 @@ class FileBasedConfiguration(Configuration):
     Any configuration that is stored in a file on disk.
     """
 
-    def __init__(self):
+    def __init__(self, configuration_file_path: Path):
         super().__init__()
-        self._configuration_directory: TemporaryDirectory | None = None  # type: ignore[type-arg]
-        self._configuration_file_path: Path | None = None
+        self._configuration_file_path = configuration_file_path
         self._autowrite = False
 
     @property
@@ -196,28 +193,12 @@ class FileBasedConfiguration(Configuration):
                     )
                 )
 
-    def __del__(self) -> None:
-        if (
-            hasattr(self, "_configuration_directory")
-            and self._configuration_directory is not None
-        ):
-            self._configuration_directory.cleanup()
-
     @property
     def configuration_file_path(self) -> Path:
         """
         The path to the configuration's file.
         """
-        if self._configuration_file_path is None:
-            if self._configuration_directory is None:
-                self._configuration_directory = TemporaryDirectory()
-            wait_to_thread(
-                self._write(
-                    Path(self._configuration_directory.name)
-                    / f"{type(self).__name__}.json"
-                )
-            )
-        return cast(Path, self._configuration_file_path)
+        return self._configuration_file_path
 
     @configuration_file_path.setter
     def configuration_file_path(self, configuration_file_path: Path) -> None:
@@ -226,14 +207,6 @@ class FileBasedConfiguration(Configuration):
         formats = FormatRepository()
         formats.format_for(configuration_file_path.suffix[1:])
         self._configuration_file_path = configuration_file_path
-
-    @configuration_file_path.deleter
-    def configuration_file_path(self) -> None:
-        if self._autowrite:
-            raise RuntimeError(
-                "Cannot remove the configuration file path while autowrite is enabled."
-            )
-        self._configuration_file_path = None
 
 
 ConfigurationKey: TypeAlias = SupportsIndex | Hashable | type[Any]

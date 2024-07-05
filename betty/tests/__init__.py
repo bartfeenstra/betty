@@ -68,8 +68,9 @@ class TemplateTestCase:
             raise RuntimeError(
                 f"You must define one of `template_string`, `template_file`, `{class_name}.template_string`, or `{class_name}.template_file`."
             )
-        async with App.new_temporary() as app, app:
-            project = Project(app)
+        async with App.new_temporary() as app, app, Project.new_temporary(
+            app
+        ) as project:
             project.configuration.debug = True
             if data is None:
                 data = {}

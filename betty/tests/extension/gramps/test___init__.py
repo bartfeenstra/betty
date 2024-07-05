@@ -125,37 +125,37 @@ class TestGramps:
             async with aiofiles.open(gramps_family_tree_two_path, mode="w") as f:
                 await f.write(family_tree_two_xml)
 
-            project = Project(new_temporary_app)
-            project.configuration.extensions.append(
-                ExtensionConfiguration(
-                    Gramps,
-                    extension_configuration=GrampsConfiguration(
-                        family_trees=[
-                            FamilyTreeConfiguration(
-                                file_path=gramps_family_tree_one_path
-                            ),
-                            FamilyTreeConfiguration(
-                                file_path=gramps_family_tree_two_path
-                            ),
-                        ],
-                    ),
+            async with Project.new_temporary(new_temporary_app) as project:
+                project.configuration.extensions.append(
+                    ExtensionConfiguration(
+                        Gramps,
+                        extension_configuration=GrampsConfiguration(
+                            family_trees=[
+                                FamilyTreeConfiguration(
+                                    file_path=gramps_family_tree_one_path
+                                ),
+                                FamilyTreeConfiguration(
+                                    file_path=gramps_family_tree_two_path
+                                ),
+                            ],
+                        ),
+                    )
                 )
-            )
-            async with project:
-                await load(project)
-            assert "O0001" in project.ancestry[File]
-            assert "O0002" in project.ancestry[File]
-            assert "I0001" in project.ancestry[Person]
-            assert "I0002" in project.ancestry[Person]
-            assert "P0001" in project.ancestry[Place]
-            assert "P0002" in project.ancestry[Place]
-            assert "E0001" in project.ancestry[Event]
-            assert "E0002" in project.ancestry[Event]
-            assert "S0001" in project.ancestry[Source]
-            assert "S0002" in project.ancestry[Source]
-            assert "R0001" in project.ancestry[Source]
-            assert "R0002" in project.ancestry[Source]
-            assert "C0001" in project.ancestry[Citation]
-            assert "C0002" in project.ancestry[Citation]
-            assert "N0001" in project.ancestry[Note]
-            assert "N0002" in project.ancestry[Note]
+                async with project:
+                    await load(project)
+                assert "O0001" in project.ancestry[File]
+                assert "O0002" in project.ancestry[File]
+                assert "I0001" in project.ancestry[Person]
+                assert "I0002" in project.ancestry[Person]
+                assert "P0001" in project.ancestry[Place]
+                assert "P0002" in project.ancestry[Place]
+                assert "E0001" in project.ancestry[Event]
+                assert "E0002" in project.ancestry[Event]
+                assert "S0001" in project.ancestry[Source]
+                assert "S0002" in project.ancestry[Source]
+                assert "R0001" in project.ancestry[Source]
+                assert "R0002" in project.ancestry[Source]
+                assert "C0001" in project.ancestry[Citation]
+                assert "C0002" in project.ancestry[Citation]
+                assert "N0001" in project.ancestry[Note]
+                assert "N0002" in project.ancestry[Note]

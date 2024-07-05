@@ -49,12 +49,12 @@ class TestPrivatizer:
         )
         citation.files.add(citation_file)
 
-        project = Project(new_temporary_app)
-        project.configuration.extensions.append(ExtensionConfiguration(Privatizer))
-        project.ancestry.add(person, source, citation)
-        async with project:
-            await load(project)
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.append(ExtensionConfiguration(Privatizer))
+            project.ancestry.add(person, source, citation)
+            async with project:
+                await load(project)
 
-        assert person.private
-        assert source_file.private
-        assert citation_file.private
+            assert person.private
+            assert source_file.private
+            assert citation_file.private

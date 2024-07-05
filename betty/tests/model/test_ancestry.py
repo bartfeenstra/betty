@@ -54,8 +54,7 @@ if TYPE_CHECKING:
 async def assert_dumps_linked_data(
     dumpable: LinkedDataDumpable, schema_definition: str | None = None
 ) -> DictDump[Dump]:
-    async with App.new_temporary() as app, app:
-        project = Project(app)
+    async with App.new_temporary() as app, app, Project.new_temporary(app) as project:
         project.configuration.locales["en-US"].alias = "en"
         project.configuration.locales.append(
             LocaleConfiguration(
@@ -71,7 +70,8 @@ async def assert_dumps_linked_data(
                 actual_to_be_validated = copy(actual)
                 actual_to_be_validated["$schema"] = (
                     project.static_url_generator.generate(
-                        f"schema.json#/definitions/{schema_definition}", absolute=True
+                        f"schema.json#/definitions/{schema_definition}",
+                        absolute=True,
                     )
                 )
             schema = Schema(project)

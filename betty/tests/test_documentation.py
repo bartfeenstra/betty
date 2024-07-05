@@ -73,7 +73,7 @@ class TestDocumentation:
         ],
     )
     async def test_should_contain_valid_configuration(
-        self, language: str, serde_format: Format
+        self, language: str, serde_format: Format, tmp_path: Path
     ) -> None:
         async with aiofiles.open(
             ROOT_DIRECTORY_PATH
@@ -91,5 +91,5 @@ class TestDocumentation:
         assert match is not None
         dump = match[1]
         assert dump is not None
-        configuration = ProjectConfiguration()
+        configuration = ProjectConfiguration(tmp_path / "betty.json")
         configuration.load(serde_format.load(dump))

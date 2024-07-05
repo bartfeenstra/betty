@@ -33,8 +33,9 @@ class TestNginx:
     async def server(
         self, configuration: ProjectConfiguration
     ) -> AsyncIterator[Server]:
-        async with App.new_temporary() as app, app:
-            project = Project(app)
+        async with App.new_temporary() as app, app, Project.new_temporary(
+            app
+        ) as project:
             project.configuration.update(configuration)
             async with project:
                 await generate.generate(project)
@@ -50,12 +51,16 @@ class TestNginx:
     async def assert_betty_json(self, response: Response) -> None:
         assert response.headers["Content-Type"] == "application/json"
         data = response.json()
-        async with App.new_temporary() as app, app, Project(app) as project:
+        async with App.new_temporary() as app, app, Project.new_temporary(
+            app
+        ) as project, project:
             schema = Schema(project)
             await schema.validate(data)
 
-    def monolingual_configuration(self) -> ProjectConfiguration:
+    @pytest.fixture()
+    def monolingual_configuration(self, tmp_path: Path) -> ProjectConfiguration:
         return ProjectConfiguration(
+            tmp_path / "betty.json",
             extensions=[
                 ExtensionConfiguration(
                     Nginx,
@@ -66,8 +71,12 @@ class TestNginx:
             ],
         )
 
-    def monolingual_clean_urls_configuration(self) -> ProjectConfiguration:
+    @pytest.fixture()
+    def monolingual_clean_urls_configuration(
+        self, tmp_path: Path
+    ) -> ProjectConfiguration:
         return ProjectConfiguration(
+            tmp_path / "betty.json",
             extensions=[
                 ExtensionConfiguration(
                     Nginx,
@@ -79,8 +88,10 @@ class TestNginx:
             clean_urls=True,
         )
 
-    def multilingual_configuration(self) -> ProjectConfiguration:
+    @pytest.fixture()
+    def multilingual_configuration(self, tmp_path: Path) -> ProjectConfiguration:
         return ProjectConfiguration(
+            tmp_path / "betty.json",
             extensions=[
                 ExtensionConfiguration(
                     Nginx,
@@ -101,8 +112,12 @@ class TestNginx:
             ],
         )
 
-    def multilingual_clean_urls_configuration(self) -> ProjectConfiguration:
+    @pytest.fixture()
+    def multilingual_clean_urls_configuration(
+        self, tmp_path: Path
+    ) -> ProjectConfiguration:
         return ProjectConfiguration(
+            tmp_path / "betty.json",
             extensions=[
                 ExtensionConfiguration(
                     Nginx,
@@ -132,22 +147,28 @@ class TestNginx:
 
         return _assert
 
-    async def test_front_page(self):
-        async with self.server(self.monolingual_clean_urls_configuration()) as server:
+    async def test_front_page(
+        self, monolingual_clean_urls_configuration: ProjectConfiguration
+    ):
+        async with self.server(monolingual_clean_urls_configuration) as server:
             await Do(requests.get, server.public_url).until(
                 self._build_assert_status_code(200),
                 self.assert_betty_html,
             )
 
-    async def test_default_html_404(self):
-        async with self.server(self.monolingual_clean_urls_configuration()) as server:
+    async def test_default_html_404(
+        self, monolingual_clean_urls_configuration: ProjectConfiguration
+    ):
+        async with self.server(monolingual_clean_urls_configuration) as server:
             await Do(requests.get, f"{server.public_url}/non-existent-path/").until(
                 self._build_assert_status_code(404),
                 self.assert_betty_html,
             )
 
-    async def test_negotiated_json_404(self):
-        async with self.server(self.monolingual_clean_urls_configuration()) as server:
+    async def test_negotiated_json_404(
+        self, monolingual_clean_urls_configuration: ProjectConfiguration
+    ):
+        async with self.server(monolingual_clean_urls_configuration) as server:
             await Do(
                 requests.get,
                 f"{server.public_url}/non-existent-path/",
@@ -159,35 +180,41 @@ class TestNginx:
                 self.assert_betty_json,
             )
 
-    async def test_default_localized_front_page(self):
+    async def test_default_localized_front_page(
+        self, multilingual_configuration: ProjectConfiguration
+    ):
         async def _assert_response(response: Response) -> None:
             assert response.status_code == 200
             assert response.headers["Content-Language"] == "en"
             assert f"{server.public_url}/en/" == response.url
             await self.assert_betty_html(response)
 
-        async with self.server(self.multilingual_configuration()) as server:
+        async with self.server(multilingual_configuration) as server:
             await Do(requests.get, server.public_url).until(_assert_response)
 
-    async def test_explicitly_localized_404(self):
+    async def test_explicitly_localized_404(
+        self, multilingual_configuration: ProjectConfiguration
+    ):
         async def _assert_response(response: Response) -> None:
             assert response.status_code == 404
             assert response.headers["Content-Language"] == "nl"
             await self.assert_betty_html(response)
 
-        async with self.server(self.multilingual_configuration()) as server:
+        async with self.server(multilingual_configuration) as server:
             await Do(requests.get, f"{server.public_url}/nl/non-existent-path/").until(
                 _assert_response
             )
 
-    async def test_negotiated_localized_front_page(self):
+    async def test_negotiated_localized_front_page(
+        self, multilingual_clean_urls_configuration: ProjectConfiguration
+    ):
         async def _assert_response(response: Response) -> None:
             assert response.status_code == 200
             assert response.headers["Content-Language"] == "nl"
             assert f"{server.public_url}/nl/" == response.url
             await self.assert_betty_html(response)
 
-        async with self.server(self.multilingual_clean_urls_configuration()) as server:
+        async with self.server(multilingual_clean_urls_configuration) as server:
             await Do(
                 requests.get,
                 server.public_url,
@@ -196,8 +223,10 @@ class TestNginx:
                 },
             ).until(_assert_response)
 
-    async def test_negotiated_localized_negotiated_json_404(self):
-        async with self.server(self.multilingual_clean_urls_configuration()) as server:
+    async def test_negotiated_localized_negotiated_json_404(
+        self, multilingual_clean_urls_configuration: ProjectConfiguration
+    ):
+        async with self.server(multilingual_clean_urls_configuration) as server:
             await Do(
                 requests.get,
                 f"{server.public_url}/non-existent-path/",
@@ -210,15 +239,19 @@ class TestNginx:
                 self.assert_betty_json,
             )
 
-    async def test_default_html_resource(self):
-        async with self.server(self.monolingual_clean_urls_configuration()) as server:
+    async def test_default_html_resource(
+        self, monolingual_clean_urls_configuration: ProjectConfiguration
+    ):
+        async with self.server(monolingual_clean_urls_configuration) as server:
             await Do(requests.get, f"{server.public_url}/place/").until(
                 self._build_assert_status_code(200),
                 self.assert_betty_html,
             )
 
-    async def test_negotiated_html_resource(self):
-        async with self.server(self.monolingual_clean_urls_configuration()) as server:
+    async def test_negotiated_html_resource(
+        self, monolingual_clean_urls_configuration: ProjectConfiguration
+    ):
+        async with self.server(monolingual_clean_urls_configuration) as server:
             await Do(
                 requests.get,
                 f"{server.public_url}/place/",
@@ -230,8 +263,10 @@ class TestNginx:
                 self.assert_betty_html,
             )
 
-    async def test_negotiated_json_resource(self):
-        async with self.server(self.monolingual_clean_urls_configuration()) as server:
+    async def test_negotiated_json_resource(
+        self, monolingual_clean_urls_configuration: ProjectConfiguration
+    ):
+        async with self.server(monolingual_clean_urls_configuration) as server:
             await Do(
                 requests.get,
                 f"{server.public_url}/place/",
@@ -243,15 +278,21 @@ class TestNginx:
                 self.assert_betty_json,
             )
 
-    async def test_default_html_static_resource(self):
-        async with self.server(self.multilingual_clean_urls_configuration()) as server:
+    async def test_default_html_static_resource(
+        self, multilingual_clean_urls_configuration: ProjectConfiguration
+    ):
+        async with self.server(multilingual_clean_urls_configuration) as server:
             await Do(requests.get, f"{server.public_url}/non-existent-path/").until(
                 self._build_assert_status_code(404),
                 self.assert_betty_html,
             )
 
-    async def test_negotiated_html_static_resource(self, tmp_path: Path):
-        async with self.server(self.multilingual_clean_urls_configuration()) as server:
+    async def test_negotiated_html_static_resource(
+        self,
+        multilingual_clean_urls_configuration: ProjectConfiguration,
+        tmp_path: Path,
+    ):
+        async with self.server(multilingual_clean_urls_configuration) as server:
             await Do(
                 requests.get,
                 f"{server.public_url}/non-existent-path/",
@@ -263,8 +304,10 @@ class TestNginx:
                 self.assert_betty_html,
             )
 
-    async def test_negotiated_json_static_resource(self):
-        async with self.server(self.multilingual_clean_urls_configuration()) as server:
+    async def test_negotiated_json_static_resource(
+        self, multilingual_clean_urls_configuration: ProjectConfiguration
+    ):
+        async with self.server(multilingual_clean_urls_configuration) as server:
             await Do(
                 requests.get,
                 f"{server.public_url}/non-existent-path/",

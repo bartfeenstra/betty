@@ -32,7 +32,6 @@ from betty.fs import HOME_DIRECTORY_PATH
 from betty.locale import LocalizerRepository, get_data, DEFAULT_LOCALE, Localizer
 from betty.locale.localizable import _
 from betty.serde.dump import minimize, void_none, Dump, VoidableDump
-from betty.warnings import deprecate
 
 if TYPE_CHECKING:
     from betty.cache import Cache
@@ -48,31 +47,20 @@ class AppConfiguration(FileBasedConfiguration):
 
     def __init__(
         self,
-        configuration_directory_path: Path | None = None,
+        configuration_file_path: Path,
         *,
         locale: str | None = None,
     ):
-        if configuration_directory_path is None:
-            deprecate(
-                f"Initializing {type(self)} without a configuration directory path is deprecated as of Betty 0.3.3, and will be removed in Betty 0.4.x.",
-                stacklevel=2,
-            )
-            configuration_directory_path = CONFIGURATION_DIRECTORY_PATH
-        super().__init__()
-        self._configuration_directory_path = configuration_directory_path
+        super().__init__(configuration_file_path)
         self._locale: str | None = locale
 
     @override
     @property
     def configuration_file_path(self) -> Path:
-        return self._configuration_directory_path / "app.json"
+        return self._configuration_file_path
 
     @configuration_file_path.setter
     def configuration_file_path(self, __: Path) -> None:
-        pass
-
-    @configuration_file_path.deleter
-    def configuration_file_path(self) -> None:
         pass
 
     @property
@@ -148,7 +136,7 @@ class App(Configurable[AppConfiguration], CoreComponent):
         Create a new application from the environment.
         """
         yield cls(
-            AppConfiguration(CONFIGURATION_DIRECTORY_PATH),
+            AppConfiguration(CONFIGURATION_DIRECTORY_PATH / "app.json"),
             Path(environ.get("BETTY_CACHE_DIRECTORY", HOME_DIRECTORY_PATH / "cache")),
             cache_factory=lambda app: PickledFileCache[Any](
                 app.localizer, app._cache_directory_path
@@ -169,7 +157,7 @@ class App(Configurable[AppConfiguration], CoreComponent):
             TemporaryDirectory() as cache_directory_path_str,
         ):
             yield cls(
-                AppConfiguration(Path(configuration_directory_path_str)),
+                AppConfiguration(Path(configuration_directory_path_str) / "app.json"),
                 Path(cache_directory_path_str),
                 cache_factory=lambda app: NoOpCache(),
             )

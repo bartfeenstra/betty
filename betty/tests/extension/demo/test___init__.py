@@ -19,15 +19,15 @@ if TYPE_CHECKING:
 class TestDemo:
     async def test_load(self, mocker: MockerFixture, new_temporary_app: App) -> None:
         mocker.patch("betty.wikipedia._Populator.populate")
-        project = Project(new_temporary_app)
-        project.configuration.extensions.append(ExtensionConfiguration(Demo))
-        async with project:
-            await load(project)
-        assert len(project.ancestry[Person]) != 0
-        assert len(project.ancestry[Place]) != 0
-        assert len(project.ancestry[Event]) != 0
-        assert len(project.ancestry[Source]) != 0
-        assert len(project.ancestry[Citation]) != 0
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.append(ExtensionConfiguration(Demo))
+            async with project:
+                await load(project)
+            assert len(project.ancestry[Person]) != 0
+            assert len(project.ancestry[Place]) != 0
+            assert len(project.ancestry[Event]) != 0
+            assert len(project.ancestry[Source]) != 0
+            assert len(project.ancestry[Citation]) != 0
 
 
 class TestDemoServer:

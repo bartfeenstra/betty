@@ -157,7 +157,9 @@ def pass_project(
     ) -> Project:
         _init_ctx_app(ctx)
         app = ctx.obj["app"]
-        project = Project(app)
+        project: Project = ctx.with_resource(  # type: ignore[attr-defined]
+            SynchronizedContextManager(Project.new_temporary(app))
+        )
         wait_to_thread(_read_project_configuration(project, configuration_file_path))
         ctx.with_resource(  # type: ignore[attr-defined]
             SynchronizedContextManager(project)

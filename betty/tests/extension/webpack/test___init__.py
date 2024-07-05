@@ -12,7 +12,7 @@ from betty.extension.webpack import PrebuiltAssetsRequirement, Webpack
 from betty.extension.webpack.build import webpack_build_id
 from betty.generate import generate
 from betty.job import Context
-from betty.project import Project
+from betty.project import Project, ProjectConfiguration
 from betty.requirement import RequirementError
 
 
@@ -52,15 +52,15 @@ class TestWebpack:
         ) as f:
             await f.write(self._SENTINEL)
 
-        project = Project(new_temporary_app)
-        project.configuration.extensions.enable(Webpack)
-        async with project:
-            await generate(project)
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.enable(Webpack)
+            async with project:
+                await generate(project)
 
-            async with aiofiles.open(
-                project.configuration.www_directory_path / self._SENTINEL
-            ) as f:
-                assert await f.read() == self._SENTINEL
+                async with aiofiles.open(
+                    project.configuration.www_directory_path / self._SENTINEL
+                ) as f:
+                    assert await f.read() == self._SENTINEL
 
     async def test_generate_without_npm_with_prebuild(
         self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
@@ -80,14 +80,14 @@ class TestWebpack:
         original_prebuilt_assets_directory_path = fs.PREBUILT_ASSETS_DIRECTORY_PATH
         fs.PREBUILT_ASSETS_DIRECTORY_PATH = tmp_path
         try:
-            project = Project(new_temporary_app)
-            project.configuration.extensions.enable(Webpack)
-            async with project:
-                await generate(project)
-                async with aiofiles.open(
-                    project.configuration.www_directory_path / self._SENTINEL
-                ) as f:
-                    assert await f.read() == self._SENTINEL
+            async with Project.new_temporary(new_temporary_app) as project:
+                project.configuration.extensions.enable(Webpack)
+                async with project:
+                    await generate(project)
+                    async with aiofiles.open(
+                        project.configuration.www_directory_path / self._SENTINEL
+                    ) as f:
+                        assert await f.read() == self._SENTINEL
         finally:
             fs.PREBUILT_ASSETS_DIRECTORY_PATH = original_prebuilt_assets_directory_path
 
@@ -104,7 +104,10 @@ class TestWebpack:
             Path(prebuilt_assets_directory_path) / "does-not-exist"
         )
         try:
-            project = Project(new_temporary_app)
+            project = Project(
+                new_temporary_app,
+                ProjectConfiguration(tmp_path / "project" / "betty.json"),
+            )
             project.configuration.extensions.enable(Webpack)
             async with project:
                 with pytest.raises(ExceptionGroup) as exc_info:
@@ -136,17 +139,17 @@ class TestWebpack:
         fs.PREBUILT_ASSETS_DIRECTORY_PATH = prebuilt_assets_directory_path
         try:
             job_context = Context()
-            project = Project(new_temporary_app)
-            project.configuration.extensions.enable(Webpack)
-            async with project:
-                webpack = project.extensions[Webpack]
-                await webpack.prebuild(job_context)
-                async with aiofiles.open(
-                    prebuilt_assets_directory_path
-                    / "webpack"
-                    / f"build-{webpack_build_id(())}"
-                    / self._SENTINEL
-                ) as f:
-                    assert await f.read() == self._SENTINEL
+            async with Project.new_temporary(new_temporary_app) as project:
+                project.configuration.extensions.enable(Webpack)
+                async with project:
+                    webpack = project.extensions[Webpack]
+                    await webpack.prebuild(job_context)
+                    async with aiofiles.open(
+                        prebuilt_assets_directory_path
+                        / "webpack"
+                        / f"build-{webpack_build_id(())}"
+                        / self._SENTINEL
+                    ) as f:
+                        assert await f.read() == self._SENTINEL
         finally:
             fs.PREBUILT_ASSETS_DIRECTORY_PATH = original_prebuilt_assets_directory_path

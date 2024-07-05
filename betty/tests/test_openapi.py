@@ -23,9 +23,9 @@ class TestSpecification:
             Path(__file__).parent / "test_openapi_assets" / "openapi-schema.json"
         ) as f:
             schema = stdjson.loads(await f.read())
-        project = Project(new_temporary_app)
-        project.configuration.clean_urls = clean_urls
-        async with project:
-            sut = Specification(project)
-            specification = await sut.build()
-            jsonschema.validate(specification, schema)
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.clean_urls = clean_urls
+            async with project:
+                sut = Specification(project)
+                specification = await sut.build()
+                jsonschema.validate(specification, schema)

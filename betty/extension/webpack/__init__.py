@@ -54,18 +54,18 @@ async def _prebuild_webpack_assets() -> None:
     """
     async with App.new_temporary() as app, app:
         job_context = Context()
-        project = Project(app)
-        project.configuration.extensions.enable(Webpack)
-        project.configuration.extensions.enable(
-            *{
-                extension_type
-                for extension_type in discover_extension_types()
-                if issubclass(extension_type, WebpackEntryPointProvider)
-            }
-        )
-        async with project:
-            webpack = project.extensions[Webpack]
-            await webpack.prebuild(job_context=job_context)
+        async with Project.new_temporary(app) as project:
+            project.configuration.extensions.enable(Webpack)
+            project.configuration.extensions.enable(
+                *{
+                    extension_type
+                    for extension_type in discover_extension_types()
+                    if issubclass(extension_type, WebpackEntryPointProvider)
+                }
+            )
+            async with project:
+                webpack = project.extensions[Webpack]
+                await webpack.prebuild(job_context=job_context)
 
 
 class WebpackEntryPointProvider:

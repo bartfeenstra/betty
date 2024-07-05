@@ -37,7 +37,7 @@ class TestExtensionDispatcher:
             return self._multiplier * term
 
     async def test(self, new_temporary_app: App) -> None:
-        async with Project(new_temporary_app) as project:
+        async with Project.new_temporary(new_temporary_app) as project, project:
             extensions = ListExtensions(
                 [
                     [
