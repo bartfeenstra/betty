@@ -24,7 +24,7 @@ from typing_extensions import override
 from betty.error import UserFacingError
 from betty.gui.text import Code, Text
 from betty.gui.window import BettyMainWindow
-from betty.locale import Str, Localizable
+from betty.locale.localizable import plain, _, Localizable
 
 if TYPE_CHECKING:
     from PyQt6.QtGui import QCloseEvent
@@ -154,7 +154,7 @@ class Error(BettyMainWindow):
     @override
     @property
     def window_title(self) -> Localizable:
-        return Str.plain("{error} - Betty", error=Str._("Error"))
+        return plain("{error} - Betty".format(error=_("Error")))
 
     @override
     def _set_translatables(self) -> None:
@@ -212,10 +212,9 @@ class _UnexpectedExceptionError(ExceptionError):
     ):
         super().__init__(
             app,
-            Str._(
-                'An unexpected error occurred and Betty could not complete the task. Please <a href="{report_url}">report this problem</a> and include the following details, so the team behind Betty can address it.',
-                report_url="https://github.com/bartfeenstra/betty/issues",
-            ),
+            _(
+                'An unexpected error occurred and Betty could not complete the task. Please <a href="{report_url}">report this problem</a> and include the following details, so the team behind Betty can address it.'
+            ).format(report_url="https://github.com/bartfeenstra/betty/issues"),
             error_type,
             parent=parent,
             close_parent=close_parent,

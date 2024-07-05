@@ -10,10 +10,10 @@ from typing import TYPE_CHECKING
 from typing_extensions import override
 
 from betty import load, generate, serve
-from betty.project.extension import Extension
 from betty.extension.cotton_candy import CottonCandyConfiguration
 from betty.load import Loader
-from betty.locale import Date, DateRange, Str, DEFAULT_LOCALIZER, Localizable
+from betty.locale import Date, DateRange, DEFAULT_LOCALIZER
+from betty.locale.localizable import plain, _, Localizable
 from betty.model.ancestry import (
     Place,
     PlaceName,
@@ -35,6 +35,7 @@ from betty.project import (
     EntityReference,
     Project,
 )
+from betty.project.extension import Extension
 from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
 
 if TYPE_CHECKING:
@@ -335,7 +336,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
         cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam = Citation(
             id="betty-demo-birth-of-liberta-lankester-from-bevolkingsregister-amsterdam",
             source=bevolkingsregister_amsterdam,
-            location=Str.plain("Amsterdam"),
+            location=plain("Amsterdam"),
         )
         self._load(cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam)
 
@@ -471,7 +472,7 @@ class DemoServer(Server):
     @override
     @classmethod
     def label(cls) -> Localizable:
-        return Str._("Demo")
+        return _("Demo")
 
     @override
     @property

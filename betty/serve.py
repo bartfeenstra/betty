@@ -20,9 +20,10 @@ from typing_extensions import override
 
 from betty.error import UserFacingError
 from betty.functools import Do
-from betty.locale import Str, Localizer, Localizable
+from betty.locale.localizable import _, Localizable
 
 if TYPE_CHECKING:
+    from betty.locale import Localizer
     from betty.project import Project
     from types import TracebackType
 
@@ -130,7 +131,7 @@ class Server:
                 await Do[Any, None](self._assert_available, session).until()
             except Exception as error:
                 raise UserFacingError(
-                    Str._("The server was unreachable after starting.")
+                    _("The server was unreachable after starting.")
                 ) from error
 
     async def _assert_available(self, session: ClientSession) -> None:
@@ -189,7 +190,7 @@ class BuiltinServer(Server):
     @override
     @classmethod
     def label(cls) -> Localizable:
-        return Str._("Python built-in")
+        return _("Python built-in")
 
     @override
     async def start(self) -> None:
@@ -227,9 +228,7 @@ class BuiltinServer(Server):
                 )
                 break
         if self._http_server is None:
-            raise OsError(
-                Str._("Cannot find an available port to bind the web server to.")
-            )
+            raise OsError(_("Cannot find an available port to bind the web server to."))
         self._thread = threading.Thread(target=self._serve)
         self._thread.start()
         await self.assert_available()

@@ -17,6 +17,7 @@ from typing_extensions import override
 from betty import fs
 from betty._npm import NpmRequirement, NpmUnavailable
 from betty.app import App
+from betty.locale.localizable import _, Localizable
 from betty.project.extension import Extension, discover_extension_types
 from betty.extension.webpack import build
 from betty.extension.webpack.build import webpack_build_id
@@ -25,7 +26,6 @@ from betty.generate import Generator, GenerationContext
 from betty.html import CssProvider
 from betty.jinja2 import Jinja2Provider, Filters, ContextVars
 from betty.job import Context
-from betty.locale import Str, Localizable
 from betty.project import Project
 from betty.requirement import (
     Requirement,
@@ -103,9 +103,9 @@ class PrebuiltAssetsRequirement(Requirement):
     @override
     def summary(self) -> Localizable:
         return (
-            Str._("Pre-built Webpack front-end assets are available")
+            _("Pre-built Webpack front-end assets are available")
             if self.is_met()
-            else Str._("Pre-built Webpack front-end assets are unavailable")
+            else _("Pre-built Webpack front-end assets are unavailable")
         )
 
 

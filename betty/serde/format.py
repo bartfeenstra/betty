@@ -5,14 +5,17 @@ Provide serialization formats.
 from __future__ import annotations
 
 import json
-from typing import cast, Sequence
+from typing import cast, Sequence, TYPE_CHECKING
 
 import yaml
 from typing_extensions import override
 
-from betty.locale import Str, Localizer, Localizable
+from betty.locale.localizable import plain, Localizable, _
 from betty.serde.dump import Dump, VoidableDump
 from betty.serde.load import FormatError
+
+if TYPE_CHECKING:
+    from betty.locale import Localizer
 
 
 class Format:
@@ -62,7 +65,7 @@ class Json(Format):
     @override
     @property
     def label(self) -> Localizable:
-        return Str.plain("JSON")
+        return plain("JSON")
 
     @override
     def load(self, dump: str) -> Dump:
@@ -70,10 +73,7 @@ class Json(Format):
             return cast(Dump, json.loads(dump))
         except json.JSONDecodeError as e:
             raise FormatError(
-                Str._(
-                    "Invalid JSON: {error}.",
-                    error=str(e),
-                )
+                _("Invalid JSON: {error}.").format(error=str(e))
             ) from None
 
     @override
@@ -94,7 +94,7 @@ class Yaml(Format):
     @override
     @property
     def label(self) -> Localizable:
-        return Str.plain("YAML")
+        return plain("YAML")
 
     @override
     def load(self, dump: str) -> Dump:
@@ -102,10 +102,7 @@ class Yaml(Format):
             return cast(Dump, yaml.safe_load(dump))
         except yaml.YAMLError as e:
             raise FormatError(
-                Str._(
-                    "Invalid YAML: {error}.",
-                    error=str(e),
-                )
+                _("Invalid YAML: {error}.").format(error=str(e))
             ) from None
 
     @override
@@ -155,11 +152,9 @@ class FormatRepository:
             if extension in serde_format.extensions:
                 return serde_format
         raise FormatError(
-            Str._(
-                'Unknown file format ".{extension}". Supported formats are: {supported_formats}.',
-                extension=extension,
-                supported_formats=FormatStr(self.formats),
-            )
+            _(
+                'Unknown file format ".{extension}". Supported formats are: {supported_formats}.'
+            ).format(extension=extension, supported_formats=FormatStr(self.formats))
         )
 
 

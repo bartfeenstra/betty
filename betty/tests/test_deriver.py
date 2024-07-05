@@ -3,7 +3,8 @@ from __future__ import annotations
 import pytest
 
 from betty.deriver import Deriver
-from betty.locale import DateRange, Date, Datey, Str, DEFAULT_LOCALIZER, Localizable
+from betty.locale import DateRange, Date, Datey, DEFAULT_LOCALIZER
+from betty.locale.localizable import plain, Localizable
 from betty.model import record_added
 from betty.model.ancestry import Person, Presence, Subject, Event, Ancestry
 from betty.model.event_type import (
@@ -21,7 +22,7 @@ class DeriverTestEventType(EventType):
 
     @classmethod
     def label(cls) -> Localizable:
-        return Str.plain(repr(cls))
+        return plain(repr(cls))
 
 
 class Ignored(DeriverTestEventType):

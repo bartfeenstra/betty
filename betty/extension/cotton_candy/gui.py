@@ -28,7 +28,7 @@ from betty.gui.error import ExceptionCatcher
 from betty.gui.locale import LocalizedObject
 from betty.gui.model import EntityReferenceSequenceCollector
 from betty.gui.text import Caption
-from betty.locale import Str, Localizable
+from betty.locale.localizable import _, Localizable
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -137,22 +137,22 @@ class _CottonCandyGuiWidget(LocalizedObject, QWidget):
             [
                 (
                     self._configuration.primary_inactive_color,
-                    Str._("Primary color (inactive)"),
+                    _("Primary color (inactive)"),
                     CottonCandyConfiguration.DEFAULT_PRIMARY_INACTIVE_COLOR,
                 ),
                 (
                     self._configuration.primary_active_color,
-                    Str._("Primary color (active)"),
+                    _("Primary color (active)"),
                     CottonCandyConfiguration.DEFAULT_PRIMARY_ACTIVE_COLOR,
                 ),
                 (
                     self._configuration.link_inactive_color,
-                    Str._("Link color (inactive)"),
+                    _("Link color (inactive)"),
                     CottonCandyConfiguration.DEFAULT_LINK_INACTIVE_COLOR,
                 ),
                 (
                     self._configuration.link_active_color,
-                    Str._("Link color (active)"),
+                    _("Link color (active)"),
                     CottonCandyConfiguration.DEFAULT_LINK_ACTIVE_COLOR,
                 ),
             ],
@@ -174,8 +174,8 @@ class _CottonCandyGuiWidget(LocalizedObject, QWidget):
             EntityReferenceSequenceCollector(
                 self._project,
                 self._configuration.featured_entities,
-                Str._("Featured entities"),
-                Str._("These entities are featured on your site's front page."),
+                _("Featured entities"),
+                _("These entities are featured on your site's front page."),
             )
         )
         self._layout.addWidget(self._featured_entities_entity_references_collector)

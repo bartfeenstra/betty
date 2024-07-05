@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import pytest
 
+from betty.locale import DEFAULT_LOCALIZER
+from betty.locale.localizable import _, Localizable
 from betty.requirement import (
     RequirementCollection,
     RequirementError,
@@ -9,14 +11,13 @@ from betty.requirement import (
     AnyRequirement,
     Requirement,
 )
-from betty.locale import Str, DEFAULT_LOCALIZER, Localizable
 
 
 class TestRequirement:
     async def test_assert_met_should_raise_error_if_unmet(self) -> None:
         class _Requirement(Requirement):
             def summary(self) -> Localizable:
-                return Str._("Lorem ipsum")
+                return _("Lorem ipsum")
 
             def is_met(self) -> bool:
                 return False
@@ -34,10 +35,10 @@ class TestRequirement:
     async def test_localize_with_details(self) -> None:
         class _Requirement(Requirement):
             def summary(self) -> Localizable:
-                return Str._("Lorem ipsum")
+                return _("Lorem ipsum")
 
             def details(self) -> Localizable:
-                return Str._("Dolor sit amet")
+                return _("Dolor sit amet")
 
         assert (
             _Requirement().localize(DEFAULT_LOCALIZER)
@@ -47,7 +48,7 @@ class TestRequirement:
     async def test_localize_without_details(self) -> None:
         class _Requirement(Requirement):
             def summary(self) -> Localizable:
-                return Str._("Lorem ipsum")
+                return _("Lorem ipsum")
 
         assert _Requirement().localize(DEFAULT_LOCALIZER) == "Lorem ipsum"
 
@@ -94,18 +95,18 @@ class TestRequirementCollection:
     async def test_localize_without_requirements(self) -> None:
         class _RequirementCollection(RequirementCollection):
             def summary(self) -> Localizable:
-                return Str._("Lorem ipsum")
+                return _("Lorem ipsum")
 
         assert _RequirementCollection().localize(DEFAULT_LOCALIZER) == "Lorem ipsum"
 
     async def test_localize_with_requirements(self) -> None:
         class _RequirementCollection(RequirementCollection):
             def summary(self) -> Localizable:
-                return Str._("Lorem ipsum")
+                return _("Lorem ipsum")
 
         class _Requirement(Requirement):
             def summary(self) -> Localizable:
-                return Str._("Lorem ipsum")
+                return _("Lorem ipsum")
 
         assert (
             _RequirementCollection(_Requirement()).localize(DEFAULT_LOCALIZER)

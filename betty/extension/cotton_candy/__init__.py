@@ -13,7 +13,6 @@ from jinja2 import pass_context
 from typing_extensions import override
 
 from betty import fs
-from betty.project.extension import ConfigurableExtension, Extension, Theme
 from betty.config import Configuration
 from betty.extension.cotton_candy.search import Index
 from betty.extension.webpack import Webpack, WebpackEntryPointProvider
@@ -29,12 +28,14 @@ from betty.jinja2 import (
     Globals,
     Filters,
 )
-from betty.locale import Date, Str, Datey, Localizable
+from betty.locale import Date, Datey
+from betty.locale.localizable import _, plain, Localizable
 from betty.model import Entity, UserFacingEntity, GeneratedEntityId
 from betty.model.ancestry import Event, Person, Presence, is_public, Subject
 from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
 from betty.os import link_or_copy
 from betty.project import EntityReferenceSequence, EntityReference
+from betty.project.extension import ConfigurableExtension, Extension, Theme
 from betty.serde.dump import minimize, Dump, VoidableDump, Void
 from betty.serde.load import (
     AssertionFailed,
@@ -62,8 +63,9 @@ class _ColorConfiguration(Configuration):
     def _assert_hex(self, hex_value: str) -> str:
         if not self._HEX_PATTERN.match(hex_value):
             raise AssertionFailed(
-                Str._(
-                    '"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.',
+                _(
+                    '"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.'
+                ).format(
                     hex_value=hex_value,
                 )
             )
@@ -263,7 +265,7 @@ class CottonCandy(
     @override
     @classmethod
     def label(cls) -> Localizable:
-        return Str.plain("Cotton Candy")
+        return plain("Cotton Candy")
 
     @override
     @classmethod
@@ -273,7 +275,7 @@ class CottonCandy(
     @override
     @classmethod
     def description(cls) -> Localizable:
-        return Str._("Cotton Candy is Betty's default theme.")
+        return _("Cotton Candy is Betty's default theme.")
 
     @property
     def logo(self) -> Path:

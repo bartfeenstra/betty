@@ -7,9 +7,9 @@ from logging import getLogger
 
 from typing_extensions import override
 
+from betty.locale.localizable import _, Localizable
 from betty.project.extension import UserFacingExtension
 from betty.load import PostLoader
-from betty.locale import Str, Localizable
 from betty.model.ancestry import Person, HasPrivacy
 from betty.privatizer import Privatizer as PrivatizerApi
 from typing import TYPE_CHECKING
@@ -35,12 +35,12 @@ class Privatizer(UserFacingExtension, PostLoader):
     @override
     @classmethod
     def label(cls) -> Localizable:
-        return Str._("Privatizer")
+        return _("Privatizer")
 
     @override
     @classmethod
     def description(cls) -> Localizable:
-        return Str._(
+        return _(
             "Determine if people can be proven to have died. If not, mark them and their associated entities private."
         )
 

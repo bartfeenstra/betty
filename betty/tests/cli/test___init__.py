@@ -7,24 +7,25 @@ from pathlib import Path
 from typing import Any
 from unittest.mock import AsyncMock
 
-from PyQt6.QtCore import QTimer
-from PyQt6.QtGui import QShowEvent
-
 import aiofiles
 import click
 import pytest
+from PyQt6.QtCore import QTimer
+from PyQt6.QtGui import QShowEvent
 from _pytest.logging import LogCaptureFixture
 from aiofiles.os import makedirs
+from click.testing import CliRunner, Result
+from pytest_mock import MockerFixture
+
 from betty.app import App
 from betty.cli import main, command, catch_exceptions
 from betty.error import UserFacingError
 from betty.gui.app import BettyPrimaryWindow
-from betty.locale import Str, DEFAULT_LOCALIZER
+from betty.locale import DEFAULT_LOCALIZER
+from betty.locale.localizable import plain
 from betty.project import Project
 from betty.serve import Server, ProjectServer
 from betty.tests.conftest import BettyQtBot
-from click.testing import CliRunner, Result
-from pytest_mock import MockerFixture
 
 
 @click.command(name="no-op")
@@ -77,7 +78,7 @@ class TestCatchExceptions:
         with pytest.raises(SystemExit), caplog.at_level(
             logging.NOTSET
         ), catch_exceptions():
-            raise UserFacingError(Str.plain(error_message))
+            raise UserFacingError(plain(error_message))
         assert error_message in caplog.text
 
     async def test_logging_uncaught_exception(self, caplog: LogCaptureFixture) -> None:

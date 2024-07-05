@@ -5,12 +5,15 @@ Provide an API that lets code express arbitrary requirements.
 from __future__ import annotations
 
 from textwrap import indent
-from typing import cast, Any, Self
+from typing import cast, Any, Self, TYPE_CHECKING
 
 from typing_extensions import override
 
 from betty.error import UserFacingError
-from betty.locale import Str, Localizable, Localizer
+from betty.locale.localizable import _, Localizable
+
+if TYPE_CHECKING:
+    from betty.locale import Localizer
 
 
 class Requirement(Localizable):
@@ -141,7 +144,7 @@ class AnyRequirement(RequirementCollection):
 
     def __init__(self, *requirements: Requirement | None):
         super().__init__(*requirements)
-        self._summary = Str._("One or more of these requirements must be met")
+        self._summary = _("One or more of these requirements must be met")
 
     @override
     def is_met(self) -> bool:
@@ -159,7 +162,7 @@ class AllRequirements(RequirementCollection):
 
     def __init__(self, *requirements: Requirement | None):
         super().__init__(*requirements)
-        self._summary = Str._("All of these requirements must be met")
+        self._summary = _("All of these requirements must be met")
 
     @override
     def is_met(self) -> bool:

@@ -22,7 +22,8 @@ from betty.config import Configurable, FileBasedConfiguration
 from betty.core import CoreComponent
 from betty.fetch import Fetcher
 from betty.fs import HOME_DIRECTORY_PATH
-from betty.locale import LocalizerRepository, get_data, DEFAULT_LOCALE, Localizer, Str
+from betty.locale import LocalizerRepository, get_data, DEFAULT_LOCALE, Localizer
+from betty.locale.localizable import _
 from betty.serde.dump import minimize, void_none, Dump, VoidableDump
 from betty.serde.load import (
     AssertionFailed,
@@ -87,9 +88,8 @@ class AppConfiguration(FileBasedConfiguration):
             get_data(locale)
         except ValueError:
             raise AssertionFailed(
-                Str._(
-                    '"{locale}" is not a valid IETF BCP 47 language tag.',
-                    locale=locale,
+                _('"{locale}" is not a valid IETF BCP 47 language tag.').format(
+                    locale=locale
                 )
             ) from None
         self._locale = locale

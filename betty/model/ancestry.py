@@ -21,7 +21,8 @@ from betty.json.linked_data import (
     add_json_ld,
 )
 from betty.json.schema import add_property, ref_json_schema
-from betty.locale import Localized, Datey, Str, Localizable, ref_datey
+from betty.locale import Localized, Datey, ref_datey
+from betty.locale.localizable import _, Localizable, plain, call
 from betty.media_type import MediaType
 from betty.model import (
     many_to_many,
@@ -557,12 +558,12 @@ class Note(UserFacingEntity, HasPrivacy, HasLinksEntity, Entity):
     @override
     @classmethod
     def entity_type_label(cls) -> Localizable:
-        return Str._("Note")  # pragma: no cover
+        return _("Note")  # pragma: no cover
 
     @override
     @classmethod
     def entity_type_label_plural(cls) -> Localizable:
-        return Str._("Notes")  # pragma: no cover
+        return _("Notes")  # pragma: no cover
 
     @property
     def text(self) -> str:
@@ -574,7 +575,7 @@ class Note(UserFacingEntity, HasPrivacy, HasLinksEntity, Entity):
     @override
     @property
     def label(self) -> Localizable:
-        return Str.plain(self.text)
+        return plain(self.text)
 
     @override
     async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
@@ -786,12 +787,12 @@ class File(
     @override
     @classmethod
     def entity_type_label(cls) -> Localizable:
-        return Str._("File")  # pragma: no cover
+        return _("File")  # pragma: no cover
 
     @override
     @classmethod
     def entity_type_label_plural(cls) -> Localizable:
-        return Str._("Files")  # pragma: no cover
+        return _("Files")  # pragma: no cover
 
     @property
     def path(self) -> Path:
@@ -803,7 +804,7 @@ class File(
     @override
     @property
     def label(self) -> Localizable:
-        return Str.plain(self.description) if self.description else super().label
+        return plain(self.description) if self.description else super().label
 
     @override
     async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
@@ -968,17 +969,17 @@ class Source(
     @override
     @classmethod
     def entity_type_label(cls) -> Localizable:
-        return Str._("Source")  # pragma: no cover
+        return _("Source")  # pragma: no cover
 
     @override
     @classmethod
     def entity_type_label_plural(cls) -> Localizable:
-        return Str._("Sources")  # pragma: no cover
+        return _("Sources")  # pragma: no cover
 
     @override
     @property
     def label(self) -> Localizable:
-        return Str.plain(self.name) if self.name else super().label
+        return plain(self.name) if self.name else super().label
 
     @override
     async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
@@ -1130,17 +1131,17 @@ class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, En
     @override
     @classmethod
     def entity_type_label(cls) -> Localizable:
-        return Str._("Citation")  # pragma: no cover
+        return _("Citation")  # pragma: no cover
 
     @override
     @classmethod
     def entity_type_label_plural(cls) -> Localizable:
-        return Str._("Citations")  # pragma: no cover
+        return _("Citations")  # pragma: no cover
 
     @override
     @property
     def label(self) -> Localizable:
-        return self.location or Str.plain("")
+        return self.location or plain("")
 
     @override
     async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
@@ -1262,12 +1263,12 @@ class Enclosure(Dated, HasCitations, Entity):
     @override
     @classmethod
     def entity_type_label(cls) -> Localizable:
-        return Str._("Enclosure")  # pragma: no cover
+        return _("Enclosure")  # pragma: no cover
 
     @override
     @classmethod
     def entity_type_label_plural(cls) -> Localizable:
-        return Str._("Enclosures")  # pragma: no cover
+        return _("Enclosures")  # pragma: no cover
 
 
 @one_to_many("events", "betty.model.ancestry.Event", "place")
@@ -1372,12 +1373,12 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
     @override
     @classmethod
     def entity_type_label(cls) -> Localizable:
-        return Str._("Place")  # pragma: no cover
+        return _("Place")  # pragma: no cover
 
     @override
     @classmethod
     def entity_type_label_plural(cls) -> Localizable:
-        return Str._("Places")  # pragma: no cover
+        return _("Places")  # pragma: no cover
 
     @property
     def names(self) -> list[PlaceName]:
@@ -1402,7 +1403,7 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
     def label(self) -> Localizable:
         # @todo Negotiate this by locale and date.
         with suppress(IndexError):
-            return Str.plain(self.names[0].name)
+            return plain(self.names[0].name)
         return super().label
 
     @override
@@ -1552,7 +1553,7 @@ class Subject(PresenceRole):
     @override
     @property
     def label(self) -> Localizable:
-        return Str._("Subject")  # pragma: no cover
+        return _("Subject")  # pragma: no cover
 
 
 class Witness(PresenceRole):
@@ -1568,7 +1569,7 @@ class Witness(PresenceRole):
     @override
     @property
     def label(self) -> Localizable:
-        return Str._("Witness")  # pragma: no cover
+        return _("Witness")  # pragma: no cover
 
 
 class Beneficiary(PresenceRole):
@@ -1584,7 +1585,7 @@ class Beneficiary(PresenceRole):
     @override
     @property
     def label(self) -> Localizable:
-        return Str._("Beneficiary")  # pragma: no cover
+        return _("Beneficiary")  # pragma: no cover
 
 
 class Attendee(PresenceRole):
@@ -1600,7 +1601,7 @@ class Attendee(PresenceRole):
     @override
     @property
     def label(self) -> Localizable:
-        return Str._("Attendee")  # pragma: no cover
+        return _("Attendee")  # pragma: no cover
 
 
 class Speaker(PresenceRole):
@@ -1616,7 +1617,7 @@ class Speaker(PresenceRole):
     @override
     @property
     def label(self) -> Localizable:
-        return Str._("Speaker")  # pragma: no cover
+        return _("Speaker")  # pragma: no cover
 
 
 class Celebrant(PresenceRole):
@@ -1638,7 +1639,7 @@ class Celebrant(PresenceRole):
     @override
     @property
     def label(self) -> Localizable:
-        return Str._("Celebrant")  # pragma: no cover
+        return _("Celebrant")  # pragma: no cover
 
 
 class Organizer(PresenceRole):
@@ -1654,7 +1655,7 @@ class Organizer(PresenceRole):
     @override
     @property
     def label(self) -> Localizable:
-        return Str._("Organizer")  # pragma: no cover
+        return _("Organizer")  # pragma: no cover
 
 
 @many_to_one_to_many(
@@ -1691,20 +1692,19 @@ class Presence(HasPrivacy, Entity):
     @override
     @classmethod
     def entity_type_label(cls) -> Localizable:
-        return Str._("Presence")  # pragma: no cover
+        return _("Presence")  # pragma: no cover
 
     @override
     @classmethod
     def entity_type_label_plural(cls) -> Localizable:
-        return Str._("Presences")  # pragma: no cover
+        return _("Presences")  # pragma: no cover
 
     @override
     @property
     def label(self) -> Localizable:
-        return Str._(
-            "Presence of {person} at {event}",
-            person=self.person.label if self.person else Str._("Unknown"),
-            event=self.event.label if self.event else Str._("Unknown"),
+        return _("Presence of {person} at {event}").format(
+            person=self.person.label if self.person else _("Unknown"),
+            event=self.event.label if self.event else _("Unknown"),
         )
 
     @override
@@ -1781,7 +1781,7 @@ class Event(
             and presence.person.public
         ]
         if subjects:
-            format_kwargs["subjects"] = Str.call(
+            format_kwargs["subjects"] = call(
                 lambda localizer: ", ".join(
                     person.label.localize(localizer) for person in subjects
                 )
@@ -1791,15 +1791,15 @@ class Event(
 
         if subjects:
             if self.description is None:
-                return Str._("{event_type} of {subjects}", **format_kwargs)
+                return _("{event_type} of {subjects}").format(**format_kwargs)
             else:
-                return Str._(
-                    "{event_type} ({event_description}) of {subjects}", **format_kwargs
+                return _("{event_type} ({event_description}) of {subjects}").format(
+                    **format_kwargs
                 )
         if self.description is None:
-            return Str._("{event_type}", **format_kwargs)
+            return _("{event_type}").format(**format_kwargs)
         else:
-            return Str._("{event_type} ({event_description})", **format_kwargs)
+            return _("{event_type} ({event_description})").format(**format_kwargs)
 
     @override  # type: ignore[callable-functiontype]
     @recursive_repr()
@@ -1824,12 +1824,12 @@ class Event(
     @override
     @classmethod
     def entity_type_label(cls) -> Localizable:
-        return Str._("Event")  # pragma: no cover
+        return _("Event")  # pragma: no cover
 
     @override
     @classmethod
     def entity_type_label_plural(cls) -> Localizable:
-        return Str._("Events")  # pragma: no cover
+        return _("Events")  # pragma: no cover
 
     @property
     def event_type(self) -> type[EventType]:
@@ -2006,12 +2006,12 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
     @override
     @classmethod
     def entity_type_label(cls) -> Localizable:
-        return Str._("Person name")  # pragma: no cover
+        return _("Person name")  # pragma: no cover
 
     @override
     @classmethod
     def entity_type_label_plural(cls) -> Localizable:
-        return Str._("Person names")  # pragma: no cover
+        return _("Person names")  # pragma: no cover
 
     @property
     def individual(self) -> str | None:
@@ -2040,8 +2040,7 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
     @override
     @property
     def label(self) -> Localizable:
-        return Str._(
-            "{individual_name} {affiliation_name}",
+        return _("{individual_name} {affiliation_name}").format(
             individual_name="…" if not self.individual else self.individual,
             affiliation_name="…" if not self.affiliation else self.affiliation,
         )
@@ -2196,12 +2195,12 @@ class Person(
     @override
     @classmethod
     def entity_type_label(cls) -> Localizable:
-        return Str._("Person")  # pragma: no cover
+        return _("Person")  # pragma: no cover
 
     @override
     @classmethod
     def entity_type_label_plural(cls) -> Localizable:
-        return Str._("People")  # pragma: no cover
+        return _("People")  # pragma: no cover
 
     @property
     def ancestors(self) -> Iterator[Person]:

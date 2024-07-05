@@ -7,7 +7,8 @@ from typing import TypeVar, Self
 
 from typing_extensions import override
 
-from betty.locale import Localizable, DEFAULT_LOCALIZER, Localizer
+from betty.locale import DEFAULT_LOCALIZER, Localizer
+from betty.locale.localizable import Localizable
 
 _BaseExceptionT = TypeVar("_BaseExceptionT", bound=BaseException)
 

@@ -1,6 +1,6 @@
 from betty.extension import CottonCandy
 from betty.jinja2 import _Citer
-from betty.locale import Str
+from betty.locale.localizable import plain
 from betty.model.ancestry import Citation
 from betty.tests import TemplateTestCase
 
@@ -22,7 +22,7 @@ class Test(TemplateTestCase):
     async def test_with_public_citation(self) -> None:
         citation = Citation(
             id="C1",
-            location=Str.plain("On the shelf over there"),
+            location=plain("On the shelf over there"),
             public=True,
         )
         citer = _Citer()
@@ -38,7 +38,7 @@ class Test(TemplateTestCase):
     async def test_with_private_citation(self) -> None:
         citation = Citation(
             id="C1",
-            location=Str.plain("On the shelf over there"),
+            location=plain("On the shelf over there"),
             private=True,
         )
         citer = _Citer()

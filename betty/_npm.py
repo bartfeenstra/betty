@@ -12,7 +12,8 @@ from typing import Sequence, TYPE_CHECKING
 
 from betty.asyncio import wait_to_thread
 from betty.error import UserFacingError
-from betty.locale import Str, DEFAULT_LOCALIZER, Localizable
+from betty.locale import DEFAULT_LOCALIZER
+from betty.locale.localizable import _, Localizable
 from betty.requirement import Requirement
 from betty.subprocess import run_process
 
@@ -21,7 +22,7 @@ if TYPE_CHECKING:
     from asyncio import subprocess as aiosubprocess
 
 
-_NPM_UNAVAILABLE_MESSAGE = Str._(
+_NPM_UNAVAILABLE_MESSAGE = _(
     "npm (https://www.npmjs.com/) must be available for features that require Node.js packages to be installed. Ensure that the `npm` executable is available in your `PATH`."
 )
 
@@ -64,10 +65,10 @@ class NpmRequirement(Requirement):
             wait_to_thread(npm(["--version"]))
         except NpmUnavailable:
             self._met = False
-            self._summary = Str._("`npm` is not available")
+            self._summary = _("`npm` is not available")
         else:
             self._met = True
-            self._summary = Str._("`npm` is available")
+            self._summary = _("`npm` is available")
         finally:
             logging.getLogger(__name__).debug(self._summary.localize(DEFAULT_LOCALIZER))
 

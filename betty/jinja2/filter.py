@@ -43,7 +43,6 @@ from betty.locale import (
     negotiate_locale,
     Localey,
     get_data,
-    Localizable,
 )
 from betty.model import get_entity_type_name
 from betty.os import link_or_copy
@@ -55,6 +54,7 @@ from betty.string import (
 )
 
 if TYPE_CHECKING:
+    from betty.locale.localizable import Localizable
     from jinja2.nodes import EvalContext
     from betty.model.ancestry import File, Dated
     from betty.media_type import MediaType

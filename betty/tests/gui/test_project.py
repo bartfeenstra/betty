@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import QFileDialog, QWidget, QLabel
 from pytest_mock import MockerFixture
 
 from betty.app import App
+from betty.locale.localizable import plain, Localizable
 from betty.project.extension import UserFacingExtension
 from betty.gui import GuiBuilder
 from betty.gui.project import (
@@ -21,7 +22,7 @@ from betty.gui.project import (
     LocalesConfigurationWidget,
 )
 from betty.gui.serve import ServeProjectWindow
-from betty.locale import get_display_name, Str, Localizable
+from betty.locale import get_display_name
 from betty.model.ancestry import File
 from betty.project import (
     LocaleConfiguration,
@@ -38,13 +39,13 @@ class UnmetRequirement(Requirement):
         return False
 
     def summary(self) -> Localizable:
-        return Str.plain("I have never met this requirement!")
+        return plain("I have never met this requirement!")
 
 
 class DummyUserFacingGuiBuilderExtension(UserFacingExtension, GuiBuilder):
     @classmethod
     def label(cls) -> Localizable:
-        return Str.plain(cls.name())
+        return plain(cls.name())
 
     @classmethod
     def description(cls) -> Localizable:

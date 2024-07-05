@@ -23,7 +23,7 @@ from betty.model import UserFacingEntity, Entity
 from betty.project import EntityReference, EntityReferenceSequence, Project
 
 if TYPE_CHECKING:
-    from betty.locale import Localizable
+    from betty.locale.localizable import Localizable
 
 
 class EntityReferenceCollector(LocalizedObject, QWidget):

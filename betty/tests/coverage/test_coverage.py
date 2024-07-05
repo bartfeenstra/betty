@@ -366,7 +366,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         # This is an interface.
         "PostLoader": TestKnownToBeMissing,
     },
-    "betty/locale.py": {
+    "betty/locale/__init__.py": {
         "Date": {
             "__contains__": TestKnownToBeMissing,
             "__ge__": TestKnownToBeMissing,
@@ -388,8 +388,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "IncompleteDateError": TestKnownToBeMissing,
         "init_translation": TestKnownToBeMissing,
         "LocaleNotFoundError": TestKnownToBeMissing,
-        # This is an interface.
-        "Localizable": TestKnownToBeMissing,
         "Localized": TestKnownToBeMissing,
         "Localizer": TestKnownToBeMissing,
         "LocalizerRepository": {
@@ -400,11 +398,21 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ref_date": TestKnownToBeMissing,
         "ref_date_range": TestKnownToBeMissing,
         "ref_datey": TestKnownToBeMissing,
-        "Str": TestKnownToBeMissing,
         "run_babel": TestKnownToBeMissing,
         "to_babel_identifier": TestKnownToBeMissing,
         "to_locale": TestKnownToBeMissing,
         "update_translations": TestKnownToBeMissing,
+    },
+    "betty/locale/localizable.py": {
+        "call": TestKnownToBeMissing,
+        "format": TestKnownToBeMissing,
+        "gettext": TestKnownToBeMissing,
+        # This is an interface.
+        "Localizable": TestKnownToBeMissing,
+        "ngettext": TestKnownToBeMissing,
+        "npgettext": TestKnownToBeMissing,
+        "pgettext": TestKnownToBeMissing,
+        "plain": TestKnownToBeMissing,
     },
     "betty/logging.py": {
         "CliHandler": {

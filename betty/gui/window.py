@@ -14,7 +14,7 @@ from typing_extensions import override
 from betty.gui.locale import LocalizedObject
 
 if TYPE_CHECKING:
-    from betty.locale import Localizable
+    from betty.locale.localizable import Localizable
     from betty.app import App
     from PyQt6.QtCore import QObject
 

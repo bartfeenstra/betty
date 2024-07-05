@@ -29,7 +29,7 @@ from betty.gui.locale import TranslationsLocaleCollector
 from betty.gui.serve import ServeDemoWindow, ServeDocsWindow
 from betty.gui.text import Text
 from betty.gui.window import BettyMainWindow
-from betty.locale import Str, Localizable
+from betty.locale.localizable import plain, Localizable, _
 from betty.project import Project
 
 
@@ -120,7 +120,7 @@ class BettyPrimaryWindow(BettyMainWindow):
     @override
     @property
     def window_title(self) -> Localizable:
-        return Str.plain("Betty")
+        return plain("Betty")
 
     @override
     def _set_translatables(self) -> None:
@@ -406,7 +406,7 @@ class _AboutBettyWindow(BettyMainWindow):
     @override
     @property
     def window_title(self) -> Localizable:
-        return Str._("About Betty")
+        return _("About Betty")
 
 
 class ApplicationConfiguration(BettyMainWindow):
@@ -438,4 +438,4 @@ class ApplicationConfiguration(BettyMainWindow):
     @override
     @property
     def window_title(self) -> Localizable:
-        return Str._("Configuration")
+        return _("Configuration")
