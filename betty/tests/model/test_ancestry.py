@@ -311,7 +311,7 @@ class HasNotesTestEntity(HasNotes, Entity):
 class TestHasNotes:
     async def test_notes(self) -> None:
         sut = HasNotesTestEntity()
-        assert [] == list(sut.notes)
+        assert list(sut.notes) == []
 
 
 class TestDescribed:
@@ -401,7 +401,7 @@ class TestHasLinks:
             pass
 
         sut = _HasLinks()
-        assert [] == sut.links
+        assert sut.links == []
 
 
 class _HasFiles(HasFiles, Entity):
@@ -487,7 +487,7 @@ class TestFile:
             id=file_id,
             path=file_path,
         )
-        assert [] == list(sut.notes)
+        assert list(sut.notes) == []
         notes = [Note(text=""), Note(text="")]
         sut.notes = notes  # type: ignore[assignment]
         assert notes == list(sut.notes)
@@ -499,7 +499,7 @@ class TestFile:
             id=file_id,
             path=file_path,
         )
-        assert [] == list(sut.entities)
+        assert list(sut.entities) == []
 
         entities = [_HasFiles(), _HasFiles()]
         sut.entities = entities  # type: ignore[assignment]
@@ -512,7 +512,7 @@ class TestFile:
             id=file_id,
             path=file_path,
         )
-        assert [] == list(sut.citations)
+        assert list(sut.citations) == []
 
     async def test_dump_linked_data_should_dump_minimal(self) -> None:
         with NamedTemporaryFile() as f:
@@ -672,7 +672,7 @@ class TestFile:
 class TestHasFiles:
     async def test_files(self) -> None:
         sut = _HasFiles()
-        assert [] == list(sut.files)
+        assert list(sut.files) == []
         files = [File(path=Path()), File(path=Path())]
         sut.files = files  # type: ignore[assignment]
         assert files == list(sut.files)
@@ -699,13 +699,13 @@ class TestSource:
     async def test_contains(self) -> None:
         contains_source = Source()
         sut = Source()
-        assert [] == list(sut.contains)
+        assert list(sut.contains) == []
         sut.contains = [contains_source]  # type: ignore[assignment]
         assert [contains_source] == list(sut.contains)
 
     async def test_walk_contains_without_contains(self) -> None:
         sut = Source()
-        assert [] == list(sut.walk_contains)
+        assert list(sut.walk_contains) == []
 
     async def test_walk_contains_with_contains(self) -> None:
         sut = Source()
@@ -715,7 +715,7 @@ class TestSource:
 
     async def test_citations(self) -> None:
         sut = Source()
-        assert [] == list(sut.citations)
+        assert list(sut.citations) == []
 
     async def test_author(self) -> None:
         sut = Source()
@@ -737,11 +737,11 @@ class TestSource:
 
     async def test_files(self) -> None:
         sut = Source()
-        assert [] == list(sut.files)
+        assert list(sut.files) == []
 
     async def test_links(self) -> None:
         sut = Source()
-        assert [] == list(sut.links)
+        assert list(sut.links) == []
 
     async def test_private(self) -> None:
         sut = Source()
@@ -976,7 +976,7 @@ class TestCitation:
     async def test_facts(self) -> None:
         fact = _HasCitations()
         sut = Citation(source=Source())
-        assert [] == list(sut.facts)
+        assert list(sut.facts) == []
         sut.facts = [fact]  # type: ignore[assignment]
         assert [fact] == list(sut.facts)
 
@@ -998,7 +998,7 @@ class TestCitation:
 
     async def test_files(self) -> None:
         sut = Citation(source=Source())
-        assert [] == list(sut.files)
+        assert list(sut.files) == []
 
     async def test_private(self) -> None:
         sut = Citation(source=Source())
@@ -1131,7 +1131,7 @@ class TestCitation:
 class TestHasCitations:
     async def test_citations(self) -> None:
         sut = _HasCitations()
-        assert [] == list(sut.citations)
+        assert list(sut.citations) == []
         citation = Citation(source=Source())
         sut.citations = [citation]  # type: ignore[assignment]
         assert [citation] == list(sut.citations)
@@ -1250,7 +1250,7 @@ class TestPlace:
         assert event in sut.events
         assert sut == event.place
         sut.events.remove(event)
-        assert [] == list(sut.events)
+        assert list(sut.events) == []
         assert event.place is None
 
     async def test_enclosed_by(self) -> None:
@@ -1258,7 +1258,7 @@ class TestPlace:
             id="P1",
             names=[PlaceName(name="The Place")],
         )
-        assert [] == list(sut.enclosed_by)
+        assert list(sut.enclosed_by) == []
         enclosing_place = Place(
             id="P2",
             names=[PlaceName(name="The Other Place")],
@@ -1267,7 +1267,7 @@ class TestPlace:
         assert enclosure in sut.enclosed_by
         assert sut == enclosure.encloses
         sut.enclosed_by.remove(enclosure)
-        assert [] == list(sut.enclosed_by)
+        assert list(sut.enclosed_by) == []
         assert enclosure.encloses is None
 
     async def test_encloses(self) -> None:
@@ -1275,7 +1275,7 @@ class TestPlace:
             id="P1",
             names=[PlaceName(name="The Place")],
         )
-        assert [] == list(sut.encloses)
+        assert list(sut.encloses) == []
         enclosed_place = Place(
             id="P2",
             names=[PlaceName(name="The Other Place")],
@@ -1284,7 +1284,7 @@ class TestPlace:
         assert enclosure in sut.encloses
         assert sut == enclosure.enclosed_by
         sut.encloses.remove(enclosure)
-        assert [] == list(sut.encloses)
+        assert list(sut.encloses) == []
         assert enclosure.enclosed_by is None
 
     async def test_walk_encloses_without_encloses(self) -> None:
@@ -1292,7 +1292,7 @@ class TestPlace:
             id="P1",
             names=[PlaceName(name="The Place")],
         )
-        assert [] == list(sut.walk_encloses)
+        assert list(sut.walk_encloses) == []
 
     async def test_walk_encloses_with_encloses(self) -> None:
         sut = Place(
@@ -1324,7 +1324,7 @@ class TestPlace:
             id="P1",
             names=[PlaceName(name="The Place")],
         )
-        assert [] == list(sut.links)
+        assert list(sut.links) == []
 
     async def test_names(self) -> None:
         name = PlaceName(name="The Place")
@@ -1565,7 +1565,7 @@ class TestEvent:
         assert [presence] == list(sut.presences)
         assert sut == presence.event
         sut.presences.remove(presence)
-        assert [] == list(sut.presences)
+        assert list(sut.presences) == []
         assert presence.event is None
 
     async def test_date(self) -> None:
@@ -1577,11 +1577,11 @@ class TestEvent:
 
     async def test_files(self) -> None:
         sut = Event(event_type=UnknownEventType)
-        assert [] == list(sut.files)
+        assert list(sut.files) == []
 
     async def test_citations(self) -> None:
         sut = Event(event_type=UnknownEventType)
-        assert [] == list(sut.citations)
+        assert list(sut.citations) == []
 
     async def test_description(self) -> None:
         sut = Event(event_type=UnknownEventType)
@@ -1830,7 +1830,7 @@ class TestPersonName:
             individual="Janet",
             affiliation="Not a Girl",
         )
-        assert [] == list(sut.citations)
+        assert list(sut.citations) == []
 
     async def test_individual(self) -> None:
         person = Person(id="1")
@@ -1861,8 +1861,8 @@ class TestPerson:
         assert [parent] == list(sut.parents)
         assert [sut] == list(parent.children)
         sut.parents.remove(parent)
-        assert [] == list(sut.parents)
-        assert [] == list(parent.children)
+        assert list(sut.parents) == []
+        assert list(parent.children) == []
 
     async def test_children(self) -> None:
         sut = Person(id="1")
@@ -1871,8 +1871,8 @@ class TestPerson:
         assert [child] == list(sut.children)
         assert [sut] == list(child.parents)
         sut.children.remove(child)
-        assert [] == list(sut.children)
-        assert [] == list(child.parents)
+        assert list(sut.children) == []
+        assert list(child.parents) == []
 
     async def test_presences(self) -> None:
         event = Event(event_type=Birth)
@@ -1882,7 +1882,7 @@ class TestPerson:
         assert [presence] == list(sut.presences)
         assert sut == presence.person
         sut.presences.remove(presence)
-        assert [] == list(sut.presences)
+        assert list(sut.presences) == []
         assert presence.person is None
 
     async def test_names(self) -> None:
@@ -1895,7 +1895,7 @@ class TestPerson:
         assert [name] == list(sut.names)
         assert sut == name.person
         sut.names.remove(name)
-        assert [] == list(sut.names)
+        assert list(sut.names) == []
         assert name.person is None
 
     async def test_id(self) -> None:
@@ -1905,15 +1905,15 @@ class TestPerson:
 
     async def test_files(self) -> None:
         sut = Person(id="1")
-        assert [] == list(sut.files)
+        assert list(sut.files) == []
 
     async def test_citations(self) -> None:
         sut = Person(id="1")
-        assert [] == list(sut.citations)
+        assert list(sut.citations) == []
 
     async def test_links(self) -> None:
         sut = Person(id="1")
-        assert [] == list(sut.links)
+        assert list(sut.links) == []
 
     async def test_private(self) -> None:
         sut = Person(id="1")
@@ -1921,7 +1921,7 @@ class TestPerson:
 
     async def test_siblings_without_parents(self) -> None:
         sut = Person(id="person")
-        assert [] == list(sut.siblings)
+        assert list(sut.siblings) == []
 
     async def test_siblings_with_one_common_parent(self) -> None:
         sut = Person(id="1")
@@ -1939,7 +1939,7 @@ class TestPerson:
 
     async def test_ancestors_without_parents(self) -> None:
         sut = Person(id="person")
-        assert [] == list(sut.ancestors)
+        assert list(sut.ancestors) == []
 
     async def test_ancestors_with_parent(self) -> None:
         sut = Person(id="1")
@@ -1951,7 +1951,7 @@ class TestPerson:
 
     async def test_descendants_without_parents(self) -> None:
         sut = Person(id="person")
-        assert [] == list(sut.descendants)
+        assert list(sut.descendants) == []
 
     async def test_descendants_with_parent(self) -> None:
         sut = Person(id="1")

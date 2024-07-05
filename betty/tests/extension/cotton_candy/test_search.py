@@ -28,7 +28,7 @@ class TestIndex:
                 async for item in Index(project, Context(), DEFAULT_LOCALIZER).build()
             ]
 
-            assert [] == indexed
+            assert indexed == []
 
     async def test_build_person_without_names(self, new_temporary_app: App) -> None:
         person_id = "P1"
@@ -50,7 +50,7 @@ class TestIndex:
                 async for item in Index(project, Context(), DEFAULT_LOCALIZER).build()
             ]
 
-            assert [] == indexed
+            assert indexed == []
 
     async def test_build_private_person(self, new_temporary_app: App) -> None:
         person_id = "P1"
@@ -80,7 +80,7 @@ class TestIndex:
                 async for item in Index(project, Context(), DEFAULT_LOCALIZER).build()
             ]
 
-            assert [] == indexed
+            assert indexed == []
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
@@ -270,7 +270,7 @@ class TestIndex:
                 async for item in Index(project, Context(), DEFAULT_LOCALIZER).build()
             ]
 
-            assert [] == indexed
+            assert indexed == []
 
     async def test_build_file_without_description(self, new_temporary_app: App) -> None:
         file_id = "F1"
@@ -295,7 +295,7 @@ class TestIndex:
                 async for item in Index(project, Context(), DEFAULT_LOCALIZER).build()
             ]
 
-            assert [] == indexed
+            assert indexed == []
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
@@ -354,4 +354,4 @@ class TestIndex:
                 async for item in Index(project, Context(), DEFAULT_LOCALIZER).build()
             ]
 
-            assert [] == indexed
+            assert indexed == []
