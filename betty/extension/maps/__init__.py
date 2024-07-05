@@ -6,9 +6,9 @@ from pathlib import Path
 
 from typing_extensions import override
 
+from betty.locale.localizable import _, Localizable
 from betty.project.extension import Extension, UserFacingExtension
 from betty.extension.webpack import Webpack, WebpackEntryPointProvider
-from betty.locale import Str, Localizable
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -47,11 +47,11 @@ class Maps(UserFacingExtension, WebpackEntryPointProvider):
     @override
     @classmethod
     def label(cls) -> Localizable:
-        return Str._("Maps")
+        return _("Maps")
 
     @override
     @classmethod
     def description(cls) -> Localizable:
-        return Str._(
+        return _(
             'Display lists of places as interactive maps using <a href="https://leafletjs.com/">Leaflet</a>.'
         )

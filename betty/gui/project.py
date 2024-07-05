@@ -55,7 +55,8 @@ from betty.gui.logging import LogRecordViewerHandler, LogRecordViewer
 from betty.gui.serve import ServeProjectWindow
 from betty.gui.text import Text, Caption
 from betty.gui.window import BettyMainWindow
-from betty.locale import get_display_name, to_locale, Str, Localizable
+from betty.locale import get_display_name, to_locale
+from betty.locale.localizable import _, Localizable, plain
 from betty.model import UserFacingEntity, Entity
 from betty.project import LocaleConfiguration, Project, EntityTypeConfiguration
 from betty.project.extension import UserFacingExtension
@@ -510,7 +511,7 @@ class AddLocaleWindow(BettyMainWindow):
     @override
     @property
     def window_title(self) -> Localizable:
-        return Str._("Add a locale")
+        return _("Add a locale")
 
     def _save_and_close_locale(self) -> None:
         with ExceptionCatcher(self):
@@ -800,7 +801,7 @@ class ProjectWindow(BettyPrimaryWindow):
     @override
     @property
     def window_title(self) -> Localizable:
-        return Str.plain(self._project.configuration.title)
+        return plain(self._project.configuration.title)
 
     def save_project_as(self) -> None:
         """
@@ -915,7 +916,7 @@ class GenerateWindow(BettyMainWindow):
     @override
     @property
     def window_title(self) -> Localizable:
-        return Str._("Generating your site...")
+        return _("Generating your site...")
 
     def _serve(self) -> None:
         with ExceptionCatcher(self):

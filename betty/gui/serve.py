@@ -17,7 +17,7 @@ from betty.extension import demo
 from betty.gui.error import ExceptionCatcher
 from betty.gui.text import Text
 from betty.gui.window import BettyMainWindow
-from betty.locale import Str, Localizable
+from betty.locale.localizable import _, Localizable
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -138,7 +138,7 @@ class ServeProjectWindow(_ServeWindow):
     @override
     @property
     def window_title(self) -> Localizable:
-        return Str._("Serving your site...")
+        return _("Serving your site...")
 
     @override
     def _build_instruction(self) -> str:
@@ -170,7 +170,7 @@ class ServeDemoWindow(_ServeWindow):
     @override
     @property
     def window_title(self) -> Localizable:
-        return Str._("Serving the Betty demo...")
+        return _("Serving the Betty demo...")
 
 
 @final
@@ -197,4 +197,4 @@ class ServeDocsWindow(_ServeWindow):
     @override
     @property
     def window_title(self) -> Localizable:
-        return Str._("Serving the Betty documentation...")
+        return _("Serving the Betty documentation...")

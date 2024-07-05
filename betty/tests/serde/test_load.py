@@ -6,7 +6,7 @@ from typing import Any, TypeVar
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
-from betty.locale import Str
+from betty.locale.localizable import plain
 from betty.serde.dump import Void
 from betty.serde.load import (
     AssertionFailed,
@@ -62,7 +62,7 @@ def _always_valid(value: int) -> int:
 
 
 def _always_invalid(value: int) -> int:
-    raise AssertionFailed(Str.plain(""))
+    raise AssertionFailed(plain(""))
 
 
 class TestAssertOr:

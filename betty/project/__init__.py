@@ -31,7 +31,8 @@ from betty.config import (
 )
 from betty.core import CoreComponent
 from betty.hashid import hashid
-from betty.locale import Str, DEFAULT_LOCALE, LocalizerRepository
+from betty.locale import DEFAULT_LOCALE, LocalizerRepository
+from betty.locale.localizable import _
 from betty.model import (
     Entity,
     get_entity_type_name,
@@ -278,8 +279,9 @@ class EntityReferenceSequence(
 
         if entity_reference_entity_type is None:
             raise AssertionFailed(
-                Str._(
-                    "The entity reference must be for an entity of type {expected_entity_type_name} ({expected_entity_type_label}), but instead does not specify an entity type at all.",
+                _(
+                    "The entity reference must be for an entity of type {expected_entity_type_name} ({expected_entity_type_label}), but instead does not specify an entity type at all."
+                ).format(
                     expected_entity_type_name=expected_entity_type_name,
                     expected_entity_type_label=expected_entity_type_label,
                 )
@@ -288,8 +290,9 @@ class EntityReferenceSequence(
         actual_entity_type_label = entity_type_constraint.entity_type_label()
 
         raise AssertionFailed(
-            Str._(
-                "The entity reference must be for an entity of type {expected_entity_type_name} ({expected_entity_type_label}), but instead is for an entity of type {actual_entity_type_name} ({actual_entity_type_label})",
+            _(
+                "The entity reference must be for an entity of type {expected_entity_type_name} ({expected_entity_type_label}), but instead is for an entity of type {actual_entity_type_name} ({actual_entity_type_label})"
+            ).format(
                 expected_entity_type_name=expected_entity_type_name,
                 expected_entity_type_label=expected_entity_type_label,
                 actual_entity_type_name=get_entity_type_name(
@@ -414,9 +417,8 @@ class ExtensionConfiguration(Configuration):
                 extension_configuration.load(value)
                 return extension_configuration
             raise AssertionFailed(
-                Str._(
-                    "{extension_type} is not configurable.",
-                    extension_type=extension_type.name(),
+                _("{extension_type} is not configurable.").format(
+                    extension_type=extension_type.name()
                 )
             )
 
@@ -540,10 +542,9 @@ class EntityTypeConfiguration(Configuration):
     def generate_html_list(self, generate_html_list: bool | None) -> None:
         if generate_html_list and not issubclass(self._entity_type, UserFacingEntity):
             raise AssertionFailed(
-                Str._(
-                    "Cannot generate pages for {entity_type}, because it is not a user-facing entity type.",
-                    entity_type=get_entity_type_name(self._entity_type),
-                )
+                _(
+                    "Cannot generate pages for {entity_type}, because it is not a user-facing entity type."
+                ).format(entity_type=get_entity_type_name(self._entity_type))
             )
         self._generate_html_list = generate_html_list
         self._dispatch_change()
@@ -635,7 +636,7 @@ class LocaleConfiguration(Configuration):
         super().__init__()
         self._locale = locale
         if alias is not None and "/" in alias:
-            raise AssertionFailed(Str._("Locale aliases must not contain slashes."))
+            raise AssertionFailed(_("Locale aliases must not contain slashes."))
         self._alias = alias
 
     @override  # type: ignore[callable-functiontype]
@@ -913,12 +914,12 @@ class ProjectConfiguration(FileBasedConfiguration):
         base_url_parts = urlparse(base_url)
         if not base_url_parts.scheme:
             raise AssertionFailed(
-                Str._(
+                _(
                     "The base URL must start with a scheme such as https://, http://, or file://."
                 )
             )
         if not base_url_parts.netloc:
-            raise AssertionFailed(Str._("The base URL must include a path."))
+            raise AssertionFailed(_("The base URL must include a path."))
         self._base_url = "%s://%s" % (base_url_parts.scheme, base_url_parts.netloc)
         self._dispatch_change()
 

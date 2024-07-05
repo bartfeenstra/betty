@@ -29,7 +29,7 @@ from betty.gui.error import ExceptionCatcher
 from betty.gui.locale import LocalizedObject
 from betty.gui.text import Text
 from betty.gui.window import BettyMainWindow
-from betty.locale import Localizable, Str
+from betty.locale.localizable import _, Localizable
 from betty.serde.error import SerdeError
 
 if TYPE_CHECKING:
@@ -197,4 +197,4 @@ class _AddFamilyTreeWindow(BettyMainWindow):
     @override
     @property
     def window_title(self) -> Localizable:
-        return Str._("Add a family tree")
+        return _("Add a family tree")

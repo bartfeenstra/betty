@@ -22,10 +22,9 @@ from typing import (
 from betty.locale import (
     LocaleNotFoundError,
     get_data,
-    Str,
-    Localizable,
     UNDETERMINED_LOCALE,
 )
+from betty.locale.localizable import _, plain, Localizable
 from betty.model import (
     Entity,
     get_entity_type,
@@ -164,13 +163,13 @@ def _assert_type_violation_error_message(
     asserted_type: type[DumpType],
 ) -> Localizable:
     messages = {
-        None: Str._("This must be none/null."),
-        bool: Str._("This must be a boolean."),
-        int: Str._("This must be a whole number."),
-        float: Str._("This must be a decimal number."),
-        str: Str._("This must be a string."),
-        list: Str._("This must be a list."),
-        dict: Str._("This must be a key-value mapping."),
+        None: _("This must be none/null."),
+        bool: _("This must be a boolean."),
+        int: _("This must be a whole number."),
+        float: _("This must be a decimal number."),
+        str: _("This must be a string."),
+        list: _("This must be a list."),
+        dict: _("This must be a key-value mapping."),
     }
     return messages[asserted_type]  # type: ignore[index]
 
@@ -274,7 +273,7 @@ def assert_positive_number() -> AssertionChain[Any, Number]:
     ) -> Number:
         value = assert_number()(value)
         if value <= 0:
-            raise AssertionFailed(Str._("This must be a positive number."))
+            raise AssertionFailed(_("This must be a positive number."))
         return value
 
     return AssertionChain(_assert_positive_number)
@@ -325,7 +324,7 @@ def assert_sequence(
         sequence: MutableSequence[_AssertionReturnT] = []
         with SerdeErrorCollection().assert_valid() as errors:
             for value_item_index, value_item_value in enumerate(list_value):
-                with errors.catch(Str.plain(value_item_index)):
+                with errors.catch(plain(value_item_index)):
                     sequence.append(item_assertion(value_item_value))
         return sequence
 
@@ -344,7 +343,7 @@ def assert_mapping(
         mapping: MutableMapping[str, _AssertionReturnT] = {}
         with SerdeErrorCollection().assert_valid() as errors:
             for value_item_key, value_item_value in dict_value.items():
-                with errors.catch(Str.plain(value_item_key)):
+                with errors.catch(plain(value_item_key)):
                     mapping[value_item_key] = item_assertion(value_item_value)
         return mapping
 
@@ -363,14 +362,14 @@ def assert_fields(
         mapping: MutableMapping[str, Any] = {}
         with SerdeErrorCollection().assert_valid() as errors:
             for field in fields:
-                with errors.catch(Str.plain(field.name)):
+                with errors.catch(plain(field.name)):
                     if field.name in value_dict:
                         if field.assertion:
                             mapping[field.name] = field.assertion(
                                 value_dict[field.name]
                             )
                     elif isinstance(field, RequiredField):
-                        raise AssertionFailed(Str._("This field is required."))
+                        raise AssertionFailed(_("This field is required."))
         return mapping
 
     return AssertionChain(_assert_fields)
@@ -431,10 +430,11 @@ def assert_record(
         unknown_keys = set(dict_value.keys()) - known_keys
         with SerdeErrorCollection().assert_valid() as errors:
             for unknown_key in unknown_keys:
-                with errors.catch(Str.plain(unknown_key)):
+                with errors.catch(plain(unknown_key)):
                     raise AssertionFailed(
-                        Str._(
-                            "Unknown key: {unknown_key}. Did you mean {known_keys}?",
+                        _(
+                            "Unknown key: {unknown_key}. Did you mean {known_keys}?"
+                        ).format(
                             unknown_key=f'"{unknown_key}"',
                             known_keys=", ".join(
                                 (f'"{x}"' for x in sorted(known_keys))
@@ -462,12 +462,7 @@ def assert_directory_path() -> AssertionChain[Any, Path]:
         directory_path = assert_path()(value)
         if directory_path.is_dir():
             return directory_path
-        raise AssertionFailed(
-            Str._(
-                '"{path}" is not a directory.',
-                path=value,
-            )
-        )
+        raise AssertionFailed(_('"{path}" is not a directory.').format(path=value))
 
     return AssertionChain(_assert_directory_path)
 
@@ -491,9 +486,8 @@ def assert_locale() -> AssertionChain[Any, str]:
             return value
         except LocaleNotFoundError:
             raise AssertionFailed(
-                Str._(
-                    '"{locale}" is not a valid IETF BCP 47 language tag.',
-                    locale=value,
+                _('"{locale}" is not a valid IETF BCP 47 language tag.').format(
+                    locale=value
                 )
             ) from None
 
@@ -539,24 +533,21 @@ def assert_extension_type() -> AssertionChain[Any, type[Extension]]:
             return get_extension_type(value)
         except ExtensionTypeImportError:
             raise AssertionFailed(
-                Str._(
+                _(
                     'Cannot find and import "{extension_type}".',
-                    extension_type=str(value),
-                )
+                ).format(extension_type=str(value))
             ) from None
         except ExtensionTypeInvalidError:
             raise AssertionFailed(
-                Str._(
+                _(
                     '"{extension_type}" is not a valid Betty extension type.',
-                    extension_type=str(value),
-                )
+                ).format(extension_type=str(value))
             ) from None
         except ExtensionTypeError:
             raise AssertionFailed(
-                Str._(
+                _(
                     'Cannot determine the extension type for "{extension_type}". Did you perhaps make a typo, or could it be that the extension type comes from another package that is not yet installed?',
-                    extension_type=str(value),
-                )
+                ).format(extension_type=str(value))
             ) from None
 
     return AssertionChain(_assert_extension_type)
@@ -577,24 +568,21 @@ def assert_entity_type() -> AssertionChain[Any, type[Entity]]:
             return get_entity_type(value)
         except EntityTypeImportError:
             raise AssertionFailed(
-                Str._(
+                _(
                     'Cannot find and import "{entity_type}".',
-                    entity_type=str(value),
-                )
+                ).format(entity_type=str(value))
             ) from None
         except EntityTypeInvalidError:
             raise AssertionFailed(
-                Str._(
-                    '"{entity_type}" is not a valid Betty entity type.',
-                    entity_type=str(value),
+                _('"{entity_type}" is not a valid Betty entity type.').format(
+                    entity_type=str(value)
                 )
             ) from None
         except EntityTypeError:
             raise AssertionFailed(
-                Str._(
-                    'Cannot determine the entity type for "{entity_type}". Did you perhaps make a typo, or could it be that the entity type comes from another package that is not yet installed?',
-                    entity_type=str(value),
-                )
+                _(
+                    'Cannot determine the entity type for "{entity_type}". Did you perhaps make a typo, or could it be that the entity type comes from another package that is not yet installed?'
+                ).format(entity_type=str(value))
             ) from None
 
     return AssertionChain(_assert_entity_type)

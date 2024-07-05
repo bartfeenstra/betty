@@ -13,7 +13,7 @@ from typing_extensions import override
 
 from betty.app import App
 from betty.gui.error import ExceptionError, _UnexpectedExceptionError
-from betty.locale import Str, Localizable
+from betty.locale.localizable import _, Localizable
 from betty.serde.format import FormatRepository
 
 if TYPE_CHECKING:
@@ -25,13 +25,12 @@ def get_configuration_file_filter() -> Localizable:
     Get the Qt file filter for project configuration files.
     """
     serde_formats = FormatRepository()
-    return Str._(
-        "Betty project configuration ({supported_formats})",
+    return _("Betty project configuration ({supported_formats})").format(
         supported_formats=" ".join(
             f"*.{extension}"
             for serde_format in serde_formats.formats
             for extension in serde_format.extensions
-        ),
+        )
     )
 
 

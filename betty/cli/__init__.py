@@ -21,7 +21,6 @@ from typing import (
 )
 
 import click
-from betty.serde.load import AssertionFailed
 from click import get_current_context, Context, Option, Command, Parameter
 
 from betty import about, generate, load, documentation, locale, serve
@@ -30,9 +29,11 @@ from betty.asyncio import wait_to_thread
 from betty.cli import _discover
 from betty.contextlib import SynchronizedContextManager
 from betty.error import UserFacingError
-from betty.locale import DEFAULT_LOCALIZER, Str
+from betty.locale import DEFAULT_LOCALIZER
+from betty.locale.localizable import _
 from betty.logging import CliHandler
 from betty.project import Project
+from betty.serde.load import AssertionFailed
 
 if TYPE_CHECKING:
     from collections.abc import Coroutine, Mapping
@@ -126,8 +127,9 @@ async def _read_project_configuration(
 
     if provided_configuration_file_path is None:
         raise AssertionFailed(
-            Str._(
-                "Could not find any of the following configuration files in {project_directory_path}: {configuration_file_names}.",
+            _(
+                "Could not find any of the following configuration files in {project_directory_path}: {configuration_file_names}."
+            ).format(
                 configuration_file_names=", ".join(
                     str(try_configuration_file_path.relative_to(project_directory_path))
                     for try_configuration_file_path in try_configuration_file_paths
@@ -137,8 +139,7 @@ async def _read_project_configuration(
         )
     else:
         raise AssertionFailed(
-            Str._(
-                'Configuration file "{configuration_file_path}" does not exist.',
+            _('Configuration file "{configuration_file_path}" does not exist.').format(
                 configuration_file_path=provided_configuration_file_path,
             )
         )

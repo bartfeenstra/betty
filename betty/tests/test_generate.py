@@ -6,9 +6,9 @@ import aiofiles
 import pytest
 
 from betty.app import App
+from betty.locale.localizable import plain, Localizable
 from betty.project.extension import Extension
 from betty.generate import generate
-from betty.locale import Str, Localizable
 from betty.model import (
     Entity,
     get_entity_type_name,
@@ -30,11 +30,11 @@ from betty.tests import assert_betty_html, assert_betty_json
 class _ThirdPartyEntity(Entity, UserFacingEntity):
     @classmethod
     def entity_type_label(cls) -> Localizable:
-        return Str.plain(cls.__name__)
+        return plain(cls.__name__)
 
     @classmethod
     def entity_type_label_plural(cls) -> Localizable:
-        return Str.plain(cls.__name__)
+        return plain(cls.__name__)
 
 
 class _ThirdPartyExtension(Extension, EntityTypeProvider):

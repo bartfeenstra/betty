@@ -8,11 +8,11 @@ from logging import getLogger
 
 from typing_extensions import override
 
-from betty.project.extension import Extension, UserFacingExtension
 from betty.deriver import Deriver as DeriverApi
 from betty.load import PostLoader
-from betty.locale import Str, Localizable
+from betty.locale.localizable import _, Localizable
 from betty.model.event_type import DerivableEventType
+from betty.project.extension import Extension, UserFacingExtension
 
 
 class Deriver(UserFacingExtension, PostLoader):
@@ -52,11 +52,11 @@ class Deriver(UserFacingExtension, PostLoader):
     @override
     @classmethod
     def label(cls) -> Localizable:
-        return Str._("Deriver")
+        return _("Deriver")
 
     @override
     @classmethod
     def description(cls) -> Localizable:
-        return Str._(
+        return _(
             "Create events such as births and deaths by deriving their details from existing information."
         )

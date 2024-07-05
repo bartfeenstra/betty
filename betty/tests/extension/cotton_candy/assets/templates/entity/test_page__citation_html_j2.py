@@ -1,7 +1,8 @@
 from pathlib import Path
 
 from betty.extension import CottonCandy
-from betty.locale import Str, DEFAULT_LOCALIZER
+from betty.locale import DEFAULT_LOCALIZER
+from betty.locale.localizable import plain
 from betty.model.ancestry import Citation, Source, File, Person, PersonName
 from betty.tests import TemplateTestCase
 
@@ -19,7 +20,7 @@ class TestTemplate(TemplateTestCase):
 
         citation = Citation(
             source=source,
-            location=Str.plain("citation location"),
+            location=plain("citation location"),
         )
 
         public_file = File(

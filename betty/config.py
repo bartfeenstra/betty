@@ -37,7 +37,7 @@ from typing_extensions import override
 from betty.asyncio import wait_to_thread
 from betty.classtools import repr_instance
 from betty.functools import slice_to_range
-from betty.locale import Str
+from betty.locale.localizable import plain
 from betty.serde.dump import Dumpable, Dump, minimize, VoidableDump, Void
 from betty.serde.error import SerdeErrorCollection
 from betty.serde.format import FormatRepository
@@ -187,10 +187,7 @@ class FileBasedConfiguration(Configuration):
             async with aiofiles.open(self.configuration_file_path) as f:
                 read_configuration = await f.read()
             with errors.catch(
-                Str.plain(
-                    "in {configuration_file_path}",
-                    configuration_file_path=str(self.configuration_file_path.resolve()),
-                )
+                plain(f"in {str(self.configuration_file_path.resolve())}")
             ):
                 self.load(
                     formats.format_for(self.configuration_file_path.suffix[1:]).load(

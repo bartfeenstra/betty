@@ -13,7 +13,8 @@ from typing_extensions import override
 
 from betty import serve, fs
 from betty.fs import ROOT_DIRECTORY_PATH
-from betty.locale import Str, Localizer, Localizable
+from betty.locale import Localizer
+from betty.locale.localizable import _, Localizable
 from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
 from betty.subprocess import run_process
 
@@ -91,7 +92,7 @@ class DocumentationServer(Server):
     @override
     @classmethod
     def label(cls) -> Localizable:
-        return Str._("Betty documentation")
+        return _("Betty documentation")
 
     @override
     @property

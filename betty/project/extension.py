@@ -22,7 +22,7 @@ from betty.asyncio import gather
 from betty.config import Configurable, Configuration
 from betty.dispatch import Dispatcher, TargetedDispatcher
 from betty.importlib import import_any
-from betty.locale import Str, Localizable
+from betty.locale.localizable import _, Localizable, call, plain
 from betty.requirement import Requirement, AllRequirements
 
 if TYPE_CHECKING:
@@ -108,10 +108,9 @@ class Dependencies(AllRequirements):
 
     @override
     def summary(self) -> Localizable:
-        return Str._(
-            "{dependent_label} requires {dependency_labels}.",
+        return _("{dependent_label} requires {dependency_labels}.").format(
             dependent_label=format_extension_type(self._dependent_type),
-            dependency_labels=Str.call(
+            dependency_labels=call(
                 lambda localizer: ", ".join(
                     (
                         format_extension_type(extension_type).localize(localizer)
@@ -134,10 +133,9 @@ class Dependents(Requirement):
 
     @override
     def summary(self) -> Localizable:
-        return Str._(
-            "{dependency_label} is required by {dependency_labels}.",
+        return _("{dependency_label} is required by {dependency_labels}.").format(
             dependency_label=format_extension_type(type(self._dependency)),
-            dependent_labels=Str.call(
+            dependent_labels=call(
                 lambda localizer: ", ".join(
                     [
                         format_extension_type(type(dependent)).localize(localizer)
@@ -321,10 +319,10 @@ def format_extension_type(extension_type: type[Extension]) -> Localizable:
     Format an extension type to a human-readable label.
     """
     if issubclass(extension_type, UserFacingExtension):
-        return Str.call(
+        return call(
             lambda localizer: f"{extension_type.label().localize(localizer)} ({extension_type.name()})"
         )
-    return Str.plain(extension_type.name())
+    return plain(extension_type.name())
 
 
 class ConfigurableExtension(

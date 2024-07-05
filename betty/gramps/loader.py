@@ -22,7 +22,8 @@ from geopy import Point
 from typing_extensions import override
 
 from betty.gramps.error import GrampsError
-from betty.locale import DateRange, Datey, Date, Str, Localizer
+from betty.locale import DateRange, Datey, Date, Localizer
+from betty.locale.localizable import _, plain
 from betty.media_type import MediaType, InvalidMediaType
 from betty.model import Entity, EntityGraphBuilder, AliasedEntity, AliasableEntity
 from betty.model.ancestry import (
@@ -179,9 +180,8 @@ class GrampsLoader:
                 xml = await f.read()
         except FileNotFoundError:
             raise GrampsFileNotFoundError(
-                Str._(
-                    'Could not find the file "{file_path}".',
-                    file_path=str(file_path),
+                _('Could not find the file "{file_path}".').format(
+                    file_path=str(file_path)
                 )
             ) from None
         with suppress(GrampsLoadFileError):
@@ -189,10 +189,9 @@ class GrampsLoader:
             return
 
         raise GrampsLoadFileError(
-            Str._(
-                'Could not load "{file_path}" as a *.gpkg, a *.gramps, or an *.xml family tree.',
-                file_path=str(file_path),
-            )
+            _(
+                'Could not load "{file_path}" as a *.gpkg, a *.gramps, or an *.xml family tree.'
+            ).format(file_path=str(file_path))
         )
 
     async def load_gramps(self, gramps_path: Path) -> None:
@@ -208,7 +207,7 @@ class GrampsLoader:
                 rootname(gramps_path),
             )
         except OSError as error:
-            raise GrampsLoadFileError(Str.plain(error)) from error
+            raise GrampsLoadFileError(plain(error)) from error
 
     async def load_gpkg(self, gpkg_path: Path) -> None:
         """
@@ -227,16 +226,14 @@ class GrampsLoader:
                     )
             except tarfile.ReadError as error:
                 raise GrampsLoadFileError(
-                    Str._(
-                        "Could not extract {file_path} as a tar (*.tar) file after extracting the outer gzip (*.gz) file.",
-                        file_path=str(gpkg_path),
-                    )
+                    _(
+                        "Could not extract {file_path} as a tar (*.tar) file after extracting the outer gzip (*.gz) file."
+                    ).format(file_path=str(gpkg_path))
                 ) from error
         except OSError as error:
             raise GrampsLoadFileError(
-                Str._(
-                    "Could not extract {file_path} as a gzip (*.gz) file.",
-                    file_path=str(gpkg_path),
+                _("Could not extract {file_path} as a gzip (*.gz) file.").format(
+                    file_path=str(gpkg_path)
                 )
             ) from error
 
@@ -256,7 +253,7 @@ class GrampsLoader:
                 )
             )
         except ElementTree.ParseError as error:
-            raise GrampsLoadFileError(Str.plain(error)) from error
+            raise GrampsLoadFileError(plain(error)) from error
         await self.load_tree(tree, gramps_tree_directory_path)
 
     async def load_tree(
@@ -364,11 +361,7 @@ class GrampsLoader:
         found_element = element.find(selector, namespaces=self._NS)
         if found_element is None:
             raise XPathError(
-                Str.plain(
-                    'Cannot find an element "{selector}" within {element}.',
-                    selector=selector,
-                    element=str(element),
-                )
+                plain(f'Cannot find an element "{selector}" within {str(element)}.')
             )
         return found_element
 
@@ -554,7 +547,7 @@ class GrampsLoader:
                 person_name = PersonName(individual=individual_name)
                 self._load_citationref(person_name, name_element)
                 person_names.append((person_name, is_alternative))
-        for person_name, _ in sorted(person_names, key=lambda x: x[1]):
+        for person_name, __ in sorted(person_names, key=lambda x: x[1]):
             self.add_entity(person_name)
             self.add_association(
                 Person, person_handle, "names", PersonName, person_name.id
@@ -931,7 +924,7 @@ class GrampsLoader:
             citation.private = True
 
         with suppress(XPathError):
-            citation.location = Str.plain(self._xpath1(element, "./ns:page").text)
+            citation.location = plain(self._xpath1(element, "./ns:page").text)
 
         aliased_citation = AliasedEntity(citation, citation_handle)
         self._load_objref(

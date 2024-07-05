@@ -6,12 +6,15 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from textwrap import indent
-from typing import Iterator, Self
+from typing import Iterator, Self, TYPE_CHECKING
 
 from typing_extensions import override
 
 from betty.error import UserFacingError
-from betty.locale import Localizable, Localizer, Str
+from betty.locale.localizable import _, Localizable
+
+if TYPE_CHECKING:
+    from betty.locale import Localizer
 
 
 class SerdeError(UserFacingError, ValueError):
@@ -66,7 +69,7 @@ class SerdeErrorCollection(SerdeError):
         self,
         errors: list[SerdeError] | None = None,
     ):
-        super().__init__(Str._("The following errors occurred"))
+        super().__init__(_("The following errors occurred"))
         self._errors: list[SerdeError] = errors or []
 
     def __iter__(self) -> Iterator[SerdeError]:

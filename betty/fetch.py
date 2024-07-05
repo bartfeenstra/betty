@@ -18,8 +18,7 @@ from betty.cache import Cache
 from betty.cache.file import BinaryFileCache
 from betty.error import UserFacingError
 from betty.hashid import hashid
-from betty.locale import Str
-
+from betty.locale.localizable import plain
 
 _CacheItemValueT = TypeVar("_CacheItemValueT")
 
@@ -111,7 +110,7 @@ class Fetcher:
                 response_data = await cache_item.value()
             else:
                 raise FetchError(
-                    Str.plain(
+                    plain(
                         f'Could neither fetch "{url}", nor find an old version in the cache.'
                     )
                 )

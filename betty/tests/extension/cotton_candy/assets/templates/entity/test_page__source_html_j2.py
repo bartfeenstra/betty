@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from betty.extension import CottonCandy
-from betty.locale import Str
+from betty.locale.localizable import plain
 from betty.model.ancestry import Source, File, Citation, Person, PersonName
 from betty.tests import TemplateTestCase
 
@@ -32,7 +32,7 @@ class TestTemplate(TemplateTestCase):
 
         public_citation = Citation(
             source=source,
-            location=Str.plain("public citation location"),
+            location=plain("public citation location"),
         )
         public_citation.source = source
 
@@ -71,7 +71,7 @@ class TestTemplate(TemplateTestCase):
         private_citation = Citation(
             source=source,
             private=True,
-            location=Str.plain("private citation location"),
+            location=plain("private citation location"),
         )
         private_citation.source = source
 
@@ -127,7 +127,7 @@ class TestTemplate(TemplateTestCase):
 
         public_citation_for_public_contained_source = Citation(
             source=source,
-            location=Str.plain("public citation for public contained source location"),
+            location=plain("public citation for public contained source location"),
         )
         public_citation_for_public_contained_source.source = public_contained_source
 
@@ -178,7 +178,7 @@ class TestTemplate(TemplateTestCase):
         private_citation_for_public_contained_source = Citation(
             source=source,
             private=True,
-            location=Str.plain("private citation for public contained source location"),
+            location=plain("private citation for public contained source location"),
         )
         private_citation_for_public_contained_source.source = public_contained_source
 
@@ -249,7 +249,7 @@ class TestTemplate(TemplateTestCase):
 
         public_citation_for_private_contained_source = Citation(
             source=source,
-            location=Str.plain("public citation for private contained source location"),
+            location=plain("public citation for private contained source location"),
         )
         public_citation_for_private_contained_source.source = private_contained_source
 
@@ -302,9 +302,7 @@ class TestTemplate(TemplateTestCase):
         private_citation_for_private_contained_source = Citation(
             source=source,
             private=True,
-            location=Str.plain(
-                "private citation for private contained source location"
-            ),
+            location=plain("private citation for private contained source location"),
         )
         private_citation_for_private_contained_source.source = private_contained_source
 
