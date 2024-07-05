@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from betty.app import App
 from betty.extension import Privatizer
 from betty.load import load
 from betty.model.ancestry import (
@@ -15,11 +14,15 @@ from betty.model.ancestry import (
     Citation,
 )
 from betty.model.event_type import Birth
-from betty.project import ExtensionConfiguration
+from betty.project import ExtensionConfiguration, Project
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from betty.app import App
 
 
 class TestPrivatizer:
-    async def test_post_load(self) -> None:
+    async def test_post_load(self, new_temporary_app: App) -> None:
         person = Person(id="P0")
         Presence(person, Subject(), Event(event_type=Birth))
 
@@ -46,12 +49,11 @@ class TestPrivatizer:
         )
         citation.files.add(citation_file)
 
-        async with App.new_temporary() as app, app:
-            app.project.configuration.extensions.append(
-                ExtensionConfiguration(Privatizer)
-            )
-            app.project.ancestry.add(person, source, citation)
-            await load(app)
+        project = Project(new_temporary_app)
+        project.configuration.extensions.append(ExtensionConfiguration(Privatizer))
+        project.ancestry.add(person, source, citation)
+        async with project:
+            await load(project)
 
         assert person.private
         assert source_file.private

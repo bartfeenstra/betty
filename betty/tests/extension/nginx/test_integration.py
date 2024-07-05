@@ -19,6 +19,7 @@ from betty.project import (
     ProjectConfiguration,
     ExtensionConfiguration,
     LocaleConfiguration,
+    Project,
 )
 from betty.serve import Server
 
@@ -33,10 +34,12 @@ class TestNginx:
         self, configuration: ProjectConfiguration
     ) -> AsyncIterator[Server]:
         async with App.new_temporary() as app, app:
-            app.project.configuration.update(configuration)
-            await generate.generate(app)
-            async with DockerizedNginxServer(app) as server:
-                yield server
+            project = Project(app)
+            project.configuration.update(configuration)
+            async with project:
+                await generate.generate(project)
+                async with DockerizedNginxServer(project) as server:
+                    yield server
 
     async def assert_betty_html(self, response: Response) -> None:
         assert response.headers["Content-Type"] == "text/html"
@@ -47,8 +50,8 @@ class TestNginx:
     async def assert_betty_json(self, response: Response) -> None:
         assert response.headers["Content-Type"] == "application/json"
         data = response.json()
-        async with App.new_temporary() as app, app:
-            schema = Schema(app)
+        async with App.new_temporary() as app, app, Project(app) as project:
+            schema = Schema(project)
             await schema.validate(data)
 
     def monolingual_configuration(self) -> ProjectConfiguration:

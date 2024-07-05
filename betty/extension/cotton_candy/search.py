@@ -11,9 +11,9 @@ from betty.model.ancestry import Person, Place, File
 from betty.string import camel_case_to_snake_case
 
 if TYPE_CHECKING:
+    from betty.project import Project
     from betty.locale import Localizer
     from betty.job import Context
-    from betty.app import App
     from collections.abc import AsyncIterable
 
 
@@ -24,11 +24,11 @@ class Index:
 
     def __init__(
         self,
-        app: App,
+        project: Project,
         job_context: Context | None,
         localizer: Localizer,
     ):
-        self._app = app
+        self._project = project
         self._job_context = job_context
         self._localizer = localizer
 
@@ -44,26 +44,26 @@ class Index:
             yield entry
 
     async def _build_people(self) -> AsyncIterable[dict[str, str]]:
-        for person in self._app.project.ancestry[Person]:
+        for person in self._project.ancestry[Person]:
             entry = await self._build_person(person)
             if entry is not None:
                 yield entry
 
     async def _build_places(self) -> AsyncIterable[dict[str, str]]:
-        for place in self._app.project.ancestry[Place]:
+        for place in self._project.ancestry[Place]:
             entry = await self._build_place(place)
             if entry is not None:
                 yield entry
 
     async def _build_files(self) -> AsyncIterable[dict[str, str]]:
-        for file in self._app.project.ancestry[File]:
+        for file in self._project.ancestry[File]:
             entry = await self._build_file(file)
             if entry is not None:
                 yield entry
 
     async def _render_entity(self, entity: Entity) -> str:
         entity_type_name = get_entity_type_name(entity)
-        return await self._app.jinja2_environment.select_template(
+        return await self._project.jinja2_environment.select_template(
             [
                 f"search/result-{camel_case_to_snake_case(entity_type_name)}.html.j2",
                 "search/result.html.j2",

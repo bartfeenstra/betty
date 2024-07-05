@@ -43,7 +43,7 @@ from betty.model.ancestry import (
     merge_privacies,
 )
 from betty.model.event_type import Birth, UnknownEventType
-from betty.project import LocaleConfiguration
+from betty.project import LocaleConfiguration, Project
 
 if TYPE_CHECKING:
     from betty.serde.dump import DictDump, Dump
@@ -53,26 +53,29 @@ if TYPE_CHECKING:
 async def assert_dumps_linked_data(
     dumpable: LinkedDataDumpable, schema_definition: str | None = None
 ) -> DictDump[Dump]:
-    async with App.new_temporary() as app:
-        app.project.configuration.locales["en-US"].alias = "en"
-        app.project.configuration.locales.append(
+    async with App.new_temporary() as app, app:
+        project = Project(app)
+        project.configuration.locales["en-US"].alias = "en"
+        project.configuration.locales.append(
             LocaleConfiguration(
                 "nl-NL",
                 alias="nl",
             )
         )
-        async with app:
-            actual = await dumpable.dump_linked_data(app)
-        # Allow for a copy to be made in case the actual data does not contain $schema by design.
-        actual_to_be_validated = actual
-        if schema_definition:
-            actual_to_be_validated = copy(actual)
-            actual_to_be_validated["$schema"] = app.static_url_generator.generate(
-                f"schema.json#/definitions/{schema_definition}", absolute=True
-            )
-        schema = Schema(app)
-        await schema.validate(actual_to_be_validated)
-        return actual
+        async with project:
+            actual = await dumpable.dump_linked_data(project)
+            # Allow for a copy to be made in case the actual data does not contain $schema by design.
+            actual_to_be_validated = actual
+            if schema_definition:
+                actual_to_be_validated = copy(actual)
+                actual_to_be_validated["$schema"] = (
+                    project.static_url_generator.generate(
+                        f"schema.json#/definitions/{schema_definition}", absolute=True
+                    )
+                )
+            schema = Schema(project)
+            await schema.validate(actual_to_be_validated)
+            return actual
 
 
 class DummyEntity(Entity):

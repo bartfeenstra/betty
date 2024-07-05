@@ -68,63 +68,17 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "prepend": TestKnownToBeMissing,
         },
     },
-    "betty/app/__init__.py": {
+    "betty/app.py": {
         "App": {
-            "__aenter__": TestKnownToBeMissing,
-            "__aexit__": TestKnownToBeMissing,
-            "__del__": TestKnownToBeMissing,
-            "discover_extension_types": TestKnownToBeMissing,
             "assets": TestKnownToBeMissing,
             "binary_file_cache": TestKnownToBeMissing,
             "cache": TestKnownToBeMissing,
-            "dispatcher": TestKnownToBeMissing,
-            "entity_types": TestKnownToBeMissing,
-            "event_types": TestKnownToBeMissing,
             "http_client": TestKnownToBeMissing,
-            "jinja2_environment": TestKnownToBeMissing,
             "localizer": TestKnownToBeMissing,
             "localizers": TestKnownToBeMissing,
             "process_pool": TestKnownToBeMissing,
-            "project": TestKnownToBeMissing,
-            "renderer": TestKnownToBeMissing,
-            "servers": TestKnownToBeMissing,
-            "start": TestKnownToBeMissing,
-            "static_url_generator": TestKnownToBeMissing,
-            "stop": TestKnownToBeMissing,
-            "url_generator": TestKnownToBeMissing,
         },
         "AppConfiguration": TestKnownToBeMissing,
-    },
-    "betty/app/extension/__init__.py": {
-        "ConfigurableExtension": TestKnownToBeMissing,
-        "CyclicDependencyError": TestKnownToBeMissing,
-        "Dependencies": TestKnownToBeMissing,
-        "Dependents": TestKnownToBeMissing,
-        "Extension": {
-            "app": TestKnownToBeMissing,
-            "disable_requirement": TestKnownToBeMissing,
-        },
-        "ExtensionDispatcher": {
-            "dispatch": TestKnownToBeMissing,
-        },
-        # This is an empty class.
-        "ExtensionError": TestKnownToBeMissing,
-        # This is an interface.
-        "Extensions": TestKnownToBeMissing,
-        # This is an empty class.
-        "ExtensionTypeError": TestKnownToBeMissing,
-        "ExtensionTypeImportError": TestKnownToBeMissing,
-        "ExtensionTypeInvalidError": TestKnownToBeMissing,
-        "format_extension_type": TestKnownToBeMissing,
-        "get_extension_type": TestKnownToBeMissing,
-        "get_extension_type_by_extension": TestKnownToBeMissing,
-        "get_extension_type_by_name": TestKnownToBeMissing,
-        "get_extension_type_by_type": TestKnownToBeMissing,
-        "ListExtensions": TestKnownToBeMissing,
-        # This is an empty class.
-        "Theme": TestKnownToBeMissing,
-        # This is an interface.
-        "UserFacingExtension": TestKnownToBeMissing,
     },
     "betty/asyncio.py": {
         "gather": TestKnownToBeMissing,
@@ -136,11 +90,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/cache/_base.py": TestKnownToBeMissing,
     "betty/classtools.py": TestKnownToBeMissing,
-    "betty/cli.py": {
-        "app_command": TestKnownToBeMissing,
-        # This is an interface.
-        "CommandProvider": TestKnownToBeMissing,
-        "global_command": TestKnownToBeMissing,
+    "betty/core.py": TestKnownToBeMissing,
+    "betty/cli/__init__.py": {
+        "command": TestKnownToBeMissing,
+        "discover_commands": TestKnownToBeMissing,
+        "pass_app": TestKnownToBeMissing,
+        "pass_project": TestKnownToBeMissing,
     },
     "betty/concurrent.py": {
         "AsynchronizedLock": {
@@ -641,7 +596,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "has_expired": TestKnownToBeMissing,
         },
     },
-    "betty/project.py": {
+    "betty/project/__init__.py": {
         "EntityReference": {
             "__eq__": TestKnownToBeMissing,
             "entity_type_is_constrained": TestKnownToBeMissing,
@@ -668,7 +623,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "LocaleConfigurationMapping": {
             "multilingual": TestKnownToBeMissing,
         },
-        "Project": TestKnownToBeMissing,
         "ProjectConfiguration": {
             "assets_directory_path": TestKnownToBeMissing,
             "debug": TestKnownToBeMissing,
@@ -683,6 +637,37 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "update": TestKnownToBeMissing,
             "www_directory_path": TestKnownToBeMissing,
         },
+    },
+    "betty/project/extension.py": {
+        "ConfigurableExtension": TestKnownToBeMissing,
+        "CyclicDependencyError": TestKnownToBeMissing,
+        "Dependencies": TestKnownToBeMissing,
+        "Dependents": TestKnownToBeMissing,
+        "Extension": {
+            "project": TestKnownToBeMissing,
+            "disable_requirement": TestKnownToBeMissing,
+        },
+        "ExtensionDispatcher": {
+            "dispatch": TestKnownToBeMissing,
+        },
+        # This is an empty class.
+        "ExtensionError": TestKnownToBeMissing,
+        # This is an interface.
+        "Extensions": TestKnownToBeMissing,
+        # This is an empty class.
+        "ExtensionTypeError": TestKnownToBeMissing,
+        "ExtensionTypeImportError": TestKnownToBeMissing,
+        "ExtensionTypeInvalidError": TestKnownToBeMissing,
+        "format_extension_type": TestKnownToBeMissing,
+        "get_extension_type": TestKnownToBeMissing,
+        "get_extension_type_by_extension": TestKnownToBeMissing,
+        "get_extension_type_by_name": TestKnownToBeMissing,
+        "get_extension_type_by_type": TestKnownToBeMissing,
+        "ListExtensions": TestKnownToBeMissing,
+        # This is an empty class.
+        "Theme": TestKnownToBeMissing,
+        # This is an interface.
+        "UserFacingExtension": TestKnownToBeMissing,
     },
     "betty/render.py": TestKnownToBeMissing,
     "betty/requirement.py": {
@@ -742,13 +727,16 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "RequiredField": TestKnownToBeMissing,
     },
     "betty/serve.py": {
-        "AppServer": TestKnownToBeMissing,
-        "BuiltinAppServer": TestKnownToBeMissing,
-        "BuiltinServer": {
+        "ProjectServer": TestKnownToBeMissing,
+        "BuiltinProjectServer": {
+            # This method is covered by another test method.
             "public_url": TestKnownToBeMissing,
+            # This method is covered by another test method.
             "start": TestKnownToBeMissing,
+            # This method is covered by another test method.
             "stop": TestKnownToBeMissing,
         },
+        "BuiltinServer": TestKnownToBeMissing,
         "NoPublicUrlBecauseServerNotStartedError": TestKnownToBeMissing,
         # This is an empty class.
         "OsError": TestKnownToBeMissing,

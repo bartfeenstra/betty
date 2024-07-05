@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable, Any
+from typing import Iterable, Any, TYPE_CHECKING
 
 import aiofiles
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
-from betty.app import App
 from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider
 from betty.locale import Date, Datey, DateRange, Localized
 from betty.media_type import MediaType
@@ -23,7 +22,11 @@ from betty.model.ancestry import (
     Place,
     Citation,
 )
+from betty.project import Project
 from betty.tests import TemplateTestCase
+
+if TYPE_CHECKING:
+    from betty.app import App
 
 
 class TestJinja2Provider:
@@ -37,9 +40,10 @@ class TestJinja2Provider:
 
 
 class TestJinja2Renderer:
-    async def test_render_file(self) -> None:
-        async with App.new_temporary() as app, app:
-            sut = Jinja2Renderer(app.jinja2_environment, app.project.configuration)
+    async def test_render_file(self, new_temporary_app: App) -> None:
+        project = Project(new_temporary_app)
+        async with project:
+            sut = Jinja2Renderer(project.jinja2_environment, project.configuration)
             template = "{% if true %}true{% endif %}"
             expected_output = "true"
             async with TemporaryDirectory() as working_directory_path_str:
@@ -174,11 +178,11 @@ class TestFilterFile(TemplateTestCase):
             data={
                 "file": file,
             },
-        ) as (actual, app):
+        ) as (actual, project):
             assert expected == actual
             for file_path in actual.split(":"):
                 assert (
-                    app.project.configuration.www_directory_path / file_path[1:]
+                    project.configuration.www_directory_path / file_path[1:]
                 ).exists()
 
 
@@ -234,11 +238,11 @@ class TestFilterImage(TemplateTestCase):
             data={
                 "file": file,
             },
-        ) as (actual, app):
+        ) as (actual, project):
             assert expected == actual
             for file_path in actual.split(":"):
                 assert (
-                    app.project.configuration.www_directory_path / file_path[1:]
+                    project.configuration.www_directory_path / file_path[1:]
                 ).exists()
 
     async def test_without_width(self) -> None:

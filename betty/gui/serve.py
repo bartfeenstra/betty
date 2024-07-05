@@ -20,6 +20,7 @@ from betty.gui.window import BettyMainWindow
 from betty.locale import Str, Localizable
 
 if TYPE_CHECKING:
+    from betty.project import Project
     from betty.serve import Server
     from betty.app import App
 
@@ -126,9 +127,13 @@ class ServeProjectWindow(_ServeWindow):
     A window to control the server for the current project.
     """
 
+    def __init__(self, project: Project, *, parent: QObject | None = None):
+        self._project = project
+        super().__init__(project.app, parent=parent)
+
     @override
     def _new_server(self) -> Server:
-        return serve.BuiltinAppServer(self._app)
+        return serve.BuiltinProjectServer(self._project)
 
     @override
     @property

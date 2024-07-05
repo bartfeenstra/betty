@@ -9,7 +9,7 @@ from typing import Iterable, Any, TYPE_CHECKING
 from jinja2 import pass_context
 from typing_extensions import override
 
-from betty.app.extension import UserFacingExtension, ConfigurableExtension
+from betty.project.extension import UserFacingExtension, ConfigurableExtension
 from betty.asyncio import gather
 from betty.extension.wikipedia.config import WikipediaConfiguration
 from betty.extension.wikipedia.gui import _WikipediaGuiWidget
@@ -54,13 +54,13 @@ class Wikipedia(
 
     @override
     async def post_load(self) -> None:
-        populator = _Populator(self.app, self._retriever)
+        populator = _Populator(self.project, self._retriever)
         await populator.populate()
 
     @property
     def _retriever(self) -> _Retriever:
         if self.__retriever is None:
-            self.__retriever = _Retriever(self._app.fetcher)
+            self.__retriever = _Retriever(self.project.app.fetcher)
         return self.__retriever
 
     @_retriever.deleter
@@ -134,4 +134,4 @@ Display <a href="https://www.wikipedia.org/">Wikipedia</a> summaries for resourc
 
     @override
     def gui_build(self) -> _WikipediaGuiWidget:
-        return _WikipediaGuiWidget(self._app, self._configuration)
+        return _WikipediaGuiWidget(self.project.app, self._configuration)

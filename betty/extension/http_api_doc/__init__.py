@@ -6,7 +6,7 @@ from pathlib import Path
 
 from typing_extensions import override
 
-from betty.app.extension import Extension, UserFacingExtension
+from betty.project.extension import Extension, UserFacingExtension
 from betty.extension.webpack import Webpack, WebpackEntryPointProvider
 from betty.locale import Str, Localizable
 from typing import TYPE_CHECKING

@@ -11,7 +11,7 @@
 </script>
 <div id="page">
     <nav id="nav-primary">
-        <a id="site-title" href="{{ '/index.html' | url }}" title="{{ app.project.configuration.title }}">{{ app.project.configuration.title }}</a>
+        <a id="site-title" href="{{ '/index.html' | url }}" title="{{ project.configuration.title }}">{{ project.configuration.title }}</a>
         <div id="search"
              data-betty-search-configuration="{{ '/search-configuration.json' | static_url }}"
              data-betty-search-index="{{ '/search-index.json' | url }}">
@@ -19,7 +19,7 @@
                 <span class="overlay-control overlay-close" title="{% trans %}Exit the search{% endtrans %}">{% trans %}Exit the search{% endtrans %}</span>
             </div>
             <form>
-                {% set search_keywords_example_person_name = app.project.ancestry['Person'] | select('public') | map(attribute='name') | first | default(none) %}
+                {% set search_keywords_example_person_name = project.ancestry['Person'] | select('public') | map(attribute='name') | first | default(none) %}
                 {% if search_keywords_example_person_name %}
                     {% set search_keywords_example -%}
                         {% filter forceescape %}
@@ -48,7 +48,7 @@
             <h2 class="nav-primary-action">{% trans %}Menu{% endtrans %}</h2>
             <div class="nav-primary-expanded">
                 <ul class="nav-secondary">
-                    {% for entity_type_configuration in app.project.configuration.entity_types.values() | selectattr('generate_html_list') %}
+                    {% for entity_type_configuration in project.configuration.entity_types.values() | selectattr('generate_html_list') %}
                         <li>
                             <a href="{{ ('/' + entity_type_configuration.entity_type | entity_type_name | camel_case_to_kebab_case + '/index.html') | url }}">
                                 {% if 'Event' == entity_type_configuration.entity_type | entity_type_name %}
@@ -62,13 +62,13 @@
                 </ul>
             </div>
         </div>
-        {% if page_resource is defined and app.project.configuration.locales.multilingual %}
+        {% if page_resource is defined and project.configuration.locales.multilingual %}
             <div id="nav-locale" class="nav-primary-expandable">
                 <h2 class="nav-primary-action">{% trans %}Language{% endtrans %}</h2>
                 <div class="nav-primary-expanded">
                     <ul class="nav-secondary">
                     {% set ns = namespace(available_locales=[]) %}
-                    {% for available_locale_configuration in app.project.configuration.locales.values() %}
+                    {% for available_locale_configuration in project.configuration.locales.values() %}
                         {% set available_locale_data = available_locale_configuration.alias | locale_get_data %}
                         {% do ns.available_locales.append((available_locale_configuration.locale, available_locale_data.get_display_name())) %}
                     {% endfor %}

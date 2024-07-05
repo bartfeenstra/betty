@@ -18,17 +18,16 @@ from typing import (
 
 from typing_extensions import override
 
-from betty.requirement import Requirement, AllRequirements
 from betty.asyncio import gather
 from betty.config import Configurable, Configuration
 from betty.dispatch import Dispatcher, TargetedDispatcher
 from betty.importlib import import_any
 from betty.locale import Str, Localizable
+from betty.requirement import Requirement, AllRequirements
 
 if TYPE_CHECKING:
+    from betty.project import Project
     from pathlib import Path
-    from betty.app import App
-
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 
@@ -160,10 +159,10 @@ class Dependents(Requirement):
         Create a new requirement for the given dependency.
         """
         dependents = [
-            dependency.app.extensions[extension_type]
+            dependency.project.extensions[extension_type]
             for extension_type in discover_extension_types()
             if dependency.__class__ in extension_type.depends_on()
-            and extension_type in dependency.app.extensions
+            and extension_type in dependency.project.extensions
         ]
         return cls(dependency, dependents)
 
@@ -173,10 +172,17 @@ class Extension:
     Integrate optional functionality with the Betty app.
     """
 
-    def __init__(self, app: App, *args: Any, **kwargs: Any):
+    def __init__(self, project: Project, *args: Any, **kwargs: Any):
         assert type(self) is not Extension
         super().__init__(*args, **kwargs)
-        self._app = app
+        self._project = project
+
+    @property
+    def project(self) -> Project:
+        """
+        The project this extension runs within.
+        """
+        return self._project
 
     @classmethod
     def name(cls) -> str:
@@ -235,13 +241,6 @@ class Extension:
         This may be anywhere in your Python package.
         """
         return None
-
-    @property
-    def app(self) -> App:
-        """
-        The Betty application the extension runs within.
-        """
-        return self._app
 
 
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)

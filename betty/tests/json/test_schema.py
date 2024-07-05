@@ -7,6 +7,7 @@ import pytest
 
 from betty.app import App
 from betty.json.schema import Schema
+from betty.project import Project
 
 
 class TestSchema:
@@ -17,13 +18,13 @@ class TestSchema:
             False,
         ],
     )
-    async def test_build(self, clean_urls: bool) -> None:
+    async def test_build(self, clean_urls: bool, new_temporary_app: App) -> None:
         async with aiofiles.open(
             Path(__file__).parent / "test_schema_assets" / "json-schema-schema.json"
         ) as f:
             json_schema_schema = stdjson.loads(await f.read())
 
-        async with App.new_temporary() as app, app:
-            sut = Schema(app)
+        async with Project(new_temporary_app) as project:
+            sut = Schema(project)
             schema = await sut.build()
         jsonschema.validate(json_schema_schema, schema)

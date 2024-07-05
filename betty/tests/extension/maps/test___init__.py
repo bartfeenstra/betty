@@ -3,17 +3,18 @@ import aiofiles
 from betty.app import App
 from betty.extension import Maps
 from betty.generate import generate
-from betty.project import ExtensionConfiguration
+from betty.project import ExtensionConfiguration, Project
 
 
 class TestMaps:
-    async def test_generate(self) -> None:
-        async with App.new_temporary() as app, app:
-            app.project.configuration.debug = True
-            app.project.configuration.extensions.append(ExtensionConfiguration(Maps))
-            await generate(app)
+    async def test_generate(self, new_temporary_app: App) -> None:
+        project = Project(new_temporary_app)
+        project.configuration.debug = True
+        project.configuration.extensions.append(ExtensionConfiguration(Maps))
+        async with project:
+            await generate(project)
             async with aiofiles.open(
-                app.project.configuration.www_directory_path
+                project.configuration.www_directory_path
                 / "js"
                 / "betty.extension.Maps.js",
                 encoding="utf-8",
@@ -21,7 +22,7 @@ class TestMaps:
                 betty_js = await f.read()
             assert Maps.name() in betty_js
             async with aiofiles.open(
-                app.project.configuration.www_directory_path
+                project.configuration.www_directory_path
                 / "css"
                 / "betty.extension.Maps.css",
                 encoding="utf-8",

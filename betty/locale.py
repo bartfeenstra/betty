@@ -47,10 +47,9 @@ from betty.json.schema import ref_locale, add_property
 from betty.serde.dump import DictDump, Dump, dump_default
 
 if TYPE_CHECKING:
+    from betty.project import Project
     from betty.assets import AssetRepository
     from collections.abc import AsyncIterator
-    from betty.app import App
-
 
 DEFAULT_LOCALE = "en-US"
 UNDETERMINED_LOCALE = "und"
@@ -147,16 +146,16 @@ class Localized(LinkedDataDumpable):
         self.locale = locale
 
     @override
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
+    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(project)
         if self.locale is not None:
             dump["locale"] = self.locale
         return dump
 
     @override
     @classmethod
-    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
-        schema = await super().linked_data_schema(app)
+    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(project)
         properties = dump_default(schema, "properties", dict)
         properties["locale"] = ref_locale(schema)
         return schema
@@ -300,9 +299,9 @@ class Date(LinkedDataDumpable):
 
     @override
     async def dump_linked_data(
-        self, app: App, schemas_org: list[str] | None = None
+        self, project: Project, schemas_org: list[str] | None = None
     ) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
+        dump = await super().dump_linked_data(project)
         if self.year:
             dump["year"] = self.year
         if self.month:
@@ -327,8 +326,8 @@ class Date(LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
-        schema = await super().linked_data_schema(app)
+    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(project)
         schema["type"] = "object"
         schema["additionalProperties"] = False
         add_json_ld(schema)
@@ -348,13 +347,13 @@ class Date(LinkedDataDumpable):
         return schema
 
 
-async def ref_date(root_schema: DictDump[Dump], app: App) -> DictDump[Dump]:
+async def ref_date(root_schema: DictDump[Dump], project: Project) -> DictDump[Dump]:
     """
     Reference the Date schema.
     """
     definitions = dump_default(root_schema, "definitions", dict)
     if "date" not in definitions:
-        definitions["date"] = await Date.linked_data_schema(app)
+        definitions["date"] = await Date.linked_data_schema(project)
     return {
         "$ref": "#/definitions/date",
     }
@@ -463,31 +462,31 @@ class DateRange(LinkedDataDumpable):
     @override
     async def dump_linked_data(
         self,
-        app: App,
+        project: Project,
         start_schema_org: str | None = None,
         end_schema_org: str | None = None,
     ) -> DictDump[Dump]:
         dump: DictDump[Dump] = {}
         if self.start:
             dump["start"] = await self.start.dump_linked_data(
-                app,
+                project,
                 [start_schema_org] if start_schema_org else None,
             )
         if self.end:
             dump["end"] = await self.end.dump_linked_data(
-                app,
+                project,
                 [end_schema_org] if end_schema_org else None,
             )
         return dump
 
     @override
     @classmethod
-    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
-        schema = await super().linked_data_schema(app)
+    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(project)
         schema["type"] = "object"
         schema["additionalProperties"] = False
-        add_property(schema, "start", await ref_date(schema, app), False)
-        add_property(schema, "end", await ref_date(schema, app), False)
+        add_property(schema, "start", await ref_date(schema, project), False)
+        add_property(schema, "end", await ref_date(schema, project), False)
         return schema
 
     async def datey_dump_linked_data(
@@ -660,19 +659,21 @@ class DateRange(LinkedDataDumpable):
         )
 
 
-async def ref_date_range(root_schema: DictDump[Dump], app: App) -> DictDump[Dump]:
+async def ref_date_range(
+    root_schema: DictDump[Dump], project: Project
+) -> DictDump[Dump]:
     """
     Reference the DateRange schema.
     """
     definitions = dump_default(root_schema, "definitions", dict)
     if "dateRange" not in definitions:
-        definitions["dateRange"] = await DateRange.linked_data_schema(app)
+        definitions["dateRange"] = await DateRange.linked_data_schema(project)
     return {
         "$ref": "#/definitions/dateRange",
     }
 
 
-async def ref_datey(root_schema: DictDump[Dump], app: App) -> DictDump[Dump]:
+async def ref_datey(root_schema: DictDump[Dump], project: Project) -> DictDump[Dump]:
     """
     Reference the Datey schema.
     """
@@ -680,8 +681,8 @@ async def ref_datey(root_schema: DictDump[Dump], app: App) -> DictDump[Dump]:
     if "datey" not in definitions:
         definitions["datey"] = {
             "oneOf": [
-                await ref_date(root_schema, app),
-                await ref_date_range(root_schema, app),
+                await ref_date(root_schema, project),
+                await ref_date_range(root_schema, project),
             ]
         }
     return {

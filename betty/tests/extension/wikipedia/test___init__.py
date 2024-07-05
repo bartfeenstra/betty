@@ -1,21 +1,21 @@
 from __future__ import annotations
 
 
-from betty.app import App
 from betty.extension import Wikipedia
 from betty.job import Context
 from betty.load import load
 from betty.model.ancestry import Link
-from betty.project import ExtensionConfiguration
+from betty.project import ExtensionConfiguration, Project
 from betty.wikipedia import Summary
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from betty.app import App
     from pytest_mock import MockerFixture
 
 
 class TestWikipedia:
-    async def test_filter(self, mocker: MockerFixture) -> None:
+    async def test_filter(self, mocker: MockerFixture, new_temporary_app: App) -> None:
         language = "en"
         name = "Amsterdam"
         title = "Amstelredam"
@@ -34,11 +34,10 @@ class TestWikipedia:
             Link("https://example.com"),
         ]
 
-        async with App.new_temporary() as app, app:
-            app.project.configuration.extensions.append(
-                ExtensionConfiguration(Wikipedia)
-            )
-            actual = await app.jinja2_environment.from_string(
+        project = Project(new_temporary_app)
+        project.configuration.extensions.append(ExtensionConfiguration(Wikipedia))
+        async with project:
+            actual = await project.jinja2_environment.from_string(
                 "{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}"
             ).render_async(
                 job_context=Context(),
@@ -48,13 +47,14 @@ class TestWikipedia:
         m_get_summary.assert_called_once()
         assert extract == actual
 
-    async def test_post_load(self, mocker: MockerFixture) -> None:
+    async def test_post_load(
+        self, mocker: MockerFixture, new_temporary_app: App
+    ) -> None:
         m_populate = mocker.patch("betty.wikipedia._Populator.populate")
 
-        async with App.new_temporary() as app, app:
-            app.project.configuration.extensions.append(
-                ExtensionConfiguration(Wikipedia)
-            )
-            await load(app)
+        project = Project(new_temporary_app)
+        project.configuration.extensions.append(ExtensionConfiguration(Wikipedia))
+        async with project:
+            await load(project)
 
         m_populate.assert_called_once()

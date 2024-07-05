@@ -11,12 +11,12 @@ import aiofiles
 from aiofiles.os import makedirs
 from jinja2 import FileSystemLoader
 
-from betty.app import App
 from betty.path import rootname
+from betty.project import Project
 
 
 async def generate_configuration_file(
-    app: App,
+    project: Project,
     destination_file_path: Path | None = None,
     www_directory_path: str | None = None,
     https: bool | None = None,
@@ -27,14 +27,14 @@ async def generate_configuration_file(
     from betty.extension import Nginx
 
     data = {
-        "server_name": urlparse(app.project.configuration.base_url).netloc,
+        "server_name": urlparse(project.configuration.base_url).netloc,
         "www_directory_path": www_directory_path
-        or app.extensions[Nginx].www_directory_path,
-        "https": https or app.extensions[Nginx].https,
+        or project.extensions[Nginx].www_directory_path,
+        "https": https or project.extensions[Nginx].https,
     }
     if destination_file_path is None:
         destination_file_path = (
-            app.project.configuration.output_directory_path / "nginx" / "nginx.conf"
+            project.configuration.output_directory_path / "nginx" / "nginx.conf"
         )
     root_path = rootname(Path(__file__))
     configuration_file_template_name = "/".join(
@@ -43,9 +43,9 @@ async def generate_configuration_file(
         .parts
     )
     template = FileSystemLoader(root_path).load(
-        app.jinja2_environment,
+        project.jinja2_environment,
         configuration_file_template_name,
-        app.jinja2_environment.globals,
+        project.jinja2_environment.globals,
     )
     await makedirs(destination_file_path.parent, exist_ok=True)
     configuration_file_contents = await template.render_async(data)
@@ -54,14 +54,14 @@ async def generate_configuration_file(
 
 
 async def generate_dockerfile_file(
-    app: App, destination_file_path: Path | None = None
+    project: Project, destination_file_path: Path | None = None
 ) -> None:
     """
     Generate a ``Dockerfile`` to the given destination path.
     """
     if destination_file_path is None:
         destination_file_path = (
-            app.project.configuration.output_directory_path / "nginx" / "Dockerfile"
+            project.configuration.output_directory_path / "nginx" / "Dockerfile"
         )
     await makedirs(destination_file_path.parent, exist_ok=True)
     await asyncio.to_thread(

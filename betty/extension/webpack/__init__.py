@@ -17,7 +17,7 @@ from typing_extensions import override
 from betty import fs
 from betty._npm import NpmRequirement, NpmUnavailable
 from betty.app import App
-from betty.app.extension import Extension, discover_extension_types
+from betty.project.extension import Extension, discover_extension_types
 from betty.extension.webpack import build
 from betty.extension.webpack.build import webpack_build_id
 from betty.extension.webpack.jinja2.filter import FILTERS
@@ -26,6 +26,7 @@ from betty.html import CssProvider
 from betty.jinja2 import Jinja2Provider, Filters, ContextVars
 from betty.job import Context
 from betty.locale import Str, Localizable
+from betty.project import Project
 from betty.requirement import (
     Requirement,
     AllRequirements,
@@ -51,18 +52,20 @@ async def _prebuild_webpack_assets() -> None:
     """
     Prebuild Webpack assets for inclusion in package builds.
     """
-    job_context = Context()
     async with App.new_temporary() as app, app:
-        app.project.configuration.extensions.enable(Webpack)
-        webpack = app.extensions[Webpack]
-        app.project.configuration.extensions.enable(
+        job_context = Context()
+        project = Project(app)
+        project.configuration.extensions.enable(Webpack)
+        project.configuration.extensions.enable(
             *{
                 extension_type
                 for extension_type in discover_extension_types()
                 if issubclass(extension_type, WebpackEntryPointProvider)
             }
         )
-        await webpack.prebuild(job_context=job_context)
+        async with project:
+            webpack = project.extensions[Webpack]
+            await webpack.prebuild(job_context=job_context)
 
 
 class WebpackEntryPointProvider:
@@ -143,7 +146,7 @@ class Webpack(Extension, CssProvider, Jinja2Provider, Generator):
     @property
     def public_css_paths(self) -> list[str]:
         return [
-            self.app.static_url_generator.generate("css/vendor.css"),
+            self._project.static_url_generator.generate("css/vendor.css"),
         ]
 
     @override
@@ -163,7 +166,7 @@ class Webpack(Extension, CssProvider, Jinja2Provider, Generator):
     ) -> Sequence[WebpackEntryPointProvider & Extension]:
         return [
             extension
-            for extension in self._app.extensions.flatten()
+            for extension in self._project.extensions.flatten()
             if isinstance(extension, WebpackEntryPointProvider)
         ]
 
@@ -173,7 +176,7 @@ class Webpack(Extension, CssProvider, Jinja2Provider, Generator):
             job_context=job_context,
         )
         await self._copy_build_directory(
-            build_directory_path, self._app.project.configuration.www_directory_path
+            build_directory_path, self._project.configuration.www_directory_path
         )
 
     async def prebuild(self, job_context: Context) -> None:
@@ -201,10 +204,10 @@ class Webpack(Extension, CssProvider, Jinja2Provider, Generator):
         return build.Builder(
             working_directory_path,
             self._project_entry_point_providers,
-            self._app.project.configuration.debug,
-            self._app.renderer,
+            self._project.configuration.debug,
+            self._project.renderer,
             job_context=job_context,
-            localizer=self._app.localizer,
+            localizer=self._project.app.localizer,
         )
 
     async def _copy_build_directory(
@@ -225,7 +228,7 @@ class Webpack(Extension, CssProvider, Jinja2Provider, Generator):
         job_context: Context,
     ) -> Path:
         builder = self._new_builder(
-            self._app.binary_file_cache.with_scope("webpack").path,
+            self._project.app.binary_file_cache.with_scope("webpack").path,
             job_context=job_context,
         )
         try:

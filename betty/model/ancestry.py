@@ -41,10 +41,10 @@ from betty.serde.dump import DictDump, Dump, dump_default
 from betty.string import camel_case_to_kebab_case
 
 if TYPE_CHECKING:
+    from betty.project import Project
     from geopy import Point
     from pathlib import Path
     from collections.abc import MutableSequence, Iterator
-    from betty.app import App
 
 
 class Privacy(Enum):
@@ -145,15 +145,15 @@ class HasPrivacy(LinkedDataDumpable):
         self.privacy = Privacy.PUBLIC
 
     @override
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
+    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(project)
         dump["private"] = self.private
         return dump
 
     @override
     @classmethod
-    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
-        schema = await super().linked_data_schema(app)
+    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(project)
         add_property(
             schema,
             "private",
@@ -226,19 +226,19 @@ class Dated(LinkedDataDumpable):
         self.date = date
 
     @override
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
+    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(project)
         if self.date and is_public(self):
-            dump["date"] = await self.date.dump_linked_data(app)
+            dump["date"] = await self.date.dump_linked_data(project)
         return dump
 
     @override
     @classmethod
-    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
-        schema = await super().linked_data_schema(app)
+    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(project)
         schema["type"] = "object"
         schema["additionalProperties"] = False
-        add_property(schema, "date", await ref_datey(schema, app), False)
+        add_property(schema, "date", await ref_datey(schema, project), False)
         return schema
 
 
@@ -260,8 +260,8 @@ class Described(LinkedDataDumpable):
         self.description = description
 
     @override
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
+    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(project)
         if self.description is not None:
             dump["description"] = self.description
             dump_context(dump, description="description")
@@ -269,8 +269,8 @@ class Described(LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
-        schema = await super().linked_data_schema(app)
+    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(project)
         add_property(
             schema,
             "description",
@@ -302,16 +302,16 @@ class HasMediaType(LinkedDataDumpable):
         self.media_type = media_type
 
     @override
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
+    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(project)
         if is_public(self) and self.media_type is not None:
             dump["mediaType"] = str(self.media_type)
         return dump
 
     @override
     @classmethod
-    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
-        schema = await super().linked_data_schema(app)
+    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(project)
         add_property(schema, "mediaType", ref_media_type(schema), False)
         return schema
 
@@ -363,9 +363,9 @@ class Link(HasMediaType, Localized, Described, LinkedDataDumpable):
         self.relationship = relationship
 
     @override
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
-        dump["$schema"] = app.static_url_generator.generate(
+    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(project)
+        dump["$schema"] = project.static_url_generator.generate(
             "schema.json#/definitions/link", absolute=True
         )
         dump["url"] = self.url
@@ -377,8 +377,8 @@ class Link(HasMediaType, Localized, Described, LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
-        schema = await super().linked_data_schema(app)
+    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(project)
         schema["type"] = "object"
         schema["additionalProperties"] = False
         add_json_ld(schema)
@@ -413,19 +413,21 @@ class Link(HasMediaType, Localized, Described, LinkedDataDumpable):
         return schema
 
 
-async def ref_link(root_schema: DictDump[Dump], app: App) -> DictDump[Dump]:
+async def ref_link(root_schema: DictDump[Dump], project: Project) -> DictDump[Dump]:
     """
     Reference the Link schema.
     """
     definitions = dump_default(root_schema, "definitions", dict)
     if "link" not in definitions:
-        definitions["link"] = await Link.linked_data_schema(app)
+        definitions["link"] = await Link.linked_data_schema(project)
     return {
         "$ref": "#/definitions/link",
     }
 
 
-async def ref_link_collection(root_schema: DictDump[Dump], app: App) -> DictDump[Dump]:
+async def ref_link_collection(
+    root_schema: DictDump[Dump], project: Project
+) -> DictDump[Dump]:
     """
     Reference the schema for a collection of Link instances.
     """
@@ -433,7 +435,7 @@ async def ref_link_collection(root_schema: DictDump[Dump], app: App) -> DictDump
     if "linkCollection" not in definitions:
         definitions["linkCollection"] = {
             "type": "array",
-            "items": await ref_link(root_schema, app),
+            "items": await ref_link(root_schema, project),
         }
     return {
         "$ref": "#/definitions/linkCollection",
@@ -462,20 +464,20 @@ class HasLinks(LinkedDataDumpable):
         return self._links
 
     @override
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
+    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(project)
         await dump_link(
             dump,
-            app,
+            project,
             *(self.links if is_public(self) else ()),
         )
         return dump
 
     @override
     @classmethod
-    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
-        schema = await super().linked_data_schema(app)
-        add_property(schema, "links", await ref_link_collection(schema, app))
+    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(project)
+        add_property(schema, "links", await ref_link_collection(schema, project))
         return schema
 
 
@@ -487,16 +489,16 @@ class HasLinksEntity(HasLinks):
     @override
     async def dump_linked_data(  # type: ignore[misc]
         self: HasLinksEntity & Entity,
-        app: App,
+        project: Project,
     ) -> DictDump[Dump]:
-        dump: DictDump[Dump] = await super().dump_linked_data(app)  # type: ignore[misc]
+        dump: DictDump[Dump] = await super().dump_linked_data(project)  # type: ignore[misc]
 
         if not isinstance(self.id, GeneratedEntityId):
             await dump_link(
                 dump,
-                app,
+                project,
                 Link(
-                    app.static_url_generator.generate(
+                    project.static_url_generator.generate(
                         f"/{camel_case_to_kebab_case(get_entity_type_name(self.type))}/{self.id}/index.json"
                     ),
                     relationship="canonical",
@@ -506,17 +508,17 @@ class HasLinksEntity(HasLinks):
             if is_public(self):
                 await dump_link(
                     dump,
-                    app,
+                    project,
                     *(
                         Link(
-                            app.url_generator.generate(
+                            project.url_generator.generate(
                                 self, media_type="text/html", locale=locale
                             ),
                             relationship="alternate",
                             media_type=MediaType("text/html"),
                             locale=locale,
                         )
-                        for locale in app.project.configuration.locales
+                        for locale in project.configuration.locales
                     ),
                 )
 
@@ -575,8 +577,8 @@ class Note(UserFacingEntity, HasPrivacy, HasLinksEntity, Entity):
         return Str.plain(self.text)
 
     @override
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
+    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(project)
         dump["@type"] = "https://schema.org/Thing"
         if self.public:
             dump["text"] = self.text
@@ -584,8 +586,8 @@ class Note(UserFacingEntity, HasPrivacy, HasLinksEntity, Entity):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
-        schema = await super().linked_data_schema(app)
+    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(project)
         add_property(schema, "text", {"type": "string"}, False)
         return schema
 
@@ -625,10 +627,10 @@ class HasNotes(LinkedDataDumpable):
         pass  # pragma: no cover
 
     @override
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
+    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(project)
         dump["notes"] = [
-            app.static_url_generator.generate(f"/note/{quote(note.id)}/index.json")
+            project.static_url_generator.generate(f"/note/{quote(note.id)}/index.json")
             for note in self.notes
             if not isinstance(note.id, GeneratedEntityId)
         ]
@@ -636,8 +638,8 @@ class HasNotes(LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
-        schema = await super().linked_data_schema(app)
+    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(project)
         add_property(
             schema,
             "notes",
@@ -683,10 +685,10 @@ class HasCitations(LinkedDataDumpable):
         pass  # pragma: no cover
 
     @override
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
+    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(project)
         dump["citations"] = [
-            app.static_url_generator.generate(
+            project.static_url_generator.generate(
                 f"/citation/{quote(citation.id)}/index.json"
             )
             for citation in self.citations
@@ -696,8 +698,8 @@ class HasCitations(LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
-        schema = await super().linked_data_schema(app)
+    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(project)
         add_property(
             schema,
             "citations",
@@ -804,10 +806,10 @@ class File(
         return Str.plain(self.description) if self.description else super().label
 
     @override
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
+    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(project)
         dump["entities"] = [
-            app.static_url_generator.generate(
+            project.static_url_generator.generate(
                 f"/{camel_case_to_kebab_case(get_entity_type_name(entity))}/{quote(entity.id)}/index.json"
             )
             for entity in self.entities
@@ -817,8 +819,8 @@ class File(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
-        schema = await super().linked_data_schema(app)
+    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(project)
         add_property(
             schema,
             "entities",
@@ -979,18 +981,18 @@ class Source(
         return Str.plain(self.name) if self.name else super().label
 
     @override
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
+    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(project)
         dump["@type"] = "https://schema.org/Thing"
         dump["contains"] = [
-            app.static_url_generator.generate(
+            project.static_url_generator.generate(
                 f"/source/{quote(contained.id)}/index.json"
             )
             for contained in self.contains
             if not isinstance(contained.id, GeneratedEntityId)
         ]
         dump["citations"] = [
-            app.static_url_generator.generate(
+            project.static_url_generator.generate(
                 f"/citation/{quote(citation.id)}/index.json"
             )
             for citation in self.citations
@@ -999,7 +1001,7 @@ class Source(
         if self.contained_by is not None and not isinstance(
             self.contained_by.id, GeneratedEntityId
         ):
-            dump["containedBy"] = app.static_url_generator.generate(
+            dump["containedBy"] = project.static_url_generator.generate(
                 f"/source/{quote(self.contained_by.id)}/index.json"
             )
         if self.public:
@@ -1014,8 +1016,8 @@ class Source(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
-        schema = await super().linked_data_schema(app)
+    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(project)
         add_property(
             schema,
             "name",
@@ -1141,11 +1143,11 @@ class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, En
         return self.location or Str.plain("")
 
     @override
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
+    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(project)
         dump["@type"] = "https://schema.org/Thing"
         dump["facts"] = [
-            app.static_url_generator.generate(
+            project.static_url_generator.generate(
                 f"/{camel_case_to_kebab_case(get_entity_type_name(fact))}/{quote(fact.id)}/index.json"
             )
             for fact in self.facts
@@ -1154,15 +1156,15 @@ class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, En
         if self.source is not None and not isinstance(
             self.source.id, GeneratedEntityId
         ):
-            dump["source"] = app.static_url_generator.generate(
+            dump["source"] = project.static_url_generator.generate(
                 f"/source/{quote(self.source.id)}/index.json"
             )
         return dump
 
     @override
     @classmethod
-    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
-        schema = await super().linked_data_schema(app)
+    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(project)
         add_property(schema, "source", {"type": "string", "format": "uri"}, False)
         add_property(
             schema,
@@ -1215,15 +1217,15 @@ class PlaceName(Localized, Dated, LinkedDataDumpable):
         return self._name
 
     @override
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
+    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(project)
         dump["name"] = self.name
         return dump
 
     @override
     @classmethod
-    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
-        schema = await super().linked_data_schema(app)
+    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(project)
         add_property(schema, "name", {"type": "string"})
         return schema
 
@@ -1411,8 +1413,8 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
             yield from event.files
 
     @override
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
+    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(project)
         dump_context(
             dump,
             names="name",
@@ -1421,14 +1423,16 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
             encloses="containsPlace",
         )
         dump["@type"] = "https://schema.org/Place"
-        dump["names"] = [await name.dump_linked_data(app) for name in self.names]
+        dump["names"] = [await name.dump_linked_data(project) for name in self.names]
         dump["events"] = [
-            app.static_url_generator.generate(f"/event/{quote(event.id)}/index.json")
+            project.static_url_generator.generate(
+                f"/event/{quote(event.id)}/index.json"
+            )
             for event in self.events
             if not isinstance(event.id, GeneratedEntityId)
         ]
         dump["enclosedBy"] = [
-            app.static_url_generator.generate(
+            project.static_url_generator.generate(
                 f"/place/{quote(enclosure.enclosed_by.id)}/index.json"
             )
             for enclosure in self.enclosed_by
@@ -1436,7 +1440,7 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
             and not isinstance(enclosure.enclosed_by.id, GeneratedEntityId)
         ]
         dump["encloses"] = [
-            app.static_url_generator.generate(
+            project.static_url_generator.generate(
                 f"/place/{quote(enclosure.encloses.id)}/index.json"
             )
             for enclosure in self.encloses
@@ -1462,14 +1466,14 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
 
     @override
     @classmethod
-    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
-        schema = await super().linked_data_schema(app)
+    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(project)
         add_property(
             schema,
             "names",
             {
                 "type": "array",
-                "items": await PlaceName.linked_data_schema(app),
+                "items": await PlaceName.linked_data_schema(project),
             },
         )
         add_property(
@@ -1849,8 +1853,8 @@ class Event(
         yield from Uniquifier(files)
 
     @override
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
+    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(project)
         dump_context(dump, presences="performer")
         dump["@type"] = "https://schema.org/Event"
         dump["type"] = self.event_type.name()
@@ -1867,19 +1871,21 @@ class Event(
             if presence.person and not isinstance(
                 presence.person.id, GeneratedEntityId
             ):
-                presences.append(self._dump_event_presence(presence, app))
+                presences.append(self._dump_event_presence(presence, project))
         if self.place is not None and not isinstance(self.place.id, GeneratedEntityId):
-            dump["place"] = app.static_url_generator.generate(
+            dump["place"] = project.static_url_generator.generate(
                 f"/place/{quote(self.place.id)}/index.json"
             )
             dump_context(dump, place="location")
         return dump
 
-    def _dump_event_presence(self, presence: Presence, app: App) -> DictDump[Dump]:
+    def _dump_event_presence(
+        self, presence: Presence, project: Project
+    ) -> DictDump[Dump]:
         assert presence.person
         dump: DictDump[Dump] = {
             "@type": "https://schema.org/Person",
-            "person": app.static_url_generator.generate(
+            "person": project.static_url_generator.generate(
                 f"/person/{quote(presence.person.id)}/index.json"
             ),
         }
@@ -1889,8 +1895,8 @@ class Event(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
-        schema = await super().linked_data_schema(app)
+    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(project)
         add_property(
             schema,
             "type",
@@ -2041,8 +2047,8 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
         )
 
     @override
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
+    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(project)
         if self.public:
             if self.individual is not None:
                 dump_context(dump, individual="givenName")
@@ -2054,8 +2060,8 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
-        schema = await super().linked_data_schema(app)
+    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(project)
         add_property(
             schema,
             "individual",
@@ -2257,8 +2263,8 @@ class Person(
         return super().label
 
     @override
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
-        dump = await super().dump_linked_data(app)
+    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
+        dump = await super().dump_linked_data(project)
         dump_context(
             dump,
             names="name",
@@ -2268,38 +2274,48 @@ class Person(
         )
         dump["@type"] = "https://schema.org/Person"
         dump["parents"] = [
-            app.static_url_generator.generate(f"/person/{quote(parent.id)}/index.json")
+            project.static_url_generator.generate(
+                f"/person/{quote(parent.id)}/index.json"
+            )
             for parent in self.parents
             if not isinstance(parent.id, GeneratedEntityId)
         ]
         dump["children"] = [
-            app.static_url_generator.generate(f"/person/{quote(child.id)}/index.json")
+            project.static_url_generator.generate(
+                f"/person/{quote(child.id)}/index.json"
+            )
             for child in self.children
             if not isinstance(child.id, GeneratedEntityId)
         ]
         dump["siblings"] = [
-            app.static_url_generator.generate(f"/person/{quote(sibling.id)}/index.json")
+            project.static_url_generator.generate(
+                f"/person/{quote(sibling.id)}/index.json"
+            )
             for sibling in self.siblings
             if not isinstance(sibling.id, GeneratedEntityId)
         ]
         dump["presences"] = [
-            self._dump_person_presence(presence, app)
+            self._dump_person_presence(presence, project)
             for presence in self.presences
             if presence.event is not None
             and not isinstance(presence.event.id, GeneratedEntityId)
         ]
         if self.public:
             dump["names"] = [
-                await name.dump_linked_data(app) for name in self.names if name.public
+                await name.dump_linked_data(project)
+                for name in self.names
+                if name.public
             ]
         else:
             dump["names"] = []
         return dump
 
-    def _dump_person_presence(self, presence: Presence, app: App) -> DictDump[Dump]:
+    def _dump_person_presence(
+        self, presence: Presence, project: Project
+    ) -> DictDump[Dump]:
         assert presence.event
         dump: DictDump[Dump] = {
-            "event": app.static_url_generator.generate(
+            "event": project.static_url_generator.generate(
                 f"/event/{quote(presence.event.id)}/index.json"
             ),
         }
@@ -2310,14 +2326,14 @@ class Person(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
-        schema = await super().linked_data_schema(app)
+    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+        schema = await super().linked_data_schema(project)
         add_property(
             schema,
             "names",
             {
                 "type": "array",
-                "items": await PersonName.linked_data_schema(app),
+                "items": await PersonName.linked_data_schema(project),
             },
         )
         add_property(

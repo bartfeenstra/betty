@@ -20,7 +20,7 @@ from betty.fs import ROOT_DIRECTORY_PATH, iterfiles
 from betty.hashid import hashid, hashid_sequence, hashid_file_content
 
 if TYPE_CHECKING:
-    from betty.app.extension import Extension
+    from betty.project.extension import Extension
     from betty.job import Context
     from betty.locale import Localizer
     from betty.render import Renderer

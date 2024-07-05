@@ -13,7 +13,7 @@ from jinja2 import pass_context
 from typing_extensions import override
 
 from betty import fs
-from betty.app.extension import ConfigurableExtension, Extension, Theme
+from betty.project.extension import ConfigurableExtension, Extension, Theme
 from betty.config import Configuration
 from betty.extension.cotton_candy.search import Index
 from betty.extension.webpack import Webpack, WebpackEntryPointProvider
@@ -23,7 +23,7 @@ from betty.gui import GuiBuilder
 from betty.html import CssProvider
 from betty.jinja2 import (
     Jinja2Provider,
-    context_app,
+    context_project,
     context_localizer,
     context_job_context,
     Globals,
@@ -244,7 +244,7 @@ class CottonCandy(
     @override
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:
         return (
-            self._app.project.configuration.root_path,
+            self.project.configuration.root_path,
             self._configuration.primary_inactive_color.hex,
             self._configuration.primary_active_color.hex,
             self._configuration.link_inactive_color.hex,
@@ -255,7 +255,7 @@ class CottonCandy(
     @property
     def public_css_paths(self) -> list[str]:
         return [
-            self.app.static_url_generator.generate(
+            self.project.static_url_generator.generate(
                 "css/betty.extension.CottonCandy.css"
             ),
         ]
@@ -288,14 +288,14 @@ class CottonCandy(
     @override
     async def generate(self, job_context: GenerationContext) -> None:
         await link_or_copy(
-            self.logo, self._app.project.configuration.www_directory_path / "logo.png"
+            self.logo, self.project.configuration.www_directory_path / "logo.png"
         )
 
     @override
     def gui_build(self) -> QWidget:
         from betty.extension.cotton_candy.gui import _CottonCandyGuiWidget
 
-        return _CottonCandyGuiWidget(self._app)
+        return _CottonCandyGuiWidget(self.project)
 
     @override
     @property
@@ -309,7 +309,7 @@ class CottonCandy(
     def filters(self) -> Filters:
         return {
             "person_timeline_events": lambda person: person_timeline_events(
-                person, self.app.project.configuration.lifetime_threshold
+                person, self.project.configuration.lifetime_threshold
             ),
             "person_descendant_families": person_descendant_families,
         }
@@ -318,7 +318,7 @@ class CottonCandy(
 @pass_context
 async def _global_search_index(context: Context) -> AsyncIterable[dict[str, str]]:
     return Index(
-        context_app(context),
+        context_project(context),
         context_job_context(context),
         context_localizer(context),
     ).build()

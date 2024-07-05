@@ -16,7 +16,8 @@ import html5lib
 from html5lib.html5parser import ParseError
 
 from betty.app import App
-from betty.app.extension import Extension
+from betty.project import Project
+from betty.project.extension import Extension
 from betty.jinja2 import Environment
 from betty.json.schema import Schema
 
@@ -38,7 +39,7 @@ class TemplateTestCase:
         template_file: str | None = None,
         template_string: str | None = None,
         locale: Localey | None = None,
-    ) -> AsyncIterator[tuple[str, App]]:
+    ) -> AsyncIterator[tuple[str, Project]]:
         if self.template_string is not None and self.template_file is not None:
             class_name = self.__class__.__name__
             raise RuntimeError(
@@ -68,20 +69,22 @@ class TemplateTestCase:
                 f"You must define one of `template_string`, `template_file`, `{class_name}.template_string`, or `{class_name}.template_file`."
             )
         async with App.new_temporary() as app, app:
-            app.project.configuration.debug = True
+            project = Project(app)
+            project.configuration.debug = True
             if data is None:
                 data = {}
             if locale is not None:
                 data["localizer"] = await app.localizers.get(locale)
-            app.project.configuration.extensions.enable(*self.extensions)
-            rendered = await template_factory(
-                app.jinja2_environment, template
-            ).render_async(**data)
-            yield rendered, app
+            project.configuration.extensions.enable(*self.extensions)
+            async with project:
+                rendered = await template_factory(
+                    project.jinja2_environment, template
+                ).render_async(**data)
+                yield rendered, project
 
 
 async def assert_betty_html(
-    app: App,
+    project: Project,
     url_path: str,
     *,
     check_links: bool = False,
@@ -89,7 +92,7 @@ async def assert_betty_html(
     """
     Assert that an entity's HTML resource exists and is valid.
     """
-    betty_html_file_path = app.project.configuration.www_directory_path / Path(
+    betty_html_file_path = project.configuration.www_directory_path / Path(
         url_path.lstrip("/")
     )
     async with aiofiles.open(betty_html_file_path) as f:
@@ -103,7 +106,7 @@ async def assert_betty_html(
 
 
 async def assert_betty_json(
-    app: App,
+    project: Project,
     url_path: str,
     schema_definition: str | None = None,
 ) -> Path:
@@ -112,14 +115,14 @@ async def assert_betty_json(
     """
     import json
 
-    betty_json_file_path = app.project.configuration.www_directory_path / Path(
+    betty_json_file_path = project.configuration.www_directory_path / Path(
         url_path.lstrip("/")
     )
     async with aiofiles.open(betty_json_file_path) as f:
         betty_json = await f.read()
     betty_json_data = json.loads(betty_json)
     if schema_definition:
-        schema = Schema(app)
+        schema = Schema(project)
         await schema.validate(betty_json_data)
 
     return betty_json_file_path

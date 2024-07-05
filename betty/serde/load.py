@@ -37,7 +37,7 @@ from betty.serde.dump import DumpType, Void
 from betty.serde.error import SerdeError, SerdeErrorCollection
 
 if TYPE_CHECKING:
-    from betty.app.extension import Extension
+    from betty.project.extension import Extension
 
 
 _DumpTypeT = TypeVar("_DumpTypeT", bound=DumpType)
@@ -521,13 +521,13 @@ def assert_extension_type() -> AssertionChain[Any, type[Extension]]:
     """
     Assert that a value is an extension type.
 
-    This assertion passes if the value is fully qualified :py:class:`betty.app.extension.Extension` subclass name.
+    This assertion passes if the value is fully qualified :py:class:`betty.project.extension.Extension` subclass name.
     """
 
     def _assert_extension_type(
         value: Any,
     ) -> type[Extension]:
-        from betty.app.extension import (
+        from betty.project.extension import (
             get_extension_type,
             ExtensionTypeImportError,
             ExtensionTypeInvalidError,

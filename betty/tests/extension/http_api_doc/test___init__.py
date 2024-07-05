@@ -1,19 +1,18 @@
 from betty.app import App
 from betty.extension import HttpApiDoc
 from betty.generate import generate
-from betty.project import ExtensionConfiguration
+from betty.project import ExtensionConfiguration, Project
 
 
 class TestHttpApiDoc:
-    async def test_generate(self) -> None:
-        async with App.new_temporary() as app, app:
-            app.project.configuration.extensions.append(
-                ExtensionConfiguration(HttpApiDoc)
-            )
-            await generate(app)
+    async def test_generate(self, new_temporary_app: App) -> None:
+        project = Project(new_temporary_app)
+        project.configuration.extensions.append(ExtensionConfiguration(HttpApiDoc))
+        async with project:
+            await generate(project)
             assert (
-                app.project.configuration.www_directory_path / "api" / "index.html"
+                project.configuration.www_directory_path / "api" / "index.html"
             ).is_file()
             assert (
-                app.project.configuration.www_directory_path / "js" / "http-api-doc.js"
+                project.configuration.www_directory_path / "js" / "http-api-doc.js"
             ).is_file()

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.app.extension import ConfigurableExtension, UserFacingExtension
+from betty.project.extension import ConfigurableExtension, UserFacingExtension
 from betty.gramps.loader import GrampsLoader
 from betty.locale import Str, Localizable
 
@@ -43,8 +43,8 @@ class Gramps(
             file_path = family_tree.file_path
             if file_path:
                 await GrampsLoader(
-                    self._app.project,
-                    localizer=self._app.localizer,
+                    self.project,
+                    localizer=self.project.app.localizer,
                 ).load_file(file_path)
 
     @override
@@ -63,4 +63,4 @@ class Gramps(
     def gui_build(self) -> _GrampsGuiWidget:
         from betty.extension.gramps.gui import _GrampsGuiWidget
 
-        return _GrampsGuiWidget(self._app)
+        return _GrampsGuiWidget(self._project)

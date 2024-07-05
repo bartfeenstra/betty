@@ -30,7 +30,7 @@ from betty.gui.serve import ServeDemoWindow, ServeDocsWindow
 from betty.gui.text import Text
 from betty.gui.window import BettyMainWindow
 from betty.locale import Str, Localizable
-from betty.project import ProjectConfiguration
+from betty.project import Project
 
 
 class BettyPrimaryWindow(BettyMainWindow):
@@ -214,10 +214,11 @@ class BettyPrimaryWindow(BettyMainWindow):
             )
             if not configuration_file_path_str:
                 return
+            project = Project(self._app)
             wait_to_thread(
-                self._app.project.configuration.read(Path(configuration_file_path_str))
+                project.configuration.read(Path(configuration_file_path_str))
             )
-            project_window = ProjectWindow(self._app)
+            project_window = ProjectWindow(project)
             project_window.show()
             self.close()
 
@@ -236,9 +237,11 @@ class BettyPrimaryWindow(BettyMainWindow):
             )
             if not configuration_file_path_str:
                 return
-            configuration = ProjectConfiguration()
-            wait_to_thread(configuration.write(Path(configuration_file_path_str)))
-            project_window = ProjectWindow(self._app)
+            project = Project(self._app)
+            wait_to_thread(
+                project.configuration.write(Path(configuration_file_path_str))
+            )
+            project_window = ProjectWindow(project)
             project_window.show()
             self.close()
 

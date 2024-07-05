@@ -20,11 +20,10 @@ from typing_extensions import override
 
 from betty.gui.locale import LocalizedObject
 from betty.model import UserFacingEntity, Entity
-from betty.project import EntityReference, EntityReferenceSequence
+from betty.project import EntityReference, EntityReferenceSequence, Project
 
 if TYPE_CHECKING:
     from betty.locale import Localizable
-    from betty.app import App
 
 
 class EntityReferenceCollector(LocalizedObject, QWidget):
@@ -34,12 +33,12 @@ class EntityReferenceCollector(LocalizedObject, QWidget):
 
     def __init__(
         self,
-        app: App,
+        project: Project,
         entity_reference: EntityReference[UserFacingEntity & Entity],
         label_builder: Callable[[], str] | None = None,
         caption_builder: Callable[[], str] | None = None,
     ):
-        super().__init__(app)
+        super().__init__(project.app)
         self._entity_reference = entity_reference
         self._label_builder = label_builder
         self._caption_builder = caption_builder
@@ -64,7 +63,7 @@ class EntityReferenceCollector(LocalizedObject, QWidget):
                             lambda entity_type: issubclass(
                                 entity_type, UserFacingEntity
                             ),
-                            self._app.entity_types,
+                            project.entity_types,
                         ),
                     ),
                     key=lambda entity_type: entity_type.entity_type_label().localize(
@@ -114,17 +113,18 @@ class EntityReferenceSequenceCollector(LocalizedObject, QWidget):
 
     def __init__(
         self,
-        app: App,
+        project: Project,
         entity_references: EntityReferenceSequence[UserFacingEntity & Entity],
         label_text: Localizable | None = None,
         caption_text: Localizable | None = None,
     ):
-        super().__init__(app)
+        super().__init__(project.app)
+        self._project = project
         self._entity_references = entity_references
         self._label_text = label_text
         self._caption_text = caption_text
         self._entity_reference_collectors: list[EntityReferenceCollector] = [
-            EntityReferenceCollector(self._app, entity_reference)
+            EntityReferenceCollector(project, entity_reference)
             for entity_reference in entity_references
         ]
 
@@ -190,7 +190,7 @@ class EntityReferenceSequenceCollector(LocalizedObject, QWidget):
         self._entity_reference_collectors_layout.insertWidget(i, widget)
 
         entity_reference_collector = EntityReferenceCollector(
-            self._app, entity_reference
+            self._project, entity_reference
         )
         self._entity_reference_collectors.append(entity_reference_collector)
         layout.addWidget(entity_reference_collector)

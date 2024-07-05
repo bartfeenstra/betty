@@ -14,17 +14,21 @@ from PyQt6.QtWidgets import (
     QLabel,
 )
 
-from betty.app import App
 from betty.extension.nginx.config import NginxConfiguration
 from betty.gui.error import ExceptionCatcher
 from betty.gui.locale import LocalizedObject
+from betty.project import Project
 
 
 class _NginxGuiWidget(LocalizedObject, QWidget):
     def __init__(
-        self, app: App, configuration: NginxConfiguration, *args: Any, **kwargs: Any
+        self,
+        project: Project,
+        configuration: NginxConfiguration,
+        *args: Any,
+        **kwargs: Any,
     ):
-        super().__init__(app, *args, **kwargs)
+        super().__init__(project.app, *args, **kwargs)
         self._configuration = configuration
         layout = QFormLayout()
 
@@ -66,8 +70,7 @@ class _NginxGuiWidget(LocalizedObject, QWidget):
             self._configuration.www_directory_path = (
                 None
                 if www_directory_path == ""
-                or www_directory_path
-                == str(self._app.project.configuration.www_directory_path)
+                or www_directory_path == str(project.configuration.www_directory_path)
                 else www_directory_path
             )
 
@@ -75,7 +78,7 @@ class _NginxGuiWidget(LocalizedObject, QWidget):
         self._nginx_www_directory_path.setText(
             str(self._configuration.www_directory_path)
             if self._configuration.www_directory_path is not None
-            else str(self._app.project.configuration.www_directory_path)
+            else str(project.configuration.www_directory_path)
         )
         self._nginx_www_directory_path.textChanged.connect(
             _update_configuration_www_directory_path

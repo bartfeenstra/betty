@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING
 from betty.serde.dump import DictDump, Dump, dump_default
 
 if TYPE_CHECKING:
+    from betty.project import Project
     from collections.abc import Sequence
-    from betty.app import App
     from betty.model.ancestry import Link
 
 
@@ -19,14 +19,14 @@ class LinkedDataDumpable:
     Describe an object that can be dumped to linked data.
     """
 
-    async def dump_linked_data(self, app: App) -> DictDump[Dump]:
+    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
         """
         Dump this instance to `JSON-LD <https://json-ld.org/>`_.
         """
         return {}
 
     @classmethod
-    async def linked_data_schema(cls, app: App) -> DictDump[Dump]:
+    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
         """
         Define the `JSON Schema <https://json-schema.org/>`_ for :py:meth:`betty.json.linked_data.LinkedDataDumpable.dump_linked_data`.
         """
@@ -42,13 +42,13 @@ def dump_context(dump: DictDump[Dump], **contexts: str | Sequence[str]) -> None:
         context_dump[key] = f"https://schema.org/{schema_org}"
 
 
-async def dump_link(dump: DictDump[Dump], app: App, *links: Link) -> None:
+async def dump_link(dump: DictDump[Dump], project: Project, *links: Link) -> None:
     """
     Add one or more links to a dump.
     """
     link_dump = dump_default(dump, "links", list)
     for link in links:
-        link_dump.append(await link.dump_linked_data(app))
+        link_dump.append(await link.dump_linked_data(project))
 
 
 def ref_json_ld(root_schema: DictDump[Dump]) -> DictDump[Dump]:

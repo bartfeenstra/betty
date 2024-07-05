@@ -16,7 +16,7 @@ from betty.gui.serve import ServeDemoWindow
 from betty.project import ProjectConfiguration
 from betty.serde.error import SerdeError
 from betty.tests.conftest import BettyQtBot
-from betty.tests.test_cli import NoOpServer
+from betty.tests.cli.test___init__ import NoOpServer
 
 
 class TestBettyPrimaryWindow:
@@ -92,7 +92,6 @@ class TestWelcomeWindow:
             title=title,
         )
         await configuration.write()
-        await betty_qtbot.app.project.configuration.write()
         sut = WelcomeWindow(betty_qtbot.app)
         betty_qtbot.qtbot.addWidget(sut)
         sut.show()
@@ -106,8 +105,8 @@ class TestWelcomeWindow:
         )
         betty_qtbot.mouse_click(sut.open_project_button)
 
-        betty_qtbot.assert_window(ProjectWindow)
-        assert betty_qtbot.app.project.configuration.title == title
+        window = betty_qtbot.assert_window(ProjectWindow)
+        assert window._project.configuration.title == title
 
     async def test_view_demo_site(
         self,

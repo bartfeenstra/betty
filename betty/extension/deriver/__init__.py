@@ -8,7 +8,7 @@ from logging import getLogger
 
 from typing_extensions import override
 
-from betty.app.extension import Extension, UserFacingExtension
+from betty.project.extension import Extension, UserFacingExtension
 from betty.deriver import Deriver as DeriverApi
 from betty.load import PostLoader
 from betty.locale import Str, Localizable
@@ -28,17 +28,17 @@ class Deriver(UserFacingExtension, PostLoader):
     @override
     async def post_load(self) -> None:
         logger = getLogger(__name__)
-        logger.info(self._app.localizer._("Deriving..."))
+        logger.info(self._project.app.localizer._("Deriving..."))
 
         deriver = DeriverApi(
-            self.app.project.ancestry,
-            self.app.project.configuration.lifetime_threshold,
+            self.project.ancestry,
+            self.project.configuration.lifetime_threshold,
             {
                 event_type
-                for event_type in self.app.event_types
+                for event_type in self.project.event_types
                 if issubclass(event_type, DerivableEventType)
             },
-            localizer=self._app.localizer,
+            localizer=self.project.app.localizer,
         )
         await deriver.derive()
 

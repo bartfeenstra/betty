@@ -2,49 +2,35 @@ import json
 import logging
 from asyncio import to_thread
 from collections.abc import AsyncIterator
-from contextlib import chdir
 from multiprocessing import get_context
 from pathlib import Path
-from typing import Any, TYPE_CHECKING
+from typing import Any
 from unittest.mock import AsyncMock
+
+from PyQt6.QtCore import QTimer
+from PyQt6.QtGui import QShowEvent
 
 import aiofiles
 import click
 import pytest
-from PyQt6.QtCore import QTimer
-from PyQt6.QtGui import QShowEvent
 from _pytest.logging import LogCaptureFixture
 from aiofiles.os import makedirs
-from click import Command
-from click.testing import CliRunner, Result
-from pytest_mock import MockerFixture
-
 from betty.app import App
-from betty.app.extension import Extension
-from betty.cli import main, CommandProvider, global_command, catch_exceptions
+from betty.cli import main, command, catch_exceptions
 from betty.error import UserFacingError
 from betty.gui.app import BettyPrimaryWindow
 from betty.locale import Str, DEFAULT_LOCALIZER
-from betty.project import ExtensionConfiguration
-from betty.serve import Server, AppServer
+from betty.project import Project
+from betty.serve import Server, ProjectServer
 from betty.tests.conftest import BettyQtBot
+from click.testing import CliRunner, Result
+from pytest_mock import MockerFixture
 
-if TYPE_CHECKING:
-    from betty.serde.dump import Dump
 
-
-@click.command(name="noop")
-@global_command
-async def _noop_command() -> None:
+@click.command(name="no-op")
+@command
+async def _no_op_command() -> None:
     pass
-
-
-class NoOpExtension(Extension, CommandProvider):
-    @property
-    def commands(self) -> dict[str, Command]:
-        return {
-            "noop": _noop_command,
-        }
 
 
 def run(
@@ -81,71 +67,8 @@ class TestMain:
     async def test_without_arguments(self, new_temporary_app: App) -> None:
         await to_thread(run)
 
-    async def test_help_without_configuration(self, new_temporary_app: App) -> None:
+    async def test_help(self, new_temporary_app: App) -> None:
         await to_thread(run, "--help")
-
-    async def test_configuration_without_help(self, new_temporary_app: App) -> None:
-        await new_temporary_app.project.configuration.write()
-        await to_thread(
-            run,
-            "-c",
-            str(new_temporary_app.project.configuration.configuration_file_path),
-            expected_exit_code=2,
-        )
-
-    async def test_help_with_configuration(self, new_temporary_app: App) -> None:
-        new_temporary_app.project.configuration.extensions.append(
-            ExtensionConfiguration(NoOpExtension)
-        )
-        await new_temporary_app.project.configuration.write()
-
-        await to_thread(
-            run,
-            "-c",
-            str(new_temporary_app.project.configuration.configuration_file_path),
-            "--help",
-        )
-
-    async def test_help_with_invalid_configuration_file_path(
-        self, new_temporary_app: App, tmp_path: Path
-    ) -> None:
-        working_directory_path = tmp_path
-        configuration_file_path = working_directory_path / "non-existent-betty.json"
-
-        await to_thread(
-            run, "-c", str(configuration_file_path), "--help", expected_exit_code=1
-        )
-
-    async def test_help_with_invalid_configuration(
-        self, new_temporary_app: App, tmp_path: Path
-    ) -> None:
-        working_directory_path = tmp_path
-        configuration_file_path = working_directory_path / "betty.json"
-        dump: Dump = {}
-        async with aiofiles.open(configuration_file_path, "w") as f:
-            await f.write(json.dumps(dump))
-
-        await to_thread(
-            run, "-c", str(configuration_file_path), "--help", expected_exit_code=1
-        )
-
-    async def test_with_discovered_configuration(
-        self, new_temporary_app: App, tmp_path: Path
-    ) -> None:
-        working_directory_path = tmp_path
-        async with aiofiles.open(
-            working_directory_path / "betty.json", "w"
-        ) as config_file:
-            url = "https://example.com"
-            dump: Dump = {
-                "base_url": url,
-                "extensions": {
-                    NoOpExtension.name(): {},
-                },
-            }
-            await config_file.write(json.dumps(dump))
-        with chdir(working_directory_path):
-            await to_thread(run, "noop")
 
 
 class TestCatchExceptions:
@@ -199,7 +122,7 @@ class NoOpServer(Server):
         pass
 
 
-class NoOpAppServer(NoOpServer, AppServer):
+class NoOpProjectServer(NoOpServer, ProjectServer):
     pass
 
 
@@ -224,37 +147,39 @@ class TestGenerate:
         m_generate = mocker.patch("betty.generate.generate", new_callable=AsyncMock)
         m_load = mocker.patch("betty.load.load", new_callable=AsyncMock)
 
-        await new_temporary_app.project.configuration.write()
+        project = Project(new_temporary_app)
+        await project.configuration.write()
         await to_thread(
-            run,
-            "-c",
-            str(new_temporary_app.project.configuration.configuration_file_path),
-            "generate",
+            run, "generate", "-c", str(project.configuration.configuration_file_path)
         )
 
         m_load.assert_called_once()
         await_args = m_load.await_args
         assert await_args is not None
         load_args, _ = await_args
-        assert load_args[0] is new_temporary_app
+        assert (
+            load_args[0].configuration.configuration_file_path
+            == project.configuration.configuration_file_path
+        )
 
         m_generate.assert_called_once()
         generate_args, _ = m_generate.call_args
-        assert generate_args[0] is new_temporary_app
+        assert (
+            generate_args[0].configuration.configuration_file_path
+            == project.configuration.configuration_file_path
+        )
 
 
 class TestServe:
     async def test(self, mocker: MockerFixture, new_temporary_app: App) -> None:
         mocker.patch("asyncio.sleep", side_effect=KeyboardInterrupt)
-        mocker.patch("betty.serve.BuiltinAppServer", new=NoOpAppServer)
-        await new_temporary_app.project.configuration.write()
-        await makedirs(new_temporary_app.project.configuration.www_directory_path)
+        mocker.patch("betty.serve.BuiltinProjectServer", new=NoOpProjectServer)
+        project = Project(new_temporary_app)
+        await project.configuration.write()
+        await makedirs(project.configuration.www_directory_path)
 
         await to_thread(
-            run,
-            "-c",
-            str(new_temporary_app.project.configuration.configuration_file_path),
-            "serve",
+            run, "serve", "-c", str(project.configuration.configuration_file_path)
         )
 
 
@@ -330,13 +255,13 @@ class TestVerbosity:
             "-vvv",
         ],
     )
-    async def test(self, new_temporary_app: App, verbosity: str) -> None:
-        new_temporary_app.project.configuration.extensions.enable(NoOpExtension)
-        await new_temporary_app.project.configuration.write()
-        await to_thread(
-            run,
-            verbosity,
-            "-c",
-            str(new_temporary_app.project.configuration.configuration_file_path),
-            "noop",
+    async def test(
+        self, mocker: MockerFixture, new_temporary_app: App, verbosity: str
+    ) -> None:
+        mocker.patch(
+            "betty.cli._discover.discover_commands",
+            return_value={"no-op": _no_op_command},
         )
+        project = Project(new_temporary_app)
+        await project.configuration.write()
+        await to_thread(run, verbosity, "no-op")

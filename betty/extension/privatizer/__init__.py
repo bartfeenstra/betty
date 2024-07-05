@@ -7,7 +7,7 @@ from logging import getLogger
 
 from typing_extensions import override
 
-from betty.app.extension import UserFacingExtension
+from betty.project.extension import UserFacingExtension
 from betty.load import PostLoader
 from betty.locale import Str, Localizable
 from betty.model.ancestry import Person, HasPrivacy
@@ -49,16 +49,16 @@ class Privatizer(UserFacingExtension, PostLoader):
         Privatize the project's ancestry.
         """
         logger = getLogger(__name__)
-        logger.info(self._app.localizer._("Privatizing..."))
+        logger.info(self.project.app.localizer._("Privatizing..."))
 
         privatizer = PrivatizerApi(
-            self._app.project.configuration.lifetime_threshold,
-            localizer=self._app.localizer,
+            self.project.configuration.lifetime_threshold,
+            localizer=self.project.app.localizer,
         )
 
         newly_privatized: dict[type[HasPrivacy & Entity], int] = defaultdict(lambda: 0)
         entities: list[HasPrivacy & Entity] = []
-        for entity in self._app.project.ancestry:
+        for entity in self.project.ancestry:
             if isinstance(entity, HasPrivacy):
                 entities.append(entity)
                 if entity.private:
@@ -73,7 +73,7 @@ class Privatizer(UserFacingExtension, PostLoader):
 
         if newly_privatized[Person] > 0:
             logger.info(
-                self._app.localizer._(
+                self.project.app.localizer._(
                     "Privatized {count} people because they are likely still alive."
                 ).format(
                     count=str(newly_privatized[Person]),
@@ -82,12 +82,12 @@ class Privatizer(UserFacingExtension, PostLoader):
         for entity_type in set(newly_privatized) - {Person}:
             if newly_privatized[entity_type] > 0:
                 logger.info(
-                    self._app.localizer._(
+                    self.project.app.localizer._(
                         "Privatized {count} {entity_type}, because they are associated with private information."
                     ).format(
                         count=str(newly_privatized[entity_type]),
                         entity_type=entity_type.entity_type_label_plural().localize(
-                            self._app.localizer
+                            self.project.app.localizer
                         ),
                     )
                 )
