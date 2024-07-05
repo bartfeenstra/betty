@@ -38,8 +38,8 @@ class DockerizedNginxServer(Server):
         await super().start()
         logging.getLogger(__name__).info("Starting a Dockerized nginx web server...")
 
-        output_directory_path_str = await self._exit_stack.enter_async_context(
-            TemporaryDirectory()
+        output_directory_path_str: str = await self._exit_stack.enter_async_context(
+            TemporaryDirectory()  # type: ignore[arg-type]
         )
 
         isolated_project = await self._exit_stack.enter_async_context(
