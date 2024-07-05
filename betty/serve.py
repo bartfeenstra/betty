@@ -184,9 +184,7 @@ class BuiltinServer(Server):
         self._http_server: HTTPServer | None = None
         self._port: int | None = None
         self._thread: threading.Thread | None = None
-        self._temporary_root_directory: (
-            AiofilesContextManagerTempDir[None, Any, Any] | None
-        ) = None
+        self._temporary_root_directory: AiofilesContextManagerTempDir | None = None
 
     @override
     @classmethod
