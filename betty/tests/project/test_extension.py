@@ -58,7 +58,7 @@ class TestExtensionDispatcher:
 
 class TestBuildExtensionTypeGraph:
     async def test_without_extension_types(self) -> None:
-        assert {} == build_extension_type_graph(set())
+        assert build_extension_type_graph(set()) == {}
 
     async def test_with_isolated_extension_types(self) -> None:
         class IsolatedExtensionOne(Extension):

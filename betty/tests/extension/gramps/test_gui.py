@@ -97,4 +97,4 @@ async def test_remove_family_tree(
         betty_qtbot.mouse_click(widget._family_trees._family_trees_remove_buttons[0])
 
         assert len(sut.configuration.family_trees) == 0
-        assert [] == widget._family_trees._family_trees_remove_buttons
+        assert widget._family_trees._family_trees_remove_buttons == []

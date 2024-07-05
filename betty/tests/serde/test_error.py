@@ -22,9 +22,9 @@ class TestSerdeError:
         sut = SerdeError(Str.plain("Something went wrong!"))
         sut_with_context = sut.with_context(Str.plain("Somewhere, at some point..."))
         assert sut != sut_with_context
-        assert ["Somewhere, at some point..."] == [
+        assert [
             context.localize(DEFAULT_LOCALIZER) for context in sut_with_context.contexts
-        ]
+        ] == ["Somewhere, at some point..."]
 
 
 class TestSerdeErrorCollection:
@@ -80,9 +80,9 @@ class TestSerdeErrorCollection:
         sut = SerdeErrorCollection()
         sut_with_context = sut.with_context(Str.plain("Somewhere, at some point..."))
         assert sut is not sut_with_context
-        assert ["Somewhere, at some point..."] == [
+        assert [
             context.localize(DEFAULT_LOCALIZER) for context in sut_with_context.contexts
-        ]
+        ] == ["Somewhere, at some point..."]
 
     async def test_catch_without_contexts(self) -> None:
         sut = SerdeErrorCollection()

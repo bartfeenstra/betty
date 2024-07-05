@@ -133,13 +133,13 @@ class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _Configuration
         configuration = self.get_configurations()[0]
         sut = self.get_sut([configuration])
         del sut[self.get_configuration_keys()[0]]
-        assert [] == list(sut.values())
+        assert list(sut.values()) == []
 
     async def test_iter(self) -> None:
         configurations = self.get_configurations()
         sut = self.get_sut(configurations)
         assert tuple(iter(sut)) == configurations
-        assert [] == list(sut.values())
+        assert list(sut.values()) == []
 
     async def test_len(self) -> None:
         configurations = self.get_configurations()

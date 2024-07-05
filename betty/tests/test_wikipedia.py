@@ -246,7 +246,7 @@ class TestRetriever:
             }
         )
         actual = await _Retriever(fetcher).get_translations(page_language, page_name)
-        assert {} == actual
+        assert actual == {}
 
     @pytest.mark.parametrize(
         "response_json",
@@ -271,7 +271,7 @@ class TestRetriever:
             fetch_map={fetch_url: _new_json_fetch_response(response_json)}
         )
         actual = await _Retriever(fetcher).get_translations(page_language, page_name)
-        assert {} == actual
+        assert actual == {}
 
     @pytest.mark.parametrize(
         ("expected", "fetch_json"),
@@ -836,7 +836,7 @@ class TestPopulator:
         async with project:
             sut = _Populator(project, m_retriever)
             await sut.populate()
-        assert [] == resource.links
+        assert resource.links == []
 
     async def test_populate_should_ignore_non_wikipedia_links(
         self, mocker: MockerFixture, new_temporary_app: App

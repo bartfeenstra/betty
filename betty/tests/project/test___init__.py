@@ -1036,9 +1036,9 @@ class TestProjectConfiguration:
         sut.locales.append(locale_configuration)
         sut.locales.remove("en-US")
         dump: Any = sut.dump()
-        assert {
+        assert dump["locales"] == {
             locale: {},
-        } == dump["locales"]
+        }
 
     async def test_dump_should_dump_locale_alias(self) -> None:
         locale = "nl-NL"
@@ -1051,11 +1051,11 @@ class TestProjectConfiguration:
         sut.locales.append(locale_configuration)
         sut.locales.remove("en-US")
         dump: Any = sut.dump()
-        assert {
+        assert dump["locales"] == {
             locale: {
                 "alias": alias,
             },
-        } == dump["locales"]
+        }
 
     async def test_dump_should_dump_root_path(self) -> None:
         root_path = "betty"

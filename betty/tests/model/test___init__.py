@@ -231,7 +231,7 @@ class TestSingleTypeEntityCollection:
         entity3 = SingleTypeEntityCollectionTestEntity()
         sut.add(entity1, entity2, entity3)
         sut.clear()
-        assert [] == list(sut)
+        assert list(sut) == []
 
     async def test_list(self) -> None:
         sut = SingleTypeEntityCollection[Entity](Entity)
@@ -423,7 +423,7 @@ class TestMultipleTypesEntityCollection:
         sut.remove(entity_one)
         assert [entity_other] == list(sut)
         sut.remove(entity_other)
-        assert [] == list(sut)
+        assert list(sut) == []
 
     async def test_getitem_by_index(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
@@ -451,7 +451,7 @@ class TestMultipleTypesEntityCollection:
         assert [entity_one] == list(sut[MultipleTypesEntityCollectionTestEntityOne])
         assert [entity_other] == list(sut[MultipleTypesEntityCollectionTestEntityOther])
         # Ensure that getting previously unseen entity types automatically creates and returns a new collection.
-        assert [] == list(sut[Entity])
+        assert list(sut[Entity]) == []
 
     async def test_getitem_by_entity_type_name(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
@@ -1151,7 +1151,7 @@ class TestManyToOne:
 
         del entity_many.one
         assert entity_many.one is None
-        assert [] == list(entity_one.many)  # type: ignore[unreachable]
+        assert list(entity_one.many) == []  # type: ignore[unreachable]
 
 
 @to_many(
@@ -1182,7 +1182,7 @@ class TestToMany:
         assert [entity_many] == list(entity_one.many)
 
         entity_one.many.remove(entity_many)
-        assert [] == list(entity_one.many)
+        assert list(entity_one.many) == []
 
 
 @one_to_many(
@@ -1220,7 +1220,7 @@ class TestOneToMany:
         assert entity_one is entity_many.one
 
         entity_one.many.remove(entity_many)
-        assert [] == list(entity_one.many)
+        assert list(entity_one.many) == []
         assert entity_many.one is None
 
 
@@ -1259,8 +1259,8 @@ class TestManyToMany:
         assert [entity_many] == list(entity_other_many.many)
 
         entity_many.other_many.remove(entity_other_many)
-        assert [] == list(entity_many.other_many)
-        assert [] == list(entity_other_many.many)
+        assert list(entity_many.other_many) == []
+        assert list(entity_other_many.many) == []
 
 
 @many_to_one_to_many(

@@ -123,7 +123,7 @@ test = [
     'pytest-mock ~= 3.10, >= 3.10.0',
     'pytest-qt ~= 4.2, >= 4.2.0',
     'pytest-xvfb ~= 3.0, >= 3.0.0',
-    'ruff ~= 0.4.4',
+    'ruff ~= 0.5',
     'types-aiofiles ~= 24.1',
     'types-babel ~= 2.11, >= 2.11.0.15',
     'types-click ~= 7.1, >= 7.1.8',
