@@ -7,6 +7,6 @@ cd "$(dirname "$0")/.."
 echo 'Running pytest...'
 
 coverage erase
-COVERAGE_PROCESS_START="$(pwd)/.coveragerc" PYTHONPATH="$(cd site; pwd)" coverage run --module pytest "$@"
+COVERAGE_PROCESS_START="$(pwd)/.coveragerc" PYTHONPATH="$(cd site; pwd)" coverage run --module pytest -n logical --dist worksteal "$@"
 coverage combine
 coverage report --skip-covered --skip-empty
