@@ -12,7 +12,7 @@
     "betty.extension.Maps": "file:./betty/extension/maps/webpack",
     "betty.extension.Trees": "file:./betty/extension/trees/webpack",
     "betty.extension.Webpack": "file:./betty/extension/webpack/webpack",
-    "eslint": "^8.52.0",
+    "eslint": "^9.6.0",
     "eslint-plugin-import": "^2.29.0",
     "eslint-plugin-n": "^17.9.0",
     "eslint-plugin-playwright": "^1.6.0",
