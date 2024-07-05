@@ -6,9 +6,6 @@ from logging import CRITICAL, ERROR, WARNING, INFO, DEBUG, FATAL, WARN, NOTSET
 from typing import Any, IO
 
 import pytest
-from click.testing import CliRunner, Result
-from pytest_mock import MockerFixture
-
 from betty.app import App
 from betty.cli import main, _ClickHandler
 from betty.cli.commands import command, Command
@@ -17,6 +14,9 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.serve import Server, ProjectServer
+from click.testing import CliRunner, Result
+from pytest_mock import MockerFixture
+from typing_extensions import override
 
 
 @command(name="no-op")
@@ -88,13 +88,20 @@ class NoOpServer(Server):
     def __init__(self, *_: Any, **__: Any):
         Server.__init__(self, DEFAULT_LOCALIZER)
 
+    @override
     @property
     def public_url(self) -> str:
         return "https://example.com"
 
+    @override
     async def start(self) -> None:
         pass
 
+    @override
+    async def stop(self) -> None:
+        pass
+
+    @override
     async def show(self) -> None:
         pass
 

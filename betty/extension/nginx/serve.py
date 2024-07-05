@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import final
 
 import docker
+from aiofiles.os import makedirs
 from aiofiles.tempfile import TemporaryDirectory
 from docker.errors import DockerException
 from typing_extensions import override
@@ -37,8 +38,9 @@ class DockerizedNginxServer(Server):
 
     @override
     async def start(self) -> None:
-        await super().start()
         logging.getLogger(__name__).info("Starting a Dockerized nginx web server...")
+
+        await makedirs(self._project.configuration.www_directory_path, exist_ok=True)
 
         output_directory_path_str: str = await self._exit_stack.enter_async_context(
             TemporaryDirectory()  # type: ignore[arg-type]
@@ -82,7 +84,6 @@ class DockerizedNginxServer(Server):
             nginx_configuration_file_path,
         )
         await self._exit_stack.enter_async_context(self._container)
-        await self.assert_available()
 
     @override
     async def stop(self) -> None:
