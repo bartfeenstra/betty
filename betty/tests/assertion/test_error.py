@@ -1,17 +1,16 @@
 from betty.locale import DEFAULT_LOCALIZER
 from betty.locale.localizable import plain
-from betty.serde.error import SerdeError, SerdeErrorCollection
-from betty.serde.load import LoadError
-from betty.tests.serde import assert_error
+from betty.assertion.error import AssertionFailed, AssertionFailedGroup
+from betty.tests.assertion import assert_error
 
 
-class TestSerdeError:
+class TestAssertionFailed:
     async def test_localizewithout_contexts(self) -> None:
-        sut = SerdeError(plain("Something went wrong!"))
+        sut = AssertionFailed(plain("Something went wrong!"))
         assert sut.localize(DEFAULT_LOCALIZER) == "Something went wrong!"
 
     async def test_localize_with_contexts(self) -> None:
-        sut = SerdeError(plain("Something went wrong!"))
+        sut = AssertionFailed(plain("Something went wrong!"))
         sut = sut.with_context(plain("Somewhere, at some point..."))
         sut = sut.with_context(plain("Somewhere else, too..."))
         assert (
@@ -20,7 +19,7 @@ class TestSerdeError:
         )
 
     async def test_with_context(self) -> None:
-        sut = SerdeError(plain("Something went wrong!"))
+        sut = AssertionFailed(plain("Something went wrong!"))
         sut_with_context = sut.with_context(plain("Somewhere, at some point..."))
         assert sut != sut_with_context
         assert [
@@ -28,31 +27,31 @@ class TestSerdeError:
         ] == ["Somewhere, at some point..."]
 
 
-class TestSerdeErrorCollection:
+class TestAssertionFailedGroup:
     async def test_localize_without_errors(self) -> None:
-        sut = SerdeErrorCollection()
+        sut = AssertionFailedGroup()
         assert sut.localize(DEFAULT_LOCALIZER) == ""
 
     async def test_localize_with_one_error(self) -> None:
-        sut = SerdeErrorCollection()
-        sut.append(SerdeError(plain("Something went wrong!")))
+        sut = AssertionFailedGroup()
+        sut.append(AssertionFailed(plain("Something went wrong!")))
         assert sut.localize(DEFAULT_LOCALIZER) == "Something went wrong!"
 
     async def test_localize_with_multiple_errors(self) -> None:
-        sut = SerdeErrorCollection()
-        sut.append(SerdeError(plain("Something went wrong!")))
-        sut.append(SerdeError(plain("Something else went wrong, too!")))
+        sut = AssertionFailedGroup()
+        sut.append(AssertionFailed(plain("Something went wrong!")))
+        sut.append(AssertionFailed(plain("Something else went wrong, too!")))
         assert (
             sut.localize(DEFAULT_LOCALIZER)
             == "Something went wrong!\n\nSomething else went wrong, too!"
         )
 
     async def test_localize_with_predefined_contexts(self) -> None:
-        sut = SerdeErrorCollection()
+        sut = AssertionFailedGroup()
         sut = sut.with_context(plain("Somewhere, at some point..."))
         sut = sut.with_context(plain("Somewhere else, too..."))
-        error_1 = SerdeError(plain("Something went wrong!"))
-        error_2 = SerdeError(plain("Something else went wrong, too!"))
+        error_1 = AssertionFailed(plain("Something went wrong!"))
+        error_2 = AssertionFailed(plain("Something else went wrong, too!"))
         sut.append(error_1)
         sut.append(error_2)
         assert not len(error_1.contexts)
@@ -63,9 +62,9 @@ class TestSerdeErrorCollection:
         )
 
     async def test_localize_with_postdefined_contexts(self) -> None:
-        sut = SerdeErrorCollection()
-        error_1 = SerdeError(plain("Something went wrong!"))
-        error_2 = SerdeError(plain("Something else went wrong, too!"))
+        sut = AssertionFailedGroup()
+        error_1 = AssertionFailed(plain("Something went wrong!"))
+        error_2 = AssertionFailed(plain("Something else went wrong, too!"))
         sut.append(error_1)
         sut.append(error_2)
         sut = sut.with_context(plain("Somewhere, at some point..."))
@@ -78,7 +77,7 @@ class TestSerdeErrorCollection:
         )
 
     async def test_with_context(self) -> None:
-        sut = SerdeErrorCollection()
+        sut = AssertionFailedGroup()
         sut_with_context = sut.with_context(plain("Somewhere, at some point..."))
         assert sut is not sut_with_context
         assert [
@@ -86,16 +85,16 @@ class TestSerdeErrorCollection:
         ] == ["Somewhere, at some point..."]
 
     async def test_catch_without_contexts(self) -> None:
-        sut = SerdeErrorCollection()
-        error = LoadError(plain("Help!"))
+        sut = AssertionFailedGroup()
+        error = AssertionFailed(plain("Help!"))
         with sut.catch() as errors:
             raise error
         assert_error(errors, error=error)  # type: ignore[unreachable]
         assert_error(sut, error=error)
 
     async def test_catch_with_contexts(self) -> None:
-        sut = SerdeErrorCollection()
-        error = LoadError(plain("Help!"))
+        sut = AssertionFailedGroup()
+        error = AssertionFailed(plain("Help!"))
         with sut.catch(plain("Somewhere")) as errors:
             raise error
         assert_error(errors, error=error.with_context(plain("Somewhere")))  # type: ignore[unreachable]

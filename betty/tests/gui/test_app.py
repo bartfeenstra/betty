@@ -5,6 +5,7 @@ import aiofiles
 from PyQt6.QtWidgets import QFileDialog
 from pytest_mock import MockerFixture
 
+from betty.assertion.error import AssertionFailed
 from betty.gui.app import (
     WelcomeWindow,
     _AboutBettyWindow,
@@ -14,9 +15,8 @@ from betty.gui.app import (
 from betty.gui.project import ProjectWindow
 from betty.gui.serve import ServeDemoWindow
 from betty.project import ProjectConfiguration
-from betty.serde.error import SerdeError
-from betty.tests.conftest import BettyQtBot
 from betty.tests.cli.test___init__ import NoOpServer
+from betty.tests.conftest import BettyQtBot
 
 
 class TestBettyPrimaryWindow:
@@ -80,7 +80,7 @@ class TestWelcomeWindow:
         )
         betty_qtbot.mouse_click(sut.open_project_button)
 
-        betty_qtbot.assert_exception_error(contained_error_type=SerdeError)
+        betty_qtbot.assert_exception_error(contained_error_type=AssertionFailed)
 
     async def test_open_project_with_valid_file_should_show_project_window(
         self,

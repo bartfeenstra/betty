@@ -4,6 +4,14 @@ from typing import Any, Iterable, TYPE_CHECKING, Self
 
 import pytest
 
+from betty.assertion import (
+    RequiredField,
+    assert_bool,
+    assert_record,
+    assert_setattr,
+    assert_int,
+)
+from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.model import Entity, get_entity_type_name, UserFacingEntity
@@ -25,21 +33,12 @@ from betty.project.extension import (
     ConfigurableExtension,
     CyclicDependencyError,
 )
-from betty.serde.dump import Void
-from betty.serde.error import SerdeError
-from betty.serde.load import (
-    AssertionFailed,
-    RequiredField,
-    assert_bool,
-    assert_record,
-    assert_setattr,
-    assert_int,
-)
-from betty.tests.serde import raises_error
+from betty.tests.assertion import raises_error
 from betty.tests.test_config import (
     ConfigurationMappingTestBase,
     ConfigurationSequenceTestBase,
 )
+from betty.typing import Void
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -299,7 +298,7 @@ class TestLocaleConfiguration:
     async def test_load_with_invalid_dump(self) -> None:
         dump: Dump = {}
         sut = LocaleConfiguration(DEFAULT_LOCALE)
-        with raises_error(error_type=SerdeError):
+        with raises_error(error_type=AssertionFailed):
             sut.load(dump)
 
     async def test_load_with_locale(self) -> None:

@@ -4,8 +4,8 @@ from typing import Any, TYPE_CHECKING
 import pytest
 
 from betty.extension.nginx.config import NginxConfiguration
-from betty.serde.load import AssertionFailed
-from betty.tests.serde import raises_error
+from betty.assertion.error import AssertionFailed
+from betty.tests.assertion import raises_error
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump

@@ -34,14 +34,15 @@ import aiofiles
 from aiofiles.os import makedirs
 from typing_extensions import override
 
+from betty.assertion import assert_dict, assert_sequence
+from betty.assertion.error import AssertionFailedGroup
 from betty.asyncio import wait_to_thread
 from betty.classtools import repr_instance
 from betty.functools import slice_to_range
 from betty.locale.localizable import plain
-from betty.serde.dump import Dumpable, Dump, minimize, VoidableDump, Void
-from betty.serde.error import SerdeErrorCollection
+from betty.serde.dump import Dumpable, Dump, minimize, VoidableDump
 from betty.serde.format import FormatRepository
-from betty.serde.load import assert_dict, assert_sequence
+from betty.typing import Void
 
 if TYPE_CHECKING:
     from _weakref import ReferenceType
@@ -179,7 +180,7 @@ class FileBasedConfiguration(Configuration):
 
         formats = FormatRepository()
         with (
-            SerdeErrorCollection().assert_valid() as errors,
+            AssertionFailedGroup().assert_valid() as errors,
             # Change the working directory to allow relative paths to be resolved
             # against the configuration file's directory path.
             chdir(self.configuration_file_path.parent),
@@ -351,7 +352,7 @@ class ConfigurationCollection(
         """
         Create and load a new item from the given dump, or raise an assertion error.
 
-        :raise betty.serde.load.AssertionFailed: Raised when the dump is invalid and cannot be loaded.
+        :raise betty.assertion.error.AssertionFailed: Raised when the dump is invalid and cannot be loaded.
         """
         raise NotImplementedError(repr(self))
 

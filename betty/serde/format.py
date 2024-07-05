@@ -10,9 +10,9 @@ from typing import cast, Sequence, TYPE_CHECKING
 import yaml
 from typing_extensions import override
 
+from betty.assertion.error import AssertionFailed
 from betty.locale.localizable import plain, Localizable, _
 from betty.serde.dump import Dump, VoidableDump
-from betty.serde.load import FormatError
 
 if TYPE_CHECKING:
     from betty.locale import Localizer
@@ -175,3 +175,11 @@ class FormatStr(Localizable):
                 for extension in serde_format.extensions
             ]
         )
+
+
+class FormatError(AssertionFailed):
+    """
+    Raised when data that is being deserialized is provided in an unknown (undeserializable) format.
+    """
+
+    pass  # pragma: no cover

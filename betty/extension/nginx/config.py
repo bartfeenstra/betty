@@ -5,8 +5,9 @@ from typing import Self
 from typing_extensions import override
 
 from betty.config import Configuration
-from betty.serde.dump import Dump, VoidableDump, minimize, Void, VoidableDictDump
-from betty.serde.load import (
+from betty.serde.dump import Dump, VoidableDump, minimize, VoidableDictDump
+from betty.typing import Void
+from betty.assertion import (
     OptionalField,
     assert_record,
     assert_or,

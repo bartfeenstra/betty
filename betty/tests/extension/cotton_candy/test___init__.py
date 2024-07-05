@@ -27,8 +27,8 @@ from betty.model.ancestry import (
 )
 from betty.model.event_type import Birth, UnknownEventType, EventType, Death
 from betty.project import EntityReference, DEFAULT_LIFETIME_THRESHOLD
-from betty.serde.load import AssertionFailed
-from betty.tests.serde import raises_error
+from betty.assertion.error import AssertionFailed
+from betty.tests.assertion import raises_error
 
 if TYPE_CHECKING:
     from pathlib import Path

@@ -1,16 +1,19 @@
 from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from betty.extension.gramps.config import (
     FamilyTreeConfiguration,
     GrampsConfiguration,
     FamilyTreeConfigurationSequence,
 )
-from betty.serde.dump import Void, Dump
-from betty.serde.load import AssertionFailed
-from betty.tests.serde import raises_error
+from betty.typing import Void
+from betty.assertion.error import AssertionFailed
+from betty.tests.assertion import raises_error
 from betty.tests.test_config import ConfigurationSequenceTestBase
+
+if TYPE_CHECKING:
+    from betty.serde.dump import Dump
 
 
 class TestFamilyTreeConfigurationSequence(

@@ -14,6 +14,13 @@ from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
 from betty import fs
+from betty.assertion import (
+    OptionalField,
+    assert_record,
+    assert_setattr,
+    assert_str,
+)
+from betty.assertion.error import AssertionFailed
 from betty.assets import AssetRepository
 from betty.asyncio import wait_to_thread
 from betty.cache.file import BinaryFileCache, PickledFileCache
@@ -25,13 +32,6 @@ from betty.fs import HOME_DIRECTORY_PATH
 from betty.locale import LocalizerRepository, get_data, DEFAULT_LOCALE, Localizer
 from betty.locale.localizable import _
 from betty.serde.dump import minimize, void_none, Dump, VoidableDump
-from betty.serde.load import (
-    AssertionFailed,
-    OptionalField,
-    assert_record,
-    assert_setattr,
-    assert_str,
-)
 from betty.warnings import deprecate
 
 if TYPE_CHECKING:
