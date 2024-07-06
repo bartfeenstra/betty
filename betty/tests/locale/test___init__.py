@@ -623,7 +623,7 @@ class TestLocalizerRepository:
         locale = "nl-NL"
         async with TemporaryDirectory() as assets_directory_path_str:
             assets_directory_path = Path(assets_directory_path_str)
-            fs = AssetRepository((assets_directory_path, None))
+            assets = AssetRepository(assets_directory_path)
             lc_messages_directory_path = assets_directory_path / "locale" / locale
             lc_messages_directory_path.mkdir(parents=True)
             po = """
@@ -653,6 +653,6 @@ msgstr "Onderwerp"
 """
             async with aiofiles.open(lc_messages_directory_path / "betty.po", "w") as f:
                 await f.write(po)
-            sut = LocalizerRepository(fs)
+            sut = LocalizerRepository(assets)
             actual = (await sut.get(locale))._("Subject")
             assert actual == "Onderwerp"

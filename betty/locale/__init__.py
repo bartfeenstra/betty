@@ -950,7 +950,7 @@ class LocalizerRepository:
         if self._locales is None:
             self._locales = set()
             self._locales.add(DEFAULT_LOCALE)
-            for assets_directory_path, __ in reversed(self._assets.paths):
+            for assets_directory_path in reversed(self._assets.assets_directory_paths):
                 for po_file_path in assets_directory_path.glob("locale/*/betty.po"):
                     self._locales.add(po_file_path.parent.name)
         yield from self._locales
@@ -979,7 +979,7 @@ class LocalizerRepository:
 
     async def _build_translation(self, locale: str) -> Localizer:
         translations = gettext.NullTranslations()
-        for assets_directory_path, __ in reversed(self._assets.paths):
+        for assets_directory_path in reversed(self._assets.assets_directory_paths):
             opened_translations = await self._open_translations(
                 locale, assets_directory_path
             )
@@ -1041,7 +1041,7 @@ class LocalizerRepository:
         return len(translations), len(translatables)
 
     async def _get_translatables(self) -> AsyncIterator[str]:
-        for assets_directory_path, __ in self._assets.paths:
+        for assets_directory_path in self._assets.assets_directory_paths:
             with suppress(FileNotFoundError):
                 async with aiofiles.open(
                     assets_directory_path / "betty.pot"
@@ -1051,7 +1051,7 @@ class LocalizerRepository:
                         yield entry.msgid_with_context
 
     async def _get_translations(self, locale: str) -> AsyncIterator[str]:
-        for assets_directory_path, __ in reversed(self._assets.paths):
+        for assets_directory_path in reversed(self._assets.assets_directory_paths):
             with suppress(FileNotFoundError):
                 async with aiofiles.open(
                     assets_directory_path / "locale" / locale / "betty.po",

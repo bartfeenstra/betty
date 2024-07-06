@@ -1365,7 +1365,7 @@ class TestProject:
     async def test_assets(self, new_temporary_app: App) -> None:
         sut = Project(new_temporary_app)
         async with sut:
-            assert len(sut.assets.paths) > 0
+            assert len(sut.assets.assets_directory_paths) > 0
 
     async def test_discover_extension_types(self, new_temporary_app: App) -> None:
         sut = Project(new_temporary_app)

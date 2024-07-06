@@ -14,8 +14,7 @@ from betty.locale import LocalizerRepository
 
 betty_replacements: dict[str, str] = {}
 
-assets = AssetRepository()
-assets.prepend(fs.ASSETS_DIRECTORY_PATH, "utf-8")
+assets = AssetRepository(fs.ASSETS_DIRECTORY_PATH)
 localizers = LocalizerRepository(assets)
 for locale in localizers.locales:
     coverage = wait_to_thread(localizers.coverage(locale))
