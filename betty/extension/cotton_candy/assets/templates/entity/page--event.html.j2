@@ -48,7 +48,7 @@
         </ul>
     {% endif %}
 
-    {% with files = event.associated_files %}
+    {% with files = event | associated_files %}
         {% include 'media.html.j2' %}
     {% endwith %}
 {% endblock %}

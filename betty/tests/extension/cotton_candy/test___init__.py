@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any, Iterator, TYPE_CHECKING
 
 import pytest
@@ -8,6 +9,7 @@ from betty.extension.cotton_candy import (
     _ColorConfiguration,
     CottonCandyConfiguration,
     person_timeline_events,
+    associated_files,
 )
 from betty.locale import Datey, Date, DateRange
 from betty.model import (
@@ -24,6 +26,12 @@ from betty.model.ancestry import (
     PresenceRole,
     Attendee,
     Privacy,
+    Citation,
+    File,
+    Source,
+    PersonName,
+    HasFiles,
+    Place,
 )
 from betty.model.event_type import Birth, UnknownEventType, EventType, Death
 from betty.project import EntityReference, DEFAULT_LIFETIME_THRESHOLD
@@ -31,7 +39,6 @@ from betty.assertion.error import AssertionFailed
 from betty.tests.assertion import raises_error
 
 if TYPE_CHECKING:
-    from pathlib import Path
     from betty.serde.dump import Dump
 
 
@@ -448,3 +455,82 @@ class TestPersonLifetimeEvents:
         assert expected is (ancestor3_event in actual)
         assert expected is (descendant3_event in actual)
         assert expected is (sibling_event in actual)
+
+
+class TestAssociatedFiles:
+    async def test_with_plain_has_files_without_files(self) -> None:
+        class _DummyHasFiles(HasFiles):
+            pass
+
+        assert list(associated_files(_DummyHasFiles())) == []
+
+    async def test_with_plain_has_files_with_files(self) -> None:
+        file1 = File(path=Path())
+        file2 = File(path=Path())
+
+        class _DummyHasFiles(HasFiles):
+            pass
+
+        has_files = _DummyHasFiles(files=(file1, file2))
+        assert list(associated_files(has_files)) == [file1, file2]
+
+    async def test_with_event_without_files(self) -> None:
+        event = Event(event_type=UnknownEventType)
+        assert list(associated_files(event)) == []
+
+    async def test_with_event_with_citations(self) -> None:
+        file1 = File(path=Path())
+        file2 = File(path=Path())
+        file3 = File(path=Path())
+        file4 = File(path=Path())
+        event = Event(event_type=UnknownEventType)
+        event.files = [file1, file2, file1]  # type: ignore[assignment]
+        citation = Citation(source=Source())
+        citation.files = [file3, file4, file2]  # type: ignore[assignment]
+        event.citations = [citation]  # type: ignore[assignment]
+        assert [file1, file2, file3, file4] == list(associated_files(event))
+
+    async def test_with_person_without_files(
+        self,
+    ) -> None:
+        person = Person(id="1")
+        assert list(associated_files(person)) == []
+
+    async def test_with_person_with_files(self) -> None:
+        file1 = File(path=Path())
+        file2 = File(path=Path())
+        file3 = File(path=Path())
+        file4 = File(path=Path())
+        file5 = File(path=Path())
+        file6 = File(path=Path())
+        person = Person(id="1")
+        person.files = [file1, file2, file1]  # type: ignore[assignment]
+        citation = Citation(source=Source())
+        citation.files = [file3, file4, file2]  # type: ignore[assignment]
+        name = PersonName(
+            person=person,
+            individual="Janet",
+        )
+        name.citations = [citation]  # type: ignore[assignment]
+        event = Event(event_type=UnknownEventType)
+        event.files = [file5, file6, file4]  # type: ignore[assignment]
+        Presence(person, Subject(), event)
+        assert [file1, file2, file3, file4, file5, file6] == list(
+            associated_files(person)
+        )
+
+    async def test_with_place_without_files(self) -> None:
+        place = Place(id="1")
+        assert list(associated_files(place)) == []
+
+    async def test_with_place_with_files(self) -> None:
+        file1 = File(path=Path())
+        file2 = File(path=Path())
+        file3 = File(path=Path())
+        file4 = File(path=Path())
+        place = Place(id="1")
+        place.files = [file1, file2, file1]  # type: ignore[assignment]
+        event = Event(event_type=UnknownEventType)
+        event.files = [file3, file4, file4]  # type: ignore[assignment]
+        event.place = place
+        assert [file1, file2, file3, file4] == list(associated_files(place))

@@ -208,7 +208,7 @@
         {% include 'timeline.html.j2' %}
     {% endwith %}
 
-    {% with files = person.associated_files %}
+    {% with files = person | associated_files %}
         {% include 'media.html.j2' %}
     {% endwith %}
 {% endblock %}
