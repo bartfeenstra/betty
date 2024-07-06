@@ -28,7 +28,4 @@ fi
 if [ -z "${BETTY_TEST_SKIP_PLAYWRIGHT-}" ]; then
   ./bin/test-playwright
 fi
-if [ -z "${BETTY_TEST_SKIP_PYINSTALLER-}" ]; then
-  ./bin/test-build-pyinstaller
-fi
 ./bin/test-build-setuptools

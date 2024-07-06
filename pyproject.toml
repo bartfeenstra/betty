@@ -33,7 +33,6 @@ dependencies = [
     'pdf2image ~= 1.16, >= 1.16.0',
     'polib ~= 1.2, >= 1.2.0',
     'Pillow ~= 10.1, >= 10.1.0',
-    'PyQt6 ~= 6.5, >= 6.5.0',
     'pyyaml ~= 6.0, >= 6.0.0',
     'referencing ~= 0.35',
     'sphinx ~= 7.2, >= 7.2.6',
@@ -43,7 +42,6 @@ dependencies = [
 ]
 classifiers = [
     'Environment :: Console',
-    'Environment :: X11 Applications :: Qt',
     'Intended Audience :: Developers',
     'Intended Audience :: End Users/Desktop',
     'Intended Audience :: Science/Research',
@@ -84,7 +82,6 @@ betty = 'betty.cli:main'
 'demo' = 'betty.cli._demo'
 'docs' = 'betty.cli._docs'
 'generate' = 'betty.cli._generate'
-'gui' = 'betty.cli._gui'
 'serve' = 'betty.cli._serve'
 'init-translation' = 'betty.cli._init_translation'
 'update-translations' = 'betty.cli._update_translations'
@@ -102,9 +99,6 @@ betty = 'betty.cli:main'
 'betty.extension.Wikipedia' = 'betty.extension.Wikipedia'
 
 [project.optional-dependencies]
-pyinstaller = [
-    'pyinstaller ~= 6.1, >= 6.1.0',
-]
 setuptools = [
     'setuptools ~= 70.0',
     'twine ~= 5.0',
@@ -121,8 +115,6 @@ test = [
     'pytest-aioresponses ~= 0.2, >= 0.2.0 ',
     'pytest-asyncio ~= 0.23, >= 0.23.4 ',
     'pytest-mock ~= 3.10, >= 3.10.0',
-    'pytest-qt ~= 4.2, >= 4.2.0',
-    'pytest-xvfb ~= 3.0, >= 3.0.0',
     'ruff ~= 0.5',
     'types-aiofiles ~= 24.1',
     'types-babel ~= 2.11, >= 2.11.0.15',
@@ -136,7 +128,6 @@ test = [
     'types-requests ~= 2.29, >= 2.29.0.0',
     'types-setuptools ~= 70.0',
     'virtualenv ~= 20.26',
-    'betty[pyinstaller]',
     'betty[setuptools]',
 ]
 development = [

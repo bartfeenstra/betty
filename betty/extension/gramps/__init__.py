@@ -4,25 +4,17 @@ Integrate Betty with `Gramps <https://gramps-project.org>`_.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from typing_extensions import override
 
 from betty.locale.localizable import plain, _, Localizable
 from betty.project.extension import ConfigurableExtension, UserFacingExtension
 from betty.gramps.loader import GrampsLoader
 
-if TYPE_CHECKING:
-    from betty.extension.gramps.gui import _GrampsGuiWidget
-
 from betty.extension.gramps.config import GrampsConfiguration
-from betty.gui import GuiBuilder
 from betty.load import Loader
 
 
-class Gramps(
-    ConfigurableExtension[GrampsConfiguration], UserFacingExtension, Loader, GuiBuilder
-):
+class Gramps(ConfigurableExtension[GrampsConfiguration], UserFacingExtension, Loader):
     """
     Integrate Betty with `Gramps <https://gramps-project.org>`_.
     """
@@ -56,9 +48,3 @@ class Gramps(
     @classmethod
     def description(cls) -> Localizable:
         return _('Load <a href="https://gramps-project.org/">Gramps</a> family trees.')
-
-    @override
-    def gui_build(self) -> _GrampsGuiWidget:
-        from betty.extension.gramps.gui import _GrampsGuiWidget
-
-        return _GrampsGuiWidget(self._project)

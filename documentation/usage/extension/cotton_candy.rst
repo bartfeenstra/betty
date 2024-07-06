@@ -5,7 +5,7 @@ The :py:class:`betty.extension.CottonCandy` extension provides Betty's default t
 .. important::
     This extension requires :doc:`npm </usage/npm>`.
 
-Enable this extension through Betty Desktop, or in your project's :doc:`configuration file </usage/project/configuration>` as follows:
+Enable this extension in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
 .. tab-set::
 
@@ -28,7 +28,7 @@ Enable this extension through Betty Desktop, or in your project's :doc:`configur
 
 Configuration
 -------------
-This extension is configurable through Betty Desktop or in the configuration file:
+This extension is configurable::
 
 .. tab-set::
 

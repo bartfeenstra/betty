@@ -1,31 +1,22 @@
-import json
 import logging
 from asyncio import to_thread
 from collections.abc import AsyncIterator
-from multiprocessing import get_context
-from pathlib import Path
 from typing import Any
 from unittest.mock import AsyncMock
 
-import aiofiles
 import click
 import pytest
-from PyQt6.QtCore import QTimer
-from PyQt6.QtGui import QShowEvent
 from _pytest.logging import LogCaptureFixture
 from aiofiles.os import makedirs
-from click.testing import CliRunner, Result
-from pytest_mock import MockerFixture
-
 from betty.app import App
 from betty.cli import main, command, catch_exceptions
 from betty.error import UserFacingError
-from betty.gui.app import BettyPrimaryWindow
 from betty.locale import DEFAULT_LOCALIZER
 from betty.locale.localizable import plain
 from betty.project import Project
 from betty.serve import Server, ProjectServer
-from betty.tests.conftest import BettyQtBot
+from click.testing import CliRunner, Result
+from pytest_mock import MockerFixture
 
 
 @click.command(name="no-op")
@@ -185,46 +176,6 @@ class TestServe:
             await to_thread(
                 run, "serve", "-c", str(project.configuration.configuration_file_path)
             )
-
-
-class TestGui:
-    @classmethod
-    def _target(cls, *args: str) -> None:
-        def showEvent(window_self: BettyPrimaryWindow, a0: QShowEvent | None) -> None:
-            super(type(window_self), window_self).showEvent(a0)
-            timer = QTimer(window_self)
-            timer.timeout.connect(window_self.close)
-            timer.start(0)
-
-        BettyPrimaryWindow.showEvent = showEvent  # type: ignore[assignment, callable-functiontype, method-assign, misc]
-        run(*args)
-
-    async def test_without_project(
-        self, betty_qtbot: BettyQtBot, new_temporary_app: App
-    ) -> None:
-        process = get_context("spawn").Process(target=self._target, args=["gui"])
-        try:
-            process.start()
-        finally:
-            process.join()
-
-    async def test_with_project(
-        self, betty_qtbot: BettyQtBot, new_temporary_app: App, tmp_path: Path
-    ) -> None:
-        configuration_file_path = tmp_path / "betty.json"
-        configuration = {
-            "base_url": "https://example.com",
-        }
-        async with aiofiles.open(configuration_file_path, "w") as config_file:
-            await config_file.write(json.dumps(configuration))
-
-        process = get_context("spawn").Process(
-            target=self._target, args=["gui", "-c", str(configuration_file_path)]
-        )
-        try:
-            process.start()
-        finally:
-            process.join()
 
 
 class TestUnknownCommand:

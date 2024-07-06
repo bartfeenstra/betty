@@ -37,7 +37,6 @@ from betty.assertion.error import AssertionFailed
 
 if TYPE_CHECKING:
     from collections.abc import Coroutine, Mapping
-    from PyQt6.QtWidgets import QMainWindow
 
 
 _P = ParamSpec("_P")
@@ -233,25 +232,6 @@ async def _demo(app: App) -> None:
         await server.show()
         while True:
             await asyncio.sleep(999)
-
-
-@click.command(help="Open Betty's graphical user interface (GUI).")
-@pass_project
-@command
-async def _gui(project: Project, configuration_file_path: Path | None) -> None:
-    from betty.gui import BettyApplication
-    from betty.gui.app import WelcomeWindow
-    from betty.gui.project import ProjectWindow
-
-    async with BettyApplication([sys.argv[0]]).with_app(project.app) as qapp:
-        window: QMainWindow
-        if configuration_file_path is None:
-            window = WelcomeWindow(project.app)
-        else:
-            await project.configuration.read(configuration_file_path)
-            window = ProjectWindow(project)
-        window.show()
-        sys.exit(qapp.exec())
 
 
 @click.command(help="Generate a static site.")

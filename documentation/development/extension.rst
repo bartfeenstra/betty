@@ -102,8 +102,6 @@ Extensions can handle dispatched events by extending from any of the following c
 :py:class:`betty.generate.Generator`
     Dispatched when the site is being generated. This is used to tell extensions when to
     generate their parts of the site.
-:py:class:`betty.gui.GuiBuilder`
-    Provide a Graphical User Interface to manage the extension in the Betty Desktop application.
 :py:class:`betty.html.CssProvider`
     Add additional CSS files to generated pages.
 :py:class:`betty.html.JsProvider`
