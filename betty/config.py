@@ -113,23 +113,6 @@ class FileBasedConfiguration(Configuration):
     def __init__(self, configuration_file_path: Path):
         super().__init__()
         self._configuration_file_path = configuration_file_path
-        self._autowrite = False
-
-    @property
-    def autowrite(self) -> bool:
-        """
-        Whether to write this configuration to file whenever it changes.
-        """
-        return self._autowrite
-
-    @autowrite.setter
-    def autowrite(self, autowrite: bool) -> None:
-        if autowrite:
-            if not self._autowrite:
-                self.on_change(self._on_change_write)
-        else:
-            self.remove_on_change(self._on_change_write)
-        self._autowrite = autowrite
 
     def _on_change_write(self) -> None:
         wait_to_thread(self.write())
