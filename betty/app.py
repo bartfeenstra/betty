@@ -181,8 +181,7 @@ class App(Configurable[AppConfiguration], CoreComponent):
         """
         if self._assets is None:
             self._assert_bootstrapped()
-            self._assets = AssetRepository()
-            self._assets.prepend(fs.ASSETS_DIRECTORY_PATH, "utf-8")
+            self._assets = AssetRepository(fs.ASSETS_DIRECTORY_PATH)
         return self._assets
 
     @property

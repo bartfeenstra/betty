@@ -9,7 +9,15 @@ import json
 import logging
 import os
 import shutil
-from asyncio import create_task, Task, as_completed, Semaphore, CancelledError, sleep
+from asyncio import (
+    create_task,
+    Task,
+    as_completed,
+    Semaphore,
+    CancelledError,
+    sleep,
+    to_thread,
+)
 from contextlib import suppress
 from pathlib import Path
 from typing import (
@@ -27,6 +35,7 @@ from aiofiles.os import makedirs
 from aiofiles.threadpool.text import AsyncTextIOWrapper
 from math import floor
 
+from betty.asyncio import gather
 from betty.job import Context
 from betty.json.schema import Schema
 from betty.locale import get_display_name
@@ -243,6 +252,26 @@ async def _generate_dispatch(
     await project.dispatcher.dispatch(Generator)(job_context)
 
 
+async def _generate_public_asset(
+    asset_path: Path, project: Project, job_context: GenerationContext, locale: str
+) -> None:
+    www_directory_path = project.configuration.localize_www_directory_path(locale)
+    file_destination_path = www_directory_path / asset_path.relative_to(
+        Path("public") / "localized"
+    )
+    await makedirs(file_destination_path.parent, exist_ok=True)
+    await to_thread(
+        shutil.copy2,
+        project.assets[asset_path],
+        file_destination_path,
+    )
+    await project.renderer.render_file(
+        file_destination_path,
+        job_context=job_context,
+        localizer=await project.app.localizers.get(locale),
+    )
+
+
 async def _generate_public(
     job_context: GenerationContext,
     locale: str,
@@ -254,17 +283,31 @@ async def _generate_public(
             "Generating localized public files in {locale}..."
         ).format(
             locale=locale_label,
-        )
-    )
-    async for file_path in project.assets.copytree(
-        Path("public") / "localized",
-        project.configuration.localize_www_directory_path(locale),
-    ):
-        await project.renderer.render_file(
-            file_path,
-            job_context=job_context,
             localizer=await project.app.localizers.get(locale),
         )
+    )
+    await gather(
+        *(
+            _generate_public_asset(asset_path, project, job_context, locale)
+            for asset_path in project.assets.walk(Path("public") / "localized")
+        )
+    )
+
+
+async def _generate_static_public_asset(
+    asset_path: Path, project: Project, job_context: GenerationContext
+) -> None:
+    file_destination_path = (
+        project.configuration.www_directory_path
+        / asset_path.relative_to(Path("public") / "static")
+    )
+    await makedirs(file_destination_path.parent, exist_ok=True)
+    await to_thread(
+        shutil.copy2,
+        project.assets[asset_path],
+        file_destination_path,
+    )
+    await project.renderer.render_file(file_destination_path, job_context=job_context)
 
 
 async def _generate_static_public(
@@ -275,21 +318,21 @@ async def _generate_static_public(
     logging.getLogger(__name__).info(
         app.localizer._("Generating static public files...")
     )
-    async for file_path in project.assets.copytree(
-        Path("public") / "static", project.configuration.www_directory_path
-    ):
-        await project.renderer.render_file(
-            file_path,
-            job_context=job_context,
+    await gather(
+        *(
+            _generate_static_public_asset(asset_path, project, job_context)
+            for asset_path in project.assets.walk(Path("public") / "static")
         )
+    )
 
-        # Ensure favicon.ico exists, otherwise servers of Betty sites would log
-        # many a 404 Not Found for it, because some clients eagerly try to see
-        # if it exists.
-        await project.assets.copy2(
-            Path("public") / "static" / "betty.ico",
-            project.configuration.www_directory_path / "favicon.ico",
-        )
+    # Ensure favicon.ico exists, otherwise servers of Betty sites would log
+    # many a 404 Not Found for it, because some clients eagerly try to see
+    # if it exists.
+    await to_thread(
+        shutil.copy2,
+        project.assets[Path("public") / "static" / "betty.ico"],
+        project.configuration.www_directory_path / "favicon.ico",
+    )
 
 
 async def _generate_entity_type_list_html(

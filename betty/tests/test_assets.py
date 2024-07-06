@@ -1,159 +1,97 @@
 from pathlib import Path
 
-import aiofiles
-import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
 from betty.assets import AssetRepository
 
 
 class TestAssetRepository:
-    async def test_open(self) -> None:
+    async def test_assets_directory_paths(self) -> None:
         async with TemporaryDirectory() as source_path_str_1:
             source_path_1 = Path(source_path_str_1)
             async with TemporaryDirectory() as source_path_str_2:
                 source_path_2 = Path(source_path_str_2)
-                async with aiofiles.open(source_path_1 / "apples", "w") as f:
-                    await f.write("apples")
-                async with aiofiles.open(source_path_2 / "apples", "w") as f:
-                    await f.write("notapples")
-                async with aiofiles.open(source_path_1 / "oranges", "w") as f:
-                    await f.write("oranges")
-                async with aiofiles.open(source_path_2 / "bananas", "w") as f:
-                    await f.write("bananas")
+                sut = AssetRepository(source_path_1, source_path_2)
+                assert sut.assets_directory_paths == (source_path_1, source_path_2)
 
-                sut = AssetRepository((source_path_1, None), (source_path_2, None))
-
-                async with sut.open(Path("apples")) as f:
-                    assert await f.read() == "apples"
-                async with sut.open(Path("oranges")) as f:
-                    assert await f.read() == "oranges"
-                async with sut.open(Path("bananas")) as f:
-                    assert await f.read() == "bananas"
-
-                with pytest.raises(FileNotFoundError):
-                    async with sut.open(Path("mangos")):
-                        pass
-
-    async def test_open_with_first_file_path_alternative_first_source_path(
+    async def test___getitem___with_override(
         self,
     ) -> None:
         async with TemporaryDirectory() as source_path_str_1:
             source_path_1 = Path(source_path_str_1)
             async with TemporaryDirectory() as source_path_str_2:
                 source_path_2 = Path(source_path_str_2)
-                async with aiofiles.open(source_path_1 / "pinkladies", "w") as f:
-                    await f.write("pinkladies")
-                async with aiofiles.open(source_path_2 / "pinkladies", "w") as f:
-                    await f.write("notpinkladies")
-                async with aiofiles.open(source_path_1 / "apples", "w") as f:
-                    await f.write("notpinkladies")
-                async with aiofiles.open(source_path_2 / "apples", "w") as f:
-                    await f.write("notpinkladies")
+                (source_path_1 / "apples").touch()
+                (source_path_2 / "apples").touch()
+                sut = AssetRepository(source_path_1, source_path_2)
+                assert sut[Path("apples")] == source_path_1 / "apples"
 
-                sut = AssetRepository((source_path_1, None), (source_path_2, None))
-
-                async with sut.open(Path("pinkladies"), Path("apples")) as f:
-                    assert await f.read() == "pinkladies"
-
-    async def test_open_with_first_file_path_alternative_second_source_path(
+    async def test___getitem___without_override(
         self,
     ) -> None:
         async with TemporaryDirectory() as source_path_str_1:
             source_path_1 = Path(source_path_str_1)
             async with TemporaryDirectory() as source_path_str_2:
                 source_path_2 = Path(source_path_str_2)
-                async with aiofiles.open(source_path_2 / "pinkladies", "w") as f:
-                    await f.write("pinkladies")
-                async with aiofiles.open(source_path_1 / "apples", "w") as f:
-                    await f.write("notpinkladies")
-                async with aiofiles.open(source_path_2 / "apples", "w") as f:
-                    await f.write("notpinkladies")
+                (source_path_1 / "apples").touch()
+                (source_path_2 / "oranges").touch()
+                sut = AssetRepository(source_path_1, source_path_2)
+                assert sut[Path("oranges")] == source_path_2 / "oranges"
 
-                sut = AssetRepository((source_path_1, None), (source_path_2, None))
-
-                async with sut.open(Path("pinkladies"), Path("apples")) as f:
-                    assert await f.read() == "pinkladies"
-
-    async def test_open_with_second_file_path_alternative_first_source_path(
-        self,
-    ) -> None:
+    async def test_walk_with_override(self) -> None:
         async with TemporaryDirectory() as source_path_str_1:
             source_path_1 = Path(source_path_str_1)
             async with TemporaryDirectory() as source_path_str_2:
                 source_path_2 = Path(source_path_str_2)
-                async with aiofiles.open(source_path_1 / "apples", "w") as f:
-                    await f.write("apples")
-                async with aiofiles.open(source_path_2 / "apples", "w") as f:
-                    await f.write("notapples")
+                (source_path_1 / "apples").touch()
+                (source_path_2 / "apples").touch()
+                sut = AssetRepository(source_path_1, source_path_2)
+                assert set(sut.walk()) == {Path("apples")}
 
-                sut = AssetRepository((source_path_1, None), (source_path_2, None))
-
-                async with sut.open(Path("pinkladies"), Path("apples")) as f:
-                    assert await f.read() == "apples"
-
-    async def test_copy2(self) -> None:
+    async def test_walk_without_override(self) -> None:
         async with TemporaryDirectory() as source_path_str_1:
             source_path_1 = Path(source_path_str_1)
             async with TemporaryDirectory() as source_path_str_2:
                 source_path_2 = Path(source_path_str_2)
-                async with aiofiles.open(source_path_1 / "apples", "w") as f:
-                    await f.write("apples")
-                async with aiofiles.open(source_path_2 / "apples", "w") as f:
-                    await f.write("notapples")
-                async with aiofiles.open(source_path_1 / "oranges", "w") as f:
-                    await f.write("oranges")
-                async with aiofiles.open(source_path_2 / "bananas", "w") as f:
-                    await f.write("bananas")
+                (source_path_1 / "apples").touch()
+                (source_path_2 / "oranges").touch()
+                sut = AssetRepository(source_path_1, source_path_2)
+                assert set(sut.walk()) == {
+                    Path("apples"),
+                    Path("oranges"),
+                }
 
-                async with TemporaryDirectory() as destination_path_str:
-                    destination_path = Path(destination_path_str)
-                    sut = AssetRepository((source_path_1, None), (source_path_2, None))
-
-                    await sut.copy2(Path("apples"), destination_path)
-                    await sut.copy2(Path("oranges"), destination_path)
-                    await sut.copy2(Path("bananas"), destination_path)
-
-                    async with sut.open(destination_path / "apples") as f:
-                        assert await f.read() == "apples"
-                    async with sut.open(destination_path / "oranges") as f:
-                        assert await f.read() == "oranges"
-                    async with sut.open(destination_path / "bananas") as f:
-                        assert await f.read() == "bananas"
-
-                    with pytest.raises(FileNotFoundError):
-                        await sut.copy2(Path("mangos"), destination_path)
-
-    async def test_copytree(self) -> None:
+    async def test_walk_with_override_with_filter(self) -> None:
         async with TemporaryDirectory() as source_path_str_1:
             source_path_1 = Path(source_path_str_1)
-            (source_path_1 / "basket").mkdir()
+            (source_path_1 / "fruits").mkdir()
+            (source_path_1 / "vegetables").mkdir()
             async with TemporaryDirectory() as source_path_str_2:
                 source_path_2 = Path(source_path_str_2)
-                (source_path_2 / "basket").mkdir()
-                async with aiofiles.open(source_path_1 / "basket" / "apples", "w") as f:
-                    await f.write("apples")
-                async with aiofiles.open(source_path_2 / "basket" / "apples", "w") as f:
-                    await f.write("notapples")
-                async with aiofiles.open(
-                    source_path_1 / "basket" / "oranges", "w"
-                ) as f:
-                    await f.write("oranges")
-                async with aiofiles.open(
-                    source_path_2 / "basket" / "bananas", "w"
-                ) as f:
-                    await f.write("bananas")
+                (source_path_2 / "fruits").mkdir()
+                (source_path_2 / "vegetables").mkdir()
+                (source_path_1 / "fruits" / "apples").touch()
+                (source_path_2 / "fruits" / "apples").touch()
+                (source_path_1 / "vegetables" / "peppers").touch()
+                (source_path_2 / "vegetables" / "peppers").touch()
+                sut = AssetRepository(source_path_1, source_path_2)
+                assert set(sut.walk(Path("fruits"))) == {Path("fruits") / "apples"}
 
-                async with TemporaryDirectory() as destination_path_str:
-                    destination_path = Path(destination_path_str)
-                    sut = AssetRepository((source_path_1, None), (source_path_2, None))
-
-                    async for _ in sut.copytree(Path(), destination_path):
-                        pass
-
-                    async with sut.open(destination_path / "basket" / "apples") as f:
-                        assert await f.read() == "apples"
-                    async with sut.open(destination_path / "basket" / "oranges") as f:
-                        assert await f.read() == "oranges"
-                    async with sut.open(destination_path / "basket" / "bananas") as f:
-                        assert await f.read() == "bananas"
+    async def test_walk_without_override_with_filter(self) -> None:
+        async with TemporaryDirectory() as source_path_str_1:
+            source_path_1 = Path(source_path_str_1)
+            (source_path_1 / "fruits").mkdir()
+            (source_path_1 / "vegetables").mkdir()
+            async with TemporaryDirectory() as source_path_str_2:
+                source_path_2 = Path(source_path_str_2)
+                (source_path_2 / "fruits").mkdir()
+                (source_path_2 / "vegetables").mkdir()
+                (source_path_1 / "fruits" / "apples").touch()
+                (source_path_2 / "fruits" / "oranges").touch()
+                (source_path_1 / "vegetables" / "peppers").touch()
+                (source_path_2 / "vegetables" / "oranges").touch()
+                sut = AssetRepository(source_path_1, source_path_2)
+                assert set(sut.walk(Path("fruits"))) == {
+                    Path("fruits") / "apples",
+                    Path("fruits") / "oranges",
+                }

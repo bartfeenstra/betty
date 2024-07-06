@@ -1129,14 +1129,14 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
         """
         if self._assets is None:
             self._assert_bootstrapped()
-            self._assets = AssetRepository()
-            # Mimic :py:attr:`betty.app.App.assets`.
-            self._assets.prepend(fs.ASSETS_DIRECTORY_PATH, "utf-8")
+            asset_paths = [self.configuration.assets_directory_path]
             for extension in self.extensions.flatten():
                 extension_assets_directory_path = extension.assets_directory_path()
                 if extension_assets_directory_path is not None:
-                    self._assets.prepend(extension_assets_directory_path, "utf-8")
-            self._assets.prepend(self.configuration.assets_directory_path)
+                    asset_paths.append(extension_assets_directory_path)
+            # Mimic :py:attr:`betty.app.App.assets`.
+            asset_paths.append(fs.ASSETS_DIRECTORY_PATH)
+            self._assets = AssetRepository(*asset_paths)
         return self._assets
 
     @property

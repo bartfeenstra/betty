@@ -217,7 +217,7 @@ class Environment(Jinja2Environment):
 
     def __init__(self, project: Project):
         template_directory_paths = [
-            str(path / "templates") for path, _ in project.assets.paths
+            str(path / "templates") for path in project.assets.assets_directory_paths
         ]
         super().__init__(
             loader=FileSystemLoader(template_directory_paths),
