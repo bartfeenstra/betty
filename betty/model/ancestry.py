@@ -13,7 +13,6 @@ from urllib.parse import quote
 from typing_extensions import override
 
 from betty.classtools import repr_instance
-from betty.functools import Uniquifier
 from betty.json.linked_data import (
     LinkedDataDumpable,
     dump_context,
@@ -864,13 +863,6 @@ class HasFiles:
     def files(self) -> None:
         pass  # pragma: no cover
 
-    @property
-    def associated_files(self) -> Iterable[File]:
-        """
-        All files directly or indirectly associated with this entity.
-        """
-        return self.files
-
 
 @many_to_one("contained_by", "betty.model.ancestry.Source", "contains")
 @one_to_many("contains", "betty.model.ancestry.Source", "contained_by")
@@ -1407,13 +1399,6 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
         return super().label
 
     @override
-    @property
-    def associated_files(self) -> Iterable[File]:
-        yield from self.files
-        for event in self.events:
-            yield from event.files
-
-    @override
     async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
         dump = await super().dump_linked_data(project)
         dump_context(
@@ -1839,20 +1824,6 @@ class Event(
         return self._event_type
 
     @override
-    @property
-    def associated_files(self) -> Iterable[File]:
-        files = [
-            *self.files,
-            *[
-                file
-                for citation in self.citations
-                for file in citation.associated_files
-            ],
-        ]
-        # Preserve the original order.
-        yield from Uniquifier(files)
-
-    @override
     async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
         dump = await super().dump_linked_data(project)
         dump_context(dump, presences="performer")
@@ -2231,27 +2202,6 @@ class Person(
         for child in self.children:
             yield child
             yield from child.descendants
-
-    @override
-    @property
-    def associated_files(self) -> Iterable[File]:
-        files = [
-            *self.files,
-            *[
-                file
-                for name in self.names
-                for citation in name.citations
-                for file in citation.associated_files
-            ],
-            *[
-                file
-                for presence in self.presences
-                if presence.event is not None
-                for file in presence.event.associated_files
-            ],
-        ]
-        # Preserve the original order.
-        yield from Uniquifier(files)
 
     @override
     @property

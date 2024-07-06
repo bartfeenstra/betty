@@ -38,7 +38,16 @@ from betty.jinja2 import (
 from betty.locale import Date, Datey
 from betty.locale.localizable import _, plain, Localizable
 from betty.model import Entity, UserFacingEntity, GeneratedEntityId
-from betty.model.ancestry import Event, Person, Presence, is_public, Subject
+from betty.model.ancestry import (
+    Event,
+    Person,
+    Presence,
+    is_public,
+    Subject,
+    HasFiles,
+    File,
+    Place,
+)
 from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
 from betty.os import link_or_copy
 from betty.project import EntityReferenceSequence, EntityReference
@@ -306,6 +315,7 @@ class CottonCandy(
                 person, self.project.configuration.lifetime_threshold
             ),
             "person_descendant_families": person_descendant_families,
+            "associated_files": associated_files,
         }
 
 
@@ -351,6 +361,33 @@ def person_descendant_families(
             parents[family] = tuple(child.parents)
         children[family].add(child)
     yield from zip(parents.values(), children.values())
+
+
+def associated_files(has_files: HasFiles) -> Iterable[File]:
+    """
+    Get the associated files for an entity that has files.
+    """
+    yield from Uniquifier(_associated_files(has_files))
+
+
+def _associated_files(has_files: HasFiles) -> Iterable[File]:
+    yield from has_files.files
+
+    if isinstance(has_files, Event):
+        for citation in has_files.citations:
+            yield from _associated_files(citation)
+
+    if isinstance(has_files, Person):
+        for name in has_files.names:
+            for citation in name.citations:
+                yield from _associated_files(citation)
+        for presence in has_files.presences:
+            if presence.event is not None:
+                yield from _associated_files(presence.event)
+
+    if isinstance(has_files, Place):
+        for event in has_files.events:
+            yield from _associated_files(event)
 
 
 def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable[Event]:

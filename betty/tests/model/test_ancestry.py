@@ -1597,18 +1597,6 @@ class TestEvent:
         sut = Event(event_type=event_type)
         assert event_type == sut.event_type
 
-    async def test_associated_files(self) -> None:
-        file1 = File(path=Path())
-        file2 = File(path=Path())
-        file3 = File(path=Path())
-        file4 = File(path=Path())
-        sut = Event(event_type=UnknownEventType)
-        sut.files = [file1, file2, file1]  # type: ignore[assignment]
-        citation = Citation(source=Source())
-        citation.files = [file3, file4, file2]  # type: ignore[assignment]
-        sut.citations = [citation]  # type: ignore[assignment]
-        assert [file1 == file2, file3, file4], list(sut.associated_files)
-
     async def test_dump_linked_data_should_dump_minimal(self) -> None:
         event = Event(
             id="the_event",
@@ -1961,27 +1949,6 @@ class TestPerson:
         grandchild = Person(id="2")
         child.children.add(grandchild)
         assert [child, grandchild] == list(sut.descendants)
-
-    async def test_associated_files(self) -> None:
-        file1 = File(path=Path())
-        file2 = File(path=Path())
-        file3 = File(path=Path())
-        file4 = File(path=Path())
-        file5 = File(path=Path())
-        file6 = File(path=Path())
-        sut = Person(id="1")
-        sut.files = [file1, file2, file1]  # type: ignore[assignment]
-        citation = Citation(source=Source())
-        citation.files = [file3, file4, file2]  # type: ignore[assignment]
-        name = PersonName(
-            person=sut,
-            individual="Janet",
-        )
-        name.citations = [citation]  # type: ignore[assignment]
-        event = Event(event_type=UnknownEventType)
-        event.files = [file5, file6, file4]  # type: ignore[assignment]
-        Presence(sut, Subject(), event)
-        assert [file1, file2, file3, file4, file5, file6], list(sut.associated_files)
 
     async def test_dump_linked_data_should_dump_minimal(self) -> None:
         person_id = "the_person"

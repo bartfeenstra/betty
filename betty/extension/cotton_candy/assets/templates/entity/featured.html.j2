@@ -17,7 +17,7 @@
 </div>
 
 {% if entity is has_files %}
-    {% set images = entity.associated_files | selectattr('media_type.type', 'eq', 'image') | list %}
+    {% set images = entity | associated_files | selectattr('media_type.type', 'eq', 'image') | list %}
     {% if images | length > 0 %}
         <div class="featured-entity-feature">
             <a href="{{ entity | url }}" class="featured-entity-feature-link">
