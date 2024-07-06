@@ -81,12 +81,10 @@ class AppConfiguration(FileBasedConfiguration):
                 )
             ) from None
         self._locale = locale
-        self._dispatch_change()
 
     @override
     def update(self, other: Self) -> None:
         self._locale = other._locale
-        self._dispatch_change()
 
     @override
     def load(self, dump: Dump) -> None:

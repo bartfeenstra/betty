@@ -87,7 +87,6 @@ class _ColorConfiguration(Configuration):
     def hex(self, hex_value: str) -> None:
         self._assert_hex(hex_value)
         self._hex = hex_value
-        self._dispatch_change()
 
     @override
     def update(self, other: Self) -> None:
@@ -128,15 +127,10 @@ class CottonCandyConfiguration(Configuration):
         self._featured_entities = EntityReferenceSequence["UserFacingEntity & Entity"](
             featured_entities or ()
         )
-        self._featured_entities.on_change(self)
         self._primary_inactive_color = _ColorConfiguration(primary_inactive_color)
-        self._primary_inactive_color.on_change(self)
         self._primary_active_color = _ColorConfiguration(primary_active_color)
-        self._primary_active_color.on_change(self)
         self._link_inactive_color = _ColorConfiguration(link_inactive_color)
-        self._link_inactive_color.on_change(self)
         self._link_active_color = _ColorConfiguration(link_active_color)
-        self._link_active_color.on_change(self)
         self._logo = logo
 
     @property
@@ -184,7 +178,6 @@ class CottonCandyConfiguration(Configuration):
     @logo.setter
     def logo(self, logo: Path | None) -> None:
         self._logo = logo
-        self._dispatch_change()
 
     @override
     def load(self, dump: Dump) -> None:

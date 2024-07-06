@@ -39,7 +39,6 @@ class WikipediaConfiguration(Configuration):
     @override
     def update(self, other: Self) -> None:
         self._populate_images = other._populate_images
-        self._dispatch_change()
 
     @override
     def load(self, dump: Dump) -> None:
