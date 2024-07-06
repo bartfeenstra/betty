@@ -15,8 +15,7 @@ from betty.config import (
     ConfigurationSequence,
     ConfigurationKey,
 )
-from betty.serde.load import (
-    FormatError,
+from betty.assertion import (
     assert_dict,
     assert_record,
     RequiredField,
@@ -24,6 +23,7 @@ from betty.serde.load import (
     assert_setattr,
     assert_int,
 )
+from betty.serde.format import FormatError
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, VoidableDump

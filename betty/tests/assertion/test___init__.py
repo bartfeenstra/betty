@@ -6,10 +6,7 @@ from typing import Any, TypeVar
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
-from betty.locale.localizable import plain
-from betty.serde.dump import Void
-from betty.serde.load import (
-    AssertionFailed,
+from betty.assertion import (
     Number,
     OptionalField,
     RequiredField,
@@ -32,7 +29,10 @@ from betty.serde.load import (
     assert_fields,
     assert_field,
 )
-from betty.tests.serde import raises_error
+from betty.assertion.error import AssertionFailed
+from betty.locale.localizable import plain
+from betty.typing import Void
+from betty.tests.assertion import raises_error
 
 _T = TypeVar("_T")
 

@@ -8,7 +8,7 @@ from typing_extensions import override
 
 from betty.config import Configuration
 from betty.serde.dump import Dump, VoidableDump, minimize, VoidableDictDump
-from betty.serde.load import (
+from betty.assertion import (
     OptionalField,
     assert_record,
     assert_bool,

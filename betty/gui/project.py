@@ -60,7 +60,7 @@ from betty.locale.localizable import _, Localizable, plain
 from betty.model import UserFacingEntity, Entity
 from betty.project import LocaleConfiguration, Project, EntityTypeConfiguration
 from betty.project.extension import UserFacingExtension
-from betty.serde.load import AssertionFailed
+from betty.assertion.error import AssertionFailed
 from betty.typing import internal
 
 if TYPE_CHECKING:

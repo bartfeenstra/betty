@@ -11,7 +11,7 @@ from typing_extensions import override
 
 from betty.config import Configuration, ConfigurationSequence
 from betty.serde.dump import minimize, Dump, VoidableDump
-from betty.serde.load import (
+from betty.assertion import (
     RequiredField,
     OptionalField,
     assert_record,

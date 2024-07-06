@@ -33,7 +33,7 @@ from betty.locale import DEFAULT_LOCALIZER
 from betty.locale.localizable import _
 from betty.logging import CliHandler
 from betty.project import Project
-from betty.serde.load import AssertionFailed
+from betty.assertion.error import AssertionFailed
 
 if TYPE_CHECKING:
     from collections.abc import Coroutine, Mapping

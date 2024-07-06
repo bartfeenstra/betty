@@ -13,6 +13,14 @@ from jinja2 import pass_context
 from typing_extensions import override
 
 from betty import fs
+from betty.assertion import (
+    OptionalField,
+    assert_str,
+    assert_record,
+    assert_path,
+    assert_setattr,
+)
+from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
 from betty.extension.cotton_candy.search import Index
 from betty.extension.webpack import Webpack, WebpackEntryPointProvider
@@ -36,15 +44,8 @@ from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
 from betty.os import link_or_copy
 from betty.project import EntityReferenceSequence, EntityReference
 from betty.project.extension import ConfigurableExtension, Extension, Theme
-from betty.serde.dump import minimize, Dump, VoidableDump, Void
-from betty.serde.load import (
-    AssertionFailed,
-    OptionalField,
-    assert_str,
-    assert_record,
-    assert_path,
-    assert_setattr,
-)
+from betty.serde.dump import minimize, Dump, VoidableDump
+from betty.typing import Void
 
 if TYPE_CHECKING:
     from PyQt6.QtWidgets import QWidget

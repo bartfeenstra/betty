@@ -27,7 +27,8 @@ from betty.job import Context as JobContext
 from betty.locale import Date, Localizer, DEFAULT_LOCALIZER
 from betty.model import Entity, get_entity_type
 from betty.render import Renderer
-from betty.serde.dump import Dumpable, DictDump, VoidableDump, Void, Dump
+from betty.serde.dump import Dumpable, DictDump, VoidableDump, Dump
+from betty.typing import Void
 
 if TYPE_CHECKING:
     from betty.project.extension import Extension

@@ -1,5 +1,5 @@
 """
-Provide serialization error handling utilities.
+Provide assertion failures.
 """
 
 from __future__ import annotations
@@ -17,9 +17,9 @@ if TYPE_CHECKING:
     from betty.locale import Localizer
 
 
-class SerdeError(UserFacingError, ValueError):
+class AssertionFailed(UserFacingError, ValueError):
     """
-    A (de)serialization error.
+    An assertion failure.
     """
 
     def __init__(self, message: Localizable):
@@ -35,7 +35,7 @@ class SerdeError(UserFacingError, ValueError):
             + indent("\n".join(localized_contexts), "- ")
         ).strip()
 
-    def raised(self, error_type: type[SerdeError]) -> bool:
+    def raised(self, error_type: type[AssertionFailed]) -> bool:
         """
         Check if the error matches the given error type.
         """
@@ -60,19 +60,19 @@ class SerdeError(UserFacingError, ValueError):
         return type(self)(self._localizable_message)
 
 
-class SerdeErrorCollection(SerdeError):
+class AssertionFailedGroup(AssertionFailed):
     """
-    A collection of zero or more (de)serialization errors.
+    A group of zero or more assertion failures.
     """
 
     def __init__(
         self,
-        errors: list[SerdeError] | None = None,
+        errors: list[AssertionFailed] | None = None,
     ):
         super().__init__(_("The following errors occurred"))
-        self._errors: list[SerdeError] = errors or []
+        self._errors: list[AssertionFailed] = errors or []
 
-    def __iter__(self) -> Iterator[SerdeError]:
+    def __iter__(self) -> Iterator[AssertionFailed]:
         yield from self._errors
 
     @override
@@ -80,14 +80,14 @@ class SerdeErrorCollection(SerdeError):
         return "\n\n".join((error.localize(localizer) for error in self._errors))
 
     @override
-    def __reduce__(self) -> tuple[type[Self], tuple[list[SerdeError]]]:  # type: ignore[override]
+    def __reduce__(self) -> tuple[type[Self], tuple[list[AssertionFailed]]]:  # type: ignore[override]
         return type(self), (self._errors,)
 
     def __len__(self) -> int:
         return len(self._errors)
 
     @override
-    def raised(self, error_type: type[SerdeError]) -> bool:
+    def raised(self, error_type: type[AssertionFailed]) -> bool:
         return any(error.raised(error_type) for error in self._errors)
 
     @property
@@ -116,12 +116,12 @@ class SerdeErrorCollection(SerdeError):
         if self.invalid:  # type: ignore[redundant-expr]
             raise self
 
-    def append(self, *errors: SerdeError) -> None:
+    def append(self, *errors: AssertionFailed) -> None:
         """
         Append errors to this collection.
         """
         for error in errors:
-            if isinstance(error, SerdeErrorCollection):
+            if isinstance(error, AssertionFailedGroup):
                 self.append(*error)
             else:
                 self._errors.append(error.with_context(*self._contexts))
@@ -137,17 +137,17 @@ class SerdeErrorCollection(SerdeError):
         return type(self)()
 
     @contextmanager
-    def catch(self, *contexts: Localizable) -> Iterator[SerdeErrorCollection]:
+    def catch(self, *contexts: Localizable) -> Iterator[AssertionFailedGroup]:
         """
         Catch any errors raised within this context manager and add them to the collection.
 
         :return: A new collection that will only contain any newly raised errors.
         """
-        context_errors: SerdeErrorCollection = SerdeErrorCollection()
+        context_errors: AssertionFailedGroup = AssertionFailedGroup()
         if contexts:
             context_errors = context_errors.with_context(*contexts)
         try:
             yield context_errors
-        except SerdeError as e:
+        except AssertionFailed as e:
             context_errors.append(e)
         self.append(*context_errors)

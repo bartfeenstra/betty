@@ -2,6 +2,8 @@
 Providing typing utilities.
 """
 
+from __future__ import annotations
+
 import re
 from typing import TypeVar
 
@@ -45,3 +47,15 @@ def public(target: _T) -> _T:
     directly, but **MAY** use any of its attributes that are marked ``@public``.
     """
     return target
+
+
+class Void:
+    """
+    A sentinel that describes the absence of a value.
+
+    Using this sentinel allows for actual values to be ``None``. Like ``None``,
+    ``Void`` is only ever used through its type, and never instantiated.
+    """
+
+    def __new__(cls):  # pragma: no cover  # noqa D102
+        raise RuntimeError("The Void sentinel cannot be instantiated.")

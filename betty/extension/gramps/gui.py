@@ -22,6 +22,7 @@ from PyQt6.QtWidgets import (
 )
 from typing_extensions import override
 
+from betty.assertion.error import AssertionFailed
 from betty.extension import Gramps
 from betty.extension.gramps.config import FamilyTreeConfiguration
 from betty.gui import mark_valid, mark_invalid
@@ -30,7 +31,7 @@ from betty.gui.locale import LocalizedObject
 from betty.gui.text import Text
 from betty.gui.window import BettyMainWindow
 from betty.locale.localizable import _, Localizable
-from betty.serde.error import SerdeError
+
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -143,7 +144,7 @@ class _AddFamilyTreeWindow(BettyMainWindow):
                 self._family_tree.file_path = Path(file_path)
                 mark_valid(self._file_path)
                 self._save_and_close.setDisabled(False)
-            except SerdeError as e:
+            except AssertionFailed as e:
                 mark_invalid(self._file_path, str(e))
                 self._save_and_close.setDisabled(True)
 

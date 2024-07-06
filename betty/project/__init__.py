@@ -79,11 +79,10 @@ from betty.serde.dump import (
     VoidableDump,
     void_none,
     minimize,
-    Void,
     VoidableDictDump,
 )
-from betty.serde.load import (
-    AssertionFailed,
+from betty.typing import Void
+from betty.assertion import (
     Assertion,
     RequiredField,
     OptionalField,
@@ -99,6 +98,7 @@ from betty.serde.load import (
     assert_positive_number,
     assert_fields,
 )
+from betty.assertion.error import AssertionFailed
 
 if TYPE_CHECKING:
     from betty.app import App

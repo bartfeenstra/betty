@@ -80,6 +80,33 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
         "AppConfiguration": TestKnownToBeMissing,
     },
+    "betty/assertion/__init__.py": {
+        "assert_assertions": TestKnownToBeMissing,
+        "assert_entity_type": TestKnownToBeMissing,
+        "assert_extension_type": TestKnownToBeMissing,
+        "assert_locale": TestKnownToBeMissing,
+        "assert_none": TestKnownToBeMissing,
+        "assert_setattr": TestKnownToBeMissing,
+        "Fields": TestKnownToBeMissing,
+        "OptionalField": TestKnownToBeMissing,
+        "RequiredField": TestKnownToBeMissing,
+    },
+    "betty/assertion/error.py": {
+        "AssertionFailed": {
+            "contexts": TestKnownToBeMissing,
+            "raised": TestKnownToBeMissing,
+        },
+        "AssertionFailedGroup": {
+            "__iter__": TestKnownToBeMissing,
+            "__len__": TestKnownToBeMissing,
+            "__reduce__": TestKnownToBeMissing,
+            "append": TestKnownToBeMissing,
+            "assert_valid": TestKnownToBeMissing,
+            "invalid": TestKnownToBeMissing,
+            "raised": TestKnownToBeMissing,
+            "valid": TestKnownToBeMissing,
+        },
+    },
     "betty/asyncio.py": {
         "gather": TestKnownToBeMissing,
     },
@@ -687,25 +714,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
         "RequirementError": TestKnownToBeMissing,
     },
-    "betty/serde/error.py": {
-        "SerdeError": {
-            "contexts": TestKnownToBeMissing,
-            "raised": TestKnownToBeMissing,
-        },
-        "SerdeErrorCollection": {
-            "__iter__": TestKnownToBeMissing,
-            "__len__": TestKnownToBeMissing,
-            "__reduce__": TestKnownToBeMissing,
-            "append": TestKnownToBeMissing,
-            "assert_valid": TestKnownToBeMissing,
-            "invalid": TestKnownToBeMissing,
-            "raised": TestKnownToBeMissing,
-            "valid": TestKnownToBeMissing,
-        },
-    },
     "betty/serde/format.py": {
         # This is an interface.
         "Format": TestKnownToBeMissing,
+        "FormatError": TestKnownToBeMissing,
         "FormatRepository": TestKnownToBeMissing,
         "FormatStr": TestKnownToBeMissing,
         "Json": {
@@ -716,23 +728,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "extensions": TestKnownToBeMissing,
             "label": TestKnownToBeMissing,
         },
-    },
-    "betty/serde/load.py": {
-        "assert_assertions": TestKnownToBeMissing,
-        "assert_entity_type": TestKnownToBeMissing,
-        "assert_extension_type": TestKnownToBeMissing,
-        "assert_locale": TestKnownToBeMissing,
-        "assert_none": TestKnownToBeMissing,
-        "assert_setattr": TestKnownToBeMissing,
-        # This is an empty class.
-        "AssertionFailed": TestKnownToBeMissing,
-        "Fields": TestKnownToBeMissing,
-        # This is an empty class.
-        "FormatError": TestKnownToBeMissing,
-        # This is an empty class.
-        "LoadError": TestKnownToBeMissing,
-        "OptionalField": TestKnownToBeMissing,
-        "RequiredField": TestKnownToBeMissing,
     },
     "betty/serve.py": {
         "ProjectServer": TestKnownToBeMissing,
@@ -757,6 +752,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/serde/dump.py": TestKnownToBeMissing,
     "betty/sphinx/extension/replacements.py": TestKnownToBeMissing,
+    "betty/typing.py": {
+        "Void": TestKnownToBeMissing,
+    },
     "betty/url.py": {
         # This is an abstract base class.
         "LocalizedUrlGenerator": TestKnownToBeMissing,
