@@ -9,6 +9,7 @@ from typing import cast, Any, Self, TYPE_CHECKING
 
 from typing_extensions import override
 
+from betty.asyncio import wait_to_thread
 from betty.error import UserFacingError
 from betty.locale.localizable import _, Localizable
 
@@ -21,27 +22,27 @@ class Requirement(Localizable):
     Express a requirement.
     """
 
-    def is_met(self) -> bool:
+    async def is_met(self) -> bool:
         """
         Check if the requirement is met.
         """
         raise NotImplementedError(repr(self))
 
-    def assert_met(self) -> None:
+    async def assert_met(self) -> None:
         """
         Assert that the requirement is met.
         """
-        if not self.is_met():
+        if not await self.is_met():
             raise RequirementError(self)
         return None
 
-    def summary(self) -> Localizable:
+    async def summary(self) -> Localizable:
         """
         Get the requirement's human-readable summary.
         """
         raise NotImplementedError(repr(self))
 
-    def details(self) -> Localizable | None:
+    async def details(self) -> Localizable | None:
         """
         Get the requirement's human-readable additional details.
         """
@@ -49,8 +50,8 @@ class Requirement(Localizable):
 
     @override
     def localize(self, localizer: Localizer) -> str:
-        string = self.summary().localize(localizer)
-        details = self.details()
+        string = wait_to_thread(self.summary()).localize(localizer)
+        details = wait_to_thread(self.details())
         if details is not None:
             string += f'\n{"-" * len(string)}'
             string += f"\n{details.localize(localizer)}"
@@ -147,11 +148,11 @@ class AnyRequirement(RequirementCollection):
         self._summary = _("One or more of these requirements must be met")
 
     @override
-    def is_met(self) -> bool:
-        return any(requirement.is_met() for requirement in self._requirements)
+    async def is_met(self) -> bool:
+        return any([await requirement.is_met() for requirement in self._requirements])
 
     @override
-    def summary(self) -> Localizable:
+    async def summary(self) -> Localizable:
         return self._summary
 
 
@@ -165,9 +166,9 @@ class AllRequirements(RequirementCollection):
         self._summary = _("All of these requirements must be met")
 
     @override
-    def is_met(self) -> bool:
-        return all(requirement.is_met() for requirement in self._requirements)
+    async def is_met(self) -> bool:
+        return all([await requirement.is_met() for requirement in self._requirements])
 
     @override
-    def summary(self) -> Localizable:
+    async def summary(self) -> Localizable:
         return self._summary

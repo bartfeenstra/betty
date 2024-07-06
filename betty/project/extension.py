@@ -107,7 +107,7 @@ class Dependencies(AllRequirements):
         return cls(dependent_type)
 
     @override
-    def summary(self) -> Localizable:
+    async def summary(self) -> Localizable:
         return _("{dependent_label} requires {dependency_labels}.").format(
             dependent_label=format_extension_type(self._dependent_type),
             dependency_labels=call(
@@ -132,7 +132,7 @@ class Dependents(Requirement):
         self._dependents = dependents
 
     @override
-    def summary(self) -> Localizable:
+    async def summary(self) -> Localizable:
         return _("{dependency_label} is required by {dependency_labels}.").format(
             dependency_label=format_extension_type(type(self._dependency)),
             dependent_labels=call(
@@ -146,7 +146,7 @@ class Dependents(Requirement):
         )
 
     @override
-    def is_met(self) -> bool:
+    async def is_met(self) -> bool:
         # This class is never instantiated unless there is at least one enabled dependent, which means this requirement
         # is always met.
         return True

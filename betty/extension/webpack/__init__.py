@@ -97,14 +97,14 @@ class PrebuiltAssetsRequirement(Requirement):
     """
 
     @override
-    def is_met(self) -> bool:
+    async def is_met(self) -> bool:
         return (fs.PREBUILT_ASSETS_DIRECTORY_PATH / "webpack").is_dir()
 
     @override
-    def summary(self) -> Localizable:
+    async def summary(self) -> Localizable:
         return (
             _("Pre-built Webpack front-end assets are available")
-            if self.is_met()
+            if await self.is_met()
             else _("Pre-built Webpack front-end assets are unavailable")
         )
 

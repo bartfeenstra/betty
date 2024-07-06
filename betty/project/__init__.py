@@ -1233,11 +1233,15 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
         """
         if self._extensions is None:
             extension_types_enabled_in_configuration = set()
-            for app_extension_configuration in self.configuration.extensions.values():
-                if app_extension_configuration.enabled:
-                    app_extension_configuration.extension_type.enable_requirement().assert_met()
+            for (
+                project_extension_configuration
+            ) in self.configuration.extensions.values():
+                if project_extension_configuration.enabled:
+                    wait_to_thread(
+                        project_extension_configuration.extension_type.enable_requirement().assert_met()
+                    )
                     extension_types_enabled_in_configuration.add(
-                        app_extension_configuration.extension_type
+                        project_extension_configuration.extension_type
                     )
 
             extension_types_sorter = TopologicalSorter(

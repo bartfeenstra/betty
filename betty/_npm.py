@@ -10,7 +10,6 @@ import logging
 import sys
 from typing import Sequence, TYPE_CHECKING
 
-from betty.asyncio import wait_to_thread
 from betty.error import UserFacingError
 from betty.locale import DEFAULT_LOCALIZER
 from betty.locale.localizable import _, Localizable
@@ -58,11 +57,11 @@ class NpmRequirement(Requirement):
         self._summary: Localizable
         self._details = _NPM_UNAVAILABLE_MESSAGE
 
-    def _check(self) -> None:
+    async def _check(self) -> None:
         if hasattr(self, "_met"):
             return
         try:
-            wait_to_thread(npm(["--version"]))
+            await npm(["--version"])
         except NpmUnavailable:
             self._met = False
             self._summary = _("`npm` is not available")
@@ -72,13 +71,13 @@ class NpmRequirement(Requirement):
         finally:
             logging.getLogger(__name__).debug(self._summary.localize(DEFAULT_LOCALIZER))
 
-    def is_met(self) -> bool:
-        self._check()
+    async def is_met(self) -> bool:
+        await self._check()
         return self._met
 
-    def summary(self) -> Localizable:
-        self._check()
+    async def summary(self) -> Localizable:
+        await self._check()
         return self._summary
 
-    def details(self) -> Localizable:
+    async def details(self) -> Localizable:
         return self._details

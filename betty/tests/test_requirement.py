@@ -16,28 +16,28 @@ from betty.requirement import (
 class TestRequirement:
     async def test_assert_met_should_raise_error_if_unmet(self) -> None:
         class _Requirement(Requirement):
-            def summary(self) -> Localizable:
+            async def summary(self) -> Localizable:
                 return _("Lorem ipsum")
 
-            def is_met(self) -> bool:
+            async def is_met(self) -> bool:
                 return False
 
         with pytest.raises(RequirementError):
-            _Requirement().assert_met()
+            await _Requirement().assert_met()
 
     async def test_assert_met_should_do_nothing_if_met(self) -> None:
         class _Requirement(Requirement):
-            def is_met(self) -> bool:
+            async def is_met(self) -> bool:
                 return True
 
-        _Requirement().assert_met()
+        await _Requirement().assert_met()
 
     async def test_localize_with_details(self) -> None:
         class _Requirement(Requirement):
-            def summary(self) -> Localizable:
+            async def summary(self) -> Localizable:
                 return _("Lorem ipsum")
 
-            def details(self) -> Localizable:
+            async def details(self) -> Localizable:
                 return _("Dolor sit amet")
 
         assert (
@@ -47,7 +47,7 @@ class TestRequirement:
 
     async def test_localize_without_details(self) -> None:
         class _Requirement(Requirement):
-            def summary(self) -> Localizable:
+            async def summary(self) -> Localizable:
                 return _("Lorem ipsum")
 
         assert _Requirement().localize(DEFAULT_LOCALIZER) == "Lorem ipsum"
@@ -94,18 +94,18 @@ class TestRequirementCollection:
 
     async def test_localize_without_requirements(self) -> None:
         class _RequirementCollection(RequirementCollection):
-            def summary(self) -> Localizable:
+            async def summary(self) -> Localizable:
                 return _("Lorem ipsum")
 
         assert _RequirementCollection().localize(DEFAULT_LOCALIZER) == "Lorem ipsum"
 
     async def test_localize_with_requirements(self) -> None:
         class _RequirementCollection(RequirementCollection):
-            def summary(self) -> Localizable:
+            async def summary(self) -> Localizable:
                 return _("Lorem ipsum")
 
         class _Requirement(Requirement):
-            def summary(self) -> Localizable:
+            async def summary(self) -> Localizable:
                 return _("Lorem ipsum")
 
         assert (
@@ -185,52 +185,52 @@ class TestRequirementCollection:
 class TestAnyRequirement:
     async def test_is_met_with_one_met(self) -> None:
         class _MetRequirement(Requirement):
-            def is_met(self) -> bool:
+            async def is_met(self) -> bool:
                 return True
 
         class _UnmetRequirement(Requirement):
-            def is_met(self) -> bool:
+            async def is_met(self) -> bool:
                 return False
 
-        assert AnyRequirement(
+        assert await AnyRequirement(
             _UnmetRequirement(), _UnmetRequirement(), _MetRequirement()
         ).is_met()
 
     async def test_is_met_without_any_met(self) -> None:
         class _UnmetRequirement(Requirement):
-            def is_met(self) -> bool:
+            async def is_met(self) -> bool:
                 return False
 
-        assert not AnyRequirement(
+        assert not await AnyRequirement(
             _UnmetRequirement(), _UnmetRequirement(), _UnmetRequirement()
         ).is_met()
 
     async def test_summary(self) -> None:
-        assert isinstance(AnyRequirement().summary(), Localizable)
+        assert (await AnyRequirement().summary()).localize(DEFAULT_LOCALIZER)
 
 
 class TestAllRequirements:
     async def test_is_met_with_all_but_one_met(self) -> None:
         class _MetRequirement(Requirement):
-            def is_met(self) -> bool:
+            async def is_met(self) -> bool:
                 return True
 
         class _UnmetRequirement(Requirement):
-            def is_met(self) -> bool:
+            async def is_met(self) -> bool:
                 return False
 
-        assert not AllRequirements(
+        assert not await AllRequirements(
             _MetRequirement(), _MetRequirement(), _UnmetRequirement()
         ).is_met()
 
     async def test_is_met_with_all_met(self) -> None:
         class _MetRequirement(Requirement):
-            def is_met(self) -> bool:
+            async def is_met(self) -> bool:
                 return True
 
-        assert AllRequirements(
+        assert await AllRequirements(
             _MetRequirement(), _MetRequirement(), _MetRequirement()
         ).is_met()
 
     async def test_summary(self) -> None:
-        assert isinstance(AllRequirements().summary(), Localizable)
+        assert (await AllRequirements().summary()).localize(DEFAULT_LOCALIZER)
