@@ -24,7 +24,7 @@ class TestSchema:
         ) as f:
             json_schema_schema = stdjson.loads(await f.read())
 
-        async with Project(new_temporary_app) as project:
+        async with Project.new_temporary(new_temporary_app) as project, project:
             sut = Schema(project)
             schema = await sut.build()
         jsonschema.validate(json_schema_schema, schema)

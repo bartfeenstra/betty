@@ -13,44 +13,48 @@ from betty.project import LocaleConfiguration, Project
 
 class TestIndex:
     async def test_build_empty(self, new_temporary_app: App) -> None:
-        project = Project(new_temporary_app)
-        project.configuration.extensions.enable(CottonCandy)
-        project.configuration.locales["en-US"].alias = "en"
-        project.configuration.locales.append(
-            LocaleConfiguration(
-                "nl-NL",
-                alias="nl",
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.enable(CottonCandy)
+            project.configuration.locales["en-US"].alias = "en"
+            project.configuration.locales.append(
+                LocaleConfiguration(
+                    "nl-NL",
+                    alias="nl",
+                )
             )
-        )
-        async with project:
-            indexed = [
-                item
-                async for item in Index(project, Context(), DEFAULT_LOCALIZER).build()
-            ]
+            async with project:
+                indexed = [
+                    item
+                    async for item in Index(
+                        project, Context(), DEFAULT_LOCALIZER
+                    ).build()
+                ]
 
-            assert indexed == []
+                assert indexed == []
 
     async def test_build_person_without_names(self, new_temporary_app: App) -> None:
         person_id = "P1"
         person = Person(id=person_id)
 
-        project = Project(new_temporary_app)
-        project.configuration.extensions.enable(CottonCandy)
-        project.configuration.locales["en-US"].alias = "en"
-        project.configuration.locales.append(
-            LocaleConfiguration(
-                "nl-NL",
-                alias="nl",
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.enable(CottonCandy)
+            project.configuration.locales["en-US"].alias = "en"
+            project.configuration.locales.append(
+                LocaleConfiguration(
+                    "nl-NL",
+                    alias="nl",
+                )
             )
-        )
-        project.ancestry.add(person)
-        async with project:
-            indexed = [
-                item
-                async for item in Index(project, Context(), DEFAULT_LOCALIZER).build()
-            ]
+            project.ancestry.add(person)
+            async with project:
+                indexed = [
+                    item
+                    async for item in Index(
+                        project, Context(), DEFAULT_LOCALIZER
+                    ).build()
+                ]
 
-            assert indexed == []
+                assert indexed == []
 
     async def test_build_private_person(self, new_temporary_app: App) -> None:
         person_id = "P1"
@@ -64,23 +68,25 @@ class TestIndex:
             individual=individual_name,
         )
 
-        project = Project(new_temporary_app)
-        project.configuration.extensions.enable(CottonCandy)
-        project.configuration.locales["en-US"].alias = "en"
-        project.configuration.locales.append(
-            LocaleConfiguration(
-                "nl-NL",
-                alias="nl",
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.enable(CottonCandy)
+            project.configuration.locales["en-US"].alias = "en"
+            project.configuration.locales.append(
+                LocaleConfiguration(
+                    "nl-NL",
+                    alias="nl",
+                )
             )
-        )
-        project.ancestry.add(person)
-        async with project:
-            indexed = [
-                item
-                async for item in Index(project, Context(), DEFAULT_LOCALIZER).build()
-            ]
+            project.ancestry.add(person)
+            async with project:
+                indexed = [
+                    item
+                    async for item in Index(
+                        project, Context(), DEFAULT_LOCALIZER
+                    ).build()
+                ]
 
-            assert indexed == []
+                assert indexed == []
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
@@ -100,26 +106,26 @@ class TestIndex:
             individual=individual_name,
         )
 
-        project = Project(new_temporary_app)
-        project.configuration.extensions.enable(CottonCandy)
-        project.configuration.locales["en-US"].alias = "en"
-        project.configuration.locales.append(
-            LocaleConfiguration(
-                "nl-NL",
-                alias="nl",
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.enable(CottonCandy)
+            project.configuration.locales["en-US"].alias = "en"
+            project.configuration.locales.append(
+                LocaleConfiguration(
+                    "nl-NL",
+                    alias="nl",
+                )
             )
-        )
-        project.ancestry.add(person)
-        async with project:
-            indexed = [
-                item
-                async for item in Index(
-                    project, Context(), await project.localizers.get(locale)
-                ).build()
-            ]
+            project.ancestry.add(person)
+            async with project:
+                indexed = [
+                    item
+                    async for item in Index(
+                        project, Context(), await project.localizers.get(locale)
+                    ).build()
+                ]
 
-            assert indexed[0]["text"] == "jane"
-            assert expected in indexed[0]["result"]
+                assert indexed[0]["text"] == "jane"
+                assert expected in indexed[0]["result"]
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
@@ -139,26 +145,26 @@ class TestIndex:
             affiliation=affiliation_name,
         )
 
-        project = Project(new_temporary_app)
-        project.configuration.extensions.enable(CottonCandy)
-        project.configuration.locales["en-US"].alias = "en"
-        project.configuration.locales.append(
-            LocaleConfiguration(
-                "nl-NL",
-                alias="nl",
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.enable(CottonCandy)
+            project.configuration.locales["en-US"].alias = "en"
+            project.configuration.locales.append(
+                LocaleConfiguration(
+                    "nl-NL",
+                    alias="nl",
+                )
             )
-        )
-        project.ancestry.add(person)
-        async with project:
-            indexed = [
-                item
-                async for item in Index(
-                    project, Context(), await project.localizers.get(locale)
-                ).build()
-            ]
+            project.ancestry.add(person)
+            async with project:
+                indexed = [
+                    item
+                    async for item in Index(
+                        project, Context(), await project.localizers.get(locale)
+                    ).build()
+                ]
 
-            assert indexed[0]["text"] == "doughnut"
-            assert expected in indexed[0]["result"]
+                assert indexed[0]["text"] == "doughnut"
+                assert expected in indexed[0]["result"]
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
@@ -180,26 +186,26 @@ class TestIndex:
             affiliation=affiliation_name,
         )
 
-        project = Project(new_temporary_app)
-        project.configuration.extensions.enable(CottonCandy)
-        project.configuration.locales["en-US"].alias = "en"
-        project.configuration.locales.append(
-            LocaleConfiguration(
-                "nl-NL",
-                alias="nl",
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.enable(CottonCandy)
+            project.configuration.locales["en-US"].alias = "en"
+            project.configuration.locales.append(
+                LocaleConfiguration(
+                    "nl-NL",
+                    alias="nl",
+                )
             )
-        )
-        project.ancestry.add(person)
-        async with project:
-            indexed = [
-                item
-                async for item in Index(
-                    project, Context(), await project.localizers.get(locale)
-                ).build()
-            ]
+            project.ancestry.add(person)
+            async with project:
+                indexed = [
+                    item
+                    async for item in Index(
+                        project, Context(), await project.localizers.get(locale)
+                    ).build()
+                ]
 
-            assert indexed[0]["text"] == "jane doughnut"
-            assert expected in indexed[0]["result"]
+                assert indexed[0]["text"] == "jane doughnut"
+                assert expected in indexed[0]["result"]
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
@@ -226,26 +232,26 @@ class TestIndex:
             ],
         )
 
-        project = Project(new_temporary_app)
-        project.configuration.extensions.enable(CottonCandy)
-        project.configuration.locales["en-US"].alias = "en"
-        project.configuration.locales.append(
-            LocaleConfiguration(
-                "nl-NL",
-                alias="nl",
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.enable(CottonCandy)
+            project.configuration.locales["en-US"].alias = "en"
+            project.configuration.locales.append(
+                LocaleConfiguration(
+                    "nl-NL",
+                    alias="nl",
+                )
             )
-        )
-        project.ancestry.add(place)
-        async with project:
-            indexed = [
-                item
-                async for item in Index(
-                    project, Context(), await project.localizers.get(locale)
-                ).build()
-            ]
+            project.ancestry.add(place)
+            async with project:
+                indexed = [
+                    item
+                    async for item in Index(
+                        project, Context(), await project.localizers.get(locale)
+                    ).build()
+                ]
 
-            assert indexed[0]["text"] == "netherlands nederland"
-            assert expected in indexed[0]["result"]
+                assert indexed[0]["text"] == "netherlands nederland"
+                assert expected in indexed[0]["result"]
 
     async def test_build_private_place(self, new_temporary_app: App) -> None:
         place_id = "P1"
@@ -260,17 +266,19 @@ class TestIndex:
             private=True,
         )
 
-        project = Project(new_temporary_app)
-        project.configuration.extensions.enable(CottonCandy)
-        project.configuration.locales["en-US"].alias = "en"
-        project.ancestry.add(place)
-        async with project:
-            indexed = [
-                item
-                async for item in Index(project, Context(), DEFAULT_LOCALIZER).build()
-            ]
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.enable(CottonCandy)
+            project.configuration.locales["en-US"].alias = "en"
+            project.ancestry.add(place)
+            async with project:
+                indexed = [
+                    item
+                    async for item in Index(
+                        project, Context(), DEFAULT_LOCALIZER
+                    ).build()
+                ]
 
-            assert indexed == []
+                assert indexed == []
 
     async def test_build_file_without_description(self, new_temporary_app: App) -> None:
         file_id = "F1"
@@ -279,23 +287,25 @@ class TestIndex:
             path=Path(__file__),
         )
 
-        project = Project(new_temporary_app)
-        project.configuration.extensions.enable(CottonCandy)
-        project.configuration.locales["en-US"].alias = "en"
-        project.configuration.locales.append(
-            LocaleConfiguration(
-                "nl-NL",
-                alias="nl",
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.enable(CottonCandy)
+            project.configuration.locales["en-US"].alias = "en"
+            project.configuration.locales.append(
+                LocaleConfiguration(
+                    "nl-NL",
+                    alias="nl",
+                )
             )
-        )
-        project.ancestry.add(file)
-        async with project:
-            indexed = [
-                item
-                async for item in Index(project, Context(), DEFAULT_LOCALIZER).build()
-            ]
+            project.ancestry.add(file)
+            async with project:
+                indexed = [
+                    item
+                    async for item in Index(
+                        project, Context(), DEFAULT_LOCALIZER
+                    ).build()
+                ]
 
-            assert indexed == []
+                assert indexed == []
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
@@ -314,26 +324,26 @@ class TestIndex:
             description='"file" is Dutch for "traffic jam"',
         )
 
-        project = Project(new_temporary_app)
-        project.configuration.extensions.enable(CottonCandy)
-        project.configuration.locales["en-US"].alias = "en"
-        project.configuration.locales.append(
-            LocaleConfiguration(
-                "nl-NL",
-                alias="nl",
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.enable(CottonCandy)
+            project.configuration.locales["en-US"].alias = "en"
+            project.configuration.locales.append(
+                LocaleConfiguration(
+                    "nl-NL",
+                    alias="nl",
+                )
             )
-        )
-        project.ancestry.add(file)
-        async with project:
-            indexed = [
-                item
-                async for item in Index(
-                    project, Context(), await project.localizers.get(locale)
-                ).build()
-            ]
+            project.ancestry.add(file)
+            async with project:
+                indexed = [
+                    item
+                    async for item in Index(
+                        project, Context(), await project.localizers.get(locale)
+                    ).build()
+                ]
 
-            assert indexed[0]["text"] == '"file" is dutch for "traffic jam"'
-            assert expected in indexed[0]["result"]
+                assert indexed[0]["text"] == '"file" is dutch for "traffic jam"'
+                assert expected in indexed[0]["result"]
 
     async def test_build_private_file(self, new_temporary_app: App) -> None:
         file_id = "F1"
@@ -344,14 +354,16 @@ class TestIndex:
             private=True,
         )
 
-        project = Project(new_temporary_app)
-        project.configuration.extensions.enable(CottonCandy)
-        project.configuration.locales["en-US"].alias = "en"
-        project.ancestry.add(file)
-        async with project:
-            indexed = [
-                item
-                async for item in Index(project, Context(), DEFAULT_LOCALIZER).build()
-            ]
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.enable(CottonCandy)
+            project.configuration.locales["en-US"].alias = "en"
+            project.ancestry.add(file)
+            async with project:
+                indexed = [
+                    item
+                    async for item in Index(
+                        project, Context(), DEFAULT_LOCALIZER
+                    ).build()
+                ]
 
-            assert indexed == []
+                assert indexed == []

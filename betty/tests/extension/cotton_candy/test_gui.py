@@ -59,198 +59,220 @@ class CottonCandyGuiWidgetTestEntity(UserFacingEntity, Entity):
 
 class TestCottonCandyGuiWidget:
     async def test_add_featured_entities(self, betty_qtbot: BettyQtBot) -> None:
-        project = Project(betty_qtbot.app)
-        project.configuration.extensions.enable(CottonCandy)
-        async with project:
-            sut = _CottonCandyGuiWidget(project)
-            betty_qtbot.qtbot.addWidget(sut)
-            sut.show()
+        async with Project.new_temporary(betty_qtbot.app) as project:
+            project.configuration.extensions.enable(CottonCandy)
+            async with project:
+                sut = _CottonCandyGuiWidget(project)
+                betty_qtbot.qtbot.addWidget(sut)
+                sut.show()
 
-            entity_id = "123"
-            betty_qtbot.mouse_click(
-                sut._featured_entities_entity_references_collector._add_entity_reference_button
-            )
-            # @todo Find out an elegant way to test changing the entity type.
-            sut._featured_entities_entity_references_collector._entity_reference_collectors[
-                0
-            ]._entity_id.setText(entity_id)
-            assert (
-                project.extensions[CottonCandy]
-                .configuration.featured_entities[0]
-                .entity_id
-                == entity_id
-            )
+                entity_id = "123"
+                betty_qtbot.mouse_click(
+                    sut._featured_entities_entity_references_collector._add_entity_reference_button
+                )
+                # @todo Find out an elegant way to test changing the entity type.
+                sut._featured_entities_entity_references_collector._entity_reference_collectors[
+                    0
+                ]._entity_id.setText(entity_id)
+                assert (
+                    project.extensions[CottonCandy]
+                    .configuration.featured_entities[0]
+                    .entity_id
+                    == entity_id
+                )
 
     async def test_change_featured_entities(self, betty_qtbot: BettyQtBot) -> None:
-        project = Project(betty_qtbot.app)
-        project.configuration.extensions.enable(CottonCandy)
-        entity_reference_1 = EntityReference(CottonCandyGuiWidgetTestEntity, "123")
-        entity_reference_2 = EntityReference(CottonCandyGuiWidgetTestEntity, "456")
-        entity_reference_3 = EntityReference(CottonCandyGuiWidgetTestEntity, "789")
-        project.extensions[CottonCandy].configuration.featured_entities.append(
-            entity_reference_1,  # type: ignore[arg-type]
-        )
-        project.extensions[CottonCandy].configuration.featured_entities.append(
-            entity_reference_2,  # type: ignore[arg-type]
-        )
-        project.extensions[CottonCandy].configuration.featured_entities.append(
-            entity_reference_3,  # type: ignore[arg-type]
-        )
-        async with project:
-            sut = _CottonCandyGuiWidget(project)
-            betty_qtbot.qtbot.addWidget(sut)
-            sut.show()
-
-            entity_id = "123"
-            # @todo Find out an elegant way to test changing the entity type.
-            sut._featured_entities_entity_references_collector._entity_reference_collectors[
-                1
-            ]._entity_id.setText(entity_id)
-            assert (
-                project.extensions[CottonCandy]
-                .configuration.featured_entities[1]
-                .entity_id
-                == entity_id
+        async with Project.new_temporary(betty_qtbot.app) as project:
+            project.configuration.extensions.enable(CottonCandy)
+            entity_reference_1 = EntityReference(CottonCandyGuiWidgetTestEntity, "123")
+            entity_reference_2 = EntityReference(CottonCandyGuiWidgetTestEntity, "456")
+            entity_reference_3 = EntityReference(CottonCandyGuiWidgetTestEntity, "789")
+            project.extensions[CottonCandy].configuration.featured_entities.append(
+                entity_reference_1,  # type: ignore[arg-type]
             )
+            project.extensions[CottonCandy].configuration.featured_entities.append(
+                entity_reference_2,  # type: ignore[arg-type]
+            )
+            project.extensions[CottonCandy].configuration.featured_entities.append(
+                entity_reference_3,  # type: ignore[arg-type]
+            )
+            async with project:
+                sut = _CottonCandyGuiWidget(project)
+                betty_qtbot.qtbot.addWidget(sut)
+                sut.show()
+
+                entity_id = "123"
+                # @todo Find out an elegant way to test changing the entity type.
+                sut._featured_entities_entity_references_collector._entity_reference_collectors[
+                    1
+                ]._entity_id.setText(entity_id)
+                assert (
+                    project.extensions[CottonCandy]
+                    .configuration.featured_entities[1]
+                    .entity_id
+                    == entity_id
+                )
 
     async def test_remove_featured_entities(self, betty_qtbot: BettyQtBot) -> None:
-        project = Project(betty_qtbot.app)
-        project.configuration.extensions.enable(CottonCandy)
-        entity_reference_1 = EntityReference[CottonCandyGuiWidgetTestEntity](
-            CottonCandyGuiWidgetTestEntity, "123"
-        )
-        entity_reference_2 = EntityReference[CottonCandyGuiWidgetTestEntity](
-            CottonCandyGuiWidgetTestEntity, "456"
-        )
-        entity_reference_3 = EntityReference[CottonCandyGuiWidgetTestEntity](
-            CottonCandyGuiWidgetTestEntity, "789"
-        )
-        project.extensions[CottonCandy].configuration.featured_entities.append(
-            entity_reference_1,  # type: ignore[arg-type]
-        )
-        project.extensions[CottonCandy].configuration.featured_entities.append(
-            entity_reference_2,  # type: ignore[arg-type]
-        )
-        project.extensions[CottonCandy].configuration.featured_entities.append(
-            entity_reference_3,  # type: ignore[arg-type]
-        )
-        async with project:
-            sut = _CottonCandyGuiWidget(project)
-            betty_qtbot.qtbot.addWidget(sut)
-            sut.show()
+        async with Project.new_temporary(betty_qtbot.app) as project:
+            project.configuration.extensions.enable(CottonCandy)
+            entity_reference_1 = EntityReference[CottonCandyGuiWidgetTestEntity](
+                CottonCandyGuiWidgetTestEntity, "123"
+            )
+            entity_reference_2 = EntityReference[CottonCandyGuiWidgetTestEntity](
+                CottonCandyGuiWidgetTestEntity, "456"
+            )
+            entity_reference_3 = EntityReference[CottonCandyGuiWidgetTestEntity](
+                CottonCandyGuiWidgetTestEntity, "789"
+            )
+            project.extensions[CottonCandy].configuration.featured_entities.append(
+                entity_reference_1,  # type: ignore[arg-type]
+            )
+            project.extensions[CottonCandy].configuration.featured_entities.append(
+                entity_reference_2,  # type: ignore[arg-type]
+            )
+            project.extensions[CottonCandy].configuration.featured_entities.append(
+                entity_reference_3,  # type: ignore[arg-type]
+            )
+            async with project:
+                sut = _CottonCandyGuiWidget(project)
+                betty_qtbot.qtbot.addWidget(sut)
+                sut.show()
 
-            betty_qtbot.mouse_click(
-                sut._featured_entities_entity_references_collector._entity_reference_remove_buttons[
-                    1
-                ]
-            )
-            assert (
-                entity_reference_1
-                in project.extensions[CottonCandy].configuration.featured_entities
-            )
-            assert (
-                entity_reference_2
-                not in project.extensions[CottonCandy].configuration.featured_entities
-            )
-            assert (
-                entity_reference_3
-                in project.extensions[CottonCandy].configuration.featured_entities
-            )
+                betty_qtbot.mouse_click(
+                    sut._featured_entities_entity_references_collector._entity_reference_remove_buttons[
+                        1
+                    ]
+                )
+                assert (
+                    entity_reference_1
+                    in project.extensions[CottonCandy].configuration.featured_entities
+                )
+                assert (
+                    entity_reference_2
+                    not in project.extensions[
+                        CottonCandy
+                    ].configuration.featured_entities
+                )
+                assert (
+                    entity_reference_3
+                    in project.extensions[CottonCandy].configuration.featured_entities
+                )
 
     async def test_change_primary_inactive_color(
         self, betty_qtbot: BettyQtBot, mocker: MockerFixture
     ) -> None:
-        project = Project(betty_qtbot.app)
-        configured_hex_value = "#ffffff"
-        project.configuration.extensions.enable(CottonCandy)
-        async with project:
-            sut = _CottonCandyGuiWidget(project)
-            mocker.patch.object(
-                QColorDialog,
-                "getColor",
-                mocker.MagicMock(return_value=QColor.fromString(configured_hex_value)),
-            )
-            sut._color_configurations_widget._color_configurations[0]._configure.click()
-            assert (
-                configured_hex_value
-                == project.extensions[
-                    CottonCandy
-                ].configuration.primary_inactive_color.hex
-            )
+        async with Project.new_temporary(betty_qtbot.app) as project:
+            configured_hex_value = "#ffffff"
+            project.configuration.extensions.enable(CottonCandy)
+            async with project:
+                sut = _CottonCandyGuiWidget(project)
+                mocker.patch.object(
+                    QColorDialog,
+                    "getColor",
+                    mocker.MagicMock(
+                        return_value=QColor.fromString(configured_hex_value)
+                    ),
+                )
+                sut._color_configurations_widget._color_configurations[
+                    0
+                ]._configure.click()
+                assert (
+                    configured_hex_value
+                    == project.extensions[
+                        CottonCandy
+                    ].configuration.primary_inactive_color.hex
+                )
 
     async def test_change_primary_active_color(
         self, betty_qtbot: BettyQtBot, mocker: MockerFixture
     ) -> None:
-        project = Project(betty_qtbot.app)
-        configured_hex_value = "#ffffff"
-        project.configuration.extensions.enable(CottonCandy)
-        async with project:
-            sut = _CottonCandyGuiWidget(project)
-            mocker.patch.object(
-                QColorDialog,
-                "getColor",
-                mocker.MagicMock(return_value=QColor.fromString(configured_hex_value)),
-            )
-            sut._color_configurations_widget._color_configurations[1]._configure.click()
-            assert (
-                configured_hex_value
-                == project.extensions[
-                    CottonCandy
-                ].configuration.primary_active_color.hex
-            )
+        async with Project.new_temporary(betty_qtbot.app) as project:
+            configured_hex_value = "#ffffff"
+            project.configuration.extensions.enable(CottonCandy)
+            async with project:
+                sut = _CottonCandyGuiWidget(project)
+                mocker.patch.object(
+                    QColorDialog,
+                    "getColor",
+                    mocker.MagicMock(
+                        return_value=QColor.fromString(configured_hex_value)
+                    ),
+                )
+                sut._color_configurations_widget._color_configurations[
+                    1
+                ]._configure.click()
+                assert (
+                    configured_hex_value
+                    == project.extensions[
+                        CottonCandy
+                    ].configuration.primary_active_color.hex
+                )
 
     async def test_change_link_inactive_color(
         self, betty_qtbot: BettyQtBot, mocker: MockerFixture
     ) -> None:
-        project = Project(betty_qtbot.app)
-        configured_hex_value = "#ffffff"
-        project.configuration.extensions.enable(CottonCandy)
-        async with project:
-            sut = _CottonCandyGuiWidget(project)
-            mocker.patch.object(
-                QColorDialog,
-                "getColor",
-                mocker.MagicMock(return_value=QColor.fromString(configured_hex_value)),
-            )
-            sut._color_configurations_widget._color_configurations[2]._configure.click()
-            assert (
-                configured_hex_value
-                == project.extensions[CottonCandy].configuration.link_inactive_color.hex
-            )
+        async with Project.new_temporary(betty_qtbot.app) as project:
+            configured_hex_value = "#ffffff"
+            project.configuration.extensions.enable(CottonCandy)
+            async with project:
+                sut = _CottonCandyGuiWidget(project)
+                mocker.patch.object(
+                    QColorDialog,
+                    "getColor",
+                    mocker.MagicMock(
+                        return_value=QColor.fromString(configured_hex_value)
+                    ),
+                )
+                sut._color_configurations_widget._color_configurations[
+                    2
+                ]._configure.click()
+                assert (
+                    configured_hex_value
+                    == project.extensions[
+                        CottonCandy
+                    ].configuration.link_inactive_color.hex
+                )
 
     async def test_change_link_active_color(
         self, betty_qtbot: BettyQtBot, mocker: MockerFixture
     ) -> None:
-        project = Project(betty_qtbot.app)
-        configured_hex_value = "#ffffff"
-        project.configuration.extensions.enable(CottonCandy)
-        async with project:
-            sut = _CottonCandyGuiWidget(project)
-            mocker.patch.object(
-                QColorDialog,
-                "getColor",
-                mocker.MagicMock(return_value=QColor.fromString(configured_hex_value)),
-            )
-            sut._color_configurations_widget._color_configurations[3]._configure.click()
-            assert (
-                configured_hex_value
-                == project.extensions[CottonCandy].configuration.link_active_color.hex
-            )
+        async with Project.new_temporary(betty_qtbot.app) as project:
+            configured_hex_value = "#ffffff"
+            project.configuration.extensions.enable(CottonCandy)
+            async with project:
+                sut = _CottonCandyGuiWidget(project)
+                mocker.patch.object(
+                    QColorDialog,
+                    "getColor",
+                    mocker.MagicMock(
+                        return_value=QColor.fromString(configured_hex_value)
+                    ),
+                )
+                sut._color_configurations_widget._color_configurations[
+                    3
+                ]._configure.click()
+                assert (
+                    configured_hex_value
+                    == project.extensions[
+                        CottonCandy
+                    ].configuration.link_active_color.hex
+                )
 
     async def test_set_logo(self, betty_qtbot: BettyQtBot, tmp_path: Path) -> None:
-        project = Project(betty_qtbot.app)
-        logo = tmp_path / "logo.png"
-        project.configuration.extensions.enable(CottonCandy)
-        async with project:
-            sut = _CottonCandyGuiWidget(project)
-            sut._logo.setText(str(logo))
-            assert project.extensions[CottonCandy].configuration.logo == logo
+        async with Project.new_temporary(betty_qtbot.app) as project:
+            logo = tmp_path / "logo.png"
+            project.configuration.extensions.enable(CottonCandy)
+            async with project:
+                sut = _CottonCandyGuiWidget(project)
+                sut._logo.setText(str(logo))
+                assert project.extensions[CottonCandy].configuration.logo == logo
 
     async def test_unset_logo(self, betty_qtbot: BettyQtBot, tmp_path: Path) -> None:
-        project = Project(betty_qtbot.app)
-        project.configuration.extensions.enable(CottonCandy)
-        project.extensions[CottonCandy].configuration.logo = tmp_path / "logo.png"
-        async with project:
-            sut = _CottonCandyGuiWidget(project)
-            sut._logo.setText("")
-            assert project.extensions[CottonCandy].configuration.logo is None
+        async with Project.new_temporary(betty_qtbot.app) as project:
+            project.configuration.extensions.enable(CottonCandy)
+            project.extensions[CottonCandy].configuration.logo = tmp_path / "logo.png"
+            async with project:
+                sut = _CottonCandyGuiWidget(project)
+                sut._logo.setText("")
+                assert project.extensions[CottonCandy].configuration.logo is None

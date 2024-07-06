@@ -28,25 +28,28 @@ from betty.project import Project
 
 class TestGrampsLoader:
     async def test_load_gramps(self, new_temporary_app: App) -> None:
-        async with Project(new_temporary_app) as project:
+        async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
             await sut.load_gramps(Path(__file__).parent / "assets" / "minimal.gramps")
 
     async def test_load_gpkg(self, new_temporary_app: App) -> None:
-        async with Project(new_temporary_app) as project:
+        async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
             await sut.load_gpkg(Path(__file__).parent / "assets" / "minimal.gpkg")
 
     async def _load(self, xml: str) -> Ancestry:
-        async with App.new_temporary() as app, app, Project(app) as project:
+        async with App.new_temporary() as app, app, Project.new_temporary(
+            app
+        ) as project:
             project.configuration.name = TestGrampsLoader.__name__
-            loader = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
-            async with TemporaryDirectory() as tree_directory_path_str:
-                await loader.load_xml(
-                    xml.strip(),
-                    Path(tree_directory_path_str),
-                )
-            return project.ancestry
+            async with project:
+                loader = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
+                async with TemporaryDirectory() as tree_directory_path_str:
+                    await loader.load_xml(
+                        xml.strip(),
+                        Path(tree_directory_path_str),
+                    )
+                return project.ancestry
 
     async def _load_partial(self, xml: str) -> Ancestry:
         return await self._load(
@@ -66,14 +69,14 @@ class TestGrampsLoader:
         )
 
     async def test_load_xml_with_string(self, new_temporary_app: App) -> None:
-        async with Project(new_temporary_app) as project:
+        async with Project.new_temporary(new_temporary_app) as project, project:
             gramps_file_path = Path(__file__).parent / "assets" / "minimal.xml"
             sut = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
             async with aiofiles.open(gramps_file_path) as f:
                 await sut.load_xml(await f.read(), rootname(gramps_file_path))
 
     async def test_load_xml_with_file_path(self, new_temporary_app: App) -> None:
-        async with Project(new_temporary_app) as project:
+        async with Project.new_temporary(new_temporary_app) as project, project:
             gramps_file_path = Path(__file__).parent / "assets" / "minimal.xml"
             sut = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
             await sut.load_xml(gramps_file_path, rootname(gramps_file_path))

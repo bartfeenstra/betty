@@ -34,27 +34,27 @@ class TestWikipedia:
             Link("https://example.com"),
         ]
 
-        project = Project(new_temporary_app)
-        project.configuration.extensions.append(ExtensionConfiguration(Wikipedia))
-        async with project:
-            actual = await project.jinja2_environment.from_string(
-                "{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}"
-            ).render_async(
-                job_context=Context(),
-                links=links,
-            )
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.append(ExtensionConfiguration(Wikipedia))
+            async with project:
+                actual = await project.jinja2_environment.from_string(
+                    "{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}"
+                ).render_async(
+                    job_context=Context(),
+                    links=links,
+                )
 
-        m_get_summary.assert_called_once()
-        assert extract == actual
+            m_get_summary.assert_called_once()
+            assert extract == actual
 
     async def test_post_load(
         self, mocker: MockerFixture, new_temporary_app: App
     ) -> None:
         m_populate = mocker.patch("betty.wikipedia._Populator.populate")
 
-        project = Project(new_temporary_app)
-        project.configuration.extensions.append(ExtensionConfiguration(Wikipedia))
-        async with project:
-            await load(project)
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.append(ExtensionConfiguration(Wikipedia))
+            async with project:
+                await load(project)
 
-        m_populate.assert_called_once()
+            m_populate.assert_called_once()

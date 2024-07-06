@@ -34,8 +34,10 @@ _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
 
 
 class TestFileBasedConfiguration:
-    async def test_configuration_file_path_should_error_unknown_format(self) -> None:
-        configuration = FileBasedConfiguration()
+    async def test_configuration_file_path_should_error_unknown_format(
+        self, tmp_path: Path
+    ) -> None:
+        configuration = FileBasedConfiguration(tmp_path / "betty.json")
         with (
             NamedTemporaryFile(mode="r+", suffix=".abc") as f,
             pytest.raises(FormatError),

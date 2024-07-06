@@ -42,8 +42,8 @@ class DockerizedNginxServer(Server):
             TemporaryDirectory()  # type: ignore[arg-type]
         )
 
-        isolated_project = await self._exit_stack.enter_async_context(
-            Project(self._project.app, ancestry=self._project.ancestry)
+        isolated_project: Project = await self._exit_stack.enter_async_context(
+            Project.new_temporary(self._project.app, ancestry=self._project.ancestry)
         )
         isolated_project.configuration.autowrite = False
         isolated_project.configuration.configuration_file_path = (
@@ -54,6 +54,8 @@ class DockerizedNginxServer(Server):
 
         # Work around https://github.com/bartfeenstra/betty/issues/1056.
         isolated_project.extensions[Nginx].configuration.https = False
+
+        await self._exit_stack.enter_async_context(isolated_project)
 
         nginx_configuration_file_path = Path(output_directory_path_str) / "nginx.conf"
         docker_directory_path = Path(output_directory_path_str)

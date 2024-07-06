@@ -57,27 +57,29 @@ class DummyUserFacingGuiBuilderExtension(UserFacingExtension, GuiBuilder):
 
 class TestProjectWindow:
     async def test_show(self, betty_qtbot: BettyQtBot) -> None:
-        project = Project(betty_qtbot.app)
-        sut = ProjectWindow(project)
-        betty_qtbot.qtbot.addWidget(sut)
-        sut.show()
-        betty_qtbot.assert_window(ProjectWindow)
+        async with Project.new_temporary(betty_qtbot.app) as project:
+            sut = ProjectWindow(project)
+            betty_qtbot.qtbot.addWidget(sut)
+            sut.show()
+            betty_qtbot.assert_window(ProjectWindow)
 
     async def test_autowrite(self, betty_qtbot: BettyQtBot) -> None:
-        project = Project(betty_qtbot.app)
-        project.configuration.autowrite = True
+        async with Project.new_temporary(betty_qtbot.app) as project:
+            project.configuration.autowrite = True
 
-        sut = ProjectWindow(project)
-        betty_qtbot.qtbot.addWidget(sut)
-        sut.show()
+            sut = ProjectWindow(project)
+            betty_qtbot.qtbot.addWidget(sut)
+            sut.show()
 
-        title = "My First Ancestry Site"
-        project.configuration.title = title
+            title = "My First Ancestry Site"
+            project.configuration.title = title
 
-        async with aiofiles.open(project.configuration.configuration_file_path) as f:
-            read_configuration_dump = json.loads(await f.read())
-        assert read_configuration_dump == project.configuration.dump()
-        assert read_configuration_dump["title"] == title
+            async with aiofiles.open(
+                project.configuration.configuration_file_path
+            ) as f:
+                read_configuration_dump = json.loads(await f.read())
+            assert read_configuration_dump == project.configuration.dump()
+            assert read_configuration_dump["title"] == title
 
     async def test_navigate_to_pane(
         self,
@@ -89,16 +91,18 @@ class TestProjectWindow:
             "betty.project.extension.discover_extension_types",
             return_value=(DummyUserFacingGuiBuilderExtension,),
         )
-        project = Project(betty_qtbot.app)
-        sut = ProjectWindow(project)
-        betty_qtbot.qtbot.addWidget(sut)
-        sut.show()
+        async with Project.new_temporary(betty_qtbot.app) as project:
+            sut = ProjectWindow(project)
+            betty_qtbot.qtbot.addWidget(sut)
+            sut.show()
 
-        extension_pane_name = f"extension-{DummyUserFacingGuiBuilderExtension.name()}"
-        extension_pane_selector = sut._pane_selectors[extension_pane_name]
-        betty_qtbot.mouse_click(extension_pane_selector)
-        extension_pane = sut._panes[extension_pane_name]
-        assert extension_pane.isVisible()
+            extension_pane_name = (
+                f"extension-{DummyUserFacingGuiBuilderExtension.name()}"
+            )
+            extension_pane_selector = sut._pane_selectors[extension_pane_name]
+            betty_qtbot.mouse_click(extension_pane_selector)
+            extension_pane = sut._panes[extension_pane_name]
+            assert extension_pane.isVisible()
 
     async def test_save_project_as_should_create_duplicate_configuration_file(
         self,
@@ -106,25 +110,27 @@ class TestProjectWindow:
         betty_qtbot: BettyQtBot,
         tmp_path: Path,
     ) -> None:
-        project = Project(betty_qtbot.app)
-        configuration = project.configuration
-        await configuration.write(tmp_path / "betty.json")
-        sut = ProjectWindow(project)
-        betty_qtbot.qtbot.addWidget(sut)
-        sut.show()
+        async with Project.new_temporary(betty_qtbot.app) as project:
+            configuration = project.configuration
+            await configuration.write(tmp_path / "betty.json")
+            sut = ProjectWindow(project)
+            betty_qtbot.qtbot.addWidget(sut)
+            sut.show()
 
-        save_as_configuration_file_path = tmp_path / "save-as" / "betty.json"
-        mocker.patch.object(
-            QFileDialog,
-            "getSaveFileName",
-            mocker.MagicMock(return_value=[str(save_as_configuration_file_path), None]),
-        )
-        betty_qtbot.navigate(sut, ["save_project_as_action"])
+            save_as_configuration_file_path = tmp_path / "save-as" / "betty.json"
+            mocker.patch.object(
+                QFileDialog,
+                "getSaveFileName",
+                mocker.MagicMock(
+                    return_value=[str(save_as_configuration_file_path), None]
+                ),
+            )
+            betty_qtbot.navigate(sut, ["save_project_as_action"])
 
-        expected_dump = minimize(configuration.dump())
-        async with aiofiles.open(save_as_configuration_file_path) as f:
-            actual_dump = json.loads(await f.read())
-        assert actual_dump == expected_dump
+            expected_dump = minimize(configuration.dump())
+            async with aiofiles.open(save_as_configuration_file_path) as f:
+                actual_dump = json.loads(await f.read())
+            assert actual_dump == expected_dump
 
     async def test_generate(
         self, betty_qtbot: BettyQtBot, mocker: MockerFixture
@@ -132,13 +138,13 @@ class TestProjectWindow:
         mocker.patch("betty.generate.generate", new_callable=AsyncMock)
         mocker.patch("betty.load.load", new_callable=AsyncMock)
 
-        project = Project(betty_qtbot.app)
-        sut = ProjectWindow(project)
-        betty_qtbot.qtbot.addWidget(sut)
-        sut.show()
+        async with Project.new_temporary(betty_qtbot.app) as project:
+            sut = ProjectWindow(project)
+            betty_qtbot.qtbot.addWidget(sut)
+            sut.show()
 
-        sut.generate()
-        betty_qtbot.assert_window(GenerateWindow)
+            sut.generate()
+            betty_qtbot.assert_window(GenerateWindow)
 
     async def test_generate_action(
         self, betty_qtbot: BettyQtBot, mocker: MockerFixture
@@ -146,42 +152,42 @@ class TestProjectWindow:
         mocker.patch("betty.generate.generate", new_callable=AsyncMock)
         mocker.patch("betty.load.load", new_callable=AsyncMock)
 
-        project = Project(betty_qtbot.app)
-        sut = ProjectWindow(project)
-        betty_qtbot.qtbot.addWidget(sut)
-        sut.show()
+        async with Project.new_temporary(betty_qtbot.app) as project:
+            sut = ProjectWindow(project)
+            betty_qtbot.qtbot.addWidget(sut)
+            sut.show()
 
-        betty_qtbot.navigate(sut, ["generate_action"])
-        betty_qtbot.assert_window(GenerateWindow)
+            betty_qtbot.navigate(sut, ["generate_action"])
+            betty_qtbot.assert_window(GenerateWindow)
 
     async def test_serve(self, betty_qtbot: BettyQtBot, mocker: MockerFixture) -> None:
         mocker.patch("betty.serve.BuiltinProjectServer", new=NoOpProjectServer)
 
-        project = Project(betty_qtbot.app)
-        sut = ProjectWindow(project)
-        betty_qtbot.qtbot.addWidget(sut)
-        sut.show()
+        async with Project.new_temporary(betty_qtbot.app) as project:
+            sut = ProjectWindow(project)
+            betty_qtbot.qtbot.addWidget(sut)
+            sut.show()
 
-        sut.serve()
-        betty_qtbot.assert_window(ServeProjectWindow)
+            sut.serve()
+            betty_qtbot.assert_window(ServeProjectWindow)
 
     async def test_serve_action(
         self, betty_qtbot: BettyQtBot, mocker: MockerFixture
     ) -> None:
         mocker.patch("betty.serve.BuiltinProjectServer", new=NoOpProjectServer)
 
-        project = Project(betty_qtbot.app)
-        sut = ProjectWindow(project)
-        betty_qtbot.qtbot.addWidget(sut)
-        sut.show()
+        async with Project.new_temporary(betty_qtbot.app) as project:
+            sut = ProjectWindow(project)
+            betty_qtbot.qtbot.addWidget(sut)
+            sut.show()
 
-        betty_qtbot.navigate(sut, ["serve_action"])
-        betty_qtbot.assert_window(ServeProjectWindow)
+            betty_qtbot.navigate(sut, ["serve_action"])
+            betty_qtbot.assert_window(ServeProjectWindow)
 
 
 class TestGenerateHtmlListForm:
     async def test(self, betty_qtbot: BettyQtBot) -> None:
-        async with Project(betty_qtbot.app) as project:
+        async with Project.new_temporary(betty_qtbot.app) as project, project:
             sut = GenerateHtmlListForm(project)
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()
@@ -194,7 +200,7 @@ class TestGenerateHtmlListForm:
 
 class TestGeneralPane:
     async def test_name(self, betty_qtbot: BettyQtBot) -> None:
-        async with Project(betty_qtbot.app) as project:
+        async with Project.new_temporary(betty_qtbot.app) as project, project:
             sut = GeneralPane(project)
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()
@@ -204,7 +210,7 @@ class TestGeneralPane:
             assert project.configuration.name == name
 
     async def test_title(self, betty_qtbot: BettyQtBot) -> None:
-        async with Project(betty_qtbot.app) as project:
+        async with Project.new_temporary(betty_qtbot.app) as project, project:
             sut = GeneralPane(project)
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()
@@ -214,7 +220,7 @@ class TestGeneralPane:
             assert project.configuration.title == title
 
     async def test_author(self, betty_qtbot: BettyQtBot) -> None:
-        async with Project(betty_qtbot.app) as project:
+        async with Project.new_temporary(betty_qtbot.app) as project, project:
             sut = GeneralPane(project)
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()
@@ -224,7 +230,7 @@ class TestGeneralPane:
             assert project.configuration.author == author
 
     async def test_url_with_valid_url(self, betty_qtbot: BettyQtBot) -> None:
-        async with Project(betty_qtbot.app) as project:
+        async with Project.new_temporary(betty_qtbot.app) as project, project:
             sut = GeneralPane(project)
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()
@@ -234,7 +240,7 @@ class TestGeneralPane:
             assert project.configuration.root_path == "my-first-ancestry"
 
     async def test_url_with_invalid_url(self, betty_qtbot: BettyQtBot) -> None:
-        async with Project(betty_qtbot.app) as project:
+        async with Project.new_temporary(betty_qtbot.app) as project, project:
             sut = GeneralPane(project)
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()
@@ -243,7 +249,7 @@ class TestGeneralPane:
             betty_qtbot.assert_invalid(sut._configuration_url)
 
     async def test_lifetime_threshold(self, betty_qtbot: BettyQtBot) -> None:
-        async with Project(betty_qtbot.app) as project:
+        async with Project.new_temporary(betty_qtbot.app) as project, project:
             sut = GeneralPane(project)
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()
@@ -254,7 +260,7 @@ class TestGeneralPane:
     async def test_lifetime_threshold_with_non_digit_input(
         self, betty_qtbot: BettyQtBot
     ) -> None:
-        async with Project(betty_qtbot.app) as project:
+        async with Project.new_temporary(betty_qtbot.app) as project, project:
             sut = GeneralPane(project)
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()
@@ -268,7 +274,7 @@ class TestGeneralPane:
     async def test_lifetime_threshold_with_zero_input(
         self, betty_qtbot: BettyQtBot
     ) -> None:
-        async with Project(betty_qtbot.app) as project:
+        async with Project.new_temporary(betty_qtbot.app) as project, project:
             sut = GeneralPane(project)
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()
@@ -280,7 +286,7 @@ class TestGeneralPane:
             )
 
     async def test_debug(self, betty_qtbot: BettyQtBot) -> None:
-        async with Project(betty_qtbot.app) as project:
+        async with Project.new_temporary(betty_qtbot.app) as project, project:
             sut = GeneralPane(project)
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()
@@ -291,7 +297,7 @@ class TestGeneralPane:
             assert not project.configuration.debug
 
     async def test_clean_urls(self, betty_qtbot: BettyQtBot) -> None:
-        async with Project(betty_qtbot.app) as project:
+        async with Project.new_temporary(betty_qtbot.app) as project, project:
             sut = GeneralPane(project)
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()
@@ -304,7 +310,7 @@ class TestGeneralPane:
 
 class TestLocalizationPane:
     async def test(self, betty_qtbot: BettyQtBot):
-        async with Project(betty_qtbot.app) as project:
+        async with Project.new_temporary(betty_qtbot.app) as project, project:
             sut = LocalizationPane(project)
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()
@@ -333,7 +339,7 @@ class TestExtensionPane:
         betty_qtbot: BettyQtBot,
         tmp_path: Path,
     ) -> None:
-        async with Project(betty_qtbot.app) as project:
+        async with Project.new_temporary(betty_qtbot.app) as project, project:
             sut = ExtensionPane(
                 project, ExtensionPaneTestExtensionWithUnmetEnableRequirement
             )
@@ -348,19 +354,19 @@ class TestExtensionPane:
         betty_qtbot: BettyQtBot,
         tmp_path: Path,
     ) -> None:
-        project = Project(betty_qtbot.app)
-        project.configuration.extensions.enable(
-            ExtensionPaneTestExtensionWithUnmetDisableRequirement
-        )
-        async with project:
-            sut = ExtensionPane(
-                project, ExtensionPaneTestExtensionWithUnmetDisableRequirement
+        async with Project.new_temporary(betty_qtbot.app) as project:
+            project.configuration.extensions.enable(
+                ExtensionPaneTestExtensionWithUnmetDisableRequirement
             )
-            betty_qtbot.qtbot.addWidget(sut)
-            sut.show()
+            async with project:
+                sut = ExtensionPane(
+                    project, ExtensionPaneTestExtensionWithUnmetDisableRequirement
+                )
+                betty_qtbot.qtbot.addWidget(sut)
+                sut.show()
 
-        assert sut._extension_enabled.isChecked()
-        betty_qtbot.assert_not_interactive(sut._extension_enabled)
+            assert sut._extension_enabled.isChecked()
+            betty_qtbot.assert_not_interactive(sut._extension_enabled)
 
     # @todo Re-enable this as part of https://github.com/bartfeenstra/betty/issues/1625
     # async def test_enable_extension(
@@ -368,7 +374,7 @@ class TestExtensionPane:
     #     betty_qtbot: BettyQtBot,
     #     tmp_path: Path,
     # ) -> None:
-    #     async with Project(betty_qtbot.app) as project:
+    #     async with Project.new_temporary(betty_qtbot.app) as project, project:
     #         sut = ExtensionPane(project, DummyUserFacingGuiBuilderExtension)
     #         betty_qtbot.qtbot.addWidget(sut)
     #         sut.show()
@@ -384,18 +390,18 @@ class TestExtensionPane:
         betty_qtbot: BettyQtBot,
         tmp_path: Path,
     ) -> None:
-        project = Project(betty_qtbot.app)
-        project.configuration.extensions.enable(DummyUserFacingGuiBuilderExtension)
-        async with project:
-            sut = ExtensionPane(project, DummyUserFacingGuiBuilderExtension)
-            betty_qtbot.qtbot.addWidget(sut)
-            sut.show()
+        async with Project.new_temporary(betty_qtbot.app) as project:
+            project.configuration.extensions.enable(DummyUserFacingGuiBuilderExtension)
+            async with project:
+                sut = ExtensionPane(project, DummyUserFacingGuiBuilderExtension)
+                betty_qtbot.qtbot.addWidget(sut)
+                sut.show()
 
-            betty_qtbot.assert_interactive(sut._extension_gui)
-            extension_enable_checkbox = sut._extension_enabled
-            betty_qtbot.assert_interactive(extension_enable_checkbox)
-            extension_enable_checkbox.click()
-            betty_qtbot.assert_not_interactive(sut._extension_gui)
+                betty_qtbot.assert_interactive(sut._extension_gui)
+                extension_enable_checkbox = sut._extension_enabled
+                betty_qtbot.assert_interactive(extension_enable_checkbox)
+                extension_enable_checkbox.click()
+                betty_qtbot.assert_not_interactive(sut._extension_gui)
 
 
 class TestGenerateWindow:
@@ -409,7 +415,7 @@ class TestGenerateWindow:
 
         mocker.patch("betty.generate.generate", new_callable=lambda: _generate)
 
-        async with Project(betty_qtbot.app) as project:
+        async with Project.new_temporary(betty_qtbot.app) as project, project:
             sut = GenerateWindow(project)
             betty_qtbot.qtbot.addWidget(sut)
 
@@ -424,7 +430,7 @@ class TestGenerateWindow:
     ) -> None:
         mocker.patch("betty.extension.demo.DemoServer", new=NoOpProjectServer)
         mocker.patch("betty.serve.BuiltinProjectServer", new=NoOpProjectServer)
-        async with Project(betty_qtbot.app) as project:
+        async with Project.new_temporary(betty_qtbot.app) as project, project:
             sut = GenerateWindow(project)
             betty_qtbot.qtbot.addWidget(sut)
 
@@ -441,7 +447,7 @@ class TestGenerateWindow:
 
         mocker.patch("betty.generate.generate", new_callable=lambda: _generate)
 
-        async with Project(betty_qtbot.app) as project:
+        async with Project.new_temporary(betty_qtbot.app) as project, project:
             sut = GenerateWindow(project)
             betty_qtbot.qtbot.addWidget(sut)
 
@@ -451,7 +457,7 @@ class TestGenerateWindow:
 
 class TestLocalesConfigurationWidget:
     async def test_add_locale(self, betty_qtbot: BettyQtBot) -> None:
-        async with Project(betty_qtbot.app) as project:
+        async with Project.new_temporary(betty_qtbot.app) as project, project:
             sut = LocalesConfigurationWidget(project)
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()
@@ -461,34 +467,36 @@ class TestLocalesConfigurationWidget:
 
     async def test_remove_locale(self, betty_qtbot: BettyQtBot) -> None:
         locale = "de-DE"
-        project = Project(betty_qtbot.app)
-        project.configuration.locales.append(
-            LocaleConfiguration("nl-NL"),
-            LocaleConfiguration(locale),
-        )
-        async with project:
-            sut = LocalesConfigurationWidget(project)
-            betty_qtbot.qtbot.addWidget(sut)
-            sut.show()
-            betty_qtbot.mouse_click(sut._remove_buttons[locale])
+        async with Project.new_temporary(betty_qtbot.app) as project:
+            project.configuration.locales.append(
+                LocaleConfiguration("nl-NL"),
+                LocaleConfiguration(locale),
+            )
+            async with project:
+                sut = LocalesConfigurationWidget(project)
+                betty_qtbot.qtbot.addWidget(sut)
+                sut.show()
+                betty_qtbot.mouse_click(sut._remove_buttons[locale])
 
-            assert locale not in project.configuration.locales
+                assert locale not in project.configuration.locales
 
     async def test_default_locale(self, betty_qtbot: BettyQtBot) -> None:
         locale = "de-DE"
-        project = Project(betty_qtbot.app)
-        project.configuration.locales.append(
-            LocaleConfiguration("nl-NL"),
-            LocaleConfiguration(locale),
-        )
-        async with project:
-            sut = LocalesConfigurationWidget(project)
-            betty_qtbot.qtbot.addWidget(sut)
-            sut.show()
+        async with Project.new_temporary(betty_qtbot.app) as project:
+            project.configuration.locales.append(
+                LocaleConfiguration("nl-NL"),
+                LocaleConfiguration(locale),
+            )
+            async with project:
+                sut = LocalesConfigurationWidget(project)
+                betty_qtbot.qtbot.addWidget(sut)
+                sut.show()
 
-            sut._default_buttons[locale].click()
+                sut._default_buttons[locale].click()
 
-            assert project.configuration.locales.default == LocaleConfiguration(locale)
+                assert project.configuration.locales.default == LocaleConfiguration(
+                    locale
+                )
 
 
 class TestAddLocaleWindow:
@@ -496,7 +504,7 @@ class TestAddLocaleWindow:
         self,
         betty_qtbot: BettyQtBot,
     ) -> None:
-        async with Project(betty_qtbot.app) as project:
+        async with Project.new_temporary(betty_qtbot.app) as project, project:
             sut = AddLocaleWindow(project)
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()
@@ -514,7 +522,7 @@ class TestAddLocaleWindow:
         self,
         betty_qtbot: BettyQtBot,
     ) -> None:
-        async with Project(betty_qtbot.app) as project:
+        async with Project.new_temporary(betty_qtbot.app) as project, project:
             sut = AddLocaleWindow(project)
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()
@@ -534,7 +542,7 @@ class TestAddLocaleWindow:
         self,
         betty_qtbot: BettyQtBot,
     ) -> None:
-        async with Project(betty_qtbot.app) as project:
+        async with Project.new_temporary(betty_qtbot.app) as project, project:
             sut = AddLocaleWindow(project)
             betty_qtbot.qtbot.addWidget(sut)
             sut.show()

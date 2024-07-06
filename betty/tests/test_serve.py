@@ -14,8 +14,7 @@ class TestBuiltinProjectServer:
     async def test(self, mocker: MockerFixture, new_temporary_app: App) -> None:
         mocker.patch("webbrowser.open_new_tab")
         content = "Hello, and welcome to my site!"
-        project = Project(new_temporary_app)
-        async with project:
+        async with Project.new_temporary(new_temporary_app) as project, project:
             await makedirs(project.configuration.www_directory_path)
             async with aiofiles.open(
                 project.configuration.www_directory_path / "index.html", "w"

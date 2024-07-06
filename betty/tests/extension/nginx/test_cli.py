@@ -21,14 +21,14 @@ class TestServe:
         mocker.patch(
             "betty.extension.nginx.serve.DockerizedNginxServer", new=NoOpServer
         )
-        project = Project(new_temporary_app)
-        project.configuration.extensions.enable(Nginx)
-        await project.configuration.write()
-        await makedirs(project.configuration.www_directory_path)
-        async with project:
-            await to_thread(
-                run,
-                "serve-nginx-docker",
-                "-c",
-                str(project.configuration.configuration_file_path),
-            )
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.enable(Nginx)
+            await project.configuration.write()
+            await makedirs(project.configuration.www_directory_path)
+            async with project:
+                await to_thread(
+                    run,
+                    "serve-nginx-docker",
+                    "-c",
+                    str(project.configuration.configuration_file_path),
+                )

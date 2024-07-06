@@ -77,35 +77,38 @@ class TestDeriver:
         )
         Presence(person, Subject(), event)
 
-        project = Project(new_temporary_app)
-        project.configuration.extensions.append(ExtensionConfiguration(Deriver))
-        project.ancestry.add(person)
-        async with project:
-            with record_added(project.ancestry) as added:
-                await load(project)
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.append(ExtensionConfiguration(Deriver))
+            project.ancestry.add(person)
+            async with project:
+                with record_added(project.ancestry) as added:
+                    await load(project)
 
-            assert len(person.presences) == 3
-            start = [
-                presence
-                for presence in person.presences
-                if presence.event
-                and issubclass(presence.event.event_type, StartOfLifeEventType)
-            ][0]
-            assert start is not None
-            assert start.event is not None
-            assert isinstance(start.event, Event)
-            assert (
-                DateRange(None, Date(1, 1, 1), end_is_boundary=True) == start.event.date
-            )
-            end = [
-                presence
-                for presence in person.presences
-                if presence.event
-                and issubclass(presence.event.event_type, EndOfLifeEventType)
-            ][0]
-            assert end is not None
-            assert end.event is not None
-            assert DateRange(Date(1, 1, 1), start_is_boundary=True) == end.event.date
-            assert len(added[Event]) == 2
-            assert start.event in added[Event]
-            assert end.event in added[Event]
+                assert len(person.presences) == 3
+                start = [
+                    presence
+                    for presence in person.presences
+                    if presence.event
+                    and issubclass(presence.event.event_type, StartOfLifeEventType)
+                ][0]
+                assert start is not None
+                assert start.event is not None
+                assert isinstance(start.event, Event)
+                assert (
+                    DateRange(None, Date(1, 1, 1), end_is_boundary=True)
+                    == start.event.date
+                )
+                end = [
+                    presence
+                    for presence in person.presences
+                    if presence.event
+                    and issubclass(presence.event.event_type, EndOfLifeEventType)
+                ][0]
+                assert end is not None
+                assert end.event is not None
+                assert (
+                    DateRange(Date(1, 1, 1), start_is_boundary=True) == end.event.date
+                )
+                assert len(added[Event]) == 2
+                assert start.event in added[Event]
+                assert end.event in added[Event]

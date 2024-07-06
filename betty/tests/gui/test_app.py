@@ -83,12 +83,11 @@ class TestWelcomeWindow:
         betty_qtbot.assert_exception_error(contained_error_type=AssertionFailed)
 
     async def test_open_project_with_valid_file_should_show_project_window(
-        self,
-        mocker: MockerFixture,
-        betty_qtbot: BettyQtBot,
+        self, mocker: MockerFixture, betty_qtbot: BettyQtBot, tmp_path: Path
     ) -> None:
         title = "My First Ancestry Site"
         configuration = ProjectConfiguration(
+            tmp_path / "betty.json",
             title=title,
         )
         await configuration.write()

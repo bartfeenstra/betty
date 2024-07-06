@@ -49,38 +49,40 @@ class TestBuilder:
         tmp_path: Path,
         webpack_build_cache_available: bool,
     ) -> None:
-        project = Project(new_temporary_app)
-        if with_entry_point_provider:
-            project.configuration.extensions.enable(DummyEntryPointProviderExtension)
-        job_context = Context()
-        async with project:
-            sut = Builder(
-                tmp_path,
-                (
-                    [project.extensions[DummyEntryPointProviderExtension]]
-                    if with_entry_point_provider
-                    else []
-                ),
-                False,
-                project.renderer,
-                job_context=job_context,
-                localizer=DEFAULT_LOCALIZER,
-            )
-            if npm_install_cache_available:
+        async with Project.new_temporary(new_temporary_app) as project:
+            if with_entry_point_provider:
+                project.configuration.extensions.enable(
+                    DummyEntryPointProviderExtension
+                )
+            job_context = Context()
+            async with project:
+                sut = Builder(
+                    tmp_path,
+                    (
+                        [project.extensions[DummyEntryPointProviderExtension]]
+                        if with_entry_point_provider
+                        else []
+                    ),
+                    False,
+                    project.renderer,
+                    job_context=job_context,
+                    localizer=DEFAULT_LOCALIZER,
+                )
+                if npm_install_cache_available:
+                    webpack_build_directory_path = await sut.build()
+                    if not webpack_build_cache_available:
+                        await to_thread(rmtree, webpack_build_directory_path)
                 webpack_build_directory_path = await sut.build()
-                if not webpack_build_cache_available:
-                    await to_thread(rmtree, webpack_build_directory_path)
-            webpack_build_directory_path = await sut.build()
-        assert (webpack_build_directory_path / "css" / "vendor.css").exists()
-        assert (
-            webpack_build_directory_path / "js" / "webpack-entry-loader.js"
-        ).exists()
-        if with_entry_point_provider:
+            assert (webpack_build_directory_path / "css" / "vendor.css").exists()
             assert (
-                webpack_build_directory_path
-                / "js"
-                / f"{DummyEntryPointProviderExtension.name()}.js"
+                webpack_build_directory_path / "js" / "webpack-entry-loader.js"
             ).exists()
+            if with_entry_point_provider:
+                assert (
+                    webpack_build_directory_path
+                    / "js"
+                    / f"{DummyEntryPointProviderExtension.name()}.js"
+                ).exists()
 
     async def test_build_with_npm_unavailable(
         self, mocker: MockerFixture, tmp_path: Path

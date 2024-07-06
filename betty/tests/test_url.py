@@ -37,8 +37,7 @@ class TestLocalizedPathUrlGenerator:
     async def test_generate(
         self, expected: str, new_temporary_app: App, resource: str
     ) -> None:
-        project = Project(new_temporary_app)
-        async with project:
+        async with Project.new_temporary(new_temporary_app) as project, project:
             sut = LocalizedPathUrlGenerator(project)
             assert expected == sut.generate(resource, "text/html")
 
@@ -54,11 +53,11 @@ class TestLocalizedPathUrlGenerator:
     async def test_generate_with_clean_urls(
         self, expected: str, new_temporary_app: App, resource: str
     ) -> None:
-        project = Project(new_temporary_app)
-        project.configuration.clean_urls = True
-        async with project:
-            sut = LocalizedPathUrlGenerator(project)
-            assert expected == sut.generate(resource, "text/html")
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.clean_urls = True
+            async with project:
+                sut = LocalizedPathUrlGenerator(project)
+                assert expected == sut.generate(resource, "text/html")
 
     @pytest.mark.parametrize(
         ("expected", "resource"),
@@ -70,8 +69,7 @@ class TestLocalizedPathUrlGenerator:
     async def test_generate_absolute(
         self, expected: str, new_temporary_app: App, resource: str
     ) -> None:
-        project = Project(new_temporary_app)
-        async with project:
+        async with Project.new_temporary(new_temporary_app) as project, project:
             sut = LocalizedPathUrlGenerator(project)
             assert expected == sut.generate(resource, "text/html", absolute=True)
 
@@ -89,22 +87,22 @@ class TestLocalizedPathUrlGenerator:
         new_temporary_app: App,
         url_generator_locale: Localey | None,
     ) -> None:
-        project = Project(new_temporary_app)
-        project.configuration.locales.replace(
-            LocaleConfiguration(
-                "nl-NL",
-                alias="nl",
-            ),
-            LocaleConfiguration(
-                "en-US",
-                alias="en",
-            ),
-        )
-        async with project:
-            sut = LocalizedPathUrlGenerator(project)
-            assert expected == sut.generate(
-                "/index.html", "text/html", locale=url_generator_locale
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.locales.replace(
+                LocaleConfiguration(
+                    "nl-NL",
+                    alias="nl",
+                ),
+                LocaleConfiguration(
+                    "en-US",
+                    alias="en",
+                ),
             )
+            async with project:
+                sut = LocalizedPathUrlGenerator(project)
+                assert expected == sut.generate(
+                    "/index.html", "text/html", locale=url_generator_locale
+                )
 
 
 class EntityUrlGeneratorTestUrlyEntity(UserFacingEntity, Entity):
@@ -117,8 +115,7 @@ class EntityUrlGeneratorTestNonUrlyEntity(UserFacingEntity, Entity):
 
 class TestEntityUrlGenerator:
     async def test_generate(self, new_temporary_app: App) -> None:
-        project = Project(new_temporary_app)
-        async with project:
+        async with Project.new_temporary(new_temporary_app) as project, project:
             sut = _EntityUrlGenerator(project, EntityUrlGeneratorTestUrlyEntity)
             assert (
                 sut.generate(EntityUrlGeneratorTestUrlyEntity("I1"), "text/html")
@@ -126,8 +123,7 @@ class TestEntityUrlGenerator:
             )
 
     async def test_generate_with_invalid_value(self, new_temporary_app: App) -> None:
-        project = Project(new_temporary_app)
-        async with project:
+        async with Project.new_temporary(new_temporary_app) as project, project:
             sut = _EntityUrlGenerator(project, EntityUrlGeneratorTestUrlyEntity)
             with pytest.raises(ValueError):  # noqa PT011
                 sut.generate(EntityUrlGeneratorTestNonUrlyEntity(), "text/html")
@@ -179,7 +175,6 @@ class TestProjectUrlGenerator:
     async def test_generate(
         self, expected: str, new_temporary_app: App, resource: Any
     ) -> None:
-        project = Project(new_temporary_app)
-        async with project:
+        async with Project.new_temporary(new_temporary_app) as project, project:
             sut = ProjectUrlGenerator(project)
             assert expected == sut.generate(resource, "text/html")

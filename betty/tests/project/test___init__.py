@@ -41,6 +41,7 @@ from betty.tests.test_config import (
 from betty.typing import Void
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from betty.app import App
     from collections.abc import Sequence
     from betty.serde.dump import Dump, VoidableDump
@@ -792,54 +793,54 @@ class TestEntityTypeConfigurationMapping(
 
 
 class TestProjectConfiguration:
-    async def test_name(self) -> None:
-        sut = ProjectConfiguration()
+    async def test_name(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         name = "MyFirstBettySite"
         sut.name = name
         assert sut.name == name
 
-    async def test_base_url(self) -> None:
-        sut = ProjectConfiguration()
+    async def test_base_url(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         base_url = "https://example.com"
         sut.base_url = base_url
         assert base_url == sut.base_url
 
-    async def test_base_url_without_scheme_should_error(self) -> None:
-        sut = ProjectConfiguration()
+    async def test_base_url_without_scheme_should_error(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         with pytest.raises(AssertionFailed):
             sut.base_url = "/"
 
-    async def test_base_url_without_path_should_error(self) -> None:
-        sut = ProjectConfiguration()
+    async def test_base_url_without_path_should_error(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         with pytest.raises(AssertionFailed):
             sut.base_url = "file://"
 
-    async def test_root_path(self) -> None:
-        sut = ProjectConfiguration()
+    async def test_root_path(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         configured_root_path = "/betty/"
         expected_root_path = "betty"
         sut.root_path = configured_root_path
         assert expected_root_path == sut.root_path
 
-    async def test_clean_urls(self) -> None:
-        sut = ProjectConfiguration()
+    async def test_clean_urls(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         clean_urls = True
         sut.clean_urls = clean_urls
         assert clean_urls == sut.clean_urls
 
-    async def test_author_without_author(self) -> None:
-        sut = ProjectConfiguration()
+    async def test_author_without_author(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         assert sut.author is None
 
-    async def test_author_with_author(self) -> None:
-        sut = ProjectConfiguration()
+    async def test_author_with_author(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         author = "Bart"
         sut.author = author
         assert author == sut.author
 
-    async def test_load_should_load_minimal(self) -> None:
-        dump: Any = ProjectConfiguration().dump()
-        sut = ProjectConfiguration()
+    async def test_load_should_load_minimal(self, tmp_path: Path) -> None:
+        dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.load(dump)
         assert dump["base_url"] == sut.base_url
         assert sut.title == "Betty"
@@ -848,51 +849,51 @@ class TestProjectConfiguration:
         assert sut.root_path == ""
         assert not sut.clean_urls
 
-    async def test_load_should_load_name(self) -> None:
+    async def test_load_should_load_name(self, tmp_path: Path) -> None:
         name = "MyFirstBettySite"
-        dump: Any = ProjectConfiguration().dump()
+        dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
         dump["name"] = name
-        sut = ProjectConfiguration()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.load(dump)
         assert sut.name == name
 
-    async def test_load_should_load_title(self) -> None:
+    async def test_load_should_load_title(self, tmp_path: Path) -> None:
         title = "My first Betty site"
-        dump: Any = ProjectConfiguration().dump()
+        dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
         dump["title"] = title
-        sut = ProjectConfiguration()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.load(dump)
         assert sut.title == title
 
-    async def test_load_should_load_author(self) -> None:
+    async def test_load_should_load_author(self, tmp_path: Path) -> None:
         author = "Bart"
-        dump: Any = ProjectConfiguration().dump()
+        dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
         dump["author"] = author
-        sut = ProjectConfiguration()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.load(dump)
         assert sut.author == author
 
-    async def test_load_should_load_locale_locale(self) -> None:
+    async def test_load_should_load_locale_locale(self, tmp_path: Path) -> None:
         locale = "nl-NL"
-        dump = ProjectConfiguration().dump()
+        dump = ProjectConfiguration(tmp_path / "betty.json").dump()
         dump["locales"] = {
             locale: {},
         }
-        sut = ProjectConfiguration()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.load(dump)
         assert sut.locales == LocaleConfigurationMapping([LocaleConfiguration(locale)])
 
-    async def test_load_should_load_locale_alias(self) -> None:
+    async def test_load_should_load_locale_alias(self, tmp_path: Path) -> None:
         locale = "nl-NL"
         alias = "nl"
         locale_config = {
             "alias": alias,
         }
-        dump: Any = ProjectConfiguration().dump()
+        dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
         dump["locales"] = {
             locale: locale_config,
         }
-        sut = ProjectConfiguration()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.load(dump)
         assert sut.locales == LocaleConfigurationMapping(
             [
@@ -903,20 +904,20 @@ class TestProjectConfiguration:
             ]
         )
 
-    async def test_load_should_root_path(self) -> None:
+    async def test_load_should_root_path(self, tmp_path: Path) -> None:
         configured_root_path = "/betty/"
         expected_root_path = "betty"
-        dump: Any = ProjectConfiguration().dump()
+        dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
         dump["root_path"] = configured_root_path
-        sut = ProjectConfiguration()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.load(dump)
         assert sut.root_path == expected_root_path
 
-    async def test_load_should_clean_urls(self) -> None:
+    async def test_load_should_clean_urls(self, tmp_path: Path) -> None:
         clean_urls = True
-        dump: Any = ProjectConfiguration().dump()
+        dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
         dump["clean_urls"] = clean_urls
-        sut = ProjectConfiguration()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.load(dump)
         assert sut.clean_urls == clean_urls
 
@@ -927,15 +928,17 @@ class TestProjectConfiguration:
             False,
         ],
     )
-    async def test_load_should_load_debug(self, debug: bool) -> None:
-        dump: Any = ProjectConfiguration().dump()
+    async def test_load_should_load_debug(self, debug: bool, tmp_path: Path) -> None:
+        dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
         dump["debug"] = debug
-        sut = ProjectConfiguration()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.load(dump)
         assert sut.debug == debug
 
-    async def test_load_should_load_one_extension_with_configuration(self) -> None:
-        dump: Any = ProjectConfiguration().dump()
+    async def test_load_should_load_one_extension_with_configuration(
+        self, tmp_path: Path
+    ) -> None:
+        dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
         extension_configuration = {
             "check": False,
         }
@@ -944,7 +947,7 @@ class TestProjectConfiguration:
                 "configuration": extension_configuration,
             },
         }
-        sut = ProjectConfiguration()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         expected = ExtensionConfiguration(
             _DummyConfigurableExtension,
             extension_configuration=_DummyConfigurableExtensionConfiguration(),
@@ -952,53 +955,59 @@ class TestProjectConfiguration:
         sut.load(dump)
         assert sut.extensions[_DummyConfigurableExtension] == expected
 
-    async def test_load_should_load_one_extension_without_configuration(self) -> None:
-        dump: Any = ProjectConfiguration().dump()
+    async def test_load_should_load_one_extension_without_configuration(
+        self, tmp_path: Path
+    ) -> None:
+        dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
         dump["extensions"] = {
             _DummyNonConfigurableExtension.name(): {},
         }
-        sut = ProjectConfiguration()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         expected = ExtensionConfiguration(_DummyNonConfigurableExtension)
         sut.load(dump)
         assert sut.extensions[_DummyNonConfigurableExtension] == expected
 
     async def test_load_extension_with_invalid_configuration_should_raise_error(
-        self,
+        self, tmp_path: Path
     ) -> None:
-        dump: Any = ProjectConfiguration().dump()
+        dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
         dump["extensions"] = {
             _DummyConfigurableExtension.name(): 1337,
         }
-        sut = ProjectConfiguration()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         with raises_error(error_type=AssertionFailed):
             sut.load(dump)
 
-    async def test_load_unknown_extension_type_name_should_error(self) -> None:
-        dump: Any = ProjectConfiguration().dump()
+    async def test_load_unknown_extension_type_name_should_error(
+        self, tmp_path: Path
+    ) -> None:
+        dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
         dump["extensions"] = {
             "non.existent.type": {},
         }
-        sut = ProjectConfiguration()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         with raises_error(error_type=AssertionFailed):
             sut.load(dump)
 
-    async def test_load_not_an_extension_type_name_should_error(self) -> None:
-        dump: Any = ProjectConfiguration().dump()
+    async def test_load_not_an_extension_type_name_should_error(
+        self, tmp_path: Path
+    ) -> None:
+        dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
         dump["extensions"] = {
             "%s.%s" % (self.__class__.__module__, self.__class__.__name__): {},
         }
-        sut = ProjectConfiguration()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         with raises_error(error_type=AssertionFailed):
             sut.load(dump)
 
-    async def test_load_should_error_if_invalid_config(self) -> None:
+    async def test_load_should_error_if_invalid_config(self, tmp_path: Path) -> None:
         dump: Dump = {}
-        sut = ProjectConfiguration()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         with raises_error(error_type=AssertionFailed):
             sut.load(dump)
 
-    async def test_dump_should_dump_minimal(self) -> None:
-        sut = ProjectConfiguration()
+    async def test_dump_should_dump_minimal(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         dump: Any = sut.dump()
         assert dump["base_url"] == sut.base_url
         assert sut.title == "Betty"
@@ -1007,31 +1016,31 @@ class TestProjectConfiguration:
         assert sut.root_path == ""
         assert not sut.clean_urls
 
-    async def test_dump_should_dump_title(self) -> None:
+    async def test_dump_should_dump_title(self, tmp_path: Path) -> None:
         title = "My first Betty site"
-        sut = ProjectConfiguration()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.title = title
         dump: Any = sut.dump()
         assert title == dump["title"]
 
-    async def test_dump_should_dump_name(self) -> None:
+    async def test_dump_should_dump_name(self, tmp_path: Path) -> None:
         name = "MyFirstBettySite"
-        sut = ProjectConfiguration()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.name = name
         dump: Any = sut.dump()
         assert dump["name"] == name
 
-    async def test_dump_should_dump_author(self) -> None:
+    async def test_dump_should_dump_author(self, tmp_path: Path) -> None:
         author = "Bart"
-        sut = ProjectConfiguration()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.author = author
         dump: Any = sut.dump()
         assert author == dump["author"]
 
-    async def test_dump_should_dump_locale_locale(self) -> None:
+    async def test_dump_should_dump_locale_locale(self, tmp_path: Path) -> None:
         locale = "nl-NL"
         locale_configuration = LocaleConfiguration(locale)
-        sut = ProjectConfiguration()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.locales.append(locale_configuration)
         sut.locales.remove("en-US")
         dump: Any = sut.dump()
@@ -1039,14 +1048,14 @@ class TestProjectConfiguration:
             locale: {},
         }
 
-    async def test_dump_should_dump_locale_alias(self) -> None:
+    async def test_dump_should_dump_locale_alias(self, tmp_path: Path) -> None:
         locale = "nl-NL"
         alias = "nl"
         locale_configuration = LocaleConfiguration(
             locale,
             alias=alias,
         )
-        sut = ProjectConfiguration()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.locales.append(locale_configuration)
         sut.locales.remove("en-US")
         dump: Any = sut.dump()
@@ -1056,16 +1065,16 @@ class TestProjectConfiguration:
             },
         }
 
-    async def test_dump_should_dump_root_path(self) -> None:
+    async def test_dump_should_dump_root_path(self, tmp_path: Path) -> None:
         root_path = "betty"
-        sut = ProjectConfiguration()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.root_path = root_path
         dump: Any = sut.dump()
         assert root_path == dump["root_path"]
 
-    async def test_dump_should_dump_clean_urls(self) -> None:
+    async def test_dump_should_dump_clean_urls(self, tmp_path: Path) -> None:
         clean_urls = True
-        sut = ProjectConfiguration()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.clean_urls = clean_urls
         dump: Any = sut.dump()
         assert clean_urls == dump["clean_urls"]
@@ -1077,14 +1086,16 @@ class TestProjectConfiguration:
             False,
         ],
     )
-    async def test_dump_should_dump_debug(self, debug: bool) -> None:
-        sut = ProjectConfiguration()
+    async def test_dump_should_dump_debug(self, debug: bool, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.debug = debug
         dump: Any = sut.dump()
         assert debug == dump["debug"]
 
-    async def test_dump_should_dump_one_extension_with_configuration(self) -> None:
-        sut = ProjectConfiguration()
+    async def test_dump_should_dump_one_extension_with_configuration(
+        self, tmp_path: Path
+    ) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.extensions.append(
             ExtensionConfiguration(
                 _DummyConfigurableExtension,
@@ -1100,8 +1111,10 @@ class TestProjectConfiguration:
         }
         assert expected == dump["extensions"][_DummyConfigurableExtension.name()]
 
-    async def test_dump_should_dump_one_extension_without_configuration(self) -> None:
-        sut = ProjectConfiguration()
+    async def test_dump_should_dump_one_extension_without_configuration(
+        self, tmp_path: Path
+    ) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.extensions.append(ExtensionConfiguration(_DummyNonConfigurableExtension))
         dump: Any = sut.dump()
         expected = {
@@ -1109,9 +1122,9 @@ class TestProjectConfiguration:
         }
         assert expected == dump["extensions"][_DummyNonConfigurableExtension.name()]
 
-    async def test_dump_should_error_if_invalid_config(self) -> None:
+    async def test_dump_should_error_if_invalid_config(self, tmp_path: Path) -> None:
         dump: Dump = {}
-        sut = ProjectConfiguration()
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         with raises_error(error_type=AssertionFailed):
             sut.load(dump)
 
@@ -1204,224 +1217,226 @@ class _ConfigurableExtension(
 
 class TestProject:
     async def test_extensions_with_one_extension(self, new_temporary_app: App) -> None:
-        sut = Project(new_temporary_app)
-        sut.configuration.extensions.append(
-            ExtensionConfiguration(_NonConfigurableExtension)
-        )
-        async with sut:
-            assert isinstance(
-                sut.extensions[_NonConfigurableExtension], _NonConfigurableExtension
+        async with Project.new_temporary(new_temporary_app) as sut:
+            sut.configuration.extensions.append(
+                ExtensionConfiguration(_NonConfigurableExtension)
             )
+            async with sut:
+                assert isinstance(
+                    sut.extensions[_NonConfigurableExtension], _NonConfigurableExtension
+                )
 
     async def test_extensions_with_one_configurable_extension(
         self, new_temporary_app: App
     ) -> None:
-        sut = Project(new_temporary_app)
-        check = 1337
-        sut.configuration.extensions.append(
-            ExtensionConfiguration(
-                _ConfigurableExtension,
-                extension_configuration=_ConfigurableExtensionConfiguration(
-                    check=check,
-                ),
+        async with Project.new_temporary(new_temporary_app) as sut:
+            check = 1337
+            sut.configuration.extensions.append(
+                ExtensionConfiguration(
+                    _ConfigurableExtension,
+                    extension_configuration=_ConfigurableExtensionConfiguration(
+                        check=check,
+                    ),
+                )
             )
-        )
-        async with sut:
-            assert isinstance(
-                sut.extensions[_ConfigurableExtension], _ConfigurableExtension
-            )
-            assert check == sut.extensions[_ConfigurableExtension].configuration.check
+            async with sut:
+                assert isinstance(
+                    sut.extensions[_ConfigurableExtension], _ConfigurableExtension
+                )
+                assert (
+                    check == sut.extensions[_ConfigurableExtension].configuration.check
+                )
 
     async def test_extensions_with_one_extension_with_single_chained_dependency(
         self, new_temporary_app: App
     ) -> None:
-        sut = Project(new_temporary_app)
-        sut.configuration.extensions.append(
-            ExtensionConfiguration(_DependsOnNonConfigurableExtensionExtensionExtension)
-        )
-        async with sut:
-            carrier: list[_TrackableExtension] = []
-            await sut.dispatcher.dispatch(_Tracker)(carrier)
-            assert len(carrier) == 3
-            assert isinstance(carrier[0], _NonConfigurableExtension)
-            assert isinstance(carrier[1], _DependsOnNonConfigurableExtensionExtension)
-            assert isinstance(
-                carrier[2], _DependsOnNonConfigurableExtensionExtensionExtension
+        async with Project.new_temporary(new_temporary_app) as sut:
+            sut.configuration.extensions.append(
+                ExtensionConfiguration(
+                    _DependsOnNonConfigurableExtensionExtensionExtension
+                )
             )
+            async with sut:
+                carrier: list[_TrackableExtension] = []
+                await sut.dispatcher.dispatch(_Tracker)(carrier)
+                assert len(carrier) == 3
+                assert isinstance(carrier[0], _NonConfigurableExtension)
+                assert isinstance(
+                    carrier[1], _DependsOnNonConfigurableExtensionExtension
+                )
+                assert isinstance(
+                    carrier[2], _DependsOnNonConfigurableExtensionExtensionExtension
+                )
 
     async def test_extensions_with_multiple_extensions_with_duplicate_dependencies(
         self, new_temporary_app: App
     ) -> None:
-        sut = Project(new_temporary_app)
-        sut.configuration.extensions.append(
-            ExtensionConfiguration(_DependsOnNonConfigurableExtensionExtension)
-        )
-        sut.configuration.extensions.append(
-            ExtensionConfiguration(_AlsoDependsOnNonConfigurableExtensionExtension)
-        )
-        async with sut:
-            carrier: list[_TrackableExtension] = []
-            await sut.dispatcher.dispatch(_Tracker)(carrier)
-            assert len(carrier) == 3
-            assert isinstance(carrier[0], _NonConfigurableExtension)
-            assert _DependsOnNonConfigurableExtensionExtension in [
-                type(extension) for extension in carrier
-            ]
-            assert _AlsoDependsOnNonConfigurableExtensionExtension in [
-                type(extension) for extension in carrier
-            ]
+        async with Project.new_temporary(new_temporary_app) as sut:
+            sut.configuration.extensions.append(
+                ExtensionConfiguration(_DependsOnNonConfigurableExtensionExtension)
+            )
+            sut.configuration.extensions.append(
+                ExtensionConfiguration(_AlsoDependsOnNonConfigurableExtensionExtension)
+            )
+            async with sut:
+                carrier: list[_TrackableExtension] = []
+                await sut.dispatcher.dispatch(_Tracker)(carrier)
+                assert len(carrier) == 3
+                assert isinstance(carrier[0], _NonConfigurableExtension)
+                assert _DependsOnNonConfigurableExtensionExtension in [
+                    type(extension) for extension in carrier
+                ]
+                assert _AlsoDependsOnNonConfigurableExtensionExtension in [
+                    type(extension) for extension in carrier
+                ]
 
     async def test_extensions_with_multiple_extensions_with_cyclic_dependencies(
         self, new_temporary_app: App
     ) -> None:
-        sut = Project(new_temporary_app)
-        sut.configuration.extensions.append(
-            ExtensionConfiguration(_CyclicDependencyOneExtension)
-        )
-        async with sut:
-            with pytest.raises(CyclicDependencyError):  # noqa PT012
-                sut.extensions  # noqa B018
+        async with Project.new_temporary(new_temporary_app) as sut:
+            sut.configuration.extensions.append(
+                ExtensionConfiguration(_CyclicDependencyOneExtension)
+            )
+            async with sut:
+                with pytest.raises(CyclicDependencyError):  # noqa PT012
+                    sut.extensions  # noqa B018
 
     async def test_extensions_with_comes_before_with_other_extension(
         self, new_temporary_app: App
     ) -> None:
-        sut = Project(new_temporary_app)
-        sut.configuration.extensions.append(
-            ExtensionConfiguration(_NonConfigurableExtension)
-        )
-        sut.configuration.extensions.append(
-            ExtensionConfiguration(_ComesBeforeNonConfigurableExtensionExtension)
-        )
-        async with sut:
-            carrier: list[_TrackableExtension] = []
-            await sut.dispatcher.dispatch(_Tracker)(carrier)
-            assert len(carrier) == 2
-            assert isinstance(carrier[0], _ComesBeforeNonConfigurableExtensionExtension)
-            assert isinstance(carrier[1], _NonConfigurableExtension)
+        async with Project.new_temporary(new_temporary_app) as sut:
+            sut.configuration.extensions.append(
+                ExtensionConfiguration(_NonConfigurableExtension)
+            )
+            sut.configuration.extensions.append(
+                ExtensionConfiguration(_ComesBeforeNonConfigurableExtensionExtension)
+            )
+            async with sut:
+                carrier: list[_TrackableExtension] = []
+                await sut.dispatcher.dispatch(_Tracker)(carrier)
+                assert len(carrier) == 2
+                assert isinstance(
+                    carrier[0], _ComesBeforeNonConfigurableExtensionExtension
+                )
+                assert isinstance(carrier[1], _NonConfigurableExtension)
 
     async def test_extensions_with_comes_before_without_other_extension(
         self, new_temporary_app: App
     ) -> None:
-        sut = Project(new_temporary_app)
-        sut.configuration.extensions.append(
-            ExtensionConfiguration(_ComesBeforeNonConfigurableExtensionExtension)
-        )
-        async with sut:
-            carrier: list[_TrackableExtension] = []
-            await sut.dispatcher.dispatch(_Tracker)(carrier)
-            assert len(carrier) == 1
-            assert isinstance(carrier[0], _ComesBeforeNonConfigurableExtensionExtension)
+        async with Project.new_temporary(new_temporary_app) as sut:
+            sut.configuration.extensions.append(
+                ExtensionConfiguration(_ComesBeforeNonConfigurableExtensionExtension)
+            )
+            async with sut:
+                carrier: list[_TrackableExtension] = []
+                await sut.dispatcher.dispatch(_Tracker)(carrier)
+                assert len(carrier) == 1
+                assert isinstance(
+                    carrier[0], _ComesBeforeNonConfigurableExtensionExtension
+                )
 
     async def test_extensions_with_comes_after_with_other_extension(
         self, new_temporary_app: App
     ) -> None:
-        sut = Project(new_temporary_app)
-        sut.configuration.extensions.append(
-            ExtensionConfiguration(_ComesAfterNonConfigurableExtensionExtension)
-        )
-        sut.configuration.extensions.append(
-            ExtensionConfiguration(_NonConfigurableExtension)
-        )
-        async with sut:
-            carrier: list[_TrackableExtension] = []
-            await sut.dispatcher.dispatch(_Tracker)(carrier)
-            assert len(carrier) == 2
-            assert isinstance(carrier[0], _NonConfigurableExtension)
-            assert isinstance(carrier[1], _ComesAfterNonConfigurableExtensionExtension)
+        async with Project.new_temporary(new_temporary_app) as sut:
+            sut.configuration.extensions.append(
+                ExtensionConfiguration(_ComesAfterNonConfigurableExtensionExtension)
+            )
+            sut.configuration.extensions.append(
+                ExtensionConfiguration(_NonConfigurableExtension)
+            )
+            async with sut:
+                carrier: list[_TrackableExtension] = []
+                await sut.dispatcher.dispatch(_Tracker)(carrier)
+                assert len(carrier) == 2
+                assert isinstance(carrier[0], _NonConfigurableExtension)
+                assert isinstance(
+                    carrier[1], _ComesAfterNonConfigurableExtensionExtension
+                )
 
     async def test_extensions_with_comes_after_without_other_extension(
         self, new_temporary_app: App
     ) -> None:
-        sut = Project(new_temporary_app)
-        sut.configuration.extensions.append(
-            ExtensionConfiguration(_ComesAfterNonConfigurableExtensionExtension)
-        )
-        async with sut:
-            carrier: list[_TrackableExtension] = []
-            await sut.dispatcher.dispatch(_Tracker)(carrier)
-            assert len(carrier) == 1
-            assert isinstance(carrier[0], _ComesAfterNonConfigurableExtensionExtension)
+        async with Project.new_temporary(new_temporary_app) as sut:
+            sut.configuration.extensions.append(
+                ExtensionConfiguration(_ComesAfterNonConfigurableExtensionExtension)
+            )
+            async with sut:
+                carrier: list[_TrackableExtension] = []
+                await sut.dispatcher.dispatch(_Tracker)(carrier)
+                assert len(carrier) == 1
+                assert isinstance(
+                    carrier[0], _ComesAfterNonConfigurableExtensionExtension
+                )
 
     async def test_ancestry_with___init___ancestry(
         self, new_temporary_app: App
     ) -> None:
         ancestry = Ancestry()
-        sut = Project(new_temporary_app, ancestry=ancestry)
-        async with sut:
+        async with Project.new_temporary(
+            new_temporary_app, ancestry=ancestry
+        ) as sut, sut:
             assert sut.ancestry is ancestry
 
     async def test_ancestry_without___init___ancestry(
         self, new_temporary_app: App
     ) -> None:
-        sut = Project(new_temporary_app)
-        async with sut:
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
             sut.ancestry  # noqa B018
 
     async def test_app(self, new_temporary_app: App) -> None:
-        sut = Project(new_temporary_app)
-        async with sut:
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
             assert sut.app is new_temporary_app
 
     async def test_assets(self, new_temporary_app: App) -> None:
-        sut = Project(new_temporary_app)
-        async with sut:
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
             assert len(sut.assets.assets_directory_paths) > 0
 
     async def test_discover_extension_types(self, new_temporary_app: App) -> None:
-        sut = Project(new_temporary_app)
-        async with sut:
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
             assert len(sut.discover_extension_types()) > 0
 
     async def test_dispatcher(self, new_temporary_app: App) -> None:
-        sut = Project(new_temporary_app)
-        async with sut:
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
             sut.dispatcher  # noqa B018
 
     async def test_entity_types(self, new_temporary_app: App) -> None:
-        sut = Project(new_temporary_app)
-        async with sut:
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
             assert len(sut.entity_types) > 0
 
     async def test_event_types(self, new_temporary_app: App) -> None:
-        sut = Project(new_temporary_app)
-        async with sut:
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
             assert len(sut.event_types) > 0
 
     async def test_jinja2_environment(self, new_temporary_app: App) -> None:
-        sut = Project(new_temporary_app)
-        async with sut:
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
             sut.jinja2_environment  # noqa B018
 
     async def test_localizers(self, new_temporary_app: App) -> None:
-        sut = Project(new_temporary_app)
-        async with sut:
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
             assert len(list(sut.localizers.locales)) > 0
 
     async def test_name_with_configuration_name(self, new_temporary_app: App) -> None:
         name = "hello-world"
-        sut = Project(new_temporary_app)
-        sut.configuration.name = name
-        async with sut:
-            assert sut.name == name
+        async with Project.new_temporary(new_temporary_app) as sut:
+            sut.configuration.name = name
+            async with sut:
+                assert sut.name == name
 
     async def test_name_without_configuration_name(
         self, new_temporary_app: App
     ) -> None:
-        sut = Project(new_temporary_app)
-        async with sut:
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
             sut.name  # noqa B018
 
     async def test_renderer(self, new_temporary_app: App) -> None:
-        sut = Project(new_temporary_app)
-        async with sut:
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
             sut.renderer  # noqa B018
 
     async def test_static_url_generator(self, new_temporary_app: App) -> None:
-        sut = Project(new_temporary_app)
-        async with sut:
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
             sut.static_url_generator  # noqa B018
 
     async def test_url_generator(self, new_temporary_app: App) -> None:
-        sut = Project(new_temporary_app)
-        async with sut:
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
             sut.url_generator  # noqa B018

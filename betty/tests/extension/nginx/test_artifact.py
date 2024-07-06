@@ -39,11 +39,11 @@ class TestGenerateConfigurationFile:
         )
 
     async def test(self, new_temporary_app: App):
-        project = Project(new_temporary_app)
-        project.configuration.base_url = "http://example.com"
-        project.configuration.extensions.append(ExtensionConfiguration(Nginx))
-        expected = (
-            r"""
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.base_url = "http://example.com"
+            project.configuration.extensions.append(ExtensionConfiguration(Nginx))
+            expected = (
+                r"""
 server {
     add_header Vary Accept-Language;
     add_header Cache-Control "max-age=86400";
@@ -71,27 +71,27 @@ server {
     }
 }
 """
-            % project.configuration.www_directory_path
-        )
-        async with project:
-            await self._assert_configuration_equals(expected, project)
+                % project.configuration.www_directory_path
+            )
+            async with project:
+                await self._assert_configuration_equals(expected, project)
 
     async def test_multilingual(self, new_temporary_app: App) -> None:
-        project = Project(new_temporary_app)
-        project.configuration.base_url = "http://example.com"
-        project.configuration.locales.replace(
-            LocaleConfiguration(
-                "en-US",
-                alias="en",
-            ),
-            LocaleConfiguration(
-                "nl-NL",
-                alias="nl",
-            ),
-        )
-        project.configuration.extensions.append(ExtensionConfiguration(Nginx))
-        expected = (
-            r"""
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.base_url = "http://example.com"
+            project.configuration.locales.replace(
+                LocaleConfiguration(
+                    "en-US",
+                    alias="en",
+                ),
+                LocaleConfiguration(
+                    "nl-NL",
+                    alias="nl",
+                ),
+            )
+            project.configuration.extensions.append(ExtensionConfiguration(Nginx))
+            expected = (
+                r"""
 server {
     add_header Vary Accept-Language;
     add_header Cache-Control "max-age=86400";
@@ -150,28 +150,28 @@ server {
     }
 }
 """
-            % project.configuration.www_directory_path
-        )
-        async with project:
-            await self._assert_configuration_equals(expected, project)
+                % project.configuration.www_directory_path
+            )
+            async with project:
+                await self._assert_configuration_equals(expected, project)
 
     async def test_multilingual_with_clean_urls(self, new_temporary_app: App) -> None:
-        project = Project(new_temporary_app)
-        project.configuration.base_url = "http://example.com"
-        project.configuration.clean_urls = True
-        project.configuration.locales.replace(
-            LocaleConfiguration(
-                "en-US",
-                alias="en",
-            ),
-            LocaleConfiguration(
-                "nl-NL",
-                alias="nl",
-            ),
-        )
-        project.configuration.extensions.append(ExtensionConfiguration(Nginx))
-        expected = (
-            r"""
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.base_url = "http://example.com"
+            project.configuration.clean_urls = True
+            project.configuration.locales.replace(
+                LocaleConfiguration(
+                    "en-US",
+                    alias="en",
+                ),
+                LocaleConfiguration(
+                    "nl-NL",
+                    alias="nl",
+                ),
+            )
+            project.configuration.extensions.append(ExtensionConfiguration(Nginx))
+            expected = (
+                r"""
 server {
     add_header Vary Accept-Language;
     add_header Cache-Control "max-age=86400";
@@ -246,18 +246,18 @@ server {
     }
 }
 """
-            % project.configuration.www_directory_path
-        )
-        async with project:
-            await self._assert_configuration_equals(expected, project)
+                % project.configuration.www_directory_path
+            )
+            async with project:
+                await self._assert_configuration_equals(expected, project)
 
     async def test_with_clean_urls(self, new_temporary_app: App) -> None:
-        project = Project(new_temporary_app)
-        project.configuration.base_url = "http://example.com"
-        project.configuration.clean_urls = True
-        project.configuration.extensions.append(ExtensionConfiguration(Nginx))
-        expected = (
-            r"""
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.base_url = "http://example.com"
+            project.configuration.clean_urls = True
+            project.configuration.extensions.append(ExtensionConfiguration(Nginx))
+            expected = (
+                r"""
 server {
     add_header Vary Accept-Language;
     add_header Cache-Control "max-age=86400";
@@ -291,17 +291,17 @@ server {
         try_files $uri $uri/ =404;
     }
 }"""
-            % project.configuration.www_directory_path
-        )
-        async with project:
-            await self._assert_configuration_equals(expected, project)
+                % project.configuration.www_directory_path
+            )
+            async with project:
+                await self._assert_configuration_equals(expected, project)
 
     async def test_with_https(self, new_temporary_app: App) -> None:
-        project = Project(new_temporary_app)
-        project.configuration.base_url = "https://example.com"
-        project.configuration.extensions.append(ExtensionConfiguration(Nginx))
-        expected = (
-            r"""
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.base_url = "https://example.com"
+            project.configuration.extensions.append(ExtensionConfiguration(Nginx))
+            expected = (
+                r"""
 server {
     listen 80;
     server_name example.com;
@@ -335,22 +335,22 @@ server {
     }
 }
 """
-            % project.configuration.www_directory_path
-        )
-        async with project:
-            await self._assert_configuration_equals(expected, project)
+                % project.configuration.www_directory_path
+            )
+            async with project:
+                await self._assert_configuration_equals(expected, project)
 
     async def test_with_overridden_www_directory_path(self, new_temporary_app: App):
-        project = Project(new_temporary_app)
-        project.configuration.extensions.append(
-            ExtensionConfiguration(
-                Nginx,
-                extension_configuration=NginxConfiguration(
-                    www_directory_path="/tmp/overridden-www",
-                ),
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.append(
+                ExtensionConfiguration(
+                    Nginx,
+                    extension_configuration=NginxConfiguration(
+                        www_directory_path="/tmp/overridden-www",
+                    ),
+                )
             )
-        )
-        expected = """
+            expected = """
 server {
     listen 80;
     server_name example.com;
@@ -384,28 +384,28 @@ server {
     }
 }
 """
-        async with project:
-            await self._assert_configuration_equals(expected, project)
+            async with project:
+                await self._assert_configuration_equals(expected, project)
 
 
 class TestGenerateDockerfileFile:
     async def test(self, new_temporary_app: App) -> None:
-        project = Project(new_temporary_app)
-        project.configuration.extensions.append(
-            ExtensionConfiguration(
-                Nginx,
-                extension_configuration=NginxConfiguration(
-                    www_directory_path="/tmp/overridden-www",
-                ),
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.append(
+                ExtensionConfiguration(
+                    Nginx,
+                    extension_configuration=NginxConfiguration(
+                        www_directory_path="/tmp/overridden-www",
+                    ),
+                )
             )
-        )
-        async with project:
-            await generate_dockerfile_file(project)
-            assert (
-                project.configuration.output_directory_path
-                / "nginx"
-                / "content_negotiation.lua"
-            ).exists()
-            assert (
-                project.configuration.output_directory_path / "nginx" / "Dockerfile"
-            ).exists()
+            async with project:
+                await generate_dockerfile_file(project)
+                assert (
+                    project.configuration.output_directory_path
+                    / "nginx"
+                    / "content_negotiation.lua"
+                ).exists()
+                assert (
+                    project.configuration.output_directory_path / "nginx" / "Dockerfile"
+                ).exists()
