@@ -3,7 +3,7 @@ The *nginx* extension
 The :py:class:`betty.extension.Nginx` extension creates an `nginx <https://nginx.org>`_ configuration file and a `Docker <https://www.docker.com/>`_ ``Dockerfile`` in the output
 directory.
 
-Enable this extension through Betty Desktop, or in your project's :doc:`configuration file </usage/project/configuration>` as follows:
+Enable this extension in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
 .. tab-set::
 
@@ -26,7 +26,7 @@ Enable this extension through Betty Desktop, or in your project's :doc:`configur
 
 Configuration
 -------------
-This extension is configurable through Betty Desktop or in the configuration file:
+This extension is configurable::
 
 .. tab-set::
    .. tab-item:: YAML

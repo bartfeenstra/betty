@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-04 12:41+0100\n"
+"POT-Creation-Date: 2024-07-06 12:34+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -109,9 +109,6 @@ msgstr ""
 msgid "About"
 msgstr ""
 
-msgid "About Betty"
-msgstr ""
-
 msgid "Access denied"
 msgstr ""
 
@@ -119,19 +116,7 @@ msgstr ""
 msgid "Accessed %(date)s"
 msgstr ""
 
-msgid "Add a family tree"
-msgstr ""
-
-msgid "Add a locale"
-msgstr ""
-
-msgid "Add an entity"
-msgstr ""
-
 msgid "Adoption"
-msgstr ""
-
-msgid "Alias"
 msgstr ""
 
 msgid "All caches cleared."
@@ -142,12 +127,6 @@ msgstr ""
 
 #, python-format
 msgid "Also known as %(names)s"
-msgstr ""
-
-msgid "An optional alias is used instead of the locale code to identify this locale, such as in URLs. If US English is the only English language variant on your site, you may want to alias its language code from <code>en-US</code> to <code>en</code>, for instance."
-msgstr ""
-
-msgid "An unexpected error occurred and Betty could not complete the task. Please <a href=\"{report_url}\">report this problem</a> and include the following details, so the team behind Betty can address it."
 msgstr ""
 
 msgid "Ancestral names include"
@@ -165,9 +144,6 @@ msgstr ""
 msgid "Attendee"
 msgstr ""
 
-msgid "Author"
-msgstr ""
-
 msgid "Baptism"
 msgstr ""
 
@@ -177,16 +153,10 @@ msgstr ""
 msgid "Betty documentation"
 msgstr ""
 
-msgid "Betty helps you visualize and publish your family history by building interactive genealogy websites out of your <a href=\"{gramps_url}\">Gramps</a> and <a href=\"{gedcom_url}\">GEDCOM</a> family trees."
-msgstr ""
-
 msgid "Betty is unfamiliar with Gramps event \"{event_id}\"'s type of \"{gramps_event_type}\". The event was imported, but its type was set to \"{betty_event_type}\"."
 msgstr ""
 
 msgid "Betty is unfamiliar with person \"{person_id}\"'s Gramps presence role of \"{gramps_presence_role}\" for the event with Gramps handle \"{event_handle}\". The role was imported, but set to \"{betty_presence_role}\"."
-msgstr ""
-
-msgid "Betty project configuration ({supported_formats})"
 msgstr ""
 
 msgid "Birth"
@@ -196,9 +166,6 @@ msgid "Built the Webpack front-end assets."
 msgstr ""
 
 msgid "Burial"
-msgstr ""
-
-msgid "Cancel"
 msgstr ""
 
 msgid "Cannot determine the entity type for \"{entity_type}\". Did you perhaps make a typo, or could it be that the entity type comes from another package that is not yet installed?"
@@ -231,25 +198,10 @@ msgstr ""
 msgid "Citations"
 msgstr ""
 
-msgid "Clean URLs"
-msgstr ""
-
-msgid "Clear all caches"
-msgstr ""
-
-msgid "Close"
-msgstr ""
-
 msgid "Conference"
 msgstr ""
 
-msgid "Configuration"
-msgstr ""
-
 msgid "Configuration file \"{configuration_file_path}\" does not exist."
-msgstr ""
-
-msgid "Configure"
 msgstr ""
 
 msgid "Confirmation"
@@ -257,9 +209,6 @@ msgstr ""
 
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
-msgstr ""
-
-msgid "Copyright 2019-{year} Bart Feenstra & contributors. Betty is made available to you under the <a href=\"https://www.gnu.org/licenses/gpl-3.0.en.html\">GNU General Public License, Version 3</a> (GPLv3)."
 msgstr ""
 
 msgid "Correspondence"
@@ -283,9 +232,6 @@ msgstr ""
 msgid "Could not load \"{file_path}\" as a *.gpkg, a *.gramps, or an *.xml family tree."
 msgstr ""
 
-msgid "Create a new project"
-msgstr ""
-
 msgid "Create events such as births and deaths by deriving their details from existing information."
 msgstr ""
 
@@ -296,15 +242,6 @@ msgid "Cremation"
 msgstr ""
 
 msgid "Death"
-msgstr ""
-
-msgid "Debugging mode"
-msgstr ""
-
-msgid "Default locale"
-msgstr ""
-
-msgid "Defaults to the Betty logo"
 msgstr ""
 
 msgid "Demo"
@@ -337,17 +274,11 @@ msgstr ""
 msgid "Divorce"
 msgstr ""
 
-msgid "Download images from the Wikipedia links in your ancestry"
-msgstr ""
-
 #, python-format
 msgid "E.g. \"%(example)s\""
 msgstr ""
 
 msgid "Emigration"
-msgstr ""
-
-msgid "Enable {extension}"
 msgstr ""
 
 msgid "Enclosure"
@@ -359,19 +290,10 @@ msgstr ""
 msgid "Engagement"
 msgstr ""
 
-msgid "Entity ID"
-msgstr ""
-
-msgid "Error"
-msgstr ""
-
 msgid "Event"
 msgstr ""
 
 msgid "Events"
-msgstr ""
-
-msgid "Exit"
 msgstr ""
 
 msgid "Exit the search"
@@ -386,40 +308,19 @@ msgstr ""
 msgid "Family"
 msgstr ""
 
-msgid "Featured entities"
-msgstr ""
-
 msgid "File"
-msgstr ""
-
-msgid "File path"
 msgstr ""
 
 msgid "Files"
 msgstr ""
 
-msgid "Find logo..."
-msgstr ""
-
 msgid "Find out more about this image on Wikimedia Commons."
-msgstr ""
-
-msgid "Follow Betty on <a href=\"https://twitter.com/Betty_Project\">Twitter</a> and <a href=\"https://github.com/bartfeenstra/betty\">Github</a>."
 msgstr ""
 
 msgid "Funeral"
 msgstr ""
 
-msgid "General"
-msgstr ""
-
 msgid "Generate <a href=\"\">nginx</a> configuration for your site, as well as a <code>Dockerfile</code> to build a <a href=\"https://www.docker.com/\">Docker</a> container around it."
-msgstr ""
-
-msgid "Generate entity listing pages"
-msgstr ""
-
-msgid "Generate site"
 msgstr ""
 
 msgid "Generated {completed_job_count} out of {total_job_count} items ({completed_job_percentage}%)."
@@ -440,13 +341,7 @@ msgstr ""
 msgid "Generating your site to {output_directory}."
 msgstr ""
 
-msgid "Generating your site..."
-msgstr ""
-
 msgid "HTTP API Documentation"
-msgstr ""
-
-msgid "Help"
 msgstr ""
 
 msgid "I'm sorry, dear, but it seems there are no events."
@@ -482,9 +377,6 @@ msgstr ""
 msgid "Invalid YAML: {error}."
 msgstr ""
 
-msgid "Keep this window open to keep the site running."
-msgstr ""
-
 msgid "Language"
 msgstr ""
 
@@ -492,19 +384,7 @@ msgstr ""
 msgid "Last modified on %(last_modified)s"
 msgstr ""
 
-msgid "Lifetime threshold"
-msgstr ""
-
-msgid "Link color (active)"
-msgstr ""
-
-msgid "Link color (inactive)"
-msgstr ""
-
 msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
-msgstr ""
-
-msgid "Load the family tree from..."
 msgstr ""
 
 msgid "Loaded the configuration from {configuration_file_path}."
@@ -537,19 +417,7 @@ msgstr ""
 msgid "Loading \"{file_path}\"..."
 msgstr ""
 
-msgid "Loading..."
-msgstr ""
-
-msgid "Locale"
-msgstr ""
-
 msgid "Locale aliases must not contain slashes."
-msgstr ""
-
-msgid "Localization"
-msgstr ""
-
-msgid "Logo"
 msgstr ""
 
 msgid "MMMM"
@@ -579,12 +447,6 @@ msgstr ""
 msgid "Missing"
 msgstr ""
 
-msgid "Name"
-msgstr ""
-
-msgid "New project..."
-msgstr ""
-
 msgid "Note"
 msgstr ""
 
@@ -597,22 +459,10 @@ msgstr ""
 msgid "One or more of these requirements must be met"
 msgstr ""
 
-msgid "Open an existing project"
-msgstr ""
-
-msgid "Open project..."
-msgstr ""
-
-msgid "Open your project from..."
-msgstr ""
-
 msgid "Organizer"
 msgstr ""
 
 msgid "Other attendees"
-msgstr ""
-
-msgid "Output more detailed logs and disable optimizations that make debugging harder."
 msgstr ""
 
 msgid "Page not found"
@@ -639,9 +489,6 @@ msgstr ""
 msgid "Places"
 msgstr ""
 
-msgid "Populate images"
-msgstr ""
-
 msgid "Pre-built Webpack front-end assets are available"
 msgstr ""
 
@@ -655,12 +502,6 @@ msgid "Presence of {person} at {event}"
 msgstr ""
 
 msgid "Presences"
-msgstr ""
-
-msgid "Primary color (active)"
-msgstr ""
-
-msgid "Primary color (inactive)"
 msgstr ""
 
 msgid "Privatized person {privatized_person_id} ({privatized_person}) because they are likely still alive."
@@ -684,9 +525,6 @@ msgstr ""
 msgid "Privatizing..."
 msgstr ""
 
-msgid "Project"
-msgstr ""
-
 msgid "Python built-in"
 msgstr ""
 
@@ -696,55 +534,13 @@ msgstr ""
 msgid "References"
 msgstr ""
 
-msgid "Remove"
-msgstr ""
-
-msgid "Report a bug"
-msgstr ""
-
-msgid "Request a new feature"
-msgstr ""
-
-msgid "Reset"
-msgstr ""
-
 msgid "Residence"
 msgstr ""
 
 msgid "Retirement"
 msgstr ""
 
-msgid "Save and close"
-msgstr ""
-
-msgid "Save this project as..."
-msgstr ""
-
-msgid "Save your new project to..."
-msgstr ""
-
-msgid "Save your project to..."
-msgstr ""
-
-msgid "Serve site"
-msgstr ""
-
-msgid "Serve your site from..."
-msgstr ""
-
-msgid "Serving the Betty demo..."
-msgstr ""
-
-msgid "Serving the Betty documentation..."
-msgstr ""
-
 msgid "Serving your site at {url}..."
-msgstr ""
-
-msgid "Serving your site..."
-msgstr ""
-
-msgid "Settings..."
 msgstr ""
 
 msgid "Source"
@@ -759,9 +555,6 @@ msgstr ""
 msgid "Starting Python's built-in web server..."
 msgstr ""
 
-msgid "Stop the site"
-msgstr ""
-
 msgid "Subject"
 msgstr ""
 
@@ -769,9 +562,6 @@ msgid "The Gramps {gramps_entity_reference} entity has a \"betty:link-{link_name
 msgstr ""
 
 msgid "The Gramps {gramps_entity_reference} entity requires a \"betty:link-{link_name}:url\" attribute. This link was ignored."
-msgstr ""
-
-msgid "The age at which people are presumed dead."
 msgstr ""
 
 msgid "The base URL must include a path."
@@ -792,23 +582,7 @@ msgstr ""
 msgid "The following errors occurred"
 msgstr ""
 
-msgid "The lifetime threshold must consist of digits only."
-msgstr ""
-
-msgid "The project's machine name."
-msgstr ""
-
 msgid "The server was unreachable after starting."
-msgstr ""
-
-#, python-format
-msgid "The translations for {locale_name} are {coverage_percentage}%% complete."
-msgstr ""
-
-msgid "There are no translations for {locale_name}."
-msgstr ""
-
-msgid "These entities are featured on your site's front page."
 msgstr ""
 
 #, python-format
@@ -878,16 +652,7 @@ msgstr ""
 msgid "Timeline"
 msgstr ""
 
-msgid "Title"
-msgstr ""
-
 msgid "Trees"
-msgstr ""
-
-msgid "URL"
-msgstr ""
-
-msgid "URLs look like <code>/path</code> instead of <code>/path/index.html</code>. This requires a web server that supports it."
 msgstr ""
 
 msgid "Unauthorized"
@@ -909,39 +674,6 @@ msgstr ""
 msgid "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> to exit the search. Search again with <kbd>%(shortcut)s</kbd>."
 msgstr ""
 
-msgid "Use HTTP"
-msgstr ""
-
-msgid "Use HTTPS and HTTP/2"
-msgstr ""
-
-msgid "Use HTTPS and HTTP/2 if the site's URL starts with https://"
-msgstr ""
-
-msgid "Version: {version}"
-msgstr ""
-
-msgid "View a demo site"
-msgstr ""
-
-msgid "View a demonstration of what a Betty site looks like"
-msgstr ""
-
-msgid "View demo site..."
-msgstr ""
-
-msgid "View documentation"
-msgstr ""
-
-msgid "View site"
-msgstr ""
-
-msgid "WWW directory"
-msgstr ""
-
-msgid "Welcome to Betty"
-msgstr ""
-
 msgid "Wikipedia"
 msgstr ""
 
@@ -952,18 +684,6 @@ msgid "Witness"
 msgstr ""
 
 msgid "Witnesses"
-msgstr ""
-
-msgid "Work on a new or existing site of your own"
-msgstr ""
-
-msgid "You can now view a Betty demonstration site at <a href=\"{url}\">{url}</a>."
-msgstr ""
-
-msgid "You can now view the documentation at <a href=\"{url}\">{url}</a>."
-msgstr ""
-
-msgid "You can now view your site at <a href=\"{url}\">{url}</a>."
 msgstr ""
 
 #, python-format
@@ -1093,9 +813,6 @@ msgid "{dependency_label} is required by {dependency_labels}."
 msgstr ""
 
 msgid "{dependent_label} requires {dependency_labels}."
-msgstr ""
-
-msgid "{entity_type_label} ID"
 msgstr ""
 
 msgid "{entity_type} {entity_id}"

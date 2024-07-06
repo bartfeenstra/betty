@@ -4,7 +4,7 @@ The :py:class:`betty.extension.Wikipedia` extension renders summaries of Wikiped
 links to Wikipedia articles, templates can use this extension to fetch translated summaries of these articles, and
 render them on the entity's page.
 
-Enable this extension through Betty Desktop, or in your project's :doc:`configuration file </usage/project/configuration>` as follows:
+Enable this extension in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
 .. tab-set::
 
@@ -27,7 +27,7 @@ Enable this extension through Betty Desktop, or in your project's :doc:`configur
 
 Configuration
 -------------
-This extension is configurable through Betty Desktop or in the configuration file:
+This extension is configurable::
 
 .. tab-set::
 

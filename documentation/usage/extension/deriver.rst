@@ -9,7 +9,7 @@ The Deriver works for every event type that declares it can be derived, and depe
 types it declares it comes before or after. This means that the behavior of this extension is complex, and dependent on
 the event types used within your site as well as the existing events for each person.
 
-Enable this extension through Betty Desktop, or in your project's :doc:`configuration file </usage/project/configuration>` as follows:
+Enable this extension in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
 .. tab-set::
 

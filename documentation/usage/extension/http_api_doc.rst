@@ -6,7 +6,7 @@ The :py:class:`betty.extension.HttpApiDoc` extension renders interactive and use
 .. important::
     This extension requires :doc:`npm </usage/npm>`.
 
-Enable this extension through Betty Desktop, or in your project's :doc:`configuration file </usage/project/configuration>` as follows:
+Enable this extension in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
 .. tab-set::
 

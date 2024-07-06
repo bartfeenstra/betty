@@ -202,11 +202,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "stop": TestKnownToBeMissing,
         },
     },
-    "betty/extension/gramps/__init__.py": {
-        "Gramps": {
-            "gui_build": TestKnownToBeMissing,
-        },
-    },
     "betty/extension/gramps/config.py": {
         "FamilyTreeConfiguration": {
             "file_path": TestKnownToBeMissing,
@@ -228,7 +223,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/extension/nginx/__init__.py": {
         "Nginx": {
             "commands": TestKnownToBeMissing,
-            "gui_build": TestKnownToBeMissing,
             "https": TestKnownToBeMissing,
             "servers": TestKnownToBeMissing,
             "www_directory_path": TestKnownToBeMissing,
@@ -278,7 +272,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/extension/wikipedia/__init__.py": {
         "Wikipedia": {
             "filters": TestKnownToBeMissing,
-            "gui_build": TestKnownToBeMissing,
         },
     },
     "betty/extension/wikipedia/config.py": {
@@ -324,48 +317,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         # This is an empty class.
         "XPathError": TestKnownToBeMissing,
     },
-    "betty/gui/__init__.py": TestKnownToBeMissing,
-    "betty/gui/app.py": {
-        "ApplicationConfiguration": {
-            "window_title": TestKnownToBeMissing,
-        },
-        "BettyPrimaryWindow": {
-            "new_project": TestKnownToBeMissing,
-            "open_application_configuration": TestKnownToBeMissing,
-            "open_project": TestKnownToBeMissing,
-            "report_bug": TestKnownToBeMissing,
-            "request_feature": TestKnownToBeMissing,
-            "window_title": TestKnownToBeMissing,
-        },
-    },
-    "betty/gui/error.py": TestKnownToBeMissing,
-    "betty/gui/locale.py": TestKnownToBeMissing,
-    "betty/gui/logging.py": TestKnownToBeMissing,
-    "betty/gui/model.py": TestKnownToBeMissing,
-    "betty/gui/project.py": {
-        "AddLocaleWindow": {
-            "window_title": TestKnownToBeMissing,
-        },
-        "GenerateWindow": {
-            "window_title": TestKnownToBeMissing,
-        },
-        "ProjectWindow": {
-            "close": TestKnownToBeMissing,
-            "window_title": TestKnownToBeMissing,
-        },
-    },
-    "betty/gui/serve.py": {
-        "ServeDemoWindow": {
-            "window_title": TestKnownToBeMissing,
-        },
-        "ServeDocsWindow": {
-            "window_title": TestKnownToBeMissing,
-        },
-        "ServeProjectWindow": {
-            "window_title": TestKnownToBeMissing,
-        },
-    },
-    "betty/gui/window.py": TestKnownToBeMissing,
     "betty/importlib.py": {
         "fully_qualified_type_name": TestKnownToBeMissing,
     },

@@ -13,8 +13,6 @@ from betty.locale.localizable import _, Localizable
 from betty.project.extension import UserFacingExtension, ConfigurableExtension
 from betty.asyncio import gather
 from betty.extension.wikipedia.config import WikipediaConfiguration
-from betty.extension.wikipedia.gui import _WikipediaGuiWidget
-from betty.gui import GuiBuilder
 from betty.jinja2 import Jinja2Provider, context_localizer, Filters
 from betty.load import PostLoader
 from betty.locale import negotiate_locale
@@ -37,7 +35,6 @@ class Wikipedia(
     UserFacingExtension,
     Jinja2Provider,
     PostLoader,
-    GuiBuilder,
 ):
     """
     Integrates Betty with `Wikipedia <https://wikipedia.org>`_.
@@ -132,7 +129,3 @@ Display <a href="https://www.wikipedia.org/">Wikipedia</a> summaries for resourc
     @classmethod
     def default_configuration(cls) -> WikipediaConfiguration:
         return WikipediaConfiguration()
-
-    @override
-    def gui_build(self) -> _WikipediaGuiWidget:
-        return _WikipediaGuiWidget(self.project.app, self._configuration)

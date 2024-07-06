@@ -78,19 +78,6 @@ jobs:
         with:
           node-version-file: ./package.json
 
-      - name: Install APT dependencies
-        if: startsWith(runner.os, 'Linux')
-        run: |
-          sudo apt-get update
-          apt_packages=(
-            libegl1-mesa # For Qt
-            libx11-xcb-dev # For Qt
-            '^libxcb.*-dev' # For Qt
-            libxkbcommon-x11-0 # For Qt
-            xvfb # For pytest-xvfb
-          )
-          sudo apt-get install "${apt_packages[@]}"
-
       - name: Instlal Lua
         if: startsWith(runner.os, 'Linux')
         uses: leafo/gh-actions-lua@v10
@@ -109,12 +96,12 @@ jobs:
 
       - name: Run the tests
         if: startsWith(runner.os, 'Linux')
-        run: BETTY_TEST_SKIP_PYINSTALLER=true ./bin/test
+        run: ./bin/test
         shell: bash
 
       - name: Run the tests
         if: ${{ ! startsWith(runner.os, 'Linux') }}
-        run: BETTY_TEST_SKIP_SHELLCHECK=true BETTY_TEST_SKIP_RUFF=true BETTY_TEST_SKIP_MYPY=true BETTY_TEST_SKIP_STYLELINT=true BETTY_TEST_SKIP_ESLINT=true BETTY_TEST_SKIP_BUSTED=true BETTY_TEST_SKIP_PLAYWRIGHT=true BETTY_TEST_SKIP_PYINSTALLER=true ./bin/test
+        run: BETTY_TEST_SKIP_SHELLCHECK=true BETTY_TEST_SKIP_RUFF=true BETTY_TEST_SKIP_MYPY=true BETTY_TEST_SKIP_STYLELINT=true BETTY_TEST_SKIP_ESLINT=true BETTY_TEST_SKIP_BUSTED=true BETTY_TEST_SKIP_PLAYWRIGHT=true ./bin/test
         shell: bash
 
       - name: Upload code coverage

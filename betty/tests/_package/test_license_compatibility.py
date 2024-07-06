@@ -14,8 +14,6 @@ class TestPackageLicenses:
         "basedtyping",
         # We do not include PyInstaller in any Betty distributions.
         "pyinstaller",
-        # The SIP license has been confirmed compatible by SIP.
-        "PyQt6-sip",
     )
 
     _GPL_V3_COMPATIBLE_LICENSES = (

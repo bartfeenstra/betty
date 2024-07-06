@@ -26,7 +26,6 @@ from betty.extension.cotton_candy.search import Index
 from betty.extension.webpack import Webpack, WebpackEntryPointProvider
 from betty.functools import Uniquifier
 from betty.generate import Generator, GenerationContext
-from betty.gui import GuiBuilder
 from betty.html import CssProvider
 from betty.jinja2 import (
     Jinja2Provider,
@@ -48,7 +47,6 @@ from betty.serde.dump import minimize, Dump, VoidableDump
 from betty.typing import Void
 
 if TYPE_CHECKING:
-    from PyQt6.QtWidgets import QWidget
     from jinja2.runtime import Context
     from collections.abc import Sequence, AsyncIterable
 
@@ -209,7 +207,6 @@ class CottonCandy(
     CssProvider,
     ConfigurableExtension[CottonCandyConfiguration],
     Generator,
-    GuiBuilder,
     Jinja2Provider,
     WebpackEntryPointProvider,
 ):
@@ -293,12 +290,6 @@ class CottonCandy(
         await link_or_copy(
             self.logo, self.project.configuration.www_directory_path / "logo.png"
         )
-
-    @override
-    def gui_build(self) -> QWidget:
-        from betty.extension.cotton_candy.gui import _CottonCandyGuiWidget
-
-        return _CottonCandyGuiWidget(self.project)
 
     @override
     @property

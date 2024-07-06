@@ -43,7 +43,7 @@ Citation
 Source
   Any files associated with private sources will be privatized.
 
-Enable this extension through Betty Desktop, or in your project's :doc:`configuration file </usage/project/configuration>` as follows:
+Enable this extension in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
 .. tab-set::
 

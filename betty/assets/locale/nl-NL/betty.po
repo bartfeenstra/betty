@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-04 12:41+0100\n"
+"POT-Creation-Date: 2024-07-06 12:34+0100\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -160,9 +160,6 @@ msgstr "API-documentatie"
 msgid "About"
 msgstr "Over"
 
-msgid "About Betty"
-msgstr "Over Betty"
-
 msgid "Access denied"
 msgstr ""
 
@@ -170,20 +167,8 @@ msgstr ""
 msgid "Accessed %(date)s"
 msgstr "Opgevraagd op %(date)s"
 
-msgid "Add a family tree"
-msgstr "Voeg een stamboom toe"
-
-msgid "Add a locale"
-msgstr "Voeg een taalregio toe"
-
-msgid "Add an entity"
-msgstr "Voeg een entiteit toe"
-
 msgid "Adoption"
 msgstr "Adoptie"
-
-msgid "Alias"
-msgstr "Alias"
 
 msgid "All caches cleared."
 msgstr "Alle caches geleegd."
@@ -194,26 +179,6 @@ msgstr "Aan al deze vereisten moet worden voldoen"
 #, python-format
 msgid "Also known as %(names)s"
 msgstr "Ook bekend als %(names)s"
-
-msgid ""
-"An optional alias is used instead of the locale code to identify this "
-"locale, such as in URLs. If US English is the only English language "
-"variant on your site, you may want to alias its language code from <code"
-">en-US</code> to <code>en</code>, for instance."
-msgstr ""
-"Gebruik een optionele alias om deze taalregio aan te geven, bijvoorbeeld "
-"in URL's. Als Nederlands uit Nederland de enige variant van het "
-"Nederlands op je site is, dan kan je de taalregiocode <code>nl-NL</code> "
-"een alias <code>nl</code> geven."
-
-msgid ""
-"An unexpected error occurred and Betty could not complete the task. "
-"Please <a href=\"{report_url}\">report this problem</a> and include the "
-"following details, so the team behind Betty can address it."
-msgstr ""
-"Er is een onverwachte fout opgetreden en Betty kon iets niet afmaken. <a "
-"href=\"{report_url}\">Meld dit probleem</a> alsjeblieft en voeg de "
-"volgende details bij, zodat het team achter Betty er aan kan werken."
 
 msgid "Ancestral names include"
 msgstr "De voorouders heetten"
@@ -230,9 +195,6 @@ msgstr "Verschijningen"
 msgid "Attendee"
 msgstr "Aanwezige"
 
-msgid "Author"
-msgstr "Auteur"
-
 msgid "Baptism"
 msgstr "Doping"
 
@@ -241,17 +203,6 @@ msgstr "Begunstigde"
 
 msgid "Betty documentation"
 msgstr "Betty-documentatie"
-
-msgid ""
-"Betty helps you visualize and publish your family history by building "
-"interactive genealogy websites out of your <a "
-"href=\"{gramps_url}\">Gramps</a> and <a href=\"{gedcom_url}\">GEDCOM</a> "
-"family trees."
-msgstr ""
-"Betty helpt je je familiegeschiedenis te visualiseren en publiceren door "
-"interactieve genealogiewebsites te bouwen van je <a "
-"href=\"{gramps_url}\">Gramps</a>- en <a "
-"href=\"{gedcom_url}\">GEDCOM</a>-stambomen."
 
 msgid ""
 "Betty is unfamiliar with Gramps event \"{event_id}\"'s type of "
@@ -273,9 +224,6 @@ msgstr ""
 "\"{event_handle}\" niet. De rol is geladen, maar zijn type is nu "
 "\"{betty_presence_role}\"."
 
-msgid "Betty project configuration ({supported_formats})"
-msgstr "Betty-projectconfiguratie ({supported_formats})"
-
 msgid "Birth"
 msgstr "Geboorte"
 
@@ -284,9 +232,6 @@ msgstr "De Webpack front-end assets gebouwd."
 
 msgid "Burial"
 msgstr "Begravenis"
-
-msgid "Cancel"
-msgstr "Annuleren"
 
 msgid ""
 "Cannot determine the entity type for \"{entity_type}\". Did you perhaps "
@@ -338,26 +283,11 @@ msgstr "Verwijzing"
 msgid "Citations"
 msgstr "Verwijzingen"
 
-msgid "Clean URLs"
-msgstr "Nette URL's"
-
-msgid "Clear all caches"
-msgstr "Leeg alle caches"
-
-msgid "Close"
-msgstr "Sluiten"
-
 msgid "Conference"
 msgstr "Conferentie"
 
-msgid "Configuration"
-msgstr "Instellingen"
-
 msgid "Configuration file \"{configuration_file_path}\" does not exist."
 msgstr "Configuratiebestand \"{configuration_file_path}\" bestaat niet."
-
-msgid "Configure"
-msgstr "Instellen"
 
 msgid "Confirmation"
 msgstr "Geloofsbelijdenis"
@@ -365,17 +295,6 @@ msgstr "Geloofsbelijdenis"
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr "Lees verder op <a href=\"%(url)s\">Wikipedia</a>."
-
-msgid ""
-"Copyright 2019-{year} Bart Feenstra & contributors. Betty is made "
-"available to you under the <a "
-"href=\"https://www.gnu.org/licenses/gpl-3.0.en.html\">GNU General Public "
-"License, Version 3</a> (GPLv3)."
-msgstr ""
-"Copyright 2019-{year} Bart Feenstra</a> & contributors. Betty is "
-"beschikbaar gemaakt onder de <a "
-"href=\"https://www.gnu.org/licenses/gpl-3.0.en.html\">GNU General Public "
-"License, Version 3</a> (GPLv3)."
 
 msgid "Correspondence"
 msgstr "Correspondentie"
@@ -396,7 +315,9 @@ msgstr ""
 msgid ""
 "Could not find any of the following configuration files in "
 "{project_directory_path}: {configuration_file_names}."
-msgstr "Kon geen van de volgende configuratiebestanden vinden in {project_directory_path}: {configuration_file_names}."
+msgstr ""
+"Kon geen van de volgende configuratiebestanden vinden in "
+"{project_directory_path}: {configuration_file_names}."
 
 msgid "Could not find the file \"{file_path}\"."
 msgstr "Kan het bestand \"{file_path}\" niet vinden."
@@ -407,9 +328,6 @@ msgid ""
 msgstr ""
 "Kan het besand \"{file_path}\" niet als een *.gpkg-, een *.gramps-, of "
 "een *.xml-stamboom laden."
-
-msgid "Create a new project"
-msgstr "Maak een nieuw project"
 
 msgid ""
 "Create events such as births and deaths by deriving their details from "
@@ -430,15 +348,6 @@ msgstr "Crematie"
 
 msgid "Death"
 msgstr "Overlijden"
-
-msgid "Debugging mode"
-msgstr "Debugmodus"
-
-msgid "Default locale"
-msgstr "Standaardtaalregio"
-
-msgid "Defaults to the Betty logo"
-msgstr "Valt terug op het logo van Betty"
 
 msgid "Demo"
 msgstr "Demo"
@@ -486,20 +395,12 @@ msgstr ""
 msgid "Divorce"
 msgstr "Echtscheiding"
 
-msgid "Download images from the Wikipedia links in your ancestry"
-msgstr ""
-"Download afbeeldingen gebaseerd op de Wikipedialinks in je "
-"familiegeschiedenis"
-
 #, python-format
 msgid "E.g. \"%(example)s\""
 msgstr "Bijvoorbeeld \"%(example)s\""
 
 msgid "Emigration"
 msgstr "Emigratie"
-
-msgid "Enable {extension}"
-msgstr "Schakel {extension} in"
 
 msgid "Enclosure"
 msgstr "Omsluiting"
@@ -510,20 +411,11 @@ msgstr "Omsluitingen"
 msgid "Engagement"
 msgstr "Verloving"
 
-msgid "Entity ID"
-msgstr "Entiteits-ID"
-
-msgid "Error"
-msgstr "Fout"
-
 msgid "Event"
 msgstr "Gebeurtenis"
 
 msgid "Events"
 msgstr "Gebeurtenissen"
-
-msgid "Exit"
-msgstr "Sluiten"
 
 msgid "Exit the search"
 msgstr "Stop met zoeken"
@@ -537,36 +429,17 @@ msgstr "Feiten"
 msgid "Family"
 msgstr "Familie"
 
-msgid "Featured entities"
-msgstr "Uitgelichte entiteiten"
-
 msgid "File"
 msgstr "Bestand"
-
-msgid "File path"
-msgstr "Bestandspad"
 
 msgid "Files"
 msgstr "Bestanden"
 
-msgid "Find logo..."
-msgstr "Logo zoeken..."
-
 msgid "Find out more about this image on Wikimedia Commons."
 msgstr "Vind meer informatie over deze afbeelding op Wikimedia Commons."
 
-msgid ""
-"Follow Betty on <a href=\"https://twitter.com/Betty_Project\">Twitter</a>"
-" and <a href=\"https://github.com/bartfeenstra/betty\">Github</a>."
-msgstr ""
-"Volg Betty op <a href=\"https://twitter.com/Betty_Project\">Twitter</a> "
-"en <a href=\"https://github.com/bartfeenstra/betty\">Github</a>."
-
 msgid "Funeral"
 msgstr "Uitvaart"
-
-msgid "General"
-msgstr "Algemeen"
 
 msgid ""
 "Generate <a href=\"\">nginx</a> configuration for your site, as well as a"
@@ -576,12 +449,6 @@ msgstr ""
 "Genereer <a href=\"\">nginx</a>-configuratie voor je site, evenals een "
 "<code>Dockerfile</code> om er een <a "
 "href=\"https://www.docker.com/\">Docker</a>-container omheen te bouwen."
-
-msgid "Generate entity listing pages"
-msgstr "Genereer pagina's met entiteitsoverzichten"
-
-msgid "Generate site"
-msgstr "Genereer site"
 
 msgid ""
 "Generated {completed_job_count} out of {total_job_count} items "
@@ -605,14 +472,8 @@ msgstr "Statische publieke bestanden aan het genereren..."
 msgid "Generating your site to {output_directory}."
 msgstr "Bezig je site te genereren naar {output_directory}."
 
-msgid "Generating your site..."
-msgstr "Je site aan het genereren..."
-
 msgid "HTTP API Documentation"
 msgstr "HTTP API-documentatie"
-
-msgid "Help"
-msgstr "Hulp"
 
 msgid "I'm sorry, dear, but it seems there are no events."
 msgstr "Het spijt me, schat, maar het lijkt erop dat er geen gebeurtenissen zijn."
@@ -647,9 +508,6 @@ msgstr "Ongeldige JSON: {error}"
 msgid "Invalid YAML: {error}."
 msgstr "Ongeldige YAML: {error}"
 
-msgid "Keep this window open to keep the site running."
-msgstr "Houd dit venster open om de site beschikbaar te houden."
-
 msgid "Language"
 msgstr "Taal"
 
@@ -657,20 +515,8 @@ msgstr "Taal"
 msgid "Last modified on %(last_modified)s"
 msgstr "Laatst bijgewerkt op %(last_modified)s"
 
-msgid "Lifetime threshold"
-msgstr "Levensgrens"
-
-msgid "Link color (active)"
-msgstr "Linkkleur (actief)"
-
-msgid "Link color (inactive)"
-msgstr "Linkkleur (inactief)"
-
 msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
 msgstr "Laad <a href=\"https://gramps-project.org/\">Gramps-</a>stambomen."
-
-msgid "Load the family tree from..."
-msgstr "Laad de stamboom van..."
 
 msgid "Loaded the configuration from {configuration_file_path}."
 msgstr "Configuratie vanuit \"{configuration_file_path}\" geladen."
@@ -702,20 +548,8 @@ msgstr "{source_count} bronnen geladen"
 msgid "Loading \"{file_path}\"..."
 msgstr "\"{file_path}\" aan het laden..."
 
-msgid "Loading..."
-msgstr "Laden..."
-
-msgid "Locale"
-msgstr "Taalregio"
-
 msgid "Locale aliases must not contain slashes."
 msgstr "Taalregioaliassen mogen geen schuine streep bevatten."
-
-msgid "Localization"
-msgstr "Taalregio"
-
-msgid "Logo"
-msgstr "Logo"
 
 msgid "MMMM"
 msgstr "MMMM"
@@ -744,12 +578,6 @@ msgstr "Menu"
 msgid "Missing"
 msgstr "Vermist"
 
-msgid "Name"
-msgstr "Naam"
-
-msgid "New project..."
-msgstr "Nieuw project..."
-
 msgid "Note"
 msgstr "Aantekening"
 
@@ -762,27 +590,11 @@ msgstr "Beroep"
 msgid "One or more of these requirements must be met"
 msgstr "Aan één van deze vereisten moet voldaan worden"
 
-msgid "Open an existing project"
-msgstr "Open een bestaand project"
-
-msgid "Open project..."
-msgstr "Open project..."
-
-msgid "Open your project from..."
-msgstr "Open je project van..."
-
 msgid "Organizer"
 msgstr "Organisator"
 
 msgid "Other attendees"
 msgstr "Overige aanwezigen"
-
-msgid ""
-"Output more detailed logs and disable optimizations that make debugging "
-"harder."
-msgstr ""
-"Produceer gedetailleerdere logs en schakel optimalisaties uit die "
-"debuggen moeilijker maken."
 
 msgid "Page not found"
 msgstr ""
@@ -808,9 +620,6 @@ msgstr "Plaats"
 msgid "Places"
 msgstr "Plaatsen"
 
-msgid "Populate images"
-msgstr "Afbeeldingen aanvullen"
-
 msgid "Pre-built Webpack front-end assets are available"
 msgstr "Vooraf gebouwde Webpack front-end assets zijn beschikbaar."
 
@@ -825,12 +634,6 @@ msgstr "Aanwezigheid van {person} bij {event}"
 
 msgid "Presences"
 msgstr "Aanwezigheden"
-
-msgid "Primary color (active)"
-msgstr "Primaire kleur (actief)"
-
-msgid "Primary color (inactive)"
-msgstr "Primaire kleur (inactief)"
 
 msgid ""
 "Privatized person {privatized_person_id} ({privatized_person}) because "
@@ -871,9 +674,6 @@ msgstr "Privatiseerder"
 msgid "Privatizing..."
 msgstr "Privatiseren..."
 
-msgid "Project"
-msgstr "Project"
-
 msgid "Python built-in"
 msgstr "Python (ingebouwd)"
 
@@ -883,56 +683,14 @@ msgstr "Lees meer op Wikipedia."
 msgid "References"
 msgstr "Referenties"
 
-msgid "Remove"
-msgstr "Verwijder"
-
-msgid "Report a bug"
-msgstr "Meld een probleem"
-
-msgid "Request a new feature"
-msgstr "Vraag nieuwe functionaliteit aan"
-
-msgid "Reset"
-msgstr "Reset"
-
 msgid "Residence"
 msgstr "Woonplaats"
 
 msgid "Retirement"
 msgstr "Pensioen"
 
-msgid "Save and close"
-msgstr "Opslaan en sluiten"
-
-msgid "Save this project as..."
-msgstr "Sla dit project op als..."
-
-msgid "Save your new project to..."
-msgstr "Sla je nieuwe project op naar..."
-
-msgid "Save your project to..."
-msgstr "Sla je project op naar..."
-
-msgid "Serve site"
-msgstr "Serveer site"
-
-msgid "Serve your site from..."
-msgstr "Serveer je site vanuit..."
-
-msgid "Serving the Betty demo..."
-msgstr "De Betty-demo aan het serveren..."
-
-msgid "Serving the Betty documentation..."
-msgstr "De Betty-documentatie aan het serveren..."
-
 msgid "Serving your site at {url}..."
 msgstr "Je site op {url} aan het serveren..."
-
-msgid "Serving your site..."
-msgstr "Je site aan het serveren..."
-
-msgid "Settings..."
-msgstr "Instellingen..."
 
 msgid "Source"
 msgstr "Bron"
@@ -945,9 +703,6 @@ msgstr "Spreker"
 
 msgid "Starting Python's built-in web server..."
 msgstr "Pythons ingebouwde webserver aan het starten..."
-
-msgid "Stop the site"
-msgstr "Stop de site"
 
 msgid "Subject"
 msgstr "Onderwerp"
@@ -968,9 +723,6 @@ msgid ""
 msgstr ""
 "De Gramps-entiteit {gramps_entity_reference} vereist het attribuut "
 "\"betty:link-{link_name}:url\". Deze link is genegeerd."
-
-msgid "The age at which people are presumed dead."
-msgstr "De leeftijd waarop mensen overleden verondersteld worden."
 
 msgid "The base URL must include a path."
 msgstr "De basis-URL moet een pad bevatten."
@@ -1014,24 +766,8 @@ msgstr ""
 msgid "The following errors occurred"
 msgstr "De volgende problemen zijn voorgekomen"
 
-msgid "The lifetime threshold must consist of digits only."
-msgstr "De levensgrens mag alleen uit cijfers bestaan."
-
-msgid "The project's machine name."
-msgstr "De machinenaam van het project"
-
 msgid "The server was unreachable after starting."
 msgstr "De server was onbereikbaar na het starten."
-
-#, python-format
-msgid "The translations for {locale_name} are {coverage_percentage}%% complete."
-msgstr "De vertalingen voor {locale_name} zijn {coverage_percentage}%% compleet."
-
-msgid "There are no translations for {locale_name}."
-msgstr "Er zijn geen vertalingen voor {locale_name}."
-
-msgid "These entities are featured on your site's front page."
-msgstr "Deze entiteiten worden uitgelicht op de voorpagina van je site."
 
 #, python-format
 msgid "They are the child of %(parent_labels)s."
@@ -1102,23 +838,8 @@ msgstr "De gegevens van deze bron zijn niet beschikbaar vanwege privacyredenen."
 msgid "Timeline"
 msgstr "Tijdlijn"
 
-msgid "Title"
-msgstr "Titel"
-
 msgid "Trees"
 msgstr "Stambomen"
-
-msgid "URL"
-msgstr "URL"
-
-msgid ""
-"URLs look like <code>/path</code> instead of "
-"<code>/path/index.html</code>. This requires a web server that supports "
-"it."
-msgstr ""
-"URL's zien eruit als <code>/path</code> in plaats van "
-"<code>/path/index.html</code>. Dit vereist een web server die dit "
-"ondersteunt."
 
 msgid "Unauthorized"
 msgstr ""
@@ -1152,39 +873,6 @@ msgstr ""
 "of <kbd>esc</kbd> om te stoppen met zoeken. Zoek opnieuw met "
 "<kbd>%(shortcut)s</kbd>."
 
-msgid "Use HTTP"
-msgstr "Gebruik HTTP"
-
-msgid "Use HTTPS and HTTP/2"
-msgstr "Gebruik HTTPS en HTTP/2"
-
-msgid "Use HTTPS and HTTP/2 if the site's URL starts with https://"
-msgstr "Gebruik HTTPS en HTTP/2 als de URL van de site met https:// begint"
-
-msgid "Version: {version}"
-msgstr "Versie: {version}"
-
-msgid "View a demo site"
-msgstr "Bekijk een demonstratiesite"
-
-msgid "View a demonstration of what a Betty site looks like"
-msgstr "Bekijk een demonstratie van hoe een Betty-site eruit ziet"
-
-msgid "View demo site..."
-msgstr "Bekijk een demonstratiesite..."
-
-msgid "View documentation"
-msgstr "Bekijk documentatie"
-
-msgid "View site"
-msgstr "Bekijk site"
-
-msgid "WWW directory"
-msgstr "WWW-directory"
-
-msgid "Welcome to Betty"
-msgstr "Welkom bij Betty"
-
 msgid "Wikipedia"
 msgstr "Wikipedia"
 
@@ -1196,22 +884,6 @@ msgstr "Getuige"
 
 msgid "Witnesses"
 msgstr "Getuigen"
-
-msgid "Work on a new or existing site of your own"
-msgstr "Werk aan een nieuwe of bestaande site van jezelf"
-
-msgid ""
-"You can now view a Betty demonstration site at <a "
-"href=\"{url}\">{url}</a>."
-msgstr ""
-"Je kan nu een Betty-demonstratiesite bekijken op <a "
-"href=\"{url}\">{url}</a>."
-
-msgid "You can now view the documentation at <a href=\"{url}\">{url}</a>."
-msgstr "Je kan de documentatie nu bekijken op <a href=\"{url}\">{url}</a>."
-
-msgid "You can now view your site at <a href=\"{url}\">{url}</a>."
-msgstr "Je kan je site nu bekijken op <a href=\"{url}\">{url}</a>."
 
 #, python-format
 msgid ""
@@ -1352,9 +1024,6 @@ msgstr "{dependency_label} is vereist door {dependency_labels}."
 
 msgid "{dependent_label} requires {dependency_labels}."
 msgstr "{dependent_label} vereist {dependency_labels}."
-
-msgid "{entity_type_label} ID"
-msgstr "{entity_type_label}-ID"
 
 msgid "{entity_type} {entity_id}"
 msgstr "{entity_type} {entity_id}"

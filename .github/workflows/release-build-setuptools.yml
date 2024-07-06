@@ -52,14 +52,6 @@ jobs:
         with:
           node-version-file: ./package.json
 
-      - name: Install APT dependencies
-        run: |
-          sudo apt-get update
-          apt_packages=(
-            libegl1-mesa # For Qt
-          )
-          sudo apt-get install "${apt_packages[@]}"
-
       - name: Build the distributions
         run: ./bin/build-setuptools '${{ github.event.release.tag_name }}'
         shell: bash

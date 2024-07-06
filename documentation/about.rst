@@ -20,8 +20,7 @@ with further encyclopedic information, imagery, and maps.
 
 Simplicity
 ^^^^^^^^^^
-Anyone who can download and install a desktop application should be able to generate a site and view it.
-We aim for Betty to be simple to use, out of the box, for everyone.
+Anyone should be able to generate a site and view it. We aim for Betty to be simple to use, out of the box, for everyone.
 
 Speed
 ^^^^^

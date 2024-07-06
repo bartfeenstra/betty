@@ -6,7 +6,7 @@ The :py:class:`betty.extension.Maps` extension renders interactive maps using `L
 .. important::
     This extension requires :doc:`npm </usage/npm>`.
 
-Enable this extension through Betty Desktop, or in your project's :doc:`configuration file </usage/project/configuration>` as follows:
+Enable this extension in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
 .. tab-set::
 

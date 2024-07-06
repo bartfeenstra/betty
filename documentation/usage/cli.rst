@@ -25,7 +25,6 @@ After installing Betty :doc:`via pip </installation/pip>` or :doc:`from source <
       docs                 View the documentation.
       clear-caches         Clear all caches.
       demo                 Explore a demonstration site.
-      gui                  Open Betty's graphical user interface (GUI).
       init-translation     Initialize a new translation
       update-translations  Update all existing translations
       generate             Generate a static site.
