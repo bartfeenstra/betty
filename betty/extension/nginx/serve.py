@@ -45,7 +45,6 @@ class DockerizedNginxServer(Server):
         isolated_project: Project = await self._exit_stack.enter_async_context(
             Project.new_temporary(self._project.app, ancestry=self._project.ancestry)
         )
-        isolated_project.configuration.autowrite = False
         isolated_project.configuration.configuration_file_path = (
             self._project.configuration.configuration_file_path
         )

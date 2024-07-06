@@ -158,7 +158,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
         "FileBasedConfiguration": {
             "__del__": TestKnownToBeMissing,
-            "autowrite": TestKnownToBeMissing,
             "read": TestKnownToBeMissing,
             "write": TestKnownToBeMissing,
         },
