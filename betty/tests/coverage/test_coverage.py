@@ -576,6 +576,21 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Will": TestKnownToBeMissing,
     },
     "betty/path.py": TestKnownToBeMissing,
+    "betty/plugin/__init__.py": {
+        "Plugin": {
+            # This is an interface method.
+            "plugin_id": TestKnownToBeMissing,
+            # This is an interface method.
+            "plugin_label": TestKnownToBeMissing,
+        },
+        # This is an interface.
+        "PluginRepository": {
+            # This is an interface method.
+            "__aiter__": TestKnownToBeMissing,
+            # This is an interface method.
+            "get": TestKnownToBeMissing,
+        },
+    },
     "betty/privatizer.py": {
         "Privatizer": {
             "has_expired": TestKnownToBeMissing,
