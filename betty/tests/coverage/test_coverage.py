@@ -117,8 +117,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/cache/_base.py": TestKnownToBeMissing,
     "betty/classtools.py": TestKnownToBeMissing,
     "betty/core.py": TestKnownToBeMissing,
-    "betty/cli/__init__.py": {
+    "betty/cli/commands/__init__.py": {
         "command": TestKnownToBeMissing,
+        "Command": TestKnownToBeMissing,
+        "CommandRepository": TestKnownToBeMissing,
         "discover_commands": TestKnownToBeMissing,
         "pass_app": TestKnownToBeMissing,
         "pass_project": TestKnownToBeMissing,
@@ -593,6 +595,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugin/assertion.py": {
         "assert_plugin": TestKnownToBeMissing,
     },
+    "betty/plugin/lazy.py": TestKnownToBeMissing,
     "betty/privatizer.py": {
         "Privatizer": {
             "has_expired": TestKnownToBeMissing,
