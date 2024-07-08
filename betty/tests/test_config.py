@@ -24,6 +24,7 @@ from betty.assertion import (
     assert_int,
 )
 from betty.serde.format import FormatError
+from betty.typing import Void
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, VoidableDump
@@ -33,11 +34,17 @@ _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
 
 
+class _FileBasedConfiguration(FileBasedConfiguration):
+    @override
+    def dump(self) -> VoidableDump:
+        return Void
+
+
 class TestFileBasedConfiguration:
     async def test_configuration_file_path_should_error_unknown_format(
         self, tmp_path: Path
     ) -> None:
-        configuration = FileBasedConfiguration(tmp_path / "betty.json")
+        configuration = _FileBasedConfiguration(tmp_path / "betty.json")
         with (
             NamedTemporaryFile(mode="r+", suffix=".abc") as f,
             pytest.raises(FormatError),

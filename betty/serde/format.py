@@ -5,7 +5,8 @@ Provide serialization formats.
 from __future__ import annotations
 
 import json
-from typing import cast, Sequence, TYPE_CHECKING
+from abc import ABC, abstractmethod
+from typing import cast, Sequence, TYPE_CHECKING, final
 
 import yaml
 from typing_extensions import override
@@ -18,40 +19,45 @@ if TYPE_CHECKING:
     from betty.locale import Localizer
 
 
-class Format:
+class Format(ABC):
     """
     Defines a (de)serialization format.
     """
 
     @property
+    @abstractmethod
     def extensions(self) -> set[str]:
         """
         The file extensions this format can (de)serialize.
 
         Extensions MUST NOT include a leading dot.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
     @property
+    @abstractmethod
     def label(self) -> Localizable:
         """
         The format's human-readable label.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def load(self, dump: str) -> Dump:
         """
         Deserialize data.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def dump(self, dump: VoidableDump) -> str:
         """
         Serialize data.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
 
+@final
 class Json(Format):
     """
     Defines the `JSON <https://json.org/>`_ (de)serialization format.
@@ -81,6 +87,7 @@ class Json(Format):
         return json.dumps(dump)
 
 
+@final
 class Yaml(Format):
     """
     Defines the `YAML <https://yaml.org/>`_ (de)serialization format.
@@ -110,6 +117,7 @@ class Yaml(Format):
         return yaml.safe_dump(dump)
 
 
+@final
 class FormatRepository:
     """
     Exposes the available (de)serialization formats.
@@ -158,6 +166,7 @@ class FormatRepository:
         )
 
 
+@final
 class FormatStr(Localizable):
     """
     Localize and format a sequence of (de)serialization formats.

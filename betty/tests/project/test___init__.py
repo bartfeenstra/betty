@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any, Iterable, TYPE_CHECKING, Self
+from typing_extensions import override
 
 import pytest
 
@@ -452,6 +453,12 @@ class _DummyConfigurableExtension(
         return _DummyConfigurableExtensionConfiguration()
 
 
+class _DummyConfiguration(Configuration):
+    @override
+    def dump(self) -> VoidableDump:
+        return Void
+
+
 class TestExtensionConfiguration:
     async def test_extension_type(self) -> None:
         extension_type = _DummyExtension
@@ -468,7 +475,7 @@ class TestExtensionConfiguration:
         sut.enabled = False
 
     async def test_configuration(self) -> None:
-        extension_type_configuration = Configuration()
+        extension_type_configuration = _DummyConfiguration()
         sut = ExtensionConfiguration(
             Extension,
             extension_configuration=extension_type_configuration,
@@ -487,11 +494,11 @@ class TestExtensionConfiguration:
                 False,
                 ExtensionConfiguration(
                     _DummyExtension,
-                    extension_configuration=Configuration(),
+                    extension_configuration=_DummyConfiguration(),
                 ),
                 ExtensionConfiguration(
                     _DummyExtension,
-                    extension_configuration=Configuration(),
+                    extension_configuration=_DummyConfiguration(),
                 ),
             ),
             (
