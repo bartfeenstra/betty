@@ -2,7 +2,9 @@
 Provide the Render API.
 """
 
+from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import final
 
 from typing_extensions import override
 
@@ -10,7 +12,7 @@ from betty.locale import Localizer
 from betty.job import Context
 
 
-class Renderer:
+class Renderer(ABC):
     """
     Define a (file) content renderer.
 
@@ -20,12 +22,14 @@ class Renderer:
     """
 
     @property
+    @abstractmethod
     def file_extensions(self) -> set[str]:
         """
         The extensions of the files this renderer can render.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     async def render_file(
         self,
         file_path: Path,
@@ -39,9 +43,10 @@ class Renderer:
         :return: The file's new path, which may have been changed, e.g. a
             renderer-specific extension may have been stripped from the end.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
 
+@final
 class SequentialRenderer(Renderer):
     """
     Render using a sequence of other renderers.
