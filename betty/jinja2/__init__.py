@@ -7,7 +7,7 @@ from __future__ import annotations
 import datetime
 from collections import defaultdict
 from threading import Lock
-from typing import Callable, Any, cast, TYPE_CHECKING, TypeAlias
+from typing import Callable, Any, cast, TYPE_CHECKING, TypeAlias, final
 
 import aiofiles
 from aiofiles import os as aiofiles_os
@@ -358,6 +358,7 @@ class Environment(Jinja2Environment):
                 self.tests.update(extension.tests)
 
 
+@final
 class Jinja2Renderer(Renderer):
     """
     Render content as Jinja2 templates.
