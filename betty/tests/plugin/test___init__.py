@@ -1,6 +1,7 @@
 from collections.abc import AsyncIterator, Sequence
 
 import pytest
+from typing_extensions import override
 
 from betty.locale.localizable import Localizable, plain
 from betty.plugin import (
@@ -103,6 +104,11 @@ class _TestPluginRepositoryPluginRepository(
     def __init__(self, *plugins: type[_TestPluginRepositoryPluginBase]):
         self._plugins = {plugin.plugin_id(): plugin for plugin in plugins}
 
+    @override
+    async def get(self, plugin_id: PluginId) -> type[_TestPluginRepositoryPluginBase]:
+        return self._plugins[plugin_id]
+
+    @override
     async def __aiter__(self) -> AsyncIterator[type[_TestPluginRepositoryPluginBase]]:
         for plugin in self._plugins.values():
             yield plugin

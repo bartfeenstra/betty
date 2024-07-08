@@ -3,7 +3,7 @@ Provide tools for proxying plugin management to other tools.
 """
 
 from collections.abc import AsyncIterator
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, final
 
 from typing_extensions import override
 
@@ -12,6 +12,7 @@ from betty.plugin import PluginRepository, Plugin, PluginNotFound, PluginId
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 
 
+@final
 class ProxyPluginRepository(PluginRepository[_PluginT], Generic[_PluginT]):
     """
     Expose multiple other plugin repositories as one unified repository.

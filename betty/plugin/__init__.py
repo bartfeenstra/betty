@@ -10,6 +10,7 @@ Read more at :doc:`/usage/plugin`.
 from __future__ import annotations
 
 import re
+from abc import ABC, abstractmethod
 from typing import TypeVar, Generic, Self, overload, TYPE_CHECKING, TypeAlias, TypeGuard
 
 if TYPE_CHECKING:
@@ -37,12 +38,13 @@ def validate_plugin_id(plugin_id: str) -> TypeGuard[PluginId]:
     return _PLUGIN_ID_PATTERN.fullmatch(plugin_id) is not None
 
 
-class Plugin:
+class Plugin(ABC):
     """
     A plugin.
     """
 
     @classmethod
+    @abstractmethod
     def plugin_id(cls) -> PluginId:
         """
         Get the plugin ID.
@@ -51,14 +53,15 @@ class Plugin:
         - A plugin repository MUST at most have a single plugin for any ID.
         - Different plugin repositories MAY each have a plugin with the same ID.
         """
-        raise NotImplementedError(repr(cls))
+        pass
 
     @classmethod
+    @abstractmethod
     def plugin_label(cls) -> Localizable:
         """
         Get the human-readable short plugin label.
         """
-        raise NotImplementedError(repr(cls))
+        pass
 
     @classmethod
     def plugin_description(cls) -> Localizable | None:
@@ -89,18 +92,19 @@ _PluginMixinTwoT = TypeVar("_PluginMixinTwoT")
 _PluginMixinThreeT = TypeVar("_PluginMixinThreeT")
 
 
-class PluginRepository(Generic[_PluginT]):
+class PluginRepository(Generic[_PluginT], ABC):
     """
     Discover and manage plugins.
     """
 
+    @abstractmethod
     async def get(self, plugin_id: PluginId) -> type[_PluginT]:
         """
         Get a single plugin by its ID.
 
         :raises PluginNotFound: if no plugin can be found for the given ID.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
     @overload
     async def select(self) -> Sequence[type[_PluginT]]:
@@ -173,5 +177,6 @@ class PluginRepository(Generic[_PluginT]):
                 return False
         return True
 
+    @abstractmethod
     def __aiter__(self) -> AsyncIterator[type[_PluginT]]:
-        raise NotImplementedError(repr(self))
+        pass
