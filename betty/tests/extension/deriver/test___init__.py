@@ -3,6 +3,7 @@ from __future__ import annotations
 from betty.extension import Deriver
 from betty.load import load
 from betty.locale import DateRange, Date
+from betty.locale.localizable import Localizable, plain
 from betty.model import record_added
 from betty.model.ancestry import Person, Presence, Subject, Event
 from betty.model.event_type import (
@@ -20,15 +21,25 @@ if TYPE_CHECKING:
     from betty.app import App
 
 
-class Ignored(EventType):
+class _DummyEventTypeBase(EventType):
+    @classmethod
+    def name(cls) -> str:
+        return cls.__name__
+
+    @classmethod
+    def label(cls) -> Localizable:
+        return plain("")
+
+
+class Ignored(_DummyEventTypeBase):
     pass
 
 
-class ComesBeforeReference(EventType):
+class ComesBeforeReference(_DummyEventTypeBase):
     pass
 
 
-class ComesAfterReference(EventType):
+class ComesAfterReference(_DummyEventTypeBase):
     pass
 
 

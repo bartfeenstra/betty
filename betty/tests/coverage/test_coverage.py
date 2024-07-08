@@ -559,6 +559,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Emigration": TestKnownToBeMissing,
         "EndOfLifeEventType": TestKnownToBeMissing,
         "Engagement": TestKnownToBeMissing,
+        # This is an abstract class.
+        "EventType": TestKnownToBeMissing,
         "EventTypeProvider": TestKnownToBeMissing,
         "FinalDispositionEventType": TestKnownToBeMissing,
         "Funeral": TestKnownToBeMissing,
