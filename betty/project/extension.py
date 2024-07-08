@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import functools
+from abc import ABC, abstractmethod
 from collections import defaultdict
 from importlib.metadata import entry_points, EntryPoint
 from typing import (
@@ -14,6 +15,7 @@ from typing import (
     Iterator,
     Sequence,
     Self,
+    final,
 )
 
 from typing_extensions import override
@@ -165,7 +167,7 @@ class Dependents(Requirement):
         return cls(dependency, dependents)
 
 
-class Extension:
+class Extension(ABC):  # noqa B024
     """
     Integrate optional functionality with the Betty app.
     """
@@ -250,18 +252,20 @@ class UserFacingExtension(Extension):
     """
 
     @classmethod
+    @abstractmethod
     def label(cls) -> Localizable:
         """
         Get the human-readable extension label.
         """
-        raise NotImplementedError(repr(cls))
+        pass
 
     @classmethod
+    @abstractmethod
     def description(cls) -> Localizable:
         """
         Get the human-readable extension description.
         """
-        raise NotImplementedError(repr(cls))
+        pass
 
 
 class Theme(UserFacingExtension):
@@ -340,21 +344,24 @@ class ConfigurableExtension(
         self._configuration = configuration or self.default_configuration()
 
     @classmethod
+    @abstractmethod
     def default_configuration(cls) -> _ConfigurationT:
         """
         Get this extension's default configuration.
         """
-        raise NotImplementedError(repr(cls))
+        pass
 
 
-class Extensions:
+class Extensions(ABC):
     """
     Manage available extensions.
     """
 
+    @abstractmethod
     def __getitem__(self, extension_type: type[_ExtensionT] | str) -> _ExtensionT:
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def __iter__(self) -> Iterator[Iterator[Extension]]:
         """
         Iterate over all extensions, in topologically sorted batches.
@@ -364,18 +371,21 @@ class Extensions:
         order has no meaning. However, implementations SHOULD sort the extensions in each
         item in a stable fashion for reproducability.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def flatten(self) -> Iterator[Extension]:
         """
         Get a sequence of topologically sorted extensions.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def __contains__(self, extension_type: type[Extension] | str | Any) -> bool:
-        raise NotImplementedError(repr(self))
+        pass
 
 
+@final
 class ListExtensions(Extensions):
     """
     Manage available extensions, backed by a list.
