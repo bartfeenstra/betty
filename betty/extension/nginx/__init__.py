@@ -1,6 +1,7 @@
 """Integrate Betty with `nginx <https://nginx.org/>`_."""
 
 from pathlib import Path
+from typing import final
 
 from typing_extensions import override
 
@@ -14,6 +15,7 @@ from betty.locale.localizable import plain, _, Localizable
 from betty.project.extension import ConfigurableExtension, UserFacingExtension
 
 
+@final
 class Nginx(ConfigurableExtension[NginxConfiguration], UserFacingExtension, Generator):
     """
     Integrate Betty with nginx (and Docker).

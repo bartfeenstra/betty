@@ -7,7 +7,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from pathlib import Path
-from typing import Iterable, Self, cast, TYPE_CHECKING
+from typing import Iterable, Self, cast, TYPE_CHECKING, final
 
 from jinja2 import pass_context
 from typing_extensions import override
@@ -204,6 +204,7 @@ class CottonCandyConfiguration(Configuration):
         )
 
 
+@final
 class CottonCandy(
     Theme,
     CssProvider,

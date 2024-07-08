@@ -4,6 +4,8 @@ Integrate Betty with `Gramps <https://gramps-project.org>`_.
 
 from __future__ import annotations
 
+from typing import final
+
 from typing_extensions import override
 
 from betty.locale.localizable import plain, _, Localizable
@@ -14,6 +16,7 @@ from betty.extension.gramps.config import GrampsConfiguration
 from betty.load import Loader
 
 
+@final
 class Gramps(ConfigurableExtension[GrampsConfiguration], UserFacingExtension, Loader):
     """
     Integrate Betty with `Gramps <https://gramps-project.org>`_.

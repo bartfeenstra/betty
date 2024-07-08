@@ -9,12 +9,13 @@ from typing_extensions import override
 from betty.locale.localizable import _, Localizable
 from betty.project.extension import Extension, UserFacingExtension
 from betty.extension.webpack import Webpack, WebpackEntryPointProvider
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, final
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
+@final
 class Maps(UserFacingExtension, WebpackEntryPointProvider):
     """
     Provide interactive maps for use on web pages.

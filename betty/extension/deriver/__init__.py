@@ -5,6 +5,7 @@ Expand an ancestry by deriving additional data from existing data.
 from __future__ import annotations
 
 from logging import getLogger
+from typing import final
 
 from typing_extensions import override
 
@@ -15,6 +16,7 @@ from betty.model.event_type import DerivableEventType
 from betty.project.extension import Extension, UserFacingExtension
 
 
+@final
 class Deriver(UserFacingExtension, PostLoader):
     """
     Expand an ancestry by deriving additional data from existing data.
