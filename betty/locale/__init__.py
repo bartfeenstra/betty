@@ -23,6 +23,7 @@ from typing import (
     Callable,
     TypeAlias,
     TYPE_CHECKING,
+    final,
 )
 
 import aiofiles
@@ -931,6 +932,7 @@ class Localizer:
 DEFAULT_LOCALIZER = Localizer(DEFAULT_LOCALE, gettext.NullTranslations())
 
 
+@final
 class LocalizerRepository:
     """
     Exposes the available localizers.
