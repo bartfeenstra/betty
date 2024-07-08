@@ -4,8 +4,9 @@ Provide an API that lets code express arbitrary requirements.
 
 from __future__ import annotations
 
+from abc import abstractmethod
 from textwrap import indent
-from typing import cast, Any, Self, TYPE_CHECKING
+from typing import cast, Any, Self, TYPE_CHECKING, final
 
 from typing_extensions import override
 
@@ -22,11 +23,12 @@ class Requirement(Localizable):
     Express a requirement.
     """
 
+    @abstractmethod
     async def is_met(self) -> bool:
         """
         Check if the requirement is met.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
     async def assert_met(self) -> None:
         """
@@ -36,11 +38,12 @@ class Requirement(Localizable):
             raise RequirementError(self)
         return None
 
+    @abstractmethod
     async def summary(self) -> Localizable:
         """
         Get the requirement's human-readable summary.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
     async def details(self) -> Localizable | None:
         """
@@ -69,6 +72,7 @@ class Requirement(Localizable):
         return self
 
 
+@final
 class RequirementError(UserFacingError, RuntimeError):
     """
     Raised when a requirement is not met.
@@ -138,6 +142,7 @@ class RequirementCollection(Requirement):
         return None
 
 
+@final
 class AnyRequirement(RequirementCollection):
     """
     A requirement that is met if any of the given requirements are met.
