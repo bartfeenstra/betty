@@ -5,14 +5,8 @@ from pytest_mock import MockerFixture
 
 from betty.app import App
 from betty.extension import Nginx
-from betty.extension.nginx.serve import DockerizedNginxServer
 from betty.project import Project
 from betty.tests.cli.test___init__ import run, NoOpServer
-
-
-class KeyboardInterruptedDockerizedNginxServer(DockerizedNginxServer):
-    async def start(self) -> None:
-        raise KeyboardInterrupt()
 
 
 class TestServe:

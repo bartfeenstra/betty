@@ -13,7 +13,7 @@ from betty import load, generate, serve
 from betty.extension.cotton_candy import CottonCandyConfiguration
 from betty.load import Loader
 from betty.locale import Date, DateRange, DEFAULT_LOCALIZER
-from betty.locale.localizable import plain, _, Localizable
+from betty.locale.localizable import plain
 from betty.model.ancestry import (
     Place,
     PlaceName,
@@ -456,6 +456,7 @@ Did you know that Liberta "Betty" Lankester is Betty's namesake?
         self._load(bart_feenstra)
 
 
+@final
 class DemoServer(Server):
     """
     Serve the Betty demonstration site.
@@ -469,11 +470,6 @@ class DemoServer(Server):
         self._app = app
         self._server: Server | None = None
         self._exit_stack = AsyncExitStack()
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Demo")
 
     @override
     @property

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-06 12:34+0100\n"
+"POT-Creation-Date: 2024-07-09 00:22+0100\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -201,9 +201,6 @@ msgstr "Doping"
 msgid "Beneficiary"
 msgstr "Begunstigde"
 
-msgid "Betty documentation"
-msgstr "Betty-documentatie"
-
 msgid ""
 "Betty is unfamiliar with Gramps event \"{event_id}\"'s type of "
 "\"{gramps_event_type}\". The event was imported, but its type was set to "
@@ -348,9 +345,6 @@ msgstr "Crematie"
 
 msgid "Death"
 msgstr "Overlijden"
-
-msgid "Demo"
-msgstr "Demo"
 
 msgid "Deriver"
 msgstr "Afleider"
@@ -673,9 +667,6 @@ msgstr "Privatiseerder"
 
 msgid "Privatizing..."
 msgstr "Privatiseren..."
-
-msgid "Python built-in"
-msgstr "Python (ingebouwd)"
 
 msgid "Read more on Wikipedia."
 msgstr "Lees meer op Wikipedia."
