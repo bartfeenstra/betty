@@ -84,6 +84,7 @@ class CyclicDependencyError(ExtensionError, RuntimeError):
         )
 
 
+@final
 class Dependencies(AllRequirements):
     """
     Check a dependent's dependency requirements.
@@ -123,6 +124,7 @@ class Dependencies(AllRequirements):
         )
 
 
+@final
 class Dependents(Requirement):
     """
     Check a dependency's dependent requirements.
