@@ -2,6 +2,7 @@
 Provide tools to build core application components.
 """
 
+from abc import ABC
 from contextlib import AsyncExitStack
 from types import TracebackType
 from typing import Self, Any
@@ -10,7 +11,7 @@ from betty.typing import internal, public
 
 
 @internal
-class CoreComponent:
+class CoreComponent(ABC):  # noqa B024
     """
     A core component.
 

@@ -40,6 +40,7 @@ if TYPE_CHECKING:
 CONFIGURATION_DIRECTORY_PATH = fs.HOME_DIRECTORY_PATH / "configuration"
 
 
+@final
 class AppConfiguration(FileBasedConfiguration):
     """
     Provide configuration for :py:class:`betty.app.App`.
