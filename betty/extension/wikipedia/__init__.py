@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Iterable, Any, TYPE_CHECKING
+from typing import Iterable, Any, TYPE_CHECKING, final
 
 from jinja2 import pass_context
 from typing_extensions import override
@@ -30,6 +30,7 @@ if TYPE_CHECKING:
     from betty.model.ancestry import Link
 
 
+@final
 class Wikipedia(
     ConfigurableExtension[WikipediaConfiguration],
     UserFacingExtension,

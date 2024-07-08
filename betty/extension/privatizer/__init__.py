@@ -12,12 +12,13 @@ from betty.project.extension import UserFacingExtension
 from betty.load import PostLoader
 from betty.model.ancestry import Person, HasPrivacy
 from betty.privatizer import Privatizer as PrivatizerApi
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, final
 
 if TYPE_CHECKING:
     from betty.model import Entity
 
 
+@final
 class Privatizer(UserFacingExtension, PostLoader):
     """
     Extend the Betty Application with privatization features.

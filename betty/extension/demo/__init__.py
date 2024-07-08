@@ -5,7 +5,7 @@ Provide demonstration site functionality.
 from __future__ import annotations
 
 from contextlib import AsyncExitStack, asynccontextmanager
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
@@ -44,6 +44,7 @@ if TYPE_CHECKING:
     from betty.model import Entity
 
 
+@final
 class Demo(Extension, Loader):
     """
     Provide demonstration site functionality.

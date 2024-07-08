@@ -9,7 +9,7 @@ from __future__ import annotations
 from asyncio import to_thread
 from pathlib import Path
 from shutil import copytree
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, final
 
 from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
@@ -33,6 +33,7 @@ from betty.requirement import (
     AnyRequirement,
     RequirementError,
 )
+from betty.typing import internal
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -109,6 +110,8 @@ class PrebuiltAssetsRequirement(Requirement):
         )
 
 
+@internal
+@final
 class Webpack(Extension, CssProvider, Jinja2Provider, Generator):
     """
     Integrate Betty with `Webpack <https://webpack.js.org/>`_.
