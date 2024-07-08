@@ -2,6 +2,7 @@
 The localizable API allows objects to be localized at the point of use.
 """
 
+from abc import ABC, abstractmethod
 from collections.abc import Callable, Mapping, Sequence
 from typing import Any, cast
 from warnings import warn
@@ -11,18 +12,19 @@ from typing_extensions import override
 from betty.locale import Localizer, DEFAULT_LOCALIZER
 
 
-class Localizable:
+class Localizable(ABC):
     """
     A localizable object.
 
     Objects of this type can convert themselves to localized strings at the point of use.
     """
 
+    @abstractmethod
     def localize(self, localizer: Localizer) -> str:
         """
         Localize ``self`` to a human-readable string.
         """
-        raise NotImplementedError
+        pass
 
     @override
     def __str__(self) -> str:
@@ -168,6 +170,7 @@ class _FormattedLocalizable(Localizable):
         self._format_args = format_args
         self._format_kwargs = format_kwargs
 
+    @override
     def localize(self, localizer: Localizer) -> str:
         return self._localizable.localize(localizer).format(
             *(
