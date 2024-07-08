@@ -425,6 +425,7 @@ class ListExtensions(Extensions):
         return any(type(extension) is extension_type for extension in self.flatten())
 
 
+@final
 class ExtensionDispatcher(Dispatcher):
     """
     Dispatch events to extensions.
