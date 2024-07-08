@@ -5,7 +5,7 @@ Provide caching that stores cache items in volatile memory.
 from __future__ import annotations
 
 from collections.abc import MutableMapping, Sequence
-from typing import TypeAlias, Generic, Self, cast, TYPE_CHECKING, TypeVar
+from typing import TypeAlias, Generic, Self, cast, TYPE_CHECKING, TypeVar, final
 
 from typing_extensions import override
 
@@ -24,6 +24,7 @@ _MemoryCacheStore: TypeAlias = MutableMapping[
 ]
 
 
+@final
 class MemoryCache(
     _CommonCacheBase[_CacheItemValueContraT], Generic[_CacheItemValueContraT]
 ):

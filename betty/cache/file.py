@@ -6,10 +6,11 @@ from __future__ import annotations
 
 import asyncio
 import shutil
+from abc import abstractmethod
 from contextlib import suppress
 from os import utime
 from pickle import dumps, loads
-from typing import Generic, Self, TYPE_CHECKING, TypeVar
+from typing import Generic, Self, TYPE_CHECKING, TypeVar, final
 
 import aiofiles
 from aiofiles.ospath import getmtime
@@ -51,10 +52,12 @@ class _FileCacheItem(CacheItem[_CacheItemValueCoT], Generic[_CacheItemValueCoT])
             value_bytes = await f.read()
         return await self._load_value(value_bytes)
 
+    @abstractmethod
     async def _load_value(self, value_bytes: bytes) -> _CacheItemValueCoT:
-        raise NotImplementedError
+        pass
 
 
+@final
 class _PickledFileCacheItem(
     _FileCacheItem[_CacheItemValueCoT], Generic[_CacheItemValueCoT]
 ):
@@ -63,6 +66,7 @@ class _PickledFileCacheItem(
         return loads(value_bytes)  # type: ignore[no-any-return]
 
 
+@final
 class _BinaryFileCacheItem(_FileCacheItem[bytes]):
     @override
     async def _load_value(self, value_bytes: bytes) -> bytes:
@@ -97,8 +101,9 @@ class _FileCache(
     def _cache_item_file_path(self, cache_item_id: str) -> Path:
         return self._path / hashid(cache_item_id)
 
+    @abstractmethod
     def _dump_value(self, value: _CacheItemValueContraT) -> bytes:
-        raise NotImplementedError
+        pass
 
     @override
     async def _get(
@@ -155,6 +160,7 @@ class _FileCache(
         return self._root_path.joinpath(*self._scopes)
 
 
+@final
 class PickledFileCache(
     _FileCache[_CacheItemValueContraT], Generic[_CacheItemValueContraT]
 ):
@@ -169,6 +175,7 @@ class PickledFileCache(
         return dumps(value)
 
 
+@final
 class BinaryFileCache(_FileCache[bytes]):
     """
     Provide a cache that persists bytes values to binary files.
