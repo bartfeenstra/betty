@@ -1,4 +1,5 @@
 import logging
+from abc import abstractmethod
 from collections import defaultdict
 from collections.abc import Sequence, MutableMapping, AsyncIterator
 from contextlib import asynccontextmanager
@@ -68,8 +69,9 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
             self._scoped_caches[scope] = self._with_scope(scope)
             return self._scoped_caches[scope]
 
+    @abstractmethod
     def _with_scope(self, scope: str) -> Self:
-        raise NotImplementedError
+        pass
 
     @override
     @asynccontextmanager
@@ -79,10 +81,11 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
         async with await self._lock(cache_item_id):
             yield await self._get(cache_item_id)
 
+    @abstractmethod
     async def _get(
         self, cache_item_id: str
     ) -> CacheItem[_CacheItemValueContraT] | None:
-        raise NotImplementedError
+        pass
 
     @override
     async def set(
@@ -95,6 +98,7 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
         async with await self._lock(cache_item_id):
             await self._set(cache_item_id, value, modified=modified)
 
+    @abstractmethod
     async def _set(
         self,
         cache_item_id: str,
@@ -102,7 +106,7 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
         *,
         modified: int | float | None = None,
     ) -> None:
-        raise NotImplementedError
+        pass
 
     @overload
     def getset(
@@ -153,8 +157,9 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
         async with await self._lock(cache_item_id):
             await self._delete(cache_item_id)
 
+    @abstractmethod
     async def _delete(self, cache_item_id: str) -> None:
-        raise NotImplementedError
+        pass
 
     @override
     async def clear(self) -> None:
@@ -170,5 +175,6 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
         else:
             logger.info(self._localizer._("All caches cleared."))
 
+    @abstractmethod
     async def _clear(self) -> None:
-        raise NotImplementedError
+        pass

@@ -4,6 +4,7 @@ Provide the Cache API.
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
 from typing import Self, Generic, TypeAlias, AsyncContextManager, overload, Literal
 
@@ -15,49 +16,54 @@ _CacheItemValueCoT = TypeVar("_CacheItemValueCoT", covariant=True)
 _CacheItemValueContraT = TypeVar("_CacheItemValueContraT", contravariant=True)
 
 
-class CacheItem(Generic[_CacheItemValueCoT]):
+class CacheItem(Generic[_CacheItemValueCoT], ABC):
     """
     A cache item.
     """
 
     @property
+    @abstractmethod
     def modified(self) -> int | float:
         """
         Get the time this cache item was last modified, in seconds.
         """
-        raise NotImplementedError
+        pass
 
+    @abstractmethod
     async def value(self) -> _CacheItemValueCoT:
         """
         Get this cache item's value.
         """
-        raise NotImplementedError
+        pass
 
 
 CacheItemValueSetter: TypeAlias = Callable[[_CacheItemValueT], Awaitable[None]]
 
 
-class Cache(Generic[_CacheItemValueContraT]):
+class Cache(Generic[_CacheItemValueContraT], ABC):
     """
     Provide a cache.
 
     Implementations MUST be thread-safe.
     """
 
+    @abstractmethod
     def with_scope(self, scope: str) -> Self:
         """
         Return a new nested cache with the given scope.
         """
-        raise NotImplementedError
+        pass
 
+    @abstractmethod
     def get(
         self, cache_item_id: str
     ) -> AsyncContextManager[CacheItem[_CacheItemValueContraT] | None]:
         """
         Get the cache item with the given ID.
         """
-        raise NotImplementedError
+        pass
 
+    @abstractmethod
     async def set(
         self,
         cache_item_id: str,
@@ -68,7 +74,7 @@ class Cache(Generic[_CacheItemValueContraT]):
         """
         Add or update a cache item.
         """
-        raise NotImplementedError
+        pass
 
     @overload
     def getset(
@@ -92,6 +98,7 @@ class Cache(Generic[_CacheItemValueContraT]):
     ]:
         pass
 
+    @abstractmethod
     def getset(
         self, cache_item_id: str, *, wait: bool = True
     ) -> AsyncContextManager[
@@ -108,16 +115,18 @@ class Cache(Generic[_CacheItemValueContraT]):
         0. A cache item if one could be found, or else ``None``.
         1. An asynchronous setter that takes the cache item's value as its only argument.
         """
-        raise NotImplementedError
+        pass
 
+    @abstractmethod
     async def delete(self, cache_item_id: str) -> None:
         """
         Delete the cache item with the given ID.
         """
-        raise NotImplementedError
+        pass
 
+    @abstractmethod
     async def clear(self) -> None:
         """
         Clear all items from the cache.
         """
-        raise NotImplementedError
+        pass
