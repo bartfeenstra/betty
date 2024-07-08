@@ -4,10 +4,11 @@ Provide Betty's main data model.
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from contextlib import suppress
 from enum import Enum
 from reprlib import recursive_repr
-from typing import Iterable, Any, TYPE_CHECKING
+from typing import Iterable, Any, TYPE_CHECKING, final
 from urllib.parse import quote
 
 from typing_extensions import override
@@ -1486,24 +1487,26 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
         return schema
 
 
-class PresenceRole:
+class PresenceRole(ABC):
     """
     A person's role at an event.
     """
 
     @classmethod
+    @abstractmethod
     def name(cls) -> str:
         """
         The machine name.
         """
-        raise NotImplementedError(repr(cls))
+        pass
 
     @property
+    @abstractmethod
     def label(self) -> Localizable:
         """
         The human-readable label.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
 
 def ref_role(root_schema: DictDump[Dump]) -> DictDump[Dump]:
@@ -1521,6 +1524,7 @@ def ref_role(root_schema: DictDump[Dump]) -> DictDump[Dump]:
     }
 
 
+@final
 class Subject(PresenceRole):
     """
     Someone was the subject of the event.
@@ -1541,6 +1545,7 @@ class Subject(PresenceRole):
         return _("Subject")  # pragma: no cover
 
 
+@final
 class Witness(PresenceRole):
     """
     Someone `witnessed <https://en.wikipedia.org/wiki/Witness>`_ the event.
@@ -1557,6 +1562,7 @@ class Witness(PresenceRole):
         return _("Witness")  # pragma: no cover
 
 
+@final
 class Beneficiary(PresenceRole):
     """
     Someone was a `benificiary <https://en.wikipedia.org/wiki/Beneficiary>`_ in the event, such as a :py:class:`betty.model.event_type.Will`.
@@ -1573,6 +1579,7 @@ class Beneficiary(PresenceRole):
         return _("Beneficiary")  # pragma: no cover
 
 
+@final
 class Attendee(PresenceRole):
     """
     Someone attended the event (further details unknown).
@@ -1589,6 +1596,7 @@ class Attendee(PresenceRole):
         return _("Attendee")  # pragma: no cover
 
 
+@final
 class Speaker(PresenceRole):
     """
     Someone performed public speaking at the event.
@@ -1605,6 +1613,7 @@ class Speaker(PresenceRole):
         return _("Speaker")  # pragma: no cover
 
 
+@final
 class Celebrant(PresenceRole):
     """
     Someone was the `celebrant <https://en.wikipedia.org/wiki/Officiant>`_ at the event.
@@ -1627,6 +1636,7 @@ class Celebrant(PresenceRole):
         return _("Celebrant")  # pragma: no cover
 
 
+@final
 class Organizer(PresenceRole):
     """
     Someone organized the event.

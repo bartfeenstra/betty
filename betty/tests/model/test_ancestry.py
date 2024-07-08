@@ -36,7 +36,6 @@ from betty.model.ancestry import (
     Source,
     Citation,
     HasCitations,
-    PresenceRole,
     Ancestry,
     is_private,
     is_public,
@@ -1500,17 +1499,17 @@ class TestPlace:
 class TestPresence:
     async def test_person(self) -> None:
         person = Person()
-        sut = Presence(person, PresenceRole(), Event(event_type=UnknownEventType))
+        sut = Presence(person, Subject(), Event(event_type=UnknownEventType))
         assert person == sut.person
 
     async def test_event(self) -> None:
-        role = PresenceRole()
+        role = Subject()
         sut = Presence(Person(), role, Event(event_type=UnknownEventType))
         assert role == sut.role
 
     async def test_role(self) -> None:
         event = Event(event_type=UnknownEventType)
-        sut = Presence(Person(), PresenceRole(), event)
+        sut = Presence(Person(), Subject(), event)
         assert event == sut.event
 
     @pytest.mark.parametrize(
@@ -1530,7 +1529,7 @@ class TestPresence:
     ) -> None:
         person = Person(privacy=person_privacy)
         event = Event(privacy=event_privacy, event_type=UnknownEventType)
-        sut = Presence(person, PresenceRole(), event)
+        sut = Presence(person, Subject(), event)
         sut.privacy = presence_privacy
 
         assert expected == sut.privacy
