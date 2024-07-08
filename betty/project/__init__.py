@@ -117,6 +117,7 @@ _EntityT = TypeVar("_EntityT", bound=Entity)
 DEFAULT_LIFETIME_THRESHOLD = 125
 
 
+@final
 class EntityReference(Configuration, Generic[_EntityT]):
     """
     Configuration that references an entity from the project's ancestry.
@@ -223,6 +224,7 @@ class EntityReference(Configuration, Generic[_EntityT]):
         )
 
 
+@final
 class EntityReferenceSequence(
     Generic[_EntityT], ConfigurationSequence[EntityReference[_EntityT]]
 ):
@@ -302,6 +304,7 @@ class EntityReferenceSequence(
         )
 
 
+@final
 class ExtensionConfiguration(Configuration):
     """
     Configure a single extension for a project.
@@ -436,6 +439,7 @@ class ExtensionConfiguration(Configuration):
         )
 
 
+@final
 class ExtensionConfigurationMapping(
     ConfigurationMapping[type[Extension], ExtensionConfiguration]
 ):
@@ -495,6 +499,7 @@ class ExtensionConfigurationMapping(
                 self._configurations[extension_type].enabled = False
 
 
+@final
 class EntityTypeConfiguration(Configuration):
     """
     Configure a single entity type for a project.
@@ -576,6 +581,7 @@ class EntityTypeConfiguration(Configuration):
         return minimize(dump)
 
 
+@final
 class EntityTypeConfigurationMapping(
     ConfigurationMapping[type[Entity], EntityTypeConfiguration]
 ):
@@ -616,6 +622,7 @@ class EntityTypeConfigurationMapping(
         return configuration
 
 
+@final
 class LocaleConfiguration(Configuration):
     """
     Configure a single project locale.
@@ -689,6 +696,7 @@ class LocaleConfiguration(Configuration):
         return minimize({"locale": self.locale, "alias": void_none(self._alias)})
 
 
+@final
 class LocaleConfigurationMapping(ConfigurationMapping[str, LocaleConfiguration]):
     """
     Configure a project's locales.
@@ -1049,6 +1057,7 @@ class ProjectConfiguration(FileBasedConfiguration):
         )
 
 
+@final
 class Project(Configurable[ProjectConfiguration], CoreComponent):
     """
     Define a Betty project.
