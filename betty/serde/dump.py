@@ -4,6 +4,7 @@ Provide a serialization API.
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from typing import TypeVar, Sequence, Mapping, overload, Literal, TypeAlias, Any
 
 from betty.typing import Void
@@ -112,13 +113,14 @@ def dump_default(dump, key, default_type):
     return dump[key]  # type: ignore[return-value]
 
 
-class Dumpable:
+class Dumpable(ABC):
     """
     Instances can be dumped to serializable data.
     """
 
+    @abstractmethod
     def dump(self) -> VoidableDump:
         """
         Dump this instance to a portable format.
         """
-        raise NotImplementedError(repr(self))
+        pass
