@@ -16,6 +16,7 @@ from betty.assertion import (
 from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
+from betty.locale.localizable import plain, Localizable
 from betty.model import Entity, get_entity_type_name, UserFacingEntity
 from betty.model.ancestry import Ancestry
 from betty.project import (
@@ -47,6 +48,20 @@ if TYPE_CHECKING:
     from betty.app import App
     from collections.abc import Sequence
     from betty.serde.dump import Dump, VoidableDump
+
+
+class _DummyNonConfigurableExtension(Extension):
+    pass
+
+
+class _DummyEntity(Entity):
+    @classmethod
+    def entity_type_label(cls) -> Localizable:
+        return plain(cls.__name__)
+
+    @classmethod
+    def entity_type_label_plural(cls) -> Localizable:
+        return plain(cls.__name__)
 
 
 class EntityReferenceTestEntityOne(Entity):
@@ -631,11 +646,11 @@ class TestExtensionConfigurationMapping(
             sut.load_item(dump)
 
 
-class EntityTypeConfigurationTestEntityOne(UserFacingEntity, Entity):
+class EntityTypeConfigurationTestEntityOne(UserFacingEntity, _DummyEntity):
     pass
 
 
-class EntityTypeConfigurationTestEntityOther(UserFacingEntity, Entity):
+class EntityTypeConfigurationTestEntityOther(UserFacingEntity, _DummyEntity):
     pass
 
 
@@ -1149,14 +1164,6 @@ class TestProjectConfiguration:
         sut = ProjectConfiguration(tmp_path / "betty.json")
         with raises_error(error_type=AssertionFailed):
             sut.load(dump)
-
-
-class _DummyNonConfigurableExtension(Extension):
-    pass
-
-
-class _DummyEntity(Entity):
-    pass
 
 
 class _Tracker(ABC):

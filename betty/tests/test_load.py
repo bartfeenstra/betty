@@ -2,12 +2,23 @@ import pytest
 from aioresponses import aioresponses
 from betty.app import App
 from betty.load import load
+from betty.locale.localizable import plain, Localizable
 from betty.model import Entity
 from betty.model.ancestry import HasLinksEntity, Link
 from betty.project import Project
 
 
-class DummyHasLinks(HasLinksEntity, Entity):
+class _DummyEntity(Entity):
+    @classmethod
+    def entity_type_label(cls) -> Localizable:
+        return plain(cls.__name__)
+
+    @classmethod
+    def entity_type_label_plural(cls) -> Localizable:
+        return plain(cls.__name__)
+
+
+class DummyHasLinks(HasLinksEntity, _DummyEntity):
     pass
 
 

@@ -332,6 +332,7 @@ def ref_media_type(root_schema: DictDump[Dump]) -> DictDump[Dump]:
     }
 
 
+@final
 class Link(HasMediaType, Localized, Described, LinkedDataDumpable):
     """
     An external link.
@@ -526,6 +527,7 @@ class HasLinksEntity(HasLinks):
         return dump
 
 
+@final
 @many_to_one("entity", "betty.model.ancestry.HasNotes", "notes")
 class Note(UserFacingEntity, HasPrivacy, HasLinksEntity, Entity):
     """
@@ -711,6 +713,7 @@ class HasCitations(LinkedDataDumpable):
         return schema
 
 
+@final
 @many_to_many("entities", "betty.model.ancestry.HasFiles", "files")
 class File(
     Described,
@@ -865,6 +868,7 @@ class HasFiles:
         pass  # pragma: no cover
 
 
+@final
 @many_to_one("contained_by", "betty.model.ancestry.Source", "contains")
 @one_to_many("contains", "betty.model.ancestry.Source", "contained_by")
 @one_to_many("citations", "betty.model.ancestry.Citation", "source")
@@ -1066,6 +1070,7 @@ class Source(
         return schema
 
 
+@final
 @many_to_many("facts", "betty.model.ancestry.HasCitations", "citations")
 @many_to_one("source", "betty.model.ancestry.Source", "citations")
 class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, Entity):
@@ -1168,6 +1173,7 @@ class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, En
         return schema
 
 
+@final
 class PlaceName(Localized, Dated, LinkedDataDumpable):
     """
     A place name.
@@ -1224,6 +1230,7 @@ class PlaceName(Localized, Dated, LinkedDataDumpable):
         return schema
 
 
+@final
 @many_to_one_to_many(
     "betty.model.ancestry.Place",
     "enclosed_by",
@@ -1264,6 +1271,7 @@ class Enclosure(Dated, HasCitations, Entity):
         return _("Enclosures")  # pragma: no cover
 
 
+@final
 @one_to_many("events", "betty.model.ancestry.Event", "place")
 @one_to_many("enclosed_by", "betty.model.ancestry.Enclosure", "encloses")
 @one_to_many("encloses", "betty.model.ancestry.Enclosure", "enclosed_by")
@@ -1653,6 +1661,7 @@ class Organizer(PresenceRole):
         return _("Organizer")  # pragma: no cover
 
 
+@final
 @many_to_one_to_many(
     "betty.model.ancestry.Person",
     "presences",
@@ -1711,6 +1720,7 @@ class Presence(HasPrivacy, Entity):
         )
 
 
+@final
 @many_to_one("place", "betty.model.ancestry.Place", "events")
 @one_to_many("presences", "betty.model.ancestry.Presence", "event")
 class Event(
@@ -1933,6 +1943,7 @@ class Event(
         return schema
 
 
+@final
 @many_to_one("person", "betty.model.ancestry.Person", "names")
 class PersonName(Localized, HasCitations, HasPrivacy, Entity):
     """
@@ -2061,6 +2072,7 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
         return schema
 
 
+@final
 @many_to_many("parents", "betty.model.ancestry.Person", "children")
 @many_to_many("children", "betty.model.ancestry.Person", "parents")
 @one_to_many("presences", "betty.model.ancestry.Presence", "person")
@@ -2341,6 +2353,7 @@ class Person(
         return schema
 
 
+@final
 class Ancestry(MultipleTypesEntityCollection[Entity]):
     """
     An ancestry contains all the entities of a single family tree/genealogical data set.

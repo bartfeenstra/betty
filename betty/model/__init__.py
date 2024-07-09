@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import functools
 import weakref
+from abc import ABC, abstractmethod
 from collections import defaultdict
 from contextlib import contextmanager
 from reprlib import recursive_repr
@@ -52,7 +53,7 @@ class GeneratedEntityId(str):
         return super().__new__(cls, entity_id or str(uuid4()))
 
 
-class Entity(LinkedDataDumpable):
+class Entity(LinkedDataDumpable, ABC):
     """
     An entity is a uniquely identifiable data container.
     """
@@ -70,18 +71,20 @@ class Entity(LinkedDataDumpable):
         return hash(self.ancestry_id)
 
     @classmethod
+    @abstractmethod
     def entity_type_label(cls) -> Localizable:
         """
         The human-readable entity type label, singular.
         """
-        raise NotImplementedError(repr(cls))
+        pass
 
     @classmethod
+    @abstractmethod
     def entity_type_label_plural(cls) -> Localizable:
         """
         The human-readable entity type label, plural.
         """
-        raise NotImplementedError(repr(cls))
+        pass
 
     @override  # type: ignore[callable-functiontype]
     @recursive_repr()
@@ -171,16 +174,17 @@ class UserFacingEntity:
     pass
 
 
-class EntityTypeProvider:
+class EntityTypeProvider(ABC):
     """
     Provide additional entity types.
     """
 
+    @abstractmethod
     async def entity_types(self) -> set[type[Entity]]:
         """
         The entity types.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
@@ -250,7 +254,7 @@ class EntityTypeInvalidError(EntityTypeError, ImportError):
         )
 
 
-class EntityCollection(Generic[_TargetT]):
+class EntityCollection(Generic[_TargetT], ABC):
     """
     Provide a collection of entities.
     """
@@ -273,17 +277,19 @@ class EntityCollection(Generic[_TargetT]):
         """
         return [*self]
 
+    @abstractmethod
     def add(self, *entities: _TargetT & Entity) -> None:
         """
         Add the given entities.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def remove(self, *entities: _TargetT & Entity) -> None:
         """
         Remove the given entities.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
     def replace(self, *entities: _TargetT & Entity) -> None:
         """
@@ -292,17 +298,20 @@ class EntityCollection(Generic[_TargetT]):
         self.remove(*(entity for entity in self if entity not in entities))
         self.add(*entities)
 
+    @abstractmethod
     def clear(self) -> None:
         """
         Clear all entities from the collection.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def __iter__(self) -> Iterator[_TargetT & Entity]:
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def __len__(self) -> int:
-        raise NotImplementedError(repr(self))
+        pass
 
     @overload
     def __getitem__(self, index: int) -> _TargetT & Entity:
@@ -312,16 +321,19 @@ class EntityCollection(Generic[_TargetT]):
     def __getitem__(self, indices: slice) -> list[_TargetT & Entity]:
         pass
 
+    @abstractmethod
     def __getitem__(
         self, key: int | slice
     ) -> _TargetT & Entity | list[_TargetT & Entity]:
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def __delitem__(self, key: _TargetT & Entity) -> None:
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def __contains__(self, value: Any) -> bool:
-        raise NotImplementedError(repr(self))
+        pass
 
     def _known(self, *entities: _TargetT & Entity) -> Iterable[_TargetT & Entity]:
         for entity in Uniquifier(entities):
@@ -337,7 +349,7 @@ class EntityCollection(Generic[_TargetT]):
 _EntityCollectionT = TypeVar("_EntityCollectionT", bound=EntityCollection[_EntityT])
 
 
-class _EntityTypeAssociation(Generic[_OwnerT, _AssociateT]):
+class _EntityTypeAssociation(Generic[_OwnerT, _AssociateT], ABC):
     def __init__(
         self,
         owner_type: type[_OwnerT],
@@ -396,25 +408,29 @@ class _EntityTypeAssociation(Generic[_OwnerT, _AssociateT]):
 
         self._owner_type.__init__ = _init  # type: ignore[assignment, method-assign]
 
+    @abstractmethod
     def initialize(self, owner: _OwnerT & Entity) -> None:
-        raise NotImplementedError(repr(self))
+        pass
 
     def finalize(self, owner: _OwnerT & Entity) -> None:
         self.delete(owner)
         delattr(owner, self._owner_private_attr_name)
 
+    @abstractmethod
     def delete(self, owner: _OwnerT & Entity) -> None:
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def associate(
         self, owner: _OwnerT & Entity, associate: _AssociateT & Entity
     ) -> None:
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def disassociate(
         self, owner: _OwnerT & Entity, associate: _AssociateT & Entity
     ) -> None:
-        raise NotImplementedError(repr(self))
+        pass
 
 
 class BidirectionalEntityTypeAssociation(
