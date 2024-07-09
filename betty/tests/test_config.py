@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Iterable, Generic, TYPE_CHECKING, TypeVar
+from typing import Iterable, Generic, TYPE_CHECKING, TypeVar, Self
 
 import pytest
 from typing_extensions import override
@@ -36,6 +37,14 @@ _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
 
 class _FileBasedConfiguration(FileBasedConfiguration):
     @override
+    def update(self, other: Self) -> None:
+        pass
+
+    @override
+    def load(self, dump: Dump) -> None:
+        pass
+
+    @override
     def dump(self) -> VoidableDump:
         return Void
 
@@ -58,6 +67,10 @@ class ConfigurationSequenceTestConfiguration(Configuration):
         self.value = configuration_value
 
     @override
+    def update(self, other: Self) -> None:
+        pass
+
+    @override
     def load(self, dump: Dump) -> None:
         assert_record(
             RequiredField("value", assert_int() | assert_setattr(self, "value")),
@@ -75,6 +88,10 @@ class ConfigurationMappingTestConfiguration(Configuration):
         self.value = configuration_value
 
     @override
+    def update(self, other: Self) -> None:
+        pass
+
+    @override
     def load(self, dump: Dump) -> None:
         assert_record(
             RequiredField("key", assert_str() | assert_setattr(self, "key")),
@@ -89,23 +106,28 @@ class ConfigurationMappingTestConfiguration(Configuration):
         }
 
 
-class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _ConfigurationT]):
+class ConfigurationCollectionTestBase(
+    Generic[_ConfigurationKeyT, _ConfigurationT], ABC
+):
+    @abstractmethod
     def get_sut(
         self, configurations: Iterable[_ConfigurationT] | None = None
     ) -> ConfigurationCollection[_ConfigurationKeyT, _ConfigurationT]:
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def get_configuration_keys(
         self,
     ) -> tuple[
         _ConfigurationKeyT, _ConfigurationKeyT, _ConfigurationKeyT, _ConfigurationKeyT
     ]:
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def get_configurations(
         self,
     ) -> tuple[_ConfigurationT, _ConfigurationT, _ConfigurationT, _ConfigurationT]:
-        raise NotImplementedError(repr(self))
+        pass
 
     async def test_replace_without_items(self) -> None:
         sut = self.get_sut()

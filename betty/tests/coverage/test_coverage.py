@@ -187,6 +187,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "person_timeline_events": TestKnownToBeMissing,
         "CottonCandy": TestKnownToBeMissing,
         "CottonCandyConfiguration": {
+            "update": TestKnownToBeMissing,
             "featured_entities": TestKnownToBeMissing,
             "link_active_color": TestKnownToBeMissing,
             "link_inactive_color": TestKnownToBeMissing,

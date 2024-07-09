@@ -4,6 +4,7 @@ Provide the Configuration API.
 
 from __future__ import annotations
 
+from abc import abstractmethod
 from collections import OrderedDict
 from collections.abc import Callable
 from contextlib import chdir
@@ -52,17 +53,19 @@ class Configuration(Dumpable):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
+    @abstractmethod
     def update(self, other: Self) -> None:
         """
         Update this configuration with the values from ``other``.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def load(self, dump: Dump) -> None:
         """
         Load dumped configuration.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
@@ -176,14 +179,16 @@ class ConfigurationCollection(
         if configurations is not None:
             self.append(*configurations)
 
+    @abstractmethod
     def __iter__(self) -> Iterator[_ConfigurationKeyT] | Iterator[_ConfigurationT]:
-        raise NotImplementedError(repr(self))
+        pass
 
     def __contains__(self, item: Any) -> bool:
         return item in self._configurations
 
+    @abstractmethod
     def __getitem__(self, configuration_key: _ConfigurationKeyT) -> _ConfigurationT:
-        raise NotImplementedError(repr(self))
+        pass
 
     def __delitem__(self, configuration_key: _ConfigurationKeyT) -> None:
         self.remove(configuration_key)
@@ -196,11 +201,12 @@ class ConfigurationCollection(
     def __repr__(self) -> str:
         return repr_instance(self, configurations=list(self.values()))
 
+    @abstractmethod
     def replace(self, *values: _ConfigurationT) -> None:
         """
         Replace any existing values with the given ones.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
     def remove(self, *configuration_keys: _ConfigurationKeyT) -> None:
         """
@@ -223,11 +229,12 @@ class ConfigurationCollection(
     def _on_remove(self, configuration: _ConfigurationT) -> None:
         pass
 
+    @abstractmethod
     def to_index(self, configuration_key: _ConfigurationKeyT) -> int:
         """
         Get the index for the given key.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
     def to_indices(self, *configuration_keys: _ConfigurationKeyT) -> Iterator[int]:
         """
@@ -236,11 +243,12 @@ class ConfigurationCollection(
         for configuration_key in configuration_keys:
             yield self.to_index(configuration_key)
 
+    @abstractmethod
     def to_key(self, index: int) -> _ConfigurationKeyT:
         """
         Get the key for the item at the given index.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
     def to_keys(self, *indices: int | slice) -> Iterator[_ConfigurationKeyT]:
         """
@@ -256,67 +264,77 @@ class ConfigurationCollection(
         for index in sorted(unique_indices):
             yield self.to_key(index)
 
+    @abstractmethod
     def load_item(self, dump: Dump) -> _ConfigurationT:
         """
         Create and load a new item from the given dump, or raise an assertion error.
 
         :raise betty.assertion.error.AssertionFailed: Raised when the dump is invalid and cannot be loaded.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def keys(self) -> Iterator[_ConfigurationKeyT]:
         """
         Get all keys in this collection.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def values(self) -> Iterator[_ConfigurationT]:
         """
         Get all values in this collection.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def prepend(self, *configurations: _ConfigurationT) -> None:
         """
         Prepend the given values to the beginning of the sequence.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def append(self, *configurations: _ConfigurationT) -> None:
         """
         Append the given values to the end of the sequence.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def insert(self, index: int, *configurations: _ConfigurationT) -> None:
         """
         Insert the given values at the given index.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def move_to_beginning(self, *configuration_keys: _ConfigurationKeyT) -> None:
         """
         Move the given keys (and their values) to the beginning of the sequence.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def move_towards_beginning(self, *configuration_keys: _ConfigurationKeyT) -> None:
         """
         Move the given keys (and their values) one place towards the beginning of the sequence.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def move_to_end(self, *configuration_keys: _ConfigurationKeyT) -> None:
         """
         Move the given keys (and their values) to the end of the sequence.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def move_towards_end(self, *configuration_keys: _ConfigurationKeyT) -> None:
         """
         Move the given keys (and their values) one place towards the end of the sequence.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
 
 class ConfigurationSequence(
@@ -602,18 +620,21 @@ class ConfigurationMapping(
                 self._configurations.pop(current_configuration_keys[index]),
             )
 
+    @abstractmethod
     def _get_key(self, configuration: _ConfigurationT) -> _ConfigurationKeyT:
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def _load_key(
         self,
         item_dump: Dump,
         key_dump: str,
     ) -> Dump:
-        raise NotImplementedError(repr(self))
+        pass
 
+    @abstractmethod
     def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
-        raise NotImplementedError(repr(self))
+        pass
 
 
 class Configurable(Generic[_ConfigurationT]):
