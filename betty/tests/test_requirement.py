@@ -49,13 +49,6 @@ class TestRequirementCollection:
             requirement_1, requirement_2
         ) == _RequirementCollection(requirement_1, requirement_2)
 
-    async def test___add__(self) -> None:
-        requirement_1 = _MetRequirement()
-        requirement_2 = _MetRequirement()
-        sut = _RequirementCollection(requirement_1)
-        sut += requirement_2
-        assert [requirement_1, requirement_2] == sut._requirements
-
     async def test_localize_without_requirements(self) -> None:
         assert _RequirementCollection().localize(DEFAULT_LOCALIZER) == "Lorem ipsum"
 

@@ -110,12 +110,6 @@ class RequirementCollection(Requirement):
             return False
         return self._requirements == other._requirements
 
-    def __add__(self, other: Any) -> Self:
-        if not isinstance(other, Requirement):
-            raise NotImplementedError(repr(self))
-        self._requirements = [*self._requirements, other]
-        return self
-
     @override
     def localize(self, localizer: Localizer) -> str:
         localized = super().localize(localizer)
