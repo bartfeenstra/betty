@@ -87,16 +87,18 @@ betty = 'betty.cli:main'
 'update-translations' = 'betty.cli._update_translations'
 'serve-nginx-docker' = 'betty.extension.nginx.cli._serve'
 
-[project.entry-points.'betty.extensions']
-'betty.extension.CottonCandy' = 'betty.extension.CottonCandy'
-'betty.extension.Demo' = 'betty.extension.Demo'
-'betty.extension.Deriver' = 'betty.extension.Deriver'
-'betty.extension.Gramps' = 'betty.extension.Gramps'
-'betty.extension.Maps' = 'betty.extension.Maps'
-'betty.extension.Privatizer' = 'betty.extension.Privatizer'
-'betty.extension.HttpApiDoc' = 'betty.extension.HttpApiDoc'
-'betty.extension.Trees' = 'betty.extension.Trees'
-'betty.extension.Wikipedia' = 'betty.extension.Wikipedia'
+[project.entry-points.'betty.extension']
+'cotton-candy' = 'betty.extension.cotton_candy:CottonCandy'
+'demo' = 'betty.extension.demo:Demo'
+'deriver' = 'betty.extension.deriver:Deriver'
+'gramps' = 'betty.extension.gramps:Gramps'
+'http-api-doc' = 'betty.extension.http_api_doc:HttpApiDoc'
+'maps' = 'betty.extension.maps:Maps'
+'nginx' = 'betty.extension.nginx:Nginx'
+'privatizer' = 'betty.extension.privatizer:Privatizer'
+'trees' = 'betty.extension.trees:Trees'
+'webpack' = 'betty.extension.webpack:Webpack'
+'wikipedia' = 'betty.extension.wikipedia:Wikipedia'
 
 [project.optional-dependencies]
 setuptools = [

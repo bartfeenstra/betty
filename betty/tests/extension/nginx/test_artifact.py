@@ -2,7 +2,7 @@ import re
 from typing import Optional
 
 from betty.app import App
-from betty.extension import Nginx
+from betty.extension.nginx import Nginx
 from betty.extension.nginx.artifact import (
     generate_configuration_file,
     generate_dockerfile_file,

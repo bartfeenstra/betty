@@ -1,5 +1,5 @@
 from betty.app import App
-from betty.extension import HttpApiDoc
+from betty.extension.http_api_doc import HttpApiDoc
 from betty.generate import generate
 from betty.project import ExtensionConfiguration, Project
 

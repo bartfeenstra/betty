@@ -1,4 +1,4 @@
-from betty.extension import CottonCandy
+from betty.extension.cotton_candy import CottonCandy
 from betty.jinja2 import EntityContexts
 from betty.model.ancestry import PlaceName, Place, Enclosure
 from betty.tests import TemplateTestCase

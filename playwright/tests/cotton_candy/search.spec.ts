@@ -13,8 +13,8 @@ const test = base.extend<{
     await generateSite(temporaryDirectoryPath, {
       base_url: await server.getPublicUrl(),
       extensions: {
-        'betty.extension.CottonCandy': {},
-        'betty.extension.Gramps': {
+        'cotton-candy': {},
+        'gramps': {
           enabled: true,
           configuration: {
             family_trees: [

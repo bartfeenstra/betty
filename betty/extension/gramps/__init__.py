@@ -8,24 +8,27 @@ from typing import final
 
 from typing_extensions import override
 
-from betty.locale.localizable import plain, _, Localizable
-from betty.project.extension import ConfigurableExtension, UserFacingExtension
-from betty.gramps.loader import GrampsLoader
-
 from betty.extension.gramps.config import GrampsConfiguration
+from betty.gramps.loader import GrampsLoader
 from betty.load import Loader
+from betty.locale.localizable import plain, _, Localizable
+from betty.project.extension import ConfigurableExtension
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from betty.plugin import PluginId
 
 
 @final
-class Gramps(ConfigurableExtension[GrampsConfiguration], UserFacingExtension, Loader):
+class Gramps(ConfigurableExtension[GrampsConfiguration], Loader):
     """
     Integrate Betty with `Gramps <https://gramps-project.org>`_.
     """
 
     @override
     @classmethod
-    def name(cls) -> str:
-        return "betty.extension.Gramps"
+    def plugin_id(cls) -> PluginId:
+        return "gramps"
 
     @override
     @classmethod
@@ -44,10 +47,10 @@ class Gramps(ConfigurableExtension[GrampsConfiguration], UserFacingExtension, Lo
 
     @override
     @classmethod
-    def label(cls) -> Localizable:
+    def plugin_label(cls) -> Localizable:
         return plain("Gramps")
 
     @override
     @classmethod
-    def description(cls) -> Localizable:
+    def plugin_description(cls) -> Localizable:
         return _('Load <a href="https://gramps-project.org/">Gramps</a> family trees.')

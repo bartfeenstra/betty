@@ -3,33 +3,34 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
-from betty.locale.localizable import _, Localizable
-from betty.project.extension import Extension, UserFacingExtension
 from betty.extension.webpack import Webpack, WebpackEntryPointProvider
-from typing import TYPE_CHECKING, final
+from betty.locale.localizable import _, Localizable
+from betty.project.extension import Extension
 
 if TYPE_CHECKING:
+    from betty.plugin import PluginId
     from collections.abc import Sequence
 
 
 @final
-class Trees(UserFacingExtension, WebpackEntryPointProvider):
+class Trees(Extension, WebpackEntryPointProvider):
     """
     Provide interactive family trees for use in web pages.
     """
 
     @override
     @classmethod
-    def name(cls) -> str:
-        return "betty.extension.Trees"
+    def plugin_id(cls) -> PluginId:
+        return "trees"
 
     @override
     @classmethod
-    def depends_on(cls) -> set[type[Extension]]:
-        return {Webpack}
+    def depends_on(cls) -> set[PluginId]:
+        return {Webpack.plugin_id()}
 
     @override
     @classmethod
@@ -47,12 +48,12 @@ class Trees(UserFacingExtension, WebpackEntryPointProvider):
 
     @override
     @classmethod
-    def label(cls) -> Localizable:
+    def plugin_label(cls) -> Localizable:
         return _("Trees")
 
     @override
     @classmethod
-    def description(cls) -> Localizable:
+    def plugin_description(cls) -> Localizable:
         return _(
             'Display interactive family trees using <a href="https://cytoscape.org/">Cytoscape</a>.'
         )

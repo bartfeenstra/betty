@@ -4,7 +4,7 @@ from typing import Any
 
 import pytest
 
-from betty.extension import CottonCandy
+from betty.extension.cotton_candy import CottonCandy
 from betty.locale import DateRange, Date
 from betty.model.ancestry import Place, PlaceName
 from betty.tests import TemplateTestCase

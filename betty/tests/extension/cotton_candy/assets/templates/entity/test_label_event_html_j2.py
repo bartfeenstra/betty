@@ -1,4 +1,4 @@
-from betty.extension import CottonCandy
+from betty.extension.cotton_candy import CottonCandy
 from betty.jinja2 import EntityContexts
 from betty.model.ancestry import Person, Event, Presence, Subject, Witness
 from betty.model.event_type import Birth, Marriage

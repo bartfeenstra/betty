@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-09 00:22+0100\n"
+"POT-Creation-Date: 2024-07-09 13:11+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -52,9 +52,6 @@ msgid ""
 msgstr ""
 
 msgid "\"{entity_type}\" is not a valid Betty entity type."
-msgstr ""
-
-msgid "\"{extension_type}\" is not a valid Betty extension type."
 msgstr ""
 
 msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
@@ -168,16 +165,13 @@ msgstr ""
 msgid "Cannot determine the entity type for \"{entity_type}\". Did you perhaps make a typo, or could it be that the entity type comes from another package that is not yet installed?"
 msgstr ""
 
-msgid "Cannot determine the extension type for \"{extension_type}\". Did you perhaps make a typo, or could it be that the extension type comes from another package that is not yet installed?"
-msgstr ""
-
 msgid "Cannot find an available port to bind the web server to."
 msgstr ""
 
 msgid "Cannot find and import \"{entity_type}\"."
 msgstr ""
 
-msgid "Cannot find and import \"{extension_type}\"."
+msgid "Cannot find and import \"{plugin_id}\". Did you mean one of: {available_plugin_ids}?"
 msgstr ""
 
 msgid "Cannot generate pages for {entity_type}, because it is not a user-facing entity type."

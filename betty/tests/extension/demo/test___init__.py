@@ -3,7 +3,7 @@ from __future__ import annotations
 import requests
 from requests import Response
 
-from betty.extension import Demo
+from betty.extension.demo import Demo
 from betty.extension.demo import DemoServer, demo_project
 from betty.functools import Do
 from betty.load import load
@@ -46,4 +46,4 @@ class TestDemoServer:
 class TestDemoProject:
     async def test(self, new_temporary_app: App) -> None:
         async with demo_project(new_temporary_app) as project:
-            assert Demo in project.extensions
+            assert Demo.plugin_id() in project.extensions

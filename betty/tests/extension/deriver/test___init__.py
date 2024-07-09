@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from betty.extension import Deriver
+from betty.extension.deriver import Deriver
 from betty.load import load
 from betty.locale import DateRange, Date
 from betty.locale.localizable import Localizable, plain

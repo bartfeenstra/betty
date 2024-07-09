@@ -7,7 +7,6 @@ import pytest
 
 from betty.app import App
 from betty.locale.localizable import plain, Localizable
-from betty.project.extension import Extension
 from betty.generate import generate
 from betty.model import (
     Entity,
@@ -25,6 +24,7 @@ from betty.project import (
 )
 from betty.string import camel_case_to_kebab_case
 from betty.tests import assert_betty_html, assert_betty_json
+from betty.tests.project.extension.test___init__ import DummyExtension
 
 
 class _ThirdPartyEntity(Entity, UserFacingEntity):
@@ -37,7 +37,7 @@ class _ThirdPartyEntity(Entity, UserFacingEntity):
         return plain(cls.__name__)
 
 
-class _ThirdPartyExtension(Extension, EntityTypeProvider):
+class _ThirdPartyExtension(DummyExtension, EntityTypeProvider):
     async def entity_types(self) -> set[type[Entity]]:
         return {_ThirdPartyEntity}
 

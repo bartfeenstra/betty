@@ -21,6 +21,22 @@ from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
 from betty import fs
+from betty.assertion import (
+    Assertion,
+    RequiredField,
+    OptionalField,
+    assert_record,
+    assert_entity_type,
+    assert_setattr,
+    assert_str,
+    assert_bool,
+    assert_dict,
+    assert_locale,
+    assert_int,
+    assert_positive_number,
+    assert_fields,
+)
+from betty.assertion.error import AssertionFailed
 from betty.assets import AssetRepository
 from betty.asyncio import wait_to_thread
 from betty.classtools import repr_instance
@@ -66,6 +82,8 @@ from betty.model.event_type import (
     Correspondence,
     Confirmation,
 )
+from betty.plugin.assertion import assert_plugin
+from betty.project import extension
 from betty.project.extension import (
     Extension,
     ConfigurableExtension,
@@ -84,23 +102,6 @@ from betty.serde.dump import (
     VoidableDictDump,
 )
 from betty.typing import Void
-from betty.assertion import (
-    Assertion,
-    RequiredField,
-    OptionalField,
-    assert_record,
-    assert_entity_type,
-    assert_setattr,
-    assert_str,
-    assert_extension_type,
-    assert_bool,
-    assert_dict,
-    assert_locale,
-    assert_int,
-    assert_positive_number,
-    assert_fields,
-)
-from betty.assertion.error import AssertionFailed
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -374,30 +375,12 @@ class ExtensionConfiguration(Configuration):
         self._enabled = other._enabled
         self._set_extension_configuration(other._extension_configuration)
 
-    @classmethod
-    def assert_load(cls) -> Assertion[Dump, ExtensionConfiguration]:
-        """
-        Build an assertion to create a new instance and load a configuration dump into it.
-        """
-
-        def _assertion(dump: Dump) -> ExtensionConfiguration:
-            dict_dump = assert_fields(
-                RequiredField("extension", assert_extension_type())
-            )(dump)
-            configuration = cls(dict_dump["extension"])
-            configuration.load(dump)
-            return configuration
-
-        return _assertion
-
-    _extension_type_assertion = assert_extension_type()
-
     @override
     def load(self, dump: Dump) -> None:
         assert_record(
             RequiredField(
                 "extension",
-                self._extension_type_assertion
+                assert_plugin(extension.EXTENSION_REPOSITORY)
                 | assert_setattr(self, "_extension_type"),
             ),
             OptionalField("enabled", assert_bool() | assert_setattr(self, "enabled")),
@@ -417,7 +400,7 @@ class ExtensionConfiguration(Configuration):
                 return extension_configuration
             raise AssertionFailed(
                 _("{extension_type} is not configurable.").format(
-                    extension_type=extension_type.name()
+                    extension_type=extension_type.plugin_id()
                 )
             )
 
@@ -427,7 +410,7 @@ class ExtensionConfiguration(Configuration):
     def dump(self) -> VoidableDump:
         return minimize(
             {
-                "extension": self.extension_type.name(),
+                "extension": self.extension_type.plugin_id(),
                 "enabled": self.enabled,
                 "configuration": (
                     minimize(self.extension_configuration.dump())
@@ -459,7 +442,12 @@ class ExtensionConfigurationMapping(
 
     @override
     def load_item(self, dump: Dump) -> ExtensionConfiguration:
-        return ExtensionConfiguration.assert_load()(dump)
+        dict_dump = assert_fields(
+            RequiredField("extension", assert_plugin(extension.EXTENSION_REPOSITORY))
+        )(dump)
+        configuration = ExtensionConfiguration(dict_dump["extension"])
+        configuration.load(dump)
+        return configuration
 
     @override
     def _get_key(self, configuration: ExtensionConfiguration) -> type[Extension]:
@@ -1234,7 +1222,9 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
                     )
 
             extension_types_sorter = TopologicalSorter(
-                build_extension_type_graph(extension_types_enabled_in_configuration)
+                wait_to_thread(
+                    build_extension_type_graph(extension_types_enabled_in_configuration)
+                )
             )
             try:
                 extension_types_sorter.prepare()
@@ -1266,22 +1256,13 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
                     extensions_batch.append(extension)
                     extension_types_sorter.done(extension_type)
                 extensions.append(
-                    sorted(extensions_batch, key=lambda extension: extension.name())
+                    sorted(
+                        extensions_batch, key=lambda extension: extension.plugin_id()
+                    )
                 )
             self._extensions = ListExtensions(extensions)
 
         return self._extensions
-
-    def discover_extension_types(self) -> set[type[Extension]]:
-        """
-        Discover the available extension types.
-        """
-        from betty.project import extension
-
-        return {
-            *extension.discover_extension_types(),
-            *map(type, self.extensions.flatten()),
-        }
 
     @property
     def dispatcher(self) -> Dispatcher:

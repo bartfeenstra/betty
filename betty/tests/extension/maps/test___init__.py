@@ -1,7 +1,7 @@
 import aiofiles
 
 from betty.app import App
-from betty.extension import Maps
+from betty.extension.maps import Maps
 from betty.generate import generate
 from betty.project import ExtensionConfiguration, Project
 
@@ -14,18 +14,14 @@ class TestMaps:
             async with project:
                 await generate(project)
                 async with aiofiles.open(
-                    project.configuration.www_directory_path
-                    / "js"
-                    / "betty.extension.Maps.js",
+                    project.configuration.www_directory_path / "js" / "maps.js",
                     encoding="utf-8",
                 ) as f:
                     betty_js = await f.read()
-                assert Maps.name() in betty_js
+                assert Maps.plugin_id() in betty_js
                 async with aiofiles.open(
-                    project.configuration.www_directory_path
-                    / "css"
-                    / "betty.extension.Maps.css",
+                    project.configuration.www_directory_path / "css" / "maps.css",
                     encoding="utf-8",
                 ) as f:
                     betty_css = await f.read()
-                assert Maps.name() in betty_css
+                assert Maps.plugin_id() in betty_css

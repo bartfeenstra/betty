@@ -10,22 +10,27 @@ from typing import final
 from typing_extensions import override
 
 from betty.deriver import Deriver as DeriverApi
+from betty.extension.privatizer import Privatizer
 from betty.load import PostLoader
 from betty.locale.localizable import _, Localizable
 from betty.model.event_type import DerivableEventType
-from betty.project.extension import Extension, UserFacingExtension
+from betty.project.extension import Extension
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from betty.plugin import PluginId
 
 
 @final
-class Deriver(UserFacingExtension, PostLoader):
+class Deriver(Extension, PostLoader):
     """
     Expand an ancestry by deriving additional data from existing data.
     """
 
     @override
     @classmethod
-    def name(cls) -> str:
-        return "betty.extension.Deriver"
+    def plugin_id(cls) -> PluginId:
+        return "deriver"
 
     @override
     async def post_load(self) -> None:
@@ -46,19 +51,17 @@ class Deriver(UserFacingExtension, PostLoader):
 
     @override
     @classmethod
-    def comes_before(cls) -> set[type[Extension]]:
-        from betty.extension import Privatizer
-
-        return {Privatizer}
+    def comes_before(cls) -> set[PluginId]:
+        return {Privatizer.plugin_id()}
 
     @override
     @classmethod
-    def label(cls) -> Localizable:
+    def plugin_label(cls) -> Localizable:
         return _("Deriver")
 
     @override
     @classmethod
-    def description(cls) -> Localizable:
+    def plugin_description(cls) -> Localizable:
         return _(
             "Create events such as births and deaths by deriving their details from existing information."
         )

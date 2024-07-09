@@ -10,7 +10,7 @@ const test = base.extend<{
     await generateSite(temporaryDirectoryPath, {
       base_url: await server.getPublicUrl(),
       extensions: {
-        'betty.extension.HttpApiDoc': {}
+        'http-api-doc': {}
       }
     })
     await use(await server.getPublicUrl())

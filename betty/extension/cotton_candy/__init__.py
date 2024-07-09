@@ -23,6 +23,8 @@ from betty.assertion import (
 from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
 from betty.extension.cotton_candy.search import Index
+from betty.extension.maps import Maps
+from betty.extension.trees import Trees
 from betty.extension.webpack import Webpack, WebpackEntryPointProvider
 from betty.functools import Uniquifier
 from betty.generate import Generator, GenerationContext
@@ -51,11 +53,12 @@ from betty.model.ancestry import (
 from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
 from betty.os import link_or_copy
 from betty.project import EntityReferenceSequence, EntityReference
-from betty.project.extension import ConfigurableExtension, Extension, Theme
+from betty.project.extension import ConfigurableExtension, Theme
 from betty.serde.dump import minimize, Dump, VoidableDump
 from betty.typing import Void
 
 if TYPE_CHECKING:
+    from betty.plugin import PluginId
     from jinja2.runtime import Context
     from collections.abc import Sequence, AsyncIterable
 
@@ -228,20 +231,18 @@ class CottonCandy(
 
     @override
     @classmethod
-    def name(cls) -> str:
-        return "betty.extension.CottonCandy"
+    def plugin_id(cls) -> PluginId:
+        return "cotton-candy"
 
     @override
     @classmethod
-    def depends_on(cls) -> set[type[Extension]]:
-        return {Webpack}
+    def depends_on(cls) -> set[PluginId]:
+        return {Webpack.plugin_id()}
 
     @override
     @classmethod
-    def comes_after(cls) -> set[type[Extension]]:
-        from betty.extension import Maps, Trees
-
-        return {Maps, Trees}
+    def comes_after(cls) -> set[PluginId]:
+        return {Maps.plugin_id(), Trees.plugin_id()}
 
     @override
     @classmethod
@@ -267,14 +268,12 @@ class CottonCandy(
     @property
     def public_css_paths(self) -> list[str]:
         return [
-            self.project.static_url_generator.generate(
-                "css/betty.extension.CottonCandy.css"
-            ),
+            self.project.static_url_generator.generate("css/cotton-candy.css"),
         ]
 
     @override
     @classmethod
-    def label(cls) -> Localizable:
+    def plugin_label(cls) -> Localizable:
         return plain("Cotton Candy")
 
     @override
@@ -284,7 +283,7 @@ class CottonCandy(
 
     @override
     @classmethod
-    def description(cls) -> Localizable:
+    def plugin_description(cls) -> Localizable:
         return _("Cotton Candy is Betty's default theme.")
 
     @property

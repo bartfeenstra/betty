@@ -156,19 +156,21 @@ class Builder:
         webpack_entry: MutableMapping[str, str],
     ) -> None:
         entry_point_provider_working_directory_path = (
-            npm_project_directory_path / "entry_points" / entry_point_provider.name()
+            npm_project_directory_path
+            / "entry_points"
+            / entry_point_provider.plugin_id()
         )
         await self._copytree_and_render(
             entry_point_provider.webpack_entry_point_directory_path(),
             entry_point_provider_working_directory_path,
         )
-        npm_project_package_json_dependencies[entry_point_provider.name()] = (
+        npm_project_package_json_dependencies[entry_point_provider.plugin_id()] = (
             # Ensure a relative path inside the npm project directory, or else npm
             # will not install our entry points' dependencies.
             f"file:{entry_point_provider_working_directory_path.relative_to(npm_project_directory_path)}"
         )
         # Webpack requires relative paths to start with a leading dot and use forward slashes.
-        webpack_entry[entry_point_provider.name()] = "/".join(
+        webpack_entry[entry_point_provider.plugin_id()] = "/".join(
             (
                 ".",
                 *(entry_point_provider_working_directory_path / "main.ts")

@@ -1,4 +1,4 @@
-from betty.extension import CottonCandy
+from betty.extension.cotton_candy import CottonCandy
 from betty.jinja2 import _Citer
 from betty.locale.localizable import plain
 from betty.model.ancestry import Citation

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from betty.extension import CottonCandy
+from betty.extension.cotton_candy import CottonCandy
 from betty.locale.localizable import plain
 from betty.model.ancestry import Source, File, Citation, Person, PersonName
 from betty.tests import TemplateTestCase

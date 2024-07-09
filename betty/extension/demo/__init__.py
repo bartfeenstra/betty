@@ -10,10 +10,14 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty import load, generate, serve
-from betty.extension.cotton_candy import CottonCandyConfiguration
+from betty.extension.cotton_candy import CottonCandyConfiguration, CottonCandy
+from betty.extension.http_api_doc import HttpApiDoc
+from betty.extension.maps import Maps
+from betty.extension.trees import Trees
+from betty.extension.wikipedia import Wikipedia
 from betty.load import Loader
 from betty.locale import Date, DateRange, DEFAULT_LOCALIZER
-from betty.locale.localizable import plain
+from betty.locale.localizable import plain, Localizable
 from betty.model.ancestry import (
     Place,
     PlaceName,
@@ -39,6 +43,7 @@ from betty.project.extension import Extension
 from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
 
 if TYPE_CHECKING:
+    from betty.plugin import PluginId
     from betty.app import App
     from collections.abc import AsyncIterator
     from betty.model import Entity
@@ -52,15 +57,24 @@ class Demo(Extension, Loader):
 
     @override
     @classmethod
-    def name(cls) -> str:
-        return "betty.extension.Demo"
+    def plugin_id(cls) -> PluginId:
+        return "demo"
 
     @override
     @classmethod
-    def depends_on(cls) -> set[type[Extension]]:
-        from betty.extension import CottonCandy, HttpApiDoc, Maps, Trees, Wikipedia
+    def plugin_label(cls) -> Localizable:
+        return plain("Demo")
 
-        return {CottonCandy, HttpApiDoc, Maps, Trees, Wikipedia}
+    @override
+    @classmethod
+    def depends_on(cls) -> set[PluginId]:
+        return {
+            CottonCandy.plugin_id(),
+            HttpApiDoc.plugin_id(),
+            Maps.plugin_id(),
+            Trees.plugin_id(),
+            Wikipedia.plugin_id(),
+        }
 
     def _load(self, *entities: Entity) -> None:
         self._project.ancestry.add(*entities)
@@ -507,10 +521,8 @@ async def demo_project(app: App) -> AsyncIterator[Project]:
     """
     Create a new demonstration project.
     """
-    from betty.extension import CottonCandy
-
     async with Project.new_temporary(app) as project:
-        project.configuration.name = Demo.name()
+        project.configuration.name = Demo.plugin_id()
         project.configuration.extensions.append(ExtensionConfiguration(Demo))
         project.configuration.extensions.append(
             ExtensionConfiguration(

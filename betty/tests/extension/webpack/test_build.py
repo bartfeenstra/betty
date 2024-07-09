@@ -8,15 +8,16 @@ from pytest_mock import MockerFixture
 
 from betty._npm import NpmUnavailable
 from betty.app import App
-from betty.project import Project
-from betty.project.extension import Extension
 from betty.extension.webpack import WebpackEntryPointProvider
 from betty.extension.webpack.build import Builder
 from betty.job import Context
 from betty.locale import DEFAULT_LOCALIZER
+from betty.plugin.static import StaticPluginRepository
+from betty.project import Project
+from betty.tests.project.extension.test___init__ import DummyExtension
 
 
-class DummyEntryPointProviderExtension(WebpackEntryPointProvider, Extension):
+class DummyEntryPointProviderExtension(WebpackEntryPointProvider, DummyExtension):
     @classmethod
     def webpack_entry_point_directory_path(cls) -> Path:
         return Path(__file__).parent / "test_build_webpack_entry_point"
@@ -26,6 +27,13 @@ class DummyEntryPointProviderExtension(WebpackEntryPointProvider, Extension):
 
 
 class TestBuilder:
+    @pytest.fixture(autouse=True)
+    def _extensions(self, mocker: MockerFixture) -> None:
+        mocker.patch(
+            "betty.project.extension.EXTENSION_REPOSITORY",
+            new=StaticPluginRepository(DummyEntryPointProviderExtension),
+        )
+
     @pytest.mark.parametrize(
         (
             "with_entry_point_provider",
@@ -59,7 +67,11 @@ class TestBuilder:
                 sut = Builder(
                     tmp_path,
                     (
-                        [project.extensions[DummyEntryPointProviderExtension]]
+                        [
+                            project.extensions[  # type: ignore[list-item]
+                                DummyEntryPointProviderExtension.plugin_id()
+                            ]
+                        ]
                         if with_entry_point_provider
                         else []
                     ),
@@ -81,7 +93,7 @@ class TestBuilder:
                 assert (
                     webpack_build_directory_path
                     / "js"
-                    / f"{DummyEntryPointProviderExtension.name()}.js"
+                    / f"{DummyEntryPointProviderExtension.plugin_id()}.js"
                 ).exists()
 
     async def test_build_with_npm_unavailable(

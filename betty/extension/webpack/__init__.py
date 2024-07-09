@@ -18,8 +18,6 @@ from typing_extensions import override
 from betty import fs
 from betty._npm import NpmRequirement, NpmUnavailable
 from betty.app import App
-from betty.locale.localizable import _, Localizable
-from betty.project.extension import Extension, discover_extension_types
 from betty.extension.webpack import build
 from betty.extension.webpack.build import webpack_build_id
 from betty.extension.webpack.jinja2.filter import FILTERS
@@ -27,7 +25,9 @@ from betty.generate import Generator, GenerationContext
 from betty.html import CssProvider
 from betty.jinja2 import Jinja2Provider, Filters, ContextVars
 from betty.job import Context
-from betty.project import Project
+from betty.locale.localizable import _, Localizable, plain
+from betty.project import Project, extension
+from betty.project.extension import Extension
 from betty.requirement import (
     Requirement,
     AllRequirements,
@@ -37,6 +37,7 @@ from betty.requirement import (
 from betty.typing import internal
 
 if TYPE_CHECKING:
+    from betty.plugin import PluginId
     from collections.abc import Sequence
 
 
@@ -59,14 +60,15 @@ async def _prebuild_webpack_assets() -> None:
         async with Project.new_temporary(app) as project:
             project.configuration.extensions.enable(Webpack)
             project.configuration.extensions.enable(
-                *{
-                    extension_type
-                    for extension_type in discover_extension_types()
-                    if issubclass(extension_type, WebpackEntryPointProvider)
-                }
+                *(
+                    await extension.EXTENSION_REPOSITORY.select(
+                        WebpackEntryPointProvider  # type: ignore[type-abstract]
+                    )
+                )
             )
             async with project:
-                webpack = project.extensions[Webpack]
+                webpack = project.extensions[Webpack.plugin_id()]
+                assert isinstance(webpack, Webpack)
                 await webpack.prebuild(job_context=job_context)
 
 
@@ -129,8 +131,13 @@ class Webpack(Extension, CssProvider, Jinja2Provider, Generator):
 
     @override
     @classmethod
-    def name(cls) -> str:
-        return "betty.extension.Webpack"
+    def plugin_id(cls) -> PluginId:
+        return "webpack"
+
+    @override
+    @classmethod
+    def plugin_label(cls) -> Localizable:
+        return plain("Webpack")
 
     @override
     @classmethod

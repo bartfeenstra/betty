@@ -1,4 +1,4 @@
-from betty.extension import CottonCandy
+from betty.extension.cotton_candy import CottonCandy
 from betty.locale import Date
 from betty.model.ancestry import Place, PlaceName, Event, Enclosure
 from betty.model.event_type import Birth

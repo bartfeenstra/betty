@@ -83,7 +83,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/assertion/__init__.py": {
         "assert_assertions": TestKnownToBeMissing,
         "assert_entity_type": TestKnownToBeMissing,
-        "assert_extension_type": TestKnownToBeMissing,
         "assert_locale": TestKnownToBeMissing,
         "assert_none": TestKnownToBeMissing,
         "assert_setattr": TestKnownToBeMissing,
@@ -594,6 +593,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "get": TestKnownToBeMissing,
         },
     },
+    "betty/plugin/assertion.py": {
+        "assert_plugin": TestKnownToBeMissing,
+    },
     "betty/privatizer.py": {
         "Privatizer": {
             "has_expired": TestKnownToBeMissing,
@@ -641,11 +643,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "www_directory_path": TestKnownToBeMissing,
         },
     },
-    "betty/project/extension.py": {
+    "betty/project/extension/__init__.py": {
         "ConfigurableExtension": TestKnownToBeMissing,
         "CyclicDependencyError": TestKnownToBeMissing,
-        "Dependencies": TestKnownToBeMissing,
-        "Dependents": TestKnownToBeMissing,
         "Extension": {
             "project": TestKnownToBeMissing,
             "disable_requirement": TestKnownToBeMissing,
@@ -659,18 +659,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Extensions": TestKnownToBeMissing,
         # This is an empty class.
         "ExtensionTypeError": TestKnownToBeMissing,
-        "ExtensionTypeImportError": TestKnownToBeMissing,
         "ExtensionTypeInvalidError": TestKnownToBeMissing,
-        "format_extension_type": TestKnownToBeMissing,
-        "get_extension_type": TestKnownToBeMissing,
-        "get_extension_type_by_extension": TestKnownToBeMissing,
-        "get_extension_type_by_name": TestKnownToBeMissing,
-        "get_extension_type_by_type": TestKnownToBeMissing,
         "ListExtensions": TestKnownToBeMissing,
         # This is an empty class.
         "Theme": TestKnownToBeMissing,
-        # This is an interface.
-        "UserFacingExtension": TestKnownToBeMissing,
+    },
+    "betty/project/extension/requirement.py": {
+        "Dependencies": TestKnownToBeMissing,
+        "Dependents": TestKnownToBeMissing,
     },
     "betty/render.py": TestKnownToBeMissing,
     "betty/requirement.py": {

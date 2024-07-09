@@ -12,6 +12,7 @@ from aiofiles.tempfile import TemporaryDirectory
 from docker.errors import DockerException
 from typing_extensions import override
 
+from betty.extension.nginx import Nginx
 from betty.extension.nginx.artifact import (
     generate_dockerfile_file,
     generate_configuration_file,
@@ -35,8 +36,6 @@ class DockerizedNginxServer(Server):
 
     @override
     async def start(self) -> None:
-        from betty.extension import Nginx
-
         await super().start()
         logging.getLogger(__name__).info("Starting a Dockerized nginx web server...")
 
@@ -54,7 +53,9 @@ class DockerizedNginxServer(Server):
         isolated_project.configuration.debug = True
 
         # Work around https://github.com/bartfeenstra/betty/issues/1056.
-        isolated_project.extensions[Nginx].configuration.https = False
+        nginx = isolated_project.extensions[Nginx.plugin_id()]
+        assert isinstance(nginx, Nginx)
+        nginx.configuration.https = False
 
         await self._exit_stack.enter_async_context(isolated_project)
 

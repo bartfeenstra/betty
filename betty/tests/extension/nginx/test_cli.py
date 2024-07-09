@@ -4,7 +4,7 @@ from aiofiles.os import makedirs
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.extension import Nginx
+from betty.extension.nginx import Nginx
 from betty.project import Project
 from betty.tests.cli.test___init__ import run, NoOpServer
 
