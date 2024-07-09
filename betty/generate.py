@@ -9,6 +9,7 @@ import json
 import logging
 import os
 import shutil
+from abc import ABC, abstractmethod
 from asyncio import (
     create_task,
     Task,
@@ -61,16 +62,17 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
 
-class Generator:
+class Generator(ABC):
     """
     An extension that generates (part of) projects' sites.
     """
 
+    @abstractmethod
     async def generate(self, job_context: GenerationContext) -> None:
         """
         Generate (part of) a project's site.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
 
 class GenerationContext(Context):

@@ -3,6 +3,7 @@ Provide the Ancestry loading API.
 """
 
 import logging
+from abc import ABC, abstractmethod
 from xml.etree.ElementTree import Element
 
 from html5lib import parse
@@ -14,32 +15,34 @@ from betty.model.ancestry import Link, HasLinks
 from betty.project import Project
 
 
-class Loader:
+class Loader(ABC):
     """
     Load (part of) the project's ancestry.
 
     Extensions may subclass this to add data to the ancestry, if they choose to do so.
     """
 
+    @abstractmethod
     async def load(self) -> None:
         """
         Load ancestry data.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
 
-class PostLoader:
+class PostLoader(ABC):
     """
     Act on the project's ancestry having been loaded.
     """
 
+    @abstractmethod
     async def post_load(self) -> None:
         """
         Act on the ancestry having been loaded.
 
         This method is called immediately after :py:meth:`betty.load.Loader.load`.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
 
 async def load(project: Project) -> None:

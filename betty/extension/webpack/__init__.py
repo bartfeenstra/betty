@@ -6,6 +6,7 @@ This module is internal.
 
 from __future__ import annotations
 
+from abc import abstractmethod, ABC
 from asyncio import to_thread
 from pathlib import Path
 from shutil import copytree
@@ -69,27 +70,29 @@ async def _prebuild_webpack_assets() -> None:
                 await webpack.prebuild(job_context=job_context)
 
 
-class WebpackEntryPointProvider:
+class WebpackEntryPointProvider(ABC):
     """
     An extension that provides Webpack entry points.
     """
 
     @classmethod
+    @abstractmethod
     def webpack_entry_point_directory_path(cls) -> Path:
         """
         Get the path to the directory with the entry point assets.
 
         The directory must include at least a ``package.json`` and ``main.ts``.
         """
-        raise NotImplementedError
+        pass
 
+    @abstractmethod
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:
         """
         Get the keys that make a Webpack build for this provider unique.
 
         Providers that can be cached regardless may ``return ()``.
         """
-        raise NotImplementedError
+        pass
 
 
 class PrebuiltAssetsRequirement(Requirement):
