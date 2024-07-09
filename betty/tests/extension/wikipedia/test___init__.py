@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 
-from betty.extension import Wikipedia
+from betty.extension.wikipedia import Wikipedia
 from betty.job import Context
 from betty.load import load
 from betty.model.ancestry import Link

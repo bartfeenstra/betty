@@ -1,7 +1,7 @@
 import aiofiles
 
 from betty.app import App
-from betty.extension import Trees
+from betty.extension.trees import Trees
 from betty.generate import generate
 from betty.project import ExtensionConfiguration, Project
 
@@ -14,18 +14,14 @@ class TestTrees:
             async with project:
                 await generate(project)
                 async with aiofiles.open(
-                    project.configuration.www_directory_path
-                    / "js"
-                    / "betty.extension.Trees.js",
+                    project.configuration.www_directory_path / "js" / "trees.js",
                     encoding="utf-8",
                 ) as f:
                     betty_js = await f.read()
-                assert Trees.name() in betty_js
+                assert Trees.plugin_id() in betty_js
                 async with aiofiles.open(
-                    project.configuration.www_directory_path
-                    / "css"
-                    / "betty.extension.Trees.css",
+                    project.configuration.www_directory_path / "css" / "trees.css",
                     encoding="utf-8",
                 ) as f:
                     betty_css = await f.read()
-                assert Trees.name() in betty_css
+                assert Trees.plugin_id() in betty_css

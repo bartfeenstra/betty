@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from betty.app import App
-from betty.extension import CottonCandy
+from betty.extension.cotton_candy import CottonCandy
 from betty.extension.cotton_candy.search import Index
 from betty.job import Context
 from betty.locale import DEFAULT_LOCALIZER

@@ -1,4 +1,4 @@
-from betty.extension import CottonCandy
+from betty.extension.cotton_candy import CottonCandy
 from betty.jinja2 import EntityContexts
 from betty.locale import Date
 from betty.model.ancestry import Event, Place, PlaceName, Citation, Source

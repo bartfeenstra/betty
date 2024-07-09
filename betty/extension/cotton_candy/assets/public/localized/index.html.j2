@@ -5,7 +5,7 @@
     {% endtrans %}
 {% endset %}
 {% block page_content %}
-    {% if 'betty.extension.Demo' in project.extensions %}
+    {% if 'demo' in project.extensions %}
         <p>
             {% trans %}
                 Betty is an application that takes a family tree and builds a website out of it, much like the one you
@@ -24,10 +24,10 @@
             {% endtrans %}
         </p>
     {% endif %}
-    {% if project.extensions['betty.extension.CottonCandy'].configuration.featured_entities %}
+    {% if project.extensions['cotton-candy'].configuration.featured_entities %}
         <div class="featured">
             <div class="featured-entities">
-                {% for entity_reference in project.extensions['betty.extension.CottonCandy'].configuration.featured_entities %}
+                {% for entity_reference in project.extensions['cotton-candy'].configuration.featured_entities %}
                     <div class="featured-entity">
                         {% with entity = project.ancestry[entity_reference.entity_type][entity_reference.entity_id] %}
                             {% include [

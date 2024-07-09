@@ -10,7 +10,7 @@ from requests import Response
 
 from betty import generate
 from betty.app import App
-from betty.extension import Nginx
+from betty.extension.nginx import Nginx
 from betty.extension.nginx.config import NginxConfiguration
 from betty.extension.nginx.serve import DockerizedNginxServer
 from betty.functools import Do

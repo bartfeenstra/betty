@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from betty.extension import CottonCandy
+from betty.extension.cotton_candy import CottonCandy
 from betty.locale import DEFAULT_LOCALIZER
 from betty.locale.localizable import _, Localizable
 from betty.model import Entity

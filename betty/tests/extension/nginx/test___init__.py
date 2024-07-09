@@ -1,5 +1,5 @@
 from betty.app import App
-from betty.extension import Nginx
+from betty.extension.nginx import Nginx
 from betty.generate import generate
 from betty.project import ExtensionConfiguration, Project
 

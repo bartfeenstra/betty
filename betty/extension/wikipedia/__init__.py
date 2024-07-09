@@ -9,13 +9,13 @@ from typing import Iterable, Any, TYPE_CHECKING, final
 from jinja2 import pass_context
 from typing_extensions import override
 
-from betty.locale.localizable import _, Localizable
-from betty.project.extension import UserFacingExtension, ConfigurableExtension
 from betty.asyncio import gather
 from betty.extension.wikipedia.config import WikipediaConfiguration
 from betty.jinja2 import Jinja2Provider, context_localizer, Filters
 from betty.load import PostLoader
 from betty.locale import negotiate_locale
+from betty.locale.localizable import _, Localizable
+from betty.project.extension import ConfigurableExtension
 from betty.wikipedia import (
     Summary,
     _parse_url,
@@ -26,30 +26,28 @@ from betty.wikipedia import (
 )
 
 if TYPE_CHECKING:
+    from betty.plugin import PluginId
     from jinja2.runtime import Context
     from betty.model.ancestry import Link
 
 
 @final
 class Wikipedia(
-    ConfigurableExtension[WikipediaConfiguration],
-    UserFacingExtension,
-    Jinja2Provider,
-    PostLoader,
+    ConfigurableExtension[WikipediaConfiguration], Jinja2Provider, PostLoader
 ):
     """
     Integrates Betty with `Wikipedia <https://wikipedia.org>`_.
     """
 
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "betty.extension.Wikipedia"
-
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self.__retriever: _Retriever | None = None
         self.__populator: _Populator | None = None
+
+    @override
+    @classmethod
+    def plugin_id(cls) -> PluginId:
+        return "wikipedia"
 
     @override
     async def post_load(self) -> None:
@@ -111,12 +109,12 @@ class Wikipedia(
 
     @override
     @classmethod
-    def label(cls) -> Localizable:
+    def plugin_label(cls) -> Localizable:
         return _("Wikipedia")
 
     @override
     @classmethod
-    def description(cls) -> Localizable:
+    def plugin_description(cls) -> Localizable:
         return _(
             """
 Display <a href="https://www.wikipedia.org/">Wikipedia</a> summaries for resources with external links. In your custom <a href="https://jinja2docs.readthedocs.io/en/stable/">Jinja2</a> templates, use the following: <pre><code>

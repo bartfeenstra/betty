@@ -38,8 +38,6 @@ from betty.typing import Void
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from betty.project.extension import Extension
-
 
 Number: TypeAlias = int | float
 
@@ -489,48 +487,6 @@ def assert_setattr(
         return getattr(instance, attr_name)
 
     return AssertionChain(_assert_setattr)
-
-
-def assert_extension_type() -> AssertionChain[Any, type[Extension]]:
-    """
-    Assert that a value is an extension type.
-
-    This assertion passes if the value is fully qualified :py:class:`betty.project.extension.Extension` subclass name.
-    """
-
-    def _assert_extension_type(
-        value: Any,
-    ) -> type[Extension]:
-        from betty.project.extension import (
-            get_extension_type,
-            ExtensionTypeImportError,
-            ExtensionTypeInvalidError,
-            ExtensionTypeError,
-        )
-
-        assert_str()(value)
-        try:
-            return get_extension_type(value)
-        except ExtensionTypeImportError:
-            raise AssertionFailed(
-                _(
-                    'Cannot find and import "{extension_type}".',
-                ).format(extension_type=str(value))
-            ) from None
-        except ExtensionTypeInvalidError:
-            raise AssertionFailed(
-                _(
-                    '"{extension_type}" is not a valid Betty extension type.',
-                ).format(extension_type=str(value))
-            ) from None
-        except ExtensionTypeError:
-            raise AssertionFailed(
-                _(
-                    'Cannot determine the extension type for "{extension_type}". Did you perhaps make a typo, or could it be that the extension type comes from another package that is not yet installed?',
-                ).format(extension_type=str(value))
-            ) from None
-
-    return AssertionChain(_assert_extension_type)
 
 
 def assert_entity_type() -> AssertionChain[Any, type[Entity]]:

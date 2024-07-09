@@ -4,7 +4,7 @@ import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
 
 from betty.app import App
-from betty.extension import Gramps
+from betty.extension.gramps import Gramps
 from betty.extension.gramps.config import FamilyTreeConfiguration, GrampsConfiguration
 from betty.load import load
 from betty.model.ancestry import Citation, Note, Source, File, Event, Person, Place

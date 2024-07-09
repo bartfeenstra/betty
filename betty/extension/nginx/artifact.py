@@ -24,13 +24,14 @@ async def generate_configuration_file(
     """
     Generate an ``nginx.conf`` file to the given destination path.
     """
-    from betty.extension import Nginx
+    from betty.extension.nginx import Nginx
 
+    nginx = project.extensions[Nginx.plugin_id()]
+    assert isinstance(nginx, Nginx)
     data = {
         "server_name": urlparse(project.configuration.base_url).netloc,
-        "www_directory_path": www_directory_path
-        or project.extensions[Nginx].www_directory_path,
-        "https": https or project.extensions[Nginx].https,
+        "www_directory_path": www_directory_path or nginx.www_directory_path,
+        "https": https or nginx.https,
     }
     if destination_file_path is None:
         destination_file_path = (

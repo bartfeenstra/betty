@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from betty.extension import Privatizer
+from betty.extension.privatizer import Privatizer
 from betty.load import load
 from betty.model.ancestry import (
     Person,

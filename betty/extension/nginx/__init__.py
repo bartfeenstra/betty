@@ -12,23 +12,29 @@ from betty.extension.nginx.artifact import (
 from betty.extension.nginx.config import NginxConfiguration
 from betty.generate import Generator, GenerationContext
 from betty.locale.localizable import plain, _, Localizable
-from betty.project.extension import ConfigurableExtension, UserFacingExtension
+from betty.plugin import PluginId
+from betty.project.extension import ConfigurableExtension
 
 
 @final
-class Nginx(ConfigurableExtension[NginxConfiguration], UserFacingExtension, Generator):
+class Nginx(ConfigurableExtension[NginxConfiguration], Generator):
     """
     Integrate Betty with nginx (and Docker).
     """
 
     @override
     @classmethod
-    def label(cls) -> Localizable:
+    def plugin_id(cls) -> PluginId:
+        return "nginx"
+
+    @override
+    @classmethod
+    def plugin_label(cls) -> Localizable:
         return plain("Nginx")
 
     @override
     @classmethod
-    def description(cls) -> Localizable:
+    def plugin_description(cls) -> Localizable:
         return _(
             'Generate <a href="">nginx</a> configuration for your site, as well as a <code>Dockerfile</code> to build a <a href="https://www.docker.com/">Docker</a> container around it.'
         )

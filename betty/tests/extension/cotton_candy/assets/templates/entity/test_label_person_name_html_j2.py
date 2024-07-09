@@ -1,4 +1,4 @@
-from betty.extension import CottonCandy
+from betty.extension.cotton_candy import CottonCandy
 from betty.model.ancestry import PersonName, Citation, Source, Person
 from betty.tests import TemplateTestCase
 

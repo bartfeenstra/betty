@@ -44,7 +44,7 @@ class TestDocumentation:
             configuration: DictDump[Dump] = {
                 "base_url": "https://example.com",
                 "extensions": {
-                    "betty.extension.Nginx": {},
+                    "nginx": {},
                 },
             }
             async with aiofiles.open(working_directory_path / "betty.json", "w") as f:
