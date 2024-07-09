@@ -180,6 +180,15 @@ class CottonCandyConfiguration(Configuration):
         self._logo = logo
 
     @override
+    def update(self, other: Self) -> None:
+        self.featured_entities.update(other.featured_entities)
+        self.primary_inactive_color.update(other.primary_inactive_color)
+        self.primary_active_color.update(other.primary_active_color)
+        self.link_inactive_color.update(other.link_inactive_color)
+        self.link_active_color.update(other.link_active_color)
+        self.logo = other.logo
+
+    @override
     def load(self, dump: Dump) -> None:
         assert_record(
             OptionalField("featured_entities", self.featured_entities.load),

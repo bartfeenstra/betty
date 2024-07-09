@@ -434,11 +434,17 @@ class _DummyConfigurableExtensionConfiguration(Configuration):
             return NotImplemented
         return self.check == other.check
 
+    @override
+    def update(self, other: Self) -> None:
+        pass
+
+    @override
     def load(self, dump: Dump) -> None:
         assert_record(
             RequiredField("check", assert_bool() | assert_setattr(self, "check"))
         )(dump)
 
+    @override
     def dump(self) -> VoidableDump:
         return {
             "check": self.check,
@@ -454,6 +460,14 @@ class _DummyConfigurableExtension(
 
 
 class _DummyConfiguration(Configuration):
+    @override
+    def update(self, other: Self) -> None:
+        pass
+
+    @override
+    def load(self, dump: Dump) -> None:
+        pass
+
     @override
     def dump(self) -> VoidableDump:
         return Void
@@ -1163,11 +1177,17 @@ class _ConfigurableExtensionConfiguration(Configuration):
         super().__init__()
         self.check = check
 
+    @override
+    def update(self, other: Self) -> None:
+        pass
+
+    @override
     def load(self, dump: Dump) -> None:
         assert_record(
             RequiredField("check", assert_int() | assert_setattr(self, "check"))
         )(dump)
 
+    @override
     def dump(self) -> VoidableDump:
         return {"check": self.check}
 
