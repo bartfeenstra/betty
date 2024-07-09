@@ -5,7 +5,6 @@ Provide a URL generation API.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from contextlib import suppress
 from typing import Any, TYPE_CHECKING, final
 from urllib.parse import quote
 
@@ -19,7 +18,20 @@ if TYPE_CHECKING:
     from betty.project import ProjectConfiguration, Project
 
 
-class LocalizedUrlGenerator(ABC):
+class _UrlGenerator(ABC):
+    """
+    Generate URLs for localizable resources.
+    """
+
+    @abstractmethod
+    def supports(self, resource: Any) -> bool:
+        """
+        Whether the given resource is supported by this URL generator.
+        """
+        pass
+
+
+class LocalizedUrlGenerator(_UrlGenerator):
     """
     Generate URLs for localizable resources.
     """
@@ -38,7 +50,7 @@ class LocalizedUrlGenerator(ABC):
         pass
 
 
-class StaticUrlGenerator(ABC):
+class StaticUrlGenerator(_UrlGenerator):
     """
     Generate URLs for static (non-localizable) resources.
     """
@@ -65,6 +77,10 @@ class LocalizedPathUrlGenerator(LocalizedUrlGenerator):
         self._project = project
 
     @override
+    def supports(self, resource: Any) -> bool:
+        return isinstance(resource, str)
+
+    @override
     def generate(
         self,
         resource: Any,
@@ -72,6 +88,7 @@ class LocalizedPathUrlGenerator(LocalizedUrlGenerator):
         absolute: bool = False,
         locale: Localey | None = None,
     ) -> str:
+        assert self.supports(resource)
         return _generate_from_path(
             self._project.configuration,
             resource,
@@ -90,11 +107,16 @@ class StaticPathUrlGenerator(StaticUrlGenerator):
         self._configuration = configuration
 
     @override
+    def supports(self, resource: Any) -> bool:
+        return isinstance(resource, str)
+
+    @override
     def generate(
         self,
         resource: Any,
         absolute: bool = False,
     ) -> str:
+        assert self.supports(resource)
         return _generate_from_path(self._configuration, resource, absolute)
 
 
@@ -106,6 +128,10 @@ class _EntityUrlGenerator(LocalizedUrlGenerator):
         self._pattern = f"{camel_case_to_kebab_case(get_entity_type_name(entity_type))}/{{entity_id}}/index.{{extension}}"
 
     @override
+    def supports(self, resource: Any) -> bool:
+        return isinstance(resource, self._entity_type)
+
+    @override
     def generate(
         self,
         resource: Entity,
@@ -113,8 +139,7 @@ class _EntityUrlGenerator(LocalizedUrlGenerator):
         absolute: bool = False,
         locale: Localey | None = None,
     ) -> str:
-        if not isinstance(resource, self._entity_type):
-            raise ValueError("%s is not a %s" % (type(resource), self._entity_type))
+        assert self.supports(resource)
 
         if media_type == "text/html":
             extension = "html"
@@ -152,6 +177,16 @@ class ProjectUrlGenerator(LocalizedUrlGenerator):
             LocalizedPathUrlGenerator(project),
         ]
 
+    def _generator(self, resource: Any) -> LocalizedUrlGenerator | None:
+        for generator in self._generators:
+            if generator.supports(resource):
+                return generator
+        return None
+
+    @override
+    def supports(self, resource: Any) -> bool:
+        return self._generator(resource) is not None
+
     @override
     def generate(
         self,
@@ -160,13 +195,9 @@ class ProjectUrlGenerator(LocalizedUrlGenerator):
         absolute: bool = False,
         locale: Localey | None = None,
     ) -> str:
-        for generator in self._generators:
-            with suppress(ValueError):
-                return generator.generate(resource, media_type, absolute, locale)
-        raise ValueError(
-            "No URL generator found for %s."
-            % (resource if isinstance(resource, str) else type(resource))
-        )
+        generator = self._generator(resource)
+        assert generator is not None
+        return generator.generate(resource, media_type, absolute, locale)
 
 
 def _generate_from_path(
