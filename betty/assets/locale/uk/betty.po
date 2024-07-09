@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-06 12:34+0100\n"
+"POT-Creation-Date: 2024-07-09 00:22+0100\n"
 "PO-Revision-Date: 2024-02-08 13:08+0000\n"
 "Last-Translator: Rainer Thieringer <rainerthi@gmail.com>\n"
 "Language: uk\n"
@@ -176,9 +176,6 @@ msgstr "Хрещення"
 msgid "Beneficiary"
 msgstr "Бенефіціар"
 
-msgid "Betty documentation"
-msgstr ""
-
 msgid ""
 "Betty is unfamiliar with Gramps event \"{event_id}\"'s type of "
 "\"{gramps_event_type}\". The event was imported, but its type was set to "
@@ -296,9 +293,6 @@ msgstr "Кремація"
 
 msgid "Death"
 msgstr "Смерть"
-
-msgid "Demo"
-msgstr ""
 
 msgid "Deriver"
 msgstr ""
@@ -598,9 +592,6 @@ msgid "Privatizer"
 msgstr ""
 
 msgid "Privatizing..."
-msgstr ""
-
-msgid "Python built-in"
 msgstr ""
 
 msgid "Read more on Wikipedia."

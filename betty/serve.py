@@ -8,10 +8,11 @@ import contextlib
 import logging
 import threading
 import webbrowser
+from abc import ABC, abstractmethod
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 from io import StringIO
 from pathlib import Path
-from typing import Any, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING, final
 
 from aiofiles.os import makedirs, symlink
 from aiofiles.tempfile import TemporaryDirectory, AiofilesContextManagerTempDir
@@ -20,7 +21,7 @@ from typing_extensions import override
 
 from betty.error import UserFacingError
 from betty.functools import Do
-from betty.locale.localizable import _, Localizable
+from betty.locale.localizable import _
 
 if TYPE_CHECKING:
     from betty.locale import Localizer
@@ -57,7 +58,7 @@ class OsError(UserFacingError, OSError):
     pass  # pragma: no cover
 
 
-class Server:
+class Server(ABC):
     """
     Provide a development web server.
     """
@@ -65,21 +66,7 @@ class Server:
     def __init__(self, localizer: Localizer):
         self._localizer = localizer
 
-    @classmethod
-    def name(cls) -> str:
-        """
-        Get the server's machine name.
-        """
-        return f"{cls.__module__}.{cls.__name__}"
-
-    @classmethod
-    def label(cls) -> Localizable:
-        """
-        Get the server's human-readable label.
-        """
-        raise NotImplementedError(repr(cls))
-
-    async def start(self) -> None:
+    async def start(self) -> None:  # noqa B027
         """
         Start the server.
         """
@@ -96,18 +83,19 @@ class Server:
         )
         webbrowser.open_new_tab(self.public_url)
 
-    async def stop(self) -> None:
+    async def stop(self) -> None:  # noqa B027
         """
         Stop the server.
         """
         pass
 
     @property
+    @abstractmethod
     def public_url(self) -> str:
         """
         The server's public URL.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
     async def __aenter__(self) -> Server:
         await self.start()
@@ -160,6 +148,7 @@ class ProjectServer(Server):
         await super().start()
 
 
+@final
 class _BuiltinServerRequestHandler(SimpleHTTPRequestHandler):
     @override
     def end_headers(self) -> None:
@@ -167,6 +156,7 @@ class _BuiltinServerRequestHandler(SimpleHTTPRequestHandler):
         super().end_headers()
 
 
+@final
 class BuiltinServer(Server):
     """
     A built-in server for a WWW directory.
@@ -186,11 +176,6 @@ class BuiltinServer(Server):
         self._port: int | None = None
         self._thread: threading.Thread | None = None
         self._temporary_root_directory: AiofilesContextManagerTempDir | None = None
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Python built-in")
 
     @override
     async def start(self) -> None:
@@ -260,6 +245,7 @@ class BuiltinServer(Server):
             await self._temporary_root_directory.__aexit__(None, None, None)
 
 
+@final
 class BuiltinProjectServer(ProjectServer):
     """
     A built-in server for a Betty project.
@@ -272,11 +258,6 @@ class BuiltinProjectServer(ProjectServer):
             root_path=project.configuration.root_path,
             localizer=project.app.localizer,
         )
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return BuiltinServer.label()
 
     @override
     @property

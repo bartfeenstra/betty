@@ -5,6 +5,7 @@ Integrate the nginx extension with Betty's Serve API.
 import logging
 from contextlib import AsyncExitStack
 from pathlib import Path
+from typing import final
 
 import docker
 from aiofiles.tempfile import TemporaryDirectory
@@ -20,6 +21,7 @@ from betty.project import Project
 from betty.serve import NoPublicUrlBecauseServerNotStartedError, Server
 
 
+@final
 class DockerizedNginxServer(Server):
     """
     An nginx server that runs within a Docker container.

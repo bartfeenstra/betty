@@ -7,6 +7,7 @@ import shutil
 from contextlib import AsyncExitStack
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import final
 
 from aiofiles.os import makedirs
 from typing_extensions import override
@@ -14,7 +15,6 @@ from typing_extensions import override
 from betty import serve, fs
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.locale import Localizer
-from betty.locale.localizable import _, Localizable
 from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
 from betty.subprocess import run_process
 
@@ -73,6 +73,7 @@ async def _build(output_directory_path: Path) -> None:
         )
 
 
+@final
 class DocumentationServer(Server):
     """
     Serve the documentation site.
@@ -88,11 +89,6 @@ class DocumentationServer(Server):
         self._cache_directory_path = cache_directory_path
         self._server: Server | None = None
         self._exit_stack = AsyncExitStack()
-
-    @override
-    @classmethod
-    def label(cls) -> Localizable:
-        return _("Betty documentation")
 
     @override
     @property
