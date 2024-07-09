@@ -19,6 +19,7 @@ class TestMemoryCache(CacheTestBase[Any]):
     ) -> AsyncIterator[MemoryCache[Any]]:
         yield MemoryCache(DEFAULT_LOCALIZER, scopes=scopes)
 
+    @override
     def _values(self) -> Iterator[Any]:
         yield True
         yield None

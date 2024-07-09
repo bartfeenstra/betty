@@ -13,7 +13,6 @@ source = betty
 exclude_also =
     ^\s*pragma: no cover$
     ^\s*def __repr__
-    ^\s*raise NotImplementedError
     if TYPE_CHECKING:
 omit =
     betty/_package/**
