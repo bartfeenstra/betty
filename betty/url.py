@@ -4,8 +4,9 @@ Provide a URL generation API.
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from contextlib import suppress
-from typing import Any, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING, final
 from urllib.parse import quote
 
 from typing_extensions import override
@@ -18,11 +19,12 @@ if TYPE_CHECKING:
     from betty.project import ProjectConfiguration, Project
 
 
-class LocalizedUrlGenerator:
+class LocalizedUrlGenerator(ABC):
     """
     Generate URLs for localizable resources.
     """
 
+    @abstractmethod
     def generate(
         self,
         resource: Any,
@@ -33,14 +35,15 @@ class LocalizedUrlGenerator:
         """
         Generate a URL for a resource.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
 
-class StaticUrlGenerator:
+class StaticUrlGenerator(ABC):
     """
     Generate URLs for static (non-localizable) resources.
     """
 
+    @abstractmethod
     def generate(
         self,
         resource: Any,
@@ -49,9 +52,10 @@ class StaticUrlGenerator:
         """
         Generate a URL for a resource.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
 
+@final
 class LocalizedPathUrlGenerator(LocalizedUrlGenerator):
     """
     Generate URLs for localizable file paths.
@@ -76,6 +80,7 @@ class LocalizedPathUrlGenerator(LocalizedUrlGenerator):
         )
 
 
+@final
 class StaticPathUrlGenerator(StaticUrlGenerator):
     """
     Generate URLs for static (non-localized) file paths.
@@ -93,6 +98,7 @@ class StaticPathUrlGenerator(StaticUrlGenerator):
         return _generate_from_path(self._configuration, resource, absolute)
 
 
+@final
 class _EntityUrlGenerator(LocalizedUrlGenerator):
     def __init__(self, project: Project, entity_type: type[Entity]):
         self._project = project
@@ -131,6 +137,7 @@ class _EntityUrlGenerator(LocalizedUrlGenerator):
         )
 
 
+@final
 class ProjectUrlGenerator(LocalizedUrlGenerator):
     """
     Generate URLs for all resources provided by a Betty project.
