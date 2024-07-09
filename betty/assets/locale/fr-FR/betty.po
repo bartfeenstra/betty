@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-09 13:11+0100\n"
+"POT-Creation-Date: 2024-07-10 11:52+0100\n"
 "PO-Revision-Date: 2024-02-08 13:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: fr\n"
@@ -73,6 +73,9 @@ msgid "\"{locale}\" is not a valid IETF BCP 47 language tag."
 msgstr ""
 
 msgid "\"{path}\" is not a directory."
+msgstr ""
+
+msgid "\"{path}\" is not a file."
 msgstr ""
 
 msgid "\"{scope}\" cache cleared."

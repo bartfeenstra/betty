@@ -43,7 +43,6 @@ from betty.classtools import repr_instance
 from betty.config import (
     Configuration,
     Configurable,
-    FileBasedConfiguration,
     ConfigurationMapping,
     ConfigurationSequence,
 )
@@ -101,6 +100,7 @@ from betty.serde.dump import (
     minimize,
     VoidableDictDump,
 )
+from betty.serde.format import FormatRepository
 from betty.typing import Void
 
 if TYPE_CHECKING:
@@ -756,7 +756,7 @@ class LocaleConfigurationMapping(ConfigurationMapping[str, LocaleConfiguration])
 
 
 @final
-class ProjectConfiguration(FileBasedConfiguration):
+class ProjectConfiguration(Configuration):
     """
     Provide the configuration for a :py:class:`betty.project.Project`.
     """
@@ -777,7 +777,8 @@ class ProjectConfiguration(FileBasedConfiguration):
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
         name: str | None = None,
     ):
-        super().__init__(configuration_file_path)
+        super().__init__()
+        self._configuration_file_path = configuration_file_path
         self._name = name
         self._computed_name: str | None = None
         self._base_url = "https://example.com" if base_url is None else base_url
@@ -810,6 +811,21 @@ class ProjectConfiguration(FileBasedConfiguration):
         self._debug = debug
         self._locales = LocaleConfigurationMapping(locales or ())
         self._lifetime_threshold = lifetime_threshold
+
+    @property
+    def configuration_file_path(self) -> Path:
+        """
+        The path to the configuration's file.
+        """
+        return self._configuration_file_path
+
+    @configuration_file_path.setter
+    def configuration_file_path(self, configuration_file_path: Path) -> None:
+        if configuration_file_path == self._configuration_file_path:
+            return
+        formats = FormatRepository()
+        formats.format_for(configuration_file_path.suffix[1:])
+        self._configuration_file_path = configuration_file_path
 
     @property
     def name(self) -> str | None:

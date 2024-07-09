@@ -424,11 +424,13 @@ def assert_record(
     return AssertionChain(_assert_record)
 
 
-def assert_path() -> AssertionChain[Any, Path]:
+def assert_path() -> AssertionChain[Path | str, Path]:
     """
     Assert that a value is a path to a file or directory on disk that may or may not exist.
     """
-    return assert_str().chain(lambda value: Path(value).expanduser().resolve())
+    return assert_or(assert_str() | Path, lambda value: value).chain(
+        lambda value: value.expanduser().resolve()
+    )
 
 
 def assert_directory_path() -> AssertionChain[Any, Path]:
@@ -443,6 +445,20 @@ def assert_directory_path() -> AssertionChain[Any, Path]:
         raise AssertionFailed(_('"{path}" is not a directory.').format(path=value))
 
     return AssertionChain(_assert_directory_path)
+
+
+def assert_file_path() -> AssertionChain[Any, Path]:
+    """
+    Assert that a value is a path to an existing file.
+    """
+
+    def _assert_file_path(value: Any) -> Path:
+        file_path = assert_path()(value)
+        if file_path.is_file():
+            return file_path
+        raise AssertionFailed(_('"{path}" is not a file.').format(path=value))
+
+    return AssertionChain(_assert_file_path)
 
 
 def assert_locale() -> AssertionChain[Any, str]:

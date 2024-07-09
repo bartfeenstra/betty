@@ -28,7 +28,14 @@ from typing import (
 
 import aiofiles
 from aiofiles.os import makedirs
-from betty.assertion import assert_dict, assert_sequence
+from typing_extensions import override
+
+from betty.assertion import (
+    assert_dict,
+    assert_sequence,
+    AssertionChain,
+    assert_file_path,
+)
 from betty.assertion.error import AssertionFailedGroup
 from betty.classtools import repr_instance
 from betty.functools import slice_to_range
@@ -36,10 +43,10 @@ from betty.locale.localizable import plain
 from betty.serde.dump import Dumpable, Dump, minimize, VoidableDump
 from betty.serde.format import FormatRepository
 from betty.typing import Void
-from typing_extensions import override
 
 if TYPE_CHECKING:
     from pathlib import Path
+
 
 _ConfigurationListener: TypeAlias = Callable[[], None]
 ConfigurationListener: TypeAlias = "Configuration | _ConfigurationListener"
@@ -69,90 +76,6 @@ class Configuration(Dumpable):
 
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
-
-
-class FileBasedConfiguration(Configuration):
-    """
-    Any configuration that is stored in a file on disk.
-    """
-
-    def __init__(self, configuration_file_path: Path):
-        super().__init__()
-        self._configuration_file_path = configuration_file_path
-
-    async def write(self, configuration_file_path: Path | None = None) -> None:
-        """
-        Write the configuration to file.
-
-        If a configuration file path is given, it will become this configuration's new
-        file path, and it will be written to.
-
-        If no configuration file path is given, the previously set file path will be
-        written to, if that file exists.
-        """
-        if configuration_file_path is not None:
-            self.configuration_file_path = configuration_file_path
-
-        await self._write(self.configuration_file_path)
-
-    async def _write(self, configuration_file_path: Path) -> None:
-        # Change the working directory to allow absolute paths to be turned relative to the configuration file's directory
-        # path.
-        formats = FormatRepository()
-        dump = formats.format_for(configuration_file_path.suffix[1:]).dump(self.dump())
-        try:
-            async with aiofiles.open(configuration_file_path, mode="w") as f:
-                await f.write(dump)
-        except FileNotFoundError:
-            await makedirs(configuration_file_path.parent)
-            await self.write()
-        self._configuration_file_path = configuration_file_path
-
-    async def read(self, configuration_file_path: Path | None = None) -> None:
-        """
-        Read the configuration from file.
-
-        If a configuration file path is given, it will become this configuration's new
-        file path, and its contents will be read.
-
-        If no configuration file path is given, the previously set file path will be read,
-        if that file exists.
-        """
-        if configuration_file_path is not None:
-            self.configuration_file_path = configuration_file_path
-
-        formats = FormatRepository()
-        with (
-            AssertionFailedGroup().assert_valid() as errors,
-            # Change the working directory to allow relative paths to be resolved
-            # against the configuration file's directory path.
-            chdir(self.configuration_file_path.parent),
-        ):
-            async with aiofiles.open(self.configuration_file_path) as f:
-                read_configuration = await f.read()
-            with errors.catch(
-                plain(f"in {str(self.configuration_file_path.resolve())}")
-            ):
-                self.load(
-                    formats.format_for(self.configuration_file_path.suffix[1:]).load(
-                        read_configuration
-                    )
-                )
-
-    @property
-    def configuration_file_path(self) -> Path:
-        """
-        The path to the configuration's file.
-        """
-        return self._configuration_file_path
-
-    @configuration_file_path.setter
-    def configuration_file_path(self, configuration_file_path: Path) -> None:
-        if configuration_file_path == self._configuration_file_path:
-            return
-        formats = FormatRepository()
-        formats.format_for(configuration_file_path.suffix[1:])
-        self._configuration_file_path = configuration_file_path
 
 
 ConfigurationKey: TypeAlias = SupportsIndex | Hashable | type[Any]
@@ -657,3 +580,46 @@ class Configurable(Generic[_ConfigurationT]):
                 f"{self} has no configuration. {type(self)}.__init__() must ensure it is set."
             )
         return self._configuration
+
+
+def assert_configuration_file(
+    configuration: _ConfigurationT,
+) -> AssertionChain[Path, _ConfigurationT]:
+    """
+    Assert that configuration can be loaded from a file.
+    """
+
+    def _assert(configuration_file_path: Path) -> _ConfigurationT:
+        formats = FormatRepository()
+        with (
+            AssertionFailedGroup().assert_valid() as errors,
+            # Change the working directory to allow relative paths to be resolved
+            # against the configuration file's directory path.
+            chdir(configuration_file_path.parent),
+        ):
+            with open(configuration_file_path) as f:
+                read_configuration = f.read()
+            with errors.catch(plain(f"in {str(configuration_file_path.resolve())}")):
+                configuration.load(
+                    formats.format_for(configuration_file_path.suffix[1:]).load(
+                        read_configuration
+                    )
+                )
+            return configuration
+
+    return assert_file_path() | _assert
+
+
+async def write_configuration_file(
+    configuration: Configuration, configuration_file_path: Path
+) -> None:
+    """
+    Write configuration to file.
+    """
+    formats = FormatRepository()
+    dump = formats.format_for(configuration_file_path.suffix[1:]).dump(
+        configuration.dump()
+    )
+    await makedirs(configuration_file_path.parent, exist_ok=True)
+    async with aiofiles.open(configuration_file_path, mode="w") as f:
+        await f.write(dump)

@@ -27,6 +27,7 @@ from betty import about, generate, load, documentation, locale, serve
 from betty.app import App
 from betty.asyncio import wait_to_thread
 from betty.cli import _discover
+from betty.config import assert_configuration_file
 from betty.contextlib import SynchronizedContextManager
 from betty.error import UserFacingError
 from betty.locale import DEFAULT_LOCALIZER
@@ -111,9 +112,11 @@ async def _read_project_configuration(
         try_configuration_file_paths = [
             project_directory_path / provided_configuration_file_path
         ]
+    assert_configuration = assert_configuration_file(project.configuration)
     for try_configuration_file_path in try_configuration_file_paths:
         try:
-            await project.configuration.read(try_configuration_file_path)
+            assert_configuration(try_configuration_file_path)
+            project.configuration.configuration_file_path = try_configuration_file_path
         except FileNotFoundError:
             continue
         else:

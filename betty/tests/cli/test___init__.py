@@ -10,6 +10,7 @@ from _pytest.logging import LogCaptureFixture
 from aiofiles.os import makedirs
 from betty.app import App
 from betty.cli import main, command, catch_exceptions
+from betty.config import write_configuration_file
 from betty.error import UserFacingError
 from betty.locale import DEFAULT_LOCALIZER
 from betty.locale.localizable import plain
@@ -140,7 +141,9 @@ class TestGenerate:
         m_load = mocker.patch("betty.load.load", new_callable=AsyncMock)
 
         async with Project.new_temporary(new_temporary_app) as project:
-            await project.configuration.write()
+            await write_configuration_file(
+                project.configuration, project.configuration.configuration_file_path
+            )
             await to_thread(
                 run,
                 "generate",
@@ -170,7 +173,9 @@ class TestServe:
         mocker.patch("asyncio.sleep", side_effect=KeyboardInterrupt)
         mocker.patch("betty.serve.BuiltinProjectServer", new=NoOpProjectServer)
         async with Project.new_temporary(new_temporary_app) as project:
-            await project.configuration.write()
+            await write_configuration_file(
+                project.configuration, project.configuration.configuration_file_path
+            )
             await makedirs(project.configuration.www_directory_path)
 
             await to_thread(
@@ -218,5 +223,7 @@ class TestVerbosity:
             return_value={"no-op": _no_op_command},
         )
         async with Project.new_temporary(new_temporary_app) as project:
-            await project.configuration.write()
+            await write_configuration_file(
+                project.configuration, project.configuration.configuration_file_path
+            )
             await to_thread(run, verbosity, "no-op")

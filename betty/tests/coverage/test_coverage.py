@@ -136,6 +136,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/config.py": {
+        "assert_configuration_file": TestKnownToBeMissing,
         "Configurable": TestKnownToBeMissing,
         "Configuration": TestKnownToBeMissing,
         "ConfigurationCollection": TestKnownToBeMissing,
@@ -155,11 +156,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "to_key": TestKnownToBeMissing,
             "update": TestKnownToBeMissing,
         },
-        "FileBasedConfiguration": {
-            "__del__": TestKnownToBeMissing,
-            "read": TestKnownToBeMissing,
-            "write": TestKnownToBeMissing,
-        },
+        "write_configuration_file": TestKnownToBeMissing,
     },
     "betty/contextlib.py": {
         "SynchronizedContextManager": {
