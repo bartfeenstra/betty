@@ -33,6 +33,24 @@ class _DummyEntity(Entity):
 
 class TestLocalizedPathUrlGenerator:
     @pytest.mark.parametrize(
+        "resource",
+        [
+            "/",
+            "/index.html",
+            "example",
+            "/example",
+            "example/",
+            "/example/",
+            "example/index.html",
+            "/example/index.html",
+        ],
+    )
+    async def test_supports(self, new_temporary_app: App, resource: str) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = LocalizedPathUrlGenerator(project)
+            assert sut.supports(resource)
+
+    @pytest.mark.parametrize(
         ("expected", "resource"),
         [
             ("", "/"),
@@ -133,14 +151,40 @@ class TestEntityUrlGenerator:
                 == "/betty.tests.test_url.-entity-url-generator-test-urly-entity/I1/index.html"
             )
 
-    async def test_generate_with_invalid_value(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = _EntityUrlGenerator(project, EntityUrlGeneratorTestUrlyEntity)
-            with pytest.raises(ValueError):  # noqa PT011
-                sut.generate(EntityUrlGeneratorTestNonUrlyEntity(), "text/html")
-
 
 class TestProjectUrlGenerator:
+    @pytest.mark.parametrize(
+        "resource",
+        [
+            "/index.html",
+            Person(id="P1"),
+            Event(
+                id="E1",
+                event_type=Death,
+            ),
+            Place(
+                id="P1",
+                names=[PlaceName(name="Place 1")],
+            ),
+            File(
+                id="F1",
+                path=Path("/tmp"),
+            ),
+            Source(
+                id="S1",
+                name="Source 1",
+            ),
+            Citation(
+                id="C1",
+                source=Source("Source 1"),
+            ),
+        ],
+    )
+    async def test_supports(self, new_temporary_app: App, resource: Any) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = ProjectUrlGenerator(project)
+            assert sut.supports(resource)
+
     @pytest.mark.parametrize(
         ("expected", "resource"),
         [
