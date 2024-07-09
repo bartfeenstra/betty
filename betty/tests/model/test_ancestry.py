@@ -11,7 +11,7 @@ from geopy import Point
 from betty.app import App
 from betty.json.schema import Schema
 from betty.locale import Date, DateRange
-from betty.locale.localizable import plain
+from betty.locale.localizable import plain, Localizable
 from betty.media_type import MediaType
 from betty.model import Entity, one_to_one
 from betty.model.ancestry import (
@@ -48,6 +48,16 @@ from betty.project import LocaleConfiguration, Project
 if TYPE_CHECKING:
     from betty.serde.dump import DictDump, Dump
     from betty.json.linked_data import LinkedDataDumpable
+
+
+class _DummyEntity(Entity):
+    @classmethod
+    def entity_type_label(cls) -> Localizable:
+        return plain(cls.__name__)
+
+    @classmethod
+    def entity_type_label_plural(cls) -> Localizable:
+        return plain(cls.__name__)
 
 
 async def assert_dumps_linked_data(
@@ -304,7 +314,7 @@ class TestNote:
         assert expected == actual
 
 
-class HasNotesTestEntity(HasNotes, Entity):
+class HasNotesTestEntity(HasNotes, _DummyEntity):
     pass
 
 
@@ -404,7 +414,7 @@ class TestHasLinks:
         assert sut.links == []
 
 
-class _HasFiles(HasFiles, Entity):
+class _HasFiles(HasFiles, _DummyEntity):
     pass
 
 
@@ -960,7 +970,7 @@ class TestSource:
         assert expected == actual
 
 
-class _HasCitations(HasCitations, Entity):
+class _HasCitations(HasCitations, _DummyEntity):
     pass
 
 
@@ -2223,7 +2233,7 @@ class TestPerson:
     "betty.tests.model.test_ancestry._TestAncestry_OneToOne_Right",
     "one_left",
 )
-class _TestAncestry_OneToOne_Left(Entity):
+class _TestAncestry_OneToOne_Left(_DummyEntity):
     one_right: "_TestAncestry_OneToOne_Right | None"
 
 
@@ -2232,7 +2242,7 @@ class _TestAncestry_OneToOne_Left(Entity):
     "betty.tests.model.test_ancestry._TestAncestry_OneToOne_Left",
     "one_right",
 )
-class _TestAncestry_OneToOne_Right(Entity):
+class _TestAncestry_OneToOne_Right(_DummyEntity):
     one_left: "_TestAncestry_OneToOne_Left | None"
 
 

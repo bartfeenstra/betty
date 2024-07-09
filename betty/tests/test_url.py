@@ -5,6 +5,7 @@ from typing import Any, TYPE_CHECKING
 
 import pytest
 
+from betty.locale.localizable import Localizable, plain
 from betty.model import UserFacingEntity, Entity
 from betty.model.ancestry import Person, Place, File, Source, PlaceName, Event, Citation
 from betty.model.event_type import Death
@@ -18,6 +19,16 @@ from betty.url import (
 if TYPE_CHECKING:
     from betty.app import App
     from betty.locale import Localey
+
+
+class _DummyEntity(Entity):
+    @classmethod
+    def entity_type_label(cls) -> Localizable:
+        return plain(cls.__name__)
+
+    @classmethod
+    def entity_type_label_plural(cls) -> Localizable:
+        return plain(cls.__name__)
 
 
 class TestLocalizedPathUrlGenerator:
@@ -105,11 +116,11 @@ class TestLocalizedPathUrlGenerator:
                 )
 
 
-class EntityUrlGeneratorTestUrlyEntity(UserFacingEntity, Entity):
+class EntityUrlGeneratorTestUrlyEntity(UserFacingEntity, _DummyEntity):
     pass
 
 
-class EntityUrlGeneratorTestNonUrlyEntity(UserFacingEntity, Entity):
+class EntityUrlGeneratorTestNonUrlyEntity(UserFacingEntity, _DummyEntity):
     pass
 
 

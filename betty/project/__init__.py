@@ -617,7 +617,9 @@ class EntityTypeConfigurationMapping(
     def load_item(self, dump: Dump) -> EntityTypeConfiguration:
         # Use a dummy entity type for now to satisfy the initializer.
         # It will be overridden when loading the dump.
-        configuration = EntityTypeConfiguration(Entity)
+        configuration = EntityTypeConfiguration(
+            Entity  # type: ignore[type-abstract]
+        )
         configuration.load(dump)
         return configuration
 
