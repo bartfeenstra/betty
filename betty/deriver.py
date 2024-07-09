@@ -5,8 +5,10 @@ Provide an API to derive information from ancestries, and create new entities or
 from __future__ import annotations
 
 import logging
+from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Iterable, cast
+from typing import Iterable, cast, final
+from typing_extensions import override
 
 from betty.locale import DateRange, Date, Localizer
 from betty.model.ancestry import Person, Presence, Event, Subject, Ancestry
@@ -32,6 +34,7 @@ class Derivation(Enum):
     UPDATE = 3
 
 
+@final
 class Deriver:
     """
     Derive information from ancestries, and create new entities or update existing ones.
@@ -156,7 +159,7 @@ class Deriver:
         return created_derivations, updated_derivations
 
 
-class _DateDeriver:
+class _DateDeriver(ABC):
     @classmethod
     def derive(
         cls,
@@ -211,25 +214,31 @@ class _DateDeriver:
                     yield event, date
 
     @classmethod
+    @abstractmethod
     def _get_date_range_dates(cls, date: DateRange) -> Iterable[Date]:
-        raise NotImplementedError(repr(cls))
+        pass
 
     @classmethod
+    @abstractmethod
     def _compare(cls, derivable_date: DateRange, reference_date: Date) -> bool:
-        raise NotImplementedError(repr(cls))
+        pass
 
     @classmethod
+    @abstractmethod
     def _sort(
         cls, events_dates: Iterable[tuple[Event, Date]]
     ) -> list[tuple[Event, Date]]:
-        raise NotImplementedError(repr(cls))
+        pass
 
     @classmethod
+    @abstractmethod
     def _set(cls, derivable_date: DateRange, derived_date: Date) -> None:
-        raise NotImplementedError(repr(cls))
+        pass
 
 
+@final
 class _ComesBeforeDateDeriver(_DateDeriver):
+    @override
     @classmethod
     def _get_date_range_dates(cls, date: DateRange) -> Iterable[Date]:
         if date.start is not None and not date.start_is_boundary:
@@ -237,23 +246,28 @@ class _ComesBeforeDateDeriver(_DateDeriver):
         if date.end is not None:
             yield date.end
 
+    @override
     @classmethod
     def _compare(cls, derivable_date: DateRange, reference_date: Date) -> bool:
         return derivable_date < reference_date
 
+    @override
     @classmethod
     def _sort(
         cls, events_dates: Iterable[tuple[Event, Date]]
     ) -> list[tuple[Event, Date]]:
         return sorted(events_dates, key=lambda x: x[1])
 
+    @override
     @classmethod
     def _set(cls, derivable_date: DateRange, derived_date: Date) -> None:
         derivable_date.end = derived_date
         derivable_date.end_is_boundary = True
 
 
+@final
 class _ComesAfterDateDeriver(_DateDeriver):
+    @override
     @classmethod
     def _get_date_range_dates(cls, date: DateRange) -> Iterable[Date]:
         if date.start is not None:
@@ -261,16 +275,19 @@ class _ComesAfterDateDeriver(_DateDeriver):
         if date.end is not None and not date.end_is_boundary:
             yield date.end
 
+    @override
     @classmethod
     def _compare(cls, derivable_date: DateRange, reference_date: Date) -> bool:
         return derivable_date > reference_date
 
+    @override
     @classmethod
     def _sort(
         cls, events_dates: Iterable[tuple[Event, Date]]
     ) -> list[tuple[Event, Date]]:
         return sorted(events_dates, key=lambda x: x[1], reverse=True)
 
+    @override
     @classmethod
     def _set(cls, derivable_date: DateRange, derived_date: Date) -> None:
         derivable_date.start = derived_date
