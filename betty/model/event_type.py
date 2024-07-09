@@ -4,7 +4,8 @@ Provide Betty's ancestry event types.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
@@ -15,40 +16,40 @@ if TYPE_CHECKING:
     from betty.model.ancestry import Person
 
 
-class EventTypeProvider:
+class EventTypeProvider(ABC):
     """
     Provide additional event types.
     """
 
     @property
+    @abstractmethod
     def entity_types(self) -> set[type[EventType]]:
         """
         The event types.
         """
-        raise NotImplementedError(repr(self))
+        pass
 
 
-class EventType:
+class EventType(ABC):
     """
     Define an :py:class:`betty.model.ancestry.Event` type.
     """
 
-    def __new__(cls):  # noqa D102
-        raise RuntimeError("Event types cannot be instantiated.")
-
     @classmethod
+    @abstractmethod
     def name(cls) -> str:
         """
         Get the machine name.
         """
-        raise NotImplementedError(repr(cls))
+        pass
 
     @classmethod
+    @abstractmethod
     def label(cls) -> Localizable:
         """
         Get the human-readable label.
         """
-        raise NotImplementedError(repr(cls))
+        pass
 
     @classmethod
     def comes_before(cls) -> set[type[EventType]]:
@@ -69,6 +70,7 @@ class EventType:
         return set()  # pragma: no cover
 
 
+@final
 class UnknownEventType(EventType):
     """
     Described an event for which no more specific type is known.
@@ -168,6 +170,7 @@ class PostDeathEventType(EventType):
         return {Death}  # pragma: no cover
 
 
+@final
 class Birth(CreatableDerivableEventType, StartOfLifeEventType):
     """
     Someone was born.
@@ -186,9 +189,10 @@ class Birth(CreatableDerivableEventType, StartOfLifeEventType):
     @override
     @classmethod
     def comes_before(cls) -> set[type[EventType]]:
-        return {DuringLifeEventType}  # pragma: no cover
+        return {DuringLifeEventType}  # type: ignore[type-abstract]  # pragma: no cover
 
 
+@final
 class Baptism(DuringLifeEventType, StartOfLifeEventType):
     """
     Someone was `baptized <https://en.wikipedia.org/wiki/Baptism>`_.
@@ -205,6 +209,7 @@ class Baptism(DuringLifeEventType, StartOfLifeEventType):
         return _("Baptism")  # pragma: no cover
 
 
+@final
 class Adoption(DuringLifeEventType):
     """
     Someone was adopted.
@@ -221,6 +226,7 @@ class Adoption(DuringLifeEventType):
         return _("Adoption")  # pragma: no cover
 
 
+@final
 class Death(CreatableDerivableEventType, EndOfLifeEventType):
     """
     Someone died.
@@ -239,7 +245,7 @@ class Death(CreatableDerivableEventType, EndOfLifeEventType):
     @override
     @classmethod
     def comes_after(cls) -> set[type[EventType]]:
-        return {DuringLifeEventType}  # pragma: no cover
+        return {DuringLifeEventType}  # type: ignore[type-abstract]  # pragma: no cover
 
     @override
     @classmethod
@@ -261,6 +267,7 @@ class FinalDispositionEventType(
     pass  # pragma: no cover
 
 
+@final
 class Funeral(FinalDispositionEventType):
     """
     Someone's funeral took place.
@@ -277,6 +284,7 @@ class Funeral(FinalDispositionEventType):
         return _("Funeral")  # pragma: no cover
 
 
+@final
 class Cremation(FinalDispositionEventType):
     """
     Someone was cremated.
@@ -293,6 +301,7 @@ class Cremation(FinalDispositionEventType):
         return _("Cremation")  # pragma: no cover
 
 
+@final
 class Burial(FinalDispositionEventType):
     """
     Someone was buried.
@@ -309,6 +318,7 @@ class Burial(FinalDispositionEventType):
         return _("Burial")  # pragma: no cover
 
 
+@final
 class Will(PostDeathEventType):
     """
     Someone's `will and testament <https://en.wikipedia.org/wiki/Will_and_testament>`_ came into effect.
@@ -325,6 +335,7 @@ class Will(PostDeathEventType):
         return _("Will")  # pragma: no cover
 
 
+@final
 class Engagement(DuringLifeEventType):
     """
     People got engaged with the intent to marry.
@@ -346,6 +357,7 @@ class Engagement(DuringLifeEventType):
         return {Marriage}  # pragma: no cover
 
 
+@final
 class Marriage(DuringLifeEventType):
     """
     People were married.
@@ -362,6 +374,7 @@ class Marriage(DuringLifeEventType):
         return _("Marriage")  # pragma: no cover
 
 
+@final
 class MarriageAnnouncement(DuringLifeEventType):
     """
     People's marriage was announced.
@@ -383,6 +396,7 @@ class MarriageAnnouncement(DuringLifeEventType):
         return {Marriage}  # pragma: no cover
 
 
+@final
 class Divorce(DuringLifeEventType):
     """
     People were divorced.
@@ -404,6 +418,7 @@ class Divorce(DuringLifeEventType):
         return {Marriage}  # pragma: no cover
 
 
+@final
 class DivorceAnnouncement(DuringLifeEventType):
     """
     People's divorce was announced.
@@ -430,6 +445,7 @@ class DivorceAnnouncement(DuringLifeEventType):
         return {Divorce}  # pragma: no cover
 
 
+@final
 class Residence(DuringLifeEventType):
     """
     Someone resided/lived in a place.
@@ -446,6 +462,7 @@ class Residence(DuringLifeEventType):
         return _("Residence")  # pragma: no cover
 
 
+@final
 class Immigration(DuringLifeEventType):
     """
     Someone immigrated to a place.
@@ -462,6 +479,7 @@ class Immigration(DuringLifeEventType):
         return _("Immigration")  # pragma: no cover
 
 
+@final
 class Emigration(DuringLifeEventType):
     """
     Someone emigrated from a place.
@@ -478,6 +496,7 @@ class Emigration(DuringLifeEventType):
         return _("Emigration")  # pragma: no cover
 
 
+@final
 class Occupation(DuringLifeEventType):
     """
     Someone's occupation, e.g. their main recurring activity.
@@ -496,6 +515,7 @@ class Occupation(DuringLifeEventType):
         return _("Occupation")  # pragma: no cover
 
 
+@final
 class Retirement(DuringLifeEventType):
     """
     Someone `retired <https://en.wikipedia.org/wiki/Retirement>`_.
@@ -512,6 +532,7 @@ class Retirement(DuringLifeEventType):
         return _("Retirement")  # pragma: no cover
 
 
+@final
 class Correspondence(EventType):
     """
     People corresponded with each other.
@@ -528,6 +549,7 @@ class Correspondence(EventType):
         return _("Correspondence")  # pragma: no cover
 
 
+@final
 class Confirmation(DuringLifeEventType):
     """
     Someone's `confirmation <https://en.wikipedia.org/wiki/Confirmation>`_ took place.
@@ -544,6 +566,7 @@ class Confirmation(DuringLifeEventType):
         return _("Confirmation")  # pragma: no cover
 
 
+@final
 class Missing(DuringLifeEventType):
     """
     Someone went missing.
@@ -560,6 +583,7 @@ class Missing(DuringLifeEventType):
         return _("Missing")  # pragma: no cover
 
 
+@final
 class Conference(DuringLifeEventType):
     """
     A conference between people took place.
