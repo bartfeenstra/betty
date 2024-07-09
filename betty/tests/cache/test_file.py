@@ -25,6 +25,7 @@ class TestPickledFileCache(CacheTestBase[Any]):
                 DEFAULT_LOCALIZER, Path(cache_directory_path_str), scopes=scopes
             )
 
+    @override
     def _values(self) -> Iterator[Any]:
         yield True
         yield None
@@ -47,6 +48,7 @@ class TestBinaryFileCache(CacheTestBase[bytes]):
                 DEFAULT_LOCALIZER, Path(cache_directory_path_str), scopes=scopes
             )
 
+    @override
     def _values(self) -> Iterator[bytes]:
         yield b"SomeBytes"
 

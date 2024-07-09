@@ -1,4 +1,6 @@
+from abc import ABC, abstractmethod
 from typing import Any
+from typing_extensions import override
 
 from betty.app import App
 from betty.project import Project
@@ -24,15 +26,17 @@ class TestExtension:
 
 
 class TestExtensionDispatcher:
-    class _Multiplier:
+    class _Multiplier(ABC):
+        @abstractmethod
         async def multiply(self, term: int) -> Any:
-            raise NotImplementedError(repr(self))
+            pass
 
     class _MultiplyingExtension(_Multiplier, Extension):
         def __init__(self, project: Project, multiplier: int):
             super().__init__(project)
             self._multiplier = multiplier
 
+        @override
         async def multiply(self, term: int) -> Any:
             return self._multiplier * term
 

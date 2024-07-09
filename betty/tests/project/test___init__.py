@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from typing import Any, Iterable, TYPE_CHECKING, Self
 from typing_extensions import override
 
@@ -1158,12 +1159,14 @@ class _DummyEntity(Entity):
     pass
 
 
-class _Tracker:
+class _Tracker(ABC):
+    @abstractmethod
     async def track(self, carrier: list[Self]) -> None:
-        raise NotImplementedError(repr(self))
+        pass
 
 
 class _TrackableExtension(Extension, _Tracker):
+    @override
     async def track(self, carrier: list[Self]) -> None:
         carrier.append(self)
 
