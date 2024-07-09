@@ -5,18 +5,19 @@ Provide utilities for concurrent programming.
 import asyncio
 import threading
 import time
+from abc import ABC, abstractmethod
 from asyncio import sleep
 from math import floor
 from threading import Lock
 from types import TracebackType
-from typing import Self
+from typing import Self, final
 
 from typing_extensions import override
 
 from betty.asyncio import gather
 
 
-class _Lock:
+class _Lock(ABC):
     """
     Provide an asynchronous lock.
     """
@@ -32,17 +33,19 @@ class _Lock:
     ) -> None:
         self.release()
 
+    @abstractmethod
     async def acquire(self, *, wait: bool = True) -> bool:
         """
         Acquire the lock.
         """
-        raise NotImplementedError
+        pass
 
+    @abstractmethod
     def release(self) -> None:
         """
         Release the lock.
         """
-        raise NotImplementedError
+        pass
 
 
 async def asynchronize_acquire(lock: Lock, *, wait: bool = True) -> bool:
@@ -59,6 +62,7 @@ async def asynchronize_acquire(lock: Lock, *, wait: bool = True) -> bool:
     return True
 
 
+@final
 class AsynchronizedLock(_Lock):
     """
     Make a sychronous (blocking) lock asynchronous (non-blocking).
@@ -85,6 +89,7 @@ class AsynchronizedLock(_Lock):
         return cls(threading.Lock())
 
 
+@final
 class MultiLock(_Lock):
     """
     Provide a lock that only acquires if all of the given locks can be acquired.
@@ -116,6 +121,7 @@ class MultiLock(_Lock):
             lock.release()
 
 
+@final
 class RateLimiter:
     """
     Rate-limit operations.
