@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any, TypeVar
 
@@ -28,6 +29,7 @@ from betty.assertion import (
     assert_dict,
     assert_fields,
     assert_field,
+    assert_file_path,
 )
 from betty.assertion.error import AssertionFailed
 from betty.locale.localizable import plain
@@ -307,19 +309,14 @@ class TestAssertRecord:
 
 
 class TestAssertPath:
-    async def test_without_str(self) -> None:
-        with raises_error(error_type=AssertionFailed):
-            assert_path()(False)
-
-    async def test_with_valid_path(self) -> None:
+    async def test_with_valid_str_path(self) -> None:
         assert_path()("~/../foo/bar")
+
+    async def test_with_valid_path_path(self) -> None:
+        assert_path()(Path("~/../foo/bar"))
 
 
 class TestAssertDirectoryPath:
-    async def test_without_str(self) -> None:
-        with raises_error(error_type=AssertionFailed):
-            assert_directory_path()(False)
-
     async def test_without_existing_path(self) -> None:
         with raises_error(error_type=AssertionFailed):
             assert_directory_path()("~/../foo/bar")
@@ -328,6 +325,24 @@ class TestAssertDirectoryPath:
         with NamedTemporaryFile() as f, raises_error(error_type=AssertionFailed):
             assert_directory_path()(f.name)
 
-    async def test_with_valid_path(self) -> None:
+    async def test_with_valid_path_str(self) -> None:
         async with TemporaryDirectory() as directory_path_str:
             assert_directory_path()(directory_path_str)
+
+    async def test_with_valid_path_path(self) -> None:
+        async with TemporaryDirectory() as directory_path_str:
+            assert_directory_path()(Path(directory_path_str))
+
+
+class TestAssertFilePath:
+    async def test_without_existing_path(self) -> None:
+        with raises_error(error_type=AssertionFailed):
+            assert_file_path()("~/../foo/bar")
+
+    async def test_with_valid_path_str(self) -> None:
+        with NamedTemporaryFile() as f:
+            assert_file_path()(f.name)
+
+    async def test_with_valid_path_path(self) -> None:
+        with NamedTemporaryFile() as f:
+            assert_file_path()(Path(f.name))

@@ -1,15 +1,11 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from pathlib import Path
-from tempfile import NamedTemporaryFile
 from typing import Iterable, Generic, TYPE_CHECKING, TypeVar, Self
 
-import pytest
 from typing_extensions import override
 
 from betty.config import (
-    FileBasedConfiguration,
     ConfigurationMapping,
     Configuration,
     ConfigurationCollection,
@@ -24,8 +20,6 @@ from betty.assertion import (
     assert_setattr,
     assert_int,
 )
-from betty.serde.format import FormatError
-from betty.typing import Void
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, VoidableDump
@@ -33,32 +27,6 @@ if TYPE_CHECKING:
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
-
-
-class _FileBasedConfiguration(FileBasedConfiguration):
-    @override
-    def update(self, other: Self) -> None:
-        pass
-
-    @override
-    def load(self, dump: Dump) -> None:
-        pass
-
-    @override
-    def dump(self) -> VoidableDump:
-        return Void
-
-
-class TestFileBasedConfiguration:
-    async def test_configuration_file_path_should_error_unknown_format(
-        self, tmp_path: Path
-    ) -> None:
-        configuration = _FileBasedConfiguration(tmp_path / "betty.json")
-        with (
-            NamedTemporaryFile(mode="r+", suffix=".abc") as f,
-            pytest.raises(FormatError),
-        ):
-            configuration.configuration_file_path = Path(f.name)
 
 
 class ConfigurationSequenceTestConfiguration(Configuration):

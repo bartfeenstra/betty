@@ -846,6 +846,14 @@ class TestEntityTypeConfigurationMapping(
 
 
 class TestProjectConfiguration:
+    async def test_configuration_file_path(self, tmp_path: Path) -> None:
+        old_configuration_file_path = tmp_path / "betty.json"
+        sut = ProjectConfiguration(old_configuration_file_path)
+        assert sut.configuration_file_path == old_configuration_file_path
+        new_configuration_file_path = tmp_path / "betty.yaml"
+        sut.configuration_file_path = new_configuration_file_path
+        assert sut.configuration_file_path == new_configuration_file_path
+
     async def test_name(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
         name = "MyFirstBettySite"

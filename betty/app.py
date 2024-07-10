@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from concurrent.futures import Executor, ProcessPoolExecutor
-from contextlib import suppress, asynccontextmanager
+from contextlib import asynccontextmanager
 from multiprocessing import get_context
 from os import environ
 from pathlib import Path
@@ -25,7 +25,7 @@ from betty.assets import AssetRepository
 from betty.asyncio import wait_to_thread
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
-from betty.config import Configurable, FileBasedConfiguration
+from betty.config import Configurable, Configuration, assert_configuration_file
 from betty.core import CoreComponent
 from betty.fetch import Fetcher
 from betty.fs import HOME_DIRECTORY_PATH
@@ -41,28 +41,18 @@ CONFIGURATION_DIRECTORY_PATH = fs.HOME_DIRECTORY_PATH / "configuration"
 
 
 @final
-class AppConfiguration(FileBasedConfiguration):
+class AppConfiguration(Configuration):
     """
     Provide configuration for :py:class:`betty.app.App`.
     """
 
     def __init__(
         self,
-        configuration_file_path: Path,
         *,
         locale: str | None = None,
     ):
-        super().__init__(configuration_file_path)
+        super().__init__()
         self._locale: str | None = locale
-
-    @override
-    @property
-    def configuration_file_path(self) -> Path:
-        return self._configuration_file_path
-
-    @configuration_file_path.setter
-    def configuration_file_path(self, __: Path) -> None:
-        pass
 
     @property
     def locale(self) -> str | None:
@@ -117,9 +107,6 @@ class App(Configurable[AppConfiguration], CoreComponent):
         self._localization_initialized = False
         self._localizer: Localizer | None = None
         self._localizers: LocalizerRepository | None = None
-        with suppress(FileNotFoundError):
-            wait_to_thread(self.configuration.read())
-
         self._http_client: aiohttp.ClientSession | None = None
         self._fetcher: Fetcher | None = None
         self._cache_directory_path = cache_directory_path
@@ -134,8 +121,12 @@ class App(Configurable[AppConfiguration], CoreComponent):
         """
         Create a new application from the environment.
         """
+        configuration = AppConfiguration()
+        configuration_file_path = CONFIGURATION_DIRECTORY_PATH / "app.json"
+        if configuration_file_path.exists():
+            assert_configuration_file(configuration)(configuration_file_path)
         yield cls(
-            AppConfiguration(CONFIGURATION_DIRECTORY_PATH / "app.json"),
+            configuration,
             Path(environ.get("BETTY_CACHE_DIRECTORY", HOME_DIRECTORY_PATH / "cache")),
             cache_factory=lambda app: PickledFileCache[Any](
                 app.localizer, app._cache_directory_path
@@ -152,11 +143,10 @@ class App(Configurable[AppConfiguration], CoreComponent):
         any traces on the system.
         """
         async with (
-            TemporaryDirectory() as configuration_directory_path_str,
             TemporaryDirectory() as cache_directory_path_str,
         ):
             yield cls(
-                AppConfiguration(Path(configuration_directory_path_str) / "app.json"),
+                AppConfiguration(),
                 Path(cache_directory_path_str),
                 cache_factory=lambda app: NoOpCache(),
             )
