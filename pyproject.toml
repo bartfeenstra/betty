@@ -78,14 +78,16 @@ X = 'https://twitter.com/BettyProject'
 betty = 'betty.cli:main'
 
 [project.entry-points.'betty.command']
-'clear-caches' = 'betty.cli._clear_caches'
-'demo' = 'betty.cli._demo'
-'docs' = 'betty.cli._docs'
-'generate' = 'betty.cli._generate'
-'serve' = 'betty.cli._serve'
-'init-translation' = 'betty.cli._init_translation'
-'update-translations' = 'betty.cli._update_translations'
-'serve-nginx-docker' = 'betty.extension.nginx.cli._serve'
+'clear-caches' = 'betty.cli.commands.clear_caches:clear_caches'
+'demo' = 'betty.cli.commands.demo:demo'
+'docs' = 'betty.cli.commands.docs:docs'
+'generate' = 'betty.cli.commands.generate:generate'
+'serve' = 'betty.cli.commands.serve:serve'
+'serve-nginx-docker' = 'betty.extension.nginx._cli:serve_nginx_docker'
+
+[project.entry-points.'betty.dev.command']
+'init-translation' = 'betty.cli.commands.init_translation:init_translation'
+'update-translations' = 'betty.cli.commands.update_translations:update_translations'
 
 [project.entry-points.'betty.extension']
 'cotton-candy' = 'betty.extension.cotton_candy:CottonCandy'
