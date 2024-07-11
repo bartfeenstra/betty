@@ -4,7 +4,6 @@ Provide Betty's main data model.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from contextlib import suppress
 from enum import Enum
 from reprlib import recursive_repr
@@ -37,6 +36,7 @@ from betty.model import (
     GeneratedEntityId,
 )
 from betty.model.event_type import EventType, UnknownEventType
+from betty.model.presence_role import PresenceRole, ref_role, Subject
 from betty.serde.dump import DictDump, Dump, dump_default
 from betty.string import camel_case_to_kebab_case
 
@@ -1524,172 +1524,6 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
         return schema
 
 
-class PresenceRole(ABC):
-    """
-    A person's role at an event.
-    """
-
-    @classmethod
-    @abstractmethod
-    def name(cls) -> str:
-        """
-        The machine name.
-        """
-        pass
-
-    @property
-    @abstractmethod
-    def label(self) -> Localizable:
-        """
-        The human-readable label.
-        """
-        pass
-
-
-def ref_role(root_schema: DictDump[Dump]) -> DictDump[Dump]:
-    """
-    Reference the PresenceRole schema.
-    """
-    definitions = dump_default(root_schema, "definitions", dict)
-    if "role" not in definitions:
-        definitions["role"] = {
-            "type": "string",
-            "description": "A person's role in an event.",
-        }
-    return {
-        "$ref": "#/definitions/role",
-    }
-
-
-@final
-class Subject(PresenceRole):
-    """
-    Someone was the subject of the event.
-
-    The meaning of this role depends on the event type. For example, for :py:class:`betty.model.event_type.Marriage`,
-    the subjects are the people who got married. For :py:class:`betty.model.event_type.Death` it is the person who
-    died.
-    """
-
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "subject"
-
-    @override
-    @property
-    def label(self) -> Localizable:
-        return _("Subject")  # pragma: no cover
-
-
-@final
-class Witness(PresenceRole):
-    """
-    Someone `witnessed <https://en.wikipedia.org/wiki/Witness>`_ the event.
-    """
-
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "witness"  # pragma: no cover
-
-    @override
-    @property
-    def label(self) -> Localizable:
-        return _("Witness")  # pragma: no cover
-
-
-@final
-class Beneficiary(PresenceRole):
-    """
-    Someone was a `benificiary <https://en.wikipedia.org/wiki/Beneficiary>`_ in the event, such as a :py:class:`betty.model.event_type.Will`.
-    """
-
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "beneficiary"  # pragma: no cover
-
-    @override
-    @property
-    def label(self) -> Localizable:
-        return _("Beneficiary")  # pragma: no cover
-
-
-@final
-class Attendee(PresenceRole):
-    """
-    Someone attended the event (further details unknown).
-    """
-
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "attendee"  # pragma: no cover
-
-    @override
-    @property
-    def label(self) -> Localizable:
-        return _("Attendee")  # pragma: no cover
-
-
-@final
-class Speaker(PresenceRole):
-    """
-    Someone performed public speaking at the event.
-    """
-
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "speaker"  # pragma: no cover
-
-    @override
-    @property
-    def label(self) -> Localizable:
-        return _("Speaker")  # pragma: no cover
-
-
-@final
-class Celebrant(PresenceRole):
-    """
-    Someone was the `celebrant <https://en.wikipedia.org/wiki/Officiant>`_ at the event.
-
-    This includes but is not limited to:
-
-    - civil servant
-    - religious leader
-    - civilian
-    """
-
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "celebrant"  # pragma: no cover
-
-    @override
-    @property
-    def label(self) -> Localizable:
-        return _("Celebrant")  # pragma: no cover
-
-
-@final
-class Organizer(PresenceRole):
-    """
-    Someone organized the event.
-    """
-
-    @override
-    @classmethod
-    def name(cls) -> str:
-        return "organizer"  # pragma: no cover
-
-    @override
-    @property
-    def label(self) -> Localizable:
-        return _("Organizer")  # pragma: no cover
-
-
 @final
 @many_to_one_to_many(
     "betty.model.ancestry:Person",
@@ -1920,7 +1754,7 @@ class Event(
             ),
         }
         if presence.public:
-            dump["role"] = presence.role.name()
+            dump["role"] = presence.role.plugin_id()
         return dump
 
     @override
@@ -2341,7 +2175,7 @@ class Person(
         }
         dump_context(dump, event="performerIn")
         if presence.public:
-            dump["role"] = presence.role.name()
+            dump["role"] = presence.role.plugin_id()
         return dump
 
     @override

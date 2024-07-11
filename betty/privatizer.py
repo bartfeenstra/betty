@@ -21,9 +21,9 @@ from betty.model.ancestry import (
     Presence,
     Privacy,
     HasPrivacy,
-    Subject,
     Place,
 )
+from betty.model.presence_role import Subject
 from betty.model.event_type import EndOfLifeEventType
 
 Expirable: TypeAlias = Person | Event | Date | None

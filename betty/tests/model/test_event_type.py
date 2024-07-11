@@ -2,7 +2,8 @@ from __future__ import annotations
 
 
 from betty.locale import Date
-from betty.model.ancestry import Person, Presence, Subject, Event
+from betty.model.ancestry import Person, Presence, Event
+from betty.model.presence_role import Subject
 from betty.model.event_type import Death, Birth
 
 _LIFETIME_THRESHOLD = 125
