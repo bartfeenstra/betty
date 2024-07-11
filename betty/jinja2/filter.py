@@ -34,8 +34,8 @@ from jinja2.runtime import Context, Macro
 from markupsafe import Markup, escape
 from pdf2image.pdf2image import convert_from_path
 
-from betty import _resizeimage
 from betty.hashid import hashid_file_meta, hashid
+from betty.image import resize_cover, Size
 from betty.locale import (
     negotiate_localizeds,
     Localized,
@@ -251,8 +251,7 @@ async def filter_file(context: Context, file: File) -> str:
 async def filter_image(
     context: Context,
     file: File,
-    width: int | None = None,
-    height: int | None = None,
+    size: Size | None = None,
 ) -> str:
     """
     Preprocess an image file for use in a page.
@@ -274,14 +273,14 @@ async def filter_image(
     job_context = context_job_context(context)
 
     destination_name = f"{file.id}-"
-    if height and width:
-        destination_name += f"{width}x{height}"
-    elif height:
-        destination_name += f"-x{height}"
-    elif width:
-        destination_name += f"{width}x-"
-    else:
-        raise ValueError("At least the width or height must be given.")
+    if size is not None:
+        width, height = size
+        if width is None:
+            destination_name += f"-x{height}"
+        elif height is None:
+            destination_name += f"{width}x-"
+        else:
+            destination_name += f"{width}x{height}"
 
     file_directory_path = project.configuration.www_directory_path / "file"
 
@@ -299,7 +298,7 @@ async def filter_image(
     else:
         raise ValueError("Cannot convert a file without a media type to an image.")
 
-    cache_item_id = f'{await hashid_file_meta(file.path)}:{"" if width is None else width}:{"" if height is None else height}'
+    cache_item_id = f"{await hashid_file_meta(file.path)}:{destination_name}"
     execute_filter = True
     if job_context:
         async with job_context.cache.with_scope("filter_image").getset(
@@ -322,8 +321,7 @@ async def filter_image(
             ),
             file_directory_path,
             destination_name,
-            width,
-            height,
+            size,
         )
     destination_public_path = f"/file/{quote(destination_name)}"
 
@@ -362,8 +360,7 @@ def _execute_filter_image(
     cache_item_file_path: Path,
     destination_directory_path: Path,
     destination_name: str,
-    width: int | None,
-    height: int | None,
+    size: Size | None,
 ) -> None:
     run(
         __execute_filter_image(
@@ -373,8 +370,7 @@ def _execute_filter_image(
             cache_item_file_path,
             destination_directory_path,
             destination_name,
-            width,
-            height,
+            size,
         )
     )
 
@@ -386,43 +382,31 @@ async def __execute_filter_image(
     cache_item_file_path: Path,
     destination_directory_path: Path,
     destination_name: str,
-    width: int | None,
-    height: int | None,
+    size: Size | None,
 ) -> None:
     destination_file_path = destination_directory_path / destination_name
     await makedirs(destination_directory_path, exist_ok=True)
+
+    # If no customizations are needed, work straight from the source.
+    if size is None:
+        await link_or_copy(file_path, destination_file_path)
+        return
+
     try:
+        # Try using a previously cached image.
         await link_or_copy(cache_item_file_path, destination_file_path)
     except FileNotFoundError:
+        # Apply customizations, and cache the customized image.
         image = await image_loader(file_path, media_type)
         try:
-            if width is not None:
-                width = min(width, image.width)
-            if height is not None:
-                height = min(height, image.height)
-
             await makedirs(cache_item_file_path.parent, exist_ok=True)
-            converted_image = await _execute_filter_image_convert(image, width, height)
+            converted_image = resize_cover(image, size)
             converted_image.save(cache_item_file_path, format=media_type.subtype)
             del converted_image
         finally:
             image.close()
             del image
         await link_or_copy(cache_item_file_path, destination_file_path)
-
-
-async def _execute_filter_image_convert(
-    image: Image.Image,
-    width: int | None,
-    height: int | None,
-) -> Image.Image:
-    if width is not None and height is not None:
-        return _resizeimage.resize_cover(image, (width, height))
-    if width is not None:
-        return _resizeimage.resize_width(image, width)
-    if height is not None:
-        return _resizeimage.resize_height(image, height)
-    raise ValueError("Width and height cannot both be None.")
 
 
 @pass_context

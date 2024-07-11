@@ -195,7 +195,7 @@ class TestFilterImage(TemplateTestCase):
         [
             (
                 "/file/F1-99x-.png",
-                "{{ file | image(width=99) }}",
+                "{{ file | image((99, none)) }}",
                 File(
                     id="F1",
                     path=image_path,
@@ -204,7 +204,7 @@ class TestFilterImage(TemplateTestCase):
             ),
             (
                 "/file/F1--x99.png",
-                "{{ file | image(height=99) }}",
+                "{{ file | image((none, 99)) }}",
                 File(
                     id="F1",
                     path=image_path,
@@ -213,7 +213,7 @@ class TestFilterImage(TemplateTestCase):
             ),
             (
                 "/file/F1-99x99.png",
-                "{{ file | image(width=99, height=99) }}",
+                "{{ file | image((99, 99)) }}",
                 File(
                     id="F1",
                     path=image_path,
@@ -222,7 +222,7 @@ class TestFilterImage(TemplateTestCase):
             ),
             (
                 "/file/F1-99x99.png:/file/F1-99x99.png",
-                "{{ file | image(width=99, height=99) }}:{{ file | image(width=99, height=99) }}",
+                "{{ file | image((99, 99)) }}:{{ file | image((99, 99)) }}",
                 File(
                     id="F1",
                     path=image_path,
@@ -243,21 +243,6 @@ class TestFilterImage(TemplateTestCase):
                 assert (
                     project.configuration.www_directory_path / file_path[1:]
                 ).exists()
-
-    async def test_without_width(self) -> None:
-        file = File(
-            id="F1",
-            path=self.image_path,
-            media_type=MediaType("image/png"),
-        )
-        with pytest.raises(ValueError):  # noqa PT011
-            async with self._render(
-                template_string="{{ file | image }}",
-                data={
-                    "file": file,
-                },
-            ):
-                pass
 
 
 class TestGlobalCiter(TemplateTestCase):

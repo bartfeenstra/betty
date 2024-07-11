@@ -5,7 +5,6 @@ concurrency =
     thread
 omit =
     betty/_package/**
-    betty/_resizeimage.py
 parallel = True
 source = betty
 
@@ -16,7 +15,6 @@ exclude_also =
     if TYPE_CHECKING:
 omit =
     betty/_package/**
-    betty/_resizeimage.py
 show_missing = True
 skip_covered = True
 skip_empty = True
