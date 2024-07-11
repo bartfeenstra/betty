@@ -42,7 +42,7 @@ access any entity of any type.
 
       .. code-block:: jinja
 
-          {% set people = ancestry['Person'] %}
+          {% set people = ancestry['person'] %}
           {% set person_a1b2 = people['a1b2'] %}
 
 In this section

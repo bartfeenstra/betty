@@ -27,13 +27,6 @@ from betty.locale import (
     UNDETERMINED_LOCALE,
 )
 from betty.locale.localizable import _, plain, Localizable
-from betty.model import (
-    Entity,
-    get_entity_type,
-    EntityTypeImportError,
-    EntityTypeInvalidError,
-    EntityTypeError,
-)
 from betty.typing import Void
 
 if TYPE_CHECKING:
@@ -503,38 +496,3 @@ def assert_setattr(
         return getattr(instance, attr_name)
 
     return AssertionChain(_assert_setattr)
-
-
-def assert_entity_type() -> AssertionChain[Any, type[Entity]]:
-    """
-    Assert that a value is an entity type.
-
-    This assertion passes if the value is fully qualified :py:class:`betty.model.Entity` subclass name.
-    """
-
-    def _assert_entity_type(
-        value: Any,
-    ) -> type[Entity]:
-        assert_str()(value)
-        try:
-            return get_entity_type(value)
-        except EntityTypeImportError:
-            raise AssertionFailed(
-                _(
-                    'Cannot find and import "{entity_type}".',
-                ).format(entity_type=str(value))
-            ) from None
-        except EntityTypeInvalidError:
-            raise AssertionFailed(
-                _('"{entity_type}" is not a valid Betty entity type.').format(
-                    entity_type=str(value)
-                )
-            ) from None
-        except EntityTypeError:
-            raise AssertionFailed(
-                _(
-                    'Cannot determine the entity type for "{entity_type}". Did you perhaps make a typo, or could it be that the entity type comes from another package that is not yet installed?'
-                ).format(entity_type=str(value))
-            ) from None
-
-    return AssertionChain(_assert_entity_type)

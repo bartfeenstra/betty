@@ -4,42 +4,28 @@ from tempfile import NamedTemporaryFile
 
 import aiofiles
 import pytest
+from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.locale.localizable import plain, Localizable
 from betty.generate import generate
 from betty.model import (
-    Entity,
-    get_entity_type_name,
     UserFacingEntity,
-    EntityTypeProvider,
 )
 from betty.model.ancestry import Person, Place, Source, PlaceName, File, Event, Citation
 from betty.model.event_type import Birth
+from betty.plugin.static import StaticPluginRepository
 from betty.project import (
     LocaleConfiguration,
     EntityTypeConfiguration,
-    ExtensionConfiguration,
     Project,
 )
 from betty.string import camel_case_to_kebab_case
 from betty.tests import assert_betty_html, assert_betty_json
-from betty.tests.project.extension.test___init__ import DummyExtension
+from betty.tests.model.test___init__ import DummyEntity
 
 
-class _ThirdPartyEntity(Entity, UserFacingEntity):
-    @classmethod
-    def entity_type_label(cls) -> Localizable:
-        return plain(cls.__name__)
-
-    @classmethod
-    def entity_type_label_plural(cls) -> Localizable:
-        return plain(cls.__name__)
-
-
-class _ThirdPartyExtension(DummyExtension, EntityTypeProvider):
-    async def entity_types(self) -> set[type[Entity]]:
-        return {_ThirdPartyEntity}
+class ThirdPartyEntity(UserFacingEntity, DummyEntity):
+    pass
 
 
 class TestGenerate:
@@ -186,17 +172,17 @@ class TestGenerate:
                     in html
                 )
 
-    async def test_third_party_entities(self) -> None:
-        entity_type = _ThirdPartyEntity
+    async def test_third_party_entities(self, mocker: MockerFixture) -> None:
+        mocker.patch(
+            "betty.model.ENTITY_TYPE_REPOSITORY",
+            new=StaticPluginRepository(ThirdPartyEntity),
+        )
         async with App.new_temporary() as app, app, Project.new_temporary(
             app
         ) as project:
-            project.configuration.extensions.append(
-                ExtensionConfiguration(_ThirdPartyExtension)
-            )
             project.configuration.entity_types.append(
                 EntityTypeConfiguration(
-                    entity_type=entity_type,
+                    entity_type=ThirdPartyEntity,
                     generate_html_list=True,
                 )
             )
@@ -204,23 +190,23 @@ class TestGenerate:
                 await generate(project)
                 await assert_betty_html(
                     project,
-                    f"/{camel_case_to_kebab_case(get_entity_type_name(entity_type))}/index.html",
+                    f"/{camel_case_to_kebab_case(ThirdPartyEntity.plugin_id())}/index.html",
                     check_links=True,
                 )
                 await assert_betty_json(
                     project,
-                    f"/{camel_case_to_kebab_case(get_entity_type_name(entity_type))}/index.json",
+                    f"/{camel_case_to_kebab_case(ThirdPartyEntity.plugin_id())}/index.json",
                 )
 
-    async def test_third_party_entity(self) -> None:
-        entity_type = _ThirdPartyEntity
+    async def test_third_party_entity(self, mocker: MockerFixture) -> None:
+        mocker.patch(
+            "betty.model.ENTITY_TYPE_REPOSITORY",
+            new=StaticPluginRepository(ThirdPartyEntity),
+        )
         async with App.new_temporary() as app, app, Project.new_temporary(
             app
         ) as project:
-            project.configuration.extensions.append(
-                ExtensionConfiguration(_ThirdPartyExtension)
-            )
-            entity = _ThirdPartyEntity(
+            entity = ThirdPartyEntity(
                 id="ENTITY1",
             )
             project.ancestry.add(entity)
@@ -228,12 +214,12 @@ class TestGenerate:
                 await generate(project)
                 await assert_betty_html(
                     project,
-                    f"/{camel_case_to_kebab_case(get_entity_type_name(entity_type))}/{entity.id}/index.html",
+                    f"/{camel_case_to_kebab_case(ThirdPartyEntity.plugin_id())}/{entity.id}/index.html",
                     check_links=True,
                 )
                 await assert_betty_json(
                     project,
-                    f"/{camel_case_to_kebab_case(get_entity_type_name(entity_type))}/{entity.id}/index.json",
+                    f"/{camel_case_to_kebab_case(ThirdPartyEntity.plugin_id())}/{entity.id}/index.json",
                 )
 
     async def test_files(self) -> None:

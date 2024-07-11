@@ -8,13 +8,11 @@ site from the entire project.
 
 from __future__ import annotations
 
-import operator
 from contextlib import suppress, asynccontextmanager
-from functools import reduce
 from graphlib import TopologicalSorter, CycleError
 from pathlib import Path
 from reprlib import recursive_repr
-from typing import Any, Generic, final, Iterable, cast, Self, TYPE_CHECKING, TypeVar
+from typing import Any, Generic, final, Iterable, Self, TYPE_CHECKING, TypeVar
 from urllib.parse import urlparse
 
 from aiofiles.tempfile import TemporaryDirectory
@@ -26,7 +24,6 @@ from betty.assertion import (
     RequiredField,
     OptionalField,
     assert_record,
-    assert_entity_type,
     assert_setattr,
     assert_str,
     assert_bool,
@@ -50,12 +47,8 @@ from betty.core import CoreComponent
 from betty.hashid import hashid
 from betty.locale import DEFAULT_LOCALE, LocalizerRepository
 from betty.locale.localizable import _
-from betty.model import (
-    Entity,
-    get_entity_type_name,
-    UserFacingEntity,
-    EntityTypeProvider,
-)
+from betty import model
+from betty.model import Entity, UserFacingEntity
 from betty.model.ancestry import Ancestry, Person, Event, Place, Source
 from betty.model.event_type import (
     EventType,
@@ -188,7 +181,8 @@ class EntityReference(Configuration, Generic[_EntityT]):
             assert_record(
                 RequiredField(
                     "entity_type",
-                    assert_entity_type() | assert_setattr(self, "entity_type"),
+                    assert_plugin(model.ENTITY_TYPE_REPOSITORY)
+                    | assert_setattr(self, "entity_type"),
                 ),
                 OptionalField(
                     "entity_id",
@@ -209,7 +203,7 @@ class EntityReference(Configuration, Generic[_EntityT]):
 
         dump: VoidableDictDump[VoidableDump] = {
             "entity_type": (
-                get_entity_type_name(self._entity_type) if self._entity_type else Void
+                self._entity_type.plugin_id() if self._entity_type else Void
             ),
             "entity_id": self._entity_id,
         }
@@ -274,32 +268,24 @@ class EntityReferenceSequence(
         ):
             return
 
-        expected_entity_type_name = get_entity_type_name(
-            cast(type[Entity], entity_type_constraint),
-        )
-        expected_entity_type_label = entity_type_constraint.entity_type_label()
+        expected_entity_type_label = entity_type_constraint.plugin_label()
 
         if entity_reference_entity_type is None:
             raise AssertionFailed(
                 _(
-                    "The entity reference must be for an entity of type {expected_entity_type_name} ({expected_entity_type_label}), but instead does not specify an entity type at all."
+                    "The entity reference must be for an entity of type {expected_entity_type_label}, but instead does not specify an entity type at all."
                 ).format(
-                    expected_entity_type_name=expected_entity_type_name,
                     expected_entity_type_label=expected_entity_type_label,
                 )
             )
 
-        actual_entity_type_label = entity_type_constraint.entity_type_label()
+        actual_entity_type_label = entity_type_constraint.plugin_label()
 
         raise AssertionFailed(
             _(
-                "The entity reference must be for an entity of type {expected_entity_type_name} ({expected_entity_type_label}), but instead is for an entity of type {actual_entity_type_name} ({actual_entity_type_label})"
+                "The entity reference must be for an entity of type {expected_entity_type_label}, but instead is for an entity of type {actual_entity_type_label}."
             ).format(
-                expected_entity_type_name=expected_entity_type_name,
                 expected_entity_type_label=expected_entity_type_label,
-                actual_entity_type_name=get_entity_type_name(
-                    entity_reference_entity_type
-                ),
                 actual_entity_type_label=actual_entity_type_label,
             )
         )
@@ -533,7 +519,7 @@ class EntityTypeConfiguration(Configuration):
             raise AssertionFailed(
                 _(
                     "Cannot generate pages for {entity_type}, because it is not a user-facing entity type."
-                ).format(entity_type=get_entity_type_name(self._entity_type))
+                ).format(entity_type=self._entity_type.plugin_label())
             )
         self._generate_html_list = generate_html_list
 
@@ -548,7 +534,7 @@ class EntityTypeConfiguration(Configuration):
             RequiredField[Any, type[Entity]](
                 "entity_type",
                 assert_str()
-                | assert_entity_type()
+                | assert_plugin(model.ENTITY_TYPE_REPOSITORY)
                 | assert_setattr(self, "_entity_type"),
             ),
             OptionalField(
@@ -560,7 +546,7 @@ class EntityTypeConfiguration(Configuration):
     @override
     def dump(self) -> VoidableDump:
         dump: VoidableDictDump[VoidableDump] = {
-            "entity_type": get_entity_type_name(self._entity_type),
+            "entity_type": self._entity_type.plugin_id(),
             "generate_html_list": (
                 Void if self._generate_html_list is None else self._generate_html_list
             ),
@@ -592,7 +578,7 @@ class EntityTypeConfigurationMapping(
         key_dump: str,
     ) -> Dump:
         dict_dump = assert_dict()(item_dump)
-        assert_entity_type()(key_dump)
+        assert_plugin(model.ENTITY_TYPE_REPOSITORY)(key_dump)
         dict_dump["entity_type"] = key_dump
         return dict_dump
 
@@ -1290,44 +1276,6 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
             self._dispatcher = ExtensionDispatcher(self.extensions)
 
         return self._dispatcher
-
-    @property
-    def entity_types(self) -> set[type[Entity]]:
-        """
-        The available entity types.
-        """
-        if self._entity_types is None:
-            self._assert_bootstrapped()
-            from betty.model.ancestry import (
-                Citation,
-                Enclosure,
-                Event,
-                File,
-                Note,
-                Person,
-                PersonName,
-                Presence,
-                Place,
-                Source,
-            )
-
-            self._entity_types = reduce(
-                operator.or_,
-                wait_to_thread(self.dispatcher.dispatch(EntityTypeProvider)()),
-                set(),
-            ) | {
-                Citation,
-                Enclosure,
-                Event,
-                File,
-                Note,
-                Person,
-                PersonName,
-                Presence,
-                Place,
-                Source,
-            }
-        return self._entity_types
 
     @property
     def event_types(self) -> set[type[EventType]]:

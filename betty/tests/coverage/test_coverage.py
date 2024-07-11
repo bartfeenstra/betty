@@ -421,13 +421,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "BidirectionalEntityTypeAssociation": TestKnownToBeMissing,
         "BidirectionalToManyEntityTypeAssociation": TestKnownToBeMissing,
         "BidirectionalToOneEntityTypeAssociation": TestKnownToBeMissing,
-        "Entity": {
-            "__hash__": TestKnownToBeMissing,
-            "ancestry_id": TestKnownToBeMissing,
-            "dump_linked_data": TestKnownToBeMissing,
-            "label": TestKnownToBeMissing,
-            "type": TestKnownToBeMissing,
-        },
+        "Entity": TestKnownToBeMissing,
         "EntityGraphBuilder": {
             "add_association": TestKnownToBeMissing,
             "add_entity": TestKnownToBeMissing,
@@ -437,8 +431,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "EntityTypeError": TestKnownToBeMissing,
         "EntityTypeImportError": TestKnownToBeMissing,
         "EntityTypeInvalidError": TestKnownToBeMissing,
-        # This is an interface.
-        "EntityTypeProvider": TestKnownToBeMissing,
         "GeneratedEntityId": TestKnownToBeMissing,
         "MultipleTypesEntityCollection": {
             "__delitem__": TestKnownToBeMissing,

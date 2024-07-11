@@ -5,6 +5,7 @@ from betty.string import (
     camel_case_to_kebab_case,
     upper_camel_case_to_lower_camel_case,
     snake_case_to_upper_camel_case,
+    kebab_case_to_lower_camel_case,
 )
 
 
@@ -68,3 +69,20 @@ class TestSnakeCaseToUpperCamelCase:
     )
     async def test(self, expected: str, string: str) -> None:
         assert expected == snake_case_to_upper_camel_case(string)
+
+
+class TestKebabCaseToLowerCamelCase:
+    @pytest.mark.parametrize(
+        ("expected", "string"),
+        [
+            ("snakeCase", "snake-case"),
+            ("snakeCase", "-snake-case"),
+            ("123snakeCase", "123snake-case"),
+            ("snakeCase123", "snake-case-123"),
+            ("123", "123"),
+            ("", ""),
+            (" ", " "),
+        ],
+    )
+    async def test(self, expected: str, string: str) -> None:
+        assert expected == kebab_case_to_lower_camel_case(string)

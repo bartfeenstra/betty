@@ -1,6 +1,6 @@
 {# Citation formatting is inspired by the MLA style guide(https://style.mla.org/) #}
 {% set citation = citation | default(entity) %}
-{% set citation_context = entity_contexts['Citation'] %}
+{% set citation_context = entity_contexts['citation'] %}
 <span>
     {% if citation.source and citation.source.public -%}
         {% if citation.source.public -%}

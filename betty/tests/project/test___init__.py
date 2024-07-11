@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import Any, Iterable, TYPE_CHECKING, Self
-from typing_extensions import override
 
 import pytest
+from typing_extensions import override
 
 from betty.assertion import (
     RequiredField,
@@ -16,8 +16,7 @@ from betty.assertion import (
 from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
-from betty.locale.localizable import plain, Localizable
-from betty.model import Entity, get_entity_type_name, UserFacingEntity
+from betty.model import Entity, UserFacingEntity
 from betty.model.ancestry import Ancestry
 from betty.plugin.static import StaticPluginRepository
 from betty.project import (
@@ -40,6 +39,7 @@ from betty.project.extension import (
 from betty.tests.assertion import raises_error
 from betty.tests.config.collections.test_mapping import ConfigurationMappingTestBase
 from betty.tests.config.collections.test_sequence import ConfigurationSequenceTestBase
+from betty.tests.model.test___init__ import DummyEntity
 from betty.tests.project.extension.test___init__ import DummyExtension
 from betty.typing import Void
 
@@ -56,21 +56,11 @@ class _DummyNonConfigurableExtension(DummyExtension):
     pass
 
 
-class _DummyEntity(Entity):
-    @classmethod
-    def entity_type_label(cls) -> Localizable:
-        return plain(cls.__name__)
-
-    @classmethod
-    def entity_type_label_plural(cls) -> Localizable:
-        return plain(cls.__name__)
-
-
-class EntityReferenceTestEntityOne(Entity):
+class EntityReferenceTestEntityOne(DummyEntity):
     pass
 
 
-class EntityReferenceTestEntityTwo(Entity):
+class EntityReferenceTestEntityTwo(DummyEntity):
     pass
 
 
@@ -131,11 +121,15 @@ class TestEntityReference:
         with raises_error(error_type=AssertionFailed):
             sut.load(dump)
 
-    async def test_load_without_constraint(self) -> None:
+    async def test_load_without_constraint(self, mocker: MockerFixture) -> None:
+        mocker.patch(
+            "betty.model.ENTITY_TYPE_REPOSITORY",
+            new=StaticPluginRepository(EntityReferenceTestEntityOne),
+        )
         entity_type = EntityReferenceTestEntityOne
         entity_id = "123"
         dump: Dump = {
-            "entity_type": get_entity_type_name(entity_type),
+            "entity_type": entity_type.plugin_id(),
             "entity_id": entity_id,
         }
         sut = EntityReference[EntityReferenceTestEntityOne]()
@@ -184,7 +178,7 @@ class TestEntityReference:
     ) -> None:
         entity_type = EntityReferenceTestEntityOne
         dump: Dump = {
-            "entity_type": get_entity_type_name(entity_type),
+            "entity_type": entity_type.plugin_id(),
             "entity_id": None,
         }
         sut = EntityReference[EntityReferenceTestEntityOne]()
@@ -205,19 +199,26 @@ class TestEntityReference:
         sut.entity_type = entity_type
         sut.entity_id = entity_id
         expected = {
-            "entity_type": get_entity_type_name(entity_type),
+            "entity_type": entity_type.plugin_id(),
             "entity_id": entity_id,
         }
         assert expected == sut.dump()
 
 
-class EntityReferenceSequenceTestEntity(Entity):
+class EntityReferenceSequenceTestEntity(DummyEntity):
     pass
 
 
 class TestEntityReferenceSequence(
     ConfigurationSequenceTestBase[EntityReference[Entity]]
 ):
+    @pytest.fixture(autouse=True)
+    def _extensions(self, mocker: MockerFixture) -> None:
+        mocker.patch(
+            "betty.model.ENTITY_TYPE_REPOSITORY",
+            new=StaticPluginRepository(EntityReferenceSequenceTestEntity),
+        )
+
     def get_sut(
         self, configurations: Iterable[EntityReference[Entity]] | None = None
     ) -> EntityReferenceSequence[Entity]:
@@ -233,9 +234,13 @@ class TestEntityReferenceSequence(
     ]:
         return (
             EntityReference[Entity](),
-            EntityReference[Entity](Entity),
-            EntityReference[Entity](Entity, "123"),
-            EntityReference[Entity](Entity, "123", entity_type_is_constrained=True),
+            EntityReference[Entity](EntityReferenceSequenceTestEntity),
+            EntityReference[Entity](EntityReferenceSequenceTestEntity, "123"),
+            EntityReference[Entity](
+                EntityReferenceSequenceTestEntity,
+                "123",
+                entity_type_is_constrained=True,
+            ),
         )
 
     async def test_load_item(self) -> None:
@@ -660,11 +665,11 @@ class TestExtensionConfigurationMapping(
             sut.load_item(dump)
 
 
-class EntityTypeConfigurationTestEntityOne(UserFacingEntity, _DummyEntity):
+class EntityTypeConfigurationTestEntityOne(UserFacingEntity, DummyEntity):
     pass
 
 
-class EntityTypeConfigurationTestEntityOther(UserFacingEntity, _DummyEntity):
+class EntityTypeConfigurationTestEntityOther(UserFacingEntity, DummyEntity):
     pass
 
 
@@ -692,9 +697,13 @@ class TestEntityTypeConfiguration:
         with raises_error(error_type=AssertionFailed):
             sut.load(dump)
 
-    async def test_load_with_minimal_configuration(self) -> None:
+    async def test_load_with_minimal_configuration(self, mocker: MockerFixture) -> None:
+        mocker.patch(
+            "betty.model.ENTITY_TYPE_REPOSITORY",
+            new=StaticPluginRepository(EntityTypeConfigurationTestEntityOne),
+        )
         dump: Dump = {
-            "entity_type": get_entity_type_name(EntityTypeConfigurationTestEntityOne),
+            "entity_type": EntityTypeConfigurationTestEntityOne.plugin_id(),
         }
         sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
         sut.load(dump)
@@ -706,9 +715,15 @@ class TestEntityTypeConfiguration:
             False,
         ],
     )
-    async def test_load_with_generate_html_list(self, generate_html_list: bool) -> None:
+    async def test_load_with_generate_html_list(
+        self, generate_html_list: bool, mocker: MockerFixture
+    ) -> None:
+        mocker.patch(
+            "betty.model.ENTITY_TYPE_REPOSITORY",
+            new=StaticPluginRepository(EntityTypeConfigurationTestEntityOne),
+        )
         dump: Dump = {
-            "entity_type": get_entity_type_name(EntityTypeConfigurationTestEntityOne),
+            "entity_type": EntityTypeConfigurationTestEntityOne.plugin_id(),
             "generate_html_list": generate_html_list,
         }
         sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
@@ -718,7 +733,7 @@ class TestEntityTypeConfiguration:
     async def test_dump_with_minimal_configuration(self) -> None:
         sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
         expected = {
-            "entity_type": "betty.tests.project.test___init__.EntityTypeConfigurationTestEntityOne",
+            "entity_type": EntityTypeConfigurationTestEntityOne.plugin_id(),
         }
         assert expected == sut.dump()
 
@@ -728,7 +743,7 @@ class TestEntityTypeConfiguration:
             generate_html_list=False,
         )
         expected = {
-            "entity_type": "betty.tests.project.test___init__.EntityTypeConfigurationTestEntityOne",
+            "entity_type": EntityTypeConfigurationTestEntityOne.plugin_id(),
             "generate_html_list": False,
         }
         assert expected == sut.dump()
@@ -780,25 +795,37 @@ class TestEntityTypeConfiguration:
         assert expected == (one == other)
 
 
-class EntityTypeConfigurationMappingTestEntity0(Entity):
+class EntityTypeConfigurationMappingTestEntity0(DummyEntity):
     pass
 
 
-class EntityTypeConfigurationMappingTestEntity1(Entity):
+class EntityTypeConfigurationMappingTestEntity1(DummyEntity):
     pass
 
 
-class EntityTypeConfigurationMappingTestEntity2(Entity):
+class EntityTypeConfigurationMappingTestEntity2(DummyEntity):
     pass
 
 
-class EntityTypeConfigurationMappingTestEntity3(Entity):
+class EntityTypeConfigurationMappingTestEntity3(DummyEntity):
     pass
 
 
 class TestEntityTypeConfigurationMapping(
     ConfigurationMappingTestBase[type[Entity], EntityTypeConfiguration]
 ):
+    @pytest.fixture(autouse=True)
+    def _extensions(self, mocker: MockerFixture) -> None:
+        mocker.patch(
+            "betty.model.ENTITY_TYPE_REPOSITORY",
+            new=StaticPluginRepository(
+                EntityTypeConfigurationMappingTestEntity0,
+                EntityTypeConfigurationMappingTestEntity1,
+                EntityTypeConfigurationMappingTestEntity2,
+                EntityTypeConfigurationMappingTestEntity3,
+            ),
+        )
+
     def get_configuration_keys(
         self,
     ) -> tuple[type[Entity], type[Entity], type[Entity], type[Entity]]:
@@ -1483,10 +1510,6 @@ class TestProject:
     async def test_dispatcher(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             sut.dispatcher  # noqa B018
-
-    async def test_entity_types(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as sut, sut:
-            assert len(sut.entity_types) > 0
 
     async def test_event_types(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:

@@ -88,7 +88,7 @@ class Privatizer(Extension, PostLoader):
                         "Privatized {count} {entity_type}, because they are associated with private information."
                     ).format(
                         count=str(newly_privatized[entity_type]),
-                        entity_type=entity_type.entity_type_label_plural().localize(
+                        entity_type=entity_type.plugin_label_plural().localize(
                             self.project.app.localizer
                         ),
                     )

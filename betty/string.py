@@ -40,3 +40,17 @@ def snake_case_to_upper_camel_case(string: str) -> str:
             for substring in string.split("_")
         )
     )
+
+
+def kebab_case_to_lower_camel_case(string: str) -> str:
+    """
+    Convert kebab case to lower camel case.
+    """
+    return upper_camel_case_to_lower_camel_case(
+        "".join(
+            (
+                substring[0].upper() + substring[1:] if substring else ""
+                for substring in string.split("-")
+            )
+        )
+    )

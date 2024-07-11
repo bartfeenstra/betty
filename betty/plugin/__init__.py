@@ -21,14 +21,14 @@ if TYPE_CHECKING:
 PluginId: TypeAlias = str
 """
 A plugin ID is a string that meets these criteria:
-- At most 255 characters long.
-- Lowercase letters, numbers, hyphens (-), and underscores (_) only.
+- At most 250 characters long.
+- Lowercase letters, numbers, and hyphens (-).
 
 See :py:func:`betty.plugin.validate_plugin_id`.
 """
 
 
-_PLUGIN_ID_PATTERN = re.compile(r"^[a-z0-9\-_]{1,250}$")
+_PLUGIN_ID_PATTERN = re.compile(r"^[a-z0-9\-]{1,250}$")
 
 
 def validate_plugin_id(plugin_id: str) -> TypeGuard[PluginId]:

@@ -35,7 +35,6 @@ from betty.model import (
     UserFacingEntity,
     EntityTypeAssociationRegistry,
     GeneratedEntityId,
-    get_entity_type_name,
 )
 from betty.model.event_type import EventType, UnknownEventType
 from betty.serde.dump import DictDump, Dump, dump_default
@@ -501,7 +500,7 @@ class HasLinksEntity(HasLinks):
                 project,
                 Link(
                     project.static_url_generator.generate(
-                        f"/{camel_case_to_kebab_case(get_entity_type_name(self.type))}/{self.id}/index.json"
+                        f"/{self.type.plugin_id()}/{self.id}/index.json"
                     ),
                     relationship="canonical",
                     media_type=MediaType("application/ld+json"),
@@ -528,7 +527,7 @@ class HasLinksEntity(HasLinks):
 
 
 @final
-@many_to_one("entity", "betty.model.ancestry.HasNotes", "notes")
+@many_to_one("entity", "betty.model.ancestry:HasNotes", "notes")
 class Note(UserFacingEntity, HasPrivacy, HasLinksEntity, Entity):
     """
     A note is a bit of textual information that can be associated with another entity.
@@ -559,12 +558,17 @@ class Note(UserFacingEntity, HasPrivacy, HasLinksEntity, Entity):
 
     @override
     @classmethod
-    def entity_type_label(cls) -> Localizable:
+    def plugin_id(cls) -> str:
+        return "note"
+
+    @override
+    @classmethod
+    def plugin_label(cls) -> Localizable:
         return _("Note")  # pragma: no cover
 
     @override
     @classmethod
-    def entity_type_label_plural(cls) -> Localizable:
+    def plugin_label_plural(cls) -> Localizable:
         return _("Notes")  # pragma: no cover
 
     @property
@@ -595,7 +599,7 @@ class Note(UserFacingEntity, HasPrivacy, HasLinksEntity, Entity):
         return schema
 
 
-@one_to_many("notes", "betty.model.ancestry.Note", "entity")
+@one_to_many("notes", "betty.model.ancestry:Note", "entity")
 class HasNotes(LinkedDataDumpable):
     """
     An entity that has notes associated with it.
@@ -653,7 +657,7 @@ class HasNotes(LinkedDataDumpable):
         return schema
 
 
-@many_to_many("citations", "betty.model.ancestry.Citation", "facts")
+@many_to_many("citations", "betty.model.ancestry:Citation", "facts")
 class HasCitations(LinkedDataDumpable):
     """
     An entity with citations that support it.
@@ -714,7 +718,7 @@ class HasCitations(LinkedDataDumpable):
 
 
 @final
-@many_to_many("entities", "betty.model.ancestry.HasFiles", "files")
+@many_to_many("entities", "betty.model.ancestry:HasFiles", "files")
 class File(
     Described,
     HasPrivacy,
@@ -789,12 +793,17 @@ class File(
 
     @override
     @classmethod
-    def entity_type_label(cls) -> Localizable:
+    def plugin_id(cls) -> str:
+        return "file"
+
+    @override
+    @classmethod
+    def plugin_label(cls) -> Localizable:
         return _("File")  # pragma: no cover
 
     @override
     @classmethod
-    def entity_type_label_plural(cls) -> Localizable:
+    def plugin_label_plural(cls) -> Localizable:
         return _("Files")  # pragma: no cover
 
     @property
@@ -814,7 +823,7 @@ class File(
         dump = await super().dump_linked_data(project)
         dump["entities"] = [
             project.static_url_generator.generate(
-                f"/{camel_case_to_kebab_case(get_entity_type_name(entity))}/{quote(entity.id)}/index.json"
+                f"/{camel_case_to_kebab_case(entity.plugin_id())}/{quote(entity.id)}/index.json"
             )
             for entity in self.entities
             if not isinstance(entity.id, GeneratedEntityId)
@@ -833,7 +842,7 @@ class File(
         return schema
 
 
-@many_to_many("files", "betty.model.ancestry.File", "entities")
+@many_to_many("files", "betty.model.ancestry:File", "entities")
 class HasFiles:
     """
     An entity that has associated :py:class:`betty.model.ancestry.File` entities.
@@ -869,9 +878,9 @@ class HasFiles:
 
 
 @final
-@many_to_one("contained_by", "betty.model.ancestry.Source", "contains")
-@one_to_many("contains", "betty.model.ancestry.Source", "contained_by")
-@one_to_many("citations", "betty.model.ancestry.Citation", "source")
+@many_to_one("contained_by", "betty.model.ancestry:Source", "contains")
+@one_to_many("contains", "betty.model.ancestry:Source", "contained_by")
+@one_to_many("citations", "betty.model.ancestry:Citation", "source")
 class Source(
     Dated, HasFiles, HasNotes, HasLinksEntity, HasPrivacy, UserFacingEntity, Entity
 ):
@@ -965,12 +974,17 @@ class Source(
 
     @override
     @classmethod
-    def entity_type_label(cls) -> Localizable:
+    def plugin_id(cls) -> str:
+        return "source"
+
+    @override
+    @classmethod
+    def plugin_label(cls) -> Localizable:
         return _("Source")  # pragma: no cover
 
     @override
     @classmethod
-    def entity_type_label_plural(cls) -> Localizable:
+    def plugin_label_plural(cls) -> Localizable:
         return _("Sources")  # pragma: no cover
 
     @override
@@ -1071,8 +1085,8 @@ class Source(
 
 
 @final
-@many_to_many("facts", "betty.model.ancestry.HasCitations", "citations")
-@many_to_one("source", "betty.model.ancestry.Source", "citations")
+@many_to_many("facts", "betty.model.ancestry:HasCitations", "citations")
+@many_to_one("source", "betty.model.ancestry:Source", "citations")
 class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, Entity):
     """
     A citation (a reference to a source).
@@ -1128,12 +1142,17 @@ class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, En
 
     @override
     @classmethod
-    def entity_type_label(cls) -> Localizable:
+    def plugin_id(cls) -> str:
+        return "citation"
+
+    @override
+    @classmethod
+    def plugin_label(cls) -> Localizable:
         return _("Citation")  # pragma: no cover
 
     @override
     @classmethod
-    def entity_type_label_plural(cls) -> Localizable:
+    def plugin_label_plural(cls) -> Localizable:
         return _("Citations")  # pragma: no cover
 
     @override
@@ -1147,7 +1166,7 @@ class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, En
         dump["@type"] = "https://schema.org/Thing"
         dump["facts"] = [
             project.static_url_generator.generate(
-                f"/{camel_case_to_kebab_case(get_entity_type_name(fact))}/{quote(fact.id)}/index.json"
+                f"/{fact.plugin_id()}/{quote(fact.id)}/index.json"
             )
             for fact in self.facts
             if not isinstance(fact.id, GeneratedEntityId)
@@ -1232,11 +1251,11 @@ class PlaceName(Localized, Dated, LinkedDataDumpable):
 
 @final
 @many_to_one_to_many(
-    "betty.model.ancestry.Place",
+    "betty.model.ancestry:Place",
     "enclosed_by",
     "encloses",
     "enclosed_by",
-    "betty.model.ancestry.Place",
+    "betty.model.ancestry:Place",
     "encloses",
 )
 class Enclosure(Dated, HasCitations, Entity):
@@ -1262,19 +1281,24 @@ class Enclosure(Dated, HasCitations, Entity):
 
     @override
     @classmethod
-    def entity_type_label(cls) -> Localizable:
+    def plugin_id(cls) -> str:
+        return "enclosure"
+
+    @override
+    @classmethod
+    def plugin_label(cls) -> Localizable:
         return _("Enclosure")  # pragma: no cover
 
     @override
     @classmethod
-    def entity_type_label_plural(cls) -> Localizable:
+    def plugin_label_plural(cls) -> Localizable:
         return _("Enclosures")  # pragma: no cover
 
 
 @final
-@one_to_many("events", "betty.model.ancestry.Event", "place")
-@one_to_many("enclosed_by", "betty.model.ancestry.Enclosure", "encloses")
-@one_to_many("encloses", "betty.model.ancestry.Enclosure", "enclosed_by")
+@one_to_many("events", "betty.model.ancestry:Event", "place")
+@one_to_many("enclosed_by", "betty.model.ancestry:Enclosure", "encloses")
+@one_to_many("encloses", "betty.model.ancestry:Enclosure", "enclosed_by")
 class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, Entity):
     """
     A place.
@@ -1373,12 +1397,17 @@ class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, En
 
     @override
     @classmethod
-    def entity_type_label(cls) -> Localizable:
+    def plugin_id(cls) -> str:
+        return "place"
+
+    @override
+    @classmethod
+    def plugin_label(cls) -> Localizable:
         return _("Place")  # pragma: no cover
 
     @override
     @classmethod
-    def entity_type_label_plural(cls) -> Localizable:
+    def plugin_label_plural(cls) -> Localizable:
         return _("Places")  # pragma: no cover
 
     @property
@@ -1663,11 +1692,11 @@ class Organizer(PresenceRole):
 
 @final
 @many_to_one_to_many(
-    "betty.model.ancestry.Person",
+    "betty.model.ancestry:Person",
     "presences",
     "person",
     "event",
-    "betty.model.ancestry.Event",
+    "betty.model.ancestry:Event",
     "presences",
 )
 class Presence(HasPrivacy, Entity):
@@ -1695,12 +1724,17 @@ class Presence(HasPrivacy, Entity):
 
     @override
     @classmethod
-    def entity_type_label(cls) -> Localizable:
+    def plugin_id(cls) -> str:
+        return "presence"
+
+    @override
+    @classmethod
+    def plugin_label(cls) -> Localizable:
         return _("Presence")  # pragma: no cover
 
     @override
     @classmethod
-    def entity_type_label_plural(cls) -> Localizable:
+    def plugin_label_plural(cls) -> Localizable:
         return _("Presences")  # pragma: no cover
 
     @override
@@ -1721,8 +1755,8 @@ class Presence(HasPrivacy, Entity):
 
 
 @final
-@many_to_one("place", "betty.model.ancestry.Place", "events")
-@one_to_many("presences", "betty.model.ancestry.Presence", "event")
+@many_to_one("place", "betty.model.ancestry:Place", "events")
+@one_to_many("presences", "betty.model.ancestry:Presence", "event")
 class Event(
     Dated,
     HasFiles,
@@ -1828,12 +1862,17 @@ class Event(
 
     @override
     @classmethod
-    def entity_type_label(cls) -> Localizable:
+    def plugin_id(cls) -> str:
+        return "event"
+
+    @override
+    @classmethod
+    def plugin_label(cls) -> Localizable:
         return _("Event")  # pragma: no cover
 
     @override
     @classmethod
-    def entity_type_label_plural(cls) -> Localizable:
+    def plugin_label_plural(cls) -> Localizable:
         return _("Events")  # pragma: no cover
 
     @property
@@ -1944,7 +1983,7 @@ class Event(
 
 
 @final
-@many_to_one("person", "betty.model.ancestry.Person", "names")
+@many_to_one("person", "betty.model.ancestry:Person", "names")
 class PersonName(Localized, HasCitations, HasPrivacy, Entity):
     """
     A name for a :py:class:`betty.model.ancestry.Person`.
@@ -1997,12 +2036,17 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
 
     @override
     @classmethod
-    def entity_type_label(cls) -> Localizable:
+    def plugin_id(cls) -> str:
+        return "person-name"
+
+    @override
+    @classmethod
+    def plugin_label(cls) -> Localizable:
         return _("Person name")  # pragma: no cover
 
     @override
     @classmethod
-    def entity_type_label_plural(cls) -> Localizable:
+    def plugin_label_plural(cls) -> Localizable:
         return _("Person names")  # pragma: no cover
 
     @property
@@ -2073,10 +2117,10 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
 
 
 @final
-@many_to_many("parents", "betty.model.ancestry.Person", "children")
-@many_to_many("children", "betty.model.ancestry.Person", "parents")
-@one_to_many("presences", "betty.model.ancestry.Presence", "person")
-@one_to_many("names", "betty.model.ancestry.PersonName", "person")
+@many_to_many("parents", "betty.model.ancestry:Person", "children")
+@many_to_many("children", "betty.model.ancestry:Person", "parents")
+@one_to_many("presences", "betty.model.ancestry:Presence", "person")
+@one_to_many("names", "betty.model.ancestry:PersonName", "person")
 class Person(
     HasFiles,
     HasCitations,
@@ -2187,12 +2231,17 @@ class Person(
 
     @override
     @classmethod
-    def entity_type_label(cls) -> Localizable:
+    def plugin_id(cls) -> str:
+        return "person"
+
+    @override
+    @classmethod
+    def plugin_label(cls) -> Localizable:
         return _("Person")  # pragma: no cover
 
     @override
     @classmethod
-    def entity_type_label_plural(cls) -> Localizable:
+    def plugin_label_plural(cls) -> Localizable:
         return _("People")  # pragma: no cover
 
     @property

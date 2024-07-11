@@ -4,11 +4,16 @@ Provide Betty's default Jinja2 tests.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from betty.json.linked_data import LinkedDataDumpable
 from betty.locale import DateRange
-from betty.model import Entity, GeneratedEntityId, UserFacingEntity, get_entity_type
+from betty.model import (
+    Entity,
+    GeneratedEntityId,
+    UserFacingEntity,
+    ENTITY_TYPE_REPOSITORY,
+)
 from betty.model.ancestry import (
     HasLinks,
     HasFiles,
@@ -20,6 +25,9 @@ from betty.model.ancestry import (
 )
 from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
 
+if TYPE_CHECKING:
+    from betty.plugin import PluginId
+
 
 def test_linked_data_dumpable(value: Any) -> bool:
     """
@@ -28,13 +36,13 @@ def test_linked_data_dumpable(value: Any) -> bool:
     return isinstance(value, LinkedDataDumpable)
 
 
-def test_entity(value: Any, entity_type_name: str | None = None) -> bool:
+async def test_entity(value: Any, entity_type_id: PluginId | None = None) -> bool:
     """
     Test if a value is an entity.
 
-    :param entity_type_name: If given, additionally ensure the value is an entity of this type.
+    :param entity_type_id: If given, additionally ensure the value is an entity of this type.
     """
-    cls = get_entity_type(entity_type_name) if entity_type_name else Entity
+    cls = await ENTITY_TYPE_REPOSITORY.get(entity_type_id) if entity_type_id else Entity
     return isinstance(value, cls)
 
 

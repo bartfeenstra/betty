@@ -1,6 +1,6 @@
 {% set event = event | default(entity) %}
 {%- set embedded = embedded | default(False) -%}
-{%- set person_context = entity_contexts['Person'] -%}
+{%- set person_context = entity_contexts['person'] -%}
 {%- macro person_label(person) -%}
     {% include 'entity/label--person.html.j2' %}
 {%- endmacro -%}

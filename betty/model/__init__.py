@@ -25,18 +25,29 @@ from uuid import uuid4
 
 from typing_extensions import override
 
+from betty.asyncio import wait_to_thread
 from betty.classtools import repr_instance
 from betty.functools import Uniquifier
-from betty.importlib import import_any, fully_qualified_type_name
+from betty.importlib import import_any
 from betty.json.linked_data import LinkedDataDumpable, add_json_ld
 from betty.json.schema import ref_json_schema
 from betty.locale.localizable import _, Localizable
-from betty.string import camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
+from betty.plugin import PluginRepository, Plugin, PluginId
+from betty.plugin.entry_point import EntryPointPluginRepository
+from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
     from betty.project import Project
     from betty.serde.dump import DictDump, Dump
     import builtins
+
+
+ENTITY_TYPE_REPOSITORY: PluginRepository[Entity] = EntryPointPluginRepository(
+    "betty.entity_type"
+)
+"""
+The entity type plugin repository.
+"""
 
 
 class GeneratedEntityId(str):
@@ -53,7 +64,7 @@ class GeneratedEntityId(str):
         return super().__new__(cls, entity_id or str(uuid4()))
 
 
-class Entity(LinkedDataDumpable, ABC):
+class Entity(LinkedDataDumpable, Plugin):
     """
     An entity is a uniquely identifiable data container.
     """
@@ -72,15 +83,7 @@ class Entity(LinkedDataDumpable, ABC):
 
     @classmethod
     @abstractmethod
-    def entity_type_label(cls) -> Localizable:
-        """
-        The human-readable entity type label, singular.
-        """
-        pass
-
-    @classmethod
-    @abstractmethod
-    def entity_type_label_plural(cls) -> Localizable:
+    def plugin_label_plural(cls) -> Localizable:
         """
         The human-readable entity type label, plural.
         """
@@ -122,22 +125,21 @@ class Entity(LinkedDataDumpable, ABC):
         The entity's human-readable label.
         """
         return _("{entity_type} {entity_id}").format(
-            entity_type=self.entity_type_label(), entity_id=self.id
+            entity_type=self.plugin_label(), entity_id=self.id
         )
 
     @override
     async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
         dump = await super().dump_linked_data(project)
 
-        entity_type_name = get_entity_type_name(self.type)
         dump["$schema"] = project.static_url_generator.generate(
-            f"schema.json#/definitions/entity/{upper_camel_case_to_lower_camel_case(entity_type_name)}",
+            f"schema.json#/definitions/entity/{kebab_case_to_lower_camel_case(self.type.plugin_id())}",
             absolute=True,
         )
 
         if not isinstance(self.id, GeneratedEntityId):
             dump["@id"] = project.static_url_generator.generate(
-                f"/{camel_case_to_kebab_case(entity_type_name)}/{self.id}/index.json",
+                f"/{kebab_case_to_lower_camel_case(self.type.plugin_id())}/{self.id}/index.json",
                 absolute=True,
             )
             dump["id"] = self.id
@@ -174,19 +176,6 @@ class UserFacingEntity:
     pass
 
 
-class EntityTypeProvider(ABC):
-    """
-    Provide additional entity types.
-    """
-
-    @abstractmethod
-    async def entity_types(self) -> set[type[Entity]]:
-        """
-        The entity types.
-        """
-        pass
-
-
 _EntityT = TypeVar("_EntityT", bound=Entity)
 _EntityU = TypeVar("_EntityU", bound=Entity)
 _TargetT = TypeVar("_TargetT")
@@ -195,63 +184,6 @@ _AssociateT = TypeVar("_AssociateT")
 _AssociateU = TypeVar("_AssociateU")
 _LeftAssociateT = TypeVar("_LeftAssociateT")
 _RightAssociateT = TypeVar("_RightAssociateT")
-
-
-def get_entity_type_name(entity_type_definition: type[Entity] | Entity) -> str:
-    """
-    Get the entity type name for an entity or entity type.
-    """
-    if isinstance(entity_type_definition, Entity):
-        entity_type = entity_type_definition.type
-    else:
-        entity_type = entity_type_definition
-
-    if entity_type.__module__.startswith("betty.model.ancestry"):
-        return entity_type.__name__
-    return f"{entity_type.__module__}.{entity_type.__name__}"
-
-
-def get_entity_type(entity_type_name: str) -> type[Entity]:
-    """
-    Get the entity type for an entity type name.
-    """
-    try:
-        return import_any(entity_type_name)  # type: ignore[no-any-return]
-    except ImportError:
-        try:
-            return import_any(f"betty.model.ancestry.{entity_type_name}")  # type: ignore[no-any-return]
-        except ImportError:
-            raise EntityTypeImportError(entity_type_name) from None
-
-
-class EntityTypeError(ValueError):
-    """
-    A error occurred when trying to determine and import an entity type.
-    """
-
-    pass
-
-
-class EntityTypeImportError(EntityTypeError, ImportError):
-    """
-    Raised when an alleged entity type cannot be imported.
-    """
-
-    def __init__(self, entity_type_name: str):
-        super().__init__(
-            f'Cannot find and import an entity with name "{entity_type_name}".'
-        )
-
-
-class EntityTypeInvalidError(EntityTypeError, ImportError):
-    """
-    Raised for types that are not valid entity types.
-    """
-
-    def __init__(self, entity_type: type):
-        super().__init__(
-            f"{entity_type.__module__}.{entity_type.__name__} is not an entity type class. Entity types must extend {Entity.__module__}.{Entity.__name__} directly."
-        )
 
 
 class EntityCollection(Generic[_TargetT], ABC):
@@ -360,7 +292,6 @@ class _EntityTypeAssociation(Generic[_OwnerT, _AssociateT], ABC):
         self._owner_attr_name = owner_attr_name
         self._owner_private_attr_name = f"_{owner_attr_name}"
         self._associate_type_name = associate_type_name
-        self._associate_type: type[_AssociateT] | None = None
 
     def __hash__(self) -> int:
         return hash(
@@ -390,9 +321,10 @@ class _EntityTypeAssociation(Generic[_OwnerT, _AssociateT], ABC):
 
     @property
     def associate_type(self) -> type[_AssociateT]:
-        if self._associate_type is None:
-            self._associate_type = import_any(self._associate_type_name)
-        return self._associate_type
+        return cast(
+            type[_AssociateT],
+            import_any(self._associate_type_name),
+        )
 
     def register(  # type: ignore[misc]
         self: ToAny[_OwnerT, _AssociateT],
@@ -904,7 +836,7 @@ class EntityTypeAssociationRegistry:
             if association.owner_attr_name == owner_attr_name:
                 return association
         raise ValueError(
-            f"No association exists for {fully_qualified_type_name(owner if isinstance(owner, type) else owner.__class__)}.{owner_attr_name}."
+            f"No association exists for {owner if isinstance(owner, type) else owner.__class__}.{owner_attr_name}."
         )
 
     @classmethod
@@ -1084,7 +1016,9 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
     def __repr__(self) -> str:
         return repr_instance(
             self,
-            entity_types=", ".join(map(get_entity_type_name, self._collections.keys())),
+            entity_types=", ".join(
+                entity_type.plugin_id() for entity_type in self._collections
+            ),
             length=len(self),
         )
 
@@ -1111,7 +1045,9 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
         pass
 
     @overload
-    def __getitem__(self, entity_type_name: str) -> SingleTypeEntityCollection[Entity]:
+    def __getitem__(
+        self, entity_type_id: PluginId
+    ) -> SingleTypeEntityCollection[Entity]:
         pass
 
     @overload
@@ -1135,7 +1071,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
         if isinstance(key, slice):
             return self._getitem_by_indices(key)
         if isinstance(key, str):
-            return self._getitem_by_entity_type_name(key)
+            return self._getitem_by_entity_type_id(key)
         return self._getitem_by_entity_type(key)
 
     def _getitem_by_entity_type(
@@ -1143,11 +1079,11 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
     ) -> SingleTypeEntityCollection[_EntityT]:
         return self._get_collection(entity_type)
 
-    def _getitem_by_entity_type_name(
-        self, entity_type_name: str
+    def _getitem_by_entity_type_id(
+        self, entity_type_id: PluginId
     ) -> SingleTypeEntityCollection[Entity]:
         return self._get_collection(
-            get_entity_type(entity_type_name),
+            wait_to_thread(ENTITY_TYPE_REPOSITORY.get(entity_type_id)),
         )
 
     def _getitem_by_index(self, index: int) -> _TargetT & Entity:
@@ -1168,7 +1104,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
             return self._delitem_by_entity(
                 key,  # type: ignore[arg-type]
             )
-        return self._delitem_by_entity_type_name(key)
+        return self._delitem_by_entity_type_id(key)
 
     def _delitem_by_type(self, entity_type: type[_TargetT & Entity]) -> None:
         removed_entities = [*self._get_collection(entity_type)]
@@ -1179,9 +1115,9 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
     def _delitem_by_entity(self, entity: _TargetT & Entity) -> None:
         self.remove(entity)
 
-    def _delitem_by_entity_type_name(self, entity_type_name: str) -> None:
+    def _delitem_by_entity_type_id(self, entity_type_id: PluginId) -> None:
         self._delitem_by_type(
-            get_entity_type(entity_type_name),  # type: ignore[arg-type]
+            wait_to_thread(ENTITY_TYPE_REPOSITORY.get(entity_type_id)),  # type: ignore[arg-type]
         )
 
     @override

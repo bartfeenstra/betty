@@ -1,5 +1,5 @@
 {% set ns = namespace(people={}) %}
-{% for person in project.ancestry['Person'] %}
+{% for person in project.ancestry['person'] %}
     {% if person.public %}
         {% set person_label = person.label | localize %}
     {% else %}

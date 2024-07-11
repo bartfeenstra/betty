@@ -13,8 +13,6 @@ from betty.extension.cotton_candy import (
 )
 from betty.locale import Datey, Date, DateRange
 from betty.model import (
-    Entity,
-    get_entity_type_name,
     UserFacingEntity,
     GeneratedEntityId,
 )
@@ -34,11 +32,14 @@ from betty.model.ancestry import (
     Place,
 )
 from betty.model.event_type import Birth, UnknownEventType, EventType, Death
+from betty.plugin.static import StaticPluginRepository
 from betty.project import EntityReference, DEFAULT_LIFETIME_THRESHOLD
 from betty.assertion.error import AssertionFailed
 from betty.tests.assertion import raises_error
+from betty.tests.model.test___init__ import DummyEntity
 
 if TYPE_CHECKING:
+    from pytest_mock import MockerFixture
     from betty.serde.dump import Dump
 
 
@@ -87,7 +88,7 @@ class TestColorConfiguration:
         assert hex_value == _ColorConfiguration(hex_value=hex_value).dump()
 
 
-class CottonCandyConfigurationTestEntity(UserFacingEntity, Entity):
+class CottonCandyConfigurationTestEntity(UserFacingEntity, DummyEntity):
     pass
 
 
@@ -116,13 +117,17 @@ class TestCottonCandyConfiguration:
         with raises_error(error_type=AssertionFailed):
             CottonCandyConfiguration().load(dump)
 
-    async def test_load_with_featured_entities(self) -> None:
+    async def test_load_with_featured_entities(self, mocker: MockerFixture) -> None:
+        mocker.patch(
+            "betty.model.ENTITY_TYPE_REPOSITORY",
+            new=StaticPluginRepository(CottonCandyConfigurationTestEntity),
+        )
         entity_type = CottonCandyConfigurationTestEntity
         entity_id = "123"
         dump: Dump = {
             "featured_entities": [
                 {
-                    "entity_type": get_entity_type_name(entity_type),
+                    "entity_type": entity_type.plugin_id(),
                     "entity_id": entity_id,
                 },
             ],
@@ -195,7 +200,7 @@ class TestCottonCandyConfiguration:
         )
         expected = [
             {
-                "entity_type": get_entity_type_name(entity_type),
+                "entity_type": entity_type.plugin_id(),
                 "entity_id": entity_id,
             },
         ]
