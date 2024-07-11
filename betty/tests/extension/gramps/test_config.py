@@ -7,10 +7,10 @@ from betty.extension.gramps.config import (
     GrampsConfiguration,
     FamilyTreeConfigurationSequence,
 )
+from betty.tests.config.collections.test_sequence import ConfigurationSequenceTestBase
 from betty.typing import Void
 from betty.assertion.error import AssertionFailed
 from betty.tests.assertion import raises_error
-from betty.tests.test_config import ConfigurationSequenceTestBase
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump

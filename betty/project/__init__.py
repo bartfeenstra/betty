@@ -43,9 +43,9 @@ from betty.classtools import repr_instance
 from betty.config import (
     Configuration,
     Configurable,
-    ConfigurationMapping,
-    ConfigurationSequence,
 )
+from betty.config.collections.mapping import ConfigurationMapping
+from betty.config.collections.sequence import ConfigurationSequence
 from betty.core import CoreComponent
 from betty.hashid import hashid
 from betty.locale import DEFAULT_LOCALE, LocalizerRepository
