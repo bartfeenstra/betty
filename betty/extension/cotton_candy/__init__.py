@@ -45,11 +45,11 @@ from betty.model.ancestry import (
     Person,
     Presence,
     is_public,
-    Subject,
     HasFiles,
     File,
     Place,
 )
+from betty.model.presence_role import Subject
 from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
 from betty.os import link_or_copy
 from betty.project import EntityReferenceSequence, EntityReference

@@ -10,10 +10,10 @@ from betty.model.ancestry import (
     PlaceName,
     Person,
     Presence,
-    Subject,
     Citation,
     Source,
 )
+from betty.model.presence_role import Subject
 from betty.model.event_type import UnknownEventType
 from betty.tests import TemplateTestCase
 

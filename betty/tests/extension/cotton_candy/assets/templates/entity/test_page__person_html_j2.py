@@ -2,7 +2,8 @@ from pathlib import Path
 
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale import Date
-from betty.model.ancestry import Person, PersonName, File, Event, Presence, Subject
+from betty.model.ancestry import Person, PersonName, File, Event, Presence
+from betty.model.presence_role import Subject
 from betty.model.event_type import Birth
 from betty.tests import TemplateTestCase
 

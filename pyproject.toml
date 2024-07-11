@@ -102,6 +102,15 @@ betty = 'betty.cli:main'
 'webpack' = 'betty.extension.webpack:Webpack'
 'wikipedia' = 'betty.extension.wikipedia:Wikipedia'
 
+[project.entry-points.'betty.presence_role']
+'attendee' = 'betty.model.presence_role.Attendee'
+'beneficiary' = 'betty.model.presence_role.Beneficiary'
+'celebrant' = 'betty.model.presence_role.Celebrant'
+'organizer' = 'betty.model.presence_role.Organizer'
+'speaker' = 'betty.model.presence_role.Speaker'
+'subject' = 'betty.model.presence_role.Subject'
+'witness' = 'betty.model.presence_role.Witness'
+
 [project.optional-dependencies]
 setuptools = [
     'setuptools ~= 70.0',

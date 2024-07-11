@@ -35,10 +35,6 @@ from betty.model.ancestry import (
     Event,
     Person,
     PersonName,
-    Subject,
-    Witness,
-    Beneficiary,
-    Attendee,
     Presence,
     PlaceName,
     Enclosure,
@@ -47,10 +43,16 @@ from betty.model.ancestry import (
     HasFiles,
     HasCitations,
     HasPrivacy,
+    HasNotes,
+)
+from betty.model.presence_role import (
+    Subject,
+    Witness,
+    Beneficiary,
+    Attendee,
     Speaker,
     Celebrant,
     Organizer,
-    HasNotes,
 )
 from betty.model.event_type import (
     Birth,
@@ -642,7 +644,7 @@ class GrampsLoader:
                     person_id=person_id,
                     event_handle=event_handle,
                     gramps_presence_role=gramps_presence_role,
-                    betty_presence_role=role.label,
+                    betty_presence_role=role.plugin_label(),
                 )
             )
 

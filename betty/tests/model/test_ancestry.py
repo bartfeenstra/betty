@@ -23,7 +23,6 @@ from betty.model.ancestry import (
     Presence,
     PlaceName,
     PersonName,
-    Subject,
     Enclosure,
     Described,
     Dated,
@@ -42,6 +41,7 @@ from betty.model.ancestry import (
     Privacy,
     merge_privacies,
 )
+from betty.model.presence_role import Subject
 from betty.model.event_type import Birth, UnknownEventType
 from betty.project import LocaleConfiguration, Project
 

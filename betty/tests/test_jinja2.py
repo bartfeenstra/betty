@@ -14,14 +14,12 @@ from betty.model import get_entity_type_name, Entity
 from betty.model.ancestry import (
     File,
     PlaceName,
-    Subject,
-    Attendee,
-    Witness,
     Dated,
     Person,
     Place,
     Citation,
 )
+from betty.model.presence_role import Subject, Witness, Attendee
 from betty.project import Project
 from betty.tests import TemplateTestCase
 

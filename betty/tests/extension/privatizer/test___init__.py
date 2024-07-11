@@ -10,9 +10,9 @@ from betty.model.ancestry import (
     Event,
     Source,
     File,
-    Subject,
     Citation,
 )
+from betty.model.presence_role import Subject
 from betty.model.event_type import Birth
 from betty.project import ExtensionConfiguration, Project
 from typing import TYPE_CHECKING

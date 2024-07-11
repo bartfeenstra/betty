@@ -21,10 +21,7 @@ from betty.model import (
 from betty.model.ancestry import (
     Person,
     Presence,
-    Subject,
     Event,
-    PresenceRole,
-    Attendee,
     Privacy,
     Citation,
     File,
@@ -33,6 +30,7 @@ from betty.model.ancestry import (
     HasFiles,
     Place,
 )
+from betty.model.presence_role import PresenceRole, Subject, Attendee
 from betty.model.event_type import Birth, UnknownEventType, EventType, Death
 from betty.project import EntityReference, DEFAULT_LIFETIME_THRESHOLD
 from betty.assertion.error import AssertionFailed

@@ -7,8 +7,8 @@ from betty.model.ancestry import (
     PersonName,
     Source,
     Citation,
-    Subject,
 )
+from betty.model.presence_role import Subject
 from betty.model.event_type import Birth, Death
 from betty.tests import TemplateTestCase
 

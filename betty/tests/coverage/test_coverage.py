@@ -465,13 +465,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ref_link": TestKnownToBeMissing,
         "ref_link_collection": TestKnownToBeMissing,
         "ref_media_type": TestKnownToBeMissing,
-        "ref_role": TestKnownToBeMissing,
         "resolve_privacy": TestKnownToBeMissing,
-        # This is static.
-        "Attendee": TestKnownToBeMissing,
-        # This is static.
-        "Beneficiary": TestKnownToBeMissing,
-        "Celebrant": TestKnownToBeMissing,
         "Citation": {
             "label": TestKnownToBeMissing,
         },
@@ -514,8 +508,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "entity": TestKnownToBeMissing,
             "label": TestKnownToBeMissing,
         },
-        # This is static.
-        "Organizer": TestKnownToBeMissing,
         "Person": {
             "label": TestKnownToBeMissing,
         },
@@ -533,17 +525,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Presence": {
             "label": TestKnownToBeMissing,
         },
-        "PresenceRole": TestKnownToBeMissing,
         "Privacy": TestKnownToBeMissing,
         "Source": {
             "label": TestKnownToBeMissing,
         },
-        # This is static.
-        "Speaker": TestKnownToBeMissing,
-        # This is static.
-        "Subject": TestKnownToBeMissing,
-        # This is static.
-        "Witness": TestKnownToBeMissing,
     },
     "betty/model/event_type.py": {
         "Adoption": TestKnownToBeMissing,
@@ -580,6 +565,24 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "StartOfLifeEventType": TestKnownToBeMissing,
         "UnknownEventType": TestKnownToBeMissing,
         "Will": TestKnownToBeMissing,
+    },
+    "betty/model/presence_role.py": {
+        # This is static.
+        "Attendee": TestKnownToBeMissing,
+        # This is static.
+        "Beneficiary": TestKnownToBeMissing,
+        "Celebrant": TestKnownToBeMissing,
+        # This is static.
+        "Organizer": TestKnownToBeMissing,
+        # This is an interface.
+        "PresenceRole": TestKnownToBeMissing,
+        "ref_role": TestKnownToBeMissing,
+        # This is static.
+        "Speaker": TestKnownToBeMissing,
+        # This is static.
+        "Subject": TestKnownToBeMissing,
+        # This is static.
+        "Witness": TestKnownToBeMissing,
     },
     "betty/path.py": TestKnownToBeMissing,
     "betty/plugin/__init__.py": {

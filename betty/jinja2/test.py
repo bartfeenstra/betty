@@ -12,12 +12,11 @@ from betty.model import Entity, GeneratedEntityId, UserFacingEntity, get_entity_
 from betty.model.ancestry import (
     HasLinks,
     HasFiles,
-    Subject,
-    Witness,
     is_private,
     is_public,
     Event,
 )
+from betty.model.presence_role import Subject, Witness
 from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
 
 

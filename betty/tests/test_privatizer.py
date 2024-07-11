@@ -12,13 +12,12 @@ from betty.model.ancestry import (
     Event,
     Source,
     File,
-    Subject,
-    Attendee,
     Citation,
     Privacy,
     Place,
     Enclosure,
 )
+from betty.model.presence_role import Subject, Attendee
 from betty.model.event_type import Death, Birth, Marriage
 from betty.privatizer import Privatizer
 from betty.project import DEFAULT_LIFETIME_THRESHOLD
