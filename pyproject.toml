@@ -9,7 +9,7 @@ dynamic = [
     'version',
 ]
 name = 'betty'
-description = 'Betty helps you visualize and publish your family history by building interactive genealogy websites out of your Gramps and GECOM family trees'
+description = 'Betty helps you visualize and publish your family history by building interactive genealogy websites out of your Gramps and GEDCOM family trees'
 readme = 'README.md'
 license = {file = 'LICENSE.txt'}
 authors = [
