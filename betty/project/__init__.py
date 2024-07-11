@@ -19,6 +19,7 @@ from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
 from betty import fs
+from betty import model
 from betty.assertion import (
     Assertion,
     RequiredField,
@@ -47,33 +48,8 @@ from betty.core import CoreComponent
 from betty.hashid import hashid
 from betty.locale import DEFAULT_LOCALE, LocalizerRepository
 from betty.locale.localizable import _
-from betty import model
 from betty.model import Entity, UserFacingEntity
 from betty.model.ancestry import Ancestry, Person, Event, Place, Source
-from betty.model.event_type import (
-    EventType,
-    EventTypeProvider,
-    Birth,
-    Baptism,
-    Adoption,
-    Death,
-    Funeral,
-    Cremation,
-    Burial,
-    Will,
-    Engagement,
-    Marriage,
-    MarriageAnnouncement,
-    Divorce,
-    DivorceAnnouncement,
-    Residence,
-    Immigration,
-    Emigration,
-    Occupation,
-    Retirement,
-    Correspondence,
-    Confirmation,
-)
 from betty.plugin.assertion import assert_plugin
 from betty.project import extension
 from betty.project.extension import (
@@ -102,7 +78,6 @@ if TYPE_CHECKING:
     from betty.dispatch import Dispatcher
     from betty.url import LocalizedUrlGenerator, StaticUrlGenerator
     from betty.jinja2 import Environment
-
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
 
@@ -1078,7 +1053,6 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
         self._extensions: Extensions | None = None
         self._dispatcher: ExtensionDispatcher | None = None
         self._entity_types: set[type[Entity]] | None = None
-        self._event_types: set[type[EventType]] | None = None
 
     @classmethod
     @asynccontextmanager
@@ -1276,36 +1250,3 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
             self._dispatcher = ExtensionDispatcher(self.extensions)
 
         return self._dispatcher
-
-    @property
-    def event_types(self) -> set[type[EventType]]:
-        """
-        The available event types.
-        """
-        if self._event_types is None:
-            self._assert_bootstrapped()
-            self._event_types = set(
-                wait_to_thread(self.dispatcher.dispatch(EventTypeProvider)())
-            ) | {
-                Birth,
-                Baptism,
-                Adoption,
-                Death,
-                Funeral,
-                Cremation,
-                Burial,
-                Will,
-                Engagement,
-                Marriage,
-                MarriageAnnouncement,
-                Divorce,
-                DivorceAnnouncement,
-                Residence,
-                Immigration,
-                Emigration,
-                Occupation,
-                Retirement,
-                Correspondence,
-                Confirmation,
-            }
-        return self._event_types

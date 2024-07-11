@@ -4,7 +4,6 @@ import pytest
 
 from betty.deriver import Deriver
 from betty.locale import DateRange, Date, Datey, DEFAULT_LOCALIZER
-from betty.locale.localizable import plain, Localizable
 from betty.model import record_added
 from betty.model.ancestry import Person, Presence, Event, Ancestry
 from betty.model.presence_role import Subject
@@ -14,31 +13,22 @@ from betty.model.event_type import (
     EventType,
 )
 from betty.project import DEFAULT_LIFETIME_THRESHOLD
+from betty.tests.extension.deriver.test___init__ import DummyEventType
 
 
-class DeriverTestEventType(EventType):
-    @classmethod
-    def name(cls) -> str:
-        return repr(cls)
-
-    @classmethod
-    def label(cls) -> Localizable:
-        return plain(repr(cls))
-
-
-class Ignored(DeriverTestEventType):
+class Ignored(DummyEventType):
     pass
 
 
-class ComesBeforeReference(DeriverTestEventType):
+class ComesBeforeReference(DummyEventType):
     pass
 
 
-class ComesAfterReference(DeriverTestEventType):
+class ComesAfterReference(DummyEventType):
     pass
 
 
-class ComesBeforeDerivable(DeriverTestEventType, DerivableEventType):
+class ComesBeforeDerivable(DummyEventType, DerivableEventType):
     @classmethod
     def comes_before(cls) -> set[type[EventType]]:
         return {ComesBeforeReference}
@@ -48,7 +38,7 @@ class ComesBeforeCreatableDerivable(ComesBeforeDerivable, CreatableDerivableEven
     pass
 
 
-class ComesAfterDerivable(DeriverTestEventType, DerivableEventType):
+class ComesAfterDerivable(DummyEventType, DerivableEventType):
     @classmethod
     def comes_after(cls) -> set[type[EventType]]:
         return {ComesAfterReference}
@@ -58,7 +48,7 @@ class ComesAfterCreatableDerivable(ComesAfterDerivable, CreatableDerivableEventT
     pass
 
 
-class ComesBeforeAndAfterDerivable(DeriverTestEventType, DerivableEventType):
+class ComesBeforeAndAfterDerivable(DummyEventType, DerivableEventType):
     @classmethod
     def comes_before(cls) -> set[type[EventType]]:
         return {Ignored}
@@ -69,7 +59,7 @@ class ComesBeforeAndAfterDerivable(DeriverTestEventType, DerivableEventType):
 
 
 class ComesBeforeAndAfterCreatableDerivable(
-    DeriverTestEventType, CreatableDerivableEventType
+    DummyEventType, CreatableDerivableEventType
 ):
     pass
 

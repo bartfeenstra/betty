@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing_extensions import override
+
 from betty.extension.deriver import Deriver
 from betty.load import load
 from betty.locale import DateRange, Date
@@ -19,28 +21,31 @@ from betty.project import ExtensionConfiguration, Project
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from betty.plugin import PluginId
     from betty.app import App
 
 
-class _DummyEventTypeBase(EventType):
+class DummyEventType(EventType):
+    @override
     @classmethod
-    def name(cls) -> str:
+    def plugin_id(cls) -> PluginId:
         return cls.__name__
 
+    @override
     @classmethod
-    def label(cls) -> Localizable:
+    def plugin_label(cls) -> Localizable:
         return plain("")
 
 
-class Ignored(_DummyEventTypeBase):
+class Ignored(DummyEventType):
     pass
 
 
-class ComesBeforeReference(_DummyEventTypeBase):
+class ComesBeforeReference(DummyEventType):
     pass
 
 
-class ComesAfterReference(_DummyEventTypeBase):
+class ComesAfterReference(DummyEventType):
     pass
 
 
@@ -54,7 +59,7 @@ class ComesBeforeCreatableDerivable(CreatableDerivableEventType, ComesBeforeDeri
     pass
 
 
-class ComesAfterDerivable(DerivableEventType):
+class ComesAfterDerivable(DerivableEventType, DummyEventType):
     @classmethod
     def comes_after(cls) -> set[type[EventType]]:
         return {ComesAfterReference}
@@ -64,7 +69,7 @@ class ComesAfterCreatableDerivable(CreatableDerivableEventType, ComesAfterDeriva
     pass
 
 
-class ComesBeforeAndAfterDerivable(DerivableEventType):
+class ComesBeforeAndAfterDerivable(DerivableEventType, DummyEventType):
     @classmethod
     def comes_before(cls) -> set[type[EventType]]:
         return {Ignored}

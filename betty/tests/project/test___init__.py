@@ -1511,10 +1511,6 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             sut.dispatcher  # noqa B018
 
-    async def test_event_types(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as sut, sut:
-            assert len(sut.event_types) > 0
-
     async def test_jinja2_environment(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             sut.jinja2_environment  # noqa B018

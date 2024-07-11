@@ -1643,7 +1643,7 @@ class Event(
     @property
     def label(self) -> Localizable:
         format_kwargs: dict[str, str | Localizable] = {
-            "event_type": self._event_type.label(),
+            "event_type": self._event_type.plugin_label(),
         }
         subjects = [
             presence.person
@@ -1721,7 +1721,7 @@ class Event(
         dump = await super().dump_linked_data(project)
         dump_context(dump, presences="performer")
         dump["@type"] = "https://schema.org/Event"
-        dump["type"] = self.event_type.name()
+        dump["type"] = self.event_type.plugin_id()
         dump["eventAttendanceMode"] = "https://schema.org/OfflineEventAttendanceMode"
         dump["eventStatus"] = "https://schema.org/EventScheduled"
         dump["presences"] = presences = []

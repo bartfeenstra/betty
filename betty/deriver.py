@@ -73,7 +73,7 @@ class Deriver:
                         "Updated {updated_derivations} {event_type} events based on existing information."
                     ).format(
                         updated_derivations=str(updated_derivations),
-                        event_type=derivable_event_type.label().localize(
+                        event_type=derivable_event_type.plugin_label().localize(
                             self._localizer
                         ),
                     )
@@ -84,7 +84,7 @@ class Deriver:
                         "Created {created_derivations} additional {event_type} events based on existing information."
                     ).format(
                         created_derivations=str(created_derivations),
-                        event_type=derivable_event_type.label().localize(
+                        event_type=derivable_event_type.plugin_label().localize(
                             self._localizer
                         ),
                     )

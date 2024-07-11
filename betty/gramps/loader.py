@@ -787,7 +787,9 @@ class GrampsLoader:
                 ).format(
                     event_id=event_id,
                     gramps_event_type=gramps_type,
-                    betty_event_type=event_type.label().localize(self._localizer),
+                    betty_event_type=event_type.plugin_label().localize(
+                        self._localizer
+                    ),
                 )
             )
 
