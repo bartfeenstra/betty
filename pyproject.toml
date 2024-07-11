@@ -89,6 +89,18 @@ betty = 'betty.cli:main'
 'init-translation' = 'betty.cli.commands.init_translation:init_translation'
 'update-translations' = 'betty.cli.commands.update_translations:update_translations'
 
+[project.entry-points.'betty.entity_type']
+'citation' = 'betty.model.ancestry:Citation'
+'enclosure' = 'betty.model.ancestry:Enclosure'
+'event' = 'betty.model.ancestry:Event'
+'file' = 'betty.model.ancestry:File'
+'note' = 'betty.model.ancestry:Note'
+'person' = 'betty.model.ancestry:Person'
+'person-name' = 'betty.model.ancestry:PersonName'
+'presence' = 'betty.model.ancestry:Presence'
+'place' = 'betty.model.ancestry:Place'
+'source' = 'betty.model.ancestry:Source'
+
 [project.entry-points.'betty.extension']
 'cotton-candy' = 'betty.extension.cotton_candy:CottonCandy'
 'demo' = 'betty.extension.demo:Demo'

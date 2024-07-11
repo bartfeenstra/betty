@@ -10,7 +10,6 @@ from aiofiles.tempfile import TemporaryDirectory
 from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider
 from betty.locale import Date, Datey, DateRange, Localized
 from betty.media_type import MediaType
-from betty.model import get_entity_type_name, Entity
 from betty.model.ancestry import (
     File,
     PlaceName,
@@ -26,6 +25,7 @@ from betty.project import Project
 from betty.tests import TemplateTestCase
 
 if TYPE_CHECKING:
+    from betty.model import Entity
     from betty.app import App
 
 
@@ -613,7 +613,7 @@ class TestTestEntity(TemplateTestCase):
     async def test(
         self, expected: str, entity_type: type[Entity], data: dict[str, Any]
     ) -> None:
-        template = f'{{% if data is entity("{get_entity_type_name(entity_type)}") %}}true{{% else %}}false{{% endif %}}'
+        template = f'{{% if data is entity("{entity_type.plugin_id()}") %}}true{{% else %}}false{{% endif %}}'
         async with self._render(
             template_string=template,
             data={

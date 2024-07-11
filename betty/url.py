@@ -10,11 +10,13 @@ from urllib.parse import quote
 
 from typing_extensions import override
 
+from betty import model
+from betty.asyncio import wait_to_thread
 from betty.locale import negotiate_locale, Localey, to_locale
-from betty.model import get_entity_type_name, Entity
 from betty.string import camel_case_to_kebab_case
 
 if TYPE_CHECKING:
+    from betty.model import Entity
     from betty.project import ProjectConfiguration, Project
 
 
@@ -125,7 +127,7 @@ class _EntityUrlGenerator(LocalizedUrlGenerator):
     def __init__(self, project: Project, entity_type: type[Entity]):
         self._project = project
         self._entity_type = entity_type
-        self._pattern = f"{camel_case_to_kebab_case(get_entity_type_name(entity_type))}/{{entity_id}}/index.{{extension}}"
+        self._pattern = f"{camel_case_to_kebab_case(entity_type.plugin_id())}/{{entity_id}}/index.{{extension}}"
 
     @override
     def supports(self, resource: Any) -> bool:
@@ -172,7 +174,7 @@ class ProjectUrlGenerator(LocalizedUrlGenerator):
         self._generators = [
             *(
                 _EntityUrlGenerator(project, entity_type)
-                for entity_type in project.entity_types
+                for entity_type in wait_to_thread(model.ENTITY_TYPE_REPOSITORY.select())
             ),
             LocalizedPathUrlGenerator(project),
         ]

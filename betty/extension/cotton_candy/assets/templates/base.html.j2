@@ -19,7 +19,7 @@
                 <span class="overlay-control overlay-close" title="{% trans %}Exit the search{% endtrans %}">{% trans %}Exit the search{% endtrans %}</span>
             </div>
             <form>
-                {% set search_keywords_example_person_name = project.ancestry['Person'] | select('public') | map(attribute='name') | first | default(none) %}
+                {% set search_keywords_example_person_name = project.ancestry['person'] | select('public') | map(attribute='name') | first | default(none) %}
                 {% if search_keywords_example_person_name %}
                     {% set search_keywords_example -%}
                         {% filter forceescape %}
@@ -50,11 +50,11 @@
                 <ul class="nav-secondary">
                     {% for entity_type_configuration in project.configuration.entity_types.values() | selectattr('generate_html_list') %}
                         <li>
-                            <a href="{{ ('/' + entity_type_configuration.entity_type | entity_type_name | camel_case_to_kebab_case + '/index.html') | url }}">
-                                {% if 'Event' == entity_type_configuration.entity_type | entity_type_name %}
+                            <a href="{{ ('/' + entity_type_configuration.entity_type.plugin_id() + '/index.html') | url }}">
+                                {% if entity_type_configuration.entity_type.plugin_id() == 'event' %}
                                     {% trans %}Timeline{% endtrans %}
                                 {% else %}
-                                    {{ entity_type_configuration.entity_type.entity_type_label_plural() | localize }}
+                                    {{ entity_type_configuration.entity_type.plugin_label_plural() | localize }}
                                 {% endif %}
                             </a>
                         </li>

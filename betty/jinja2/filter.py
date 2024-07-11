@@ -44,7 +44,6 @@ from betty.locale import (
     Localey,
     get_data,
 )
-from betty.model import get_entity_type_name
 from betty.os import link_or_copy
 from betty.serde.dump import minimize, none_void, void_none
 from betty.string import (
@@ -539,7 +538,6 @@ def filter_public_js(context: Context, public_path: str) -> None:
 FILTERS = {
     "camel_case_to_kebab_case": camel_case_to_kebab_case,
     "camel_case_to_snake_case": camel_case_to_snake_case,
-    "entity_type_name": get_entity_type_name,
     "file": filter_file,
     "flatten": filter_flatten,
     "format_datey": filter_format_datey,

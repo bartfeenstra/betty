@@ -24,9 +24,9 @@ structure. Example configuration:
               alias: en
             nl: {}
           entity_types:
-            Person:
+            person:
               generate_html_list: true
-            File:
+            file:
               generate_html_list: false
           extensions: {}
 
@@ -50,10 +50,10 @@ structure. Example configuration:
               "nl": {}
             },
             "entity_types": {
-              "Person": {
+              "person": {
                 "generate_html_list": true
               },
-              "File": {
+              "file": {
                 "generate_html_list": false
               }
             },
@@ -77,7 +77,7 @@ All configuration options
   - ``alias`` (optional): A shorthand alias to use instead of the full language tag, such as when rendering URLs.
 
   If no locales are specified, Betty defaults to US English (``en-US``). Read more about `translations </usage/translation>`_.
-- ``entity_types`` (optional): Keys are entity type names, and values are objects containing the following keys:
+- ``entity_types`` (optional): Keys are entity type (plugin) IDs, and values are objects containing the following keys:
 
   - ``generate_html_list`` (optional): Whether to generate the HTML page to list entities of this type. Defaults to ``false``.
 - ``extensions`` (optional): The :doc:`extensions </usage/extension>` to enable. Keys are extension names, and values are objects containing the

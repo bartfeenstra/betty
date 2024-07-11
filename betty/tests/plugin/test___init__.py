@@ -21,9 +21,9 @@ class TestValidatePluginId:
         ),
         [
             (True, "package-plugin"),
-            (True, "package_plugin"),
+            (False, "package_plugin"),
             (True, "package-module-plugin"),
-            (True, "package_module_plugin"),
+            (False, "package_module_plugin"),
             (True, "plugin1234567890"),
             # String is exactly 255 characters.
             (

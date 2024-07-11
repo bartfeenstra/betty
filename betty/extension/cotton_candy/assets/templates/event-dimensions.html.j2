@@ -1,7 +1,7 @@
 {%- import 'macro/citation.html.j2' as citation_macros with context -%}
 {%- set embedded = embedded | default(False) -%}
-{%- set citation_context = entity_contexts['Citation'] -%}
-{%- set place_context = entity_contexts['Place'] -%}
+{%- set citation_context = entity_contexts['citation'] -%}
+{%- set place_context = entity_contexts['place'] -%}
 {%- set formatted_date = '' -%}
 {%- if event.date -%}
     {%- set formatted_date = event.date | format_datey -%}

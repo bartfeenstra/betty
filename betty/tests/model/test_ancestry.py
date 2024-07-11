@@ -11,9 +11,9 @@ from geopy import Point
 from betty.app import App
 from betty.json.schema import Schema
 from betty.locale import Date, DateRange
-from betty.locale.localizable import plain, Localizable
+from betty.locale.localizable import plain
 from betty.media_type import MediaType
-from betty.model import Entity, one_to_one
+from betty.model import one_to_one
 from betty.model.ancestry import (
     Person,
     Event,
@@ -44,20 +44,11 @@ from betty.model.ancestry import (
 )
 from betty.model.event_type import Birth, UnknownEventType
 from betty.project import LocaleConfiguration, Project
+from betty.tests.model.test___init__ import DummyEntity
 
 if TYPE_CHECKING:
     from betty.serde.dump import DictDump, Dump
     from betty.json.linked_data import LinkedDataDumpable
-
-
-class _DummyEntity(Entity):
-    @classmethod
-    def entity_type_label(cls) -> Localizable:
-        return plain(cls.__name__)
-
-    @classmethod
-    def entity_type_label_plural(cls) -> Localizable:
-        return plain(cls.__name__)
 
 
 async def assert_dumps_linked_data(
@@ -86,10 +77,6 @@ async def assert_dumps_linked_data(
             schema = Schema(project)
             await schema.validate(actual_to_be_validated)
             return actual
-
-
-class DummyEntity(Entity):
-    pass
 
 
 class TestHasPrivacy:
@@ -314,7 +301,7 @@ class TestNote:
         assert expected == actual
 
 
-class HasNotesTestEntity(HasNotes, _DummyEntity):
+class HasNotesTestEntity(HasNotes, DummyEntity):
     pass
 
 
@@ -414,7 +401,7 @@ class TestHasLinks:
         assert sut.links == []
 
 
-class _HasFiles(HasFiles, _DummyEntity):
+class _HasFiles(HasFiles, DummyEntity):
     pass
 
 
@@ -970,7 +957,7 @@ class TestSource:
         assert expected == actual
 
 
-class _HasCitations(HasCitations, _DummyEntity):
+class _HasCitations(HasCitations, DummyEntity):
     pass
 
 
@@ -2230,19 +2217,19 @@ class TestPerson:
 
 @one_to_one(
     "one_right",
-    "betty.tests.model.test_ancestry._TestAncestry_OneToOne_Right",
+    "betty.tests.model.test_ancestry:_TestAncestry_OneToOne_Right",
     "one_left",
 )
-class _TestAncestry_OneToOne_Left(_DummyEntity):
+class _TestAncestry_OneToOne_Left(DummyEntity):
     one_right: "_TestAncestry_OneToOne_Right | None"
 
 
 @one_to_one(
     "one_left",
-    "betty.tests.model.test_ancestry._TestAncestry_OneToOne_Left",
+    "betty.tests.model.test_ancestry:_TestAncestry_OneToOne_Left",
     "one_right",
 )
-class _TestAncestry_OneToOne_Right(_DummyEntity):
+class _TestAncestry_OneToOne_Right(DummyEntity):
     one_left: "_TestAncestry_OneToOne_Left | None"
 
 

@@ -30,7 +30,7 @@ class Schema:
         """
         Build the JSON Schema.
         """
-        from betty.model import get_entity_type_name
+        from betty import model
 
         schema: DictDump[Dump] = {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -44,9 +44,9 @@ class Schema:
         response_definitions = dump_default(definitions, "response", dict)
 
         # Add entity schemas.
-        for entity_type in self._project.entity_types:
+        async for entity_type in model.ENTITY_TYPE_REPOSITORY:
             entity_type_schema_name = upper_camel_case_to_lower_camel_case(
-                get_entity_type_name(entity_type)
+                entity_type.plugin_id()
             )
             entity_type_schema = await entity_type.linked_data_schema(self._project)
             entity_type_schema_definitions = cast(

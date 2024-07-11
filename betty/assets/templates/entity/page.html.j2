@@ -2,8 +2,8 @@
 {% set page_title = entity.label | localize %}
 {% set entity_contexts = entity_contexts(entity) %}
 {% do breadcrumbs.append(
-    entity_type.entity_type_label_plural() | localize,
-    entity_type | entity_type_name | camel_case_to_kebab_case | url(absolute=true)
+    entity_type.plugin_label_plural() | localize,
+    entity_type.plugin_id() | url(absolute=true)
 ) %}
 {% do breadcrumbs.append(
     page_title,

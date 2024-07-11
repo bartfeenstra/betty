@@ -1000,7 +1000,7 @@ class GrampsLoader:
                 'The betty:privacy Gramps attribute must have a value of "public" or "private", but "{privacy_value}" was given for {entity_type} {entity_id} ({entity_label}), which was ignored.',
             ).format(
                 privacy_value=privacy_value,
-                entity_type=entity.entity_type_label().localize(self._localizer),
+                entity_type=entity.plugin_label().localize(self._localizer),
                 entity_id=entity.id,
                 entity_label=entity.label.localize(self._localizer),
             )

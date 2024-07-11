@@ -1,15 +1,14 @@
-{% set entity_type_name_file_part = entity | entity_type_name | camel_case_to_kebab_case %}
 <div class="featured-entity-intro">
     <h2>
         {% include [
-            'entity/label--' + entity_type_name_file_part + '.html.j2',
+            'entity/label--' + entity.plugin_id() + '.html.j2',
             'entity/label.html.j2',
         ] %}
     </h2>
     <a href="{{ entity | url }}">
         {% with embedded = True %}
             {% include [
-                'entity/meta--' + entity_type_name_file_part + '.html.j2',
+                'entity/meta--' + entity.plugin_id() + '.html.j2',
                 'entity/meta.html.j2',
             ] ignore missing %}
         {% endwith %}

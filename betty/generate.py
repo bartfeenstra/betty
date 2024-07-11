@@ -36,12 +36,12 @@ from aiofiles.os import makedirs
 from aiofiles.threadpool.text import AsyncTextIOWrapper
 from math import floor
 
+from betty import model
 from betty.asyncio import gather
 from betty.job import Context
 from betty.json.schema import Schema
 from betty.locale import get_display_name
 from betty.model import (
-    get_entity_type_name,
     UserFacingEntity,
     Entity,
     GeneratedEntityId,
@@ -49,9 +49,7 @@ from betty.model import (
 from betty.model.ancestry import is_public
 from betty.openapi import Specification
 from betty.string import (
-    camel_case_to_kebab_case,
-    camel_case_to_snake_case,
-    upper_camel_case_to_lower_camel_case,
+    kebab_case_to_lower_camel_case,
 )
 
 if TYPE_CHECKING:
@@ -185,7 +183,7 @@ async def _run_jobs(job_context: GenerationContext) -> AsyncIterator[Task[None]]
     for locale in locales:
         yield _run_job(semaphore, _generate_public, job_context, locale)
 
-    for entity_type in project.entity_types:
+    async for entity_type in model.ENTITY_TYPE_REPOSITORY:
         if not issubclass(entity_type, UserFacingEntity):
             continue
         if (
@@ -344,20 +342,20 @@ async def _generate_entity_type_list_html(
 ) -> None:
     project = job_context.project
     app = project.app
-    entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
     entity_type_path = (
-        project.configuration.localize_www_directory_path(locale) / entity_type_name_fs
+        project.configuration.localize_www_directory_path(locale)
+        / entity_type.plugin_id()
     )
     template = project.jinja2_environment.select_template(
         [
-            f"entity/page-list--{entity_type_name_fs}.html.j2",
+            f"entity/page-list--{entity_type.plugin_id()}.html.j2",
             "entity/page-list.html.j2",
         ]
     )
     rendered_html = await template.render_async(
         job_context=job_context,
         localizer=await app.localizers.get(locale),
-        page_resource=f"/{entity_type_name_fs}/index.html",
+        page_resource=f"/{entity_type.plugin_id()}/index.html",
         entity_type=entity_type,
         entities=project.ancestry[entity_type],
     )
@@ -370,12 +368,12 @@ async def _generate_entity_type_list_json(
     entity_type: type[Entity & LinkedDataDumpable],
 ) -> None:
     project = job_context.project
-    entity_type_name = get_entity_type_name(entity_type)
-    entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
-    entity_type_path = project.configuration.www_directory_path / entity_type_name_fs
+    entity_type_path = (
+        project.configuration.www_directory_path / entity_type.plugin_id()
+    )
     data: DictDump[Dump] = {
         "$schema": project.static_url_generator.generate(
-            f"schema.json#/definitions/response/{upper_camel_case_to_lower_camel_case(entity_type_name)}Collection",
+            f"schema.json#/definitions/response/{kebab_case_to_lower_camel_case(entity_type.plugin_id())}Collection",
             absolute=True,
         ),
         "collection": [],
@@ -402,15 +400,14 @@ async def _generate_entity_html(
     project = job_context.project
     app = project.app
     entity = project.ancestry[entity_type][entity_id]
-    entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity))
     entity_path = (
         project.configuration.localize_www_directory_path(locale)
-        / entity_type_name_fs
+        / entity_type.plugin_id()
         / entity.id
     )
     rendered_html = await project.jinja2_environment.select_template(
         [
-            f"entity/page--{entity_type_name_fs}.html.j2",
+            f"entity/page--{entity_type.plugin_id()}.html.j2",
             "entity/page.html.j2",
         ]
     ).render_async(
@@ -430,9 +427,8 @@ async def _generate_entity_json(
     entity_id: str,
 ) -> None:
     project = job_context.project
-    entity_type_name_fs = camel_case_to_kebab_case(get_entity_type_name(entity_type))
     entity_path = (
-        project.configuration.www_directory_path / entity_type_name_fs / entity_id
+        project.configuration.www_directory_path / entity_type.plugin_id() / entity_id
     )
     entity = cast(
         "Entity & LinkedDataDumpable", project.ancestry[entity_type][entity_id]
@@ -533,7 +529,3 @@ async def _generate_openapi(
     rendered_json = json.dumps(await Specification(project).build())
     async with await create_json_resource(api_directory_path) as f:
         await f.write(rendered_json)
-
-
-def _get_entity_type_jinja2_name(entity_type_name: str) -> str:
-    return camel_case_to_snake_case(entity_type_name).replace(".", "__")

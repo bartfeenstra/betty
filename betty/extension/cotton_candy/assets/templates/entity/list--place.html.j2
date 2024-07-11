@@ -1,4 +1,4 @@
-{% set place_context = entity_contexts['Place'] %}
+{% set place_context = entity_contexts['place'] %}
 {% set featured = featured | default(True) %}
 {% set places = places | default(entities) | select('public') | list | sort_localizeds(localized_attribute='names', sort_attribute='name') | list %}
 <div class="places{% if 'maps' in project.extensions %} with-map{% endif %}">

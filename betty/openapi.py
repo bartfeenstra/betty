@@ -2,11 +2,12 @@
 Provide the OpenAPI specification.
 """
 
-from betty import about
-from betty.model import get_entity_type_name, UserFacingEntity
+from betty import about, model
+from betty.locale import DEFAULT_LOCALIZER
+from betty.model import UserFacingEntity
 from betty.project import Project
 from betty.serde.dump import DictDump, Dump
-from betty.string import camel_case_to_kebab_case, upper_camel_case_to_lower_camel_case
+from betty.string import kebab_case_to_lower_camel_case
 
 
 class Specification:
@@ -90,31 +91,26 @@ class Specification:
         }
 
         # Add entity operations.
-        for entity_type in self._project.entity_types:
-            if not issubclass(entity_type, UserFacingEntity):
-                continue
-            entity_type_name = get_entity_type_name(entity_type)
-            entity_type_url_name = camel_case_to_kebab_case(
-                get_entity_type_name(entity_type)
-            )
+        for entity_type in await model.ENTITY_TYPE_REPOSITORY.select(UserFacingEntity):
             if self._project.configuration.clean_urls:
-                collection_path = f"/{entity_type_url_name}/"
-                single_path = f"/{entity_type_url_name}/{{id}}/"
+                collection_path = f"/{entity_type.plugin_id()}/"
+                single_path = f"/{entity_type.plugin_id()}/{{id}}/"
             else:
-                collection_path = f"/{entity_type_url_name}/index.json"
-                single_path = f"/{entity_type_url_name}/{{id}}/index.json"
+                collection_path = f"/{entity_type.plugin_id()}/index.json"
+                single_path = f"/{entity_type.plugin_id()}/{{id}}/index.json"
+            entity_type_label = entity_type.plugin_label().localize(DEFAULT_LOCALIZER)
             specification["paths"].update(  # type: ignore[union-attr]
                 {
                     collection_path: {
                         "get": {
-                            "summary": f"Retrieve the collection of {entity_type_name} entities.",
+                            "summary": f"Retrieve the collection of {entity_type_label} entities.",
                             "responses": {
                                 "200": {
-                                    "description": f"The collection of {entity_type_name} entities.",
+                                    "description": f"The collection of {entity_type_label} entities.",
                                     "content": {
                                         "application/json": {
                                             "schema": {
-                                                "$ref": f"#/components/schemas/betty/response/{upper_camel_case_to_lower_camel_case(entity_type_name)}Collection",
+                                                "$ref": f"#/components/schemas/betty/response/{kebab_case_to_lower_camel_case(entity_type.plugin_id())}Collection",
                                             },
                                         },
                                     },
@@ -124,14 +120,14 @@ class Specification:
                     },
                     single_path: {
                         "get": {
-                            "summary": f"Retrieve a single {entity_type_name} entity.",
+                            "summary": f"Retrieve a single {entity_type_label} entity.",
                             "responses": {
                                 "200": {
-                                    "description": f"The {entity_type_name} entity.",
+                                    "description": f"The {entity_type_label} entity.",
                                     "content": {
                                         "application/json": {
                                             "schema": {
-                                                "$ref": f"#/components/schemas/betty/entity/{upper_camel_case_to_lower_camel_case(entity_type_name)}",
+                                                "$ref": f"#/components/schemas/betty/entity/{kebab_case_to_lower_camel_case(entity_type.plugin_id())}",
                                             },
                                         },
                                     },

@@ -1,6 +1,6 @@
 {% set place = place | default(entity) %}
 {%- set embedded = embedded | default(False) -%}
-{%- set place_context = entity_contexts['Place'] -%}
+{%- set place_context = entity_contexts['place'] -%}
 {%- macro _enclosed_by_place_label(place) -%}
     {%- set enclosure = place.enclosed_by | negotiate_dateds(date_context | default(none)) -%}
     {%- if enclosure is not none and (place_context is none or place_context != enclosure.enclosed_by) -%}

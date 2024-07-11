@@ -5,11 +5,11 @@ from typing import Any, TYPE_CHECKING
 
 import pytest
 
-from betty.locale.localizable import Localizable, plain
-from betty.model import UserFacingEntity, Entity
+from betty.model import UserFacingEntity
 from betty.model.ancestry import Person, Place, File, Source, PlaceName, Event, Citation
 from betty.model.event_type import Death
 from betty.project import LocaleConfiguration, Project
+from betty.tests.model.test___init__ import DummyEntity
 from betty.url import (
     LocalizedPathUrlGenerator,
     _EntityUrlGenerator,
@@ -19,16 +19,6 @@ from betty.url import (
 if TYPE_CHECKING:
     from betty.app import App
     from betty.locale import Localey
-
-
-class _DummyEntity(Entity):
-    @classmethod
-    def entity_type_label(cls) -> Localizable:
-        return plain(cls.__name__)
-
-    @classmethod
-    def entity_type_label_plural(cls) -> Localizable:
-        return plain(cls.__name__)
 
 
 class TestLocalizedPathUrlGenerator:
@@ -134,11 +124,11 @@ class TestLocalizedPathUrlGenerator:
                 )
 
 
-class EntityUrlGeneratorTestUrlyEntity(UserFacingEntity, _DummyEntity):
+class EntityUrlGeneratorTestUrlyEntity(UserFacingEntity, DummyEntity):
     pass
 
 
-class EntityUrlGeneratorTestNonUrlyEntity(UserFacingEntity, _DummyEntity):
+class EntityUrlGeneratorTestNonUrlyEntity(UserFacingEntity, DummyEntity):
     pass
 
 
@@ -148,7 +138,7 @@ class TestEntityUrlGenerator:
             sut = _EntityUrlGenerator(project, EntityUrlGeneratorTestUrlyEntity)
             assert (
                 sut.generate(EntityUrlGeneratorTestUrlyEntity("I1"), "text/html")
-                == "/betty.tests.test_url.-entity-url-generator-test-urly-entity/I1/index.html"
+                == "/entity-url-generator-test-urly-entity/I1/index.html"
             )
 
 

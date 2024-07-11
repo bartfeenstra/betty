@@ -7,7 +7,6 @@ In addition to Jinja2's built-in filters, Betty provides the following:
 
 - :py:func:`camel_case_to_kebab_case <betty.string.camel_case_to_kebab_case>`
 - :py:func:`camel_case_to_snake_case <betty.string.camel_case_to_snake_case>`
-- :py:func:`entity_type_name <betty.model.get_entity_type_name>`
 - :py:func:`file <betty.jinja2.filter.filter_file>`
 - :py:func:`flatten <betty.jinja2.filter.filter_flatten>`
 - :py:func:`format_datey <betty.jinja2.filter.filter_format_datey>`

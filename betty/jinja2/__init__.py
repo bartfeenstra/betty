@@ -7,7 +7,7 @@ from __future__ import annotations
 import datetime
 from collections import defaultdict
 from threading import Lock
-from typing import Callable, Any, cast, TYPE_CHECKING, TypeAlias, final
+from typing import Callable, Any, cast, TYPE_CHECKING, TypeAlias, final, Awaitable
 
 import aiofiles
 from aiofiles import os as aiofiles_os
@@ -20,17 +20,19 @@ from jinja2 import (
 from jinja2.runtime import StrictUndefined, Context, DebugUndefined
 from typing_extensions import override
 
+from betty import model
+from betty.asyncio import wait_to_thread
 from betty.html import CssProvider, JsProvider
 from betty.jinja2.filter import FILTERS
 from betty.jinja2.test import TESTS
 from betty.job import Context as JobContext
 from betty.locale import Date, Localizer, DEFAULT_LOCALIZER
-from betty.model import Entity, get_entity_type
 from betty.render import Renderer
 from betty.serde.dump import Dumpable, DictDump, VoidableDump, Dump
 from betty.typing import Void
 
 if TYPE_CHECKING:
+    from betty.model import Entity
     from betty.project.extension import Extension
     from betty.project import ProjectConfiguration, Project
     from betty.model.ancestry import Citation
@@ -144,7 +146,9 @@ class EntityContexts:
         self, entity_type_or_type_name: type[Entity] | str
     ) -> Entity | None:
         if isinstance(entity_type_or_type_name, str):
-            entity_type = get_entity_type(entity_type_or_type_name)
+            entity_type = wait_to_thread(
+                model.ENTITY_TYPE_REPOSITORY.get(entity_type_or_type_name)
+            )
         else:
             entity_type = entity_type_or_type_name
         return self._contexts[entity_type]
@@ -213,7 +217,7 @@ class Environment(Jinja2Environment):
 
     globals: dict[str, Any]
     filters: dict[str, Callable[..., Any]]
-    tests: dict[str, Callable[..., bool]]  # type: ignore[assignment]
+    tests: dict[str, Callable[..., bool | Awaitable[bool]]]  # type: ignore[assignment]
 
     def __init__(self, project: Project):
         template_directory_paths = [

@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-from typing import Any, Iterator
+from typing import Any, Iterator, TYPE_CHECKING
 
 import pytest
 
 from betty.locale.localizable import Localizable, plain
 from betty.model import (
-    get_entity_type_name,
     Entity,
-    get_entity_type,
     ToAny,
     EntityTypeAssociationRegistry,
     SingleTypeEntityCollection,
@@ -21,7 +19,6 @@ from betty.model import (
     many_to_one,
     to_one,
     one_to_one,
-    EntityTypeImportError,
     ToOne,
     EntityGraphBuilder,
     AliasableEntity,
@@ -29,63 +26,29 @@ from betty.model import (
     unalias,
 )
 from betty.model.ancestry import Person
+from betty.plugin import PluginNotFound
+from betty.plugin.static import StaticPluginRepository
+from betty.string import camel_case_to_kebab_case
+
+if TYPE_CHECKING:
+    from pytest_mock import MockerFixture
 
 
-class _DummyEntity(Entity):
+class DummyEntity(Entity):
     @classmethod
-    def entity_type_label(cls) -> Localizable:
+    def plugin_id(cls) -> str:
+        return camel_case_to_kebab_case(cls.__name__)
+
+    @classmethod
+    def plugin_label(cls) -> Localizable:
         return plain(cls.__name__)
 
     @classmethod
-    def entity_type_label_plural(cls) -> Localizable:
+    def plugin_label_plural(cls) -> Localizable:
         return plain(cls.__name__)
 
 
-class EntityTestEntity(_DummyEntity):
-    pass
-
-
-class TestEntity:
-    async def test_id(self) -> None:
-        entity_id = "000000001"
-        sut = EntityTestEntity(entity_id)
-        assert entity_id == sut.id
-
-
-class GetEntityTypeNameTestEntity(_DummyEntity):
-    pass
-
-
-class TestGetEntityTypeName:
-    async def test_with_betty_entity(self) -> None:
-        assert get_entity_type_name(Person) == "Person"
-
-    async def test_with_other_entity(self) -> None:
-        assert (
-            get_entity_type_name(GetEntityTypeNameTestEntity)
-            == "betty.tests.model.test___init__.GetEntityTypeNameTestEntity"
-        )
-
-
-class GetEntityTypeTestEntity(_DummyEntity):
-    pass
-
-
-class TestGetEntityType:
-    async def test_with_betty_entity_type_name(self) -> None:
-        assert Person == get_entity_type("Person")
-
-    async def test_with_other_entity_type_name(self) -> None:
-        assert GetEntityTypeTestEntity == get_entity_type(
-            "betty.tests.model.test___init__.GetEntityTypeTestEntity"
-        )
-
-    async def test_with_unknown_entity_type_name(self) -> None:
-        with pytest.raises(EntityTypeImportError):
-            get_entity_type("betty_non_existent.UnknownEntity")
-
-
-class _TestEntityTypeAssociationRegistry_ParentEntity(_DummyEntity):
+class _TestEntityTypeAssociationRegistry_ParentEntity(DummyEntity):
     pass
 
 
@@ -95,7 +58,7 @@ class _TestEntityTypeAssociationRegistry_ChildEntity(
     pass
 
 
-class _TestEntityTypeAssociationRegistry_Associate(_DummyEntity):
+class _TestEntityTypeAssociationRegistry_Associate(DummyEntity):
     pass
 
 
@@ -108,7 +71,7 @@ class TestEntityTypeAssociationRegistry:
         ](
             _TestEntityTypeAssociationRegistry_ParentEntity,
             "parent_associate",
-            "betty.tests.model.test___init__._TestEntityTypeAssociationRegistry_Associate",
+            "betty.tests.model.test___init__:_TestEntityTypeAssociationRegistry_Associate",
         )
         EntityTypeAssociationRegistry._register(parent_association)
         child_association = ToOne[
@@ -117,7 +80,7 @@ class TestEntityTypeAssociationRegistry:
         ](
             _TestEntityTypeAssociationRegistry_ChildEntity,
             "child_associate",
-            "betty.tests.model.test___init__._TestEntityTypeAssociationRegistry_Associate",
+            "betty.tests.model.test___init__:_TestEntityTypeAssociationRegistry_Associate",
         )
         EntityTypeAssociationRegistry._register(child_association)
         yield parent_association, child_association
@@ -148,13 +111,13 @@ class TestEntityTypeAssociationRegistry:
         )
 
 
-class SingleTypeEntityCollectionTestEntity(_DummyEntity):
+class SingleTypeEntityCollectionTestEntity(DummyEntity):
     pass
 
 
 class TestSingleTypeEntityCollection:
     async def test_add(self) -> None:
-        sut = SingleTypeEntityCollection[Entity](_DummyEntity)
+        sut = SingleTypeEntityCollection[Entity](DummyEntity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
         entity3 = SingleTypeEntityCollectionTestEntity()
@@ -166,7 +129,7 @@ class TestSingleTypeEntityCollection:
         assert [entity3, entity2, entity1] == list(sut)
 
     async def test_add_with_duplicate_entities(self) -> None:
-        sut = SingleTypeEntityCollection[Entity](_DummyEntity)
+        sut = SingleTypeEntityCollection[Entity](DummyEntity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
         entity3 = SingleTypeEntityCollectionTestEntity()
@@ -214,7 +177,7 @@ class TestSingleTypeEntityCollection:
         ] == list(sut)
 
     async def test_remove(self) -> None:
-        sut = SingleTypeEntityCollection[Entity](_DummyEntity)
+        sut = SingleTypeEntityCollection[Entity](DummyEntity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
         entity3 = SingleTypeEntityCollectionTestEntity()
@@ -224,7 +187,7 @@ class TestSingleTypeEntityCollection:
         assert [entity1, entity3] == list(sut)
 
     async def test_replace(self) -> None:
-        sut = SingleTypeEntityCollection[Entity](_DummyEntity)
+        sut = SingleTypeEntityCollection[Entity](DummyEntity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
         entity3 = SingleTypeEntityCollectionTestEntity()
@@ -236,7 +199,7 @@ class TestSingleTypeEntityCollection:
         assert [entity4, entity5, entity6] == list(sut)
 
     async def test_clear(self) -> None:
-        sut = SingleTypeEntityCollection[Entity](_DummyEntity)
+        sut = SingleTypeEntityCollection[Entity](DummyEntity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
         entity3 = SingleTypeEntityCollectionTestEntity()
@@ -245,7 +208,7 @@ class TestSingleTypeEntityCollection:
         assert list(sut) == []
 
     async def test_list(self) -> None:
-        sut = SingleTypeEntityCollection[Entity](_DummyEntity)
+        sut = SingleTypeEntityCollection[Entity](DummyEntity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
         entity3 = SingleTypeEntityCollectionTestEntity()
@@ -255,7 +218,7 @@ class TestSingleTypeEntityCollection:
         assert entity3 is sut[2]
 
     async def test_len(self) -> None:
-        sut = SingleTypeEntityCollection[Entity](_DummyEntity)
+        sut = SingleTypeEntityCollection[Entity](DummyEntity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
         entity3 = SingleTypeEntityCollectionTestEntity()
@@ -263,7 +226,7 @@ class TestSingleTypeEntityCollection:
         assert len(sut) == 3
 
     async def test_iter(self) -> None:
-        sut = SingleTypeEntityCollection[Entity](_DummyEntity)
+        sut = SingleTypeEntityCollection[Entity](DummyEntity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
         entity3 = SingleTypeEntityCollectionTestEntity()
@@ -271,7 +234,7 @@ class TestSingleTypeEntityCollection:
         assert [entity1, entity2, entity3] == list(sut)
 
     async def test_getitem_by_index(self) -> None:
-        sut = SingleTypeEntityCollection[Entity](_DummyEntity)
+        sut = SingleTypeEntityCollection[Entity](DummyEntity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
         entity3 = SingleTypeEntityCollectionTestEntity()
@@ -283,7 +246,7 @@ class TestSingleTypeEntityCollection:
             sut[3]
 
     async def test_getitem_by_indices(self) -> None:
-        sut = SingleTypeEntityCollection[Entity](_DummyEntity)
+        sut = SingleTypeEntityCollection[Entity](DummyEntity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
         entity3 = SingleTypeEntityCollectionTestEntity()
@@ -291,7 +254,7 @@ class TestSingleTypeEntityCollection:
         assert [entity1, entity3] == list(sut[0::2])
 
     async def test_getitem_by_entity_id(self) -> None:
-        sut = SingleTypeEntityCollection[Entity](_DummyEntity)
+        sut = SingleTypeEntityCollection[Entity](DummyEntity)
         entity1 = SingleTypeEntityCollectionTestEntity("1")
         entity2 = SingleTypeEntityCollectionTestEntity("2")
         entity3 = SingleTypeEntityCollectionTestEntity("3")
@@ -303,7 +266,7 @@ class TestSingleTypeEntityCollection:
             sut["4"]
 
     async def test_delitem_by_entity(self) -> None:
-        sut = SingleTypeEntityCollection[Entity](_DummyEntity)
+        sut = SingleTypeEntityCollection[Entity](DummyEntity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
         entity3 = SingleTypeEntityCollectionTestEntity()
@@ -314,7 +277,7 @@ class TestSingleTypeEntityCollection:
         assert [entity1, entity3] == list(sut)
 
     async def test_delitem_by_entity_id(self) -> None:
-        sut = SingleTypeEntityCollection[Entity](_DummyEntity)
+        sut = SingleTypeEntityCollection[Entity](DummyEntity)
         entity1 = SingleTypeEntityCollectionTestEntity("1")
         entity2 = SingleTypeEntityCollectionTestEntity("2")
         entity3 = SingleTypeEntityCollectionTestEntity("3")
@@ -325,7 +288,7 @@ class TestSingleTypeEntityCollection:
         assert [entity1, entity3] == list(sut)
 
     async def test___contains___by_entity(self) -> None:
-        sut = SingleTypeEntityCollection[Entity](_DummyEntity)
+        sut = SingleTypeEntityCollection[Entity](DummyEntity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
         sut.add(entity1)
@@ -334,7 +297,7 @@ class TestSingleTypeEntityCollection:
         assert entity2 not in sut
 
     async def test___contains___by_entity_id(self) -> None:
-        sut = SingleTypeEntityCollection[Entity](_DummyEntity)
+        sut = SingleTypeEntityCollection[Entity](DummyEntity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
         sut.add(entity1)
@@ -351,18 +314,18 @@ class TestSingleTypeEntityCollection:
         ],
     )
     async def test___contains___by_unsupported_typed(self, value: Any) -> None:
-        sut = SingleTypeEntityCollection[Entity](_DummyEntity)
+        sut = SingleTypeEntityCollection[Entity](DummyEntity)
         entity = SingleTypeEntityCollectionTestEntity()
         sut.add(entity)
 
         assert value not in sut
 
 
-class MultipleTypesEntityCollectionTestEntityOne(_DummyEntity):
+class MultipleTypesEntityCollectionTestEntityOne(DummyEntity):
     pass
 
 
-class MultipleTypesEntityCollectionTestEntityOther(_DummyEntity):
+class MultipleTypesEntityCollectionTestEntityOther(DummyEntity):
     pass
 
 
@@ -462,17 +425,17 @@ class TestMultipleTypesEntityCollection:
         assert [entity_one] == list(sut[MultipleTypesEntityCollectionTestEntityOne])
         assert [entity_other] == list(sut[MultipleTypesEntityCollectionTestEntityOther])
         # Ensure that getting previously unseen entity types automatically creates and returns a new collection.
-        assert list(sut[_DummyEntity]) == []
+        assert list(sut[DummyEntity]) == []
 
-    async def test_getitem_by_entity_type_name(self) -> None:
+    async def test_getitem_by_entity_type_id(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         # Use an existing ancestry entity type, because converting an entity type name to an entity type only works for
         # entity types in a single module namespace.
         entity = Person()
         sut.add(entity)
-        assert [entity] == list(sut["Person"])
+        assert [entity] == list(sut["person"])
         # Ensure that getting previously unseen entity types automatically creates and returns a new collection.
-        with pytest.raises(EntityTypeImportError):
+        with pytest.raises(PluginNotFound):
             sut["NonExistentEntityType"]
 
     async def test_delitem_by_entity(self) -> None:
@@ -496,13 +459,20 @@ class TestMultipleTypesEntityCollection:
 
         assert [entity_other] == list(sut)
 
-    async def test_delitem_by_entity_type_name(self) -> None:
+    async def test_delitem_by_entity_type_id(self, mocker: MockerFixture) -> None:
+        mocker.patch(
+            "betty.model.ENTITY_TYPE_REPOSITORY",
+            new=StaticPluginRepository(
+                MultipleTypesEntityCollectionTestEntityOne,
+                MultipleTypesEntityCollectionTestEntityOther,
+            ),
+        )
         sut = MultipleTypesEntityCollection[Entity]()
         entity = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
         sut.add(entity, entity_other)
 
-        del sut[get_entity_type_name(MultipleTypesEntityCollectionTestEntityOne)]
+        del sut[MultipleTypesEntityCollectionTestEntityOne.plugin_id()]
 
         assert [entity_other] == list(sut)
 
@@ -551,128 +521,128 @@ class TestMultipleTypesEntityCollection:
 
 @to_one(
     "to_one",
-    "betty.tests.model.test___init__._EntityGraphBuilder_ToOne_Right",
+    "betty.tests.model.test___init__:_EntityGraphBuilder_ToOne_Right",
 )
-class _EntityGraphBuilder_ToOne_Left(_DummyEntity):
+class _EntityGraphBuilder_ToOne_Left(DummyEntity):
     to_one: _EntityGraphBuilder_ToOne_Right | None
 
 
-class _EntityGraphBuilder_ToOne_Right(_DummyEntity):
+class _EntityGraphBuilder_ToOne_Right(DummyEntity):
     pass
 
 
 @one_to_one(
     "to_one",
-    "betty.tests.model.test___init__._EntityGraphBuilder_OneToOne_Right",
+    "betty.tests.model.test___init__:_EntityGraphBuilder_OneToOne_Right",
     "to_one",
 )
-class _EntityGraphBuilder_OneToOne_Left(_DummyEntity):
+class _EntityGraphBuilder_OneToOne_Left(DummyEntity):
     to_one: _EntityGraphBuilder_OneToOne_Right | None
 
 
 @one_to_one(
     "to_one",
-    "betty.tests.model.test___init__._EntityGraphBuilder_OneToOne_Left",
+    "betty.tests.model.test___init__:_EntityGraphBuilder_OneToOne_Left",
     "to_one",
 )
-class _EntityGraphBuilder_OneToOne_Right(_DummyEntity):
+class _EntityGraphBuilder_OneToOne_Right(DummyEntity):
     to_one: _EntityGraphBuilder_OneToOne_Left | None
 
 
 @many_to_one(
     "to_one",
-    "betty.tests.model.test___init__._EntityGraphBuilder_ManyToOne_Right",
+    "betty.tests.model.test___init__:_EntityGraphBuilder_ManyToOne_Right",
     "to_many",
 )
-class _EntityGraphBuilder_ManyToOne_Left(_DummyEntity):
+class _EntityGraphBuilder_ManyToOne_Left(DummyEntity):
     to_one: _EntityGraphBuilder_ManyToOne_Right | None
 
 
 @one_to_many(
     "to_many",
-    "betty.tests.model.test___init__._EntityGraphBuilder_ManyToOne_Left",
+    "betty.tests.model.test___init__:_EntityGraphBuilder_ManyToOne_Left",
     "to_one",
 )
-class _EntityGraphBuilder_ManyToOne_Right(_DummyEntity):
+class _EntityGraphBuilder_ManyToOne_Right(DummyEntity):
     to_many: EntityCollection[_EntityGraphBuilder_ManyToOne_Left]
 
 
 @to_many(
     "to_many",
-    "betty.tests.model.test___init__._EntityGraphBuilder_ToMany_Right",
+    "betty.tests.model.test___init__:_EntityGraphBuilder_ToMany_Right",
 )
-class _EntityGraphBuilder_ToMany_Left(_DummyEntity):
+class _EntityGraphBuilder_ToMany_Left(DummyEntity):
     to_many: EntityCollection[_EntityGraphBuilder_ToMany_Right]
 
 
-class _EntityGraphBuilder_ToMany_Right(_DummyEntity):
+class _EntityGraphBuilder_ToMany_Right(DummyEntity):
     pass
 
 
 @one_to_many(
     "to_many",
-    "betty.tests.model.test___init__._EntityGraphBuilder_OneToMany_Right",
+    "betty.tests.model.test___init__:_EntityGraphBuilder_OneToMany_Right",
     "to_one",
 )
-class _EntityGraphBuilder_OneToMany_Left(_DummyEntity):
+class _EntityGraphBuilder_OneToMany_Left(DummyEntity):
     to_many: EntityCollection[_EntityGraphBuilder_OneToMany_Right]
 
 
 @many_to_one(
     "to_one",
-    "betty.tests.model.test___init__._EntityGraphBuilder_OneToMany_Left",
+    "betty.tests.model.test___init__:_EntityGraphBuilder_OneToMany_Left",
     "to_many",
 )
-class _EntityGraphBuilder_OneToMany_Right(_DummyEntity):
+class _EntityGraphBuilder_OneToMany_Right(DummyEntity):
     to_one: _EntityGraphBuilder_OneToMany_Left | None
 
 
 @many_to_many(
     "to_many",
-    "betty.tests.model.test___init__._EntityGraphBuilder_ManyToMany_Right",
+    "betty.tests.model.test___init__:_EntityGraphBuilder_ManyToMany_Right",
     "to_many",
 )
-class _EntityGraphBuilder_ManyToMany_Left(_DummyEntity):
+class _EntityGraphBuilder_ManyToMany_Left(DummyEntity):
     to_many: EntityCollection[_EntityGraphBuilder_ManyToMany_Right]
 
 
 @many_to_many(
     "to_many",
-    "betty.tests.model.test___init__._EntityGraphBuilder_ManyToMany_Left",
+    "betty.tests.model.test___init__:_EntityGraphBuilder_ManyToMany_Left",
     "to_many",
 )
-class _EntityGraphBuilder_ManyToMany_Right(_DummyEntity):
+class _EntityGraphBuilder_ManyToMany_Right(DummyEntity):
     to_many: EntityCollection[_EntityGraphBuilder_ManyToMany_Left]
 
 
 @one_to_many(
     "to_many",
-    "betty.tests.model.test___init__._EntityGraphBuilder_ManyToOneToMany_Middle",
+    "betty.tests.model.test___init__:_EntityGraphBuilder_ManyToOneToMany_Middle",
     "to_one_left",
 )
-class _EntityGraphBuilder_ManyToOneToMany_Left(_DummyEntity):
+class _EntityGraphBuilder_ManyToOneToMany_Left(DummyEntity):
     to_many: EntityCollection[_EntityGraphBuilder_ManyToOneToMany_Middle]
 
 
 @many_to_one_to_many(
-    "betty.tests.model.test___init__._EntityGraphBuilder_ManyToOneToMany_Left",
+    "betty.tests.model.test___init__:_EntityGraphBuilder_ManyToOneToMany_Left",
     "to_many",
     "to_one_left",
     "to_one_right",
-    "betty.tests.model.test___init__._EntityGraphBuilder_ManyToOneToMany_Right",
+    "betty.tests.model.test___init__:_EntityGraphBuilder_ManyToOneToMany_Right",
     "to_many",
 )
-class _EntityGraphBuilder_ManyToOneToMany_Middle(_DummyEntity):
+class _EntityGraphBuilder_ManyToOneToMany_Middle(DummyEntity):
     to_one_left: _EntityGraphBuilder_ManyToOneToMany_Left | None
     to_one_right: _EntityGraphBuilder_ManyToOneToMany_Right | None
 
 
 @one_to_many(
     "to_many",
-    "betty.tests.model.test___init__._EntityGraphBuilder_ManyToOneToMany_Middle",
+    "betty.tests.model.test___init__:_EntityGraphBuilder_ManyToOneToMany_Middle",
     "to_one_right",
 )
-class _EntityGraphBuilder_ManyToOneToMany_Right(_DummyEntity):
+class _EntityGraphBuilder_ManyToOneToMany_Right(DummyEntity):
     to_many: EntityCollection[_EntityGraphBuilder_ManyToOneToMany_Middle]
 
 
@@ -1058,13 +1028,13 @@ class TestEntityGraphBuilder:
 
 @to_one(
     "one",
-    "betty.tests.model.test___init__._TestToOne_One",
+    "betty.tests.model.test___init__:_TestToOne_One",
 )
-class _TestToOne_Some(_DummyEntity):
+class _TestToOne_Some(DummyEntity):
     one: _TestToOne_One | None
 
 
-class _TestToOne_One(_DummyEntity):
+class _TestToOne_One(DummyEntity):
     pass
 
 
@@ -1089,19 +1059,19 @@ class TestToOne:
 
 @one_to_one(
     "other_one",
-    "betty.tests.model.test___init__._TestOneToOne_OtherOne",
+    "betty.tests.model.test___init__:_TestOneToOne_OtherOne",
     "one",
 )
-class _TestOneToOne_One(_DummyEntity):
+class _TestOneToOne_One(DummyEntity):
     other_one: _TestOneToOne_OtherOne | None
 
 
 @one_to_one(
     "one",
-    "betty.tests.model.test___init__._TestOneToOne_One",
+    "betty.tests.model.test___init__:_TestOneToOne_One",
     "other_one",
 )
-class _TestOneToOne_OtherOne(_DummyEntity):
+class _TestOneToOne_OtherOne(DummyEntity):
     one: _TestOneToOne_One | None
 
 
@@ -1128,19 +1098,19 @@ class TestOneToOne:
 
 @many_to_one(
     "one",
-    "betty.tests.model.test___init__._TestManyToOne_One",
+    "betty.tests.model.test___init__:_TestManyToOne_One",
     "many",
 )
-class _TestManyToOne_Many(_DummyEntity):
+class _TestManyToOne_Many(DummyEntity):
     one: _TestManyToOne_One | None
 
 
 @one_to_many(
     "many",
-    "betty.tests.model.test___init__._TestManyToOne_Many",
+    "betty.tests.model.test___init__:_TestManyToOne_Many",
     "one",
 )
-class _TestManyToOne_One(_DummyEntity):
+class _TestManyToOne_One(DummyEntity):
     many: EntityCollection[_TestManyToOne_Many]
 
 
@@ -1167,13 +1137,13 @@ class TestManyToOne:
 
 @to_many(
     "many",
-    "betty.tests.model.test___init__._TestToMany_Many",
+    "betty.tests.model.test___init__:_TestToMany_Many",
 )
-class _TestToMany_One(_DummyEntity):
+class _TestToMany_One(DummyEntity):
     many: EntityCollection[_TestToMany_Many]
 
 
-class _TestToMany_Many(_DummyEntity):
+class _TestToMany_Many(DummyEntity):
     pass
 
 
@@ -1198,19 +1168,19 @@ class TestToMany:
 
 @one_to_many(
     "many",
-    "betty.tests.model.test___init__._TestOneToMany_Many",
+    "betty.tests.model.test___init__:_TestOneToMany_Many",
     "one",
 )
-class _TestOneToMany_One(_DummyEntity):
+class _TestOneToMany_One(DummyEntity):
     many: SingleTypeEntityCollection[_TestOneToMany_Many]
 
 
 @many_to_one(
     "one",
-    "betty.tests.model.test___init__._TestOneToMany_One",
+    "betty.tests.model.test___init__:_TestOneToMany_One",
     "many",
 )
-class _TestOneToMany_Many(_DummyEntity):
+class _TestOneToMany_Many(DummyEntity):
     one: _TestOneToMany_One | None
 
 
@@ -1237,19 +1207,19 @@ class TestOneToMany:
 
 @many_to_many(
     "other_many",
-    "betty.tests.model.test___init__._TestManyToMany_OtherMany",
+    "betty.tests.model.test___init__:_TestManyToMany_OtherMany",
     "many",
 )
-class _TestManyToMany_Many(_DummyEntity):
+class _TestManyToMany_Many(DummyEntity):
     other_many: EntityCollection[_TestManyToMany_OtherMany]
 
 
 @many_to_many(
     "many",
-    "betty.tests.model.test___init__._TestManyToMany_Many",
+    "betty.tests.model.test___init__:_TestManyToMany_Many",
     "other_many",
 )
-class _TestManyToMany_OtherMany(_DummyEntity):
+class _TestManyToMany_OtherMany(DummyEntity):
     many: EntityCollection[_TestManyToMany_Many]
 
 
@@ -1275,33 +1245,33 @@ class TestManyToMany:
 
 
 @many_to_one_to_many(
-    "betty.tests.model.test___init__._TestManyToOneToMany_Left",
+    "betty.tests.model.test___init__:_TestManyToOneToMany_Left",
     "one",
     "left_many",
     "right_many",
-    "betty.tests.model.test___init__._TestManyToOneToMany_Right",
+    "betty.tests.model.test___init__:_TestManyToOneToMany_Right",
     "one",
 )
-class _TestManyToOneToMany_Middle(_DummyEntity):
+class _TestManyToOneToMany_Middle(DummyEntity):
     left_many: _TestManyToOneToMany_Left | None
     right_many: _TestManyToOneToMany_Right | None
 
 
 @one_to_many(
     "one",
-    "betty.tests.model.test___init__._TestManyToOneToMany_Middle",
+    "betty.tests.model.test___init__:_TestManyToOneToMany_Middle",
     "left_many",
 )
-class _TestManyToOneToMany_Left(_DummyEntity):
+class _TestManyToOneToMany_Left(DummyEntity):
     one: EntityCollection[_TestManyToOneToMany_Middle]
 
 
 @one_to_many(
     "one",
-    "betty.tests.model.test___init__._TestManyToOneToMany_Middle",
+    "betty.tests.model.test___init__:_TestManyToOneToMany_Middle",
     "right_many",
 )
-class _TestManyToOneToMany_Right(_DummyEntity):
+class _TestManyToOneToMany_Right(DummyEntity):
     one: EntityCollection[_TestManyToOneToMany_Middle]
 
 

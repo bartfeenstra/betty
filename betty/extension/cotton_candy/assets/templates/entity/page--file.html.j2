@@ -24,8 +24,8 @@
             <ul class="entities">
                 {% for entity in entities %}
                     <li class="{{ loop.cycle('odd', 'even') }}">
-                        {% include ['entity/label--' + (entity | entity_type_name | camel_case_to_kebab_case) + '.html.j2', 'entity/label.html.j2'] %}
-                        {% include ['entity/meta--' + (entity | entity_type_name | camel_case_to_kebab_case) + '.html.j2', 'entity/meta.html.j2'] ignore missing %}
+                        {% include ['entity/label--' + entity.plugin_id() + '.html.j2', 'entity/label.html.j2'] %}
+                        {% include ['entity/meta--' + entity.plugin_id() + '.html.j2', 'entity/meta.html.j2'] ignore missing %}
                     </li>
                 {% endfor %}
             </ul>

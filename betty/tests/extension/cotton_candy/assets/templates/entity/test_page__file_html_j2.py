@@ -3,18 +3,18 @@ from pathlib import Path
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale import DEFAULT_LOCALIZER
 from betty.locale.localizable import _, Localizable
-from betty.model import Entity
 from betty.model.ancestry import File, HasFiles, HasPrivacy
 from betty.tests import TemplateTestCase
+from betty.tests.model.test___init__ import DummyEntity
 
 
-class TemplateTestEntity(HasFiles, HasPrivacy, Entity):
+class TemplateTestEntity(HasFiles, HasPrivacy, DummyEntity):
     @classmethod
-    def entity_type_label(cls) -> Localizable:
+    def plugin_label(cls) -> Localizable:
         return _("Test")
 
     @classmethod
-    def entity_type_label_plural(cls) -> Localizable:
+    def plugin_label_plural(cls) -> Localizable:
         return _("Tests")
 
 
