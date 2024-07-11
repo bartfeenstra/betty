@@ -14,13 +14,14 @@ from collections.abc import (
 from configparser import ConfigParser
 from importlib import import_module
 from inspect import getmembers, isfunction, isclass, isdatadescriptor
+from os import walk
 from pathlib import Path
 from typing import Protocol, Any, cast, TypeAlias
 
 import aiofiles
 import pytest
 
-from betty.fs import iterfiles, ROOT_DIRECTORY_PATH
+from betty.fs import ROOT_DIRECTORY_PATH
 from betty.string import snake_case_to_upper_camel_case
 from betty.tests.coverage.fixtures import (
     module_function_with_test,
@@ -766,10 +767,13 @@ class CoverageTester:
 
     async def test(self) -> None:
         errors: MutableMapping[Path, list[str]] = defaultdict(list)
-        async for file_path in iterfiles(ROOT_DIRECTORY_PATH / "betty"):
-            if file_path.suffix == ".py":
-                async for file_error in self._test_python_file(file_path):
-                    errors[file_path].append(file_error)
+
+        for directory_path, _, file_names in walk(str((ROOT_DIRECTORY_PATH / "betty"))):
+            for file_name in file_names:
+                file_path = Path(directory_path) / file_name
+                if file_path.suffix == ".py":
+                    async for file_error in self._test_python_file(file_path):
+                        errors[file_path].append(file_error)
         if len(errors):
             message = "Missing test coverage:"
             total_error_count = 0
