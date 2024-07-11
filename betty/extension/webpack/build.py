@@ -7,6 +7,7 @@ from __future__ import annotations
 from asyncio import to_thread
 from json import dumps, loads
 from logging import getLogger
+from os import walk
 from pathlib import Path
 from shutil import copy2
 from typing import TYPE_CHECKING
@@ -16,7 +17,7 @@ from aiofiles.os import makedirs
 
 from betty import _npm
 from betty.asyncio import gather
-from betty.fs import ROOT_DIRECTORY_PATH, iterfiles
+from betty.fs import ROOT_DIRECTORY_PATH
 from betty.hashid import hashid, hashid_sequence, hashid_file_content
 
 if TYPE_CHECKING:
@@ -122,10 +123,12 @@ class Builder:
         await gather(
             *[
                 self._copy2_and_render(
-                    file_source_path,
-                    destination_path / file_source_path.relative_to(source_path),
+                    Path(directory_path) / file_name,
+                    destination_path
+                    / (Path(directory_path) / file_name).relative_to(source_path),
                 )
-                async for file_source_path in iterfiles(source_path)
+                for directory_path, _, file_names in walk(str(source_path))
+                for file_name in file_names
             ]
         )
 
