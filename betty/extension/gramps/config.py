@@ -9,7 +9,8 @@ from typing import Iterable, Any, Self
 
 from typing_extensions import override
 
-from betty.config import Configuration, ConfigurationSequence
+from betty.config import Configuration
+from betty.config.collections.sequence import ConfigurationSequence
 from betty.serde.dump import minimize, Dump, VoidableDump
 from betty.assertion import (
     RequiredField,

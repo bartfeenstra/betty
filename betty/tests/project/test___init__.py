@@ -38,11 +38,9 @@ from betty.project.extension import (
     CyclicDependencyError,
 )
 from betty.tests.assertion import raises_error
+from betty.tests.config.collections.test_mapping import ConfigurationMappingTestBase
+from betty.tests.config.collections.test_sequence import ConfigurationSequenceTestBase
 from betty.tests.project.extension.test___init__ import DummyExtension
-from betty.tests.test_config import (
-    ConfigurationMappingTestBase,
-    ConfigurationSequenceTestBase,
-)
 from betty.typing import Void
 
 if TYPE_CHECKING:

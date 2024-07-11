@@ -137,11 +137,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "__aexit__": TestKnownToBeMissing,
         },
     },
-    "betty/config.py": {
+    "betty/config/__init__.py": {
         "assert_configuration_file": TestKnownToBeMissing,
         "Configurable": TestKnownToBeMissing,
         "Configuration": TestKnownToBeMissing,
-        "ConfigurationCollection": TestKnownToBeMissing,
+        "write_configuration_file": TestKnownToBeMissing,
+    },
+    "betty/config/collections/__init__.py": TestKnownToBeMissing,
+    "betty/config/collections/mapping.py": {
         "ConfigurationMapping": {
             "__getitem__": TestKnownToBeMissing,
             "__iter__": TestKnownToBeMissing,
@@ -150,6 +153,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "to_key": TestKnownToBeMissing,
             "update": TestKnownToBeMissing,
         },
+    },
+    "betty/config/collections/sequence.py": {
         "ConfigurationSequence": {
             "__getitem__": TestKnownToBeMissing,
             "__iter__": TestKnownToBeMissing,
@@ -158,7 +163,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "to_key": TestKnownToBeMissing,
             "update": TestKnownToBeMissing,
         },
-        "write_configuration_file": TestKnownToBeMissing,
     },
     "betty/contextlib.py": {
         "SynchronizedContextManager": {
