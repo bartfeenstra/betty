@@ -659,13 +659,16 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         # This is an empty class.
         "ExtensionTypeError": TestKnownToBeMissing,
         "ExtensionTypeInvalidError": TestKnownToBeMissing,
-        "ListExtensions": TestKnownToBeMissing,
         # This is an empty class.
         "Theme": TestKnownToBeMissing,
     },
     "betty/project/extension/requirement.py": {
         "Dependencies": TestKnownToBeMissing,
         "Dependents": TestKnownToBeMissing,
+    },
+    "betty/project/factory.py": {
+        # This is an interface.
+        "ProjectDependentFactory": TestKnownToBeMissing,
     },
     "betty/render.py": TestKnownToBeMissing,
     "betty/requirement.py": {

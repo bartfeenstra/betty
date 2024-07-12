@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from collections import defaultdict
 from typing import (
     Any,
@@ -10,17 +10,19 @@ from typing import (
     Iterable,
     TYPE_CHECKING,
     Generic,
-    Iterator,
     final,
+    Self,
 )
 
 from typing_extensions import override
 
-from betty.asyncio import gather, wait_to_thread
+from betty.asyncio import gather
 from betty.config import Configurable, Configuration
+from betty.core import CoreComponent
 from betty.dispatch import Dispatcher, TargetedDispatcher
 from betty.plugin import Plugin, PluginId, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
+from betty.project.factory import ProjectDependentFactory
 
 if TYPE_CHECKING:
     from betty.requirement import Requirement
@@ -52,15 +54,20 @@ class CyclicDependencyError(ExtensionError, RuntimeError):
         )
 
 
-class Extension(Plugin):
+class Extension(Plugin, CoreComponent, ProjectDependentFactory):
     """
-    Integrate optional functionality with the Betty app.
+    Integrate optional functionality with Betty :py:class:`betty.project.Project`s.
     """
 
-    def __init__(self, project: Project, *args: Any, **kwargs: Any):
+    def __init__(self, project: Project):
         assert type(self) is not Extension
-        super().__init__(*args, **kwargs)
+        super().__init__()
         self._project = project
+
+    @override
+    @classmethod
+    def new_for_project(cls, project: Project) -> Self:
+        return cls(project)
 
     @property
     def project(self) -> Project:
@@ -151,12 +158,9 @@ class ConfigurableExtension(
     A configurable extension.
     """
 
-    def __init__(
-        self, *args: Any, configuration: _ConfigurationT | None = None, **kwargs: Any
-    ):
-        assert type(self) is not ConfigurableExtension
-        super().__init__(*args, **kwargs)
-        self._configuration = configuration or self.default_configuration()
+    def __init__(self, project: Project):
+        super().__init__(project)
+        self._configuration = self.default_configuration()
 
     @classmethod
     @abstractmethod
@@ -167,85 +171,13 @@ class ConfigurableExtension(
         pass
 
 
-class Extensions(ABC):
-    """
-    Manage available extensions.
-    """
-
-    @abstractmethod
-    def __getitem__(self, extension_id: PluginId) -> Extension:
-        pass
-
-    @abstractmethod
-    def __iter__(self) -> Iterator[Iterator[Extension]]:
-        """
-        Iterate over all extensions, in topologically sorted batches.
-
-        Each item is a batch of extensions. Items are ordered because later items depend
-        on earlier items. The extensions in each item do not depend on each other and their
-        order has no meaning. However, implementations SHOULD sort the extensions in each
-        item in a stable fashion for reproducability.
-        """
-        pass
-
-    @abstractmethod
-    def flatten(self) -> Iterator[Extension]:
-        """
-        Get a sequence of topologically sorted extensions.
-        """
-        pass
-
-    @abstractmethod
-    def __contains__(self, extension_id: PluginId) -> bool:
-        pass
-
-
-@final
-class ListExtensions(Extensions):
-    """
-    Manage available extensions, backed by a list.
-    """
-
-    def __init__(self, extensions: list[list[Extension]]):
-        super().__init__()
-        self._extensions = extensions
-
-    @override
-    def __getitem__(self, extension_id: PluginId) -> Extension:
-        extension_type = wait_to_thread(EXTENSION_REPOSITORY.get(extension_id))
-        for extension in self.flatten():
-            if type(extension) is extension_type:
-                return extension
-        raise KeyError(f'Unknown extension of type "{extension_type}"')
-
-    @override
-    def __iter__(self) -> Iterator[Iterator[Extension]]:
-        # Use a generator so we discourage calling code from storing the result.
-        for batch in self._extensions:
-            yield (extension for extension in batch)
-
-    @override
-    def flatten(self) -> Iterator[Extension]:
-        for batch in self:
-            yield from batch
-
-    @override
-    def __contains__(self, extension_id: PluginId) -> bool:
-        try:
-            self[extension_id]
-        except KeyError:
-            return False
-        else:
-            return True
-
-
 @final
 class ExtensionDispatcher(Dispatcher):
     """
     Dispatch events to extensions.
     """
 
-    def __init__(self, extensions: Extensions):
+    def __init__(self, extensions: Iterable[Iterable[Extension]]):
         self._extensions = extensions
 
     @override

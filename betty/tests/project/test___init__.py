@@ -36,6 +36,7 @@ from betty.project.extension import (
     ConfigurableExtension,
     CyclicDependencyError,
 )
+from betty.project.factory import ProjectDependentFactory
 from betty.tests.assertion import raises_error
 from betty.tests.config.collections.test_mapping import ConfigurationMappingTestBase
 from betty.tests.config.collections.test_sequence import ConfigurationSequenceTestBase
@@ -1248,7 +1249,7 @@ class _ConfigurableExtensionConfiguration(Configuration):
 
     @override
     def update(self, other: Self) -> None:
-        pass
+        self.check = other.check
 
     @override
     def load(self, dump: Dump) -> None:
@@ -1325,6 +1326,16 @@ class TestProject:
                 _CyclicDependencyTwoExtension,
             ),
         )
+
+    @pytest.mark.usefixtures("_extensions")
+    async def test_bootstrap(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as sut:
+            sut.configuration.extensions.append(
+                ExtensionConfiguration(_NonConfigurableExtension)
+            )
+            async with sut:
+                extension = sut.extensions[_NonConfigurableExtension.plugin_id()]
+                assert extension._bootstrapped
 
     @pytest.mark.usefixtures("_extensions")
     async def test_extensions_with_one_extension(self, new_temporary_app: App) -> None:
@@ -1408,9 +1419,9 @@ class TestProject:
             sut.configuration.extensions.append(
                 ExtensionConfiguration(_CyclicDependencyOneExtension)
             )
-            async with sut:
-                with pytest.raises(CyclicDependencyError):  # noqa PT012
-                    sut.extensions  # noqa B018
+            with pytest.raises(CyclicDependencyError):  # noqa PT012
+                async with sut:
+                    pass
 
     @pytest.mark.usefixtures("_extensions")
     async def test_extensions_with_comes_before_with_other_extension(
@@ -1543,3 +1554,16 @@ class TestProject:
     async def test_url_generator(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             sut.url_generator  # noqa B018
+
+    async def test_new_dependent(self, new_temporary_app: App) -> None:
+        class Dependent(ProjectDependentFactory):
+            def __init__(self, project: Project):
+                self.project = project
+
+            @classmethod
+            def new_for_project(cls, project: Project) -> Self:
+                return cls(project)
+
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
+            dependent = sut.new_dependent(Dependent)
+            assert dependent.project is sut
