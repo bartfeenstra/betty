@@ -23,7 +23,7 @@ from betty.hashid import hashid, hashid_sequence, hashid_file_content
 if TYPE_CHECKING:
     from betty.project.extension import Extension
     from betty.job import Context
-    from betty.locale import Localizer
+    from betty.locale.localizer import Localizer
     from betty.render import Renderer
     from collections.abc import Sequence, MutableMapping
     from betty.extension.webpack import WebpackEntryPointProvider

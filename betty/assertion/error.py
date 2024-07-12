@@ -14,7 +14,7 @@ from betty.error import UserFacingError
 from betty.locale.localizable import _, Localizable
 
 if TYPE_CHECKING:
-    from betty.locale import Localizer
+    from betty.locale.localizer import Localizer
 
 
 class AssertionFailed(UserFacingError, ValueError):

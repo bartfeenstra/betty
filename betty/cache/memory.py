@@ -13,7 +13,7 @@ from betty.cache import CacheItem
 from betty.cache._base import _CommonCacheBase, _StaticCacheItem
 
 if TYPE_CHECKING:
-    from betty.locale import Localizer
+    from betty.locale.localizer import Localizer
 
 
 _CacheItemValueContraT = TypeVar("_CacheItemValueContraT", contravariant=True)

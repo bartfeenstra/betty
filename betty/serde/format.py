@@ -16,7 +16,7 @@ from betty.locale.localizable import plain, Localizable, _
 from betty.serde.dump import Dump, VoidableDump
 
 if TYPE_CHECKING:
-    from betty.locale import Localizer
+    from betty.locale.localizer import Localizer
 
 
 class Format(ABC):

@@ -5,7 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from betty.locale import Date, DateRange, DEFAULT_LOCALIZER
+from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.date import Date, DateRange
 from betty.model.ancestry import (
     Person,
     Presence,

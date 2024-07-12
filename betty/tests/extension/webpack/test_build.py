@@ -11,7 +11,7 @@ from betty.app import App
 from betty.extension.webpack import WebpackEntryPointProvider
 from betty.extension.webpack.build import Builder
 from betty.job import Context
-from betty.locale import DEFAULT_LOCALIZER
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.tests.project.extension.test___init__ import DummyExtension

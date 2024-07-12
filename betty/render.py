@@ -8,7 +8,7 @@ from typing import final
 
 from typing_extensions import override
 
-from betty.locale import Localizer
+from betty.locale.localizer import Localizer
 from betty.job import Context
 
 

@@ -10,7 +10,7 @@ from betty import about, fs
 from betty.asyncio import wait_to_thread
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.assets import AssetRepository
-from betty.locale import LocalizerRepository
+from betty.locale.localizer import LocalizerRepository
 
 betty_replacements: dict[str, str] = {}
 

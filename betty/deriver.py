@@ -7,10 +7,10 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Iterable, cast, final
+from typing import Iterable, cast, final, TYPE_CHECKING
 from typing_extensions import override
 
-from betty.locale import DateRange, Date, Localizer
+from betty.locale.date import DateRange, Date
 from betty.model.ancestry import Person, Presence, Event, Ancestry
 from betty.model.presence_role import Subject
 from betty.model.event_type import (
@@ -18,6 +18,9 @@ from betty.model.event_type import (
     CreatableDerivableEventType,
     EventType,
 )
+
+if TYPE_CHECKING:
+    from betty.locale.localizer import Localizer
 
 
 class Derivation(Enum):

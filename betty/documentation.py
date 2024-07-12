@@ -14,7 +14,7 @@ from typing_extensions import override
 
 from betty import serve, fs
 from betty.fs import ROOT_DIRECTORY_PATH
-from betty.locale import Localizer
+from betty.locale.localizer import Localizer
 from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
 from betty.subprocess import run_process
 

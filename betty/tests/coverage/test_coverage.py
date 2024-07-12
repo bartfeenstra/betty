@@ -348,6 +348,16 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "PostLoader": TestKnownToBeMissing,
     },
     "betty/locale/__init__.py": {
+        "get_data": TestKnownToBeMissing,
+        "get_display_name": TestKnownToBeMissing,
+        "LocaleNotFoundError": TestKnownToBeMissing,
+        "to_babel_identifier": TestKnownToBeMissing,
+        "to_locale": TestKnownToBeMissing,
+    },
+    "betty/locale/babel.py": {
+        "run_babel": TestKnownToBeMissing,
+    },
+    "betty/locale/date.py": {
         "Date": {
             "__contains__": TestKnownToBeMissing,
             "__ge__": TestKnownToBeMissing,
@@ -363,25 +373,25 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "datey_dump_linked_data": TestKnownToBeMissing,
             "dump_linked_data": TestKnownToBeMissing,
         },
-        "get_data": TestKnownToBeMissing,
-        "get_display_name": TestKnownToBeMissing,
         # This is an empty class.
         "IncompleteDateError": TestKnownToBeMissing,
-        "init_translation": TestKnownToBeMissing,
-        "LocaleNotFoundError": TestKnownToBeMissing,
+        "ref_date": TestKnownToBeMissing,
+        "ref_date_range": TestKnownToBeMissing,
+        "ref_datey": TestKnownToBeMissing,
+    },
+    "betty/locale/localized.py": {
         "Localized": TestKnownToBeMissing,
+    },
+    "betty/locale/localizer.py": {
         "Localizer": TestKnownToBeMissing,
         "LocalizerRepository": {
             "coverage": TestKnownToBeMissing,
             "get_negotiated": TestKnownToBeMissing,
             "locales": TestKnownToBeMissing,
         },
-        "ref_date": TestKnownToBeMissing,
-        "ref_date_range": TestKnownToBeMissing,
-        "ref_datey": TestKnownToBeMissing,
-        "run_babel": TestKnownToBeMissing,
-        "to_babel_identifier": TestKnownToBeMissing,
-        "to_locale": TestKnownToBeMissing,
+    },
+    "betty/locale/translation.py": {
+        "init_translation": TestKnownToBeMissing,
         "update_translations": TestKnownToBeMissing,
     },
     "betty/locale/localizable.py": {

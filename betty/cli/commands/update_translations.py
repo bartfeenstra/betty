@@ -2,7 +2,7 @@ from __future__ import annotations  # noqa D100
 
 import click
 
-from betty import locale
+import betty.locale.translation
 from betty.cli.commands import command
 from betty.typing import internal
 
@@ -14,4 +14,4 @@ from betty.typing import internal
 )
 @command
 async def update_translations() -> None:  # noqa D103
-    await locale.update_translations()
+    await betty.locale.translation.update_translations()

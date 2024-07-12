@@ -10,7 +10,7 @@ from geopy import Point
 
 from betty.app import App
 from betty.json.schema import Schema
-from betty.locale import Date, DateRange
+from betty.locale.date import Date, DateRange
 from betty.locale.localizable import plain
 from betty.media_type import MediaType
 from betty.model import one_to_one

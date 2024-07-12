@@ -20,8 +20,10 @@ from betty.json.linked_data import (
     add_json_ld,
 )
 from betty.json.schema import add_property, ref_json_schema
-from betty.locale import Localized, Datey, ref_datey
+from betty.locale.date import Datey
+from betty.locale.date import ref_datey
 from betty.locale.localizable import _, Localizable, plain, call
+from betty.locale.localized import Localized
 from betty.media_type import MediaType
 from betty.model import (
     many_to_many,

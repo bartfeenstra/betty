@@ -14,6 +14,6 @@ from betty.typing import internal
 @click.argument("locale")
 @command
 async def init_translation(locale: str) -> None:  # noqa D103
-    from betty.locale import init_translation
+    from betty.locale.translation import init_translation
 
     await init_translation(locale)

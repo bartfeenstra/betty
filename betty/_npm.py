@@ -11,7 +11,7 @@ import sys
 from typing import Sequence, TYPE_CHECKING
 
 from betty.error import UserFacingError
-from betty.locale import DEFAULT_LOCALIZER
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizable import _, Localizable
 from betty.requirement import Requirement
 from betty.subprocess import run_process

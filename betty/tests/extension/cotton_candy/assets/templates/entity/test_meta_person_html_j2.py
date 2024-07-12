@@ -1,5 +1,5 @@
 from betty.extension.cotton_candy import CottonCandy
-from betty.locale import Date
+from betty.locale.date import Date
 from betty.model.ancestry import (
     Person,
     Presence,

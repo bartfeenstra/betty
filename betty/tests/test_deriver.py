@@ -3,7 +3,8 @@ from __future__ import annotations
 import pytest
 
 from betty.deriver import Deriver
-from betty.locale import DateRange, Date, Datey, DEFAULT_LOCALIZER
+from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.date import DateRange, Date, Datey
 from betty.model import record_added
 from betty.model.ancestry import Person, Presence, Event, Ancestry
 from betty.model.presence_role import Subject

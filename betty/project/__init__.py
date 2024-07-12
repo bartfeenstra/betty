@@ -46,7 +46,8 @@ from betty.config.collections.mapping import ConfigurationMapping
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.core import CoreComponent
 from betty.hashid import hashid
-from betty.locale import DEFAULT_LOCALE, LocalizerRepository
+from betty.locale import DEFAULT_LOCALE
+from betty.locale.localizer import LocalizerRepository
 from betty.locale.localizable import _
 from betty.model import Entity, UserFacingEntity
 from betty.model.ancestry import Ancestry, Person, Event, Place, Source

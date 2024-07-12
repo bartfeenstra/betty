@@ -4,7 +4,7 @@ from contextlib import contextmanager
 from typing import overload, Iterable, Iterator, Any
 
 from betty.assertion.error import AssertionFailedGroup, AssertionFailed
-from betty.locale import DEFAULT_LOCALIZER
+from betty.locale.localizer import DEFAULT_LOCALIZER
 
 
 class SerdeAssertionError(AssertionError):

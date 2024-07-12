@@ -1,4 +1,4 @@
-from betty.locale import DEFAULT_LOCALIZER
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizable import plain
 from betty.assertion.error import AssertionFailed, AssertionFailedGroup
 from betty.tests.assertion import assert_error

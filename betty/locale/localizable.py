@@ -9,7 +9,8 @@ from warnings import warn
 
 from typing_extensions import override
 
-from betty.locale import Localizer, DEFAULT_LOCALIZER
+from betty.locale.localizer import Localizer
+from betty.locale.localizer import DEFAULT_LOCALIZER
 
 
 class Localizable(ABC):

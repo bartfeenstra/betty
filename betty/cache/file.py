@@ -21,7 +21,7 @@ from betty.cache._base import _CommonCacheBase
 from betty.hashid import hashid
 
 if TYPE_CHECKING:
-    from betty.locale import Localizer
+    from betty.locale.localizer import Localizer
     from pathlib import Path
     from collections.abc import Sequence
 

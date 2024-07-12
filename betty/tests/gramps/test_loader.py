@@ -8,7 +8,8 @@ from aiofiles.tempfile import TemporaryDirectory
 
 from betty.app import App
 from betty.gramps.loader import GrampsLoader
-from betty.locale import Date, DateRange, DEFAULT_LOCALIZER
+from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.date import Date, DateRange
 from betty.media_type import MediaType
 from betty.model.ancestry import (
     Ancestry,

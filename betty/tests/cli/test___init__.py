@@ -14,7 +14,7 @@ from betty.cli import main, catch_exceptions
 from betty.cli.commands import command, Command
 from betty.config import write_configuration_file
 from betty.error import UserFacingError
-from betty.locale import DEFAULT_LOCALIZER
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizable import plain
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project

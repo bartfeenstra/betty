@@ -29,8 +29,9 @@ from betty.config import Configurable, Configuration, assert_configuration_file
 from betty.core import CoreComponent
 from betty.fetch import Fetcher
 from betty.fs import HOME_DIRECTORY_PATH
-from betty.locale import LocalizerRepository, get_data, DEFAULT_LOCALE, Localizer
+from betty.locale import get_data, DEFAULT_LOCALE
 from betty.locale.localizable import _
+from betty.locale.localizer import Localizer, LocalizerRepository
 from betty.serde.dump import minimize, void_none, Dump, VoidableDump
 
 if TYPE_CHECKING:

@@ -16,7 +16,8 @@ from betty.extension.maps import Maps
 from betty.extension.trees import Trees
 from betty.extension.wikipedia import Wikipedia
 from betty.load import Loader
-from betty.locale import Date, DateRange, DEFAULT_LOCALIZER
+from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.date import Date, DateRange
 from betty.locale.localizable import plain, Localizable
 from betty.model.ancestry import (
     Place,

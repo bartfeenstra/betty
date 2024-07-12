@@ -24,7 +24,7 @@ from betty.functools import Do
 from betty.locale.localizable import _
 
 if TYPE_CHECKING:
-    from betty.locale import Localizer
+    from betty.locale.localizer import Localizer
     from betty.project import Project
     from types import TracebackType
 

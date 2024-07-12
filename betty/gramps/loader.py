@@ -22,7 +22,7 @@ from geopy import Point
 from typing_extensions import override
 
 from betty.gramps.error import GrampsError
-from betty.locale import DateRange, Datey, Date, Localizer
+from betty.locale.date import DateRange, Datey, Date
 from betty.locale.localizable import _, plain
 from betty.media_type import MediaType, InvalidMediaType
 from betty.model import Entity, EntityGraphBuilder, AliasedEntity, AliasableEntity
@@ -44,15 +44,6 @@ from betty.model.ancestry import (
     HasCitations,
     HasPrivacy,
     HasNotes,
-)
-from betty.model.presence_role import (
-    Subject,
-    Witness,
-    Beneficiary,
-    Attendee,
-    Speaker,
-    Celebrant,
-    Organizer,
 )
 from betty.model.event_type import (
     Birth,
@@ -80,9 +71,19 @@ from betty.model.event_type import (
     EventType,
     Conference,
 )
+from betty.model.presence_role import (
+    Subject,
+    Witness,
+    Beneficiary,
+    Attendee,
+    Speaker,
+    Celebrant,
+    Organizer,
+)
 from betty.path import rootname
 
 if TYPE_CHECKING:
+    from betty.locale.localizer import Localizer
     from betty.project import Project
     from collections.abc import MutableMapping, Mapping
 
