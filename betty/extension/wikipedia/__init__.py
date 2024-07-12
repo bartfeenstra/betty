@@ -12,7 +12,7 @@ from typing_extensions import override
 from betty.asyncio import gather
 from betty.extension.wikipedia.config import WikipediaConfiguration
 from betty.jinja2 import Jinja2Provider, context_localizer, Filters
-from betty.load import PostLoader
+from betty.load import PostLoadAncestryEvent
 from betty.locale import negotiate_locale
 from betty.locale.localizable import _, Localizable
 from betty.project.extension import ConfigurableExtension
@@ -27,23 +27,28 @@ from betty.wikipedia import (
 
 if TYPE_CHECKING:
     from betty.project import Project
+    from betty.event_dispatcher import EventHandlerRegistry
     from betty.plugin import PluginId
     from jinja2.runtime import Context
     from betty.model.ancestry import Link
 
 
+async def _populate_ancestry(event: PostLoadAncestryEvent) -> None:
+    wikipedia = event.project.extensions[Wikipedia.plugin_id()]
+    assert isinstance(wikipedia, Wikipedia)
+    populator = _Populator(event.project, wikipedia.retriever)
+    await populator.populate()
+
+
 @final
-class Wikipedia(
-    ConfigurableExtension[WikipediaConfiguration], Jinja2Provider, PostLoader
-):
+class Wikipedia(ConfigurableExtension[WikipediaConfiguration], Jinja2Provider):
     """
     Integrates Betty with `Wikipedia <https://wikipedia.org>`_.
     """
 
     def __init__(self, project: Project):
         super().__init__(project)
-        self.__retriever: _Retriever | None = None
-        self.__populator: _Populator | None = None
+        self._retriever: _Retriever | None = None
 
     @override
     @classmethod
@@ -51,20 +56,18 @@ class Wikipedia(
         return "wikipedia"
 
     @override
-    async def post_load(self) -> None:
-        populator = _Populator(self.project, self._retriever)
-        await populator.populate()
+    def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
+        registry.add_handler(PostLoadAncestryEvent, _populate_ancestry)
 
     @property
-    def _retriever(self) -> _Retriever:
-        if self.__retriever is None:
+    def retriever(self) -> _Retriever:
+        """
+        The Wikipedia content retriever.
+        """
+        if self._retriever is None:
             self._assert_bootstrapped()
-            self.__retriever = _Retriever(self.project.app.fetcher)
-        return self.__retriever
-
-    @_retriever.deleter
-    def _retriever(self) -> None:
-        self.__retriever = None
+            self._retriever = _Retriever(self.project.app.fetcher)
+        return self._retriever
 
     @override
     @property
@@ -98,7 +101,7 @@ class Wikipedia(
         if negotiate_locale(locale, [page_language]) is None:
             return None
         try:
-            return await self._retriever.get_summary(page_language, page_name)
+            return await self.retriever.get_summary(page_language, page_name)
         except RetrievalError as error:
             logger = logging.getLogger(__name__)
             logger.warning(str(error))

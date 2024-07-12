@@ -21,7 +21,7 @@ from betty.app import App
 from betty.extension.webpack import build
 from betty.extension.webpack.build import webpack_build_id
 from betty.extension.webpack.jinja2.filter import FILTERS
-from betty.generate import Generator, GenerationContext
+from betty.generate import GenerateSiteEvent
 from betty.html import CssProvider
 from betty.jinja2 import Jinja2Provider, Filters, ContextVars
 from betty.job import Context
@@ -37,6 +37,7 @@ from betty.requirement import (
 from betty.typing import internal
 
 if TYPE_CHECKING:
+    from betty.event_dispatcher import EventHandlerRegistry
     from betty.plugin import PluginId
     from collections.abc import Sequence
 
@@ -115,9 +116,20 @@ class PrebuiltAssetsRequirement(Requirement):
         )
 
 
+async def _generate_assets(event: GenerateSiteEvent) -> None:
+    webpack = event.project.extensions[Webpack.plugin_id()]
+    assert isinstance(webpack, Webpack)
+    build_directory_path = await webpack._generate_ensure_build_directory(
+        job_context=event.job_context,
+    )
+    await webpack._copy_build_directory(
+        build_directory_path, event.project.configuration.www_directory_path
+    )
+
+
 @internal
 @final
-class Webpack(Extension, CssProvider, Jinja2Provider, Generator):
+class Webpack(Extension, CssProvider, Jinja2Provider):
     """
     Integrate Betty with `Webpack <https://webpack.js.org/>`_.
     """
@@ -138,6 +150,10 @@ class Webpack(Extension, CssProvider, Jinja2Provider, Generator):
     @classmethod
     def plugin_label(cls) -> Localizable:
         return plain("Webpack")
+
+    @override
+    def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
+        registry.add_handler(GenerateSiteEvent, _generate_assets)
 
     @override
     @classmethod
@@ -182,15 +198,6 @@ class Webpack(Extension, CssProvider, Jinja2Provider, Generator):
             for extension in self._project.extensions.flatten()
             if isinstance(extension, WebpackEntryPointProvider)
         ]
-
-    @override
-    async def generate(self, job_context: GenerationContext) -> None:
-        build_directory_path = await self._generate_ensure_build_directory(
-            job_context=job_context,
-        )
-        await self._copy_build_directory(
-            build_directory_path, self._project.configuration.www_directory_path
-        )
 
     async def prebuild(self, job_context: Context) -> None:
         """

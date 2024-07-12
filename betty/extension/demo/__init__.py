@@ -15,10 +15,10 @@ from betty.extension.http_api_doc import HttpApiDoc
 from betty.extension.maps import Maps
 from betty.extension.trees import Trees
 from betty.extension.wikipedia import Wikipedia
-from betty.load import Loader
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.load import LoadAncestryEvent
 from betty.locale.date import Date, DateRange
 from betty.locale.localizable import plain, Localizable
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model.ancestry import (
     Place,
     PlaceName,
@@ -32,8 +32,8 @@ from betty.model.ancestry import (
     Enclosure,
     Note,
 )
-from betty.model.presence_role import Subject
 from betty.model.event_type import Marriage, Birth, Death
+from betty.model.presence_role import Subject
 from betty.project import (
     LocaleConfiguration,
     ExtensionConfiguration,
@@ -44,14 +44,396 @@ from betty.project.extension import Extension
 from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
 
 if TYPE_CHECKING:
+    from betty.event_dispatcher import EventHandlerRegistry
     from betty.plugin import PluginId
     from betty.app import App
     from collections.abc import AsyncIterator
     from betty.model import Entity
 
 
+async def _load_ancestry(event: LoadAncestryEvent) -> None:
+    def _load(*entities: Entity):
+        event.project.ancestry.add(*entities)
+
+    netherlands = Place(
+        id="betty-demo-netherlands",
+        names=[
+            PlaceName(name="Netherlands"),
+            PlaceName(
+                name="Nederland",
+                locale="nl",
+            ),
+            PlaceName(
+                name="Нідерланди",
+                locale="uk",
+            ),
+            PlaceName(
+                name="Pays-Bas",
+                locale="fr",
+            ),
+        ],
+        links=[Link("https://en.wikipedia.org/wiki/Netherlands")],
+    )
+    _load(netherlands)
+
+    north_holland = Place(
+        id="betty-demo-north-holland",
+        names=[
+            PlaceName(name="North Holland"),
+            PlaceName(
+                name="Noord-Holland",
+                locale="nl",
+            ),
+            PlaceName(
+                name="Північна Голландія",
+                locale="uk",
+            ),
+            PlaceName(
+                name="Hollande-Septentrionale",
+                locale="fr",
+            ),
+        ],
+        links=[
+            Link("https://en.wikipedia.org/wiki/North_Holland"),
+            Link("https://www.noord-holland.nl/Home"),
+        ],
+    )
+    _load(Enclosure(encloses=north_holland, enclosed_by=netherlands))
+    _load(north_holland)
+
+    amsterdam_note = Note(
+        """
+Did you know that while Amsterdam is the country's official capital, The Hague is the Netherlands' administrative center and seat of government?
+    """
+    )
+
+    amsterdam = Place(
+        id="betty-demo-amsterdam",
+        names=[
+            PlaceName(name="Amsterdam"),
+            PlaceName(
+                name="Амстерда́м",
+                locale="uk",
+            ),
+        ],
+        links=[
+            Link("https://nl.wikipedia.org/wiki/Amsterdam"),
+            Link("https://www.amsterdam.nl/"),
+        ],
+        notes=[amsterdam_note],
+    )
+    _load(Enclosure(encloses=amsterdam, enclosed_by=north_holland))
+    _load(amsterdam)
+
+    ilpendam = Place(
+        id="betty-demo-ilpendam",
+        names=[
+            PlaceName(name="Ilpendam"),
+            PlaceName(
+                name="Илпендам",
+                locale="uk",
+            ),
+        ],
+        links=[Link("https://nl.wikipedia.org/wiki/Ilpendam")],
+    )
+    _load(Enclosure(encloses=ilpendam, enclosed_by=north_holland))
+    _load(ilpendam)
+
+    personal_accounts = Source(
+        id="betty-demo-personal-accounts",
+        name="Personal accounts",
+    )
+    _load(personal_accounts)
+
+    cite_first_person_account = Citation(
+        id="betty-demo-first-person-account",
+        source=personal_accounts,
+    )
+    _load(cite_first_person_account)
+
+    noord_hollands_archief = Source(
+        id="betty-demo-noord-hollands-archief",
+        name="Noord-Hollands Archief",
+        links=[Link("https://noord-hollandsarchief.nl/")],
+    )
+    _load(noord_hollands_archief)
+
+    bevolkingsregister_amsterdam = Source(
+        id="betty-demo-bevolkingsregister-amsterdam",
+        name="Bevolkingsregister Amsterdam",
+        author="Gemeente Amsterdam",
+        publisher="Gemeente Amsterdam",
+        contained_by=noord_hollands_archief,
+    )
+    _load(bevolkingsregister_amsterdam)
+
+    david_marinus_lankester = Person(id="betty-demo-david-marinus-lankester")
+    _load(
+        PersonName(
+            person=david_marinus_lankester,
+            individual="David Marinus",
+            affiliation="Lankester",
+        ),
+        david_marinus_lankester,
+    )
+
+    geertruida_van_ling = Person(id="betty-demo-geertruida-van-ling")
+    _load(
+        PersonName(
+            person=geertruida_van_ling,
+            individual="Geertruida",
+            affiliation="Van Ling",
+        ),
+        geertruida_van_ling,
+    )
+
+    marriage_of_dirk_jacobus_lankester_and_jannigje_palsen = Event(
+        id="betty-demo-marriage-of-dirk-jacobus-lankester-and-jannigje-palsen",
+        event_type=Marriage,
+        date=Date(1922, 7, 4),
+        place=ilpendam,
+    )
+    _load(marriage_of_dirk_jacobus_lankester_and_jannigje_palsen)
+
+    birth_of_dirk_jacobus_lankester = Event(
+        id="betty-demo-birth-of-dirk-jacobus-lankester",
+        event_type=Birth,
+        date=Date(1897, 8, 25),
+        place=amsterdam,
+    )
+    _load(birth_of_dirk_jacobus_lankester)
+
+    death_of_dirk_jacobus_lankester = Event(
+        id="betty-demo-death-of-dirk-jacobus-lankester",
+        event_type=Death,
+        date=Date(1986, 8, 18),
+        place=amsterdam,
+    )
+    _load(death_of_dirk_jacobus_lankester)
+
+    dirk_jacobus_lankester = Person(
+        id="betty-demo-dirk-jacobus-lankester",
+        parents=(david_marinus_lankester, geertruida_van_ling),
+    )
+    _load(
+        PersonName(
+            person=dirk_jacobus_lankester,
+            individual="Dirk Jacobus",
+            affiliation="Lankester",
+        ),
+        Presence(dirk_jacobus_lankester, Subject(), birth_of_dirk_jacobus_lankester),
+        Presence(dirk_jacobus_lankester, Subject(), death_of_dirk_jacobus_lankester),
+        Presence(
+            dirk_jacobus_lankester,
+            Subject(),
+            marriage_of_dirk_jacobus_lankester_and_jannigje_palsen,
+        ),
+    )
+    _load(dirk_jacobus_lankester)
+
+    birth_of_marinus_david_lankester = Event(
+        id="betty-demo-birth-of-marinus-david",
+        event_type=Birth,
+        date=DateRange(
+            Date(1874, 1, 15),
+            Date(1874, 3, 21),
+            start_is_boundary=True,
+            end_is_boundary=True,
+        ),
+        place=amsterdam,
+    )
+    _load(birth_of_marinus_david_lankester)
+
+    death_of_marinus_david_lankester = Event(
+        id="betty-demo-death-of-marinus-david",
+        event_type=Death,
+        date=Date(1971),
+        place=amsterdam,
+    )
+    _load(death_of_marinus_david_lankester)
+
+    marinus_david_lankester = Person(
+        id="betty-demo-marinus-david-lankester",
+        parents=(david_marinus_lankester, geertruida_van_ling),
+    )
+    _load(
+        PersonName(
+            person=marinus_david_lankester,
+            individual="Marinus David",
+            affiliation="Lankester",
+        ),
+        Presence(marinus_david_lankester, Subject(), birth_of_marinus_david_lankester),
+        Presence(marinus_david_lankester, Subject(), death_of_marinus_david_lankester),
+    )
+    _load(marinus_david_lankester)
+
+    birth_of_jacoba_gesina_lankester = Event(
+        id="betty-demo-birth-of-jacoba-gesina",
+        event_type=Birth,
+        date=Date(1900, 3, 14),
+        place=amsterdam,
+    )
+    _load(birth_of_jacoba_gesina_lankester)
+
+    jacoba_gesina_lankester = Person(
+        id="betty-demo-jacoba-gesina-lankester",
+        parents=(david_marinus_lankester, geertruida_van_ling),
+    )
+    _load(
+        PersonName(
+            person=jacoba_gesina_lankester,
+            individual="Jacoba Gesina",
+            affiliation="Lankester",
+        ),
+        Presence(jacoba_gesina_lankester, Subject(), birth_of_jacoba_gesina_lankester),
+    )
+    _load(jacoba_gesina_lankester)
+
+    jannigje_palsen = Person(id="betty-demo-jannigje-palsen")
+    _load(
+        PersonName(
+            person=jannigje_palsen,
+            individual="Jannigje",
+            affiliation="Palsen",
+        ),
+        Presence(
+            jannigje_palsen,
+            Subject(),
+            marriage_of_dirk_jacobus_lankester_and_jannigje_palsen,
+        ),
+        jannigje_palsen,
+    )
+
+    marriage_of_johan_de_boer_and_liberta_lankester = Event(
+        id="betty-demo-marriage-of-johan-de-boer-and-liberta-lankester",
+        event_type=Marriage,
+        date=Date(1953, 6, 19),
+        place=amsterdam,
+    )
+    _load(marriage_of_johan_de_boer_and_liberta_lankester)
+
+    cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam = Citation(
+        id="betty-demo-birth-of-liberta-lankester-from-bevolkingsregister-amsterdam",
+        source=bevolkingsregister_amsterdam,
+        location=plain("Amsterdam"),
+    )
+    _load(cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam)
+
+    birth_of_liberta_lankester = Event(
+        id="betty-demo-birth-of-liberta-lankester",
+        event_type=Birth,
+        date=Date(1929, 12, 22),
+        place=amsterdam,
+        citations=[cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam],
+    )
+    _load(birth_of_liberta_lankester)
+
+    death_of_liberta_lankester = Event(
+        id="betty-demo-death-of-liberta-lankester",
+        event_type=Death,
+        date=Date(2015, 1, 17),
+        place=amsterdam,
+        citations=[cite_first_person_account],
+    )
+    _load(death_of_liberta_lankester)
+
+    liberta_lankester_note = Note(
+        """
+Did you know that Liberta "Betty" Lankester is Betty's namesake?
+    """
+    )
+
+    liberta_lankester = Person(
+        id="betty-demo-liberta-lankester",
+        parents=(dirk_jacobus_lankester, jannigje_palsen),
+        notes=[liberta_lankester_note],
+    )
+    _load(
+        PersonName(
+            person=liberta_lankester,
+            individual="Liberta",
+            affiliation="Lankester",
+        ),
+        PersonName(
+            person=liberta_lankester,
+            individual="Betty",
+        ),
+        Presence(liberta_lankester, Subject(), birth_of_liberta_lankester),
+        Presence(liberta_lankester, Subject(), death_of_liberta_lankester),
+        Presence(
+            liberta_lankester,
+            Subject(),
+            marriage_of_johan_de_boer_and_liberta_lankester,
+        ),
+    )
+    _load(liberta_lankester)
+
+    birth_of_johan_de_boer = Event(
+        id="betty-demo-birth-of-johan-de-boer",
+        event_type=Birth,
+        date=Date(1930, 6, 20),
+        place=amsterdam,
+    )
+    _load(birth_of_johan_de_boer)
+
+    death_of_johan_de_boer = Event(
+        id="betty-demo-death-of-johan-de-boer",
+        event_type=Death,
+        date=Date(1999, 3, 10),
+        place=amsterdam,
+        citations=[cite_first_person_account],
+    )
+    _load(death_of_johan_de_boer)
+
+    johan_de_boer = Person(id="betty-demo-johan-de-boer")
+    _load(
+        PersonName(
+            person=johan_de_boer,
+            individual="Johan",
+            affiliation="De Boer",
+        ),
+        PersonName(
+            person=johan_de_boer,
+            individual="Hans",
+        ),
+        Presence(johan_de_boer, Subject(), birth_of_johan_de_boer),
+        Presence(johan_de_boer, Subject(), death_of_johan_de_boer),
+        Presence(
+            johan_de_boer,
+            Subject(),
+            marriage_of_johan_de_boer_and_liberta_lankester,
+        ),
+        johan_de_boer,
+    )
+
+    parent_of_bart_feenstra_child_of_liberta_lankester = Person(
+        id="betty-demo-parent-of-bart-feenstra-child-of-liberta-lankester",
+        parents=(johan_de_boer, liberta_lankester),
+    )
+    _load(
+        PersonName(
+            person=parent_of_bart_feenstra_child_of_liberta_lankester,
+            individual="Bart's parent",
+        )
+    )
+    _load(parent_of_bart_feenstra_child_of_liberta_lankester)
+
+    bart_feenstra = Person(
+        id="betty-demo-bart-feenstra",
+        parents=(parent_of_bart_feenstra_child_of_liberta_lankester,),
+    )
+    _load(
+        PersonName(
+            person=bart_feenstra,
+            individual="Bart",
+            affiliation="Feenstra",
+        )
+    )
+    _load(bart_feenstra)
+
+
 @final
-class Demo(Extension, Loader):
+class Demo(Extension):
     """
     Provide demonstration site functionality.
     """
@@ -77,398 +459,9 @@ class Demo(Extension, Loader):
             Wikipedia.plugin_id(),
         }
 
-    def _load(self, *entities: Entity) -> None:
-        self._project.ancestry.add(*entities)
-
     @override
-    async def load(self) -> None:
-        netherlands = Place(
-            id="betty-demo-netherlands",
-            names=[
-                PlaceName(name="Netherlands"),
-                PlaceName(
-                    name="Nederland",
-                    locale="nl",
-                ),
-                PlaceName(
-                    name="Нідерланди",
-                    locale="uk",
-                ),
-                PlaceName(
-                    name="Pays-Bas",
-                    locale="fr",
-                ),
-            ],
-            links=[Link("https://en.wikipedia.org/wiki/Netherlands")],
-        )
-        self._load(netherlands)
-
-        north_holland = Place(
-            id="betty-demo-north-holland",
-            names=[
-                PlaceName(name="North Holland"),
-                PlaceName(
-                    name="Noord-Holland",
-                    locale="nl",
-                ),
-                PlaceName(
-                    name="Північна Голландія",
-                    locale="uk",
-                ),
-                PlaceName(
-                    name="Hollande-Septentrionale",
-                    locale="fr",
-                ),
-            ],
-            links=[
-                Link("https://en.wikipedia.org/wiki/North_Holland"),
-                Link("https://www.noord-holland.nl/Home"),
-            ],
-        )
-        self._load(Enclosure(encloses=north_holland, enclosed_by=netherlands))
-        self._load(north_holland)
-
-        amsterdam_note = Note(
-            """
-Did you know that while Amsterdam is the country's official capital, The Hague is the Netherlands' administrative center and seat of government?
-        """
-        )
-
-        amsterdam = Place(
-            id="betty-demo-amsterdam",
-            names=[
-                PlaceName(name="Amsterdam"),
-                PlaceName(
-                    name="Амстерда́м",
-                    locale="uk",
-                ),
-            ],
-            links=[
-                Link("https://nl.wikipedia.org/wiki/Amsterdam"),
-                Link("https://www.amsterdam.nl/"),
-            ],
-            notes=[amsterdam_note],
-        )
-        self._load(Enclosure(encloses=amsterdam, enclosed_by=north_holland))
-        self._load(amsterdam)
-
-        ilpendam = Place(
-            id="betty-demo-ilpendam",
-            names=[
-                PlaceName(name="Ilpendam"),
-                PlaceName(
-                    name="Илпендам",
-                    locale="uk",
-                ),
-            ],
-            links=[Link("https://nl.wikipedia.org/wiki/Ilpendam")],
-        )
-        self._load(Enclosure(encloses=ilpendam, enclosed_by=north_holland))
-        self._load(ilpendam)
-
-        personal_accounts = Source(
-            id="betty-demo-personal-accounts",
-            name="Personal accounts",
-        )
-        self._load(personal_accounts)
-
-        cite_first_person_account = Citation(
-            id="betty-demo-first-person-account",
-            source=personal_accounts,
-        )
-        self._load(cite_first_person_account)
-
-        noord_hollands_archief = Source(
-            id="betty-demo-noord-hollands-archief",
-            name="Noord-Hollands Archief",
-            links=[Link("https://noord-hollandsarchief.nl/")],
-        )
-        self._load(noord_hollands_archief)
-
-        bevolkingsregister_amsterdam = Source(
-            id="betty-demo-bevolkingsregister-amsterdam",
-            name="Bevolkingsregister Amsterdam",
-            author="Gemeente Amsterdam",
-            publisher="Gemeente Amsterdam",
-            contained_by=noord_hollands_archief,
-        )
-        self._load(bevolkingsregister_amsterdam)
-
-        david_marinus_lankester = Person(id="betty-demo-david-marinus-lankester")
-        self._load(
-            PersonName(
-                person=david_marinus_lankester,
-                individual="David Marinus",
-                affiliation="Lankester",
-            ),
-            david_marinus_lankester,
-        )
-
-        geertruida_van_ling = Person(id="betty-demo-geertruida-van-ling")
-        self._load(
-            PersonName(
-                person=geertruida_van_ling,
-                individual="Geertruida",
-                affiliation="Van Ling",
-            ),
-            geertruida_van_ling,
-        )
-
-        marriage_of_dirk_jacobus_lankester_and_jannigje_palsen = Event(
-            id="betty-demo-marriage-of-dirk-jacobus-lankester-and-jannigje-palsen",
-            event_type=Marriage,
-            date=Date(1922, 7, 4),
-            place=ilpendam,
-        )
-        self._load(marriage_of_dirk_jacobus_lankester_and_jannigje_palsen)
-
-        birth_of_dirk_jacobus_lankester = Event(
-            id="betty-demo-birth-of-dirk-jacobus-lankester",
-            event_type=Birth,
-            date=Date(1897, 8, 25),
-            place=amsterdam,
-        )
-        self._load(birth_of_dirk_jacobus_lankester)
-
-        death_of_dirk_jacobus_lankester = Event(
-            id="betty-demo-death-of-dirk-jacobus-lankester",
-            event_type=Death,
-            date=Date(1986, 8, 18),
-            place=amsterdam,
-        )
-        self._load(death_of_dirk_jacobus_lankester)
-
-        dirk_jacobus_lankester = Person(
-            id="betty-demo-dirk-jacobus-lankester",
-            parents=(david_marinus_lankester, geertruida_van_ling),
-        )
-        self._load(
-            PersonName(
-                person=dirk_jacobus_lankester,
-                individual="Dirk Jacobus",
-                affiliation="Lankester",
-            ),
-            Presence(
-                dirk_jacobus_lankester, Subject(), birth_of_dirk_jacobus_lankester
-            ),
-            Presence(
-                dirk_jacobus_lankester, Subject(), death_of_dirk_jacobus_lankester
-            ),
-            Presence(
-                dirk_jacobus_lankester,
-                Subject(),
-                marriage_of_dirk_jacobus_lankester_and_jannigje_palsen,
-            ),
-        )
-        self._load(dirk_jacobus_lankester)
-
-        birth_of_marinus_david_lankester = Event(
-            id="betty-demo-birth-of-marinus-david",
-            event_type=Birth,
-            date=DateRange(
-                Date(1874, 1, 15),
-                Date(1874, 3, 21),
-                start_is_boundary=True,
-                end_is_boundary=True,
-            ),
-            place=amsterdam,
-        )
-        self._load(birth_of_marinus_david_lankester)
-
-        death_of_marinus_david_lankester = Event(
-            id="betty-demo-death-of-marinus-david",
-            event_type=Death,
-            date=Date(1971),
-            place=amsterdam,
-        )
-        self._load(death_of_marinus_david_lankester)
-
-        marinus_david_lankester = Person(
-            id="betty-demo-marinus-david-lankester",
-            parents=(david_marinus_lankester, geertruida_van_ling),
-        )
-        self._load(
-            PersonName(
-                person=marinus_david_lankester,
-                individual="Marinus David",
-                affiliation="Lankester",
-            ),
-            Presence(
-                marinus_david_lankester, Subject(), birth_of_marinus_david_lankester
-            ),
-            Presence(
-                marinus_david_lankester, Subject(), death_of_marinus_david_lankester
-            ),
-        )
-        self._load(marinus_david_lankester)
-
-        birth_of_jacoba_gesina_lankester = Event(
-            id="betty-demo-birth-of-jacoba-gesina",
-            event_type=Birth,
-            date=Date(1900, 3, 14),
-            place=amsterdam,
-        )
-        self._load(birth_of_jacoba_gesina_lankester)
-
-        jacoba_gesina_lankester = Person(
-            id="betty-demo-jacoba-gesina-lankester",
-            parents=(david_marinus_lankester, geertruida_van_ling),
-        )
-        self._load(
-            PersonName(
-                person=jacoba_gesina_lankester,
-                individual="Jacoba Gesina",
-                affiliation="Lankester",
-            ),
-            Presence(
-                jacoba_gesina_lankester, Subject(), birth_of_jacoba_gesina_lankester
-            ),
-        )
-        self._load(jacoba_gesina_lankester)
-
-        jannigje_palsen = Person(id="betty-demo-jannigje-palsen")
-        self._load(
-            PersonName(
-                person=jannigje_palsen,
-                individual="Jannigje",
-                affiliation="Palsen",
-            ),
-            Presence(
-                jannigje_palsen,
-                Subject(),
-                marriage_of_dirk_jacobus_lankester_and_jannigje_palsen,
-            ),
-            jannigje_palsen,
-        )
-
-        marriage_of_johan_de_boer_and_liberta_lankester = Event(
-            id="betty-demo-marriage-of-johan-de-boer-and-liberta-lankester",
-            event_type=Marriage,
-            date=Date(1953, 6, 19),
-            place=amsterdam,
-        )
-        self._load(marriage_of_johan_de_boer_and_liberta_lankester)
-
-        cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam = Citation(
-            id="betty-demo-birth-of-liberta-lankester-from-bevolkingsregister-amsterdam",
-            source=bevolkingsregister_amsterdam,
-            location=plain("Amsterdam"),
-        )
-        self._load(cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam)
-
-        birth_of_liberta_lankester = Event(
-            id="betty-demo-birth-of-liberta-lankester",
-            event_type=Birth,
-            date=Date(1929, 12, 22),
-            place=amsterdam,
-            citations=[
-                cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam
-            ],
-        )
-        self._load(birth_of_liberta_lankester)
-
-        death_of_liberta_lankester = Event(
-            id="betty-demo-death-of-liberta-lankester",
-            event_type=Death,
-            date=Date(2015, 1, 17),
-            place=amsterdam,
-            citations=[cite_first_person_account],
-        )
-        self._load(death_of_liberta_lankester)
-
-        liberta_lankester_note = Note(
-            """
-Did you know that Liberta "Betty" Lankester is Betty's namesake?
-        """
-        )
-
-        liberta_lankester = Person(
-            id="betty-demo-liberta-lankester",
-            parents=(dirk_jacobus_lankester, jannigje_palsen),
-            notes=[liberta_lankester_note],
-        )
-        self._load(
-            PersonName(
-                person=liberta_lankester,
-                individual="Liberta",
-                affiliation="Lankester",
-            ),
-            PersonName(
-                person=liberta_lankester,
-                individual="Betty",
-            ),
-            Presence(liberta_lankester, Subject(), birth_of_liberta_lankester),
-            Presence(liberta_lankester, Subject(), death_of_liberta_lankester),
-            Presence(
-                liberta_lankester,
-                Subject(),
-                marriage_of_johan_de_boer_and_liberta_lankester,
-            ),
-        )
-        self._load(liberta_lankester)
-
-        birth_of_johan_de_boer = Event(
-            id="betty-demo-birth-of-johan-de-boer",
-            event_type=Birth,
-            date=Date(1930, 6, 20),
-            place=amsterdam,
-        )
-        self._load(birth_of_johan_de_boer)
-
-        death_of_johan_de_boer = Event(
-            id="betty-demo-death-of-johan-de-boer",
-            event_type=Death,
-            date=Date(1999, 3, 10),
-            place=amsterdam,
-            citations=[cite_first_person_account],
-        )
-        self._load(death_of_johan_de_boer)
-
-        johan_de_boer = Person(id="betty-demo-johan-de-boer")
-        self._load(
-            PersonName(
-                person=johan_de_boer,
-                individual="Johan",
-                affiliation="De Boer",
-            ),
-            PersonName(
-                person=johan_de_boer,
-                individual="Hans",
-            ),
-            Presence(johan_de_boer, Subject(), birth_of_johan_de_boer),
-            Presence(johan_de_boer, Subject(), death_of_johan_de_boer),
-            Presence(
-                johan_de_boer,
-                Subject(),
-                marriage_of_johan_de_boer_and_liberta_lankester,
-            ),
-            johan_de_boer,
-        )
-
-        parent_of_bart_feenstra_child_of_liberta_lankester = Person(
-            id="betty-demo-parent-of-bart-feenstra-child-of-liberta-lankester",
-            parents=(johan_de_boer, liberta_lankester),
-        )
-        self._load(
-            PersonName(
-                person=parent_of_bart_feenstra_child_of_liberta_lankester,
-                individual="Bart's parent",
-            )
-        )
-        self._load(parent_of_bart_feenstra_child_of_liberta_lankester)
-
-        bart_feenstra = Person(
-            id="betty-demo-bart-feenstra",
-            parents=(parent_of_bart_feenstra_child_of_liberta_lankester,),
-        )
-        self._load(
-            PersonName(
-                person=bart_feenstra,
-                individual="Bart",
-                affiliation="Feenstra",
-            )
-        )
-        self._load(bart_feenstra)
+    def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
+        registry.add_handler(LoadAncestryEvent, _load_ancestry)
 
 
 @final

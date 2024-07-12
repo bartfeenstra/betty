@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from typing import Any, Iterable, TYPE_CHECKING, Self
 
 import pytest
@@ -15,6 +14,7 @@ from betty.assertion import (
 )
 from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
+from betty.event_dispatcher import Event, EventHandlerRegistry
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.model import Entity, UserFacingEntity
 from betty.model.ancestry import Ancestry
@@ -30,6 +30,7 @@ from betty.project import (
     EntityTypeConfiguration,
     EntityTypeConfigurationMapping,
     Project,
+    ProjectEvent,
 )
 from betty.project.extension import (
     Extension,
@@ -1226,16 +1227,17 @@ class TestProjectConfiguration:
             sut.load(dump)
 
 
-class _Tracker(ABC):
-    @abstractmethod
-    async def track(self, carrier: list[Self]) -> None:
-        pass
+class _TrackerEvent(Event):
+    def __init__(self, carrier: list[_TrackableExtension]):
+        self.carrier = carrier
 
 
-class _TrackableExtension(DummyExtension, _Tracker):
-    @override
-    async def track(self, carrier: list[Self]) -> None:
-        carrier.append(self)
+class _TrackableExtension(DummyExtension):
+    def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
+        registry.add_handler(_TrackerEvent, self._track)
+
+    async def _track(self, event: _TrackerEvent) -> None:
+        event.carrier.append(self)
 
 
 class _NonConfigurableExtension(_TrackableExtension):
@@ -1378,7 +1380,7 @@ class TestProject:
             )
             async with sut:
                 carrier: list[_TrackableExtension] = []
-                await sut.dispatcher.dispatch(_Tracker)(carrier)
+                await sut.event_dispatcher.dispatch(_TrackerEvent(carrier))
                 assert len(carrier) == 3
                 assert isinstance(carrier[0], _NonConfigurableExtension)
                 assert isinstance(
@@ -1401,7 +1403,7 @@ class TestProject:
             )
             async with sut:
                 carrier: list[_TrackableExtension] = []
-                await sut.dispatcher.dispatch(_Tracker)(carrier)
+                await sut.event_dispatcher.dispatch(_TrackerEvent(carrier))
                 assert len(carrier) == 3
                 assert isinstance(carrier[0], _NonConfigurableExtension)
                 assert _DependsOnNonConfigurableExtensionExtension in [
@@ -1436,7 +1438,7 @@ class TestProject:
             )
             async with sut:
                 carrier: list[_TrackableExtension] = []
-                await sut.dispatcher.dispatch(_Tracker)(carrier)
+                await sut.event_dispatcher.dispatch(_TrackerEvent(carrier))
                 assert len(carrier) == 2
                 assert isinstance(
                     carrier[0], _ComesBeforeNonConfigurableExtensionExtension
@@ -1453,7 +1455,7 @@ class TestProject:
             )
             async with sut:
                 carrier: list[_TrackableExtension] = []
-                await sut.dispatcher.dispatch(_Tracker)(carrier)
+                await sut.event_dispatcher.dispatch(_TrackerEvent(carrier))
                 assert len(carrier) == 1
                 assert isinstance(
                     carrier[0], _ComesBeforeNonConfigurableExtensionExtension
@@ -1472,7 +1474,7 @@ class TestProject:
             )
             async with sut:
                 carrier: list[_TrackableExtension] = []
-                await sut.dispatcher.dispatch(_Tracker)(carrier)
+                await sut.event_dispatcher.dispatch(_TrackerEvent(carrier))
                 assert len(carrier) == 2
                 assert isinstance(carrier[0], _NonConfigurableExtension)
                 assert isinstance(
@@ -1489,7 +1491,7 @@ class TestProject:
             )
             async with sut:
                 carrier: list[_TrackableExtension] = []
-                await sut.dispatcher.dispatch(_Tracker)(carrier)
+                await sut.event_dispatcher.dispatch(_TrackerEvent(carrier))
                 assert len(carrier) == 1
                 assert isinstance(
                     carrier[0], _ComesAfterNonConfigurableExtensionExtension
@@ -1518,9 +1520,9 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             assert len(sut.assets.assets_directory_paths) > 0
 
-    async def test_dispatcher(self, new_temporary_app: App) -> None:
+    async def test_event_dispatcher(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            sut.dispatcher  # noqa B018
+            sut.event_dispatcher  # noqa B018
 
     async def test_jinja2_environment(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
@@ -1567,3 +1569,10 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             dependent = sut.new_dependent(Dependent)
             assert dependent.project is sut
+
+
+class TestProjectEvent:
+    async def test_project(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = ProjectEvent(project)
+            assert sut.project is project

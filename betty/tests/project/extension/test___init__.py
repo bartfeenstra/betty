@@ -1,20 +1,17 @@
-from abc import ABC, abstractmethod
-from typing import Any
-from typing_extensions import override
+import pytest
+from pytest_mock import MockerFixture
 
 from betty.app import App
+from betty.event_dispatcher import EventHandlerRegistry
 from betty.locale.localizable import Localizable, plain
 from betty.plugin import PluginId
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.project.extension import (
     Extension,
-    ExtensionDispatcher,
     build_extension_type_graph,
     ExtensionTypeGraph,
 )
-import pytest
-from pytest_mock import MockerFixture
 
 
 class DummyExtension(Extension):
@@ -25,50 +22,6 @@ class DummyExtension(Extension):
     @classmethod
     def plugin_label(cls) -> Localizable:
         return plain(cls.__name__)
-
-
-class TestExtension:
-    async def test_depends_on(self) -> None:
-        assert set() == Extension.depends_on()
-
-    async def test_comes_after(self) -> None:
-        assert set() == Extension.comes_after()
-
-    async def test_comes_before(self) -> None:
-        assert set() == Extension.comes_before()
-
-
-class TestExtensionDispatcher:
-    class _Multiplier(ABC):
-        @abstractmethod
-        async def multiply(self, term: int) -> Any:
-            pass
-
-    class _MultiplyingExtension(_Multiplier, DummyExtension):
-        def __init__(self, project: Project, multiplier: int):
-            super().__init__(project)
-            self._multiplier = multiplier
-
-        @override
-        async def multiply(self, term: int) -> Any:
-            return self._multiplier * term
-
-    async def test(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            extensions = [
-                [
-                    self._MultiplyingExtension(project, 1),
-                    self._MultiplyingExtension(project, 3),
-                ],
-                [
-                    self._MultiplyingExtension(project, 2),
-                    self._MultiplyingExtension(project, 4),
-                ],
-            ]
-            sut = ExtensionDispatcher(extensions)
-            actual_returned_somethings = await sut.dispatch(self._Multiplier)(3)
-            expected_returned_somethings = [3, 9, 6, 12]
-            assert expected_returned_somethings == actual_returned_somethings
 
 
 class IsDependencyExtension(DummyExtension):
@@ -207,3 +160,20 @@ class TestBuildExtensionTypeGraph:
             HasComesBeforeExtension: set(),
         }
         assert expected == dict(await build_extension_type_graph(extension_types))
+
+
+class TestExtension:
+    async def test_project_with___init__(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project:
+            sut = DummyExtension(project)
+            assert sut.project is project
+
+    async def test_project_with_new_for_project(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project:
+            sut = DummyExtension.new_for_project(project)
+            assert sut.project is project
+
+    async def test_register_event_handlers(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project:
+            sut = DummyExtension.new_for_project(project)
+            sut.register_event_handlers(EventHandlerRegistry())

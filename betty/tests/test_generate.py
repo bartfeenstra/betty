@@ -7,7 +7,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.generate import generate
+from betty.generate import generate, GenerateSiteEvent, GenerationContext
 from betty.model import (
     UserFacingEntity,
 )
@@ -419,3 +419,12 @@ class TestSitemapGenerate:
                 project.configuration.www_directory_path / "sitemap.xml"
             )
             schema.validate(sitemap_doc)
+
+
+class TestGenerateSiteEvent:
+    async def test_job_context(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            job_context = GenerationContext(project)
+            sut = GenerateSiteEvent(job_context)
+            assert sut.project is project
+            assert sut.job_context is job_context

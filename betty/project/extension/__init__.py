@@ -5,26 +5,23 @@ from __future__ import annotations
 from abc import abstractmethod
 from collections import defaultdict
 from typing import (
-    Any,
     TypeVar,
     Iterable,
     TYPE_CHECKING,
     Generic,
-    final,
     Self,
 )
 
 from typing_extensions import override
 
-from betty.asyncio import gather
 from betty.config import Configurable, Configuration
 from betty.core import CoreComponent
-from betty.dispatch import Dispatcher, TargetedDispatcher
 from betty.plugin import Plugin, PluginId, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.project.factory import ProjectDependentFactory
 
 if TYPE_CHECKING:
+    from betty.event_dispatcher import EventHandlerRegistry
     from betty.requirement import Requirement
     from betty.project import Project
     from pathlib import Path
@@ -68,6 +65,12 @@ class Extension(Plugin, CoreComponent, ProjectDependentFactory):
     @classmethod
     def new_for_project(cls, project: Project) -> Self:
         return cls(project)
+
+    def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
+        """
+        Register event handlers with the project.
+        """
+        pass
 
     @property
     def project(self) -> Project:
@@ -169,44 +172,6 @@ class ConfigurableExtension(
         Get this extension's default configuration.
         """
         pass
-
-
-@final
-class ExtensionDispatcher(Dispatcher):
-    """
-    Dispatch events to extensions.
-    """
-
-    def __init__(self, extensions: Iterable[Iterable[Extension]]):
-        self._extensions = extensions
-
-    @override
-    def dispatch(self, target_type: type[Any]) -> TargetedDispatcher:
-        target_method_names = [
-            method_name
-            for method_name in dir(target_type)
-            if not method_name.startswith("_")
-        ]
-        if len(target_method_names) != 1:
-            raise ValueError(
-                f"A dispatch's target type must have a single method to dispatch to, but {target_type} has {len(target_method_names)}."
-            )
-        target_method_name = target_method_names[0]
-
-        async def _dispatch(*args: Any, **kwargs: Any) -> list[Any]:
-            return [
-                result
-                for target_extension_batch in self._extensions
-                for result in await gather(
-                    *(
-                        getattr(target_extension, target_method_name)(*args, **kwargs)
-                        for target_extension in target_extension_batch
-                        if isinstance(target_extension, target_type)
-                    )
-                )
-            ]
-
-        return _dispatch
 
 
 ExtensionTypeGraph = dict[type[Extension], set[type[Extension]]]

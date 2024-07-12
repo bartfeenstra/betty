@@ -3,7 +3,6 @@ Provide the Ancestry loading API.
 """
 
 import logging
-from abc import ABC, abstractmethod
 from xml.etree.ElementTree import Element
 
 from html5lib import parse
@@ -12,45 +11,33 @@ from betty.asyncio import gather
 from betty.fetch import Fetcher, FetchError
 from betty.media_type import MediaType, InvalidMediaType
 from betty.model.ancestry import Link, HasLinks
-from betty.project import Project
+from betty.project import Project, ProjectEvent
 
 
-class Loader(ABC):
+class LoadAncestryEvent(ProjectEvent):
     """
-    Load (part of) the project's ancestry.
-
-    Extensions may subclass this to add data to the ancestry, if they choose to do so.
+    Dispatched to load ancestry data into a project.
     """
 
-    @abstractmethod
-    async def load(self) -> None:
-        """
-        Load ancestry data.
-        """
-        pass
+    pass
 
 
-class PostLoader(ABC):
+class PostLoadAncestryEvent(ProjectEvent):
     """
-    Act on the project's ancestry having been loaded.
+    Dispatched to postprocess ancestry data that was loaded into a project.
+
+    This event is invoked immediately after :py:class:`betty.load.LoadEvent`.
     """
 
-    @abstractmethod
-    async def post_load(self) -> None:
-        """
-        Act on the ancestry having been loaded.
-
-        This method is called immediately after :py:meth:`betty.load.Loader.load`.
-        """
-        pass
+    pass
 
 
 async def load(project: Project) -> None:
     """
     Load an ancestry.
     """
-    await project.dispatcher.dispatch(Loader)()
-    await project.dispatcher.dispatch(PostLoader)()
+    await project.event_dispatcher.dispatch(LoadAncestryEvent(project))
+    await project.event_dispatcher.dispatch(PostLoadAncestryEvent(project))
     await _fetch_link_titles(project)
 
 

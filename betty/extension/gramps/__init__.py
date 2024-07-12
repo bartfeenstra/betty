@@ -4,23 +4,38 @@ Integrate Betty with `Gramps <https://gramps-project.org>`_.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from typing import final
 
 from typing_extensions import override
 
 from betty.extension.gramps.config import GrampsConfiguration
 from betty.gramps.loader import GrampsLoader
-from betty.load import Loader
+from betty.load import LoadAncestryEvent
 from betty.locale.localizable import plain, _, Localizable
 from betty.project.extension import ConfigurableExtension
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from betty.event_dispatcher import EventHandlerRegistry
     from betty.plugin import PluginId
 
 
+async def _load_ancestry(event: LoadAncestryEvent) -> None:
+    gramps_configuration = event.project.configuration.extensions[
+        Gramps
+    ].extension_configuration
+    assert isinstance(gramps_configuration, GrampsConfiguration)
+    for family_tree in gramps_configuration.family_trees:
+        file_path = family_tree.file_path
+        if file_path:
+            await GrampsLoader(
+                event.project,
+                localizer=event.project.app.localizer,
+            ).load_file(file_path)
+
+
 @final
-class Gramps(ConfigurableExtension[GrampsConfiguration], Loader):
+class Gramps(ConfigurableExtension[GrampsConfiguration]):
     """
     Integrate Betty with `Gramps <https://gramps-project.org>`_.
     """
@@ -36,14 +51,8 @@ class Gramps(ConfigurableExtension[GrampsConfiguration], Loader):
         return GrampsConfiguration()
 
     @override
-    async def load(self) -> None:
-        for family_tree in self.configuration.family_trees:
-            file_path = family_tree.file_path
-            if file_path:
-                await GrampsLoader(
-                    self.project,
-                    localizer=self.project.app.localizer,
-                ).load_file(file_path)
+    def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
+        registry.add_handler(LoadAncestryEvent, _load_ancestry)
 
     @override
     @classmethod

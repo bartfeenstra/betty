@@ -18,7 +18,7 @@ from urllib.parse import urlparse
 from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
-from betty import fs
+from betty import fs, event_dispatcher
 from betty import model
 from betty.assertion import (
     Assertion,
@@ -45,10 +45,11 @@ from betty.config import (
 from betty.config.collections.mapping import ConfigurationMapping
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.core import CoreComponent
+from betty.event_dispatcher import EventDispatcher, EventHandlerRegistry
 from betty.hashid import hashid
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizer import LocalizerRepository
 from betty.locale.localizable import _
+from betty.locale.localizer import LocalizerRepository
 from betty.model import Entity, UserFacingEntity
 from betty.model.ancestry import Ancestry, Person, Event, Place, Source
 from betty.plugin.assertion import assert_plugin
@@ -58,7 +59,6 @@ from betty.project.extension import (
     ConfigurableExtension,
     build_extension_type_graph,
     CyclicDependencyError,
-    ExtensionDispatcher,
 )
 from betty.project.factory import ProjectDependentFactory
 from betty.render import Renderer, SequentialRenderer
@@ -76,7 +76,6 @@ if TYPE_CHECKING:
     from betty.plugin import PluginId
     from collections.abc import AsyncIterator, Sequence
     from betty.app import App
-    from betty.dispatch import Dispatcher
     from betty.url import LocalizedUrlGenerator, StaticUrlGenerator
     from betty.jinja2 import Environment
 
@@ -1052,7 +1051,7 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
         self._jinja2_environment: Environment | None = None
         self._renderer: Renderer | None = None
         self._extensions: _ProjectExtensions | None = None
-        self._dispatcher: ExtensionDispatcher | None = None
+        self._event_dispatcher: EventDispatcher | None = None
         self._entity_types: set[type[Entity]] | None = None
 
     @classmethod
@@ -1078,10 +1077,12 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
     @override
     async def bootstrap(self) -> None:
         await super().bootstrap()
-        for project_extension in self.extensions.flatten():
-            wait_to_thread(
-                self._async_exit_stack.enter_async_context(project_extension)
-            )
+        for project_extension_batch in self.extensions:
+            batch_event_handlers = EventHandlerRegistry()
+            for project_extension in project_extension_batch:
+                await self._async_exit_stack.enter_async_context(project_extension)
+                project_extension.register_event_handlers(batch_event_handlers)
+            self.event_dispatcher.add_registry(batch_event_handlers)
 
     @property
     def app(self) -> App:
@@ -1249,15 +1250,15 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
         return self._extensions
 
     @property
-    def dispatcher(self) -> Dispatcher:
+    def event_dispatcher(self) -> EventDispatcher:
         """
         The event dispatcher.
         """
-        if self._dispatcher is None:
+        if self._event_dispatcher is None:
             self._assert_bootstrapped()
-            self._dispatcher = ExtensionDispatcher(self.extensions)
+            self._event_dispatcher = EventDispatcher()
 
-        return self._dispatcher
+        return self._event_dispatcher
 
     def new_dependent(
         self, dependent: type[_ProjectDependentFactoryT]
@@ -1319,3 +1320,19 @@ class _ProjectExtensions:
             return False
         else:
             return True
+
+
+class ProjectEvent(event_dispatcher.Event):
+    """
+    An event that is dispatched within the context of a :py:class:`betty.project.Project`.
+    """
+
+    def __init__(self, project: Project):
+        self._project = project
+
+    @property
+    def project(self) -> Project:
+        """
+        The :py:class:`betty.project.Project` this event is dispatched within.
+        """
+        return self._project
