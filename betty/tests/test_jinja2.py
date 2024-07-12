@@ -8,7 +8,7 @@ import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
 from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider
-from betty.locale import Date, Datey, DateRange, Localized
+from betty.locale.date import Date, Datey, DateRange
 from betty.media_type import MediaType
 from betty.model.ancestry import (
     File,
@@ -23,6 +23,7 @@ from betty.project import Project
 from betty.tests import TemplateTestCase
 
 if TYPE_CHECKING:
+    from betty.locale.localized import Localized
     from betty.model import Entity
     from betty.app import App
 

@@ -8,7 +8,7 @@ from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
 from betty.cache.file import PickledFileCache, BinaryFileCache
-from betty.locale import DEFAULT_LOCALIZER
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.tests.cache.test___init__ import CacheTestBase
 
 

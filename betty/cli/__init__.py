@@ -17,7 +17,7 @@ import click
 from betty import about
 from betty.asyncio import wait_to_thread
 from betty.error import UserFacingError
-from betty.locale import DEFAULT_LOCALIZER
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.logging import CliHandler
 from betty.plugin import PluginRepository, PluginNotFound
 

@@ -4,7 +4,7 @@ from typing_extensions import override
 
 from betty.extension.deriver import Deriver
 from betty.load import load
-from betty.locale import DateRange, Date
+from betty.locale.date import DateRange, Date
 from betty.locale.localizable import Localizable, plain
 from betty.model import record_added
 from betty.model.ancestry import Person, Presence, Event

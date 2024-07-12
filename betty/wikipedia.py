@@ -20,13 +20,13 @@ from betty.concurrent import _Lock, AsynchronizedLock, RateLimiter
 from betty.fetch import FetchError
 from betty.functools import filter_suppress
 from betty.locale import (
-    Localized,
     negotiate_locale,
     to_locale,
     get_data,
     LocaleNotFoundError,
     Localey,
 )
+from betty.locale.localized import Localized
 from betty.media_type import MediaType
 from betty.model.ancestry import Link, HasLinks, Place, File, HasFiles
 

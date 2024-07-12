@@ -11,7 +11,7 @@ from multidict import CIMultiDict
 from betty.cache.file import BinaryFileCache
 from betty.cache.memory import MemoryCache
 from betty.fetch import Fetcher, FetchError, FetchResponse
-from betty.locale import DEFAULT_LOCALIZER
+from betty.locale.localizer import DEFAULT_LOCALIZER
 
 
 class TestFetchError:

@@ -14,7 +14,7 @@ from betty.cache import (
     CacheItemValueSetter,
 )
 from betty.concurrent import _Lock, AsynchronizedLock, MultiLock
-from betty.locale import Localizer
+from betty.locale.localizer import Localizer
 
 
 _CacheItemValueCoT = TypeVar("_CacheItemValueCoT", covariant=True)

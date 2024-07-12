@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from betty.locale import DEFAULT_LOCALIZER
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizable import _, Localizable, plain
 from betty.requirement import (
     RequirementCollection,

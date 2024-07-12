@@ -37,7 +37,7 @@ from betty.jinja2 import (
     Globals,
     Filters,
 )
-from betty.locale import Date, Datey
+from betty.locale.date import Date, Datey
 from betty.locale.localizable import _, plain, Localizable
 from betty.model import Entity, UserFacingEntity, GeneratedEntityId
 from betty.model.ancestry import (

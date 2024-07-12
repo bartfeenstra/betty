@@ -8,7 +8,7 @@ from betty.tests.cli.test___init__ import run
 class TestInitTranslation:
     async def test(self, mocker: MockerFixture) -> None:
         locale = "nl-NL"
-        m_init_translation = mocker.patch("betty.locale.init_translation")
+        m_init_translation = mocker.patch("betty.locale.translation.init_translation")
         await to_thread(run, "init-translation", locale)
         m_init_translation.assert_awaited_once_with(locale)
 

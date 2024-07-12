@@ -9,9 +9,10 @@ from datetime import datetime
 from typing import Any, TYPE_CHECKING
 
 from betty.cache.memory import MemoryCache
-from betty.locale import Localizer, DEFAULT_LOCALIZER
+from betty.locale.localizer import DEFAULT_LOCALIZER
 
 if TYPE_CHECKING:
+    from betty.locale.localizer import Localizer
     from betty.cache import Cache
 
 

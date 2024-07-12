@@ -26,7 +26,9 @@ from betty.html import CssProvider, JsProvider
 from betty.jinja2.filter import FILTERS
 from betty.jinja2.test import TESTS
 from betty.job import Context as JobContext
-from betty.locale import Date, Localizer, DEFAULT_LOCALIZER
+from betty.locale.localizer import Localizer
+from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.date import Date
 from betty.render import Renderer
 from betty.serde.dump import Dumpable, DumpMapping, VoidableDump, Dump
 from betty.typing import Void

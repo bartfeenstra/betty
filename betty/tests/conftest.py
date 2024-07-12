@@ -10,7 +10,7 @@ from warnings import filterwarnings
 import pytest
 from betty.app import App
 from betty.cache.file import BinaryFileCache
-from betty.locale import DEFAULT_LOCALIZER
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.warnings import BettyDeprecationWarning
 
 if TYPE_CHECKING:

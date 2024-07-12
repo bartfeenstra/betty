@@ -37,13 +37,11 @@ from pdf2image.pdf2image import convert_from_path
 from betty.hashid import hashid_file_meta, hashid
 from betty.image import resize_cover, Size
 from betty.locale import (
-    negotiate_localizeds,
-    Localized,
-    Datey,
     negotiate_locale,
     Localey,
     get_data,
 )
+from betty.locale.localized import Localized, negotiate_localizeds
 from betty.os import link_or_copy
 from betty.serde.dump import minimize, none_void, void_none
 from betty.string import (
@@ -53,6 +51,7 @@ from betty.string import (
 )
 
 if TYPE_CHECKING:
+    from betty.locale.date import Datey
     from betty.locale.localizable import Localizable
     from jinja2.nodes import EvalContext
     from betty.model.ancestry import File, Dated

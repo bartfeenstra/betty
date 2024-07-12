@@ -1,6 +1,6 @@
 from betty.extension.cotton_candy import CottonCandy
 from betty.jinja2 import EntityContexts
-from betty.locale import Date
+from betty.locale.date import Date
 from betty.model.ancestry import Event, Place, PlaceName, Citation, Source
 from betty.model.event_type import Birth
 from betty.tests import TemplateTestCase

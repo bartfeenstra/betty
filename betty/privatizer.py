@@ -7,9 +7,9 @@ from __future__ import annotations
 import logging
 from contextlib import suppress
 from datetime import datetime
-from typing import Iterator, TypeAlias, Any
+from typing import Iterator, TypeAlias, Any, TYPE_CHECKING
 
-from betty.locale import DateRange, Date, Localizer
+from betty.locale.date import DateRange, Date
 from betty.model import Entity
 from betty.model.ancestry import (
     Person,
@@ -25,6 +25,9 @@ from betty.model.ancestry import (
 )
 from betty.model.presence_role import Subject
 from betty.model.event_type import EndOfLifeEventType
+
+if TYPE_CHECKING:
+    from betty.locale.localizer import Localizer
 
 Expirable: TypeAlias = Person | Event | Date | None
 

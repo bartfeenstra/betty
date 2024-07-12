@@ -11,7 +11,7 @@ from betty.model.ancestry import Person, Place, File
 if TYPE_CHECKING:
     from betty.model import Entity
     from betty.project import Project
-    from betty.locale import Localizer
+    from betty.locale.localizer import Localizer
     from betty.job import Context
     from collections.abc import AsyncIterable
 
