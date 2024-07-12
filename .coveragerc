@@ -13,6 +13,7 @@ exclude_also =
     ^\s*pragma: no cover$
     ^\s*def __repr__
     if TYPE_CHECKING:
+    @abstractmethod
 omit =
     betty/_package/**
 show_missing = True
