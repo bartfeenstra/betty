@@ -9,7 +9,6 @@ import json
 import logging
 import os
 import shutil
-from abc import ABC, abstractmethod
 from asyncio import (
     create_task,
     Task,
@@ -51,6 +50,7 @@ from betty.openapi import Specification
 from betty.string import (
     kebab_case_to_lower_camel_case,
 )
+from betty.project import ProjectEvent
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -60,17 +60,21 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
 
-class Generator(ABC):
+class GenerateSiteEvent(ProjectEvent):
     """
-    An extension that generates (part of) projects' sites.
+    Dispatched to generate (part of) a project's site.
     """
 
-    @abstractmethod
-    async def generate(self, job_context: GenerationContext) -> None:
+    def __init__(self, job_context: GenerationContext):
+        super().__init__(job_context.project)
+        self._job_context = job_context
+
+    @property
+    def job_context(self) -> GenerationContext:
         """
-        Generate (part of) a project's site.
+        The site generation job context.
         """
-        pass
+        return self._job_context
 
 
 class GenerationContext(Context):
@@ -245,11 +249,9 @@ async def create_json_resource(path: Path) -> AsyncContextManager[AsyncTextIOWra
     return await create_file(path / "index.json")
 
 
-async def _generate_dispatch(
-    job_context: GenerationContext,
-) -> None:
+async def _generate_dispatch(job_context: GenerationContext) -> None:
     project = job_context.project
-    await project.dispatcher.dispatch(Generator)(job_context)
+    await project.event_dispatcher.dispatch(GenerateSiteEvent(job_context))
 
 
 async def _generate_public_asset(

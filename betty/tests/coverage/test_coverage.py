@@ -175,7 +175,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         # This is an enum.
         "Derivation": TestKnownToBeMissing
     },
-    "betty/dispatch.py": TestKnownToBeMissing,
     "betty/documentation.py": {
         "DocumentationServer": {
             "public_url": TestKnownToBeMissing,
@@ -184,6 +183,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/error.py": TestKnownToBeMissing,
+    "betty/event_dispatcher.py": {
+        # This is an interface.
+        "Event": TestKnownToBeMissing,
+        "EventHandlerRegistry": {
+            # This is covered by another test.
+            "handlers": TestKnownToBeMissing,
+        },
+    },
     "betty/extension/__init__.py": TestKnownToBeMissing,
     "betty/extension/cotton_candy/__init__.py": {
         "person_descendant_families": TestKnownToBeMissing,
@@ -199,10 +206,26 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/extension/demo/__init__.py": {
+        "Demo": {
+            # This is checked statically.
+            "register_event_handlers": TestKnownToBeMissing,
+        },
         "DemoServer": {
             "public_url": TestKnownToBeMissing,
             "start": TestKnownToBeMissing,
             "stop": TestKnownToBeMissing,
+        },
+    },
+    "betty/extension/deriver/__init__.py": {
+        "Deriver": {
+            # This is checked statically.
+            "register_event_handlers": TestKnownToBeMissing,
+        },
+    },
+    "betty/extension/gramps/__init__.py": {
+        "Gramps": {
+            # This is checked statically.
+            "register_event_handlers": TestKnownToBeMissing,
         },
     },
     "betty/extension/gramps/config.py": {
@@ -225,9 +248,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/extension/nginx/__init__.py": {
         "Nginx": {
-            "commands": TestKnownToBeMissing,
             "https": TestKnownToBeMissing,
-            "servers": TestKnownToBeMissing,
+            # This is checked statically.
+            "register_event_handlers": TestKnownToBeMissing,
             "www_directory_path": TestKnownToBeMissing,
         },
     },
@@ -247,6 +270,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/extension/privatizer/__init__.py": {
         "Privatizer": {
             "privatize": TestKnownToBeMissing,
+            # This is checked statically.
+            "register_event_handlers": TestKnownToBeMissing,
         },
     },
     "betty/extension/trees/__init__.py": {
@@ -263,6 +288,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "filters": TestKnownToBeMissing,
             "new_context_vars": TestKnownToBeMissing,
             "public_css_paths": TestKnownToBeMissing,
+            # This is checked statically.
+            "register_event_handlers": TestKnownToBeMissing,
         },
         # This is an interface.
         "WebpackEntryPointProvider": TestKnownToBeMissing,
@@ -275,6 +302,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/extension/wikipedia/__init__.py": {
         "Wikipedia": {
             "filters": TestKnownToBeMissing,
+            # This is checked statically.
+            "register_event_handlers": TestKnownToBeMissing,
         },
     },
     "betty/extension/wikipedia/config.py": {
@@ -300,8 +329,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "create_html_resource": TestKnownToBeMissing,
         "create_json_resource": TestKnownToBeMissing,
         "GenerationContext": TestKnownToBeMissing,
-        # This is an interface.
-        "Generator": TestKnownToBeMissing,
     },
     "betty/gramps/error.py": TestKnownToBeMissing,
     "betty/gramps/loader.py": {
@@ -342,10 +369,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/load.py": {
-        # This is an interface.
-        "Loader": TestKnownToBeMissing,
-        # This is an interface.
-        "PostLoader": TestKnownToBeMissing,
+        # This is an empty class.
+        "LoadAncestryEvent": TestKnownToBeMissing,
+        # This is an empty class.
+        "PostLoadAncestryEvent": TestKnownToBeMissing,
     },
     "betty/locale/__init__.py": {
         "get_data": TestKnownToBeMissing,
@@ -656,11 +683,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ConfigurableExtension": TestKnownToBeMissing,
         "CyclicDependencyError": TestKnownToBeMissing,
         "Extension": {
-            "project": TestKnownToBeMissing,
             "disable_requirement": TestKnownToBeMissing,
-        },
-        "ExtensionDispatcher": {
-            "dispatch": TestKnownToBeMissing,
         },
         # This is an empty class.
         "ExtensionError": TestKnownToBeMissing,
@@ -723,8 +746,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Server": TestKnownToBeMissing,
         # This is an empty class.
         "ServerNotStartedError": TestKnownToBeMissing,
-        # This is an interface.
-        "ServerProvider": TestKnownToBeMissing,
     },
     "betty/serde/dump.py": TestKnownToBeMissing,
     "betty/sphinx/extension/replacements.py": TestKnownToBeMissing,

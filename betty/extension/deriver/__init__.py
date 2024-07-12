@@ -11,7 +11,7 @@ from typing_extensions import override
 
 from betty.deriver import Deriver as DeriverApi
 from betty.extension.privatizer import Privatizer
-from betty.load import PostLoader
+from betty.load import PostLoadAncestryEvent
 from betty.locale.localizable import _, Localizable
 from betty.model import event_type
 from betty.model.event_type import DerivableEventType
@@ -19,11 +19,25 @@ from betty.project.extension import Extension
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from betty.event_dispatcher import EventHandlerRegistry
     from betty.plugin import PluginId
 
 
+async def _derive_ancestry(event: PostLoadAncestryEvent) -> None:
+    logger = getLogger(__name__)
+    logger.info(event.project.app.localizer._("Deriving..."))
+
+    deriver = DeriverApi(
+        event.project.ancestry,
+        event.project.configuration.lifetime_threshold,
+        set(await event_type.ENTITY_TYPE_REPOSITORY.select(DerivableEventType)),
+        localizer=event.project.app.localizer,
+    )
+    await deriver.derive()
+
+
 @final
-class Deriver(Extension, PostLoader):
+class Deriver(Extension):
     """
     Expand an ancestry by deriving additional data from existing data.
     """
@@ -34,17 +48,8 @@ class Deriver(Extension, PostLoader):
         return "deriver"
 
     @override
-    async def post_load(self) -> None:
-        logger = getLogger(__name__)
-        logger.info(self._project.app.localizer._("Deriving..."))
-
-        deriver = DeriverApi(
-            self.project.ancestry,
-            self.project.configuration.lifetime_threshold,
-            set(await event_type.ENTITY_TYPE_REPOSITORY.select(DerivableEventType)),
-            localizer=self.project.app.localizer,
-        )
-        await deriver.derive()
+    def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
+        registry.add_handler(PostLoadAncestryEvent, _derive_ancestry)
 
     @override
     @classmethod

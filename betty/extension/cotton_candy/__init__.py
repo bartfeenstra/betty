@@ -27,7 +27,7 @@ from betty.extension.maps import Maps
 from betty.extension.trees import Trees
 from betty.extension.webpack import Webpack, WebpackEntryPointProvider
 from betty.functools import Uniquifier
-from betty.generate import Generator, GenerationContext
+from betty.generate import GenerateSiteEvent
 from betty.html import CssProvider
 from betty.jinja2 import (
     Jinja2Provider,
@@ -49,8 +49,8 @@ from betty.model.ancestry import (
     File,
     Place,
 )
-from betty.model.presence_role import Subject
 from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
+from betty.model.presence_role import Subject
 from betty.os import link_or_copy
 from betty.project import EntityReferenceSequence, EntityReference
 from betty.project.extension import ConfigurableExtension, Theme
@@ -58,6 +58,7 @@ from betty.serde.dump import minimize, Dump, VoidableDump
 from betty.typing import Void
 
 if TYPE_CHECKING:
+    from betty.event_dispatcher import EventHandlerRegistry
     from betty.plugin import PluginId
     from jinja2.runtime import Context
     from collections.abc import Sequence, AsyncIterable
@@ -216,12 +217,19 @@ class CottonCandyConfiguration(Configuration):
         )
 
 
+async def _generate_favicon(event: GenerateSiteEvent) -> None:
+    cotton_candy = event.project.extensions[CottonCandy.plugin_id()]
+    assert isinstance(cotton_candy, CottonCandy)
+    await link_or_copy(
+        cotton_candy.logo, event.project.configuration.www_directory_path / "logo.png"
+    )
+
+
 @final
 class CottonCandy(
     Theme,
     CssProvider,
     ConfigurableExtension[CottonCandyConfiguration],
-    Generator,
     Jinja2Provider,
     WebpackEntryPointProvider,
 ):
@@ -233,6 +241,10 @@ class CottonCandy(
     @classmethod
     def plugin_id(cls) -> PluginId:
         return "cotton-candy"
+
+    @override
+    def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
+        registry.add_handler(GenerateSiteEvent, _generate_favicon)
 
     @override
     @classmethod
@@ -294,12 +306,6 @@ class CottonCandy(
         return (
             self._configuration.logo
             or fs.ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png"
-        )
-
-    @override
-    async def generate(self, job_context: GenerationContext) -> None:
-        await link_or_copy(
-            self.logo, self.project.configuration.www_directory_path / "logo.png"
         )
 
     @override

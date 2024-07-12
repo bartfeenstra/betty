@@ -5,19 +5,25 @@ from typing import final
 
 from typing_extensions import override
 
+from betty.event_dispatcher import EventHandlerRegistry
 from betty.extension.nginx.artifact import (
     generate_configuration_file,
     generate_dockerfile_file,
 )
 from betty.extension.nginx.config import NginxConfiguration
-from betty.generate import Generator, GenerationContext
+from betty.generate import GenerateSiteEvent
 from betty.locale.localizable import plain, _, Localizable
 from betty.plugin import PluginId
 from betty.project.extension import ConfigurableExtension
 
 
+async def _generate_configuration_files(event: GenerateSiteEvent) -> None:
+    await generate_configuration_file(event.project)
+    await generate_dockerfile_file(event.project)
+
+
 @final
-class Nginx(ConfigurableExtension[NginxConfiguration], Generator):
+class Nginx(ConfigurableExtension[NginxConfiguration]):
     """
     Integrate Betty with nginx (and Docker).
     """
@@ -40,14 +46,13 @@ class Nginx(ConfigurableExtension[NginxConfiguration], Generator):
         )
 
     @override
+    def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
+        registry.add_handler(GenerateSiteEvent, _generate_configuration_files)
+
+    @override
     @classmethod
     def default_configuration(cls) -> NginxConfiguration:
         return NginxConfiguration()
-
-    @override
-    async def generate(self, job_context: GenerationContext) -> None:
-        await generate_configuration_file(job_context.project)
-        await generate_dockerfile_file(job_context.project)
 
     @override
     @classmethod

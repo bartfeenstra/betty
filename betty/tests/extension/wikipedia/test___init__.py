@@ -58,3 +58,11 @@ class TestWikipedia:
                 await load(project)
 
             m_populate.assert_called_once()
+
+    async def test_retriever(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.enable(Wikipedia)
+            async with project:
+                wikipedia = project.extensions[Wikipedia.plugin_id()]
+                assert isinstance(wikipedia, Wikipedia)
+                wikipedia.retriever  # noqa B018
