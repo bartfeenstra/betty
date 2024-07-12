@@ -9,7 +9,7 @@ from typing import Any, TYPE_CHECKING, cast
 from jsonschema.validators import Draft202012Validator
 from referencing import Resource, Registry
 
-from betty.serde.dump import DictDump, Dump, dump_default
+from betty.serde.dump import DumpMapping, Dump, dump_default
 from betty.string import upper_camel_case_to_lower_camel_case
 
 if TYPE_CHECKING:
@@ -26,13 +26,13 @@ class Schema:
     def __init__(self, project: Project):
         self._project = project
 
-    async def build(self) -> DictDump[Dump]:
+    async def build(self) -> DumpMapping[Dump]:
         """
         Build the JSON Schema.
         """
         from betty import model
 
-        schema: DictDump[Dump] = {
+        schema: DumpMapping[Dump] = {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "$id": self._project.static_url_generator.generate(
                 "schema.json", absolute=True
@@ -50,7 +50,7 @@ class Schema:
             )
             entity_type_schema = await entity_type.linked_data_schema(self._project)
             entity_type_schema_definitions = cast(
-                DictDump[Dump], entity_type_schema.pop("definitions", {})
+                DumpMapping[Dump], entity_type_schema.pop("definitions", {})
             )
             for (
                 definition_name,
@@ -109,9 +109,9 @@ class Schema:
 
 
 def add_property(
-    schema: DictDump[Dump],
+    schema: DumpMapping[Dump],
     property_name: str,
-    property_schema: DictDump[Dump],
+    property_schema: DumpMapping[Dump],
     property_required: bool = True,
 ) -> None:
     """
@@ -124,7 +124,7 @@ def add_property(
         schema_required.append(property_name)
 
 
-def ref_locale(root_schema: DictDump[Dump]) -> DictDump[Dump]:
+def ref_locale(root_schema: DumpMapping[Dump]) -> DumpMapping[Dump]:
     """
     Reference the locale schema.
     """
@@ -139,7 +139,7 @@ def ref_locale(root_schema: DictDump[Dump]) -> DictDump[Dump]:
     }
 
 
-def ref_json_schema(root_schema: DictDump[Dump]) -> DictDump[Dump]:
+def ref_json_schema(root_schema: DumpMapping[Dump]) -> DumpMapping[Dump]:
     """
     Reference the JSON Schema schema.
     """

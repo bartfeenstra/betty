@@ -5,7 +5,7 @@ from typing import Self
 from typing_extensions import override
 
 from betty.config import Configuration
-from betty.serde.dump import Dump, VoidableDump, minimize, VoidableDictDump
+from betty.serde.dump import Dump, VoidableDump, minimize, VoidableDumpMapping
 from betty.typing import Void
 from betty.assertion import (
     OptionalField,
@@ -78,7 +78,7 @@ class NginxConfiguration(Configuration):
 
     @override
     def dump(self) -> VoidableDump:
-        dump: VoidableDictDump[VoidableDump] = {
+        dump: VoidableDumpMapping[VoidableDump] = {
             "https": self.https,
             "www_directory_path": (
                 Void

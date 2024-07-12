@@ -43,7 +43,7 @@ from betty.fs import ROOT_DIRECTORY_PATH, ASSETS_DIRECTORY_PATH
 from betty.hashid import hashid_file_meta
 from betty.json.linked_data import LinkedDataDumpable, dump_context, add_json_ld
 from betty.json.schema import ref_locale, add_property
-from betty.serde.dump import DictDump, Dump, dump_default
+from betty.serde.dump import DumpMapping, Dump, dump_default
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -145,7 +145,7 @@ class Localized(LinkedDataDumpable):
         self.locale = locale
 
     @override
-    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
+    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         if self.locale is not None:
             dump["locale"] = self.locale
@@ -153,7 +153,7 @@ class Localized(LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
         schema = await super().linked_data_schema(project)
         properties = dump_default(schema, "properties", dict)
         properties["locale"] = ref_locale(schema)
@@ -299,7 +299,7 @@ class Date(LinkedDataDumpable):
     @override
     async def dump_linked_data(
         self, project: Project, schemas_org: list[str] | None = None
-    ) -> DictDump[Dump]:
+    ) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         if self.year:
             dump["year"] = self.year
@@ -313,7 +313,7 @@ class Date(LinkedDataDumpable):
 
     async def datey_dump_linked_data(
         self,
-        dump: DictDump[Dump],
+        dump: DumpMapping[Dump],
         start_schema_org: str,
         end_schema_org: str,
     ) -> None:
@@ -325,7 +325,7 @@ class Date(LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
         schema = await super().linked_data_schema(project)
         schema["type"] = "object"
         schema["additionalProperties"] = False
@@ -346,7 +346,9 @@ class Date(LinkedDataDumpable):
         return schema
 
 
-async def ref_date(root_schema: DictDump[Dump], project: Project) -> DictDump[Dump]:
+async def ref_date(
+    root_schema: DumpMapping[Dump], project: Project
+) -> DumpMapping[Dump]:
     """
     Reference the Date schema.
     """
@@ -464,8 +466,8 @@ class DateRange(LinkedDataDumpable):
         project: Project,
         start_schema_org: str | None = None,
         end_schema_org: str | None = None,
-    ) -> DictDump[Dump]:
-        dump: DictDump[Dump] = {}
+    ) -> DumpMapping[Dump]:
+        dump: DumpMapping[Dump] = {}
         if self.start:
             dump["start"] = await self.start.dump_linked_data(
                 project,
@@ -480,7 +482,7 @@ class DateRange(LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
         schema = await super().linked_data_schema(project)
         schema["type"] = "object"
         schema["additionalProperties"] = False
@@ -490,7 +492,7 @@ class DateRange(LinkedDataDumpable):
 
     async def datey_dump_linked_data(
         self,
-        dump: DictDump[Dump],
+        dump: DumpMapping[Dump],
         start_schema_org: str,
         end_schema_org: str,
     ) -> None:
@@ -659,8 +661,8 @@ class DateRange(LinkedDataDumpable):
 
 
 async def ref_date_range(
-    root_schema: DictDump[Dump], project: Project
-) -> DictDump[Dump]:
+    root_schema: DumpMapping[Dump], project: Project
+) -> DumpMapping[Dump]:
     """
     Reference the DateRange schema.
     """
@@ -672,7 +674,9 @@ async def ref_date_range(
     }
 
 
-async def ref_datey(root_schema: DictDump[Dump], project: Project) -> DictDump[Dump]:
+async def ref_datey(
+    root_schema: DumpMapping[Dump], project: Project
+) -> DumpMapping[Dump]:
     """
     Reference the Datey schema.
     """

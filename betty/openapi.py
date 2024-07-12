@@ -6,7 +6,7 @@ from betty import about, model
 from betty.locale import DEFAULT_LOCALIZER
 from betty.model import UserFacingEntity
 from betty.project import Project
-from betty.serde.dump import DictDump, Dump
+from betty.serde.dump import DumpMapping, Dump
 from betty.string import kebab_case_to_lower_camel_case
 
 
@@ -18,11 +18,11 @@ class Specification:
     def __init__(self, project: Project):
         self._project = project
 
-    async def build(self) -> DictDump[Dump]:
+    async def build(self) -> DumpMapping[Dump]:
         """
         Build the OpenAPI specification.
         """
-        specification: DictDump[Dump] = {
+        specification: DumpMapping[Dump] = {
             "openapi": "3.1.0",
             "servers": [
                 {

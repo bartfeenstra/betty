@@ -5,40 +5,43 @@ Provide a serialization API.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TypeVar, Sequence, Mapping, overload, Literal, TypeAlias, Any
+from collections.abc import MutableMapping, MutableSequence
+from typing import TypeVar, overload, Literal, TypeAlias
 
 from betty.typing import Void
 
-#: The Python types that define a serialized dump.
-DumpType: TypeAlias = bool | int | float | str | None | list["Dump"] | dict[str, "Dump"]
-_DumpTypeT = TypeVar("_DumpTypeT", bound=DumpType)
-
 #: A serialized dump.
 Dump: TypeAlias = (
-    bool | int | float | str | None | Sequence["Dump"] | Mapping[str, "Dump"]
+    bool
+    | int
+    | float
+    | str
+    | None
+    | MutableSequence["Dump"]
+    | MutableMapping[str, "Dump"]
 )
 _DumpT = TypeVar("_DumpT", bound=Dump)
-_DumpU = TypeVar("_DumpU", bound=Dump)
 
-#: A serialized dump that may be :py:class:`betty.serde.dump.Void`.
+#: A serialized dump that may be :py:class:`betty.typing.Void`.
 VoidableDump: TypeAlias = Dump | type[Void]
 _VoidableDumpT = TypeVar("_VoidableDumpT", bound=VoidableDump)
-_VoidableDumpU = TypeVar("_VoidableDumpU", bound=VoidableDump)
 
-#: A dump which is a list whose values are serialized dumps.
-ListDump: TypeAlias = list[_DumpT]
+#: A dump which is a sequence whose values are serialized dumps.
+DumpSequence: TypeAlias = MutableSequence[_DumpT]
 
-#: A dump which is a dictionary whose keys are strings and values are serialized dumps.
-DictDump: TypeAlias = dict[str, _DumpT]
+#: A dump which is a mapping whose keys are strings and values are serialized dumps.
+DumpMapping: TypeAlias = MutableMapping[str, _DumpT]
 
-#: A dump which is a list whose values are serialized dumps, or that may be :py:class:`betty.serde.dump.Void`
-VoidableListDump: TypeAlias = list[_VoidableDumpU]
+#: A dump which is a sequence whose values are serialized dumps, or that may be :py:class:`betty.serde.dump.Void`
+VoidableDumpSequence: TypeAlias = MutableSequence[_VoidableDumpT]
 
-#: A dump which is a dictionary whose keys are strings and values are serialized dumps, or that may be :py:class:`betty.serde.dump.Void`
-VoidableDictDump: TypeAlias = dict[str, _VoidableDumpU]
+#: A dump which is a mapping whose keys are strings and values are serialized dumps, or that may be :py:class:`betty.serde.dump.Void`
+VoidableDumpMapping: TypeAlias = MutableMapping[str, _VoidableDumpT]
 
 _MinimizableDump: TypeAlias = (
-    VoidableDump | VoidableListDump[_VoidableDumpU] | VoidableDictDump[_VoidableDumpU]
+    VoidableDump
+    | VoidableDumpSequence[_VoidableDumpT]
+    | VoidableDumpMapping[_VoidableDumpT]
 )
 
 
@@ -60,13 +63,13 @@ def minimize(
     """
     Minimize a configuration dump by removing any Void configurationfrom sequences and mappings.
     """
-    if isinstance(dump, (Sequence, Mapping)) and not isinstance(dump, str):
-        if isinstance(dump, Sequence):
+    if isinstance(dump, (MutableSequence, MutableMapping)):
+        if isinstance(dump, MutableSequence):
             dump = [value for value in dump if value is not Void]
             for key in reversed(range(len(dump))):
                 if dump[key] is Void:
                     del dump[key]
-        if isinstance(dump, Mapping):
+        if isinstance(dump, MutableMapping):
             dump = {key: value for key, value in dump.items() if value is not Void}
         if len(dump) or not voidable:
             return dump  # type: ignore[return-value]
@@ -90,15 +93,15 @@ def none_void(value: VoidableDump) -> VoidableDump:
 
 @overload
 def dump_default(
-    dump: DictDump[Dump], key: str, default_type: type[dict[Any, Any]]
-) -> DictDump[Dump]:
+    dump: DumpMapping[Dump], key: str, default_type: type[DumpMapping[Dump]]
+) -> DumpMapping[Dump]:
     pass  # pragma: no cover
 
 
 @overload
 def dump_default(
-    dump: DictDump[Dump], key: str, default_type: type[list[Any]]
-) -> ListDump[Dump]:
+    dump: DumpMapping[Dump], key: str, default_type: type[DumpSequence[Dump]]
+) -> DumpSequence[Dump]:
     pass  # pragma: no cover
 
 

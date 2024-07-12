@@ -22,7 +22,7 @@ from betty.subprocess import run_process
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from betty.serde.dump import DictDump, Dump
+    from betty.serde.dump import DumpMapping, Dump
 
 
 class TestDocumentationServer:
@@ -41,7 +41,7 @@ class TestDocumentation:
     async def test_should_contain_cli_help(self) -> None:
         async with TemporaryDirectory() as working_directory_path_str:
             working_directory_path = Path(working_directory_path_str)
-            configuration: DictDump[Dump] = {
+            configuration: DumpMapping[Dump] = {
                 "base_url": "https://example.com",
                 "extensions": {
                     "nginx": {},

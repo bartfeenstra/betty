@@ -38,7 +38,7 @@ from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
     from betty.project import Project
-    from betty.serde.dump import DictDump, Dump
+    from betty.serde.dump import DumpMapping, Dump
     import builtins
 
 
@@ -129,7 +129,7 @@ class Entity(LinkedDataDumpable, Plugin):
         )
 
     @override
-    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
+    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
 
         dump["$schema"] = project.static_url_generator.generate(
@@ -148,7 +148,7 @@ class Entity(LinkedDataDumpable, Plugin):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
         schema = await super().linked_data_schema(project)
         schema["type"] = "object"
         schema["properties"] = {

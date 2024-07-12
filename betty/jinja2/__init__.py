@@ -28,7 +28,7 @@ from betty.jinja2.test import TESTS
 from betty.job import Context as JobContext
 from betty.locale import Date, Localizer, DEFAULT_LOCALIZER
 from betty.render import Renderer
-from betty.serde.dump import Dumpable, DictDump, VoidableDump, Dump
+from betty.serde.dump import Dumpable, DumpMapping, VoidableDump, Dump
 from betty.typing import Void
 
 if TYPE_CHECKING:
@@ -93,7 +93,7 @@ class _Breadcrumb(Dumpable):
         self._url = url
 
     @override
-    def dump(self) -> DictDump[Dump]:
+    def dump(self) -> DumpMapping[Dump]:
         return {
             "@type": "ListItem",
             "name": self._label,

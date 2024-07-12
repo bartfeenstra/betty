@@ -11,7 +11,7 @@ from typing_extensions import override
 from betty.locale.localizable import Localizable, _
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
-from betty.serde.dump import DictDump, Dump, dump_default
+from betty.serde.dump import DumpMapping, Dump, dump_default
 
 
 class PresenceRole(Plugin):
@@ -30,7 +30,7 @@ The presence role plugin repository.
 """
 
 
-def ref_role(root_schema: DictDump[Dump]) -> DictDump[Dump]:
+def ref_role(root_schema: DumpMapping[Dump]) -> DumpMapping[Dump]:
     """
     Reference the PresenceRole schema.
     """

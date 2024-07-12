@@ -56,7 +56,7 @@ if TYPE_CHECKING:
     from betty.project import Project
     from betty.app import App
     from betty.json.linked_data import LinkedDataDumpable
-    from betty.serde.dump import DictDump, Dump
+    from betty.serde.dump import DumpMapping, Dump
     from collections.abc import AsyncIterator
 
 
@@ -371,7 +371,7 @@ async def _generate_entity_type_list_json(
     entity_type_path = (
         project.configuration.www_directory_path / entity_type.plugin_id()
     )
-    data: DictDump[Dump] = {
+    data: DumpMapping[Dump] = {
         "$schema": project.static_url_generator.generate(
             f"schema.json#/definitions/response/{kebab_case_to_lower_camel_case(entity_type.plugin_id())}Collection",
             absolute=True,

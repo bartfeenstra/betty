@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.serde.dump import DictDump, Dump, dump_default
+from betty.serde.dump import DumpMapping, Dump, dump_default
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -19,21 +19,21 @@ class LinkedDataDumpable:
     Describe an object that can be dumped to linked data.
     """
 
-    async def dump_linked_data(self, project: Project) -> DictDump[Dump]:
+    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         """
         Dump this instance to `JSON-LD <https://json-ld.org/>`_.
         """
         return {}
 
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DictDump[Dump]:
+    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
         """
         Define the `JSON Schema <https://json-schema.org/>`_ for :py:meth:`betty.json.linked_data.LinkedDataDumpable.dump_linked_data`.
         """
         return {}
 
 
-def dump_context(dump: DictDump[Dump], **contexts: str | Sequence[str]) -> None:
+def dump_context(dump: DumpMapping[Dump], **contexts: str | Sequence[str]) -> None:
     """
     Add one or more contexts to a dump.
     """
@@ -42,7 +42,7 @@ def dump_context(dump: DictDump[Dump], **contexts: str | Sequence[str]) -> None:
         context_dump[key] = f"https://schema.org/{schema_org}"
 
 
-async def dump_link(dump: DictDump[Dump], project: Project, *links: Link) -> None:
+async def dump_link(dump: DumpMapping[Dump], project: Project, *links: Link) -> None:
     """
     Add one or more links to a dump.
     """
@@ -51,7 +51,7 @@ async def dump_link(dump: DictDump[Dump], project: Project, *links: Link) -> Non
         link_dump.append(await link.dump_linked_data(project))
 
 
-def ref_json_ld(root_schema: DictDump[Dump]) -> DictDump[Dump]:
+def ref_json_ld(root_schema: DumpMapping[Dump]) -> DumpMapping[Dump]:
     """
     Reference the `JSON-LD <https://json-ld.org/>`_ schema.
     """
@@ -66,7 +66,7 @@ def ref_json_ld(root_schema: DictDump[Dump]) -> DictDump[Dump]:
 
 
 def add_json_ld(
-    schema: DictDump[Dump], root_schema: DictDump[Dump] | None = None
+    schema: DumpMapping[Dump], root_schema: DumpMapping[Dump] | None = None
 ) -> None:
     """
     Allow `JSON-LD <https://json-ld.org/>`_ properties to be added to a schema.
