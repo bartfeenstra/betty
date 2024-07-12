@@ -47,13 +47,13 @@ from betty.project import LocaleConfiguration, Project
 from betty.tests.model.test___init__ import DummyEntity
 
 if TYPE_CHECKING:
-    from betty.serde.dump import DictDump, Dump
+    from betty.serde.dump import DumpMapping, Dump
     from betty.json.linked_data import LinkedDataDumpable
 
 
 async def assert_dumps_linked_data(
     dumpable: LinkedDataDumpable, schema_definition: str | None = None
-) -> DictDump[Dump]:
+) -> DumpMapping[Dump]:
     async with App.new_temporary() as app, app, Project.new_temporary(app) as project:
         project.configuration.locales["en-US"].alias = "en"
         project.configuration.locales.append(

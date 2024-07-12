@@ -67,7 +67,7 @@ from betty.serde.dump import (
     VoidableDump,
     void_none,
     minimize,
-    VoidableDictDump,
+    VoidableDumpMapping,
 )
 from betty.serde.format import FormatRepository
 from betty.typing import Void
@@ -176,7 +176,7 @@ class EntityReference(Configuration, Generic[_EntityT]):
         if self.entity_type is None or self.entity_id is None:
             return Void
 
-        dump: VoidableDictDump[VoidableDump] = {
+        dump: VoidableDumpMapping[VoidableDump] = {
             "entity_type": (
                 self._entity_type.plugin_id() if self._entity_type else Void
             ),
@@ -520,7 +520,7 @@ class EntityTypeConfiguration(Configuration):
 
     @override
     def dump(self) -> VoidableDump:
-        dump: VoidableDictDump[VoidableDump] = {
+        dump: VoidableDumpMapping[VoidableDump] = {
             "entity_type": self._entity_type.plugin_id(),
             "generate_html_list": (
                 Void if self._generate_html_list is None else self._generate_html_list
@@ -1005,7 +1005,7 @@ class ProjectConfiguration(Configuration):
         )(dump)
 
     @override
-    def dump(self) -> VoidableDictDump[Dump]:
+    def dump(self) -> VoidableDumpMapping[Dump]:
         return minimize(
             {  # type: ignore[return-value]
                 "name": void_none(self.name),

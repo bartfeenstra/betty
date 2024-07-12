@@ -7,7 +7,7 @@ from typing import Self
 from typing_extensions import override
 
 from betty.config import Configuration
-from betty.serde.dump import Dump, VoidableDump, minimize, VoidableDictDump
+from betty.serde.dump import Dump, VoidableDump, minimize, VoidableDumpMapping
 from betty.assertion import (
     OptionalField,
     assert_record,
@@ -51,7 +51,7 @@ class WikipediaConfiguration(Configuration):
 
     @override
     def dump(self) -> VoidableDump:
-        dump: VoidableDictDump[VoidableDump] = {
+        dump: VoidableDumpMapping[VoidableDump] = {
             "populate_images": self.populate_images,
         }
         return minimize(dump, True)
