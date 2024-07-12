@@ -9,7 +9,6 @@ from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.project.extension import (
     Extension,
-    ListExtensions,
     ExtensionDispatcher,
     build_extension_type_graph,
     ExtensionTypeGraph,
@@ -56,18 +55,16 @@ class TestExtensionDispatcher:
 
     async def test(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            extensions = ListExtensions(
+            extensions = [
                 [
-                    [
-                        self._MultiplyingExtension(project, 1),
-                        self._MultiplyingExtension(project, 3),
-                    ],
-                    [
-                        self._MultiplyingExtension(project, 2),
-                        self._MultiplyingExtension(project, 4),
-                    ],
-                ]
-            )
+                    self._MultiplyingExtension(project, 1),
+                    self._MultiplyingExtension(project, 3),
+                ],
+                [
+                    self._MultiplyingExtension(project, 2),
+                    self._MultiplyingExtension(project, 4),
+                ],
+            ]
             sut = ExtensionDispatcher(extensions)
             actual_returned_somethings = await sut.dispatch(self._Multiplier)(3)
             expected_returned_somethings = [3, 9, 6, 12]

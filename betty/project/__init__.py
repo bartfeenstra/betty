@@ -12,7 +12,7 @@ from contextlib import suppress, asynccontextmanager
 from graphlib import TopologicalSorter, CycleError
 from pathlib import Path
 from reprlib import recursive_repr
-from typing import Any, Generic, final, Iterable, Self, TYPE_CHECKING, TypeVar
+from typing import Any, Generic, final, Iterable, Self, TYPE_CHECKING, TypeVar, Iterator
 from urllib.parse import urlparse
 
 from aiofiles.tempfile import TemporaryDirectory
@@ -58,10 +58,9 @@ from betty.project.extension import (
     ConfigurableExtension,
     build_extension_type_graph,
     CyclicDependencyError,
-    Extensions,
-    ListExtensions,
     ExtensionDispatcher,
 )
+from betty.project.factory import ProjectDependentFactory
 from betty.render import Renderer, SequentialRenderer
 from betty.serde.dump import (
     Dump,
@@ -74,7 +73,8 @@ from betty.serde.format import FormatRepository
 from betty.typing import Void
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator
+    from betty.plugin import PluginId
+    from collections.abc import AsyncIterator, Sequence
     from betty.app import App
     from betty.dispatch import Dispatcher
     from betty.url import LocalizedUrlGenerator, StaticUrlGenerator
@@ -1051,7 +1051,7 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
         self._static_url_generator: StaticUrlGenerator | None = None
         self._jinja2_environment: Environment | None = None
         self._renderer: Renderer | None = None
-        self._extensions: Extensions | None = None
+        self._extensions: _ProjectExtensions | None = None
         self._dispatcher: ExtensionDispatcher | None = None
         self._entity_types: set[type[Entity]] | None = None
 
@@ -1073,6 +1073,14 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
                 app,
                 ProjectConfiguration(Path(project_directory_path_str) / "betty.json"),
                 ancestry=ancestry,
+            )
+
+    @override
+    async def bootstrap(self) -> None:
+        await super().bootstrap()
+        for project_extension in self.extensions.flatten():
+            wait_to_thread(
+                self._async_exit_stack.enter_async_context(project_extension)
             )
 
     @property
@@ -1181,11 +1189,12 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
         return self._renderer
 
     @property
-    def extensions(self) -> Extensions:
+    def extensions(self) -> _ProjectExtensions:
         """
         The enabled extensions.
         """
         if self._extensions is None:
+            self._assert_bootstrapped()
             extension_types_enabled_in_configuration = set()
             for (
                 project_extension_configuration
@@ -1218,18 +1227,16 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
                 extension_types_batch = extension_types_sorter.get_ready()
                 extensions_batch = []
                 for extension_type in extension_types_batch:
+                    extension = self.new_dependent(extension_type)
                     if (
-                        issubclass(extension_type, ConfigurableExtension)
+                        isinstance(extension, ConfigurableExtension)
                         and extension_type in self.configuration.extensions
                     ):
-                        extension: Extension = extension_type(
-                            self,
-                            configuration=self.configuration.extensions[
+                        extension.configuration.update(
+                            self.configuration.extensions[
                                 extension_type
-                            ].extension_configuration,
+                            ].extension_configuration
                         )
-                    else:
-                        extension = extension_type(self)
                     extensions_batch.append(extension)
                     extension_types_sorter.done(extension_type)
                 extensions.append(
@@ -1237,7 +1244,7 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
                         extensions_batch, key=lambda extension: extension.plugin_id()
                     )
                 )
-            self._extensions = ListExtensions(extensions)
+            self._extensions = _ProjectExtensions(extensions)
 
         return self._extensions
 
@@ -1251,3 +1258,64 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
             self._dispatcher = ExtensionDispatcher(self.extensions)
 
         return self._dispatcher
+
+    def new_dependent(
+        self, dependent: type[_ProjectDependentFactoryT]
+    ) -> _ProjectDependentFactoryT:
+        """
+        Create a new instance of a type that depends on a ``self``.
+        """
+        return dependent.new_for_project(self)
+
+
+_ProjectDependentFactoryT = TypeVar(
+    "_ProjectDependentFactoryT", bound=ProjectDependentFactory
+)
+
+
+@final
+class _ProjectExtensions:
+    """
+    Manage the extensions running within the :py:class:`betty.project.Project`.
+    """
+
+    def __init__(self, project_extensions: Sequence[Sequence[Extension]]):
+        super().__init__()
+        self._project_extensions = project_extensions
+
+    def __getitem__(self, extension_id: PluginId) -> Extension:
+        extension_type = wait_to_thread(
+            extension.EXTENSION_REPOSITORY.get(extension_id)
+        )
+        for project_extension in self.flatten():
+            if type(project_extension) is extension_type:
+                return project_extension
+        raise KeyError(f'Unknown extension of type "{extension_type}"')
+
+    def __iter__(self) -> Iterator[Iterator[Extension]]:
+        """
+        Iterate over all extensions, in topologically sorted batches.
+
+        Each item is a batch of extensions. Items are ordered because later items depend
+        on earlier items. The extensions in each item do not depend on each other and their
+        order has no meaning. However, implementations SHOULD sort the extensions in each
+        item in a stable fashion for reproducability.
+        """
+        # Use a generator so we discourage calling code from storing the result.
+        for batch in self._project_extensions:
+            yield (project_extension for project_extension in batch)
+
+    def flatten(self) -> Iterator[Extension]:
+        """
+        Get a sequence of topologically sorted extensions.
+        """
+        for batch in self:
+            yield from batch
+
+    def __contains__(self, extension_id: PluginId) -> bool:
+        try:
+            self[extension_id]
+        except KeyError:
+            return False
+        else:
+            return True

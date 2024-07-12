@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Iterable, Any, TYPE_CHECKING, final
+from typing import Iterable, TYPE_CHECKING, final
 
 from jinja2 import pass_context
 from typing_extensions import override
@@ -26,6 +26,7 @@ from betty.wikipedia import (
 )
 
 if TYPE_CHECKING:
+    from betty.project import Project
     from betty.plugin import PluginId
     from jinja2.runtime import Context
     from betty.model.ancestry import Link
@@ -39,8 +40,8 @@ class Wikipedia(
     Integrates Betty with `Wikipedia <https://wikipedia.org>`_.
     """
 
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
+    def __init__(self, project: Project):
+        super().__init__(project)
         self.__retriever: _Retriever | None = None
         self.__populator: _Populator | None = None
 
@@ -57,6 +58,7 @@ class Wikipedia(
     @property
     def _retriever(self) -> _Retriever:
         if self.__retriever is None:
+            self._assert_bootstrapped()
             self.__retriever = _Retriever(self.project.app.fetcher)
         return self.__retriever
 

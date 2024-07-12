@@ -13,6 +13,7 @@ from docker.errors import DockerException
 from typing_extensions import override
 
 from betty.extension.nginx import Nginx
+from betty.extension.nginx.config import NginxConfiguration
 from betty.extension.nginx.artifact import (
     generate_dockerfile_file,
     generate_configuration_file,
@@ -53,9 +54,11 @@ class DockerizedNginxServer(Server):
         isolated_project.configuration.debug = True
 
         # Work around https://github.com/bartfeenstra/betty/issues/1056.
-        nginx = isolated_project.extensions[Nginx.plugin_id()]
-        assert isinstance(nginx, Nginx)
-        nginx.configuration.https = False
+        nginx_configuration = isolated_project.configuration.extensions[
+            Nginx
+        ].extension_configuration
+        assert isinstance(nginx_configuration, NginxConfiguration)
+        nginx_configuration.https = False
 
         await self._exit_stack.enter_async_context(isolated_project)
 
