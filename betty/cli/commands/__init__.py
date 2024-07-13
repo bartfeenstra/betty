@@ -135,7 +135,7 @@ async def _read_project_configuration(
     if provided_configuration_file_path is None:
         try_configuration_file_paths = [
             project_directory_path / f"betty{extension}"
-            for extension in {".json", ".yaml", ".yml"}
+            for extension in (".json", ".yaml", ".yml")
         ]
     else:
         try_configuration_file_paths = [
@@ -146,7 +146,7 @@ async def _read_project_configuration(
         try:
             assert_configuration(try_configuration_file_path)
             project.configuration.configuration_file_path = try_configuration_file_path
-        except FileNotFoundError:
+        except AssertionFailed:
             continue
         else:
             logger.info(
