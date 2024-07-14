@@ -12,6 +12,7 @@ from betty.model.ancestry import (
     Presence,
     Citation,
     Source,
+    FileReference,
 )
 from betty.model.presence_role import Subject
 from betty.model.event_type import UnknownEventType
@@ -32,14 +33,14 @@ class TestTemplate(TemplateTestCase):
             path=file_path,
             description="public file description",
         )
-        public_file.entities.add(event)
+        FileReference(event, public_file)
 
         private_file = File(
             path=file_path,
             private=True,
             description="private file description",
         )
-        private_file.entities.add(event)
+        FileReference(event, private_file)
 
         place_name = PlaceName(name="place name")
         place = Place(names=[place_name])

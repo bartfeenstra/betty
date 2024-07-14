@@ -4,13 +4,11 @@
         {% include ['entity/label--' + entity.plugin_id() + '.html.j2', 'entity/label.html.j2'] %}
         {% include ['entity/meta--' + entity.plugin_id() + '.html.j2', 'entity/meta.html.j2'] ignore missing %}
     </div>
-    {% set files = entity.files | select('public') | list %}
-    {% if files | length > 0 %}
-        {% set file = files | first %}
-        {% if file.media_type and file.media_type.type == 'image' %}
-            <div class="search-result-preview">
-                <img src="{{ file | image((50, 50)) | static_url }}" class="image"{% if file.description %} alt="{{ file.description }}"{% endif %}>
-            </div>
-        {% endif %}
+    {% set file_references = entity.file_references | selectattr('file', 'public') | list %}
+    {% if file_references | length > 0 %}
+        {% set image_reference = file_references | selectattr('file', 'public') | selectattr('file.media_type.type', 'eq', 'image') | first %}
+        <div class="search-result-preview">
+            <img src="{{ image_reference | filter_image_resize_cover((50, 50)) | static_url }}" class="image"{% if image_reference.file.description %} alt="{{ image_reference.file.description }}"{% endif %}>
+        </div>
     {% endif %}
 </a>

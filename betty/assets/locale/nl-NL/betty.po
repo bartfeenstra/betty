@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-12 00:13+0100\n"
+"POT-Creation-Date: 2024-07-12 19:08+0100\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -408,6 +408,12 @@ msgstr "Familie"
 
 msgid "File"
 msgstr "Bestand"
+
+msgid "File reference"
+msgstr "Bestandsverwijzing"
+
+msgid "File references"
+msgstr "Bestandsverwijzingen"
 
 msgid "Files"
 msgstr "Bestanden"

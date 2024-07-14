@@ -45,9 +45,9 @@ from betty.model.ancestry import (
     Person,
     Presence,
     is_public,
-    HasFiles,
-    File,
+    HasFileReferences,
     Place,
+    FileReference,
 )
 from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
 from betty.model.presence_role import Subject
@@ -323,7 +323,7 @@ class CottonCandy(
                 person, self.project.configuration.lifetime_threshold
             ),
             "person_descendant_families": person_descendant_families,
-            "associated_files": associated_files,
+            "associated_file_references": associated_file_references,
         }
 
 
@@ -371,31 +371,38 @@ def person_descendant_families(
     yield from zip(parents.values(), children.values())
 
 
-def associated_files(has_files: HasFiles) -> Iterable[File]:
+def associated_file_references(
+    has_file_references: HasFileReferences,
+) -> Iterable[FileReference]:
     """
-    Get the associated files for an entity that has files.
+    Get the associated file references for an entity that has file references.
     """
-    yield from Uniquifier(_associated_files(has_files))
+    yield from Uniquifier(
+        _associated_file_references(has_file_references),
+        key=lambda file_reference: file_reference.file,
+    )
 
 
-def _associated_files(has_files: HasFiles) -> Iterable[File]:
-    yield from has_files.files
+def _associated_file_references(
+    has_file_references: HasFileReferences,
+) -> Iterable[FileReference]:
+    yield from has_file_references.file_references
 
-    if isinstance(has_files, Event):
-        for citation in has_files.citations:
-            yield from _associated_files(citation)
+    if isinstance(has_file_references, Event):
+        for citation in has_file_references.citations:
+            yield from _associated_file_references(citation)
 
-    if isinstance(has_files, Person):
-        for name in has_files.names:
+    if isinstance(has_file_references, Person):
+        for name in has_file_references.names:
             for citation in name.citations:
-                yield from _associated_files(citation)
-        for presence in has_files.presences:
+                yield from _associated_file_references(citation)
+        for presence in has_file_references.presences:
             if presence.event is not None:
-                yield from _associated_files(presence.event)
+                yield from _associated_file_references(presence.event)
 
-    if isinstance(has_files, Place):
-        for event in has_files.events:
-            yield from _associated_files(event)
+    if isinstance(has_file_references, Place):
+        for event in has_file_references.events:
+            yield from _associated_file_references(event)
 
 
 def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable[Event]:

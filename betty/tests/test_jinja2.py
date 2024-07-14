@@ -17,10 +17,13 @@ from betty.model.ancestry import (
     Person,
     Place,
     Citation,
+    HasFileReferences,
+    FileReference,
 )
 from betty.model.presence_role import Subject, Witness, Attendee
 from betty.project import Project
 from betty.tests import TemplateTestCase
+from betty.tests.model.test___init__ import DummyEntity
 
 if TYPE_CHECKING:
     from betty.locale.localized import Localized
@@ -184,17 +187,21 @@ class TestFilterFile(TemplateTestCase):
                 ).exists()
 
 
-class TestFilterImage(TemplateTestCase):
+class DummyHasFileReferencesEntity(HasFileReferences, DummyEntity):
+    pass
+
+
+class TestFilterImageResizeCover(TemplateTestCase):
     image_path = (
         Path(__file__).parents[1] / "assets" / "public" / "static" / "betty-512x512.png"
     )
 
     @pytest.mark.parametrize(
-        ("expected", "template", "file"),
+        ("expected", "template", "filey"),
         [
             (
                 "/file/F1-99x-.png",
-                "{{ file | image((99, none)) }}",
+                "{{ filey | filter_image_resize_cover((99, none)) }}",
                 File(
                     id="F1",
                     path=image_path,
@@ -203,7 +210,7 @@ class TestFilterImage(TemplateTestCase):
             ),
             (
                 "/file/F1--x99.png",
-                "{{ file | image((none, 99)) }}",
+                "{{ filey | filter_image_resize_cover((none, 99)) }}",
                 File(
                     id="F1",
                     path=image_path,
@@ -212,7 +219,16 @@ class TestFilterImage(TemplateTestCase):
             ),
             (
                 "/file/F1-99x99.png",
-                "{{ file | image((99, 99)) }}",
+                "{{ filey | filter_image_resize_cover((99, 99)) }}",
+                File(
+                    id="F1",
+                    path=image_path,
+                    media_type=MediaType("image/png"),
+                ),
+            ),
+            (
+                "/file/F1-99x99-1x2x3x4.png",
+                "{{ filey | filter_image_resize_cover((99, 99), focus=(1, 2, 3, 4)) }}",
                 File(
                     id="F1",
                     path=image_path,
@@ -221,20 +237,45 @@ class TestFilterImage(TemplateTestCase):
             ),
             (
                 "/file/F1-99x99.png:/file/F1-99x99.png",
-                "{{ file | image((99, 99)) }}:{{ file | image((99, 99)) }}",
+                "{{ filey | filter_image_resize_cover((99, 99)) }}:{{ filey | filter_image_resize_cover((99, 99)) }}",
                 File(
                     id="F1",
                     path=image_path,
                     media_type=MediaType("image/png"),
                 ),
             ),
+            (
+                "/file/F1-99x99.png",
+                "{{ filey | filter_image_resize_cover((99, 99)) }}",
+                FileReference(
+                    DummyHasFileReferencesEntity(),
+                    File(
+                        id="F1",
+                        path=image_path,
+                        media_type=MediaType("image/png"),
+                    ),
+                ),
+            ),
+            (
+                "/file/F1-99x99-0x0x9x9.png",
+                "{{ filey | filter_image_resize_cover((99, 99)) }}",
+                FileReference(
+                    DummyHasFileReferencesEntity(),
+                    File(
+                        id="F1",
+                        path=image_path,
+                        media_type=MediaType("image/png"),
+                    ),
+                    focus=(0, 0, 9, 9),
+                ),
+            ),
         ],
     )
-    async def test(self, expected: str, template: str, file: File) -> None:
+    async def test(self, expected: str, template: str, filey: File) -> None:
         async with self._render(
             template_string=template,
             data={
-                "file": file,
+                "filey": filey,
             },
         ) as (actual, project):
             assert expected == actual

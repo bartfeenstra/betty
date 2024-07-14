@@ -43,6 +43,8 @@ from betty.serde.dump import DumpMapping, Dump, dump_default
 from betty.string import camel_case_to_kebab_case
 
 if TYPE_CHECKING:
+    from betty.plugin import PluginId
+    from betty.image import FocusArea
     from betty.project import Project
     from geopy import Point
     from pathlib import Path
@@ -722,7 +724,7 @@ class HasCitations(LinkedDataDumpable):
 
 
 @final
-@many_to_many("entities", "betty.model.ancestry:HasFiles", "files")
+@one_to_many("referees", "betty.model.ancestry:FileReference", "file")
 class File(
     Described,
     HasPrivacy,
@@ -781,18 +783,18 @@ class File(
         return self._name or self.path.name
 
     @property
-    def entities(self) -> EntityCollection[Entity]:  # type: ignore[empty-body]
+    def referees(self) -> EntityCollection[FileReference]:  # type: ignore[empty-body]
         """
-        The entities associated with this file.
+        The references to this file.
         """
         pass  # pragma: no cover
 
-    @entities.setter
-    def entities(self, entities: Iterable[Entity]) -> None:
+    @referees.setter
+    def referees(self, entities: Iterable[FileReference]) -> None:
         pass  # pragma: no cover
 
-    @entities.deleter
-    def entities(self) -> None:
+    @referees.deleter
+    def referees(self) -> None:
         pass  # pragma: no cover
 
     @override
@@ -827,10 +829,11 @@ class File(
         dump = await super().dump_linked_data(project)
         dump["entities"] = [
             project.static_url_generator.generate(
-                f"/{camel_case_to_kebab_case(entity.plugin_id())}/{quote(entity.id)}/index.json"
+                f"/{camel_case_to_kebab_case(file_reference.referee.plugin_id())}/{quote(file_reference.referee.id)}/index.json"
             )
-            for entity in self.entities
-            if not isinstance(entity.id, GeneratedEntityId)
+            for file_reference in self.referees
+            if file_reference.referee
+            and not isinstance(file_reference.referee.id, GeneratedEntityId)
         ]
         return dump
 
@@ -846,38 +849,98 @@ class File(
         return schema
 
 
-@many_to_many("files", "betty.model.ancestry:File", "entities")
-class HasFiles:
+@many_to_one_to_many(
+    "betty.model.ancestry:HasFileReferences",
+    "file_references",
+    "referee",
+    "file",
+    "betty.model.ancestry:File",
+    "referees",
+)
+class FileReference(Entity):
+    """
+    A reference between :py:class:`betty.model.ancestry.HasFileReferences` and betty.model.ancestry.File.
+
+    This reference holds additional information specific to the relationship between the two entities.
+    """
+
+    #: The entity that references the file.
+    referee: HasFileReferences & Entity | None
+    #: The referenced file.
+    file: File | None
+
+    def __init__(
+        self,
+        referee: HasFileReferences & Entity | None = None,
+        file: File | None = None,
+        focus: FocusArea | None = None,
+    ):
+        super().__init__()
+        self.referee = referee
+        self.file = file
+        self.focus = focus
+
+    @override
+    @classmethod
+    def plugin_id(cls) -> PluginId:
+        return "file-reference"
+
+    @override
+    @classmethod
+    def plugin_label(cls) -> Localizable:
+        return _("File reference")
+
+    @override
+    @classmethod
+    def plugin_label_plural(cls) -> Localizable:
+        return _("File references")
+
+    @property
+    def focus(self) -> FocusArea | None:
+        """
+        The area within the 2-dimensional representation of the file to focus on.
+
+        This can be used to locate where faces are in a photo, or a specific article in a newspaper scan, for example.
+        """
+        return self._focus
+
+    @focus.setter
+    def focus(self, focus: FocusArea | None) -> None:
+        self._focus = focus
+
+
+@one_to_many("file_references", "betty.model.ancestry:FileReference", "referee")
+class HasFileReferences:
     """
     An entity that has associated :py:class:`betty.model.ancestry.File` entities.
     """
 
     def __init__(  # type: ignore[misc]
-        self: HasFiles & Entity,
+        self: HasFileReferences & Entity,
         *args: Any,
-        files: Iterable[File] | None = None,
+        file_references: Iterable[FileReference] | None = None,
         **kwargs: Any,
     ):
         super().__init__(  # type: ignore[misc]
             *args,
             **kwargs,
         )
-        if files is not None:
-            self.files = files  # type: ignore[assignment]
+        if file_references is not None:
+            self.file_references = file_references  # type: ignore[assignment]
 
     @property
-    def files(self) -> EntityCollection[File]:  # type: ignore[empty-body]
+    def file_references(self) -> EntityCollection[FileReference]:  # type: ignore[empty-body]
         """
-        The files directly associated with this entity.
+        The references to the files associated with this entity.
         """
         pass  # pragma: no cover
 
-    @files.setter
-    def files(self, files: Iterable[File]) -> None:
+    @file_references.setter
+    def file_references(self, files: Iterable[FileReference]) -> None:
         pass  # pragma: no cover
 
-    @files.deleter
-    def files(self) -> None:
+    @file_references.deleter
+    def file_references(self) -> None:
         pass  # pragma: no cover
 
 
@@ -886,7 +949,13 @@ class HasFiles:
 @one_to_many("contains", "betty.model.ancestry:Source", "contained_by")
 @one_to_many("citations", "betty.model.ancestry:Citation", "source")
 class Source(
-    Dated, HasFiles, HasNotes, HasLinksEntity, HasPrivacy, UserFacingEntity, Entity
+    Dated,
+    HasFileReferences,
+    HasNotes,
+    HasLinksEntity,
+    HasPrivacy,
+    UserFacingEntity,
+    Entity,
 ):
     """
     A source of information.
@@ -906,7 +975,7 @@ class Source(
         contains: Iterable[Source] | None = None,
         notes: Iterable[Note] | None = None,
         date: Datey | None = None,
-        files: Iterable[File] | None = None,
+        file_references: Iterable[FileReference] | None = None,
         links: MutableSequence[Link] | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,
@@ -916,7 +985,7 @@ class Source(
             id,
             notes=notes,
             date=date,
-            files=files,
+            file_references=file_references,
             links=links,
             privacy=privacy,
             public=public,
@@ -1091,7 +1160,9 @@ class Source(
 @final
 @many_to_many("facts", "betty.model.ancestry:HasCitations", "citations")
 @many_to_one("source", "betty.model.ancestry:Source", "citations")
-class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, Entity):
+class Citation(
+    Dated, HasFileReferences, HasPrivacy, HasLinksEntity, UserFacingEntity, Entity
+):
     """
     A citation (a reference to a source).
     """
@@ -1104,7 +1175,7 @@ class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, En
         source: Source | None = None,
         location: Localizable | None = None,
         date: Datey | None = None,
-        files: Iterable[File] | None = None,
+        file_references: Iterable[FileReference] | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
@@ -1112,7 +1183,7 @@ class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, En
         super().__init__(
             id,
             date=date,
-            files=files,
+            file_references=file_references,
             privacy=privacy,
             public=public,
             private=private,
@@ -1303,7 +1374,9 @@ class Enclosure(Dated, HasCitations, Entity):
 @one_to_many("events", "betty.model.ancestry:Event", "place")
 @one_to_many("enclosed_by", "betty.model.ancestry:Enclosure", "encloses")
 @one_to_many("encloses", "betty.model.ancestry:Enclosure", "enclosed_by")
-class Place(HasLinksEntity, HasFiles, HasNotes, HasPrivacy, UserFacingEntity, Entity):
+class Place(
+    HasLinksEntity, HasFileReferences, HasNotes, HasPrivacy, UserFacingEntity, Entity
+):
     """
     A place.
 
@@ -1597,7 +1670,7 @@ class Presence(HasPrivacy, Entity):
 @one_to_many("presences", "betty.model.ancestry:Presence", "event")
 class Event(
     Dated,
-    HasFiles,
+    HasFileReferences,
     HasCitations,
     HasNotes,
     Described,
@@ -1619,7 +1692,7 @@ class Event(
         id: str | None = None,  # noqa A002
         event_type: type[EventType] = UnknownEventType,
         date: Datey | None = None,
-        files: Iterable[File] | None = None,
+        file_references: Iterable[FileReference] | None = None,
         citations: Iterable[Citation] | None = None,
         notes: Iterable[Note] | None = None,
         privacy: Privacy | None = None,
@@ -1631,7 +1704,7 @@ class Event(
         super().__init__(
             id,
             date=date,
-            files=files,
+            file_references=file_references,
             citations=citations,
             notes=notes,
             privacy=privacy,
@@ -1960,7 +2033,7 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
 @one_to_many("presences", "betty.model.ancestry:Presence", "person")
 @one_to_many("names", "betty.model.ancestry:PersonName", "person")
 class Person(
-    HasFiles,
+    HasFileReferences,
     HasCitations,
     HasNotes,
     HasLinksEntity,
@@ -1976,7 +2049,7 @@ class Person(
         self,
         *,
         id: str | None = None,  # noqa A002
-        files: Iterable[File] | None = None,
+        file_references: Iterable[FileReference] | None = None,
         citations: Iterable[Citation] | None = None,
         links: MutableSequence[Link] | None = None,
         notes: Iterable[Note] | None = None,
@@ -1990,7 +2063,7 @@ class Person(
     ):
         super().__init__(
             id,
-            files=files,
+            file_references=file_references,
             citations=citations,
             links=links,
             notes=notes,

@@ -1,5 +1,5 @@
-{% set files = files | select('public') | list %}
-{% if files | length > 0 %}
+{% set file_references = file_references | selectattr('file', 'public') | list %}
+{% if file_references | length > 0 %}
     <section id="media">
         <h2>
             {% trans %}Media{% endtrans %}
@@ -7,8 +7,8 @@
                 {% include 'permalink.html.j2' %}
             {% endwith %}
         </h2>
-        {% with entities = files %}
-            {% include 'entity/list--file.html.j2' %}
+        {% with entities = file_references %}
+            {% include 'entity/list--file-reference.html.j2' %}
         {% endwith %}
     </section>
 {% endif %}

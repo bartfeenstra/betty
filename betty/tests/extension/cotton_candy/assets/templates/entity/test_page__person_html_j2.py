@@ -2,7 +2,14 @@ from pathlib import Path
 
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale.date import Date
-from betty.model.ancestry import Person, PersonName, File, Event, Presence
+from betty.model.ancestry import (
+    Person,
+    PersonName,
+    File,
+    Event,
+    Presence,
+    FileReference,
+)
 from betty.model.presence_role import Subject
 from betty.model.event_type import Birth
 from betty.tests import TemplateTestCase
@@ -167,7 +174,8 @@ class TestTemplate(TemplateTestCase):
             private=True,
             description="private file description",
         )
-        person.files = [public_file, private_file]  # type: ignore[assignment]
+        FileReference(person, public_file)
+        FileReference(person, private_file)
         public_event_public_presence = Event(
             id="EVENT1",
             event_type=Birth,

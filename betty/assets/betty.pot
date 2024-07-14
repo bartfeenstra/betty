@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-12 00:13+0100\n"
+"POT-Creation-Date: 2024-07-12 19:08+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -294,6 +294,12 @@ msgid "Family"
 msgstr ""
 
 msgid "File"
+msgstr ""
+
+msgid "File reference"
+msgstr ""
+
+msgid "File references"
 msgstr ""
 
 msgid "Files"

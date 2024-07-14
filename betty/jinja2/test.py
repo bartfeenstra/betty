@@ -16,7 +16,7 @@ from betty.model import (
 )
 from betty.model.ancestry import (
     HasLinks,
-    HasFiles,
+    HasFileReferences,
     is_private,
     is_public,
     Event,
@@ -59,11 +59,11 @@ def test_has_links(value: Any) -> bool:
     return isinstance(value, HasLinks)
 
 
-def test_has_files(value: Any) -> bool:
+def test_has_file_references(value: Any) -> bool:
     """
-    Test if a value has file entities associated with it.
+    Test if a value has :py:class:`betty.model.ancestry.FileReference` entities associated with it.
     """
-    return isinstance(value, HasFiles)
+    return isinstance(value, HasFileReferences)
 
 
 def test_has_generated_entity_id(value: Any) -> bool:
@@ -116,7 +116,7 @@ TESTS = {
     "date_range": test_date_range,
     "end_of_life_event": test_end_of_life_event,
     "entity": test_entity,
-    "has_files": test_has_files,
+    "has_file_references": test_has_file_references,
     "has_generated_entity_id": test_has_generated_entity_id,
     "has_links": test_has_links,
     "linked_data_dumpable": test_linked_data_dumpable,

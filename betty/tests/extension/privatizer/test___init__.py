@@ -11,6 +11,7 @@ from betty.model.ancestry import (
     Source,
     File,
     Citation,
+    FileReference,
 )
 from betty.model.presence_role import Subject
 from betty.model.event_type import Birth
@@ -35,7 +36,7 @@ class TestPrivatizer:
             name="The Source",
             private=True,
         )
-        source.files.add(source_file)
+        FileReference(source, source_file)
 
         citation_file = File(
             id="F0",
@@ -47,7 +48,7 @@ class TestPrivatizer:
             source=citation_source,
             private=True,
         )
-        citation.files.add(citation_file)
+        FileReference(citation, citation_file)
 
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.append(ExtensionConfiguration(Privatizer))

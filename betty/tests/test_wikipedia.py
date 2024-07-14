@@ -994,4 +994,6 @@ class TestPopulator:
                 sut = _Populator(project, m_retriever)
                 await sut.populate()
 
-            assert place.files[0].path == image.path
+            file_reference = place.file_references[0]
+            assert file_reference.file
+            assert file_reference.file.path == image.path

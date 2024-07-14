@@ -53,6 +53,7 @@ In this section
 - :doc:`ancestry/event`
 - :doc:`ancestry/event-type`
 - :doc:`ancestry/file`
+- :doc:`ancestry/file-reference`
 - :doc:`ancestry/link`
 - :doc:`ancestry/media-type`
 - :doc:`ancestry/note`

@@ -31,7 +31,7 @@ from betty.model.ancestry import (
     Link,
     HasLinks,
     HasNotes,
-    HasFiles,
+    HasFileReferences,
     Source,
     Citation,
     HasCitations,
@@ -40,6 +40,7 @@ from betty.model.ancestry import (
     is_public,
     Privacy,
     merge_privacies,
+    FileReference,
 )
 from betty.model.presence_role import Subject
 from betty.model.event_type import Birth, UnknownEventType
@@ -401,7 +402,7 @@ class TestHasLinks:
         assert sut.links == []
 
 
-class _HasFiles(HasFiles, DummyEntity):
+class DummyHasFileReferences(HasFileReferences, DummyEntity):
     pass
 
 
@@ -489,18 +490,23 @@ class TestFile:
         sut.notes = notes  # type: ignore[assignment]
         assert notes == list(sut.notes)
 
-    async def test_entities(self) -> None:
+    async def test_referees(self) -> None:
         file_id = "BETTY01"
         file_path = Path("~")
         sut = File(
             id=file_id,
             path=file_path,
         )
-        assert list(sut.entities) == []
+        assert list(sut.referees) == []
 
-        entities = [_HasFiles(), _HasFiles()]
-        sut.entities = entities  # type: ignore[assignment]
-        assert entities == list(sut.entities)
+        entity_one = DummyHasFileReferences()
+        entity_two = DummyHasFileReferences()
+        FileReference(entity_one, sut)
+        FileReference(entity_two, sut)
+        assert [file_reference.referee for file_reference in sut.referees] == [
+            entity_one,
+            entity_two,
+        ]
 
     async def test_citations(self) -> None:
         file_id = "BETTY01"
@@ -564,7 +570,7 @@ class TestFile:
                     text="The Note",
                 )
             )
-            file.entities.add(Person(id="the_person"))
+            FileReference(Person(id="the_person"), file)
             file.citations.add(
                 Citation(
                     id="the_citation",
@@ -629,7 +635,7 @@ class TestFile:
                     text="The Note",
                 )
             )
-            file.entities.add(Person(id="the_person"))
+            FileReference(Person(id="the_person"), file)
             file.citations.add(
                 Citation(
                     id="the_citation",
@@ -666,13 +672,18 @@ class TestFile:
             assert expected == actual
 
 
-class TestHasFiles:
-    async def test_files(self) -> None:
-        sut = _HasFiles()
-        assert list(sut.files) == []
-        files = [File(path=Path()), File(path=Path())]
-        sut.files = files  # type: ignore[assignment]
-        assert files == list(sut.files)
+class TestHasFileReferences:
+    async def test_file_references(self) -> None:
+        sut = DummyHasFileReferences()
+        assert list(sut.file_references) == []
+        file_one = File(path=Path())
+        file_two = File(path=Path())
+        FileReference(sut, file_one)
+        FileReference(sut, file_two)
+        assert [file_reference.file for file_reference in sut.file_references] == [
+            file_one,
+            file_two,
+        ]
 
 
 class TestSource:
@@ -732,9 +743,9 @@ class TestSource:
         sut = Source()
         assert sut.date is None
 
-    async def test_files(self) -> None:
+    async def test_file_references(self) -> None:
         sut = Source()
-        assert list(sut.files) == []
+        assert list(sut.file_references) == []
 
     async def test_links(self) -> None:
         sut = Source()
@@ -993,9 +1004,9 @@ class TestCitation:
         sut = Citation(source=Source())
         assert sut.date is None
 
-    async def test_files(self) -> None:
+    async def test_file_references(self) -> None:
         sut = Citation(source=Source())
-        assert list(sut.files) == []
+        assert list(sut.file_references) == []
 
     async def test_private(self) -> None:
         sut = Citation(source=Source())
@@ -1572,9 +1583,9 @@ class TestEvent:
         sut.date = date
         assert date == sut.date
 
-    async def test_files(self) -> None:
+    async def test_file_references(self) -> None:
         sut = Event(event_type=UnknownEventType)
-        assert list(sut.files) == []
+        assert list(sut.file_references) == []
 
     async def test_citations(self) -> None:
         sut = Event(event_type=UnknownEventType)
@@ -1888,9 +1899,9 @@ class TestPerson:
         sut = Person(id=person_id)
         assert person_id == sut.id
 
-    async def test_files(self) -> None:
+    async def test_file_references(self) -> None:
         sut = Person(id="1")
-        assert list(sut.files) == []
+        assert list(sut.file_references) == []
 
     async def test_citations(self) -> None:
         sut = Person(id="1")
@@ -2251,3 +2262,21 @@ class TestAncestry:
         sut.add_unchecked_graph(left)
         assert left in sut
         assert right not in sut
+
+
+class TestFileReference:
+    async def test_focus(self) -> None:
+        sut = FileReference()
+        focus = (1, 2, 3, 4)
+        sut.focus = focus
+        assert sut.focus == focus
+
+    async def test_file(self) -> None:
+        file = File(Path())
+        sut = FileReference(None, file)
+        assert sut.file is file
+
+    async def test_referee(self) -> None:
+        referee = DummyHasFileReferences()
+        sut = FileReference(referee)
+        assert sut.referee is referee

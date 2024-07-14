@@ -3,7 +3,14 @@ from pathlib import Path
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizable import plain
-from betty.model.ancestry import Citation, Source, File, Person, PersonName
+from betty.model.ancestry import (
+    Citation,
+    Source,
+    File,
+    Person,
+    PersonName,
+    FileReference,
+)
 from betty.tests import TemplateTestCase
 
 
@@ -27,14 +34,14 @@ class TestTemplate(TemplateTestCase):
             path=file_path,
             description="public file description",
         )
-        public_file.entities.add(citation)
+        FileReference(citation, public_file)
 
         private_file = File(
             path=file_path,
             private=True,
             description="private file description",
         )
-        private_file.entities.add(citation)
+        FileReference(citation, private_file)
 
         public_fact_name = "public fact"
         public_fact = Person(id="FACT1")

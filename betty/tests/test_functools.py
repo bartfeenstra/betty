@@ -113,19 +113,29 @@ class TestDo:
 
 class TestUniquifier:
     @pytest.mark.parametrize(
-        ("expected", "values"),
+        ("expected", "values", "key"),
         [
-            ([], []),
-            ([], [[]]),
-            (["one"], [["one"]]),
-            (["one"], [["one", "one"]]),
-            (["one", "two"], [["one", "two"]]),
-            (["one", "two"], [["one", "two", "one"]]),
-            (["one"], [["one"], ["one"]]),
-            (["one", "two"], [["one"], ["one", "two"]]),
-            (["one", "two"], [["one"], ["one", "two", "one"]]),
+            ([], [], None),
+            ([], [[]], None),
+            (["one"], [["one"]], None),
+            (["one"], [["one", "one"]], None),
+            (["one", "two"], [["one", "two"]], None),
+            (["one", "two"], [["one", "two", "one"]], None),
+            (["one"], [["one"], ["one"]], None),
+            (["one", "two"], [["one"], ["one", "two"]], None),
+            (["one", "two"], [["one"], ["one", "two", "one"]], None),
+            (
+                ["aaa", "bbb", "ccc"],
+                [["aaa", "abc", "bbb", "bob", "ccc", "coo"]],
+                lambda value: value[0],
+            ),
         ],
     )
-    async def test(self, expected: list[_T], values: Iterable[Iterable[_T]]) -> None:
-        sut = Uniquifier(*values)
+    async def test(
+        self,
+        expected: list[_T],
+        values: Iterable[Iterable[_T]],
+        key: Callable[[_T], Any] | None,
+    ) -> None:
+        sut = Uniquifier(*values, key=key)
         assert list(sut) == expected

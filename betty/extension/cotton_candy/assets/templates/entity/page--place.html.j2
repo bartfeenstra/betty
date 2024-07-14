@@ -43,7 +43,7 @@
     {% set events = (places + [place]) | unique | map(attribute='events') | flatten | select('public') | rejectattr('date', 'none') | selectattr('date.comparable') | list %}
     {% include 'timeline.html.j2' %}
 
-    {% with files = place | associated_files %}
+    {% with file_references = place | associated_file_references %}
         {% include 'media.html.j2' %}
     {% endwith %}
 {% endblock %}

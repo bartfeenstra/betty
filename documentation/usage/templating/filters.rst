@@ -12,7 +12,7 @@ In addition to Jinja2's built-in filters, Betty provides the following:
 - :py:func:`format_datey <betty.jinja2.filter.filter_format_datey>`
 - :py:func:`format_degrees <betty.jinja2.filter.filter_format_degrees>`
 - :py:func:`hashid <betty.jinja2.filter.filter_hashid>`
-- :py:func:`image <betty.jinja2.filter.filter_image>`
+- :py:func:`image_resize_cover <betty.jinja2.filter.filter_image_resize_cover>`
 - :py:func:`json <betty.jinja2.filter.filter_json>`
 - :py:func:`locale_get_data <betty.locale.get_data>`
 - :py:func:`localize <betty.jinja2.filter.filter_localize>`
