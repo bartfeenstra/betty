@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import Any, TYPE_CHECKING
 
+from betty.asyncio import wait_to_thread
 from betty.json.linked_data import LinkedDataDumpable
 from betty.locale.date import DateRange
 from betty.model import (
@@ -35,13 +36,17 @@ def test_linked_data_dumpable(value: Any) -> bool:
     return isinstance(value, LinkedDataDumpable)
 
 
-async def test_entity(value: Any, entity_type_id: PluginId | None = None) -> bool:
+def test_entity(value: Any, entity_type_id: PluginId | None = None) -> bool:
     """
     Test if a value is an entity.
 
     :param entity_type_id: If given, additionally ensure the value is an entity of this type.
     """
-    cls = await ENTITY_TYPE_REPOSITORY.get(entity_type_id) if entity_type_id else Entity
+    cls = (
+        wait_to_thread(ENTITY_TYPE_REPOSITORY.get(entity_type_id))
+        if entity_type_id
+        else Entity
+    )
     return isinstance(value, cls)
 
 
