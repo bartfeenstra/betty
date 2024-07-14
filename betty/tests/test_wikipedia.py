@@ -858,7 +858,7 @@ class TestPopulator:
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
         summary_title = "Amsterdam"
-        summary_content = "Capitol of the Netherlands"
+        summary_content = "Capital of the Netherlands"
         summary = Summary(page_language, page_name, summary_title, summary_content)
         m_retriever.get_summary.return_value = summary
         m_retriever.get_image.return_value = None
@@ -891,7 +891,7 @@ class TestPopulator:
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
         summary_title = "Amsterdam"
-        summary_content = "Capitol of the Netherlands"
+        summary_content = "Capital of the Netherlands"
         summary = Summary(page_language, page_name, summary_title, summary_content)
         added_page_language = "nl"
         added_page_name = "Amsterdam & Omstreken"
