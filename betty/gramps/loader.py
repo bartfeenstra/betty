@@ -16,11 +16,10 @@ from pathlib import Path
 from typing import Iterable, Any, IO, cast, TYPE_CHECKING
 from xml.etree import ElementTree
 
-from lxml import etree
-
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
 from geopy import Point
+from lxml import etree
 from typing_extensions import override
 
 from betty.ancestry import (

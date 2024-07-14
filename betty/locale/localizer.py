@@ -13,6 +13,8 @@ from typing import final, Mapping, Iterator, AsyncIterator, TYPE_CHECKING
 import aiofiles
 from babel import dates
 from babel.dates import format_date
+from polib import pofile
+
 from betty import fs
 from betty.concurrent import Lock, AsynchronizedLock
 from betty.hashid import hashid_file_meta
@@ -34,7 +36,6 @@ from betty.locale.date import (
     IncompleteDateError,
     DateRange,
 )
-from polib import pofile
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping

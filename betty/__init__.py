@@ -2,7 +2,6 @@
 
 from pathlib import Path
 
-
 from betty import _bootstrap  # noqa: F401
 
 

@@ -34,6 +34,7 @@ from jinja2.runtime import Context, Macro
 from markupsafe import Markup, escape
 from pdf2image.pdf2image import convert_from_path
 
+from betty.ancestry import File, FileReference
 from betty.hashid import hashid_file_meta, hashid
 from betty.image import resize_cover, Size, FocusArea
 from betty.locale import (
@@ -44,7 +45,6 @@ from betty.locale import (
     SPECIAL_LOCALES,
 )
 from betty.locale.localized import Localized, negotiate_localizeds, LocalizedStr
-from betty.ancestry import File, FileReference
 from betty.os import link_or_copy
 from betty.serde.dump import minimize, none_void, void_none
 from betty.string import (

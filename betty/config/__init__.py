@@ -18,6 +18,7 @@ from typing import (
 
 import aiofiles
 from aiofiles.os import makedirs
+
 from betty.assertion import (
     AssertionChain,
     assert_file_path,

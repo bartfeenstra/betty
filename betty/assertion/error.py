@@ -79,6 +79,9 @@ class AssertionFailedGroup(AssertionFailed):
             [] if errors is None else list(errors)
         )
 
+    def __reduce__(self) -> tuple[type[Self], tuple[Sequence[AssertionFailed]]]:  # type: ignore[override]
+        return type(self), (self._errors,)
+
     def __iter__(self) -> Iterator[AssertionFailed]:
         yield from self._errors
 

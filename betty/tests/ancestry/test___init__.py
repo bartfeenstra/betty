@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pickle
 from collections.abc import MutableMapping, Mapping
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -2515,6 +2516,11 @@ class TestAncestry:
         sut.add_unchecked_graph(left)
         assert left in sut
         assert right not in sut
+
+    def test_pickle(self) -> None:
+        sut = Ancestry()
+        unpickled_sut = pickle.loads(pickle.dumps(sut))
+        assert len(unpickled_sut) == 0
 
 
 class TestFileReference:

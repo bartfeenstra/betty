@@ -6,6 +6,9 @@ from __future__ import annotations
 
 import datetime
 from collections import defaultdict
+from collections.abc import (
+    Mapping,
+)
 from threading import Lock
 from typing import Callable, Any, cast, TYPE_CHECKING, TypeAlias, final, Awaitable
 
@@ -27,15 +30,12 @@ from betty.html import CssProvider, JsProvider
 from betty.jinja2.filter import FILTERS
 from betty.jinja2.test import TESTS
 from betty.job import Context as JobContext
-from betty.locale.localizer import Localizer
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.date import Date
+from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localizer import Localizer
 from betty.render import Renderer
 from betty.serde.dump import Dumpable, DumpMapping, VoidableDump, Dump
 from betty.typing import Void
-from collections.abc import (
-    Mapping,
-)
 
 if TYPE_CHECKING:
     from betty.model import Entity

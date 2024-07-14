@@ -1,190 +1,56 @@
 """
-Provide the Generation API.
+Provide site generation tasks.
 """
 
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
-import os
 import shutil
 from asyncio import (
-    create_task,
-    Task,
-    as_completed,
-    Semaphore,
-    CancelledError,
-    sleep,
     to_thread,
 )
 from collections.abc import MutableSequence
-from contextlib import suppress
 from pathlib import Path
-from typing import (
-    cast,
-    AsyncContextManager,
-    ParamSpec,
-    Callable,
-    Awaitable,
-    Sequence,
-    TYPE_CHECKING,
-)
+from typing import cast, TYPE_CHECKING
 
 import aiofiles
 from aiofiles.os import makedirs
-from aiofiles.threadpool.text import AsyncTextIOWrapper
-from math import floor
 
 from betty import model
-from betty.ancestry import is_public
 from betty.asyncio import gather
-from betty.job import Context
-from betty.locale import get_display_name
 from betty.locale.localizable import _
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.model import (
-    UserFacingEntity,
-    Entity,
-    GeneratedEntityId,
-)
-from betty.openapi import Specification
-from betty.project import ProjectEvent, ProjectSchema
-from betty.string import kebab_case_to_lower_camel_case
+from betty.project import ProjectSchema
 
 if TYPE_CHECKING:
     from betty.project import Project
-    from betty.app import App
+from betty.generate import GenerationContext, GenerateSiteEvent
+from betty.generate.file import create_html_resource, create_json_resource, create_file
+from betty.locale import get_display_name
+from betty.model import UserFacingEntity, GeneratedEntityId, Entity
+from betty.ancestry import is_public
+from betty.openapi import Specification
+from betty.string import kebab_case_to_lower_camel_case
+
+if TYPE_CHECKING:
+    from betty.generate.pool import _GenerationProcessPool
     from betty.serde.dump import DumpMapping, Dump
-    from collections.abc import AsyncIterator
+    from betty.project import Project
 
 
-class GenerateSiteEvent(ProjectEvent):
-    """
-    Dispatched to generate (part of) a project's site.
-    """
-
-    def __init__(self, job_context: GenerationContext):
-        super().__init__(job_context.project)
-        self._job_context = job_context
-
-    @property
-    def job_context(self) -> GenerationContext:
-        """
-        The site generation job context.
-        """
-        return self._job_context
-
-
-class GenerationContext(Context):
-    """
-    A site generation job context.
-    """
-
-    def __init__(self, project: Project):
-        super().__init__()
-        self._project = project
-
-    @property
-    def project(self) -> Project:
-        """
-        The Betty project this job context is run within.
-        """
-        return self._project
-
-
-async def generate(project: Project) -> None:
-    """
-    Generate a new site.
-    """
-    logger = logging.getLogger(__name__)
-    job_context = GenerationContext(project)
-    app = project.app
-
-    logger.info(
-        app.localizer._("Generating your site to {output_directory}.").format(
-            output_directory=project.configuration.output_directory_path
-        )
-    )
-    with suppress(FileNotFoundError):
-        await asyncio.to_thread(
-            shutil.rmtree, project.configuration.output_directory_path
-        )
-    await makedirs(project.configuration.output_directory_path, exist_ok=True)
-
-    # The static public assets may be overridden depending on the number of locales rendered, so ensure they are
-    # generated before anything else.
-    await _generate_static_public(job_context)
-
-    jobs = [job async for job in _run_jobs(job_context)]
-    log_job = create_task(_log_jobs_forever(app, jobs))
-    for completed_job in as_completed(jobs):
-        await completed_job
-    log_job.cancel()
-    await _log_jobs(app, jobs)
-
-    project.configuration.output_directory_path.chmod(0o755)
-    for directory_path_str, subdirectory_names, file_names in os.walk(
-        project.configuration.output_directory_path
-    ):
-        directory_path = Path(directory_path_str)
-        for subdirectory_name in subdirectory_names:
-            (directory_path / subdirectory_name).chmod(0o755)
-        for file_name in file_names:
-            (directory_path / file_name).chmod(0o644)
-
-
-async def _log_jobs(app: App, jobs: Sequence[Task[None]]) -> None:
-    total_job_count = len(jobs)
-    completed_job_count = len([job for job in jobs if job.done()])
-    logging.getLogger(__name__).info(
-        app.localizer._(
-            "Generated {completed_job_count} out of {total_job_count} items ({completed_job_percentage}%)."
-        ).format(
-            completed_job_count=completed_job_count,
-            total_job_count=total_job_count,
-            completed_job_percentage=floor(
-                completed_job_count / (total_job_count / 100)
-            ),
-        )
-    )
-
-
-async def _log_jobs_forever(app: App, jobs: Sequence[Task[None]]) -> None:
-    with suppress(CancelledError):
-        while True:
-            await _log_jobs(app, jobs)
-            await sleep(5)
-
-
-_JobP = ParamSpec("_JobP")
-
-
-def _run_job(
-    semaphore: Semaphore,
-    f: Callable[_JobP, Awaitable[None]],
-    *args: _JobP.args,
-    **kwargs: _JobP.kwargs,
-) -> Task[None]:
-    async def _job():
-        async with semaphore:
-            await f(*args, **kwargs)
-
-    return create_task(_job())
-
-
-async def _run_jobs(job_context: GenerationContext) -> AsyncIterator[Task[None]]:
-    project = job_context.project
-    semaphore = Semaphore(512)
-    yield _run_job(semaphore, _generate_dispatch, job_context)
-    yield _run_job(semaphore, _generate_sitemap, job_context)
-    yield _run_job(semaphore, _generate_json_schema, job_context)
-    yield _run_job(semaphore, _generate_openapi, job_context)
+async def _generate_delegate(
+    project: Project, process_pool: _GenerationProcessPool
+) -> None:
+    process_pool.delegate(_generate_dispatch)
+    process_pool.delegate(_generate_sitemap)
+    process_pool.delegate(_generate_json_schema)
+    process_pool.delegate(_generate_openapi)
 
     locales = list(project.configuration.locales.keys())
 
     for locale in locales:
-        yield _run_job(semaphore, _generate_public, job_context, locale)
+        process_pool.delegate(_generate_public, locale)
 
     async for entity_type in model.ENTITY_TYPE_REPOSITORY:
         if not issubclass(entity_type, UserFacingEntity):
@@ -194,58 +60,25 @@ async def _run_jobs(job_context: GenerationContext) -> AsyncIterator[Task[None]]
             and project.configuration.entity_types[entity_type].generate_html_list
         ):
             for locale in locales:
-                yield _run_job(
-                    semaphore,
+                process_pool.delegate(
                     _generate_entity_type_list_html,
-                    job_context,
                     locale,
                     entity_type,
                 )
-        yield _run_job(
-            semaphore, _generate_entity_type_list_json, job_context, entity_type
-        )
+        process_pool.delegate(_generate_entity_type_list_json, entity_type)
         for entity in project.ancestry[entity_type]:
             if isinstance(entity.id, GeneratedEntityId):
                 continue
 
-            yield _run_job(
-                semaphore, _generate_entity_json, job_context, entity_type, entity.id
-            )
+            process_pool.delegate(_generate_entity_json, entity_type, entity.id)
             if is_public(entity):
                 for locale in locales:
-                    yield _run_job(
-                        semaphore,
+                    process_pool.delegate(
                         _generate_entity_html,
-                        job_context,
                         locale,
                         entity_type,
                         entity.id,
                     )
-
-
-async def create_file(path: Path) -> AsyncContextManager[AsyncTextIOWrapper]:
-    """
-    Create the file for a resource.
-    """
-    await makedirs(path.parent, exist_ok=True)
-    return cast(
-        AsyncContextManager[AsyncTextIOWrapper],
-        aiofiles.open(path, "w", encoding="utf-8"),
-    )
-
-
-async def create_html_resource(path: Path) -> AsyncContextManager[AsyncTextIOWrapper]:
-    """
-    Create the file for an HTML resource.
-    """
-    return await create_file(path / "index.html")
-
-
-async def create_json_resource(path: Path) -> AsyncContextManager[AsyncTextIOWrapper]:
-    """
-    Create the file for a JSON resource.
-    """
-    return await create_file(path / "index.json")
 
 
 async def _generate_dispatch(job_context: GenerationContext) -> None:

@@ -4,8 +4,10 @@ Provide tools to build core application components.
 
 from abc import ABC
 from contextlib import AsyncExitStack
+from pyexpat.errors import messages
 from types import TracebackType
 from typing import Self, Any
+from warnings import warn
 
 from betty.typing import internal, public
 
@@ -26,12 +28,16 @@ class CoreComponent(ABC):  # noqa B024
     @public
     def _assert_bootstrapped(self) -> None:
         if not self._bootstrapped:
-            raise RuntimeError(f"{self} was not bootstrapped yet.")
+            message = f"{self} was not bootstrapped yet."
+            warn(message, stacklevel=2)
+            raise RuntimeError(message)
 
     @public
     def _assert_not_yet_bootstrapped(self) -> None:
         if self._bootstrapped:
-            raise RuntimeError(f"{self} was bootstrapped already.")
+            message = f"{self} was bootstrapped already."
+            warn(message, stacklevel=2)
+            raise RuntimeError(messages)
 
     @public
     async def bootstrap(self) -> None:
@@ -52,7 +58,7 @@ class CoreComponent(ABC):  # noqa B024
 
     def __del__(self) -> None:
         if self._bootstrapped:
-            raise RuntimeError(f"{self} was bootstrapped, but never shut down.")
+            warn(f"{self} was bootstrapped, but never shut down.", stacklevel=2)
 
     async def __aenter__(self) -> Self:
         await self.bootstrap()

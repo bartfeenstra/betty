@@ -59,6 +59,7 @@ from betty.model.association import (
 from betty.model.collections import (
     MultipleTypesEntityCollection,
 )
+from betty.model.graph import PickleableEntityGraph
 from betty.string import camel_case_to_kebab_case
 from typing_extensions import override
 
@@ -2074,6 +2075,13 @@ class Ancestry(MultipleTypesEntityCollection[Entity]):
     def __init__(self):
         super().__init__()
         self._check_graph = True
+
+    def __getstate__(self) -> PickleableEntityGraph:
+        return PickleableEntityGraph(*self)
+
+    def __setstate__(self, state: PickleableEntityGraph) -> None:
+        self._collections = {}
+        self.add_unchecked_graph(*state.build())
 
     def add_unchecked_graph(self, *entities: Entity) -> None:
         """

@@ -58,4 +58,4 @@ class AppConfiguration(Configuration):
 
     @override
     def dump(self) -> VoidableDump:
-        return minimize({"locale": void_none(self.locale)}, True)
+        return minimize({"locale": void_none(self.locale)}, False)
