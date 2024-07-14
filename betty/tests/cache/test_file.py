@@ -8,7 +8,6 @@ from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
 from betty.cache.file import PickledFileCache, BinaryFileCache
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.tests.cache.test___init__ import CacheTestBase
 
 
@@ -21,9 +20,7 @@ class TestPickledFileCache(CacheTestBase[Any]):
         scopes: Sequence[str] | None = None,
     ) -> AsyncIterator[PickledFileCache[Any]]:
         async with TemporaryDirectory() as cache_directory_path_str:
-            yield PickledFileCache(
-                DEFAULT_LOCALIZER, Path(cache_directory_path_str), scopes=scopes
-            )
+            yield PickledFileCache(Path(cache_directory_path_str), scopes=scopes)
 
     @override
     def _values(self) -> Iterator[Any]:
@@ -44,9 +41,7 @@ class TestBinaryFileCache(CacheTestBase[bytes]):
         scopes: Sequence[str] | None = None,
     ) -> AsyncIterator[BinaryFileCache]:
         async with TemporaryDirectory() as cache_directory_path_str:
-            yield BinaryFileCache(
-                DEFAULT_LOCALIZER, Path(cache_directory_path_str), scopes=scopes
-            )
+            yield BinaryFileCache(Path(cache_directory_path_str), scopes=scopes)
 
     @override
     def _values(self) -> Iterator[bytes]:
@@ -60,7 +55,7 @@ class TestBinaryFileCache(CacheTestBase[bytes]):
         ],
     )
     def test_path(self, scopes: Sequence[str], tmp_path: Path) -> None:
-        sut = BinaryFileCache(DEFAULT_LOCALIZER, Path(tmp_path), scopes=scopes)
+        sut = BinaryFileCache(Path(tmp_path), scopes=scopes)
         assert sut.path == tmp_path.joinpath(*scopes)
 
     @pytest.mark.parametrize(
@@ -86,7 +81,7 @@ class TestBinaryFileCache(CacheTestBase[bytes]):
         scopes: Sequence[str],
         tmp_path: Path,
     ) -> None:
-        sut = BinaryFileCache(DEFAULT_LOCALIZER, Path(tmp_path), scopes=scopes)
+        sut = BinaryFileCache(Path(tmp_path), scopes=scopes)
         assert sut.cache_item_file_path("id") == tmp_path.joinpath(
             *expected_path_components
         )

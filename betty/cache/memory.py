@@ -5,16 +5,12 @@ Provide caching that stores cache items in volatile memory.
 from __future__ import annotations
 
 from collections.abc import MutableMapping, Sequence
-from typing import TypeAlias, Generic, Self, cast, TYPE_CHECKING, TypeVar, final
+from typing import TypeAlias, Generic, Self, cast, TypeVar, final
 
 from typing_extensions import override
 
 from betty.cache import CacheItem
 from betty.cache._base import _CommonCacheBase, _StaticCacheItem
-
-if TYPE_CHECKING:
-    from betty.locale.localizer import Localizer
-
 
 _CacheItemValueContraT = TypeVar("_CacheItemValueContraT", contravariant=True)
 
@@ -34,18 +30,16 @@ class MemoryCache(
 
     def __init__(
         self,
-        localizer: Localizer,
         *,
         scopes: Sequence[str] | None = None,
         _store: _MemoryCacheStore[_CacheItemValueContraT] | None = None,
     ):
-        super().__init__(localizer, scopes=scopes)
+        super().__init__(scopes=scopes)
         self._store: _MemoryCacheStore[_CacheItemValueContraT] = _store or {}
 
     @override
     def _with_scope(self, scope: str) -> Self:
         return type(self)(
-            self._localizer,
             scopes=(*self._scopes, scope),
             _store=cast(
                 "_MemoryCacheStore[_CacheItemValueContraT]",

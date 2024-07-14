@@ -10,7 +10,6 @@ from warnings import filterwarnings
 import pytest
 from betty.app import App
 from betty.cache.file import BinaryFileCache
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.warnings import BettyDeprecationWarning
 
 if TYPE_CHECKING:
@@ -34,7 +33,7 @@ async def binary_file_cache(tmp_path: Path) -> BinaryFileCache:
     """
     Create a temporary binary file cache.
     """
-    return BinaryFileCache(DEFAULT_LOCALIZER, tmp_path)
+    return BinaryFileCache(tmp_path)
 
 
 @pytest.fixture()

@@ -1,4 +1,3 @@
-import logging
 from abc import abstractmethod
 from collections import defaultdict
 from collections.abc import Sequence, MutableMapping, AsyncIterator
@@ -14,8 +13,6 @@ from betty.cache import (
     CacheItemValueSetter,
 )
 from betty.concurrent import _Lock, AsynchronizedLock, MultiLock
-from betty.locale.localizer import Localizer
-
 
 _CacheItemValueCoT = TypeVar("_CacheItemValueCoT", covariant=True)
 _CacheItemValueContraT = TypeVar("_CacheItemValueContraT", contravariant=True)
@@ -45,11 +42,9 @@ class _StaticCacheItem(CacheItem[_CacheItemValueCoT], Generic[_CacheItemValueCoT
 class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueContraT]):
     def __init__(
         self,
-        localizer: Localizer,
         *,
         scopes: Sequence[str] | None = None,
     ):
-        self._localizer = localizer
         self._scopes = scopes or ()
         self._scoped_caches: dict[str, Self] = {}
         self._locks: MutableMapping[str, _Lock] = defaultdict(
@@ -165,15 +160,6 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
     async def clear(self) -> None:
         async with MultiLock(self._locks_lock, *self._locks.values()):
             await self._clear()
-        logger = logging.getLogger(__name__)
-        if self._scopes:
-            logger.info(
-                self._localizer._('"{scope}" cache cleared.').format(
-                    scope=".".join(self._scopes)
-                )
-            )
-        else:
-            logger.info(self._localizer._("All caches cleared."))
 
     @abstractmethod
     async def _clear(self) -> None:
