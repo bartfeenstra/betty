@@ -11,7 +11,6 @@ from multidict import CIMultiDict
 from betty.cache.file import BinaryFileCache
 from betty.cache.memory import MemoryCache
 from betty.fetch import Fetcher, FetchError, FetchResponse
-from betty.locale.localizer import DEFAULT_LOCALIZER
 
 
 class TestFetchError:
@@ -36,9 +35,7 @@ class TestFetcher:
     @pytest.fixture()
     async def sut(self, binary_file_cache: BinaryFileCache) -> AsyncIterator[Fetcher]:
         async with ClientSession() as http_client:
-            yield Fetcher(
-                http_client, MemoryCache(DEFAULT_LOCALIZER), binary_file_cache
-            )
+            yield Fetcher(http_client, MemoryCache(), binary_file_cache)
 
     async def test_fetch_should_return(
         self, aioresponses: aioresponses, sut: Fetcher
@@ -93,7 +90,7 @@ class TestFetcher:
         async with ClientSession() as http_client:
             sut = Fetcher(
                 http_client,
-                MemoryCache(DEFAULT_LOCALIZER),
+                MemoryCache(),
                 binary_file_cache,
                 # A negative TTL ensures every cache item is considered expired a long time ago.
                 -999999999,
@@ -170,7 +167,7 @@ class TestFetcher:
         async with ClientSession() as http_client:
             sut = Fetcher(
                 http_client,
-                MemoryCache(DEFAULT_LOCALIZER),
+                MemoryCache(),
                 binary_file_cache,
                 # A negative TTL ensures every cache item is considered expired a long time ago.
                 -999999999,

@@ -129,9 +129,7 @@ class App(Configurable[AppConfiguration], CoreComponent):
         yield cls(
             configuration,
             Path(environ.get("BETTY_CACHE_DIRECTORY", HOME_DIRECTORY_PATH / "cache")),
-            cache_factory=lambda app: PickledFileCache[Any](
-                app.localizer, app._cache_directory_path
-            ),
+            cache_factory=lambda app: PickledFileCache[Any](app._cache_directory_path),
         )
 
     @classmethod
@@ -235,9 +233,7 @@ class App(Configurable[AppConfiguration], CoreComponent):
         """
         if self._binary_file_cache is None:
             self._assert_bootstrapped()
-            self._binary_file_cache = BinaryFileCache(
-                self.localizer, self._cache_directory_path
-            )
+            self._binary_file_cache = BinaryFileCache(self._cache_directory_path)
         return self._binary_file_cache
 
     @property

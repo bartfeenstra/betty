@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-12 19:08+0100\n"
+"POT-Creation-Date: 2024-07-14 22:34+0100\n"
 "PO-Revision-Date: 2024-02-08 13:08+0000\n"
 "Last-Translator: Rainer Thieringer <rainerthi@gmail.com>\n"
 "Language: uk\n"
@@ -74,9 +74,6 @@ msgid "\"{path}\" is not a directory."
 msgstr ""
 
 msgid "\"{path}\" is not a file."
-msgstr ""
-
-msgid "\"{scope}\" cache cleared."
 msgstr ""
 
 #, python-format

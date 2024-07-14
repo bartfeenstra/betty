@@ -21,7 +21,6 @@ from betty.cache._base import _CommonCacheBase
 from betty.hashid import hashid
 
 if TYPE_CHECKING:
-    from betty.locale.localizer import Localizer
     from pathlib import Path
     from collections.abc import Sequence
 
@@ -84,19 +83,16 @@ class _FileCache(
 
     def __init__(
         self,
-        localizer: Localizer,
         cache_directory_path: Path,
         *,
         scopes: Sequence[str] | None = None,
     ):
-        super().__init__(localizer, scopes=scopes)
+        super().__init__(scopes=scopes)
         self._root_path = cache_directory_path
 
     @override
     def _with_scope(self, scope: str) -> Self:
-        return type(self)(
-            self._localizer, self._root_path, scopes=(*self._scopes, scope)
-        )
+        return type(self)(self._root_path, scopes=(*self._scopes, scope))
 
     def _cache_item_file_path(self, cache_item_id: str) -> Path:
         return self._path / hashid(cache_item_id)

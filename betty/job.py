@@ -9,10 +9,8 @@ from datetime import datetime
 from typing import Any, TYPE_CHECKING
 
 from betty.cache.memory import MemoryCache
-from betty.locale.localizer import DEFAULT_LOCALIZER
 
 if TYPE_CHECKING:
-    from betty.locale.localizer import Localizer
     from betty.cache import Cache
 
 
@@ -21,8 +19,8 @@ class Context:
     Define a job context.
     """
 
-    def __init__(self, localizer: Localizer | None = None):
-        self._cache: Cache[Any] = MemoryCache(localizer or DEFAULT_LOCALIZER)
+    def __init__(self):
+        self._cache: Cache[Any] = MemoryCache()
         self._claims_lock = threading.Lock()
         self._claimed_job_ids: set[str] = set()
         self._start = datetime.now()

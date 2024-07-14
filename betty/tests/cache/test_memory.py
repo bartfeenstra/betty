@@ -5,7 +5,6 @@ from typing import Any
 from typing_extensions import override
 
 from betty.cache.memory import MemoryCache
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.tests.cache.test___init__ import CacheTestBase
 
 
@@ -17,7 +16,7 @@ class TestMemoryCache(CacheTestBase[Any]):
         *,
         scopes: Sequence[str] | None = None,
     ) -> AsyncIterator[MemoryCache[Any]]:
-        yield MemoryCache(DEFAULT_LOCALIZER, scopes=scopes)
+        yield MemoryCache(scopes=scopes)
 
     @override
     def _values(self) -> Iterator[Any]:
