@@ -1,6 +1,6 @@
 {% set summaries = resource.links | wikipedia | list %}
 {% if summaries | length > 0 %}
-    {% for summary in summariess %}
+    {% for summary in summaries %}
         {{ summary.content | safe }}
         <p>{% trans url = summary.url %}Continue reading on <a href="{{ url }}">Wikipedia</a>.{% endtrans %}</p>
     {% endfor %}
