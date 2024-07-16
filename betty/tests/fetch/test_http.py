@@ -1,44 +1,27 @@
 import asyncio
-from collections.abc import AsyncIterator
-from json import dumps
+from typing import AsyncIterator
 
 import aiofiles
-from aioresponses import aioresponses
 import pytest
 from aiohttp import ClientSession, ClientError
-from multidict import CIMultiDict
+from aioresponses import aioresponses
 
 from betty.cache.file import BinaryFileCache
 from betty.cache.memory import MemoryCache
-from betty.fetch import Fetcher, FetchError, FetchResponse
+from betty.fetch import FetchError
+from betty.fetch.http import HttpFetcher
 
 
-class TestFetchError:
-    pass
-
-
-class TestFetchResponse:
-    async def test_json(self) -> None:
-        json_data = {
-            "Hello": "World!",
-        }
-        sut = FetchResponse(CIMultiDict(), dumps(json_data).encode("utf-8"), "utf-8")
-        assert sut.json == json_data
-
-    async def test_text(self) -> None:
-        text = "Hello, world!"
-        sut = FetchResponse(CIMultiDict(), text.encode("utf-8"), "utf-8")
-        assert sut.text == text
-
-
-class TestFetcher:
+class TestHttpFetcher:
     @pytest.fixture()
-    async def sut(self, binary_file_cache: BinaryFileCache) -> AsyncIterator[Fetcher]:
+    async def sut(
+        self, binary_file_cache: BinaryFileCache
+    ) -> AsyncIterator[HttpFetcher]:
         async with ClientSession() as http_client:
-            yield Fetcher(http_client, MemoryCache(), binary_file_cache)
+            yield HttpFetcher(http_client, MemoryCache(), binary_file_cache)
 
     async def test_fetch_should_return(
-        self, aioresponses: aioresponses, sut: Fetcher
+        self, aioresponses: aioresponses, sut: HttpFetcher
     ) -> None:
         url = "https://example.com"
         content = "The name's Text. Plain Text."
@@ -65,7 +48,7 @@ class TestFetcher:
         ],
     )
     async def test_fetch_with_cold_cache_and_get_error_should_error(
-        self, aioresponses: aioresponses, error: Exception, sut: Fetcher
+        self, aioresponses: aioresponses, error: Exception, sut: HttpFetcher
     ) -> None:
         url = "https://example.com"
         aioresponses.get(url, exception=error)
@@ -85,10 +68,10 @@ class TestFetcher:
         aioresponses: aioresponses,
         binary_file_cache: BinaryFileCache,
         error: Exception,
-        sut: Fetcher,
+        sut: HttpFetcher,
     ) -> None:
         async with ClientSession() as http_client:
-            sut = Fetcher(
+            sut = HttpFetcher(
                 http_client,
                 MemoryCache(),
                 binary_file_cache,
@@ -115,7 +98,7 @@ class TestFetcher:
             assert fetched_twice.headers["X-Betty"] == content
 
     async def test_fetch_file_should_return(
-        self, aioresponses: aioresponses, sut: Fetcher
+        self, aioresponses: aioresponses, sut: HttpFetcher
     ) -> None:
         url = "https://example.com"
         content = b"The name's Text. Plain Text."
@@ -142,7 +125,7 @@ class TestFetcher:
         ],
     )
     async def test_fetch_file_with_cold_cache_and_get_error_should_error(
-        self, aioresponses: aioresponses, error: Exception, sut: Fetcher
+        self, aioresponses: aioresponses, error: Exception, sut: HttpFetcher
     ) -> None:
         url = "https://example.com"
         aioresponses.get(url, exception=error)
@@ -162,10 +145,10 @@ class TestFetcher:
         aioresponses: aioresponses,
         binary_file_cache: BinaryFileCache,
         error: Exception,
-        sut: Fetcher,
+        sut: HttpFetcher,
     ) -> None:
         async with ClientSession() as http_client:
-            sut = Fetcher(
+            sut = HttpFetcher(
                 http_client,
                 MemoryCache(),
                 binary_file_cache,

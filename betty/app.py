@@ -27,7 +27,7 @@ from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.config import Configurable, Configuration, assert_configuration_file
 from betty.core import CoreComponent
-from betty.fetch import Fetcher
+from betty.fetch import Fetcher, http
 from betty.fs import HOME_DIRECTORY_PATH
 from betty.locale import get_data, DEFAULT_LOCALE
 from betty.locale.localizable import _
@@ -209,7 +209,7 @@ class App(Configurable[AppConfiguration], CoreComponent):
         """
         if self._fetcher is None:
             self._assert_bootstrapped()
-            self._fetcher = Fetcher(
+            self._fetcher = http.HttpFetcher(
                 self.http_client,
                 self.cache.with_scope("fetch"),
                 self.binary_file_cache.with_scope("fetch"),

@@ -26,6 +26,7 @@ from betty.locale import (
     LocaleNotFoundError,
     Localey,
 )
+from betty.locale.localizable import plain
 from betty.locale.localized import Localized
 from betty.media_type import MediaType
 from betty.model.ancestry import (
@@ -49,25 +50,9 @@ if TYPE_CHECKING:
     )
 
 
-class WikipediaError(BaseException):
-    """
-    An error raised by Betty's Wikipedia API.
-    """
-
-    pass  # pragma: no cover
-
-
-class NotAPageError(WikipediaError, ValueError):
+class NotAPageError(ValueError):
     """
     Raised when a URL does not point to a Wikipedia page.
-    """
-
-    pass  # pragma: no cover
-
-
-class RetrievalError(WikipediaError, RuntimeError):
-    """
-    An error that occurred when retrieving content from Wikipedia.
     """
 
     pass  # pragma: no cover
@@ -211,7 +196,7 @@ class _Retriever:
     def _catch_exceptions(self) -> Iterator[None]:
         try:
             yield
-        except (FetchError, RetrievalError) as error:
+        except FetchError as error:
             logging.getLogger(__name__).warning(str(error))
 
     async def _fetch_json(self, url: str, *selectors: str | int) -> Any:
@@ -220,14 +205,18 @@ class _Retriever:
         try:
             data = response.json
         except JSONDecodeError as error:
-            raise RetrievalError(f"Invalid JSON returned by {url}: {error}") from error
+            raise FetchError(
+                plain(f"Invalid JSON returned by {url}: {error}")
+            ) from error
 
         try:
             for selector in selectors:
                 data = data[selector]
         except (LookupError, TypeError) as error:
-            raise RetrievalError(
-                f"Could not successfully parse the JSON format returned by {url}: {error}"
+            raise FetchError(
+                plain(
+                    f"Could not successfully parse the JSON format returned by {url}: {error}"
+                )
             ) from error
         return data
 
@@ -246,7 +235,7 @@ class _Retriever:
     ) -> dict[str, str]:
         try:
             api_data = await self._get_page_query_api_data(page_language, page_name)
-        except RetrievalError as error:
+        except FetchError as error:
             logger = logging.getLogger(__name__)
             logger.warning(str(error))
             return {}
@@ -276,8 +265,10 @@ class _Retriever:
                     ),
                 )
             except LookupError as error:
-                raise RetrievalError(
-                    f"Could not successfully parse the JSON content returned by {url}: {error}"
+                raise FetchError(
+                    plain(
+                        f"Could not successfully parse the JSON content returned by {url}: {error}"
+                    )
                 ) from error
 
     async def get_image(self, page_language: str, page_name: str) -> Image | None:
@@ -298,8 +289,10 @@ class _Retriever:
             try:
                 image_info = image_info_api_data["imageinfo"][0]
             except LookupError as error:
-                raise RetrievalError(
-                    f"Could not successfully parse the JSON content returned by {url}: {error}"
+                raise FetchError(
+                    plain(
+                        f"Could not successfully parse the JSON content returned by {url}: {error}"
+                    )
                 ) from error
             async with self._rate_limiter:
                 image_path = await self._fetcher.fetch_file(image_info["url"])
@@ -331,8 +324,8 @@ class _Retriever:
                     return None
                 return Point(coordinates["lat"], coordinates["lon"])
             except LookupError as error:
-                raise RetrievalError(
-                    f"Could not successfully parse the JSON content: {error}"
+                raise FetchError(
+                    plain(f"Could not successfully parse the JSON content: {error}")
                 ) from error
 
 
@@ -382,7 +375,7 @@ class _Populator:
 
             summary = None
             if link.label is None:
-                with suppress(RetrievalError):
+                with suppress(FetchError):
                     summary = await self._retriever.get_summary(
                         page_language, page_name
                     )
