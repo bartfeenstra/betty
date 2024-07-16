@@ -11,82 +11,24 @@ from typing import TYPE_CHECKING, Self, Any, final
 
 import aiohttp
 from aiofiles.tempfile import TemporaryDirectory
-from typing_extensions import override
-
 from betty import fs
-from betty.assertion import (
-    OptionalField,
-    assert_record,
-    assert_setattr,
-    assert_str,
-)
-from betty.assertion.error import AssertionFailed
+from betty.app.config import AppConfiguration
 from betty.assets import AssetRepository
 from betty.asyncio import wait_to_thread
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
-from betty.config import Configurable, Configuration, assert_configuration_file
+from betty.config import Configurable, assert_configuration_file
 from betty.core import CoreComponent
 from betty.fetch import Fetcher, http
 from betty.fs import HOME_DIRECTORY_PATH
-from betty.locale import get_data, DEFAULT_LOCALE
-from betty.locale.localizable import _
+from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizer import Localizer, LocalizerRepository
-from betty.serde.dump import minimize, void_none, Dump, VoidableDump
 
 if TYPE_CHECKING:
     from betty.cache import Cache
     from collections.abc import AsyncIterator, Callable
 
 CONFIGURATION_DIRECTORY_PATH = fs.HOME_DIRECTORY_PATH / "configuration"
-
-
-@final
-class AppConfiguration(Configuration):
-    """
-    Provide configuration for :py:class:`betty.app.App`.
-    """
-
-    def __init__(
-        self,
-        *,
-        locale: str | None = None,
-    ):
-        super().__init__()
-        self._locale: str | None = locale
-
-    @property
-    def locale(self) -> str | None:
-        """
-        The application locale.
-        """
-        return self._locale
-
-    @locale.setter
-    def locale(self, locale: str) -> None:
-        try:
-            get_data(locale)
-        except ValueError:
-            raise AssertionFailed(
-                _('"{locale}" is not a valid IETF BCP 47 language tag.').format(
-                    locale=locale
-                )
-            ) from None
-        self._locale = locale
-
-    @override
-    def update(self, other: Self) -> None:
-        self._locale = other._locale
-
-    @override
-    def load(self, dump: Dump) -> None:
-        assert_record(
-            OptionalField("locale", assert_str() | assert_setattr(self, "locale"))
-        )(dump)
-
-    @override
-    def dump(self) -> VoidableDump:
-        return minimize({"locale": void_none(self.locale)}, True)
 
 
 @final

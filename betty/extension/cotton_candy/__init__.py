@@ -4,24 +4,12 @@ Provide Betty's default theme.
 
 from __future__ import annotations
 
-import re
 from collections import defaultdict
 from pathlib import Path
-from typing import Iterable, Self, cast, TYPE_CHECKING, final
-
-from jinja2 import pass_context
-from typing_extensions import override
+from typing import Iterable, cast, TYPE_CHECKING, final
 
 from betty import fs
-from betty.assertion import (
-    OptionalField,
-    assert_str,
-    assert_record,
-    assert_path,
-    assert_setattr,
-)
-from betty.assertion.error import AssertionFailed
-from betty.config import Configuration
+from betty.extension.cotton_candy.config import CottonCandyConfiguration
 from betty.extension.cotton_candy.search import Index
 from betty.extension.maps import Maps
 from betty.extension.trees import Trees
@@ -39,7 +27,7 @@ from betty.jinja2 import (
 )
 from betty.locale.date import Date, Datey
 from betty.locale.localizable import _, plain, Localizable
-from betty.model import Entity, UserFacingEntity, GeneratedEntityId
+from betty.model import GeneratedEntityId
 from betty.model.ancestry import (
     Event,
     Person,
@@ -52,169 +40,15 @@ from betty.model.ancestry import (
 from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
 from betty.model.presence_role import Subject
 from betty.os import link_or_copy
-from betty.project import EntityReferenceSequence, EntityReference
 from betty.project.extension import ConfigurableExtension, Theme
-from betty.serde.dump import minimize, Dump, VoidableDump
-from betty.typing import Void
+from jinja2 import pass_context
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.event_dispatcher import EventHandlerRegistry
     from betty.plugin import PluginId
     from jinja2.runtime import Context
     from collections.abc import Sequence, AsyncIterable
-
-
-class _ColorConfiguration(Configuration):
-    _HEX_PATTERN = re.compile(r"^#[a-zA-Z0-9]{6}$")
-
-    def __init__(self, hex_value: str):
-        super().__init__()
-        self._hex: str
-        self.hex = hex_value
-
-    def _assert_hex(self, hex_value: str) -> str:
-        if not self._HEX_PATTERN.match(hex_value):
-            raise AssertionFailed(
-                _(
-                    '"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.'
-                ).format(
-                    hex_value=hex_value,
-                )
-            )
-        return hex_value
-
-    @property
-    def hex(self) -> str:
-        return self._hex
-
-    @hex.setter
-    def hex(self, hex_value: str) -> None:
-        self._assert_hex(hex_value)
-        self._hex = hex_value
-
-    @override
-    def update(self, other: Self) -> None:
-        self.hex = other.hex
-
-    @override
-    def load(self, dump: Dump) -> None:
-        self._hex = (assert_str() | self._assert_hex)(dump)
-
-    @override
-    def dump(self) -> VoidableDump:
-        return self._hex
-
-
-class CottonCandyConfiguration(Configuration):
-    """
-    Provide configuration for the :py:class:`betty.extension.cotton_candy.CottonCandy` extension.
-    """
-
-    DEFAULT_PRIMARY_INACTIVE_COLOR = "#ffc0cb"
-    DEFAULT_PRIMARY_ACTIVE_COLOR = "#ff69b4"
-    DEFAULT_LINK_INACTIVE_COLOR = "#149988"
-    DEFAULT_LINK_ACTIVE_COLOR = "#2a615a"
-
-    def __init__(
-        self,
-        *,
-        featured_entities: (
-            Sequence[EntityReference[UserFacingEntity & Entity]] | None
-        ) = None,
-        primary_inactive_color: str = DEFAULT_PRIMARY_INACTIVE_COLOR,
-        primary_active_color: str = DEFAULT_PRIMARY_ACTIVE_COLOR,
-        link_inactive_color: str = DEFAULT_LINK_INACTIVE_COLOR,
-        link_active_color: str = DEFAULT_LINK_ACTIVE_COLOR,
-        logo: Path | None = None,
-    ):
-        super().__init__()
-        self._featured_entities = EntityReferenceSequence["UserFacingEntity & Entity"](
-            featured_entities or ()
-        )
-        self._primary_inactive_color = _ColorConfiguration(primary_inactive_color)
-        self._primary_active_color = _ColorConfiguration(primary_active_color)
-        self._link_inactive_color = _ColorConfiguration(link_inactive_color)
-        self._link_active_color = _ColorConfiguration(link_active_color)
-        self._logo = logo
-
-    @property
-    def featured_entities(self) -> EntityReferenceSequence[UserFacingEntity & Entity]:
-        """
-        The entities featured on the front page.
-        """
-        return self._featured_entities
-
-    @property
-    def primary_inactive_color(self) -> _ColorConfiguration:
-        """
-        The color for inactive primary/CTA elements.
-        """
-        return self._primary_inactive_color
-
-    @property
-    def primary_active_color(self) -> _ColorConfiguration:
-        """
-        The color for active primary/CTA elements.
-        """
-        return self._primary_active_color
-
-    @property
-    def link_inactive_color(self) -> _ColorConfiguration:
-        """
-        The color for inactive hyperlinks.
-        """
-        return self._link_inactive_color
-
-    @property
-    def link_active_color(self) -> _ColorConfiguration:
-        """
-        The color for active hyperlinks.
-        """
-        return self._link_active_color
-
-    @property
-    def logo(self) -> Path | None:
-        """
-        The path to the logo.
-        """
-        return self._logo
-
-    @logo.setter
-    def logo(self, logo: Path | None) -> None:
-        self._logo = logo
-
-    @override
-    def update(self, other: Self) -> None:
-        self.featured_entities.update(other.featured_entities)
-        self.primary_inactive_color.update(other.primary_inactive_color)
-        self.primary_active_color.update(other.primary_active_color)
-        self.link_inactive_color.update(other.link_inactive_color)
-        self.link_active_color.update(other.link_active_color)
-        self.logo = other.logo
-
-    @override
-    def load(self, dump: Dump) -> None:
-        assert_record(
-            OptionalField("featured_entities", self.featured_entities.load),
-            OptionalField("primary_inactive_color", self.primary_inactive_color.load),
-            OptionalField("primary_active_color", self.primary_active_color.load),
-            OptionalField("link_inactive_color", self.link_inactive_color.load),
-            OptionalField("link_active_color", self.link_active_color.load),
-            OptionalField("logo", assert_path() | assert_setattr(self, "logo")),
-        )(dump)
-
-    @override
-    def dump(self) -> VoidableDump:
-        return minimize(
-            {
-                "featured_entities": self.featured_entities.dump(),
-                "primary_inactive_color": self._primary_inactive_color.dump(),
-                "primary_active_color": self._primary_active_color.dump(),
-                "link_inactive_color": self._link_inactive_color.dump(),
-                "link_active_color": self._link_active_color.dump(),
-                "logo": str(self._logo) if self._logo else Void,
-            }
-        )
 
 
 async def _generate_favicon(event: GenerateSiteEvent) -> None:
