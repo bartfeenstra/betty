@@ -155,7 +155,9 @@ class EntityContexts:
         """
         Create a new context with the given entities.
         """
-        updated_contexts = EntityContexts()
+        updated_contexts = EntityContexts(
+            *(entity for entity in self._contexts.values() if entity is not None)
+        )
         for entity in entities:
             updated_contexts._contexts[entity.type] = entity
         return updated_contexts

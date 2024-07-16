@@ -8,7 +8,8 @@ import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
 from betty.app import App
-from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider
+from betty.fs import ASSETS_DIRECTORY_PATH
+from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider, EntityContexts
 from betty.locale import Date, Datey, DateRange, Localized
 from betty.media_type import MediaType
 from betty.model import get_entity_type_name, Entity
@@ -189,7 +190,7 @@ class TestFilterFile(TemplateTestCase):
         ("expected", "template", "file"),
         [
             (
-                "/file/F1/file/test_jinja2.py",
+                "/file/F1/file/test___init__.py",
                 "{{ file | file }}",
                 File(
                     id="F1",
@@ -197,7 +198,7 @@ class TestFilterFile(TemplateTestCase):
                 ),
             ),
             (
-                "/file/F1/file/test_jinja2.py:/file/F1/file/test_jinja2.py",
+                "/file/F1/file/test___init__.py:/file/F1/file/test___init__.py",
                 "{{ file | file }}:{{ file | file }}",
                 File(
                     id="F1",
@@ -221,9 +222,7 @@ class TestFilterFile(TemplateTestCase):
 
 
 class TestFilterImage(TemplateTestCase):
-    image_path = (
-        Path(__file__).parents[1] / "assets" / "public" / "static" / "betty-512x512.png"
-    )
+    image_path = ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png"
 
     @pytest.mark.parametrize(
         ("expected", "template", "file"),
@@ -671,3 +670,35 @@ class TestTestEntity(TemplateTestCase):
             },
         ) as (actual, _):
             assert expected == actual
+
+
+class EntityContextsTestEntityA(Entity):
+    pass
+
+
+class EntityContextsTestEntityB(Entity):
+    pass
+
+
+class TestEntityContexts:
+    async def test___getitem__(self) -> None:
+        sut = EntityContexts()
+        assert sut[EntityContextsTestEntityA] is None
+
+    async def test___getitem___with___init__(self) -> None:
+        a = EntityContextsTestEntityA()
+        sut = EntityContexts(a)
+        assert sut[EntityContextsTestEntityA] is a
+
+    async def test___call__(self) -> None:
+        a = EntityContextsTestEntityA()
+        contexts = EntityContexts()
+        sut = contexts(a)
+        assert sut[EntityContextsTestEntityA] is a
+
+    async def test___call___with___init__(self) -> None:
+        a = EntityContextsTestEntityA()
+        b = EntityContextsTestEntityA()
+        contexts = EntityContexts(a)
+        sut = contexts(b)
+        assert sut[EntityContextsTestEntityA] is b
