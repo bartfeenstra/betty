@@ -358,7 +358,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "context_job_context": TestKnownToBeMissing,
         "context_localizer": TestKnownToBeMissing,
         "context_project": TestKnownToBeMissing,
-        "EntityContexts": TestKnownToBeMissing,
         "Environment": TestKnownToBeMissing,
     },
     "betty/jinja2/filter.py": {
