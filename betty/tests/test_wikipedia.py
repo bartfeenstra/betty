@@ -8,9 +8,9 @@ from unittest.mock import AsyncMock, call
 import pytest
 from geopy import Point
 from multidict import CIMultiDict
-from typing_extensions import override
 
-from betty.fetch import Fetcher, FetchResponse
+from betty.fetch import FetchResponse
+from betty.fetch.static import StaticFetcher
 from betty.media_type import MediaType
 from betty.model.ancestry import Source, Link, Citation, Place
 from betty.project import LocaleConfiguration, Project
@@ -21,43 +21,16 @@ from betty.wikipedia import (
     _parse_url,
     _Populator,
     Image,
-    RetrievalError,
 )
 
 if TYPE_CHECKING:
     from betty.app import App
     from betty.cache.file import BinaryFileCache
     from pytest_mock import MockerFixture
-    from collections.abc import Mapping
 
 
 def _new_json_fetch_response(json_data: Any) -> FetchResponse:
     return FetchResponse(CIMultiDict(), dumps(json_data).encode("utf-8"), "utf-8")
-
-
-class _MapFetcher(Fetcher):
-    def __init__(
-        self,
-        *,
-        fetch_map: Mapping[str, FetchResponse] | None = None,
-        fetch_file_map: Mapping[str, Path] | None = None,
-    ):
-        self._fetch_map = fetch_map or {}
-        self._fetch_file_map = fetch_file_map or {}
-
-    @override
-    async def fetch(self, url: str) -> FetchResponse:
-        try:
-            return self._fetch_map[url]
-        except KeyError:
-            raise RetrievalError from None
-
-    @override
-    async def fetch_file(self, url: str) -> Path:
-        try:
-            return self._fetch_file_map[url]
-        except KeyError:
-            raise RetrievalError from None
 
 
 class TestParseUrl:
@@ -219,7 +192,7 @@ class TestRetriever:
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
         fetch_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
-        fetcher = _MapFetcher(
+        fetcher = StaticFetcher(
             fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
         )
         translations = await _Retriever(fetcher).get_translations(
@@ -236,7 +209,7 @@ class TestRetriever:
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
         fetch_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks&lllimit=500&format=json&formatversion=2"
-        fetcher = _MapFetcher(
+        fetcher = StaticFetcher(
             fetch_map={
                 fetch_url: FetchResponse(
                     CIMultiDict(),
@@ -267,7 +240,7 @@ class TestRetriever:
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
         fetch_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstrekens&prop=langlinks&lllimit=500&format=json&formatversion=2"
-        fetcher = _MapFetcher(
+        fetcher = StaticFetcher(
             fetch_map={fetch_url: _new_json_fetch_response(response_json)}
         )
         actual = await _Retriever(fetcher).get_translations(page_language, page_name)
@@ -342,7 +315,7 @@ class TestRetriever:
         fetch_url = (
             "https://en.wikipedia.org/api/rest_v1/page/summary/Amsterdam & Omstreken"
         )
-        fetcher = _MapFetcher(
+        fetcher = StaticFetcher(
             fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
         )
         retriever = _Retriever(fetcher)
@@ -493,7 +466,7 @@ class TestRetriever:
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
         fetch_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
-        fetcher = _MapFetcher(
+        fetcher = StaticFetcher(
             fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
         )
         actual = await _Retriever(fetcher).get_place_coordinates(
@@ -652,7 +625,7 @@ class TestRetriever:
         image_file_path = tmp_path / "image"
         if expected is not None:
             fetch_file_map["https://example.com/image"] = image_file_path
-        fetcher = _MapFetcher(fetch_map=fetch_map, fetch_file_map=fetch_file_map)
+        fetcher = StaticFetcher(fetch_map=fetch_map, fetch_file_map=fetch_file_map)
 
         actual = await _Retriever(fetcher).get_image(page_language, page_name)
         if expected is None:

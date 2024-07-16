@@ -5,6 +5,7 @@ from requests import Response
 
 from betty.extension.demo import Demo
 from betty.extension.demo import DemoServer, demo_project
+from betty.fetch.static import StaticFetcher
 from betty.functools import Do
 from betty.load import load
 from betty.model.ancestry import Person, Place, Event, Source, Citation
@@ -32,7 +33,7 @@ class TestDemo:
 
 class TestDemoServer:
     async def test(self, mocker: MockerFixture, new_temporary_app: App) -> None:
-        mocker.patch("betty.wikipedia._Populator.populate")
+        mocker.patch("betty.fetch.http.HttpFetcher", return_value=StaticFetcher())
         mocker.patch("webbrowser.open_new_tab")
         async with DemoServer(app=new_temporary_app) as server:
 

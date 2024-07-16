@@ -4,65 +4,26 @@ Fetch content from the internet.
 
 import asyncio
 from collections.abc import Callable, Awaitable
-from dataclasses import dataclass
-from json import loads
 from logging import getLogger
 from pathlib import Path
 from time import time
-from typing import Any, TypeVar
+from typing import TypeVar
 
 from aiohttp import ClientSession, ClientResponse, ClientError
-from multidict import CIMultiDict
+from typing_extensions import override
 
 from betty.cache import Cache
 from betty.cache.file import BinaryFileCache
-from betty.error import UserFacingError
+from betty.fetch import Fetcher, FetchResponse, FetchError
 from betty.hashid import hashid
 from betty.locale.localizable import plain
 
 _CacheItemValueT = TypeVar("_CacheItemValueT")
 
 
-class FetchError(UserFacingError, RuntimeError):
+class HttpFetcher(Fetcher):
     """
-    An error that occurred when fetching a URL.
-    """
-
-    pass  # pragma: no cover
-
-
-@dataclass
-class FetchResponse:
-    """
-    An HTTP response.
-    """
-
-    headers: CIMultiDict[str]
-    body: bytes
-    encoding: str
-
-    @property
-    def text(self) -> str:
-        """
-        The body as plain text.
-
-        This may raise an error if the response body cannot be represented as plain text.
-        """
-        return self.body.decode(self.encoding)
-
-    @property
-    def json(self) -> Any:
-        """
-        The body as JSON.
-
-        This may raise an error if the response body cannot be represented as JSON or plain text.
-        """
-        return loads(self.text)
-
-
-class Fetcher:
-    """
-    Fetch content from the internet.
+    Fetch content from the internet using an HTTP client.
     """
 
     def __init__(
@@ -124,6 +85,7 @@ class Fetcher:
             response.get_encoding(),
         )
 
+    @override
     async def fetch(self, url: str) -> FetchResponse:
         """
         Fetch an HTTP resource.
@@ -133,6 +95,7 @@ class Fetcher:
         )
         return response_data
 
+    @override
     async def fetch_file(self, url: str) -> Path:
         """
         Fetch a file.

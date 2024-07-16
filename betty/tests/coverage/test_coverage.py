@@ -311,12 +311,15 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "populate_images": TestKnownToBeMissing,
         },
     },
-    "betty/fetch.py": {
+    "betty/fetch/__init__.py": {
+        # This is an interface.
+        "Fetcher": TestKnownToBeMissing,
         "FetchResponse": {
             # This is inherited from @dataclass.
             "__eq__": TestKnownToBeMissing,
         },
     },
+    "betty/fetch/static.py": TestKnownToBeMissing,
     "betty/functools.py": {
         "filter_suppress": TestKnownToBeMissing,
         "Uniquifier": {
@@ -761,13 +764,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Image": TestKnownToBeMissing,
         # This is an empty class.
         "NotAPageError": TestKnownToBeMissing,
-        # This is an empty class.
-        "RetrievalError": TestKnownToBeMissing,
         "Summary": {
             "name": TestKnownToBeMissing,
         },
-        # This is an empty class.
-        "WikipediaError": TestKnownToBeMissing,
     },
 }
 

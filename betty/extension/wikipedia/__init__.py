@@ -11,6 +11,7 @@ from typing_extensions import override
 
 from betty.asyncio import gather
 from betty.extension.wikipedia.config import WikipediaConfiguration
+from betty.fetch import FetchError
 from betty.jinja2 import Jinja2Provider, context_localizer, Filters
 from betty.load import PostLoadAncestryEvent
 from betty.locale import negotiate_locale
@@ -20,7 +21,6 @@ from betty.wikipedia import (
     Summary,
     _parse_url,
     NotAPageError,
-    RetrievalError,
     _Retriever,
     _Populator,
 )
@@ -102,7 +102,7 @@ class Wikipedia(ConfigurableExtension[WikipediaConfiguration], Jinja2Provider):
             return None
         try:
             return await self.retriever.get_summary(page_language, page_name)
-        except RetrievalError as error:
+        except FetchError as error:
             logger = logging.getLogger(__name__)
             logger.warning(str(error))
             return None
