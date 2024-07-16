@@ -41,7 +41,7 @@ class EventType(Plugin):
         return set()  # pragma: no cover
 
 
-ENTITY_TYPE_REPOSITORY: PluginRepository[EventType] = EntryPointPluginRepository(
+EVENT_TYPE_REPOSITORY: PluginRepository[EventType] = EntryPointPluginRepository(
     "betty.event_type"
 )
 """
