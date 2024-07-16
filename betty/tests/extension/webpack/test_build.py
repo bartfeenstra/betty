@@ -29,21 +29,22 @@ class TestBuilder:
         (
             "with_entry_point_provider",
             "debug",
-            "npm_install_cache_available",
             "webpack_build_cache_available",
         ),
+        # Testing without debugging mode and without any caches is done by TestDemoServer.
         [
-            (True, True, True, True),
-            (False, True, True, True),
-            (True, False, True, True),
-            (True, True, True, False),
+            # Without an entry point provider.
+            (False, False, True),
+            # With debug.
+            (False, True, True),
+            # With the npm install cache, but without the Webpack cache.
+            (False, False, False),
         ],
     )
     async def test_build(
         self,
         with_entry_point_provider: bool,
         debug: bool,
-        npm_install_cache_available: bool,
         tmp_path: Path,
         webpack_build_cache_available: bool,
     ) -> None:
@@ -65,10 +66,9 @@ class TestBuilder:
                 job_context=job_context,
                 localizer=DEFAULT_LOCALIZER,
             )
-            if npm_install_cache_available:
-                webpack_build_directory_path = await sut.build()
-                if not webpack_build_cache_available:
-                    await to_thread(rmtree, webpack_build_directory_path)
+            webpack_build_directory_path = await sut.build()
+            if not webpack_build_cache_available:
+                await to_thread(rmtree, webpack_build_directory_path)
             webpack_build_directory_path = await sut.build()
         assert (webpack_build_directory_path / "css" / "vendor.css").exists()
         assert (
