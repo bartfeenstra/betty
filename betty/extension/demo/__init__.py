@@ -10,7 +10,8 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty import load, generate, serve
-from betty.extension.cotton_candy import CottonCandyConfiguration, CottonCandy
+from betty.extension.cotton_candy import CottonCandy
+from betty.extension.cotton_candy.config import CottonCandyConfiguration
 from betty.extension.http_api_doc import HttpApiDoc
 from betty.extension.maps import Maps
 from betty.extension.trees import Trees

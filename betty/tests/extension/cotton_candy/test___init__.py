@@ -1,19 +1,16 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Iterator, TYPE_CHECKING
+from typing import Iterator
 
 import pytest
 
 from betty.extension.cotton_candy import (
-    _ColorConfiguration,
-    CottonCandyConfiguration,
     person_timeline_events,
     associated_file_references,
 )
 from betty.locale.date import Datey, Date, DateRange
 from betty.model import (
-    UserFacingEntity,
     GeneratedEntityId,
 )
 from betty.model.ancestry import (
@@ -31,216 +28,8 @@ from betty.model.ancestry import (
 )
 from betty.model.presence_role import PresenceRole, Subject, Attendee
 from betty.model.event_type import Birth, UnknownEventType, EventType, Death
-from betty.plugin.static import StaticPluginRepository
-from betty.project import EntityReference, DEFAULT_LIFETIME_THRESHOLD
-from betty.assertion.error import AssertionFailed
-from betty.tests.assertion import raises_error
+from betty.project import DEFAULT_LIFETIME_THRESHOLD
 from betty.tests.model.test___init__ import DummyEntity
-
-if TYPE_CHECKING:
-    from pytest_mock import MockerFixture
-    from betty.serde.dump import Dump
-
-
-class TestColorConfiguration:
-    async def test_hex_with_valid_value(self) -> None:
-        hex_value = "#000000"
-        sut = _ColorConfiguration("#ffffff")
-        sut.hex = hex_value
-        assert hex_value == sut.hex
-
-    @pytest.mark.parametrize(
-        "hex_value",
-        [
-            "rgb(0,0,0)",
-            "pink",
-        ],
-    )
-    async def test_hex_with_invalid_value(self, hex_value: str) -> None:
-        sut = _ColorConfiguration("#ffffff")
-        with pytest.raises(AssertionFailed):
-            sut.hex = hex_value
-
-    async def test_load_with_valid_hex_value(self) -> None:
-        hex_value = "#000000"
-        dump = hex_value
-        sut = _ColorConfiguration("#ffffff")
-        sut.load(dump)
-        assert sut.hex == hex_value
-
-    @pytest.mark.parametrize(
-        "dump",
-        [
-            False,
-            123,
-            "rgb(0,0,0)",
-            "pink",
-        ],
-    )
-    async def test_load_with_invalid_value(self, dump: Dump) -> None:
-        sut = _ColorConfiguration("#ffffff")
-        with pytest.raises(AssertionFailed):
-            sut.load(dump)
-
-    async def test_dump_with_value(self) -> None:
-        hex_value = "#000000"
-        assert hex_value == _ColorConfiguration(hex_value=hex_value).dump()
-
-
-class CottonCandyConfigurationTestEntity(UserFacingEntity, DummyEntity):
-    pass
-
-
-class CottonCandyConfigurationTestEntitytest_load_with_featured_entities:
-    pass
-
-
-class TestCottonCandyConfiguration:
-    async def test___init___with_logo(self, tmp_path: Path) -> None:
-        logo = tmp_path / "logo.png"
-        sut = CottonCandyConfiguration(logo=logo)
-        assert sut.logo == logo
-
-    async def test_logo(self, tmp_path: Path) -> None:
-        logo = tmp_path / "logo.png"
-        sut = CottonCandyConfiguration()
-        sut.logo = logo
-        assert sut.logo == logo
-
-    async def test_load_with_minimal_configuration(self) -> None:
-        dump: dict[str, Any] = {}
-        CottonCandyConfiguration().load(dump)
-
-    async def test_load_without_dict_should_error(self) -> None:
-        dump = None
-        with raises_error(error_type=AssertionFailed):
-            CottonCandyConfiguration().load(dump)
-
-    async def test_load_with_featured_entities(self, mocker: MockerFixture) -> None:
-        mocker.patch(
-            "betty.model.ENTITY_TYPE_REPOSITORY",
-            new=StaticPluginRepository(CottonCandyConfigurationTestEntity),
-        )
-        entity_type = CottonCandyConfigurationTestEntity
-        entity_id = "123"
-        dump: Dump = {
-            "featured_entities": [
-                {
-                    "entity_type": entity_type.plugin_id(),
-                    "entity_id": entity_id,
-                },
-            ],
-        }
-        sut = CottonCandyConfiguration()
-        sut.load(dump)
-        assert entity_type is sut.featured_entities[0].entity_type
-        assert entity_id == sut.featured_entities[0].entity_id
-
-    async def test_load_with_primary_inactive_color(self) -> None:
-        hex_value = "#000000"
-        dump: Dump = {
-            "primary_inactive_color": hex_value,
-        }
-        sut = CottonCandyConfiguration()
-        sut.load(dump)
-        assert sut.primary_inactive_color.hex == hex_value
-
-    async def test_load_with_primary_active_color(self) -> None:
-        hex_value = "#000000"
-        dump: Dump = {
-            "primary_active_color": hex_value,
-        }
-        sut = CottonCandyConfiguration()
-        sut.load(dump)
-        assert sut.primary_active_color.hex == hex_value
-
-    async def test_load_with_link_inactive_color(self) -> None:
-        hex_value = "#000000"
-        dump: Dump = {
-            "link_inactive_color": hex_value,
-        }
-        sut = CottonCandyConfiguration()
-        sut.load(dump)
-        assert sut.link_inactive_color.hex == hex_value
-
-    async def test_load_with_link_active_color(self) -> None:
-        hex_value = "#000000"
-        dump: Dump = {
-            "link_active_color": hex_value,
-        }
-        sut = CottonCandyConfiguration()
-        sut.load(dump)
-        assert sut.link_active_color.hex == hex_value
-
-    async def test_load_with_logo(self, tmp_path: Path) -> None:
-        logo = tmp_path / "logo.png"
-        dump: Dump = {
-            "logo": str(logo),
-        }
-        sut = CottonCandyConfiguration()
-        sut.load(dump)
-        assert sut.logo == logo
-
-    async def test_dump_with_minimal_configuration(self) -> None:
-        sut = CottonCandyConfiguration()
-        expected = {
-            "primary_inactive_color": CottonCandyConfiguration.DEFAULT_PRIMARY_INACTIVE_COLOR,
-            "primary_active_color": CottonCandyConfiguration.DEFAULT_PRIMARY_ACTIVE_COLOR,
-            "link_inactive_color": CottonCandyConfiguration.DEFAULT_LINK_INACTIVE_COLOR,
-            "link_active_color": CottonCandyConfiguration.DEFAULT_LINK_ACTIVE_COLOR,
-        }
-        assert expected == sut.dump()
-
-    async def test_dump_with_featured_entities(self) -> None:
-        entity_type = CottonCandyConfigurationTestEntity
-        entity_id = "123"
-        sut = CottonCandyConfiguration(
-            featured_entities=[EntityReference(entity_type, entity_id)],
-        )
-        expected = [
-            {
-                "entity_type": entity_type.plugin_id(),
-                "entity_id": entity_id,
-            },
-        ]
-        dump = sut.dump()
-        assert isinstance(dump, dict)
-        assert expected == dump["featured_entities"]
-
-    async def test_dump_with_primary_inactive_color(self) -> None:
-        hex_value = "#000000"
-        sut = CottonCandyConfiguration(primary_inactive_color=hex_value)
-        dump = sut.dump()
-        assert isinstance(dump, dict)
-        assert hex_value == dump["primary_inactive_color"]
-
-    async def test_dump_with_primary_active_color(self) -> None:
-        hex_value = "#000000"
-        sut = CottonCandyConfiguration(primary_active_color=hex_value)
-        dump = sut.dump()
-        assert isinstance(dump, dict)
-        assert hex_value == dump["primary_active_color"]
-
-    async def test_dump_with_link_inactive_color(self) -> None:
-        hex_value = "#000000"
-        sut = CottonCandyConfiguration(link_inactive_color=hex_value)
-        dump = sut.dump()
-        assert isinstance(dump, dict)
-        assert hex_value == dump["link_inactive_color"]
-
-    async def test_dump_with_link_active_color(self) -> None:
-        hex_value = "#000000"
-        sut = CottonCandyConfiguration(link_active_color=hex_value)
-        dump = sut.dump()
-        assert isinstance(dump, dict)
-        assert hex_value == dump["link_active_color"]
-
-    async def test_dump_with_logo(self, tmp_path: Path) -> None:
-        logo = tmp_path / "logo.png"
-        sut = CottonCandyConfiguration(logo=logo)
-        dump = sut.dump()
-        assert isinstance(dump, dict)
-        assert dump["logo"] == str(logo)
 
 
 __REFERENCE_DATE = Date(1970, 1, 1)

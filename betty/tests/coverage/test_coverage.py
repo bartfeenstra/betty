@@ -69,7 +69,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "prepend": TestKnownToBeMissing,
         },
     },
-    "betty/app.py": {
+    "betty/app/__init__.py": {
         "App": {
             "assets": TestKnownToBeMissing,
             "binary_file_cache": TestKnownToBeMissing,
@@ -79,6 +79,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "localizers": TestKnownToBeMissing,
             "process_pool": TestKnownToBeMissing,
         },
+    },
+    "betty/app/config.py": {
         "AppConfiguration": TestKnownToBeMissing,
     },
     "betty/assertion/__init__.py": {
@@ -196,6 +198,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "person_descendant_families": TestKnownToBeMissing,
         "person_timeline_events": TestKnownToBeMissing,
         "CottonCandy": TestKnownToBeMissing,
+    },
+    "betty/extension/cotton_candy/config.py": {
         "CottonCandyConfiguration": {
             "update": TestKnownToBeMissing,
             "featured_entities": TestKnownToBeMissing,
