@@ -397,7 +397,19 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "fully_qualified_type_name": TestKnownToBeMissing,
     },
     "betty/html.py": TestKnownToBeMissing,
-    "betty/jinja2/__init__.py": TestKnownToBeMissing,
+    "betty/jinja2/__init__.py": {
+        "context_app": TestKnownToBeMissing,
+        "context_job_context": TestKnownToBeMissing,
+        "context_localizer": TestKnownToBeMissing,
+        "Environment": TestKnownToBeMissing,
+        "Jinja2Provider": {
+            "new_context_vars": TestKnownToBeMissing,
+            "tests": TestKnownToBeMissing,
+        },
+        "Jinja2Renderer": {
+            "file_extensions": TestKnownToBeMissing,
+        },
+    },
     "betty/jinja2/filter.py": TestKnownToBeMissing,
     "betty/jinja2/test.py": TestKnownToBeMissing,
     "betty/job.py": {
