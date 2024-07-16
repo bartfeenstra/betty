@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
 
-from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider
+from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider, EntityContexts
 from betty.model.ancestry import (
     Citation,
     HasFileReferences,
@@ -89,3 +89,35 @@ class TestGlobalCiter(TemplateTestCase):
         sut.cite(citation2)
         sut.cite(citation1)
         assert len(sut) == 2
+
+
+class EntityContextsTestEntityA(DummyEntity):
+    pass
+
+
+class EntityContextsTestEntityB(DummyEntity):
+    pass
+
+
+class TestEntityContexts:
+    async def test___getitem__(self) -> None:
+        sut = EntityContexts()
+        assert sut[EntityContextsTestEntityA] is None
+
+    async def test___getitem___with___init__(self) -> None:
+        a = EntityContextsTestEntityA()
+        sut = EntityContexts(a)
+        assert sut[EntityContextsTestEntityA] is a
+
+    async def test___call__(self) -> None:
+        a = EntityContextsTestEntityA()
+        contexts = EntityContexts()
+        sut = contexts(a)
+        assert sut[EntityContextsTestEntityA] is a
+
+    async def test___call___with___init__(self) -> None:
+        a = EntityContextsTestEntityA()
+        b = EntityContextsTestEntityA()
+        contexts = EntityContexts(a)
+        sut = contexts(b)
+        assert sut[EntityContextsTestEntityA] is b
