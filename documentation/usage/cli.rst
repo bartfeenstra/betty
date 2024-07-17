@@ -32,5 +32,5 @@ After installing Betty :doc:`via pip </installation/pip>` or :doc:`from source <
       serve-nginx-docker   Serve a generated site with nginx in a Docker...
 
 Generally you will be using Betty for a specific site. When you call ``betty`` with a
-:doc:`configuration file <usage/project/configuration>` (e.g. ``betty -c betty.yaml``), additional commands provided by the extensions
+:doc:`configuration file </usage/project/configuration>` (e.g. ``betty -c betty.yaml``), additional commands provided by the extensions
 enabled in the configuration file may become available.

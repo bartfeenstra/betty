@@ -76,7 +76,7 @@ All configuration options
   - ``locale`` (required): An `IETF BCP 47 <https://tools.ietf.org/html/bcp47>`_ language tag.
   - ``alias`` (optional): A shorthand alias to use instead of the full language tag, such as when rendering URLs.
 
-  If no locales are specified, Betty defaults to US English (``en-US``). Read more about `translations </usage/translation>`_.
+  If no locales are specified, Betty defaults to US English (``en-US``). Read more about :doc:`translations </usage/translation>`.
 - ``entity_types`` (optional): Keys are entity type (plugin) IDs, and values are objects containing the following keys:
 
   - ``generate_html_list`` (optional): Whether to generate the HTML page to list entities of this type. Defaults to ``false``.

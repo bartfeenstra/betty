@@ -2,7 +2,7 @@ Globals
 =======
 
 Jinja2 `globals <https://jinja.palletsprojects.com/en/3.1.x/templates/#list-of-global-functions>`_ are
-often data or functions that do not are not :doc:`filters <filter>` or :doc:`tests <test>`.
+often data or functions that do not are not :doc:`filters </usage/templating/filters>` or :doc:`tests </usage/templating/tests>`.
 
 In addition to Jinja2's built-in globals, Betty provides the following:
 
