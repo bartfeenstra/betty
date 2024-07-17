@@ -51,7 +51,7 @@ html_context = {
     "display_github": True,
     "github_user": "bartfeenstra",
     "github_repo": "betty",
-    "github_version": "0.3.x",
+    "github_version": "0.4.x",
     "conf_py_path": "/documentation/",
     "betty_replacements": betty_replacements,
 }
