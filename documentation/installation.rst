@@ -9,17 +9,7 @@ Installation
 
    installation/*
 
-Linux
------
-- :doc:`Install via pip <installation/pip>`
-- :doc:`Install from source <installation/source>`
+On Linux, macOS, or Windows:
 
-macOS
------
-- :doc:`Install via pip <installation/pip>`
-- :doc:`Install from source <installation/source>`
-
-Windows
--------
 - :doc:`Install via pip <installation/pip>`
 - :doc:`Install from source <installation/source>`
