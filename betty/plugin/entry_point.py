@@ -1,7 +1,5 @@
 """
 Integrates the plugin API with `distribution packages <https://packaging.python.org/en/latest/glossary/#term-Distribution-Package>`_.
-
-Read more at :doc:`/usage/plugin/entry_point`.
 """
 
 from importlib import metadata
@@ -16,7 +14,37 @@ _PluginT = TypeVar("_PluginT", bound=Plugin)
 @final
 class EntryPointPluginRepository(LazyPluginRepositoryBase[_PluginT], Generic[_PluginT]):
     """
-    Discover plugins defined as `distribution package <https://packaging.python.org/en/latest/glossary/#term-Distribution-Package>`_ entry points.
+    Discover plugins defined as distribution package `entry points <https://packaging.python.org/en/latest/specifications/entry-points/>`_.
+
+    If you are developing a plugin for an existing plugin type that uses entry points, you'll have
+    to add that plugin to your package metadata. For example, for a plugin type
+
+    - whose entry point group is ``your-plugin-group``
+    - with a plugin class ``MyPlugin`` in the module ``my_package.my_module``
+    - and a plugin ID ``my-package-plugin``:
+
+    .. tab-set::
+
+       .. tab-item:: pyproject.toml
+
+          .. code-block:: toml
+
+              [project.entry-points.'your-plugin-group']
+              'my-package-plugin' = 'my_package.my_module:MyPlugin'
+
+       .. tab-item:: setup.py
+
+          .. code-block:: python
+
+              SETUP = {
+                  'entry_points': {
+                      'your-plugin-group': [
+                          'my-package-plugin=my_package.my_module:MyPlugin',
+                      ],
+                  },
+              }
+              if __name__ == '__main__':
+                  setup(**SETUP)
     """
 
     def __init__(self, entry_point_group: str):

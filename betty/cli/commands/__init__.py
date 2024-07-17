@@ -36,6 +36,8 @@ _P = ParamSpec("_P")
 class Command(Plugin):
     """
     Define a CLI command plugin.
+
+    Read more about :doc:`/development/plugin/command`.
     """
 
     _click_command: ClassVar[click.Command]
@@ -95,6 +97,8 @@ class _CommandRepository(LazyPluginRepositoryBase[Command]):
 COMMAND_REPOSITORY: PluginRepository[Command] = _CommandRepository()
 """
 The Command Line Interface command repository.
+
+Read more about :doc:`/development/plugin/command`.
 """
 
 

@@ -65,3 +65,7 @@ In this section
 - :doc:`ancestry/presence-role`
 - :doc:`ancestry/privacy`
 - :doc:`ancestry/source`
+
+See also
+--------
+- :doc:`/development/plugin/entity-type`

@@ -1,34 +1,41 @@
-Developing a Betty extension
-============================
+Extension plugins
+=================
 
-Extensions are Betty plugins that integrate deeply with the Betty application and have the most power
-to change or add functionality to your sites.
+.. list-table::
+   :align: left
+   :stub-columns: 1
 
-Getting started
----------------
+   * -  Type
+     -  :py:class:`betty.project.extension.Extension`
+   * -  Repository
+     -  :py:class:`betty.project.extension.EXTENSION_REPOSITORY`
 
-#. Determine where in your package you want the extension to be located. Its fully qualified name will be
-   used as its extension name, e.g. an extension ``my_package.my_module.MyExtension`` will be named
-   ``"my_package.my_module.MyExtension"``. This name is also used to enable the extension in
-   :doc:`project configuration files </usage/project/configuration>`.
+Extensions are core application components, and can be enabled and configured per project. An extension
+can do many things, such as loading new or expanding existing ancestry data, or generating additional
+content for your site.
 
-#. Create a new class that extends :py:class:`betty.project.extension.Extension`, for example:
-  .. code-block:: python
+Creating an extension
+---------------------
 
-      from betty.project.extension import Extension
+#. Create a new class that extends :py:class:`betty.project.extension.Extension` and implements the abstract methods,
+   for example:
 
-      class MyExtension(Extension):
-        pass
+   .. code-block:: python
 
-Congratulations! You have created your very first Betty extension. Keep reading to learn how to add
-functionality.
+     from typing import override
+     from betty.project.extension import Extension
 
-Making your extension discoverable
-----------------------------------
-Making your extension discoverable means that Betty knows it's available and can present users with the option
-to enable and configure your extension for their project.
+     class MyExtension(Extension):
+       @override
+       @classmethod
+       def plugin_id(cls) -> str:
+           return "my-module-my-extension"
 
-Given an extension ``my_package.my_module.MyExtension``, add the following to your extension's Python package:
+       # Implement remaining abstract methods...
+       ...
+
+
+#. Tell Betty about your extension by registering it as an entry point. Given the extension above in a module ``my_package.my_module``, add the following to your Python package:
 
 .. tab-set::
 
@@ -36,8 +43,8 @@ Given an extension ``my_package.my_module.MyExtension``, add the following to yo
 
       .. code-block:: toml
 
-          [project.entry-points.'betty.extensions']
-          'my_package.my_module.MyExtension' = 'my_package.my_module.MyExtension'
+          [project.entry-points.'betty.extension']
+          'my-module-my-extension' = 'my_package.my_module.MyExtension'
 
    .. tab-item:: setup.py
 
@@ -45,8 +52,8 @@ Given an extension ``my_package.my_module.MyExtension``, add the following to yo
 
           SETUP = {
               'entry_points': {
-                  'betty.extensions': [
-                      'my_package.my_module.MyExtension=my_package.my_module.MyExtension',
+                  'betty.extension': [
+                      'my-module-my-extension=my_package.my_module.MyExtension',
                   ],
               },
           }
@@ -61,9 +68,11 @@ are located. This may be anywhere in your Python package.
 
 .. code-block:: python
 
+    from typing import override
     from betty.project.extension import Extension
 
     class MyExtension(Extension):
+        @override
         @classmethod
         def assets_directory_path(cls) -> Path | None:
             # A directory named "assets" in the same parent directory as the current Python file.
@@ -103,3 +112,7 @@ Extensions can optionally provide the following functionality:
     Add additional JavaScript files to generated pages.
 :py:class:`betty.jinja2.Jinja2Provider`
     Integrate the extension with :doc:`Jinja2 </usage/templating>`.
+
+See also
+--------
+Read more about how to use extensions and Betty's built-in extensions at :doc:`/usage/extension`.

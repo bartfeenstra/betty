@@ -7,21 +7,12 @@ Development
    :maxdepth: 1
    :titlesonly:
 
-   development/extension
-   development/translation
-   development/test
+   development/*
 
-This section covers how to develop Betty itself.
-
-.. seealso::
-    Read :doc:`/about/contributing` if you would like to share your improvements to Betty with the wider community.
-
-Getting started
----------------
-:doc:`Install Betty from source </installation/source>`.
+This section explains the software development side of Betty, whether you are working
+on your own project, or helping to improve Betty itself.
 
 In this section
 ---------------
-- :doc:`development/extension`
-- :doc:`development/translation`
-- :doc:`development/test`
+- :doc:`/development/betty`
+- :doc:`/development/plugin`

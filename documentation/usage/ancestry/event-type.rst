@@ -4,8 +4,8 @@ Event Type
 :doc:`Event <event>` types are what indicate what kind of thing an event is about, such as a birth, death, or marriage.
 They inherit from :py:class:`betty.model.event_type.EventType`.
 
-Event types
------------
+Built-in event types
+--------------------
 :py:class:`betty.model.event_type.Adoption`
     A person's `adoption <https://en.wikipedia.org/wiki/Adoption>`_.
 :py:class:`betty.model.event_type.Baptism`
@@ -55,10 +55,8 @@ Event types
 :py:class:`betty.model.event_type.Will`
     Any event associated with the reading and excution of someone's `will and testament <https://en.wikipedia.org/wiki/Will_and_testament>`_.
 
-
-
-Meta event types
-----------------
+Built-in meta event types
+-------------------------
 The aforementioned event types can inherit from these meta types. For example, births and baptisms are both start-of-life events.
 
 :py:class:`betty.model.event_type.StartOfLifeEventType`
@@ -71,3 +69,7 @@ The aforementioned event types can inherit from these meta types. For example, b
     Any event taking place after someone's death, such as a funeral or will reading.
 :py:class:`betty.model.event_type.FinalDispositionEventType`
     Any `final disposition <https://en.wikipedia.org/wiki/Final_disposition>`_, such as a burial or cremation.
+
+See also
+--------
+- :doc:`/development/plugin/event-type`

@@ -47,6 +47,8 @@ ENTITY_TYPE_REPOSITORY: PluginRepository[Entity] = EntryPointPluginRepository(
 )
 """
 The entity type plugin repository.
+
+Read more about :doc:`/development/plugin/entity-type`.
 """
 
 
@@ -67,6 +69,8 @@ class GeneratedEntityId(str):
 class Entity(LinkedDataDumpable, Plugin):
     """
     An entity is a uniquely identifiable data container.
+
+    Read more about :doc:`/development/plugin/entity-type`.
     """
 
     def __init__(

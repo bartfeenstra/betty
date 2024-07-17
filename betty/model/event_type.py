@@ -20,6 +20,8 @@ if TYPE_CHECKING:
 class EventType(Plugin):
     """
     Define an :py:class:`betty.model.ancestry.Event` type.
+
+    Read more about :doc:`/development/plugin/event-type`.
     """
 
     @classmethod
@@ -46,6 +48,8 @@ EVENT_TYPE_REPOSITORY: PluginRepository[EventType] = EntryPointPluginRepository(
 )
 """
 The event type plugin repository.
+
+Read more about :doc:`/development/plugin/event-type`.
 """
 
 
