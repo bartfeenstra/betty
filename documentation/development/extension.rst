@@ -88,27 +88,18 @@ which they appear in the extension dependency tree:
     Declare other extensions that are not required, but if they **are** enabled, then your extension
     will appear before them in the extension dependency tree.
 
-Dispatching
------------
-Extensions can handle dispatched events by extending from any of the following classes:
+Optional functionality
+----------------------
+Extensions can optionally provide the following functionality:
 
 :py:class:`betty.project.extension.ConfigurableExtension`
     Enable configuration management for the extension.
 :py:class:`betty.project.extension.Theme`
     Mark the extension as being a theme, e.g. an extension that determines the overall look and
     feel of a site.
-:py:class:`betty.project.extension.UserFacingExtension`
-    Mark the extension as being suitable for end user interaction, e.g. it is not internal.
-:py:class:`betty.generate.Generator`
-    Dispatched when the site is being generated. This is used to tell extensions when to
-    generate their parts of the site.
 :py:class:`betty.html.CssProvider`
     Add additional CSS files to generated pages.
 :py:class:`betty.html.JsProvider`
     Add additional JavaScript files to generated pages.
 :py:class:`betty.jinja2.Jinja2Provider`
     Integrate the extension with :doc:`Jinja2 </usage/templating>`.
-:py:class:`betty.load.Loader`
-    Dispatched when data is loaded into an ancestry. This is used to import data.
-:py:class:`betty.load.PostLoader`
-    Dispatched after data is loaded into an ancestry. This is used to modify loaded data.
