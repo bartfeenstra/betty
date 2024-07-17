@@ -9,8 +9,8 @@ About Betty
 
    about/*
 
-Philosphy
----------
+Philosophy
+----------
 
 Storytelling
 ^^^^^^^^^^^^
