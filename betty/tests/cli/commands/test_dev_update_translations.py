@@ -10,5 +10,5 @@ class TestUpdateTranslations:
         m_update_translations = mocker.patch(
             "betty.locale.translation.update_translations"
         )
-        await to_thread(run, "update-translations")
+        await to_thread(run, "dev-update-translations")
         m_update_translations.assert_awaited_once()

@@ -39,4 +39,4 @@ class TestPotFile:
             )
             assert (
                 len(list(diff)) == 0
-            ), "The gettext *.po files are not up to date. Did you run `betty update-translations`?"
+            ), "The gettext *.po files are not up to date. Did you run `betty dev-update-translations`?"

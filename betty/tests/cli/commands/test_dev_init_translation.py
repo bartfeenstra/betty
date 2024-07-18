@@ -9,8 +9,8 @@ class TestInitTranslation:
     async def test(self, mocker: MockerFixture) -> None:
         locale = "nl-NL"
         m_init_translation = mocker.patch("betty.locale.translation.init_translation")
-        await to_thread(run, "init-translation", locale)
+        await to_thread(run, "dev-init-translation", locale)
         m_init_translation.assert_awaited_once_with(locale)
 
     async def test_without_locale_arg(self) -> None:
-        await to_thread(run, "init-translation", expected_exit_code=2)
+        await to_thread(run, "dev-init-translation", expected_exit_code=2)
