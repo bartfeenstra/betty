@@ -150,4 +150,4 @@ class TestVerbosity:
             await write_configuration_file(
                 project.configuration, project.configuration.configuration_file_path
             )
-            await to_thread(run, verbosity, "no-op")
+            await to_thread(run, "no-op", verbosity)
