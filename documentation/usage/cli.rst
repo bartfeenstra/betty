@@ -12,14 +12,14 @@ The command line is the primary way to interact with Betty:
       --help     Show this message and exit.
 
     Commands:
-      clear-caches         Clear all caches.
-      demo                 Explore a demonstration site.
-      docs                 View the documentation.
-      generate             Generate a static site.
-      serve                Serve a generated site.
-      serve-nginx-docker   Serve a generated site with nginx in a Docker...
-      init-translation     Initialize a new translation
-      update-translations  Update all existing translations
+      clear-caches             Clear all caches.
+      demo                     Explore a demonstration site.
+      docs                     View the documentation.
+      generate                 Generate a static site.
+      serve                    Serve a generated site.
+      serve-nginx-docker       Serve a generated site with nginx in a Docker...
+      dev-init-translation     Initialize a new translation
+      dev-update-translations  Update all existing translations
 
 
 Clearing caches

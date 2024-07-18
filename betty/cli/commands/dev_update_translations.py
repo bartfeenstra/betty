@@ -13,5 +13,5 @@ from betty.typing import internal
     help="Update all existing translations.\n\nThis is available only when developing Betty.",
 )
 @command
-async def update_translations() -> None:  # noqa D103
+async def dev_update_translations() -> None:  # noqa D103
     await betty.locale.translation.update_translations()

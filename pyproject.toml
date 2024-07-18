@@ -86,8 +86,8 @@ betty = 'betty.cli:main'
 'serve-nginx-docker' = 'betty.extension.nginx._cli:serve_nginx_docker'
 
 [project.entry-points.'betty.dev.command']
-'init-translation' = 'betty.cli.commands.init_translation:init_translation'
-'update-translations' = 'betty.cli.commands.update_translations:update_translations'
+'dev-init-translation' = 'betty.cli.commands.dev_init_translation:dev_init_translation'
+'dev-update-translations' = 'betty.cli.commands.dev_update_translations:dev_update_translations'
 
 [project.entry-points.'betty.entity_type']
 'citation' = 'betty.model.ancestry:Citation'
