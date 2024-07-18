@@ -259,7 +259,6 @@ def pass_project(
         "--configuration",
         "-c",
         "project",
-        is_eager=True,
         help="The path to a Betty project configuration file. Defaults to betty.json|yaml|yml in the current working directory.",
         callback=_project,
     )(f)
