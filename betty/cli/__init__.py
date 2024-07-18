@@ -6,11 +6,15 @@ from __future__ import annotations
 
 import logging
 import sys
+import typing as t
 from contextlib import contextmanager
 from typing import (
     Iterator,
     TYPE_CHECKING,
 )
+
+from click import Context
+from typing_extensions import override, ClassVar
 
 import click
 from betty import about
@@ -44,6 +48,7 @@ def catch_exceptions() -> Iterator[None]:
 
 
 class _BettyCommands(click.MultiCommand):
+    terminal_width: ClassVar[int | None] = None
     _bootstrapped = False
     commands: PluginRepository[Command]
 
@@ -52,6 +57,7 @@ class _BettyCommands(click.MultiCommand):
             logging.getLogger().addHandler(CliHandler())
             self._bootstrapped = True
 
+    @override
     @catch_exceptions()
     def list_commands(self, ctx: click.Context) -> list[str]:
         from betty.cli import commands
@@ -62,6 +68,7 @@ class _BettyCommands(click.MultiCommand):
             for command in wait_to_thread(commands.COMMAND_REPOSITORY.select())
         ]
 
+    @override
     @catch_exceptions()
     def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
         from betty.cli import commands
@@ -74,8 +81,26 @@ class _BettyCommands(click.MultiCommand):
         except PluginNotFound:
             return None
 
+    @override
+    def make_context(
+        self,
+        info_name: t.Optional[str],
+        args: t.List[str],
+        parent: t.Optional[Context] = None,
+        **extra: t.Any,
+    ) -> Context:
+        if self.terminal_width is not None:
+            extra["terminal_width"] = self.terminal_width
+        return super().make_context(
+            info_name,  # type: ignore[arg-type]
+            args,
+            parent,
+            **extra,
+        )
+
 
 @click.command(
+    "betty",
     cls=_BettyCommands,
     # Set an empty help text so Click does not automatically use the function's docstring.
     help="",

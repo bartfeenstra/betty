@@ -1,25 +1,24 @@
 import json
 import re
 import sys
-from asyncio import StreamReader
-from contextlib import chdir
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import aiofiles
 import pytest
 import requests
 from aiofiles.tempfile import TemporaryDirectory
-from pytest_mock import MockerFixture
-from requests import Response
-
+from betty.cli import _BettyCommands
+from betty.cli.commands import COMMAND_REPOSITORY
 from betty.documentation import DocumentationServer
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.functools import Do
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import ProjectConfiguration
 from betty.serde.format import Format, Json, Yaml
-from betty.subprocess import run_process
-from typing import TYPE_CHECKING
+from betty.tests.cli.test___init__ import run
+from pytest_mock import MockerFixture
+from requests import Response
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
@@ -38,6 +37,18 @@ class TestDocumentationServer:
 
 
 class TestDocumentation:
+    def _get_help(self, command: str | None = None) -> str:
+        _BettyCommands.terminal_width = 80
+        args: tuple[str, ...] = ("--help",)
+        if command is not None:
+            args = (command, *args)
+        expected = run(*args).stdout.strip()
+        if sys.platform.startswith("win32"):
+            expected = expected.replace("\r\n", "\n")
+        return "\n".join(
+            (f"    {line}" if line.strip() else "" for line in expected.split("\n"))
+        )
+
     async def test_should_contain_cli_help(self) -> None:
         async with TemporaryDirectory() as working_directory_path_str:
             working_directory_path = Path(working_directory_path_str)
@@ -49,21 +60,15 @@ class TestDocumentation:
             }
             async with aiofiles.open(working_directory_path / "betty.json", "w") as f:
                 await f.write(json.dumps(configuration))
-            with chdir(working_directory_path):
-                process = await run_process(["betty", "--help"])
-            stdout = process.stdout
-            assert isinstance(stdout, StreamReader)
-            expected = (await stdout.read()).decode().strip()
-            if sys.platform.startswith("win32"):
-                expected = expected.replace("\r\n", "\n")
-            expected = "\n".join(
-                (f"    {line}" if line.strip() else "" for line in expected.split("\n"))
-            )
             async with aiofiles.open(
                 ROOT_DIRECTORY_PATH / "documentation" / "usage" / "cli.rst"
             ) as f:
                 actual = await f.read()
-            assert expected in actual
+            assert self._get_help() in actual
+            async for command in COMMAND_REPOSITORY:
+                if command.plugin_id() in ("init-translation", "update-translations"):
+                    continue
+                assert self._get_help(command.plugin_id()) in actual
 
     @pytest.mark.parametrize(
         ("language", "serde_format"),
