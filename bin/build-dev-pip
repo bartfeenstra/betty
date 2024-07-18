@@ -4,5 +4,5 @@ set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
-./bin/build-dev-pip
-./bin/build-dev-npm
+# Install Python dependencies.
+pip install -e '.[development]'
