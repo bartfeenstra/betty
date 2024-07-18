@@ -98,13 +98,71 @@ The Command Line Interface command repository.
 """
 
 
-def command(f: Callable[_P, Coroutine[Any, Any, None]]) -> Callable[_P, None]:
+def _command_build_init_ctx_verbosity(
+    betty_logger_level: int,
+    root_logger_level: int | None = None,
+) -> Callable[[click.Context, click.Option | click.Parameter | None, bool], None]:
+    def _init_ctx_verbosity(
+        _: click.Context,
+        __: click.Option | click.Parameter | None = None,
+        is_verbose: bool = False,
+    ) -> None:
+        if is_verbose:
+            for logger_name, logger_level in (
+                ("betty", betty_logger_level),
+                (None, root_logger_level),
+            ):
+                logger = logging.getLogger(logger_name)
+                if (
+                    logger_level is not None
+                    and logger.getEffectiveLevel() > logger_level
+                ):
+                    logger.setLevel(logger_level)
+
+    return _init_ctx_verbosity
+
+
+def command(
+    f: Callable[_P, Coroutine[Any, Any, None]],
+) -> Callable[Concatenate[_P], None]:
     """
     Mark something a Betty command.
     """
 
     @wraps(f)
     @catch_exceptions()
+    @click.option(
+        "-v",
+        "--verbose",
+        is_eager=True,
+        default=False,
+        is_flag=True,
+        expose_value=False,
+        help="Show verbose output, including informative log messages.",
+        callback=_command_build_init_ctx_verbosity(logging.INFO),
+    )
+    @click.option(
+        "-vv",
+        "--more-verbose",
+        "more_verbose",
+        is_eager=True,
+        default=False,
+        is_flag=True,
+        expose_value=False,
+        help="Show more verbose output, including debug log messages.",
+        callback=_command_build_init_ctx_verbosity(logging.DEBUG),
+    )
+    @click.option(
+        "-vvv",
+        "--most-verbose",
+        "most_verbose",
+        is_eager=True,
+        default=False,
+        is_flag=True,
+        expose_value=False,
+        help="Show most verbose output, including all log messages.",
+        callback=_command_build_init_ctx_verbosity(logging.NOTSET, logging.NOTSET),
+    )
     def _command(*args: _P.args, **kwargs: _P.kwargs) -> None:
         return run(f(*args, **kwargs))
 
