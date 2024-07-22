@@ -5,7 +5,15 @@ Provide the Dispatch API.
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Sequence, Callable, Awaitable, TypeVar, TypeAlias, TYPE_CHECKING
+from typing import (
+    Sequence,
+    Callable,
+    Awaitable,
+    TypeVar,
+    TypeAlias,
+    TYPE_CHECKING,
+    final,
+)
 
 from betty.asyncio import gather
 
@@ -61,6 +69,7 @@ class _EventHandlerRegistry:
                 self.add_handler(event_type, *event_type_handler_batch)
 
 
+@final
 class EventHandlerRegistry(_EventHandlerRegistry):
     """
     Manage event handlers.
@@ -76,6 +85,7 @@ class EventHandlerRegistry(_EventHandlerRegistry):
         return self._handlers
 
 
+@final
 class EventDispatcher(_EventHandlerRegistry):
     """
     Dispatch events to event handlers.
