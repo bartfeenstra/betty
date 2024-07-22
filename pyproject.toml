@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    'setuptools ~= 70.0',
+    'setuptools >= 70,< 72',
 ]
 build-backend = 'setuptools.build_meta'
 
@@ -150,7 +150,7 @@ betty = 'betty.cli:main'
 
 [project.optional-dependencies]
 setuptools = [
-    'setuptools ~= 70.0',
+    'setuptools >= 70,< 72',
     'twine ~= 5.0',
     'wheel ~= 0.43',
 ]
