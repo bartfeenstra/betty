@@ -68,6 +68,8 @@ Localey: TypeAlias = str | Locale
 def get_data(locale: Localey) -> Locale:
     """
     Get locale metadata.
+
+    :raises betty.locale.LocaleNotFoundError: Raised if the given locale cannot be found.
     """
     if isinstance(locale, Locale):
         return locale

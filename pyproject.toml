@@ -79,6 +79,7 @@ betty = 'betty.cli:main'
 
 [project.entry-points.'betty.command']
 'clear-caches' = 'betty.cli.commands.clear_caches:clear_caches'
+'config' = 'betty.cli.commands.config:config'
 'demo' = 'betty.cli.commands.demo:demo'
 'docs' = 'betty.cli.commands.docs:docs'
 'generate' = 'betty.cli.commands.generate:generate'
