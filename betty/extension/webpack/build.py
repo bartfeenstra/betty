@@ -33,10 +33,9 @@ _NPM_PROJECT_DIRECTORIES_PATH = Path(__file__).parent / "webpack"
 
 
 async def _npm_project_id(
-    entry_point_providers: Sequence[WebpackEntryPointProvider & Extension], debug: bool
+    entry_point_providers: Sequence[WebpackEntryPointProvider & Extension],
 ) -> str:
     return hashid_sequence(
-        "true" if debug else "false",
         await hashid_file_content(_NPM_PROJECT_DIRECTORIES_PATH / "package.json"),
         *[
             await hashid_file_content(
@@ -51,18 +50,18 @@ async def _npm_project_id(
 async def _npm_project_directory_path(
     working_directory_path: Path,
     entry_point_providers: Sequence[WebpackEntryPointProvider & Extension],
-    debug: bool,
 ) -> Path:
-    return working_directory_path / await _npm_project_id(entry_point_providers, debug)
+    return working_directory_path / await _npm_project_id(entry_point_providers)
 
 
 def webpack_build_id(
-    entry_point_providers: Sequence[WebpackEntryPointProvider & Extension],
+    entry_point_providers: Sequence[WebpackEntryPointProvider & Extension], debug: bool
 ) -> str:
     """
     Generate the ID for a Webpack build.
     """
     return hashid_sequence(
+        "true" if debug else "false",
         *(
             "-".join(
                 map(
@@ -71,16 +70,18 @@ def webpack_build_id(
                 )
             )
             for entry_point_provider in entry_point_providers
-        )
+        ),
     )
 
 
 def _webpack_build_directory_path(
     npm_project_directory_path: Path,
     entry_point_providers: Sequence[WebpackEntryPointProvider & Extension],
+    debug: bool,
 ) -> Path:
     return (
-        npm_project_directory_path / f"build-{webpack_build_id(entry_point_providers)}"
+        npm_project_directory_path
+        / f"build-{webpack_build_id(entry_point_providers, debug)}"
     )
 
 
@@ -244,17 +245,16 @@ class Builder:
 
     async def build(self) -> Path:
         """
-        Built the Webpack assets.
+        Build the Webpack assets.
 
         :return: The path to the directory from which the assets can be copied to their
             final destination.
         """
         npm_project_directory_path = await _npm_project_directory_path(
-            self._working_directory_path, self._entry_point_providers, self._debug
+            self._working_directory_path, self._entry_point_providers
         )
         webpack_build_directory_path = _webpack_build_directory_path(
-            npm_project_directory_path,
-            self._entry_point_providers,
+            npm_project_directory_path, self._entry_point_providers, self._debug
         )
         if webpack_build_directory_path.exists():
             return webpack_build_directory_path

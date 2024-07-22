@@ -69,7 +69,7 @@ class TestWebpack:
         m_build.side_effect = NpmUnavailable()
 
         webpack_build_directory_path = (
-            tmp_path / "webpack" / f"build-{webpack_build_id(())}"
+            tmp_path / "webpack" / f"build-{webpack_build_id((), False)}"
         )
         await makedirs(webpack_build_directory_path)
         async with aiofiles.open(
@@ -122,7 +122,7 @@ class TestWebpack:
         self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
     ) -> None:
         webpack_build_directory_path = (
-            tmp_path / "webpack" / f"build-{webpack_build_id(())}"
+            tmp_path / "webpack" / f"build-{webpack_build_id((),False)}"
         )
         prebuilt_assets_directory_path = tmp_path / "prebuild"
 
@@ -148,7 +148,7 @@ class TestWebpack:
                     async with aiofiles.open(
                         prebuilt_assets_directory_path
                         / "webpack"
-                        / f"build-{webpack_build_id(())}"
+                        / f"build-{webpack_build_id((),False)}"
                         / self._SENTINEL
                     ) as f:
                         assert await f.read() == self._SENTINEL
