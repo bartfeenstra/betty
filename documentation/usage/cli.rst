@@ -13,6 +13,7 @@ The command line is the primary way to interact with Betty:
 
     Commands:
       clear-caches             Clear all caches.
+      config                   Configure Betty.
       demo                     Explore a demonstration site.
       docs                     View the documentation.
       generate                 Generate a static site.
@@ -32,6 +33,24 @@ Clearing caches
       Clear all caches.
 
     Options:
+      -v, --verbose         Show verbose output, including informative log messages.
+      -vv, --more-verbose   Show more verbose output, including debug log messages.
+      -vvv, --most-verbose  Show most verbose output, including all log messages.
+      --help                Show this message and exit.
+
+
+Configuring the Betty application
+---------------------------------
+
+.. code-block::
+
+    Usage: betty config [OPTIONS]
+
+      Configure Betty.
+
+    Options:
+      --locale TEXT         Set the locale for Betty's user interface. This must be
+                            an IETF BCP 47 language tag.
       -v, --verbose         Show verbose output, including informative log messages.
       -vv, --more-verbose   Show more verbose output, including debug log messages.
       -vvv, --most-verbose  Show most verbose output, including all log messages.

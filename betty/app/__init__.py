@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Self, Any, final
 import aiohttp
 from aiofiles.tempfile import TemporaryDirectory
 from betty import fs
+from betty.app import config
 from betty.app.config import AppConfiguration
 from betty.assets import AssetRepository
 from betty.asyncio import wait_to_thread
@@ -27,8 +28,6 @@ from betty.locale.localizer import Localizer, LocalizerRepository
 if TYPE_CHECKING:
     from betty.cache import Cache
     from collections.abc import AsyncIterator, Callable
-
-CONFIGURATION_DIRECTORY_PATH = fs.HOME_DIRECTORY_PATH / "configuration"
 
 
 @final
@@ -65,9 +64,8 @@ class App(Configurable[AppConfiguration], CoreComponent):
         Create a new application from the environment.
         """
         configuration = AppConfiguration()
-        configuration_file_path = CONFIGURATION_DIRECTORY_PATH / "app.json"
-        if configuration_file_path.exists():
-            assert_configuration_file(configuration)(configuration_file_path)
+        if config.CONFIGURATION_FILE_PATH.exists():
+            assert_configuration_file(configuration)(config.CONFIGURATION_FILE_PATH)
         yield cls(
             configuration,
             Path(environ.get("BETTY_CACHE_DIRECTORY", HOME_DIRECTORY_PATH / "cache")),
