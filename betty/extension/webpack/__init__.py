@@ -43,12 +43,12 @@ if TYPE_CHECKING:
 
 
 def _prebuilt_webpack_build_directory_path(
-    entry_point_providers: Sequence[WebpackEntryPointProvider & Extension],
+    entry_point_providers: Sequence[WebpackEntryPointProvider & Extension], debug: bool
 ) -> Path:
     return (
         fs.PREBUILT_ASSETS_DIRECTORY_PATH
         / "webpack"
-        / f"build-{webpack_build_id(entry_point_providers)}"
+        / f"build-{webpack_build_id(entry_point_providers, debug)}"
     )
 
 
@@ -211,7 +211,7 @@ class Webpack(Extension, CssProvider, Jinja2Provider):
             await self._copy_build_directory(
                 build_directory_path,
                 _prebuilt_webpack_build_directory_path(
-                    self._project_entry_point_providers
+                    self._project_entry_point_providers, False
                 ),
             )
 
@@ -259,7 +259,7 @@ class Webpack(Extension, CssProvider, Jinja2Provider):
 
         # Use prebuilt assets if they exist.
         prebuilt_webpack_build_directory_path = _prebuilt_webpack_build_directory_path(
-            self._project_entry_point_providers
+            self._project_entry_point_providers, self._project.configuration.debug
         )
         if prebuilt_webpack_build_directory_path.exists():
             return prebuilt_webpack_build_directory_path
