@@ -1,24 +1,25 @@
+import io
 import logging
 from asyncio import to_thread
 from collections.abc import AsyncIterator
+from logging import CRITICAL, ERROR, WARNING, INFO, DEBUG, FATAL, WARN, NOTSET
 from typing import Any
 
 import click
 import pytest
 from _pytest.logging import LogCaptureFixture
-from click.testing import CliRunner, Result
-from pytest_mock import MockerFixture
-
 from betty.app import App
-from betty.cli import main, catch_exceptions
+from betty.cli import main, catch_exceptions, _ClickHandler
 from betty.cli.commands import command, Command
 from betty.config import write_configuration_file
 from betty.error import UserFacingError
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizable import plain
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.serve import Server, ProjectServer
+from click.testing import CliRunner, Result
+from pytest_mock import MockerFixture
 
 
 @click.command(name="no-op")
@@ -151,3 +152,28 @@ class TestVerbosity:
                 project.configuration, project.configuration.configuration_file_path
             )
             await to_thread(run, "no-op", verbosity)
+
+
+class TestClickHandler:
+    @pytest.mark.parametrize(
+        "level",
+        [
+            CRITICAL,
+            FATAL,
+            ERROR,
+            WARNING,
+            WARN,
+            INFO,
+            DEBUG,
+            NOTSET,
+        ],
+    )
+    async def test_emit(self, level: int) -> None:
+        stream = io.StringIO()
+        sut = _ClickHandler(stream)
+        sut.emit(
+            logging.LogRecord(
+                __name__, level, __file__, 0, "Something went wrong!", (), None
+            )
+        )
+        assert stream.getvalue() == "Something went wrong!\n"
