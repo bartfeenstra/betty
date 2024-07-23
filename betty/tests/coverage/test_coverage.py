@@ -412,6 +412,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "to_babel_identifier": TestKnownToBeMissing,
         "to_locale": TestKnownToBeMissing,
     },
+    "betty/locale/error.py": {
+        "InvalidLocale": TestKnownToBeMissing,
+        # This is an interface.
+        "LocaleError": TestKnownToBeMissing,
+        "LocaleNotFound": TestKnownToBeMissing,
+    },
     "betty/locale/babel.py": {
         "run_babel": TestKnownToBeMissing,
     },

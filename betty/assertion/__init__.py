@@ -22,7 +22,6 @@ from typing import (
 
 from betty.assertion.error import AssertionFailedGroup, AssertionFailed
 from betty.locale import (
-    LocaleNotFoundError,
     get_data,
     UNDETERMINED_LOCALE,
 )
@@ -460,25 +459,16 @@ def assert_locale() -> AssertionChain[Any, str]:
     """
 
     def _assert_locale(
-        value: Any,
+        value: str,
     ) -> str:
-        value = assert_str()(value)
-
         # Allow locales for which no system information usually exists.
         if value == UNDETERMINED_LOCALE:
             return value
 
-        try:
-            get_data(value)
-            return value
-        except LocaleNotFoundError:
-            raise AssertionFailed(
-                _('"{locale}" is not a valid IETF BCP 47 language tag.').format(
-                    locale=value
-                )
-            ) from None
+        get_data(value)
+        return value
 
-    return AssertionChain(_assert_locale)
+    return assert_str() | _assert_locale
 
 
 def assert_setattr(

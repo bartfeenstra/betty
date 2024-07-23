@@ -7,9 +7,9 @@ from typing import TypeVar, Self
 
 from typing_extensions import override
 
-from betty.locale.localizer import Localizer
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizable import Localizable
+from betty.locale.localizer import Localizer
+
 
 _BaseExceptionT = TypeVar("_BaseExceptionT", bound=BaseException)
 
@@ -43,6 +43,8 @@ class UserFacingError(Exception, Localizable):
     """
 
     def __init__(self, message: Localizable):
+        from betty.locale.localizer import DEFAULT_LOCALIZER
+
         super().__init__(
             # Provide a default localization so this exception can be displayed like any other.
             message.localize(DEFAULT_LOCALIZER),
@@ -53,6 +55,8 @@ class UserFacingError(Exception, Localizable):
         return type(self), (self._localizable_message,)
 
     def __str__(self) -> str:
+        from betty.locale.localizer import DEFAULT_LOCALIZER
+
         return self.localize(DEFAULT_LOCALIZER)
 
     @override
