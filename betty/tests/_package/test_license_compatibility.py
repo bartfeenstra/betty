@@ -12,8 +12,6 @@ class TestPackageLicenses:
     _GPL_V3_COMPATIBLE_DISTRIBUTIONS = (
         # We do not include basedtyping in any Betty distribution.
         "basedtyping",
-        # We do not include PyInstaller in any Betty distributions.
-        "pyinstaller",
     )
 
     _GPL_V3_COMPATIBLE_LICENSES = (

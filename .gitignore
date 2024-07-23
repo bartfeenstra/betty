@@ -15,8 +15,6 @@ __pycache__
 *.pyc
 *.pyc.*
 
-# PyInstaller build artifacts.
-
 # Test artifacts.
 /.coverage
 /.coverage.*
