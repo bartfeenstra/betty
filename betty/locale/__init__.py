@@ -7,24 +7,14 @@ from __future__ import annotations
 from typing import Sequence, TypeAlias
 
 from babel import Locale, negotiate_locale as babel_negotiate_locale
-from langcodes import Language
-
+from babel.core import UnknownLocaleError
 from betty import fs
+from langcodes import Language
 
 DEFAULT_LOCALE = "en-US"
 UNDETERMINED_LOCALE = "und"
 
 _LOCALE_DIRECTORY_PATH = fs.ASSETS_DIRECTORY_PATH / "locale"
-
-
-class LocaleNotFoundError(RuntimeError):
-    """
-    Raise when a locale could not be found.
-    """
-
-    def __init__(self, locale: str) -> None:
-        super().__init__(f'Cannot find locale "{locale}"')
-        self.locale = locale
 
 
 def to_babel_identifier(locale: Localey) -> str:
@@ -69,14 +59,21 @@ def get_data(locale: Localey) -> Locale:
     """
     Get locale metadata.
 
+    :raises betty.locale.InvalidLocale: Raised if the given identifier is not a valid locale.
     :raises betty.locale.LocaleNotFoundError: Raised if the given locale cannot be found.
     """
     if isinstance(locale, Locale):
         return locale
     try:
         return Locale.parse(to_babel_identifier(locale))
-    except Exception as e:
-        raise LocaleNotFoundError(locale) from e
+    except ValueError:
+        from betty.locale.error import InvalidLocale
+
+        raise InvalidLocale(locale) from None
+    except UnknownLocaleError:
+        from betty.locale.error import LocaleNotFound
+
+        raise LocaleNotFound(locale) from None
 
 
 def get_display_name(

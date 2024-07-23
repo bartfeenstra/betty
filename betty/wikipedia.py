@@ -13,8 +13,6 @@ from pathlib import Path
 from typing import cast, Any, TYPE_CHECKING
 from urllib.parse import quote, urlparse
 
-from geopy import Point
-
 from betty.asyncio import gather
 from betty.concurrent import _Lock, AsynchronizedLock, RateLimiter
 from betty.fetch import FetchError
@@ -23,9 +21,9 @@ from betty.locale import (
     negotiate_locale,
     to_locale,
     get_data,
-    LocaleNotFoundError,
     Localey,
 )
+from betty.locale.error import LocaleError
 from betty.locale.localizable import plain
 from betty.locale.localized import Localized
 from betty.media_type import MediaType
@@ -37,6 +35,7 @@ from betty.model.ancestry import (
     HasFileReferences,
     FileReference,
 )
+from geopy import Point
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -368,7 +367,7 @@ class _Populator:
             else:
                 try:
                     get_data(page_language)
-                except LocaleNotFoundError:
+                except LocaleError:
                     continue
                 else:
                     summary_links.append((page_language, page_name))
@@ -397,7 +396,7 @@ class _Populator:
             if len(page_translations) == 0:
                 continue
             page_translation_locale_datas: Sequence[Localey] = list(
-                filter_suppress(get_data, LocaleNotFoundError, page_translations.keys())
+                filter_suppress(get_data, LocaleError, page_translations.keys())
             )
             for locale in locales:
                 if locale == page_language:

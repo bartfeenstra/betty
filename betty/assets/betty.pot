@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-22 20:40+0100\n"
+"POT-Creation-Date: 2024-07-23 12:08+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,7 +54,7 @@ msgstr ""
 msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
 msgstr ""
 
-msgid "\"{locale}\" is not a valid IETF BCP 47 language tag."
+msgid "\"{invalid_locale}\" is not a valid IETF BCP 47 language tag."
 msgstr ""
 
 msgid "\"{path}\" is not a directory."
@@ -166,6 +166,9 @@ msgid "Cannot find an available port to bind the web server to."
 msgstr ""
 
 msgid "Cannot find and import \"{plugin_id}\". Did you mean one of: {available_plugin_ids}?"
+msgstr ""
+
+msgid "Cannot find locale {locale}. Did you mean one of: {available_locales}?."
 msgstr ""
 
 msgid "Cannot generate pages for {entity_type}, because it is not a user-facing entity type."

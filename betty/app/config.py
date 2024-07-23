@@ -12,11 +12,9 @@ from betty.assertion import (
     OptionalField,
     assert_str,
     assert_setattr,
+    assert_locale,
 )
-from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
-from betty.locale import get_data, LocaleNotFoundError
-from betty.locale.localizable import _
 from betty.serde.dump import Dump, VoidableDump, minimize, void_none
 from typing_extensions import override
 
@@ -46,15 +44,7 @@ class AppConfiguration(Configuration):
 
     @locale.setter
     def locale(self, locale: str) -> None:
-        try:
-            get_data(locale)
-        except LocaleNotFoundError:
-            raise AssertionFailed(
-                _('"{locale}" is not a valid IETF BCP 47 language tag.').format(
-                    locale=locale
-                )
-            ) from None
-        self._locale = locale
+        self._locale = assert_locale()(locale)
 
     @override
     def update(self, other: Self) -> None:
