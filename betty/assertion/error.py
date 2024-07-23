@@ -8,10 +8,9 @@ from contextlib import contextmanager
 from textwrap import indent
 from typing import Iterator, Self, TYPE_CHECKING
 
-from typing_extensions import override
-
 from betty.error import UserFacingError
 from betty.locale.localizable import _, Localizable
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.locale.localizer import Localizer
@@ -78,10 +77,6 @@ class AssertionFailedGroup(AssertionFailed):
     @override
     def localize(self, localizer: Localizer) -> str:
         return "\n\n".join((error.localize(localizer) for error in self._errors))
-
-    @override
-    def __reduce__(self) -> tuple[type[Self], tuple[list[AssertionFailed]]]:  # type: ignore[override]
-        return type(self), (self._errors,)
 
     def __len__(self) -> int:
         return len(self._errors)

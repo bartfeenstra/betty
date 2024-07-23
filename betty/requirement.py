@@ -6,13 +6,12 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from textwrap import indent
-from typing import cast, Any, Self, TYPE_CHECKING, final
-
-from typing_extensions import override
+from typing import cast, Any, TYPE_CHECKING, final
 
 from betty.asyncio import wait_to_thread
 from betty.error import UserFacingError
 from betty.locale.localizable import _, Localizable
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.locale.localizer import Localizer
@@ -81,10 +80,6 @@ class RequirementError(UserFacingError, RuntimeError):
     def __init__(self, requirement: Requirement):
         super().__init__(requirement)
         self._requirement = requirement
-
-    @override
-    def __reduce__(self) -> tuple[type[Self], tuple[Requirement]]:
-        return type(self), (self._requirement,)
 
     def requirement(self) -> Requirement:
         """
