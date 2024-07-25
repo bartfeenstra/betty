@@ -21,4 +21,3 @@ In this section
 - :doc:`/usage/assets`
 - :doc:`/usage/templating`
 - :doc:`/usage/translation`
-- :doc:`/usage/plugin`

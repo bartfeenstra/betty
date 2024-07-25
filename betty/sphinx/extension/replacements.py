@@ -9,9 +9,6 @@ def render_replacements(app: Sphinx, docname: str, source: list[str]) -> None:
     """
     Handle Sphinx's source-read event to perform string replacements.
     """
-    if app.builder.format != "html":
-        return
-
     for token_name, value in app.env.config["html_context"][
         "betty_replacements"
     ].items():
