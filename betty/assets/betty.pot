@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-23 12:08+0100\n"
+"POT-Creation-Date: 2024-07-26 13:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,6 +61,9 @@ msgid "\"{path}\" is not a directory."
 msgstr ""
 
 msgid "\"{path}\" is not a file."
+msgstr ""
+
+msgid "\"{value}\" is not a valid machine name: only lowercase letters, digits, and hyphens (-) are allowed."
 msgstr ""
 
 #, python-format
@@ -133,6 +136,9 @@ msgid "Announcement of marriage"
 msgstr ""
 
 msgid "Appearances"
+msgstr ""
+
+msgid "At which URL will your site be published?"
 msgstr ""
 
 msgid "Attendee"
@@ -260,6 +266,12 @@ msgid "Display the HTTP API documentation in a user-friendly way using <a href=\
 msgstr ""
 
 msgid "Divorce"
+msgstr ""
+
+msgid "Do you want to add another locale?"
+msgstr ""
+
+msgid "Do you want to load a Gramps family tree?"
 msgstr ""
 
 #, python-format
@@ -531,6 +543,9 @@ msgstr ""
 msgid "Retirement"
 msgstr ""
 
+msgid "Saved your project to {configuration_file}."
+msgstr ""
+
 msgid "Serving your site at {url}..."
 msgstr ""
 
@@ -663,6 +678,27 @@ msgstr ""
 
 #, python-format
 msgid "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> to exit the search. Search again with <kbd>%(shortcut)s</kbd>."
+msgstr ""
+
+msgid "What is the path to your exported Gramps family tree file?"
+msgstr ""
+
+msgid "What is your project called?"
+msgstr ""
+
+msgid "What is your project's machine name? "
+msgstr ""
+
+msgid "Where do you want to save your project's configuration file?"
+msgstr ""
+
+msgid "Which language should your project site be generated in?"
+msgstr ""
+
+msgid "Which language should your project site be generated in? Enter an IETF BCP 47 language code."
+msgstr ""
+
+msgid "Who is the author?"
 msgstr ""
 
 msgid "Wikipedia"

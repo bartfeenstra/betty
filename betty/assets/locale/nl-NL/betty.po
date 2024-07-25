@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-23 12:08+0100\n"
+"POT-Creation-Date: 2024-07-26 13:05+0100\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -100,6 +100,11 @@ msgstr "\"{path}\" is geen directory."
 msgid "\"{path}\" is not a file."
 msgstr "\"{path}\" is geen bestand."
 
+msgid ""
+"\"{value}\" is not a valid machine name: only lowercase letters, digits, "
+"and hyphens (-) are allowed."
+msgstr "\"{value}\" is geen geldige machinenaam: alleen kleine letters, cijfers, en streepjes (-) zijn toegestaan."
+
 #, python-format
 msgid "%(date)s in %(place)s"
 msgstr "%(date)s te %(place)s"
@@ -186,6 +191,9 @@ msgstr "Huwelijksaankondiging"
 msgid "Appearances"
 msgstr "Verschijningen"
 
+msgid "At which URL will your site be published?"
+msgstr "Op welke URL wordt je site gepubliceerd?"
+
 msgid "Attendee"
 msgstr "Aanwezige"
 
@@ -238,9 +246,7 @@ msgstr ""
 "{available_plugin_ids}?"
 
 msgid "Cannot find locale {locale}. Did you mean one of: {available_locales}?."
-msgstr ""
-"Kan taalregio {locale} niet vinden. Bedoelde je: "
-"{available_locales}?"
+msgstr "Kan taalregio {locale} niet vinden. Bedoelde je: {available_locales}?"
 
 msgid ""
 "Cannot generate pages for {entity_type}, because it is not a user-facing "
@@ -376,6 +382,12 @@ msgstr ""
 
 msgid "Divorce"
 msgstr "Echtscheiding"
+
+msgid "Do you want to add another locale?"
+msgstr "Wil je nog een taalregio toevoegen?"
+
+msgid "Do you want to load a Gramps family tree?"
+msgstr "Wil je een Gramps-stamboom laden?"
 
 #, python-format
 msgid "E.g. \"%(example)s\""
@@ -674,6 +686,9 @@ msgstr "Woonplaats"
 msgid "Retirement"
 msgstr "Pensioen"
 
+msgid "Saved your project to {configuration_file}."
+msgstr "Configuratie naar \"{configuration_file_path}\" opgeslagen."
+
 msgid "Serving your site at {url}..."
 msgstr "Je site op {url} aan het serveren..."
 
@@ -854,6 +869,29 @@ msgstr ""
 "Gebruik <kbd>↑</kbd> en <kbd>↓</kbd> om door de resultaten te bladeren, "
 "of <kbd>esc</kbd> om te stoppen met zoeken. Zoek opnieuw met "
 "<kbd>%(shortcut)s</kbd>."
+
+msgid "What is the path to your exported Gramps family tree file?"
+msgstr "Wat is het pad naar je geëxporteerde Gramps-stamboombestand?"
+
+msgid "What is your project called?"
+msgstr "Hoe heet je project?"
+
+msgid "What is your project's machine name? "
+msgstr "Wat is de machinenaam van je project?"
+
+msgid "Where do you want to save your project's configuration file?"
+msgstr "Waar wil je je projectconfiguratiebestand opslaan?"
+
+msgid "Which language should your project site be generated in?"
+msgstr "In welke taal moet je projectsite gegenereerd worden?"
+
+msgid ""
+"Which language should your project site be generated in? Enter an IETF "
+"BCP 47 language code."
+msgstr "In welke taal moet je projectsite gegenereerd worden? Voer een IETF BCP 47-taalcode in."
+
+msgid "Who is the author?"
+msgstr "Wie is de auteur?"
 
 msgid "Wikipedia"
 msgstr "Wikipedia"

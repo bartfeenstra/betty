@@ -3,7 +3,7 @@ import logging
 from asyncio import to_thread
 from collections.abc import AsyncIterator
 from logging import CRITICAL, ERROR, WARNING, INFO, DEBUG, FATAL, WARN, NOTSET
-from typing import Any
+from typing import Any, IO
 
 import click
 import pytest
@@ -35,9 +35,10 @@ class _NoOpCommand(Command):
 def run(
     *args: str,
     expected_exit_code: int = 0,
+    input: str | bytes | IO[Any] | None = None,  # noqa A002
 ) -> Result:
     runner = CliRunner(mix_stderr=False)
-    result = runner.invoke(main, args, catch_exceptions=False)
+    result = runner.invoke(main, args, catch_exceptions=False, input=input)
     if result.exit_code != expected_exit_code:
         raise AssertionError(
             f"""

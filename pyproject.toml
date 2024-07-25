@@ -83,6 +83,7 @@ betty = 'betty.cli:main'
 'demo' = 'betty.cli.commands.demo:demo'
 'docs' = 'betty.cli.commands.docs:docs'
 'generate' = 'betty.cli.commands.generate:generate'
+'new' = 'betty.cli.commands.new:new'
 'serve' = 'betty.cli.commands.serve:serve'
 'serve-nginx-docker' = 'betty.extension.nginx._cli:serve_nginx_docker'
 

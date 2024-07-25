@@ -17,6 +17,7 @@ The command line is the primary way to interact with Betty:
       demo                     Explore a demonstration site.
       docs                     View the documentation.
       generate                 Generate a static site.
+      new                      Create a new project.
       serve                    Serve a generated site.
       serve-nginx-docker       Serve a generated site with nginx in a Docker...
       dev-init-translation     Initialize a new translation
@@ -109,6 +110,22 @@ Generate a site for your project
       -vvv, --most-verbose      Show most verbose output, including all log
                                 messages.
       --help                    Show this message and exit.
+
+
+Create a new project
+--------------------
+
+.. code-block::
+
+    Usage: betty new [OPTIONS]
+
+      Create a new project.
+
+    Options:
+      -v, --verbose         Show verbose output, including informative log messages.
+      -vv, --more-verbose   Show more verbose output, including debug log messages.
+      -vvv, --most-verbose  Show most verbose output, including all log messages.
+      --help                Show this message and exit.
 
 
 Serve your project's generated site

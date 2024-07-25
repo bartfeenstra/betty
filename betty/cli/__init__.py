@@ -18,18 +18,20 @@ from logging import (
     LogRecord,
 )
 from sys import stderr
-from typing import Iterator, TYPE_CHECKING, final, IO, Any
+from typing import Iterator, TYPE_CHECKING, final, IO, Any, TypeVar
 
 import click
-from betty import about
-from betty.asyncio import wait_to_thread
-from betty.error import UserFacingError
-from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.plugin import PluginRepository, PluginNotFound
 from click import Context
 from typing_extensions import override, ClassVar
 
+from betty import about
+from betty.asyncio import wait_to_thread
+from betty.error import UserFacingError
+from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
+from betty.plugin import PluginRepository, PluginNotFound
+
 if TYPE_CHECKING:
+    from betty.assertion import Assertion
     from betty.cli.commands import Command
 
 
@@ -50,6 +52,26 @@ def catch_exceptions() -> Iterator[None]:
         else:
             logger.exception(e)
         sys.exit(1)
+
+
+_ValueT = TypeVar("_ValueT")
+_ReturnT = TypeVar("_ReturnT")
+
+
+def assertion_to_value_proc(
+    assertion: Assertion[_ValueT, _ReturnT], localizer: Localizer
+) -> Assertion[_ValueT, _ReturnT]:
+    """
+    Convert an :py:class:`betty.assertion.Assertion` to a Click ``value_proc`` callback.
+    """
+
+    def _assert(value: _ValueT) -> _ReturnT:
+        try:
+            return assertion(value)
+        except UserFacingError as error:
+            raise click.BadParameter(error.localize(localizer)) from None
+
+    return _assert
 
 
 @final

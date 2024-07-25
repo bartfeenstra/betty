@@ -120,6 +120,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/cache/_base.py": TestKnownToBeMissing,
     "betty/classtools.py": TestKnownToBeMissing,
     "betty/core.py": TestKnownToBeMissing,
+    "betty/cli/__init__.py": {
+        "assertion_to_value_proc": TestKnownToBeMissing,
+    },
     "betty/cli/commands/__init__.py": {
         "command": TestKnownToBeMissing,
         "Command": TestKnownToBeMissing,
@@ -468,11 +471,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "npgettext": TestKnownToBeMissing,
         "pgettext": TestKnownToBeMissing,
         "plain": TestKnownToBeMissing,
-    },
-    "betty/logging.py": {
-        "CliHandler": {
-            "format": TestKnownToBeMissing,
-        },
     },
     "betty/media_type.py": {
         # This is an empty class.
