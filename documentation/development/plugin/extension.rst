@@ -78,6 +78,39 @@ are located. This may be anywhere in your Python package.
             # A directory named "assets" in the same parent directory as the current Python file.
             return Path(__file__).parent / 'assets'
 
+       # Implement remaining abstract methods...
+       ...
+
+Event handling
+--------------
+Extensions can act on events by overriding :py:meth:`betty.project.extension.Extension.register_event_handlers`.
+Any number of events may be handled, and any number of handlers may be registered per event.
+Handlers are invoked in their order of registration.
+
+.. code-block:: python
+
+    from typing import override
+    from betty.load import LoadAncestryEvent
+    from betty.project.extension import Extension
+
+    def _load_ancestry(event: LoadAncestryEvent) -> None:
+        # Do what this function should do...
+        ...
+
+    class MyExtension(Extension):
+        @override
+        @classmethod
+        def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
+            registry.add_handler(LoadAncestryEvent, _load_ancestry)
+
+       # Implement remaining abstract methods...
+       ...
+
+
+See also
+^^^^^^^^
+Read more about event dispatching and Betty's built-in events at :doc:`/development/event-dispatcher/`.
+
 
 Dependencies
 ------------
