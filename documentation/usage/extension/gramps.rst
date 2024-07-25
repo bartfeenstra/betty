@@ -3,6 +3,7 @@ The *Gramps* extension
 The :py:class:`betty.extension.Gramps` extension loads entities from `Gramps <https://gramps-project.org>`_ family trees into your Betty ancestry.
 
 Enable this extension in your project's :doc:`configuration file </usage/project/configuration>` as follows:
+
 .. tab-set::
 
    .. tab-item:: YAML
@@ -24,7 +25,7 @@ Enable this extension in your project's :doc:`configuration file </usage/project
 
 Configuration
 -------------
-This extension is configurable::
+This extension is configurable:
 
 .. tab-set::
 
