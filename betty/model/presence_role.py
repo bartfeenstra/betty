@@ -17,6 +17,8 @@ from betty.serde.dump import DumpMapping, Dump, dump_default
 class PresenceRole(Plugin):
     """
     A person's role at an event.
+
+    Read more about :doc:`/development/plugin/presence-role`.
     """
 
     pass
@@ -27,6 +29,8 @@ PRESENCE_ROLE_REPOSITORY: PluginRepository[PresenceRole] = EntryPointPluginRepos
 )
 """
 The presence role plugin repository.
+
+Read more about :doc:`/development/plugin/presence-role`.
 """
 
 

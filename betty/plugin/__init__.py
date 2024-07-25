@@ -61,8 +61,9 @@ class Plugin(ABC):
         Get the plugin ID.
 
         IDs are unique per plugin type:
-        - A plugin repository MUST at most have a single plugin for any ID.
-        - Different plugin repositories MAY each have a plugin with the same ID.
+
+        - A plugin repository **MUST** at most have a single plugin for any ID.
+        - Different plugin repositories **MAY** each have a plugin with the same ID.
         """
         pass
 

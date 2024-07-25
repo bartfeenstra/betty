@@ -54,6 +54,8 @@ class CyclicDependencyError(ExtensionError, RuntimeError):
 class Extension(Plugin, CoreComponent, ProjectDependentFactory):
     """
     Integrate optional functionality with Betty :py:class:`betty.project.Project`s.
+
+    Read more about :doc:`/development/plugin/extension`.
     """
 
     def __init__(self, project: Project):
@@ -143,6 +145,8 @@ EXTENSION_REPOSITORY: PluginRepository[Extension] = EntryPointPluginRepository(
 )
 """
 The project extension plugin repository.
+
+Read more about :doc:`/development/plugin/extension`.
 """
 
 

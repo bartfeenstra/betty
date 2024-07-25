@@ -4,8 +4,8 @@ Presence Role
 :doc:`Presence <presence>` roles are what indicate how a person was involved with an event, such as a subject, a witness, or a regular attendee.
 They inherit from :py:class:`betty.model.ancestry.PresenceRole`.
 
-Presence roles
---------------
+Built-in presence roles
+-----------------------
 :py:class:`betty.model.ancestry.Subject`
     The person was a primary subject at the event, such as the person being born at a birth, or one of the happy couple at a wedding.
 :py:class:`betty.model.ancestry.Witness`
@@ -20,3 +20,7 @@ Presence roles
     The person was the celebrant or officiant at the event, such as a civil servant or a clergyperson.
 :py:class:`betty.model.ancestry.Organizer`
     The person organized the event.
+
+See also
+--------
+- :doc:`/development/plugin/presence-role`
