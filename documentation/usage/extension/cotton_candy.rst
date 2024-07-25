@@ -28,7 +28,7 @@ Enable this extension in your project's :doc:`configuration file </usage/project
 
 Configuration
 -------------
-This extension is configurable::
+This extension is configurable:
 
 .. tab-set::
 

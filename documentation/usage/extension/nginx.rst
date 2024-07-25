@@ -26,10 +26,12 @@ Enable this extension in your project's :doc:`configuration file </usage/project
 
 Configuration
 -------------
-This extension is configurable::
+This extension is configurable:
 
 .. tab-set::
+
    .. tab-item:: YAML
+
       .. code-block:: yaml
 
           extensions:
@@ -39,6 +41,7 @@ This extension is configurable::
                 https: true
 
    .. tab-item:: JSON
+
       .. code-block:: json
 
           {
