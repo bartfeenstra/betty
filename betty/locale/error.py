@@ -47,7 +47,7 @@ class LocaleNotFound(LocaleError, ValueError):
         )
         super().__init__(
             _(
-                "Cannot find locale {locale}. Did you mean one of: {available_locales}?."
+                "Cannot find locale {locale}. Did you mean one of: {available_locales}?"
             ).format(
                 locale=locale,
                 available_locales=", ".join(available_locales),
