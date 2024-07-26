@@ -9,7 +9,17 @@ from asyncio import run
 from functools import wraps
 from importlib import metadata
 from pathlib import Path
-from typing import Any, Concatenate, ParamSpec, ClassVar, TYPE_CHECKING, Mapping
+from typing import (
+    Any,
+    Concatenate,
+    ParamSpec,
+    ClassVar,
+    TYPE_CHECKING,
+    Mapping,
+    overload,
+    TypeVar,
+    cast,
+)
 
 import click
 from click import get_current_context, Context, option, Option, Parameter
@@ -19,9 +29,9 @@ from betty import about
 from betty.app import App
 from betty.assertion.error import AssertionFailed
 from betty.asyncio import wait_to_thread
-from betty.cli import catch_exceptions
 from betty.config import assert_configuration_file
 from betty.contextlib import SynchronizedContextManager
+from betty.error import UserFacingError
 from betty.locale.localizable import _, Localizable, plain
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.lazy import LazyPluginRepositoryBase
@@ -127,65 +137,144 @@ def _command_build_init_ctx_verbosity(
     return _init_ctx_verbosity
 
 
+class BettyCommand(click.Command):
+    """
+    A Click command for Betty.
+
+    See :py:func:`betty.cli.commands.command`.
+    """
+
+    @override
+    def invoke(self, ctx: click.Context) -> Any:
+        try:
+            return super().invoke(ctx)
+        except UserFacingError as error:
+            raise click.ClickException(
+                error.localize(_get_ctx_app(ctx).localizer)
+            ) from error
+
+
+_BettyCommandT = TypeVar("_BettyCommandT", bound=BettyCommand)
+
+
+@overload
+def command(name: Callable[..., Coroutine[Any, Any, Any]]) -> BettyCommand:
+    pass
+
+
+@overload
 def command(
-    f: Callable[_P, Coroutine[Any, Any, None]],
-) -> Callable[Concatenate[_P], None]:
+    name: str | None,
+    cls: type[_BettyCommandT],
+    **attrs: Any,
+) -> Callable[[Callable[..., Coroutine[Any, Any, Any]]], _BettyCommandT]:
+    pass
+
+
+@overload
+def command(
+    name: None = None,
+    *,
+    cls: type[_BettyCommandT],
+    **attrs: Any,
+) -> Callable[[Callable[..., Coroutine[Any, Any, Any]]], _BettyCommandT]:
+    pass
+
+
+@overload
+def command(
+    name: str | None = None, cls: None = None, **attrs: Any
+) -> Callable[[Callable[..., Coroutine[Any, Any, Any]]], BettyCommand]:
+    pass
+
+
+def command(
+    name: str | None | Callable[..., Coroutine[Any, Any, Any]] = None,
+    cls: type[BettyCommand] | None = None,
+    **attrs: Any,
+) -> (
+    click.Command
+    | Callable[[Callable[..., Coroutine[Any, Any, Any]]], click.Command | BettyCommand]
+):
     """
     Mark something a Betty command.
+
+    This is almost identical to :py:func:`click.command`, except that ``cls`` must extend
+    :py:class:`betty.cli.commands.BettyCommand`.
+
+    Functions decorated with ``@command`` may choose to raise :py:class:`betty.error.UserFacingError`, which will
+    automatically be localized and reraised as :py:class:`click.ClickException`.
+
+    Read more about :doc:`/development/plugin/command`.
     """
+    if cls is None:
+        cls = BettyCommand
 
-    @wraps(f)
-    @catch_exceptions()
-    @click.option(
-        "-v",
-        "--verbose",
-        is_eager=True,
-        default=False,
-        is_flag=True,
-        expose_value=False,
-        help="Show verbose output, including informative log messages.",
-        callback=_command_build_init_ctx_verbosity(logging.INFO),
-    )
-    @click.option(
-        "-vv",
-        "--more-verbose",
-        "more_verbose",
-        is_eager=True,
-        default=False,
-        is_flag=True,
-        expose_value=False,
-        help="Show more verbose output, including debug log messages.",
-        callback=_command_build_init_ctx_verbosity(logging.DEBUG),
-    )
-    @click.option(
-        "-vvv",
-        "--most-verbose",
-        "most_verbose",
-        is_eager=True,
-        default=False,
-        is_flag=True,
-        expose_value=False,
-        help="Show most verbose output, including all log messages.",
-        callback=_command_build_init_ctx_verbosity(logging.NOTSET, logging.NOTSET),
-    )
-    def _command(*args: _P.args, **kwargs: _P.kwargs) -> None:
-        return run(f(*args, **kwargs))
+    def decorator(f: Callable[..., Coroutine[Any, Any, Any]]) -> BettyCommand:
+        @click.command(cast(str | None, name), cls, **attrs)
+        @click.option(
+            "-v",
+            "--verbose",
+            is_eager=True,
+            default=False,
+            is_flag=True,
+            expose_value=False,
+            help="Show verbose output, including informative log messages.",
+            callback=_command_build_init_ctx_verbosity(logging.INFO),
+        )
+        @click.option(
+            "-vv",
+            "--more-verbose",
+            "more_verbose",
+            is_eager=True,
+            default=False,
+            is_flag=True,
+            expose_value=False,
+            help="Show more verbose output, including debug log messages.",
+            callback=_command_build_init_ctx_verbosity(logging.DEBUG),
+        )
+        @click.option(
+            "-vvv",
+            "--most-verbose",
+            "most_verbose",
+            is_eager=True,
+            default=False,
+            is_flag=True,
+            expose_value=False,
+            help="Show most verbose output, including all log messages.",
+            callback=_command_build_init_ctx_verbosity(logging.NOTSET, logging.NOTSET),
+        )
+        @wraps(f)
+        def _command(*args: _P.args, **kwargs: _P.kwargs) -> None:
+            run(f(*args, **kwargs))
 
-    return _command
+        return _command  # type: ignore[return-value]
+
+    if callable(name):
+        return decorator(name)
+    return decorator
+
+
+_ReturnT = TypeVar("_ReturnT")
+
+
+def _get_ctx_app(ctx: click.Context | None = None) -> App:
+    if not ctx:
+        ctx = get_current_context()
+    _init_ctx_app(ctx)
+    return cast(App, ctx.obj["app"])
 
 
 def pass_app(
-    f: Callable[Concatenate[App, _P], None],
-) -> Callable[_P, None]:
+    f: Callable[Concatenate[App, _P], _ReturnT],
+) -> Callable[_P, _ReturnT]:
     """
     Decorate a command to receive the currently running :py:class:`betty.app.App` as its first argument.
     """
 
     @wraps(f)
-    def _command(*args: _P.args, **kwargs: _P.kwargs) -> None:
-        ctx = get_current_context()
-        _init_ctx_app(ctx)
-        return f(ctx.obj["app"], *args, **kwargs)
+    def _command(*args: _P.args, **kwargs: _P.kwargs) -> _ReturnT:
+        return f(_get_ctx_app(), *args, **kwargs)
 
     return _command
 
@@ -240,8 +329,8 @@ async def _read_project_configuration(
 
 
 def pass_project(
-    f: Callable[Concatenate[Project, _P], None],
-) -> Callable[_P, None]:
+    f: Callable[Concatenate[Project, _P], _ReturnT],
+) -> Callable[_P, _ReturnT]:
     """
     Decorate a command to receive the currently running :py:class:`betty.project.Project` as its first argument.
     """
@@ -269,7 +358,6 @@ def pass_project(
     )(f)
 
 
-@catch_exceptions()
 def _init_ctx_app(ctx: Context, __: Option | Parameter | None = None, *_: Any) -> None:
     obj = ctx.ensure_object(dict)
 

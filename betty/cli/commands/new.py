@@ -48,9 +48,8 @@ def _assert_url(value: Any) -> tuple[str, str]:
 
 
 @internal
-@click.command(help="Create a new project.")
+@command(help="Create a new project.")
 @pass_app
-@command
 async def new(app: App) -> None:  # noqa D103
     configuration_file_path = click.prompt(
         app.localizer._("Where do you want to save your project's configuration file?"),

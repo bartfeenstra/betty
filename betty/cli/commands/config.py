@@ -4,6 +4,7 @@ from logging import getLogger
 from typing import TYPE_CHECKING
 
 import click
+
 from betty.app.config import CONFIGURATION_FILE_PATH
 from betty.cli.commands import command, pass_app
 from betty.config import write_configuration_file
@@ -15,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @internal
-@click.command(help="Configure Betty.")
+@command(help="Configure Betty.")
 @click.option(
     "--locale",
     "locale",
@@ -23,7 +24,6 @@ if TYPE_CHECKING:
     help="Set the locale for Betty's user interface. This must be an IETF BCP 47 language tag.",
 )
 @pass_app
-@command
 async def config(app: App, *, locale: str) -> None:  # noqa D103
     logger = getLogger(__name__)
     app.configuration.locale = locale

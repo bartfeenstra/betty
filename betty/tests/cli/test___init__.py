@@ -5,25 +5,21 @@ from collections.abc import AsyncIterator
 from logging import CRITICAL, ERROR, WARNING, INFO, DEBUG, FATAL, WARN, NOTSET
 from typing import Any, IO
 
-import click
 import pytest
-from _pytest.logging import LogCaptureFixture
+from click.testing import CliRunner, Result
+from pytest_mock import MockerFixture
+
 from betty.app import App
-from betty.cli import main, catch_exceptions, _ClickHandler
+from betty.cli import main, _ClickHandler
 from betty.cli.commands import command, Command
 from betty.config import write_configuration_file
-from betty.error import UserFacingError
-from betty.locale.localizable import plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.serve import Server, ProjectServer
-from click.testing import CliRunner, Result
-from pytest_mock import MockerFixture
 
 
-@click.command(name="no-op")
-@command
+@command(name="no-op")
 async def _no_op_command() -> None:
     pass
 
@@ -69,25 +65,6 @@ class TestMain:
 
     async def test_help(self, new_temporary_app: App) -> None:
         await to_thread(run, "--help")
-
-
-class TestCatchExceptions:
-    async def test_logging_user_facing_error(self, caplog: LogCaptureFixture) -> None:
-        error_message = "Something went wrong!"
-        with pytest.raises(SystemExit), caplog.at_level(
-            logging.NOTSET
-        ), catch_exceptions():
-            raise UserFacingError(plain(error_message))
-        assert error_message in caplog.text
-
-    async def test_logging_uncaught_exception(self, caplog: LogCaptureFixture) -> None:
-        error_message = "Something went wrong!"
-        with pytest.raises(SystemExit), caplog.at_level(
-            logging.NOTSET
-        ), catch_exceptions():
-            raise Exception(error_message)
-        assert error_message in caplog.text
-        assert "Traceback" in caplog.text
 
 
 class TestVersion:

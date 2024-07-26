@@ -11,4 +11,4 @@ class TestDocs:
         mocker.patch("asyncio.sleep", side_effect=KeyboardInterrupt)
         mocker.patch("betty.documentation.DocumentationServer", new=NoOpServer)
 
-        await to_thread(run, "docs")
+        await to_thread(run, "docs", expected_exit_code=1)

@@ -20,5 +20,9 @@ class TestServe:
             await makedirs(project.configuration.www_directory_path)
 
             await to_thread(
-                run, "serve", "-c", str(project.configuration.configuration_file_path)
+                run,
+                "serve",
+                "-c",
+                str(project.configuration.configuration_file_path),
+                expected_exit_code=1,
             )
