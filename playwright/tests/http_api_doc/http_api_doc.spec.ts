@@ -8,7 +8,7 @@ const test = base.extend<{
   site: async ({ generateSite, temporaryDirectoryPath }, use) => {
     using server = new Server(path.join(temporaryDirectoryPath, 'output', 'www'))
     await generateSite(temporaryDirectoryPath, {
-      base_url: await server.getPublicUrl(),
+      url: await server.getPublicUrl(),
       extensions: {
         'http-api-doc': {}
       }

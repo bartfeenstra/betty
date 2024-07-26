@@ -7,7 +7,7 @@ from betty.project import ExtensionConfiguration, Project
 class TestNginx:
     async def test_generate(self, new_temporary_app: App):
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.base_url = "http://example.com"
+            project.configuration.url = "http://example.com"
             project.configuration.extensions.append(ExtensionConfiguration(Nginx))
             async with project:
                 await generate(project)

@@ -40,7 +40,7 @@ class TestGenerateConfigurationFile:
 
     async def test(self, new_temporary_app: App):
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.base_url = "http://example.com"
+            project.configuration.url = "http://example.com"
             project.configuration.extensions.append(ExtensionConfiguration(Nginx))
             expected = (
                 r"""
@@ -78,7 +78,7 @@ server {
 
     async def test_multilingual(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.base_url = "http://example.com"
+            project.configuration.url = "http://example.com"
             project.configuration.locales.replace(
                 LocaleConfiguration(
                     "en-US",
@@ -157,7 +157,7 @@ server {
 
     async def test_multilingual_with_clean_urls(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.base_url = "http://example.com"
+            project.configuration.url = "http://example.com"
             project.configuration.clean_urls = True
             project.configuration.locales.replace(
                 LocaleConfiguration(
@@ -253,7 +253,7 @@ server {
 
     async def test_with_clean_urls(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.base_url = "http://example.com"
+            project.configuration.url = "http://example.com"
             project.configuration.clean_urls = True
             project.configuration.extensions.append(ExtensionConfiguration(Nginx))
             expected = (
@@ -298,7 +298,7 @@ server {
 
     async def test_with_https(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.base_url = "https://example.com"
+            project.configuration.url = "https://example.com"
             project.configuration.extensions.append(ExtensionConfiguration(Nginx))
             expected = (
                 r"""

@@ -11,9 +11,8 @@ structure. Example configuration:
 
       .. code-block:: yaml
 
-          base_url: https://ancestry.example.com
+          url: https://ancestry.example.com/betty
           debug: true
-          root_path: /betty
           clean_urls: true
           title: Betty's ancestry
           name: betty-ancestry
@@ -35,9 +34,8 @@ structure. Example configuration:
       .. code-block:: json
 
           {
-            "base_url" : "https://ancestry.example.com",
+            "url" : "https://ancestry.example.com/betty",
             "debug" : true,
-            "root_path" : "/betty",
             "clean_urls" : true,
             "title": "Betty's ancestry",
             "name": "betty-ancestry",
@@ -63,9 +61,8 @@ structure. Example configuration:
 All configuration options
 -------------------------
 
-- ``base_url`` (required): The absolute, public URL at which the site will be published.
+- ``url`` (required): The absolute, public URL at which the site will be published.
 - ``debug`` (optional): ``true`` to output more detailed logs and disable optimizations that make debugging harder. Defaults to ``false``.
-- ``root_path`` (optional): The relative path under the public URL at which the site will be published.
 - ``clean_urls`` (optional): A boolean indicating whether to use clean URLs, e.g. ``/path`` instead of ``/path/index.html``. Defaults to ``false``.
 - ``title`` (optional): The project's human-readable title.
 - ``name`` (optional): The project's machine name.

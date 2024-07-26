@@ -58,7 +58,7 @@ This extension is configurable:
 All configuration options
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 - ``https`` (optional): A boolean to enforce HTTPS in the nginx configuration.
-  Defaults to whether the project's base URL uses HTTPS.
+  Defaults to whether the project's URL uses HTTPS.
 - ``www_directory_path`` (optional): A string to override the WWW directory path in the nginx configuration.
   Defaults to the project's WWW directory path.
 

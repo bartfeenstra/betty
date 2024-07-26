@@ -53,7 +53,7 @@ class TestDocumentation:
         async with TemporaryDirectory() as working_directory_path_str:
             working_directory_path = Path(working_directory_path_str)
             configuration: DumpMapping[Dump] = {
-                "base_url": "https://example.com",
+                "url": "https://example.com",
                 "extensions": {
                     "nginx": {},
                 },

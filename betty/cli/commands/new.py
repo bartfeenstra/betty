@@ -40,11 +40,11 @@ def _assert_project_configuration_file_path(value: Any) -> Path:
     return configuration_file_path
 
 
-def _assert_url(value: Any) -> tuple[str, str]:
+def _assert_url(value: Any) -> str:
     url = assert_str()(value)
     parsed_url = urlparse(url)
     scheme = parsed_url.scheme or "http"
-    return f"{scheme}://{parsed_url.netloc}", parsed_url.path
+    return f"{scheme}://{parsed_url.netloc}{parsed_url.path}"
 
 
 @internal
@@ -79,7 +79,7 @@ async def new(app: App) -> None:  # noqa D103
 
     configuration.author = click.prompt(app.localizer._("Who is the author?"))
 
-    configuration.base_url, configuration.root_path = click.prompt(
+    configuration.url = click.prompt(
         app.localizer._("At which URL will your site be published?"),
         default="https://example.com",
         value_proc=assertion_to_value_proc(_assert_url, app.localizer),

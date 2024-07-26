@@ -887,28 +887,33 @@ class TestProjectConfiguration:
         sut.name = name
         assert sut.name == name
 
+    async def test_url(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        url = "https://example.com/example"
+        sut.url = url
+        assert sut.url == url
+
+    async def test_url_without_scheme_should_error(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        with pytest.raises(AssertionFailed):
+            sut.url = "/"
+
+    async def test_url_without_path_should_error(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        with pytest.raises(AssertionFailed):
+            sut.url = "file://"
+
     async def test_base_url(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        base_url = "https://example.com"
-        sut.base_url = base_url
-        assert base_url == sut.base_url
-
-    async def test_base_url_without_scheme_should_error(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        with pytest.raises(AssertionFailed):
-            sut.base_url = "/"
-
-    async def test_base_url_without_path_should_error(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        with pytest.raises(AssertionFailed):
-            sut.base_url = "file://"
+        url = "https://example.com/example"
+        sut.url = url
+        assert sut.base_url == "https://example.com"
 
     async def test_root_path(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        configured_root_path = "/betty/"
-        expected_root_path = "betty"
-        sut.root_path = configured_root_path
-        assert expected_root_path == sut.root_path
+        url = "https://example.com/example"
+        sut.url = url
+        assert sut.root_path == "/example"
 
     async def test_clean_urls(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
@@ -930,11 +935,10 @@ class TestProjectConfiguration:
         dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
         sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.load(dump)
-        assert dump["base_url"] == sut.base_url
+        assert dump["url"] == sut.url
         assert sut.title == "Betty"
         assert sut.author is None
         assert not sut.debug
-        assert sut.root_path == ""
         assert not sut.clean_urls
 
     async def test_load_should_load_name(self, tmp_path: Path) -> None:
@@ -991,15 +995,6 @@ class TestProjectConfiguration:
                 ),
             ]
         )
-
-    async def test_load_should_root_path(self, tmp_path: Path) -> None:
-        configured_root_path = "/betty/"
-        expected_root_path = "betty"
-        dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
-        dump["root_path"] = configured_root_path
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        sut.load(dump)
-        assert sut.root_path == expected_root_path
 
     async def test_load_should_clean_urls(self, tmp_path: Path) -> None:
         clean_urls = True
@@ -1105,7 +1100,7 @@ class TestProjectConfiguration:
     async def test_dump_should_dump_minimal(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
         dump: Any = sut.dump()
-        assert dump["base_url"] == sut.base_url
+        assert dump["url"] == sut.url
         assert sut.title == "Betty"
         assert sut.author is None
         assert not sut.debug
@@ -1160,13 +1155,6 @@ class TestProjectConfiguration:
                 "alias": alias,
             },
         }
-
-    async def test_dump_should_dump_root_path(self, tmp_path: Path) -> None:
-        root_path = "betty"
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        sut.root_path = root_path
-        dump: Any = sut.dump()
-        assert root_path == dump["root_path"]
 
     async def test_dump_should_dump_clean_urls(self, tmp_path: Path) -> None:
         clean_urls = True
