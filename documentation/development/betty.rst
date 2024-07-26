@@ -14,11 +14,8 @@ This section covers how to develop Betty itself.
 .. seealso::
     Read :doc:`/about/contributing` before sharing your improvements to Betty with the wider community.
 
-Getting started
----------------
-:doc:`Install Betty from source </installation/source>`.
-
 In this section
 ---------------
+:doc:`Install a Betty development environment </development/betty/installation>`.
 - :doc:`/development/betty/test`
 - :doc:`/development/betty/translation`

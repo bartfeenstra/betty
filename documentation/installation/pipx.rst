@@ -1,5 +1,5 @@
-Installation via pip
-====================
+Installation via pipx
+=====================
 
 Requirements
 ------------
@@ -9,4 +9,4 @@ Requirements
 
 Instructions
 ------------
-Run ``pip install betty`` to install the latest stable release.
+Run ``pipx install betty`` to install the latest stable release.
