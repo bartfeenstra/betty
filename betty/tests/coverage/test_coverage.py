@@ -459,8 +459,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/locale/translation.py": {
-        "init_translation": TestKnownToBeMissing,
-        "update_translations": TestKnownToBeMissing,
+        "new_dev_translation": TestKnownToBeMissing,
+        "new_project_translation": TestKnownToBeMissing,
+        "update_dev_translations": TestKnownToBeMissing,
+        "update_project_translations": TestKnownToBeMissing,
     },
     "betty/locale/localizable.py": {
         "call": TestKnownToBeMissing,
@@ -782,6 +784,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/serde/dump.py": TestKnownToBeMissing,
     "betty/sphinx/extension/replacements.py": TestKnownToBeMissing,
+    "betty/test_utils/locale.py": TestKnownToBeMissing,
     "betty/typing.py": {
         "Void": TestKnownToBeMissing,
     },
