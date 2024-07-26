@@ -239,14 +239,13 @@ def assert_positive_number() -> AssertionChain[Any, Number]:
     """
 
     def _assert_positive_number(
-        value: Any,
+        number: int | float,
     ) -> Number:
-        value = assert_number()(value)
-        if value <= 0:
+        if number <= 0:
             raise AssertionFailed(_("This must be a positive number."))
-        return value
+        return number
 
-    return AssertionChain(_assert_positive_number)
+    return assert_number() | _assert_positive_number
 
 
 def assert_str() -> AssertionChain[Any, str]:
@@ -289,8 +288,7 @@ def assert_sequence(
     Assert that a value is a sequence and that all item values are of the given type.
     """
 
-    def _assert_sequence(value: Any) -> MutableSequence[_AssertionReturnT]:
-        list_value = assert_list()(value)
+    def _assert_sequence(list_value: list[Any]) -> MutableSequence[_AssertionReturnT]:
         sequence: MutableSequence[_AssertionReturnT] = []
         with AssertionFailedGroup().assert_valid() as errors:
             for value_item_index, value_item_value in enumerate(list_value):
@@ -298,7 +296,7 @@ def assert_sequence(
                     sequence.append(item_assertion(value_item_value))
         return sequence
 
-    return AssertionChain(_assert_sequence)
+    return assert_list() | _assert_sequence
 
 
 def assert_mapping(
@@ -308,8 +306,9 @@ def assert_mapping(
     Assert that a value is a key-value mapping and assert that all item values are of the given type.
     """
 
-    def _assert_mapping(value: Any) -> MutableMapping[str, _AssertionReturnT]:
-        dict_value = assert_dict()(value)
+    def _assert_mapping(
+        dict_value: dict[str, Any],
+    ) -> MutableMapping[str, _AssertionReturnT]:
         mapping: MutableMapping[str, _AssertionReturnT] = {}
         with AssertionFailedGroup().assert_valid() as errors:
             for value_item_key, value_item_value in dict_value.items():
@@ -317,7 +316,7 @@ def assert_mapping(
                     mapping[value_item_key] = item_assertion(value_item_value)
         return mapping
 
-    return AssertionChain(_assert_mapping)
+    return assert_dict() | _assert_mapping
 
 
 def assert_fields(
@@ -327,22 +326,21 @@ def assert_fields(
     Assert that a value is a key-value mapping of arbitrary value types, and assert several of its values.
     """
 
-    def _assert_fields(value: Any) -> MutableMapping[str, Any]:
-        value_dict = assert_dict()(value)
+    def _assert_fields(dict_value: dict[str, Any]) -> MutableMapping[str, Any]:
         mapping: MutableMapping[str, Any] = {}
         with AssertionFailedGroup().assert_valid() as errors:
             for field in fields:
                 with errors.catch(plain(field.name)):
-                    if field.name in value_dict:
+                    if field.name in dict_value:
                         if field.assertion:
                             mapping[field.name] = field.assertion(
-                                value_dict[field.name]
+                                dict_value[field.name]
                             )
                     elif isinstance(field, RequiredField):
                         raise AssertionFailed(_("This field is required."))
         return mapping
 
-    return AssertionChain(_assert_fields)
+    return assert_dict() | _assert_fields
 
 
 @overload
@@ -369,8 +367,9 @@ def assert_field(
     Assert that a value is a key-value mapping of arbitrary value types, and assert a single of its values.
     """
 
-    def _assert_field(value: Any) -> _AssertionReturnT | type[Void]:
-        fields = assert_fields(field)(value)
+    def _assert_field(
+        fields: MutableMapping[str, Any],
+    ) -> _AssertionReturnT | type[Void]:
         try:
             return cast("_AssertionReturnT | type[Void]", fields[field.name])
         except KeyError:
@@ -378,7 +377,7 @@ def assert_field(
                 raise
             return Void
 
-    return AssertionChain(_assert_field)
+    return assert_fields(field) | _assert_field
 
 
 def assert_record(
@@ -394,8 +393,7 @@ def assert_record(
     if not len(fields):
         raise ValueError("One or more fields are required.")
 
-    def _assert_record(value: Any) -> MutableMapping[str, Any]:
-        dict_value = assert_dict()(value)
+    def _assert_record(dict_value: dict[str, Any]) -> MutableMapping[str, Any]:
         known_keys = {x.name for x in fields}
         unknown_keys = set(dict_value.keys()) - known_keys
         with AssertionFailedGroup().assert_valid() as errors:
@@ -413,7 +411,7 @@ def assert_record(
                     )
             return assert_fields(*fields)(dict_value)
 
-    return AssertionChain(_assert_record)
+    return assert_dict() | _assert_record
 
 
 def assert_isinstance(
@@ -448,13 +446,14 @@ def assert_directory_path() -> AssertionChain[Any, Path]:
     Assert that a value is a path to an existing directory.
     """
 
-    def _assert_directory_path(value: Any) -> Path:
-        directory_path = assert_path()(value)
+    def _assert_directory_path(directory_path: Path) -> Path:
         if directory_path.is_dir():
             return directory_path
-        raise AssertionFailed(_('"{path}" is not a directory.').format(path=value))
+        raise AssertionFailed(
+            _('"{path}" is not a directory.').format(path=str(directory_path))
+        )
 
-    return AssertionChain(_assert_directory_path)
+    return assert_path() | _assert_directory_path
 
 
 def assert_file_path() -> AssertionChain[Any, Path]:
@@ -462,13 +461,12 @@ def assert_file_path() -> AssertionChain[Any, Path]:
     Assert that a value is a path to an existing file.
     """
 
-    def _assert_file_path(value: Any) -> Path:
-        file_path = assert_path()(value)
+    def _assert_file_path(file_path: Path) -> Path:
         if file_path.is_file():
             return file_path
-        raise AssertionFailed(_('"{path}" is not a file.').format(path=value))
+        raise AssertionFailed(_('"{path}" is not a file.').format(path=str(file_path)))
 
-    return AssertionChain(_assert_file_path)
+    return assert_path() | _assert_file_path
 
 
 def assert_locale() -> AssertionChain[Any, str]:
