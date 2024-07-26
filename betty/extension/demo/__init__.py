@@ -515,6 +515,10 @@ async def demo_project(app: App) -> AsyncIterator[Project]:
     """
     async with Project.new_temporary(app) as project:
         project.configuration.name = Demo.plugin_id()
+        project.configuration.title = {
+            "en-US": "A Betty demonstration",
+            "nl-NL": "Een demonstratie van Betty",
+        }
         project.configuration.extensions.append(ExtensionConfiguration(Demo))
         project.configuration.extensions.append(
             ExtensionConfiguration(

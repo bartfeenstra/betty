@@ -16,8 +16,6 @@ from typing import Any, Generic, final, Iterable, Self, TYPE_CHECKING, TypeVar, 
 from urllib.parse import urlparse
 
 from aiofiles.tempfile import TemporaryDirectory
-from typing_extensions import override
-
 from betty import fs, event_dispatcher
 from betty import model
 from betty.assertion import (
@@ -48,7 +46,10 @@ from betty.core import CoreComponent
 from betty.event_dispatcher import EventDispatcher, EventHandlerRegistry
 from betty.hashid import hashid
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import _
+from betty.locale.localizable import _, ShorthandStaticTranslations
+from betty.locale.localizable.config import (
+    StaticTranslationsLocalizableConfigurationProperty,
+)
 from betty.locale.localizer import LocalizerRepository
 from betty.model import Entity, UserFacingEntity
 from betty.model.ancestry import Ancestry, Person, Event, Place, Source
@@ -71,6 +72,7 @@ from betty.serde.dump import (
 )
 from betty.serde.format import FormatRepository
 from betty.typing import Void
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
@@ -722,14 +724,17 @@ class ProjectConfiguration(Configuration):
     Provide the configuration for a :py:class:`betty.project.Project`.
     """
 
+    title = StaticTranslationsLocalizableConfigurationProperty("title")
+    author = StaticTranslationsLocalizableConfigurationProperty("author", minimum=0)
+
     def __init__(
         self,
         configuration_file_path: Path,
         *,
         url: str = "https://example.com",
         clean_urls: bool = False,
-        title: str = "Betty",
-        author: str | None = None,
+        title: ShorthandStaticTranslations = "Betty",
+        author: ShorthandStaticTranslations | None = None,
         entity_types: Iterable[EntityTypeConfiguration] | None = None,
         extensions: Iterable[ExtensionConfiguration] | None = None,
         debug: bool = False,
@@ -743,8 +748,9 @@ class ProjectConfiguration(Configuration):
         self._computed_name: str | None = None
         self._url = url
         self._clean_urls = clean_urls
-        self._title = title
-        self._author = author
+        self.title = title
+        if author:
+            self.author = author
         self._entity_types = EntityTypeConfigurationMapping(
             entity_types
             or [
@@ -835,28 +841,6 @@ class ProjectConfiguration(Configuration):
         if self.locales.multilingual:
             return self.www_directory_path / self.locales[locale].alias
         return self.www_directory_path
-
-    @property
-    def title(self) -> str:
-        """
-        The project's human-readable title.
-        """
-        return self._title
-
-    @title.setter
-    def title(self, title: str) -> None:
-        self._title = title
-
-    @property
-    def author(self) -> str | None:
-        """
-        The project's author.
-        """
-        return self._author
-
-    @author.setter
-    def author(self, author: str | None) -> None:
-        self._author = author
 
     @property
     def url(self) -> str:
@@ -970,8 +954,8 @@ class ProjectConfiguration(Configuration):
     @override
     def update(self, other: Self) -> None:
         self._url = other._url
-        self._title = other._title
-        self._author = other._author
+        self.title.update(other.author)
+        self.author.update(other.author)
         self._clean_urls = other._clean_urls
         self._debug = other._debug
         self._lifetime_threshold = other._lifetime_threshold
@@ -984,8 +968,8 @@ class ProjectConfiguration(Configuration):
         assert_record(
             OptionalField("name", assert_str() | assert_setattr(self, "name")),
             RequiredField("url", assert_str() | assert_setattr(self, "url")),
-            OptionalField("title", assert_str() | assert_setattr(self, "title")),
-            OptionalField("author", assert_str() | assert_setattr(self, "author")),
+            OptionalField("title", self.title.load),
+            OptionalField("author", self.author.load),
             OptionalField(
                 "clean_urls",
                 assert_bool() | assert_setattr(self, "clean_urls"),
@@ -1006,9 +990,9 @@ class ProjectConfiguration(Configuration):
             {  # type: ignore[return-value]
                 "name": void_none(self.name),
                 "url": self.url,
-                "title": self.title,
+                "title": self.title.dump(),
                 "clean_urls": void_none(self.clean_urls),
-                "author": void_none(self.author),
+                "author": self.author.dump(),
                 "debug": void_none(self.debug),
                 "lifetime_threshold": void_none(self.lifetime_threshold),
                 "locales": self.locales.dump(),

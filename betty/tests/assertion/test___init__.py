@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any, TypeVar
+from typing import Any, TypeVar, Sized
 
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
@@ -31,6 +31,7 @@ from betty.assertion import (
     assert_field,
     assert_file_path,
     assert_isinstance,
+    assert_len_min,
 )
 from betty.assertion.error import AssertionFailed
 from betty.locale.localizable import static
@@ -363,3 +364,34 @@ class TestAssertIsinstance:
 
         with pytest.raises(AssertionFailed):
             assert assert_isinstance(MyClass)(object())  # type: ignore[truthy-bool]
+
+
+class TestAssertLenMin:
+    @pytest.mark.parametrize(
+        ("minimum", "value"),
+        [
+            (0, ""),
+            (3, "abc"),
+            (0, []),
+            (3, ["a", "b", "c"]),
+            (0, {}),
+            (3, {"a": 1, "b": 2, "c": 3}),
+        ],
+    )
+    async def test_with_valid_value(self, minimum: int, value: Sized) -> None:
+        assert_len_min(minimum=minimum)(value)
+
+    @pytest.mark.parametrize(
+        ("minimum", "value"),
+        [
+            (1, ""),
+            (4, "abc"),
+            (1, []),
+            (4, ["a", "b", "c"]),
+            (1, {}),
+            (4, {"a": 1, "b": 2, "c": 3}),
+        ],
+    )
+    async def test_with_invalid_value(self, minimum: int, value: Sized) -> None:
+        with pytest.raises(AssertionFailed):
+            assert_len_min(minimum=minimum)(value)

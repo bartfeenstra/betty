@@ -11,7 +11,7 @@
 </script>
 <div id="page">
     <nav id="nav-primary">
-        <a id="site-title" href="{{ '/index.html' | url }}" title="{{ project.configuration.title }}">{{ project.configuration.title }}</a>
+        <a id="site-title" href="{{ '/index.html' | url }}" title="{{ project.configuration.title | localize }}">{{ project.configuration.title | localize }}</a>
         <div id="search"
              data-betty-search-configuration="{{ '/search-configuration.json' | static_url }}"
              data-betty-search-index="{{ '/search-index.json' | url }}">

@@ -13,12 +13,9 @@ from typing import final, Mapping, Iterator, AsyncIterator, TYPE_CHECKING
 import aiofiles
 from babel import dates
 from babel.dates import format_date
-from polib import pofile
-
 from betty import fs
 from betty.concurrent import _Lock, AsynchronizedLock
 from betty.hashid import hashid_file_meta
-
 from betty.locale import (
     get_data,
     to_babel_identifier,
@@ -27,7 +24,7 @@ from betty.locale import (
     to_locale,
     negotiate_locale,
 )
-
+from betty.locale.babel import run_babel
 from betty.locale.date import (
     DatePartsFormatters,
     DateFormatters,
@@ -37,7 +34,7 @@ from betty.locale.date import (
     IncompleteDateError,
     DateRange,
 )
-from betty.locale.babel import run_babel
+from polib import pofile
 
 if TYPE_CHECKING:
     from betty.assets import AssetRepository
