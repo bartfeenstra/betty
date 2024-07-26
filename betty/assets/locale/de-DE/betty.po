@@ -246,7 +246,7 @@ msgid ""
 "{available_plugin_ids}?"
 msgstr ""
 
-msgid "Cannot find locale {locale}. Did you mean one of: {available_locales}?."
+msgid "Cannot find locale {locale}. Did you mean one of: {available_locales}?"
 msgstr ""
 
 msgid ""

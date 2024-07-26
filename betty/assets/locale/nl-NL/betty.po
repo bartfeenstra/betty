@@ -245,7 +245,7 @@ msgstr ""
 "Kan \"{plugin_id}\" niet vinden en importeren. Bedoelde je: "
 "{available_plugin_ids}?"
 
-msgid "Cannot find locale {locale}. Did you mean one of: {available_locales}?."
+msgid "Cannot find locale {locale}. Did you mean one of: {available_locales}?"
 msgstr "Kan taalregio {locale} niet vinden. Bedoelde je: {available_locales}?"
 
 msgid ""

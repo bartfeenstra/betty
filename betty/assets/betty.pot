@@ -174,7 +174,7 @@ msgstr ""
 msgid "Cannot find and import \"{plugin_id}\". Did you mean one of: {available_plugin_ids}?"
 msgstr ""
 
-msgid "Cannot find locale {locale}. Did you mean one of: {available_locales}?."
+msgid "Cannot find locale {locale}. Did you mean one of: {available_locales}?"
 msgstr ""
 
 msgid "Cannot generate pages for {entity_type}, because it is not a user-facing entity type."
