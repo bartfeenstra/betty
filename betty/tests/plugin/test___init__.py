@@ -8,39 +8,8 @@ from betty.plugin import (
     PluginNotFound,
     Plugin,
     PluginRepository,
-    validate_plugin_id,
-    PluginId,
 )
-
-
-class TestValidatePluginId:
-    @pytest.mark.parametrize(
-        (
-            "expected",
-            "alleged_plugin_id",
-        ),
-        [
-            (True, "package-plugin"),
-            (False, "package_plugin"),
-            (True, "package-module-plugin"),
-            (False, "package_module_plugin"),
-            (True, "plugin1234567890"),
-            # String is exactly 255 characters.
-            (
-                True,
-                "pluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginplug",
-            ),
-            # An empty string.
-            (False, ""),
-            # String exceeds 255 characters.
-            (
-                False,
-                "pluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginpluginplugi",
-            ),
-        ],
-    )
-    async def test(self, expected: bool, alleged_plugin_id: str) -> None:
-        assert validate_plugin_id(alleged_plugin_id) is expected
+from betty.machine_id import MachineId
 
 
 class TestPluginNotFound:
@@ -55,7 +24,7 @@ class TestPlugin:
 
 class _TestPluginRepositoryPluginBase(Plugin):
     @classmethod
-    def plugin_id(cls) -> PluginId:
+    def plugin_id(cls) -> MachineId:
         return cls.__name__
 
     @classmethod
@@ -105,7 +74,7 @@ class _TestPluginRepositoryPluginRepository(
         self._plugins = {plugin.plugin_id(): plugin for plugin in plugins}
 
     @override
-    async def get(self, plugin_id: PluginId) -> type[_TestPluginRepositoryPluginBase]:
+    async def get(self, plugin_id: MachineId) -> type[_TestPluginRepositoryPluginBase]:
         return self._plugins[plugin_id]
 
     @override

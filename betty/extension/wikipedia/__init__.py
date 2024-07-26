@@ -28,7 +28,7 @@ from betty.wikipedia import (
 if TYPE_CHECKING:
     from betty.project import Project
     from betty.event_dispatcher import EventHandlerRegistry
-    from betty.plugin import PluginId
+    from betty.machine_id import MachineId
     from jinja2.runtime import Context
     from betty.model.ancestry import Link
 
@@ -52,7 +52,7 @@ class Wikipedia(ConfigurableExtension[WikipediaConfiguration], Jinja2Provider):
 
     @override
     @classmethod
-    def plugin_id(cls) -> PluginId:
+    def plugin_id(cls) -> MachineId:
         return "wikipedia"
 
     @override

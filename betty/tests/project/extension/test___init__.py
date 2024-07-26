@@ -4,7 +4,7 @@ from pytest_mock import MockerFixture
 from betty.app import App
 from betty.event_dispatcher import EventHandlerRegistry
 from betty.locale.localizable import Localizable, plain
-from betty.plugin import PluginId
+from betty.machine_id import MachineId
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.project.extension import (
@@ -16,7 +16,7 @@ from betty.project.extension import (
 
 class DummyExtension(Extension):
     @classmethod
-    def plugin_id(cls) -> PluginId:
+    def plugin_id(cls) -> MachineId:
         return cls.__name__
 
     @classmethod
@@ -30,13 +30,13 @@ class IsDependencyExtension(DummyExtension):
 
 class HasDependencyExtension(DummyExtension):
     @classmethod
-    def depends_on(cls) -> set[PluginId]:
+    def depends_on(cls) -> set[MachineId]:
         return {IsDependencyExtension.plugin_id()}
 
 
 class IsAndHasDependencyExtension(DummyExtension):
     @classmethod
-    def depends_on(cls) -> set[PluginId]:
+    def depends_on(cls) -> set[MachineId]:
         return {IsDependencyExtension.plugin_id()}
 
 
@@ -46,7 +46,7 @@ class ComesBeforeTargetExtension(DummyExtension):
 
 class HasComesBeforeExtension(DummyExtension):
     @classmethod
-    def comes_before(cls) -> set[PluginId]:
+    def comes_before(cls) -> set[MachineId]:
         return {ComesBeforeTargetExtension.plugin_id()}
 
 
@@ -56,7 +56,7 @@ class ComesAfterTargetExtension(DummyExtension):
 
 class HasComesAfterExtension(DummyExtension):
     @classmethod
-    def comes_after(cls) -> set[PluginId]:
+    def comes_after(cls) -> set[MachineId]:
         return {ComesAfterTargetExtension.plugin_id()}
 
 

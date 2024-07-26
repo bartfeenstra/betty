@@ -13,7 +13,7 @@ from betty.extension.nginx.artifact import (
 from betty.extension.nginx.config import NginxConfiguration
 from betty.generate import GenerateSiteEvent
 from betty.locale.localizable import plain, _, Localizable
-from betty.plugin import PluginId
+from betty.machine_id import MachineId
 from betty.project.extension import ConfigurableExtension
 
 
@@ -30,7 +30,7 @@ class Nginx(ConfigurableExtension[NginxConfiguration]):
 
     @override
     @classmethod
-    def plugin_id(cls) -> PluginId:
+    def plugin_id(cls) -> MachineId:
         return "nginx"
 
     @override

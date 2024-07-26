@@ -47,7 +47,7 @@ from betty.typing import Void
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
-    from betty.plugin import PluginId
+    from betty.machine_id import MachineId
     from pathlib import Path
     from betty.app import App
     from collections.abc import Sequence
@@ -1266,43 +1266,43 @@ class _ConfigurableExtensionConfiguration(Configuration):
 
 class _CyclicDependencyOneExtension(DummyExtension):
     @classmethod
-    def depends_on(cls) -> set[PluginId]:
+    def depends_on(cls) -> set[MachineId]:
         return {_CyclicDependencyTwoExtension.plugin_id()}
 
 
 class _CyclicDependencyTwoExtension(DummyExtension):
     @classmethod
-    def depends_on(cls) -> set[PluginId]:
+    def depends_on(cls) -> set[MachineId]:
         return {_CyclicDependencyOneExtension.plugin_id()}
 
 
 class _DependsOnNonConfigurableExtensionExtension(_TrackableExtension):
     @classmethod
-    def depends_on(cls) -> set[PluginId]:
+    def depends_on(cls) -> set[MachineId]:
         return {_NonConfigurableExtension.plugin_id()}
 
 
 class _AlsoDependsOnNonConfigurableExtensionExtension(_TrackableExtension):
     @classmethod
-    def depends_on(cls) -> set[PluginId]:
+    def depends_on(cls) -> set[MachineId]:
         return {_NonConfigurableExtension.plugin_id()}
 
 
 class _DependsOnNonConfigurableExtensionExtensionExtension(_TrackableExtension):
     @classmethod
-    def depends_on(cls) -> set[PluginId]:
+    def depends_on(cls) -> set[MachineId]:
         return {_DependsOnNonConfigurableExtensionExtension.plugin_id()}
 
 
 class _ComesBeforeNonConfigurableExtensionExtension(_TrackableExtension):
     @classmethod
-    def comes_before(cls) -> set[PluginId]:
+    def comes_before(cls) -> set[MachineId]:
         return {_NonConfigurableExtension.plugin_id()}
 
 
 class _ComesAfterNonConfigurableExtensionExtension(_TrackableExtension):
     @classmethod
-    def comes_after(cls) -> set[PluginId]:
+    def comes_after(cls) -> set[MachineId]:
         return {_NonConfigurableExtension.plugin_id()}
 
 

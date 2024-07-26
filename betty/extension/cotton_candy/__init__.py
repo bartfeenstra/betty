@@ -46,7 +46,7 @@ from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.event_dispatcher import EventHandlerRegistry
-    from betty.plugin import PluginId
+    from betty.machine_id import MachineId
     from jinja2.runtime import Context
     from collections.abc import Sequence, AsyncIterable
 
@@ -73,7 +73,7 @@ class CottonCandy(
 
     @override
     @classmethod
-    def plugin_id(cls) -> PluginId:
+    def plugin_id(cls) -> MachineId:
         return "cotton-candy"
 
     @override
@@ -82,12 +82,12 @@ class CottonCandy(
 
     @override
     @classmethod
-    def depends_on(cls) -> set[PluginId]:
+    def depends_on(cls) -> set[MachineId]:
         return {Webpack.plugin_id()}
 
     @override
     @classmethod
-    def comes_after(cls) -> set[PluginId]:
+    def comes_after(cls) -> set[MachineId]:
         return {Maps.plugin_id(), Trees.plugin_id()}
 
     @override

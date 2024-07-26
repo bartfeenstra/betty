@@ -9,14 +9,14 @@ Read more at :doc:`/usage/plugin`.
 
 from __future__ import annotations
 
-import re
 from abc import ABC, abstractmethod
-from typing import TypeVar, Generic, Self, overload, TYPE_CHECKING, TypeAlias, TypeGuard
+from typing import TypeVar, Generic, Self, overload, TYPE_CHECKING
 
 from betty.error import UserFacingError
 from betty.locale.localizable import _
 
 if TYPE_CHECKING:
+    from betty.machine_id import MachineId
     from betty.locale.localizable import Localizable
     from collections.abc import AsyncIterator, Sequence
 
@@ -29,26 +29,6 @@ class PluginError(UserFacingError):
     pass
 
 
-PluginId: TypeAlias = str
-"""
-A plugin ID is a string that meets these criteria:
-- At most 250 characters long.
-- Lowercase letters, numbers, and hyphens (-).
-
-See :py:func:`betty.plugin.validate_plugin_id`.
-"""
-
-
-_PLUGIN_ID_PATTERN = re.compile(r"^[a-z0-9\-]{1,250}$")
-
-
-def validate_plugin_id(plugin_id: str) -> TypeGuard[PluginId]:
-    """
-    Validate that a string is a plugin ID.
-    """
-    return _PLUGIN_ID_PATTERN.fullmatch(plugin_id) is not None
-
-
 class Plugin(ABC):
     """
     A plugin.
@@ -56,7 +36,7 @@ class Plugin(ABC):
 
     @classmethod
     @abstractmethod
-    def plugin_id(cls) -> PluginId:
+    def plugin_id(cls) -> MachineId:
         """
         Get the plugin ID.
 
@@ -92,7 +72,7 @@ class PluginNotFound(PluginError):
     """
 
     @classmethod
-    def new(cls, plugin_id: PluginId) -> Self:
+    def new(cls, plugin_id: MachineId) -> Self:
         """
         Create a new instance.
         """
@@ -112,7 +92,7 @@ class PluginRepository(Generic[_PluginT], ABC):
     """
 
     @abstractmethod
-    async def get(self, plugin_id: PluginId) -> type[_PluginT]:
+    async def get(self, plugin_id: MachineId) -> type[_PluginT]:
         """
         Get a single plugin by its ID.
 

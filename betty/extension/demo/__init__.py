@@ -46,7 +46,7 @@ from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
 
 if TYPE_CHECKING:
     from betty.event_dispatcher import EventHandlerRegistry
-    from betty.plugin import PluginId
+    from betty.machine_id import MachineId
     from betty.app import App
     from collections.abc import AsyncIterator
     from betty.model import Entity
@@ -441,7 +441,7 @@ class Demo(Extension):
 
     @override
     @classmethod
-    def plugin_id(cls) -> PluginId:
+    def plugin_id(cls) -> MachineId:
         return "demo"
 
     @override
@@ -451,7 +451,7 @@ class Demo(Extension):
 
     @override
     @classmethod
-    def depends_on(cls) -> set[PluginId]:
+    def depends_on(cls) -> set[MachineId]:
         return {
             CottonCandy.plugin_id(),
             HttpApiDoc.plugin_id(),
