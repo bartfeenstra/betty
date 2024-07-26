@@ -28,7 +28,7 @@ from betty.plugin.lazy import LazyPluginRepositoryBase
 from betty.project import Project
 
 if TYPE_CHECKING:
-    from betty.machine_id import MachineId
+    from betty.machine_name import MachineName
     from collections.abc import Callable, Coroutine
 
 _P = ParamSpec("_P")
@@ -52,7 +52,7 @@ class Command(Plugin):
 
     @override
     @classmethod
-    def plugin_id(cls) -> MachineId:
+    def plugin_id(cls) -> MachineName:
         return cls.click_command().name
 
     @override

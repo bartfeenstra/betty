@@ -9,7 +9,7 @@ from betty.plugin import (
     Plugin,
     PluginRepository,
 )
-from betty.machine_id import MachineId
+from betty.machine_name import MachineName
 
 
 class TestPluginNotFound:
@@ -24,7 +24,7 @@ class TestPlugin:
 
 class _TestPluginRepositoryPluginBase(Plugin):
     @classmethod
-    def plugin_id(cls) -> MachineId:
+    def plugin_id(cls) -> MachineName:
         return cls.__name__
 
     @classmethod
@@ -74,7 +74,9 @@ class _TestPluginRepositoryPluginRepository(
         self._plugins = {plugin.plugin_id(): plugin for plugin in plugins}
 
     @override
-    async def get(self, plugin_id: MachineId) -> type[_TestPluginRepositoryPluginBase]:
+    async def get(
+        self, plugin_id: MachineName
+    ) -> type[_TestPluginRepositoryPluginBase]:
         return self._plugins[plugin_id]
 
     @override

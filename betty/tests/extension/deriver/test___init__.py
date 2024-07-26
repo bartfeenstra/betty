@@ -21,14 +21,14 @@ from betty.project import ExtensionConfiguration, Project
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from betty.machine_id import MachineId
+    from betty.machine_name import MachineName
     from betty.app import App
 
 
 class DummyEventType(EventType):
     @override
     @classmethod
-    def plugin_id(cls) -> MachineId:
+    def plugin_id(cls) -> MachineName:
         return cls.__name__
 
     @override

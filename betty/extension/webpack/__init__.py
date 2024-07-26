@@ -38,7 +38,7 @@ from betty.typing import internal
 
 if TYPE_CHECKING:
     from betty.event_dispatcher import EventHandlerRegistry
-    from betty.machine_id import MachineId
+    from betty.machine_name import MachineName
     from collections.abc import Sequence
 
 
@@ -143,7 +143,7 @@ class Webpack(Extension, CssProvider, Jinja2Provider):
 
     @override
     @classmethod
-    def plugin_id(cls) -> MachineId:
+    def plugin_id(cls) -> MachineName:
         return "webpack"
 
     @override

@@ -16,7 +16,7 @@ from betty.error import UserFacingError
 from betty.locale.localizable import _
 
 if TYPE_CHECKING:
-    from betty.machine_id import MachineId
+    from betty.machine_name import MachineName
     from betty.locale.localizable import Localizable
     from collections.abc import AsyncIterator, Sequence
 
@@ -36,7 +36,7 @@ class Plugin(ABC):
 
     @classmethod
     @abstractmethod
-    def plugin_id(cls) -> MachineId:
+    def plugin_id(cls) -> MachineName:
         """
         Get the plugin ID.
 
@@ -72,7 +72,7 @@ class PluginNotFound(PluginError):
     """
 
     @classmethod
-    def new(cls, plugin_id: MachineId) -> Self:
+    def new(cls, plugin_id: MachineName) -> Self:
         """
         Create a new instance.
         """
@@ -92,7 +92,7 @@ class PluginRepository(Generic[_PluginT], ABC):
     """
 
     @abstractmethod
-    async def get(self, plugin_id: MachineId) -> type[_PluginT]:
+    async def get(self, plugin_id: MachineName) -> type[_PluginT]:
         """
         Get a single plugin by its ID.
 

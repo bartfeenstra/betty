@@ -20,7 +20,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from betty.event_dispatcher import EventHandlerRegistry
-    from betty.machine_id import MachineId
+    from betty.machine_name import MachineName
 
 
 async def _derive_ancestry(event: PostLoadAncestryEvent) -> None:
@@ -44,7 +44,7 @@ class Deriver(Extension):
 
     @override
     @classmethod
-    def plugin_id(cls) -> MachineId:
+    def plugin_id(cls) -> MachineName:
         return "deriver"
 
     @override
@@ -53,7 +53,7 @@ class Deriver(Extension):
 
     @override
     @classmethod
-    def comes_before(cls) -> set[MachineId]:
+    def comes_before(cls) -> set[MachineName]:
         return {Privatizer.plugin_id()}
 
     @override

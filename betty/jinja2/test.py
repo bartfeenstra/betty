@@ -26,7 +26,7 @@ from betty.model.presence_role import Subject, Witness
 from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
 
 if TYPE_CHECKING:
-    from betty.machine_id import MachineId
+    from betty.machine_name import MachineName
 
 
 def test_linked_data_dumpable(value: Any) -> bool:
@@ -36,7 +36,7 @@ def test_linked_data_dumpable(value: Any) -> bool:
     return isinstance(value, LinkedDataDumpable)
 
 
-def test_entity(value: Any, entity_type_id: MachineId | None = None) -> bool:
+def test_entity(value: Any, entity_type_id: MachineName | None = None) -> bool:
     """
     Test if a value is an entity.
 
