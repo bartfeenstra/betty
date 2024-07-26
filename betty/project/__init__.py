@@ -726,8 +726,7 @@ class ProjectConfiguration(Configuration):
         self,
         configuration_file_path: Path,
         *,
-        base_url: str | None = None,
-        root_path: str = "",
+        url: str = "https://example.com",
         clean_urls: bool = False,
         title: str = "Betty",
         author: str | None = None,
@@ -742,8 +741,7 @@ class ProjectConfiguration(Configuration):
         self._configuration_file_path = configuration_file_path
         self._name = name
         self._computed_name: str | None = None
-        self._base_url = "https://example.com" if base_url is None else base_url
-        self._root_path = root_path
+        self._url = url
         self._clean_urls = clean_urls
         self._title = title
         self._author = author
@@ -861,6 +859,24 @@ class ProjectConfiguration(Configuration):
         self._author = author
 
     @property
+    def url(self) -> str:
+        """
+        The project's public URL.
+        """
+        return self._url
+
+    @url.setter
+    def url(self, url: str) -> None:
+        url_parts = urlparse(url)
+        if not url_parts.scheme:
+            raise AssertionFailed(
+                _("The URL must start with a scheme such as https:// or http://.")
+            )
+        if not url_parts.netloc:
+            raise AssertionFailed(_("The URL must include a host."))
+        self._url = f"{url_parts.scheme}://{url_parts.netloc}{url_parts.path}"
+
+    @property
     def base_url(self) -> str:
         """
         The project's public URL's base URL.
@@ -869,20 +885,8 @@ class ProjectConfiguration(Configuration):
         If the public URL is ``https://example.com/my-ancestry-site``, the base URL is ``https://example.com``.
         If the public URL is ``https://my-ancestry-site.example.com``, the base URL is ``https://my-ancestry-site.example.com``.
         """
-        return self._base_url
-
-    @base_url.setter
-    def base_url(self, base_url: str) -> None:
-        base_url_parts = urlparse(base_url)
-        if not base_url_parts.scheme:
-            raise AssertionFailed(
-                _(
-                    "The base URL must start with a scheme such as https://, http://, or file://."
-                )
-            )
-        if not base_url_parts.netloc:
-            raise AssertionFailed(_("The base URL must include a path."))
-        self._base_url = "%s://%s" % (base_url_parts.scheme, base_url_parts.netloc)
+        url_parts = urlparse(self.url)
+        return f"{url_parts.scheme}://{url_parts.netloc}"
 
     @property
     def root_path(self) -> str:
@@ -892,11 +896,7 @@ class ProjectConfiguration(Configuration):
         If the public URL is ``https://example.com``, the root path is an empty string.
         If the public URL is ``https://example.com/my-ancestry-site``, the root path is ``/my-ancestry-site``.
         """
-        return self._root_path
-
-    @root_path.setter
-    def root_path(self, root_path: str) -> None:
-        self._root_path = root_path.strip("/")
+        return urlparse(self.url).path
 
     @property
     def clean_urls(self) -> bool:
@@ -969,10 +969,9 @@ class ProjectConfiguration(Configuration):
 
     @override
     def update(self, other: Self) -> None:
-        self._base_url = other._base_url
+        self._url = other._url
         self._title = other._title
         self._author = other._author
-        self._root_path = other._root_path
         self._clean_urls = other._clean_urls
         self._debug = other._debug
         self._lifetime_threshold = other._lifetime_threshold
@@ -984,12 +983,9 @@ class ProjectConfiguration(Configuration):
     def load(self, dump: Dump) -> None:
         assert_record(
             OptionalField("name", assert_str() | assert_setattr(self, "name")),
-            RequiredField("base_url", assert_str() | assert_setattr(self, "base_url")),
+            RequiredField("url", assert_str() | assert_setattr(self, "url")),
             OptionalField("title", assert_str() | assert_setattr(self, "title")),
             OptionalField("author", assert_str() | assert_setattr(self, "author")),
-            OptionalField(
-                "root_path", assert_str() | assert_setattr(self, "root_path")
-            ),
             OptionalField(
                 "clean_urls",
                 assert_bool() | assert_setattr(self, "clean_urls"),
@@ -1009,9 +1005,8 @@ class ProjectConfiguration(Configuration):
         return minimize(
             {  # type: ignore[return-value]
                 "name": void_none(self.name),
-                "base_url": self.base_url,
+                "url": self.url,
                 "title": self.title,
-                "root_path": void_none(self.root_path),
                 "clean_urls": void_none(self.clean_urls),
                 "author": void_none(self.author),
                 "debug": void_none(self.debug),

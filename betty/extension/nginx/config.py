@@ -39,7 +39,7 @@ class NginxConfiguration(Configuration):
         Whether the nginx server should use HTTPS.
 
         :return: ``True`` to use HTTPS (and HTTP/2), ``False`` to use HTTP (and HTTP 1), ``None``
-            to let this behavior depend on whether the project's base URL uses HTTPS or not.
+            to let this behavior depend on whether the project's URL uses HTTPS or not.
         """
         return self._https
 

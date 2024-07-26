@@ -498,7 +498,7 @@ class DemoServer(Server):
             await load.load(project)
             self._server = serve.BuiltinProjectServer(project)
             await self._exit_stack.enter_async_context(self._server)
-            project.configuration.base_url = self._server.public_url
+            project.configuration.url = self._server.public_url
             await generate.generate(project)
         except BaseException:
             await self.stop()

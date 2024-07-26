@@ -36,18 +36,16 @@ class TestNew:
         assert configuration.author == author
 
     async def test_with_base_url(self, tmp_path: Path) -> None:
-        base_url = "https://exampleexampleexample.com"
-        root_path = "example"
+        url = "https://exampleexampleexample.com/example"
         inputs = [
             str(tmp_path),
             "My First Project",
             "",
             "My First Author",
-            f"{base_url}/{root_path}",
+            url,
         ]
         configuration = await self._assert_new(tmp_path, inputs)
-        assert configuration.base_url == base_url
-        assert configuration.root_path == root_path
+        assert configuration.url == url
 
     async def test_with_name(self, tmp_path: Path) -> None:
         name = "project-first-my"
