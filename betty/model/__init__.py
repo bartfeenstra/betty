@@ -32,11 +32,12 @@ from betty.importlib import import_any
 from betty.json.linked_data import LinkedDataDumpable, add_json_ld
 from betty.json.schema import ref_json_schema
 from betty.locale.localizable import _, Localizable
-from betty.plugin import PluginRepository, Plugin, PluginId
+from betty.plugin import PluginRepository, Plugin
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
+    from betty.machine_id import MachineId
     from betty.project import Project
     from betty.serde.dump import DumpMapping, Dump
     import builtins
@@ -1050,7 +1051,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
 
     @overload
     def __getitem__(
-        self, entity_type_id: PluginId
+        self, entity_type_id: MachineId
     ) -> SingleTypeEntityCollection[Entity]:
         pass
 
@@ -1084,7 +1085,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
         return self._get_collection(entity_type)
 
     def _getitem_by_entity_type_id(
-        self, entity_type_id: PluginId
+        self, entity_type_id: MachineId
     ) -> SingleTypeEntityCollection[Entity]:
         return self._get_collection(
             wait_to_thread(ENTITY_TYPE_REPOSITORY.get(entity_type_id)),
@@ -1119,7 +1120,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
     def _delitem_by_entity(self, entity: _TargetT & Entity) -> None:
         self.remove(entity)
 
-    def _delitem_by_entity_type_id(self, entity_type_id: PluginId) -> None:
+    def _delitem_by_entity_type_id(self, entity_type_id: MachineId) -> None:
         self._delitem_by_type(
             wait_to_thread(ENTITY_TYPE_REPOSITORY.get(entity_type_id)),  # type: ignore[arg-type]
         )

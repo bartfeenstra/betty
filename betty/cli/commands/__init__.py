@@ -23,11 +23,12 @@ from betty.cli import catch_exceptions
 from betty.config import assert_configuration_file
 from betty.contextlib import SynchronizedContextManager
 from betty.locale.localizable import _, Localizable, plain
-from betty.plugin import Plugin, PluginId, PluginRepository
+from betty.plugin import Plugin, PluginRepository
 from betty.plugin.lazy import LazyPluginRepositoryBase
 from betty.project import Project
 
 if TYPE_CHECKING:
+    from betty.machine_id import MachineId
     from collections.abc import Callable, Coroutine
 
 _P = ParamSpec("_P")
@@ -51,7 +52,7 @@ class Command(Plugin):
 
     @override
     @classmethod
-    def plugin_id(cls) -> PluginId:
+    def plugin_id(cls) -> MachineId:
         return cls.click_command().name
 
     @override

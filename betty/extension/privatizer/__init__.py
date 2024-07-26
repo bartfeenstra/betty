@@ -16,7 +16,7 @@ from betty.project.extension import Extension
 
 if TYPE_CHECKING:
     from betty.event_dispatcher import EventHandlerRegistry
-    from betty.plugin import PluginId
+    from betty.machine_id import MachineId
     from betty.model import Entity
 
 
@@ -74,7 +74,7 @@ class Privatizer(Extension):
 
     @override
     @classmethod
-    def plugin_id(cls) -> PluginId:
+    def plugin_id(cls) -> MachineId:
         return "privatizer"
 
     @override

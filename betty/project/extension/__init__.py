@@ -16,11 +16,12 @@ from typing_extensions import override
 
 from betty.config import Configurable, Configuration
 from betty.core import CoreComponent
-from betty.plugin import Plugin, PluginId, PluginRepository
+from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.project.factory import ProjectDependentFactory
 
 if TYPE_CHECKING:
+    from betty.machine_id import MachineId
     from betty.event_dispatcher import EventHandlerRegistry
     from betty.requirement import Requirement
     from betty.project import Project
@@ -82,14 +83,14 @@ class Extension(Plugin, CoreComponent, ProjectDependentFactory):
         return self._project
 
     @classmethod
-    def depends_on(cls) -> set[PluginId]:
+    def depends_on(cls) -> set[MachineId]:
         """
         The extensions this one depends on, and comes after.
         """
         return set()
 
     @classmethod
-    def comes_after(cls) -> set[PluginId]:
+    def comes_after(cls) -> set[MachineId]:
         """
         The extensions that this one comes after.
 
@@ -98,7 +99,7 @@ class Extension(Plugin, CoreComponent, ProjectDependentFactory):
         return set()
 
     @classmethod
-    def comes_before(cls) -> set[PluginId]:
+    def comes_before(cls) -> set[MachineId]:
         """
         The extensions that this one comes before.
 

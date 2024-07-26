@@ -1,14 +1,15 @@
 import pytest
 
 from betty.locale.localizable import Localizable, plain
-from betty.plugin import Plugin, PluginNotFound, PluginId
+from betty.plugin import Plugin, PluginNotFound
+from betty.machine_id import MachineId
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.plugin.static import StaticPluginRepository
 
 
 class _ProxyPluginRepositoryTestPluginBase(Plugin):
     @classmethod
-    def plugin_id(cls) -> PluginId:
+    def plugin_id(cls) -> MachineId:
         return cls.__name__
 
     @classmethod

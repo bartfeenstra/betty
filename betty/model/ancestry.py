@@ -43,7 +43,7 @@ from betty.serde.dump import DumpMapping, Dump, dump_default
 from betty.string import camel_case_to_kebab_case
 
 if TYPE_CHECKING:
-    from betty.plugin import PluginId
+    from betty.machine_id import MachineId
     from betty.image import FocusArea
     from betty.project import Project
     from geopy import Point
@@ -882,7 +882,7 @@ class FileReference(Entity):
 
     @override
     @classmethod
-    def plugin_id(cls) -> PluginId:
+    def plugin_id(cls) -> MachineId:
         return "file-reference"
 
     @override

@@ -73,7 +73,7 @@ from betty.serde.format import FormatRepository
 from betty.typing import Void
 
 if TYPE_CHECKING:
-    from betty.plugin import PluginId
+    from betty.machine_id import MachineId
     from collections.abc import AsyncIterator, Sequence
     from betty.app import App
     from betty.url import LocalizedUrlGenerator, StaticUrlGenerator
@@ -1284,7 +1284,7 @@ class _ProjectExtensions:
         super().__init__()
         self._project_extensions = project_extensions
 
-    def __getitem__(self, extension_id: PluginId) -> Extension:
+    def __getitem__(self, extension_id: MachineId) -> Extension:
         extension_type = wait_to_thread(
             extension.EXTENSION_REPOSITORY.get(extension_id)
         )
@@ -1313,7 +1313,7 @@ class _ProjectExtensions:
         for batch in self:
             yield from batch
 
-    def __contains__(self, extension_id: PluginId) -> bool:
+    def __contains__(self, extension_id: MachineId) -> bool:
         try:
             self[extension_id]
         except KeyError:
