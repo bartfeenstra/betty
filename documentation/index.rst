@@ -28,8 +28,23 @@ secure**.
 * Fully multilingual: localize the site to one or more languages of your choice
 * `Responsive <https://en.wikipedia.org/wiki/Responsive_web_design>`_, and mobile- and touch-friendly interface
 
-.. button-link:: https://ancestry.bartfeenstra.com
-    :color: primary
-    :shadow:
 
-    View an example
+.. grid:: 2
+
+    .. grid-item-card:: Getting started
+        :columns: 6
+
+        .. code-block:: python
+
+               pip install betty
+
+        :doc:`More installation options </installation>`
+
+    .. grid-item-card:: See what Betty can do
+        :columns: 6
+
+        .. button-link:: https://ancestry.bartfeenstra.com
+            :color: primary
+            :shadow:
+
+            View an example site

@@ -1,5 +1,5 @@
-Installation via pip
-====================
+Installation via Poetry
+=======================
 
 Requirements
 ------------
@@ -9,4 +9,4 @@ Requirements
 
 Instructions
 ------------
-Run ``pip install betty`` to install the latest stable release.
+Run ``poetry add betty`` to install the latest stable release.
