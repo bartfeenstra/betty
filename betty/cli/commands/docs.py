@@ -1,13 +1,10 @@
 from __future__ import annotations  # noqa D100
 
 import asyncio
-
-import click
+from typing import TYPE_CHECKING
 
 from betty import documentation
 from betty.cli.commands import command, pass_app
-from typing import TYPE_CHECKING
-
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -15,9 +12,8 @@ if TYPE_CHECKING:
 
 
 @internal
-@click.command(help="View the documentation.")
+@command(help="View the documentation.")
 @pass_app
-@command
 async def docs(app: App):  # noqa D103
     server = documentation.DocumentationServer(
         app.binary_file_cache.path,

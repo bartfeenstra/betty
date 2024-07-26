@@ -29,4 +29,5 @@ class TestServe:
                     "serve-nginx-docker",
                     "-c",
                     str(project.configuration.configuration_file_path),
+                    expected_exit_code=1,
                 )

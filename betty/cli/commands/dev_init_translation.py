@@ -7,12 +7,11 @@ from betty.typing import internal
 
 
 @internal
-@click.command(
+@command(
     short_help="Initialize a new translation",
     help="Initialize a new translation.\n\nThis is available only when developing Betty.",
 )
 @click.argument("locale")
-@command
 async def dev_init_translation(locale: str) -> None:  # noqa D103
     from betty.locale.translation import init_translation
 

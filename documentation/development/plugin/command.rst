@@ -16,15 +16,13 @@ are built using `Click <https://click.palletsprojects.com/>`_.
 Creating a command
 ------------------
 
-#. Create a new asynchronous function, decorated with :py:func:`betty.cli.commands.command` and :py:func:`click.command`,
-   for example:
+#. Create a new asynchronous function, decorated with :py:func:`betty.cli.commands.command` (which works almost
+   identically to :py:func:`click.command`), for example:
 
    .. code-block:: python
 
-     import click
      from betty.cli.commands import command
 
-     @click.command()
      @command
      async def my_command() -> None:
        # Do what your command needs to do here...
@@ -63,13 +61,11 @@ To make your command use a specific Betty project, use the :py:func:`betty.cli.c
 
 .. code-block:: python
 
- import click
  from betty.project import Project
  from betty.cli.commands import command, pass_project
 
- @click.command()
- @pass_project
  @command
+ @pass_project
  async def my_command(project: Project) -> None:
    # Do what your command needs to do here...
    ...
@@ -84,13 +80,11 @@ If your command does not need a project, but does require the Betty application,
 
 .. code-block:: python
 
- import click
  from betty.app import App
  from betty.cli.commands import command, pass_app
 
- @click.command()
- @pass_app
  @command
+ @pass_app
  async def my_command(app: App) -> None:
    # Do what your command needs to do here...
    ...

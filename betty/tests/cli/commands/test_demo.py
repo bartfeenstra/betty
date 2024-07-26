@@ -10,4 +10,4 @@ class TestDemo:
         mocker.patch("asyncio.sleep", side_effect=KeyboardInterrupt)
         mocker.patch("betty.extension.demo.DemoServer", new=NoOpServer)
 
-        await to_thread(run, "demo")
+        await to_thread(run, "demo", expected_exit_code=1)

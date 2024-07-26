@@ -124,6 +124,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "assertion_to_value_proc": TestKnownToBeMissing,
     },
     "betty/cli/commands/__init__.py": {
+        "BettyCommand": TestKnownToBeMissing,
         "command": TestKnownToBeMissing,
         "Command": TestKnownToBeMissing,
         "CommandRepository": TestKnownToBeMissing,

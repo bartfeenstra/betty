@@ -5,8 +5,6 @@ Provide the Command Line Interface.
 from __future__ import annotations
 
 import logging
-import sys
-from contextlib import contextmanager
 from logging import (
     Handler,
     CRITICAL,
@@ -18,7 +16,7 @@ from logging import (
     LogRecord,
 )
 from sys import stderr
-from typing import Iterator, TYPE_CHECKING, final, IO, Any, TypeVar
+from typing import TYPE_CHECKING, final, IO, Any, TypeVar
 
 import click
 from click import Context
@@ -27,32 +25,13 @@ from typing_extensions import override, ClassVar
 from betty import about
 from betty.asyncio import wait_to_thread
 from betty.error import UserFacingError
-from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.plugin import PluginRepository, PluginNotFound
+from betty.cli.commands import BettyCommand
 
 if TYPE_CHECKING:
+    from betty.locale.localizer import Localizer
     from betty.assertion import Assertion
     from betty.cli.commands import Command
-
-
-@contextmanager
-def catch_exceptions() -> Iterator[None]:
-    """
-    Catch and log all exceptions.
-    """
-    try:
-        yield
-    except KeyboardInterrupt:
-        print("Quitting...")  # noqa T201
-        sys.exit(0)
-    except Exception as e:
-        logger = logging.getLogger(__name__)
-        if isinstance(e, UserFacingError):
-            logger.error(e.localize(DEFAULT_LOCALIZER))
-        else:
-            logger.exception(e)
-        sys.exit(1)
-
 
 _ValueT = TypeVar("_ValueT")
 _ReturnT = TypeVar("_ReturnT")
@@ -104,7 +83,7 @@ class _ClickHandler(Handler):
         return self.COLOR_LEVELS[NOTSET]
 
 
-class _BettyCommands(click.MultiCommand):
+class _BettyCommands(BettyCommand, click.MultiCommand):
     terminal_width: ClassVar[int | None] = None
     _bootstrapped = False
     commands: PluginRepository[Command]
@@ -115,7 +94,6 @@ class _BettyCommands(click.MultiCommand):
             self._bootstrapped = True
 
     @override
-    @catch_exceptions()
     def list_commands(self, ctx: click.Context) -> list[str]:
         from betty.cli import commands
 
@@ -126,7 +104,6 @@ class _BettyCommands(click.MultiCommand):
         ]
 
     @override
-    @catch_exceptions()
     def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
         from betty.cli import commands
 

@@ -50,11 +50,11 @@ Configuring the Betty application
       Configure Betty.
 
     Options:
-      --locale TEXT         Set the locale for Betty's user interface. This must be
-                            an IETF BCP 47 language tag.
       -v, --verbose         Show verbose output, including informative log messages.
       -vv, --more-verbose   Show more verbose output, including debug log messages.
       -vvv, --most-verbose  Show most verbose output, including all log messages.
+      --locale TEXT         Set the locale for Betty's user interface. This must be
+                            an IETF BCP 47 language tag.
       --help                Show this message and exit.
 
 
@@ -100,15 +100,15 @@ Generate a site for your project
       Generate a static site.
 
     Options:
-      -c, --configuration TEXT  The path to a Betty project configuration file.
-                                Defaults to betty.json|yaml|yml in the current
-                                working directory.
       -v, --verbose             Show verbose output, including informative log
                                 messages.
       -vv, --more-verbose       Show more verbose output, including debug log
                                 messages.
       -vvv, --most-verbose      Show most verbose output, including all log
                                 messages.
+      -c, --configuration TEXT  The path to a Betty project configuration file.
+                                Defaults to betty.json|yaml|yml in the current
+                                working directory.
       --help                    Show this message and exit.
 
 
@@ -138,15 +138,15 @@ Serve your project's generated site
       Serve a generated site.
 
     Options:
-      -c, --configuration TEXT  The path to a Betty project configuration file.
-                                Defaults to betty.json|yaml|yml in the current
-                                working directory.
       -v, --verbose             Show verbose output, including informative log
                                 messages.
       -vv, --more-verbose       Show more verbose output, including debug log
                                 messages.
       -vvv, --most-verbose      Show most verbose output, including all log
                                 messages.
+      -c, --configuration TEXT  The path to a Betty project configuration file.
+                                Defaults to betty.json|yaml|yml in the current
+                                working directory.
       --help                    Show this message and exit.
 
 
@@ -160,13 +160,13 @@ Serve your project's generated site using nginx and Docker
       Serve a generated site with nginx in a Docker container.
 
     Options:
-      -c, --configuration TEXT  The path to a Betty project configuration file.
-                                Defaults to betty.json|yaml|yml in the current
-                                working directory.
       -v, --verbose             Show verbose output, including informative log
                                 messages.
       -vv, --more-verbose       Show more verbose output, including debug log
                                 messages.
       -vvv, --most-verbose      Show most verbose output, including all log
                                 messages.
+      -c, --configuration TEXT  The path to a Betty project configuration file.
+                                Defaults to betty.json|yaml|yml in the current
+                                working directory.
       --help                    Show this message and exit.
