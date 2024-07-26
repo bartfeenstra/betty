@@ -30,6 +30,7 @@ from betty.assertion import (
     assert_fields,
     assert_field,
     assert_file_path,
+    assert_isinstance,
 )
 from betty.assertion.error import AssertionFailed
 from betty.locale.localizable import plain
@@ -346,3 +347,19 @@ class TestAssertFilePath:
     async def test_with_valid_path_path(self) -> None:
         with NamedTemporaryFile() as f:
             assert_file_path()(Path(f.name))
+
+
+class TestAssertIsinstance:
+    async def test_with_instance(self) -> None:
+        class MyClass:
+            pass
+
+        instance = MyClass()
+        assert assert_isinstance(MyClass)(instance) == instance
+
+    async def test_without_instance(self) -> None:
+        class MyClass:
+            pass
+
+        with pytest.raises(AssertionFailed):
+            assert assert_isinstance(MyClass)(object())  # type: ignore[truthy-bool]

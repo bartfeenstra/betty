@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-23 12:08+0100\n"
+"POT-Creation-Date: 2024-07-26 13:05+0100\n"
 "PO-Revision-Date: 2024-02-08 13:08+0000\n"
 "Last-Translator: Rainer Thieringer <rainerthi@gmail.com>\n"
 "Language: uk\n"
@@ -74,6 +74,11 @@ msgid "\"{path}\" is not a directory."
 msgstr ""
 
 msgid "\"{path}\" is not a file."
+msgstr ""
+
+msgid ""
+"\"{value}\" is not a valid machine name: only lowercase letters, digits, "
+"and hyphens (-) are allowed."
 msgstr ""
 
 #, python-format
@@ -160,6 +165,9 @@ msgstr "Оголошення шлюбу"
 
 msgid "Appearances"
 msgstr "Знайдено в"
+
+msgid "At which URL will your site be published?"
+msgstr ""
 
 msgid "Attendee"
 msgstr "Відвідувач"
@@ -318,6 +326,12 @@ msgstr ""
 
 msgid "Divorce"
 msgstr "Розлучення"
+
+msgid "Do you want to add another locale?"
+msgstr ""
+
+msgid "Do you want to load a Gramps family tree?"
+msgstr ""
 
 #, python-format
 msgid "E.g. \"%(example)s\""
@@ -602,6 +616,9 @@ msgstr "Проживання"
 msgid "Retirement"
 msgstr "Вихід на пенсію"
 
+msgid "Saved your project to {configuration_file}."
+msgstr ""
+
 msgid "Serving your site at {url}..."
 msgstr ""
 
@@ -764,6 +781,29 @@ msgstr ""
 "Використовуйте <kbd>↑</kbd> і <kbd>↓</kbd> для переміщення по результатах"
 " або <kbd>esc</kbd> для виходу з пошуку. Шукайте знову за допомогою "
 "<kbd>%(shortcut)s</kbd>."
+
+msgid "What is the path to your exported Gramps family tree file?"
+msgstr ""
+
+msgid "What is your project called?"
+msgstr ""
+
+msgid "What is your project's machine name? "
+msgstr ""
+
+msgid "Where do you want to save your project's configuration file?"
+msgstr ""
+
+msgid "Which language should your project site be generated in?"
+msgstr ""
+
+msgid ""
+"Which language should your project site be generated in? Enter an IETF "
+"BCP 47 language code."
+msgstr ""
+
+msgid "Who is the author?"
+msgstr ""
 
 msgid "Wikipedia"
 msgstr ""

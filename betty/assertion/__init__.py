@@ -416,11 +416,29 @@ def assert_record(
     return AssertionChain(_assert_record)
 
 
-def assert_path() -> AssertionChain[Path | str, Path]:
+def assert_isinstance(
+    alleged_type: type[_AssertionValueT],
+) -> Assertion[Any, _AssertionValueT]:
+    """
+    Assert that a value is an instance of the given type.
+
+    This assertion is **NOT** optimized to be user-facing (it is untranslated)
+    because Python types are not user-facing.
+    """
+
+    def _assert(value: Any) -> _AssertionValueT:
+        if isinstance(value, alleged_type):
+            return value
+        raise AssertionFailed(plain(f"{value} must be an instance of {alleged_type}."))
+
+    return _assert
+
+
+def assert_path() -> AssertionChain[Any, Path]:
     """
     Assert that a value is a path to a file or directory on disk that may or may not exist.
     """
-    return assert_or(assert_str() | Path, lambda value: value).chain(
+    return assert_or(assert_isinstance(Path), assert_str() | Path).chain(
         lambda value: value.expanduser().resolve()
     )
 
