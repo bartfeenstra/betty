@@ -84,11 +84,13 @@ betty = 'betty.cli:main'
 'docs' = 'betty.cli.commands.docs:docs'
 'generate' = 'betty.cli.commands.generate:generate'
 'new' = 'betty.cli.commands.new:new'
+'new-translation' = 'betty.cli.commands.new_translation:new_translation'
 'serve' = 'betty.cli.commands.serve:serve'
 'serve-nginx-docker' = 'betty.extension.nginx._cli:serve_nginx_docker'
+'update-translations' = 'betty.cli.commands.update_translations:update_translations'
 
 [project.entry-points.'betty.dev.command']
-'dev-init-translation' = 'betty.cli.commands.dev_init_translation:dev_init_translation'
+'dev-new-translation' = 'betty.cli.commands.dev_new_translation:dev_new_translation'
 'dev-update-translations' = 'betty.cli.commands.dev_update_translations:dev_update_translations'
 
 [project.entry-points.'betty.entity_type']

@@ -18,10 +18,12 @@ The command line is the primary way to interact with Betty:
       docs                     View the documentation.
       generate                 Generate a static site.
       new                      Create a new project.
+      new-translation          Create a new translation
       serve                    Serve a generated site.
       serve-nginx-docker       Serve a generated site with nginx in a Docker...
-      dev-init-translation     Initialize a new translation
-      dev-update-translations  Update all existing translations
+      update-translations      Update all existing translations
+      dev-new-translation      Create a new translation for Betty itself
+      dev-update-translations  Update all existing translations for Betty itself
 
 
 Clearing caches
@@ -126,6 +128,46 @@ Create a new project
       -vv, --more-verbose   Show more verbose output, including debug log messages.
       -vvv, --most-verbose  Show most verbose output, including all log messages.
       --help                Show this message and exit.
+
+
+Create a new translation for your project
+-----------------------------------------
+
+.. code-block::
+
+    Usage: betty new-translation [OPTIONS] LOCALE
+
+    Options:
+      -v, --verbose             Show verbose output, including informative log
+                                messages.
+      -vv, --more-verbose       Show more verbose output, including debug log
+                                messages.
+      -vvv, --most-verbose      Show most verbose output, including all log
+                                messages.
+      -c, --configuration TEXT  The path to a Betty project configuration file.
+                                Defaults to betty.json|yaml|yml in the current
+                                working directory.
+      --help                    Show this message and exit.
+
+
+Update all translations for your project
+----------------------------------------
+
+.. code-block::
+
+    Usage: betty update-translations [OPTIONS] [SOURCE]...
+
+    Options:
+      -v, --verbose             Show verbose output, including informative log
+                                messages.
+      -vv, --more-verbose       Show more verbose output, including debug log
+                                messages.
+      -vvv, --most-verbose      Show most verbose output, including all log
+                                messages.
+      -c, --configuration TEXT  The path to a Betty project configuration file.
+                                Defaults to betty.json|yaml|yml in the current
+                                working directory.
+      --help                    Show this message and exit.
 
 
 Serve your project's generated site

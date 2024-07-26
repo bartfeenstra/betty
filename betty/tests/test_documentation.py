@@ -67,7 +67,7 @@ class TestDocumentation:
             assert self._get_help() in actual
             async for command in COMMAND_REPOSITORY:
                 if command.plugin_id() in (
-                    "dev-init-translation",
+                    "dev-new-translation",
                     "dev-update-translations",
                 ):
                     continue
