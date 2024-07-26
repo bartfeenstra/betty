@@ -2,13 +2,13 @@ import pytest
 
 from betty.locale.localizable import Localizable, plain
 from betty.plugin import Plugin, PluginNotFound
-from betty.machine_id import MachineId
+from betty.machine_name import MachineName
 from betty.plugin.static import StaticPluginRepository
 
 
 class StaticPluginRepositoryTestPlugin(Plugin):
     @classmethod
-    def plugin_id(cls) -> MachineId:
+    def plugin_id(cls) -> MachineName:
         return cls.__name__
 
     @classmethod

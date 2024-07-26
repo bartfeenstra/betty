@@ -8,7 +8,7 @@ from typing import Generic, TypeVar, final
 from typing_extensions import override
 
 from betty.plugin import PluginRepository, Plugin, PluginNotFound
-from betty.machine_id import MachineId
+from betty.machine_name import MachineName
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 
@@ -23,7 +23,7 @@ class StaticPluginRepository(PluginRepository[_PluginT], Generic[_PluginT]):
         self._plugins = {plugin.plugin_id(): plugin for plugin in plugins}
 
     @override
-    async def get(self, plugin_id: MachineId) -> type[_PluginT]:
+    async def get(self, plugin_id: MachineName) -> type[_PluginT]:
         try:
             return self._plugins[plugin_id]
         except KeyError:

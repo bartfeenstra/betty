@@ -37,7 +37,7 @@ from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
-    from betty.machine_id import MachineId
+    from betty.machine_name import MachineName
     from betty.project import Project
     from betty.serde.dump import DumpMapping, Dump
     import builtins
@@ -1051,7 +1051,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
 
     @overload
     def __getitem__(
-        self, entity_type_id: MachineId
+        self, entity_type_id: MachineName
     ) -> SingleTypeEntityCollection[Entity]:
         pass
 
@@ -1085,7 +1085,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
         return self._get_collection(entity_type)
 
     def _getitem_by_entity_type_id(
-        self, entity_type_id: MachineId
+        self, entity_type_id: MachineName
     ) -> SingleTypeEntityCollection[Entity]:
         return self._get_collection(
             wait_to_thread(ENTITY_TYPE_REPOSITORY.get(entity_type_id)),
@@ -1120,7 +1120,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
     def _delitem_by_entity(self, entity: _TargetT & Entity) -> None:
         self.remove(entity)
 
-    def _delitem_by_entity_type_id(self, entity_type_id: MachineId) -> None:
+    def _delitem_by_entity_type_id(self, entity_type_id: MachineName) -> None:
         self._delitem_by_type(
             wait_to_thread(ENTITY_TYPE_REPOSITORY.get(entity_type_id)),  # type: ignore[arg-type]
         )

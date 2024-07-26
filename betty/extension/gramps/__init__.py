@@ -17,7 +17,7 @@ from betty.project.extension import ConfigurableExtension
 
 if TYPE_CHECKING:
     from betty.event_dispatcher import EventHandlerRegistry
-    from betty.machine_id import MachineId
+    from betty.machine_name import MachineName
 
 
 async def _load_ancestry(event: LoadAncestryEvent) -> None:
@@ -42,7 +42,7 @@ class Gramps(ConfigurableExtension[GrampsConfiguration]):
 
     @override
     @classmethod
-    def plugin_id(cls) -> MachineId:
+    def plugin_id(cls) -> MachineName:
         return "gramps"
 
     @override

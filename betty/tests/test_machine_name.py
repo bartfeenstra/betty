@@ -1,13 +1,13 @@
 import pytest
 
-from betty.machine_id import validate_machine_id
+from betty.machine_name import validate_machine_name
 
 
-class TestValidateMachineId:
+class TestValidateMachineName:
     @pytest.mark.parametrize(
         (
             "expected",
-            "alleged_machine_id",
+            "alleged_machine_name",
         ),
         [
             (True, "package-machine"),
@@ -29,5 +29,5 @@ class TestValidateMachineId:
             ),
         ],
     )
-    async def test(self, expected: bool, alleged_machine_id: str) -> None:
-        assert validate_machine_id(alleged_machine_id) is expected
+    async def test(self, expected: bool, alleged_machine_name: str) -> None:
+        assert validate_machine_name(alleged_machine_name) is expected
