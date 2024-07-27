@@ -24,7 +24,7 @@ secure**.
 
 * Builds pages for people, places, events, and media
 * Renders interactive maps and family trees
-* Privacy be default
+* Privacy by default
 * Fully multilingual: localize the site to one or more languages of your choice
 * `Responsive <https://en.wikipedia.org/wiki/Responsive_web_design>`_, and mobile- and touch-friendly interface
 
