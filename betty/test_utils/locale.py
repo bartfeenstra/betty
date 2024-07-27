@@ -5,7 +5,6 @@ Provide testing utilities for locale functionality.
 from __future__ import annotations
 
 import difflib
-from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Iterator
 
@@ -15,7 +14,7 @@ from betty.locale.translation import update_dev_translations
 from typing_extensions import override
 
 
-class PotFileTestBase(ABC):
+class PotFileTestBase:
     """
     A base class for testing that a *.pot file is up to date.
     """
@@ -35,19 +34,17 @@ class PotFileTestBase(ABC):
                 await f.readlines(),
             )
 
-    @abstractmethod
     def assets_directory_path(self) -> Path:
         """
         The assets directory path containing the translations that are being tested.
         """
-        pass
+        raise NotImplementedError
 
-    @abstractmethod
     def command(self) -> str:
         """
         The command to suggest the developer runs in case the translations are out of date.
         """
-        pass
+        raise NotImplementedError
 
     async def test(self) -> None:
         """

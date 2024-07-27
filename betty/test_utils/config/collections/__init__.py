@@ -4,7 +4,6 @@ Test utilities for :py:module:`betty.config.collections`.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from typing import Generic, Iterable, TypeVar
 
 from betty.config import Configuration
@@ -14,23 +13,19 @@ _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
 
 
-class ConfigurationCollectionTestBase(
-    Generic[_ConfigurationKeyT, _ConfigurationT], ABC
-):
+class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _ConfigurationT]):
     """
     A base class for testing :py:class:`betty.config.collections.ConfigurationCollection` implementations.
     """
 
-    @abstractmethod
     def get_sut(
         self, configurations: Iterable[_ConfigurationT] | None = None
     ) -> ConfigurationCollection[_ConfigurationKeyT, _ConfigurationT]:
         """
         Produce the collection under test.
         """
-        pass
+        raise NotImplementedError
 
-    @abstractmethod
     def get_configuration_keys(
         self,
     ) -> tuple[
@@ -39,16 +34,15 @@ class ConfigurationCollectionTestBase(
         """
         Produce four configuration keys to test the collection with.
         """
-        pass
+        raise NotImplementedError
 
-    @abstractmethod
     def get_configurations(
         self,
     ) -> tuple[_ConfigurationT, _ConfigurationT, _ConfigurationT, _ConfigurationT]:
         """
         Produce four configuration items to test the collection with.
         """
-        pass
+        raise NotImplementedError
 
     async def test_replace_without_items(self) -> None:
         """

@@ -2,7 +2,6 @@
 Test utilities for :py:module:`betty.cache`.
 """
 
-from abc import ABC, abstractmethod
 from asyncio import sleep, create_task
 from typing import Generic, Sequence, AsyncContextManager, Iterator, TypeVar
 
@@ -14,22 +13,20 @@ from betty.cache import Cache
 _CacheItemValueT = TypeVar("_CacheItemValueT")
 
 
-class CacheTestBase(Generic[_CacheItemValueT], ABC):
+class CacheTestBase(Generic[_CacheItemValueT]):
     """
     A base class for tests of :py:class:`betty.cache.Cache` implementations.
     """
 
-    @abstractmethod
     def _new_sut(
         self,
         *,
         scopes: Sequence[str] | None = None,
     ) -> AsyncContextManager[Cache[_CacheItemValueT]]:
-        pass
+        raise NotImplementedError
 
-    @abstractmethod
     def _values(self) -> Iterator[_CacheItemValueT]:
-        pass
+        raise NotImplementedError
 
     async def test_with_scope(self) -> None:
         """

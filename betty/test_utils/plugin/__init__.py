@@ -2,7 +2,6 @@
 Test utilities for :py:module:`betty.plugin`.
 """
 
-from abc import ABC, abstractmethod
 from typing_extensions import override
 
 from betty.locale.localizable import Localizable, static
@@ -12,17 +11,16 @@ from betty.plugin import Plugin
 from betty.string import camel_case_to_kebab_case
 
 
-class PluginTestBase(ABC):
+class PluginTestBase:
     """
     A base class for testing :py:class:`betty.plugin.Plugin` implementations.
     """
 
-    @abstractmethod
     def get_sut_class(self) -> type[Plugin]:
         """
         Produce the class of the plugin under test.
         """
-        pass
+        raise NotImplementedError
 
     async def test_plugin_id(self) -> None:
         """
