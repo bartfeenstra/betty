@@ -1,9 +1,9 @@
 from betty.extension.cotton_candy import CottonCandy
 from betty.model.ancestry import PersonName, Citation, Source, Person
-from betty.tests import TemplateTestCase
+from betty.test_utils.assets.templates import TemplateTestBase
 
 
-class Test(TemplateTestCase):
+class Test(TemplateTestBase):
     extensions = {CottonCandy}
     template_file = "entity/label--person-name.html.j2"
 

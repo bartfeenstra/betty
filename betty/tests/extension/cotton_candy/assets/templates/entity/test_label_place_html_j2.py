@@ -7,10 +7,10 @@ import pytest
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale.date import DateRange, Date
 from betty.model.ancestry import Place, PlaceName
-from betty.tests import TemplateTestCase
+from betty.test_utils.assets.templates import TemplateTestBase
 
 
-class Test(TemplateTestCase):
+class Test(TemplateTestBase):
     extensions = {CottonCandy}
     template_file = "entity/label--place.html.j2"
 

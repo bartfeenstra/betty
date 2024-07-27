@@ -3,7 +3,7 @@ from unittest.mock import PropertyMock
 
 from betty.extension.wikipedia import Wikipedia
 from betty.model.ancestry import HasLinks, Link
-from betty.tests import TemplateTestCase
+from betty.test_utils.assets.templates import TemplateTestBase
 from pytest_mock import MockerFixture
 
 from betty.wikipedia import _Retriever, Summary
@@ -13,7 +13,7 @@ class DummyResource(HasLinks):
     pass
 
 
-class Test(TemplateTestCase):
+class Test(TemplateTestBase):
     extensions = {Wikipedia}
     template_file = "wikipedia.html.j2"
 
