@@ -8,7 +8,7 @@ from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
 from betty.cache.file import PickledFileCache, BinaryFileCache
-from betty.tests.cache.test___init__ import CacheTestBase
+from betty.test_utils.cache import CacheTestBase
 
 
 class TestPickledFileCache(CacheTestBase[Any]):

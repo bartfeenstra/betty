@@ -777,6 +777,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/serde/dump.py": TestKnownToBeMissing,
     "betty/sphinx/extension/replacements.py": TestKnownToBeMissing,
+    "betty/test_utils/cache.py": TestKnownToBeMissing,
     "betty/test_utils/locale.py": TestKnownToBeMissing,
     "betty/typing.py": {
         "Void": TestKnownToBeMissing,
