@@ -1,37 +1,16 @@
 from __future__ import annotations
 
-from typing import Iterable, Generic, Self, TypeVar, TYPE_CHECKING
+from typing import Iterable, Self, TYPE_CHECKING
 
 from typing_extensions import override
 
 from betty.assertion import assert_record, RequiredField, assert_int, assert_setattr
 from betty.config import Configuration
-
 from betty.config.collections.sequence import ConfigurationSequence
-from betty.tests.config.collections import ConfigurationCollectionTestBase
+from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump
-
-
-_ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
-
-
-class ConfigurationSequenceTestBase(
-    Generic[_ConfigurationT], ConfigurationCollectionTestBase[int, _ConfigurationT]
-):
-    def get_configuration_keys(self) -> tuple[int, int, int, int]:
-        return 0, 1, 2, 3
-
-    async def test_iter(self) -> None:
-        configurations = self.get_configurations()
-        sut = self.get_sut(
-            [
-                configurations[0],
-                configurations[1],
-            ]
-        )
-        assert [configurations[0], configurations[1]] == list(iter(sut))
 
 
 class ConfigurationSequenceTestConfiguration(Configuration):

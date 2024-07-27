@@ -2,13 +2,7 @@ from __future__ import annotations
 
 from typing import (
     Iterable,
-    Generic,
     Self,
-    TypeAlias,
-    TypeVar,
-    SupportsIndex,
-    Hashable,
-    Any,
     TYPE_CHECKING,
 )
 
@@ -24,33 +18,10 @@ from betty.assertion import (
 )
 from betty.config import Configuration
 from betty.config.collections.mapping import ConfigurationMapping
-from betty.tests.config.collections import ConfigurationCollectionTestBase
+from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, VoidableDump
-
-
-_ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
-ConfigurationKey: TypeAlias = SupportsIndex | Hashable | type[Any]
-_ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
-
-
-class ConfigurationMappingTestBase(
-    Generic[_ConfigurationKeyT, _ConfigurationT],
-    ConfigurationCollectionTestBase[_ConfigurationKeyT, _ConfigurationT],
-):
-    async def test_iter(self) -> None:
-        configurations = self.get_configurations()
-        sut = self.get_sut(
-            [
-                configurations[0],
-                configurations[1],
-            ]
-        )
-        assert [
-            self.get_configuration_keys()[0],
-            self.get_configuration_keys()[1],
-        ] == list(iter(sut))
 
 
 class ConfigurationMappingTestConfiguration(Configuration):

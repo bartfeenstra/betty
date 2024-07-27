@@ -153,7 +153,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/config/collections/__init__.py": TestKnownToBeMissing,
     "betty/config/collections/mapping.py": {
         "ConfigurationMapping": {
-            "__iter__": TestKnownToBeMissing,
             "dump": TestKnownToBeMissing,
             "to_index": TestKnownToBeMissing,
             "to_key": TestKnownToBeMissing,
@@ -162,7 +161,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/config/collections/sequence.py": {
         "ConfigurationSequence": {
-            "__iter__": TestKnownToBeMissing,
             "dump": TestKnownToBeMissing,
             "to_index": TestKnownToBeMissing,
             "to_key": TestKnownToBeMissing,
@@ -780,6 +778,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     # We do not test our test utilities.
     **{
         "betty/test_utils/assets/templates.py": TestKnownToBeMissing,
+        "betty/test_utils/config/collections/__init__.py": TestKnownToBeMissing,
+        "betty/test_utils/config/collections/mapping.py": TestKnownToBeMissing,
+        "betty/test_utils/config/collections/sequence.py": TestKnownToBeMissing,
         "betty/test_utils/cache.py": TestKnownToBeMissing,
         "betty/test_utils/locale.py": TestKnownToBeMissing,
     },
