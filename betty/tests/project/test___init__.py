@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Any, Iterable, TYPE_CHECKING, Self
 
 import pytest
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from typing_extensions import override
 
 from betty.assertion import (
@@ -17,6 +16,7 @@ from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
 from betty.event_dispatcher import Event, EventHandlerRegistry
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity, UserFacingEntity
 from betty.model.ancestry import Ancestry
 from betty.plugin.static import StaticPluginRepository
@@ -39,9 +39,9 @@ from betty.project.extension import (
     CyclicDependencyError,
 )
 from betty.project.factory import ProjectDependentFactory
+from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
+from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.tests.assertion import raises_error
-from betty.tests.config.collections.test_mapping import ConfigurationMappingTestBase
-from betty.tests.config.collections.test_sequence import ConfigurationSequenceTestBase
 from betty.tests.model.test___init__ import DummyEntity
 from betty.tests.project.extension.test___init__ import DummyExtension
 from betty.typing import Void
@@ -390,11 +390,13 @@ class TestLocaleConfigurationSequence(
         sut.update(other)
         assert list(sut) == list(other)
 
+    @override
     async def test___getitem__(self) -> None:
         configurations = self.get_configurations()
         sut = self.get_sut([configurations[0], configurations[1]])
         assert sut[0] == configurations[0]
 
+    @override
     async def test___delitem__(self) -> None:
         configurations = self.get_configurations()
         sut = self.get_sut([configurations[0], configurations[1]])
@@ -434,6 +436,7 @@ class TestLocaleConfigurationSequence(
         )
         assert locale_configuration_a == sut.default
 
+    @override
     async def test_replace_without_items(self) -> None:
         sut = self.get_sut()
         sut.clear()
@@ -442,6 +445,7 @@ class TestLocaleConfigurationSequence(
         sut.replace()
         assert len(sut) == 1
 
+    @override
     async def test_replace_with_items(self) -> None:
         sut = self.get_sut()
         sut.clear()

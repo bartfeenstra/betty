@@ -12,22 +12,18 @@ from typing import (
     Any,
     Iterator,
     Self,
-    TypeAlias,
     TypeVar,
-    SupportsIndex,
-    Hashable,
 )
 
 from typing_extensions import override
 
 from betty.assertion import assert_sequence, assert_dict
 from betty.config import Configuration
-from betty.config.collections import ConfigurationCollection
+from betty.config.collections import ConfigurationCollection, ConfigurationKey
 from betty.serde.dump import Dump, VoidableDump, minimize
 from betty.typing import Void
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
-ConfigurationKey: TypeAlias = SupportsIndex | Hashable | type[Any]
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
 
 
