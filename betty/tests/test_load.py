@@ -5,7 +5,7 @@ from betty.app import App
 from betty.load import load
 from betty.model.ancestry import HasLinksEntity, Link
 from betty.project import Project
-from betty.tests.model.test___init__ import DummyEntity
+from betty.test_utils.model import DummyEntity
 
 
 class DummyHasLinks(HasLinksEntity, DummyEntity):

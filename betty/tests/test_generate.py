@@ -21,7 +21,7 @@ from betty.project import (
 )
 from betty.string import camel_case_to_kebab_case
 from betty.test_utils.assets.templates import assert_betty_html, assert_betty_json
-from betty.tests.model.test___init__ import DummyEntity
+from betty.test_utils.model import DummyEntity
 
 
 class ThirdPartyEntity(UserFacingEntity, DummyEntity):

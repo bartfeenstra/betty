@@ -13,7 +13,7 @@ from betty.model.ancestry import (
 )
 from betty.project import Project
 from betty.test_utils.assets.templates import TemplateTestBase
-from betty.tests.model.test___init__ import DummyEntity
+from betty.test_utils.model import DummyEntity
 
 if TYPE_CHECKING:
     from betty.app import App

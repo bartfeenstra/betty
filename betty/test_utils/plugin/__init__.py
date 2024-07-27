@@ -2,6 +2,8 @@
 Test utilities for :py:module:`betty.plugin`.
 """
 
+from typing import Generic, TypeVar
+
 from typing_extensions import override
 
 from betty.locale.localizable import Localizable, static
@@ -10,13 +12,15 @@ from betty.machine_name import assert_machine_name, MachineName
 from betty.plugin import Plugin
 from betty.string import camel_case_to_kebab_case
 
+_PluginT = TypeVar("_PluginT", bound=Plugin)
 
-class PluginTestBase:
+
+class PluginTestBase(Generic[_PluginT]):
     """
     A base class for testing :py:class:`betty.plugin.Plugin` implementations.
     """
 
-    def get_sut_class(self) -> type[Plugin]:
+    def get_sut_class(self) -> type[_PluginT]:
         """
         Produce the class of the plugin under test.
         """
