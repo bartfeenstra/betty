@@ -3,7 +3,7 @@ from collections.abc import AsyncIterator, Sequence
 import pytest
 from typing_extensions import override
 
-from betty.locale.localizable import Localizable, plain
+from betty.locale.localizable import Localizable, static
 from betty.plugin import (
     PluginNotFound,
     Plugin,
@@ -29,7 +29,7 @@ class _TestPluginRepositoryPluginBase(Plugin):
 
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return plain(cls.__name__)  # pragma: no cover
+        return static(cls.__name__)  # pragma: no cover
 
 
 class _TestPluginRepositoryMixinOne:

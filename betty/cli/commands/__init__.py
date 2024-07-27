@@ -32,7 +32,7 @@ from betty.asyncio import wait_to_thread
 from betty.config import assert_configuration_file
 from betty.contextlib import SynchronizedContextManager
 from betty.error import UserFacingError
-from betty.locale.localizable import _, Localizable, plain
+from betty.locale.localizable import _, Localizable, static
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.lazy import LazyPluginRepositoryBase
 from betty.project import Project
@@ -68,7 +68,7 @@ class Command(Plugin):
     @override
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return plain(cls.click_command().name)
+        return static(cls.click_command().name)
 
     @override
     @classmethod
@@ -76,7 +76,7 @@ class Command(Plugin):
         command_help = cls.click_command().short_help
         if command_help is None:
             return None
-        return plain(command_help)
+        return static(command_help)
 
 
 class _CommandRepository(LazyPluginRepositoryBase[Command]):

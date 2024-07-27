@@ -1,6 +1,6 @@
 import pytest
 
-from betty.locale.localizable import Localizable, plain
+from betty.locale.localizable import Localizable, static
 from betty.plugin import Plugin, PluginNotFound
 from betty.machine_name import MachineName
 from betty.plugin.static import StaticPluginRepository
@@ -13,7 +13,7 @@ class StaticPluginRepositoryTestPlugin(Plugin):
 
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return plain("")  # pragma: no cover
+        return static("")  # pragma: no cover
 
 
 class TestStaticPluginRepository:

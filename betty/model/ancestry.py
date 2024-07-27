@@ -22,7 +22,7 @@ from betty.json.linked_data import (
 from betty.json.schema import add_property, ref_json_schema
 from betty.locale.date import Datey
 from betty.locale.date import ref_datey
-from betty.locale.localizable import _, Localizable, plain, call
+from betty.locale.localizable import _, Localizable, static, call
 from betty.locale.localized import Localized
 from betty.media_type import MediaType
 from betty.model import (
@@ -587,7 +587,7 @@ class Note(UserFacingEntity, HasPrivacy, HasLinksEntity, Entity):
     @override
     @property
     def label(self) -> Localizable:
-        return plain(self.text)
+        return static(self.text)
 
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
@@ -822,7 +822,7 @@ class File(
     @override
     @property
     def label(self) -> Localizable:
-        return plain(self.description) if self.description else super().label
+        return static(self.description) if self.description else super().label
 
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
@@ -1063,7 +1063,7 @@ class Source(
     @override
     @property
     def label(self) -> Localizable:
-        return plain(self.name) if self.name else super().label
+        return static(self.name) if self.name else super().label
 
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
@@ -1233,7 +1233,7 @@ class Citation(
     @override
     @property
     def label(self) -> Localizable:
-        return self.location or plain("")
+        return self.location or static("")
 
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
@@ -1510,7 +1510,7 @@ class Place(
     def label(self) -> Localizable:
         # @todo Negotiate this by locale and date.
         with suppress(IndexError):
-            return plain(self.names[0].name)
+            return static(self.names[0].name)
         return super().label
 
     @override

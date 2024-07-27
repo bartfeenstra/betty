@@ -2,7 +2,7 @@ from pathlib import Path
 
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.locale.localizable import plain
+from betty.locale.localizable import static
 from betty.model.ancestry import (
     Event,
     File,
@@ -55,14 +55,14 @@ class TestTemplate(TemplateTestCase):
 
         public_citation = Citation(
             source=source,
-            location=plain("public citation location"),
+            location=static("public citation location"),
         )
         public_citation.facts.add(event)
 
         private_citation = Citation(
             source=source,
             private=True,
-            location=plain("private citation location"),
+            location=static("private citation location"),
         )
         private_citation.facts.add(event)
 

@@ -23,7 +23,7 @@ from typing_extensions import override
 
 from betty.gramps.error import GrampsError
 from betty.locale.date import DateRange, Datey, Date
-from betty.locale.localizable import _, plain
+from betty.locale.localizable import _, static
 from betty.media_type import MediaType, InvalidMediaType
 from betty.model import Entity, EntityGraphBuilder, AliasedEntity, AliasableEntity
 from betty.model.ancestry import (
@@ -211,7 +211,7 @@ class GrampsLoader:
                 rootname(gramps_path),
             )
         except OSError as error:
-            raise GrampsLoadFileError(plain(error)) from error
+            raise GrampsLoadFileError(static(str(error))) from error
 
     async def load_gpkg(self, gpkg_path: Path) -> None:
         """
@@ -257,7 +257,7 @@ class GrampsLoader:
                 )
             )
         except ElementTree.ParseError as error:
-            raise GrampsLoadFileError(plain(error)) from error
+            raise GrampsLoadFileError(static(str(error))) from error
         await self.load_tree(tree, gramps_tree_directory_path)
 
     async def load_tree(
@@ -365,7 +365,7 @@ class GrampsLoader:
         found_element = element.find(selector, namespaces=self._NS)
         if found_element is None:
             raise XPathError(
-                plain(f'Cannot find an element "{selector}" within {str(element)}.')
+                static(f'Cannot find an element "{selector}" within {str(element)}.')
             )
         return found_element
 
@@ -930,7 +930,9 @@ class GrampsLoader:
             citation.private = True
 
         with suppress(XPathError):
-            citation.location = plain(self._xpath1(element, "./ns:page").text)
+            page = self._xpath1(element, "./ns:page").text
+            if page:
+                citation.location = static(page)
 
         aliased_citation = AliasedEntity(citation, citation_handle)
         self._load_objref(

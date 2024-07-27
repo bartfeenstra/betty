@@ -3,7 +3,7 @@ from pytest_mock import MockerFixture
 
 from betty.app import App
 from betty.event_dispatcher import EventHandlerRegistry
-from betty.locale.localizable import Localizable, plain
+from betty.locale.localizable import Localizable, static
 from betty.machine_name import MachineName
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
@@ -21,7 +21,7 @@ class DummyExtension(Extension):
 
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return plain(cls.__name__)
+        return static(cls.__name__)
 
 
 class IsDependencyExtension(DummyExtension):

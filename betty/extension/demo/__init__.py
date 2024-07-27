@@ -18,7 +18,7 @@ from betty.extension.trees import Trees
 from betty.extension.wikipedia import Wikipedia
 from betty.load import LoadAncestryEvent
 from betty.locale.date import Date, DateRange
-from betty.locale.localizable import plain, Localizable
+from betty.locale.localizable import static, Localizable
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model.ancestry import (
     Place,
@@ -316,7 +316,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
     cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam = Citation(
         id="betty-demo-birth-of-liberta-lankester-from-bevolkingsregister-amsterdam",
         source=bevolkingsregister_amsterdam,
-        location=plain("Amsterdam"),
+        location=static("Amsterdam"),
     )
     _load(cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam)
 
@@ -447,7 +447,7 @@ class Demo(Extension):
     @override
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return plain("Demo")
+        return static("Demo")
 
     @override
     @classmethod

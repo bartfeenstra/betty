@@ -12,7 +12,7 @@ from typing_extensions import override
 from betty.extension.gramps.config import GrampsConfiguration
 from betty.gramps.loader import GrampsLoader
 from betty.load import LoadAncestryEvent
-from betty.locale.localizable import plain, _, Localizable
+from betty.locale.localizable import static, _, Localizable
 from betty.project.extension import ConfigurableExtension
 
 if TYPE_CHECKING:
@@ -57,7 +57,7 @@ class Gramps(ConfigurableExtension[GrampsConfiguration]):
     @override
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return plain("Gramps")
+        return static("Gramps")
 
     @override
     @classmethod

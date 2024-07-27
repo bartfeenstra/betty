@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-26 21:46+0100\n"
+"POT-Creation-Date: 2024-07-27 11:07+0100\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -730,8 +730,7 @@ msgid "The URL must include a host."
 msgstr "De URL moet een host bevatten."
 
 msgid "The URL must start with a scheme such as https:// or http://."
-msgstr ""
-"De URL moet beginnen met een protocol, zoals https:// of http://."
+msgstr "De URL moet beginnen met een protocol, zoals https:// of http://."
 
 msgid ""
 "The betty:privacy Gramps attribute must have a value of \"public\" or "
@@ -969,6 +968,9 @@ msgstr "vanaf {start_date} tot en met {end_date}"
 #, python-format
 msgid "in %(place)s"
 msgstr "te %(place)s"
+
+msgid "in key \"{key}\""
+msgstr "in sleutel \"{key}\""
 
 msgid ""
 "npm (https://www.npmjs.com/) must be available for features that require "

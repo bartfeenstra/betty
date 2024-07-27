@@ -464,7 +464,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "update_dev_translations": TestKnownToBeMissing,
         "update_project_translations": TestKnownToBeMissing,
     },
-    "betty/locale/localizable.py": {
+    "betty/locale/localizable/__init__.py": {
         "call": TestKnownToBeMissing,
         "format": TestKnownToBeMissing,
         "gettext": TestKnownToBeMissing,
@@ -473,7 +473,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ngettext": TestKnownToBeMissing,
         "npgettext": TestKnownToBeMissing,
         "pgettext": TestKnownToBeMissing,
-        "plain": TestKnownToBeMissing,
     },
     "betty/media_type.py": {
         # This is an empty class.

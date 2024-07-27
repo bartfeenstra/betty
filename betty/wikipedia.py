@@ -24,7 +24,7 @@ from betty.locale import (
     Localey,
 )
 from betty.locale.error import LocaleError
-from betty.locale.localizable import plain
+from betty.locale.localizable import static
 from betty.locale.localized import Localized
 from betty.media_type import MediaType
 from betty.model.ancestry import (
@@ -205,7 +205,7 @@ class _Retriever:
             data = response.json
         except JSONDecodeError as error:
             raise FetchError(
-                plain(f"Invalid JSON returned by {url}: {error}")
+                static(f"Invalid JSON returned by {url}: {error}")
             ) from error
 
         try:
@@ -213,7 +213,7 @@ class _Retriever:
                 data = data[selector]
         except (LookupError, TypeError) as error:
             raise FetchError(
-                plain(
+                static(
                     f"Could not successfully parse the JSON format returned by {url}: {error}"
                 )
             ) from error
@@ -265,7 +265,7 @@ class _Retriever:
                 )
             except LookupError as error:
                 raise FetchError(
-                    plain(
+                    static(
                         f"Could not successfully parse the JSON content returned by {url}: {error}"
                     )
                 ) from error
@@ -289,7 +289,7 @@ class _Retriever:
                 image_info = image_info_api_data["imageinfo"][0]
             except LookupError as error:
                 raise FetchError(
-                    plain(
+                    static(
                         f"Could not successfully parse the JSON content returned by {url}: {error}"
                     )
                 ) from error
@@ -324,7 +324,7 @@ class _Retriever:
                 return Point(coordinates["lat"], coordinates["lon"])
             except LookupError as error:
                 raise FetchError(
-                    plain(f"Could not successfully parse the JSON content: {error}")
+                    static(f"Could not successfully parse the JSON content: {error}")
                 ) from error
 
 

@@ -12,7 +12,7 @@ import yaml
 from typing_extensions import override
 
 from betty.assertion.error import AssertionFailed
-from betty.locale.localizable import plain, Localizable, _
+from betty.locale.localizable import static, Localizable, _
 from betty.serde.dump import Dump, VoidableDump
 
 if TYPE_CHECKING:
@@ -71,7 +71,7 @@ class Json(Format):
     @override
     @property
     def label(self) -> Localizable:
-        return plain("JSON")
+        return static("JSON")
 
     @override
     def load(self, dump: str) -> Dump:
@@ -101,7 +101,7 @@ class Yaml(Format):
     @override
     @property
     def label(self) -> Localizable:
-        return plain("YAML")
+        return static("YAML")
 
     @override
     def load(self, dump: str) -> Dump:

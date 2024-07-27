@@ -33,7 +33,7 @@ from betty.assertion import (
     assert_isinstance,
 )
 from betty.assertion.error import AssertionFailed
-from betty.locale.localizable import plain
+from betty.locale.localizable import static
 from betty.typing import Void
 from betty.tests.assertion import raises_error
 
@@ -65,7 +65,7 @@ def _always_valid(value: int) -> int:
 
 
 def _always_invalid(value: int) -> int:
-    raise AssertionFailed(plain(""))
+    raise AssertionFailed(static(""))
 
 
 class TestAssertOr:
