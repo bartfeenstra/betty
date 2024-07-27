@@ -29,8 +29,7 @@ from betty.model.ancestry import (
 from betty.model.presence_role import PresenceRole, Subject, Attendee
 from betty.model.event_type import Birth, UnknownEventType, EventType, Death
 from betty.project import DEFAULT_LIFETIME_THRESHOLD
-from betty.tests.model.test___init__ import DummyEntity
-
+from betty.test_utils.model import DummyEntity
 
 __REFERENCE_DATE = Date(1970, 1, 1)
 _REFERENCE_DATES = (

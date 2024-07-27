@@ -9,7 +9,7 @@ from betty.model import UserFacingEntity
 from betty.model.ancestry import Person, Place, File, Source, PlaceName, Event, Citation
 from betty.model.event_type import Death
 from betty.project import LocaleConfiguration, Project
-from betty.tests.model.test___init__ import DummyEntity
+from betty.test_utils.model import DummyEntity
 from betty.url import (
     LocalizedPathUrlGenerator,
     _EntityUrlGenerator,

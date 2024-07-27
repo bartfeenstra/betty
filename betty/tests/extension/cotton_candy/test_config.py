@@ -12,7 +12,7 @@ from betty.model import UserFacingEntity
 from betty.plugin.static import StaticPluginRepository
 from betty.project import EntityReference
 from betty.tests.assertion import raises_error
-from betty.tests.model.test___init__ import DummyEntity
+from betty.test_utils.model import DummyEntity
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture

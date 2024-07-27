@@ -42,7 +42,7 @@ from betty.project.factory import ProjectDependentFactory
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.tests.assertion import raises_error
-from betty.tests.model.test___init__ import DummyEntity
+from betty.test_utils.model import DummyEntity
 from betty.tests.project.extension.test___init__ import DummyExtension
 from betty.typing import Void
 

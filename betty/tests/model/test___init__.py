@@ -4,7 +4,6 @@ from typing import Any, Iterator, TYPE_CHECKING
 
 import pytest
 
-from betty.locale.localizable import Localizable, static
 from betty.model import (
     Entity,
     ToAny,
@@ -28,16 +27,10 @@ from betty.model import (
 from betty.model.ancestry import Person
 from betty.plugin import PluginNotFound
 from betty.plugin.static import StaticPluginRepository
-from betty.test_utils.plugin import DummyPlugin
+from betty.test_utils.model import DummyEntity
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
-
-
-class DummyEntity(DummyPlugin, Entity):
-    @classmethod
-    def plugin_label_plural(cls) -> Localizable:
-        return static(cls.__name__)
 
 
 class _TestEntityTypeAssociationRegistry_ParentEntity(DummyEntity):

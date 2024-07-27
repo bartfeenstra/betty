@@ -4,6 +4,7 @@ from copy import copy
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any, TYPE_CHECKING
+from typing_extensions import override
 
 import pytest
 from geopy import Point
@@ -45,7 +46,7 @@ from betty.model.ancestry import (
 from betty.model.presence_role import Subject
 from betty.model.event_type import Birth, UnknownEventType
 from betty.project import LocaleConfiguration, Project
-from betty.tests.model.test___init__ import DummyEntity
+from betty.test_utils.model import DummyEntity, EntityTestBase
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
@@ -222,7 +223,11 @@ class TestDated:
         assert sut.date is None
 
 
-class TestNote:
+class TestNote(EntityTestBase):
+    @override
+    def get_sut_class(self) -> type[Note]:
+        return Note
+
     async def test_id(self) -> None:
         note_id = "N1"
         sut = Note(
@@ -406,7 +411,11 @@ class DummyHasFileReferences(HasFileReferences, DummyEntity):
     pass
 
 
-class TestFile:
+class TestFile(EntityTestBase):
+    @override
+    def get_sut_class(self) -> type[File]:
+        return File
+
     async def test_id(self) -> None:
         file_id = "BETTY01"
         file_path = Path("~")
@@ -686,7 +695,11 @@ class TestHasFileReferences:
         ]
 
 
-class TestSource:
+class TestSource(EntityTestBase):
+    @override
+    def get_sut_class(self) -> type[Source]:
+        return Source
+
     async def test_id(self) -> None:
         source_id = "S1"
         sut = Source(id=source_id)
@@ -972,7 +985,11 @@ class _HasCitations(HasCitations, DummyEntity):
     pass
 
 
-class TestCitation:
+class TestCitation(EntityTestBase):
+    @override
+    def get_sut_class(self) -> type[Citation]:
+        return Citation
+
     async def test_id(self) -> None:
         citation_id = "C1"
         sut = Citation(
@@ -1212,7 +1229,11 @@ class TestPlaceName:
         assert date == sut.date
 
 
-class TestEnclosure:
+class TestEnclosure(EntityTestBase):
+    @override
+    def get_sut_class(self) -> type[Enclosure]:
+        return Enclosure
+
     async def test_encloses(self) -> None:
         encloses = Place()
         enclosed_by = Place()
@@ -1244,7 +1265,11 @@ class TestEnclosure:
         assert [citation] == list(sut.citations)
 
 
-class TestPlace:
+class TestPlace(EntityTestBase):
+    @override
+    def get_sut_class(self) -> type[Place]:
+        return Place
+
     async def test_events(self) -> None:
         sut = Place(
             id="P1",
@@ -1504,7 +1529,11 @@ class TestPlace:
         assert expected == actual
 
 
-class TestPresence:
+class TestPresence(EntityTestBase):
+    @override
+    def get_sut_class(self) -> type[Presence]:
+        return Presence
+
     async def test_person(self) -> None:
         person = Person()
         sut = Presence(person, Subject(), Event(event_type=UnknownEventType))
@@ -1543,7 +1572,11 @@ class TestPresence:
         assert expected == sut.privacy
 
 
-class TestEvent:
+class TestEvent(EntityTestBase):
+    @override
+    def get_sut_class(self) -> type[Event]:
+        return Event
+
     async def test_id(self) -> None:
         event_id = "E1"
         sut = Event(
@@ -1799,7 +1832,11 @@ class TestEvent:
         assert expected == actual
 
 
-class TestPersonName:
+class TestPersonName(EntityTestBase):
+    @override
+    def get_sut_class(self) -> type[PersonName]:
+        return PersonName
+
     async def test_person(self) -> None:
         person = Person(id="1")
         sut = PersonName(
@@ -1849,7 +1886,11 @@ class TestPersonName:
         assert affiliation == sut.affiliation
 
 
-class TestPerson:
+class TestPerson(EntityTestBase):
+    @override
+    def get_sut_class(self) -> type[Person]:
+        return Person
+
     async def test_parents(self) -> None:
         sut = Person(id="1")
         parent = Person(id="2")
