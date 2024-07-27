@@ -20,7 +20,7 @@ from betty.project import (
     Project,
 )
 from betty.string import camel_case_to_kebab_case
-from betty.tests import assert_betty_html, assert_betty_json
+from betty.test_utils.assets.templates import assert_betty_html, assert_betty_json
 from betty.tests.model.test___init__ import DummyEntity
 
 
@@ -43,7 +43,7 @@ class TestGenerate:
             async with project:
                 await generate(project)
                 async with aiofiles.open(
-                    await assert_betty_html(project, "/nl/index.html", check_links=True)
+                    await assert_betty_html(project, "/nl/index.html")
                 ) as f:
                     html = await f.read()
                     assert '<html lang="nl-NL"' in html
@@ -65,7 +65,7 @@ class TestGenerate:
             async with project:
                 await generate(project)
                 async with aiofiles.open(
-                    await assert_betty_html(project, "/index.html", check_links=True)
+                    await assert_betty_html(project, "/index.html")
                 ) as f:
                     meta_redirect = (
                         '<meta http-equiv="refresh" content="0; url=/nl/index.html">'
@@ -89,7 +89,7 @@ class TestGenerate:
             async with project:
                 await generate(project)
                 async with aiofiles.open(
-                    await assert_betty_html(project, "/nl/index.html", check_links=True)
+                    await assert_betty_html(project, "/nl/index.html")
                 ) as f:
                     html = await f.read()
                     assert (
@@ -101,7 +101,7 @@ class TestGenerate:
                         in html
                     )
                 async with aiofiles.open(
-                    await assert_betty_html(project, "/en/index.html", check_links=True)
+                    await assert_betty_html(project, "/en/index.html")
                 ) as f:
                     html = await f.read()
                     assert (
@@ -133,9 +133,7 @@ class TestGenerate:
                 await generate(project)
                 async with aiofiles.open(
                     await assert_betty_html(
-                        project,
-                        f"/nl/person/{person.id}/index.html",
-                        check_links=True,
+                        project, f"/nl/person/{person.id}/index.html"
                     )
                 ) as f:
                     html = await f.read()
@@ -153,9 +151,7 @@ class TestGenerate:
                 )
                 async with aiofiles.open(
                     await assert_betty_html(
-                        project,
-                        f"/en/person/{person.id}/index.html",
-                        check_links=True,
+                        project, f"/en/person/{person.id}/index.html"
                     )
                 ) as f:
                     html = await f.read()
@@ -191,7 +187,6 @@ class TestGenerate:
                 await assert_betty_html(
                     project,
                     f"/{camel_case_to_kebab_case(ThirdPartyEntity.plugin_id())}/index.html",
-                    check_links=True,
                 )
                 await assert_betty_json(
                     project,
@@ -215,7 +210,6 @@ class TestGenerate:
                 await assert_betty_html(
                     project,
                     f"/{camel_case_to_kebab_case(ThirdPartyEntity.plugin_id())}/{entity.id}/index.html",
-                    check_links=True,
                 )
                 await assert_betty_json(
                     project,
@@ -234,7 +228,7 @@ class TestGenerate:
             )
             async with project:
                 await generate(project)
-                await assert_betty_html(project, "/file/index.html", check_links=True)
+                await assert_betty_html(project, "/file/index.html")
                 await assert_betty_json(project, "/file/index.json", "fileCollection")
 
     async def test_file(self) -> None:
@@ -249,9 +243,7 @@ class TestGenerate:
                 project.ancestry.add(file)
                 async with project:
                     await generate(project)
-                    await assert_betty_html(
-                        project, "/file/%s/index.html" % file.id, check_links=True
-                    )
+                    await assert_betty_html(project, "/file/%s/index.html" % file.id)
                     await assert_betty_json(project, "/file/%s/index.json" % file.id)
 
     async def test_places(self) -> None:
@@ -259,7 +251,7 @@ class TestGenerate:
             app
         ) as project, project:
             await generate(project)
-            await assert_betty_html(project, "/place/index.html", check_links=True)
+            await assert_betty_html(project, "/place/index.html")
             await assert_betty_json(project, "/place/index.json")
 
     async def test_place(self) -> None:
@@ -273,9 +265,7 @@ class TestGenerate:
             project.ancestry.add(place)
             async with project:
                 await generate(project)
-                await assert_betty_html(
-                    project, "/place/%s/index.html" % place.id, check_links=True
-                )
+                await assert_betty_html(project, "/place/%s/index.html" % place.id)
                 await assert_betty_json(project, "/place/%s/index.json" % place.id)
 
     async def test_people(self) -> None:
@@ -283,7 +273,7 @@ class TestGenerate:
             app
         ) as project, project:
             await generate(project)
-            await assert_betty_html(project, "/person/index.html", check_links=True)
+            await assert_betty_html(project, "/person/index.html")
             await assert_betty_json(project, "/person/index.json")
 
     async def test_person(self) -> None:
@@ -294,11 +284,7 @@ class TestGenerate:
             project.ancestry.add(person)
             async with project:
                 await generate(project)
-                await assert_betty_html(
-                    project,
-                    f"/person/{person.id}/index.html",
-                    check_links=True,
-                )
+                await assert_betty_html(project, f"/person/{person.id}/index.html")
                 await assert_betty_json(
                     project,
                     f"/person/{person.id}/index.json",
@@ -309,7 +295,7 @@ class TestGenerate:
             app
         ) as project, project:
             await generate(project)
-            await assert_betty_html(project, "/event/index.html", check_links=True)
+            await assert_betty_html(project, "/event/index.html")
             await assert_betty_json(project, "/event/index.json", "eventCollection")
 
     async def test_event(self) -> None:
@@ -323,9 +309,7 @@ class TestGenerate:
             project.ancestry.add(event)
             async with project:
                 await generate(project)
-                await assert_betty_html(
-                    project, "/event/%s/index.html" % event.id, check_links=True
-                )
+                await assert_betty_html(project, "/event/%s/index.html" % event.id)
                 await assert_betty_json(
                     project, "/event/%s/index.json" % event.id, "event"
                 )
@@ -343,9 +327,7 @@ class TestGenerate:
             async with project:
                 await generate(project)
                 await assert_betty_html(
-                    project,
-                    "/citation/%s/index.html" % citation.id,
-                    check_links=True,
+                    project, "/citation/%s/index.html" % citation.id
                 )
                 await assert_betty_json(
                     project, "/citation/%s/index.json" % citation.id
@@ -356,7 +338,7 @@ class TestGenerate:
             app
         ) as project, project:
             await generate(project)
-            await assert_betty_html(project, "/source/index.html", check_links=True)
+            await assert_betty_html(project, "/source/index.html")
             await assert_betty_json(project, "/source/index.json")
 
     async def test_source(self) -> None:
@@ -370,9 +352,7 @@ class TestGenerate:
             project.ancestry.add(source)
             async with project:
                 await generate(project)
-                await assert_betty_html(
-                    project, "/source/%s/index.html" % source.id, check_links=True
-                )
+                await assert_betty_html(project, "/source/%s/index.html" % source.id)
                 await assert_betty_json(project, "/source/%s/index.json" % source.id)
 
 

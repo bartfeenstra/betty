@@ -12,7 +12,7 @@ from betty.model.ancestry import (
     HasFileReferences,
 )
 from betty.project import Project
-from betty.tests import TemplateTestCase
+from betty.test_utils.assets.templates import TemplateTestBase
 from betty.tests.model.test___init__ import DummyEntity
 
 if TYPE_CHECKING:
@@ -63,7 +63,7 @@ class DummyHasFileReferencesEntity(HasFileReferences, DummyEntity):
     pass
 
 
-class TestGlobalCiter(TemplateTestCase):
+class TestGlobalCiter(TemplateTestBase):
     async def test_cite(self) -> None:
         citation1 = Citation()
         citation2 = Citation()

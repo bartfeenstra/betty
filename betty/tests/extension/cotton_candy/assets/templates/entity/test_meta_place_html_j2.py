@@ -1,10 +1,10 @@
 from betty.extension.cotton_candy import CottonCandy
 from betty.jinja2 import EntityContexts
 from betty.model.ancestry import PlaceName, Place, Enclosure
-from betty.tests import TemplateTestCase
+from betty.test_utils.assets.templates import TemplateTestBase
 
 
-class Test(TemplateTestCase):
+class Test(TemplateTestBase):
     extensions = {CottonCandy}
     template_file = "entity/meta--place.html.j2"
 

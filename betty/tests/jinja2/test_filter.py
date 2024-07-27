@@ -9,14 +9,14 @@ from betty.locale.date import Datey, Date, DateRange
 
 from betty.media_type import MediaType
 from betty.model.ancestry import File, FileReference, Dated, PlaceName
-from betty.tests import TemplateTestCase
+from betty.test_utils.assets.templates import TemplateTestBase
 from betty.tests.jinja2.test___init__ import DummyHasFileReferencesEntity
 
 if TYPE_CHECKING:
     from betty.locale.localized import Localized
 
 
-class TestFilterFile(TemplateTestCase):
+class TestFilterFile(TemplateTestBase):
     @pytest.mark.parametrize(
         ("expected", "template", "file"),
         [
@@ -52,7 +52,7 @@ class TestFilterFile(TemplateTestCase):
                 ).exists()
 
 
-class TestFilterFlatten(TemplateTestCase):
+class TestFilterFlatten(TemplateTestBase):
     @pytest.mark.parametrize(
         ("expected", "template"),
         [
@@ -69,7 +69,7 @@ class TestFilterFlatten(TemplateTestCase):
             assert expected == actual
 
 
-class TestFilterParagraphs(TemplateTestCase):
+class TestFilterParagraphs(TemplateTestBase):
     @pytest.mark.parametrize(
         ("expected", "template"),
         [
@@ -85,7 +85,7 @@ class TestFilterParagraphs(TemplateTestCase):
             assert expected == actual
 
 
-class TestFilterFormatDegrees(TemplateTestCase):
+class TestFilterFormatDegrees(TemplateTestBase):
     @pytest.mark.parametrize(
         ("expected", "template"),
         [
@@ -98,7 +98,7 @@ class TestFilterFormatDegrees(TemplateTestCase):
             assert expected == actual
 
 
-class TestFilterUnique(TemplateTestCase):
+class TestFilterUnique(TemplateTestBase):
     async def test(self) -> None:
         data: list[Any] = [
             999,
@@ -115,7 +115,7 @@ class TestFilterUnique(TemplateTestCase):
             assert "999 == {}", actual
 
 
-class TestFilterMap(TemplateTestCase):
+class TestFilterMap(TemplateTestBase):
     class MapData:
         def __init__(self, label: str):
             self.label = label
@@ -145,7 +145,7 @@ class TestFilterMap(TemplateTestCase):
             assert expected == actual
 
 
-class TestFilterImageResizeCover(TemplateTestCase):
+class TestFilterImageResizeCover(TemplateTestBase):
     image_path = ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png"
 
     @pytest.mark.parametrize(
@@ -237,7 +237,7 @@ class TestFilterImageResizeCover(TemplateTestCase):
                 ).exists()
 
 
-class TestFilterSelectDateds(TemplateTestCase):
+class TestFilterSelectDateds(TemplateTestBase):
     class DatedDummy(Dated):
         def __init__(self, value: str, date: Datey | None = None):
             super().__init__(date=date)
@@ -323,7 +323,7 @@ class TestFilterSelectDateds(TemplateTestCase):
             assert expected == actual
 
 
-class TestFilterSelectLocalizeds(TemplateTestCase):
+class TestFilterSelectLocalizeds(TemplateTestBase):
     @pytest.mark.parametrize(
         ("expected", "locale", "data"),
         [
@@ -426,7 +426,7 @@ class TestFilterSelectLocalizeds(TemplateTestCase):
             assert "Apple == Apple, Apple, Apple, Apple", actual
 
 
-class TestFilterSortLocalizeds(TemplateTestCase):
+class TestFilterSortLocalizeds(TemplateTestBase):
     class WithLocalizedNames:
         def __init__(self, identifier: str, names: list[PlaceName]):
             self.id = identifier
@@ -493,7 +493,7 @@ class TestFilterSortLocalizeds(TemplateTestCase):
             assert actual == "[]"
 
 
-class TestFilterFormatDatey(TemplateTestCase):
+class TestFilterFormatDatey(TemplateTestBase):
     async def test(self) -> None:
         template = "{{ date | format_datey }}"
         date = Date(1970, 1, 1)

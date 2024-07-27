@@ -2,10 +2,10 @@ from betty.extension.cotton_candy import CottonCandy
 from betty.locale.date import Date
 from betty.model.ancestry import Place, PlaceName, Event, Enclosure
 from betty.model.event_type import Birth
-from betty.tests import TemplateTestCase
+from betty.test_utils.assets.templates import TemplateTestBase
 
 
-class TestTemplate(TemplateTestCase):
+class TestTemplate(TemplateTestBase):
     extensions = {CottonCandy}
     template_file = "entity/page--place.html.j2"
 

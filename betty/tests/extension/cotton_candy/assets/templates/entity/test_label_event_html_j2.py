@@ -3,10 +3,10 @@ from betty.jinja2 import EntityContexts
 from betty.model.ancestry import Person, Event, Presence
 from betty.model.presence_role import Subject, Witness
 from betty.model.event_type import Birth, Marriage
-from betty.tests import TemplateTestCase
+from betty.test_utils.assets.templates import TemplateTestBase
 
 
-class Test(TemplateTestCase):
+class Test(TemplateTestBase):
     extensions = {CottonCandy}
     template_file = "entity/label--event.html.j2"
 

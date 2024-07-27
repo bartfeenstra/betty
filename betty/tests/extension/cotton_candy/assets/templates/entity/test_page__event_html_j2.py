@@ -16,10 +16,10 @@ from betty.model.ancestry import (
 )
 from betty.model.presence_role import Subject
 from betty.model.event_type import UnknownEventType
-from betty.tests import TemplateTestCase
+from betty.test_utils.assets.templates import TemplateTestBase
 
 
-class TestTemplate(TemplateTestCase):
+class TestTemplate(TemplateTestBase):
     extensions = {CottonCandy}
     template_file = "entity/page--event.html.j2"
 

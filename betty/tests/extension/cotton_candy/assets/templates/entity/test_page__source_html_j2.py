@@ -10,10 +10,10 @@ from betty.model.ancestry import (
     PersonName,
     FileReference,
 )
-from betty.tests import TemplateTestCase
+from betty.test_utils.assets.templates import TemplateTestBase
 
 
-class TestTemplate(TemplateTestCase):
+class TestTemplate(TemplateTestBase):
     extensions = {CottonCandy}
     template_file = "entity/page--source.html.j2"
 

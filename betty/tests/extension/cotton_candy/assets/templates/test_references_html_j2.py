@@ -2,10 +2,10 @@ from betty.extension.cotton_candy import CottonCandy
 from betty.jinja2 import _Citer
 from betty.locale.localizable import static
 from betty.model.ancestry import Citation
-from betty.tests import TemplateTestCase
+from betty.test_utils.assets.templates import TemplateTestBase
 
 
-class Test(TemplateTestCase):
+class Test(TemplateTestBase):
     extensions = {CottonCandy}
     template_file = "references.html.j2"
 

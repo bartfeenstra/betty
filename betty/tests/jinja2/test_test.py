@@ -5,13 +5,13 @@ from typing import Any, TYPE_CHECKING
 import pytest
 from betty.model.ancestry import Person, Place, PlaceName
 from betty.model.presence_role import Subject, Attendee, Witness
-from betty.tests import TemplateTestCase
+from betty.test_utils.assets.templates import TemplateTestBase
 
 if TYPE_CHECKING:
     from betty.model import Entity
 
 
-class TestTestEntity(TemplateTestCase):
+class TestTestEntity(TemplateTestBase):
     @pytest.mark.parametrize(
         ("expected", "entity_type", "data"),
         [
@@ -50,7 +50,7 @@ class TestTestEntity(TemplateTestCase):
             assert expected == actual
 
 
-class TestTestSubjectRole(TemplateTestCase):
+class TestTestSubjectRole(TemplateTestBase):
     @pytest.mark.parametrize(
         ("expected", "data"),
         [
@@ -71,7 +71,7 @@ class TestTestSubjectRole(TemplateTestCase):
             assert expected == actual
 
 
-class TestTestWitnessRole(TemplateTestCase):
+class TestTestWitnessRole(TemplateTestBase):
     @pytest.mark.parametrize(
         ("expected", "data"),
         [

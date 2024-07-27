@@ -3,10 +3,10 @@ from betty.jinja2 import EntityContexts
 from betty.locale.date import Date
 from betty.model.ancestry import Event, Place, PlaceName, Citation, Source
 from betty.model.event_type import Birth
-from betty.tests import TemplateTestCase
+from betty.test_utils.assets.templates import TemplateTestBase
 
 
-class Test(TemplateTestCase):
+class Test(TemplateTestBase):
     extensions = {CottonCandy}
     template_file = "event-dimensions.html.j2"
 

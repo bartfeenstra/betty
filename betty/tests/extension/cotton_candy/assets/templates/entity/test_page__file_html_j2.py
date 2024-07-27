@@ -3,7 +3,7 @@ from pathlib import Path
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model.ancestry import File, HasFileReferences, HasPrivacy, FileReference
-from betty.tests import TemplateTestCase
+from betty.test_utils.assets.templates import TemplateTestBase
 from betty.tests.model.test___init__ import DummyEntity
 
 
@@ -13,7 +13,7 @@ class DummyHasFileReferencesHasPrivacyEntity(
     pass
 
 
-class TestTemplate(TemplateTestCase):
+class TestTemplate(TemplateTestBase):
     extensions = {CottonCandy}
     template_file = "entity/page--file.html.j2"
 
