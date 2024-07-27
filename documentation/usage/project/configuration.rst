@@ -64,9 +64,9 @@ All configuration options
 - ``url`` (required): The absolute, public URL at which the site will be published.
 - ``debug`` (optional): ``true`` to output more detailed logs and disable optimizations that make debugging harder. Defaults to ``false``.
 - ``clean_urls`` (optional): A boolean indicating whether to use clean URLs, e.g. ``/path`` instead of ``/path/index.html``. Defaults to ``false``.
-- ``title`` (optional): The project's human-readable title.
+- ``title`` (optional): The project's human-readable title. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
 - ``name`` (optional): The project's machine name.
-- ``author`` (optional): The project's author and copyright holder.
+- ``author`` (optional): The project's author and copyright holder. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
 - ``lifetime_threshold`` (optional); The number of years people are expected to live at most, e.g. after which they're presumed to have died. Defaults to ``125``.
 - ``locales`` (optional); An array of locales, each of which is an object with the following keys:
 

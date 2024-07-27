@@ -19,7 +19,7 @@ from betty.extension.trees import Trees
 from betty.extension.webpack import Webpack
 from betty.extension.wikipedia import Wikipedia
 from betty.extension.privatizer import Privatizer
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE, get_display_name
 from betty.machine_name import assert_machine_name, machinify
 from betty.project import (
     ProjectConfiguration,
@@ -29,6 +29,8 @@ from betty.project import (
 from betty.typing import internal
 
 if TYPE_CHECKING:
+    from betty.locale.localizable import StaticTranslations
+    from collections.abc import Callable, Sequence
     from betty.app import App
     from pathlib import Path
 
@@ -60,6 +62,7 @@ async def new(app: App) -> None:  # noqa D103
     configuration = ProjectConfiguration(
         configuration_file_path,
     )
+
     configuration.extensions.enable(CottonCandy)
     configuration.extensions.enable(Deriver)
     configuration.extensions.enable(Privatizer)
@@ -69,15 +72,49 @@ async def new(app: App) -> None:  # noqa D103
         configuration.extensions.enable(Maps)
         configuration.extensions.enable(Trees)
 
-    configuration.title = click.prompt(app.localizer._("What is your project called?"))
+    configuration.locales.replace(
+        LocaleConfiguration(
+            click.prompt(
+                app.localizer._(
+                    "Which language should your project site be generated in? Enter an IETF BCP 47 language code."
+                ),
+                default=DEFAULT_LOCALE,
+                value_proc=assertion_to_value_proc(assert_locale(), app.localizer),
+            )
+        )
+    )
+    while click.confirm(app.localizer._("Do you want to add another locale?")):
+        configuration.locales.append(
+            LocaleConfiguration(
+                click.prompt(
+                    app.localizer._(
+                        "Which language should your project site be generated in? Enter an IETF BCP 47 language code."
+                    ),
+                    value_proc=assertion_to_value_proc(assert_locale(), app.localizer),
+                )
+            )
+        )
+    locales = list(configuration.locales.keys())
+
+    configuration.title = _prompt_static_translations(
+        locales,
+        app.localizer._("What is your project called in {locale}?"),
+    )
 
     configuration.name = click.prompt(
-        app.localizer._("What is your project's machine name? "),
-        default=machinify(configuration.title),
+        app.localizer._("What is your project's machine name?"),
+        default=machinify(
+            configuration.title.localize(
+                await app.localizers.get(configuration.locales.default.locale)
+            )
+        ),
         value_proc=assertion_to_value_proc(assert_machine_name, app.localizer),
     )
 
-    configuration.author = click.prompt(app.localizer._("Who is the author?"))
+    configuration.author = _prompt_static_translations(
+        locales,
+        app.localizer._("What is the project author called in {locale}?"),
+    )
 
     configuration.url = click.prompt(
         app.localizer._("At which URL will your site be published?"),
@@ -106,29 +143,6 @@ async def new(app: App) -> None:  # noqa D103
             )
         )
 
-    configuration.locales.replace(
-        LocaleConfiguration(
-            click.prompt(
-                app.localizer._(
-                    "Which language should your project site be generated in? Enter an IETF BCP 47 language code."
-                ),
-                default=DEFAULT_LOCALE,
-                value_proc=assertion_to_value_proc(assert_locale(), app.localizer),
-            )
-        )
-    )
-    while click.confirm(app.localizer._("Do you want to add another locale?")):
-        configuration.locales.append(
-            LocaleConfiguration(
-                click.prompt(
-                    app.localizer._(
-                        "Which language should your project site be generated in?"
-                    ),
-                    value_proc=assertion_to_value_proc(assert_locale(), app.localizer),
-                )
-            )
-        )
-
     await write_configuration_file(configuration, configuration.configuration_file_path)
     click.secho(
         app.localizer._("Saved your project to {configuration_file}.").format(
@@ -136,3 +150,33 @@ async def new(app: App) -> None:  # noqa D103
         ),
         fg="green",
     )
+
+
+def _prompt_static_translations(
+    locales: Sequence[str],
+    text: str,
+    default: Any | None = None,
+    hide_input: bool = False,
+    confirmation_prompt: bool | str = False,
+    type: click.ParamType | Any | None = None,  # noqa A002
+    value_proc: Callable[[str], Any] | None = None,
+    prompt_suffix: str = ": ",
+    show_default: bool = True,
+    err: bool = False,
+    show_choices: bool = True,
+) -> StaticTranslations:
+    return {
+        locale: click.prompt(
+            text.format(locale=get_display_name(locale)),
+            default,
+            hide_input,
+            confirmation_prompt,  # type: ignore[arg-type]
+            type,
+            value_proc,  # type: ignore[arg-type]
+            prompt_suffix,
+            show_default,
+            err,
+            show_choices,
+        )
+        for locale in locales
+    }

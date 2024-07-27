@@ -1,13 +1,13 @@
-<title>{% if page_title is defined %}{{ page_title | striptags }} - {% endif %}{{ project.configuration.title }}</title>
+<title>{% if page_title is defined %}{{ page_title | striptags }} - {% endif %}{{ project.configuration.title | localize }}</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="generator" content="Betty (https://betty.readthedocs.io)">
 {% if project.configuration.author %}
-    <meta name="author" content="{{ project.configuration.author }}">
+    <meta name="author" content="{{ project.configuration.author | localize }}">
 {% endif %}
-<meta name="og:title" content="{{ page_title | default(project.configuration.title) | striptags }}">
-<meta name="og:site_name" content="{{ project.configuration.title }}">
-<meta name="twitter:title" content="{{ page_title | default(project.configuration.title) | striptags }}">
+<meta name="og:title" content="{{ page_title | default(project.configuration.title | localize) | striptags }}">
+<meta name="og:site_name" content="{{ project.configuration.title | localize }}">
+<meta name="twitter:title" content="{{ page_title | default(project.configuration.title | localize) | striptags }}">
 <meta name="twitter:card" content="summary_large_image">
 {% if page_resource is defined %}
     {% if page_resource is has_file_references %}

@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Iterable, TYPE_CHECKING, Self
 
 import pytest
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from typing_extensions import override
 
 from betty.assertion import (
@@ -923,21 +924,21 @@ class TestProjectConfiguration:
 
     async def test_author_without_author(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        assert sut.author is None
+        assert not sut.author
 
     async def test_author_with_author(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
         author = "Bart"
         sut.author = author
-        assert author == sut.author
+        assert sut.author.localize(DEFAULT_LOCALIZER) == author
 
     async def test_load_should_load_minimal(self, tmp_path: Path) -> None:
         dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
         sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.load(dump)
         assert dump["url"] == sut.url
-        assert sut.title == "Betty"
-        assert sut.author is None
+        assert sut.title.localize(DEFAULT_LOCALIZER) == "Betty"
+        assert not sut.author
         assert not sut.debug
         assert not sut.clean_urls
 
@@ -955,7 +956,7 @@ class TestProjectConfiguration:
         dump["title"] = title
         sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.load(dump)
-        assert sut.title == title
+        assert sut.title.localize(DEFAULT_LOCALIZER) == title
 
     async def test_load_should_load_author(self, tmp_path: Path) -> None:
         author = "Bart"
@@ -963,7 +964,7 @@ class TestProjectConfiguration:
         dump["author"] = author
         sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.load(dump)
-        assert sut.author == author
+        assert sut.author.localize(DEFAULT_LOCALIZER) == author
 
     async def test_load_should_load_locale_locale(self, tmp_path: Path) -> None:
         locale = "nl-NL"
@@ -1101,8 +1102,8 @@ class TestProjectConfiguration:
         sut = ProjectConfiguration(tmp_path / "betty.json")
         dump: Any = sut.dump()
         assert dump["url"] == sut.url
-        assert sut.title == "Betty"
-        assert sut.author is None
+        assert sut.title.localize(DEFAULT_LOCALIZER) == "Betty"
+        assert not sut.author
         assert not sut.debug
         assert sut.root_path == ""
         assert not sut.clean_urls

@@ -48,7 +48,9 @@ def assertion_to_value_proc(
         try:
             return assertion(value)
         except UserFacingError as error:
-            raise click.BadParameter(error.localize(localizer)) from None
+            message = error.localize(localizer)
+            logging.getLogger(__name__).debug(message)
+            raise click.BadParameter(message) from None
 
     return _assert
 

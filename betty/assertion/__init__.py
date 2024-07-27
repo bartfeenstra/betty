@@ -27,6 +27,7 @@ from betty.locale import (
 )
 from betty.locale.localizable import _, static, Localizable
 from betty.typing import Void
+from collections.abc import Sized
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -507,3 +508,21 @@ def assert_setattr(
         return getattr(instance, attr_name)
 
     return AssertionChain(_assert_setattr)
+
+
+_SizedT = TypeVar("_SizedT", bound=Sized)
+
+
+def assert_len_min(minimum: int = 0) -> AssertionChain[Sized, Sized]:
+    """
+    Assert that a value has a minimum length.
+    """
+
+    def _assert_len_min(value: _SizedT) -> _SizedT:
+        if len(value) < minimum:
+            raise AssertionFailed(
+                _("At least {minimum} items are required.").format(minimum=str(minimum))
+            )
+        return value
+
+    return AssertionChain(_assert_len_min)

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-27 12:42+0100\n"
+"POT-Creation-Date: 2024-07-27 16:08+0100\n"
 "PO-Revision-Date: 2024-02-08 13:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de\n"
@@ -191,6 +191,9 @@ msgstr "Bekanntgabe der Eheschließung"
 
 msgid "Appearances"
 msgstr "Erscheinungen"
+
+msgid "At least {minimum} items are required."
+msgstr ""
 
 msgid "At which URL will your site be published?"
 msgstr ""
@@ -863,24 +866,21 @@ msgstr ""
 msgid "What is the path to your exported Gramps family tree file?"
 msgstr ""
 
-msgid "What is your project called?"
+msgid "What is the project author called in {locale}?"
 msgstr ""
 
-msgid "What is your project's machine name? "
+msgid "What is your project called in {locale}?"
+msgstr ""
+
+msgid "What is your project's machine name?"
 msgstr ""
 
 msgid "Where do you want to save your project's configuration file?"
 msgstr ""
 
-msgid "Which language should your project site be generated in?"
-msgstr ""
-
 msgid ""
 "Which language should your project site be generated in? Enter an IETF "
 "BCP 47 language code."
-msgstr ""
-
-msgid "Who is the author?"
 msgstr ""
 
 msgid "Wikipedia"

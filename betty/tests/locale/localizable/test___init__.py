@@ -1,8 +1,8 @@
 from gettext import NullTranslations
 
 import pytest
+from betty.locale.localizable import StaticTranslationsLocalizable
 from betty.locale.localizable import (
-    StaticTranslationsLocalizable,
     static,
     ShorthandStaticTranslations,
 )

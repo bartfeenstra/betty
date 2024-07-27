@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-27 12:42+0100\n"
+"POT-Creation-Date: 2024-07-27 16:08+0100\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -192,6 +192,9 @@ msgstr "Huwelijksaankondiging"
 
 msgid "Appearances"
 msgstr "Verschijningen"
+
+msgid "At least {minimum} items are required."
+msgstr "Minimaal {minimum} items zijn vereist"
 
 msgid "At which URL will your site be published?"
 msgstr "Op welke URL wordt je site gepubliceerd?"
@@ -689,7 +692,7 @@ msgid "Retirement"
 msgstr "Pensioen"
 
 msgid "Saved your project to {configuration_file}."
-msgstr "Configuratie naar \"{configuration_file_path}\" opgeslagen."
+msgstr "Configuratie naar \"{configuration_file}\" opgeslagen."
 
 msgid "Serving your site at {url}..."
 msgstr "Je site op {url} aan het serveren..."
@@ -871,17 +874,17 @@ msgstr ""
 msgid "What is the path to your exported Gramps family tree file?"
 msgstr "Wat is het pad naar je geëxporteerde Gramps-stamboombestand?"
 
-msgid "What is your project called?"
-msgstr "Hoe heet je project?"
+msgid "What is the project author called in {locale}?"
+msgstr "Hoe heet de auteur van het project in het {locale}?"
 
-msgid "What is your project's machine name? "
+msgid "What is your project called in {locale}?"
+msgstr "Hoe heet je project in het {locale}?"
+
+msgid "What is your project's machine name?"
 msgstr "Wat is de machinenaam van je project?"
 
 msgid "Where do you want to save your project's configuration file?"
 msgstr "Waar wil je je projectconfiguratiebestand opslaan?"
-
-msgid "Which language should your project site be generated in?"
-msgstr "In welke taal moet je projectsite gegenereerd worden?"
 
 msgid ""
 "Which language should your project site be generated in? Enter an IETF "
@@ -889,9 +892,6 @@ msgid ""
 msgstr ""
 "In welke taal moet je projectsite gegenereerd worden? Voer een IETF BCP "
 "47-taalcode in."
-
-msgid "Who is the author?"
-msgstr "Wie is de auteur?"
 
 msgid "Wikipedia"
 msgstr "Wikipedia"
