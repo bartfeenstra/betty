@@ -61,7 +61,7 @@ class ConfigurationCollectionTestBase(
         sut.replace(*configurations)
         assert len(sut) == len(configurations)
 
-    async def test_getitem(self) -> None:
+    async def test___getitem__(self) -> None:
         configuration = self.get_configurations()[0]
         sut = self.get_sut([configuration])
         assert [configuration] == list(sut.values())
@@ -76,7 +76,7 @@ class ConfigurationCollectionTestBase(
         sut = self.get_sut(configurations)
         assert [*configurations] == list(sut.values())
 
-    async def test_delitem(self) -> None:
+    async def test___delitem__(self) -> None:
         configuration = self.get_configurations()[0]
         sut = self.get_sut([configuration])
         del sut[self.get_configuration_keys()[0]]

@@ -52,9 +52,9 @@ class TestNew:
         ]
         configuration = await self._assert_new(tmp_path, inputs)
         assert configuration.name == "mijn-eerste-project"
-        locales = configuration.locales
-        assert len(locales) == 1
-        assert locale in locales
+        locale_configurations = configuration.locales
+        assert len(locale_configurations) == 1
+        locale_configurations[locale]
 
     async def test_with_multiple_locales(self, tmp_path: Path) -> None:
         default_locale = "nl-NL"
@@ -75,12 +75,10 @@ class TestNew:
         ]
         configuration = await self._assert_new(tmp_path, inputs)
         assert configuration.name == "mijn-eerste-project"
-        locales = configuration.locales
-        assert len(locales) == 2
-        # @todo Re-enable this once we fixed the problem where mapping configuration dumps
-        # @todo do not keep their order (because in JSON and YAML they do not).
-        # assert locales.default.locale == default_locale
-        assert other_locale in locales
+        locale_configurations = configuration.locales
+        assert len(locale_configurations) == 2
+        assert locale_configurations.default.locale == default_locale
+        locale_configurations[other_locale]
 
     async def test_with_name(self, tmp_path: Path) -> None:
         name = "project-first-my"

@@ -217,7 +217,10 @@ def _generate_from_path(
         try:
             locale_configuration = configuration.locales[locale]
         except KeyError:
-            project_locales = list(configuration.locales)
+            project_locales = [
+                locale_configuration.locale
+                for locale_configuration in configuration.locales
+            ]
             try:
                 negotiated_locale_data = negotiate_locale(locale, project_locales)
                 if negotiated_locale_data is None:

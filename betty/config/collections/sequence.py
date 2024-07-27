@@ -88,9 +88,9 @@ class ConfigurationSequence(
         self.append(*other)
 
     @override
-    def replace(self, *values: _ConfigurationT) -> None:
+    def replace(self, *configurations: _ConfigurationT) -> None:
         self.clear()
-        self.append(*values)
+        self.append(*configurations)
 
     @override
     def load(self, dump: Dump) -> None:
@@ -105,19 +105,19 @@ class ConfigurationSequence(
     @override
     def prepend(self, *configurations: _ConfigurationT) -> None:
         for configuration in configurations:
-            self._on_add(configuration)
+            self._pre_add(configuration)
             self._configurations.insert(0, configuration)
 
     @override
     def append(self, *configurations: _ConfigurationT) -> None:
         for configuration in configurations:
-            self._on_add(configuration)
+            self._pre_add(configuration)
             self._configurations.append(configuration)
 
     @override
     def insert(self, index: int, *configurations: _ConfigurationT) -> None:
         for configuration in reversed(configurations):
-            self._on_add(configuration)
+            self._pre_add(configuration)
             self._configurations.insert(index, configuration)
 
     @override

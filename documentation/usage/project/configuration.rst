@@ -19,9 +19,9 @@ structure. Example configuration:
           author: Bart Feenstra
           lifetime_threshold: 125
           locales:
-            en-US:
+            - locale: en-US
               alias: en
-            nl: {}
+            - locale: nl
           entity_types:
             person:
               generate_html_list: true
@@ -41,12 +41,15 @@ structure. Example configuration:
             "name": "betty-ancestry",
             "author": "Bart Feenstra",
             "lifetime_threshold": 125,
-            "locales": {
-              "en-US": {
+            "locales": [
+              {
+                "locale": "en-US",
                 "alias": "en"
               },
-              "nl": {}
-            },
+              {
+                "locale": "nl"
+              }
+            ],
             "entity_types": {
               "person": {
                 "generate_html_list": true

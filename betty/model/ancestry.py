@@ -519,13 +519,15 @@ class HasLinksEntity(HasLinks):
                     *(
                         Link(
                             project.url_generator.generate(
-                                self, media_type="text/html", locale=locale
+                                self,
+                                media_type="text/html",
+                                locale=locale_configuration.locale,
                             ),
                             relationship="alternate",
                             media_type=MediaType("text/html"),
-                            locale=locale,
+                            locale=locale_configuration.locale,
                         )
-                        for locale in project.configuration.locales
+                        for locale_configuration in project.configuration.locales
                     ),
                 )
 

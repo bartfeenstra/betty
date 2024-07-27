@@ -92,10 +92,10 @@ class ConfigurationMapping(
         self.replace(*other.values())
 
     @override
-    def replace(self, *values: _ConfigurationT) -> None:
+    def replace(self, *configurations: _ConfigurationT) -> None:
         self_keys = list(self.keys())
-        other = {self._get_key(value): value for value in values}
-        other_values = list(values)
+        other = {self._get_key(value): value for value in configurations}
+        other_values = list(configurations)
         other_keys = list(map(self._get_key, other_values))
 
         # Update items that are kept.

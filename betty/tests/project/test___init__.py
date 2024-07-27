@@ -25,7 +25,7 @@ from betty.project import (
     ExtensionConfigurationMapping,
     ProjectConfiguration,
     LocaleConfiguration,
-    LocaleConfigurationMapping,
+    LocaleConfigurationSequence,
     EntityReference,
     EntityReferenceSequence,
     EntityTypeConfiguration,
@@ -347,16 +347,13 @@ class TestLocaleConfiguration:
         assert sut.alias == "UNDETERMINED_LOCALE"
 
 
-class TestLocaleConfigurationMapping(
-    ConfigurationMappingTestBase[str, LocaleConfiguration]
+class TestLocaleConfigurationSequence(
+    ConfigurationSequenceTestBase[LocaleConfiguration]
 ):
-    def get_configuration_keys(self) -> tuple[str, str, str, str]:
-        return "en", "nl", "uk", "fr"
-
     def get_sut(
         self, configurations: Iterable[Configuration] | None = None
-    ) -> LocaleConfigurationMapping:
-        return LocaleConfigurationMapping(configurations)  # type: ignore[arg-type]
+    ) -> LocaleConfigurationSequence:
+        return LocaleConfigurationSequence(configurations)  # type: ignore[arg-type]
 
     def get_configurations(
         self,
@@ -367,10 +364,10 @@ class TestLocaleConfigurationMapping(
         LocaleConfiguration,
     ]:
         return (
-            LocaleConfiguration(self.get_configuration_keys()[0]),
-            LocaleConfiguration(self.get_configuration_keys()[1]),
-            LocaleConfiguration(self.get_configuration_keys()[2]),
-            LocaleConfiguration(self.get_configuration_keys()[3]),
+            LocaleConfiguration("en"),
+            LocaleConfiguration("nl"),
+            LocaleConfiguration("uk"),
+            LocaleConfiguration("fr"),
         )
 
     async def test_load_item(self) -> None:
@@ -386,48 +383,56 @@ class TestLocaleConfigurationMapping(
         for dump in non_void_dumps:
             sut.load_item(dump)
 
-    async def test_delitem(self) -> None:
+    async def test_update(self) -> None:
+        sut = LocaleConfigurationSequence()
+        configurations = self.get_configurations()
+        other = LocaleConfigurationSequence(configurations)
+        sut.update(other)
+        assert list(sut) == list(other)
+
+    async def test___getitem__(self) -> None:
         configurations = self.get_configurations()
         sut = self.get_sut([configurations[0], configurations[1]])
-        del sut[self.get_configuration_keys()[1]]
-        assert [configurations[0]] == list(sut.values())
+        assert sut[0] == configurations[0]
 
-    async def test_delitem_with_one_remaining_locale_configuration(self) -> None:
+    async def test___delitem__(self) -> None:
+        configurations = self.get_configurations()
+        sut = self.get_sut([configurations[0], configurations[1]])
+        del sut[0]
+        assert sut[0] == configurations[1]
+
+    async def test___delitem___with_locale(self) -> None:
+        configurations = self.get_configurations()
+        sut = self.get_sut([configurations[0], configurations[1]])
+        del sut[configurations[0].locale]
+        with pytest.raises(KeyError):
+            sut[configurations[0].locale]
+
+    async def test___delitem___with_one_remaining_locale_configuration(self) -> None:
         locale_configuration_a = LocaleConfiguration("nl-NL")
-        sut = LocaleConfigurationMapping(
+        sut = LocaleConfigurationSequence(
             [
                 locale_configuration_a,
             ]
         )
         del sut["nl-NL"]
         assert len(sut) == 1
-        assert DEFAULT_LOCALE in sut
+        sut[DEFAULT_LOCALE]
 
     async def test_default_without_explicit_locale_configurations(self) -> None:
-        sut = LocaleConfigurationMapping()
+        sut = LocaleConfigurationSequence()
         assert LocaleConfiguration("en-US") == sut.default
 
     async def test_default_without_explicit_default(self) -> None:
         locale_configuration_a = LocaleConfiguration("nl-NL")
         locale_configuration_b = LocaleConfiguration("en-US")
-        sut = LocaleConfigurationMapping(
+        sut = LocaleConfigurationSequence(
             [
                 locale_configuration_a,
                 locale_configuration_b,
             ]
         )
         assert locale_configuration_a == sut.default
-
-    async def test_default_with_explicit_default(self) -> None:
-        locale_configuration_a = LocaleConfiguration("nl-NL")
-        locale_configuration_b = LocaleConfiguration("en-US")
-        sut = LocaleConfigurationMapping(
-            [
-                locale_configuration_a,
-            ]
-        )
-        sut.default = locale_configuration_b
-        assert locale_configuration_b == sut.default
 
     async def test_replace_without_items(self) -> None:
         sut = self.get_sut()
@@ -969,26 +974,19 @@ class TestProjectConfiguration:
     async def test_load_should_load_locale_locale(self, tmp_path: Path) -> None:
         locale = "nl-NL"
         dump = ProjectConfiguration(tmp_path / "betty.json").dump()
-        dump["locales"] = {
-            locale: {},
-        }
+        dump["locales"] = [{"locale": locale}]
         sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.load(dump)
-        assert sut.locales == LocaleConfigurationMapping([LocaleConfiguration(locale)])
+        assert sut.locales == LocaleConfigurationSequence([LocaleConfiguration(locale)])
 
     async def test_load_should_load_locale_alias(self, tmp_path: Path) -> None:
         locale = "nl-NL"
         alias = "nl"
-        locale_config = {
-            "alias": alias,
-        }
         dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
-        dump["locales"] = {
-            locale: locale_config,
-        }
+        dump["locales"] = [{"locale": locale, "alias": alias}]
         sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.load(dump)
-        assert sut.locales == LocaleConfigurationMapping(
+        assert sut.locales == LocaleConfigurationSequence(
             [
                 LocaleConfiguration(
                     locale,
@@ -1133,12 +1131,11 @@ class TestProjectConfiguration:
         locale = "nl-NL"
         locale_configuration = LocaleConfiguration(locale)
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        sut.locales.append(locale_configuration)
-        sut.locales.remove("en-US")
+        sut.locales.replace(locale_configuration)
         dump: Any = sut.dump()
-        assert dump["locales"] == {
-            locale: {},
-        }
+        assert dump["locales"] == [
+            {"locale": locale},
+        ]
 
     async def test_dump_should_dump_locale_alias(self, tmp_path: Path) -> None:
         locale = "nl-NL"
@@ -1148,14 +1145,11 @@ class TestProjectConfiguration:
             alias=alias,
         )
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        sut.locales.append(locale_configuration)
-        sut.locales.remove("en-US")
+        sut.locales.replace(locale_configuration)
         dump: Any = sut.dump()
-        assert dump["locales"] == {
-            locale: {
-                "alias": alias,
-            },
-        }
+        assert dump["locales"] == [
+            {"locale": locale, "alias": alias},
+        ]
 
     async def test_dump_should_dump_clean_urls(self, tmp_path: Path) -> None:
         clean_urls = True

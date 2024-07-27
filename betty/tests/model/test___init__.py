@@ -233,7 +233,7 @@ class TestSingleTypeEntityCollection:
         sut.add(entity1, entity2, entity3)
         assert [entity1, entity2, entity3] == list(sut)
 
-    async def test_getitem_by_index(self) -> None:
+    async def test___getitem___by_index(self) -> None:
         sut = SingleTypeEntityCollection[Entity](DummyEntity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
@@ -245,7 +245,7 @@ class TestSingleTypeEntityCollection:
         with pytest.raises(IndexError):
             sut[3]
 
-    async def test_getitem_by_indices(self) -> None:
+    async def test___getitem___by_indices(self) -> None:
         sut = SingleTypeEntityCollection[Entity](DummyEntity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
@@ -253,7 +253,7 @@ class TestSingleTypeEntityCollection:
         sut.add(entity1, entity2, entity3)
         assert [entity1, entity3] == list(sut[0::2])
 
-    async def test_getitem_by_entity_id(self) -> None:
+    async def test___getitem___by_entity_id(self) -> None:
         sut = SingleTypeEntityCollection[Entity](DummyEntity)
         entity1 = SingleTypeEntityCollectionTestEntity("1")
         entity2 = SingleTypeEntityCollectionTestEntity("2")
@@ -265,7 +265,7 @@ class TestSingleTypeEntityCollection:
         with pytest.raises(KeyError):
             sut["4"]
 
-    async def test_delitem_by_entity(self) -> None:
+    async def test___delitem___by_entity(self) -> None:
         sut = SingleTypeEntityCollection[Entity](DummyEntity)
         entity1 = SingleTypeEntityCollectionTestEntity()
         entity2 = SingleTypeEntityCollectionTestEntity()
@@ -276,7 +276,7 @@ class TestSingleTypeEntityCollection:
 
         assert [entity1, entity3] == list(sut)
 
-    async def test_delitem_by_entity_id(self) -> None:
+    async def test___delitem___by_entity_id(self) -> None:
         sut = SingleTypeEntityCollection[Entity](DummyEntity)
         entity1 = SingleTypeEntityCollectionTestEntity("1")
         entity2 = SingleTypeEntityCollectionTestEntity("2")
@@ -399,7 +399,7 @@ class TestMultipleTypesEntityCollection:
         sut.remove(entity_other)
         assert list(sut) == []
 
-    async def test_getitem_by_index(self) -> None:
+    async def test___getitem___by_index(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
@@ -409,7 +409,7 @@ class TestMultipleTypesEntityCollection:
         with pytest.raises(IndexError):
             sut[2]
 
-    async def test_getitem_by_indices(self) -> None:
+    async def test___getitem___by_indices(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
@@ -417,7 +417,7 @@ class TestMultipleTypesEntityCollection:
         assert [entity_one] == list(sut[0:1:1])
         assert [entity_other] == list(sut[1::1])
 
-    async def test_getitem_by_entity_type(self) -> None:
+    async def test___getitem___by_entity_type(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
@@ -427,7 +427,7 @@ class TestMultipleTypesEntityCollection:
         # Ensure that getting previously unseen entity types automatically creates and returns a new collection.
         assert list(sut[DummyEntity]) == []
 
-    async def test_getitem_by_entity_type_id(self) -> None:
+    async def test___getitem___by_entity_type_id(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         # Use an existing ancestry entity type, because converting an entity type name to an entity type only works for
         # entity types in a single module namespace.
@@ -438,7 +438,7 @@ class TestMultipleTypesEntityCollection:
         with pytest.raises(PluginNotFound):
             sut["NonExistentEntityType"]
 
-    async def test_delitem_by_entity(self) -> None:
+    async def test___delitem___by_entity(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         entity1 = MultipleTypesEntityCollectionTestEntityOne()
         entity2 = MultipleTypesEntityCollectionTestEntityOne()
@@ -449,7 +449,7 @@ class TestMultipleTypesEntityCollection:
 
         assert [entity1, entity3] == list(sut)
 
-    async def test_delitem_by_entity_type(self) -> None:
+    async def test___delitem___by_entity_type(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         entity = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
@@ -459,7 +459,7 @@ class TestMultipleTypesEntityCollection:
 
         assert [entity_other] == list(sut)
 
-    async def test_delitem_by_entity_type_id(self, mocker: MockerFixture) -> None:
+    async def test___delitem___by_entity_type_id(self, mocker: MockerFixture) -> None:
         mocker.patch(
             "betty.model.ENTITY_TYPE_REPOSITORY",
             new=StaticPluginRepository(

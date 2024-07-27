@@ -25,9 +25,9 @@
         {% endif %}
     {% endif %}
     <link rel="canonical" href="{{ page_resource | url(absolute=true) }}" hreflang="{{ localizer.locale }}" type="text/html">
-    {% for project_locale in project.configuration.locales %}
-        {% if project_locale != localizer.locale %}
-            <link rel="alternate" href="{{ page_resource | url(locale=project_locale) }}" hreflang="{{ project_locale }}" type="text/html">
+    {% for project_locale_configuration in project.configuration.locales %}
+        {% if project_locale_configuration.locale != localizer.locale %}
+            <link rel="alternate" href="{{ page_resource | url(locale=project_locale_configuration.locale) }}" hreflang="{{ project_locale_configuration.locale }}" type="text/html">
 
         {% endif %}
     {% endfor %}

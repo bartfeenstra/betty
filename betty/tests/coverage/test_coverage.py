@@ -153,7 +153,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/config/collections/__init__.py": TestKnownToBeMissing,
     "betty/config/collections/mapping.py": {
         "ConfigurationMapping": {
-            "__getitem__": TestKnownToBeMissing,
             "__iter__": TestKnownToBeMissing,
             "dump": TestKnownToBeMissing,
             "to_index": TestKnownToBeMissing,
@@ -163,7 +162,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/config/collections/sequence.py": {
         "ConfigurationSequence": {
-            "__getitem__": TestKnownToBeMissing,
             "__iter__": TestKnownToBeMissing,
             "dump": TestKnownToBeMissing,
             "to_index": TestKnownToBeMissing,
@@ -507,15 +505,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "EntityTypeInvalidError": TestKnownToBeMissing,
         "GeneratedEntityId": TestKnownToBeMissing,
         "MultipleTypesEntityCollection": {
-            "__delitem__": TestKnownToBeMissing,
-            "__getitem__": TestKnownToBeMissing,
             "__iter__": TestKnownToBeMissing,
             "__len__": TestKnownToBeMissing,
             "clear": TestKnownToBeMissing,
         },
         "SingleTypeEntityCollection": {
-            "__delitem__": TestKnownToBeMissing,
-            "__getitem__": TestKnownToBeMissing,
             "__iter__": TestKnownToBeMissing,
             "__len__": TestKnownToBeMissing,
         },
@@ -695,7 +689,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "hash": TestKnownToBeMissing,
             "update": TestKnownToBeMissing,
         },
-        "LocaleConfigurationMapping": {
+        "LocaleConfigurationSequence": {
             "multilingual": TestKnownToBeMissing,
         },
         "ProjectConfiguration": {
