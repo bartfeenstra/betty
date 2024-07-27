@@ -30,9 +30,10 @@ secure**.
 
 
 .. grid:: 2
+    :gutter: 2 3 4 5
 
     .. grid-item-card:: Getting started
-        :columns: 6
+        :columns: 12 6 6 6
 
         .. code-block:: python
 
@@ -41,7 +42,8 @@ secure**.
         :doc:`More installation options </installation>`
 
     .. grid-item-card:: See what Betty can do
-        :columns: 6
+        :columns: 12 6 6 6
+        :text-align: center
 
         .. button-link:: https://ancestry.bartfeenstra.com
             :color: primary
