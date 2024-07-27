@@ -25,7 +25,7 @@ from betty.generate import GenerateSiteEvent
 from betty.html import CssProvider
 from betty.jinja2 import Jinja2Provider, Filters, ContextVars
 from betty.job import Context
-from betty.locale.localizable import _, Localizable, plain
+from betty.locale.localizable import _, Localizable, static
 from betty.project import Project, extension
 from betty.project.extension import Extension
 from betty.requirement import (
@@ -149,7 +149,7 @@ class Webpack(Extension, CssProvider, Jinja2Provider):
     @override
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return plain("Webpack")
+        return static("Webpack")
 
     @override
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:

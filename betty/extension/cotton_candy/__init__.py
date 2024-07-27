@@ -26,7 +26,7 @@ from betty.jinja2 import (
     Filters,
 )
 from betty.locale.date import Date, Datey
-from betty.locale.localizable import _, plain, Localizable
+from betty.locale.localizable import _, static, Localizable
 from betty.model import GeneratedEntityId
 from betty.model.ancestry import (
     Event,
@@ -120,7 +120,7 @@ class CottonCandy(
     @override
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return plain("Cotton Candy")
+        return static("Cotton Candy")
 
     @override
     @classmethod

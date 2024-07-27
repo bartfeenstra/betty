@@ -4,7 +4,7 @@ from typing import Any, Iterator, TYPE_CHECKING
 
 import pytest
 
-from betty.locale.localizable import Localizable, plain
+from betty.locale.localizable import Localizable, static
 from betty.model import (
     Entity,
     ToAny,
@@ -41,11 +41,11 @@ class DummyEntity(Entity):
 
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return plain(cls.__name__)
+        return static(cls.__name__)
 
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
-        return plain(cls.__name__)
+        return static(cls.__name__)
 
 
 class _TestEntityTypeAssociationRegistry_ParentEntity(DummyEntity):

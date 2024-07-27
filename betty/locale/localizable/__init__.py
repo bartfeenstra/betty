@@ -4,13 +4,13 @@ The localizable API allows objects to be localized at the point of use.
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Mapping, Sequence
-from typing import Any, cast
+from typing import Any, cast, TypeAlias
 from warnings import warn
 
-from typing_extensions import override
-
-from betty.locale.localizer import Localizer
+from betty.locale import negotiate_locale, to_locale
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localizer import Localizer
+from typing_extensions import override
 
 
 class Localizable(ABC):
@@ -42,26 +42,6 @@ class _FormattableLocalizable(Localizable):
         self, *format_args: str | Localizable, **format_kwargs: str | Localizable
     ) -> Localizable:
         return format(self, **format_kwargs)
-
-
-class _PlainStrLocalizable(Localizable):
-    def __init__(self, plain: str):
-        self._plain = plain
-
-    @override
-    def localize(self, localizer: Localizer) -> str:
-        return self._plain
-
-
-def plain(plain: Any) -> Localizable:
-    """
-    Create a new localizable that outputs the given plain text string.
-
-    Keyword arguments are identical to those of :py:met:`str.format`, except that
-    any :py:class:`betty.locale.Localizable` will be localized before string
-    formatting.
-    """
-    return _PlainStrLocalizable(str(plain))
 
 
 class _CallLocalizable(Localizable):
@@ -200,3 +180,53 @@ def format(  # noqa A001
     The arguments are identical to those of :py:meth:``str.format``.
     """
     return _FormattedLocalizable(localizable, format_args, format_kwargs)
+
+
+StaticTranslations: TypeAlias = Mapping[str, str]
+"""
+Keys are locales, values are translations.
+See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
+"""
+
+
+ShorthandStaticTranslations: TypeAlias = StaticTranslations | str
+"""
+:py:const:`StaticTranslations` or a string which is the translation for the undetermined locale.
+See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
+"""
+
+
+class StaticTranslationsLocalizable(_FormattableLocalizable):
+    """
+    Provide a :py:class:`betty.locale.Localizable` backed by static translations.
+    """
+
+    def __init__(self, translations: ShorthandStaticTranslations):
+        if isinstance(translations, Mapping) and len(translations) < 1:
+            raise ValueError("At least one translation must be provided")
+        self._translations: ShorthandStaticTranslations = translations
+
+    @override
+    def localize(self, localizer: Localizer) -> str:
+        if isinstance(self._translations, str):
+            return self._translations
+        if len(self._translations) > 1:
+            available_locales = tuple(self._translations.keys())
+            requested_locale = to_locale(
+                (
+                    negotiate_locale(localizer.locale, available_locales)
+                    or available_locales[0]
+                )
+            )
+            if requested_locale:
+                return self._translations[requested_locale]
+        return next(iter(self._translations.values()))
+
+
+def static(translations: ShorthandStaticTranslations) -> Localizable:
+    """
+    Create a new localizable that outputs the given static translations.
+    """
+    from betty.locale.localizable.assertion import assert_static_translations
+
+    return StaticTranslationsLocalizable(assert_static_translations()(translations))

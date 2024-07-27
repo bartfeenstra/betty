@@ -5,7 +5,7 @@ from typing_extensions import override
 from betty.extension.deriver import Deriver
 from betty.load import load
 from betty.locale.date import DateRange, Date
-from betty.locale.localizable import Localizable, plain
+from betty.locale.localizable import Localizable, static
 from betty.model import record_added
 from betty.model.ancestry import Person, Presence, Event
 from betty.model.presence_role import Subject
@@ -34,7 +34,7 @@ class DummyEventType(EventType):
     @override
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return plain("")
+        return static("")
 
 
 class Ignored(DummyEventType):

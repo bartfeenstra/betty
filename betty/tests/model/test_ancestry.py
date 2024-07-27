@@ -11,7 +11,7 @@ from geopy import Point
 from betty.app import App
 from betty.json.schema import Schema
 from betty.locale.date import Date, DateRange
-from betty.locale.localizable import plain
+from betty.locale.localizable import static
 from betty.media_type import MediaType
 from betty.model import one_to_one
 from betty.model.ancestry import (
@@ -996,7 +996,7 @@ class TestCitation:
     async def test_location(self) -> None:
         sut = Citation(source=Source())
         assert sut.location is None
-        location = plain("Somewhere")
+        location = static("Somewhere")
         sut.location = location
         assert location == sut.location
 

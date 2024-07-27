@@ -24,7 +24,7 @@ from betty.assertion import (
     assert_file_path,
 )
 from betty.assertion.error import AssertionFailedGroup
-from betty.locale.localizable import plain
+from betty.locale.localizable import static
 from betty.serde.dump import Dumpable, Dump
 from betty.serde.format import FormatRepository
 
@@ -103,7 +103,7 @@ def assert_configuration_file(
         ):
             with open(configuration_file_path) as f:
                 read_configuration = f.read()
-            with errors.catch(plain(f"in {str(configuration_file_path.resolve())}")):
+            with errors.catch(static(f"in {str(configuration_file_path.resolve())}")):
                 configuration.load(
                     formats.format_for(configuration_file_path.suffix[1:]).load(
                         read_configuration

@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.locale.localizable import _, Localizable, plain
+from betty.locale.localizable import _, Localizable, static
 from betty.requirement import (
     RequirementCollection,
     RequirementError,
@@ -100,7 +100,7 @@ class _RequirementCollection(RequirementCollection):
         return True
 
     async def summary(self) -> Localizable:
-        return plain("Lorem ipsum")
+        return static("Lorem ipsum")
 
 
 class _MetRequirement(Requirement):
@@ -108,7 +108,7 @@ class _MetRequirement(Requirement):
         return True
 
     async def summary(self) -> Localizable:
-        return plain("Lorem ipsum")
+        return static("Lorem ipsum")
 
 
 class _UnmetRequirement(Requirement):
@@ -116,7 +116,7 @@ class _UnmetRequirement(Requirement):
         return False
 
     async def summary(self) -> Localizable:
-        return plain("Lorem ipsum")
+        return static("Lorem ipsum")
 
 
 class _ReducedToNoneRequirement(_MetRequirement):

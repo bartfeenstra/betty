@@ -9,7 +9,7 @@ from typing import Mapping, TYPE_CHECKING
 from typing_extensions import override
 
 from betty.fetch import Fetcher, FetchResponse, FetchError
-from betty.locale.localizable import plain
+from betty.locale.localizable import static
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -34,11 +34,11 @@ class StaticFetcher(Fetcher):
         try:
             return self._fetch_map[url]
         except KeyError:
-            raise FetchError(plain("")) from None
+            raise FetchError(static("")) from None
 
     @override
     async def fetch_file(self, url: str) -> Path:
         try:
             return self._fetch_file_map[url]
         except KeyError:
-            raise FetchError(plain("")) from None
+            raise FetchError(static("")) from None

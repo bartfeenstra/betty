@@ -12,7 +12,7 @@ from betty.extension.nginx.artifact import (
 )
 from betty.extension.nginx.config import NginxConfiguration
 from betty.generate import GenerateSiteEvent
-from betty.locale.localizable import plain, _, Localizable
+from betty.locale.localizable import static, _, Localizable
 from betty.machine_name import MachineName
 from betty.project.extension import ConfigurableExtension
 
@@ -36,7 +36,7 @@ class Nginx(ConfigurableExtension[NginxConfiguration]):
     @override
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return plain("Nginx")
+        return static("Nginx")
 
     @override
     @classmethod
