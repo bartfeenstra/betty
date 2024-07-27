@@ -28,21 +28,13 @@ from betty.model import (
 from betty.model.ancestry import Person
 from betty.plugin import PluginNotFound
 from betty.plugin.static import StaticPluginRepository
-from betty.string import camel_case_to_kebab_case
+from betty.test_utils.plugin import DummyPlugin
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
 
-class DummyEntity(Entity):
-    @classmethod
-    def plugin_id(cls) -> str:
-        return camel_case_to_kebab_case(cls.__name__)
-
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return static(cls.__name__)
-
+class DummyEntity(DummyPlugin, Entity):
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
         return static(cls.__name__)

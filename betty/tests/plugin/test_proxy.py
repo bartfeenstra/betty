@@ -1,31 +1,20 @@
 import pytest
 
-from betty.locale.localizable import Localizable, static
 from betty.plugin import Plugin, PluginNotFound
-from betty.machine_name import MachineName
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.plugin.static import StaticPluginRepository
+from betty.test_utils.plugin import DummyPlugin
 
 
-class _ProxyPluginRepositoryTestPluginBase(Plugin):
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return cls.__name__
-
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return static("")  # pragma: no cover
-
-
-class ProxyPluginRepositoryTestPluginOne(_ProxyPluginRepositoryTestPluginBase):
+class ProxyPluginRepositoryTestPluginOne(DummyPlugin):
     pass  # pragma: no cover
 
 
-class ProxyPluginRepositoryTestPluginTwo(_ProxyPluginRepositoryTestPluginBase):
+class ProxyPluginRepositoryTestPluginTwo(DummyPlugin):
     pass  # pragma: no cover
 
 
-class ProxyPluginRepositoryTestPluginThree(_ProxyPluginRepositoryTestPluginBase):
+class ProxyPluginRepositoryTestPluginThree(DummyPlugin):
     pass  # pragma: no cover
 
 
