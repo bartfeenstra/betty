@@ -489,7 +489,6 @@ class DemoServer(Server):
 
     @override
     async def start(self) -> None:
-        await super().start()
         try:
             project = await self._exit_stack.enter_async_context(
                 demo_project(self._app)
@@ -503,12 +502,10 @@ class DemoServer(Server):
         except BaseException:
             await self.stop()
             raise
-        await self.assert_available()
 
     @override
     async def stop(self) -> None:
         await self._exit_stack.aclose()
-        await super().stop()
 
 
 @asynccontextmanager

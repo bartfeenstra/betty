@@ -111,7 +111,6 @@ class DocumentationServer(Server):
 
     @override
     async def start(self) -> None:
-        await super().start()
         www_directory_path = await _ensure_documentation_directory(
             self._cache_directory_path
         )
@@ -119,9 +118,7 @@ class DocumentationServer(Server):
             www_directory_path, localizer=self._localizer
         )
         await self._exit_stack.enter_async_context(self._server)
-        await self.assert_available()
 
     @override
     async def stop(self) -> None:
         await self._exit_stack.aclose()
-        await super().stop()

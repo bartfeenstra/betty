@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-27 11:07+0100\n"
+"POT-Creation-Date: 2024-07-27 12:42+0100\n"
 "PO-Revision-Date: 2024-02-08 13:08+0000\n"
 "Last-Translator: Rainer Thieringer <rainerthi@gmail.com>\n"
 "Language: uk\n"
@@ -676,7 +676,7 @@ msgstr ""
 msgid "The following errors occurred"
 msgstr ""
 
-msgid "The server was unreachable after starting."
+msgid "The server at {url} was unreachable after starting."
 msgstr ""
 
 #, python-format

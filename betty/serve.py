@@ -9,14 +9,17 @@ import logging
 import threading
 import webbrowser
 from abc import ABC, abstractmethod
+from asyncio import to_thread
+from http.client import HTTPConnection
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 from io import StringIO
 from pathlib import Path
-from typing import Any, TYPE_CHECKING, final
+from typing import Any, TYPE_CHECKING
+from typing import final
+from urllib.parse import urlparse
 
 from aiofiles.os import makedirs, symlink
 from aiofiles.tempfile import TemporaryDirectory, AiofilesContextManagerTempDir
-from aiohttp import ClientSession
 from typing_extensions import override
 
 from betty.error import UserFacingError
@@ -60,12 +63,13 @@ class OsError(UserFacingError, OSError):
 
 class Server(ABC):
     """
-    Provide a development web server.
+    Provide a (development) web server.
     """
 
     def __init__(self, localizer: Localizer):
         self._localizer = localizer
 
+    @abstractmethod
     async def start(self) -> None:  # noqa B027
         """
         Start the server.
@@ -83,6 +87,7 @@ class Server(ABC):
         )
         webbrowser.open_new_tab(self.public_url)
 
+    @abstractmethod
     async def stop(self) -> None:  # noqa B027
         """
         Stop the server.
@@ -99,6 +104,11 @@ class Server(ABC):
 
     async def __aenter__(self) -> Server:
         await self.start()
+        try:
+            await self.assert_available()
+        except BaseException:
+            await self.stop()
+            raise
         return self
 
     async def __aexit__(
@@ -113,24 +123,24 @@ class Server(ABC):
         """
         Assert that this server is available.
         """
-        # @todo In Betty 0.4.0, require the app's existing client session.
-        async with ClientSession() as session:
-            try:
-                await Do[Any, None](self._assert_available, session).until()
-            except Exception as error:
-                raise UserFacingError(
-                    _("The server was unreachable after starting.")
-                ) from error
+        try:
+            await Do[Any, None](self._assert_available).until()
+        except Exception as error:
+            raise UserFacingError(
+                _("The server at {url} was unreachable after starting.").format(
+                    url=self.public_url
+                )
+            ) from error
 
-    async def _assert_available(self, session: ClientSession) -> None:
-        """
-        Assert that this server is available.
+    async def _assert_available(self) -> None:
+        await to_thread(self.__assert_available)
 
-        If this method returns, the server is considered available.
-        If this method raises an exception, the server is considered unavailable.
-        """
-        async with session.get(self.public_url) as response:
-            assert response.status == 200
+    def __assert_available(self) -> None:
+        url = urlparse(self.public_url)
+        connection = HTTPConnection(url.netloc)
+        connection.request("GET", url.path)
+        response = connection.getresponse()
+        assert 400 > response.status >= 200
 
 
 class ProjectServer(Server):
@@ -141,11 +151,6 @@ class ProjectServer(Server):
     def __init__(self, project: Project) -> None:
         super().__init__(localizer=project.app.localizer)
         self._project = project
-
-    @override
-    async def start(self) -> None:
-        await makedirs(self._project.configuration.www_directory_path, exist_ok=True)
-        await super().start()
 
 
 @final
@@ -179,7 +184,6 @@ class BuiltinServer(Server):
 
     @override
     async def start(self) -> None:
-        await super().start()
         if self._root_path:
             # To mimic the root path, symlink the project's WWW directory into a temporary
             # directory, so we do not have to make changes to any existing files.
@@ -216,7 +220,6 @@ class BuiltinServer(Server):
             raise OsError(_("Cannot find an available port to bind the web server to."))
         self._thread = threading.Thread(target=self._serve)
         self._thread.start()
-        await self.assert_available()
 
     @override
     @property
@@ -235,7 +238,6 @@ class BuiltinServer(Server):
 
     @override
     async def stop(self) -> None:
-        await super().stop()
         if self._http_server is not None:
             self._http_server.shutdown()
             self._http_server.server_close()
@@ -266,10 +268,9 @@ class BuiltinProjectServer(ProjectServer):
 
     @override
     async def start(self) -> None:
-        await super().start()
+        await makedirs(self._project.configuration.www_directory_path, exist_ok=True)
         await self._server.start()
 
     @override
     async def stop(self) -> None:
-        await super().stop()
         await self._server.stop()
