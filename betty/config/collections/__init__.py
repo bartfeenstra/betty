@@ -78,7 +78,7 @@ class ConfigurationCollection(
         return repr_instance(self, configurations=list(self.values()))
 
     @abstractmethod
-    def replace(self, *values: _ConfigurationT) -> None:
+    def replace(self, *configurations: _ConfigurationT) -> None:
         """
         Replace any existing values with the given ones.
         """
@@ -91,7 +91,7 @@ class ConfigurationCollection(
         for configuration_key in configuration_keys:
             configuration = self._configurations[configuration_key]  # type: ignore[call-overload]
             del self._configurations[configuration_key]  # type: ignore[call-overload]
-            self._on_remove(configuration)
+            self._post_remove(configuration)
 
     def clear(self) -> None:
         """
@@ -99,10 +99,10 @@ class ConfigurationCollection(
         """
         self.remove(*self.keys())
 
-    def _on_add(self, configuration: _ConfigurationT) -> None:
+    def _pre_add(self, configuration: _ConfigurationT) -> None:
         pass
 
-    def _on_remove(self, configuration: _ConfigurationT) -> None:
+    def _post_remove(self, configuration: _ConfigurationT) -> None:
         pass
 
     @abstractmethod

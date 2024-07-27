@@ -12,10 +12,22 @@ from contextlib import suppress, asynccontextmanager
 from graphlib import TopologicalSorter, CycleError
 from pathlib import Path
 from reprlib import recursive_repr
-from typing import Any, Generic, final, Iterable, Self, TYPE_CHECKING, TypeVar, Iterator
+from typing import (
+    Any,
+    Generic,
+    final,
+    Iterable,
+    Self,
+    TYPE_CHECKING,
+    TypeVar,
+    Iterator,
+    overload,
+)
 from urllib.parse import urlparse
 
 from aiofiles.tempfile import TemporaryDirectory
+from typing_extensions import override
+
 from betty import fs, event_dispatcher
 from betty import model
 from betty.assertion import (
@@ -72,7 +84,6 @@ from betty.serde.dump import (
 )
 from betty.serde.format import FormatRepository
 from betty.typing import Void
-from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
@@ -227,8 +238,8 @@ class EntityReferenceSequence(
         return configuration
 
     @override
-    def _on_add(self, configuration: EntityReference[_EntityT]) -> None:
-        super()._on_add(configuration)
+    def _pre_add(self, configuration: EntityReference[_EntityT]) -> None:
+        super()._pre_add(configuration)
 
         entity_type_constraint = self._entity_type_constraint
         entity_reference_entity_type = configuration._entity_type
@@ -650,7 +661,7 @@ class LocaleConfiguration(Configuration):
 
 
 @final
-class LocaleConfigurationMapping(ConfigurationMapping[str, LocaleConfiguration]):
+class LocaleConfigurationSequence(ConfigurationSequence[LocaleConfiguration]):
     """
     Configure a project's locales.
     """
@@ -663,8 +674,47 @@ class LocaleConfigurationMapping(ConfigurationMapping[str, LocaleConfiguration])
         self._ensure_locale()
 
     @override
-    def _on_remove(self, configuration: LocaleConfiguration) -> None:
-        super()._on_remove(configuration)
+    @overload
+    def __getitem__(self, configuration_key: int | str) -> LocaleConfiguration:
+        pass  # pragma: no cover
+
+    @override
+    @overload
+    def __getitem__(self, configuration_key: slice) -> Sequence[LocaleConfiguration]:
+        pass  # pragma: no cover
+
+    @override
+    def __getitem__(
+        self, configuration_key: int | slice | str
+    ) -> LocaleConfiguration | Sequence[LocaleConfiguration]:
+        if isinstance(configuration_key, str):
+            for configuration in self:
+                if configuration.locale == configuration_key:
+                    return configuration
+            raise KeyError
+        return self._configurations[configuration_key]
+
+    def __delitem__(self, configuration_key: int | str) -> None:
+        if isinstance(configuration_key, str):
+            for index, configuration in enumerate(self):
+                if configuration.locale == configuration_key:
+                    self.remove(index)
+                    return
+            raise KeyError
+        self.remove(configuration_key)
+
+    @override
+    def _pre_add(self, configuration: LocaleConfiguration) -> None:
+        try:
+            self[configuration.locale]
+        except KeyError:
+            pass
+        else:
+            raise ValueError(f'Cannot add locale "{configuration.locale}" twice.')
+
+    @override
+    def _post_remove(self, configuration: LocaleConfiguration) -> None:
+        super()._post_remove(configuration)
         self._ensure_locale()
 
     def _ensure_locale(self) -> None:
@@ -672,23 +722,17 @@ class LocaleConfigurationMapping(ConfigurationMapping[str, LocaleConfiguration])
             self.append(LocaleConfiguration(DEFAULT_LOCALE))
 
     @override
-    def _get_key(self, configuration: LocaleConfiguration) -> str:
-        return configuration.locale
+    def update(self, other: Self) -> None:
+        # Prevent the events from being dispatched.
+        self._configurations.clear()
+        self.append(*other)
 
     @override
-    def _load_key(
-        self,
-        item_dump: Dump,
-        key_dump: str,
-    ) -> Dump:
-        dict_item_dump = assert_dict()(item_dump)
-        dict_item_dump["locale"] = key_dump
-        return dict_item_dump
-
-    @override
-    def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
-        dict_item_dump = assert_dict()(item_dump)
-        return dict_item_dump, dict_item_dump.pop("locale")
+    def replace(self, *configurations: LocaleConfiguration) -> None:
+        # Prevent the events from being dispatched.
+        self._configurations.clear()
+        self.append(*configurations)
+        self._ensure_locale()
 
     @override
     def load_item(self, dump: Dump) -> LocaleConfiguration:
@@ -701,14 +745,7 @@ class LocaleConfigurationMapping(ConfigurationMapping[str, LocaleConfiguration])
         """
         The default language.
         """
-        return next(iter(self._configurations.values()))
-
-    @default.setter
-    def default(self, configuration: LocaleConfiguration | str) -> None:
-        if isinstance(configuration, str):
-            configuration = self[configuration]
-        self._configurations[configuration.locale] = configuration
-        self._configurations.move_to_end(configuration.locale, False)
+        return self._configurations[0]
 
     @property
     def multilingual(self) -> bool:
@@ -774,7 +811,7 @@ class ProjectConfiguration(Configuration):
         )
         self._extensions = ExtensionConfigurationMapping(extensions or ())
         self._debug = debug
-        self._locales = LocaleConfigurationMapping(locales or ())
+        self._locales = LocaleConfigurationSequence(locales or ())
         self._lifetime_threshold = lifetime_threshold
 
     @property
@@ -896,7 +933,7 @@ class ProjectConfiguration(Configuration):
         self._clean_urls = clean_urls
 
     @property
-    def locales(self) -> LocaleConfigurationMapping:
+    def locales(self) -> LocaleConfigurationSequence:
         """
         The available locales.
         """

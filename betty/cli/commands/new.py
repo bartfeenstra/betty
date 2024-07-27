@@ -94,7 +94,9 @@ async def new(app: App) -> None:  # noqa D103
                 )
             )
         )
-    locales = list(configuration.locales.keys())
+    locales = [
+        locale_configuration.locale for locale_configuration in configuration.locales
+    ]
 
     configuration.title = _prompt_static_translations(
         locales,

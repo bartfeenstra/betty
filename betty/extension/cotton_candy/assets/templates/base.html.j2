@@ -68,7 +68,7 @@
                 <div class="nav-primary-expanded">
                     <ul class="nav-secondary">
                     {% set ns = namespace(available_locales=[]) %}
-                    {% for available_locale_configuration in project.configuration.locales.values() %}
+                    {% for available_locale_configuration in project.configuration.locales %}
                         {% set available_locale_data = available_locale_configuration.alias | locale_get_data %}
                         {% do ns.available_locales.append((available_locale_configuration.locale, available_locale_data.get_display_name())) %}
                     {% endfor %}
