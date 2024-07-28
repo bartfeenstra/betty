@@ -11,8 +11,3 @@ Development
 
 This section explains the software development side of Betty, whether you are working
 on your own project, or helping to improve Betty itself.
-
-In this section
----------------
-- :doc:`/development/betty`
-- :doc:`/development/plugin`
