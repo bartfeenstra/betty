@@ -9,10 +9,6 @@ interface Index {
   resultsContainerTemplate: string
 }
 
-interface Configuration{
-  enterSearchShortcuts: string
-}
-
 class Search {
   private readonly hideSearchKeys = ['Escape']
   private readonly nextResultKeys = ['ArrowDown']
@@ -32,7 +28,7 @@ class Search {
     this.documentY = null
   }
 
-  public async initialize (): Promise<void> {
+  public initialize (): void {
     // Prevent default form submission behaviors, such as HTTP requests.
     this.form.addEventListener('submit', (e) => {
       e.preventDefault()
@@ -53,14 +49,6 @@ class Search {
     // Allow navigation into and out of the search.
 
     this.resultsContainer.addEventListener('keydown', (e) => { this.navigateResults(e.key) })
-    const response = await fetch(this.search.dataset.bettySearchConfiguration)
-    const configuration = await response.json() as Configuration
-    document.addEventListener('keyup', (e) => {
-      if (configuration.enterSearchShortcuts.includes(e.key)) {
-        this.queryElement.focus()
-        this.showSearchResults()
-      }
-    })
     this.queryElement.addEventListener('focus', () => { this.showSearchResults() })
     this.search.getElementsByClassName('overlay-close')[0].addEventListener('mouseup', () => { this.hideSearchResults() })
     document.addEventListener('keydown', (e) => {

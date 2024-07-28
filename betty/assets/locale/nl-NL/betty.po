@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-27 16:08+0100\n"
+"POT-Creation-Date: 2024-07-28 13:06+0100\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -865,11 +865,10 @@ msgstr ""
 #, python-format
 msgid ""
 "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
-"to exit the search. Search again with <kbd>%(shortcut)s</kbd>."
+"to exit the search."
 msgstr ""
 "Gebruik <kbd>↑</kbd> en <kbd>↓</kbd> om door de resultaten te bladeren, "
-"of <kbd>esc</kbd> om te stoppen met zoeken. Zoek opnieuw met "
-"<kbd>%(shortcut)s</kbd>."
+"of <kbd>esc</kbd> om te stoppen met zoeken."
 
 msgid "What is the path to your exported Gramps family tree file?"
 msgstr "Wat is het pad naar je geëxporteerde Gramps-stamboombestand?"
@@ -983,10 +982,6 @@ msgstr ""
 
 msgid "private"
 msgstr "privé"
-
-msgctxt "enter-search-shortcut"
-msgid "s"
-msgstr "z"
 
 #, python-format
 msgid "show %(name_count)s more"

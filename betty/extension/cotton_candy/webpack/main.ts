@@ -9,10 +9,8 @@ async function main(): Promise<void> {
     await Promise.allSettled([
         initializeFiles(),
         initializeToggles(),
-        (async () :Promise<void> => {
-            const search = new Search()
-            await search.initialize()
-        })()
     ])
+    const search = new Search()
+    search.initialize()
 }
 void main()
