@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 import betty
-from betty import about, fs
+from betty import fs
 from betty.asyncio import wait_to_thread
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.assets import AssetRepository
