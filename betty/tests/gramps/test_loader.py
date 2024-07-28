@@ -260,12 +260,12 @@ class TestGrampsLoader:
         birth = [
             presence
             for presence in person.presences
-            if presence.event and presence.event.event_type is Birth
+            if presence.event and isinstance(presence.event.event_type, Birth)
         ][0]
         assert birth is not None
         assert birth.event is not None
         assert birth.event.id == "E0000"
-        assert Birth is birth.event.event_type
+        assert isinstance(birth.event.event_type, Birth)
 
     async def test_person_should_include_death(self) -> None:
         ancestry = await self._load_partial(
@@ -288,7 +288,7 @@ class TestGrampsLoader:
         death = [
             presence
             for presence in person.presences
-            if presence.event and presence.event.event_type is Death
+            if presence.event and isinstance(presence.event.event_type, Death)
         ][0]
         assert death is not None
         assert death.event is not None
@@ -473,7 +473,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        assert issubclass(ancestry[Event]["E0000"].event_type, Birth)
+        assert isinstance(ancestry[Event]["E0000"].event_type, Birth)
 
     async def test_event_should_be_death(self) -> None:
         ancestry = await self._load_partial(
@@ -485,7 +485,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        assert issubclass(ancestry[Event]["E0000"].event_type, Death)
+        assert isinstance(ancestry[Event]["E0000"].event_type, Death)
 
     async def test_event_should_load_unknown(self) -> None:
         ancestry = await self._load_partial(
@@ -498,7 +498,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        assert issubclass(ancestry[Event]["E0000"].event_type, UnknownEventType)
+        assert isinstance(ancestry[Event]["E0000"].event_type, UnknownEventType)
 
     async def test_event_should_include_place(self) -> None:
         ancestry = await self._load_partial(

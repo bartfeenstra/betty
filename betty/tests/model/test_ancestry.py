@@ -1080,7 +1080,7 @@ class TestCitation(EntityTestBase):
         citation.facts.add(
             Event(
                 id="the_event",
-                event_type=Birth,
+                event_type=Birth(),
             )
         )
         expected: dict[str, Any] = {
@@ -1129,7 +1129,7 @@ class TestCitation(EntityTestBase):
         citation.facts.add(
             Event(
                 id="the_event",
-                event_type=Birth,
+                event_type=Birth(),
             )
         )
         expected: dict[str, Any] = {
@@ -1277,7 +1277,7 @@ class TestPlace(EntityTestBase):
         )
         event = Event(
             id="1",
-            event_type=Birth,
+            event_type=Birth(),
         )
         sut.events.add(event)
         assert event in sut.events
@@ -1451,7 +1451,7 @@ class TestPlace(EntityTestBase):
             events=[
                 Event(
                     id="E1",
-                    event_type=Birth,
+                    event_type=Birth(),
                 )
             ],
             links=[link],
@@ -1536,16 +1536,16 @@ class TestPresence(EntityTestBase):
 
     async def test_person(self) -> None:
         person = Person()
-        sut = Presence(person, Subject(), Event(event_type=UnknownEventType))
+        sut = Presence(person, Subject(), Event(event_type=UnknownEventType()))
         assert person == sut.person
 
     async def test_event(self) -> None:
         role = Subject()
-        sut = Presence(Person(), role, Event(event_type=UnknownEventType))
+        sut = Presence(Person(), role, Event(event_type=UnknownEventType()))
         assert role == sut.role
 
     async def test_role(self) -> None:
-        event = Event(event_type=UnknownEventType)
+        event = Event(event_type=UnknownEventType())
         sut = Presence(Person(), Subject(), event)
         assert event == sut.event
 
@@ -1565,7 +1565,7 @@ class TestPresence(EntityTestBase):
         event_privacy: Privacy,
     ) -> None:
         person = Person(privacy=person_privacy)
-        event = Event(privacy=event_privacy, event_type=UnknownEventType)
+        event = Event(privacy=event_privacy, event_type=UnknownEventType())
         sut = Presence(person, Subject(), event)
         sut.privacy = presence_privacy
 
@@ -1581,7 +1581,7 @@ class TestEvent(EntityTestBase):
         event_id = "E1"
         sut = Event(
             id=event_id,
-            event_type=UnknownEventType,
+            event_type=UnknownEventType(),
         )
         assert event_id == sut.id
 
@@ -1590,7 +1590,7 @@ class TestEvent(EntityTestBase):
             id="1",
             names=[PlaceName(name="one")],
         )
-        sut = Event(event_type=UnknownEventType)
+        sut = Event(event_type=UnknownEventType())
         sut.place = place
         assert place == sut.place
         assert sut in place.events
@@ -1600,7 +1600,7 @@ class TestEvent(EntityTestBase):
 
     async def test_presences(self) -> None:
         person = Person(id="P1")
-        sut = Event(event_type=UnknownEventType)
+        sut = Event(event_type=UnknownEventType())
         presence = Presence(person, Subject(), sut)
         sut.presences.add(presence)
         assert [presence] == list(sut.presences)
@@ -1610,37 +1610,37 @@ class TestEvent(EntityTestBase):
         assert presence.event is None
 
     async def test_date(self) -> None:
-        sut = Event(event_type=UnknownEventType)
+        sut = Event(event_type=UnknownEventType())
         assert sut.date is None
         date = Date()
         sut.date = date
         assert date == sut.date
 
     async def test_file_references(self) -> None:
-        sut = Event(event_type=UnknownEventType)
+        sut = Event(event_type=UnknownEventType())
         assert list(sut.file_references) == []
 
     async def test_citations(self) -> None:
-        sut = Event(event_type=UnknownEventType)
+        sut = Event(event_type=UnknownEventType())
         assert list(sut.citations) == []
 
     async def test_description(self) -> None:
-        sut = Event(event_type=UnknownEventType)
+        sut = Event(event_type=UnknownEventType())
         assert sut.description is None
 
     async def test_private(self) -> None:
-        sut = Event(event_type=UnknownEventType)
+        sut = Event(event_type=UnknownEventType())
         assert sut.privacy is Privacy.UNDETERMINED
 
     async def test_event_type(self) -> None:
-        event_type = UnknownEventType
+        event_type = UnknownEventType()
         sut = Event(event_type=event_type)
-        assert event_type == sut.event_type
+        assert sut.event_type is event_type
 
     async def test_dump_linked_data_should_dump_minimal(self) -> None:
         event = Event(
             id="the_event",
-            event_type=Birth,
+            event_type=Birth(),
         )
         expected: dict[str, Any] = {
             "$schema": "https://example.com/schema.json#/definitions/entity/event",
@@ -1686,7 +1686,7 @@ class TestEvent(EntityTestBase):
     async def test_dump_linked_data_should_dump_full(self) -> None:
         event = Event(
             id="the_event",
-            event_type=Birth,
+            event_type=Birth(),
             date=DateRange(Date(2000, 1, 1), Date(2019, 12, 31)),
             place=Place(
                 id="the_place",
@@ -1777,7 +1777,7 @@ class TestEvent(EntityTestBase):
     async def test_dump_linked_data_should_dump_private(self) -> None:
         event = Event(
             id="the_event",
-            event_type=Birth,
+            event_type=Birth(),
             private=True,
             date=DateRange(Date(2000, 1, 1), Date(2019, 12, 31)),
             place=Place(
@@ -1912,7 +1912,7 @@ class TestPerson(EntityTestBase):
         assert list(child.parents) == []
 
     async def test_presences(self) -> None:
-        event = Event(event_type=Birth)
+        event = Event(event_type=Birth())
         sut = Person(id="1")
         presence = Presence(sut, Subject(), event)
         sut.presences.add(presence)
@@ -2091,7 +2091,7 @@ class TestPerson(EntityTestBase):
             Subject(),
             Event(
                 id="the_event",
-                event_type=Birth,
+                event_type=Birth(),
             ),
         )
 
@@ -2216,7 +2216,7 @@ class TestPerson(EntityTestBase):
             Subject(),
             Event(
                 id="the_event",
-                event_type=Birth,
+                event_type=Birth(),
             ),
         )
 

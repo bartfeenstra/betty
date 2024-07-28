@@ -191,7 +191,7 @@ class Privatizer:
 
         # A dead person is not private, regardless of when they died.
         for presence in person.presences:
-            if presence.event and issubclass(
+            if presence.event and isinstance(
                 presence.event.event_type, EndOfLifeEventType
             ):
                 if presence.event.date is None:

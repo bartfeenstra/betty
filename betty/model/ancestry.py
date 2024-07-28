@@ -1692,7 +1692,7 @@ class Event(
         self,
         *,
         id: str | None = None,  # noqa A002
-        event_type: type[EventType] = UnknownEventType,
+        event_type: EventType | None = None,
         date: Datey | None = None,
         file_references: Iterable[FileReference] | None = None,
         citations: Iterable[Citation] | None = None,
@@ -1714,7 +1714,7 @@ class Event(
             private=private,
             description=description,
         )
-        self._event_type = event_type
+        self._event_type = event_type or UnknownEventType()
         if place is not None:
             self.place = place
 
@@ -1789,7 +1789,7 @@ class Event(
         return _("Events")  # pragma: no cover
 
     @property
-    def event_type(self) -> type[EventType]:
+    def event_type(self) -> EventType:
         """
         The type of event.
         """

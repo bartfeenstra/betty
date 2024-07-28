@@ -48,10 +48,10 @@ def _parameterize_with_associated_events() -> (
             PresenceRole,
             str | None,
             Privacy,
-            type[EventType],
+            EventType,
             Datey | None,
             Privacy,
-            type[EventType],
+            EventType,
             Datey | None,
         ]
     ]
@@ -73,14 +73,14 @@ def _parameterize_with_associated_events() -> (
         (False, Attendee()),
     )
     event_types = (
-        (True, Birth),
-        (False, UnknownEventType),
+        (True, Birth()),
+        (False, UnknownEventType()),
     )
     event_dateys_and_person_reference_event_types = (
-        (True, _AFTER_REFERENCE_DATE, Birth),
-        (False, _BEFORE_REFERENCE_DATE, Birth),
-        (True, _BEFORE_REFERENCE_DATE, Death),
-        (False, _AFTER_REFERENCE_DATE, Death),
+        (True, _AFTER_REFERENCE_DATE, Birth()),
+        (False, _BEFORE_REFERENCE_DATE, Birth()),
+        (True, _BEFORE_REFERENCE_DATE, Death()),
+        (False, _AFTER_REFERENCE_DATE, Death()),
     )
     for event_id_expected, event_id in ids:
         for event_privacy_expected, event_privacy in privacies:
@@ -150,7 +150,7 @@ class TestPersonLifetimeEvents:
         person = Person()
         event = Event(
             id=event_id,
-            event_type=UnknownEventType,
+            event_type=UnknownEventType(),
             date=event_datey,
             privacy=event_privacy,
         )
@@ -178,10 +178,10 @@ class TestPersonLifetimeEvents:
         presence_role: PresenceRole,
         event_id: str | None,
         event_privacy: Privacy,
-        event_type: type[EventType],
+        event_type: EventType,
         event_datey: Datey | None,
         person_reference_event_privacy: Privacy,
-        person_reference_event_type: type[EventType],
+        person_reference_event_type: EventType,
         person_reference_event_datey: Datey | None,
     ) -> None:
         event_ids = 0
@@ -272,7 +272,7 @@ class TestAssociatedFileReferences:
         ] == [file1, file2]
 
     async def test_with_event_without_files(self) -> None:
-        event = Event(event_type=UnknownEventType)
+        event = Event(event_type=UnknownEventType())
         assert list(associated_file_references(event)) == []
 
     async def test_with_event_with_citations(self) -> None:
@@ -280,7 +280,7 @@ class TestAssociatedFileReferences:
         file2 = File(path=Path())
         file3 = File(path=Path())
         file4 = File(path=Path())
-        event = Event(event_type=UnknownEventType)
+        event = Event(event_type=UnknownEventType())
         FileReference(event, file1)
         FileReference(event, file2)
         FileReference(event, file1)
@@ -319,7 +319,7 @@ class TestAssociatedFileReferences:
             individual="Janet",
         )
         name.citations = [citation]  # type: ignore[assignment]
-        event = Event(event_type=UnknownEventType)
+        event = Event(event_type=UnknownEventType())
         FileReference(event, file5)
         FileReference(event, file6)
         FileReference(event, file4)
@@ -341,7 +341,7 @@ class TestAssociatedFileReferences:
         FileReference(place, file1)
         FileReference(place, file2)
         FileReference(place, file1)
-        event = Event(event_type=UnknownEventType)
+        event = Event(event_type=UnknownEventType())
         FileReference(event, file3)
         FileReference(event, file4)
         FileReference(event, file4)

@@ -150,7 +150,7 @@ class TestProjectUrlGenerator:
             Person(id="P1"),
             Event(
                 id="E1",
-                event_type=Death,
+                event_type=Death(),
             ),
             Place(
                 id="P1",
@@ -184,7 +184,7 @@ class TestProjectUrlGenerator:
                 "/event/E1/index.html",
                 Event(
                     id="E1",
-                    event_type=Death,
+                    event_type=Death(),
                 ),
             ),
             (

@@ -92,7 +92,7 @@ class Test(TemplateTestBase):
             person,
             Subject(),
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=Date(1970),
             ),
         )
@@ -110,7 +110,7 @@ class Test(TemplateTestBase):
             person,
             Subject(),
             Event(
-                event_type=Death,
+                event_type=Death(),
                 date=Date(1970),
             ),
         )
@@ -128,7 +128,7 @@ class Test(TemplateTestBase):
             person,
             Subject(),
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=Date(1970),
             ),
         )

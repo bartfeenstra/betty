@@ -56,7 +56,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             generation != 0,
             Privacy.UNDETERMINED,
             Event(
-                event_type=Death,
+                event_type=Death(),
                 date=Date(
                     datetime.now().year, datetime.now().month, datetime.now().day
                 ),
@@ -66,7 +66,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             generation != 0,
             Privacy.UNDETERMINED,
             Event(
-                event_type=Death,
+                event_type=Death(),
                 date=date_under_lifetime_threshold,
             ),
         ),
@@ -74,7 +74,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             True,
             Privacy.UNDETERMINED,
             Event(
-                event_type=Death,
+                event_type=Death(),
                 date=date_range_start_under_lifetime_threshold,
             ),
         ),
@@ -82,7 +82,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             generation != 0,
             Privacy.UNDETERMINED,
             Event(
-                event_type=Death,
+                event_type=Death(),
                 date=date_range_end_under_lifetime_threshold,
             ),
         ),
@@ -90,7 +90,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             False,
             Privacy.UNDETERMINED,
             Event(
-                event_type=Death,
+                event_type=Death(),
                 date=date_over_lifetime_threshold,
             ),
         ),
@@ -98,7 +98,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             True,
             Privacy.UNDETERMINED,
             Event(
-                event_type=Death,
+                event_type=Death(),
                 date=date_range_start_over_lifetime_threshold,
             ),
         ),
@@ -106,23 +106,23 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             False,
             Privacy.UNDETERMINED,
             Event(
-                event_type=Death,
+                event_type=Death(),
                 date=date_range_end_over_lifetime_threshold,
             ),
         ),
-        (True, Privacy.PRIVATE, Event(event_type=Death)),
-        (False, Privacy.PUBLIC, Event(event_type=Death)),
-        (generation != 0, Privacy.UNDETERMINED, Event(event_type=Death)),
+        (True, Privacy.PRIVATE, Event(event_type=Death())),
+        (False, Privacy.PUBLIC, Event(event_type=Death())),
+        (generation != 0, Privacy.UNDETERMINED, Event(event_type=Death())),
         # Regular events without dates do not affect privacy.
-        (True, Privacy.UNDETERMINED, Event(event_type=Birth)),
-        (True, Privacy.PRIVATE, Event(event_type=Birth)),
-        (False, Privacy.PUBLIC, Event(event_type=Birth)),
+        (True, Privacy.UNDETERMINED, Event(event_type=Birth())),
+        (True, Privacy.PRIVATE, Event(event_type=Birth())),
+        (False, Privacy.PUBLIC, Event(event_type=Birth())),
         # Regular events with incomplete dates do not affect privacy.
         (
             True,
             Privacy.UNDETERMINED,
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=Date(),
             ),
         ),
@@ -130,7 +130,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             True,
             Privacy.PRIVATE,
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=Date(),
             ),
         ),
@@ -138,7 +138,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             False,
             Privacy.PUBLIC,
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=Date(),
             ),
         ),
@@ -147,7 +147,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             True,
             Privacy.UNDETERMINED,
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=date_under_lifetime_threshold,
             ),
         ),
@@ -155,7 +155,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             True,
             Privacy.PRIVATE,
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=date_under_lifetime_threshold,
             ),
         ),
@@ -163,7 +163,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             False,
             Privacy.PUBLIC,
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=date_under_lifetime_threshold,
             ),
         ),
@@ -171,7 +171,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             True,
             Privacy.UNDETERMINED,
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=date_range_start_under_lifetime_threshold,
             ),
         ),
@@ -179,7 +179,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             True,
             Privacy.PRIVATE,
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=date_range_start_under_lifetime_threshold,
             ),
         ),
@@ -187,7 +187,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             False,
             Privacy.PUBLIC,
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=date_range_start_under_lifetime_threshold,
             ),
         ),
@@ -195,7 +195,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             True,
             Privacy.UNDETERMINED,
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=date_range_end_under_lifetime_threshold,
             ),
         ),
@@ -203,7 +203,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             True,
             Privacy.PRIVATE,
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=date_range_end_under_lifetime_threshold,
             ),
         ),
@@ -211,7 +211,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             False,
             Privacy.PUBLIC,
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=date_range_end_under_lifetime_threshold,
             ),
         ),
@@ -220,7 +220,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             False,
             Privacy.UNDETERMINED,
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=date_over_lifetime_threshold,
             ),
         ),
@@ -228,7 +228,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             True,
             Privacy.PRIVATE,
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=date_over_lifetime_threshold,
             ),
         ),
@@ -236,7 +236,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             False,
             Privacy.PUBLIC,
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=date_over_lifetime_threshold,
             ),
         ),
@@ -244,7 +244,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             True,
             Privacy.UNDETERMINED,
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=date_range_start_over_lifetime_threshold,
             ),
         ),
@@ -252,7 +252,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             True,
             Privacy.PRIVATE,
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=date_range_start_over_lifetime_threshold,
             ),
         ),
@@ -260,7 +260,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             False,
             Privacy.PUBLIC,
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=date_range_start_over_lifetime_threshold,
             ),
         ),
@@ -268,7 +268,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             False,
             Privacy.UNDETERMINED,
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=date_range_end_over_lifetime_threshold,
             ),
         ),
@@ -276,7 +276,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             True,
             Privacy.PRIVATE,
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=date_range_end_over_lifetime_threshold,
             ),
         ),
@@ -284,7 +284,7 @@ def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
             False,
             Privacy.PUBLIC,
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=date_range_end_over_lifetime_threshold,
             ),
         ),
@@ -298,8 +298,10 @@ class TestPrivatizer:
         person = Person(public=True)
         person.citations.add(citation)
         FileReference(person, file)
-        presence_as_subject = Presence(person, Subject(), Event(event_type=Birth))
-        presence_as_attendee = Presence(person, Attendee(), Event(event_type=Marriage))
+        presence_as_subject = Presence(person, Subject(), Event(event_type=Birth()))
+        presence_as_attendee = Presence(
+            person, Attendee(), Event(event_type=Marriage())
+        )
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(
             person
         )
@@ -315,8 +317,10 @@ class TestPrivatizer:
         person = Person(private=True)
         person.citations.add(citation)
         FileReference(person, file)
-        presence_as_subject = Presence(person, Subject(), Event(event_type=Birth))
-        presence_as_attendee = Presence(person, Attendee(), Event(event_type=Marriage))
+        presence_as_subject = Presence(person, Subject(), Event(event_type=Birth()))
+        presence_as_attendee = Presence(
+            person, Attendee(), Event(event_type=Marriage())
+        )
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(
             person
         )
@@ -459,7 +463,7 @@ class TestPrivatizer:
         citation = Citation(source=Source())
         event_file = File(path=Path(__file__))
         event = Event(
-            event_type=Birth,
+            event_type=Birth(),
             public=True,
         )
         event.citations.add(citation)
@@ -480,7 +484,7 @@ class TestPrivatizer:
             path=Path(__file__),
         )
         event = Event(
-            event_type=Birth,
+            event_type=Birth(),
             private=True,
         )
         event.citations.add(citation)
