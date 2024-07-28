@@ -7,7 +7,7 @@ from __future__ import annotations
 import re
 from typing import TypeAlias, TypeGuard, Self, Any
 
-from betty.assertion import assert_str
+from betty.assertion import assert_str, AssertionChain
 from betty.error import UserFacingError
 from betty.locale.localizable import _
 
@@ -48,14 +48,17 @@ class InvalidMachineName(UserFacingError, ValueError):
         )
 
 
-def assert_machine_name(alleged_machine_name: Any) -> MachineName:
+def assert_machine_name() -> AssertionChain[Any, MachineName]:
     """
     Assert that a string is a machine name.
     """
-    machine_name = assert_str()(alleged_machine_name)
-    if not validate_machine_name(machine_name):  # type: ignore[redundant-expr]
-        raise InvalidMachineName.new(machine_name)
-    return machine_name
+
+    def _assert(value: Any) -> MachineName:
+        if not validate_machine_name(value):
+            raise InvalidMachineName.new(value)
+        return value
+
+    return assert_str() | _assert
 
 
 _MACHINIFY_DISALLOWED_CHARACTER_PATTERN = re.compile(r"[^a-z0-9\-]")

@@ -50,7 +50,7 @@ class TestAssertMachineName:
         ],
     )
     async def test_with_valid_value(self, alleged_machine_name: str) -> None:
-        assert_machine_name(alleged_machine_name)
+        assert_machine_name()(alleged_machine_name)
 
     @pytest.mark.parametrize(
         "alleged_machine_name",
@@ -65,7 +65,7 @@ class TestAssertMachineName:
     )
     async def test_with_invalid_value(self, alleged_machine_name: str) -> None:
         with pytest.raises(InvalidMachineName):
-            assert_machine_name(alleged_machine_name)
+            assert_machine_name()(alleged_machine_name)
 
 
 class TestInvalidMachineName:
@@ -109,5 +109,5 @@ class TestMachinify:
     async def test(self, expected: str | None, source: str) -> None:
         actual = machinify(source)
         if expected is not None:
-            assert_machine_name(expected)
+            assert_machine_name()(expected)
         assert actual == expected

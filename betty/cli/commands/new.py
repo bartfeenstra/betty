@@ -110,7 +110,7 @@ async def new(app: App) -> None:  # noqa D103
                 await app.localizers.get(configuration.locales.default.locale)
             )
         ),
-        value_proc=assertion_to_value_proc(assert_machine_name, app.localizer),
+        value_proc=assertion_to_value_proc(assert_machine_name(), app.localizer),
     )
 
     configuration.author = _prompt_static_translations(
