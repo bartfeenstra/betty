@@ -14,7 +14,7 @@ from betty.model.event_type import (
     EventType,
 )
 from betty.project import DEFAULT_LIFETIME_THRESHOLD
-from betty.tests.extension.deriver.test___init__ import DummyEventType
+from betty.test_utils.model.event_type import DummyEventType
 
 
 class Ignored(DummyEventType):

@@ -1,11 +1,8 @@
 from __future__ import annotations
 
-from typing_extensions import override
-
 from betty.extension.deriver import Deriver
 from betty.load import load
 from betty.locale.date import DateRange, Date
-from betty.locale.localizable import Localizable, static
 from betty.model import record_added
 from betty.model.ancestry import Person, Presence, Event
 from betty.model.presence_role import Subject
@@ -20,21 +17,10 @@ from betty.model.event_type import (
 from betty.project import ExtensionConfiguration, Project
 from typing import TYPE_CHECKING
 
+from betty.test_utils.model.event_type import DummyEventType
+
 if TYPE_CHECKING:
-    from betty.machine_name import MachineName
     from betty.app import App
-
-
-class DummyEventType(EventType):
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return cls.__name__
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return static("")
 
 
 class Ignored(DummyEventType):
