@@ -1,11 +1,12 @@
 from asyncio import to_thread
 from unittest.mock import ANY
 
+from pytest_mock import MockerFixture
+
 from betty.app import App
 from betty.config import write_configuration_file
 from betty.project import Project
-from betty.tests.cli.test___init__ import run
-from pytest_mock import MockerFixture
+from betty.test_utils.cli import run
 
 
 class TestNewTranslation:

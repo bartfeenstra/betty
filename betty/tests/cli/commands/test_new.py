@@ -8,7 +8,7 @@ from betty.extension.gramps import Gramps
 from betty.extension.gramps.config import GrampsConfiguration
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import ProjectConfiguration
-from betty.tests.cli.test___init__ import run
+from betty.test_utils.cli import run
 
 
 class TestNew:

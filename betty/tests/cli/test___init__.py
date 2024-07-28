@@ -3,20 +3,21 @@ import logging
 from asyncio import to_thread
 from collections.abc import AsyncIterator
 from logging import CRITICAL, ERROR, WARNING, INFO, DEBUG, FATAL, WARN, NOTSET
-from typing import Any, IO
+from typing import Any
 
 import pytest
 from betty.app import App
-from betty.cli import main, _ClickHandler
+from betty.cli import _ClickHandler
 from betty.cli.commands import command, Command
 from betty.config import write_configuration_file
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.serve import Server, ProjectServer
-from click.testing import CliRunner, Result
 from pytest_mock import MockerFixture
 from typing_extensions import override
+
+from betty.test_utils.cli import run
 
 
 @command(name="no-op")
@@ -26,26 +27,6 @@ async def _no_op_command() -> None:
 
 class _NoOpCommand(Command):
     _click_command = _no_op_command
-
-
-def run(
-    *args: str,
-    expected_exit_code: int = 0,
-    input: str | bytes | IO[Any] | None = None,  # noqa A002
-) -> Result:
-    runner = CliRunner(mix_stderr=False)
-    result = runner.invoke(main, args, catch_exceptions=False, input=input)
-    if result.exit_code != expected_exit_code:
-        raise AssertionError(
-            f"""
-The Betty command `{" ".join(args)}` unexpectedly exited with code {result.exit_code}, but {expected_exit_code} was expected.
-Stdout:
-{result.stdout}
-Stderr:
-{result.stderr}
-"""
-        )
-    return result
 
 
 @pytest.fixture()
@@ -71,17 +52,6 @@ class TestVersion:
     async def test(self, new_temporary_app: App) -> None:
         result = run("--version")
         assert "Betty" in result.stdout
-
-
-class TestClearCaches:
-    async def test(self, new_temporary_app: App) -> None:
-        async with new_temporary_app:
-            await new_temporary_app.cache.set("KeepMeAroundPlease", "")
-        await to_thread(run, "clear-caches")
-        async with new_temporary_app, new_temporary_app.cache.get(
-            "KeepMeAroundPlease"
-        ) as cache_item:
-            assert cache_item is None
 
 
 class NoOpServer(Server):
