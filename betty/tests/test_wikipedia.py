@@ -715,7 +715,7 @@ class TestPopulator:
         new_temporary_app: App,
     ) -> None:
         m_retriever = mocker.patch("betty.wikipedia._Retriever")
-        link = Link("http://%s.wikipedia.org/wiki/Amsterdam" % page_language)
+        link = Link(f"http://{page_language}.wikipedia.org/wiki/Amsterdam")
         link.locale = locale
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = _Populator(project, m_retriever)

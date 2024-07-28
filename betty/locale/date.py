@@ -51,13 +51,7 @@ class Date(LinkedDataDumpable):
 
     @override
     def __repr__(self) -> str:
-        return "<%s.%s(%s, %s, %s)>" % (
-            self.__class__.__module__,
-            self.__class__.__name__,
-            self.year,
-            self.month,
-            self.day,
-        )
+        return f"<{self.__class__.__module__}.{self.__class__.__name__}({self.year}, {self.month}, {self.day})>"
 
     @property
     def comparable(self) -> bool:
@@ -86,7 +80,7 @@ class Date(LinkedDataDumpable):
         """
         if not self.comparable:
             raise ValueError(
-                "Cannot convert non-comparable date %s to a date range." % self
+                f"Cannot convert non-comparable date {self} to a date range."
             )
         if self.month is None:
             month_start = 1
@@ -124,9 +118,7 @@ class Date(LinkedDataDumpable):
             return self == other
         if isinstance(other, DateRange):
             return self in other
-        raise TypeError(
-            "Expected to check a %s, but a %s was given" % (type(Datey), type(other))
-        )
+        raise TypeError(f"Expected to check a {Datey}, but a {type(other)} was given")
 
     def __lt__(self, other: Any) -> bool:
         return self._compare(other, operator.lt)
@@ -244,14 +236,7 @@ class DateRange(LinkedDataDumpable):
 
     @override
     def __repr__(self) -> str:
-        return "%s.%s(%s, %s, start_is_boundary=%s, end_is_boundary=%s)" % (
-            self.__class__.__module__,
-            self.__class__.__name__,
-            repr(self.start),
-            repr(self.end),
-            repr(self.start_is_boundary),
-            repr(self.end_is_boundary),
-        )
+        return f"{self.__class__.__module__}.{self.__class__.__name__}({repr(self.start)}, {repr(self.end)}, start_is_boundary={repr(self.start_is_boundary)}, end_is_boundary={repr(self.end_is_boundary)})"
 
     @property
     def comparable(self) -> bool:
@@ -281,8 +266,7 @@ class DateRange(LinkedDataDumpable):
                 others.append(other.end)
         else:
             raise TypeError(
-                "Expected to check a %s, but a %s was given"
-                % (type(Datey), type(other))
+                f"Expected to check a {Datey}, but a {type(other)} was given"
             )
 
         if self.start is not None and self.end is not None:

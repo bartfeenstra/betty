@@ -37,11 +37,7 @@ class TestPackageLicenses:
             if compatible_license in package_license["License"]:
                 return
         raise AssertionError(
-            "%s is released under the %s, which is not known to be compatible with Betty's own license"
-            % (
-                package_license["Name"],
-                package_license["License"],
-            )
+            f"{package_license['Name']} is released under the {package_license['License']}, which is not known to be compatible with Betty's own license"
         )
 
     async def test_runtime_dependency_license_compatibility(self) -> None:

@@ -1035,7 +1035,7 @@ class TestProjectConfiguration:
     ) -> None:
         dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
         dump["extensions"] = {
-            "%s.%s" % (self.__class__.__module__, self.__class__.__name__): {},
+            f"{self.__class__.__module__}.{self.__class__.__name__}": {}
         }
         sut = ProjectConfiguration(tmp_path / "betty.json")
         with raises_error(error_type=AssertionFailed):

@@ -540,7 +540,7 @@ class GrampsLoader:
                     affiliation_name = surname_element.text
                     surname_prefix = surname_element.get("prefix")
                     if surname_prefix is not None:
-                        affiliation_name = "%s %s" % (surname_prefix, affiliation_name)
+                        affiliation_name = f"{surname_prefix} {affiliation_name}"
                     person_name = PersonName(
                         individual=individual_name,
                         affiliation=affiliation_name,
