@@ -1,16 +1,16 @@
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any, TYPE_CHECKING
 
+from betty.assertion.error import AssertionFailed
 from betty.extension.gramps.config import (
     FamilyTreeConfiguration,
     GrampsConfiguration,
     FamilyTreeConfigurationSequence,
 )
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
-from betty.typing import Void
-from betty.assertion.error import AssertionFailed
 from betty.tests.assertion import raises_error
+from betty.typing import Void
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump
@@ -38,19 +38,6 @@ class TestFamilyTreeConfigurationSequence(
             FamilyTreeConfiguration(Path() / "gramps-3"),
             FamilyTreeConfiguration(Path() / "gramps-4"),
         )
-
-    async def test_load_item(self) -> None:
-        configurations = self.get_configurations()
-        sut = self.get_sut(configurations)
-        dumps = [configuration.dump() for configuration in configurations]
-        non_void_dumps: Sequence[Dump] = [
-            dump  # type: ignore[misc]
-            for dump in dumps
-            if dump is not Void
-        ]
-        assert non_void_dumps, "At least one configuration object must return a configuration dump that is not Void"
-        for dump in non_void_dumps:
-            sut.load_item(dump)
 
 
 class TestFamilyTreeConfiguration:

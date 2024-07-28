@@ -41,8 +41,8 @@ from betty.project.extension import (
 from betty.project.factory import ProjectDependentFactory
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
-from betty.tests.assertion import raises_error
 from betty.test_utils.model import DummyEntity
+from betty.tests.assertion import raises_error
 from betty.tests.project.extension.test___init__ import DummyExtension
 from betty.typing import Void
 
@@ -51,7 +51,6 @@ if TYPE_CHECKING:
     from betty.machine_name import MachineName
     from pathlib import Path
     from betty.app import App
-    from collections.abc import Sequence
     from betty.serde.dump import Dump, VoidableDump
 
 
@@ -246,19 +245,6 @@ class TestEntityReferenceSequence(
             ),
         )
 
-    async def test_load_item(self) -> None:
-        configurations = self.get_configurations()
-        sut = self.get_sut(configurations)
-        dumps = [configuration.dump() for configuration in configurations]
-        non_void_dumps: Sequence[Dump] = [
-            dump  # type: ignore[misc]
-            for dump in dumps
-            if dump is not Void
-        ]
-        assert non_void_dumps, "At least one configuration object must return a configuration dump that is not Void"
-        for dump in non_void_dumps:
-            sut.load_item(dump)
-
 
 class TestLocaleConfiguration:
     async def test_locale(self) -> None:
@@ -369,19 +355,6 @@ class TestLocaleConfigurationSequence(
             LocaleConfiguration("uk"),
             LocaleConfiguration("fr"),
         )
-
-    async def test_load_item(self) -> None:
-        configurations = self.get_configurations()
-        sut = self.get_sut(configurations)
-        dumps = [configuration.dump() for configuration in configurations]
-        non_void_dumps: Sequence[Dump] = [
-            dump  # type: ignore[misc]
-            for dump in dumps
-            if dump is not Void
-        ]
-        assert non_void_dumps, "At least one configuration object must return a configuration dump that is not Void"
-        for dump in non_void_dumps:
-            sut.load_item(dump)
 
     async def test_update(self) -> None:
         sut = LocaleConfigurationSequence()
@@ -663,19 +636,6 @@ class TestExtensionConfigurationMapping(
             new=StaticPluginRepository(*self.get_configuration_keys()),
         )
 
-    async def test_load_item(self) -> None:
-        configurations = self.get_configurations()
-        sut = self.get_sut(configurations)
-        dumps = [configuration.dump() for configuration in configurations]
-        non_void_dumps: Sequence[Dump] = [
-            dump  # type: ignore[misc]
-            for dump in dumps
-            if dump is not Void
-        ]
-        assert non_void_dumps, "At least one configuration object must return a configuration dump that is not Void"
-        for dump in non_void_dumps:
-            sut.load_item(dump)
-
 
 class EntityTypeConfigurationTestEntityOne(UserFacingEntity, DummyEntity):
     pass
@@ -867,19 +827,6 @@ class TestEntityTypeConfigurationMapping(
             EntityTypeConfiguration(self.get_configuration_keys()[2]),
             EntityTypeConfiguration(self.get_configuration_keys()[3]),
         )
-
-    async def test_load_item(self) -> None:
-        configurations = self.get_configurations()
-        sut = self.get_sut(configurations)
-        dumps = [configuration.dump() for configuration in configurations]
-        non_void_dumps: Sequence[Dump] = [
-            dump  # type: ignore[misc]
-            for dump in dumps
-            if dump is not Void
-        ]
-        assert non_void_dumps, "At least one configuration object must return a configuration dump that is not Void"
-        for dump in non_void_dumps:
-            sut.load_item(dump)
 
 
 class TestProjectConfiguration:
