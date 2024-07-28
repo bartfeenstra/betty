@@ -1,7 +1,7 @@
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizable import static
 from betty.assertion.error import AssertionFailed, AssertionFailedGroup
-from betty.tests.assertion import assert_error
+from betty.test_utils.assertion.error import assert_error
 
 
 class TestAssertionFailed:

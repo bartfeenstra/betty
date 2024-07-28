@@ -36,7 +36,7 @@ from betty.assertion import (
 from betty.assertion.error import AssertionFailed
 from betty.locale.localizable import static
 from betty.typing import Void
-from betty.tests.assertion import raises_error
+from betty.test_utils.assertion.error import raises_error
 
 _T = TypeVar("_T")
 

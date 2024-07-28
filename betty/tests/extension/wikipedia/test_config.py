@@ -5,7 +5,7 @@ import pytest
 
 from betty.extension.wikipedia.config import WikipediaConfiguration
 from betty.assertion.error import AssertionFailed
-from betty.tests.assertion import raises_error
+from betty.test_utils.assertion.error import raises_error
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump

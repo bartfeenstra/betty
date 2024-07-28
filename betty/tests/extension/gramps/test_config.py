@@ -9,7 +9,7 @@ from betty.extension.gramps.config import (
     FamilyTreeConfigurationSequence,
 )
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
-from betty.tests.assertion import raises_error
+from betty.test_utils.assertion.error import raises_error
 from betty.typing import Void
 
 if TYPE_CHECKING:
