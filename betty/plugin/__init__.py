@@ -4,7 +4,7 @@ The Plugin API.
 Plugins allow third-party code (e.g. your own Python package) to add functionality
 to Betty.
 
-Read more at :doc:`/usage/plugin`.
+Read more at :doc:`/development/plugin`.
 """
 
 from __future__ import annotations

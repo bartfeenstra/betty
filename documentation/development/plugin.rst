@@ -17,14 +17,17 @@ Plugins must extend :py:class:`betty.plugin.Plugin`:
 
   .. code-block:: python
 
+      from typing import override
       from betty.locale.localizable import _
       from betty.plugin import Plugin
 
       class MyPlugin(Plugin):
+          @override
           @classmethod
           def plugin_id(cls) -> PluginId:
               return "my-plugin"
 
+          @override
           @classmethod
           def plugin_label(cls) -> Localizable:
               return _("My Plugin")
@@ -35,10 +38,10 @@ Plugin types
 Plugin types are discovered and made available through :py:class:`betty.plugin.PluginRepository` implementations.
 Other than that, there are no guidelines or limitations for what plugins can do, or be used for.
 
-Using an existing plugin type
------------------------------
-The plugin type's documentation tells you where to find the plugin repository, and how to
-use the plugins.
+Working with an existing plugin type
+------------------------------------
+The plugin type's documentation tells you where to find the plugin repository, how to
+use the plugins, and how to create your own.
 
 Built-in plugin types
 ^^^^^^^^^^^^^^^^^^^^^
@@ -50,13 +53,8 @@ The following plugin types are provided by Betty itself:
 - :doc:`Extensions <plugin/extension>`
 - :doc:`Presence roles <plugin/presence-role>`
 
-Creating a plugin for an existing plugin type
----------------------------------------------
-The plugin type's documentation tells you **which base class your plugin must extend** and **how to expose your plugin**
-so it can be discovered.
-
-Creating a plugin type
-----------------------
+Creating a new plugin type
+--------------------------
 If you are developing an API that needs a new plugin type, and you want other developers to be
 able to define them as entry points, you **must** create a plugin repository, and you **should** create an abstract
 plugin class that extends :py:class:`betty.plugin.Plugin`.
