@@ -4,16 +4,26 @@ from pathlib import Path
 from typing import Any, Iterable, TYPE_CHECKING
 
 import pytest
+
 from betty.fs import ASSETS_DIRECTORY_PATH
 from betty.locale.date import Datey, Date, DateRange
-
 from betty.media_type import MediaType
-from betty.model.ancestry import File, FileReference, Dated, PlaceName
+from betty.model.ancestry import (
+    File,
+    FileReference,
+    Dated,
+    PlaceName,
+    HasFileReferences,
+)
 from betty.test_utils.assets.templates import TemplateTestBase
-from betty.tests.jinja2.test___init__ import DummyHasFileReferencesEntity
+from betty.test_utils.model import DummyEntity
 
 if TYPE_CHECKING:
     from betty.locale.localized import Localized
+
+
+class DummyHasFileReferencesEntity(HasFileReferences, DummyEntity):
+    pass
 
 
 class TestFilterFile(TemplateTestBase):
