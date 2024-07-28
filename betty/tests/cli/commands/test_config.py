@@ -4,7 +4,7 @@ from pathlib import Path
 from betty.app import App
 from betty.app.config import AppConfiguration
 from betty.config import assert_configuration_file
-from betty.tests.cli.test___init__ import run
+from betty.test_utils.cli import run
 from pytest_mock import MockerFixture
 
 

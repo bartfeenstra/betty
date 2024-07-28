@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 import click
 
-from betty.app.config import CONFIGURATION_FILE_PATH
+from betty.app import config as app_config
 from betty.cli.commands import command, pass_app
 from betty.config import write_configuration_file
 from betty.locale import DEFAULT_LOCALE, get_display_name
@@ -34,4 +34,6 @@ async def config(app: App, *, locale: str) -> None:  # noqa D103
         )
     )
 
-    await write_configuration_file(app.configuration, CONFIGURATION_FILE_PATH)
+    await write_configuration_file(
+        app.configuration, app_config.CONFIGURATION_FILE_PATH
+    )

@@ -2,7 +2,7 @@ from asyncio import to_thread
 
 from pytest_mock import MockerFixture
 
-from betty.tests.cli.test___init__ import run
+from betty.test_utils.cli import run
 
 
 class TestDevNewTranslation:

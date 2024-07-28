@@ -2,7 +2,8 @@ from asyncio import to_thread
 
 from pytest_mock import MockerFixture
 
-from betty.tests.cli.test___init__ import run, NoOpServer
+from betty.tests.cli.test___init__ import NoOpServer
+from betty.test_utils.cli import run
 
 
 class TestDemo:

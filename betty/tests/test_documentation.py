@@ -16,7 +16,7 @@ from betty.functools import Do
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import ProjectConfiguration
 from betty.serde.format import Format, Json, Yaml
-from betty.tests.cli.test___init__ import run
+from betty.test_utils.cli import run
 from pytest_mock import MockerFixture
 from requests import Response
 
