@@ -1,5 +1,5 @@
 """
-Test utilities for :py:module:`betty.project.extension`.
+Test utilities for :py:mod:`betty.project.extension`.
 """
 
 from betty.app import App

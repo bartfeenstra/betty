@@ -1,5 +1,5 @@
 """
-Test utilities for :py:module:`betty.cli`.
+Test utilities for :py:mod:`betty.cli`.
 """
 
 from typing import IO, Any

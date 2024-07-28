@@ -1,5 +1,5 @@
 """
-Test utilities for :py:module:`betty.cache`.
+Test utilities for :py:mod:`betty.cache`.
 """
 
 from asyncio import sleep, create_task

@@ -1,5 +1,5 @@
 """
-Test utilities for :py:module:`betty.model.event_type`.
+Test utilities for :py:mod:`betty.model.event_type`.
 """
 
 from __future__ import annotations

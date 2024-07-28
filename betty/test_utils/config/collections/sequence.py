@@ -1,5 +1,5 @@
 """
-Test utilities for :py:module:`betty.config.collections.sequence`.
+Test utilities for :py:mod:`betty.config.collections.sequence`.
 """
 
 from __future__ import annotations
