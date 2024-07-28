@@ -7,7 +7,6 @@ from __future__ import annotations
 from asyncio import to_thread
 from json import dumps, loads
 from logging import getLogger
-from os import walk
 from pathlib import Path
 from shutil import copy2
 from typing import TYPE_CHECKING
@@ -19,6 +18,7 @@ from betty import _npm
 from betty.asyncio import gather
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.hashid import hashid, hashid_sequence, hashid_file_content
+from betty.os import copy_tree
 
 if TYPE_CHECKING:
     from betty.project.extension import Extension
@@ -107,32 +107,6 @@ class Builder:
         self._job_context = job_context
         self._localizer = localizer
 
-    async def _copy2_and_render(
-        self, source_path: Path, destination_path: Path
-    ) -> None:
-        await makedirs(destination_path.parent, exist_ok=True)
-        await to_thread(copy2, source_path, destination_path)
-        await self._renderer.render_file(
-            source_path,
-            job_context=self._job_context,
-            localizer=self._localizer,
-        )
-
-    async def _copytree_and_render(
-        self, source_path: Path, destination_path: Path
-    ) -> None:
-        await gather(
-            *[
-                self._copy2_and_render(
-                    Path(directory_path) / file_name,
-                    destination_path
-                    / (Path(directory_path) / file_name).relative_to(source_path),
-                )
-                for directory_path, _, file_names in walk(str(source_path))
-                for file_name in file_names
-            ]
-        )
-
     async def _prepare_webpack_extension(
         self, npm_project_directory_path: Path
     ) -> None:
@@ -164,9 +138,14 @@ class Builder:
             / "entry_points"
             / entry_point_provider.plugin_id()
         )
-        await self._copytree_and_render(
+        await copy_tree(
             entry_point_provider.webpack_entry_point_directory_path(),
             entry_point_provider_working_directory_path,
+            file_callback=lambda destination_file_path: self._renderer.render_file(
+                destination_file_path,
+                job_context=self._job_context,
+                localizer=self._localizer,
+            ),
         )
         npm_project_package_json_dependencies[entry_point_provider.plugin_id()] = (
             # Ensure a relative path inside the npm project directory, or else npm

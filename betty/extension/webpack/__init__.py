@@ -7,9 +7,7 @@ This module is internal.
 from __future__ import annotations
 
 from abc import abstractmethod, ABC
-from asyncio import to_thread
 from pathlib import Path
-from shutil import copytree
 from typing import TYPE_CHECKING, final
 
 from aiofiles.tempfile import TemporaryDirectory
@@ -26,6 +24,7 @@ from betty.html import CssProvider
 from betty.jinja2 import Jinja2Provider, Filters, ContextVars
 from betty.job import Context
 from betty.locale.localizable import _, Localizable, static
+from betty.os import copy_tree
 from betty.project import Project, extension
 from betty.project.extension import Extension
 from betty.requirement import (
@@ -235,12 +234,7 @@ class Webpack(Extension, CssProvider, Jinja2Provider):
         build_directory_path: Path,
         destination_directory_path: Path,
     ) -> None:
-        await to_thread(
-            copytree,
-            build_directory_path,
-            destination_directory_path,
-            dirs_exist_ok=True,
-        )
+        await copy_tree(build_directory_path, destination_directory_path)
 
     async def _generate_ensure_build_directory(
         self,

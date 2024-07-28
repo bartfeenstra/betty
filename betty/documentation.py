@@ -2,8 +2,6 @@
 Provide the Documentation API.
 """
 
-import asyncio
-import shutil
 from contextlib import AsyncExitStack
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -15,6 +13,7 @@ from typing_extensions import override
 from betty import serve, fs
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.locale.localizer import Localizer
+from betty.os import copy_tree
 from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
 from betty.subprocess import run_process
 
@@ -40,11 +39,7 @@ async def _build(output_directory_path: Path) -> None:
         # to 'pollute' that with generated files that must not be committed, do our work in a
         # temporary directory and copy the documentation source files there.
         source_directory_path = working_directory_path / "source"
-        await asyncio.to_thread(
-            shutil.copytree,
-            ROOT_DIRECTORY_PATH / "documentation",
-            source_directory_path,
-        )
+        await copy_tree(ROOT_DIRECTORY_PATH / "documentation", source_directory_path)
         await run_process(
             [
                 "sphinx-apidoc",
