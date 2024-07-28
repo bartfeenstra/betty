@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-27 16:08+0100\n"
+"POT-Creation-Date: 2024-07-28 13:06+0100\n"
 "PO-Revision-Date: 2024-02-08 13:08+0000\n"
 "Last-Translator: Rainer Thieringer <rainerthi@gmail.com>\n"
 "Language: uk\n"
@@ -777,11 +777,10 @@ msgstr ""
 #, python-format
 msgid ""
 "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
-"to exit the search. Search again with <kbd>%(shortcut)s</kbd>."
+"to exit the search."
 msgstr ""
 "Використовуйте <kbd>↑</kbd> і <kbd>↓</kbd> для переміщення по результатах"
-" або <kbd>esc</kbd> для виходу з пошуку. Шукайте знову за допомогою "
-"<kbd>%(shortcut)s</kbd>."
+" або <kbd>esc</kbd> для виходу з пошуку."
 
 msgid "What is the path to your exported Gramps family tree file?"
 msgstr ""
@@ -887,10 +886,6 @@ msgstr ""
 
 msgid "private"
 msgstr "приватні"
-
-msgctxt "enter-search-shortcut"
-msgid "s"
-msgstr "ш"
 
 #, python-format
 msgid "show %(name_count)s more"

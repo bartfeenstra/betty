@@ -13,7 +13,6 @@
     <nav id="nav-primary">
         <a id="site-title" href="{{ '/index.html' | url }}" title="{{ project.configuration.title | localize }}">{{ project.configuration.title | localize }}</a>
         <div id="search"
-             data-betty-search-configuration="{{ '/search-configuration.json' | static_url }}"
              data-betty-search-index="{{ '/search-index.json' | url }}">
             <div class="overlay-controls">
                 <span class="overlay-control overlay-close" title="{% trans %}Exit the search{% endtrans %}">{% trans %}Exit the search{% endtrans %}</span>
@@ -35,8 +34,8 @@
             <section id="search-expanded">
                 <h2 class="visually-hidden">Search</h2>
                 <p id="search-instructions">
-                    {% trans shortcut = pgettext('enter-search-shortcut', 's') -%}
-                        Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> to exit the search. Search again with <kbd>{{ shortcut }}</kbd>.
+                    {% trans -%}
+                        Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> to exit the search.
                     {%- endtrans %}
                 </p>
                 <div id="search-results-twilight">
