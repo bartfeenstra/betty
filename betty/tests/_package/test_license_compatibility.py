@@ -21,6 +21,7 @@ class TestPackageLicenses:
         "BSD-3-Clause",
         "GPL v3",
         "GNU General Public License v3 (GPLv3)",
+        "GNU General Public License v3 or later (GPLv3+)",
         "GNU Library or Lesser General Public License (LGPL)",
         "GNU Lesser General Public License v2 or later (LGPLv2+)",
         "Historical Permission Notice and Disclaimer (HPND)",
@@ -45,7 +46,7 @@ class TestPackageLicenses:
 
     async def test_runtime_dependency_license_compatibility(self) -> None:
         """
-        Assert that all runtime dependencies have licenses compatible with the GPLv3, so we can legally bundle them.
+        Assert that all runtime dependencies have licenses compatible with the GNU General Public License, Version 3 or later, so we can legally bundle them.
         """
         seen_distribution_names: set[str] = set()
 
