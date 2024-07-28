@@ -2,6 +2,7 @@ from pathlib import Path
 
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
+from typing_extensions import override
 
 from betty.app import App
 from betty.extension.gramps import Gramps
@@ -9,9 +10,14 @@ from betty.extension.gramps.config import FamilyTreeConfiguration, GrampsConfigu
 from betty.load import load
 from betty.model.ancestry import Citation, Note, Source, File, Event, Person, Place
 from betty.project import ExtensionConfiguration, Project
+from betty.test_utils.project.extension import ExtensionTestBase
 
 
-class TestGramps:
+class TestGramps(ExtensionTestBase):
+    @override
+    def get_sut_class(self) -> type[Gramps]:
+        return Gramps
+
     async def test_load_multiple_family_trees(self, new_temporary_app: App) -> None:
         family_tree_one_xml = """
 <?xml version="1.0" encoding="UTF-8"?>

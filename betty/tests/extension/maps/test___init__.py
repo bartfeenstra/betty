@@ -1,12 +1,19 @@
+from typing_extensions import override
+
 import aiofiles
 
 from betty.app import App
 from betty.extension.maps import Maps
 from betty.generate import generate
 from betty.project import ExtensionConfiguration, Project
+from betty.test_utils.project.extension import ExtensionTestBase
 
 
-class TestMaps:
+class TestMaps(ExtensionTestBase):
+    @override
+    def get_sut_class(self) -> type[Maps]:
+        return Maps
+
     async def test_generate(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.debug = True

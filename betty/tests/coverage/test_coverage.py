@@ -786,6 +786,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "betty/test_utils/model/__init__.py": TestKnownToBeMissing,
         "betty/test_utils/model/event_type.py": TestKnownToBeMissing,
         "betty/test_utils/plugin/__init__.py": TestKnownToBeMissing,
+        "betty/test_utils/project/extension/__init__.py": TestKnownToBeMissing,
     },
     "betty/typing.py": {
         "Void": TestKnownToBeMissing,

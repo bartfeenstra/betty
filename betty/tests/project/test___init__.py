@@ -43,7 +43,7 @@ from betty.test_utils.config.collections.mapping import ConfigurationMappingTest
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.test_utils.model import DummyEntity
 from betty.tests.assertion import raises_error
-from betty.tests.project.extension.test___init__ import DummyExtension
+from betty.test_utils.project.extension import DummyExtension
 from betty.typing import Void
 
 if TYPE_CHECKING:

@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+from typing_extensions import override
 
 from betty.extension.privatizer import Privatizer
 from betty.load import load
@@ -13,16 +16,20 @@ from betty.model.ancestry import (
     Citation,
     FileReference,
 )
-from betty.model.presence_role import Subject
 from betty.model.event_type import Birth
+from betty.model.presence_role import Subject
 from betty.project import ExtensionConfiguration, Project
-from typing import TYPE_CHECKING
+from betty.test_utils.project.extension import ExtensionTestBase
 
 if TYPE_CHECKING:
     from betty.app import App
 
 
-class TestPrivatizer:
+class TestPrivatizer(ExtensionTestBase):
+    @override
+    def get_sut_class(self) -> type[Privatizer]:
+        return Privatizer
+
     async def test_post_load(self, new_temporary_app: App) -> None:
         person = Person(id="P0")
         Presence(person, Subject(), Event(event_type=Birth()))
