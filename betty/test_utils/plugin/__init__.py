@@ -30,7 +30,7 @@ class PluginTestBase(Generic[_PluginT]):
         """
         Tests :py:meth:`betty.plugin.Plugin.plugin_id` implementations.
         """
-        assert_machine_name(self.get_sut_class().plugin_id())
+        assert_machine_name()(self.get_sut_class().plugin_id())
 
     async def test_plugin_label(self) -> None:
         """
