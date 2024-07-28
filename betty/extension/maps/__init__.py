@@ -34,11 +34,6 @@ class Maps(Extension, WebpackEntryPointProvider):
 
     @override
     @classmethod
-    def assets_directory_path(cls) -> Path:
-        return Path(__file__).parent / "assets"
-
-    @override
-    @classmethod
     def webpack_entry_point_directory_path(cls) -> Path:
         return Path(__file__).parent / "webpack"
 

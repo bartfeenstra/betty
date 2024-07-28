@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import requests
 from requests import Response
+from typing_extensions import override
 
 from betty.extension.demo import Demo
 from betty.extension.demo import DemoServer, demo_project
@@ -10,14 +13,18 @@ from betty.functools import Do
 from betty.load import load
 from betty.model.ancestry import Person, Place, Event, Source, Citation
 from betty.project import ExtensionConfiguration, Project
-from typing import TYPE_CHECKING
+from betty.test_utils.project.extension import ExtensionTestBase
 
 if TYPE_CHECKING:
     from betty.app import App
     from pytest_mock import MockerFixture
 
 
-class TestDemo:
+class TestDemo(ExtensionTestBase):
+    @override
+    def get_sut_class(self) -> type[Demo]:
+        return Demo
+
     async def test_load(self, mocker: MockerFixture, new_temporary_app: App) -> None:
         mocker.patch("betty.wikipedia._Populator.populate")
         async with Project.new_temporary(new_temporary_app) as project:

@@ -4,6 +4,7 @@ import aiofiles
 import pytest
 from aiofiles.os import makedirs
 from pytest_mock import MockerFixture
+from typing_extensions import override
 
 from betty import fs
 from betty._npm import NpmUnavailable
@@ -14,6 +15,7 @@ from betty.generate import generate
 from betty.job import Context
 from betty.project import Project, ProjectConfiguration
 from betty.requirement import RequirementError
+from betty.test_utils.project.extension import ExtensionTestBase
 
 
 class TestPrebuiltAssetsRequirement:
@@ -37,8 +39,12 @@ class TestPrebuiltAssetsRequirement:
             fs.PREBUILT_ASSETS_DIRECTORY_PATH = original_prebuilt_assets_directory_path
 
 
-class TestWebpack:
+class TestWebpack(ExtensionTestBase):
     _SENTINEL = "s3nt1n3l"
+
+    @override
+    def get_sut_class(self) -> type[Webpack]:
+        return Webpack
 
     async def test_generate_with_npm(
         self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path

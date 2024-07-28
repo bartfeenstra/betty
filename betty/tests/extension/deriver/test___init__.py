@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+from typing_extensions import override
+
 from betty.extension.deriver import Deriver
 from betty.load import load
 from betty.locale.date import DateRange, Date
 from betty.model import record_added
 from betty.model.ancestry import Person, Presence, Event
-from betty.model.presence_role import Subject
 from betty.model.event_type import (
     DerivableEventType,
     CreatableDerivableEventType,
@@ -14,10 +17,10 @@ from betty.model.event_type import (
     StartOfLifeEventType,
     EndOfLifeEventType,
 )
+from betty.model.presence_role import Subject
 from betty.project import ExtensionConfiguration, Project
-from typing import TYPE_CHECKING
-
 from betty.test_utils.model.event_type import DummyEventType
+from betty.test_utils.project.extension import ExtensionTestBase
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -71,7 +74,11 @@ class ComesBeforeAndAfterCreatableDerivable(
     pass
 
 
-class TestDeriver:
+class TestDeriver(ExtensionTestBase):
+    @override
+    def get_sut_class(self) -> type[Deriver]:
+        return Deriver
+
     async def test_post_load(self, new_temporary_app: App) -> None:
         person = Person(id="P0")
         event = Event(

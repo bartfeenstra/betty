@@ -10,7 +10,7 @@ from betty.job import Context
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
-from betty.tests.project.extension.test___init__ import DummyExtension
+from betty.test_utils.project.extension import DummyExtension
 from pytest_mock import MockerFixture
 
 

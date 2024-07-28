@@ -1,20 +1,27 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+from typing_extensions import override
 
 from betty.extension.wikipedia import Wikipedia
 from betty.job import Context
 from betty.load import load
 from betty.model.ancestry import Link
 from betty.project import ExtensionConfiguration, Project
+from betty.test_utils.project.extension import ExtensionTestBase
 from betty.wikipedia import Summary
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from betty.app import App
     from pytest_mock import MockerFixture
 
 
-class TestWikipedia:
+class TestWikipedia(ExtensionTestBase):
+    @override
+    def get_sut_class(self) -> type[Wikipedia]:
+        return Wikipedia
+
     async def test_filter(self, mocker: MockerFixture, new_temporary_app: App) -> None:
         language = "en"
         name = "Amsterdam"

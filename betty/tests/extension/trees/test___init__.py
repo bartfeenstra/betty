@@ -1,12 +1,18 @@
 import aiofiles
+from typing_extensions import override
 
 from betty.app import App
 from betty.extension.trees import Trees
 from betty.generate import generate
 from betty.project import ExtensionConfiguration, Project
+from betty.test_utils.project.extension import ExtensionTestBase
 
 
-class TestTrees:
+class TestTrees(ExtensionTestBase):
+    @override
+    def get_sut_class(self) -> type[Trees]:
+        return Trees
+
     async def test_generate(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.debug = True
