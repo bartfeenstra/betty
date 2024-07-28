@@ -93,7 +93,7 @@ class DockerizedNginxServer(Server):
     @property
     def public_url(self) -> str:
         if self._container is not None:
-            return "http://%s" % self._container.ip
+            return f"http://{self._container.ip}"
         raise NoPublicUrlBecauseServerNotStartedError()
 
     @classmethod

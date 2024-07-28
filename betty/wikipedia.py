@@ -103,7 +103,7 @@ class Summary(Localized):
         """
         The URL to the web page.
         """
-        return "https://%s.wikipedia.org/wiki/%s" % (self.locale, self._name)
+        return f"https://{self.locale}.wikipedia.org/wiki/{self._name}"
 
     @property
     def title(self) -> str:

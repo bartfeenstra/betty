@@ -15,7 +15,7 @@ class TestNegotiateLocalizeds:
             return self.locale == other.locale
 
         def __repr__(self) -> str:
-            return "%s(%s)" % (self.__class__.__name__, self.locale)
+            return f"{self.__class__.__name__}({self.locale})"
 
     @pytest.mark.parametrize(
         ("expected", "preferred_locale", "localizeds"),

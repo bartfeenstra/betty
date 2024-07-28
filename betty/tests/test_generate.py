@@ -243,8 +243,8 @@ class TestGenerate:
                 project.ancestry.add(file)
                 async with project:
                     await generate(project)
-                    await assert_betty_html(project, "/file/%s/index.html" % file.id)
-                    await assert_betty_json(project, "/file/%s/index.json" % file.id)
+                    await assert_betty_html(project, f"/file/{file.id}/index.html")
+                    await assert_betty_json(project, f"/file/{file.id}/index.json")
 
     async def test_places(self) -> None:
         async with App.new_temporary() as app, app, Project.new_temporary(
@@ -265,8 +265,8 @@ class TestGenerate:
             project.ancestry.add(place)
             async with project:
                 await generate(project)
-                await assert_betty_html(project, "/place/%s/index.html" % place.id)
-                await assert_betty_json(project, "/place/%s/index.json" % place.id)
+                await assert_betty_html(project, f"/place/{place.id}/index.html")
+                await assert_betty_json(project, f"/place/{place.id}/index.json")
 
     async def test_people(self) -> None:
         async with App.new_temporary() as app, app, Project.new_temporary(
@@ -309,9 +309,9 @@ class TestGenerate:
             project.ancestry.add(event)
             async with project:
                 await generate(project)
-                await assert_betty_html(project, "/event/%s/index.html" % event.id)
+                await assert_betty_html(project, f"/event/{event.id}/index.html")
                 await assert_betty_json(
-                    project, "/event/%s/index.json" % event.id, "event"
+                    project, f"/event/{event.id}/index.json", "event"
                 )
 
     async def test_citation(self) -> None:
@@ -326,12 +326,8 @@ class TestGenerate:
             project.ancestry.add(citation, source)
             async with project:
                 await generate(project)
-                await assert_betty_html(
-                    project, "/citation/%s/index.html" % citation.id
-                )
-                await assert_betty_json(
-                    project, "/citation/%s/index.json" % citation.id
-                )
+                await assert_betty_html(project, f"/citation/{citation.id}/index.html")
+                await assert_betty_json(project, f"/citation/{citation.id}/index.json")
 
     async def test_sources(self) -> None:
         async with App.new_temporary() as app, app, Project.new_temporary(
@@ -352,8 +348,8 @@ class TestGenerate:
             project.ancestry.add(source)
             async with project:
                 await generate(project)
-                await assert_betty_html(project, "/source/%s/index.html" % source.id)
-                await assert_betty_json(project, "/source/%s/index.json" % source.id)
+                await assert_betty_html(project, f"/source/{source.id}/index.html")
+                await assert_betty_json(project, f"/source/{source.id}/index.json")
 
 
 class TestResourceOverride:

@@ -608,15 +608,14 @@ class TestGrampsLoader:
         self, expected: Date, dateval_val: str
     ) -> None:
         ancestry = await self._load_partial(
-            """
+            f"""
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
         <type>Birth</type>
-        <dateval val="%s" quality="calculated"/>
+        <dateval val="{dateval_val}" quality="calculated"/>
     </event>
 </events>
 """
-            % dateval_val
         )
         assert expected == ancestry[Event]["E0000"].date
 
@@ -1128,15 +1127,14 @@ class TestGrampsLoader:
         self, expected: Privacy, attribute_value: str
     ) -> None:
         ancestry = await self._load_partial(
-            """
+            f"""
 <events>
     <event handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="E0000">
         <type>Birth</type>
-        <attribute type="betty:privacy" value="%s"/>
+        <attribute type="betty:privacy" value="{attribute_value}"/>
     </event>
 </events>
 """
-            % attribute_value
         )
         event = ancestry[Event]["E0000"]
         assert expected == event.privacy
@@ -1154,15 +1152,14 @@ class TestGrampsLoader:
         self, expected: Privacy, attribute_value: str
     ) -> None:
         ancestry = await self._load_partial(
-            """
+            f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
         <file src="/tmp/file.txt" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
-        <attribute type="betty:privacy" value="%s"/>
+        <attribute type="betty:privacy" value="{attribute_value}"/>
     </object>
 </objects>
 """
-            % attribute_value
         )
         file = ancestry[File]["O0000"]
         assert expected == file.privacy
@@ -1201,15 +1198,14 @@ class TestGrampsLoader:
         self, expected: Privacy, attribute_value: str
     ) -> None:
         ancestry = await self._load_partial(
-            """
+            f"""
 <sources>
     <source handle="_e1dd686b04813540eb3503a342b" change="1558277217" id="S0000">
         <stitle>A Whisper</stitle>
-        <srcattribute type="betty:privacy" value="%s"/>
+        <srcattribute type="betty:privacy" value="{attribute_value}"/>
     </source>
 </sources>
 """
-            % attribute_value
         )
         source = ancestry[Source]["S0000"]
         assert expected == source.privacy
@@ -1227,12 +1223,12 @@ class TestGrampsLoader:
         self, expected: Privacy, attribute_value: str
     ) -> None:
         ancestry = await self._load_partial(
-            """
+            f"""
 <citations>
     <citation handle="_e2c25a12a097a0b24bd9eae5090" change="1558277266" id="C0000">
         <confidence>2</confidence>
         <sourceref hlink="_e1dd686b04813540eb3503a342b"/>
-        <srcattribute type="betty:privacy" value="%s"/>
+        <srcattribute type="betty:privacy" value="{attribute_value}"/>
     </citation>
 </citations>
 <sources>
@@ -1241,7 +1237,6 @@ class TestGrampsLoader:
     </source>
 </sources>
 """
-            % attribute_value
         )
         source = ancestry[Source]["S0000"]
         source.public = True
