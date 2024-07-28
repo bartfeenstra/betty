@@ -7,8 +7,12 @@ Betty is copyright Bart Feenstra and contributors, and released under the **GPL*
 - You may make changes to your copy of Betty
 - You may distribute Betty and your own changes, but you must do so under the exact same license, provide that license, and make your source code available.
 
-GNU General Public License, Version 3
--------------------------------------
+GNU General Public License, Version 3 or later
+----------------------------------------------
+
+Betty is released under the **GNU General Public License, Version 3**, **or any later version** of the
+GNU General Public License.
+
 .. seealso::
     `Read more <https://www.gnu.org/licenses/gpl-3.0.en.html>`_ about the **GNU General Public License, Version 3** (also known as the **GPL**).
 
