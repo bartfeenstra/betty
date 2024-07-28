@@ -24,8 +24,6 @@ for locale in localizers.locales:
 
 sys.path.insert(0, str(Path(betty.__file__).parent.parent))
 project = "Betty"
-version = wait_to_thread(about.version()) or ""
-release = wait_to_thread(about.version_label())
 copyright = "Bart Feenstra and contributors"  # noqa A001
 intersphinx_mapping = {
     "aiohttp": ("https://docs.aiohttp.org/en/stable/", None),
