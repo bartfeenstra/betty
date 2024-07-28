@@ -7,7 +7,7 @@ from betty.app import App
 from betty.config import write_configuration_file
 from betty.project import Project
 from betty.test_utils.cli import run
-from betty.tests.cli.test___init__ import NoOpProjectServer
+from betty.test_utils.serve import NoOpProjectServer
 
 
 class TestServe:
