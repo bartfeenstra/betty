@@ -89,7 +89,7 @@ class TestDeriver:
     async def test_post_load(self, new_temporary_app: App) -> None:
         person = Person(id="P0")
         event = Event(
-            event_type=Residence,
+            event_type=Residence(),
             date=Date(1, 1, 1),
         )
         Presence(person, Subject(), event)
@@ -106,7 +106,7 @@ class TestDeriver:
                     presence
                     for presence in person.presences
                     if presence.event
-                    and issubclass(presence.event.event_type, StartOfLifeEventType)
+                    and isinstance(presence.event.event_type, StartOfLifeEventType)
                 ][0]
                 assert start is not None
                 assert start.event is not None
@@ -119,7 +119,7 @@ class TestDeriver:
                     presence
                     for presence in person.presences
                     if presence.event
-                    and issubclass(presence.event.event_type, EndOfLifeEventType)
+                    and isinstance(presence.event.event_type, EndOfLifeEventType)
                 ][0]
                 assert end is not None
                 assert end.event is not None

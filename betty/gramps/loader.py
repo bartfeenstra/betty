@@ -780,9 +780,9 @@ class GrampsLoader:
         assert gramps_type is not None
 
         try:
-            event_type: type[EventType] = self._EVENT_TYPE_MAP[gramps_type]
+            event_type: EventType = self._EVENT_TYPE_MAP[gramps_type]()
         except KeyError:
-            event_type = UnknownEventType
+            event_type = UnknownEventType()
             getLogger(__name__).warning(
                 self._localizer._(
                     'Betty is unfamiliar with Gramps event "{event_id}"\'s type of "{gramps_event_type}". The event was imported, but its type was set to "{betty_event_type}".',

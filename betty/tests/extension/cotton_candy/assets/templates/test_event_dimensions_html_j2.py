@@ -11,7 +11,7 @@ class Test(TemplateTestBase):
     template_file = "event-dimensions.html.j2"
 
     async def test_without_meta(self) -> None:
-        event = Event(event_type=Birth)
+        event = Event(event_type=Birth())
         expected = ""
         async with self._render(
             data={
@@ -22,7 +22,7 @@ class Test(TemplateTestBase):
 
     async def test_with_date(self) -> None:
         event = Event(
-            event_type=Birth,
+            event_type=Birth(),
             date=Date(1970),
         )
         expected = "1970"
@@ -34,7 +34,7 @@ class Test(TemplateTestBase):
             assert expected == actual
 
     async def test_with_place(self) -> None:
-        event = Event(event_type=Birth)
+        event = Event(event_type=Birth())
         event.place = Place(
             id="P0",
             names=[PlaceName(name="The Place")],
@@ -50,7 +50,7 @@ class Test(TemplateTestBase):
             assert expected == actual
 
     async def test_with_place_is_place_context(self) -> None:
-        event = Event(event_type=Birth)
+        event = Event(event_type=Birth())
         place = Place(
             id="P0",
             names=[PlaceName(name="The Place")],
@@ -67,7 +67,7 @@ class Test(TemplateTestBase):
 
     async def test_with_date_and_place(self) -> None:
         event = Event(
-            event_type=Birth,
+            event_type=Birth(),
             date=Date(1970),
         )
         event.place = Place(
@@ -83,7 +83,7 @@ class Test(TemplateTestBase):
             assert expected == actual
 
     async def test_with_citation(self) -> None:
-        event = Event(event_type=Birth)
+        event = Event(event_type=Birth())
         event.citations.add(Citation(source=Source(name="The Source")))
         expected = '<a href="#reference-1" class="citation">[1]</a>'
         async with self._render(
@@ -95,7 +95,7 @@ class Test(TemplateTestBase):
 
     async def test_embedded(self) -> None:
         event = Event(
-            event_type=Birth,
+            event_type=Birth(),
             date=Date(1970),
         )
         event.place = Place(

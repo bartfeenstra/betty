@@ -14,14 +14,14 @@ class TestTemplate(TemplateTestBase):
         place = Place(names=[place_name])
 
         public_place_event = Event(
-            event_type=Birth,
+            event_type=Birth(),
             date=Date(1970, 1, 1),
             description="public place event",
             place=place,
         )
 
         private_place_event = Event(
-            event_type=Birth,
+            event_type=Birth(),
             date=Date(1970, 1, 1),
             private=True,
             description="private place event",
@@ -37,14 +37,14 @@ class TestTemplate(TemplateTestBase):
         Enclosure(encloses=place, enclosed_by=enclosing)
 
         public_enclosed_event = Event(
-            event_type=Birth,
+            event_type=Birth(),
             date=Date(1970, 1, 1),
             place=place,
             description="public enclosed event",
         )
 
         private_enclosed_event = Event(
-            event_type=Birth,
+            event_type=Birth(),
             date=Date(1970, 1, 1),
             private=True,
             place=place,

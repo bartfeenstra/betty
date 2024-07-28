@@ -105,7 +105,7 @@ class Deriver:
             if list(
                 filter(
                     lambda presence: presence.event is not None
-                    and issubclass(presence.event.event_type, derivable_event_type),
+                    and isinstance(presence.event.event_type, derivable_event_type),
                     person.presences,
                 )
             ):
@@ -118,7 +118,7 @@ class Deriver:
                 self._lifetime_threshold,
             ):
                 derivable_events = [
-                    (Event(event_type=derivable_event_type), Derivation.CREATE),
+                    (Event(event_type=derivable_event_type()), Derivation.CREATE),
                 ]
             else:
                 return 0, 0
@@ -171,13 +171,13 @@ class _DateDeriver(ABC):
         derivable_event: Event,
         reference_event_types: set[type[EventType]],
     ) -> bool:
-        assert issubclass(derivable_event.event_type, DerivableEventType)
+        assert isinstance(derivable_event.event_type, DerivableEventType)
 
         if not reference_event_types:
             return False
 
         reference_events = _get_reference_events(
-            person, reference_event_types, derivable_event.event_type
+            person, reference_event_types, type(derivable_event.event_type)
         )
         reference_events_dates: Iterable[tuple[Event, Date]] = filter(
             lambda x: x[1].comparable, cls._get_events_dates(reference_events)
@@ -308,7 +308,7 @@ def _get_derivable_events(
             continue
 
         # Ignore events of the wrong type.
-        if not issubclass(event.event_type, derivable_event_type):
+        if not isinstance(event.event_type, derivable_event_type):
             continue
 
         # Ignore events with enough date information that nothing more can be derived.
@@ -339,7 +339,7 @@ def _get_reference_events(
             continue
 
         if isinstance(reference_event.date, DateRange):
-            if reference_event.event_type in derivable_event_type.comes_before():
+            if type(reference_event.event_type) in derivable_event_type.comes_before():
                 reference_date = reference_event.date.start
             else:
                 reference_date = reference_event.date.end
@@ -349,7 +349,7 @@ def _get_reference_events(
                 continue
 
         # Ignore reference events of the wrong type.
-        if not issubclass(reference_event.event_type, tuple(reference_event_types)):
+        if not isinstance(reference_event.event_type, tuple(reference_event_types)):
             continue
 
         yield reference_event

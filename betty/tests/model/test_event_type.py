@@ -21,7 +21,7 @@ class TestDeath:
             person,
             Subject(),
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=Date(1970, 1, 1),
             ),
         )
@@ -34,7 +34,7 @@ class TestDeath:
             person,
             Subject(),
             Event(
-                event_type=Birth,
+                event_type=Birth(),
                 date=Date(1, 1, 1),
             ),
         )

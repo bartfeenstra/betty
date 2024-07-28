@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 class TestPrivatizer:
     async def test_post_load(self, new_temporary_app: App) -> None:
         person = Person(id="P0")
-        Presence(person, Subject(), Event(event_type=Birth))
+        Presence(person, Subject(), Event(event_type=Birth()))
 
         source_file = File(
             id="F0",

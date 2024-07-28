@@ -107,14 +107,14 @@ def test_start_of_life_event(event: Event) -> bool:
     """
     Test if an event is a start-of-life event.
     """
-    return issubclass(event.event_type, StartOfLifeEventType)
+    return isinstance(event.event_type, StartOfLifeEventType)
 
 
 def test_end_of_life_event(event: Event) -> bool:
     """
     Test if an event is an end-of-life event.
     """
-    return issubclass(event.event_type, EndOfLifeEventType)
+    return isinstance(event.event_type, EndOfLifeEventType)
 
 
 TESTS = {

@@ -190,7 +190,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
 
     marriage_of_dirk_jacobus_lankester_and_jannigje_palsen = Event(
         id="betty-demo-marriage-of-dirk-jacobus-lankester-and-jannigje-palsen",
-        event_type=Marriage,
+        event_type=Marriage(),
         date=Date(1922, 7, 4),
         place=ilpendam,
     )
@@ -198,7 +198,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
 
     birth_of_dirk_jacobus_lankester = Event(
         id="betty-demo-birth-of-dirk-jacobus-lankester",
-        event_type=Birth,
+        event_type=Birth(),
         date=Date(1897, 8, 25),
         place=amsterdam,
     )
@@ -206,7 +206,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
 
     death_of_dirk_jacobus_lankester = Event(
         id="betty-demo-death-of-dirk-jacobus-lankester",
-        event_type=Death,
+        event_type=Death(),
         date=Date(1986, 8, 18),
         place=amsterdam,
     )
@@ -234,7 +234,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
 
     birth_of_marinus_david_lankester = Event(
         id="betty-demo-birth-of-marinus-david",
-        event_type=Birth,
+        event_type=Birth(),
         date=DateRange(
             Date(1874, 1, 15),
             Date(1874, 3, 21),
@@ -247,7 +247,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
 
     death_of_marinus_david_lankester = Event(
         id="betty-demo-death-of-marinus-david",
-        event_type=Death,
+        event_type=Death(),
         date=Date(1971),
         place=amsterdam,
     )
@@ -270,7 +270,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
 
     birth_of_jacoba_gesina_lankester = Event(
         id="betty-demo-birth-of-jacoba-gesina",
-        event_type=Birth,
+        event_type=Birth(),
         date=Date(1900, 3, 14),
         place=amsterdam,
     )
@@ -307,7 +307,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
 
     marriage_of_johan_de_boer_and_liberta_lankester = Event(
         id="betty-demo-marriage-of-johan-de-boer-and-liberta-lankester",
-        event_type=Marriage,
+        event_type=Marriage(),
         date=Date(1953, 6, 19),
         place=amsterdam,
     )
@@ -322,7 +322,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
 
     birth_of_liberta_lankester = Event(
         id="betty-demo-birth-of-liberta-lankester",
-        event_type=Birth,
+        event_type=Birth(),
         date=Date(1929, 12, 22),
         place=amsterdam,
         citations=[cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam],
@@ -331,7 +331,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
 
     death_of_liberta_lankester = Event(
         id="betty-demo-death-of-liberta-lankester",
-        event_type=Death,
+        event_type=Death(),
         date=Date(2015, 1, 17),
         place=amsterdam,
         citations=[cite_first_person_account],
@@ -371,7 +371,7 @@ Did you know that Liberta "Betty" Lankester is Betty's namesake?
 
     birth_of_johan_de_boer = Event(
         id="betty-demo-birth-of-johan-de-boer",
-        event_type=Birth,
+        event_type=Birth(),
         date=Date(1930, 6, 20),
         place=amsterdam,
     )
@@ -379,7 +379,7 @@ Did you know that Liberta "Betty" Lankester is Betty's namesake?
 
     death_of_johan_de_boer = Event(
         id="betty-demo-death-of-johan-de-boer",
-        event_type=Death,
+        event_type=Death(),
         date=Date(1999, 3, 10),
         place=amsterdam,
         citations=[cite_first_person_account],

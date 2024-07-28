@@ -126,7 +126,7 @@ class TestDeriver:
         self, event_type: type[DerivableEventType]
     ) -> None:
         person = Person(id="P0")
-        derivable_event = Event(event_type=Ignored)
+        derivable_event = Event(event_type=Ignored())
         Presence(person, Subject(), derivable_event)
         ancestry = Ancestry()
         ancestry.add(person)
@@ -146,19 +146,19 @@ class TestDeriver:
     @pytest.mark.parametrize(
         "event_type",
         [
-            ComesBeforeDerivable,
-            ComesBeforeCreatableDerivable,
-            ComesAfterDerivable,
-            ComesAfterCreatableDerivable,
-            ComesBeforeAndAfterDerivable,
-            ComesBeforeAndAfterCreatableDerivable,
+            ComesBeforeDerivable(),
+            ComesBeforeCreatableDerivable(),
+            ComesAfterDerivable(),
+            ComesAfterCreatableDerivable(),
+            ComesBeforeAndAfterDerivable(),
+            ComesBeforeAndAfterCreatableDerivable(),
         ],
     )
     async def test_derive_update_derivable_event_without_reference_events(
-        self, event_type: type[DerivableEventType]
+        self, event_type: DerivableEventType
     ) -> None:
         person = Person(id="P0")
-        Presence(person, Subject(), Event(event_type=Ignored))
+        Presence(person, Subject(), Event(event_type=Ignored()))
         derivable_event = Event(event_type=event_type)
         Presence(person, Subject(), derivable_event)
         ancestry = Ancestry()
@@ -372,7 +372,7 @@ class TestDeriver:
             person,
             Subject(),
             Event(
-                event_type=Ignored,
+                event_type=Ignored(),
                 date=Date(0, 0, 0),
             ),
         )
@@ -380,12 +380,12 @@ class TestDeriver:
             person,
             Subject(),
             Event(
-                event_type=ComesBeforeReference,
+                event_type=ComesBeforeReference(),
                 date=before_datey,
             ),
         )
         derivable_event = Event(
-            event_type=ComesBeforeDerivable,
+            event_type=ComesBeforeDerivable(),
             date=derivable_datey,
         )
         Presence(person, Subject(), derivable_event)
@@ -435,7 +435,7 @@ class TestDeriver:
             person,
             Subject(),
             Event(
-                event_type=Ignored,
+                event_type=Ignored(),
                 date=Date(0, 0, 0),
             ),
         )
@@ -443,7 +443,7 @@ class TestDeriver:
             person,
             Subject(),
             Event(
-                event_type=ComesBeforeReference,
+                event_type=ComesBeforeReference(),
                 date=before_datey,
             ),
         )
@@ -463,14 +463,16 @@ class TestDeriver:
         else:
             assert len(added[Event]) > 0
             for derived_event in added[Event]:
-                assert derived_event.event_type is ComesBeforeCreatableDerivable
+                assert isinstance(
+                    derived_event.event_type, ComesBeforeCreatableDerivable
+                )
 
             assert len(added[Presence]) > 0
             for derived_presence in added[Presence]:
                 assert isinstance(derived_presence.role, Subject)
                 assert derived_presence.event is not None
-                assert (
-                    derived_presence.event.event_type is ComesBeforeCreatableDerivable
+                assert isinstance(
+                    derived_presence.event.event_type, ComesBeforeCreatableDerivable
                 )
                 assert expected_datey == derived_presence.event.date
 
@@ -671,7 +673,7 @@ class TestDeriver:
             person,
             Subject(),
             Event(
-                event_type=Ignored,
+                event_type=Ignored(),
                 date=Date(0, 0, 0),
             ),
         )
@@ -679,12 +681,12 @@ class TestDeriver:
             person,
             Subject(),
             Event(
-                event_type=ComesAfterReference,
+                event_type=ComesAfterReference(),
                 date=after_datey,
             ),
         )
         derivable_event = Event(
-            event_type=ComesAfterDerivable,
+            event_type=ComesAfterDerivable(),
             date=derivable_datey,
         )
         Presence(person, Subject(), derivable_event)
@@ -735,7 +737,7 @@ class TestDeriver:
             person,
             Subject(),
             Event(
-                event_type=Ignored,
+                event_type=Ignored(),
                 date=Date(0, 0, 0),
             ),
         )
@@ -743,7 +745,7 @@ class TestDeriver:
             person,
             Subject(),
             Event(
-                event_type=ComesAfterReference,
+                event_type=ComesAfterReference(),
                 date=after_datey,
             ),
         )
@@ -763,13 +765,17 @@ class TestDeriver:
         else:
             assert len(added[Event]) > 0
             for derived_event in added[Event]:
-                assert derived_event.event_type is ComesAfterCreatableDerivable
+                assert isinstance(
+                    derived_event.event_type, ComesAfterCreatableDerivable
+                )
 
             assert len(added[Presence]) > 0
             for derived_presence in added[Presence]:
                 assert isinstance(derived_presence.role, Subject)
                 assert derived_presence.event is not None
-                assert derived_presence.event.event_type is ComesAfterCreatableDerivable
+                assert isinstance(
+                    derived_presence.event.event_type, ComesAfterCreatableDerivable
+                )
                 assert expected_datey == derived_presence.event.date
 
     @pytest.mark.parametrize(
@@ -793,7 +799,7 @@ class TestDeriver:
             person,
             Subject(),
             Event(
-                event_type=ComesAfterReference,
+                event_type=ComesAfterReference(),
                 date=after_datey,
             ),
         )

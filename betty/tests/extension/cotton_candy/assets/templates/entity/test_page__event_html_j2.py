@@ -27,7 +27,7 @@ class TestTemplate(TemplateTestBase):
         file_path = tmp_path / "file"
         file_path.touch()
 
-        event = Event(event_type=UnknownEventType)
+        event = Event(event_type=UnknownEventType())
 
         public_file = File(
             path=file_path,

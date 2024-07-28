@@ -178,26 +178,26 @@ class TestTemplate(TemplateTestBase):
         FileReference(person, private_file)
         public_event_public_presence = Event(
             id="EVENT1",
-            event_type=Birth,
+            event_type=Birth(),
             date=Date(1970, 1, 1),
             description="public event public presence",
         )
         public_event_private_presence = Event(
             id="EVENT2",
-            event_type=Birth,
+            event_type=Birth(),
             date=Date(1970, 1, 1),
             description="public event private presence",
         )
         private_event_public_presence = Event(
             id="EVENT3",
-            event_type=Birth,
+            event_type=Birth(),
             date=Date(1970, 1, 1),
             private=True,
             description="private event public presence",
         )
         private_event_private_presence = Event(
             id="EVENT4",
-            event_type=Birth,
+            event_type=Birth(),
             date=Date(1970, 1, 1),
             private=True,
             description="private event private presence",

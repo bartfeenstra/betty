@@ -304,7 +304,7 @@ class TestGenerate:
         ) as project:
             event = Event(
                 id="EVENT1",
-                event_type=Birth,
+                event_type=Birth(),
             )
             project.ancestry.add(event)
             async with project:
