@@ -7,8 +7,8 @@ from betty.app import App
 from betty.config import write_configuration_file
 from betty.extension.nginx import Nginx
 from betty.project import Project
-from betty.tests.cli.test___init__ import NoOpServer
 from betty.test_utils.cli import run
+from betty.test_utils.serve import NoOpServer
 
 
 class TestServe:

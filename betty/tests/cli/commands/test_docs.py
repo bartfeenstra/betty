@@ -3,8 +3,8 @@ from asyncio import to_thread
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.tests.cli.test___init__ import NoOpServer
 from betty.test_utils.cli import run
+from betty.test_utils.serve import NoOpServer
 
 
 class TestDocs:
