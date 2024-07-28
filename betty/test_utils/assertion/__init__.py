@@ -1,3 +1,3 @@
 """
-Test utilities for :py:module:`betty.assertion`.
+Test utilities for :py:mod:`betty.assertion`.
 """

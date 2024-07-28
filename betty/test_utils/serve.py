@@ -1,5 +1,5 @@
 """
-Test utilities for :py:module:`betty.serve`.
+Test utilities for :py:mod:`betty.serve`.
 """
 
 from typing import Any

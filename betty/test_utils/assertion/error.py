@@ -1,5 +1,5 @@
 """
-Test utilities for :py:module:`betty.assertion.error`.
+Test utilities for :py:mod:`betty.assertion.error`.
 """
 
 from __future__ import annotations

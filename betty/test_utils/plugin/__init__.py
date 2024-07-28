@@ -1,5 +1,5 @@
 """
-Test utilities for :py:module:`betty.plugin`.
+Test utilities for :py:mod:`betty.plugin`.
 """
 
 from typing import Generic, TypeVar

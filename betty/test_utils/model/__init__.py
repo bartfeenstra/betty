@@ -1,5 +1,5 @@
 """
-Test utilities for :py:module:`betty.model`.
+Test utilities for :py:mod:`betty.model`.
 """
 
 from __future__ import annotations
