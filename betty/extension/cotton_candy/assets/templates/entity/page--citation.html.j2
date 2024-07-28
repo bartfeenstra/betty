@@ -1,6 +1,6 @@
 {% extends 'entity/page.html.j2' %}
 {% set citation = citation | default(entity) %}
-{% set page_title = citation.location %}
+{% set page_title = citation.label | localize %}
 {% block page_content %}
     <div class="meta">
     {% include 'entity/meta--citation.html.j2' %}

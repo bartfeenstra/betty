@@ -17,7 +17,7 @@
     {% endif %}
     {%- if citation.public -%}
         {%- if citation.location -%}
-                {% set location = citation.location | localize %}
+                {% set location = citation.location %}
                 <span class="citation-location">
                     {% if citation_context == citation %}
                         {{ location }}

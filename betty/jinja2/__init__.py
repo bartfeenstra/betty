@@ -16,8 +16,10 @@ from jinja2 import (
     select_autoescape,
     FileSystemLoader,
     pass_context,
+    nodes,
 )
-from jinja2.runtime import StrictUndefined, Context, DebugUndefined
+from jinja2.compiler import CodeGenerator, Frame
+from jinja2.runtime import StrictUndefined, Context, DebugUndefined, escape
 from typing_extensions import override
 
 from betty import model
@@ -26,6 +28,7 @@ from betty.html import CssProvider, JsProvider
 from betty.jinja2.filter import FILTERS
 from betty.jinja2.test import TESTS
 from betty.job import Context as JobContext
+from betty.locale.localizable import Localizable
 from betty.locale.localizer import Localizer
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.date import Date
@@ -214,11 +217,45 @@ class Jinja2Provider:
         return {}
 
 
+class _CodeGenerator(CodeGenerator):
+    @classmethod
+    def localize_str(cls, ctx: Context, value: Any) -> str:
+        if isinstance(value, Localizable):
+            return value.localize(context_localizer(ctx))
+        return str(value)
+
+    @classmethod
+    def localize_escape(cls, ctx: Context, value: Any) -> str:
+        return escape(cls.localize_str(ctx, value))
+
+    @override
+    def visit_Template(self, node: nodes.Template, frame: Frame | None = None) -> None:
+        self.writeline("from betty.jinja2 import _CodeGenerator")
+        super().visit_Template(node, frame)
+
+    @override
+    def _output_child_pre(
+        self, node: nodes.Expr, frame: Frame, finalize: CodeGenerator._FinalizeInfo
+    ) -> None:
+        if frame.eval_ctx.volatile:
+            self.write(
+                "(_CodeGenerator.localize_escape if context.eval_ctx.autoescape else _CodeGenerator.localize_str)(context, "
+            )
+        elif frame.eval_ctx.autoescape:
+            self.write("_CodeGenerator.localize_escape(context, ")
+        else:
+            self.write("_CodeGenerator.localize_str(context, ")
+
+        if finalize.src is not None:
+            self.write(finalize.src)
+
+
 class Environment(Jinja2Environment):
     """
     Betty's Jinja2 environment.
     """
 
+    code_generator_class = _CodeGenerator
     globals: dict[str, Any]
     filters: dict[str, Callable[..., Any]]
     tests: dict[str, Callable[..., bool | Awaitable[bool]]]  # type: ignore[assignment]

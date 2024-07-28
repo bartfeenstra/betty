@@ -30,6 +30,10 @@ class Localizable(ABC):
     @override
     def __str__(self) -> str:
         localized = self.localize(DEFAULT_LOCALIZER)
+        # @todo
+        print("remove this")
+        print([type(self), localized])
+        raise RuntimeError(self)
         warn(
             f'{type(self)} ("{localized}") SHOULD NOT be cast to a string. Instead, call {type(self)}.localize() to ensure it is always formatted in the desired locale.',
             stacklevel=2,

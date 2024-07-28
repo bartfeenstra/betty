@@ -11,7 +11,7 @@
 </script>
 <div id="page">
     <nav id="nav-primary">
-        <a id="site-title" href="{{ '/index.html' | url }}" title="{{ project.configuration.title | localize }}">{{ project.configuration.title | localize }}</a>
+        <a id="site-title" href="{{ '/index.html' | url }}" title="{{ project.configuration.title }}">{{ project.configuration.title }}</a>
         <div id="search"
              data-betty-search-index="{{ '/search-index.json' | url }}">
             <div class="overlay-controls">
@@ -22,7 +22,7 @@
                 {% if search_keywords_example_person_name %}
                     {% set search_keywords_example -%}
                         {% filter forceescape %}
-                            {% trans example = search_keywords_example_person_name.label | localize -%}
+                            {% trans example = search_keywords_example_person_name.label -%}
                                 E.g. "{{ example }}"
                             {%- endtrans %}
                         {% endfilter %}
@@ -53,7 +53,7 @@
                                 {% if entity_type_configuration.entity_type.plugin_id() == 'event' %}
                                     {% trans %}Timeline{% endtrans %}
                                 {% else %}
-                                    {{ entity_type_configuration.entity_type.plugin_label_plural() | localize }}
+                                    {{ entity_type_configuration.entity_type.plugin_label_plural() }}
                                 {% endif %}
                             </a>
                         </li>

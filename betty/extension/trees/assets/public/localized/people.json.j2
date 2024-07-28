@@ -1,7 +1,7 @@
 {% set ns = namespace(people={}) %}
 {% for person in project.ancestry['person'] %}
     {% if person.public %}
-        {% set person_label = person.label | localize %}
+        {% set person_label = person.label %}
     {% else %}
         {% set person_label = _('private') %}
     {% endif %}
