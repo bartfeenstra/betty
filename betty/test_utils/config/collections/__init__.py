@@ -4,10 +4,15 @@ Test utilities for :py:module:`betty.config.collections`.
 
 from __future__ import annotations
 
-from typing import Generic, Iterable, TypeVar
+from typing import Generic, Iterable, TypeVar, TYPE_CHECKING
 
 from betty.config import Configuration
 from betty.config.collections import ConfigurationCollection, ConfigurationKey
+from betty.typing import Void
+
+if TYPE_CHECKING:
+    from betty.serde.dump import Dump
+    from collections.abc import Sequence
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
@@ -43,6 +48,22 @@ class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _Configuration
         Produce four configuration items to test the collection with.
         """
         raise NotImplementedError
+
+    async def test_load_item(self) -> None:
+        """
+        Tests :py:meth:`betty.config.collections.ConfigurationCollection.load_item` implementations.
+        """
+        configurations = self.get_configurations()
+        sut = self.get_sut(configurations)
+        dumps = [configuration.dump() for configuration in configurations]
+        non_void_dumps: Sequence[Dump] = [
+            dump  # type: ignore[misc]
+            for dump in dumps
+            if dump is not Void
+        ]
+        assert non_void_dumps, "At least one configuration object must return a configuration dump that is not Void"
+        for dump in non_void_dumps:
+            sut.load_item(dump)
 
     async def test_replace_without_items(self) -> None:
         """
