@@ -4,6 +4,7 @@ Testing your source code
 If your software project uses Betty, you may be able to use some of the many test utilities
 Betty provides for your benefit:
 
+* Pytest :py:mod:`fixtures <betty.test_utils.conftest>`
 * Base classes to to help you get started writing tests for your implementations of Betty's abstract classes.
   These have class names ending in ``TestBase``.
 * Dummy implementations of abstract classes. These have class names starting with ``Dummy``.
