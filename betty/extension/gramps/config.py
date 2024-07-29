@@ -1,5 +1,5 @@
 """
-Provide configuration for the :py:class:`betty.extension.Gramps` extension.
+Provide configuration for the :py:class:`betty.extension.gramps.Gramps` extension.
 """
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 The *Gramps* extension
 ====================
-The :py:class:`betty.extension.Gramps` extension loads entities from `Gramps <https://gramps-project.org>`_ family trees into your Betty ancestry.
+The :py:class:`betty.extension.gramps.Gramps` extension loads entities from `Gramps <https://gramps-project.org>`_ family trees into your Betty ancestry.
 
 Enable this extension in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 

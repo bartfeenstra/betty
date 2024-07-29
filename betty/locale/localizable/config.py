@@ -24,7 +24,7 @@ from betty.typing import Void
 @final
 class StaticTranslationsLocalizableConfiguration(Configuration, Localizable):
     """
-    Provide configuration for a :py:class:`betty.locale.Localizable`.
+    Provide configuration for a :py:class:`betty.locale.localizable.Localizable`.
 
     Read more at :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
     """
@@ -99,7 +99,7 @@ class StaticTranslationsLocalizableConfiguration(Configuration, Localizable):
 @final
 class StaticTranslationsLocalizableConfigurationProperty:
     """
-    A property (similar to :py:func:`property`) that contains :py:class:`betty.locale.localizable.StaticTranslationsLocalizableConfiguration`.
+    A property (similar to :py:func:`property`) that contains :py:class:`betty.locale.localizable.Localizable.StaticTranslationsLocalizableConfiguration`.
     """
 
     def __init__(self, attr_name: str, *, minimum: int = 1):

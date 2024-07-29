@@ -82,7 +82,7 @@ def gettext(message: str) -> _GettextLocalizable:
 
     Positional arguments are identical to those of :py:meth:`gettext.gettext`.
     Keyword arguments are identical to those of :py:met:`str.format`, except that
-    any :py:class:`betty.locale.Localizable` will be localized before string
+    any :py:class:`betty.locale.localizable.Localizable` will be localized before string
     formatting.
     """
     return _GettextLocalizable("gettext", message)
@@ -90,11 +90,11 @@ def gettext(message: str) -> _GettextLocalizable:
 
 def _(message: str) -> _GettextLocalizable:
     """
-    Like :py:meth:`gettext._` and :py:meth:`betty.locale.localizable.gettext`.
+    Like :py:meth:`betty.locale.localizable.gettext`.
 
     Positional arguments are identical to those of :py:meth:`gettext.gettext`.
     Keyword arguments are identical to those of :py:met:`str.format`, except that
-    any :py:class:`betty.locale.Localizable` will be localized before string
+    any :py:class:`betty.locale.localizable.Localizable` will be localized before string
     formatting.
     """
     return gettext(message)
@@ -106,7 +106,7 @@ def ngettext(message_singular: str, message_plural: str, n: int) -> _GettextLoca
 
     Positional arguments are identical to those of :py:meth:`gettext.ngettext`.
     Keyword arguments are identical to those of :py:met:`str.format`, except that
-    any :py:class:`betty.locale.Localizable` will be localized before string
+    any :py:class:`betty.locale.localizable.Localizable` will be localized before string
     formatting.
     """
     return _GettextLocalizable("ngettext", message_singular, message_plural, n)
@@ -118,7 +118,7 @@ def pgettext(context: str, message: str) -> _GettextLocalizable:
 
     Positional arguments are identical to those of :py:meth:`gettext.pgettext`.
     Keyword arguments are identical to those of :py:met:`str.format`, except that
-    any :py:class:`betty.locale.Localizable` will be localized before string
+    any :py:class:`betty.locale.localizable.Localizable` will be localized before string
     formatting.
     """
     return _GettextLocalizable("pgettext", context, message)
@@ -132,7 +132,7 @@ def npgettext(
 
     Positional arguments are identical to those of :py:meth:`gettext.npgettext`.
     Keyword arguments are identical to those of :py:met:`str.format`, except that
-    any :py:class:`betty.locale.Localizable` will be localized before string
+    any :py:class:`betty.locale.localizable.Localizable` will be localized before string
     formatting.
     """
     return _GettextLocalizable(
@@ -177,7 +177,7 @@ def format(  # noqa A001
     """
     Perform string formatting.
 
-    The arguments are identical to those of :py:meth:``str.format``.
+    The arguments are identical to those of :py:meth:`str.format`.
     """
     return _FormattedLocalizable(localizable, format_args, format_kwargs)
 
@@ -198,7 +198,7 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 
 class StaticTranslationsLocalizable(_FormattableLocalizable):
     """
-    Provide a :py:class:`betty.locale.Localizable` backed by static translations.
+    Provide a :py:class:`betty.locale.localizable.Localizable` backed by static translations.
     """
 
     def __init__(self, translations: ShorthandStaticTranslations):
