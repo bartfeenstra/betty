@@ -16,6 +16,8 @@ This section covers how to develop Betty itself.
 
 In this section
 ---------------
-:doc:`Install a Betty development environment </development/betty/installation>`.
+
+- :doc:`Install a Betty development environment </development/betty/installation>`.
 - :doc:`/development/betty/test`
 - :doc:`/development/betty/translation`
+- :doc:`/development/betty/commands`
