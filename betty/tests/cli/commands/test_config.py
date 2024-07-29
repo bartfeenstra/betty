@@ -1,4 +1,3 @@
-from asyncio import to_thread
 from pathlib import Path
 
 from betty.app import App
@@ -19,8 +18,8 @@ class TestConfig:
         )
 
         locale = "nl-NL"
-        await to_thread(
-            run,
+        await run(
+            new_temporary_app,
             "config",
             "--locale",
             locale,

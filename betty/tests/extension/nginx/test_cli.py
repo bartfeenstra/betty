@@ -1,14 +1,11 @@
-from asyncio import to_thread
-
 from aiofiles.os import makedirs
-from pytest_mock import MockerFixture
-
 from betty.app import App
 from betty.config import write_configuration_file
 from betty.extension.nginx import Nginx
 from betty.project import Project
 from betty.test_utils.cli import run
 from betty.test_utils.serve import NoOpServer
+from pytest_mock import MockerFixture
 
 
 class TestServe:
@@ -25,8 +22,8 @@ class TestServe:
             )
             await makedirs(project.configuration.www_directory_path)
             async with project:
-                await to_thread(
-                    run,
+                await run(
+                    new_temporary_app,
                     "serve-nginx-docker",
                     "-c",
                     str(project.configuration.configuration_file_path),

@@ -5,7 +5,6 @@ Provide the Command Line Interface.
 from __future__ import annotations
 
 import logging
-from asyncio import run
 from contextlib import suppress
 from functools import wraps
 from importlib import metadata
@@ -23,25 +22,24 @@ from typing import (
 )
 
 import click
-from betty.cli.error import user_facing_error_to_value_proc
-from betty.locale.localizer import DEFAULT_LOCALIZER
-from click import get_current_context, Context, option, Option, Parameter
-from typing_extensions import override
-
 from betty import about
-from betty.app import App
 from betty.assertion.error import AssertionFailed
 from betty.asyncio import wait_to_thread
+from betty.cli.error import user_facing_error_to_value_proc
 from betty.config import assert_configuration_file
 from betty.contextlib import SynchronizedContextManager
 from betty.error import UserFacingError, FileNotFound
 from betty.locale.localizable import _, Localizable, static
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.lazy import LazyPluginRepositoryBase
 from betty.project import Project
 from betty.serde.format import FormatRepository
+from click import Context, option, Parameter
+from typing_extensions import override
 
 if TYPE_CHECKING:
+    from betty.app import App
     from betty.machine_name import MachineName
     from collections.abc import Callable, Coroutine
 
@@ -150,11 +148,13 @@ class BettyCommand(click.Command):
 
     @override
     def invoke(self, ctx: click.Context) -> Any:
+        from betty.cli import ctx_app
+
         try:
             return super().invoke(ctx)
         except UserFacingError as error:
             raise click.ClickException(
-                error.localize(_get_ctx_app(ctx).localizer)
+                error.localize(ctx_app(ctx).localizer)
             ) from error
 
 
@@ -250,7 +250,7 @@ def command(
         )
         @wraps(f)
         def _command(*args: _P.args, **kwargs: _P.kwargs) -> None:
-            run(f(*args, **kwargs))
+            wait_to_thread(f(*args, **kwargs))
 
         return _command  # type: ignore[return-value]
 
@@ -262,23 +262,17 @@ def command(
 _ReturnT = TypeVar("_ReturnT")
 
 
-def _get_ctx_app(ctx: click.Context | None = None) -> App:
-    if not ctx:
-        ctx = get_current_context()
-    _init_ctx_app(ctx)
-    return cast(App, ctx.obj["app"])
-
-
 def pass_app(
     f: Callable[Concatenate[App, _P], _ReturnT],
 ) -> Callable[_P, _ReturnT]:
     """
     Decorate a command to receive the currently running :py:class:`betty.app.App` as its first argument.
     """
+    from betty.cli import ctx_app
 
     @wraps(f)
     def _command(*args: _P.args, **kwargs: _P.kwargs) -> _ReturnT:
-        return f(_get_ctx_app(), *args, **kwargs)
+        return f(ctx_app(click.get_current_context()), *args, **kwargs)
 
     return _command
 
@@ -342,14 +336,13 @@ def pass_project(
     """
     Decorate a command to receive the currently running :py:class:`betty.project.Project` as its first argument.
     """
+    from betty.cli import ctx_app
 
     def _project(
         ctx: Context, __: Parameter, configuration_file_path: str | None
     ) -> Project:
-        _init_ctx_app(ctx)
-        app = ctx.obj["app"]
         project: Project = ctx.with_resource(  # type: ignore[attr-defined]
-            SynchronizedContextManager(Project.new_temporary(app))
+            SynchronizedContextManager(Project.new_temporary(ctx_app(ctx)))
         )
         wait_to_thread(_read_project_configuration(project, configuration_file_path))
         ctx.with_resource(  # type: ignore[attr-defined]
@@ -364,17 +357,3 @@ def pass_project(
         help="The path to a Betty project configuration file. Defaults to betty.json|yaml|yml in the current working directory.",
         callback=user_facing_error_to_value_proc(DEFAULT_LOCALIZER)(_project),
     )(f)
-
-
-def _init_ctx_app(ctx: Context, __: Option | Parameter | None = None, *_: Any) -> None:
-    obj = ctx.ensure_object(dict)
-
-    if "app" in obj:
-        return
-
-    app_factory = ctx.with_resource(  # type: ignore[attr-defined]
-        SynchronizedContextManager(App.new_from_environment())
-    )
-    obj["app"] = ctx.with_resource(  # type: ignore[attr-defined]
-        SynchronizedContextManager(app_factory)
-    )

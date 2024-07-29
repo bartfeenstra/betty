@@ -1,8 +1,8 @@
-from asyncio import to_thread
 from collections.abc import Sequence
 from pathlib import Path
 from typing import cast
 
+from betty.app import App
 from betty.config import assert_configuration_file
 from betty.extension.gramps import Gramps
 from betty.extension.gramps.config import GrampsConfiguration
@@ -13,14 +13,14 @@ from betty.test_utils.cli import run
 
 class TestNew:
     async def _assert_new(
-        self, project_directory_path: Path, inputs: Sequence[str]
+        self, app: App, project_directory_path: Path, inputs: Sequence[str]
     ) -> ProjectConfiguration:
         configuration_file_path = project_directory_path / "betty.yaml"
-        await to_thread(run, "new", input="\n".join(inputs))
+        await run(app, "new", input="\n".join(inputs))
         configuration = ProjectConfiguration(configuration_file_path)
         return assert_configuration_file(configuration)(configuration_file_path)
 
-    async def test_minimal(self, tmp_path: Path) -> None:
+    async def test_minimal(self, new_temporary_app: App, tmp_path: Path) -> None:
         title = "My First Project"
         author = "My First Author"
         url = "https://exampleexampleexample.com/example"
@@ -33,13 +33,15 @@ class TestNew:
             author,
             url,
         ]
-        configuration = await self._assert_new(tmp_path, inputs)
+        configuration = await self._assert_new(new_temporary_app, tmp_path, inputs)
         assert configuration.title.localize(DEFAULT_LOCALIZER) == title
         assert configuration.name == "my-first-project"
         assert configuration.author.localize(DEFAULT_LOCALIZER) == author
         assert configuration.url == url
 
-    async def test_with_single_locale(self, tmp_path: Path) -> None:
+    async def test_with_single_locale(
+        self, new_temporary_app: App, tmp_path: Path
+    ) -> None:
         locale = "nl-NL"
         inputs = [
             str(tmp_path),
@@ -50,13 +52,15 @@ class TestNew:
             "Mijn Eerste Auteur",
             "",
         ]
-        configuration = await self._assert_new(tmp_path, inputs)
+        configuration = await self._assert_new(new_temporary_app, tmp_path, inputs)
         assert configuration.name == "mijn-eerste-project"
         locale_configurations = configuration.locales
         assert len(locale_configurations) == 1
         locale_configurations[locale]
 
-    async def test_with_multiple_locales(self, tmp_path: Path) -> None:
+    async def test_with_multiple_locales(
+        self, new_temporary_app: App, tmp_path: Path
+    ) -> None:
         default_locale = "nl-NL"
         other_locale = "en-US"
         inputs = [
@@ -73,14 +77,14 @@ class TestNew:
             "",
             "",
         ]
-        configuration = await self._assert_new(tmp_path, inputs)
+        configuration = await self._assert_new(new_temporary_app, tmp_path, inputs)
         assert configuration.name == "mijn-eerste-project"
         locale_configurations = configuration.locales
         assert len(locale_configurations) == 2
         assert locale_configurations.default.locale == default_locale
         locale_configurations[other_locale]
 
-    async def test_with_name(self, tmp_path: Path) -> None:
+    async def test_with_name(self, new_temporary_app: App, tmp_path: Path) -> None:
         name = "project-first-my"
         inputs = [
             str(tmp_path),
@@ -92,10 +96,10 @@ class TestNew:
             "",
             "",
         ]
-        configuration = await self._assert_new(tmp_path, inputs)
+        configuration = await self._assert_new(new_temporary_app, tmp_path, inputs)
         assert configuration.name == name
 
-    async def test_with_gramps(self, tmp_path: Path) -> None:
+    async def test_with_gramps(self, new_temporary_app: App, tmp_path: Path) -> None:
         gramps_family_tree_file_path = tmp_path / "gramps"
         inputs = [
             str(tmp_path),
@@ -108,7 +112,7 @@ class TestNew:
             "y",
             str(gramps_family_tree_file_path),
         ]
-        configuration = await self._assert_new(tmp_path, inputs)
+        configuration = await self._assert_new(new_temporary_app, tmp_path, inputs)
         assert Gramps in configuration.extensions
         family_trees = cast(
             GrampsConfiguration,

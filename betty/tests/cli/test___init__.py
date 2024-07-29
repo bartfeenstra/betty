@@ -1,19 +1,17 @@
 import io
 import logging
-from asyncio import to_thread
 from collections.abc import AsyncIterator
 from logging import CRITICAL, ERROR, WARNING, INFO, DEBUG, FATAL, WARN, NOTSET
 
 import pytest
 from betty.app import App
-from betty.cli import _ClickHandler
+from betty.cli import _ClickHandler, new_main_command
 from betty.cli.commands import command, Command
 from betty.config import write_configuration_file
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
-from pytest_mock import MockerFixture
-
 from betty.test_utils.cli import run
+from pytest_mock import MockerFixture
 
 
 @command(name="no-op")
@@ -38,21 +36,21 @@ async def new_temporary_app(mocker: MockerFixture) -> AsyncIterator[App]:
 
 class TestMain:
     async def test_without_arguments(self, new_temporary_app: App) -> None:
-        await to_thread(run)
+        await run(new_temporary_app)
 
     async def test_help(self, new_temporary_app: App) -> None:
-        await to_thread(run, "--help")
+        await run(new_temporary_app, "--help")
 
 
 class TestVersion:
     async def test(self, new_temporary_app: App) -> None:
-        result = run("--version")
+        result = await run(new_temporary_app, "--version")
         assert "Betty" in result.stdout
 
 
 class TestUnknownCommand:
-    async def test(self) -> None:
-        await to_thread(run, "unknown-command", expected_exit_code=2)
+    async def test(self, new_temporary_app: App) -> None:
+        await run(new_temporary_app, "unknown-command", expected_exit_code=2)
 
 
 class TestVerbosity:
@@ -76,7 +74,7 @@ class TestVerbosity:
             await write_configuration_file(
                 project.configuration, project.configuration.configuration_file_path
             )
-            await to_thread(run, "no-op", verbosity)
+            await run(new_temporary_app, "no-op", verbosity)
 
 
 class TestClickHandler:
@@ -102,3 +100,9 @@ class TestClickHandler:
             )
         )
         assert stream.getvalue() == "Something went wrong!\n"
+
+
+class TestNewMainCommand:
+    async def test(self, new_temporary_app: App) -> None:
+        main_command = await new_main_command(new_temporary_app)
+        assert main_command("--help", standalone_mode=False) == 0

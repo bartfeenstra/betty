@@ -5,6 +5,7 @@ Provide the Command Line Interface.
 from __future__ import annotations
 
 import logging
+from asyncio import run
 from logging import (
     Handler,
     CRITICAL,
@@ -16,19 +17,15 @@ from logging import (
     LogRecord,
 )
 from sys import stderr
-from typing import TYPE_CHECKING, final, IO, Any
+from typing import final, IO, Any
 
 import click
-from click import Context
-from typing_extensions import override, ClassVar
-
 from betty import about
+from betty.app import App
 from betty.asyncio import wait_to_thread
 from betty.cli.commands import BettyCommand
-from betty.plugin import PluginRepository, PluginNotFound
-
-if TYPE_CHECKING:
-    from betty.cli.commands import Command
+from betty.plugin import PluginNotFound
+from typing_extensions import override, ClassVar
 
 
 @final
@@ -64,7 +61,14 @@ class _ClickHandler(Handler):
 class _BettyCommands(BettyCommand, click.MultiCommand):
     terminal_width: ClassVar[int | None] = None
     _bootstrapped = False
-    commands: PluginRepository[Command]
+    _app: ClassVar[App]
+
+    @classmethod
+    def new_type_for_app(cls, app: App) -> type[_BettyCommands]:
+        class __BettyCommands(_BettyCommands):
+            _app = app
+
+        return __BettyCommands
 
     def _bootstrap(self) -> None:
         if not self._bootstrapped:
@@ -96,34 +100,60 @@ class _BettyCommands(BettyCommand, click.MultiCommand):
     @override
     def make_context(
         self,
-        info_name: str | None,
+        info_name: str,
         args: list[str],
-        parent: Context | None = None,
+        parent: click.Context | None = None,
         **extra: Any,
-    ) -> Context:
+    ) -> click.Context:
         if self.terminal_width is not None:
             extra["terminal_width"] = self.terminal_width
-        return super().make_context(
-            info_name,  # type: ignore[arg-type]
-            args,
-            parent,
-            **extra,
-        )
+        ctx = super().make_context(info_name, args, parent, **extra)
+        ctx.obj = self._app
+        return ctx
 
 
-@click.command(
-    "betty",
-    cls=_BettyCommands,
-    # Set an empty help text so Click does not automatically use the function's docstring.
-    help="",
-)
-@click.version_option(
-    wait_to_thread(about.version_label()),
-    message=wait_to_thread(about.report()),
-    prog_name="Betty",
-)
-def main() -> None:
+def ctx_app(ctx: click.Context) -> App:
+    """
+    Get the running application from a context.
+
+    :param ctx: The context to get the application from. Defaults to the current context.
+    """
+    app = ctx.find_object(App)
+    assert isinstance(app, App)
+    return app
+
+
+def main(*args: str) -> Any:
     """
     Launch Betty's Command-Line Interface.
+
+    This is a stand-alone entry point that will manage an event loop and Betty application.
     """
-    pass  # pragma: no cover
+    return run(_main(*args))
+
+
+async def _main(*args: str) -> Any:
+    async with App.new_from_environment() as app, app:
+        return (await new_main_command(app))(*args)
+
+
+async def new_main_command(app: App) -> click.Command:
+    """
+    Create a new Click command for the Betty Command Line Interface.
+    """
+
+    @click.command(
+        "betty",
+        cls=_BettyCommands.new_type_for_app(app),
+        # Set an empty help text so Click does not automatically use the function's docstring.
+        help="",
+    )
+    @click.version_option(
+        await about.version_label(),
+        message=await about.report(),
+        prog_name="Betty",
+    )
+    def main_command(*args: str) -> None:
+        pass  # pragma: no cover
+
+    return main_command

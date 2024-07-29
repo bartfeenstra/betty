@@ -1,12 +1,10 @@
-from asyncio import to_thread
 from unittest.mock import AsyncMock
-
-from pytest_mock import MockerFixture
 
 from betty.app import App
 from betty.config import write_configuration_file
 from betty.project import Project
 from betty.test_utils.cli import run
+from pytest_mock import MockerFixture
 
 
 class TestGenerate:
@@ -18,8 +16,8 @@ class TestGenerate:
             await write_configuration_file(
                 project.configuration, project.configuration.configuration_file_path
             )
-            await to_thread(
-                run,
+            await run(
+                new_temporary_app,
                 "generate",
                 "-c",
                 str(project.configuration.configuration_file_path),
