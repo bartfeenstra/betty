@@ -63,7 +63,7 @@ class PotFileTestBase:
             )
             assert (
                 len(list(diff)) == 0
-            ), "The gettext *.po files are not up to date. Did you run `betty dev-update-translations`?"
+            ), f"The gettext *.po files are not up to date. Did you run `{self.command()}`?"
 
 
 class ProjectPotFileTestBase(PotFileTestBase):
