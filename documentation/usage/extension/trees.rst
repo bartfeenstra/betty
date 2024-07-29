@@ -1,6 +1,6 @@
 The *Trees* extension
 ===================
-The :py:class:`betty.extension.Trees` extension renders interactive family trees using `Cytoscape.js <http://js.cytoscape.org/>`_.
+The ``trees`` extension renders interactive family trees using `Cytoscape.js <http://js.cytoscape.org/>`_.
 
 .. important::
     This extension requires :doc:`npm </usage/npm>`.
@@ -14,7 +14,7 @@ Enable this extension in your project's :doc:`configuration file </usage/project
       .. code-block:: yaml
 
           extensions:
-            betty.extension.Trees: {}
+            trees: {}
 
    .. tab-item:: JSON
 
@@ -22,7 +22,7 @@ Enable this extension in your project's :doc:`configuration file </usage/project
 
           {
             "extensions": {
-              "betty.extension.Trees": {}
+              "trees": {}
             }
           }
 

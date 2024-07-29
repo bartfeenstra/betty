@@ -1,6 +1,6 @@
 The *Maps* extension
 ==================
-The :py:class:`betty.extension.Maps` extension renders interactive maps using `Leaflet <https://leafletjs.com/>`_ and
+The ``maps`` extension renders interactive maps using `Leaflet <https://leafletjs.com/>`_ and
 `OpenStreetMap <https://www.openstreetmap.org/>`_.
 
 .. important::
@@ -15,7 +15,7 @@ Enable this extension in your project's :doc:`configuration file </usage/project
       .. code-block:: yaml
 
           extensions:
-            betty.extension.Maps: {}
+            maps: {}
 
    .. tab-item:: JSON
 
@@ -23,7 +23,7 @@ Enable this extension in your project's :doc:`configuration file </usage/project
 
           {
             "extensions": {
-              "betty.extension.Maps": {}
+              "maps": {}
             }
           }
 

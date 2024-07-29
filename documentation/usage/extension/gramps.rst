@@ -1,6 +1,6 @@
 The *Gramps* extension
 ====================
-The :py:class:`betty.extension.gramps.Gramps` extension loads entities from `Gramps <https://gramps-project.org>`_ family trees into your Betty ancestry.
+The ``gramps`` extension loads entities from `Gramps <https://gramps-project.org>`_ family trees into your Betty ancestry.
 
 Enable this extension in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
@@ -11,7 +11,7 @@ Enable this extension in your project's :doc:`configuration file </usage/project
       .. code-block:: yaml
 
           extensions:
-            betty.extension.Gramps: {}
+            gramps: {}
 
    .. tab-item:: JSON
 
@@ -19,7 +19,7 @@ Enable this extension in your project's :doc:`configuration file </usage/project
 
           {
             "extensions": {
-              "betty.extension.Gramps": {}
+              "gramps": {}
             }
           }
 
@@ -34,7 +34,7 @@ This extension is configurable:
       .. code-block:: yaml
 
           extensions:
-            betty.extension.Gramps:
+            gramps:
               configuration:
                 family_trees:
                   - file: ./gramps.gpkg
@@ -45,7 +45,7 @@ This extension is configurable:
 
           {
             "extensions": {
-              "betty.extension.Gramps": {
+              "gramps": {
                 "configuration" : {
                   "family_trees": [
                     {
@@ -83,7 +83,7 @@ Gramps has limited built-in support for people's privacy. To fully control priva
 sources, and citations, add a ``betty:privacy`` attribute to any of these types, with a value of ``private`` to explicitly
 declare the data always private or ``public`` to declare the data always public. Any other value will leave the privacy
 undecided, as well as person records marked public using Gramps' built-in privacy selector. In such cases, the
-``betty.extension.Privatizer`` extension may decide if the data is public or private.
+``privatizer`` extension may decide if the data is public or private.
 
 Links
 ^^^^^

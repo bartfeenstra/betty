@@ -7,9 +7,9 @@ Fields
 ------
 Files inherit from:
 
-- :doc:`privacy`
+- :doc:`/usage/ancestry/privacy`
 
-``citations`` (iterable of :doc:`Citation <citation>`)
+``citations`` (iterable of :doc:`Citation </usage/ancestry/citation>`)
     The citations for this file.
 ``description`` (optional ``str``)
     The file's human-readable description.
@@ -17,9 +17,9 @@ Files inherit from:
     The entities this file is attached to.
 ``id`` (``str``)
     The file's own entity ID.
-``links`` (iterable of :doc:`Link <link>`)
+``links`` (iterable of :doc:`Link </usage/ancestry/link>`)
     The external links for this file.
-``notes`` (iterable of :doc:`Note <note>`)
+``notes`` (iterable of :doc:`Note </usage/ancestry/note>`)
     The notes for this file.
-``media_type`` (:doc:`MediaType <media-type>`)
+``media_type`` (:doc:`MediaType </usage/ancestry/media-type>`)
     The media type of this file.

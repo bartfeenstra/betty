@@ -109,7 +109,7 @@ class TestDocumentation:
         configuration.load(serde_format.load(dump))
 
 
-class TestDocstringReferences:
+class TestDocstringSphinxReferences:
     async def test(self) -> None:
         for directory_path, _, file_names in walk(str(ROOT_DIRECTORY_PATH / "betty")):
             for file_name in file_names:
@@ -130,66 +130,70 @@ class TestDocstringReferences:
                     ast.Module,
                 ),
             ):
-                await self._assert_docstring(file_path, node)
+                docstring = ast.get_docstring(node)
+                if docstring is None:
+                    continue
+                await _assert_sphinx_references(file_path, docstring)
 
-    def _refs(self, source: str, ref_tag: str) -> Iterator[tuple[str, str]]:
-        for match in re.finditer(
-            f"(:{ref_tag}:`.+?<(.+?)>`)|(:{ref_tag}:`(.+?)`)", source
+
+class TestDocumentationSphinxReferences:
+    async def test(self) -> None:
+        for directory_path, _, file_names in walk(
+            str(ROOT_DIRECTORY_PATH / "documentation")
         ):
-            if match.group(1) is None:
-                yield match.group(3), match.group(4)  # type: ignore[misc]
-            else:
-                yield match.group(1), match.group(2)  # type: ignore[misc]
+            for file_name in file_names:
+                if file_name.endswith(".rst"):
+                    await self._assert_rst_file(Path(directory_path) / file_name)
 
-    async def _assert_docstring(
-        self,
-        file_path: Path,
-        node: ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef | ast.Module,
-    ) -> None:
-        docstring = ast.get_docstring(node)
-        if docstring is None:
-            return
+    async def _assert_rst_file(self, file_path: Path) -> None:
+        async with aiofiles.open(file_path) as f:
+            documentation = await f.read()
+        await _assert_sphinx_references(file_path, documentation)
 
-        for ref_tag in (
-            "mod",
-            "func",
-            "data",
-            "const",
-            "class",
-            "meth",
-            "attr",
-            "type",
-            "exc",
-            "obj",
-        ):
-            for py_ref, py_ref_target in self._refs(docstring, ref_tag):
-                if py_ref_target in builtins.__dict__:
-                    return
-                if (
-                    "." in py_ref_target
-                    and py_ref_target.split(".")[0] in builtins.__dict__
-                ):
-                    return
-                try:
-                    import_object(py_ref_target)
-                except ExtensionError as error:
-                    if isinstance(node, ast.Module):
-                        raise AssertionError(
-                            f"Cannot import {py_ref} as mentioned in the module docstring of {file_path}."
-                        ) from error
-                    raise AssertionError(
-                        f"Cannot import {py_ref} as mentioned in the docstring of the object on line {node.lineno} of {file_path}."
-                    ) from error
 
-        for doc_ref, doc_ref_target in self._refs(docstring, "doc"):
-            doc_path = ROOT_DIRECTORY_PATH.joinpath(
-                "documentation", *doc_ref_target.split("/")
-            ).with_suffix(".rst")
-            if not doc_path.is_file():
-                if isinstance(node, ast.Module):
-                    raise AssertionError(
-                        f'Cannot find documentation page "{doc_ref_target}" as mentioned in {doc_ref} in the module docstring of {file_path}.'
-                    )
+def _sphinx_refs(source: str, ref_tag: str) -> Iterator[tuple[str, str]]:
+    for match in re.finditer(
+        f"(:{ref_tag}:`[^`]+?<([^`]+?)>`)|(:{ref_tag}:`([^`]+?)`)", source
+    ):
+        if match.group(1) is None:
+            yield match.group(3), match.group(4)  # type: ignore[misc]
+        else:
+            yield match.group(1), match.group(2)  # type: ignore[misc]
+
+
+async def _assert_sphinx_references(file_path: Path, source: str) -> None:
+    for ref_tag in (
+        "mod",
+        "func",
+        "data",
+        "const",
+        "class",
+        "meth",
+        "attr",
+        "type",
+        "exc",
+        "obj",
+    ):
+        for py_ref, py_ref_target in _sphinx_refs(source, ref_tag):
+            if py_ref_target in builtins.__dict__:
+                return
+            if (
+                "." in py_ref_target
+                and py_ref_target.split(".")[0] in builtins.__dict__
+            ):
+                return
+            try:
+                import_object(py_ref_target)
+            except ExtensionError as error:
                 raise AssertionError(
-                    f'Cannot find documentation page "{doc_ref_target}" as mentioned in {doc_ref} in the docstring of the object on line {node.lineno} of {file_path}.'
-                )
+                    f"Cannot import {py_ref} as mentioned by {py_ref} in {file_path}."
+                ) from error
+
+    for doc_ref, doc_ref_target in _sphinx_refs(source, "doc"):
+        doc_path = ROOT_DIRECTORY_PATH.joinpath(
+            "documentation", *doc_ref_target.split("/")
+        ).with_suffix(".rst")
+        if not doc_path.is_file():
+            raise AssertionError(
+                f'Cannot find documentation page "{doc_ref_target}" as mentioned by {doc_ref} in {file_path}.'
+            )

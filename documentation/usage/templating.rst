@@ -21,6 +21,6 @@ or project's :ref:`assets directory <The assets directory>`.
 
 In this section
 ---------------
-- :doc:`templating/globals`
-- :doc:`templating/filters`
-- :doc:`templating/tests`
+- :doc:`/usage/templating/globals`
+- :doc:`/usage/templating/filters`
+- :doc:`/usage/templating/tests`

@@ -9,7 +9,7 @@ Examples of assets:
 - imagery
 - CSS and JavaScript files
 - (Jinja2) templates
-- :doc:`translations <translation>`
+- :doc:`translations </usage/translation>`
 
 The File System
 ---------------
@@ -18,7 +18,7 @@ Betty comes with a :py:mod:`File System API <betty.fs>` that layers the assets p
 The order in which files are found:
 
 #. Project-specific assets found in your :ref:`project's assets directory <The project directory>`
-#. Assets provided by :doc:`extensions <extension>` in the order of their dependency tree
+#. Assets provided by :doc:`extensions </usage/extension>` in the order of their dependency tree
 #. Betty's built-in assets (``/betty/assets`` within the Betty source code)
 
 This means that extensions can override Betty's default assets, and your projects can override both extensions' and Betty's default assets.
@@ -30,7 +30,7 @@ For each of Betty's default assets, extensions' assets, and your projects' asset
 ``./locale/``
     Contains assets for different locales.
 ``./locale/$locale/betty.po``
-    Where ``$locale`` is an `IETF BCP 47 language tag <https://www.ietf.org/rfc/bcp/bcp47.txt>`_, ``betty.po`` is the gettext :doc:`translations <translation>` file for that locale.
+    Where ``$locale`` is an `IETF BCP 47 language tag <https://www.ietf.org/rfc/bcp/bcp47.txt>`_, ``betty.po`` is the gettext :doc:`translations </usage/translation>` file for that locale.
 ``./public/``
     Contains files that become part of your sites.
 ``./public/localized/``
@@ -51,4 +51,4 @@ For each of Betty's default assets, extensions' assets, and your projects' asset
     Examples of files that should often be put here are CSS and JavaScript files, images for
     your site's look and feel, and metadata files such as ``robots.txt`` and ``sitemap.xml``.
 ``./templates/``
-    Contains (Jinja2) :doc:`templates <templating>`.
+    Contains (Jinja2) :doc:`templates </usage/templating>`.

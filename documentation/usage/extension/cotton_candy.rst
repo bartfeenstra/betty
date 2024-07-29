@@ -1,6 +1,6 @@
 The *Cotton Candy* extension
 ==========================
-The :py:class:`betty.extension.CottonCandy` extension provides Betty's default theme.
+The ``cotton-candy`` extension provides Betty's default theme.
 
 .. important::
     This extension requires :doc:`npm </usage/npm>`.
@@ -14,7 +14,7 @@ Enable this extension in your project's :doc:`configuration file </usage/project
       .. code-block:: yaml
 
           extensions:
-            betty.extension.CottonCandy: {}
+            cotton-candy: {}
 
    .. tab-item:: JSON
 
@@ -22,7 +22,7 @@ Enable this extension in your project's :doc:`configuration file </usage/project
 
           {
             "extensions": {
-              "betty.extension.CottonCandy": {}
+              "cotton-candy": {}
             }
           }
 
@@ -37,7 +37,7 @@ This extension is configurable:
       .. code-block:: yaml
 
           extensions:
-            betty.extension.CottonCandy:
+            cotton-candy:
               configuration:
                 primary_inactive_color: '#ffc0cb'
                 primary_active_color: '#ff69b4'
@@ -56,7 +56,7 @@ This extension is configurable:
 
           {
             "extensions": {
-              "betty.extension.CottonCandy": {
+              "cotton-candy": {
                 "configuration" : {
                   "primary_inactive_color": "#ffc0cb",
                   "primary_active_color": "#ff69b4",

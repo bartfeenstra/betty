@@ -1,7 +1,7 @@
 Media Type
 ==========
 
-A :py:class:`betty.model.media_type.MediaType` describes a file's `media type <https://en.wikipedia.org/wiki/Media_type>`_,
+A :py:class:`betty.media_type.MediaType` describes a file's `media type <https://en.wikipedia.org/wiki/Media_type>`_,
 such as whether it is a JPG image, or a PDF document.
 
 Fields

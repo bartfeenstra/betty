@@ -7,7 +7,7 @@ Fields
 ------
 Notes inherit from:
 
-- :doc:`privacy`
+- :doc:`/usage/ancestry/privacy`
 
 ``entity`` (any entity)
     The entity this note is attached to.

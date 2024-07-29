@@ -7,21 +7,21 @@ Fields
 ------
 Events inherit from:
 
-- :doc:`privacy`
+- :doc:`/usage/ancestry/privacy`
 
-``date`` (:doc:`Datey <date>`)
+``date`` (:doc:`Datey </usage/ancestry/date>`)
     When the event took place.
-``event_type`` (:doc:`EventType <event-type>`)
+``event_type`` (:doc:`EventType </usage/ancestry/event-type>`)
     The event's type.
-``files`` (iterable of :doc:`File <file>`)
+``files`` (iterable of :doc:`File </usage/ancestry/file>`)
     The files attached to this event.
-``citations`` (iterable of :doc:`Citation <citation>`)
+``citations`` (iterable of :doc:`Citation </usage/ancestry/citation>`)
     The citations for this event.
 ``description`` (optional ``str``)
     The event's human-readable description.
 ``id`` (``str``)
     The event's own entity ID.
-``place`` (:doc:`Place <place>`)
+``place`` (:doc:`Place </usage/ancestry/place>`)
     Where the event took place.
-``presences`` (iterable of :doc:`Presence <presence>`)
-    :doc:`People's <person>` presences at this event.
+``presences`` (iterable of :doc:`Presence </usage/ancestry/presence>`)
+    :doc:`People's </usage/ancestry/person>` presences at this event.

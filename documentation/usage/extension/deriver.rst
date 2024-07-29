@@ -1,6 +1,6 @@
 The *Deriver* extension
 =====================
-The :py:class:`betty.extension.Deriver` extension derives, or infers, events for people based on their existing events. For example, we know that someone's
+The ``deriver`` extension derives, or infers, events for people based on their existing events. For example, we know that someone's
 final disposition, such as a burial or cremation, comes after their death. If a person has a *burial* event without a
 date, and a *death* event with a date of *January 1, 1970*, the Deriver will update the *burial* event with the date
 range *sometime after January 1, 1970*.
@@ -18,7 +18,7 @@ Enable this extension in your project's :doc:`configuration file </usage/project
       .. code-block:: yaml
 
           extensions:
-            betty.extension.Deriver: {}
+            deriver: {}
 
    .. tab-item:: JSON
 
@@ -26,7 +26,7 @@ Enable this extension in your project's :doc:`configuration file </usage/project
 
           {
             "extensions": {
-              "betty.extension.Deriver": {}
+              "deriver": {}
             }
           }
 

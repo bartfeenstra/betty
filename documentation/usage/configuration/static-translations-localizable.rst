@@ -6,7 +6,7 @@ Static translations
    :stub-columns: 1
 
    * -  Type
-     -  :py:class:`betty.locale.localizable.Localizable.config.StaticTranslationsLocalizableConfiguration`
+     -  :py:class:`betty.locale.localizable.config.StaticTranslationsLocalizableConfiguration`
 
 All configuration options
 -------------------------

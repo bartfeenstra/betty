@@ -1,7 +1,7 @@
 Event Type
 ==========
 
-:doc:`Event <event>` types are what indicate what kind of thing an event is about, such as a birth, death, or marriage.
+:doc:`Event </usage/ancestry/event>` types are what indicate what kind of thing an event is about, such as a birth, death, or marriage.
 They inherit from :py:class:`betty.model.event_type.EventType`.
 
 Built-in event types

@@ -1,6 +1,6 @@
 The *HTTP API Documentation* extension
 ====================================
-The :py:class:`betty.extension.HttpApiDoc` extension renders interactive and user-friendly HTTP API documentation using
+The ``http-api-doc`` extension renders interactive and user-friendly HTTP API documentation using
 `ReDoc <https://github.com/Redocly/redoc>`_.
 
 .. important::
@@ -15,7 +15,7 @@ Enable this extension in your project's :doc:`configuration file </usage/project
       .. code-block:: yaml
 
           extensions:
-            betty.extension.HttpApiDoc: {}
+            http-api-doc: {}
 
    .. tab-item:: JSON
 
@@ -23,7 +23,7 @@ Enable this extension in your project's :doc:`configuration file </usage/project
 
           {
             "extensions": {
-              "betty.extension.HttpApiDoc": {}
+              "http-api-doc": {}
             }
           }
 

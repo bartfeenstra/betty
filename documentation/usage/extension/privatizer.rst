@@ -1,6 +1,6 @@
 The *Privatizer* extension
 ========================
-The :py:class:`betty.extension.Privatizer` extension marks entities :doc:`private </usage/ancestry/privacy>`
+The ``privatizer`` extension marks entities :doc:`private </usage/ancestry/privacy>`
 to prevent sensitive information from being published accidentally.
 
 Entities in Betty have privacy. This is a *ternary* property, with the following possible values:
@@ -17,7 +17,7 @@ conditions are met:
 
 People
   People are considered dead past the *lifetime threshold*, which defaults to 125 years, but can be changed in your
-  site's :doc:`configuration file <../configuration>`.
+  site's :doc:`configuration file </usage/project/configuration>`.
 
   * The person has an end-of-life event, such as a death, final disposition, or will.
   * Any event that was at least the *lifetime threshold* ago.
@@ -51,7 +51,7 @@ Enable this extension in your project's :doc:`configuration file </usage/project
       .. code-block:: yaml
 
           extensions:
-            betty.extension.Privatizer: {}
+            privatizer: {}
 
    .. tab-item:: JSON
 
@@ -59,7 +59,7 @@ Enable this extension in your project's :doc:`configuration file </usage/project
 
           {
             "extensions": {
-              "betty.extension.Privatizer": {}
+              "privatizer": {}
             }
           }
 

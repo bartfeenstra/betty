@@ -8,23 +8,23 @@ Fields
 ------
 Sources inherit from:
 
-- :doc:`privacy`
+- :doc:`/usage/ancestry/privacy`
 
 ``author`` (``str``)
     The human-readable name of the source's author.
-``citations`` (iterable of :doc:`Citation <citation>`)
+``citations`` (iterable of :doc:`Citation </usage/ancestry/citation>`)
     The citations referencing the source.
 ``contained_by`` (optional ``Source``)
     Another source that contains this one.
 ``contains`` (iterable of ``Source``)
     Other sources contained by this one.
-``date`` (:doc:`Datey <date>`)
+``date`` (:doc:`Datey </usage/ancestry/date>`)
     The source (access) date.
-``files`` (iterable of :doc:`File <file>`)
+``files`` (iterable of :doc:`File </usage/ancestry/file>`)
     The files attached to this source.
 ``id`` (``str``)
     The source's own entity ID.
-``links`` (iterable of :doc:`Link <link>`)
+``links`` (iterable of :doc:`Link </usage/ancestry/link>`)
     The external links for this source.
 ``name`` (``str``)
     The human-readable name.
