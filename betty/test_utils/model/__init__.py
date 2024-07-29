@@ -19,7 +19,7 @@ class EntityTestBase(PluginTestBase[Entity]):
 
     async def test_plugin_label_plural(self) -> None:
         """
-        Tests :py:meth:`betty.plugin.Plugin.plugin_label_plural` implementations.
+        Tests :py:meth:`betty.model.Entity.plugin_label_plural` implementations.
         """
         assert self.get_sut_class().plugin_label_plural().localize(DEFAULT_LOCALIZER)
 

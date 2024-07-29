@@ -24,9 +24,9 @@ def deprecate(message: str, stacklevel: int = 1):
 
 class deprecated(typing_extensions.deprecated):
     """
-    Decorate a class, function, or overload to indicate that it is depreated.
+    Decorate a class, function, or overload to indicate that it is deprecated.
 
-    This is identical to :py:class:`warnings.deprecated`, but raises a Betty
+    This is identical to :py:class:`typing_extensions.deprecated`, but raises a Betty
     deprecation warning.
     """
 

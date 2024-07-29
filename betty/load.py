@@ -26,7 +26,7 @@ class PostLoadAncestryEvent(ProjectEvent):
     """
     Dispatched to postprocess ancestry data that was loaded into a project.
 
-    This event is invoked immediately after :py:class:`betty.load.LoadEvent`.
+    This event is invoked immediately after :py:class:`betty.load.LoadAncestryEvent`.
     """
 
     pass
