@@ -49,12 +49,12 @@ _MinimizableDump: TypeAlias = (
 def minimize(
     dump: _MinimizableDump[VoidableDump], voidable: Literal[True] = True
 ) -> VoidableDump:
-    pass  # pragma: no cover
+    pass
 
 
 @overload
 def minimize(dump: _MinimizableDump[VoidableDump], voidable: Literal[False]) -> Dump:
-    pass  # pragma: no cover
+    pass
 
 
 def minimize(
@@ -95,14 +95,14 @@ def none_void(value: VoidableDump) -> VoidableDump:
 def dump_default(
     dump: DumpMapping[Dump], key: str, default_type: type[DumpMapping[Dump]]
 ) -> DumpMapping[Dump]:
-    pass  # pragma: no cover
+    pass
 
 
 @overload
 def dump_default(
     dump: DumpMapping[Dump], key: str, default_type: type[DumpSequence[Dump]]
 ) -> DumpSequence[Dump]:
-    pass  # pragma: no cover
+    pass
 
 
 def dump_default(dump, key, default_type):

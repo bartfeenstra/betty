@@ -113,7 +113,9 @@ async def assert_betty_html(project: Project, url_path: str) -> Path:
     try:
         html5lib.HTMLParser(strict=True).parse(betty_html)
     except ParseError as e:
-        raise ValueError(f'HTML parse error "{e}" in:\n{betty_html}') from None
+        raise ValueError(
+            f'HTML parse error "{e}" in:\n{betty_html}'
+        ) from None  # pragma: no cover
 
     return betty_html_file_path
 

@@ -121,13 +121,13 @@ class StaticTranslationsLocalizableConfigurationProperty:
 
     @overload
     def __get__(self, instance: None, _: type) -> Self:
-        pass  # pragma: no cover
+        pass
 
     @overload
     def __get__(
         self, instance: object, _: type
     ) -> StaticTranslationsLocalizableConfiguration:
-        pass  # pragma: no cover
+        pass
 
     def __get__(self, instance, _):
         if instance is None:

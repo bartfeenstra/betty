@@ -366,9 +366,6 @@ class TestLink:
         sut = Link(url)
         assert sut.label is None
 
-    async def test_dump_linked_data(self) -> None:
-        pass
-
     async def test_dump_linked_data_should_dump_minimal(self) -> None:
         link = Link("https://example.com")
         expected: dict[str, Any] = {

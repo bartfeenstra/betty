@@ -1028,7 +1028,7 @@ class Source(
         """
         The citations/references to this source.
         """
-        pass
+        pass  # pragma: no cover
 
     @citations.setter
     def citations(self, citations: Iterable[Citation]) -> None:
