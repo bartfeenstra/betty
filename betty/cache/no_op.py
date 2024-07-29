@@ -82,7 +82,7 @@ class NoOpCache(Cache[Any]):
             CacheItemValueSetter[Any],
         ]
     ]:
-        pass  # pragma: no cover
+        pass
 
     @overload
     def getset(
@@ -93,7 +93,7 @@ class NoOpCache(Cache[Any]):
             CacheItemValueSetter[Any] | None,
         ]
     ]:
-        pass  # pragma: no cover
+        pass
 
     @override
     def getset(

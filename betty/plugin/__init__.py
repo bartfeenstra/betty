@@ -102,19 +102,19 @@ class PluginRepository(Generic[_PluginT], ABC):
 
     @overload
     async def select(self) -> Sequence[type[_PluginT]]:
-        pass  # pragma: no cover
+        pass
 
     @overload
     async def select(
         self, mixin_one: type[_PluginMixinOneT]
     ) -> Sequence[type[_PluginT & _PluginMixinOneT]]:
-        pass  # pragma: no cover
+        pass
 
     @overload
     async def select(
         self, mixin_one: type[_PluginMixinOneT], mixin_two: type[_PluginMixinTwoT]
     ) -> Sequence[type[_PluginT & _PluginMixinOneT & _PluginMixinTwoT]]:
-        pass  # pragma: no cover
+        pass
 
     @overload
     async def select(
@@ -125,7 +125,7 @@ class PluginRepository(Generic[_PluginT], ABC):
     ) -> Sequence[
         type[_PluginT & _PluginMixinOneT & _PluginMixinTwoT & _PluginMixinThreeT]
     ]:
-        pass  # pragma: no cover
+        pass
 
     async def select(
         self,

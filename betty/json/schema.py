@@ -15,8 +15,6 @@ from betty.string import upper_camel_case_to_lower_camel_case
 if TYPE_CHECKING:
     from betty.project import Project
 
-    pass
-
 
 class Schema:
     """

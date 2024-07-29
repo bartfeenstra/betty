@@ -676,12 +676,12 @@ class LocaleConfigurationSequence(ConfigurationSequence[LocaleConfiguration]):
     @override
     @overload
     def __getitem__(self, configuration_key: int | str) -> LocaleConfiguration:
-        pass  # pragma: no cover
+        pass
 
     @override
     @overload
     def __getitem__(self, configuration_key: slice) -> Sequence[LocaleConfiguration]:
-        pass  # pragma: no cover
+        pass
 
     @override
     def __getitem__(

@@ -353,14 +353,14 @@ def assert_fields(
 def assert_field(
     field: RequiredField[_AssertionValueT, _AssertionReturnT],
 ) -> AssertionChain[_AssertionValueT, _AssertionReturnT]:
-    pass  # pragma: no cover
+    pass
 
 
 @overload
 def assert_field(
     field: OptionalField[_AssertionValueT, _AssertionReturnT],
 ) -> AssertionChain[_AssertionValueT, _AssertionReturnT | type[Void]]:
-    pass  # pragma: no cover
+    pass
 
 
 def assert_field(

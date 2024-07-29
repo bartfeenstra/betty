@@ -32,7 +32,7 @@ class ConfigurationMappingTestConfiguration(Configuration):
 
     @override
     def update(self, other: Self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @override
     def load(self, dump: Dump) -> None:

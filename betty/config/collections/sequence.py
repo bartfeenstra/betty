@@ -57,12 +57,12 @@ class ConfigurationSequence(
     @override
     @overload
     def __getitem__(self, configuration_key: int) -> _ConfigurationT:
-        pass  # pragma: no cover
+        pass
 
     @override
     @overload
     def __getitem__(self, configuration_key: slice) -> Sequence[_ConfigurationT]:
-        pass  # pragma: no cover
+        pass
 
     @override
     def __getitem__(

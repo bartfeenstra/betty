@@ -440,7 +440,7 @@ class _DummyConfigurableExtensionConfiguration(Configuration):
 
     @override
     def update(self, other: Self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @override
     def load(self, dump: Dump) -> None:
@@ -466,11 +466,11 @@ class _DummyConfigurableExtension(
 class _DummyConfiguration(Configuration):
     @override
     def update(self, other: Self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @override
     def load(self, dump: Dump) -> None:
-        pass
+        pass  # pragma: no cover
 
     @override
     def dump(self) -> VoidableDump:
