@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-28 13:06+0100\n"
+"POT-Creation-Date: 2024-07-29 11:06+0100\n"
 "PO-Revision-Date: 2024-02-08 13:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: fr\n"
@@ -70,9 +70,6 @@ msgid "\"{invalid_locale}\" is not a valid IETF BCP 47 language tag."
 msgstr ""
 
 msgid "\"{path}\" is not a directory."
-msgstr ""
-
-msgid "\"{path}\" is not a file."
 msgstr ""
 
 msgid ""
@@ -237,9 +234,6 @@ msgid "Citations"
 msgstr ""
 
 msgid "Conference"
-msgstr ""
-
-msgid "Configuration file \"{configuration_file_path}\" does not exist."
 msgstr ""
 
 msgid "Confirmation"
@@ -764,7 +758,7 @@ msgid "Unknown"
 msgstr "Inconnu"
 
 msgid ""
-"Unknown file format \".{extension}\". Supported formats are: "
+"Unknown file format \"{extension}\". Supported formats are: "
 "{supported_formats}."
 msgstr ""
 
@@ -776,7 +770,6 @@ msgid ""
 "information."
 msgstr ""
 
-#, python-format
 msgid ""
 "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
 "to exit the search."

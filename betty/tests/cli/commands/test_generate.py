@@ -31,12 +31,12 @@ class TestGenerate:
             load_args, _ = await_args
             assert (
                 load_args[0].configuration.configuration_file_path
-                == project.configuration.configuration_file_path
+                == project.configuration.configuration_file_path.expanduser().resolve()
             )
 
             m_generate.assert_called_once()
             generate_args, _ = m_generate.call_args
             assert (
                 generate_args[0].configuration.configuration_file_path
-                == project.configuration.configuration_file_path
+                == project.configuration.configuration_file_path.expanduser().resolve()
             )

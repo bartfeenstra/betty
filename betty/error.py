@@ -3,11 +3,13 @@ Provide error handling utilities.
 """
 
 import traceback
-from typing import TypeVar
+from pathlib import Path
+from typing import TypeVar, Self
 
-from betty.locale.localizable import Localizable
-from betty.locale.localizer import Localizer
 from typing_extensions import override
+
+from betty.locale.localizable import Localizable, _
+from betty.locale.localizer import Localizer
 
 _BaseExceptionT = TypeVar("_BaseExceptionT", bound=BaseException)
 
@@ -57,3 +59,18 @@ class UserFacingError(Exception, Localizable):
     @override
     def localize(self, localizer: Localizer) -> str:
         return self._localizable_message.localize(localizer)
+
+
+class FileNotFound(UserFacingError, FileNotFoundError):
+    """
+    Raised when a file cannot be found.
+    """
+
+    @classmethod
+    def new(cls, file_path: Path) -> Self:
+        """
+        Create a new instance for the given file path.
+        """
+        return cls(
+            _('Could not find the file "{file_path}".').format(file_path=str(file_path))
+        )

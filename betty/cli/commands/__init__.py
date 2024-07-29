@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import logging
 from asyncio import run
+from contextlib import suppress
 from functools import wraps
 from importlib import metadata
 from pathlib import Path
@@ -31,11 +32,12 @@ from betty.assertion.error import AssertionFailed
 from betty.asyncio import wait_to_thread
 from betty.config import assert_configuration_file
 from betty.contextlib import SynchronizedContextManager
-from betty.error import UserFacingError
+from betty.error import UserFacingError, FileNotFound
 from betty.locale.localizable import _, Localizable, static
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.lazy import LazyPluginRepositoryBase
 from betty.project import Project
+from betty.serde.format import FormatRepository
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
@@ -280,35 +282,19 @@ def pass_app(
 
 
 async def _read_project_configuration(
-    project: Project, provided_configuration_file_path: str | None
+    project: Project, provided_configuration_file_path_str: str | None
 ) -> None:
     project_directory_path = Path.cwd()
-    logger = logging.getLogger(__name__)
-    if provided_configuration_file_path is None:
+    if provided_configuration_file_path_str is None:
         try_configuration_file_paths = [
             project_directory_path / f"betty{extension}"
-            for extension in (".json", ".yaml", ".yml")
+            for extension in FormatRepository().extensions
         ]
-    else:
-        try_configuration_file_paths = [
-            project_directory_path / provided_configuration_file_path
-        ]
-    assert_configuration = assert_configuration_file(project.configuration)
-    for try_configuration_file_path in try_configuration_file_paths:
-        try:
-            assert_configuration(try_configuration_file_path)
-            project.configuration.configuration_file_path = try_configuration_file_path
-        except AssertionFailed:
-            continue
-        else:
-            logger.info(
-                project.app.localizer._(
-                    "Loaded the configuration from {configuration_file_path}."
-                ).format(configuration_file_path=str(try_configuration_file_path)),
-            )
-            return
-
-    if provided_configuration_file_path is None:
+        for try_configuration_file_path in try_configuration_file_paths:
+            with suppress(FileNotFound):
+                return await _read_project_configuration_file(
+                    project, try_configuration_file_path
+                )
         raise AssertionFailed(
             _(
                 "Could not find any of the following configuration files in {project_directory_path}: {configuration_file_names}."
@@ -321,10 +307,30 @@ async def _read_project_configuration(
             )
         )
     else:
-        raise AssertionFailed(
-            _('Configuration file "{configuration_file_path}" does not exist.').format(
-                configuration_file_path=provided_configuration_file_path,
-            )
+        await _read_project_configuration_file(
+            project,
+            (project_directory_path / provided_configuration_file_path_str)
+            .expanduser()
+            .resolve(),
+        )
+
+
+async def _read_project_configuration_file(
+    project: Project, configuration_file_path: Path
+) -> None:
+    logger = logging.getLogger(__name__)
+    assert_configuration = assert_configuration_file(project.configuration)
+    try:
+        assert_configuration(configuration_file_path)
+    except UserFacingError as error:
+        logger.debug(error.localize(project.app.localizer))
+        raise
+    else:
+        project.configuration.configuration_file_path = configuration_file_path
+        logger.info(
+            project.app.localizer._(
+                "Loaded the configuration from {configuration_file_path}."
+            ).format(configuration_file_path=str(configuration_file_path)),
         )
 
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-28 13:06+0100\n"
+"POT-Creation-Date: 2024-07-29 11:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -58,9 +58,6 @@ msgid "\"{invalid_locale}\" is not a valid IETF BCP 47 language tag."
 msgstr ""
 
 msgid "\"{path}\" is not a directory."
-msgstr ""
-
-msgid "\"{path}\" is not a file."
 msgstr ""
 
 msgid "\"{value}\" is not a valid machine name: only lowercase letters, digits, and hyphens (-) are allowed."
@@ -196,9 +193,6 @@ msgid "Citations"
 msgstr ""
 
 msgid "Conference"
-msgstr ""
-
-msgid "Configuration file \"{configuration_file_path}\" does not exist."
 msgstr ""
 
 msgid "Confirmation"
@@ -670,7 +664,7 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-msgid "Unknown file format \".{extension}\". Supported formats are: {supported_formats}."
+msgid "Unknown file format \"{extension}\". Supported formats are: {supported_formats}."
 msgstr ""
 
 msgid "Unknown key: {unknown_key}. Did you mean {known_keys}?"
