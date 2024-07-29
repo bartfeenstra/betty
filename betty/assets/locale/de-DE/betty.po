@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-28 13:06+0100\n"
+"POT-Creation-Date: 2024-07-29 11:06+0100\n"
 "PO-Revision-Date: 2024-02-08 13:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de\n"
@@ -97,9 +97,6 @@ msgstr "\"{invalid_locale}\" ist kein gültiger IETF BCP 47 language tag."
 
 msgid "\"{path}\" is not a directory."
 msgstr "\"{path}\" ist kein Verzeichnis."
-
-msgid "\"{path}\" is not a file."
-msgstr ""
 
 msgid ""
 "\"{value}\" is not a valid machine name: only lowercase letters, digits, "
@@ -277,9 +274,6 @@ msgstr "Zitate"
 
 msgid "Conference"
 msgstr "Konferenz"
-
-msgid "Configuration file \"{configuration_file_path}\" does not exist."
-msgstr "Konfigurationsdatei \"{configuration_file_path}\" existiert nicht."
 
 msgid "Confirmation"
 msgstr "Bestätigung"
@@ -838,10 +832,10 @@ msgid "Unknown"
 msgstr "Unbekannt"
 
 msgid ""
-"Unknown file format \".{extension}\". Supported formats are: "
+"Unknown file format \"{extension}\". Supported formats are: "
 "{supported_formats}."
 msgstr ""
-"Unbekanntes Dateiformat \".{extension}\". Unterstützte Formate sind: "
+"Unbekanntes Dateiformat \"{extension}\". Unterstützte Formate sind: "
 "{supported_formats}."
 
 msgid "Unknown key: {unknown_key}. Did you mean {known_keys}?"
@@ -854,7 +848,6 @@ msgstr ""
 "Aktualisierte {updated_derivations} {event_type} Ereignisse auf Grund "
 "existierender Informationen."
 
-#, python-format
 msgid ""
 "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
 "to exit the search."

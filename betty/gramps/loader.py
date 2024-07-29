@@ -21,6 +21,7 @@ from aiofiles.tempfile import TemporaryDirectory
 from geopy import Point
 from typing_extensions import override
 
+from betty.error import FileNotFound
 from betty.gramps.error import GrampsError
 from betty.locale.date import DateRange, Datey, Date
 from betty.locale.localizable import _, static
@@ -92,14 +93,6 @@ if TYPE_CHECKING:
 class GrampsLoadFileError(GrampsError, RuntimeError):
     """
     An error occurred when loading a Gramps family tree file.
-    """
-
-    pass  # pragma: no cover
-
-
-class GrampsFileNotFoundError(GrampsError, FileNotFoundError):
-    """
-    A Gramps family tree file could not be file.
     """
 
     pass  # pragma: no cover
@@ -183,11 +176,7 @@ class GrampsLoader:
             async with aiofiles.open(file_path) as f:
                 xml = await f.read()
         except FileNotFoundError:
-            raise GrampsFileNotFoundError(
-                _('Could not find the file "{file_path}".').format(
-                    file_path=str(file_path)
-                )
-            ) from None
+            raise FileNotFound.new(file_path) from None
         with suppress(GrampsLoadFileError):
             await self.load_xml(xml, Path(file_path.anchor))
             return

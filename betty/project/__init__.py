@@ -826,7 +826,7 @@ class ProjectConfiguration(Configuration):
         if configuration_file_path == self._configuration_file_path:
             return
         formats = FormatRepository()
-        formats.format_for(configuration_file_path.suffix[1:])
+        formats.format_for(configuration_file_path.suffix)
         self._configuration_file_path = configuration_file_path
 
     @property

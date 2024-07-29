@@ -4,6 +4,7 @@ The Assertion API.
 
 from __future__ import annotations
 
+from collections.abc import Sized
 from dataclasses import dataclass
 from pathlib import Path
 from types import NoneType
@@ -21,13 +22,13 @@ from typing import (
 )
 
 from betty.assertion.error import AssertionFailedGroup, AssertionFailed
+from betty.error import FileNotFound
 from betty.locale import (
     get_data,
     UNDETERMINED_LOCALE,
 )
 from betty.locale.localizable import _, static, Localizable
 from betty.typing import Void
-from collections.abc import Sized
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -470,7 +471,7 @@ def assert_file_path() -> AssertionChain[Any, Path]:
     def _assert_file_path(file_path: Path) -> Path:
         if file_path.is_file():
             return file_path
-        raise AssertionFailed(_('"{path}" is not a file.').format(path=str(file_path)))
+        raise FileNotFound.new(file_path)
 
     return assert_path() | _assert_file_path
 

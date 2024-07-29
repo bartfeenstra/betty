@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-28 13:06+0100\n"
+"POT-Creation-Date: 2024-07-29 11:06+0100\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -96,9 +96,6 @@ msgstr "\"{invalid_locale}\" is geen geldige IETF BCP 47 taaltag."
 
 msgid "\"{path}\" is not a directory."
 msgstr "\"{path}\" is geen directory."
-
-msgid "\"{path}\" is not a file."
-msgstr "\"{path}\" is geen bestand."
 
 msgid ""
 "\"{value}\" is not a valid machine name: only lowercase letters, digits, "
@@ -278,9 +275,6 @@ msgstr "Verwijzingen"
 
 msgid "Conference"
 msgstr "Conferentie"
-
-msgid "Configuration file \"{configuration_file_path}\" does not exist."
-msgstr "Configuratiebestand \"{configuration_file_path}\" bestaat niet."
 
 msgid "Confirmation"
 msgstr "Geloofsbelijdenis"
@@ -846,10 +840,10 @@ msgid "Unknown"
 msgstr "Onbekend"
 
 msgid ""
-"Unknown file format \".{extension}\". Supported formats are: "
+"Unknown file format \"{extension}\". Supported formats are: "
 "{supported_formats}."
 msgstr ""
-"Onbekend bestandstype \".{extension}\". Ondersteunde bestandstypes zijn: "
+"Onbekend bestandstype \"{extension}\". Ondersteunde bestandstypes zijn: "
 "{supported_formats}."
 
 msgid "Unknown key: {unknown_key}. Did you mean {known_keys}?"
@@ -862,7 +856,6 @@ msgstr ""
 "{updated_derivations} {event_type}-gebeurtenissen bijgewerkt op basis van"
 " bestaande informatie."
 
-#, python-format
 msgid ""
 "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
 "to exit the search."

@@ -34,6 +34,7 @@ from betty.assertion import (
     assert_len_min,
 )
 from betty.assertion.error import AssertionFailed
+from betty.error import UserFacingError
 from betty.locale.localizable import static
 from betty.typing import Void
 from betty.test_utils.assertion.error import raises_error
@@ -338,7 +339,7 @@ class TestAssertDirectoryPath:
 
 class TestAssertFilePath:
     async def test_without_existing_path(self) -> None:
-        with raises_error(error_type=AssertionFailed):
+        with pytest.raises(UserFacingError):
             assert_file_path()("~/../foo/bar")
 
     async def test_with_valid_path_str(self) -> None:

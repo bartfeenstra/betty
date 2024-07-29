@@ -66,7 +66,7 @@ class Json(Format):
     @override
     @property
     def extensions(self) -> set[str]:
-        return {"json"}
+        return {".json"}
 
     @override
     @property
@@ -96,7 +96,7 @@ class Yaml(Format):
     @override
     @property
     def extensions(self) -> set[str]:
-        return {"yaml", "yml"}
+        return {".yaml", ".yml"}
 
     @override
     @property
@@ -161,7 +161,7 @@ class FormatRepository:
                 return serde_format
         raise FormatError(
             _(
-                'Unknown file format ".{extension}". Supported formats are: {supported_formats}.'
+                'Unknown file format "{extension}". Supported formats are: {supported_formats}.'
             ).format(extension=extension, supported_formats=FormatStr(self.formats))
         )
 
@@ -179,7 +179,7 @@ class FormatStr(Localizable):
     def localize(self, localizer: Localizer) -> str:
         return ", ".join(
             [
-                f".{extension} ({serde_format.label.localize(localizer)})"
+                f"{extension} ({serde_format.label.localize(localizer)})"
                 for serde_format in self._serde_formats
                 for extension in serde_format.extensions
             ]

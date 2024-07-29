@@ -24,6 +24,7 @@ from betty.assertion import (
     assert_file_path,
 )
 from betty.assertion.error import AssertionFailedGroup
+from betty.error import FileNotFound
 from betty.locale.localizable import static
 from betty.serde.dump import Dumpable, Dump
 from betty.serde.format import FormatRepository
@@ -101,11 +102,14 @@ def assert_configuration_file(
             # against the configuration file's directory path.
             chdir(configuration_file_path.parent),
         ):
-            with open(configuration_file_path) as f:
-                read_configuration = f.read()
+            try:
+                with open(configuration_file_path) as f:
+                    read_configuration = f.read()
+            except FileNotFoundError:
+                raise FileNotFound.new(configuration_file_path) from None
             with errors.catch(static(f"in {str(configuration_file_path.resolve())}")):
                 configuration.load(
-                    formats.format_for(configuration_file_path.suffix[1:]).load(
+                    formats.format_for(configuration_file_path.suffix).load(
                         read_configuration
                     )
                 )
@@ -121,9 +125,7 @@ async def write_configuration_file(
     Write configuration to file.
     """
     formats = FormatRepository()
-    dump = formats.format_for(configuration_file_path.suffix[1:]).dump(
-        configuration.dump()
-    )
+    dump = formats.format_for(configuration_file_path.suffix).dump(configuration.dump())
     await makedirs(configuration_file_path.parent, exist_ok=True)
     async with aiofiles.open(configuration_file_path, mode="w") as f:
         await f.write(dump)
