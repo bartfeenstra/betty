@@ -23,6 +23,8 @@ from typing import (
 )
 
 import click
+from betty.cli.error import user_facing_error_to_value_proc
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from click import get_current_context, Context, option, Option, Parameter
 from typing_extensions import override
 
@@ -360,7 +362,7 @@ def pass_project(
         "-c",
         "project",
         help="The path to a Betty project configuration file. Defaults to betty.json|yaml|yml in the current working directory.",
-        callback=_project,
+        callback=user_facing_error_to_value_proc(DEFAULT_LOCALIZER)(_project),
     )(f)
 
 
