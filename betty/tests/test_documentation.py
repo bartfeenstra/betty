@@ -37,12 +37,12 @@ class TestDocumentationServer:
 
 
 class TestDocumentation:
-    def _get_help(self, command: str | None = None) -> str:
+    async def _get_help(self, command: str | None = None) -> str:
         _BettyCommands.terminal_width = 80
         args: tuple[str, ...] = ("--help",)
         if command is not None:
             args = (command, *args)
-        expected = run(*args).stdout.strip()
+        expected = (await run(*args)).stdout.strip()
         if sys.platform.startswith("win32"):
             expected = expected.replace("\r\n", "\n")
         return "\n".join(
@@ -64,14 +64,14 @@ class TestDocumentation:
                 ROOT_DIRECTORY_PATH / "documentation" / "usage" / "cli.rst"
             ) as f:
                 actual = await f.read()
-            assert self._get_help() in actual
+            assert await self._get_help() in actual
             async for command in COMMAND_REPOSITORY:
                 if command.plugin_id() in (
                     "dev-new-translation",
                     "dev-update-translations",
                 ):
                     continue
-                assert self._get_help(command.plugin_id()) in actual
+                assert await self._get_help(command.plugin_id()) in actual
 
     @pytest.mark.parametrize(
         ("language", "serde_format"),

@@ -4,12 +4,13 @@ Test utilities for :py:mod:`betty.cli`.
 
 from typing import IO, Any
 
+from betty.app import App
+from betty.cli import new_main_command
 from click.testing import Result, CliRunner
 
-from betty.cli import main
 
-
-def run(
+async def run(
+    app: App,
     *args: str,
     expected_exit_code: int = 0,
     input: str | bytes | IO[Any] | None = None,  # noqa A002
@@ -18,7 +19,9 @@ def run(
     Run a Betty CLI command.
     """
     runner = CliRunner(mix_stderr=False)
-    result = runner.invoke(main, args, catch_exceptions=False, input=input)
+    result = runner.invoke(
+        await new_main_command(app), args, catch_exceptions=False, input=input
+    )
     if result.exit_code != expected_exit_code:
         raise AssertionError(
             f"""

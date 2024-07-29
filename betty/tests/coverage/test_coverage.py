@@ -120,6 +120,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/cache/_base.py": TestKnownToBeMissing,
     "betty/classtools.py": TestKnownToBeMissing,
     "betty/core.py": TestKnownToBeMissing,
+    "betty/cli/__init__.py": {
+        "ctx_app": TestKnownToBeMissing,
+    },
     "betty/cli/error.py": {
         "user_facing_error_to_value_proc": TestKnownToBeMissing,
     },
