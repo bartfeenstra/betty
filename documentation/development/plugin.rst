@@ -47,11 +47,11 @@ Built-in plugin types
 ^^^^^^^^^^^^^^^^^^^^^
 The following plugin types are provided by Betty itself:
 
-- :doc:`CLI commands <plugin/command>`
-- :doc:`Entity types <plugin/entity-type>`
-- :doc:`Event types <plugin/event-type>`
-- :doc:`Extensions <plugin/extension>`
-- :doc:`Presence roles <plugin/presence-role>`
+- :doc:`CLI commands </development/plugin/command>`
+- :doc:`Entity types </development/plugin/entity-type>`
+- :doc:`Event types </development/plugin/event-type>`
+- :doc:`Extensions </development/plugin/extension>`
+- :doc:`Presence roles </development/plugin/presence-role>`
 
 Creating a new plugin type
 --------------------------

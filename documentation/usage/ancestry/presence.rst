@@ -1,19 +1,19 @@
 Presence
 ========
 
-A :py:class:`betty.model.ancestry.Presence` acts as a bridge that links a :doc:`person` to an :doc:`event`.
+A :py:class:`betty.model.ancestry.Presence` acts as a bridge that links a :doc:`/usage/ancestry/person` to an :doc:`/usage/ancestry/event`.
 
 Fields
 ------
 Presences inherit from:
 
-- :doc:`privacy`
+- :doc:`/usage/ancestry/privacy`
 
-``person`` (:doc:`Person <person>`)
+``person`` (:doc:`Person </usage/ancestry/person>`)
     The person who was present at ``event``.
-``event`` (:doc:`Event <event>`)
+``event`` (:doc:`Event </usage/ancestry/event>`)
     The event ``person`` was present at.
 ``id`` (``str``)
     The presence's own entity ID.
-``role`` (:doc:`PresenceRole <presence-role>`)
+``role`` (:doc:`PresenceRole </usage/ancestry/presence-role>`)
     ``person``'s role in the event.

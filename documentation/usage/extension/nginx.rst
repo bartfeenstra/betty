@@ -1,6 +1,6 @@
 The *Nginx* extension
 ===================
-The :py:class:`betty.extension.Nginx` extension creates an `nginx <https://nginx.org>`_ configuration file and a `Docker <https://www.docker.com/>`_ ``Dockerfile`` in the output
+The ``nginx`` extension creates an `nginx <https://nginx.org>`_ configuration file and a `Docker <https://www.docker.com/>`_ ``Dockerfile`` in the output
 directory.
 
 Enable this extension in your project's :doc:`configuration file </usage/project/configuration>` as follows:
@@ -12,7 +12,7 @@ Enable this extension in your project's :doc:`configuration file </usage/project
       .. code-block:: yaml
 
           extensions:
-            betty.extension.Nginx: {}
+            nginx: {}
 
    .. tab-item:: JSON
 
@@ -20,7 +20,7 @@ Enable this extension in your project's :doc:`configuration file </usage/project
 
           {
             "extensions": {
-              "betty.extension.Nginx": {}
+              "nginx": {}
             }
           }
 
@@ -35,7 +35,7 @@ This extension is configurable:
       .. code-block:: yaml
 
           extensions:
-            betty.extension.Nginx:
+            nginx:
               configuration:
                 www_directory_path: /var/www/betty
                 https: true
@@ -46,7 +46,7 @@ This extension is configurable:
 
           {
             "extensions": {
-              "betty.extension.Nginx": {
+              "nginx": {
                 "configuration" : {
                   "www_directory_path": "/var/www/betty",
                   "https": true,
@@ -72,7 +72,7 @@ To run Betty using this Docker image, configure the extension as follows:
 .. code-block:: yaml
 
     extensions:
-      betty.extension.nginx.Nginx:
+      nginx.Nginx:
         www_directory_path: /var/www/betty/ # This is the web root inside the container.
         https: false # HTTPS is currently not supported in the Docker container.
 

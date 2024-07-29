@@ -47,24 +47,24 @@ access any entity of any type.
 
 In this section
 ---------------
-- :doc:`ancestry/citation`
-- :doc:`ancestry/date`
-- :doc:`ancestry/enclosure`
-- :doc:`ancestry/event`
-- :doc:`ancestry/event-type`
-- :doc:`ancestry/file`
-- :doc:`ancestry/file-reference`
-- :doc:`ancestry/link`
-- :doc:`ancestry/media-type`
-- :doc:`ancestry/note`
-- :doc:`ancestry/person`
-- :doc:`ancestry/person-name`
-- :doc:`ancestry/place`
-- :doc:`ancestry/place-name`
-- :doc:`ancestry/presence`
-- :doc:`ancestry/presence-role`
-- :doc:`ancestry/privacy`
-- :doc:`ancestry/source`
+- :doc:`/usage/ancestry/citation`
+- :doc:`/usage/ancestry/date`
+- :doc:`/usage/ancestry/enclosure`
+- :doc:`/usage/ancestry/event`
+- :doc:`/usage/ancestry/event-type`
+- :doc:`/usage/ancestry/file`
+- :doc:`/usage/ancestry/file-reference`
+- :doc:`/usage/ancestry/link`
+- :doc:`/usage/ancestry/media-type`
+- :doc:`/usage/ancestry/note`
+- :doc:`/usage/ancestry/person`
+- :doc:`/usage/ancestry/person-name`
+- :doc:`/usage/ancestry/place`
+- :doc:`/usage/ancestry/place-name`
+- :doc:`/usage/ancestry/presence`
+- :doc:`/usage/ancestry/presence-role`
+- :doc:`/usage/ancestry/privacy`
+- :doc:`/usage/ancestry/source`
 
 See also
 --------

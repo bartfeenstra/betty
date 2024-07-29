@@ -23,7 +23,7 @@ You can create and tailor projects using :doc:`configuration files </usage/proje
 The project directory
 --------------------
 ``./assets/``
-    Your project's :doc:`assets <assets>`, through which you can override translations, HTML templates, and more.
+    Your project's :doc:`assets </usage/assets>`, through which you can override translations, HTML templates, and more.
 ``./betty.yaml`` **or** ``./betty.yml`` **or** ``./betty.json``
     Your project's configuration file.
 ``./output/``
@@ -33,4 +33,4 @@ The project directory
 
 In this section
 ---------------
-- :doc:`project/configuration`
+- :doc:`/usage/project/configuration`

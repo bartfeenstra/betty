@@ -1,6 +1,6 @@
 The *Wikipedia* extension
 =======================
-The :py:class:`betty.extension.Wikipedia` extension renders summaries of Wikipedia articles. If a entity such as a person or a place contains
+The ``wikipedia`` extension renders summaries of Wikipedia articles. If a entity such as a person or a place contains
 links to Wikipedia articles, templates can use this extension to fetch translated summaries of these articles, and
 render them on the entity's page.
 
@@ -13,7 +13,7 @@ Enable this extension in your project's :doc:`configuration file </usage/project
       .. code-block:: yaml
 
           extensions:
-            betty.extension.Wikipedia: {}
+            wikipedia: {}
 
    .. tab-item:: JSON
 
@@ -21,7 +21,7 @@ Enable this extension in your project's :doc:`configuration file </usage/project
 
           {
             "extensions": {
-              "betty.extension.Wikipedia": {}
+              "wikipedia": {}
             }
           }
 
@@ -36,7 +36,7 @@ This extension is configurable:
       .. code-block:: yaml
 
           extensions:
-            betty.extension.Wikipedia:
+            wikipedia:
               configuration:
                 populate_images: false
 
@@ -46,7 +46,7 @@ This extension is configurable:
 
           {
             "extensions": {
-              "betty.extension.Wikipedia": {
+              "wikipedia": {
                 "configuration" : {
                   "populate_images": false
                 }
