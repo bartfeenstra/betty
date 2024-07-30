@@ -152,7 +152,7 @@ async def new_main_command(app: App) -> click.Command:
         help="",
     )
     @click.version_option(
-        await about.version_label(),
+        about.version_label(),
         message=await about.report(),
         prog_name="Betty",
     )

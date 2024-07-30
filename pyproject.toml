@@ -5,9 +5,7 @@ requires = [
 build-backend = 'setuptools.build_meta'
 
 [project]
-dynamic = [
-    'version',
-]
+version = '0.0.0'
 name = 'betty'
 description = 'Betty helps you visualize and publish your family history by building interactive genealogy websites out of your Gramps and GEDCOM family trees'
 readme = 'README.md'
@@ -189,9 +187,6 @@ ci = [
     'codecov ~= 2.1',
     'betty[test]',
 ]
-
-[tool.setuptools.dynamic]
-version = {file = ['betty/assets/VERSION']}
 
 [tool.setuptools.packages.find]
 where = ['.']
