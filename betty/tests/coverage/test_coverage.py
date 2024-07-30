@@ -124,7 +124,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ctx_app": TestKnownToBeMissing,
     },
     "betty/cli/error.py": {
-        "user_facing_error_to_value_proc": TestKnownToBeMissing,
+        "user_facing_error_to_bad_parameter": TestKnownToBeMissing,
     },
     "betty/cli/commands/__init__.py": {
         "BettyCommand": TestKnownToBeMissing,
@@ -458,6 +458,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/locale/translation.py": {
+        "find_source_files": TestKnownToBeMissing,
         "new_dev_translation": TestKnownToBeMissing,
         "new_project_translation": TestKnownToBeMissing,
         "update_dev_translations": TestKnownToBeMissing,

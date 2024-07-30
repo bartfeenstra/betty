@@ -8,15 +8,16 @@ import logging
 from contextlib import redirect_stdout
 from io import StringIO
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from aiofiles.os import makedirs
 from aiofiles.ospath import exists
 from betty import fs
 from betty.locale import get_data
 from betty.locale.babel import run_babel
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
     from betty.project import Project
 
 
@@ -49,7 +50,7 @@ async def _new_translation(locale: str, assets_directory_path: Path) -> None:
             "init",
             "--no-wrap",
             "-i",
-            str(assets_directory_path / "betty.pot"),
+            str(assets_directory_path / "locale" / "betty.pot"),
             "-o",
             str(po_file_path),
             "-l",
@@ -63,24 +64,26 @@ async def _new_translation(locale: str, assets_directory_path: Path) -> None:
 
 
 async def update_project_translations(
-    project: Project,
-    source_paths: set[Path] | None = None,
+    project_directory_path: Path,
+    source_directory_path: Path | None = None,
+    exclude_source_directory_paths: set[Path] | None = None,
     *,
     _output_assets_directory_path_override: Path | None = None,
 ) -> None:
     """
     Update the translations for the given project.
     """
-    if source_paths is None:
-        source_paths = set()
-    source_paths.add(project.configuration.assets_directory_path)
-    source_file_paths = set()
-    for source_path in source_paths:
-        for file_path in source_path.expanduser().resolve().rglob("*"):
-            source_file_paths.add(source_path / file_path)
+    if source_directory_path:
+        source_file_paths = set(
+            find_source_files(
+                source_directory_path, *exclude_source_directory_paths or set()
+            )
+        )
+    else:
+        source_file_paths = set()
     await _update_translations(
         source_file_paths,
-        project.configuration.assets_directory_path,
+        project_directory_path / "assets",
         _output_assets_directory_path_override,
     )
 
@@ -94,22 +97,15 @@ async def update_dev_translations(
     """
     source_directory_path = fs.ROOT_DIRECTORY_PATH / "betty"
     test_directory_path = source_directory_path / "tests"
-    source_file_paths = {
-        source_directory_path / source_file_path
-        for source_file_path in source_directory_path.rglob("*")
-        # Remove the tests directory from the extraction, or we'll
-        # be seeing some unusual additions to the translations.
-        if test_directory_path not in source_file_path.parents
-    }
     await _update_translations(
-        source_file_paths,
+        set(find_source_files(source_directory_path, test_directory_path)),
         fs.ASSETS_DIRECTORY_PATH,
         _output_assets_directory_path_override,
     )
 
 
 async def _update_translations(
-    source_paths: set[Path],
+    source_file_paths: set[Path],
     assets_directory_path: Path,
     _output_assets_directory_path_override: Path | None = None,
 ) -> None:
@@ -123,13 +119,9 @@ async def _update_translations(
         _output_assets_directory_path_override or assets_directory_path
     )
 
-    source_paths = {
-        source_path
-        for source_path in source_paths
-        if source_path.suffix in (".j2", ".py")
-    }
+    pot_file_path = output_assets_directory_path / "locale" / "betty.pot"
+    await makedirs(pot_file_path.parent, exist_ok=True)
 
-    pot_file_path = output_assets_directory_path / "betty.pot"
     await run_babel(
         "",
         "extract",
@@ -144,7 +136,7 @@ async def _update_translations(
         "Betty",
         "--copyright-holder",
         "Bart Feenstra & contributors",
-        *map(str, source_paths),
+        *map(str, {*source_file_paths, *find_source_files(assets_directory_path)}),
     )
     for input_po_file_path in Path(assets_directory_path).glob("locale/*/betty.po"):
         output_po_file_path = (
@@ -168,3 +160,21 @@ async def _update_translations(
             "-D",
             "betty",
         )
+
+
+def find_source_files(
+    source_directory_path: Path, *exclude_directory_paths: Path
+) -> Iterable[Path]:
+    """
+    Find source files in a directory.
+    """
+    exclude_directory_paths = {
+        exclude_directory_path.expanduser().resolve()
+        for exclude_directory_path in exclude_directory_paths
+    }
+    for source_file_path in source_directory_path.expanduser().resolve().rglob("*"):
+        source_file_path = source_directory_path / source_file_path
+        if exclude_directory_paths & set(source_file_path.parents):
+            continue
+        if source_file_path.suffix in {".j2", ".py"}:
+            yield source_file_path

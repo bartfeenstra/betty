@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-29 11:06+0100\n"
+"POT-Creation-Date: 2024-08-01 12:53+0100\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -805,6 +805,10 @@ msgstr "Dit moet een lijst zijn."
 
 msgid "This must be a positive number."
 msgstr "Dit moet een positief getal zijn."
+
+#, fuzzy
+msgid "This must be a sequence."
+msgstr "Dit moet een tekenreeks zijn."
 
 msgid "This must be a string."
 msgstr "Dit moet een tekenreeks zijn."

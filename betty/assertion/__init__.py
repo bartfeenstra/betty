@@ -4,7 +4,7 @@ The Assertion API.
 
 from __future__ import annotations
 
-from collections.abc import Sized
+from collections.abc import Sized, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from types import NoneType
@@ -128,7 +128,9 @@ _AssertionBuilderMethod = Callable[[object, _AssertionValueT], _AssertionReturnT
 _AssertionBuilder = "_AssertionBuilderFunction[ValueT, ReturnT] | _AssertionBuilderMethod[ValueT, ReturnT]"
 
 
-AssertTypeType: TypeAlias = bool | dict[Any, Any] | float | int | list[Any] | None | str
+AssertTypeType: TypeAlias = (
+    bool | dict[Any, Any] | float | int | Sequence[Any] | list[Any] | None | str
+)
 AssertTypeTypeT = TypeVar("AssertTypeTypeT", bound=AssertTypeType)
 
 
@@ -141,6 +143,7 @@ def _assert_type_violation_error_message(
         int: _("This must be a whole number."),
         float: _("This must be a decimal number."),
         str: _("This must be a string."),
+        Sequence: _("This must be a sequence."),
         list: _("This must be a list."),
         dict: _("This must be a key-value mapping."),
     }
@@ -291,15 +294,19 @@ def assert_sequence(
     Assert that a value is a sequence and that all item values are of the given type.
     """
 
-    def _assert_sequence(list_value: list[Any]) -> MutableSequence[_AssertionReturnT]:
+    def _assert_sequence(value: list[Any]) -> MutableSequence[_AssertionReturnT]:
+        _assert_type(
+            value,
+            Sequence,  # type: ignore[type-abstract]
+        )
         sequence: MutableSequence[_AssertionReturnT] = []
         with AssertionFailedGroup().assert_valid() as errors:
-            for value_item_index, value_item_value in enumerate(list_value):
+            for value_item_index, value_item_value in enumerate(value):
                 with errors.catch(static(str(value_item_index))):
                     sequence.append(item_assertion(value_item_value))
         return sequence
 
-    return assert_list() | _assert_sequence
+    return AssertionChain(_assert_sequence)
 
 
 def assert_mapping(

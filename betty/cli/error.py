@@ -11,13 +11,16 @@ from typing import Iterator, TYPE_CHECKING
 import click
 
 from betty.error import UserFacingError
+from betty.locale.localizer import DEFAULT_LOCALIZER
 
 if TYPE_CHECKING:
     from betty.locale.localizer import Localizer
 
 
 @contextmanager
-def user_facing_error_to_value_proc(localizer: Localizer) -> Iterator[None]:
+def user_facing_error_to_bad_parameter(
+    localizer: Localizer = DEFAULT_LOCALIZER,
+) -> Iterator[None]:
     """
     Convert a :py:class:`betty.error.UserFacingError` exception to a :py:class:`click.BadParameter` exception.
     """

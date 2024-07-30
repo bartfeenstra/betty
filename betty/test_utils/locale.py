@@ -10,7 +10,10 @@ from typing import Iterator
 
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
-from betty.locale.translation import update_dev_translations
+from betty.app import App
+from betty.locale.translation import (
+    update_project_translations,
+)
 from typing_extensions import override
 
 
@@ -20,7 +23,7 @@ class PotFileTestBase:
     """
 
     async def _readlines(self, assets_directory_path: Path) -> Iterator[str]:
-        async with aiofiles.open(assets_directory_path / "betty.pot") as f:
+        async with aiofiles.open(assets_directory_path / "locale" / "betty.pot") as f:
             return filter(
                 lambda line: not line.startswith(
                     (
@@ -38,13 +41,21 @@ class PotFileTestBase:
         """
         The assets directory path containing the translations that are being tested.
         """
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
 
     def command(self) -> str:
         """
         The command to suggest the developer runs in case the translations are out of date.
         """
-        raise NotImplementedError
+        raise NotImplementedError(repr(self))
+
+    async def update_translations(
+        self, output_assets_directory_path_override: Path
+    ) -> None:
+        """
+        Update the translations into the given directory.
+        """
+        raise NotImplementedError(repr(self))
 
     async def test(self) -> None:
         """
@@ -52,9 +63,7 @@ class PotFileTestBase:
         """
         async with TemporaryDirectory() as working_directory_path_str:
             working_directory_path = Path(working_directory_path_str)
-            await update_dev_translations(
-                _output_assets_directory_path_override=working_directory_path
-            )
+            await self.update_translations(working_directory_path)
             actual_pot_contents = await self._readlines(self.assets_directory_path())
             expected_pot_contents = await self._readlines(working_directory_path)
             diff = difflib.unified_diff(
@@ -74,3 +83,37 @@ class ProjectPotFileTestBase(PotFileTestBase):
     @override
     def command(self) -> str:
         return "betty update-translations"
+
+    def source_directory_path(self) -> Path | None:
+        """
+        The path to a source directory to include.
+        """
+        return None
+
+    def exclude_source_directory_paths(self) -> set[Path]:
+        """
+        The paths to any descendant source directories to exclude.
+        """
+        return set()
+
+    @override
+    def assets_directory_path(self) -> Path:
+        return self.project_directory_path() / "assets"
+
+    def project_directory_path(self) -> Path:
+        """
+        Get the path to the directory of the project under test.
+        """
+        raise NotImplementedError(repr(self))
+
+    @override
+    async def update_translations(
+        self, output_assets_directory_path_override: Path
+    ) -> None:
+        async with App.new_temporary() as app, app:
+            await update_project_translations(
+                self.project_directory_path(),
+                self.source_directory_path(),
+                self.exclude_source_directory_paths(),
+                _output_assets_directory_path_override=output_assets_directory_path_override,
+            )

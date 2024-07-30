@@ -7,7 +7,7 @@ import click
 
 from betty.assertion import assert_path, assert_str, assert_locale
 from betty.cli.commands import command, pass_app
-from betty.cli.error import user_facing_error_to_value_proc
+from betty.cli.error import user_facing_error_to_bad_parameter
 from betty.config import write_configuration_file
 from betty.extension.cotton_candy import CottonCandy
 from betty.extension.deriver import Deriver
@@ -55,7 +55,7 @@ def _assert_url(value: Any) -> str:
 async def new(app: App) -> None:  # noqa D103
     configuration_file_path = click.prompt(
         app.localizer._("Where do you want to save your project's configuration file?"),
-        value_proc=user_facing_error_to_value_proc(app.localizer)(
+        value_proc=user_facing_error_to_bad_parameter(app.localizer)(
             _assert_project_configuration_file_path
         ),
     )
@@ -79,7 +79,7 @@ async def new(app: App) -> None:  # noqa D103
                     "Which language should your project site be generated in? Enter an IETF BCP 47 language code."
                 ),
                 default=DEFAULT_LOCALE,
-                value_proc=user_facing_error_to_value_proc(app.localizer)(
+                value_proc=user_facing_error_to_bad_parameter(app.localizer)(
                     assert_locale()
                 ),
             )
@@ -92,7 +92,7 @@ async def new(app: App) -> None:  # noqa D103
                     app.localizer._(
                         "Which language should your project site be generated in? Enter an IETF BCP 47 language code."
                     ),
-                    value_proc=user_facing_error_to_value_proc(app.localizer)(
+                    value_proc=user_facing_error_to_bad_parameter(app.localizer)(
                         assert_locale()
                     ),
                 )
@@ -114,7 +114,7 @@ async def new(app: App) -> None:  # noqa D103
                 await app.localizers.get(configuration.locales.default.locale)
             )
         ),
-        value_proc=user_facing_error_to_value_proc(app.localizer)(
+        value_proc=user_facing_error_to_bad_parameter(app.localizer)(
             assert_machine_name()
         ),
     )
@@ -127,7 +127,7 @@ async def new(app: App) -> None:  # noqa D103
     configuration.url = click.prompt(
         app.localizer._("At which URL will your site be published?"),
         default="https://example.com",
-        value_proc=user_facing_error_to_value_proc(app.localizer)(_assert_url),
+        value_proc=user_facing_error_to_bad_parameter(app.localizer)(_assert_url),
     )
 
     if click.confirm(app.localizer._("Do you want to load a Gramps family tree?")):
@@ -141,7 +141,7 @@ async def new(app: App) -> None:  # noqa D103
                                 app.localizer._(
                                     "What is the path to your exported Gramps family tree file?"
                                 ),
-                                value_proc=user_facing_error_to_value_proc(
+                                value_proc=user_facing_error_to_bad_parameter(
                                     app.localizer
                                 )(assert_path()),
                             )
