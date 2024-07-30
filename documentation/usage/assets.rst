@@ -3,30 +3,34 @@ Asset Management
 
 What are assets?
 ----------------
-`Assets <https://en.wikipedia.org/wiki/Digital_asset>`_ are all the **static** files needed for Betty to run or generate your site, but that are not source code files.
-Examples of assets:
+`Assets <https://en.wikipedia.org/wiki/Digital_asset>`_ are all the **static** files needed for Betty to run or generate
+your site, but that are not source code files. Examples of assets:
 
 - imagery
 - CSS and JavaScript files
 - (Jinja2) templates
 - :doc:`translations </usage/translation>`
 
-The File System
----------------
+The assets repository
+---------------------
 
-Betty comes with a :py:mod:`File System API <betty.fs>` that layers the assets provided by all the different components.
+Betty comes with an :py:mod:`Assets API <betty.assets>` that layers the assets provided by all the different components.
 The order in which files are found:
+Each time an asset is needed, Betty finds it as follows:
 
-#. Project-specific assets found in your :ref:`project's assets directory <The project directory>`
-#. Assets provided by :doc:`extensions </usage/extension>` in the order of their dependency tree
-#. Betty's built-in assets (``/betty/assets`` within the Betty source code)
+#. If the project provides the asset in its assets directory, use it
+#. If an extension provides the asset in its assets directory, use it
+#. If a built-in translation asset exists, use it (``/betty/assets`` within the Betty source code)
 
-This means that extensions can override Betty's default assets, and your projects can override both extensions' and Betty's default assets.
+This means that extensions can override Betty's default assets, and your projects can override both extensions'
+and Betty's assets.
 
 The assets directory
 --------------------
 For each of Betty's default assets, extensions' assets, and your projects' assets, the assets directory follows the following structure:
 
+``./betty.pot``
+    The gettext :doc:`translatable message </usage/translation>` catalog.
 ``./locale/``
     Contains assets for different locales.
 ``./locale/$locale/betty.po``
