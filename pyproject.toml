@@ -37,7 +37,6 @@ dependencies = [
     'referencing ~= 0.35',
     'sphinx ~= 7.4',
     'sphinx-design ~= 0.6',
-    'sphinx-autodoc-typehints ~= 2.2',
     'typing_extensions ~= 4.12',
 ]
 classifiers = [
