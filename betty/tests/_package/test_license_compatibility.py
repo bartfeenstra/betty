@@ -12,6 +12,9 @@ class TestPackageLicenses:
     _GPL_V3_COMPATIBLE_DISTRIBUTIONS = (
         # We do not include basedtyping in any Betty distribution.
         "basedtyping",
+        # "This package contains code from cpython and is licensed under the same terms as cpython itself.",
+        # as per https://pypi.org/project/aiohappyeyeballs/.
+        "aiohappyeyeballs",
     )
 
     _GPL_V3_COMPATIBLE_LICENSES = (
