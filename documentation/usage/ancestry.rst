@@ -56,11 +56,11 @@ In this section
 - :doc:`/usage/ancestry/file-reference`
 - :doc:`/usage/ancestry/link`
 - :doc:`/usage/ancestry/media-type`
+- :doc:`/usage/ancestry/name`
 - :doc:`/usage/ancestry/note`
 - :doc:`/usage/ancestry/person`
 - :doc:`/usage/ancestry/person-name`
 - :doc:`/usage/ancestry/place`
-- :doc:`/usage/ancestry/place-name`
 - :doc:`/usage/ancestry/presence`
 - :doc:`/usage/ancestry/presence-role`
 - :doc:`/usage/ancestry/privacy`

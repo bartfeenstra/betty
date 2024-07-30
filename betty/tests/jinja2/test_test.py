@@ -4,7 +4,7 @@ from typing import Any, TYPE_CHECKING
 
 import pytest
 
-from betty.ancestry import Person, Place, PlaceName
+from betty.ancestry import Person, Place, Name
 from betty.ancestry.presence_role import Subject, Attendee, Witness
 from betty.test_utils.assets.templates import TemplateTestBase
 
@@ -23,7 +23,7 @@ class TestTestEntity(TemplateTestBase):
                 Person,
                 Place(
                     id="P1",
-                    names=[PlaceName(name="The Place")],
+                    names=[Name("The Place")],
                 ),
             ),
             (
@@ -31,7 +31,7 @@ class TestTestEntity(TemplateTestBase):
                 Place,
                 Place(
                     id="P1",
-                    names=[PlaceName(name="The Place")],
+                    names=[Name("The Place")],
                 ),
             ),
             ("false", Place, Person(id="P1")),

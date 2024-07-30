@@ -219,6 +219,7 @@ def plain(string: str) -> Localizable:
 StaticTranslations: TypeAlias = Mapping[str, str]
 """
 Keys are locales, values are translations.
+
 See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
 
@@ -226,6 +227,7 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 ShorthandStaticTranslations: TypeAlias = StaticTranslations | str
 """
 :py:const:`StaticTranslations` or a string which is the translation for the undetermined locale.
+
 See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
 
@@ -270,6 +272,7 @@ class StaticTranslationsLocalizable(_FormattableLocalizable, LinkedDataDumpable)
         Replace the translations.
         """
         from betty.assertion import assert_len
+
         from betty.locale.localizable.assertion import assert_static_translations
 
         if isinstance(translations, StaticTranslationsLocalizable):
@@ -308,7 +311,7 @@ class StaticTranslationsLocalizable(_FormattableLocalizable, LinkedDataDumpable)
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         return {
-            **self._translations,
+            "translations": {**self._translations},
         }
 
     @override

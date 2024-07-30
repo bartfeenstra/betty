@@ -1,4 +1,4 @@
-from betty.ancestry import Event, Place, PlaceName, Citation, Source
+from betty.ancestry import Event, Place, Name, Citation, Source
 from betty.ancestry.event_type import Birth
 from betty.extension.cotton_candy import CottonCandy
 from betty.jinja2 import EntityContexts
@@ -37,7 +37,7 @@ class Test(TemplateTestBase):
         event = Event(event_type=Birth())
         event.place = Place(
             id="P0",
-            names=[PlaceName(name="The Place")],
+            names=[Name("The Place")],
         )
         expected = 'in <span><a href="/place/P0/index.html"><span lang="und">The Place</span></a></span>'
         async with self._render(
@@ -51,7 +51,7 @@ class Test(TemplateTestBase):
         event = Event(event_type=Birth())
         place = Place(
             id="P0",
-            names=[PlaceName(name="The Place")],
+            names=[Name("The Place")],
         )
         event.place = place
         expected = ""
@@ -70,7 +70,7 @@ class Test(TemplateTestBase):
         )
         event.place = Place(
             id="P0",
-            names=[PlaceName(name="The Place")],
+            names=[Name("The Place")],
         )
         expected = '1970 in <span><a href="/place/P0/index.html"><span lang="und">The Place</span></a></span>'
         async with self._render(
@@ -98,7 +98,7 @@ class Test(TemplateTestBase):
         )
         event.place = Place(
             id="P0",
-            names=[PlaceName(name="The Place")],
+            names=[Name("The Place")],
         )
         event.citations.add(Citation(source=Source(name="The Source")))
         expected = '1970 in <span><span lang="und">The Place</span></span>'

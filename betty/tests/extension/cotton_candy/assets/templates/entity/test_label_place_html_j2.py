@@ -4,7 +4,7 @@ from typing import Any, TYPE_CHECKING
 
 import pytest
 
-from betty.ancestry import Place, PlaceName
+from betty.ancestry import Place, Name
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale.date import DateRange, Date
 from betty.test_utils.assets.templates import TemplateTestBase
@@ -25,7 +25,7 @@ class Test(TemplateTestBase):
                 {
                     "entity": Place(
                         id="P0",
-                        names=[PlaceName(name="The Place")],
+                        names=[Name("The Place")],
                     ),
                 },
                 None,
@@ -35,12 +35,7 @@ class Test(TemplateTestBase):
                 {
                     "entity": Place(
                         id="P0",
-                        names=[
-                            PlaceName(
-                                name="The Place",
-                                locale="en",
-                            )
-                        ],
+                        names=[Name({"en": "The Place"})],
                     ),
                 },
                 None,
@@ -51,14 +46,7 @@ class Test(TemplateTestBase):
                     "entity": Place(
                         id="P0",
                         names=[
-                            PlaceName(
-                                name="The Place",
-                                locale="en",
-                            ),
-                            PlaceName(
-                                name="De Plaats",
-                                locale="nl",
-                            ),
+                            Name({"en": "The Place", "nl": "De Plaats"}),
                         ],
                     ),
                 },
@@ -69,7 +57,7 @@ class Test(TemplateTestBase):
                 {
                     "entity": Place(
                         id="P0",
-                        names=[PlaceName(name="The Place")],
+                        names=[Name("The Place")],
                     ),
                     "embedded": True,
                 },
@@ -81,14 +69,12 @@ class Test(TemplateTestBase):
                     "entity": Place(
                         id="P0",
                         names=[
-                            PlaceName(
-                                name="The Old Place",
-                                locale="en",
+                            Name(
+                                {"en": "The Old Place"},
                                 date=DateRange(None, Date(1969, 12, 31)),
                             ),
-                            PlaceName(
-                                name="De Nieuwe Plaats",
-                                locale="nl",
+                            Name(
+                                {"nl": "De Nieuwe Plaats"},
                                 date=DateRange(Date(1970, 1, 1)),
                             ),
                         ],

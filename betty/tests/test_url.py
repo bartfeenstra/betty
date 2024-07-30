@@ -5,9 +5,9 @@ from typing import Any, TYPE_CHECKING
 
 import pytest
 
-from betty.model import UserFacingEntity
-from betty.ancestry import Person, Place, File, Source, PlaceName, Event, Citation
+from betty.ancestry import Person, Place, File, Source, Name, Event, Citation
 from betty.ancestry.event_type import Death
+from betty.model import UserFacingEntity
 from betty.project import LocaleConfiguration, Project
 from betty.test_utils.model import DummyEntity
 from betty.url import (
@@ -154,7 +154,7 @@ class TestProjectUrlGenerator:
             ),
             Place(
                 id="P1",
-                names=[PlaceName(name="Place 1")],
+                names=[Name("Place 1")],
             ),
             File(
                 id="F1",
@@ -191,7 +191,7 @@ class TestProjectUrlGenerator:
                 "/place/P1/index.html",
                 Place(
                     id="P1",
-                    names=[PlaceName(name="Place 1")],
+                    names=[Name("Place 1")],
                 ),
             ),
             (

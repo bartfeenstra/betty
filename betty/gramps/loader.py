@@ -18,14 +18,9 @@ from xml.etree import ElementTree
 
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
-from betty.error import FileNotFound
-from betty.gramps.error import GrampsError
-from betty.locale import UNDETERMINED_LOCALE
-from betty.locale.date import DateRange, Datey, Date
-from betty.locale.localizable import _, plain
-from betty.media_type import MediaType, InvalidMediaType
-from betty.model import Entity, AliasedEntity, AliasableEntity
-from betty.model.graph import EntityGraphBuilder
+from geopy import Point
+from typing_extensions import override
+
 from betty.ancestry import (
     Note,
     File,
@@ -36,7 +31,7 @@ from betty.ancestry import (
     Person,
     PersonName,
     Presence,
-    PlaceName,
+    Name,
     Enclosure,
     HasLinks,
     Link,
@@ -81,9 +76,15 @@ from betty.ancestry.presence_role import (
     Celebrant,
     Organizer,
 )
+from betty.error import FileNotFound
+from betty.gramps.error import GrampsError
+from betty.locale import UNDETERMINED_LOCALE
+from betty.locale.date import DateRange, Datey, Date
+from betty.locale.localizable import _, plain
+from betty.media_type import MediaType, InvalidMediaType
+from betty.model import Entity, AliasedEntity, AliasableEntity
+from betty.model.graph import EntityGraphBuilder
 from betty.path import rootname
-from geopy import Point
-from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.locale.localizer import Localizer
@@ -671,9 +672,8 @@ class GrampsLoader:
             name = name_element.get("value")
             assert name is not None
             names.append(
-                PlaceName(
-                    name=name,
-                    locale=language or UNDETERMINED_LOCALE,
+                Name(
+                    {language or UNDETERMINED_LOCALE: name},
                     date=date,
                 )
             )

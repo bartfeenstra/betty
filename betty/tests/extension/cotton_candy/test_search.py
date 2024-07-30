@@ -2,12 +2,12 @@ from pathlib import Path
 
 import pytest
 
+from betty.ancestry import Person, Place, Name, PersonName, File
 from betty.app import App
 from betty.extension.cotton_candy import CottonCandy
 from betty.extension.cotton_candy.search import Index
 from betty.job import Context
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.ancestry import Person, Place, PlaceName, PersonName, File
 from betty.project import LocaleConfiguration, Project
 
 
@@ -221,13 +221,11 @@ class TestIndex:
         place = Place(
             id=place_id,
             names=[
-                PlaceName(
-                    name="Netherlands",
-                    locale="en",
-                ),
-                PlaceName(
-                    name="Nederland",
-                    locale="nl",
+                Name(
+                    {
+                        "en": "Netherlands",
+                        "nl": "Nederland",
+                    }
                 ),
             ],
         )
@@ -258,10 +256,7 @@ class TestIndex:
         place = Place(
             id=place_id,
             names=[
-                PlaceName(
-                    name="Netherlands",
-                    locale="en",
-                ),
+                Name({"en": "Netherlands"}),
             ],
             private=True,
         )

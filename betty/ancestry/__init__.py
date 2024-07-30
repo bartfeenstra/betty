@@ -40,6 +40,7 @@ from betty.locale.localizable import (
     ShorthandStaticTranslations,
     StaticTranslationsLocalizableAttr,
     StaticTranslationsLocalizableSchema,
+    StaticTranslationsLocalizable,
 )
 from betty.locale.localized import Localized
 from betty.media_type import MediaType, MediaTypeSchema
@@ -1227,60 +1228,30 @@ class Citation(Dated, HasFileReferences, HasPrivacy, HasLinks, UserFacingEntity)
 
 
 @final
-class PlaceName(HasLocale, Dated, LinkedDataDumpable):
+class Name(Dated, StaticTranslationsLocalizable):
     """
-    A place name.
+    A name.
 
-    A name has a locale and a date during which the name was in use.
+    A name can be translated, and have a date expressing the period the name was in use.
     """
 
     def __init__(
         self,
-        name: str,
+        translations: ShorthandStaticTranslations,
         *,
-        locale: str = UNDETERMINED_LOCALE,
         date: Datey | None = None,
     ):
         super().__init__(
+            translations,
             date=date,
-            locale=locale,
         )
-        self._name = name
 
+    # @todo Do we need this?
     @override
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, self.__class__):
             return NotImplemented  # pragma: no cover
-        return self._name == other._name and self.locale == other.locale
-
-    @override  # type: ignore[callable-functiontype]
-    @recursive_repr()
-    def __repr__(self) -> str:
-        return repr_instance(self, name=self.name, locale=self.locale)
-
-    @override
-    def __str__(self) -> str:
-        return self._name
-
-    @property
-    def name(self) -> str:
-        """
-        The human-readable name.
-        """
-        return self._name
-
-    @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
-        dump = await super().dump_linked_data(project)
-        dump["name"] = self.name
-        return dump
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
-        schema = Schema(name="placeName")
-        add_property(schema, "name", Schema(schema={"type": "string"}))
-        return schema
+        return self._translations == other._translations and self.date == other.date
 
 
 @final
@@ -1363,7 +1334,7 @@ class Place(
         self,
         *,
         id: str | None = None,  # noqa A002
-        names: MutableSequence[PlaceName] | None = None,
+        names: MutableSequence[Name] | None = None,
         events: Iterable[Event] | None = None,
         enclosed_by: Iterable[Enclosure] | None = None,
         encloses: Iterable[Enclosure] | None = None,
@@ -1417,9 +1388,11 @@ class Place(
         return _("Places")  # pragma: no cover
 
     @property
-    def names(self) -> MutableSequence[PlaceName]:
+    def names(self) -> MutableSequence[Name]:
         """
         The place's names.
+
+        The first name is considered the :py:attr:`place label <betty.ancestry.Place.label>`.
         """
         return self._names
 
@@ -1437,9 +1410,8 @@ class Place(
     @override
     @property
     def label(self) -> Localizable:
-        # @todo Negotiate this by locale and date.
         with suppress(IndexError):
-            return plain(self.names[0].name)
+            return self.names[0]
         return super().label
 
     @override
@@ -1501,7 +1473,7 @@ class Place(
         add_property(
             schema,
             "names",
-            ArraySchema(await PlaceName.linked_data_schema(project)),
+            ArraySchema(await Name.linked_data_schema(project)),
         )
         add_property(
             schema,

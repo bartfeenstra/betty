@@ -96,7 +96,11 @@ class Index:
             return None
 
         return {
-            "text": " ".join((x.name.lower() for x in place.names)),
+            "text": " ".join(
+                translation.lower()
+                for name in place.names
+                for translation in name.translations.values()
+            ),
             "result": await self._render_entity(place),
         }
 
