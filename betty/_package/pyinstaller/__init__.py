@@ -29,24 +29,29 @@ async def a_pyz_exe_coll() -> tuple[Analysis, PYZ, EXE, COLLECT]:
     datas = []
     data_file_path_patterns = [
         # Assets.
-        "betty/assets/**",
-        "betty/extension/*/assets/**",
+        "betty/assets/**/*",
+        "betty/extension/*/assets/**/*",
         # Webpack.
         ".browserslistrc",
-        "betty/extension/*/webpack/**",
+        "betty/extension/*/webpack/**/*",
         "tsconfig.json",
         # Prebuilt assets.
-        "prebuild/**",
+        "prebuild/**/*",
     ]
     for data_file_path_pattern in data_file_path_patterns:
-        for data_file_path in ROOT_DIRECTORY_PATH.glob(data_file_path_pattern):
-            if data_file_path.is_file():
-                datas.append(
-                    (
-                        str(data_file_path),
-                        str(data_file_path.parent.relative_to(ROOT_DIRECTORY_PATH)),
-                    )
+        data_file_paths = [
+            data_file_path
+            for data_file_path in ROOT_DIRECTORY_PATH.glob(data_file_path_pattern)
+            if data_file_path.is_file()
+        ]
+        assert data_file_paths, f"Could not find any data files for {data_file_path_pattern}. Is that glob pattern correct?"
+        for data_file_path in data_file_paths:
+            datas.append(
+                (
+                    str(data_file_path),
+                    str(data_file_path.parent.relative_to(ROOT_DIRECTORY_PATH)),
                 )
+            )
     hiddenimports = [
         *find_packages(
             ".",
