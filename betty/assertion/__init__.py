@@ -22,7 +22,7 @@ from typing import (
 )
 
 from betty.assertion.error import AssertionFailedGroup, AssertionFailed
-from betty.error import FileNotFound
+from betty.error import FileNotFound, UserFacingError
 from betty.locale import (
     get_data,
     UNDETERMINED_LOCALE,
@@ -181,8 +181,7 @@ def assert_or(
             try:
                 return assertion(value)
             except AssertionFailed as e:
-                if e.raised(AssertionFailed):
-                    errors.append(e)
+                errors.append(e)
         raise errors
 
     return AssertionChain(_assert_or)
@@ -495,7 +494,10 @@ def assert_locale() -> AssertionChain[Any, str]:
         if value == UNDETERMINED_LOCALE:
             return value
 
-        get_data(value)
+        try:
+            get_data(value)
+        except UserFacingError as error:
+            raise AssertionFailed(error) from error
         return value
 
     return assert_str() | _assert_locale

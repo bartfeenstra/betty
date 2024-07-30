@@ -60,7 +60,7 @@ from betty.hashid import hashid
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import _, ShorthandStaticTranslations
 from betty.locale.localizable.config import (
-    StaticTranslationsLocalizableConfigurationProperty,
+    StaticTranslationsLocalizableConfigurationAttr,
 )
 from betty.locale.localizer import LocalizerRepository
 from betty.model import Entity, UserFacingEntity
@@ -761,8 +761,8 @@ class ProjectConfiguration(Configuration):
     Provide the configuration for a :py:class:`betty.project.Project`.
     """
 
-    title = StaticTranslationsLocalizableConfigurationProperty("title")
-    author = StaticTranslationsLocalizableConfigurationProperty("author", minimum=0)
+    title = StaticTranslationsLocalizableConfigurationAttr("title")
+    author = StaticTranslationsLocalizableConfigurationAttr("author", minimum=0)
 
     def __init__(
         self,
