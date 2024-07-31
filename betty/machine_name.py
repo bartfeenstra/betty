@@ -50,7 +50,7 @@ class InvalidMachineName(UserFacingError, ValueError):
 
 def assert_machine_name() -> AssertionChain[Any, MachineName]:
     """
-    Assert that a string is a machine name.
+    Assert that something is a machine name.
     """
 
     def _assert(value: Any) -> MachineName:
