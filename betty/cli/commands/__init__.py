@@ -25,7 +25,7 @@ import click
 from betty import about
 from betty.assertion.error import AssertionFailed
 from betty.asyncio import wait_to_thread
-from betty.cli.error import user_facing_error_to_value_proc
+from betty.cli.error import user_facing_error_to_bad_parameter
 from betty.config import assert_configuration_file
 from betty.contextlib import SynchronizedContextManager
 from betty.error import UserFacingError, FileNotFound
@@ -355,5 +355,5 @@ def pass_project(
         "-c",
         "project",
         help="The path to a Betty project configuration file. Defaults to betty.json|yaml|yml in the current working directory.",
-        callback=user_facing_error_to_value_proc(DEFAULT_LOCALIZER)(_project),
+        callback=user_facing_error_to_bad_parameter(DEFAULT_LOCALIZER)(_project),
     )(f)

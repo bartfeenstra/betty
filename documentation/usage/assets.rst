@@ -29,10 +29,10 @@ The assets directory
 --------------------
 For each of Betty's default assets, extensions' assets, and your projects' assets, the assets directory follows the following structure:
 
-``./betty.pot``
-    The gettext :doc:`translatable message </usage/translation>` catalog.
 ``./locale/``
     Contains assets for different locales.
+``./locale/betty.pot``
+    The gettext :doc:`translatable message </usage/translation>` catalog.
 ``./locale/$locale/betty.po``
     Where ``$locale`` is an `IETF BCP 47 language tag <https://www.ietf.org/rfc/bcp/bcp47.txt>`_, ``betty.po`` is the gettext :doc:`translations </usage/translation>` file for that locale.
 ``./public/``

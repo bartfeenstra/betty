@@ -390,7 +390,7 @@ class LocalizerRepository:
         for assets_directory_path in self._assets.assets_directory_paths:
             with suppress(FileNotFoundError):
                 async with aiofiles.open(
-                    assets_directory_path / "betty.pot"
+                    assets_directory_path / "locale" / "betty.pot"
                 ) as pot_data_f:
                     pot_data = await pot_data_f.read()
                     for entry in pofile(pot_data):
