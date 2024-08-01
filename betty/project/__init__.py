@@ -762,7 +762,7 @@ class ProjectConfiguration(Configuration):
     """
 
     title = StaticTranslationsLocalizableConfigurationAttr("title")
-    author = StaticTranslationsLocalizableConfigurationAttr("author", minimum=0)
+    author = StaticTranslationsLocalizableConfigurationAttr("author", required=False)
 
     def __init__(
         self,

@@ -4,12 +4,11 @@ Test utilities for :py:mod:`betty.model`.
 
 from __future__ import annotations
 
-from typing_extensions import override
-
-from betty.locale.localizable import Localizable, static
+from betty.locale.localizable import Localizable, plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity
 from betty.test_utils.plugin import DummyPlugin, PluginTestBase
+from typing_extensions import override
 
 
 class EntityTestBase(PluginTestBase[Entity]):
@@ -32,4 +31,4 @@ class DummyEntity(DummyPlugin, Entity):
     @override
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
-        return static(cls.__name__)
+        return plain(cls.__name__)

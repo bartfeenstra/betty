@@ -29,7 +29,7 @@ from betty.cli.error import user_facing_error_to_bad_parameter
 from betty.config import assert_configuration_file
 from betty.contextlib import SynchronizedContextManager
 from betty.error import UserFacingError, FileNotFound
-from betty.locale.localizable import _, Localizable, static
+from betty.locale.localizable import _, Localizable, plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.lazy import LazyPluginRepositoryBase
@@ -70,7 +70,7 @@ class Command(Plugin):
     @override
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return static(cls.click_command().name)
+        return plain(cls.click_command().name)
 
     @override
     @classmethod
@@ -78,7 +78,7 @@ class Command(Plugin):
         command_help = cls.click_command().short_help
         if command_help is None:
             return None
-        return static(command_help)
+        return plain(command_help)
 
 
 class _CommandRepository(LazyPluginRepositoryBase[Command]):

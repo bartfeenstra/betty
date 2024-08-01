@@ -1,19 +1,27 @@
+from collections.abc import Sequence
 from gettext import NullTranslations
 
 import pytest
-from betty.locale.localizable import StaticTranslationsLocalizable
+from betty.app import App
+from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
+from betty.locale.localizable import (
+    StaticTranslationsLocalizable,
+    plain,
+    StaticTranslationsLocalizableAttr,
+)
 from betty.locale.localizable import (
     static,
     ShorthandStaticTranslations,
 )
-from betty.locale.localizer import Localizer
+from betty.locale.localizable.assertion import assert_static_translations
+from betty.locale.localizer import Localizer, DEFAULT_LOCALIZER
+from betty.project import Project
+from betty.serde.dump import Dump, DumpMapping
+from betty.test_utils.attr import MutableAttrTestBase
+from typing_extensions import override
 
 
 class TestStaticTranslationsLocalizable:
-    async def test_without_translations(self) -> None:
-        with pytest.raises(ValueError):  # noqa PT011
-            StaticTranslationsLocalizable({})
-
     @pytest.mark.parametrize(
         ("expected", "locale", "translations"),
         [
@@ -58,6 +66,148 @@ class TestStaticTranslationsLocalizable:
         localizer = Localizer(locale, NullTranslations())
         assert sut.localize(localizer) == expected
 
+    def test___getitem__(self) -> None:
+        locale = "nl-NL"
+        translation = "Hallo, wereld!"
+        sut = StaticTranslationsLocalizable(
+            {
+                DEFAULT_LOCALE: "Hello, world!",
+                locale: translation,
+            }
+        )
+        assert sut[locale] == translation
+
+    def test___setitem__(self) -> None:
+        locale = "nl-NL"
+        translation = "Hallo, wereld!"
+        sut = StaticTranslationsLocalizable({DEFAULT_LOCALE: "Hello, world!"})
+        sut[locale] = translation
+        assert sut[locale] == translation
+
+    @pytest.mark.parametrize(
+        ("expected", "translations"),
+        [
+            (
+                0,
+                {},
+            ),
+            (
+                1,
+                "Hello, world!",
+            ),
+            (
+                1,
+                {
+                    "en-US": "Hello, world!",
+                },
+            ),
+            (
+                2,
+                {
+                    "nl-NL": "Hallo, wereld!",
+                    "en": "Hello, world!",
+                },
+            ),
+        ],
+    )
+    async def test___len__(
+        self, expected: int, translations: ShorthandStaticTranslations
+    ) -> None:
+        sut = StaticTranslationsLocalizable(translations, required=False)
+        assert len(sut) == expected
+
+    def test_set(self) -> None:
+        translation = "Hallo, wereld!"
+        sut = StaticTranslationsLocalizable(required=False)
+        sut.set(translation)
+        assert sut.localize(DEFAULT_LOCALIZER) == translation
+
+    @pytest.mark.parametrize(
+        ("expected", "translations"),
+        [
+            (
+                {},
+                {},
+            ),
+            (
+                {
+                    UNDETERMINED_LOCALE: "Hello, world!",
+                },
+                "Hello, world!",
+            ),
+            (
+                {
+                    "en-US": "Hello, world!",
+                },
+                {
+                    "en-US": "Hello, world!",
+                },
+            ),
+            (
+                {
+                    "nl-NL": "Hallo, wereld!",
+                    "en": "Hello, world!",
+                },
+                {
+                    "nl-NL": "Hallo, wereld!",
+                    "en": "Hello, world!",
+                },
+            ),
+        ],
+    )
+    async def test_dump_linked_data(
+        self,
+        expected: DumpMapping[Dump],
+        new_temporary_app: App,
+        translations: ShorthandStaticTranslations,
+    ) -> None:
+        sut = StaticTranslationsLocalizable(translations, required=False)
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            actual = await sut.dump_linked_data(project)
+        assert actual == expected
+
+
+class TestStaticTranslationsLocalizableAttr(
+    MutableAttrTestBase[
+        object, StaticTranslationsLocalizable, ShorthandStaticTranslations
+    ]
+):
+    @override
+    def get_mutable_instances(
+        self,
+    ) -> tuple[Sequence[tuple[object, Sequence[ShorthandStaticTranslations]]], str]:
+        class Instance:
+            attr = StaticTranslationsLocalizableAttr("attr", required=False)
+
+        return [
+            (
+                Instance(),
+                [
+                    "Hello, world!",
+                    {
+                        DEFAULT_LOCALE: "Hello, world!",
+                    },
+                ],
+            )
+        ], "attr"
+
+    @override
+    def assert_eq(
+        self,
+        get_value: StaticTranslationsLocalizable,
+        set_value: ShorthandStaticTranslations,
+    ) -> None:
+        assert get_value._translations == assert_static_translations()(set_value)
+
+    @override
+    def test_new_attr(self) -> None:
+        instances, attr_name = self.get_mutable_instances()
+        for instance, _ in instances:
+            assert isinstance(
+                getattr(type(instance), attr_name).new_attr(instance),
+                type(getattr(instance, attr_name)),
+            )
+
 
 class TestStatic:
     @pytest.mark.parametrize(
@@ -72,3 +222,15 @@ class TestStatic:
     )
     async def test(self, translations: ShorthandStaticTranslations) -> None:
         static(translations)
+
+
+class TestPlain:
+    @pytest.mark.parametrize(
+        "string",
+        [
+            "Hello, world!",
+            "Hallo, wereld!",
+        ],
+    )
+    async def test(self, string: str) -> None:
+        assert plain(string).localize(DEFAULT_LOCALIZER) == string

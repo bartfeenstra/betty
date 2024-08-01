@@ -18,14 +18,13 @@ from typing import (
 
 import aiofiles
 from aiofiles.os import makedirs
-
 from betty.assertion import (
     AssertionChain,
     assert_file_path,
 )
 from betty.assertion.error import AssertionFailedGroup
 from betty.error import FileNotFound
-from betty.locale.localizable import static
+from betty.locale.localizable import plain
 from betty.serde.dump import Dumpable, Dump
 from betty.serde.format import FormatRepository
 
@@ -107,7 +106,7 @@ def assert_configuration_file(
                     read_configuration = f.read()
             except FileNotFoundError:
                 raise FileNotFound.new(configuration_file_path) from None
-            with errors.catch(static(f"in {str(configuration_file_path.resolve())}")):
+            with errors.catch(plain(f"in {str(configuration_file_path.resolve())}")):
                 configuration.load(
                     formats.format_for(configuration_file_path.suffix).load(
                         read_configuration

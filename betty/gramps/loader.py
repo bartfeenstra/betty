@@ -18,13 +18,10 @@ from xml.etree import ElementTree
 
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
-from geopy import Point
-from typing_extensions import override
-
 from betty.error import FileNotFound
 from betty.gramps.error import GrampsError
 from betty.locale.date import DateRange, Datey, Date
-from betty.locale.localizable import _, static
+from betty.locale.localizable import _, plain
 from betty.media_type import MediaType, InvalidMediaType
 from betty.model import Entity, EntityGraphBuilder, AliasedEntity, AliasableEntity
 from betty.model.ancestry import (
@@ -83,6 +80,8 @@ from betty.model.presence_role import (
     Organizer,
 )
 from betty.path import rootname
+from geopy import Point
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.locale.localizer import Localizer
@@ -200,7 +199,7 @@ class GrampsLoader:
                 rootname(gramps_path),
             )
         except OSError as error:
-            raise GrampsLoadFileError(static(str(error))) from error
+            raise GrampsLoadFileError(plain(str(error))) from error
 
     async def load_gpkg(self, gpkg_path: Path) -> None:
         """
@@ -246,7 +245,7 @@ class GrampsLoader:
                 )
             )
         except ElementTree.ParseError as error:
-            raise GrampsLoadFileError(static(str(error))) from error
+            raise GrampsLoadFileError(plain(str(error))) from error
         await self.load_tree(tree, gramps_tree_directory_path)
 
     async def load_tree(
@@ -354,7 +353,7 @@ class GrampsLoader:
         found_element = element.find(selector, namespaces=self._NS)
         if found_element is None:
             raise XPathError(
-                static(f'Cannot find an element "{selector}" within {str(element)}.')
+                plain(f'Cannot find an element "{selector}" within {str(element)}.')
             )
         return found_element
 
@@ -921,7 +920,7 @@ class GrampsLoader:
         with suppress(XPathError):
             page = self._xpath1(element, "./ns:page").text
             if page:
-                citation.location = static(page)
+                citation.location = plain(page)
 
         aliased_citation = AliasedEntity(citation, citation_handle)
         self._load_objref(
