@@ -3,9 +3,14 @@ Provide localizable configuration.
 """
 
 from contextlib import suppress
-from typing import Self, cast, overload, final
+from typing import Self, final
+
+from typing_extensions import override
 
 from betty.assertion import assert_len_min
+from betty.attr import MutableAttr
+from betty.config import Configuration
+from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import (
     ShorthandStaticTranslations,
     Localizable,
@@ -13,10 +18,6 @@ from betty.locale.localizable import (
 )
 from betty.locale.localizable.assertion import assert_static_translations
 from betty.locale.localizer import Localizer
-from typing_extensions import override
-
-from betty.config import Configuration
-from betty.locale import UNDETERMINED_LOCALE
 from betty.serde.dump import VoidableDump, Dump, minimize
 from betty.typing import Void
 
@@ -97,47 +98,27 @@ class StaticTranslationsLocalizableConfiguration(Configuration, Localizable):
 
 
 @final
-class StaticTranslationsLocalizableConfigurationProperty:
+class StaticTranslationsLocalizableConfigurationAttr(
+    MutableAttr[
+        object, StaticTranslationsLocalizableConfiguration, ShorthandStaticTranslations
+    ]
+):
     """
     A property (similar to :py:func:`property`) that contains :py:class:`betty.locale.localizable.Localizable.StaticTranslationsLocalizableConfiguration`.
     """
 
     def __init__(self, attr_name: str, *, minimum: int = 1):
-        self._attr_name = f"_{attr_name}"
+        super().__init__(attr_name)
         self._minimum = minimum
 
-    def _get(self, instance: object) -> StaticTranslationsLocalizableConfiguration:
-        try:
-            return cast(
-                StaticTranslationsLocalizableConfiguration,
-                getattr(instance, self._attr_name),
-            )
-        except AttributeError:
-            translations = StaticTranslationsLocalizableConfiguration(
-                minimum=self._minimum
-            )
-            setattr(instance, self._attr_name, translations)
-            return translations
+    @override
+    def new_attr(self, instance: object) -> StaticTranslationsLocalizableConfiguration:
+        return StaticTranslationsLocalizableConfiguration(minimum=self._minimum)
 
-    @overload
-    def __get__(self, instance: None, _: type) -> Self:
-        pass
+    @override
+    def set_attr(self, instance: object, value: ShorthandStaticTranslations) -> None:
+        self.get_attr(instance).set(value)
 
-    @overload
-    def __get__(
-        self, instance: object, _: type
-    ) -> StaticTranslationsLocalizableConfiguration:
-        pass
-
-    def __get__(self, instance, _):
-        if instance is None:
-            return self
-        return self._get(instance)
-
-    def __set__(
-        self, instance: object, translations: ShorthandStaticTranslations
-    ) -> None:
-        self._get(instance).set(translations)
-
-    def __delete__(self, instance: object) -> None:
-        self._get(instance).set({})
+    @override
+    def del_attr(self, instance: object) -> None:
+        self.get_attr(instance).set({})

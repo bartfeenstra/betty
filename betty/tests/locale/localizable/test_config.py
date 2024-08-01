@@ -1,15 +1,18 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
 
 import pytest
 from betty.assertion.error import AssertionFailed
 from betty.locale import UNDETERMINED_LOCALE, DEFAULT_LOCALE
 from betty.locale.localizable import ShorthandStaticTranslations
+from betty.locale.localizable.assertion import assert_static_translations
 from betty.locale.localizable.config import (
     StaticTranslationsLocalizableConfiguration,
-    StaticTranslationsLocalizableConfigurationProperty,
+    StaticTranslationsLocalizableConfigurationAttr,
 )
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.test_utils.attr import MutableAttrTestBase
 from betty.typing import Void
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump
@@ -186,34 +189,43 @@ class TestStaticTranslationsLocalizableConfiguration:
         }
 
 
-class StaticTranslationsLocalizableConfigurationPropertyOwner:
-    localizable = StaticTranslationsLocalizableConfigurationProperty(
-        "localizable", minimum=0
-    )
+class TestStaticTranslationsLocalizableConfigurationAttr(
+    MutableAttrTestBase[
+        object, StaticTranslationsLocalizableConfiguration, ShorthandStaticTranslations
+    ]
+):
+    @override
+    def get_mutable_instances(
+        self,
+    ) -> tuple[Sequence[tuple[object, Sequence[ShorthandStaticTranslations]]], str]:
+        class Instance:
+            attr = StaticTranslationsLocalizableConfigurationAttr("attr", minimum=0)
 
+        return [
+            (
+                Instance(),
+                [
+                    "Hello, world!",
+                    {
+                        DEFAULT_LOCALE: "Hello, world!",
+                    },
+                ],
+            )
+        ], "attr"
 
-class TestStaticTranslationsLocalizableConfigurationProperty:
-    async def test___get___without_owner(self) -> None:
-        assert isinstance(
-            StaticTranslationsLocalizableConfigurationPropertyOwner.localizable,
-            StaticTranslationsLocalizableConfigurationProperty,
-        )
+    @override
+    def assert_eq(
+        self,
+        get_value: StaticTranslationsLocalizableConfiguration,
+        set_value: ShorthandStaticTranslations,
+    ) -> None:
+        assert get_value._translations == assert_static_translations()(set_value)
 
-    async def test___get___with_owner(self) -> None:
-        instance = StaticTranslationsLocalizableConfigurationPropertyOwner()
-        assert isinstance(
-            instance.localizable, StaticTranslationsLocalizableConfiguration
-        )
-
-    async def test___set__(self) -> None:
-        instance = StaticTranslationsLocalizableConfigurationPropertyOwner()
-        translation = "Hello, world!"
-        instance.localizable = translation
-        assert instance.localizable.localize(DEFAULT_LOCALIZER) == translation
-
-    async def test___delete__(self) -> None:
-        instance = StaticTranslationsLocalizableConfigurationPropertyOwner()
-        translation = "Hello, world!"
-        instance.localizable = translation
-        del instance.localizable
-        assert instance.localizable.localize(DEFAULT_LOCALIZER) == ""
+    @override
+    def test_new_attr(self) -> None:
+        instances, attr_name = self.get_mutable_instances()
+        for instance, _ in instances:
+            assert isinstance(
+                getattr(type(instance), attr_name).new_attr(instance),
+                type(getattr(instance, attr_name)),
+            )
