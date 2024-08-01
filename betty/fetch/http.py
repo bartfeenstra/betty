@@ -10,13 +10,12 @@ from time import time
 from typing import TypeVar
 
 from aiohttp import ClientSession, ClientResponse, ClientError
-from typing_extensions import override
-
 from betty.cache import Cache
 from betty.cache.file import BinaryFileCache
 from betty.fetch import Fetcher, FetchResponse, FetchError
 from betty.hashid import hashid
-from betty.locale.localizable import static
+from betty.locale.localizable import plain
+from typing_extensions import override
 
 _CacheItemValueT = TypeVar("_CacheItemValueT")
 
@@ -71,7 +70,7 @@ class HttpFetcher(Fetcher):
                 response_data = await cache_item.value()
             else:
                 raise FetchError(
-                    static(
+                    plain(
                         f'Could neither fetch "{url}", nor find an old version in the cache.'
                     )
                 )

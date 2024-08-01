@@ -27,7 +27,7 @@ from betty.locale import (
     get_data,
     UNDETERMINED_LOCALE,
 )
-from betty.locale.localizable import _, static, Localizable
+from betty.locale.localizable import _, Localizable, plain
 from betty.typing import Void
 
 if TYPE_CHECKING:
@@ -301,7 +301,7 @@ def assert_sequence(
         sequence: MutableSequence[_AssertionReturnT] = []
         with AssertionFailedGroup().assert_valid() as errors:
             for value_item_index, value_item_value in enumerate(value):
-                with errors.catch(static(str(value_item_index))):
+                with errors.catch(plain(str(value_item_index))):
                     sequence.append(item_assertion(value_item_value))
         return sequence
 
@@ -325,7 +325,7 @@ def assert_mapping(
                 if key_assertion:
                     with errors.catch(_('in key "{key}"').format(key=value_item_key)):
                         key_assertion(value_item_key)
-                with errors.catch(static(value_item_key)):
+                with errors.catch(plain(value_item_key)):
                     mapping[value_item_key] = item_assertion(value_item_value)
         return mapping
 
@@ -343,7 +343,7 @@ def assert_fields(
         mapping: MutableMapping[str, Any] = {}
         with AssertionFailedGroup().assert_valid() as errors:
             for field in fields:
-                with errors.catch(static(field.name)):
+                with errors.catch(plain(field.name)):
                     if field.name in dict_value:
                         if field.assertion:
                             mapping[field.name] = field.assertion(
@@ -411,7 +411,7 @@ def assert_record(
         unknown_keys = set(dict_value.keys()) - known_keys
         with AssertionFailedGroup().assert_valid() as errors:
             for unknown_key in unknown_keys:
-                with errors.catch(static(unknown_key)):
+                with errors.catch(plain(unknown_key)):
                     raise AssertionFailed(
                         _(
                             "Unknown key: {unknown_key}. Did you mean {known_keys}?"
@@ -440,7 +440,7 @@ def assert_isinstance(
     def _assert(value: Any) -> _AssertionValueT:
         if isinstance(value, alleged_type):
             return value
-        raise AssertionFailed(static(f"{value} must be an instance of {alleged_type}."))
+        raise AssertionFailed(plain(f"{value} must be an instance of {alleged_type}."))
 
     return _assert
 

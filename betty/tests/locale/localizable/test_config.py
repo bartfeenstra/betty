@@ -65,24 +65,10 @@ class TestStaticTranslationsLocalizableConfiguration:
         sut.set(translations)
         assert sut.localize(DEFAULT_LOCALIZER) == expected
 
-    @pytest.mark.parametrize(
-        ("minimum", "translations"),
-        [
-            (1, {}),
-            (2, "Hello, world!"),
-            (2, {DEFAULT_LOCALE: "Hello, world!"}),
-            (
-                3,
-                {DEFAULT_LOCALE: "Hello, world!", "nl-NL": "Hallo, wereld!"},
-            ),
-        ],
-    )
-    async def test_set_without_minimum_translations(
-        self, minimum: int, translations: ShorthandStaticTranslations
-    ) -> None:
-        sut = StaticTranslationsLocalizableConfiguration(minimum=minimum)
+    async def test_set_without_minimum_translations(self) -> None:
+        sut = StaticTranslationsLocalizableConfiguration(required=True)
         with pytest.raises(AssertionFailed):
-            sut.set(translations)
+            sut.set({})
 
     @pytest.mark.parametrize(
         ("expected", "translations"),
@@ -100,24 +86,6 @@ class TestStaticTranslationsLocalizableConfiguration:
     ) -> None:
         sut = StaticTranslationsLocalizableConfiguration(translations)
         assert sut.localize(DEFAULT_LOCALIZER) == expected
-
-    @pytest.mark.parametrize(
-        ("minimum", "translations"),
-        [
-            (1, {}),
-            (2, "Hello, world!"),
-            (2, {DEFAULT_LOCALE: "Hello, world!"}),
-            (
-                3,
-                {DEFAULT_LOCALE: "Hello, world!", "nl-NL": "Hallo, wereld!"},
-            ),
-        ],
-    )
-    async def test___init___without_minimum_translations(
-        self, minimum: int, translations: ShorthandStaticTranslations
-    ) -> None:
-        with pytest.raises(AssertionFailed):
-            StaticTranslationsLocalizableConfiguration(translations, minimum=minimum)
 
     async def test_localize_with_translations(self) -> None:
         sut = StaticTranslationsLocalizableConfiguration(
@@ -199,7 +167,9 @@ class TestStaticTranslationsLocalizableConfigurationAttr(
         self,
     ) -> tuple[Sequence[tuple[object, Sequence[ShorthandStaticTranslations]]], str]:
         class Instance:
-            attr = StaticTranslationsLocalizableConfigurationAttr("attr", minimum=0)
+            attr = StaticTranslationsLocalizableConfigurationAttr(
+                "attr", required=False
+            )
 
         return [
             (

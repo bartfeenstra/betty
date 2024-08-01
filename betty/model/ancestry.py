@@ -10,8 +10,6 @@ from reprlib import recursive_repr
 from typing import Iterable, Any, TYPE_CHECKING, final
 from urllib.parse import quote
 
-from typing_extensions import override
-
 from betty.classtools import repr_instance
 from betty.json.linked_data import (
     LinkedDataDumpable,
@@ -22,7 +20,7 @@ from betty.json.linked_data import (
 from betty.json.schema import add_property, ref_json_schema
 from betty.locale.date import Datey
 from betty.locale.date import ref_datey
-from betty.locale.localizable import _, Localizable, static, call
+from betty.locale.localizable import _, Localizable, static, call, plain
 from betty.locale.localized import Localized
 from betty.media_type import MediaType
 from betty.model import (
@@ -41,6 +39,7 @@ from betty.model.event_type import EventType, UnknownEventType
 from betty.model.presence_role import PresenceRole, ref_role, Subject
 from betty.serde.dump import DumpMapping, Dump, dump_default
 from betty.string import camel_case_to_kebab_case
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
@@ -589,7 +588,7 @@ class Note(UserFacingEntity, HasPrivacy, HasLinksEntity, Entity):
     @override
     @property
     def label(self) -> Localizable:
-        return static(self.text)
+        return plain(self.text)
 
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
@@ -824,7 +823,7 @@ class File(
     @override
     @property
     def label(self) -> Localizable:
-        return static(self.description) if self.description else super().label
+        return plain(self.description) if self.description else super().label
 
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
@@ -1065,7 +1064,7 @@ class Source(
     @override
     @property
     def label(self) -> Localizable:
-        return static(self.name) if self.name else super().label
+        return plain(self.name) if self.name else super().label
 
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
@@ -1512,7 +1511,7 @@ class Place(
     def label(self) -> Localizable:
         # @todo Negotiate this by locale and date.
         with suppress(IndexError):
-            return static(self.names[0].name)
+            return plain(self.names[0].name)
         return super().label
 
     @override
