@@ -91,7 +91,7 @@ jobs:
           )
           sudo apt-get install "${apt_packages[@]}"
 
-      - name: Instlal Lua
+      - name: Install Lua
         if: startsWith(runner.os, 'Linux')
         uses: leafo/gh-actions-lua@v10
 
