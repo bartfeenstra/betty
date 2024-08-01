@@ -9,6 +9,8 @@ Usage
 
    usage/*
 
+This section helps you use Betty to create your own projects.
+
 In this section
 ---------------
 - :doc:`/usage/cli`
