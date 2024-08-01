@@ -78,7 +78,7 @@ jobs:
         with:
           node-version-file: ./package.json
 
-      - name: Instlal Lua
+      - name: Install Lua
         if: startsWith(runner.os, 'Linux')
         uses: leafo/gh-actions-lua@v10
 
