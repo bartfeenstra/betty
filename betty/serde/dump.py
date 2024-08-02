@@ -91,31 +91,6 @@ def none_void(value: VoidableDump) -> VoidableDump:
     return None if value is Void else value
 
 
-@overload
-def dump_default(
-    dump: DumpMapping[Dump], key: str, default_type: type[DumpMapping[Dump]]
-) -> DumpMapping[Dump]:
-    pass
-
-
-@overload
-def dump_default(
-    dump: DumpMapping[Dump], key: str, default_type: type[DumpSequence[Dump]]
-) -> DumpSequence[Dump]:
-    pass
-
-
-def dump_default(dump, key, default_type):
-    """
-    Add a key and value to a dump, if the key does not exist yet.
-    """
-    try:
-        assert isinstance(dump[key], default_type)
-    except KeyError:
-        dump[key] = default_type()
-    return dump[key]  # type: ignore[return-value]
-
-
 class Dumpable(ABC):
     """
     Instances can be dumped to serializable data.

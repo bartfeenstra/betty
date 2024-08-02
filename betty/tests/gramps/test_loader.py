@@ -889,7 +889,9 @@ class TestGrampsLoader:
         assert len(links) == 1
         link = list(links)[0]
         assert link.url == "https://alexandria.example.com"
-        assert link.label == "Library of Alexandria Catalogue"
+        assert (
+            link.label.localize(DEFAULT_LOCALIZER) == "Library of Alexandria Catalogue"
+        )
 
     async def test_source_from_source_should_include_title(self) -> None:
         ancestry = await self._load_partial(
@@ -1021,7 +1023,7 @@ class TestGrampsLoader:
         link_full = source.links[1]
         assert link_minimal.url == link_minimal_url
         assert not link_minimal.description
-        assert link_minimal.label is None
+        assert not link_minimal.label
         assert link_minimal.locale is None
         assert link_minimal.media_type is None
         assert link_minimal.relationship is None
@@ -1029,7 +1031,7 @@ class TestGrampsLoader:
         assert (
             link_full.description.localize(DEFAULT_LOCALIZER) == link_full_description
         )
-        assert link_full.label == link_full_label
+        assert link_full.label.localize(DEFAULT_LOCALIZER) == link_full_label
         assert link_full.locale == link_full_locale
         assert link_full.media_type == MediaType(link_full_media_type)
         assert link_full.relationship == link_full_relationship

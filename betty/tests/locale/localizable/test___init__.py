@@ -2,13 +2,15 @@ from collections.abc import Sequence
 from gettext import NullTranslations
 
 import pytest
-from betty.app import App
+
+from betty.json.schema import Schema
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizable import (
     StaticTranslationsLocalizable,
     plain,
     StaticTranslationsLocalizableAttr,
     StaticTranslations,
+    StaticTranslationsLocalizableSchema,
 )
 from betty.locale.localizable import (
     static,
@@ -16,10 +18,12 @@ from betty.locale.localizable import (
 )
 from betty.locale.localizable.assertion import assert_static_translations
 from betty.locale.localizer import Localizer, DEFAULT_LOCALIZER
-from betty.project import Project
 from betty.serde.dump import Dump, DumpMapping
 from betty.test_utils.attr import MutableAttrTestBase
+from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from typing_extensions import override
+
+from betty.test_utils.json.schema import SchemaTestBase
 
 
 class TestStaticTranslationsLocalizable:
@@ -196,13 +200,26 @@ class TestStaticTranslationsLocalizable:
     async def test_dump_linked_data(
         self,
         expected: DumpMapping[Dump],
-        new_temporary_app: App,
         translations: ShorthandStaticTranslations,
     ) -> None:
         sut = StaticTranslationsLocalizable(translations, required=False)
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            actual = await sut.dump_linked_data(project)
+        actual = await assert_dumps_linked_data(sut)
         assert actual == expected
+
+
+class TestStaticTranslationsLocalizableSchema(SchemaTestBase):
+    @override
+    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
+        translations: Sequence[Dump] = [
+            {DEFAULT_LOCALE: "Hello, world!"},
+            {"nl": "Hallo, wereld!", "uk": "Привіт Світ!"},
+        ]
+        return [
+            (
+                StaticTranslationsLocalizableSchema(),
+                translations,
+            ),
+        ]
 
 
 class TestStaticTranslationsLocalizableAttr(

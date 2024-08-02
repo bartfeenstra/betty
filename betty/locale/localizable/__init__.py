@@ -9,14 +9,15 @@ from collections.abc import Callable, Mapping, Sequence
 from typing import Any, cast, TypeAlias, Self, final, TYPE_CHECKING
 from warnings import warn
 
+from typing_extensions import override
+
 from betty.attr import MutableAttr
 from betty.classtools import repr_instance
 from betty.json.linked_data import LinkedDataDumpable
 from betty.locale import negotiate_locale, to_locale
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizer import Localizer
-from betty.serde.dump import dump_default
-from typing_extensions import override
+from betty.json.schema import Schema
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
@@ -297,24 +298,14 @@ class StaticTranslationsLocalizable(_FormattableLocalizable, LinkedDataDumpable)
 
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
-        return dict(self._translations)
+        return {
+            **self._translations,
+        }
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
-        schema = await super().linked_data_schema(project)
-        schema["$ref"] = "#/definitions/staticTranslations"
-        definitions = dump_default(schema, "definitions", dict)
-        if "staticTranslations" not in definitions:
-            definitions["staticTranslations"] = {
-                "type": "object",
-                "description": "Keys are IETF BCP-47 language tags.",
-                "additionalProperties": {
-                    "type": "string",
-                    "description": "A human-readable translation.",
-                },
-            }
-        return schema
+    async def linked_data_schema(cls, project: Project) -> Schema:
+        return StaticTranslationsLocalizableSchema()
 
 
 def static(translations: ShorthandStaticTranslations) -> Localizable:
@@ -324,6 +315,25 @@ def static(translations: ShorthandStaticTranslations) -> Localizable:
     from betty.locale.localizable.assertion import assert_static_translations
 
     return StaticTranslationsLocalizable(assert_static_translations()(translations))
+
+
+class StaticTranslationsLocalizableSchema(Schema):
+    """
+    A JSON Schema for :py:class:`betty.locale.localizable.StaticTranslationsLocalizable`.
+    """
+
+    def __init__(self):
+        super().__init__(
+            name="staticTranslations",
+            schema={
+                "type": "object",
+                "description": "Keys are IETF BCP-47 language tags.",
+                "additionalProperties": {
+                    "type": "string",
+                    "description": "A human-readable translation.",
+                },
+            },
+        )
 
 
 @final

@@ -5,9 +5,11 @@ Provide `media type <https://en.wikipedia.org/wiki/Media_type>`_ handling utilit
 from __future__ import annotations
 
 from email.message import EmailMessage
-from typing import Any
+from typing import Any, final
 
 from typing_extensions import override
+
+from betty.json.schema import Schema
 
 
 class InvalidMediaType(ValueError):
@@ -99,4 +101,20 @@ class MediaType:
             other.subtype,
             self.suffix,
             other.parameters,
+        )
+
+
+@final
+class MediaTypeSchema(Schema):
+    """
+    A JSON Schema for :py:class:`betty.media_type.MediaType`.
+    """
+
+    def __init__(self):
+        super().__init__(
+            name="mediaType",
+            schema={
+                "type": "string",
+                "description": "An IANA media type (https://www.iana.org/assignments/media-types/media-types.xhtml).",
+            },
         )

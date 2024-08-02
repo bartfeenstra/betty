@@ -1007,7 +1007,9 @@ class GrampsLoader:
         for url_element in url_elements:
             link = Link(str(url_element.get("href")))
             link.relationship = "external"
-            link.label = url_element.get("description")
+            description = url_element.get("description")
+            if description:
+                link.label = description
             owner.links.append(link)
 
     def _load_attribute_privacy(

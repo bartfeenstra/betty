@@ -12,6 +12,8 @@ from urllib.parse import quote
 
 from typing_extensions import override
 
+from betty.ancestry.event_type import EventType, UnknownEventType
+from betty.ancestry.presence_role import PresenceRole, Subject, PresenceRoleSchema
 from betty.classtools import repr_instance
 from betty.json.linked_data import (
     LinkedDataDumpable,
@@ -19,9 +21,13 @@ from betty.json.linked_data import (
     dump_link,
     add_json_ld,
 )
-from betty.json.schema import add_property, ref_json_schema
-from betty.locale.date import Datey
-from betty.locale.date import ref_datey
+from betty.json.schema import (
+    add_property,
+    Schema,
+    ArraySchema,
+    Ref,
+)
+from betty.locale.date import Datey, DateySchema
 from betty.locale.localizable import (
     _,
     Localizable,
@@ -30,9 +36,10 @@ from betty.locale.localizable import (
     plain,
     ShorthandStaticTranslations,
     StaticTranslationsLocalizableAttr,
+    StaticTranslationsLocalizableSchema,
 )
 from betty.locale.localized import Localized
-from betty.media_type import MediaType
+from betty.media_type import MediaType, MediaTypeSchema
 from betty.model import (
     Entity,
     UserFacingEntity,
@@ -47,12 +54,10 @@ from betty.model.association import (
 from betty.model.collections import (
     MultipleTypesEntityCollection,
 )
-from betty.ancestry.event_type import EventType, UnknownEventType
-from betty.ancestry.presence_role import PresenceRole, ref_role, Subject
-from betty.serde.dump import DumpMapping, Dump, dump_default
 from betty.string import camel_case_to_kebab_case
 
 if TYPE_CHECKING:
+    from betty.serde.dump import DumpMapping, Dump
     from betty.machine_name import MachineName
     from betty.image import FocusArea
     from betty.project import Project
@@ -166,22 +171,29 @@ class HasPrivacy(LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
+    async def linked_data_schema(cls, project: Project) -> Schema:
         schema = await super().linked_data_schema(project)
         add_property(
             schema,
             "private",
-            {
-                "$ref": "#/definitions/privacy",
-            },
+            PrivacySchema(),
         )
-        definitions = dump_default(schema, "definitions", dict)
-        if "privacy" not in definitions:
-            definitions["privacy"] = {
+        return schema
+
+
+class PrivacySchema(Schema):
+    """
+    A JSON Schema for privacy.
+    """
+
+    def __init__(self):
+        super().__init__(
+            name="privacy",
+            schema={
                 "type": "boolean",
                 "description": "Whether this entity is private (true), or public (false).",
-            }
-        return schema
+            },
+        )
 
 
 def is_private(target: Any) -> bool:
@@ -248,11 +260,11 @@ class Dated(LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
+    async def linked_data_schema(cls, project: Project) -> Schema:
         schema = await super().linked_data_schema(project)
-        schema["type"] = "object"
-        schema["additionalProperties"] = False
-        add_property(schema, "date", await ref_datey(schema, project), False)
+        schema.schema["type"] = "object"
+        schema.schema["additionalProperties"] = False
+        add_property(schema, "date", DateySchema(), False)
         return schema
 
 
@@ -284,19 +296,16 @@ class Described(LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
+    async def linked_data_schema(cls, project: Project) -> Schema:
         schema = await super().linked_data_schema(project)
         add_property(
             schema,
             "description",
-            {
-                "$ref": "#/definitions/description",
-            },
+            Ref("description"),
             False,
         )
-        definitions = dump_default(schema, "definitions", dict)
-        if "description" not in definitions:
-            definitions["description"] = {
+        if "description" not in schema.definitions:
+            schema.definitions["description"] = {
                 "type": "string",
             }
         return schema
@@ -325,25 +334,10 @@ class HasMediaType(LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
+    async def linked_data_schema(cls, project: Project) -> Schema:
         schema = await super().linked_data_schema(project)
-        add_property(schema, "mediaType", ref_media_type(schema), False)
+        add_property(schema, "mediaType", MediaTypeSchema(), False)
         return schema
-
-
-def ref_media_type(root_schema: DumpMapping[Dump]) -> DumpMapping[Dump]:
-    """
-    Reference the MediaType schema.
-    """
-    definitions = dump_default(root_schema, "definitions", dict)
-    if "mediaType" not in definitions:
-        definitions["mediaType"] = {
-            "type": "string",
-            "description": "An IANA media type (https://www.iana.org/assignments/media-types/media-types.xhtml).",
-        }
-    return {
-        "$ref": "#/definitions/mediaType",
-    }
 
 
 @final
@@ -357,14 +351,14 @@ class Link(HasMediaType, Localized, Described, LinkedDataDumpable):
     #: The link's `IANA link relationship <https://www.iana.org/assignments/link-relations/link-relations.xhtml>`_.
     relationship: str | None
     #: The link's human-readable label.
-    label: str | None
+    label = StaticTranslationsLocalizableAttr("label")
 
     def __init__(
         self,
         url: str,
         *,
         relationship: str | None = None,
-        label: str | None = None,
+        label: ShorthandStaticTranslations | None = None,
         description: str | None = None,
         media_type: MediaType | None = None,
         locale: str | None = None,
@@ -375,89 +369,74 @@ class Link(HasMediaType, Localized, Described, LinkedDataDumpable):
             locale=locale,
         )
         self.url = url
-        self.label = label
+        if label:
+            self.label = label
         self.relationship = relationship
 
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
-        dump["$schema"] = project.static_url_generator.generate(
+        dump["$ref"] = project.static_url_generator.generate(
             "schema.json#/definitions/link", absolute=True
         )
         dump["url"] = self.url
-        if self.label is not None:
-            dump["label"] = self.label
+        if self.label:
+            dump["label"] = await self.label.dump_linked_data(project)
         if self.relationship is not None:
             dump["relationship"] = self.relationship
         return dump
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
-        schema = await super().linked_data_schema(project)
-        schema["type"] = "object"
-        schema["additionalProperties"] = False
-        add_json_ld(schema)
-        add_property(schema, "$schema", ref_json_schema(schema))
+    async def linked_data_schema(cls, project: Project) -> Schema:
+        return LinkSchema()
+
+
+class LinkSchema(Schema):
+    """
+    A JSON Schema for :py:class:`betty.ancestry.Link`.
+    """
+
+    def __init__(self):
+        super().__init__(name="link")
+        add_json_ld(self)
         add_property(
-            schema,
-            "label",
-            {
-                "type": "string",
-                "description": "The human-readable label, or link text.",
-            },
-            False,
-        )
-        add_property(
-            schema,
+            self,
             "url",
-            {
-                "type": "string",
-                "format": "uri",
-                "description": "The full URL to the other resource.",
-            },
+            Schema(
+                schema={
+                    "type": "string",
+                    "format": "uri",
+                    "description": "The full URL to the other resource.",
+                }
+            ),
         )
         add_property(
-            schema,
+            self,
             "relationship",
-            {
-                "type": "string",
-                "description": "The relationship between this resource and the link target (https://en.wikipedia.org/wiki/Link_relation).",
-            },
+            Schema(
+                schema={
+                    "type": "string",
+                    "description": "The relationship between this resource and the link target (https://en.wikipedia.org/wiki/Link_relation).",
+                }
+            ),
             False,
         )
-        return schema
+        add_property(
+            self,
+            "label",
+            StaticTranslationsLocalizableSchema(),
+            False,
+        )
 
 
-async def ref_link(
-    root_schema: DumpMapping[Dump], project: Project
-) -> DumpMapping[Dump]:
+class LinkCollectionSchema(ArraySchema):
     """
-    Reference the Link schema.
+    A JSON Schema for :py:class:`betty.ancestry.Link` collections.
     """
-    definitions = dump_default(root_schema, "definitions", dict)
-    if "link" not in definitions:
-        definitions["link"] = await Link.linked_data_schema(project)
-    return {
-        "$ref": "#/definitions/link",
-    }
 
-
-async def ref_link_collection(
-    root_schema: DumpMapping[Dump], project: Project
-) -> DumpMapping[Dump]:
-    """
-    Reference the schema for a collection of Link instances.
-    """
-    definitions = dump_default(root_schema, "definitions", dict)
-    if "linkCollection" not in definitions:
-        definitions["linkCollection"] = {
-            "type": "array",
-            "items": await ref_link(root_schema, project),
-        }
-    return {
-        "$ref": "#/definitions/linkCollection",
-    }
+    def __init__(self):
+        super().__init__(name="linkCollection", items_schema=LinkSchema())
 
 
 class HasLinks(Entity):
@@ -525,9 +504,9 @@ class HasLinks(Entity):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
+    async def linked_data_schema(cls, project: Project) -> Schema:
         schema = await super().linked_data_schema(project)
-        add_property(schema, "links", await ref_link_collection(schema, project))
+        add_property(schema, "links", LinkCollectionSchema())
         return schema
 
 
@@ -599,9 +578,14 @@ class Note(UserFacingEntity, HasPrivacy, HasLinks, Entity):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
+    async def linked_data_schema(cls, project: Project) -> Schema:
         schema = await super().linked_data_schema(project)
-        add_property(schema, "text", {"type": "string"}, False)
+        add_property(
+            schema,
+            "text",
+            Schema(schema={"type": "string", "title": "The human-readable note text."}),
+            False,
+        )
         return schema
 
 
@@ -639,15 +623,9 @@ class HasNotes(Entity):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
+    async def linked_data_schema(cls, project: Project) -> Schema:
         schema = await super().linked_data_schema(project)
-        add_property(
-            schema,
-            "notes",
-            {
-                "$ref": "#/definitions/entity/noteCollection",
-            },
-        )
+        add_property(schema, "notes", Ref("noteEntityCollection"))
         return schema
 
 
@@ -690,15 +668,9 @@ class HasCitations(Entity):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
+    async def linked_data_schema(cls, project: Project) -> Schema:
         schema = await super().linked_data_schema(project)
-        add_property(
-            schema,
-            "citations",
-            {
-                "$ref": "#/definitions/entity/citationCollection",
-            },
-        )
+        add_property(schema, "citations", Ref("citationEntityCollection"))
         return schema
 
 
@@ -809,12 +781,12 @@ class File(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
+    async def linked_data_schema(cls, project: Project) -> Schema:
         schema = await super().linked_data_schema(project)
         add_property(
             schema,
             "entities",
-            {"type": "array", "items": {"type": "string", "format": "uri"}},
+            ArraySchema(Schema(schema={"type": "string", "format": "uri"})),
         )
         return schema
 
@@ -1042,57 +1014,64 @@ class Source(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
+    async def linked_data_schema(cls, project: Project) -> Schema:
         schema = await super().linked_data_schema(project)
         add_property(
             schema,
             "name",
-            {
-                "type": "string",
-            },
+            Schema(
+                schema={
+                    "type": "string",
+                }
+            ),
             False,
         )
         add_property(
             schema,
             "author",
-            {
-                "type": "string",
-            },
+            Schema(
+                schema={
+                    "type": "string",
+                }
+            ),
             False,
         )
         add_property(
             schema,
             "publisher",
-            {
-                "type": "string",
-            },
+            Schema(
+                schema={
+                    "type": "string",
+                }
+            ),
             False,
         )
         add_property(
             schema,
             "contains",
-            {
-                "type": "array",
-                "items": {
-                    "type": "string",
-                    "format": "uri",
-                },
-            },
+            ArraySchema(
+                Schema(
+                    schema={
+                        "type": "string",
+                        "format": "uri",
+                    }
+                )
+            ),
         )
         add_property(
             schema,
             "citations",
-            {
-                "$ref": "#/definitions/entity/citationCollection",
-            },
+            Ref("citationEntityCollection"),
         )
         add_property(
             schema,
             "containedBy",
-            {
-                "type": "string",
-                "format": "uri",
-            },
+            Schema(
+                schema={
+                    "type": "string",
+                    "format": "uri",
+                }
+            ),
             False,
         )
         return schema
@@ -1191,13 +1170,17 @@ class Citation(Dated, HasFileReferences, HasPrivacy, HasLinks, UserFacingEntity)
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
+    async def linked_data_schema(cls, project: Project) -> Schema:
         schema = await super().linked_data_schema(project)
-        add_property(schema, "source", {"type": "string", "format": "uri"}, False)
+        add_property(
+            schema, "source", Schema(schema={"type": "string", "format": "uri"}), False
+        )
         add_property(
             schema,
             "facts",
-            {"type": "array", "items": {"type": "string", "format": "uri"}},
+            ArraySchema(
+                items_schema=Schema(schema={"type": "string", "format": "uri"})
+            ),
         )
         return schema
 
@@ -1253,9 +1236,9 @@ class PlaceName(Localized, Dated, LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
-        schema = await super().linked_data_schema(project)
-        add_property(schema, "name", {"type": "string"})
+    async def linked_data_schema(cls, project: Project) -> Schema:
+        schema = Schema(name="placeName")
+        add_property(schema, "name", Schema(schema={"type": "string"}))
         return schema
 
 
@@ -1472,37 +1455,44 @@ class Place(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
+    async def linked_data_schema(cls, project: Project) -> Schema:
         schema = await super().linked_data_schema(project)
         add_property(
             schema,
             "names",
-            {
-                "type": "array",
-                "items": await PlaceName.linked_data_schema(project),
-            },
+            ArraySchema(await PlaceName.linked_data_schema(project)),
         )
         add_property(
             schema,
             "enclosedBy",
-            {"$ref": "#/definitions/entity/placeCollection"},
+            Ref("placeEntityCollection"),
             False,
         )
         add_property(
-            schema, "encloses", {"$ref": "#/definitions/entity/placeCollection"}
+            schema,
+            "encloses",
+            Ref("placeEntityCollection"),
         )
-        coordinate_schema: DumpMapping[Dump] = {
-            "type": "number",
-        }
-        coordinates_schema: DumpMapping[Dump] = {
-            "type": "object",
-            "additionalProperties": False,
-        }
+        coordinate_schema = Schema(
+            schema={
+                "type": "number",
+            }
+        )
+        coordinates_schema = Schema(
+            schema={
+                "type": "object",
+                "additionalProperties": False,
+            }
+        )
         add_property(coordinates_schema, "latitude", coordinate_schema, False)
         add_property(coordinates_schema, "longitude", coordinate_schema, False)
-        add_json_ld(coordinates_schema, schema)
+        add_json_ld(coordinates_schema)
         add_property(schema, "coordinates", coordinates_schema, False)
-        add_property(schema, "events", {"$ref": "#/definitions/entity/eventCollection"})
+        add_property(
+            schema,
+            "events",
+            Ref("eventEntityCollection"),
+        )
         return schema
 
 
@@ -1733,61 +1723,75 @@ class Event(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
+    async def linked_data_schema(cls, project: Project) -> Schema:
         schema = await super().linked_data_schema(project)
         add_property(
             schema,
             "type",
-            {
-                "type": "string",
-            },
+            Schema(
+                schema={
+                    "type": "string",
+                }
+            ),
         )
         add_property(
             schema,
             "place",
-            {
-                "type": "string",
-                "format": "uri",
-            },
+            Schema(
+                schema={
+                    "type": "string",
+                    "format": "uri",
+                }
+            ),
             False,
         )
-        presence_schema: DumpMapping[Dump] = {
-            "type": "object",
-            "additionalProperties": False,
-        }
-        add_property(presence_schema, "role", ref_role(schema), False)
-        add_property(
-            presence_schema,
-            "person",
-            {
-                "type": "string",
-                "format": "uri",
-            },
-        )
-        add_json_ld(presence_schema, schema)
         add_property(
             schema,
             "presences",
-            {
-                "type": "array",
-                "items": presence_schema,
-            },
+            ArraySchema(_EventPresenceSchema()),
         )
         add_property(
             schema,
             "eventStatus",
-            {
-                "type": "string",
-            },
+            Schema(
+                schema={
+                    "type": "string",
+                }
+            ),
         )
         add_property(
             schema,
             "eventAttendanceMode",
-            {
-                "type": "string",
-            },
+            Schema(
+                schema={
+                    "type": "string",
+                }
+            ),
         )
         return schema
+
+
+class _EventPresenceSchema(Schema):
+    """
+    A schema for the :py:class:`betty.ancestry.Presence` associations on a :py:class:`betty.ancestry.Event`.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.schema["type"] = "object"
+        self.schema["additionalProperties"] = False
+        add_property(self, "role", PresenceRoleSchema(), False)
+        add_property(
+            self,
+            "person",
+            Schema(
+                schema={
+                    "type": "string",
+                    "format": "uri",
+                }
+            ),
+        )
+        add_json_ld(self)
 
 
 @final
@@ -1907,22 +1911,26 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
+    async def linked_data_schema(cls, project: Project) -> Schema:
         schema = await super().linked_data_schema(project)
         add_property(
             schema,
             "individual",
-            {
-                "type": "string",
-            },
+            Schema(
+                schema={
+                    "type": "string",
+                }
+            ),
             False,
         )
         add_property(
             schema,
             "affiliation",
-            {
-                "type": "string",
-            },
+            Schema(
+                schema={
+                    "type": "string",
+                }
+            ),
             False,
         )
         return schema
@@ -2119,60 +2127,57 @@ class Person(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
+    async def linked_data_schema(cls, project: Project) -> Schema:
         schema = await super().linked_data_schema(project)
         add_property(
             schema,
             "names",
-            {
-                "type": "array",
-                "items": await PersonName.linked_data_schema(project),
-            },
+            ArraySchema(await PersonName.linked_data_schema(project)),
         )
         add_property(
             schema,
             "parents",
-            {
-                "$ref": "#/definitions/entity/personCollection",
-            },
+            Ref("personEntityCollection"),
         )
         add_property(
             schema,
             "children",
-            {
-                "$ref": "#/definitions/entity/personCollection",
-            },
+            Ref("personEntityCollection"),
         )
         add_property(
             schema,
             "siblings",
-            {
-                "$ref": "#/definitions/entity/personCollection",
-            },
+            Ref("personEntityCollection"),
         )
-        presence_schema: DumpMapping[Dump] = {
-            "type": "object",
-            "additionalProperties": False,
-        }
-        add_property(presence_schema, "role", ref_role(schema), False)
-        add_property(
-            presence_schema,
-            "event",
-            {
-                "type": "string",
-                "format": "uri",
-            },
-        )
-        add_json_ld(presence_schema, schema)
         add_property(
             schema,
             "presences",
-            {
-                "type": "array",
-                "items": presence_schema,
-            },
+            ArraySchema(_PersonPresenceSchema()),
         )
         return schema
+
+
+class _PersonPresenceSchema(Schema):
+    """
+    A schema for the :py:class:`betty.ancestry.Presence` associations on a :py:class:`betty.ancestry.Person`.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.schema["type"] = "object"
+        self.schema["additionalProperties"] = False
+        add_property(self, "role", PresenceRoleSchema(), False)
+        add_property(
+            self,
+            "event",
+            Schema(
+                schema={
+                    "type": "string",
+                    "format": "uri",
+                }
+            ),
+        )
+        add_json_ld(self)
 
 
 @final

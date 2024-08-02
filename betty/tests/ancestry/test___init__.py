@@ -1,17 +1,14 @@
 from __future__ import annotations
 
-from copy import copy
+from collections.abc import MutableMapping
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any, TYPE_CHECKING
+from typing import Any, Sequence, TYPE_CHECKING
 
 import pytest
-from betty.app import App
-from betty.json.schema import Schema
-from betty.locale.date import Date, DateRange
-from betty.locale.localizable import static
-from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.media_type import MediaType
+from geopy import Point
+from typing_extensions import override
+
 from betty.ancestry import (
     Person,
     Event,
@@ -39,46 +36,31 @@ from betty.ancestry import (
     Privacy,
     merge_privacies,
     FileReference,
+    LinkCollectionSchema,
+    LinkSchema,
+    PrivacySchema,
 )
-from betty.model.association import OneToOne
 from betty.ancestry.event_type import Birth, UnknownEventType
 from betty.ancestry.presence_role import Subject
-from betty.project import LocaleConfiguration, Project
+from betty.app import App
+from betty.locale import UNDETERMINED_LOCALE
+from betty.locale.date import Date, DateRange
+from betty.locale.localizable import static
+from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.media_type import MediaType
+from betty.model.association import OneToOne
+from betty.project import Project
+from betty.test_utils.json.linked_data import assert_dumps_linked_data
+from betty.test_utils.json.schema import SchemaTestBase
 from betty.test_utils.model import DummyEntity, EntityTestBase
-from geopy import Point
-from typing_extensions import override
 
 if TYPE_CHECKING:
-    from betty.serde.dump import DumpMapping, Dump
-    from betty.json.linked_data import LinkedDataDumpable
+    from betty.serde.dump import Dump, DumpMapping
+    from betty.json.schema import Schema
 
 
-async def assert_dumps_linked_data(
-    dumpable: LinkedDataDumpable, schema_definition: str | None = None
-) -> DumpMapping[Dump]:
-    async with App.new_temporary() as app, app, Project.new_temporary(app) as project:
-        project.configuration.locales["en-US"].alias = "en"
-        project.configuration.locales.append(
-            LocaleConfiguration(
-                "nl-NL",
-                alias="nl",
-            )
-        )
-        async with project:
-            actual = await dumpable.dump_linked_data(project)
-            # Allow for a copy to be made in case the actual data does not contain $schema by design.
-            actual_to_be_validated = actual
-            if schema_definition:
-                actual_to_be_validated = copy(actual)
-                actual_to_be_validated["$schema"] = (
-                    project.static_url_generator.generate(
-                        f"schema.json#/definitions/{schema_definition}",
-                        absolute=True,
-                    )
-                )
-            schema = Schema(project)
-            await schema.validate(actual_to_be_validated)
-            return actual
+class DummyHasPrivacy(HasPrivacy, DummyEntity):
+    pass
 
 
 class TestHasPrivacy:
@@ -103,7 +85,7 @@ class TestHasPrivacy:
         self, privacy: Privacy | None, public: bool | None, private: bool | None
     ) -> None:
         with pytest.raises(ValueError):  # noqa PT011
-            HasPrivacy(privacy=privacy, public=public, private=private)
+            DummyHasPrivacy(privacy=privacy, public=public, private=private)
 
     @pytest.mark.parametrize(
         "privacy",
@@ -114,19 +96,19 @@ class TestHasPrivacy:
         ],
     )
     async def test_get_privacy(self, privacy: Privacy) -> None:
-        sut = HasPrivacy(privacy=privacy)
+        sut = DummyHasPrivacy(privacy=privacy)
         assert sut.privacy is privacy
         assert sut.own_privacy is privacy
 
     async def test_set_privacy(self) -> None:
-        sut = HasPrivacy()
+        sut = DummyHasPrivacy()
         privacy = Privacy.PUBLIC
         sut.privacy = privacy
         assert sut.privacy is privacy
         assert sut.own_privacy is privacy
 
     async def test_del_privacy(self) -> None:
-        sut = HasPrivacy()
+        sut = DummyHasPrivacy()
         sut.privacy = Privacy.PUBLIC
         del sut.privacy
         assert sut.privacy is Privacy.UNDETERMINED
@@ -141,11 +123,11 @@ class TestHasPrivacy:
         ],
     )
     async def test_get_public(self, expected: bool, privacy: Privacy) -> None:
-        sut = HasPrivacy(privacy=privacy)
+        sut = DummyHasPrivacy(privacy=privacy)
         assert expected is sut.public
 
     async def test_set_public(self) -> None:
-        sut = HasPrivacy()
+        sut = DummyHasPrivacy()
         sut.public = True
         assert sut.public
         assert sut.privacy is Privacy.PUBLIC
@@ -159,23 +141,29 @@ class TestHasPrivacy:
         ],
     )
     async def test_get_private(self, expected: bool, privacy: Privacy) -> None:
-        sut = HasPrivacy(privacy=privacy)
+        sut = DummyHasPrivacy(privacy=privacy)
         assert expected is sut.private
 
     async def test_set_private(self) -> None:
-        sut = HasPrivacy()
+        sut = DummyHasPrivacy()
         sut.private = True
         assert sut.private
         assert sut.privacy is Privacy.PRIVATE
+
+
+class TestPrivacySchema(SchemaTestBase):
+    @override
+    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
+        return [(PrivacySchema(), [True, False])]
 
 
 class TestIsPrivate:
     @pytest.mark.parametrize(
         ("expected", "target"),
         [
-            (True, HasPrivacy(privacy=Privacy.PRIVATE)),
-            (False, HasPrivacy(privacy=Privacy.PUBLIC)),
-            (False, HasPrivacy(privacy=Privacy.UNDETERMINED)),
+            (True, DummyHasPrivacy(privacy=Privacy.PRIVATE)),
+            (False, DummyHasPrivacy(privacy=Privacy.PUBLIC)),
+            (False, DummyHasPrivacy(privacy=Privacy.UNDETERMINED)),
             (False, object()),
         ],
     )
@@ -187,9 +175,9 @@ class TestIsPublic:
     @pytest.mark.parametrize(
         ("expected", "target"),
         [
-            (False, HasPrivacy(privacy=Privacy.PRIVATE)),
-            (True, HasPrivacy(privacy=Privacy.PUBLIC)),
-            (True, HasPrivacy(privacy=Privacy.UNDETERMINED)),
+            (False, DummyHasPrivacy(privacy=Privacy.PRIVATE)),
+            (True, DummyHasPrivacy(privacy=Privacy.PUBLIC)),
+            (True, DummyHasPrivacy(privacy=Privacy.UNDETERMINED)),
             (True, object()),
         ],
     )
@@ -250,7 +238,6 @@ class TestNote(EntityTestBase):
             text="The Note",
         )
         expected: dict[str, Any] = {
-            "$schema": "https://example.com/schema.json#/definitions/entity/note",
             "@id": "https://example.com/note/the_note/index.json",
             "@type": "https://schema.org/Thing",
             "id": "the_note",
@@ -258,20 +245,17 @@ class TestNote(EntityTestBase):
             "text": "The Note",
             "links": [
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/note/the_note/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/en/note/the_note/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
                     "locale": "en-US",
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/nl/note/the_note/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
@@ -289,14 +273,12 @@ class TestNote(EntityTestBase):
             private=True,
         )
         expected: dict[str, Any] = {
-            "$schema": "https://example.com/schema.json#/definitions/entity/note",
             "@id": "https://example.com/note/the_note/index.json",
             "@type": "https://schema.org/Thing",
             "id": "the_note",
             "private": True,
             "links": [
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/note/the_note/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
@@ -364,15 +346,14 @@ class TestLink:
     async def test_label(self) -> None:
         url = "https://example.com"
         sut = Link(url)
-        assert sut.label is None
+        assert not sut.label
 
     async def test_dump_linked_data_should_dump_minimal(self) -> None:
         link = Link("https://example.com")
         expected: dict[str, Any] = {
-            "$schema": "https://example.com/schema.json#/definitions/link",
             "url": "https://example.com",
         }
-        actual = await assert_dumps_linked_data(link, "link")
+        actual = await assert_dumps_linked_data(link)
         assert expected == actual
 
     async def test_dump_linked_data_should_dump_full(self) -> None:
@@ -384,15 +365,20 @@ class TestLink:
             media_type=MediaType("text/html"),
         )
         expected: dict[str, Any] = {
-            "$schema": "https://example.com/schema.json#/definitions/link",
             "url": "https://example.com",
             "relationship": "external",
-            "label": "The Link",
+            "label": {UNDETERMINED_LOCALE: "The Link"},
             "locale": "nl-NL",
             "mediaType": "text/html",
         }
-        actual = await assert_dumps_linked_data(link, "link")
+        actual = await assert_dumps_linked_data(link)
         assert expected == actual
+
+
+class TestLinkSchema(SchemaTestBase):
+    @override
+    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
+        return [(LinkSchema(), _DUMMY_LINK_DUMPS)]
 
 
 class TestHasLinks:
@@ -530,7 +516,6 @@ class TestFile(EntityTestBase):
                 path=Path(f.name),
             )
             expected: dict[str, Any] = {
-                "$schema": "https://example.com/schema.json#/definitions/entity/file",
                 "@id": "https://example.com/file/the_file/index.json",
                 "id": "the_file",
                 "private": False,
@@ -539,20 +524,17 @@ class TestFile(EntityTestBase):
                 "notes": [],
                 "links": [
                     {
-                        "$schema": "https://example.com/schema.json#/definitions/link",
                         "url": "/file/the_file/index.json",
                         "relationship": "canonical",
                         "mediaType": "application/ld+json",
                     },
                     {
-                        "$schema": "https://example.com/schema.json#/definitions/link",
                         "url": "/en/file/the_file/index.html",
                         "relationship": "alternate",
                         "mediaType": "text/html",
                         "locale": "en-US",
                     },
                     {
-                        "$schema": "https://example.com/schema.json#/definitions/link",
                         "url": "/nl/file/the_file/index.html",
                         "relationship": "alternate",
                         "mediaType": "text/html",
@@ -587,7 +569,6 @@ class TestFile(EntityTestBase):
                 )
             )
             expected: dict[str, Any] = {
-                "$schema": "https://example.com/schema.json#/definitions/entity/file",
                 "@id": "https://example.com/file/the_file/index.json",
                 "id": "the_file",
                 "private": False,
@@ -603,20 +584,17 @@ class TestFile(EntityTestBase):
                 ],
                 "links": [
                     {
-                        "$schema": "https://example.com/schema.json#/definitions/link",
                         "url": "/file/the_file/index.json",
                         "relationship": "canonical",
                         "mediaType": "application/ld+json",
                     },
                     {
-                        "$schema": "https://example.com/schema.json#/definitions/link",
                         "url": "/en/file/the_file/index.html",
                         "relationship": "alternate",
                         "mediaType": "text/html",
                         "locale": "en-US",
                     },
                     {
-                        "$schema": "https://example.com/schema.json#/definitions/link",
                         "url": "/nl/file/the_file/index.html",
                         "relationship": "alternate",
                         "mediaType": "text/html",
@@ -652,7 +630,6 @@ class TestFile(EntityTestBase):
                 )
             )
             expected: dict[str, Any] = {
-                "$schema": "https://example.com/schema.json#/definitions/entity/file",
                 "@id": "https://example.com/file/the_file/index.json",
                 "id": "the_file",
                 "private": True,
@@ -667,7 +644,6 @@ class TestFile(EntityTestBase):
                 ],
                 "links": [
                     {
-                        "$schema": "https://example.com/schema.json#/definitions/link",
                         "url": "/file/the_file/index.json",
                         "relationship": "canonical",
                         "mediaType": "application/ld+json",
@@ -773,7 +749,6 @@ class TestSource(EntityTestBase):
             name="The Source",
         )
         expected: dict[str, Any] = {
-            "$schema": "https://example.com/schema.json#/definitions/entity/source",
             "@context": {
                 "name": "https://schema.org/name",
             },
@@ -787,20 +762,17 @@ class TestSource(EntityTestBase):
             "notes": [],
             "links": [
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/source/the_source/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/en/source/the_source/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
                     "locale": "en-US",
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/nl/source/the_source/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
@@ -837,7 +809,6 @@ class TestSource(EntityTestBase):
             source=source,
         )
         expected: dict[str, Any] = {
-            "$schema": "https://example.com/schema.json#/definitions/entity/source",
             "@context": {
                 "name": "https://schema.org/name",
             },
@@ -864,25 +835,21 @@ class TestSource(EntityTestBase):
             },
             "links": [
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "https://example.com/the-source",
-                    "label": "The Source Online",
+                    "label": {UNDETERMINED_LOCALE: "The Source Online"},
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/source/the_source/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/en/source/the_source/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
                     "locale": "en-US",
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/nl/source/the_source/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
@@ -920,7 +887,6 @@ class TestSource(EntityTestBase):
             source=source,
         )
         expected: dict[str, Any] = {
-            "$schema": "https://example.com/schema.json#/definitions/entity/source",
             "@id": "https://example.com/source/the_source/index.json",
             "@type": "https://schema.org/Thing",
             "id": "the_source",
@@ -935,6 +901,7 @@ class TestSource(EntityTestBase):
             "containedBy": "/source/the_containing_source/index.json",
         }
         actual = await assert_dumps_linked_data(source)
+        assert isinstance(actual, MutableMapping)
         actual.pop("links")
         assert expected == actual
 
@@ -959,7 +926,6 @@ class TestSource(EntityTestBase):
             private=True,
         )
         expected: dict[str, Any] = {
-            "$schema": "https://example.com/schema.json#/definitions/entity/source",
             "@id": "https://example.com/source/the_source/index.json",
             "@type": "https://schema.org/Thing",
             "id": "the_source",
@@ -974,6 +940,7 @@ class TestSource(EntityTestBase):
             "containedBy": "/source/the_containing_source/index.json",
         }
         actual = await assert_dumps_linked_data(source)
+        assert isinstance(actual, MutableMapping)
         actual.pop("links")
         assert expected == actual
 
@@ -1034,7 +1001,6 @@ class TestCitation(EntityTestBase):
             source=Source(name="The Source"),
         )
         expected: dict[str, Any] = {
-            "$schema": "https://example.com/schema.json#/definitions/entity/citation",
             "@id": "https://example.com/citation/the_citation/index.json",
             "@type": "https://schema.org/Thing",
             "id": "the_citation",
@@ -1042,20 +1008,17 @@ class TestCitation(EntityTestBase):
             "facts": [],
             "links": [
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/citation/the_citation/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/en/citation/the_citation/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
                     "locale": "en-US",
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/nl/citation/the_citation/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
@@ -1081,7 +1044,6 @@ class TestCitation(EntityTestBase):
             )
         )
         expected: dict[str, Any] = {
-            "$schema": "https://example.com/schema.json#/definitions/entity/citation",
             "@id": "https://example.com/citation/the_citation/index.json",
             "@type": "https://schema.org/Thing",
             "id": "the_citation",
@@ -1090,20 +1052,17 @@ class TestCitation(EntityTestBase):
             "facts": ["/event/the_event/index.json"],
             "links": [
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/citation/the_citation/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/en/citation/the_citation/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
                     "locale": "en-US",
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/nl/citation/the_citation/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
@@ -1130,7 +1089,6 @@ class TestCitation(EntityTestBase):
             )
         )
         expected: dict[str, Any] = {
-            "$schema": "https://example.com/schema.json#/definitions/entity/citation",
             "@id": "https://example.com/citation/the_citation/index.json",
             "@type": "https://schema.org/Thing",
             "id": "the_citation",
@@ -1139,7 +1097,6 @@ class TestCitation(EntityTestBase):
             "facts": ["/event/the_event/index.json"],
             "links": [
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/citation/the_citation/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
@@ -1382,7 +1339,6 @@ class TestPlace(EntityTestBase):
             names=[PlaceName(name=name)],
         )
         expected: dict[str, Any] = {
-            "$schema": "https://example.com/schema.json#/definitions/entity/place",
             "@context": {
                 "names": "https://schema.org/name",
                 "enclosedBy": "https://schema.org/containedInPlace",
@@ -1403,20 +1359,17 @@ class TestPlace(EntityTestBase):
             "notes": [],
             "links": [
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/place/the_place/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/en/place/the_place/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
                     "locale": "en-US",
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/nl/place/the_place/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
@@ -1457,7 +1410,6 @@ class TestPlace(EntityTestBase):
         Enclosure(encloses=place, enclosed_by=Place(id="the_enclosing_place"))
         Enclosure(encloses=Place(id="the_enclosed_place"), enclosed_by=place)
         expected: dict[str, Any] = {
-            "$schema": "https://example.com/schema.json#/definitions/entity/place",
             "@context": {
                 "names": "https://schema.org/name",
                 "enclosedBy": "https://schema.org/containedInPlace",
@@ -1480,25 +1432,21 @@ class TestPlace(EntityTestBase):
             "notes": [],
             "links": [
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "https://example.com/the-place",
-                    "label": "The Place Online",
+                    "label": {UNDETERMINED_LOCALE: "The Place Online"},
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/place/the_place/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/en/place/the_place/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
                     "locale": "en-US",
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/nl/place/the_place/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
@@ -1640,7 +1588,6 @@ class TestEvent(EntityTestBase):
             event_type=Birth(),
         )
         expected: dict[str, Any] = {
-            "$schema": "https://example.com/schema.json#/definitions/entity/event",
             "@context": {
                 "presences": "https://schema.org/performer",
             },
@@ -1656,20 +1603,17 @@ class TestEvent(EntityTestBase):
             "notes": [],
             "links": [
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/event/the_event/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/en/event/the_event/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
                     "locale": "en-US",
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/nl/event/the_event/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
@@ -1701,7 +1645,6 @@ class TestEvent(EntityTestBase):
             )
         )
         expected: dict[str, Any] = {
-            "$schema": "https://example.com/schema.json#/definitions/entity/event",
             "@context": {
                 "place": "https://schema.org/location",
                 "presences": "https://schema.org/performer",
@@ -1747,20 +1690,17 @@ class TestEvent(EntityTestBase):
             "place": "/place/the_place/index.json",
             "links": [
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/event/the_event/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/en/event/the_event/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
                     "locale": "en-US",
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/nl/event/the_event/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
@@ -1793,7 +1733,6 @@ class TestEvent(EntityTestBase):
             )
         )
         expected: dict[str, Any] = {
-            "$schema": "https://example.com/schema.json#/definitions/entity/event",
             "@context": {
                 "place": "https://schema.org/location",
                 "presences": "https://schema.org/performer",
@@ -1818,7 +1757,6 @@ class TestEvent(EntityTestBase):
             "place": "/place/the_place/index.json",
             "links": [
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/event/the_event/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
@@ -1999,7 +1937,6 @@ class TestPerson(EntityTestBase):
         person_id = "the_person"
         person = Person(id=person_id)
         expected: dict[str, Any] = {
-            "$schema": "https://example.com/schema.json#/definitions/entity/person",
             "@context": {
                 "names": "https://schema.org/name",
                 "parents": "https://schema.org/parent",
@@ -2019,20 +1956,17 @@ class TestPerson(EntityTestBase):
             "notes": [],
             "links": [
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/person/the_person/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/en/person/the_person/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
                     "locale": "en-US",
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/nl/person/the_person/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
@@ -2093,7 +2027,6 @@ class TestPerson(EntityTestBase):
         )
 
         expected: dict[str, Any] = {
-            "$schema": "https://example.com/schema.json#/definitions/entity/person",
             "@context": {
                 "names": "https://schema.org/name",
                 "parents": "https://schema.org/parent",
@@ -2106,7 +2039,6 @@ class TestPerson(EntityTestBase):
             "private": False,
             "names": [
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/entity/personName",
                     "@context": {
                         "individual": "https://schema.org/givenName",
                         "affiliation": "https://schema.org/familyName",
@@ -2142,25 +2074,21 @@ class TestPerson(EntityTestBase):
             "notes": [],
             "links": [
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "https://example.com/the-person",
-                    "label": "The Person Online",
+                    "label": {UNDETERMINED_LOCALE: "The Person Online"},
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/person/the_person/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/en/person/the_person/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
                     "locale": "en-US",
                 },
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/nl/person/the_person/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
@@ -2218,7 +2146,6 @@ class TestPerson(EntityTestBase):
         )
 
         expected: dict[str, Any] = {
-            "$schema": "https://example.com/schema.json#/definitions/entity/person",
             "@context": {
                 "names": "https://schema.org/name",
                 "parents": "https://schema.org/parent",
@@ -2253,7 +2180,6 @@ class TestPerson(EntityTestBase):
             "notes": [],
             "links": [
                 {
-                    "$schema": "https://example.com/schema.json#/definitions/link",
                     "url": "/person/the_person/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
@@ -2318,3 +2244,42 @@ class TestFileReference:
         referee = DummyHasFileReferences()
         sut = FileReference(referee)
         assert sut.referee is referee
+
+
+_DUMMY_LINK_DUMPS: Sequence[DumpMapping[Dump]] = (
+    {
+        "url": "https://example.com",
+    },
+    {
+        "url": "https://example.com",
+        "relationship": "canonical",
+    },
+    {
+        "url": "https://example.com",
+        "label": {UNDETERMINED_LOCALE: "Hello, world!"},
+    },
+    {
+        "url": "https://example.com",
+        "privacy": True,
+    },
+)
+
+
+class TestLinkCollectionSchema(SchemaTestBase):
+    @override
+    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
+        schemas = []
+        datas: Sequence[Dump] = [
+            *[[data] for data in _DUMMY_LINK_DUMPS],  # type: ignore[list-item]
+            list(_DUMMY_LINK_DUMPS),
+        ]
+        async with App.new_temporary() as app, app, Project.new_temporary(
+            app
+        ) as project, project:
+            schemas.append(
+                (
+                    LinkCollectionSchema(),
+                    datas,
+                )
+            )
+        return schemas

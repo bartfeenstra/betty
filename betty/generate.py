@@ -36,26 +36,23 @@ from aiofiles.threadpool.text import AsyncTextIOWrapper
 from math import floor
 
 from betty import model
+from betty.ancestry import is_public
 from betty.asyncio import gather
 from betty.job import Context
-from betty.json.schema import Schema
+from betty.json.schema import ProjectSchema
 from betty.locale import get_display_name
 from betty.model import (
     UserFacingEntity,
     Entity,
     GeneratedEntityId,
 )
-from betty.ancestry import is_public
 from betty.openapi import Specification
-from betty.string import (
-    kebab_case_to_lower_camel_case,
-)
 from betty.project import ProjectEvent
+from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
     from betty.project import Project
     from betty.app import App
-    from betty.json.linked_data import LinkedDataDumpable
     from betty.serde.dump import DumpMapping, Dump
     from collections.abc import AsyncIterator
 
@@ -370,7 +367,7 @@ async def _generate_entity_type_list_html(
 
 async def _generate_entity_type_list_json(
     job_context: GenerationContext,
-    entity_type: type[Entity & LinkedDataDumpable],
+    entity_type: type[Entity],
 ) -> None:
     project = job_context.project
     entity_type_path = (
@@ -378,7 +375,7 @@ async def _generate_entity_type_list_json(
     )
     data: DumpMapping[Dump] = {
         "$schema": project.static_url_generator.generate(
-            f"schema.json#/definitions/response/{kebab_case_to_lower_camel_case(entity_type.plugin_id())}Collection",
+            f"schema.json#/definitions/{kebab_case_to_lower_camel_case(entity_type.plugin_id())}CollectionResponse",
             absolute=True,
         ),
         "collection": [],
@@ -428,16 +425,14 @@ async def _generate_entity_html(
 
 async def _generate_entity_json(
     job_context: GenerationContext,
-    entity_type: type[Entity & LinkedDataDumpable],
+    entity_type: type[Entity],
     entity_id: str,
 ) -> None:
     project = job_context.project
     entity_path = (
         project.configuration.www_directory_path / entity_type.plugin_id() / entity_id
     )
-    entity = cast(
-        "Entity & LinkedDataDumpable", project.ancestry[entity_type][entity_id]
-    )
+    entity = project.ancestry[entity_type][entity_id]
     rendered_json = json.dumps(await entity.dump_linked_data(project))
     async with await create_json_resource(entity_path) as f:
         await f.write(rendered_json)
@@ -514,8 +509,8 @@ async def _generate_json_schema(
     logging.getLogger(__name__).debug(
         project.app.localizer._("Generating JSON Schema...")
     )
-    schema = Schema(project)
-    rendered_json = json.dumps(await schema.build())
+    schema = await ProjectSchema.new(project)
+    rendered_json = json.dumps(schema.schema)
     async with await create_file(
         project.configuration.www_directory_path / "schema.json"
     ) as f:

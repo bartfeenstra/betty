@@ -5,14 +5,14 @@ Describe localized information.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import Any, Sequence, TYPE_CHECKING
+from typing import Any, Sequence, TYPE_CHECKING, cast
 
 from typing_extensions import override
 
 from betty.json.linked_data import LinkedDataDumpable
-from betty.json.schema import ref_locale
+from betty.json.schema import Schema, LocaleSchema
 from betty.locale import Localey, negotiate_locale, to_locale
-from betty.serde.dump import DumpMapping, Dump, dump_default
+from betty.serde.dump import DumpMapping, Dump
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -43,10 +43,10 @@ class Localized(LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
+    async def linked_data_schema(cls, project: Project) -> Schema:
         schema = await super().linked_data_schema(project)
-        properties = dump_default(schema, "properties", dict)
-        properties["locale"] = ref_locale(schema)
+        properties = cast(DumpMapping[Dump], schema.schema.setdefault("properties", {}))
+        properties["locale"] = LocaleSchema().embed(schema)
         return schema
 
 

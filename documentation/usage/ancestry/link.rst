@@ -13,8 +13,8 @@ Notes inherit from:
     The event's human-readable description.
 ``locale`` (optional ``str``)
     The locale of the referenced resource as an `IETF BCP 47 <https://tools.ietf.org/html/bcp47>`_ language tag.
-``label`` (optional ``str``)
-    The human-readable label of this link, e.g. the link text.
+``label`` (optional :doc:`/usage/ancestry/static-translations`)
+    The link's human-readable label, e.g. the link text.
 ``media_type`` (:doc:`MediaType </usage/ancestry/media-type>`)
     The media type of the referenced resource.
 ``relationship`` (optional ``str``)

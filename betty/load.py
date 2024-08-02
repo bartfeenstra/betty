@@ -53,7 +53,7 @@ async def _fetch_link_titles(project: Project) -> None:
 
 
 async def _fetch_link_title(fetcher: Fetcher, link: Link) -> None:
-    if link.label is not None:
+    if link.label:
         return
     try:
         response = await fetcher.fetch(link.url)

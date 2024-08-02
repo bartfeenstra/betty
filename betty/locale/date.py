@@ -7,13 +7,17 @@ from __future__ import annotations
 import calendar
 import operator
 from functools import total_ordering
-from typing import Any, Callable, TypeAlias, Mapping, TYPE_CHECKING
+from typing import Any, Callable, TypeAlias, Mapping, TYPE_CHECKING, cast
 
 from typing_extensions import override
 
-from betty.json.linked_data import LinkedDataDumpable, dump_context, add_json_ld
-from betty.json.schema import add_property
-from betty.serde.dump import DumpMapping, Dump, dump_default
+from betty.json.linked_data import (
+    dump_context,
+    add_json_ld,
+    LinkedDataDumpable,
+)
+from betty.json.schema import add_property, Schema
+from betty.serde.dump import DumpMapping, Dump
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -167,25 +171,33 @@ class Date(LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
-        schema = await super().linked_data_schema(project)
-        schema["type"] = "object"
-        schema["additionalProperties"] = False
-        add_json_ld(schema)
-        add_property(schema, "year", {"type": "number"}, False)
-        add_property(schema, "month", {"type": "number"}, False)
-        add_property(schema, "day", {"type": "number"}, False)
+    async def linked_data_schema(cls, project: Project) -> Schema:
+        return DateSchema()
+
+
+class DateSchema(Schema):
+    """
+    A JSON Schema for :py:type:`betty.locale.date.Date`.
+    """
+
+    def __init__(self):
+        super().__init__(name="date")
+        add_json_ld(self)
+        add_property(self, "year", Schema(schema={"type": "number"}), False)
+        add_property(self, "month", Schema(schema={"type": "number"}), False)
+        add_property(self, "day", Schema(schema={"type": "number"}), False)
         add_property(
-            schema,
+            self,
             "iso8601",
-            {
-                "type": "string",
-                "pattern": "^\\d\\d\\d\\d-\\d\\d-\\d\\d$",
-                "description": "An ISO 8601 date.",
-            },
+            Schema(
+                schema={
+                    "type": "string",
+                    "pattern": "^\\d\\d\\d\\d-\\d\\d-\\d\\d$",
+                    "description": "An ISO 8601 date.",
+                }
+            ),
             False,
         )
-        return schema
 
 
 def _dump_date_iso8601(date: Date) -> str | None:
@@ -195,20 +207,6 @@ def _dump_date_iso8601(date: Date) -> str | None:
     assert date.month
     assert date.day
     return f"{date.year:04d}-{date.month:02d}-{date.day:02d}"
-
-
-async def ref_date(
-    root_schema: DumpMapping[Dump], project: Project
-) -> DumpMapping[Dump]:
-    """
-    Reference the Date schema.
-    """
-    definitions = dump_default(root_schema, "definitions", dict)
-    if "date" not in definitions:
-        definitions["date"] = await Date.linked_data_schema(project)
-    return {
-        "$ref": "#/definitions/date",
-    }
 
 
 @total_ordering
@@ -325,13 +323,8 @@ class DateRange(LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
-        schema = await super().linked_data_schema(project)
-        schema["type"] = "object"
-        schema["additionalProperties"] = False
-        add_property(schema, "start", await ref_date(schema, project), False)
-        add_property(schema, "end", await ref_date(schema, project), False)
-        return schema
+    async def linked_data_schema(cls, project: Project) -> Schema:
+        return DateRangeSchema()
 
     async def datey_dump_linked_data(
         self,
@@ -343,10 +336,10 @@ class DateRange(LinkedDataDumpable):
         Dump this instance to `JSON-LD <https://json-ld.org/>`_ for a 'datey' field.
         """
         if self.start and self.start.comparable:
-            start = dump_default(dump, "start", dict)
+            start = cast(DumpMapping[Dump], dump.setdefault("start", {}))
             dump_context(start, iso8601=start_schema_org)
         if self.end and self.end.comparable:
-            end = dump_default(dump, "end", dict)
+            end = cast(DumpMapping[Dump], dump.setdefault("end", {}))
             dump_context(end, iso8601=end_schema_org)
 
     def _get_comparable_date(self, date: Date | None) -> Date | None:
@@ -503,37 +496,30 @@ class DateRange(LinkedDataDumpable):
         )
 
 
-async def ref_date_range(
-    root_schema: DumpMapping[Dump], project: Project
-) -> DumpMapping[Dump]:
+class DateRangeSchema(Schema):
     """
-    Reference the DateRange schema.
+    A JSON Schema for :py:type:`betty.locale.date.DateRange`.
     """
-    definitions = dump_default(root_schema, "definitions", dict)
-    if "dateRange" not in definitions:
-        definitions["dateRange"] = await DateRange.linked_data_schema(project)
-    return {
-        "$ref": "#/definitions/dateRange",
-    }
+
+    def __init__(self):
+        super().__init__(name="dateRange")
+        date_schema = DateSchema()
+        add_property(self, "start", date_schema, False)
+        add_property(self, "end", date_schema, False)
 
 
-async def ref_datey(
-    root_schema: DumpMapping[Dump], project: Project
-) -> DumpMapping[Dump]:
+class DateySchema(Schema):
     """
-    Reference the Datey schema.
+    A JSON Schema for :py:type:`betty.locale.date.Datey`.
     """
-    definitions = dump_default(root_schema, "definitions", dict)
-    if "datey" not in definitions:
-        definitions["datey"] = {
-            "oneOf": [
-                await ref_date(root_schema, project),
-                await ref_date_range(root_schema, project),
-            ]
-        }
-    return {
-        "$ref": "#/definitions/datey",
-    }
+
+    def __init__(self):
+        super().__init__(name="datey")
+        # Empty dateys match both dates and date ranges, so use `anyOf` instead of `oneOf`.
+        self.schema["anyOf"] = [
+            DateSchema().embed(self),
+            DateRangeSchema().embed(self),
+        ]
 
 
 Datey: TypeAlias = Date | DateRange

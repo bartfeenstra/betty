@@ -763,7 +763,8 @@ class TestPopulator:
     ) -> None:
         m_retriever = mocker.patch("betty.wikipedia._Retriever")
         link = Link("http://en.wikipedia.org/wiki/Amsterdam")
-        link.label = label
+        if label:
+            link.label = label
         summary = Summary(
             "en",
             "The_city_of_Amsterdam",
@@ -773,7 +774,7 @@ class TestPopulator:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = _Populator(project, m_retriever)
             await sut.populate_link(link, "en", summary)
-        assert expected == link.label
+        assert link.label.localize(DEFAULT_LOCALIZER) == expected
 
     async def test_populate_should_ignore_resource_without_link_support(
         self, mocker: MockerFixture, new_temporary_app: App
@@ -849,7 +850,7 @@ class TestPopulator:
                 await sut.populate()
             m_retriever.get_summary.assert_called_once_with(page_language, page_name)
             assert len(resource.links) == 1
-            assert link.label == "Amsterdam"
+            assert link.label.localize(DEFAULT_LOCALIZER) == "Amsterdam"
             assert link.locale == "en"
             assert MediaType("text/html") == link.media_type
             assert link.description is not None
@@ -913,7 +914,7 @@ class TestPopulator:
             )
             assert len(resource.links) == 2
             link_nl = [link for link in resource.links if link != link_en][0]
-            assert link_nl.label == "Amsterdam"
+            assert link_nl.label.localize(DEFAULT_LOCALIZER) == "Amsterdam"
             assert link_nl.locale == "nl"
             assert MediaType("text/html") == link_nl.media_type
             assert link_nl.description is not None
@@ -930,6 +931,8 @@ class TestPopulator:
         coordinates = Point(52.35, 6.66666667)
         m_retriever.get_place_coordinates.return_value = coordinates
         m_retriever.get_image.return_value = None
+        summary = Summary("en", "Lipsum", "Lorem ipsum", "Lorem ipsum dolor sit amet")
+        m_retriever.get_summary.return_value = summary
 
         wikipedia_link = Link(f"https://{page_language}.wikipedia.org/wiki/{page_name}")
         other_link = Link("https://example.com")
@@ -958,6 +961,8 @@ class TestPopulator:
             "example",
         )
         m_retriever.get_image.return_value = image
+        summary = Summary("en", "Lipsum", "Lorem ipsum", "Lorem ipsum dolor sit amet")
+        m_retriever.get_summary.return_value = summary
 
         link = Link(f"https://{page_language}.wikipedia.org/wiki/{page_name}")
         place = Place(links=[link])

@@ -11,7 +11,7 @@ from typing_extensions import override
 from betty.locale.localizable import Localizable, _
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
-from betty.serde.dump import DumpMapping, Dump, dump_default
+from betty.json.schema import Schema
 
 
 class PresenceRole(Plugin):
@@ -34,19 +34,15 @@ Read more about :doc:`/development/plugin/presence-role`.
 """
 
 
-def ref_role(root_schema: DumpMapping[Dump]) -> DumpMapping[Dump]:
+class PresenceRoleSchema(Schema):
     """
-    Reference the PresenceRole schema.
+    A JSON Schema for presence roles.
     """
-    definitions = dump_default(root_schema, "definitions", dict)
-    if "role" not in definitions:
-        definitions["role"] = {
-            "type": "string",
-            "description": "A person's role in an event.",
-        }
-    return {
-        "$ref": "#/definitions/role",
-    }
+
+    def __init__(self):
+        super().__init__(name="presenceRole")
+        self.schema["type"] = "string"
+        self.schema["description"] = "A person's role in an event."
 
 
 @final
