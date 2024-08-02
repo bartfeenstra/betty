@@ -1,7 +1,7 @@
 Testing Betty's source code
 ===========================
 
-In any existing Python environment, run ``./bin/test``.
+In any existing Python environment, run ``./bin/test`` or any of the ``./bin/test-*`` :doc:`commands </development/betty/commands>`.
 
 Environment variables
 ---------------------
