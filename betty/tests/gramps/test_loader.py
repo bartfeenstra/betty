@@ -5,11 +5,10 @@ from pathlib import Path
 import aiofiles
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
-
 from betty.app import App
 from betty.gramps.loader import GrampsLoader
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.date import Date, DateRange
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.model.ancestry import (
     Ancestry,
@@ -568,7 +567,7 @@ class TestGrampsLoader:
 """
         )
         event = ancestry[Event]["E0000"]
-        assert event.description == "Something happened!"
+        assert event.description.localize(DEFAULT_LOCALIZER) == "Something happened!"
 
     async def test_event_should_include_note(self) -> None:
         ancestry = await self._load_partial(
@@ -1021,13 +1020,15 @@ class TestGrampsLoader:
         link_minimal = source.links[0]
         link_full = source.links[1]
         assert link_minimal.url == link_minimal_url
-        assert link_minimal.description is None
+        assert not link_minimal.description
         assert link_minimal.label is None
         assert link_minimal.locale is None
         assert link_minimal.media_type is None
         assert link_minimal.relationship is None
         assert link_full.url == link_full_url
-        assert link_full.description == link_full_description
+        assert (
+            link_full.description.localize(DEFAULT_LOCALIZER) == link_full_description
+        )
         assert link_full.label == link_full_label
         assert link_full.locale == link_full_locale
         assert link_full.media_type == MediaType(link_full_media_type)

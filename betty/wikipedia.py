@@ -432,7 +432,7 @@ class _Populator:
             link.relationship = "external"
         if link.locale is None:
             link.locale = summary_language
-        if link.description is None:
+        if not link.description:
             # There are valid reasons for links in locales that aren't supported.
             with suppress(ValueError):
                 link.description = (

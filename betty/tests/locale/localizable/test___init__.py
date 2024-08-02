@@ -8,6 +8,7 @@ from betty.locale.localizable import (
     StaticTranslationsLocalizable,
     plain,
     StaticTranslationsLocalizableAttr,
+    StaticTranslations,
 )
 from betty.locale.localizable import (
     static,
@@ -116,10 +117,47 @@ class TestStaticTranslationsLocalizable:
         sut = StaticTranslationsLocalizable(translations, required=False)
         assert len(sut) == expected
 
-    def test_set(self) -> None:
+    @pytest.mark.parametrize(
+        ("expected", "translations"),
+        [
+            (
+                {},
+                {},
+            ),
+            (
+                {UNDETERMINED_LOCALE: "Hello, world!"},
+                "Hello, world!",
+            ),
+            (
+                {
+                    "en-US": "Hello, world!",
+                },
+                {
+                    "en-US": "Hello, world!",
+                },
+            ),
+            (
+                {
+                    "nl-NL": "Hallo, wereld!",
+                    "en": "Hello, world!",
+                },
+                {
+                    "nl-NL": "Hallo, wereld!",
+                    "en": "Hello, world!",
+                },
+            ),
+        ],
+    )
+    async def test_translations(
+        self, expected: StaticTranslations, translations: ShorthandStaticTranslations
+    ) -> None:
+        sut = StaticTranslationsLocalizable(translations, required=False)
+        assert sut.translations == expected
+
+    def test_replace(self) -> None:
         translation = "Hallo, wereld!"
         sut = StaticTranslationsLocalizable(required=False)
-        sut.set(translation)
+        sut.replace(translation)
         assert sut.localize(DEFAULT_LOCALIZER) == translation
 
     @pytest.mark.parametrize(

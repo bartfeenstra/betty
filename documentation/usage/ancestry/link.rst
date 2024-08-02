@@ -9,8 +9,8 @@ Notes inherit from:
 
 - :doc:`/usage/ancestry/privacy`
 
-``description`` (optional ``str``)
-    The link's human-readable description.
+``description`` (optional :doc:`/usage/ancestry/static-translations`)
+    The event's human-readable description.
 ``locale`` (optional ``str``)
     The locale of the referenced resource as an `IETF BCP 47 <https://tools.ietf.org/html/bcp47>`_ language tag.
 ``label`` (optional ``str``)

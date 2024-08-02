@@ -2,6 +2,7 @@ from pathlib import Path
 
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale.localizable import static
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model.ancestry import (
     Source,
     File,
@@ -379,18 +380,27 @@ class TestTemplate(TemplateTestBase):
             },
         ) as (actual, _):
             assert source.name in actual
-            assert public_file.description is not None
-            assert public_file.description in actual
-            assert public_file_for_public_citation.description is not None
-            assert public_file_for_public_citation.description in actual
-            assert public_file_for_public_contained_source.description is not None
-            assert public_file_for_public_contained_source.description in actual
+            assert public_file.description
+            assert public_file.description.localize(DEFAULT_LOCALIZER) in actual
+            assert public_file_for_public_citation.description
             assert (
-                public_file_for_public_citation_for_public_contained_source.description
-                is not None
+                public_file_for_public_citation.description.localize(DEFAULT_LOCALIZER)
+                in actual
+            )
+            assert public_file_for_public_contained_source.description
+            assert (
+                public_file_for_public_contained_source.description.localize(
+                    DEFAULT_LOCALIZER
+                )
+                in actual
             )
             assert (
                 public_file_for_public_citation_for_public_contained_source.description
+            )
+            assert (
+                public_file_for_public_citation_for_public_contained_source.description.localize(
+                    DEFAULT_LOCALIZER
+                )
                 in actual
             )
             assert public_fact_for_public_citation_name in actual
@@ -399,74 +409,99 @@ class TestTemplate(TemplateTestBase):
                 in actual
             )
 
-            assert private_file.description is not None
-            assert private_file.description not in actual
-            assert private_file_for_public_citation.description is not None
-            assert private_file_for_public_citation.description not in actual
-            assert public_file_for_private_citation.description is not None
-            assert public_file_for_private_citation.description not in actual
-            assert private_file_for_private_citation.description is not None
-            assert private_file_for_private_citation.description not in actual
-            assert private_file_for_public_contained_source.description is not None
-            assert private_file_for_public_contained_source.description not in actual
-            assert public_file_for_private_contained_source.description is not None
-            assert public_file_for_private_contained_source.description not in actual
-            assert private_file_for_private_contained_source.description is not None
-            assert private_file_for_private_contained_source.description not in actual
+            assert private_file.description
+            assert private_file.description.localize(DEFAULT_LOCALIZER) not in actual
+            assert private_file_for_public_citation.description
             assert (
-                private_file_for_public_citation_for_public_contained_source.description
-                is not None
+                private_file_for_public_citation.description.localize(DEFAULT_LOCALIZER)
+                not in actual
+            )
+            assert public_file_for_private_citation.description
+            assert (
+                public_file_for_private_citation.description.localize(DEFAULT_LOCALIZER)
+                not in actual
+            )
+            assert private_file_for_private_citation.description
+            assert (
+                private_file_for_private_citation.description.localize(
+                    DEFAULT_LOCALIZER
+                )
+                not in actual
+            )
+            assert private_file_for_public_contained_source.description
+            assert (
+                private_file_for_public_contained_source.description.localize(
+                    DEFAULT_LOCALIZER
+                )
+                not in actual
+            )
+            assert public_file_for_private_contained_source.description
+            assert (
+                public_file_for_private_contained_source.description.localize(
+                    DEFAULT_LOCALIZER
+                )
+                not in actual
+            )
+            assert private_file_for_private_contained_source.description
+            assert (
+                private_file_for_private_contained_source.description.localize(
+                    DEFAULT_LOCALIZER
+                )
+                not in actual
             )
             assert (
                 private_file_for_public_citation_for_public_contained_source.description
+            )
+            assert (
+                private_file_for_public_citation_for_public_contained_source.description.localize(
+                    DEFAULT_LOCALIZER
+                )
                 not in actual
             )
             assert (
                 public_file_for_private_citation_for_public_contained_source.description
-                is not None
             )
             assert (
-                public_file_for_private_citation_for_public_contained_source.description
+                public_file_for_private_citation_for_public_contained_source.description.localize(
+                    DEFAULT_LOCALIZER
+                )
                 not in actual
             )
+            assert private_file_for_private_citation_for_public_contained_source.description
             assert (
-                private_file_for_private_citation_for_public_contained_source.description
-                is not None
-            )
-            assert (
-                private_file_for_private_citation_for_public_contained_source.description
+                private_file_for_private_citation_for_public_contained_source.description.localize(
+                    DEFAULT_LOCALIZER
+                )
                 not in actual
             )
             assert (
                 public_file_for_public_citation_for_private_contained_source.description
-                is not None
             )
             assert (
-                public_file_for_public_citation_for_private_contained_source.description
+                public_file_for_public_citation_for_private_contained_source.description.localize(
+                    DEFAULT_LOCALIZER
+                )
                 not in actual
             )
+            assert private_file_for_public_citation_for_private_contained_source.description
             assert (
-                private_file_for_public_citation_for_private_contained_source.description
-                is not None
-            )
-            assert (
-                private_file_for_public_citation_for_private_contained_source.description
+                private_file_for_public_citation_for_private_contained_source.description.localize(
+                    DEFAULT_LOCALIZER
+                )
                 not in actual
             )
+            assert public_file_for_private_citation_for_private_contained_source.description
             assert (
-                public_file_for_private_citation_for_private_contained_source.description
-                is not None
-            )
-            assert (
-                public_file_for_private_citation_for_private_contained_source.description
+                public_file_for_private_citation_for_private_contained_source.description.localize(
+                    DEFAULT_LOCALIZER
+                )
                 not in actual
             )
+            assert private_file_for_private_citation_for_private_contained_source.description
             assert (
-                private_file_for_private_citation_for_private_contained_source.description
-                is not None
-            )
-            assert (
-                private_file_for_private_citation_for_private_contained_source.description
+                private_file_for_private_citation_for_private_contained_source.description.localize(
+                    DEFAULT_LOCALIZER
+                )
                 not in actual
             )
             assert private_fact_for_public_citation_name not in actual

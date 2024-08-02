@@ -8,8 +8,8 @@
 {%- if event is not has_generated_entity_id and not embedded -%}
     {% set formatted_event = ('<a href="' + event | url + '">' + formatted_event + '</a>') | safe %}
 {%- endif -%}
-{%- if event.description is not none -%}
-    {% set formatted_event = formatted_event + ' (' + event.description + ')' | safe %}
+{%- if event.description -%}
+    {% set formatted_event = formatted_event + ' (' + event.description | localize + ')' | safe %}
 {%- endif -%}
 {%- set subjects = event.presences | select('public') | selectattr('role', 'subject_role') | map(attribute='person') | select('public') | list -%}
 {%- set non_context_subjects = subjects | reject('eq', person_context) | list -%}

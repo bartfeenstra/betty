@@ -107,6 +107,9 @@ class Index:
         if not file.description:
             return None
         return {
-            "text": file.description.lower(),
+            "text": " ".join(
+                description.lower()
+                for description in file.description.translations.values()
+            ),
             "result": await self._render_entity(file),
         }

@@ -20,7 +20,15 @@ from betty.json.linked_data import (
 from betty.json.schema import add_property, ref_json_schema
 from betty.locale.date import Datey
 from betty.locale.date import ref_datey
-from betty.locale.localizable import _, Localizable, static, call, plain
+from betty.locale.localizable import (
+    _,
+    Localizable,
+    static,
+    call,
+    plain,
+    ShorthandStaticTranslations,
+    StaticTranslationsLocalizableAttr,
+)
 from betty.locale.localized import Localized
 from betty.media_type import MediaType
 from betty.model import (
@@ -251,22 +259,23 @@ class Described(LinkedDataDumpable):
     """
 
     #: The human-readable description.
-    description: str | None
+    description = StaticTranslationsLocalizableAttr("description")
 
     def __init__(
         self,
         *args: Any,
-        description: str | None = None,
+        description: ShorthandStaticTranslations | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
-        self.description = description
+        if description is not None:
+            self.description.replace(description)
 
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
-        if self.description is not None:
-            dump["description"] = self.description
+        if self.description:
+            dump["description"] = await self.description.dump_linked_data(project)
             dump_context(dump, description="description")
         return dump
 
@@ -823,7 +832,7 @@ class File(
     @override
     @property
     def label(self) -> Localizable:
-        return plain(self.description) if self.description else super().label
+        return self.description or super().label
 
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
@@ -1737,20 +1746,20 @@ class Event(
                     person.label.localize(localizer) for person in subjects
                 )
             )
-        if self.description is not None:
+        if self.description:
             format_kwargs["event_description"] = self.description
 
         if subjects:
-            if self.description is None:
-                return _("{event_type} of {subjects}").format(**format_kwargs)
-            else:
+            if self.description:
                 return _("{event_type} ({event_description}) of {subjects}").format(
                     **format_kwargs
                 )
-        if self.description is None:
-            return _("{event_type}").format(**format_kwargs)
-        else:
+            else:
+                return _("{event_type} of {subjects}").format(**format_kwargs)
+        if self.description:
             return _("{event_type} ({event_description})").format(**format_kwargs)
+        else:
+            return _("{event_type}").format(**format_kwargs)
 
     @override  # type: ignore[callable-functiontype]
     @recursive_repr()

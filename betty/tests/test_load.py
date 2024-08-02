@@ -3,6 +3,7 @@ from aioresponses import aioresponses
 
 from betty.app import App
 from betty.load import load
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model.ancestry import HasLinksEntity, Link
 from betty.project import Project
 from betty.test_utils.model import DummyEntity
@@ -33,7 +34,7 @@ class TestLoad:
                 await load(project)
 
             assert link.label is None
-            assert link.description is None
+            assert not link.description
 
     @pytest.mark.parametrize(
         ("link_page_content_type"),
@@ -64,7 +65,7 @@ class TestLoad:
                 await load(project)
 
             assert link.label is None
-            assert link.description is None
+            assert not link.description
 
     @pytest.mark.parametrize(
         ("link_page_content_type"),
@@ -162,4 +163,7 @@ class TestLoad:
             async with project:
                 await load(project)
 
-            assert link.description == link_page_meta_description
+            assert (
+                link.description.localize(DEFAULT_LOCALIZER)
+                == link_page_meta_description
+            )

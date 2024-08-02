@@ -2,6 +2,7 @@ from pathlib import Path
 
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale.date import Date
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model.ancestry import (
     Person,
     PersonName,
@@ -10,8 +11,8 @@ from betty.model.ancestry import (
     Presence,
     FileReference,
 )
-from betty.model.presence_role import Subject
 from betty.model.event_type import Birth
+from betty.model.presence_role import Subject
 from betty.test_utils.assets.templates import TemplateTestBase
 
 
@@ -219,10 +220,13 @@ class TestTemplate(TemplateTestBase):
             assert public_child_public_name_affiliation in actual
             assert public_partner_public_name_individual in actual
             assert public_partner_public_name_affiliation in actual
-            assert public_file.description is not None
-            assert public_file.description in actual
-            assert public_event_public_presence.description is not None
-            assert public_event_public_presence.description in actual
+            assert public_file.description
+            assert public_file.description.localize(DEFAULT_LOCALIZER) in actual
+            assert public_event_public_presence.description
+            assert (
+                public_event_public_presence.description.localize(DEFAULT_LOCALIZER)
+                in actual
+            )
 
             assert private_name_individual not in actual
             assert private_name_affiliation not in actual
@@ -244,11 +248,20 @@ class TestTemplate(TemplateTestBase):
             assert private_partner_public_name_affiliation not in actual
             assert private_partner_private_name_individual not in actual
             assert private_partner_private_name_affiliation not in actual
-            assert private_file.description is not None
-            assert private_file.description not in actual
-            assert public_event_private_presence.description is not None
-            assert public_event_private_presence.description not in actual
-            assert private_event_public_presence.description is not None
-            assert private_event_public_presence.description not in actual
-            assert private_event_private_presence.description is not None
-            assert private_event_private_presence.description not in actual
+            assert private_file.description
+            assert private_file.description.localize(DEFAULT_LOCALIZER) not in actual
+            assert public_event_private_presence.description
+            assert (
+                public_event_private_presence.description.localize(DEFAULT_LOCALIZER)
+                not in actual
+            )
+            assert private_event_public_presence.description
+            assert (
+                private_event_public_presence.description.localize(DEFAULT_LOCALIZER)
+                not in actual
+            )
+            assert private_event_private_presence.description
+            assert (
+                private_event_private_presence.description.localize(DEFAULT_LOCALIZER)
+                not in actual
+            )

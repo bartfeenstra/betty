@@ -34,10 +34,10 @@
             <li><a href="{{ file | url }}" title="More details">ℹ</a></li>
             <li class="file-extended-close"><a href="#file-{{ file_hashid }}" title="Close this file">×</a></li>
             {% if previous_file is defined %}
-                <li class="file-nav file-extended-previous"><a href="#file-extended-{{ previous_file.id | hashid }}" title="{{ previous_file.description }}">←</a></li>
+                <li class="file-nav file-extended-previous"><a href="#file-extended-{{ previous_file.id | hashid }}" title="{{ previous_file.description | localize }}">←</a></li>
             {% endif %}
             {% if next_file is defined %}
-                <li class="file-nav file-extended-next"><a href="#file-extended-{{ next_file.id | hashid }}" title="{{ next_file.description }}">→</a></li>
+                <li class="file-nav file-extended-next"><a href="#file-extended-{{ next_file.id | hashid }}" title="{{ next_file.description | localize }}">→</a></li>
             {% endif %}
         </ul>
         <div class="file-content">

@@ -10,12 +10,13 @@ from typing import Any, cast, TypeAlias, Self, final, TYPE_CHECKING
 from warnings import warn
 
 from betty.attr import MutableAttr
+from betty.classtools import repr_instance
 from betty.json.linked_data import LinkedDataDumpable
 from betty.locale import negotiate_locale, to_locale
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizer import Localizer
-from typing_extensions import override
 from betty.serde.dump import dump_default
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
@@ -241,9 +242,12 @@ class StaticTranslationsLocalizable(_FormattableLocalizable, LinkedDataDumpable)
         self._required = required
         self._translations: dict[str, str]
         if translations is not None:
-            self.set(translations)
+            self.replace(translations)
         else:
             self._translations = {}
+
+    def __repr__(self) -> str:
+        return repr_instance(self, translations=self._translations)
 
     def __getitem__(self, locale: str) -> str:
         return self._translations[locale]
@@ -254,9 +258,9 @@ class StaticTranslationsLocalizable(_FormattableLocalizable, LinkedDataDumpable)
     def __len__(self) -> int:
         return len(self._translations)
 
-    def set(self, translations: Self | ShorthandStaticTranslations) -> None:
+    def replace(self, translations: Self | ShorthandStaticTranslations) -> None:
         """
-        Set the translations.
+        Replace the translations.
         """
         from betty.assertion import assert_len_min
         from betty.locale.localizable.assertion import assert_static_translations
@@ -267,6 +271,13 @@ class StaticTranslationsLocalizable(_FormattableLocalizable, LinkedDataDumpable)
             translations = assert_static_translations()(translations)
             assert_len_min(1 if self._required else 0)(translations)
             self._translations = dict(translations)
+
+    @property
+    def translations(self) -> StaticTranslations:
+        """
+        The translations.
+        """
+        return dict(self._translations)
 
     @override
     def localize(self, localizer: Localizer) -> str:
@@ -333,8 +344,8 @@ class StaticTranslationsLocalizableAttr(
 
     @override
     def set_attr(self, instance: object, value: ShorthandStaticTranslations) -> None:
-        self.get_attr(instance).set(value)
+        self.get_attr(instance).replace(value)
 
     @override
     def del_attr(self, instance: object) -> None:
-        self.get_attr(instance).set({})
+        self.get_attr(instance).replace({})

@@ -37,8 +37,8 @@ class TestTemplate(TemplateTestBase):
                 "entity": file,
             },
         ) as (actual, _):
-            assert file.description is not None
-            assert file.description in actual
+            assert file.description
+            assert file.description.localize(DEFAULT_LOCALIZER) in actual
             assert str(public_referee.label.localize(DEFAULT_LOCALIZER)) in actual
 
             assert str(private_referee.label.localize(DEFAULT_LOCALIZER)) not in actual

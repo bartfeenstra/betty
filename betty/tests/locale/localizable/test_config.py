@@ -47,28 +47,10 @@ class TestStaticTranslationsLocalizableConfiguration:
         sut = StaticTranslationsLocalizableConfiguration(translations)
         assert len(sut) == expected
 
-    @pytest.mark.parametrize(
-        ("expected", "translations"),
-        [
-            ("Hello, world!", "Hello, world!"),
-            ("Hello, world!", {DEFAULT_LOCALE: "Hello, world!"}),
-            (
-                "Hello, world!",
-                {DEFAULT_LOCALE: "Hello, world!", "nl-NL": "Hallo, wereld!"},
-            ),
-        ],
-    )
-    async def test_set(
-        self, expected: str, translations: ShorthandStaticTranslations
-    ) -> None:
-        sut = StaticTranslationsLocalizableConfiguration()
-        sut.set(translations)
-        assert sut.localize(DEFAULT_LOCALIZER) == expected
-
     async def test_set_without_minimum_translations(self) -> None:
         sut = StaticTranslationsLocalizableConfiguration(required=True)
         with pytest.raises(AssertionFailed):
-            sut.set({})
+            sut.replace({})
 
     @pytest.mark.parametrize(
         ("expected", "translations"),
