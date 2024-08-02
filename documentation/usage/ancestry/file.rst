@@ -11,8 +11,8 @@ Files inherit from:
 
 ``citations`` (iterable of :doc:`Citation </usage/ancestry/citation>`)
     The citations for this file.
-``description`` (optional ``str``)
-    The file's human-readable description.
+``description`` (optional :doc:`/usage/ancestry/static-translations`)
+    The event's human-readable description.
 ``entities`` (iterable of any entity)
     The entities this file is attached to.
 ``id`` (``str``)

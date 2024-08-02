@@ -1,4 +1,4 @@
-<object data="{{ file | file | static_url }}" title="{{ file.description }}">
+<object data="{{ file | file | static_url }}" title="{{ file.description | localize }}">
     <div class="file-content-fallback-message">
         <p>
             {% trans file_name = file.path.name, file_url = file | file | static_url %}Your browser cannot show PDF documents. <a href="{{ file_url }}">Download {{ file_name }}</a> to view it on your device instead.{% endtrans %}

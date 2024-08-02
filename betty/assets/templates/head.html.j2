@@ -19,8 +19,8 @@
             <meta name="og:image:type" content="{{ page_image.media_type }}">
             <meta name="twitter:image" content="{{ page_image_url }}">
             {% if page_image.description %}
-                <meta name="og:image:description" content="{{ page_image.description }}">
-                <meta name="twitter:image:alt" content="{{ page_image.description }}">
+                <meta name="og:image:description" content="{{ page_image.description | localize }}">
+                <meta name="twitter:image:alt" content="{{ page_image.description | localize }}">
             {% endif %}
         {% endif %}
     {% endif %}

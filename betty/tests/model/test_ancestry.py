@@ -4,15 +4,13 @@ from copy import copy
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any, TYPE_CHECKING
-from typing_extensions import override
 
 import pytest
-from geopy import Point
-
 from betty.app import App
 from betty.json.schema import Schema
 from betty.locale.date import Date, DateRange
 from betty.locale.localizable import static
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.model import one_to_one
 from betty.model.ancestry import (
@@ -43,10 +41,12 @@ from betty.model.ancestry import (
     merge_privacies,
     FileReference,
 )
-from betty.model.presence_role import Subject
 from betty.model.event_type import Birth, UnknownEventType
+from betty.model.presence_role import Subject
 from betty.project import LocaleConfiguration, Project
 from betty.test_utils.model import DummyEntity, EntityTestBase
+from geopy import Point
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
@@ -323,7 +323,7 @@ class TestDescribed:
             pass
 
         sut = _Described()
-        assert sut.description is None
+        assert not sut.description
 
 
 class TestHasMediaType:
@@ -354,7 +354,7 @@ class TestLink:
     async def test_description(self) -> None:
         url = "https://example.com"
         sut = Link(url)
-        assert sut.description is None
+        assert not sut.description
 
     async def test_relationship(self) -> None:
         url = "https://example.com"
@@ -479,10 +479,10 @@ class TestFile(EntityTestBase):
             id=file_id,
             path=file_path,
         )
-        assert sut.description is None
+        assert not sut.description
         description = "Hi, my name is Betty!"
         sut.description = description
-        assert description == sut.description
+        assert sut.description.localize(DEFAULT_LOCALIZER) == description
 
     async def test_notes(self) -> None:
         file_id = "BETTY01"
@@ -1623,7 +1623,7 @@ class TestEvent(EntityTestBase):
 
     async def test_description(self) -> None:
         sut = Event(event_type=UnknownEventType())
-        assert sut.description is None
+        assert not sut.description
 
     async def test_private(self) -> None:
         sut = Event(event_type=UnknownEventType())

@@ -6,11 +6,9 @@ from typing import Any, TYPE_CHECKING
 from unittest.mock import AsyncMock, call
 
 import pytest
-from geopy import Point
-from multidict import CIMultiDict
-
 from betty.fetch import FetchResponse
 from betty.fetch.static import StaticFetcher
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.model.ancestry import Source, Link, Citation, Place
 from betty.project import LocaleConfiguration, Project
@@ -22,6 +20,8 @@ from betty.wikipedia import (
     _Populator,
     Image,
 )
+from geopy import Point
+from multidict import CIMultiDict
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -745,7 +745,7 @@ class TestPopulator:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = _Populator(project, m_retriever)
             await sut.populate_link(link, page_language)
-        assert expected == link.description
+        assert link.description.localize(DEFAULT_LOCALIZER) == expected
 
     @pytest.mark.parametrize(
         ("expected", "label"),

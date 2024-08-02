@@ -1,8 +1,8 @@
 from pathlib import Path
 
 from betty.extension.cotton_candy import CottonCandy
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizable import static
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model.ancestry import (
     Event,
     File,
@@ -14,8 +14,8 @@ from betty.model.ancestry import (
     Source,
     FileReference,
 )
-from betty.model.presence_role import Subject
 from betty.model.event_type import UnknownEventType
+from betty.model.presence_role import Subject
 from betty.test_utils.assets.templates import TemplateTestBase
 
 
@@ -73,8 +73,8 @@ class TestTemplate(TemplateTestBase):
                 "entity": event,
             },
         ) as (actual, _):
-            assert public_file.description is not None
-            assert public_file.description in actual
+            assert public_file.description
+            assert public_file.description.localize(DEFAULT_LOCALIZER) in actual
             assert place_name.name in actual
             assert (
                 public_person_for_presence.label.localize(DEFAULT_LOCALIZER) in actual
@@ -82,8 +82,8 @@ class TestTemplate(TemplateTestBase):
             assert public_citation.location is not None
             assert public_citation.location.localize(DEFAULT_LOCALIZER) in actual
 
-            assert private_file.description is not None
-            assert private_file.description not in actual
+            assert private_file.description
+            assert private_file.description.localize(DEFAULT_LOCALIZER) not in actual
             assert (
                 private_person_for_presence.label.localize(DEFAULT_LOCALIZER)
                 not in actual

@@ -17,7 +17,7 @@ Events inherit from:
     The files attached to this event.
 ``citations`` (iterable of :doc:`Citation </usage/ancestry/citation>`)
     The citations for this event.
-``description`` (optional ``str``)
+``description`` (optional :doc:`/usage/ancestry/static-translations`)
     The event's human-readable description.
 ``id`` (``str``)
     The event's own entity ID.

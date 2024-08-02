@@ -797,7 +797,9 @@ class GrampsLoader:
 
         # Load the description.
         with suppress(XPathError):
-            event.description = self._xpath1(element, "./ns:description").text
+            description = self._xpath1(element, "./ns:description").text
+            if description:
+                event.description = description
 
         if element.get("priv") == "1":
             event.private = True

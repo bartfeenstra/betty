@@ -1,8 +1,8 @@
 from pathlib import Path
 
 from betty.extension.cotton_candy import CottonCandy
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizable import static
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model.ancestry import (
     Citation,
     Source,
@@ -71,10 +71,10 @@ class TestTemplate(TemplateTestBase):
         ) as (actual, _):
             assert citation.location is not None
             assert citation.location.localize(DEFAULT_LOCALIZER) in actual
-            assert public_file.description is not None
-            assert public_file.description in actual
+            assert public_file.description
+            assert public_file.description.localize(DEFAULT_LOCALIZER) in actual
             assert public_fact_name in actual
 
-            assert private_file.description is not None
-            assert private_file.description not in actual
+            assert private_file.description
+            assert private_file.description.localize(DEFAULT_LOCALIZER) not in actual
             assert private_fact_name not in actual

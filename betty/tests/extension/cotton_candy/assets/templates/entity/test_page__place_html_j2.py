@@ -1,5 +1,6 @@
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale.date import Date
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model.ancestry import Place, PlaceName, Event, Enclosure
 from betty.model.event_type import Birth
 from betty.test_utils.assets.templates import TemplateTestBase
@@ -59,14 +60,22 @@ class TestTemplate(TemplateTestBase):
             },
         ) as (actual, _):
             assert place_name.name in actual
-            assert public_place_event.description is not None
-            assert public_place_event.description in actual
+            assert public_place_event.description
+            assert public_place_event.description.localize(DEFAULT_LOCALIZER) in actual
             assert enclosed_name.name in actual
             assert enclosing_name.name in actual
-            assert public_enclosed_event.description is not None
-            assert public_enclosed_event.description in actual
+            assert public_enclosed_event.description
+            assert (
+                public_enclosed_event.description.localize(DEFAULT_LOCALIZER) in actual
+            )
 
-            assert private_place_event.description is not None
-            assert private_place_event.description not in actual
-            assert private_enclosed_event.description is not None
-            assert private_enclosed_event.description not in actual
+            assert private_place_event.description
+            assert (
+                private_place_event.description.localize(DEFAULT_LOCALIZER)
+                not in actual
+            )
+            assert private_enclosed_event.description
+            assert (
+                private_enclosed_event.description.localize(DEFAULT_LOCALIZER)
+                not in actual
+            )

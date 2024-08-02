@@ -74,8 +74,8 @@ class StaticTranslationsLocalizableConfigurationAttr(
 
     @override
     def set_attr(self, instance: object, value: ShorthandStaticTranslations) -> None:
-        self.get_attr(instance).set(value)
+        self.get_attr(instance).replace(value)
 
     @override
     def del_attr(self, instance: object) -> None:
-        self.get_attr(instance).set({})
+        self.get_attr(instance).replace({})

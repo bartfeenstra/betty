@@ -1,11 +1,11 @@
 {% extends 'entity/page.html.j2' %}
 {% set file = file | default(entity) %}
-{% set page_title = file.description %}
+{% set page_title = file.label | localize %}
 {% block page_content %}
     {% if file.media_type and file.media_type.type == 'image' %}
         <div class="featured image">
             <a href="{{ file | file | static_url }}">
-                <img src="{{ file | filter_image_resize_cover((1500, 1500)) | static_url }}"{% if file.description %} alt="{{ file.description }}"{% endif %}>
+                <img src="{{ file | filter_image_resize_cover((1500, 1500)) | static_url }}"{% if file.description %} alt="{{ file.description | localize }}"{% endif %}>
             </a>
         </div>
     {% endif %}
