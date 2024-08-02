@@ -17,7 +17,7 @@ Examples of contributions:
 
 - :doc:`translations </development/betty/translation>`
 - UX and graphic design
-- coding in Python, JavaScript, and more
+- coding in Python, JavaScript, HTML, CSS, and more
 
 .. important::
     Read :doc:`/about/contributing/code-of-conduct` before sharing your contributions
