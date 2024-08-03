@@ -89,9 +89,13 @@ class ConfigurationCollection(
         Remove the given keys from the collection.
         """
         for configuration_key in configuration_keys:
-            configuration = self._configurations[configuration_key]  # type: ignore[call-overload]
-            del self._configurations[configuration_key]  # type: ignore[call-overload]
-            self._post_remove(configuration)
+            try:
+                configuration = self._configurations[configuration_key]  # type: ignore[call-overload]
+            except LookupError:
+                continue
+            else:
+                del self._configurations[configuration_key]  # type: ignore[call-overload]
+                self._post_remove(configuration)
 
     def clear(self) -> None:
         """
@@ -181,33 +185,5 @@ class ConfigurationCollection(
     def insert(self, index: int, *configurations: _ConfigurationT) -> None:
         """
         Insert the given values at the given index.
-        """
-        pass
-
-    @abstractmethod
-    def move_to_beginning(self, *configuration_keys: _ConfigurationKeyT) -> None:
-        """
-        Move the given keys (and their values) to the beginning of the sequence.
-        """
-        pass
-
-    @abstractmethod
-    def move_towards_beginning(self, *configuration_keys: _ConfigurationKeyT) -> None:
-        """
-        Move the given keys (and their values) one place towards the beginning of the sequence.
-        """
-        pass
-
-    @abstractmethod
-    def move_to_end(self, *configuration_keys: _ConfigurationKeyT) -> None:
-        """
-        Move the given keys (and their values) to the end of the sequence.
-        """
-        pass
-
-    @abstractmethod
-    def move_towards_end(self, *configuration_keys: _ConfigurationKeyT) -> None:
-        """
-        Move the given keys (and their values) one place towards the end of the sequence.
         """
         pass

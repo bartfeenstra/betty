@@ -5,7 +5,7 @@ Define and provide key-value mappings of :py:class:`betty.config.Configuration` 
 from __future__ import annotations
 
 from abc import abstractmethod
-from collections import OrderedDict
+from contextlib import suppress
 from typing import (
     Generic,
     Iterable,
@@ -39,9 +39,7 @@ class ConfigurationMapping(
         self,
         configurations: Iterable[_ConfigurationT] | None = None,
     ):
-        self._configurations: OrderedDict[_ConfigurationKeyT, _ConfigurationT] = (
-            OrderedDict()
-        )
+        self._configurations: dict[_ConfigurationKeyT, _ConfigurationT] = {}
         super().__init__(configurations)
 
     @override
@@ -89,24 +87,8 @@ class ConfigurationMapping(
 
     @override
     def replace(self, *configurations: _ConfigurationT) -> None:
-        self_keys = list(self.keys())
-        other = {self._get_key(value): value for value in configurations}
-        other_values = list(configurations)
-        other_keys = list(map(self._get_key, other_values))
-
-        # Update items that are kept.
-        for key in self_keys:
-            if key in other_keys:
-                self[key].update(other[key])
-
-        # Add items that are new.
-        self.append(*(other[key] for key in other_keys if key not in self_keys))
-
-        # Remove items that should no longer be present.
-        self.remove(*(key for key in self_keys if key not in other_keys))
-
-        # Ensure everything is in the correct order.
-        self.move_to_beginning(*other_keys)
+        self.clear()
+        self.append(*configurations)
 
     @override
     def load(self, dump: Dump) -> None:
@@ -134,58 +116,28 @@ class ConfigurationMapping(
 
     @override
     def prepend(self, *configurations: _ConfigurationT) -> None:
-        for configuration in configurations:
-            configuration_key = self._get_key(configuration)
-            self._configurations[configuration_key] = configuration
-        self.move_to_beginning(*map(self._get_key, configurations))
+        self.insert(0, *configurations)
 
     @override
     def append(self, *configurations: _ConfigurationT) -> None:
         for configuration in configurations:
             configuration_key = self._get_key(configuration)
+            with suppress(KeyError):
+                del self._configurations[configuration_key]
             self._configurations[configuration_key] = configuration
-        self.move_to_end(*map(self._get_key, configurations))
 
     @override
     def insert(self, index: int, *configurations: _ConfigurationT) -> None:
-        current_configuration_keys = list(self.keys())
-        self.append(*configurations)
-        self.move_to_end(
-            *current_configuration_keys[0:index],
-            *map(self._get_key, configurations),
-            *current_configuration_keys[index:],
-        )
-
-    @override
-    def move_to_beginning(self, *configuration_keys: _ConfigurationKeyT) -> None:
-        for configuration_key in reversed(configuration_keys):
-            self._configurations.move_to_end(configuration_key, False)
-
-    @override
-    def move_towards_beginning(self, *configuration_keys: _ConfigurationKeyT) -> None:
-        self._move_by_offset(-1, *configuration_keys)
-
-    @override
-    def move_to_end(self, *configuration_keys: _ConfigurationKeyT) -> None:
-        for configuration_key in configuration_keys:
-            self._configurations.move_to_end(configuration_key)
-
-    @override
-    def move_towards_end(self, *configuration_keys: _ConfigurationKeyT) -> None:
-        self._move_by_offset(1, *configuration_keys)
-
-    def _move_by_offset(
-        self, offset: int, *configuration_keys: _ConfigurationKeyT
-    ) -> None:
-        current_configuration_keys = list(self.keys())
-        indices = list(self.to_indices(*configuration_keys))
-        if offset > 0:
-            indices.reverse()
-        for index in indices:
-            self.insert(
-                index + offset,
-                self._configurations.pop(current_configuration_keys[index]),
+        self.remove(*map(self._get_key, configurations))
+        existing_configurations = list(self.values())
+        self._configurations = {
+            self._get_key(configuration): configuration
+            for configuration in (
+                *existing_configurations[:index],
+                *configurations,
+                *existing_configurations[index:],
             )
+        }
 
     @abstractmethod
     def _get_key(self, configuration: _ConfigurationT) -> _ConfigurationKeyT:
