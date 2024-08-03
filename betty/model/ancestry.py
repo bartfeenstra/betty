@@ -32,16 +32,20 @@ from betty.locale.localizable import (
 from betty.locale.localized import Localized
 from betty.media_type import MediaType
 from betty.model import (
-    many_to_many,
     Entity,
-    one_to_many,
+    UserFacingEntity,
+    GeneratedEntityId,
+)
+from betty.model.association import (
+    EntityTypeAssociationRegistry,
     many_to_one,
+    one_to_many,
+    many_to_many,
     many_to_one_to_many,
+)
+from betty.model.collections import (
     MultipleTypesEntityCollection,
     EntityCollection,
-    UserFacingEntity,
-    EntityTypeAssociationRegistry,
-    GeneratedEntityId,
 )
 from betty.model.event_type import EventType, UnknownEventType
 from betty.model.presence_role import PresenceRole, ref_role, Subject
