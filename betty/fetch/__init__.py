@@ -6,13 +6,11 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from json import loads
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import Any
 
 from multidict import CIMultiDict
 
 from betty.error import UserFacingError
-
-_CacheItemValueT = TypeVar("_CacheItemValueT")
 
 
 class FetchError(UserFacingError, RuntimeError):
@@ -61,6 +59,8 @@ class Fetcher(ABC):
     async def fetch(self, url: str) -> FetchResponse:
         """
         Fetch an HTTP resource.
+
+        :raises FetchError: if an error occurred while fetching the content.
         """
         pass
 
@@ -68,6 +68,8 @@ class Fetcher(ABC):
     async def fetch_file(self, url: str) -> Path:
         """
         Fetch a file.
+
+        :raises FetchError: if an error occurred while fetching the content.
 
         :return: The path to the file on disk.
         """
