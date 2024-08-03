@@ -10,7 +10,7 @@ from betty.gramps.loader import GrampsLoader
 from betty.locale.date import Date, DateRange
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
-from betty.model.ancestry import (
+from betty.ancestry import (
     Ancestry,
     Citation,
     Note,
@@ -21,7 +21,7 @@ from betty.model.ancestry import (
     Place,
     Privacy,
 )
-from betty.model.event_type import Birth, Death, UnknownEventType
+from betty.ancestry.event_type import Birth, Death, UnknownEventType
 from betty.path import rootname
 from betty.project import Project
 

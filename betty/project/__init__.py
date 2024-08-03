@@ -64,7 +64,7 @@ from betty.locale.localizable.config import (
 )
 from betty.locale.localizer import LocalizerRepository
 from betty.model import Entity, UserFacingEntity
-from betty.model.ancestry import Ancestry, Person, Event, Place, Source
+from betty.ancestry import Ancestry, Person, Event, Place, Source
 from betty.plugin.assertion import assert_plugin
 from betty.project import extension
 from betty.project.extension import (

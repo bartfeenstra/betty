@@ -13,7 +13,7 @@ from betty.locale.date import Datey, Date, DateRange
 from betty.model import (
     GeneratedEntityId,
 )
-from betty.model.ancestry import (
+from betty.ancestry import (
     Person,
     Presence,
     Event,
@@ -26,8 +26,8 @@ from betty.model.ancestry import (
     Place,
     FileReference,
 )
-from betty.model.presence_role import PresenceRole, Subject, Attendee
-from betty.model.event_type import Birth, UnknownEventType, EventType, Death
+from betty.ancestry.presence_role import PresenceRole, Subject, Attendee
+from betty.ancestry.event_type import Birth, UnknownEventType, EventType, Death
 from betty.project import DEFAULT_LIFETIME_THRESHOLD
 from betty.test_utils.model import DummyEntity
 

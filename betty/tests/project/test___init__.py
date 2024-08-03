@@ -18,7 +18,7 @@ from betty.event_dispatcher import Event, EventHandlerRegistry
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity, UserFacingEntity
-from betty.model.ancestry import Ancestry
+from betty.ancestry import Ancestry
 from betty.plugin.static import StaticPluginRepository
 from betty.project import (
     ExtensionConfiguration,

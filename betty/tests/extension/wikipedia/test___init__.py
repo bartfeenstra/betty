@@ -7,7 +7,7 @@ from typing_extensions import override
 from betty.extension.wikipedia import Wikipedia
 from betty.job import Context
 from betty.load import load
-from betty.model.ancestry import Link
+from betty.ancestry import Link
 from betty.project import ExtensionConfiguration, Project
 from betty.test_utils.project.extension import ExtensionTestBase
 from betty.wikipedia import Summary

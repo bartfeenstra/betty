@@ -11,7 +11,7 @@ from typing import Iterator, TypeAlias, Any, TYPE_CHECKING
 
 from betty.locale.date import DateRange, Date
 from betty.model import Entity
-from betty.model.ancestry import (
+from betty.ancestry import (
     Person,
     Event,
     HasFileReferences,
@@ -23,8 +23,8 @@ from betty.model.ancestry import (
     HasPrivacy,
     Place,
 )
-from betty.model.presence_role import Subject
-from betty.model.event_type import EndOfLifeEventType
+from betty.ancestry.presence_role import Subject
+from betty.ancestry.event_type import EndOfLifeEventType
 
 if TYPE_CHECKING:
     from betty.locale.localizer import Localizer

@@ -2,7 +2,7 @@ from pathlib import Path
 
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.model.ancestry import File, HasFileReferences, HasPrivacy, FileReference
+from betty.ancestry import File, HasFileReferences, HasPrivacy, FileReference
 from betty.test_utils.assets.templates import TemplateTestBase
 from betty.test_utils.model import DummyEntity
 

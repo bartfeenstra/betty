@@ -10,7 +10,7 @@ from html5lib import parse
 from betty.asyncio import gather
 from betty.fetch import Fetcher, FetchError
 from betty.media_type import MediaType, InvalidMediaType
-from betty.model.ancestry import Link, HasLinks
+from betty.ancestry import Link, HasLinks
 from betty.project import Project, ProjectEvent
 
 

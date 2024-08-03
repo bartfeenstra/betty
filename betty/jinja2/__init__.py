@@ -37,7 +37,7 @@ if TYPE_CHECKING:
     from betty.model import Entity
     from betty.project.extension import Extension
     from betty.project import ProjectConfiguration, Project
-    from betty.model.ancestry import Citation
+    from betty.ancestry import Citation
     from pathlib import Path
     from collections.abc import MutableMapping, Iterator, Sequence
 

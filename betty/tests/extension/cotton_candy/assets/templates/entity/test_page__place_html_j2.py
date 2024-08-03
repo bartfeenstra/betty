@@ -1,8 +1,8 @@
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale.date import Date
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.model.ancestry import Place, PlaceName, Event, Enclosure
-from betty.model.event_type import Birth
+from betty.ancestry import Place, PlaceName, Event, Enclosure
+from betty.ancestry.event_type import Birth
 from betty.test_utils.assets.templates import TemplateTestBase
 
 

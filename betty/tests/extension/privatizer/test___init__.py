@@ -7,7 +7,7 @@ from typing_extensions import override
 
 from betty.extension.privatizer import Privatizer
 from betty.load import load
-from betty.model.ancestry import (
+from betty.ancestry import (
     Person,
     Presence,
     Event,
@@ -16,8 +16,8 @@ from betty.model.ancestry import (
     Citation,
     FileReference,
 )
-from betty.model.event_type import Birth
-from betty.model.presence_role import Subject
+from betty.ancestry.event_type import Birth
+from betty.ancestry.presence_role import Subject
 from betty.project import ExtensionConfiguration, Project
 from betty.test_utils.project.extension import ExtensionTestBase
 

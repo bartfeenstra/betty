@@ -13,8 +13,8 @@ from betty.deriver import Deriver as DeriverApi
 from betty.extension.privatizer import Privatizer
 from betty.load import PostLoadAncestryEvent
 from betty.locale.localizable import _, Localizable
-from betty.model import event_type
-from betty.model.event_type import DerivableEventType
+from betty.ancestry import event_type
+from betty.ancestry.event_type import DerivableEventType
 from betty.project.extension import Extension
 from typing import TYPE_CHECKING
 

@@ -12,7 +12,7 @@ from betty.locale.date import Date, DateRange
 from betty.locale.localizable import static
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
-from betty.model.ancestry import (
+from betty.ancestry import (
     Person,
     Event,
     Place,
@@ -41,8 +41,8 @@ from betty.model.ancestry import (
     FileReference,
 )
 from betty.model.association import OneToOne
-from betty.model.event_type import Birth, UnknownEventType
-from betty.model.presence_role import Subject
+from betty.ancestry.event_type import Birth, UnknownEventType
+from betty.ancestry.presence_role import Subject
 from betty.project import LocaleConfiguration, Project
 from betty.test_utils.model import DummyEntity, EntityTestBase
 from geopy import Point
@@ -2266,18 +2266,18 @@ class TestPerson(EntityTestBase):
 
 class _TestAncestry_OneToOne_Left(DummyEntity):
     one_right = OneToOne["_TestAncestry_OneToOne_Left", "_TestAncestry_OneToOne_Right"](
-        "betty.tests.model.test_ancestry:_TestAncestry_OneToOne_Left",
+        "betty.tests.ancestry.test___init__:_TestAncestry_OneToOne_Left",
         "one_right",
-        "betty.tests.model.test_ancestry:_TestAncestry_OneToOne_Right",
+        "betty.tests.ancestry.test___init__:_TestAncestry_OneToOne_Right",
         "one_left",
     )
 
 
 class _TestAncestry_OneToOne_Right(DummyEntity):
     one_left = OneToOne["_TestAncestry_OneToOne_Right", _TestAncestry_OneToOne_Left](
-        "betty.tests.model.test_ancestry:_TestAncestry_OneToOne_Right",
+        "betty.tests.ancestry.test___init__:_TestAncestry_OneToOne_Right",
         "one_left",
-        "betty.tests.model.test_ancestry:_TestAncestry_OneToOne_Left",
+        "betty.tests.ancestry.test___init__:_TestAncestry_OneToOne_Left",
         "one_right",
     )
 

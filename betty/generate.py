@@ -45,7 +45,7 @@ from betty.model import (
     Entity,
     GeneratedEntityId,
 )
-from betty.model.ancestry import is_public
+from betty.ancestry import is_public
 from betty.openapi import Specification
 from betty.string import (
     kebab_case_to_lower_camel_case,

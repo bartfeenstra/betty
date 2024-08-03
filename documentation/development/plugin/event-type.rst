@@ -6,22 +6,22 @@ Event type plugins
    :stub-columns: 1
 
    * -  Type
-     -  :py:class:`betty.model.event_type.EventType`
+     -  :py:class:`betty.ancestry.event_type.EventType`
    * -  Repository
-     -  :py:class:`betty.model.event_type.EVENT_TYPE_REPOSITORY`
+     -  :py:class:`betty.ancestry.event_type.EVENT_TYPE_REPOSITORY`
 
 Event types are used to indicate the **type** of an :doc:`/usage/ancestry/event`, such as a birth, a death, or an marriage.
 
 Creating an event type
 ----------------------
 
-#. Create a new class that extends :py:class:`betty.model.event_type.EventType` and implements the abstract methods,
+#. Create a new class that extends :py:class:`betty.ancestry.event_type.EventType` and implements the abstract methods,
    for example:
 
    .. code-block:: python
 
      from typing import override
-     from betty.model.event_type import EventType
+     from betty.ancestry.event_type import EventType
 
      class MyEventType(EventType):
        @override

@@ -1,7 +1,7 @@
 Presence
 ========
 
-A :py:class:`betty.model.ancestry.Presence` acts as a bridge that links a :doc:`/usage/ancestry/person` to an :doc:`/usage/ancestry/event`.
+A :py:class:`betty.ancestry.Presence` acts as a bridge that links a :doc:`/usage/ancestry/person` to an :doc:`/usage/ancestry/event`.
 
 Fields
 ------

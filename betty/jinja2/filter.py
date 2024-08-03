@@ -42,7 +42,7 @@ from betty.locale import (
     get_data,
 )
 from betty.locale.localized import Localized, negotiate_localizeds
-from betty.model.ancestry import File, FileReference
+from betty.ancestry import File, FileReference
 from betty.os import link_or_copy
 from betty.serde.dump import minimize, none_void, void_none
 from betty.string import (
@@ -55,7 +55,7 @@ if TYPE_CHECKING:
     from betty.locale.date import Datey
     from betty.locale.localizable import Localizable
     from jinja2.nodes import EvalContext
-    from betty.model.ancestry import Dated
+    from betty.ancestry import Dated
     from betty.media_type import MediaType
     from pathlib import Path
     from collections.abc import Awaitable

@@ -1,7 +1,7 @@
 Enclosure
 =========
 
-An :py:class:`betty.model.ancestry.Enclosure` acts as a bridge that links :doc:`places </usage/ancestry/place>` together that
+An :py:class:`betty.ancestry.Enclosure` acts as a bridge that links :doc:`places </usage/ancestry/place>` together that
 enclose, or contain each other.
 
 Fields

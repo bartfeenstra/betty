@@ -14,12 +14,12 @@ from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
 
 if TYPE_CHECKING:
-    from betty.model.ancestry import Person
+    from betty.ancestry import Person
 
 
 class EventType(Plugin):
     """
-    Define an :py:class:`betty.model.ancestry.Event` type.
+    Define an :py:class:`betty.ancestry.Event` type.
 
     Read more about :doc:`/development/plugin/event-type`.
     """

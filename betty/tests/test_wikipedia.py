@@ -10,7 +10,7 @@ from betty.fetch import FetchResponse
 from betty.fetch.static import StaticFetcher
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
-from betty.model.ancestry import Source, Link, Citation, Place
+from betty.ancestry import Source, Link, Citation, Place
 from betty.project import LocaleConfiguration, Project
 from betty.wikipedia import (
     Summary,

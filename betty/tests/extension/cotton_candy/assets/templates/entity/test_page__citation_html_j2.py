@@ -3,7 +3,7 @@ from pathlib import Path
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale.localizable import static
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.model.ancestry import (
+from betty.ancestry import (
     Citation,
     Source,
     File,

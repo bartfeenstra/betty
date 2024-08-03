@@ -2,7 +2,7 @@ from unittest.mock import PropertyMock
 
 
 from betty.extension.wikipedia import Wikipedia
-from betty.model.ancestry import HasLinks, Link
+from betty.ancestry import HasLinks, Link
 from betty.test_utils.assets.templates import TemplateTestBase
 from pytest_mock import MockerFixture
 

@@ -1,7 +1,7 @@
 Place Name
 ==========
 
-A :py:class:`betty.model.ancestry.PlaceName` describes a name for a :doc:`place </usage/ancestry/place>`.
+A :py:class:`betty.ancestry.PlaceName` describes a name for a :doc:`place </usage/ancestry/place>`.
 
 Fields
 ------

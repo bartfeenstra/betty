@@ -4,7 +4,7 @@ from typing import Any, TYPE_CHECKING
 
 import pytest
 from betty.model import Entity
-from betty.model.ancestry import Person
+from betty.ancestry import Person
 from betty.model.collections import (
     SingleTypeEntityCollection,
     MultipleTypesEntityCollection,

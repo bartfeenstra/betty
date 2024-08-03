@@ -1,7 +1,7 @@
 File
 ====
 
-A :py:class:`betty.model.ancestry.File` describes a file, such as an image or a PDF document, that is attached to other entities.
+A :py:class:`betty.ancestry.File` describes a file, such as an image or a PDF document, that is attached to other entities.
 
 Fields
 ------

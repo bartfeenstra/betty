@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import Any, TYPE_CHECKING
 
 import pytest
-from betty.model.ancestry import Person, Place, PlaceName
-from betty.model.presence_role import Subject, Attendee, Witness
+from betty.ancestry import Person, Place, PlaceName
+from betty.ancestry.presence_role import Subject, Attendee, Witness
 from betty.test_utils.assets.templates import TemplateTestBase
 
 if TYPE_CHECKING:

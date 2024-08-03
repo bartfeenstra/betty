@@ -1,6 +1,6 @@
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale.date import Date
-from betty.model.ancestry import (
+from betty.ancestry import (
     Person,
     Presence,
     Event,
@@ -8,8 +8,8 @@ from betty.model.ancestry import (
     Source,
     Citation,
 )
-from betty.model.presence_role import Subject
-from betty.model.event_type import Birth, Death
+from betty.ancestry.presence_role import Subject
+from betty.ancestry.event_type import Birth, Death
 from betty.test_utils.assets.templates import TemplateTestBase
 
 

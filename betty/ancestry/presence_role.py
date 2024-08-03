@@ -54,8 +54,8 @@ class Subject(PresenceRole):
     """
     Someone was the subject of the event.
 
-    The meaning of this role depends on the event type. For example, for :py:class:`betty.model.event_type.Marriage`,
-    the subjects are the people who got married. For :py:class:`betty.model.event_type.Death` it is the person who
+    The meaning of this role depends on the event type. For example, for :py:class:`betty.ancestry.event_type.Marriage`,
+    the subjects are the people who got married. For :py:class:`betty.ancestry.event_type.Death` it is the person who
     died.
     """
 
@@ -90,7 +90,7 @@ class Witness(PresenceRole):
 @final
 class Beneficiary(PresenceRole):
     """
-    Someone was a `benificiary <https://en.wikipedia.org/wiki/Beneficiary>`_ in the event, such as a :py:class:`betty.model.event_type.Will`.
+    Someone was a `benificiary <https://en.wikipedia.org/wiki/Beneficiary>`_ in the event, such as a :py:class:`betty.ancestry.event_type.Will`.
     """
 
     @override

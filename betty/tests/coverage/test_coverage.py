@@ -544,7 +544,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "add_entity": TestKnownToBeMissing,
         },
     },
-    "betty/model/ancestry.py": {
+    "betty/ancestry/__init__.py": {
         "ref_link": TestKnownToBeMissing,
         "ref_link_collection": TestKnownToBeMissing,
         "ref_media_type": TestKnownToBeMissing,
@@ -609,7 +609,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "label": TestKnownToBeMissing,
         },
     },
-    "betty/model/event_type.py": {
+    "betty/ancestry/event_type.py": {
         "Adoption": TestKnownToBeMissing,
         "Baptism": TestKnownToBeMissing,
         "Birth": TestKnownToBeMissing,
@@ -643,11 +643,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "UnknownEventType": TestKnownToBeMissing,
         "Will": TestKnownToBeMissing,
     },
-    "betty/model/presence_role.py": {
+    "betty/ancestry/presence_role.py": {
         # This is static.
         "Attendee": TestKnownToBeMissing,
         # This is static.
         "Beneficiary": TestKnownToBeMissing,
+        # This is static.
         "Celebrant": TestKnownToBeMissing,
         # This is static.
         "Organizer": TestKnownToBeMissing,

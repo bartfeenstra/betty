@@ -6,9 +6,9 @@ from betty.deriver import Deriver
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.date import DateRange, Date, Datey
 from betty.model.collections import record_added
-from betty.model.ancestry import Person, Presence, Event, Ancestry
-from betty.model.presence_role import Subject
-from betty.model.event_type import (
+from betty.ancestry import Person, Presence, Event, Ancestry
+from betty.ancestry.presence_role import Subject
+from betty.ancestry.event_type import (
     DerivableEventType,
     CreatableDerivableEventType,
     EventType,

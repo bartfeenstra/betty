@@ -11,7 +11,7 @@ from betty.extension.demo import DemoServer, demo_project
 from betty.fetch.static import StaticFetcher
 from betty.functools import Do
 from betty.load import load
-from betty.model.ancestry import Person, Place, Event, Source, Citation
+from betty.ancestry import Person, Place, Event, Source, Citation
 from betty.project import ExtensionConfiguration, Project
 from betty.test_utils.project.extension import ExtensionTestBase
 

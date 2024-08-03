@@ -3,7 +3,7 @@ Privacy
 
 Fields
 ------
-``privacy`` (:py:class:`betty.model.ancestry.Privacy`)
+``privacy`` (:py:class:`betty.ancestry.Privacy`)
     The object's privacy.
 ``public`` (``bool``)
     Whether the object is public.
