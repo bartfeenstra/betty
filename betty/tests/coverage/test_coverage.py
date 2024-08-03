@@ -501,23 +501,25 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/model/__init__.py": {
-        "record_added": TestKnownToBeMissing,
         "unalias": TestKnownToBeMissing,
         "AliasedEntity": TestKnownToBeMissing,
+        "Entity": TestKnownToBeMissing,
+        "GeneratedEntityId": TestKnownToBeMissing,
+        # This is an interface.
+        "UserFacingEntity": TestKnownToBeMissing,
+    },
+    "betty/model/association.py": {
         "BidirectionalEntityTypeAssociation": TestKnownToBeMissing,
         "BidirectionalToManyEntityTypeAssociation": TestKnownToBeMissing,
         "BidirectionalToOneEntityTypeAssociation": TestKnownToBeMissing,
-        "Entity": TestKnownToBeMissing,
-        "EntityGraphBuilder": {
-            "add_association": TestKnownToBeMissing,
-            "add_entity": TestKnownToBeMissing,
+        "ToMany": {
+            "initialize": TestKnownToBeMissing,
         },
+        "ToManyEntityTypeAssociation": TestKnownToBeMissing,
+        "ToOneEntityTypeAssociation": TestKnownToBeMissing,
+    },
+    "betty/model/collections.py": {
         "EntityCollection": TestKnownToBeMissing,
-        # This is an empty class.
-        "EntityTypeError": TestKnownToBeMissing,
-        "EntityTypeImportError": TestKnownToBeMissing,
-        "EntityTypeInvalidError": TestKnownToBeMissing,
-        "GeneratedEntityId": TestKnownToBeMissing,
         "MultipleTypesEntityCollection": {
             "__iter__": TestKnownToBeMissing,
             "__len__": TestKnownToBeMissing,
@@ -527,13 +529,13 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "__iter__": TestKnownToBeMissing,
             "__len__": TestKnownToBeMissing,
         },
-        "ToMany": {
-            "initialize": TestKnownToBeMissing,
+        "record_added": TestKnownToBeMissing,
+    },
+    "betty/model/graph.py": {
+        "EntityGraphBuilder": {
+            "add_association": TestKnownToBeMissing,
+            "add_entity": TestKnownToBeMissing,
         },
-        "ToManyEntityTypeAssociation": TestKnownToBeMissing,
-        "ToOneEntityTypeAssociation": TestKnownToBeMissing,
-        # This is an interface.
-        "UserFacingEntity": TestKnownToBeMissing,
     },
     "betty/model/ancestry.py": {
         "ref_link": TestKnownToBeMissing,

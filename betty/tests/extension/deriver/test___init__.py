@@ -7,7 +7,7 @@ from typing_extensions import override
 from betty.extension.deriver import Deriver
 from betty.load import load
 from betty.locale.date import DateRange, Date
-from betty.model import record_added
+from betty.model.collections import record_added
 from betty.model.ancestry import Person, Presence, Event
 from betty.model.event_type import (
     DerivableEventType,

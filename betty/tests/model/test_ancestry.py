@@ -12,7 +12,7 @@ from betty.locale.date import Date, DateRange
 from betty.locale.localizable import static
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
-from betty.model import one_to_one
+from betty.model.association import one_to_one
 from betty.model.ancestry import (
     Person,
     Event,

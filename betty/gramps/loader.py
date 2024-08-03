@@ -23,7 +23,8 @@ from betty.gramps.error import GrampsError
 from betty.locale.date import DateRange, Datey, Date
 from betty.locale.localizable import _, plain
 from betty.media_type import MediaType, InvalidMediaType
-from betty.model import Entity, EntityGraphBuilder, AliasedEntity, AliasableEntity
+from betty.model import Entity, AliasedEntity, AliasableEntity
+from betty.model.graph import EntityGraphBuilder
 from betty.model.ancestry import (
     Note,
     File,
