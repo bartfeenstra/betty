@@ -251,10 +251,10 @@ class TestPersonLifetimeEvents:
 
 class TestAssociatedFileReferences:
     async def test_with_plain_has_file_references_without_files(self) -> None:
-        class _DummyHasFileReferences(HasFileReferences):
+        class DummyHasFileReferences(HasFileReferences, DummyEntity):
             pass
 
-        assert list(associated_file_references(_DummyHasFileReferences())) == []
+        assert list(associated_file_references(DummyHasFileReferences())) == []
 
     async def test_with_plain_has_file_references_with_files(self) -> None:
         file1 = File(path=Path())
@@ -288,7 +288,7 @@ class TestAssociatedFileReferences:
         FileReference(citation, file3)
         FileReference(citation, file4)
         FileReference(citation, file2)
-        event.citations = [citation]  # type: ignore[assignment]
+        event.citations = [citation]
         assert [
             file_reference.file for file_reference in associated_file_references(event)
         ] == [file1, file2, file3, file4]
@@ -318,7 +318,7 @@ class TestAssociatedFileReferences:
             person=person,
             individual="Janet",
         )
-        name.citations = [citation]  # type: ignore[assignment]
+        name.citations = [citation]
         event = Event(event_type=UnknownEventType())
         FileReference(event, file5)
         FileReference(event, file6)

@@ -4,12 +4,12 @@ from aioresponses import aioresponses
 from betty.app import App
 from betty.load import load
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.model.ancestry import HasLinksEntity, Link
+from betty.model.ancestry import Link, HasLinks
 from betty.project import Project
 from betty.test_utils.model import DummyEntity
 
 
-class DummyHasLinks(HasLinksEntity, DummyEntity):
+class DummyHasLinks(HasLinks, DummyEntity):
     pass
 
 

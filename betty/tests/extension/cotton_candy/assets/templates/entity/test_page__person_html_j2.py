@@ -132,7 +132,7 @@ class TestTemplate(TemplateTestBase):
             affiliation=private_partner_private_name_affiliation,
             private=True,
         )
-        person.parents = [public_parent, private_parent]  # type: ignore[assignment]
+        person.parents = [public_parent, private_parent]
         public_child = Person()
         public_child_public_name_individual = "public child public individual"
         public_child_public_name_affiliation = "public child public affiliation"
@@ -149,7 +149,7 @@ class TestTemplate(TemplateTestBase):
             affiliation=public_child_private_name_affiliation,
             private=True,
         )
-        public_child.parents = [person, public_partner, private_partner]  # type: ignore[assignment]
+        public_child.parents = [person, public_partner, private_partner]
         private_child = Person(private=True)
         private_child_public_name_individual = "private child public individual"
         private_child_public_name_affiliation = "private child public affiliation"
@@ -165,7 +165,7 @@ class TestTemplate(TemplateTestBase):
             individual=private_child_private_name_individual,
             affiliation=private_child_private_name_affiliation,
         )
-        private_child.parents = [person, public_partner, private_partner]  # type: ignore[assignment]
+        private_child.parents = [person, public_partner, private_partner]
         public_file = File(
             path=file_path,
             description="public file description",

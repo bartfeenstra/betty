@@ -6,10 +6,11 @@ from betty.model.ancestry import HasLinks, Link
 from betty.test_utils.assets.templates import TemplateTestBase
 from pytest_mock import MockerFixture
 
+from betty.test_utils.model import DummyEntity
 from betty.wikipedia import _Retriever, Summary
 
 
-class DummyResource(HasLinks):
+class DummyResource(HasLinks, DummyEntity):
     pass
 
 

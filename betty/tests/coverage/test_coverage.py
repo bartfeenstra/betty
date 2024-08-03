@@ -509,14 +509,21 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "UserFacingEntity": TestKnownToBeMissing,
     },
     "betty/model/association.py": {
-        "BidirectionalEntityTypeAssociation": TestKnownToBeMissing,
-        "BidirectionalToManyEntityTypeAssociation": TestKnownToBeMissing,
-        "BidirectionalToOneEntityTypeAssociation": TestKnownToBeMissing,
+        # This abstract class is covered by numerous tests for its final subclasses.
+        "Association": TestKnownToBeMissing,
+        # This abstract class is covered by numerous tests for its final subclasses.
+        "BidirectionalAssociation": TestKnownToBeMissing,
+        # This abstract class is covered by numerous tests for its final subclasses.
+        "BidirectionalToManyAssociation": TestKnownToBeMissing,
+        # This abstract class is covered by numerous tests for its final subclasses.
+        "BidirectionalToOneAssociation": TestKnownToBeMissing,
         "ToMany": {
-            "initialize": TestKnownToBeMissing,
+            "new_attr": TestKnownToBeMissing,
         },
-        "ToManyEntityTypeAssociation": TestKnownToBeMissing,
-        "ToOneEntityTypeAssociation": TestKnownToBeMissing,
+        # This abstract class is covered by numerous tests for its final subclasses.
+        "ToManyAssociation": TestKnownToBeMissing,
+        # This abstract class is covered by numerous tests for its final subclasses.
+        "ToOneAssociation": TestKnownToBeMissing,
     },
     "betty/model/collections.py": {
         "EntityCollection": TestKnownToBeMissing,
@@ -557,7 +564,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "File": {
             "label": TestKnownToBeMissing,
         },
-        "HasLinksEntity": TestKnownToBeMissing,
         "HasCitations": {
             "dump_linked_data": TestKnownToBeMissing,
         },

@@ -1,147 +1,133 @@
 from __future__ import annotations
 
 import pytest
-from betty.model import AliasedEntity, AliasableEntity, Entity, unalias
 
+from betty.model import AliasedEntity, AliasableEntity, Entity, unalias
 from betty.model.association import (
-    to_one,
-    one_to_one,
-    many_to_one,
-    one_to_many,
-    to_many,
-    many_to_many,
-    many_to_one_to_many,
+    ToOne,
+    OneToOne,
+    ManyToOne,
+    OneToMany,
+    ToMany,
+    ManyToMany,
 )
-from betty.model.collections import EntityCollection, MultipleTypesEntityCollection
+from betty.model.collections import MultipleTypesEntityCollection
 from betty.model.graph import EntityGraphBuilder
 from betty.test_utils.model import DummyEntity
 
 
-@to_one(
-    "to_one",
-    "betty.tests.model.test_graph:_EntityGraphBuilder_ToOne_Right",
-)
 class _EntityGraphBuilder_ToOne_Left(DummyEntity):
-    to_one: _EntityGraphBuilder_ToOne_Right | None
+    to_one = ToOne["_EntityGraphBuilder_ToOne_Left", "_EntityGraphBuilder_ToOne_Right"](
+        "betty.tests.model.test_graph:_EntityGraphBuilder_ToOne_Left",
+        "to_one",
+        "betty.tests.model.test_graph:_EntityGraphBuilder_ToOne_Right",
+    )
 
 
 class _EntityGraphBuilder_ToOne_Right(DummyEntity):
     pass
 
 
-@one_to_one(
-    "to_one",
-    "betty.tests.model.test_graph:_EntityGraphBuilder_OneToOne_Right",
-    "to_one",
-)
 class _EntityGraphBuilder_OneToOne_Left(DummyEntity):
-    to_one: _EntityGraphBuilder_OneToOne_Right | None
+    to_one = OneToOne[
+        "_EntityGraphBuilder_OneToOne_Left", "_EntityGraphBuilder_OneToOne_Right"
+    ](
+        "betty.tests.model.test_graph:_EntityGraphBuilder_OneToOne_Left",
+        "to_one",
+        "betty.tests.model.test_graph:_EntityGraphBuilder_OneToOne_Right",
+        "to_one",
+    )
 
 
-@one_to_one(
-    "to_one",
-    "betty.tests.model.test_graph:_EntityGraphBuilder_OneToOne_Left",
-    "to_one",
-)
 class _EntityGraphBuilder_OneToOne_Right(DummyEntity):
-    to_one: _EntityGraphBuilder_OneToOne_Left | None
+    to_one = OneToOne[
+        "_EntityGraphBuilder_OneToOne_Right", _EntityGraphBuilder_OneToOne_Left
+    ](
+        "betty.tests.model.test_graph:_EntityGraphBuilder_OneToOne_Right",
+        "to_one",
+        "betty.tests.model.test_graph:_EntityGraphBuilder_OneToOne_Left",
+        "to_one",
+    )
 
 
-@many_to_one(
-    "to_one",
-    "betty.tests.model.test_graph:_EntityGraphBuilder_ManyToOne_Right",
-    "to_many",
-)
 class _EntityGraphBuilder_ManyToOne_Left(DummyEntity):
-    to_one: _EntityGraphBuilder_ManyToOne_Right | None
+    to_one = ManyToOne[
+        "_EntityGraphBuilder_ManyToOne_Left", "_EntityGraphBuilder_ManyToOne_Right"
+    ](
+        "betty.tests.model.test_graph:_EntityGraphBuilder_ManyToOne_Left",
+        "to_one",
+        "betty.tests.model.test_graph:_EntityGraphBuilder_ManyToOne_Right",
+        "to_many",
+    )
 
 
-@one_to_many(
-    "to_many",
-    "betty.tests.model.test_graph:_EntityGraphBuilder_ManyToOne_Left",
-    "to_one",
-)
 class _EntityGraphBuilder_ManyToOne_Right(DummyEntity):
-    to_many: EntityCollection[_EntityGraphBuilder_ManyToOne_Left]
+    to_many = OneToMany[
+        "_EntityGraphBuilder_ManyToOne_Right", _EntityGraphBuilder_ManyToOne_Left
+    ](
+        "betty.tests.model.test_graph:_EntityGraphBuilder_ManyToOne_Right",
+        "to_many",
+        "betty.tests.model.test_graph:_EntityGraphBuilder_ManyToOne_Left",
+        "to_one",
+    )
 
 
-@to_many(
-    "to_many",
-    "betty.tests.model.test_graph:_EntityGraphBuilder_ToMany_Right",
-)
 class _EntityGraphBuilder_ToMany_Left(DummyEntity):
-    to_many: EntityCollection[_EntityGraphBuilder_ToMany_Right]
+    to_many = ToMany[
+        "_EntityGraphBuilder_ToMany_Left", "_EntityGraphBuilder_ToMany_Right"
+    ](
+        "betty.tests.model.test_graph:_EntityGraphBuilder_ToMany_Left",
+        "to_many",
+        "betty.tests.model.test_graph:_EntityGraphBuilder_ToMany_Right",
+    )
 
 
 class _EntityGraphBuilder_ToMany_Right(DummyEntity):
     pass
 
 
-@one_to_many(
-    "to_many",
-    "betty.tests.model.test_graph:_EntityGraphBuilder_OneToMany_Right",
-    "to_one",
-)
 class _EntityGraphBuilder_OneToMany_Left(DummyEntity):
-    to_many: EntityCollection[_EntityGraphBuilder_OneToMany_Right]
+    to_many = OneToMany[
+        "_EntityGraphBuilder_OneToMany_Left", "_EntityGraphBuilder_OneToMany_Right"
+    ](
+        "betty.tests.model.test_graph:_EntityGraphBuilder_OneToMany_Left",
+        "to_many",
+        "betty.tests.model.test_graph:_EntityGraphBuilder_OneToMany_Right",
+        "to_one",
+    )
 
 
-@many_to_one(
-    "to_one",
-    "betty.tests.model.test_graph:_EntityGraphBuilder_OneToMany_Left",
-    "to_many",
-)
 class _EntityGraphBuilder_OneToMany_Right(DummyEntity):
-    to_one: _EntityGraphBuilder_OneToMany_Left | None
+    to_one = ManyToOne[
+        "_EntityGraphBuilder_OneToMany_Right", _EntityGraphBuilder_OneToMany_Left
+    ](
+        "betty.tests.model.test_graph:_EntityGraphBuilder_OneToMany_Right",
+        "to_one",
+        "betty.tests.model.test_graph:_EntityGraphBuilder_OneToMany_Left",
+        "to_many",
+    )
 
 
-@many_to_many(
-    "to_many",
-    "betty.tests.model.test_graph:_EntityGraphBuilder_ManyToMany_Right",
-    "to_many",
-)
 class _EntityGraphBuilder_ManyToMany_Left(DummyEntity):
-    to_many: EntityCollection[_EntityGraphBuilder_ManyToMany_Right]
+    to_many = ManyToMany[
+        "_EntityGraphBuilder_ManyToMany_Left", "_EntityGraphBuilder_ManyToMany_Right"
+    ](
+        "betty.tests.model.test_graph:_EntityGraphBuilder_ManyToMany_Left",
+        "to_many",
+        "betty.tests.model.test_graph:_EntityGraphBuilder_ManyToMany_Right",
+        "to_many",
+    )
 
 
-@many_to_many(
-    "to_many",
-    "betty.tests.model.test_graph:_EntityGraphBuilder_ManyToMany_Left",
-    "to_many",
-)
 class _EntityGraphBuilder_ManyToMany_Right(DummyEntity):
-    to_many: EntityCollection[_EntityGraphBuilder_ManyToMany_Left]
-
-
-@one_to_many(
-    "to_many",
-    "betty.tests.model.test_graph:_EntityGraphBuilder_ManyToOneToMany_Middle",
-    "to_one_left",
-)
-class _EntityGraphBuilder_ManyToOneToMany_Left(DummyEntity):
-    to_many: EntityCollection[_EntityGraphBuilder_ManyToOneToMany_Middle]
-
-
-@many_to_one_to_many(
-    "betty.tests.model.test_graph:_EntityGraphBuilder_ManyToOneToMany_Left",
-    "to_many",
-    "to_one_left",
-    "to_one_right",
-    "betty.tests.model.test_graph:_EntityGraphBuilder_ManyToOneToMany_Right",
-    "to_many",
-)
-class _EntityGraphBuilder_ManyToOneToMany_Middle(DummyEntity):
-    to_one_left: _EntityGraphBuilder_ManyToOneToMany_Left | None
-    to_one_right: _EntityGraphBuilder_ManyToOneToMany_Right | None
-
-
-@one_to_many(
-    "to_many",
-    "betty.tests.model.test_graph:_EntityGraphBuilder_ManyToOneToMany_Middle",
-    "to_one_right",
-)
-class _EntityGraphBuilder_ManyToOneToMany_Right(DummyEntity):
-    to_many: EntityCollection[_EntityGraphBuilder_ManyToOneToMany_Middle]
+    to_many = ManyToMany[
+        "_EntityGraphBuilder_ManyToMany_Right", _EntityGraphBuilder_ManyToMany_Left
+    ](
+        "betty.tests.model.test_graph:_EntityGraphBuilder_ManyToMany_Right",
+        "to_many",
+        "betty.tests.model.test_graph:_EntityGraphBuilder_ManyToMany_Left",
+        "to_many",
+    )
 
 
 class TestEntityGraphBuilder:
@@ -434,91 +420,3 @@ class TestEntityGraphBuilder:
         )
         assert unaliased_many_to_many_right in unaliased_many_to_many_left.to_many
         assert unaliased_many_to_many_left in unaliased_many_to_many_right.to_many
-
-    @pytest.mark.parametrize(
-        (
-            "many_to_one_to_many_left",
-            "many_to_one_to_many_middle",
-            "many_to_one_to_many_right",
-        ),
-        [
-            (
-                _EntityGraphBuilder_ManyToOneToMany_Left(),
-                _EntityGraphBuilder_ManyToOneToMany_Middle(),
-                _EntityGraphBuilder_ManyToOneToMany_Right(),
-            ),
-            (
-                AliasedEntity(_EntityGraphBuilder_ManyToOneToMany_Left()),
-                AliasedEntity(_EntityGraphBuilder_ManyToOneToMany_Middle()),
-                AliasedEntity(_EntityGraphBuilder_ManyToOneToMany_Right()),
-            ),
-        ],
-    )
-    async def test_build_many_to_one_to_many(
-        self,
-        many_to_one_to_many_left: AliasableEntity[
-            _EntityGraphBuilder_ManyToOneToMany_Left
-        ],
-        many_to_one_to_many_middle: AliasableEntity[
-            _EntityGraphBuilder_ManyToOneToMany_Middle
-        ],
-        many_to_one_to_many_right: AliasableEntity[
-            _EntityGraphBuilder_ManyToOneToMany_Right
-        ],
-    ) -> None:
-        sut = EntityGraphBuilder()
-        sut.add_entity(
-            many_to_one_to_many_left,  # type: ignore[arg-type]
-            many_to_one_to_many_middle,  # type: ignore[arg-type]
-            many_to_one_to_many_right,  # type: ignore[arg-type]
-        )
-        sut.add_association(
-            _EntityGraphBuilder_ManyToOneToMany_Left,
-            many_to_one_to_many_left.id,
-            "to_many",
-            _EntityGraphBuilder_ManyToOneToMany_Middle,
-            many_to_one_to_many_middle.id,
-        )
-        sut.add_association(
-            _EntityGraphBuilder_ManyToOneToMany_Right,
-            many_to_one_to_many_right.id,
-            "to_many",
-            _EntityGraphBuilder_ManyToOneToMany_Middle,
-            many_to_one_to_many_middle.id,
-        )
-
-        built_entities = MultipleTypesEntityCollection[Entity]()
-        built_entities.add(*sut.build())
-
-        unaliased_many_to_one_to_many_left = unalias(many_to_one_to_many_left)
-        unaliased_many_to_one_to_many_middle = unalias(many_to_one_to_many_middle)
-        unaliased_many_to_one_to_many_right = unalias(many_to_one_to_many_right)
-
-        assert (
-            unaliased_many_to_one_to_many_left
-            is built_entities[_EntityGraphBuilder_ManyToOneToMany_Left][
-                unaliased_many_to_one_to_many_left.id
-            ]
-        )
-        assert (
-            unaliased_many_to_one_to_many_right
-            is built_entities[_EntityGraphBuilder_ManyToOneToMany_Right][
-                unaliased_many_to_one_to_many_right.id
-            ]
-        )
-        assert (
-            unaliased_many_to_one_to_many_middle
-            in unaliased_many_to_one_to_many_left.to_many
-        )
-        assert (
-            unaliased_many_to_one_to_many_left
-            == unaliased_many_to_one_to_many_middle.to_one_left
-        )
-        assert (
-            unaliased_many_to_one_to_many_right
-            == unaliased_many_to_one_to_many_middle.to_one_right
-        )
-        assert (
-            unaliased_many_to_one_to_many_middle
-            in unaliased_many_to_one_to_many_right.to_many
-        )
