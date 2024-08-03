@@ -28,7 +28,7 @@ from betty.jinja2 import (
 from betty.locale.date import Date, Datey
 from betty.locale.localizable import _, static, Localizable
 from betty.model import GeneratedEntityId
-from betty.model.ancestry import (
+from betty.ancestry import (
     Event,
     Person,
     Presence,
@@ -37,8 +37,8 @@ from betty.model.ancestry import (
     Place,
     FileReference,
 )
-from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
-from betty.model.presence_role import Subject
+from betty.ancestry.event_type import StartOfLifeEventType, EndOfLifeEventType
+from betty.ancestry.presence_role import Subject
 from betty.os import link_or_copy
 from betty.project.extension import ConfigurableExtension, Theme
 from jinja2 import pass_context

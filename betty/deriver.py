@@ -11,9 +11,9 @@ from typing import Iterable, cast, final, TYPE_CHECKING
 from typing_extensions import override
 
 from betty.locale.date import DateRange, Date
-from betty.model.ancestry import Person, Presence, Event, Ancestry
-from betty.model.presence_role import Subject
-from betty.model.event_type import (
+from betty.ancestry import Person, Presence, Event, Ancestry
+from betty.ancestry.presence_role import Subject
+from betty.ancestry.event_type import (
     DerivableEventType,
     CreatableDerivableEventType,
     EventType,

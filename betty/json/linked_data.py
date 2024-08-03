@@ -11,7 +11,7 @@ from betty.serde.dump import DumpMapping, Dump, dump_default
 if TYPE_CHECKING:
     from betty.project import Project
     from collections.abc import Sequence
-    from betty.model.ancestry import Link
+    from betty.ancestry import Link
 
 
 class LinkedDataDumpable:

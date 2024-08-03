@@ -1,7 +1,7 @@
 from betty.extension.cotton_candy import CottonCandy
 from betty.jinja2 import _Citer
 from betty.locale.localizable import static
-from betty.model.ancestry import Citation
+from betty.ancestry import Citation
 from betty.test_utils.assets.templates import TemplateTestBase
 
 

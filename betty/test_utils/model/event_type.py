@@ -1,16 +1,16 @@
 """
-Test utilities for :py:mod:`betty.model.event_type`.
+Test utilities for :py:mod:`betty.ancestry.event_type`.
 """
 
 from __future__ import annotations
 
-from betty.model.event_type import EventType
+from betty.ancestry.event_type import EventType
 from betty.test_utils.plugin import DummyPlugin, PluginTestBase
 
 
 class EventTypeTestBase(PluginTestBase[EventType]):
     """
-    A base class for testing :py:class:`betty.model.event_type.EventType` implementations.
+    A base class for testing :py:class:`betty.ancestry.event_type.EventType` implementations.
     """
 
     pass

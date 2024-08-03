@@ -25,7 +25,7 @@ from betty.locale.localizable import _, plain
 from betty.media_type import MediaType, InvalidMediaType
 from betty.model import Entity, AliasedEntity, AliasableEntity
 from betty.model.graph import EntityGraphBuilder
-from betty.model.ancestry import (
+from betty.ancestry import (
     Note,
     File,
     Source,
@@ -45,7 +45,7 @@ from betty.model.ancestry import (
     HasNotes,
     FileReference,
 )
-from betty.model.event_type import (
+from betty.ancestry.event_type import (
     Birth,
     Baptism,
     Adoption,
@@ -71,7 +71,7 @@ from betty.model.event_type import (
     EventType,
     Conference,
 )
-from betty.model.presence_role import (
+from betty.ancestry.presence_role import (
     Subject,
     Witness,
     Beneficiary,

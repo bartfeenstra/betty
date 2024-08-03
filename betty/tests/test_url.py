@@ -6,8 +6,8 @@ from typing import Any, TYPE_CHECKING
 import pytest
 
 from betty.model import UserFacingEntity
-from betty.model.ancestry import Person, Place, File, Source, PlaceName, Event, Citation
-from betty.model.event_type import Death
+from betty.ancestry import Person, Place, File, Source, PlaceName, Event, Citation
+from betty.ancestry.event_type import Death
 from betty.project import LocaleConfiguration, Project
 from betty.test_utils.model import DummyEntity
 from betty.url import (

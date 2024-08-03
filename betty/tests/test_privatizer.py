@@ -7,7 +7,7 @@ import pytest
 
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.date import Date, DateRange
-from betty.model.ancestry import (
+from betty.ancestry import (
     Person,
     Presence,
     Event,
@@ -19,8 +19,8 @@ from betty.model.ancestry import (
     Enclosure,
     FileReference,
 )
-from betty.model.presence_role import Subject, Attendee
-from betty.model.event_type import Death, Birth, Marriage
+from betty.ancestry.presence_role import Subject, Attendee
+from betty.ancestry.event_type import Death, Birth, Marriage
 from betty.privatizer import Privatizer
 from betty.project import DEFAULT_LIFETIME_THRESHOLD
 from typing import TYPE_CHECKING

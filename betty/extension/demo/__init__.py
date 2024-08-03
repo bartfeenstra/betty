@@ -20,7 +20,7 @@ from betty.load import LoadAncestryEvent
 from betty.locale.date import Date, DateRange
 from betty.locale.localizable import static, Localizable
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.model.ancestry import (
+from betty.ancestry import (
     Place,
     PlaceName,
     Person,
@@ -33,8 +33,8 @@ from betty.model.ancestry import (
     Enclosure,
     Note,
 )
-from betty.model.event_type import Marriage, Birth, Death
-from betty.model.presence_role import Subject
+from betty.ancestry.event_type import Marriage, Birth, Death
+from betty.ancestry.presence_role import Subject
 from betty.project import (
     LocaleConfiguration,
     ExtensionConfiguration,

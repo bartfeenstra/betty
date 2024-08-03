@@ -47,8 +47,8 @@ from betty.model.association import (
 from betty.model.collections import (
     MultipleTypesEntityCollection,
 )
-from betty.model.event_type import EventType, UnknownEventType
-from betty.model.presence_role import PresenceRole, ref_role, Subject
+from betty.ancestry.event_type import EventType, UnknownEventType
+from betty.ancestry.presence_role import PresenceRole, ref_role, Subject
 from betty.serde.dump import DumpMapping, Dump, dump_default
 from betty.string import camel_case_to_kebab_case
 
@@ -111,9 +111,9 @@ class HasPrivacy(LinkedDataDumpable):
         """
         The resource's own privacy.
 
-        This returns the value that was set for :py:attr:`betty.model.ancestry.HasPrivacy.privacy` and ignores computed privacies.
+        This returns the value that was set for :py:attr:`betty.ancestry.HasPrivacy.privacy` and ignores computed privacies.
 
-        For access control and permissions checking, use :py:attr:`betty.model.ancestry.HasPrivacy.privacy`.
+        For access control and permissions checking, use :py:attr:`betty.ancestry.HasPrivacy.privacy`.
         """
         return self._privacy
 
@@ -539,7 +539,7 @@ class Note(UserFacingEntity, HasPrivacy, HasLinks, Entity):
 
     #: The entity the note belongs to.
     entity = ManyToOne["Note", "HasNotes"](
-        "betty.model.ancestry:Note", "entity", "betty.model.ancestry:HasNotes", "notes"
+        "betty.ancestry:Note", "entity", "betty.ancestry:HasNotes", "notes"
     )
 
     def __init__(
@@ -611,7 +611,7 @@ class HasNotes(Entity):
     """
 
     notes = OneToMany["HasNotes", Note](
-        "betty.model.ancestry:HasNotes", "notes", "betty.model.ancestry:Note", "entity"
+        "betty.ancestry:HasNotes", "notes", "betty.ancestry:Note", "entity"
     )
 
     def __init__(
@@ -657,9 +657,9 @@ class HasCitations(Entity):
     """
 
     citations = ManyToMany["HasCitations & Entity", "Citation"](
-        "betty.model.ancestry:HasCitations",
+        "betty.ancestry:HasCitations",
         "citations",
-        "betty.model.ancestry:Citation",
+        "betty.ancestry:Citation",
         "facts",
     )
 
@@ -725,9 +725,9 @@ class File(
     """
 
     referees = OneToMany["File", "FileReference"](
-        "betty.model.ancestry:File",
+        "betty.ancestry:File",
         "referees",
-        "betty.model.ancestry:FileReference",
+        "betty.ancestry:FileReference",
         "file",
     )
 
@@ -821,23 +821,23 @@ class File(
 
 class FileReference(Entity):
     """
-    A reference between :py:class:`betty.model.ancestry.HasFileReferences` and betty.model.ancestry.File.
+    A reference between :py:class:`betty.ancestry.HasFileReferences` and betty.ancestry.File.
 
     This reference holds additional information specific to the relationship between the two entities.
     """
 
     #: The entity that references the file.
     referee = ManyToOne["FileReference", "HasFileReferences"](
-        "betty.model.ancestry:FileReference",
+        "betty.ancestry:FileReference",
         "referee",
-        "betty.model.ancestry:HasFileReferences",
+        "betty.ancestry:HasFileReferences",
         "file_references",
     )
     #: The referenced file.
     file = ManyToOne["FileReference", File](
-        "betty.model.ancestry:FileReference",
+        "betty.ancestry:FileReference",
         "file",
-        "betty.model.ancestry:File",
+        "betty.ancestry:File",
         "referees",
     )
 
@@ -883,13 +883,13 @@ class FileReference(Entity):
 
 class HasFileReferences(Entity):
     """
-    An entity that has associated :py:class:`betty.model.ancestry.File` entities.
+    An entity that has associated :py:class:`betty.ancestry.File` entities.
     """
 
     file_references = OneToMany["HasFileReferences & Entity", FileReference](
-        "betty.model.ancestry:HasFileReferences",
+        "betty.ancestry:HasFileReferences",
         "file_references",
-        "betty.model.ancestry:FileReference",
+        "betty.ancestry:FileReference",
         "referee",
     )
 
@@ -917,21 +917,21 @@ class Source(
 
     #: The source this one is directly contained by.
     contained_by = ManyToOne["Source", "Source"](
-        "betty.model.ancestry:Source",
+        "betty.ancestry:Source",
         "contained_by",
-        "betty.model.ancestry:Source",
+        "betty.ancestry:Source",
         "contains",
     )
     contains = OneToMany["Source", "Source"](
-        "betty.model.ancestry:Source",
+        "betty.ancestry:Source",
         "contains",
-        "betty.model.ancestry:Source",
+        "betty.ancestry:Source",
         "contained_by",
     )
     citations = OneToMany["Source", "Citation"](
-        "betty.model.ancestry:Source",
+        "betty.ancestry:Source",
         "citations",
-        "betty.model.ancestry:Citation",
+        "betty.ancestry:Citation",
         "source",
     )
 
@@ -1105,15 +1105,15 @@ class Citation(Dated, HasFileReferences, HasPrivacy, HasLinks, UserFacingEntity)
     """
 
     facts = ManyToMany["Citation", HasCitations](
-        "betty.model.ancestry:Citation",
+        "betty.ancestry:Citation",
         "facts",
-        "betty.model.ancestry:HasCitations",
+        "betty.ancestry:HasCitations",
         "citations",
     )
     source = ManyToOne["Citation", Source](
-        "betty.model.ancestry:Citation",
+        "betty.ancestry:Citation",
         "source",
-        "betty.model.ancestry:Source",
+        "betty.ancestry:Source",
         "citations",
     )
 
@@ -1269,16 +1269,16 @@ class Enclosure(Dated, HasCitations, Entity):
 
     #: The outer place.
     enclosed_by = ManyToOne["Enclosure", "Place"](
-        "betty.model.ancestry:Enclosure",
+        "betty.ancestry:Enclosure",
         "enclosed_by",
-        "betty.model.ancestry:Place",
+        "betty.ancestry:Place",
         "encloses",
     )
     #: The inner place.
     encloses = ManyToOne["Enclosure", "Place"](
-        "betty.model.ancestry:Enclosure",
+        "betty.ancestry:Enclosure",
         "encloses",
-        "betty.model.ancestry:Place",
+        "betty.ancestry:Place",
         "enclosed_by",
     )
 
@@ -1320,18 +1320,18 @@ class Place(
     """
 
     events = OneToMany["Place", "Event"](
-        "betty.model.ancestry:Place", "events", "betty.model.ancestry:Event", "place"
+        "betty.ancestry:Place", "events", "betty.ancestry:Event", "place"
     )
     enclosed_by = OneToMany["Place", Enclosure](
-        "betty.model.ancestry:Place",
+        "betty.ancestry:Place",
         "enclosed_by",
-        "betty.model.ancestry:Enclosure",
+        "betty.ancestry:Enclosure",
         "encloses",
     )
     encloses = OneToMany["Place", Enclosure](
-        "betty.model.ancestry:Place",
+        "betty.ancestry:Place",
         "encloses",
-        "betty.model.ancestry:Enclosure",
+        "betty.ancestry:Enclosure",
         "enclosed_by",
     )
 
@@ -1509,21 +1509,21 @@ class Place(
 @final
 class Presence(HasPrivacy, Entity):
     """
-    The presence of a :py:class:`betty.model.ancestry.Person` at an :py:class:`betty.model.ancestry.Event`.
+    The presence of a :py:class:`betty.ancestry.Person` at an :py:class:`betty.ancestry.Event`.
     """
 
     #: The person whose presence is described.
     person = ManyToOne["Presence", "Person"](
-        "betty.model.ancestry:Presence",
+        "betty.ancestry:Presence",
         "person",
-        "betty.model.ancestry:Person",
+        "betty.ancestry:Person",
         "presences",
     )
     #: The event the person was present at.
     event = ManyToOne["Presence", "Event"](
-        "betty.model.ancestry:Presence",
+        "betty.ancestry:Presence",
         "event",
-        "betty.model.ancestry:Event",
+        "betty.ancestry:Event",
         "presences",
     )
     #: The role the person performed at the event.
@@ -1589,12 +1589,12 @@ class Event(
 
     #: The place the event happened.
     place = ManyToOne["Event", Place](
-        "betty.model.ancestry:Event", "place", "betty.model.ancestry:Place", "events"
+        "betty.ancestry:Event", "place", "betty.ancestry:Place", "events"
     )
     presences = OneToMany["Event", Presence](
-        "betty.model.ancestry:Event",
+        "betty.ancestry:Event",
         "presences",
-        "betty.model.ancestry:Presence",
+        "betty.ancestry:Presence",
         "event",
     )
 
@@ -1793,14 +1793,14 @@ class Event(
 @final
 class PersonName(Localized, HasCitations, HasPrivacy, Entity):
     """
-    A name for a :py:class:`betty.model.ancestry.Person`.
+    A name for a :py:class:`betty.ancestry.Person`.
     """
 
     #: The person whose name this is.
     person = ManyToOne["PersonName", "Person"](
-        "betty.model.ancestry:PersonName",
+        "betty.ancestry:PersonName",
         "person",
-        "betty.model.ancestry:Person",
+        "betty.ancestry:Person",
         "names",
     )
 
@@ -1943,27 +1943,27 @@ class Person(
     """
 
     parents = ManyToMany["Person", "Person"](
-        "betty.model.ancestry:Person",
+        "betty.ancestry:Person",
         "parents",
-        "betty.model.ancestry:Person",
+        "betty.ancestry:Person",
         "children",
     )
     children = ManyToMany["Person", "Person"](
-        "betty.model.ancestry:Person",
+        "betty.ancestry:Person",
         "children",
-        "betty.model.ancestry:Person",
+        "betty.ancestry:Person",
         "parents",
     )
     presences = OneToMany["Person", Presence](
-        "betty.model.ancestry:Person",
+        "betty.ancestry:Person",
         "presences",
-        "betty.model.ancestry:Presence",
+        "betty.ancestry:Presence",
         "person",
     )
     names = OneToMany["Person", PersonName](
-        "betty.model.ancestry:Person",
+        "betty.ancestry:Person",
         "names",
-        "betty.model.ancestry:PersonName",
+        "betty.ancestry:PersonName",
         "person",
     )
 

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Any, TYPE_CHECKING
 
-from betty.model.ancestry import Person, Place, File
+from betty.ancestry import Person, Place, File
 
 if TYPE_CHECKING:
     from betty.model import Entity

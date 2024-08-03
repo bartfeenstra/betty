@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from betty.event_dispatcher import EventHandlerRegistry
     from betty.machine_name import MachineName
     from jinja2.runtime import Context
-    from betty.model.ancestry import Link
+    from betty.ancestry import Link
 
 
 async def _populate_ancestry(event: PostLoadAncestryEvent) -> None:

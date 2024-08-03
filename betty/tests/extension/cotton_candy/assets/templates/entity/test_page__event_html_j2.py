@@ -3,7 +3,7 @@ from pathlib import Path
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale.localizable import static
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.model.ancestry import (
+from betty.ancestry import (
     Event,
     File,
     Place,
@@ -14,8 +14,8 @@ from betty.model.ancestry import (
     Source,
     FileReference,
 )
-from betty.model.event_type import UnknownEventType
-from betty.model.presence_role import Subject
+from betty.ancestry.event_type import UnknownEventType
+from betty.ancestry.presence_role import Subject
 from betty.test_utils.assets.templates import TemplateTestBase
 
 

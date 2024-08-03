@@ -15,15 +15,15 @@ from betty.model import (
     UserFacingEntity,
     ENTITY_TYPE_REPOSITORY,
 )
-from betty.model.ancestry import (
+from betty.ancestry import (
     HasLinks,
     HasFileReferences,
     is_private,
     is_public,
     Event,
 )
-from betty.model.presence_role import Subject, Witness
-from betty.model.event_type import StartOfLifeEventType, EndOfLifeEventType
+from betty.ancestry.presence_role import Subject, Witness
+from betty.ancestry.event_type import StartOfLifeEventType, EndOfLifeEventType
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
@@ -66,7 +66,7 @@ def test_has_links(value: Any) -> bool:
 
 def test_has_file_references(value: Any) -> bool:
     """
-    Test if a value has :py:class:`betty.model.ancestry.FileReference` entities associated with it.
+    Test if a value has :py:class:`betty.ancestry.FileReference` entities associated with it.
     """
     return isinstance(value, HasFileReferences)
 

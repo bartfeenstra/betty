@@ -6,7 +6,7 @@ import pytest
 
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale.date import DateRange, Date
-from betty.model.ancestry import Place, PlaceName
+from betty.ancestry import Place, PlaceName
 from betty.test_utils.assets.templates import TemplateTestBase
 
 

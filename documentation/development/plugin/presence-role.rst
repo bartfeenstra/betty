@@ -6,9 +6,9 @@ Presence role plugins
    :stub-columns: 1
 
    * -  Type
-     -  :py:class:`betty.model.presence_role.PresenceRole`
+     -  :py:class:`betty.ancestry.presence_role.PresenceRole`
    * -  Repository
-     -  :py:class:`betty.model.presence_role.PRESENCE_ROLE_REPOSITORY`
+     -  :py:class:`betty.ancestry.presence_role.PRESENCE_ROLE_REPOSITORY`
 
 Presence roles are used to indicate the **role** a :doc:`/usage/ancestry/person` has in an :doc:`/usage/ancestry/event`,
 such as the subject, a witness, or an officiant.
@@ -16,13 +16,13 @@ such as the subject, a witness, or an officiant.
 Creating a presence role
 ------------------------
 
-#. Create a new class that extends :py:class:`betty.model.presence_role.PresenceRole` and implements the abstract methods,
+#. Create a new class that extends :py:class:`betty.ancestry.presence_role.PresenceRole` and implements the abstract methods,
    for example:
 
    .. code-block:: python
 
      from typing import override
-     from betty.model.presence_role import PresenceRole
+     from betty.ancestry.presence_role import PresenceRole
 
      class MyPresenceRole(PresenceRole):
        @override

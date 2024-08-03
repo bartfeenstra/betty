@@ -8,7 +8,7 @@ import pytest
 from betty.fs import ASSETS_DIRECTORY_PATH
 from betty.locale.date import Datey, Date, DateRange
 from betty.media_type import MediaType
-from betty.model.ancestry import (
+from betty.ancestry import (
     File,
     FileReference,
     Dated,

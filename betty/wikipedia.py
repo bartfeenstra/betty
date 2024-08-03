@@ -27,7 +27,7 @@ from betty.locale.error import LocaleError
 from betty.locale.localizable import plain
 from betty.locale.localized import Localized
 from betty.media_type import MediaType
-from betty.model.ancestry import (
+from betty.ancestry import (
     Link,
     HasLinks,
     Place,

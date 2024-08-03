@@ -1,6 +1,6 @@
 from betty.extension.cotton_candy import CottonCandy
 from betty.jinja2 import EntityContexts
-from betty.model.ancestry import Person, PersonName
+from betty.ancestry import Person, PersonName
 from betty.test_utils.assets.templates import TemplateTestBase
 
 

@@ -7,7 +7,7 @@ import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
 
 from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider, EntityContexts
-from betty.model.ancestry import (
+from betty.ancestry import (
     Citation,
     HasFileReferences,
 )

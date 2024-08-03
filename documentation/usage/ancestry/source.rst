@@ -1,7 +1,7 @@
 Source
 ======
 
-:py:class:`betty.model.ancestry.Source` entities describe where the information in an ancestry comes from,
+:py:class:`betty.ancestry.Source` entities describe where the information in an ancestry comes from,
 such as archives, correspondence, or personal accounts.
 
 Fields

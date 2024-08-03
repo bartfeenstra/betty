@@ -8,8 +8,8 @@ from betty.extension.deriver import Deriver
 from betty.load import load
 from betty.locale.date import DateRange, Date
 from betty.model.collections import record_added
-from betty.model.ancestry import Person, Presence, Event
-from betty.model.event_type import (
+from betty.ancestry import Person, Presence, Event
+from betty.ancestry.event_type import (
     DerivableEventType,
     CreatableDerivableEventType,
     Residence,
@@ -17,7 +17,7 @@ from betty.model.event_type import (
     StartOfLifeEventType,
     EndOfLifeEventType,
 )
-from betty.model.presence_role import Subject
+from betty.ancestry.presence_role import Subject
 from betty.project import ExtensionConfiguration, Project
 from betty.test_utils.model.event_type import DummyEventType
 from betty.test_utils.project.extension import ExtensionTestBase

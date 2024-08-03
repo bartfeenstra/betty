@@ -11,8 +11,8 @@ from betty.generate import generate, GenerateSiteEvent, GenerationContext
 from betty.model import (
     UserFacingEntity,
 )
-from betty.model.ancestry import Person, Place, Source, PlaceName, File, Event, Citation
-from betty.model.event_type import Birth
+from betty.ancestry import Person, Place, Source, PlaceName, File, Event, Citation
+from betty.ancestry.event_type import Birth
 from betty.plugin.static import StaticPluginRepository
 from betty.project import (
     LocaleConfiguration,

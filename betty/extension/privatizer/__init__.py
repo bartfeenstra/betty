@@ -10,7 +10,7 @@ from typing_extensions import override
 
 from betty.load import PostLoadAncestryEvent
 from betty.locale.localizable import _, Localizable
-from betty.model.ancestry import Person, HasPrivacy
+from betty.ancestry import Person, HasPrivacy
 from betty.privatizer import Privatizer as PrivatizerApi
 from betty.project.extension import Extension
 
