@@ -17,8 +17,8 @@ from betty.model import (
     AncestryEntityId,
 )
 from betty.model.association import (
-    EntityTypeAssociationRegistry,
-    ToOneEntityTypeAssociation,
+    AssociationRegistry,
+    ToOneAssociation,
 )
 
 
@@ -41,7 +41,7 @@ class _EntityGraphBuilder:
     def _build_associations(self) -> None:
         for owner_type, owner_attrs in self._associations.items():
             for owner_attr_name, owner_associations in owner_attrs.items():
-                association = EntityTypeAssociationRegistry.get_association(
+                association = AssociationRegistry.get_association(
                     owner_type, owner_attr_name
                 )
                 for owner_id, associate_ancestry_ids in owner_associations.items():
@@ -50,10 +50,10 @@ class _EntityGraphBuilder:
                         for associate_type, associate_id in associate_ancestry_ids
                     ]
                     owner = unalias(self._entities[owner_type][owner_id])
-                    if isinstance(association, ToOneEntityTypeAssociation):
-                        association.set(owner, associates[0])
+                    if isinstance(association, ToOneAssociation):
+                        association.set_attr(owner, associates[0])
                     else:
-                        association.set(owner, associates)
+                        association.set_attr(owner, associates)
 
     def build(self) -> Iterator[Entity]:
         self._assert_unbuilt()
@@ -66,7 +66,6 @@ class _EntityGraphBuilder:
             )
         )
 
-        EntityTypeAssociationRegistry.initialize(*unaliased_entities)
         self._build_associations()
 
         yield from unaliased_entities

@@ -12,7 +12,6 @@ from betty.locale.date import Date, DateRange
 from betty.locale.localizable import static
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
-from betty.model.association import one_to_one
 from betty.model.ancestry import (
     Person,
     Event,
@@ -41,6 +40,7 @@ from betty.model.ancestry import (
     merge_privacies,
     FileReference,
 )
+from betty.model.association import OneToOne
 from betty.model.event_type import Birth, UnknownEventType
 from betty.model.presence_role import Subject
 from betty.project import LocaleConfiguration, Project
@@ -397,10 +397,10 @@ class TestLink:
 
 class TestHasLinks:
     async def test_links(self) -> None:
-        class _HasLinks(HasLinks):
+        class DummyHasLinks(HasLinks, DummyEntity):
             pass
 
-        sut = _HasLinks()
+        sut = DummyHasLinks()
         assert sut.links == []
 
 
@@ -493,7 +493,7 @@ class TestFile(EntityTestBase):
         )
         assert list(sut.notes) == []
         notes = [Note(text=""), Note(text="")]
-        sut.notes = notes  # type: ignore[assignment]
+        sut.notes = notes
         assert notes == list(sut.notes)
 
     async def test_referees(self) -> None:
@@ -718,7 +718,7 @@ class TestSource(EntityTestBase):
         contains_source = Source()
         sut = Source()
         assert list(sut.contains) == []
-        sut.contains = [contains_source]  # type: ignore[assignment]
+        sut.contains = [contains_source]
         assert [contains_source] == list(sut.contains)
 
     async def test_walk_contains_without_contains(self) -> None:
@@ -999,7 +999,7 @@ class TestCitation(EntityTestBase):
         fact = _HasCitations()
         sut = Citation(source=Source())
         assert list(sut.facts) == []
-        sut.facts = [fact]  # type: ignore[assignment]
+        sut.facts = [fact]
         assert [fact] == list(sut.facts)
 
     async def test_source(self) -> None:
@@ -1155,7 +1155,7 @@ class TestHasCitations:
         sut = _HasCitations()
         assert list(sut.citations) == []
         citation = Citation(source=Source())
-        sut.citations = [citation]  # type: ignore[assignment]
+        sut.citations = [citation]
         assert [citation] == list(sut.citations)
 
 
@@ -1258,7 +1258,7 @@ class TestEnclosure(EntityTestBase):
         sut = Enclosure(encloses=encloses, enclosed_by=enclosed_by)
         citation = Citation(source=Source())
         assert sut.date is None
-        sut.citations = [citation]  # type: ignore[assignment]
+        sut.citations = [citation]
         assert [citation] == list(sut.citations)
 
 
@@ -1961,14 +1961,14 @@ class TestPerson(EntityTestBase):
         sut = Person(id="1")
         sibling = Person(id="2")
         parent = Person(id="3")
-        parent.children = [sut, sibling]  # type: ignore[assignment]
+        parent.children = [sut, sibling]
         assert [sibling] == list(sut.siblings)
 
     async def test_siblings_with_multiple_common_parents(self) -> None:
         sut = Person(id="1")
         sibling = Person(id="2")
         parent = Person(id="3")
-        parent.children = [sut, sibling]  # type: ignore[assignment]
+        parent.children = [sut, sibling]
         assert [sibling] == list(sut.siblings)
 
     async def test_ancestors_without_parents(self) -> None:
@@ -2264,22 +2264,22 @@ class TestPerson(EntityTestBase):
         assert expected == actual
 
 
-@one_to_one(
-    "one_right",
-    "betty.tests.model.test_ancestry:_TestAncestry_OneToOne_Right",
-    "one_left",
-)
 class _TestAncestry_OneToOne_Left(DummyEntity):
-    one_right: "_TestAncestry_OneToOne_Right | None"
+    one_right = OneToOne["_TestAncestry_OneToOne_Left", "_TestAncestry_OneToOne_Right"](
+        "betty.tests.model.test_ancestry:_TestAncestry_OneToOne_Left",
+        "one_right",
+        "betty.tests.model.test_ancestry:_TestAncestry_OneToOne_Right",
+        "one_left",
+    )
 
 
-@one_to_one(
-    "one_left",
-    "betty.tests.model.test_ancestry:_TestAncestry_OneToOne_Left",
-    "one_right",
-)
 class _TestAncestry_OneToOne_Right(DummyEntity):
-    one_left: "_TestAncestry_OneToOne_Left | None"
+    one_left = OneToOne["_TestAncestry_OneToOne_Right", _TestAncestry_OneToOne_Left](
+        "betty.tests.model.test_ancestry:_TestAncestry_OneToOne_Right",
+        "one_left",
+        "betty.tests.model.test_ancestry:_TestAncestry_OneToOne_Left",
+        "one_right",
+    )
 
 
 class TestAncestry:

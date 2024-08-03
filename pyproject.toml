@@ -20,6 +20,7 @@ dependencies = [
     'aiofiles ~= 24.1',
     'aiohttp ~= 3.9',
     'babel ~= 2.15',
+    'basedtyping ~= 0.1.4',
     'click ~= 8.1',
     'docker ~= 7.1',
     'furo == 2024.7.18',

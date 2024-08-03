@@ -10,6 +10,8 @@ from reprlib import recursive_repr
 from typing import Iterable, Any, TYPE_CHECKING, final
 from urllib.parse import quote
 
+from typing_extensions import override
+
 from betty.classtools import repr_instance
 from betty.json.linked_data import (
     LinkedDataDumpable,
@@ -37,21 +39,18 @@ from betty.model import (
     GeneratedEntityId,
 )
 from betty.model.association import (
-    EntityTypeAssociationRegistry,
-    many_to_one,
-    one_to_many,
-    many_to_many,
-    many_to_one_to_many,
+    ManyToOne,
+    OneToMany,
+    ManyToMany,
+    AssociationRegistry,
 )
 from betty.model.collections import (
     MultipleTypesEntityCollection,
-    EntityCollection,
 )
 from betty.model.event_type import EventType, UnknownEventType
 from betty.model.presence_role import PresenceRole, ref_role, Subject
 from betty.serde.dump import DumpMapping, Dump, dump_default
 from betty.string import camel_case_to_kebab_case
-from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
@@ -461,7 +460,7 @@ async def ref_link_collection(
     }
 
 
-class HasLinks(LinkedDataDumpable):
+class HasLinks(Entity):
     """
     A resource that has external links.
     """
@@ -490,27 +489,6 @@ class HasLinks(LinkedDataDumpable):
             project,
             *(self.links if is_public(self) else ()),
         )
-        return dump
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
-        schema = await super().linked_data_schema(project)
-        add_property(schema, "links", await ref_link_collection(schema, project))
-        return schema
-
-
-class HasLinksEntity(HasLinks):
-    """
-    An entity that has external links.
-    """
-
-    @override
-    async def dump_linked_data(  # type: ignore[misc]
-        self: HasLinksEntity & Entity,
-        project: Project,
-    ) -> DumpMapping[Dump]:
-        dump: DumpMapping[Dump] = await super().dump_linked_data(project)  # type: ignore[misc]
 
         if not isinstance(self.id, GeneratedEntityId):
             await dump_link(
@@ -545,23 +523,31 @@ class HasLinksEntity(HasLinks):
 
         return dump
 
+    @override
+    @classmethod
+    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
+        schema = await super().linked_data_schema(project)
+        add_property(schema, "links", await ref_link_collection(schema, project))
+        return schema
+
 
 @final
-@many_to_one("entity", "betty.model.ancestry:HasNotes", "notes")
-class Note(UserFacingEntity, HasPrivacy, HasLinksEntity, Entity):
+class Note(UserFacingEntity, HasPrivacy, HasLinks, Entity):
     """
     A note is a bit of textual information that can be associated with another entity.
     """
 
     #: The entity the note belongs to.
-    entity: HasNotes
+    entity = ManyToOne["Note", "HasNotes"](
+        "betty.model.ancestry:Note", "entity", "betty.model.ancestry:HasNotes", "notes"
+    )
 
     def __init__(
         self,
         text: str,
         *,
         id: str | None = None,  # noqa A002  # noqa A002
-        entity: HasNotes | None = None,
+        entity: HasNotes & Entity | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
@@ -619,13 +605,16 @@ class Note(UserFacingEntity, HasPrivacy, HasLinksEntity, Entity):
         return schema
 
 
-@one_to_many("notes", "betty.model.ancestry:Note", "entity")
-class HasNotes(LinkedDataDumpable):
+class HasNotes(Entity):
     """
     An entity that has notes associated with it.
     """
 
-    def __init__(  # type: ignore[misc]
+    notes = OneToMany["HasNotes", Note](
+        "betty.model.ancestry:HasNotes", "notes", "betty.model.ancestry:Note", "entity"
+    )
+
+    def __init__(
         self: HasNotes & Entity,
         *args: Any,
         notes: Iterable[Note] | None = None,
@@ -636,22 +625,7 @@ class HasNotes(LinkedDataDumpable):
             **kwargs,
         )
         if notes is not None:
-            self.notes = notes  # type: ignore[assignment]
-
-    @property
-    def notes(self) -> EntityCollection[Note]:  # type: ignore[empty-body]
-        """
-        The notes.
-        """
-        pass  # pragma: no cover
-
-    @notes.setter
-    def notes(self, notes: Iterable[Note]) -> None:
-        pass  # pragma: no cover
-
-    @notes.deleter
-    def notes(self) -> None:
-        pass  # pragma: no cover
+            self.notes = notes
 
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
@@ -677,13 +651,19 @@ class HasNotes(LinkedDataDumpable):
         return schema
 
 
-@many_to_many("citations", "betty.model.ancestry:Citation", "facts")
-class HasCitations(LinkedDataDumpable):
+class HasCitations(Entity):
     """
     An entity with citations that support it.
     """
 
-    def __init__(  # type: ignore[misc]
+    citations = ManyToMany["HasCitations & Entity", "Citation"](
+        "betty.model.ancestry:HasCitations",
+        "citations",
+        "betty.model.ancestry:Citation",
+        "facts",
+    )
+
+    def __init__(
         self: HasCitations & Entity,
         *args: Any,
         citations: Iterable[Citation] | None = None,
@@ -694,22 +674,7 @@ class HasCitations(LinkedDataDumpable):
             **kwargs,
         )
         if citations is not None:
-            self.citations = citations  # type: ignore[assignment]
-
-    @property
-    def citations(self) -> EntityCollection[Citation]:  # type: ignore[empty-body]
-        """
-        The citations supporting this entity.
-        """
-        pass  # pragma: no cover
-
-    @citations.setter
-    def citations(self, citations: Iterable[Citation]) -> None:
-        pass  # pragma: no cover
-
-    @citations.deleter
-    def citations(self) -> None:
-        pass  # pragma: no cover
+            self.citations = citations
 
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
@@ -738,11 +703,10 @@ class HasCitations(LinkedDataDumpable):
 
 
 @final
-@one_to_many("referees", "betty.model.ancestry:FileReference", "file")
 class File(
     Described,
     HasPrivacy,
-    HasLinksEntity,
+    HasLinks,
     HasMediaType,
     HasNotes,
     HasCitations,
@@ -759,6 +723,13 @@ class File(
     - audio
     - PDF documents
     """
+
+    referees = OneToMany["File", "FileReference"](
+        "betty.model.ancestry:File",
+        "referees",
+        "betty.model.ancestry:FileReference",
+        "file",
+    )
 
     def __init__(
         self,
@@ -795,21 +766,6 @@ class File(
         The file name.
         """
         return self._name or self.path.name
-
-    @property
-    def referees(self) -> EntityCollection[FileReference]:  # type: ignore[empty-body]
-        """
-        The references to this file.
-        """
-        pass  # pragma: no cover
-
-    @referees.setter
-    def referees(self, entities: Iterable[FileReference]) -> None:
-        pass  # pragma: no cover
-
-    @referees.deleter
-    def referees(self) -> None:
-        pass  # pragma: no cover
 
     @override
     @classmethod
@@ -863,14 +819,6 @@ class File(
         return schema
 
 
-@many_to_one_to_many(
-    "betty.model.ancestry:HasFileReferences",
-    "file_references",
-    "referee",
-    "file",
-    "betty.model.ancestry:File",
-    "referees",
-)
 class FileReference(Entity):
     """
     A reference between :py:class:`betty.model.ancestry.HasFileReferences` and betty.model.ancestry.File.
@@ -879,9 +827,19 @@ class FileReference(Entity):
     """
 
     #: The entity that references the file.
-    referee: HasFileReferences & Entity | None
+    referee = ManyToOne["FileReference", "HasFileReferences"](
+        "betty.model.ancestry:FileReference",
+        "referee",
+        "betty.model.ancestry:HasFileReferences",
+        "file_references",
+    )
     #: The referenced file.
-    file: File | None
+    file = ManyToOne["FileReference", File](
+        "betty.model.ancestry:FileReference",
+        "file",
+        "betty.model.ancestry:File",
+        "referees",
+    )
 
     def __init__(
         self,
@@ -923,13 +881,19 @@ class FileReference(Entity):
         self._focus = focus
 
 
-@one_to_many("file_references", "betty.model.ancestry:FileReference", "referee")
-class HasFileReferences:
+class HasFileReferences(Entity):
     """
     An entity that has associated :py:class:`betty.model.ancestry.File` entities.
     """
 
-    def __init__(  # type: ignore[misc]
+    file_references = OneToMany["HasFileReferences & Entity", FileReference](
+        "betty.model.ancestry:HasFileReferences",
+        "file_references",
+        "betty.model.ancestry:FileReference",
+        "referee",
+    )
+
+    def __init__(
         self: HasFileReferences & Entity,
         *args: Any,
         file_references: Iterable[FileReference] | None = None,
@@ -940,43 +904,36 @@ class HasFileReferences:
             **kwargs,
         )
         if file_references is not None:
-            self.file_references = file_references  # type: ignore[assignment]
-
-    @property
-    def file_references(self) -> EntityCollection[FileReference]:  # type: ignore[empty-body]
-        """
-        The references to the files associated with this entity.
-        """
-        pass  # pragma: no cover
-
-    @file_references.setter
-    def file_references(self, files: Iterable[FileReference]) -> None:
-        pass  # pragma: no cover
-
-    @file_references.deleter
-    def file_references(self) -> None:
-        pass  # pragma: no cover
+            self.file_references = file_references
 
 
 @final
-@many_to_one("contained_by", "betty.model.ancestry:Source", "contains")
-@one_to_many("contains", "betty.model.ancestry:Source", "contained_by")
-@one_to_many("citations", "betty.model.ancestry:Citation", "source")
 class Source(
-    Dated,
-    HasFileReferences,
-    HasNotes,
-    HasLinksEntity,
-    HasPrivacy,
-    UserFacingEntity,
-    Entity,
+    Dated, HasFileReferences, HasNotes, HasLinks, HasPrivacy, UserFacingEntity, Entity
 ):
     """
     A source of information.
     """
 
     #: The source this one is directly contained by.
-    contained_by: Source | None
+    contained_by = ManyToOne["Source", "Source"](
+        "betty.model.ancestry:Source",
+        "contained_by",
+        "betty.model.ancestry:Source",
+        "contains",
+    )
+    contains = OneToMany["Source", "Source"](
+        "betty.model.ancestry:Source",
+        "contains",
+        "betty.model.ancestry:Source",
+        "contained_by",
+    )
+    citations = OneToMany["Source", "Citation"](
+        "betty.model.ancestry:Source",
+        "citations",
+        "betty.model.ancestry:Citation",
+        "source",
+    )
 
     def __init__(
         self,
@@ -1011,7 +968,7 @@ class Source(
         if contained_by is not None:
             self.contained_by = contained_by
         if contains is not None:
-            self.contains = contains  # type: ignore[assignment]
+            self.contains = contains
 
     @override
     def _get_effective_privacy(self) -> Privacy:
@@ -1019,36 +976,6 @@ class Source(
         if self.contained_by:
             return merge_privacies(privacy, self.contained_by.privacy)
         return privacy
-
-    @property
-    def contains(self) -> EntityCollection[Source]:  # type: ignore[empty-body]
-        """
-        The sources directly contained by this one.
-        """
-        pass  # pragma: no cover
-
-    @contains.setter
-    def contains(self, contains: Iterable[Source]) -> None:
-        pass  # pragma: no cover
-
-    @contains.deleter
-    def contains(self) -> None:
-        pass  # pragma: no cover
-
-    @property
-    def citations(self) -> EntityCollection[Citation]:  # type: ignore[empty-body]
-        """
-        The citations/references to this source.
-        """
-        pass  # pragma: no cover
-
-    @citations.setter
-    def citations(self, citations: Iterable[Citation]) -> None:
-        pass  # pragma: no cover
-
-    @citations.deleter
-    def citations(self) -> None:
-        pass  # pragma: no cover
 
     @property
     def walk_contains(self) -> Iterator[Source]:
@@ -1172,20 +1099,29 @@ class Source(
 
 
 @final
-@many_to_many("facts", "betty.model.ancestry:HasCitations", "citations")
-@many_to_one("source", "betty.model.ancestry:Source", "citations")
-class Citation(
-    Dated, HasFileReferences, HasPrivacy, HasLinksEntity, UserFacingEntity, Entity
-):
+class Citation(Dated, HasFileReferences, HasPrivacy, HasLinks, UserFacingEntity):
     """
     A citation (a reference to a source).
     """
+
+    facts = ManyToMany["Citation", HasCitations](
+        "betty.model.ancestry:Citation",
+        "facts",
+        "betty.model.ancestry:HasCitations",
+        "citations",
+    )
+    source = ManyToOne["Citation", Source](
+        "betty.model.ancestry:Citation",
+        "source",
+        "betty.model.ancestry:Source",
+        "citations",
+    )
 
     def __init__(
         self,
         *,
         id: str | None = None,  # noqa A002  # noqa A002
-        facts: Iterable[HasCitations] | None = None,
+        facts: Iterable[HasCitations & Entity] | None = None,
         source: Source | None = None,
         location: Localizable | None = None,
         date: Datey | None = None,
@@ -1203,7 +1139,7 @@ class Citation(
             private=private,
         )
         if facts is not None:
-            self.facts = facts  # type: ignore[assignment]
+            self.facts = facts
         self.location = location
         self.source = source
 
@@ -1213,21 +1149,6 @@ class Citation(
         if self.source:
             return merge_privacies(privacy, self.source.privacy)
         return privacy
-
-    @property
-    def facts(self) -> EntityCollection[HasCitations & Entity]:  # type: ignore[empty-body]
-        """
-        The facts (other resources) supported by this citation.
-        """
-        pass  # pragma: no cover
-
-    @facts.setter
-    def facts(self, facts: Iterable[HasCitations & Entity]) -> None:
-        pass  # pragma: no cover
-
-    @facts.deleter
-    def facts(self) -> None:
-        pass  # pragma: no cover
 
     @override
     @classmethod
@@ -1339,14 +1260,6 @@ class PlaceName(Localized, Dated, LinkedDataDumpable):
 
 
 @final
-@many_to_one_to_many(
-    "betty.model.ancestry:Place",
-    "enclosed_by",
-    "encloses",
-    "enclosed_by",
-    "betty.model.ancestry:Place",
-    "encloses",
-)
 class Enclosure(Dated, HasCitations, Entity):
     """
     The enclosure of one place by another.
@@ -1354,10 +1267,20 @@ class Enclosure(Dated, HasCitations, Entity):
     Enclosures describe the outer (```enclosed_by`) and inner(``encloses``) places, and their relationship.
     """
 
-    #: The inner place.
-    encloses: Place | None
     #: The outer place.
-    enclosed_by: Place | None
+    enclosed_by = ManyToOne["Enclosure", "Place"](
+        "betty.model.ancestry:Enclosure",
+        "enclosed_by",
+        "betty.model.ancestry:Place",
+        "encloses",
+    )
+    #: The inner place.
+    encloses = ManyToOne["Enclosure", "Place"](
+        "betty.model.ancestry:Enclosure",
+        "encloses",
+        "betty.model.ancestry:Place",
+        "enclosed_by",
+    )
 
     def __init__(
         self,
@@ -1385,11 +1308,8 @@ class Enclosure(Dated, HasCitations, Entity):
 
 
 @final
-@one_to_many("events", "betty.model.ancestry:Event", "place")
-@one_to_many("enclosed_by", "betty.model.ancestry:Enclosure", "encloses")
-@one_to_many("encloses", "betty.model.ancestry:Enclosure", "enclosed_by")
 class Place(
-    HasLinksEntity, HasFileReferences, HasNotes, HasPrivacy, UserFacingEntity, Entity
+    HasLinks, HasFileReferences, HasNotes, HasPrivacy, UserFacingEntity, Entity
 ):
     """
     A place.
@@ -1398,6 +1318,22 @@ class Place(
     be a well-known city, with names in many languages, imagery, and its own Wikipedia page, or
     any type of place in between.
     """
+
+    events = OneToMany["Place", "Event"](
+        "betty.model.ancestry:Place", "events", "betty.model.ancestry:Event", "place"
+    )
+    enclosed_by = OneToMany["Place", Enclosure](
+        "betty.model.ancestry:Place",
+        "enclosed_by",
+        "betty.model.ancestry:Enclosure",
+        "encloses",
+    )
+    encloses = OneToMany["Place", Enclosure](
+        "betty.model.ancestry:Place",
+        "encloses",
+        "betty.model.ancestry:Enclosure",
+        "enclosed_by",
+    )
 
     def __init__(
         self,
@@ -1425,56 +1361,11 @@ class Place(
         self._names = [] if names is None else names
         self._coordinates = coordinates
         if events is not None:
-            self.events = events  # type: ignore[assignment]
+            self.events = events
         if enclosed_by is not None:
-            self.enclosed_by = enclosed_by  # type: ignore[assignment]
+            self.enclosed_by = enclosed_by
         if encloses is not None:
-            self.encloses = encloses  # type: ignore[assignment]
-
-    @property
-    def enclosed_by(self) -> EntityCollection[Enclosure]:  # type: ignore[empty-body]
-        """
-        The places this one is or was directly enclosed by.
-        """
-        pass  # pragma: no cover
-
-    @enclosed_by.setter
-    def enclosed_by(self, enclosed_by: Iterable[Enclosure]) -> None:
-        pass  # pragma: no cover
-
-    @enclosed_by.deleter
-    def enclosed_by(self) -> None:
-        pass  # pragma: no cover
-
-    @property
-    def encloses(self) -> EntityCollection[Enclosure]:  # type: ignore[empty-body]
-        """
-        The places that are or were directly enclosed by this one.
-        """
-        pass  # pragma: no cover
-
-    @encloses.setter
-    def encloses(self, encloses: Iterable[Enclosure]) -> None:
-        pass  # pragma: no cover
-
-    @encloses.deleter
-    def encloses(self) -> None:
-        pass  # pragma: no cover
-
-    @property
-    def events(self) -> EntityCollection[Event]:  # type: ignore[empty-body]
-        """
-        The events that happened in or at this place.
-        """
-        pass  # pragma: no cover
-
-    @events.setter
-    def events(self, events: Iterable[Event]) -> None:
-        pass  # pragma: no cover
-
-    @events.deleter
-    def events(self) -> None:
-        pass  # pragma: no cover
+            self.encloses = encloses
 
     @property
     def walk_encloses(self) -> Iterator[Enclosure]:
@@ -1616,23 +1507,25 @@ class Place(
 
 
 @final
-@many_to_one_to_many(
-    "betty.model.ancestry:Person",
-    "presences",
-    "person",
-    "event",
-    "betty.model.ancestry:Event",
-    "presences",
-)
 class Presence(HasPrivacy, Entity):
     """
     The presence of a :py:class:`betty.model.ancestry.Person` at an :py:class:`betty.model.ancestry.Event`.
     """
 
     #: The person whose presence is described.
-    person: Person | None
+    person = ManyToOne["Presence", "Person"](
+        "betty.model.ancestry:Presence",
+        "person",
+        "betty.model.ancestry:Person",
+        "presences",
+    )
     #: The event the person was present at.
-    event: Event | None
+    event = ManyToOne["Presence", "Event"](
+        "betty.model.ancestry:Presence",
+        "event",
+        "betty.model.ancestry:Event",
+        "presences",
+    )
     #: The role the person performed at the event.
     role: PresenceRole
 
@@ -1680,8 +1573,6 @@ class Presence(HasPrivacy, Entity):
 
 
 @final
-@many_to_one("place", "betty.model.ancestry:Place", "events")
-@one_to_many("presences", "betty.model.ancestry:Presence", "event")
 class Event(
     Dated,
     HasFileReferences,
@@ -1689,16 +1580,23 @@ class Event(
     HasNotes,
     Described,
     HasPrivacy,
-    HasLinksEntity,
+    HasLinks,
     UserFacingEntity,
-    Entity,
 ):
     """
     An event that took place.
     """
 
     #: The place the event happened.
-    place: Place | None
+    place = ManyToOne["Event", Place](
+        "betty.model.ancestry:Event", "place", "betty.model.ancestry:Place", "events"
+    )
+    presences = OneToMany["Event", Presence](
+        "betty.model.ancestry:Event",
+        "presences",
+        "betty.model.ancestry:Presence",
+        "event",
+    )
 
     def __init__(
         self,
@@ -1769,21 +1667,6 @@ class Event(
     @recursive_repr()
     def __repr__(self) -> str:
         return repr_instance(self, id=self._id, type=self._event_type)
-
-    @property
-    def presences(self) -> EntityCollection[Presence]:  # type: ignore[empty-body]
-        """
-        People's presences at this event.
-        """
-        pass  # pragma: no cover
-
-    @presences.setter
-    def presences(self, presences: Iterable[Presence]) -> None:
-        pass  # pragma: no cover
-
-    @presences.deleter
-    def presences(self) -> None:
-        pass  # pragma: no cover
 
     @override
     @classmethod
@@ -1908,14 +1791,18 @@ class Event(
 
 
 @final
-@many_to_one("person", "betty.model.ancestry:Person", "names")
 class PersonName(Localized, HasCitations, HasPrivacy, Entity):
     """
     A name for a :py:class:`betty.model.ancestry.Person`.
     """
 
     #: The person whose name this is.
-    person: Person | None
+    person = ManyToOne["PersonName", "Person"](
+        "betty.model.ancestry:PersonName",
+        "person",
+        "betty.model.ancestry:Person",
+        "names",
+    )
 
     def __init__(
         self,
@@ -2042,15 +1929,11 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
 
 
 @final
-@many_to_many("parents", "betty.model.ancestry:Person", "children")
-@many_to_many("children", "betty.model.ancestry:Person", "parents")
-@one_to_many("presences", "betty.model.ancestry:Presence", "person")
-@one_to_many("names", "betty.model.ancestry:PersonName", "person")
 class Person(
     HasFileReferences,
     HasCitations,
     HasNotes,
-    HasLinksEntity,
+    HasLinks,
     HasPrivacy,
     UserFacingEntity,
     Entity,
@@ -2058,6 +1941,31 @@ class Person(
     """
     A person.
     """
+
+    parents = ManyToMany["Person", "Person"](
+        "betty.model.ancestry:Person",
+        "parents",
+        "betty.model.ancestry:Person",
+        "children",
+    )
+    children = ManyToMany["Person", "Person"](
+        "betty.model.ancestry:Person",
+        "children",
+        "betty.model.ancestry:Person",
+        "parents",
+    )
+    presences = OneToMany["Person", Presence](
+        "betty.model.ancestry:Person",
+        "presences",
+        "betty.model.ancestry:Presence",
+        "person",
+    )
+    names = OneToMany["Person", PersonName](
+        "betty.model.ancestry:Person",
+        "names",
+        "betty.model.ancestry:PersonName",
+        "person",
+    )
 
     def __init__(
         self,
@@ -2086,73 +1994,13 @@ class Person(
             private=private,
         )
         if children is not None:
-            self.children = children  # type: ignore[assignment]
+            self.children = children
         if parents is not None:
-            self.parents = parents  # type: ignore[assignment]
+            self.parents = parents
         if presences is not None:
-            self.presences = presences  # type: ignore[assignment]
+            self.presences = presences
         if names is not None:
-            self.names = names  # type: ignore[assignment]
-
-    @property
-    def parents(self) -> EntityCollection[Person]:  # type: ignore[empty-body]
-        """
-        All parents.
-        """
-        pass  # pragma: no cover
-
-    @parents.setter
-    def parents(self, parents: Iterable[Person]) -> None:
-        pass  # pragma: no cover
-
-    @parents.deleter
-    def parents(self) -> None:
-        pass  # pragma: no cover
-
-    @property
-    def children(self) -> EntityCollection[Person]:  # type: ignore[empty-body]
-        """
-        All children.
-        """
-        pass  # pragma: no cover
-
-    @children.setter
-    def children(self, children: Iterable[Person]) -> None:
-        pass  # pragma: no cover
-
-    @children.deleter
-    def children(self) -> None:
-        pass  # pragma: no cover
-
-    @property
-    def presences(self) -> EntityCollection[Presence]:  # type: ignore[empty-body]
-        """
-        All presences at events.
-        """
-        pass  # pragma: no cover
-
-    @presences.setter
-    def presences(self, presences: Iterable[Presence]) -> None:
-        pass  # pragma: no cover
-
-    @presences.deleter
-    def presences(self) -> None:
-        pass  # pragma: no cover
-
-    @property
-    def names(self) -> EntityCollection[PersonName]:  # type: ignore[empty-body]
-        """
-        The person's names.
-        """
-        pass  # pragma: no cover
-
-    @names.setter
-    def names(self, names: Iterable[PersonName]) -> None:
-        pass  # pragma: no cover
-
-    @names.deleter
-    def names(self) -> None:
-        pass  # pragma: no cover
+            self.names = names
 
     @override
     @classmethod
@@ -2357,10 +2205,8 @@ class Ancestry(MultipleTypesEntityCollection[Entity]):
 
     def _get_associates(self, *entities: Entity) -> Iterable[Entity]:
         for entity in entities:
-            for association in EntityTypeAssociationRegistry.get_all_associations(
-                entity
-            ):
-                for associate in EntityTypeAssociationRegistry.get_associates(
+            for association in AssociationRegistry.get_all_associations(entity):
+                for associate in AssociationRegistry.get_associates(
                     entity, association
                 ):
                     yield associate
