@@ -119,31 +119,3 @@ class ConfigurationSequence(
         for configuration in reversed(configurations):
             self._pre_add(configuration)
             self._configurations.insert(index, configuration)
-
-    @override
-    def move_to_beginning(self, *configuration_keys: int) -> None:
-        self.move_to_end(
-            *configuration_keys,
-            *[
-                index
-                for index in range(0, len(self._configurations))
-                if index not in configuration_keys
-            ],
-        )
-
-    @override
-    def move_towards_beginning(self, *configuration_keys: int) -> None:
-        for index in configuration_keys:
-            self._configurations.insert(index - 1, self._configurations.pop(index))
-
-    @override
-    def move_to_end(self, *configuration_keys: int) -> None:
-        for index in configuration_keys:
-            self._configurations.append(self._configurations[index])
-        for index in reversed(configuration_keys):
-            self._configurations.pop(index)
-
-    @override
-    def move_towards_end(self, *configuration_keys: int) -> None:
-        for index in reversed(configuration_keys):
-            self._configurations.insert(index + 1, self._configurations.pop(index))
