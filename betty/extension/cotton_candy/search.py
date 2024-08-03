@@ -63,7 +63,7 @@ class Index:
     async def _render_entity(self, entity: Entity) -> str:
         return await self._project.jinja2_environment.select_template(
             [
-                f"search/result-{entity.plugin_id()}.html.j2",
+                f"search/result--{entity.plugin_id()}.html.j2",
                 "search/result.html.j2",
             ]
         ).render_async(
