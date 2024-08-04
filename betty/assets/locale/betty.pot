@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-08-04 18:34+0100\n"
+"POT-Creation-Date: 2024-08-04 19:38+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -629,9 +629,6 @@ msgid "This must be a decimal number."
 msgstr ""
 
 msgid "This must be a key-value mapping."
-msgstr ""
-
-msgid "This must be a list."
 msgstr ""
 
 msgid "This must be a positive number."

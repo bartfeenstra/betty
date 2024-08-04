@@ -17,7 +17,7 @@ from typing import (
 
 from typing_extensions import override
 
-from betty.assertion import assert_sequence, assert_dict
+from betty.assertion import assert_sequence, assert_mapping
 from betty.config import Configuration
 from betty.config.collections import ConfigurationCollection, ConfigurationKey
 from betty.serde.dump import Dump, VoidableDump, minimize
@@ -97,7 +97,7 @@ class ConfigurationMapping(
             *assert_sequence(self.load_item)(
                 [
                     self._load_key(item_value_dump, item_key_dump)
-                    for item_key_dump, item_value_dump in assert_dict()(dump).items()
+                    for item_key_dump, item_value_dump in assert_mapping()(dump).items()
                 ]
             )
         )

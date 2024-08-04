@@ -30,6 +30,7 @@ from typing_extensions import override
 
 from betty import fs, event_dispatcher
 from betty import model
+from betty.ancestry import Ancestry, Person, Event, Place, Source
 from betty.assertion import (
     Assertion,
     RequiredField,
@@ -38,11 +39,11 @@ from betty.assertion import (
     assert_setattr,
     assert_str,
     assert_bool,
-    assert_dict,
     assert_locale,
     assert_int,
     assert_positive_number,
     assert_fields,
+    assert_mapping,
 )
 from betty.assertion.error import AssertionFailed
 from betty.assets import AssetRepository
@@ -64,7 +65,6 @@ from betty.locale.localizable.config import (
 )
 from betty.locale.localizer import LocalizerRepository
 from betty.model import Entity, UserFacingEntity
-from betty.ancestry import Ancestry, Person, Event, Place, Source
 from betty.plugin.assertion import assert_plugin
 from betty.project import extension
 from betty.project.extension import (
@@ -416,10 +416,10 @@ class ExtensionConfigurationMapping(
 
     @override
     def load_item(self, dump: Dump) -> ExtensionConfiguration:
-        dict_dump = assert_fields(
+        fields_dump = assert_fields(
             RequiredField("extension", assert_plugin(extension.EXTENSION_REPOSITORY))
         )(dump)
-        configuration = ExtensionConfiguration(dict_dump["extension"])
+        configuration = ExtensionConfiguration(fields_dump["extension"])
         configuration.load(dump)
         return configuration
 
@@ -433,14 +433,14 @@ class ExtensionConfigurationMapping(
         item_dump: Dump,
         key_dump: str,
     ) -> Dump:
-        dict_dump = assert_dict()(item_dump)
-        dict_dump["extension"] = key_dump
-        return dict_dump
+        mapping_dump = dict(assert_mapping()(item_dump))
+        mapping_dump["extension"] = key_dump
+        return mapping_dump
 
     @override
     def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
-        dict_dump = assert_dict()(item_dump)
-        return dict_dump, dict_dump.pop("extension")
+        mapping_dump = dict(assert_mapping()(item_dump))
+        return mapping_dump, mapping_dump.pop("extension")
 
     def enable(self, *extension_types: type[Extension]) -> None:
         """
@@ -565,15 +565,15 @@ class EntityTypeConfigurationMapping(
         item_dump: Dump,
         key_dump: str,
     ) -> Dump:
-        dict_dump = assert_dict()(item_dump)
+        mapping_dump = dict(assert_mapping()(item_dump))
         assert_plugin(model.ENTITY_TYPE_REPOSITORY)(key_dump)
-        dict_dump["entity_type"] = key_dump
-        return dict_dump
+        mapping_dump["entity_type"] = key_dump
+        return mapping_dump
 
     @override
     def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
-        dict_dump = assert_dict()(item_dump)
-        return dict_dump, dict_dump.pop("entity_type")
+        mapping_dump = dict(assert_mapping()(item_dump))
+        return mapping_dump, mapping_dump.pop("entity_type")
 
     @override
     def load_item(self, dump: Dump) -> EntityTypeConfiguration:
