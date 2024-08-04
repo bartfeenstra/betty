@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-08-04 18:34+0100\n"
+"POT-Creation-Date: 2024-08-04 19:38+0100\n"
 "PO-Revision-Date: 2024-02-08 13:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de\n"
@@ -796,15 +796,11 @@ msgstr "Es muss eine Dezimalzahl sein."
 msgid "This must be a key-value mapping."
 msgstr "Es muss ein Key-Value Paar sein."
 
-msgid "This must be a list."
-msgstr "Es muss eine Liste sein."
-
 msgid "This must be a positive number."
 msgstr "Es muss einen positive Zahl sein."
 
-#, fuzzy
 msgid "This must be a sequence."
-msgstr "Es muss ein Text-String sein."
+msgstr ""
 
 msgid "This must be a string."
 msgstr "Es muss ein Text-String sein."

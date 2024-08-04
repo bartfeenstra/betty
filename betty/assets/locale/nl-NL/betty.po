@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-08-04 18:34+0100\n"
+"POT-Creation-Date: 2024-08-04 19:38+0100\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -191,10 +191,14 @@ msgid "Appearances"
 msgstr "Verschijningen"
 
 msgid "At least {expected} items are required, but found {actual}."
-msgstr "Minimaal {expected} items zijn vereist, maar er waren er {actual} gevonden."
+msgstr ""
+"Minimaal {expected} items zijn vereist, maar er waren er {actual} "
+"gevonden."
 
 msgid "At most {expected} items are allowed, but found {actual}."
-msgstr "Maximaal {expected} items zijn toegestaan, maar er waren er {actual} gevonden."
+msgstr ""
+"Maximaal {expected} items zijn toegestaan, maar er waren er {actual} "
+"gevonden."
 
 msgid "At which URL will your site be published?"
 msgstr "Op welke URL wordt je site gepubliceerd?"
@@ -806,15 +810,11 @@ msgstr "Dit moet een decimaal getal zijn."
 msgid "This must be a key-value mapping."
 msgstr "Dit moet een sleutel-waardetoewijzing zijn."
 
-msgid "This must be a list."
-msgstr "Dit moet een lijst zijn."
-
 msgid "This must be a positive number."
 msgstr "Dit moet een positief getal zijn."
 
-#, fuzzy
 msgid "This must be a sequence."
-msgstr "Dit moet een tekenreeks zijn."
+msgstr "Dit moet een reeks zijn."
 
 msgid "This must be a string."
 msgstr "Dit moet een tekenreeks zijn."

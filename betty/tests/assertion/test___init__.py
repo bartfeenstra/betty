@@ -23,10 +23,8 @@ from betty.assertion import (
     assert_float,
     assert_positive_number,
     assert_number,
-    assert_list,
     assert_mapping,
     assert_sequence,
-    assert_dict,
     assert_fields,
     assert_field,
     assert_file_path,
@@ -170,15 +168,6 @@ class TestAssertStr:
             assert_str()(False)
 
 
-class TestAssertList:
-    async def test_with_list(self) -> None:
-        assert_list()([])
-
-    async def test_without_list(self) -> None:
-        with raises_error(error_type=AssertionFailed):
-            assert_list()(False)
-
-
 class TestAssertSequence:
     async def test_without_list(self) -> None:
         with raises_error(error_type=AssertionFailed):
@@ -193,15 +182,6 @@ class TestAssertSequence:
 
     async def test_with_valid_sequence(self) -> None:
         assert_sequence(assert_str())(["Hello!"])
-
-
-class TestAssertDict:
-    async def test_with_dict(self) -> None:
-        assert_dict()({})
-
-    async def test_without_dict(self) -> None:
-        with raises_error(error_type=AssertionFailed):
-            assert_dict()(False)
 
 
 class TestAssertFields:

@@ -4,6 +4,7 @@ The Assertion API.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from collections.abc import Sized, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -12,9 +13,7 @@ from typing import (
     Callable,
     Any,
     Generic,
-    TYPE_CHECKING,
     TypeVar,
-    MutableSequence,
     MutableMapping,
     overload,
     cast,
@@ -29,9 +28,6 @@ from betty.locale import (
 )
 from betty.locale.localizable import _, Localizable, plain
 from betty.typing import Void
-
-if TYPE_CHECKING:
-    from collections.abc import Mapping
 
 Number: TypeAlias = int | float
 
@@ -128,33 +124,32 @@ _AssertionBuilderMethod = Callable[[object, _AssertionValueT], _AssertionReturnT
 _AssertionBuilder = "_AssertionBuilderFunction[ValueT, ReturnT] | _AssertionBuilderMethod[ValueT, ReturnT]"
 
 
-AssertTypeType: TypeAlias = (
-    bool | dict[Any, Any] | float | int | Sequence[Any] | list[Any] | None | str
+_AssertTypeType: TypeAlias = (
+    bool | float | int | Mapping[Any, Any] | None | Sequence[Any] | str
 )
-AssertTypeTypeT = TypeVar("AssertTypeTypeT", bound=AssertTypeType)
+_AssertTypeTypeT = TypeVar("_AssertTypeTypeT", bound=_AssertTypeType)
 
 
 def _assert_type_violation_error_message(
-    asserted_type: type[AssertTypeType],
+    asserted_type: type[_AssertTypeType],
 ) -> Localizable:
-    messages: Mapping[type[AssertTypeType], Localizable] = {
-        NoneType: _("This must be none/null."),
+    messages: Mapping[type[_AssertTypeType], Localizable] = {
         bool: _("This must be a boolean."),
         int: _("This must be a whole number."),
         float: _("This must be a decimal number."),
-        str: _("This must be a string."),
+        Mapping: _("This must be a key-value mapping."),
+        NoneType: _("This must be none/null."),
         Sequence: _("This must be a sequence."),
-        list: _("This must be a list."),
-        dict: _("This must be a key-value mapping."),
+        str: _("This must be a string."),
     }
     return messages[asserted_type]
 
 
 def _assert_type(
     value: Any,
-    value_required_type: type[AssertTypeTypeT],
-    value_disallowed_type: type[AssertTypeType] | None = None,
-) -> AssertTypeTypeT:
+    value_required_type: type[_AssertTypeTypeT],
+    value_disallowed_type: type[_AssertTypeType] | None = None,
+) -> _AssertTypeTypeT:
     if isinstance(value, value_required_type) and (
         value_disallowed_type is None or not isinstance(value, value_disallowed_type)
     ):
@@ -264,72 +259,112 @@ def assert_str() -> AssertionChain[Any, str]:
     return AssertionChain(_assert_str)
 
 
-def assert_list() -> AssertionChain[Any, list[Any]]:
-    """
-    Assert that a value is a Python ``list``.
-    """
-
-    def _assert_list(value: Any) -> list[Any]:
-        return _assert_type(value, list)
-
-    return AssertionChain(_assert_list)
+@overload
+def assert_sequence(
+    value_assertion: None = None,
+) -> AssertionChain[Any, Sequence[Any]]:
+    pass
 
 
-def assert_dict() -> AssertionChain[Any, dict[str, Any]]:
-    """
-    Assert that a value is a Python ``dict``.
-    """
-
-    def _assert_dict(value: Any) -> dict[str, Any]:
-        return _assert_type(value, dict)
-
-    return AssertionChain(_assert_dict)
+@overload
+def assert_sequence(
+    value_assertion: Assertion[Any, _AssertionReturnT],
+) -> AssertionChain[Any, Sequence[_AssertionReturnT]]:
+    pass
 
 
 def assert_sequence(
-    item_assertion: Assertion[Any, _AssertionReturnT],
-) -> AssertionChain[Any, MutableSequence[_AssertionReturnT]]:
+    value_assertion: Assertion[Any, _AssertionReturnT] | None = None,
+):
     """
-    Assert that a value is a sequence and that all item values are of the given type.
+    Assert that a value is a sequence.
+
+    Optionally assert that values are of a given type.
     """
 
-    def _assert_sequence(value: list[Any]) -> MutableSequence[_AssertionReturnT]:
-        _assert_type(
+    def _assert_sequence(value: Any) -> Sequence[_AssertionReturnT]:
+        sequence = _assert_type(
             value,
             Sequence,  # type: ignore[type-abstract]
         )
-        sequence: MutableSequence[_AssertionReturnT] = []
+        if value_assertion is None:
+            return sequence
+        asserted_sequence = []
         with AssertionFailedGroup().assert_valid() as errors:
-            for value_item_index, value_item_value in enumerate(value):
-                with errors.catch(plain(str(value_item_index))):
-                    sequence.append(item_assertion(value_item_value))
-        return sequence
+            for value_index, value_value in enumerate(sequence):
+                with errors.catch(plain(str(value_index))):
+                    asserted_sequence.append(value_assertion(value_value))
+        return asserted_sequence
 
     return AssertionChain(_assert_sequence)
 
 
+@overload
 def assert_mapping(
-    item_assertion: Assertion[Any, _AssertionReturnT],
+    value_assertion: None = None,
+    key_assertion: None = None,
+) -> AssertionChain[Any, Mapping[Any, Any]]:
+    pass
+
+
+@overload
+def assert_mapping(
+    value_assertion: Assertion[Any, _AssertionReturnT],
+    key_assertion: None = None,
+) -> AssertionChain[Any, Mapping[Any, _AssertionReturnT]]:
+    pass
+
+
+@overload
+def assert_mapping(
+    value_assertion: None,
+    key_assertion: Assertion[Any, _AssertionKeyT],
+) -> AssertionChain[Any, Mapping[_AssertionKeyT, Any]]:
+    pass
+
+
+@overload
+def assert_mapping(
+    value_assertion: Assertion[Any, _AssertionReturnT],
+    key_assertion: Assertion[Any, _AssertionKeyT],
+) -> AssertionChain[Any, Mapping[_AssertionKeyT, _AssertionReturnT]]:
+    pass
+
+
+def assert_mapping(
+    value_assertion: Assertion[Any, _AssertionReturnT] | None = None,
     key_assertion: Assertion[Any, _AssertionKeyT] | None = None,
-) -> AssertionChain[Any, MutableMapping[str, _AssertionReturnT]]:
+):
     """
-    Assert that a value is a key-value mapping and assert that all item values are of the given type.
+    Assert that a value is a key-value mapping.
+
+    Optionally assert that keys and/or values are of a given type.
     """
 
     def _assert_mapping(
-        dict_value: dict[str, Any],
-    ) -> MutableMapping[str, _AssertionReturnT]:
-        mapping: MutableMapping[str, _AssertionReturnT] = {}
+        value: Any,
+    ) -> Mapping[_AssertionKeyT, _AssertionReturnT]:
+        mapping = _assert_type(
+            value,
+            Mapping,  # type: ignore[type-abstract]
+        )
+        if value_assertion is None and key_assertion is None:
+            return mapping
+        asserted_mapping = {}
         with AssertionFailedGroup().assert_valid() as errors:
-            for value_item_key, value_item_value in dict_value.items():
+            for value_key, value_value in mapping.items():
+                asserted_value_key = value_key
                 if key_assertion:
-                    with errors.catch(_('in key "{key}"').format(key=value_item_key)):
-                        key_assertion(value_item_key)
-                with errors.catch(plain(value_item_key)):
-                    mapping[value_item_key] = item_assertion(value_item_value)
-        return mapping
+                    with errors.catch(_('in key "{key}"').format(key=value_key)):
+                        asserted_value_key = key_assertion(value_key)
+                asserted_value_value = value_value
+                if value_assertion:
+                    with errors.catch(plain(value_key)):
+                        asserted_value_value = value_assertion(value_value)
+                asserted_mapping[asserted_value_key] = asserted_value_value
+        return asserted_mapping
 
-    return assert_dict() | _assert_mapping
+    return AssertionChain(_assert_mapping)
 
 
 def assert_fields(
@@ -339,21 +374,19 @@ def assert_fields(
     Assert that a value is a key-value mapping of arbitrary value types, and assert several of its values.
     """
 
-    def _assert_fields(dict_value: dict[str, Any]) -> MutableMapping[str, Any]:
+    def _assert_fields(value: Mapping[Any, Any]) -> MutableMapping[str, Any]:
         mapping: MutableMapping[str, Any] = {}
         with AssertionFailedGroup().assert_valid() as errors:
             for field in fields:
                 with errors.catch(plain(field.name)):
-                    if field.name in dict_value:
+                    if field.name in value:
                         if field.assertion:
-                            mapping[field.name] = field.assertion(
-                                dict_value[field.name]
-                            )
+                            mapping[field.name] = field.assertion(value[field.name])
                     elif isinstance(field, RequiredField):
                         raise AssertionFailed(_("This field is required."))
         return mapping
 
-    return assert_dict() | _assert_fields
+    return assert_mapping() | _assert_fields
 
 
 @overload
@@ -406,9 +439,9 @@ def assert_record(
     if not len(fields):
         raise ValueError("One or more fields are required.")
 
-    def _assert_record(dict_value: dict[str, Any]) -> MutableMapping[str, Any]:
+    def _assert_record(value: Mapping[Any, Any]) -> MutableMapping[str, Any]:
         known_keys = {x.name for x in fields}
-        unknown_keys = set(dict_value.keys()) - known_keys
+        unknown_keys = set(value.keys()) - known_keys
         with AssertionFailedGroup().assert_valid() as errors:
             for unknown_key in unknown_keys:
                 with errors.catch(plain(unknown_key)):
@@ -422,9 +455,9 @@ def assert_record(
                             ),
                         )
                     )
-            return assert_fields(*fields)(dict_value)
+            return assert_fields(*fields)(value)
 
-    return assert_dict() | _assert_record
+    return assert_mapping() | _assert_record
 
 
 def assert_isinstance(

@@ -9,12 +9,12 @@ from typing import (
 from typing_extensions import override
 
 from betty.assertion import (
-    assert_dict,
     assert_record,
     RequiredField,
     assert_str,
     assert_setattr,
     assert_int,
+    assert_mapping,
 )
 from betty.config import Configuration
 from betty.config.collections.mapping import ConfigurationMapping
@@ -113,10 +113,10 @@ class ConfigurationMappingTestConfigurationMapping(
         item_dump: Dump,
         key_dump: str,
     ) -> Dump:
-        dict_item_dump = assert_dict()(item_dump)
-        dict_item_dump["key"] = key_dump
-        return dict_item_dump
+        mapping_item_dump = dict(assert_mapping()(item_dump))
+        mapping_item_dump["key"] = key_dump
+        return mapping_item_dump
 
     def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
-        dict_item_dump = assert_dict()(item_dump)
-        return dict_item_dump, dict_item_dump.pop("key")
+        mapping_item_dump = dict(assert_mapping()(item_dump))
+        return mapping_item_dump, mapping_item_dump.pop("key")
