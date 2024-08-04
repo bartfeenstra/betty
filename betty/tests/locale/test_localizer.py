@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import cast
+from typing import TYPE_CHECKING
 
 import aiofiles
 import pytest
@@ -11,9 +11,12 @@ from betty.assets import AssetRepository
 from betty.locale.date import Date, DateRange, Datey
 from betty.locale.localizer import DEFAULT_LOCALIZER, LocalizerRepository
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
 
 class TestDefaultLocalizer:
-    _FORMAT_DATE_TEST_PARAMETERS: list[tuple[str, Date]] = [
+    _FORMAT_DATE_TEST_PARAMETERS: Sequence[tuple[str, Date]] = [
         # Dates that cannot be formatted.
         ("unknown date", Date()),
         ("unknown date", Date(None, None, 1)),
@@ -35,7 +38,7 @@ class TestDefaultLocalizer:
         sut = DEFAULT_LOCALIZER
         assert expected == sut.format_date(date)
 
-    _FORMAT_DATE_RANGE_TEST_PARAMETERS: list[tuple[str, DateRange]] = [
+    _FORMAT_DATE_RANGE_TEST_PARAMETERS: Sequence[tuple[str, DateRange]] = [
         (
             "from January 1, 1970 until December 31, 1999",
             DateRange(Date(1970, 1, 1), Date(1999, 12, 31)),
@@ -170,9 +173,10 @@ class TestDefaultLocalizer:
         sut = DEFAULT_LOCALIZER
         assert expected == sut.format_date_range(date_range)
 
-    _FORMAT_DATEY_TEST_PARAMETERS = cast(
-        list[tuple[str, Datey]], _FORMAT_DATE_TEST_PARAMETERS
-    ) + cast(list[tuple[str, Datey]], _FORMAT_DATE_RANGE_TEST_PARAMETERS)
+    _FORMAT_DATEY_TEST_PARAMETERS = (
+        *_FORMAT_DATE_TEST_PARAMETERS,
+        *_FORMAT_DATE_RANGE_TEST_PARAMETERS,
+    )
 
     @pytest.mark.parametrize(("expected", "datey"), _FORMAT_DATEY_TEST_PARAMETERS)
     async def test_format_datey(self, expected: str, datey: Datey) -> None:

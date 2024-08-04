@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import Any, TYPE_CHECKING
 
@@ -8,8 +8,8 @@ from betty.extension.gramps.config import (
     GrampsConfiguration,
     FamilyTreeConfigurationSequence,
 )
-from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.test_utils.assertion.error import raises_error
+from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.typing import Void
 
 if TYPE_CHECKING:
@@ -43,7 +43,7 @@ class TestFamilyTreeConfigurationSequence(
 class TestFamilyTreeConfiguration:
     async def test_load_with_minimal_configuration(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
-        dump: dict[str, Any] = {"file": str(file_path)}
+        dump: Mapping[str, Any] = {"file": str(file_path)}
         FamilyTreeConfiguration(tmp_path).load(dump)
 
     async def test_load_without_dict_should_error(self, tmp_path: Path) -> None:
@@ -93,7 +93,7 @@ class TestFamilyTreeConfiguration:
 
 class TestGrampsConfiguration:
     async def test_load_with_minimal_configuration(self) -> None:
-        dump: dict[str, Any] = {}
+        dump: Mapping[str, Any] = {}
         GrampsConfiguration().load(dump)
 
     async def test_load_without_dict_should_error(self) -> None:

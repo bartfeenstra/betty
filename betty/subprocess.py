@@ -6,13 +6,14 @@ import logging
 import os
 from asyncio import create_subprocess_exec, create_subprocess_shell
 from asyncio.subprocess import Process
+from collections.abc import Sequence
 from pathlib import Path
 from subprocess import CalledProcessError, PIPE
 from traceback import format_exception
 
 
 async def run_process(
-    runnee: list[str],
+    runnee: Sequence[str],
     cwd: Path | None = None,
     shell: bool = False,
 ) -> Process:

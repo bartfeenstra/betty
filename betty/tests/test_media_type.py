@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from typing import Sequence, TYPE_CHECKING
 
-from typing_extensions import override
-
 import pytest
+from typing_extensions import override
 
 from betty.media_type import MediaType, InvalidMediaType, MediaTypeSchema
 from betty.test_utils.json.schema import SchemaTestBase
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from betty.serde.dump import Dump
     from betty.json.schema import Schema
 
@@ -55,9 +55,9 @@ class TestMediaType:
         self,
         expected_type: str,
         expected_subtype: str,
-        expected_subtypes: list[str],
+        expected_subtypes: Sequence[str],
         expected_suffix: str | None,
-        expected_parameters: dict[str, str],
+        expected_parameters: Mapping[str, str],
         media_type: str,
     ) -> None:
         sut = MediaType(media_type)

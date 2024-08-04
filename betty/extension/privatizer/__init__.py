@@ -8,13 +8,14 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
+from betty.ancestry import Person, HasPrivacy
 from betty.load import PostLoadAncestryEvent
 from betty.locale.localizable import _, Localizable
-from betty.ancestry import Person, HasPrivacy
 from betty.privatizer import Privatizer as PrivatizerApi
 from betty.project.extension import Extension
 
 if TYPE_CHECKING:
+    from collections.abc import MutableSequence, MutableMapping
     from betty.event_dispatcher import EventHandlerRegistry
     from betty.machine_name import MachineName
     from betty.model import Entity
@@ -29,8 +30,10 @@ async def _privatize_ancestry(event: PostLoadAncestryEvent) -> None:
         localizer=event.project.app.localizer,
     )
 
-    newly_privatized: dict[type[HasPrivacy & Entity], int] = defaultdict(lambda: 0)
-    entities: list[HasPrivacy & Entity] = []
+    newly_privatized: MutableMapping[type[HasPrivacy & Entity], int] = defaultdict(
+        lambda: 0
+    )
+    entities: MutableSequence[HasPrivacy & Entity] = []
     for entity in event.project.ancestry:
         if isinstance(entity, HasPrivacy):
             entities.append(entity)

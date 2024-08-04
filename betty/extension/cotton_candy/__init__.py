@@ -48,7 +48,7 @@ if TYPE_CHECKING:
     from betty.event_dispatcher import EventHandlerRegistry
     from betty.machine_name import MachineName
     from jinja2.runtime import Context
-    from collections.abc import Sequence, AsyncIterable
+    from collections.abc import Sequence, AsyncIterable, Mapping
 
 
 async def _generate_favicon(event: GenerateSiteEvent) -> None:
@@ -112,7 +112,7 @@ class CottonCandy(
 
     @override
     @property
-    def public_css_paths(self) -> list[str]:
+    def public_css_paths(self) -> Sequence[str]:
         return [
             self.project.static_url_generator.generate("css/cotton-candy.css"),
         ]
@@ -162,7 +162,7 @@ class CottonCandy(
 
 
 @pass_context
-async def _global_search_index(context: Context) -> AsyncIterable[dict[str, str]]:
+async def _global_search_index(context: Context) -> AsyncIterable[Mapping[str, str]]:
     return Index(
         context_project(context),
         context_job_context(context),

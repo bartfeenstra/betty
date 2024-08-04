@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, TYPE_CHECKING
 
 import pytest
+
 from betty.assertion.error import AssertionFailed
 from betty.extension.cotton_candy.config import (
     ColorConfiguration,
@@ -15,6 +16,7 @@ from betty.test_utils.assertion.error import raises_error
 from betty.test_utils.model import DummyEntity
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from pytest_mock import MockerFixture
     from betty.serde.dump import Dump
     from pathlib import Path
@@ -93,7 +95,7 @@ class TestCottonCandyConfiguration:
         assert sut.logo == logo
 
     async def test_load_with_minimal_configuration(self) -> None:
-        dump: dict[str, Any] = {}
+        dump: Mapping[str, Any] = {}
         CottonCandyConfiguration().load(dump)
 
     async def test_load_without_dict_should_error(self) -> None:

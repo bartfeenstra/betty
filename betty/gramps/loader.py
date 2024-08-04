@@ -87,7 +87,7 @@ from typing_extensions import override
 if TYPE_CHECKING:
     from betty.locale.localizer import Localizer
     from betty.project import Project
-    from collections.abc import MutableMapping, Mapping
+    from collections.abc import MutableMapping, Mapping, Sequence
 
 
 class GrampsLoadFileError(GrampsError, RuntimeError):
@@ -146,7 +146,9 @@ class GrampsLoader:
         super().__init__()
         self._project = project
         self._ancestry_builder = EntityGraphBuilder()
-        self._added_entity_counts: dict[type[Entity], int] = defaultdict(lambda: 0)
+        self._added_entity_counts: MutableMapping[type[Entity], int] = defaultdict(
+            lambda: 0
+        )
         self._tree: ElementTree.ElementTree | None = None
         self._gramps_tree_directory_path: Path | None = None
         self._loaded = False
@@ -345,7 +347,7 @@ class GrampsLoader:
 
     def _xpath(
         self, element: ElementTree.Element, selector: str
-    ) -> list[ElementTree.Element]:
+    ) -> Sequence[ElementTree.Element]:
         return element.findall(selector, namespaces=self._NS)
 
     def _xpath1(

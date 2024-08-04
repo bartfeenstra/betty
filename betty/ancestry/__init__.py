@@ -15,6 +15,7 @@ from typing_extensions import override
 from betty.ancestry.event_type import EventType, UnknownEventType
 from betty.ancestry.presence_role import PresenceRole, Subject, PresenceRoleSchema
 from betty.classtools import repr_instance
+from betty.functools import Uniquifier
 from betty.json.linked_data import (
     LinkedDataDumpable,
     dump_context,
@@ -63,7 +64,7 @@ if TYPE_CHECKING:
     from betty.project import Project
     from geopy import Point
     from pathlib import Path
-    from collections.abc import MutableSequence, Iterator
+    from collections.abc import MutableSequence, Iterator, Mapping
 
 
 class Privacy(Enum):
@@ -1322,7 +1323,7 @@ class Place(
         self,
         *,
         id: str | None = None,  # noqa A002
-        names: list[PlaceName] | None = None,
+        names: MutableSequence[PlaceName] | None = None,
         events: Iterable[Event] | None = None,
         enclosed_by: Iterable[Enclosure] | None = None,
         encloses: Iterable[Enclosure] | None = None,
@@ -1376,7 +1377,7 @@ class Place(
         return _("Places")  # pragma: no cover
 
     @property
-    def names(self) -> list[PlaceName]:
+    def names(self) -> MutableSequence[PlaceName]:
         """
         The place's names.
         """
@@ -1621,7 +1622,7 @@ class Event(
     @override
     @property
     def label(self) -> Localizable:
-        format_kwargs: dict[str, str | Localizable] = {
+        format_kwargs: Mapping[str, str | Localizable] = {
             "event_type": self._event_type.plugin_label(),
         }
         subjects = [
@@ -2035,16 +2036,16 @@ class Person(
             yield from parent.ancestors
 
     @property
-    def siblings(self) -> list[Person]:
+    def siblings(self) -> Iterator[Person]:
         """
         All siblings.
         """
-        siblings = []
-        for parent in self.parents:
-            for sibling in parent.children:
-                if sibling != self and sibling not in siblings:
-                    siblings.append(sibling)
-        return siblings
+        yield from Uniquifier(
+            sibling
+            for parent in self.parents
+            for sibling in parent.children
+            if sibling != self
+        )
 
     @property
     def descendants(self) -> Iterator[Person]:

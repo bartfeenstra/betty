@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import MutableMapping
+from collections.abc import MutableMapping, Mapping
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any, Sequence, TYPE_CHECKING
@@ -237,7 +237,7 @@ class TestNote(EntityTestBase):
             id="the_note",
             text="The Note",
         )
-        expected: dict[str, Any] = {
+        expected: Mapping[str, Any] = {
             "@id": "https://example.com/note/the_note/index.json",
             "@type": "https://schema.org/Thing",
             "id": "the_note",
@@ -272,7 +272,7 @@ class TestNote(EntityTestBase):
             text="The Note",
             private=True,
         )
-        expected: dict[str, Any] = {
+        expected: Mapping[str, Any] = {
             "@id": "https://example.com/note/the_note/index.json",
             "@type": "https://schema.org/Thing",
             "id": "the_note",
@@ -350,7 +350,7 @@ class TestLink:
 
     async def test_dump_linked_data_should_dump_minimal(self) -> None:
         link = Link("https://example.com")
-        expected: dict[str, Any] = {
+        expected: Mapping[str, Any] = {
             "url": "https://example.com",
         }
         actual = await assert_dumps_linked_data(link)
@@ -364,7 +364,7 @@ class TestLink:
             locale="nl-NL",
             media_type=MediaType("text/html"),
         )
-        expected: dict[str, Any] = {
+        expected: Mapping[str, Any] = {
             "url": "https://example.com",
             "relationship": "external",
             "label": {UNDETERMINED_LOCALE: "The Link"},
@@ -515,7 +515,7 @@ class TestFile(EntityTestBase):
                 id="the_file",
                 path=Path(f.name),
             )
-            expected: dict[str, Any] = {
+            expected: Mapping[str, Any] = {
                 "@id": "https://example.com/file/the_file/index.json",
                 "id": "the_file",
                 "private": False,
@@ -568,7 +568,7 @@ class TestFile(EntityTestBase):
                     ),
                 )
             )
-            expected: dict[str, Any] = {
+            expected: Mapping[str, Any] = {
                 "@id": "https://example.com/file/the_file/index.json",
                 "id": "the_file",
                 "private": False,
@@ -629,7 +629,7 @@ class TestFile(EntityTestBase):
                     ),
                 )
             )
-            expected: dict[str, Any] = {
+            expected: Mapping[str, Any] = {
                 "@id": "https://example.com/file/the_file/index.json",
                 "id": "the_file",
                 "private": True,
@@ -748,7 +748,7 @@ class TestSource(EntityTestBase):
             id="the_source",
             name="The Source",
         )
-        expected: dict[str, Any] = {
+        expected: Mapping[str, Any] = {
             "@context": {
                 "name": "https://schema.org/name",
             },
@@ -808,7 +808,7 @@ class TestSource(EntityTestBase):
             id="the_citation",
             source=source,
         )
-        expected: dict[str, Any] = {
+        expected: Mapping[str, Any] = {
             "@context": {
                 "name": "https://schema.org/name",
             },
@@ -886,7 +886,7 @@ class TestSource(EntityTestBase):
             id="the_citation",
             source=source,
         )
-        expected: dict[str, Any] = {
+        expected: Mapping[str, Any] = {
             "@id": "https://example.com/source/the_source/index.json",
             "@type": "https://schema.org/Thing",
             "id": "the_source",
@@ -925,7 +925,7 @@ class TestSource(EntityTestBase):
             source=source,
             private=True,
         )
-        expected: dict[str, Any] = {
+        expected: Mapping[str, Any] = {
             "@id": "https://example.com/source/the_source/index.json",
             "@type": "https://schema.org/Thing",
             "id": "the_source",
@@ -1000,7 +1000,7 @@ class TestCitation(EntityTestBase):
             id="the_citation",
             source=Source(name="The Source"),
         )
-        expected: dict[str, Any] = {
+        expected: Mapping[str, Any] = {
             "@id": "https://example.com/citation/the_citation/index.json",
             "@type": "https://schema.org/Thing",
             "id": "the_citation",
@@ -1043,7 +1043,7 @@ class TestCitation(EntityTestBase):
                 event_type=Birth(),
             )
         )
-        expected: dict[str, Any] = {
+        expected: Mapping[str, Any] = {
             "@id": "https://example.com/citation/the_citation/index.json",
             "@type": "https://schema.org/Thing",
             "id": "the_citation",
@@ -1088,7 +1088,7 @@ class TestCitation(EntityTestBase):
                 event_type=Birth(),
             )
         )
-        expected: dict[str, Any] = {
+        expected: Mapping[str, Any] = {
             "@id": "https://example.com/citation/the_citation/index.json",
             "@type": "https://schema.org/Thing",
             "id": "the_citation",
@@ -1338,7 +1338,7 @@ class TestPlace(EntityTestBase):
             id=place_id,
             names=[PlaceName(name=name)],
         )
-        expected: dict[str, Any] = {
+        expected: Mapping[str, Any] = {
             "@context": {
                 "names": "https://schema.org/name",
                 "enclosedBy": "https://schema.org/containedInPlace",
@@ -1409,7 +1409,7 @@ class TestPlace(EntityTestBase):
         place.coordinates = coordinates
         Enclosure(encloses=place, enclosed_by=Place(id="the_enclosing_place"))
         Enclosure(encloses=Place(id="the_enclosed_place"), enclosed_by=place)
-        expected: dict[str, Any] = {
+        expected: Mapping[str, Any] = {
             "@context": {
                 "names": "https://schema.org/name",
                 "enclosedBy": "https://schema.org/containedInPlace",
@@ -1587,7 +1587,7 @@ class TestEvent(EntityTestBase):
             id="the_event",
             event_type=Birth(),
         )
-        expected: dict[str, Any] = {
+        expected: Mapping[str, Any] = {
             "@context": {
                 "presences": "https://schema.org/performer",
             },
@@ -1644,7 +1644,7 @@ class TestEvent(EntityTestBase):
                 ),
             )
         )
-        expected: dict[str, Any] = {
+        expected: Mapping[str, Any] = {
             "@context": {
                 "place": "https://schema.org/location",
                 "presences": "https://schema.org/performer",
@@ -1732,7 +1732,7 @@ class TestEvent(EntityTestBase):
                 ),
             )
         )
-        expected: dict[str, Any] = {
+        expected: Mapping[str, Any] = {
             "@context": {
                 "place": "https://schema.org/location",
                 "presences": "https://schema.org/performer",
@@ -1936,7 +1936,7 @@ class TestPerson(EntityTestBase):
     async def test_dump_linked_data_should_dump_minimal(self) -> None:
         person_id = "the_person"
         person = Person(id=person_id)
-        expected: dict[str, Any] = {
+        expected: Mapping[str, Any] = {
             "@context": {
                 "names": "https://schema.org/name",
                 "parents": "https://schema.org/parent",
@@ -2026,7 +2026,7 @@ class TestPerson(EntityTestBase):
             ),
         )
 
-        expected: dict[str, Any] = {
+        expected: Mapping[str, Any] = {
             "@context": {
                 "names": "https://schema.org/name",
                 "parents": "https://schema.org/parent",
@@ -2145,7 +2145,7 @@ class TestPerson(EntityTestBase):
             ),
         )
 
-        expected: dict[str, Any] = {
+        expected: Mapping[str, Any] = {
             "@context": {
                 "names": "https://schema.org/name",
                 "parents": "https://schema.org/parent",

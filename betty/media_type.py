@@ -5,11 +5,14 @@ Provide `media type <https://en.wikipedia.org/wiki/Media_type>`_ handling utilit
 from __future__ import annotations
 
 from email.message import EmailMessage
-from typing import Any, final
+from typing import Any, final, TYPE_CHECKING
 
 from typing_extensions import override
 
 from betty.json.schema import Schema
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence, Mapping
 
 
 class InvalidMediaType(ValueError):
@@ -38,7 +41,7 @@ class MediaType:
         # invalid.
         if not media_type.startswith(type_part):
             raise InvalidMediaType(f'"{media_type}" is not a valid media type.')
-        self._parameters: dict[str, str] = dict(message["Content-Type"].params)
+        self._parameters: Mapping[str, str] = dict(message["Content-Type"].params)
         self._type, type_part_remainder = type_part.split("/")
         if not type_part_remainder:
             raise InvalidMediaType("The subtype must not be empty.")
@@ -68,7 +71,7 @@ class MediaType:
         return self._subtype
 
     @property
-    def subtypes(self) -> list[str]:
+    def subtypes(self) -> Sequence[str]:
         """
         The subtype parts, e.g. ``["vnd", "oasis", "opendocument", "text"]`` for ``"application/vnd.oasis.opendocument.text"``.
         """
@@ -82,7 +85,7 @@ class MediaType:
         return self._suffix
 
     @property
-    def parameters(self) -> dict[str, str]:
+    def parameters(self) -> Mapping[str, str]:
         """
         The parameters, e.g. ``{"charset": "UTF-8"}`` for ``"text/html; charset=UTF-8"``.
         """

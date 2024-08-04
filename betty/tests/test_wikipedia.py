@@ -6,11 +6,14 @@ from typing import Any, TYPE_CHECKING
 from unittest.mock import AsyncMock, call
 
 import pytest
+from geopy import Point
+from multidict import CIMultiDict
+
+from betty.ancestry import Source, Link, Citation, Place
 from betty.fetch import FetchResponse
 from betty.fetch.static import StaticFetcher
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
-from betty.ancestry import Source, Link, Citation, Place
 from betty.project import LocaleConfiguration, Project
 from betty.wikipedia import (
     Summary,
@@ -20,10 +23,9 @@ from betty.wikipedia import (
     _Populator,
     Image,
 )
-from geopy import Point
-from multidict import CIMultiDict
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from betty.app import App
     from betty.cache.file import BinaryFileCache
     from pytest_mock import MockerFixture
@@ -183,8 +185,8 @@ class TestRetriever:
     )
     async def test_get_translations_should_return(
         self,
-        expected: dict[str, str],
-        fetch_json: dict[str, Any],
+        expected: Mapping[str, str],
+        fetch_json: Mapping[str, Any],
         mocker: MockerFixture,
         binary_file_cache: BinaryFileCache,
     ) -> None:
@@ -232,7 +234,7 @@ class TestRetriever:
     )
     async def test_get_translations_with_unexpected_json_response_should_return_none(
         self,
-        response_json: dict[str, Any],
+        response_json: Mapping[str, Any],
         mocker: MockerFixture,
         binary_file_cache: BinaryFileCache,
     ) -> None:
@@ -307,7 +309,7 @@ class TestRetriever:
     async def test_get_summary_should_return(
         self,
         expected: Summary | None,
-        fetch_json: dict[str, Any],
+        fetch_json: Mapping[str, Any],
         binary_file_cache: BinaryFileCache,
     ) -> None:
         page_language = "en"
@@ -458,7 +460,7 @@ class TestRetriever:
     async def test_get_place_coordinates_should_return(
         self,
         expected: Point | None,
-        fetch_json: dict[str, Any],
+        fetch_json: Mapping[str, Any],
         mocker: MockerFixture,
         binary_file_cache: BinaryFileCache,
     ) -> None:
@@ -605,8 +607,8 @@ class TestRetriever:
     async def test_get_image_should_return(
         self,
         expected: Image | None,
-        page_fetch_json: dict[str, Any],
-        file_fetch_json: dict[str, Any] | None,
+        page_fetch_json: Mapping[str, Any],
+        file_fetch_json: Mapping[str, Any] | None,
         mocker: MockerFixture,
         binary_file_cache: BinaryFileCache,
         tmp_path: Path,

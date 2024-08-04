@@ -9,8 +9,6 @@ from contextlib import suppress
 from datetime import datetime
 from typing import Iterator, TypeAlias, Any, TYPE_CHECKING
 
-from betty.locale.date import DateRange, Date
-from betty.model import Entity
 from betty.ancestry import (
     Person,
     Event,
@@ -23,10 +21,13 @@ from betty.ancestry import (
     HasPrivacy,
     Place,
 )
-from betty.ancestry.presence_role import Subject
 from betty.ancestry.event_type import EndOfLifeEventType
+from betty.ancestry.presence_role import Subject
+from betty.locale.date import DateRange, Date
+from betty.model import Entity
 
 if TYPE_CHECKING:
+    from collections.abc import MutableSequence
     from betty.locale.localizer import Localizer
 
 Expirable: TypeAlias = Person | Event | Date | None
@@ -45,7 +46,7 @@ class Privatizer:
     ):
         self._lifetime_threshold = lifetime_threshold
         self._localizer = localizer
-        self._seen: list[HasPrivacy] = []
+        self._seen: MutableSequence[HasPrivacy] = []
 
     def privatize(self, subject: HasPrivacy) -> None:
         """

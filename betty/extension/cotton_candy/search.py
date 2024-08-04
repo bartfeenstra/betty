@@ -4,7 +4,7 @@ Provide Cotton Candy's search functionality.
 
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from betty.ancestry import Person, Place, File
 
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from betty.project import Project
     from betty.locale.localizer import Localizer
     from betty.job import Context
-    from collections.abc import AsyncIterable
+    from collections.abc import AsyncIterable, Mapping
 
 
 class Index:
@@ -31,7 +31,7 @@ class Index:
         self._job_context = job_context
         self._localizer = localizer
 
-    async def build(self) -> AsyncIterable[dict[str, str]]:
+    async def build(self) -> AsyncIterable[Mapping[str, str]]:
         """
         Build the search index.
         """
@@ -42,19 +42,19 @@ class Index:
         async for entry in self._build_files():
             yield entry
 
-    async def _build_people(self) -> AsyncIterable[dict[str, str]]:
+    async def _build_people(self) -> AsyncIterable[Mapping[str, str]]:
         for person in self._project.ancestry[Person]:
             entry = await self._build_person(person)
             if entry is not None:
                 yield entry
 
-    async def _build_places(self) -> AsyncIterable[dict[str, str]]:
+    async def _build_places(self) -> AsyncIterable[Mapping[str, str]]:
         for place in self._project.ancestry[Place]:
             entry = await self._build_place(place)
             if entry is not None:
                 yield entry
 
-    async def _build_files(self) -> AsyncIterable[dict[str, str]]:
+    async def _build_files(self) -> AsyncIterable[Mapping[str, str]]:
         for file in self._project.ancestry[File]:
             entry = await self._build_file(file)
             if entry is not None:
@@ -74,7 +74,7 @@ class Index:
             }
         )
 
-    async def _build_person(self, person: Person) -> dict[Any, Any] | None:
+    async def _build_person(self, person: Person) -> Mapping[str, str] | None:
         if person.private:
             return None
 
@@ -91,7 +91,7 @@ class Index:
             "result": await self._render_entity(person),
         }
 
-    async def _build_place(self, place: Place) -> dict[Any, Any] | None:
+    async def _build_place(self, place: Place) -> Mapping[str, str] | None:
         if place.private:
             return None
 
@@ -100,7 +100,7 @@ class Index:
             "result": await self._render_entity(place),
         }
 
-    async def _build_file(self, file: File) -> dict[Any, Any] | None:
+    async def _build_file(self, file: File) -> Mapping[str, str] | None:
         if file.private:
             return None
 

@@ -49,6 +49,7 @@ from betty.model import (
 from betty.openapi import Specification
 from betty.project import ProjectEvent
 from betty.string import kebab_case_to_lower_camel_case
+from collections.abc import MutableSequence
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -381,7 +382,7 @@ async def _generate_entity_type_list_json(
         "collection": [],
     }
     for entity in project.ancestry[entity_type]:
-        cast(list[str], data["collection"]).append(
+        cast(MutableSequence[str], data["collection"]).append(
             project.url_generator.generate(
                 entity,
                 "application/json",
@@ -444,7 +445,7 @@ async def _generate_sitemap(
     project = job_context.project
     sitemap_template = project.jinja2_environment.get_template("sitemap.xml.j2")
     sitemaps = []
-    sitemap: list[str] = []
+    sitemap: MutableSequence[str] = []
     sitemap_length = 0
     sitemaps.append(sitemap)
     for locale_configuration in project.configuration.locales:

@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
-def _expand_person(generation: int) -> list[tuple[bool, Privacy, Event | None]]:
+def _expand_person(generation: int) -> Sequence[tuple[bool, Privacy, Event | None]]:
     multiplier = abs(generation) + 1 if generation < 0 else 1
     lifetime_threshold_year = (
         datetime.now().year - DEFAULT_LIFETIME_THRESHOLD * multiplier

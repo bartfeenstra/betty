@@ -47,6 +47,7 @@ from betty.test_utils.project.extension import DummyExtension
 from betty.typing import Void
 
 if TYPE_CHECKING:
+    from collections.abc import MutableSequence
     from pytest_mock import MockerFixture
     from betty.machine_name import MachineName
     from pathlib import Path
@@ -1162,7 +1163,7 @@ class TestProjectConfiguration:
 
 
 class _TrackerEvent(Event):
-    def __init__(self, carrier: list[_TrackableExtension]):
+    def __init__(self, carrier: MutableSequence[_TrackableExtension]):
         self.carrier = carrier
 
 
@@ -1313,7 +1314,7 @@ class TestProject:
                 )
             )
             async with sut:
-                carrier: list[_TrackableExtension] = []
+                carrier: MutableSequence[_TrackableExtension] = []
                 await sut.event_dispatcher.dispatch(_TrackerEvent(carrier))
                 assert len(carrier) == 3
                 assert isinstance(carrier[0], _NonConfigurableExtension)
@@ -1336,7 +1337,7 @@ class TestProject:
                 ExtensionConfiguration(_AlsoDependsOnNonConfigurableExtensionExtension)
             )
             async with sut:
-                carrier: list[_TrackableExtension] = []
+                carrier: MutableSequence[_TrackableExtension] = []
                 await sut.event_dispatcher.dispatch(_TrackerEvent(carrier))
                 assert len(carrier) == 3
                 assert isinstance(carrier[0], _NonConfigurableExtension)
@@ -1371,7 +1372,7 @@ class TestProject:
                 ExtensionConfiguration(_ComesBeforeNonConfigurableExtensionExtension)
             )
             async with sut:
-                carrier: list[_TrackableExtension] = []
+                carrier: MutableSequence[_TrackableExtension] = []
                 await sut.event_dispatcher.dispatch(_TrackerEvent(carrier))
                 assert len(carrier) == 2
                 assert isinstance(
@@ -1388,7 +1389,7 @@ class TestProject:
                 ExtensionConfiguration(_ComesBeforeNonConfigurableExtensionExtension)
             )
             async with sut:
-                carrier: list[_TrackableExtension] = []
+                carrier: MutableSequence[_TrackableExtension] = []
                 await sut.event_dispatcher.dispatch(_TrackerEvent(carrier))
                 assert len(carrier) == 1
                 assert isinstance(
@@ -1407,7 +1408,7 @@ class TestProject:
                 ExtensionConfiguration(_NonConfigurableExtension)
             )
             async with sut:
-                carrier: list[_TrackableExtension] = []
+                carrier: MutableSequence[_TrackableExtension] = []
                 await sut.event_dispatcher.dispatch(_TrackerEvent(carrier))
                 assert len(carrier) == 2
                 assert isinstance(carrier[0], _NonConfigurableExtension)
@@ -1424,7 +1425,7 @@ class TestProject:
                 ExtensionConfiguration(_ComesAfterNonConfigurableExtensionExtension)
             )
             async with sut:
-                carrier: list[_TrackableExtension] = []
+                carrier: MutableSequence[_TrackableExtension] = []
                 await sut.event_dispatcher.dispatch(_TrackerEvent(carrier))
                 assert len(carrier) == 1
                 assert isinstance(

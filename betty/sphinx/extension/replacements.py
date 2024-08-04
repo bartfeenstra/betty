@@ -2,10 +2,14 @@
 Provide a Sphinx plugin to apply string replacements to source code.
 """
 
+from collections.abc import MutableSequence
+
 from sphinx.application import Sphinx
 
 
-def render_replacements(app: Sphinx, docname: str, source: list[str]) -> None:
+def render_replacements(
+    app: Sphinx, docname: str, source: MutableSequence[str]
+) -> None:
     """
     Handle Sphinx's source-read event to perform string replacements.
     """

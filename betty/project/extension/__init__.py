@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from collections import defaultdict
+from collections.abc import MutableMapping
 from typing import (
     TypeVar,
     Iterable,
@@ -179,7 +180,7 @@ class ConfigurableExtension(
         pass
 
 
-ExtensionTypeGraph = dict[type[Extension], set[type[Extension]]]
+ExtensionTypeGraph = MutableMapping[type[Extension], set[type[Extension]]]
 
 
 async def build_extension_type_graph(

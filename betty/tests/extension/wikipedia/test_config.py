@@ -3,17 +3,18 @@ from typing import Any, TYPE_CHECKING
 
 import pytest
 
-from betty.extension.wikipedia.config import WikipediaConfiguration
 from betty.assertion.error import AssertionFailed
+from betty.extension.wikipedia.config import WikipediaConfiguration
 from betty.test_utils.assertion.error import raises_error
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from betty.serde.dump import Dump
 
 
 class TestWikipediaConfiguration:
     async def test_load_with_minimal_configuration(self) -> None:
-        dump: dict[str, Any] = {}
+        dump: Mapping[str, Any] = {}
         WikipediaConfiguration().load(dump)
 
     async def test_load_without_dict_should_error(self) -> None:

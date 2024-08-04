@@ -5,9 +5,6 @@ from typing import Any, Iterable, TYPE_CHECKING
 
 import pytest
 
-from betty.fs import ASSETS_DIRECTORY_PATH
-from betty.locale.date import Datey, Date, DateRange
-from betty.media_type import MediaType
 from betty.ancestry import (
     File,
     FileReference,
@@ -15,10 +12,14 @@ from betty.ancestry import (
     PlaceName,
     HasFileReferences,
 )
+from betty.fs import ASSETS_DIRECTORY_PATH
+from betty.locale.date import Datey, Date, DateRange
+from betty.media_type import MediaType
 from betty.test_utils.assets.templates import TemplateTestBase
 from betty.test_utils.model import DummyEntity
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence, MutableMapping
     from betty.locale.localized import Localized
 
 
@@ -110,7 +111,7 @@ class TestFilterFormatDegrees(TemplateTestBase):
 
 class TestFilterUnique(TemplateTestBase):
     async def test(self) -> None:
-        data: list[Any] = [
+        data: Sequence[Any] = [
             999,
             {},
             999,
@@ -327,7 +328,7 @@ class TestFilterSelectDateds(TemplateTestBase):
             ),
         ],
     )
-    async def test(self, expected: str, data: dict[str, Any]) -> None:
+    async def test(self, expected: str, data: MutableMapping[str, Any]) -> None:
         template = '{{ dateds | select_dateds(date=date) | join(", ") }}'
         async with self._render(template_string=template, data=data) as (actual, _):
             assert expected == actual
@@ -438,7 +439,7 @@ class TestFilterSelectLocalizeds(TemplateTestBase):
 
 class TestFilterSortLocalizeds(TemplateTestBase):
     class WithLocalizedNames:
-        def __init__(self, identifier: str, names: list[PlaceName]):
+        def __init__(self, identifier: str, names: Sequence[PlaceName]):
             self.id = identifier
             self.names = names
 

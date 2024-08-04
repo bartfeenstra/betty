@@ -5,6 +5,8 @@ Provide localizable configuration.
 from contextlib import suppress
 from typing import Self, final
 
+from typing_extensions import override
+
 from betty.assertion import assert_len
 from betty.attr import MutableAttr
 from betty.config import Configuration
@@ -16,7 +18,6 @@ from betty.locale.localizable import (
 from betty.locale.localizable.assertion import assert_static_translations
 from betty.serde.dump import VoidableDump, Dump, minimize
 from betty.typing import Void
-from typing_extensions import override
 
 
 @final
@@ -50,7 +51,7 @@ class StaticTranslationsLocalizableConfiguration(
             with suppress(KeyError):
                 return self._translations[UNDETERMINED_LOCALE]
         return minimize(
-            self._translations.copy()  # type: ignore[arg-type]
+            self._translations  # type: ignore[arg-type]
         )
 
 

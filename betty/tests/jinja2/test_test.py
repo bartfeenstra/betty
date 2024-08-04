@@ -3,11 +3,13 @@ from __future__ import annotations
 from typing import Any, TYPE_CHECKING
 
 import pytest
+
 from betty.ancestry import Person, Place, PlaceName
 from betty.ancestry.presence_role import Subject, Attendee, Witness
 from betty.test_utils.assets.templates import TemplateTestBase
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from betty.model import Entity
 
 
@@ -38,7 +40,7 @@ class TestTestEntity(TemplateTestBase):
         ],
     )
     async def test(
-        self, expected: str, entity_type: type[Entity], data: dict[str, Any]
+        self, expected: str, entity_type: type[Entity], data: Mapping[str, Any]
     ) -> None:
         template = f'{{% if data is entity("{entity_type.plugin_id()}") %}}true{{% else %}}false{{% endif %}}'
         async with self._render(
@@ -60,7 +62,7 @@ class TestTestSubjectRole(TemplateTestBase):
             ("false", 9),
         ],
     )
-    async def test(self, expected: str, data: dict[str, Any]) -> None:
+    async def test(self, expected: str, data: Mapping[str, Any]) -> None:
         template = "{% if data is subject_role %}true{% else %}false{% endif %}"
         async with self._render(
             template_string=template,
@@ -81,7 +83,7 @@ class TestTestWitnessRole(TemplateTestBase):
             ("false", 9),
         ],
     )
-    async def test(self, expected: str, data: dict[str, Any]) -> None:
+    async def test(self, expected: str, data: Mapping[str, Any]) -> None:
         template = "{% if data is witness_role %}true{% else %}false{% endif %}"
         async with self._render(
             template_string=template,
