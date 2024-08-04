@@ -98,7 +98,7 @@
                     <ul>
                     {% for link in links %}
                         <li>
-                            <a href="{{ link.url }}"{% if link.locale is not none %} hreflang="{{ link.locale }}"{% endif %}{% if link.relationship is not none %} rel="{{ link.relationship }}"{% endif %}{% if link.media_type is not none %} type="{{ link.media_type }}"{% endif %}>{{ link.label or link.url }}</a>
+                            <a href="{{ link.url }}"{% if link.locale is not none %} hreflang="{{ link.locale }}"{% endif %}{% if link.relationship is not none %} rel="{{ link.relationship }}"{% endif %}{% if link.media_type is not none %} type="{{ link.media_type }}"{% endif %}>{{ link.label | localize or link.url }}</a>
                             {% if link.description %}
                                 <div class="meta">{{ link.description | localize }}</div>
                             {% endif %}

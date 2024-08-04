@@ -373,7 +373,7 @@ class _Populator:
                     summary_links.append((page_language, page_name))
 
             summary = None
-            if link.label is None:
+            if not link.label:
                 with suppress(FetchError):
                     summary = await self._retriever.get_summary(
                         page_language, page_name
@@ -438,7 +438,7 @@ class _Populator:
                 link.description = (
                     await self._project.app.localizers.get_negotiated(link.locale)
                 )._("Read more on Wikipedia.")
-        if summary is not None and link.label is None:
+        if summary is not None and not link.label:
             link.label = summary.title
 
     async def _populate_place(self, place: Place) -> None:

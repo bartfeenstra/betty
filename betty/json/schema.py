@@ -4,13 +4,17 @@ Provide JSON utilities.
 
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING, cast
+from collections.abc import MutableSequence
+from json import loads
+from pathlib import Path
+from typing import Any, TYPE_CHECKING, final, Self, cast
 
+import aiofiles
 from jsonschema.validators import Draft202012Validator
 from referencing import Resource, Registry
 
-from betty.serde.dump import DumpMapping, Dump, dump_default
-from betty.string import upper_camel_case_to_lower_camel_case
+from betty.serde.dump import DumpMapping, Dump
+from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -18,66 +22,129 @@ if TYPE_CHECKING:
 
 class Schema:
     """
-    Build JSON Schemas for a Betty application.
+    A JSON Schema.
     """
 
-    def __init__(self, project: Project):
-        self._project = project
+    def __init__(
+        self, *, name: str | None = None, schema: DumpMapping[Dump] | None = None
+    ):
+        self._name = name
+        self.__schema = schema or {}
+        self.__schema["$schema"] = "https://json-schema.org/draft/2020-12/schema"
 
-    async def build(self) -> DumpMapping[Dump]:
+    @property
+    def schema(self) -> DumpMapping[Dump]:
         """
-        Build the JSON Schema.
+        The raw JSON Schema.
+        """
+        return self.__schema
+
+    @property
+    def definitions(self) -> DumpMapping[Dump]:
+        """
+        The JSON Schema's definitions, kept separately, so they can be merged when this schema is embedded.
+
+        Only top-level definitions are supported. You **MUST NOT** nest definitions. Instead, prefix or suffix
+        their names.
+        """
+        return cast(DumpMapping[Dump], self.schema.setdefault("definitions", {}))
+
+    def embed(self, into: Schema) -> Dump:
+        """
+        Embed this schema.
+        """
+        for name, schema in self.definitions.items():
+            into.definitions[name] = schema
+        schema = {
+            child_name: child_schema
+            for child_name, child_schema in self.schema.items()
+            if child_name != "definitions"
+        }
+        if self._name is None:
+            return schema
+        into.definitions[self._name] = schema
+        return Ref(self._name).embed(into)
+
+    def validate(self, data: Any) -> None:
+        """
+        Validate data against this schema.
+        """
+        schema = Resource.from_contents(self.schema)
+        schema_registry = schema @ Registry()  # type: ignore[operator, var-annotated]
+        validator = Draft202012Validator(
+            self.schema,
+            registry=schema_registry,
+        )
+        validator.validate(data)
+
+
+class ArraySchema(Schema):
+    """
+    A JSON Schema array.
+    """
+
+    def __init__(self, items_schema: Schema, *, name: str | None = None):
+        super().__init__(name=name)
+        self.schema["type"] = "array"
+        self.schema["items"] = items_schema.embed(self)
+
+
+class Ref(Schema):
+    """
+    A JSON Schema that references a definition.
+    """
+
+    def __init__(self, definition_name: str):
+        super().__init__(schema={"$ref": f"#/definitions/{definition_name}"})
+
+
+@final
+class ProjectSchema(Schema):
+    """
+    A JSON Schema for a project.
+    """
+
+    @classmethod
+    async def new(cls, project: Project) -> Self:
+        """
+        Create a new schema for the given project.
         """
         from betty import model
 
-        schema: DumpMapping[Dump] = {
-            "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "$id": self._project.static_url_generator.generate(
-                "schema.json", absolute=True
-            ),
-        }
-
-        definitions = dump_default(schema, "definitions", dict)
-        entity_definitions = dump_default(definitions, "entity", dict)
-        response_definitions = dump_default(definitions, "response", dict)
+        schema = cls()
+        schema.schema["$id"] = project.static_url_generator.generate(
+            "schema.json", absolute=True
+        )
 
         # Add entity schemas.
         async for entity_type in model.ENTITY_TYPE_REPOSITORY:
-            entity_type_schema_name = upper_camel_case_to_lower_camel_case(
-                entity_type.plugin_id()
-            )
-            entity_type_schema = await entity_type.linked_data_schema(self._project)
-            entity_type_schema_definitions = cast(
-                DumpMapping[Dump], entity_type_schema.pop("definitions", {})
-            )
-            for (
-                definition_name,
-                definition_schema,
-            ) in entity_type_schema_definitions.items():
-                if definition_name not in definitions:
-                    definitions[definition_name] = definition_schema
-            entity_definitions[entity_type_schema_name] = entity_type_schema
-            entity_definitions[f"{entity_type_schema_name}Collection"] = {
+            entity_type_schema = await entity_type.linked_data_schema(project)
+            entity_type_schema.embed(schema)
+            schema.definitions[
+                f"{kebab_case_to_lower_camel_case(entity_type.plugin_id())}Collection"
+            ] = {
                 "type": "array",
                 "items": {
                     "type": "string",
                     "format": "uri",
                 },
             }
-            response_definitions[f"{entity_type_schema_name}Collection"] = {
+            schema.definitions[
+                f"{kebab_case_to_lower_camel_case(entity_type.plugin_id())}CollectionResponse"
+            ] = {
                 "type": "object",
                 "properties": {
                     "collection": {
-                        "$ref": f"#/definitions/entity/{entity_type_schema_name}Collection",
+                        "$ref": f"#/definitions/{kebab_case_to_lower_camel_case(entity_type.plugin_id())}Collection",
                     },
                 },
             }
 
         # Add the HTTP error response.
-        response_definitions["error"] = {
+        schema.definitions["errorResponse"] = {
             "type": "object",
             "properties": {
-                "$schema": ref_json_schema(schema),
+                "$schema": JsonSchemaReference().embed(schema),
                 "message": {
                     "type": "string",
                 },
@@ -91,63 +158,73 @@ class Schema:
 
         return schema
 
-    async def validate(self, data: Any) -> None:
-        """
-        Validate JSON against the Betty JSON schema.
-        """
-        schema = Resource.from_contents(await self.build())
-        schema_registry = schema @ Registry()  # type: ignore[operator, var-annotated]
-        validator = Draft202012Validator(
-            {
-                "$ref": data["$schema"],
-            },
-            registry=schema_registry,
-        )
-        validator.validate(data)
-
 
 def add_property(
-    schema: DumpMapping[Dump],
+    into: Schema,
     property_name: str,
-    property_schema: DumpMapping[Dump],
+    property_schema: Schema,
     property_required: bool = True,
 ) -> None:
     """
     Add a property to an object schema.
     """
-    schema_properties = dump_default(schema, "properties", dict)
-    schema_properties[property_name] = property_schema
+    schema_properties = cast(
+        DumpMapping[Dump], into.schema.setdefault("properties", {})
+    )
+    schema_properties[property_name] = property_schema.embed(into)
     if property_required:
-        schema_required = dump_default(schema, "required", list)
+        schema_required = cast(
+            MutableSequence[str], into.schema.setdefault("required", [])
+        )
         schema_required.append(property_name)
 
 
-def ref_locale(root_schema: DumpMapping[Dump]) -> DumpMapping[Dump]:
+class LocaleSchema(Schema):
     """
-    Reference the locale schema.
+    The JSON Schema for locales.
     """
-    definitions = dump_default(root_schema, "definitions", dict)
-    if "locale" not in definitions:
-        definitions["locale"] = {
-            "type": "string",
-            "description": "A BCP 47 locale identifier (https://www.ietf.org/rfc/bcp/bcp47.txt).",
-        }
-    return {
-        "$ref": "#/definitions/locale",
-    }
+
+    def __init__(self):
+        super().__init__(
+            name="locale",
+            schema={
+                "type": "string",
+                "description": "A BCP 47 locale identifier (https://www.ietf.org/rfc/bcp/bcp47.txt).",
+            },
+        )
 
 
-def ref_json_schema(root_schema: DumpMapping[Dump]) -> DumpMapping[Dump]:
+class JsonSchemaReference(Schema):
     """
-    Reference the JSON Schema schema.
+    The JSON Schema schema.
     """
-    definitions = dump_default(root_schema, "definitions", dict)
-    if "schema" not in definitions:
-        definitions["schema"] = {
-            "type": "string",
-            "format": "uri",
-            "description": "A JSON Schema URI.",
-        }
-    return {
-        "$ref": "#/definitions/schema",
-    }
+
+    def __init__(self):
+        super().__init__(
+            name="jsonSchemaReference",
+            schema={
+                "type": "string",
+                "format": "uri",
+                "description": "A JSON Schema URI.",
+            },
+        )
+
+
+class JsonSchemaSchema(Schema):
+    """
+    The JSON Schema schema.
+    """
+
+    @classmethod
+    async def new(cls) -> Self:
+        """
+        Create a new instance.
+        """
+        async with aiofiles.open(
+            Path(__file__).parent.parent
+            / "test_utils"
+            / "json"
+            / "json-schema-schema.json"
+        ) as f:
+            raw_schema = await f.read()
+        return cls(name="jsonSchema", schema=loads(raw_schema))

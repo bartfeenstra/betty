@@ -15,6 +15,7 @@ exclude_also =
     if TYPE_CHECKING:
     @abstractmethod
     @overload
+    raise NotImplementedError
 omit =
     betty/_package/**
 show_missing = True

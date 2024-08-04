@@ -33,7 +33,7 @@ class TestLoad:
             async with project:
                 await load(project)
 
-            assert link.label is None
+            assert not link.label
             assert not link.description
 
     @pytest.mark.parametrize(
@@ -64,7 +64,7 @@ class TestLoad:
             async with project:
                 await load(project)
 
-            assert link.label is None
+            assert not link.label
             assert not link.description
 
     @pytest.mark.parametrize(
@@ -98,7 +98,7 @@ class TestLoad:
             async with project:
                 await load(project)
 
-            assert link.label == link_page_title
+            assert link.label.localize(DEFAULT_LOCALIZER) == link_page_title
 
     @pytest.mark.parametrize(
         ("link_page_content_type"),
@@ -128,7 +128,7 @@ class TestLoad:
             async with project:
                 await load(project)
 
-            assert link.label is None
+            assert not link.label
 
     @pytest.mark.parametrize(
         ("link_page_content_type", "meta_attr_name", "meta_attr_value"),

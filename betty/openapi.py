@@ -43,7 +43,7 @@ class Specification:
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/betty/response/error",
+                                    "$ref": "#/components/schemas/betty/errorResponse",
                                 },
                             },
                         },
@@ -53,7 +53,7 @@ class Specification:
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/betty/response/error",
+                                    "$ref": "#/components/schemas/betty/errorResponse",
                                 },
                             },
                         },
@@ -63,7 +63,7 @@ class Specification:
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/betty/response/error",
+                                    "$ref": "#/components/schemas/betty/errorResponse",
                                 },
                             },
                         },
@@ -92,6 +92,7 @@ class Specification:
 
         # Add entity operations.
         for entity_type in await model.ENTITY_TYPE_REPOSITORY.select(UserFacingEntity):
+            await entity_type.linked_data_schema(self._project)
             if self._project.configuration.clean_urls:
                 collection_path = f"/{entity_type.plugin_id()}/"
                 single_path = f"/{entity_type.plugin_id()}/{{id}}/"
@@ -110,7 +111,7 @@ class Specification:
                                     "content": {
                                         "application/json": {
                                             "schema": {
-                                                "$ref": f"#/components/schemas/betty/response/{kebab_case_to_lower_camel_case(entity_type.plugin_id())}Collection",
+                                                "$ref": f"#/components/schemas/betty/{kebab_case_to_lower_camel_case(entity_type.plugin_id())}CollectionResponse",
                                             },
                                         },
                                     },
@@ -127,7 +128,7 @@ class Specification:
                                     "content": {
                                         "application/json": {
                                             "schema": {
-                                                "$ref": f"#/components/schemas/betty/entity/{kebab_case_to_lower_camel_case(entity_type.plugin_id())}",
+                                                "$ref": f"#/components/schemas/betty/{kebab_case_to_lower_camel_case(entity_type.plugin_id())}",
                                             },
                                         },
                                     },

@@ -13,7 +13,7 @@ from typing_extensions import override
 
 class EntityTestBase(PluginTestBase[Entity]):
     """
-    A base class for testing :py:class:`betty.plugin.Plugin` implementations.
+    A base class for testing :py:class:`betty.model.Entity` implementations.
     """
 
     async def test_plugin_label_plural(self) -> None:

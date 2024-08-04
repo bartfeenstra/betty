@@ -408,11 +408,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/json/linked_data.py": TestKnownToBeMissing,
     "betty/json/schema.py": {
         "add_property": TestKnownToBeMissing,
-        "ref_json_schema": TestKnownToBeMissing,
-        "ref_locale": TestKnownToBeMissing,
-        "Schema": {
-            "validate": TestKnownToBeMissing,
-        },
     },
     "betty/load.py": {
         # This is an empty class.
@@ -454,9 +449,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
         # This is an empty class.
         "IncompleteDateError": TestKnownToBeMissing,
-        "ref_date": TestKnownToBeMissing,
-        "ref_date_range": TestKnownToBeMissing,
-        "ref_datey": TestKnownToBeMissing,
     },
     "betty/locale/localized.py": {
         "Localized": TestKnownToBeMissing,
@@ -545,9 +537,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/ancestry/__init__.py": {
-        "ref_link": TestKnownToBeMissing,
-        "ref_link_collection": TestKnownToBeMissing,
-        "ref_media_type": TestKnownToBeMissing,
         "resolve_privacy": TestKnownToBeMissing,
         "Citation": {
             "label": TestKnownToBeMissing,
@@ -654,7 +643,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Organizer": TestKnownToBeMissing,
         # This is an interface.
         "PresenceRole": TestKnownToBeMissing,
-        "ref_role": TestKnownToBeMissing,
         # This is static.
         "Speaker": TestKnownToBeMissing,
         # This is static.
@@ -812,6 +800,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "betty/test_utils/config/collections/mapping.py": TestKnownToBeMissing,
         "betty/test_utils/config/collections/sequence.py": TestKnownToBeMissing,
         "betty/test_utils/cache.py": TestKnownToBeMissing,
+        "betty/test_utils/json/linked_data.py": TestKnownToBeMissing,
+        "betty/test_utils/json/schema.py": TestKnownToBeMissing,
         "betty/test_utils/locale.py": TestKnownToBeMissing,
         "betty/test_utils/model/__init__.py": TestKnownToBeMissing,
         "betty/test_utils/model/event_type.py": TestKnownToBeMissing,

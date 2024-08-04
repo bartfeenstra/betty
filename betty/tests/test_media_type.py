@@ -1,8 +1,17 @@
 from __future__ import annotations
 
+from typing import Sequence, TYPE_CHECKING
+
+from typing_extensions import override
+
 import pytest
 
-from betty.media_type import MediaType, InvalidMediaType
+from betty.media_type import MediaType, InvalidMediaType, MediaTypeSchema
+from betty.test_utils.json.schema import SchemaTestBase
+
+if TYPE_CHECKING:
+    from betty.serde.dump import Dump
+    from betty.json.schema import Schema
 
 
 class TestMediaType:
@@ -73,3 +82,20 @@ class TestMediaType:
     async def test_invalid_type_should_raise_error(self, media_type: str) -> None:
         with pytest.raises(InvalidMediaType):
             MediaType(media_type)
+
+
+class TestMediaTypeSchema(SchemaTestBase):
+    @override
+    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
+        return [
+            (
+                MediaTypeSchema(),
+                [
+                    "text/plain",
+                    "multipart/form-data",
+                    "application/vnd.oasis.opendocument.text",
+                    "application/ld+json",
+                    "text/html; charset=UTF-8",
+                ],
+            ),
+        ]

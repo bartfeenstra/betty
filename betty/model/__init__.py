@@ -14,14 +14,19 @@ from typing import (
 )
 from uuid import uuid4
 
+from typing_extensions import override
+
 from betty.classtools import repr_instance
-from betty.json.linked_data import LinkedDataDumpable, add_json_ld
-from betty.json.schema import ref_json_schema
+from betty.json.linked_data import (
+    add_json_ld,
+    LinkedDataDumpable,
+)
+from betty.json.schema import Schema, JsonSchemaReference
 from betty.locale.localizable import _, Localizable
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import PluginRepository, Plugin
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.string import kebab_case_to_lower_camel_case
-from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -124,7 +129,7 @@ class Entity(LinkedDataDumpable, Plugin):
         dump = await super().dump_linked_data(project)
 
         dump["$schema"] = project.static_url_generator.generate(
-            f"schema.json#/definitions/entity/{kebab_case_to_lower_camel_case(self.type.plugin_id())}",
+            f"schema.json#/definitions/{kebab_case_to_lower_camel_case(self.plugin_id())}Entity",
             absolute=True,
         )
 
@@ -139,19 +144,17 @@ class Entity(LinkedDataDumpable, Plugin):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DumpMapping[Dump]:
-        schema = await super().linked_data_schema(project)
-        schema["type"] = "object"
-        schema["properties"] = {
-            "$schema": ref_json_schema(schema),
+    async def linked_data_schema(cls, project: Project) -> Schema:
+        schema = Schema(name=f"{kebab_case_to_lower_camel_case(cls.plugin_id())}Entity")
+        schema.schema["type"] = "object"
+        schema.schema["title"] = cls.plugin_label().localize(DEFAULT_LOCALIZER)
+        schema.schema["properties"] = {
+            "$schema": JsonSchemaReference().embed(schema),
             "id": {
                 "type": "string",
             },
         }
-        schema["required"] = [
-            "$schema",
-        ]
-        schema["additionalProperties"] = False
+        schema.schema["additionalProperties"] = False
         add_json_ld(schema)
         return schema
 

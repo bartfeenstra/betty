@@ -1,8 +1,71 @@
 from __future__ import annotations
 
-import pytest
+from typing import Sequence, TYPE_CHECKING
 
-from betty.locale.date import Date, DateRange, Datey
+import pytest
+from typing_extensions import override
+
+from betty.locale.date import (
+    Date,
+    DateRange,
+    Datey,
+    DateySchema,
+    DateSchema,
+    DateRangeSchema,
+)
+from betty.test_utils.json.schema import SchemaTestBase
+
+if TYPE_CHECKING:
+    from betty.serde.dump import Dump, DumpMapping
+    from betty.json.schema import Schema
+
+
+_DUMMY_DATE_DUMPS: Sequence[DumpMapping[Dump]] = (
+    {},
+    {
+        "year": 1970,
+    },
+    {
+        "month": 1,
+    },
+    {
+        "day": 1,
+    },
+    {
+        "year": 1970,
+        "month": 1,
+    },
+    {
+        "year": 1970,
+        "day": 1,
+    },
+    {
+        "month": 1,
+        "day": 1,
+    },
+    {
+        "year": 1970,
+        "month": 1,
+        "day": 1,
+    },
+    {
+        "year": 1970,
+        "month": 1,
+        "day": 1,
+        "fuzzy": True,
+    },
+)
+
+_DUMMY_DATE_RANGE_DUMPS: Sequence[DumpMapping[Dump]] = tuple(
+    {"start": start, "end": end}
+    for start in _DUMMY_DATE_DUMPS
+    for end in _DUMMY_DATE_DUMPS
+)
+
+_DUMMY_DATEY_DUMPS: Sequence[DumpMapping[Dump]] = (
+    *_DUMMY_DATE_DUMPS,
+    *_DUMMY_DATE_RANGE_DUMPS,
+)
 
 
 class TestDate:
@@ -312,3 +375,21 @@ class TestDateRange:
     )
     async def test___gt__(self, expected: bool, other: Datey) -> None:
         assert expected == (DateRange(Date(1970, 2, 2)) > other)
+
+
+class TestDateSchema(SchemaTestBase):
+    @override
+    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
+        return [(DateSchema(), _DUMMY_DATE_DUMPS)]
+
+
+class TestDateRangeSchema(SchemaTestBase):
+    @override
+    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
+        return [(DateRangeSchema(), _DUMMY_DATE_RANGE_DUMPS)]
+
+
+class TestDateySchema(SchemaTestBase):
+    @override
+    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
+        return [(DateySchema(), _DUMMY_DATEY_DUMPS)]

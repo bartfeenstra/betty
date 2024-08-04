@@ -14,7 +14,7 @@ from betty.extension.nginx import Nginx
 from betty.extension.nginx.config import NginxConfiguration
 from betty.extension.nginx.serve import DockerizedNginxServer
 from betty.functools import Do
-from betty.json.schema import Schema
+from betty.json.schema import ProjectSchema
 from betty.project import (
     ProjectConfiguration,
     ExtensionConfiguration,
@@ -54,8 +54,8 @@ class TestNginx:
         async with App.new_temporary() as app, app, Project.new_temporary(
             app
         ) as project, project:
-            schema = Schema(project)
-            await schema.validate(data)
+            schema = await ProjectSchema.new(project)
+            schema.validate(data)
 
     @pytest.fixture()
     def monolingual_configuration(self, tmp_path: Path) -> ProjectConfiguration:

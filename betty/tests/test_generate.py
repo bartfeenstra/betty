@@ -229,7 +229,7 @@ class TestGenerate:
             async with project:
                 await generate(project)
                 await assert_betty_html(project, "/file/index.html")
-                await assert_betty_json(project, "/file/index.json", "fileCollection")
+                await assert_betty_json(project, "/file/index.json")
 
     async def test_file(self) -> None:
         async with App.new_temporary() as app, app, Project.new_temporary(
@@ -296,7 +296,7 @@ class TestGenerate:
         ) as project, project:
             await generate(project)
             await assert_betty_html(project, "/event/index.html")
-            await assert_betty_json(project, "/event/index.json", "eventCollection")
+            await assert_betty_json(project, "/event/index.json")
 
     async def test_event(self) -> None:
         async with App.new_temporary() as app, app, Project.new_temporary(
@@ -310,9 +310,7 @@ class TestGenerate:
             async with project:
                 await generate(project)
                 await assert_betty_html(project, f"/event/{event.id}/index.html")
-                await assert_betty_json(
-                    project, f"/event/{event.id}/index.json", "event"
-                )
+                await assert_betty_json(project, f"/event/{event.id}/index.json")
 
     async def test_citation(self) -> None:
         async with App.new_temporary() as app, app, Project.new_temporary(
