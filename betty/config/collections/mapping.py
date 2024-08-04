@@ -13,6 +13,7 @@ from typing import (
     Iterator,
     Self,
     TypeVar,
+    TYPE_CHECKING,
 )
 
 from typing_extensions import override
@@ -22,6 +23,9 @@ from betty.config import Configuration
 from betty.config.collections import ConfigurationCollection, ConfigurationKey
 from betty.serde.dump import Dump, VoidableDump, minimize
 from betty.typing import Void
+
+if TYPE_CHECKING:
+    from collections.abc import MutableMapping
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
@@ -39,7 +43,7 @@ class ConfigurationMapping(
         self,
         configurations: Iterable[_ConfigurationT] | None = None,
     ):
-        self._configurations: dict[_ConfigurationKeyT, _ConfigurationT] = {}
+        self._configurations: MutableMapping[_ConfigurationKeyT, _ConfigurationT] = {}
         super().__init__(configurations)
 
     @override

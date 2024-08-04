@@ -3,6 +3,7 @@ Provide the HTML API, for generating HTML pages.
 """
 
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 
 
 class CssProvider(ABC):
@@ -12,7 +13,7 @@ class CssProvider(ABC):
 
     @property
     @abstractmethod
-    def public_css_paths(self) -> list[str]:
+    def public_css_paths(self) -> Sequence[str]:
         """
         The public URL paths to the CSS files to include in each HTML page.
         """
@@ -26,7 +27,7 @@ class JsProvider(ABC):
 
     @property
     @abstractmethod
-    def public_js_paths(self) -> list[str]:
+    def public_js_paths(self) -> Sequence[str]:
         """
         The public URL paths to the JavaScript files to include in each HTML page.
         """

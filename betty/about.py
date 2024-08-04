@@ -6,9 +6,12 @@ import platform
 import sys
 from importlib.metadata import distributions
 from pathlib import Path
-from typing import Iterator
+from typing import Iterator, TYPE_CHECKING
 
 import aiofiles
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 
 async def version() -> str | None:
@@ -45,7 +48,7 @@ async def is_development() -> bool:
     return await version() is None
 
 
-def _indent_mapping(items: dict[str, str]) -> str:
+def _indent_mapping(items: Mapping[str, str]) -> str:
     max_indentation = max(map(len, items.keys())) + 4
     return "\n".join(
         (

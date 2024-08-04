@@ -18,14 +18,16 @@ from typing import (
     TYPE_CHECKING,
 )
 
+from typing_extensions import override
+
+from betty import model
 from betty.asyncio import wait_to_thread
 from betty.classtools import repr_instance
 from betty.functools import Uniquifier
-from betty import model
 from betty.model import Entity
-from typing_extensions import override
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence, MutableSequence, MutableMapping
     from betty.machine_name import MachineName
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
@@ -49,7 +51,7 @@ class EntityCollection(Generic[_TargetT], ABC):
         pass
 
     @property
-    def view(self) -> list[_TargetT & Entity]:
+    def view(self) -> Sequence[_TargetT & Entity]:
         """
         A view of the entities at the time of calling.
         """
@@ -96,13 +98,13 @@ class EntityCollection(Generic[_TargetT], ABC):
         pass
 
     @overload
-    def __getitem__(self, indices: slice) -> list[_TargetT & Entity]:
+    def __getitem__(self, indices: slice) -> Sequence[_TargetT & Entity]:
         pass
 
     @abstractmethod
     def __getitem__(
         self, key: int | slice
-    ) -> _TargetT & Entity | list[_TargetT & Entity]:
+    ) -> _TargetT & Entity | Sequence[_TargetT & Entity]:
         pass
 
     @abstractmethod
@@ -139,7 +141,7 @@ class SingleTypeEntityCollection(Generic[_TargetT], EntityCollection[_TargetT]):
         target_type: type[_TargetT],
     ):
         super().__init__()
-        self._entities: list[_TargetT & Entity] = []
+        self._entities: MutableSequence[_TargetT & Entity] = []
         self._target_type = target_type
 
     @override  # type: ignore[callable-functiontype]
@@ -180,7 +182,7 @@ class SingleTypeEntityCollection(Generic[_TargetT], EntityCollection[_TargetT]):
         pass
 
     @overload
-    def __getitem__(self, indices: slice) -> list[_TargetT & Entity]:
+    def __getitem__(self, indices: slice) -> Sequence[_TargetT & Entity]:
         pass
 
     @overload
@@ -190,7 +192,7 @@ class SingleTypeEntityCollection(Generic[_TargetT], EntityCollection[_TargetT]):
     @override
     def __getitem__(
         self, key: int | slice | str
-    ) -> _TargetT & Entity | list[_TargetT & Entity]:
+    ) -> _TargetT & Entity | Sequence[_TargetT & Entity]:
         if isinstance(key, int):
             return self._getitem_by_index(key)
         if isinstance(key, slice):
@@ -200,7 +202,7 @@ class SingleTypeEntityCollection(Generic[_TargetT], EntityCollection[_TargetT]):
     def _getitem_by_index(self, index: int) -> _TargetT & Entity:
         return self._entities[index]
 
-    def _getitem_by_indices(self, indices: slice) -> list[_TargetT & Entity]:
+    def _getitem_by_indices(self, indices: slice) -> Sequence[_TargetT & Entity]:
         return self.view[indices]
 
     def _getitem_by_entity_id(self, entity_id: str) -> _TargetT & Entity:
@@ -252,7 +254,9 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
 
     def __init__(self):
         super().__init__()
-        self._collections: dict[type[Entity], SingleTypeEntityCollection[Entity]] = {}
+        self._collections: MutableMapping[
+            type[Entity], SingleTypeEntityCollection[Entity]
+        ] = {}
 
     @override  # type: ignore[callable-functiontype]
     @recursive_repr()
@@ -284,7 +288,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
         pass
 
     @overload
-    def __getitem__(self, indices: slice) -> list[_TargetT & Entity]:
+    def __getitem__(self, indices: slice) -> Sequence[_TargetT & Entity]:
         pass
 
     @overload
@@ -307,7 +311,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
         _TargetT & Entity
         | SingleTypeEntityCollection[Entity]
         | SingleTypeEntityCollection[_EntityT]
-        | list[_TargetT & Entity]
+        | Sequence[_TargetT & Entity]
     ):
         if isinstance(key, int):
             return self._getitem_by_index(key)
@@ -332,7 +336,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
     def _getitem_by_index(self, index: int) -> _TargetT & Entity:
         return self.view[index]
 
-    def _getitem_by_indices(self, indices: slice) -> list[_TargetT & Entity]:
+    def _getitem_by_indices(self, indices: slice) -> Sequence[_TargetT & Entity]:
         return self.view[indices]
 
     @override

@@ -1,6 +1,7 @@
 import io
 import json
 import sys
+from collections.abc import Mapping
 from importlib.metadata import metadata, PackageNotFoundError
 from typing import Iterator, Any
 
@@ -35,7 +36,7 @@ class TestPackageLicenses:
         "The Unlicense (Unlicense)",
     )
 
-    def assert_is_compatible(self, package_license: dict[str, Any]) -> None:
+    def assert_is_compatible(self, package_license: Mapping[str, Any]) -> None:
         for compatible_license in self._GPL_V3_COMPATIBLE_LICENSES:
             if compatible_license in package_license["License"]:
                 return

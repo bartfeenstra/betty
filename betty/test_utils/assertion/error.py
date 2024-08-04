@@ -11,7 +11,7 @@ from betty.assertion.error import AssertionFailed, AssertionFailedGroup
 from betty.locale.localizer import DEFAULT_LOCALIZER
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Sequence
 
 
 @overload
@@ -22,7 +22,7 @@ def assert_error(
     error_type: None = None,
     error_message: None = None,
     error_contexts: None = None,
-) -> list[AssertionFailed]:
+) -> Sequence[AssertionFailed]:
     pass
 
 
@@ -33,8 +33,8 @@ def assert_error(
     error: None = None,
     error_type: type[AssertionFailed] = AssertionFailed,
     error_message: str | None = None,
-    error_contexts: list[str] | None = None,
-) -> list[AssertionFailed]:
+    error_contexts: Sequence[str] | None = None,
+) -> Sequence[AssertionFailed]:
     pass
 
 
@@ -44,12 +44,12 @@ def assert_error(
     error: AssertionFailed | None = None,
     error_type: type[AssertionFailed] | None = AssertionFailed,
     error_message: str | None = None,
-    error_contexts: list[str] | None = None,
-) -> list[AssertionFailed]:
+    error_contexts: Sequence[str] | None = None,
+) -> Sequence[AssertionFailed]:
     """
     Assert that an error group contains an error matching the given parameters.
     """
-    expected_error_contexts: list[str] | None
+    expected_error_contexts: Sequence[str] | None
     actual_errors: Iterable[AssertionFailed]
     if isinstance(actual_error, AssertionFailedGroup):
         actual_errors = [*actual_error]

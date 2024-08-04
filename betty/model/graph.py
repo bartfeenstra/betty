@@ -8,6 +8,7 @@ This module provides utilities to (de)construct these graphs from and to entity 
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import MutableSequence, Mapping, MutableMapping
 from typing import Iterator, TypeAlias
 
 from betty.model import (
@@ -71,14 +72,16 @@ class _EntityGraphBuilder:
         yield from unaliased_entities
 
 
-_EntityGraphBuilderEntities: TypeAlias = dict[
-    type[Entity], dict[str, AliasableEntity[Entity]]
+_EntityGraphBuilderEntities: TypeAlias = Mapping[
+    type[Entity], MutableMapping[str, AliasableEntity[Entity]]
 ]
-_EntityGraphBuilderAssociations: TypeAlias = dict[
+_EntityGraphBuilderAssociations: TypeAlias = Mapping[
     type[Entity],  # The owner entity type.
-    dict[
+    Mapping[
         str,  # The owner attribute name.
-        dict[str, list[AncestryEntityId]],  # The owner ID.  # The associate IDs.
+        Mapping[
+            str, MutableSequence[AncestryEntityId]
+        ],  # The owner ID.  # The associate IDs.
     ],
 ]
 

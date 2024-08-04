@@ -1,13 +1,16 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import pytest
 
+from betty.ancestry import Place, PlaceName
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale.date import DateRange, Date
-from betty.ancestry import Place, PlaceName
 from betty.test_utils.assets.templates import TemplateTestBase
+
+if TYPE_CHECKING:
+    from collections.abc import MutableMapping
 
 
 class Test(TemplateTestBase):
@@ -97,7 +100,7 @@ class Test(TemplateTestBase):
         ],
     )
     async def test(
-        self, expected: str, data: dict[str, Any], locale: str | None
+        self, expected: str, data: MutableMapping[str, Any], locale: str | None
     ) -> None:
         async with self._render(data=data, locale=locale) as (actual, _):
             assert expected == actual

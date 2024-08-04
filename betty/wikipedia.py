@@ -36,6 +36,9 @@ from betty.ancestry import (
     FileReference,
 )
 from geopy import Point
+from collections.abc import (
+    Mapping,
+)
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -43,7 +46,6 @@ if TYPE_CHECKING:
     from collections.abc import (
         Sequence,
         MutableSequence,
-        Mapping,
         MutableMapping,
         Iterator,
     )
@@ -188,7 +190,7 @@ class _Retriever:
         fetcher: Fetcher,
     ):
         self._fetcher = fetcher
-        self._images: dict[str, Image | None] = {}
+        self._images: MutableMapping[str, Image | None] = {}
         self._rate_limiter = RateLimiter(self._WIKIPEDIA_RATE_LIMIT)
 
     @contextmanager
@@ -219,19 +221,19 @@ class _Retriever:
             ) from error
         return data
 
-    async def _get_query_api_data(self, url: str) -> dict[str, Any]:
-        return cast(dict[str, Any], await self._fetch_json(url, "query", "pages", 0))
+    async def _get_query_api_data(self, url: str) -> Mapping[str, Any]:
+        return cast(Mapping[str, Any], await self._fetch_json(url, "query", "pages", 0))
 
     async def _get_page_query_api_data(
         self, page_language: str, page_name: str
-    ) -> dict[str, Any]:
+    ) -> Mapping[str, Any]:
         return await self._get_query_api_data(
             f"https://{page_language}.wikipedia.org/w/api.php?action=query&titles={quote(page_name)}&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
         )
 
     async def get_translations(
         self, page_language: str, page_name: str
-    ) -> dict[str, str]:
+    ) -> Mapping[str, str]:
         try:
             api_data = await self._get_page_query_api_data(page_language, page_name)
         except FetchError as error:

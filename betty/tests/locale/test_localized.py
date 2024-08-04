@@ -1,10 +1,13 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import pytest
 
 from betty.locale.localized import Localized, negotiate_localizeds
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 class TestNegotiateLocalizeds:
@@ -50,7 +53,7 @@ class TestNegotiateLocalizeds:
         self,
         expected: Localized | None,
         preferred_locale: str,
-        localizeds: list[Localized],
+        localizeds: Sequence[Localized],
     ) -> None:
         assert expected == negotiate_localizeds(preferred_locale, localizeds)
 

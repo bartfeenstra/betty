@@ -199,7 +199,7 @@ class TestDate:
 
 
 class TestDateRange:
-    _TEST_IN_PARAMETERS: list[tuple[bool, Datey, Datey]] = [
+    _TEST_IN_PARAMETERS: Sequence[tuple[bool, Datey, Datey]] = [
         (False, Date(1970, 2, 2), DateRange()),
         (False, Date(1970, 2), DateRange()),
         (False, Date(1970), DateRange()),

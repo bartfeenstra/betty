@@ -17,7 +17,7 @@ from logging import (
     LogRecord,
 )
 from sys import stderr
-from typing import final, IO, Any
+from typing import final, IO, Any, TYPE_CHECKING
 
 import click
 from betty import about
@@ -26,6 +26,9 @@ from betty.asyncio import wait_to_thread
 from betty.cli.commands import BettyCommand
 from betty.plugin import PluginNotFound
 from typing_extensions import override, ClassVar
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 @final
@@ -76,7 +79,7 @@ class _BettyCommands(BettyCommand, click.MultiCommand):
             self._bootstrapped = True
 
     @override
-    def list_commands(self, ctx: click.Context) -> list[str]:
+    def list_commands(self, ctx: click.Context) -> Iterable[str]:
         from betty.cli import commands
 
         self._bootstrap()

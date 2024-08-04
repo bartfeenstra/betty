@@ -3,17 +3,18 @@ from typing import Any, TYPE_CHECKING
 
 import pytest
 
-from betty.extension.nginx.config import NginxConfiguration
 from betty.assertion.error import AssertionFailed
+from betty.extension.nginx.config import NginxConfiguration
 from betty.test_utils.assertion.error import raises_error
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from betty.serde.dump import Dump
 
 
 class TestNginxConfiguration:
     async def test_load_with_minimal_configuration(self) -> None:
-        dump: dict[str, Any] = {}
+        dump: Mapping[str, Any] = {}
         NginxConfiguration().load(dump)
 
     async def test_load_without_dict_should_error(self) -> None:

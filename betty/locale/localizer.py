@@ -37,6 +37,7 @@ from betty.locale.date import (
 from polib import pofile
 
 if TYPE_CHECKING:
+    from collections.abc import MutableMapping
     from betty.assets import AssetRepository
     from pathlib import Path
 
@@ -284,7 +285,7 @@ class LocalizerRepository:
 
     def __init__(self, assets: AssetRepository):
         self._assets = assets
-        self._localizers: dict[str, Localizer] = {}
+        self._localizers: MutableMapping[str, Localizer] = {}
         self._locks: Mapping[str, _Lock] = defaultdict(AsynchronizedLock.threading)
         self._locales: set[str] | None = None
 

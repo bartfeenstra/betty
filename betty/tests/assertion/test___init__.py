@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any, TypeVar, Sized
+from typing import Any, TypeVar, Sized, TYPE_CHECKING
 
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
@@ -36,6 +36,9 @@ from betty.error import UserFacingError
 from betty.locale.localizable import static
 from betty.test_utils.assertion.error import raises_error
 from betty.typing import Void
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 _T = TypeVar("_T")
 
@@ -194,7 +197,7 @@ class TestAssertFields:
             assert_fields(RequiredField("hello", assert_str()))({})
 
     async def test_optional_without_key(self) -> None:
-        expected: dict[str, Any] = {}
+        expected: Mapping[str, Any] = {}
         actual = assert_fields(OptionalField("hello", assert_str()))({})
         assert expected == actual
 
@@ -260,7 +263,7 @@ class TestAssertMapping:
 
 class TestAssertRecord:
     async def test_with_optional_fields_without_items(self) -> None:
-        expected: dict[str, Any] = {}
+        expected: Mapping[str, Any] = {}
         actual = assert_record(OptionalField("hello", assert_str()))({})
         assert expected == actual
 

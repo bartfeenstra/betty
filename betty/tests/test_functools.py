@@ -1,4 +1,4 @@
-from collections.abc import Awaitable, Callable, Iterable
+from collections.abc import Awaitable, Callable, Iterable, Sequence
 from typing import Any, TypeVar
 
 import pytest
@@ -25,7 +25,9 @@ class TestSliceToRange:
             ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], slice(0, 99)),
         ],
     )
-    async def test(self, expected_range_items: list[int], ranged_slice: slice) -> None:
+    async def test(
+        self, expected_range_items: Sequence[int], ranged_slice: slice
+    ) -> None:
         iterable = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
         assert expected_range_items == list(slice_to_range(ranged_slice, iterable))
 
@@ -133,7 +135,7 @@ class TestUniquifier:
     )
     async def test(
         self,
-        expected: list[_T],
+        expected: Sequence[_T],
         values: Iterable[Iterable[_T]],
         key: Callable[[_T], Any] | None,
     ) -> None:

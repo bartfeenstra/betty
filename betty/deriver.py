@@ -8,18 +8,20 @@ import logging
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Iterable, cast, final, TYPE_CHECKING
+
 from typing_extensions import override
 
-from betty.locale.date import DateRange, Date
 from betty.ancestry import Person, Presence, Event, Ancestry
-from betty.ancestry.presence_role import Subject
 from betty.ancestry.event_type import (
     DerivableEventType,
     CreatableDerivableEventType,
     EventType,
 )
+from betty.ancestry.presence_role import Subject
+from betty.locale.date import DateRange, Date
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from betty.locale.localizer import Localizer
 
 
@@ -97,7 +99,7 @@ class Deriver:
         self, person: Person, derivable_event_type: type[DerivableEventType]
     ) -> tuple[int, int]:
         # Gather any existing events that could be derived, or create a new derived event if needed.
-        derivable_events: list[tuple[Event, Derivation]] = [
+        derivable_events: Sequence[tuple[Event, Derivation]] = [
             (event, Derivation.UPDATE)
             for event in _get_derivable_events(person, derivable_event_type)
         ]
@@ -231,7 +233,7 @@ class _DateDeriver(ABC):
     @abstractmethod
     def _sort(
         cls, events_dates: Iterable[tuple[Event, Date]]
-    ) -> list[tuple[Event, Date]]:
+    ) -> Sequence[tuple[Event, Date]]:
         pass
 
     @classmethod
@@ -259,7 +261,7 @@ class _ComesBeforeDateDeriver(_DateDeriver):
     @classmethod
     def _sort(
         cls, events_dates: Iterable[tuple[Event, Date]]
-    ) -> list[tuple[Event, Date]]:
+    ) -> Sequence[tuple[Event, Date]]:
         return sorted(events_dates, key=lambda x: x[1])
 
     @override
@@ -288,7 +290,7 @@ class _ComesAfterDateDeriver(_DateDeriver):
     @classmethod
     def _sort(
         cls, events_dates: Iterable[tuple[Event, Date]]
-    ) -> list[tuple[Event, Date]]:
+    ) -> Sequence[tuple[Event, Date]]:
         return sorted(events_dates, key=lambda x: x[1], reverse=True)
 
     @override

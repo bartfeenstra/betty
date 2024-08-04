@@ -13,6 +13,7 @@ from betty.locale.localizable import _, Localizable
 from typing_extensions import override
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence, MutableSequence
     from betty.locale.localizer import Localizer
 
 
@@ -66,10 +67,12 @@ class AssertionFailedGroup(AssertionFailed):
 
     def __init__(
         self,
-        errors: list[AssertionFailed] | None = None,
+        errors: Sequence[AssertionFailed] | None = None,
     ):
         super().__init__(_("The following errors occurred"))
-        self._errors: list[AssertionFailed] = errors or []
+        self._errors: MutableSequence[AssertionFailed] = (
+            [] if errors is None else list(errors)
+        )
 
     def __iter__(self) -> Iterator[AssertionFailed]:
         yield from self._errors

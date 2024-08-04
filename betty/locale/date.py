@@ -20,6 +20,7 @@ from betty.json.schema import add_property, Schema
 from betty.serde.dump import DumpMapping, Dump
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from betty.project import Project
 
 
@@ -144,7 +145,7 @@ class Date(LinkedDataDumpable):
 
     @override
     async def dump_linked_data(
-        self, project: Project, schemas_org: list[str] | None = None
+        self, project: Project, schemas_org: Sequence[str] | None = None
     ) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         if self.year:

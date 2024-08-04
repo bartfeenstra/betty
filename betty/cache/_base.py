@@ -46,7 +46,7 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
         scopes: Sequence[str] | None = None,
     ):
         self._scopes = scopes or ()
-        self._scoped_caches: dict[str, Self] = {}
+        self._scoped_caches: MutableMapping[str, Self] = {}
         self._locks: MutableMapping[str, _Lock] = defaultdict(
             AsynchronizedLock.threading
         )

@@ -172,7 +172,7 @@ class Webpack(Extension, CssProvider, Jinja2Provider):
 
     @override
     @property
-    def public_css_paths(self) -> list[str]:
+    def public_css_paths(self) -> Sequence[str]:
         return [
             self._project.static_url_generator.generate("css/vendor.css"),
         ]

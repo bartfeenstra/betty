@@ -32,6 +32,9 @@ from betty.locale.date import Date
 from betty.render import Renderer
 from betty.serde.dump import Dumpable, DumpMapping, VoidableDump, Dump
 from betty.typing import Void
+from collections.abc import (
+    Mapping,
+)
 
 if TYPE_CHECKING:
     from betty.model import Entity
@@ -39,7 +42,12 @@ if TYPE_CHECKING:
     from betty.project import ProjectConfiguration, Project
     from betty.ancestry import Citation
     from pathlib import Path
-    from collections.abc import MutableMapping, Iterator, Sequence
+    from collections.abc import (
+        MutableMapping,
+        Iterator,
+        Sequence,
+        MutableSequence,
+    )
 
 
 def context_project(context: Context) -> Project:
@@ -74,7 +82,7 @@ class _Citer:
 
     def __init__(self):
         self._lock = Lock()
-        self._cited: list[Citation] = []
+        self._cited: MutableSequence[Citation] = []
 
     def __iter__(self) -> enumerate[Citation]:
         return enumerate(self._cited, 1)
@@ -105,7 +113,7 @@ class _Breadcrumb(Dumpable):
 
 class _Breadcrumbs(Dumpable):
     def __init__(self):
-        self._breadcrumbs: list[_Breadcrumb] = []
+        self._breadcrumbs: MutableSequence[_Breadcrumb] = []
 
     def append(self, label: str, url: str) -> None:
         self._breadcrumbs.append(_Breadcrumb(label, url))
@@ -140,7 +148,9 @@ class EntityContexts:
     """
 
     def __init__(self, *entities: Entity) -> None:
-        self._contexts: dict[type[Entity], Entity | None] = defaultdict(lambda: None)
+        self._contexts: MutableMapping[type[Entity], Entity | None] = defaultdict(
+            lambda: None
+        )
         for entity in entities:
             self._contexts[entity.type] = entity
 
@@ -167,10 +177,10 @@ class EntityContexts:
         return updated_contexts
 
 
-Globals: TypeAlias = dict[str, Any]
-Filters: TypeAlias = dict[str, Callable[..., Any]]
-Tests: TypeAlias = dict[str, Callable[..., bool]]
-ContextVars: TypeAlias = dict[str, Any]
+Globals: TypeAlias = Mapping[str, Any]
+Filters: TypeAlias = Mapping[str, Callable[..., Any]]
+Tests: TypeAlias = Mapping[str, Callable[..., bool]]
+ContextVars: TypeAlias = Mapping[str, Any]
 
 
 class Jinja2Provider:
@@ -390,7 +400,7 @@ class Jinja2Renderer(Renderer):
         localizer: Localizer | None = None,
     ) -> Path:
         destination_file_path = file_path.parent / file_path.stem
-        data: dict[str, Any] = {}
+        data: MutableMapping[str, Any] = {}
         if job_context is not None:
             data["job_context"] = job_context
         if localizer is not None:

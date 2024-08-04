@@ -10,6 +10,7 @@ from collections.abc import (
     AsyncIterable,
     MutableMapping,
     Iterable,
+    MutableSequence,
 )
 from configparser import ConfigParser
 from importlib import import_module
@@ -850,7 +851,7 @@ class CoverageTester:
         self._ignore_src_module_paths = self._get_ignore_src_module_paths()
 
     async def test(self) -> None:
-        errors: MutableMapping[Path, list[str]] = defaultdict(list)
+        errors: MutableMapping[Path, MutableSequence[str]] = defaultdict(list)
 
         for directory_path, _, file_names in walk(str((ROOT_DIRECTORY_PATH / "betty"))):
             for file_name in file_names:

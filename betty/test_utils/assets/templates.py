@@ -19,6 +19,7 @@ from betty.project import Project
 from betty.project.extension import Extension
 
 if TYPE_CHECKING:
+    from collections.abc import MutableMapping
     from betty.locale import Localey
     from jinja2 import Template
 
@@ -51,7 +52,7 @@ class TemplateTestBase:
     async def _render(
         self,
         *,
-        data: dict[str, Any] | None = None,
+        data: MutableMapping[str, Any] | None = None,
         template_file: str | None = None,
         template_string: str | None = None,
         locale: Localey | None = None,

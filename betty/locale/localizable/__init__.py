@@ -5,7 +5,7 @@ The localizable API allows objects to be localized at the point of use.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence, MutableMapping
 from typing import Any, cast, TypeAlias, Self, final, TYPE_CHECKING
 from warnings import warn
 
@@ -14,10 +14,10 @@ from typing_extensions import override
 from betty.attr import MutableAttr
 from betty.classtools import repr_instance
 from betty.json.linked_data import LinkedDataDumpable
+from betty.json.schema import Schema
 from betty.locale import negotiate_locale, to_locale
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizer import Localizer
-from betty.json.schema import Schema
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
@@ -228,7 +228,7 @@ class StaticTranslationsLocalizable(_FormattableLocalizable, LinkedDataDumpable)
     Provide a :py:class:`betty.locale.localizable.Localizable` backed by static translations.
     """
 
-    _translations: dict[str, str]
+    _translations: MutableMapping[str, str]
 
     def __init__(
         self,
@@ -241,7 +241,6 @@ class StaticTranslationsLocalizable(_FormattableLocalizable, LinkedDataDumpable)
         """
         super().__init__()
         self._required = required
-        self._translations: dict[str, str]
         if translations is not None:
             self.replace(translations)
         else:

@@ -1,4 +1,4 @@
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping, Sequence, MutableSequence
 
 from betty.event_dispatcher import (
     EventDispatcher,
@@ -9,7 +9,9 @@ from betty.event_dispatcher import (
 
 
 def _assert_handlers(
-    expected: dict[type[Event], list[list[EventHandler[Event]]]],
+    expected: Mapping[
+        type[Event], MutableSequence[MutableSequence[EventHandler[Event]]]
+    ],
     actual: Mapping[type[Event], Sequence[Sequence[EventHandler[Event]]]],
 ) -> None:
     assert {

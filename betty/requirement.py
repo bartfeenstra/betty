@@ -14,6 +14,7 @@ from betty.locale.localizable import _, Localizable
 from typing_extensions import override
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence, MutableSequence
     from betty.locale.localizer import Localizer
 
 
@@ -95,7 +96,7 @@ class RequirementCollection(Requirement):
 
     def __init__(self, *requirements: Requirement | None):
         super().__init__()
-        self._requirements: list[Requirement] = [
+        self._requirements: Sequence[Requirement] = [
             requirement for requirement in requirements if requirement
         ]
 
@@ -114,7 +115,7 @@ class RequirementCollection(Requirement):
 
     @override
     def reduce(self) -> Requirement | None:
-        reduced_requirements = []
+        reduced_requirements: MutableSequence[Requirement] = []
         for requirement in self._requirements:
             reduced_requirement = requirement.reduce()
             if reduced_requirement:

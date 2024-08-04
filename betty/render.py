@@ -3,13 +3,14 @@ Provide the Render API.
 """
 
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 from pathlib import Path
 from typing import final
 
 from typing_extensions import override
 
-from betty.locale.localizer import Localizer
 from betty.job import Context
+from betty.locale.localizer import Localizer
 
 
 class Renderer(ABC):
@@ -52,7 +53,7 @@ class SequentialRenderer(Renderer):
     Render using a sequence of other renderers.
     """
 
-    def __init__(self, renderers: list[Renderer]):
+    def __init__(self, renderers: Sequence[Renderer]):
         self._renderers = renderers
         self._file_extensions = {
             file_extension
