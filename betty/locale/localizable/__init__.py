@@ -263,14 +263,14 @@ class StaticTranslationsLocalizable(_FormattableLocalizable, LinkedDataDumpable)
         """
         Replace the translations.
         """
-        from betty.assertion import assert_len_min
+        from betty.assertion import assert_len
         from betty.locale.localizable.assertion import assert_static_translations
 
         if isinstance(translations, StaticTranslationsLocalizable):
             self._translations = translations._translations
         else:
             translations = assert_static_translations()(translations)
-            assert_len_min(1 if self._required else 0)(translations)
+            assert_len(minimum=1 if self._required else 0)(translations)
             self._translations = dict(translations)
 
     @property

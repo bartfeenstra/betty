@@ -31,13 +31,13 @@ from betty.assertion import (
     assert_field,
     assert_file_path,
     assert_isinstance,
-    assert_len_min,
+    assert_len,
 )
 from betty.assertion.error import AssertionFailed
 from betty.error import UserFacingError
 from betty.locale.localizable import static
-from betty.typing import Void
 from betty.test_utils.assertion.error import raises_error
+from betty.typing import Void
 
 _T = TypeVar("_T")
 
@@ -367,9 +367,9 @@ class TestAssertIsinstance:
             assert assert_isinstance(MyClass)(object())  # type: ignore[truthy-bool]
 
 
-class TestAssertLenMin:
+class TestAssertLen:
     @pytest.mark.parametrize(
-        ("minimum", "value"),
+        ("exact", "value"),
         [
             (0, ""),
             (3, "abc"),
@@ -379,20 +379,77 @@ class TestAssertLenMin:
             (3, {"a": 1, "b": 2, "c": 3}),
         ],
     )
-    async def test_with_valid_value(self, minimum: int, value: Sized) -> None:
-        assert_len_min(minimum=minimum)(value)
+    async def test_exact_with_valid_value(self, exact: int, value: Sized) -> None:
+        assert_len(exact)(value)
 
     @pytest.mark.parametrize(
-        ("minimum", "value"),
+        ("exact", "value"),
         [
             (1, ""),
+            (4, ""),
             (4, "abc"),
             (1, []),
+            (1, ["a", "b", "c"]),
             (4, ["a", "b", "c"]),
             (1, {}),
+            (1, {"a": 1, "b": 2, "c": 3}),
             (4, {"a": 1, "b": 2, "c": 3}),
         ],
     )
-    async def test_with_invalid_value(self, minimum: int, value: Sized) -> None:
+    async def test_exact_with_invalid_value(self, exact: int, value: Sized) -> None:
         with pytest.raises(AssertionFailed):
-            assert_len_min(minimum=minimum)(value)
+            assert_len(exact)(value)
+
+    @pytest.mark.parametrize(
+        ("minimum", "maximum", "value"),
+        [
+            # Minimums that match the exact length.
+            (0, None, ""),
+            (3, None, "abc"),
+            (0, None, []),
+            (3, None, ["a", "b", "c"]),
+            (0, None, {}),
+            (3, None, {"a": 1, "b": 2, "c": 3}),
+            # Minimums that are significantly below the exact length.
+            (0, None, "abc"),
+            (0, None, ["a", "b", "c"]),
+            (0, None, {"a": 1, "b": 2, "c": 3}),
+            # Maximums that match the exact length.
+            (None, 0, ""),
+            (None, 3, "abc"),
+            (None, 0, []),
+            (None, 3, ["a", "b", "c"]),
+            (None, 0, {}),
+            (None, 3, {"a": 1, "b": 2, "c": 3}),
+            # Maximums that are significantly above the exact length.
+            (None, 9, "abc"),
+            (None, 9, ["a", "b", "c"]),
+            (None, 9, {"a": 1, "b": 2, "c": 3}),
+        ],
+    )
+    async def test_bound_with_valid_value(
+        self, minimum: int | None, maximum: int | None, value: Sized
+    ) -> None:
+        assert_len(minimum=minimum, maximum=maximum)(value)
+
+    @pytest.mark.parametrize(
+        ("minimum", "maximum", "value"),
+        [
+            # Minimums.
+            (1, None, ""),
+            (4, None, "abc"),
+            (1, None, []),
+            (4, None, ["a", "b", "c"]),
+            (1, None, {}),
+            (4, None, {"a": 1, "b": 2, "c": 3}),
+            # Maximums.
+            (None, 2, "abc"),
+            (None, 2, ["a", "b", "c"]),
+            (None, 2, {"a": 1, "b": 2, "c": 3}),
+        ],
+    )
+    async def test_bound_with_invalid_value(
+        self, minimum: int | None, maximum: int | None, value: Sized
+    ) -> None:
+        with pytest.raises(AssertionFailed):
+            assert_len(minimum=minimum, maximum=maximum)(value)

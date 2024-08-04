@@ -523,16 +523,56 @@ def assert_setattr(
 _SizedT = TypeVar("_SizedT", bound=Sized)
 
 
-def assert_len_min(minimum: int = 0) -> AssertionChain[Sized, Sized]:
+@overload
+def assert_len(exact: int) -> AssertionChain[Sized, Sized]:
+    pass
+
+
+@overload
+def assert_len(
+    *, minimum: int | None, maximum: int | None = None
+) -> AssertionChain[Sized, Sized]:
+    pass
+
+
+@overload
+def assert_len(
+    *, minimum: int | None = None, maximum: int | None
+) -> AssertionChain[Sized, Sized]:
+    pass
+
+
+def assert_len(
+    exact: int | None = None, *, minimum: int | None = None, maximum: int | None = None
+) -> AssertionChain[Sized, Sized]:
     """
-    Assert that a value has a minimum length.
+    Assert the length of a value.
+
+    This assertion can be used in two ways:
+    - with an exact required length
+    - with minimum and/or maximum bounds (inclusive)
     """
 
-    def _assert_len_min(value: _SizedT) -> _SizedT:
-        if len(value) < minimum:
+    def _assert_len(value: _SizedT) -> _SizedT:
+        actual = len(value)
+        if exact is not None and actual != exact:
             raise AssertionFailed(
-                _("At least {minimum} items are required.").format(minimum=str(minimum))
+                _("Exactly {expected} items are required, but found {actual}.").format(
+                    expected=str(exact), actual=str(actual)
+                )
+            )
+        if minimum is not None and actual < minimum:
+            raise AssertionFailed(
+                _("At least {expected} items are required, but found {actual}.").format(
+                    expected=str(minimum), actual=str(actual)
+                )
+            )
+        if maximum is not None and actual > maximum:
+            raise AssertionFailed(
+                _("At most {expected} items are allowed, but found {actual}.").format(
+                    expected=str(maximum), actual=str(actual)
+                )
             )
         return value
 
-    return AssertionChain(_assert_len_min)
+    return AssertionChain(_assert_len)

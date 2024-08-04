@@ -5,7 +5,7 @@ Provide localizable configuration.
 from contextlib import suppress
 from typing import Self, final
 
-from betty.assertion import assert_len_min
+from betty.assertion import assert_len
 from betty.attr import MutableAttr
 from betty.config import Configuration
 from betty.locale import UNDETERMINED_LOCALE
@@ -38,7 +38,7 @@ class StaticTranslationsLocalizableConfiguration(
         self._translations.clear()
 
         translations = assert_static_translations()(dump)
-        assert_len_min(self._required)(translations)
+        assert_len(minimum=1 if self._required else 0)(translations)
         for locale, translation in translations.items():
             self[locale] = translation
 
