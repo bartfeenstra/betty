@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-08-01 12:53+0100\n"
+"POT-Creation-Date: 2024-08-04 18:34+0100\n"
 "PO-Revision-Date: 2024-02-08 13:08+0000\n"
 "Last-Translator: Rainer Thieringer <rainerthi@gmail.com>\n"
 "Language: uk\n"
@@ -163,7 +163,10 @@ msgstr "Оголошення шлюбу"
 msgid "Appearances"
 msgstr "Знайдено в"
 
-msgid "At least {minimum} items are required."
+msgid "At least {expected} items are required, but found {actual}."
+msgstr ""
+
+msgid "At most {expected} items are allowed, but found {actual}."
 msgstr ""
 
 msgid "At which URL will your site be published?"
@@ -351,6 +354,9 @@ msgstr ""
 
 msgid "Events"
 msgstr "Події"
+
+msgid "Exactly {expected} items are required, but found {actual}."
+msgstr ""
 
 msgid "Exit the search"
 msgstr "Вийдіть із пошуку"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-08-01 12:53+0100\n"
+"POT-Creation-Date: 2024-08-04 18:34+0100\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -190,8 +190,11 @@ msgstr "Huwelijksaankondiging"
 msgid "Appearances"
 msgstr "Verschijningen"
 
-msgid "At least {minimum} items are required."
-msgstr "Minimaal {minimum} items zijn vereist"
+msgid "At least {expected} items are required, but found {actual}."
+msgstr "Minimaal {expected} items zijn vereist, maar er waren er {actual} gevonden."
+
+msgid "At most {expected} items are allowed, but found {actual}."
+msgstr "Maximaal {expected} items zijn toegestaan, maar er waren er {actual} gevonden."
 
 msgid "At which URL will your site be published?"
 msgstr "Op welke URL wordt je site gepubliceerd?"
@@ -409,6 +412,9 @@ msgstr "Gebeurtenis"
 
 msgid "Events"
 msgstr "Gebeurtenissen"
+
+msgid "Exactly {expected} items are required, but found {actual}."
+msgstr "Precies {expected} items zijn vereist, maar er waren er {actual} gevonden."
 
 msgid "Exit the search"
 msgstr "Stop met zoeken"

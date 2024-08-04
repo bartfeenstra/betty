@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-08-01 12:53+0100\n"
+"POT-Creation-Date: 2024-08-04 18:34+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -135,7 +135,10 @@ msgstr ""
 msgid "Appearances"
 msgstr ""
 
-msgid "At least {minimum} items are required."
+msgid "At least {expected} items are required, but found {actual}."
+msgstr ""
+
+msgid "At most {expected} items are allowed, but found {actual}."
 msgstr ""
 
 msgid "At which URL will your site be published?"
@@ -291,6 +294,9 @@ msgid "Event"
 msgstr ""
 
 msgid "Events"
+msgstr ""
+
+msgid "Exactly {expected} items are required, but found {actual}."
 msgstr ""
 
 msgid "Exit the search"
