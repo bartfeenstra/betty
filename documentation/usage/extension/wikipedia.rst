@@ -1,8 +1,6 @@
 The *Wikipedia* extension
 =======================
-The ``wikipedia`` extension renders summaries of Wikipedia articles. If a entity such as a person or a place contains
-links to Wikipedia articles, templates can use this extension to fetch translated summaries of these articles, and
-render them on the entity's page.
+The ``wikipedia`` extension enriches your ancestry and site with content from Wikipedia.
 
 Enable this extension in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
@@ -59,3 +57,15 @@ All configuration options
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 - ``populate_images`` (optional): A boolean indicating whether to download images from the Wikipedia
   links in the ancestry. Defaults to ``true``.
+
+Links
+-----
+For the extension to know where to look for information, simply add a single link to a human-readable Wikipedia page to that entity's links.
+
+Ancestry enrichment
+-------------------
+The extension will attempt the following for any entity that has a Wikipedia link:
+
+- for places, add coordinates if a place has none already
+- for any entity, add additional links to the translations of the given Wikipedia page 
+- for any entity that has files, add the primary image of the linked Wikipedia page
