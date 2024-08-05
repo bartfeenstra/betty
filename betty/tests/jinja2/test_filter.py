@@ -123,7 +123,7 @@ class TestFilterUnique(TemplateTestBase):
                 "data": data,
             },
         ) as (actual, _):
-            assert "999 == {}", actual
+            assert actual == "999, {}"
 
 
 class TestFilterMap(TemplateTestBase):
@@ -434,7 +434,7 @@ class TestFilterSelectLocalizeds(TemplateTestBase):
             },
             locale="en-US",
         ) as (actual, _):
-            assert "Apple == Apple, Apple, Apple, Apple", actual
+            assert actual == "Apple, Apple, Apple, Apple, Apple"
 
 
 class TestFilterSortLocalizeds(TemplateTestBase):
@@ -491,7 +491,7 @@ class TestFilterSortLocalizeds(TemplateTestBase):
                 "data": data,
             },
         ) as (actual, _):
-            assert "[first == second, third]", actual
+            assert actual == "[first, second, third]"
 
     async def test_with_empty_iterable(self) -> None:
         template = '{{ data | sort_localizeds(localized_attribute="names", sort_attribute="name") }}'
@@ -514,4 +514,4 @@ class TestFilterFormatDatey(TemplateTestBase):
                 "date": date,
             },
         ) as (actual, _):
-            assert "January 1 == 1970", actual
+            assert actual == "January 1, 1970"
