@@ -36,7 +36,7 @@ dependencies = [
     'Pillow ~= 10.4',
     'pyyaml ~= 6.0',
     'referencing ~= 0.35',
-    'sphinx ~= 7.4',
+    'sphinx ~= 8.0',
     'sphinx-design ~= 0.6',
     'typing_extensions ~= 4.12',
 ]
