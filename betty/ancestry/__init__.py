@@ -401,7 +401,7 @@ class Link(HasMediaType, HasLocale, Described, LinkedDataDumpable):
         *,
         relationship: str | None = None,
         label: ShorthandStaticTranslations | None = None,
-        description: str | None = None,
+        description: ShorthandStaticTranslations | None = None,
         media_type: MediaType | None = None,
         locale: str = UNDETERMINED_LOCALE,
     ):
@@ -752,7 +752,7 @@ class File(
         id: str | None = None,  # noqa A002  # noqa A002
         name: str | None = None,
         media_type: MediaType | None = None,
-        description: str | None = None,
+        description: ShorthandStaticTranslations | None = None,
         notes: Iterable[Note] | None = None,
         citations: Iterable[Citation] | None = None,
         privacy: Privacy | None = None,
@@ -1614,7 +1614,7 @@ class Event(
         public: bool | None = None,
         private: bool | None = None,
         place: Place | None = None,
-        description: str | None = None,
+        description: ShorthandStaticTranslations | None = None,
     ):
         super().__init__(
             id,
