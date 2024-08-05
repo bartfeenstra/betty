@@ -475,7 +475,7 @@ class TestRetriever:
         actual = await _Retriever(fetcher).get_place_coordinates(
             page_language, page_name
         )
-        assert expected == actual
+        assert actual == expected
 
     @pytest.mark.parametrize(
         ("expected", "page_fetch_json", "file_fetch_json"),

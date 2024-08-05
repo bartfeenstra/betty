@@ -103,4 +103,4 @@ class Test(TemplateTestBase):
         self, expected: str, data: MutableMapping[str, Any], locale: str | None
     ) -> None:
         async with self._render(data=data, locale=locale) as (actual, _):
-            assert expected == actual
+            assert actual == expected

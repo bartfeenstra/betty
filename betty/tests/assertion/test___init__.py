@@ -199,7 +199,7 @@ class TestAssertFields:
     async def test_optional_without_key(self) -> None:
         expected: Mapping[str, Any] = {}
         actual = assert_fields(OptionalField("hello", assert_str()))({})
-        assert expected == actual
+        assert actual == expected
 
     async def test_required_key_with_key(self) -> None:
         expected = {
@@ -208,7 +208,7 @@ class TestAssertFields:
         actual = assert_fields(RequiredField("hello", assert_str()))(
             {"hello": "World!"}
         )
-        assert expected == actual
+        assert actual == expected
 
     async def test_optional_key_with_key(self) -> None:
         expected = {
@@ -217,7 +217,7 @@ class TestAssertFields:
         actual = assert_fields(OptionalField("hello", assert_str()))(
             {"hello": "World!"}
         )
-        assert expected == actual
+        assert actual == expected
 
 
 class TestAssertField:
@@ -232,17 +232,17 @@ class TestAssertField:
     async def test_optional_without_key(self) -> None:
         expected = Void
         actual = assert_field(OptionalField("hello", assert_str()))({})
-        assert expected == actual
+        assert actual == expected
 
     async def test_required_key_with_key(self) -> None:
         expected = "World!"
         actual = assert_field(RequiredField("hello", assert_str()))({"hello": "World!"})
-        assert expected == actual
+        assert actual == expected
 
     async def test_optional_key_with_key(self) -> None:
         expected = "World!"
         actual = assert_field(OptionalField("hello", assert_str()))({"hello": "World!"})
-        assert expected == actual
+        assert actual == expected
 
 
 class TestAssertMapping:
@@ -265,7 +265,7 @@ class TestAssertRecord:
     async def test_with_optional_fields_without_items(self) -> None:
         expected: Mapping[str, Any] = {}
         actual = assert_record(OptionalField("hello", assert_str()))({})
-        assert expected == actual
+        assert actual == expected
 
     async def test_with_optional_fields_with_items(self) -> None:
         expected = {
@@ -274,7 +274,7 @@ class TestAssertRecord:
         actual = assert_record(
             OptionalField("hello", assert_str().chain(lambda x: x.upper()))
         )({"hello": "World!"})
-        assert expected == actual
+        assert actual == expected
 
     async def test_with_required_fields_without_items(self) -> None:
         with raises_error(error_type=AssertionFailed):
@@ -291,7 +291,7 @@ class TestAssertRecord:
                 "hello": "World!",
             }
         )
-        assert expected == actual
+        assert actual == expected
 
 
 class TestAssertPath:

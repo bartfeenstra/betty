@@ -25,7 +25,7 @@ class Test(TemplateTestBase):
                 "entity": person,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_private(self) -> None:
         person = Person(
@@ -38,7 +38,7 @@ class Test(TemplateTestBase):
                 "entity": person,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_one_alternative_name(self) -> None:
         person = Person(id="P0")
@@ -59,7 +59,7 @@ class Test(TemplateTestBase):
                 "entity": person,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_multiple_alternative_names(self) -> None:
         person = Person(id="P0")
@@ -84,7 +84,7 @@ class Test(TemplateTestBase):
                 "entity": person,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_start_of_life_event(self) -> None:
         person = Person(id="P0")
@@ -102,7 +102,7 @@ class Test(TemplateTestBase):
                 "entity": person,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_end_of_life_event(self) -> None:
         person = Person(id="P0")
@@ -120,7 +120,7 @@ class Test(TemplateTestBase):
                 "entity": person,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_embedded(self) -> None:
         person = Person(id="P0")
@@ -150,4 +150,4 @@ class Test(TemplateTestBase):
                 "embedded": True,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected

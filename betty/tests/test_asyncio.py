@@ -9,4 +9,4 @@ class TestWaitToThread:
             return expected
 
         actual = wait_to_thread(_async())
-        assert expected == actual
+        assert actual == expected

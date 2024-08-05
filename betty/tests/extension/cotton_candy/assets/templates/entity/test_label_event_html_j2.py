@@ -18,7 +18,7 @@ class Test(TemplateTestBase):
                 "entity": event,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_identifiable(self) -> None:
         event = Event(
@@ -31,7 +31,7 @@ class Test(TemplateTestBase):
                 "entity": event,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_embedded_with_identifiable(self) -> None:
         event = Event(
@@ -46,7 +46,7 @@ class Test(TemplateTestBase):
                 "embedded": True,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_description(self) -> None:
         event = Event(
@@ -59,7 +59,7 @@ class Test(TemplateTestBase):
                 "entity": event,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_witnesses(self) -> None:
         event = Event(event_type=Birth())
@@ -70,7 +70,7 @@ class Test(TemplateTestBase):
                 "entity": event,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_person_context_as_subject(self) -> None:
         event = Event(event_type=Birth())
@@ -83,7 +83,7 @@ class Test(TemplateTestBase):
                 "entity_contexts": EntityContexts(person),
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_person_context_and_other_as_subject(self) -> None:
         event = Event(event_type=Marriage())
@@ -98,7 +98,7 @@ class Test(TemplateTestBase):
                 "entity_contexts": EntityContexts(person),
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_subjects(self) -> None:
         event = Event(event_type=Birth())
@@ -110,7 +110,7 @@ class Test(TemplateTestBase):
                 "entity": event,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_without_subjects(self) -> None:
         event = Event(event_type=Birth())
@@ -120,7 +120,7 @@ class Test(TemplateTestBase):
                 "entity": event,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_entity(self) -> None:
         event = Event(event_type=Birth())
@@ -130,4 +130,4 @@ class Test(TemplateTestBase):
                 "entity": event,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected

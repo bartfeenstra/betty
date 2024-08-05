@@ -20,7 +20,7 @@ class Test(TemplateTestBase):
                 "person_name": person_name,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_individual_name(self) -> None:
         person = Person()
@@ -34,7 +34,7 @@ class Test(TemplateTestBase):
                 "person_name": person_name,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_affiliation_name(self) -> None:
         person = Person()
@@ -48,7 +48,7 @@ class Test(TemplateTestBase):
                 "person_name": person_name,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_embedded(self) -> None:
         person = Person()
@@ -67,7 +67,7 @@ class Test(TemplateTestBase):
                 "embedded": True,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_citation(self) -> None:
         person = Person()
@@ -84,4 +84,4 @@ class Test(TemplateTestBase):
                 "person_name": person_name,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected

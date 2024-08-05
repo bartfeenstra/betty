@@ -21,7 +21,7 @@ class Test(TemplateTestBase):
                 "entity": person,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_without_name(self) -> None:
         person = Person(id="P0")
@@ -31,7 +31,7 @@ class Test(TemplateTestBase):
                 "entity": person,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_embedded(self) -> None:
         person = Person(id="P0")
@@ -44,7 +44,7 @@ class Test(TemplateTestBase):
                 "embedded": True,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_person_is_context(self) -> None:
         person = Person(id="P0")
@@ -57,7 +57,7 @@ class Test(TemplateTestBase):
                 "entity_contexts": EntityContexts(person),
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_private(self) -> None:
         person = Person(
@@ -70,7 +70,7 @@ class Test(TemplateTestBase):
                 "entity": person,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_entity(self) -> None:
         person = Person(id="P0")
@@ -85,4 +85,4 @@ class Test(TemplateTestBase):
                 "entity": person,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
