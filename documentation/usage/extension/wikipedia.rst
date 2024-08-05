@@ -60,7 +60,7 @@ All configuration options
 
 Links
 -----
-For the extension to know where to look for it's information, simply add a single link to a human-readable Wikipedia page to that entity's links.
+For the extension to know where to look for information, simply add a single link to a human-readable Wikipedia page to that entity's links.
 
 Ancestry enrichment
 -------------------
