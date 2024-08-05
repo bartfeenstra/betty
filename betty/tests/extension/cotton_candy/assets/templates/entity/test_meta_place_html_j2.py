@@ -1,6 +1,6 @@
+from betty.ancestry import PlaceName, Place, Enclosure
 from betty.extension.cotton_candy import CottonCandy
 from betty.jinja2 import EntityContexts
-from betty.ancestry import PlaceName, Place, Enclosure
 from betty.test_utils.assets.templates import TemplateTestBase
 
 
@@ -36,7 +36,7 @@ class Test(TemplateTestBase):
             names=[PlaceName(name="The All-enclosing Place")],
         )
         Enclosure(encloses=enclosing_place, enclosed_by=all_enclosing_place)
-        expected = '<div class="meta">in <span><a href="/place/P1/index.html"><span>The Enclosing Place</span></a></span>, <span><a href="/place/P2/index.html"><span>The All-enclosing Place</span></a></span></div>'
+        expected = '<div class="meta">in <span><a href="/place/P1/index.html"><span lang="und">The Enclosing Place</span></a></span>, <span><a href="/place/P2/index.html"><span lang="und">The All-enclosing Place</span></a></span></div>'
         async with self._render(
             data={
                 "entity": place,
@@ -59,7 +59,7 @@ class Test(TemplateTestBase):
             names=[PlaceName(name="The All-enclosing Place")],
         )
         Enclosure(encloses=enclosing_place, enclosed_by=all_enclosing_place)
-        expected = '<div class="meta">in <span><a href="/place/P1/index.html"><span>The Enclosing Place</span></a></span></div>'
+        expected = '<div class="meta">in <span><a href="/place/P1/index.html"><span lang="und">The Enclosing Place</span></a></span></div>'
         async with self._render(
             data={
                 "entity": place,
@@ -87,7 +87,7 @@ class Test(TemplateTestBase):
             id="P999",
             names=[PlaceName(name="Far Far Away")],
         )
-        expected = '<div class="meta">in <span><a href="/place/P1/index.html"><span>The Enclosing Place</span></a></span>, <span><a href="/place/P2/index.html"><span>The All-enclosing Place</span></a></span></div>'
+        expected = '<div class="meta">in <span><a href="/place/P1/index.html"><span lang="und">The Enclosing Place</span></a></span>, <span><a href="/place/P2/index.html"><span lang="und">The All-enclosing Place</span></a></span></div>'
         async with self._render(
             data={
                 "entity": place,

@@ -7,12 +7,25 @@ from __future__ import annotations
 import logging
 import re
 from collections import defaultdict
+from collections.abc import (
+    Mapping,
+)
 from contextlib import suppress, contextmanager
 from json import JSONDecodeError
 from pathlib import Path
 from typing import cast, Any, TYPE_CHECKING
 from urllib.parse import quote, urlparse
 
+from geopy import Point
+
+from betty.ancestry import (
+    Link,
+    HasLinks,
+    Place,
+    File,
+    HasFileReferences,
+    FileReference,
+)
 from betty.asyncio import gather
 from betty.concurrent import _Lock, AsynchronizedLock, RateLimiter
 from betty.fetch import FetchError
@@ -22,23 +35,12 @@ from betty.locale import (
     to_locale,
     get_data,
     Localey,
+    UNDETERMINED_LOCALE,
 )
 from betty.locale.error import LocaleError
 from betty.locale.localizable import plain
 from betty.locale.localized import Localized
 from betty.media_type import MediaType
-from betty.ancestry import (
-    Link,
-    HasLinks,
-    Place,
-    File,
-    HasFileReferences,
-    FileReference,
-)
-from geopy import Point
-from collections.abc import (
-    Mapping,
-)
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -75,10 +77,10 @@ class Summary(Localized):
     """
 
     def __init__(self, locale: str, name: str, title: str, content: str):
-        super().__init__(locale=locale)
         self._name = name
         self._title = title
         self._content = content
+        self._locale = locale
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Summary):
@@ -432,7 +434,7 @@ class _Populator:
             link.media_type = MediaType("text/html")
         if link.relationship is None:
             link.relationship = "external"
-        if link.locale is None:
+        if link.locale is UNDETERMINED_LOCALE:
             link.locale = summary_language
         if not link.description:
             # There are valid reasons for links in locales that aren't supported.

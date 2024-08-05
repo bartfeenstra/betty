@@ -13,14 +13,22 @@ from betty.ancestry import (
     HasFileReferences,
 )
 from betty.fs import ASSETS_DIRECTORY_PATH
+from betty.locale import (
+    NO_LINGUISTIC_CONTENT,
+    UNDETERMINED_LOCALE,
+    MULTIPLE_LOCALES,
+    UNCODED_LOCALE,
+    DEFAULT_LOCALE,
+)
 from betty.locale.date import Datey, Date, DateRange
+from betty.locale.localizable import StaticTranslationsLocalizable
+from betty.locale.localized import Localized, LocalizedStr
 from betty.media_type import MediaType
 from betty.test_utils.assets.templates import TemplateTestBase
 from betty.test_utils.model import DummyEntity
 
 if TYPE_CHECKING:
     from collections.abc import Sequence, MutableMapping
-    from betty.locale.localized import Localized
 
 
 class DummyHasFileReferencesEntity(HasFileReferences, DummyEntity):
@@ -408,19 +416,19 @@ class TestFilterSelectLocalizeds(TemplateTestBase):
         data = [
             PlaceName(
                 name="Apple",
-                locale="zxx",
+                locale=NO_LINGUISTIC_CONTENT,
             ),
             PlaceName(
                 name="Apple",
-                locale="und",
+                locale=UNDETERMINED_LOCALE,
             ),
             PlaceName(
                 name="Apple",
-                locale="mul",
+                locale=MULTIPLE_LOCALES,
             ),
             PlaceName(
                 name="Apple",
-                locale="mis",
+                locale=UNCODED_LOCALE,
             ),
             PlaceName(
                 name="Apple",
@@ -515,3 +523,47 @@ class TestFilterFormatDatey(TemplateTestBase):
             },
         ) as (actual, _):
             assert actual == "January 1, 1970"
+
+
+class TestFilterHtmlLang(TemplateTestBase):
+    @pytest.mark.parametrize(
+        ("expected", "localized_locale"),
+        [
+            ("Hallo, wereld!", DEFAULT_LOCALE),
+            ('<span lang="nl">Hallo, wereld!</span>', "nl"),
+        ],
+    )
+    async def test(self, expected: str, localized_locale: str) -> None:
+        template = "{{ localized | html_lang }}"
+        localized = LocalizedStr("Hallo, wereld!", locale=localized_locale)
+        async with self._render(
+            template_string=template,
+            data={
+                "localized": localized,
+            },
+        ) as (actual, _):
+            assert actual == expected
+
+
+class TestFilterLocalizeHtmlLang(TemplateTestBase):
+    @pytest.mark.parametrize(
+        ("expected", "localized_locale"),
+        [
+            ("Hallo, wereld!", DEFAULT_LOCALE),
+            ('<span lang="nl">Hallo, wereld!</span>', "nl"),
+        ],
+    )
+    async def test(self, expected: str, localized_locale: str) -> None:
+        template = "{{ localizable | localize_html_lang }}"
+        localizable = StaticTranslationsLocalizable(
+            {
+                localized_locale: "Hallo, wereld!",
+            }
+        )
+        async with self._render(
+            template_string=template,
+            data={
+                "localizable": localizable,
+            },
+        ) as (actual, _):
+            assert actual == expected

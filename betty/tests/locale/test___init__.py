@@ -4,10 +4,44 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.locale import negotiate_locale, Localey, to_locale
+from betty.locale import (
+    negotiate_locale,
+    Localey,
+    to_locale,
+    merge_locales,
+    NO_LINGUISTIC_CONTENT,
+    SPECIAL_LOCALES,
+    MULTIPLE_LOCALES,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+
+class TestMergeLocales:
+    @pytest.mark.parametrize(
+        ("expected", "locales"),
+        [
+            # No locales.
+            (NO_LINGUISTIC_CONTENT, []),
+            # A single locale which is passed through.
+            ("nl", ["nl"]),
+            ("de-DE", ["de-DE"]),
+            *((locale, [locale]) for locale in SPECIAL_LOCALES),
+            # Multiple locales.
+            (MULTIPLE_LOCALES, ["nl", "de-DE"]),
+            # Multiple locales, including no linguistic content.
+            ("nl", ["nl", NO_LINGUISTIC_CONTENT]),
+            (MULTIPLE_LOCALES, ["nl", "de-DE", NO_LINGUISTIC_CONTENT]),
+            *(
+                (locale, [locale, NO_LINGUISTIC_CONTENT])
+                for locale in SPECIAL_LOCALES
+                if locale is not NO_LINGUISTIC_CONTENT
+            ),
+        ],
+    )
+    def test(self, expected: str, locales: Sequence[str]) -> None:
+        assert merge_locales(*locales) == expected
 
 
 class TestNegotiateLocale:

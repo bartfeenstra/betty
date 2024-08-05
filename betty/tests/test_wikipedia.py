@@ -12,6 +12,7 @@ from multidict import CIMultiDict
 from betty.ancestry import Source, Link, Citation, Place
 from betty.fetch import FetchResponse
 from betty.fetch.static import StaticFetcher
+from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.project import LocaleConfiguration, Project
@@ -701,10 +702,10 @@ class TestPopulator:
         assert expected == link.relationship
 
     @pytest.mark.parametrize(
-        ("expected", "page_language", "locale"),
+        ("expected", "page_language", "original_link_locale"),
         [
             ("nl-NL", "nl", "nl-NL"),
-            ("nl", "nl", None),
+            ("nl", "nl", UNDETERMINED_LOCALE),
             ("nl", "en", "nl"),
         ],
     )
@@ -712,13 +713,13 @@ class TestPopulator:
         self,
         expected: str,
         page_language: str,
-        locale: str | None,
+        original_link_locale: str,
         mocker: MockerFixture,
         new_temporary_app: App,
     ) -> None:
         m_retriever = mocker.patch("betty.wikipedia._Retriever")
         link = Link(f"http://{page_language}.wikipedia.org/wiki/Amsterdam")
-        link.locale = locale
+        link.locale = original_link_locale
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = _Populator(project, m_retriever)
             await sut.populate_link(link, page_language)

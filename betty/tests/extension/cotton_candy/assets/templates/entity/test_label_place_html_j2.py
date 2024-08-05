@@ -21,7 +21,7 @@ class Test(TemplateTestBase):
         ("expected", "data", "locale"),
         [
             (
-                '<span><a href="/place/P0/index.html"><span>The Place</span></a></span>',
+                '<span><a href="/place/P0/index.html"><span lang="und">The Place</span></a></span>',
                 {
                     "entity": Place(
                         id="P0",
@@ -46,7 +46,7 @@ class Test(TemplateTestBase):
                 None,
             ),
             (
-                '<span><a href="/place/P0/index.html"><span lang="nl">De Plaats</span></a></span>',
+                '<span><a href="/place/P0/index.html">De Plaats</a></span>',
                 {
                     "entity": Place(
                         id="P0",
@@ -65,7 +65,7 @@ class Test(TemplateTestBase):
                 "nl",
             ),
             (
-                "<span><span>The Place</span></span>",
+                '<span><span lang="und">The Place</span></span>',
                 {
                     "entity": Place(
                         id="P0",
@@ -76,7 +76,7 @@ class Test(TemplateTestBase):
                 None,
             ),
             (
-                '<span><a href="/place/P0/index.html"><span lang="nl">De Nieuwe Plaats</span></a></span>',
+                '<span><a href="/place/P0/index.html">De Nieuwe Plaats</a></span>',
                 {
                     "entity": Place(
                         id="P0",

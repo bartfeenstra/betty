@@ -8,9 +8,11 @@ from contextlib import contextmanager
 from textwrap import indent
 from typing import Iterator, Self, TYPE_CHECKING
 
+from typing_extensions import override
+
 from betty.error import UserFacingError
 from betty.locale.localizable import _, Localizable
-from typing_extensions import override
+from betty.locale.localized import LocalizedStr
 
 if TYPE_CHECKING:
     from collections.abc import Sequence, MutableSequence
@@ -27,13 +29,16 @@ class AssertionFailed(UserFacingError, ValueError):
         self._contexts: tuple[Localizable, ...] = ()
 
     @override
-    def localize(self, localizer: Localizer) -> str:
+    def localize(self, localizer: Localizer) -> LocalizedStr:
         localized_contexts = (context.localize(localizer) for context in self._contexts)
-        return (
-            super().localize(localizer)
-            + "\n"
-            + indent("\n".join(localized_contexts), "- ")
-        ).strip()
+        return LocalizedStr(
+            (
+                super().localize(localizer)
+                + "\n"
+                + indent("\n".join(localized_contexts), "- ")
+            ).strip(),
+            locale=localizer.locale,
+        )
 
     def raised(self, error_type: type[AssertionFailed]) -> bool:
         """
@@ -78,8 +83,11 @@ class AssertionFailedGroup(AssertionFailed):
         yield from self._errors
 
     @override
-    def localize(self, localizer: Localizer) -> str:
-        return "\n\n".join((error.localize(localizer) for error in self._errors))
+    def localize(self, localizer: Localizer) -> LocalizedStr:
+        return LocalizedStr(
+            "\n\n".join((error.localize(localizer) for error in self._errors)),
+            locale=localizer.locale,
+        )
 
     def __len__(self) -> int:
         return len(self._errors)

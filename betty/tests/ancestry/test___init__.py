@@ -39,6 +39,7 @@ from betty.ancestry import (
     LinkCollectionSchema,
     LinkSchema,
     PrivacySchema,
+    HasLocale,
 )
 from betty.ancestry.event_type import Birth, UnknownEventType
 from betty.ancestry.presence_role import Subject
@@ -202,6 +203,35 @@ class TestMergePrivacies:
         assert expected == merge_privacies(*privacies)
 
 
+class DummyHasLocale(HasLocale):
+    pass
+
+
+class TestHasLocale:
+    def test_locale_without___init___locale(self) -> None:
+        sut = DummyHasLocale()
+        assert sut.locale == UNDETERMINED_LOCALE
+
+    def test_locale_with___init___locale(self) -> None:
+        locale = "nl"
+        sut = DummyHasLocale(locale=locale)
+        assert sut.locale == locale
+
+    def test_locale(self) -> None:
+        locale = "nl"
+        sut = DummyHasLocale()
+        sut.locale = locale
+        assert sut.locale == locale
+
+    async def test_dump_linked_data(self) -> None:
+        sut = DummyHasLocale()
+        expected: Mapping[str, Any] = {
+            "locale": UNDETERMINED_LOCALE,
+        }
+        actual = await assert_dumps_linked_data(sut)
+        assert expected == actual
+
+
 class TestDated:
     async def test_date(self) -> None:
         class _Dated(Dated):
@@ -248,6 +278,7 @@ class TestNote(EntityTestBase):
                     "url": "/note/the_note/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
+                    "locale": "und",
                 },
                 {
                     "url": "/en/note/the_note/index.html",
@@ -282,6 +313,7 @@ class TestNote(EntityTestBase):
                     "url": "/note/the_note/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
+                    "locale": "und",
                 },
             ],
         }
@@ -331,7 +363,7 @@ class TestLink:
     async def test_locale(self) -> None:
         url = "https://example.com"
         sut = Link(url)
-        assert sut.locale is None
+        assert sut.locale is UNDETERMINED_LOCALE
 
     async def test_description(self) -> None:
         url = "https://example.com"
@@ -352,6 +384,7 @@ class TestLink:
         link = Link("https://example.com")
         expected: Mapping[str, Any] = {
             "url": "https://example.com",
+            "locale": "und",
         }
         actual = await assert_dumps_linked_data(link)
         assert expected == actual
@@ -527,6 +560,7 @@ class TestFile(EntityTestBase):
                         "url": "/file/the_file/index.json",
                         "relationship": "canonical",
                         "mediaType": "application/ld+json",
+                        "locale": "und",
                     },
                     {
                         "url": "/en/file/the_file/index.html",
@@ -587,6 +621,7 @@ class TestFile(EntityTestBase):
                         "url": "/file/the_file/index.json",
                         "relationship": "canonical",
                         "mediaType": "application/ld+json",
+                        "locale": "und",
                     },
                     {
                         "url": "/en/file/the_file/index.html",
@@ -647,6 +682,7 @@ class TestFile(EntityTestBase):
                         "url": "/file/the_file/index.json",
                         "relationship": "canonical",
                         "mediaType": "application/ld+json",
+                        "locale": "und",
                     },
                 ],
             }
@@ -765,6 +801,7 @@ class TestSource(EntityTestBase):
                     "url": "/source/the_source/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
+                    "locale": "und",
                 },
                 {
                     "url": "/en/source/the_source/index.html",
@@ -837,11 +874,13 @@ class TestSource(EntityTestBase):
                 {
                     "url": "https://example.com/the-source",
                     "label": {UNDETERMINED_LOCALE: "The Source Online"},
+                    "locale": "und",
                 },
                 {
                     "url": "/source/the_source/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
+                    "locale": "und",
                 },
                 {
                     "url": "/en/source/the_source/index.html",
@@ -1011,6 +1050,7 @@ class TestCitation(EntityTestBase):
                     "url": "/citation/the_citation/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
+                    "locale": "und",
                 },
                 {
                     "url": "/en/citation/the_citation/index.html",
@@ -1055,6 +1095,7 @@ class TestCitation(EntityTestBase):
                     "url": "/citation/the_citation/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
+                    "locale": "und",
                 },
                 {
                     "url": "/en/citation/the_citation/index.html",
@@ -1100,6 +1141,7 @@ class TestCitation(EntityTestBase):
                     "url": "/citation/the_citation/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
+                    "locale": "und",
                 },
             ],
         }
@@ -1351,6 +1393,7 @@ class TestPlace(EntityTestBase):
             "names": [
                 {
                     "name": name,
+                    "locale": "und",
                 },
             ],
             "enclosedBy": [],
@@ -1362,6 +1405,7 @@ class TestPlace(EntityTestBase):
                     "url": "/place/the_place/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
+                    "locale": "und",
                 },
                 {
                     "url": "/en/place/the_place/index.html",
@@ -1434,11 +1478,13 @@ class TestPlace(EntityTestBase):
                 {
                     "url": "https://example.com/the-place",
                     "label": {UNDETERMINED_LOCALE: "The Place Online"},
+                    "locale": "und",
                 },
                 {
                     "url": "/place/the_place/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
+                    "locale": "und",
                 },
                 {
                     "url": "/en/place/the_place/index.html",
@@ -1606,6 +1652,7 @@ class TestEvent(EntityTestBase):
                     "url": "/event/the_event/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
+                    "locale": "und",
                 },
                 {
                     "url": "/en/event/the_event/index.html",
@@ -1693,6 +1740,7 @@ class TestEvent(EntityTestBase):
                     "url": "/event/the_event/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
+                    "locale": "und",
                 },
                 {
                     "url": "/en/event/the_event/index.html",
@@ -1760,6 +1808,7 @@ class TestEvent(EntityTestBase):
                     "url": "/event/the_event/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
+                    "locale": "und",
                 },
             ],
         }
@@ -1789,7 +1838,7 @@ class TestPersonName(EntityTestBase):
             individual="Janet",
             affiliation="Not a Girl",
         )
-        assert sut.locale is None
+        assert sut.locale is UNDETERMINED_LOCALE
 
     async def test_citations(self) -> None:
         person = Person(id="1")
@@ -1959,6 +2008,7 @@ class TestPerson(EntityTestBase):
                     "url": "/person/the_person/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
+                    "locale": "und",
                 },
                 {
                     "url": "/en/person/the_person/index.html",
@@ -2076,11 +2126,13 @@ class TestPerson(EntityTestBase):
                 {
                     "url": "https://example.com/the-person",
                     "label": {UNDETERMINED_LOCALE: "The Person Online"},
+                    "locale": "und",
                 },
                 {
                     "url": "/person/the_person/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
+                    "locale": "und",
                 },
                 {
                     "url": "/en/person/the_person/index.html",
@@ -2183,6 +2235,7 @@ class TestPerson(EntityTestBase):
                     "url": "/person/the_person/index.json",
                     "relationship": "canonical",
                     "mediaType": "application/ld+json",
+                    "locale": "und",
                 },
             ],
         }

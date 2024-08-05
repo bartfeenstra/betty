@@ -58,7 +58,7 @@ from betty.config.collections.sequence import ConfigurationSequence
 from betty.core import CoreComponent
 from betty.event_dispatcher import EventDispatcher, EventHandlerRegistry
 from betty.hashid import hashid
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizable import _, ShorthandStaticTranslations
 from betty.locale.localizable.config import (
     StaticTranslationsLocalizableConfigurationAttr,
@@ -736,7 +736,7 @@ class LocaleConfigurationSequence(ConfigurationSequence[LocaleConfiguration]):
 
     @override
     def load_item(self, dump: Dump) -> LocaleConfiguration:
-        item = LocaleConfiguration("und")
+        item = LocaleConfiguration(UNDETERMINED_LOCALE)
         item.load(dump)
         return item
 

@@ -20,6 +20,7 @@ import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
 from betty.error import FileNotFound
 from betty.gramps.error import GrampsError
+from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.date import DateRange, Datey, Date
 from betty.locale.localizable import _, plain
 from betty.media_type import MediaType, InvalidMediaType
@@ -672,7 +673,7 @@ class GrampsLoader:
             names.append(
                 PlaceName(
                     name=name,
-                    locale=language,
+                    locale=language or UNDETERMINED_LOCALE,
                     date=date,
                 )
             )

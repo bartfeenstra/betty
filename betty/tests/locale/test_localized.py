@@ -4,48 +4,68 @@ from typing import Any, TYPE_CHECKING
 
 import pytest
 
-from betty.locale.localized import Localized, negotiate_localizeds
+from betty.locale.localized import Localized, negotiate_localizeds, LocalizedStr
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
+class DummyLocalized(Localized):
+    def __init__(self, locale: str):
+        self._locale = locale
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, Localized):
+            return NotImplemented
+        return self.locale == other.locale
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({self.locale})"
+
+
+class TestLocalized:
+    def test_locale(self) -> None:
+        locale = "nl"
+        sut = DummyLocalized(locale)
+        assert sut.locale == locale
+
+
+class TestLocalizedStr:
+    def test_with_locale(self) -> None:
+        string = "Hallo, wereld!"
+        locale = "nl"
+        sut = LocalizedStr(string, locale=locale)
+        assert sut == string
+        assert sut.locale == locale
+
+
 class TestNegotiateLocalizeds:
-    class DummyLocalized(Localized):
-        def __eq__(self, other: Any) -> bool:
-            if not isinstance(other, Localized):
-                return NotImplemented
-            return self.locale == other.locale
-
-        def __repr__(self) -> str:
-            return f"{self.__class__.__name__}({self.locale})"
-
     @pytest.mark.parametrize(
         ("expected", "preferred_locale", "localizeds"),
         [
-            (DummyLocalized(locale="nl"), "nl", [DummyLocalized(locale="nl")]),
-            (DummyLocalized(locale="nl-NL"), "nl", [DummyLocalized(locale="nl-NL")]),
-            (DummyLocalized(locale="nl"), "nl-NL", [DummyLocalized(locale="nl")]),
+            (DummyLocalized("nl"), "nl", [DummyLocalized("nl")]),
+            (DummyLocalized("nl-NL"), "nl", [DummyLocalized("nl-NL")]),
+            (DummyLocalized("nl"), "nl-NL", [DummyLocalized("nl")]),
             (
-                DummyLocalized(locale="nl-NL"),
+                DummyLocalized("nl-NL"),
                 "nl-NL",
                 [
-                    DummyLocalized(locale="nl"),
-                    DummyLocalized(locale="nl-BE"),
-                    DummyLocalized(locale="nl-NL"),
+                    DummyLocalized("nl"),
+                    DummyLocalized("nl-BE"),
+                    DummyLocalized("nl-NL"),
                 ],
             ),
             (
-                DummyLocalized(locale="nl"),
+                DummyLocalized("nl"),
                 "nl",
-                [DummyLocalized(locale="nl"), DummyLocalized(locale="en")],
+                [DummyLocalized("nl"), DummyLocalized("en")],
             ),
             (
-                DummyLocalized(locale="nl"),
+                DummyLocalized("nl"),
                 "nl",
-                [DummyLocalized(locale="en"), DummyLocalized(locale="nl")],
+                [DummyLocalized("en"), DummyLocalized("nl")],
             ),
-            (DummyLocalized(locale="nl-NL"), "nl-BE", [DummyLocalized(locale="nl-NL")]),
+            (DummyLocalized("nl-NL"), "nl-BE", [DummyLocalized("nl-NL")]),
             (None, "nl", []),
         ],
     )
@@ -60,10 +80,10 @@ class TestNegotiateLocalizeds:
     async def test_without_match_should_return_default(self) -> None:
         preferred_locale = "de"
         localizeds = [
-            self.DummyLocalized(locale="nl"),
-            self.DummyLocalized(locale="en"),
-            self.DummyLocalized(locale="uk"),
+            DummyLocalized("nl"),
+            DummyLocalized("en"),
+            DummyLocalized("uk"),
         ]
-        assert self.DummyLocalized(locale="nl") == negotiate_localizeds(
+        assert DummyLocalized("nl") == negotiate_localizeds(
             preferred_locale, localizeds
         )
