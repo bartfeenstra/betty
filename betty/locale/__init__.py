@@ -11,10 +11,35 @@ from babel.core import UnknownLocaleError
 from betty import fs
 from langcodes import Language
 
-DEFAULT_LOCALE = "en-US"
-UNDETERMINED_LOCALE = "und"
-
 _LOCALE_DIRECTORY_PATH = fs.ASSETS_DIRECTORY_PATH / "locale"
+
+NO_LINGUISTIC_CONTENT = "zxx"
+UNDETERMINED_LOCALE = "und"
+UNCODED_LOCALE = "mis"
+MULTIPLE_LOCALES = "mul"
+SPECIAL_LOCALES = (
+    NO_LINGUISTIC_CONTENT,
+    UNDETERMINED_LOCALE,
+    UNCODED_LOCALE,
+    MULTIPLE_LOCALES,
+)
+
+DEFAULT_LOCALE = "en-US"
+
+
+def merge_locales(*locales: str) -> str:
+    """
+    Merge locales into a single locale.
+    """
+    unique_locales = set(locales)
+    if len(unique_locales) == 0:
+        return NO_LINGUISTIC_CONTENT
+    elif len(unique_locales) == 1:
+        return next(iter(unique_locales))
+    # Strip locales without linguistic content.
+    if NO_LINGUISTIC_CONTENT in unique_locales:
+        return merge_locales(*(unique_locales - {NO_LINGUISTIC_CONTENT}))
+    return MULTIPLE_LOCALES
 
 
 def to_babel_identifier(locale: Localey) -> str:

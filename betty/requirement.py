@@ -11,6 +11,7 @@ from typing import cast, Any, TYPE_CHECKING, final
 from betty.asyncio import wait_to_thread
 from betty.error import UserFacingError
 from betty.locale.localizable import _, Localizable
+from betty.locale.localized import LocalizedStr
 from typing_extensions import override
 
 if TYPE_CHECKING:
@@ -52,13 +53,14 @@ class Requirement(Localizable):
         return None
 
     @override
-    def localize(self, localizer: Localizer) -> str:
-        string = wait_to_thread(self.summary()).localize(localizer)
+    def localize(self, localizer: Localizer) -> LocalizedStr:
+        super_localized = wait_to_thread(self.summary()).localize(localizer)
         details = wait_to_thread(self.details())
+        localized: str = super_localized
         if details is not None:
-            string += f'\n{"-" * len(string)}'
-            string += f"\n{details.localize(localizer)}"
-        return string
+            localized += f'\n{"-" * len(localized)}'
+            localized += f"\n{details.localize(localizer)}"
+        return LocalizedStr(localized, locale=super_localized.locale)
 
     def reduce(self) -> Requirement | None:
         """
@@ -107,11 +109,12 @@ class RequirementCollection(Requirement):
         return self._requirements == other._requirements
 
     @override
-    def localize(self, localizer: Localizer) -> str:
-        localized = super().localize(localizer)
+    def localize(self, localizer: Localizer) -> LocalizedStr:
+        super_localized = super().localize(localizer)
+        localized: str = super_localized
         for requirement in self._requirements:
             localized += f'\n-{indent(requirement.localize(localizer), "  ")[1:]}'
-        return localized
+        return LocalizedStr(localized, locale=super_localized.locale)
 
     @override
     def reduce(self) -> Requirement | None:

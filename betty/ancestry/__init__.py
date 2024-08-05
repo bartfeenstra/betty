@@ -7,7 +7,7 @@ from __future__ import annotations
 from contextlib import suppress
 from enum import Enum
 from reprlib import recursive_repr
-from typing import Iterable, Any, TYPE_CHECKING, final
+from typing import Iterable, Any, TYPE_CHECKING, final, cast
 from urllib.parse import quote
 
 from typing_extensions import override
@@ -27,7 +27,9 @@ from betty.json.schema import (
     Schema,
     ArraySchema,
     Ref,
+    LocaleSchema,
 )
+from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.date import Datey, DateySchema
 from betty.locale.localizable import (
     _,
@@ -55,10 +57,10 @@ from betty.model.association import (
 from betty.model.collections import (
     MultipleTypesEntityCollection,
 )
+from betty.serde.dump import DumpMapping, Dump
 from betty.string import camel_case_to_kebab_case
 
 if TYPE_CHECKING:
-    from betty.serde.dump import DumpMapping, Dump
     from betty.machine_name import MachineName
     from betty.image import FocusArea
     from betty.project import Project
@@ -341,8 +343,46 @@ class HasMediaType(LinkedDataDumpable):
         return schema
 
 
+class HasLocale(Localized, LinkedDataDumpable):
+    """
+    A resource that is localized, e.g. contains information in a specific locale.
+    """
+
+    def __init__(
+        self,
+        *args: Any,
+        locale: str = UNDETERMINED_LOCALE,
+        **kwargs: Any,
+    ):
+        super().__init__(*args, **kwargs)
+        self._locale = locale
+
+    @override
+    @property
+    def locale(self) -> str:
+        return self._locale
+
+    @locale.setter
+    def locale(self, locale: str) -> None:
+        self._locale = locale
+
+    @override
+    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+        dump = await super().dump_linked_data(project)
+        dump["locale"] = self.locale
+        return dump
+
+    @override
+    @classmethod
+    async def linked_data_schema(cls, project: Project) -> Schema:
+        schema = await super().linked_data_schema(project)
+        properties = cast(DumpMapping[Dump], schema.schema.setdefault("properties", {}))
+        properties["locale"] = LocaleSchema().embed(schema)
+        return schema
+
+
 @final
-class Link(HasMediaType, Localized, Described, LinkedDataDumpable):
+class Link(HasMediaType, HasLocale, Described, LinkedDataDumpable):
     """
     An external link.
     """
@@ -362,7 +402,7 @@ class Link(HasMediaType, Localized, Described, LinkedDataDumpable):
         label: ShorthandStaticTranslations | None = None,
         description: str | None = None,
         media_type: MediaType | None = None,
-        locale: str | None = None,
+        locale: str = UNDETERMINED_LOCALE,
     ):
         super().__init__(
             media_type=media_type,
@@ -1187,7 +1227,7 @@ class Citation(Dated, HasFileReferences, HasPrivacy, HasLinks, UserFacingEntity)
 
 
 @final
-class PlaceName(Localized, Dated, LinkedDataDumpable):
+class PlaceName(HasLocale, Dated, LinkedDataDumpable):
     """
     A place name.
 
@@ -1198,7 +1238,7 @@ class PlaceName(Localized, Dated, LinkedDataDumpable):
         self,
         name: str,
         *,
-        locale: str | None = None,
+        locale: str = UNDETERMINED_LOCALE,
         date: Datey | None = None,
     ):
         super().__init__(
@@ -1796,7 +1836,7 @@ class _EventPresenceSchema(Schema):
 
 
 @final
-class PersonName(Localized, HasCitations, HasPrivacy, Entity):
+class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
     """
     A name for a :py:class:`betty.ancestry.Person`.
     """
@@ -1819,7 +1859,7 @@ class PersonName(Localized, HasCitations, HasPrivacy, Entity):
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
-        locale: str | None = None,
+        locale: str = UNDETERMINED_LOCALE,
     ):
         if not individual and not affiliation:
             raise ValueError(

@@ -13,6 +13,7 @@ from typing_extensions import override
 
 from betty.assertion.error import AssertionFailed
 from betty.locale.localizable import static, Localizable, _
+from betty.locale.localized import LocalizedStr
 from betty.serde.dump import Dump, VoidableDump
 
 if TYPE_CHECKING:
@@ -176,13 +177,15 @@ class FormatStr(Localizable):
         self._serde_formats = serde_formats
 
     @override
-    def localize(self, localizer: Localizer) -> str:
-        return ", ".join(
-            [
-                f"{extension} ({serde_format.label.localize(localizer)})"
-                for serde_format in self._serde_formats
-                for extension in serde_format.extensions
-            ]
+    def localize(self, localizer: Localizer) -> LocalizedStr:
+        return LocalizedStr(
+            ", ".join(
+                [
+                    f"{extension} ({serde_format.label.localize(localizer)})"
+                    for serde_format in self._serde_formats
+                    for extension in serde_format.extensions
+                ]
+            )
         )
 
 

@@ -451,9 +451,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         # This is an empty class.
         "IncompleteDateError": TestKnownToBeMissing,
     },
-    "betty/locale/localized.py": {
-        "Localized": TestKnownToBeMissing,
-    },
     "betty/locale/localizer.py": {
         "Localizer": TestKnownToBeMissing,
         "LocalizerRepository": {

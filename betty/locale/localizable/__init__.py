@@ -15,7 +15,8 @@ from betty.attr import MutableAttr
 from betty.classtools import repr_instance
 from betty.json.linked_data import LinkedDataDumpable
 from betty.json.schema import Schema
-from betty.locale import negotiate_locale, to_locale
+from betty.locale import negotiate_locale, to_locale, UNDETERMINED_LOCALE
+from betty.locale.localized import LocalizedStr
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizer import Localizer
 
@@ -32,7 +33,7 @@ class Localizable(ABC):
     """
 
     @abstractmethod
-    def localize(self, localizer: Localizer) -> str:
+    def localize(self, localizer: Localizer) -> LocalizedStr:
         """
         Localize ``self`` to a human-readable string.
         """
@@ -60,8 +61,8 @@ class _CallLocalizable(Localizable):
         self._call = call
 
     @override
-    def localize(self, localizer: Localizer) -> str:
-        return self._call(localizer)
+    def localize(self, localizer: Localizer) -> LocalizedStr:
+        return LocalizedStr(self._call(localizer), locale=localizer.locale)
 
 
 def call(call: Callable[[Localizer], str]) -> Localizable:
@@ -81,9 +82,12 @@ class _GettextLocalizable(_FormattableLocalizable):
         self._gettext_args = gettext_args
 
     @override
-    def localize(self, localizer: Localizer) -> str:
-        return cast(
-            str, getattr(localizer, self._gettext_method_name)(*self._gettext_args)
+    def localize(self, localizer: Localizer) -> LocalizedStr:
+        return LocalizedStr(
+            cast(
+                str, getattr(localizer, self._gettext_method_name)(*self._gettext_args)
+            ),
+            locale=localizer.locale,
         )
 
 
@@ -163,20 +167,22 @@ class _FormattedLocalizable(Localizable):
         self._format_kwargs = format_kwargs
 
     @override
-    def localize(self, localizer: Localizer) -> str:
-        return self._localizable.localize(localizer).format(
-            *(
-                format_arg.localize(localizer)
-                if isinstance(format_arg, Localizable)
-                else format_arg
-                for format_arg in self._format_args
-            ),
-            **{
-                format_kwarg_key: format_kwarg.localize(localizer)
-                if isinstance(format_kwarg, Localizable)
-                else format_kwarg
-                for format_kwarg_key, format_kwarg in self._format_kwargs.items()
-            },
+    def localize(self, localizer: Localizer) -> LocalizedStr:
+        return LocalizedStr(
+            self._localizable.localize(localizer).format(
+                *(
+                    format_arg.localize(localizer)
+                    if isinstance(format_arg, Localizable)
+                    else format_arg
+                    for format_arg in self._format_args
+                ),
+                **{
+                    format_kwarg_key: format_kwarg.localize(localizer)
+                    if isinstance(format_kwarg, Localizable)
+                    else format_kwarg
+                    for format_kwarg_key, format_kwarg in self._format_kwargs.items()
+                },
+            )
         )
 
 
@@ -194,12 +200,13 @@ def format(  # noqa A001
 
 
 class _PlainStrLocalizable(Localizable):
-    def __init__(self, string: str):
+    def __init__(self, string: str, locale: str = UNDETERMINED_LOCALE):
         self._string = string
+        self._locale = locale
 
     @override
-    def localize(self, localizer: Localizer) -> str:
-        return self._string
+    def localize(self, localizer: Localizer) -> LocalizedStr:
+        return LocalizedStr(self._string, locale=self._locale)
 
 
 def plain(string: str) -> Localizable:
@@ -280,7 +287,7 @@ class StaticTranslationsLocalizable(_FormattableLocalizable, LinkedDataDumpable)
         return dict(self._translations)
 
     @override
-    def localize(self, localizer: Localizer) -> str:
+    def localize(self, localizer: Localizer) -> LocalizedStr:
         if len(self._translations) > 1:
             available_locales = tuple(self._translations.keys())
             requested_locale = to_locale(
@@ -290,10 +297,13 @@ class StaticTranslationsLocalizable(_FormattableLocalizable, LinkedDataDumpable)
                 )
             )
             if requested_locale:
-                return self._translations[requested_locale]
+                return LocalizedStr(
+                    self._translations[requested_locale], locale=requested_locale
+                )
         elif not self._translations:
-            return ""
-        return next(iter(self._translations.values()))
+            return LocalizedStr("")
+        locale, translation = next(iter(self._translations.items()))
+        return LocalizedStr(translation, locale=locale)
 
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:

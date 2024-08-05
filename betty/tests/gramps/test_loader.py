@@ -7,6 +7,7 @@ import pytest
 from aiofiles.tempfile import TemporaryDirectory
 from betty.app import App
 from betty.gramps.loader import GrampsLoader
+from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.date import Date, DateRange
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
@@ -1024,7 +1025,7 @@ class TestGrampsLoader:
         assert link_minimal.url == link_minimal_url
         assert not link_minimal.description
         assert not link_minimal.label
-        assert link_minimal.locale is None
+        assert link_minimal.locale is UNDETERMINED_LOCALE
         assert link_minimal.media_type is None
         assert link_minimal.relationship is None
         assert link_full.url == link_full_url

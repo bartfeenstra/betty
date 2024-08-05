@@ -5,49 +5,31 @@ Describe localized information.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import Any, Sequence, TYPE_CHECKING, cast
+from typing import Sequence
 
 from typing_extensions import override
 
-from betty.json.linked_data import LinkedDataDumpable
-from betty.json.schema import Schema, LocaleSchema
-from betty.locale import Localey, negotiate_locale, to_locale
-from betty.serde.dump import DumpMapping, Dump
+from betty.locale import (
+    Localey,
+    negotiate_locale,
+    to_locale,
+    UNDETERMINED_LOCALE,
+)
 
-if TYPE_CHECKING:
-    from betty.project import Project
 
-
-class Localized(LinkedDataDumpable):
+class Localized:
     """
     A resource that is localized, e.g. contains information in a specific locale.
     """
 
-    locale: str | None
+    _locale: str
 
-    def __init__(
-        self,
-        *args: Any,
-        locale: str | None = None,
-        **kwargs: Any,
-    ):
-        super().__init__(*args, **kwargs)
-        self.locale = locale
-
-    @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
-        dump = await super().dump_linked_data(project)
-        if self.locale is not None:
-            dump["locale"] = self.locale
-        return dump
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
-        schema = await super().linked_data_schema(project)
-        properties = cast(DumpMapping[Dump], schema.schema.setdefault("properties", {}))
-        properties["locale"] = LocaleSchema().embed(schema)
-        return schema
+    @property
+    def locale(self) -> str:
+        """
+        The locale the data in this instance is in.
+        """
+        return self._locale
 
 
 def negotiate_localizeds(
@@ -58,7 +40,11 @@ def negotiate_localizeds(
     """
     negotiated_locale_data = negotiate_locale(
         preferred_locales,
-        [localized.locale for localized in localizeds if localized.locale is not None],
+        [
+            localized.locale
+            for localized in localizeds
+            if localized.locale is not UNDETERMINED_LOCALE
+        ],
     )
     if negotiated_locale_data is not None:
         negotiated_locale = to_locale(negotiated_locale_data)
@@ -66,8 +52,22 @@ def negotiate_localizeds(
             if localized.locale == negotiated_locale:
                 return localized
     for localized in localizeds:
-        if localized.locale is None:
+        if localized.locale is UNDETERMINED_LOCALE:
             return localized
     with suppress(IndexError):
         return localizeds[0]
     return None
+
+
+class LocalizedStr(Localized, str):
+    """
+    A localized string.
+    """
+
+    __slots__ = "_locale"
+
+    @override
+    def __new__(cls, localized: str, *, locale: str = UNDETERMINED_LOCALE):
+        new = super().__new__(cls, localized)
+        new._locale = locale
+        return new

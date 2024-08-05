@@ -40,8 +40,10 @@ from betty.locale import (
     negotiate_locale,
     Localey,
     get_data,
+    UNDETERMINED_LOCALE,
+    SPECIAL_LOCALES,
 )
-from betty.locale.localized import Localized, negotiate_localizeds
+from betty.locale.localized import Localized, negotiate_localizeds, LocalizedStr
 from betty.ancestry import File, FileReference
 from betty.os import link_or_copy
 from betty.serde.dump import minimize, none_void, void_none
@@ -114,6 +116,43 @@ def filter_localize(
     from betty.jinja2 import context_localizer
 
     return localizable.localize(context_localizer(context))
+
+
+@pass_context
+def filter_localize_html_lang(
+    context: Context,
+    localizable: Localizable,
+) -> str | Markup:
+    """
+    Localize a value using the context's current localizer.
+
+    This optionally adds the necessary HTML that indicates the localized
+    string is of a different locale than the surrounding HTML.
+    """
+    from betty.jinja2 import context_localizer
+
+    localizer = context_localizer(context)
+    localized = localizable.localize(localizer)
+    return filter_html_lang(context, localized)
+
+
+@pass_context
+def filter_html_lang(
+    context: Context,
+    localized: LocalizedStr,
+) -> str | Markup:
+    """
+    Optionally add the necessary HTML to indicate the localized string has a different locale than the surrounding HTML.
+    """
+    from betty.jinja2 import context_localizer
+
+    localizer = context_localizer(context)
+    result: str | Markup = localized
+    if localized.locale != localizer.locale:
+        result = f'<span lang="{localized.locale}">{localized}</span>'
+    if context.eval_ctx.autoescape:
+        result = Markup(result)
+    return result
 
 
 @pass_context
@@ -478,14 +517,11 @@ def filter_select_localizeds(
     for localized in localizeds:
         if include_unspecified and localized.locale in {
             None,
-            "mis",
-            "mul",
-            "und",
-            "zxx",
+            *SPECIAL_LOCALES,
         }:
             yield localized
         if (
-            localized.locale is not None
+            localized.locale is not UNDETERMINED_LOCALE
             and negotiate_locale(context_localizer(context).locale, [localized.locale])
             is not None
         ):
@@ -563,9 +599,11 @@ FILTERS = {
     "format_degrees": filter_format_degrees,
     "hashid": filter_hashid,
     "filter_image_resize_cover": filter_image_resize_cover,
+    "html_lang": filter_html_lang,
     "json": filter_json,
     "locale_get_data": get_data,
     "localize": filter_localize,
+    "localize_html_lang": filter_localize_html_lang,
     "map": filter_map,
     "minimize": minimize,
     "negotiate_dateds": filter_negotiate_dateds,
