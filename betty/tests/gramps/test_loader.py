@@ -5,12 +5,7 @@ from pathlib import Path
 import aiofiles
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
-from betty.app import App
-from betty.gramps.loader import GrampsLoader
-from betty.locale import UNDETERMINED_LOCALE
-from betty.locale.date import Date, DateRange
-from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.media_type import MediaType
+
 from betty.ancestry import (
     Ancestry,
     Citation,
@@ -23,6 +18,12 @@ from betty.ancestry import (
     Privacy,
 )
 from betty.ancestry.event_type import Birth, Death, UnknownEventType
+from betty.app import App
+from betty.gramps.loader import GrampsLoader
+from betty.locale import UNDETERMINED_LOCALE
+from betty.locale.date import Date, DateRange
+from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.media_type import MediaType
 from betty.path import rootname
 from betty.project import Project
 
@@ -96,7 +97,7 @@ class TestGrampsLoader:
         names = place.names
         assert len(names) == 1
         name = names[0]
-        assert name.name == "Amsterdam"
+        assert name.localize(DEFAULT_LOCALIZER) == "Amsterdam"
 
     async def test_place_should_include_note(self) -> None:
         ancestry = await self._load_partial(

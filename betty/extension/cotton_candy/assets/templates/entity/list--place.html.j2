@@ -1,6 +1,11 @@
 {% set place_context = entity_contexts['place'] %}
 {% set featured = featured | default(True) %}
-{% set places = places | default(entities) | select('public') | list | sort_localizeds(localized_attribute='names', sort_attribute='name') | list %}
+{% set places = places | default(entities) | select('public') | list %}
+{% set ns = namespace(places_and_names=[]) %}
+{% for place in places %}
+    {% do ns.places_and_names.append((place, place.label | localize)) %}
+{% endfor %}
+{% set places = ns.places_and_names | sort(attribute=1) | map(attribute=0) | list %}
 <div class="places{% if 'maps' in project.extensions %} with-map{% endif %}">
     {% if 'maps' in project.extensions and places | rejectattr('coordinates', 'none') | list | length > 0 %}
         {% include 'map.html.j2' %}

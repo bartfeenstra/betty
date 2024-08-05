@@ -22,7 +22,7 @@ from betty.locale.localizable import static, Localizable
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.ancestry import (
     Place,
-    PlaceName,
+    Name,
     Person,
     Presence,
     PersonName,
@@ -59,18 +59,13 @@ async def _load_ancestry(event: LoadAncestryEvent) -> None:
     netherlands = Place(
         id="betty-demo-netherlands",
         names=[
-            PlaceName(name="Netherlands"),
-            PlaceName(
-                name="Nederland",
-                locale="nl",
-            ),
-            PlaceName(
-                name="Нідерланди",
-                locale="uk",
-            ),
-            PlaceName(
-                name="Pays-Bas",
-                locale="fr",
+            Name(
+                {
+                    "en": "Netherlands",
+                    "nl": "Nederland",
+                    "uk": "Нідерланди",
+                    "fr": "Pays-Bas",
+                }
             ),
         ],
         links=[Link("https://en.wikipedia.org/wiki/Netherlands")],
@@ -80,18 +75,13 @@ async def _load_ancestry(event: LoadAncestryEvent) -> None:
     north_holland = Place(
         id="betty-demo-north-holland",
         names=[
-            PlaceName(name="North Holland"),
-            PlaceName(
-                name="Noord-Holland",
-                locale="nl",
-            ),
-            PlaceName(
-                name="Північна Голландія",
-                locale="uk",
-            ),
-            PlaceName(
-                name="Hollande-Septentrionale",
-                locale="fr",
+            Name(
+                {
+                    "en": "North Holland",
+                    "nl": "Noord-Holland",
+                    "uk": "Північна Голландія",
+                    "fr": "Hollande-Septentrionale",
+                }
             ),
         ],
         links=[
@@ -111,11 +101,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
     amsterdam = Place(
         id="betty-demo-amsterdam",
         names=[
-            PlaceName(name="Amsterdam"),
-            PlaceName(
-                name="Амстерда́м",
-                locale="uk",
-            ),
+            Name({"nl": "Amsterdam", "uk": "Амстерда́м"}),
         ],
         links=[
             Link("https://nl.wikipedia.org/wiki/Amsterdam"),
@@ -129,10 +115,11 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
     ilpendam = Place(
         id="betty-demo-ilpendam",
         names=[
-            PlaceName(name="Ilpendam"),
-            PlaceName(
-                name="Илпендам",
-                locale="uk",
+            Name(
+                {
+                    "nl": "Ilpendam",
+                    "uk": "Илпендам",
+                }
             ),
         ],
         links=[Link("https://nl.wikipedia.org/wiki/Ilpendam")],

@@ -2,17 +2,21 @@
 Provide localizable assertions.
 """
 
-from typing import Any
+from __future__ import annotations
+
+from typing import Any, TYPE_CHECKING
 
 from betty.assertion import (
+    AssertionChain,
     assert_or,
     assert_str,
     assert_mapping,
     assert_locale,
-    AssertionChain,
 )
 from betty.locale import UNDETERMINED_LOCALE
-from betty.locale.localizable import StaticTranslations
+
+if TYPE_CHECKING:
+    from betty.locale.localizable import StaticTranslations
 
 
 def assert_static_translations() -> AssertionChain[Any, StaticTranslations]:

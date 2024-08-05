@@ -21,5 +21,5 @@ Places inherit from:
     The place's own entity ID.
 ``links`` (iterable of :doc:`Link </usage/ancestry/link>`)
     The external links for this place.
-``names`` (iterable of :doc:`PlaceName </usage/ancestry/place-name>`)
+``names`` (iterable of :doc:`Name </usage/ancestry/name>`)
     The place's names.

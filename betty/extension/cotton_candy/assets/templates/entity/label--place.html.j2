@@ -5,10 +5,7 @@
     {%- if names | length == 0 -%}
         {%- set names = place.names -%}
     {%- endif -%}
-    {%- set name = names | negotiate_localizeds -%}
-    {%- if name is none -%}
-        {%- set name = names | first -%}
-    {%- endif -%}
+    {%- set name = names | first | localize -%}
 
     {%- if not embedded -%}
         <a href="{{ place | url }}">

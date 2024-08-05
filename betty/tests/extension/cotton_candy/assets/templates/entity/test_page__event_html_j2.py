@@ -7,7 +7,7 @@ from betty.ancestry import (
     Event,
     File,
     Place,
-    PlaceName,
+    Name,
     Person,
     Presence,
     Citation,
@@ -42,7 +42,7 @@ class TestTemplate(TemplateTestBase):
         )
         FileReference(event, private_file)
 
-        place_name = PlaceName(name="place name")
+        place_name = Name("place name")
         place = Place(names=[place_name])
         place.events.add(event)
 
@@ -75,7 +75,8 @@ class TestTemplate(TemplateTestBase):
         ) as (actual, _):
             assert public_file.description
             assert public_file.description.localize(DEFAULT_LOCALIZER) in actual
-            assert place_name.name in actual
+            assert place_name
+            assert place_name.localize(DEFAULT_LOCALIZER) in actual
             assert (
                 public_person_for_presence.label.localize(DEFAULT_LOCALIZER) in actual
             )

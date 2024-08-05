@@ -16,7 +16,7 @@ from betty.ancestry import (
     File,
     Note,
     Presence,
-    PlaceName,
+    Name,
     PersonName,
     Enclosure,
     Described,
@@ -400,7 +400,7 @@ class TestLink:
         expected: Mapping[str, Any] = {
             "url": "https://example.com",
             "relationship": "external",
-            "label": {UNDETERMINED_LOCALE: "The Link"},
+            "label": {"translations": {UNDETERMINED_LOCALE: "The Link"}},
             "locale": "nl-NL",
             "mediaType": "text/html",
         }
@@ -873,7 +873,9 @@ class TestSource(EntityTestBase):
             "links": [
                 {
                     "url": "https://example.com/the-source",
-                    "label": {UNDETERMINED_LOCALE: "The Source Online"},
+                    "label": {
+                        "translations": {UNDETERMINED_LOCALE: "The Source Online"}
+                    },
                     "locale": "und",
                 },
                 {
@@ -1158,68 +1160,38 @@ class TestHasCitations:
         assert [citation] == list(sut.citations)
 
 
-class TestPlaceName:
+class TestName:
     @pytest.mark.parametrize(
         ("expected", "a", "b"),
         [
-            (True, PlaceName(name="Ikke"), PlaceName(name="Ikke")),
+            (True, Name("Ikke"), Name("Ikke")),
             (
                 True,
-                PlaceName(name="Ikke", locale="nl-NL"),
-                PlaceName(
-                    name="Ikke",
-                    locale="nl-NL",
-                ),
+                Name({"nl-NL": "Ikke"}),
+                Name({"nl-NL": "Ikke"}),
             ),
             (
                 False,
-                PlaceName(
-                    name="Ikke",
-                    locale="nl-NL",
-                ),
-                PlaceName(
-                    name="Ikke",
-                    locale="nl-BE",
-                ),
+                Name({"nl-NL": "Ikke"}),
+                Name({"nl-BE": "Ikke"}),
             ),
             (
                 False,
-                PlaceName(name="Ikke", locale="nl-NL"),
-                PlaceName(
-                    name="Ik",
-                    locale="nl-NL",
-                ),
+                Name({"nl-NL": "Ikke"}),
+                Name({"nl-NL": "Ik"}),
             ),
-            (False, PlaceName(name="Ikke"), PlaceName(name="Ik")),
-            (False, PlaceName(name="Ikke"), None),
-            (False, PlaceName(name="Ikke"), "not-a-place-name"),
+            (False, Name("Ikke"), Name("Ik")),
+            (False, Name("Ikke"), None),
+            (False, Name("Ikke"), "not-a-place-name"),
         ],
     )
-    async def test___eq__(self, expected: bool, a: PlaceName, b: Any) -> None:
+    async def test___eq__(self, expected: bool, a: Name, b: Any) -> None:
         assert expected == (a == b)
-
-    async def test___str__(self) -> None:
-        name = "Ikke"
-        sut = PlaceName(name=name)
-        assert name == str(sut)
-
-    async def test_name(self) -> None:
-        name = "Ikke"
-        sut = PlaceName(name=name)
-        assert name == sut.name
-
-    async def test_locale(self) -> None:
-        locale = "nl-NL"
-        sut = PlaceName(
-            name="Ikke",
-            locale=locale,
-        )
-        assert locale == sut.locale
 
     async def test_date(self) -> None:
         date = Date()
-        sut = PlaceName(
-            name="Ikke",
+        sut = Name(
+            "Ikke",
             date=date,
         )
         assert date == sut.date
@@ -1269,7 +1241,7 @@ class TestPlace(EntityTestBase):
     async def test_events(self) -> None:
         sut = Place(
             id="P1",
-            names=[PlaceName(name="The Place")],
+            names=[Name("The Place")],
         )
         event = Event(
             id="1",
@@ -1285,12 +1257,12 @@ class TestPlace(EntityTestBase):
     async def test_enclosed_by(self) -> None:
         sut = Place(
             id="P1",
-            names=[PlaceName(name="The Place")],
+            names=[Name("The Place")],
         )
         assert list(sut.enclosed_by) == []
         enclosing_place = Place(
             id="P2",
-            names=[PlaceName(name="The Other Place")],
+            names=[Name("The Other Place")],
         )
         enclosure = Enclosure(encloses=sut, enclosed_by=enclosing_place)
         assert enclosure in sut.enclosed_by
@@ -1302,12 +1274,12 @@ class TestPlace(EntityTestBase):
     async def test_encloses(self) -> None:
         sut = Place(
             id="P1",
-            names=[PlaceName(name="The Place")],
+            names=[Name("The Place")],
         )
         assert list(sut.encloses) == []
         enclosed_place = Place(
             id="P2",
-            names=[PlaceName(name="The Other Place")],
+            names=[Name("The Other Place")],
         )
         enclosure = Enclosure(encloses=enclosed_place, enclosed_by=sut)
         assert enclosure in sut.encloses
@@ -1319,23 +1291,23 @@ class TestPlace(EntityTestBase):
     async def test_walk_encloses_without_encloses(self) -> None:
         sut = Place(
             id="P1",
-            names=[PlaceName(name="The Place")],
+            names=[Name("The Place")],
         )
         assert list(sut.walk_encloses) == []
 
     async def test_walk_encloses_with_encloses(self) -> None:
         sut = Place(
             id="P1",
-            names=[PlaceName(name="The Place")],
+            names=[Name("The Place")],
         )
         encloses_place = Place(
             id="P2",
-            names=[PlaceName(name="The Other Place")],
+            names=[Name("The Other Place")],
         )
         encloses = Enclosure(encloses_place, sut)
         encloses_encloses_place = Place(
             id="P2",
-            names=[PlaceName(name="The Other Other Place")],
+            names=[Name("The Other Other Place")],
         )
         encloses_encloses = Enclosure(encloses_encloses_place, encloses_place)
         assert [encloses, encloses_encloses] == list(sut.walk_encloses)
@@ -1344,19 +1316,19 @@ class TestPlace(EntityTestBase):
         place_id = "C1"
         sut = Place(
             id=place_id,
-            names=[PlaceName(name="one")],
+            names=[Name("one")],
         )
         assert place_id == sut.id
 
     async def test_links(self) -> None:
         sut = Place(
             id="P1",
-            names=[PlaceName(name="The Place")],
+            names=[Name("The Place")],
         )
         assert list(sut.links) == []
 
     async def test_names(self) -> None:
-        name = PlaceName(name="The Place")
+        name = Name("The Place")
         sut = Place(
             id="P1",
             names=[name],
@@ -1364,7 +1336,7 @@ class TestPlace(EntityTestBase):
         assert [name] == list(sut.names)
 
     async def test_coordinates(self) -> None:
-        name = PlaceName(name="The Place")
+        name = Name("The Place")
         sut = Place(
             id="P1",
             names=[name],
@@ -1375,11 +1347,7 @@ class TestPlace(EntityTestBase):
 
     async def test_dump_linked_data_should_dump_minimal(self) -> None:
         place_id = "the_place"
-        name = "The Place"
-        place = Place(
-            id=place_id,
-            names=[PlaceName(name=name)],
-        )
+        place = Place(id=place_id)
         expected: Mapping[str, Any] = {
             "@context": {
                 "names": "https://schema.org/name",
@@ -1390,12 +1358,7 @@ class TestPlace(EntityTestBase):
             "@id": "https://example.com/place/the_place/index.json",
             "@type": "https://schema.org/Place",
             "id": place_id,
-            "names": [
-                {
-                    "name": name,
-                    "locale": "und",
-                },
-            ],
+            "names": [],
             "enclosedBy": [],
             "encloses": [],
             "events": [],
@@ -1436,12 +1399,7 @@ class TestPlace(EntityTestBase):
         link.label = "The Place Online"
         place = Place(
             id=place_id,
-            names=[
-                PlaceName(
-                    name=name,
-                    locale=locale,
-                )
-            ],
+            names=[Name({locale: name}, date=Date(1970, 1, 1))],
             events=[
                 Event(
                     id="E1",
@@ -1466,8 +1424,13 @@ class TestPlace(EntityTestBase):
             "id": place_id,
             "names": [
                 {
-                    "name": name,
-                    "locale": "nl-NL",
+                    "translations": {"nl-NL": name},
+                    "date": {
+                        "year": 1970,
+                        "month": 1,
+                        "day": 1,
+                        "iso8601": "1970-01-01",
+                    },
                 },
             ],
             "events": [
@@ -1477,7 +1440,9 @@ class TestPlace(EntityTestBase):
             "links": [
                 {
                     "url": "https://example.com/the-place",
-                    "label": {UNDETERMINED_LOCALE: "The Place Online"},
+                    "label": {
+                        "translations": {UNDETERMINED_LOCALE: "The Place Online"}
+                    },
                     "locale": "und",
                 },
                 {
@@ -1579,7 +1544,7 @@ class TestEvent(EntityTestBase):
     async def test_place(self) -> None:
         place = Place(
             id="1",
-            names=[PlaceName(name="one")],
+            names=[Name("one")],
         )
         sut = Event(event_type=UnknownEventType())
         sut.place = place
@@ -1678,7 +1643,7 @@ class TestEvent(EntityTestBase):
             date=DateRange(Date(2000, 1, 1), Date(2019, 12, 31)),
             place=Place(
                 id="the_place",
-                names=[PlaceName(name="The Place")],
+                names=[Name("The Place")],
             ),
         )
         Presence(Person(id="the_person"), Subject(), event)
@@ -1767,7 +1732,7 @@ class TestEvent(EntityTestBase):
             date=DateRange(Date(2000, 1, 1), Date(2019, 12, 31)),
             place=Place(
                 id="the_place",
-                names=[PlaceName(name="The Place")],
+                names=[Name("The Place")],
             ),
         )
         Presence(Person(id="the_person"), Subject(), event)
@@ -2125,7 +2090,9 @@ class TestPerson(EntityTestBase):
             "links": [
                 {
                     "url": "https://example.com/the-person",
-                    "label": {UNDETERMINED_LOCALE: "The Person Online"},
+                    "label": {
+                        "translations": {UNDETERMINED_LOCALE: "The Person Online"}
+                    },
                     "locale": "und",
                 },
                 {

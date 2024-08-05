@@ -9,7 +9,6 @@ from betty.ancestry import (
     File,
     FileReference,
     Dated,
-    PlaceName,
     HasFileReferences,
 )
 from betty.fs import ASSETS_DIRECTORY_PATH
@@ -23,6 +22,7 @@ from betty.locale import (
 from betty.locale.date import Datey, Date, DateRange
 from betty.locale.localizable import StaticTranslationsLocalizable
 from betty.locale.localized import Localized, LocalizedStr
+
 from betty.media_type import MediaType
 from betty.test_utils.assets.templates import TemplateTestBase
 from betty.test_utils.model import DummyEntity
@@ -342,6 +342,12 @@ class TestFilterSelectDateds(TemplateTestBase):
             assert actual == expected
 
 
+class DummyLocalized(Localized):
+    def __init__(self, value: str, *, locale: str):
+        self._locale = locale
+        self.value = value
+
+
 class TestFilterSelectLocalizeds(TemplateTestBase):
     @pytest.mark.parametrize(
         ("expected", "locale", "data"),
@@ -351,8 +357,8 @@ class TestFilterSelectLocalizeds(TemplateTestBase):
                 "Apple",
                 "en",
                 [
-                    PlaceName(
-                        name="Apple",
+                    DummyLocalized(
+                        value="Apple",
                         locale="en",
                     )
                 ],
@@ -361,8 +367,8 @@ class TestFilterSelectLocalizeds(TemplateTestBase):
                 "Apple",
                 "en",
                 [
-                    PlaceName(
-                        name="Apple",
+                    DummyLocalized(
+                        value="Apple",
                         locale="en-US",
                     )
                 ],
@@ -371,8 +377,8 @@ class TestFilterSelectLocalizeds(TemplateTestBase):
                 "Apple",
                 "en-US",
                 [
-                    PlaceName(
-                        name="Apple",
+                    DummyLocalized(
+                        value="Apple",
                         locale="en",
                     )
                 ],
@@ -381,8 +387,8 @@ class TestFilterSelectLocalizeds(TemplateTestBase):
                 "",
                 "nl",
                 [
-                    PlaceName(
-                        name="Apple",
+                    DummyLocalized(
+                        value="Apple",
                         locale="en",
                     )
                 ],
@@ -391,8 +397,8 @@ class TestFilterSelectLocalizeds(TemplateTestBase):
                 "",
                 "nl-NL",
                 [
-                    PlaceName(
-                        name="Apple",
+                    DummyLocalized(
+                        value="Apple",
                         locale="en",
                     )
                 ],
@@ -400,7 +406,9 @@ class TestFilterSelectLocalizeds(TemplateTestBase):
         ],
     )
     async def test(self, expected: str, locale: str, data: Iterable[Localized]) -> None:
-        template = '{{ data | select_localizeds | map(attribute="name") | join(", ") }}'
+        template = (
+            '{{ data | select_localizeds | map(attribute="value") | join(", ") }}'
+        )
 
         async with self._render(
             template_string=template,
@@ -412,26 +420,23 @@ class TestFilterSelectLocalizeds(TemplateTestBase):
             assert actual == expected
 
     async def test_include_unspecified(self) -> None:
-        template = '{{ data | select_localizeds(include_unspecified=true) | map(attribute="name") | join(", ") }}'
+        template = '{{ data | select_localizeds(include_unspecified=true) | map(attribute="value") | join(", ") }}'
         data = [
-            PlaceName(
-                name="Apple",
+            DummyLocalized(
+                value="Apple",
                 locale=NO_LINGUISTIC_CONTENT,
             ),
-            PlaceName(
-                name="Apple",
+            DummyLocalized(
+                value="Apple",
                 locale=UNDETERMINED_LOCALE,
             ),
-            PlaceName(
-                name="Apple",
+            DummyLocalized(
+                value="Apple",
                 locale=MULTIPLE_LOCALES,
             ),
-            PlaceName(
-                name="Apple",
+            DummyLocalized(
+                value="Apple",
                 locale=UNCODED_LOCALE,
-            ),
-            PlaceName(
-                name="Apple",
             ),
         ]
 
@@ -442,12 +447,12 @@ class TestFilterSelectLocalizeds(TemplateTestBase):
             },
             locale="en-US",
         ) as (actual, _):
-            assert actual == "Apple, Apple, Apple, Apple, Apple"
+            assert actual == "Apple, Apple, Apple, Apple"
 
 
 class TestFilterSortLocalizeds(TemplateTestBase):
-    class WithLocalizedNames:
-        def __init__(self, identifier: str, names: Sequence[PlaceName]):
+    class WithLocalizedDummyLocalizeds:
+        def __init__(self, identifier: str, names: Sequence[DummyLocalized]):
             self.id = identifier
             self.names = names
 
@@ -455,39 +460,39 @@ class TestFilterSortLocalizeds(TemplateTestBase):
             return self.id
 
     async def test(self) -> None:
-        template = '{{ data | sort_localizeds(localized_attribute="names", sort_attribute="name") }}'
+        template = '{{ data | sort_localizeds(localized_attribute="names", sort_attribute="value") }}'
         data = [
-            self.WithLocalizedNames(
+            self.WithLocalizedDummyLocalizeds(
                 "third",
                 [
-                    PlaceName(
-                        name="3",
+                    DummyLocalized(
+                        value="3",
                         locale="nl-NL",
                     ),
                 ],
             ),
-            self.WithLocalizedNames(
+            self.WithLocalizedDummyLocalizeds(
                 "second",
                 [
-                    PlaceName(
-                        name="2",
+                    DummyLocalized(
+                        value="2",
                         locale="en",
                     ),
-                    PlaceName(
-                        name="1",
+                    DummyLocalized(
+                        value="1",
                         locale="nl-NL",
                     ),
                 ],
             ),
-            self.WithLocalizedNames(
+            self.WithLocalizedDummyLocalizeds(
                 "first",
                 [
-                    PlaceName(
-                        name="2",
+                    DummyLocalized(
+                        value="2",
                         locale="nl-NL",
                     ),
-                    PlaceName(
-                        name="1",
+                    DummyLocalized(
+                        value="1",
                         locale="en-US",
                     ),
                 ],
@@ -502,7 +507,7 @@ class TestFilterSortLocalizeds(TemplateTestBase):
             assert actual == "[first, second, third]"
 
     async def test_with_empty_iterable(self) -> None:
-        template = '{{ data | sort_localizeds(localized_attribute="names", sort_attribute="name") }}'
+        template = '{{ data | sort_localizeds(localized_attribute="names", sort_attribute="value") }}'
         async with self._render(
             template_string=template,
             data={

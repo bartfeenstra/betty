@@ -168,18 +168,22 @@ class TestStaticTranslationsLocalizable:
         ("expected", "translations"),
         [
             (
-                {},
+                {"translations": {}},
                 {},
             ),
             (
                 {
-                    UNDETERMINED_LOCALE: "Hello, world!",
+                    "translations": {
+                        UNDETERMINED_LOCALE: "Hello, world!",
+                    }
                 },
                 "Hello, world!",
             ),
             (
                 {
-                    "en-US": "Hello, world!",
+                    "translations": {
+                        "en-US": "Hello, world!",
+                    }
                 },
                 {
                     "en-US": "Hello, world!",
@@ -187,8 +191,10 @@ class TestStaticTranslationsLocalizable:
             ),
             (
                 {
-                    "nl-NL": "Hallo, wereld!",
-                    "en": "Hello, world!",
+                    "translations": {
+                        "nl-NL": "Hallo, wereld!",
+                        "en": "Hello, world!",
+                    }
                 },
                 {
                     "nl-NL": "Hallo, wereld!",

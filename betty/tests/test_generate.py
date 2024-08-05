@@ -6,13 +6,13 @@ import aiofiles
 import pytest
 from pytest_mock import MockerFixture
 
+from betty.ancestry import Person, Place, Source, Name, File, Event, Citation
+from betty.ancestry.event_type import Birth
 from betty.app import App
 from betty.generate import generate, GenerateSiteEvent, GenerationContext
 from betty.model import (
     UserFacingEntity,
 )
-from betty.ancestry import Person, Place, Source, PlaceName, File, Event, Citation
-from betty.ancestry.event_type import Birth
 from betty.plugin.static import StaticPluginRepository
 from betty.project import (
     LocaleConfiguration,
@@ -260,7 +260,7 @@ class TestGenerate:
         ) as project:
             place = Place(
                 id="PLACE1",
-                names=[PlaceName(name="one")],
+                names=[Name("one")],
             )
             project.ancestry.add(place)
             async with project:
