@@ -1,6 +1,6 @@
 {% extends 'entity/page.html.j2' %}
 {% set source = source | default(entity) %}
-{% set page_title = source.name %}
+{% set page_title = source.name | localize %}
 {% block page_content %}
     {% include 'entity/meta--source.html.j2' %}
     {% with notes = source.notes %}

@@ -10,8 +10,8 @@ Sources inherit from:
 
 - :doc:`/usage/ancestry/privacy`
 
-``author`` (``str``)
-    The human-readable name of the source's author.
+``author`` (optional :doc:`/usage/ancestry/static-translations`)
+    The human-readable author of the source.
 ``citations`` (iterable of :doc:`Citation </usage/ancestry/citation>`)
     The citations referencing the source.
 ``contained_by`` (optional ``Source``)
@@ -26,7 +26,7 @@ Sources inherit from:
     The source's own entity ID.
 ``links`` (iterable of :doc:`Link </usage/ancestry/link>`)
     The external links for this source.
-``name`` (``str``)
-    The human-readable name.
-``publisher`` (``str``)
-    The human-readable name of the source's publisher.
+``name`` (optional :doc:`/usage/ancestry/static-translations`)
+    The human-readable source name.
+``publisher`` (optional :doc:`/usage/ancestry/static-translations`)
+    The human-readable publisher of the source.

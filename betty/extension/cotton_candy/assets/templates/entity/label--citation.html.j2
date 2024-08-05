@@ -5,11 +5,11 @@
     {% if citation.source and citation.source.public -%}
         {% if citation.source.public -%}
             {%- if citation.source.author -%}
-                <span class="citation-author">{{ citation.source.author }}</span>
+                <span class="citation-author">{{ citation.source.author | localize }}</span>
             {%- endif %}
             <span class="citation-title">{% with source=citation.source %}{% include 'entity/label--source.html.j2' %}{% endwith %}</span>
             {%- if citation.source.publisher -%}
-                <span class="citation-publisher">{{ citation.source.publisher }}</span>
+                <span class="citation-publisher">{{ citation.source.publisher | localize }}</span>
             {%- endif -%}
         {% else %}
             <span class="private" title="{% trans %}This source's details are unavailable to protect people's privacy.{% endtrans %}">{% trans %}private{% endtrans %}</span>

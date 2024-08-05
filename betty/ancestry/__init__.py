@@ -949,13 +949,22 @@ class Source(
         "source",
     )
 
+    #: The human-readable source name.
+    name = StaticTranslationsLocalizableAttr("name")
+
+    #: The human-readable author.
+    author = StaticTranslationsLocalizableAttr("author")
+
+    #: The human-readable publisher.
+    publisher = StaticTranslationsLocalizableAttr("publisher")
+
     def __init__(
         self,
-        name: str | None = None,
+        name: ShorthandStaticTranslations | None = None,
         *,
         id: str | None = None,  # noqa A002  # noqa A002
-        author: str | None = None,
-        publisher: str | None = None,
+        author: ShorthandStaticTranslations | None = None,
+        publisher: ShorthandStaticTranslations | None = None,
         contained_by: Source | None = None,
         contains: Iterable[Source] | None = None,
         notes: Iterable[Note] | None = None,
@@ -976,9 +985,12 @@ class Source(
             public=public,
             private=private,
         )
-        self.name = name
-        self.author = author
-        self.publisher = publisher
+        if name:
+            self.name = name
+        if author:
+            self.author = author
+        if publisher:
+            self.publisher = publisher
         if contained_by is not None:
             self.contained_by = contained_by
         if contains is not None:
@@ -1018,7 +1030,7 @@ class Source(
     @override
     @property
     def label(self) -> Localizable:
-        return plain(self.name) if self.name else super().label
+        return self.name if self.name else super().label
 
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
@@ -1045,13 +1057,13 @@ class Source(
                 f"/source/{quote(self.contained_by.id)}/index.json"
             )
         if self.public:
-            if self.name is not None:
+            if self.name:
                 dump_context(dump, name="name")
-                dump["name"] = self.name
-            if self.author is not None:
-                dump["author"] = self.author
-            if self.publisher is not None:
-                dump["publisher"] = self.publisher
+                dump["name"] = await self.name.dump_linked_data(project)
+            if self.author:
+                dump["author"] = await self.author.dump_linked_data(project)
+            if self.publisher:
+                dump["publisher"] = await self.publisher.dump_linked_data(project)
         return dump
 
     @override

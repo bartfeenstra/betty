@@ -879,11 +879,15 @@ class GrampsLoader:
 
         # Load the author.
         with suppress(XPathError):
-            source.author = self._xpath1(element, "./ns:sauthor").text
+            author = self._xpath1(element, "./ns:sauthor").text
+            if author:
+                source.author = author
 
         # Load the publication info.
         with suppress(XPathError):
-            source.publisher = self._xpath1(element, "./ns:spubinfo").text
+            publisher = self._xpath1(element, "./ns:spubinfo").text
+            if publisher:
+                source.publisher = publisher
 
         if element.get("priv") == "1":
             source.private = True

@@ -379,7 +379,8 @@ class TestTemplate(TemplateTestBase):
                 "entity": source,
             },
         ) as (actual, _):
-            assert source.name in actual
+            assert source.name
+            assert source.name.localize(DEFAULT_LOCALIZER) in actual
             assert public_file.description
             assert public_file.description.localize(DEFAULT_LOCALIZER) in actual
             assert public_file_for_public_citation.description

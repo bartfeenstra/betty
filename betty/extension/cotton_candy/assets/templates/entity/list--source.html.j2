@@ -1,0 +1,13 @@
+{% set sources = sources | default(entities) | select('public') | list %}
+{% set ns = namespace(sources_and_names=[]) %}
+{% for source in sources %}
+    {% do ns.sources_and_names.append((source, source.label | localize)) %}
+{% endfor %}
+{% set sources = ns.sources_and_names | sort(attribute=1) | map(attribute=0) | list %}
+<ul class="entities">
+    {% for source in sources %}
+        <li class="{{ loop.cycle('odd', 'even') }}">
+            {% include 'entity/label--source.html.j2' %}
+        </li>
+    {% endfor %}
+</ul>
