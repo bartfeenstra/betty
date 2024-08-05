@@ -49,7 +49,7 @@ class TestTestEntity(TemplateTestBase):
                 "data": data,
             },
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
 
 class TestTestSubjectRole(TemplateTestBase):
@@ -70,7 +70,7 @@ class TestTestSubjectRole(TemplateTestBase):
                 "data": data,
             },
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
 
 class TestTestWitnessRole(TemplateTestBase):
@@ -91,4 +91,4 @@ class TestTestWitnessRole(TemplateTestBase):
                 "data": data,
             },
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected

@@ -229,7 +229,7 @@ class TestHasLocale:
             "locale": UNDETERMINED_LOCALE,
         }
         actual = await assert_dumps_linked_data(sut)
-        assert expected == actual
+        assert actual == expected
 
 
 class TestDated:
@@ -295,7 +295,7 @@ class TestNote(EntityTestBase):
             ],
         }
         actual = await assert_dumps_linked_data(note)
-        assert expected == actual
+        assert actual == expected
 
     async def test_dump_linked_data_should_dump_private(self) -> None:
         note = Note(
@@ -318,7 +318,7 @@ class TestNote(EntityTestBase):
             ],
         }
         actual = await assert_dumps_linked_data(note)
-        assert expected == actual
+        assert actual == expected
 
 
 class HasNotesTestEntity(HasNotes, DummyEntity):
@@ -387,7 +387,7 @@ class TestLink:
             "locale": "und",
         }
         actual = await assert_dumps_linked_data(link)
-        assert expected == actual
+        assert actual == expected
 
     async def test_dump_linked_data_should_dump_full(self) -> None:
         link = Link(
@@ -405,7 +405,7 @@ class TestLink:
             "mediaType": "text/html",
         }
         actual = await assert_dumps_linked_data(link)
-        assert expected == actual
+        assert actual == expected
 
 
 class TestLinkSchema(SchemaTestBase):
@@ -577,7 +577,7 @@ class TestFile(EntityTestBase):
                 ],
             }
             actual = await assert_dumps_linked_data(file)
-            assert expected == actual
+            assert actual == expected
 
     async def test_dump_linked_data_should_dump_full(self) -> None:
         with NamedTemporaryFile() as f:
@@ -638,7 +638,7 @@ class TestFile(EntityTestBase):
                 ],
             }
             actual = await assert_dumps_linked_data(file)
-            assert expected == actual
+            assert actual == expected
 
     async def test_dump_linked_data_should_dump_private(self) -> None:
         with NamedTemporaryFile() as f:
@@ -687,7 +687,7 @@ class TestFile(EntityTestBase):
                 ],
             }
             actual = await assert_dumps_linked_data(file)
-            assert expected == actual
+            assert actual == expected
 
 
 class TestHasFileReferences:
@@ -818,7 +818,7 @@ class TestSource(EntityTestBase):
             ],
         }
         actual = await assert_dumps_linked_data(source)
-        assert expected == actual
+        assert actual == expected
 
     async def test_dump_linked_data_should_dump_full(self) -> None:
         link = Link("https://example.com/the-source")
@@ -897,7 +897,7 @@ class TestSource(EntityTestBase):
             ],
         }
         actual = await assert_dumps_linked_data(source)
-        assert expected == actual
+        assert actual == expected
 
     async def test_dump_linked_data_should_dump_private(self) -> None:
         link = Link("https://example.com/the-source")
@@ -942,7 +942,7 @@ class TestSource(EntityTestBase):
         actual = await assert_dumps_linked_data(source)
         assert isinstance(actual, MutableMapping)
         actual.pop("links")
-        assert expected == actual
+        assert actual == expected
 
     async def test_dump_linked_data_should_dump_with_private_associations(self) -> None:
         contained_by_source = Source(
@@ -981,7 +981,7 @@ class TestSource(EntityTestBase):
         actual = await assert_dumps_linked_data(source)
         assert isinstance(actual, MutableMapping)
         actual.pop("links")
-        assert expected == actual
+        assert actual == expected
 
 
 class _HasCitations(HasCitations, DummyEntity):
@@ -1067,7 +1067,7 @@ class TestCitation(EntityTestBase):
             ],
         }
         actual = await assert_dumps_linked_data(citation)
-        assert expected == actual
+        assert actual == expected
 
     async def test_dump_linked_data_should_dump_full(self) -> None:
         citation = Citation(
@@ -1112,7 +1112,7 @@ class TestCitation(EntityTestBase):
             ],
         }
         actual = await assert_dumps_linked_data(citation)
-        assert expected == actual
+        assert actual == expected
 
     async def test_dump_linked_data_should_dump_private(self) -> None:
         citation = Citation(
@@ -1146,7 +1146,7 @@ class TestCitation(EntityTestBase):
             ],
         }
         actual = await assert_dumps_linked_data(citation)
-        assert expected == actual
+        assert actual == expected
 
 
 class TestHasCitations:
@@ -1423,7 +1423,7 @@ class TestPlace(EntityTestBase):
             "private": False,
         }
         actual = await assert_dumps_linked_data(place)
-        assert expected == actual
+        assert actual == expected
 
     async def test_dump_linked_data_should_dump_full(self) -> None:
         place_id = "the_place"
@@ -1517,7 +1517,7 @@ class TestPlace(EntityTestBase):
             "private": False,
         }
         actual = await assert_dumps_linked_data(place)
-        assert expected == actual
+        assert actual == expected
 
 
 class TestPresence(EntityTestBase):
@@ -1669,7 +1669,7 @@ class TestEvent(EntityTestBase):
             ],
         }
         actual = await assert_dumps_linked_data(event)
-        assert expected == actual
+        assert actual == expected
 
     async def test_dump_linked_data_should_dump_full(self) -> None:
         event = Event(
@@ -1757,7 +1757,7 @@ class TestEvent(EntityTestBase):
             ],
         }
         actual = await assert_dumps_linked_data(event)
-        assert expected == actual
+        assert actual == expected
 
     async def test_dump_linked_data_should_dump_private(self) -> None:
         event = Event(
@@ -1813,7 +1813,7 @@ class TestEvent(EntityTestBase):
             ],
         }
         actual = await assert_dumps_linked_data(event)
-        assert expected == actual
+        assert actual == expected
 
 
 class TestPersonName(EntityTestBase):
@@ -2025,7 +2025,7 @@ class TestPerson(EntityTestBase):
             ],
         }
         actual = await assert_dumps_linked_data(person)
-        assert expected == actual
+        assert actual == expected
 
     async def test_dump_linked_data_should_dump_full(self) -> None:
         parent_id = "the_parent"
@@ -2149,7 +2149,7 @@ class TestPerson(EntityTestBase):
             ],
         }
         actual = await assert_dumps_linked_data(person)
-        assert expected == actual
+        assert actual == expected
 
     async def test_dump_linked_data_should_dump_private(self) -> None:
         parent_id = "the_parent"
@@ -2240,7 +2240,7 @@ class TestPerson(EntityTestBase):
             ],
         }
         actual = await assert_dumps_linked_data(person)
-        assert expected == actual
+        assert actual == expected
 
 
 class _TestAncestry_OneToOne_Left(DummyEntity):

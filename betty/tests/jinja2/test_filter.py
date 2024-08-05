@@ -64,7 +64,7 @@ class TestFilterFile(TemplateTestBase):
                 "file": file,
             },
         ) as (actual, project):
-            assert expected == actual
+            assert actual == expected
             for file_path in actual.split(":"):
                 assert (
                     project.configuration.www_directory_path / file_path[1:]
@@ -85,7 +85,7 @@ class TestFilterFlatten(TemplateTestBase):
     )
     async def test(self, expected: str, template: str) -> None:
         async with self._render(template_string=template) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
 
 class TestFilterParagraphs(TemplateTestBase):
@@ -101,7 +101,7 @@ class TestFilterParagraphs(TemplateTestBase):
     )
     async def test(self, expected: str, template: str) -> None:
         async with self._render(template_string=template) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
 
 class TestFilterFormatDegrees(TemplateTestBase):
@@ -114,7 +114,7 @@ class TestFilterFormatDegrees(TemplateTestBase):
     )
     async def test(self, expected: str, template: str) -> None:
         async with self._render(template_string=template) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
 
 class TestFilterUnique(TemplateTestBase):
@@ -161,7 +161,7 @@ class TestFilterMap(TemplateTestBase):
                 "data": data,
             },
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
 
 class TestFilterImageResizeCover(TemplateTestBase):
@@ -249,7 +249,7 @@ class TestFilterImageResizeCover(TemplateTestBase):
                 "filey": filey,
             },
         ) as (actual, project):
-            assert expected == actual
+            assert actual == expected
             for file_path in actual.split(":"):
                 assert (
                     project.configuration.www_directory_path / file_path[1:]
@@ -339,7 +339,7 @@ class TestFilterSelectDateds(TemplateTestBase):
     async def test(self, expected: str, data: MutableMapping[str, Any]) -> None:
         template = '{{ dateds | select_dateds(date=date) | join(", ") }}'
         async with self._render(template_string=template, data=data) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
 
 class TestFilterSelectLocalizeds(TemplateTestBase):
@@ -409,7 +409,7 @@ class TestFilterSelectLocalizeds(TemplateTestBase):
             },
             locale=locale,
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_include_unspecified(self) -> None:
         template = '{{ data | select_localizeds(include_unspecified=true) | map(attribute="name") | join(", ") }}'

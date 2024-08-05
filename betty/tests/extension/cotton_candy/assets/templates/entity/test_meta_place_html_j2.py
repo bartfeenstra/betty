@@ -19,7 +19,7 @@ class Test(TemplateTestBase):
                 "entity": place,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_enclosing_place_without_place_context(self) -> None:
         place = Place(
@@ -42,7 +42,7 @@ class Test(TemplateTestBase):
                 "entity": place,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_enclosing_place_with_matching_place_context(self) -> None:
         place = Place(
@@ -66,7 +66,7 @@ class Test(TemplateTestBase):
                 "entity_contexts": EntityContexts(all_enclosing_place),
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_enclosing_place_with_non_matching_place_context(self) -> None:
         place = Place(
@@ -94,4 +94,4 @@ class Test(TemplateTestBase):
                 "entity_contexts": EntityContexts(unrelated_place),
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected

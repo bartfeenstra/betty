@@ -18,7 +18,7 @@ class Test(TemplateTestBase):
                 "event": event,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_date(self) -> None:
         event = Event(
@@ -31,7 +31,7 @@ class Test(TemplateTestBase):
                 "event": event,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_place(self) -> None:
         event = Event(event_type=Birth())
@@ -45,7 +45,7 @@ class Test(TemplateTestBase):
                 "event": event,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_place_is_place_context(self) -> None:
         event = Event(event_type=Birth())
@@ -61,7 +61,7 @@ class Test(TemplateTestBase):
                 "entity_contexts": EntityContexts(place),
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_date_and_place(self) -> None:
         event = Event(
@@ -78,7 +78,7 @@ class Test(TemplateTestBase):
                 "event": event,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_with_citation(self) -> None:
         event = Event(event_type=Birth())
@@ -89,7 +89,7 @@ class Test(TemplateTestBase):
                 "event": event,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
 
     async def test_embedded(self) -> None:
         event = Event(
@@ -108,4 +108,4 @@ class Test(TemplateTestBase):
                 "embedded": True,
             }
         ) as (actual, _):
-            assert expected == actual
+            assert actual == expected
