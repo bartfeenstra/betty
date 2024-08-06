@@ -40,6 +40,8 @@ class ConfigurationCollection(
 ):
     """
     Any collection of :py:class:`betty.config.Configuration` values.
+
+    To test your own subclasses, use :py:class:`betty.test_utils.config.collections.ConfigurationCollectionTestBase`.
     """
 
     _configurations: (

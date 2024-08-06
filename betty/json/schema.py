@@ -23,6 +23,8 @@ if TYPE_CHECKING:
 class Schema:
     """
     A JSON Schema.
+
+    To test your own subclasses, use :py:class:`betty.test_utils.json.schema.SchemaTestBase`.
     """
 
     def __init__(

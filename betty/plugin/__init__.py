@@ -32,6 +32,8 @@ class PluginError(UserFacingError):
 class Plugin(ABC):
     """
     A plugin.
+
+    To test your own subclasses, use :py:class:`betty.test_utils.plugin.PluginTestBase`.
     """
 
     @classmethod

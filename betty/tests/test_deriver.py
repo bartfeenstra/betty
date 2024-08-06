@@ -14,7 +14,7 @@ from betty.ancestry.event_type import (
     EventType,
 )
 from betty.project import DEFAULT_LIFETIME_THRESHOLD
-from betty.test_utils.model.event_type import DummyEventType
+from betty.test_utils.ancestry.event_type import DummyEventType
 
 
 class Ignored(DummyEventType):

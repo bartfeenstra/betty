@@ -15,6 +15,8 @@ _SetT = TypeVar("_SetT")
 class Attr(Generic[_InstanceT, _ValueT], ABC):
     """
     A base class for an immutable property-like attribute.
+
+    To test your own subclasses, use :py:class:`betty.test_utils.attr.AttrTestBase`.
     """
 
     def __init__(self, attr_name: str):
@@ -58,6 +60,8 @@ class Attr(Generic[_InstanceT, _ValueT], ABC):
 class MutableAttr(Generic[_InstanceT, _ValueT, _SetT], Attr[_InstanceT, _ValueT]):
     """
     A base class for a mutable property-like attribute.
+
+    To test your own subclasses, use :py:class:`betty.test_utils.attr.MutableAttrTestBase`.
     """
 
     def __set__(self, instance: _InstanceT, value: _SetT) -> None:

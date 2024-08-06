@@ -19,7 +19,7 @@ from betty.ancestry.event_type import (
 )
 from betty.ancestry.presence_role import Subject
 from betty.project import ExtensionConfiguration, Project
-from betty.test_utils.model.event_type import DummyEventType
+from betty.test_utils.ancestry.event_type import DummyEventType
 from betty.test_utils.project.extension import ExtensionTestBase
 
 if TYPE_CHECKING:
