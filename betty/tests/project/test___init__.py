@@ -3,8 +3,7 @@ from __future__ import annotations
 from typing import Any, Iterable, TYPE_CHECKING, Self
 
 import pytest
-from typing_extensions import override
-
+from betty.ancestry import Ancestry
 from betty.assertion import (
     RequiredField,
     assert_bool,
@@ -18,14 +17,13 @@ from betty.event_dispatcher import Event, EventHandlerRegistry
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity, UserFacingEntity
-from betty.ancestry import Ancestry
 from betty.plugin.static import StaticPluginRepository
 from betty.project import (
     ExtensionConfiguration,
     ExtensionConfigurationMapping,
     ProjectConfiguration,
     LocaleConfiguration,
-    LocaleConfigurationSequence,
+    LocaleConfigurationMapping,
     EntityReference,
     EntityReferenceSequence,
     EntityTypeConfiguration,
@@ -39,12 +37,13 @@ from betty.project.extension import (
     CyclicDependencyError,
 )
 from betty.project.factory import ProjectDependentFactory
+from betty.test_utils.assertion.error import raises_error
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.test_utils.model import DummyEntity
-from betty.test_utils.assertion.error import raises_error
 from betty.test_utils.project.extension import DummyExtension
 from betty.typing import Void
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence
@@ -334,14 +333,22 @@ class TestLocaleConfiguration:
         assert sut.alias == "UNDETERMINED_LOCALE"
 
 
-class TestLocaleConfigurationSequence(
-    ConfigurationSequenceTestBase[LocaleConfiguration]
+class TestLocaleConfigurationMapping(
+    ConfigurationMappingTestBase[str, LocaleConfiguration]
 ):
+    @override
     def get_sut(
         self, configurations: Iterable[Configuration] | None = None
-    ) -> LocaleConfigurationSequence:
-        return LocaleConfigurationSequence(configurations)  # type: ignore[arg-type]
+    ) -> LocaleConfigurationMapping:
+        return LocaleConfigurationMapping(configurations)  # type: ignore[arg-type]
 
+    @override
+    def get_configuration_keys(
+        self,
+    ) -> tuple[str, str, str, str]:
+        return ("en", "nl", "uk", "fr")
+
+    @override
     def get_configurations(
         self,
     ) -> tuple[
@@ -358,24 +365,20 @@ class TestLocaleConfigurationSequence(
         )
 
     async def test_update(self) -> None:
-        sut = LocaleConfigurationSequence()
+        sut = LocaleConfigurationMapping()
         configurations = self.get_configurations()
-        other = LocaleConfigurationSequence(configurations)
+        other = LocaleConfigurationMapping(configurations)
         sut.update(other)
         assert list(sut) == list(other)
 
-    @override
-    async def test___getitem__(self) -> None:
-        configurations = self.get_configurations()
-        sut = self.get_sut([configurations[0], configurations[1]])
-        assert sut[0] == configurations[0]
-
-    @override
     async def test___delitem__(self) -> None:
         configurations = self.get_configurations()
-        sut = self.get_sut([configurations[0], configurations[1]])
-        del sut[0]
-        assert sut[0] == configurations[1]
+        sut = self.get_sut([configurations[0]])
+        del sut[configurations[0].locale]
+        with pytest.raises(KeyError):
+            sut[configurations[0].locale]
+        assert len(sut) == 1
+        assert DEFAULT_LOCALE in sut
 
     async def test___delitem___with_locale(self) -> None:
         configurations = self.get_configurations()
@@ -386,23 +389,23 @@ class TestLocaleConfigurationSequence(
 
     async def test___delitem___with_one_remaining_locale_configuration(self) -> None:
         locale_configuration_a = LocaleConfiguration("nl-NL")
-        sut = LocaleConfigurationSequence(
+        sut = LocaleConfigurationMapping(
             [
                 locale_configuration_a,
             ]
         )
         del sut["nl-NL"]
         assert len(sut) == 1
-        sut[DEFAULT_LOCALE]
+        assert DEFAULT_LOCALE in sut
 
     async def test_default_without_explicit_locale_configurations(self) -> None:
-        sut = LocaleConfigurationSequence()
+        sut = LocaleConfigurationMapping()
         assert LocaleConfiguration("en-US") == sut.default
 
     async def test_default_without_explicit_default(self) -> None:
         locale_configuration_a = LocaleConfiguration("nl-NL")
         locale_configuration_b = LocaleConfiguration("en-US")
-        sut = LocaleConfigurationSequence(
+        sut = LocaleConfigurationMapping(
             [
                 locale_configuration_a,
                 locale_configuration_b,
@@ -427,6 +430,15 @@ class TestLocaleConfigurationSequence(
         configurations = self.get_configurations()
         sut.replace(*configurations)
         assert len(sut) == len(configurations)
+
+    def test_multilingual_with_one_configuration(self) -> None:
+        sut = self.get_sut()
+        assert not sut.multilingual
+
+    def test_multilingual_with_multiple_configurations(self) -> None:
+        sut = self.get_sut()
+        sut.replace(*self.get_configurations())
+        assert sut.multilingual
 
 
 class _DummyConfigurableExtensionConfiguration(Configuration):
@@ -929,7 +941,7 @@ class TestProjectConfiguration:
         dump["locales"] = [{"locale": locale}]
         sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.load(dump)
-        assert sut.locales == LocaleConfigurationSequence([LocaleConfiguration(locale)])
+        assert sut.locales == LocaleConfigurationMapping([LocaleConfiguration(locale)])
 
     async def test_load_should_load_locale_alias(self, tmp_path: Path) -> None:
         locale = "nl-NL"
@@ -938,7 +950,7 @@ class TestProjectConfiguration:
         dump["locales"] = [{"locale": locale, "alias": alias}]
         sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.load(dump)
-        assert sut.locales == LocaleConfigurationSequence(
+        assert sut.locales == LocaleConfigurationMapping(
             [
                 LocaleConfiguration(
                     locale,

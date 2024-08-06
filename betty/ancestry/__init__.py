@@ -10,8 +10,6 @@ from reprlib import recursive_repr
 from typing import Iterable, Any, TYPE_CHECKING, final, cast
 from urllib.parse import quote
 
-from typing_extensions import override
-
 from betty.ancestry.event_type import EventType, UnknownEventType
 from betty.ancestry.presence_role import PresenceRole, Subject, PresenceRoleSchema
 from betty.classtools import repr_instance
@@ -60,6 +58,7 @@ from betty.model.collections import (
 )
 from betty.serde.dump import DumpMapping, Dump
 from betty.string import camel_case_to_kebab_case
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
@@ -532,13 +531,13 @@ class HasLinks(Entity):
                             project.url_generator.generate(
                                 self,
                                 media_type="text/html",
-                                locale=locale_configuration.locale,
+                                locale=locale,
                             ),
                             relationship="alternate",
                             media_type=MediaType("text/html"),
-                            locale=locale_configuration.locale,
+                            locale=locale,
                         )
-                        for locale_configuration in project.configuration.locales
+                        for locale in project.configuration.locales
                     ),
                 )
 

@@ -4,7 +4,6 @@ from typing import Any, TYPE_CHECKING
 from urllib.parse import urlparse
 
 import click
-
 from betty.assertion import assert_path, assert_str, assert_locale
 from betty.cli.commands import command, pass_app
 from betty.cli.error import user_facing_error_to_bad_parameter
@@ -98,9 +97,7 @@ async def new(app: App) -> None:  # noqa D103
                 )
             )
         )
-    locales = [
-        locale_configuration.locale for locale_configuration in configuration.locales
-    ]
+    locales = list(configuration.locales)
 
     configuration.title = _prompt_static_translations(
         locales,

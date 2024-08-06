@@ -167,14 +167,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "write_configuration_file": TestKnownToBeMissing,
     },
     "betty/config/collections/__init__.py": TestKnownToBeMissing,
-    "betty/config/collections/mapping.py": {
-        "ConfigurationMapping": {
-            "dump": TestKnownToBeMissing,
-            "to_index": TestKnownToBeMissing,
-            "to_key": TestKnownToBeMissing,
-            "update": TestKnownToBeMissing,
-        },
-    },
     "betty/config/collections/sequence.py": {
         "ConfigurationSequence": {
             "dump": TestKnownToBeMissing,
@@ -697,9 +689,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "dump": TestKnownToBeMissing,
             "hash": TestKnownToBeMissing,
             "update": TestKnownToBeMissing,
-        },
-        "LocaleConfigurationSequence": {
-            "multilingual": TestKnownToBeMissing,
         },
         "ProjectConfiguration": {
             "assets_directory_path": TestKnownToBeMissing,
