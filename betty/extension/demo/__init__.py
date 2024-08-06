@@ -10,16 +10,6 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty import load, generate, serve
-from betty.extension.cotton_candy import CottonCandy
-from betty.extension.cotton_candy.config import CottonCandyConfiguration
-from betty.extension.http_api_doc import HttpApiDoc
-from betty.extension.maps import Maps
-from betty.extension.trees import Trees
-from betty.extension.wikipedia import Wikipedia
-from betty.load import LoadAncestryEvent
-from betty.locale.date import Date, DateRange
-from betty.locale.localizable import static, Localizable
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.ancestry import (
     Place,
     Name,
@@ -35,6 +25,16 @@ from betty.ancestry import (
 )
 from betty.ancestry.event_type import Marriage, Birth, Death
 from betty.ancestry.presence_role import Subject
+from betty.extension.cotton_candy import CottonCandy
+from betty.extension.cotton_candy.config import CottonCandyConfiguration
+from betty.extension.http_api_doc import HttpApiDoc
+from betty.extension.maps import Maps
+from betty.extension.trees import Trees
+from betty.extension.wikipedia import Wikipedia
+from betty.load import LoadAncestryEvent
+from betty.locale.date import Date, DateRange
+from betty.locale.localizable import static, Localizable
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import (
     LocaleConfiguration,
     ExtensionConfiguration,
@@ -303,7 +303,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
     cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam = Citation(
         id="betty-demo-birth-of-liberta-lankester-from-bevolkingsregister-amsterdam",
         source=bevolkingsregister_amsterdam,
-        location=static("Amsterdam"),
+        location="Amsterdam",
     )
     _load(cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam)
 

@@ -1150,13 +1150,16 @@ class Citation(Dated, HasFileReferences, HasPrivacy, HasLinks, UserFacingEntity)
         "citations",
     )
 
+    #: The human-readable citation location.
+    location = StaticTranslationsLocalizableAttr("location")
+
     def __init__(
         self,
         *,
         id: str | None = None,  # noqa A002  # noqa A002
         facts: Iterable[HasCitations & Entity] | None = None,
         source: Source | None = None,
-        location: Localizable | None = None,
+        location: ShorthandStaticTranslations | None = None,
         date: Datey | None = None,
         file_references: Iterable[FileReference] | None = None,
         privacy: Privacy | None = None,
@@ -1173,7 +1176,8 @@ class Citation(Dated, HasFileReferences, HasPrivacy, HasLinks, UserFacingEntity)
         )
         if facts is not None:
             self.facts = facts
-        self.location = location
+        if location:
+            self.location = location
         self.source = source
 
     @override
