@@ -717,7 +717,7 @@ class TestSource(EntityTestBase):
     async def test_name(self) -> None:
         name = "The Source"
         sut = Source(name=name)
-        assert name == sut.name
+        assert sut.name.localize(DEFAULT_LOCALIZER) == name
 
     async def test_contained_by(self) -> None:
         contained_by_source = Source()
@@ -749,17 +749,17 @@ class TestSource(EntityTestBase):
 
     async def test_author(self) -> None:
         sut = Source()
-        assert sut.author is None
+        assert not sut.author
         author = "Me"
         sut.author = author
-        assert author == sut.author
+        assert sut.author.localize(DEFAULT_LOCALIZER) == author
 
     async def test_publisher(self) -> None:
         sut = Source()
-        assert sut.publisher is None
+        assert not sut.publisher
         publisher = "Me"
         sut.publisher = publisher
-        assert publisher == sut.publisher
+        assert sut.publisher.localize(DEFAULT_LOCALIZER) == publisher
 
     async def test_date(self) -> None:
         sut = Source()
@@ -792,7 +792,7 @@ class TestSource(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_source",
             "private": False,
-            "name": "The Source",
+            "name": {"translations": {"und": "The Source"}},
             "contains": [],
             "citations": [],
             "notes": [],
@@ -853,9 +853,9 @@ class TestSource(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_source",
             "private": False,
-            "name": "The Source",
-            "author": "The Author",
-            "publisher": "The Publisher",
+            "name": {"translations": {"und": "The Source"}},
+            "author": {"translations": {"und": "The Author"}},
+            "publisher": {"translations": {"und": "The Publisher"}},
             "contains": [
                 "/source/the_contained_source/index.json",
             ],
