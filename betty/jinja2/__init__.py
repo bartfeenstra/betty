@@ -16,6 +16,7 @@ from jinja2 import (
     select_autoescape,
     FileSystemLoader,
     pass_context,
+    Template,
 )
 from jinja2.runtime import StrictUndefined, Context, DebugUndefined
 from typing_extensions import override
@@ -299,6 +300,20 @@ class Environment(Jinja2Environment):
 
         return self._context_class
 
+    async def from_file(self, file_path: Path) -> Template:
+        """
+        Create a :py:class:`jinja2.Template` out of the given Jinja2 file path.
+
+        This method is intended for rendering individual files once. It **MUST NOT**
+        be used for reusable templates.
+        """
+        async with aiofiles.open(file_path) as f:
+            template_source = await f.read()
+        template_code = self.compile(
+            template_source, filename=str(file_path.expanduser().resolve())
+        )
+        return self.template_class.from_code(self, template_code, self.globals)
+
     @pass_context
     def _gettext(self, context: Context, message: str) -> str:
         return context_localizer(context).gettext(message)
@@ -397,11 +412,8 @@ class Jinja2Renderer(Renderer):
                 ):
                     resource = "/".join(resource_parts[1:])
             data["page_resource"] = resource
-        async with aiofiles.open(file_path) as f:
-            template_source = await f.read()
-        rendered = await self._environment.from_string(
-            template_source, self._environment.globals
-        ).render_async(data)
+        template = await self._environment.from_file(file_path)
+        rendered = await template.render_async(data)
         async with aiofiles.open(destination_file_path, "w", encoding="utf-8") as f:
             await f.write(rendered)
         await aiofiles_os.remove(file_path)
