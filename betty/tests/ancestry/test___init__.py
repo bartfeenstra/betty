@@ -259,7 +259,7 @@ class TestNote(EntityTestBase):
             id="N1",
             text=text,
         )
-        assert sut.text == text
+        assert sut.text.localize(DEFAULT_LOCALIZER) == text
 
     async def test_dump_linked_data_should_dump_full(self) -> None:
         note = Note(
@@ -271,7 +271,7 @@ class TestNote(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_note",
             "private": False,
-            "text": "The Note",
+            "text": {"translations": {"und": "The Note"}},
             "links": [
                 {
                     "url": "/note/the_note/index.json",

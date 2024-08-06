@@ -8,7 +8,7 @@
             {% endwith %}
         </h2>
         {% for note in notes %}
-            {{ note.text | paragraphs }}
+            {{ note.text | localize | paragraphs }}
         {% endfor %}
     </section>
 {% endif %}

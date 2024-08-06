@@ -34,7 +34,6 @@ from betty.locale.localizable import (
     Localizable,
     static,
     call,
-    plain,
     ShorthandStaticTranslations,
     StaticTranslationsLocalizableAttr,
     StaticTranslationsLocalizableSchema,
@@ -562,9 +561,12 @@ class Note(UserFacingEntity, HasPrivacy, HasLinks, Entity):
         "betty.ancestry:Note", "entity", "betty.ancestry:HasNotes", "notes"
     )
 
+    #: The human-readable note text.
+    text = StaticTranslationsLocalizableAttr("text")
+
     def __init__(
         self,
-        text: str,
+        text: ShorthandStaticTranslations,
         *,
         id: str | None = None,  # noqa A002  # noqa A002
         entity: HasNotes & Entity | None = None,
@@ -578,7 +580,7 @@ class Note(UserFacingEntity, HasPrivacy, HasLinks, Entity):
             public=public,
             private=private,
         )
-        self._text = text
+        self.text = text
         if entity is not None:
             self.entity = entity
 
@@ -597,24 +599,17 @@ class Note(UserFacingEntity, HasPrivacy, HasLinks, Entity):
     def plugin_label_plural(cls) -> Localizable:
         return _("Notes")  # pragma: no cover
 
-    @property
-    def text(self) -> str:
-        """
-        The note's human-readable text.
-        """
-        return self._text
-
     @override
     @property
     def label(self) -> Localizable:
-        return plain(self.text)
+        return self.text
 
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         dump["@type"] = "https://schema.org/Thing"
         if self.public:
-            dump["text"] = self.text
+            dump["text"] = await self.text.dump_linked_data(project)
         return dump
 
     @override
