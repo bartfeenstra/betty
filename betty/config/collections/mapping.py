@@ -16,13 +16,12 @@ from typing import (
     TYPE_CHECKING,
 )
 
-from typing_extensions import override
-
 from betty.assertion import assert_sequence, assert_mapping
 from betty.config import Configuration
 from betty.config.collections import ConfigurationCollection, ConfigurationKey
 from betty.serde.dump import Dump, VoidableDump, minimize
 from betty.typing import Void
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping
@@ -31,14 +30,10 @@ _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
 
 
-class ConfigurationMapping(
+class _ConfigurationMapping(
     ConfigurationCollection[_ConfigurationKeyT, _ConfigurationT],
     Generic[_ConfigurationKeyT, _ConfigurationT],
 ):
-    """
-    A key-value mapping where values are :py:class:`betty.config.Configuration`.
-    """
-
     def __init__(
         self,
         configurations: Iterable[_ConfigurationT] | None = None,
@@ -95,30 +90,6 @@ class ConfigurationMapping(
         self.append(*configurations)
 
     @override
-    def load(self, dump: Dump) -> None:
-        self.clear()
-        self.replace(
-            *assert_sequence(self.load_item)(
-                [
-                    self._load_key(item_value_dump, item_key_dump)
-                    for item_key_dump, item_value_dump in assert_mapping()(dump).items()
-                ]
-            )
-        )
-
-    @override
-    def dump(self) -> VoidableDump:
-        dump = {}
-        for configuration_item in self._configurations.values():
-            item_dump = configuration_item.dump()
-            if item_dump is not Void:
-                item_dump, configuration_key = self._dump_key(item_dump)
-                if self._minimize_item_dump():
-                    item_dump = minimize(item_dump)
-                dump[configuration_key] = item_dump
-        return minimize(dump)
-
-    @override
     def prepend(self, *configurations: _ConfigurationT) -> None:
         self.insert(0, *configurations)
 
@@ -147,6 +118,15 @@ class ConfigurationMapping(
     def _get_key(self, configuration: _ConfigurationT) -> _ConfigurationKeyT:
         pass
 
+
+class ConfigurationMapping(
+    _ConfigurationMapping[_ConfigurationKeyT, _ConfigurationT],
+    Generic[_ConfigurationKeyT, _ConfigurationT],
+):
+    """
+    A key-value mapping where values are :py:class:`betty.config.Configuration`.
+    """
+
     @abstractmethod
     def _load_key(
         self,
@@ -158,3 +138,49 @@ class ConfigurationMapping(
     @abstractmethod
     def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
         pass
+
+    @override
+    def load(self, dump: Dump) -> None:
+        self.clear()
+        self.replace(
+            *assert_mapping(self.load_item)(
+                {
+                    item_key_dump: self._load_key(item_value_dump, item_key_dump)
+                    for item_key_dump, item_value_dump in assert_mapping()(dump).items()
+                }
+            ).values()
+        )
+
+    @override
+    def dump(self) -> VoidableDump:
+        dump = {}
+        for configuration_item in self._configurations.values():
+            item_dump = configuration_item.dump()
+            if item_dump is not Void:
+                item_dump, configuration_key = self._dump_key(item_dump)
+                if self._minimize_item_dump():
+                    item_dump = minimize(item_dump)
+                dump[configuration_key] = item_dump
+        return minimize(dump)
+
+
+class OrderedConfigurationMapping(
+    _ConfigurationMapping[_ConfigurationKeyT, _ConfigurationT],
+    Generic[_ConfigurationKeyT, _ConfigurationT],
+):
+    """
+    An ordered key-value mapping where values are :py:class:`betty.config.Configuration`.
+    """
+
+    @override
+    def load(self, dump: Dump) -> None:
+        self.replace(*assert_sequence(self.load_item)(dump))
+
+    @override
+    def dump(self) -> VoidableDump:
+        return minimize(
+            [
+                configuration_item.dump()
+                for configuration_item in self._configurations.values()
+            ]
+        )

@@ -124,10 +124,7 @@ class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _Configuration
         """
         Tests :py:meth:`betty.config.collections.ConfigurationCollection.__iter__` implementations.
         """
-        configurations = self.get_configurations()
-        sut = self.get_sut(configurations)
-        assert tuple(iter(sut)) == configurations
-        assert list(sut.values()) == []
+        raise NotImplementedError
 
     async def test___len__(self) -> None:
         """

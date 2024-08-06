@@ -180,10 +180,7 @@ async def _run_jobs(job_context: GenerationContext) -> AsyncIterator[Task[None]]
     yield _run_job(semaphore, _generate_json_schema, job_context)
     yield _run_job(semaphore, _generate_openapi, job_context)
 
-    locales = [
-        locale_configuration.locale
-        for locale_configuration in project.configuration.locales
-    ]
+    locales = list(project.configuration.locales.keys())
 
     for locale in locales:
         yield _run_job(semaphore, _generate_public, job_context, locale)
@@ -448,7 +445,7 @@ async def _generate_sitemap(
     sitemap: MutableSequence[str] = []
     sitemap_length = 0
     sitemaps.append(sitemap)
-    for locale_configuration in project.configuration.locales:
+    for locale in project.configuration.locales:
         for entity in project.ancestry:
             if isinstance(entity.id, GeneratedEntityId):
                 continue
@@ -459,7 +456,7 @@ async def _generate_sitemap(
                 project.url_generator.generate(
                     entity,
                     absolute=True,
-                    locale=locale_configuration.locale,
+                    locale=locale,
                     media_type="text/html",
                 )
             )

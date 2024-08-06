@@ -21,13 +21,10 @@ from typing import (
     TYPE_CHECKING,
     TypeVar,
     Iterator,
-    overload,
 )
 from urllib.parse import urlparse
 
 from aiofiles.tempfile import TemporaryDirectory
-from typing_extensions import override
-
 from betty import fs, event_dispatcher
 from betty import model
 from betty.ancestry import Ancestry, Person, Event, Place, Source
@@ -53,7 +50,10 @@ from betty.config import (
     Configuration,
     Configurable,
 )
-from betty.config.collections.mapping import ConfigurationMapping
+from betty.config.collections.mapping import (
+    ConfigurationMapping,
+    OrderedConfigurationMapping,
+)
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.core import CoreComponent
 from betty.event_dispatcher import EventDispatcher, EventHandlerRegistry
@@ -84,6 +84,7 @@ from betty.serde.dump import (
 )
 from betty.serde.format import FormatRepository
 from betty.typing import Void
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
@@ -661,7 +662,7 @@ class LocaleConfiguration(Configuration):
 
 
 @final
-class LocaleConfigurationSequence(ConfigurationSequence[LocaleConfiguration]):
+class LocaleConfigurationMapping(OrderedConfigurationMapping[str, LocaleConfiguration]):
     """
     Configure a project's locales.
     """
@@ -672,45 +673,6 @@ class LocaleConfigurationSequence(ConfigurationSequence[LocaleConfiguration]):
     ):
         super().__init__(configurations)
         self._ensure_locale()
-
-    @override
-    @overload
-    def __getitem__(self, configuration_key: int | str) -> LocaleConfiguration:
-        pass
-
-    @override
-    @overload
-    def __getitem__(self, configuration_key: slice) -> Sequence[LocaleConfiguration]:
-        pass
-
-    @override
-    def __getitem__(
-        self, configuration_key: int | slice | str
-    ) -> LocaleConfiguration | Sequence[LocaleConfiguration]:
-        if isinstance(configuration_key, str):
-            for configuration in self:
-                if configuration.locale == configuration_key:
-                    return configuration
-            raise KeyError
-        return self._configurations[configuration_key]
-
-    def __delitem__(self, configuration_key: int | str) -> None:
-        if isinstance(configuration_key, str):
-            for index, configuration in enumerate(self):
-                if configuration.locale == configuration_key:
-                    self.remove(index)
-                    return
-            raise KeyError
-        self.remove(configuration_key)
-
-    @override
-    def _pre_add(self, configuration: LocaleConfiguration) -> None:
-        try:
-            self[configuration.locale]
-        except KeyError:
-            pass
-        else:
-            raise ValueError(f'Cannot add locale "{configuration.locale}" twice.')
 
     @override
     def _post_remove(self, configuration: LocaleConfiguration) -> None:
@@ -725,7 +687,7 @@ class LocaleConfigurationSequence(ConfigurationSequence[LocaleConfiguration]):
     def update(self, other: Self) -> None:
         # Prevent the events from being dispatched.
         self._configurations.clear()
-        self.append(*other)
+        self.append(*other.values())
 
     @override
     def replace(self, *configurations: LocaleConfiguration) -> None:
@@ -740,12 +702,16 @@ class LocaleConfigurationSequence(ConfigurationSequence[LocaleConfiguration]):
         item.load(dump)
         return item
 
+    @override
+    def _get_key(self, configuration: LocaleConfiguration) -> str:
+        return configuration.locale
+
     @property
     def default(self) -> LocaleConfiguration:
         """
         The default language.
         """
-        return self._configurations[0]
+        return next(self.values())
 
     @property
     def multilingual(self) -> bool:
@@ -811,7 +777,7 @@ class ProjectConfiguration(Configuration):
         )
         self._extensions = ExtensionConfigurationMapping(extensions or ())
         self._debug = debug
-        self._locales = LocaleConfigurationSequence(locales or ())
+        self._locales = LocaleConfigurationMapping(locales or ())
         self._lifetime_threshold = lifetime_threshold
 
     @property
@@ -933,7 +899,7 @@ class ProjectConfiguration(Configuration):
         self._clean_urls = clean_urls
 
     @property
-    def locales(self) -> LocaleConfigurationSequence:
+    def locales(self) -> LocaleConfigurationMapping:
         """
         The available locales.
         """

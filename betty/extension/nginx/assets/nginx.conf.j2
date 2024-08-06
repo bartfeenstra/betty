@@ -52,9 +52,9 @@ server {
         location @localized_redirect {
             {% if project.configuration.clean_urls %}
                 set_by_lua_block $locale_alias {
-                    local available_locales = {'{{ project.configuration.locales | map(attribute='locale') | join("', '") }}'}
+                    local available_locales = {'{{ project.configuration.locales | join("', '") }}'}
                     local locale_aliases = {}
-                    {% for locale_configuration in project.configuration.locales %}
+                    {% for locale_configuration in project.configuration.locales.values() %}
                         locale_aliases['{{ locale_configuration.locale }}'] = '{{ locale_configuration.alias }}'
                     {% endfor %}
                     local locale = require('content_negotiation').negotiate(ngx.req.get_headers()['Accept-Language'], available_locales)
@@ -81,7 +81,7 @@ server {
         }
 
         # Localized resources.
-        location ~* ^/({{ project.configuration.locales | map(attribute='alias') | join('|') }})(/|$) {
+        location ~* ^/({{ project.configuration.locales.values() | map(attribute='alias') | join('|') }})(/|$) {
             set $locale $1;
 
             {{ headers(

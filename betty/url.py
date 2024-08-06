@@ -8,12 +8,11 @@ from abc import ABC, abstractmethod
 from typing import Any, TYPE_CHECKING, final
 from urllib.parse import quote
 
-from typing_extensions import override
-
 from betty import model
 from betty.asyncio import wait_to_thread
 from betty.locale import negotiate_locale, Localey, to_locale
 from betty.string import camel_case_to_kebab_case
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.model import Entity
@@ -217,10 +216,7 @@ def _generate_from_path(
         try:
             locale_configuration = configuration.locales[locale]
         except KeyError:
-            project_locales = [
-                locale_configuration.locale
-                for locale_configuration in configuration.locales
-            ]
+            project_locales = list(configuration.locales)
             try:
                 negotiated_locale_data = negotiate_locale(locale, project_locales)
                 if negotiated_locale_data is None:
