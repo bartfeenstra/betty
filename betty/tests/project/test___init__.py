@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, Iterable, TYPE_CHECKING, Self
+from typing import Any, Iterable, TYPE_CHECKING, Self, Sequence
 
 import pytest
+from betty import ancestry
 from betty.ancestry import Ancestry
+from betty.app import App
 from betty.assertion import (
     RequiredField,
     assert_bool,
@@ -14,6 +16,7 @@ from betty.assertion import (
 from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
 from betty.event_dispatcher import Event, EventHandlerRegistry
+from betty.json.schema import JsonSchemaSchema
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity, UserFacingEntity
@@ -30,6 +33,7 @@ from betty.project import (
     EntityTypeConfigurationMapping,
     Project,
     ProjectEvent,
+    ProjectSchema,
 )
 from betty.project.extension import (
     Extension,
@@ -40,17 +44,18 @@ from betty.project.factory import ProjectDependentFactory
 from betty.test_utils.assertion.error import raises_error
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
+from betty.test_utils.json.schema import SchemaTestBase
 from betty.test_utils.model import DummyEntity
 from betty.test_utils.project.extension import DummyExtension
 from betty.typing import Void
 from typing_extensions import override
 
 if TYPE_CHECKING:
+    from pathlib import Path
+    from betty.json.schema import Schema
     from collections.abc import MutableSequence
     from pytest_mock import MockerFixture
     from betty.machine_name import MachineName
-    from pathlib import Path
-    from betty.app import App
     from betty.serde.dump import Dump, VoidableDump
 
 
@@ -873,17 +878,32 @@ class TestProjectConfiguration:
         with pytest.raises(AssertionFailed):
             sut.url = "file://"
 
-    async def test_base_url(self, tmp_path: Path) -> None:
+    @pytest.mark.parametrize(
+        ("expected", "url"),
+        [
+            ("https://example.com", "https://example.com"),
+            ("https://example.com", "https://example.com/"),
+            ("https://example.com", "https://example.com/root-path"),
+        ],
+    )
+    async def test_base_url(self, expected: str, tmp_path: Path, url: str) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        url = "https://example.com/example"
         sut.url = url
-        assert sut.base_url == "https://example.com"
+        assert sut.base_url == expected
 
-    async def test_root_path(self, tmp_path: Path) -> None:
+    @pytest.mark.parametrize(
+        ("expected", "url"),
+        [
+            ("", "https://example.com"),
+            ("", "https://example.com/"),
+            ("/root-path", "https://example.com/root-path"),
+            ("/root-path", "https://example.com/root-path/"),
+        ],
+    )
+    async def test_root_path(self, expected: str, tmp_path: Path, url: str) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        url = "https://example.com/example"
         sut.url = url
-        assert sut.root_path == "/example"
+        assert sut.root_path == expected
 
     async def test_clean_urls(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
@@ -1523,3 +1543,48 @@ class TestProjectEvent:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = ProjectEvent(project)
             assert sut.project is project
+
+
+class TestProjectSchema(SchemaTestBase):
+    @override
+    async def get_sut_instances(
+        self,
+    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
+        schemas: MutableSequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]] = []
+        for url in (
+            "http://example.com",
+            "https://example.com",
+            "https://example.com/root-path",
+        ):
+            for clean_urls in (True, False):
+                async with App.new_temporary() as app, app, Project.new_temporary(
+                    app
+                ) as project:
+                    project.configuration.url = url
+                    project.configuration.clean_urls = clean_urls
+                    async with project:
+                        schemas.append(
+                            (
+                                await ProjectSchema.new(project),
+                                [
+                                    await ancestry.Person().dump_linked_data(project),
+                                    await ancestry.Place().dump_linked_data(project),
+                                    await ancestry.Event().dump_linked_data(project),
+                                ],
+                                [],
+                            )
+                        )
+        return schemas
+
+    @pytest.mark.parametrize(
+        "clean_urls",
+        [
+            True,
+            False,
+        ],
+    )
+    async def test_new(self, clean_urls: bool, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            schema = await ProjectSchema.new(project)
+        json_schema = await JsonSchemaSchema.new()
+        json_schema.validate(schema.schema)

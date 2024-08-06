@@ -1,13 +1,13 @@
-import json as stdjson
-from pathlib import Path
+from typing import Sequence
 
-import aiofiles
-import jsonschema
 import pytest
-
 from betty.app import App
-from betty.openapi import Specification
+from betty.json.schema import Schema
+from betty.openapi import Specification, SpecificationSchema
 from betty.project import Project
+from betty.serde.dump import Dump
+from betty.test_utils.json.schema import SchemaTestBase
+from typing_extensions import override
 
 
 class TestSpecification:
@@ -19,13 +19,20 @@ class TestSpecification:
         ],
     )
     async def test_build(self, clean_urls: bool, new_temporary_app: App) -> None:
-        async with aiofiles.open(
-            Path(__file__).parent / "test_openapi_assets" / "openapi-schema.json"
-        ) as f:
-            schema = stdjson.loads(await f.read())
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.clean_urls = clean_urls
             async with project:
                 sut = Specification(project)
                 specification = await sut.build()
-                jsonschema.validate(specification, schema)
+        schema = await SpecificationSchema.new()
+        schema.validate(specification)
+
+
+class TestSpecificationSchema(SchemaTestBase):
+    @override
+    async def get_sut_instances(
+        self,
+    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
+        return [
+            (await SpecificationSchema.new(), [], []),
+        ]

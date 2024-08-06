@@ -321,7 +321,7 @@ msgstr ""
 
 msgid ""
 "Display the HTTP API documentation in a user-friendly way using <a "
-"href=\"https://github.com/Redocly/redoc\">ReDoc</a>."
+"href=\"https://swagger.io/tools/swagger-ui\">Swagger UI</a>."
 msgstr ""
 
 msgid "Divorce"

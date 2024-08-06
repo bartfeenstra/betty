@@ -209,6 +209,9 @@ betty = [
     'assets/**',
     'extension/*/assets/**',
 
+    # JSON Schemas.
+    'json/schemas/**/*',
+
     # Webpack.
     '../.browserslistrc',
     '../tsconfig.json',

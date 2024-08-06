@@ -7,20 +7,15 @@ from __future__ import annotations
 import calendar
 import operator
 from functools import total_ordering
-from typing import Any, Callable, TypeAlias, Mapping, TYPE_CHECKING, cast
+from typing import Any, Callable, TypeAlias, Mapping, TYPE_CHECKING
 
+from betty.asyncio import wait_to_thread
+from betty.json.linked_data import dump_context, LinkedDataDumpable, JsonLdSchema
+from betty.json.schema import add_property, Schema
 from typing_extensions import override
 
-from betty.json.linked_data import (
-    dump_context,
-    add_json_ld,
-    LinkedDataDumpable,
-)
-from betty.json.schema import add_property, Schema
-from betty.serde.dump import DumpMapping, Dump
-
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from betty.serde.dump import DumpMapping, Dump
     from betty.project import Project
 
 
@@ -145,9 +140,12 @@ class Date(LinkedDataDumpable):
 
     @override
     async def dump_linked_data(
-        self, project: Project, schemas_org: Sequence[str] | None = None
+        self,
+        project: Project,
+        context_definition: str | None = None,
     ) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
+        dump["fuzzy"] = self.fuzzy
         if self.year:
             dump["year"] = self.year
         if self.month:
@@ -156,19 +154,11 @@ class Date(LinkedDataDumpable):
             dump["day"] = self.day
         if self.comparable:
             dump["iso8601"] = _dump_date_iso8601(self)
+            # Set a single term definition because JSON-LD does not let us apply multiple
+            # for the same term (key).
+            if context_definition:
+                dump_context(dump, iso8601=context_definition)
         return dump
-
-    async def datey_dump_linked_data(
-        self,
-        dump: DumpMapping[Dump],
-        start_schema_org: str,
-        end_schema_org: str,
-    ) -> None:
-        """
-        Dump this instance to `JSON-LD <https://json-ld.org/>`_ for a 'datey' field.
-        """
-        if self.comparable:
-            dump_context(dump, iso8601=(start_schema_org, end_schema_org))
 
     @override
     @classmethod
@@ -182,8 +172,12 @@ class DateSchema(Schema):
     """
 
     def __init__(self):
-        super().__init__(name="date")
-        add_json_ld(self)
+        super().__init__(def_name="date")
+        add_property(
+            self,
+            "fuzzy",
+            Schema(schema={"type": "boolean"}),
+        )
         add_property(self, "year", Schema(schema={"type": "number"}), False)
         add_property(self, "month", Schema(schema={"type": "number"}), False)
         add_property(self, "day", Schema(schema={"type": "number"}), False)
@@ -199,6 +193,7 @@ class DateSchema(Schema):
             ),
             False,
         )
+        wait_to_thread(JsonLdSchema.new()).wrap(self)
 
 
 def _dump_date_iso8601(date: Date) -> str | None:
@@ -306,42 +301,24 @@ class DateRange(LinkedDataDumpable):
     async def dump_linked_data(
         self,
         project: Project,
-        start_schema_org: str | None = None,
-        end_schema_org: str | None = None,
+        start_context_definition: str | None = None,
+        end_context_definition: str | None = None,
     ) -> DumpMapping[Dump]:
-        dump: DumpMapping[Dump] = {}
-        if self.start:
-            dump["start"] = await self.start.dump_linked_data(
-                project,
-                [start_schema_org] if start_schema_org else None,
+        return {
+            "start": await self.start.dump_linked_data(
+                project, start_context_definition
             )
-        if self.end:
-            dump["end"] = await self.end.dump_linked_data(
-                project,
-                [end_schema_org] if end_schema_org else None,
-            )
-        return dump
+            if self.start
+            else None,
+            "end": await self.end.dump_linked_data(project, end_context_definition)
+            if self.end
+            else None,
+        }
 
     @override
     @classmethod
     async def linked_data_schema(cls, project: Project) -> Schema:
         return DateRangeSchema()
-
-    async def datey_dump_linked_data(
-        self,
-        dump: DumpMapping[Dump],
-        start_schema_org: str,
-        end_schema_org: str,
-    ) -> None:
-        """
-        Dump this instance to `JSON-LD <https://json-ld.org/>`_ for a 'datey' field.
-        """
-        if self.start and self.start.comparable:
-            start = cast(DumpMapping[Dump], dump.setdefault("start", {}))
-            dump_context(start, iso8601=start_schema_org)
-        if self.end and self.end.comparable:
-            end = cast(DumpMapping[Dump], dump.setdefault("end", {}))
-            dump_context(end, iso8601=end_schema_org)
 
     def _get_comparable_date(self, date: Date | None) -> Date | None:
         if date and date.comparable:
@@ -503,10 +480,19 @@ class DateRangeSchema(Schema):
     """
 
     def __init__(self):
-        super().__init__(name="dateRange")
-        date_schema = DateSchema()
-        add_property(self, "start", date_schema, False)
-        add_property(self, "end", date_schema, False)
+        super().__init__(def_name="dateRange")
+        self._schema["additionalProperties"] = False
+        embedded_date_schema = DateSchema().embed(self)
+        add_property(
+            self,
+            "start",
+            Schema(schema={"oneOf": [embedded_date_schema, {"type": "null"}]}),
+        )
+        add_property(
+            self,
+            "end",
+            Schema(schema={"oneOf": [embedded_date_schema, {"type": "null"}]}),
+        )
 
 
 class DateySchema(Schema):
@@ -515,9 +501,8 @@ class DateySchema(Schema):
     """
 
     def __init__(self):
-        super().__init__(name="datey")
-        # Empty dateys match both dates and date ranges, so use `anyOf` instead of `oneOf`.
-        self.schema["anyOf"] = [
+        super().__init__(def_name="datey")
+        self._schema["oneOf"] = [
             DateSchema().embed(self),
             DateRangeSchema().embed(self),
         ]

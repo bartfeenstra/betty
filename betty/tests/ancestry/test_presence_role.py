@@ -10,5 +10,13 @@ from betty.test_utils.json.schema import SchemaTestBase
 
 class TestPresenceRoleSchema(SchemaTestBase):
     @override
-    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
-        return [(PresenceRoleSchema(), [Subject.plugin_id()])]
+    async def get_sut_instances(
+        self,
+    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
+        return [
+            (
+                PresenceRoleSchema(),
+                [Subject.plugin_id()],
+                [True, False, None, 123, [], {}],
+            )
+        ]

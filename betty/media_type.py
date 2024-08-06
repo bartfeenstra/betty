@@ -115,7 +115,7 @@ class MediaTypeSchema(Schema):
 
     def __init__(self):
         super().__init__(
-            name="mediaType",
+            def_name="mediaType",
             schema={
                 "type": "string",
                 "description": "An IANA media type (https://www.iana.org/assignments/media-types/media-types.xhtml).",

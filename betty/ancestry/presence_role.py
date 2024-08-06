@@ -8,10 +8,10 @@ from typing import final
 
 from typing_extensions import override
 
+from betty.json.schema import Schema
 from betty.locale.localizable import Localizable, _
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
-from betty.json.schema import Schema
 
 
 class PresenceRole(Plugin):
@@ -40,9 +40,9 @@ class PresenceRoleSchema(Schema):
     """
 
     def __init__(self):
-        super().__init__(name="presenceRole")
-        self.schema["type"] = "string"
-        self.schema["description"] = "A person's role in an event."
+        super().__init__(def_name="presenceRole")
+        self._schema["type"] = "string"
+        self._schema["description"] = "A person's role in an event."
 
 
 @final

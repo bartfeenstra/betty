@@ -1,7 +1,6 @@
 'use strict'
 
 import { CleanWebpackPlugin } from 'clean-webpack-plugin'
-import CopyWebpackPlugin from 'copy-webpack-plugin'
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import path from 'path'
@@ -110,17 +109,6 @@ const webpackConfiguration = {
   },
   plugins: [
     new CleanWebpackPlugin(),
-    new CopyWebpackPlugin({
-      patterns: [
-        // The HttpApiDoc extension does not have a Webpack build as such (yet), but simply
-        // requires a single dependency distribution asset verbatim.
-        {
-          from: path.join('node_modules','redoc', 'bundles', 'redoc.standalone.js'),
-          to: 'js/http-api-doc.js',
-          noErrorOnMissing: true,
-        },
-      ],
-    }),
     new EntryScriptCollector(),
     new MiniCssExtractPlugin({
       filename: 'css/[name].css'

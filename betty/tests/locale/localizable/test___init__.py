@@ -215,15 +215,31 @@ class TestStaticTranslationsLocalizable:
 
 class TestStaticTranslationsLocalizableSchema(SchemaTestBase):
     @override
-    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
-        translations: Sequence[Dump] = [
-            {DEFAULT_LOCALE: "Hello, world!"},
-            {"nl": "Hallo, wereld!", "uk": "Привіт Світ!"},
+    async def get_sut_instances(
+        self,
+    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
+        valid_datas: Sequence[Dump] = [
+            {"translations": {DEFAULT_LOCALE: "Hello, world!"}},
+            {"translations": {"nl": "Hallo, wereld!", "uk": "Привіт Світ!"}},
+        ]
+        invalid_datas: Sequence[Dump] = [
+            True,
+            False,
+            None,
+            123,
+            [],
+            {DEFAULT_LOCALE: True},
+            {DEFAULT_LOCALE: False},
+            {DEFAULT_LOCALE: None},
+            {DEFAULT_LOCALE: 123},
+            {DEFAULT_LOCALE: []},
+            {DEFAULT_LOCALE: {}},
         ]
         return [
             (
                 StaticTranslationsLocalizableSchema(),
-                translations,
+                valid_datas,
+                invalid_datas,
             ),
         ]
 

@@ -14,7 +14,7 @@ from typing_extensions import override
 from betty.attr import MutableAttr
 from betty.classtools import repr_instance
 from betty.json.linked_data import LinkedDataDumpable
-from betty.json.schema import Schema
+from betty.json.schema import Schema, add_property
 from betty.locale import negotiate_locale, to_locale, UNDETERMINED_LOCALE
 from betty.locale.localized import LocalizedStr
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -335,16 +335,20 @@ class StaticTranslationsLocalizableSchema(Schema):
     """
 
     def __init__(self):
-        super().__init__(
-            name="staticTranslations",
-            schema={
-                "type": "object",
-                "description": "Keys are IETF BCP-47 language tags.",
-                "additionalProperties": {
-                    "type": "string",
-                    "description": "A human-readable translation.",
-                },
-            },
+        super().__init__(def_name="staticTranslations")
+        add_property(
+            self,
+            "translations",
+            Schema(
+                schema={
+                    "type": "object",
+                    "description": "Keys are IETF BCP-47 language tags.",
+                    "additionalProperties": {
+                        "type": "string",
+                        "description": "A human-readable translation.",
+                    },
+                }
+            ),
         )
 
 

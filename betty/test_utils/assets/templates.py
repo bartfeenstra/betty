@@ -14,8 +14,8 @@ from html5lib.html5parser import ParseError
 
 from betty.app import App
 from betty.jinja2 import Environment
-from betty.json.schema import ProjectSchema
-from betty.project import Project
+from betty.json.schema import Ref, Schema
+from betty.project import Project, ProjectSchema
 from betty.project.extension import Extension
 
 if TYPE_CHECKING:
@@ -120,7 +120,7 @@ async def assert_betty_html(project: Project, url_path: str) -> Path:
     return betty_html_file_path
 
 
-async def assert_betty_json(project: Project, url_path: str) -> Path:
+async def assert_betty_json(project: Project, url_path: str, def_name: str) -> Path:
     """
     Assert that an entity's JSON resource exists and is valid.
     """
@@ -132,7 +132,13 @@ async def assert_betty_json(project: Project, url_path: str) -> Path:
     async with aiofiles.open(betty_json_file_path) as f:
         betty_json = await f.read()
     betty_json_data = json.loads(betty_json)
-    schema = await ProjectSchema.new(project)
+
+    project_schema = await ProjectSchema.new(project)
+    schema = Schema()
+    # Somehow $ref cannot be top-level in our case, so wrap it.
+    schema.schema["allOf"] = [Ref(def_name).embed(schema)]
+    project_schema.embed(schema)
+
     schema.validate(betty_json_data)
 
     return betty_json_file_path

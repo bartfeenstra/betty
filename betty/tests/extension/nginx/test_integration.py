@@ -14,12 +14,12 @@ from betty.extension.nginx import Nginx
 from betty.extension.nginx.config import NginxConfiguration
 from betty.extension.nginx.serve import DockerizedNginxServer
 from betty.functools import Do
-from betty.json.schema import ProjectSchema
 from betty.project import (
     ProjectConfiguration,
     ExtensionConfiguration,
     LocaleConfiguration,
     Project,
+    ProjectSchema,
 )
 from betty.serve import Server
 

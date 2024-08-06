@@ -14,6 +14,7 @@ from betty.url import (
     LocalizedPathUrlGenerator,
     _EntityUrlGenerator,
     ProjectUrlGenerator,
+    StaticPathUrlGenerator,
 )
 
 if TYPE_CHECKING:
@@ -27,12 +28,8 @@ class TestLocalizedPathUrlGenerator:
         [
             "/",
             "/index.html",
-            "example",
             "/example",
-            "example/",
-            "/example/",
-            "example/index.html",
-            "/example/index.html",
+            "/example/" "/example/index.html",
         ],
     )
     async def test_supports(self, new_temporary_app: App, resource: str) -> None:
@@ -43,13 +40,10 @@ class TestLocalizedPathUrlGenerator:
     @pytest.mark.parametrize(
         ("expected", "resource"),
         [
-            ("", "/"),
+            ("/", "/"),
             ("/index.html", "/index.html"),
-            ("/example", "example"),
             ("/example", "/example"),
-            ("/example", "example/"),
             ("/example", "/example/"),
-            ("/example/index.html", "example/index.html"),
             ("/example/index.html", "/example/index.html"),
         ],
     )
@@ -63,9 +57,7 @@ class TestLocalizedPathUrlGenerator:
     @pytest.mark.parametrize(
         ("expected", "resource"),
         [
-            ("", "index.html"),
-            ("", "/index.html"),
-            ("/example", "example/index.html"),
+            ("/", "/index.html"),
             ("/example", "/example/index.html"),
         ],
     )
@@ -82,7 +74,7 @@ class TestLocalizedPathUrlGenerator:
         ("expected", "resource"),
         [
             ("https://example.com", "/"),
-            ("https://example.com/example", "example"),
+            ("https://example.com/example", "/example"),
         ],
     )
     async def test_generate_absolute(
@@ -93,17 +85,19 @@ class TestLocalizedPathUrlGenerator:
             assert sut.generate(resource, "text/html", absolute=True) == expected
 
     @pytest.mark.parametrize(
-        ("expected", "url_generator_locale"),
+        ("expected", "resource", "url_generator_locale"),
         [
-            ("/en/index.html", None),
-            ("/nl/index.html", "nl"),
-            ("/en/index.html", "en"),
+            ("/en/index.html", "/index.html", None),
+            ("/nl/index.html", "/index.html", "nl"),
+            ("/en/index.html", "/index.html", "en"),
+            ("/en/foo/index.html", "/foo/index.html", "en"),
         ],
     )
     async def test_generate_multilingual(
         self,
         expected: str,
         new_temporary_app: App,
+        resource: Any,
         url_generator_locale: Localey | None,
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
@@ -120,9 +114,7 @@ class TestLocalizedPathUrlGenerator:
             async with project:
                 sut = LocalizedPathUrlGenerator(project)
                 assert (
-                    sut.generate(
-                        "/index.html", "text/html", locale=url_generator_locale
-                    )
+                    sut.generate(resource, "text/html", locale=url_generator_locale)
                     == expected
                 )
 
@@ -226,3 +218,50 @@ class TestProjectUrlGenerator:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = ProjectUrlGenerator(project)
             assert sut.generate(resource, "text/html") == expected
+
+
+class TestStaticPathUrlGenerator:
+    @pytest.mark.parametrize(
+        "resource",
+        [
+            "/",
+            "/index.html",
+            "/example",
+            "/example/" "/example/index.html",
+        ],
+    )
+    async def test_supports(self, new_temporary_app: App, resource: str) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = StaticPathUrlGenerator(project.configuration)
+            assert sut.supports(resource)
+
+    @pytest.mark.parametrize(
+        ("expected", "resource"),
+        [
+            ("/", "/"),
+            ("/index.html", "/index.html"),
+            ("/example", "/example"),
+            ("/example", "/example/"),
+            ("/example/index.html", "/example/index.html"),
+        ],
+    )
+    async def test_generate(
+        self, expected: str, new_temporary_app: App, resource: str
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = StaticPathUrlGenerator(project.configuration)
+            assert sut.generate(resource) == expected
+
+    @pytest.mark.parametrize(
+        ("expected", "resource"),
+        [
+            ("https://example.com", "/"),
+            ("https://example.com/example", "/example"),
+        ],
+    )
+    async def test_generate_absolute(
+        self, expected: str, new_temporary_app: App, resource: str
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = StaticPathUrlGenerator(project.configuration)
+            assert sut.generate(resource, absolute=True) == expected

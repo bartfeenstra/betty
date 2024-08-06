@@ -2,6 +2,8 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 
 import aiofiles
+from pytest_mock import MockerFixture
+
 from betty.ancestry import Person, Place, Source, Name, File, Event, Citation
 from betty.ancestry.event_type import Birth
 from betty.app import App
@@ -15,10 +17,9 @@ from betty.project import (
     EntityTypeConfiguration,
     Project,
 )
-from betty.string import camel_case_to_kebab_case
+from betty.string import camel_case_to_kebab_case, kebab_case_to_lower_camel_case
 from betty.test_utils.assets.templates import assert_betty_html, assert_betty_json
 from betty.test_utils.model import DummyEntity
-from pytest_mock import MockerFixture
 
 
 class ThirdPartyEntity(UserFacingEntity, DummyEntity):
@@ -188,6 +189,7 @@ class TestGenerate:
                 await assert_betty_json(
                     project,
                     f"/{camel_case_to_kebab_case(ThirdPartyEntity.plugin_id())}/index.json",
+                    f"{kebab_case_to_lower_camel_case(ThirdPartyEntity.plugin_id())}EntityCollectionResponse",
                 )
 
     async def test_third_party_entity(self, mocker: MockerFixture) -> None:
@@ -211,6 +213,7 @@ class TestGenerate:
                 await assert_betty_json(
                     project,
                     f"/{camel_case_to_kebab_case(ThirdPartyEntity.plugin_id())}/{entity.id}/index.json",
+                    f"{kebab_case_to_lower_camel_case(ThirdPartyEntity.plugin_id())}Entity",
                 )
 
     async def test_files(self) -> None:
@@ -226,7 +229,9 @@ class TestGenerate:
             async with project:
                 await generate(project)
                 await assert_betty_html(project, "/file/index.html")
-                await assert_betty_json(project, "/file/index.json")
+                await assert_betty_json(
+                    project, "/file/index.json", "fileEntityCollectionResponse"
+                )
 
     async def test_file(self) -> None:
         async with App.new_temporary() as app, app, Project.new_temporary(
@@ -241,7 +246,9 @@ class TestGenerate:
                 async with project:
                     await generate(project)
                     await assert_betty_html(project, f"/file/{file.id}/index.html")
-                    await assert_betty_json(project, f"/file/{file.id}/index.json")
+                    await assert_betty_json(
+                        project, f"/file/{file.id}/index.json", "fileEntity"
+                    )
 
     async def test_places(self) -> None:
         async with App.new_temporary() as app, app, Project.new_temporary(
@@ -249,7 +256,9 @@ class TestGenerate:
         ) as project, project:
             await generate(project)
             await assert_betty_html(project, "/place/index.html")
-            await assert_betty_json(project, "/place/index.json")
+            await assert_betty_json(
+                project, "/place/index.json", "placeEntityCollectionResponse"
+            )
 
     async def test_place(self) -> None:
         async with App.new_temporary() as app, app, Project.new_temporary(
@@ -263,7 +272,9 @@ class TestGenerate:
             async with project:
                 await generate(project)
                 await assert_betty_html(project, f"/place/{place.id}/index.html")
-                await assert_betty_json(project, f"/place/{place.id}/index.json")
+                await assert_betty_json(
+                    project, f"/place/{place.id}/index.json", "placeEntity"
+                )
 
     async def test_people(self) -> None:
         async with App.new_temporary() as app, app, Project.new_temporary(
@@ -271,7 +282,9 @@ class TestGenerate:
         ) as project, project:
             await generate(project)
             await assert_betty_html(project, "/person/index.html")
-            await assert_betty_json(project, "/person/index.json")
+            await assert_betty_json(
+                project, "/person/index.json", "personEntityCollectionResponse"
+            )
 
     async def test_person(self) -> None:
         person = Person(id="PERSON1")
@@ -283,8 +296,7 @@ class TestGenerate:
                 await generate(project)
                 await assert_betty_html(project, f"/person/{person.id}/index.html")
                 await assert_betty_json(
-                    project,
-                    f"/person/{person.id}/index.json",
+                    project, f"/person/{person.id}/index.json", "personEntity"
                 )
 
     async def test_events(self) -> None:
@@ -293,7 +305,9 @@ class TestGenerate:
         ) as project, project:
             await generate(project)
             await assert_betty_html(project, "/event/index.html")
-            await assert_betty_json(project, "/event/index.json")
+            await assert_betty_json(
+                project, "/event/index.json", "eventEntityCollectionResponse"
+            )
 
     async def test_event(self) -> None:
         async with App.new_temporary() as app, app, Project.new_temporary(
@@ -307,7 +321,9 @@ class TestGenerate:
             async with project:
                 await generate(project)
                 await assert_betty_html(project, f"/event/{event.id}/index.html")
-                await assert_betty_json(project, f"/event/{event.id}/index.json")
+                await assert_betty_json(
+                    project, f"/event/{event.id}/index.json", "eventEntity"
+                )
 
     async def test_citation(self) -> None:
         async with App.new_temporary() as app, app, Project.new_temporary(
@@ -322,7 +338,9 @@ class TestGenerate:
             async with project:
                 await generate(project)
                 await assert_betty_html(project, f"/citation/{citation.id}/index.html")
-                await assert_betty_json(project, f"/citation/{citation.id}/index.json")
+                await assert_betty_json(
+                    project, f"/citation/{citation.id}/index.json", "citationEntity"
+                )
 
     async def test_sources(self) -> None:
         async with App.new_temporary() as app, app, Project.new_temporary(
@@ -330,7 +348,9 @@ class TestGenerate:
         ) as project, project:
             await generate(project)
             await assert_betty_html(project, "/source/index.html")
-            await assert_betty_json(project, "/source/index.json")
+            await assert_betty_json(
+                project, "/source/index.json", "sourceEntityCollectionResponse"
+            )
 
     async def test_source(self) -> None:
         async with App.new_temporary() as app, app, Project.new_temporary(
@@ -344,7 +364,9 @@ class TestGenerate:
             async with project:
                 await generate(project)
                 await assert_betty_html(project, f"/source/{source.id}/index.html")
-                await assert_betty_json(project, f"/source/{source.id}/index.json")
+                await assert_betty_json(
+                    project, f"/source/{source.id}/index.json", "sourceEntity"
+                )
 
 
 class TestResourceOverride:

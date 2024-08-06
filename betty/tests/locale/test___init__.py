@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
 
 import pytest
 
@@ -12,9 +12,14 @@ from betty.locale import (
     NO_LINGUISTIC_CONTENT,
     SPECIAL_LOCALES,
     MULTIPLE_LOCALES,
+    LocaleSchema,
 )
+from betty.test_utils.json.schema import SchemaTestBase
+from typing_extensions import override
 
 if TYPE_CHECKING:
+    from betty.serde.dump import Dump
+    from betty.json.schema import Schema
     from collections.abc import Sequence
 
 
@@ -65,3 +70,20 @@ class TestNegotiateLocale:
     ) -> None:
         actual = negotiate_locale(preferred_locale, available_locales)
         assert expected == (to_locale(actual) if actual else actual)
+
+
+class TestLocaleSchema(SchemaTestBase):
+    @override
+    async def get_sut_instances(
+        self,
+    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
+        return [
+            (
+                LocaleSchema(),
+                ["en", "nl", "uk"],
+                [
+                    True,
+                    False,
+                ],
+            )
+        ]

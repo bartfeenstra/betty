@@ -1,15 +1,14 @@
-"""Integrate Betty with `ReDoc <https://redocly.com/redoc/>`_."""
+"""Integrate Betty with `Swagger UI <https://swagger.io/tools/swagger-ui>`_."""
 
 from __future__ import annotations
 
 from pathlib import Path
 from typing import TYPE_CHECKING, final
 
-from typing_extensions import override
-
 from betty.extension.webpack import Webpack, WebpackEntryPointProvider
 from betty.locale.localizable import _, Localizable
 from betty.project.extension import Extension
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
@@ -55,5 +54,5 @@ class HttpApiDoc(Extension, WebpackEntryPointProvider):
     @classmethod
     def plugin_description(cls) -> Localizable:
         return _(
-            'Display the HTTP API documentation in a user-friendly way using <a href="https://github.com/Redocly/redoc">ReDoc</a>.'
+            'Display the HTTP API documentation in a user-friendly way using <a href="https://swagger.io/tools/swagger-ui">Swagger UI</a>.'
         )

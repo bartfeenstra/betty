@@ -18,6 +18,7 @@ from asyncio import (
     sleep,
     to_thread,
 )
+from collections.abc import MutableSequence
 from contextlib import suppress
 from pathlib import Path
 from typing import (
@@ -39,17 +40,17 @@ from betty import model
 from betty.ancestry import is_public
 from betty.asyncio import gather
 from betty.job import Context
-from betty.json.schema import ProjectSchema
 from betty.locale import get_display_name
+from betty.locale.localizable import _
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import (
     UserFacingEntity,
     Entity,
     GeneratedEntityId,
 )
 from betty.openapi import Specification
-from betty.project import ProjectEvent
+from betty.project import ProjectEvent, ProjectSchema
 from betty.string import kebab_case_to_lower_camel_case
-from collections.abc import MutableSequence
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -322,17 +323,39 @@ async def _generate_static_public(
         *(
             _generate_static_public_asset(asset_path, project, job_context)
             for asset_path in project.assets.walk(Path("public") / "static")
-        )
+        ),
+        # Ensure favicon.ico exists, otherwise servers of Betty sites would log
+        # many a 404 Not Found for it, because some clients eagerly try to see
+        # if it exists.
+        to_thread(
+            shutil.copy2,
+            project.assets[Path("public") / "static" / "betty.ico"],
+            project.configuration.www_directory_path / "favicon.ico",
+        ),
+        _generate_json_error_responses(project),
     )
 
-    # Ensure favicon.ico exists, otherwise servers of Betty sites would log
-    # many a 404 Not Found for it, because some clients eagerly try to see
-    # if it exists.
-    await to_thread(
-        shutil.copy2,
-        project.assets[Path("public") / "static" / "betty.ico"],
-        project.configuration.www_directory_path / "favicon.ico",
-    )
+
+async def _generate_json_error_responses(project: Project) -> None:
+    for code, message in [
+        (401, _("I'm sorry, dear, but it seems you're not logged in.")),
+        (403, _("I'm sorry, dear, but it seems you're not allowed to view this page.")),
+        (404, _("I'm sorry, dear, but it seems this page does not exist.")),
+    ]:
+        for locale in project.configuration.locales:
+            async with await create_file(
+                project.configuration.localize_www_directory_path(locale)
+                / ".error"
+                / f"{code}.json"
+            ) as f:
+                await f.write(
+                    json.dumps(
+                        {
+                            "$schema": ProjectSchema.def_url(project, "errorResponse"),
+                            "message": message.localize(DEFAULT_LOCALIZER),
+                        }
+                    )
+                )
 
 
 async def _generate_entity_type_list_html(
@@ -372,9 +395,9 @@ async def _generate_entity_type_list_json(
         project.configuration.www_directory_path / entity_type.plugin_id()
     )
     data: DumpMapping[Dump] = {
-        "$schema": project.static_url_generator.generate(
-            f"schema.json#/definitions/{kebab_case_to_lower_camel_case(entity_type.plugin_id())}CollectionResponse",
-            absolute=True,
+        "$schema": ProjectSchema.def_url(
+            project,
+            f"{kebab_case_to_lower_camel_case(entity_type.plugin_id())}EntityCollectionResponse",
         ),
         "collection": [],
     }
@@ -471,7 +494,7 @@ async def _generate_sitemap(
     for index, sitemap in enumerate(sitemaps):
         sitemaps_urls.append(
             project.static_url_generator.generate(
-                f"sitemap-{index}.xml",
+                f"/sitemap-{index}.xml",
                 absolute=True,
             )
         )
@@ -509,9 +532,7 @@ async def _generate_json_schema(
     )
     schema = await ProjectSchema.new(project)
     rendered_json = json.dumps(schema.schema)
-    async with await create_file(
-        project.configuration.www_directory_path / "schema.json"
-    ) as f:
+    async with await create_file(ProjectSchema.www_path(project)) as f:
         await f.write(rendered_json)
 
 
