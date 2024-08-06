@@ -27,7 +27,7 @@ class TestColorConfiguration:
         hex_value = "#000000"
         sut = ColorConfiguration("#ffffff")
         sut.hex = hex_value
-        assert hex_value == sut.hex
+        assert sut.hex == hex_value
 
     @pytest.mark.parametrize(
         "hex_value",
@@ -121,7 +121,7 @@ class TestCottonCandyConfiguration:
         sut = CottonCandyConfiguration()
         sut.load(dump)
         assert entity_type is sut.featured_entities[0].entity_type
-        assert entity_id == sut.featured_entities[0].entity_id
+        assert sut.featured_entities[0].entity_id == entity_id
 
     async def test_load_with_primary_inactive_color(self) -> None:
         hex_value = "#000000"
@@ -176,7 +176,7 @@ class TestCottonCandyConfiguration:
             "link_inactive_color": CottonCandyConfiguration.DEFAULT_LINK_INACTIVE_COLOR,
             "link_active_color": CottonCandyConfiguration.DEFAULT_LINK_ACTIVE_COLOR,
         }
-        assert expected == sut.dump()
+        assert sut.dump() == expected
 
     async def test_dump_with_featured_entities(self) -> None:
         entity_type = CottonCandyConfigurationTestEntity

@@ -52,7 +52,7 @@ class TestWikipedia(ExtensionTestBase):
                 )
 
             m_get_summary.assert_called_once()
-            assert extract == actual
+            assert actual == extract
 
     async def test_post_load(
         self, mocker: MockerFixture, new_temporary_app: App

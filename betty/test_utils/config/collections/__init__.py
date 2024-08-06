@@ -93,7 +93,7 @@ class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _Configuration
         """
         configuration = self.get_configurations()[0]
         sut = self.get_sut([configuration])
-        assert [configuration] == list(sut.values())
+        assert list(sut.values()) == [configuration]
 
     async def test_keys(self) -> None:
         """
@@ -101,7 +101,7 @@ class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _Configuration
         """
         configurations = self.get_configurations()
         sut = self.get_sut(configurations)
-        assert [*self.get_configuration_keys()] == list(sut.keys())
+        assert list(sut.keys()) == [*self.get_configuration_keys()]
 
     async def test_values(self) -> None:
         """
@@ -109,7 +109,7 @@ class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _Configuration
         """
         configurations = self.get_configurations()
         sut = self.get_sut(configurations)
-        assert [*configurations] == list(sut.values())
+        assert list(sut.values()) == [*configurations]
 
     async def test___delitem__(self) -> None:
         """
@@ -156,7 +156,7 @@ class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _Configuration
                 configurations[1],
             ]
         )
-        assert other == sut
+        assert sut == other
 
     async def test_prepend(self) -> None:
         """
@@ -169,7 +169,7 @@ class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _Configuration
             ]
         )
         sut.prepend(configurations[0])
-        assert [configurations[0], configurations[1]] == list(sut.values())
+        assert list(sut.values()) == [configurations[0], configurations[1]]
 
     async def test_append(self) -> None:
         """
@@ -198,9 +198,9 @@ class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _Configuration
             ]
         )
         sut.insert(1, configurations[2], configurations[3])
-        assert [
+        assert list(sut.values()) == [
             configurations[0],
             configurations[2],
             configurations[3],
             configurations[1],
-        ] == list(sut.values())
+        ]

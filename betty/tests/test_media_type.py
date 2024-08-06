@@ -61,12 +61,12 @@ class TestMediaType:
         media_type: str,
     ) -> None:
         sut = MediaType(media_type)
-        assert expected_type == sut.type
-        assert expected_subtype == sut.subtype
-        assert expected_subtypes == sut.subtypes
-        assert expected_suffix == sut.suffix
-        assert expected_parameters == sut.parameters
-        assert media_type == str(sut)
+        assert sut.type == expected_type
+        assert sut.subtype == expected_subtype
+        assert sut.subtypes == expected_subtypes
+        assert sut.suffix == expected_suffix
+        assert sut.parameters == expected_parameters
+        assert str(sut) == media_type
 
     @pytest.mark.parametrize(
         "media_type",

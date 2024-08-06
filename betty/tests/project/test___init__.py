@@ -72,7 +72,7 @@ class TestEntityReference:
         sut = EntityReference[EntityReferenceTestEntityOne](
             entity_type, None, entity_type_is_constrained=True
         )
-        assert entity_type == sut.entity_type
+        assert sut.entity_type == entity_type
         with pytest.raises(AttributeError):
             sut.entity_type = entity_type
 
@@ -81,14 +81,14 @@ class TestEntityReference:
         sut = EntityReference[EntityReferenceTestEntityOne]()
         assert sut.entity_type is None
         sut.entity_type = entity_type
-        assert entity_type == sut.entity_type
+        assert sut.entity_type == entity_type
 
     async def test_entity_id(self) -> None:
         entity_id = "123"
         sut = EntityReference[EntityReferenceTestEntityOne]()
         assert sut.entity_id is None
         sut.entity_id = entity_id
-        assert entity_id == sut.entity_id
+        assert sut.entity_id == entity_id
 
     async def test_load_with_constraint(self) -> None:
         sut = EntityReference(
@@ -97,7 +97,7 @@ class TestEntityReference:
         entity_id = "123"
         dump = entity_id
         sut.load(dump)
-        assert entity_id == sut.entity_id
+        assert sut.entity_id == entity_id
 
     @pytest.mark.parametrize(
         "dump",
@@ -136,8 +136,8 @@ class TestEntityReference:
         }
         sut = EntityReference[EntityReferenceTestEntityOne]()
         sut.load(dump)
-        assert entity_type == sut.entity_type
-        assert entity_id == sut.entity_id
+        assert sut.entity_type == entity_type
+        assert sut.entity_id == entity_id
 
     async def test_load_without_constraint_without_entity_type_should_error(
         self,
@@ -192,7 +192,7 @@ class TestEntityReference:
         entity_id = "123"
         sut.entity_id = entity_id
         expected = entity_id
-        assert expected == sut.dump()
+        assert sut.dump() == expected
 
     async def test_dump_without_constraint(self) -> None:
         sut = EntityReference[EntityReferenceTestEntityOne]()
@@ -204,7 +204,7 @@ class TestEntityReference:
             "entity_type": entity_type.plugin_id(),
             "entity_id": entity_id,
         }
-        assert expected == sut.dump()
+        assert sut.dump() == expected
 
 
 class EntityReferenceSequenceTestEntity(DummyEntity):
@@ -250,12 +250,12 @@ class TestLocaleConfiguration:
     async def test_locale(self) -> None:
         locale = "nl-NL"
         sut = LocaleConfiguration(locale)
-        assert locale == sut.locale
+        assert sut.locale == locale
 
     async def test_alias_implicit(self) -> None:
         locale = "nl-NL"
         sut = LocaleConfiguration(locale)
-        assert locale == sut.alias
+        assert sut.alias == locale
 
     async def test_alias_explicit(self) -> None:
         locale = "nl-NL"
@@ -264,7 +264,7 @@ class TestLocaleConfiguration:
             locale,
             alias=alias,
         )
-        assert alias == sut.alias
+        assert sut.alias == alias
 
     async def test_invalid_alias(self) -> None:
         locale = "nl-NL"
@@ -307,7 +307,7 @@ class TestLocaleConfiguration:
     async def test___eq__(
         self, expected: bool, sut: LocaleConfiguration, other: Any
     ) -> None:
-        assert expected == (sut == other)
+        assert (sut == other) == expected
 
     async def test_load_with_invalid_dump(self) -> None:
         dump: Dump = {}
@@ -400,7 +400,7 @@ class TestLocaleConfigurationMapping(
 
     async def test_default_without_explicit_locale_configurations(self) -> None:
         sut = LocaleConfigurationMapping()
-        assert LocaleConfiguration("en-US") == sut.default
+        assert sut.default == LocaleConfiguration("en-US")
 
     async def test_default_without_explicit_default(self) -> None:
         locale_configuration_a = LocaleConfiguration("nl-NL")
@@ -411,7 +411,7 @@ class TestLocaleConfigurationMapping(
                 locale_configuration_b,
             ]
         )
-        assert locale_configuration_a == sut.default
+        assert sut.default == locale_configuration_a
 
     @override
     async def test_replace_without_items(self) -> None:
@@ -501,7 +501,7 @@ class TestExtensionConfiguration:
     async def test_extension_type(self) -> None:
         extension_type = DummyExtension
         sut = ExtensionConfiguration(extension_type)
-        assert extension_type == sut.extension_type
+        assert sut.extension_type == extension_type
 
     async def test_enabled(self) -> None:
         enabled = True
@@ -509,7 +509,7 @@ class TestExtensionConfiguration:
             DummyExtension,
             enabled=enabled,
         )
-        assert enabled == sut.enabled
+        assert sut.enabled == enabled
         sut.enabled = False
 
     async def test_configuration(self) -> None:
@@ -518,7 +518,7 @@ class TestExtensionConfiguration:
             _DummyConfigurableExtension,
             extension_configuration=extension_type_configuration,
         )
-        assert extension_type_configuration == sut.extension_configuration
+        assert sut.extension_configuration == extension_type_configuration
 
     @pytest.mark.parametrize(
         ("expected", "one", "other"),
@@ -662,7 +662,7 @@ class TestEntityTypeConfiguration:
     async def test_entity_type(self) -> None:
         entity_type = EntityTypeConfigurationTestEntityOne
         sut = EntityTypeConfiguration(entity_type)
-        assert entity_type == sut.entity_type
+        assert sut.entity_type == entity_type
 
     @pytest.mark.parametrize(
         "generate_html_list,",
@@ -674,7 +674,7 @@ class TestEntityTypeConfiguration:
     async def test_generate_html_list(self, generate_html_list: bool) -> None:
         sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
         sut.generate_html_list = generate_html_list
-        assert generate_html_list == sut.generate_html_list
+        assert sut.generate_html_list == generate_html_list
 
     async def test_load_with_empty_configuration(self) -> None:
         dump: Dump = {}
@@ -713,14 +713,14 @@ class TestEntityTypeConfiguration:
         }
         sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
         sut.load(dump)
-        assert generate_html_list == sut.generate_html_list
+        assert sut.generate_html_list == generate_html_list
 
     async def test_dump_with_minimal_configuration(self) -> None:
         sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
         expected = {
             "entity_type": EntityTypeConfigurationTestEntityOne.plugin_id(),
         }
-        assert expected == sut.dump()
+        assert sut.dump() == expected
 
     async def test_dump_with_generate_html_list(self) -> None:
         sut = EntityTypeConfiguration(
@@ -731,7 +731,7 @@ class TestEntityTypeConfiguration:
             "entity_type": EntityTypeConfigurationTestEntityOne.plugin_id(),
             "generate_html_list": False,
         }
-        assert expected == sut.dump()
+        assert sut.dump() == expected
 
     @pytest.mark.parametrize(
         ("expected", "one", "other"),
@@ -889,7 +889,7 @@ class TestProjectConfiguration:
         sut = ProjectConfiguration(tmp_path / "betty.json")
         clean_urls = True
         sut.clean_urls = clean_urls
-        assert clean_urls == sut.clean_urls
+        assert sut.clean_urls == clean_urls
 
     async def test_author_without_author(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
@@ -905,7 +905,7 @@ class TestProjectConfiguration:
         dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
         sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.load(dump)
-        assert dump["url"] == sut.url
+        assert sut.url == dump["url"]
         assert sut.title.localize(DEFAULT_LOCALIZER) == "Betty"
         assert not sut.author
         assert not sut.debug
@@ -1063,7 +1063,7 @@ class TestProjectConfiguration:
     async def test_dump_should_dump_minimal(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
         dump: Any = sut.dump()
-        assert dump["url"] == sut.url
+        assert sut.url == dump["url"]
         assert sut.title.localize(DEFAULT_LOCALIZER) == "Betty"
         assert not sut.author
         assert not sut.debug

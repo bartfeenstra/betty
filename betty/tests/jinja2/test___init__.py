@@ -79,7 +79,7 @@ class TestGlobalCiter(TemplateTestBase):
         sut.cite(citation1)
         sut.cite(citation2)
         sut.cite(citation1)
-        assert [(1, citation1), (2, citation2)] == list(sut)
+        assert list(sut) == [(1, citation1), (2, citation2)]
 
     async def test_len(self) -> None:
         citation1 = Citation()

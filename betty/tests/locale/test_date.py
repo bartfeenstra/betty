@@ -72,23 +72,23 @@ class TestDate:
     async def test_year(self) -> None:
         year = 1970
         sut = Date(year=year)
-        assert year == sut.year
+        assert sut.year == year
 
     async def test_month(self) -> None:
         month = 1
         sut = Date(month=month)
-        assert month == sut.month
+        assert sut.month == month
 
     async def test_day(self) -> None:
         day = 1
         sut = Date(day=day)
-        assert day == sut.day
+        assert sut.day == day
 
     async def test_fuzzy(self) -> None:
         fuzzy = True
         sut = Date()
         sut.fuzzy = fuzzy
-        assert fuzzy == sut.fuzzy
+        assert sut.fuzzy == fuzzy
 
     @pytest.mark.parametrize(
         ("expected", "year", "month", "day"),
@@ -106,7 +106,7 @@ class TestDate:
         self, expected: bool, year: int | None, month: int | None, day: int | None
     ) -> None:
         sut = Date(year, month, day)
-        assert expected == sut.comparable
+        assert sut.comparable == expected
 
     @pytest.mark.parametrize(
         ("expected", "year", "month", "day"),
@@ -124,7 +124,7 @@ class TestDate:
         self, expected: bool, year: int | None, month: int | None, day: int | None
     ) -> None:
         sut = Date(year, month, day)
-        assert expected == sut.complete
+        assert sut.complete == expected
 
     async def test_to_range_when_incomparable_should_raise(self) -> None:
         with pytest.raises(ValueError):  # noqa PT011
@@ -277,7 +277,7 @@ class TestDateRange:
         _TEST_IN_PARAMETERS + [(x[0], x[2], x[1]) for x in _TEST_IN_PARAMETERS],
     )
     async def test_in(self, expected: bool, other: Datey, sut: Datey) -> None:
-        assert expected == (other in sut)
+        assert (other in sut) == expected
 
     @pytest.mark.parametrize(
         ("expected", "other"),
