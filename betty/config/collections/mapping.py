@@ -125,6 +125,8 @@ class ConfigurationMapping(
 ):
     """
     A key-value mapping where values are :py:class:`betty.config.Configuration`.
+
+    To test your own subclasses, use :py:class:`betty.test_utils.config.collections.mapping.ConfigurationMappingTestBase`.
     """
 
     @abstractmethod
@@ -170,6 +172,8 @@ class OrderedConfigurationMapping(
 ):
     """
     An ordered key-value mapping where values are :py:class:`betty.config.Configuration`.
+
+    To test your own subclasses, use :py:class:`betty.test_utils.config.collections.mapping.OrderedConfigurationMappingTestBase`.
     """
 
     @override

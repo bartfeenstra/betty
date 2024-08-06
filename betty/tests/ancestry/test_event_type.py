@@ -6,7 +6,7 @@ from betty.locale.date import Date
 from betty.ancestry import Person, Presence, Event
 from betty.ancestry.event_type import Death, Birth
 from betty.ancestry.presence_role import Subject
-from betty.test_utils.model.event_type import EventTypeTestBase
+from betty.test_utils.ancestry.event_type import EventTypeTestBase
 
 _LIFETIME_THRESHOLD = 125
 

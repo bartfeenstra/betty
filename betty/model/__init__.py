@@ -63,6 +63,8 @@ class Entity(LinkedDataDumpable, Plugin):
     An entity is a uniquely identifiable data container.
 
     Read more about :doc:`/development/plugin/entity-type`.
+
+    To test your own subclasses, use :py:class:`betty.test_utils.model.EntityTestBase`.
     """
 
     def __init__(

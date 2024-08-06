@@ -22,6 +22,8 @@ class EventType(Plugin):
     Define an :py:class:`betty.ancestry.Event` type.
 
     Read more about :doc:`/development/plugin/event-type`.
+
+    To test your own subclasses, use :py:class:`betty.test_utils.ancestry.event_type.EventTypeTestBase`.
     """
 
     @classmethod

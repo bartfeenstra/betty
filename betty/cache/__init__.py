@@ -45,6 +45,8 @@ class Cache(Generic[_CacheItemValueContraT], ABC):
     Provide a cache.
 
     Implementations MUST be thread-safe.
+
+    To test your own subclasses, use :py:class:`betty.test_utils.cache.CacheTestBase`.
     """
 
     @abstractmethod

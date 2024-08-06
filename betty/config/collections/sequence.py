@@ -31,6 +31,8 @@ class ConfigurationSequence(
 ):
     """
     A sequence of configuration values.
+
+    To test your own subclasses, use :py:class:`betty.test_utils.config.collections.sequence.ConfigurationSequenceTestBase`.
     """
 
     def __init__(

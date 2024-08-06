@@ -58,6 +58,8 @@ class Extension(Plugin, CoreComponent, ProjectDependentFactory):
     Integrate optional functionality with Betty :py:class:`betty.project.Project`s.
 
     Read more about :doc:`/development/plugin/extension`.
+
+    To test your own subclasses, use :py:class:`betty.test_utils.project.extension.ExtensionTestBase`.
     """
 
     def __init__(self, project: Project):
