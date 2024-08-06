@@ -46,7 +46,6 @@ from betty.ancestry.presence_role import Subject
 from betty.app import App
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.date import Date, DateRange
-from betty.locale.localizable import static
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.model.association import OneToOne
@@ -1017,10 +1016,10 @@ class TestCitation(EntityTestBase):
 
     async def test_location(self) -> None:
         sut = Citation(source=Source())
-        assert sut.location is None
-        location = static("Somewhere")
+        assert not sut.location
+        location = "Somewhere"
         sut.location = location
-        assert location == sut.location
+        assert sut.location.localize(DEFAULT_LOCALIZER) == location
 
     async def test_date(self) -> None:
         sut = Citation(source=Source())

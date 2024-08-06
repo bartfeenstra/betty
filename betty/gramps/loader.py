@@ -930,7 +930,7 @@ class GrampsLoader:
         with suppress(XPathError):
             page = self._xpath1(element, "./ns:page").text
             if page:
-                citation.location = plain(page)
+                citation.location = page
 
         aliased_citation = AliasedEntity(citation, citation_handle)
         self._load_objref(
