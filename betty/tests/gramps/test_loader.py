@@ -1261,4 +1261,4 @@ class TestGrampsLoader:
 """
         )
         note = ancestry[Note]["N0000"]
-        assert note.text == "I left this for you."
+        assert note.text.localize(DEFAULT_LOCALIZER) == "I left this for you."
