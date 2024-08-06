@@ -33,7 +33,7 @@ class TestSingleTypeEntityCollection:
         sut.add(entity1)
         # Add an already added value again, and assert that it was ignored.
         sut.add(entity1)
-        assert [entity3, entity2, entity1] == list(sut)
+        assert list(sut) == [entity3, entity2, entity1]
 
     async def test_add_with_duplicate_entities(self) -> None:
         sut = SingleTypeEntityCollection[Entity](DummyEntity)
@@ -58,7 +58,7 @@ class TestSingleTypeEntityCollection:
             entity2,
             entity3,
         )
-        assert [entity1, entity2, entity3] == list(sut)
+        assert list(sut) == [entity1, entity2, entity3]
         # Ensure skipped duplicates do not affect further new values.
         sut.add(
             entity1,
@@ -71,7 +71,7 @@ class TestSingleTypeEntityCollection:
             entity8,
             entity9,
         )
-        assert [
+        assert list(sut) == [
             entity1,
             entity2,
             entity3,
@@ -81,7 +81,7 @@ class TestSingleTypeEntityCollection:
             entity7,
             entity8,
             entity9,
-        ] == list(sut)
+        ]
 
     async def test_remove(self) -> None:
         sut = SingleTypeEntityCollection[Entity](DummyEntity)
@@ -91,7 +91,7 @@ class TestSingleTypeEntityCollection:
         entity4 = SingleTypeEntityCollectionTestEntity()
         sut.add(entity1, entity2, entity3, entity4)
         sut.remove(entity4, entity2)
-        assert [entity1, entity3] == list(sut)
+        assert list(sut) == [entity1, entity3]
 
     async def test_replace(self) -> None:
         sut = SingleTypeEntityCollection[Entity](DummyEntity)
@@ -103,7 +103,7 @@ class TestSingleTypeEntityCollection:
         entity6 = SingleTypeEntityCollectionTestEntity()
         sut.add(entity1, entity2, entity3)
         sut.replace(entity4, entity5, entity6)
-        assert [entity4, entity5, entity6] == list(sut)
+        assert list(sut) == [entity4, entity5, entity6]
 
     async def test_clear(self) -> None:
         sut = SingleTypeEntityCollection[Entity](DummyEntity)
@@ -138,7 +138,7 @@ class TestSingleTypeEntityCollection:
         entity2 = SingleTypeEntityCollectionTestEntity()
         entity3 = SingleTypeEntityCollectionTestEntity()
         sut.add(entity1, entity2, entity3)
-        assert [entity1, entity2, entity3] == list(sut)
+        assert list(sut) == [entity1, entity2, entity3]
 
     async def test___getitem___by_index(self) -> None:
         sut = SingleTypeEntityCollection[Entity](DummyEntity)
@@ -158,7 +158,7 @@ class TestSingleTypeEntityCollection:
         entity2 = SingleTypeEntityCollectionTestEntity()
         entity3 = SingleTypeEntityCollectionTestEntity()
         sut.add(entity1, entity2, entity3)
-        assert [entity1, entity3] == list(sut[0::2])
+        assert list(sut[0::2]) == [entity1, entity3]
 
     async def test___getitem___by_entity_id(self) -> None:
         sut = SingleTypeEntityCollection[Entity](DummyEntity)
@@ -181,7 +181,7 @@ class TestSingleTypeEntityCollection:
 
         del sut[entity2]
 
-        assert [entity1, entity3] == list(sut)
+        assert list(sut) == [entity1, entity3]
 
     async def test___delitem___by_entity_id(self) -> None:
         sut = SingleTypeEntityCollection[Entity](DummyEntity)
@@ -192,7 +192,7 @@ class TestSingleTypeEntityCollection:
 
         del sut["2"]
 
-        assert [entity1, entity3] == list(sut)
+        assert list(sut) == [entity1, entity3]
 
     async def test___contains___by_entity(self) -> None:
         sut = SingleTypeEntityCollection[Entity](DummyEntity)
@@ -244,7 +244,7 @@ class TestMultipleTypesEntityCollection:
         entity_other2 = MultipleTypesEntityCollectionTestEntityOther()
         entity_other3 = MultipleTypesEntityCollectionTestEntityOther()
         sut.add(entity_one, entity_other1, entity_other2, entity_other3)
-        assert [entity_one] == list(sut[MultipleTypesEntityCollectionTestEntityOne])
+        assert list(sut[MultipleTypesEntityCollectionTestEntityOne]) == [entity_one]
         assert [entity_other1, entity_other2, entity_other3] == list(
             sut[MultipleTypesEntityCollectionTestEntityOther]
         )
@@ -275,7 +275,7 @@ class TestMultipleTypesEntityCollection:
         assert [entity1, entity3] == list(
             sut[MultipleTypesEntityCollectionTestEntityOne]
         )
-        assert [entity2] == list(sut[MultipleTypesEntityCollectionTestEntityOther])
+        assert list(sut[MultipleTypesEntityCollectionTestEntityOther]) == [entity2]
         # Ensure skipped duplicates do not affect further new values.
         sut.add(
             entity1,
@@ -302,7 +302,7 @@ class TestMultipleTypesEntityCollection:
         sut[MultipleTypesEntityCollectionTestEntityOne].add(entity_one)
         sut[MultipleTypesEntityCollectionTestEntityOther].add(entity_other)
         sut.remove(entity_one)
-        assert [entity_other] == list(sut)
+        assert list(sut) == [entity_other]
         sut.remove(entity_other)
         assert list(sut) == []
 
@@ -321,16 +321,16 @@ class TestMultipleTypesEntityCollection:
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
         sut.add(entity_one, entity_other)
-        assert [entity_one] == list(sut[0:1:1])
-        assert [entity_other] == list(sut[1::1])
+        assert list(sut[0:1:1]) == [entity_one]
+        assert list(sut[1::1]) == [entity_other]
 
     async def test___getitem___by_entity_type(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
         sut.add(entity_one, entity_other)
-        assert [entity_one] == list(sut[MultipleTypesEntityCollectionTestEntityOne])
-        assert [entity_other] == list(sut[MultipleTypesEntityCollectionTestEntityOther])
+        assert list(sut[MultipleTypesEntityCollectionTestEntityOne]) == [entity_one]
+        assert list(sut[MultipleTypesEntityCollectionTestEntityOther]) == [entity_other]
         # Ensure that getting previously unseen entity types automatically creates and returns a new collection.
         assert list(sut[DummyEntity]) == []
 
@@ -340,7 +340,7 @@ class TestMultipleTypesEntityCollection:
         # entity types in a single module namespace.
         entity = Person()
         sut.add(entity)
-        assert [entity] == list(sut["person"])
+        assert list(sut["person"]) == [entity]
         # Ensure that getting previously unseen entity types automatically creates and returns a new collection.
         with pytest.raises(PluginNotFound):
             sut["NonExistentEntityType"]
@@ -354,7 +354,7 @@ class TestMultipleTypesEntityCollection:
 
         del sut[entity2]
 
-        assert [entity1, entity3] == list(sut)
+        assert list(sut) == [entity1, entity3]
 
     async def test___delitem___by_entity_type(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
@@ -364,7 +364,7 @@ class TestMultipleTypesEntityCollection:
 
         del sut[MultipleTypesEntityCollectionTestEntityOne]
 
-        assert [entity_other] == list(sut)
+        assert list(sut) == [entity_other]
 
     async def test___delitem___by_entity_type_id(self, mocker: MockerFixture) -> None:
         mocker.patch(
@@ -381,7 +381,7 @@ class TestMultipleTypesEntityCollection:
 
         del sut[MultipleTypesEntityCollectionTestEntityOne.plugin_id()]
 
-        assert [entity_other] == list(sut)
+        assert list(sut) == [entity_other]
 
     async def test_iter(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()
@@ -389,7 +389,7 @@ class TestMultipleTypesEntityCollection:
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
         sut[MultipleTypesEntityCollectionTestEntityOne].add(entity_one)
         sut[MultipleTypesEntityCollectionTestEntityOther].add(entity_other)
-        assert [entity_one, entity_other] == list(sut)
+        assert list(sut) == [entity_one, entity_other]
 
     async def test_len(self) -> None:
         sut = MultipleTypesEntityCollection[Entity]()

@@ -33,4 +33,4 @@ class ConfigurationSequenceTestBase(
                 configurations[1],
             ]
         )
-        assert [configurations[0], configurations[1]] == list(iter(sut))
+        assert list(iter(sut)) == [configurations[0], configurations[1]]

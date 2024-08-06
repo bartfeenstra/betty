@@ -28,10 +28,10 @@ class _ConfigurationMappingTestBase(
                 configurations[1],
             ]
         )
-        assert [
+        assert list(iter(sut)) == [
             self.get_configuration_keys()[0],
             self.get_configuration_keys()[1],
-        ] == list(iter(sut))
+        ]
 
 
 class ConfigurationMappingTestBase(
@@ -51,10 +51,10 @@ class ConfigurationMappingTestBase(
                 configurations[1],
             ]
         )
-        assert [
+        assert list(iter(sut)) == [
             self.get_configuration_keys()[0],
             self.get_configuration_keys()[1],
-        ] == list(iter(sut))
+        ]
 
 
 class OrderedConfigurationMappingTestBase(

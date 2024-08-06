@@ -36,7 +36,7 @@ class TestDefaultLocalizer:
     @pytest.mark.parametrize(("expected", "date"), _FORMAT_DATE_TEST_PARAMETERS)
     async def test_format_date(self, expected: str, date: Date) -> None:
         sut = DEFAULT_LOCALIZER
-        assert expected == sut.format_date(date)
+        assert sut.format_date(date) == expected
 
     _FORMAT_DATE_RANGE_TEST_PARAMETERS: Sequence[tuple[str, DateRange]] = [
         (
@@ -171,7 +171,7 @@ class TestDefaultLocalizer:
         self, expected: str, date_range: DateRange
     ) -> None:
         sut = DEFAULT_LOCALIZER
-        assert expected == sut.format_date_range(date_range)
+        assert sut.format_date_range(date_range) == expected
 
     _FORMAT_DATEY_TEST_PARAMETERS = (
         *_FORMAT_DATE_TEST_PARAMETERS,
@@ -181,7 +181,7 @@ class TestDefaultLocalizer:
     @pytest.mark.parametrize(("expected", "datey"), _FORMAT_DATEY_TEST_PARAMETERS)
     async def test_format_datey(self, expected: str, datey: Datey) -> None:
         sut = DEFAULT_LOCALIZER
-        assert expected == sut.format_datey(datey)
+        assert sut.format_datey(datey) == expected
 
 
 class TestLocalizerRepository:

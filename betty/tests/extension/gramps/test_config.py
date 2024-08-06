@@ -56,7 +56,7 @@ class TestFamilyTreeConfiguration:
         expected = {
             "file": str(tmp_path),
         }
-        assert expected == sut.dump()
+        assert sut.dump() == expected
 
     async def test_dump_with_file_path(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
@@ -65,7 +65,7 @@ class TestFamilyTreeConfiguration:
         expected = {
             "file": str(file_path),
         }
-        assert expected == sut.dump()
+        assert sut.dump() == expected
 
     async def test_update(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
@@ -129,7 +129,7 @@ class TestGrampsConfiguration:
                 },
             ],
         }
-        assert expected == sut.dump()
+        assert sut.dump() == expected
 
     async def test_update(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"

@@ -58,7 +58,7 @@ class TestLocalizedPathUrlGenerator:
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = LocalizedPathUrlGenerator(project)
-            assert expected == sut.generate(resource, "text/html")
+            assert sut.generate(resource, "text/html") == expected
 
     @pytest.mark.parametrize(
         ("expected", "resource"),
@@ -76,7 +76,7 @@ class TestLocalizedPathUrlGenerator:
             project.configuration.clean_urls = True
             async with project:
                 sut = LocalizedPathUrlGenerator(project)
-                assert expected == sut.generate(resource, "text/html")
+                assert sut.generate(resource, "text/html") == expected
 
     @pytest.mark.parametrize(
         ("expected", "resource"),
@@ -90,7 +90,7 @@ class TestLocalizedPathUrlGenerator:
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = LocalizedPathUrlGenerator(project)
-            assert expected == sut.generate(resource, "text/html", absolute=True)
+            assert sut.generate(resource, "text/html", absolute=True) == expected
 
     @pytest.mark.parametrize(
         ("expected", "url_generator_locale"),
@@ -119,8 +119,11 @@ class TestLocalizedPathUrlGenerator:
             )
             async with project:
                 sut = LocalizedPathUrlGenerator(project)
-                assert expected == sut.generate(
-                    "/index.html", "text/html", locale=url_generator_locale
+                assert (
+                    sut.generate(
+                        "/index.html", "text/html", locale=url_generator_locale
+                    )
+                    == expected
                 )
 
 
@@ -222,4 +225,4 @@ class TestProjectUrlGenerator:
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = ProjectUrlGenerator(project)
-            assert expected == sut.generate(resource, "text/html")
+            assert sut.generate(resource, "text/html") == expected

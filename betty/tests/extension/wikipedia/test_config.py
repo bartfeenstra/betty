@@ -44,7 +44,7 @@ class TestWikipediaConfiguration:
         expected = {
             "populate_images": True,
         }
-        assert expected == sut.dump()
+        assert sut.dump() == expected
 
     async def test_dump_with_populate_images(self) -> None:
         sut = WikipediaConfiguration()
@@ -52,7 +52,7 @@ class TestWikipediaConfiguration:
         expected = {
             "populate_images": False,
         }
-        assert expected == sut.dump()
+        assert sut.dump() == expected
 
     async def test_update(self, tmp_path: Path) -> None:
         sut = WikipediaConfiguration()

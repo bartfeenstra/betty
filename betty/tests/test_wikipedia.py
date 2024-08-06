@@ -90,12 +90,12 @@ class TestSummary:
     async def test_title(self) -> None:
         title = "Title for Amsterdam"
         sut = Summary("nl", "Amsterdam", title, "Content for Amsterdam")
-        assert title == sut.title
+        assert sut.title == title
 
     async def test_content(self) -> None:
         content = "Content for Amsterdam"
         sut = Summary("nl", "Amsterdam", "Title for Amsterdam", content)
-        assert content == sut.content
+        assert sut.content == content
 
     @pytest.mark.parametrize(
         ("expected", "left", "right"),

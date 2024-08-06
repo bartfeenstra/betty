@@ -251,7 +251,7 @@ class TestNote(EntityTestBase):
             id=note_id,
             text="Betty wrote this.",
         )
-        assert note_id == sut.id
+        assert sut.id == note_id
 
     async def test_text(self) -> None:
         text = "Betty wrote this."
@@ -259,7 +259,7 @@ class TestNote(EntityTestBase):
             id="N1",
             text=text,
         )
-        assert text == sut.text
+        assert sut.text == text
 
     async def test_dump_linked_data_should_dump_full(self) -> None:
         note = Note(
@@ -352,7 +352,7 @@ class TestLink:
     async def test_url(self) -> None:
         url = "https://example.com"
         sut = Link(url)
-        assert url == sut.url
+        assert sut.url == url
 
     async def test_media_type(self) -> None:
         url = "https://example.com"
@@ -438,7 +438,7 @@ class TestFile(EntityTestBase):
             id=file_id,
             path=file_path,
         )
-        assert file_id == sut.id
+        assert sut.id == file_id
 
     async def test_name_with_name(self, tmp_path: Path) -> None:
         name = "a-file.a-suffix"
@@ -469,7 +469,7 @@ class TestFile(EntityTestBase):
         assert sut.media_type is None
         media_type = MediaType("text/plain")
         sut.media_type = media_type
-        assert media_type == sut.media_type
+        assert sut.media_type == media_type
 
     async def test_path_with_path(self) -> None:
         with NamedTemporaryFile() as f:
@@ -479,7 +479,7 @@ class TestFile(EntityTestBase):
                 id=file_id,
                 path=file_path,
             )
-            assert file_path == sut.path
+            assert sut.path == file_path
 
     async def test_path_with_str(self) -> None:
         with NamedTemporaryFile() as f:
@@ -488,7 +488,7 @@ class TestFile(EntityTestBase):
                 id=file_id,
                 path=Path(f.name),
             )
-            assert Path(f.name) == sut.path
+            assert sut.path == Path(f.name)
 
     async def test_description(self) -> None:
         file_id = "BETTY01"
@@ -512,7 +512,7 @@ class TestFile(EntityTestBase):
         assert list(sut.notes) == []
         notes = [Note(text=""), Note(text="")]
         sut.notes = notes
-        assert notes == list(sut.notes)
+        assert list(sut.notes) == notes
 
     async def test_referees(self) -> None:
         file_id = "BETTY01"
@@ -711,7 +711,7 @@ class TestSource(EntityTestBase):
     async def test_id(self) -> None:
         source_id = "S1"
         sut = Source(id=source_id)
-        assert source_id == sut.id
+        assert sut.id == source_id
 
     async def test_name(self) -> None:
         name = "The Source"
@@ -723,14 +723,14 @@ class TestSource(EntityTestBase):
         sut = Source()
         assert sut.contained_by is None
         sut.contained_by = contained_by_source
-        assert contained_by_source == sut.contained_by
+        assert sut.contained_by is contained_by_source
 
     async def test_contains(self) -> None:
         contains_source = Source()
         sut = Source()
         assert list(sut.contains) == []
         sut.contains = [contains_source]
-        assert [contains_source] == list(sut.contains)
+        assert list(sut.contains) == [contains_source]
 
     async def test_walk_contains_without_contains(self) -> None:
         sut = Source()
@@ -740,7 +740,7 @@ class TestSource(EntityTestBase):
         sut = Source()
         contains = Source(contained_by=sut)
         contains_contains = Source(contained_by=contains)
-        assert [contains, contains_contains] == list(sut.walk_contains)
+        assert list(sut.walk_contains) == [contains, contains_contains]
 
     async def test_citations(self) -> None:
         sut = Source()
@@ -1000,19 +1000,19 @@ class TestCitation(EntityTestBase):
             id=citation_id,
             source=Source(),
         )
-        assert citation_id == sut.id
+        assert sut.id == citation_id
 
     async def test_facts(self) -> None:
         fact = _HasCitations()
         sut = Citation(source=Source())
         assert list(sut.facts) == []
         sut.facts = [fact]
-        assert [fact] == list(sut.facts)
+        assert list(sut.facts) == [fact]
 
     async def test_source(self) -> None:
         source = Source()
         sut = Citation(source=source)
-        assert source == sut.source
+        assert sut.source is source
 
     async def test_location(self) -> None:
         sut = Citation(source=Source())
@@ -1156,7 +1156,7 @@ class TestHasCitations:
         assert list(sut.citations) == []
         citation = Citation(source=Source())
         sut.citations = [citation]
-        assert [citation] == list(sut.citations)
+        assert list(sut.citations) == [citation]
 
 
 class TestName:
@@ -1193,7 +1193,7 @@ class TestName:
             "Ikke",
             date=date,
         )
-        assert date == sut.date
+        assert sut.date is date
 
 
 class TestEnclosure(EntityTestBase):
@@ -1205,13 +1205,13 @@ class TestEnclosure(EntityTestBase):
         encloses = Place()
         enclosed_by = Place()
         sut = Enclosure(encloses=encloses, enclosed_by=enclosed_by)
-        assert encloses == sut.encloses
+        assert sut.encloses is encloses
 
     async def test_enclosed_by(self) -> None:
         encloses = Place()
         enclosed_by = Place()
         sut = Enclosure(encloses=encloses, enclosed_by=enclosed_by)
-        assert enclosed_by == sut.enclosed_by
+        assert sut.enclosed_by is enclosed_by
 
     async def test_date(self) -> None:
         encloses = Place()
@@ -1220,7 +1220,7 @@ class TestEnclosure(EntityTestBase):
         date = Date()
         assert sut.date is None
         sut.date = date
-        assert date == sut.date
+        assert sut.date is date
 
     async def test_citations(self) -> None:
         encloses = Place()
@@ -1229,7 +1229,7 @@ class TestEnclosure(EntityTestBase):
         citation = Citation(source=Source())
         assert sut.date is None
         sut.citations = [citation]
-        assert [citation] == list(sut.citations)
+        assert list(sut.citations) == [citation]
 
 
 class TestPlace(EntityTestBase):
@@ -1309,7 +1309,7 @@ class TestPlace(EntityTestBase):
             names=[Name("The Other Other Place")],
         )
         encloses_encloses = Enclosure(encloses_encloses_place, encloses_place)
-        assert [encloses, encloses_encloses] == list(sut.walk_encloses)
+        assert list(sut.walk_encloses) == [encloses, encloses_encloses]
 
     async def test_id(self) -> None:
         place_id = "C1"
@@ -1317,7 +1317,7 @@ class TestPlace(EntityTestBase):
             id=place_id,
             names=[Name("one")],
         )
-        assert place_id == sut.id
+        assert sut.id == place_id
 
     async def test_links(self) -> None:
         sut = Place(
@@ -1332,7 +1332,7 @@ class TestPlace(EntityTestBase):
             id="P1",
             names=[name],
         )
-        assert [name] == list(sut.names)
+        assert list(sut.names) == [name]
 
     async def test_coordinates(self) -> None:
         name = Name("The Place")
@@ -1342,7 +1342,7 @@ class TestPlace(EntityTestBase):
         )
         coordinates = Point()
         sut.coordinates = coordinates
-        assert coordinates == sut.coordinates
+        assert sut.coordinates == coordinates
 
     async def test_dump_linked_data_should_dump_minimal(self) -> None:
         place_id = "the_place"
@@ -1492,17 +1492,17 @@ class TestPresence(EntityTestBase):
     async def test_person(self) -> None:
         person = Person()
         sut = Presence(person, Subject(), Event(event_type=UnknownEventType()))
-        assert person == sut.person
+        assert sut.person == person
 
     async def test_event(self) -> None:
         role = Subject()
         sut = Presence(Person(), role, Event(event_type=UnknownEventType()))
-        assert role == sut.role
+        assert sut.role == role
 
     async def test_role(self) -> None:
         event = Event(event_type=UnknownEventType())
         sut = Presence(Person(), Subject(), event)
-        assert event == sut.event
+        assert sut.event == event
 
     @pytest.mark.parametrize(
         ("expected", "person_privacy", "presence_privacy", "event_privacy"),
@@ -1524,7 +1524,7 @@ class TestPresence(EntityTestBase):
         sut = Presence(person, Subject(), event)
         sut.privacy = presence_privacy
 
-        assert expected == sut.privacy
+        assert sut.privacy == expected
 
 
 class TestEvent(EntityTestBase):
@@ -1538,7 +1538,7 @@ class TestEvent(EntityTestBase):
             id=event_id,
             event_type=UnknownEventType(),
         )
-        assert event_id == sut.id
+        assert sut.id == event_id
 
     async def test_place(self) -> None:
         place = Place(
@@ -1547,7 +1547,7 @@ class TestEvent(EntityTestBase):
         )
         sut = Event(event_type=UnknownEventType())
         sut.place = place
-        assert place == sut.place
+        assert sut.place == place
         assert sut in place.events
         sut.place = None
         assert sut.place is None
@@ -1558,7 +1558,7 @@ class TestEvent(EntityTestBase):
         sut = Event(event_type=UnknownEventType())
         presence = Presence(person, Subject(), sut)
         sut.presences.add(presence)
-        assert [presence] == list(sut.presences)
+        assert list(sut.presences) == [presence]
         assert sut == presence.event
         sut.presences.remove(presence)
         assert list(sut.presences) == []
@@ -1569,7 +1569,7 @@ class TestEvent(EntityTestBase):
         assert sut.date is None
         date = Date()
         sut.date = date
-        assert date == sut.date
+        assert sut.date == date
 
     async def test_file_references(self) -> None:
         sut = Event(event_type=UnknownEventType())
@@ -1792,7 +1792,7 @@ class TestPersonName(EntityTestBase):
             individual="Janet",
             affiliation="Not a Girl",
         )
-        assert person == sut.person
+        assert sut.person == person
         assert [sut] == list(person.names)
 
     async def test_locale(self) -> None:
@@ -1821,7 +1821,7 @@ class TestPersonName(EntityTestBase):
             individual=individual,
             affiliation="Not a Girl",
         )
-        assert individual == sut.individual
+        assert sut.individual == individual
 
     async def test_affiliation(self) -> None:
         person = Person(id="1")
@@ -1831,7 +1831,7 @@ class TestPersonName(EntityTestBase):
             individual="Janet",
             affiliation=affiliation,
         )
-        assert affiliation == sut.affiliation
+        assert sut.affiliation == affiliation
 
 
 class TestPerson(EntityTestBase):
@@ -1843,7 +1843,7 @@ class TestPerson(EntityTestBase):
         sut = Person(id="1")
         parent = Person(id="2")
         sut.parents.add(parent)
-        assert [parent] == list(sut.parents)
+        assert list(sut.parents) == [parent]
         assert [sut] == list(parent.children)
         sut.parents.remove(parent)
         assert list(sut.parents) == []
@@ -1853,7 +1853,7 @@ class TestPerson(EntityTestBase):
         sut = Person(id="1")
         child = Person(id="2")
         sut.children.add(child)
-        assert [child] == list(sut.children)
+        assert list(sut.children) == [child]
         assert [sut] == list(child.parents)
         sut.children.remove(child)
         assert list(sut.children) == []
@@ -1864,7 +1864,7 @@ class TestPerson(EntityTestBase):
         sut = Person(id="1")
         presence = Presence(sut, Subject(), event)
         sut.presences.add(presence)
-        assert [presence] == list(sut.presences)
+        assert list(sut.presences) == [presence]
         assert sut == presence.person
         sut.presences.remove(presence)
         assert list(sut.presences) == []
@@ -1877,7 +1877,7 @@ class TestPerson(EntityTestBase):
             individual="Janet",
             affiliation="Not a Girl",
         )
-        assert [name] == list(sut.names)
+        assert list(sut.names) == [name]
         assert sut == name.person
         sut.names.remove(name)
         assert list(sut.names) == []
@@ -1886,7 +1886,7 @@ class TestPerson(EntityTestBase):
     async def test_id(self) -> None:
         person_id = "P1"
         sut = Person(id=person_id)
-        assert person_id == sut.id
+        assert sut.id == person_id
 
     async def test_file_references(self) -> None:
         sut = Person(id="1")
@@ -1913,14 +1913,14 @@ class TestPerson(EntityTestBase):
         sibling = Person(id="2")
         parent = Person(id="3")
         parent.children = [sut, sibling]
-        assert [sibling] == list(sut.siblings)
+        assert list(sut.siblings) == [sibling]
 
     async def test_siblings_with_multiple_common_parents(self) -> None:
         sut = Person(id="1")
         sibling = Person(id="2")
         parent = Person(id="3")
         parent.children = [sut, sibling]
-        assert [sibling] == list(sut.siblings)
+        assert list(sut.siblings) == [sibling]
 
     async def test_ancestors_without_parents(self) -> None:
         sut = Person(id="person")
@@ -1932,7 +1932,7 @@ class TestPerson(EntityTestBase):
         sut.parents.add(parent)
         grandparent = Person(id="2")
         parent.parents.add(grandparent)
-        assert [parent, grandparent] == list(sut.ancestors)
+        assert list(sut.ancestors) == [parent, grandparent]
 
     async def test_descendants_without_parents(self) -> None:
         sut = Person(id="person")
@@ -1944,7 +1944,7 @@ class TestPerson(EntityTestBase):
         sut.children.add(child)
         grandchild = Person(id="2")
         child.children.add(grandchild)
-        assert [child, grandchild] == list(sut.descendants)
+        assert list(sut.descendants) == [child, grandchild]
 
     async def test_dump_linked_data_should_dump_minimal(self) -> None:
         person_id = "the_person"

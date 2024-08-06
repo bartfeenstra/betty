@@ -52,7 +52,7 @@ class TestNginxConfiguration:
         expected = {
             "https": None,
         }
-        assert expected == sut.dump()
+        assert sut.dump() == expected
 
     async def test_dump_with_www_directory_path(self, tmp_path: Path) -> None:
         www_directory_path = str(tmp_path)
@@ -62,7 +62,7 @@ class TestNginxConfiguration:
             "https": None,
             "www_directory_path": www_directory_path,
         }
-        assert expected == sut.dump()
+        assert sut.dump() == expected
 
     async def test_update(self, tmp_path: Path) -> None:
         www_directory_path = str(tmp_path)
