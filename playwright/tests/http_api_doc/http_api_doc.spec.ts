@@ -19,7 +19,12 @@ const test = base.extend<{
 
 test('load the HTTP API documentation', async ({ page, site }) => {
   await page.goto(site + '/api/index.html')
-  expect(await page.content()).toContain('Betty')
-  expect(await page.content()).toContain('api/index.json')
+  const content = await page.content()
+  // Test a couple of keywords in the source.
+  expect(content).toContain('Betty')
+  expect(content).toContain('api/index.json')
+  // Test a couple of keywords shown after successful rendering.
+  expect(content).toContain('Retrieve a single')
+  expect(content).toContain('Retrieve the collection')
   await page.close()
 })
