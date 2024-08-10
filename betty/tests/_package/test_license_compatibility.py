@@ -10,6 +10,9 @@ from packaging.requirements import Requirement
 
 class TestPackageLicenses:
     _GPL_V3_COMPATIBLE_DISTRIBUTIONS = (
+        # "This package contains code from cpython and is licensed under the same terms as cpython itself.",
+        # as per https://pypi.org/project/aiohappyeyeballs/.
+        "aiohappyeyeballs",
         # We do not include basedtyping in any Betty distribution.
         "basedtyping",
         # We do not include PyInstaller in any Betty distributions.
