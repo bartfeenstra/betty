@@ -164,7 +164,6 @@ test = [
     'coverage ~= 7.6',
     'lxml ~= 5.2; sys.platform != "win32"',
     'packaging ~= 24.1',
-    'pip-licenses ~= 5.0',
     'pytest ~= 8.3',
     'pytest-aioresponses ~= 0.2',
     'pytest-asyncio ~= 0.23',
