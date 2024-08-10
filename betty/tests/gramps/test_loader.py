@@ -70,18 +70,12 @@ class TestGrampsLoader:
 """
         )
 
-    async def test_load_xml_with_string(self, new_temporary_app: App) -> None:
+    async def test_load_xml(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
             gramps_file_path = Path(__file__).parent / "assets" / "minimal.xml"
             sut = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
             async with aiofiles.open(gramps_file_path) as f:
                 await sut.load_xml(await f.read(), rootname(gramps_file_path))
-
-    async def test_load_xml_with_file_path(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            gramps_file_path = Path(__file__).parent / "assets" / "minimal.xml"
-            sut = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
-            await sut.load_xml(gramps_file_path, rootname(gramps_file_path))
 
     async def test_place_should_include_name(self) -> None:
         ancestry = await self._load_partial(

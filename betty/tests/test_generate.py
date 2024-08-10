@@ -1,11 +1,7 @@
-import sys
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
 import aiofiles
-import pytest
-from pytest_mock import MockerFixture
-
 from betty.ancestry import Person, Place, Source, Name, File, Event, Citation
 from betty.ancestry.event_type import Birth
 from betty.app import App
@@ -22,6 +18,7 @@ from betty.project import (
 from betty.string import camel_case_to_kebab_case
 from betty.test_utils.assets.templates import assert_betty_html, assert_betty_json
 from betty.test_utils.model import DummyEntity
+from pytest_mock import MockerFixture
 
 
 class ThirdPartyEntity(UserFacingEntity, DummyEntity):
@@ -373,10 +370,6 @@ class TestResourceOverride:
                     assert "Betty was here" in await f.read()
 
 
-@pytest.mark.skipif(
-    sys.platform == "win32",
-    reason="lxml cannot be installed directly onto vanilla Windows.",
-)
 class TestSitemapGenerate:
     async def test_validate(self) -> None:
         from lxml import etree

@@ -16,6 +16,8 @@ from pathlib import Path
 from typing import Iterable, Any, IO, cast, TYPE_CHECKING
 from xml.etree import ElementTree
 
+from lxml import etree
+
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
 from geopy import Point
@@ -177,12 +179,12 @@ class GrampsLoader:
             return
 
         try:
-            async with aiofiles.open(file_path) as f:
+            async with aiofiles.open(file_path, mode="rb") as f:
                 xml = await f.read()
         except FileNotFoundError:
             raise FileNotFound.new(file_path) from None
         with suppress(GrampsLoadFileError):
-            await self.load_xml(xml, Path(file_path.anchor))
+            await self._load_xml(xml, Path(file_path.anchor))
             return
 
         raise GrampsLoadFileError(
@@ -197,12 +199,9 @@ class GrampsLoader:
         """
         gramps_path = gramps_path.resolve()
         try:
-            with gzip.open(gramps_path, mode="r") as f:
-                xml: str = f.read()  # type: ignore[assignment]
-            await self.load_xml(
-                xml,
-                rootname(gramps_path),
-            )
+            with gzip.open(gramps_path) as f:
+                xml = f.read()
+            await self._load_xml(xml, rootname(gramps_path))
         except OSError as error:
             raise GrampsLoadFileError(plain(str(error))) from error
 
@@ -234,20 +233,16 @@ class GrampsLoader:
                 )
             ) from error
 
-    async def load_xml(self, xml: str | Path, gramps_tree_directory_path: Path) -> None:
+    async def load_xml(self, xml: str, gramps_tree_directory_path: Path) -> None:
         """
         Load family history data from XML.
-
-        :param xml: The raw XML or the path to an XML file.
         """
-        if isinstance(xml, Path):
-            async with aiofiles.open(xml) as f:
-                xml = await f.read()
+        await self._load_xml(xml.encode("utf-8"), gramps_tree_directory_path)
+
+    async def _load_xml(self, xml: bytes, gramps_tree_directory_path: Path) -> None:
         try:
-            tree = ElementTree.ElementTree(
-                ElementTree.fromstring(
-                    xml,
-                )
+            tree = cast(  # type: ignore[bad-cast]
+                ElementTree.ElementTree, etree.ElementTree(etree.fromstring(xml))
             )
         except ElementTree.ParseError as error:
             raise GrampsLoadFileError(plain(str(error))) from error

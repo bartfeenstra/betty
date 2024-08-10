@@ -162,7 +162,7 @@ test = [
     'aioresponses ~= 0.7',
     'basedmypy ~= 2.5',
     'coverage ~= 7.6',
-    'lxml ~= 5.2; sys.platform != "win32"',
+    'lxml ~= 5.2',
     'packaging ~= 24.1',
     'pip-licenses ~= 5.0',
     'pytest ~= 8.3',
