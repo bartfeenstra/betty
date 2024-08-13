@@ -14,7 +14,7 @@ from typing_extensions import override
 from betty.attr import MutableAttr
 from betty.classtools import repr_instance
 from betty.json.linked_data import LinkedDataDumpable
-from betty.json.schema import Schema, add_property
+from betty.json.schema import Object
 from betty.locale import negotiate_locale, to_locale, UNDETERMINED_LOCALE
 from betty.locale.localized import LocalizedStr
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -232,7 +232,30 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
 
 
-class StaticTranslationsLocalizable(_FormattableLocalizable, LinkedDataDumpable):
+class StaticTranslationsLocalizableSchema(Object):
+    """
+    A JSON Schema for :py:class:`betty.locale.localizable.StaticTranslationsLocalizable`.
+    """
+
+    def __init__(
+        self, *, title: str = "Static translations", description: str | None = None
+    ):
+        super().__init__(
+            def_name="staticTranslations", title=title, description=description
+        )
+        translations_schema = Object(
+            title="Translations", description="Keys are IETF BCP-47 language tags."
+        )
+        translations_schema._schema["additionalProperties"] = {
+            "type": "string",
+            "description": "A human-readable translation.",
+        }
+        self.add_property("translations", translations_schema)
+
+
+class StaticTranslationsLocalizable(
+    _FormattableLocalizable, LinkedDataDumpable[Object]
+):
     """
     Provide a :py:class:`betty.locale.localizable.Localizable` backed by static translations.
     """
@@ -242,13 +265,14 @@ class StaticTranslationsLocalizable(_FormattableLocalizable, LinkedDataDumpable)
     def __init__(
         self,
         translations: ShorthandStaticTranslations | None = None,
-        *,
+        *args: Any,
         required: bool = True,
+        **kwargs: Any,
     ):
         """
         :param translations: Keys are locales, values are translations.
         """
-        super().__init__()
+        super().__init__(*args, **kwargs)
         self._required = required
         if translations is not None:
             self.replace(translations)
@@ -316,7 +340,9 @@ class StaticTranslationsLocalizable(_FormattableLocalizable, LinkedDataDumpable)
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
+    async def linked_data_schema(
+        cls, project: Project
+    ) -> StaticTranslationsLocalizableSchema:
         return StaticTranslationsLocalizableSchema()
 
 
@@ -327,29 +353,6 @@ def static(translations: ShorthandStaticTranslations) -> Localizable:
     from betty.locale.localizable.assertion import assert_static_translations
 
     return StaticTranslationsLocalizable(assert_static_translations()(translations))
-
-
-class StaticTranslationsLocalizableSchema(Schema):
-    """
-    A JSON Schema for :py:class:`betty.locale.localizable.StaticTranslationsLocalizable`.
-    """
-
-    def __init__(self):
-        super().__init__(def_name="staticTranslations")
-        add_property(
-            self,
-            "translations",
-            Schema(
-                schema={
-                    "type": "object",
-                    "description": "Keys are IETF BCP-47 language tags.",
-                    "additionalProperties": {
-                        "type": "string",
-                        "description": "A human-readable translation.",
-                    },
-                }
-            ),
-        )
 
 
 @final

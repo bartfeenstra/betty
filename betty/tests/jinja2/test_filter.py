@@ -8,7 +8,6 @@ import pytest
 from betty.ancestry import (
     File,
     FileReference,
-    Dated,
     HasFileReferences,
 )
 from betty.fs import ASSETS_DIRECTORY_PATH
@@ -22,8 +21,8 @@ from betty.locale import (
 from betty.locale.date import Datey, Date, DateRange
 from betty.locale.localizable import StaticTranslationsLocalizable
 from betty.locale.localized import Localized, LocalizedStr
-
 from betty.media_type import MediaType
+from betty.test_utils.ancestry import DummyDated
 from betty.test_utils.assets.templates import TemplateTestBase
 from betty.test_utils.model import DummyEntity
 
@@ -257,7 +256,7 @@ class TestFilterImageResizeCover(TemplateTestBase):
 
 
 class TestFilterSelectDateds(TemplateTestBase):
-    class DatedDummy(Dated):
+    class DatedDummy(DummyDated):
         def __init__(self, value: str, date: Datey | None = None):
             super().__init__(date=date)
             self._value = value

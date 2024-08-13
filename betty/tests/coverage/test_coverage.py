@@ -756,6 +756,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/sphinx/extension/replacements.py": TestKnownToBeMissing,
     # We do not test our test utilities.
     **{
+        "betty/test_utils/ancestry/__init__.py": TestKnownToBeMissing,
         "betty/test_utils/ancestry/event_type.py": TestKnownToBeMissing,
         "betty/test_utils/assertion/__init__.py": TestKnownToBeMissing,
         "betty/test_utils/assertion/error.py": TestKnownToBeMissing,

@@ -11,11 +11,12 @@ from betty.app import App
 from betty.project import Project
 
 if TYPE_CHECKING:
+    from betty.json.schema import Schema
     from betty.json.linked_data import LinkedDataDumpable
     from betty.serde.dump import Dump
 
 
-async def assert_dumps_linked_data(sut: LinkedDataDumpable) -> Dump:
+async def assert_dumps_linked_data(sut: LinkedDataDumpable[Schema]) -> Dump:
     """
     Dump an object's linked data and assert it is valid.
     """

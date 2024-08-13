@@ -4,11 +4,13 @@ Provide `JSON-LD <https://json-ld.org/>`_ utilities.
 
 from __future__ import annotations
 
+from abc import abstractmethod
 from collections.abc import MutableSequence
 from pathlib import Path
-from typing import TYPE_CHECKING, cast, Self
+from typing import TYPE_CHECKING, cast, Self, Generic, TypeVar
 
-from betty.json.schema import Schema, FileBasedSchema
+from betty.asyncio import wait_to_thread
+from betty.json.schema import FileBasedSchema, Schema, Object
 from betty.serde.dump import DumpMapping, Dump
 
 if TYPE_CHECKING:
@@ -16,7 +18,10 @@ if TYPE_CHECKING:
     from betty.ancestry import Link
 
 
-class LinkedDataDumpable:
+_SchemaTypeT = TypeVar("_SchemaTypeT", bound=Schema, covariant=True)
+
+
+class LinkedDataDumpable(Generic[_SchemaTypeT]):
     """
     Describe an object that can be dumped to linked data.
     """
@@ -34,11 +39,12 @@ class LinkedDataDumpable:
         return dump
 
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
+    @abstractmethod
+    async def linked_data_schema(cls, project: Project) -> _SchemaTypeT:
         """
         Define the `JSON Schema <https://json-schema.org/>`_ for :py:meth:`betty.json.linked_data.LinkedDataDumpable.dump_linked_data`.
         """
-        return Schema()
+        pass
 
 
 def dump_context(dump: DumpMapping[Dump], **context_definitions: str) -> None:
@@ -70,19 +76,27 @@ class JsonLdSchema(FileBasedSchema):
         Create a new instance.
         """
         return await cls.new_for(
-            Path(__file__).parent / "schemas" / "json-ld.json", name="jsonLd"
+            Path(__file__).parent / "schemas" / "json-ld.json",
+            def_name="jsonLd",
+            title="JSON-LD",
         )
 
-    def wrap(self, wrapped: Schema) -> None:
-        """
-        Wrap another schema and add JSON-LD properties.
 
-        This will alter the structure of the wrapped schema.
-        """
-        name = wrapped.def_name
-        # Temporarily remove the name while we embed the schema into itself.
-        wrapped._def_name = None
-        schema = Schema()
-        schema._schema["allOf"] = [wrapped.embed(schema), self.embed(schema)]
-        wrapped._schema = schema.schema
-        wrapped._def_name = name
+class JsonLdObject(Object):
+    """
+    A JSON Schema for an object with JSON-LD.
+    """
+
+    def __init__(
+        self,
+        *,
+        def_name: str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+    ):
+        super().__init__(
+            def_name=def_name,
+            title=title,
+            description=description,
+        )
+        self._schema["allOf"] = [wait_to_thread(JsonLdSchema.new()).embed(self)]
