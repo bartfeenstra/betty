@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from typing import Sequence, TYPE_CHECKING
+from typing import Sequence, TYPE_CHECKING, cast
 
 import pytest
-from typing_extensions import override
-
 from betty.locale.date import (
     Date,
     DateRange,
@@ -13,58 +11,97 @@ from betty.locale.date import (
     DateSchema,
     DateRangeSchema,
 )
+from betty.serde.dump import Dump, DumpMapping
+from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.json.schema import SchemaTestBase
+from typing_extensions import override
 
 if TYPE_CHECKING:
-    from betty.serde.dump import Dump, DumpMapping
     from betty.json.schema import Schema
 
 
-_DUMMY_DATE_DUMPS: Sequence[DumpMapping[Dump]] = (
-    {},
-    {
-        "year": 1970,
-    },
-    {
-        "month": 1,
-    },
-    {
-        "day": 1,
-    },
-    {
-        "year": 1970,
-        "month": 1,
-    },
-    {
-        "year": 1970,
-        "day": 1,
-    },
-    {
-        "month": 1,
-        "day": 1,
-    },
-    {
-        "year": 1970,
-        "month": 1,
-        "day": 1,
-    },
-    {
-        "year": 1970,
-        "month": 1,
-        "day": 1,
-        "fuzzy": True,
-    },
+_DUMMY_DATE_DUMPS: tuple[Sequence[DumpMapping[Dump]], Sequence[DumpMapping[Dump]]] = (
+    [
+        {
+            "year": 1970,
+            "fuzzy": False,
+        },
+        {
+            "month": 1,
+            "fuzzy": False,
+        },
+        {
+            "day": 1,
+            "fuzzy": False,
+        },
+        {
+            "year": 1970,
+            "month": 1,
+            "fuzzy": False,
+        },
+        {
+            "year": 1970,
+            "day": 1,
+            "fuzzy": False,
+        },
+        {
+            "month": 1,
+            "day": 1,
+            "fuzzy": False,
+        },
+        {
+            "year": 1970,
+            "month": 1,
+            "day": 1,
+            "fuzzy": False,
+        },
+        {
+            "year": 1970,
+            "month": 1,
+            "day": 1,
+            "fuzzy": True,
+        },
+    ],
+    [
+        {
+            "year": 1970,
+        },
+        {
+            "month": 1,
+        },
+        {
+            "day": 1,
+        },
+        {
+            "fuzzy": "true",
+        },
+    ],
 )
 
-_DUMMY_DATE_RANGE_DUMPS: Sequence[DumpMapping[Dump]] = tuple(
-    {"start": start, "end": end}
-    for start in _DUMMY_DATE_DUMPS
-    for end in _DUMMY_DATE_DUMPS
+_DUMMY_DATE_RANGE_DUMPS: tuple[
+    Sequence[DumpMapping[Dump]], Sequence[DumpMapping[Dump]]
+] = (
+    [
+        *[
+            cast(DumpMapping[Dump], {"start": start, "end": None})
+            for start in _DUMMY_DATE_DUMPS[0]
+        ],
+        *[
+            cast(DumpMapping[Dump], {"start": None, "end": end})
+            for end in _DUMMY_DATE_DUMPS[0]
+        ],
+        *[
+            cast(DumpMapping[Dump], {"start": start, "end": end})
+            for start in _DUMMY_DATE_DUMPS[0]
+            for end in _DUMMY_DATE_DUMPS[0]
+        ],
+    ],
+    [],
 )
 
-_DUMMY_DATEY_DUMPS: Sequence[DumpMapping[Dump]] = (
-    *_DUMMY_DATE_DUMPS,
-    *_DUMMY_DATE_RANGE_DUMPS,
+_DUMMY_DATEY_DUMPS: tuple[Sequence[DumpMapping[Dump]], Sequence[DumpMapping[Dump]]] = (
+    [*_DUMMY_DATE_DUMPS[0], *_DUMMY_DATE_RANGE_DUMPS[0]],
+    [*_DUMMY_DATE_DUMPS[1], *_DUMMY_DATE_RANGE_DUMPS[1]],
 )
 
 
@@ -196,6 +233,32 @@ class TestDate:
     )
     async def test___gt__(self, expected: bool, other: Datey) -> None:
         assert expected == (Date(1970, 2, 2) > other)
+
+    @pytest.mark.parametrize(
+        ("expected", "sut"),
+        [
+            (
+                {
+                    "year": 1970,
+                    "month": 1,
+                    "day": 1,
+                    "iso8601": "1970-01-01",
+                    "fuzzy": True,
+                },
+                Date(1970, 1, 1, True),
+            ),
+            (
+                {
+                    "fuzzy": True,
+                },
+                Date(None, None, None, True),
+            ),
+        ],
+    )
+    async def test_dump_linked_data(
+        self, expected: DumpMapping[Dump], sut: Date
+    ) -> None:
+        assert await assert_dumps_linked_data(sut) == expected
 
 
 class TestDateRange:
@@ -376,20 +439,81 @@ class TestDateRange:
     async def test___gt__(self, expected: bool, other: Datey) -> None:
         assert expected == (DateRange(Date(1970, 2, 2)) > other)
 
+    @pytest.mark.parametrize(
+        ("expected", "sut"),
+        [
+            (
+                {
+                    "start": {
+                        "year": 1970,
+                        "month": 1,
+                        "day": 1,
+                        "iso8601": "1970-01-01",
+                        "fuzzy": False,
+                    },
+                    "end": None,
+                },
+                DateRange(Date(1970, 1, 1)),
+            ),
+            (
+                {
+                    "start": None,
+                    "end": {
+                        "year": 2000,
+                        "month": 12,
+                        "day": 31,
+                        "iso8601": "2000-12-31",
+                        "fuzzy": False,
+                    },
+                },
+                DateRange(None, Date(2000, 12, 31)),
+            ),
+            (
+                {
+                    "start": {
+                        "year": 1970,
+                        "month": 1,
+                        "day": 1,
+                        "iso8601": "1970-01-01",
+                        "fuzzy": False,
+                    },
+                    "end": {
+                        "year": 2000,
+                        "month": 12,
+                        "day": 31,
+                        "iso8601": "2000-12-31",
+                        "fuzzy": False,
+                    },
+                },
+                DateRange(Date(1970, 1, 1), Date(2000, 12, 31)),
+            ),
+        ],
+    )
+    async def test_dump_linked_data(
+        self, expected: DumpMapping[Dump], sut: DateRange
+    ) -> None:
+        assert await assert_dumps_linked_data(sut) == expected
+
 
 class TestDateSchema(SchemaTestBase):
     @override
-    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
-        return [(DateSchema(), _DUMMY_DATE_DUMPS)]
+    async def get_sut_instances(
+        self,
+    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
+        return [(DateSchema(), *_DUMMY_DATE_DUMPS)]
 
 
 class TestDateRangeSchema(SchemaTestBase):
     @override
-    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
-        return [(DateRangeSchema(), _DUMMY_DATE_RANGE_DUMPS)]
+    async def get_sut_instances(
+        self,
+    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
+        return [(DateRangeSchema(), *_DUMMY_DATE_RANGE_DUMPS)]
 
 
 class TestDateySchema(SchemaTestBase):
     @override
-    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
-        return [(DateySchema(), _DUMMY_DATEY_DUMPS)]
+    async def get_sut_instances(
+        self,
+    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
+        return [(DateySchema(), *_DUMMY_DATEY_DUMPS)]

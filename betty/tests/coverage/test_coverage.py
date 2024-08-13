@@ -429,16 +429,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "__contains__": TestKnownToBeMissing,
             "__ge__": TestKnownToBeMissing,
             "__le__": TestKnownToBeMissing,
-            "datey_dump_linked_data": TestKnownToBeMissing,
-            "dump_linked_data": TestKnownToBeMissing,
         },
         "DateRange": {
             "__contains__": TestKnownToBeMissing,
             "__ge__": TestKnownToBeMissing,
             "__le__": TestKnownToBeMissing,
             "comparable": TestKnownToBeMissing,
-            "datey_dump_linked_data": TestKnownToBeMissing,
-            "dump_linked_data": TestKnownToBeMissing,
         },
         # This is an empty class.
         "IncompleteDateError": TestKnownToBeMissing,
@@ -532,31 +528,18 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "label": TestKnownToBeMissing,
         },
         "Dated": {
-            "dump_linked_data": TestKnownToBeMissing,
-        },
-        "Described": {
-            "dump_linked_data": TestKnownToBeMissing,
+            # This is static.
+            "dated_linked_data_contexts": TestKnownToBeMissing,
         },
         "Event": {
+            # This is static.
+            "dated_linked_data_contexts": TestKnownToBeMissing,
             "label": TestKnownToBeMissing,
         },
         "File": {
             "label": TestKnownToBeMissing,
         },
-        "HasCitations": {
-            "dump_linked_data": TestKnownToBeMissing,
-        },
-        "HasLinks": {
-            "dump_linked_data": TestKnownToBeMissing,
-        },
-        "HasMediaType": {
-            "dump_linked_data": TestKnownToBeMissing,
-        },
-        "HasNotes": {
-            "dump_linked_data": TestKnownToBeMissing,
-        },
         "HasPrivacy": {
-            "dump_linked_data": TestKnownToBeMissing,
             "own_privacy": TestKnownToBeMissing,
             "privacy": TestKnownToBeMissing,
             "private": TestKnownToBeMissing,
@@ -570,15 +553,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "label": TestKnownToBeMissing,
         },
         "PersonName": {
-            "dump_linked_data": TestKnownToBeMissing,
             "label": TestKnownToBeMissing,
         },
         "Place": {
             "associated_files": TestKnownToBeMissing,
             "label": TestKnownToBeMissing,
-        },
-        "PlaceName": {
-            "dump_linked_data": TestKnownToBeMissing,
         },
         "Presence": {
             "label": TestKnownToBeMissing,
@@ -802,7 +781,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/url.py": {
         # This is an abstract base class.
         "LocalizedUrlGenerator": TestKnownToBeMissing,
-        "StaticPathUrlGenerator": TestKnownToBeMissing,
         # This is an abstract base class.
         "StaticUrlGenerator": TestKnownToBeMissing,
     },

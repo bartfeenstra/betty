@@ -1,19 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-US">
 <head>
     <title>{% trans %}API documentation{% endtrans %} - {{ project.configuration.title | localize }}</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700" rel="stylesheet">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-        }
-    </style>
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.17.14/swagger-ui.css" />
 </head>
 <body>
-<redoc spec-url='{{ '/api/index.json' | static_url }}'></redoc>
-<script src="/js/http-api-doc.js"></script>
+<div id="swagger-ui"></div>
+<script src="https://unpkg.com/swagger-ui-dist@5.17.14/swagger-ui-bundle.js" crossorigin></script>
+<script>
+  window.onload = () => {
+    window.ui = SwaggerUIBundle({
+      url: '{{ '/api/index.json' | static_url }}',
+      dom_id: '#swagger-ui',
+    });
+  };
+</script>
 </body>
 </html>

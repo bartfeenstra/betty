@@ -86,7 +86,9 @@ class TestMediaType:
 
 class TestMediaTypeSchema(SchemaTestBase):
     @override
-    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
+    async def get_sut_instances(
+        self,
+    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
         return [
             (
                 MediaTypeSchema(),
@@ -97,5 +99,6 @@ class TestMediaTypeSchema(SchemaTestBase):
                     "application/ld+json",
                     "text/html; charset=UTF-8",
                 ],
+                [True, False, None, 123, [], {}],
             ),
         ]

@@ -59,7 +59,7 @@ if TYPE_CHECKING:
     from betty.json.schema import Schema
 
 
-class DummyHasPrivacy(HasPrivacy, DummyEntity):
+class DummyHasPrivacy(HasPrivacy):
     pass
 
 
@@ -150,11 +150,35 @@ class TestHasPrivacy:
         assert sut.private
         assert sut.privacy is Privacy.PRIVATE
 
+    @pytest.mark.parametrize(
+        ("expected", "sut"),
+        [
+            (
+                {
+                    "private": True,
+                },
+                DummyHasPrivacy(private=True),
+            ),
+            (
+                {
+                    "private": False,
+                },
+                DummyHasPrivacy(private=False),
+            ),
+        ],
+    )
+    async def test_dump_linked_data(
+        self, expected: DumpMapping[Dump], sut: HasPrivacy
+    ) -> None:
+        assert await assert_dumps_linked_data(sut) == expected
+
 
 class TestPrivacySchema(SchemaTestBase):
     @override
-    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
-        return [(PrivacySchema(), [True, False])]
+    async def get_sut_instances(
+        self,
+    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
+        return [(PrivacySchema(), [True, False], [None, 123, "abc", [], {}])]
 
 
 class TestIsPrivate:
@@ -231,13 +255,178 @@ class TestHasLocale:
         assert actual == expected
 
 
+class DummyDated(Dated):
+    pass
+
+
+class DummyDatedWithContextDefinitions(Dated):
+    @override
+    def dated_linked_data_contexts(self) -> tuple[str | None, str | None, str | None]:
+        return "single-date", "start-date", "end-date"
+
+
 class TestDated:
     async def test_date(self) -> None:
-        class _Dated(Dated):
-            pass
-
-        sut = _Dated()
+        sut = DummyDated()
         assert sut.date is None
+
+    @pytest.mark.parametrize(
+        ("expected", "sut"),
+        [
+            # No date information.
+            (
+                {},
+                DummyDated(),
+            ),
+            (
+                {},
+                DummyDatedWithContextDefinitions(),
+            ),
+            # A single date.
+            (
+                {
+                    "date": {
+                        "year": 1970,
+                        "month": 1,
+                        "day": 1,
+                        "iso8601": "1970-01-01",
+                        "fuzzy": False,
+                    }
+                },
+                DummyDated(date=Date(1970, 1, 1)),
+            ),
+            (
+                {
+                    "date": {
+                        "@context": {"iso8601": "single-date"},
+                        "year": 1970,
+                        "month": 1,
+                        "day": 1,
+                        "iso8601": "1970-01-01",
+                        "fuzzy": False,
+                    }
+                },
+                DummyDatedWithContextDefinitions(date=Date(1970, 1, 1)),
+            ),
+            # A date range with only a start date.
+            (
+                {
+                    "date": {
+                        "start": {
+                            "year": 1970,
+                            "month": 1,
+                            "day": 1,
+                            "iso8601": "1970-01-01",
+                            "fuzzy": False,
+                        },
+                        "end": None,
+                    },
+                },
+                DummyDated(date=DateRange(Date(1970, 1, 1))),
+            ),
+            (
+                {
+                    "date": {
+                        "start": {
+                            "@context": {"iso8601": "start-date"},
+                            "year": 1970,
+                            "month": 1,
+                            "day": 1,
+                            "iso8601": "1970-01-01",
+                            "fuzzy": False,
+                        },
+                        "end": None,
+                    },
+                },
+                DummyDatedWithContextDefinitions(date=DateRange(Date(1970, 1, 1))),
+            ),
+            # A date range with only an end date.
+            (
+                {
+                    "date": {
+                        "start": None,
+                        "end": {
+                            "year": 2000,
+                            "month": 12,
+                            "day": 31,
+                            "iso8601": "2000-12-31",
+                            "fuzzy": False,
+                        },
+                    },
+                },
+                DummyDated(date=DateRange(None, Date(2000, 12, 31))),
+            ),
+            (
+                {
+                    "date": {
+                        "start": None,
+                        "end": {
+                            "@context": {"iso8601": "end-date"},
+                            "year": 2000,
+                            "month": 12,
+                            "day": 31,
+                            "iso8601": "2000-12-31",
+                            "fuzzy": False,
+                        },
+                    },
+                },
+                DummyDatedWithContextDefinitions(
+                    date=DateRange(None, Date(2000, 12, 31))
+                ),
+            ),
+            # A date range with both a start and an end date.
+            (
+                {
+                    "date": {
+                        "start": {
+                            "year": 1970,
+                            "month": 1,
+                            "day": 1,
+                            "iso8601": "1970-01-01",
+                            "fuzzy": False,
+                        },
+                        "end": {
+                            "year": 2000,
+                            "month": 12,
+                            "day": 31,
+                            "iso8601": "2000-12-31",
+                            "fuzzy": False,
+                        },
+                    },
+                },
+                DummyDated(date=DateRange(Date(1970, 1, 1), Date(2000, 12, 31))),
+            ),
+            (
+                {
+                    "date": {
+                        "start": {
+                            "@context": {"iso8601": "start-date"},
+                            "year": 1970,
+                            "month": 1,
+                            "day": 1,
+                            "iso8601": "1970-01-01",
+                            "fuzzy": False,
+                        },
+                        "end": {
+                            "@context": {"iso8601": "end-date"},
+                            "year": 2000,
+                            "month": 12,
+                            "day": 31,
+                            "iso8601": "2000-12-31",
+                            "fuzzy": False,
+                        },
+                    },
+                },
+                DummyDatedWithContextDefinitions(
+                    date=DateRange(Date(1970, 1, 1), Date(2000, 12, 31))
+                ),
+            ),
+        ],
+    )
+    async def test_dump_linked_data(
+        self, expected: DumpMapping[Dump], sut: HasLinks
+    ) -> None:
+        assert await assert_dumps_linked_data(sut) == expected
 
 
 class TestNote(EntityTestBase):
@@ -280,16 +469,10 @@ class TestNote(EntityTestBase):
                     "locale": "und",
                 },
                 {
-                    "url": "/en/note/the_note/index.html",
+                    "url": "/note/the_note/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
                     "locale": "en-US",
-                },
-                {
-                    "url": "/nl/note/the_note/index.html",
-                    "relationship": "alternate",
-                    "mediaType": "text/html",
-                    "locale": "nl-NL",
                 },
             ],
         }
@@ -320,32 +503,103 @@ class TestNote(EntityTestBase):
         assert actual == expected
 
 
-class HasNotesTestEntity(HasNotes, DummyEntity):
+class DummyHasNotes(HasNotes, DummyEntity):
     pass
 
 
 class TestHasNotes:
     async def test_notes(self) -> None:
-        sut = HasNotesTestEntity()
+        sut = DummyHasNotes()
         assert list(sut.notes) == []
+
+    @pytest.mark.parametrize(
+        ("expected", "sut"),
+        [
+            (
+                {
+                    "notes": [],
+                },
+                DummyHasNotes(),
+            ),
+            (
+                {
+                    "notes": [],
+                },
+                DummyHasNotes(notes=[Note(text="Hello, world!")]),
+            ),
+            (
+                {
+                    "notes": ["/note/my-first-note/index.json"],
+                },
+                DummyHasNotes(notes=[Note(text="Hello, world!", id="my-first-note")]),
+            ),
+        ],
+    )
+    async def test_dump_linked_data(
+        self, expected: DumpMapping[Dump], sut: HasNotes
+    ) -> None:
+        assert await assert_dumps_linked_data(sut) == expected
+
+
+class DummyDescribed(Described):
+    pass
 
 
 class TestDescribed:
     async def test_description(self) -> None:
-        class _Described(Described):
-            pass
-
-        sut = _Described()
+        sut = DummyDescribed()
         assert not sut.description
+
+    @pytest.mark.parametrize(
+        ("expected", "sut"),
+        [
+            (
+                {},
+                DummyDescribed(),
+            ),
+            (
+                {
+                    "@context": {"description": "https://schema.org/description"},
+                    "description": {"translations": {"und": "Hello, world!"}},
+                },
+                DummyDescribed(description="Hello, world!"),
+            ),
+        ],
+    )
+    async def test_dump_linked_data(
+        self, expected: DumpMapping[Dump], sut: HasLinks
+    ) -> None:
+        assert await assert_dumps_linked_data(sut) == expected
+
+
+class DummyHasMediaType(HasMediaType, DummyEntity):
+    pass
 
 
 class TestHasMediaType:
     async def test_media_type(self) -> None:
-        class _HasMediaType(HasMediaType):
-            pass
-
-        sut = _HasMediaType()
+        sut = DummyHasMediaType()
         assert sut.media_type is None
+
+    @pytest.mark.parametrize(
+        ("expected", "sut"),
+        [
+            (
+                {},
+                DummyHasMediaType(),
+            ),
+            (
+                {
+                    "mediaType": "text/plain",
+                },
+                DummyHasMediaType(media_type=MediaType("text/plain")),
+            ),
+        ],
+    )
+    async def test_dump_linked_data(
+        self, expected: DumpMapping[Dump], sut: HasNotes
+    ) -> None:
+        assert await assert_dumps_linked_data(sut) == expected
 
 
 class TestLink:
@@ -409,17 +663,44 @@ class TestLink:
 
 class TestLinkSchema(SchemaTestBase):
     @override
-    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
-        return [(LinkSchema(), _DUMMY_LINK_DUMPS)]
+    async def get_sut_instances(
+        self,
+    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
+        return [
+            (
+                LinkSchema(),
+                _DUMMY_LINK_DUMPS,
+                [True, False, None, 123, "abc", [], {}],
+            )
+        ]
+
+
+class DummyHasLinks(HasLinks, DummyEntity):
+    pass
 
 
 class TestHasLinks:
     async def test_links(self) -> None:
-        class DummyHasLinks(HasLinks, DummyEntity):
-            pass
-
         sut = DummyHasLinks()
         assert sut.links == []
+
+    @pytest.mark.parametrize(
+        ("expected", "sut"),
+        [
+            (
+                {"links": []},
+                DummyHasLinks(),
+            ),
+            (
+                {"links": [{"url": "https://example.com", "locale": "und"}]},
+                DummyHasLinks(links=[Link("https://example.com")]),
+            ),
+        ],
+    )
+    async def test_dump_linked_data(
+        self, expected: DumpMapping[Dump], sut: HasLinks
+    ) -> None:
+        assert await assert_dumps_linked_data(sut) == expected
 
 
 class DummyHasFileReferences(HasFileReferences, DummyEntity):
@@ -562,16 +843,10 @@ class TestFile(EntityTestBase):
                         "locale": "und",
                     },
                     {
-                        "url": "/en/file/the_file/index.html",
+                        "url": "/file/the_file/index.html",
                         "relationship": "alternate",
                         "mediaType": "text/html",
                         "locale": "en-US",
-                    },
-                    {
-                        "url": "/nl/file/the_file/index.html",
-                        "relationship": "alternate",
-                        "mediaType": "text/html",
-                        "locale": "nl-NL",
                     },
                 ],
             }
@@ -623,16 +898,10 @@ class TestFile(EntityTestBase):
                         "locale": "und",
                     },
                     {
-                        "url": "/en/file/the_file/index.html",
+                        "url": "/file/the_file/index.html",
                         "relationship": "alternate",
                         "mediaType": "text/html",
                         "locale": "en-US",
-                    },
-                    {
-                        "url": "/nl/file/the_file/index.html",
-                        "relationship": "alternate",
-                        "mediaType": "text/html",
-                        "locale": "nl-NL",
                     },
                 ],
             }
@@ -803,16 +1072,10 @@ class TestSource(EntityTestBase):
                     "locale": "und",
                 },
                 {
-                    "url": "/en/source/the_source/index.html",
+                    "url": "/source/the_source/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
                     "locale": "en-US",
-                },
-                {
-                    "url": "/nl/source/the_source/index.html",
-                    "relationship": "alternate",
-                    "mediaType": "text/html",
-                    "locale": "nl-NL",
                 },
             ],
         }
@@ -868,6 +1131,7 @@ class TestSource(EntityTestBase):
                 "month": 1,
                 "day": 1,
                 "iso8601": "2000-01-01",
+                "fuzzy": False,
             },
             "links": [
                 {
@@ -884,16 +1148,10 @@ class TestSource(EntityTestBase):
                     "locale": "und",
                 },
                 {
-                    "url": "/en/source/the_source/index.html",
+                    "url": "/source/the_source/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
                     "locale": "en-US",
-                },
-                {
-                    "url": "/nl/source/the_source/index.html",
-                    "relationship": "alternate",
-                    "mediaType": "text/html",
-                    "locale": "nl-NL",
                 },
             ],
         }
@@ -985,7 +1243,7 @@ class TestSource(EntityTestBase):
         assert actual == expected
 
 
-class _HasCitations(HasCitations, DummyEntity):
+class DummyHasCitations(HasCitations, DummyEntity):
     pass
 
 
@@ -1003,7 +1261,7 @@ class TestCitation(EntityTestBase):
         assert sut.id == citation_id
 
     async def test_facts(self) -> None:
-        fact = _HasCitations()
+        fact = DummyHasCitations()
         sut = Citation(source=Source())
         assert list(sut.facts) == []
         sut.facts = [fact]
@@ -1054,16 +1312,10 @@ class TestCitation(EntityTestBase):
                     "locale": "und",
                 },
                 {
-                    "url": "/en/citation/the_citation/index.html",
+                    "url": "/citation/the_citation/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
                     "locale": "en-US",
-                },
-                {
-                    "url": "/nl/citation/the_citation/index.html",
-                    "relationship": "alternate",
-                    "mediaType": "text/html",
-                    "locale": "nl-NL",
                 },
             ],
         }
@@ -1099,16 +1351,10 @@ class TestCitation(EntityTestBase):
                     "locale": "und",
                 },
                 {
-                    "url": "/en/citation/the_citation/index.html",
+                    "url": "/citation/the_citation/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
                     "locale": "en-US",
-                },
-                {
-                    "url": "/nl/citation/the_citation/index.html",
-                    "relationship": "alternate",
-                    "mediaType": "text/html",
-                    "locale": "nl-NL",
                 },
             ],
         }
@@ -1152,11 +1398,33 @@ class TestCitation(EntityTestBase):
 
 class TestHasCitations:
     async def test_citations(self) -> None:
-        sut = _HasCitations()
+        sut = DummyHasCitations()
         assert list(sut.citations) == []
         citation = Citation(source=Source())
         sut.citations = [citation]
         assert list(sut.citations) == [citation]
+
+    @pytest.mark.parametrize(
+        ("expected", "sut"),
+        [
+            (
+                {"citations": []},
+                DummyHasCitations(),
+            ),
+            (
+                {"citations": []},
+                DummyHasCitations(citations=[Citation()]),
+            ),
+            (
+                {"citations": ["/citation/my-first-citation/index.json"]},
+                DummyHasCitations(citations=[Citation(id="my-first-citation")]),
+            ),
+        ],
+    )
+    async def test_dump_linked_data(
+        self, expected: DumpMapping[Dump], sut: HasLinks
+    ) -> None:
+        assert await assert_dumps_linked_data(sut) == expected
 
 
 class TestName:
@@ -1370,16 +1638,10 @@ class TestPlace(EntityTestBase):
                     "locale": "und",
                 },
                 {
-                    "url": "/en/place/the_place/index.html",
+                    "url": "/place/the_place/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
                     "locale": "en-US",
-                },
-                {
-                    "url": "/nl/place/the_place/index.html",
-                    "relationship": "alternate",
-                    "mediaType": "text/html",
-                    "locale": "nl-NL",
                 },
             ],
             "private": False,
@@ -1429,6 +1691,7 @@ class TestPlace(EntityTestBase):
                         "month": 1,
                         "day": 1,
                         "iso8601": "1970-01-01",
+                        "fuzzy": False,
                     },
                 },
             ],
@@ -1451,16 +1714,10 @@ class TestPlace(EntityTestBase):
                     "locale": "und",
                 },
                 {
-                    "url": "/en/place/the_place/index.html",
+                    "url": "/place/the_place/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
                     "locale": "en-US",
-                },
-                {
-                    "url": "/nl/place/the_place/index.html",
-                    "relationship": "alternate",
-                    "mediaType": "text/html",
-                    "locale": "nl-NL",
                 },
             ],
             "coordinates": {
@@ -1619,16 +1876,10 @@ class TestEvent(EntityTestBase):
                     "locale": "und",
                 },
                 {
-                    "url": "/en/event/the_event/index.html",
+                    "url": "/event/the_event/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
                     "locale": "en-US",
-                },
-                {
-                    "url": "/nl/event/the_event/index.html",
-                    "relationship": "alternate",
-                    "mediaType": "text/html",
-                    "locale": "nl-NL",
                 },
             ],
         }
@@ -1687,6 +1938,7 @@ class TestEvent(EntityTestBase):
                     "month": 1,
                     "day": 1,
                     "iso8601": "2000-01-01",
+                    "fuzzy": False,
                 },
                 "end": {
                     "@context": {
@@ -1696,6 +1948,7 @@ class TestEvent(EntityTestBase):
                     "month": 12,
                     "day": 31,
                     "iso8601": "2019-12-31",
+                    "fuzzy": False,
                 },
             },
             "place": "/place/the_place/index.json",
@@ -1707,16 +1960,10 @@ class TestEvent(EntityTestBase):
                     "locale": "und",
                 },
                 {
-                    "url": "/en/event/the_event/index.html",
+                    "url": "/event/the_event/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
                     "locale": "en-US",
-                },
-                {
-                    "url": "/nl/event/the_event/index.html",
-                    "relationship": "alternate",
-                    "mediaType": "text/html",
-                    "locale": "nl-NL",
                 },
             ],
         }
@@ -1832,6 +2079,64 @@ class TestPersonName(EntityTestBase):
             affiliation=affiliation,
         )
         assert sut.affiliation == affiliation
+
+    @pytest.mark.parametrize(
+        ("expected", "sut"),
+        [
+            (
+                {
+                    "@context": {
+                        "individual": "https://schema.org/givenName",
+                    },
+                    "individual": "Jane",
+                    "locale": UNDETERMINED_LOCALE,
+                    "private": False,
+                    "citations": [],
+                },
+                PersonName(individual="Jane"),
+            ),
+            (
+                {
+                    "@context": {
+                        "affiliation": "https://schema.org/familyName",
+                    },
+                    "affiliation": "Dough",
+                    "locale": UNDETERMINED_LOCALE,
+                    "private": False,
+                    "citations": [],
+                },
+                PersonName(affiliation="Dough"),
+            ),
+            (
+                {
+                    "@context": {
+                        "individual": "https://schema.org/givenName",
+                        "affiliation": "https://schema.org/familyName",
+                    },
+                    "individual": "Jane",
+                    "affiliation": "Dough",
+                    "locale": "nl-NL",
+                    "private": False,
+                    "citations": [],
+                },
+                PersonName(individual="Jane", affiliation="Dough", locale="nl-NL"),
+            ),
+            (
+                {
+                    "locale": "nl-NL",
+                    "private": True,
+                    "citations": [],
+                },
+                PersonName(
+                    individual="Jane", affiliation="Dough", locale="nl-NL", private=True
+                ),
+            ),
+        ],
+    )
+    async def test_dump_linked_data(
+        self, expected: DumpMapping[Dump], sut: PersonName
+    ) -> None:
+        assert await assert_dumps_linked_data(sut) == expected
 
 
 class TestPerson(EntityTestBase):
@@ -1975,16 +2280,10 @@ class TestPerson(EntityTestBase):
                     "locale": "und",
                 },
                 {
-                    "url": "/en/person/the_person/index.html",
+                    "url": "/person/the_person/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
                     "locale": "en-US",
-                },
-                {
-                    "url": "/nl/person/the_person/index.html",
-                    "relationship": "alternate",
-                    "mediaType": "text/html",
-                    "locale": "nl-NL",
                 },
             ],
         }
@@ -2101,16 +2400,10 @@ class TestPerson(EntityTestBase):
                     "locale": "und",
                 },
                 {
-                    "url": "/en/person/the_person/index.html",
+                    "url": "/person/the_person/index.html",
                     "relationship": "alternate",
                     "mediaType": "text/html",
                     "locale": "en-US",
-                },
-                {
-                    "url": "/nl/person/the_person/index.html",
-                    "relationship": "alternate",
-                    "mediaType": "text/html",
-                    "locale": "nl-NL",
                 },
             ],
         }
@@ -2275,7 +2568,7 @@ _DUMMY_LINK_DUMPS: Sequence[DumpMapping[Dump]] = (
     },
     {
         "url": "https://example.com",
-        "label": {UNDETERMINED_LOCALE: "Hello, world!"},
+        "label": {"translations": {UNDETERMINED_LOCALE: "Hello, world!"}},
     },
     {
         "url": "https://example.com",
@@ -2286,19 +2579,23 @@ _DUMMY_LINK_DUMPS: Sequence[DumpMapping[Dump]] = (
 
 class TestLinkCollectionSchema(SchemaTestBase):
     @override
-    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
+    async def get_sut_instances(
+        self,
+    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
         schemas = []
-        datas: Sequence[Dump] = [
+        valid_datas: Sequence[Dump] = [
             *[[data] for data in _DUMMY_LINK_DUMPS],  # type: ignore[list-item]
             list(_DUMMY_LINK_DUMPS),
         ]
+        invalid_datas: Sequence[Dump] = [True, False, None, 123, "abc", {}]
         async with App.new_temporary() as app, app, Project.new_temporary(
             app
         ) as project, project:
             schemas.append(
                 (
                     LinkCollectionSchema(),
-                    datas,
+                    valid_datas,
+                    invalid_datas,
                 )
             )
         return schemas

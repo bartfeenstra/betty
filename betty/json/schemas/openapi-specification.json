@@ -847,8 +847,10 @@
           "^[1-5](?:[0-9]{2}|XX)$": false
         }
       },
-      "then" : {
-        "required": [ "default" ]
+      "then": {
+        "required": [
+          "default"
+        ]
       }
     },
     "response": {

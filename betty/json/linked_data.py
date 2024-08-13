@@ -5,14 +5,14 @@ Provide `JSON-LD <https://json-ld.org/>`_ utilities.
 from __future__ import annotations
 
 from collections.abc import MutableSequence
-from typing import TYPE_CHECKING, cast
+from pathlib import Path
+from typing import TYPE_CHECKING, cast, Self
 
-from betty.json.schema import Schema
+from betty.json.schema import Schema, FileBasedSchema
 from betty.serde.dump import DumpMapping, Dump
 
 if TYPE_CHECKING:
     from betty.project import Project
-    from collections.abc import Sequence
     from betty.ancestry import Link
 
 
@@ -25,7 +25,13 @@ class LinkedDataDumpable:
         """
         Dump this instance to `JSON-LD <https://json-ld.org/>`_.
         """
-        return {}
+        from betty.project import ProjectSchema
+
+        dump: DumpMapping[Dump] = {}
+        schema = await self.linked_data_schema(project)
+        if schema.def_name:
+            dump["$schema"] = ProjectSchema.def_url(project, schema.def_name)
+        return dump
 
     @classmethod
     async def linked_data_schema(cls, project: Project) -> Schema:
@@ -35,13 +41,13 @@ class LinkedDataDumpable:
         return Schema()
 
 
-def dump_context(dump: DumpMapping[Dump], **contexts: str | Sequence[str]) -> None:
+def dump_context(dump: DumpMapping[Dump], **context_definitions: str) -> None:
     """
     Add one or more contexts to a dump.
     """
     context_dump = cast(DumpMapping[Dump], dump.setdefault("@context", {}))
-    for key, schema_org in contexts.items():
-        context_dump[key] = f"https://schema.org/{schema_org}"
+    for key, context_definition in context_definitions.items():
+        context_dump[key] = context_definition
 
 
 async def dump_link(dump: DumpMapping[Dump], project: Project, *links: Link) -> None:
@@ -53,24 +59,30 @@ async def dump_link(dump: DumpMapping[Dump], project: Project, *links: Link) -> 
         link_dump.append(await link.dump_linked_data(project))
 
 
-class JsonLdSchema(Schema):
+class JsonLdSchema(FileBasedSchema):
     """
-    A `JSON-LD <https://json-ld.org/>`_ Json Schema.
+    A `JSON-LD <https://json-ld.org/>`_ JSON Schema reference.
     """
 
-    def __init__(self):
-        super().__init__(
-            name="jsonLd",
-            schema={
-                "description": "A JSON-LD annotation.",
-            },
+    @classmethod
+    async def new(cls) -> Self:
+        """
+        Create a new instance.
+        """
+        return await cls.new_for(
+            Path(__file__).parent / "schemas" / "json-ld.json", name="jsonLd"
         )
 
+    def wrap(self, wrapped: Schema) -> None:
+        """
+        Wrap another schema and add JSON-LD properties.
 
-def add_json_ld(into: Schema) -> None:
-    """
-    Allow `JSON-LD <https://json-ld.org/>`_ properties to be added to a schema.
-    """
-    cast(DumpMapping[Dump], into.schema.setdefault("patternProperties", {}))["^@"] = (
-        JsonLdSchema().embed(into)
-    )
+        This will alter the structure of the wrapped schema.
+        """
+        name = wrapped.def_name
+        # Temporarily remove the name while we embed the schema into itself.
+        wrapped._def_name = None
+        schema = Schema()
+        schema._schema["allOf"] = [wrapped.embed(schema), self.embed(schema)]
+        wrapped._schema = schema.schema
+        wrapped._def_name = name

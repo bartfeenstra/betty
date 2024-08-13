@@ -114,7 +114,7 @@ class CottonCandy(
     @property
     def public_css_paths(self) -> Sequence[str]:
         return [
-            self.project.static_url_generator.generate("css/cotton-candy.css"),
+            self.project.static_url_generator.generate("/css/cotton-candy.css"),
         ]
 
     @override

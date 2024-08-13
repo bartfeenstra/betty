@@ -2,10 +2,14 @@
 Provide the OpenAPI specification.
 """
 
+from pathlib import Path
+from typing import Self
+
 from betty import about, model
+from betty.json.schema import FileBasedSchema
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import UserFacingEntity
-from betty.project import Project
+from betty.project import Project, ProjectSchema
 from betty.serde.dump import DumpMapping, Dump
 from betty.string import kebab_case_to_lower_camel_case
 
@@ -43,7 +47,9 @@ class Specification:
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/betty/errorResponse",
+                                    "$ref": ProjectSchema.def_url(
+                                        self._project, "errorResponse"
+                                    ),
                                 },
                             },
                         },
@@ -53,7 +59,9 @@ class Specification:
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/betty/errorResponse",
+                                    "$ref": ProjectSchema.def_url(
+                                        self._project, "errorResponse"
+                                    ),
                                 },
                             },
                         },
@@ -63,7 +71,9 @@ class Specification:
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/betty/errorResponse",
+                                    "$ref": ProjectSchema.def_url(
+                                        self._project, "errorResponse"
+                                    ),
                                 },
                             },
                         },
@@ -82,9 +92,7 @@ class Specification:
                 },
                 "schemas": {
                     "betty": {
-                        "$ref": self._project.static_url_generator.generate(
-                            "/schema.json#/definitions"
-                        ),
+                        "$ref": ProjectSchema.url(self._project),
                     },
                 },
             },
@@ -111,12 +119,16 @@ class Specification:
                                     "content": {
                                         "application/json": {
                                             "schema": {
-                                                "$ref": f"#/components/schemas/betty/{kebab_case_to_lower_camel_case(entity_type.plugin_id())}CollectionResponse",
+                                                "$ref": ProjectSchema.def_url(
+                                                    self._project,
+                                                    f"{kebab_case_to_lower_camel_case(entity_type.plugin_id())}EntityCollectionResponse",
+                                                ),
                                             },
                                         },
                                     },
                                 },
                             },
+                            "tags": [entity_type_label],
                         },
                     },
                     single_path: {
@@ -128,12 +140,16 @@ class Specification:
                                     "content": {
                                         "application/json": {
                                             "schema": {
-                                                "$ref": f"#/components/schemas/betty/{kebab_case_to_lower_camel_case(entity_type.plugin_id())}",
+                                                "$ref": ProjectSchema.def_url(
+                                                    self._project,
+                                                    f"{kebab_case_to_lower_camel_case(entity_type.plugin_id())}Entity",
+                                                ),
                                             },
                                         },
                                     },
                                 },
                             },
+                            "tags": [entity_type_label],
                         },
                     },
                 }
@@ -156,3 +172,19 @@ class Specification:
             )
 
         return specification
+
+
+class SpecificationSchema(FileBasedSchema):
+    """
+    The OpenAPI Specification schema.
+    """
+
+    @classmethod
+    async def new(cls) -> Self:
+        """
+        Create a new instance.
+        """
+        return await cls.new_for(
+            Path(__file__).parent / "json" / "schemas" / "openapi-specification.json",
+            name="openApiSpecification",
+        )

@@ -8,40 +8,29 @@ from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING
 
 from betty.app import App
-from betty.json.schema import ProjectSchema
-from betty.project import Project, LocaleConfiguration
+from betty.project import Project
 
 if TYPE_CHECKING:
     from betty.json.linked_data import LinkedDataDumpable
     from betty.serde.dump import Dump
 
 
-async def assert_dumps_linked_data(dumpable: LinkedDataDumpable) -> Dump:
+async def assert_dumps_linked_data(sut: LinkedDataDumpable) -> Dump:
     """
     Dump an object's linked data and assert it is valid.
     """
-    async with App.new_temporary() as app, app, Project.new_temporary(app) as project:
-        project.configuration.locales["en-US"].alias = "en"
-        project.configuration.locales.append(
-            LocaleConfiguration(
-                "nl-NL",
-                alias="nl",
-            )
-        )
-        async with project:
-            project_schema = await ProjectSchema.new(project)
-            dumpable_schema = await dumpable.linked_data_schema(project)
-            dumpable_schema.embed(project_schema)
-            actual = await dumpable.dump_linked_data(project)
-            if "$id" not in actual:
-                actual["$id"] = project.static_url_generator.generate(
-                    "schema.json", absolute=True
-                )
-            project_schema.validate(actual)
+    async with App.new_temporary() as app, app, Project.new_temporary(
+        app
+    ) as project, project:
+        actual = await sut.dump_linked_data(project)
 
-            # Normalize the data after validation (so we are assured it is absolutely valid),
-            # but before returning, so calling code can use simpler comparisons.
-            return _normalize(actual)
+        # Validate the raw dump.
+        sut_schema = await sut.linked_data_schema(project)
+        sut_schema.validate(actual)
+
+        # Normalize the dump after validation (so we are assured it is absolutely valid),
+        # but before returning, so calling code can use simpler comparisons.
+        return _normalize(actual)
 
 
 def _normalize(dump: Dump) -> Dump:

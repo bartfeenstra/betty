@@ -58,13 +58,17 @@ from betty.config.collections.sequence import ConfigurationSequence
 from betty.core import CoreComponent
 from betty.event_dispatcher import EventDispatcher, EventHandlerRegistry
 from betty.hashid import hashid
+from betty.json.schema import (
+    Schema,
+    JsonSchemaReference,
+)
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizable import _, ShorthandStaticTranslations
 from betty.locale.localizable.config import (
     StaticTranslationsLocalizableConfigurationAttr,
 )
 from betty.locale.localizer import LocalizerRepository
-from betty.model import Entity, UserFacingEntity
+from betty.model import Entity, UserFacingEntity, EntityReferenceCollectionSchema
 from betty.plugin.assertion import assert_plugin
 from betty.project import extension
 from betty.project.extension import (
@@ -83,12 +87,14 @@ from betty.serde.dump import (
     VoidableDumpMapping,
 )
 from betty.serde.format import FormatRepository
+from betty.string import kebab_case_to_lower_camel_case
 from betty.typing import Void
 from typing_extensions import override
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from betty.machine_name import MachineName
-    from collections.abc import AsyncIterator, Sequence
+    from collections.abc import AsyncIterator
     from betty.app import App
     from betty.url import LocalizedUrlGenerator, StaticUrlGenerator
     from betty.jinja2 import Environment
@@ -883,7 +889,7 @@ class ProjectConfiguration(Configuration):
         If the public URL is ``https://example.com``, the root path is an empty string.
         If the public URL is ``https://example.com/my-ancestry-site``, the root path is ``/my-ancestry-site``.
         """
-        return urlparse(self.url).path
+        return urlparse(self.url).path.rstrip("/")
 
     @property
     def clean_urls(self) -> bool:
@@ -1318,3 +1324,80 @@ class ProjectEvent(event_dispatcher.Event):
         The :py:class:`betty.project.Project` this event is dispatched within.
         """
         return self._project
+
+
+@final
+class ProjectSchema(Schema):
+    """
+    A JSON Schema for a project.
+    """
+
+    @classmethod
+    def def_url(cls, project: Project, def_name: str) -> str:
+        """
+        Get the URL to a project's JSON Schema definition.
+        """
+        uri = f"{cls.url(project)}#"
+        if def_name:
+            uri = f"{uri}#/$defs/{def_name}"
+        return uri
+
+    @classmethod
+    def url(cls, project: Project) -> str:
+        """
+        Get the URL to a project's JSON Schema.
+        """
+        return project.static_url_generator.generate("/schema.json", absolute=True)
+
+    @classmethod
+    def www_path(cls, project: Project) -> Path:
+        """
+        Get the path to the schema file in a site's public WWW directory.
+        """
+        return project.configuration.www_directory_path / "schema.json"
+
+    @classmethod
+    async def new(cls, project: Project) -> Self:
+        """
+        Create a new schema for the given project.
+        """
+        from betty import model
+
+        schema = cls()
+        schema._schema["$id"] = cls.url(project)
+
+        # Add entity schemas.
+        async for entity_type in model.ENTITY_TYPE_REPOSITORY:
+            entity_type_schema = await entity_type.linked_data_schema(project)
+            entity_type_schema.embed(schema)
+            def_name = f"{kebab_case_to_lower_camel_case(entity_type.plugin_id())}EntityCollectionResponse"
+            schema.defs[def_name] = {
+                "type": "object",
+                "properties": {
+                    "collection": EntityReferenceCollectionSchema(entity_type).embed(
+                        schema
+                    ),
+                },
+            }
+
+        # Add the HTTP error response.
+        schema.defs["errorResponse"] = {
+            "type": "object",
+            "properties": {
+                "$schema": JsonSchemaReference().embed(schema),
+                "message": {
+                    "type": "string",
+                },
+            },
+            "required": [
+                "$schema",
+                "message",
+            ],
+            "additionalProperties": False,
+        }
+
+        schema._schema["anyOf"] = [
+            {"$ref": f"#/$defs/{def_name}"} for def_name in schema.defs
+        ]
+
+        return schema

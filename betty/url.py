@@ -109,7 +109,7 @@ class StaticPathUrlGenerator(StaticUrlGenerator):
 
     @override
     def supports(self, resource: Any) -> bool:
-        return isinstance(resource, str)
+        return isinstance(resource, str) and resource.startswith("/")
 
     @override
     def generate(
@@ -208,9 +208,9 @@ def _generate_from_path(
     localey: Localey | None = None,
 ) -> str:
     url = configuration.base_url if absolute else ""
-    url += "/"
+    path = path.strip("/")
     if configuration.root_path:
-        url += configuration.root_path + "/"
+        url += configuration.root_path
     if localey and configuration.locales.multilingual:
         locale = to_locale(localey)
         try:
@@ -228,8 +228,12 @@ def _generate_from_path(
                 raise ValueError(
                     f'Cannot generate URLs in "{locale}", because it cannot be resolved to any of the enabled project locales: {", ".join(project_locales)}'
                 ) from None
-        url += locale_configuration.alias + "/"
-    url += path.strip("/")
+        url += f"/{locale_configuration.alias}"
+    if path:
+        url += f"/{path}"
     if configuration.clean_urls and url.endswith("/index.html"):
-        url = url[:-10]
-    return url.rstrip("/")
+        url = url[:-11]
+    # Ensure URLs are root-relative.
+    if not absolute:
+        url = f"/{url.lstrip('/')}"
+    return url

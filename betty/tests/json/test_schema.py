@@ -1,112 +1,127 @@
-import json as stdjson
+import json
 from pathlib import Path
-from typing import Sequence
-
+from typing import Sequence, TYPE_CHECKING
 import aiofiles
-import jsonschema
-import pytest
-from typing_extensions import override
-
-from betty.app import App
 from betty.json.schema import (
-    ProjectSchema,
     Schema,
     Ref,
-    LocaleSchema,
     JsonSchemaReference,
     ArraySchema,
     JsonSchemaSchema,
+    Def,
+    FileBasedSchema,
 )
-from betty.project import Project
 from betty.serde.dump import Dump
 from betty.test_utils.json.schema import SchemaTestBase, DUMMY_SCHEMAS
+from typing_extensions import override
+
+if TYPE_CHECKING:
+    from collections.abc import MutableSequence
 
 
 class TestSchema(SchemaTestBase):
     @override
-    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
+    async def get_sut_instances(
+        self,
+    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
         return DUMMY_SCHEMAS
+
+    def test_name_with_name(self) -> None:
+        name = "myFirstSchema"
+        sut = Schema(def_name=name)
+        assert sut.def_name == name
+
+    def test_name_without_name(self) -> None:
+        sut = Schema()
+        assert sut.def_name is None
 
 
 class TestArraySchema(SchemaTestBase):
     @override
-    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
-        return [
-            schema
-            for schemas in (
+    async def get_sut_instances(
+        self,
+    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
+        schemas: MutableSequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]] = []
+        for items_schema, valid_datas, invalid_datas in DUMMY_SCHEMAS:
+            schemas.append(
                 (
-                    (
-                        ArraySchema(items_schema),
-                        [*[[data] for data in datas], list(datas)],
-                    ),
-                    (
-                        ArraySchema(items_schema, name="myFirstArraySchema"),
-                        [*[[data] for data in datas], list(datas)],
-                    ),
+                    ArraySchema(items_schema),
+                    [*[[data] for data in valid_datas], list(valid_datas)],
+                    [
+                        True,
+                        False,
+                        None,
+                        123,
+                        "abc",
+                        {},
+                        *[[invalid_data] for invalid_data in invalid_datas],
+                    ],
                 )
-                for items_schema, datas in DUMMY_SCHEMAS
             )
-            for schema in schemas
-        ]
+            schemas.append(
+                (
+                    ArraySchema(items_schema, def_name="myFirstArraySchema"),
+                    [*[[data] for data in valid_datas], list(valid_datas)],
+                    [
+                        True,
+                        False,
+                        None,
+                        123,
+                        "abc",
+                        {},
+                        *[[invalid_data] for invalid_data in invalid_datas],
+                    ],
+                )
+            )
+        return schemas
+
+
+class TestDef:
+    def test(self) -> None:
+        sut = Def("myFirstSchema")
+        assert sut == "#/$defs/myFirstSchema"
 
 
 class TestRef(SchemaTestBase):
     @override
-    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
+    async def get_sut_instances(
+        self,
+    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
         return [
-            (Ref("foo"), []),
-            (Ref("bar"), []),
-            (Ref("baz"), []),
+            (Ref("someDefinition"), [], []),
         ]
 
 
-class TestLocaleSchema(SchemaTestBase):
-    @override
-    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
-        return [(LocaleSchema(), ["en", "nl", "uk"])]
+class TestFileBasedSchema:
+    async def test_new_for(self, tmp_path: Path) -> None:
+        schema = {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "type": "string",
+        }
+        schema_path = tmp_path / "schema.json"
+        async with aiofiles.open(schema_path, "w") as f:
+            await f.write(json.dumps(schema))
+        sut = await FileBasedSchema.new_for(schema_path)
+        assert sut.schema == schema
 
 
 class TestJsonSchemaReference(SchemaTestBase):
     @override
-    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
-        return [(JsonSchemaReference(), [])]
+    async def get_sut_instances(
+        self,
+    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
+        return [
+            (
+                JsonSchemaReference(),
+                ["https://json-schema.org/draft/2020-12/schema"],
+                [True, False, None, 123, [], {}],
+            )
+        ]
 
 
 class TestJsonSchemaSchema(SchemaTestBase):
     @override
-    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
-        return [(await JsonSchemaSchema.new(), [])]
-
-
-class TestProjectSchema(SchemaTestBase):
-    @override
-    async def get_sut_instances(self) -> Sequence[tuple[Schema, Sequence[Dump]]]:
-        schemas = []
-        for clean_urls in (True, False):
-            async with App.new_temporary() as app, app, Project.new_temporary(
-                app
-            ) as project:
-                project.configuration.clean_urls = clean_urls
-                async with project:
-                    schemas.append((await ProjectSchema.new(project), ()))
-        return schemas
-
-    @pytest.mark.parametrize(
-        "clean_urls",
-        [
-            True,
-            False,
-        ],
-    )
-    async def test_new(self, clean_urls: bool, new_temporary_app: App) -> None:
-        async with aiofiles.open(
-            Path(__file__).parent.parent.parent
-            / "test_utils"
-            / "json"
-            / "json-schema-schema.json"
-        ) as f:
-            json_schema_schema = stdjson.loads(await f.read())
-
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            schema = await ProjectSchema.new(project)
-        jsonschema.validate(json_schema_schema, schema.schema)
+    async def get_sut_instances(
+        self,
+    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
+        return [(await JsonSchemaSchema.new(), [], [])]

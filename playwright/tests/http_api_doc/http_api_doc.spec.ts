@@ -19,7 +19,12 @@ const test = base.extend<{
 
 test('load the HTTP API documentation', async ({ page, site }) => {
   await page.goto(site + '/api/index.html')
-  expect(await page.content()).toContain('Betty')
-  expect(await page.content()).toContain('api/index.json')
+  const locator = page.locator('#swagger-ui')
+  // Test a couple of keywords in the source.
+  await expect(locator).toContainText('Betty')
+  await expect(locator).toContainText('api/index.json')
+  // Test a couple of keywords shown after successful rendering.
+  await expect(locator).toContainText('Retrieve a single')
+  await expect(locator).toContainText('Retrieve the collection')
   await page.close()
 })

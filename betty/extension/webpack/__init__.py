@@ -121,6 +121,7 @@ async def _generate_assets(event: GenerateSiteEvent) -> None:
     build_directory_path = await webpack._generate_ensure_build_directory(
         job_context=event.job_context,
     )
+    event.job_context._webpack_build_directory_path = build_directory_path  # type: ignore[attr-defined]
     await webpack._copy_build_directory(
         build_directory_path, event.project.configuration.www_directory_path
     )
@@ -174,7 +175,7 @@ class Webpack(Extension, CssProvider, Jinja2Provider):
     @property
     def public_css_paths(self) -> Sequence[str]:
         return [
-            self._project.static_url_generator.generate("css/vendor.css"),
+            self._project.static_url_generator.generate("/css/vendor.css"),
         ]
 
     @override

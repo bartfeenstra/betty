@@ -7,28 +7,27 @@ from __future__ import annotations
 from contextlib import suppress
 from enum import Enum
 from reprlib import recursive_repr
-from typing import Iterable, Any, TYPE_CHECKING, final, cast
+from typing import Iterable, Any, TYPE_CHECKING, final
 from urllib.parse import quote
 
 from betty.ancestry.event_type import EventType, UnknownEventType
 from betty.ancestry.presence_role import PresenceRole, Subject, PresenceRoleSchema
+from betty.asyncio import wait_to_thread
 from betty.classtools import repr_instance
 from betty.functools import Uniquifier
 from betty.json.linked_data import (
     LinkedDataDumpable,
     dump_context,
     dump_link,
-    add_json_ld,
+    JsonLdSchema,
 )
 from betty.json.schema import (
     add_property,
     Schema,
     ArraySchema,
-    Ref,
-    LocaleSchema,
 )
-from betty.locale import UNDETERMINED_LOCALE
-from betty.locale.date import Datey, DateySchema
+from betty.locale import UNDETERMINED_LOCALE, LocaleSchema
+from betty.locale.date import Datey, DateySchema, Date
 from betty.locale.localizable import (
     _,
     Localizable,
@@ -45,6 +44,8 @@ from betty.model import (
     Entity,
     UserFacingEntity,
     GeneratedEntityId,
+    EntityReferenceCollectionSchema,
+    EntityReferenceSchema,
 )
 from betty.model.association import (
     ManyToOne,
@@ -55,11 +56,11 @@ from betty.model.association import (
 from betty.model.collections import (
     MultipleTypesEntityCollection,
 )
-from betty.serde.dump import DumpMapping, Dump
 from betty.string import camel_case_to_kebab_case
 from typing_extensions import override
 
 if TYPE_CHECKING:
+    from betty.serde.dump import DumpMapping, Dump
     from betty.machine_name import MachineName
     from betty.image import FocusArea
     from betty.project import Project
@@ -190,7 +191,7 @@ class PrivacySchema(Schema):
 
     def __init__(self):
         super().__init__(
-            name="privacy",
+            def_name="privacy",
             schema={
                 "type": "boolean",
                 "description": "Whether this entity is private (true), or public (false).",
@@ -253,19 +254,39 @@ class Dated(LinkedDataDumpable):
         super().__init__(*args, **kwargs)
         self.date = date
 
+    def dated_linked_data_contexts(self) -> tuple[str | None, str | None, str | None]:
+        """
+        Get the JSON-LD context term definition IRIs for the possible dates.
+
+        :returns: A 3-tuple with the IRI for a single date, a start date, and an end date, respectively.
+        """
+        return None, None, None
+
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         if self.date and is_public(self):
-            dump["date"] = await self.date.dump_linked_data(project)
+            (
+                schema_org_date_definition,
+                schema_org_start_date_definition,
+                schema_org_end_date_definition,
+            ) = self.dated_linked_data_contexts()
+            if isinstance(self.date, Date):
+                dump["date"] = await self.date.dump_linked_data(
+                    project, schema_org_date_definition
+                )
+            else:
+                dump["date"] = await self.date.dump_linked_data(
+                    project,
+                    schema_org_start_date_definition,
+                    schema_org_end_date_definition,
+                )
         return dump
 
     @override
     @classmethod
     async def linked_data_schema(cls, project: Project) -> Schema:
         schema = await super().linked_data_schema(project)
-        schema.schema["type"] = "object"
-        schema.schema["additionalProperties"] = False
         add_property(schema, "date", DateySchema(), False)
         return schema
 
@@ -293,7 +314,7 @@ class Described(LinkedDataDumpable):
         dump = await super().dump_linked_data(project)
         if self.description:
             dump["description"] = await self.description.dump_linked_data(project)
-            dump_context(dump, description="description")
+            dump_context(dump, description="https://schema.org/description")
         return dump
 
     @override
@@ -303,13 +324,9 @@ class Described(LinkedDataDumpable):
         add_property(
             schema,
             "description",
-            Ref("description"),
+            StaticTranslationsLocalizableSchema(),
             False,
         )
-        if "description" not in schema.definitions:
-            schema.definitions["description"] = {
-                "type": "string",
-            }
         return schema
 
 
@@ -375,8 +392,7 @@ class HasLocale(Localized, LinkedDataDumpable):
     @classmethod
     async def linked_data_schema(cls, project: Project) -> Schema:
         schema = await super().linked_data_schema(project)
-        properties = cast(DumpMapping[Dump], schema.schema.setdefault("properties", {}))
-        properties["locale"] = LocaleSchema().embed(schema)
+        add_property(schema, "locale", LocaleSchema())
         return schema
 
 
@@ -416,9 +432,6 @@ class Link(HasMediaType, HasLocale, Described, LinkedDataDumpable):
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
-        dump["$ref"] = project.static_url_generator.generate(
-            "schema.json#/definitions/link", absolute=True
-        )
         dump["url"] = self.url
         if self.label:
             dump["label"] = await self.label.dump_linked_data(project)
@@ -438,8 +451,7 @@ class LinkSchema(Schema):
     """
 
     def __init__(self):
-        super().__init__(name="link")
-        add_json_ld(self)
+        super().__init__(def_name="link")
         add_property(
             self,
             "url",
@@ -468,6 +480,7 @@ class LinkSchema(Schema):
             StaticTranslationsLocalizableSchema(),
             False,
         )
+        wait_to_thread(JsonLdSchema.new()).wrap(self)
 
 
 class LinkCollectionSchema(ArraySchema):
@@ -476,7 +489,7 @@ class LinkCollectionSchema(ArraySchema):
     """
 
     def __init__(self):
-        super().__init__(name="linkCollection", items_schema=LinkSchema())
+        super().__init__(LinkSchema(), def_name="linkCollection")
 
 
 class HasLinks(Entity):
@@ -619,9 +632,10 @@ class Note(UserFacingEntity, HasPrivacy, HasLinks, Entity):
         add_property(
             schema,
             "text",
-            Schema(schema={"type": "string", "title": "The human-readable note text."}),
+            StaticTranslationsLocalizableSchema(),
             False,
         )
+        (await JsonLdSchema.new()).wrap(schema)
         return schema
 
 
@@ -661,7 +675,7 @@ class HasNotes(Entity):
     @classmethod
     async def linked_data_schema(cls, project: Project) -> Schema:
         schema = await super().linked_data_schema(project)
-        add_property(schema, "notes", Ref("noteEntityCollection"))
+        add_property(schema, "notes", EntityReferenceCollectionSchema(Note))
         return schema
 
 
@@ -706,7 +720,7 @@ class HasCitations(Entity):
     @classmethod
     async def linked_data_schema(cls, project: Project) -> Schema:
         schema = await super().linked_data_schema(project)
-        add_property(schema, "citations", Ref("citationEntityCollection"))
+        add_property(schema, "citations", EntityReferenceCollectionSchema(Citation))
         return schema
 
 
@@ -824,6 +838,7 @@ class File(
             "entities",
             ArraySchema(Schema(schema={"type": "string", "format": "uri"})),
         )
+        (await JsonLdSchema.new()).wrap(schema)
         return schema
 
 
@@ -1052,7 +1067,7 @@ class Source(
             )
         if self.public:
             if self.name:
-                dump_context(dump, name="name")
+                dump_context(dump, name="https://schema.org/name")
                 dump["name"] = await self.name.dump_linked_data(project)
             if self.author:
                 dump["author"] = await self.author.dump_linked_data(project)
@@ -1067,61 +1082,30 @@ class Source(
         add_property(
             schema,
             "name",
-            Schema(
-                schema={
-                    "type": "string",
-                }
-            ),
+            StaticTranslationsLocalizableSchema(),
             False,
         )
         add_property(
             schema,
             "author",
-            Schema(
-                schema={
-                    "type": "string",
-                }
-            ),
+            StaticTranslationsLocalizableSchema(),
             False,
         )
         add_property(
             schema,
             "publisher",
-            Schema(
-                schema={
-                    "type": "string",
-                }
-            ),
+            StaticTranslationsLocalizableSchema(),
             False,
         )
-        add_property(
-            schema,
-            "contains",
-            ArraySchema(
-                Schema(
-                    schema={
-                        "type": "string",
-                        "format": "uri",
-                    }
-                )
-            ),
-        )
-        add_property(
-            schema,
-            "citations",
-            Ref("citationEntityCollection"),
-        )
+        add_property(schema, "contains", EntityReferenceCollectionSchema(Source))
+        add_property(schema, "citations", EntityReferenceCollectionSchema(Citation))
         add_property(
             schema,
             "containedBy",
-            Schema(
-                schema={
-                    "type": "string",
-                    "format": "uri",
-                }
-            ),
+            EntityReferenceSchema(Source),
             False,
         )
+        (await JsonLdSchema.new()).wrap(schema)
         return schema
 
 
@@ -1224,16 +1208,13 @@ class Citation(Dated, HasFileReferences, HasPrivacy, HasLinks, UserFacingEntity)
     @classmethod
     async def linked_data_schema(cls, project: Project) -> Schema:
         schema = await super().linked_data_schema(project)
-        add_property(
-            schema, "source", Schema(schema={"type": "string", "format": "uri"}), False
-        )
+        add_property(schema, "source", EntityReferenceSchema(Source), False)
         add_property(
             schema,
             "facts",
-            ArraySchema(
-                items_schema=Schema(schema={"type": "string", "format": "uri"})
-            ),
+            ArraySchema(Schema(schema={"type": "string", "format": "uri"})),
         )
+        (await JsonLdSchema.new()).wrap(schema)
         return schema
 
 
@@ -1429,10 +1410,10 @@ class Place(
         dump = await super().dump_linked_data(project)
         dump_context(
             dump,
-            names="name",
-            events="event",
-            enclosedBy="containedInPlace",
-            encloses="containsPlace",
+            names="https://schema.org/name",
+            events="https://schema.org/event",
+            enclosedBy="https://schema.org/containedInPlace",
+            encloses="https://schema.org/containsPlace",
         )
         dump["@type"] = "https://schema.org/Place"
         dump["names"] = [await name.dump_linked_data(project) for name in self.names]
@@ -1465,14 +1446,14 @@ class Place(
                 "latitude": self.coordinates.latitude,
                 "longitude": self.coordinates.longitude,
             }
-            dump_context(dump, coordinates="geo")
+            dump_context(dump, coordinates="https://schema.org/geo")
             dump_context(
                 dump["coordinates"],  # type: ignore[arg-type]
-                latitude="latitude",
+                latitude="https://schema.org/latitude",
             )
             dump_context(
                 dump["coordinates"],  # type: ignore[arg-type]
-                longitude="longitude",
+                longitude="https://schema.org/longitude",
             )
         return dump
 
@@ -1485,37 +1466,20 @@ class Place(
             "names",
             ArraySchema(await Name.linked_data_schema(project)),
         )
-        add_property(
-            schema,
-            "enclosedBy",
-            Ref("placeEntityCollection"),
-            False,
-        )
-        add_property(
-            schema,
-            "encloses",
-            Ref("placeEntityCollection"),
-        )
+        add_property(schema, "enclosedBy", EntityReferenceCollectionSchema(Place))
+        add_property(schema, "encloses", EntityReferenceCollectionSchema(Place))
         coordinate_schema = Schema(
             schema={
                 "type": "number",
             }
         )
-        coordinates_schema = Schema(
-            schema={
-                "type": "object",
-                "additionalProperties": False,
-            }
-        )
+        coordinates_schema = Schema()
         add_property(coordinates_schema, "latitude", coordinate_schema, False)
         add_property(coordinates_schema, "longitude", coordinate_schema, False)
-        add_json_ld(coordinates_schema)
+        (await JsonLdSchema.new()).wrap(coordinates_schema)
         add_property(schema, "coordinates", coordinates_schema, False)
-        add_property(
-            schema,
-            "events",
-            Ref("eventEntityCollection"),
-        )
+        add_property(schema, "events", EntityReferenceCollectionSchema(Event))
+        (await JsonLdSchema.new()).wrap(schema)
         return schema
 
 
@@ -1642,6 +1606,14 @@ class Event(
             self.place = place
 
     @override
+    def dated_linked_data_contexts(self) -> tuple[str | None, str | None, str | None]:
+        return (
+            "https://schema.org/startDate",
+            "https://schema.org/startDate",
+            "https://schema.org/endDate",
+        )
+
+    @override
     @property
     def label(self) -> Localizable:
         format_kwargs: Mapping[str, str | Localizable] = {
@@ -1706,18 +1678,12 @@ class Event(
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
-        dump_context(dump, presences="performer")
+        dump_context(dump, presences="https://schema.org/performer")
         dump["@type"] = "https://schema.org/Event"
         dump["type"] = self.event_type.plugin_id()
         dump["eventAttendanceMode"] = "https://schema.org/OfflineEventAttendanceMode"
         dump["eventStatus"] = "https://schema.org/EventScheduled"
         dump["presences"] = presences = []
-        if self.date is not None and self.public:
-            await self.date.datey_dump_linked_data(
-                dump["date"],  # type: ignore[arg-type]
-                "startDate",
-                "endDate",
-            )
         for presence in self.presences:
             if presence.person and not isinstance(
                 presence.person.id, GeneratedEntityId
@@ -1727,7 +1693,7 @@ class Event(
             dump["place"] = project.static_url_generator.generate(
                 f"/place/{quote(self.place.id)}/index.json"
             )
-            dump_context(dump, place="location")
+            dump_context(dump, place="https://schema.org/location")
         return dump
 
     def _dump_event_presence(
@@ -1760,12 +1726,7 @@ class Event(
         add_property(
             schema,
             "place",
-            Schema(
-                schema={
-                    "type": "string",
-                    "format": "uri",
-                }
-            ),
+            EntityReferenceSchema(Place),
             False,
         )
         add_property(
@@ -1791,6 +1752,7 @@ class Event(
                 }
             ),
         )
+        (await JsonLdSchema.new()).wrap(schema)
         return schema
 
 
@@ -1801,20 +1763,9 @@ class _EventPresenceSchema(Schema):
 
     def __init__(self):
         super().__init__()
-        self.schema["type"] = "object"
-        self.schema["additionalProperties"] = False
         add_property(self, "role", PresenceRoleSchema(), False)
-        add_property(
-            self,
-            "person",
-            Schema(
-                schema={
-                    "type": "string",
-                    "format": "uri",
-                }
-            ),
-        )
-        add_json_ld(self)
+        add_property(self, "person", EntityReferenceSchema(Person))
+        wait_to_thread(JsonLdSchema.new()).wrap(self)
 
 
 @final
@@ -1925,10 +1876,10 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
         dump = await super().dump_linked_data(project)
         if self.public:
             if self.individual is not None:
-                dump_context(dump, individual="givenName")
+                dump_context(dump, individual="https://schema.org/givenName")
                 dump["individual"] = self.individual
             if self.affiliation is not None:
-                dump_context(dump, affiliation="familyName")
+                dump_context(dump, affiliation="https://schema.org/familyName")
                 dump["affiliation"] = self.affiliation
         return dump
 
@@ -1956,6 +1907,7 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
             ),
             False,
         )
+        (await JsonLdSchema.new()).wrap(schema)
         return schema
 
 
@@ -2091,10 +2043,10 @@ class Person(
         dump = await super().dump_linked_data(project)
         dump_context(
             dump,
-            names="name",
-            parents="parent",
-            children="child",
-            siblings="sibling",
+            names="https://schema.org/name",
+            parents="https://schema.org/parent",
+            children="https://schema.org/child",
+            siblings="https://schema.org/sibling",
         )
         dump["@type"] = "https://schema.org/Person"
         dump["parents"] = [
@@ -2143,7 +2095,7 @@ class Person(
                 f"/event/{quote(presence.event.id)}/index.json"
             ),
         }
-        dump_context(dump, event="performerIn")
+        dump_context(dump, event="https://schema.org/performerIn")
         if presence.public:
             dump["role"] = presence.role.plugin_id()
         return dump
@@ -2157,26 +2109,15 @@ class Person(
             "names",
             ArraySchema(await PersonName.linked_data_schema(project)),
         )
-        add_property(
-            schema,
-            "parents",
-            Ref("personEntityCollection"),
-        )
-        add_property(
-            schema,
-            "children",
-            Ref("personEntityCollection"),
-        )
-        add_property(
-            schema,
-            "siblings",
-            Ref("personEntityCollection"),
-        )
+        add_property(schema, "parents", EntityReferenceCollectionSchema(Person))
+        add_property(schema, "children", EntityReferenceCollectionSchema(Person))
+        add_property(schema, "siblings", EntityReferenceCollectionSchema(Person))
         add_property(
             schema,
             "presences",
             ArraySchema(_PersonPresenceSchema()),
         )
+        (await JsonLdSchema.new()).wrap(schema)
         return schema
 
 
@@ -2187,20 +2128,9 @@ class _PersonPresenceSchema(Schema):
 
     def __init__(self):
         super().__init__()
-        self.schema["type"] = "object"
-        self.schema["additionalProperties"] = False
         add_property(self, "role", PresenceRoleSchema(), False)
-        add_property(
-            self,
-            "event",
-            Schema(
-                schema={
-                    "type": "string",
-                    "format": "uri",
-                }
-            ),
-        )
-        add_json_ld(self)
+        add_property(self, "event", EntityReferenceSchema(Event))
+        wait_to_thread(JsonLdSchema.new()).wrap(self)
 
 
 @final
