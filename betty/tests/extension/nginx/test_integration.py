@@ -57,7 +57,7 @@ class TestNginx:
             schema = await ProjectSchema.new(project)
             schema.validate(data)
 
-    @pytest.fixture()
+    @pytest.fixture
     def monolingual_configuration(self, tmp_path: Path) -> ProjectConfiguration:
         return ProjectConfiguration(
             tmp_path / "betty.json",
@@ -71,7 +71,7 @@ class TestNginx:
             ],
         )
 
-    @pytest.fixture()
+    @pytest.fixture
     def monolingual_clean_urls_configuration(
         self, tmp_path: Path
     ) -> ProjectConfiguration:
@@ -88,7 +88,7 @@ class TestNginx:
             clean_urls=True,
         )
 
-    @pytest.fixture()
+    @pytest.fixture
     def multilingual_configuration(self, tmp_path: Path) -> ProjectConfiguration:
         return ProjectConfiguration(
             tmp_path / "betty.json",
@@ -112,7 +112,7 @@ class TestNginx:
             ],
         )
 
-    @pytest.fixture()
+    @pytest.fixture
     def multilingual_clean_urls_configuration(
         self, tmp_path: Path
     ) -> ProjectConfiguration:

@@ -1282,7 +1282,7 @@ class _ConfigurableExtension(
 
 
 class TestProject:
-    @pytest.fixture()
+    @pytest.fixture
     def _extensions(self, mocker: MockerFixture) -> None:
         mocker.patch(
             "betty.project.extension.EXTENSION_REPOSITORY",

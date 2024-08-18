@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
 
-@pytest.fixture()
+@pytest.fixture
 async def binary_file_cache(tmp_path: Path) -> BinaryFileCache:
     """
     Create a temporary binary file cache.
@@ -33,7 +33,7 @@ async def binary_file_cache(tmp_path: Path) -> BinaryFileCache:
     return BinaryFileCache(tmp_path)
 
 
-@pytest.fixture()
+@pytest.fixture
 async def new_temporary_app() -> AsyncIterator[App]:
     """
     Create a new, temporary :py:class:`betty.app.App`.
