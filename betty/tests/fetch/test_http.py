@@ -13,7 +13,7 @@ from betty.fetch.http import HttpFetcher
 
 
 class TestHttpFetcher:
-    @pytest.fixture()
+    @pytest.fixture
     async def sut(
         self, binary_file_cache: BinaryFileCache
     ) -> AsyncIterator[HttpFetcher]:

@@ -23,7 +23,7 @@ class _NoOpCommand(Command):
     _click_command = _no_op_command
 
 
-@pytest.fixture()
+@pytest.fixture
 async def new_temporary_app(mocker: MockerFixture) -> AsyncIterator[App]:
     async with App.new_temporary() as app:
         m_new_from_environment = mocker.AsyncMock()
