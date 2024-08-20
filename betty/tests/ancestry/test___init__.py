@@ -19,8 +19,6 @@ from betty.ancestry import (
     Name,
     PersonName,
     Enclosure,
-    Described,
-    Dated,
     HasPrivacy,
     HasMediaType,
     Link,
@@ -39,7 +37,6 @@ from betty.ancestry import (
     LinkCollectionSchema,
     LinkSchema,
     PrivacySchema,
-    HasLocale,
 )
 from betty.ancestry.event_type import Birth, UnknownEventType
 from betty.ancestry.presence_role import Subject
@@ -50,6 +47,12 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.model.association import OneToOne
 from betty.project import Project
+from betty.test_utils.ancestry import (
+    DummyDated,
+    DummyHasPrivacy,
+    DummyDescribed,
+    DummyHasLocale,
+)
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.json.schema import SchemaTestBase
 from betty.test_utils.model import DummyEntity, EntityTestBase
@@ -57,10 +60,6 @@ from betty.test_utils.model import DummyEntity, EntityTestBase
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
     from betty.json.schema import Schema
-
-
-class DummyHasPrivacy(HasPrivacy):
-    pass
 
 
 class TestHasPrivacy:
@@ -226,10 +225,6 @@ class TestMergePrivacies:
         assert expected == merge_privacies(*privacies)
 
 
-class DummyHasLocale(HasLocale):
-    pass
-
-
 class TestHasLocale:
     def test_locale_without___init___locale(self) -> None:
         sut = DummyHasLocale()
@@ -255,11 +250,7 @@ class TestHasLocale:
         assert actual == expected
 
 
-class DummyDated(Dated):
-    pass
-
-
-class DummyDatedWithContextDefinitions(Dated):
+class DummyDatedWithContextDefinitions(DummyDated):
     @override
     def dated_linked_data_contexts(self) -> tuple[str | None, str | None, str | None]:
         return "single-date", "start-date", "end-date"
@@ -539,10 +530,6 @@ class TestHasNotes:
         self, expected: DumpMapping[Dump], sut: HasNotes
     ) -> None:
         assert await assert_dumps_linked_data(sut) == expected
-
-
-class DummyDescribed(Described):
-    pass
 
 
 class TestDescribed:
@@ -1684,16 +1671,7 @@ class TestPlace(EntityTestBase):
             "@type": "https://schema.org/Place",
             "id": place_id,
             "names": [
-                {
-                    "translations": {"nl-NL": name},
-                    "date": {
-                        "year": 1970,
-                        "month": 1,
-                        "day": 1,
-                        "iso8601": "1970-01-01",
-                        "fuzzy": False,
-                    },
-                },
+                {"translations": {"nl-NL": name}},
             ],
             "events": [
                 "/event/E1/index.json",

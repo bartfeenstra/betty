@@ -145,13 +145,13 @@ betty = 'betty.cli:main'
 'wikipedia' = 'betty.extension.wikipedia:Wikipedia'
 
 [project.entry-points.'betty.presence_role']
-'attendee' = 'betty.ancestry.presence_role.Attendee'
-'beneficiary' = 'betty.ancestry.presence_role.Beneficiary'
-'celebrant' = 'betty.ancestry.presence_role.Celebrant'
-'organizer' = 'betty.ancestry.presence_role.Organizer'
-'speaker' = 'betty.ancestry.presence_role.Speaker'
-'subject' = 'betty.ancestry.presence_role.Subject'
-'witness' = 'betty.ancestry.presence_role.Witness'
+'attendee' = 'betty.ancestry.presence_role:Attendee'
+'beneficiary' = 'betty.ancestry.presence_role:Beneficiary'
+'celebrant' = 'betty.ancestry.presence_role:Celebrant'
+'organizer' = 'betty.ancestry.presence_role:Organizer'
+'speaker' = 'betty.ancestry.presence_role:Speaker'
+'subject' = 'betty.ancestry.presence_role:Subject'
+'witness' = 'betty.ancestry.presence_role:Witness'
 
 [project.optional-dependencies]
 setuptools = [

@@ -14,15 +14,21 @@ from typing import (
 )
 from uuid import uuid4
 
+from typing_extensions import override
+
 from betty.classtools import repr_instance
-from betty.json.linked_data import LinkedDataDumpable
-from betty.json.schema import Schema, JsonSchemaReference, ArraySchema, add_property
+from betty.json.linked_data import LinkedDataDumpable, JsonLdObject
+from betty.json.schema import (
+    JsonSchemaReference,
+    Array,
+    String,
+    Object,
+)
 from betty.locale.localizable import _, Localizable
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import PluginRepository, Plugin
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.string import kebab_case_to_lower_camel_case
-from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -54,7 +60,7 @@ class GeneratedEntityId(str):
         return super().__new__(cls, entity_id or str(uuid4()))
 
 
-class Entity(LinkedDataDumpable, Plugin):
+class Entity(LinkedDataDumpable[Object], Plugin):
     """
     An entity is a uniquely identifiable data container.
 
@@ -137,16 +143,13 @@ class Entity(LinkedDataDumpable, Plugin):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
-        schema = Schema(
-            def_name=f"{kebab_case_to_lower_camel_case(cls.plugin_id())}Entity"
+    async def linked_data_schema(cls, project: Project) -> Object:
+        schema = JsonLdObject(
+            def_name=f"{kebab_case_to_lower_camel_case(cls.plugin_id())}Entity",
+            title=cls.plugin_label().localize(DEFAULT_LOCALIZER),
         )
-        schema._schema["title"] = cls.plugin_label().localize(DEFAULT_LOCALIZER)
-        add_property(schema, "$schema", JsonSchemaReference())
-        add_property(
-            schema, "@id", Schema(schema={"type": "string", "format": "uri"}), False
-        )
-        add_property(schema, "id", Schema(schema={"type": "string"}), False)
+        schema.add_property("$schema", JsonSchemaReference())
+        schema.add_property("id", String(title="Entity ID"), False)
         return schema
 
 
@@ -218,29 +221,29 @@ def unalias(entity: AliasableEntity[_EntityT]) -> _EntityT:
     return entity
 
 
-class EntityReferenceSchema(Schema):
+class EntityReferenceSchema(String):
     """
     A schema for a reference to another entity resource.
     """
 
-    def __init__(self, entity_type: type[Entity]):
+    def __init__(self, entity_type: type[Entity], *, title: str | None = None):
         super().__init__(
             def_name=f"{kebab_case_to_lower_camel_case(entity_type.plugin_id())}EntityReference",
-            schema={
-                "title": f"A reference to the JSON resource for a {entity_type.plugin_label().localize(DEFAULT_LOCALIZER)} entity.",
-                "type": "string",
-                "format": "uri",
-            },
+            title=title,
+            description=f"A reference to the JSON resource for a {entity_type.plugin_label().localize(DEFAULT_LOCALIZER)} entity.",
+            format=String.Format.URI,
         )
 
 
-class EntityReferenceCollectionSchema(ArraySchema):
+class EntityReferenceCollectionSchema(Array):
     """
     A schema for a collection of references to other entity resources.
     """
 
-    def __init__(self, entity_type: type[Entity]):
+    def __init__(self, entity_type: type[Entity], *, title: str | None = None):
         super().__init__(
             EntityReferenceSchema(entity_type),
+            title=title,
+            description=f"References to the JSON resources for {entity_type.plugin_label().localize(DEFAULT_LOCALIZER)} entities.",
             def_name=f"{kebab_case_to_lower_camel_case(entity_type.plugin_id())}EntityReferenceCollection",
         )

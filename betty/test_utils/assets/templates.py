@@ -14,7 +14,7 @@ from html5lib.html5parser import ParseError
 
 from betty.app import App
 from betty.jinja2 import Environment
-from betty.json.schema import Ref, Schema
+from betty.json.schema import Ref, AllOf
 from betty.project import Project, ProjectSchema
 from betty.project.extension import Extension
 
@@ -134,9 +134,8 @@ async def assert_betty_json(project: Project, url_path: str, def_name: str) -> P
     betty_json_data = json.loads(betty_json)
 
     project_schema = await ProjectSchema.new(project)
-    schema = Schema()
     # Somehow $ref cannot be top-level in our case, so wrap it.
-    schema.schema["allOf"] = [Ref(def_name).embed(schema)]
+    schema = AllOf(Ref(def_name))
     project_schema.embed(schema)
 
     schema.validate(betty_json_data)

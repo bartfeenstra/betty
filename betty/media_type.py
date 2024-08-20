@@ -9,7 +9,7 @@ from typing import Any, final, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.json.schema import Schema
+from betty.json.schema import String
 
 if TYPE_CHECKING:
     from collections.abc import Sequence, Mapping
@@ -108,7 +108,7 @@ class MediaType:
 
 
 @final
-class MediaTypeSchema(Schema):
+class MediaTypeSchema(String):
     """
     A JSON Schema for :py:class:`betty.media_type.MediaType`.
     """
@@ -116,8 +116,6 @@ class MediaTypeSchema(Schema):
     def __init__(self):
         super().__init__(
             def_name="mediaType",
-            schema={
-                "type": "string",
-                "description": "An IANA media type (https://www.iana.org/assignments/media-types/media-types.xhtml).",
-            },
+            title="Media type",
+            description="An IANA media type (https://www.iana.org/assignments/media-types/media-types.xhtml).",
         )

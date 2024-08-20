@@ -8,9 +8,10 @@ from typing import Sequence, TypeAlias
 
 from babel import Locale, negotiate_locale as babel_negotiate_locale
 from babel.core import UnknownLocaleError
-from betty import fs
-from betty.json.schema import Schema
 from langcodes import Language
+
+from betty import fs
+from betty.json.schema import String
 
 _LOCALE_DIRECTORY_PATH = fs.ASSETS_DIRECTORY_PATH / "locale"
 
@@ -155,7 +156,7 @@ def _negotiate_locale(
     return None
 
 
-class LocaleSchema(Schema):
+class LocaleSchema(String):
     """
     The JSON Schema for locales.
     """
@@ -163,8 +164,6 @@ class LocaleSchema(Schema):
     def __init__(self):
         super().__init__(
             def_name="locale",
-            schema={
-                "type": "string",
-                "description": "A BCP 47 locale identifier (https://www.ietf.org/rfc/bcp/bcp47.txt).",
-            },
+            title="Locale",
+            description="A BCP 47 locale identifier (https://www.ietf.org/rfc/bcp/bcp47.txt).",
         )

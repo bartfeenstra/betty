@@ -8,7 +8,8 @@ from typing import final
 
 from typing_extensions import override
 
-from betty.json.schema import Schema
+from betty.asyncio import wait_to_thread
+from betty.json.schema import Enum
 from betty.locale.localizable import Localizable, _
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
@@ -34,15 +35,21 @@ Read more about :doc:`/development/plugin/presence-role`.
 """
 
 
-class PresenceRoleSchema(Schema):
+class PresenceRoleSchema(Enum):
     """
     A JSON Schema for presence roles.
     """
 
     def __init__(self):
-        super().__init__(def_name="presenceRole")
-        self._schema["type"] = "string"
-        self._schema["description"] = "A person's role in an event."
+        super().__init__(
+            *[
+                presence_role.plugin_id()
+                for presence_role in wait_to_thread(PRESENCE_ROLE_REPOSITORY.select())
+            ],
+            def_name="presenceRole",
+            title="Presence role",
+            description="A person's role in an event.",
+        )
 
 
 @final

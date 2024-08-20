@@ -4,16 +4,17 @@ Provide JSON utilities.
 
 from __future__ import annotations
 
-from collections.abc import MutableSequence
+import enum
 from json import loads
 from pathlib import Path
 from typing import Any, Self, cast
 
 import aiofiles
-from betty.serde.dump import DumpMapping, Dump
 from jsonschema.validators import Draft202012Validator
 from referencing import Resource, Registry
 from typing_extensions import override
+
+from betty.serde.dump import DumpMapping, Dump
 
 
 class Schema:
@@ -26,10 +27,21 @@ class Schema:
     """
 
     def __init__(
-        self, *, def_name: str | None = None, schema: DumpMapping[Dump] | None = None
+        self,
+        *,
+        def_name: str | None = None,
+        title: str | None = None,
+        description: str | None = None,
     ):
         self._def_name = def_name
-        self._schema = schema or {}
+        self._schema: DumpMapping[Dump] = {
+            # The entire API assumes this dialect, so enforce it.
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+        }
+        if title:
+            self._schema["title"] = title
+        if description:
+            self._schema["description"] = description
 
     @property
     def def_name(self) -> str | None:
@@ -43,12 +55,22 @@ class Schema:
         """
         The raw JSON Schema.
         """
-        schema = {
-            **self._schema,
-            # The entire API assumes this dialect, so enforce it.
-            "$schema": "https://json-schema.org/draft/2020-12/schema",
-        }
-        return schema
+        return self._schema
+
+    def wraps(self, other: Schema) -> None:
+        """
+        Wrap the other schema.
+
+        This moves the other's schema name, title, and definition into ``self``, and changes ``self``'s
+        'appearance' only. It does not functionally wrap anything.
+        """
+        if other.def_name is not None:
+            self._def_name = other.def_name
+            other._def_name = None
+        if "title" in other.schema:
+            self.schema["title"] = other.schema["title"]
+        if "description" in other.schema:
+            self.schema["description"] = other.schema["description"]
 
     @property
     def defs(self) -> DumpMapping[Dump]:
@@ -60,9 +82,11 @@ class Schema:
         """
         return cast(DumpMapping[Dump], self._schema.setdefault("$defs", {}))
 
-    def embed(self, into: Schema) -> Dump:
+    def embed(self, into: Schema) -> DumpMapping[Dump]:
         """
         Embed this schema.
+
+        This is where the raw schema may be enhanced before being returned.
         """
         for name, schema in self.defs.items():
             into.defs[name] = schema
@@ -91,15 +115,241 @@ class Schema:
         validator.validate(data)
 
 
-class ArraySchema(Schema):
+class _Type(Schema):
+    _type: str
+
+    def __init__(
+        self,
+        *,
+        def_name: str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+    ):
+        super().__init__(def_name=def_name, title=title, description=description)
+        self._schema["type"] = self._type
+
+
+class String(_Type):
     """
-    A JSON Schema array.
+    A JSON Schema ``string`` type.
     """
 
-    def __init__(self, items_schema: Schema, *, def_name: str | None = None):
-        super().__init__(def_name=def_name)
-        self._schema["type"] = "array"
-        self._schema["items"] = items_schema.embed(self)
+    _type = "string"
+
+    class Format(enum.Enum):
+        """
+        A JSON Schema ``string`` type's ``format``.
+        """
+
+        DATE_TIME = "date-time"
+        TIME = "time"
+        DATE = "date"
+        DURATION = "duration"
+        EMAIL = "email"
+        IDN_EMAIL = "idn-email"
+        HOSTNAME = "hostname"
+        IDN_HOSTNAME = "idn-hostname"
+        IPV4 = "ipv4"
+        IPV6 = "ipv6"
+        UUID = "uuid"
+        URI = "uri"
+        URI_REFERENCE = "uri-reference"
+        IRI = "iri"
+        IRI_REFERENCE = "iri-reference"
+        URI_TEMPLATE = "uri-template"
+        JSON_POINTER = "json-pointer"
+        RELATIVE_JSON_POINTER = "relative-json-pointer"
+        REGEX = "regex"
+
+    def __init__(
+        self,
+        *,
+        def_name: str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+        min_length: int | None = None,
+        max_length: int | None = None,
+        pattern: str | None = None,
+        format: Format | None = None,  # noqa A002
+    ):
+        super().__init__(
+            def_name=def_name,
+            title=title,
+            description=description,
+        )
+        if min_length is not None:
+            self._schema["minLength"] = min_length
+        if max_length is not None:
+            self._schema["maxLength"] = max_length
+        if pattern is not None:
+            self._schema["pattern"] = pattern
+        if format is not None:
+            self._schema["format"] = format.value
+
+
+class Boolean(_Type):
+    """
+    A JSON Schema ``boolean`` type.
+    """
+
+    _type = "boolean"
+
+
+class Number(_Type):
+    """
+    A JSON Schema ``number`` type.
+    """
+
+    _type = "number"
+
+
+class Integer(_Type):
+    """
+    A JSON Schema ``integer`` type.
+    """
+
+    _type = "integer"
+
+
+class Null(_Type):
+    """
+    A JSON Schema ``null`` type.
+    """
+
+    _type = "null"
+
+
+class Object(_Type):
+    """
+    A JSON Schema ``object`` type.
+    """
+
+    _type = "object"
+
+    def __init__(
+        self,
+        *,
+        def_name: str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+    ):
+        super().__init__(
+            def_name=def_name,
+            title=title,
+            description=description,
+        )
+        self._properties = self._schema["properties"] = {}
+        self._required = self._schema["required"] = []
+
+    def add_property(
+        self,
+        property_name: str,
+        property_schema: Schema,
+        property_required: bool = True,
+    ) -> None:
+        """
+        Add a property to the object schema.
+        """
+        self._properties[property_name] = property_schema.embed(self)
+        if property_required:
+            self._required.append(property_name)
+
+
+class Array(_Type):
+    """
+    A JSON Schema ``array`` type.
+    """
+
+    _type = "array"
+
+    def __init__(
+        self,
+        items: Schema,
+        *,
+        def_name: str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+    ):
+        super().__init__(
+            def_name=def_name,
+            title=title,
+            description=description,
+        )
+        self._schema["items"] = items.embed(self)
+
+
+class _Container(Schema):
+    _type: str
+
+    def __init__(
+        self,
+        *items: Schema,
+        def_name: str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+        wraps_first_item: bool = False,
+    ):
+        super().__init__(def_name=def_name, title=title, description=description)
+        if wraps_first_item:
+            self.wraps(items[0])
+        self._schema[self._type] = [item.embed(self) for item in items]
+
+
+class AllOf(_Container):
+    """
+    A JSON Schema ``allOf``.
+    """
+
+    _type = "allOf"
+
+
+class AnyOf(_Container):
+    """
+    A JSON Schema ``anyOf``.
+    """
+
+    _type = "anyOf"
+
+
+class OneOf(_Container):
+    """
+    A JSON Schema ``oneOf``.
+    """
+
+    _type = "oneOf"
+
+
+class Const(Schema):
+    """
+    A JSON Schema ``const``.
+    """
+
+    def __init__(
+        self,
+        const: Dump,
+        *,
+        def_name: str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+    ):
+        super().__init__(def_name=def_name, title=title, description=description)
+        self._schema["const"] = const
+
+
+class Enum(Schema):
+    """
+    A JSON Schema ``enum``.
+    """
+
+    def __init__(
+        self,
+        *values: Dump,
+        def_name: str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+    ):
+        super().__init__(def_name=def_name, title=title, description=description)
+        self._schema["enum"] = list(values)
 
 
 class Def(str):
@@ -125,31 +375,11 @@ class Ref(Schema):
     """
 
     def __init__(self, def_name: str):
-        super().__init__(schema={"$ref": Def(def_name)})
+        super().__init__()
+        self._schema["$ref"] = Def(def_name)
 
 
-def add_property(
-    into: Schema,
-    property_name: str,
-    property_schema: Schema,
-    property_required: bool = True,
-) -> None:
-    """
-    Add a property to an object schema.
-    """
-    into._schema["type"] = "object"
-    schema_properties = cast(
-        DumpMapping[Dump], into._schema.setdefault("properties", {})
-    )
-    schema_properties[property_name] = property_schema.embed(into)
-    if property_required:
-        schema_required = cast(
-            MutableSequence[str], into._schema.setdefault("required", [])
-        )
-        schema_required.append(property_name)
-
-
-class JsonSchemaReference(Schema):
+class JsonSchemaReference(String):
     """
     The JSON Schema schema.
     """
@@ -157,11 +387,9 @@ class JsonSchemaReference(Schema):
     def __init__(self):
         super().__init__(
             def_name="jsonSchemaReference",
-            schema={
-                "type": "string",
-                "format": "uri",
-                "description": "A JSON Schema URI.",
-            },
+            title="JSON Schema reference",
+            format=String.Format.URI,
+            description="A JSON Schema URI.",
         )
 
 
@@ -171,13 +399,22 @@ class FileBasedSchema(Schema):
     """
 
     @classmethod
-    async def new_for(cls, file_path: Path, *, name: str | None = None) -> Self:
+    async def new_for(
+        cls,
+        file_path: Path,
+        *,
+        def_name: str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+    ) -> Self:
         """
         Create a new instance.
         """
         async with aiofiles.open(file_path) as f:
             raw_schema = await f.read()
-        return cls(def_name=name, schema=loads(raw_schema))
+        schema = cls(def_name=def_name, title=title, description=description)
+        schema._schema = loads(raw_schema)
+        return schema
 
 
 class JsonSchemaSchema(FileBasedSchema):
@@ -191,5 +428,7 @@ class JsonSchemaSchema(FileBasedSchema):
         Create a new instance.
         """
         return await cls.new_for(
-            Path(__file__).parent / "schemas" / "json-schema.json", name="jsonSchema"
+            Path(__file__).parent / "schemas" / "json-schema.json",
+            def_name="jsonSchema",
+            title="JSON Schema",
         )

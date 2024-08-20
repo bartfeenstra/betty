@@ -4,13 +4,15 @@ Provide Betty's main data model.
 
 from __future__ import annotations
 
+import enum
 from contextlib import suppress
-from enum import Enum
 from reprlib import recursive_repr
 from typing import Iterable, Any, TYPE_CHECKING, final
 from urllib.parse import quote
 
-from betty.ancestry.event_type import EventType, UnknownEventType
+from typing_extensions import override
+
+from betty.ancestry.event_type import EventType, UnknownEventType, EVENT_TYPE_REPOSITORY
 from betty.ancestry.presence_role import PresenceRole, Subject, PresenceRoleSchema
 from betty.asyncio import wait_to_thread
 from betty.classtools import repr_instance
@@ -19,12 +21,15 @@ from betty.json.linked_data import (
     LinkedDataDumpable,
     dump_context,
     dump_link,
-    JsonLdSchema,
+    JsonLdObject,
 )
 from betty.json.schema import (
-    add_property,
-    Schema,
-    ArraySchema,
+    Array,
+    String,
+    Object,
+    Boolean,
+    Enum,
+    Number,
 )
 from betty.locale import UNDETERMINED_LOCALE, LocaleSchema
 from betty.locale.date import Datey, DateySchema, Date
@@ -57,7 +62,6 @@ from betty.model.collections import (
     MultipleTypesEntityCollection,
 )
 from betty.string import camel_case_to_kebab_case
-from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
@@ -69,7 +73,7 @@ if TYPE_CHECKING:
     from collections.abc import MutableSequence, Iterator, Mapping
 
 
-class Privacy(Enum):
+class Privacy(enum.Enum):
     """
     The available privacy modes.
     """
@@ -87,7 +91,7 @@ class Privacy(Enum):
     UNDETERMINED = 3
 
 
-class HasPrivacy(LinkedDataDumpable):
+class HasPrivacy(LinkedDataDumpable[Object]):
     """
     A resource that has privacy.
     """
@@ -174,17 +178,13 @@ class HasPrivacy(LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
+    async def linked_data_schema(cls, project: Project) -> Object:
         schema = await super().linked_data_schema(project)
-        add_property(
-            schema,
-            "private",
-            PrivacySchema(),
-        )
+        schema.add_property("private", PrivacySchema())
         return schema
 
 
-class PrivacySchema(Schema):
+class PrivacySchema(Boolean):
     """
     A JSON Schema for privacy.
     """
@@ -192,10 +192,8 @@ class PrivacySchema(Schema):
     def __init__(self):
         super().__init__(
             def_name="privacy",
-            schema={
-                "type": "boolean",
-                "description": "Whether this entity is private (true), or public (false).",
-            },
+            title="Privacy",
+            description="Whether this entity is private (true), or public (false).",
         )
 
 
@@ -240,7 +238,7 @@ def merge_privacies(*privacies: Privacy | HasPrivacy | None) -> Privacy:
     return Privacy.PUBLIC
 
 
-class Dated(LinkedDataDumpable):
+class Dated(LinkedDataDumpable[Object]):
     """
     A resource with date information.
     """
@@ -285,13 +283,13 @@ class Dated(LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
+    async def linked_data_schema(cls, project: Project) -> Object:
         schema = await super().linked_data_schema(project)
-        add_property(schema, "date", DateySchema(), False)
+        schema.add_property("date", DateySchema(), False)
         return schema
 
 
-class Described(LinkedDataDumpable):
+class Described(LinkedDataDumpable[Object]):
     """
     A resource with a description.
     """
@@ -319,18 +317,13 @@ class Described(LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
+    async def linked_data_schema(cls, project: Project) -> Object:
         schema = await super().linked_data_schema(project)
-        add_property(
-            schema,
-            "description",
-            StaticTranslationsLocalizableSchema(),
-            False,
-        )
+        schema.add_property("description", StaticTranslationsLocalizableSchema(), False)
         return schema
 
 
-class HasMediaType(LinkedDataDumpable):
+class HasMediaType(LinkedDataDumpable[Object]):
     """
     A resource with an `IANA media type <https://www.iana.org/assignments/media-types/media-types.xhtml>`_.
     """
@@ -353,13 +346,13 @@ class HasMediaType(LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
+    async def linked_data_schema(cls, project: Project) -> Object:
         schema = await super().linked_data_schema(project)
-        add_property(schema, "mediaType", MediaTypeSchema(), False)
+        schema.add_property("mediaType", MediaTypeSchema(), False)
         return schema
 
 
-class HasLocale(Localized, LinkedDataDumpable):
+class HasLocale(Localized, LinkedDataDumpable[Object]):
     """
     A resource that is localized, e.g. contains information in a specific locale.
     """
@@ -390,14 +383,53 @@ class HasLocale(Localized, LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
+    async def linked_data_schema(cls, project: Project) -> Object:
         schema = await super().linked_data_schema(project)
-        add_property(schema, "locale", LocaleSchema())
+        schema.add_property("locale", LocaleSchema())
         return schema
 
 
+class LinkSchema(JsonLdObject):
+    """
+    A JSON Schema for :py:class:`betty.ancestry.Link`.
+    """
+
+    def __init__(self):
+        super().__init__(def_name="link", title="Link")
+        self.add_property(
+            "url",
+            String(
+                format=String.Format.URI,
+                description="The full URL to the other resource.",
+            ),
+        )
+        self.add_property(
+            "relationship",
+            String(
+                description="The relationship between this resource and the link target (https://en.wikipedia.org/wiki/Link_relation)."
+            ),
+            False,
+        )
+        self.add_property(
+            "label",
+            StaticTranslationsLocalizableSchema(
+                title="Label", description="The human-readable link label."
+            ),
+            False,
+        )
+
+
+class LinkCollectionSchema(Array):
+    """
+    A JSON Schema for :py:class:`betty.ancestry.Link` collections.
+    """
+
+    def __init__(self):
+        super().__init__(LinkSchema(), def_name="linkCollection", title="Links")
+
+
 @final
-class Link(HasMediaType, HasLocale, Described, LinkedDataDumpable):
+class Link(HasMediaType, HasLocale, Described, LinkedDataDumpable[Object]):
     """
     An external link.
     """
@@ -441,55 +473,8 @@ class Link(HasMediaType, HasLocale, Described, LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
+    async def linked_data_schema(cls, project: Project) -> LinkSchema:
         return LinkSchema()
-
-
-class LinkSchema(Schema):
-    """
-    A JSON Schema for :py:class:`betty.ancestry.Link`.
-    """
-
-    def __init__(self):
-        super().__init__(def_name="link")
-        add_property(
-            self,
-            "url",
-            Schema(
-                schema={
-                    "type": "string",
-                    "format": "uri",
-                    "description": "The full URL to the other resource.",
-                }
-            ),
-        )
-        add_property(
-            self,
-            "relationship",
-            Schema(
-                schema={
-                    "type": "string",
-                    "description": "The relationship between this resource and the link target (https://en.wikipedia.org/wiki/Link_relation).",
-                }
-            ),
-            False,
-        )
-        add_property(
-            self,
-            "label",
-            StaticTranslationsLocalizableSchema(),
-            False,
-        )
-        wait_to_thread(JsonLdSchema.new()).wrap(self)
-
-
-class LinkCollectionSchema(ArraySchema):
-    """
-    A JSON Schema for :py:class:`betty.ancestry.Link` collections.
-    """
-
-    def __init__(self):
-        super().__init__(LinkSchema(), def_name="linkCollection")
 
 
 class HasLinks(Entity):
@@ -557,9 +542,9 @@ class HasLinks(Entity):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
+    async def linked_data_schema(cls, project: Project) -> Object:
         schema = await super().linked_data_schema(project)
-        add_property(schema, "links", LinkCollectionSchema())
+        schema.add_property("links", LinkCollectionSchema())
         return schema
 
 
@@ -627,15 +612,9 @@ class Note(UserFacingEntity, HasPrivacy, HasLinks, Entity):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
+    async def linked_data_schema(cls, project: Project) -> Object:
         schema = await super().linked_data_schema(project)
-        add_property(
-            schema,
-            "text",
-            StaticTranslationsLocalizableSchema(),
-            False,
-        )
-        (await JsonLdSchema.new()).wrap(schema)
+        schema.add_property("text", StaticTranslationsLocalizableSchema(), False)
         return schema
 
 
@@ -673,9 +652,9 @@ class HasNotes(Entity):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
+    async def linked_data_schema(cls, project: Project) -> Object:
         schema = await super().linked_data_schema(project)
-        add_property(schema, "notes", EntityReferenceCollectionSchema(Note))
+        schema.add_property("notes", EntityReferenceCollectionSchema(Note))
         return schema
 
 
@@ -718,9 +697,9 @@ class HasCitations(Entity):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
+    async def linked_data_schema(cls, project: Project) -> Object:
         schema = await super().linked_data_schema(project)
-        add_property(schema, "citations", EntityReferenceCollectionSchema(Citation))
+        schema.add_property("citations", EntityReferenceCollectionSchema(Citation))
         return schema
 
 
@@ -831,14 +810,16 @@ class File(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
+    async def linked_data_schema(cls, project: Project) -> Object:
         schema = await super().linked_data_schema(project)
-        add_property(
-            schema,
+        schema.add_property(
             "entities",
-            ArraySchema(Schema(schema={"type": "string", "format": "uri"})),
+            Array(
+                String(format=String.Format.URI),
+                title="Entities",
+                description="The entities this file is associated with",
+            ),
         )
-        (await JsonLdSchema.new()).wrap(schema)
         return schema
 
 
@@ -1077,35 +1058,20 @@ class Source(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
+    async def linked_data_schema(cls, project: Project) -> Object:
         schema = await super().linked_data_schema(project)
-        add_property(
-            schema,
-            "name",
-            StaticTranslationsLocalizableSchema(),
-            False,
+        schema.add_property(
+            "name", StaticTranslationsLocalizableSchema(title="Name"), False
         )
-        add_property(
-            schema,
-            "author",
-            StaticTranslationsLocalizableSchema(),
-            False,
+        schema.add_property(
+            "author", StaticTranslationsLocalizableSchema(title="Author"), False
         )
-        add_property(
-            schema,
-            "publisher",
-            StaticTranslationsLocalizableSchema(),
-            False,
+        schema.add_property(
+            "publisher", StaticTranslationsLocalizableSchema(title="Publisher"), False
         )
-        add_property(schema, "contains", EntityReferenceCollectionSchema(Source))
-        add_property(schema, "citations", EntityReferenceCollectionSchema(Citation))
-        add_property(
-            schema,
-            "containedBy",
-            EntityReferenceSchema(Source),
-            False,
-        )
-        (await JsonLdSchema.new()).wrap(schema)
+        schema.add_property("contains", EntityReferenceCollectionSchema(Source))
+        schema.add_property("citations", EntityReferenceCollectionSchema(Citation))
+        schema.add_property("containedBy", EntityReferenceSchema(Source), False)
         return schema
 
 
@@ -1206,20 +1172,27 @@ class Citation(Dated, HasFileReferences, HasPrivacy, HasLinks, UserFacingEntity)
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
+    async def linked_data_schema(cls, project: Project) -> Object:
         schema = await super().linked_data_schema(project)
-        add_property(schema, "source", EntityReferenceSchema(Source), False)
-        add_property(
-            schema,
-            "facts",
-            ArraySchema(Schema(schema={"type": "string", "format": "uri"})),
+        schema.add_property(
+            "source", EntityReferenceSchema(Source, title="Source"), False
         )
-        (await JsonLdSchema.new()).wrap(schema)
+        schema.add_property(
+            "facts",
+            Array(
+                String(
+                    format=String.Format.URI,
+                    title="Fact",
+                    description="A reference to a JSON resource that is a fact referencing this citation.",
+                ),
+                title="Facts",
+            ),
+        )
         return schema
 
 
 @final
-class Name(Dated, StaticTranslationsLocalizable):
+class Name(StaticTranslationsLocalizable, Dated):
     """
     A name.
 
@@ -1459,27 +1432,19 @@ class Place(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
+    async def linked_data_schema(cls, project: Project) -> Object:
         schema = await super().linked_data_schema(project)
-        add_property(
-            schema,
-            "names",
-            ArraySchema(await Name.linked_data_schema(project)),
+        schema.add_property(
+            "names", Array(await Name.linked_data_schema(project), title="Names")
         )
-        add_property(schema, "enclosedBy", EntityReferenceCollectionSchema(Place))
-        add_property(schema, "encloses", EntityReferenceCollectionSchema(Place))
-        coordinate_schema = Schema(
-            schema={
-                "type": "number",
-            }
-        )
-        coordinates_schema = Schema()
-        add_property(coordinates_schema, "latitude", coordinate_schema, False)
-        add_property(coordinates_schema, "longitude", coordinate_schema, False)
-        (await JsonLdSchema.new()).wrap(coordinates_schema)
-        add_property(schema, "coordinates", coordinates_schema, False)
-        add_property(schema, "events", EntityReferenceCollectionSchema(Event))
-        (await JsonLdSchema.new()).wrap(schema)
+        schema.add_property("enclosedBy", EntityReferenceCollectionSchema(Place))
+        schema.add_property("encloses", EntityReferenceCollectionSchema(Place))
+        coordinate_schema = Number(title="Coordinate")
+        coordinates_schema = JsonLdObject(title="Coordinates")
+        coordinates_schema.add_property("latitude", coordinate_schema, False)
+        coordinates_schema.add_property("longitude", coordinate_schema, False)
+        schema.add_property("coordinates", coordinates_schema, False)
+        schema.add_property("events", EntityReferenceCollectionSchema(Event))
         return schema
 
 
@@ -1712,60 +1677,38 @@ class Event(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
+    async def linked_data_schema(cls, project: Project) -> Object:
         schema = await super().linked_data_schema(project)
-        add_property(
-            schema,
+        schema.add_property(
             "type",
-            Schema(
-                schema={
-                    "type": "string",
-                }
+            Enum(
+                *[
+                    presence_role.plugin_id()
+                    for presence_role in wait_to_thread(EVENT_TYPE_REPOSITORY.select())
+                ],
+                title="Event type",
             ),
         )
-        add_property(
-            schema,
-            "place",
-            EntityReferenceSchema(Place),
-            False,
+        schema.add_property("place", EntityReferenceSchema(Place), False)
+        schema.add_property(
+            "presences", Array(_EventPresenceSchema(), title="Presences")
         )
-        add_property(
-            schema,
-            "presences",
-            ArraySchema(_EventPresenceSchema()),
+        schema.add_property("eventStatus", String(title="Event status"))
+        schema.add_property(
+            "eventAttendanceMode", String(title="Event attendance mode")
         )
-        add_property(
-            schema,
-            "eventStatus",
-            Schema(
-                schema={
-                    "type": "string",
-                }
-            ),
-        )
-        add_property(
-            schema,
-            "eventAttendanceMode",
-            Schema(
-                schema={
-                    "type": "string",
-                }
-            ),
-        )
-        (await JsonLdSchema.new()).wrap(schema)
         return schema
 
 
-class _EventPresenceSchema(Schema):
+class _EventPresenceSchema(JsonLdObject):
     """
     A schema for the :py:class:`betty.ancestry.Presence` associations on a :py:class:`betty.ancestry.Event`.
     """
 
     def __init__(self):
-        super().__init__()
-        add_property(self, "role", PresenceRoleSchema(), False)
-        add_property(self, "person", EntityReferenceSchema(Person))
-        wait_to_thread(JsonLdSchema.new()).wrap(self)
+        super().__init__(title="Presence (event)")
+        self.add_property("role", PresenceRoleSchema(), False)
+        self.add_property("person", EntityReferenceSchema(Person))
 
 
 @final
@@ -1885,29 +1828,24 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
+    async def linked_data_schema(cls, project: Project) -> Object:
         schema = await super().linked_data_schema(project)
-        add_property(
-            schema,
+        schema.add_property(
             "individual",
-            Schema(
-                schema={
-                    "type": "string",
-                }
+            String(
+                title="Individual name",
+                description="The part of the name unique to this individual, such as a first name.",
             ),
             False,
         )
-        add_property(
-            schema,
+        schema.add_property(
             "affiliation",
-            Schema(
-                schema={
-                    "type": "string",
-                }
+            String(
+                title="Affiliation name",
+                description="The part of the name shared with others, such as a surname.",
             ),
             False,
         )
-        (await JsonLdSchema.new()).wrap(schema)
         return schema
 
 
@@ -2102,35 +2040,30 @@ class Person(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
+    async def linked_data_schema(cls, project: Project) -> Object:
         schema = await super().linked_data_schema(project)
-        add_property(
-            schema,
+        schema.add_property(
             "names",
-            ArraySchema(await PersonName.linked_data_schema(project)),
+            Array(await PersonName.linked_data_schema(project), title="Names"),
         )
-        add_property(schema, "parents", EntityReferenceCollectionSchema(Person))
-        add_property(schema, "children", EntityReferenceCollectionSchema(Person))
-        add_property(schema, "siblings", EntityReferenceCollectionSchema(Person))
-        add_property(
-            schema,
-            "presences",
-            ArraySchema(_PersonPresenceSchema()),
+        schema.add_property("parents", EntityReferenceCollectionSchema(Person))
+        schema.add_property("children", EntityReferenceCollectionSchema(Person))
+        schema.add_property("siblings", EntityReferenceCollectionSchema(Person))
+        schema.add_property(
+            "presences", Array(_PersonPresenceSchema(), title="Presences")
         )
-        (await JsonLdSchema.new()).wrap(schema)
         return schema
 
 
-class _PersonPresenceSchema(Schema):
+class _PersonPresenceSchema(JsonLdObject):
     """
     A schema for the :py:class:`betty.ancestry.Presence` associations on a :py:class:`betty.ancestry.Person`.
     """
 
     def __init__(self):
-        super().__init__()
-        add_property(self, "role", PresenceRoleSchema(), False)
-        add_property(self, "event", EntityReferenceSchema(Event))
-        wait_to_thread(JsonLdSchema.new()).wrap(self)
+        super().__init__(title="Presence (person)")
+        self.add_property("role", PresenceRoleSchema(), False)
+        self.add_property("event", EntityReferenceSchema(Event))
 
 
 @final

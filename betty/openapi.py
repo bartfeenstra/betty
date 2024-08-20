@@ -186,5 +186,5 @@ class SpecificationSchema(FileBasedSchema):
         """
         return await cls.new_for(
             Path(__file__).parent / "json" / "schemas" / "openapi-specification.json",
-            name="openApiSpecification",
+            def_name="openApiSpecification",
         )

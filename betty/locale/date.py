@@ -9,10 +9,21 @@ import operator
 from functools import total_ordering
 from typing import Any, Callable, TypeAlias, Mapping, TYPE_CHECKING
 
-from betty.asyncio import wait_to_thread
-from betty.json.linked_data import dump_context, LinkedDataDumpable, JsonLdSchema
-from betty.json.schema import add_property, Schema
 from typing_extensions import override
+
+from betty.json.linked_data import (
+    dump_context,
+    LinkedDataDumpable,
+    JsonLdObject,
+)
+from betty.json.schema import (
+    String,
+    Boolean,
+    Object,
+    Null,
+    OneOf,
+    Number,
+)
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
@@ -27,7 +38,27 @@ class IncompleteDateError(ValueError):
     pass  # pragma: no cover
 
 
-class Date(LinkedDataDumpable):
+class DateSchema(JsonLdObject):
+    """
+    A JSON Schema for :py:type:`betty.locale.date.Date`.
+    """
+
+    def __init__(self, *, title: str = "Date"):
+        super().__init__(def_name="date", title=title)
+        self.add_property("fuzzy", Boolean(title="Fuzzy"))
+        self.add_property("year", Number(title="Year"), False)
+        self.add_property("month", Number(title="Month"), False)
+        self.add_property("day", Number(title="Day"), False)
+        self.add_property(
+            "iso8601",
+            String(
+                pattern="^\\d\\d\\d\\d-\\d\\d-\\d\\d$", description="An ISO 8601 date."
+            ),
+            False,
+        )
+
+
+class Date(LinkedDataDumpable[Object]):
     """
     A (Gregorian) date.
     """
@@ -162,38 +193,8 @@ class Date(LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
+    async def linked_data_schema(cls, project: Project) -> DateSchema:
         return DateSchema()
-
-
-class DateSchema(Schema):
-    """
-    A JSON Schema for :py:type:`betty.locale.date.Date`.
-    """
-
-    def __init__(self):
-        super().__init__(def_name="date")
-        add_property(
-            self,
-            "fuzzy",
-            Schema(schema={"type": "boolean"}),
-        )
-        add_property(self, "year", Schema(schema={"type": "number"}), False)
-        add_property(self, "month", Schema(schema={"type": "number"}), False)
-        add_property(self, "day", Schema(schema={"type": "number"}), False)
-        add_property(
-            self,
-            "iso8601",
-            Schema(
-                schema={
-                    "type": "string",
-                    "pattern": "^\\d\\d\\d\\d-\\d\\d-\\d\\d$",
-                    "description": "An ISO 8601 date.",
-                }
-            ),
-            False,
-        )
-        wait_to_thread(JsonLdSchema.new()).wrap(self)
 
 
 def _dump_date_iso8601(date: Date) -> str | None:
@@ -205,8 +206,20 @@ def _dump_date_iso8601(date: Date) -> str | None:
     return f"{date.year:04d}-{date.month:02d}-{date.day:02d}"
 
 
+class DateRangeSchema(Object):
+    """
+    A JSON Schema for :py:type:`betty.locale.date.DateRange`.
+    """
+
+    def __init__(self):
+        super().__init__(def_name="dateRange", title="Date range")
+        self._schema["additionalProperties"] = False
+        self.add_property("start", OneOf(DateSchema(title="Start date"), Null()))
+        self.add_property("end", OneOf(DateSchema(title="End date"), Null()))
+
+
 @total_ordering
-class DateRange(LinkedDataDumpable):
+class DateRange(LinkedDataDumpable[Object]):
     """
     A date range can describe a period of time between, before, after, or around start and/or end dates.
     """
@@ -317,7 +330,7 @@ class DateRange(LinkedDataDumpable):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Schema:
+    async def linked_data_schema(cls, project: Project) -> DateRangeSchema:
         return DateRangeSchema()
 
     def _get_comparable_date(self, date: Date | None) -> Date | None:
@@ -474,38 +487,18 @@ class DateRange(LinkedDataDumpable):
         )
 
 
-class DateRangeSchema(Schema):
-    """
-    A JSON Schema for :py:type:`betty.locale.date.DateRange`.
-    """
-
-    def __init__(self):
-        super().__init__(def_name="dateRange")
-        self._schema["additionalProperties"] = False
-        embedded_date_schema = DateSchema().embed(self)
-        add_property(
-            self,
-            "start",
-            Schema(schema={"oneOf": [embedded_date_schema, {"type": "null"}]}),
-        )
-        add_property(
-            self,
-            "end",
-            Schema(schema={"oneOf": [embedded_date_schema, {"type": "null"}]}),
-        )
-
-
-class DateySchema(Schema):
+class DateySchema(OneOf):
     """
     A JSON Schema for :py:type:`betty.locale.date.Datey`.
     """
 
     def __init__(self):
-        super().__init__(def_name="datey")
-        self._schema["oneOf"] = [
-            DateSchema().embed(self),
-            DateRangeSchema().embed(self),
-        ]
+        super().__init__(
+            DateSchema(),
+            DateRangeSchema(),
+            def_name="datey",
+            title="Date or date range",
+        )
 
 
 Datey: TypeAlias = Date | DateRange
