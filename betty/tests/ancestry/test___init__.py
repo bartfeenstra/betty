@@ -6,9 +6,6 @@ from tempfile import NamedTemporaryFile
 from typing import Any, Sequence, TYPE_CHECKING
 
 import pytest
-from geopy import Point
-from typing_extensions import override
-
 from betty.ancestry import (
     Person,
     Event,
@@ -48,14 +45,16 @@ from betty.media_type import MediaType
 from betty.model.association import OneToOne
 from betty.project import Project
 from betty.test_utils.ancestry import (
-    DummyDated,
     DummyHasPrivacy,
-    DummyDescribed,
     DummyHasLocale,
+    DummyHasDate,
+    DummyHasDescription,
 )
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.json.schema import SchemaTestBase
 from betty.test_utils.model import DummyEntity, EntityTestBase
+from geopy import Point
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
@@ -250,15 +249,15 @@ class TestHasLocale:
         assert actual == expected
 
 
-class DummyDatedWithContextDefinitions(DummyDated):
+class DummyHasDateWithContextDefinitions(DummyHasDate):
     @override
     def dated_linked_data_contexts(self) -> tuple[str | None, str | None, str | None]:
         return "single-date", "start-date", "end-date"
 
 
-class TestDated:
+class TestHasDate:
     async def test_date(self) -> None:
-        sut = DummyDated()
+        sut = DummyHasDate()
         assert sut.date is None
 
     @pytest.mark.parametrize(
@@ -267,11 +266,11 @@ class TestDated:
             # No date information.
             (
                 {},
-                DummyDated(),
+                DummyHasDate(),
             ),
             (
                 {},
-                DummyDatedWithContextDefinitions(),
+                DummyHasDateWithContextDefinitions(),
             ),
             # A single date.
             (
@@ -284,7 +283,7 @@ class TestDated:
                         "fuzzy": False,
                     }
                 },
-                DummyDated(date=Date(1970, 1, 1)),
+                DummyHasDate(date=Date(1970, 1, 1)),
             ),
             (
                 {
@@ -297,7 +296,7 @@ class TestDated:
                         "fuzzy": False,
                     }
                 },
-                DummyDatedWithContextDefinitions(date=Date(1970, 1, 1)),
+                DummyHasDateWithContextDefinitions(date=Date(1970, 1, 1)),
             ),
             # A date range with only a start date.
             (
@@ -313,7 +312,7 @@ class TestDated:
                         "end": None,
                     },
                 },
-                DummyDated(date=DateRange(Date(1970, 1, 1))),
+                DummyHasDate(date=DateRange(Date(1970, 1, 1))),
             ),
             (
                 {
@@ -329,7 +328,7 @@ class TestDated:
                         "end": None,
                     },
                 },
-                DummyDatedWithContextDefinitions(date=DateRange(Date(1970, 1, 1))),
+                DummyHasDateWithContextDefinitions(date=DateRange(Date(1970, 1, 1))),
             ),
             # A date range with only an end date.
             (
@@ -345,7 +344,7 @@ class TestDated:
                         },
                     },
                 },
-                DummyDated(date=DateRange(None, Date(2000, 12, 31))),
+                DummyHasDate(date=DateRange(None, Date(2000, 12, 31))),
             ),
             (
                 {
@@ -361,7 +360,7 @@ class TestDated:
                         },
                     },
                 },
-                DummyDatedWithContextDefinitions(
+                DummyHasDateWithContextDefinitions(
                     date=DateRange(None, Date(2000, 12, 31))
                 ),
             ),
@@ -385,7 +384,7 @@ class TestDated:
                         },
                     },
                 },
-                DummyDated(date=DateRange(Date(1970, 1, 1), Date(2000, 12, 31))),
+                DummyHasDate(date=DateRange(Date(1970, 1, 1), Date(2000, 12, 31))),
             ),
             (
                 {
@@ -408,7 +407,7 @@ class TestDated:
                         },
                     },
                 },
-                DummyDatedWithContextDefinitions(
+                DummyHasDateWithContextDefinitions(
                     date=DateRange(Date(1970, 1, 1), Date(2000, 12, 31))
                 ),
             ),
@@ -532,9 +531,9 @@ class TestHasNotes:
         assert await assert_dumps_linked_data(sut) == expected
 
 
-class TestDescribed:
+class TestHasDescription:
     async def test_description(self) -> None:
-        sut = DummyDescribed()
+        sut = DummyHasDescription()
         assert not sut.description
 
     @pytest.mark.parametrize(
@@ -542,14 +541,14 @@ class TestDescribed:
         [
             (
                 {},
-                DummyDescribed(),
+                DummyHasDescription(),
             ),
             (
                 {
                     "@context": {"description": "https://schema.org/description"},
                     "description": {"translations": {"und": "Hello, world!"}},
                 },
-                DummyDescribed(description="Hello, world!"),
+                DummyHasDescription(description="Hello, world!"),
             ),
         ],
     )

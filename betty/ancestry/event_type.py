@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizable import _, Localizable
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
 
@@ -77,7 +77,7 @@ class _EventTypeShorthandBase(EventType):
 @final
 class UnknownEventType(_EventTypeShorthandBase):
     """
-    Described an event for which no more specific type is known.
+    Describe an event for which no more specific type is known.
     """
 
     _plugin_id = "unknown"

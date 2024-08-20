@@ -527,7 +527,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Citation": {
             "label": TestKnownToBeMissing,
         },
-        "Dated": {
+        "HasDate": {
             # This is static.
             "dated_linked_data_contexts": TestKnownToBeMissing,
         },
