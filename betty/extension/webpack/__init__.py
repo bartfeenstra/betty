@@ -33,6 +33,7 @@ from betty.requirement import (
     AnyRequirement,
     RequirementError,
 )
+from betty.timer import Timer
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -116,15 +117,16 @@ class PrebuiltAssetsRequirement(Requirement):
 
 
 async def _generate_assets(event: GenerateSiteEvent) -> None:
-    webpack = event.project.extensions[Webpack.plugin_id()]
-    assert isinstance(webpack, Webpack)
-    build_directory_path = await webpack._generate_ensure_build_directory(
-        job_context=event.job_context,
-    )
-    event.job_context._webpack_build_directory_path = build_directory_path  # type: ignore[attr-defined]
-    await webpack._copy_build_directory(
-        build_directory_path, event.project.configuration.www_directory_path
-    )
+    with Timer("Generating Webpack assets"):
+        webpack = event.project.extensions[Webpack.plugin_id()]
+        assert isinstance(webpack, Webpack)
+        build_directory_path = await webpack._generate_ensure_build_directory(
+            job_context=event.job_context,
+        )
+        event.job_context._webpack_build_directory_path = build_directory_path  # type: ignore[attr-defined]
+        await webpack._copy_build_directory(
+            build_directory_path, event.project.configuration.www_directory_path
+        )
 
 
 @internal

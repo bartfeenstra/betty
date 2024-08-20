@@ -14,6 +14,7 @@ from betty.gramps.loader import GrampsLoader
 from betty.load import LoadAncestryEvent
 from betty.locale.localizable import static, _, Localizable
 from betty.project.extension import ConfigurableExtension
+from betty.timer import Timer
 
 if TYPE_CHECKING:
     from betty.event_dispatcher import EventHandlerRegistry
@@ -21,17 +22,18 @@ if TYPE_CHECKING:
 
 
 async def _load_ancestry(event: LoadAncestryEvent) -> None:
-    gramps_configuration = event.project.configuration.extensions[
-        Gramps
-    ].extension_configuration
-    assert isinstance(gramps_configuration, GrampsConfiguration)
-    for family_tree in gramps_configuration.family_trees:
-        file_path = family_tree.file_path
-        if file_path:
-            await GrampsLoader(
-                event.project,
-                localizer=event.project.app.localizer,
-            ).load_file(file_path)
+    with Timer("Loading Gramps ancestry"):
+        gramps_configuration = event.project.configuration.extensions[
+            Gramps
+        ].extension_configuration
+        assert isinstance(gramps_configuration, GrampsConfiguration)
+        for family_tree in gramps_configuration.family_trees:
+            file_path = family_tree.file_path
+            if file_path:
+                await GrampsLoader(
+                    event.project,
+                    localizer=event.project.app.localizer,
+                ).load_file(file_path)
 
 
 @final

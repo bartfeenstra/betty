@@ -13,6 +13,7 @@ from betty.load import PostLoadAncestryEvent
 from betty.locale.localizable import _, Localizable
 from betty.privatizer import Privatizer as PrivatizerApi
 from betty.project.extension import Extension
+from betty.timer import Timer
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence, MutableMapping
@@ -23,50 +24,49 @@ if TYPE_CHECKING:
 
 async def _privatize_ancestry(event: PostLoadAncestryEvent) -> None:
     logger = getLogger(__name__)
-    logger.info(event.project.app.localizer._("Privatizing..."))
-
-    privatizer = PrivatizerApi(
-        event.project.configuration.lifetime_threshold,
-        localizer=event.project.app.localizer,
-    )
-
-    newly_privatized: MutableMapping[type[HasPrivacy & Entity], int] = defaultdict(
-        lambda: 0
-    )
-    entities: MutableSequence[HasPrivacy & Entity] = []
-    for entity in event.project.ancestry:
-        if isinstance(entity, HasPrivacy):
-            entities.append(entity)
-            if entity.private:
-                newly_privatized[entity.type] -= 1  # type: ignore[index]
-
-    for entity in entities:
-        privatizer.privatize(entity)
-
-    for entity in entities:
-        if entity.private:
-            newly_privatized[entity.type] += 1  # type: ignore[index]
-
-    if newly_privatized[Person] > 0:
-        logger.info(
-            event.project.app.localizer._(
-                "Privatized {count} people because they are likely still alive."
-            ).format(
-                count=str(newly_privatized[Person]),
-            )
+    with Timer("Privatizing ancestry"):
+        privatizer = PrivatizerApi(
+            event.project.configuration.lifetime_threshold,
+            localizer=event.project.app.localizer,
         )
-    for entity_type in set(newly_privatized) - {Person}:
-        if newly_privatized[entity_type] > 0:
+
+        newly_privatized: MutableMapping[type[HasPrivacy & Entity], int] = defaultdict(
+            lambda: 0
+        )
+        entities: MutableSequence[HasPrivacy & Entity] = []
+        for entity in event.project.ancestry:
+            if isinstance(entity, HasPrivacy):
+                entities.append(entity)
+                if entity.private:
+                    newly_privatized[entity.type] -= 1  # type: ignore[index]
+
+        for entity in entities:
+            privatizer.privatize(entity)
+
+        for entity in entities:
+            if entity.private:
+                newly_privatized[entity.type] += 1  # type: ignore[index]
+
+        if newly_privatized[Person] > 0:
             logger.info(
                 event.project.app.localizer._(
-                    "Privatized {count} {entity_type}, because they are associated with private information."
+                    "Privatized {count} people because they are likely still alive."
                 ).format(
-                    count=str(newly_privatized[entity_type]),
-                    entity_type=entity_type.plugin_label_plural().localize(
-                        event.project.app.localizer
-                    ),
+                    count=str(newly_privatized[Person]),
                 )
             )
+        for entity_type in set(newly_privatized) - {Person}:
+            if newly_privatized[entity_type] > 0:
+                logger.info(
+                    event.project.app.localizer._(
+                        "Privatized {count} {entity_type}, because they are associated with private information."
+                    ).format(
+                        count=str(newly_privatized[entity_type]),
+                        entity_type=entity_type.plugin_label_plural().localize(
+                            event.project.app.localizer
+                        ),
+                    )
+                )
 
 
 @final

@@ -7,11 +7,12 @@ from xml.etree.ElementTree import Element
 
 from html5lib import parse
 
+from betty.ancestry import Link, HasLinks
 from betty.asyncio import gather
 from betty.fetch import Fetcher, FetchError
 from betty.media_type import MediaType, InvalidMediaType
-from betty.ancestry import Link, HasLinks
 from betty.project import Project, ProjectEvent
+from betty.timer import Timer
 
 
 class LoadAncestryEvent(ProjectEvent):
@@ -36,9 +37,10 @@ async def load(project: Project) -> None:
     """
     Load an ancestry.
     """
-    await project.event_dispatcher.dispatch(LoadAncestryEvent(project))
-    await project.event_dispatcher.dispatch(PostLoadAncestryEvent(project))
-    await _fetch_link_titles(project)
+    with Timer("Loading ancestry"):
+        await project.event_dispatcher.dispatch(LoadAncestryEvent(project))
+        await project.event_dispatcher.dispatch(PostLoadAncestryEvent(project))
+        await _fetch_link_titles(project)
 
 
 async def _fetch_link_titles(project: Project) -> None:

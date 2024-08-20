@@ -4,19 +4,19 @@ Expand an ancestry by deriving additional data from existing data.
 
 from __future__ import annotations
 
-from logging import getLogger
+from typing import TYPE_CHECKING
 from typing import final
 
 from typing_extensions import override
 
+from betty.ancestry import event_type
+from betty.ancestry.event_type import DerivableEventType
 from betty.deriver import Deriver as DeriverApi
 from betty.extension.privatizer import Privatizer
 from betty.load import PostLoadAncestryEvent
 from betty.locale.localizable import _, Localizable
-from betty.ancestry import event_type
-from betty.ancestry.event_type import DerivableEventType
 from betty.project.extension import Extension
-from typing import TYPE_CHECKING
+from betty.timer import Timer
 
 if TYPE_CHECKING:
     from betty.event_dispatcher import EventHandlerRegistry
@@ -24,16 +24,14 @@ if TYPE_CHECKING:
 
 
 async def _derive_ancestry(event: PostLoadAncestryEvent) -> None:
-    logger = getLogger(__name__)
-    logger.info(event.project.app.localizer._("Deriving..."))
-
-    deriver = DeriverApi(
-        event.project.ancestry,
-        event.project.configuration.lifetime_threshold,
-        set(await event_type.EVENT_TYPE_REPOSITORY.select(DerivableEventType)),
-        localizer=event.project.app.localizer,
-    )
-    await deriver.derive()
+    with Timer("Deriving ancestry"):
+        deriver = DeriverApi(
+            event.project.ancestry,
+            event.project.configuration.lifetime_threshold,
+            set(await event_type.EVENT_TYPE_REPOSITORY.select(DerivableEventType)),
+            localizer=event.project.app.localizer,
+        )
+        await deriver.derive()
 
 
 @final
