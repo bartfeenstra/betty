@@ -220,7 +220,7 @@ class TestEntityReferenceSequence(
     ConfigurationSequenceTestBase[EntityReference[Entity]]
 ):
     @pytest.fixture(autouse=True)
-    def _extensions(self, mocker: MockerFixture) -> None:
+    def _entity_types(self, mocker: MockerFixture) -> None:
         mocker.patch(
             "betty.model.ENTITY_TYPE_REPOSITORY",
             new=StaticPluginRepository(EntityReferenceSequenceTestEntity),
@@ -805,7 +805,7 @@ class TestEntityTypeConfigurationMapping(
     ConfigurationMappingTestBase[type[Entity], EntityTypeConfiguration]
 ):
     @pytest.fixture(autouse=True)
-    def _extensions(self, mocker: MockerFixture) -> None:
+    def _entity_types(self, mocker: MockerFixture) -> None:
         mocker.patch(
             "betty.model.ENTITY_TYPE_REPOSITORY",
             new=StaticPluginRepository(
