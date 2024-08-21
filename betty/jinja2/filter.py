@@ -57,7 +57,7 @@ if TYPE_CHECKING:
     from betty.locale.date import Datey
     from betty.locale.localizable import Localizable
     from jinja2.nodes import EvalContext
-    from betty.ancestry import Dated
+    from betty.ancestry import HasDate
     from betty.media_type import MediaType
     from pathlib import Path
     from collections.abc import Awaitable
@@ -530,22 +530,22 @@ def filter_select_localizeds(
 
 @pass_context
 def filter_negotiate_dateds(
-    context: Context, dateds: Iterable[Dated], date: Datey | None
-) -> Dated | None:
+    context: Context, dateds: Iterable[HasDate], date: Datey | None
+) -> HasDate | None:
     """
     Try to find an object whose date falls in the given date.
 
     :param date: A date to select by. If None, then today's date is used.
     """
     with suppress(StopIteration):
-        return next(filter_select_dateds(context, dateds, date))
+        return next(filter_select_has_dates(context, dateds, date))
     return None
 
 
 @pass_context
-def filter_select_dateds(
-    context: Context, dateds: Iterable[Dated], date: Datey | None
-) -> Iterator[Dated]:
+def filter_select_has_dates(
+    context: Context, dateds: Iterable[HasDate], date: Datey | None
+) -> Iterator[HasDate]:
     """
     Select all objects whose date falls in the given date.
 
@@ -610,7 +610,7 @@ FILTERS = {
     "negotiate_localizeds": filter_negotiate_localizeds,
     "none_void": none_void,
     "paragraphs": filter_paragraphs,
-    "select_dateds": filter_select_dateds,
+    "select_has_dates": filter_select_has_dates,
     "select_localizeds": filter_select_localizeds,
     "static_url": filter_static_url,
     "sort_localizeds": filter_sort_localizeds,

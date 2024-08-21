@@ -10,8 +10,6 @@ from reprlib import recursive_repr
 from typing import Iterable, Any, TYPE_CHECKING, final
 from urllib.parse import quote
 
-from typing_extensions import override
-
 from betty.ancestry.event_type import EventType, UnknownEventType, EVENT_TYPE_REPOSITORY
 from betty.ancestry.presence_role import PresenceRole, Subject, PresenceRoleSchema
 from betty.asyncio import wait_to_thread
@@ -62,6 +60,7 @@ from betty.model.collections import (
     MultipleTypesEntityCollection,
 )
 from betty.string import camel_case_to_kebab_case
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
@@ -238,7 +237,7 @@ def merge_privacies(*privacies: Privacy | HasPrivacy | None) -> Privacy:
     return Privacy.PUBLIC
 
 
-class Dated(LinkedDataDumpable[Object]):
+class HasDate(LinkedDataDumpable[Object]):
     """
     A resource with date information.
     """
@@ -289,7 +288,7 @@ class Dated(LinkedDataDumpable[Object]):
         return schema
 
 
-class Described(LinkedDataDumpable[Object]):
+class HasDescription(LinkedDataDumpable[Object]):
     """
     A resource with a description.
     """
@@ -429,7 +428,7 @@ class LinkCollectionSchema(Array):
 
 
 @final
-class Link(HasMediaType, HasLocale, Described, LinkedDataDumpable[Object]):
+class Link(HasMediaType, HasLocale, HasDescription, LinkedDataDumpable[Object]):
     """
     An external link.
     """
@@ -705,7 +704,7 @@ class HasCitations(Entity):
 
 @final
 class File(
-    Described,
+    HasDescription,
     HasPrivacy,
     HasLinks,
     HasMediaType,
@@ -913,7 +912,7 @@ class HasFileReferences(Entity):
 
 @final
 class Source(
-    Dated, HasFileReferences, HasNotes, HasLinks, HasPrivacy, UserFacingEntity, Entity
+    HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, UserFacingEntity, Entity
 ):
     """
     A source of information.
@@ -1076,7 +1075,7 @@ class Source(
 
 
 @final
-class Citation(Dated, HasFileReferences, HasPrivacy, HasLinks, UserFacingEntity):
+class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks, UserFacingEntity):
     """
     A citation (a reference to a source).
     """
@@ -1192,7 +1191,7 @@ class Citation(Dated, HasFileReferences, HasPrivacy, HasLinks, UserFacingEntity)
 
 
 @final
-class Name(StaticTranslationsLocalizable, Dated):
+class Name(StaticTranslationsLocalizable, HasDate):
     """
     A name.
 
@@ -1219,7 +1218,7 @@ class Name(StaticTranslationsLocalizable, Dated):
 
 
 @final
-class Enclosure(Dated, HasCitations, Entity):
+class Enclosure(HasDate, HasCitations, Entity):
     """
     The enclosure of one place by another.
 
@@ -1516,11 +1515,11 @@ class Presence(HasPrivacy, Entity):
 
 @final
 class Event(
-    Dated,
+    HasDate,
     HasFileReferences,
     HasCitations,
     HasNotes,
-    Described,
+    HasDescription,
     HasPrivacy,
     HasLinks,
     UserFacingEntity,

@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Any, Iterable, TYPE_CHECKING
 
 import pytest
-
 from betty.ancestry import (
     File,
     FileReference,
@@ -22,7 +21,7 @@ from betty.locale.date import Datey, Date, DateRange
 from betty.locale.localizable import StaticTranslationsLocalizable
 from betty.locale.localized import Localized, LocalizedStr
 from betty.media_type import MediaType
-from betty.test_utils.ancestry import DummyDated
+from betty.test_utils.ancestry import DummyHasDate
 from betty.test_utils.assets.templates import TemplateTestBase
 from betty.test_utils.model import DummyEntity
 
@@ -255,8 +254,8 @@ class TestFilterImageResizeCover(TemplateTestBase):
                 ).exists()
 
 
-class TestFilterSelectDateds(TemplateTestBase):
-    class DatedDummy(DummyDated):
+class TestFilterSelectHasDates(TemplateTestBase):
+    class _DummyHasDate(DummyHasDate):
         def __init__(self, value: str, date: Datey | None = None):
             super().__init__(date=date)
             self._value = value
@@ -271,7 +270,7 @@ class TestFilterSelectDateds(TemplateTestBase):
                 "Apple",
                 {
                     "dateds": [
-                        DatedDummy("Apple"),
+                        _DummyHasDate("Apple"),
                     ],
                     "date": None,
                 },
@@ -280,7 +279,7 @@ class TestFilterSelectDateds(TemplateTestBase):
                 "Apple",
                 {
                     "dateds": [
-                        DatedDummy("Apple"),
+                        _DummyHasDate("Apple"),
                     ],
                     "date": Date(),
                 },
@@ -289,7 +288,7 @@ class TestFilterSelectDateds(TemplateTestBase):
                 "Apple",
                 {
                     "dateds": [
-                        DatedDummy("Apple"),
+                        _DummyHasDate("Apple"),
                     ],
                     "date": Date(1970, 1, 1),
                 },
@@ -298,7 +297,7 @@ class TestFilterSelectDateds(TemplateTestBase):
                 "",
                 {
                     "dateds": [
-                        DatedDummy("Apple", Date(1970, 1, 1)),
+                        _DummyHasDate("Apple", Date(1970, 1, 1)),
                     ],
                     "date": None,
                 },
@@ -307,7 +306,7 @@ class TestFilterSelectDateds(TemplateTestBase):
                 "",
                 {
                     "dateds": [
-                        DatedDummy("Apple", Date(1970, 1, 1)),
+                        _DummyHasDate("Apple", Date(1970, 1, 1)),
                     ],
                     "date": Date(),
                 },
@@ -316,7 +315,7 @@ class TestFilterSelectDateds(TemplateTestBase):
                 "Apple",
                 {
                     "dateds": [
-                        DatedDummy("Apple", Date(1970, 1, 1)),
+                        _DummyHasDate("Apple", Date(1970, 1, 1)),
                     ],
                     "date": Date(1970, 1, 1),
                 },
@@ -325,10 +324,10 @@ class TestFilterSelectDateds(TemplateTestBase):
                 "Apple, Strawberry",
                 {
                     "dateds": [
-                        DatedDummy("Apple", Date(1971, 1, 1)),
-                        DatedDummy("Strawberry", Date(1970, 1, 1)),
-                        DatedDummy("Banana", Date(1969, 1, 1)),
-                        DatedDummy("Orange", Date(1972, 12, 31)),
+                        _DummyHasDate("Apple", Date(1971, 1, 1)),
+                        _DummyHasDate("Strawberry", Date(1970, 1, 1)),
+                        _DummyHasDate("Banana", Date(1969, 1, 1)),
+                        _DummyHasDate("Orange", Date(1972, 12, 31)),
                     ],
                     "date": DateRange(Date(1970, 1, 1), Date(1971, 1, 1)),
                 },
@@ -336,7 +335,7 @@ class TestFilterSelectDateds(TemplateTestBase):
         ],
     )
     async def test(self, expected: str, data: MutableMapping[str, Any]) -> None:
-        template = '{{ dateds | select_dateds(date=date) | join(", ") }}'
+        template = '{{ dateds | select_has_dates(date=date) | join(", ") }}'
         async with self._render(template_string=template, data=data) as (actual, _):
             assert actual == expected
 
