@@ -1065,12 +1065,16 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
     @override
     async def bootstrap(self) -> None:
         await super().bootstrap()
-        for project_extension_batch in self.extensions:
-            batch_event_handlers = EventHandlerRegistry()
-            for project_extension in project_extension_batch:
-                await self._async_exit_stack.enter_async_context(project_extension)
-                project_extension.register_event_handlers(batch_event_handlers)
-            self.event_dispatcher.add_registry(batch_event_handlers)
+        try:
+            for project_extension_batch in self.extensions:
+                batch_event_handlers = EventHandlerRegistry()
+                for project_extension in project_extension_batch:
+                    await self._async_exit_stack.enter_async_context(project_extension)
+                    project_extension.register_event_handlers(batch_event_handlers)
+                self.event_dispatcher.add_registry(batch_event_handlers)
+        except BaseException:
+            await self.shutdown()
+            raise
 
     @property
     def app(self) -> App:
