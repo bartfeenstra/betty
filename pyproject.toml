@@ -22,7 +22,6 @@ dependencies = [
     'babel ~= 2.15',
     'basedtyping ~= 0.1.4',
     'click ~= 8.1',
-    'docker ~= 7.1',
     'furo == 2024.8.6',
     'geopy ~= 2.4',
     'html5lib ~= 1.1',
@@ -50,7 +49,6 @@ classifiers = [
     'Programming Language :: JavaScript',
     'Programming Language :: Python :: 3.11',
     'Programming Language :: Python :: 3.12',
-    'Programming Language :: Lua',
     'Programming Language :: JavaScript',
     'Programming Language :: Unix Shell',
     'Operating System :: MacOS :: MacOS X',
@@ -87,7 +85,6 @@ betty = 'betty.cli:main'
 'new' = 'betty.cli.commands.new:new'
 'new-translation' = 'betty.cli.commands.new_translation:new_translation'
 'serve' = 'betty.cli.commands.serve:serve'
-'serve-nginx-docker' = 'betty.extension.nginx._cli:serve_nginx_docker'
 'update-translations' = 'betty.cli.commands.update_translations:update_translations'
 
 [project.entry-points.'betty.dev.command']
@@ -138,7 +135,6 @@ betty = 'betty.cli:main'
 'gramps' = 'betty.extension.gramps:Gramps'
 'http-api-doc' = 'betty.extension.http_api_doc:HttpApiDoc'
 'maps' = 'betty.extension.maps:Maps'
-'nginx' = 'betty.extension.nginx:Nginx'
 'privatizer' = 'betty.extension.privatizer:Privatizer'
 'trees' = 'betty.extension.trees:Trees'
 'webpack' = 'betty.extension.webpack:Webpack'

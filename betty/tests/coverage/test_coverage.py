@@ -258,27 +258,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "webpack_entry_point_cache_keys": TestKnownToBeMissing,
         },
     },
-    "betty/extension/nginx/__init__.py": {
-        "Nginx": {
-            "https": TestKnownToBeMissing,
-            # This is checked statically.
-            "register_event_handlers": TestKnownToBeMissing,
-            "www_directory_path": TestKnownToBeMissing,
-        },
-    },
-    "betty/extension/nginx/config.py": {
-        "NginxConfiguration": {
-            "https": TestKnownToBeMissing,
-            "www_directory_path": TestKnownToBeMissing,
-        },
-    },
-    "betty/extension/nginx/docker.py": TestKnownToBeMissing,
-    "betty/extension/nginx/serve.py": {
-        "DockerizedNginxServer": {
-            "start": TestKnownToBeMissing,
-            "stop": TestKnownToBeMissing,
-        },
-    },
     "betty/extension/privatizer/__init__.py": {
         "Privatizer": {
             "privatize": TestKnownToBeMissing,

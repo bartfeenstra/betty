@@ -1,5 +1,0 @@
-return {
-  default = {
-    ROOT = { './busted' }
-  }
-}
