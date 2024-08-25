@@ -17,7 +17,7 @@ jobs:
       matrix:
         include:
           # The number of builds that submit code coverage configured here MUST be identical
-          # to the number of `after_n_builds` in /home/bart/code/bartfeenstra/betty/codecov.yml.
+          # to the number of `after_n_builds` in ./codecov.yml.
           - name: 'Python 3.12'
             os: ubuntu-latest
             python: '3.12'
