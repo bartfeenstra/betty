@@ -8,6 +8,7 @@ site from the entire project.
 
 from __future__ import annotations
 
+import logging
 from contextlib import suppress, asynccontextmanager
 from graphlib import TopologicalSorter, CycleError
 from pathlib import Path
@@ -79,6 +80,7 @@ from betty.project.extension import (
     ConfigurableExtension,
     build_extension_type_graph,
     CyclicDependencyError,
+    Theme,
 )
 from betty.project.factory import ProjectDependentFactory
 from betty.render import Renderer, SequentialRenderer
@@ -1241,6 +1243,18 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
                     )
                 )
             self._extensions = _ProjectExtensions(extensions)
+
+            # Users may not realize no theme is enabled, and be confused by their site looking bare.
+            # Warn them out of courtesy.
+            theme_count = len(
+                [extension for extension in extensions if isinstance(extension, Theme)]
+            )
+            if theme_count == 0:
+                logging.getLogger().warning(
+                    _(
+                        'Your project has no theme enabled. This means your site\'s pages may look bare. Try the "cotton-candy" extension.'
+                    ).localize(self.app.localizer)
+                )
 
         return self._extensions
 
