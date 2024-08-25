@@ -31,7 +31,7 @@ class TestGramps(ExtensionTestBase):
   </header>
   <objects>
     <object handle="_e21e77b318dcbf5114e53d2ccf" change="1553878032" id="O0001">
-      <file src="/home/bart/Desktop/1px.gif" mime="image/gif" checksum="c4f9b77f41082b633d120e2915c1ea2e" description="1px"/>
+      <file src="1px.gif" mime="image/gif" checksum="c4f9b77f41082b633d120e2915c1ea2e" description="1px"/>
     </object>
   </objects>
   <people>
@@ -82,7 +82,7 @@ class TestGramps(ExtensionTestBase):
   </header>
   <objects>
     <object handle="_e21e77b318dcbf5114e53d2ccf" change="1553878032" id="O0002">
-      <file src="/home/bart/Desktop/1px.gif" mime="image/gif" checksum="c4f9b77f41082b633d120e2915c1ea2e" description="1px"/>
+      <file src="1px.gif" mime="image/gif" checksum="c4f9b77f41082b633d120e2915c1ea2e" description="1px"/>
     </object>
   </objects>
   <people>
