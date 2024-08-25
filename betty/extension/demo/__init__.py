@@ -45,6 +45,7 @@ from betty.project.extension import Extension
 from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
 
 if TYPE_CHECKING:
+    from betty.plugin import PluginIdentifier
     from betty.event_dispatcher import EventHandlerRegistry
     from betty.machine_name import MachineName
     from betty.app import App
@@ -438,13 +439,13 @@ class Demo(Extension):
 
     @override
     @classmethod
-    def depends_on(cls) -> set[MachineName]:
+    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
         return {
-            CottonCandy.plugin_id(),
-            HttpApiDoc.plugin_id(),
-            Maps.plugin_id(),
-            Trees.plugin_id(),
-            Wikipedia.plugin_id(),
+            CottonCandy,
+            HttpApiDoc,
+            Maps,
+            Trees,
+            Wikipedia,
         }
 
     @override

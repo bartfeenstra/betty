@@ -10,13 +10,13 @@ Read more at :doc:`/development/plugin`.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TypeVar, Generic, Self, overload, TYPE_CHECKING
+from typing import TypeVar, Generic, Self, overload, TYPE_CHECKING, TypeAlias
 
 from betty.error import UserFacingError
 from betty.locale.localizable import _
+from betty.machine_name import MachineName
 
 if TYPE_CHECKING:
-    from betty.machine_name import MachineName
     from betty.locale.localizable import Localizable
     from collections.abc import AsyncIterator, Sequence
 
@@ -32,6 +32,9 @@ class PluginError(UserFacingError):
 class Plugin(ABC):
     """
     A plugin.
+
+    Plugins are identified by their :py:meth:`IDs <betty.plugin.Plugin.plugin_id>` as well as their types.
+    Each must be able to uniquely identify the plugin within a plugin repository.
 
     To test your own subclasses, use :py:class:`betty.test_utils.plugin.PluginTestBase`.
     """
@@ -66,6 +69,9 @@ class Plugin(ABC):
 
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
+
+
+PluginIdentifier: TypeAlias = type[_PluginT] | MachineName
 
 
 class PluginNotFound(PluginError):

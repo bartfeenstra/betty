@@ -8,7 +8,21 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Iterable, cast, TYPE_CHECKING, final
 
+from jinja2 import pass_context
+from typing_extensions import override
+
 from betty import fs
+from betty.ancestry import (
+    Event,
+    Person,
+    Presence,
+    is_public,
+    HasFileReferences,
+    Place,
+    FileReference,
+)
+from betty.ancestry.event_type import StartOfLifeEventType, EndOfLifeEventType
+from betty.ancestry.presence_role import Subject
 from betty.extension.cotton_candy.config import CottonCandyConfiguration
 from betty.extension.cotton_candy.search import Index
 from betty.extension.maps import Maps
@@ -28,23 +42,11 @@ from betty.jinja2 import (
 from betty.locale.date import Date, Datey
 from betty.locale.localizable import _, static, Localizable
 from betty.model import GeneratedEntityId
-from betty.ancestry import (
-    Event,
-    Person,
-    Presence,
-    is_public,
-    HasFileReferences,
-    Place,
-    FileReference,
-)
-from betty.ancestry.event_type import StartOfLifeEventType, EndOfLifeEventType
-from betty.ancestry.presence_role import Subject
 from betty.os import link_or_copy
-from betty.project.extension import ConfigurableExtension, Theme
-from jinja2 import pass_context
-from typing_extensions import override
+from betty.project.extension import ConfigurableExtension, Theme, Extension
 
 if TYPE_CHECKING:
+    from betty.plugin import PluginIdentifier
     from betty.event_dispatcher import EventHandlerRegistry
     from betty.machine_name import MachineName
     from jinja2.runtime import Context
@@ -52,8 +54,7 @@ if TYPE_CHECKING:
 
 
 async def _generate_favicon(event: GenerateSiteEvent) -> None:
-    cotton_candy = event.project.extensions[CottonCandy.plugin_id()]
-    assert isinstance(cotton_candy, CottonCandy)
+    cotton_candy = event.project.extensions[CottonCandy]
     await link_or_copy(
         cotton_candy.logo, event.project.configuration.www_directory_path / "logo.png"
     )
@@ -82,13 +83,13 @@ class CottonCandy(
 
     @override
     @classmethod
-    def depends_on(cls) -> set[MachineName]:
-        return {Webpack.plugin_id()}
+    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
+        return {Webpack}
 
     @override
     @classmethod
-    def comes_after(cls) -> set[MachineName]:
-        return {Maps.plugin_id(), Trees.plugin_id()}
+    def comes_after(cls) -> set[PluginIdentifier[Extension]]:
+        return {Maps, Trees}
 
     @override
     @classmethod

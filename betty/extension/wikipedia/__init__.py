@@ -34,8 +34,7 @@ if TYPE_CHECKING:
 
 
 async def _populate_ancestry(event: PostLoadAncestryEvent) -> None:
-    wikipedia = event.project.extensions[Wikipedia.plugin_id()]
-    assert isinstance(wikipedia, Wikipedia)
+    wikipedia = event.project.extensions[Wikipedia]
     populator = _Populator(event.project, wikipedia.retriever)
     await populator.populate()
 

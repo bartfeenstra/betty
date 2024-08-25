@@ -27,8 +27,8 @@ from betty.functools import Uniquifier
 from betty.model import Entity
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence, MutableSequence, MutableMapping
     from betty.machine_name import MachineName
+    from collections.abc import Sequence, MutableSequence, MutableMapping
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
 _TargetT = TypeVar("_TargetT")
@@ -344,7 +344,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
         self, key: str | type[_TargetT & Entity] | _TargetT & Entity
     ) -> None:
         if isinstance(key, type):
-            return self._delitem_by_type(
+            return self._delitem_by_entity_type(
                 key,
             )
         if isinstance(key, Entity):
@@ -353,7 +353,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
             )
         return self._delitem_by_entity_type_id(key)
 
-    def _delitem_by_type(self, entity_type: type[_TargetT & Entity]) -> None:
+    def _delitem_by_entity_type(self, entity_type: type[_TargetT & Entity]) -> None:
         removed_entities = [*self._get_collection(entity_type)]
         self._get_collection(entity_type).clear()
         if removed_entities:
@@ -363,7 +363,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
         self.remove(entity)
 
     def _delitem_by_entity_type_id(self, entity_type_id: MachineName) -> None:
-        self._delitem_by_type(
+        self._delitem_by_entity_type(
             wait_to_thread(model.ENTITY_TYPE_REPOSITORY.get(entity_type_id)),  # type: ignore[arg-type]
         )
 

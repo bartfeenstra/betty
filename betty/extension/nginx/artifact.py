@@ -26,8 +26,7 @@ async def generate_configuration_file(
     """
     from betty.extension.nginx import Nginx
 
-    nginx = project.extensions[Nginx.plugin_id()]
-    assert isinstance(nginx, Nginx)
+    nginx = project.extensions[Nginx]
     data = {
         "server_name": urlparse(project.configuration.base_url).netloc,
         "www_directory_path": www_directory_path or nginx.www_directory_path,

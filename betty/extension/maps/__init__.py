@@ -12,6 +12,7 @@ from betty.locale.localizable import _, Localizable
 from betty.project.extension import Extension
 
 if TYPE_CHECKING:
+    from betty.plugin import PluginIdentifier
     from betty.machine_name import MachineName
     from collections.abc import Sequence
 
@@ -29,8 +30,8 @@ class Maps(Extension, WebpackEntryPointProvider):
 
     @override
     @classmethod
-    def depends_on(cls) -> set[MachineName]:
-        return {Webpack.plugin_id()}
+    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
+        return {Webpack}
 
     @override
     @classmethod

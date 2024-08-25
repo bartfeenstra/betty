@@ -17,12 +17,11 @@ from typing_extensions import override
 
 from betty.config import Configurable, Configuration
 from betty.core import CoreComponent
-from betty.plugin import Plugin, PluginRepository
+from betty.plugin import Plugin, PluginRepository, PluginIdentifier
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.project.factory import ProjectDependentFactory
 
 if TYPE_CHECKING:
-    from betty.machine_name import MachineName
     from betty.event_dispatcher import EventHandlerRegistry
     from betty.requirement import Requirement
     from betty.project import Project
@@ -86,14 +85,14 @@ class Extension(Plugin, CoreComponent, ProjectDependentFactory):
         return self._project
 
     @classmethod
-    def depends_on(cls) -> set[MachineName]:
+    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
         """
         The extensions this one depends on, and comes after.
         """
         return set()
 
     @classmethod
-    def comes_after(cls) -> set[MachineName]:
+    def comes_after(cls) -> set[PluginIdentifier[Extension]]:
         """
         The extensions that this one comes after.
 
@@ -102,7 +101,7 @@ class Extension(Plugin, CoreComponent, ProjectDependentFactory):
         return set()
 
     @classmethod
-    def comes_before(cls) -> set[MachineName]:
+    def comes_before(cls) -> set[PluginIdentifier[Extension]]:
         """
         The extensions that this one comes before.
 
@@ -197,12 +196,20 @@ async def build_extension_type_graph(
         await _extend_extension_type_graph(extension_types_graph, extension_type)
     # Now all dependencies have been collected, extend the graph with optional extension orders.
     for extension_type in extension_types:
-        for before_id in extension_type.comes_before():
-            before = await EXTENSION_REPOSITORY.get(before_id)
+        for before_identifier in extension_type.comes_before():
+            before = (
+                await EXTENSION_REPOSITORY.get(before_identifier)
+                if isinstance(before_identifier, str)
+                else before_identifier
+            )
             if before in extension_types_graph:
                 extension_types_graph[before].add(extension_type)
-        for after_id in extension_type.comes_after():
-            after = await EXTENSION_REPOSITORY.get(after_id)
+        for after_identifier in extension_type.comes_after():
+            after = (
+                await EXTENSION_REPOSITORY.get(after_identifier)
+                if isinstance(after_identifier, str)
+                else after_identifier
+            )
             if after in extension_types_graph:
                 extension_types_graph[extension_type].add(after)
 
@@ -213,8 +220,10 @@ async def _extend_extension_type_graph(
     graph: ExtensionTypeGraph, extension_type: type[Extension]
 ) -> None:
     dependencies = [
-        await EXTENSION_REPOSITORY.get(dependency_id)
-        for dependency_id in extension_type.depends_on()
+        await EXTENSION_REPOSITORY.get(dependency_identifier)
+        if isinstance(dependency_identifier, str)
+        else dependency_identifier
+        for dependency_identifier in extension_type.depends_on()
     ]
     # Ensure each extension type appears in the graph, even if they're isolated.
     graph.setdefault(extension_type, set())

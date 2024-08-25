@@ -6,6 +6,15 @@ from __future__ import annotations
 
 from typing import Any, TYPE_CHECKING
 
+from betty.ancestry import (
+    HasLinks,
+    HasFileReferences,
+    is_private,
+    is_public,
+    Event,
+)
+from betty.ancestry.event_type import StartOfLifeEventType, EndOfLifeEventType
+from betty.ancestry.presence_role import Subject, Witness
 from betty.asyncio import wait_to_thread
 from betty.json.linked_data import LinkedDataDumpable
 from betty.locale.date import DateRange
@@ -15,18 +24,9 @@ from betty.model import (
     UserFacingEntity,
     ENTITY_TYPE_REPOSITORY,
 )
-from betty.ancestry import (
-    HasLinks,
-    HasFileReferences,
-    is_private,
-    is_public,
-    Event,
-)
-from betty.ancestry.presence_role import Subject, Witness
-from betty.ancestry.event_type import StartOfLifeEventType, EndOfLifeEventType
 
 if TYPE_CHECKING:
-    from betty.machine_name import MachineName
+    from betty.plugin import PluginIdentifier
 
 
 def test_linked_data_dumpable(value: Any) -> bool:
@@ -36,18 +36,21 @@ def test_linked_data_dumpable(value: Any) -> bool:
     return isinstance(value, LinkedDataDumpable)
 
 
-def test_entity(value: Any, entity_type_id: MachineName | None = None) -> bool:
+def test_entity(
+    value: Any, entity_type_identifier: PluginIdentifier[Any] | None = None
+) -> bool:
     """
     Test if a value is an entity.
 
     :param entity_type_id: If given, additionally ensure the value is an entity of this type.
     """
-    cls = (
-        wait_to_thread(ENTITY_TYPE_REPOSITORY.get(entity_type_id))
-        if entity_type_id
-        else Entity
-    )
-    return isinstance(value, cls)
+    if isinstance(entity_type_identifier, str):
+        entity_type = wait_to_thread(ENTITY_TYPE_REPOSITORY.get(entity_type_identifier))
+    elif entity_type_identifier:
+        entity_type = entity_type_identifier
+    else:
+        entity_type = Entity  # type: ignore[type-abstract]
+    return isinstance(value, entity_type)
 
 
 def test_user_facing_entity(value: Any) -> bool:

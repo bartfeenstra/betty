@@ -67,8 +67,7 @@ async def _prebuild_webpack_assets() -> None:
                 )
             )
             async with project:
-                webpack = project.extensions[Webpack.plugin_id()]
-                assert isinstance(webpack, Webpack)
+                webpack = project.extensions[Webpack]
                 await webpack.prebuild(job_context=job_context)
 
 
@@ -116,8 +115,7 @@ class PrebuiltAssetsRequirement(Requirement):
 
 
 async def _generate_assets(event: GenerateSiteEvent) -> None:
-    webpack = event.project.extensions[Webpack.plugin_id()]
-    assert isinstance(webpack, Webpack)
+    webpack = event.project.extensions[Webpack]
     build_directory_path = await webpack._generate_ensure_build_directory(
         job_context=event.job_context,
     )

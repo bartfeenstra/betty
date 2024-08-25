@@ -148,8 +148,7 @@ class TestWebpack(ExtensionTestBase):
             async with Project.new_temporary(new_temporary_app) as project:
                 project.configuration.extensions.enable(Webpack)
                 async with project:
-                    webpack = project.extensions[Webpack.plugin_id()]
-                    assert isinstance(webpack, Webpack)
+                    webpack = project.extensions[Webpack]
                     await webpack.prebuild(job_context)
                     async with aiofiles.open(
                         prebuilt_assets_directory_path

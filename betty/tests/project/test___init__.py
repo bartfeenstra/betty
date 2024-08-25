@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import Any, Iterable, TYPE_CHECKING, Self, Sequence
 
 import pytest
+from typing_extensions import override
+
 from betty import ancestry
 from betty.ancestry import Ancestry
 from betty.app import App
@@ -48,14 +50,13 @@ from betty.test_utils.json.schema import SchemaTestBase
 from betty.test_utils.model import DummyEntity
 from betty.test_utils.project.extension import DummyExtension
 from betty.typing import Void
-from typing_extensions import override
 
 if TYPE_CHECKING:
+    from betty.plugin import PluginIdentifier
     from pathlib import Path
     from betty.json.schema import Schema
     from collections.abc import MutableSequence
     from pytest_mock import MockerFixture
-    from betty.machine_name import MachineName
     from betty.serde.dump import Dump, VoidableDump
 
 
@@ -1233,44 +1234,44 @@ class _ConfigurableExtensionConfiguration(Configuration):
 
 class _CyclicDependencyOneExtension(DummyExtension):
     @classmethod
-    def depends_on(cls) -> set[MachineName]:
-        return {_CyclicDependencyTwoExtension.plugin_id()}
+    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
+        return {_CyclicDependencyTwoExtension}
 
 
 class _CyclicDependencyTwoExtension(DummyExtension):
     @classmethod
-    def depends_on(cls) -> set[MachineName]:
-        return {_CyclicDependencyOneExtension.plugin_id()}
+    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
+        return {_CyclicDependencyOneExtension}
 
 
 class _DependsOnNonConfigurableExtensionExtension(_TrackableExtension):
     @classmethod
-    def depends_on(cls) -> set[MachineName]:
-        return {_NonConfigurableExtension.plugin_id()}
+    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
+        return {_NonConfigurableExtension}
 
 
 class _AlsoDependsOnNonConfigurableExtensionExtension(_TrackableExtension):
     @classmethod
-    def depends_on(cls) -> set[MachineName]:
-        return {_NonConfigurableExtension.plugin_id()}
+    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
+        return {_NonConfigurableExtension}
 
 
 class _DependsOnNonConfigurableExtensionExtensionExtension(_TrackableExtension):
     @classmethod
-    def depends_on(cls) -> set[MachineName]:
-        return {_DependsOnNonConfigurableExtensionExtension.plugin_id()}
+    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
+        return {_DependsOnNonConfigurableExtensionExtension}
 
 
 class _ComesBeforeNonConfigurableExtensionExtension(_TrackableExtension):
     @classmethod
-    def comes_before(cls) -> set[MachineName]:
-        return {_NonConfigurableExtension.plugin_id()}
+    def comes_before(cls) -> set[PluginIdentifier[Extension]]:
+        return {_NonConfigurableExtension}
 
 
 class _ComesAfterNonConfigurableExtensionExtension(_TrackableExtension):
     @classmethod
-    def comes_after(cls) -> set[MachineName]:
-        return {_NonConfigurableExtension.plugin_id()}
+    def comes_after(cls) -> set[PluginIdentifier[Extension]]:
+        return {_NonConfigurableExtension}
 
 
 class _ConfigurableExtension(

@@ -21,10 +21,13 @@ from typing import (
     TYPE_CHECKING,
     TypeVar,
     Iterator,
+    overload,
 )
 from urllib.parse import urlparse
 
 from aiofiles.tempfile import TemporaryDirectory
+from typing_extensions import override
+
 from betty import fs, event_dispatcher
 from betty import model
 from betty.ancestry import Ancestry, Person, Event, Place, Source
@@ -89,11 +92,11 @@ from betty.serde.dump import (
 from betty.serde.format import FormatRepository
 from betty.string import kebab_case_to_lower_camel_case
 from betty.typing import Void
-from typing_extensions import override
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
     from betty.machine_name import MachineName
+    from betty.plugin import PluginIdentifier
+    from collections.abc import Sequence
     from collections.abc import AsyncIterator
     from betty.app import App
     from betty.url import LocalizedUrlGenerator, StaticUrlGenerator
@@ -1266,6 +1269,9 @@ _ProjectDependentFactoryT = TypeVar(
 )
 
 
+_ExtensionT = TypeVar("_ExtensionT", bound=Extension)
+
+
 @final
 class _ProjectExtensions:
     """
@@ -1276,10 +1282,23 @@ class _ProjectExtensions:
         super().__init__()
         self._project_extensions = project_extensions
 
+    @overload
     def __getitem__(self, extension_id: MachineName) -> Extension:
-        extension_type = wait_to_thread(
-            extension.EXTENSION_REPOSITORY.get(extension_id)
-        )
+        pass
+
+    @overload
+    def __getitem__(self, extension_type: type[_ExtensionT]) -> _ExtensionT:
+        pass
+
+    def __getitem__(
+        self, extension_identifier: PluginIdentifier[Extension]
+    ) -> Extension:
+        if isinstance(extension_identifier, str):
+            extension_type = wait_to_thread(
+                extension.EXTENSION_REPOSITORY.get(extension_identifier)
+            )
+        else:
+            extension_type = extension_identifier
         for project_extension in self.flatten():
             if type(project_extension) is extension_type:
                 return project_extension
@@ -1305,9 +1324,9 @@ class _ProjectExtensions:
         for batch in self:
             yield from batch
 
-    def __contains__(self, extension_id: MachineName) -> bool:
+    def __contains__(self, extension_identifier: PluginIdentifier[Extension]) -> bool:
         try:
-            self[extension_id]
+            self[extension_identifier]
         except KeyError:
             return False
         else:
