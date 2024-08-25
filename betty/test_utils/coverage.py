@@ -186,16 +186,15 @@ class Module(_HasChildren[Union["Module", None], Union["Module", "Class", "Funct
                 for child in self.children
                 if isinstance(child, Module)
             }
-            # @todo
-            # raise RuntimeError([self.testable_name, child_testable_names])
             for module_info in pkgutil.iter_modules(
                 [str(self.testable_file_path.parent)]
             ):
                 module_testable_name = f"{self.testable_name}.{module_info.name}"
-                if module_testable_name not in child_testable_names:
-                    # @todo
-                    if self.testable_name == "betty":
-                        pass
+                if (
+                    module_testable_name not in child_testable_names
+                    and _name_to_path(module_testable_name)
+                    not in get_coveragerc_ignore_modules()
+                ):
                     self._children = {
                         *self._children,
                         Module(module_testable_name),

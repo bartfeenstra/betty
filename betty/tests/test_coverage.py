@@ -42,6 +42,7 @@ _BASELINE = Module(
                 ),
             },
         ),
+        InternalModule("betty.test_utils"),
         InternalModule("betty.tests"),
     },
 )
