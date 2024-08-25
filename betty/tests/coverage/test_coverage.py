@@ -152,7 +152,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "AsynchronizedLock": {
             "release": TestKnownToBeMissing,
         },
-        "MultiLock": {
+        "Lock": {
+            # This is covered by another test method.
+            "__aexit__": TestKnownToBeMissing,
+            # This is an abstract method.
+            "acquire": TestKnownToBeMissing,
+            # This is an abstract method.
             "release": TestKnownToBeMissing,
         },
         "RateLimiter": {

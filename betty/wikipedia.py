@@ -27,7 +27,7 @@ from betty.ancestry import (
     FileReference,
 )
 from betty.asyncio import gather
-from betty.concurrent import _Lock, AsynchronizedLock, RateLimiter
+from betty.concurrent import Lock, AsynchronizedLock, RateLimiter
 from betty.fetch import FetchError
 from betty.functools import filter_suppress
 from betty.locale import (
@@ -337,7 +337,7 @@ class _Populator:
         self._project = project
         self._retriever = retriever
         self._image_files: MutableMapping[Image, File] = {}
-        self._image_files_locks: Mapping[Image, _Lock] = defaultdict(
+        self._image_files_locks: Mapping[Image, Lock] = defaultdict(
             AsynchronizedLock.threading
         )
 

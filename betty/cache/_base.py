@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from asyncio import sleep
 from collections import defaultdict
 from collections.abc import Sequence, MutableMapping, AsyncIterator
 from contextlib import asynccontextmanager
@@ -12,7 +13,7 @@ from betty.cache import (
     CacheItem,
     CacheItemValueSetter,
 )
-from betty.concurrent import _Lock, AsynchronizedLock, MultiLock
+from betty.concurrent import AsynchronizedLock, Lock
 
 _CacheItemValueCoT = TypeVar("_CacheItemValueCoT", covariant=True)
 _CacheItemValueContraT = TypeVar("_CacheItemValueContraT", contravariant=True)
@@ -39,6 +40,40 @@ class _StaticCacheItem(CacheItem[_CacheItemValueCoT], Generic[_CacheItemValueCoT
         return self._modified
 
 
+class _CacheItemLock(Lock):
+    def __init__(
+        self,
+        cache_item_id: str,
+        wait: bool,
+        cache_lock: Lock,
+        cache_items_locked: MutableMapping[str, bool],
+    ):
+        self._cache_item_id = cache_item_id
+        self._wait = wait
+        self._cache_lock = cache_lock
+        self._cache_items_locked = cache_items_locked
+
+    @override
+    async def acquire(self, *, wait: bool = True) -> bool:
+        async with self._cache_lock:
+            if wait:
+                while not self._can_acquire():
+                    await sleep(0)
+            else:
+                if not self._can_acquire():
+                    return False
+            self._cache_items_locked[self._cache_item_id] = True
+            return True
+
+    def _can_acquire(self) -> bool:
+        return not self._cache_items_locked[self._cache_item_id]
+
+    @override
+    async def release(self) -> None:
+        async with self._cache_lock:
+            self._cache_items_locked[self._cache_item_id] = False
+
+
 class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueContraT]):
     def __init__(
         self,
@@ -47,14 +82,13 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
     ):
         self._scopes = scopes or ()
         self._scoped_caches: MutableMapping[str, Self] = {}
-        self._locks: MutableMapping[str, _Lock] = defaultdict(
-            AsynchronizedLock.threading
-        )
-        self._locks_lock = AsynchronizedLock.threading()
+        self._cache_lock = AsynchronizedLock.threading()
+        self._cache_items_locked: MutableMapping[str, bool] = defaultdict(lambda: False)
 
-    async def _lock(self, cache_item_id: str) -> _Lock:
-        async with self._locks_lock:
-            return self._locks[cache_item_id]
+    def _cache_item_lock(self, cache_item_id: str, *, wait: bool = True) -> Lock:
+        return _CacheItemLock(
+            cache_item_id, wait, self._cache_lock, self._cache_items_locked
+        )
 
     @override
     def with_scope(self, scope: str) -> Self:
@@ -73,7 +107,7 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
     async def get(
         self, cache_item_id: str
     ) -> AsyncIterator[CacheItem[_CacheItemValueContraT] | None]:
-        async with await self._lock(cache_item_id):
+        async with self._cache_item_lock(cache_item_id):
             yield await self._get(cache_item_id)
 
     @abstractmethod
@@ -90,7 +124,7 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
         *,
         modified: int | float | None = None,
     ) -> None:
-        async with await self._lock(cache_item_id):
+        async with self._cache_item_lock(cache_item_id):
             await self._set(cache_item_id, value, modified=modified)
 
     @abstractmethod
@@ -134,7 +168,7 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
             CacheItemValueSetter[_CacheItemValueContraT] | None,
         ]
     ]:
-        lock = await self._lock(cache_item_id)
+        lock = self._cache_item_lock(cache_item_id)
         if await lock.acquire(wait=wait):
             try:
 
@@ -144,12 +178,12 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
                 yield await self._get(cache_item_id), _setter
                 return
             finally:
-                lock.release()
+                await lock.release()
         yield None, None
 
     @override
     async def delete(self, cache_item_id: str) -> None:
-        async with await self._lock(cache_item_id):
+        async with self._cache_item_lock(cache_item_id):
             await self._delete(cache_item_id)
 
     @abstractmethod
@@ -158,7 +192,7 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
 
     @override
     async def clear(self) -> None:
-        async with MultiLock(self._locks_lock, *self._locks.values()):
+        async with self._cache_lock:
             await self._clear()
 
     @abstractmethod
