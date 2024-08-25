@@ -2,16 +2,27 @@
 Test utilities for :py:mod:`betty.plugin`.
 """
 
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Any
+
+from typing_extensions import override
 
 from betty.locale.localizable import Localizable, plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import assert_machine_name, MachineName
 from betty.plugin import Plugin
 from betty.string import camel_case_to_kebab_case
-from typing_extensions import override
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
+
+
+def assert_plugin_identifier(value: Any, plugin_type: type[_PluginT]) -> None:
+    """
+    Assert that something is a plugin identifier.
+    """
+    if isinstance(value, str):
+        assert_machine_name()(value)
+    else:
+        assert issubclass(value, plugin_type)
 
 
 class PluginTestBase(Generic[_PluginT]):

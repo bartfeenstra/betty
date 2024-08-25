@@ -32,9 +32,13 @@ class Dependencies(AllRequirements):
         try:
             return [
                 (
-                    wait_to_thread(extension.EXTENSION_REPOSITORY.get(dependency_id))
+                    wait_to_thread(
+                        extension.EXTENSION_REPOSITORY.get(dependency_identifier)
+                    )
+                    if isinstance(dependency_identifier, str)
+                    else dependency_identifier
                 ).enable_requirement()
-                for dependency_id in self._dependent.depends_on()
+                for dependency_identifier in self._dependent.depends_on()
             ]
         except RecursionError:
             raise CyclicDependencyError([self._dependent]) from None
@@ -45,10 +49,16 @@ class Dependencies(AllRequirements):
             dependent_label=self._dependent.plugin_label(),
             dependency_labels=call(
                 lambda localizer: ", ".join(
-                    wait_to_thread(extension.EXTENSION_REPOSITORY.get(dependency_id))
+                    (
+                        wait_to_thread(
+                            extension.EXTENSION_REPOSITORY.get(dependency_identifier)
+                        )
+                        if isinstance(dependency_identifier, str)
+                        else dependency_identifier
+                    )
                     .plugin_label()
                     .localize(localizer)
-                    for dependency_id in self._dependent.depends_on()
+                    for dependency_identifier in self._dependent.depends_on()
                 ),
             ),
         )

@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
+from betty.ancestry import Link
 from betty.extension.wikipedia import Wikipedia
 from betty.job import Context
 from betty.load import load
-from betty.ancestry import Link
 from betty.project import ExtensionConfiguration, Project
 from betty.test_utils.project.extension import ExtensionTestBase
 from betty.wikipedia import Summary
@@ -70,6 +70,5 @@ class TestWikipedia(ExtensionTestBase):
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.enable(Wikipedia)
             async with project:
-                wikipedia = project.extensions[Wikipedia.plugin_id()]
-                assert isinstance(wikipedia, Wikipedia)
+                wikipedia = project.extensions[Wikipedia]
                 wikipedia.retriever  # noqa B018

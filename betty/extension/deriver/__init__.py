@@ -5,20 +5,21 @@ Expand an ancestry by deriving additional data from existing data.
 from __future__ import annotations
 
 from logging import getLogger
+from typing import TYPE_CHECKING
 from typing import final
 
 from typing_extensions import override
 
+from betty.ancestry import event_type
+from betty.ancestry.event_type import DerivableEventType
 from betty.deriver import Deriver as DeriverApi
 from betty.extension.privatizer import Privatizer
 from betty.load import PostLoadAncestryEvent
 from betty.locale.localizable import _, Localizable
-from betty.ancestry import event_type
-from betty.ancestry.event_type import DerivableEventType
 from betty.project.extension import Extension
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from betty.plugin import PluginIdentifier
     from betty.event_dispatcher import EventHandlerRegistry
     from betty.machine_name import MachineName
 
@@ -53,8 +54,8 @@ class Deriver(Extension):
 
     @override
     @classmethod
-    def comes_before(cls) -> set[MachineName]:
-        return {Privatizer.plugin_id()}
+    def comes_before(cls) -> set[PluginIdentifier[Extension]]:
+        return {Privatizer}
 
     @override
     @classmethod
