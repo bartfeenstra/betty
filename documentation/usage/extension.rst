@@ -22,7 +22,6 @@ Built-in extensions
 - :doc:`/usage/extension/gramps`
 - :doc:`/usage/extension/http_api_doc`
 - :doc:`/usage/extension/maps`
-- :doc:`/usage/extension/nginx`
 - :doc:`/usage/extension/privatizer`
 - :doc:`/usage/extension/trees`
 - :doc:`/usage/extension/wikipedia`

@@ -20,8 +20,6 @@ Helpful commands
     Run all tests.
 ``./bin/test-build-setuptools``
     Test building setuptools packages.
-``./bin/test-busted``
-    Run `busted <https://lunarmodules.github.io/busted/>`_ tests.
 ``./bin/test-eslint``
     Run `ESLint <https://eslint.org/>`_ tests.
 ``./bin/test-mypy``

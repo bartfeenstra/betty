@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-08-25 16:59+0100\n"
+"POT-Creation-Date: 2024-08-25 18:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -327,9 +327,6 @@ msgid "Find out more about this image on Wikimedia Commons."
 msgstr ""
 
 msgid "Funeral"
-msgstr ""
-
-msgid "Generate <a href=\"\">nginx</a> configuration for your site, as well as a <code>Dockerfile</code> to build a <a href=\"https://www.docker.com/\">Docker</a> container around it."
 msgstr ""
 
 msgid "Generated {completed_job_count} out of {total_job_count} items ({completed_job_percentage}%)."

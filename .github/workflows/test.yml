@@ -78,18 +78,6 @@ jobs:
         with:
           node-version-file: ./package.json
 
-      - name: Install Lua
-        if: startsWith(runner.os, 'Linux')
-        uses: leafo/gh-actions-lua@v10
-
-      - name: Install LuaRocks
-        if: startsWith(runner.os, 'Linux')
-        uses: leafo/gh-actions-luarocks@v4
-
-      - name: Install Lua dependencies
-        if: startsWith(runner.os, 'Linux')
-        run: luarocks install busted
-
       - name: Build the development environment
         run: ./bin/build-ci
         shell: bash
@@ -101,7 +89,7 @@ jobs:
 
       - name: Run the tests
         if: ${{ ! startsWith(runner.os, 'Linux') }}
-        run: BETTY_TEST_SKIP_SHELLCHECK=true BETTY_TEST_SKIP_RUFF=true BETTY_TEST_SKIP_MYPY=true BETTY_TEST_SKIP_STYLELINT=true BETTY_TEST_SKIP_ESLINT=true BETTY_TEST_SKIP_BUSTED=true BETTY_TEST_SKIP_PLAYWRIGHT=true ./bin/test
+        run: BETTY_TEST_SKIP_SHELLCHECK=true BETTY_TEST_SKIP_RUFF=true BETTY_TEST_SKIP_MYPY=true BETTY_TEST_SKIP_STYLELINT=true BETTY_TEST_SKIP_ESLINT=true BETTY_TEST_SKIP_PLAYWRIGHT=true ./bin/test
         shell: bash
 
       - name: Upload code coverage
