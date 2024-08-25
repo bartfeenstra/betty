@@ -21,19 +21,19 @@ def _assert_handlers(
 
 
 async def _any_handler_one(dispatched_event: Event) -> None:
-    pass
+    pass  # pragma: no cover
 
 
 async def _any_handler_two(dispatched_event: Event) -> None:
-    pass
+    pass  # pragma: no cover
 
 
 async def _any_handler_three(dispatched_event: Event) -> None:
-    pass
+    pass  # pragma: no cover
 
 
 async def _any_handler_four(dispatched_event: Event) -> None:
-    pass
+    pass  # pragma: no cover
 
 
 class TestEventHandlerRegistry:
