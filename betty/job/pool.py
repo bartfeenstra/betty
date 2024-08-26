@@ -1,5 +1,5 @@
 """
-Provide the site generation multiprocessing pool.
+Run jobs concurrently in a process pool.
 """
 
 from __future__ import annotations
@@ -21,11 +21,12 @@ from typing import (
     Concatenate,
     Any,
     TYPE_CHECKING,
-    ParamSpec,
+    ParamSpec, TypeVar, Generic,
 )
 
 from betty.asyncio import gather
-from betty.generate import GenerationContext
+from betty.job import Context
+from betty.typing import internal
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -33,12 +34,14 @@ if TYPE_CHECKING:
     import threading
 
 
-_GenerationProcessPoolTaskP = ParamSpec("_GenerationProcessPoolTaskP")
+_ContextT = TypeVar("_ContextT", bound=Context)
+_PoolTaskP = ParamSpec("_PoolTaskP")
 
 worker_setup: Callable[[], None] | None = None
 
 
-class _GenerationProcessPool:
+@internal
+class Pool(Generic[_ContextT]):
     """
     Set up a worker process, before the worker starts performing tasks.
 
@@ -94,7 +97,7 @@ class _GenerationProcessPool:
         for _ in range(0, concurrency):
             self._workers.append(
                 executor.submit(
-                    _GenerationProcessPoolWorker(
+                    _PoolWorker(
                         self._queue,
                         self._cancel,
                         self._finish,
@@ -144,25 +147,25 @@ class _GenerationProcessPool:
     def delegate(
         self,
         task_callable: Callable[
-            Concatenate[GenerationContext, _GenerationProcessPoolTaskP], Any
+            Concatenate[_ContextT, _PoolTaskP], Any
         ],
-        *task_args: _GenerationProcessPoolTaskP.args,
-        **task_kwargs: _GenerationProcessPoolTaskP.kwargs,
+        *task_args: _PoolTaskP.args,
+        **task_kwargs: _PoolTaskP.kwargs,
     ) -> None:
         self._queue.put((task_callable, task_args, task_kwargs))
         self._count_total += 1
 
 
-class _GenerationProcessPoolWorker:
+class _PoolWorker:
     def __init__(
         self,
         task_queue: queue.Queue[
             tuple[
                 Callable[
-                    Concatenate[GenerationContext, _GenerationProcessPoolTaskP], Any
+                    Concatenate[_ContextT, _PoolTaskP], Any
                 ],
-                _GenerationProcessPoolTaskP.args,
-                _GenerationProcessPoolTaskP.kwargs,
+                _PoolTaskP.args,
+                _PoolTaskP.kwargs,
             ]
         ],
         cancel: threading.Event,
@@ -190,6 +193,13 @@ class _GenerationProcessPoolWorker:
         app = pickle.loads(self._pickled_app)
         reduced_project = pickle.loads(self._pickled_reduced_project)
         async with app, reduced_project(app) as project:
+            # @todo Allow contexts to be pickled
+            # @todo GenerationContext (and in the future maybe Load and PostLoad contexts) as well as Extension
+            # @todo must all be pickleable and all must be unreduceable by simply providing a Project.
+            # @todo Can we reuse `ProjectDependentFactory` for this? Maybe not, because ProjectDependentFactory returns Self.
+            # @todo What about a plain Callable[[Project], _T] signature?
+            # @todo
+            # @todo
             job_context = GenerationContext(project)
             await gather(
                 *(
@@ -198,7 +208,7 @@ class _GenerationProcessPoolWorker:
                 )
             )
 
-    async def _perform_tasks(self, job_context: GenerationContext) -> None:
+    async def _perform_tasks(self, job_context: _ContextT) -> None:
         while not self._cancel.is_set():
             try:
                 task_callable, task_args, task_kwargs = self._task_queue.get_nowait()
