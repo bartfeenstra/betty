@@ -174,7 +174,7 @@ test = [
     'types-polib ~= 1.2',
     'types-pyyaml ~= 6.0',
     'types-requests ~= 2.32',
-    'types-setuptools ~= 71.0',
+    'types-setuptools >= 71,< 74',
     'virtualenv ~= 20.26',
     'betty[setuptools]',
 ]
