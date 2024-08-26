@@ -1,17 +1,19 @@
 import ast
 import builtins
-import json
 import re
 import sys
 from collections.abc import Iterator
 from os import walk
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import aiofiles
 import pytest
 import requests
-from aiofiles.tempfile import TemporaryDirectory
+from pytest_mock import MockerFixture
+from requests import Response
+from sphinx.errors import ExtensionError
+from sphinx.util import import_object
+
 from betty.cli import _BettyCommands
 from betty.cli.commands import COMMAND_REPOSITORY
 from betty.documentation import DocumentationServer
@@ -21,13 +23,6 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import ProjectConfiguration
 from betty.serde.format import Format, Json, Yaml
 from betty.test_utils.cli import run
-from pytest_mock import MockerFixture
-from requests import Response
-from sphinx.errors import ExtensionError
-from sphinx.util import import_object
-
-if TYPE_CHECKING:
-    from betty.serde.dump import DumpMapping, Dump
 
 
 class TestDocumentationServer:
@@ -56,28 +51,18 @@ class TestDocumentation:
         )
 
     async def test_should_contain_cli_help(self) -> None:
-        async with TemporaryDirectory() as working_directory_path_str:
-            working_directory_path = Path(working_directory_path_str)
-            configuration: DumpMapping[Dump] = {
-                "url": "https://example.com",
-                "extensions": {
-                    "nginx": {},
-                },
-            }
-            async with aiofiles.open(working_directory_path / "betty.json", "w") as f:
-                await f.write(json.dumps(configuration))
-            async with aiofiles.open(
-                ROOT_DIRECTORY_PATH / "documentation" / "usage" / "cli.rst"
-            ) as f:
-                actual = await f.read()
-            assert await self._get_help() in actual
-            async for command in COMMAND_REPOSITORY:
-                if command.plugin_id() in (
-                    "dev-new-translation",
-                    "dev-update-translations",
-                ):
-                    continue
-                assert await self._get_help(command.plugin_id()) in actual
+        async with aiofiles.open(
+            ROOT_DIRECTORY_PATH / "documentation" / "usage" / "cli.rst"
+        ) as f:
+            actual = await f.read()
+        assert await self._get_help() in actual
+        async for command in COMMAND_REPOSITORY:
+            if command.plugin_id() in (
+                "dev-new-translation",
+                "dev-update-translations",
+            ):
+                continue
+            assert await self._get_help(command.plugin_id()) in actual
 
     @pytest.mark.parametrize(
         ("language", "serde_format"),
