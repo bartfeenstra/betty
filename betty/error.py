@@ -2,37 +2,14 @@
 Provide error handling utilities.
 """
 
-import traceback
 from pathlib import Path
-from typing import TypeVar, Self
+from typing import Self
 
 from typing_extensions import override
 
 from betty.locale.localizable import Localizable, _
 from betty.locale.localized import LocalizedStr
 from betty.locale.localizer import Localizer
-
-_BaseExceptionT = TypeVar("_BaseExceptionT", bound=BaseException)
-
-
-def serialize(error: _BaseExceptionT) -> _BaseExceptionT:
-    """
-    Serialize an exception.
-
-    This replaces the exception's traceback object with the traceback formatted as a string.
-    """
-    formatted_traceback = f'\n"""\n{"".join(traceback.format_exception(type(error), error, error.__traceback__))}"""'
-    error.__cause__ = _SerializedTraceback(formatted_traceback)
-    error.__traceback__ = None
-    return error
-
-
-class _SerializedTraceback(Exception):
-    def __init__(self, formatted_traceback: str):
-        self._formatted_traceback = formatted_traceback
-
-    def __str__(self) -> str:
-        return self._formatted_traceback
 
 
 class UserFacingError(Exception, Localizable):
