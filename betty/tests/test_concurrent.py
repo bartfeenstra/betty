@@ -1,6 +1,7 @@
+import asyncio
+import threading
 import time
-from asyncio import create_task, sleep
-from threading import Lock
+from asyncio import create_task, sleep, wait_for
 
 import pytest
 
@@ -8,20 +9,47 @@ from betty.asyncio import gather
 from betty.concurrent import (
     RateLimiter,
     asynchronize_acquire,
-    MultiLock,
     AsynchronizedLock,
+    Lock,
 )
+
+
+class DummyLock(Lock):
+    def __init__(self, acquire: bool):
+        self._acquire = acquire
+
+    async def acquire(self, *, wait: bool = True) -> bool:
+        if not wait:
+            return self._acquire
+        if self._acquire:
+            return True
+        await sleep(999999999)
+        return False
+
+    async def release(self) -> None:
+        pass
+
+
+class TestLock:
+    async def test___aenter___and___aexit___with_acquisition(self) -> None:
+        async with DummyLock(True):
+            pass
+
+    async def test___aenter___and___aexit___without_acquisition(self) -> None:
+        sut = DummyLock(False)
+        with pytest.raises(asyncio.TimeoutError):
+            await wait_for(sut.__aenter__(), 0.000000001)
 
 
 class TestAsynchronizeAcquire:
     async def test_should_acquire_immediately(self) -> None:
-        lock = Lock()
+        lock = threading.Lock()
         assert await asynchronize_acquire(lock) is True
         assert lock.locked()
         lock.release()
 
     async def test_should_acquire_after_waiting(self) -> None:
-        lock = Lock()
+        lock = threading.Lock()
         lock.acquire()
         task = create_task(asynchronize_acquire(lock))
         await sleep(1)
@@ -29,7 +57,7 @@ class TestAsynchronizeAcquire:
         assert await task
 
     async def test_should_not_acquire_if_not_waiting(self) -> None:
-        lock = Lock()
+        lock = threading.Lock()
         lock.acquire()
         assert not await asynchronize_acquire(lock, wait=False)
         lock.release()
@@ -37,15 +65,15 @@ class TestAsynchronizeAcquire:
 
 class TestAsynchronizedLock:
     async def test_acquire_should_acquire_immediately(self) -> None:
-        lock = Lock()
+        lock = threading.Lock()
         sut = AsynchronizedLock(lock)
         assert await sut.acquire()
         assert lock.locked()
-        sut.release()
+        await sut.release()
         assert not lock.locked()
 
     async def test_acquire_should_acquire_after_waiting(self) -> None:
-        lock = Lock()
+        lock = threading.Lock()
         sut = AsynchronizedLock(lock)
         lock.acquire()
         task = create_task(sut.acquire())
@@ -54,40 +82,11 @@ class TestAsynchronizedLock:
         assert await task
 
     async def test_acquire_should_not_acquire_if_not_waiting(self) -> None:
-        lock = Lock()
+        lock = threading.Lock()
         sut = AsynchronizedLock(lock)
         lock.acquire()
         assert not await sut.acquire(wait=False)
         lock.release()
-
-
-class TestMultiLock:
-    async def test_acquire_should_acquire_immediately(self) -> None:
-        locks = (
-            Lock(),
-            Lock(),
-            Lock(),
-        )
-        sut = MultiLock(*(AsynchronizedLock(lock) for lock in locks))
-        assert await sut.acquire() is True
-        for lock in locks:
-            assert lock.locked()
-        sut.release()
-        for lock in locks:
-            assert not lock.locked()
-
-    async def test_acquire_should_not_acquire_if_not_waiting(self) -> None:
-        sentinel = Lock()
-        locks = (
-            Lock(),
-            Lock(),
-            Lock(),
-        )
-        sut = MultiLock(*(AsynchronizedLock(lock) for lock in (*locks, sentinel)))
-        sentinel.acquire()
-        assert await sut.acquire(wait=False) is False
-        for lock in locks:
-            assert not lock.locked()
 
 
 class TestRateLimiter:

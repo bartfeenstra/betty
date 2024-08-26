@@ -8,16 +8,13 @@ import time
 from abc import ABC, abstractmethod
 from asyncio import sleep
 from math import floor
-from threading import Lock
 from types import TracebackType
 from typing import Self, final
 
 from typing_extensions import override
 
-from betty.asyncio import gather
 
-
-class _Lock(ABC):
+class Lock(ABC):
     """
     Provide an asynchronous lock.
     """
@@ -31,7 +28,7 @@ class _Lock(ABC):
         exc_val: BaseException | None,
         exc_tb: TracebackType | None,
     ) -> None:
-        self.release()
+        await self.release()
 
     @abstractmethod
     async def acquire(self, *, wait: bool = True) -> bool:
@@ -41,14 +38,14 @@ class _Lock(ABC):
         pass
 
     @abstractmethod
-    def release(self) -> None:
+    async def release(self) -> None:
         """
         Release the lock.
         """
         pass
 
 
-async def asynchronize_acquire(lock: Lock, *, wait: bool = True) -> bool:
+async def asynchronize_acquire(lock: threading.Lock, *, wait: bool = True) -> bool:
     """
     Acquire a synchronous lock asynchronously.
     """
@@ -63,14 +60,14 @@ async def asynchronize_acquire(lock: Lock, *, wait: bool = True) -> bool:
 
 
 @final
-class AsynchronizedLock(_Lock):
+class AsynchronizedLock(Lock):
     """
     Make a sychronous (blocking) lock asynchronous (non-blocking).
     """
 
     __slots__ = "_lock"
 
-    def __init__(self, lock: Lock):
+    def __init__(self, lock: threading.Lock):
         self._lock = lock
 
     @override
@@ -78,7 +75,7 @@ class AsynchronizedLock(_Lock):
         return await asynchronize_acquire(self._lock, wait=wait)
 
     @override
-    def release(self) -> None:
+    async def release(self) -> None:
         self._lock.release()
 
     @classmethod
@@ -87,38 +84,6 @@ class AsynchronizedLock(_Lock):
         Create a new thread-safe, asynchronous lock.
         """
         return cls(threading.Lock())
-
-
-@final
-class MultiLock(_Lock):
-    """
-    Provide a lock that only acquires if all of the given locks can be acquired.
-    """
-
-    __slots__ = "_locked", "_locks"
-
-    def __init__(self, *locks: _Lock):
-        self._locks = locks
-        self._locked = False
-
-    @override
-    async def acquire(self, *, wait: bool = True) -> bool:
-        acquisitions = await gather(*(lock.acquire(wait=wait) for lock in self._locks))
-        # We require all locks to be acquired, or none at all
-        # If one or more fail, release the others.
-        if False in acquisitions:
-            for lock, acquisition in zip(self._locks, acquisitions):
-                if acquisition:
-                    lock.release()
-            return False
-        self._locked = True
-        return True
-
-    @override
-    def release(self) -> None:
-        self._locked = False
-        for lock in self._locks:
-            lock.release()
 
 
 @final

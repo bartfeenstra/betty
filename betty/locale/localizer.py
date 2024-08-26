@@ -14,7 +14,7 @@ import aiofiles
 from babel import dates
 from babel.dates import format_date
 from betty import fs
-from betty.concurrent import _Lock, AsynchronizedLock
+from betty.concurrent import Lock, AsynchronizedLock
 from betty.hashid import hashid_file_meta
 from betty.locale import (
     get_data,
@@ -286,7 +286,7 @@ class LocalizerRepository:
     def __init__(self, assets: AssetRepository):
         self._assets = assets
         self._localizers: MutableMapping[str, Localizer] = {}
-        self._locks: Mapping[str, _Lock] = defaultdict(AsynchronizedLock.threading)
+        self._locks: Mapping[str, Lock] = defaultdict(AsynchronizedLock.threading)
         self._locales: set[str] | None = None
 
     @property
