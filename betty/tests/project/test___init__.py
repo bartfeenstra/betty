@@ -89,6 +89,13 @@ class TestEntityReference:
         sut.entity_type = entity_type
         assert sut.entity_type == entity_type
 
+    async def test_entity_type_is_constrained(self) -> None:
+        entity_type = EntityReferenceTestEntityOne
+        sut = EntityReference[EntityReferenceTestEntityOne](
+            entity_type, None, entity_type_is_constrained=True
+        )
+        assert sut.entity_type_is_constrained
+
     async def test_entity_id(self) -> None:
         entity_id = "123"
         sut = EntityReference[EntityReferenceTestEntityOne]()
@@ -211,6 +218,21 @@ class TestEntityReference:
             "entity_id": entity_id,
         }
         assert sut.dump() == expected
+
+    async def test_update(self) -> None:
+        entity_type = EntityReferenceTestEntityOne
+        entity_id = "ENTITY1"
+        entity_type_is_constrained = True
+        other = EntityReference[EntityReferenceTestEntityOne](
+            entity_type,
+            entity_id,
+            entity_type_is_constrained=entity_type_is_constrained,
+        )
+        sut = EntityReference[EntityReferenceTestEntityOne]()
+        sut.update(other)
+        assert sut.entity_type == entity_type
+        assert sut.entity_id == entity_id
+        assert sut.entity_type_is_constrained == entity_type_is_constrained
 
 
 class EntityReferenceSequenceTestEntity(DummyEntity):
@@ -337,6 +359,25 @@ class TestLocaleConfiguration:
         sut = LocaleConfiguration(DEFAULT_LOCALE)
         sut.load(dump)
         assert sut.alias == "UNDETERMINED_LOCALE"
+
+    async def test_dump_should_dump_minimal(self) -> None:
+        sut = LocaleConfiguration("nl-NL")
+        expected = {"locale": "nl-NL"}
+        assert sut.dump() == expected
+
+    async def test_dump_should_dump_alias(self) -> None:
+        sut = LocaleConfiguration("nl-NL", alias="nl")
+        expected = {"locale": "nl-NL", "alias": "nl"}
+        assert sut.dump() == expected
+
+    async def test_update(self) -> None:
+        locale = "nl-NL"
+        alias = "nl"
+        other = LocaleConfiguration(locale, alias=alias)
+        sut = LocaleConfiguration(DEFAULT_LOCALE)
+        sut.update(other)
+        assert sut.locale == locale
+        assert sut.alias == alias
 
 
 class TestLocaleConfigurationMapping(
@@ -518,7 +559,7 @@ class TestExtensionConfiguration:
         assert sut.enabled == enabled
         sut.enabled = False
 
-    async def test_configuration(self) -> None:
+    async def test_extension_configuration(self) -> None:
         extension_type_configuration = _DummyConfiguration()
         sut = ExtensionConfiguration(
             _DummyConfigurableExtension,
@@ -598,6 +639,44 @@ class TestExtensionConfiguration:
         )
         assert extension_configuration.check
 
+    async def test_dump_should_dump_minimal(self) -> None:
+        sut = ExtensionConfiguration(DummyExtension)
+        expected = {
+            "extension": DummyExtension.plugin_id(),
+            "enabled": True,
+        }
+        assert sut.dump() == expected
+
+    async def test_dump_should_dump_extension_configuration(self) -> None:
+        sut = ExtensionConfiguration(_DummyConfigurableExtension)
+        expected = {
+            "extension": _DummyConfigurableExtension.plugin_id(),
+            "enabled": True,
+            "configuration": {
+                "check": False,
+            },
+        }
+        assert sut.dump() == expected
+
+    async def test_update_should_update_minimal(self) -> None:
+        class _OtherDummyExtension(DummyExtension):
+            pass
+
+        other = ExtensionConfiguration(_OtherDummyExtension)
+        sut = ExtensionConfiguration(DummyExtension)
+        sut.update(other)
+        assert sut.extension_type is _OtherDummyExtension
+        assert sut.enabled
+        assert sut.extension_configuration is None
+
+    async def test_update_should_update_extension_configuration(self) -> None:
+        other = ExtensionConfiguration(_DummyConfigurableExtension)
+        sut = ExtensionConfiguration(DummyExtension)
+        sut.update(other)
+        assert isinstance(
+            sut.extension_configuration, _DummyConfigurableExtensionConfiguration
+        )
+
 
 class ExtensionTypeConfigurationMappingTestExtension0(DummyExtension):
     pass
@@ -654,6 +733,18 @@ class TestExtensionConfigurationMapping(
             "betty.project.extension.EXTENSION_REPOSITORY",
             new=StaticPluginRepository(*self.get_configuration_keys()),
         )
+
+    async def test_enable(self) -> None:
+        sut = ExtensionConfigurationMapping()
+        sut.enable(DummyExtension)
+        assert sut[DummyExtension].enabled
+
+    async def test_update(self) -> None:
+        other = ExtensionConfigurationMapping()
+        other.enable(DummyExtension)
+        sut = ExtensionConfigurationMapping()
+        sut.update(other)
+        assert sut[DummyExtension].enabled
 
 
 class EntityTypeConfigurationTestEntityOne(UserFacingEntity, DummyEntity):
@@ -738,6 +829,18 @@ class TestEntityTypeConfiguration:
             "generate_html_list": False,
         }
         assert sut.dump() == expected
+
+    async def test_update(self) -> None:
+        other = EntityTypeConfiguration(
+            entity_type=EntityTypeConfigurationTestEntityOne,
+            generate_html_list=True,
+        )
+        sut = EntityTypeConfiguration(
+            entity_type=EntityTypeConfigurationTestEntityOther
+        )
+        sut.update(other)
+        assert sut.entity_type is EntityTypeConfigurationTestEntityOne
+        assert sut.generate_html_list
 
     @pytest.mark.parametrize(
         ("expected", "one", "other"),
@@ -857,9 +960,64 @@ class TestProjectConfiguration:
         sut.configuration_file_path = new_configuration_file_path
         assert sut.configuration_file_path == new_configuration_file_path
 
+    async def test_project_directory_path(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        assert sut.project_directory_path == tmp_path
+
+    async def test_output_directory_path(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        assert tmp_path in sut.output_directory_path.parents
+
+    async def test_assets_directory_path(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        assert tmp_path in sut.assets_directory_path.parents
+
+    async def test_www_directory_path(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        assert tmp_path in sut.www_directory_path.parents
+
+    async def test_localize_www_directory_path(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        assert tmp_path in sut.localize_www_directory_path(DEFAULT_LOCALE).parents
+
+    async def test_lifetime_threshold(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        sut.lifetime_threshold = 999
+        assert sut.lifetime_threshold == 999
+
+    async def test_locales(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        assert DEFAULT_LOCALE in sut.locales
+
+    async def test_extensions(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        assert len(sut.extensions) == 0
+
+    async def test_entity_types(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        assert len(sut.entity_types)
+
+    @pytest.mark.parametrize(
+        "debug",
+        [
+            True,
+            False,
+        ],
+    )
+    async def test_debug(self, debug: bool, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        sut.debug = debug
+        assert sut.debug == debug
+
+    async def test_title(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        title = "My First Betty Site"
+        sut.title = title
+        assert sut.title.localize(DEFAULT_LOCALIZER) == title
+
     async def test_name(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        name = "MyFirstBettySite"
+        name = "my-first-betty-site"
         sut.name = name
         assert sut.name == name
 
@@ -1194,6 +1352,42 @@ class TestProjectConfiguration:
         with raises_error(error_type=AssertionFailed):
             sut.load(dump)
 
+    async def test_update(self, tmp_path: Path) -> None:
+        url = "https://betty.example.com"
+        name = "my-first-betty-site"
+        title = "My First Betty Site"
+        author = "Bart Feenstra"
+        clean_urls = True
+        debug = True
+        lifetime_threshold = 99
+        locales = [LocaleConfiguration("nl-NL")]
+        extensions = [ExtensionConfiguration(DummyExtension)]
+        entity_types = [EntityTypeConfiguration(DummyEntity)]
+        other = ProjectConfiguration(
+            tmp_path / "other" / "betty.json",
+            url=url,
+            name=name,
+            title=title,
+            author=author,
+            clean_urls=clean_urls,
+            debug=debug,
+            lifetime_threshold=lifetime_threshold,
+            locales=locales,
+            extensions=extensions,
+            entity_types=entity_types,
+        )
+        sut = ProjectConfiguration(tmp_path / "sut" / "betty.json")
+        sut.update(other)
+        assert sut.url == url
+        assert sut.title.localize(DEFAULT_LOCALIZER) == title
+        assert sut.author.localize(DEFAULT_LOCALIZER) == author
+        assert sut.clean_urls == clean_urls
+        assert sut.debug == debug
+        assert sut.lifetime_threshold == lifetime_threshold
+        assert list(sut.locales.values()) == locales
+        assert list(sut.extensions.values()) == extensions
+        assert list(sut.entity_types.values()) == entity_types
+
 
 class _TrackerEvent(Event):
     def __init__(self, carrier: MutableSequence[_TrackableExtension]):
@@ -1526,6 +1720,15 @@ class TestProject:
             sut.url_generator  # noqa B018
 
     async def test_new_dependent(self, new_temporary_app: App) -> None:
+        class Dependent:
+            pass
+
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
+            sut.new_dependent(Dependent)
+
+    async def test_new_dependent_with_project_dependent_factory(
+        self, new_temporary_app: App
+    ) -> None:
         class Dependent(ProjectDependentFactory):
             def __init__(self, project: Project):
                 self.project = project
@@ -1586,6 +1789,19 @@ class TestProjectSchema(SchemaTestBase):
     )
     async def test_new(self, clean_urls: bool, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            schema = await ProjectSchema.new(project)
+            sut = await ProjectSchema.new(project)
         json_schema = await JsonSchemaSchema.new()
-        json_schema.validate(schema.schema)
+        json_schema.validate(sut.schema)
+
+    async def test_def_url(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            def_name = "myFirstDefinition"
+            assert def_name in ProjectSchema.def_url(project, def_name)
+
+    async def test_url(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            assert "http" in ProjectSchema.url(project)
+
+    async def test_www_path(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            assert str(ProjectSchema.www_path(project))
