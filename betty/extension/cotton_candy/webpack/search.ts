@@ -157,12 +157,12 @@ class Search {
 
   private renderResults (entries: IndexEntry[]) :string {
     return this.index.resultsContainerTemplate
-      .replace('<!-- betty-search-results -->', entries.map((entry) => this.renderResult(entry)).join(''))
+      .replace('{{{ betty-search-results }}}', entries.map((entry) => this.renderResult(entry)).join(''))
   }
 
   private renderResult (entry: IndexEntry) :string {
     return this.index.resultContainerTemplate
-      .replace('<!-- betty-search-result -->', entry.result)
+      .replace('{{{ betty-search-result }}}', entry.result)
   }
 }
 

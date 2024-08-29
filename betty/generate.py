@@ -177,6 +177,7 @@ async def _run_jobs(job_context: GenerationContext) -> AsyncIterator[Task[None]]
     project = job_context.project
     semaphore = Semaphore(512)
     yield _run_job(semaphore, _generate_dispatch, job_context)
+    yield _run_job(semaphore, _generate_robots_txt, job_context)
     yield _run_job(semaphore, _generate_sitemap, job_context)
     yield _run_job(semaphore, _generate_json_schema, job_context)
     yield _run_job(semaphore, _generate_openapi, job_context)
@@ -459,15 +460,64 @@ async def _generate_entity_json(
         await f.write(rendered_json)
 
 
+_ROBOTS_TXT_TEMPLATE = """Sitemap: {{{ sitemap }}}"""
+
+
+async def _generate_robots_txt(
+    job_context: GenerationContext,
+) -> None:
+    rendered_robots_txt = _ROBOTS_TXT_TEMPLATE.replace(
+        "{{{ sitemap }}}",
+        job_context.project.static_url_generator.generate(
+            "/sitemap.xml", absolute=True
+        ),
+    )
+    await to_thread(
+        job_context.project.configuration.www_directory_path.mkdir,
+        exist_ok=True,
+        parents=True,
+    )
+    async with aiofiles.open(
+        job_context.project.configuration.www_directory_path / "robots.txt", mode="w"
+    ) as f:
+        await f.write(rendered_robots_txt)
+
+
+_SITEMAP_URL_TEMPLATE = """<url>
+    <loc>{{{ loc }}}</loc>
+    <lastmod>{{{ lastmod }}}</lastmod>
+</url>
+"""
+
+
+_SITEMAP_BATCH_TEMPLATE = """<?xml version="1.0" encoding="utf-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+    {{{ urls }}}
+</urlset>
+"""
+
+
+_SITEMAP_SITEMAP_TEMPLATE = """<sitemap>
+    <loc>{{{ loc }}}</loc>
+</sitemap>
+"""
+
+
+_SITEMAP_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    {{{ sitemaps }}}
+</sitemapindex>
+"""
+
+
 async def _generate_sitemap(
     job_context: GenerationContext,
 ) -> None:
     project = job_context.project
-    sitemap_template = project.jinja2_environment.get_template("sitemap.xml.j2")
-    sitemaps = []
-    sitemap: MutableSequence[str] = []
-    sitemap_length = 0
-    sitemaps.append(sitemap)
+    sitemap_batches = []
+    sitemap_batch_urls: MutableSequence[str] = []
+    sitemap_batch_urls_length = 0
+    sitemap_batches.append(sitemap_batch_urls)
     for locale in project.configuration.locales:
         for entity in project.ancestry:
             if isinstance(entity.id, GeneratedEntityId):
@@ -475,7 +525,7 @@ async def _generate_sitemap(
             if not isinstance(entity, UserFacingEntity):
                 continue
 
-            sitemap.append(
+            sitemap_batch_urls.append(
                 project.url_generator.generate(
                     entity,
                     absolute=True,
@@ -483,44 +533,52 @@ async def _generate_sitemap(
                     media_type="text/html",
                 )
             )
-            sitemap_length += 1
+            sitemap_batch_urls_length += 1
 
-            if sitemap_length == 50_000:
-                sitemap = []
-                sitemap_length = 0
-                sitemaps.append(sitemap)
+            if sitemap_batch_urls_length == 50_000:
+                sitemap_batch_urls = []
+                sitemap_batch_urls_length = 0
+                sitemap_batches.append(sitemap_batch_urls)
 
-    sitemaps_urls = []
-    for index, sitemap in enumerate(sitemaps):
-        sitemaps_urls.append(
+    sitemap_urls = []
+    for sitemap_batch_index, sitemap_batch_urls in enumerate(sitemap_batches):
+        sitemap_urls.append(
             project.static_url_generator.generate(
-                f"/sitemap-{index}.xml",
+                f"/sitemap-{sitemap_batch_index}.xml",
                 absolute=True,
             )
         )
-        rendered_sitemap = await sitemap_template.render_async(
-            {
-                "job_context": job_context,
-                "urls": sitemap,
-            }
+        rendered_sitemap_batch = _SITEMAP_BATCH_TEMPLATE.replace(
+            "{{{ urls }}}",
+            "".join(
+                (
+                    _SITEMAP_URL_TEMPLATE.replace(
+                        "{{{ loc }}}", sitemap_batch_url
+                    ).replace("{{{ lastmod }}}", job_context.start.isoformat())
+                    for sitemap_batch_url in sitemap_batch_urls
+                )
+            ),
         )
         async with aiofiles.open(
-            project.configuration.www_directory_path / f"sitemap-{index}.xml", "w"
+            project.configuration.www_directory_path
+            / f"sitemap-{sitemap_batch_index}.xml",
+            "w",
         ) as f:
-            await f.write(rendered_sitemap)
+            await f.write(rendered_sitemap_batch)
 
-    rendered_sitemap_index = await project.jinja2_environment.get_template(
-        "sitemap-index.xml.j2"
-    ).render_async(
-        {
-            "job_context": job_context,
-            "sitemaps_urls": sitemaps_urls,
-        }
+    rendered_sitemap = _SITEMAP_TEMPLATE.replace(
+        "{{{ sitemaps }}}",
+        "".join(
+            (
+                _SITEMAP_SITEMAP_TEMPLATE.replace("{{{ loc }}}", sitemap_url)
+                for sitemap_url in sitemap_urls
+            )
+        ),
     )
     async with aiofiles.open(
         project.configuration.www_directory_path / "sitemap.xml", "w"
     ) as f:
-        await f.write(rendered_sitemap_index)
+        await f.write(rendered_sitemap)
 
 
 async def _generate_json_schema(

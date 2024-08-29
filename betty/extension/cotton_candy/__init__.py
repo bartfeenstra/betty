@@ -4,11 +4,12 @@ Provide Betty's default theme.
 
 from __future__ import annotations
 
+import json
 from collections import defaultdict
 from pathlib import Path
 from typing import Iterable, cast, TYPE_CHECKING, final
 
-from jinja2 import pass_context
+import aiofiles
 from typing_extensions import override
 
 from betty import fs
@@ -23,6 +24,7 @@ from betty.ancestry import (
 )
 from betty.ancestry.event_type import StartOfLifeEventType, EndOfLifeEventType
 from betty.ancestry.presence_role import Subject
+from betty.asyncio import gather
 from betty.extension.cotton_candy.config import CottonCandyConfiguration
 from betty.extension.cotton_candy.search import Index
 from betty.extension.maps import Maps
@@ -33,10 +35,6 @@ from betty.generate import GenerateSiteEvent
 from betty.html import CssProvider
 from betty.jinja2 import (
     Jinja2Provider,
-    context_project,
-    context_localizer,
-    context_job_context,
-    Globals,
     Filters,
 )
 from betty.locale.date import Date, Datey
@@ -49,8 +47,20 @@ if TYPE_CHECKING:
     from betty.plugin import PluginIdentifier
     from betty.event_dispatcher import EventHandlerRegistry
     from betty.machine_name import MachineName
-    from jinja2.runtime import Context
-    from collections.abc import Sequence, AsyncIterable, Mapping
+    from collections.abc import Sequence
+
+_RESULT_CONTAINER_TEMPLATE = """
+<li class="search-result">
+    {{{ betty-search-result }}}
+</li>
+"""
+
+
+_RESULTS_CONTAINER_TEMPLATE = """
+<ul id="search-results" class="nav-secondary">
+    {{{ betty-search-results }}}
+</ul>
+"""
 
 
 async def _generate_favicon(event: GenerateSiteEvent) -> None:
@@ -58,6 +68,38 @@ async def _generate_favicon(event: GenerateSiteEvent) -> None:
     await link_or_copy(
         cotton_candy.logo, event.project.configuration.www_directory_path / "logo.png"
     )
+
+
+async def _generate_search_index(event: GenerateSiteEvent) -> None:
+    await gather(
+        *(
+            _generate_search_index_for_locale(event, locale)
+            for locale in event.project.configuration.locales
+        )
+    )
+
+
+async def _generate_search_index_for_locale(
+    event: GenerateSiteEvent, locale: str
+) -> None:
+    localizer = await event.project.localizers.get(locale)
+    search_index = {
+        "resultContainerTemplate": _RESULT_CONTAINER_TEMPLATE,
+        "resultsContainerTemplate": _RESULTS_CONTAINER_TEMPLATE,
+        "index": [
+            entry
+            async for entry in Index(
+                event.project, event.job_context, localizer
+            ).build()
+        ],
+    }
+    search_index_json = json.dumps(search_index)
+    async with aiofiles.open(
+        event.project.configuration.localize_www_directory_path(locale)
+        / "search-index.json",
+        mode="w",
+    ) as f:
+        await f.write(search_index_json)
 
 
 @final
@@ -79,7 +121,9 @@ class CottonCandy(
 
     @override
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
-        registry.add_handler(GenerateSiteEvent, _generate_favicon)
+        registry.add_handler(
+            GenerateSiteEvent, _generate_favicon, _generate_search_index
+        )
 
     @override
     @classmethod
@@ -145,13 +189,6 @@ class CottonCandy(
 
     @override
     @property
-    def globals(self) -> Globals:
-        return {
-            "search_index": _global_search_index,
-        }
-
-    @override
-    @property
     def filters(self) -> Filters:
         return {
             "person_timeline_events": lambda person: person_timeline_events(
@@ -160,15 +197,6 @@ class CottonCandy(
             "person_descendant_families": person_descendant_families,
             "associated_file_references": associated_file_references,
         }
-
-
-@pass_context
-async def _global_search_index(context: Context) -> AsyncIterable[Mapping[str, str]]:
-    return Index(
-        context_project(context),
-        context_job_context(context),
-        context_localizer(context),
-    ).build()
 
 
 def _is_person_timeline_presence(presence: Presence) -> bool:

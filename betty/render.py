@@ -10,6 +10,7 @@ from typing import final, TYPE_CHECKING
 from typing_extensions import override
 
 from betty.plugin.entry_point import EntryPointPluginRepository
+from betty.typing import internal
 
 if TYPE_CHECKING:
     from betty.plugin import PluginRepository, Plugin
@@ -21,11 +22,7 @@ if TYPE_CHECKING:
 
 class Renderer(ABC):
     """
-    Define a (file) content renderer.
-
-    Renderers can be implemented for a variety of purposes:
-    - invoking templating engines
-    - file conversions
+    Render content to HTML.
 
     Read more about :doc:`/development/plugin/renderer`.
     """
@@ -65,6 +62,7 @@ Read more about :doc:`/development/plugin/renderer`.
 """
 
 
+@internal
 @final
 class SequentialRenderer(Renderer):
     """
@@ -93,12 +91,11 @@ class SequentialRenderer(Renderer):
         localizer: Localizer | None = None,
     ) -> Path:
         for renderer in self._renderers:
-            if file_path.suffix in renderer.file_extensions:
-                return await self.render_file(
-                    await renderer.render_file(
+            for renderer_file_extension in renderer.file_extensions:
+                if file_path.suffix.endswith(renderer_file_extension):
+                    return await renderer.render_file(
                         file_path,
                         job_context=job_context,
                         localizer=localizer,
                     )
-                )
         return file_path
