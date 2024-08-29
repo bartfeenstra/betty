@@ -16,7 +16,7 @@ class DummyLocalized(Localized):
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Localized):
-            return NotImplemented
+            return NotImplemented  # pragma: no cover
         return self.locale == other.locale
 
     def __repr__(self) -> str:

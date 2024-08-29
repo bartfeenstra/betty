@@ -97,7 +97,7 @@ class TestRequirementCollection:
 
 class _RequirementCollection(RequirementCollection):
     async def is_met(self) -> bool:
-        return True
+        return True  # pragma: no cover
 
     async def summary(self) -> Localizable:
         return static("Lorem ipsum")
