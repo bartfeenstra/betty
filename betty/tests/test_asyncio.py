@@ -1,4 +1,4 @@
-from betty.asyncio import wait_to_thread
+from betty.asyncio import wait_to_thread, make_async
 
 
 class TestWaitToThread:
@@ -10,3 +10,13 @@ class TestWaitToThread:
 
         actual = wait_to_thread(_async())
         assert actual == expected
+
+
+class TestMakeAsync:
+    async def test(self) -> None:
+        sentinel = object()
+
+        def sync() -> object:
+            return sentinel
+
+        assert await make_async(sync)() is sentinel

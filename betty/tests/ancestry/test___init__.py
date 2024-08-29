@@ -45,6 +45,7 @@ from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.date import Date, DateRange
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
+from betty.media_type.media_types import HTML
 from betty.model.association import OneToOne
 from betty.project import Project
 from betty.test_utils.ancestry import (
@@ -642,7 +643,7 @@ class TestLink:
             label="The Link",
             relationship="external",
             locale="nl-NL",
-            media_type=MediaType("text/html"),
+            media_type=HTML,
         )
         expected: Mapping[str, Any] = {
             "url": "https://example.com",

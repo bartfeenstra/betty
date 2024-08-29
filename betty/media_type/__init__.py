@@ -23,6 +23,14 @@ class InvalidMediaType(ValueError):
     pass  # pragma: no cover
 
 
+class UnsupportedMediaType(ValueError):
+    """
+    Raised when a media type is not supported.
+    """
+
+    pass  # pragma: no cover
+
+
 @final
 class MediaType:
     """
@@ -33,8 +41,11 @@ class MediaType:
 
     _suffix: str | None
 
-    def __init__(self, media_type: str):
+    def __init__(
+        self, media_type: str, *, file_extensions: Sequence[str] | None = None
+    ):
         self._str = media_type
+        self._file_extensions = file_extensions or ()
         message = EmailMessage()
         message["Content-Type"] = media_type
         type_part = message.get_content_type()
@@ -106,6 +117,23 @@ class MediaType:
             self.suffix,
             other.parameters,
         )
+
+    @property
+    def file_extensions(self) -> Sequence[str]:
+        """
+        The file extensions associated with this media type.
+        """
+        return list(self._file_extensions)
+
+    @property
+    def preferred_file_extension(self) -> str:
+        """
+        The preferred extension for files containing content of this media type.
+        """
+        try:
+            return self.file_extensions[0]
+        except IndexError:
+            return ""
 
 
 @final

@@ -53,7 +53,7 @@ from betty.project.extension import (
     Theme,
 )
 from betty.project.factory import ProjectDependentFactory
-from betty.render import Renderer, SequentialRenderer, RENDERER_REPOSITORY
+from betty.render import Renderer, ProxyRenderer, RENDERER_REPOSITORY
 from betty.string import kebab_case_to_lower_camel_case
 from betty.typing import internal
 
@@ -236,7 +236,7 @@ class Project(Configurable[ProjectConfiguration], DependentFactory[Any], CoreCom
         return self._renderer
 
     async def _init_renderer(self) -> Renderer:
-        return SequentialRenderer(
+        return ProxyRenderer(
             [await self.new(plugin) for plugin in await RENDERER_REPOSITORY.select()]
         )
 

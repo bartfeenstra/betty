@@ -41,6 +41,7 @@ from betty.locale.error import LocaleError
 from betty.locale.localizable import plain
 from betty.locale.localized import Localized
 from betty.media_type import MediaType
+from betty.media_type.media_types import HTML
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -431,7 +432,7 @@ class _Populator:
         if link.url.startswith("http:"):
             link.url = "https:" + link.url[5:]
         if link.media_type is None:
-            link.media_type = MediaType("text/html")
+            link.media_type = HTML
         if link.relationship is None:
             link.relationship = "external"
         if link.locale is UNDETERMINED_LOCALE:
@@ -515,7 +516,7 @@ class _Populator:
                                 "Find out more about this image on Wikimedia Commons."
                             ),
                             locale=locale_configuration.locale,
-                            media_type=MediaType("text/html"),
+                            media_type=HTML,
                         )
                     )
                 file = File(

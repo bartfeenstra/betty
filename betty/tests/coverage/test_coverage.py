@@ -421,10 +421,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "npgettext": TestKnownToBeMissing,
         "pgettext": TestKnownToBeMissing,
     },
-    "betty/media_type.py": {
+    "betty/media_type/__init__.py": {
         # This is an empty class.
         "InvalidMediaType": TestKnownToBeMissing,
+        # This is an empty class.
+        "UnsupportedMediaType": TestKnownToBeMissing,
     },
+    # These are static definitions.
+    "betty/media_type/media_types.py": TestKnownToBeMissing,
     "betty/model/__init__.py": {
         "unalias": TestKnownToBeMissing,
         "AliasedEntity": TestKnownToBeMissing,
@@ -551,7 +555,16 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     # This contains a single abstract class.
     "betty/project/factory.py": TestKnownToBeMissing,
-    "betty/render.py": TestKnownToBeMissing,
+    "betty/render.py": {
+        "Renderer": {
+            # This is an abstract method.
+            "media_types": TestKnownToBeMissing,
+            # This is an abstract method.
+            "render": TestKnownToBeMissing,
+        },
+        # This is an empty class.
+        "RendererPlugin": TestKnownToBeMissing,
+    },
     "betty/requirement.py": {
         "Requirement": {
             "details": TestKnownToBeMissing,

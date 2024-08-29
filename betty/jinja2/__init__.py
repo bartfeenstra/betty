@@ -9,11 +9,20 @@ from collections import defaultdict
 from collections.abc import (
     Mapping,
 )
+from pathlib import Path
 from threading import Lock
-from typing import Callable, Any, cast, TYPE_CHECKING, TypeAlias, final, Awaitable, Self
+from typing import (
+    Callable,
+    Any,
+    cast,
+    TYPE_CHECKING,
+    TypeAlias,
+    final,
+    Awaitable,
+    Self,
+)
 
 import aiofiles
-from aiofiles import os as aiofiles_os
 from jinja2 import (
     Environment as Jinja2Environment,
     select_autoescape,
@@ -24,7 +33,7 @@ from jinja2 import (
 from jinja2.runtime import StrictUndefined, Context, DebugUndefined
 from typing_extensions import override
 
-from betty import model
+from betty import model, job
 from betty.asyncio import wait_to_thread
 from betty.html import CssProvider, JsProvider
 from betty.jinja2.filter import FILTERS
@@ -34,20 +43,20 @@ from betty.locale.date import Date
 from betty.locale.localizable import Localizable, plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizer import Localizer
-from betty.plugin import Plugin
+from betty.media_type.media_types import JINJA2_HTML, HTML
 from betty.project.factory import ProjectDependentFactory
-from betty.render import Renderer
+from betty.render import RendererPlugin, MediaTypeIndicator
 from betty.serde.dump import Dumpable, DumpMapping, VoidableDump, Dump
 from betty.typing import Void
 
 if TYPE_CHECKING:
+    from betty.media_type import MediaType
     from betty.machine_name import MachineName
     from betty.model import Entity
     from betty.project.extension import Extension
     from betty.project import Project
     from betty.project.config import ProjectConfiguration
     from betty.ancestry import Citation
-    from pathlib import Path
     from collections.abc import (
         MutableMapping,
         Iterator,
@@ -397,7 +406,7 @@ class Environment(Jinja2Environment):
 
 
 @final
-class Jinja2Renderer(Renderer, ProjectDependentFactory, Plugin):
+class Jinja2Renderer(RendererPlugin, ProjectDependentFactory):
     """
     Render content as Jinja2 templates.
     """
@@ -423,41 +432,49 @@ class Jinja2Renderer(Renderer, ProjectDependentFactory, Plugin):
 
     @override
     @property
-    def file_extensions(self) -> set[str]:
-        return {".j2"}
+    def media_types(self) -> Mapping[MediaType, MediaType]:
+        return {JINJA2_HTML: HTML}
 
     @override
-    async def render_file(
+    async def render(
         self,
-        file_path: Path,
+        content: str,
+        media_type_indicator: MediaTypeIndicator,
         *,
-        job_context: JobContext | None = None,
+        job_context: job.Context | None = None,
         localizer: Localizer | None = None,
-    ) -> Path:
-        destination_file_path = file_path.parent / file_path.stem
+    ) -> tuple[str, MediaType, MediaType]:
+        self.assert_to_media_type(media_type_indicator)
         data: MutableMapping[str, Any] = {}
         if job_context is not None:
             data["job_context"] = job_context
         if localizer is not None:
             data["localizer"] = localizer
-        try:
-            relative_file_destination_path = destination_file_path.relative_to(
-                self._configuration.www_directory_path
-            )
-        except ValueError:
-            pass
+        if isinstance(media_type_indicator, str):
+            template_file_name = media_type_indicator
+        elif isinstance(media_type_indicator, Path):
+            try:
+                relative_file_destination_path = media_type_indicator.relative_to(
+                    self._configuration.www_directory_path
+                )
+            except ValueError:
+                pass
+            else:
+                resource = "/".join(relative_file_destination_path.parts)
+                if self._configuration.locales.multilingual:
+                    resource_parts = resource.lstrip("/").split("/")
+                    if resource_parts[0] in (
+                        x.alias for x in self._configuration.locales.values()
+                    ):
+                        resource = "/".join(resource_parts[1:])
+                data["page_resource"] = f"/{resource}"
+            template_file_name = str(media_type_indicator.expanduser().resolve())
+
         else:
-            resource = "/".join(relative_file_destination_path.parts)
-            if self._configuration.locales.multilingual:
-                resource_parts = resource.lstrip("/").split("/")
-                if resource_parts[0] in (
-                    x.alias for x in self._configuration.locales.values()
-                ):
-                    resource = "/".join(resource_parts[1:])
-            data["page_resource"] = f"/{resource}"
-        template = await self._environment.from_file(file_path)
+            template_file_name = None
+        template_code = self._environment.compile(content, filename=template_file_name)
+        template = self._environment.template_class.from_code(
+            self._environment, template_code, self._environment.globals
+        )
         rendered = await template.render_async(data)
-        async with aiofiles.open(destination_file_path, "w", encoding="utf-8") as f:
-            await f.write(rendered)
-        await aiofiles_os.remove(file_path)
-        return destination_file_path
+        return rendered, JINJA2_HTML, HTML

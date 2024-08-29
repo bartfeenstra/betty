@@ -237,6 +237,12 @@ class TestMediaType:
     ) -> None:
         assert MediaType(media_type).type == expected
 
+    def test_file_extensions(self) -> None:
+        raise AssertionError
+
+    def test_preferred_file_extension(self) -> None:
+        raise AssertionError
+
 
 class TestMediaTypeSchema(SchemaTestBase):
     @override

@@ -13,9 +13,17 @@ from typing import (
     cast,
     Coroutine,
     Any,
+    ParamSpec,
+    TYPE_CHECKING,
 )
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+
 _T = TypeVar("_T")
+_U = TypeVar("_U")
+_V = TypeVar("_V")
 
 
 async def gather(*coroutines: Coroutine[Any, None, _T]) -> tuple[_T, ...]:
@@ -64,3 +72,20 @@ class _WaiterThread(Thread, Generic[_T]):
             # Store the exception, so it can be reraised when the calling thread
             # gets self.return_value.
             self._e = e
+
+
+_P = ParamSpec("_P")
+
+
+def make_async(f: Callable[_P, _T]) -> Callable[_P, Awaitable[_T]]:
+    """
+    Make the given callable asynchronous.
+
+    The returned callable will have an identical signature, except that the return value
+    will be wrapped in an awaitable.
+    """
+
+    async def _make_async(*args: _P.args, **kwargs: _P.kwargs) -> _T:
+        return f(*args, **kwargs)
+
+    return _make_async
