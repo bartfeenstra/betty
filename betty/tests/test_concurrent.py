@@ -10,24 +10,8 @@ from betty.concurrent import (
     RateLimiter,
     asynchronize_acquire,
     AsynchronizedLock,
-    Lock,
 )
-
-
-class DummyLock(Lock):
-    def __init__(self, acquire: bool):
-        self._acquire = acquire
-
-    async def acquire(self, *, wait: bool = True) -> bool:
-        if not wait:
-            return self._acquire
-        if self._acquire:
-            return True
-        await sleep(999999999)
-        return False
-
-    async def release(self) -> None:
-        pass
+from betty.test_utils.concurrent import DummyLock
 
 
 class TestLock:

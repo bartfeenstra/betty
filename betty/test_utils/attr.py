@@ -89,11 +89,11 @@ class MutableAttrTestBase(
         """
         try:
             self.assert_eq(get_value, set_value)
-            raise AssertionError(
+            raise AssertionError(  # pragma: no cover
                 f"get value {get_value} and set value {set_value} were unexpectedly equal"
             )
         except AssertionError:
-            pass
+            return
 
     async def test___set__(self) -> None:
         """

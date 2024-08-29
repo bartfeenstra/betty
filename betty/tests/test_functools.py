@@ -62,9 +62,6 @@ class TestDo:
     async def _do_raise_exception(self) -> int:
         raise self._DoException
 
-    def _condition_success(self, result: int) -> None:
-        return None
-
     def _condition_raise_exception(self, result: int) -> None:
         raise self._ConditionException
 

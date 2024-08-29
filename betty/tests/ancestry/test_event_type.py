@@ -2,18 +2,91 @@ from __future__ import annotations
 
 from typing_extensions import override
 
-from betty.locale.date import Date
 from betty.ancestry import Person, Presence, Event
-from betty.ancestry.event_type import Death, Birth
+from betty.ancestry.event_type import (
+    Death,
+    Birth,
+    Adoption,
+    Baptism,
+    Burial,
+    Conference,
+    Confirmation,
+    Correspondence,
+    Cremation,
+    Divorce,
+    DivorceAnnouncement,
+    Emigration,
+    Engagement,
+    EventType,
+    Funeral,
+    Immigration,
+    Marriage,
+    MarriageAnnouncement,
+    Missing,
+    Occupation,
+    Residence,
+    Retirement,
+    UnknownEventType,
+    Will,
+)
 from betty.ancestry.presence_role import Subject
+from betty.locale.date import Date
 from betty.test_utils.ancestry.event_type import EventTypeTestBase
 
 _LIFETIME_THRESHOLD = 125
 
 
+class TestAdoption(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return Adoption
+
+
+class TestBaptism(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return Baptism
+
+
+class TestBirth(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return Birth
+
+
+class TestBurial(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return Burial
+
+
+class TestConference(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return Conference
+
+
+class TestConfirmation(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return Confirmation
+
+
+class TestCorrespondence(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return Correspondence
+
+
+class TestCremation(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return Cremation
+
+
 class TestDeath(EventTypeTestBase):
     @override
-    def get_sut_class(self) -> type[Death]:
+    def get_sut_class(self) -> type[EventType]:
         return Death
 
     async def test_may_create_may_not_for_person_without_presences(self) -> None:
@@ -46,3 +119,87 @@ class TestDeath(EventTypeTestBase):
         )
 
         assert Death.may_create(person, _LIFETIME_THRESHOLD) is True
+
+
+class TestDivorce(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return Divorce
+
+
+class TestDivorceAnnouncement(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return DivorceAnnouncement
+
+
+class TestEmigration(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return Emigration
+
+
+class TestEngagement(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return Engagement
+
+
+class TestFuneral(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return Funeral
+
+
+class TestImmigration(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return Immigration
+
+
+class TestMarriage(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return Marriage
+
+
+class TestMarriageAnnouncement(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return MarriageAnnouncement
+
+
+class TestMissing(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return Missing
+
+
+class TestOccupation(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return Occupation
+
+
+class TestResidence(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return Residence
+
+
+class TestRetirement(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return Retirement
+
+
+class TestUnknownEventType(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return UnknownEventType
+
+
+class TestWill(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return Will

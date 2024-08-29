@@ -4,6 +4,7 @@ concurrency =
     multiprocessing
     thread
 omit =
+    betty/_bootstrap.py
     betty/_package/**
 parallel = True
 source = betty
@@ -17,6 +18,7 @@ exclude_also =
     @overload
     raise NotImplementedError
 omit =
+    betty/_bootstrap.py
     betty/_package/**
 show_missing = True
 skip_covered = True

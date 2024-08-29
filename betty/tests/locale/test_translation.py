@@ -18,7 +18,7 @@ class TestPotFile(PotFileTestBase):
 
     @override
     def command(self) -> str:
-        return "betty dev-update-translations"
+        return "betty dev-update-translations"  # pragma: no cover
 
     @override
     async def update_translations(
