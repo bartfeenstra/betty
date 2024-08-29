@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    'setuptools ~= 72.1',
+    'setuptools ~= 74.0',
 ]
 build-backend = 'setuptools.build_meta'
 
@@ -174,7 +174,7 @@ test = [
     'types-polib ~= 1.2',
     'types-pyyaml ~= 6.0',
     'types-requests ~= 2.32',
-    'types-setuptools ~= 71.0',
+    'types-setuptools ~= 73.0',
     'virtualenv ~= 20.26',
     'betty[setuptools]',
 ]
