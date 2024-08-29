@@ -34,13 +34,13 @@ from betty.openapi import Specification
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
-    from betty.generate.pool import _GenerationProcessPool
+    from betty.job.pool import Pool
     from betty.serde.dump import DumpMapping, Dump
     from betty.project import Project
 
 
 async def _generate_delegate(
-    project: Project, process_pool: _GenerationProcessPool
+    project: Project, process_pool: Pool
 ) -> None:
     process_pool.delegate(_generate_dispatch)
     process_pool.delegate(_generate_sitemap)

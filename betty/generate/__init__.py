@@ -14,6 +14,7 @@ from pathlib import Path
 from aiofiles.os import makedirs
 
 from betty.job import Context
+from betty.job.pool import Pool
 from betty.project import Project
 from betty.project import ProjectEvent
 
@@ -56,7 +57,6 @@ async def generate(project: Project) -> None:
     """
     Generate a new site.
     """
-    from betty.generate.pool import _GenerationProcessPool
     from betty.generate.task import _generate_delegate, _generate_static_public
 
     logger = logging.getLogger(__name__)
@@ -82,7 +82,7 @@ async def generate(project: Project) -> None:
     # @todo That way workers can boot up the App/Project environment while
     # @todo we continue with things like static assets here.
     # @todo
-    async with _GenerationProcessPool(project) as process_pool:
+    async with Pool(project) as process_pool:
         await _generate_delegate(project, process_pool)
 
     project.configuration.output_directory_path.chmod(0o755)

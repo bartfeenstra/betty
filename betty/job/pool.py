@@ -175,6 +175,7 @@ class _PoolWorker:
         *,
         pickled_app: bytes,
         pickled_reduced_project: bytes,
+        pickled_job_context: bytes,
     ):
         self._task_queue = task_queue
         self._cancel = cancel
@@ -183,6 +184,7 @@ class _PoolWorker:
         self._async_concurrency = async_concurrency
         self._pickled_app = pickled_app
         self._pickled_reduced_project = pickled_reduced_project
+        self._pickled_job_context = pickled_job_context
 
     def __call__(self) -> None:
         if self._setup is not None:
@@ -192,6 +194,9 @@ class _PoolWorker:
     async def _perform_tasks_concurrently(self) -> None:
         app = pickle.loads(self._pickled_app)
         reduced_project = pickle.loads(self._pickled_reduced_project)
+        # @todo To
+        # @todo
+        # @todo
         async with app, reduced_project(app) as project:
             # @todo Allow contexts to be pickled
             # @todo GenerationContext (and in the future maybe Load and PostLoad contexts) as well as Extension
