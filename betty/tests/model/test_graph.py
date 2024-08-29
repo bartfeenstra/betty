@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pickle
+
 import pytest
 
 from betty.model import AliasedEntity, AliasableEntity, Entity, unalias
@@ -12,7 +14,7 @@ from betty.model.association import (
     ManyToMany,
 )
 from betty.model.collections import MultipleTypesEntityCollection
-from betty.model.graph import EntityGraphBuilder
+from betty.model.graph import EntityGraphBuilder, PickleableEntityGraph
 from betty.test_utils.model import DummyEntity
 
 
@@ -420,3 +422,38 @@ class TestEntityGraphBuilder:
         )
         assert unaliased_many_to_many_right in unaliased_many_to_many_left.to_many
         assert unaliased_many_to_many_left in unaliased_many_to_many_right.to_many
+
+
+class TestPickleableEntityGraph:
+    def test_without_entities(self) -> None:
+        sut = PickleableEntityGraph()
+        unpickled_entities = list(pickle.loads(pickle.dumps(sut)).build())
+        assert len(unpickled_entities) == 0
+
+    def test_with_one_entity(self) -> None:
+        entity = DummyEntity()
+        sut = PickleableEntityGraph(entity)
+        unpickled_entities = list(pickle.loads(pickle.dumps(sut)).build())
+        assert len(unpickled_entities) == 1
+
+    def test_with_multiple_one_to_one_associated_entities(self) -> None:
+        left = _EntityGraphBuilder_OneToOne_Left()
+        right = _EntityGraphBuilder_OneToOne_Right()
+        left.to_one = right
+        sut = PickleableEntityGraph(left, right)
+        unpickled_entities = list(pickle.loads(pickle.dumps(sut)).build())
+        assert len(unpickled_entities) == 2
+        unpickled_left, unpickled_right = unpickled_entities
+        assert unpickled_left.to_one is unpickled_right
+        assert unpickled_right.to_one is unpickled_left
+
+    def test_with_multiple_many_to_many_associated_entities(self) -> None:
+        left = _EntityGraphBuilder_ManyToMany_Left()
+        right = _EntityGraphBuilder_ManyToMany_Right()
+        left.to_many = [right]
+        sut = PickleableEntityGraph(left, right)
+        unpickled_entities = list(pickle.loads(pickle.dumps(sut)).build())
+        assert len(unpickled_entities) == 2
+        unpickled_left, unpickled_right = unpickled_entities
+        assert unpickled_left in unpickled_right.to_many
+        assert unpickled_right in unpickled_left.to_many

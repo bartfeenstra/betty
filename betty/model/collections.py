@@ -41,9 +41,6 @@ class EntityCollection(Generic[_TargetT], ABC):
 
     __slots__ = ()
 
-    def __init__(self):
-        super().__init__()
-
     def _on_add(self, *entities: _TargetT & Entity) -> None:
         pass
 

@@ -3,6 +3,7 @@ Provide utilities for concurrent programming.
 """
 
 import asyncio
+import multiprocessing
 import threading
 import time
 from abc import ABC, abstractmethod
@@ -77,6 +78,13 @@ class AsynchronizedLock(Lock):
     @override
     async def release(self) -> None:
         self._lock.release()
+
+    @classmethod
+    def multiprocessing(cls) -> Self:
+        """
+        Create a new multiprocessing-safe, asynchronous lock.
+        """
+        return cls(multiprocessing.Manager().Lock())
 
     @classmethod
     def threading(cls) -> Self:

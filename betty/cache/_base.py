@@ -82,8 +82,13 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
     ):
         self._scopes = scopes or ()
         self._scoped_caches: MutableMapping[str, Self] = {}
-        self._cache_lock = AsynchronizedLock.threading()
-        self._cache_items_locked: MutableMapping[str, bool] = defaultdict(lambda: False)
+        self._cache_lock = AsynchronizedLock.multiprocessing()
+        self._cache_items_locked: MutableMapping[str, bool] = defaultdict(
+            self._default_cache_item_locked
+        )
+
+    def _default_cache_item_locked(self) -> bool:
+        return False
 
     def _cache_item_lock(self, cache_item_id: str, *, wait: bool = True) -> Lock:
         return _CacheItemLock(

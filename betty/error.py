@@ -21,6 +21,9 @@ class UserFacingError(Exception, Localizable):
     """
 
     def __init__(self, message: Localizable):
+        """
+        :arg message: The message **MUST** be pickleable.
+        """
         from betty.locale.localizer import DEFAULT_LOCALIZER
 
         super().__init__(
@@ -28,6 +31,9 @@ class UserFacingError(Exception, Localizable):
             message.localize(DEFAULT_LOCALIZER),
         )
         self._localizable_message = message
+
+    def __reduce__(self) -> tuple[type[Self], tuple[Localizable]]:
+        return type(self), (self._localizable_message,)
 
     def __str__(self) -> str:
         from betty.locale.localizer import DEFAULT_LOCALIZER

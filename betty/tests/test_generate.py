@@ -2,8 +2,7 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 
 import aiofiles
-from pytest_mock import MockerFixture
-
+from betty import model
 from betty.ancestry import Person, Place, Source, Name, File, Event, Citation
 from betty.ancestry.event_type import Birth
 from betty.app import App
@@ -20,10 +19,15 @@ from betty.project import (
 from betty.string import camel_case_to_kebab_case, kebab_case_to_lower_camel_case
 from betty.test_utils.assets.templates import assert_betty_html, assert_betty_json
 from betty.test_utils.model import DummyEntity
+from pytest_mock import MockerFixture
 
 
 class ThirdPartyEntity(UserFacingEntity, DummyEntity):
     pass
+
+
+def _worker_setup() -> None:
+    model.ENTITY_TYPE_REPOSITORY = StaticPluginRepository(ThirdPartyEntity)
 
 
 class TestGenerate:
@@ -197,6 +201,7 @@ class TestGenerate:
             "betty.model.ENTITY_TYPE_REPOSITORY",
             new=StaticPluginRepository(ThirdPartyEntity),
         )
+        mocker.patch("betty.generate.pool.worker_setup", _worker_setup)
         async with App.new_temporary() as app, app, Project.new_temporary(
             app
         ) as project:

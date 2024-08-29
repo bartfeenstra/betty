@@ -4,19 +4,20 @@ from __future__ import annotations
 
 from concurrent.futures import Executor, ProcessPoolExecutor
 from contextlib import asynccontextmanager
-from multiprocessing import get_context
 from os import environ
 from pathlib import Path
 from typing import TYPE_CHECKING, Self, Any, final
 
 import aiohttp
 from aiofiles.tempfile import TemporaryDirectory
+
 from betty import fs
 from betty.app import config
 from betty.app.config import AppConfiguration
 from betty.assets import AssetRepository
 from betty.asyncio import wait_to_thread
 from betty.cache.file import BinaryFileCache, PickledFileCache
+from betty.cache.memory import MemoryCache
 from betty.cache.no_op import NoOpCache
 from betty.config import Configurable, assert_configuration_file
 from betty.core import CoreComponent
@@ -26,6 +27,7 @@ from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizer import Localizer, LocalizerRepository
 
 if TYPE_CHECKING:
+    from betty.serde.dump import Dump
     from betty.cache import Cache
     from collections.abc import AsyncIterator, Callable
 
@@ -38,10 +40,10 @@ class App(Configurable[AppConfiguration], CoreComponent):
 
     def __init__(
         self,
-        configuration: AppConfiguration,
-        cache_directory_path: Path,
         *,
-        cache_factory: Callable[[Self], Cache[Any]],
+        configuration: AppConfiguration,
+        cache: Cache[Any],
+        binary_file_cache: BinaryFileCache,
     ):
         super().__init__()
         self._configuration = configuration
@@ -51,11 +53,42 @@ class App(Configurable[AppConfiguration], CoreComponent):
         self._localizers: LocalizerRepository | None = None
         self._http_client: aiohttp.ClientSession | None = None
         self._fetcher: Fetcher | None = None
-        self._cache_directory_path = cache_directory_path
-        self._cache: Cache[Any] | None = None
-        self._cache_factory = cache_factory
-        self._binary_file_cache: BinaryFileCache | None = None
+        self._cache = cache
+        self._binary_file_cache = binary_file_cache
         self._process_pool: Executor | None = None
+
+    def __reduce__(
+        self,
+    ) -> tuple[
+        Callable[[Dump, Path, Cache[Any], BinaryFileCache], Self],
+        tuple[Dump, Path, Cache[Any], BinaryFileCache],
+    ]:
+        return self._unreduce, (  # type: ignore[return-value]
+            self.configuration.dump(),
+            self._cache,
+            self._binary_file_cache,
+        )
+
+    # @todo
+    @staticmethod
+    def _unreduce_cache_factory(app: App) -> Cache[Any]:
+        return MemoryCache()
+
+    @classmethod
+    def _unreduce(
+        cls,
+        configuration_dump: Dump,
+        cache: Cache[Any],
+        binary_file_cache: BinaryFileCache,
+        /,
+    ) -> Self:
+        configuration = AppConfiguration()
+        configuration.load(configuration_dump)
+        return cls(
+            configuration=configuration,
+            cache=cache,
+            binary_file_cache=binary_file_cache,
+        )
 
     @classmethod
     @asynccontextmanager
@@ -66,10 +99,13 @@ class App(Configurable[AppConfiguration], CoreComponent):
         configuration = AppConfiguration()
         if config.CONFIGURATION_FILE_PATH.exists():
             assert_configuration_file(configuration)(config.CONFIGURATION_FILE_PATH)
+        cache_directory_path = Path(
+            environ.get("BETTY_CACHE_DIRECTORY", HOME_DIRECTORY_PATH / "cache")
+        )
         yield cls(
-            configuration,
-            Path(environ.get("BETTY_CACHE_DIRECTORY", HOME_DIRECTORY_PATH / "cache")),
-            cache_factory=lambda app: PickledFileCache[Any](app._cache_directory_path),
+            configuration=configuration,
+            cache=PickledFileCache[Any](cache_directory_path),
+            binary_file_cache=BinaryFileCache(cache_directory_path),
         )
 
     @classmethod
@@ -85,9 +121,9 @@ class App(Configurable[AppConfiguration], CoreComponent):
             TemporaryDirectory() as cache_directory_path_str,
         ):
             yield cls(
-                AppConfiguration(),
-                Path(cache_directory_path_str),
-                cache_factory=lambda app: NoOpCache(),
+                configuration=AppConfiguration(),
+                cache=NoOpCache(),
+                binary_file_cache=BinaryFileCache(Path(cache_directory_path_str)),
             )
 
     @property
@@ -161,9 +197,6 @@ class App(Configurable[AppConfiguration], CoreComponent):
         """
         The cache.
         """
-        if self._cache is None:
-            self._assert_bootstrapped()
-            self._cache = self._cache_factory(self)
         return self._cache
 
     @property
@@ -171,9 +204,6 @@ class App(Configurable[AppConfiguration], CoreComponent):
         """
         The binary file cache.
         """
-        if self._binary_file_cache is None:
-            self._assert_bootstrapped()
-            self._binary_file_cache = BinaryFileCache(self._cache_directory_path)
         return self._binary_file_cache
 
     @property
@@ -185,7 +215,5 @@ class App(Configurable[AppConfiguration], CoreComponent):
         """
         if self._process_pool is None:
             self._assert_bootstrapped()
-            # Avoid `fork` so as not to start worker processes with unneeded resources.
-            # Settle for `spawn` so all environments use the same start method.
-            self._process_pool = ProcessPoolExecutor(mp_context=get_context("spawn"))
+            self._process_pool = ProcessPoolExecutor()
         return self._process_pool

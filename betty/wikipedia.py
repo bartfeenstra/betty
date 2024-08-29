@@ -337,6 +337,7 @@ class _Populator:
         self._project = project
         self._retriever = retriever
         self._image_files: MutableMapping[Image, File] = {}
+        # @todo Does this need to be a multiprocessing-safe lock?
         self._image_files_locks: Mapping[Image, Lock] = defaultdict(
             AsynchronizedLock.threading
         )

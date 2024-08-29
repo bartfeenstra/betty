@@ -8,7 +8,8 @@ This module provides utilities to (de)construct these graphs from and to entity 
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import MutableSequence, Mapping, MutableMapping
+from collections.abc import MutableSequence, Mapping, MutableMapping, Iterable
+from contextlib import suppress
 from typing import Iterator, TypeAlias
 
 from betty.model import (
@@ -26,8 +27,8 @@ from betty.model.association import (
 class _EntityGraphBuilder:
     def __init__(self):
         self._entities: _EntityGraphBuilderEntities = defaultdict(dict)
-        self._associations: _EntityGraphBuilderAssociations = defaultdict(
-            lambda: defaultdict(lambda: defaultdict(list))
+        self._associations: _EntityGraphBuilderAssociations = (
+            _new_entity_graph_builder_associations()
         )
         self._built = False
 
@@ -75,15 +76,34 @@ class _EntityGraphBuilder:
 _EntityGraphBuilderEntities: TypeAlias = Mapping[
     type[Entity], MutableMapping[str, AliasableEntity[Entity]]
 ]
+_EntityGraphBuilderEntityAssociations: TypeAlias = Mapping[
+    str,  # The owner ID.
+    MutableSequence[AncestryEntityId],  # The associate IDs.
+]
+_EntityGraphBuilderEntityTypeAssociations: TypeAlias = Mapping[
+    str,  # The owner attribute name.
+    _EntityGraphBuilderEntityAssociations,
+]
 _EntityGraphBuilderAssociations: TypeAlias = Mapping[
     type[Entity],  # The owner entity type.
-    Mapping[
-        str,  # The owner attribute name.
-        Mapping[
-            str, MutableSequence[AncestryEntityId]
-        ],  # The owner ID.  # The associate IDs.
-    ],
+    _EntityGraphBuilderEntityTypeAssociations,
 ]
+
+
+def _new_entity_graph_builder_associations() -> _EntityGraphBuilderAssociations:
+    return defaultdict(_new_entity_graph_builder_entity_type_associations)
+
+
+def _new_entity_graph_builder_entity_type_associations() -> (
+    _EntityGraphBuilderEntityTypeAssociations
+):
+    return defaultdict(_new_entity_graph_builder_entity_associations)
+
+
+def _new_entity_graph_builder_entity_associations() -> (
+    _EntityGraphBuilderEntityAssociations
+):
+    return defaultdict(list)
 
 
 class EntityGraphBuilder(_EntityGraphBuilder):
@@ -126,3 +146,56 @@ class EntityGraphBuilder(_EntityGraphBuilder):
         self._associations[owner_type][owner_attr_name][owner_id].append(
             (associate_type, associate_id)
         )
+
+
+class PickleableEntityGraph(_EntityGraphBuilder):
+    """
+    Allow an entity graph to be pickled.
+    """
+
+    def __init__(self, *entities: Entity) -> None:
+        super().__init__()
+        self._pickled = False
+        for entity in entities:
+            self._entities[entity.type][entity.id] = entity
+
+    def __getstate__(
+        self,
+    ) -> tuple[_EntityGraphBuilderEntities, _EntityGraphBuilderAssociations]:
+        self._flatten()
+        return self._entities, self._associations
+
+    def __setstate__(
+        self, state: tuple[_EntityGraphBuilderEntities, _EntityGraphBuilderAssociations]
+    ) -> None:
+        self._entities, self._associations = state
+        self._built = False
+        self._pickled = False
+
+    def _flatten(self) -> None:
+        if self._pickled:
+            raise RuntimeError("This entity graph has been pickled already.")
+        self._pickled = True
+
+        for owner in self._iter():
+            unaliased_entity = unalias(owner)
+            entity_type = unaliased_entity.type
+
+            for association in AssociationRegistry.get_all_associations(entity_type):
+                associates: Iterable[Entity]
+                if isinstance(association, ToOneAssociation):
+                    associate = association.get_attr(unaliased_entity)
+                    if associate is None:
+                        continue
+                    associates = [associate]
+                else:
+                    associates = list(association.get_attr(unaliased_entity))
+                for associate in associates:
+                    self._associations[entity_type][association.owner_attr_name][
+                        owner.id
+                    ].append(
+                        (associate.type, associate.id),
+                    )
+                # @todo Do this in an Association API method
+                with suppress(AttributeError):
+                    delattr(owner, association._attr_name)

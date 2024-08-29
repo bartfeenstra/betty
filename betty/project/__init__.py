@@ -73,6 +73,7 @@ from betty.locale.localizable.config import (
 )
 from betty.locale.localizer import LocalizerRepository
 from betty.model import Entity, UserFacingEntity, EntityReferenceCollectionSchema
+from betty.model.graph import PickleableEntityGraph
 from betty.plugin.assertion import assert_plugin
 from betty.project import extension
 from betty.project.extension import (
@@ -90,10 +91,11 @@ from betty.serde.dump import (
     void_none,
     minimize,
     VoidableDumpMapping,
+    DumpMapping,
 )
 from betty.serde.format import FormatRepository
 from betty.string import kebab_case_to_lower_camel_case
-from betty.typing import Void
+from betty.typing import Void, internal
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
@@ -1067,6 +1069,16 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
                 ancestry=ancestry,
             )
 
+    def reduce(self) -> ReducedProject:
+        """
+        Reduce the project (make it pickleable).
+        """
+        return ReducedProject(
+            self.configuration.configuration_file_path,
+            self.configuration.dump(),
+            PickleableEntityGraph(*self.ancestry),
+        )
+
     @override
     async def bootstrap(self) -> None:
         await super().bootstrap()
@@ -1281,6 +1293,33 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
 _ProjectDependentFactoryT = TypeVar(
     "_ProjectDependentFactoryT", bound=ProjectDependentFactory
 )
+
+
+@internal
+class ReducedProject:
+    """
+    A 'reduced' or pickleable :py:class:`betty.project.Project`.
+    """
+
+    def __init__(
+        self,
+        configuration_file_path: Path,
+        configuration: DumpMapping[Dump],
+        ancestry: PickleableEntityGraph,
+    ):
+        self._configuration_file_path = configuration_file_path
+        self._configuration = configuration
+        self._ancestry = ancestry
+
+    def __call__(self, app: App) -> Project:
+        """
+        Unpickle the project to run within the given app.
+        """
+        configuration = ProjectConfiguration(self._configuration_file_path)
+        configuration.load(self._configuration)
+        ancestry = Ancestry()
+        ancestry.add_unchecked_graph(*self._ancestry.build())
+        return Project(app, configuration, ancestry=ancestry)
 
 
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)
