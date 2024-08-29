@@ -272,6 +272,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/extension/trees/__init__.py": {
         "Trees": {
+            # This is checked statically.
+            "register_event_handlers": TestKnownToBeMissing,
             "webpack_entry_point_cache_keys": TestKnownToBeMissing,
         },
     },
