@@ -150,6 +150,9 @@ betty = 'betty.cli:main'
 'subject' = 'betty.ancestry.presence_role:Subject'
 'witness' = 'betty.ancestry.presence_role:Witness'
 
+[project.entry-points.'betty.renderer']
+'jinja2' = 'betty.jinja2:Jinja2Renderer'
+
 [project.optional-dependencies]
 setuptools = [
     'twine ~= 5.1',

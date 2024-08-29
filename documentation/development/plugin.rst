@@ -52,6 +52,7 @@ The following plugin types are provided by Betty itself:
 - :doc:`Event types </development/plugin/event-type>`
 - :doc:`Extensions </development/plugin/extension>`
 - :doc:`Presence roles </development/plugin/presence-role>`
+- :doc:`Renderers </development/plugin/renderer>`
 
 Creating a new plugin type
 --------------------------

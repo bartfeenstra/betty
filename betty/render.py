@@ -2,15 +2,21 @@
 Provide the Render API.
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from collections.abc import Sequence
-from pathlib import Path
-from typing import final
+from typing import final, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.job import Context
-from betty.locale.localizer import Localizer
+from betty.plugin.entry_point import EntryPointPluginRepository
+
+if TYPE_CHECKING:
+    from betty.plugin import PluginRepository, Plugin
+    from betty.locale.localizer import Localizer
+    from betty.job import Context
+    from pathlib import Path
+    from collections.abc import Sequence
 
 
 class Renderer(ABC):
@@ -20,6 +26,8 @@ class Renderer(ABC):
     Renderers can be implemented for a variety of purposes:
     - invoking templating engines
     - file conversions
+
+    Read more about :doc:`/development/plugin/renderer`.
     """
 
     @property
@@ -45,6 +53,16 @@ class Renderer(ABC):
             renderer-specific extension may have been stripped from the end.
         """
         pass
+
+
+RENDERER_REPOSITORY: PluginRepository[Renderer & Plugin] = EntryPointPluginRepository(
+    "betty.renderer"
+)
+"""
+The renderer plugin repository.
+
+Read more about :doc:`/development/plugin/renderer`.
+"""
 
 
 @final
