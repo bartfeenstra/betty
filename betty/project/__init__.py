@@ -83,7 +83,7 @@ from betty.project.extension import (
     Theme,
 )
 from betty.project.factory import ProjectDependentFactory
-from betty.render import Renderer, SequentialRenderer
+from betty.render import Renderer, SequentialRenderer, RENDERER_REPOSITORY
 from betty.serde.dump import (
     Dump,
     VoidableDump,
@@ -1017,6 +1017,9 @@ class ProjectConfiguration(Configuration):
         )
 
 
+_ProjectDependentT = TypeVar("_ProjectDependentT")
+
+
 @final
 class Project(Configurable[ProjectConfiguration], CoreComponent):
     """
@@ -1176,11 +1179,10 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
         The (file) content renderer.
         """
         if not self._renderer:
-            from betty.jinja2 import Jinja2Renderer
-
             self._renderer = SequentialRenderer(
                 [
-                    Jinja2Renderer(self.jinja2_environment, self.configuration),
+                    self.new_dependent(plugin)  # type: ignore[arg-type]
+                    for plugin in wait_to_thread(RENDERER_REPOSITORY.select())
                 ]
             )
 
@@ -1269,18 +1271,15 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
 
         return self._event_dispatcher
 
-    def new_dependent(
-        self, dependent: type[_ProjectDependentFactoryT]
-    ) -> _ProjectDependentFactoryT:
+    def new_dependent(self, dependent: type[_ProjectDependentT]) -> _ProjectDependentT:
         """
-        Create a new instance of a type that depends on a ``self``.
+        Create a new instance of ``dependent``.
+
+        :arg dependent: This may optionally implement :py:class:`betty.project.factory.ProjectDependentFactory`.
         """
-        return dependent.new_for_project(self)
-
-
-_ProjectDependentFactoryT = TypeVar(
-    "_ProjectDependentFactoryT", bound=ProjectDependentFactory
-)
+        if issubclass(dependent, ProjectDependentFactory):
+            return dependent.new_for_project(self)  # type: ignore[return-value]
+        return dependent()
 
 
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)

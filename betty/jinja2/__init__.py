@@ -6,8 +6,11 @@ from __future__ import annotations
 
 import datetime
 from collections import defaultdict
+from collections.abc import (
+    Mapping,
+)
 from threading import Lock
-from typing import Callable, Any, cast, TYPE_CHECKING, TypeAlias, final, Awaitable
+from typing import Callable, Any, cast, TYPE_CHECKING, TypeAlias, final, Awaitable, Self
 
 import aiofiles
 from aiofiles import os as aiofiles_os
@@ -27,17 +30,18 @@ from betty.html import CssProvider, JsProvider
 from betty.jinja2.filter import FILTERS
 from betty.jinja2.test import TESTS
 from betty.job import Context as JobContext
-from betty.locale.localizer import Localizer
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.date import Date
+from betty.locale.localizable import Localizable, plain
+from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localizer import Localizer
+from betty.plugin import Plugin
+from betty.project.factory import ProjectDependentFactory
 from betty.render import Renderer
 from betty.serde.dump import Dumpable, DumpMapping, VoidableDump, Dump
 from betty.typing import Void
-from collections.abc import (
-    Mapping,
-)
 
 if TYPE_CHECKING:
+    from betty.machine_name import MachineName
     from betty.model import Entity
     from betty.project.extension import Extension
     from betty.project import ProjectConfiguration, Project
@@ -392,7 +396,7 @@ class Environment(Jinja2Environment):
 
 
 @final
-class Jinja2Renderer(Renderer):
+class Jinja2Renderer(Renderer, ProjectDependentFactory, Plugin):
     """
     Render content as Jinja2 templates.
     """
@@ -400,6 +404,21 @@ class Jinja2Renderer(Renderer):
     def __init__(self, environment: Environment, configuration: ProjectConfiguration):
         self._environment = environment
         self._configuration = configuration
+
+    @override
+    @classmethod
+    def plugin_id(cls) -> MachineName:
+        return "jinja2"
+
+    @override
+    @classmethod
+    def plugin_label(cls) -> Localizable:
+        return plain("Jinja2")
+
+    @override
+    @classmethod
+    def new_for_project(cls, project: Project) -> Self:
+        return cls(project.jinja2_environment, project.configuration)
 
     @override
     @property
