@@ -611,45 +611,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "has_expired": TestKnownToBeMissing,
         },
     },
-    "betty/project/__init__.py": {
-        "EntityReference": {
-            "__eq__": TestKnownToBeMissing,
-            "entity_type_is_constrained": TestKnownToBeMissing,
-            "update": TestKnownToBeMissing,
-        },
-        "EntityTypeConfiguration": {
-            "update": TestKnownToBeMissing,
-        },
-        "ExtensionConfiguration": {
-            "dump": TestKnownToBeMissing,
-            "extension_configuration": TestKnownToBeMissing,
-            "update": TestKnownToBeMissing,
-        },
-        "ExtensionConfigurationMapping": {
-            "disable": TestKnownToBeMissing,
-            "enable": TestKnownToBeMissing,
-        },
-        "LocaleConfiguration": {
-            "__hash__": TestKnownToBeMissing,
-            "dump": TestKnownToBeMissing,
-            "hash": TestKnownToBeMissing,
-            "update": TestKnownToBeMissing,
-        },
-        "ProjectConfiguration": {
-            "assets_directory_path": TestKnownToBeMissing,
-            "debug": TestKnownToBeMissing,
-            "entity_types": TestKnownToBeMissing,
-            "extensions": TestKnownToBeMissing,
-            "lifetime_threshold": TestKnownToBeMissing,
-            "locales": TestKnownToBeMissing,
-            "localize_www_directory_path": TestKnownToBeMissing,
-            "output_directory_path": TestKnownToBeMissing,
-            "project_directory_path": TestKnownToBeMissing,
-            "title": TestKnownToBeMissing,
-            "update": TestKnownToBeMissing,
-            "www_directory_path": TestKnownToBeMissing,
-        },
-    },
     "betty/project/extension/__init__.py": {
         "ConfigurableExtension": TestKnownToBeMissing,
         "CyclicDependencyError": TestKnownToBeMissing,

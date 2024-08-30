@@ -9,7 +9,7 @@ site from the entire project.
 from __future__ import annotations
 
 import logging
-from contextlib import suppress, asynccontextmanager
+from contextlib import asynccontextmanager
 from graphlib import TopologicalSorter, CycleError
 from pathlib import Path
 from reprlib import recursive_repr
@@ -210,14 +210,6 @@ class EntityReference(Configuration, Generic[_EntityT]):
 
         return minimize(dump)
 
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, EntityReference):
-            return NotImplemented
-        return (
-            self.entity_type == other.entity_type and self.entity_id == other.entity_id
-        )
-
 
 @final
 class EntityReferenceSequence(
@@ -400,7 +392,7 @@ class ExtensionConfiguration(Configuration):
                 "enabled": self.enabled,
                 "configuration": (
                     minimize(self.extension_configuration.dump())
-                    if issubclass(self.extension_type, Configurable)
+                    if issubclass(self.extension_type, ConfigurableExtension)
                     and self.extension_configuration
                     else Void
                 ),
@@ -463,14 +455,6 @@ class ExtensionConfigurationMapping(
                 self._configurations[extension_type].enabled = True
             except KeyError:
                 self.append(ExtensionConfiguration(extension_type))
-
-    def disable(self, *extension_types: type[Extension]) -> None:
-        """
-        Disable the given extensions.
-        """
-        for extension_type in extension_types:
-            with suppress(KeyError):
-                self._configurations[extension_type].enabled = False
 
 
 @final
@@ -630,10 +614,6 @@ class LocaleConfiguration(Configuration):
         if self.alias != other.alias:
             return False
         return True
-
-    @override
-    def __hash__(self) -> int:
-        return hash((self._locale, self._alias))
 
     @property
     def locale(self) -> str:
@@ -968,7 +948,7 @@ class ProjectConfiguration(Configuration):
     @override
     def update(self, other: Self) -> None:
         self._url = other._url
-        self.title.update(other.author)
+        self.title.update(other.title)
         self.author.update(other.author)
         self._clean_urls = other._clean_urls
         self._debug = other._debug
@@ -1373,10 +1353,7 @@ class ProjectSchema(Schema):
         """
         Get the URL to a project's JSON Schema definition.
         """
-        uri = f"{cls.url(project)}#"
-        if def_name:
-            uri = f"{uri}#/$defs/{def_name}"
-        return uri
+        return f"{cls.url(project)}#/$defs/{def_name}"
 
     @classmethod
     def url(cls, project: Project) -> str:

@@ -65,7 +65,7 @@ class DummyPlugin(Plugin):
     @override
     @classmethod
     def plugin_id(cls) -> MachineName:
-        return camel_case_to_kebab_case(cls.__name__)
+        return camel_case_to_kebab_case(cls.__name__.strip("_"))
 
     @override
     @classmethod
