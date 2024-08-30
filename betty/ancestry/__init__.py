@@ -1209,13 +1209,6 @@ class Name(StaticTranslationsLocalizable, HasDate):
             date=date,
         )
 
-    # @todo Do we need this?
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, self.__class__):
-            return NotImplemented  # pragma: no cover
-        return self._translations == other._translations and self.date == other.date
-
 
 @final
 class Enclosure(HasDate, HasCitations, Entity):

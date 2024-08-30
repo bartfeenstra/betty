@@ -1414,33 +1414,6 @@ class TestHasCitations:
 
 
 class TestName:
-    @pytest.mark.parametrize(
-        ("expected", "a", "b"),
-        [
-            (True, Name("Ikke"), Name("Ikke")),
-            (
-                True,
-                Name({"nl-NL": "Ikke"}),
-                Name({"nl-NL": "Ikke"}),
-            ),
-            (
-                False,
-                Name({"nl-NL": "Ikke"}),
-                Name({"nl-BE": "Ikke"}),
-            ),
-            (
-                False,
-                Name({"nl-NL": "Ikke"}),
-                Name({"nl-NL": "Ik"}),
-            ),
-            (False, Name("Ikke"), Name("Ik")),
-            (False, Name("Ikke"), None),
-            (False, Name("Ikke"), "not-a-place-name"),
-        ],
-    )
-    async def test___eq__(self, expected: bool, a: Name, b: Any) -> None:
-        assert expected == (a == b)
-
     async def test_date(self) -> None:
         date = Date()
         sut = Name(
