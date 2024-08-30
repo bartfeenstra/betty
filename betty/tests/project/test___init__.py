@@ -8,16 +8,8 @@ from typing_extensions import override
 from betty import ancestry
 from betty.ancestry import Ancestry
 from betty.app import App
-from betty.assertion import (
-    RequiredField,
-    assert_bool,
-    assert_record,
-    assert_setattr,
-    assert_int,
-)
 from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
-from betty.event_dispatcher import Event, EventHandlerRegistry
 from betty.json.schema import JsonSchemaSchema
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -36,10 +28,10 @@ from betty.project import (
     Project,
     ProjectEvent,
     ProjectSchema,
+    ProjectExtensions,
 )
 from betty.project.extension import (
     Extension,
-    ConfigurableExtension,
     CyclicDependencyError,
 )
 from betty.project.factory import ProjectDependentFactory
@@ -48,7 +40,11 @@ from betty.test_utils.config.collections.mapping import ConfigurationMappingTest
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.test_utils.json.schema import SchemaTestBase
 from betty.test_utils.model import DummyEntity
-from betty.test_utils.project.extension import DummyExtension
+from betty.test_utils.project.extension import (
+    DummyExtension,
+    DummyConfigurableExtension,
+    DummyConfigurableExtensionConfiguration,
+)
 from betty.typing import Void
 
 if TYPE_CHECKING:
@@ -102,6 +98,8 @@ class TestEntityReference:
         assert sut.entity_id is None
         sut.entity_id = entity_id
         assert sut.entity_id == entity_id
+        del sut.entity_id
+        assert sut.entity_id is None
 
     async def test_load_with_constraint(self) -> None:
         sut = EntityReference(
@@ -273,6 +271,28 @@ class TestEntityReferenceSequence(
             ),
         )
 
+    async def test_pre_add_with_missing_required_entity_type(self) -> None:
+        class DummyConstraintedEntity(DummyEntity):
+            pass
+
+        sut = EntityReferenceSequence(entity_type_constraint=DummyConstraintedEntity)
+        with pytest.raises(AssertionFailed):
+            sut.append(
+                EntityReference(DummyEntity)  # type: ignore[arg-type]
+            )
+
+    async def test_pre_add_with_invalid_required_entity_type(self) -> None:
+        class DummyConstraintedEntity(DummyEntity):
+            pass
+
+        sut = EntityReferenceSequence(entity_type_constraint=DummyConstraintedEntity)
+        with pytest.raises(AssertionFailed):
+            sut.append(EntityReference())
+
+    async def test_pre_add_with_valid_value(self) -> None:
+        sut = EntityReferenceSequence(entity_type_constraint=DummyEntity)
+        sut.append(EntityReference(DummyEntity))
+
 
 class TestLocaleConfiguration:
     async def test_locale(self) -> None:
@@ -302,40 +322,6 @@ class TestLocaleConfiguration:
                 locale,
                 alias=alias,
             )
-
-    @pytest.mark.parametrize(
-        ("expected", "sut", "other"),
-        [
-            (
-                False,
-                LocaleConfiguration(
-                    "nl",
-                    alias="NL",
-                ),
-                "not a locale configuration",
-            ),
-            (
-                False,
-                LocaleConfiguration(
-                    "nl",
-                    alias="NL",
-                ),
-                999,
-            ),
-            (
-                False,
-                LocaleConfiguration(
-                    "nl",
-                    alias="NL",
-                ),
-                object(),
-            ),
-        ],
-    )
-    async def test___eq__(
-        self, expected: bool, sut: LocaleConfiguration, other: Any
-    ) -> None:
-        assert (sut == other) == expected
 
     async def test_load_with_invalid_dump(self) -> None:
         dump: Dump = {}
@@ -447,7 +433,7 @@ class TestLocaleConfigurationMapping(
 
     async def test_default_without_explicit_locale_configurations(self) -> None:
         sut = LocaleConfigurationMapping()
-        assert sut.default == LocaleConfiguration("en-US")
+        assert sut.default.locale == DEFAULT_LOCALE
 
     async def test_default_without_explicit_default(self) -> None:
         locale_configuration_a = LocaleConfiguration("nl-NL")
@@ -488,41 +474,6 @@ class TestLocaleConfigurationMapping(
         assert sut.multilingual
 
 
-class _DummyConfigurableExtensionConfiguration(Configuration):
-    def __init__(self):
-        super().__init__()
-        self.check = False
-
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, _DummyConfigurableExtensionConfiguration):
-            return NotImplemented
-        return self.check == other.check
-
-    @override
-    def update(self, other: Self) -> None:
-        pass  # pragma: no cover
-
-    @override
-    def load(self, dump: Dump) -> None:
-        assert_record(
-            RequiredField("check", assert_bool() | assert_setattr(self, "check"))
-        )(dump)
-
-    @override
-    def dump(self) -> VoidableDump:
-        return {
-            "check": self.check,
-        }
-
-
-class _DummyConfigurableExtension(
-    DummyExtension, ConfigurableExtension[_DummyConfigurableExtensionConfiguration]
-):
-    @classmethod
-    def default_configuration(cls) -> _DummyConfigurableExtensionConfiguration:
-        return _DummyConfigurableExtensionConfiguration()
-
-
 class _DummyConfiguration(Configuration):
     @override
     def update(self, other: Self) -> None:
@@ -542,7 +493,7 @@ class TestExtensionConfiguration:
     def _extensions(self, mocker: MockerFixture) -> None:
         mocker.patch(
             "betty.project.extension.EXTENSION_REPOSITORY",
-            new=StaticPluginRepository(DummyExtension, _DummyConfigurableExtension),
+            new=StaticPluginRepository(DummyExtension, DummyConfigurableExtension),
         )
 
     async def test_extension_type(self) -> None:
@@ -562,49 +513,10 @@ class TestExtensionConfiguration:
     async def test_extension_configuration(self) -> None:
         extension_type_configuration = _DummyConfiguration()
         sut = ExtensionConfiguration(
-            _DummyConfigurableExtension,
+            DummyConfigurableExtension,
             extension_configuration=extension_type_configuration,
         )
         assert sut.extension_configuration == extension_type_configuration
-
-    @pytest.mark.parametrize(
-        ("expected", "one", "other"),
-        [
-            (
-                True,
-                ExtensionConfiguration(DummyExtension),
-                ExtensionConfiguration(DummyExtension),
-            ),
-            (
-                False,
-                ExtensionConfiguration(
-                    DummyExtension,
-                    extension_configuration=_DummyConfiguration(),
-                ),
-                ExtensionConfiguration(
-                    DummyExtension,
-                    extension_configuration=_DummyConfiguration(),
-                ),
-            ),
-            (
-                False,
-                ExtensionConfiguration(DummyExtension),
-                ExtensionConfiguration(
-                    DummyExtension,
-                    enabled=False,
-                ),
-            ),
-            (
-                False,
-                ExtensionConfiguration(DummyExtension),
-                ExtensionConfiguration(_DummyConfigurableExtension),
-            ),
-        ],
-    )
-    async def test___eq__(
-        self, expected: bool, one: ExtensionConfiguration, other: ExtensionConfiguration
-    ) -> None:
-        assert expected == (one == other)
 
     async def test_load_without_extension(self) -> None:
         with raises_error(error_type=AssertionFailed):
@@ -612,22 +524,22 @@ class TestExtensionConfiguration:
 
     async def test_load_with_extension(self) -> None:
         sut = ExtensionConfiguration(DummyExtension)
-        sut.load({"extension": _DummyConfigurableExtension.plugin_id()})
-        assert sut.extension_type == _DummyConfigurableExtension
+        sut.load({"extension": DummyConfigurableExtension.plugin_id()})
+        assert sut.extension_type == DummyConfigurableExtension
         assert sut.enabled
 
     async def test_load_with_enabled(self) -> None:
         sut = ExtensionConfiguration(DummyExtension)
         sut.load(
-            {"extension": _DummyConfigurableExtension.plugin_id(), "enabled": False}
+            {"extension": DummyConfigurableExtension.plugin_id(), "enabled": False}
         )
         assert not sut.enabled
 
     async def test_load_with_configuration(self) -> None:
-        sut = ExtensionConfiguration(_DummyConfigurableExtension)
+        sut = ExtensionConfiguration(DummyConfigurableExtension)
         sut.load(
             {
-                "extension": _DummyConfigurableExtension.plugin_id(),
+                "extension": DummyConfigurableExtension.plugin_id(),
                 "configuration": {
                     "check": True,
                 },
@@ -635,9 +547,23 @@ class TestExtensionConfiguration:
         )
         extension_configuration = sut.extension_configuration
         assert isinstance(
-            extension_configuration, _DummyConfigurableExtensionConfiguration
+            extension_configuration, DummyConfigurableExtensionConfiguration
         )
         assert extension_configuration.check
+
+    async def test_load_with_configuration_for_non_configurable_extension_should_error(
+        self,
+    ) -> None:
+        sut = ExtensionConfiguration(DummyExtension)
+        with pytest.raises(AssertionFailed):
+            sut.load(
+                {
+                    "extension": DummyExtension.plugin_id(),
+                    "configuration": {
+                        "check": True,
+                    },
+                }
+            )
 
     async def test_dump_should_dump_minimal(self) -> None:
         sut = ExtensionConfiguration(DummyExtension)
@@ -648,9 +574,9 @@ class TestExtensionConfiguration:
         assert sut.dump() == expected
 
     async def test_dump_should_dump_extension_configuration(self) -> None:
-        sut = ExtensionConfiguration(_DummyConfigurableExtension)
+        sut = ExtensionConfiguration(DummyConfigurableExtension)
         expected = {
-            "extension": _DummyConfigurableExtension.plugin_id(),
+            "extension": DummyConfigurableExtension.plugin_id(),
             "enabled": True,
             "configuration": {
                 "check": False,
@@ -670,11 +596,11 @@ class TestExtensionConfiguration:
         assert sut.extension_configuration is None
 
     async def test_update_should_update_extension_configuration(self) -> None:
-        other = ExtensionConfiguration(_DummyConfigurableExtension)
+        other = ExtensionConfiguration(DummyConfigurableExtension)
         sut = ExtensionConfiguration(DummyExtension)
         sut.update(other)
         assert isinstance(
-            sut.extension_configuration, _DummyConfigurableExtensionConfiguration
+            sut.extension_configuration, DummyConfigurableExtensionConfiguration
         )
 
 
@@ -773,6 +699,13 @@ class TestEntityTypeConfiguration:
         sut.generate_html_list = generate_html_list
         assert sut.generate_html_list == generate_html_list
 
+    async def test_generate_html_list_for_non_user_facing_entity_should_error(
+        self,
+    ) -> None:
+        sut = EntityTypeConfiguration(DummyEntity)
+        with pytest.raises(AssertionFailed):
+            sut.generate_html_list = True
+
     async def test_load_with_empty_configuration(self) -> None:
         dump: Dump = {}
         sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
@@ -841,52 +774,6 @@ class TestEntityTypeConfiguration:
         sut.update(other)
         assert sut.entity_type is EntityTypeConfigurationTestEntityOne
         assert sut.generate_html_list
-
-    @pytest.mark.parametrize(
-        ("expected", "one", "other"),
-        [
-            (
-                True,
-                EntityTypeConfiguration(
-                    entity_type=EntityTypeConfigurationTestEntityOne,
-                    generate_html_list=True,
-                ),
-                EntityTypeConfiguration(
-                    entity_type=EntityTypeConfigurationTestEntityOne,
-                    generate_html_list=True,
-                ),
-            ),
-            (
-                False,
-                EntityTypeConfiguration(
-                    entity_type=EntityTypeConfigurationTestEntityOne,
-                    generate_html_list=True,
-                ),
-                EntityTypeConfiguration(
-                    entity_type=EntityTypeConfigurationTestEntityOne,
-                    generate_html_list=False,
-                ),
-            ),
-            (
-                False,
-                EntityTypeConfiguration(
-                    entity_type=EntityTypeConfigurationTestEntityOne,
-                    generate_html_list=True,
-                ),
-                EntityTypeConfiguration(
-                    entity_type=EntityTypeConfigurationTestEntityOther,
-                    generate_html_list=True,
-                ),
-            ),
-        ],
-    )
-    async def test___eq__(
-        self,
-        expected: bool,
-        one: EntityTypeConfiguration,
-        other: EntityTypeConfiguration,
-    ) -> None:
-        assert expected == (one == other)
 
 
 class EntityTypeConfigurationMappingTestEntity0(DummyEntity):
@@ -959,6 +846,9 @@ class TestProjectConfiguration:
         new_configuration_file_path = tmp_path / "betty.yaml"
         sut.configuration_file_path = new_configuration_file_path
         assert sut.configuration_file_path == new_configuration_file_path
+        # Assert that setting the path to its existing value is a no-op.
+        sut.configuration_file_path = new_configuration_file_path
+        assert sut.configuration_file_path == new_configuration_file_path
 
     async def test_project_directory_path(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
@@ -976,9 +866,22 @@ class TestProjectConfiguration:
         sut = ProjectConfiguration(tmp_path / "betty.json")
         assert tmp_path in sut.www_directory_path.parents
 
-    async def test_localize_www_directory_path(self, tmp_path: Path) -> None:
+    async def test_localize_www_directory_path_monolingual(
+        self, tmp_path: Path
+    ) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        assert tmp_path in sut.localize_www_directory_path(DEFAULT_LOCALE).parents
+        actual = sut.localize_www_directory_path(DEFAULT_LOCALE)
+        assert tmp_path in actual.parents
+        assert DEFAULT_LOCALE not in str(actual)
+
+    async def test_localize_www_directory_path_multilingual(
+        self, tmp_path: Path
+    ) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        sut.locales.append(LocaleConfiguration("nl-NL"))
+        actual = sut.localize_www_directory_path(DEFAULT_LOCALE)
+        assert tmp_path in actual.parents
+        assert DEFAULT_LOCALE in str(actual)
 
     async def test_lifetime_threshold(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
@@ -1120,7 +1023,8 @@ class TestProjectConfiguration:
         dump["locales"] = [{"locale": locale}]
         sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.load(dump)
-        assert sut.locales == LocaleConfigurationMapping([LocaleConfiguration(locale)])
+        assert len(sut.locales) == 1
+        assert locale in sut.locales
 
     async def test_load_should_load_locale_alias(self, tmp_path: Path) -> None:
         locale = "nl-NL"
@@ -1129,14 +1033,10 @@ class TestProjectConfiguration:
         dump["locales"] = [{"locale": locale, "alias": alias}]
         sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.load(dump)
-        assert sut.locales == LocaleConfigurationMapping(
-            [
-                LocaleConfiguration(
-                    locale,
-                    alias=alias,
-                ),
-            ]
-        )
+        assert len(sut.locales) == 1
+        assert locale in sut.locales
+        actual = sut.locales[locale]
+        assert actual.alias == alias
 
     async def test_load_should_clean_urls(self, tmp_path: Path) -> None:
         clean_urls = True
@@ -1165,24 +1065,24 @@ class TestProjectConfiguration:
     ) -> None:
         mocker.patch(
             "betty.project.extension.EXTENSION_REPOSITORY",
-            new=StaticPluginRepository(_DummyConfigurableExtension),
+            new=StaticPluginRepository(DummyConfigurableExtension),
         )
         dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
         extension_configuration = {
             "check": False,
         }
         dump["extensions"] = {
-            _DummyConfigurableExtension.plugin_id(): {
+            DummyConfigurableExtension.plugin_id(): {
                 "configuration": extension_configuration,
             },
         }
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        expected = ExtensionConfiguration(
-            _DummyConfigurableExtension,
-            extension_configuration=_DummyConfigurableExtensionConfiguration(),
-        )
         sut.load(dump)
-        assert sut.extensions[_DummyConfigurableExtension] == expected
+        actual = sut.extensions[DummyConfigurableExtension]
+        assert actual.enabled
+        assert isinstance(
+            actual.extension_configuration, DummyConfigurableExtensionConfiguration
+        )
 
     async def test_load_should_load_one_extension_without_configuration(
         self, mocker: MockerFixture, tmp_path: Path
@@ -1196,16 +1096,17 @@ class TestProjectConfiguration:
             _DummyNonConfigurableExtension.plugin_id(): {},
         }
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        expected = ExtensionConfiguration(_DummyNonConfigurableExtension)
         sut.load(dump)
-        assert sut.extensions[_DummyNonConfigurableExtension] == expected
+        actual = sut.extensions[_DummyNonConfigurableExtension]
+        assert actual.enabled
+        assert actual.extension_configuration is None
 
     async def test_load_extension_with_invalid_configuration_should_raise_error(
         self, tmp_path: Path
     ) -> None:
         dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
         dump["extensions"] = {
-            _DummyConfigurableExtension.plugin_id(): 1337,
+            DummyConfigurableExtension.plugin_id(): 1337,
         }
         sut = ProjectConfiguration(tmp_path / "betty.json")
         with raises_error(error_type=AssertionFailed):
@@ -1320,8 +1221,8 @@ class TestProjectConfiguration:
         sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.extensions.append(
             ExtensionConfiguration(
-                _DummyConfigurableExtension,
-                extension_configuration=_DummyConfigurableExtensionConfiguration(),
+                DummyConfigurableExtension,
+                extension_configuration=DummyConfigurableExtensionConfiguration(),
             )
         )
         dump: Any = sut.dump()
@@ -1331,13 +1232,13 @@ class TestProjectConfiguration:
                 "check": False,
             },
         }
-        assert expected == dump["extensions"][_DummyConfigurableExtension.plugin_id()]
+        assert expected == dump["extensions"][DummyConfigurableExtension.plugin_id()]
 
     async def test_dump_should_dump_one_extension_without_configuration(
         self, tmp_path: Path
     ) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        sut.extensions.append(ExtensionConfiguration(_DummyNonConfigurableExtension))
+        sut.extensions.enable(_DummyNonConfigurableExtension)
         dump: Any = sut.dump()
         expected = {
             "enabled": True,
@@ -1389,43 +1290,6 @@ class TestProjectConfiguration:
         assert list(sut.entity_types.values()) == entity_types
 
 
-class _TrackerEvent(Event):
-    def __init__(self, carrier: MutableSequence[_TrackableExtension]):
-        self.carrier = carrier
-
-
-class _TrackableExtension(DummyExtension):
-    def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
-        registry.add_handler(_TrackerEvent, self._track)
-
-    async def _track(self, event: _TrackerEvent) -> None:
-        event.carrier.append(self)
-
-
-class _NonConfigurableExtension(_TrackableExtension):
-    pass
-
-
-class _ConfigurableExtensionConfiguration(Configuration):
-    def __init__(self, check: int = 0):
-        super().__init__()
-        self.check = check
-
-    @override
-    def update(self, other: Self) -> None:
-        self.check = other.check
-
-    @override
-    def load(self, dump: Dump) -> None:
-        assert_record(
-            RequiredField("check", assert_int() | assert_setattr(self, "check"))
-        )(dump)
-
-    @override
-    def dump(self) -> VoidableDump:
-        return {"check": self.check}
-
-
 class _CyclicDependencyOneExtension(DummyExtension):
     @classmethod
     def depends_on(cls) -> set[PluginIdentifier[Extension]]:
@@ -1438,42 +1302,34 @@ class _CyclicDependencyTwoExtension(DummyExtension):
         return {_CyclicDependencyOneExtension}
 
 
-class _DependsOnNonConfigurableExtensionExtension(_TrackableExtension):
+class _DependsOnNonConfigurableExtensionExtension(DummyExtension):
     @classmethod
     def depends_on(cls) -> set[PluginIdentifier[Extension]]:
-        return {_NonConfigurableExtension}
+        return {DummyExtension}
 
 
-class _AlsoDependsOnNonConfigurableExtensionExtension(_TrackableExtension):
+class _AlsoDependsOnNonConfigurableExtensionExtension(DummyExtension):
     @classmethod
     def depends_on(cls) -> set[PluginIdentifier[Extension]]:
-        return {_NonConfigurableExtension}
+        return {DummyExtension}
 
 
-class _DependsOnNonConfigurableExtensionExtensionExtension(_TrackableExtension):
+class _DependsOnNonConfigurableExtensionExtensionExtension(DummyExtension):
     @classmethod
     def depends_on(cls) -> set[PluginIdentifier[Extension]]:
         return {_DependsOnNonConfigurableExtensionExtension}
 
 
-class _ComesBeforeNonConfigurableExtensionExtension(_TrackableExtension):
+class _ComesBeforeNonConfigurableExtensionExtension(DummyExtension):
     @classmethod
     def comes_before(cls) -> set[PluginIdentifier[Extension]]:
-        return {_NonConfigurableExtension}
+        return {DummyExtension}
 
 
-class _ComesAfterNonConfigurableExtensionExtension(_TrackableExtension):
+class _ComesAfterNonConfigurableExtensionExtension(DummyExtension):
     @classmethod
     def comes_after(cls) -> set[PluginIdentifier[Extension]]:
-        return {_NonConfigurableExtension}
-
-
-class _ConfigurableExtension(
-    ConfigurableExtension[_ConfigurableExtensionConfiguration], DummyExtension
-):
-    @classmethod
-    def default_configuration(cls) -> _ConfigurableExtensionConfiguration:
-        return _ConfigurableExtensionConfiguration(False)
+        return {DummyExtension}
 
 
 class TestProject:
@@ -1482,8 +1338,8 @@ class TestProject:
         mocker.patch(
             "betty.project.extension.EXTENSION_REPOSITORY",
             new=StaticPluginRepository(
-                _NonConfigurableExtension,
-                _ConfigurableExtension,
+                DummyExtension,
+                DummyConfigurableExtension,
                 _DependsOnNonConfigurableExtensionExtension,
                 _DependsOnNonConfigurableExtensionExtensionExtension,
                 _CyclicDependencyOneExtension,
@@ -1494,40 +1350,36 @@ class TestProject:
     @pytest.mark.usefixtures("_extensions")
     async def test_bootstrap(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.extensions.append(
-                ExtensionConfiguration(_NonConfigurableExtension)
-            )
+            sut.configuration.extensions.enable(DummyExtension)
             async with sut:
-                extension = sut.extensions[_NonConfigurableExtension.plugin_id()]
+                extension = sut.extensions[DummyExtension.plugin_id()]
                 assert extension._bootstrapped
 
     @pytest.mark.usefixtures("_extensions")
     async def test_extensions_with_one_extension(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.extensions.append(
-                ExtensionConfiguration(_NonConfigurableExtension)
-            )
+            sut.configuration.extensions.enable(DummyExtension)
             async with sut:
-                extension = sut.extensions[_NonConfigurableExtension.plugin_id()]
-                assert isinstance(extension, _NonConfigurableExtension)
+                extension = sut.extensions[DummyExtension.plugin_id()]
+                assert isinstance(extension, DummyExtension)
 
     @pytest.mark.usefixtures("_extensions")
     async def test_extensions_with_one_configurable_extension(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            check = 1337
+            check = True
             sut.configuration.extensions.append(
                 ExtensionConfiguration(
-                    _ConfigurableExtension,
-                    extension_configuration=_ConfigurableExtensionConfiguration(
+                    DummyConfigurableExtension,
+                    extension_configuration=DummyConfigurableExtensionConfiguration(
                         check=check,
                     ),
                 )
             )
             async with sut:
-                extension = sut.extensions[_ConfigurableExtension.plugin_id()]
-                assert isinstance(extension, _ConfigurableExtension)
+                extension = sut.extensions[DummyConfigurableExtension]
+                assert isinstance(extension, DummyConfigurableExtension)
                 assert check == extension.configuration.check
 
     @pytest.mark.usefixtures("_extensions")
@@ -1535,21 +1387,22 @@ class TestProject:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.extensions.append(
-                ExtensionConfiguration(
-                    _DependsOnNonConfigurableExtensionExtensionExtension
-                )
+            sut.configuration.extensions.enable(
+                _DependsOnNonConfigurableExtensionExtensionExtension
             )
             async with sut:
-                carrier: MutableSequence[_TrackableExtension] = []
-                await sut.event_dispatcher.dispatch(_TrackerEvent(carrier))
-                assert len(carrier) == 3
-                assert isinstance(carrier[0], _NonConfigurableExtension)
+                extensions = [list(batch) for batch in sut.extensions]
+                assert len(extensions) == 3
+                assert len(extensions[0]) == 1
+                assert isinstance(extensions[0][0], DummyExtension)
+                assert len(extensions[1]) == 1
                 assert isinstance(
-                    carrier[1], _DependsOnNonConfigurableExtensionExtension
+                    extensions[1][0], _DependsOnNonConfigurableExtensionExtension
                 )
+                assert len(extensions[2]) == 1
                 assert isinstance(
-                    carrier[2], _DependsOnNonConfigurableExtensionExtensionExtension
+                    extensions[2][0],
+                    _DependsOnNonConfigurableExtensionExtensionExtension,
                 )
 
     @pytest.mark.usefixtures("_extensions")
@@ -1557,70 +1410,68 @@ class TestProject:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.extensions.append(
-                ExtensionConfiguration(_DependsOnNonConfigurableExtensionExtension)
+            sut.configuration.extensions.enable(
+                _DependsOnNonConfigurableExtensionExtension
             )
-            sut.configuration.extensions.append(
-                ExtensionConfiguration(_AlsoDependsOnNonConfigurableExtensionExtension)
+            sut.configuration.extensions.enable(
+                _AlsoDependsOnNonConfigurableExtensionExtension
             )
             async with sut:
-                carrier: MutableSequence[_TrackableExtension] = []
-                await sut.event_dispatcher.dispatch(_TrackerEvent(carrier))
-                assert len(carrier) == 3
-                assert isinstance(carrier[0], _NonConfigurableExtension)
-                assert _DependsOnNonConfigurableExtensionExtension in [
-                    type(extension) for extension in carrier
-                ]
-                assert _AlsoDependsOnNonConfigurableExtensionExtension in [
-                    type(extension) for extension in carrier
-                ]
+                extensions = [list(batch) for batch in sut.extensions]
+                assert len(extensions) == 2
+                assert len(extensions[0]) == 1
+                assert isinstance(extensions[0][0], DummyExtension)
+                assert len(extensions[1]) == 2
+                assert isinstance(
+                    extensions[1][0], _AlsoDependsOnNonConfigurableExtensionExtension
+                )
+                assert isinstance(
+                    extensions[1][1], _DependsOnNonConfigurableExtensionExtension
+                )
 
     @pytest.mark.usefixtures("_extensions")
     async def test_extensions_with_multiple_extensions_with_cyclic_dependencies(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.extensions.append(
-                ExtensionConfiguration(_CyclicDependencyOneExtension)
-            )
+            sut.configuration.extensions.enable(_CyclicDependencyOneExtension)
             with pytest.raises(CyclicDependencyError):  # noqa PT012
                 async with sut:
-                    pass
+                    pass  # pragma: no cover
 
     @pytest.mark.usefixtures("_extensions")
     async def test_extensions_with_comes_before_with_other_extension(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.extensions.append(
-                ExtensionConfiguration(_NonConfigurableExtension)
-            )
-            sut.configuration.extensions.append(
-                ExtensionConfiguration(_ComesBeforeNonConfigurableExtensionExtension)
+            sut.configuration.extensions.enable(DummyExtension)
+            sut.configuration.extensions.enable(
+                _ComesBeforeNonConfigurableExtensionExtension
             )
             async with sut:
-                carrier: MutableSequence[_TrackableExtension] = []
-                await sut.event_dispatcher.dispatch(_TrackerEvent(carrier))
-                assert len(carrier) == 2
+                extensions = [list(batch) for batch in sut.extensions]
+                assert len(extensions) == 2
+                assert len(extensions[0]) == 1
                 assert isinstance(
-                    carrier[0], _ComesBeforeNonConfigurableExtensionExtension
+                    extensions[0][0], _ComesBeforeNonConfigurableExtensionExtension
                 )
-                assert isinstance(carrier[1], _NonConfigurableExtension)
+                assert len(extensions[1]) == 1
+                assert isinstance(extensions[1][0], DummyExtension)
 
     @pytest.mark.usefixtures("_extensions")
     async def test_extensions_with_comes_before_without_other_extension(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.extensions.append(
-                ExtensionConfiguration(_ComesBeforeNonConfigurableExtensionExtension)
+            sut.configuration.extensions.enable(
+                _ComesBeforeNonConfigurableExtensionExtension
             )
             async with sut:
-                carrier: MutableSequence[_TrackableExtension] = []
-                await sut.event_dispatcher.dispatch(_TrackerEvent(carrier))
-                assert len(carrier) == 1
+                extensions = [list(batch) for batch in sut.extensions]
+                assert len(extensions) == 1
+                assert len(extensions[0]) == 1
                 assert isinstance(
-                    carrier[0], _ComesBeforeNonConfigurableExtensionExtension
+                    extensions[0][0], _ComesBeforeNonConfigurableExtensionExtension
                 )
 
     @pytest.mark.usefixtures("_extensions")
@@ -1628,19 +1479,18 @@ class TestProject:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.extensions.append(
-                ExtensionConfiguration(_ComesAfterNonConfigurableExtensionExtension)
+            sut.configuration.extensions.enable(
+                _ComesAfterNonConfigurableExtensionExtension
             )
-            sut.configuration.extensions.append(
-                ExtensionConfiguration(_NonConfigurableExtension)
-            )
+            sut.configuration.extensions.enable(DummyExtension)
             async with sut:
-                carrier: MutableSequence[_TrackableExtension] = []
-                await sut.event_dispatcher.dispatch(_TrackerEvent(carrier))
-                assert len(carrier) == 2
-                assert isinstance(carrier[0], _NonConfigurableExtension)
+                extensions = [list(batch) for batch in sut.extensions]
+                assert len(extensions) == 2
+                assert len(extensions[0]) == 1
+                assert isinstance(extensions[0][0], DummyExtension)
+                assert len(extensions[1]) == 1
                 assert isinstance(
-                    carrier[1], _ComesAfterNonConfigurableExtensionExtension
+                    extensions[1][0], _ComesAfterNonConfigurableExtensionExtension
                 )
 
     @pytest.mark.usefixtures("_extensions")
@@ -1648,15 +1498,15 @@ class TestProject:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.extensions.append(
-                ExtensionConfiguration(_ComesAfterNonConfigurableExtensionExtension)
+            sut.configuration.extensions.enable(
+                _ComesAfterNonConfigurableExtensionExtension
             )
             async with sut:
-                carrier: MutableSequence[_TrackableExtension] = []
-                await sut.event_dispatcher.dispatch(_TrackerEvent(carrier))
-                assert len(carrier) == 1
+                extensions = [list(batch) for batch in sut.extensions]
+                assert len(extensions) == 1
+                assert len(extensions[0]) == 1
                 assert isinstance(
-                    carrier[0], _ComesAfterNonConfigurableExtensionExtension
+                    extensions[0][0], _ComesAfterNonConfigurableExtensionExtension
                 )
 
     async def test_ancestry_with___init___ancestry(
@@ -1678,9 +1528,31 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             assert sut.app is new_temporary_app
 
-    async def test_assets(self, new_temporary_app: App) -> None:
+    async def test_assets_without_extensions(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            assert len(sut.assets.assets_directory_paths) > 0
+            assert len(sut.assets.assets_directory_paths) == 2
+
+    async def test_assets_with_extension_without_assets_directory(
+        self, new_temporary_app: App
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app) as sut:
+            sut.configuration.extensions.enable(DummyExtension)
+            async with sut:
+                assert len(sut.assets.assets_directory_paths) == 2
+
+    async def test_assets_with_extension_with_assets_directory(
+        self, new_temporary_app: App, tmp_path: Path
+    ) -> None:
+        class _DummyExtensionWithAssetsDirectory(DummyExtension):
+            @override
+            @classmethod
+            def assets_directory_path(cls) -> Path | None:
+                return tmp_path / cls.plugin_id() / "assets"
+
+        async with Project.new_temporary(new_temporary_app) as sut:
+            sut.configuration.extensions.enable(_DummyExtensionWithAssetsDirectory)
+            async with sut:
+                assert len(sut.assets.assets_directory_paths) == 3
 
     async def test_event_dispatcher(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
@@ -1805,3 +1677,102 @@ class TestProjectSchema(SchemaTestBase):
     async def test_www_path(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
             assert str(ProjectSchema.www_path(project))
+
+
+class TestProjectExtensions:
+    async def test___contains___without_extensions(self) -> None:
+        sut = ProjectExtensions([])
+        assert DummyExtension not in sut
+
+    async def test___contains___with_unknown_extension(
+        self, new_temporary_app: App
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = ProjectExtensions([[DummyExtension(project)]])
+            assert DummyConfigurableExtension not in sut
+
+    async def test___contains___with_known_extension(
+        self, new_temporary_app: App
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = ProjectExtensions([[DummyExtension(project)]])
+            assert DummyExtension in sut
+
+    async def test___getitem___without_extensions(self) -> None:
+        sut = ProjectExtensions([])
+        with pytest.raises(KeyError):
+            sut[DummyExtension]
+
+    async def test___getitem___with_unknown_extension(
+        self, new_temporary_app: App
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = ProjectExtensions([[DummyExtension(project)]])
+            with pytest.raises(KeyError):
+                sut[DummyConfigurableExtension]
+
+    async def test___getitem___with_known_extension(
+        self, new_temporary_app: App
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = ProjectExtensions([[DummyExtension(project)]])
+            sut[DummyExtension]
+
+    async def test___iter___without_extensions(self) -> None:
+        sut = ProjectExtensions([])
+        assert list(iter(sut)) == []
+
+    async def test___iter___with_extensions_in_a_single_batch(
+        self, new_temporary_app: App
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            extension_one = DummyExtension(project)
+            extension_two = DummyConfigurableExtension(project)
+            sut = ProjectExtensions([[extension_one, extension_two]])
+            actual = [list(batch) for batch in iter(sut)]
+            assert len(actual) == 1
+            assert len(actual[0]) == 2
+            assert actual[0][0] is extension_one
+            assert actual[0][1] is extension_two
+
+    async def test___iter___with_extensions_in_multiple_batches(
+        self, new_temporary_app: App
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            extension_one = DummyExtension(project)
+            extension_two = DummyConfigurableExtension(project)
+            sut = ProjectExtensions([[extension_one], [extension_two]])
+            actual = [list(batch) for batch in iter(sut)]
+            assert len(actual) == 2
+            assert len(actual[0]) == 1
+            assert len(actual[1]) == 1
+            assert actual[0][0] is extension_one
+            assert actual[1][0] is extension_two
+
+    async def test_flatten_without_extensions(self) -> None:
+        sut = ProjectExtensions([])
+        assert list(sut.flatten()) == []
+
+    async def test_flatten_with_extensions_in_a_single_batch(
+        self, new_temporary_app: App
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            extension_one = DummyExtension(project)
+            extension_two = DummyConfigurableExtension(project)
+            sut = ProjectExtensions([[extension_one, extension_two]])
+            actual = list(sut.flatten())
+            assert len(actual) == 2
+            assert actual[0] is extension_one
+            assert actual[1] is extension_two
+
+    async def test_flatten_with_extensions_in_multiple_batches(
+        self, new_temporary_app: App
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            extension_one = DummyExtension(project)
+            extension_two = DummyConfigurableExtension(project)
+            sut = ProjectExtensions([[extension_one], [extension_two]])
+            actual = list(sut.flatten())
+            assert len(actual) == 2
+            assert actual[0] is extension_one
+            assert actual[1] is extension_two

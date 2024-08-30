@@ -2,9 +2,16 @@
 Test utilities for :py:mod:`betty.project.extension`.
 """
 
+from typing import Self
+
+from typing_extensions import override
+
 from betty.app import App
+from betty.assertion import assert_record, RequiredField, assert_bool, assert_setattr
+from betty.config import Configuration
 from betty.project import Project
-from betty.project.extension import Extension
+from betty.project.extension import Extension, ConfigurableExtension
+from betty.serde.dump import Dump, VoidableDump
 from betty.test_utils.plugin import (
     DummyPlugin,
     PluginTestBase,
@@ -66,7 +73,46 @@ class ExtensionTestBase(PluginTestBase[Extension]):
 
 class DummyExtension(DummyPlugin, Extension):
     """
-    A dummy extension implementation.
+    A dummy :py:class:`betty.project.extension.Extension` implementation.
     """
 
     pass
+
+
+class DummyConfigurableExtensionConfiguration(Configuration):
+    """
+    A dummy :py:class:`betty.config.Configuration` implementation for :py:class:`betty.test_utils.project.extension.DummyConfigurableExtension`.
+    """
+
+    def __init__(self, *, check: bool = False):
+        super().__init__()
+        self.check = check
+
+    @override
+    def update(self, other: Self) -> None:
+        self.check = other.check
+
+    @override
+    def load(self, dump: Dump) -> None:
+        assert_record(
+            RequiredField("check", assert_bool() | assert_setattr(self, "check"))
+        )(dump)
+
+    @override
+    def dump(self) -> VoidableDump:
+        return {
+            "check": self.check,
+        }
+
+
+class DummyConfigurableExtension(
+    DummyExtension, ConfigurableExtension[DummyConfigurableExtensionConfiguration]
+):
+    """
+    A dummy :py:class:`betty.project.extension.ConfigurableExtension` implementation.
+    """
+
+    @override
+    @classmethod
+    def default_configuration(cls) -> DummyConfigurableExtensionConfiguration:
+        return DummyConfigurableExtensionConfiguration()

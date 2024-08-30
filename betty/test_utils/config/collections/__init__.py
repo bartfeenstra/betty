@@ -139,25 +139,6 @@ class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _Configuration
         )
         assert len(sut) == 2
 
-    async def test___eq__(self) -> None:
-        """
-        Tests :py:meth:`betty.config.collections.ConfigurationCollection.__eq__` implementations.
-        """
-        configurations = self.get_configurations()
-        sut = self.get_sut(
-            [
-                configurations[0],
-                configurations[1],
-            ]
-        )
-        other = self.get_sut(
-            [
-                configurations[0],
-                configurations[1],
-            ]
-        )
-        assert sut == other
-
     async def test_prepend(self) -> None:
         """
         Tests :py:meth:`betty.config.collections.ConfigurationCollection.prepend` implementations.
