@@ -4,48 +4,41 @@ from __future__ import annotations
 
 import platform
 import sys
-from importlib.metadata import distributions
-from pathlib import Path
+from importlib import metadata
 from typing import Iterator, TYPE_CHECKING
 
-import aiofiles
+DEV_VERSION = "0.0.0"
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
 
-async def version() -> str | None:
+def version() -> str:
     """
     Get the current Betty installation's version, if it has any.
     """
-    async with aiofiles.open(
-        Path(__file__).parent / "assets" / "VERSION", encoding="utf-8"
-    ) as f:
-        release_version = (await f.read()).strip()
-    if release_version == "0.0.0":
-        return None
-    return release_version
+    return metadata.version("betty")
 
 
-async def version_label() -> str:
+def version_label() -> str:
     """
     Get the human-readable label for the current Betty installation's version.
     """
-    return await version() or "development"
+    return "development" if is_development() else version()
 
 
-async def is_stable() -> bool:
+def is_stable() -> bool:
     """
     Check if the current Betty installation is a stable version.
     """
-    return await version() is not None
+    return version() != DEV_VERSION
 
 
-async def is_development() -> bool:
+def is_development() -> bool:
     """
     Check if the current Betty installation is an unstable development version.
     """
-    return await version() is None
+    return version() == DEV_VERSION
 
 
 def _indent_mapping(items: Mapping[str, str]) -> str:
@@ -73,14 +66,14 @@ async def report() -> str:
     """
     return _indent_mapping(
         {
-            "Betty": await version_label(),
+            "Betty": version_label(),
             "Operating system": platform.platform(),
             "Python": sys.version,
             "Python packages": _indent_mapping(
                 {
                     x.metadata["Name"]: x.version
                     for x in sorted(
-                        distributions(),
+                        metadata.distributions(),
                         key=lambda x: x.metadata["Name"].lower(),  # type: ignore[no-any-return, unused-ignore]
                     )
                 }

@@ -9,7 +9,11 @@ then
   echo "This command takes a single argument, which is the version to release."
   exit 1
 fi
-echo "$1" > ./betty/assets/VERSION
+
+# Temporarily update pyproject.toml with the build version.
+original_pyproject=$(cat ./pyproject.toml)
+# shellcheck disable=SC2001
+echo "$original_pyproject" | sed "s/^version = '0.0.0'$/version = '$1'/g" > ./pyproject.toml
 
 # Install Python dependencies.
 pip install -e '.[setuptools]'
@@ -27,3 +31,6 @@ python -c 'from asyncio import run; from betty._package import prebuild; run(pre
 python setup.py sdist
 python setup.py bdist_wheel
 twine check ./dist/*
+
+# Clean up.
+echo "$original_pyproject" > ./pyproject.toml

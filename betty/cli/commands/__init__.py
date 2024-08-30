@@ -88,7 +88,7 @@ class _CommandRepository(LazyPluginRepositoryBase[Command]):
 
     async def _load_plugins(self) -> Mapping[str, type[Command]]:
         plugins = self._load_plugins_group("betty.command")
-        if await about.is_development():
+        if about.is_development():
             plugins = {**plugins, **(self._load_plugins_group("betty.dev.command"))}
         return plugins
 
