@@ -331,7 +331,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "create_file": TestKnownToBeMissing,
         "create_html_resource": TestKnownToBeMissing,
         "create_json_resource": TestKnownToBeMissing,
-        "GenerationContext": TestKnownToBeMissing,
     },
     "betty/gramps/error.py": TestKnownToBeMissing,
     "betty/gramps/loader.py": {

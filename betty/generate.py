@@ -20,6 +20,7 @@ from asyncio import (
 )
 from collections.abc import MutableSequence
 from contextlib import suppress
+from math import floor
 from pathlib import Path
 from typing import (
     cast,
@@ -34,12 +35,10 @@ from typing import (
 import aiofiles
 from aiofiles.os import makedirs
 from aiofiles.threadpool.text import AsyncTextIOWrapper
-from math import floor
 
 from betty import model
 from betty.ancestry import is_public
 from betty.asyncio import gather
-from betty.job import Context
 from betty.locale import get_display_name
 from betty.locale.localizable import _
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -49,7 +48,7 @@ from betty.model import (
     GeneratedEntityId,
 )
 from betty.openapi import Specification
-from betty.project import ProjectEvent, ProjectSchema
+from betty.project import ProjectEvent, ProjectSchema, ProjectContext
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
@@ -64,33 +63,7 @@ class GenerateSiteEvent(ProjectEvent):
     Dispatched to generate (part of) a project's site.
     """
 
-    def __init__(self, job_context: GenerationContext):
-        super().__init__(job_context.project)
-        self._job_context = job_context
-
-    @property
-    def job_context(self) -> GenerationContext:
-        """
-        The site generation job context.
-        """
-        return self._job_context
-
-
-class GenerationContext(Context):
-    """
-    A site generation job context.
-    """
-
-    def __init__(self, project: Project):
-        super().__init__()
-        self._project = project
-
-    @property
-    def project(self) -> Project:
-        """
-        The Betty project this job context is run within.
-        """
-        return self._project
+    pass
 
 
 async def generate(project: Project) -> None:
@@ -98,7 +71,7 @@ async def generate(project: Project) -> None:
     Generate a new site.
     """
     logger = logging.getLogger(__name__)
-    job_context = GenerationContext(project)
+    job_context = ProjectContext(project)
     app = project.app
 
     logger.info(
@@ -173,7 +146,7 @@ def _run_job(
     return create_task(_job())
 
 
-async def _run_jobs(job_context: GenerationContext) -> AsyncIterator[Task[None]]:
+async def _run_jobs(job_context: ProjectContext) -> AsyncIterator[Task[None]]:
     project = job_context.project
     semaphore = Semaphore(512)
     yield _run_job(semaphore, _generate_dispatch, job_context)
@@ -249,13 +222,13 @@ async def create_json_resource(path: Path) -> AsyncContextManager[AsyncTextIOWra
     return await create_file(path / "index.json")
 
 
-async def _generate_dispatch(job_context: GenerationContext) -> None:
+async def _generate_dispatch(job_context: ProjectContext) -> None:
     project = job_context.project
     await project.event_dispatcher.dispatch(GenerateSiteEvent(job_context))
 
 
 async def _generate_public_asset(
-    asset_path: Path, project: Project, job_context: GenerationContext, locale: str
+    asset_path: Path, project: Project, job_context: ProjectContext, locale: str
 ) -> None:
     www_directory_path = project.configuration.localize_www_directory_path(locale)
     file_destination_path = www_directory_path / asset_path.relative_to(
@@ -275,7 +248,7 @@ async def _generate_public_asset(
 
 
 async def _generate_public(
-    job_context: GenerationContext,
+    job_context: ProjectContext,
     locale: str,
 ) -> None:
     project = job_context.project
@@ -297,7 +270,7 @@ async def _generate_public(
 
 
 async def _generate_static_public_asset(
-    asset_path: Path, project: Project, job_context: GenerationContext
+    asset_path: Path, project: Project, job_context: ProjectContext
 ) -> None:
     file_destination_path = (
         project.configuration.www_directory_path
@@ -313,7 +286,7 @@ async def _generate_static_public_asset(
 
 
 async def _generate_static_public(
-    job_context: GenerationContext,
+    job_context: ProjectContext,
 ) -> None:
     project = job_context.project
     app = project.app
@@ -360,7 +333,7 @@ async def _generate_json_error_responses(project: Project) -> None:
 
 
 async def _generate_entity_type_list_html(
-    job_context: GenerationContext,
+    job_context: ProjectContext,
     locale: str,
     entity_type: type[Entity],
 ) -> None:
@@ -388,7 +361,7 @@ async def _generate_entity_type_list_html(
 
 
 async def _generate_entity_type_list_json(
-    job_context: GenerationContext,
+    job_context: ProjectContext,
     entity_type: type[Entity],
 ) -> None:
     project = job_context.project
@@ -416,7 +389,7 @@ async def _generate_entity_type_list_json(
 
 
 async def _generate_entity_html(
-    job_context: GenerationContext,
+    job_context: ProjectContext,
     locale: str,
     entity_type: type[Entity],
     entity_id: str,
@@ -446,7 +419,7 @@ async def _generate_entity_html(
 
 
 async def _generate_entity_json(
-    job_context: GenerationContext,
+    job_context: ProjectContext,
     entity_type: type[Entity],
     entity_id: str,
 ) -> None:
@@ -464,7 +437,7 @@ _ROBOTS_TXT_TEMPLATE = """Sitemap: {{{ sitemap }}}"""
 
 
 async def _generate_robots_txt(
-    job_context: GenerationContext,
+    job_context: ProjectContext,
 ) -> None:
     rendered_robots_txt = _ROBOTS_TXT_TEMPLATE.replace(
         "{{{ sitemap }}}",
@@ -511,7 +484,7 @@ _SITEMAP_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
 
 
 async def _generate_sitemap(
-    job_context: GenerationContext,
+    job_context: ProjectContext,
 ) -> None:
     project = job_context.project
     sitemap_batches = []
@@ -582,7 +555,7 @@ async def _generate_sitemap(
 
 
 async def _generate_json_schema(
-    job_context: GenerationContext,
+    job_context: ProjectContext,
 ) -> None:
     project = job_context.project
     logging.getLogger(__name__).debug(
@@ -595,7 +568,7 @@ async def _generate_json_schema(
 
 
 async def _generate_openapi(
-    job_context: GenerationContext,
+    job_context: ProjectContext,
 ) -> None:
     project = job_context.project
     app = project.app

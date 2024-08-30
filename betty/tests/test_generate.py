@@ -7,7 +7,7 @@ from pytest_mock import MockerFixture
 from betty.ancestry import Person, Place, Source, Name, File, Event, Citation
 from betty.ancestry.event_type import Birth
 from betty.app import App
-from betty.generate import generate, GenerateSiteEvent, GenerationContext
+from betty.generate import generate, GenerateSiteEvent
 from betty.model import (
     UserFacingEntity,
 )
@@ -16,6 +16,7 @@ from betty.project import (
     LocaleConfiguration,
     EntityTypeConfiguration,
     Project,
+    ProjectContext,
 )
 from betty.string import camel_case_to_kebab_case, kebab_case_to_lower_camel_case
 from betty.test_utils.assets.templates import assert_betty_html, assert_betty_json
@@ -413,7 +414,7 @@ class TestSitemapGenerate:
 class TestGenerateSiteEvent:
     async def test_job_context(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            job_context = GenerationContext(project)
+            job_context = ProjectContext(project)
             sut = GenerateSiteEvent(job_context)
             assert sut.project is project
             assert sut.job_context is job_context

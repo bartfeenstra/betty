@@ -29,6 +29,7 @@ from betty.project import (
     ProjectEvent,
     ProjectSchema,
     ProjectExtensions,
+    ProjectContext,
 )
 from betty.project.extension import (
     Extension,
@@ -1614,11 +1615,24 @@ class TestProject:
             assert dependent.project is sut
 
 
+class TestProjectContext:
+    async def test_project(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = ProjectContext(project)
+            assert sut.project is project
+
+
 class TestProjectEvent:
     async def test_project(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = ProjectEvent(project)
+            sut = ProjectEvent(ProjectContext(project))
             assert sut.project is project
+
+    async def test_job_context(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            job_context = ProjectContext(project)
+            sut = ProjectEvent(job_context)
+            assert sut.job_context is job_context
 
 
 class TestProjectSchema(SchemaTestBase):
