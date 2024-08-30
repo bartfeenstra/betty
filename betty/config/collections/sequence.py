@@ -8,7 +8,6 @@ from typing import (
     Generic,
     Iterable,
     MutableSequence,
-    Any,
     overload,
     Sequence,
     Iterator,
@@ -41,12 +40,6 @@ class ConfigurationSequence(
     ):
         self._configurations: MutableSequence[_ConfigurationT] = []
         super().__init__(configurations)
-
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, self.__class__):
-            return NotImplemented
-        return list(self.values()) == list(other.values())
 
     @override
     def to_index(self, configuration_key: int) -> int:

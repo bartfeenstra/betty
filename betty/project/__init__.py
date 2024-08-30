@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 from contextlib import asynccontextmanager
-from graphlib import TopologicalSorter, CycleError
+from graphlib import TopologicalSorter
 from pathlib import Path
 from reprlib import recursive_repr
 from typing import (
@@ -79,7 +79,6 @@ from betty.project.extension import (
     Extension,
     ConfigurableExtension,
     build_extension_type_graph,
-    CyclicDependencyError,
     Theme,
 )
 from betty.project.factory import ProjectDependentFactory
@@ -93,7 +92,7 @@ from betty.serde.dump import (
 )
 from betty.serde.format import FormatRepository
 from betty.string import kebab_case_to_lower_camel_case
-from betty.typing import Void
+from betty.typing import Void, internal
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
@@ -305,18 +304,6 @@ class ExtensionConfiguration(Configuration):
             extension_configuration = extension_type.default_configuration()
         self._set_extension_configuration(extension_configuration)
 
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, self.__class__):
-            return NotImplemented
-        if self.extension_type != other.extension_type:
-            return False
-        if self.enabled != other.enabled:
-            return False
-        if self.extension_configuration != other.extension_configuration:
-            return False
-        return True
-
     @property
     def extension_type(self) -> type[Extension]:
         """
@@ -473,16 +460,6 @@ class EntityTypeConfiguration(Configuration):
         self._entity_type = entity_type
         self.generate_html_list = generate_html_list  # type: ignore[assignment]
 
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, self.__class__):
-            return NotImplemented
-        if self.entity_type != other.entity_type:
-            return False
-        if self.generate_html_list != other.generate_html_list:
-            return False
-        return True
-
     @property
     def entity_type(self) -> type[Entity]:
         """
@@ -604,16 +581,6 @@ class LocaleConfiguration(Configuration):
     @recursive_repr()
     def __repr__(self) -> str:
         return repr_instance(self, locale=self.locale, alias=self.alias)
-
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, self.__class__):
-            return NotImplemented
-        if self.locale != other.locale:
-            return False
-        if self.alias != other.alias:
-            return False
-        return True
 
     @property
     def locale(self) -> str:
@@ -1026,7 +993,7 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
         self._static_url_generator: StaticUrlGenerator | None = None
         self._jinja2_environment: Environment | None = None
         self._renderer: Renderer | None = None
-        self._extensions: _ProjectExtensions | None = None
+        self._extensions: ProjectExtensions | None = None
         self._event_dispatcher: EventDispatcher | None = None
         self._entity_types: set[type[Entity]] | None = None
 
@@ -1159,6 +1126,7 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
         The (file) content renderer.
         """
         if not self._renderer:
+            self._assert_bootstrapped()
             self._renderer = SequentialRenderer(
                 [
                     self.new_dependent(plugin)  # type: ignore[arg-type]
@@ -1169,7 +1137,7 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
         return self._renderer
 
     @property
-    def extensions(self) -> _ProjectExtensions:
+    def extensions(self) -> ProjectExtensions:
         """
         The enabled extensions.
         """
@@ -1192,15 +1160,7 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
                     build_extension_type_graph(extension_types_enabled_in_configuration)
                 )
             )
-            try:
-                extension_types_sorter.prepare()
-            except CycleError:
-                raise CyclicDependencyError(
-                    [
-                        app_extension_configuration.extension_type
-                        for app_extension_configuration in self.configuration.extensions.values()
-                    ]
-                ) from None
+            extension_types_sorter.prepare()
 
             extensions = []
             while extension_types_sorter.is_active():
@@ -1224,7 +1184,7 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
                         extensions_batch, key=lambda extension: extension.plugin_id()
                     )
                 )
-            self._extensions = _ProjectExtensions(extensions)
+            self._extensions = ProjectExtensions(extensions)
 
             # Users may not realize no theme is enabled, and be confused by their site looking bare.
             # Warn them out of courtesy.
@@ -1265,8 +1225,9 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)
 
 
+@internal
 @final
-class _ProjectExtensions:
+class ProjectExtensions:
     """
     Manage the extensions running within the :py:class:`betty.project.Project`.
     """

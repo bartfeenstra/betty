@@ -9,19 +9,19 @@ from contextlib import suppress
 from typing import (
     Generic,
     Iterable,
-    Any,
     Iterator,
     Self,
     TypeVar,
     TYPE_CHECKING,
 )
 
+from typing_extensions import override
+
 from betty.assertion import assert_sequence, assert_mapping
 from betty.config import Configuration
 from betty.config.collections import ConfigurationCollection, ConfigurationKey
 from betty.serde.dump import Dump, VoidableDump, minimize
 from betty.typing import Void
-from typing_extensions import override
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping
@@ -40,18 +40,6 @@ class _ConfigurationMapping(
     ):
         self._configurations: MutableMapping[_ConfigurationKeyT, _ConfigurationT] = {}
         super().__init__(configurations)
-
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, self.__class__):
-            return NotImplemented
-        return {
-            self._get_key(configuration): configuration
-            for configuration in self.values()
-        } == {
-            self._get_key(configuration): configuration
-            for configuration in other.values()
-        }
 
     def _minimize_item_dump(self) -> bool:
         return False
