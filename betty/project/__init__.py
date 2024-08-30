@@ -62,6 +62,7 @@ from betty.config.collections.sequence import ConfigurationSequence
 from betty.core import CoreComponent
 from betty.event_dispatcher import EventDispatcher, EventHandlerRegistry
 from betty.hashid import hashid
+from betty.job import Context
 from betty.json.schema import (
     Schema,
     JsonSchemaReference,
@@ -1292,15 +1293,22 @@ class ProjectEvent(event_dispatcher.Event):
     An event that is dispatched within the context of a :py:class:`betty.project.Project`.
     """
 
-    def __init__(self, project: Project):
-        self._project = project
+    def __init__(self, job_context: ProjectContext):
+        self._job_context = job_context
 
     @property
     def project(self) -> Project:
         """
         The :py:class:`betty.project.Project` this event is dispatched within.
         """
-        return self._project
+        return self.job_context.project
+
+    @property
+    def job_context(self) -> ProjectContext:
+        """
+        The site generation job context.
+        """
+        return self._job_context
 
 
 @final
@@ -1375,3 +1383,20 @@ class ProjectSchema(Schema):
         ]
 
         return schema
+
+
+class ProjectContext(Context):
+    """
+    A job context for a project.
+    """
+
+    def __init__(self, project: Project):
+        super().__init__()
+        self._project = project
+
+    @property
+    def project(self) -> Project:
+        """
+        The Betty project this job context is run within.
+        """
+        return self._project

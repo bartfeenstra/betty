@@ -11,7 +11,7 @@ from betty.asyncio import gather
 from betty.fetch import Fetcher, FetchError
 from betty.media_type import MediaType, InvalidMediaType
 from betty.ancestry import Link, HasLinks
-from betty.project import Project, ProjectEvent
+from betty.project import Project, ProjectEvent, ProjectContext
 
 
 class LoadAncestryEvent(ProjectEvent):
@@ -36,8 +36,9 @@ async def load(project: Project) -> None:
     """
     Load an ancestry.
     """
-    await project.event_dispatcher.dispatch(LoadAncestryEvent(project))
-    await project.event_dispatcher.dispatch(PostLoadAncestryEvent(project))
+    job_context = ProjectContext(project)
+    await project.event_dispatcher.dispatch(LoadAncestryEvent(job_context))
+    await project.event_dispatcher.dispatch(PostLoadAncestryEvent(job_context))
     await _fetch_link_titles(project)
 
 
