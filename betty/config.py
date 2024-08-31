@@ -77,8 +77,8 @@ class Configuration(Dumpable):
     ) -> ReferenceType[_ConfigurationListener]:
         if isinstance(listener, Configuration):
             listener = listener._dispatch_change
-        if inspect.ismethod(listener):  # type: ignore[redundant-expr]
-            return weakref.WeakMethod(listener)  # type: ignore[unreachable]
+        if inspect.ismethod(listener):
+            return weakref.WeakMethod(listener)
         return weakref.ref(listener)
 
     def on_change(self, listener: ConfigurationListener) -> None:

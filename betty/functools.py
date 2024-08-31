@@ -161,9 +161,7 @@ class Do(Generic[_DoFP, _DoFReturnT]):
                     if isawaitable(condition_result_or_coroutine):
                         condition_result = await condition_result_or_coroutine
                     else:
-                        condition_result = cast(
-                            None | bool, condition_result_or_coroutine
-                        )
+                        condition_result = condition_result_or_coroutine
                     if condition_result is False:
                         raise RuntimeError(
                             f"Condition {condition} was not met for {do_result}."
