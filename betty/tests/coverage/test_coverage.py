@@ -334,18 +334,16 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/gramps/error.py": TestKnownToBeMissing,
     "betty/gramps/loader.py": {
+        # This is checked statically.
         "GrampsEntityReference": TestKnownToBeMissing,
+        # This is an enum.
         "GrampsEntityType": TestKnownToBeMissing,
         # This is an empty class.
-        "GrampsFileNotFoundError": TestKnownToBeMissing,
-        "GrampsLoader": {
-            "add_association": TestKnownToBeMissing,
-            "add_entity": TestKnownToBeMissing,
-            "load_file": TestKnownToBeMissing,
-            "load_tree": TestKnownToBeMissing,
-        },
+        "GrampsFileNotFound": TestKnownToBeMissing,
         # This is an empty class.
-        "GrampsLoadFileError": TestKnownToBeMissing,
+        "GrampsLoaderError": TestKnownToBeMissing,
+        # This is an empty class.
+        "LoaderUsedAlready": TestKnownToBeMissing,
         # This is an empty class.
         "XPathError": TestKnownToBeMissing,
     },
