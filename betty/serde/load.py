@@ -456,8 +456,8 @@ class Asserter:
             with SerdeErrorCollection().assert_valid() as errors:
                 for value_item_key, value_item_value in dict_value.items():
                     with errors.catch(Str.plain(value_item_key)):
-                        mapping[value_item_key] = self.assert_assertions(
-                            item_assertion
+                        mapping[value_item_key] = self.assert_assertions(  # type: ignore[assignment]
+                            item_assertion  # type: ignore[arg-type]
                         )(value_item_value)
             return mapping
 
