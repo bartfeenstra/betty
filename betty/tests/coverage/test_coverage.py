@@ -56,7 +56,6 @@ _ModuleIgnore = _ModuleExistsIgnore | type[TestKnownToBeMissing]
 # This baseline MUST NOT be extended. It SHOULD decrease in size as more coverage is added to Betty over time.
 _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/__init__.py": TestKnownToBeMissing,
-    "betty/_patch.py": TestKnownToBeMissing,
     "betty/about.py": {
         "is_development": TestKnownToBeMissing,
         "is_stable": TestKnownToBeMissing,
@@ -323,9 +322,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         # This is an empty class.
         "XPathError": TestKnownToBeMissing,
     },
-    "betty/importlib.py": {
-        "fully_qualified_type_name": TestKnownToBeMissing,
-    },
     "betty/html.py": TestKnownToBeMissing,
     "betty/jinja2/__init__.py": {
         "context_job_context": TestKnownToBeMissing,
@@ -360,9 +356,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/json/linked_data.py": TestKnownToBeMissing,
-    "betty/json/schema.py": {
-        "add_property": TestKnownToBeMissing,
-    },
     "betty/load.py": {
         # This is an empty class.
         "LoadAncestryEvent": TestKnownToBeMissing,
@@ -432,12 +425,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/model/association.py": {
         # This abstract class is covered by numerous tests for its final subclasses.
         "Association": TestKnownToBeMissing,
-        # This abstract class is covered by numerous tests for its final subclasses.
-        "BidirectionalAssociation": TestKnownToBeMissing,
-        # This abstract class is covered by numerous tests for its final subclasses.
-        "BidirectionalToManyAssociation": TestKnownToBeMissing,
-        # This abstract class is covered by numerous tests for its final subclasses.
-        "BidirectionalToOneAssociation": TestKnownToBeMissing,
         "ToMany": {
             "new_attr": TestKnownToBeMissing,
         },
