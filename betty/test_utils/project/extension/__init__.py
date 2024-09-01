@@ -9,6 +9,7 @@ from typing_extensions import override
 from betty.app import App
 from betty.assertion import assert_record, RequiredField, assert_bool, assert_setattr
 from betty.config import Configuration
+from betty.event_dispatcher import EventHandlerRegistry
 from betty.project import Project
 from betty.project.extension import Extension, ConfigurableExtension
 from betty.serde.dump import Dump, VoidableDump
@@ -69,6 +70,15 @@ class ExtensionTestBase(PluginTestBase[Extension]):
                 extension_id,
                 Extension,  # type: ignore[type-abstract]
             )
+
+    async def test_register_event_handlers(self, new_temporary_app: App) -> None:
+        """
+        Tests :py:meth:`betty.project.extension.Extension.register_event_handlers` implementations.
+        """
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = self.get_sut_class().new_for_project(project)
+            registry = EventHandlerRegistry()
+            sut.register_event_handlers(registry)
 
 
 class DummyExtension(DummyPlugin, Extension):

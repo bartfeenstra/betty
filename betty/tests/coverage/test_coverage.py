@@ -223,26 +223,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/extension/demo/__init__.py": {
-        "Demo": {
-            # This is checked statically.
-            "register_event_handlers": TestKnownToBeMissing,
-        },
         "DemoServer": {
             "public_url": TestKnownToBeMissing,
             "start": TestKnownToBeMissing,
             "stop": TestKnownToBeMissing,
-        },
-    },
-    "betty/extension/deriver/__init__.py": {
-        "Deriver": {
-            # This is checked statically.
-            "register_event_handlers": TestKnownToBeMissing,
-        },
-    },
-    "betty/extension/gramps/__init__.py": {
-        "Gramps": {
-            # This is checked statically.
-            "register_event_handlers": TestKnownToBeMissing,
         },
     },
     "betty/extension/gramps/config.py": {
@@ -266,14 +250,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/extension/privatizer/__init__.py": {
         "Privatizer": {
             "privatize": TestKnownToBeMissing,
-            # This is checked statically.
-            "register_event_handlers": TestKnownToBeMissing,
         },
     },
     "betty/extension/trees/__init__.py": {
         "Trees": {
-            # This is checked statically.
-            "register_event_handlers": TestKnownToBeMissing,
             "webpack_entry_point_cache_keys": TestKnownToBeMissing,
         },
     },
@@ -286,8 +266,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "filters": TestKnownToBeMissing,
             "new_context_vars": TestKnownToBeMissing,
             "public_css_paths": TestKnownToBeMissing,
-            # This is checked statically.
-            "register_event_handlers": TestKnownToBeMissing,
         },
         # This is an interface.
         "WebpackEntryPointProvider": TestKnownToBeMissing,
@@ -300,8 +278,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/extension/wikipedia/__init__.py": {
         "Wikipedia": {
             "filters": TestKnownToBeMissing,
-            # This is checked statically.
-            "register_event_handlers": TestKnownToBeMissing,
         },
     },
     "betty/extension/wikipedia/config.py": {
