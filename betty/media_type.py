@@ -23,6 +23,7 @@ class InvalidMediaType(ValueError):
     pass  # pragma: no cover
 
 
+@final
 class MediaType:
     """
     Define a `media type <https://en.wikipedia.org/wiki/Media_type>`_.
