@@ -452,16 +452,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/media_type.py": {
         # This is an empty class.
         "InvalidMediaType": TestKnownToBeMissing,
-        "MediaType": {
-            "__eq__": TestKnownToBeMissing,
-            "__hash__": TestKnownToBeMissing,
-            "__str__": TestKnownToBeMissing,
-            "parameters": TestKnownToBeMissing,
-            "subtype": TestKnownToBeMissing,
-            "subtypes": TestKnownToBeMissing,
-            "suffix": TestKnownToBeMissing,
-            "type": TestKnownToBeMissing,
-        },
     },
     "betty/model/__init__.py": {
         "unalias": TestKnownToBeMissing,
