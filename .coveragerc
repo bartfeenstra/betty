@@ -1,12 +1,10 @@
 [run]
 branch = True
 concurrency =
-    multiprocessing
     thread
 omit =
     betty/_bootstrap.py
     betty/_package/**
-parallel = True
 source = betty
 
 [report]
