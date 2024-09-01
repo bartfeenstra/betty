@@ -614,7 +614,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ServerNotStartedError": TestKnownToBeMissing,
     },
     "betty/serde/dump.py": TestKnownToBeMissing,
-    "betty/sphinx/extension/replacements.py": TestKnownToBeMissing,
     # We do not test our test utilities.
     **{
         "betty/test_utils/ancestry/__init__.py": TestKnownToBeMissing,
