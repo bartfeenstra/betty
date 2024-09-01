@@ -489,22 +489,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "StartOfLifeEventType": TestKnownToBeMissing,
     },
     "betty/ancestry/presence_role.py": {
-        # This is static.
-        "Attendee": TestKnownToBeMissing,
-        # This is static.
-        "Beneficiary": TestKnownToBeMissing,
-        # This is static.
-        "Celebrant": TestKnownToBeMissing,
-        # This is static.
-        "Organizer": TestKnownToBeMissing,
         # This is an interface.
         "PresenceRole": TestKnownToBeMissing,
-        # This is static.
-        "Speaker": TestKnownToBeMissing,
-        # This is static.
-        "Subject": TestKnownToBeMissing,
-        # This is static.
-        "Witness": TestKnownToBeMissing,
     },
     "betty/path.py": TestKnownToBeMissing,
     "betty/plugin/__init__.py": {
