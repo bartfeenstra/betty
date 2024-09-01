@@ -467,9 +467,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/ancestry/__init__.py": {
         "resolve_privacy": TestKnownToBeMissing,
-        "Citation": {
-            "label": TestKnownToBeMissing,
-        },
         "HasDate": {
             # This is static.
             "dated_linked_data_contexts": TestKnownToBeMissing,
@@ -477,10 +474,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Event": {
             # This is static.
             "dated_linked_data_contexts": TestKnownToBeMissing,
-            "label": TestKnownToBeMissing,
-        },
-        "File": {
-            "label": TestKnownToBeMissing,
         },
         "HasPrivacy": {
             "own_privacy": TestKnownToBeMissing,
@@ -490,25 +483,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
         "Note": {
             "entity": TestKnownToBeMissing,
-            "label": TestKnownToBeMissing,
-        },
-        "Person": {
-            "label": TestKnownToBeMissing,
-        },
-        "PersonName": {
-            "label": TestKnownToBeMissing,
         },
         "Place": {
             "associated_files": TestKnownToBeMissing,
-            "label": TestKnownToBeMissing,
-        },
-        "Presence": {
-            "label": TestKnownToBeMissing,
         },
         "Privacy": TestKnownToBeMissing,
-        "Source": {
-            "label": TestKnownToBeMissing,
-        },
     },
     "betty/ancestry/event_type.py": {
         "CreatableDerivableEventType": TestKnownToBeMissing,

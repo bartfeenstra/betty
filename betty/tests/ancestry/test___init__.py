@@ -6,6 +6,9 @@ from tempfile import NamedTemporaryFile
 from typing import Any, Sequence, TYPE_CHECKING
 
 import pytest
+from geopy import Point
+from typing_extensions import override
+
 from betty.ancestry import (
     Person,
     Event,
@@ -36,7 +39,7 @@ from betty.ancestry import (
     PrivacySchema,
 )
 from betty.ancestry.event_type import Birth, UnknownEventType
-from betty.ancestry.presence_role import Subject
+from betty.ancestry.presence_role import Subject, Attendee
 from betty.app import App
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.date import Date, DateRange
@@ -53,10 +56,9 @@ from betty.test_utils.ancestry import (
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.json.schema import SchemaTestBase
 from betty.test_utils.model import DummyEntity, EntityTestBase
-from geopy import Point
-from typing_extensions import override
 
 if TYPE_CHECKING:
+    from betty.model import Entity
     from betty.serde.dump import Dump, DumpMapping
     from betty.json.schema import Schema
 
@@ -424,6 +426,12 @@ class TestNote(EntityTestBase):
     def get_sut_class(self) -> type[Note]:
         return Note
 
+    @override
+    async def get_sut_instances(self) -> Sequence[Entity]:
+        return [
+            Note("My First Note"),
+        ]
+
     async def test_id(self) -> None:
         note_id = "N1"
         sut = Note(
@@ -698,6 +706,13 @@ class TestFile(EntityTestBase):
     def get_sut_class(self) -> type[File]:
         return File
 
+    @override
+    async def get_sut_instances(self) -> Sequence[Entity]:
+        return [
+            File(Path(__file__)),
+            File(Path(__file__), description="My First File"),
+        ]
+
     async def test_id(self) -> None:
         file_id = "BETTY01"
         file_path = Path("~")
@@ -962,6 +977,13 @@ class TestSource(EntityTestBase):
     @override
     def get_sut_class(self) -> type[Source]:
         return Source
+
+    @override
+    async def get_sut_instances(self) -> Sequence[Entity]:
+        return [
+            Source(),
+            Source(name="My First Source"),
+        ]
 
     async def test_id(self) -> None:
         source_id = "S1"
@@ -1238,6 +1260,13 @@ class TestCitation(EntityTestBase):
     def get_sut_class(self) -> type[Citation]:
         return Citation
 
+    @override
+    async def get_sut_instances(self) -> Sequence[Entity]:
+        return [
+            Citation(),
+            Citation(location="My First Location"),
+        ]
+
     async def test_id(self) -> None:
         citation_id = "C1"
         sut = Citation(
@@ -1428,6 +1457,12 @@ class TestEnclosure(EntityTestBase):
     def get_sut_class(self) -> type[Enclosure]:
         return Enclosure
 
+    @override
+    async def get_sut_instances(self) -> Sequence[Entity]:
+        return [
+            Enclosure(),
+        ]
+
     async def test_encloses(self) -> None:
         encloses = Place()
         enclosed_by = Place()
@@ -1463,6 +1498,13 @@ class TestPlace(EntityTestBase):
     @override
     def get_sut_class(self) -> type[Place]:
         return Place
+
+    @override
+    async def get_sut_instances(self) -> Sequence[Entity]:
+        return [
+            Place(),
+            Place(names=[Name("My First Place")]),
+        ]
 
     async def test_events(self) -> None:
         sut = Place(
@@ -1696,6 +1738,15 @@ class TestPresence(EntityTestBase):
     def get_sut_class(self) -> type[Presence]:
         return Presence
 
+    @override
+    async def get_sut_instances(self) -> Sequence[Entity]:
+        return [
+            Presence(None, Attendee(), None),
+            Presence(Person(), Attendee(), None),
+            Presence(None, Attendee(), Event()),
+            Presence(Person(), Attendee(), Event()),
+        ]
+
     async def test_person(self) -> None:
         person = Person()
         sut = Presence(person, Subject(), Event(event_type=UnknownEventType()))
@@ -1738,6 +1789,13 @@ class TestEvent(EntityTestBase):
     @override
     def get_sut_class(self) -> type[Event]:
         return Event
+
+    @override
+    async def get_sut_instances(self) -> Sequence[Entity]:
+        return [
+            Event(),
+            Event(description="My First Event"),
+        ]
 
     async def test_id(self) -> None:
         event_id = "E1"
@@ -1982,6 +2040,14 @@ class TestPersonName(EntityTestBase):
     def get_sut_class(self) -> type[PersonName]:
         return PersonName
 
+    @override
+    async def get_sut_instances(self) -> Sequence[Entity]:
+        return [
+            PersonName(individual="Jane"),
+            PersonName(affiliation="Doe"),
+            PersonName(individual="Jane", affiliation="Doe"),
+        ]
+
     async def test_person(self) -> None:
         person = Person(id="1")
         sut = PersonName(
@@ -2093,6 +2159,19 @@ class TestPerson(EntityTestBase):
     @override
     def get_sut_class(self) -> type[Person]:
         return Person
+
+    @override
+    async def get_sut_instances(self) -> Sequence[Entity]:
+        return [
+            # No names.
+            Person(),
+            # No public names.
+            Person(
+                names=[PersonName(individual="Jane", affiliation="Doe", private=True)]
+            ),
+            # One public name.
+            Person(names=[PersonName(individual="Jane", affiliation="Doe")]),
+        ]
 
     async def test_parents(self) -> None:
         sut = Person(id="1")
