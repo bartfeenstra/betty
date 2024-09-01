@@ -10,6 +10,8 @@ from reprlib import recursive_repr
 from typing import Iterable, Any, TYPE_CHECKING, final
 from urllib.parse import quote
 
+from typing_extensions import override
+
 from betty.ancestry.event_type import EventType, UnknownEventType, EVENT_TYPE_REPOSITORY
 from betty.ancestry.presence_role import PresenceRole, Subject, PresenceRoleSchema
 from betty.asyncio import wait_to_thread
@@ -34,7 +36,6 @@ from betty.locale.date import Datey, DateySchema, Date
 from betty.locale.localizable import (
     _,
     Localizable,
-    static,
     call,
     ShorthandStaticTranslations,
     StaticTranslationsLocalizableAttr,
@@ -60,7 +61,6 @@ from betty.model.collections import (
     MultipleTypesEntityCollection,
 )
 from betty.string import camel_case_to_kebab_case
-from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
@@ -589,12 +589,12 @@ class Note(UserFacingEntity, HasPrivacy, HasLinks, Entity):
     @override
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return _("Note")  # pragma: no cover
+        return _("Note")
 
     @override
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
-        return _("Notes")  # pragma: no cover
+        return _("Notes")
 
     @override
     @property
@@ -775,12 +775,12 @@ class File(
     @override
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return _("File")  # pragma: no cover
+        return _("File")
 
     @override
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
-        return _("Files")  # pragma: no cover
+        return _("Files")
 
     @property
     def path(self) -> Path:
@@ -1009,12 +1009,12 @@ class Source(
     @override
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return _("Source")  # pragma: no cover
+        return _("Source")
 
     @override
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
-        return _("Sources")  # pragma: no cover
+        return _("Sources")
 
     @override
     @property
@@ -1138,17 +1138,17 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks, UserFacingEntit
     @override
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return _("Citation")  # pragma: no cover
+        return _("Citation")
 
     @override
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
-        return _("Citations")  # pragma: no cover
+        return _("Citations")
 
     @override
     @property
     def label(self) -> Localizable:
-        return self.location or static("")
+        return self.location or super().label
 
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
@@ -1250,12 +1250,12 @@ class Enclosure(HasDate, HasCitations, Entity):
     @override
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return _("Enclosure")  # pragma: no cover
+        return _("Enclosure")
 
     @override
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
-        return _("Enclosures")  # pragma: no cover
+        return _("Enclosures")
 
 
 @final
@@ -1336,12 +1336,12 @@ class Place(
     @override
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return _("Place")  # pragma: no cover
+        return _("Place")
 
     @override
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
-        return _("Places")  # pragma: no cover
+        return _("Places")
 
     @property
     def names(self) -> MutableSequence[Name]:
@@ -1482,12 +1482,12 @@ class Presence(HasPrivacy, Entity):
     @override
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return _("Presence")  # pragma: no cover
+        return _("Presence")
 
     @override
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
-        return _("Presences")  # pragma: no cover
+        return _("Presences")
 
     @override
     @property
@@ -1618,12 +1618,12 @@ class Event(
     @override
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return _("Event")  # pragma: no cover
+        return _("Event")
 
     @override
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
-        return _("Events")  # pragma: no cover
+        return _("Events")
 
     @property
     def event_type(self) -> EventType:
@@ -1767,12 +1767,12 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
     @override
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return _("Person name")  # pragma: no cover
+        return _("Person name")
 
     @override
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
-        return _("Person names")  # pragma: no cover
+        return _("Person names")
 
     @property
     def individual(self) -> str | None:
@@ -1923,12 +1923,12 @@ class Person(
     @override
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return _("Person")  # pragma: no cover
+        return _("Person")
 
     @override
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
-        return _("People")  # pragma: no cover
+        return _("People")
 
     @property
     def ancestors(self) -> Iterator[Person]:
