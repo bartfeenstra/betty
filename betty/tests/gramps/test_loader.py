@@ -18,8 +18,10 @@ from betty.ancestry import (
     Privacy,
 )
 from betty.ancestry.event_type import Birth, Death, UnknownEventType
+from betty.ancestry.presence_role import Attendee
 from betty.app import App
-from betty.gramps.loader import GrampsLoader
+from betty.gramps.error import UserFacingGrampsError
+from betty.gramps.loader import GrampsLoader, LoaderUsedAlready, GrampsFileNotFound
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.date import Date, DateRange
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -34,10 +36,59 @@ class TestGrampsLoader:
             sut = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
             await sut.load_gramps(Path(__file__).parent / "assets" / "minimal.gramps")
 
+    async def test_load_gramps_with_non_existent_file(
+        self, new_temporary_app: App, tmp_path: Path
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
+            with pytest.raises(GrampsFileNotFound):
+                await sut.load_gramps(tmp_path / "non-existent-file")
+
     async def test_load_gpkg(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
             await sut.load_gpkg(Path(__file__).parent / "assets" / "minimal.gpkg")
+
+    async def test_load_gpkg_with_non_existent_file(
+        self, new_temporary_app: App, tmp_path: Path
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
+            with pytest.raises(GrampsFileNotFound):
+                await sut.load_gpkg(tmp_path / "non-existent-file")
+
+    @pytest.mark.parametrize(
+        "file_path",
+        [
+            Path(__file__).parent / "assets" / "minimal.gramps",
+            Path(__file__).parent / "assets" / "minimal.gpkg",
+            Path(__file__).parent / "assets" / "minimal.xml",
+        ],
+    )
+    async def test_load_file(self, file_path: Path, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
+            await sut.load_file(file_path)
+            with pytest.raises(LoaderUsedAlready):
+                await sut.load_file(file_path)
+
+    async def test_load_file_with_non_existent_file(
+        self, new_temporary_app: App, tmp_path: Path
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
+            with pytest.raises(GrampsFileNotFound):
+                await sut.load_file(tmp_path / "non-existent-file")
+
+    async def test_load_file_with_invalid_file(
+        self, new_temporary_app: App, tmp_path: Path
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
+            with pytest.raises(UserFacingGrampsError):
+                await sut.load_file(
+                    Path(__file__).parent / "assets" / "minimal.invalid"
+                )
 
     async def _load(self, xml: str) -> Ancestry:
         async with App.new_temporary() as app, app, Project.new_temporary(
@@ -1256,3 +1307,65 @@ class TestGrampsLoader:
         )
         note = ancestry[Note]["N0000"]
         assert note.text.localize(DEFAULT_LOCALIZER) == "I left this for you."
+
+    async def test_citation_should_include_location_from_place(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<citations>
+    <citation handle="_e2c25a12a097a0b24bd9eae5090" change="1558277266" id="C0000">
+        <confidence>2</confidence>
+        <sourceref hlink="_e1dd686b04813540eb3503a342b"/>
+        <page>My First Page</page>
+    </citation>
+</citations>
+<sources>
+    <source handle="_e1dd686b04813540eb3503a342b" change="1558277217" id="S0000">
+        <stitle>A Whisper</stitle>
+    </source>
+</sources>
+"""
+        )
+        citation = ancestry[Citation]["C0000"]
+        assert citation.location.localize(DEFAULT_LOCALIZER) == "My First Page"
+
+    async def test__load_eventref_should_default_presence_role(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<people>
+    <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0000">
+        <gender>U</gender>
+        <eventref hlink="_e7692ea23775e80643fe4fcf91" role="UnknownGrampsEventRefRole"/>
+    </person>
+</people>
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>Birth</type>
+        <dateval val="0000-00-00" quality="calculated"/>
+    </event>
+</events>
+"""
+        )
+        person = ancestry[Person]["I0000"]
+        presence = person.presences[0]
+        assert isinstance(presence.role, Attendee)
+
+    async def test__load_eventref_should_include_privacy(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<people>
+    <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0000">
+        <gender>U</gender>
+        <eventref hlink="_e7692ea23775e80643fe4fcf91" priv="1" role="Primary"/>
+    </person>
+</people>
+<events>
+    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+        <type>Birth</type>
+        <dateval val="0000-00-00" quality="calculated"/>
+    </event>
+</events>
+"""
+        )
+        person = ancestry[Person]["I0000"]
+        presence = person.presences[0]
+        assert presence.private

@@ -16,11 +16,10 @@ from pathlib import Path
 from typing import Iterable, Any, IO, cast, TYPE_CHECKING
 from xml.etree import ElementTree
 
-from lxml import etree
-
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
 from geopy import Point
+from lxml import etree
 from typing_extensions import override
 
 from betty.ancestry import (
@@ -79,7 +78,7 @@ from betty.ancestry.presence_role import (
     Organizer,
 )
 from betty.error import FileNotFound
-from betty.gramps.error import GrampsError
+from betty.gramps.error import GrampsError, UserFacingGrampsError
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.date import DateRange, Datey, Date
 from betty.locale.localizable import _, plain
@@ -94,15 +93,23 @@ if TYPE_CHECKING:
     from collections.abc import MutableMapping, Mapping, Sequence
 
 
-class GrampsLoadFileError(GrampsError, RuntimeError):
+class LoaderUsedAlready(GrampsError):
     """
-    An error occurred when loading a Gramps family tree file.
+    Raised when a :py:class:`betty.gramps.loader.GrampsLoader` is used more than once.
     """
 
     pass  # pragma: no cover
 
 
-class XPathError(GrampsError, RuntimeError):
+class GrampsFileNotFound(GrampsError, FileNotFound):
+    """
+    Raised when a Gramps family tree file cannot be found.
+    """
+
+    pass  # pragma: no cover
+
+
+class XPathError(GrampsError):
     """
     An error occurred when evaluating an XPath selector on Gramps XML.
     """
@@ -161,6 +168,8 @@ class GrampsLoader:
     async def load_file(self, file_path: Path) -> None:
         """
         Load family history data from any of the supported Gramps file types.
+
+        :raises betty.gramps.error.GrampsError:
         """
         file_path = file_path.resolve()
         logger = getLogger(__name__)
@@ -170,11 +179,11 @@ class GrampsLoader:
             )
         )
 
-        with suppress(GrampsLoadFileError):
+        with suppress(UserFacingGrampsError):
             await self.load_gpkg(file_path)
             return
 
-        with suppress(GrampsLoadFileError):
+        with suppress(UserFacingGrampsError):
             await self.load_gramps(file_path)
             return
 
@@ -182,12 +191,12 @@ class GrampsLoader:
             async with aiofiles.open(file_path, mode="rb") as f:
                 xml = await f.read()
         except FileNotFoundError:
-            raise FileNotFound.new(file_path) from None
-        with suppress(GrampsLoadFileError):
+            raise GrampsFileNotFound.new(file_path) from None
+        with suppress(UserFacingGrampsError):
             await self._load_xml(xml, Path(file_path.anchor))
             return
 
-        raise GrampsLoadFileError(
+        raise UserFacingGrampsError(
             _(
                 'Could not load "{file_path}" as a *.gpkg, a *.gramps, or an *.xml family tree.'
             ).format(file_path=str(file_path))
@@ -196,46 +205,56 @@ class GrampsLoader:
     async def load_gramps(self, gramps_path: Path) -> None:
         """
         Load family history data from a Gramps *.gramps file.
+
+        :raises betty.gramps.error.GrampsError:
         """
         gramps_path = gramps_path.resolve()
         try:
             with gzip.open(gramps_path) as f:
                 xml = f.read()
             await self._load_xml(xml, rootname(gramps_path))
+        except FileNotFoundError:
+            raise GrampsFileNotFound.new(gramps_path) from None
         except OSError as error:
-            raise GrampsLoadFileError(plain(str(error))) from error
+            raise UserFacingGrampsError(
+                _("Could not extract {file_path} as a gzip file  (*.gz).").format(
+                    file_path=str(gramps_path)
+                )
+            ) from error
 
     async def load_gpkg(self, gpkg_path: Path) -> None:
         """
         Load family history data from a Gramps *.gpkg file.
+
+        :raises betty.gramps.error.GrampsError:
         """
         gpkg_path = gpkg_path.resolve()
         try:
             tar_file: IO[bytes] = gzip.open(gpkg_path)  # type: ignore[assignment]
-            try:
-                async with TemporaryDirectory() as cache_directory_path_str:
+        except FileNotFoundError:
+            raise GrampsFileNotFound.new(gpkg_path) from None
+        else:
+            async with TemporaryDirectory() as cache_directory_path_str:
+                try:
                     tarfile.open(
                         fileobj=tar_file,
                     ).extractall(cache_directory_path_str, filter="data")
+                except (OSError, tarfile.ReadError) as error:
+                    raise UserFacingGrampsError(
+                        _(
+                            "Could not extract {file_path} as a gzipped tar file  (*.tar.gz)."
+                        ).format(file_path=str(gpkg_path))
+                    ) from error
+                else:
                     await self.load_gramps(
                         Path(cache_directory_path_str) / "data.gramps"
                     )
-            except tarfile.ReadError as error:
-                raise GrampsLoadFileError(
-                    _(
-                        "Could not extract {file_path} as a tar (*.tar) file after extracting the outer gzip (*.gz) file."
-                    ).format(file_path=str(gpkg_path))
-                ) from error
-        except OSError as error:
-            raise GrampsLoadFileError(
-                _("Could not extract {file_path} as a gzip (*.gz) file.").format(
-                    file_path=str(gpkg_path)
-                )
-            ) from error
 
     async def load_xml(self, xml: str, gramps_tree_directory_path: Path) -> None:
         """
         Load family history data from XML.
+
+        :raises betty.gramps.error.GrampsError:
         """
         await self._load_xml(xml.encode("utf-8"), gramps_tree_directory_path)
 
@@ -244,18 +263,18 @@ class GrampsLoader:
             tree = cast(  # type: ignore[bad-cast]
                 ElementTree.ElementTree, etree.ElementTree(etree.fromstring(xml))
             )
-        except ElementTree.ParseError as error:
-            raise GrampsLoadFileError(plain(str(error))) from error
-        await self.load_tree(tree, gramps_tree_directory_path)
+        except etree.ParseError as error:
+            raise UserFacingGrampsError(plain(str(error))) from error
+        await self._load_tree(tree, gramps_tree_directory_path)
 
-    async def load_tree(
+    async def _load_tree(
         self, tree: ElementTree.ElementTree, gramps_tree_directory_path: Path
     ) -> None:
         """
         Load family history data from a Gramps XML tree.
         """
         if self._loaded:
-            raise RuntimeError("This loader has been used up.")
+            raise LoaderUsedAlready("This loader has been used up.")
 
         self._loaded = True
         self._tree = tree
@@ -325,17 +344,11 @@ class GrampsLoader:
 
         self._project.ancestry.add_unchecked_graph(*self._ancestry_builder.build())
 
-    def add_entity(self, entity: AliasableEntity[Entity]) -> None:
-        """
-        Add entities to the ancestry.
-        """
+    def _add_entity(self, entity: AliasableEntity[Entity]) -> None:
         self._ancestry_builder.add_entity(entity)
         self._added_entity_counts[entity.type] += 1
 
-    def add_association(self, *args: Any, **kwargs: Any) -> None:
-        """
-        Add an association between two entities to the ancestry.
-        """
+    def _add_association(self, *args: Any, **kwargs: Any) -> None:
         self._ancestry_builder.add_association(*args, **kwargs)
 
     _NS = {
@@ -353,7 +366,7 @@ class GrampsLoader:
         found_element = element.find(selector, namespaces=self._NS)
         if found_element is None:
             raise XPathError(
-                plain(f'Cannot find an element "{selector}" within {str(element)}.')
+                f'Cannot find an element "{selector}" within {str(element)}.'
             )
         return found_element
 
@@ -440,14 +453,14 @@ class GrampsLoader:
         )
         if element.get("priv") == "1":
             note.private = True
-        self.add_entity(AliasedEntity(note, note_handle))
+        self._add_entity(AliasedEntity(note, note_handle))
 
     def _load_noteref(
         self, owner: AliasableEntity[HasNotes & Entity], element: ElementTree.Element
     ) -> None:
         note_handles = self._load_handles("noteref", element)
         for note_handle in note_handles:
-            self.add_association(owner.type, owner.id, "notes", Note, note_handle)
+            self._add_association(owner.type, owner.id, "notes", Note, note_handle)
 
     def _load_objects(
         self, database: ElementTree.Element, gramps_tree_directory_path: Path
@@ -485,11 +498,11 @@ class GrampsLoader:
             "attribute",
         )
 
-        self.add_entity(
+        self._add_entity(
             aliased_file,  # type: ignore[arg-type]
         )
         for citation_handle in self._load_handles("citationref", element):
-            self.add_association(
+            self._add_association(
                 File, file_handle, "citations", Citation, citation_handle
             )
         self._load_noteref(
@@ -540,8 +553,8 @@ class GrampsLoader:
                 self._load_citationref(person_name, name_element)
                 person_names.append((person_name, is_alternative))
         for person_name, __ in sorted(person_names, key=lambda x: x[1]):
-            self.add_entity(person_name)
-            self.add_association(
+            self._add_entity(person_name)
+            self._add_association(
                 Person, person_handle, "names", PersonName, person_name.id
             )
 
@@ -570,7 +583,7 @@ class GrampsLoader:
             element,
         )
         self._load_urls(person, element)
-        self.add_entity(
+        self._add_entity(
             aliased_person,  # type: ignore[arg-type]
         )
 
@@ -597,7 +610,7 @@ class GrampsLoader:
         child_handles = self._load_handles("childref", element)
         for child_handle in child_handles:
             for parent_handle in parent_handles:
-                self.add_association(
+                self._add_association(
                     Person, child_handle, "parents", Person, parent_handle
                 )
 
@@ -634,7 +647,9 @@ class GrampsLoader:
                     person_id=person_id,
                     event_handle=event_handle,
                     gramps_presence_role=gramps_presence_role,
-                    betty_presence_role=role.plugin_label(),
+                    betty_presence_role=role.plugin_label().localize(
+                        self._project.app.localizer
+                    ),
                 )
             )
 
@@ -649,9 +664,9 @@ class GrampsLoader:
             "attribute",
         )
 
-        self.add_entity(presence)
-        self.add_association(Presence, presence.id, "person", Person, person_id)
-        self.add_association(Presence, presence.id, "event", Event, event_handle)
+        self._add_entity(presence)
+        self._add_association(Presence, presence.id, "person", Person, person_id)
+        self._add_association(Presence, presence.id, "event", Event, event_handle)
 
     def _load_places(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, "./ns:places/ns:placeobj"):
@@ -691,7 +706,7 @@ class GrampsLoader:
             element,
         )
 
-        self.add_entity(
+        self._add_entity(
             aliased_place,  # type: ignore[arg-type]
         )
 
@@ -699,13 +714,13 @@ class GrampsLoader:
             aliased_enclosure = AliasedEntity(
                 Enclosure(encloses=None, enclosed_by=None)
             )
-            self.add_entity(
+            self._add_entity(
                 aliased_enclosure,  # type: ignore[arg-type]
             )
-            self.add_association(
+            self._add_association(
                 Enclosure, aliased_enclosure.id, "encloses", Place, place_handle
             )
-            self.add_association(
+            self._add_association(
                 Enclosure,
                 aliased_enclosure.id,
                 "enclosed_by",
@@ -792,7 +807,7 @@ class GrampsLoader:
         # Load the event place.
         place_handle = self._load_handle("place", element)
         if place_handle is not None:
-            self.add_association(Event, event_handle, "place", Place, place_handle)
+            self._add_association(Event, event_handle, "place", Place, place_handle)
 
         # Load the description.
         with suppress(XPathError):
@@ -824,7 +839,7 @@ class GrampsLoader:
             "attribute",
         )
 
-        self.add_entity(
+        self._add_entity(
             aliased_event,  # type: ignore[arg-type]
         )
 
@@ -846,7 +861,7 @@ class GrampsLoader:
             aliased_source,  # type: ignore[arg-type]
             element,
         )
-        self.add_entity(
+        self._add_entity(
             aliased_source,  # type: ignore[arg-type]
         )
 
@@ -868,7 +883,7 @@ class GrampsLoader:
 
         repository_source_handle = self._load_handle("reporef", element)
         if repository_source_handle is not None:
-            self.add_association(
+            self._add_association(
                 Source, source_handle, "contained_by", Source, repository_source_handle
             )
 
@@ -903,7 +918,7 @@ class GrampsLoader:
             aliased_source,  # type: ignore[arg-type]
             element,
         )
-        self.add_entity(
+        self._add_entity(
             aliased_source,  # type: ignore[arg-type]
         )
 
@@ -916,7 +931,9 @@ class GrampsLoader:
         source_handle = self._xpath1(element, "./ns:sourceref").get("hlink")
 
         citation = Citation(id=element.get("id"))
-        self.add_association(Citation, citation_handle, "source", Source, source_handle)
+        self._add_association(
+            Citation, citation_handle, "source", Source, source_handle
+        )
 
         citation.date = self._load_date(element)
         if element.get("priv") == "1":
@@ -940,7 +957,7 @@ class GrampsLoader:
             "srcattribute",
         )
 
-        self.add_entity(
+        self._add_entity(
             aliased_citation,  # type: ignore[arg-type]
         )
 
@@ -950,7 +967,7 @@ class GrampsLoader:
         element: ElementTree.Element,
     ) -> None:
         for citation_handle in self._load_handles("citationref", element):
-            self.add_association(
+            self._add_association(
                 owner.type, owner.id, "citations", Citation, citation_handle
             )
 
@@ -992,15 +1009,15 @@ class GrampsLoader:
                     0 if region_right is None else int(region_right),
                     0 if region_bottom is None else int(region_bottom),
                 )
-            self.add_entity(file_reference)
-            self.add_association(
+            self._add_entity(file_reference)
+            self._add_association(
                 owner.type,
                 owner.id,
                 "file_references",
                 FileReference,
                 file_reference.id,
             )
-            self.add_association(
+            self._add_association(
                 FileReference, file_reference.id, "file", File, file_handle
             )
 
