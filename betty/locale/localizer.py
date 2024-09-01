@@ -318,10 +318,7 @@ class LocalizerRepository:
         Get the best matching available locale for the given preferred locales.
         """
         preferred_locales = (*preferred_locales, DEFAULT_LOCALE)
-        negotiated_locale = negotiate_locale(
-            preferred_locales,
-            [str(get_data(locale)) for locale in self.locales],
-        )
+        negotiated_locale = negotiate_locale(preferred_locales, list(self.locales))
         return await self.get(negotiated_locale or DEFAULT_LOCALE)
 
     async def _build_translation(self, locale: str) -> Localizer:
@@ -403,8 +400,8 @@ class LocalizerRepository:
                 async with aiofiles.open(
                     assets_directory_path / "locale" / locale / "betty.po",
                     encoding="utf-8",
-                ) as p_data_f:
-                    po_data = await p_data_f.read()
-                    for entry in pofile(po_data):
-                        if entry.translated():
-                            yield entry.msgid_with_context
+                ) as po_data_f:
+                    po_data = await po_data_f.read()
+                for entry in pofile(po_data):
+                    if entry.translated():
+                        yield entry.msgid_with_context
