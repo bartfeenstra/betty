@@ -1,11 +1,85 @@
+from collections.abc import Sequence
+
+import pytest
+
+from betty.assertion.error import (
+    AssertionFailed,
+    AssertionFailedGroup,
+    Attr,
+    Key,
+    Index,
+    Contextey,
+    localizable_contexts,
+)
+from betty.locale.localizable import static, plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.locale.localizable import static
-from betty.assertion.error import AssertionFailed, AssertionFailedGroup
 from betty.test_utils.assertion.error import assert_error
 
 
+class TestAttr:
+    def test_format(self) -> None:
+        assert Attr("attr").format() == ".attr"
+
+
+class TestIndex:
+    def test_format(self) -> None:
+        assert Index(0).format() == "[0]"
+
+
+class TestKey:
+    def test_format(self) -> None:
+        assert Key("key").format() == '["key"]'
+
+
+class TestLocalizableContexts:
+    @pytest.mark.parametrize(
+        ("expected", "contexts"),
+        [
+            ([], []),
+            (
+                ["My First Context"],
+                [plain("My First Context")],
+            ),
+            (
+                ["My First Context", "My First Context"],
+                [plain("My First Context"), plain("My First Context")],
+            ),
+            (
+                ["data.attr"],
+                [Attr("attr")],
+            ),
+            (
+                ["My First Context", "data.attr"],
+                [plain("My First Context"), Attr("attr")],
+            ),
+            (
+                ["data.attr", "My First Context"],
+                [Attr("attr"), plain("My First Context")],
+            ),
+            (
+                ["My First Context", 'data.attr[0]["key"]', "My First Context"],
+                [
+                    plain("My First Context"),
+                    Attr("attr"),
+                    Index(0),
+                    Key("key"),
+                    plain("My First Context"),
+                ],
+            ),
+        ],
+    )
+    async def test(
+        self, expected: Sequence[str], contexts: Sequence[Contextey]
+    ) -> None:
+        sut = AssertionFailed(static("Something went wrong!")).with_context(*contexts)
+        assert [
+            context.localize(DEFAULT_LOCALIZER)
+            for context in localizable_contexts(*sut.contexts)
+        ] == expected
+
+
 class TestAssertionFailed:
-    async def test_localizewithout_contexts(self) -> None:
+    async def test_localize_without_contexts(self) -> None:
         sut = AssertionFailed(static("Something went wrong!"))
         assert sut.localize(DEFAULT_LOCALIZER) == "Something went wrong!"
 
@@ -23,7 +97,8 @@ class TestAssertionFailed:
         sut_with_context = sut.with_context(static("Somewhere, at some point..."))
         assert sut != sut_with_context
         assert [
-            context.localize(DEFAULT_LOCALIZER) for context in sut_with_context.contexts
+            context.localize(DEFAULT_LOCALIZER)
+            for context in localizable_contexts(*sut_with_context.contexts)
         ] == ["Somewhere, at some point..."]
 
 
@@ -81,7 +156,8 @@ class TestAssertionFailedGroup:
         sut_with_context = sut.with_context(static("Somewhere, at some point..."))
         assert sut is not sut_with_context
         assert [
-            context.localize(DEFAULT_LOCALIZER) for context in sut_with_context.contexts
+            context.localize(DEFAULT_LOCALIZER)
+            for context in localizable_contexts(*sut_with_context.contexts)
         ] == ["Somewhere, at some point..."]
 
     async def test_catch_without_contexts(self) -> None:

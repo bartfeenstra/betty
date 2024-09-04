@@ -106,6 +106,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "RequiredField": TestKnownToBeMissing,
     },
     "betty/assertion/error.py": {
+        # This is an abstract class.
+        "AssertionContext": TestKnownToBeMissing,
         "AssertionFailed": {
             "contexts": TestKnownToBeMissing,
             "raised": TestKnownToBeMissing,
