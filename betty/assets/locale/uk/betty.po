@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-01 10:31+0100\n"
+"POT-Creation-Date: 2024-09-04 16:47+0100\n"
 "PO-Revision-Date: 2024-02-08 13:08+0000\n"
 "Last-Translator: Rainer Thieringer <rainerthi@gmail.com>\n"
 "Language: uk\n"
@@ -870,9 +870,6 @@ msgstr "з {start_date} до {end_date}"
 #, python-format
 msgid "in %(place)s"
 msgstr "в %(place)s"
-
-msgid "in key \"{key}\""
-msgstr ""
 
 msgid ""
 "npm (https://www.npmjs.com/) must be available for features that require "

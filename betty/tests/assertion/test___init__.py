@@ -31,7 +31,7 @@ from betty.assertion import (
     assert_isinstance,
     assert_len,
 )
-from betty.assertion.error import AssertionFailed
+from betty.assertion.error import AssertionFailed, Index, Key
 from betty.error import UserFacingError
 from betty.locale.localizable import static
 from betty.test_utils.assertion.error import raises_error
@@ -177,7 +177,7 @@ class TestAssertSequence:
             assert_sequence(assert_str())(False)
 
     async def test_with_invalid_item(self) -> None:
-        with raises_error(error_type=AssertionFailed, error_contexts=["0"]):
+        with raises_error(error_type=AssertionFailed, error_contexts=[Index(0)]):
             assert_sequence(assert_str())([123])
 
     async def test_with_empty_list(self) -> None:
@@ -193,7 +193,7 @@ class TestAssertFields:
             assert_fields(OptionalField("hello", assert_str()))(None)
 
     async def test_required_without_key(self) -> None:
-        with raises_error(error_type=AssertionFailed, error_contexts=["hello"]):
+        with raises_error(error_type=AssertionFailed, error_contexts=[Key("hello")]):
             assert_fields(RequiredField("hello", assert_str()))({})
 
     async def test_optional_without_key(self) -> None:
@@ -226,7 +226,7 @@ class TestAssertField:
             assert_field(OptionalField("hello", assert_str()))(None)
 
     async def test_required_without_key(self) -> None:
-        with raises_error(error_type=AssertionFailed, error_contexts=["hello"]):
+        with raises_error(error_type=AssertionFailed, error_contexts=[Key("hello")]):
             assert_field(RequiredField("hello", assert_str()))({})
 
     async def test_optional_without_key(self) -> None:
@@ -251,7 +251,7 @@ class TestAssertMapping:
             assert_mapping(assert_str())(None)
 
     async def test_with_invalid_item(self) -> None:
-        with raises_error(error_type=AssertionFailed, error_contexts=["hello"]):
+        with raises_error(error_type=AssertionFailed, error_contexts=[Key("hello")]):
             assert_mapping(assert_str())({"hello": False})
 
     async def test_with_empty_dict(self) -> None:

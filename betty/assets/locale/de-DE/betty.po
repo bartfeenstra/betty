@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-01 10:31+0100\n"
+"POT-Creation-Date: 2024-09-04 16:47+0100\n"
 "PO-Revision-Date: 2024-02-08 13:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de\n"
@@ -948,9 +948,6 @@ msgstr "von {start_date} bis {end_date}"
 #, python-format
 msgid "in %(place)s"
 msgstr "in %(place)s"
-
-msgid "in key \"{key}\""
-msgstr ""
 
 msgid ""
 "npm (https://www.npmjs.com/) must be available for features that require "

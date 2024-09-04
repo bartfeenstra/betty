@@ -20,7 +20,7 @@ from typing import (
     TypeAlias,
 )
 
-from betty.assertion.error import AssertionFailedGroup, AssertionFailed
+from betty.assertion.error import AssertionFailedGroup, AssertionFailed, Key, Index
 from betty.error import FileNotFound, UserFacingError
 from betty.locale import (
     get_data,
@@ -292,7 +292,7 @@ def assert_sequence(
         asserted_sequence = []
         with AssertionFailedGroup().assert_valid() as errors:
             for value_index, value_value in enumerate(sequence):
-                with errors.catch(plain(str(value_index))):
+                with errors.catch(Index(value_index)):
                     asserted_sequence.append(value_assertion(value_value))
         return asserted_sequence
 
@@ -355,11 +355,11 @@ def assert_mapping(
             for value_key, value_value in mapping.items():
                 asserted_value_key = value_key
                 if key_assertion:
-                    with errors.catch(_('in key "{key}"').format(key=value_key)):
+                    with errors.catch(Key(value_key)):
                         asserted_value_key = key_assertion(value_key)
                 asserted_value_value = value_value
                 if value_assertion:
-                    with errors.catch(plain(value_key)):
+                    with errors.catch(Key(value_key)):
                         asserted_value_value = value_assertion(value_value)
                 asserted_mapping[asserted_value_key] = asserted_value_value
         return asserted_mapping
@@ -378,7 +378,7 @@ def assert_fields(
         mapping: MutableMapping[str, Any] = {}
         with AssertionFailedGroup().assert_valid() as errors:
             for field in fields:
-                with errors.catch(plain(field.name)):
+                with errors.catch(Key(field.name)):
                     if field.name in value:
                         if field.assertion:
                             mapping[field.name] = field.assertion(value[field.name])
@@ -444,7 +444,7 @@ def assert_record(
         unknown_keys = set(value.keys()) - known_keys
         with AssertionFailedGroup().assert_valid() as errors:
             for unknown_key in unknown_keys:
-                with errors.catch(plain(unknown_key)):
+                with errors.catch(Key(unknown_key)):
                     raise AssertionFailed(
                         _(
                             "Unknown key: {unknown_key}. Did you mean {known_keys}?"

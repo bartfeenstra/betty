@@ -7,7 +7,12 @@ from __future__ import annotations
 from contextlib import contextmanager
 from typing import overload, Any, Iterator, TYPE_CHECKING
 
-from betty.assertion.error import AssertionFailed, AssertionFailedGroup
+from betty.assertion.error import (
+    AssertionFailed,
+    AssertionFailedGroup,
+    Contextey,
+    localizable_contexts,
+)
 from betty.locale.localizer import DEFAULT_LOCALIZER
 
 if TYPE_CHECKING:
@@ -33,7 +38,7 @@ def assert_error(
     error: None = None,
     error_type: type[AssertionFailed] = AssertionFailed,
     error_message: str | None = None,
-    error_contexts: Sequence[str] | None = None,
+    error_contexts: Sequence[Contextey] | None = None,
 ) -> Sequence[AssertionFailed]:
     pass
 
@@ -44,7 +49,7 @@ def assert_error(
     error: AssertionFailed | None = None,
     error_type: type[AssertionFailed] | None = AssertionFailed,
     error_message: str | None = None,
-    error_contexts: Sequence[str] | None = None,
+    error_contexts: Sequence[Contextey] | None = None,
 ) -> Sequence[AssertionFailed]:
     """
     Assert that an error group contains an error matching the given parameters.
@@ -63,14 +68,18 @@ def assert_error(
         expected_error_type = type(error)
         expected_error_message = str(error)
         expected_error_contexts = [
-            error.localize(DEFAULT_LOCALIZER) for error in error.contexts
+            context.localize(DEFAULT_LOCALIZER)
+            for context in localizable_contexts(*error.contexts)
         ]
     else:
         expected_error_type = error_type  # type: ignore[assignment]
         if error_message is not None:
             expected_error_message = error_message
         if error_contexts is not None:
-            expected_error_contexts = error_contexts
+            expected_error_contexts = [
+                context.localize(DEFAULT_LOCALIZER)
+                for context in localizable_contexts(*error_contexts)
+            ]
 
     errors = [
         actual_error
@@ -88,11 +97,14 @@ def assert_error(
             actual_error
             for actual_error in actual_errors
             if expected_error_contexts
-            == [error.localize(DEFAULT_LOCALIZER) for error in actual_error.contexts]
+            == [
+                context.localize(DEFAULT_LOCALIZER)
+                for context in localizable_contexts(*actual_error.contexts)
+            ]
         ]
     if errors:
         return errors
-    raise AssertionError("Failed raising a serialization or deserialization error.")
+    raise AssertionError("Failed raising AssertionFailed.")
 
 
 @contextmanager

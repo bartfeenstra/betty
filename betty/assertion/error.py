@@ -4,19 +4,112 @@ Provide assertion failures.
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from textwrap import indent
-from typing import Iterator, Self, TYPE_CHECKING
+from typing import Iterator, Self, TYPE_CHECKING, TypeAlias, TypeVar
 
 from typing_extensions import override
 
 from betty.error import UserFacingError
+from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import _, Localizable
 from betty.locale.localized import LocalizedStr
 
 if TYPE_CHECKING:
     from collections.abc import Sequence, MutableSequence
     from betty.locale.localizer import Localizer
+
+
+_AssertionContextValueT = TypeVar("_AssertionContextValueT")
+
+
+class AssertionContext(ABC):
+    """
+    The context in which an assertion is invoked.
+    """
+
+    @abstractmethod
+    def format(self) -> str:
+        """
+        Format this context to a string.
+        """
+        pass
+
+
+class Attr(AssertionContext):
+    """
+    An object attribute context.
+    """
+
+    def __init__(self, attr: str):
+        self._attr = attr
+
+    @override
+    def format(self) -> str:
+        return f".{self._attr}"
+
+
+class Index(AssertionContext):
+    """
+    A sequence index context.
+    """
+
+    def __init__(self, index: int):
+        self._index = index
+
+    @override
+    def format(self) -> str:
+        return f"[{self._index}]"
+
+
+class Key(AssertionContext):
+    """
+    A mapping key context.
+    """
+
+    def __init__(self, key: str):
+        self._key = key
+
+    @override
+    def format(self) -> str:
+        return f'["{self._key}"]'
+
+
+Contextey: TypeAlias = AssertionContext | Localizable
+
+
+class _Contexts(Localizable):
+    def __init__(self, context: AssertionContext):
+        self.contexts: MutableSequence[AssertionContext] = [context]
+
+    @override
+    def localize(self, localizer: Localizer) -> LocalizedStr:
+        return LocalizedStr(
+            "data" + "".join(context.format() for context in self.contexts),
+            locale=UNDETERMINED_LOCALE,
+        )
+
+
+def localizable_contexts(*contexts: Contextey) -> Sequence[Localizable]:
+    """
+    The contexts as :py:class:`betty.locale.localizable.Localizable` instances.
+    """
+    localizable_contexts: MutableSequence[Localizable] = []
+    for context in contexts:
+        if isinstance(context, Localizable):
+            localizable_contexts.append(context)
+        else:
+            try:
+                last_context = localizable_contexts[-1]
+            except IndexError:
+                pass
+            else:
+                if isinstance(last_context, _Contexts):
+                    last_context.contexts.append(context)
+                    continue
+            localizable_contexts.append(_Contexts(context))
+    return localizable_contexts
 
 
 class AssertionFailed(UserFacingError, ValueError):
@@ -26,16 +119,21 @@ class AssertionFailed(UserFacingError, ValueError):
 
     def __init__(self, message: Localizable):
         super().__init__(message)
-        self._contexts: tuple[Localizable, ...] = ()
+        self._contexts: tuple[Contextey, ...] = ()
 
     @override
     def localize(self, localizer: Localizer) -> LocalizedStr:
-        localized_contexts = (context.localize(localizer) for context in self._contexts)
         return LocalizedStr(
             (
                 super().localize(localizer)
                 + "\n"
-                + indent("\n".join(localized_contexts), "- ")
+                + indent(
+                    "\n".join(
+                        context.localize(localizer)
+                        for context in localizable_contexts(*self.contexts)
+                    ),
+                    "- ",
+                )
             ).strip(),
             locale=localizer.locale,
         )
@@ -47,13 +145,13 @@ class AssertionFailed(UserFacingError, ValueError):
         return isinstance(self, error_type)
 
     @property
-    def contexts(self) -> tuple[Localizable, ...]:
+    def contexts(self) -> tuple[Contextey, ...]:
         """
         Get the human-readable contexts describing where the error occurred in the source data.
         """
         return self._contexts
 
-    def with_context(self, *contexts: Localizable) -> Self:
+    def with_context(self, *contexts: Contextey) -> Self:
         """
         Add a message describing the error's context.
         """
@@ -133,7 +231,7 @@ class AssertionFailedGroup(AssertionFailed):
                 self._errors.append(error.with_context(*self._contexts))
 
     @override
-    def with_context(self, *contexts: Localizable) -> Self:
+    def with_context(self, *contexts: Contextey) -> Self:
         self_copy = super().with_context(*contexts)
         self_copy._errors = [error.with_context(*contexts) for error in self._errors]
         return self_copy
@@ -143,7 +241,7 @@ class AssertionFailedGroup(AssertionFailed):
         return type(self)()
 
     @contextmanager
-    def catch(self, *contexts: Localizable) -> Iterator[AssertionFailedGroup]:
+    def catch(self, *contexts: Contextey) -> Iterator[AssertionFailedGroup]:
         """
         Catch any errors raised within this context manager and add them to the collection.
 
