@@ -620,15 +620,15 @@ class GrampsLoader:
             self._load_eventref(person_id, eventref)
 
     _PRESENCE_ROLE_MAP = {
-        "Primary": Subject(),
-        "Family": Subject(),
-        "Witness": Witness(),
-        "Beneficiary": Beneficiary(),
-        "Speaker": Speaker(),
-        "Celebrant": Celebrant(),
-        "Organizer": Organizer(),
-        "Attendee": Attendee(),
-        "Unknown": Attendee(),
+        "Primary": Subject,
+        "Family": Subject,
+        "Witness": Witness,
+        "Beneficiary": Beneficiary,
+        "Speaker": Speaker,
+        "Celebrant": Celebrant,
+        "Organizer": Organizer,
+        "Attendee": Attendee,
+        "Unknown": Attendee,
     }
 
     def _load_eventref(self, person_id: str, eventref: ElementTree.Element) -> None:
@@ -637,9 +637,9 @@ class GrampsLoader:
         gramps_presence_role = cast(str, eventref.get("role"))
 
         try:
-            role = self._PRESENCE_ROLE_MAP[gramps_presence_role]
+            role_type = self._PRESENCE_ROLE_MAP[gramps_presence_role]
         except KeyError:
-            role = Attendee()
+            role_type = Attendee
             getLogger(__name__).warning(
                 self._localizer._(
                     'Betty is unfamiliar with person "{person_id}"\'s Gramps presence role of "{gramps_presence_role}" for the event with Gramps handle "{event_handle}". The role was imported, but set to "{betty_presence_role}".',
@@ -647,11 +647,12 @@ class GrampsLoader:
                     person_id=person_id,
                     event_handle=event_handle,
                     gramps_presence_role=gramps_presence_role,
-                    betty_presence_role=role.plugin_label().localize(
+                    betty_presence_role=role_type.plugin_label().localize(
                         self._project.app.localizer
                     ),
                 )
             )
+        role = self._project.new_dependent(role_type)
 
         presence = Presence(None, role, None)
         if eventref.get("priv") == "1":

@@ -7,19 +7,21 @@ from contextlib import asynccontextmanager
 from multiprocessing import get_context
 from os import environ
 from pathlib import Path
-from typing import TYPE_CHECKING, Self, Any, final
+from typing import TYPE_CHECKING, Self, Any, final, TypeVar
 
 import aiohttp
 from aiofiles.tempfile import TemporaryDirectory
 from betty import fs
 from betty.app import config
 from betty.app.config import AppConfiguration
+from betty.app.factory import AppDependentFactory
 from betty.assets import AssetRepository
 from betty.asyncio import wait_to_thread
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.config import Configurable, assert_configuration_file
 from betty.core import CoreComponent
+from betty.factory import new
 from betty.fetch import Fetcher, http
 from betty.fs import HOME_DIRECTORY_PATH
 from betty.locale import DEFAULT_LOCALE
@@ -28,6 +30,9 @@ from betty.locale.localizer import Localizer, LocalizerRepository
 if TYPE_CHECKING:
     from betty.cache import Cache
     from collections.abc import AsyncIterator, Callable
+
+
+_AppDependentT = TypeVar("_AppDependentT")
 
 
 @final
@@ -189,3 +194,13 @@ class App(Configurable[AppConfiguration], CoreComponent):
             # Settle for `spawn` so all environments use the same start method.
             self._process_pool = ProcessPoolExecutor(mp_context=get_context("spawn"))
         return self._process_pool
+
+    def new_dependent(self, dependent: type[_AppDependentT]) -> _AppDependentT:
+        """
+        Create a new instance of ``dependent``.
+
+        :arg dependent: This may optionally implement :py:class:`betty.app.factory.AppDependentFactory`.
+        """
+        if issubclass(dependent, AppDependentFactory):
+            return dependent.new_for_app(self)  # type: ignore[return-value]
+        return new(dependent)

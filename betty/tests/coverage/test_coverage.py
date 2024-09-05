@@ -95,6 +95,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/app/config.py": {
         "AppConfiguration": TestKnownToBeMissing,
     },
+    # This contains a single abstract class.
+    "betty/app/factory.py": TestKnownToBeMissing,
     "betty/assertion/__init__.py": {
         "assert_assertions": TestKnownToBeMissing,
         "assert_entity_type": TestKnownToBeMissing,
@@ -540,10 +542,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Dependencies": TestKnownToBeMissing,
         "Dependents": TestKnownToBeMissing,
     },
-    "betty/project/factory.py": {
-        # This is an interface.
-        "ProjectDependentFactory": TestKnownToBeMissing,
-    },
+    # This contains a single abstract class.
+    "betty/project/factory.py": TestKnownToBeMissing,
     "betty/render.py": TestKnownToBeMissing,
     "betty/requirement.py": {
         "Requirement": {
