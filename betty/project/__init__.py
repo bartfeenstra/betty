@@ -1216,11 +1216,12 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
         """
         Create a new instance of ``dependent``.
 
-        :arg dependent: This may optionally implement :py:class:`betty.project.factory.ProjectDependentFactory`.
+        :arg dependent: This may optionally implement :py:class:`betty.project.factory.ProjectDependentFactory` or
+            :py:class:`betty.app.factory.AppDependentFactory`.
         """
         if issubclass(dependent, ProjectDependentFactory):
             return dependent.new_for_project(self)  # type: ignore[return-value]
-        return dependent()
+        return self.app.new_dependent(dependent)
 
 
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)

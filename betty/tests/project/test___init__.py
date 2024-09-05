@@ -8,6 +8,7 @@ from typing_extensions import override
 from betty import ancestry
 from betty.ancestry import Ancestry
 from betty.app import App
+from betty.app.factory import AppDependentFactory
 from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
 from betty.json.schema import JsonSchemaSchema
@@ -1613,6 +1614,22 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             dependent = sut.new_dependent(Dependent)
             assert dependent.project is sut
+
+    async def test_new_dependent_with_app_dependent_factory(
+        self, new_temporary_app: App
+    ) -> None:
+        class Dependent(AppDependentFactory):
+            def __init__(self, app: App):
+                self.app = app
+
+            @override
+            @classmethod
+            def new_for_app(cls, app: App) -> Self:
+                return cls(app)
+
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
+            dependent = sut.new_dependent(Dependent)
+            assert dependent.app is new_temporary_app
 
 
 class TestProjectContext:
