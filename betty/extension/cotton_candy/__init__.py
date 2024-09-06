@@ -231,7 +231,7 @@ def person_descendant_families(
         if family not in parents:
             parents[family] = tuple(child.parents)
         children[family].add(child)
-    yield from zip(parents.values(), children.values())
+    yield from zip(parents.values(), children.values(), strict=True)
 
 
 def associated_file_references(

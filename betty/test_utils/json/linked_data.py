@@ -20,9 +20,12 @@ async def assert_dumps_linked_data(sut: LinkedDataDumpable[Schema]) -> Dump:
     """
     Dump an object's linked data and assert it is valid.
     """
-    async with App.new_temporary() as app, app, Project.new_temporary(
-        app
-    ) as project, project:
+    async with (
+        App.new_temporary() as app,
+        app,
+        Project.new_temporary(app) as project,
+        project,
+    ):
         actual = await sut.dump_linked_data(project)
 
         # Validate the raw dump.
