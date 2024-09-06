@@ -91,9 +91,11 @@ class TestGrampsLoader:
                 )
 
     async def _load(self, xml: str) -> Ancestry:
-        async with App.new_temporary() as app, app, Project.new_temporary(
-            app
-        ) as project:
+        async with (
+            App.new_temporary() as app,
+            app,
+            Project.new_temporary(app) as project,
+        ):
             project.configuration.name = TestGrampsLoader.__name__
             async with project:
                 loader = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)

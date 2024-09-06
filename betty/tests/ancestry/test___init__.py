@@ -2617,9 +2617,12 @@ class TestLinkCollectionSchema(SchemaTestBase):
             list(_DUMMY_LINK_DUMPS),
         ]
         invalid_datas: Sequence[Dump] = [True, False, None, 123, "abc", {}]
-        async with App.new_temporary() as app, app, Project.new_temporary(
-            app
-        ) as project, project:
+        async with (
+            App.new_temporary() as app,
+            app,
+            Project.new_temporary(app) as project,
+            project,
+        ):
             schemas.append(
                 (
                     LinkCollectionSchema(),

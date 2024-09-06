@@ -1515,9 +1515,10 @@ class TestProject:
         self, new_temporary_app: App
     ) -> None:
         ancestry = Ancestry()
-        async with Project.new_temporary(
-            new_temporary_app, ancestry=ancestry
-        ) as sut, sut:
+        async with (
+            Project.new_temporary(new_temporary_app, ancestry=ancestry) as sut,
+            sut,
+        ):
             assert sut.ancestry is ancestry
 
     async def test_ancestry_without___init___ancestry(
@@ -1664,9 +1665,11 @@ class TestProjectSchema(SchemaTestBase):
             "https://example.com/root-path",
         ):
             for clean_urls in (True, False):
-                async with App.new_temporary() as app, app, Project.new_temporary(
-                    app
-                ) as project:
+                async with (
+                    App.new_temporary() as app,
+                    app,
+                    Project.new_temporary(app) as project,
+                ):
                     project.configuration.url = url
                     project.configuration.clean_urls = clean_urls
                     async with project:
