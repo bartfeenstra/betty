@@ -11,6 +11,9 @@ from betty.locale.localizable import (
     StaticTranslationsLocalizableAttr,
     StaticTranslations,
     StaticTranslationsLocalizableSchema,
+    join,
+    do_you_mean,
+    Localizable,
 )
 from betty.locale.localizable import (
     static,
@@ -311,3 +314,29 @@ class TestPlain:
     )
     async def test(self, string: str) -> None:
         assert plain(string).localize(DEFAULT_LOCALIZER) == string
+
+
+class TestJoin:
+    @pytest.mark.parametrize(
+        ("expected", "localizables"),
+        [
+            ("", []),
+            ("foo", [plain("foo")]),
+            ("foo bar baz", [plain("foo"), plain("bar"), plain("baz")]),
+        ],
+    )
+    async def test(self, expected: str, localizables: Sequence[Localizable]) -> None:
+        assert join(*localizables).localize(DEFAULT_LOCALIZER) == expected
+
+
+class TestDoYouMean:
+    @pytest.mark.parametrize(
+        ("expected", "available_options"),
+        [
+            ("There are no available options.", []),
+            ("Do you mean foo?", ["foo"]),
+            ("Do you mean one of bar, baz, foo?", ["foo", "bar", "baz"]),
+        ],
+    )
+    async def test(self, expected: str, available_options: Sequence[str]) -> None:
+        assert do_you_mean(*available_options).localize(DEFAULT_LOCALIZER) == expected

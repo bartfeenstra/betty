@@ -148,6 +148,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Command": TestKnownToBeMissing,
         "CommandRepository": TestKnownToBeMissing,
         "discover_commands": TestKnownToBeMissing,
+        "parameter_callback": TestKnownToBeMissing,
         "pass_app": TestKnownToBeMissing,
         "pass_project": TestKnownToBeMissing,
     },
@@ -405,8 +406,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "find_source_files": TestKnownToBeMissing,
         "new_dev_translation": TestKnownToBeMissing,
         "new_project_translation": TestKnownToBeMissing,
+        "new_extension_translation": TestKnownToBeMissing,
         "update_dev_translations": TestKnownToBeMissing,
         "update_project_translations": TestKnownToBeMissing,
+        "update_extension_translations": TestKnownToBeMissing,
     },
     "betty/locale/localizable/__init__.py": {
         "call": TestKnownToBeMissing,

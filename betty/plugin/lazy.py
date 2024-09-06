@@ -29,7 +29,7 @@ class LazyPluginRepositoryBase(PluginRepository[_PluginT], Generic[_PluginT]):
         try:
             return (await self._plugins())[plugin_id]
         except KeyError:
-            raise PluginNotFound.new(plugin_id) from None
+            raise await PluginNotFound.new(plugin_id, self) from None
 
     async def _plugins(self) -> Mapping[str, type[_PluginT]]:
         """

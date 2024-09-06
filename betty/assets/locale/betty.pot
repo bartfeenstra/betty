@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-04 16:47+0100\n"
+"POT-Creation-Date: 2024-09-11 14:27+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -174,10 +174,10 @@ msgstr ""
 msgid "Cannot find an available port to bind the web server to."
 msgstr ""
 
-msgid "Cannot find and import \"{plugin_id}\". Did you mean one of: {available_plugin_ids}?"
+msgid "Cannot find and import \"{plugin_id}\"."
 msgstr ""
 
-msgid "Cannot find locale {locale}. Did you mean one of: {available_locales}?"
+msgid "Cannot find locale {locale}."
 msgstr ""
 
 msgid "Cannot generate pages for {entity_type}, because it is not a user-facing entity type."
@@ -266,6 +266,12 @@ msgid "Display the HTTP API documentation in a user-friendly way using <a href=\
 msgstr ""
 
 msgid "Divorce"
+msgstr ""
+
+msgid "Do you mean one of {available_options}?"
+msgstr ""
+
+msgid "Do you mean {available_option}?"
 msgstr ""
 
 msgid "Do you want to add another locale?"
@@ -591,6 +597,9 @@ msgstr ""
 msgid "The server at {url} was unreachable after starting."
 msgstr ""
 
+msgid "There are no available options."
+msgstr ""
+
 #, python-format
 msgid "They are the child of %(parent_labels)s."
 msgstr ""
@@ -670,7 +679,7 @@ msgstr ""
 msgid "Unknown file format \"{extension}\". Supported formats are: {supported_formats}."
 msgstr ""
 
-msgid "Unknown key: {unknown_key}. Did you mean {known_keys}?"
+msgid "Unknown key: {unknown_key}."
 msgstr ""
 
 msgid "Updated {updated_derivations} {event_type} events based on existing information."
@@ -853,6 +862,9 @@ msgid "{event_type} of {subjects}"
 msgstr ""
 
 msgid "{extension_type} is not configurable."
+msgstr ""
+
+msgid "{extension} does not have an assets directory."
 msgstr ""
 
 msgid "{individual_name} {affiliation_name}"

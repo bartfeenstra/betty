@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-04 16:47+0100\n"
+"POT-Creation-Date: 2024-09-11 14:27+0100\n"
 "PO-Revision-Date: 2024-02-08 13:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de\n"
@@ -244,12 +244,10 @@ msgstr ""
 "Es wurde kein verfügbarer Port gefunden, an den der Webserver gebunden "
 "werden kann."
 
-msgid ""
-"Cannot find and import \"{plugin_id}\". Did you mean one of: "
-"{available_plugin_ids}?"
+msgid "Cannot find and import \"{plugin_id}\"."
 msgstr ""
 
-msgid "Cannot find locale {locale}. Did you mean one of: {available_locales}?"
+msgid "Cannot find locale {locale}."
 msgstr ""
 
 msgid ""
@@ -377,6 +375,12 @@ msgstr ""
 
 msgid "Divorce"
 msgstr "Scheidung"
+
+msgid "Do you mean one of {available_options}?"
+msgstr ""
+
+msgid "Do you mean {available_option}?"
+msgstr " Meinst du {available_option}?"
 
 msgid "Do you want to add another locale?"
 msgstr ""
@@ -746,6 +750,9 @@ msgstr "Die folgenden Fehler sind aufgetreten"
 msgid "The server at {url} was unreachable after starting."
 msgstr ""
 
+msgid "There are no available options."
+msgstr ""
+
 #, python-format
 msgid "They are the child of %(parent_labels)s."
 msgstr "Die Eltern sind %(parent_labels)s."
@@ -831,8 +838,8 @@ msgstr ""
 "Unbekanntes Dateiformat \"{extension}\". Unterstützte Formate sind: "
 "{supported_formats}."
 
-msgid "Unknown key: {unknown_key}. Did you mean {known_keys}?"
-msgstr "Unbekannter Schlüssel: {unknown_key}. Meinst du {known_keys}?"
+msgid "Unknown key: {unknown_key}."
+msgstr "Unbekannter Schlüssel: {unknown_key}."
 
 msgid ""
 "Updated {updated_derivations} {event_type} events based on existing "
@@ -1038,6 +1045,9 @@ msgstr "{event_type} von {subjects}"
 
 msgid "{extension_type} is not configurable."
 msgstr "{extension_type} ist nicht konfigurierbar."
+
+msgid "{extension} does not have an assets directory."
+msgstr ""
 
 msgid "{individual_name} {affiliation_name}"
 msgstr "{individual_name} {affiliation_name}"

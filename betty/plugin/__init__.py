@@ -10,13 +10,13 @@ Read more at :doc:`/development/plugin`.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TypeVar, Generic, Self, overload, TYPE_CHECKING, TypeAlias
+from typing import TypeVar, Generic, Self, overload, TYPE_CHECKING, TypeAlias, Any
 
 from typing_extensions import override
 
 from betty.error import UserFacingError
 from betty.factory import DependentFactory, Factory, new
-from betty.locale.localizable import _
+from betty.locale.localizable import _, join, do_you_mean
 from betty.machine_name import MachineName
 
 if TYPE_CHECKING:
@@ -83,12 +83,19 @@ class PluginNotFound(PluginError):
     """
 
     @classmethod
-    def new(cls, plugin_id: MachineName) -> Self:
+    async def new(
+        cls, plugin_id: MachineName, plugin_repository: PluginRepository[Any]
+    ) -> Self:
         """
         Create a new instance.
         """
         return cls(
-            _('Could not find a plugin "{plugin_id}".').format(plugin_id=plugin_id)
+            join(
+                _('Could not find a plugin "{plugin_id}".').format(plugin_id=plugin_id),
+                do_you_mean(
+                    *[f'"{plugin.plugin_id()}"' async for plugin in plugin_repository]
+                ),
+            )
         )
 
 

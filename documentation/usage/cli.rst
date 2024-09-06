@@ -12,17 +12,21 @@ The command line is the primary way to interact with Betty:
       --help     Show this message and exit.
 
     Commands:
-      clear-caches             Clear all caches.
-      config                   Configure Betty.
-      demo                     Explore a demonstration site.
-      docs                     View the documentation.
-      generate                 Generate a static site.
-      new                      Create a new project.
-      new-translation          Create a new translation
-      serve                    Serve a generated site.
-      update-translations      Update all existing translations
-      dev-new-translation      Create a new translation for Betty itself
-      dev-update-translations  Update all existing translations for Betty itself
+      clear-caches                   Clear all caches.
+      config                         Configure Betty.
+      demo                           Explore a demonstration site.
+      docs                           View the documentation.
+      extension-new-translation      Create a new translation for an extension
+      extension-update-translations  Update all existing translations for an
+                                     extension
+      generate                       Generate a static site.
+      new                            Create a new project.
+      new-translation                Create a new translation
+      serve                          Serve a generated site.
+      update-translations            Update all existing translations
+      dev-new-translation            Create a new translation for Betty itself
+      dev-update-translations        Update all existing translations for Betty
+                                     itself
 
 
 Clearing caches

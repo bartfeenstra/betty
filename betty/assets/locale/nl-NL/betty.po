@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-04 16:47+0100\n"
+"POT-Creation-Date: 2024-09-11 14:27+0100\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -247,15 +247,11 @@ msgstr "Begravenis"
 msgid "Cannot find an available port to bind the web server to."
 msgstr "Kan geen beschikbare poort voor de webserver vinden."
 
-msgid ""
-"Cannot find and import \"{plugin_id}\". Did you mean one of: "
-"{available_plugin_ids}?"
-msgstr ""
-"Kan \"{plugin_id}\" niet vinden en importeren. Bedoelde je: "
-"{available_plugin_ids}?"
+msgid "Cannot find and import \"{plugin_id}\"."
+msgstr "Kan plugin \"{plugin_id}\" niet vinden en importeren."
 
-msgid "Cannot find locale {locale}. Did you mean one of: {available_locales}?"
-msgstr "Kan taalregio {locale} niet vinden. Bedoelde je: {available_locales}?"
+msgid "Cannot find locale {locale}."
+msgstr "Kan taalregio {locale} niet vinden."
 
 msgid ""
 "Cannot generate pages for {entity_type}, because it is not a user-facing "
@@ -387,6 +383,12 @@ msgstr ""
 
 msgid "Divorce"
 msgstr "Echtscheiding"
+
+msgid "Do you mean one of {available_options}?"
+msgstr "Bedoel je één van {available_options}?"
+
+msgid "Do you mean {available_option}?"
+msgstr "Bedoel je {available_option}?"
 
 msgid "Do you want to add another locale?"
 msgstr "Wil je nog een taalregio toevoegen?"
@@ -761,6 +763,9 @@ msgstr "De volgende problemen zijn voorgekomen"
 msgid "The server at {url} was unreachable after starting."
 msgstr "De server op {url} was onbereikbaar na het starten."
 
+msgid "There are no available options."
+msgstr "Er zijn geen mogelijkheden beschikbaar."
+
 #, python-format
 msgid "They are the child of %(parent_labels)s."
 msgstr "Men is het kind van %(parent_labels)s."
@@ -846,8 +851,8 @@ msgstr ""
 "Onbekend bestandstype \"{extension}\". Ondersteunde bestandstypes zijn: "
 "{supported_formats}."
 
-msgid "Unknown key: {unknown_key}. Did you mean {known_keys}?"
-msgstr "Onbekende sleutel: {unknown_key}. Bedoel je {known_keys}?"
+msgid "Unknown key: {unknown_key}."
+msgstr "Onbekende sleutel: {unknown_key}."
 
 msgid ""
 "Updated {updated_derivations} {event_type} events based on existing "
@@ -1058,6 +1063,9 @@ msgstr "{event_type} van {subjects}"
 
 msgid "{extension_type} is not configurable."
 msgstr "\"{extension_type}\" kan niet ingesteld worden."
+
+msgid "{extension} does not have an assets directory."
+msgstr "{extension} heeft geen assets-directory."
 
 msgid "{individual_name} {affiliation_name}"
 msgstr "{individual_name} {affiliation_name}"

@@ -72,6 +72,45 @@ def call(call: Callable[[Localizer], str]) -> Localizable:
     return _CallLocalizable(call)
 
 
+class _JoinLocalizable(Localizable):
+    def __init__(self, *localizables: Localizable, separator: str):
+        self._localizables = localizables
+        self._separator = separator
+
+    @override
+    def localize(self, localizer: Localizer) -> LocalizedStr:
+        return LocalizedStr(
+            self._separator.join(
+                localizable.localize(localizer) for localizable in self._localizables
+            ),
+            locale=localizer.locale,
+        )
+
+
+def join(*localizables: Localizable, separator: str = " ") -> Localizable:
+    """
+    Join multiple localizables.
+    """
+    return _JoinLocalizable(*localizables, separator=separator)
+
+
+def do_you_mean(*available_options: str) -> Localizable:
+    """
+    Produce a message listing available options.
+    """
+    match len(available_options):
+        case 0:
+            return _("There are no available options.")
+        case 1:
+            return _("Do you mean {available_option}?").format(
+                available_option=available_options[0]
+            )
+        case _:
+            return _("Do you mean one of {available_options}?").format(
+                available_options=", ".join(sorted(available_options))
+            )
+
+
 class _GettextLocalizable(_FormattableLocalizable):
     def __init__(
         self,

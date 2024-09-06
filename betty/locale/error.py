@@ -6,9 +6,10 @@ from __future__ import annotations
 
 from babel.core import Locale
 from babel.localedata import locale_identifiers
+
 from betty.error import UserFacingError
 from betty.locale import to_locale
-from betty.locale.localizable import _
+from betty.locale.localizable import _, join, do_you_mean
 
 
 class LocaleError(UserFacingError, Exception):
@@ -46,11 +47,9 @@ class LocaleNotFound(LocaleError, ValueError):
             if set(identifier[: identifier.find("_")]) & locale_chars
         )
         super().__init__(
-            _(
-                "Cannot find locale {locale}. Did you mean one of: {available_locales}?"
-            ).format(
-                locale=locale,
-                available_locales=", ".join(available_locales),
+            join(
+                _("Cannot find locale {locale}.").format(locale=locale),
+                do_you_mean(*available_locales),
             )
         )
         self.locale = locale

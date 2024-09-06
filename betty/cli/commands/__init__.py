@@ -22,6 +22,9 @@ from typing import (
 )
 
 import click
+from click import Context, option, Parameter
+from typing_extensions import override
+
 from betty import about
 from betty.assertion.error import AssertionFailed
 from betty.asyncio import wait_to_thread
@@ -35,14 +38,13 @@ from betty.plugin import Plugin, PluginRepository
 from betty.plugin.lazy import LazyPluginRepositoryBase
 from betty.project import Project
 from betty.serde.format import FormatRepository
-from click import Context, option, Parameter
-from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.app import App
     from betty.machine_name import MachineName
     from collections.abc import Callable, Coroutine
 
+_T = TypeVar("_T")
 _P = ParamSpec("_P")
 
 
@@ -275,6 +277,24 @@ def pass_app(
         return f(ctx_app(click.get_current_context()), *args, **kwargs)
 
     return _command
+
+
+def parameter_callback(
+    f: Callable[Concatenate[_T, _P], _ReturnT], *args: _P.args, **kwargs: _P.kwargs
+) -> Callable[[Context, Parameter, _T], _ReturnT]:
+    """
+    Convert a callback that takes a parameter (option, argument) value and returns it after processing.
+
+    This handles errors so Click can gracefully exit.
+    """
+    from betty.cli import ctx_app
+
+    def _callback(ctx: Context, __: Parameter, value: _T) -> _ReturnT:
+        app = ctx_app(ctx)
+        with user_facing_error_to_bad_parameter(app.localizer):
+            return f(value, *args, **kwargs)
+
+    return _callback
 
 
 async def _read_project_configuration(
