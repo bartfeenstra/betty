@@ -1,4 +1,6 @@
 {
-  "dependencies": {},
+  "dependencies": {
+    "swagger-ui-dist": "^5.17.14"
+  },
   "type": "module"
 }
