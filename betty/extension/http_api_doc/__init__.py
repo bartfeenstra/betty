@@ -2,19 +2,45 @@
 
 from __future__ import annotations
 
+from asyncio import to_thread
 from pathlib import Path
+from shutil import copy2
 from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
+from betty.asyncio import gather
 from betty.extension.webpack import Webpack, WebpackEntryPointProvider
+from betty.generate import GenerateSiteEvent
 from betty.locale.localizable import _, Localizable
 from betty.project.extension import Extension
 
 if TYPE_CHECKING:
+    from betty.event_dispatcher import EventHandlerRegistry
     from betty.plugin import PluginIdentifier
     from betty.machine_name import MachineName
     from collections.abc import Sequence
+
+
+async def _generate_swagger_ui(event: GenerateSiteEvent) -> None:
+    await gather(
+        to_thread(
+            copy2,
+            event.job_context._webpack_build_directory_path.parent  # type: ignore[attr-defined]
+            / "node_modules"
+            / "swagger-ui-dist"
+            / "swagger-ui.css",
+            event.project.configuration.www_directory_path / "css" / "http-api-doc.css",
+        ),
+        to_thread(
+            copy2,
+            event.job_context._webpack_build_directory_path.parent  # type: ignore[attr-defined]
+            / "node_modules"
+            / "swagger-ui-dist"
+            / "swagger-ui-bundle.js",
+            event.project.configuration.www_directory_path / "js" / "http-api-doc.js",
+        ),
+    )
 
 
 @final
@@ -32,6 +58,10 @@ class HttpApiDoc(Extension, WebpackEntryPointProvider):
     @classmethod
     def depends_on(cls) -> set[PluginIdentifier[Extension]]:
         return {Webpack}
+
+    @override
+    def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
+        registry.add_handler(GenerateSiteEvent, _generate_swagger_ui)
 
     @override
     @classmethod
