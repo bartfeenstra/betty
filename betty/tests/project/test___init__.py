@@ -1594,14 +1594,14 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             sut.url_generator  # noqa B018
 
-    async def test_new_dependent(self, new_temporary_app: App) -> None:
+    async def test_new(self, new_temporary_app: App) -> None:
         class Dependent:
             pass
 
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            sut.new_dependent(Dependent)
+            await sut.new(Dependent)
 
-    async def test_new_dependent_with_project_dependent_factory(
+    async def test_new_with_project_dependent_factory(
         self, new_temporary_app: App
     ) -> None:
         class Dependent(ProjectDependentFactory):
@@ -1609,27 +1609,25 @@ class TestProject:
                 self.project = project
 
             @classmethod
-            def new_for_project(cls, project: Project) -> Self:
+            async def new_for_project(cls, project: Project) -> Self:
                 return cls(project)
 
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            dependent = sut.new_dependent(Dependent)
+            dependent = await sut.new(Dependent)
             assert dependent.project is sut
 
-    async def test_new_dependent_with_app_dependent_factory(
-        self, new_temporary_app: App
-    ) -> None:
+    async def test_new_with_app_dependent_factory(self, new_temporary_app: App) -> None:
         class Dependent(AppDependentFactory):
             def __init__(self, app: App):
                 self.app = app
 
             @override
             @classmethod
-            def new_for_app(cls, app: App) -> Self:
+            async def new_for_app(cls, app: App) -> Self:
                 return cls(app)
 
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            dependent = sut.new_dependent(Dependent)
+            dependent = await sut.new(Dependent)
             assert dependent.app is new_temporary_app
 
 

@@ -61,6 +61,7 @@ from betty.config.collections.mapping import (
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.core import CoreComponent
 from betty.event_dispatcher import EventDispatcher, EventHandlerRegistry
+from betty.factory import DependentFactory
 from betty.hashid import hashid
 from betty.job import Context
 from betty.json.schema import (
@@ -969,7 +970,7 @@ _ProjectDependentT = TypeVar("_ProjectDependentT")
 
 
 @final
-class Project(Configurable[ProjectConfiguration], CoreComponent):
+class Project(Configurable[ProjectConfiguration], DependentFactory[Any], CoreComponent):
     """
     Define a Betty project.
 
@@ -1128,14 +1129,14 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
         """
         if not self._renderer:
             self._assert_bootstrapped()
-            self._renderer = SequentialRenderer(
-                [
-                    self.new_dependent(plugin)  # type: ignore[arg-type]
-                    for plugin in wait_to_thread(RENDERER_REPOSITORY.select())
-                ]
-            )
+            self._renderer = wait_to_thread(self._init_renderer())
 
         return self._renderer
+
+    async def _init_renderer(self) -> Renderer:
+        return SequentialRenderer(
+            [await self.new(plugin) for plugin in await RENDERER_REPOSITORY.select()]
+        )
 
     @property
     def extensions(self) -> ProjectExtensions:
@@ -1144,62 +1145,59 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
         """
         if self._extensions is None:
             self._assert_bootstrapped()
-            extension_types_enabled_in_configuration = set()
-            for (
-                project_extension_configuration
-            ) in self.configuration.extensions.values():
-                if project_extension_configuration.enabled:
-                    wait_to_thread(
-                        project_extension_configuration.extension_type.enable_requirement().assert_met()
-                    )
-                    extension_types_enabled_in_configuration.add(
-                        project_extension_configuration.extension_type
-                    )
-
-            extension_types_sorter = TopologicalSorter(
-                wait_to_thread(
-                    build_extension_type_graph(extension_types_enabled_in_configuration)
-                )
-            )
-            extension_types_sorter.prepare()
-
-            extensions = []
-            while extension_types_sorter.is_active():
-                extension_types_batch = extension_types_sorter.get_ready()
-                extensions_batch = []
-                for extension_type in extension_types_batch:
-                    extension = self.new_dependent(extension_type)
-                    if (
-                        isinstance(extension, ConfigurableExtension)
-                        and extension_type in self.configuration.extensions
-                    ):
-                        extension.configuration.update(
-                            self.configuration.extensions[
-                                extension_type
-                            ].extension_configuration
-                        )
-                    extensions_batch.append(extension)
-                    extension_types_sorter.done(extension_type)
-                extensions.append(
-                    sorted(
-                        extensions_batch, key=lambda extension: extension.plugin_id()
-                    )
-                )
-            self._extensions = ProjectExtensions(extensions)
-
-            # Users may not realize no theme is enabled, and be confused by their site looking bare.
-            # Warn them out of courtesy.
-            theme_count = len(
-                [extension for extension in extensions if isinstance(extension, Theme)]
-            )
-            if theme_count == 0:
-                logging.getLogger().warning(
-                    _(
-                        'Your project has no theme enabled. This means your site\'s pages may look bare. Try the "cotton-candy" extension.'
-                    ).localize(self.app.localizer)
-                )
+            self._extensions = wait_to_thread(self._init_extensions())
 
         return self._extensions
+
+    async def _init_extensions(self) -> ProjectExtensions:
+        extension_types_enabled_in_configuration = set()
+        for project_extension_configuration in self.configuration.extensions.values():
+            if project_extension_configuration.enabled:
+                await project_extension_configuration.extension_type.enable_requirement().assert_met()
+                extension_types_enabled_in_configuration.add(
+                    project_extension_configuration.extension_type
+                )
+
+        extension_types_sorter = TopologicalSorter(
+            await build_extension_type_graph(extension_types_enabled_in_configuration)
+        )
+        extension_types_sorter.prepare()
+
+        extensions = []
+        while extension_types_sorter.is_active():
+            extension_types_batch = extension_types_sorter.get_ready()
+            extensions_batch = []
+            for extension_type in extension_types_batch:
+                extension = await self.new(extension_type)
+                if (
+                    isinstance(extension, ConfigurableExtension)
+                    and extension_type in self.configuration.extensions
+                ):
+                    extension.configuration.update(
+                        self.configuration.extensions[
+                            extension_type
+                        ].extension_configuration
+                    )
+                extensions_batch.append(extension)
+                extension_types_sorter.done(extension_type)
+            extensions.append(
+                sorted(extensions_batch, key=lambda extension: extension.plugin_id())
+            )
+        initialized_extensions = ProjectExtensions(extensions)
+
+        # Users may not realize no theme is enabled, and be confused by their site looking bare.
+        # Warn them out of courtesy.
+        theme_count = len(
+            [extension for extension in extensions if isinstance(extension, Theme)]
+        )
+        if theme_count == 0:
+            logging.getLogger().warning(
+                _(
+                    'Your project has no theme enabled. This means your site\'s pages may look bare. Try the "cotton-candy" extension.'
+                ).localize(self.app.localizer)
+            )
+
+        return initialized_extensions
 
     @property
     def event_dispatcher(self) -> EventDispatcher:
@@ -1212,16 +1210,11 @@ class Project(Configurable[ProjectConfiguration], CoreComponent):
 
         return self._event_dispatcher
 
-    def new_dependent(self, dependent: type[_ProjectDependentT]) -> _ProjectDependentT:
-        """
-        Create a new instance of ``dependent``.
-
-        :arg dependent: This may optionally implement :py:class:`betty.project.factory.ProjectDependentFactory` or
-            :py:class:`betty.app.factory.AppDependentFactory`.
-        """
-        if issubclass(dependent, ProjectDependentFactory):
-            return dependent.new_for_project(self)  # type: ignore[return-value]
-        return self.app.new_dependent(dependent)
+    @override
+    async def new(self, cls: type[Any]) -> Any:
+        if issubclass(cls, ProjectDependentFactory):
+            return await cls.new_for_project(self)
+        return await self.app.new(cls)
 
 
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)

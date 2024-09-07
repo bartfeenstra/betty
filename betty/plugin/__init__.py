@@ -12,7 +12,10 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TypeVar, Generic, Self, overload, TYPE_CHECKING, TypeAlias
 
+from typing_extensions import override
+
 from betty.error import UserFacingError
+from betty.factory import DependentFactory, Factory, new
 from betty.locale.localizable import _
 from betty.machine_name import MachineName
 
@@ -94,10 +97,13 @@ _PluginMixinTwoT = TypeVar("_PluginMixinTwoT")
 _PluginMixinThreeT = TypeVar("_PluginMixinThreeT")
 
 
-class PluginRepository(Generic[_PluginT], ABC):
+class PluginRepository(Generic[_PluginT], DependentFactory[_PluginT], ABC):
     """
     Discover and manage plugins.
     """
+
+    def __init__(self, *, factory: Factory[_PluginT] | None = None):
+        self._factory = factory or new
 
     @abstractmethod
     async def get(self, plugin_id: MachineName) -> type[_PluginT]:
@@ -182,3 +188,9 @@ class PluginRepository(Generic[_PluginT], ABC):
     @abstractmethod
     def __aiter__(self) -> AsyncIterator[type[_PluginT]]:
         pass
+
+    @override
+    async def new(self, cls: PluginIdentifier[_PluginT]) -> _PluginT:
+        if isinstance(cls, str):
+            cls = await self.get(cls)
+        return self._factory(cls)

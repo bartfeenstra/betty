@@ -7,6 +7,7 @@ from typing import Generic, TypeVar, final
 
 from typing_extensions import override
 
+from betty.factory import Factory
 from betty.plugin import PluginRepository, Plugin, PluginNotFound
 from betty.machine_name import MachineName
 
@@ -19,7 +20,10 @@ class StaticPluginRepository(PluginRepository[_PluginT], Generic[_PluginT]):
     A repository that is given a static collection of plugins, and exposes those.
     """
 
-    def __init__(self, *plugins: type[_PluginT]):
+    def __init__(
+        self, *plugins: type[_PluginT], factory: Factory[_PluginT] | None = None
+    ):
+        super().__init__(factory=factory)
         self._plugins = {plugin.plugin_id(): plugin for plugin in plugins}
 
     @override

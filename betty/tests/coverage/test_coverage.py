@@ -288,6 +288,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "populate_images": TestKnownToBeMissing,
         },
     },
+    "betty/factory.py": {
+        # This is an abstract class.
+        "DependentFactory": TestKnownToBeMissing,
+    },
     "betty/fetch/__init__.py": {
         # This is an interface.
         "Fetcher": TestKnownToBeMissing,

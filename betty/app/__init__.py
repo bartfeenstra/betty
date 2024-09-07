@@ -7,10 +7,12 @@ from contextlib import asynccontextmanager
 from multiprocessing import get_context
 from os import environ
 from pathlib import Path
-from typing import TYPE_CHECKING, Self, Any, final, TypeVar
+from typing import TYPE_CHECKING, Self, Any, final
 
 import aiohttp
 from aiofiles.tempfile import TemporaryDirectory
+from typing_extensions import override
+
 from betty import fs
 from betty.app import config
 from betty.app.config import AppConfiguration
@@ -21,7 +23,7 @@ from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.config import Configurable, assert_configuration_file
 from betty.core import CoreComponent
-from betty.factory import new
+from betty.factory import new, DependentFactory
 from betty.fetch import Fetcher, http
 from betty.fs import HOME_DIRECTORY_PATH
 from betty.locale import DEFAULT_LOCALE
@@ -32,11 +34,8 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable
 
 
-_AppDependentT = TypeVar("_AppDependentT")
-
-
 @final
-class App(Configurable[AppConfiguration], CoreComponent):
+class App(Configurable[AppConfiguration], DependentFactory[Any], CoreComponent):
     """
     The Betty application.
     """
@@ -195,12 +194,8 @@ class App(Configurable[AppConfiguration], CoreComponent):
             self._process_pool = ProcessPoolExecutor(mp_context=get_context("spawn"))
         return self._process_pool
 
-    def new_dependent(self, dependent: type[_AppDependentT]) -> _AppDependentT:
-        """
-        Create a new instance of ``dependent``.
-
-        :arg dependent: This may optionally implement :py:class:`betty.app.factory.AppDependentFactory`.
-        """
-        if issubclass(dependent, AppDependentFactory):
-            return dependent.new_for_app(self)  # type: ignore[return-value]
-        return new(dependent)
+    @override
+    async def new(self, cls: type[Any]) -> Any:
+        if issubclass(cls, AppDependentFactory):
+            return await cls.new_for_app(self)
+        return new(cls)

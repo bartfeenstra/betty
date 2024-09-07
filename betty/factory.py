@@ -4,7 +4,9 @@ Functionality for creating new class instances.
 
 from __future__ import annotations
 
-from typing import TypeVar, Self
+from abc import abstractmethod, ABC
+from collections.abc import Callable
+from typing import TypeVar, Self, Generic, TypeAlias
 
 
 class FactoryError(RuntimeError):
@@ -25,9 +27,29 @@ _T = TypeVar("_T")
 
 def new(cls: type[_T]) -> _T:
     """
+    Create a new instance.
+
     :raises FactoryError: raised when the class could not be instantiated.
     """
     try:
         return cls()
     except Exception as error:
         raise FactoryError.new(cls) from error
+
+
+class DependentFactory(ABC, Generic[_T]):
+    """
+    Provide a factory for classes that depend on ``self``.
+    """
+
+    @abstractmethod
+    async def new(self, cls: type[_T]) -> _T:
+        """
+        Create a new instance.
+
+        :raises FactoryError: raised when the class could not be instantiated.
+        """
+        pass
+
+
+Factory: TypeAlias = Callable[[type[_T]], _T]
