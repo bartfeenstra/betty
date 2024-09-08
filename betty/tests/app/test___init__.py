@@ -12,23 +12,23 @@ class TestApp:
         async with App.new_temporary() as sut, sut:
             assert sut.fetcher is not None
 
-    async def test_new_dependent(self) -> None:
+    async def test_new(self) -> None:
         class Dependent:
             pass
 
         async with App.new_temporary() as sut, sut:
-            sut.new_dependent(Dependent)
+            await sut.new(Dependent)
 
-    async def test_new_dependent_with_app_dependent_factory(self) -> None:
+    async def test_new_with_app_dependent_factory(self) -> None:
         class Dependent(AppDependentFactory):
             def __init__(self, app: App):
                 self.app = app
 
             @override
             @classmethod
-            def new_for_app(cls, app: App) -> Self:
+            async def new_for_app(cls, app: App) -> Self:
                 return cls(app)
 
         async with App.new_temporary() as sut, sut:
-            dependent = sut.new_dependent(Dependent)
+            dependent = await sut.new(Dependent)
             assert dependent.app is sut

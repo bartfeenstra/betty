@@ -30,7 +30,7 @@ class ExtensionTestBase(PluginTestBase[Extension]):
         Tests :py:meth:`betty.project.extension.Extension.new_for_project` implementations.
         """
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = self.get_sut_class().new_for_project(project)
+            sut = await self.get_sut_class().new_for_project(project)
             assert sut.project == project
 
     async def test_assets_directory_path(self) -> None:
@@ -76,7 +76,7 @@ class ExtensionTestBase(PluginTestBase[Extension]):
         Tests :py:meth:`betty.project.extension.Extension.register_event_handlers` implementations.
         """
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = self.get_sut_class().new_for_project(project)
+            sut = await self.get_sut_class().new_for_project(project)
             registry = EventHandlerRegistry()
             sut.register_event_handlers(registry)
 

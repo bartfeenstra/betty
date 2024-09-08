@@ -1,8 +1,10 @@
 from collections.abc import AsyncIterator, Sequence
+from typing import Self, Literal
 
 import pytest
 from typing_extensions import override
 
+from betty.factory import Factory, new
 from betty.machine_name import MachineName
 from betty.plugin import (
     PluginNotFound,
@@ -55,8 +57,24 @@ class _TestPluginRepositoryPluginOneTwoThree(
     pass
 
 
+class _TestPluginRepositoryPluginDefaultFactory(DummyPlugin):
+    pass
+
+
+class _TestPluginRepositoryPluginCustomFactory(DummyPlugin):
+    def __init__(self, must_be_true: Literal[True]):
+        assert must_be_true
+
+    @classmethod
+    def new_custom(cls) -> Self:
+        return cls(True)
+
+
 class _TestPluginRepositoryPluginRepository(PluginRepository[DummyPlugin]):
-    def __init__(self, *plugins: type[DummyPlugin]):
+    def __init__(
+        self, *plugins: type[DummyPlugin], factory: Factory[DummyPlugin] | None = None
+    ):
+        super().__init__(factory=factory)
         self._plugins = {plugin.plugin_id(): plugin for plugin in plugins}
 
     @override
@@ -144,3 +162,38 @@ class TestPluginRepository:
         )
 
         assert list(await sut.select(*mixins)) == list(expected)
+
+    async def test_new_with_default_factory(self) -> None:
+        sut = _TestPluginRepositoryPluginRepository(
+            _TestPluginRepositoryPluginDefaultFactory
+        )
+        assert isinstance(
+            await sut.new(_TestPluginRepositoryPluginDefaultFactory),
+            _TestPluginRepositoryPluginDefaultFactory,
+        )
+        assert isinstance(
+            await sut.new(_TestPluginRepositoryPluginDefaultFactory.plugin_id()),
+            _TestPluginRepositoryPluginDefaultFactory,
+        )
+
+    async def test_new_with_custom_factory(self) -> None:
+        def factory(
+            cls: type[DummyPlugin],
+        ) -> DummyPlugin:
+            return (
+                cls.new_custom()
+                if issubclass(cls, _TestPluginRepositoryPluginCustomFactory)
+                else new(cls)
+            )
+
+        sut = _TestPluginRepositoryPluginRepository(
+            _TestPluginRepositoryPluginCustomFactory, factory=factory
+        )
+        assert isinstance(
+            await sut.new(_TestPluginRepositoryPluginCustomFactory),
+            _TestPluginRepositoryPluginCustomFactory,
+        )
+        assert isinstance(
+            await sut.new(_TestPluginRepositoryPluginCustomFactory.plugin_id()),
+            _TestPluginRepositoryPluginCustomFactory,
+        )

@@ -333,14 +333,14 @@ class GrampsLoader:
             )
         )
 
-        self._load_people(database)
+        await self._load_people(database)
         logger.info(
             self._localizer._("Loaded {person_count} people.").format(
                 person_count=self._added_entity_counts[Person]
             )
         )
 
-        self._load_families(database)
+        await self._load_families(database)
 
         self._project.ancestry.add_unchecked_graph(*self._ancestry_builder.build())
 
@@ -510,11 +510,11 @@ class GrampsLoader:
             element,
         )
 
-    def _load_people(self, database: ElementTree.Element) -> None:
+    async def _load_people(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, "./ns:people/ns:person"):
-            self._load_person(element)
+            await self._load_person(element)
 
-    def _load_person(self, element: ElementTree.Element) -> None:
+    async def _load_person(self, element: ElementTree.Element) -> None:
         person_handle = element.get("handle")
         assert person_handle is not None
         person = Person(id=element.get("id"))
@@ -558,7 +558,7 @@ class GrampsLoader:
                 Person, person_handle, "names", PersonName, person_name.id
             )
 
-        self._load_eventrefs(person_handle, element)
+        await self._load_eventrefs(person_handle, element)
         if element.get("priv") == "1":
             person.private = True
 
@@ -587,23 +587,23 @@ class GrampsLoader:
             aliased_person,  # type: ignore[arg-type]
         )
 
-    def _load_families(self, database: ElementTree.Element) -> None:
+    async def _load_families(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, "./ns:families/ns:family"):
-            self._load_family(element)
+            await self._load_family(element)
 
-    def _load_family(self, element: ElementTree.Element) -> None:
+    async def _load_family(self, element: ElementTree.Element) -> None:
         parent_handles = []
 
         # Load the father.
         father_handle = self._load_handle("father", element)
         if father_handle is not None:
-            self._load_eventrefs(father_handle, element)
+            await self._load_eventrefs(father_handle, element)
             parent_handles.append(father_handle)
 
         # Load the mother.
         mother_handle = self._load_handle("mother", element)
         if mother_handle is not None:
-            self._load_eventrefs(mother_handle, element)
+            await self._load_eventrefs(mother_handle, element)
             parent_handles.append(mother_handle)
 
         # Load the children.
@@ -614,10 +614,12 @@ class GrampsLoader:
                     Person, child_handle, "parents", Person, parent_handle
                 )
 
-    def _load_eventrefs(self, person_id: str, element: ElementTree.Element) -> None:
+    async def _load_eventrefs(
+        self, person_id: str, element: ElementTree.Element
+    ) -> None:
         eventrefs = self._xpath(element, "./ns:eventref")
         for eventref in eventrefs:
-            self._load_eventref(person_id, eventref)
+            await self._load_eventref(person_id, eventref)
 
     _PRESENCE_ROLE_MAP = {
         "Primary": Subject,
@@ -631,7 +633,9 @@ class GrampsLoader:
         "Unknown": Attendee,
     }
 
-    def _load_eventref(self, person_id: str, eventref: ElementTree.Element) -> None:
+    async def _load_eventref(
+        self, person_id: str, eventref: ElementTree.Element
+    ) -> None:
         event_handle = eventref.get("hlink")
         assert event_handle is not None
         gramps_presence_role = cast(str, eventref.get("role"))
@@ -652,7 +656,7 @@ class GrampsLoader:
                     ),
                 )
             )
-        role = self._project.new_dependent(role_type)
+        role = await self._project.new(role_type)
 
         presence = Presence(None, role, None)
         if eventref.get("priv") == "1":

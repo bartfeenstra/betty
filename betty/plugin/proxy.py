@@ -7,6 +7,7 @@ from typing import Generic, TypeVar, final
 
 from typing_extensions import override
 
+from betty.factory import Factory
 from betty.plugin import PluginRepository, Plugin, PluginNotFound
 from betty.machine_name import MachineName
 
@@ -19,7 +20,12 @@ class ProxyPluginRepository(PluginRepository[_PluginT], Generic[_PluginT]):
     Expose multiple other plugin repositories as one unified repository.
     """
 
-    def __init__(self, *upstreams: PluginRepository[_PluginT]):
+    def __init__(
+        self,
+        *upstreams: PluginRepository[_PluginT],
+        factory: Factory[_PluginT] | None = None,
+    ):
+        super().__init__(factory=factory)
         self._upstreams = upstreams
 
     @override
