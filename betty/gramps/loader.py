@@ -82,7 +82,7 @@ from betty.gramps.error import GrampsError, UserFacingGrampsError
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.date import DateRange, Datey, Date
 from betty.locale.localizable import _, plain
-from betty.media_type import MediaType, InvalidMediaType
+from betty.media_type import MediaType
 from betty.model import Entity, AliasedEntity, AliasableEntity
 from betty.model.graph import EntityGraphBuilder
 from betty.path import rootname
@@ -1101,20 +1101,7 @@ class GrampsLoader:
             if "locale" in link_attributes:
                 link.locale = link_attributes["locale"]
             if "media_type" in link_attributes:
-                try:
-                    media_type = MediaType(link_attributes["media_type"])
-                except InvalidMediaType:
-                    logger.warning(
-                        self._localizer._(
-                            'The Gramps {gramps_entity_reference} entity has a "betty:link-{link_name}:media_type" attribute with value "{media_type}", which is not a valid IANA media type. This media type was ignored.',
-                        ).format(
-                            gramps_entity_reference=gramps_entity_reference,
-                            link_name=link_name,
-                            media_type=link_attributes["media_type"],
-                        )
-                    )
-                else:
-                    link.media_type = media_type
+                link.media_type = MediaType(link_attributes["media_type"])
             if "relationship" in link_attributes:
                 link.relationship = link_attributes["relationship"]
 

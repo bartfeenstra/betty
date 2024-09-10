@@ -45,12 +45,12 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizer import Localizer
 from betty.media_type.media_types import JINJA2_HTML, HTML
 from betty.project.factory import ProjectDependentFactory
-from betty.render import RendererPlugin, MediaTypeIndicator
+from betty.render import RendererPlugin
 from betty.serde.dump import Dumpable, DumpMapping, VoidableDump, Dump
 from betty.typing import Void
 
 if TYPE_CHECKING:
-    from betty.media_type import MediaType
+    from betty.media_type import MediaType, MediaTypeIndicator
     from betty.machine_name import MachineName
     from betty.model import Entity
     from betty.project.extension import Extension

@@ -7,9 +7,9 @@ from typing_extensions import override
 
 from betty.job import Context
 from betty.locale.localizer import Localizer
-from betty.media_type import MediaType
+from betty.media_type import MediaType, MediaTypeIndicator
 from betty.media_type.media_types import PLAIN_TEXT, HTML
-from betty.render import ProxyRenderer, Renderer, MediaTypeIndicator
+from betty.render import ProxyRenderer, Renderer
 
 
 class TestRenderer:

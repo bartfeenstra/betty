@@ -3,22 +3,21 @@ from __future__ import annotations
 from gettext import NullTranslations
 from typing import TYPE_CHECKING
 
-
 from betty.ancestry import (
     Citation,
     HasFileReferences,
 )
 from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider, EntityContexts
+from betty.job import Context
 from betty.locale import DEFAULT_LOCALE
+from betty.locale.localizer import Localizer
 from betty.media_type.media_types import JINJA2_HTML, HTML
 from betty.project import Project
 from betty.test_utils.assets.templates import TemplateTestBase
 from betty.test_utils.model import DummyEntity
-from betty.locale.localizer import Localizer
-from betty.job import Context
 
 if TYPE_CHECKING:
-    from betty.render import MediaTypeIndicator
+    from betty.media_type import MediaTypeIndicator
     from pathlib import Path
     from betty.app import App
 

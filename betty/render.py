@@ -5,13 +5,13 @@ Provide the Render API.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import final, TYPE_CHECKING, Union, TypeAlias
+from typing import final, TYPE_CHECKING
 
 import aiofiles
 from typing_extensions import override
 
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.media_type import MediaType, UnsupportedMediaType
+from betty.media_type import MediaType, UnsupportedMediaType, MediaTypeIndicator
 from betty.os import CopyFunction, DEFAULT_COPY_FUNCTION
 from betty.plugin import Plugin
 from betty.plugin.entry_point import EntryPointPluginRepository
@@ -23,10 +23,6 @@ if TYPE_CHECKING:
     from betty.locale.localizer import Localizer
     from betty.job import Context
     from collections.abc import Sequence, Mapping
-
-
-#: A media type, or a file path or name that indicates a media type through its file extension.
-MediaTypeIndicator: TypeAlias = Union[MediaType, Path, str]
 
 
 class Renderer(ABC):
@@ -61,7 +57,11 @@ class Renderer(ABC):
                         ), to_media_type
         else:
             for from_media_type, to_media_type in self.media_types.items():
-                if media_type_indicator == from_media_type:
+                if (
+                    media_type_indicator.type == from_media_type.type
+                    and media_type_indicator.subtype == from_media_type.subtype
+                    and media_type_indicator.suffix == from_media_type.suffix
+                ):
                     return from_media_type, to_media_type
         return None
 

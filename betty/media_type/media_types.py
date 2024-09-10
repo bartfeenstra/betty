@@ -15,3 +15,6 @@ JSON_LD = MediaType("application/ld+json", file_extensions=[".json"])
 
 #: The media type for plain text content.
 PLAIN_TEXT = MediaType("text/plain", file_extensions=[".txt"])
+
+#: The media type for XHTML content.
+XHTML = MediaType("application/xhtml+xml", file_extensions=[".xhtml"])

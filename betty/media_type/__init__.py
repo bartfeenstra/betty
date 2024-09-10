@@ -4,23 +4,16 @@ Provide `media type <https://en.wikipedia.org/wiki/Media_type>`_ handling utilit
 
 from __future__ import annotations
 
-from email.message import EmailMessage
-from typing import Any, final, TYPE_CHECKING
+from email.policy import EmailPolicy
+from pathlib import Path
+from typing import final, TYPE_CHECKING, TypeAlias, Union, cast
 
 from typing_extensions import override
 
 from betty.json.schema import String
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence, Mapping
-
-
-class InvalidMediaType(ValueError):
-    """
-    Raised when an identifier is not a valid media type.
-    """
-
-    pass  # pragma: no cover
+    from collections.abc import Sequence
 
 
 class UnsupportedMediaType(ValueError):
@@ -29,6 +22,10 @@ class UnsupportedMediaType(ValueError):
     """
 
     pass  # pragma: no cover
+
+
+#: A media type, or a file path or name that indicates a media type through its file extension.
+MediaTypeIndicator: TypeAlias = Union["MediaType", Path, str]
 
 
 @final
@@ -44,29 +41,21 @@ class MediaType:
     def __init__(
         self, media_type: str, *, file_extensions: Sequence[str] | None = None
     ):
-        self._str = media_type
-        self._file_extensions = file_extensions or ()
-        message = EmailMessage()
-        message["Content-Type"] = media_type
-        type_part = message.get_content_type()
-        # EmailMessage.get_content_type() always returns a type, and will fall back to alternatives if the header is
-        # invalid.
-        if not media_type.startswith(type_part):
-            raise InvalidMediaType(f'"{media_type}" is not a valid media type.')
-        self._parameters: Mapping[str, str] = dict(message["Content-Type"].params)
-        self._type, type_part_remainder = type_part.split("/")
-        if not type_part_remainder:
-            raise InvalidMediaType("The subtype must not be empty.")
-        plus_position = type_part_remainder.find("+")
+        normalized_media_type = cast(
+            str, EmailPolicy.header_factory("Content-Type", media_type).content_type
+        )
+        self._type, normalized_media_type_remainder = normalized_media_type.split("/")
+        plus_position = normalized_media_type_remainder.find("+")
         if plus_position > 0:
-            self._subtype = type_part_remainder[0:plus_position]
-            self._suffix = type_part_remainder[plus_position:]
+            self._subtype = normalized_media_type_remainder[0:plus_position]
+            self._suffix = normalized_media_type_remainder[plus_position:]
         else:
-            self._subtype = type_part_remainder
+            self._subtype = normalized_media_type_remainder
             self._suffix = None
+        self._file_extensions = file_extensions or ()
 
     def __hash__(self) -> int:
-        return hash(self._str)
+        return hash((self._type, self._subtype, self._suffix, self._file_extensions))
 
     @property
     def type(self) -> str:
@@ -83,40 +72,18 @@ class MediaType:
         return self._subtype
 
     @property
-    def subtypes(self) -> Sequence[str]:
-        """
-        The subtype parts, e.g. ``["vnd", "oasis", "opendocument", "text"]`` for ``"application/vnd.oasis.opendocument.text"``.
-        """
-        return self._subtype.split("+")[0].split(".")
-
-    @property
     def suffix(self) -> str | None:
         """
         The suffix, e.g. ``json`` for ``application/ld+json``.
         """
         return self._suffix
 
-    @property
-    def parameters(self) -> Mapping[str, str]:
-        """
-        The parameters, e.g. ``{"charset": "UTF-8"}`` for ``"text/html; charset=UTF-8"``.
-        """
-        return self._parameters
-
+    # @todo Do we use or need this at all?
+    # @todo How would we test for that because #)(%*&(#$*%& object has a default __str__() implementation?
+    # @todo OH! Just raise an exception!
     @override
     def __str__(self) -> str:
-        return self._str
-
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, MediaType):
-            return NotImplemented
-        return (self.type, self.subtype, self.suffix, self.parameters) == (
-            other.type,
-            other.subtype,
-            self.suffix,
-            other.parameters,
-        )
+        return f"{self.type}/{self.subtype}{self.suffix or ''}"
 
     @property
     def file_extensions(self) -> Sequence[str]:
@@ -134,6 +101,9 @@ class MediaType:
             return self.file_extensions[0]
         except IndexError:
             return ""
+
+    def match(self, other: MediaType)->MediaType:
+        
 
 
 @final
