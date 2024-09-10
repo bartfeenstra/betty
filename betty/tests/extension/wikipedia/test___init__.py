@@ -8,7 +8,8 @@ from betty.ancestry import Link
 from betty.extension.wikipedia import Wikipedia
 from betty.job import Context
 from betty.load import load
-from betty.project import ExtensionConfiguration, Project
+from betty.project import Project
+from betty.project.config import ExtensionConfiguration
 from betty.test_utils.project.extension import ExtensionTestBase
 from betty.wikipedia import Summary
 

@@ -4,7 +4,8 @@ from typing_extensions import override
 from betty.app import App
 from betty.extension.trees import Trees
 from betty.generate import generate
-from betty.project import ExtensionConfiguration, Project
+from betty.project import Project
+from betty.project.config import ExtensionConfiguration
 from betty.test_utils.project.extension import ExtensionTestBase
 
 

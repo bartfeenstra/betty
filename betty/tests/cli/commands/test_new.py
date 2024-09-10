@@ -7,7 +7,7 @@ from betty.config import assert_configuration_file
 from betty.extension.gramps import Gramps
 from betty.extension.gramps.config import GrampsConfiguration
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.project import ProjectConfiguration
+from betty.project.config import ProjectConfiguration
 from betty.test_utils.cli import run
 
 

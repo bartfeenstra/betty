@@ -8,7 +8,8 @@ import pytest
 from betty.ancestry import Person, Place, File, Source, Name, Event, Citation
 from betty.ancestry.event_type import Death
 from betty.model import UserFacingEntity
-from betty.project import LocaleConfiguration, Project
+from betty.project import Project
+from betty.project.config import LocaleConfiguration
 from betty.test_utils.model import DummyEntity
 from betty.url import (
     LocalizedPathUrlGenerator,

@@ -6,13 +6,14 @@ import requests
 from requests import Response
 from typing_extensions import override
 
+from betty.ancestry import Person, Place, Event, Source, Citation
 from betty.extension.demo import Demo
 from betty.extension.demo import DemoServer, demo_project
 from betty.fetch.static import StaticFetcher
 from betty.functools import Do
 from betty.load import load
-from betty.ancestry import Person, Place, Event, Source, Citation
-from betty.project import ExtensionConfiguration, Project
+from betty.project import Project
+from betty.project.config import ExtensionConfiguration
 from betty.test_utils.project.extension import ExtensionTestBase
 
 if TYPE_CHECKING:

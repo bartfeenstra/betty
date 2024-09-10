@@ -44,7 +44,8 @@ if TYPE_CHECKING:
     from betty.machine_name import MachineName
     from betty.model import Entity
     from betty.project.extension import Extension
-    from betty.project import ProjectConfiguration, Project
+    from betty.project import Project
+    from betty.project.config import ProjectConfiguration
     from betty.ancestry import Citation
     from pathlib import Path
     from collections.abc import (
