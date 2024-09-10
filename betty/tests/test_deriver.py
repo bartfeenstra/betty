@@ -13,7 +13,7 @@ from betty.ancestry.event_type import (
     CreatableDerivableEventType,
     EventType,
 )
-from betty.project import DEFAULT_LIFETIME_THRESHOLD
+from betty.project.config import DEFAULT_LIFETIME_THRESHOLD
 from betty.test_utils.ancestry.event_type import DummyEventType
 
 

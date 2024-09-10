@@ -11,7 +11,7 @@ from betty.extension.cotton_candy.config import (
 )
 from betty.model import UserFacingEntity
 from betty.plugin.static import StaticPluginRepository
-from betty.project import EntityReference
+from betty.project.config import EntityReference
 from betty.test_utils.assertion.error import raises_error
 from betty.test_utils.model import DummyEntity
 

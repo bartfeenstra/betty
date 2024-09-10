@@ -22,7 +22,7 @@ from betty.ancestry import (
 from betty.ancestry.presence_role import Subject, Attendee
 from betty.ancestry.event_type import Death, Birth, Marriage
 from betty.privatizer import Privatizer
-from betty.project import DEFAULT_LIFETIME_THRESHOLD
+from betty.project.config import DEFAULT_LIFETIME_THRESHOLD
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:

@@ -20,7 +20,7 @@ from betty.documentation import DocumentationServer
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.functools import Do
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.project import ProjectConfiguration
+from betty.project.config import ProjectConfiguration
 from betty.serde.format import Format, Json, Yaml
 from betty.test_utils.cli import run
 

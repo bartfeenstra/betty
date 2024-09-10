@@ -8,7 +8,8 @@ from betty.extension.cotton_candy import CottonCandy
 from betty.extension.cotton_candy.search import Index
 from betty.job import Context
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.project import LocaleConfiguration, Project
+from betty.project import Project
+from betty.project.config import LocaleConfiguration
 
 
 class TestIndex:

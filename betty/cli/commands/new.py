@@ -20,7 +20,7 @@ from betty.extension.webpack import Webpack
 from betty.extension.wikipedia import Wikipedia
 from betty.locale import DEFAULT_LOCALE, get_display_name
 from betty.machine_name import assert_machine_name, machinify
-from betty.project import (
+from betty.project.config import (
     ProjectConfiguration,
     ExtensionConfiguration,
     LocaleConfiguration,

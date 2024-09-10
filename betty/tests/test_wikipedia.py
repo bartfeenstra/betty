@@ -15,7 +15,8 @@ from betty.fetch.static import StaticFetcher
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
-from betty.project import LocaleConfiguration, Project
+from betty.project import Project
+from betty.project.config import LocaleConfiguration
 from betty.wikipedia import (
     Summary,
     _Retriever,

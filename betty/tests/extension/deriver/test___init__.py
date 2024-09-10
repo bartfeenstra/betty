@@ -18,7 +18,8 @@ from betty.ancestry.event_type import (
     EndOfLifeEventType,
 )
 from betty.ancestry.presence_role import Subject
-from betty.project import ExtensionConfiguration, Project
+from betty.project import Project
+from betty.project.config import ExtensionConfiguration
 from betty.test_utils.ancestry.event_type import DummyEventType
 from betty.test_utils.project.extension import ExtensionTestBase
 

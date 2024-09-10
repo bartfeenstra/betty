@@ -4,12 +4,13 @@ import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
+from betty.ancestry import Citation, Note, Source, File, Event, Person, Place
 from betty.app import App
 from betty.extension.gramps import Gramps
 from betty.extension.gramps.config import FamilyTreeConfiguration, GrampsConfiguration
 from betty.load import load
-from betty.ancestry import Citation, Note, Source, File, Event, Person, Place
-from betty.project import ExtensionConfiguration, Project
+from betty.project import Project
+from betty.project.config import ExtensionConfiguration
 from betty.test_utils.project.extension import ExtensionTestBase
 
 

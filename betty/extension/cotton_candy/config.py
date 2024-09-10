@@ -7,6 +7,8 @@ from __future__ import annotations
 import re
 from typing import Self, Sequence, TYPE_CHECKING
 
+from typing_extensions import override
+
 from betty.assertion import (
     assert_str,
     assert_record,
@@ -17,10 +19,9 @@ from betty.assertion import (
 from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
 from betty.locale.localizable import _
-from betty.project import EntityReference, EntityReferenceSequence
+from betty.project.config import EntityReference, EntityReferenceSequence
 from betty.serde.dump import Dump, VoidableDump, minimize
 from betty.typing import Void
-from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.model import UserFacingEntity, Entity

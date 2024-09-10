@@ -16,7 +16,8 @@ from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.model import Entity
-    from betty.project import ProjectConfiguration, Project
+    from betty.project import Project
+    from betty.project.config import ProjectConfiguration
 
 
 class _UrlGenerator(ABC):
