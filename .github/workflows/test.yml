@@ -20,7 +20,7 @@ jobs:
           # to the number of `after_n_builds` in ./codecov.yml.
           - name: 'Python 3.13'
             os: ubuntu-latest
-            python: '3.13.0-rc.1'
+            python: '3.13.0-rc.2'
           - name: 'Python 3.12'
             os: ubuntu-latest
             python: '3.12'
@@ -29,10 +29,10 @@ jobs:
             python: '3.11'
           - name: 'macOS'
             os: macos-latest
-            python: '3.13.0-rc.1'
+            python: '3.13.0-rc.2'
           - name: 'Windows'
             os: windows-latest
-            python: '3.13.0-rc.1'
+            python: '3.13.0-rc.2'
     timeout-minutes: 60
     steps:
       - name: Check out the source code
