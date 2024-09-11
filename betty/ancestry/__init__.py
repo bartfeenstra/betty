@@ -583,7 +583,7 @@ class Note(UserFacingEntity, HasPrivacy, HasLinks, Entity):
 
     @override
     @classmethod
-    def plugin_id(cls) -> str:
+    def plugin_id(cls) -> MachineName:
         return "note"
 
     @override
@@ -769,7 +769,7 @@ class File(
 
     @override
     @classmethod
-    def plugin_id(cls) -> str:
+    def plugin_id(cls) -> MachineName:
         return "file"
 
     @override
@@ -1003,7 +1003,7 @@ class Source(
 
     @override
     @classmethod
-    def plugin_id(cls) -> str:
+    def plugin_id(cls) -> MachineName:
         return "source"
 
     @override
@@ -1132,7 +1132,7 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks, UserFacingEntit
 
     @override
     @classmethod
-    def plugin_id(cls) -> str:
+    def plugin_id(cls) -> MachineName:
         return "citation"
 
     @override
@@ -1244,7 +1244,7 @@ class Enclosure(HasDate, HasCitations, Entity):
 
     @override
     @classmethod
-    def plugin_id(cls) -> str:
+    def plugin_id(cls) -> MachineName:
         return "enclosure"
 
     @override
@@ -1330,7 +1330,7 @@ class Place(
 
     @override
     @classmethod
-    def plugin_id(cls) -> str:
+    def plugin_id(cls) -> MachineName:
         return "place"
 
     @override
@@ -1476,7 +1476,7 @@ class Presence(HasPrivacy, Entity):
 
     @override
     @classmethod
-    def plugin_id(cls) -> str:
+    def plugin_id(cls) -> MachineName:
         return "presence"
 
     @override
@@ -1612,7 +1612,7 @@ class Event(
 
     @override
     @classmethod
-    def plugin_id(cls) -> str:
+    def plugin_id(cls) -> MachineName:
         return "event"
 
     @override
@@ -1761,7 +1761,7 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
 
     @override
     @classmethod
-    def plugin_id(cls) -> str:
+    def plugin_id(cls) -> MachineName:
         return "person-name"
 
     @override
@@ -1917,7 +1917,7 @@ class Person(
 
     @override
     @classmethod
-    def plugin_id(cls) -> str:
+    def plugin_id(cls) -> MachineName:
         return "person"
 
     @override

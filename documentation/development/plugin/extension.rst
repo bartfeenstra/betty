@@ -28,7 +28,7 @@ Creating an extension
      class MyExtension(Extension):
        @override
        @classmethod
-       def plugin_id(cls) -> str:
+       def plugin_id(cls) -> MachineName:
            return "my-module-my-extension"
 
        # Implement remaining abstract methods...

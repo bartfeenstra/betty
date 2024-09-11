@@ -23,12 +23,13 @@ Creating an entity type
    .. code-block:: python
 
      from typing import override
+     from betty.machine_name import MachineName
      from betty.model import Entity
 
      class MyEntity(Entity):
        @override
        @classmethod
-       def plugin_id(cls) -> str:
+       def plugin_id(cls) -> MachineName:
            return "my-module-my-entity"
 
        # Implement remaining abstract methods...

@@ -22,11 +22,12 @@ Creating an event type
 
      from typing import override
      from betty.ancestry.event_type import EventType
+     from betty.machine_name import MachineName
 
      class MyEventType(EventType):
        @override
        @classmethod
-       def plugin_id(cls) -> str:
+       def plugin_id(cls) -> MachineName:
            return "my-module-my-event-type"
 
        # Implement remaining abstract methods...
