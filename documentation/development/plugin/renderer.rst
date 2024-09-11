@@ -21,13 +21,14 @@ Creating a renderer
    .. code-block:: python
 
      from typing import override
+     from betty.machine_name import MachineName
      from betty.plugin import Plugin
      from betty.render import Renderer
 
      class MyRenderer(Renderer, Plugin):
        @override
        @classmethod
-       def plugin_id(cls) -> str:
+       def plugin_id(cls) -> MachineName:
            return "my-module-my-renderer"
 
        # Implement remaining abstract methods...

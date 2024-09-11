@@ -4,7 +4,7 @@ Provide presence roles.
 
 from __future__ import annotations
 
-from typing import final
+from typing import final, TYPE_CHECKING
 
 from typing_extensions import override
 
@@ -13,6 +13,9 @@ from betty.json.schema import Enum
 from betty.locale.localizable import Localizable, _
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
+
+if TYPE_CHECKING:
+    from betty.machine_name import MachineName
 
 
 class PresenceRole(Plugin):
@@ -64,7 +67,7 @@ class Subject(PresenceRole):
 
     @override
     @classmethod
-    def plugin_id(cls) -> str:
+    def plugin_id(cls) -> MachineName:
         return "subject"
 
     @override
@@ -81,7 +84,7 @@ class Witness(PresenceRole):
 
     @override
     @classmethod
-    def plugin_id(cls) -> str:
+    def plugin_id(cls) -> MachineName:
         return "witness"  # pragma: no cover
 
     @override
@@ -98,7 +101,7 @@ class Beneficiary(PresenceRole):
 
     @override
     @classmethod
-    def plugin_id(cls) -> str:
+    def plugin_id(cls) -> MachineName:
         return "beneficiary"  # pragma: no cover
 
     @override
@@ -115,7 +118,7 @@ class Attendee(PresenceRole):
 
     @override
     @classmethod
-    def plugin_id(cls) -> str:
+    def plugin_id(cls) -> MachineName:
         return "attendee"  # pragma: no cover
 
     @override
@@ -132,7 +135,7 @@ class Speaker(PresenceRole):
 
     @override
     @classmethod
-    def plugin_id(cls) -> str:
+    def plugin_id(cls) -> MachineName:
         return "speaker"  # pragma: no cover
 
     @override
@@ -155,7 +158,7 @@ class Celebrant(PresenceRole):
 
     @override
     @classmethod
-    def plugin_id(cls) -> str:
+    def plugin_id(cls) -> MachineName:
         return "celebrant"  # pragma: no cover
 
     @override
@@ -172,7 +175,7 @@ class Organizer(PresenceRole):
 
     @override
     @classmethod
-    def plugin_id(cls) -> str:
+    def plugin_id(cls) -> MachineName:
         return "organizer"  # pragma: no cover
 
     @override

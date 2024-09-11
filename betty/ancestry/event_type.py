@@ -14,6 +14,7 @@ from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
 
 if TYPE_CHECKING:
+    from betty.machine_name import MachineName
     from betty.ancestry import Person
 
 
@@ -60,12 +61,12 @@ class _EventTypeShorthandBase(EventType):
     Provide helpers for deprecated methods.
     """
 
-    _plugin_id: str
+    _plugin_id: MachineName
     _plugin_label: Localizable
 
     @override
     @classmethod
-    def plugin_id(cls) -> str:
+    def plugin_id(cls) -> MachineName:
         return cls._plugin_id
 
     @override

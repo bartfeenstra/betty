@@ -23,11 +23,12 @@ Creating a presence role
 
      from typing import override
      from betty.ancestry.presence_role import PresenceRole
+     from betty.machine_name import MachineName
 
      class MyPresenceRole(PresenceRole):
        @override
        @classmethod
-       def plugin_id(cls) -> str:
+       def plugin_id(cls) -> MachineName:
            return "my-module-my-presence-role"
 
        # Implement remaining abstract methods...
