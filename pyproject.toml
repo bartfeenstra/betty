@@ -85,6 +85,8 @@ betty = 'betty.cli:main'
 'new-translation' = 'betty.cli.commands.new_translation:new_translation'
 'serve' = 'betty.cli.commands.serve:serve'
 'update-translations' = 'betty.cli.commands.update_translations:update_translations'
+'extension-new-translation' = 'betty.cli.commands.extension_new_translation:extension_new_translation'
+'extension-update-translations' = 'betty.cli.commands.extension_update_translations:extension_update_translations'
 
 [project.entry-points.'betty.dev.command']
 'dev-new-translation' = 'betty.cli.commands.dev_new_translation:dev_new_translation'

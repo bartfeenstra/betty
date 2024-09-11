@@ -26,7 +26,7 @@ from betty.locale import (
     get_data,
     UNDETERMINED_LOCALE,
 )
-from betty.locale.localizable import _, Localizable, plain
+from betty.locale.localizable import _, Localizable, plain, join, do_you_mean
 from betty.typing import Void
 
 Number: TypeAlias = int | float
@@ -446,13 +446,11 @@ def assert_record(
             for unknown_key in unknown_keys:
                 with errors.catch(Key(unknown_key)):
                     raise AssertionFailed(
-                        _(
-                            "Unknown key: {unknown_key}. Did you mean {known_keys}?"
-                        ).format(
-                            unknown_key=f'"{unknown_key}"',
-                            known_keys=", ".join(
-                                (f'"{x}"' for x in sorted(known_keys))
+                        join(
+                            _("Unknown key: {unknown_key}.").format(
+                                unknown_key=f'"{unknown_key}"'
                             ),
+                            do_you_mean(*(f'"{x}"' for x in sorted(known_keys))),
                         )
                     )
             return assert_fields(*fields)(value)

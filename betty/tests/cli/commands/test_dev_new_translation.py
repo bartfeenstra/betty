@@ -10,5 +10,10 @@ class TestDevNewTranslation:
         await run(new_temporary_app, "dev-new-translation", locale)
         m_new_translation.assert_awaited_once_with(locale)
 
-    async def test_without_locale_arg(self, new_temporary_app: App) -> None:
-        await run(new_temporary_app, "dev-new-translation", expected_exit_code=2)
+    async def test_with_invalid_locale(self, new_temporary_app: App) -> None:
+        await run(
+            new_temporary_app,
+            "dev-new-translation",
+            "123",
+            expected_exit_code=2,
+        )

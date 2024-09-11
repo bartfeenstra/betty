@@ -11,12 +11,13 @@ from betty.plugin import (
     Plugin,
     PluginRepository,
 )
+from betty.plugin.static import StaticPluginRepository
 from betty.test_utils.plugin import DummyPlugin
 
 
 class TestPluginNotFound:
     async def test_new(self) -> None:
-        PluginNotFound.new("my-first-plugin-id")
+        await PluginNotFound.new("my-first-plugin-id", StaticPluginRepository())
 
 
 class TestPlugin:

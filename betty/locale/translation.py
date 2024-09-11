@@ -12,13 +12,35 @@ from typing import TYPE_CHECKING
 
 from aiofiles.os import makedirs
 from aiofiles.ospath import exists
+
 from betty import fs
+from betty.error import UserFacingError
 from betty.locale import get_data
 from betty.locale.babel import run_babel
+from betty.locale.localizable import _
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from betty.project import Project
+    from betty.project.extension import Extension
+
+
+def _assert_extension_assets_directory_path(extension: type[Extension]) -> Path:
+    assets_directory_path = extension.assets_directory_path()
+    if assets_directory_path is None:
+        raise UserFacingError(
+            _("{extension} does not have an assets directory.").format(
+                extension=extension.plugin_id()
+            )
+        )
+    return assets_directory_path
+
+
+async def new_extension_translation(locale: str, extension: type[Extension]) -> None:
+    """
+    Create a new translation for the given extension.
+    """
+    await _new_translation(locale, _assert_extension_assets_directory_path(extension))
 
 
 async def new_project_translation(locale: str, project: Project) -> None:
@@ -61,6 +83,31 @@ async def _new_translation(locale: str, assets_directory_path: Path) -> None:
         logging.getLogger(__name__).info(
             f"Translations for {locale} initialized at {po_file_path}."
         )
+
+
+async def update_extension_translations(
+    extension: type[Extension],
+    source_directory_path: Path | None = None,
+    exclude_source_directory_paths: set[Path] | None = None,
+    *,
+    _output_assets_directory_path_override: Path | None = None,
+) -> None:
+    """
+    Update the translations for the given extension.
+    """
+    if source_directory_path:
+        source_file_paths = set(
+            find_source_files(
+                source_directory_path, *exclude_source_directory_paths or set()
+            )
+        )
+    else:
+        source_file_paths = set()
+    await _update_translations(
+        source_file_paths,
+        _assert_extension_assets_directory_path(extension),
+        _output_assets_directory_path_override,
+    )
 
 
 async def update_project_translations(
