@@ -28,7 +28,7 @@ class TestStaticPluginRepository:
 
     async def test___aiter__(self) -> None:
         sut = StaticPluginRepository[Plugin](StaticPluginRepositoryTestPlugin)
-        plugin = await anext(aiter(sut))
+        plugin = [plugin async for plugin in sut][0]
         assert plugin is StaticPluginRepositoryTestPlugin
 
     async def test___aiter___without_plugins(self) -> None:

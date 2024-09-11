@@ -64,7 +64,7 @@ class TestEntryPointPluginRepository:
         sut = EntryPointPluginRepository[Plugin](entry_point_group)
         # Hit the cache.
         for _ in range(0, 2):
-            plugin = await anext(aiter(sut))
+            plugin = [plugin async for plugin in sut][0]
             assert plugin is EntryPointPluginRepositoryTestPlugin
         m_entry_points.assert_called_once_with(group=entry_point_group)
 
