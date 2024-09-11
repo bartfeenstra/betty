@@ -12,7 +12,6 @@ from betty.media_type.media_types import HTML
 from betty.project import Project
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.json.schema import SchemaTestBase
-from betty.test_utils.model import DummyEntity
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
@@ -71,8 +70,11 @@ class TestLink:
     async def test_dump_linked_data_should_dump_minimal(self) -> None:
         link = Link("https://example.com")
         expected: Mapping[str, Any] = {
+            "@context": {"description": "https://schema.org/description"},
             "url": "https://example.com",
             "locale": "und",
+            "label": {"translations": {}},
+            "description": {"translations": {}},
         }
         actual = await assert_dumps_linked_data(link)
         assert actual == expected
@@ -86,11 +88,13 @@ class TestLink:
             media_type=HTML,
         )
         expected: Mapping[str, Any] = {
+            "@context": {"description": "https://schema.org/description"},
             "url": "https://example.com",
             "relationship": "external",
             "label": {"translations": {UNDETERMINED_LOCALE: "The Link"}},
             "locale": "nl-NL",
             "mediaType": "text/html",
+            "description": {"translations": {}},
         }
         actual = await assert_dumps_linked_data(link)
         assert actual == expected
@@ -137,7 +141,7 @@ class TestLinkCollectionSchema(SchemaTestBase):
         return schemas
 
 
-class DummyHasLinks(HasLinks, DummyEntity):
+class DummyHasLinks(HasLinks):
     pass
 
 
@@ -154,7 +158,19 @@ class TestHasLinks:
                 DummyHasLinks(),
             ),
             (
-                {"links": [{"url": "https://example.com", "locale": "und"}]},
+                {
+                    "links": [
+                        {
+                            "@context": {
+                                "description": "https://schema.org/description"
+                            },
+                            "url": "https://example.com",
+                            "locale": "und",
+                            "label": {"translations": {}},
+                            "description": {"translations": {}},
+                        }
+                    ]
+                },
                 DummyHasLinks(links=[Link("https://example.com")]),
             ),
         ],

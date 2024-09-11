@@ -48,30 +48,15 @@ class TestNote(EntityTestBase):
         assert sut.entity is entity
 
     async def test_dump_linked_data_should_dump_full(self) -> None:
-        note = Note(
-            id="the_note",
-            text="The Note",
-        )
+        note = Note(id="the_note", text="The Note")
         expected: Mapping[str, Any] = {
             "@id": "https://example.com/note/the_note/index.json",
             "@type": "https://schema.org/Thing",
             "id": "the_note",
             "private": False,
             "text": {"translations": {"und": "The Note"}},
-            "links": [
-                {
-                    "url": "/note/the_note/index.json",
-                    "relationship": "canonical",
-                    "mediaType": "application/ld+json",
-                    "locale": "und",
-                },
-                {
-                    "url": "/note/the_note/index.html",
-                    "relationship": "alternate",
-                    "mediaType": "text/html",
-                    "locale": "en-US",
-                },
-            ],
+            "entity": None,
+            "links": [],
         }
         actual = await assert_dumps_linked_data(note)
         assert actual == expected
@@ -87,14 +72,9 @@ class TestNote(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_note",
             "private": True,
-            "links": [
-                {
-                    "url": "/note/the_note/index.json",
-                    "relationship": "canonical",
-                    "mediaType": "application/ld+json",
-                    "locale": "und",
-                },
-            ],
+            "links": [],
+            "text": None,
+            "entity": None,
         }
         actual = await assert_dumps_linked_data(note)
         assert actual == expected

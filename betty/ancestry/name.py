@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 @final
-class Name(StaticTranslationsLocalizable, HasDate):
+class Name(HasDate, StaticTranslationsLocalizable):
     """
     A name.
 

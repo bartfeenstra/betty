@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from betty.ancestry.file_reference import FileReference
 from betty.ancestry.file import File
+from betty.ancestry.file_reference import FileReference
 from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 
 

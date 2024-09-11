@@ -8,17 +8,16 @@ from typing import Any, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.privacy import is_public
 from betty.date import Datey, Date, DateySchema
-from betty.json.linked_data import LinkedDataDumpable
-from betty.json.schema import Object
+from betty.json.linked_data import LinkedDataDumpableJsonLdObject, JsonLdObject
+from betty.privacy import is_public
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
     from betty.project import Project
 
 
-class HasDate(LinkedDataDumpable[Object]):
+class HasDate(LinkedDataDumpableJsonLdObject):
     """
     A resource with date information.
     """
@@ -63,7 +62,7 @@ class HasDate(LinkedDataDumpable[Object]):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Object:
+    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property("date", DateySchema(), False)
         return schema

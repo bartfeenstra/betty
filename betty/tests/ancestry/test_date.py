@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 
 from betty.date import Date, DateRange
 from betty.test_utils.ancestry.date import DummyHasDate
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.tests.ancestry.test___init__ import DummyHasDateWithContextDefinitions
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump

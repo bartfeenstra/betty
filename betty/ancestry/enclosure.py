@@ -36,6 +36,8 @@ class Enclosure(ShorthandPluginBase, HasDate, HasCitations, Entity):
         "encloser",
         "betty.ancestry.place:Place",
         "enclosee",
+        title="Encloser",
+        description="The place that encloses or contains the enclosee",
     )
     #: The inner place.
     enclosee = BidirectionalToOne["Enclosure", "Place"](
@@ -43,6 +45,8 @@ class Enclosure(ShorthandPluginBase, HasDate, HasCitations, Entity):
         "enclosee",
         "betty.ancestry.place:Place",
         "encloser",
+        title="Enclosee",
+        description="The place that is enclosed or contained by the encloser",
     )
 
     def __init__(

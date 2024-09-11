@@ -13,13 +13,12 @@ from typing_extensions import override
 
 from betty.json.linked_data import (
     dump_context,
-    LinkedDataDumpable,
     JsonLdObject,
+    LinkedDataDumpableJsonLdObject,
 )
 from betty.json.schema import (
     String,
     Boolean,
-    Object,
     Null,
     OneOf,
     Number,
@@ -58,7 +57,7 @@ class DateSchema(JsonLdObject):
         )
 
 
-class Date(LinkedDataDumpable[Object]):
+class Date(LinkedDataDumpableJsonLdObject):
     """
     A (Gregorian) date.
     """
@@ -206,7 +205,7 @@ def _dump_date_iso8601(date: Date) -> str | None:
     return f"{date.year:04d}-{date.month:02d}-{date.day:02d}"
 
 
-class DateRangeSchema(Object):
+class DateRangeSchema(JsonLdObject):
     """
     A JSON Schema for :py:type:`betty.date.DateRange`.
     """
@@ -219,7 +218,7 @@ class DateRangeSchema(Object):
 
 
 @total_ordering
-class DateRange(LinkedDataDumpable[Object]):
+class DateRange(LinkedDataDumpableJsonLdObject):
     """
     A date range can describe a period of time between, before, after, or around start and/or end dates.
     """

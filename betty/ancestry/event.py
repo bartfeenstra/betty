@@ -18,23 +18,21 @@ from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks
-from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
-from betty.ancestry.presence_role import PresenceRoleSchema
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.privacy import HasPrivacy, Privacy
 from betty.asyncio import wait_to_thread
 from betty.json.linked_data import dump_context, JsonLdObject
-from betty.json.schema import Object, Enum, Array, String
+from betty.json.schema import Enum, String
 from betty.locale.localizable import _, ShorthandStaticTranslations, Localizable, call
-from betty.model import UserFacingEntity, GeneratedEntityId, EntityReferenceSchema
+from betty.model import UserFacingEntity
 from betty.model.association import (
     BidirectionalToZeroOrOne,
     BidirectionalToMany,
     ToManyResolver,
 )
 from betty.plugin import ShorthandPluginBase
+from betty.privacy import HasPrivacy, Privacy
 from betty.repr import repr_instance
 
 if TYPE_CHECKING:
@@ -67,13 +65,21 @@ class Event(
 
     #: The place the event happened.
     place = BidirectionalToZeroOrOne["Event", Place](
-        "betty.ancestry.event:Event", "place", "betty.ancestry.place:Place", "events"
+        "betty.ancestry.event:Event",
+        "place",
+        "betty.ancestry.place:Place",
+        "events",
+        title="Place",
+        description="The location of the event",
     )
     presences = BidirectionalToMany["Event", Presence](
         "betty.ancestry.event:Event",
         "presences",
         "betty.ancestry.presence:Presence",
         "event",
+        title="Presences",
+        description="People's presences at this event",
+        linked_data_embedded=True,
     )
 
     def __init__(
@@ -170,20 +176,12 @@ class Event(
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
+        dump_context(dump, place="https://schema.org/location")
         dump_context(dump, presences="https://schema.org/performer")
         dump["@type"] = "https://schema.org/Event"
         dump["type"] = self.event_type.plugin_id()
         dump["eventAttendanceMode"] = "https://schema.org/OfflineEventAttendanceMode"
         dump["eventStatus"] = "https://schema.org/EventScheduled"
-        dump["presences"] = presences = []
-        for presence in self.presences:
-            if not isinstance(presence.person.id, GeneratedEntityId):
-                presences.append(self._dump_event_presence(presence, project))
-        if self.place is not None and not isinstance(self.place.id, GeneratedEntityId):
-            dump["place"] = project.static_url_generator.generate(
-                f"/place/{quote(self.place.id)}/index.json"
-            )
-            dump_context(dump, place="https://schema.org/location")
         return dump
 
     def _dump_event_presence(
@@ -201,7 +199,7 @@ class Event(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Object:
+    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "type",
@@ -213,23 +211,8 @@ class Event(
                 title="Event type",
             ),
         )
-        schema.add_property("place", EntityReferenceSchema(Place), False)
-        schema.add_property(
-            "presences", Array(_EventPresenceSchema(), title="Presences")
-        )
         schema.add_property("eventStatus", String(title="Event status"))
         schema.add_property(
             "eventAttendanceMode", String(title="Event attendance mode")
         )
         return schema
-
-
-class _EventPresenceSchema(JsonLdObject):
-    """
-    A schema for the :py:class:`betty.ancestry.presence.Presence` associations on a :py:class:`betty.ancestry.event.Event`.
-    """
-
-    def __init__(self):
-        super().__init__(title="Presence (event)")
-        self.add_property("role", PresenceRoleSchema(), False)
-        self.add_property("person", EntityReferenceSchema(Person))

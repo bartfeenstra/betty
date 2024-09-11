@@ -26,17 +26,29 @@ class TestHasCitations:
         ("expected", "sut"),
         [
             (
-                {"citations": []},
-                DummyHasCitations(),
+                {
+                    "id": "my-first-has-citations",
+                    "citations": [],
+                },
+                DummyHasCitations(id="my-first-has-citations"),
             ),
             (
-                {"citations": []},
-                DummyHasCitations(citations=[Citation(source=Source())]),
-            ),
-            (
-                {"citations": ["/citation/my-first-citation/index.json"]},
+                {
+                    "id": "my-first-has-citations",
+                    "citations": [],
+                },
                 DummyHasCitations(
-                    citations=[Citation(source=Source(), id="my-first-citation")]
+                    citations=[Citation(source=Source())], id="my-first-has-citations"
+                ),
+            ),
+            (
+                {
+                    "id": "my-first-has-citations",
+                    "citations": ["/citation/my-first-citation/index.json"],
+                },
+                DummyHasCitations(
+                    citations=[Citation(source=Source(), id="my-first-citation")],
+                    id="my-first-has-citations",
                 ),
             ),
         ],

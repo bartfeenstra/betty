@@ -6,19 +6,52 @@ from __future__ import annotations
 
 import weakref
 from abc import abstractmethod, ABC
-from typing import Generic, cast, Any, Iterable, TypeVar, final, Self, overload
+from typing import (
+    Generic,
+    cast,
+    Any,
+    Iterable,
+    TypeVar,
+    final,
+    Self,
+    overload,
+    TYPE_CHECKING,
+)
+from urllib.parse import quote
 
 from typing_extensions import override
 
 from betty.importlib import import_any
-from betty.model import Entity
+from betty.json.linked_data import LinkedDataDumpableProvider
+from betty.json.schema import Schema, Array, OneOf, Null
+from betty.model import (
+    Entity,
+    EntityReferenceSchema,
+    EntityReferenceCollectionSchema,
+    UserFacingEntity,
+    has_generated_entity_id,
+)
 from betty.model.collections import EntityCollection, SingleTypeEntityCollection
 from betty.typing import internal
+
+if TYPE_CHECKING:
+    from betty.project import Project
+    from betty.serde.dump import Dump
 
 _T = TypeVar("_T")
 _EntityT = TypeVar("_EntityT", bound=Entity)
 _OwnerT = TypeVar("_OwnerT", bound=Entity)
 _AssociateT = TypeVar("_AssociateT", bound=Entity)
+
+
+def _generate_associate_url(project: Project, associate: Entity) -> str | None:
+    if has_generated_entity_id(associate):
+        return None
+    if not isinstance(associate, UserFacingEntity):
+        return None
+    return project.static_url_generator.generate(
+        f"/{associate.type.plugin_id()}/{quote(associate.id)}/index.json"
+    )
 
 
 class AssociationRequired(RuntimeError):
@@ -71,14 +104,24 @@ class ToManyResolver(Generic[_EntityT], _Resolver[Iterable[_EntityT]]):
     pass
 
 
-class _Association(Generic[_OwnerT, _AssociateT]):
+class _Association(LinkedDataDumpableProvider[_OwnerT], Generic[_OwnerT, _AssociateT]):
     def __init__(
-        self, owner_type_name: str, owner_attr_name: str, associate_type_name: str
+        self,
+        owner_type_name: str,
+        owner_attr_name: str,
+        associate_type_name: str,
+        *,
+        title: str | None = None,
+        description: str | None = None,
+        linked_data_embedded: bool = False,
     ):
         self._owner_type_name = owner_type_name
         self._owner_attr_name = owner_attr_name
         self._internal_owner_attr_name = f"_{owner_attr_name}"
         self._associate_type_name = associate_type_name
+        self._linked_data_embedded = linked_data_embedded
+        self._title = title
+        self._description = description
         AssociationRegistry._register(self)
 
     def __hash__(self) -> int:
@@ -88,6 +131,9 @@ class _Association(Generic[_OwnerT, _AssociateT]):
                 self._owner_type_name,
                 self._owner_attr_name,
                 self._associate_type_name,
+                self._linked_data_embedded,
+                self._title,
+                self._description,
             )
         )
 
@@ -95,6 +141,8 @@ class _Association(Generic[_OwnerT, _AssociateT]):
     def owner_type(self) -> type[_OwnerT]:
         """
         The type of the owning entity that contains this association.
+
+        This may be an abstract class.
         """
         return cast(
             type[_OwnerT],
@@ -112,6 +160,8 @@ class _Association(Generic[_OwnerT, _AssociateT]):
     def associate_type(self) -> type[_AssociateT]:
         """
         The type of any associate entities.
+
+        This may be an abstract class.
         """
         return cast(
             type[_AssociateT],
@@ -191,6 +241,30 @@ class _ToOneAssociation(
     def get_associates(self, owner: _OwnerT) -> Iterable[_AssociateT]:
         yield self.__get__(owner, type(owner))
 
+    @override
+    async def linked_data_schema_for(self, project: Project) -> Schema:
+        schema = (
+            await self.associate_type.linked_data_schema(project)
+            if self._linked_data_embedded
+            else EntityReferenceSchema()
+        )
+        return OneOf(
+            schema,
+            Null(description="In case the entity is not publishable."),
+            title=self._title or schema.title,
+            description=self._description or schema.description,
+        )
+
+    @override
+    async def dump_linked_data_for(
+        self, project: Project, target: _OwnerT & Entity
+    ) -> Dump:
+        associate = self.__get__(target, type(target))
+        if self._linked_data_embedded:
+            return await associate.dump_linked_data(project)
+        else:
+            return _generate_associate_url(project, associate)
+
 
 class _ToZeroOrOneAssociation(
     Generic[_OwnerT, _AssociateT], _Association[_OwnerT, _AssociateT]
@@ -242,6 +316,32 @@ class _ToZeroOrOneAssociation(
         associate = self.__get__(owner, type(owner))
         if associate is not None:
             yield associate
+
+    @override
+    async def linked_data_schema_for(self, project: Project) -> Schema:
+        schema = (
+            await self.associate_type.linked_data_schema(project)
+            if self._linked_data_embedded
+            else EntityReferenceSchema()
+        )
+        return OneOf(
+            schema,
+            Null(description="In case the entity is not publishable."),
+            title=self._title or schema.title,
+            description=self._description or schema.description,
+        )
+
+    @override
+    async def dump_linked_data_for(
+        self, project: Project, target: _OwnerT & Entity
+    ) -> Dump:
+        associate = self.__get__(target, type(target))
+        if associate is None:
+            return None
+        if self._linked_data_embedded:
+            return await associate.dump_linked_data(project)
+        else:
+            return _generate_associate_url(project, associate)
 
 
 @internal
@@ -307,6 +407,37 @@ class _ToManyAssociation(
             setattr(owner, self._internal_owner_attr_name, collection)
             collection.add(*value.resolve())
 
+    @override
+    async def linked_data_schema_for(self, project: Project) -> Schema:
+        if self._linked_data_embedded:
+            return Array(
+                await self.associate_type.linked_data_schema(project),
+                title=self._title,
+                description=self._description,
+            )
+        return EntityReferenceCollectionSchema(
+            title=self._title, description=self._description
+        )
+
+    @override
+    async def dump_linked_data_for(
+        self, project: Project, target: _OwnerT & Entity
+    ) -> Dump:
+        associates = self.__get__(target, type(target))
+        if self._linked_data_embedded:
+            return [
+                await associate.dump_linked_data(project) for associate in associates
+            ]
+        return list(
+            filter(
+                None,
+                (
+                    _generate_associate_url(project, associate)
+                    for associate in associates
+                ),
+            )
+        )
+
 
 class _BidirectionalAssociation(
     Generic[_OwnerT, _AssociateT], _Association[_OwnerT, _AssociateT]
@@ -317,25 +448,24 @@ class _BidirectionalAssociation(
         owner_attr_name: str,
         associate_type_name: str,
         associate_attr_name: str,
+        *,
+        linked_data_embedded: bool = False,
+        title: str | None = None,
+        description: str | None = None,
     ):
         self._associate_attr_name = associate_attr_name
         super().__init__(
             owner_type_name,
             owner_attr_name,
             associate_type_name,
+            title=title,
+            description=description,
+            linked_data_embedded=linked_data_embedded,
         )
 
     @override
     def __hash__(self) -> int:
-        return hash(
-            (
-                type(self),
-                self._owner_type_name,
-                self._owner_attr_name,
-                self._associate_type_name,
-                self._associate_attr_name,
-            )
-        )
+        return hash((super().__hash__(), self._associate_attr_name))
 
     @property
     def associate_attr_name(self) -> str:

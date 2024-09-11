@@ -4,19 +4,11 @@ Data types for entities that have notes.
 
 from __future__ import annotations
 
-from typing import Any, Iterable, TYPE_CHECKING
-from urllib.parse import quote
-
-from typing_extensions import override
+from typing import Any, Iterable
 
 from betty.ancestry.note import Note
-from betty.model import Entity, GeneratedEntityId, EntityReferenceCollectionSchema
+from betty.model import Entity
 from betty.model.association import BidirectionalToMany, ToManyResolver
-
-if TYPE_CHECKING:
-    from betty.json.schema import Object
-    from betty.serde.dump import DumpMapping, Dump
-    from betty.project import Project
 
 
 class HasNotes(Entity):
@@ -29,6 +21,7 @@ class HasNotes(Entity):
         "notes",
         "betty.ancestry.note:Note",
         "entity",
+        title="Notes",
     )
 
     def __init__(
@@ -40,20 +33,3 @@ class HasNotes(Entity):
         super().__init__(*args, **kwargs)
         if notes is not None:
             self.notes = notes
-
-    @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
-        dump = await super().dump_linked_data(project)
-        dump["notes"] = [
-            project.static_url_generator.generate(f"/note/{quote(note.id)}/index.json")
-            for note in self.notes
-            if not isinstance(note.id, GeneratedEntityId)
-        ]
-        return dump
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project) -> Object:
-        schema = await super().linked_data_schema(project)
-        schema.add_property("notes", EntityReferenceCollectionSchema(Note))
-        return schema

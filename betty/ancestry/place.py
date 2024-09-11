@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from contextlib import suppress
 from typing import final, MutableSequence, Iterable, Iterator, TYPE_CHECKING
-from urllib.parse import quote
 
 from typing_extensions import override
 
@@ -15,18 +14,16 @@ from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.name import Name
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
-from betty.privacy import HasPrivacy
 from betty.json.linked_data import dump_context, JsonLdObject
-from betty.json.schema import Object, Array, Number
+from betty.json.schema import Array, Number
 from betty.locale.localizable import _, Localizable
 from betty.model import (
     UserFacingEntity,
     Entity,
-    GeneratedEntityId,
-    EntityReferenceCollectionSchema,
 )
 from betty.model.association import BidirectionalToMany, ToManyResolver
 from betty.plugin import ShorthandPluginBase
+from betty.privacy import HasPrivacy
 
 if TYPE_CHECKING:
     from betty.ancestry.note import Note
@@ -61,19 +58,30 @@ class Place(
     _plugin_label = _("Place")
 
     events = BidirectionalToMany["Place", "Event"](
-        "betty.ancestry.place:Place", "events", "betty.ancestry.event:Event", "place"
+        "betty.ancestry.place:Place",
+        "events",
+        "betty.ancestry.event:Event",
+        "place",
+        title="Events",
+        description="The events that happened in this place",
     )
     enclosers = BidirectionalToMany["Place", "Enclosure"](
         "betty.ancestry.place:Place",
         "encloser",
         "betty.ancestry.enclosure:Enclosure",
         "enclosee",
+        title="Enclosers",
+        description="The places this place is enclosed or contained by",
+        linked_data_embedded=True,
     )
     enclosees = BidirectionalToMany["Place", "Enclosure"](
         "betty.ancestry.place:Place",
         "enclosee",
         "betty.ancestry.enclosure:Enclosure",
         "encloser",
+        title="Enclosees",
+        description="The places this place encloses or contains",
+        linked_data_embedded=True,
     )
 
     def __init__(
@@ -174,27 +182,6 @@ class Place(
         )
         dump["@type"] = "https://schema.org/Place"
         dump["names"] = [await name.dump_linked_data(project) for name in self.names]
-        dump["events"] = [
-            project.static_url_generator.generate(
-                f"/event/{quote(event.id)}/index.json"
-            )
-            for event in self.events
-            if not isinstance(event.id, GeneratedEntityId)
-        ]
-        dump["enclosers"] = [
-            project.static_url_generator.generate(
-                f"/place/{quote(enclosure.encloser.id)}/index.json"
-            )
-            for enclosure in self.enclosers
-            if not isinstance(enclosure.encloser.id, GeneratedEntityId)
-        ]
-        dump["enclosees"] = [
-            project.static_url_generator.generate(
-                f"/place/{quote(enclosure.enclosee.id)}/index.json"
-            )
-            for enclosure in self.enclosees
-            if not isinstance(enclosure.enclosee.id, GeneratedEntityId)
-        ]
         if self.coordinates is not None:
             dump["coordinates"] = {
                 "@type": "https://schema.org/GeoCoordinates",
@@ -214,19 +201,14 @@ class Place(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Object:
-        from betty.ancestry.event import Event
-
+    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "names", Array(await Name.linked_data_schema(project), title="Names")
         )
-        schema.add_property("enclosers", EntityReferenceCollectionSchema(Place))
-        schema.add_property("enclosees", EntityReferenceCollectionSchema(Place))
         coordinate_schema = Number(title="Coordinate")
         coordinates_schema = JsonLdObject(title="Coordinates")
         coordinates_schema.add_property("latitude", coordinate_schema, False)
         coordinates_schema.add_property("longitude", coordinate_schema, False)
         schema.add_property("coordinates", coordinates_schema, False)
-        schema.add_property("events", EntityReferenceCollectionSchema(Event))
         return schema

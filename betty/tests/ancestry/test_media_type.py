@@ -7,13 +7,12 @@ import pytest
 from betty.ancestry.media_type import HasMediaType
 from betty.media_type.media_types import PLAIN_TEXT
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import DummyEntity
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
 
 
-class DummyHasMediaType(HasMediaType, DummyEntity):
+class DummyHasMediaType(HasMediaType):
     pass
 
 

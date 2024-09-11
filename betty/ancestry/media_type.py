@@ -8,17 +8,16 @@ from typing import Any, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.privacy import is_public
-from betty.json.linked_data import LinkedDataDumpable
-from betty.json.schema import Object
+from betty.json.linked_data import LinkedDataDumpableJsonLdObject, JsonLdObject
 from betty.media_type import MediaType, MediaTypeSchema
+from betty.privacy import is_public
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
     from betty.project import Project
 
 
-class HasMediaType(LinkedDataDumpable[Object]):
+class HasMediaType(LinkedDataDumpableJsonLdObject):
     """
     A resource with an `IANA media type <https://www.iana.org/assignments/media-types/media-types.xhtml>`_.
     """
@@ -41,7 +40,7 @@ class HasMediaType(LinkedDataDumpable[Object]):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Object:
+    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property("mediaType", MediaTypeSchema(), False)
         return schema

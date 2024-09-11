@@ -9,13 +9,11 @@ from typing import final, TYPE_CHECKING
 from typing_extensions import override
 
 from betty.ancestry.link import HasLinks
-from betty.privacy import HasPrivacy, Privacy
 from betty.locale.localizable import (
     _,
     RequiredStaticTranslationsLocalizableAttr,
     ShorthandStaticTranslations,
     Localizable,
-    StaticTranslationsLocalizableSchema,
 )
 from betty.model import (
     UserFacingEntity,
@@ -27,10 +25,10 @@ from betty.model.association import (
     ToZeroOrOneResolver,
 )
 from betty.plugin import ShorthandPluginBase
+from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:
     from betty.ancestry.has_notes import HasNotes
-    from betty.json.schema import Object
     from betty.serde.dump import DumpMapping, Dump
     from betty.project import Project
 
@@ -50,10 +48,12 @@ class Note(ShorthandPluginBase, UserFacingEntity, HasPrivacy, HasLinks, Entity):
         "entity",
         "betty.ancestry.has_notes:HasNotes",
         "notes",
+        title="Entity",
+        description="The entity the note belongs to",
     )
 
     #: The human-readable note text.
-    text = RequiredStaticTranslationsLocalizableAttr("text")
+    text = RequiredStaticTranslationsLocalizableAttr("text", title="Text")
 
     def __init__(
         self,
@@ -92,13 +92,4 @@ class Note(ShorthandPluginBase, UserFacingEntity, HasPrivacy, HasLinks, Entity):
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         dump["@type"] = "https://schema.org/Thing"
-        if self.public:
-            dump["text"] = await self.text.dump_linked_data(project)
         return dump
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project) -> Object:
-        schema = await super().linked_data_schema(project)
-        schema.add_property("text", StaticTranslationsLocalizableSchema(), False)
-        return schema

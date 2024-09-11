@@ -25,6 +25,8 @@ class HasFileReferences(Entity):
         "file_references",
         "betty.ancestry.file_reference:FileReference",
         "referee",
+        title="File references",
+        linked_data_embedded=True,
     )
 
     def __init__(
