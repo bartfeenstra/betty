@@ -44,6 +44,7 @@ from betty.locale.localizable import (
 )
 from betty.locale.localized import Localized
 from betty.media_type import MediaType, MediaTypeSchema
+from betty.media_type.media_types import HTML, JSON_LD
 from betty.model import (
     Entity,
     UserFacingEntity,
@@ -515,7 +516,7 @@ class HasLinks(Entity):
                         f"/{self.type.plugin_id()}/{self.id}/index.json"
                     ),
                     relationship="canonical",
-                    media_type=MediaType("application/ld+json"),
+                    media_type=JSON_LD,
                 ),
             )
             if is_public(self):
@@ -530,7 +531,7 @@ class HasLinks(Entity):
                                 locale=locale,
                             ),
                             relationship="alternate",
-                            media_type=MediaType("text/html"),
+                            media_type=HTML,
                             locale=locale,
                         )
                         for locale in project.configuration.locales

@@ -15,16 +15,15 @@ Renderers convert textual content to HTML. A renderer is often built to support 
 Creating a renderer
 -------------------
 
-#. Create a new class that extends both :py:class:`betty.render.Renderer` and :py:class:`betty.plugin.Plugin` and implements the abstract methods,
+#. Create a new class that extends :py:class:`betty.render.RendererPlugin` and implements the abstract methods,
    for example:
 
    .. code-block:: python
 
      from typing import override
-     from betty.plugin import Plugin
-     from betty.render import Renderer
+     from betty.render import RendererPlugin
 
-     class MyRenderer(Renderer, Plugin):
+     class MyRenderer(RendererPlugin):
        @override
        @classmethod
        def plugin_id(cls) -> str:

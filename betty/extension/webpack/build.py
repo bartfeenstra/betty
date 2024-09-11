@@ -141,8 +141,7 @@ class Builder:
         await copy_tree(
             entry_point_provider.webpack_entry_point_directory_path(),
             entry_point_provider_working_directory_path,
-            file_callback=lambda destination_file_path: self._renderer.render_file(
-                destination_file_path,
+            copy_function=self._renderer.copy_function(
                 job_context=self._job_context,
                 localizer=self._localizer,
             ),

@@ -228,22 +228,26 @@ async def _generate_dispatch(job_context: ProjectContext) -> None:
 
 
 async def _generate_public_asset(
+    asset_path: Path,
+    destination_path: Path,
+    project: Project,
+    job_context: ProjectContext,
+) -> None:
+    await makedirs(destination_path.parent, exist_ok=True)
+    await project.renderer.copy_function(job_context=job_context)(
+        project.assets[asset_path], destination_path
+    )
+
+
+async def _generate_localized_public_asset(
     asset_path: Path, project: Project, job_context: ProjectContext, locale: str
 ) -> None:
     www_directory_path = project.configuration.localize_www_directory_path(locale)
     file_destination_path = www_directory_path / asset_path.relative_to(
         Path("public") / "localized"
     )
-    await makedirs(file_destination_path.parent, exist_ok=True)
-    await to_thread(
-        shutil.copy2,
-        project.assets[asset_path],
-        file_destination_path,
-    )
-    await project.renderer.render_file(
-        file_destination_path,
-        job_context=job_context,
-        localizer=await project.app.localizers.get(locale),
+    await _generate_public_asset(
+        asset_path, file_destination_path, project, job_context
     )
 
 
@@ -263,7 +267,7 @@ async def _generate_public(
     )
     await gather(
         *(
-            _generate_public_asset(asset_path, project, job_context, locale)
+            _generate_localized_public_asset(asset_path, project, job_context, locale)
             for asset_path in project.assets.walk(Path("public") / "localized")
         )
     )
@@ -276,13 +280,9 @@ async def _generate_static_public_asset(
         project.configuration.www_directory_path
         / asset_path.relative_to(Path("public") / "static")
     )
-    await makedirs(file_destination_path.parent, exist_ok=True)
-    await to_thread(
-        shutil.copy2,
-        project.assets[asset_path],
-        file_destination_path,
+    await _generate_public_asset(
+        asset_path, file_destination_path, project, job_context
     )
-    await project.renderer.render_file(file_destination_path, job_context=job_context)
 
 
 async def _generate_static_public(

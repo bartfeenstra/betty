@@ -9,8 +9,9 @@ from html5lib import parse
 
 from betty.asyncio import gather
 from betty.fetch import Fetcher, FetchError
-from betty.media_type import MediaType, InvalidMediaType
+from betty.media_type import MediaType
 from betty.ancestry import Link, HasLinks
+from betty.media_type.media_types import HTML, XHTML
 from betty.project import Project, ProjectEvent, ProjectContext
 
 
@@ -61,14 +62,10 @@ async def _fetch_link_title(fetcher: Fetcher, link: Link) -> None:
     except FetchError as error:
         logging.getLogger(__name__).warning(str(error))
         return
-    try:
-        content_type = MediaType(response.headers["Content-Type"])
-    except InvalidMediaType:
-        return
+    content_type = MediaType(response.headers["Content-Type"])
 
-    if (content_type.type, content_type.subtype, content_type.suffix) not in (
-        ("text", "html", None),
-        ("application", "xhtml", "+xml"),
+    if content_type not in (
+        HTML, XHTML
     ):
         return
 
