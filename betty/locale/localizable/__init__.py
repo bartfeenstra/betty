@@ -11,11 +11,13 @@ from warnings import warn
 
 from typing_extensions import override
 
+from betty.assertion import assert_passthrough, assert_len
 from betty.attr import MutableAttr
 from betty.classtools import repr_instance
 from betty.json.linked_data import LinkedDataDumpable
 from betty.json.schema import Object
 from betty.locale import negotiate_locale, to_locale, UNDETERMINED_LOCALE
+from betty.locale.localizable.assertion import assert_static_translations
 from betty.locale.localized import LocalizedStr
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizer import Localizer
@@ -311,12 +313,24 @@ class StaticTranslationsLocalizable(
         """
         :param translations: Keys are locales, values are translations.
         """
+        from betty.locale.localizable.assertion import assert_static_translations
+
         super().__init__(*args, **kwargs)
         self._required = required
         if translations is not None:
             self.replace(translations)
         else:
             self._translations = {}
+        self._assert_shorthand_translations = (
+            assert_static_translations()
+            | assert_passthrough(assert_len(minimum=1 if self._required else 0))
+        )
+        reveal_type(self._assert_shorthand_translations)
+        reveal_type(self._assert_shorthand_translations)
+        reveal_type(self._assert_shorthand_translations)
+        reveal_type(assert_static_translations())
+        reveal_type(assert_passthrough())
+        reveal_type(assert_static_translations() | assert_passthrough())
 
     def __repr__(self) -> str:
         return repr_instance(self, translations=self._translations)
@@ -334,16 +348,10 @@ class StaticTranslationsLocalizable(
         """
         Replace the translations.
         """
-        from betty.assertion import assert_len
-
-        from betty.locale.localizable.assertion import assert_static_translations
-
         if isinstance(translations, StaticTranslationsLocalizable):
             self._translations = translations._translations
         else:
-            translations = assert_static_translations()(translations)
-            assert_len(minimum=1 if self._required else 0)(translations)
-            self._translations = dict(translations)
+            self._translations = self._assert_shorthand_translations(translations)
 
     @property
     def translations(self) -> StaticTranslations:
@@ -389,8 +397,6 @@ def static(translations: ShorthandStaticTranslations) -> Localizable:
     """
     Create a new localizable that outputs the given static translations.
     """
-    from betty.locale.localizable.assertion import assert_static_translations
-
     return StaticTranslationsLocalizable(assert_static_translations()(translations))
 
 

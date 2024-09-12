@@ -16,10 +16,13 @@ from betty.assertion import (
 from betty.locale import UNDETERMINED_LOCALE
 
 if TYPE_CHECKING:
+    from collections.abc import MutableMapping
     from betty.locale.localizable import StaticTranslations
 
 
-def assert_static_translations() -> AssertionChain[Any, StaticTranslations]:
+def assert_static_translations() -> (
+    AssertionChain[Any, StaticTranslations & MutableMapping[str, str]]
+):
     """
     Assert that a value represents static translations.
     """

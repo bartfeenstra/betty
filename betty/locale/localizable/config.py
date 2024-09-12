@@ -7,7 +7,6 @@ from typing import Self, final
 
 from typing_extensions import override
 
-from betty.assertion import assert_len
 from betty.attr import MutableAttr
 from betty.config import Configuration
 from betty.locale import UNDETERMINED_LOCALE
@@ -15,7 +14,6 @@ from betty.locale.localizable import (
     ShorthandStaticTranslations,
     StaticTranslationsLocalizable,
 )
-from betty.locale.localizable.assertion import assert_static_translations
 from betty.serde.dump import VoidableDump, Dump, minimize
 from betty.typing import Void
 
@@ -37,10 +35,7 @@ class StaticTranslationsLocalizableConfiguration(
     @override
     def load(self, dump: Dump) -> None:
         self._translations.clear()
-
-        translations = assert_static_translations()(dump)
-        assert_len(minimum=1 if self._required else 0)(translations)
-        for locale, translation in translations.items():
+        for locale, translation in self._assert_shorthand_translations(dump).items():
             self[locale] = translation
 
     @override
