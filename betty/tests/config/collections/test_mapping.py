@@ -132,12 +132,12 @@ class ConfigurationMappingTestConfigurationMapping(
         item_dump: Dump,
         key_dump: str,
     ) -> Dump:
-        mapping_item_dump = dict(assert_mapping()(item_dump))
+        mapping_item_dump = assert_mapping()(item_dump)
         mapping_item_dump["key"] = key_dump
         return mapping_item_dump
 
     def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
-        mapping_item_dump = dict(assert_mapping()(item_dump))
+        mapping_item_dump = assert_mapping()(item_dump)
         return mapping_item_dump, mapping_item_dump.pop("key")
 
 
@@ -220,10 +220,10 @@ class OrderedConfigurationMappingTestOrderedConfigurationMapping(
         item_dump: Dump,
         key_dump: str,
     ) -> Dump:
-        mapping_item_dump = dict(assert_mapping()(item_dump))
+        mapping_item_dump = assert_mapping()(item_dump)
         mapping_item_dump["key"] = key_dump
         return mapping_item_dump
 
     def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
-        mapping_item_dump = dict(assert_mapping()(item_dump))
+        mapping_item_dump = assert_mapping()(item_dump)
         return mapping_item_dump, mapping_item_dump.pop("key")

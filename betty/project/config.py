@@ -378,13 +378,13 @@ class ExtensionConfigurationMapping(
         item_dump: Dump,
         key_dump: str,
     ) -> Dump:
-        mapping_dump = dict(assert_mapping()(item_dump))
+        mapping_dump = assert_mapping()(item_dump)
         mapping_dump["extension"] = key_dump
         return mapping_dump
 
     @override
     def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
-        mapping_dump = dict(assert_mapping()(item_dump))
+        mapping_dump = assert_mapping()(item_dump)
         return mapping_dump, mapping_dump.pop("extension")
 
     def enable(self, *extension_types: type[Extension]) -> None:
@@ -492,14 +492,14 @@ class EntityTypeConfigurationMapping(
         item_dump: Dump,
         key_dump: str,
     ) -> Dump:
-        mapping_dump = dict(assert_mapping()(item_dump))
+        mapping_dump = assert_mapping()(item_dump)
         assert_plugin(model.ENTITY_TYPE_REPOSITORY)(key_dump)
         mapping_dump["entity_type"] = key_dump
         return mapping_dump
 
     @override
     def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
-        mapping_dump = dict(assert_mapping()(item_dump))
+        mapping_dump = assert_mapping()(item_dump)
         return mapping_dump, mapping_dump.pop("entity_type")
 
     @override

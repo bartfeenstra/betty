@@ -4,7 +4,7 @@ The Assertion API.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, MutableSequence
 from collections.abc import Sized, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -261,20 +261,20 @@ def assert_str() -> AssertionChain[Any, str]:
 
 @overload
 def assert_sequence(
-    value_assertion: None = None,
-) -> AssertionChain[Any, Sequence[Any]]:
+    value_assertion: None = None, /
+) -> AssertionChain[Any, MutableSequence[Any]]:
     pass
 
 
 @overload
 def assert_sequence(
-    value_assertion: Assertion[Any, _AssertionReturnT],
-) -> AssertionChain[Any, Sequence[_AssertionReturnT]]:
+    value_assertion: Assertion[Any, _AssertionReturnT], /
+) -> AssertionChain[Any, MutableSequence[_AssertionReturnT]]:
     pass
 
 
 def assert_sequence(
-    value_assertion: Assertion[Any, _AssertionReturnT] | None = None,
+    value_assertion: Assertion[Any, _AssertionReturnT] | None = None, /
 ):
     """
     Assert that a value is a sequence.
@@ -282,13 +282,13 @@ def assert_sequence(
     Optionally assert that values are of a given type.
     """
 
-    def _assert_sequence(value: Any) -> Sequence[_AssertionReturnT]:
+    def _assert_sequence(value: Any) -> MutableSequence[_AssertionReturnT]:
         sequence = _assert_type(
             value,
             Sequence,  # type: ignore[type-abstract]
         )
         if value_assertion is None:
-            return sequence
+            return list(sequence)
         asserted_sequence = []
         with AssertionFailedGroup().assert_valid() as errors:
             for value_index, value_value in enumerate(sequence):
@@ -301,25 +301,22 @@ def assert_sequence(
 
 @overload
 def assert_mapping(
-    value_assertion: None = None,
-    key_assertion: None = None,
-) -> AssertionChain[Any, Mapping[Any, Any]]:
+    value_assertion: None = None, key_assertion: None = None, /
+) -> AssertionChain[Any, MutableMapping[Any, Any]]:
     pass
 
 
 @overload
 def assert_mapping(
-    value_assertion: Assertion[Any, _AssertionReturnT],
-    key_assertion: None = None,
-) -> AssertionChain[Any, Mapping[Any, _AssertionReturnT]]:
+    value_assertion: Assertion[Any, _AssertionReturnT], key_assertion: None = None, /
+) -> AssertionChain[Any, MutableMapping[Any, _AssertionReturnT]]:
     pass
 
 
 @overload
 def assert_mapping(
-    value_assertion: None,
-    key_assertion: Assertion[Any, _AssertionKeyT],
-) -> AssertionChain[Any, Mapping[_AssertionKeyT, Any]]:
+    value_assertion: None, key_assertion: Assertion[Any, _AssertionKeyT], /
+) -> AssertionChain[Any, MutableMapping[_AssertionKeyT, Any]]:
     pass
 
 
@@ -327,13 +324,15 @@ def assert_mapping(
 def assert_mapping(
     value_assertion: Assertion[Any, _AssertionReturnT],
     key_assertion: Assertion[Any, _AssertionKeyT],
-) -> AssertionChain[Any, Mapping[_AssertionKeyT, _AssertionReturnT]]:
+    /,
+) -> AssertionChain[Any, MutableMapping[_AssertionKeyT, _AssertionReturnT]]:
     pass
 
 
 def assert_mapping(
     value_assertion: Assertion[Any, _AssertionReturnT] | None = None,
     key_assertion: Assertion[Any, _AssertionKeyT] | None = None,
+    /,
 ):
     """
     Assert that a value is a key-value mapping.
@@ -343,13 +342,13 @@ def assert_mapping(
 
     def _assert_mapping(
         value: Any,
-    ) -> Mapping[_AssertionKeyT, _AssertionReturnT]:
+    ) -> MutableMapping[_AssertionKeyT, _AssertionReturnT]:
         mapping = _assert_type(
             value,
             Mapping,  # type: ignore[type-abstract]
         )
         if value_assertion is None and key_assertion is None:
-            return mapping
+            return dict(mapping)
         asserted_mapping = {}
         with AssertionFailedGroup().assert_valid() as errors:
             for value_key, value_value in mapping.items():
