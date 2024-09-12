@@ -30,6 +30,8 @@ from betty.assertion import (
     assert_file_path,
     assert_isinstance,
     assert_len,
+    assert_passthrough,
+    assert_none,
 )
 from betty.assertion.error import AssertionFailed, Index, Key
 from betty.error import UserFacingError
@@ -38,7 +40,7 @@ from betty.test_utils.assertion.error import raises_error
 from betty.typing import Void
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Mapping, Sequence
 
 _T = TypeVar("_T")
 
@@ -436,3 +438,30 @@ class TestAssertLen:
     ) -> None:
         with pytest.raises(AssertionFailed):
             assert_len(minimum=minimum, maximum=maximum)(value)
+
+
+class TestAssertPassthrough:
+    @pytest.mark.parametrize(
+        ("assertions", "value"),
+        [
+            ([], object()),
+            ([lambda value: isinstance(value, object)], object()),
+        ],
+    )
+    async def test_exact_with_valid_value(
+        self, assertions: Sequence[Assertion[object, Any]], value: object
+    ) -> None:
+        assert assert_passthrough(*assertions)(value) is value
+
+    @pytest.mark.parametrize(
+        ("assertions", "value"),
+        [
+            ([assert_bool()], None),
+            ([assert_none(), assert_bool()], None),
+        ],
+    )
+    async def test_exact_with_invalid_value(
+        self, assertions: Sequence[Assertion[Any, Any]], value: Any
+    ) -> None:
+        with pytest.raises(AssertionFailed):
+            assert_passthrough(*assertions)(value)

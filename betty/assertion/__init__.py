@@ -606,3 +606,18 @@ def assert_len(
         return value
 
     return AssertionChain(_assert_len)
+
+
+def assert_passthrough(
+    *assertions: Assertion[_AssertionValueT, Any],
+) -> AssertionChain[_AssertionValueT, _AssertionValueT]:
+    """
+    Apply the given assertions, and return the original value unchanged.
+    """
+
+    def _assert_passthrough(value: _AssertionValueT) -> _AssertionValueT:
+        for assertion in assertions:
+            assertion(value)
+        return value
+
+    return AssertionChain(_assert_passthrough)
