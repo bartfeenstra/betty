@@ -21,7 +21,8 @@ if TYPE_CHECKING:
 
 
 async def _load_ancestry(event: LoadAncestryEvent) -> None:
-    gramps_configuration = event.project.configuration.extensions[
+    project = event.project
+    gramps_configuration = project.configuration.extensions[
         Gramps
     ].extension_configuration
     assert isinstance(gramps_configuration, GrampsConfiguration)
@@ -29,8 +30,10 @@ async def _load_ancestry(event: LoadAncestryEvent) -> None:
         file_path = family_tree.file_path
         if file_path:
             await GrampsLoader(
-                event.project,
-                localizer=event.project.app.localizer,
+                project.ancestry,
+                attribute_prefix_key=project.configuration.name,
+                factory=project.new,
+                localizer=project.app.localizer,
             ).load_file(file_path)
 
 

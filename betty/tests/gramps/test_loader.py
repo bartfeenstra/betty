@@ -31,29 +31,51 @@ from betty.project import Project
 
 
 class TestGrampsLoader:
+    ATTRIBUTE_PREFIX_KEY = "pre3f1x"
+
     async def test_load_gramps(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
+            sut = GrampsLoader(
+                project.ancestry,
+                factory=project.new,
+                localizer=DEFAULT_LOCALIZER,
+                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            )
             await sut.load_gramps(Path(__file__).parent / "assets" / "minimal.gramps")
 
     async def test_load_gramps_with_non_existent_file(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
+            sut = GrampsLoader(
+                project.ancestry,
+                factory=project.new,
+                localizer=DEFAULT_LOCALIZER,
+                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            )
             with pytest.raises(GrampsFileNotFound):
                 await sut.load_gramps(tmp_path / "non-existent-file")
 
     async def test_load_gpkg(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
+            sut = GrampsLoader(
+                project.ancestry,
+                factory=project.new,
+                localizer=DEFAULT_LOCALIZER,
+                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            )
             await sut.load_gpkg(Path(__file__).parent / "assets" / "minimal.gpkg")
 
     async def test_load_gpkg_with_non_existent_file(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
+            sut = GrampsLoader(
+                project.ancestry,
+                factory=project.new,
+                localizer=DEFAULT_LOCALIZER,
+                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            )
             with pytest.raises(GrampsFileNotFound):
                 await sut.load_gpkg(tmp_path / "non-existent-file")
 
@@ -67,7 +89,12 @@ class TestGrampsLoader:
     )
     async def test_load_file(self, file_path: Path, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
+            sut = GrampsLoader(
+                project.ancestry,
+                factory=project.new,
+                localizer=DEFAULT_LOCALIZER,
+                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            )
             await sut.load_file(file_path)
             with pytest.raises(LoaderUsedAlready):
                 await sut.load_file(file_path)
@@ -76,7 +103,12 @@ class TestGrampsLoader:
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
+            sut = GrampsLoader(
+                project.ancestry,
+                factory=project.new,
+                localizer=DEFAULT_LOCALIZER,
+                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            )
             with pytest.raises(GrampsFileNotFound):
                 await sut.load_file(tmp_path / "non-existent-file")
 
@@ -84,7 +116,12 @@ class TestGrampsLoader:
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
+            sut = GrampsLoader(
+                project.ancestry,
+                factory=project.new,
+                localizer=DEFAULT_LOCALIZER,
+                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            )
             with pytest.raises(UserFacingGrampsError):
                 await sut.load_file(
                     Path(__file__).parent / "assets" / "minimal.invalid"
@@ -98,7 +135,13 @@ class TestGrampsLoader:
         ):
             project.configuration.name = TestGrampsLoader.__name__
             async with project:
-                loader = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
+                # @todo We need to be able to customize the loader
+                loader = GrampsLoader(
+                    project.ancestry,
+                    factory=project.new,
+                    localizer=DEFAULT_LOCALIZER,
+                    attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+                )
                 async with TemporaryDirectory() as tree_directory_path_str:
                     await loader.load_xml(
                         xml.strip(),
@@ -126,7 +169,12 @@ class TestGrampsLoader:
     async def test_load_xml(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
             gramps_file_path = Path(__file__).parent / "assets" / "minimal.xml"
-            sut = GrampsLoader(project, localizer=DEFAULT_LOCALIZER)
+            sut = GrampsLoader(
+                project.ancestry,
+                factory=project.new,
+                localizer=DEFAULT_LOCALIZER,
+                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            )
             async with aiofiles.open(gramps_file_path) as f:
                 await sut.load_xml(await f.read(), rootname(gramps_file_path))
 
@@ -1152,7 +1200,7 @@ class TestGrampsLoader:
         project_attribute = (
             ""
             if project_attribute_value is None
-            else f'<attribute type="betty-TestGrampsLoader:privacy" value="{project_attribute_value}"/>'
+            else f'<attribute type="betty-{self.ATTRIBUTE_PREFIX_KEY}:privacy" value="{project_attribute_value}"/>'
         )
         ancestry = await self._load_partial(
             f"""

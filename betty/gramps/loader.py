@@ -41,6 +41,7 @@ from betty.ancestry import (
     HasPrivacy,
     HasNotes,
     FileReference,
+    Ancestry,
 )
 from betty.ancestry.event_type import (
     Birth,
@@ -88,8 +89,8 @@ from betty.model.graph import EntityGraphBuilder
 from betty.path import rootname
 
 if TYPE_CHECKING:
+    from betty.factory import Factory
     from betty.locale.localizer import Localizer
-    from betty.project import Project
     from collections.abc import MutableMapping, Mapping, Sequence
 
 
@@ -150,12 +151,16 @@ class GrampsLoader:
 
     def __init__(
         self,
-        project: Project,
+        ancestry: Ancestry,
         *,
+        factory: Factory[Any],
         localizer: Localizer,
+        attribute_prefix_key: str | None = None,
     ):
         super().__init__()
-        self._project = project
+        self._ancestry = ancestry
+        self._factory = factory
+        self._attribute_prefix_key = attribute_prefix_key
         self._ancestry_builder = EntityGraphBuilder()
         self._added_entity_counts: MutableMapping[type[Entity], int] = defaultdict(
             lambda: 0
@@ -342,7 +347,7 @@ class GrampsLoader:
 
         await self._load_families(database)
 
-        self._project.ancestry.add_unchecked_graph(*self._ancestry_builder.build())
+        self._ancestry.add_unchecked_graph(*self._ancestry_builder.build())
 
     def _add_entity(self, entity: AliasableEntity[Entity]) -> None:
         self._ancestry_builder.add_entity(entity)
@@ -652,11 +657,11 @@ class GrampsLoader:
                     event_handle=event_handle,
                     gramps_presence_role=gramps_presence_role,
                     betty_presence_role=role_type.plugin_label().localize(
-                        self._project.app.localizer
+                        self._localizer
                     ),
                 )
             )
-        role = await self._project.new(role_type)
+        role = await self._factory(role_type)
 
         presence = Presence(None, role, None)
         if eventref.get("priv") == "1":
@@ -1130,9 +1135,8 @@ class GrampsLoader:
         self, element: ElementTree.Element, tag: str
     ) -> Mapping[str, str]:
         prefixes = ["betty"]
-        hash(element)
-        if self._project.configuration.name is not None:
-            prefixes.append(f"betty-{self._project.configuration.name}")
+        if self._attribute_prefix_key:
+            prefixes.append(f"betty-{self._attribute_prefix_key}")
         attributes: MutableMapping[str, str] = {}
         for prefix in prefixes:
             with suppress(XPathError):

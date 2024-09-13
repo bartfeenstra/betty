@@ -198,4 +198,4 @@ class App(Configurable[AppConfiguration], DependentFactory[Any], CoreComponent):
     async def new(self, cls: type[Any]) -> Any:
         if issubclass(cls, AppDependentFactory):
             return await cls.new_for_app(self)
-        return new(cls)
+        return await new(cls)
