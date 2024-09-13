@@ -178,13 +178,13 @@ class TestPluginRepository:
         )
 
     async def test_new_with_custom_factory(self) -> None:
-        def factory(
+        async def factory(
             cls: type[DummyPlugin],
         ) -> DummyPlugin:
             return (
                 cls.new_custom()
                 if issubclass(cls, _TestPluginRepositoryPluginCustomFactory)
-                else new(cls)
+                else await new(cls)  # type: ignore[arg-type]
             )
 
         sut = _TestPluginRepositoryPluginRepository(

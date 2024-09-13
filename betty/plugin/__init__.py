@@ -200,4 +200,4 @@ class PluginRepository(Generic[_PluginT], DependentFactory[_PluginT], ABC):
     async def new(self, cls: PluginIdentifier[_PluginT]) -> _PluginT:
         if isinstance(cls, str):
             cls = await self.get(cls)
-        return self._factory(cls)
+        return await self._factory(cls)

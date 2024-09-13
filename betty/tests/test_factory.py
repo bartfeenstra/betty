@@ -18,9 +18,9 @@ class _NewRaisesError:
 
 
 class TestNew:
-    def test(self) -> None:
-        new(_New)
+    async def test(self) -> None:
+        await new(_New)
 
-    def test_with___init___error(self) -> None:
+    async def test_with___init___error(self) -> None:
         with pytest.raises(FactoryError):
-            new(_NewRaisesError)
+            await new(_NewRaisesError)
