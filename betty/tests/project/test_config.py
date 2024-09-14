@@ -11,8 +11,6 @@ from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity, UserFacingEntity
 from betty.plugin.static import StaticPluginRepository
-from betty.project.extension import Extension
-from betty.project.config import ProjectConfiguration
 from betty.project.config import (
     EntityReference,
     EntityReferenceSequence,
@@ -23,10 +21,11 @@ from betty.project.config import (
     EntityTypeConfiguration,
     EntityTypeConfigurationMapping,
 )
+from betty.project.config import ProjectConfiguration
+from betty.project.extension import Extension
 from betty.test_utils.assertion.error import raises_error
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
-
 from betty.test_utils.model import DummyEntity
 from betty.test_utils.project.extension import (
     DummyExtension,
@@ -967,6 +966,17 @@ class TestProjectConfiguration:
         sut.author = author
         assert sut.author.localize(DEFAULT_LOCALIZER) == author
 
+    async def test___init___with_logo(self, tmp_path: Path) -> None:
+        logo = tmp_path / "logo.png"
+        sut = ProjectConfiguration(tmp_path / "betty.json", logo=logo)
+        assert sut.logo == logo
+
+    async def test_logo(self, tmp_path: Path) -> None:
+        logo = tmp_path / "logo.png"
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        sut.logo = logo
+        assert sut.logo == logo
+
     async def test_load_should_load_minimal(self, tmp_path: Path) -> None:
         dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
         sut = ProjectConfiguration(tmp_path / "betty.json")
@@ -1000,6 +1010,14 @@ class TestProjectConfiguration:
         sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.load(dump)
         assert sut.author.localize(DEFAULT_LOCALIZER) == author
+
+    async def test_load_should_load_logo(self, tmp_path: Path) -> None:
+        logo = tmp_path / "logo.png"
+        dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
+        dump["logo"] = str(logo)
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        sut.load(dump)
+        assert sut.logo == logo
 
     async def test_load_should_load_locale_locale(self, tmp_path: Path) -> None:
         locale = "nl-NL"
@@ -1154,6 +1172,14 @@ class TestProjectConfiguration:
         sut.author = author
         dump: Any = sut.dump()
         assert author == dump["author"]
+
+    async def test_dump_should_dumpo_logo(self, tmp_path: Path) -> None:
+        logo = tmp_path / "logo.png"
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        sut.logo = logo
+        dump = sut.dump()
+        assert isinstance(dump, dict)
+        assert dump["logo"] == str(logo)
 
     async def test_dump_should_dump_locale_locale(self, tmp_path: Path) -> None:
         locale = "nl-NL"

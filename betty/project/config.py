@@ -25,6 +25,7 @@ from betty.assertion import (
     assert_locale,
     assert_positive_number,
     assert_int,
+    assert_path,
 )
 from betty.assertion.error import AssertionFailed
 from betty.classtools import repr_instance
@@ -656,6 +657,7 @@ class ProjectConfiguration(Configuration):
         locales: Iterable[LocaleConfiguration] | None = None,
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
         name: str | None = None,
+        logo: Path | None = None,
     ):
         super().__init__()
         self._configuration_file_path = configuration_file_path
@@ -691,6 +693,7 @@ class ProjectConfiguration(Configuration):
         self._debug = debug
         self._locales = LocaleConfigurationMapping(locales or ())
         self._lifetime_threshold = lifetime_threshold
+        self._logo = logo
 
     @property
     def configuration_file_path(self) -> Path:
@@ -866,11 +869,23 @@ class ProjectConfiguration(Configuration):
         assert_positive_number()(lifetime_threshold)
         self._lifetime_threshold = lifetime_threshold
 
+    @property
+    def logo(self) -> Path | None:
+        """
+        The path to the logo.
+        """
+        return self._logo
+
+    @logo.setter
+    def logo(self, logo: Path | None) -> None:
+        self._logo = logo
+
     @override
     def update(self, other: Self) -> None:
         self._url = other._url
         self.title.update(other.title)
         self.author.update(other.author)
+        self.logo = other.logo
         self._clean_urls = other._clean_urls
         self._debug = other._debug
         self._lifetime_threshold = other._lifetime_threshold
@@ -885,6 +900,7 @@ class ProjectConfiguration(Configuration):
             RequiredField("url", assert_str() | assert_setattr(self, "url")),
             OptionalField("title", self.title.load),
             OptionalField("author", self.author.load),
+            OptionalField("logo", assert_path() | assert_setattr(self, "logo")),
             OptionalField(
                 "clean_urls",
                 assert_bool() | assert_setattr(self, "clean_urls"),
@@ -908,6 +924,7 @@ class ProjectConfiguration(Configuration):
                 "title": self.title.dump(),
                 "clean_urls": void_none(self.clean_urls),
                 "author": self.author.dump(),
+                "logo": str(self._logo) if self._logo else Void,
                 "debug": void_none(self.debug),
                 "lifetime_threshold": void_none(self.lifetime_threshold),
                 "locales": self.locales.dump(),

@@ -13,19 +13,15 @@ from betty.assertion import (
     assert_str,
     assert_record,
     OptionalField,
-    assert_path,
-    assert_setattr,
 )
 from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
 from betty.locale.localizable import _
 from betty.project.config import EntityReference, EntityReferenceSequence
 from betty.serde.dump import Dump, VoidableDump, minimize
-from betty.typing import Void
 
 if TYPE_CHECKING:
     from betty.model import UserFacingEntity, Entity
-    from pathlib import Path
 
 
 class ColorConfiguration(Configuration):
@@ -96,7 +92,6 @@ class CottonCandyConfiguration(Configuration):
         primary_active_color: str = DEFAULT_PRIMARY_ACTIVE_COLOR,
         link_inactive_color: str = DEFAULT_LINK_INACTIVE_COLOR,
         link_active_color: str = DEFAULT_LINK_ACTIVE_COLOR,
-        logo: Path | None = None,
     ):
         super().__init__()
         self._featured_entities = EntityReferenceSequence["UserFacingEntity & Entity"](
@@ -106,7 +101,6 @@ class CottonCandyConfiguration(Configuration):
         self._primary_active_color = ColorConfiguration(primary_active_color)
         self._link_inactive_color = ColorConfiguration(link_inactive_color)
         self._link_active_color = ColorConfiguration(link_active_color)
-        self._logo = logo
 
     @property
     def featured_entities(self) -> EntityReferenceSequence[UserFacingEntity & Entity]:
@@ -143,17 +137,6 @@ class CottonCandyConfiguration(Configuration):
         """
         return self._link_active_color
 
-    @property
-    def logo(self) -> Path | None:
-        """
-        The path to the logo.
-        """
-        return self._logo
-
-    @logo.setter
-    def logo(self, logo: Path | None) -> None:
-        self._logo = logo
-
     @override
     def update(self, other: Self) -> None:
         self.featured_entities.update(other.featured_entities)
@@ -161,7 +144,6 @@ class CottonCandyConfiguration(Configuration):
         self.primary_active_color.update(other.primary_active_color)
         self.link_inactive_color.update(other.link_inactive_color)
         self.link_active_color.update(other.link_active_color)
-        self.logo = other.logo
 
     @override
     def load(self, dump: Dump) -> None:
@@ -171,7 +153,6 @@ class CottonCandyConfiguration(Configuration):
             OptionalField("primary_active_color", self.primary_active_color.load),
             OptionalField("link_inactive_color", self.link_inactive_color.load),
             OptionalField("link_active_color", self.link_active_color.load),
-            OptionalField("logo", assert_path() | assert_setattr(self, "logo")),
         )(dump)
 
     @override
@@ -183,6 +164,5 @@ class CottonCandyConfiguration(Configuration):
                 "primary_active_color": self._primary_active_color.dump(),
                 "link_inactive_color": self._link_inactive_color.dump(),
                 "link_active_color": self._link_active_color.dump(),
-                "logo": str(self._logo) if self._logo else Void,
             }
         )
