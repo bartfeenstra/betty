@@ -85,6 +85,9 @@ class AssertionChain(Generic[_AssertionValueT, _AssertionReturnT]):
         Invoke the chain with a value.
 
         This method may be called more than once.
+
+        :raises betty.assertion.error.AssertionFailed: Raised if any part of the
+            assertion chain fails.
         """
         return self._assertion(value)
 

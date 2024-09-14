@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import aiofiles
 import pytest
@@ -17,7 +18,7 @@ from betty.ancestry import (
     Place,
     Privacy,
 )
-from betty.ancestry.event_type import Birth, Death, UnknownEventType
+from betty.ancestry.event_type import Birth, Death, UnknownEventType, EventType
 from betty.ancestry.presence_role import Attendee
 from betty.app import App
 from betty.gramps.error import UserFacingGrampsError
@@ -28,6 +29,9 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.path import rootname
 from betty.project import Project
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 
 class TestGrampsLoader:
@@ -127,7 +131,9 @@ class TestGrampsLoader:
                     Path(__file__).parent / "assets" / "minimal.invalid"
                 )
 
-    async def _load(self, xml: str) -> Ancestry:
+    async def _load(
+        self, xml: str, *, event_type_map: Mapping[str, type[EventType]] | None = None
+    ) -> Ancestry:
         async with (
             App.new_temporary() as app,
             app,
@@ -135,12 +141,12 @@ class TestGrampsLoader:
         ):
             project.configuration.name = TestGrampsLoader.__name__
             async with project:
-                # @todo We need to be able to customize the loader
                 loader = GrampsLoader(
                     project.ancestry,
                     factory=project.new,
                     localizer=DEFAULT_LOCALIZER,
                     attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+                    event_type_map=event_type_map,
                 )
                 async with TemporaryDirectory() as tree_directory_path_str:
                     await loader.load_xml(
@@ -149,7 +155,9 @@ class TestGrampsLoader:
                     )
                 return project.ancestry
 
-    async def _load_partial(self, xml: str) -> Ancestry:
+    async def _load_partial(
+        self, xml: str, *, event_type_map: Mapping[str, type[EventType]] | None = None
+    ) -> Ancestry:
         return await self._load(
             f"""
 <?xml version="1.0" encoding="UTF-8"?>
@@ -163,7 +171,8 @@ class TestGrampsLoader:
     </header>
     {xml}
 </database>
-"""
+""",
+            event_type_map=event_type_map,
         )
 
     async def test_load_xml(self, new_temporary_app: App) -> None:
@@ -350,7 +359,8 @@ class TestGrampsLoader:
         <dateval val="0000-00-00" quality="calculated"/>
     </event>
 </events>
-"""
+""",
+            event_type_map={"Birth": Birth},
         )
         person = ancestry[Person]["I0000"]
         birth = [
@@ -378,7 +388,8 @@ class TestGrampsLoader:
         <dateval val="0000-00-00" quality="calculated"/>
     </event>
 </events>
-"""
+""",
+            event_type_map={"Death": Death},
         )
         person = ancestry[Person]["I0000"]
         death = [
@@ -567,7 +578,8 @@ class TestGrampsLoader:
         <type>Birth</type>
     </event>
 </events>
-"""
+""",
+            event_type_map={"Birth": Birth},
         )
         assert isinstance(ancestry[Event]["E0000"].event_type, Birth)
 
@@ -579,7 +591,8 @@ class TestGrampsLoader:
         <type>Death</type>
     </event>
 </events>
-"""
+""",
+            event_type_map={"Death": Death},
         )
         assert isinstance(ancestry[Event]["E0000"].event_type, Death)
 

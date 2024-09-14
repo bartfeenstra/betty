@@ -28,6 +28,9 @@ structure. Example configuration:
               generate_html_list: true
             file:
               generate_html_list: false
+          event_types:
+            moon-landing:
+              label: Moon Landing
           extensions: {}
 
    .. tab-item:: JSON
@@ -60,6 +63,11 @@ structure. Example configuration:
                 "generate_html_list": false
               }
             },
+            "event_types": {
+              "moon-landing": {
+                "label": "Moon Landing"
+              }
+            },
             "extensions": {}
           }
 
@@ -83,6 +91,11 @@ All configuration options
 - ``entity_types`` (optional): Keys are entity type (plugin) IDs, and values are objects containing the following keys:
 
   - ``generate_html_list`` (optional): Whether to generate the HTML page to list entities of this type. Defaults to ``false``.
+- ``event_types`` (optional): Keys are event type (plugin) IDs, and values are objects containing the following keys:
+
+  - ``id`` (required): The event type (plugin) ID.
+  - ``label`` (required): The event type's human-readable label. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
+  - ``description`` (optional): The event's human-readable long description. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
 - ``extensions`` (optional): The :doc:`extensions </usage/extension>` to enable. Keys are extension names, and values are objects containing the
   following keys:
 

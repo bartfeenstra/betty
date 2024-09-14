@@ -38,6 +38,11 @@ This extension is configurable:
               configuration:
                 family_trees:
                   - file: ./gramps.gpkg
+                    event-types:
+                      GrampsEventType:
+                        event-type: betty-event-type
+                      AnotherGrampsEventType:
+                        event-type: another-betty-event-type
 
    .. tab-item:: JSON
 
@@ -50,6 +55,14 @@ This extension is configurable:
                   "family_trees": [
                     {
                       "file": "./gramps.gpkg"
+                      "event-types": {
+                        "GrampsEventType: {
+                          "event-type": "betty-event-type"
+                        },
+                        "AnotherGrampsEventType: {
+                          "event-type": "another-betty-event-type"
+                        }
+                      }
                     }
                   ]
                 }
@@ -64,6 +77,10 @@ All configuration options
   the following keys:
 
   - ``file`` (required): the path to a *Gramps XML* or *Gramps XML Package* file.
+  - ``event_types`` (optional): how to map Gramps event types to Betty event types. Keys are Gramps event types, and
+    values are objects with the following keys:
+
+    - ``event_type``: (required): the plugin ID of th Gramps event type to import this Gramps event type as.
 
   If multiple family trees contain entities of the same type and with the same ID (e.g. a person with ID ``I1234``) each
   entity will overwrite any previously loaded entity.
@@ -136,30 +153,50 @@ For unknown date parts, set those to all zeroes and Betty will ignore them. For 
 Event types
 -----------
 
-Betty supports the following Gramps event types:
+Betty supports the following Gramps event types without any additional configuration:
 
-- ``Adopted``
-- ``Birth``
-- ``Burial``
-- ``Baptism``
-- ``Conference``
-- ``Confirmation``
-- ``Correspondence``
-- ``Cremation``
-- ``Emigration``
-- ``Engagement``
-- ``Death``
-- ``Divorce``
-- ``Divorce Filing`` (imported as ``DivorceAnnouncement``)
-- ``Funeral``
-- ``Immigration``
-- ``Marriage``
-- ``Marriage Banns`` (imported as ``MarriageAnnouncement``)
-- ``Missing``
-- ``Occupation``
-- ``Residence``
-- ``Will``
-- ``Retirement``
+.. list-table:: Event types
+   :align: left
+   :header-rows: 1
+
+   * - Gramps event type
+     - Betty event type
+   * - ``Adopted``
+     - ``adoption``
+   * - ``Baptism``
+     - ``baptism``
+   * - ``Birth``
+     - ``birth``
+   * - ``Burial``
+     - ``burial``
+   * - ``Confirmation``
+     - ``confirmation``
+   * - ``Cremation``
+     - ``cremation``
+   * - ``Death``
+     - ``death``
+   * - ``Divorce``
+     - ``divorce``
+   * - ``Divorce Filing``
+     - ``divorce-announcement``
+   * - ``Emigration``
+     - ``emigration``
+   * - ``Engagement``
+     - ``engagement``
+   * - ``Immigration``
+     - ``immigration``
+   * - ``Marriage``
+     - ``marriage``
+   * - ``Marriage Banns``
+     - ``marriage-announcement``
+   * - ``Occupation``
+     - ``occupation``
+   * - ``Residence``
+     - ``residence``
+   * - ``Retirement``
+     - ``retirement``
+   * - ``Will``
+     - ``will``
 
 Event roles
 -----------

@@ -1,19 +1,23 @@
 from collections.abc import Iterable, Mapping
 from pathlib import Path
-from typing import Any, TYPE_CHECKING
+from typing import Any
+from typing_extensions import override
+
+import pytest
 
 from betty.assertion.error import AssertionFailed
 from betty.extension.gramps.config import (
     FamilyTreeConfiguration,
     GrampsConfiguration,
     FamilyTreeConfigurationSequence,
+    FamilyTreeEventTypeConfiguration,
+    FamilyTreeEventTypeConfigurationMapping,
 )
+from betty.serde.dump import Dump
 from betty.test_utils.assertion.error import raises_error
+from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.typing import Void
-
-if TYPE_CHECKING:
-    from betty.serde.dump import Dump
 
 
 class TestFamilyTreeConfigurationSequence(
@@ -41,6 +45,10 @@ class TestFamilyTreeConfigurationSequence(
 
 
 class TestFamilyTreeConfiguration:
+    def test_event_types(self, tmp_path: Path) -> None:
+        sut = FamilyTreeConfiguration(tmp_path)
+        assert len(sut.event_types)
+
     async def test_load_with_minimal_configuration(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
         dump: Mapping[str, Any] = {"file": str(file_path)}
@@ -89,6 +97,98 @@ class TestFamilyTreeConfiguration:
         sut.file_path = tmp_path / "ancestry.gramps"
         other = FamilyTreeConfiguration(tmp_path)
         assert sut != other
+
+
+class TestFamilyTreeEventTypeConfiguration:
+    async def test_gramps_event_type(self) -> None:
+        gramps_event_type = "my-first-gramps-event-type"
+        sut = FamilyTreeEventTypeConfiguration(
+            gramps_event_type, "my-first-betty-event-type"
+        )
+        assert sut.gramps_event_type == gramps_event_type
+
+    async def test_event_type_id(self) -> None:
+        event_type_id = "my-first-betty-event-type"
+        sut = FamilyTreeEventTypeConfiguration(
+            "my-first-gramps-event-type", event_type_id
+        )
+        assert sut.event_type_id == event_type_id
+
+    async def test_load(self) -> None:
+        gramps_event_type = "my-first-gramps-event-type"
+        event_type_id = "my-first-betty-event-type"
+        dump: Dump = {
+            "gramps_event_type": gramps_event_type,
+            "event_type": event_type_id,
+        }
+        sut = FamilyTreeEventTypeConfiguration("-", "-")
+        sut.load(dump)
+        assert sut.gramps_event_type == gramps_event_type
+        assert sut.event_type_id == event_type_id
+
+    @pytest.mark.parametrize(
+        "dump",
+        [
+            {},
+            {"gramps_event_type": "-"},
+            {"event_type": "-"},
+        ],
+    )
+    async def test_load_with_invalid_dump_should_error(self, dump: Dump) -> None:
+        sut = FamilyTreeEventTypeConfiguration("-", "-")
+        with pytest.raises(AssertionFailed):
+            sut.load(dump)
+
+    async def test_dump(self) -> None:
+        gramps_event_type = "my-first-gramps-event-type"
+        event_type_id = "my-first-betty-event-type"
+        sut = FamilyTreeEventTypeConfiguration(gramps_event_type, event_type_id)
+        dump = sut.dump()
+        assert dump == {
+            "gramps_event_type": gramps_event_type,
+            "event_type": event_type_id,
+        }
+
+    async def test_update(self) -> None:
+        gramps_event_type = "my-first-gramps-event-type"
+        event_type_id = "my-first-betty-event-type"
+        other = FamilyTreeEventTypeConfiguration(gramps_event_type, event_type_id)
+        sut = FamilyTreeEventTypeConfiguration("-", "-")
+        sut.update(other)
+        assert sut.gramps_event_type == gramps_event_type
+        assert sut.event_type_id == event_type_id
+
+
+class TestFamilyTreeEventTypeConfigurationMapping(
+    ConfigurationMappingTestBase[str, FamilyTreeEventTypeConfiguration]
+):
+    @override
+    def get_configuration_keys(
+        self,
+    ) -> tuple[str, str, str, str]:
+        return "gramps-foo", "gramps-bar", "gramps-baz", "gramps-qux"
+
+    @override
+    def get_configurations(
+        self,
+    ) -> tuple[
+        FamilyTreeEventTypeConfiguration,
+        FamilyTreeEventTypeConfiguration,
+        FamilyTreeEventTypeConfiguration,
+        FamilyTreeEventTypeConfiguration,
+    ]:
+        return (
+            FamilyTreeEventTypeConfiguration("gramps-foo", "betty-foo"),
+            FamilyTreeEventTypeConfiguration("gramps-bar", "betty-bar"),
+            FamilyTreeEventTypeConfiguration("gramps-baz", "betty-baz"),
+            FamilyTreeEventTypeConfiguration("gramps-qux", "betty-qux"),
+        )
+
+    @override
+    def get_sut(
+        self, configurations: Iterable[FamilyTreeEventTypeConfiguration] | None = None
+    ) -> FamilyTreeEventTypeConfigurationMapping:
+        return FamilyTreeEventTypeConfigurationMapping(configurations)
 
 
 class TestGrampsConfiguration:

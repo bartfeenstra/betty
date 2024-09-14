@@ -5,9 +5,14 @@ from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
 from betty.ancestry import Citation, Note, Source, File, Event, Person, Place
+from betty.ancestry.event_type import Birth
 from betty.app import App
 from betty.extension.gramps import Gramps
-from betty.extension.gramps.config import FamilyTreeConfiguration, GrampsConfiguration
+from betty.extension.gramps.config import (
+    FamilyTreeConfiguration,
+    GrampsConfiguration,
+    FamilyTreeEventTypeConfiguration,
+)
 from betty.load import load
 from betty.project import Project
 from betty.project.config import ExtensionConfiguration
@@ -18,6 +23,51 @@ class TestGramps(ExtensionTestBase):
     @override
     def get_sut_class(self) -> type[Gramps]:
         return Gramps
+
+    async def test_load_with_event_type_map(
+        self, new_temporary_app: App, tmp_path: Path
+    ) -> None:
+        family_tree_xml = """
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"
+"http://gramps-project.org/xml/1.7.1/grampsxml.dtd">
+<database xmlns="http://gramps-project.org/xml/1.7.1/">
+    <header>
+        <created date="2019-03-09" version="4.2.8"/>
+        <researcher>
+        </researcher>
+    </header>
+    <events>
+        <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+            <type>Birth</type>
+            <dateval val="0000-00-00" quality="calculated"/>
+        </event>
+    </events>
+</database>
+""".strip()
+        gramps_family_tree_path = tmp_path / "gramps.xml"
+        async with aiofiles.open(gramps_family_tree_path, mode="w") as f:
+            await f.write(family_tree_xml)
+
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.append(
+                ExtensionConfiguration(
+                    Gramps,
+                    extension_configuration=GrampsConfiguration(
+                        family_trees=[
+                            FamilyTreeConfiguration(
+                                file_path=gramps_family_tree_path,
+                                event_types=[
+                                    FamilyTreeEventTypeConfiguration("Birth", "birth")
+                                ],
+                            )
+                        ],
+                    ),
+                )
+            )
+            async with project:
+                await load(project)
+            assert isinstance(project.ancestry[Event]["E0000"].event_type, Birth)
 
     async def test_load_multiple_family_trees(self, new_temporary_app: App) -> None:
         family_tree_one_xml = """

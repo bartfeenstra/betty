@@ -7,6 +7,8 @@ from typing import (
     TYPE_CHECKING,
 )
 
+from typing_extensions import override
+
 from betty.assertion import (
     assert_record,
     RequiredField,
@@ -22,7 +24,6 @@ from betty.config.collections.mapping import (
 )
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.typing import Void
-from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, VoidableDump
@@ -127,11 +128,7 @@ class ConfigurationMappingTestConfigurationMapping(
     def _get_key(self, configuration: ConfigurationMappingTestConfiguration) -> str:
         return configuration.key
 
-    def _load_key(
-        self,
-        item_dump: Dump,
-        key_dump: str,
-    ) -> Dump:
+    def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
         mapping_item_dump = assert_mapping()(item_dump)
         mapping_item_dump["key"] = key_dump
         return mapping_item_dump
