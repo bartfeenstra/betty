@@ -138,7 +138,7 @@ class EntityReference(Configuration, Generic[_EntityT]):
                     | assert_setattr(self, "entity_type"),
                 ),
                 OptionalField(
-                    "entity_id",
+                    "entity",
                     assert_str() | assert_setattr(self, "entity_id"),
                 ),
             )(dump)
@@ -158,7 +158,7 @@ class EntityReference(Configuration, Generic[_EntityT]):
             "entity_type": (
                 self._entity_type.plugin_id() if self._entity_type else Void
             ),
-            "entity_id": self._entity_id,
+            "entity": self._entity_id,
         }
 
         return minimize(dump)
