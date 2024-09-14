@@ -12,7 +12,6 @@ from typing import Iterable, cast, TYPE_CHECKING, final
 import aiofiles
 from typing_extensions import override
 
-from betty import fs
 from betty.ancestry import (
     Event,
     Person,
@@ -64,9 +63,8 @@ _RESULTS_CONTAINER_TEMPLATE = """
 
 
 async def _generate_favicon(event: GenerateSiteEvent) -> None:
-    cotton_candy = event.project.extensions[CottonCandy]
     await link_or_copy(
-        cotton_candy.logo, event.project.configuration.www_directory_path / "logo.png"
+        event.project.logo, event.project.configuration.www_directory_path / "logo.png"
     )
 
 
@@ -176,16 +174,6 @@ class CottonCandy(
     @classmethod
     def plugin_description(cls) -> Localizable:
         return _("Cotton Candy is Betty's default theme.")
-
-    @property
-    def logo(self) -> Path:
-        """
-        The path to the logo file.
-        """
-        return (
-            self._configuration.logo
-            or fs.ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png"
-        )
 
     @override
     @property

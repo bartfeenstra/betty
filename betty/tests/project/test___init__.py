@@ -380,6 +380,19 @@ class TestProject:
             dependent = await sut.new(Dependent)
             assert dependent.app is new_temporary_app
 
+    async def test_logo_with_configuration(
+        self, new_temporary_app: App, tmp_path: Path
+    ) -> None:
+        logo = tmp_path / "logo.png"
+        async with Project.new_temporary(new_temporary_app) as sut:
+            sut.configuration.logo = logo
+            async with sut:
+                assert sut.logo == logo
+
+    async def test_logo_without_configuration(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
+            assert sut.logo.exists()
+
 
 class TestProjectContext:
     async def test_project(self, new_temporary_app: App) -> None:

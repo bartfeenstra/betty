@@ -17,6 +17,7 @@ structure. Example configuration:
           title: Betty's ancestry
           name: betty-ancestry
           author: Bart Feenstra
+          logo: my-ancestry-logo.png
           lifetime_threshold: 125
           locales:
             - locale: en-US
@@ -40,6 +41,7 @@ structure. Example configuration:
             "title": "Betty's ancestry",
             "name": "betty-ancestry",
             "author": "Bart Feenstra",
+            "logo": "my-ancestry-logo.png",
             "lifetime_threshold": 125,
             "locales": [
               {
@@ -70,6 +72,7 @@ All configuration options
 - ``title`` (optional): The project's human-readable title. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
 - ``name`` (optional): The project's machine name.
 - ``author`` (optional): The project's author and copyright holder. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
+- ``logo`` (optional): The path to your site's logo file. Defaults to the Betty logo.
 - ``lifetime_threshold`` (optional); The number of years people are expected to live at most, e.g. after which they're presumed to have died. Defaults to ``125``.
 - ``locales`` (optional); An array of locales, each of which is an object with the following keys:
 

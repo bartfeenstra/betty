@@ -318,6 +318,16 @@ class Project(Configurable[ProjectConfiguration], DependentFactory[Any], CoreCom
             return await cls.new_for_project(self)
         return await self.app.new(cls)
 
+    @property
+    def logo(self) -> Path:
+        """
+        The path to the logo file.
+        """
+        return (
+            self._configuration.logo
+            or fs.ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png"
+        )
+
 
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)
 
