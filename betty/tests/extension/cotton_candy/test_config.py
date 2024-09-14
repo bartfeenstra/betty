@@ -114,7 +114,7 @@ class TestCottonCandyConfiguration:
             "featured_entities": [
                 {
                     "entity_type": entity_type.plugin_id(),
-                    "entity_id": entity_id,
+                    "entity": entity_id,
                 },
             ],
         }
@@ -187,7 +187,7 @@ class TestCottonCandyConfiguration:
         expected = [
             {
                 "entity_type": entity_type.plugin_id(),
-                "entity_id": entity_id,
+                "entity": entity_id,
             },
         ]
         dump = sut.dump()

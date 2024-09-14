@@ -100,11 +100,11 @@ class TestEntityReference:
         [
             {
                 "entity_type": EntityReferenceTestEntityOne,
-                "entity_id": "123",
+                "entity": "123",
             },
             {
                 "entity_type": EntityReferenceTestEntityTwo,
-                "entity_id": "123",
+                "entity": "123",
             },
             False,
             123,
@@ -128,7 +128,7 @@ class TestEntityReference:
         entity_id = "123"
         dump: Dump = {
             "entity_type": entity_type.plugin_id(),
-            "entity_id": entity_id,
+            "entity": entity_id,
         }
         sut = EntityReference[EntityReferenceTestEntityOne]()
         sut.load(dump)
@@ -138,10 +138,9 @@ class TestEntityReference:
     async def test_load_without_constraint_without_entity_type_should_error(
         self,
     ) -> None:
-        sut = EntityReference[EntityReferenceTestEntityOne]()
         entity_id = "123"
         dump: Dump = {
-            "entity_id": entity_id,
+            "entity": entity_id,
         }
         sut = EntityReference[EntityReferenceTestEntityOne]()
         with raises_error(error_type=AssertionFailed):
@@ -153,7 +152,7 @@ class TestEntityReference:
         entity_id = "123"
         dump: Dump = {
             "entity_type": None,
-            "entity_id": entity_id,
+            "entity": entity_id,
         }
         sut = EntityReference[EntityReferenceTestEntityOne]()
         with raises_error(error_type=AssertionFailed):
@@ -165,7 +164,7 @@ class TestEntityReference:
         entity_id = "123"
         dump: Dump = {
             "entity_type": "betty.non_existent.Entity",
-            "entity_id": entity_id,
+            "entity": entity_id,
         }
         sut = EntityReference[EntityReferenceTestEntityOne]()
         with raises_error(error_type=AssertionFailed):
@@ -177,7 +176,7 @@ class TestEntityReference:
         entity_type = EntityReferenceTestEntityOne
         dump: Dump = {
             "entity_type": entity_type.plugin_id(),
-            "entity_id": None,
+            "entity": None,
         }
         sut = EntityReference[EntityReferenceTestEntityOne]()
         with raises_error(error_type=AssertionFailed):
@@ -198,7 +197,7 @@ class TestEntityReference:
         sut.entity_id = entity_id
         expected = {
             "entity_type": entity_type.plugin_id(),
-            "entity_id": entity_id,
+            "entity": entity_id,
         }
         assert sut.dump() == expected
 
