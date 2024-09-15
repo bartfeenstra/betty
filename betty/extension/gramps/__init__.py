@@ -34,12 +34,9 @@ async def _load_ancestry(event: LoadAncestryEvent) -> None:
                 attribute_prefix_key=project.configuration.name,
                 factory=project.new,
                 localizer=project.app.localizer,
-                event_type_map={
-                    event_type_configuration.gramps_event_type: await project.event_types.get(
-                        event_type_configuration.event_type_id
-                    )
-                    for event_type_configuration in family_tree_configuration.event_types.values()
-                },
+                event_type_map=await family_tree_configuration.event_types.to_plugins(
+                    project.event_types
+                ),
             ).load_file(file_path)
 
 

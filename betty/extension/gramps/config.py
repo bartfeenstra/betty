@@ -5,7 +5,7 @@ Provide configuration for the :py:class:`betty.extension.gramps.Gramps` extensio
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable, Any, Self
+from typing import Any, Self, final, TYPE_CHECKING, TypeVar
 
 from typing_extensions import override
 
@@ -20,138 +20,74 @@ from betty.assertion import (
     assert_str,
 )
 from betty.config import Configuration
-from betty.config.collections.mapping import ConfigurationMapping
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.machine_name import assert_machine_name, MachineName
+from betty.plugin import PluginRepository, Plugin
 from betty.serde.dump import minimize, Dump, VoidableDump
+from betty.typing import internal
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, MutableMapping, Iterable
 
 
-def _assert_gramps_event_type(value: Any) -> str:
+_PluginT = TypeVar("_PluginT", bound=Plugin)
+
+
+def _assert_gramps_type(value: Any) -> str:
     event_type = assert_str()(value)
     assert_len(minimum=1)(event_type)
     return event_type
 
 
-class FamilyTreeEventTypeConfiguration(Configuration):
+@internal
+@final
+class PluginMapping(Configuration):
     """
-    Configure for loading Gramps events.
+    Map Gramps types to Betty plugin IDs.
     """
 
-    _gramps_event_type: str
-    _event_type_id: MachineName
-
-    def __init__(self, gramps_event_type: str, event_type_id: MachineName):
+    def __init__(self, mapping: Mapping[str, MachineName] | None = None):
         super().__init__()
-        self.gramps_event_type = gramps_event_type
-        self.event_type_id = event_type_id
+        self._mapping: MutableMapping[str, MachineName] = {
+            **self._default_mapping(),
+            **(mapping or {}),
+        }
 
-    @property
-    def gramps_event_type(self) -> str:
+    async def to_plugins(
+        self, plugins: PluginRepository[_PluginT]
+    ) -> Mapping[str, type[_PluginT]]:
         """
-        The Gramps event type this configuration applies to.
+        Hydrate the mapping into plugins.
         """
-        return self._gramps_event_type
-
-    @gramps_event_type.setter
-    def gramps_event_type(self, event_type: str) -> None:
-        self._gramps_event_type = _assert_gramps_event_type(event_type)
-
-    @property
-    def event_type_id(self) -> MachineName:
-        """
-        The ID of the Betty event type to load Gramps events of type :py:attr:`betty.extension.gramps.config.FamilyTreeEventTypeConfiguration.gramps_event_type` as.
-        """
-        return self._event_type_id
-
-    @event_type_id.setter
-    def event_type_id(self, event_type_id: MachineName) -> None:
-        self._event_type_id = assert_machine_name()(event_type_id)
-
-    @override
-    def load(self, dump: Dump) -> None:
-        assert_record(
-            RequiredField(
-                "gramps_event_type", assert_setattr(self, "gramps_event_type")
-            ),
-            RequiredField("event_type", assert_setattr(self, "event_type_id")),
-        )(dump)
-
-    @override
-    def dump(self) -> VoidableDump:
         return {
-            "gramps_event_type": self.gramps_event_type,
-            "event_type": self.event_type_id,
+            gramps_type: await plugins.get(plugin_id)
+            for gramps_type, plugin_id in self._mapping.items()
         }
 
     @override
+    def load(self, dump: Dump) -> None:
+        self._mapping = assert_mapping(assert_machine_name(), _assert_gramps_type)(dump)
+
+    @override
+    def dump(self) -> VoidableDump:
+        # Dumps are mutable, so return a new dict which may then be changed without impacting ``self``.
+        return dict(self._mapping)
+
+    @override
     def update(self, other: Self) -> None:
-        self.gramps_event_type = other.gramps_event_type
-        self.event_type_id = other.event_type_id
+        self._mapping = dict(other._mapping)
 
+    def _default_mapping(self) -> Mapping[str, MachineName]:
+        return {}
 
-class FamilyTreeEventTypeConfigurationMapping(
-    ConfigurationMapping[str, FamilyTreeEventTypeConfiguration]
-):
-    """
-    Configure how to map Gramps events to Betty events.
-    """
+    def __getitem__(self, gramps_type: str) -> MachineName:
+        return self._mapping[gramps_type]
 
-    def __init__(
-        self, configurations: Iterable[FamilyTreeEventTypeConfiguration] | None = None
-    ):
-        if configurations is None:
-            configurations = [
-                FamilyTreeEventTypeConfiguration("Adopted", "adoption"),
-                FamilyTreeEventTypeConfiguration("Baptism", "baptism"),
-                FamilyTreeEventTypeConfiguration("Birth", "birth"),
-                FamilyTreeEventTypeConfiguration("Burial", "burial"),
-                FamilyTreeEventTypeConfiguration("Confirmation", "confirmation"),
-                FamilyTreeEventTypeConfiguration("Cremation", "cremation"),
-                FamilyTreeEventTypeConfiguration("Death", "death"),
-                FamilyTreeEventTypeConfiguration("Divorce", "divorce"),
-                FamilyTreeEventTypeConfiguration(
-                    "Divorce Filing", "divorce-announcement"
-                ),
-                FamilyTreeEventTypeConfiguration("Emigration", "emigration"),
-                FamilyTreeEventTypeConfiguration("Engagement", "engagement"),
-                FamilyTreeEventTypeConfiguration("Immigration", "immigration"),
-                FamilyTreeEventTypeConfiguration("Marriage", "marriage"),
-                FamilyTreeEventTypeConfiguration(
-                    "Marriage Banns", "marriage-announcement"
-                ),
-                FamilyTreeEventTypeConfiguration("Occupation", "occupation"),
-                FamilyTreeEventTypeConfiguration("Residence", "residence"),
-                FamilyTreeEventTypeConfiguration("Retirement", "retirement"),
-                FamilyTreeEventTypeConfiguration("Will", "will"),
-            ]
-        super().__init__(configurations)
+    def __setitem__(self, gramps_type: str, plugin_id: MachineName) -> None:
+        self._mapping[gramps_type] = plugin_id
 
-    @override
-    def _minimize_item_dump(self) -> bool:
-        return True
-
-    @override
-    def _get_key(self, configuration: FamilyTreeEventTypeConfiguration) -> str:
-        return configuration.gramps_event_type
-
-    @override
-    def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
-        mapping_dump = assert_mapping()(item_dump)
-        mapping_dump["gramps_event_type"] = _assert_gramps_event_type(key_dump)
-        return mapping_dump
-
-    @override
-    def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
-        mapping_dump = assert_mapping()(item_dump)
-        return mapping_dump, mapping_dump.pop("entity_type")
-
-    @override
-    def load_item(self, dump: Dump) -> FamilyTreeEventTypeConfiguration:
-        # Use dummy configuration for now to satisfy the initializer.
-        # It will be overridden when loading the dump.
-        configuration = FamilyTreeEventTypeConfiguration("-", "-")
-        configuration.load(dump)
-        return configuration
+    def __delitem__(self, gramps_type: str) -> None:
+        del self._mapping[gramps_type]
 
 
 class FamilyTreeConfiguration(Configuration):
@@ -163,11 +99,32 @@ class FamilyTreeConfiguration(Configuration):
         self,
         file_path: Path,
         *,
-        event_types: Iterable[FamilyTreeEventTypeConfiguration] | None = None,
+        event_types: PluginMapping | None = None,
     ):
         super().__init__()
         self.file_path = file_path
-        self._event_types = FamilyTreeEventTypeConfigurationMapping(event_types)
+        self._event_types = event_types or PluginMapping(
+            {
+                "Adopted": "adoption",
+                "Baptism": "baptism",
+                "Birth": "birth",
+                "Burial": "burial",
+                "Confirmation": "confirmation",
+                "Cremation": "cremation",
+                "Death": "death",
+                "Divorce": "divorce",
+                "Divorce Filing": "divorce-announcement",
+                "Emigration": "emigration",
+                "Engagement": "engagement",
+                "Immigration": "immigration",
+                "Marriage": "marriage",
+                "Marriage Banns": "marriage-announcement",
+                "Occupation": "occupation",
+                "Residence": "residence",
+                "Retirement": "retirement",
+                "Will": "will",
+            }
+        )
 
     @override
     def __eq__(self, other: Any) -> bool:
@@ -187,7 +144,7 @@ class FamilyTreeConfiguration(Configuration):
         self._file_path = file_path
 
     @property
-    def event_types(self) -> FamilyTreeEventTypeConfigurationMapping:
+    def event_types(self) -> PluginMapping:
         """
         How to map event types.
         """
