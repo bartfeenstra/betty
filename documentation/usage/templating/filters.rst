@@ -22,7 +22,7 @@ In addition to Jinja2's built-in filters, Betty provides the following:
 - :py:func:`minimize <betty.serde.dump.minimize>`
 - :py:func:`negotiate_dateds <betty.jinja2.filter.filter_negotiate_dateds>`
 - :py:func:`negotiate_localizeds <betty.jinja2.filter.filter_negotiate_localizeds>`
-- :py:func:`none_void <betty.serde.dump.none_void>`
+- :py:func:`none_void <betty.typing.none_void>`
 - :py:func:`paragraphs <betty.jinja2.filter.filter_paragraphs>`
 - :py:func:`select_has_dates <betty.jinja2.filter.filter_select_has_dates>`
 - :py:func:`select_localizeds <betty.jinja2.filter.filter_select_localizeds>`
@@ -31,4 +31,4 @@ In addition to Jinja2's built-in filters, Betty provides the following:
 - :py:func:`unique <betty.jinja2.filter.filter_unique>`
 - :py:func:`upper_camel_case_to_lower_camel_case <betty.string.upper_camel_case_to_lower_camel_case>`
 - :py:func:`url <betty.jinja2.filter.filter_url>`
-- :py:func:`void_none <betty.serde.dump.void_none>`
+- :py:func:`void_none <betty.typing.void_none>`

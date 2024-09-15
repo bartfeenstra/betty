@@ -14,9 +14,10 @@ from typing_extensions import override
 from betty.assertion.error import AssertionFailed
 from betty.locale.localizable import static, Localizable, _
 from betty.locale.localized import LocalizedStr
-from betty.serde.dump import Dump, VoidableDump
+from betty.serde.dump import Dump
 
 if TYPE_CHECKING:
+    from betty.typing import Voidable
     from betty.locale.localizer import Localizer
 
 
@@ -51,7 +52,7 @@ class Format(ABC):
         pass
 
     @abstractmethod
-    def dump(self, dump: VoidableDump) -> str:
+    def dump(self, dump: Voidable[Dump]) -> str:
         """
         Serialize data.
         """
@@ -84,7 +85,7 @@ class Json(Format):
             ) from None
 
     @override
-    def dump(self, dump: VoidableDump) -> str:
+    def dump(self, dump: Voidable[Dump]) -> str:
         return json.dumps(dump)
 
 
@@ -114,7 +115,7 @@ class Yaml(Format):
             ) from None
 
     @override
-    def dump(self, dump: VoidableDump) -> str:
+    def dump(self, dump: Voidable[Dump]) -> str:
         return yaml.safe_dump(dump)
 
 

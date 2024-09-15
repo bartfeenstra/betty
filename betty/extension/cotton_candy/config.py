@@ -18,9 +18,10 @@ from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
 from betty.locale.localizable import _
 from betty.project.config import EntityReference, EntityReferenceSequence
-from betty.serde.dump import Dump, VoidableDump, minimize
+from betty.serde.dump import Dump, minimize, DumpMapping
 
 if TYPE_CHECKING:
+    from betty.typing import Voidable
     from betty.model import UserFacingEntity, Entity
 
 
@@ -68,7 +69,7 @@ class ColorConfiguration(Configuration):
         self._hex = (assert_str() | self._assert_hex)(dump)
 
     @override
-    def dump(self) -> VoidableDump:
+    def dump(self) -> Voidable[Dump]:
         return self._hex
 
 
@@ -156,7 +157,7 @@ class CottonCandyConfiguration(Configuration):
         )(dump)
 
     @override
-    def dump(self) -> VoidableDump:
+    def dump(self) -> DumpMapping[Dump]:
         return minimize(
             {
                 "featured_entities": self.featured_entities.dump(),

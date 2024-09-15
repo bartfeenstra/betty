@@ -3,17 +3,15 @@ Provide plugin configuration.
 """
 
 from collections.abc import Sequence
-from typing import Self, TypeVar, Generic
+from typing import Self, TypeVar, Generic, cast
 
 from typing_extensions import override
 
 from betty.assertion import (
     RequiredField,
-    assert_str,
     assert_record,
     OptionalField,
     assert_setattr,
-    assert_mapping,
 )
 from betty.config import Configuration
 from betty.config.collections.mapping import ConfigurationMapping
@@ -23,7 +21,7 @@ from betty.locale.localizable.config import (
 )
 from betty.machine_name import assert_machine_name, MachineName
 from betty.plugin import Plugin
-from betty.serde.dump import Dump, minimize, VoidableDump
+from betty.serde.dump import Dump, minimize, DumpMapping
 
 _PluginCoT = TypeVar("_PluginCoT", bound=Plugin, covariant=True)
 
@@ -73,7 +71,7 @@ class PluginConfiguration(Configuration):
         )(dump)
 
     @override
-    def dump(self) -> VoidableDump:
+    def dump(self) -> DumpMapping[Dump]:
         return minimize(
             {
                 "id": self.id,
@@ -114,7 +112,7 @@ class PluginConfigurationMapping(
         raise NotImplementedError
 
     @override
-    def _minimize_item_dump(self) -> bool:
+    def _void_minimized_item_dump(self) -> bool:
         return True
 
     @override
@@ -122,17 +120,12 @@ class PluginConfigurationMapping(
         return configuration.id
 
     @override
-    @classmethod
-    def _load_key(cls, item_dump: Dump, key_dump: str) -> Dump:
-        dump_mapping = assert_mapping()(item_dump)
-        assert_str()(key_dump)
-        dump_mapping["id"] = key_dump
-        return dump_mapping
+    def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
+        item_dump["id"] = key_dump
 
     @override
-    def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
-        dump_mapping = assert_mapping()(item_dump)
-        return dump_mapping, dump_mapping.pop("id")
+    def _dump_key(self, item_dump: DumpMapping[Dump]) -> str:
+        return cast(str, item_dump.pop("id"))
 
 
 class PluginConfigurationPluginConfigurationMapping(

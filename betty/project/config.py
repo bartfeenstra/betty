@@ -5,7 +5,7 @@ Provide project configuration.
 from __future__ import annotations
 
 from reprlib import recursive_repr
-from typing import final, Generic, Self, Iterable, Any, TYPE_CHECKING, TypeVar
+from typing import final, Generic, Self, Iterable, Any, TYPE_CHECKING, TypeVar, cast
 from urllib.parse import urlparse
 
 from typing_extensions import override
@@ -23,7 +23,6 @@ from betty.assertion import (
     assert_bool,
     Assertion,
     assert_fields,
-    assert_mapping,
     assert_locale,
     assert_positive_number,
     assert_int,
@@ -53,13 +52,11 @@ from betty.project import extension
 from betty.project.extension import Extension, ConfigurableExtension
 from betty.serde.dump import (
     Dump,
-    VoidableDump,
-    void_none,
-    VoidableDumpMapping,
     minimize,
+    DumpMapping,
 )
 from betty.serde.format import FormatRepository
-from betty.typing import Void
+from betty.typing import Void, Voidable, void_none
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -155,21 +152,20 @@ class EntityReference(Configuration, Generic[_EntityT]):
             assert_setattr(self, "entity_id")(dump)
 
     @override
-    def dump(self) -> VoidableDump:
+    def dump(self) -> Voidable[DumpMapping[Dump] | str]:
         if self.entity_type_is_constrained:
             return void_none(self.entity_id)
 
-        if self.entity_type is None or self.entity_id is None:
+        entity_type = self.entity_type
+        if entity_type is None or self.entity_id is None:
             return Void
 
-        dump: VoidableDumpMapping[VoidableDump] = {
-            "entity_type": (
-                self._entity_type.plugin_id() if self._entity_type else Void
-            ),
-            "entity": self._entity_id,
-        }
-
-        return minimize(dump)
+        return minimize(
+            {
+                "entity_type": entity_type.plugin_id(),
+                "entity": self._entity_id,
+            }
+        )
 
 
 @final
@@ -334,13 +330,13 @@ class ExtensionConfiguration(Configuration):
         return _assertion
 
     @override
-    def dump(self) -> VoidableDump:
+    def dump(self) -> DumpMapping[Dump]:
         return minimize(
             {
                 "extension": self.extension_type.plugin_id(),
                 "enabled": self.enabled,
                 "configuration": (
-                    minimize(self.extension_configuration.dump())
+                    self.extension_configuration.dump()
                     if issubclass(self.extension_type, ConfigurableExtension)
                     and self.extension_configuration
                     else Void
@@ -358,7 +354,7 @@ class ExtensionConfigurationMapping(
     """
 
     @override
-    def _minimize_item_dump(self) -> bool:
+    def _void_minimized_item_dump(self) -> bool:
         return True
 
     def __init__(
@@ -381,15 +377,12 @@ class ExtensionConfigurationMapping(
         return configuration.extension_type
 
     @override
-    def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
-        mapping_dump = assert_mapping()(item_dump)
-        mapping_dump["extension"] = key_dump
-        return mapping_dump
+    def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
+        item_dump["extension"] = key_dump
 
     @override
-    def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
-        mapping_dump = assert_mapping()(item_dump)
-        return mapping_dump, mapping_dump.pop("extension")
+    def _dump_key(self, item_dump: DumpMapping[Dump]) -> str:
+        return cast(str, item_dump.pop("extension"))
 
     def enable(self, *extension_types: type[Extension]) -> None:
         """
@@ -463,15 +456,17 @@ class EntityTypeConfiguration(Configuration):
         )(dump)
 
     @override
-    def dump(self) -> VoidableDump:
-        dump: VoidableDumpMapping[VoidableDump] = {
-            "entity_type": self._entity_type.plugin_id(),
-            "generate_html_list": (
-                Void if self._generate_html_list is None else self._generate_html_list
-            ),
-        }
-
-        return minimize(dump)
+    def dump(self) -> DumpMapping[Dump]:
+        return minimize(
+            {
+                "entity_type": self._entity_type.plugin_id(),
+                "generate_html_list": (
+                    Void
+                    if self._generate_html_list is None
+                    else self._generate_html_list
+                ),
+            }
+        )
 
 
 @final
@@ -483,7 +478,7 @@ class EntityTypeConfigurationMapping(
     """
 
     @override
-    def _minimize_item_dump(self) -> bool:
+    def _void_minimized_item_dump(self) -> bool:
         return True
 
     @override
@@ -491,16 +486,13 @@ class EntityTypeConfigurationMapping(
         return configuration.entity_type
 
     @override
-    def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
-        mapping_dump = assert_mapping()(item_dump)
+    def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
         assert_plugin(model.ENTITY_TYPE_REPOSITORY)(key_dump)
-        mapping_dump["entity_type"] = key_dump
-        return mapping_dump
+        item_dump["entity_type"] = key_dump
 
     @override
-    def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
-        mapping_dump = assert_mapping()(item_dump)
-        return mapping_dump, mapping_dump.pop("entity_type")
+    def _dump_key(self, item_dump: DumpMapping[Dump]) -> str:
+        return cast(str, item_dump.pop("entity_type"))
 
     @override
     def load_item(self, dump: Dump) -> EntityTypeConfiguration:
@@ -569,7 +561,7 @@ class LocaleConfiguration(Configuration):
         )(dump)
 
     @override
-    def dump(self) -> VoidableDump:
+    def dump(self) -> Voidable[Dump]:
         return minimize({"locale": self.locale, "alias": void_none(self._alias)})
 
 
@@ -947,9 +939,9 @@ class ProjectConfiguration(Configuration):
         )(dump)
 
     @override
-    def dump(self) -> VoidableDumpMapping[Dump]:
+    def dump(self) -> DumpMapping[Dump]:
         return minimize(
-            {  # type: ignore[return-value]
+            {
                 "name": void_none(self.name),
                 "url": self.url,
                 "title": self.title.dump(),
@@ -962,6 +954,5 @@ class ProjectConfiguration(Configuration):
                 "extensions": self.extensions.dump(),
                 "entity_types": self.entity_types.dump(),
                 "event_types": self.event_types.dump(),
-            },
-            True,
+            }
         )

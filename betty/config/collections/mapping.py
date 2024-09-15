@@ -5,6 +5,7 @@ Define and provide key-value mappings of :py:class:`betty.config.Configuration` 
 from __future__ import annotations
 
 from abc import abstractmethod
+from collections.abc import Mapping
 from contextlib import suppress
 from typing import (
     Generic,
@@ -20,8 +21,13 @@ from typing_extensions import override
 from betty.assertion import assert_sequence, assert_mapping
 from betty.config import Configuration
 from betty.config.collections import ConfigurationCollection, ConfigurationKey
-from betty.serde.dump import Dump, VoidableDump, minimize
-from betty.typing import Void
+from betty.serde.dump import (
+    Dump,
+    minimize,
+    DumpMapping,
+    DumpSequence,
+)
+from betty.typing import Void, Voidable
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping
@@ -41,7 +47,7 @@ class _ConfigurationMapping(
         self._configurations: MutableMapping[_ConfigurationKeyT, _ConfigurationT] = {}
         super().__init__(configurations)
 
-    def _minimize_item_dump(self) -> bool:
+    def _void_minimized_item_dump(self) -> bool:
         return False
 
     @override
@@ -118,12 +124,16 @@ class ConfigurationMapping(
     """
 
     @abstractmethod
-    def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
+    def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
         pass
 
     @abstractmethod
-    def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
+    def _dump_key(self, item_dump: DumpMapping[Dump]) -> str:
         pass
+
+    def __load_item_key(self, value_dump: DumpMapping[Dump], key_dump: str) -> Dump:
+        self._load_key(value_dump, key_dump)
+        return value_dump
 
     @override
     def load(self, dump: Dump) -> None:
@@ -131,23 +141,25 @@ class ConfigurationMapping(
         self.replace(
             *assert_mapping(self.load_item)(
                 {
-                    item_key_dump: self._load_key(item_value_dump, item_key_dump)
-                    for item_key_dump, item_value_dump in assert_mapping()(dump).items()
+                    item_key_dump: self.__load_item_key(item_value_dump, item_key_dump)
+                    for item_key_dump, item_value_dump in assert_mapping(
+                        assert_mapping()
+                    )(dump).items()
                 }
             ).values()
         )
 
     @override
-    def dump(self) -> VoidableDump:
+    def dump(self) -> Voidable[DumpMapping[Dump]]:
         dump = {}
         for configuration_item in self._configurations.values():
             item_dump = configuration_item.dump()
             if item_dump is not Void:
-                item_dump, configuration_key = self._dump_key(item_dump)
-                if self._minimize_item_dump():
-                    item_dump = minimize(item_dump)
+                assert isinstance(item_dump, Mapping)
+                configuration_key = self._dump_key(item_dump)
+                item_dump = minimize(item_dump, self._void_minimized_item_dump())
                 dump[configuration_key] = item_dump
-        return minimize(dump)
+        return minimize(dump, True)
 
 
 class OrderedConfigurationMapping(
@@ -165,10 +177,11 @@ class OrderedConfigurationMapping(
         self.replace(*assert_sequence(self.load_item)(dump))
 
     @override
-    def dump(self) -> VoidableDump:
+    def dump(self) -> Voidable[DumpSequence[Dump]]:
         return minimize(
             [
                 configuration_item.dump()
                 for configuration_item in self._configurations.values()
-            ]
+            ],
+            True,
         )

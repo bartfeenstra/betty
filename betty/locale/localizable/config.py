@@ -16,8 +16,8 @@ from betty.locale.localizable import (
     StaticTranslationsLocalizable,
 )
 from betty.locale.localizable.assertion import assert_static_translations
-from betty.serde.dump import VoidableDump, Dump, minimize
-from betty.typing import Void
+from betty.serde.dump import Dump, minimize
+from betty.typing import Voidable
 
 
 @final
@@ -44,15 +44,11 @@ class StaticTranslationsLocalizableConfiguration(
             self[locale] = translation
 
     @override
-    def dump(self) -> VoidableDump:
-        if not len(self._translations):
-            return Void
+    def dump(self) -> Voidable[Dump]:
         if len(self._translations) == 1:
             with suppress(KeyError):
                 return self._translations[UNDETERMINED_LOCALE]
-        return minimize(
-            self._translations  # type: ignore[arg-type]
-        )
+        return minimize(self._translations, True)
 
 
 @final
