@@ -173,12 +173,18 @@ class FamilyTreeConfiguration(Configuration):
     @override
     def load(self, dump: Dump) -> None:
         assert_record(
-            RequiredField("file", assert_path() | assert_setattr(self, "file_path"))
+            RequiredField("file", assert_path() | assert_setattr(self, "file_path")),
+            OptionalField("event_types", self.event_types.load),
         )(dump)
 
     @override
-    def dump(self) -> Voidable[Dump]:
-        return {"file": str(self.file_path) if self.file_path else None}
+    def dump(self) -> DumpMapping[Dump]:
+        return minimize(
+            {
+                "file": str(self.file_path) if self.file_path else None,
+                "event_types": self.event_types.dump(),
+            }
+        )
 
     @override
     def update(self, other: Self) -> None:

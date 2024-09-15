@@ -56,6 +56,16 @@ class TestFamilyTreeConfiguration:
         dump: Mapping[str, Any] = {"file": str(file_path)}
         FamilyTreeConfiguration(tmp_path).load(dump)
 
+    async def test_load_with_event_types(self, tmp_path: Path) -> None:
+        file_path = tmp_path / "ancestry.gramps"
+        dump: Dump = {
+            "file": str(file_path),
+            "event_types": {"my-first-gramps-type": "my-first-betty-plugin-id"},
+        }
+        sut = FamilyTreeConfiguration(tmp_path)
+        sut.load(dump)
+        assert sut.event_types["my-first-gramps-type"] == "my-first-betty-plugin-id"
+
     async def test_load_without_dict_should_error(self, tmp_path: Path) -> None:
         dump = None
         with raises_error(error_type=AssertionFailed):
@@ -63,19 +73,25 @@ class TestFamilyTreeConfiguration:
 
     async def test_dump_with_minimal_configuration(self, tmp_path: Path) -> None:
         sut = FamilyTreeConfiguration(tmp_path)
-        expected = {
+        actual = sut.dump()
+        assert len(
+            actual.pop("event_types")  # type: ignore[arg-type]
+        )
+        assert actual == {
             "file": str(tmp_path),
         }
-        assert sut.dump() == expected
 
-    async def test_dump_with_file_path(self, tmp_path: Path) -> None:
-        file_path = tmp_path / "ancestry.gramps"
-        sut = FamilyTreeConfiguration(tmp_path)
-        sut.file_path = file_path
-        expected = {
-            "file": str(file_path),
+    async def test_dump_with_event_types(self, tmp_path: Path) -> None:
+        sut = FamilyTreeConfiguration(
+            tmp_path,
+            event_types=PluginMapping(
+                {"my-first-gramps-type": "my-first-betty-plugin-id"}
+            ),
+        )
+        assert sut.dump() == {
+            "file": str(tmp_path),
+            "event_types": {"my-first-gramps-type": "my-first-betty-plugin-id"},
         }
-        assert sut.dump() == expected
 
     async def test_update(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
@@ -218,6 +234,8 @@ class TestGrampsConfiguration:
         file_path = tmp_path / "ancestry.gramps"
         sut = GrampsConfiguration()
         sut.family_trees.append(FamilyTreeConfiguration(file_path=file_path))
+        actual = sut.dump()
+        actual["family_trees"][0].pop("event_types")  # type: ignore[arg-type, index, union-attr]
         expected = {
             "family_trees": [
                 {
@@ -225,7 +243,7 @@ class TestGrampsConfiguration:
                 },
             ],
         }
-        assert sut.dump() == expected
+        assert actual == expected
 
     async def test_update(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
