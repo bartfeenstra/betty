@@ -5,10 +5,10 @@ Provide a serialization API.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import MutableMapping, MutableSequence
+from collections.abc import MutableMapping, MutableSequence, Sequence, Mapping
 from typing import TypeVar, overload, Literal, TypeAlias
 
-from betty.typing import Void
+from betty.typing import Void, Voidable
 
 #: A serialized dump.
 Dump: TypeAlias = (
@@ -22,73 +22,58 @@ Dump: TypeAlias = (
 )
 _DumpT = TypeVar("_DumpT", bound=Dump)
 
-#: A serialized dump that may be :py:class:`betty.typing.Void`.
-VoidableDump: TypeAlias = Dump | type[Void]
-_VoidableDumpT = TypeVar("_VoidableDumpT", bound=VoidableDump)
-
 #: A dump which is a sequence whose values are serialized dumps.
 DumpSequence: TypeAlias = MutableSequence[_DumpT]
 
 #: A dump which is a mapping whose keys are strings and values are serialized dumps.
 DumpMapping: TypeAlias = MutableMapping[str, _DumpT]
 
-#: A dump which is a sequence whose values are serialized dumps, or that may be :py:class:`betty.serde.dump.Void`
-VoidableDumpSequence: TypeAlias = MutableSequence[_VoidableDumpT]
-
-#: A dump which is a mapping whose keys are strings and values are serialized dumps, or that may be :py:class:`betty.serde.dump.Void`
-VoidableDumpMapping: TypeAlias = MutableMapping[str, _VoidableDumpT]
-
-_MinimizableDump: TypeAlias = (
-    VoidableDump
-    | VoidableDumpSequence[_VoidableDumpT]
-    | VoidableDumpMapping[_VoidableDumpT]
-)
-
 
 @overload
 def minimize(
-    dump: _MinimizableDump[VoidableDump], voidable: Literal[True] = True
-) -> VoidableDump:
+    dump: Sequence[Voidable[Dump]], voidable: Literal[False] = False
+) -> DumpSequence[Dump]:
     pass
 
 
 @overload
-def minimize(dump: _MinimizableDump[VoidableDump], voidable: Literal[False]) -> Dump:
+def minimize(
+    dump: Sequence[Voidable[Dump]], voidable: bool
+) -> Voidable[DumpSequence[Dump]]:
+    pass
+
+
+@overload
+def minimize(
+    dump: Mapping[str, Voidable[Dump]], voidable: Literal[False] = False
+) -> DumpMapping[Dump]:
+    pass
+
+
+@overload
+def minimize(
+    dump: Mapping[str, Voidable[Dump]], voidable: bool
+) -> Voidable[DumpMapping[Dump]]:
     pass
 
 
 def minimize(
-    dump: _MinimizableDump[VoidableDump], voidable: bool = True
-) -> VoidableDump:
+    dump: Sequence[Voidable[Dump]] | Mapping[str, Voidable[Dump]],
+    voidable: bool = False,
+) -> Voidable[DumpSequence[Dump] | DumpMapping[Dump]]:
     """
-    Minimize a configuration dump by removing any Void configurationfrom sequences and mappings.
+    Minimize a configuration dump by removing any Void configuration from sequences and mappings.
     """
-    if isinstance(dump, (MutableSequence, MutableMapping)):
-        if isinstance(dump, MutableSequence):
-            dump = [value for value in dump if value is not Void]
-            for key in reversed(range(len(dump))):
-                if dump[key] is Void:
-                    del dump[key]
-        if isinstance(dump, MutableMapping):
-            dump = {key: value for key, value in dump.items() if value is not Void}
-        if len(dump) or not voidable:
-            return dump  # type: ignore[return-value]
-        return Void
-    return dump
-
-
-def void_none(value: VoidableDump) -> VoidableDump:
-    """
-    Passthrough a value, but convert Void to None.
-    """
-    return Void if value is None else value
-
-
-def none_void(value: VoidableDump) -> VoidableDump:
-    """
-    Passthrough a value, but convert None to Void.
-    """
-    return None if value is Void else value
+    if isinstance(dump, Sequence):
+        dump = [value for value in dump if value is not Void]
+        for key in reversed(range(len(dump))):
+            if dump[key] is Void:
+                del dump[key]
+    if isinstance(dump, Mapping):
+        dump = {key: value for key, value in dump.items() if value is not Void}
+    if len(dump) or not voidable:
+        return dump  # type: ignore[return-value]
+    return Void
 
 
 class Dumpable(ABC):
@@ -97,7 +82,7 @@ class Dumpable(ABC):
     """
 
     @abstractmethod
-    def dump(self) -> VoidableDump:
+    def dump(self) -> Voidable[Dump]:
         """
         Dump this instance to a portable format.
         """

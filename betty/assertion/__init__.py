@@ -27,7 +27,7 @@ from betty.locale import (
     UNDETERMINED_LOCALE,
 )
 from betty.locale.localizable import _, Localizable, plain, join, do_you_mean
-from betty.typing import Void
+from betty.typing import Void, Voidable
 
 Number: TypeAlias = int | float
 
@@ -401,7 +401,7 @@ def assert_field(
 @overload
 def assert_field(
     field: OptionalField[_AssertionValueT, _AssertionReturnT],
-) -> AssertionChain[_AssertionValueT, _AssertionReturnT | type[Void]]:
+) -> AssertionChain[_AssertionValueT, Voidable[_AssertionReturnT]]:
     pass
 
 
@@ -409,7 +409,7 @@ def assert_field(
     field: _Field[_AssertionValueT, _AssertionReturnT],
 ) -> (
     AssertionChain[_AssertionValueT, _AssertionReturnT]
-    | AssertionChain[_AssertionValueT, _AssertionReturnT | type[Void]]
+    | AssertionChain[_AssertionValueT, Voidable[_AssertionReturnT]]
 ):
     """
     Assert that a value is a key-value mapping of arbitrary value types, and assert a single of its values.
@@ -417,9 +417,9 @@ def assert_field(
 
     def _assert_field(
         fields: MutableMapping[str, Any],
-    ) -> _AssertionReturnT | type[Void]:
+    ) -> Voidable[_AssertionReturnT]:
         try:
-            return cast("_AssertionReturnT | type[Void]", fields[field.name])
+            return cast("Voidable[_AssertionReturnT]", fields[field.name])
         except KeyError:
             if isinstance(field, RequiredField):
                 raise

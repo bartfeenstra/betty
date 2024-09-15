@@ -23,8 +23,8 @@ from betty.config import Configuration
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.machine_name import assert_machine_name, MachineName
 from betty.plugin import PluginRepository, Plugin
-from betty.serde.dump import minimize, Dump, VoidableDump
-from betty.typing import internal
+from betty.serde.dump import minimize, Dump, DumpMapping
+from betty.typing import internal, Voidable
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, MutableMapping, Iterable
@@ -69,7 +69,7 @@ class PluginMapping(Configuration):
         self._mapping = assert_mapping(assert_machine_name(), _assert_gramps_type)(dump)
 
     @override
-    def dump(self) -> VoidableDump:
+    def dump(self) -> Voidable[Dump]:
         # Dumps are mutable, so return a new dict which may then be changed without impacting ``self``.
         return dict(self._mapping)
 
@@ -157,7 +157,7 @@ class FamilyTreeConfiguration(Configuration):
         )(dump)
 
     @override
-    def dump(self) -> VoidableDump:
+    def dump(self) -> Voidable[Dump]:
         return {"file": str(self.file_path) if self.file_path else None}
 
     @override
@@ -206,5 +206,5 @@ class GrampsConfiguration(Configuration):
         assert_record(OptionalField("family_trees", self.family_trees.load))(dump)
 
     @override
-    def dump(self) -> VoidableDump:
+    def dump(self) -> Voidable[DumpMapping[Dump]]:
         return minimize({"family_trees": self.family_trees.dump()}, True)

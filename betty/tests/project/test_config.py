@@ -34,10 +34,10 @@ from betty.test_utils.project.extension import (
     DummyConfigurableExtension,
     DummyConfigurableExtensionConfiguration,
 )
-from betty.typing import Void
+from betty.typing import Void, Voidable
 
 if TYPE_CHECKING:
-    from betty.serde.dump import Dump, VoidableDump, DumpMapping
+    from betty.serde.dump import Dump, DumpMapping
     from pytest_mock import MockerFixture
     from pathlib import Path
 
@@ -187,8 +187,7 @@ class TestEntityReference:
         sut = EntityReference[Entity](Entity, None, entity_type_is_constrained=True)
         entity_id = "123"
         sut.entity_id = entity_id
-        expected = entity_id
-        assert sut.dump() == expected
+        assert sut.dump() == entity_id
 
     async def test_dump_without_constraint(self) -> None:
         sut = EntityReference[EntityReferenceTestEntityOne]()
@@ -467,7 +466,7 @@ class _DummyConfiguration(Configuration):
         pass  # pragma: no cover
 
     @override
-    def dump(self) -> VoidableDump:
+    def dump(self) -> Voidable[Dump]:
         return Void
 
 

@@ -6,6 +6,8 @@ from __future__ import annotations
 
 from typing import final, Self
 
+from typing_extensions import override
+
 from betty import fs
 from betty.assertion import (
     assert_record,
@@ -15,8 +17,8 @@ from betty.assertion import (
     assert_locale,
 )
 from betty.config import Configuration
-from betty.serde.dump import Dump, VoidableDump, minimize, void_none
-from typing_extensions import override
+from betty.serde.dump import Dump, minimize, DumpMapping
+from betty.typing import void_none
 
 CONFIGURATION_FILE_PATH = fs.HOME_DIRECTORY_PATH / "app.json"
 
@@ -57,5 +59,5 @@ class AppConfiguration(Configuration):
         )(dump)
 
     @override
-    def dump(self) -> VoidableDump:
-        return minimize({"locale": void_none(self.locale)}, True)
+    def dump(self) -> DumpMapping[Dump]:
+        return minimize({"locale": void_none(self.locale)})

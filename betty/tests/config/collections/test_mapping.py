@@ -5,6 +5,7 @@ from typing import (
     Iterable,
     Self,
     TYPE_CHECKING,
+    cast,
 )
 
 from typing_extensions import override
@@ -15,7 +16,6 @@ from betty.assertion import (
     assert_str,
     assert_setattr,
     assert_int,
-    assert_mapping,
 )
 from betty.config import Configuration
 from betty.config.collections.mapping import (
@@ -26,7 +26,7 @@ from betty.test_utils.config.collections.mapping import ConfigurationMappingTest
 from betty.typing import Void
 
 if TYPE_CHECKING:
-    from betty.serde.dump import Dump, VoidableDump
+    from betty.serde.dump import Dump, DumpMapping
 
 
 class ConfigurationMappingTestConfiguration(Configuration):
@@ -128,14 +128,11 @@ class ConfigurationMappingTestConfigurationMapping(
     def _get_key(self, configuration: ConfigurationMappingTestConfiguration) -> str:
         return configuration.key
 
-    def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
-        mapping_item_dump = assert_mapping()(item_dump)
-        mapping_item_dump["key"] = key_dump
-        return mapping_item_dump
+    def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
+        item_dump["key"] = key_dump
 
-    def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
-        mapping_item_dump = assert_mapping()(item_dump)
-        return mapping_item_dump, mapping_item_dump.pop("key")
+    def _dump_key(self, item_dump: DumpMapping[Dump]) -> str:
+        return cast(str, item_dump.pop("key"))
 
 
 class TestOrderedConfigurationMapping(
@@ -209,18 +206,6 @@ class OrderedConfigurationMappingTestOrderedConfigurationMapping(
         configuration.load(dump)
         return configuration
 
+    @override
     def _get_key(self, configuration: ConfigurationMappingTestConfiguration) -> str:
         return configuration.key
-
-    def _load_key(
-        self,
-        item_dump: Dump,
-        key_dump: str,
-    ) -> Dump:
-        mapping_item_dump = assert_mapping()(item_dump)
-        mapping_item_dump["key"] = key_dump
-        return mapping_item_dump
-
-    def _dump_key(self, item_dump: VoidableDump) -> tuple[VoidableDump, str]:
-        mapping_item_dump = assert_mapping()(item_dump)
-        return mapping_item_dump, mapping_item_dump.pop("key")

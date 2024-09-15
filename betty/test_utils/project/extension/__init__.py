@@ -12,12 +12,13 @@ from betty.config import Configuration
 from betty.event_dispatcher import EventHandlerRegistry
 from betty.project import Project
 from betty.project.extension import Extension, ConfigurableExtension
-from betty.serde.dump import Dump, VoidableDump
+from betty.serde.dump import Dump
 from betty.test_utils.plugin import (
     DummyPlugin,
     PluginTestBase,
     assert_plugin_identifier,
 )
+from betty.typing import Voidable
 
 
 class ExtensionTestBase(PluginTestBase[Extension]):
@@ -109,7 +110,7 @@ class DummyConfigurableExtensionConfiguration(Configuration):
         )(dump)
 
     @override
-    def dump(self) -> VoidableDump:
+    def dump(self) -> Voidable[Dump]:
         return {
             "check": self.check,
         }

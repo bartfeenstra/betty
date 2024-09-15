@@ -37,8 +37,8 @@ from betty.locale.localizer import Localizer
 from betty.plugin import Plugin
 from betty.project.factory import ProjectDependentFactory
 from betty.render import Renderer
-from betty.serde.dump import Dumpable, DumpMapping, VoidableDump, Dump
-from betty.typing import Void
+from betty.serde.dump import Dumpable, DumpMapping, Dump
+from betty.typing import Void, Voidable
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
@@ -125,7 +125,7 @@ class _Breadcrumbs(Dumpable):
         self._breadcrumbs.append(_Breadcrumb(label, url))
 
     @override
-    def dump(self) -> VoidableDump:
+    def dump(self) -> Voidable[Dump]:
         if not self._breadcrumbs:
             return Void
         return {
