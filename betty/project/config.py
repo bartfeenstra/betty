@@ -914,6 +914,7 @@ class ProjectConfiguration(Configuration):
         self._locales.update(other._locales)
         self._extensions.update(other._extensions)
         self._entity_types.update(other._entity_types)
+        self._event_types.update(other._event_types)
 
     @override
     def load(self, dump: Dump) -> None:
