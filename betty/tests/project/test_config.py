@@ -22,6 +22,7 @@ from betty.project.config import (
     EntityTypeConfiguration,
     EntityTypeConfigurationMapping,
     EventTypeConfigurationMapping,
+    PresenceRoleConfigurationMapping,
 )
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension
@@ -850,6 +851,36 @@ class TestEventTypeConfigurationMapping(
         return EventTypeConfigurationMapping(configurations)
 
 
+class TestPresenceRoleConfigurationMapping(
+    ConfigurationMappingTestBase[str, PluginConfiguration]
+):
+    @override
+    def get_configuration_keys(self) -> tuple[str, str, str, str]:
+        return "foo", "bar", "baz", "qux"
+
+    @override
+    def get_configurations(
+        self,
+    ) -> tuple[
+        PluginConfiguration,
+        PluginConfiguration,
+        PluginConfiguration,
+        PluginConfiguration,
+    ]:
+        return (
+            PluginConfiguration("foo", "Foo"),
+            PluginConfiguration("bar", "Bar"),
+            PluginConfiguration("baz", "Baz"),
+            PluginConfiguration("qux", "Qux"),
+        )
+
+    @override
+    def get_sut(
+        self, configurations: Iterable[PluginConfiguration] | None = None
+    ) -> PresenceRoleConfigurationMapping:
+        return PresenceRoleConfigurationMapping(configurations)
+
+
 class TestProjectConfiguration:
     async def test_configuration_file_path(self, tmp_path: Path) -> None:
         old_configuration_file_path = tmp_path / "betty.json"
@@ -1009,6 +1040,10 @@ class TestProjectConfiguration:
     async def test_event_types(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
         assert sut.event_types is sut.event_types
+
+    async def test_presence_roles(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        assert sut.presence_roles is sut.presence_roles
 
     async def test_load_should_load_minimal(self, tmp_path: Path) -> None:
         dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
@@ -1186,6 +1221,23 @@ class TestProjectConfiguration:
         if event_types_configuration:
             assert sut.dump()["event_types"] == event_types_configuration
 
+    @pytest.mark.parametrize(
+        "presence_roles_configuration",
+        [
+            {},
+            {"foo": {"label": "Foo"}},
+        ],
+    )
+    async def test_load_should_load_presence_roles(
+        self, presence_roles_configuration: DumpMapping[Dump], tmp_path: Path
+    ) -> None:
+        dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
+        dump["presence_roles"] = presence_roles_configuration
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        sut.load(dump)
+        if presence_roles_configuration:
+            assert sut.dump()["presence_roles"] == presence_roles_configuration
+
     async def test_load_should_error_if_invalid_config(self, tmp_path: Path) -> None:
         dump: Dump = {}
         sut = ProjectConfiguration(tmp_path / "betty.json")
@@ -1314,6 +1366,13 @@ class TestProjectConfiguration:
         expected = {"foo": {"label": "Foo"}}
         assert expected == dump["event_types"]
 
+    async def test_dump_should_dump_presence_roles(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        sut.presence_roles.append(PluginConfiguration("foo", "Foo"))
+        dump: Any = sut.dump()
+        expected = {"foo": {"label": "Foo"}}
+        assert expected == dump["presence_roles"]
+
     async def test_dump_should_error_if_invalid_config(self, tmp_path: Path) -> None:
         dump: Dump = {}
         sut = ProjectConfiguration(tmp_path / "betty.json")
@@ -1343,6 +1402,12 @@ class TestProjectConfiguration:
             locales=locales,
             extensions=extensions,
             entity_types=entity_types,
+            event_types=[
+                PluginConfiguration("my-first-event-type", "My First Event Type")
+            ],
+            presence_roles=[
+                PluginConfiguration("my-first-presence-role", "My First Presence Role")
+            ],
         )
         sut = ProjectConfiguration(tmp_path / "sut" / "betty.json")
         sut.update(other)
@@ -1355,3 +1420,13 @@ class TestProjectConfiguration:
         assert list(sut.locales.values()) == locales
         assert list(sut.extensions.values()) == extensions
         assert list(sut.entity_types.values()) == entity_types
+        assert (
+            sut.event_types["my-first-event-type"].label.localize(DEFAULT_LOCALIZER)
+            == "My First Event Type"
+        )
+        assert (
+            sut.presence_roles["my-first-presence-role"].label.localize(
+                DEFAULT_LOCALIZER
+            )
+            == "My First Presence Role"
+        )

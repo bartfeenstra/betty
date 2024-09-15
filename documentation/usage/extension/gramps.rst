@@ -41,6 +41,9 @@ This extension is configurable:
                     event-types:
                       GrampsEventType: betty-event-type
                       AnotherGrampsEventType: another-betty-event-type
+                    presence-roles:
+                      GrampsRole: betty-presence-role
+                      AnotherGrampsRole: another-betty-presence-role
 
    .. tab-item:: JSON
 
@@ -56,6 +59,10 @@ This extension is configurable:
                       "event-types": {
                         "GrampsEventType: "betty-event-type",
                         "AnotherGrampsEventType: "another-betty-event-type"
+                      },
+                      "presence-roles": {
+                        "GrampsRole: "betty-presence-role",
+                        "AnotherGrampsRole: "another-betty-presence-role"
                       }
                     }
                   ]
@@ -71,10 +78,10 @@ All configuration options
   the following keys:
 
   - ``file`` (required): the path to a *Gramps XML* or *Gramps XML Package* file.
-  - ``event_types`` (optional): how to map Gramps event types to Betty event types. Keys are Gramps event types, and
-    values are objects with the following keys:
-
-    - ``event_type``: (required): the plugin ID of th Gramps event type to import this Gramps event type as.
+  - ``event_types`` (optional): how to map Gramps event types to Betty event types. Each keys is a Gramps event type,
+    and each value is the plugin IDs of the Gramps event type to import the Gramps event type as.
+  - ``presence_roles`` (optional): how to map Gramps roles to Betty presence roles. Each keys is a Gramps role,
+    and each value is the plugin IDs of the Gramps presence role to import the Gramps role as.
 
   If multiple family trees contain entities of the same type and with the same ID (e.g. a person with ID ``I1234``) each
   entity will overwrite any previously loaded entity.
@@ -192,20 +199,31 @@ Betty supports the following Gramps event types without any additional configura
    * - ``Will``
      - ``will``
 
-Event roles
------------
+Presence roles
+--------------
 
-Betty supports the following Gramps event roles:
+Betty supports the following Gramps presence roles without any additional configuration:
 
-- ``Attendee``
-- ``Beneficiary``
-- ``Celebrant``
-- ``Family`` (imported as ``Subject``)
-- ``Organizer``
-- ``Primary`` (imported as ``Subject``)
-- ``Speaker``
-- ``Unknown`` (imported as ``Attendee``)
-- ``Witness``
+.. list-table:: Presence roles
+   :align: left
+   :header-rows: 1
+
+   * - Gramps role
+     - Betty presence role
+   * - ``Celebrant``
+     - ``celebrant``
+   * - ``Bride``
+     - ``subject``
+   * - ``Family``
+     - ``subject``
+   * - ``Groom``
+     - ``subject``
+   * - ``Primary``
+     - ``subject``
+   * - ``Unknown``
+     - ``attendee``
+   * - ``Witness``
+     - ``witness``
 
 Order & priority
 ----------------

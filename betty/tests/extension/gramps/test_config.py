@@ -1,6 +1,5 @@
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any
 
 import pytest
 from typing_extensions import override
@@ -51,9 +50,13 @@ class TestFamilyTreeConfiguration:
         sut = FamilyTreeConfiguration(tmp_path)
         sut.event_types  # noqa B018
 
+    def test_presence_roles(self, tmp_path: Path) -> None:
+        sut = FamilyTreeConfiguration(tmp_path)
+        sut.presence_roles  # noqa B018
+
     async def test_load_with_minimal_configuration(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
-        dump: Mapping[str, Any] = {"file": str(file_path)}
+        dump: Dump = {"file": str(file_path)}
         FamilyTreeConfiguration(tmp_path).load(dump)
 
     async def test_load_with_event_types(self, tmp_path: Path) -> None:
@@ -66,6 +69,16 @@ class TestFamilyTreeConfiguration:
         sut.load(dump)
         assert sut.event_types["my-first-gramps-type"] == "my-first-betty-plugin-id"
 
+    async def test_load_with_presence_roles(self, tmp_path: Path) -> None:
+        file_path = tmp_path / "ancestry.gramps"
+        dump: Dump = {
+            "file": str(file_path),
+            "presence_roles": {"my-first-gramps-type": "my-first-betty-plugin-id"},
+        }
+        sut = FamilyTreeConfiguration(tmp_path)
+        sut.load(dump)
+        assert sut.presence_roles["my-first-gramps-type"] == "my-first-betty-plugin-id"
+
     async def test_load_without_dict_should_error(self, tmp_path: Path) -> None:
         dump = None
         with raises_error(error_type=AssertionFailed):
@@ -77,6 +90,9 @@ class TestFamilyTreeConfiguration:
         assert len(
             actual.pop("event_types")  # type: ignore[arg-type]
         )
+        assert len(
+            actual.pop("presence_roles")  # type: ignore[arg-type]
+        )
         assert actual == {
             "file": str(tmp_path),
         }
@@ -87,10 +103,24 @@ class TestFamilyTreeConfiguration:
             event_types=PluginMapping(
                 {"my-first-gramps-type": "my-first-betty-plugin-id"}
             ),
+            presence_roles=PluginMapping(),
         )
         assert sut.dump() == {
             "file": str(tmp_path),
             "event_types": {"my-first-gramps-type": "my-first-betty-plugin-id"},
+        }
+
+    async def test_dump_with_presence_roles(self, tmp_path: Path) -> None:
+        sut = FamilyTreeConfiguration(
+            tmp_path,
+            presence_roles=PluginMapping(
+                {"my-first-gramps-type": "my-first-betty-plugin-id"}
+            ),
+            event_types=PluginMapping(),
+        )
+        assert sut.dump() == {
+            "file": str(tmp_path),
+            "presence_roles": {"my-first-gramps-type": "my-first-betty-plugin-id"},
         }
 
     async def test_update(self, tmp_path: Path) -> None:
@@ -119,10 +149,9 @@ class TestFamilyTreeConfiguration:
 
 class TestPluginMapping:
     def test_load_without_values(self) -> None:
-        dump: Dump = {}
         sut = PluginMapping()
-        sut.load(dump)
-        assert sut.dump() == dump
+        sut.load({})
+        assert sut.dump() is Void
 
     def test_load_with_values(self) -> None:
         dump: Dump = {"my-first-gramps-type": "my-first-betty-plugin-id"}
@@ -150,7 +179,7 @@ class TestPluginMapping:
     @pytest.mark.parametrize(
         ("expected", "sut"),
         [
-            ({}, PluginMapping()),
+            (Void, PluginMapping()),
             (
                 {"my-first-gramps-type": "my-first-betty-plugin-id"},
                 PluginMapping({"my-first-gramps-type": "my-first-betty-plugin-id"}),
@@ -205,7 +234,7 @@ class TestPluginMapping:
 
 class TestGrampsConfiguration:
     async def test_load_with_minimal_configuration(self) -> None:
-        dump: Mapping[str, Any] = {}
+        dump: Dump = {}
         GrampsConfiguration().load(dump)
 
     async def test_load_without_dict_should_error(self) -> None:
@@ -236,6 +265,7 @@ class TestGrampsConfiguration:
         sut.family_trees.append(FamilyTreeConfiguration(file_path=file_path))
         actual = sut.dump()
         actual["family_trees"][0].pop("event_types")  # type: ignore[arg-type, index, union-attr]
+        actual["family_trees"][0].pop("presence_roles")  # type: ignore[arg-type, index, union-attr]
         expected = {
             "family_trees": [
                 {

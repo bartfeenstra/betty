@@ -62,7 +62,7 @@ def minimize(
     voidable: bool = False,
 ) -> Voidable[DumpSequence[Dump] | DumpMapping[Dump]]:
     """
-    Minimize a configuration dump by removing any Void configuration from sequences and mappings.
+    Minimize a configuration dump by removing any :py:class:'betty.typing.Void' values from sequences and mappings.
     """
     if isinstance(dump, Sequence):
         dump = [value for value in dump if value is not Void]

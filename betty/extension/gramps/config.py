@@ -29,6 +29,7 @@ from betty.ancestry.event_type import (
     Retirement,
     Will,
 )
+from betty.ancestry.presence_role import Celebrant, Subject, Attendee, Witness
 from betty.assertion import (
     RequiredField,
     OptionalField,
@@ -44,7 +45,7 @@ from betty.config.collections.sequence import ConfigurationSequence
 from betty.machine_name import assert_machine_name, MachineName
 from betty.plugin import PluginRepository, Plugin
 from betty.serde.dump import minimize, Dump, DumpMapping
-from betty.typing import internal, Voidable
+from betty.typing import internal, Void, Voidable
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, MutableMapping, Iterable
@@ -90,6 +91,8 @@ class PluginMapping(Configuration):
 
     @override
     def dump(self) -> Voidable[Dump]:
+        if not self._mapping:
+            return Void
         # Dumps are mutable, so return a new dict which may then be changed without impacting ``self``.
         return dict(self._mapping)
 
@@ -120,6 +123,7 @@ class FamilyTreeConfiguration(Configuration):
         file_path: Path,
         *,
         event_types: PluginMapping | None = None,
+        presence_roles: PluginMapping | None = None,
     ):
         super().__init__()
         self.file_path = file_path
@@ -143,6 +147,17 @@ class FamilyTreeConfiguration(Configuration):
                 "Residence": Residence.plugin_id(),
                 "Retirement": Retirement.plugin_id(),
                 "Will": Will.plugin_id(),
+            }
+        )
+        self._presence_roles = presence_roles or PluginMapping(
+            {
+                "Celebrant": Celebrant.plugin_id(),
+                "Bride": Subject.plugin_id(),
+                "Family": Subject.plugin_id(),
+                "Groom": Subject.plugin_id(),
+                "Primary": Subject.plugin_id(),
+                "Unknown": Attendee.plugin_id(),
+                "Witness": Witness.plugin_id(),
             }
         )
 
@@ -170,11 +185,19 @@ class FamilyTreeConfiguration(Configuration):
         """
         return self._event_types
 
+    @property
+    def presence_roles(self) -> PluginMapping:
+        """
+        How to map presence roles.
+        """
+        return self._presence_roles
+
     @override
     def load(self, dump: Dump) -> None:
         assert_record(
             RequiredField("file", assert_path() | assert_setattr(self, "file_path")),
             OptionalField("event_types", self.event_types.load),
+            OptionalField("presence_roles", self.presence_roles.load),
         )(dump)
 
     @override
@@ -183,6 +206,7 @@ class FamilyTreeConfiguration(Configuration):
             {
                 "file": str(self.file_path) if self.file_path else None,
                 "event_types": self.event_types.dump(),
+                "presence_roles": self.presence_roles.dump(),
             }
         )
 

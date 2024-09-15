@@ -47,15 +47,7 @@ from betty.ancestry.event_type import (
     UnknownEventType,
     EventType,
 )
-from betty.ancestry.presence_role import (
-    Subject,
-    Witness,
-    Beneficiary,
-    Attendee,
-    Speaker,
-    Celebrant,
-    Organizer,
-)
+from betty.ancestry.presence_role import Attendee, PresenceRole
 from betty.error import FileNotFound
 from betty.gramps.error import GrampsError, UserFacingGrampsError
 from betty.locale import UNDETERMINED_LOCALE
@@ -135,6 +127,7 @@ class GrampsLoader:
         localizer: Localizer,
         attribute_prefix_key: str | None = None,
         event_type_map: Mapping[str, type[EventType]] | None = None,
+        presence_role_map: Mapping[str, type[PresenceRole]] | None = None,
     ):
         super().__init__()
         self._ancestry = ancestry
@@ -149,6 +142,7 @@ class GrampsLoader:
         self._loaded = False
         self._localizer = localizer
         self._event_type_map = event_type_map or {}
+        self._presence_role_map = presence_role_map or {}
 
     async def load_file(self, file_path: Path) -> None:
         """
@@ -606,18 +600,6 @@ class GrampsLoader:
         for eventref in eventrefs:
             await self._load_eventref(person_id, eventref)
 
-    _PRESENCE_ROLE_MAP = {
-        "Primary": Subject,
-        "Family": Subject,
-        "Witness": Witness,
-        "Beneficiary": Beneficiary,
-        "Speaker": Speaker,
-        "Celebrant": Celebrant,
-        "Organizer": Organizer,
-        "Attendee": Attendee,
-        "Unknown": Attendee,
-    }
-
     async def _load_eventref(
         self, person_id: str, eventref: ElementTree.Element
     ) -> None:
@@ -626,9 +608,11 @@ class GrampsLoader:
         gramps_presence_role = cast(str, eventref.get("role"))
 
         try:
-            role_type = self._PRESENCE_ROLE_MAP[gramps_presence_role]
+            presence_role_type: type[PresenceRole] = self._presence_role_map[
+                gramps_presence_role
+            ]
         except KeyError:
-            role_type = Attendee
+            presence_role_type = Attendee
             getLogger(__name__).warning(
                 self._localizer._(
                     'Betty is unfamiliar with person "{person_id}"\'s Gramps presence role of "{gramps_presence_role}" for the event with Gramps handle "{event_handle}". The role was imported, but set to "{betty_presence_role}".',
@@ -636,14 +620,14 @@ class GrampsLoader:
                     person_id=person_id,
                     event_handle=event_handle,
                     gramps_presence_role=gramps_presence_role,
-                    betty_presence_role=role_type.plugin_label().localize(
+                    betty_presence_role=presence_role_type.plugin_label().localize(
                         self._localizer
                     ),
                 )
             )
-        role = await self._factory(role_type)
+        presence_role = await self._factory(presence_role_type)
 
-        presence = Presence(None, role, None)
+        presence = Presence(None, presence_role, None)
         if eventref.get("priv") == "1":
             presence.private = True
 
