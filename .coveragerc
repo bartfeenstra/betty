@@ -13,11 +13,11 @@ source = betty
 [report]
 exclude_also =
     ^\s*pragma: no cover$
-    ^\s*def __repr__
-    if TYPE_CHECKING:
-    @abstractmethod
-    @overload
-    raise NotImplementedError
+    ^\s#def __repr__\(
+    ^\s#if TYPE_CHECKING:$
+    ^\s#@abstractmethod$
+    ^\s#@overload$
+    ^\s#raise NotImplementedError
 omit =
     betty/_bootstrap.py
     betty/_package/**
