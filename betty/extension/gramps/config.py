@@ -9,6 +9,26 @@ from typing import Any, Self, final, TYPE_CHECKING, TypeVar
 
 from typing_extensions import override
 
+from betty.ancestry.event_type import (
+    Adoption,
+    Baptism,
+    Birth,
+    Burial,
+    Confirmation,
+    Cremation,
+    Death,
+    Divorce,
+    DivorceAnnouncement,
+    Emigration,
+    Engagement,
+    Immigration,
+    Marriage,
+    MarriageAnnouncement,
+    Occupation,
+    Residence,
+    Retirement,
+    Will,
+)
 from betty.assertion import (
     RequiredField,
     OptionalField,
@@ -105,24 +125,24 @@ class FamilyTreeConfiguration(Configuration):
         self.file_path = file_path
         self._event_types = event_types or PluginMapping(
             {
-                "Adopted": "adoption",
-                "Baptism": "baptism",
-                "Birth": "birth",
-                "Burial": "burial",
-                "Confirmation": "confirmation",
-                "Cremation": "cremation",
-                "Death": "death",
-                "Divorce": "divorce",
-                "Divorce Filing": "divorce-announcement",
-                "Emigration": "emigration",
-                "Engagement": "engagement",
-                "Immigration": "immigration",
-                "Marriage": "marriage",
-                "Marriage Banns": "marriage-announcement",
-                "Occupation": "occupation",
-                "Residence": "residence",
-                "Retirement": "retirement",
-                "Will": "will",
+                "Adopted": Adoption.plugin_id(),
+                "Baptism": Baptism.plugin_id(),
+                "Birth": Birth.plugin_id(),
+                "Burial": Burial.plugin_id(),
+                "Confirmation": Confirmation.plugin_id(),
+                "Cremation": Cremation.plugin_id(),
+                "Death": Death.plugin_id(),
+                "Divorce": Divorce.plugin_id(),
+                "Divorce Filing": DivorceAnnouncement.plugin_id(),
+                "Emigration": Emigration.plugin_id(),
+                "Engagement": Engagement.plugin_id(),
+                "Immigration": Immigration.plugin_id(),
+                "Marriage": Marriage.plugin_id(),
+                "Marriage Banns": MarriageAnnouncement.plugin_id(),
+                "Occupation": Occupation.plugin_id(),
+                "Residence": Residence.plugin_id(),
+                "Retirement": Retirement.plugin_id(),
+                "Will": Will.plugin_id(),
             }
         )
 

@@ -269,20 +269,20 @@ class GrampsLoader:
 
         database = self._tree.getroot()
 
-        self._load_notes(database)
+        await self._load_notes(database)
         logger.info(
             self._localizer._("Loaded {note_count} notes.").format(
                 note_count=self._added_entity_counts[Note]
             )
         )
-        self._load_objects(database, self._gramps_tree_directory_path)
+        await self._load_objects(database, self._gramps_tree_directory_path)
         logger.info(
             self._localizer._("Loaded {file_count} files.").format(
                 file_count=self._added_entity_counts[File]
             )
         )
 
-        self._load_repositories(database)
+        await self._load_repositories(database)
         repository_count = self._added_entity_counts[Source]
         logger.info(
             self._localizer._(
@@ -290,28 +290,28 @@ class GrampsLoader:
             ).format(repository_count=repository_count)
         )
 
-        self._load_sources(database)
+        await self._load_sources(database)
         logger.info(
             self._localizer._("Loaded {source_count} sources.").format(
                 source_count=self._added_entity_counts[Source] - repository_count
             )
         )
 
-        self._load_citations(database)
+        await self._load_citations(database)
         logger.info(
             self._localizer._("Loaded {citation_count} citations.").format(
                 citation_count=self._added_entity_counts[Citation]
             )
         )
 
-        self._load_places(database)
+        await self._load_places(database)
         logger.info(
             self._localizer._("Loaded {place_count} places.").format(
                 place_count=self._added_entity_counts[Place]
             )
         )
 
-        self._load_events(database)
+        await self._load_events(database)
         logger.info(
             self._localizer._("Loaded {event_count} events.").format(
                 event_count=self._added_entity_counts[Event]
@@ -421,11 +421,11 @@ class GrampsLoader:
             return date
         return None
 
-    def _load_notes(self, database: ElementTree.Element) -> None:
+    async def _load_notes(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, "./ns:notes/ns:note"):
-            self._load_note(element)
+            await self._load_note(element)
 
-    def _load_note(self, element: ElementTree.Element) -> None:
+    async def _load_note(self, element: ElementTree.Element) -> None:
         note_handle = element.get("handle")
         note_id = element.get("id")
         assert note_id is not None
@@ -447,13 +447,13 @@ class GrampsLoader:
         for note_handle in note_handles:
             self._add_association(owner.type, owner.id, "notes", Note, note_handle)
 
-    def _load_objects(
+    async def _load_objects(
         self, database: ElementTree.Element, gramps_tree_directory_path: Path
     ) -> None:
         for element in self._xpath(database, "./ns:objects/ns:object"):
-            self._load_object(element, gramps_tree_directory_path)
+            await self._load_object(element, gramps_tree_directory_path)
 
-    def _load_object(
+    async def _load_object(
         self, element: ElementTree.Element, gramps_tree_directory_path: Path
     ) -> None:
         file_handle = element.get("handle")
@@ -658,11 +658,11 @@ class GrampsLoader:
         self._add_association(Presence, presence.id, "person", Person, person_id)
         self._add_association(Presence, presence.id, "event", Event, event_handle)
 
-    def _load_places(self, database: ElementTree.Element) -> None:
+    async def _load_places(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, "./ns:places/ns:placeobj"):
-            self._load_place(element)
+            await self._load_place(element)
 
-    def _load_place(self, element: ElementTree.Element) -> None:
+    async def _load_place(self, element: ElementTree.Element) -> None:
         place_handle = element.get("handle")
         names = []
         for name_element in self._xpath(element, "./ns:pname"):
@@ -735,11 +735,11 @@ class GrampsLoader:
                 )
         return None
 
-    def _load_events(self, database: ElementTree.Element) -> None:
+    async def _load_events(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, "./ns:events/ns:event"):
-            self._load_event(element)
+            await self._load_event(element)
 
-    def _load_event(self, element: ElementTree.Element) -> None:
+    async def _load_event(self, element: ElementTree.Element) -> None:
         event_handle = element.get("handle")
         event_id = element.get("id")
         assert event_id is not None
@@ -747,16 +747,16 @@ class GrampsLoader:
         assert gramps_type is not None
 
         try:
-            event_type: EventType = self._event_type_map[gramps_type]()
+            event_type_type = self._event_type_map[gramps_type]
         except KeyError:
-            event_type = UnknownEventType()
+            event_type_type = UnknownEventType
             getLogger(__name__).warning(
                 self._localizer._(
                     'Betty is unfamiliar with Gramps event "{event_id}"\'s type of "{gramps_event_type}". The event was imported, but its type was set to "{betty_event_type}".',
                 ).format(
                     event_id=event_id,
                     gramps_event_type=gramps_type,
-                    betty_event_type=event_type.plugin_label().localize(
+                    betty_event_type=event_type_type.plugin_label().localize(
                         self._localizer
                     ),
                 )
@@ -764,7 +764,7 @@ class GrampsLoader:
 
         event = Event(
             id=event_id,
-            event_type=event_type,
+            event_type=await self._factory(event_type_type),
         )
 
         event.date = self._load_date(element)
@@ -808,11 +808,11 @@ class GrampsLoader:
             aliased_event,  # type: ignore[arg-type]
         )
 
-    def _load_repositories(self, database: ElementTree.Element) -> None:
+    async def _load_repositories(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, "./ns:repositories/ns:repository"):
-            self._load_repository(element)
+            await self._load_repository(element)
 
-    def _load_repository(self, element: ElementTree.Element) -> None:
+    async def _load_repository(self, element: ElementTree.Element) -> None:
         repository_source_handle = element.get("handle")
 
         source = Source(
@@ -830,11 +830,11 @@ class GrampsLoader:
             aliased_source,  # type: ignore[arg-type]
         )
 
-    def _load_sources(self, database: ElementTree.Element) -> None:
+    async def _load_sources(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, "./ns:sources/ns:source"):
-            self._load_source(element)
+            await self._load_source(element)
 
-    def _load_source(self, element: ElementTree.Element) -> None:
+    async def _load_source(self, element: ElementTree.Element) -> None:
         source_handle = element.get("handle")
         try:
             source_name = self._xpath1(element, "./ns:stitle").text
@@ -887,11 +887,11 @@ class GrampsLoader:
             aliased_source,  # type: ignore[arg-type]
         )
 
-    def _load_citations(self, database: ElementTree.Element) -> None:
+    async def _load_citations(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, "./ns:citations/ns:citation"):
-            self._load_citation(element)
+            await self._load_citation(element)
 
-    def _load_citation(self, element: ElementTree.Element) -> None:
+    async def _load_citation(self, element: ElementTree.Element) -> None:
         citation_handle = element.get("handle")
         source_handle = self._xpath1(element, "./ns:sourceref").get("hlink")
 
