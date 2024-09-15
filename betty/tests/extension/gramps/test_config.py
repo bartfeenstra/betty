@@ -1,22 +1,24 @@
 from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import Any
-from typing_extensions import override
 
 import pytest
+from typing_extensions import override
 
 from betty.assertion.error import AssertionFailed
 from betty.extension.gramps.config import (
     FamilyTreeConfiguration,
     GrampsConfiguration,
     FamilyTreeConfigurationSequence,
-    FamilyTreeEventTypeConfiguration,
-    FamilyTreeEventTypeConfigurationMapping,
+    PluginMapping,
 )
+from betty.machine_name import MachineName
+from betty.plugin import PluginNotFound, Plugin
+from betty.plugin.static import StaticPluginRepository
 from betty.serde.dump import Dump
 from betty.test_utils.assertion.error import raises_error
-from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
+from betty.test_utils.plugin import DummyPlugin
 from betty.typing import Void
 
 
@@ -47,7 +49,7 @@ class TestFamilyTreeConfigurationSequence(
 class TestFamilyTreeConfiguration:
     def test_event_types(self, tmp_path: Path) -> None:
         sut = FamilyTreeConfiguration(tmp_path)
-        assert len(sut.event_types)
+        sut.event_types  # noqa B018
 
     async def test_load_with_minimal_configuration(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
@@ -99,96 +101,90 @@ class TestFamilyTreeConfiguration:
         assert sut != other
 
 
-class TestFamilyTreeEventTypeConfiguration:
-    async def test_gramps_event_type(self) -> None:
-        gramps_event_type = "my-first-gramps-event-type"
-        sut = FamilyTreeEventTypeConfiguration(
-            gramps_event_type, "my-first-betty-event-type"
-        )
-        assert sut.gramps_event_type == gramps_event_type
-
-    async def test_event_type_id(self) -> None:
-        event_type_id = "my-first-betty-event-type"
-        sut = FamilyTreeEventTypeConfiguration(
-            "my-first-gramps-event-type", event_type_id
-        )
-        assert sut.event_type_id == event_type_id
-
-    async def test_load(self) -> None:
-        gramps_event_type = "my-first-gramps-event-type"
-        event_type_id = "my-first-betty-event-type"
-        dump: Dump = {
-            "gramps_event_type": gramps_event_type,
-            "event_type": event_type_id,
-        }
-        sut = FamilyTreeEventTypeConfiguration("-", "-")
+class TestPluginMapping:
+    def test_load_without_values(self) -> None:
+        dump: Dump = {}
+        sut = PluginMapping()
         sut.load(dump)
-        assert sut.gramps_event_type == gramps_event_type
-        assert sut.event_type_id == event_type_id
+        assert sut.dump() == dump
+
+    def test_load_with_values(self) -> None:
+        dump: Dump = {"my-first-gramps-type": "my-first-betty-plugin-id"}
+        sut = PluginMapping()
+        sut.load(dump)
+        assert sut.dump() == dump
+        assert sut["my-first-gramps-type"] == "my-first-betty-plugin-id"
 
     @pytest.mark.parametrize(
         "dump",
         [
-            {},
-            {"gramps_event_type": "-"},
-            {"event_type": "-"},
+            True,
+            False,
+            None,
+            "abc",
+            123,
+            [],
         ],
     )
-    async def test_load_with_invalid_dump_should_error(self, dump: Dump) -> None:
-        sut = FamilyTreeEventTypeConfiguration("-", "-")
+    def test_load_should_error(self, dump: Dump) -> None:
+        sut = PluginMapping()
         with pytest.raises(AssertionFailed):
             sut.load(dump)
 
-    async def test_dump(self) -> None:
-        gramps_event_type = "my-first-gramps-event-type"
-        event_type_id = "my-first-betty-event-type"
-        sut = FamilyTreeEventTypeConfiguration(gramps_event_type, event_type_id)
-        dump = sut.dump()
-        assert dump == {
-            "gramps_event_type": gramps_event_type,
-            "event_type": event_type_id,
-        }
+    @pytest.mark.parametrize(
+        ("expected", "sut"),
+        [
+            ({}, PluginMapping()),
+            (
+                {"my-first-gramps-type": "my-first-betty-plugin-id"},
+                PluginMapping({"my-first-gramps-type": "my-first-betty-plugin-id"}),
+            ),
+        ],
+    )
+    def test_dump(self, expected: Dump, sut: PluginMapping) -> None:
+        assert sut.dump() == expected
 
-    async def test_update(self) -> None:
-        gramps_event_type = "my-first-gramps-event-type"
-        event_type_id = "my-first-betty-event-type"
-        other = FamilyTreeEventTypeConfiguration(gramps_event_type, event_type_id)
-        sut = FamilyTreeEventTypeConfiguration("-", "-")
+    def test_update(self) -> None:
+        sut = PluginMapping()
+        other = PluginMapping({"my-first-gramps-type": "my-first-betty-plugin-id"})
         sut.update(other)
-        assert sut.gramps_event_type == gramps_event_type
-        assert sut.event_type_id == event_type_id
+        assert sut["my-first-gramps-type"] == "my-first-betty-plugin-id"
 
+    def test___getitem__(self) -> None:
+        sut = PluginMapping({"my-first-gramps-type": "my-first-betty-plugin-id"})
+        assert sut["my-first-gramps-type"] == "my-first-betty-plugin-id"
 
-class TestFamilyTreeEventTypeConfigurationMapping(
-    ConfigurationMappingTestBase[str, FamilyTreeEventTypeConfiguration]
-):
-    @override
-    def get_configuration_keys(
-        self,
-    ) -> tuple[str, str, str, str]:
-        return "gramps-foo", "gramps-bar", "gramps-baz", "gramps-qux"
+    def test___setitem__(self) -> None:
+        sut = PluginMapping()
+        sut["my-first-gramps-type"] = "my-first-betty-plugin-id"
+        assert sut["my-first-gramps-type"] == "my-first-betty-plugin-id"
 
-    @override
-    def get_configurations(
-        self,
-    ) -> tuple[
-        FamilyTreeEventTypeConfiguration,
-        FamilyTreeEventTypeConfiguration,
-        FamilyTreeEventTypeConfiguration,
-        FamilyTreeEventTypeConfiguration,
-    ]:
-        return (
-            FamilyTreeEventTypeConfiguration("gramps-foo", "betty-foo"),
-            FamilyTreeEventTypeConfiguration("gramps-bar", "betty-bar"),
-            FamilyTreeEventTypeConfiguration("gramps-baz", "betty-baz"),
-            FamilyTreeEventTypeConfiguration("gramps-qux", "betty-qux"),
-        )
+    def test___delitem__(self) -> None:
+        sut = PluginMapping({"my-first-gramps-type": "my-first-betty-plugin-id"})
+        del sut["my-first-gramps-type"]
+        with pytest.raises(KeyError):
+            sut["my-first-gramps-type"]
 
-    @override
-    def get_sut(
-        self, configurations: Iterable[FamilyTreeEventTypeConfiguration] | None = None
-    ) -> FamilyTreeEventTypeConfigurationMapping:
-        return FamilyTreeEventTypeConfigurationMapping(configurations)
+    async def test_to_plugins_without_values(self) -> None:
+        sut = PluginMapping()
+        actual = await sut.to_plugins(StaticPluginRepository[Plugin]())
+        assert actual == {}
+
+    async def test_to_plugins_with_values(self) -> None:
+        class _Plugin(DummyPlugin):
+            @override
+            @classmethod
+            def plugin_id(cls) -> MachineName:
+                return "my-first-betty-plugin-id"
+
+        sut = PluginMapping({"my-first-gramps-type": "my-first-betty-plugin-id"})
+        actual = await sut.to_plugins(StaticPluginRepository(_Plugin))
+        assert actual == {"my-first-gramps-type": _Plugin}
+
+    async def test_to_plugins_should_error(self) -> None:
+        sut = PluginMapping({"my-first-gramps-type": "my-first-betty-plugin-id"})
+        with pytest.raises(PluginNotFound):
+            await sut.to_plugins(StaticPluginRepository())
 
 
 class TestGrampsConfiguration:

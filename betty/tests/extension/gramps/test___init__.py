@@ -11,7 +11,7 @@ from betty.extension.gramps import Gramps
 from betty.extension.gramps.config import (
     FamilyTreeConfiguration,
     GrampsConfiguration,
-    FamilyTreeEventTypeConfiguration,
+    PluginMapping,
 )
 from betty.load import load
 from betty.project import Project
@@ -57,9 +57,7 @@ class TestGramps(ExtensionTestBase):
                         family_trees=[
                             FamilyTreeConfiguration(
                                 file_path=gramps_family_tree_path,
-                                event_types=[
-                                    FamilyTreeEventTypeConfiguration("Birth", "birth")
-                                ],
+                                event_types=PluginMapping({"Birth": "birth"}),
                             )
                         ],
                     ),

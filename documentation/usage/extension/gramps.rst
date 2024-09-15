@@ -39,10 +39,8 @@ This extension is configurable:
                 family_trees:
                   - file: ./gramps.gpkg
                     event-types:
-                      GrampsEventType:
-                        event-type: betty-event-type
-                      AnotherGrampsEventType:
-                        event-type: another-betty-event-type
+                      GrampsEventType: betty-event-type
+                      AnotherGrampsEventType: another-betty-event-type
 
    .. tab-item:: JSON
 
@@ -56,12 +54,8 @@ This extension is configurable:
                     {
                       "file": "./gramps.gpkg"
                       "event-types": {
-                        "GrampsEventType: {
-                          "event-type": "betty-event-type"
-                        },
-                        "AnotherGrampsEventType: {
-                          "event-type": "another-betty-event-type"
-                        }
+                        "GrampsEventType: "betty-event-type",
+                        "AnotherGrampsEventType: "another-betty-event-type"
                       }
                     }
                   ]
