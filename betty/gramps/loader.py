@@ -55,8 +55,10 @@ from betty.media_type import MediaType, InvalidMediaType
 from betty.model import Entity, AliasedEntity, AliasableEntity
 from betty.model.graph import EntityGraphBuilder
 from betty.path import rootname
+from betty.ancestry.gender import Unknown as UnknownGender
 
 if TYPE_CHECKING:
+    from betty.ancestry.gender import Gender
     from betty.factory import Factory
     from betty.locale.localizer import Localizer
     from collections.abc import MutableMapping, Mapping, Sequence
@@ -125,6 +127,7 @@ class GrampsLoader:
         localizer: Localizer,
         attribute_prefix_key: str | None = None,
         event_type_map: Mapping[str, type[EventType]] | None = None,
+        gender_map: Mapping[str, type[Gender]] | None = None,
         place_type_map: Mapping[str, type[PlaceType]] | None = None,
         presence_role_map: Mapping[str, type[PresenceRole]] | None = None,
     ):
@@ -141,6 +144,7 @@ class GrampsLoader:
         self._loaded = False
         self._localizer = localizer
         self._event_type_map = event_type_map or {}
+        self._gender_map = gender_map or {}
         self._place_type_map = place_type_map or {}
         self._presence_role_map = presence_role_map or {}
 
@@ -496,7 +500,27 @@ class GrampsLoader:
     async def _load_person(self, element: ElementTree.Element) -> None:
         person_handle = element.get("handle")
         assert person_handle is not None
-        person = Person(id=element.get("id"))
+        person_id = element.get("id")
+        assert person_id is not None
+        gramps_gender = self._load_attribute("gender", element, "attribute")
+        if gramps_gender is None:
+            gramps_gender = self._xpath1(element, "./ns:gender").text
+            assert gramps_gender is not None
+
+        try:
+            gender_type = self._gender_map[gramps_gender]
+        except KeyError:
+            gender_type = UnknownGender
+            getLogger(__name__).warning(
+                self._localizer._(
+                    'Betty is unfamiliar with Gramps person "{person_id}"\'s gender of "{gramps_gender}". The person was imported, but their gender was set to "{betty_gender}".',
+                ).format(
+                    person_id=person_id,
+                    gramps_gender=gramps_gender,
+                    betty_gender=gender_type.plugin_label().localize(self._localizer),
+                )
+            )
+        person = Person(id=element.get("id"), gender=await self._factory(gender_type))
 
         name_elements = sorted(
             self._xpath(element, "./ns:name"), key=lambda x: x.get("alt") == "1"

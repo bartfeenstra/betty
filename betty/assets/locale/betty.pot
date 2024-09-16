@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-16 12:42+0100\n"
+"POT-Creation-Date: 2024-09-17 10:32+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -154,6 +154,9 @@ msgid "Beneficiary"
 msgstr ""
 
 msgid "Betty is unfamiliar with Gramps event \"{event_id}\"'s type of \"{gramps_event_type}\". The event was imported, but its type was set to \"{betty_event_type}\"."
+msgstr ""
+
+msgid "Betty is unfamiliar with Gramps person \"{person_id}\"'s gender of \"{gramps_gender}\". The person was imported, but their gender was set to \"{betty_gender}\"."
 msgstr ""
 
 msgid "Betty is unfamiliar with Gramps place \"{place_id}\"'s type of \"{gramps_place_type}\". The place was imported, but its type was set to \"{betty_place_type}\"."
@@ -344,6 +347,9 @@ msgstr ""
 msgid "Farm"
 msgstr ""
 
+msgid "Female"
+msgstr ""
+
 msgid "File"
 msgstr ""
 
@@ -477,6 +483,9 @@ msgstr ""
 msgid "MMMM, y"
 msgstr ""
 
+msgid "Male"
+msgstr ""
+
 msgid "Maps"
 msgstr ""
 
@@ -496,6 +505,9 @@ msgid "Municipality"
 msgstr ""
 
 msgid "Neighborhood"
+msgstr ""
+
+msgid "Non-binary"
 msgstr ""
 
 msgid "Note"

@@ -19,6 +19,7 @@ from betty.ancestry import (
     Privacy,
 )
 from betty.ancestry.event_type import Birth, Death, UnknownEventType, EventType
+from betty.ancestry.gender import Unknown as UnknownGender, Gender, NonBinary
 from betty.ancestry.presence_role import Attendee, PresenceRole, Subject
 from betty.app import App
 from betty.gramps.error import UserFacingGrampsError
@@ -137,6 +138,7 @@ class TestGrampsLoader:
         xml: str,
         *,
         event_type_map: Mapping[str, type[EventType]] | None = None,
+        gender_map: Mapping[str, type[Gender]] | None = None,
         presence_role_map: Mapping[str, type[PresenceRole]] | None = None,
     ) -> Ancestry:
         async with (
@@ -152,6 +154,7 @@ class TestGrampsLoader:
                     localizer=DEFAULT_LOCALIZER,
                     attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
                     event_type_map=event_type_map,
+                    gender_map=gender_map,
                     presence_role_map=presence_role_map,
                 )
                 async with TemporaryDirectory() as tree_directory_path_str:
@@ -166,6 +169,7 @@ class TestGrampsLoader:
         xml: str,
         *,
         event_type_map: Mapping[str, type[EventType]] | None = None,
+        gender_map: Mapping[str, type[Gender]] | None = None,
         presence_role_map: Mapping[str, type[PresenceRole]] | None = None,
     ) -> Ancestry:
         return await self._load(
@@ -183,6 +187,7 @@ class TestGrampsLoader:
 </database>
 """,
             event_type_map=event_type_map,
+            gender_map=gender_map,
             presence_role_map=presence_role_map,
         )
 
@@ -382,6 +387,7 @@ class TestGrampsLoader:
             """
 <people>
     <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0000" priv="1">
+        <gender>U</gender>
     </person>
 </people>
 """
@@ -394,6 +400,7 @@ class TestGrampsLoader:
             """
 <people>
     <person handle="_e1dd3bf1f0041d92f586f9d8683" change="1552126972" id="I0000">
+        <gender>U</gender>
     </person>
 </people>
 """
@@ -401,11 +408,54 @@ class TestGrampsLoader:
         person = ancestry[Person]["I0000"]
         assert not person.private
 
+    async def test_person_should_fallback_gender(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<people>
+    <person handle="_e1dd3bf1f0041d92f586f9d8683" change="1552126972" id="I0000">
+        <gender>U</gender>
+    </person>
+</people>
+"""
+        )
+        person = ancestry[Person]["I0000"]
+        assert isinstance(person.gender, UnknownGender)
+
+    async def test_person_should_load_gender_element(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<people>
+    <person handle="_e1dd3bf1f0041d92f586f9d8683" change="1552126972" id="I0000">
+        <gender>U</gender>
+    </person>
+</people>
+""",
+            gender_map={"U": NonBinary},
+        )
+        person = ancestry[Person]["I0000"]
+        assert isinstance(person.gender, NonBinary)
+
+    async def test_person_should_load_gender_attribute(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<people>
+    <person handle="_e1dd3bf1f0041d92f586f9d8683" change="1552126972" id="I0000">
+        <gender>U</gender>
+        <attribute type="betty:gender" value="unknown"/>
+    </person>
+</people>
+""",
+            gender_map={"U": NonBinary},
+        )
+        person = ancestry[Person]["I0000"]
+        assert isinstance(person.gender, UnknownGender)
+
     async def test_person_should_include_citation(self) -> None:
         ancestry = await self._load_partial(
             """
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
+        <gender>U</gender>
         <citationref hlink="_e2c25a12a097a0b24bd9eae5090"/>
     </person>
 </people>
@@ -429,6 +479,7 @@ class TestGrampsLoader:
             """
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
+        <gender>U</gender>
         <noteref hlink="_e1cb35d7e6c1984b0e8361e1aee"/>
     </person>
 </people>
@@ -449,6 +500,7 @@ class TestGrampsLoader:
             """
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
+        <gender>U</gender>
         <objref hlink="_e1cb35d7e6c1984b0e8361e1aee">
             <region corner1_x="1" corner1_y="2" corner2_x="3" corner2_y="4"/>
         </objref>
@@ -473,15 +525,19 @@ class TestGrampsLoader:
             """
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
+        <gender>U</gender>
         <childof hlink="_e1dd3b84f9e5d832ffc17baa46c"/>
     </person>
     <person handle="_e1dd3b41b052be747e10b86c4a" change="1552127019" id="I0001">
+        <gender>U</gender>
         <childof hlink="_e1dd3b84f9e5d832ffc17baa46c"/>
     </person>
     <person handle="_e1dd3bf1f0041d92f586f9d8683" change="1552126972" id="I0002">
+        <gender>U</gender>
         <parentin hlink="_e1dd3b84f9e5d832ffc17baa46c"/>
     </person>
     <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0003" priv="1">
+        <gender>U</gender>
         <parentin hlink="_e1dd3b84f9e5d832ffc17baa46c"/>
     </person>
 </people>
@@ -512,15 +568,19 @@ class TestGrampsLoader:
             """
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
+        <gender>U</gender>
         <childof hlink="_e1dd3b84f9e5d832ffc17baa46c"/>
     </person>
     <person handle="_e1dd3b41b052be747e10b86c4a" change="1552127019" id="I0001">
+        <gender>U</gender>
         <childof hlink="_e1dd3b84f9e5d832ffc17baa46c"/>
     </person>
     <person handle="_e1dd3bf1f0041d92f586f9d8683" change="1552126972" id="I0002">
+        <gender>U</gender>
         <parentin hlink="_e1dd3b84f9e5d832ffc17baa46c"/>
     </person>
     <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0003" priv="1">
+        <gender>U</gender>
         <parentin hlink="_e1dd3b84f9e5d832ffc17baa46c"/>
     </person>
 </people>
@@ -627,6 +687,7 @@ class TestGrampsLoader:
             """
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
+        <gender>U</gender>
         <eventref hlink="_e1dd3ac2fa22e6fefa18f738bdd" role="Primary"/>
     </person>
 </people>

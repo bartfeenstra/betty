@@ -13,6 +13,7 @@ from typing_extensions import override
 from betty import model
 from betty.ancestry import Person, Event, Place, Source
 from betty.ancestry.event_type import EventType
+from betty.ancestry.gender import Gender
 from betty.ancestry.place_type import PlaceType
 from betty.ancestry.presence_role import PresenceRole
 from betty.assertion import (
@@ -680,6 +681,21 @@ class PresenceRoleConfigurationMapping(
         return _ProjectConfigurationPresenceRole
 
 
+class GenderConfigurationMapping(PluginConfigurationPluginConfigurationMapping[Gender]):
+    """
+    A configuration mapping for genders.
+    """
+
+    @override
+    def _create_plugin(self, configuration: PluginConfiguration) -> type[Gender]:
+        class _ProjectConfigurationGender(PluginShorthandBase, Gender):
+            _plugin_id = configuration.id
+            _plugin_label = configuration.label
+            _plugin_description = configuration.description
+
+        return _ProjectConfigurationGender
+
+
 @final
 class ProjectConfiguration(Configuration):
     """
@@ -701,6 +717,7 @@ class ProjectConfiguration(Configuration):
         event_types: Iterable[PluginConfiguration] | None = None,
         place_types: Iterable[PluginConfiguration] | None = None,
         presence_roles: Iterable[PluginConfiguration] | None = None,
+        genders: Iterable[PluginConfiguration] | None = None,
         extensions: Iterable[ExtensionConfiguration] | None = None,
         debug: bool = False,
         locales: Iterable[LocaleConfiguration] | None = None,
@@ -747,6 +764,9 @@ class ProjectConfiguration(Configuration):
         self._presence_roles = PresenceRoleConfigurationMapping()
         if presence_roles is not None:
             self._presence_roles.append(*presence_roles)
+        self._genders = GenderConfigurationMapping()
+        if genders is not None:
+            self._genders.append(*genders)
         self._extensions = ExtensionConfigurationMapping(extensions or ())
         self._debug = debug
         self._locales = LocaleConfigurationMapping(locales or ())
@@ -961,6 +981,15 @@ class ProjectConfiguration(Configuration):
         """
         return self._presence_roles
 
+    @property
+    def genders(
+        self,
+    ) -> PluginConfigurationMapping[Gender, PluginConfiguration]:
+        """
+        The genders.
+        """
+        return self._genders
+
     @override
     def update(self, other: Self) -> None:
         self._url = other._url
@@ -974,6 +1003,7 @@ class ProjectConfiguration(Configuration):
         self._extensions.update(other._extensions)
         self._entity_types.update(other._entity_types)
         self._event_types.update(other._event_types)
+        self._genders.update(other._genders)
         self._place_types.update(other._place_types)
         self._presence_roles.update(other._presence_roles)
 
@@ -998,6 +1028,7 @@ class ProjectConfiguration(Configuration):
             OptionalField("extensions", self.extensions.load),
             OptionalField("entity_types", self.entity_types.load),
             OptionalField("event_types", self.event_types.load),
+            OptionalField("genders", self.genders.load),
             OptionalField("place_types", self.place_types.load),
             OptionalField("presence_roles", self.presence_roles.load),
         )(dump)
@@ -1018,6 +1049,7 @@ class ProjectConfiguration(Configuration):
                 "extensions": self.extensions.dump(),
                 "entity_types": self.entity_types.dump(),
                 "event_types": self.event_types.dump(),
+                "genders": self.genders.dump(),
                 "place_types": self.place_types.dump(),
                 "presence_roles": self.presence_roles.dump(),
             }

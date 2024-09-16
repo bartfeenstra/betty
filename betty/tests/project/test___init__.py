@@ -412,6 +412,12 @@ class TestProject:
             async with sut:
                 assert await sut.presence_roles.get("foo")
 
+    async def test_genders(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as sut:
+            sut.configuration.genders.append(PluginConfiguration("foo", "Foo"))
+            async with sut:
+                assert await sut.genders.get("foo")
+
 
 class TestProjectContext:
     async def test_project(self, new_temporary_app: App) -> None:

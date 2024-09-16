@@ -24,6 +24,7 @@ from betty.project.config import (
     EventTypeConfigurationMapping,
     PresenceRoleConfigurationMapping,
     PlaceTypeConfigurationMapping,
+    GenderConfigurationMapping,
 )
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension
@@ -912,6 +913,36 @@ class TestPresenceRoleConfigurationMapping(
         return PresenceRoleConfigurationMapping(configurations)
 
 
+class TestGenderConfigurationMapping(
+    ConfigurationMappingTestBase[str, PluginConfiguration]
+):
+    @override
+    def get_configuration_keys(self) -> tuple[str, str, str, str]:
+        return "foo", "bar", "baz", "qux"
+
+    @override
+    def get_configurations(
+        self,
+    ) -> tuple[
+        PluginConfiguration,
+        PluginConfiguration,
+        PluginConfiguration,
+        PluginConfiguration,
+    ]:
+        return (
+            PluginConfiguration("foo", "Foo"),
+            PluginConfiguration("bar", "Bar"),
+            PluginConfiguration("baz", "Baz"),
+            PluginConfiguration("qux", "Qux"),
+        )
+
+    @override
+    def get_sut(
+        self, configurations: Iterable[PluginConfiguration] | None = None
+    ) -> GenderConfigurationMapping:
+        return GenderConfigurationMapping(configurations)
+
+
 class TestProjectConfiguration:
     async def test_configuration_file_path(self, tmp_path: Path) -> None:
         old_configuration_file_path = tmp_path / "betty.json"
@@ -1079,6 +1110,10 @@ class TestProjectConfiguration:
     async def test_presence_roles(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
         assert sut.presence_roles is sut.presence_roles
+
+    async def test_genders(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        assert sut.genders is sut.genders
 
     async def test_load_should_load_minimal(self, tmp_path: Path) -> None:
         dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
@@ -1290,6 +1325,23 @@ class TestProjectConfiguration:
         if presence_roles_configuration:
             assert sut.dump()["presence_roles"] == presence_roles_configuration
 
+    @pytest.mark.parametrize(
+        "genders_configuration",
+        [
+            {},
+            {"foo": {"label": "Foo"}},
+        ],
+    )
+    async def test_load_should_load_genders(
+        self, genders_configuration: DumpMapping[Dump], tmp_path: Path
+    ) -> None:
+        dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
+        dump["genders"] = genders_configuration
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        sut.load(dump)
+        if genders_configuration:
+            assert sut.dump()["genders"] == genders_configuration
+
     async def test_load_should_error_if_invalid_config(self, tmp_path: Path) -> None:
         dump: Dump = {}
         sut = ProjectConfiguration(tmp_path / "betty.json")
@@ -1432,6 +1484,13 @@ class TestProjectConfiguration:
         expected = {"foo": {"label": "Foo"}}
         assert expected == dump["presence_roles"]
 
+    async def test_dump_should_dump_genders(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        sut.genders.append(PluginConfiguration("foo", "Foo"))
+        dump: Any = sut.dump()
+        expected = {"foo": {"label": "Foo"}}
+        assert expected == dump["genders"]
+
     async def test_dump_should_error_if_invalid_config(self, tmp_path: Path) -> None:
         dump: Dump = {}
         sut = ProjectConfiguration(tmp_path / "betty.json")
@@ -1470,6 +1529,7 @@ class TestProjectConfiguration:
             presence_roles=[
                 PluginConfiguration("my-first-presence-role", "My First Presence Role")
             ],
+            genders=[PluginConfiguration("my-first-gender", "My First Gender")],
         )
         sut = ProjectConfiguration(tmp_path / "sut" / "betty.json")
         sut.update(other)
@@ -1485,6 +1545,10 @@ class TestProjectConfiguration:
         assert (
             sut.event_types["my-first-event-type"].label.localize(DEFAULT_LOCALIZER)
             == "My First Event Type"
+        )
+        assert (
+            sut.genders["my-first-gender"].label.localize(DEFAULT_LOCALIZER)
+            == "My First Gender"
         )
         assert (
             sut.place_types["my-first-place-type"].label.localize(DEFAULT_LOCALIZER)
