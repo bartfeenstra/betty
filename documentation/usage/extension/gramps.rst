@@ -41,6 +41,9 @@ This extension is configurable:
                     event-types:
                       GrampsEventType: betty-event-type
                       AnotherGrampsEventType: another-betty-event-type
+                    event-types:
+                      GrampsPlaceType: betty-place-type
+                      AnotherGrampsPlaceType: another-betty-place-type
                     presence-roles:
                       GrampsRole: betty-presence-role
                       AnotherGrampsRole: another-betty-presence-role
@@ -59,6 +62,10 @@ This extension is configurable:
                       "event-types": {
                         "GrampsEventType: "betty-event-type",
                         "AnotherGrampsEventType: "another-betty-event-type"
+                      },
+                      "place-types": {
+                        "GrampsPlaceType: "betty-place-type",
+                        "AnotherGrampsPlaceType: "another-betty-place-type"
                       },
                       "presence-roles": {
                         "GrampsRole: "betty-presence-role",
@@ -79,9 +86,11 @@ All configuration options
 
   - ``file`` (required): the path to a *Gramps XML* or *Gramps XML Package* file.
   - ``event_types`` (optional): how to map Gramps event types to Betty event types. Each keys is a Gramps event type,
-    and each value is the plugin IDs of the Gramps event type to import the Gramps event type as.
+    and each value is the plugin ID of the Betty event type to import the Gramps event type as.
+  - ``place_types`` (optional): how to map Gramps place types to Betty place types. Each keys is a Gramps place type,
+    and each value is the plugin ID of the Betty place type to import the Gramps place type as.
   - ``presence_roles`` (optional): how to map Gramps roles to Betty presence roles. Each keys is a Gramps role,
-    and each value is the plugin IDs of the Gramps presence role to import the Gramps role as.
+    and each value is the plugin ID of the Betty presence role to import the Gramps role as.
 
   If multiple family trees contain entities of the same type and with the same ID (e.g. a person with ID ``I1234``) each
   entity will overwrite any previously loaded entity.
@@ -198,6 +207,60 @@ Betty supports the following Gramps event types without any additional configura
      - ``retirement``
    * - ``Will``
      - ``will``
+
+Place types
+-----------
+
+Betty supports the following Gramps place types without any additional configuration:
+
+.. list-table:: Place types
+   :align: left
+   :header-rows: 1
+
+   * - Gramps place type
+     - Betty place type
+   * - ``Borough``
+     - ``borough``
+   * - ``Building``
+     - ``building``
+   * - ``City``
+     - ``city``
+   * - ``Country``
+     - ``country``
+   * - ``County``
+     - ``county``
+   * - ``Department``
+     - ``department``
+   * - ``District``
+     - ``district``
+   * - ``Farm``
+     - ``farm``
+   * - ``Hamlet``
+     - ``hamlet``
+   * - ``Locality``
+     - ``locality``
+   * - ``Municipality``
+     - ``municipality``
+   * - ``Neighborhood``
+     - ``neighborhood``
+   * - ``Number``
+     - ``number``
+   * - ``Parish``
+     - ``parish``
+   * - ``Province``
+     - ``province``
+   * - ``Region``
+     - ``region``
+   * - ``State``
+     - ``state``
+   * - ``Street``
+     - ``street``
+   * - ``Town``
+     - ``town``
+   * - ``Unknown``
+     - ``Unknown``
+   * - ``Village``
+     - ``village``
 
 Presence roles
 --------------

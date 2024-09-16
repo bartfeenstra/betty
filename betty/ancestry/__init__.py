@@ -13,6 +13,7 @@ from urllib.parse import quote
 from typing_extensions import override
 
 from betty.ancestry.event_type import EventType, UnknownEventType, EVENT_TYPE_REPOSITORY
+from betty.ancestry.place_type import PlaceType, Unknown
 from betty.ancestry.presence_role import PresenceRole, Subject, PresenceRoleSchema
 from betty.asyncio import wait_to_thread
 from betty.classtools import repr_instance
@@ -1300,6 +1301,7 @@ class Place(
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
+        place_type: PlaceType | None = None,
     ):
         super().__init__(
             id,
@@ -1317,6 +1319,7 @@ class Place(
             self.enclosed_by = enclosed_by
         if encloses is not None:
             self.encloses = encloses
+        self._place_type = place_type or Unknown()
 
     @property
     def walk_encloses(self) -> Iterator[Enclosure]:
@@ -1342,6 +1345,17 @@ class Place(
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
         return _("Places")
+
+    @property
+    def place_type(self) -> PlaceType:
+        """
+        The type of this place.
+        """
+        return self._place_type
+
+    @place_type.setter
+    def place_type(self, place_type: PlaceType) -> None:
+        self._place_type = place_type
 
     @property
     def names(self) -> MutableSequence[Name]:

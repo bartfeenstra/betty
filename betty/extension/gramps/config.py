@@ -29,6 +29,29 @@ from betty.ancestry.event_type import (
     Retirement,
     Will,
 )
+from betty.ancestry.place_type import (
+    Borough,
+    Building,
+    City,
+    Country,
+    County,
+    Department,
+    District,
+    Farm,
+    Hamlet,
+    Locality,
+    Municipality,
+    Neighborhood,
+    Number,
+    Parish,
+    Province,
+    Region,
+    State,
+    Street,
+    Town,
+    Unknown,
+    Village,
+)
 from betty.ancestry.presence_role import Celebrant, Subject, Attendee, Witness
 from betty.assertion import (
     RequiredField,
@@ -123,6 +146,7 @@ class FamilyTreeConfiguration(Configuration):
         file_path: Path,
         *,
         event_types: PluginMapping | None = None,
+        place_types: PluginMapping | None = None,
         presence_roles: PluginMapping | None = None,
     ):
         super().__init__()
@@ -147,6 +171,31 @@ class FamilyTreeConfiguration(Configuration):
                 "Residence": Residence.plugin_id(),
                 "Retirement": Retirement.plugin_id(),
                 "Will": Will.plugin_id(),
+            }
+        )
+        self._place_types = place_types or PluginMapping(
+            {
+                "Borough": Borough.plugin_id(),
+                "Building": Building.plugin_id(),
+                "City": City.plugin_id(),
+                "Country": Country.plugin_id(),
+                "County": County.plugin_id(),
+                "Department": Department.plugin_id(),
+                "District": District.plugin_id(),
+                "Farm": Farm.plugin_id(),
+                "Hamlet": Hamlet.plugin_id(),
+                "Locality": Locality.plugin_id(),
+                "Municipality": Municipality.plugin_id(),
+                "Neighborhood": Neighborhood.plugin_id(),
+                "Number": Number.plugin_id(),
+                "Parish": Parish.plugin_id(),
+                "Province": Province.plugin_id(),
+                "Region": Region.plugin_id(),
+                "State": State.plugin_id(),
+                "Street": Street.plugin_id(),
+                "Town": Town.plugin_id(),
+                "Unknown": Unknown.plugin_id(),
+                "Village": Village.plugin_id(),
             }
         )
         self._presence_roles = presence_roles or PluginMapping(
@@ -186,6 +235,13 @@ class FamilyTreeConfiguration(Configuration):
         return self._event_types
 
     @property
+    def place_types(self) -> PluginMapping:
+        """
+        How to map place types.
+        """
+        return self._place_types
+
+    @property
     def presence_roles(self) -> PluginMapping:
         """
         How to map presence roles.
@@ -197,6 +253,7 @@ class FamilyTreeConfiguration(Configuration):
         assert_record(
             RequiredField("file", assert_path() | assert_setattr(self, "file_path")),
             OptionalField("event_types", self.event_types.load),
+            OptionalField("place_types", self.place_types.load),
             OptionalField("presence_roles", self.presence_roles.load),
         )(dump)
 
@@ -206,6 +263,7 @@ class FamilyTreeConfiguration(Configuration):
             {
                 "file": str(self.file_path) if self.file_path else None,
                 "event_types": self.event_types.dump(),
+                "place_types": self.place_types.dump(),
                 "presence_roles": self.presence_roles.dump(),
             }
         )

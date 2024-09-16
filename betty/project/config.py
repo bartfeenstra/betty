@@ -12,7 +12,8 @@ from typing_extensions import override
 
 from betty import model
 from betty.ancestry import Person, Event, Place, Source
-from betty.ancestry.event_type import EventType, _EventTypeShorthandBase
+from betty.ancestry.event_type import EventType
+from betty.ancestry.place_type import PlaceType
 from betty.ancestry.presence_role import PresenceRole
 from betty.assertion import (
     assert_record,
@@ -37,11 +38,13 @@ from betty.config.collections.mapping import (
 )
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
-from betty.locale.localizable import _, ShorthandStaticTranslations, Localizable
+from betty.locale.localizable import _, ShorthandStaticTranslations
 from betty.locale.localizable.config import (
     StaticTranslationsLocalizableConfigurationAttr,
 )
+from betty.machine_name import assert_machine_name
 from betty.model import Entity, UserFacingEntity
+from betty.plugin import PluginShorthandBase
 from betty.plugin.assertion import assert_plugin
 from betty.plugin.config import (
     PluginConfigurationPluginConfigurationMapping,
@@ -57,7 +60,6 @@ from betty.serde.dump import (
 )
 from betty.serde.format import FormatRepository
 from betty.typing import Void, Voidable, void_none
-from betty.machine_name import assert_machine_name
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
@@ -636,15 +638,29 @@ class EventTypeConfigurationMapping(
 
     @override
     def _create_plugin(self, configuration: PluginConfiguration) -> type[EventType]:
-        class _ProjectConfigurationEventType(_EventTypeShorthandBase):
+        class _ProjectConfigurationEventType(PluginShorthandBase, EventType):
             _plugin_id = configuration.id
             _plugin_label = configuration.label
-
-            @classmethod
-            def plugin_description(cls) -> Localizable | None:
-                return configuration.description
+            _plugin_description = configuration.description
 
         return _ProjectConfigurationEventType
+
+
+class PlaceTypeConfigurationMapping(
+    PluginConfigurationPluginConfigurationMapping[PlaceType]
+):
+    """
+    A configuration mapping for place types.
+    """
+
+    @override
+    def _create_plugin(self, configuration: PluginConfiguration) -> type[PlaceType]:
+        class _ProjectConfigurationPlaceType(PluginShorthandBase, PlaceType):
+            _plugin_id = configuration.id
+            _plugin_label = configuration.label
+            _plugin_description = configuration.description
+
+        return _ProjectConfigurationPlaceType
 
 
 class PresenceRoleConfigurationMapping(
@@ -656,21 +672,10 @@ class PresenceRoleConfigurationMapping(
 
     @override
     def _create_plugin(self, configuration: PluginConfiguration) -> type[PresenceRole]:
-        class _ProjectConfigurationPresenceRole(PresenceRole):
-            @override
-            @classmethod
-            def plugin_id(cls) -> MachineName:
-                return configuration.id
-
-            @override
-            @classmethod
-            def plugin_label(cls) -> Localizable:
-                return configuration.label
-
-            @override
-            @classmethod
-            def plugin_description(cls) -> Localizable | None:
-                return configuration.description
+        class _ProjectConfigurationPresenceRole(PluginShorthandBase, PresenceRole):
+            _plugin_id = configuration.id
+            _plugin_label = configuration.label
+            _plugin_description = configuration.description
 
         return _ProjectConfigurationPresenceRole
 
@@ -694,6 +699,7 @@ class ProjectConfiguration(Configuration):
         author: ShorthandStaticTranslations | None = None,
         entity_types: Iterable[EntityTypeConfiguration] | None = None,
         event_types: Iterable[PluginConfiguration] | None = None,
+        place_types: Iterable[PluginConfiguration] | None = None,
         presence_roles: Iterable[PluginConfiguration] | None = None,
         extensions: Iterable[ExtensionConfiguration] | None = None,
         debug: bool = False,
@@ -735,6 +741,9 @@ class ProjectConfiguration(Configuration):
         self._event_types = EventTypeConfigurationMapping()
         if event_types is not None:
             self._event_types.append(*event_types)
+        self._place_types = PlaceTypeConfigurationMapping()
+        if place_types is not None:
+            self._place_types.append(*place_types)
         self._presence_roles = PresenceRoleConfigurationMapping()
         if presence_roles is not None:
             self._presence_roles.append(*presence_roles)
@@ -937,6 +946,13 @@ class ProjectConfiguration(Configuration):
         return self._event_types
 
     @property
+    def place_types(self) -> PluginConfigurationMapping[PlaceType, PluginConfiguration]:
+        """
+        The place types.
+        """
+        return self._place_types
+
+    @property
     def presence_roles(
         self,
     ) -> PluginConfigurationMapping[PresenceRole, PluginConfiguration]:
@@ -958,6 +974,7 @@ class ProjectConfiguration(Configuration):
         self._extensions.update(other._extensions)
         self._entity_types.update(other._entity_types)
         self._event_types.update(other._event_types)
+        self._place_types.update(other._place_types)
         self._presence_roles.update(other._presence_roles)
 
     @override
@@ -981,6 +998,7 @@ class ProjectConfiguration(Configuration):
             OptionalField("extensions", self.extensions.load),
             OptionalField("entity_types", self.entity_types.load),
             OptionalField("event_types", self.event_types.load),
+            OptionalField("place_types", self.place_types.load),
             OptionalField("presence_roles", self.presence_roles.load),
         )(dump)
 
@@ -1000,6 +1018,7 @@ class ProjectConfiguration(Configuration):
                 "extensions": self.extensions.dump(),
                 "entity_types": self.entity_types.dump(),
                 "event_types": self.event_types.dump(),
+                "place_types": self.place_types.dump(),
                 "presence_roles": self.presence_roles.dump(),
             }
         )

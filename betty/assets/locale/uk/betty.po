@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-11 14:27+0100\n"
+"POT-Creation-Date: 2024-09-16 12:42+0100\n"
 "PO-Revision-Date: 2024-02-08 13:08+0000\n"
 "Last-Translator: Rainer Thieringer <rainerthi@gmail.com>\n"
 "Language: uk\n"
@@ -188,6 +188,12 @@ msgid ""
 msgstr ""
 
 msgid ""
+"Betty is unfamiliar with Gramps place \"{place_id}\"'s type of "
+"\"{gramps_place_type}\". The place was imported, but its type was set to "
+"\"{betty_place_type}\"."
+msgstr ""
+
+msgid ""
 "Betty is unfamiliar with person \"{person_id}\"'s Gramps presence role of"
 " \"{gramps_presence_role}\" for the event with Gramps handle "
 "\"{event_handle}\". The role was imported, but set to "
@@ -199,6 +205,12 @@ msgstr ""
 
 msgid "Birth"
 msgstr "Народження"
+
+msgid "Borough"
+msgstr ""
+
+msgid "Building"
+msgstr ""
 
 msgid "Built the Webpack front-end assets."
 msgstr ""
@@ -232,6 +244,9 @@ msgid "Citation"
 msgstr ""
 
 msgid "Citations"
+msgstr ""
+
+msgid "City"
 msgstr ""
 
 msgid "Conference"
@@ -272,6 +287,12 @@ msgid ""
 "family tree."
 msgstr ""
 
+msgid "Country"
+msgstr ""
+
+msgid "County"
+msgstr ""
+
 msgid ""
 "Create events such as births and deaths by deriving their details from "
 "existing information."
@@ -287,6 +308,9 @@ msgstr "Кремація"
 
 msgid "Death"
 msgstr "Смерть"
+
+msgid "Department"
+msgstr ""
 
 msgid "Deriver"
 msgstr ""
@@ -318,6 +342,9 @@ msgstr ""
 msgid ""
 "Display the HTTP API documentation in a user-friendly way using <a "
 "href=\"https://swagger.io/tools/swagger-ui\">Swagger UI</a>."
+msgstr ""
+
+msgid "District"
 msgstr ""
 
 msgid "Divorce"
@@ -372,6 +399,9 @@ msgstr "Факти"
 msgid "Family"
 msgstr ""
 
+msgid "Farm"
+msgstr ""
+
 msgid "File"
 msgstr ""
 
@@ -412,6 +442,9 @@ msgstr ""
 
 msgid "HTTP API Documentation"
 msgstr "документація HTTP API"
+
+msgid "Hamlet"
+msgstr ""
 
 msgid "I'm sorry, dear, but it seems there are no events."
 msgstr ""
@@ -489,6 +522,9 @@ msgstr ""
 msgid "Locale aliases must not contain slashes."
 msgstr ""
 
+msgid "Locality"
+msgstr ""
+
 msgid "MMMM"
 msgstr "MMMM"
 
@@ -516,11 +552,20 @@ msgstr "Меню"
 msgid "Missing"
 msgstr "Відсутній"
 
+msgid "Municipality"
+msgstr ""
+
+msgid "Neighborhood"
+msgstr ""
+
 msgid "Note"
 msgstr ""
 
 msgid "Notes"
 msgstr "Примітки"
+
+msgid "Number"
+msgstr ""
 
 msgid "Occupation"
 msgstr "Праця"
@@ -535,6 +580,9 @@ msgid "Other attendees"
 msgstr "Інші відвідувачі"
 
 msgid "Page not found"
+msgstr ""
+
+msgid "Parish"
 msgstr ""
 
 msgid "People"
@@ -603,11 +651,17 @@ msgstr ""
 msgid "Privatizing..."
 msgstr ""
 
+msgid "Province"
+msgstr ""
+
 msgid "Read more on Wikipedia."
 msgstr "Детальніше читайте у Вікіпедії."
 
 msgid "References"
 msgstr "Референції"
+
+msgid "Region"
+msgstr ""
 
 msgid "Residence"
 msgstr "Проживання"
@@ -631,6 +685,12 @@ msgid "Speaker"
 msgstr ""
 
 msgid "Starting Python's built-in web server..."
+msgstr ""
+
+msgid "State"
+msgstr ""
+
+msgid "Street"
 msgstr ""
 
 msgid "Subject"
@@ -751,6 +811,9 @@ msgstr ""
 msgid "Timeline"
 msgstr "Хронологія"
 
+msgid "Town"
+msgstr ""
+
 msgid "Trees"
 msgstr ""
 
@@ -779,6 +842,9 @@ msgid ""
 msgstr ""
 "Використовуйте <kbd>↑</kbd> і <kbd>↓</kbd> для переміщення по результатах"
 " або <kbd>esc</kbd> для виходу з пошуку."
+
+msgid "Village"
+msgstr ""
 
 msgid "What is the path to your exported Gramps family tree file?"
 msgstr ""

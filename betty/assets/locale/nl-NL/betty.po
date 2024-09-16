@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-11 14:27+0100\n"
+"POT-Creation-Date: 2024-09-16 12:42+0100\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -222,6 +222,15 @@ msgstr ""
 "type is nu \"{betty_event_type}\"."
 
 msgid ""
+"Betty is unfamiliar with Gramps place \"{place_id}\"'s type of "
+"\"{gramps_place_type}\". The place was imported, but its type was set to "
+"\"{betty_place_type}\"."
+msgstr ""
+"Betty kent het Gramps-plaatstype \"{gramps_place_type}\" van "
+"plaats \"{place_id}\" niet. De plaats is geladen, maar zijn "
+"type is nu \"{betty_place_type}\"."
+
+msgid ""
 "Betty is unfamiliar with person \"{person_id}\"'s Gramps presence role of"
 " \"{gramps_presence_role}\" for the event with Gramps handle "
 "\"{event_handle}\". The role was imported, but set to "
@@ -237,6 +246,12 @@ msgstr "Betty zal in het {locale} tegen je praten"
 
 msgid "Birth"
 msgstr "Geboorte"
+
+msgid "Borough"
+msgstr ""
+
+msgid "Building"
+msgstr "Gebouw"
 
 msgid "Built the Webpack front-end assets."
 msgstr "De Webpack front-end assets gebouwd."
@@ -275,6 +290,9 @@ msgstr "Verwijzing"
 
 msgid "Citations"
 msgstr "Verwijzingen"
+
+msgid "City"
+msgstr "Stad"
 
 msgid "Conference"
 msgstr "Conferentie"
@@ -320,6 +338,12 @@ msgstr ""
 "Kan het besand \"{file_path}\" niet als een *.gpkg-, een *.gramps-, of "
 "een *.xml-stamboom laden."
 
+msgid "Country"
+msgstr "Land"
+
+msgid "County"
+msgstr "Graafschap"
+
 msgid ""
 "Create events such as births and deaths by deriving their details from "
 "existing information."
@@ -339,6 +363,9 @@ msgstr "Crematie"
 
 msgid "Death"
 msgstr "Overlijden"
+
+msgid "Department"
+msgstr "Departement"
 
 msgid "Deriver"
 msgstr "Afleider"
@@ -380,6 +407,9 @@ msgstr ""
 "Geef de HTTP API-documentatie op een gebruiksvriendelijke manier weer met"
 " behulp van <a href=\"https://swagger.io/tools/swagger-ui\">Swagger "
 "UI</a>."
+
+msgid "District"
+msgstr "District"
 
 msgid "Divorce"
 msgstr "Echtscheiding"
@@ -433,6 +463,9 @@ msgstr "Feiten"
 msgid "Family"
 msgstr "Familie"
 
+msgid "Farm"
+msgstr "Boerderij"
+
 msgid "File"
 msgstr "Bestand"
 
@@ -475,6 +508,9 @@ msgstr "Bezig je site te genereren naar {output_directory}."
 
 msgid "HTTP API Documentation"
 msgstr "HTTP API-documentatie"
+
+msgid "Hamlet"
+msgstr "Gehucht"
 
 msgid "I'm sorry, dear, but it seems there are no events."
 msgstr "Het spijt me, schat, maar het lijkt erop dat er geen gebeurtenissen zijn."
@@ -552,6 +588,9 @@ msgstr "\"{file_path}\" aan het laden..."
 msgid "Locale aliases must not contain slashes."
 msgstr "Taalregioaliassen mogen geen schuine streep bevatten."
 
+msgid "Locality"
+msgstr ""
+
 msgid "MMMM"
 msgstr "MMMM"
 
@@ -579,11 +618,20 @@ msgstr "Menu"
 msgid "Missing"
 msgstr "Vermist"
 
+msgid "Municipality"
+msgstr "Gemeente"
+
+msgid "Neighborhood"
+msgstr "Buurt"
+
 msgid "Note"
 msgstr "Aantekening"
 
 msgid "Notes"
 msgstr "Opmerkingen"
+
+msgid "Number"
+msgstr "Nummer"
 
 msgid "Occupation"
 msgstr "Beroep"
@@ -598,6 +646,9 @@ msgid "Other attendees"
 msgstr "Overige aanwezigen"
 
 msgid "Page not found"
+msgstr ""
+
+msgid "Parish"
 msgstr ""
 
 msgid "People"
@@ -675,11 +726,17 @@ msgstr "Privatiseerder"
 msgid "Privatizing..."
 msgstr "Privatiseren..."
 
+msgid "Province"
+msgstr "Provincie"
+
 msgid "Read more on Wikipedia."
 msgstr "Lees meer op Wikipedia."
 
 msgid "References"
 msgstr "Referenties"
+
+msgid "Region"
+msgstr "Regio"
 
 msgid "Residence"
 msgstr "Woonplaats"
@@ -704,6 +761,12 @@ msgstr "Spreker"
 
 msgid "Starting Python's built-in web server..."
 msgstr "Pythons ingebouwde webserver aan het starten..."
+
+msgid "State"
+msgstr "Staat"
+
+msgid "Street"
+msgstr "Straat"
 
 msgid "Subject"
 msgstr "Onderwerp"
@@ -835,6 +898,9 @@ msgstr "De gegevens van deze bron zijn niet beschikbaar vanwege privacyredenen."
 msgid "Timeline"
 msgstr "Tijdlijn"
 
+msgid "Town"
+msgstr ""
+
 msgid "Trees"
 msgstr "Stambomen"
 
@@ -867,6 +933,9 @@ msgid ""
 msgstr ""
 "Gebruik <kbd>↑</kbd> en <kbd>↓</kbd> om door de resultaten te bladeren, "
 "of <kbd>esc</kbd> om te stoppen met zoeken."
+
+msgid "Village"
+msgstr "Dorp"
 
 msgid "What is the path to your exported Gramps family tree file?"
 msgstr "Wat is het pad naar je geëxporteerde Gramps-stamboombestand?"

@@ -31,6 +31,9 @@ structure. Example configuration:
           event_types:
             moon-landing:
               label: Moon Landing
+          place_types:
+            moon:
+              label: Moon
           presence_roles:
             astronaut:
               label: Astronaut
@@ -71,6 +74,11 @@ structure. Example configuration:
                 "label": "Moon Landing"
               }
             },
+            "place_types": {
+              "moon": {
+                "label": "Moon"
+              }
+            },
             "presence_roles": {
               "astronaut": {
                 "label": "Astronaut"
@@ -103,6 +111,10 @@ All configuration options
 
   - ``label`` (required): The event type's human-readable label. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
   - ``description`` (optional): The event type's human-readable long description. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
+- ``place_types`` (optional): Keys are place type (plugin) IDs, and values are objects containing the following keys:
+
+  - ``label`` (required): The place type's human-readable label. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
+  - ``description`` (optional): The place type's human-readable long description. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
 - ``presence_roles`` (optional): Keys are presence role (plugin) IDs, and values are objects containing the following keys:
 
   - ``label`` (required): The presence role's human-readable label. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.

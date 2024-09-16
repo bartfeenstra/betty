@@ -28,6 +28,7 @@ from typing_extensions import override
 from betty import fs, event_dispatcher
 from betty.ancestry import Ancestry
 from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY
+from betty.ancestry.place_type import PLACE_TYPE_REPOSITORY, PlaceType
 from betty.ancestry.presence_role import PRESENCE_ROLE_REPOSITORY, PresenceRole
 from betty.assets import AssetRepository
 from betty.asyncio import wait_to_thread
@@ -108,6 +109,7 @@ class Project(Configurable[ProjectConfiguration], DependentFactory[Any], CoreCom
         self._event_dispatcher: EventDispatcher | None = None
         self._entity_types: set[type[Entity]] | None = None
         self._event_types: PluginRepository[EventType] | None = None
+        self._place_types: PluginRepository[PlaceType] | None = None
         self._presence_roles: PluginRepository[PresenceRole] | None = None
 
     @classmethod
@@ -350,6 +352,20 @@ class Project(Configurable[ProjectConfiguration], DependentFactory[Any], CoreCom
             )
 
         return self._event_types
+
+    @property
+    def place_types(self) -> PluginRepository[PlaceType]:
+        """
+        The place types available to this project.
+        """
+        if self._place_types is None:
+            self._assert_bootstrapped()
+            self._place_types = ProxyPluginRepository(
+                PLACE_TYPE_REPOSITORY,
+                StaticPluginRepository(*self.configuration.place_types.plugins),
+            )
+
+        return self._place_types
 
     @property
     def presence_roles(self) -> PluginRepository[PresenceRole]:
