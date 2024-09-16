@@ -1056,7 +1056,7 @@ class TestProjectConfiguration:
         assert not sut.clean_urls
 
     async def test_load_should_load_name(self, tmp_path: Path) -> None:
-        name = "MyFirstBettySite"
+        name = "my-first-betty-site"
         dump: Any = ProjectConfiguration(tmp_path / "betty.json").dump()
         dump["name"] = name
         sut = ProjectConfiguration(tmp_path / "betty.json")
@@ -1262,7 +1262,7 @@ class TestProjectConfiguration:
         assert title == dump["title"]
 
     async def test_dump_should_dump_name(self, tmp_path: Path) -> None:
-        name = "MyFirstBettySite"
+        name = "my-first-betty-site"
         sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.name = name
         dump: Any = sut.dump()
