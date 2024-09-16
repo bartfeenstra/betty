@@ -28,6 +28,7 @@ from typing_extensions import override
 from betty import fs, event_dispatcher
 from betty.ancestry import Ancestry
 from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY
+from betty.ancestry.presence_role import PRESENCE_ROLE_REPOSITORY, PresenceRole
 from betty.assets import AssetRepository
 from betty.asyncio import wait_to_thread
 from betty.config import (
@@ -107,6 +108,7 @@ class Project(Configurable[ProjectConfiguration], DependentFactory[Any], CoreCom
         self._event_dispatcher: EventDispatcher | None = None
         self._entity_types: set[type[Entity]] | None = None
         self._event_types: PluginRepository[EventType] | None = None
+        self._presence_roles: PluginRepository[PresenceRole] | None = None
 
     @classmethod
     @asynccontextmanager
@@ -348,6 +350,20 @@ class Project(Configurable[ProjectConfiguration], DependentFactory[Any], CoreCom
             )
 
         return self._event_types
+
+    @property
+    def presence_roles(self) -> PluginRepository[PresenceRole]:
+        """
+        The presence roles available to this project.
+        """
+        if self._presence_roles is None:
+            self._assert_bootstrapped()
+            self._presence_roles = ProxyPluginRepository(
+                PRESENCE_ROLE_REPOSITORY,
+                StaticPluginRepository(*self.configuration.presence_roles.plugins),
+            )
+
+        return self._presence_roles
 
 
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)

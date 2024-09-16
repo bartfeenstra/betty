@@ -19,7 +19,7 @@ from betty.ancestry import (
     Privacy,
 )
 from betty.ancestry.event_type import Birth, Death, UnknownEventType, EventType
-from betty.ancestry.presence_role import Attendee
+from betty.ancestry.presence_role import Attendee, PresenceRole, Subject
 from betty.app import App
 from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsLoader, LoaderUsedAlready, GrampsFileNotFound
@@ -132,7 +132,11 @@ class TestGrampsLoader:
                 )
 
     async def _load(
-        self, xml: str, *, event_type_map: Mapping[str, type[EventType]] | None = None
+        self,
+        xml: str,
+        *,
+        event_type_map: Mapping[str, type[EventType]] | None = None,
+        presence_role_map: Mapping[str, type[PresenceRole]] | None = None,
     ) -> Ancestry:
         async with (
             App.new_temporary() as app,
@@ -147,6 +151,7 @@ class TestGrampsLoader:
                     localizer=DEFAULT_LOCALIZER,
                     attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
                     event_type_map=event_type_map,
+                    presence_role_map=presence_role_map,
                 )
                 async with TemporaryDirectory() as tree_directory_path_str:
                     await loader.load_xml(
@@ -156,7 +161,11 @@ class TestGrampsLoader:
                 return project.ancestry
 
     async def _load_partial(
-        self, xml: str, *, event_type_map: Mapping[str, type[EventType]] | None = None
+        self,
+        xml: str,
+        *,
+        event_type_map: Mapping[str, type[EventType]] | None = None,
+        presence_role_map: Mapping[str, type[PresenceRole]] | None = None,
     ) -> Ancestry:
         return await self._load(
             f"""
@@ -173,6 +182,7 @@ class TestGrampsLoader:
 </database>
 """,
             event_type_map=event_type_map,
+            presence_role_map=presence_role_map,
         )
 
     async def test_load_xml(self, new_temporary_app: App) -> None:
@@ -344,13 +354,13 @@ class TestGrampsLoader:
         assert person.names[2].individual == "Jen"
         assert person.names[2].affiliation == "Van Doughie"
 
-    async def test_person_should_include_birth(self) -> None:
+    async def test_person_should_include_presence(self) -> None:
         ancestry = await self._load_partial(
             """
 <people>
     <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0000">
         <gender>U</gender>
-        <eventref hlink="_e7692ea23775e80643fe4fcf91" role="Primary"/>
+        <eventref hlink="_e7692ea23775e80643fe4fcf91" role="MyFirstRole"/>
     </person>
 </people>
 <events>
@@ -360,46 +370,11 @@ class TestGrampsLoader:
     </event>
 </events>
 """,
-            event_type_map={"Birth": Birth},
+            presence_role_map={"MyFirstRole": Attendee},
         )
-        person = ancestry[Person]["I0000"]
-        birth = [
-            presence
-            for presence in person.presences
-            if presence.event and isinstance(presence.event.event_type, Birth)
-        ][0]
-        assert birth is not None
-        assert birth.event is not None
-        assert birth.event.id == "E0000"
-        assert isinstance(birth.event.event_type, Birth)
-
-    async def test_person_should_include_death(self) -> None:
-        ancestry = await self._load_partial(
-            """
-<people>
-    <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0000">
-        <gender>U</gender>
-        <eventref hlink="_e7692ea23775e80643fe4fcf91" role="Primary"/>
-    </person>
-</people>
-<events>
-    <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
-        <type>Death</type>
-        <dateval val="0000-00-00" quality="calculated"/>
-    </event>
-</events>
-""",
-            event_type_map={"Death": Death},
-        )
-        person = ancestry[Person]["I0000"]
-        death = [
-            presence
-            for presence in person.presences
-            if presence.event and isinstance(presence.event.event_type, Death)
-        ][0]
-        assert death is not None
-        assert death.event is not None
-        assert death.event.id == "E0000"
+        event = ancestry[Person]["I0000"].presences[0].event
+        assert event is not None
+        assert event.id == "E0000"
 
     async def test_person_should_be_private(self) -> None:
         ancestry = await self._load_partial(
@@ -570,16 +545,16 @@ class TestGrampsLoader:
         for parent in parents:
             assert expected_children == list(parent.children)
 
-    async def test_event_should_be_birth(self) -> None:
+    async def test_event_should_map_type(self) -> None:
         ancestry = await self._load_partial(
             """
 <events>
     <event handle="_e56068c37402fda8741678a115a" change="1577021208" id="E0000">
-        <type>Birth</type>
+        <type>MyFirstEventType</type>
     </event>
 </events>
 """,
-            event_type_map={"Birth": Birth},
+            event_type_map={"MyFirstEventType": Birth},
         )
         assert isinstance(ancestry[Event]["E0000"].event_type, Birth)
 
@@ -1391,13 +1366,13 @@ class TestGrampsLoader:
         citation = ancestry[Citation]["C0000"]
         assert citation.location.localize(DEFAULT_LOCALIZER) == "My First Page"
 
-    async def test__load_eventref_should_default_presence_role(self) -> None:
+    async def test__load_eventref_should_map_presence_role(self) -> None:
         ancestry = await self._load_partial(
             """
 <people>
     <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0000">
         <gender>U</gender>
-        <eventref hlink="_e7692ea23775e80643fe4fcf91" role="UnknownGrampsEventRefRole"/>
+        <eventref hlink="_e7692ea23775e80643fe4fcf91" role="MyFirstRole"/>
     </person>
 </people>
 <events>
@@ -1406,11 +1381,12 @@ class TestGrampsLoader:
         <dateval val="0000-00-00" quality="calculated"/>
     </event>
 </events>
-"""
+""",
+            presence_role_map={"MyFirstRole": Subject},
         )
         person = ancestry[Person]["I0000"]
         presence = person.presences[0]
-        assert isinstance(presence.role, Attendee)
+        assert isinstance(presence.role, Subject)
 
     async def test__load_eventref_should_include_privacy(self) -> None:
         ancestry = await self._load_partial(

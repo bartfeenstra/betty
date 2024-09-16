@@ -6,6 +6,7 @@ from typing_extensions import override
 
 from betty.ancestry import Citation, Note, Source, File, Event, Person, Place
 from betty.ancestry.event_type import Birth
+from betty.ancestry.presence_role import Subject
 from betty.app import App
 from betty.extension.gramps import Gramps
 from betty.extension.gramps.config import (
@@ -66,6 +67,59 @@ class TestGramps(ExtensionTestBase):
             async with project:
                 await load(project)
             assert isinstance(project.ancestry[Event]["E0000"].event_type, Birth)
+
+    async def test_load_with_presence_role_map(
+        self, new_temporary_app: App, tmp_path: Path
+    ) -> None:
+        family_tree_xml = """
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"
+"http://gramps-project.org/xml/1.7.1/grampsxml.dtd">
+<database xmlns="http://gramps-project.org/xml/1.7.1/">
+    <header>
+        <created date="2019-03-09" version="4.2.8"/>
+        <researcher>
+        </researcher>
+    </header>
+    <people>
+        <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0000">
+            <gender>U</gender>
+            <eventref hlink="_e7692ea23775e80643fe4fcf91" role="MyFirstRole"/>
+        </person>
+    </people>
+    <events>
+        <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
+            <type>Birth</type>
+            <dateval val="0000-00-00" quality="calculated"/>
+        </event>
+    </events>
+</database>
+""".strip()
+        gramps_family_tree_path = tmp_path / "gramps.xml"
+        async with aiofiles.open(gramps_family_tree_path, mode="w") as f:
+            await f.write(family_tree_xml)
+
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.append(
+                ExtensionConfiguration(
+                    Gramps,
+                    extension_configuration=GrampsConfiguration(
+                        family_trees=[
+                            FamilyTreeConfiguration(
+                                file_path=gramps_family_tree_path,
+                                presence_roles=PluginMapping(
+                                    {"MyFirstRole": "subject"}
+                                ),
+                            )
+                        ],
+                    ),
+                )
+            )
+            async with project:
+                await load(project)
+            assert isinstance(
+                project.ancestry[Person]["I0000"].presences[0].role, Subject
+            )
 
     async def test_load_multiple_family_trees(self, new_temporary_app: App) -> None:
         family_tree_one_xml = """
