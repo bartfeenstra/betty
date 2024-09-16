@@ -152,7 +152,7 @@ class Project(Configurable[ProjectConfiguration], DependentFactory[Any], CoreCom
         return self._app
 
     @property
-    def name(self) -> str:
+    def name(self) -> MachineName:
         """
         The project name.
 

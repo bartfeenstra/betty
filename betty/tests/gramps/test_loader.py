@@ -36,6 +36,7 @@ if TYPE_CHECKING:
 
 class TestGrampsLoader:
     ATTRIBUTE_PREFIX_KEY = "pre3f1x"
+    PROJECT_NAME = "pr0j3ct"
 
     async def test_load_gramps(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
@@ -143,7 +144,7 @@ class TestGrampsLoader:
             app,
             Project.new_temporary(app) as project,
         ):
-            project.configuration.name = TestGrampsLoader.__name__
+            project.configuration.name = self.PROJECT_NAME
             async with project:
                 loader = GrampsLoader(
                     project.ancestry,

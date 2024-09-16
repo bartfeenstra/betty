@@ -57,6 +57,7 @@ from betty.serde.dump import (
 )
 from betty.serde.format import FormatRepository
 from betty.typing import Void, Voidable, void_none
+from betty.machine_name import assert_machine_name
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
@@ -698,7 +699,7 @@ class ProjectConfiguration(Configuration):
         debug: bool = False,
         locales: Iterable[LocaleConfiguration] | None = None,
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
-        name: str | None = None,
+        name: MachineName | None = None,
         logo: Path | None = None,
     ):
         super().__init__()
@@ -759,15 +760,15 @@ class ProjectConfiguration(Configuration):
         self._configuration_file_path = configuration_file_path
 
     @property
-    def name(self) -> str | None:
+    def name(self) -> MachineName | None:
         """
         The project's machine name.
         """
         return self._name
 
     @name.setter
-    def name(self, name: str) -> None:
-        self._name = name
+    def name(self, name: MachineName) -> None:
+        self._name = assert_machine_name()(name)
 
     @property
     def project_directory_path(self) -> Path:
