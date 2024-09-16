@@ -39,6 +39,7 @@ from betty.ancestry import (
     PrivacySchema,
 )
 from betty.ancestry.event_type import Birth, UnknownEventType
+from betty.ancestry.place_type import Unknown
 from betty.ancestry.presence_role import Subject, Attendee
 from betty.app import App
 from betty.locale import UNDETERMINED_LOCALE
@@ -53,6 +54,7 @@ from betty.test_utils.ancestry import (
     DummyHasDate,
     DummyHasDescription,
 )
+from betty.test_utils.ancestry.place_type import DummyPlaceType
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.json.schema import SchemaTestBase
 from betty.test_utils.model import DummyEntity, EntityTestBase
@@ -1505,6 +1507,21 @@ class TestPlace(EntityTestBase):
             Place(),
             Place(names=[Name("My First Place")]),
         ]
+
+    def test_place_type_default(self) -> None:
+        sut = Place()
+        assert isinstance(sut.place_type, Unknown)
+
+    def test___init___with_place_type(self) -> None:
+        place_type = DummyPlaceType()
+        sut = Place(place_type=place_type)
+        assert sut.place_type is place_type
+
+    def test_place_type(self) -> None:
+        place_type = DummyPlaceType()
+        sut = Place()
+        sut.place_type = place_type
+        assert sut.place_type is place_type
 
     async def test_events(self) -> None:
         sut = Place(

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-11 14:27+0100\n"
+"POT-Creation-Date: 2024-09-16 12:42+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -156,6 +156,9 @@ msgstr ""
 msgid "Betty is unfamiliar with Gramps event \"{event_id}\"'s type of \"{gramps_event_type}\". The event was imported, but its type was set to \"{betty_event_type}\"."
 msgstr ""
 
+msgid "Betty is unfamiliar with Gramps place \"{place_id}\"'s type of \"{gramps_place_type}\". The place was imported, but its type was set to \"{betty_place_type}\"."
+msgstr ""
+
 msgid "Betty is unfamiliar with person \"{person_id}\"'s Gramps presence role of \"{gramps_presence_role}\" for the event with Gramps handle \"{event_handle}\". The role was imported, but set to \"{betty_presence_role}\"."
 msgstr ""
 
@@ -163,6 +166,12 @@ msgid "Betty will talk to you in {locale}"
 msgstr ""
 
 msgid "Birth"
+msgstr ""
+
+msgid "Borough"
+msgstr ""
+
+msgid "Building"
 msgstr ""
 
 msgid "Built the Webpack front-end assets."
@@ -193,6 +202,9 @@ msgid "Citation"
 msgstr ""
 
 msgid "Citations"
+msgstr ""
+
+msgid "City"
 msgstr ""
 
 msgid "Conference"
@@ -229,6 +241,12 @@ msgstr ""
 msgid "Could not load \"{file_path}\" as a *.gpkg, a *.gramps, or an *.xml family tree."
 msgstr ""
 
+msgid "Country"
+msgstr ""
+
+msgid "County"
+msgstr ""
+
 msgid "Create events such as births and deaths by deriving their details from existing information."
 msgstr ""
 
@@ -239,6 +257,9 @@ msgid "Cremation"
 msgstr ""
 
 msgid "Death"
+msgstr ""
+
+msgid "Department"
 msgstr ""
 
 msgid "Deriver"
@@ -263,6 +284,9 @@ msgid "Display lists of places as interactive maps using <a href=\"https://leafl
 msgstr ""
 
 msgid "Display the HTTP API documentation in a user-friendly way using <a href=\"https://swagger.io/tools/swagger-ui\">Swagger UI</a>."
+msgstr ""
+
+msgid "District"
 msgstr ""
 
 msgid "Divorce"
@@ -317,6 +341,9 @@ msgstr ""
 msgid "Family"
 msgstr ""
 
+msgid "Farm"
+msgstr ""
+
 msgid "File"
 msgstr ""
 
@@ -354,6 +381,9 @@ msgid "Generating your site to {output_directory}."
 msgstr ""
 
 msgid "HTTP API Documentation"
+msgstr ""
+
+msgid "Hamlet"
 msgstr ""
 
 msgid "I'm sorry, dear, but it seems there are no events."
@@ -432,6 +462,9 @@ msgstr ""
 msgid "Locale aliases must not contain slashes."
 msgstr ""
 
+msgid "Locality"
+msgstr ""
+
 msgid "MMMM"
 msgstr ""
 
@@ -459,10 +492,19 @@ msgstr ""
 msgid "Missing"
 msgstr ""
 
+msgid "Municipality"
+msgstr ""
+
+msgid "Neighborhood"
+msgstr ""
+
 msgid "Note"
 msgstr ""
 
 msgid "Notes"
+msgstr ""
+
+msgid "Number"
 msgstr ""
 
 msgid "Occupation"
@@ -478,6 +520,9 @@ msgid "Other attendees"
 msgstr ""
 
 msgid "Page not found"
+msgstr ""
+
+msgid "Parish"
 msgstr ""
 
 msgid "People"
@@ -537,10 +582,16 @@ msgstr ""
 msgid "Privatizing..."
 msgstr ""
 
+msgid "Province"
+msgstr ""
+
 msgid "Read more on Wikipedia."
 msgstr ""
 
 msgid "References"
+msgstr ""
+
+msgid "Region"
 msgstr ""
 
 msgid "Residence"
@@ -565,6 +616,12 @@ msgid "Speaker"
 msgstr ""
 
 msgid "Starting Python's built-in web server..."
+msgstr ""
+
+msgid "State"
+msgstr ""
+
+msgid "Street"
 msgstr ""
 
 msgid "Subject"
@@ -667,6 +724,9 @@ msgstr ""
 msgid "Timeline"
 msgstr ""
 
+msgid "Town"
+msgstr ""
+
 msgid "Trees"
 msgstr ""
 
@@ -686,6 +746,9 @@ msgid "Updated {updated_derivations} {event_type} events based on existing infor
 msgstr ""
 
 msgid "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> to exit the search."
+msgstr ""
+
+msgid "Village"
 msgstr ""
 
 msgid "What is the path to your exported Gramps family tree file?"

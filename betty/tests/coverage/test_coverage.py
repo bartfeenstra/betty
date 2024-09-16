@@ -499,6 +499,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "PreBirthEventType": TestKnownToBeMissing,
         "StartOfLifeEventType": TestKnownToBeMissing,
     },
+    "betty/ancestry/place_type.py": {
+        # This is an abstract class.
+        "PlaceType": TestKnownToBeMissing,
+    },
     "betty/ancestry/presence_role.py": {
         # This is an interface.
         "PresenceRole": TestKnownToBeMissing,
@@ -511,6 +515,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             # This is an interface method.
             "plugin_label": TestKnownToBeMissing,
         },
+        "PluginShorthandBase": TestKnownToBeMissing,
         # This is a base/sentinel class.
         "PluginError": TestKnownToBeMissing,
         "PluginRepository": {
@@ -604,6 +609,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     **{
         "betty/test_utils/ancestry/__init__.py": TestKnownToBeMissing,
         "betty/test_utils/ancestry/event_type.py": TestKnownToBeMissing,
+        "betty/test_utils/ancestry/place_type.py": TestKnownToBeMissing,
         "betty/test_utils/assertion/__init__.py": TestKnownToBeMissing,
         "betty/test_utils/assertion/error.py": TestKnownToBeMissing,
         "betty/test_utils/assets/templates.py": TestKnownToBeMissing,

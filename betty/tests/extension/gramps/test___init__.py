@@ -6,6 +6,7 @@ from typing_extensions import override
 
 from betty.ancestry import Citation, Note, Source, File, Event, Person, Place
 from betty.ancestry.event_type import Birth
+from betty.ancestry.place_type import City
 from betty.ancestry.presence_role import Subject
 from betty.app import App
 from betty.extension.gramps import Gramps
@@ -67,6 +68,47 @@ class TestGramps(ExtensionTestBase):
             async with project:
                 await load(project)
             assert isinstance(project.ancestry[Event]["E0000"].event_type, Birth)
+
+    async def test_load_with_place_type_map(
+        self, new_temporary_app: App, tmp_path: Path
+    ) -> None:
+        family_tree_xml = """
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"
+"http://gramps-project.org/xml/1.7.1/grampsxml.dtd">
+<database xmlns="http://gramps-project.org/xml/1.7.1/">
+    <header>
+        <created date="2019-03-09" version="4.2.8"/>
+        <researcher>
+        </researcher>
+    </header>
+    <places>
+        <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0001" type="City">
+        </placeobj>
+    </places>
+</database>
+""".strip()
+        gramps_family_tree_path = tmp_path / "gramps.xml"
+        async with aiofiles.open(gramps_family_tree_path, mode="w") as f:
+            await f.write(family_tree_xml)
+
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.append(
+                ExtensionConfiguration(
+                    Gramps,
+                    extension_configuration=GrampsConfiguration(
+                        family_trees=[
+                            FamilyTreeConfiguration(
+                                file_path=gramps_family_tree_path,
+                                place_types=PluginMapping({"City": "city"}),
+                            )
+                        ],
+                    ),
+                )
+            )
+            async with project:
+                await load(project)
+            assert isinstance(project.ancestry[Place]["P0001"].place_type, City)
 
     async def test_load_with_presence_role_map(
         self, new_temporary_app: App, tmp_path: Path

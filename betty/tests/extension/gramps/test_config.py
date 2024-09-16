@@ -50,6 +50,10 @@ class TestFamilyTreeConfiguration:
         sut = FamilyTreeConfiguration(tmp_path)
         sut.event_types  # noqa B018
 
+    def test_place_types(self, tmp_path: Path) -> None:
+        sut = FamilyTreeConfiguration(tmp_path)
+        sut.place_types  # noqa B018
+
     def test_presence_roles(self, tmp_path: Path) -> None:
         sut = FamilyTreeConfiguration(tmp_path)
         sut.presence_roles  # noqa B018
@@ -68,6 +72,16 @@ class TestFamilyTreeConfiguration:
         sut = FamilyTreeConfiguration(tmp_path)
         sut.load(dump)
         assert sut.event_types["my-first-gramps-type"] == "my-first-betty-plugin-id"
+
+    async def test_load_with_place_types(self, tmp_path: Path) -> None:
+        file_path = tmp_path / "ancestry.gramps"
+        dump: Dump = {
+            "file": str(file_path),
+            "place_types": {"my-first-gramps-type": "my-first-betty-plugin-id"},
+        }
+        sut = FamilyTreeConfiguration(tmp_path)
+        sut.load(dump)
+        assert sut.place_types["my-first-gramps-type"] == "my-first-betty-plugin-id"
 
     async def test_load_with_presence_roles(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
@@ -91,6 +105,9 @@ class TestFamilyTreeConfiguration:
             actual.pop("event_types")  # type: ignore[arg-type]
         )
         assert len(
+            actual.pop("place_types")  # type: ignore[arg-type]
+        )
+        assert len(
             actual.pop("presence_roles")  # type: ignore[arg-type]
         )
         assert actual == {
@@ -103,11 +120,26 @@ class TestFamilyTreeConfiguration:
             event_types=PluginMapping(
                 {"my-first-gramps-type": "my-first-betty-plugin-id"}
             ),
+            place_types=PluginMapping(),
             presence_roles=PluginMapping(),
         )
         assert sut.dump() == {
             "file": str(tmp_path),
             "event_types": {"my-first-gramps-type": "my-first-betty-plugin-id"},
+        }
+
+    async def test_dump_with_place_types(self, tmp_path: Path) -> None:
+        sut = FamilyTreeConfiguration(
+            tmp_path,
+            place_types=PluginMapping(
+                {"my-first-gramps-type": "my-first-betty-plugin-id"}
+            ),
+            event_types=PluginMapping(),
+            presence_roles=PluginMapping(),
+        )
+        assert sut.dump() == {
+            "file": str(tmp_path),
+            "place_types": {"my-first-gramps-type": "my-first-betty-plugin-id"},
         }
 
     async def test_dump_with_presence_roles(self, tmp_path: Path) -> None:
@@ -117,6 +149,7 @@ class TestFamilyTreeConfiguration:
                 {"my-first-gramps-type": "my-first-betty-plugin-id"}
             ),
             event_types=PluginMapping(),
+            place_types=PluginMapping(),
         )
         assert sut.dump() == {
             "file": str(tmp_path),
@@ -126,11 +159,13 @@ class TestFamilyTreeConfiguration:
     async def test_update(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
         sut = FamilyTreeConfiguration(tmp_path)
+        # @todo Add plugin mappings!
         other = FamilyTreeConfiguration(tmp_path)
         other.file_path = file_path
         sut.update(other)
         assert sut.file_path == file_path
 
+    # @todo UGH err remove __eq__ altogether?
     async def test___eq___is_equal(self, tmp_path: Path) -> None:
         sut = FamilyTreeConfiguration(tmp_path)
         other = FamilyTreeConfiguration(tmp_path)
@@ -265,6 +300,7 @@ class TestGrampsConfiguration:
         sut.family_trees.append(FamilyTreeConfiguration(file_path=file_path))
         actual = sut.dump()
         actual["family_trees"][0].pop("event_types")  # type: ignore[arg-type, index, union-attr]
+        actual["family_trees"][0].pop("place_types")  # type: ignore[arg-type, index, union-attr]
         actual["family_trees"][0].pop("presence_roles")  # type: ignore[arg-type, index, union-attr]
         expected = {
             "family_trees": [

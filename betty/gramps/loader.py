@@ -43,10 +43,8 @@ from betty.ancestry import (
     FileReference,
     Ancestry,
 )
-from betty.ancestry.event_type import (
-    UnknownEventType,
-    EventType,
-)
+from betty.ancestry.event_type import UnknownEventType, EventType
+from betty.ancestry.place_type import PlaceType, Unknown
 from betty.ancestry.presence_role import Attendee, PresenceRole
 from betty.error import FileNotFound
 from betty.gramps.error import GrampsError, UserFacingGrampsError
@@ -127,6 +125,7 @@ class GrampsLoader:
         localizer: Localizer,
         attribute_prefix_key: str | None = None,
         event_type_map: Mapping[str, type[EventType]] | None = None,
+        place_type_map: Mapping[str, type[PlaceType]] | None = None,
         presence_role_map: Mapping[str, type[PresenceRole]] | None = None,
     ):
         super().__init__()
@@ -142,6 +141,7 @@ class GrampsLoader:
         self._loaded = False
         self._localizer = localizer
         self._event_type_map = event_type_map or {}
+        self._place_type_map = place_type_map or {}
         self._presence_role_map = presence_role_map or {}
 
     async def load_file(self, file_path: Path) -> None:
@@ -648,6 +648,10 @@ class GrampsLoader:
 
     async def _load_place(self, element: ElementTree.Element) -> None:
         place_handle = element.get("handle")
+        place_id = element.get("id")
+        assert place_id is not None
+        gramps_type = element.get("type")
+        assert gramps_type is not None
         names = []
         for name_element in self._xpath(element, "./ns:pname"):
             # The Gramps language is a single ISO language code, which is a valid BCP 47 locale.
@@ -662,9 +666,26 @@ class GrampsLoader:
                 )
             )
 
+        try:
+            place_type_type = self._place_type_map[gramps_type]
+        except KeyError:
+            place_type_type = Unknown
+            getLogger(__name__).warning(
+                self._localizer._(
+                    'Betty is unfamiliar with Gramps place "{place_id}"\'s type of "{gramps_place_type}". The place was imported, but its type was set to "{betty_place_type}".',
+                ).format(
+                    place_id=place_id,
+                    gramps_place_type=gramps_type,
+                    betty_place_type=place_type_type.plugin_label().localize(
+                        self._localizer
+                    ),
+                )
+            )
+
         place = Place(
-            id=element.get("id"),
+            id=place_id,
             names=names,
+            place_type=await self._factory(place_type_type),
         )
 
         coordinates = self._load_coordinates(element)

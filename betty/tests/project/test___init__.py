@@ -400,6 +400,12 @@ class TestProject:
             async with sut:
                 assert await sut.event_types.get("foo")
 
+    async def test_place_types(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as sut:
+            sut.configuration.place_types.append(PluginConfiguration("foo", "Foo"))
+            async with sut:
+                assert await sut.place_types.get("foo")
+
     async def test_presence_roles(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.presence_roles.append(PluginConfiguration("foo", "Foo"))
