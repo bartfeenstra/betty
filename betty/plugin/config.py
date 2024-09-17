@@ -17,7 +17,8 @@ from betty.config import Configuration
 from betty.config.collections.mapping import ConfigurationMapping
 from betty.locale.localizable import ShorthandStaticTranslations
 from betty.locale.localizable.config import (
-    StaticTranslationsLocalizableConfigurationAttr,
+    OptionalStaticTranslationsLocalizableConfigurationAttr,
+    RequiredStaticTranslationsLocalizableConfigurationAttr,
 )
 from betty.machine_name import assert_machine_name, MachineName
 from betty.plugin import Plugin
@@ -31,10 +32,8 @@ class PluginConfiguration(Configuration):
     Configure a single plugin.
     """
 
-    label = StaticTranslationsLocalizableConfigurationAttr("label")
-    description = StaticTranslationsLocalizableConfigurationAttr(
-        "description", required=False
-    )
+    label = RequiredStaticTranslationsLocalizableConfigurationAttr("label")
+    description = OptionalStaticTranslationsLocalizableConfigurationAttr("description")
 
     def __init__(
         self,

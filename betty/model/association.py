@@ -11,7 +11,7 @@ from typing import Generic, cast, Any, Iterable, TypeVar, final
 from basedtyping import Intersection
 from typing_extensions import override
 
-from betty.attr import MutableAttr
+from betty.attr import DeletableAttr
 from betty.classtools import repr_instance
 from betty.importlib import import_any
 from betty.model import Entity
@@ -27,7 +27,7 @@ _AssociationAttrSetT = TypeVar("_AssociationAttrSetT")
 
 class Association(
     Generic[_OwnerT, _AssociateT, _AssociationAttrValueT, _AssociationAttrSetT],
-    MutableAttr[
+    DeletableAttr[
         Intersection[_OwnerT, Entity], _AssociationAttrValueT, _AssociationAttrSetT
     ],
 ):

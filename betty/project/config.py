@@ -41,7 +41,7 @@ from betty.config.collections.sequence import ConfigurationSequence
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizable import _, ShorthandStaticTranslations
 from betty.locale.localizable.config import (
-    StaticTranslationsLocalizableConfigurationAttr,
+    OptionalStaticTranslationsLocalizableConfigurationAttr,
 )
 from betty.machine_name import assert_machine_name
 from betty.model import Entity, UserFacingEntity
@@ -702,8 +702,8 @@ class ProjectConfiguration(Configuration):
     Provide the configuration for a :py:class:`betty.project.Project`.
     """
 
-    title = StaticTranslationsLocalizableConfigurationAttr("title")
-    author = StaticTranslationsLocalizableConfigurationAttr("author", required=False)
+    title = OptionalStaticTranslationsLocalizableConfigurationAttr("title")
+    author = OptionalStaticTranslationsLocalizableConfigurationAttr("author")
 
     def __init__(
         self,

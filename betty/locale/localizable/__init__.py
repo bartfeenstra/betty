@@ -11,7 +11,7 @@ from warnings import warn
 
 from typing_extensions import override
 
-from betty.attr import MutableAttr
+from betty.attr import SettableAttr, DeletableAttr
 from betty.classtools import repr_instance
 from betty.json.linked_data import LinkedDataDumpable
 from betty.json.schema import Object
@@ -395,17 +395,10 @@ def static(translations: ShorthandStaticTranslations) -> Localizable:
     return StaticTranslationsLocalizable(assert_static_translations()(translations))
 
 
-@final
-class StaticTranslationsLocalizableAttr(
-    MutableAttr[object, StaticTranslationsLocalizable, ShorthandStaticTranslations]
+class _StaticTranslationsLocalizableAttr(
+    SettableAttr[object, StaticTranslationsLocalizable, ShorthandStaticTranslations]
 ):
-    """
-    An instance attribute that contains :py:class:`betty.locale.localizable.StaticTranslationsLocalizable`.
-    """
-
-    def __init__(self, attr_name: str, *, required: bool = True):
-        super().__init__(attr_name)
-        self._required = required
+    _required: bool
 
     @override
     def new_attr(self, instance: object) -> StaticTranslationsLocalizable:
@@ -414,6 +407,27 @@ class StaticTranslationsLocalizableAttr(
     @override
     def set_attr(self, instance: object, value: ShorthandStaticTranslations) -> None:
         self.get_attr(instance).replace(value)
+
+
+@final
+class RequiredStaticTranslationsLocalizableAttr(_StaticTranslationsLocalizableAttr):
+    """
+    An instance attribute that contains :py:class:`betty.locale.localizable.StaticTranslationsLocalizable`.
+    """
+
+    _required = True
+
+
+@final
+class OptionalStaticTranslationsLocalizableAttr(
+    _StaticTranslationsLocalizableAttr,
+    DeletableAttr[object, StaticTranslationsLocalizable, ShorthandStaticTranslations],
+):
+    """
+    An instance attribute that contains :py:class:`betty.locale.localizable.StaticTranslationsLocalizable`.
+    """
+
+    _required = False
 
     @override
     def del_attr(self, instance: object) -> None:
