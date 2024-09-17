@@ -29,6 +29,7 @@ from betty.ancestry.event_type import (
     Retirement,
     Will,
 )
+from betty.ancestry.gender import Female, Male, Unknown as UnknownGender
 from betty.ancestry.place_type import (
     Borough,
     Building,
@@ -148,6 +149,7 @@ class FamilyTreeConfiguration(Configuration):
         event_types: PluginMapping | None = None,
         place_types: PluginMapping | None = None,
         presence_roles: PluginMapping | None = None,
+        genders: PluginMapping | None = None,
     ):
         super().__init__()
         self.file_path = file_path
@@ -209,6 +211,13 @@ class FamilyTreeConfiguration(Configuration):
                 "Witness": Witness.plugin_id(),
             }
         )
+        self._genders = genders or PluginMapping(
+            {
+                "F": Female.plugin_id(),
+                "M": Male.plugin_id(),
+                "U": UnknownGender.plugin_id(),
+            }
+        )
 
     @override
     def __eq__(self, other: Any) -> bool:
@@ -233,6 +242,13 @@ class FamilyTreeConfiguration(Configuration):
         How to map event types.
         """
         return self._event_types
+
+    @property
+    def genders(self) -> PluginMapping:
+        """
+        How to map genders.
+        """
+        return self._genders
 
     @property
     def place_types(self) -> PluginMapping:

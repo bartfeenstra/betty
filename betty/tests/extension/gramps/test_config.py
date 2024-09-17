@@ -50,6 +50,10 @@ class TestFamilyTreeConfiguration:
         sut = FamilyTreeConfiguration(tmp_path)
         sut.event_types  # noqa B018
 
+    def test_genders(self, tmp_path: Path) -> None:
+        sut = FamilyTreeConfiguration(tmp_path)
+        sut.genders  # noqa B018
+
     def test_place_types(self, tmp_path: Path) -> None:
         sut = FamilyTreeConfiguration(tmp_path)
         sut.place_types  # noqa B018

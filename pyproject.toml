@@ -141,6 +141,12 @@ betty = 'betty.cli:main'
 'webpack' = 'betty.extension.webpack:Webpack'
 'wikipedia' = 'betty.extension.wikipedia:Wikipedia'
 
+[project.entry-points.'betty.gender']
+'non-binary' = 'betty.ancestry.gender:NonBinary'
+'female' = 'betty.ancestry.gender:Female'
+'male' = 'betty.ancestry.gender:Male'
+'unknown' = 'betty.ancestry.gender:Unknown'
+
 [project.entry-points.'betty.place_type']
 'borough' = 'betty.ancestry.place_type:Borough'
 'building' = 'betty.ancestry.place_type:Building'

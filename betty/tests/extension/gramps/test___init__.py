@@ -6,6 +6,7 @@ from typing_extensions import override
 
 from betty.ancestry import Citation, Note, Source, File, Event, Person, Place
 from betty.ancestry.event_type import Birth
+from betty.ancestry.gender import NonBinary
 from betty.ancestry.place_type import City
 from betty.ancestry.presence_role import Subject
 from betty.app import App
@@ -163,6 +164,48 @@ class TestGramps(ExtensionTestBase):
                 project.ancestry[Person]["I0000"].presences[0].role, Subject
             )
 
+    async def test_load_with_gender_map(
+        self, new_temporary_app: App, tmp_path: Path
+    ) -> None:
+        family_tree_xml = """
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"
+"http://gramps-project.org/xml/1.7.1/grampsxml.dtd">
+<database xmlns="http://gramps-project.org/xml/1.7.1/">
+    <header>
+        <created date="2019-03-09" version="4.2.8"/>
+        <researcher>
+        </researcher>
+    </header>
+    <people>
+        <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0000">
+            <gender>MyFirstGender</gender>
+        </person>
+    </people>
+</database>
+""".strip()
+        gramps_family_tree_path = tmp_path / "gramps.xml"
+        async with aiofiles.open(gramps_family_tree_path, mode="w") as f:
+            await f.write(family_tree_xml)
+
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.append(
+                ExtensionConfiguration(
+                    Gramps,
+                    extension_configuration=GrampsConfiguration(
+                        family_trees=[
+                            FamilyTreeConfiguration(
+                                file_path=gramps_family_tree_path,
+                                genders=PluginMapping({"MyFirstGender": "non-binary"}),
+                            )
+                        ],
+                    ),
+                )
+            )
+            async with project:
+                await load(project)
+            assert isinstance(project.ancestry[Person]["I0000"].gender, NonBinary)
+
     async def test_load_multiple_family_trees(self, new_temporary_app: App) -> None:
         family_tree_one_xml = """
 <?xml version="1.0" encoding="UTF-8"?>
@@ -181,6 +224,7 @@ class TestGramps(ExtensionTestBase):
   </objects>
   <people>
     <person handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="I0001">
+        <gender>U</gender>
     </person>
   </people>
   <places>
@@ -232,6 +276,7 @@ class TestGramps(ExtensionTestBase):
   </objects>
   <people>
     <person handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="I0002">
+        <gender>U</gender>
     </person>
   </people>
   <places>

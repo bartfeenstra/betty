@@ -13,7 +13,8 @@ from urllib.parse import quote
 from typing_extensions import override
 
 from betty.ancestry.event_type import EventType, UnknownEventType, EVENT_TYPE_REPOSITORY
-from betty.ancestry.place_type import PlaceType, Unknown
+from betty.ancestry.gender import Gender, Unknown as UnknownGender
+from betty.ancestry.place_type import PlaceType, Unknown as UnknownPlaceType
 from betty.ancestry.presence_role import PresenceRole, Subject, PresenceRoleSchema
 from betty.asyncio import wait_to_thread
 from betty.classtools import repr_instance
@@ -1319,7 +1320,7 @@ class Place(
             self.enclosed_by = enclosed_by
         if encloses is not None:
             self.encloses = encloses
-        self._place_type = place_type or Unknown()
+        self._place_type = place_type or UnknownPlaceType()
 
     @property
     def walk_encloses(self) -> Iterator[Enclosure]:
@@ -1909,6 +1910,7 @@ class Person(
         children: Iterable[Person] | None = None,
         presences: Iterable[Presence] | None = None,
         names: Iterable[PersonName] | None = None,
+        gender: Gender | None = None,
     ):
         super().__init__(
             id,
@@ -1928,6 +1930,7 @@ class Person(
             self.presences = presences
         if names is not None:
             self.names = names
+        self.gender = gender or UnknownGender()
 
     @override
     @classmethod
@@ -2026,6 +2029,7 @@ class Person(
                 for name in self.names
                 if name.public
             ]
+            dump["gender"] = self.gender.plugin_id()
         else:
             dump["names"] = []
         return dump
@@ -2051,6 +2055,14 @@ class Person(
         schema.add_property(
             "names",
             Array(await PersonName.linked_data_schema(project), title="Names"),
+        )
+        schema.add_property(
+            "gender",
+            Enum(
+                *[gender.plugin_id() async for gender in project.genders],
+                title="Gender",
+            ),
+            property_required=False,
         )
         schema.add_property("parents", EntityReferenceCollectionSchema(Person))
         schema.add_property("children", EntityReferenceCollectionSchema(Person))

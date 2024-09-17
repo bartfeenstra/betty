@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-16 12:42+0100\n"
+"POT-Creation-Date: 2024-09-17 10:32+0100\n"
 "PO-Revision-Date: 2024-02-08 13:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de\n"
@@ -215,6 +215,12 @@ msgstr ""
 "Betty ist mit dem Typ \"{gramps_event_type}\" von Gramps Ereignis "
 "\"{event_id}\" nicht vertraut. Das Ereignis wurde importiert, aber sein "
 "Typ wurde auf \"{betty_event_type}\" gesetzt."
+
+msgid ""
+"Betty is unfamiliar with Gramps person \"{person_id}\"'s gender of "
+"\"{gramps_gender}\". The person was imported, but their gender was set to"
+" \"{betty_gender}\"."
+msgstr ""
 
 msgid ""
 "Betty is unfamiliar with Gramps place \"{place_id}\"'s type of "
@@ -455,6 +461,9 @@ msgstr "Familie"
 msgid "Farm"
 msgstr ""
 
+msgid "Female"
+msgstr ""
+
 msgid "File"
 msgstr "Datei"
 
@@ -590,6 +599,9 @@ msgstr "d MMMM y"
 msgid "MMMM, y"
 msgstr "MMMM y"
 
+msgid "Male"
+msgstr ""
+
 msgid "Maps"
 msgstr "Karten"
 
@@ -609,6 +621,9 @@ msgid "Municipality"
 msgstr ""
 
 msgid "Neighborhood"
+msgstr ""
+
+msgid "Non-binary"
 msgstr ""
 
 msgid "Note"

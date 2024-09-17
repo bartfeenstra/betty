@@ -28,6 +28,7 @@ from typing_extensions import override
 from betty import fs, event_dispatcher
 from betty.ancestry import Ancestry
 from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY
+from betty.ancestry.gender import GENDER_REPOSITORY, Gender
 from betty.ancestry.place_type import PLACE_TYPE_REPOSITORY, PlaceType
 from betty.ancestry.presence_role import PRESENCE_ROLE_REPOSITORY, PresenceRole
 from betty.assets import AssetRepository
@@ -111,6 +112,7 @@ class Project(Configurable[ProjectConfiguration], DependentFactory[Any], CoreCom
         self._event_types: PluginRepository[EventType] | None = None
         self._place_types: PluginRepository[PlaceType] | None = None
         self._presence_roles: PluginRepository[PresenceRole] | None = None
+        self._genders: PluginRepository[Gender] | None = None
 
     @classmethod
     @asynccontextmanager
@@ -380,6 +382,22 @@ class Project(Configurable[ProjectConfiguration], DependentFactory[Any], CoreCom
             )
 
         return self._presence_roles
+
+    @property
+    def genders(self) -> PluginRepository[Gender]:
+        """
+        The genders available to this project.
+
+        Read more about :doc:`/development/plugin/gender`.
+        """
+        if self._genders is None:
+            self._assert_bootstrapped()
+            self._genders = ProxyPluginRepository(
+                GENDER_REPOSITORY,
+                StaticPluginRepository(*self.configuration.genders.plugins),
+            )
+
+        return self._genders
 
 
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)

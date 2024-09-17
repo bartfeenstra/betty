@@ -112,6 +112,11 @@ declare the data always private or ``public`` to declare the data always public.
 undecided, as well as person records marked public using Gramps' built-in privacy selector. In such cases, the
 ``privatizer`` extension may decide if the data is public or private.
 
+Gender
+^^^^^^
+To set a person's gender to a gender that is available in Betty, but not in Gramps, add a ``betty:gender`` attribute,
+whose value is the ID of the :doc:`/usage/ancestry/gender` you want to use.
+
 Links
 ^^^^^
 

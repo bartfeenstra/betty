@@ -39,7 +39,8 @@ from betty.ancestry import (
     PrivacySchema,
 )
 from betty.ancestry.event_type import Birth, UnknownEventType
-from betty.ancestry.place_type import Unknown
+from betty.ancestry.gender import Unknown as UnknownGender, NonBinary
+from betty.ancestry.place_type import Unknown as UnknownPlaceType
 from betty.ancestry.presence_role import Subject, Attendee
 from betty.app import App
 from betty.locale import UNDETERMINED_LOCALE
@@ -1510,7 +1511,7 @@ class TestPlace(EntityTestBase):
 
     def test_place_type_default(self) -> None:
         sut = Place()
-        assert isinstance(sut.place_type, Unknown)
+        assert isinstance(sut.place_type, UnknownPlaceType)
 
     def test___init___with_place_type(self) -> None:
         place_type = DummyPlaceType()
@@ -2311,6 +2312,7 @@ class TestPerson(EntityTestBase):
             "@type": "https://schema.org/Person",
             "id": person_id,
             "private": False,
+            "gender": UnknownGender.plugin_id(),
             "names": [],
             "parents": [],
             "children": [],
@@ -2350,10 +2352,7 @@ class TestPerson(EntityTestBase):
         person_id = "the_person"
         person_affiliation_name = "Person"
         person_individual_name = "The"
-        person = Person(
-            id=person_id,
-            public=True,
-        )
+        person = Person(id=person_id, public=True, gender=NonBinary())
         PersonName(
             person=person,
             individual=person_individual_name,
@@ -2396,6 +2395,7 @@ class TestPerson(EntityTestBase):
             "@type": "https://schema.org/Person",
             "id": person_id,
             "private": False,
+            "gender": NonBinary.plugin_id(),
             "names": [
                 {
                     "@context": {

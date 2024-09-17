@@ -37,6 +37,9 @@ async def _load_ancestry(event: LoadAncestryEvent) -> None:
                 event_type_map=await family_tree_configuration.event_types.to_plugins(
                     project.event_types
                 ),
+                gender_map=await family_tree_configuration.genders.to_plugins(
+                    project.genders
+                ),
                 place_type_map=await family_tree_configuration.place_types.to_plugins(
                     project.place_types
                 ),
