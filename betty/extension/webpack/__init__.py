@@ -25,6 +25,7 @@ from betty.jinja2 import Jinja2Provider, Filters, ContextVars
 from betty.job import Context
 from betty.locale.localizable import _, Localizable, static
 from betty.os import copy_tree
+from betty.plugin import ShorthandPluginBase
 from betty.project import Project, extension
 from betty.project.extension import Extension
 from betty.requirement import (
@@ -37,7 +38,6 @@ from betty.typing import internal
 
 if TYPE_CHECKING:
     from betty.event_dispatcher import EventHandlerRegistry
-    from betty.machine_name import MachineName
     from collections.abc import Sequence
 
 
@@ -127,7 +127,7 @@ async def _generate_assets(event: GenerateSiteEvent) -> None:
 
 @internal
 @final
-class Webpack(Extension, CssProvider, Jinja2Provider):
+class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
     """
     Integrate Betty with `Webpack <https://webpack.js.org/>`_.
     """
@@ -139,15 +139,8 @@ class Webpack(Extension, CssProvider, Jinja2Provider):
         _prebuilt_assets_requirement,
     )
 
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "webpack"
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return static("Webpack")
+    _plugin_id = "webpack"
+    _plugin_label = static("Webpack")
 
     @override
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:

@@ -10,7 +10,7 @@ from typing_extensions import override
 
 from betty.locale.localizable import _
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.plugin import Plugin, PluginRepository, PluginShorthandBase
+from betty.plugin import Plugin, PluginRepository, ShorthandPluginBase
 from betty.plugin.entry_point import EntryPointPluginRepository
 
 if TYPE_CHECKING:
@@ -56,7 +56,7 @@ Read more about :doc:`/development/plugin/event-type`.
 
 
 @final
-class UnknownEventType(PluginShorthandBase, EventType):
+class UnknownEventType(ShorthandPluginBase, EventType):
     """
     Describe an event for which no more specific type is known.
     """
@@ -65,7 +65,7 @@ class UnknownEventType(PluginShorthandBase, EventType):
     _plugin_label = _("Unknown")
 
 
-class DerivableEventType(PluginShorthandBase, EventType):
+class DerivableEventType(ShorthandPluginBase, EventType):
     """
     Any event that that may be updated by the deriver API.
     """
@@ -149,7 +149,7 @@ class PostDeathEventType(EventType):
 
 
 @final
-class Birth(CreatableDerivableEventType, StartOfLifeEventType, PluginShorthandBase):
+class Birth(CreatableDerivableEventType, StartOfLifeEventType, ShorthandPluginBase):
     """
     Someone was born.
     """
@@ -164,7 +164,7 @@ class Birth(CreatableDerivableEventType, StartOfLifeEventType, PluginShorthandBa
 
 
 @final
-class Baptism(DuringLifeEventType, StartOfLifeEventType, PluginShorthandBase):
+class Baptism(DuringLifeEventType, StartOfLifeEventType, ShorthandPluginBase):
     """
     Someone was `baptized <https://en.wikipedia.org/wiki/Baptism>`_.
     """
@@ -174,7 +174,7 @@ class Baptism(DuringLifeEventType, StartOfLifeEventType, PluginShorthandBase):
 
 
 @final
-class Adoption(DuringLifeEventType, PluginShorthandBase):
+class Adoption(DuringLifeEventType, ShorthandPluginBase):
     """
     Someone was adopted.
     """
@@ -184,7 +184,7 @@ class Adoption(DuringLifeEventType, PluginShorthandBase):
 
 
 @final
-class Death(CreatableDerivableEventType, EndOfLifeEventType, PluginShorthandBase):
+class Death(CreatableDerivableEventType, EndOfLifeEventType, ShorthandPluginBase):
     """
     Someone died.
     """
@@ -218,7 +218,7 @@ class FinalDispositionEventType(
 
 
 @final
-class Funeral(FinalDispositionEventType, PluginShorthandBase):
+class Funeral(FinalDispositionEventType, ShorthandPluginBase):
     """
     Someone's funeral took place.
     """
@@ -228,7 +228,7 @@ class Funeral(FinalDispositionEventType, PluginShorthandBase):
 
 
 @final
-class Cremation(FinalDispositionEventType, PluginShorthandBase):
+class Cremation(FinalDispositionEventType, ShorthandPluginBase):
     """
     Someone was cremated.
     """
@@ -238,7 +238,7 @@ class Cremation(FinalDispositionEventType, PluginShorthandBase):
 
 
 @final
-class Burial(FinalDispositionEventType, PluginShorthandBase):
+class Burial(FinalDispositionEventType, ShorthandPluginBase):
     """
     Someone was buried.
     """
@@ -248,7 +248,7 @@ class Burial(FinalDispositionEventType, PluginShorthandBase):
 
 
 @final
-class Will(PostDeathEventType, PluginShorthandBase):
+class Will(PostDeathEventType, ShorthandPluginBase):
     """
     Someone's `will and testament <https://en.wikipedia.org/wiki/Will_and_testament>`_ came into effect.
     """
@@ -258,7 +258,7 @@ class Will(PostDeathEventType, PluginShorthandBase):
 
 
 @final
-class Engagement(DuringLifeEventType, PluginShorthandBase):
+class Engagement(DuringLifeEventType, ShorthandPluginBase):
     """
     People got engaged with the intent to marry.
     """
@@ -273,7 +273,7 @@ class Engagement(DuringLifeEventType, PluginShorthandBase):
 
 
 @final
-class Marriage(DuringLifeEventType, PluginShorthandBase):
+class Marriage(DuringLifeEventType, ShorthandPluginBase):
     """
     People were married.
     """
@@ -283,7 +283,7 @@ class Marriage(DuringLifeEventType, PluginShorthandBase):
 
 
 @final
-class MarriageAnnouncement(DuringLifeEventType, PluginShorthandBase):
+class MarriageAnnouncement(DuringLifeEventType, ShorthandPluginBase):
     """
     People's marriage was announced.
     """
@@ -298,7 +298,7 @@ class MarriageAnnouncement(DuringLifeEventType, PluginShorthandBase):
 
 
 @final
-class Divorce(DuringLifeEventType, PluginShorthandBase):
+class Divorce(DuringLifeEventType, ShorthandPluginBase):
     """
     People were divorced.
     """
@@ -313,7 +313,7 @@ class Divorce(DuringLifeEventType, PluginShorthandBase):
 
 
 @final
-class DivorceAnnouncement(DuringLifeEventType, PluginShorthandBase):
+class DivorceAnnouncement(DuringLifeEventType, ShorthandPluginBase):
     """
     People's divorce was announced.
     """
@@ -333,7 +333,7 @@ class DivorceAnnouncement(DuringLifeEventType, PluginShorthandBase):
 
 
 @final
-class Residence(DuringLifeEventType, PluginShorthandBase):
+class Residence(DuringLifeEventType, ShorthandPluginBase):
     """
     Someone resided/lived in a place.
     """
@@ -343,7 +343,7 @@ class Residence(DuringLifeEventType, PluginShorthandBase):
 
 
 @final
-class Immigration(DuringLifeEventType, PluginShorthandBase):
+class Immigration(DuringLifeEventType, ShorthandPluginBase):
     """
     Someone immigrated to a place.
     """
@@ -353,7 +353,7 @@ class Immigration(DuringLifeEventType, PluginShorthandBase):
 
 
 @final
-class Emigration(PluginShorthandBase, DuringLifeEventType):
+class Emigration(ShorthandPluginBase, DuringLifeEventType):
     """
     Someone emigrated from a place.
     """
@@ -363,7 +363,7 @@ class Emigration(PluginShorthandBase, DuringLifeEventType):
 
 
 @final
-class Occupation(PluginShorthandBase, DuringLifeEventType):
+class Occupation(ShorthandPluginBase, DuringLifeEventType):
     """
     Someone's occupation, e.g. their main recurring activity.
 
@@ -375,7 +375,7 @@ class Occupation(PluginShorthandBase, DuringLifeEventType):
 
 
 @final
-class Retirement(PluginShorthandBase, DuringLifeEventType):
+class Retirement(ShorthandPluginBase, DuringLifeEventType):
     """
     Someone `retired <https://en.wikipedia.org/wiki/Retirement>`_.
     """
@@ -385,7 +385,7 @@ class Retirement(PluginShorthandBase, DuringLifeEventType):
 
 
 @final
-class Correspondence(PluginShorthandBase, EventType):
+class Correspondence(ShorthandPluginBase, EventType):
     """
     People corresponded with each other.
     """
@@ -395,7 +395,7 @@ class Correspondence(PluginShorthandBase, EventType):
 
 
 @final
-class Confirmation(PluginShorthandBase, DuringLifeEventType):
+class Confirmation(ShorthandPluginBase, DuringLifeEventType):
     """
     Someone's `confirmation <https://en.wikipedia.org/wiki/Confirmation>`_ took place.
     """
@@ -405,7 +405,7 @@ class Confirmation(PluginShorthandBase, DuringLifeEventType):
 
 
 @final
-class Missing(PluginShorthandBase, DuringLifeEventType):
+class Missing(ShorthandPluginBase, DuringLifeEventType):
     """
     Someone went missing.
     """
@@ -415,7 +415,7 @@ class Missing(PluginShorthandBase, DuringLifeEventType):
 
 
 @final
-class Conference(PluginShorthandBase, DuringLifeEventType):
+class Conference(ShorthandPluginBase, DuringLifeEventType):
     """
     A conference between people took place.
     """

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 
 from betty.locale.localizable import _
-from betty.plugin import Plugin, PluginRepository, PluginShorthandBase
+from betty.plugin import Plugin, PluginRepository, ShorthandPluginBase
 from betty.plugin.entry_point import EntryPointPluginRepository
 
 
@@ -30,7 +30,7 @@ Read more about :doc:`/development/plugin/gender`.
 """
 
 
-class NonBinary(PluginShorthandBase, Gender):
+class NonBinary(ShorthandPluginBase, Gender):
     """
     A non-binary person.
     """
@@ -39,7 +39,7 @@ class NonBinary(PluginShorthandBase, Gender):
     _plugin_label = _("Non-binary")
 
 
-class Female(PluginShorthandBase, Gender):
+class Female(ShorthandPluginBase, Gender):
     """
     A female person.
     """
@@ -48,7 +48,7 @@ class Female(PluginShorthandBase, Gender):
     _plugin_label = _("Female")
 
 
-class Male(PluginShorthandBase, Gender):
+class Male(ShorthandPluginBase, Gender):
     """
     A male person.
     """
@@ -57,7 +57,7 @@ class Male(PluginShorthandBase, Gender):
     _plugin_label = _("Male")
 
 
-class Unknown(PluginShorthandBase, Gender):
+class Unknown(ShorthandPluginBase, Gender):
     """
     A person of an unknown gender.
     """

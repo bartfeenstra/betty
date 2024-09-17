@@ -76,7 +76,7 @@ _PluginT = TypeVar("_PluginT", bound=Plugin)
 
 
 @internal
-class PluginShorthandBase(Plugin):
+class ShorthandPluginBase(Plugin):
     """
     Allow shorthand declaration of plugins.
     """

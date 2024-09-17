@@ -4,18 +4,13 @@ Provide presence roles.
 
 from __future__ import annotations
 
-from typing import final, TYPE_CHECKING
-
-from typing_extensions import override
+from typing import final
 
 from betty.asyncio import wait_to_thread
 from betty.json.schema import Enum
-from betty.locale.localizable import Localizable, _
-from betty.plugin import Plugin, PluginRepository
+from betty.locale.localizable import _
+from betty.plugin import Plugin, PluginRepository, ShorthandPluginBase
 from betty.plugin.entry_point import EntryPointPluginRepository
-
-if TYPE_CHECKING:
-    from betty.machine_name import MachineName
 
 
 class PresenceRole(Plugin):
@@ -56,7 +51,7 @@ class PresenceRoleSchema(Enum):
 
 
 @final
-class Subject(PresenceRole):
+class Subject(ShorthandPluginBase, PresenceRole):
     """
     Someone was the subject of the event.
 
@@ -65,87 +60,52 @@ class Subject(PresenceRole):
     died.
     """
 
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "subject"
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return _("Subject")  # pragma: no cover
+    _plugin_id = "subject"
+    _plugin_label = _("Subject")
 
 
 @final
-class Witness(PresenceRole):
+class Witness(ShorthandPluginBase, PresenceRole):
     """
     Someone `witnessed <https://en.wikipedia.org/wiki/Witness>`_ the event.
     """
 
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "witness"  # pragma: no cover
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return _("Witness")  # pragma: no cover
+    _plugin_id = "witness"
+    _plugin_label = _("Witness")
 
 
 @final
-class Beneficiary(PresenceRole):
+class Beneficiary(ShorthandPluginBase, PresenceRole):
     """
     Someone was a `benificiary <https://en.wikipedia.org/wiki/Beneficiary>`_ in the event, such as a :py:class:`betty.ancestry.event_type.Will`.
     """
 
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "beneficiary"  # pragma: no cover
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return _("Beneficiary")  # pragma: no cover
+    _plugin_id = "beneficiary"
+    _plugin_label = _("Beneficiary")
 
 
 @final
-class Attendee(PresenceRole):
+class Attendee(ShorthandPluginBase, PresenceRole):
     """
     Someone attended the event (further details unknown).
     """
 
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "attendee"  # pragma: no cover
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return _("Attendee")  # pragma: no cover
+    _plugin_id = "attendee"
+    _plugin_label = _("Attendee")
 
 
 @final
-class Speaker(PresenceRole):
+class Speaker(ShorthandPluginBase, PresenceRole):
     """
     Someone performed public speaking at the event.
     """
 
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "speaker"  # pragma: no cover
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return _("Speaker")  # pragma: no cover
+    _plugin_id = "speaker"
+    _plugin_label = _("Speaker")
 
 
 @final
-class Celebrant(PresenceRole):
+class Celebrant(ShorthandPluginBase, PresenceRole):
     """
     Someone was the `celebrant <https://en.wikipedia.org/wiki/Officiant>`_ at the event.
 
@@ -156,29 +116,15 @@ class Celebrant(PresenceRole):
     - civilian
     """
 
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "celebrant"  # pragma: no cover
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return _("Celebrant")  # pragma: no cover
+    _plugin_id = "celebrant"
+    _plugin_label = _("Celebrant")
 
 
 @final
-class Organizer(PresenceRole):
+class Organizer(ShorthandPluginBase, PresenceRole):
     """
     Someone organized the event.
     """
 
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "organizer"  # pragma: no cover
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return _("Organizer")  # pragma: no cover
+    _plugin_id = "organizer"
+    _plugin_label = _("Organizer")

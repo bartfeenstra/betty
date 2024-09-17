@@ -12,12 +12,12 @@ from typing_extensions import override
 from betty.extension.gramps.config import GrampsConfiguration
 from betty.gramps.loader import GrampsLoader
 from betty.load import LoadAncestryEvent
-from betty.locale.localizable import static, _, Localizable
+from betty.locale.localizable import static, _
+from betty.plugin import ShorthandPluginBase
 from betty.project.extension import ConfigurableExtension
 
 if TYPE_CHECKING:
     from betty.event_dispatcher import EventHandlerRegistry
-    from betty.machine_name import MachineName
 
 
 async def _load_ancestry(event: LoadAncestryEvent) -> None:
@@ -50,15 +50,16 @@ async def _load_ancestry(event: LoadAncestryEvent) -> None:
 
 
 @final
-class Gramps(ConfigurableExtension[GrampsConfiguration]):
+class Gramps(ShorthandPluginBase, ConfigurableExtension[GrampsConfiguration]):
     """
     Integrate Betty with `Gramps <https://gramps-project.org>`_.
     """
 
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "gramps"
+    _plugin_id = "gramps"
+    _plugin_label = static("Gramps")
+    _plugin_description = _(
+        'Load <a href="https://gramps-project.org/">Gramps</a> family trees.'
+    )
 
     @override
     @classmethod
@@ -68,13 +69,3 @@ class Gramps(ConfigurableExtension[GrampsConfiguration]):
     @override
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
         registry.add_handler(LoadAncestryEvent, _load_ancestry)
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return static("Gramps")
-
-    @override
-    @classmethod
-    def plugin_description(cls) -> Localizable:
-        return _('Load <a href="https://gramps-project.org/">Gramps</a> family trees.')
