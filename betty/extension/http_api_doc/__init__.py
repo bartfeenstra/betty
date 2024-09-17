@@ -12,13 +12,13 @@ from typing_extensions import override
 from betty.asyncio import gather
 from betty.extension.webpack import Webpack, WebpackEntryPointProvider
 from betty.generate import GenerateSiteEvent
-from betty.locale.localizable import _, Localizable
+from betty.locale.localizable import _
 from betty.project.extension import Extension
+from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
     from betty.event_dispatcher import EventHandlerRegistry
     from betty.plugin import PluginIdentifier
-    from betty.machine_name import MachineName
     from collections.abc import Sequence
 
 
@@ -44,15 +44,16 @@ async def _generate_swagger_ui(event: GenerateSiteEvent) -> None:
 
 
 @final
-class HttpApiDoc(Extension, WebpackEntryPointProvider):
+class HttpApiDoc(ShorthandPluginBase, Extension, WebpackEntryPointProvider):
     """
     Provide user-friendly HTTP API documentation.
     """
 
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "http-api-doc"
+    _plugin_id = "http-api-doc"
+    _plugin_label = _("HTTP API Documentation")
+    _plugin_description = _(
+        'Display the HTTP API documentation in a user-friendly way using <a href="https://swagger.io/tools/swagger-ui">Swagger UI</a>.'
+    )
 
     @override
     @classmethod
@@ -76,15 +77,3 @@ class HttpApiDoc(Extension, WebpackEntryPointProvider):
     @override
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:
         return ()
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return _("HTTP API Documentation")
-
-    @override
-    @classmethod
-    def plugin_description(cls) -> Localizable:
-        return _(
-            'Display the HTTP API documentation in a user-friendly way using <a href="https://swagger.io/tools/swagger-ui">Swagger UI</a>.'
-        )

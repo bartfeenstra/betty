@@ -6,7 +6,7 @@ from __future__ import annotations
 
 
 from betty.locale.localizable import _
-from betty.plugin import Plugin, PluginRepository, PluginShorthandBase
+from betty.plugin import Plugin, PluginRepository, ShorthandPluginBase
 from betty.plugin.entry_point import EntryPointPluginRepository
 
 
@@ -32,7 +32,7 @@ Read more about :doc:`/development/plugin/place-type`.
 """
 
 
-class Borough(PluginShorthandBase, PlaceType):
+class Borough(ShorthandPluginBase, PlaceType):
     """
     A borough.
     """
@@ -41,7 +41,7 @@ class Borough(PluginShorthandBase, PlaceType):
     _plugin_label = _("Borough")
 
 
-class Building(PluginShorthandBase, PlaceType):
+class Building(ShorthandPluginBase, PlaceType):
     """
     A building.
     """
@@ -50,7 +50,7 @@ class Building(PluginShorthandBase, PlaceType):
     _plugin_label = _("Building")
 
 
-class City(PluginShorthandBase, PlaceType):
+class City(ShorthandPluginBase, PlaceType):
     """
     A city.
     """
@@ -59,7 +59,7 @@ class City(PluginShorthandBase, PlaceType):
     _plugin_label = _("City")
 
 
-class Country(PluginShorthandBase, PlaceType):
+class Country(ShorthandPluginBase, PlaceType):
     """
     A country.
     """
@@ -68,7 +68,7 @@ class Country(PluginShorthandBase, PlaceType):
     _plugin_label = _("Country")
 
 
-class County(PluginShorthandBase, PlaceType):
+class County(ShorthandPluginBase, PlaceType):
     """
     A county.
     """
@@ -77,7 +77,7 @@ class County(PluginShorthandBase, PlaceType):
     _plugin_label = _("County")
 
 
-class Department(PluginShorthandBase, PlaceType):
+class Department(ShorthandPluginBase, PlaceType):
     """
     A department.
     """
@@ -86,7 +86,7 @@ class Department(PluginShorthandBase, PlaceType):
     _plugin_label = _("Department")
 
 
-class District(PluginShorthandBase, PlaceType):
+class District(ShorthandPluginBase, PlaceType):
     """
     A district.
     """
@@ -95,7 +95,7 @@ class District(PluginShorthandBase, PlaceType):
     _plugin_label = _("District")
 
 
-class Farm(PluginShorthandBase, PlaceType):
+class Farm(ShorthandPluginBase, PlaceType):
     """
     A farm.
     """
@@ -104,7 +104,7 @@ class Farm(PluginShorthandBase, PlaceType):
     _plugin_label = _("Farm")
 
 
-class Hamlet(PluginShorthandBase, PlaceType):
+class Hamlet(ShorthandPluginBase, PlaceType):
     """
     A hamlet.
     """
@@ -113,7 +113,7 @@ class Hamlet(PluginShorthandBase, PlaceType):
     _plugin_label = _("Hamlet")
 
 
-class Locality(PluginShorthandBase, PlaceType):
+class Locality(ShorthandPluginBase, PlaceType):
     """
     A locality.
     """
@@ -122,7 +122,7 @@ class Locality(PluginShorthandBase, PlaceType):
     _plugin_label = _("Locality")
 
 
-class Municipality(PluginShorthandBase, PlaceType):
+class Municipality(ShorthandPluginBase, PlaceType):
     """
     A municipality.
     """
@@ -131,7 +131,7 @@ class Municipality(PluginShorthandBase, PlaceType):
     _plugin_label = _("Municipality")
 
 
-class Neighborhood(PluginShorthandBase, PlaceType):
+class Neighborhood(ShorthandPluginBase, PlaceType):
     """
     A neighborhood.
     """
@@ -140,7 +140,7 @@ class Neighborhood(PluginShorthandBase, PlaceType):
     _plugin_label = _("Neighborhood")
 
 
-class Number(PluginShorthandBase, PlaceType):
+class Number(ShorthandPluginBase, PlaceType):
     """
     A place number, e.g. a house or flat number.
     """
@@ -149,7 +149,7 @@ class Number(PluginShorthandBase, PlaceType):
     _plugin_label = _("Number")
 
 
-class Parish(PluginShorthandBase, PlaceType):
+class Parish(ShorthandPluginBase, PlaceType):
     """
     A parish.
     """
@@ -158,7 +158,7 @@ class Parish(PluginShorthandBase, PlaceType):
     _plugin_label = _("Parish")
 
 
-class Province(PluginShorthandBase, PlaceType):
+class Province(ShorthandPluginBase, PlaceType):
     """
     A province.
     """
@@ -167,7 +167,7 @@ class Province(PluginShorthandBase, PlaceType):
     _plugin_label = _("Province")
 
 
-class Region(PluginShorthandBase, PlaceType):
+class Region(ShorthandPluginBase, PlaceType):
     """
     A region.
     """
@@ -176,7 +176,7 @@ class Region(PluginShorthandBase, PlaceType):
     _plugin_label = _("Region")
 
 
-class State(PluginShorthandBase, PlaceType):
+class State(ShorthandPluginBase, PlaceType):
     """
     A state.
     """
@@ -185,7 +185,7 @@ class State(PluginShorthandBase, PlaceType):
     _plugin_label = _("State")
 
 
-class Street(PluginShorthandBase, PlaceType):
+class Street(ShorthandPluginBase, PlaceType):
     """
     A street.
     """
@@ -194,7 +194,7 @@ class Street(PluginShorthandBase, PlaceType):
     _plugin_label = _("Street")
 
 
-class Town(PluginShorthandBase, PlaceType):
+class Town(ShorthandPluginBase, PlaceType):
     """
     A town.
     """
@@ -203,7 +203,7 @@ class Town(PluginShorthandBase, PlaceType):
     _plugin_label = _("Town")
 
 
-class Unknown(PluginShorthandBase, PlaceType):
+class Unknown(ShorthandPluginBase, PlaceType):
     """
     A place of an unknown type.
     """
@@ -212,7 +212,7 @@ class Unknown(PluginShorthandBase, PlaceType):
     _plugin_label = _("Unknown")
 
 
-class Village(PluginShorthandBase, PlaceType):
+class Village(ShorthandPluginBase, PlaceType):
     """
     A village.
     """

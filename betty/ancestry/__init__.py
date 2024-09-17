@@ -62,11 +62,11 @@ from betty.model.association import (
 from betty.model.collections import (
     MultipleTypesEntityCollection,
 )
+from betty.plugin import ShorthandPluginBase
 from betty.string import camel_case_to_kebab_case
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
-    from betty.machine_name import MachineName
     from betty.image import FocusArea
     from betty.project import Project
     from geopy import Point
@@ -550,10 +550,13 @@ class HasLinks(Entity):
 
 
 @final
-class Note(UserFacingEntity, HasPrivacy, HasLinks, Entity):
+class Note(ShorthandPluginBase, UserFacingEntity, HasPrivacy, HasLinks, Entity):
     """
     A note is a bit of textual information that can be associated with another entity.
     """
+
+    _plugin_id = "note"
+    _plugin_label = _("Note")
 
     #: The entity the note belongs to.
     entity = ManyToOne["Note", "HasNotes"](
@@ -582,16 +585,6 @@ class Note(UserFacingEntity, HasPrivacy, HasLinks, Entity):
         self.text = text
         if entity is not None:
             self.entity = entity
-
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "note"
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return _("Note")
 
     @override
     @classmethod
@@ -706,6 +699,7 @@ class HasCitations(Entity):
 
 @final
 class File(
+    ShorthandPluginBase,
     HasDescription,
     HasPrivacy,
     HasLinks,
@@ -725,6 +719,9 @@ class File(
     - audio
     - PDF documents
     """
+
+    _plugin_id = "file"
+    _plugin_label = _("File")
 
     referees = OneToMany["File", "FileReference"](
         "betty.ancestry:File",
@@ -771,16 +768,6 @@ class File(
 
     @override
     @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "file"
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return _("File")
-
-    @override
-    @classmethod
     def plugin_label_plural(cls) -> Localizable:
         return _("Files")
 
@@ -824,12 +811,15 @@ class File(
         return schema
 
 
-class FileReference(Entity):
+class FileReference(ShorthandPluginBase, Entity):
     """
     A reference between :py:class:`betty.ancestry.HasFileReferences` and betty.ancestry.File.
 
     This reference holds additional information specific to the relationship between the two entities.
     """
+
+    _plugin_id = "file-reference"
+    _plugin_label = _("File reference")
 
     #: The entity that references the file.
     referee = ManyToOne["FileReference", "HasFileReferences"](
@@ -856,16 +846,6 @@ class FileReference(Entity):
         self.referee = referee
         self.file = file
         self.focus = focus
-
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "file-reference"
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return _("File reference")
 
     @override
     @classmethod
@@ -914,11 +894,21 @@ class HasFileReferences(Entity):
 
 @final
 class Source(
-    HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, UserFacingEntity, Entity
+    ShorthandPluginBase,
+    HasDate,
+    HasFileReferences,
+    HasNotes,
+    HasLinks,
+    HasPrivacy,
+    UserFacingEntity,
+    Entity,
 ):
     """
     A source of information.
     """
+
+    _plugin_id = "source"
+    _plugin_label = _("Source")
 
     #: The source this one is directly contained by.
     contained_by = ManyToOne["Source", "Source"](
@@ -1005,16 +995,6 @@ class Source(
 
     @override
     @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "source"
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return _("Source")
-
-    @override
-    @classmethod
     def plugin_label_plural(cls) -> Localizable:
         return _("Sources")
 
@@ -1077,10 +1057,20 @@ class Source(
 
 
 @final
-class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks, UserFacingEntity):
+class Citation(
+    ShorthandPluginBase,
+    HasDate,
+    HasFileReferences,
+    HasPrivacy,
+    HasLinks,
+    UserFacingEntity,
+):
     """
     A citation (a reference to a source).
     """
+
+    _plugin_id = "citation"
+    _plugin_label = _("Citation")
 
     facts = ManyToMany["Citation", HasCitations](
         "betty.ancestry:Citation",
@@ -1131,16 +1121,6 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks, UserFacingEntit
         if self.source:
             return merge_privacies(privacy, self.source.privacy)
         return privacy
-
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "citation"
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return _("Citation")
 
     @override
     @classmethod
@@ -1213,12 +1193,15 @@ class Name(StaticTranslationsLocalizable, HasDate):
 
 
 @final
-class Enclosure(HasDate, HasCitations, Entity):
+class Enclosure(ShorthandPluginBase, HasDate, HasCitations, Entity):
     """
     The enclosure of one place by another.
 
     Enclosures describe the outer (```enclosed_by`) and inner(``encloses``) places, and their relationship.
     """
+
+    _plugin_id = "enclosure"
+    _plugin_label = _("Enclosure")
 
     #: The outer place.
     enclosed_by = ManyToOne["Enclosure", "Place"](
@@ -1246,23 +1229,19 @@ class Enclosure(HasDate, HasCitations, Entity):
 
     @override
     @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "enclosure"
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return _("Enclosure")
-
-    @override
-    @classmethod
     def plugin_label_plural(cls) -> Localizable:
         return _("Enclosures")
 
 
 @final
 class Place(
-    HasLinks, HasFileReferences, HasNotes, HasPrivacy, UserFacingEntity, Entity
+    ShorthandPluginBase,
+    HasLinks,
+    HasFileReferences,
+    HasNotes,
+    HasPrivacy,
+    UserFacingEntity,
+    Entity,
 ):
     """
     A place.
@@ -1271,6 +1250,9 @@ class Place(
     be a well-known city, with names in many languages, imagery, and its own Wikipedia page, or
     any type of place in between.
     """
+
+    _plugin_id = "place"
+    _plugin_label = _("Place")
 
     events = OneToMany["Place", "Event"](
         "betty.ancestry:Place", "events", "betty.ancestry:Event", "place"
@@ -1331,16 +1313,6 @@ class Place(
             yield enclosure
             if enclosure.encloses is not None:
                 yield from enclosure.encloses.walk_encloses
-
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "place"
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return _("Place")
 
     @override
     @classmethod
@@ -1456,10 +1428,13 @@ class Place(
 
 
 @final
-class Presence(HasPrivacy, Entity):
+class Presence(ShorthandPluginBase, HasPrivacy, Entity):
     """
     The presence of a :py:class:`betty.ancestry.Person` at an :py:class:`betty.ancestry.Event`.
     """
+
+    _plugin_id = "presence"
+    _plugin_label = _("Presence")
 
     #: The person whose presence is described.
     person = ManyToOne["Presence", "Person"](
@@ -1491,16 +1466,6 @@ class Presence(HasPrivacy, Entity):
 
     @override
     @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "presence"
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return _("Presence")
-
-    @override
-    @classmethod
     def plugin_label_plural(cls) -> Localizable:
         return _("Presences")
 
@@ -1523,6 +1488,7 @@ class Presence(HasPrivacy, Entity):
 
 @final
 class Event(
+    ShorthandPluginBase,
     HasDate,
     HasFileReferences,
     HasCitations,
@@ -1535,6 +1501,9 @@ class Event(
     """
     An event that took place.
     """
+
+    _plugin_id = "event"
+    _plugin_label = _("Event")
 
     #: The place the event happened.
     place = ManyToOne["Event", Place](
@@ -1627,16 +1596,6 @@ class Event(
 
     @override
     @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "event"
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return _("Event")
-
-    @override
-    @classmethod
     def plugin_label_plural(cls) -> Localizable:
         return _("Events")
 
@@ -1719,10 +1678,13 @@ class _EventPresenceSchema(JsonLdObject):
 
 
 @final
-class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
+class PersonName(ShorthandPluginBase, HasLocale, HasCitations, HasPrivacy, Entity):
     """
     A name for a :py:class:`betty.ancestry.Person`.
     """
+
+    _plugin_id = "person-name"
+    _plugin_label = _("Person name")
 
     #: The person whose name this is.
     person = ManyToOne["PersonName", "Person"](
@@ -1773,16 +1735,6 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
         return repr_instance(
             self, id=self.id, individual=self.individual, affiliation=self.affiliation
         )
-
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "person-name"
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return _("Person name")
 
     @override
     @classmethod
@@ -1858,6 +1810,7 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
 
 @final
 class Person(
+    ShorthandPluginBase,
     HasFileReferences,
     HasCitations,
     HasNotes,
@@ -1869,6 +1822,9 @@ class Person(
     """
     A person.
     """
+
+    _plugin_id = "person"
+    _plugin_label = _("Person")
 
     parents = ManyToMany["Person", "Person"](
         "betty.ancestry:Person",
@@ -1931,16 +1887,6 @@ class Person(
         if names is not None:
             self.names = names
         self.gender = gender or UnknownGender()
-
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "person"
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return _("Person")
 
     @override
     @classmethod

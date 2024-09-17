@@ -45,7 +45,7 @@ from betty.locale.localizable.config import (
 )
 from betty.machine_name import assert_machine_name
 from betty.model import Entity, UserFacingEntity
-from betty.plugin import PluginShorthandBase
+from betty.plugin import ShorthandPluginBase
 from betty.plugin.assertion import assert_plugin
 from betty.plugin.config import (
     PluginConfigurationPluginConfigurationMapping,
@@ -639,7 +639,7 @@ class EventTypeConfigurationMapping(
 
     @override
     def _create_plugin(self, configuration: PluginConfiguration) -> type[EventType]:
-        class _ProjectConfigurationEventType(PluginShorthandBase, EventType):
+        class _ProjectConfigurationEventType(ShorthandPluginBase, EventType):
             _plugin_id = configuration.id
             _plugin_label = configuration.label
             _plugin_description = configuration.description
@@ -656,7 +656,7 @@ class PlaceTypeConfigurationMapping(
 
     @override
     def _create_plugin(self, configuration: PluginConfiguration) -> type[PlaceType]:
-        class _ProjectConfigurationPlaceType(PluginShorthandBase, PlaceType):
+        class _ProjectConfigurationPlaceType(ShorthandPluginBase, PlaceType):
             _plugin_id = configuration.id
             _plugin_label = configuration.label
             _plugin_description = configuration.description
@@ -673,7 +673,7 @@ class PresenceRoleConfigurationMapping(
 
     @override
     def _create_plugin(self, configuration: PluginConfiguration) -> type[PresenceRole]:
-        class _ProjectConfigurationPresenceRole(PluginShorthandBase, PresenceRole):
+        class _ProjectConfigurationPresenceRole(ShorthandPluginBase, PresenceRole):
             _plugin_id = configuration.id
             _plugin_label = configuration.label
             _plugin_description = configuration.description
@@ -688,7 +688,7 @@ class GenderConfigurationMapping(PluginConfigurationPluginConfigurationMapping[G
 
     @override
     def _create_plugin(self, configuration: PluginConfiguration) -> type[Gender]:
-        class _ProjectConfigurationGender(PluginShorthandBase, Gender):
+        class _ProjectConfigurationGender(ShorthandPluginBase, Gender):
             _plugin_id = configuration.id
             _plugin_label = configuration.label
             _plugin_description = configuration.description

@@ -33,7 +33,7 @@ from betty.extension.trees import Trees
 from betty.extension.wikipedia import Wikipedia
 from betty.load import LoadAncestryEvent
 from betty.locale.date import Date, DateRange
-from betty.locale.localizable import static, Localizable
+from betty.locale.localizable import static
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project
 from betty.project.config import (
@@ -43,11 +43,11 @@ from betty.project.config import (
 )
 from betty.project.extension import Extension
 from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
+from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
     from betty.plugin import PluginIdentifier
     from betty.event_dispatcher import EventHandlerRegistry
-    from betty.machine_name import MachineName
     from betty.app import App
     from collections.abc import AsyncIterator
     from betty.model import Entity
@@ -422,20 +422,13 @@ Did you know that Liberta "Betty" Lankester is Betty's namesake?
 
 
 @final
-class Demo(Extension):
+class Demo(ShorthandPluginBase, Extension):
     """
     Provide demonstration site functionality.
     """
 
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "demo"
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return static("Demo")
+    _plugin_id = "demo"
+    _plugin_label = static("Demo")
 
     @override
     @classmethod

@@ -10,14 +10,14 @@ from typing_extensions import override
 
 from betty.ancestry import Person, HasPrivacy
 from betty.load import PostLoadAncestryEvent
-from betty.locale.localizable import _, Localizable
+from betty.locale.localizable import _
+from betty.plugin import ShorthandPluginBase
 from betty.privatizer import Privatizer as PrivatizerApi
 from betty.project.extension import Extension
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence, MutableMapping
     from betty.event_dispatcher import EventHandlerRegistry
-    from betty.machine_name import MachineName
     from betty.model import Entity
 
 
@@ -70,28 +70,17 @@ async def _privatize_ancestry(event: PostLoadAncestryEvent) -> None:
 
 
 @final
-class Privatizer(Extension):
+class Privatizer(ShorthandPluginBase, Extension):
     """
     Extend the Betty Application with privatization features.
     """
 
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "privatizer"
+    _plugin_id = "privatizer"
+    _plugin_label = _("Privatizer")
+    _plugin_description = _(
+        "Determine if people can be proven to have died. If not, mark them and their associated entities private."
+    )
 
     @override
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
         registry.add_handler(PostLoadAncestryEvent, _privatize_ancestry)
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return _("Privatizer")
-
-    @override
-    @classmethod
-    def plugin_description(cls) -> Localizable:
-        return _(
-            "Determine if people can be proven to have died. If not, mark them and their associated entities private."
-        )

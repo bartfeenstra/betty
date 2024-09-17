@@ -13,13 +13,13 @@ from betty.ancestry import Person
 from betty.asyncio import gather
 from betty.extension.webpack import Webpack, WebpackEntryPointProvider
 from betty.generate import GenerateSiteEvent
-from betty.locale.localizable import _, Localizable
+from betty.locale.localizable import _
+from betty.plugin import ShorthandPluginBase
 from betty.project.extension import Extension
 
 if TYPE_CHECKING:
     from betty.event_dispatcher import EventHandlerRegistry
     from betty.plugin import PluginIdentifier
-    from betty.machine_name import MachineName
     from collections.abc import Sequence
 
 
@@ -59,15 +59,16 @@ async def _generate_people_json_for_locale(
 
 
 @final
-class Trees(Extension, WebpackEntryPointProvider):
+class Trees(ShorthandPluginBase, Extension, WebpackEntryPointProvider):
     """
     Provide interactive family trees for use in web pages.
     """
 
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "trees"
+    _plugin_id = "trees"
+    _plugin_label = _("Trees")
+    _plugin_description = _(
+        'Display interactive family trees using <a href="https://cytoscape.org/">Cytoscape</a>.'
+    )
 
     @override
     @classmethod
@@ -86,15 +87,3 @@ class Trees(Extension, WebpackEntryPointProvider):
     @override
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:
         return ()
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return _("Trees")
-
-    @override
-    @classmethod
-    def plugin_description(cls) -> Localizable:
-        return _(
-            'Display interactive family trees using <a href="https://cytoscape.org/">Cytoscape</a>.'
-        )

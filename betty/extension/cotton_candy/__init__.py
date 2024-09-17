@@ -37,15 +37,15 @@ from betty.jinja2 import (
     Filters,
 )
 from betty.locale.date import Date, Datey
-from betty.locale.localizable import _, static, Localizable
+from betty.locale.localizable import _, static
 from betty.model import GeneratedEntityId
 from betty.os import link_or_copy
 from betty.project.extension import ConfigurableExtension, Theme, Extension
+from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
     from betty.plugin import PluginIdentifier
     from betty.event_dispatcher import EventHandlerRegistry
-    from betty.machine_name import MachineName
     from collections.abc import Sequence
 
 _RESULT_CONTAINER_TEMPLATE = """
@@ -102,6 +102,7 @@ async def _generate_search_index_for_locale(
 
 @final
 class CottonCandy(
+    ShorthandPluginBase,
     Theme,
     CssProvider,
     ConfigurableExtension[CottonCandyConfiguration],
@@ -112,10 +113,9 @@ class CottonCandy(
     Provide Betty's default front-end theme.
     """
 
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "cotton-candy"
+    _plugin_id = "cotton-candy"
+    _plugin_label = static("Cotton Candy")
+    _plugin_description = _("Cotton Candy is Betty's default theme.")
 
     @override
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
@@ -162,18 +162,8 @@ class CottonCandy(
 
     @override
     @classmethod
-    def plugin_label(cls) -> Localizable:
-        return static("Cotton Candy")
-
-    @override
-    @classmethod
     def default_configuration(cls) -> CottonCandyConfiguration:
         return CottonCandyConfiguration()
-
-    @override
-    @classmethod
-    def plugin_description(cls) -> Localizable:
-        return _("Cotton Candy is Betty's default theme.")
 
     @override
     @property

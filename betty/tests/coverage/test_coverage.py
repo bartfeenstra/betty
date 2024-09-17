@@ -519,7 +519,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             # This is an interface method.
             "plugin_label": TestKnownToBeMissing,
         },
-        "PluginShorthandBase": TestKnownToBeMissing,
+        "ShorthandPluginBase": TestKnownToBeMissing,
         # This is a base/sentinel class.
         "PluginError": TestKnownToBeMissing,
         "PluginRepository": {

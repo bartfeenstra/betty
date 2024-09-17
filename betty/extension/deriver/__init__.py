@@ -15,13 +15,13 @@ from betty.ancestry.event_type import DerivableEventType
 from betty.deriver import Deriver as DeriverApi
 from betty.extension.privatizer import Privatizer
 from betty.load import PostLoadAncestryEvent
-from betty.locale.localizable import _, Localizable
+from betty.locale.localizable import _
 from betty.project.extension import Extension
+from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
     from betty.plugin import PluginIdentifier
     from betty.event_dispatcher import EventHandlerRegistry
-    from betty.machine_name import MachineName
 
 
 async def _derive_ancestry(event: PostLoadAncestryEvent) -> None:
@@ -38,15 +38,16 @@ async def _derive_ancestry(event: PostLoadAncestryEvent) -> None:
 
 
 @final
-class Deriver(Extension):
+class Deriver(ShorthandPluginBase, Extension):
     """
     Expand an ancestry by deriving additional data from existing data.
     """
 
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "deriver"
+    _plugin_id = "deriver"
+    _plugin_label = _("Deriver")
+    _plugin_description = _(
+        "Create events such as births and deaths by deriving their details from existing information."
+    )
 
     @override
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
@@ -56,15 +57,3 @@ class Deriver(Extension):
     @classmethod
     def comes_before(cls) -> set[PluginIdentifier[Extension]]:
         return {Privatizer}
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return _("Deriver")
-
-    @override
-    @classmethod
-    def plugin_description(cls) -> Localizable:
-        return _(
-            "Create events such as births and deaths by deriving their details from existing information."
-        )
