@@ -57,18 +57,15 @@ class Attr(Generic[_InstanceT, _ValueT], ABC):
             return value
 
 
-class MutableAttr(Generic[_InstanceT, _ValueT, _SetT], Attr[_InstanceT, _ValueT]):
+class SettableAttr(Generic[_InstanceT, _ValueT, _SetT], Attr[_InstanceT, _ValueT]):
     """
-    A base class for a mutable property-like attribute.
+    A base class for a settable property-like attribute.
 
-    To test your own subclasses, use :py:class:`betty.test_utils.attr.MutableAttrTestBase`.
+    To test your own subclasses, use :py:class:`betty.test_utils.attr.SettableAttrTestBase`.
     """
 
     def __set__(self, instance: _InstanceT, value: _SetT) -> None:
         self.set_attr(instance, value)
-
-    def __delete__(self, instance: _InstanceT) -> None:
-        self.del_attr(instance)
 
     @abstractmethod
     def set_attr(self, instance: _InstanceT, value: _SetT) -> None:
@@ -76,6 +73,19 @@ class MutableAttr(Generic[_InstanceT, _ValueT, _SetT], Attr[_InstanceT, _ValueT]
         Set the attribute value.
         """
         pass
+
+
+class DeletableAttr(
+    Generic[_InstanceT, _ValueT, _SetT], SettableAttr[_InstanceT, _ValueT, _SetT]
+):
+    """
+    A base class for a deletable property-like attribute.
+
+    To test your own subclasses, use :py:class:`betty.test_utils.attr.DeletableAttrTestBase`.
+    """
+
+    def __delete__(self, instance: _InstanceT) -> None:
+        self.del_attr(instance)
 
     @abstractmethod
     def del_attr(self, instance: _InstanceT) -> None:

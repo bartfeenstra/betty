@@ -8,7 +8,7 @@ from typing import Self, final
 from typing_extensions import override
 
 from betty.assertion import assert_len
-from betty.attr import MutableAttr
+from betty.attr import SettableAttr, DeletableAttr
 from betty.config import Configuration
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import (
@@ -51,19 +51,12 @@ class StaticTranslationsLocalizableConfiguration(
         return minimize(self._translations, True)
 
 
-@final
-class StaticTranslationsLocalizableConfigurationAttr(
-    MutableAttr[
+class _StaticTranslationsLocalizableConfigurationAttr(
+    SettableAttr[
         object, StaticTranslationsLocalizableConfiguration, ShorthandStaticTranslations
     ],
 ):
-    """
-    An instance attribute that contains :py:class:`betty.locale.localizable.config.StaticTranslationsLocalizableConfiguration`.
-    """
-
-    def __init__(self, attr_name: str, *, required: bool = True):
-        super().__init__(attr_name)
-        self._required = required
+    _required: bool
 
     @override
     def new_attr(self, instance: object) -> StaticTranslationsLocalizableConfiguration:
@@ -72,6 +65,31 @@ class StaticTranslationsLocalizableConfigurationAttr(
     @override
     def set_attr(self, instance: object, value: ShorthandStaticTranslations) -> None:
         self.get_attr(instance).replace(value)
+
+
+@final
+class RequiredStaticTranslationsLocalizableConfigurationAttr(
+    _StaticTranslationsLocalizableConfigurationAttr
+):
+    """
+    An instance attribute that contains :py:class:`betty.locale.localizable.config.StaticTranslationsLocalizableConfiguration`.
+    """
+
+    _required = True
+
+
+@final
+class OptionalStaticTranslationsLocalizableConfigurationAttr(
+    _StaticTranslationsLocalizableConfigurationAttr,
+    DeletableAttr[
+        object, StaticTranslationsLocalizableConfiguration, ShorthandStaticTranslations
+    ],
+):
+    """
+    An instance attribute that contains :py:class:`betty.locale.localizable.config.StaticTranslationsLocalizableConfiguration`.
+    """
+
+    _required = False
 
     @override
     def del_attr(self, instance: object) -> None:

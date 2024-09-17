@@ -74,11 +74,13 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             # This is an abstract method.
             "new_attr": TestKnownToBeMissing,
         },
-        "MutableAttr": {
-            # This is an abstract method.
-            "set_attr": TestKnownToBeMissing,
+        "DeletableAttr": {
             # This is an abstract method.
             "del_attr": TestKnownToBeMissing,
+        },
+        "SettableAttr": {
+            # This is an abstract method.
+            "set_attr": TestKnownToBeMissing,
         },
     },
     "betty/app/__init__.py": {

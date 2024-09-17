@@ -40,9 +40,10 @@ from betty.locale.localizable import (
     Localizable,
     call,
     ShorthandStaticTranslations,
-    StaticTranslationsLocalizableAttr,
     StaticTranslationsLocalizableSchema,
     StaticTranslationsLocalizable,
+    OptionalStaticTranslationsLocalizableAttr,
+    RequiredStaticTranslationsLocalizableAttr,
 )
 from betty.locale.localized import Localized
 from betty.media_type import MediaType, MediaTypeSchema
@@ -296,7 +297,7 @@ class HasDescription(LinkedDataDumpable[Object]):
     """
 
     #: The human-readable description.
-    description = StaticTranslationsLocalizableAttr("description")
+    description = OptionalStaticTranslationsLocalizableAttr("description")
 
     def __init__(
         self,
@@ -440,7 +441,7 @@ class Link(HasMediaType, HasLocale, HasDescription, LinkedDataDumpable[Object]):
     #: The link's `IANA link relationship <https://www.iana.org/assignments/link-relations/link-relations.xhtml>`_.
     relationship: str | None
     #: The link's human-readable label.
-    label = StaticTranslationsLocalizableAttr("label")
+    label = OptionalStaticTranslationsLocalizableAttr("label")
 
     def __init__(
         self,
@@ -564,7 +565,7 @@ class Note(ShorthandPluginBase, UserFacingEntity, HasPrivacy, HasLinks, Entity):
     )
 
     #: The human-readable note text.
-    text = StaticTranslationsLocalizableAttr("text")
+    text = RequiredStaticTranslationsLocalizableAttr("text")
 
     def __init__(
         self,
@@ -931,13 +932,13 @@ class Source(
     )
 
     #: The human-readable source name.
-    name = StaticTranslationsLocalizableAttr("name")
+    name = OptionalStaticTranslationsLocalizableAttr("name")
 
     #: The human-readable author.
-    author = StaticTranslationsLocalizableAttr("author")
+    author = OptionalStaticTranslationsLocalizableAttr("author")
 
     #: The human-readable publisher.
-    publisher = StaticTranslationsLocalizableAttr("publisher")
+    publisher = OptionalStaticTranslationsLocalizableAttr("publisher")
 
     def __init__(
         self,
@@ -1086,7 +1087,7 @@ class Citation(
     )
 
     #: The human-readable citation location.
-    location = StaticTranslationsLocalizableAttr("location")
+    location = OptionalStaticTranslationsLocalizableAttr("location")
 
     def __init__(
         self,

@@ -1,18 +1,20 @@
 from typing import TYPE_CHECKING, Sequence
 
 import pytest
+from typing_extensions import override
+
 from betty.assertion.error import AssertionFailed
 from betty.locale import UNDETERMINED_LOCALE, DEFAULT_LOCALE
 from betty.locale.localizable import ShorthandStaticTranslations
 from betty.locale.localizable.assertion import assert_static_translations
 from betty.locale.localizable.config import (
     StaticTranslationsLocalizableConfiguration,
-    StaticTranslationsLocalizableConfigurationAttr,
+    OptionalStaticTranslationsLocalizableConfigurationAttr,
+    RequiredStaticTranslationsLocalizableConfigurationAttr,
 )
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.test_utils.attr import MutableAttrTestBase
+from betty.test_utils.attr import DeletableAttrTestBase, SettableAttrTestBase
 from betty.typing import Void
-from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump
@@ -139,19 +141,29 @@ class TestStaticTranslationsLocalizableConfiguration:
         }
 
 
-class TestStaticTranslationsLocalizableConfigurationAttr(
-    MutableAttrTestBase[
+class _StaticTranslationsLocalizableConfigurationAttrTestBase(
+    SettableAttrTestBase[
         object, StaticTranslationsLocalizableConfiguration, ShorthandStaticTranslations
     ]
+):
+    @override
+    def assert_eq(
+        self,
+        get_value: StaticTranslationsLocalizableConfiguration,
+        set_value: ShorthandStaticTranslations,
+    ) -> None:
+        assert get_value._translations == assert_static_translations()(set_value)
+
+
+class TestRequiredStaticTranslationsLocalizableConfigurationAttr(
+    _StaticTranslationsLocalizableConfigurationAttrTestBase
 ):
     @override
     def get_mutable_instances(
         self,
     ) -> tuple[Sequence[tuple[object, Sequence[ShorthandStaticTranslations]]], str]:
         class Instance:
-            attr = StaticTranslationsLocalizableConfigurationAttr(
-                "attr", required=False
-            )
+            attr = RequiredStaticTranslationsLocalizableConfigurationAttr("attr")
 
         return [
             (
@@ -165,19 +177,28 @@ class TestStaticTranslationsLocalizableConfigurationAttr(
             )
         ], "attr"
 
-    @override
-    def assert_eq(
-        self,
-        get_value: StaticTranslationsLocalizableConfiguration,
-        set_value: ShorthandStaticTranslations,
-    ) -> None:
-        assert get_value._translations == assert_static_translations()(set_value)
 
+class TestOptionalStaticTranslationsLocalizableConfigurationAttr(
+    _StaticTranslationsLocalizableConfigurationAttrTestBase,
+    DeletableAttrTestBase[
+        object, StaticTranslationsLocalizableConfiguration, ShorthandStaticTranslations
+    ],
+):
     @override
-    def test_new_attr(self) -> None:
-        instances, attr_name = self.get_mutable_instances()
-        for instance, _ in instances:
-            assert isinstance(
-                getattr(type(instance), attr_name).new_attr(instance),
-                type(getattr(instance, attr_name)),
+    def get_mutable_instances(
+        self,
+    ) -> tuple[Sequence[tuple[object, Sequence[ShorthandStaticTranslations]]], str]:
+        class Instance:
+            attr = OptionalStaticTranslationsLocalizableConfigurationAttr("attr")
+
+        return [
+            (
+                Instance(),
+                [
+                    "Hello, world!",
+                    {
+                        DEFAULT_LOCALE: "Hello, world!",
+                    },
+                ],
             )
+        ], "attr"
