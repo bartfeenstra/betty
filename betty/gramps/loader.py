@@ -44,8 +44,9 @@ from betty.ancestry import (
     Ancestry,
 )
 from betty.ancestry.event_type import Unknown as UnknownEventType, EventType
+from betty.ancestry.gender import Unknown as UnknownGender
 from betty.ancestry.place_type import PlaceType, Unknown
-from betty.ancestry.presence_role import Attendee, PresenceRole
+from betty.ancestry.presence_role import PresenceRole, Unknown as UnknownPresenceRole
 from betty.error import FileNotFound
 from betty.gramps.error import GrampsError, UserFacingGrampsError
 from betty.locale import UNDETERMINED_LOCALE
@@ -55,7 +56,6 @@ from betty.media_type import MediaType, InvalidMediaType
 from betty.model import Entity, AliasedEntity, AliasableEntity
 from betty.model.graph import EntityGraphBuilder
 from betty.path import rootname
-from betty.ancestry.gender import Unknown as UnknownGender
 
 if TYPE_CHECKING:
     from betty.ancestry.gender import Gender
@@ -636,7 +636,7 @@ class GrampsLoader:
                 gramps_presence_role
             ]
         except KeyError:
-            presence_role_type = Attendee
+            presence_role_type = UnknownPresenceRole
             getLogger(__name__).warning(
                 self._localizer._(
                     'Betty is unfamiliar with person "{person_id}"\'s Gramps presence role of "{gramps_presence_role}" for the event with Gramps handle "{event_handle}". The role was imported, but set to "{betty_presence_role}".',

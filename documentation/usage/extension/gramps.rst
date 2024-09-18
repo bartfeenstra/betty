@@ -289,7 +289,7 @@ Betty supports the following Gramps presence roles without any additional config
    * - ``Primary``
      - ``subject``
    * - ``Unknown``
-     - ``attendee``
+     - ``unknown``
    * - ``Witness``
      - ``witness``
 

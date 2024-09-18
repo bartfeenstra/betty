@@ -5,14 +5,6 @@ from typing import Iterator
 
 import pytest
 
-from betty.extension.cotton_candy import (
-    person_timeline_events,
-    associated_file_references,
-)
-from betty.locale.date import Datey, Date, DateRange
-from betty.model import (
-    GeneratedEntityId,
-)
 from betty.ancestry import (
     Person,
     Presence,
@@ -26,12 +18,24 @@ from betty.ancestry import (
     Place,
     FileReference,
 )
-from betty.ancestry.presence_role import PresenceRole, Subject, Attendee
 from betty.ancestry.event_type import (
     Birth,
     Unknown as UnknownEventType,
     EventType,
     Death,
+)
+from betty.ancestry.presence_role import (
+    PresenceRole,
+    Subject,
+    Unknown as UnknownPresenceRole,
+)
+from betty.extension.cotton_candy import (
+    person_timeline_events,
+    associated_file_references,
+)
+from betty.locale.date import Datey, Date, DateRange
+from betty.model import (
+    GeneratedEntityId,
 )
 from betty.project.config import DEFAULT_LIFETIME_THRESHOLD
 from betty.test_utils.model import DummyEntity
@@ -75,7 +79,7 @@ def _parameterize_with_associated_events() -> (
     )
     person_presence_roles = (
         (True, Subject()),
-        (False, Attendee()),
+        (False, UnknownPresenceRole()),
     )
     event_types = (
         (True, Birth()),
@@ -159,7 +163,7 @@ class TestPersonLifetimeEvents:
             date=event_datey,
             privacy=event_privacy,
         )
-        Presence(person, Attendee(), event)
+        Presence(person, UnknownPresenceRole(), event)
         actual = list(person_timeline_events(person, DEFAULT_LIFETIME_THRESHOLD))
         assert expected is (event in actual)
 

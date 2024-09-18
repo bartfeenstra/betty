@@ -5,7 +5,11 @@ from typing import Any, TYPE_CHECKING
 import pytest
 
 from betty.ancestry import Person, Place, Name
-from betty.ancestry.presence_role import Subject, Attendee, Witness
+from betty.ancestry.presence_role import (
+    Subject,
+    Witness,
+    Unknown as UnknownPresenceRole,
+)
 from betty.test_utils.assets.templates import TemplateTestBase
 
 if TYPE_CHECKING:
@@ -58,7 +62,7 @@ class TestTestSubjectRole(TemplateTestBase):
         [
             ("true", Subject()),
             ("false", Subject),
-            ("false", Attendee()),
+            ("false", UnknownPresenceRole()),
             ("false", 9),
         ],
     )
@@ -79,7 +83,7 @@ class TestTestWitnessRole(TemplateTestBase):
         [
             ("true", Witness()),
             ("false", Witness),
-            ("false", Attendee()),
+            ("false", UnknownPresenceRole()),
             ("false", 9),
         ],
     )

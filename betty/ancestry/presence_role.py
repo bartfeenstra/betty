@@ -128,3 +128,13 @@ class Organizer(ShorthandPluginBase, PresenceRole):
 
     _plugin_id = "organizer"
     _plugin_label = _("Organizer")
+
+
+@final
+class Unknown(ShorthandPluginBase, PresenceRole):
+    """
+    Someone's role in an event is unknown.
+    """
+
+    _plugin_id = "unknown"
+    _plugin_label = _("Unknown")

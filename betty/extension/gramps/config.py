@@ -50,10 +50,15 @@ from betty.ancestry.place_type import (
     State,
     Street,
     Town,
-    Unknown,
+    Unknown as UnknownPlaceType,
     Village,
 )
-from betty.ancestry.presence_role import Celebrant, Subject, Attendee, Witness
+from betty.ancestry.presence_role import (
+    Celebrant,
+    Subject,
+    Unknown as UnknownPresenceRole,
+    Witness,
+)
 from betty.assertion import (
     RequiredField,
     OptionalField,
@@ -196,7 +201,7 @@ class FamilyTreeConfiguration(Configuration):
                 "State": State.plugin_id(),
                 "Street": Street.plugin_id(),
                 "Town": Town.plugin_id(),
-                "Unknown": Unknown.plugin_id(),
+                "Unknown": UnknownPlaceType.plugin_id(),
                 "Village": Village.plugin_id(),
             }
         )
@@ -207,7 +212,7 @@ class FamilyTreeConfiguration(Configuration):
                 "Family": Subject.plugin_id(),
                 "Groom": Subject.plugin_id(),
                 "Primary": Subject.plugin_id(),
-                "Unknown": Attendee.plugin_id(),
+                "Unknown": UnknownPresenceRole.plugin_id(),
                 "Witness": Witness.plugin_id(),
             }
         )

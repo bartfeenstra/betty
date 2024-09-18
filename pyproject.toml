@@ -177,6 +177,7 @@ betty = 'betty.cli:main'
 'organizer' = 'betty.ancestry.presence_role:Organizer'
 'speaker' = 'betty.ancestry.presence_role:Speaker'
 'subject' = 'betty.ancestry.presence_role:Subject'
+'unknown' = 'betty.ancestry.presence_role:Unknown'
 'witness' = 'betty.ancestry.presence_role:Witness'
 
 [project.entry-points.'betty.renderer']

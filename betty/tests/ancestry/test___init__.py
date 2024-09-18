@@ -41,7 +41,7 @@ from betty.ancestry import (
 from betty.ancestry.event_type import Birth, Unknown as UnknownEventType
 from betty.ancestry.gender import Unknown as UnknownGender, NonBinary
 from betty.ancestry.place_type import Unknown as UnknownPlaceType
-from betty.ancestry.presence_role import Subject, Attendee
+from betty.ancestry.presence_role import Subject, Unknown as UnknownPresenceRole
 from betty.app import App
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.date import Date, DateRange
@@ -1759,10 +1759,10 @@ class TestPresence(EntityTestBase):
     @override
     async def get_sut_instances(self) -> Sequence[Entity]:
         return [
-            Presence(None, Attendee(), None),
-            Presence(Person(), Attendee(), None),
-            Presence(None, Attendee(), Event()),
-            Presence(Person(), Attendee(), Event()),
+            Presence(None, UnknownPresenceRole(), None),
+            Presence(Person(), UnknownPresenceRole(), None),
+            Presence(None, UnknownPresenceRole(), Event()),
+            Presence(Person(), UnknownPresenceRole(), Event()),
         ]
 
     async def test_person(self) -> None:
