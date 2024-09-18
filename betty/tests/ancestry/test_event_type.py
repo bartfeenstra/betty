@@ -26,7 +26,7 @@ from betty.ancestry.event_type import (
     Occupation,
     Residence,
     Retirement,
-    UnknownEventType,
+    Unknown,
     Will,
 )
 from betty.ancestry.presence_role import Subject
@@ -193,10 +193,10 @@ class TestRetirement(EventTypeTestBase):
         return Retirement
 
 
-class TestUnknownEventType(EventTypeTestBase):
+class TestUnknown(EventTypeTestBase):
     @override
     def get_sut_class(self) -> type[EventType]:
-        return UnknownEventType
+        return Unknown
 
 
 class TestWill(EventTypeTestBase):

@@ -43,7 +43,7 @@ from betty.ancestry import (
     FileReference,
     Ancestry,
 )
-from betty.ancestry.event_type import UnknownEventType, EventType
+from betty.ancestry.event_type import Unknown as UnknownEventType, EventType
 from betty.ancestry.place_type import PlaceType, Unknown
 from betty.ancestry.presence_role import Attendee, PresenceRole
 from betty.error import FileNotFound

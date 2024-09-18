@@ -12,7 +12,11 @@ from urllib.parse import quote
 
 from typing_extensions import override
 
-from betty.ancestry.event_type import EventType, UnknownEventType, EVENT_TYPE_REPOSITORY
+from betty.ancestry.event_type import (
+    EventType,
+    Unknown as UnknownEventType,
+    EVENT_TYPE_REPOSITORY,
+)
 from betty.ancestry.gender import Gender, Unknown as UnknownGender
 from betty.ancestry.place_type import PlaceType, Unknown as UnknownPlaceType
 from betty.ancestry.presence_role import PresenceRole, Subject, PresenceRoleSchema
