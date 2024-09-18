@@ -46,7 +46,7 @@ from betty.app import App
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.date import Date, DateRange
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.media_type import MediaType
+from betty.media_type import HTML, PLAIN_TEXT
 from betty.model.association import OneToOne
 from betty.project import Project
 from betty.test_utils.ancestry import (
@@ -589,7 +589,7 @@ class TestHasMediaType:
                 {
                     "mediaType": "text/plain",
                 },
-                DummyHasMediaType(media_type=MediaType("text/plain")),
+                DummyHasMediaType(media_type=PLAIN_TEXT),
             ),
         ],
     )
@@ -645,7 +645,7 @@ class TestLink:
             label="The Link",
             relationship="external",
             locale="nl-NL",
-            media_type=MediaType("text/html"),
+            media_type=HTML,
         )
         expected: Mapping[str, Any] = {
             "url": "https://example.com",
@@ -752,7 +752,7 @@ class TestFile(EntityTestBase):
             path=file_path,
         )
         assert sut.media_type is None
-        media_type = MediaType("text/plain")
+        media_type = PLAIN_TEXT
         sut.media_type = media_type
         assert sut.media_type == media_type
 
@@ -862,7 +862,7 @@ class TestFile(EntityTestBase):
             file = File(
                 id="the_file",
                 path=Path(f.name),
-                media_type=MediaType("text/plain"),
+                media_type=PLAIN_TEXT,
             )
             file.notes.add(
                 Note(
@@ -918,7 +918,7 @@ class TestFile(EntityTestBase):
                 id="the_file",
                 path=Path(f.name),
                 private=True,
-                media_type=MediaType("text/plain"),
+                media_type=PLAIN_TEXT,
             )
             file.notes.add(
                 Note(

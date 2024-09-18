@@ -5,7 +5,7 @@ from typing import Sequence, TYPE_CHECKING, Any
 import pytest
 from typing_extensions import override
 
-from betty.media_type import MediaType, InvalidMediaType, MediaTypeSchema
+from betty.media_type import MediaType, InvalidMediaType, MediaTypeSchema, PLAIN_TEXT
 from betty.test_utils.json.schema import SchemaTestBase
 
 if TYPE_CHECKING:
@@ -111,7 +111,7 @@ class TestMediaType:
         [True, False, None, "abc", 123, [], {}],
     )
     async def test___eq___with_not_implemented(self, other: Any) -> None:
-        assert MediaType("text/plain") != other
+        assert other != PLAIN_TEXT
 
     @pytest.mark.parametrize(
         ("expected", "left", "right"),
