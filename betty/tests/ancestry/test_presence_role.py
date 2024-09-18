@@ -12,6 +12,7 @@ from betty.ancestry.presence_role import (
     Celebrant,
     Organizer,
     Beneficiary,
+    Unknown,
 )
 from betty.json.schema import Schema
 from betty.serde.dump import Dump
@@ -67,6 +68,12 @@ class TestSubject(PluginTestBase[PresenceRole]):
     @override
     def get_sut_class(self) -> type[PresenceRole]:
         return Subject
+
+
+class TestUnknown(PluginTestBase[PresenceRole]):
+    @override
+    def get_sut_class(self) -> type[PresenceRole]:
+        return Unknown
 
 
 class TestWitness(PluginTestBase[PresenceRole]):

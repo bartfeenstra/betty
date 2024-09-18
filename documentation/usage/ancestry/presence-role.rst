@@ -20,6 +20,8 @@ Built-in presence roles
     The person was the celebrant or officiant at the event, such as a civil servant or a clergyperson.
 :py:class:`betty.ancestry.presence_role.Organizer`
     The person organized the event.
+:py:class:`betty.ancestry.presence_role.Unknown`
+    The person's role in the event is unknown.
 
 See also
 --------

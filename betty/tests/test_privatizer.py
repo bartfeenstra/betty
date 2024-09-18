@@ -2,11 +2,10 @@ from __future__ import annotations
 
 from datetime import datetime
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.locale.date import Date, DateRange
 from betty.ancestry import (
     Person,
     Presence,
@@ -19,11 +18,12 @@ from betty.ancestry import (
     Enclosure,
     FileReference,
 )
-from betty.ancestry.presence_role import Subject, Attendee
 from betty.ancestry.event_type import Death, Birth, Marriage
+from betty.ancestry.presence_role import Subject, Unknown as UnknownPresenceRole
+from betty.locale.date import Date, DateRange
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.privatizer import Privatizer
 from betty.project.config import DEFAULT_LIFETIME_THRESHOLD
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -299,8 +299,8 @@ class TestPrivatizer:
         person.citations.add(citation)
         FileReference(person, file)
         presence_as_subject = Presence(person, Subject(), Event(event_type=Birth()))
-        presence_as_attendee = Presence(
-            person, Attendee(), Event(event_type=Marriage())
+        presence_as_unknown = Presence(
+            person, UnknownPresenceRole(), Event(event_type=Marriage())
         )
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(
             person
@@ -309,7 +309,7 @@ class TestPrivatizer:
         assert citation.privacy is Privacy.UNDETERMINED
         assert file.privacy is Privacy.UNDETERMINED
         assert presence_as_subject.privacy is Privacy.UNDETERMINED
-        assert presence_as_attendee.privacy is Privacy.UNDETERMINED
+        assert presence_as_unknown.privacy is Privacy.UNDETERMINED
 
     async def test_privatize_person_should_privatize_if_private(self) -> None:
         citation = Citation(source=Source())
@@ -318,8 +318,8 @@ class TestPrivatizer:
         person.citations.add(citation)
         FileReference(person, file)
         presence_as_subject = Presence(person, Subject(), Event(event_type=Birth()))
-        presence_as_attendee = Presence(
-            person, Attendee(), Event(event_type=Marriage())
+        presence_as_unknown = Presence(
+            person, UnknownPresenceRole(), Event(event_type=Marriage())
         )
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(
             person
@@ -328,7 +328,7 @@ class TestPrivatizer:
         assert citation.private
         assert file.private
         assert presence_as_subject.private
-        assert presence_as_attendee.private
+        assert presence_as_unknown.private
 
     @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(0))
     async def test_privatize_person_without_relatives(

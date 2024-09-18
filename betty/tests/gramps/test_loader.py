@@ -25,7 +25,7 @@ from betty.ancestry.event_type import (
     EventType,
 )
 from betty.ancestry.gender import Unknown as UnknownGender, Gender, NonBinary
-from betty.ancestry.presence_role import Attendee, PresenceRole, Subject
+from betty.ancestry.presence_role import PresenceRole, Subject
 from betty.app import App
 from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsLoader, LoaderUsedAlready, GrampsFileNotFound
@@ -381,7 +381,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """,
-            presence_role_map={"MyFirstRole": Attendee},
+            presence_role_map={"MyFirstRole": Subject},
         )
         event = ancestry[Person]["I0000"].presences[0].event
         assert event is not None
