@@ -14,7 +14,7 @@ from betty.fetch import FetchResponse
 from betty.fetch.static import StaticFetcher
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.media_type import MediaType
+from betty.media_type import MediaType, HTML, PLAIN_TEXT
 from betty.project import Project
 from betty.project.config import LocaleConfiguration
 from betty.wikipedia import (
@@ -657,9 +657,9 @@ class TestPopulator:
     @pytest.mark.parametrize(
         ("expected", "media_type"),
         [
-            (MediaType("text/plain"), MediaType("text/plain")),
-            (MediaType("text/html"), MediaType("text/html")),
-            (MediaType("text/html"), None),
+            (PLAIN_TEXT, PLAIN_TEXT),
+            (HTML, HTML),
+            (HTML, None),
         ],
     )
     async def test_populate_link_should_set_media_type(
@@ -856,7 +856,7 @@ class TestPopulator:
             assert len(resource.links) == 1
             assert link.label.localize(DEFAULT_LOCALIZER) == "Amsterdam"
             assert link.locale == "en"
-            assert MediaType("text/html") == link.media_type
+            assert link.media_type == HTML
             assert link.description is not None
             assert link.relationship == "external"
 
@@ -920,7 +920,7 @@ class TestPopulator:
             link_nl = [link for link in resource.links if link != link_en][0]
             assert link_nl.label.localize(DEFAULT_LOCALIZER) == "Amsterdam"
             assert link_nl.locale == "nl"
-            assert MediaType("text/html") == link_nl.media_type
+            assert link_nl.media_type == HTML
             assert link_nl.description is not None
             assert link_nl.relationship == "external"
 
