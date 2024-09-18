@@ -18,6 +18,7 @@ from typing import (
 
 import aiofiles
 from aiofiles.os import makedirs
+
 from betty.assertion import (
     AssertionChain,
     assert_file_path,
@@ -25,8 +26,9 @@ from betty.assertion import (
 from betty.assertion.error import AssertionFailedGroup
 from betty.error import FileNotFound
 from betty.locale.localizable import plain
-from betty.serde.dump import Dumpable, Dump
+from betty.serde.dump import Dumpable
 from betty.serde.format import FormatRepository
+from betty.serde.load import Loadable
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -36,7 +38,7 @@ _ConfigurationListener: TypeAlias = Callable[[], None]
 ConfigurationListener: TypeAlias = "Configuration | _ConfigurationListener"
 
 
-class Configuration(Dumpable):
+class Configuration(Loadable, Dumpable):
     """
     Any configuration object.
     """
@@ -48,15 +50,6 @@ class Configuration(Dumpable):
     def update(self, other: Self) -> None:
         """
         Update this configuration with the values from ``other``.
-        """
-        pass
-
-    @abstractmethod
-    def load(self, dump: Dump) -> None:
-        """
-        Load dumped configuration.
-
-        :raises betty.assertion.error.AssertionFailed: Raised if the dump contains invalid configuration.
         """
         pass
 

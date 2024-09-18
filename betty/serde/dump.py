@@ -1,5 +1,5 @@
 """
-Provide a serialization API.
+An API to produce serializable data dumps.
 """
 
 from __future__ import annotations
@@ -78,12 +78,12 @@ def minimize(
 
 class Dumpable(ABC):
     """
-    Instances can be dumped to serializable data.
+    Instances can be produce serialized data dumps of ``self``.
     """
 
     @abstractmethod
     def dump(self) -> Voidable[Dump]:
         """
-        Dump this instance to a portable format.
+        Produce a serialized data dump of ``self``.
         """
         pass

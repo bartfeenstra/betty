@@ -174,6 +174,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/config/__init__.py": {
         "assert_configuration_file": TestKnownToBeMissing,
         "Configurable": TestKnownToBeMissing,
+        # This is an abstract class.
         "Configuration": TestKnownToBeMissing,
         "write_configuration_file": TestKnownToBeMissing,
     },
@@ -591,6 +592,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "label": TestKnownToBeMissing,
         },
     },
+    # This contains abstract classes only.
+    "betty/serde/load.py": TestKnownToBeMissing,
     "betty/serve.py": {
         "ProjectServer": TestKnownToBeMissing,
         "BuiltinProjectServer": {
