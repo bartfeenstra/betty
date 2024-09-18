@@ -606,7 +606,7 @@ class TestPrivatizer:
                 Privacy.UNDETERMINED,
                 [],
                 [
-                    Enclosure(None, None),
+                    Enclosure(Place(), Place()),
                 ],
             ),
             (
@@ -614,7 +614,7 @@ class TestPrivatizer:
                 Privacy.UNDETERMINED,
                 [],
                 [
-                    Enclosure(Place(public=True), None),
+                    Enclosure(Place(public=True), Place()),
                 ],
             ),
             (
@@ -622,7 +622,7 @@ class TestPrivatizer:
                 Privacy.UNDETERMINED,
                 [],
                 [
-                    Enclosure(Place(private=True), None),
+                    Enclosure(Place(private=True), Place()),
                 ],
             ),
         ],
@@ -648,7 +648,7 @@ class TestPrivatizer:
         enclosed_by = Place()
         place = Place(
             private=True,
-            enclosed_by=[Enclosure(None, enclosed_by)],
+            enclosed_by=[Enclosure(Place(), enclosed_by)],
         )
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(
             place
@@ -661,7 +661,7 @@ class TestPrivatizer:
         enclosed_by = Place(public=True)
         place = Place(
             private=True,
-            enclosed_by=[Enclosure(None, enclosed_by)],
+            enclosed_by=[Enclosure(Place(), enclosed_by)],
         )
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(
             place
@@ -672,11 +672,11 @@ class TestPrivatizer:
         self,
     ) -> None:
         enclosed_by = Place(
-            encloses=[Enclosure(Place(), None)],
+            encloses=[Enclosure(Place(), Place())],
         )
         place = Place(
             private=True,
-            enclosed_by=[Enclosure(None, enclosed_by)],
+            enclosed_by=[Enclosure(Place(), enclosed_by)],
         )
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(
             place
@@ -687,7 +687,7 @@ class TestPrivatizer:
         encloses = Place()
         place = Place(
             private=True,
-            encloses=[Enclosure(encloses, None)],
+            encloses=[Enclosure(encloses, Place())],
         )
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(
             place

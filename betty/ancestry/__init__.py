@@ -5,7 +5,7 @@ Provide Betty's main data model.
 from __future__ import annotations
 
 import enum
-from contextlib import suppress
+from contextlib import suppress, contextmanager
 from reprlib import recursive_repr
 from typing import Iterable, Any, TYPE_CHECKING, final
 from urllib.parse import quote
@@ -59,10 +59,12 @@ from betty.model import (
     EntityReferenceSchema,
 )
 from betty.model.association import (
-    ManyToOne,
-    OneToMany,
-    ManyToMany,
     AssociationRegistry,
+    RequiredManyToOne,
+    OptionalOneToMany,
+    OptionalManyToMany,
+    OptionalManyToOne,
+    EntityResolver,
 )
 from betty.model.collections import (
     MultipleTypesEntityCollection,
@@ -564,7 +566,7 @@ class Note(ShorthandPluginBase, UserFacingEntity, HasPrivacy, HasLinks, Entity):
     _plugin_label = _("Note")
 
     #: The entity the note belongs to.
-    entity = ManyToOne["Note", "HasNotes"](
+    entity = RequiredManyToOne["Note", "HasNotes"](
         "betty.ancestry:Note", "entity", "betty.ancestry:HasNotes", "notes"
     )
 
@@ -622,7 +624,7 @@ class HasNotes(Entity):
     An entity that has notes associated with it.
     """
 
-    notes = OneToMany["HasNotes", Note](
+    notes = OptionalOneToMany["HasNotes", Note](
         "betty.ancestry:HasNotes", "notes", "betty.ancestry:Note", "entity"
     )
 
@@ -662,7 +664,7 @@ class HasCitations(Entity):
     An entity with citations that support it.
     """
 
-    citations = ManyToMany["HasCitations & Entity", "Citation"](
+    citations = OptionalManyToMany["HasCitations & Entity", "Citation"](
         "betty.ancestry:HasCitations",
         "citations",
         "betty.ancestry:Citation",
@@ -728,7 +730,7 @@ class File(
     _plugin_id = "file"
     _plugin_label = _("File")
 
-    referees = OneToMany["File", "FileReference"](
+    referees = OptionalOneToMany["File", "FileReference"](
         "betty.ancestry:File",
         "referees",
         "betty.ancestry:FileReference",
@@ -796,8 +798,7 @@ class File(
                 f"/{camel_case_to_kebab_case(file_reference.referee.plugin_id())}/{quote(file_reference.referee.id)}/index.json"
             )
             for file_reference in self.referees
-            if file_reference.referee
-            and not isinstance(file_reference.referee.id, GeneratedEntityId)
+            if not isinstance(file_reference.referee.id, GeneratedEntityId)
         ]
         return dump
 
@@ -827,14 +828,14 @@ class FileReference(ShorthandPluginBase, Entity):
     _plugin_label = _("File reference")
 
     #: The entity that references the file.
-    referee = ManyToOne["FileReference", "HasFileReferences"](
+    referee = RequiredManyToOne["FileReference", "HasFileReferences"](
         "betty.ancestry:FileReference",
         "referee",
         "betty.ancestry:HasFileReferences",
         "file_references",
     )
     #: The referenced file.
-    file = ManyToOne["FileReference", File](
+    file = RequiredManyToOne["FileReference", File](
         "betty.ancestry:FileReference",
         "file",
         "betty.ancestry:File",
@@ -843,8 +844,10 @@ class FileReference(ShorthandPluginBase, Entity):
 
     def __init__(
         self,
-        referee: HasFileReferences & Entity | None = None,
-        file: File | None = None,
+        referee: HasFileReferences & Entity
+        | EntityResolver[HasFileReferences & Entity],
+        file: File | EntityResolver[File],
+        *,
         focus: FocusArea | None = None,
     ):
         super().__init__()
@@ -876,7 +879,7 @@ class HasFileReferences(Entity):
     An entity that has associated :py:class:`betty.ancestry.File` entities.
     """
 
-    file_references = OneToMany["HasFileReferences & Entity", FileReference](
+    file_references = OptionalOneToMany["HasFileReferences & Entity", FileReference](
         "betty.ancestry:HasFileReferences",
         "file_references",
         "betty.ancestry:FileReference",
@@ -916,19 +919,19 @@ class Source(
     _plugin_label = _("Source")
 
     #: The source this one is directly contained by.
-    contained_by = ManyToOne["Source", "Source"](
+    contained_by = OptionalManyToOne["Source", "Source"](
         "betty.ancestry:Source",
         "contained_by",
         "betty.ancestry:Source",
         "contains",
     )
-    contains = OneToMany["Source", "Source"](
+    contains = OptionalOneToMany["Source", "Source"](
         "betty.ancestry:Source",
         "contains",
         "betty.ancestry:Source",
         "contained_by",
     )
-    citations = OneToMany["Source", "Citation"](
+    citations = OptionalOneToMany["Source", "Citation"](
         "betty.ancestry:Source",
         "citations",
         "betty.ancestry:Citation",
@@ -1077,13 +1080,13 @@ class Citation(
     _plugin_id = "citation"
     _plugin_label = _("Citation")
 
-    facts = ManyToMany["Citation", HasCitations](
+    facts = OptionalManyToMany["Citation", HasCitations](
         "betty.ancestry:Citation",
         "facts",
         "betty.ancestry:HasCitations",
         "citations",
     )
-    source = ManyToOne["Citation", Source](
+    source = RequiredManyToOne["Citation", Source](
         "betty.ancestry:Citation",
         "source",
         "betty.ancestry:Source",
@@ -1096,9 +1099,9 @@ class Citation(
     def __init__(
         self,
         *,
+        source: Source | EntityResolver[Source],
         id: str | None = None,  # noqa A002  # noqa A002
         facts: Iterable[HasCitations & Entity] | None = None,
-        source: Source | None = None,
         location: ShorthandStaticTranslations | None = None,
         date: Datey | None = None,
         file_references: Iterable[FileReference] | None = None,
@@ -1148,9 +1151,7 @@ class Citation(
             for fact in self.facts
             if not isinstance(fact.id, GeneratedEntityId)
         ]
-        if self.source is not None and not isinstance(
-            self.source.id, GeneratedEntityId
-        ):
+        if not isinstance(self.source.id, GeneratedEntityId):
             dump["source"] = project.static_url_generator.generate(
                 f"/source/{quote(self.source.id)}/index.json"
             )
@@ -1209,14 +1210,14 @@ class Enclosure(ShorthandPluginBase, HasDate, HasCitations, Entity):
     _plugin_label = _("Enclosure")
 
     #: The outer place.
-    enclosed_by = ManyToOne["Enclosure", "Place"](
+    enclosed_by = RequiredManyToOne["Enclosure", "Place"](
         "betty.ancestry:Enclosure",
         "enclosed_by",
         "betty.ancestry:Place",
         "encloses",
     )
     #: The inner place.
-    encloses = ManyToOne["Enclosure", "Place"](
+    encloses = RequiredManyToOne["Enclosure", "Place"](
         "betty.ancestry:Enclosure",
         "encloses",
         "betty.ancestry:Place",
@@ -1225,8 +1226,8 @@ class Enclosure(ShorthandPluginBase, HasDate, HasCitations, Entity):
 
     def __init__(
         self,
-        encloses: Place | None = None,
-        enclosed_by: Place | None = None,
+        encloses: Place | EntityResolver[Place],
+        enclosed_by: Place | EntityResolver[Place],
     ):
         super().__init__()
         self.encloses = encloses
@@ -1259,16 +1260,16 @@ class Place(
     _plugin_id = "place"
     _plugin_label = _("Place")
 
-    events = OneToMany["Place", "Event"](
+    events = OptionalOneToMany["Place", "Event"](
         "betty.ancestry:Place", "events", "betty.ancestry:Event", "place"
     )
-    enclosed_by = OneToMany["Place", Enclosure](
+    enclosed_by = OptionalOneToMany["Place", Enclosure](
         "betty.ancestry:Place",
         "enclosed_by",
         "betty.ancestry:Enclosure",
         "encloses",
     )
-    encloses = OneToMany["Place", Enclosure](
+    encloses = OptionalOneToMany["Place", Enclosure](
         "betty.ancestry:Place",
         "encloses",
         "betty.ancestry:Enclosure",
@@ -1316,8 +1317,7 @@ class Place(
         """
         for enclosure in self.encloses:
             yield enclosure
-            if enclosure.encloses is not None:
-                yield from enclosure.encloses.walk_encloses
+            yield from enclosure.encloses.walk_encloses
 
     @override
     @classmethod
@@ -1386,16 +1386,14 @@ class Place(
                 f"/place/{quote(enclosure.enclosed_by.id)}/index.json"
             )
             for enclosure in self.enclosed_by
-            if enclosure.enclosed_by is not None
-            and not isinstance(enclosure.enclosed_by.id, GeneratedEntityId)
+            if not isinstance(enclosure.enclosed_by.id, GeneratedEntityId)
         ]
         dump["encloses"] = [
             project.static_url_generator.generate(
                 f"/place/{quote(enclosure.encloses.id)}/index.json"
             )
             for enclosure in self.encloses
-            if enclosure.encloses is not None
-            and not isinstance(enclosure.encloses.id, GeneratedEntityId)
+            if not isinstance(enclosure.encloses.id, GeneratedEntityId)
         ]
         if self.coordinates is not None:
             dump["coordinates"] = {
@@ -1442,14 +1440,14 @@ class Presence(ShorthandPluginBase, HasPrivacy, Entity):
     _plugin_label = _("Presence")
 
     #: The person whose presence is described.
-    person = ManyToOne["Presence", "Person"](
+    person = RequiredManyToOne["Presence", "Person"](
         "betty.ancestry:Presence",
         "person",
         "betty.ancestry:Person",
         "presences",
     )
     #: The event the person was present at.
-    event = ManyToOne["Presence", "Event"](
+    event = RequiredManyToOne["Presence", "Event"](
         "betty.ancestry:Presence",
         "event",
         "betty.ancestry:Event",
@@ -1460,9 +1458,9 @@ class Presence(ShorthandPluginBase, HasPrivacy, Entity):
 
     def __init__(
         self,
-        person: Person | None,
+        person: Person | EntityResolver[Person],
         role: PresenceRole,
-        event: Event | None,
+        event: Event | EntityResolver[Event],
     ):
         super().__init__(None)
         self.person = person
@@ -1511,10 +1509,10 @@ class Event(
     _plugin_label = _("Event")
 
     #: The place the event happened.
-    place = ManyToOne["Event", Place](
+    place = OptionalManyToOne["Event", Place](
         "betty.ancestry:Event", "place", "betty.ancestry:Place", "events"
     )
-    presences = OneToMany["Event", Presence](
+    presences = OptionalOneToMany["Event", Presence](
         "betty.ancestry:Event",
         "presences",
         "betty.ancestry:Presence",
@@ -1570,7 +1568,6 @@ class Event(
             for presence in self.presences
             if presence.public
             and isinstance(presence.role, Subject)
-            and presence.person is not None
             and presence.person.public
         ]
         if subjects:
@@ -1621,9 +1618,7 @@ class Event(
         dump["eventStatus"] = "https://schema.org/EventScheduled"
         dump["presences"] = presences = []
         for presence in self.presences:
-            if presence.person and not isinstance(
-                presence.person.id, GeneratedEntityId
-            ):
+            if not isinstance(presence.person.id, GeneratedEntityId):
                 presences.append(self._dump_event_presence(presence, project))
         if self.place is not None and not isinstance(self.place.id, GeneratedEntityId):
             dump["place"] = project.static_url_generator.generate(
@@ -1692,7 +1687,7 @@ class PersonName(ShorthandPluginBase, HasLocale, HasCitations, HasPrivacy, Entit
     _plugin_label = _("Person name")
 
     #: The person whose name this is.
-    person = ManyToOne["PersonName", "Person"](
+    person = RequiredManyToOne["PersonName", "Person"](
         "betty.ancestry:PersonName",
         "person",
         "betty.ancestry:Person",
@@ -1702,8 +1697,8 @@ class PersonName(ShorthandPluginBase, HasLocale, HasCitations, HasPrivacy, Entit
     def __init__(
         self,
         *,
+        person: Person,
         id: str | None = None,  # noqa A002
-        person: Person | None = None,
         individual: str | None = None,
         affiliation: str | None = None,
         privacy: Privacy | None = None,
@@ -1831,25 +1826,25 @@ class Person(
     _plugin_id = "person"
     _plugin_label = _("Person")
 
-    parents = ManyToMany["Person", "Person"](
+    parents = OptionalManyToMany["Person", "Person"](
         "betty.ancestry:Person",
         "parents",
         "betty.ancestry:Person",
         "children",
     )
-    children = ManyToMany["Person", "Person"](
+    children = OptionalManyToMany["Person", "Person"](
         "betty.ancestry:Person",
         "children",
         "betty.ancestry:Person",
         "parents",
     )
-    presences = OneToMany["Person", Presence](
+    presences = OptionalOneToMany["Person", Presence](
         "betty.ancestry:Person",
         "presences",
         "betty.ancestry:Presence",
         "person",
     )
-    names = OneToMany["Person", PersonName](
+    names = OptionalOneToMany["Person", PersonName](
         "betty.ancestry:Person",
         "names",
         "betty.ancestry:PersonName",
@@ -1971,8 +1966,7 @@ class Person(
         dump["presences"] = [
             self._dump_person_presence(presence, project)
             for presence in self.presences
-            if presence.event is not None
-            and not isinstance(presence.event.id, GeneratedEntityId)
+            if not isinstance(presence.event.id, GeneratedEntityId)
         ]
         if self.public:
             dump["names"] = [
@@ -2045,16 +2039,17 @@ class Ancestry(MultipleTypesEntityCollection[Entity]):
         super().__init__()
         self._check_graph = True
 
-    def add_unchecked_graph(self, *entities: Entity) -> None:
+    @contextmanager
+    def unchecked(self) -> Iterator[None]:
         """
-        Add entities to the ancestry but do not automatically add associates as well.
+        Disable the addition entities' associates when adding those entities to the ancestry.
 
         It is the caller's responsibility to ensure all associates are added to the ancestry.
-        If this is done, calling this method is faster than the usual entity collection methods.
+        If this is done, using this context manager improves performance.
         """
         self._check_graph = False
         try:
-            self.add(*entities)
+            yield
         finally:
             self._check_graph = True
 

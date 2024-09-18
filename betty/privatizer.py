@@ -107,12 +107,11 @@ class Privatizer:
         if not presence.private:
             return
 
-        if presence.event is not None and isinstance(presence.role, Subject):
+        if isinstance(presence.role, Subject):
             self._mark_private(presence.event, presence)
             self.privatize(presence.event)
-        if presence.person is not None:
-            self._mark_private(presence.person, presence)
-            self.privatize(presence.person)
+        self._mark_private(presence.person, presence)
+        self.privatize(presence.person)
 
     def _privatize_event(self, event: Event) -> None:
         if not event.private:
@@ -129,13 +128,9 @@ class Privatizer:
             return
 
         for enclosure in place.encloses:
-            if not enclosure.encloses:
-                continue
             self._mark_private(enclosure.encloses, place)
             self.privatize(enclosure.encloses)
         for enclosure in place.enclosed_by:
-            if not enclosure.enclosed_by:
-                continue
             self.privatize(enclosure.enclosed_by)
 
     def _privatize_has_citations(
@@ -166,9 +161,8 @@ class Privatizer:
             return
 
         for file_reference in has_file_references.file_references:
-            if file_reference.file is not None:
-                self._mark_private(file_reference.file, has_file_references)
-                self.privatize(file_reference.file)
+            self._mark_private(file_reference.file, has_file_references)
+            self.privatize(file_reference.file)
 
     def _privatize_has_notes(self, has_notes: HasNotes & HasPrivacy) -> None:
         if not has_notes.private:
@@ -192,9 +186,7 @@ class Privatizer:
 
         # A dead person is not private, regardless of when they died.
         for presence in person.presences:
-            if presence.event and isinstance(
-                presence.event.event_type, EndOfLifeEventType
-            ):
+            if isinstance(presence.event.event_type, EndOfLifeEventType):
                 if presence.event.date is None:
                     person.public = True
                     return
@@ -239,8 +231,6 @@ class Privatizer:
 
         # If there are non-private enclosed places, we will not privatize the place.
         for enclosure in place.encloses:
-            if not enclosure.encloses:
-                continue
             if not enclosure.encloses.private:
                 return
 
@@ -275,9 +265,7 @@ class Privatizer:
 
     def _person_has_expired(self, person: Person, generations_ago: int) -> bool:
         for presence in person.presences:
-            if presence.event is not None and self._event_has_expired(
-                presence.event, generations_ago
-            ):
+            if self._event_has_expired(presence.event, generations_ago):
                 return True
         return False
 

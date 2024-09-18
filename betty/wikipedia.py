@@ -489,11 +489,11 @@ class _Populator:
             image = await self._retriever.get_image(page_language, page_name)
             if not image:
                 return
-            has_file_references.file_references.add(
-                await self._image_file_reference(image)
-            )
+            await self._image_file_reference(has_file_references, image)
 
-    async def _image_file_reference(self, image: Image) -> FileReference:
+    async def _image_file_reference(
+        self, has_file_references: HasFileReferences, image: Image
+    ) -> FileReference:
         async with self._image_files_locks[image]:
             try:
                 file = self._image_files[image]
@@ -527,6 +527,6 @@ class _Populator:
                 )
                 self._image_files[image] = file
                 self._project.ancestry.add(file)
-            file_reference = FileReference(None, file)
+            file_reference = FileReference(has_file_references, file)
             self._project.ancestry.add(file_reference)
             return file_reference

@@ -47,7 +47,7 @@ from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.date import Date, DateRange
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import HTML, PLAIN_TEXT
-from betty.model.association import OneToOne
+from betty.model.association import OptionalOneToOne
 from betty.project import Project
 from betty.test_utils.ancestry import (
     DummyHasPrivacy,
@@ -1266,8 +1266,8 @@ class TestCitation(EntityTestBase):
     @override
     async def get_sut_instances(self) -> Sequence[Entity]:
         return [
-            Citation(),
-            Citation(location="My First Location"),
+            Citation(source=Source()),
+            Citation(source=Source(), location="My First Location"),
         ]
 
     async def test_id(self) -> None:
@@ -1431,11 +1431,13 @@ class TestHasCitations:
             ),
             (
                 {"citations": []},
-                DummyHasCitations(citations=[Citation()]),
+                DummyHasCitations(citations=[Citation(source=Source())]),
             ),
             (
                 {"citations": ["/citation/my-first-citation/index.json"]},
-                DummyHasCitations(citations=[Citation(id="my-first-citation")]),
+                DummyHasCitations(
+                    citations=[Citation(source=Source(), id="my-first-citation")]
+                ),
             ),
         ],
     )
@@ -1463,7 +1465,7 @@ class TestEnclosure(EntityTestBase):
     @override
     async def get_sut_instances(self) -> Sequence[Entity]:
         return [
-            Enclosure(),
+            Enclosure(Place(), Place()),
         ]
 
     async def test_encloses(self) -> None:
@@ -1759,9 +1761,6 @@ class TestPresence(EntityTestBase):
     @override
     async def get_sut_instances(self) -> Sequence[Entity]:
         return [
-            Presence(None, UnknownPresenceRole(), None),
-            Presence(Person(), UnknownPresenceRole(), None),
-            Presence(None, UnknownPresenceRole(), Event()),
             Presence(Person(), UnknownPresenceRole(), Event()),
         ]
 
@@ -2061,9 +2060,9 @@ class TestPersonName(EntityTestBase):
     @override
     async def get_sut_instances(self) -> Sequence[Entity]:
         return [
-            PersonName(individual="Jane"),
-            PersonName(affiliation="Doe"),
-            PersonName(individual="Jane", affiliation="Doe"),
+            PersonName(person=Person(), individual="Jane"),
+            PersonName(person=Person(), affiliation="Doe"),
+            PersonName(person=Person(), individual="Jane", affiliation="Doe"),
         ]
 
     async def test_person(self) -> None:
@@ -2127,7 +2126,7 @@ class TestPersonName(EntityTestBase):
                     "private": False,
                     "citations": [],
                 },
-                PersonName(individual="Jane"),
+                PersonName(person=Person(), individual="Jane"),
             ),
             (
                 {
@@ -2139,7 +2138,7 @@ class TestPersonName(EntityTestBase):
                     "private": False,
                     "citations": [],
                 },
-                PersonName(affiliation="Dough"),
+                PersonName(person=Person(), affiliation="Dough"),
             ),
             (
                 {
@@ -2153,7 +2152,12 @@ class TestPersonName(EntityTestBase):
                     "private": False,
                     "citations": [],
                 },
-                PersonName(individual="Jane", affiliation="Dough", locale="nl-NL"),
+                PersonName(
+                    person=Person(),
+                    individual="Jane",
+                    affiliation="Dough",
+                    locale="nl-NL",
+                ),
             ),
             (
                 {
@@ -2162,7 +2166,11 @@ class TestPersonName(EntityTestBase):
                     "citations": [],
                 },
                 PersonName(
-                    individual="Jane", affiliation="Dough", locale="nl-NL", private=True
+                    person=Person(),
+                    individual="Jane",
+                    affiliation="Dough",
+                    locale="nl-NL",
+                    private=True,
                 ),
             ),
         ],
@@ -2180,15 +2188,22 @@ class TestPerson(EntityTestBase):
 
     @override
     async def get_sut_instances(self) -> Sequence[Entity]:
+        person_with_private_names_only = Person()
+        PersonName(
+            person=person_with_private_names_only,
+            individual="Jane",
+            affiliation="Doe",
+            private=True,
+        )
+        person_with_one_public_name = Person()
+        PersonName(
+            person=person_with_one_public_name, individual="Jane", affiliation="Doe"
+        )
+
         return [
-            # No names.
             Person(),
-            # No public names.
-            Person(
-                names=[PersonName(individual="Jane", affiliation="Doe", private=True)]
-            ),
-            # One public name.
-            Person(names=[PersonName(individual="Jane", affiliation="Doe")]),
+            person_with_private_names_only,
+            person_with_one_public_name,
         ]
 
     async def test_parents(self) -> None:
@@ -2549,7 +2564,9 @@ class TestPerson(EntityTestBase):
 
 
 class _TestAncestry_OneToOne_Left(DummyEntity):
-    one_right = OneToOne["_TestAncestry_OneToOne_Left", "_TestAncestry_OneToOne_Right"](
+    one_right = OptionalOneToOne[
+        "_TestAncestry_OneToOne_Left", "_TestAncestry_OneToOne_Right"
+    ](
         "betty.tests.ancestry.test___init__:_TestAncestry_OneToOne_Left",
         "one_right",
         "betty.tests.ancestry.test___init__:_TestAncestry_OneToOne_Right",
@@ -2558,7 +2575,9 @@ class _TestAncestry_OneToOne_Left(DummyEntity):
 
 
 class _TestAncestry_OneToOne_Right(DummyEntity):
-    one_left = OneToOne["_TestAncestry_OneToOne_Right", _TestAncestry_OneToOne_Left](
+    one_left = OptionalOneToOne[
+        "_TestAncestry_OneToOne_Right", _TestAncestry_OneToOne_Left
+    ](
         "betty.tests.ancestry.test___init__:_TestAncestry_OneToOne_Right",
         "one_left",
         "betty.tests.ancestry.test___init__:_TestAncestry_OneToOne_Left",
@@ -2576,31 +2595,32 @@ class TestAncestry:
         assert left in sut
         assert right in sut
 
-    async def test_add_unchecked_graph(self) -> None:
+    async def test_unchecked(self) -> None:
         sut = Ancestry()
         left = _TestAncestry_OneToOne_Left()
         right = _TestAncestry_OneToOne_Right()
         left.one_right = right
-        sut.add_unchecked_graph(left)
+        with sut.unchecked():
+            sut.add(left)
         assert left in sut
         assert right not in sut
 
 
 class TestFileReference:
     async def test_focus(self) -> None:
-        sut = FileReference()
+        sut = FileReference(DummyHasFileReferences(), File(Path()))
         focus = (1, 2, 3, 4)
         sut.focus = focus
         assert sut.focus == focus
 
     async def test_file(self) -> None:
         file = File(Path())
-        sut = FileReference(None, file)
+        sut = FileReference(DummyHasFileReferences(), file)
         assert sut.file is file
 
     async def test_referee(self) -> None:
         referee = DummyHasFileReferences()
-        sut = FileReference(referee)
+        sut = FileReference(referee, File(Path()))
         assert sut.referee is referee
 
 

@@ -6,11 +6,12 @@ from typing import TYPE_CHECKING
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
 
-from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider, EntityContexts
 from betty.ancestry import (
     Citation,
     HasFileReferences,
+    Source,
 )
+from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider, EntityContexts
 from betty.project import Project
 from betty.test_utils.assets.templates import TemplateTestBase
 from betty.test_utils.model import DummyEntity
@@ -65,16 +66,16 @@ class DummyHasFileReferencesEntity(HasFileReferences, DummyEntity):
 
 class TestGlobalCiter(TemplateTestBase):
     async def test_cite(self) -> None:
-        citation1 = Citation()
-        citation2 = Citation()
+        citation1 = Citation(source=Source())
+        citation2 = Citation(source=Source())
         sut = _Citer()
         assert sut.cite(citation1) == 1
         assert sut.cite(citation2) == 2
         assert sut.cite(citation1) == 1
 
     async def test_iter(self) -> None:
-        citation1 = Citation()
-        citation2 = Citation()
+        citation1 = Citation(source=Source())
+        citation2 = Citation(source=Source())
         sut = _Citer()
         sut.cite(citation1)
         sut.cite(citation2)
@@ -82,8 +83,8 @@ class TestGlobalCiter(TemplateTestBase):
         assert list(sut) == [(1, citation1), (2, citation2)]
 
     async def test_len(self) -> None:
-        citation1 = Citation()
-        citation2 = Citation()
+        citation1 = Citation(source=Source())
+        citation2 = Citation(source=Source())
         sut = _Citer()
         sut.cite(citation1)
         sut.cite(citation2)

@@ -1,4 +1,4 @@
-from betty.ancestry import Citation
+from betty.ancestry import Citation, Source
 from betty.extension.cotton_candy import CottonCandy
 from betty.jinja2 import _Citer
 from betty.test_utils.assets.templates import TemplateTestBase
@@ -20,6 +20,7 @@ class Test(TemplateTestBase):
 
     async def test_with_public_citation(self) -> None:
         citation = Citation(
+            source=Source(),
             id="C1",
             location="On the shelf over there",
             public=True,
@@ -36,6 +37,7 @@ class Test(TemplateTestBase):
 
     async def test_with_private_citation(self) -> None:
         citation = Citation(
+            source=Source(),
             id="C1",
             location="On the shelf over there",
             private=True,

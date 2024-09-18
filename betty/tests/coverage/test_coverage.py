@@ -421,7 +421,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/model/__init__.py": {
         "unalias": TestKnownToBeMissing,
-        "AliasedEntity": TestKnownToBeMissing,
         "Entity": TestKnownToBeMissing,
         "GeneratedEntityId": TestKnownToBeMissing,
         # This is an interface.

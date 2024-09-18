@@ -5,19 +5,27 @@ Entity associations.
 from __future__ import annotations
 
 import weakref
-from abc import abstractmethod
-from typing import Generic, cast, Any, Iterable, TypeVar, final
+from abc import abstractmethod, ABC
+from typing import (
+    Generic,
+    cast,
+    Any,
+    Iterable,
+    TypeVar,
+    final,
+    Never,
+)
 
 from basedtyping import Intersection
 from typing_extensions import override
 
-from betty.attr import DeletableAttr
+from betty.attr import DeletableAttr, SettableAttr
 from betty.classtools import repr_instance
 from betty.importlib import import_any
 from betty.model import Entity
 from betty.model.collections import EntityCollection, SingleTypeEntityCollection
-from betty.typing import internal
 
+_T = TypeVar("_T")
 _EntityT = TypeVar("_EntityT", bound=Entity)
 _OwnerT = TypeVar("_OwnerT")
 _AssociateT = TypeVar("_AssociateT")
@@ -25,15 +33,60 @@ _AssociationAttrValueT = TypeVar("_AssociationAttrValueT")
 _AssociationAttrSetT = TypeVar("_AssociationAttrSetT")
 
 
-class Association(
+class AssociationRequired(RuntimeError):
+    """
+    Raised when an operation cannot be performed because the association in question is required.
+
+    These are preventable by checking :py:attr:`betty.model.association.Association.required`.
+    """
+
+    pass
+
+
+class ResolutionError(RuntimeError):
+    """
+    Raised when a :py:class:`betty.model.association.Resolver` cannot successfully resolve itself.
+    """
+
+    pass
+
+
+class Resolver(Generic[_T], ABC):
+    @abstractmethod
+    def resolve(self) -> _T:
+        """
+        Return the resolved entity or entities.
+
+        :raises ResolutionError: Raised if resolution failed.
+        """
+        pass
+
+
+class EntityResolver(Generic[_EntityT], Resolver[_EntityT]):
+    """
+    An object that can resolve to an entity.
+    """
+
+    pass
+
+
+class EntityCollectionResolver(Generic[_EntityT], Resolver[Iterable[_EntityT]]):
+    """
+    An object that can resolve to an entity collection.
+    """
+
+    pass
+
+
+class _Association(
     Generic[_OwnerT, _AssociateT, _AssociationAttrValueT, _AssociationAttrSetT],
-    DeletableAttr[
-        Intersection[_OwnerT, Entity], _AssociationAttrValueT, _AssociationAttrSetT
+    SettableAttr[
+        Intersection[_OwnerT, Entity],
+        _AssociationAttrValueT,
+        _AssociationAttrSetT,
     ],
 ):
-    """
-    Define an association between two entity types.
-    """
+    _required: bool
 
     def __init__(
         self,
@@ -53,6 +106,7 @@ class Association(
                 self._owner_type_name,
                 self._owner_attr_name,
                 self._associate_type_name,
+                self._required,
             )
         )
 
@@ -63,7 +117,18 @@ class Association(
             owner_type=self._owner_type_name,
             owner_attr_name=self._owner_attr_name,
             associate_type=self._associate_type_name,
+            required=self._required,
         )
+
+    @override
+    def get_attr(
+        self, instance: Intersection[_OwnerT, Entity]
+    ) -> _AssociationAttrValueT:
+        value = super().get_attr(instance)
+        if isinstance(value, Resolver):
+            value = value.resolve()
+            setattr(instance, self._attr_name, value)
+        return value
 
     @property
     def owner_type(self) -> type[_OwnerT]:
@@ -107,18 +172,24 @@ class Association(
     ) -> None:
         """
         Disassociate two entities.
+
+        :raises AssociationRequired: Raised if the association is required and the disassociation would leave it without
+            any associates.
         """
         pass
+
+    @property
+    def required(self) -> bool:
+        """
+        ``True`` if this association is required, or ``False`` if it may be empty.
+        """
+        return self._required
 
 
 class _BidirectionalAssociation(
     Generic[_OwnerT, _AssociateT, _AssociationAttrValueT, _AssociationAttrSetT],
-    Association[_OwnerT, _AssociateT, _AssociationAttrValueT, _AssociationAttrSetT],
+    _Association[_OwnerT, _AssociateT, _AssociationAttrValueT, _AssociationAttrSetT],
 ):
-    """
-    A bidirectional entity type association.
-    """
-
     def __init__(
         self,
         owner_type_name: str,
@@ -133,12 +204,14 @@ class _BidirectionalAssociation(
             associate_type_name,
         )
 
+    @override
     def __hash__(self) -> int:
         return hash(
             (
                 self._owner_type_name,
                 self._owner_attr_name,
                 self._associate_type_name,
+                self._required,
                 self._associate_attr_name,
             )
         )
@@ -150,6 +223,7 @@ class _BidirectionalAssociation(
             owner_type=self._owner_type_name,
             owner_attr_name=self._owner_attr_name,
             associate_type_name=self._associate_type_name,
+            required=self._required,
             associate_attr_name=self._associate_attr_name,
         )
 
@@ -173,35 +247,22 @@ class _BidirectionalAssociation(
         return association
 
 
-@internal
-class ToOneAssociation(
-    Generic[_OwnerT, _AssociateT],
-    Association[
+class _ToOneAssociation(
+    Generic[_OwnerT, _AssociateT, _AssociationAttrValueT, _AssociationAttrSetT],
+    _Association[
         _OwnerT,
         _AssociateT,
-        Intersection[_AssociateT, Entity] | None,
-        Intersection[_AssociateT, Entity] | None,
+        _AssociationAttrValueT,
+        _AssociationAttrSetT,
     ],
 ):
-    """
-    A unidirectional to-one entity type association.
-    """
-
-    @override
-    def new_attr(self, instance: _OwnerT & Entity) -> None:
-        return None
-
     @override
     def set_attr(
         self,
         instance: _OwnerT & Entity,
-        value: Intersection[_AssociateT, Entity] | None,
+        value: _AssociationAttrSetT,
     ) -> None:
         setattr(instance, self._attr_name, value)
-
-    @override
-    def del_attr(self, instance: _OwnerT & Entity) -> None:
-        self.set_attr(instance, None)
 
     @override
     def associate(
@@ -213,38 +274,33 @@ class ToOneAssociation(
     def disassociate(
         self, owner: _OwnerT & Entity, associate: _AssociateT & Entity
     ) -> None:
-        if associate == self.get_attr(owner):
+        if isinstance(self, DeletableAttr) and associate == self.get_attr(owner):
             self.del_attr(owner)
+        else:
+            raise AssociationRequired
 
 
-@internal
-class ToManyAssociation(
+class _ToManyAssociation(
     Generic[_OwnerT, _AssociateT],
-    Association[
+    _Association[
         _OwnerT,
         _AssociateT,
         EntityCollection[_AssociateT],
-        Iterable[Intersection[_AssociateT, Entity]],
+        EntityCollectionResolver[Intersection[_AssociateT, Entity]]
+        | Iterable[Intersection[_AssociateT, Entity]],
     ],
 ):
-    """
-    A to-many entity type association.
-    """
-
     @override
     def set_attr(
         self,
         instance: _OwnerT & Entity,
-        value: Iterable[Intersection[_AssociateT, Entity]],
+        value: EntityCollectionResolver[Intersection[_AssociateT, Entity]]
+        | Iterable[Intersection[_AssociateT, Entity]],
     ) -> None:
-        """
-        Set the associates on the given owner.
-        """
-        self.get_attr(instance).replace(*value)
-
-    @override
-    def del_attr(self, instance: _OwnerT & Entity) -> None:
-        self.get_attr(instance).clear()
+        if isinstance(value, Resolver):
+            setattr(instance, self._attr_name, value)
+        else:
+            self.get_attr(instance).replace(*value)
 
     @override
     def associate(
@@ -259,50 +315,72 @@ class ToManyAssociation(
         self.get_attr(owner).remove(associate)
 
 
-class _BidirectionalToOneAssociation(
+class _RequiredToManyAssociation(
     Generic[_OwnerT, _AssociateT],
-    ToOneAssociation[_OwnerT, _AssociateT],
-    _BidirectionalAssociation[
-        _OwnerT,
-        _AssociateT,
-        Intersection[_AssociateT, Entity] | None,
-        Intersection[_AssociateT, Entity] | None,
+    _ToManyAssociation[_OwnerT, _AssociateT],
+):
+    _required = True
+
+
+class _OptionalToManyAssociation(
+    Generic[_OwnerT, _AssociateT],
+    _ToManyAssociation[_OwnerT, _AssociateT],
+    DeletableAttr[
+        Intersection[_OwnerT, Entity],
+        EntityCollection[_AssociateT],
+        EntityCollectionResolver[Intersection[_AssociateT, Entity]]
+        | Iterable[Intersection[_AssociateT, Entity]],
     ],
 ):
-    """
-    A bidirectional *-to-one entity type association.
-    """
+    _required = False
 
+    @override
+    def del_attr(self, instance: _OwnerT & Entity) -> None:
+        self.get_attr(instance).clear()
+
+
+class _BidirectionalToOneAssociation(
+    Generic[_OwnerT, _AssociateT, _AssociationAttrValueT, _AssociationAttrSetT],
+    _ToOneAssociation[
+        _OwnerT, _AssociateT, _AssociationAttrValueT, _AssociationAttrSetT
+    ],
+    _BidirectionalAssociation[
+        _OwnerT, _AssociateT, _AssociationAttrValueT, _AssociationAttrSetT
+    ],
+):
     @override
     def set_attr(
         self,
         instance: _OwnerT & Entity & Entity,
-        value: Intersection[_AssociateT, Entity] | None,
+        value: _AssociationAttrSetT,
     ) -> None:
-        previous_associate = self.get_attr(instance)
-        if previous_associate == value:
-            return
-        super().set_attr(instance, value)
-        if previous_associate is not None:
+        try:
+            previous_associate = self.get_attr(instance)
+        except AssociationRequired:
+            pass
+        else:
+            if previous_associate == value:
+                return
+            # @todo COULD THIS BE IT???
+            print(value)
+            print(instance)
+            print(previous_associate)
             self.inverse().disassociate(previous_associate, instance)
-        if value is not None:
-            self.inverse().associate(value, instance)
+        super().set_attr(instance, value)
+        self.inverse().associate(value, instance)
 
 
 class _BidirectionalToManyAssociation(
     Generic[_OwnerT, _AssociateT],
-    ToManyAssociation[_OwnerT, _AssociateT],
+    _ToManyAssociation[_OwnerT, _AssociateT],
     _BidirectionalAssociation[
         _OwnerT,
         _AssociateT,
         EntityCollection[_AssociateT],
-        Iterable[Intersection[_AssociateT, Entity]],
+        EntityCollectionResolver[Intersection[_AssociateT, Entity]]
+        | Iterable[Intersection[_AssociateT, Entity]],
     ],
 ):
-    """
-    A bidirectional *-to-many entity type association.
-    """
-
     @override
     def new_attr(self, instance: _OwnerT & Entity) -> EntityCollection[_AssociateT]:
         return _BidirectionalAssociateCollection(
@@ -311,72 +389,227 @@ class _BidirectionalToManyAssociation(
         )
 
 
-@final
-class ToOne(Generic[_OwnerT, _AssociateT], ToOneAssociation[_OwnerT, _AssociateT]):
-    """
-    A unidirectional to-one entity type association.
-    """
-
-    pass
-
-
-@final
-class OneToOne(
+class _RequiredToOneAssociation(
     Generic[_OwnerT, _AssociateT],
-    _BidirectionalToOneAssociation[_OwnerT, _AssociateT],
+    _ToOneAssociation[
+        _OwnerT,
+        _AssociateT,
+        Intersection[_AssociateT, Entity],
+        EntityResolver[Intersection[_AssociateT, Entity]]
+        | Intersection[_AssociateT, Entity],
+    ],
+):
+    _required = True
+
+    @override
+    def new_attr(self, instance: _OwnerT & Entity) -> Never:
+        raise AssociationRequired
+
+
+class _OptionalToOneAssociation(
+    Generic[_OwnerT, _AssociateT],
+    _ToOneAssociation[
+        _OwnerT,
+        _AssociateT,
+        Intersection[_AssociateT, Entity] | None,
+        EntityResolver[Intersection[_AssociateT, Entity]]
+        | Intersection[_AssociateT, Entity]
+        | None,
+    ],
+    DeletableAttr[
+        Intersection[_OwnerT, Entity],
+        Intersection[_AssociateT, Entity] | None,
+        EntityResolver[Intersection[_AssociateT, Entity]]
+        | Intersection[_AssociateT, Entity]
+        | None,
+    ],
+):
+    _required = False
+
+    @override
+    def new_attr(self, instance: _OwnerT & Entity) -> None:
+        return None
+
+    @override
+    def del_attr(self, instance: _OwnerT & Entity) -> None:
+        self.set_attr(instance, None)
+
+
+@final
+class RequiredToOne(
+    Generic[_OwnerT, _AssociateT],
+    _RequiredToOneAssociation[_OwnerT, _AssociateT],
 ):
     """
-    A bidirectional one-to-one entity type association.
+    A required unidirectional to-one entity type association.
     """
 
     pass
 
 
 @final
-class ManyToOne(
+class OptionalToOne(
     Generic[_OwnerT, _AssociateT],
-    _BidirectionalToOneAssociation[_OwnerT, _AssociateT],
+    _OptionalToOneAssociation[_OwnerT, _AssociateT],
 ):
     """
-    A bidirectional many-to-one entity type association.
+    An optional unidirectional to-one entity type association.
     """
 
     pass
 
 
 @final
-class ToMany(Generic[_OwnerT, _AssociateT], ToManyAssociation[_OwnerT, _AssociateT]):
+class RequiredOneToOne(
+    Generic[_OwnerT, _AssociateT],
+    _BidirectionalToOneAssociation[
+        _OwnerT,
+        _AssociateT,
+        Intersection[_AssociateT, Entity],
+        EntityResolver[Intersection[_AssociateT, Entity]]
+        | Intersection[_AssociateT, Entity],
+    ],
+    _RequiredToOneAssociation[_OwnerT, _AssociateT],
+):
     """
-    A unidirectional to-many entity type association.
+    A required bidirectional one-to-one entity type association.
     """
 
+    pass
+
+
+@final
+class OptionalOneToOne(
+    Generic[_OwnerT, _AssociateT],
+    _BidirectionalToOneAssociation[
+        _OwnerT,
+        _AssociateT,
+        Intersection[_AssociateT, Entity] | None,
+        EntityResolver[Intersection[_AssociateT, Entity]]
+        | Intersection[_AssociateT, Entity]
+        | None,
+    ],
+    _OptionalToOneAssociation[_OwnerT, _AssociateT],
+):
+    """
+    An optional bidirectional one-to-one entity type association.
+    """
+
+    pass
+
+
+@final
+class RequiredManyToOne(
+    Generic[_OwnerT, _AssociateT],
+    _BidirectionalToOneAssociation[
+        _OwnerT,
+        _AssociateT,
+        Intersection[_AssociateT, Entity],
+        EntityResolver[Intersection[_AssociateT, Entity]]
+        | Intersection[_AssociateT, Entity],
+    ],
+    _RequiredToOneAssociation[_OwnerT, _AssociateT],
+):
+    """
+    A required bidirectional many-to-one entity type association.
+    """
+
+    pass
+
+
+@final
+class OptionalManyToOne(
+    Generic[_OwnerT, _AssociateT],
+    _BidirectionalToOneAssociation[
+        _OwnerT,
+        _AssociateT,
+        Intersection[_AssociateT, Entity] | None,
+        EntityResolver[Intersection[_AssociateT, Entity]]
+        | Intersection[_AssociateT, Entity]
+        | None,
+    ],
+    _OptionalToOneAssociation[_OwnerT, _AssociateT],
+):
+    """
+    An optional bidirectional many-to-one entity type association.
+    """
+
+    pass
+
+
+class _ToMany(
+    Generic[_OwnerT, _AssociateT],
+    _ToManyAssociation[_OwnerT, _AssociateT],
+):
     @override
     def new_attr(self, instance: _OwnerT & Entity) -> EntityCollection[_AssociateT]:
         return SingleTypeEntityCollection[_AssociateT](self.associate_type)
 
 
 @final
-class OneToMany(
-    Generic[_OwnerT, _AssociateT],
-    _BidirectionalToManyAssociation[_OwnerT, _AssociateT],
-):
+class RequiredToMany(Generic[_OwnerT, _AssociateT], _ToMany[_OwnerT, _AssociateT]):
     """
-    A bidirectional one-to-many entity type association.
+    A required unidirectional to-many entity type association.
     """
 
-    pass
+    _required = True
 
 
 @final
-class ManyToMany(
+class OptionalToMany(Generic[_OwnerT, _AssociateT], _ToMany[_OwnerT, _AssociateT]):
+    """
+    An optional unidirectional to-many entity type association.
+    """
+
+    _required = False
+
+
+@final
+class RequiredOneToMany(
     Generic[_OwnerT, _AssociateT],
     _BidirectionalToManyAssociation[_OwnerT, _AssociateT],
 ):
     """
-    A bidirectional many-to-many entity type association.
+    A required bidirectional one-to-many entity type association.
     """
 
-    pass
+    _required = True
+
+
+@final
+class OptionalOneToMany(
+    Generic[_OwnerT, _AssociateT],
+    _BidirectionalToManyAssociation[_OwnerT, _AssociateT],
+):
+    """
+    An optional bidirectional one-to-many entity type association.
+    """
+
+    _required = False
+
+
+@final
+class RequiredManyToMany(
+    Generic[_OwnerT, _AssociateT],
+    _BidirectionalToManyAssociation[_OwnerT, _AssociateT],
+):
+    """
+    A required bidirectional many-to-many entity type association.
+    """
+
+    _required = True
+
+
+@final
+class OptionalManyToMany(
+    Generic[_OwnerT, _AssociateT],
+    _BidirectionalToManyAssociation[_OwnerT, _AssociateT],
+):
+    """
+    An optional bidirectional many-to-many entity type association.
+    """
+
+    _required = False
 
 
 @final
@@ -385,12 +618,12 @@ class AssociationRegistry:
     Inspect any known entity type associations.
     """
 
-    _associations = set[Association[Any, Any, Any, Any]]()
+    _associations = set[_Association[Any, Any, Any, Any]]()
 
     @classmethod
     def get_all_associations(
         cls, owner: type | object
-    ) -> set[Association[Any, Any, Any, Any]]:
+    ) -> set[_Association[Any, Any, Any, Any]]:
         """
         Get all associations for an owner.
         """
@@ -404,7 +637,7 @@ class AssociationRegistry:
     @classmethod
     def get_association(
         cls, owner: type[_OwnerT] | _OwnerT & Entity, owner_attr_name: str
-    ) -> Association[_OwnerT, Any, Any, Any]:
+    ) -> _Association[_OwnerT, Any, Any, Any]:
         """
         Get the association for a given owner and attribute name.
         """
@@ -419,7 +652,7 @@ class AssociationRegistry:
     def get_associates(
         cls,
         owner: _EntityT,
-        association: Association[_EntityT, _AssociateT, Any, Any],
+        association: _Association[_EntityT, _AssociateT, Any, Any],
     ) -> Iterable[_AssociateT]:
         """
         Get the associates for a given owner and association.
@@ -427,7 +660,7 @@ class AssociationRegistry:
         associates: _AssociateT | None | Iterable[_AssociateT] = association.get_attr(
             owner
         )
-        if isinstance(association, ToOneAssociation):
+        if isinstance(association, _ToOneAssociation):
             if associates is None:
                 return
             yield cast(_AssociateT, associates)
@@ -435,7 +668,7 @@ class AssociationRegistry:
         yield from cast(Iterable[_AssociateT], associates)
 
     @classmethod
-    def _register(cls, association: Association[Any, Any, Any, Any]) -> None:
+    def _register(cls, association: _Association[Any, Any, Any, Any]) -> None:
         cls._associations.add(association)
 
 

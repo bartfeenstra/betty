@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from enum import Enum
 from logging import getLogger
 from pathlib import Path
-from typing import Iterable, Any, IO, cast, TYPE_CHECKING
+from typing import Iterable, Any, IO, cast, TYPE_CHECKING, TypeVar, Generic
 from xml.etree import ElementTree
 
 import aiofiles
@@ -53,8 +53,12 @@ from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.date import DateRange, Datey, Date
 from betty.locale.localizable import _, plain
 from betty.media_type import MediaType, InvalidMediaType
-from betty.model import Entity, AliasedEntity, AliasableEntity
-from betty.model.graph import EntityGraphBuilder
+from betty.model import Entity
+from betty.model.association import (
+    ResolutionError,
+    EntityCollectionResolver, EntityResolver,
+)
+from betty.model.collections import MultipleTypesEntityCollection
 from betty.path import rootname
 
 if TYPE_CHECKING:
@@ -62,6 +66,9 @@ if TYPE_CHECKING:
     from betty.factory import Factory
     from betty.locale.localizer import Localizer
     from collections.abc import MutableMapping, Mapping, Sequence
+
+
+_EntityT = TypeVar("_EntityT", bound=Entity)
 
 
 class LoaderUsedAlready(GrampsError):
@@ -114,6 +121,33 @@ class GrampsEntityReference:
         return f"{self.entity_type.value} ({self.entity_id})"
 
 
+class _EntityResolver(Generic[_EntityT], EntityResolver[_EntityT]):
+    def __init__(self, handles_to_entities: Mapping[str, Entity], handle: str):
+        self._handles_to_entities = handles_to_entities
+        self._handle = handle
+
+    @override
+    def resolve(self) -> _EntityT:
+        try:
+            return cast(_EntityT, self._handles_to_entities[self._handle])
+        except KeyError:
+            raise ResolutionError from None
+
+
+class _EntityCollectionResolver(Generic[_EntityT], EntityCollectionResolver[_EntityT]):
+    def __init__(self, handles_to_entities: Mapping[str, Entity], *handles: str):
+        self._handles_to_entities = handles_to_entities
+        self._handles = handles
+
+    @override
+    def resolve(self) -> Iterable[_EntityT]:
+        try:
+            for handle in self._handles:
+                yield cast(_EntityT, self._handles_to_entities[handle])
+        except KeyError:
+            raise ResolutionError from None
+
+
 class GrampsLoader:
     """
     Load Gramps family history data into a project.
@@ -133,9 +167,10 @@ class GrampsLoader:
     ):
         super().__init__()
         self._ancestry = ancestry
+        self._entities = MultipleTypesEntityCollection[Entity]()
+        self._handles_to_entities: MutableMapping[str, Entity] = {}
         self._factory = factory
         self._attribute_prefix_key = attribute_prefix_key
-        self._ancestry_builder = EntityGraphBuilder()
         self._added_entity_counts: MutableMapping[type[Entity], int] = defaultdict(
             lambda: 0
         )
@@ -325,14 +360,24 @@ class GrampsLoader:
 
         await self._load_families(database)
 
-        self._ancestry.add_unchecked_graph(*self._ancestry_builder.build())
+        with self._ancestry.unchecked():
+            self._ancestry.add(*self._entities)
 
-    def _add_entity(self, entity: AliasableEntity[Entity]) -> None:
-        self._ancestry_builder.add_entity(entity)
+    def _resolve1(
+        self, entity_type: type[_EntityT], handle: str
+    ) -> _EntityResolver[_EntityT]:
+        return _EntityResolver(self._handles_to_entities, handle)
+
+    def _resolve(
+        self, entity_type: type[_EntityT], *handles: str
+    ) -> _EntityCollectionResolver[_EntityT]:
+        return _EntityCollectionResolver(self._handles_to_entities, *handles)
+
+    def _add_entity(self, entity: Entity, handle: str | None = None) -> None:
+        self._entities.add(entity)
+        if handle is not None:
+            self._handles_to_entities[handle] = entity
         self._added_entity_counts[entity.type] += 1
-
-    def _add_association(self, *args: Any, **kwargs: Any) -> None:
-        self._ancestry_builder.add_association(*args, **kwargs)
 
     _NS = {
         "ns": "http://gramps-project.org/xml/1.7.1/",
@@ -436,14 +481,15 @@ class GrampsLoader:
         )
         if element.get("priv") == "1":
             note.private = True
-        self._add_entity(AliasedEntity(note, note_handle))
+        self._add_entity(note, note_handle)
 
     def _load_noteref(
-        self, owner: AliasableEntity[HasNotes & Entity], element: ElementTree.Element
+        self, owner: HasNotes & Entity, element: ElementTree.Element
     ) -> None:
-        note_handles = self._load_handles("noteref", element)
-        for note_handle in note_handles:
-            self._add_association(owner.type, owner.id, "notes", Note, note_handle)
+        owner.notes = (
+            self._resolve1(Note, note_handle)
+            for note_handle in self._load_handles("noteref", element)
+        )
 
     async def _load_objects(
         self, database: ElementTree.Element, gramps_tree_directory_path: Path
@@ -472,7 +518,6 @@ class GrampsLoader:
             file.description = description
         if element.get("priv") == "1":
             file.private = True
-        aliased_file = AliasedEntity(file, file_handle)
 
         self._load_attributes_for(
             file,
@@ -481,17 +526,11 @@ class GrampsLoader:
             "attribute",
         )
 
-        self._add_entity(
-            aliased_file,  # type: ignore[arg-type]
+        self._add_entity(file, file_handle)
+        file.citations = self._resolve(
+            Citation, *self._load_handles("citationref", element)
         )
-        for citation_handle in self._load_handles("citationref", element):
-            self._add_association(
-                File, file_handle, "citations", Citation, citation_handle
-            )
-        self._load_noteref(
-            aliased_file,  # type: ignore[arg-type]
-            element,
-        )
+        self._load_noteref(file, element)
 
     async def _load_people(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, "./ns:people/ns:person"):
@@ -546,20 +585,19 @@ class GrampsLoader:
                     if surname_prefix is not None:
                         affiliation_name = f"{surname_prefix} {affiliation_name}"
                     person_name = PersonName(
+                        person=person,
                         individual=individual_name,
                         affiliation=affiliation_name,
                     )
                     self._load_citationref(person_name, name_element)
                     person_names.append((person_name, is_alternative))
             elif individual_name is not None:
-                person_name = PersonName(individual=individual_name)
+                person_name = PersonName(person=person, individual=individual_name)
                 self._load_citationref(person_name, name_element)
                 person_names.append((person_name, is_alternative))
         for person_name, __ in sorted(person_names, key=lambda x: x[1]):
             self._add_entity(person_name)
-            self._add_association(
-                Person, person_handle, "names", PersonName, person_name.id
-            )
+            person.names.add(person_name)
 
         await self._load_eventrefs(person_handle, element)
         if element.get("priv") == "1":
@@ -572,50 +610,29 @@ class GrampsLoader:
             "attribute",
         )
 
-        aliased_person = AliasedEntity(person, person_handle)
-        self._load_citationref(
-            aliased_person,  # type: ignore[arg-type]
-            element,
-        )
-        self._load_objref(
-            aliased_person,  # type: ignore[arg-type]
-            element,
-        )
-        self._load_noteref(
-            aliased_person,  # type: ignore[arg-type]
-            element,
-        )
+        self._load_citationref(person, element)
+        self._load_objref(person, element)
+        self._load_noteref(person, element)
         self._load_urls(person, element)
-        self._add_entity(
-            aliased_person,  # type: ignore[arg-type]
-        )
+        self._add_entity(person, person_handle)
 
     async def _load_families(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, "./ns:families/ns:family"):
             await self._load_family(element)
 
     async def _load_family(self, element: ElementTree.Element) -> None:
-        parent_handles = []
-
-        # Load the father.
-        father_handle = self._load_handle("father", element)
-        if father_handle is not None:
-            await self._load_eventrefs(father_handle, element)
-            parent_handles.append(father_handle)
-
-        # Load the mother.
-        mother_handle = self._load_handle("mother", element)
-        if mother_handle is not None:
-            await self._load_eventrefs(mother_handle, element)
-            parent_handles.append(mother_handle)
-
-        # Load the children.
-        child_handles = self._load_handles("childref", element)
-        for child_handle in child_handles:
-            for parent_handle in parent_handles:
-                self._add_association(
-                    Person, child_handle, "parents", Person, parent_handle
-                )
+        children = [
+            cast(Person, self._handles_to_entities[child_handle])
+            for child_handle in self._load_handles("childref", element)
+        ]
+        for parent_handle_type in ("father", "mother"):
+            parent_handle = self._load_handle(parent_handle_type, element)
+            if parent_handle is None:
+                continue
+            await self._load_eventrefs(parent_handle, element)
+            parent = self._handles_to_entities[parent_handle]
+            assert isinstance(parent, Person)
+            parent.children = children
 
     async def _load_eventrefs(
         self, person_id: str, element: ElementTree.Element
@@ -625,7 +642,7 @@ class GrampsLoader:
             await self._load_eventref(person_id, eventref)
 
     async def _load_eventref(
-        self, person_id: str, eventref: ElementTree.Element
+        self, person_handle: str, eventref: ElementTree.Element
     ) -> None:
         event_handle = eventref.get("hlink")
         assert event_handle is not None
@@ -639,9 +656,9 @@ class GrampsLoader:
             presence_role_type = UnknownPresenceRole
             getLogger(__name__).warning(
                 self._localizer._(
-                    'Betty is unfamiliar with person "{person_id}"\'s Gramps presence role of "{gramps_presence_role}" for the event with Gramps handle "{event_handle}". The role was imported, but set to "{betty_presence_role}".',
+                    'Betty is unfamiliar with person with handle "{person_handle}"\'s Gramps presence role of "{gramps_presence_role}" for the event with Gramps handle "{event_handle}". The role was imported, but set to "{betty_presence_role}".',
                 ).format(
-                    person_id=person_id,
+                    person_handle=person_handle,
                     event_handle=event_handle,
                     gramps_presence_role=gramps_presence_role,
                     betty_presence_role=presence_role_type.plugin_label().localize(
@@ -649,9 +666,11 @@ class GrampsLoader:
                     ),
                 )
             )
-        presence_role = await self._factory(presence_role_type)
-
-        presence = Presence(None, presence_role, None)
+        presence = Presence(
+            self._resolve1(Person, person_handle),
+            await self._factory(presence_role_type),
+            self._resolve1(Event, event_handle),
+        )
         if eventref.get("priv") == "1":
             presence.private = True
 
@@ -663,8 +682,6 @@ class GrampsLoader:
         )
 
         self._add_entity(presence)
-        self._add_association(Presence, presence.id, "person", Person, person_id)
-        self._add_association(Presence, presence.id, "event", Event, event_handle)
 
     async def _load_places(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, "./ns:places/ns:placeobj"):
@@ -672,6 +689,7 @@ class GrampsLoader:
 
     async def _load_place(self, element: ElementTree.Element) -> None:
         place_handle = element.get("handle")
+        assert place_handle is not None
         place_id = element.get("id")
         assert place_id is not None
         gramps_type = element.get("type")
@@ -718,34 +736,16 @@ class GrampsLoader:
 
         self._load_urls(place, element)
 
-        aliased_place = AliasedEntity(place, place_handle)
+        self._load_noteref(place, element)
 
-        self._load_noteref(
-            aliased_place,  # type: ignore[arg-type]
-            element,
-        )
-
-        self._add_entity(
-            aliased_place,  # type: ignore[arg-type]
-        )
+        self._add_entity(place, place_handle)
 
         for enclosed_by_handle in self._load_handles("placeref", element):
-            aliased_enclosure = AliasedEntity(
-                Enclosure(encloses=None, enclosed_by=None)
+            enclosure = Enclosure(
+                encloses=self._resolve1(Place, place_handle),
+                enclosed_by=self._resolve1(Place, enclosed_by_handle),
             )
-            self._add_entity(
-                aliased_enclosure,  # type: ignore[arg-type]
-            )
-            self._add_association(
-                Enclosure, aliased_enclosure.id, "encloses", Place, place_handle
-            )
-            self._add_association(
-                Enclosure,
-                aliased_enclosure.id,
-                "enclosed_by",
-                Place,
-                enclosed_by_handle,
-            )
+            self._add_entity(enclosure)
 
     def _load_coordinates(self, element: ElementTree.Element) -> Point | None:
         with suppress(XPathError):
@@ -801,7 +801,7 @@ class GrampsLoader:
         # Load the event place.
         place_handle = self._load_handle("place", element)
         if place_handle is not None:
-            self._add_association(Event, event_handle, "place", Place, place_handle)
+            event.place = self._resolve1(Place, place_handle)
 
         # Load the description.
         with suppress(XPathError):
@@ -812,19 +812,9 @@ class GrampsLoader:
         if element.get("priv") == "1":
             event.private = True
 
-        aliased_event = AliasedEntity(event, event_handle)
-        self._load_objref(
-            aliased_event,  # type: ignore[arg-type]
-            element,
-        )
-        self._load_citationref(
-            aliased_event,  # type: ignore[arg-type]
-            element,
-        )
-        self._load_noteref(
-            aliased_event,  # type: ignore[arg-type]
-            element,
-        )
+        self._load_objref(event, element)
+        self._load_citationref(event, element)
+        self._load_noteref(event, element)
 
         self._load_attributes_for(
             event,
@@ -833,9 +823,7 @@ class GrampsLoader:
             "attribute",
         )
 
-        self._add_entity(
-            aliased_event,  # type: ignore[arg-type]
-        )
+        self._add_entity(event, event_handle)
 
     async def _load_repositories(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, "./ns:repositories/ns:repository"):
@@ -850,14 +838,8 @@ class GrampsLoader:
         )
 
         self._load_urls(source, element)
-        aliased_source = AliasedEntity(source, repository_source_handle)
-        self._load_noteref(
-            aliased_source,  # type: ignore[arg-type]
-            element,
-        )
-        self._add_entity(
-            aliased_source,  # type: ignore[arg-type]
-        )
+        self._load_noteref(source, element)
+        self._add_entity(source, repository_source_handle)
 
     async def _load_sources(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, "./ns:sources/ns:source"):
@@ -877,9 +859,7 @@ class GrampsLoader:
 
         repository_source_handle = self._load_handle("reporef", element)
         if repository_source_handle is not None:
-            self._add_association(
-                Source, source_handle, "contained_by", Source, repository_source_handle
-            )
+            source.contained_by = self._resolve1(Source, repository_source_handle)
 
         # Load the author.
         with suppress(XPathError):
@@ -903,18 +883,9 @@ class GrampsLoader:
             "srcattribute",
         )
 
-        aliased_source = AliasedEntity(source, source_handle)
-        self._load_objref(
-            aliased_source,  # type: ignore[arg-type]
-            element,
-        )
-        self._load_noteref(
-            aliased_source,  # type: ignore[arg-type]
-            element,
-        )
-        self._add_entity(
-            aliased_source,  # type: ignore[arg-type]
-        )
+        self._load_objref(source, element)
+        self._load_noteref(source, element)
+        self._add_entity(source, source_handle)
 
     async def _load_citations(self, database: ElementTree.Element) -> None:
         for element in self._xpath(database, "./ns:citations/ns:citation"):
@@ -923,10 +894,10 @@ class GrampsLoader:
     async def _load_citation(self, element: ElementTree.Element) -> None:
         citation_handle = element.get("handle")
         source_handle = self._xpath1(element, "./ns:sourceref").get("hlink")
+        assert source_handle is not None
 
-        citation = Citation(id=element.get("id"))
-        self._add_association(
-            Citation, citation_handle, "source", Source, source_handle
+        citation = Citation(
+            id=element.get("id"), source=self._resolve1(Source, source_handle)
         )
 
         citation.date = self._load_date(element)
@@ -938,11 +909,7 @@ class GrampsLoader:
             if page:
                 citation.location = page
 
-        aliased_citation = AliasedEntity(citation, citation_handle)
-        self._load_objref(
-            aliased_citation,  # type: ignore[arg-type]
-            element,
-        )
+        self._load_objref(citation, element)
 
         self._load_attributes_for(
             citation,
@@ -951,19 +918,20 @@ class GrampsLoader:
             "srcattribute",
         )
 
-        self._add_entity(
-            aliased_citation,  # type: ignore[arg-type]
-        )
+        self._add_entity(citation, citation_handle)
 
     def _load_citationref(
         self,
-        owner: AliasableEntity[HasCitations & Entity],
+        owner: HasCitations & Entity,
         element: ElementTree.Element,
     ) -> None:
-        for citation_handle in self._load_handles("citationref", element):
-            self._add_association(
-                owner.type, owner.id, "citations", Citation, citation_handle
-            )
+        owner.citations = self._resolve(
+            Citation,
+            *(
+                citation_handle
+                for citation_handle in self._load_handles("citationref", element)
+            ),
+        )
 
     def _load_handles(
         self, handle_type: str, element: ElementTree.Element
@@ -981,13 +949,12 @@ class GrampsLoader:
         return None
 
     def _load_objref(
-        self,
-        owner: AliasableEntity[HasFileReferences & Entity],
-        element: ElementTree.Element,
+        self, owner: HasFileReferences & Entity, element: ElementTree.Element
     ) -> None:
         for handle_element in self._xpath(element, "./ns:objref"):
             file_handle = handle_element.get("hlink")
-            file_reference = FileReference()
+            assert file_handle is not None
+            file_reference = FileReference(owner, self._resolve1(File, file_handle))
             try:
                 region_element = self._xpath1(handle_element, "./ns:region")
             except XPathError:
@@ -1004,16 +971,6 @@ class GrampsLoader:
                     0 if region_bottom is None else int(region_bottom),
                 )
             self._add_entity(file_reference)
-            self._add_association(
-                owner.type,
-                owner.id,
-                "file_references",
-                FileReference,
-                file_reference.id,
-            )
-            self._add_association(
-                FileReference, file_reference.id, "file", File, file_handle
-            )
 
     def _load_urls(self, owner: HasLinks, element: ElementTree.Element) -> None:
         url_elements = self._xpath(element, "./ns:url")

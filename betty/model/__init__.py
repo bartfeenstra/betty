@@ -6,7 +6,6 @@ from abc import abstractmethod
 from reprlib import recursive_repr
 from typing import (
     TypeVar,
-    Generic,
     Any,
     Self,
     TypeAlias,
@@ -165,60 +164,6 @@ class UserFacingEntity:
 
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
-
-
-class AliasedEntity(Generic[_EntityT]):
-    """
-    An aliased entity wraps an entity and gives aliases its ID.
-
-    Aliases are used when deserializing ancestries from sources where intermediate IDs
-    are used to declare associations between entities. By wrapping an entity in an alias,
-    the alias can use the intermediate ID, allowing it to be inserted into APIs such as
-    :py:class:`betty.model.graph.EntityGraphBuilder` which will use the alias ID to finalize
-    associations before the original entities are returned.
-    """
-
-    def __init__(self, original_entity: _EntityT, aliased_entity_id: str | None = None):
-        self._entity = original_entity
-        self._id = (
-            GeneratedEntityId() if aliased_entity_id is None else aliased_entity_id
-        )
-
-    @override
-    def __repr__(self) -> str:
-        return repr_instance(self, id=self.id)
-
-    @property
-    def type(self) -> builtins.type[Entity]:
-        """
-        The type of the aliased entity.
-        """
-        return self._entity.type
-
-    @property
-    def id(self) -> str:
-        """
-        The alias entity ID.
-        """
-        return self._id
-
-    def unalias(self) -> _EntityT:
-        """
-        Get the original entity.
-        """
-        return self._entity
-
-
-AliasableEntity: TypeAlias = _EntityT | AliasedEntity[_EntityT]
-
-
-def unalias(entity: AliasableEntity[_EntityT]) -> _EntityT:
-    """
-    Unalias a potentially aliased entity.
-    """
-    if isinstance(entity, AliasedEntity):
-        return entity.unalias()
-    return entity
 
 
 class EntityReferenceSchema(String):

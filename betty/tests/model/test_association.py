@@ -5,14 +5,14 @@ from typing import Iterator, Any
 import pytest
 
 from betty.model.association import (
-    ToOne,
     AssociationRegistry,
-    OneToOne,
-    ManyToOne,
-    OneToMany,
-    ToMany,
-    Association,
-    ManyToMany,
+    _Association,
+    OptionalManyToMany,
+    OptionalOneToMany,
+    OptionalManyToOne,
+    OptionalToMany,
+    OptionalOneToOne,
+    OptionalToOne,
 )
 from betty.test_utils.model import DummyEntity
 
@@ -23,11 +23,11 @@ class TestAssociationRegistry:
         self,
     ) -> Iterator[
         tuple[
-            Association[Any, Any, Any, Any],
-            Association[Any, Any, Any, Any],
+            _Association[Any, Any, Any, Any],
+            _Association[Any, Any, Any, Any],
         ]
     ]:
-        parent_association = ToOne[
+        parent_association = OptionalToOne[
             _TestAssociationRegistry_ParentEntity,
             _TestAssociationRegistry_ChildEntity,
         ](
@@ -36,7 +36,7 @@ class TestAssociationRegistry:
             "betty.tests.model.test_association:_TestAssociationRegistry_Associate",
         )
         AssociationRegistry._register(parent_association)
-        child_association = ToOne[
+        child_association = OptionalToOne[
             _TestAssociationRegistry_ChildEntity,
             _TestAssociationRegistry_ParentEntity,
         ](
@@ -52,8 +52,8 @@ class TestAssociationRegistry:
     async def test_get_associations_with_parent_class_should_return_parent_associations(
         self,
         associations: tuple[
-            Association[Any, Any, Any, Any],
-            Association[Any, Any, Any, Any],
+            _Association[Any, Any, Any, Any],
+            _Association[Any, Any, Any, Any],
         ],
     ) -> None:
         parent_registration, _ = associations
@@ -64,8 +64,8 @@ class TestAssociationRegistry:
     async def test_get_associations_with_child_class_should_return_child_associations(
         self,
         associations: tuple[
-            Association[Any, Any, Any, Any],
-            Association[Any, Any, Any, Any],
+            _Association[Any, Any, Any, Any],
+            _Association[Any, Any, Any, Any],
         ],
     ) -> None:
         parent_association, child_association = associations
@@ -89,27 +89,29 @@ class _TestAssociationRegistry_Associate(DummyEntity):
     pass
 
 
-class _TestToOne_Some(DummyEntity):
-    one = ToOne["_TestToOne_Some", "_TestToOne_One"](
-        "betty.tests.model.test_association:_TestToOne_Some",
+class _TestOptionalToOne_Some(DummyEntity):
+    one = OptionalToOne["_TestOptionalToOne_Some", "_TestOptionalToOne_One"](
+        "betty.tests.model.test_association:_TestOptionalToOne_Some",
         "one",
-        "betty.tests.model.test_association:_TestToOne_One",
+        "betty.tests.model.test_association:_TestOptionalToOne_One",
     )
 
 
-class _TestToOne_One(DummyEntity):
+class _TestOptionalToOne_One(DummyEntity):
     pass
 
 
-class TestToOne:
+class TestOptionalToOne:
     async def test(self) -> None:
         assert {"one"} == {
             association.owner_attr_name
-            for association in AssociationRegistry.get_all_associations(_TestToOne_Some)
+            for association in AssociationRegistry.get_all_associations(
+                _TestOptionalToOne_Some
+            )
         }
 
-        entity_some = _TestToOne_Some()
-        entity_one = _TestToOne_One()
+        entity_some = _TestOptionalToOne_Some()
+        entity_one = _TestOptionalToOne_One()
 
         entity_some.one = entity_one
         assert entity_one is entity_some.one
@@ -118,35 +120,37 @@ class TestToOne:
         assert entity_some.one is None
 
 
-class _TestOneToOne_One(DummyEntity):
-    other_one = OneToOne["_TestOneToOne_One", "_TestOneToOne_OtherOne"](
-        "betty.tests.model.test_association:_TestOneToOne_One",
+class _TestOptionalOneToOne_One(DummyEntity):
+    other_one = OptionalOneToOne[
+        "_TestOptionalOneToOne_One", "_TestOptionalOneToOne_OtherOne"
+    ](
+        "betty.tests.model.test_association:_TestOptionalOneToOne_One",
         "other_one",
-        "betty.tests.model.test_association:_TestOneToOne_OtherOne",
+        "betty.tests.model.test_association:_TestOptionalOneToOne_OtherOne",
         "one",
     )
 
 
-class _TestOneToOne_OtherOne(DummyEntity):
-    one = OneToOne["_TestOneToOne_OtherOne", _TestOneToOne_One](
-        "betty.tests.model.test_association:_TestOneToOne_OtherOne",
+class _TestOptionalOneToOne_OtherOne(DummyEntity):
+    one = OptionalOneToOne["_TestOptionalOneToOne_OtherOne", _TestOptionalOneToOne_One](
+        "betty.tests.model.test_association:_TestOptionalOneToOne_OtherOne",
         "one",
-        "betty.tests.model.test_association:_TestOneToOne_One",
+        "betty.tests.model.test_association:_TestOptionalOneToOne_One",
         "other_one",
     )
 
 
-class TestOneToOne:
+class TestOptionalOneToOne:
     async def test(self) -> None:
         assert {"one"} == {
             association.owner_attr_name
             for association in AssociationRegistry.get_all_associations(
-                _TestOneToOne_OtherOne
+                _TestOptionalOneToOne_OtherOne
             )
         }
 
-        entity_one = _TestOneToOne_One()
-        entity_other_one = _TestOneToOne_OtherOne()
+        entity_one = _TestOptionalOneToOne_One()
+        entity_other_one = _TestOptionalOneToOne_OtherOne()
 
         entity_other_one.one = entity_one
         assert entity_one is entity_other_one.one
@@ -157,35 +161,37 @@ class TestOneToOne:
         assert entity_one.other_one is None  # type: ignore[unreachable]
 
 
-class _TestManyToOne_Many(DummyEntity):
-    one = ManyToOne["_TestManyToOne_Many", "_TestManyToOne_One"](
-        "betty.tests.model.test_association:_TestManyToOne_Many",
+class _TestOptionalManyToOne_Many(DummyEntity):
+    one = OptionalManyToOne[
+        "_TestOptionalManyToOne_Many", "_TestOptionalManyToOne_One"
+    ](
+        "betty.tests.model.test_association:_TestOptionalManyToOne_Many",
         "one",
-        "betty.tests.model.test_association:_TestManyToOne_One",
+        "betty.tests.model.test_association:_TestOptionalManyToOne_One",
         "many",
     )
 
 
-class _TestManyToOne_One(DummyEntity):
-    many = OneToMany["_TestManyToOne_One", _TestManyToOne_Many](
-        "betty.tests.model.test_association:_TestManyToOne_One",
+class _TestOptionalManyToOne_One(DummyEntity):
+    many = OptionalOneToMany["_TestOptionalManyToOne_One", _TestOptionalManyToOne_Many](
+        "betty.tests.model.test_association:_TestOptionalManyToOne_One",
         "many",
-        "betty.tests.model.test_association:_TestManyToOne_Many",
+        "betty.tests.model.test_association:_TestOptionalManyToOne_Many",
         "one",
     )
 
 
-class TestManyToOne:
+class TestOptionalManyToOne:
     async def test(self) -> None:
         assert {"one"} == {
             association.owner_attr_name
             for association in AssociationRegistry.get_all_associations(
-                _TestManyToOne_Many
+                _TestOptionalManyToOne_Many
             )
         }
 
-        entity_many = _TestManyToOne_Many()
-        entity_one = _TestManyToOne_One()
+        entity_many = _TestOptionalManyToOne_Many()
+        entity_one = _TestOptionalManyToOne_One()
 
         entity_many.one = entity_one
         assert entity_one is entity_many.one
@@ -196,27 +202,29 @@ class TestManyToOne:
         assert list(entity_one.many) == []  # type: ignore[unreachable]
 
 
-class _TestToMany_One(DummyEntity):
-    many = ToMany["_TestToMany_One", "_TestToMany_Many"](
-        "betty.tests.model.test_association:_TestToMany_One",
+class _TestOptionalToMany_One(DummyEntity):
+    many = OptionalToMany["_TestOptionalToMany_One", "_TestOptionalToMany_Many"](
+        "betty.tests.model.test_association:_TestOptionalToMany_One",
         "many",
-        "betty.tests.model.test_association:_TestToMany_Many",
+        "betty.tests.model.test_association:_TestOptionalToMany_Many",
     )
 
 
-class _TestToMany_Many(DummyEntity):
+class _TestOptionalToMany_Many(DummyEntity):
     pass
 
 
-class TestToMany:
+class TestOptionalToMany:
     async def test(self) -> None:
         assert {"many"} == {
             association.owner_attr_name
-            for association in AssociationRegistry.get_all_associations(_TestToMany_One)
+            for association in AssociationRegistry.get_all_associations(
+                _TestOptionalToMany_One
+            )
         }
 
-        entity_one = _TestToMany_One()
-        entity_many = _TestToMany_Many()
+        entity_one = _TestOptionalToMany_One()
+        entity_many = _TestOptionalToMany_Many()
 
         entity_one.many.add(entity_many)
         assert [entity_many] == list(entity_one.many)
@@ -225,35 +233,37 @@ class TestToMany:
         assert list(entity_one.many) == []
 
 
-class _TestOneToMany_One(DummyEntity):
-    many = OneToMany["_TestOneToMany_One", "_TestOneToMany_Many"](
-        "betty.tests.model.test_association:_TestOneToMany_One",
+class _TestOptionalOneToMany_One(DummyEntity):
+    many = OptionalOneToMany[
+        "_TestOptionalOneToMany_One", "_TestOptionalOneToMany_Many"
+    ](
+        "betty.tests.model.test_association:_TestOptionalOneToMany_One",
         "many",
-        "betty.tests.model.test_association:_TestOneToMany_Many",
+        "betty.tests.model.test_association:_TestOptionalOneToMany_Many",
         "one",
     )
 
 
-class _TestOneToMany_Many(DummyEntity):
-    one = ManyToOne["_TestOneToMany_Many", _TestOneToMany_One](
-        "betty.tests.model.test_association:_TestOneToMany_Many",
+class _TestOptionalOneToMany_Many(DummyEntity):
+    one = OptionalManyToOne["_TestOptionalOneToMany_Many", _TestOptionalOneToMany_One](
+        "betty.tests.model.test_association:_TestOptionalOneToMany_Many",
         "one",
-        "betty.tests.model.test_association:_TestOneToMany_One",
+        "betty.tests.model.test_association:_TestOptionalOneToMany_One",
         "many",
     )
 
 
-class TestOneToMany:
+class TestOptionalOneToMany:
     async def test(self) -> None:
         assert {"many"} == {
             association.owner_attr_name
             for association in AssociationRegistry.get_all_associations(
-                _TestOneToMany_One
+                _TestOptionalOneToMany_One
             )
         }
 
-        entity_one = _TestOneToMany_One()
-        entity_many = _TestOneToMany_Many()
+        entity_one = _TestOptionalOneToMany_One()
+        entity_many = _TestOptionalOneToMany_Many()
 
         entity_one.many.add(entity_many)
         assert [entity_many] == list(entity_one.many)
@@ -264,35 +274,39 @@ class TestOneToMany:
         assert entity_many.one is None
 
 
-class _TestManyToMany_Many(DummyEntity):
-    other_many = ManyToMany["_TestManyToMany_Many", "_TestManyToMany_OtherMany"](
-        "betty.tests.model.test_association:_TestManyToMany_Many",
+class _TestOptionalManyToMany_Many(DummyEntity):
+    other_many = OptionalManyToMany[
+        "_TestOptionalManyToMany_Many", "_TestOptionalManyToMany_OtherMany"
+    ](
+        "betty.tests.model.test_association:_TestOptionalManyToMany_Many",
         "other_many",
-        "betty.tests.model.test_association:_TestManyToMany_OtherMany",
+        "betty.tests.model.test_association:_TestOptionalManyToMany_OtherMany",
         "many",
     )
 
 
-class _TestManyToMany_OtherMany(DummyEntity):
-    many = ManyToMany["_TestManyToMany_OtherMany", "_TestManyToMany_Many"](
-        "betty.tests.model.test_association:_TestManyToMany_OtherMany",
+class _TestOptionalManyToMany_OtherMany(DummyEntity):
+    many = OptionalManyToMany[
+        "_TestOptionalManyToMany_OtherMany", "_TestOptionalManyToMany_Many"
+    ](
+        "betty.tests.model.test_association:_TestOptionalManyToMany_OtherMany",
         "many",
-        "betty.tests.model.test_association:_TestManyToMany_Many",
+        "betty.tests.model.test_association:_TestOptionalManyToMany_Many",
         "other_many",
     )
 
 
-class TestManyToMany:
+class TestOptionalManyToMany:
     async def test(self) -> None:
         assert {"other_many"} == {
             association.owner_attr_name
             for association in AssociationRegistry.get_all_associations(
-                _TestManyToMany_Many
+                _TestOptionalManyToMany_Many
             )
         }
 
-        entity_many = _TestManyToMany_Many()
-        entity_other_many = _TestManyToMany_OtherMany()
+        entity_many = _TestOptionalManyToMany_Many()
+        entity_other_many = _TestOptionalManyToMany_OtherMany()
 
         entity_many.other_many.add(entity_other_many)
         assert [entity_other_many] == list(entity_many.other_many)
