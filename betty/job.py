@@ -4,7 +4,6 @@ Provide utilities for running jobs concurrently.
 
 from __future__ import annotations
 
-import threading
 from datetime import datetime
 from typing import Any, TYPE_CHECKING
 
@@ -21,8 +20,6 @@ class Context:
 
     def __init__(self):
         self._cache: Cache[Any] = MemoryCache()
-        self._claims_lock = threading.Lock()
-        self._claimed_job_ids: set[str] = set()
         self._start = datetime.now()
 
     @property
