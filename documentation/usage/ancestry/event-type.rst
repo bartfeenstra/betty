@@ -50,7 +50,7 @@ Built-in event types
     A person stayed or lived in a place for some time.
 :py:class:`betty.ancestry.event_type.Retirement`
     A person's `retirement <https://en.wikipedia.org/wiki/Retirement>`_ from their occupations.
-:py:class:`betty.ancestry.event_type.UnknownEventType`
+:py:class:`betty.ancestry.event_type.Unknown`
     The event's type is not otherwise known.
 :py:class:`betty.ancestry.event_type.Will`
     Any event associated with the reading and excution of someone's `will and testament <https://en.wikipedia.org/wiki/Will_and_testament>`_.

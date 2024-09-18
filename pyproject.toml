@@ -126,7 +126,7 @@ betty = 'betty.cli:main'
 'occupation' = 'betty.ancestry.event_type:Occupation'
 'residence' = 'betty.ancestry.event_type:Residence'
 'retirement' = 'betty.ancestry.event_type:Retirement'
-'unknown' = 'betty.ancestry.event_type:UnknownEventType'
+'unknown' = 'betty.ancestry.event_type:Unknown'
 'will' = 'betty.ancestry.event_type:Will'
 
 [project.entry-points.'betty.extension']

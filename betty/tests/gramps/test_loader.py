@@ -18,7 +18,12 @@ from betty.ancestry import (
     Place,
     Privacy,
 )
-from betty.ancestry.event_type import Birth, Death, UnknownEventType, EventType
+from betty.ancestry.event_type import (
+    Birth,
+    Death,
+    Unknown as UnknownEventType,
+    EventType,
+)
 from betty.ancestry.gender import Unknown as UnknownGender, Gender, NonBinary
 from betty.ancestry.presence_role import Attendee, PresenceRole, Subject
 from betty.app import App

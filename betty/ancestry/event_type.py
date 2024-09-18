@@ -56,7 +56,7 @@ Read more about :doc:`/development/plugin/event-type`.
 
 
 @final
-class UnknownEventType(ShorthandPluginBase, EventType):
+class Unknown(ShorthandPluginBase, EventType):
     """
     Describe an event for which no more specific type is known.
     """
