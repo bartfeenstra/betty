@@ -11,7 +11,7 @@ from typing_extensions import override
 
 from betty.ancestry.note import Note
 from betty.model import Entity, GeneratedEntityId, EntityReferenceCollectionSchema
-from betty.model.association import OneToMany
+from betty.model.association import BidirectionalToMany, ToManyResolver
 
 if TYPE_CHECKING:
     from betty.json.schema import Object
@@ -24,7 +24,7 @@ class HasNotes(Entity):
     An entity that has notes associated with it.
     """
 
-    notes = OneToMany["HasNotes", Note](
+    notes = BidirectionalToMany["HasNotes", Note](
         "betty.ancestry.has_notes:HasNotes",
         "notes",
         "betty.ancestry.note:Note",
@@ -32,15 +32,12 @@ class HasNotes(Entity):
     )
 
     def __init__(
-        self: HasNotes & Entity,
+        self,
         *args: Any,
-        notes: Iterable[Note] | None = None,
+        notes: Iterable[Note] | ToManyResolver[Note] | None = None,
         **kwargs: Any,
     ):
-        super().__init__(  # type: ignore[misc]
-            *args,
-            **kwargs,
-        )
+        super().__init__(*args, **kwargs)
         if notes is not None:
             self.notes = notes
 

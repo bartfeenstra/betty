@@ -101,8 +101,7 @@ class TestDeriver(ExtensionTestBase):
                 start = [
                     presence
                     for presence in person.presences
-                    if presence.event
-                    and isinstance(presence.event.event_type, StartOfLifeEventType)
+                    if isinstance(presence.event.event_type, StartOfLifeEventType)
                 ][0]
                 assert start is not None
                 assert start.event is not None
@@ -114,8 +113,7 @@ class TestDeriver(ExtensionTestBase):
                 end = [
                     presence
                     for presence in person.presences
-                    if presence.event
-                    and isinstance(presence.event.event_type, EndOfLifeEventType)
+                    if isinstance(presence.event.event_type, EndOfLifeEventType)
                 ][0]
                 assert end is not None
                 assert end.event is not None

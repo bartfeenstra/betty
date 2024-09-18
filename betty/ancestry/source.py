@@ -29,7 +29,13 @@ from betty.model import (
     EntityReferenceCollectionSchema,
     EntityReferenceSchema,
 )
-from betty.model.association import ManyToOne, OneToMany
+from betty.model.association import (
+    BidirectionalToZeroOrOne,
+    BidirectionalToMany,
+    ToOneResolver,
+    ToManyResolver,
+    ToZeroOrOneResolver,
+)
 from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
@@ -61,19 +67,19 @@ class Source(
     _plugin_label = _("Source")
 
     #: The source this one is directly contained by.
-    contained_by = ManyToOne["Source", "Source"](
+    contained_by = BidirectionalToZeroOrOne["Source", "Source"](
         "betty.ancestry.source:Source",
         "contained_by",
         "betty.ancestry.source:Source",
         "contains",
     )
-    contains = OneToMany["Source", "Source"](
+    contains = BidirectionalToMany["Source", "Source"](
         "betty.ancestry.source:Source",
         "contains",
         "betty.ancestry.source:Source",
         "contained_by",
     )
-    citations = OneToMany["Source", "Citation"](
+    citations = BidirectionalToMany["Source", "Citation"](
         "betty.ancestry.source:Source",
         "citations",
         "betty.ancestry.citation:Citation",
@@ -96,11 +102,16 @@ class Source(
         id: str | None = None,  # noqa A002  # noqa A002
         author: ShorthandStaticTranslations | None = None,
         publisher: ShorthandStaticTranslations | None = None,
-        contained_by: Source | None = None,
-        contains: Iterable[Source] | None = None,
-        notes: Iterable[Note] | None = None,
+        contained_by: Source
+        | ToZeroOrOneResolver[Source]
+        | ToOneResolver[Source]
+        | None = None,
+        contains: Iterable[Source] | ToManyResolver[Source] | None = None,
+        notes: Iterable[Note] | ToManyResolver[Note] | None = None,
         date: Datey | None = None,
-        file_references: Iterable["FileReference"] | None = None,
+        file_references: Iterable["FileReference"]
+        | ToManyResolver["FileReference"]
+        | None = None,
         links: MutableSequence[Link] | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,

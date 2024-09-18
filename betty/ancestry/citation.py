@@ -23,15 +23,20 @@ from betty.locale.localizable import (
 )
 from betty.model import (
     UserFacingEntity,
-    Entity,
     GeneratedEntityId,
     EntityReferenceSchema,
 )
-from betty.model.association import ManyToMany, ManyToOne
+from betty.model.association import (
+    BidirectionalToMany,
+    BidirectionalToOne,
+    ToOneResolver,
+    ToManyResolver,
+)
 from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
     from betty.ancestry.has_citations import HasCitations  # noqa F401
+    from betty.model import Entity  # noqa F401
     from betty.serde.dump import DumpMapping, Dump
     from betty.project import Project
     from betty.date import Datey
@@ -54,13 +59,13 @@ class Citation(
     _plugin_id = "citation"
     _plugin_label = _("Citation")
 
-    facts = ManyToMany["Citation", "HasCitations"](
+    facts = BidirectionalToMany["Citation", "HasCitations"](
         "betty.ancestry.citation:Citation",
         "facts",
         "betty.ancestry.has_citations:HasCitations",
         "citations",
     )
-    source = ManyToOne["Citation", Source](
+    source = BidirectionalToOne["Citation", Source](
         "betty.ancestry.citation:Citation",
         "source",
         "betty.ancestry.source:Source",
@@ -73,12 +78,16 @@ class Citation(
     def __init__(
         self,
         *,
+        source: Source | ToOneResolver[Source],
         id: str | None = None,  # noqa A002  # noqa A002
-        facts: Iterable["HasCitations & Entity"] | None = None,
-        source: Source | None = None,
+        facts: Iterable["HasCitations & Entity"]
+        | ToManyResolver["HasCitations"]
+        | None = None,
         location: ShorthandStaticTranslations | None = None,
         date: Datey | None = None,
-        file_references: Iterable[FileReference] | None = None,
+        file_references: Iterable[FileReference]
+        | ToManyResolver[FileReference]
+        | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
@@ -125,9 +134,7 @@ class Citation(
             for fact in self.facts
             if not isinstance(fact.id, GeneratedEntityId)
         ]
-        if self.source is not None and not isinstance(
-            self.source.id, GeneratedEntityId
-        ):
+        if not isinstance(self.source.id, GeneratedEntityId):
             dump["source"] = project.static_url_generator.generate(
                 f"/source/{quote(self.source.id)}/index.json"
             )

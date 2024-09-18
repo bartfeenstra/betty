@@ -26,8 +26,8 @@ class TestCitation(EntityTestBase):
     @override
     async def get_sut_instances(self) -> Sequence[Entity]:
         return [
-            Citation(),
-            Citation(location="My First Location"),
+            Citation(source=Source()),
+            Citation(source=Source(), location="My First Location"),
         ]
 
     async def test_id(self) -> None:

@@ -18,7 +18,7 @@ from betty.ancestry.privacy import HasPrivacy, Privacy
 from betty.json.schema import Object, Array, String
 from betty.locale.localizable import _, ShorthandStaticTranslations, Localizable
 from betty.model import UserFacingEntity, Entity, GeneratedEntityId
-from betty.model.association import OneToMany
+from betty.model.association import BidirectionalToMany, ToManyResolver
 from betty.plugin import ShorthandPluginBase
 from betty.string import camel_case_to_kebab_case
 
@@ -58,7 +58,7 @@ class File(
     _plugin_id = "file"
     _plugin_label = _("File")
 
-    referees = OneToMany["File", "FileReference"](
+    referees = BidirectionalToMany["File", "FileReference"](
         "betty.ancestry.file:File",
         "referees",
         "betty.ancestry.file_reference:FileReference",
@@ -73,8 +73,8 @@ class File(
         name: str | None = None,
         media_type: MediaType | None = None,
         description: ShorthandStaticTranslations | None = None,
-        notes: Iterable[Note] | None = None,
-        citations: Iterable[Citation] | None = None,
+        notes: Iterable[Note] | ToManyResolver[Note] | None = None,
+        citations: Iterable[Citation] | ToManyResolver[Citation] | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
@@ -126,8 +126,7 @@ class File(
                 f"/{camel_case_to_kebab_case(file_reference.referee.plugin_id())}/{quote(file_reference.referee.id)}/index.json"
             )
             for file_reference in self.referees
-            if file_reference.referee
-            and not isinstance(file_reference.referee.id, GeneratedEntityId)
+            if not isinstance(file_reference.referee.id, GeneratedEntityId)
         ]
         return dump
 

@@ -1015,5 +1015,4 @@ class TestPopulator:
         await sut.populate()
 
         file_reference = place.file_references[0]
-        assert file_reference.file
         assert file_reference.file.path == image.path

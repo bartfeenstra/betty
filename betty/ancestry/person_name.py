@@ -16,7 +16,7 @@ from betty.json.schema import Object, String
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import _, Localizable
 from betty.model import Entity
-from betty.model.association import ManyToOne
+from betty.model.association import BidirectionalToOne, ToOneResolver
 from betty.plugin import ShorthandPluginBase
 from betty.repr import repr_instance
 
@@ -36,7 +36,7 @@ class PersonName(ShorthandPluginBase, HasLocale, HasCitations, HasPrivacy, Entit
     _plugin_label = _("Person name")
 
     #: The person whose name this is.
-    person = ManyToOne["PersonName", "Person"](
+    person = BidirectionalToOne["PersonName", "Person"](
         "betty.ancestry.person_name:PersonName",
         "person",
         "betty.ancestry.person:Person",
@@ -46,8 +46,8 @@ class PersonName(ShorthandPluginBase, HasLocale, HasCitations, HasPrivacy, Entit
     def __init__(
         self,
         *,
+        person: Person | ToOneResolver[Person],
         id: str | None = None,  # noqa A002
-        person: Person | None = None,
         individual: str | None = None,
         affiliation: str | None = None,
         privacy: Privacy | None = None,

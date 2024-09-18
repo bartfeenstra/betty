@@ -24,9 +24,9 @@ class TestPersonName(EntityTestBase):
     @override
     async def get_sut_instances(self) -> Sequence[Entity]:
         return [
-            PersonName(individual="Jane"),
-            PersonName(affiliation="Doe"),
-            PersonName(individual="Jane", affiliation="Doe"),
+            PersonName(person=Person(), individual="Jane"),
+            PersonName(person=Person(), affiliation="Doe"),
+            PersonName(person=Person(), individual="Jane", affiliation="Doe"),
         ]
 
     async def test_person(self) -> None:
@@ -90,7 +90,7 @@ class TestPersonName(EntityTestBase):
                     "private": False,
                     "citations": [],
                 },
-                PersonName(individual="Jane"),
+                PersonName(person=Person(), individual="Jane"),
             ),
             (
                 {
@@ -102,7 +102,7 @@ class TestPersonName(EntityTestBase):
                     "private": False,
                     "citations": [],
                 },
-                PersonName(affiliation="Dough"),
+                PersonName(person=Person(), affiliation="Dough"),
             ),
             (
                 {
@@ -116,7 +116,12 @@ class TestPersonName(EntityTestBase):
                     "private": False,
                     "citations": [],
                 },
-                PersonName(individual="Jane", affiliation="Dough", locale="nl-NL"),
+                PersonName(
+                    person=Person(),
+                    individual="Jane",
+                    affiliation="Dough",
+                    locale="nl-NL",
+                ),
             ),
             (
                 {
@@ -125,7 +130,11 @@ class TestPersonName(EntityTestBase):
                     "citations": [],
                 },
                 PersonName(
-                    individual="Jane", affiliation="Dough", locale="nl-NL", private=True
+                    person=Person(),
+                    individual="Jane",
+                    affiliation="Dough",
+                    locale="nl-NL",
+                    private=True,
                 ),
             ),
         ],

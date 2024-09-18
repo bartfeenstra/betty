@@ -10,12 +10,12 @@ from urllib.parse import quote
 
 from typing_extensions import override
 
-
 from betty.ancestry.has_file_references import HasFileReferences
+from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.name import Name
-from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
+from betty.ancestry.privacy import HasPrivacy
 from betty.json.linked_data import dump_context, JsonLdObject
 from betty.json.schema import Object, Array, Number
 from betty.locale.localizable import _, Localizable
@@ -25,9 +25,8 @@ from betty.model import (
     GeneratedEntityId,
     EntityReferenceCollectionSchema,
 )
-from betty.model.association import OneToMany
+from betty.model.association import BidirectionalToMany, ToManyResolver
 from betty.plugin import ShorthandPluginBase
-from betty.ancestry.privacy import HasPrivacy
 
 if TYPE_CHECKING:
     from betty.ancestry.note import Note
@@ -61,16 +60,16 @@ class Place(
     _plugin_id = "place"
     _plugin_label = _("Place")
 
-    events = OneToMany["Place", "Event"](
+    events = BidirectionalToMany["Place", "Event"](
         "betty.ancestry.place:Place", "events", "betty.ancestry.event:Event", "place"
     )
-    enclosers = OneToMany["Place", "Enclosure"](
+    enclosers = BidirectionalToMany["Place", "Enclosure"](
         "betty.ancestry.place:Place",
         "encloser",
         "betty.ancestry.enclosure:Enclosure",
         "enclosee",
     )
-    enclosees = OneToMany["Place", "Enclosure"](
+    enclosees = BidirectionalToMany["Place", "Enclosure"](
         "betty.ancestry.place:Place",
         "enclosee",
         "betty.ancestry.enclosure:Enclosure",
@@ -82,10 +81,10 @@ class Place(
         *,
         id: str | None = None,  # noqa A002
         names: MutableSequence[Name] | None = None,
-        events: Iterable[Event] | None = None,
-        enclosers: Iterable["Enclosure"] | None = None,
-        enclosees: Iterable["Enclosure"] | None = None,
-        notes: Iterable[Note] | None = None,
+        events: Iterable[Event] | ToManyResolver[Event] | None = None,
+        enclosers: Iterable["Enclosure"] | ToManyResolver["Enclosure"] | None = None,
+        enclosees: Iterable["Enclosure"] | ToManyResolver["Enclosure"] | None = None,
+        notes: Iterable[Note] | ToManyResolver[Note] | None = None,
         coordinates: Point | None = None,
         links: MutableSequence[Link] | None = None,
         privacy: Privacy | None = None,
@@ -118,8 +117,7 @@ class Place(
         """
         for enclosure in self.enclosees:
             yield enclosure
-            if enclosure.enclosee is not None:
-                yield from enclosure.enclosee.walk_enclosees
+            yield from enclosure.enclosee.walk_enclosees
 
     @override
     @classmethod
@@ -188,16 +186,14 @@ class Place(
                 f"/place/{quote(enclosure.encloser.id)}/index.json"
             )
             for enclosure in self.enclosers
-            if enclosure.encloser is not None
-            and not isinstance(enclosure.encloser.id, GeneratedEntityId)
+            if not isinstance(enclosure.encloser.id, GeneratedEntityId)
         ]
         dump["enclosees"] = [
             project.static_url_generator.generate(
                 f"/place/{quote(enclosure.enclosee.id)}/index.json"
             )
             for enclosure in self.enclosees
-            if enclosure.enclosee is not None
-            and not isinstance(enclosure.enclosee.id, GeneratedEntityId)
+            if not isinstance(enclosure.enclosee.id, GeneratedEntityId)
         ]
         if self.coordinates is not None:
             dump["coordinates"] = {

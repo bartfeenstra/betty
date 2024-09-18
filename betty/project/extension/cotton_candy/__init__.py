@@ -239,8 +239,7 @@ def _associated_file_references(
             for citation in name.citations:
                 yield from _associated_file_references(citation)
         for presence in has_file_references.presences:
-            if presence.event is not None:
-                yield from _associated_file_references(presence.event)
+            yield from _associated_file_references(presence.event)
 
     if isinstance(has_file_references, Place):
         for event in has_file_references.events:
@@ -313,7 +312,7 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
 
     if start_date is None or end_date is None:
         reference_dates = sorted(
-            cast(Datey, cast(Event, presence.event).date)
+            cast(Datey, presence.event.date)
             for presence in person.presences
             if _is_person_timeline_presence(presence)
         )
@@ -338,7 +337,7 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
         for associated_person in associated_people:
             # For associated events, we are only interested in people's start- or end-of-life events.
             for associated_presence in associated_person.presences:
-                if not associated_presence.event or not isinstance(
+                if not isinstance(
                     associated_presence.event.event_type,
                     (StartOfLifeEventType, EndOfLifeEventType),
                 ):

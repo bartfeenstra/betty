@@ -109,8 +109,9 @@ class Deriver:
         if not derivable_events:
             if list(
                 filter(
-                    lambda presence: presence.event is not None
-                    and isinstance(presence.event.event_type, derivable_event_type),
+                    lambda presence: isinstance(
+                        presence.event.event_type, derivable_event_type
+                    ),
                     person.presences,
                 )
             ):
@@ -309,9 +310,6 @@ def _get_derivable_events(
     for presence in person.presences:
         event = presence.event
 
-        if event is None:
-            continue
-
         # Ignore events of the wrong type.
         if not isinstance(event.event_type, derivable_event_type):
             continue
@@ -336,9 +334,6 @@ def _get_reference_events(
 ) -> Iterable[Event]:
     for presence in person.presences:
         reference_event = presence.event
-
-        if reference_event is None:
-            continue
 
         if reference_event.date is None:
             continue

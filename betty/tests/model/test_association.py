@@ -1,292 +1,431 @@
 from __future__ import annotations
 
-from typing import Iterator, Any
+from typing import TypeVar, TYPE_CHECKING
 
-import pytest
+from typing_extensions import override
 
+from betty.model import Entity
 from betty.model.association import (
-    ToOne,
     AssociationRegistry,
-    OneToOne,
-    ManyToOne,
-    OneToMany,
-    ToMany,
-    Association,
-    ManyToMany,
+    UnidirectionalToMany,
+    UnidirectionalToZeroOrOne,
+    UnidirectionalToOne,
+    AssociationRequired,
+    BidirectionalToZeroOrOne,
+    BidirectionalToOne,
+    BidirectionalToMany,
+    ToOneResolver,
+    ToZeroOrOneResolver,
+    ToManyResolver,
 )
 from betty.test_utils.model import DummyEntity
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+
+_EntityT = TypeVar("_EntityT", bound=Entity)
+
+
+class _PassthroughToOneResolver(ToOneResolver[_EntityT]):
+    def __init__(self, entity: _EntityT):
+        self._entity = entity
+
+    @override
+    def resolve(self) -> _EntityT:
+        return self._entity
+
+
+class _PassthroughToZeroOrOneResolver(ToZeroOrOneResolver[_EntityT]):
+    def __init__(self, entity: _EntityT | None):
+        self._entity = entity
+
+    @override
+    def resolve(self) -> _EntityT | None:
+        return self._entity
+
+
+class _PassthroughToManyResolver(ToManyResolver[_EntityT]):
+    def __init__(self, *entities: _EntityT):
+        self._entities = entities
+
+    @override
+    def resolve(self) -> Iterable[_EntityT]:
+        return self._entities
+
 
 class TestAssociationRegistry:
-    @pytest.fixture(scope="class", autouse=True)
-    def associations(
-        self,
-    ) -> Iterator[tuple[Association[Any, Any], Association[Any, Any]]]:
-        parent_association = ToOne[
-            _TestAssociationRegistry_ParentEntity,
-            _TestAssociationRegistry_ChildEntity,
+    class _OwnerBase(DummyEntity):
+        base_associate = UnidirectionalToZeroOrOne[
+            "TestAssociationRegistry._OwnerBase",
+            "TestAssociationRegistry._Associate",
         ](
-            "betty.tests.model.test_association:_TestAssociationRegistry_ParentEntity",
-            "parent_associate",
-            "betty.tests.model.test_association:_TestAssociationRegistry_Associate",
+            "betty.tests.model.test_association:TestAssociationRegistry._OwnerBase",
+            "base_associate",
+            "betty.tests.model.test_association:TestAssociationRegistry._Associate",
         )
-        AssociationRegistry._register(parent_association)
-        child_association = ToOne[
-            _TestAssociationRegistry_ChildEntity,
-            _TestAssociationRegistry_ParentEntity,
+
+    class _Owner(_OwnerBase):
+        associate = UnidirectionalToZeroOrOne[
+            "TestAssociationRegistry._Owner",
+            "TestAssociationRegistry._Associate",
         ](
-            "betty.tests.model.test_association:_TestAssociationRegistry_ChildEntity",
-            "child_associate",
-            "betty.tests.model.test_association:_TestAssociationRegistry_Associate",
+            "betty.tests.model.test_association:TestAssociationRegistry._Owner",
+            "associate",
+            "betty.tests.model.test_association:TestAssociationRegistry._Associate",
         )
-        AssociationRegistry._register(child_association)
-        yield parent_association, child_association
-        AssociationRegistry._associations.remove(parent_association)
-        AssociationRegistry._associations.remove(child_association)
 
-    async def test_get_associations_with_parent_class_should_return_parent_associations(
+    class _Associate(DummyEntity):
+        pass
+
+    def test_get_all_associations_with_base_class_should_return_base_associations(
         self,
-        associations: tuple[Association[Any, Any], Association[Any, Any]],
     ) -> None:
-        parent_registration, _ = associations
-        assert {parent_registration} == AssociationRegistry.get_all_associations(
-            _TestAssociationRegistry_ParentEntity
+        actual = AssociationRegistry.get_all_associations(self._OwnerBase)
+        assert len(actual) == 1
+        assert (
+            len(
+                list(
+                    filter(
+                        lambda association: association.owner_type is self._OwnerBase
+                        and association.owner_attr_name == "base_associate"
+                        and association.associate_type is self._Associate,
+                        actual,
+                    )
+                )
+            )
+            == 1
         )
 
-    async def test_get_associations_with_child_class_should_return_child_associations(
+    def test_get_all_associations_with_concrete_class_should_return_all_associations(
         self,
-        associations: tuple[Association[Any, Any], Association[Any, Any]],
     ) -> None:
-        parent_association, child_association = associations
-        assert {
-            parent_association,
-            child_association,
-        } == AssociationRegistry.get_all_associations(
-            _TestAssociationRegistry_ChildEntity
+        actual = AssociationRegistry.get_all_associations(self._Owner)
+        assert len(actual) == 2
+        assert (
+            len(
+                list(
+                    filter(
+                        lambda association: association.owner_type is self._OwnerBase
+                        and association.owner_attr_name == "base_associate"
+                        and association.associate_type is self._Associate,
+                        actual,
+                    )
+                )
+            )
+            == 1
+        )
+        assert (
+            len(
+                list(
+                    filter(
+                        lambda association: association.owner_type is self._Owner
+                        and association.owner_attr_name == "associate"
+                        and association.associate_type is self._Associate,
+                        actual,
+                    )
+                )
+            )
+            == 1
         )
 
+    def test_get_association_with_base_class_should_return_base_association(
+        self,
+    ) -> None:
+        actual = AssociationRegistry.get_association(self._OwnerBase, "base_associate")
+        assert actual.owner_type is self._OwnerBase
+        assert actual.associate_type is self._Associate
 
-class _TestAssociationRegistry_ParentEntity(DummyEntity):
-    pass
+    def test_get_association_with_concrete_class_should_return_base_association(
+        self,
+    ) -> None:
+        actual = AssociationRegistry.get_association(self._Owner, "base_associate")
+        assert actual.owner_type is self._OwnerBase
+        assert actual.associate_type is self._Associate
 
-
-class _TestAssociationRegistry_ChildEntity(_TestAssociationRegistry_ParentEntity):
-    pass
-
-
-class _TestAssociationRegistry_Associate(DummyEntity):
-    pass
-
-
-class _TestToOne_Some(DummyEntity):
-    one = ToOne["_TestToOne_Some", "_TestToOne_One"](
-        "betty.tests.model.test_association:_TestToOne_Some",
-        "one",
-        "betty.tests.model.test_association:_TestToOne_One",
-    )
-
-
-class _TestToOne_One(DummyEntity):
-    pass
+    def test_get_association_with_concrete_class_should_return_concrete_association(
+        self,
+    ) -> None:
+        actual = AssociationRegistry.get_association(self._Owner, "associate")
+        assert actual.owner_type is self._Owner
+        assert actual.associate_type is self._Associate
 
 
-class TestToOne:
-    async def test(self) -> None:
-        assert {"one"} == {
-            association.owner_attr_name
-            for association in AssociationRegistry.get_all_associations(_TestToOne_Some)
-        }
+class TestUnidirectionalToZeroOrOne:
+    class _Owner(DummyEntity):
+        associate = UnidirectionalToZeroOrOne[
+            "TestUnidirectionalToZeroOrOne._Owner",
+            "TestUnidirectionalToZeroOrOne._Associate",
+        ](
+            "betty.tests.model.test_association:TestUnidirectionalToZeroOrOne._Owner",
+            "associate",
+            "betty.tests.model.test_association:TestUnidirectionalToZeroOrOne._Associate",
+        )
 
-        entity_some = _TestToOne_Some()
-        entity_one = _TestToOne_One()
+    class _Associate(DummyEntity):
+        pass
 
-        entity_some.one = entity_one
-        assert entity_one is entity_some.one
+    def test(self) -> None:
+        owner = self._Owner()
+        associate = self._Associate()
 
-        del entity_some.one
-        assert entity_some.one is None
+        owner.associate = associate
+        assert owner.associate is associate
 
+        owner.associate = None
+        assert owner.associate is None
 
-class _TestOneToOne_One(DummyEntity):
-    other_one = OneToOne["_TestOneToOne_One", "_TestOneToOne_OtherOne"](
-        "betty.tests.model.test_association:_TestOneToOne_One",
-        "other_one",
-        "betty.tests.model.test_association:_TestOneToOne_OtherOne",
-        "one",
-    )
+        owner.associate = associate
+        del owner.associate
+        assert owner.associate is None
 
+    def test_resolve_with_to_zero_or_one_resolver_with_zero(self) -> None:
+        owner = self._Owner()
 
-class _TestOneToOne_OtherOne(DummyEntity):
-    one = OneToOne["_TestOneToOne_OtherOne", _TestOneToOne_One](
-        "betty.tests.model.test_association:_TestOneToOne_OtherOne",
-        "one",
-        "betty.tests.model.test_association:_TestOneToOne_One",
-        "other_one",
-    )
+        owner.associate = _PassthroughToZeroOrOneResolver(None)
+        type(owner).associate.resolve(owner)
+        assert owner.associate is None
 
+    def test_resolve_with_to_zero_or_one_resolver_with_one(self) -> None:
+        owner = self._Owner()
+        associate = self._Associate()
 
-class TestOneToOne:
-    async def test(self) -> None:
-        assert {"one"} == {
-            association.owner_attr_name
-            for association in AssociationRegistry.get_all_associations(
-                _TestOneToOne_OtherOne
-            )
-        }
+        owner.associate = _PassthroughToZeroOrOneResolver(associate)
+        type(owner).associate.resolve(owner)
+        assert owner.associate is associate
 
-        entity_one = _TestOneToOne_One()
-        entity_other_one = _TestOneToOne_OtherOne()
+    def test_resolve_with_to_one_resolver(self) -> None:
+        owner = self._Owner()
+        associate = self._Associate()
 
-        entity_other_one.one = entity_one
-        assert entity_one is entity_other_one.one
-        assert entity_other_one == entity_one.other_one
-
-        del entity_other_one.one
-        assert entity_other_one.one is None
-        assert entity_one.other_one is None  # type: ignore[unreachable]
+        owner.associate = _PassthroughToOneResolver(associate)
+        type(owner).associate.resolve(owner)
+        assert owner.associate is associate
 
 
-class _TestManyToOne_Many(DummyEntity):
-    one = ManyToOne["_TestManyToOne_Many", "_TestManyToOne_One"](
-        "betty.tests.model.test_association:_TestManyToOne_Many",
-        "one",
-        "betty.tests.model.test_association:_TestManyToOne_One",
-        "many",
-    )
+class TestBidirectionalToZeroOrOne:
+    class _Owner(DummyEntity):
+        associate = BidirectionalToZeroOrOne[
+            "TestBidirectionalToZeroOrOne._Owner",
+            "TestBidirectionalToZeroOrOne._Associate",
+        ](
+            "betty.tests.model.test_association:TestBidirectionalToZeroOrOne._Owner",
+            "associate",
+            "betty.tests.model.test_association:TestBidirectionalToZeroOrOne._Associate",
+            "owner",
+        )
+
+    class _Associate(DummyEntity):
+        owner = BidirectionalToZeroOrOne[
+            "TestBidirectionalToZeroOrOne._Associate",
+            "TestBidirectionalToZeroOrOne._Owner",
+        ](
+            "betty.tests.model.test_association:TestBidirectionalToZeroOrOne._Associate",
+            "owner",
+            "betty.tests.model.test_association:TestBidirectionalToZeroOrOne._Owner",
+            "associate",
+        )
+
+    def test(self) -> None:
+        owner = self._Owner()
+        associate = self._Associate()
+
+        owner.associate = associate
+        assert owner.associate is associate
+        assert associate.owner is owner
+
+        owner.associate = None
+        assert owner.associate is None
+        assert associate.owner is None
+
+        owner.associate = associate  # type: ignore[unreachable]
+        del owner.associate
+        assert owner.associate is None
+        assert associate.owner is None
+
+    def test_resolve_with_to_zero_or_one_resolver_with_zero(self) -> None:
+        owner = self._Owner()
+
+        owner.associate = _PassthroughToZeroOrOneResolver(None)
+        type(owner).associate.resolve(owner)
+        assert owner.associate is None
+
+    def test_resolve_with_to_zero_or_one_resolver_with_one(self) -> None:
+        owner = self._Owner()
+        associate = self._Associate()
+
+        owner.associate = _PassthroughToZeroOrOneResolver(associate)
+        type(owner).associate.resolve(owner)
+        assert owner.associate is associate
+        assert associate.owner is owner
+
+    def test_resolve_with_to_one_resolver(self) -> None:
+        owner = self._Owner()
+        associate = self._Associate()
+
+        owner.associate = _PassthroughToOneResolver(associate)
+        type(owner).associate.resolve(owner)
+        assert owner.associate is associate
+        assert associate.owner is owner
 
 
-class _TestManyToOne_One(DummyEntity):
-    many = OneToMany["_TestManyToOne_One", _TestManyToOne_Many](
-        "betty.tests.model.test_association:_TestManyToOne_One",
-        "many",
-        "betty.tests.model.test_association:_TestManyToOne_Many",
-        "one",
-    )
+class TestUnidirectionalToOne:
+    class _Owner(DummyEntity):
+        associate = UnidirectionalToOne[
+            "TestUnidirectionalToOne._Owner", "TestUnidirectionalToOne._Associate"
+        ](
+            "betty.tests.model.test_association:TestUnidirectionalToOne._Owner",
+            "associate",
+            "betty.tests.model.test_association:TestUnidirectionalToOne._Associate",
+        )
+
+    class _Associate(DummyEntity):
+        pass
+
+    def test(self) -> None:
+        owner = self._Owner()
+        associate = self._Associate()
+
+        owner.associate = associate
+        assert owner.associate is associate
+
+    def test_resolve(self) -> None:
+        owner = self._Owner()
+        associate = self._Associate()
+
+        owner.associate = _PassthroughToOneResolver(associate)
+        type(owner).associate.resolve(owner)
+        assert owner.associate is associate
 
 
-class TestManyToOne:
-    async def test(self) -> None:
-        assert {"one"} == {
-            association.owner_attr_name
-            for association in AssociationRegistry.get_all_associations(
-                _TestManyToOne_Many
-            )
-        }
+class TestBidirectionalToOne:
+    class _Owner(DummyEntity):
+        associate = BidirectionalToOne[
+            "TestBidirectionalToOne._Owner", "TestBidirectionalToOne._Associate"
+        ](
+            "betty.tests.model.test_association:TestBidirectionalToOne._Owner",
+            "associate",
+            "betty.tests.model.test_association:TestBidirectionalToOne._Associate",
+            "owner",
+        )
 
-        entity_many = _TestManyToOne_Many()
-        entity_one = _TestManyToOne_One()
+    class _Associate(DummyEntity):
+        owner = BidirectionalToMany[
+            "TestBidirectionalToOne._Associate", "TestBidirectionalToOne._Owner"
+        ](
+            "betty.tests.model.test_association:TestBidirectionalToOne._Associate",
+            "owner",
+            "betty.tests.model.test_association:TestBidirectionalToOne._Owner",
+            "associate",
+        )
 
-        entity_many.one = entity_one
-        assert entity_one is entity_many.one
-        assert [entity_many] == list(entity_one.many)
+    def test(self) -> None:
+        owner = self._Owner()
+        associate = self._Associate()
 
-        del entity_many.one
-        assert entity_many.one is None
-        assert list(entity_one.many) == []  # type: ignore[unreachable]
+        owner.associate = associate
+        assert owner.associate is associate
+        assert list(associate.owner) == [owner]
 
+    def test_resolve(self) -> None:
+        owner = self._Owner()
+        associate = self._Associate()
 
-class _TestToMany_One(DummyEntity):
-    many = ToMany["_TestToMany_One", "_TestToMany_Many"](
-        "betty.tests.model.test_association:_TestToMany_One",
-        "many",
-        "betty.tests.model.test_association:_TestToMany_Many",
-    )
-
-
-class _TestToMany_Many(DummyEntity):
-    pass
-
-
-class TestToMany:
-    async def test(self) -> None:
-        assert {"many"} == {
-            association.owner_attr_name
-            for association in AssociationRegistry.get_all_associations(_TestToMany_One)
-        }
-
-        entity_one = _TestToMany_One()
-        entity_many = _TestToMany_Many()
-
-        entity_one.many.add(entity_many)
-        assert [entity_many] == list(entity_one.many)
-
-        entity_one.many.remove(entity_many)
-        assert list(entity_one.many) == []
+        owner.associate = _PassthroughToOneResolver(associate)
+        type(owner).associate.resolve(owner)
+        assert owner.associate is associate
+        assert owner in associate.owner
 
 
-class _TestOneToMany_One(DummyEntity):
-    many = OneToMany["_TestOneToMany_One", "_TestOneToMany_Many"](
-        "betty.tests.model.test_association:_TestOneToMany_One",
-        "many",
-        "betty.tests.model.test_association:_TestOneToMany_Many",
-        "one",
-    )
+class TestUnidirectionalToMany:
+    class _Owner(DummyEntity):
+        associate = UnidirectionalToMany[
+            "TestUnidirectionalToMany._Owner", "TestUnidirectionalToMany._Associate"
+        ](
+            "betty.tests.model.test_association:TestUnidirectionalToMany._Owner",
+            "associate",
+            "betty.tests.model.test_association:TestUnidirectionalToMany._Associate",
+        )
+
+    class _Associate(DummyEntity):
+        pass
+
+    def test(self) -> None:
+        owner = self._Owner()
+        associate = self._Associate()
+
+        owner.associate = [associate]
+        assert list(owner.associate) == [associate]
+
+        del owner.associate
+        assert list(owner.associate) == []
+
+    def test_resolve(self) -> None:
+        owner = self._Owner()
+        associate = self._Associate()
+
+        owner.associate = _PassthroughToManyResolver(associate)
+        type(owner).associate.resolve(owner)
+        assert associate in owner.associate
 
 
-class _TestOneToMany_Many(DummyEntity):
-    one = ManyToOne["_TestOneToMany_Many", _TestOneToMany_One](
-        "betty.tests.model.test_association:_TestOneToMany_Many",
-        "one",
-        "betty.tests.model.test_association:_TestOneToMany_One",
-        "many",
-    )
+class TestBidirectionalToMany:
+    class _Owner(DummyEntity):
+        associate = BidirectionalToMany[
+            "TestBidirectionalToMany._Owner", "TestBidirectionalToMany._Associate"
+        ](
+            "betty.tests.model.test_association:TestBidirectionalToMany._Owner",
+            "associate",
+            "betty.tests.model.test_association:TestBidirectionalToMany._Associate",
+            "owner",
+        )
+
+    class _Associate(DummyEntity):
+        owner = BidirectionalToZeroOrOne[
+            "TestBidirectionalToMany._Associate", "TestBidirectionalToMany._Owner"
+        ](
+            "betty.tests.model.test_association:TestBidirectionalToMany._Associate",
+            "owner",
+            "betty.tests.model.test_association:TestBidirectionalToMany._Owner",
+            "associate",
+        )
+
+    def test(self) -> None:
+        owner = self._Owner()
+        associate = self._Associate()
+
+        owner.associate = [associate]
+        assert list(owner.associate) == [associate]
+        assert associate.owner is owner
+
+        del owner.associate
+        assert list(owner.associate) == []
+        assert associate.owner is None
+
+    def test_resolve(self) -> None:
+        owner = self._Owner()
+        associate = self._Associate()
+
+        owner.associate = _PassthroughToManyResolver(associate)
+        type(owner).associate.resolve(owner)
+        assert associate in owner.associate
+        assert associate.owner is owner
 
 
-class TestOneToMany:
-    async def test(self) -> None:
-        assert {"many"} == {
-            association.owner_attr_name
-            for association in AssociationRegistry.get_all_associations(
-                _TestOneToMany_One
-            )
-        }
+class TestAssociationRequired:
+    class _Owner(DummyEntity):
+        associate = UnidirectionalToOne[
+            "TestAssociationRequired._Owner", "TestAssociationRequired._Associate"
+        ](
+            "betty.tests.model.test_association:TestAssociationRequired._Owner",
+            "associate",
+            "betty.tests.model.test_association:TestAssociationRequired._Associate",
+        )
 
-        entity_one = _TestOneToMany_One()
-        entity_many = _TestOneToMany_Many()
+    class _Associate(DummyEntity):
+        pass
 
-        entity_one.many.add(entity_many)
-        assert [entity_many] == list(entity_one.many)
-        assert entity_one is entity_many.one
-
-        entity_one.many.remove(entity_many)
-        assert list(entity_one.many) == []
-        assert entity_many.one is None
-
-
-class _TestManyToMany_Many(DummyEntity):
-    other_many = ManyToMany["_TestManyToMany_Many", "_TestManyToMany_OtherMany"](
-        "betty.tests.model.test_association:_TestManyToMany_Many",
-        "other_many",
-        "betty.tests.model.test_association:_TestManyToMany_OtherMany",
-        "many",
-    )
-
-
-class _TestManyToMany_OtherMany(DummyEntity):
-    many = ManyToMany["_TestManyToMany_OtherMany", "_TestManyToMany_Many"](
-        "betty.tests.model.test_association:_TestManyToMany_OtherMany",
-        "many",
-        "betty.tests.model.test_association:_TestManyToMany_Many",
-        "other_many",
-    )
-
-
-class TestManyToMany:
-    async def test(self) -> None:
-        assert {"other_many"} == {
-            association.owner_attr_name
-            for association in AssociationRegistry.get_all_associations(
-                _TestManyToMany_Many
-            )
-        }
-
-        entity_many = _TestManyToMany_Many()
-        entity_other_many = _TestManyToMany_OtherMany()
-
-        entity_many.other_many.add(entity_other_many)
-        assert [entity_other_many] == list(entity_many.other_many)
-        assert [entity_many] == list(entity_other_many.many)
-
-        entity_many.other_many.remove(entity_other_many)
-        assert list(entity_many.other_many) == []
-        assert list(entity_other_many.many) == []
+    def test_new(self) -> None:
+        association = self._Owner.associate
+        owner = self._Owner()
+        AssociationRequired.new(association, owner)

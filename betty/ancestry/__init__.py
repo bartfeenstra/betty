@@ -4,11 +4,15 @@ Provide Betty's main data model.
 
 from __future__ import annotations
 
-from typing import Iterable, final
+from contextlib import contextmanager
+from typing import Iterable, final, TYPE_CHECKING
 
 from betty.model import Entity
 from betty.model.association import AssociationRegistry
 from betty.model.collections import MultipleTypesEntityCollection
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 
 @final
@@ -21,16 +25,17 @@ class Ancestry(MultipleTypesEntityCollection[Entity]):
         super().__init__()
         self._check_graph = True
 
-    def add_unchecked_graph(self, *entities: Entity) -> None:
+    @contextmanager
+    def unchecked(self) -> Iterator[None]:
         """
-        Add entities to the ancestry but do not automatically add associates as well.
+        Disable the addition entities' associates when adding those entities to the ancestry.
 
         It is the caller's responsibility to ensure all associates are added to the ancestry.
-        If this is done, calling this method is faster than the usual entity collection methods.
+        If this is done, using this context manager improves performance.
         """
         self._check_graph = False
         try:
-            self.add(*entities)
+            yield
         finally:
             self._check_graph = True
 
@@ -42,7 +47,5 @@ class Ancestry(MultipleTypesEntityCollection[Entity]):
     def _get_associates(self, *entities: Entity) -> Iterable[Entity]:
         for entity in entities:
             for association in AssociationRegistry.get_all_associations(entity):
-                for associate in AssociationRegistry.get_associates(
-                    entity, association
-                ):
+                for associate in association.get_associates(entity):
                     yield associate
