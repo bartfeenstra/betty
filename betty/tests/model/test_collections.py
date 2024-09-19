@@ -3,15 +3,15 @@ from __future__ import annotations
 from typing import Any, TYPE_CHECKING
 
 import pytest
+
+from betty.ancestry.person import Person
 from betty.model import Entity
-from betty.ancestry import Person
 from betty.model.collections import (
     SingleTypeEntityCollection,
     MultipleTypesEntityCollection,
 )
 from betty.plugin import PluginNotFound
 from betty.plugin.static import StaticPluginRepository
-
 from betty.test_utils.model import DummyEntity
 
 if TYPE_CHECKING:

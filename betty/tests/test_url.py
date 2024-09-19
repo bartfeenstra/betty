@@ -5,10 +5,11 @@ from typing import Any, TYPE_CHECKING
 
 import pytest
 
-from betty.ancestry import Person, Source, Event, Citation
+from betty.ancestry import Source, Event, Citation
 from betty.ancestry.event_type.event_types import Death
 from betty.ancestry.file import File
 from betty.ancestry.name import Name
+from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.model import UserFacingEntity
 from betty.project import Project

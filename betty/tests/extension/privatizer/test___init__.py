@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 from typing_extensions import override
 
 from betty.ancestry import (
-    Person,
     Presence,
     Event,
     Source,
@@ -15,6 +14,7 @@ from betty.ancestry import (
 )
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.file import File
+from betty.ancestry.person import Person
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.extension.privatizer import Privatizer
 from betty.project import Project

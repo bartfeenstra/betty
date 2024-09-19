@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from typing_extensions import override
 
-from betty.ancestry import Person, Presence, Event
+from betty.ancestry import Presence, Event
 from betty.ancestry.event_type.event_types import (
     Death,
     Birth,
@@ -28,10 +30,10 @@ from betty.ancestry.event_type.event_types import (
     Unknown,
     Will,
 )
+from betty.ancestry.person import Person
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import Date
 from betty.test_utils.ancestry.event_type import EventTypeTestBase
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from betty.ancestry.event_type import EventType

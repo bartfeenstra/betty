@@ -3,11 +3,11 @@ from pathlib import Path
 from betty.ancestry import (
     Citation,
     Source,
-    Person,
     PersonName,
     FileReference,
 )
 from betty.ancestry.file import File
+from betty.ancestry.person import Person
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.test_utils.assets.templates import TemplateTestBase

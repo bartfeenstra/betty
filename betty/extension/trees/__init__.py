@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, final
 import aiofiles
 from typing_extensions import override
 
-from betty.ancestry import Person
+from betty.ancestry.person import Person
 from betty.asyncio import gather
 from betty.extension.webpack import Webpack, WebpackEntryPointProvider
 from betty.locale.localizable import _
