@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from betty.extension.cotton_candy import CottonCandy
-from betty.locale.date import Date
+from betty.date import Date
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.ancestry import (
     Person,

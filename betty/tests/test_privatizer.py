@@ -23,7 +23,7 @@ from betty.ancestry.presence_role.presence_roles import (
     Unknown as UnknownPresenceRole,
 )
 from betty.ancestry.privacy import Privacy
-from betty.locale.date import Date, DateRange
+from betty.date import Date, DateRange
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.privatizer import Privatizer
 from betty.project.config import DEFAULT_LIFETIME_THRESHOLD

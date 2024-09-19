@@ -8,7 +8,7 @@ import pytest
 
 from betty.assets import AssetRepository
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.date import Date, DateRange, Datey, IncompleteDateError
+from betty.date import Date, DateRange, Datey, IncompleteDateError
 from betty.locale.localizer import DEFAULT_LOCALIZER, LocalizerRepository
 
 if TYPE_CHECKING:

@@ -2,7 +2,7 @@ from betty.ancestry import Event, Place, Name, Citation, Source
 from betty.ancestry.event_type.event_types import Birth
 from betty.extension.cotton_candy import CottonCandy
 from betty.jinja2 import EntityContexts
-from betty.locale.date import Date
+from betty.date import Date
 from betty.test_utils.assets.templates import TemplateTestBase
 
 

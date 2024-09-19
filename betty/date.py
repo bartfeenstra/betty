@@ -40,7 +40,7 @@ class IncompleteDateError(ValueError):
 
 class DateSchema(JsonLdObject):
     """
-    A JSON Schema for :py:type:`betty.locale.date.Date`.
+    A JSON Schema for :py:type:`betty.date.Date`.
     """
 
     def __init__(self, *, title: str = "Date"):
@@ -208,7 +208,7 @@ def _dump_date_iso8601(date: Date) -> str | None:
 
 class DateRangeSchema(Object):
     """
-    A JSON Schema for :py:type:`betty.locale.date.DateRange`.
+    A JSON Schema for :py:type:`betty.date.DateRange`.
     """
 
     def __init__(self):
@@ -489,7 +489,7 @@ class DateRange(LinkedDataDumpable[Object]):
 
 class DateySchema(OneOf):
     """
-    A JSON Schema for :py:type:`betty.locale.date.Datey`.
+    A JSON Schema for :py:type:`betty.date.Datey`.
     """
 
     def __init__(self):

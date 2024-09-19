@@ -55,7 +55,7 @@ from betty.string import (
 from betty.typing import void_none, none_void
 
 if TYPE_CHECKING:
-    from betty.locale.date import Datey
+    from betty.date import Datey
     from betty.locale.localizable import Localizable
     from jinja2.nodes import EvalContext
     from betty.ancestry import HasDate

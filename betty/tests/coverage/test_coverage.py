@@ -193,6 +193,21 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "__exit__": TestKnownToBeMissing,
         },
     },
+    "betty/date.py": {
+        "Date": {
+            "__contains__": TestKnownToBeMissing,
+            "__ge__": TestKnownToBeMissing,
+            "__le__": TestKnownToBeMissing,
+        },
+        "DateRange": {
+            "__contains__": TestKnownToBeMissing,
+            "__ge__": TestKnownToBeMissing,
+            "__le__": TestKnownToBeMissing,
+            "comparable": TestKnownToBeMissing,
+        },
+        # This is an empty class.
+        "IncompleteDateError": TestKnownToBeMissing,
+    },
     "betty/deriver.py": {
         # This is an enum.
         "Derivation": TestKnownToBeMissing
@@ -380,21 +395,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/locale/babel.py": {
         "run_babel": TestKnownToBeMissing,
-    },
-    "betty/locale/date.py": {
-        "Date": {
-            "__contains__": TestKnownToBeMissing,
-            "__ge__": TestKnownToBeMissing,
-            "__le__": TestKnownToBeMissing,
-        },
-        "DateRange": {
-            "__contains__": TestKnownToBeMissing,
-            "__ge__": TestKnownToBeMissing,
-            "__le__": TestKnownToBeMissing,
-            "comparable": TestKnownToBeMissing,
-        },
-        # This is an empty class.
-        "IncompleteDateError": TestKnownToBeMissing,
     },
     "betty/locale/translation.py": {
         "find_source_files": TestKnownToBeMissing,

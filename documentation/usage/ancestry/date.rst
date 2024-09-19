@@ -1,9 +1,9 @@
 Dates
 =====
 
-Dates can be expressed in three different ways: :py:class:`Date <betty.locale.date.Date>`,
-:py:class:`DateRange <betty.locale.date.DateRange>`, and
-:py:class:`Datey <betty.locale.date.Datey>` (which are either dates or date ranges).
+Dates can be expressed in three different ways: :py:class:`Date <betty.date.Date>`,
+:py:class:`DateRange <betty.date.DateRange>`, and
+:py:class:`Datey <betty.date.Datey>` (which are either dates or date ranges).
 
 Dates
 -----

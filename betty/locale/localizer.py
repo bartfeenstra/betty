@@ -25,7 +25,7 @@ from betty.locale import (
     negotiate_locale,
 )
 from betty.locale.babel import run_babel
-from betty.locale.date import (
+from betty.date import (
     DatePartsFormatters,
     DateFormatters,
     DateRangeFormatters,

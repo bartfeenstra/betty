@@ -17,7 +17,7 @@ from betty.locale import (
     UNCODED_LOCALE,
     DEFAULT_LOCALE,
 )
-from betty.locale.date import Datey, Date, DateRange
+from betty.date import Datey, Date, DateRange
 from betty.locale.localizable import StaticTranslationsLocalizable
 from betty.locale.localized import Localized, LocalizedStr
 from betty.media_type import MediaType

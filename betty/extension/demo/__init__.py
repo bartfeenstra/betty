@@ -31,7 +31,7 @@ from betty.extension.http_api_doc import HttpApiDoc
 from betty.extension.maps import Maps
 from betty.extension.trees import Trees
 from betty.extension.wikipedia import Wikipedia
-from betty.locale.date import Date, DateRange
+from betty.date import Date, DateRange
 from betty.locale.localizable import static
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import ShorthandPluginBase

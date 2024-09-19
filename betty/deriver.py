@@ -17,7 +17,7 @@ from betty.ancestry.event_type.event_types import (
     CreatableDerivableEventType,
 )
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.locale.date import DateRange, Date
+from betty.date import DateRange, Date
 
 if TYPE_CHECKING:
     from betty.ancestry.event_type import EventType

@@ -50,7 +50,7 @@ from betty.ancestry.privacy import HasPrivacy
 from betty.error import FileNotFound
 from betty.gramps.error import GrampsError, UserFacingGrampsError
 from betty.locale import UNDETERMINED_LOCALE
-from betty.locale.date import DateRange, Datey, Date
+from betty.date import DateRange, Datey, Date
 from betty.locale.localizable import _, plain
 from betty.media_type import MediaType, InvalidMediaType
 from betty.model import Entity, AliasedEntity, AliasableEntity
