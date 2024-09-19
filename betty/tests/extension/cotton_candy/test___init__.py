@@ -10,7 +10,6 @@ from betty.ancestry import (
     Presence,
     Event,
     Citation,
-    File,
     Source,
     PersonName,
     FileReference,
@@ -20,6 +19,7 @@ from betty.ancestry.event_type.event_types import (
     Unknown as UnknownEventType,
     Death,
 )
+from betty.ancestry.file import File
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import (

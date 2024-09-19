@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from betty.ancestry import File, FileReference
+from betty.ancestry import FileReference
+from betty.ancestry.file import File
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.privacy import HasPrivacy
 from betty.extension.cotton_candy import CottonCandy
