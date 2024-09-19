@@ -14,6 +14,7 @@ from typing_extensions import override
 from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.gender.genders import Unknown as UnknownGender
+from betty.ancestry.media_type import HasMediaType
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence_role import PresenceRole, PresenceRoleSchema
 from betty.ancestry.presence_role.presence_roles import Subject
@@ -47,7 +48,6 @@ from betty.locale.localizable import (
     RequiredStaticTranslationsLocalizableAttr,
 )
 from betty.locale.localized import Localized
-from betty.media_type import MediaType, MediaTypeSchema
 from betty.media_type.media_types import HTML, JSON_LD
 from betty.model import (
     Entity,
@@ -69,6 +69,7 @@ from betty.plugin import ShorthandPluginBase
 from betty.string import camel_case_to_kebab_case
 
 if TYPE_CHECKING:
+    from betty.media_type import MediaType
     from betty.ancestry.event_type import EventType
     from betty.ancestry.gender import Gender
     from betty.ancestry.place_type import PlaceType
@@ -162,35 +163,6 @@ class HasDescription(LinkedDataDumpable[Object]):
     async def linked_data_schema(cls, project: Project) -> Object:
         schema = await super().linked_data_schema(project)
         schema.add_property("description", StaticTranslationsLocalizableSchema(), False)
-        return schema
-
-
-class HasMediaType(LinkedDataDumpable[Object]):
-    """
-    A resource with an `IANA media type <https://www.iana.org/assignments/media-types/media-types.xhtml>`_.
-    """
-
-    def __init__(
-        self,
-        *args: Any,
-        media_type: MediaType | None = None,
-        **kwargs: Any,
-    ):
-        super().__init__(*args, **kwargs)
-        self.media_type = media_type
-
-    @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
-        dump = await super().dump_linked_data(project)
-        if is_public(self) and self.media_type is not None:
-            dump["mediaType"] = str(self.media_type)
-        return dump
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project) -> Object:
-        schema = await super().linked_data_schema(project)
-        schema.add_property("mediaType", MediaTypeSchema(), False)
         return schema
 
 
