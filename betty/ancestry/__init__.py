@@ -18,6 +18,7 @@ from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.locale import HasLocale
 from betty.ancestry.media_type import HasMediaType
+from betty.ancestry.name import Name
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence_role import PresenceRole, PresenceRoleSchema
 from betty.ancestry.presence_role.presence_roles import Subject
@@ -45,7 +46,6 @@ from betty.locale.localizable import (
     call,
     ShorthandStaticTranslations,
     StaticTranslationsLocalizableSchema,
-    StaticTranslationsLocalizable,
     OptionalStaticTranslationsLocalizableAttr,
     RequiredStaticTranslationsLocalizableAttr,
 )
@@ -863,26 +863,6 @@ class Citation(
             ),
         )
         return schema
-
-
-@final
-class Name(StaticTranslationsLocalizable, HasDate):
-    """
-    A name.
-
-    A name can be translated, and have a date expressing the period the name was in use.
-    """
-
-    def __init__(
-        self,
-        translations: ShorthandStaticTranslations,
-        *,
-        date: Datey | None = None,
-    ):
-        super().__init__(
-            translations,
-            date=date,
-        )
 
 
 @final
