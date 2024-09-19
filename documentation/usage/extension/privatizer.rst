@@ -5,11 +5,11 @@ to prevent sensitive information from being published accidentally.
 
 Entities in Betty have privacy. This is a *ternary* property, with the following possible values:
 
-public (``entity.privacy = betty.ancestry.Privacy.PUBLIC``)
+public (``entity.privacy = betty.ancestry.privacy.Privacy.PUBLIC``)
     The entity will be included when publishing your ancestry. The privacy **should not** be changed.
-private (``entity.privacy = betty.ancestry.Privacy.PRIVATE``)
+private (``entity.privacy = betty.ancestry.privacy.Privacy.PRIVATE``)
     The entity will not be included when publishing your ancestry. The privacy **should not** be changed.
-undetermined (``entity.privacy = betty.ancestry.Privacy.UNDETERMINED``)
+undetermined (``entity.privacy = betty.ancestry.privacy.Privacy.UNDETERMINED``)
     The entity is public, but its privacy **may** be determined or changed at will.
 
 The following entities are processed by the Privatizer. They are marked *private* except if any of the following

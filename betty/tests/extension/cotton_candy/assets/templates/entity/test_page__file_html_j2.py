@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from betty.ancestry import File, HasFileReferences, HasPrivacy, FileReference
+from betty.ancestry import File, HasFileReferences, FileReference
+from betty.ancestry.privacy import HasPrivacy
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.test_utils.assets.templates import TemplateTestBase

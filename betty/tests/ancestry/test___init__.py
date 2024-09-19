@@ -19,7 +19,6 @@ from betty.ancestry import (
     Name,
     PersonName,
     Enclosure,
-    HasPrivacy,
     HasMediaType,
     Link,
     HasLinks,
@@ -29,14 +28,9 @@ from betty.ancestry import (
     Citation,
     HasCitations,
     Ancestry,
-    is_private,
-    is_public,
-    Privacy,
-    merge_privacies,
     FileReference,
     LinkCollectionSchema,
     LinkSchema,
-    PrivacySchema,
 )
 from betty.ancestry.event_type.event_types import Birth, Unknown as UnknownEventType
 from betty.ancestry.gender.genders import Unknown as UnknownGender, NonBinary
@@ -45,6 +39,7 @@ from betty.ancestry.presence_role.presence_roles import (
     Subject,
     Unknown as UnknownPresenceRole,
 )
+from betty.ancestry.privacy import Privacy
 from betty.app import App
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.date import Date, DateRange
@@ -53,7 +48,6 @@ from betty.media_type.media_types import HTML, PLAIN_TEXT
 from betty.model.association import OneToOne
 from betty.project import Project
 from betty.test_utils.ancestry import (
-    DummyHasPrivacy,
     DummyHasLocale,
     DummyHasDate,
     DummyHasDescription,
@@ -67,169 +61,6 @@ if TYPE_CHECKING:
     from betty.model import Entity
     from betty.serde.dump import Dump, DumpMapping
     from betty.json.schema import Schema
-
-
-class TestHasPrivacy:
-    @pytest.mark.parametrize(
-        ("privacy", "public", "private"),
-        [
-            (Privacy.PUBLIC, True, True),
-            (Privacy.PUBLIC, False, True),
-            (Privacy.PUBLIC, True, False),
-            (Privacy.PUBLIC, False, False),
-            (Privacy.PUBLIC, True, None),
-            (Privacy.PUBLIC, False, None),
-            (Privacy.PUBLIC, None, True),
-            (Privacy.PUBLIC, None, False),
-            (None, True, True),
-            (None, True, False),
-            (None, False, True),
-            (None, False, False),
-        ],
-    )
-    async def test___init___with_value_error(
-        self, privacy: Privacy | None, public: bool | None, private: bool | None
-    ) -> None:
-        with pytest.raises(ValueError):  # noqa PT011
-            DummyHasPrivacy(privacy=privacy, public=public, private=private)
-
-    @pytest.mark.parametrize(
-        "privacy",
-        [
-            Privacy.UNDETERMINED,
-            Privacy.PUBLIC,
-            Privacy.PRIVATE,
-        ],
-    )
-    async def test_get_privacy(self, privacy: Privacy) -> None:
-        sut = DummyHasPrivacy(privacy=privacy)
-        assert sut.privacy is privacy
-        assert sut.own_privacy is privacy
-
-    async def test_set_privacy(self) -> None:
-        sut = DummyHasPrivacy()
-        privacy = Privacy.PUBLIC
-        sut.privacy = privacy
-        assert sut.privacy is privacy
-        assert sut.own_privacy is privacy
-
-    async def test_del_privacy(self) -> None:
-        sut = DummyHasPrivacy()
-        sut.privacy = Privacy.PUBLIC
-        del sut.privacy
-        assert sut.privacy is Privacy.UNDETERMINED
-        assert sut.own_privacy is Privacy.UNDETERMINED
-
-    @pytest.mark.parametrize(
-        ("expected", "privacy"),
-        [
-            (True, Privacy.UNDETERMINED),
-            (True, Privacy.PUBLIC),
-            (False, Privacy.PRIVATE),
-        ],
-    )
-    async def test_get_public(self, expected: bool, privacy: Privacy) -> None:
-        sut = DummyHasPrivacy(privacy=privacy)
-        assert expected is sut.public
-
-    async def test_set_public(self) -> None:
-        sut = DummyHasPrivacy()
-        sut.public = True
-        assert sut.public
-        assert sut.privacy is Privacy.PUBLIC
-
-    @pytest.mark.parametrize(
-        ("expected", "privacy"),
-        [
-            (False, Privacy.UNDETERMINED),
-            (False, Privacy.PUBLIC),
-            (True, Privacy.PRIVATE),
-        ],
-    )
-    async def test_get_private(self, expected: bool, privacy: Privacy) -> None:
-        sut = DummyHasPrivacy(privacy=privacy)
-        assert expected is sut.private
-
-    async def test_set_private(self) -> None:
-        sut = DummyHasPrivacy()
-        sut.private = True
-        assert sut.private
-        assert sut.privacy is Privacy.PRIVATE
-
-    @pytest.mark.parametrize(
-        ("expected", "sut"),
-        [
-            (
-                {
-                    "private": True,
-                },
-                DummyHasPrivacy(private=True),
-            ),
-            (
-                {
-                    "private": False,
-                },
-                DummyHasPrivacy(private=False),
-            ),
-        ],
-    )
-    async def test_dump_linked_data(
-        self, expected: DumpMapping[Dump], sut: HasPrivacy
-    ) -> None:
-        assert await assert_dumps_linked_data(sut) == expected
-
-
-class TestPrivacySchema(SchemaTestBase):
-    @override
-    async def get_sut_instances(
-        self,
-    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
-        return [(PrivacySchema(), [True, False], [None, 123, "abc", [], {}])]
-
-
-class TestIsPrivate:
-    @pytest.mark.parametrize(
-        ("expected", "target"),
-        [
-            (True, DummyHasPrivacy(privacy=Privacy.PRIVATE)),
-            (False, DummyHasPrivacy(privacy=Privacy.PUBLIC)),
-            (False, DummyHasPrivacy(privacy=Privacy.UNDETERMINED)),
-            (False, object()),
-        ],
-    )
-    async def test(self, expected: bool, target: Any) -> None:
-        assert expected == is_private(target)
-
-
-class TestIsPublic:
-    @pytest.mark.parametrize(
-        ("expected", "target"),
-        [
-            (False, DummyHasPrivacy(privacy=Privacy.PRIVATE)),
-            (True, DummyHasPrivacy(privacy=Privacy.PUBLIC)),
-            (True, DummyHasPrivacy(privacy=Privacy.UNDETERMINED)),
-            (True, object()),
-        ],
-    )
-    async def test(self, expected: bool, target: Any) -> None:
-        assert expected == is_public(target)
-
-
-class TestMergePrivacies:
-    @pytest.mark.parametrize(
-        ("expected", "privacies"),
-        [
-            (Privacy.PUBLIC, (Privacy.PUBLIC,)),
-            (Privacy.UNDETERMINED, (Privacy.UNDETERMINED,)),
-            (Privacy.PRIVATE, (Privacy.PRIVATE,)),
-            (Privacy.UNDETERMINED, (Privacy.PUBLIC, Privacy.UNDETERMINED)),
-            (Privacy.PRIVATE, (Privacy.PUBLIC, Privacy.PRIVATE)),
-            (Privacy.PRIVATE, (Privacy.UNDETERMINED, Privacy.PRIVATE)),
-            (Privacy.PRIVATE, (Privacy.PUBLIC, Privacy.UNDETERMINED, Privacy.PRIVATE)),
-        ],
-    )
-    async def test(self, expected: Privacy, privacies: tuple[Privacy]) -> None:
-        assert expected == merge_privacies(*privacies)
 
 
 class TestHasLocale:
