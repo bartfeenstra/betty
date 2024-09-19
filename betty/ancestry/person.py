@@ -59,19 +59,19 @@ class Person(
     _plugin_label = _("Person")
 
     parents = ManyToMany["Person", "Person"](
-        "betty.ancestry:Person",
+        "betty.ancestry.person:Person",
         "parents",
-        "betty.ancestry:Person",
+        "betty.ancestry.person:Person",
         "children",
     )
     children = ManyToMany["Person", "Person"](
-        "betty.ancestry:Person",
+        "betty.ancestry.person:Person",
         "children",
-        "betty.ancestry:Person",
+        "betty.ancestry.person:Person",
         "parents",
     )
     presences = OneToMany["Person", "Presence"](
-        "betty.ancestry:Person",
+        "betty.ancestry.person:Person",
         "presences",
         "betty.ancestry:Presence",
         "person",
@@ -253,11 +253,11 @@ class Person(
 
 class _PersonPresenceSchema(JsonLdObject):
     """
-    A schema for the :py:class:`betty.ancestry.Presence` associations on a :py:class:`betty.ancestry.Person`.
+    A schema for the :py:class:`betty.ancestry.Presence` associations on a :py:class:`betty.ancestry.person.Person`.
     """
 
     def __init__(self):
-        from betty.ancestry import Event
+        from betty.ancestry.event import Event
 
         super().__init__(title="Presence (person)")
         self.add_property("role", PresenceRoleSchema(), False)

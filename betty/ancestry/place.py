@@ -30,7 +30,7 @@ from betty.plugin import ShorthandPluginBase
 from betty.ancestry.privacy import HasPrivacy
 
 if TYPE_CHECKING:
-    from betty.ancestry import Event
+    from betty.ancestry.event import Event
     from betty.ancestry.enclosure import Enclosure
     from betty.ancestry.place_type import PlaceType
     from betty.ancestry.privacy import Privacy
@@ -61,16 +61,16 @@ class Place(
     _plugin_label = _("Place")
 
     events = OneToMany["Place", "Event"](
-        "betty.ancestry:Place", "events", "betty.ancestry:Event", "place"
+        "betty.ancestry.place:Place", "events", "betty.ancestry.event:Event", "place"
     )
     enclosed_by = OneToMany["Place", "Enclosure"](
-        "betty.ancestry:Place",
+        "betty.ancestry.place:Place",
         "enclosed_by",
         "betty.ancestry.enclosure:Enclosure",
         "encloses",
     )
     encloses = OneToMany["Place", "Enclosure"](
-        "betty.ancestry:Place",
+        "betty.ancestry.place:Place",
         "encloses",
         "betty.ancestry.enclosure:Enclosure",
         "enclosed_by",
@@ -141,7 +141,7 @@ class Place(
         """
         The place's names.
 
-        The first name is considered the :py:attr:`place label <betty.ancestry.Place.label>`.
+        The first name is considered the :py:attr:`place label <betty.ancestry.place.Place.label>`.
         """
         return self._names
 
@@ -218,7 +218,7 @@ class Place(
     @override
     @classmethod
     async def linked_data_schema(cls, project: Project) -> Object:
-        from betty.ancestry import Event
+        from betty.ancestry.event import Event
 
         schema = await super().linked_data_schema(project)
         schema.add_property(

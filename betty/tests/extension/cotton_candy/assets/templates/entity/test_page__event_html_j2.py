@@ -1,10 +1,10 @@
 from pathlib import Path
 
 from betty.ancestry import (
-    Event,
     Presence,
     Citation,
 )
+from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference

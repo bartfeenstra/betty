@@ -7,9 +7,9 @@ from typing_extensions import override
 
 from betty.ancestry import (
     Presence,
-    Event,
     Citation,
 )
+from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference

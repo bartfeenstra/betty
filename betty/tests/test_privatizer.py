@@ -8,10 +8,10 @@ import pytest
 
 from betty.ancestry import (
     Presence,
-    Event,
     Citation,
 )
 from betty.ancestry.enclosure import Enclosure
+from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Death, Birth, Marriage
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference

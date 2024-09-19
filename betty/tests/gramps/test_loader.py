@@ -7,7 +7,8 @@ import aiofiles
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
-from betty.ancestry import Ancestry, Citation, Event
+from betty.ancestry import Ancestry, Citation
+from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
     Birth,
     Death,

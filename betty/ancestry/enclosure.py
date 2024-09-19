@@ -34,14 +34,14 @@ class Enclosure(ShorthandPluginBase, HasDate, HasCitations, Entity):
     enclosed_by = ManyToOne["Enclosure", "Place"](
         "betty.ancestry.enclosure:Enclosure",
         "enclosed_by",
-        "betty.ancestry:Place",
+        "betty.ancestry.place:Place",
         "encloses",
     )
     #: The inner place.
     encloses = ManyToOne["Enclosure", "Place"](
         "betty.ancestry.enclosure:Enclosure",
         "encloses",
-        "betty.ancestry:Place",
+        "betty.ancestry.place:Place",
         "enclosed_by",
     )
 

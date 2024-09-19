@@ -4,7 +4,8 @@ import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
-from betty.ancestry import Citation, Event
+from betty.ancestry import Citation
+from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.file import File
 from betty.ancestry.gender.genders import NonBinary

@@ -1,7 +1,7 @@
 Person
 ======
 
-A :py:class:`betty.ancestry.Person` describes an individual human being.
+A :py:class:`betty.ancestry.person.Person` describes an individual human being.
 
 Fields
 ------

@@ -12,7 +12,7 @@ from typing import Iterable, cast, TYPE_CHECKING, final
 import aiofiles
 from typing_extensions import override
 
-from betty.ancestry import Event, Presence
+from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
     StartOfLifeEventType,
     EndOfLifeEventType,
@@ -42,6 +42,7 @@ from betty.project.extension import ConfigurableExtension, Theme, Extension
 from betty.project.generate import GenerateSiteEvent
 
 if TYPE_CHECKING:
+    from betty.ancestry import Presence
     from betty.ancestry.file_reference import FileReference
     from betty.ancestry.has_file_references import HasFileReferences
     from betty.plugin import PluginIdentifier

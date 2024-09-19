@@ -25,7 +25,7 @@ from betty.model import (
 )
 
 if TYPE_CHECKING:
-    from betty.ancestry import Event
+    from betty.ancestry.event import Event
     from betty.plugin import PluginIdentifier
 
 

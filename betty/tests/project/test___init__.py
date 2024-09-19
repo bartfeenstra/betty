@@ -5,9 +5,9 @@ from typing import TYPE_CHECKING, Self, Sequence
 import pytest
 from typing_extensions import override
 
+import betty.ancestry.event
 import betty.ancestry.person
 import betty.ancestry.place
-from betty import ancestry
 from betty.ancestry import Ancestry
 from betty.app import App
 from betty.app.factory import AppDependentFactory
@@ -484,7 +484,9 @@ class TestProjectSchema(SchemaTestBase):
                                     await betty.ancestry.place.Place().dump_linked_data(
                                         project
                                     ),
-                                    await ancestry.Event().dump_linked_data(project),
+                                    await betty.ancestry.event.Event().dump_linked_data(
+                                        project
+                                    ),
                                 ],
                                 [],
                             )

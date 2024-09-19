@@ -10,7 +10,7 @@ from betty.plugin.entry_point import EntryPointPluginRepository
 
 class PlaceType(Plugin):
     """
-    Define an :py:class:`betty.ancestry.Place` type.
+    Define an :py:class:`betty.ancestry.place.Place` type.
 
     Read more about :doc:`/development/plugin/place-type`.
 

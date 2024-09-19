@@ -9,7 +9,8 @@ from contextlib import suppress
 from datetime import datetime
 from typing import Iterator, TypeAlias, Any, TYPE_CHECKING
 
-from betty.ancestry import Event, Presence
+from betty.ancestry import Presence
+from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import EndOfLifeEventType
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences

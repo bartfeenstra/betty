@@ -6,7 +6,8 @@ import requests
 from requests import Response
 from typing_extensions import override
 
-from betty.ancestry import Event, Citation
+from betty.ancestry import Citation
+from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source

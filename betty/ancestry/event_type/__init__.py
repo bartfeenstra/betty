@@ -10,7 +10,7 @@ from betty.plugin.entry_point import EntryPointPluginRepository
 
 class EventType(Plugin):
     """
-    Define an :py:class:`betty.ancestry.Event` type.
+    Define an :py:class:`betty.ancestry.event.Event` type.
 
     Read more about :doc:`/development/plugin/event-type`.
 

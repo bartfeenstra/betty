@@ -24,12 +24,11 @@ from typing_extensions import override
 
 from betty.ancestry import (
     Citation,
-    Event,
     Presence,
     Ancestry,
 )
-from betty.ancestry.person_name import PersonName
 from betty.ancestry.enclosure import Enclosure
+from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
@@ -38,6 +37,7 @@ from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.name import Name
 from betty.ancestry.note import HasNotes, Note
 from betty.ancestry.person import Person
+from betty.ancestry.person_name import PersonName
 from betty.ancestry.place import Place
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
