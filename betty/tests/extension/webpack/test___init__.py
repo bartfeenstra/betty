@@ -11,10 +11,10 @@ from betty._npm import NpmUnavailable
 from betty.app import App
 from betty.extension.webpack import PrebuiltAssetsRequirement, Webpack
 from betty.extension.webpack.build import webpack_build_id
-from betty.generate import generate
 from betty.job import Context
 from betty.project import Project
 from betty.project.config import ProjectConfiguration
+from betty.project.generate import generate
 from betty.requirement import RequirementError
 from betty.test_utils.project.extension import ExtensionTestBase
 

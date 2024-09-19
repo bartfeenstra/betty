@@ -9,8 +9,10 @@ from pytest_mock import MockerFixture
 
 class TestGenerate:
     async def test(self, mocker: MockerFixture, new_temporary_app: App) -> None:
-        m_generate = mocker.patch("betty.generate.generate", new_callable=AsyncMock)
-        m_load = mocker.patch("betty.load.load", new_callable=AsyncMock)
+        m_generate = mocker.patch(
+            "betty.project.generate.generate", new_callable=AsyncMock
+        )
+        m_load = mocker.patch("betty.project.load.load", new_callable=AsyncMock)
 
         async with Project.new_temporary(new_temporary_app) as project:
             await write_configuration_file(

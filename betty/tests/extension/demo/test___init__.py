@@ -11,9 +11,9 @@ from betty.extension.demo import Demo
 from betty.extension.demo import DemoServer, demo_project
 from betty.fetch.static import StaticFetcher
 from betty.functools import Do
-from betty.load import load
 from betty.project import Project
 from betty.project.config import ExtensionConfiguration
+from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase
 
 if TYPE_CHECKING:

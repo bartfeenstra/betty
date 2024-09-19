@@ -16,9 +16,9 @@ from betty.extension.gramps.config import (
     GrampsConfiguration,
     PluginMapping,
 )
-from betty.load import load
 from betty.project import Project
 from betty.project.config import ExtensionConfiguration
+from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase
 
 

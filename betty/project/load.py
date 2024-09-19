@@ -7,10 +7,10 @@ from xml.etree.ElementTree import Element
 
 from html5lib import parse
 
+from betty.ancestry import Link, HasLinks
 from betty.asyncio import gather
 from betty.fetch import Fetcher, FetchError
 from betty.media_type import MediaType, InvalidMediaType
-from betty.ancestry import Link, HasLinks
 from betty.project import Project, ProjectEvent, ProjectContext
 
 
@@ -26,7 +26,7 @@ class PostLoadAncestryEvent(ProjectEvent):
     """
     Dispatched to postprocess ancestry data that was loaded into a project.
 
-    This event is invoked immediately after :py:class:`betty.load.LoadAncestryEvent`.
+    This event is invoked immediately after :py:class:`betty.project.load.LoadAncestryEvent`.
     """
 
     pass

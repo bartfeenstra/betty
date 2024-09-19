@@ -90,7 +90,7 @@ Handlers are invoked in their order of registration.
 .. code-block:: python
 
     from typing import override
-    from betty.load import LoadAncestryEvent
+    from betty.project.load import LoadAncestryEvent
     from betty.project.extension import Extension
 
     def _load_ancestry(event: LoadAncestryEvent) -> None:

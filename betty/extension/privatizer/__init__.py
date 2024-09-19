@@ -9,11 +9,11 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.ancestry import Person, HasPrivacy
-from betty.load import PostLoadAncestryEvent
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
 from betty.privatizer import Privatizer as PrivatizerApi
 from betty.project.extension import Extension
+from betty.project.load import PostLoadAncestryEvent
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence, MutableMapping

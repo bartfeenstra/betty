@@ -314,11 +314,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "__next__": TestKnownToBeMissing,
         },
     },
-    "betty/generate.py": {
-        "create_file": TestKnownToBeMissing,
-        "create_html_resource": TestKnownToBeMissing,
-        "create_json_resource": TestKnownToBeMissing,
-    },
     "betty/gramps/error.py": TestKnownToBeMissing,
     "betty/gramps/loader.py": {
         # This is checked statically.
@@ -368,12 +363,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/json/linked_data.py": TestKnownToBeMissing,
-    "betty/load.py": {
-        # This is an empty class.
-        "LoadAncestryEvent": TestKnownToBeMissing,
-        # This is an empty class.
-        "PostLoadAncestryEvent": TestKnownToBeMissing,
-    },
     "betty/locale/__init__.py": {
         "get_data": TestKnownToBeMissing,
         "get_display_name": TestKnownToBeMissing,
@@ -567,8 +556,19 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Dependencies": TestKnownToBeMissing,
         "Dependents": TestKnownToBeMissing,
     },
+    "betty/project/generate.py": {
+        "create_file": TestKnownToBeMissing,
+        "create_html_resource": TestKnownToBeMissing,
+        "create_json_resource": TestKnownToBeMissing,
+    },
     # This contains a single abstract class.
     "betty/project/factory.py": TestKnownToBeMissing,
+    "betty/project/load.py": {
+        # This is an empty class.
+        "LoadAncestryEvent": TestKnownToBeMissing,
+        # This is an empty class.
+        "PostLoadAncestryEvent": TestKnownToBeMissing,
+    },
     "betty/render.py": TestKnownToBeMissing,
     "betty/requirement.py": {
         "Requirement": {

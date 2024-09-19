@@ -14,10 +14,10 @@ from betty.ancestry import event_type
 from betty.ancestry.event_type import DerivableEventType
 from betty.deriver import Deriver as DeriverApi
 from betty.extension.privatizer import Privatizer
-from betty.load import PostLoadAncestryEvent
 from betty.locale.localizable import _
-from betty.project.extension import Extension
 from betty.plugin import ShorthandPluginBase
+from betty.project.extension import Extension
+from betty.project.load import PostLoadAncestryEvent
 
 if TYPE_CHECKING:
     from betty.plugin import PluginIdentifier

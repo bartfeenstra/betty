@@ -13,11 +13,11 @@ from betty.asyncio import gather
 from betty.extension.wikipedia.config import WikipediaConfiguration
 from betty.fetch import FetchError
 from betty.jinja2 import Jinja2Provider, context_localizer, Filters
-from betty.load import PostLoadAncestryEvent
 from betty.locale import negotiate_locale
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
 from betty.project.extension import ConfigurableExtension
+from betty.project.load import PostLoadAncestryEvent
 from betty.wikipedia import (
     Summary,
     _parse_url,

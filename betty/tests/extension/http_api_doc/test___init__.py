@@ -2,9 +2,9 @@ from typing_extensions import override
 
 from betty.app import App
 from betty.extension.http_api_doc import HttpApiDoc
-from betty.generate import generate
 from betty.project import Project
 from betty.project.config import ExtensionConfiguration
+from betty.project.generate import generate
 from betty.test_utils.project.extension import ExtensionTestBase
 
 

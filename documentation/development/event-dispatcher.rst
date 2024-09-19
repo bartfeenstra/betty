@@ -11,6 +11,6 @@ handlers.
 
 Built-in event types
 --------------------
-- :py:class:`betty.load.LoadAncestryEvent`
-- :py:class:`betty.load.PostLoadAncestryEvent`
-- :py:class:`betty.generate.GenerateSiteEvent`
+- :py:class:`betty.project.load.LoadAncestryEvent`
+- :py:class:`betty.project.load.PostLoadAncestryEvent`
+- :py:class:`betty.project.generate.GenerateSiteEvent`

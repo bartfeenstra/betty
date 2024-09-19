@@ -7,13 +7,13 @@ from pytest_mock import MockerFixture
 from betty.ancestry import Person, Place, Source, Name, File, Event, Citation
 from betty.ancestry.event_type import Birth
 from betty.app import App
-from betty.generate import generate, GenerateSiteEvent
 from betty.model import (
     UserFacingEntity,
 )
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project, ProjectContext
 from betty.project.config import LocaleConfiguration, EntityTypeConfiguration
+from betty.project.generate import generate, GenerateSiteEvent
 from betty.string import camel_case_to_kebab_case, kebab_case_to_lower_camel_case
 from betty.test_utils.assets.templates import assert_betty_html, assert_betty_json
 from betty.test_utils.model import DummyEntity
