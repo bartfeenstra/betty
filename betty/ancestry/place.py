@@ -14,7 +14,7 @@ from typing_extensions import override
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.name import Name
-from betty.ancestry.note import HasNotes, Note
+from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.json.linked_data import dump_context, JsonLdObject
 from betty.json.schema import Object, Array, Number
@@ -30,6 +30,7 @@ from betty.plugin import ShorthandPluginBase
 from betty.ancestry.privacy import HasPrivacy
 
 if TYPE_CHECKING:
+    from betty.ancestry.note import Note
     from betty.ancestry.event import Event
     from betty.ancestry.enclosure import Enclosure
     from betty.ancestry.place_type import PlaceType

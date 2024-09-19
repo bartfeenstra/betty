@@ -17,8 +17,8 @@ from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY, EventType
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
+from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks
-from betty.ancestry.note import HasNotes, Note
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence_role import PresenceRoleSchema
@@ -35,6 +35,7 @@ from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
     from betty.ancestry.citation import Citation
+    from betty.ancestry.note import Note
     from betty.ancestry.file_reference import FileReference
     from betty.date import Datey
     from betty.project import Project

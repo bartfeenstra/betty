@@ -14,7 +14,7 @@ from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import EndOfLifeEventType
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
-from betty.ancestry.note import HasNotes
+from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import Subject

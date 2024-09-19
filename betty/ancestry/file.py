@@ -11,9 +11,9 @@ from typing_extensions import override
 
 from betty.ancestry.description import HasDescription
 from betty.ancestry.has_citations import HasCitations
+from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.media_type import HasMediaType
-from betty.ancestry.note import Note, HasNotes
 from betty.ancestry.privacy import HasPrivacy, Privacy
 from betty.json.schema import Object, Array, String
 from betty.locale.localizable import _, ShorthandStaticTranslations, Localizable
@@ -24,6 +24,7 @@ from betty.string import camel_case_to_kebab_case
 
 if TYPE_CHECKING:
     from betty.ancestry.citation import Citation
+    from betty.ancestry.note import Note
     from betty.ancestry.file_reference import FileReference  # noqa F401
     from betty.media_type import MediaType
     from betty.serde.dump import DumpMapping, Dump

@@ -22,7 +22,6 @@ from geopy import Point
 from lxml import etree
 from typing_extensions import override
 
-from betty.ancestry.presence import Presence
 from betty.ancestry.citation import Citation
 from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.event import Event
@@ -32,11 +31,12 @@ from betty.ancestry.file_reference import FileReference
 from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.name import Name
-from betty.ancestry.note import HasNotes, Note
+from betty.ancestry.note import Note
 from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.place import Place
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
+from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.ancestry.privacy import HasPrivacy
 from betty.ancestry.source import Source
@@ -52,6 +52,7 @@ from betty.path import rootname
 
 if TYPE_CHECKING:
     from betty.ancestry import Ancestry
+    from betty.ancestry.has_notes import HasNotes
     from betty.ancestry.has_citations import HasCitations
     from betty.ancestry.has_file_references import HasFileReferences
     from betty.ancestry.event_type import EventType
