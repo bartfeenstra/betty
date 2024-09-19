@@ -1,5 +1,6 @@
-from betty.ancestry import Event, Place, Name, Citation, Source
+from betty.ancestry import Event, Place, Citation, Source
 from betty.ancestry.event_type.event_types import Birth
+from betty.ancestry.name import Name
 from betty.extension.cotton_candy import CottonCandy
 from betty.jinja2 import EntityContexts
 from betty.date import Date

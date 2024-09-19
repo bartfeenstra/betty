@@ -16,7 +16,6 @@ from betty.ancestry import (
     File,
     Note,
     Presence,
-    Name,
     PersonName,
     Enclosure,
     Link,
@@ -33,6 +32,7 @@ from betty.ancestry import (
 )
 from betty.ancestry.event_type.event_types import Birth, Unknown as UnknownEventType
 from betty.ancestry.gender.genders import Unknown as UnknownGender, NonBinary
+from betty.ancestry.name import Name
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence_role.presence_roles import (
     Subject,
@@ -1026,16 +1026,6 @@ class TestHasCitations:
         self, expected: DumpMapping[Dump], sut: HasLinks
     ) -> None:
         assert await assert_dumps_linked_data(sut) == expected
-
-
-class TestName:
-    async def test_date(self) -> None:
-        date = Date()
-        sut = Name(
-            "Ikke",
-            date=date,
-        )
-        assert sut.date is date
 
 
 class TestEnclosure(EntityTestBase):

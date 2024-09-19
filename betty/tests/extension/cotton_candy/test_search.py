@@ -2,7 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from betty.ancestry import Person, Place, Name, PersonName, File
+from betty.ancestry import Person, Place, PersonName, File
+from betty.ancestry.name import Name
 from betty.app import App
 from betty.extension.cotton_candy import CottonCandy
 from betty.extension.cotton_candy.search import Index

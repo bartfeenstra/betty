@@ -4,7 +4,8 @@ from typing import Any, TYPE_CHECKING
 
 import pytest
 
-from betty.ancestry import Place, Name
+from betty.ancestry import Place
+from betty.ancestry.name import Name
 from betty.extension.cotton_candy import CottonCandy
 from betty.date import DateRange, Date
 from betty.test_utils.assets.templates import TemplateTestBase

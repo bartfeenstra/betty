@@ -32,7 +32,6 @@ from betty.ancestry import (
     Person,
     PersonName,
     Presence,
-    Name,
     Enclosure,
     HasLinks,
     Link,
@@ -44,6 +43,7 @@ from betty.ancestry import (
 )
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.gender.genders import Unknown as UnknownGender
+from betty.ancestry.name import Name
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.ancestry.privacy import HasPrivacy
