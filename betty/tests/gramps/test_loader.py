@@ -18,11 +18,10 @@ from betty.ancestry import (
     Place,
     Privacy,
 )
-from betty.ancestry.event_type import (
+from betty.ancestry.event_type.event_types import (
     Birth,
     Death,
     Unknown as UnknownEventType,
-    EventType,
 )
 from betty.ancestry.gender.genders import Unknown as UnknownGender, NonBinary
 from betty.ancestry.presence_role.presence_roles import Subject
@@ -37,6 +36,7 @@ from betty.path import rootname
 from betty.project import Project
 
 if TYPE_CHECKING:
+    from betty.ancestry.event_type import EventType
     from betty.ancestry.gender import Gender
     from betty.ancestry.presence_role import PresenceRole
     from collections.abc import Mapping

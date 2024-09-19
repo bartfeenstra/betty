@@ -22,7 +22,7 @@ class Attendee(ShorthandPluginBase, PresenceRole):
 @final
 class Beneficiary(ShorthandPluginBase, PresenceRole):
     """
-    Someone was a `benificiary <https://en.wikipedia.org/wiki/Beneficiary>`_ in the event, such as a :py:class:`betty.ancestry.event_type.Will`.
+    Someone was a `benificiary <https://en.wikipedia.org/wiki/Beneficiary>`_ in the event, such as a :py:class:`betty.ancestry.event_type.event_types.Will`.
     """
 
     _plugin_id = "beneficiary"
@@ -80,9 +80,9 @@ class Subject(ShorthandPluginBase, PresenceRole):
     """
     Someone was the subject of the event.
 
-    The meaning of this role depends on the event type. For example, for :py:class:`betty.ancestry.event_type.Marriage`,
-    the subjects are the people who got married. For :py:class:`betty.ancestry.event_type.Death` it is the person who
-    died.
+    The meaning of this role depends on the event type. For example, for
+    :py:class:`betty.ancestry.event_type.event_types.Marriage`, the subjects are the people who got married. For
+    :py:class:`betty.ancestry.event_type.event_types.Death` it is the person who died.
     """
 
     _plugin_id = "subject"

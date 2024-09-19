@@ -38,7 +38,7 @@ from betty.ancestry import (
     LinkSchema,
     PrivacySchema,
 )
-from betty.ancestry.event_type import Birth, Unknown as UnknownEventType
+from betty.ancestry.event_type.event_types import Birth, Unknown as UnknownEventType
 from betty.ancestry.gender.genders import Unknown as UnknownGender, NonBinary
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence_role.presence_roles import (

@@ -21,7 +21,7 @@ from betty.ancestry import (
     HasPrivacy,
     Place,
 )
-from betty.ancestry.event_type import EndOfLifeEventType
+from betty.ancestry.event_type.event_types import EndOfLifeEventType
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.locale.date import DateRange, Date
 from betty.model import Entity

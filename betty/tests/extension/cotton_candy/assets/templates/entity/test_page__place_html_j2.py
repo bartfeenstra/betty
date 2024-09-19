@@ -1,5 +1,5 @@
 from betty.ancestry import Place, Name, Event, Enclosure
-from betty.ancestry.event_type import Birth
+from betty.ancestry.event_type.event_types import Birth
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale.date import Date
 from betty.locale.localizer import DEFAULT_LOCALIZER

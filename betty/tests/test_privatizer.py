@@ -18,7 +18,7 @@ from betty.ancestry import (
     Enclosure,
     FileReference,
 )
-from betty.ancestry.event_type import Death, Birth, Marriage
+from betty.ancestry.event_type.event_types import Death, Birth, Marriage
 from betty.ancestry.presence_role.presence_roles import (
     Subject,
     Unknown as UnknownPresenceRole,

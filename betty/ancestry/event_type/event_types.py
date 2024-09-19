@@ -10,49 +10,11 @@ from typing_extensions import override
 
 from betty.locale.localizable import _
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.plugin import Plugin, PluginRepository, ShorthandPluginBase
-from betty.plugin.entry_point import EntryPointPluginRepository
+from betty.plugin import ShorthandPluginBase
+from betty.ancestry.event_type import EventType
 
 if TYPE_CHECKING:
     from betty.ancestry import Person
-
-
-class EventType(Plugin):
-    """
-    Define an :py:class:`betty.ancestry.Event` type.
-
-    Read more about :doc:`/development/plugin/event-type`.
-
-    To test your own subclasses, use :py:class:`betty.test_utils.ancestry.event_type.EventTypeTestBase`.
-    """
-
-    @classmethod
-    def comes_before(cls) -> set[type[EventType]]:
-        """
-        Get the event types that this event type comes before.
-
-        The returned event types come after this event type.
-        """
-        return set()  # pragma: no cover
-
-    @classmethod
-    def comes_after(cls) -> set[type[EventType]]:
-        """
-        Get the event types that this event type comes after.
-
-        The returned event types come before this event type.
-        """
-        return set()  # pragma: no cover
-
-
-EVENT_TYPE_REPOSITORY: PluginRepository[EventType] = EntryPointPluginRepository(
-    "betty.event_type"
-)
-"""
-The event type plugin repository.
-
-Read more about :doc:`/development/plugin/event-type`.
-"""
 
 
 @final

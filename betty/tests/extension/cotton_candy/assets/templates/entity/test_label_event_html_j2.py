@@ -2,7 +2,7 @@ from betty.extension.cotton_candy import CottonCandy
 from betty.jinja2 import EntityContexts
 from betty.ancestry import Person, Event, Presence
 from betty.ancestry.presence_role.presence_roles import Subject, Witness
-from betty.ancestry.event_type import Birth, Marriage
+from betty.ancestry.event_type.event_types import Birth, Marriage
 from betty.test_utils.assets.templates import TemplateTestBase
 
 

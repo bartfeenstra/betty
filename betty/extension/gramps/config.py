@@ -9,7 +9,7 @@ from typing import Any, Self, final, TYPE_CHECKING, TypeVar
 
 from typing_extensions import override
 
-from betty.ancestry.event_type import (
+from betty.ancestry.event_type.event_types import (
     Adoption,
     Baptism,
     Birth,

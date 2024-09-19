@@ -13,7 +13,10 @@ from betty.ancestry import (
     is_public,
     Event,
 )
-from betty.ancestry.event_type import StartOfLifeEventType, EndOfLifeEventType
+from betty.ancestry.event_type.event_types import (
+    StartOfLifeEventType,
+    EndOfLifeEventType,
+)
 from betty.ancestry.presence_role.presence_roles import Subject, Witness
 from betty.asyncio import wait_to_thread
 from betty.json.linked_data import LinkedDataDumpable

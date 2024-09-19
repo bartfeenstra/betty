@@ -18,10 +18,9 @@ from betty.ancestry import (
     Place,
     FileReference,
 )
-from betty.ancestry.event_type import (
+from betty.ancestry.event_type.event_types import (
     Birth,
     Unknown as UnknownEventType,
-    EventType,
     Death,
 )
 from betty.ancestry.presence_role.presence_roles import (
@@ -40,6 +39,7 @@ from betty.project.config import DEFAULT_LIFETIME_THRESHOLD
 from betty.test_utils.model import DummyEntity
 
 if TYPE_CHECKING:
+    from betty.ancestry.event_type import EventType
     from betty.ancestry.presence_role import PresenceRole
 
 __REFERENCE_DATE = Date(1970, 1, 1)
