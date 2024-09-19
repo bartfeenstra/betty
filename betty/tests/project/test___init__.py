@@ -21,6 +21,7 @@ from betty.project import (
 )
 from betty.project.config import (
     ExtensionConfiguration,
+    CopyrightConfiguration,
 )
 from betty.project.extension import (
     Extension,
@@ -393,6 +394,18 @@ class TestProject:
     async def test_logo_without_configuration(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             assert sut.logo.exists()
+
+    async def test_copyright(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
+            assert sut.copyright is sut.copyright
+
+    async def test_copyrights(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as sut:
+            sut.configuration.copyrights.append(
+                CopyrightConfiguration("foo", "Foo", summary="", text="")
+            )
+            async with sut:
+                assert await sut.copyrights.get("foo")
 
     async def test_event_types(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:

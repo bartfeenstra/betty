@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-17 10:32+0100\n"
+"POT-Creation-Date: 2024-09-19 09:10+0100\n"
 "PO-Revision-Date: 2024-02-08 13:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: fr\n"
@@ -667,6 +667,9 @@ msgstr ""
 msgid "Privatizing..."
 msgstr ""
 
+msgid "Project author"
+msgstr ""
+
 msgid "Province"
 msgstr ""
 
@@ -1076,7 +1079,9 @@ msgstr ""
 msgid "{individual_name} {affiliation_name}"
 msgstr "{individual_name} {affiliation_name}"
 
-#, python-format
-msgid "© Copyright %(author)s, unless otherwise credited"
-msgstr "© Copyright %(author)s, sauf crédit contraire"
+msgid "© Copyright the author, unless otherwise credited"
+msgstr ""
+
+msgid "© Copyright {author}, unless otherwise credited"
+msgstr "© Copyright {author}, sauf crédit contraire"
 
