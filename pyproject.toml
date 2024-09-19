@@ -174,14 +174,15 @@ betty = 'betty.cli:main'
 'village' = 'betty.ancestry.place_type:Village'
 
 [project.entry-points.'betty.presence_role']
-'attendee' = 'betty.ancestry.presence_role:Attendee'
-'beneficiary' = 'betty.ancestry.presence_role:Beneficiary'
-'celebrant' = 'betty.ancestry.presence_role:Celebrant'
-'organizer' = 'betty.ancestry.presence_role:Organizer'
-'speaker' = 'betty.ancestry.presence_role:Speaker'
-'subject' = 'betty.ancestry.presence_role:Subject'
-'unknown' = 'betty.ancestry.presence_role:Unknown'
-'witness' = 'betty.ancestry.presence_role:Witness'
+'attendee' = 'betty.ancestry.presence_role.presence_roles:Attendee'
+'beneficiary' = 'betty.ancestry.presence_role.presence_roles:Beneficiary'
+'celebrant' = 'betty.ancestry.presence_role.presence_roles:Celebrant'
+'informant' = 'betty.ancestry.presence_role.presence_roles:Informant'
+'organizer' = 'betty.ancestry.presence_role.presence_roles:Organizer'
+'speaker' = 'betty.ancestry.presence_role.presence_roles:Speaker'
+'subject' = 'betty.ancestry.presence_role.presence_roles:Subject'
+'unknown' = 'betty.ancestry.presence_role.presence_roles:Unknown'
+'witness' = 'betty.ancestry.presence_role.presence_roles:Witness'
 
 [project.entry-points.'betty.renderer']
 'jinja2' = 'betty.jinja2:Jinja2Renderer'

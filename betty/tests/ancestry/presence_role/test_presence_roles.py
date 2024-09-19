@@ -1,11 +1,8 @@
-from typing import Sequence
-
 from typing_extensions import override
 
-from betty.ancestry.presence_role import (
-    PresenceRoleSchema,
+from betty.ancestry.presence_role import PresenceRole
+from betty.ancestry.presence_role.presence_roles import (
     Subject,
-    PresenceRole,
     Attendee,
     Witness,
     Speaker,
@@ -13,25 +10,9 @@ from betty.ancestry.presence_role import (
     Organizer,
     Beneficiary,
     Unknown,
+    Informant,
 )
-from betty.json.schema import Schema
-from betty.serde.dump import Dump
-from betty.test_utils.json.schema import SchemaTestBase
 from betty.test_utils.plugin import PluginTestBase
-
-
-class TestPresenceRoleSchema(SchemaTestBase):
-    @override
-    async def get_sut_instances(
-        self,
-    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
-        return [
-            (
-                PresenceRoleSchema(),
-                [Subject.plugin_id()],
-                [True, False, None, 123, [], {}],
-            )
-        ]
 
 
 class TestAttendee(PluginTestBase[PresenceRole]):
@@ -50,6 +31,12 @@ class TestCelebrant(PluginTestBase[PresenceRole]):
     @override
     def get_sut_class(self) -> type[PresenceRole]:
         return Celebrant
+
+
+class TestInformant(PluginTestBase[PresenceRole]):
+    @override
+    def get_sut_class(self) -> type[PresenceRole]:
+        return Informant
 
 
 class TestOrganizer(PluginTestBase[PresenceRole]):

@@ -8,7 +8,7 @@ from betty.ancestry import (
     Source,
     Citation,
 )
-from betty.ancestry.presence_role import Subject
+from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.event_type import Birth, Death
 from betty.test_utils.assets.templates import TemplateTestBase
 

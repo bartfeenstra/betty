@@ -13,7 +13,7 @@ from betty.ancestry.event_type import (
     StartOfLifeEventType,
     EndOfLifeEventType,
 )
-from betty.ancestry.presence_role import Subject
+from betty.ancestry.presence_role.presence_roles import Subject
 from betty.extension.deriver import Deriver
 from betty.locale.date import DateRange, Date
 from betty.model.collections import record_added

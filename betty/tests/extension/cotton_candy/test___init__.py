@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterator
+from typing import Iterator, TYPE_CHECKING
 
 import pytest
 
@@ -24,8 +24,7 @@ from betty.ancestry.event_type import (
     EventType,
     Death,
 )
-from betty.ancestry.presence_role import (
-    PresenceRole,
+from betty.ancestry.presence_role.presence_roles import (
     Subject,
     Unknown as UnknownPresenceRole,
 )
@@ -39,6 +38,9 @@ from betty.model import (
 )
 from betty.project.config import DEFAULT_LIFETIME_THRESHOLD
 from betty.test_utils.model import DummyEntity
+
+if TYPE_CHECKING:
+    from betty.ancestry.presence_role import PresenceRole
 
 __REFERENCE_DATE = Date(1970, 1, 1)
 _REFERENCE_DATES = (

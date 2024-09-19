@@ -41,7 +41,10 @@ from betty.ancestry import (
 from betty.ancestry.event_type import Birth, Unknown as UnknownEventType
 from betty.ancestry.gender import Unknown as UnknownGender, NonBinary
 from betty.ancestry.place_type import Unknown as UnknownPlaceType
-from betty.ancestry.presence_role import Subject, Unknown as UnknownPresenceRole
+from betty.ancestry.presence_role.presence_roles import (
+    Subject,
+    Unknown as UnknownPresenceRole,
+)
 from betty.app import App
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.date import Date, DateRange

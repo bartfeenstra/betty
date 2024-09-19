@@ -5,7 +5,7 @@ from typing import Any, TYPE_CHECKING
 import pytest
 
 from betty.ancestry import Person, Place, Name
-from betty.ancestry.presence_role import (
+from betty.ancestry.presence_role.presence_roles import (
     Subject,
     Witness,
     Unknown as UnknownPresenceRole,

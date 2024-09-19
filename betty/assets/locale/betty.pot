@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-19 09:10+0100\n"
+"POT-Creation-Date: 2024-09-19 15:11+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -417,6 +417,9 @@ msgid "I'm sorry, dear, but it seems you're not logged in."
 msgstr ""
 
 msgid "Immigration"
+msgstr ""
+
+msgid "Informant"
 msgstr ""
 
 msgid "Invalid JSON: {error}."
