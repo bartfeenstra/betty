@@ -10,8 +10,9 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty import serve
-from betty.ancestry import Presence, Citation, Event
+from betty.ancestry import Presence, Citation
 from betty.ancestry.enclosure import Enclosure
+from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Marriage, Birth, Death
 from betty.ancestry.link import Link
 from betty.ancestry.name import Name

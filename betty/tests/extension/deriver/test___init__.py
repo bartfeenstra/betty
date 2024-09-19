@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.ancestry import Presence, Event
+from betty.ancestry import Presence
+from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
     DerivableEventType,
     CreatableDerivableEventType,

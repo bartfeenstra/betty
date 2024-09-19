@@ -1,7 +1,8 @@
 Place
 =====
 
-A :py:class:`betty.ancestry.Place` describes a location or an area in the world, such as a country, town, lake, or building.
+A :py:class:`betty.ancestry.place.Place` describes a location or an area in the world, such as a country, town, lake, or
+building.
 
 Fields
 ------

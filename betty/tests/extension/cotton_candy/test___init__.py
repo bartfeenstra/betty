@@ -5,7 +5,8 @@ from typing import Iterator, TYPE_CHECKING
 
 import pytest
 
-from betty.ancestry import Presence, Event, Citation
+from betty.ancestry import Presence, Citation
+from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
     Birth,
     Unknown as UnknownEventType,

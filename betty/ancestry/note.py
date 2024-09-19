@@ -44,7 +44,7 @@ class Note(ShorthandPluginBase, UserFacingEntity, HasPrivacy, HasLinks, Entity):
 
     #: The entity the note belongs to.
     entity = ManyToOne["Note", "HasNotes"](
-        "betty.ancestry:Note", "entity", "betty.ancestry:HasNotes", "notes"
+        "betty.ancestry.note:Note", "entity", "betty.ancestry.note:HasNotes", "notes"
     )
 
     #: The human-readable note text.
@@ -102,7 +102,7 @@ class HasNotes(Entity):
     """
 
     notes = OneToMany["HasNotes", Note](
-        "betty.ancestry:HasNotes", "notes", "betty.ancestry:Note", "entity"
+        "betty.ancestry.note:HasNotes", "notes", "betty.ancestry.note:Note", "entity"
     )
 
     def __init__(

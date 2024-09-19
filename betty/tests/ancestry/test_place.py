@@ -5,8 +5,8 @@ from typing import Sequence, Mapping, Any, TYPE_CHECKING
 from geopy import Point
 from typing_extensions import override
 
-from betty.ancestry import Event
 from betty.ancestry.enclosure import Enclosure
+from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.link import Link
 from betty.ancestry.name import Name

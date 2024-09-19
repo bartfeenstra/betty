@@ -1,4 +1,5 @@
-from betty.ancestry import Event, Presence
+from betty.ancestry import Presence
+from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth, Marriage
 from betty.ancestry.person import Person
 from betty.ancestry.presence_role.presence_roles import Subject, Witness

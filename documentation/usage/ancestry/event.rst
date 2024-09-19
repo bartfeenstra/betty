@@ -1,7 +1,7 @@
 Event
 =====
 
-An :py:class:`betty.ancestry.Event` is something that happened at some time, such as a birth, death, or marriage.
+An :py:class:`betty.ancestry.event.Event` is something that happened at some time, such as a birth, death, or marriage.
 
 Fields
 ------

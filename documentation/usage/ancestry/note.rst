@@ -1,7 +1,7 @@
 Note
 ====
 
-A :py:class:`betty.ancestry.Note` attaches arbitrary text to other entities.
+A :py:class:`betty.ancestry.note.Note` attaches arbitrary text to other entities.
 
 Fields
 ------

@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 @final
 class PersonName(ShorthandPluginBase, HasLocale, HasCitations, HasPrivacy, Entity):
     """
-    A name for a :py:class:`betty.ancestry.Person`.
+    A name for a :py:class:`betty.ancestry.person.Person`.
     """
 
     _plugin_id = "person-name"

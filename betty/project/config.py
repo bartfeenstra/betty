@@ -11,7 +11,7 @@ from urllib.parse import urlparse
 from typing_extensions import override
 
 from betty import model
-from betty.ancestry import Event
+from betty.ancestry.event import Event
 from betty.ancestry.event_type import EventType
 from betty.ancestry.gender import Gender
 from betty.ancestry.person import Person

@@ -11,7 +11,8 @@ from typing import Iterable, cast, final, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.ancestry import Presence, Event, Ancestry
+from betty.ancestry import Presence, Ancestry
+from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
     DerivableEventType,
     CreatableDerivableEventType,

@@ -460,16 +460,18 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/ancestry/__init__.py": {
-        "Event": {
-            # This is static.
-            "dated_linked_data_contexts": TestKnownToBeMissing,
-        },
         "Place": {
             "associated_files": TestKnownToBeMissing,
         },
     },
     "betty/ancestry/date.py": {
         "HasDate": {
+            # This is static.
+            "dated_linked_data_contexts": TestKnownToBeMissing,
+        },
+    },
+    "betty/ancestry/event.py": {
+        "Event": {
             # This is static.
             "dated_linked_data_contexts": TestKnownToBeMissing,
         },
