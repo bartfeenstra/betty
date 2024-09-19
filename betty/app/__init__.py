@@ -23,7 +23,7 @@ from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.config import Configurable, assert_configuration_file
 from betty.core import CoreComponent
-from betty.factory import new, DependentFactory
+from betty.factory import new, FactoryProvider
 from betty.fetch import Fetcher, http
 from betty.fs import HOME_DIRECTORY_PATH
 from betty.locale import DEFAULT_LOCALE
@@ -38,7 +38,7 @@ _T = TypeVar("_T")
 
 
 @final
-class App(Configurable[AppConfiguration], DependentFactory[Any], CoreComponent):
+class App(Configurable[AppConfiguration], FactoryProvider[Any], CoreComponent):
     """
     The Betty application.
     """
@@ -199,6 +199,18 @@ class App(Configurable[AppConfiguration], DependentFactory[Any], CoreComponent):
 
     @override
     async def new(self, cls: type[_T]) -> _T:
+        """
+        Create a new instance.
+
+        :return:
+            #. If ``cls`` extends :py:class:`betty.app.factory.AppDependentFactory`, this will call return ``cls``'s
+                ``new()``'s return value.
+            #. If ``cls`` extends :py:class:`betty.factory.IndependentFactory`, this will call return ``cls``'s
+                ``new()``'s return value.
+            #. Otherwise ``cls()`` will be called without arguments, and the resulting instance will be returned.
+
+        :raises FactoryError: raised when ``cls`` could not be instantiated.
+        """
         if issubclass(cls, AppDependentFactory):
-            return cast(_T, await cls.new_for_app(self))
+            return cast(_T, await cls.new(self))
         return await new(cls)

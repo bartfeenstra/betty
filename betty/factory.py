@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import abstractmethod, ABC
 from collections.abc import Callable, Awaitable
-from typing import TypeVar, Self, Generic, TypeAlias
+from typing import TypeVar, Self, Generic, TypeAlias, cast
 
 
 class FactoryError(RuntimeError):
@@ -22,6 +22,20 @@ class FactoryError(RuntimeError):
         return cls(f"Could not instantiate {new_cls} by calling {new_cls.__name__}()")
 
 
+class IndependentFactory(ABC):
+    """
+    Provide a factory for classes that can instantiate themselves asynchronously.
+    """
+
+    @classmethod
+    @abstractmethod
+    async def new(cls) -> Self:
+        """
+        Create a new instance.
+        """
+        pass
+
+
 _T = TypeVar("_T")
 
 
@@ -29,15 +43,22 @@ async def new(cls: type[_T]) -> _T:
     """
     Create a new instance.
 
-    :raises FactoryError: raised when the class could not be instantiated.
+    :return:
+            #. If ``cls`` extends :py:class:`betty.factory.IndependentFactory`, this will call return ``cls``'s
+                ``new()``'s return value.
+            #. Otherwise ``cls()`` will be called without arguments, and the resulting instance will be returned.
+
+    :raises FactoryError: raised when ``cls`` could not be instantiated.
     """
+    if issubclass(cls, IndependentFactory):
+        return cast(_T, await cls.new())
     try:
         return cls()
     except Exception as error:
         raise FactoryError.new(cls) from error
 
 
-class DependentFactory(ABC, Generic[_T]):
+class FactoryProvider(ABC, Generic[_T]):
     """
     Provide a factory for classes that depend on ``self``.
     """
@@ -47,7 +68,7 @@ class DependentFactory(ABC, Generic[_T]):
         """
         Create a new instance.
 
-        :raises FactoryError: raised when the class could not be instantiated.
+        :raises FactoryError: raised when ``cls`` could not be instantiated.
         """
         pass
 

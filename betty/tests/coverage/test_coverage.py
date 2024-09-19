@@ -294,7 +294,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/factory.py": {
         # This is an abstract class.
-        "DependentFactory": TestKnownToBeMissing,
+        "FactoryProvider": TestKnownToBeMissing,
+        # This is an abstract class.
+        "IndependentFactory": TestKnownToBeMissing,
     },
     "betty/fetch/__init__.py": {
         # This is an interface.

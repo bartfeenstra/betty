@@ -26,12 +26,12 @@ class ExtensionTestBase(PluginTestBase[Extension]):
     A base class for testing :py:class:`betty.project.extension.Extension` implementations.
     """
 
-    async def test_new_for_project(self, new_temporary_app: App) -> None:
+    async def test_new(self, new_temporary_app: App) -> None:
         """
-        Tests :py:meth:`betty.project.extension.Extension.new_for_project` implementations.
+        Tests :py:meth:`betty.project.extension.Extension.new` implementations.
         """
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = await self.get_sut_class().new_for_project(project)
+            sut = await self.get_sut_class().new(project)
             assert sut.project == project
 
     async def test_assets_directory_path(self) -> None:
@@ -77,7 +77,7 @@ class ExtensionTestBase(PluginTestBase[Extension]):
         Tests :py:meth:`betty.project.extension.Extension.register_event_handlers` implementations.
         """
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = await self.get_sut_class().new_for_project(project)
+            sut = await self.get_sut_class().new(project)
             registry = EventHandlerRegistry()
             sut.register_event_handlers(registry)
 

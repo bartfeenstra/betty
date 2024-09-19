@@ -418,7 +418,7 @@ class Jinja2Renderer(Renderer, ProjectDependentFactory, Plugin):
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
+    async def new(cls, project: Project) -> Self:
         return cls(project.jinja2_environment, project.configuration)
 
     @override

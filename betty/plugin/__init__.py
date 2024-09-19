@@ -15,7 +15,7 @@ from typing import TypeVar, Generic, Self, overload, TYPE_CHECKING, TypeAlias, A
 from typing_extensions import override
 
 from betty.error import UserFacingError
-from betty.factory import DependentFactory, Factory, new
+from betty.factory import FactoryProvider, Factory, new
 from betty.locale.localizable import _, join, do_you_mean
 from betty.machine_name import MachineName
 from betty.typing import internal
@@ -131,7 +131,7 @@ _PluginMixinTwoT = TypeVar("_PluginMixinTwoT")
 _PluginMixinThreeT = TypeVar("_PluginMixinThreeT")
 
 
-class PluginRepository(Generic[_PluginT], DependentFactory[_PluginT], ABC):
+class PluginRepository(Generic[_PluginT], FactoryProvider[_PluginT], ABC):
     """
     Discover and manage plugins.
     """
