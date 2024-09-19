@@ -22,7 +22,7 @@ from geopy import Point
 from lxml import etree
 from typing_extensions import override
 
-from betty.ancestry import Presence, Ancestry
+from betty.ancestry.presence import Presence
 from betty.ancestry.citation import Citation
 from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.event import Event
@@ -51,6 +51,7 @@ from betty.model.graph import EntityGraphBuilder
 from betty.path import rootname
 
 if TYPE_CHECKING:
+    from betty.ancestry import Ancestry
     from betty.ancestry.has_citations import HasCitations
     from betty.ancestry.has_file_references import HasFileReferences
     from betty.ancestry.event_type import EventType

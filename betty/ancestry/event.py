@@ -10,7 +10,7 @@ from urllib.parse import quote
 
 from typing_extensions import override
 
-from betty.ancestry import Presence
+from betty.ancestry.presence import Presence
 from betty.ancestry.date import HasDate
 from betty.ancestry.description import HasDescription
 from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY, EventType
@@ -67,7 +67,7 @@ class Event(
     presences = OneToMany["Event", Presence](
         "betty.ancestry.event:Event",
         "presences",
-        "betty.ancestry:Presence",
+        "betty.ancestry.presence:Presence",
         "event",
     )
 
@@ -223,7 +223,7 @@ class Event(
 
 class _EventPresenceSchema(JsonLdObject):
     """
-    A schema for the :py:class:`betty.ancestry.Presence` associations on a :py:class:`betty.ancestry.event.Event`.
+    A schema for the :py:class:`betty.ancestry.presence.Presence` associations on a :py:class:`betty.ancestry.event.Event`.
     """
 
     def __init__(self):

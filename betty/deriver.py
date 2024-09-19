@@ -11,7 +11,7 @@ from typing import Iterable, cast, final, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.ancestry import Presence, Ancestry
+from betty.ancestry.presence import Presence
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
     DerivableEventType,
@@ -22,6 +22,7 @@ from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import DateRange, Date
 
 if TYPE_CHECKING:
+    from betty.ancestry import Ancestry
     from betty.ancestry.event_type import EventType
     from collections.abc import Sequence
     from betty.locale.localizer import Localizer

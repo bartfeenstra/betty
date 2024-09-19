@@ -42,7 +42,7 @@ from betty.project.extension import ConfigurableExtension, Theme, Extension
 from betty.project.generate import GenerateSiteEvent
 
 if TYPE_CHECKING:
-    from betty.ancestry import Presence
+    from betty.ancestry.presence import Presence
     from betty.ancestry.file_reference import FileReference
     from betty.ancestry.has_file_references import HasFileReferences
     from betty.plugin import PluginIdentifier

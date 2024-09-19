@@ -35,7 +35,7 @@ from betty.plugin import ShorthandPluginBase
 if TYPE_CHECKING:
     from betty.ancestry.file_reference import FileReference
     from betty.ancestry.citation import Citation
-    from betty.ancestry import Presence
+    from betty.ancestry.presence import Presence
     from betty.ancestry.gender import Gender
     from betty.project import Project
     from betty.serde.dump import DumpMapping, Dump
@@ -74,7 +74,7 @@ class Person(
     presences = OneToMany["Person", "Presence"](
         "betty.ancestry.person:Person",
         "presences",
-        "betty.ancestry:Presence",
+        "betty.ancestry.presence:Presence",
         "person",
     )
     names = OneToMany["Person", "PersonName"](
@@ -254,7 +254,7 @@ class Person(
 
 class _PersonPresenceSchema(JsonLdObject):
     """
-    A schema for the :py:class:`betty.ancestry.Presence` associations on a :py:class:`betty.ancestry.person.Person`.
+    A schema for the :py:class:`betty.ancestry.presence.Presence` associations on a :py:class:`betty.ancestry.person.Person`.
     """
 
     def __init__(self):

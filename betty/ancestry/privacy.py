@@ -67,9 +67,10 @@ class HasPrivacy(LinkedDataDumpable[Object]):
         """
         The resource's own privacy.
 
-        This returns the value that was set for :py:attr:`betty.ancestry.HasPrivacy.privacy` and ignores computed privacies.
+        This returns the value that was set for :py:attr:`betty.ancestry.privacy.HasPrivacy.privacy` and ignores
+        computed privacies.
 
-        For access control and permissions checking, use :py:attr:`betty.ancestry.HasPrivacy.privacy`.
+        For access control and permissions checking, use :py:attr:`betty.ancestry.privacy.HasPrivacy.privacy`.
         """
         return self._privacy
 

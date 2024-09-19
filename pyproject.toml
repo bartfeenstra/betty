@@ -103,7 +103,7 @@ betty = 'betty.cli:main'
 'note' = 'betty.ancestry.note:Note'
 'person' = 'betty.ancestry.person:Person'
 'person-name' = 'betty.ancestry.person_name:PersonName'
-'presence' = 'betty.ancestry:Presence'
+'presence' = 'betty.ancestry.presence:Presence'
 'place' = 'betty.ancestry.place:Place'
 'source' = 'betty.ancestry.source:Source'
 

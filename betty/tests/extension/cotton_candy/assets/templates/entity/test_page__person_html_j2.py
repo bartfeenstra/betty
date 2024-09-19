@@ -1,8 +1,6 @@
 from pathlib import Path
 
-from betty.ancestry import (
-    Presence,
-)
+from betty.ancestry.presence import Presence
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.file import File
