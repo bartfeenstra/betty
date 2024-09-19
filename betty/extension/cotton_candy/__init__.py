@@ -16,7 +16,6 @@ from betty.ancestry import (
     Event,
     Person,
     Presence,
-    HasFileReferences,
     Place,
     FileReference,
 )
@@ -27,6 +26,7 @@ from betty.ancestry.event_type.event_types import (
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.privacy import is_public
 from betty.asyncio import gather
+from betty.date import Date, Datey
 from betty.extension.cotton_candy.config import CottonCandyConfiguration
 from betty.extension.cotton_candy.search import Index
 from betty.extension.maps import Maps
@@ -38,7 +38,6 @@ from betty.jinja2 import (
     Jinja2Provider,
     Filters,
 )
-from betty.date import Date, Datey
 from betty.locale.localizable import _, static
 from betty.model import GeneratedEntityId
 from betty.os import link_or_copy
@@ -47,6 +46,7 @@ from betty.project.extension import ConfigurableExtension, Theme, Extension
 from betty.project.generate import GenerateSiteEvent
 
 if TYPE_CHECKING:
+    from betty.ancestry.has_file_references import HasFileReferences
     from betty.plugin import PluginIdentifier
     from betty.event_dispatcher import EventHandlerRegistry
     from collections.abc import Sequence

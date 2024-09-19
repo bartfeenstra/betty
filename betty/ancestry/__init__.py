@@ -16,6 +16,7 @@ from betty.ancestry.description import HasDescription
 from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.gender.genders import Unknown as UnknownGender
+from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.link import Link, HasLinks
 from betty.ancestry.locale import HasLocale
 from betty.ancestry.media_type import HasMediaType
@@ -293,32 +294,6 @@ class FileReference(ShorthandPluginBase, Entity):
     @focus.setter
     def focus(self, focus: FocusArea | None) -> None:
         self._focus = focus
-
-
-class HasFileReferences(Entity):
-    """
-    An entity that has associated :py:class:`betty.ancestry.File` entities.
-    """
-
-    file_references = OneToMany["HasFileReferences & Entity", FileReference](
-        "betty.ancestry:HasFileReferences",
-        "file_references",
-        "betty.ancestry:FileReference",
-        "referee",
-    )
-
-    def __init__(
-        self: HasFileReferences & Entity,
-        *args: Any,
-        file_references: Iterable[FileReference] | None = None,
-        **kwargs: Any,
-    ):
-        super().__init__(  # type: ignore[misc]
-            *args,
-            **kwargs,
-        )
-        if file_references is not None:
-            self.file_references = file_references
 
 
 @final

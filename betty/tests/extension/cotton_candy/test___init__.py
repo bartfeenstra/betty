@@ -13,7 +13,6 @@ from betty.ancestry import (
     File,
     Source,
     PersonName,
-    HasFileReferences,
     Place,
     FileReference,
 )
@@ -22,16 +21,17 @@ from betty.ancestry.event_type.event_types import (
     Unknown as UnknownEventType,
     Death,
 )
+from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.presence_role.presence_roles import (
     Subject,
     Unknown as UnknownPresenceRole,
 )
 from betty.ancestry.privacy import Privacy
+from betty.date import Datey, Date, DateRange
 from betty.extension.cotton_candy import (
     person_timeline_events,
     associated_file_references,
 )
-from betty.date import Datey, Date, DateRange
 from betty.model import (
     GeneratedEntityId,
 )
