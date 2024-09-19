@@ -16,8 +16,8 @@ from betty.ancestry import (
     Source,
     Citation,
     Event,
-    Enclosure,
 )
+from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.event_type.event_types import Marriage, Birth, Death
 from betty.ancestry.link import Link
 from betty.ancestry.name import Name
