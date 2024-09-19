@@ -26,13 +26,13 @@ from betty.ancestry import (
     Citation,
     Event,
     Presence,
-    FileReference,
     Ancestry,
 )
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.file import File
+from betty.ancestry.file_reference import FileReference
 from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.name import Name

@@ -4,10 +4,10 @@ from betty.ancestry import (
     Event,
     Presence,
     Citation,
-    FileReference,
 )
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.file import File
+from betty.ancestry.file_reference import FileReference
 from betty.ancestry.name import Name
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place

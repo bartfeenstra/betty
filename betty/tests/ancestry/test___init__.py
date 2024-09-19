@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any, Sequence, TYPE_CHECKING
 
 import pytest
 from typing_extensions import override
 
-from betty.ancestry import Event, Presence, Citation, Ancestry, FileReference
+from betty.ancestry import Event, Presence, Citation, Ancestry
 from betty.ancestry.event_type.event_types import Birth, Unknown as UnknownEventType
-from betty.ancestry.file import File
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.name import Name
@@ -540,21 +538,3 @@ class TestAncestry:
         sut.add_unchecked_graph(left)
         assert left in sut
         assert right not in sut
-
-
-class TestFileReference:
-    async def test_focus(self) -> None:
-        sut = FileReference()
-        focus = (1, 2, 3, 4)
-        sut.focus = focus
-        assert sut.focus == focus
-
-    async def test_file(self) -> None:
-        file = File(Path())
-        sut = FileReference(None, file)
-        assert sut.file is file
-
-    async def test_referee(self) -> None:
-        referee = DummyHasFileReferences()
-        sut = FileReference(referee)
-        assert sut.referee is referee

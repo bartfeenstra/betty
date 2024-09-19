@@ -14,7 +14,6 @@ from betty.ancestry.date import HasDate
 from betty.ancestry.description import HasDescription
 from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
-from betty.ancestry.file import File
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.link import HasLinks
@@ -62,67 +61,12 @@ from betty.model.collections import (
 from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
+    from betty.ancestry.file_reference import FileReference
     from betty.date import Datey
     from betty.ancestry.event_type import EventType
     from betty.serde.dump import DumpMapping, Dump
-    from betty.image import FocusArea
     from betty.project import Project
     from collections.abc import Mapping
-
-
-class FileReference(ShorthandPluginBase, Entity):
-    """
-    A reference between :py:class:`betty.ancestry.HasFileReferences` and betty.ancestry.File.
-
-    This reference holds additional information specific to the relationship between the two entities.
-    """
-
-    _plugin_id = "file-reference"
-    _plugin_label = _("File reference")
-
-    #: The entity that references the file.
-    referee = ManyToOne["FileReference", "HasFileReferences"](
-        "betty.ancestry:FileReference",
-        "referee",
-        "betty.ancestry:HasFileReferences",
-        "file_references",
-    )
-    #: The referenced file.
-    file = ManyToOne["FileReference", File](
-        "betty.ancestry:FileReference",
-        "file",
-        "betty.ancestry:File",
-        "referees",
-    )
-
-    def __init__(
-        self,
-        referee: HasFileReferences & Entity | None = None,
-        file: File | None = None,
-        focus: FocusArea | None = None,
-    ):
-        super().__init__()
-        self.referee = referee
-        self.file = file
-        self.focus = focus
-
-    @override
-    @classmethod
-    def plugin_label_plural(cls) -> Localizable:
-        return _("File references")
-
-    @property
-    def focus(self) -> FocusArea | None:
-        """
-        The area within the 2-dimensional representation of the file to focus on.
-
-        This can be used to locate where faces are in a photo, or a specific article in a newspaper scan, for example.
-        """
-        return self._focus
-
-    @focus.setter
-    def focus(self, focus: FocusArea | None) -> None:
-        self._focus = focus
 
 
 @final

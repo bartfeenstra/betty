@@ -5,13 +5,14 @@ from typing import Iterator, TYPE_CHECKING
 
 import pytest
 
-from betty.ancestry import Presence, Event, Citation, FileReference
+from betty.ancestry import Presence, Event, Citation
 from betty.ancestry.event_type.event_types import (
     Birth,
     Unknown as UnknownEventType,
     Death,
 )
 from betty.ancestry.file import File
+from betty.ancestry.file_reference import FileReference
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName

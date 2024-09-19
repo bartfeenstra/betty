@@ -1,12 +1,10 @@
 from pathlib import Path
 
-from betty.ancestry import (
-    Citation,
-    FileReference,
-)
-from betty.ancestry.person_name import PersonName
+from betty.ancestry import Citation
 from betty.ancestry.file import File
+from betty.ancestry.file_reference import FileReference
 from betty.ancestry.person import Person
+from betty.ancestry.person_name import PersonName
 from betty.ancestry.source import Source
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale.localizer import DEFAULT_LOCALIZER
