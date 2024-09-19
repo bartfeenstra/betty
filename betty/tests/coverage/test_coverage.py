@@ -493,10 +493,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "PreBirthEventType": TestKnownToBeMissing,
         "StartOfLifeEventType": TestKnownToBeMissing,
     },
-    "betty/ancestry/gender.py": {
-        # This is an abstract class.
-        "Gender": TestKnownToBeMissing,
-    },
+    # This contains an abstract class and a static value only.
+    "betty/ancestry/gender/__init__.py": TestKnownToBeMissing,
     # This contains an abstract class and a static value only.
     "betty/ancestry/place_type/__init__.py": TestKnownToBeMissing,
     "betty/ancestry/presence_role/__init__.py": {

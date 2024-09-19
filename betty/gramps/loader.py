@@ -44,7 +44,7 @@ from betty.ancestry import (
     Ancestry,
 )
 from betty.ancestry.event_type import Unknown as UnknownEventType, EventType
-from betty.ancestry.gender import Unknown as UnknownGender
+from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.error import FileNotFound

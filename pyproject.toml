@@ -145,10 +145,10 @@ betty = 'betty.cli:main'
 'wikipedia' = 'betty.extension.wikipedia:Wikipedia'
 
 [project.entry-points.'betty.gender']
-'non-binary' = 'betty.ancestry.gender:NonBinary'
-'female' = 'betty.ancestry.gender:Female'
-'male' = 'betty.ancestry.gender:Male'
-'unknown' = 'betty.ancestry.gender:Unknown'
+'female' = 'betty.ancestry.gender.genders:Female'
+'male' = 'betty.ancestry.gender.genders:Male'
+'non-binary' = 'betty.ancestry.gender.genders:NonBinary'
+'unknown' = 'betty.ancestry.gender.genders:Unknown'
 
 [project.entry-points.'betty.place_type']
 'borough' = 'betty.ancestry.place_type.place_types:Borough'

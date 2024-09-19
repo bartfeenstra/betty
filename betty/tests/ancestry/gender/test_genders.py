@@ -1,6 +1,6 @@
 from typing_extensions import override
 
-from betty.ancestry.gender import NonBinary, Female, Male, Unknown
+from betty.ancestry.gender.genders import NonBinary, Female, Male, Unknown
 from betty.test_utils.ancestry.gender import GenderTestBase
 
 
