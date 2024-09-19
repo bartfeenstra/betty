@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.ancestry import Presence
+from betty.ancestry.presence import Presence
 from betty.ancestry.citation import Citation
 from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.event import Event

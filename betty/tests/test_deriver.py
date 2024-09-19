@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.ancestry import Presence, Ancestry
+from betty.ancestry import Ancestry
+from betty.ancestry.presence import Presence
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
     DerivableEventType,
