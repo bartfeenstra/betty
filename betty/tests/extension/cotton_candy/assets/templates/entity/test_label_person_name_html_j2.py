@@ -1,4 +1,4 @@
-from betty.ancestry import Citation
+from betty.ancestry.citation import Citation
 from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.source import Source

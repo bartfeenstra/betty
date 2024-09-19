@@ -5,7 +5,7 @@ from typing import Any, TYPE_CHECKING
 
 import pytest
 
-from betty.ancestry import Citation
+from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Death
 from betty.ancestry.file import File

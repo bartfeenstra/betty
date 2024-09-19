@@ -96,7 +96,7 @@ betty = 'betty.cli:main'
 'project-author' = 'betty.copyright.copyrights:ProjectAuthor'
 
 [project.entry-points.'betty.entity_type']
-'citation' = 'betty.ancestry:Citation'
+'citation' = 'betty.ancestry.citation:Citation'
 'enclosure' = 'betty.ancestry.enclosure:Enclosure'
 'event' = 'betty.ancestry.event:Event'
 'file' = 'betty.ancestry.file:File'

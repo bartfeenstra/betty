@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.ancestry import Citation
+from betty.ancestry.citation import Citation
 from betty.ancestry.source import Source
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.tests.ancestry.test___init__ import DummyHasCitations
+from betty.tests.ancestry.test_citation import DummyHasCitations
 
 if TYPE_CHECKING:
     from betty.ancestry.link import HasLinks

@@ -1,7 +1,7 @@
 Citation
 ========
 
-:py:class:`betty.ancestry.Citation` entities link 'facts' with :doc:`sources </usage/ancestry/source>`.
+:py:class:`betty.ancestry.citation.Citation` entities link 'facts' with :doc:`sources </usage/ancestry/source>`.
 
 Fields
 ------

@@ -6,7 +6,7 @@ from typing import Sequence, Mapping, Any, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.ancestry import Citation
+from betty.ancestry.citation import Citation
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.ancestry.note import Note

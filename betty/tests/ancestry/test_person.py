@@ -4,7 +4,8 @@ from typing import Sequence, Mapping, Any, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.ancestry import Presence, Citation
+from betty.ancestry import Presence
+from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.gender.genders import Unknown as UnknownGender, NonBinary

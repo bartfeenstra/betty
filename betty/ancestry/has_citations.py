@@ -11,9 +11,9 @@ from typing_extensions import override
 
 from betty.model import Entity, GeneratedEntityId, EntityReferenceCollectionSchema
 from betty.model.association import ManyToMany
+from betty.ancestry.citation import Citation
 
 if TYPE_CHECKING:
-    from betty.ancestry import Citation
     from betty.json.schema import Object
     from betty.serde.dump import DumpMapping, Dump
     from betty.project import Project
@@ -27,7 +27,7 @@ class HasCitations(Entity):
     citations = ManyToMany["HasCitations & Entity", "Citation"](
         "betty.ancestry.has_citations:HasCitations",
         "citations",
-        "betty.ancestry:Citation",
+        "betty.ancestry.citation:Citation",
         "facts",
     )
 
@@ -59,8 +59,6 @@ class HasCitations(Entity):
     @override
     @classmethod
     async def linked_data_schema(cls, project: Project) -> Object:
-        from betty.ancestry import Citation
-
         schema = await super().linked_data_schema(project)
         schema.add_property("citations", EntityReferenceCollectionSchema(Citation))
         return schema

@@ -9,5 +9,5 @@ Fields
     The file reference's own entity ID.
 ``file`` (:doc:`File </usage/ancestry/file>`)
     The referenced file.
-``referee`` (:py:class:`betty.ancestry.HasFileReferences`)
+``referee`` (:py:class:`betty.ancestry.has_file_references.HasFileReferences`)
     The entity referencing the file.

@@ -4,7 +4,7 @@ from typing import Sequence, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.ancestry import Citation
+from betty.ancestry.citation import Citation
 from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source

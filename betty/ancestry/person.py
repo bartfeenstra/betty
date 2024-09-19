@@ -9,6 +9,7 @@ from urllib.parse import quote
 
 from typing_extensions import override
 
+from betty.ancestry.citation import Citation
 from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
@@ -33,7 +34,7 @@ from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
     from betty.ancestry.file_reference import FileReference
-    from betty.ancestry import Citation  # noqa F401
+    from betty.ancestry.citation import Citation
     from betty.ancestry import Presence
     from betty.ancestry.gender import Gender
     from betty.project import Project

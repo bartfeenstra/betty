@@ -22,11 +22,8 @@ from geopy import Point
 from lxml import etree
 from typing_extensions import override
 
-from betty.ancestry import (
-    Citation,
-    Presence,
-    Ancestry,
-)
+from betty.ancestry import Presence, Ancestry
+from betty.ancestry.citation import Citation
 from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType

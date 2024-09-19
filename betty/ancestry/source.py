@@ -33,8 +33,8 @@ from betty.model.association import ManyToOne, OneToMany
 from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
+    from betty.ancestry.citation import Citation  # noqa F401
     from betty.ancestry.file_reference import FileReference
-    from betty.ancestry import Citation  # noqa F401
     from betty.serde.dump import DumpMapping, Dump
     from betty.project import Project
     from betty.json.schema import Object
@@ -61,21 +61,21 @@ class Source(
 
     #: The source this one is directly contained by.
     contained_by = ManyToOne["Source", "Source"](
-        "betty.ancestry:Source",
+        "betty.ancestry.source:Source",
         "contained_by",
-        "betty.ancestry:Source",
+        "betty.ancestry.source:Source",
         "contains",
     )
     contains = OneToMany["Source", "Source"](
-        "betty.ancestry:Source",
+        "betty.ancestry.source:Source",
         "contains",
-        "betty.ancestry:Source",
+        "betty.ancestry.source:Source",
         "contained_by",
     )
     citations = OneToMany["Source", "Citation"](
-        "betty.ancestry:Source",
+        "betty.ancestry.source:Source",
         "citations",
-        "betty.ancestry:Citation",
+        "betty.ancestry.citation:Citation",
         "source",
     )
 
@@ -189,7 +189,7 @@ class Source(
     @override
     @classmethod
     async def linked_data_schema(cls, project: Project) -> Object:
-        from betty.ancestry import Citation
+        from betty.ancestry.citation import Citation
 
         schema = await super().linked_data_schema(project)
         schema.add_property(

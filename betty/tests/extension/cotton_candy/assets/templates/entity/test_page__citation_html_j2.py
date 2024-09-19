@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from betty.ancestry import Citation
+from betty.ancestry.citation import Citation
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.ancestry.person import Person
