@@ -1,5 +1,6 @@
-from betty.ancestry import Place, Enclosure
+from betty.ancestry import Enclosure
 from betty.ancestry.name import Name
+from betty.ancestry.place import Place
 from betty.extension.cotton_candy import CottonCandy
 from betty.jinja2 import EntityContexts
 from betty.test_utils.assets.templates import TemplateTestBase

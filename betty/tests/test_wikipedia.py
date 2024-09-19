@@ -9,8 +9,9 @@ import pytest
 from geopy import Point
 from multidict import CIMultiDict
 
-from betty.ancestry import Source, Citation, Place
+from betty.ancestry import Source, Citation
 from betty.ancestry.link import Link
+from betty.ancestry.place import Place
 from betty.fetch import FetchResponse
 from betty.fetch.static import StaticFetcher
 from betty.locale import UNDETERMINED_LOCALE

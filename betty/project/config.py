@@ -11,9 +11,10 @@ from urllib.parse import urlparse
 from typing_extensions import override
 
 from betty import model
-from betty.ancestry import Person, Event, Place, Source
+from betty.ancestry import Person, Event, Source
 from betty.ancestry.event_type import EventType
 from betty.ancestry.gender import Gender
+from betty.ancestry.place import Place
 from betty.ancestry.place_type import PlaceType
 from betty.ancestry.presence_role import PresenceRole
 from betty.assertion import (

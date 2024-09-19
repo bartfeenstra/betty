@@ -11,7 +11,6 @@ from typing_extensions import override
 
 from betty import serve
 from betty.ancestry import (
-    Place,
     Person,
     Presence,
     PersonName,
@@ -24,6 +23,7 @@ from betty.ancestry.event_type.event_types import Marriage, Birth, Death
 from betty.ancestry.link import Link
 from betty.ancestry.name import Name
 from betty.ancestry.note import Note
+from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import Date, DateRange
 from betty.extension.cotton_candy import CottonCandy
