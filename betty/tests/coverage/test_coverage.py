@@ -464,9 +464,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             # This is static.
             "dated_linked_data_contexts": TestKnownToBeMissing,
         },
-        "Note": {
-            "entity": TestKnownToBeMissing,
-        },
         "Place": {
             "associated_files": TestKnownToBeMissing,
         },

@@ -7,20 +7,21 @@ import aiofiles
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
-from betty.ancestry import Ancestry, Citation, Note, Source, File, Event, Person, Place
+from betty.ancestry import Ancestry, Citation, Source, File, Event, Person, Place
 from betty.ancestry.event_type.event_types import (
     Birth,
     Death,
     Unknown as UnknownEventType,
 )
 from betty.ancestry.gender.genders import Unknown as UnknownGender, NonBinary
+from betty.ancestry.note import Note
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.privacy import Privacy
 from betty.app import App
+from betty.date import Date, DateRange
 from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsLoader, LoaderUsedAlready, GrampsFileNotFound
 from betty.locale import UNDETERMINED_LOCALE
-from betty.date import Date, DateRange
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.path import rootname
