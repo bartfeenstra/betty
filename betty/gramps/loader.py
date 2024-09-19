@@ -32,7 +32,6 @@ from betty.ancestry import (
     PersonName,
     Presence,
     Enclosure,
-    HasCitations,
     FileReference,
     Ancestry,
 )
@@ -55,6 +54,7 @@ from betty.model.graph import EntityGraphBuilder
 from betty.path import rootname
 
 if TYPE_CHECKING:
+    from betty.ancestry.has_citations import HasCitations
     from betty.ancestry.has_file_references import HasFileReferences
     from betty.ancestry.event_type import EventType
     from betty.ancestry.place_type import PlaceType

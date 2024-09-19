@@ -12,12 +12,12 @@ from typing import Iterator, TypeAlias, Any, TYPE_CHECKING
 from betty.ancestry import (
     Person,
     Event,
-    HasCitations,
     Source,
     Presence,
     Place,
 )
 from betty.ancestry.event_type.event_types import EndOfLifeEventType
+from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.note import HasNotes
 from betty.ancestry.presence_role.presence_roles import Subject
