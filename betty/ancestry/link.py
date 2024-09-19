@@ -80,7 +80,7 @@ class Link(HasMediaType, HasLocale, HasDescription, LinkedDataDumpable[Object]):
 
 class LinkSchema(JsonLdObject):
     """
-    A JSON Schema for :py:class:`betty.ancestry.Link`.
+    A JSON Schema for :py:class:`betty.ancestry.link.Link`.
     """
 
     def __init__(self):
@@ -110,7 +110,7 @@ class LinkSchema(JsonLdObject):
 
 class LinkCollectionSchema(Array):
     """
-    A JSON Schema for :py:class:`betty.ancestry.Link` collections.
+    A JSON Schema for :py:class:`betty.ancestry.link.Link` collections.
     """
 
     def __init__(self):

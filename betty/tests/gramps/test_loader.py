@@ -7,7 +7,7 @@ import aiofiles
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
-from betty.ancestry import Ancestry, Citation, Source, Event
+from betty.ancestry import Ancestry, Citation, Event
 from betty.ancestry.event_type.event_types import (
     Birth,
     Death,
@@ -20,6 +20,7 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.privacy import Privacy
+from betty.ancestry.source import Source
 from betty.app import App
 from betty.date import Date, DateRange
 from betty.gramps.error import UserFacingGrampsError

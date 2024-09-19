@@ -4,13 +4,14 @@ from typing import Sequence, Mapping, Any, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.ancestry import PersonName, Event, Presence, Citation, Source
+from betty.ancestry import PersonName, Event, Presence, Citation
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.gender.genders import Unknown as UnknownGender, NonBinary
 from betty.ancestry.link import Link
 from betty.ancestry.person import Person
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.privacy import Privacy
+from betty.ancestry.source import Source
 from betty.locale import UNDETERMINED_LOCALE
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase

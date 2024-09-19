@@ -6,11 +6,12 @@ from typing import Sequence, Mapping, Any, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.ancestry import FileReference, Citation, Source
+from betty.ancestry import FileReference, Citation
 from betty.ancestry.file import File
 from betty.ancestry.note import Note
 from betty.ancestry.person import Person
 from betty.ancestry.privacy import Privacy
+from betty.ancestry.source import Source
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import PLAIN_TEXT
 from betty.test_utils.json.linked_data import assert_dumps_linked_data

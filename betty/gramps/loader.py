@@ -23,7 +23,6 @@ from lxml import etree
 from typing_extensions import override
 
 from betty.ancestry import (
-    Source,
     Citation,
     Event,
     PersonName,
@@ -43,6 +42,7 @@ from betty.ancestry.place import Place
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.ancestry.privacy import HasPrivacy
+from betty.ancestry.source import Source
 from betty.date import DateRange, Datey, Date
 from betty.error import FileNotFound
 from betty.gramps.error import GrampsError, UserFacingGrampsError

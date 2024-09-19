@@ -17,7 +17,7 @@ from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.file import File
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
-from betty.ancestry.link import Link, HasLinks
+from betty.ancestry.link import HasLinks
 from betty.ancestry.locale import HasLocale
 from betty.ancestry.note import Note, HasNotes
 from betty.ancestry.person import Person
@@ -25,6 +25,7 @@ from betty.ancestry.place import Place
 from betty.ancestry.presence_role import PresenceRole, PresenceRoleSchema
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.privacy import HasPrivacy, Privacy, merge_privacies
+from betty.ancestry.source import Source
 from betty.asyncio import wait_to_thread
 from betty.classtools import repr_instance
 from betty.json.linked_data import (
@@ -43,14 +44,12 @@ from betty.locale.localizable import (
     Localizable,
     call,
     ShorthandStaticTranslations,
-    StaticTranslationsLocalizableSchema,
     OptionalStaticTranslationsLocalizableAttr,
 )
 from betty.model import (
     Entity,
     UserFacingEntity,
     GeneratedEntityId,
-    EntityReferenceCollectionSchema,
     EntityReferenceSchema,
 )
 from betty.model.association import (
@@ -70,7 +69,7 @@ if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
     from betty.image import FocusArea
     from betty.project import Project
-    from collections.abc import MutableSequence, Iterator, Mapping
+    from collections.abc import Mapping
 
 
 class FileReference(ShorthandPluginBase, Entity):
@@ -126,170 +125,6 @@ class FileReference(ShorthandPluginBase, Entity):
     @focus.setter
     def focus(self, focus: FocusArea | None) -> None:
         self._focus = focus
-
-
-@final
-class Source(
-    ShorthandPluginBase,
-    HasDate,
-    HasFileReferences,
-    HasNotes,
-    HasLinks,
-    HasPrivacy,
-    UserFacingEntity,
-    Entity,
-):
-    """
-    A source of information.
-    """
-
-    _plugin_id = "source"
-    _plugin_label = _("Source")
-
-    #: The source this one is directly contained by.
-    contained_by = ManyToOne["Source", "Source"](
-        "betty.ancestry:Source",
-        "contained_by",
-        "betty.ancestry:Source",
-        "contains",
-    )
-    contains = OneToMany["Source", "Source"](
-        "betty.ancestry:Source",
-        "contains",
-        "betty.ancestry:Source",
-        "contained_by",
-    )
-    citations = OneToMany["Source", "Citation"](
-        "betty.ancestry:Source",
-        "citations",
-        "betty.ancestry:Citation",
-        "source",
-    )
-
-    #: The human-readable source name.
-    name = OptionalStaticTranslationsLocalizableAttr("name")
-
-    #: The human-readable author.
-    author = OptionalStaticTranslationsLocalizableAttr("author")
-
-    #: The human-readable publisher.
-    publisher = OptionalStaticTranslationsLocalizableAttr("publisher")
-
-    def __init__(
-        self,
-        name: ShorthandStaticTranslations | None = None,
-        *,
-        id: str | None = None,  # noqa A002  # noqa A002
-        author: ShorthandStaticTranslations | None = None,
-        publisher: ShorthandStaticTranslations | None = None,
-        contained_by: Source | None = None,
-        contains: Iterable[Source] | None = None,
-        notes: Iterable[Note] | None = None,
-        date: Datey | None = None,
-        file_references: Iterable[FileReference] | None = None,
-        links: MutableSequence[Link] | None = None,
-        privacy: Privacy | None = None,
-        public: bool | None = None,
-        private: bool | None = None,
-    ):
-        super().__init__(
-            id,
-            notes=notes,
-            date=date,
-            file_references=file_references,
-            links=links,
-            privacy=privacy,
-            public=public,
-            private=private,
-        )
-        if name:
-            self.name = name
-        if author:
-            self.author = author
-        if publisher:
-            self.publisher = publisher
-        if contained_by is not None:
-            self.contained_by = contained_by
-        if contains is not None:
-            self.contains = contains
-
-    @override
-    def _get_effective_privacy(self) -> Privacy:
-        privacy = super()._get_effective_privacy()
-        if self.contained_by:
-            return merge_privacies(privacy, self.contained_by.privacy)
-        return privacy
-
-    @property
-    def walk_contains(self) -> Iterator[Source]:
-        """
-        All directly and indirectly contained sources.
-        """
-        for source in self.contains:
-            yield source
-            yield from source.contains
-
-    @override
-    @classmethod
-    def plugin_label_plural(cls) -> Localizable:
-        return _("Sources")
-
-    @override
-    @property
-    def label(self) -> Localizable:
-        return self.name if self.name else super().label
-
-    @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
-        dump = await super().dump_linked_data(project)
-        dump["@type"] = "https://schema.org/Thing"
-        dump["contains"] = [
-            project.static_url_generator.generate(
-                f"/source/{quote(contained.id)}/index.json"
-            )
-            for contained in self.contains
-            if not isinstance(contained.id, GeneratedEntityId)
-        ]
-        dump["citations"] = [
-            project.static_url_generator.generate(
-                f"/citation/{quote(citation.id)}/index.json"
-            )
-            for citation in self.citations
-            if not isinstance(citation.id, GeneratedEntityId)
-        ]
-        if self.contained_by is not None and not isinstance(
-            self.contained_by.id, GeneratedEntityId
-        ):
-            dump["containedBy"] = project.static_url_generator.generate(
-                f"/source/{quote(self.contained_by.id)}/index.json"
-            )
-        if self.public:
-            if self.name:
-                dump_context(dump, name="https://schema.org/name")
-                dump["name"] = await self.name.dump_linked_data(project)
-            if self.author:
-                dump["author"] = await self.author.dump_linked_data(project)
-            if self.publisher:
-                dump["publisher"] = await self.publisher.dump_linked_data(project)
-        return dump
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project) -> Object:
-        schema = await super().linked_data_schema(project)
-        schema.add_property(
-            "name", StaticTranslationsLocalizableSchema(title="Name"), False
-        )
-        schema.add_property(
-            "author", StaticTranslationsLocalizableSchema(title="Author"), False
-        )
-        schema.add_property(
-            "publisher", StaticTranslationsLocalizableSchema(title="Publisher"), False
-        )
-        schema.add_property("contains", EntityReferenceCollectionSchema(Source))
-        schema.add_property("citations", EntityReferenceCollectionSchema(Citation))
-        schema.add_property("containedBy", EntityReferenceSchema(Source), False)
-        return schema
 
 
 @final

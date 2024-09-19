@@ -4,7 +4,6 @@ from betty.ancestry import (
     Event,
     Presence,
     Citation,
-    Source,
     FileReference,
 )
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
@@ -13,6 +12,7 @@ from betty.ancestry.name import Name
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import Subject
+from betty.ancestry.source import Source
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.test_utils.assets.templates import TemplateTestBase

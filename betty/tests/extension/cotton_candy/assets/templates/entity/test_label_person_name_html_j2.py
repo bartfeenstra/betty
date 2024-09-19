@@ -1,5 +1,6 @@
-from betty.ancestry import PersonName, Citation, Source
+from betty.ancestry import PersonName, Citation
 from betty.ancestry.person import Person
+from betty.ancestry.source import Source
 from betty.extension.cotton_candy import CottonCandy
 from betty.test_utils.assets.templates import TemplateTestBase
 

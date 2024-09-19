@@ -9,11 +9,7 @@ from contextlib import suppress
 from datetime import datetime
 from typing import Iterator, TypeAlias, Any, TYPE_CHECKING
 
-from betty.ancestry import (
-    Event,
-    Source,
-    Presence,
-)
+from betty.ancestry import Event, Presence
 from betty.ancestry.event_type.event_types import EndOfLifeEventType
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
@@ -22,6 +18,7 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.privacy import Privacy, HasPrivacy
+from betty.ancestry.source import Source
 from betty.date import DateRange, Date
 from betty.model import Entity
 

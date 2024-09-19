@@ -4,9 +4,10 @@ from typing import Sequence, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.ancestry import Citation, Source
+from betty.ancestry import Citation
 from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.place import Place
+from betty.ancestry.source import Source
 from betty.date import Date
 from betty.test_utils.model import EntityTestBase
 
