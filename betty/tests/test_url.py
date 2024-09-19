@@ -6,7 +6,7 @@ from typing import Any, TYPE_CHECKING
 import pytest
 
 from betty.ancestry import Person, Place, File, Source, Name, Event, Citation
-from betty.ancestry.event_type import Death
+from betty.ancestry.event_type.event_types import Death
 from betty.model import UserFacingEntity
 from betty.project import Project
 from betty.project.config import LocaleConfiguration

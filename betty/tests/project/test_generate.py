@@ -5,7 +5,7 @@ import aiofiles
 from pytest_mock import MockerFixture
 
 from betty.ancestry import Person, Place, Source, Name, File, Event, Citation
-from betty.ancestry.event_type import Birth
+from betty.ancestry.event_type.event_types import Birth
 from betty.app import App
 from betty.model import (
     UserFacingEntity,

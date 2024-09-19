@@ -11,7 +11,7 @@ from typing import final
 from typing_extensions import override
 
 from betty.ancestry import event_type
-from betty.ancestry.event_type import DerivableEventType
+from betty.ancestry.event_type.event_types import DerivableEventType
 from betty.deriver import Deriver as DeriverApi
 from betty.extension.privatizer import Privatizer
 from betty.locale.localizable import _

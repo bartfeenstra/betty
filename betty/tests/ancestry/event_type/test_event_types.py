@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing_extensions import override
 
 from betty.ancestry import Person, Presence, Event
-from betty.ancestry.event_type import (
+from betty.ancestry.event_type.event_types import (
     Death,
     Birth,
     Adoption,
@@ -17,7 +17,6 @@ from betty.ancestry.event_type import (
     DivorceAnnouncement,
     Emigration,
     Engagement,
-    EventType,
     Funeral,
     Immigration,
     Marriage,
@@ -32,6 +31,10 @@ from betty.ancestry.event_type import (
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.locale.date import Date
 from betty.test_utils.ancestry.event_type import EventTypeTestBase
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from betty.ancestry.event_type import EventType
 
 _LIFETIME_THRESHOLD = 125
 

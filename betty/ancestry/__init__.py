@@ -12,11 +12,8 @@ from urllib.parse import quote
 
 from typing_extensions import override
 
-from betty.ancestry.event_type import (
-    EventType,
-    Unknown as UnknownEventType,
-    EVENT_TYPE_REPOSITORY,
-)
+from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY
+from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence_role import PresenceRole, PresenceRoleSchema
@@ -73,6 +70,7 @@ from betty.plugin import ShorthandPluginBase
 from betty.string import camel_case_to_kebab_case
 
 if TYPE_CHECKING:
+    from betty.ancestry.event_type import EventType
     from betty.ancestry.gender import Gender
     from betty.ancestry.place_type import PlaceType
     from betty.serde.dump import DumpMapping, Dump

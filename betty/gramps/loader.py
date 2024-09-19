@@ -43,7 +43,7 @@ from betty.ancestry import (
     FileReference,
     Ancestry,
 )
-from betty.ancestry.event_type import Unknown as UnknownEventType, EventType
+from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
@@ -58,6 +58,7 @@ from betty.model.graph import EntityGraphBuilder
 from betty.path import rootname
 
 if TYPE_CHECKING:
+    from betty.ancestry.event_type import EventType
     from betty.ancestry.place_type import PlaceType
     from betty.ancestry.presence_role import PresenceRole
     from betty.ancestry.gender import Gender

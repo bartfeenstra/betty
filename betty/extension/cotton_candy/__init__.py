@@ -21,7 +21,10 @@ from betty.ancestry import (
     Place,
     FileReference,
 )
-from betty.ancestry.event_type import StartOfLifeEventType, EndOfLifeEventType
+from betty.ancestry.event_type.event_types import (
+    StartOfLifeEventType,
+    EndOfLifeEventType,
+)
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.asyncio import gather
 from betty.extension.cotton_candy.config import CottonCandyConfiguration

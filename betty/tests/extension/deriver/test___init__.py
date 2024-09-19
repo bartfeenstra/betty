@@ -5,11 +5,10 @@ from typing import TYPE_CHECKING
 from typing_extensions import override
 
 from betty.ancestry import Person, Presence, Event
-from betty.ancestry.event_type import (
+from betty.ancestry.event_type.event_types import (
     DerivableEventType,
     CreatableDerivableEventType,
     Residence,
-    EventType,
     StartOfLifeEventType,
     EndOfLifeEventType,
 )
@@ -24,6 +23,7 @@ from betty.test_utils.ancestry.event_type import DummyEventType
 from betty.test_utils.project.extension import ExtensionTestBase
 
 if TYPE_CHECKING:
+    from betty.ancestry.event_type import EventType
     from betty.app import App
 
 

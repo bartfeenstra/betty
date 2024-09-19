@@ -9,7 +9,7 @@ from betty.ancestry import (
     Citation,
 )
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.ancestry.event_type import Birth, Death
+from betty.ancestry.event_type.event_types import Birth, Death
 from betty.test_utils.assets.templates import TemplateTestBase
 
 

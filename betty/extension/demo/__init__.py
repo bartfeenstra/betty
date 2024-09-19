@@ -23,7 +23,7 @@ from betty.ancestry import (
     Enclosure,
     Note,
 )
-from betty.ancestry.event_type import Marriage, Birth, Death
+from betty.ancestry.event_type.event_types import Marriage, Birth, Death
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.extension.cotton_candy import CottonCandy
 from betty.extension.cotton_candy.config import CottonCandyConfiguration

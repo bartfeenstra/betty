@@ -11,7 +11,7 @@ from betty.ancestry import (
     Source,
     FileReference,
 )
-from betty.ancestry.event_type import Unknown as UnknownEventType
+from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.extension.cotton_candy import CottonCandy
 from betty.locale.localizer import DEFAULT_LOCALIZER

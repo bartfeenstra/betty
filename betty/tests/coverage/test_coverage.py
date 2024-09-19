@@ -483,16 +483,26 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
         "Privacy": TestKnownToBeMissing,
     },
-    "betty/ancestry/event_type.py": {
+    # This contains static items only.
+    "betty/ancestry/event_type/__init__.py": TestKnownToBeMissing,
+    "betty/ancestry/event_type/event_types.py": {
+        # This is an abstract class.
         "CreatableDerivableEventType": TestKnownToBeMissing,
+        # This is an abstract class.
         "CreatableEventType": TestKnownToBeMissing,
+        # This is an abstract class.
         "DerivableEventType": TestKnownToBeMissing,
+        # This is an abstract class.
         "DuringLifeEventType": TestKnownToBeMissing,
+        # This is an abstract class.
         "EndOfLifeEventType": TestKnownToBeMissing,
-        "EventType": TestKnownToBeMissing,
+        # This is an abstract class.
         "FinalDispositionEventType": TestKnownToBeMissing,
+        # This is an abstract class.
         "PostDeathEventType": TestKnownToBeMissing,
+        # This is an abstract class.
         "PreBirthEventType": TestKnownToBeMissing,
+        # This is an abstract class.
         "StartOfLifeEventType": TestKnownToBeMissing,
     },
     # This contains an abstract class and a static value only.

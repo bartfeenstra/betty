@@ -8,13 +8,16 @@ from betty.locale.date import DateRange, Date, Datey
 from betty.model.collections import record_added
 from betty.ancestry import Person, Presence, Event, Ancestry
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.ancestry.event_type import (
+from betty.ancestry.event_type.event_types import (
     DerivableEventType,
     CreatableDerivableEventType,
-    EventType,
 )
 from betty.project.config import DEFAULT_LIFETIME_THRESHOLD
 from betty.test_utils.ancestry.event_type import DummyEventType
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from betty.ancestry.event_type import EventType
 
 
 class Ignored(DummyEventType):
