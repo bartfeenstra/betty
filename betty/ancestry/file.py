@@ -24,7 +24,7 @@ from betty.string import camel_case_to_kebab_case
 
 if TYPE_CHECKING:
     from betty.ancestry import Citation
-    from betty.ancestry import FileReference  # noqa F401
+    from betty.ancestry.file_reference import FileReference  # noqa F401
     from betty.media_type import MediaType
     from betty.serde.dump import DumpMapping, Dump
     from betty.project import Project
@@ -58,9 +58,9 @@ class File(
     _plugin_label = _("File")
 
     referees = OneToMany["File", "FileReference"](
-        "betty.ancestry:File",
+        "betty.ancestry.file:File",
         "referees",
-        "betty.ancestry:FileReference",
+        "betty.ancestry.file_reference:FileReference",
         "file",
     )
 

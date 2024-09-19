@@ -32,7 +32,9 @@ from betty.model.association import ManyToMany, OneToMany
 from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
-    from betty.ancestry import Presence, Citation, FileReference
+    from betty.ancestry.file_reference import FileReference
+    from betty.ancestry import Citation  # noqa F401
+    from betty.ancestry import Presence
     from betty.ancestry.gender import Gender
     from betty.project import Project
     from betty.serde.dump import DumpMapping, Dump
@@ -85,7 +87,7 @@ class Person(
         self,
         *,
         id: str | None = None,  # noqa A002
-        file_references: Iterable["FileReference"] | None = None,
+        file_references: Iterable[FileReference] | None = None,
         citations: Iterable["Citation"] | None = None,
         links: MutableSequence[Link] | None = None,
         notes: Iterable[Note] | None = None,

@@ -1,7 +1,7 @@
 File reference
 ==============
 
-A :py:class:`betty.ancestry.FileReference` describes the relationship between an entity and a :doc:`File </usage/ancestry/file>`.
+A :py:class:`betty.ancestry.file_reference.FileReference` describes the relationship between an entity and a :doc:`File </usage/ancestry/file>`.
 
 Fields
 ------

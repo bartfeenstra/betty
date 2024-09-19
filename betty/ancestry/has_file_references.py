@@ -11,18 +11,18 @@ from betty.model import Entity
 from betty.model.association import OneToMany
 
 if TYPE_CHECKING:
-    from betty.ancestry import FileReference
+    from betty.ancestry.file_reference import FileReference
 
 
 class HasFileReferences(Entity):
     """
-    An entity that has associated :py:class:`betty.ancestry.File` entities.
+    An entity that has associated :py:class:`betty.ancestry.file.File` entities.
     """
 
     file_references = OneToMany["HasFileReferences & Entity", "FileReference"](
-        "betty.ancestry:HasFileReferences",
+        "betty.ancestry.has_file_references:HasFileReferences",
         "file_references",
-        "betty.ancestry:FileReference",
+        "betty.ancestry.file_reference:FileReference",
         "referee",
     )
 
