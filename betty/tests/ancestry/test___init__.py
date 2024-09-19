@@ -40,14 +40,13 @@ from betty.ancestry.presence_role.presence_roles import (
 )
 from betty.ancestry.privacy import Privacy
 from betty.app import App
-from betty.locale import UNDETERMINED_LOCALE
 from betty.date import Date, DateRange
+from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import HTML, PLAIN_TEXT
 from betty.model.association import OneToOne
 from betty.project import Project
 from betty.test_utils.ancestry import (
-    DummyHasLocale,
     DummyHasDate,
 )
 from betty.test_utils.ancestry.place_type import DummyPlaceType
@@ -59,31 +58,6 @@ if TYPE_CHECKING:
     from betty.model import Entity
     from betty.serde.dump import Dump, DumpMapping
     from betty.json.schema import Schema
-
-
-class TestHasLocale:
-    def test_locale_without___init___locale(self) -> None:
-        sut = DummyHasLocale()
-        assert sut.locale == UNDETERMINED_LOCALE
-
-    def test_locale_with___init___locale(self) -> None:
-        locale = "nl"
-        sut = DummyHasLocale(locale=locale)
-        assert sut.locale == locale
-
-    def test_locale(self) -> None:
-        locale = "nl"
-        sut = DummyHasLocale()
-        sut.locale = locale
-        assert sut.locale == locale
-
-    async def test_dump_linked_data(self) -> None:
-        sut = DummyHasLocale()
-        expected: Mapping[str, Any] = {
-            "locale": UNDETERMINED_LOCALE,
-        }
-        actual = await assert_dumps_linked_data(sut)
-        assert actual == expected
 
 
 class DummyHasDateWithContextDefinitions(DummyHasDate):

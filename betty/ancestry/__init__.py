@@ -10,11 +10,12 @@ from typing import Iterable, Any, TYPE_CHECKING, final
 from urllib.parse import quote
 
 from typing_extensions import override
-from betty.ancestry.description import HasDescription
 
+from betty.ancestry.description import HasDescription
 from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.gender.genders import Unknown as UnknownGender
+from betty.ancestry.locale import HasLocale
 from betty.ancestry.media_type import HasMediaType
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence_role import PresenceRole, PresenceRoleSchema
@@ -22,6 +23,7 @@ from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.privacy import HasPrivacy, Privacy, is_public, merge_privacies
 from betty.asyncio import wait_to_thread
 from betty.classtools import repr_instance
+from betty.date import Datey, DateySchema, Date
 from betty.functools import Uniquifier
 from betty.json.linked_data import (
     LinkedDataDumpable,
@@ -36,8 +38,7 @@ from betty.json.schema import (
     Enum,
     Number,
 )
-from betty.locale import UNDETERMINED_LOCALE, LocaleSchema
-from betty.date import Datey, DateySchema, Date
+from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import (
     _,
     Localizable,
@@ -48,7 +49,6 @@ from betty.locale.localizable import (
     OptionalStaticTranslationsLocalizableAttr,
     RequiredStaticTranslationsLocalizableAttr,
 )
-from betty.locale.localized import Localized
 from betty.media_type.media_types import HTML, JSON_LD
 from betty.model import (
     Entity,
@@ -130,43 +130,6 @@ class HasDate(LinkedDataDumpable[Object]):
     async def linked_data_schema(cls, project: Project) -> Object:
         schema = await super().linked_data_schema(project)
         schema.add_property("date", DateySchema(), False)
-        return schema
-
-
-class HasLocale(Localized, LinkedDataDumpable[Object]):
-    """
-    A resource that is localized, e.g. contains information in a specific locale.
-    """
-
-    def __init__(
-        self,
-        *args: Any,
-        locale: str = UNDETERMINED_LOCALE,
-        **kwargs: Any,
-    ):
-        super().__init__(*args, **kwargs)
-        self._locale = locale
-
-    @override
-    @property
-    def locale(self) -> str:
-        return self._locale
-
-    @locale.setter
-    def locale(self, locale: str) -> None:
-        self._locale = locale
-
-    @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
-        dump = await super().dump_linked_data(project)
-        dump["locale"] = self.locale
-        return dump
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project) -> Object:
-        schema = await super().linked_data_schema(project)
-        schema.add_property("locale", LocaleSchema())
         return schema
 
 
