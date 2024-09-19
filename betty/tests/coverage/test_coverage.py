@@ -460,10 +460,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/ancestry/__init__.py": {
-        "HasDate": {
-            # This is static.
-            "dated_linked_data_contexts": TestKnownToBeMissing,
-        },
         "Event": {
             # This is static.
             "dated_linked_data_contexts": TestKnownToBeMissing,
@@ -473,6 +469,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
         "Place": {
             "associated_files": TestKnownToBeMissing,
+        },
+    },
+    "betty/ancestry/date.py": {
+        "HasDate": {
+            # This is static.
+            "dated_linked_data_contexts": TestKnownToBeMissing,
         },
     },
     "betty/ancestry/privacy.py": {
@@ -625,6 +627,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     # We do not test our test utilities.
     **{
         "betty/test_utils/ancestry/__init__.py": TestKnownToBeMissing,
+        "betty/test_utils/ancestry/date.py": TestKnownToBeMissing,
         "betty/test_utils/ancestry/description.py": TestKnownToBeMissing,
         "betty/test_utils/ancestry/event_type.py": TestKnownToBeMissing,
         "betty/test_utils/ancestry/gender.py": TestKnownToBeMissing,
