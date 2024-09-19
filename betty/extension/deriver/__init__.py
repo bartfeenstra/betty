@@ -31,7 +31,11 @@ async def _derive_ancestry(event: PostLoadAncestryEvent) -> None:
     deriver = DeriverApi(
         event.project.ancestry,
         event.project.configuration.lifetime_threshold,
-        set(await event_type.EVENT_TYPE_REPOSITORY.select(DerivableEventType)),
+        set(
+            await event_type.EVENT_TYPE_REPOSITORY.select(
+                DerivableEventType  # type: ignore[type-abstract]
+            )
+        ),
         localizer=event.project.app.localizer,
     )
     await deriver.derive()

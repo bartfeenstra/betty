@@ -65,7 +65,7 @@ class Unknown(ShorthandPluginBase, EventType):
     _plugin_label = _("Unknown")
 
 
-class DerivableEventType(ShorthandPluginBase, EventType):
+class DerivableEventType(EventType):
     """
     Any event that that may be updated by the deriver API.
     """
