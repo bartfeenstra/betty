@@ -1,6 +1,6 @@
 from typing_extensions import override
 
-from betty.ancestry.place_type import (
+from betty.ancestry.place_type.place_types import (
     Borough,
     Building,
     City,

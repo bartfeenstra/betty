@@ -497,10 +497,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         # This is an abstract class.
         "Gender": TestKnownToBeMissing,
     },
-    "betty/ancestry/place_type.py": {
-        # This is an abstract class.
-        "PlaceType": TestKnownToBeMissing,
-    },
+    # This contains an abstract class and a static value only.
+    "betty/ancestry/place_type/__init__.py": TestKnownToBeMissing,
     "betty/ancestry/presence_role/__init__.py": {
         # This is an interface.
         "PresenceRole": TestKnownToBeMissing,

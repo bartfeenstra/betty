@@ -30,7 +30,7 @@ from betty.ancestry.event_type import (
     Will,
 )
 from betty.ancestry.gender import Female, Male, Unknown as UnknownGender
-from betty.ancestry.place_type import (
+from betty.ancestry.place_type.place_types import (
     Borough,
     Building,
     City,

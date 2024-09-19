@@ -45,7 +45,7 @@ from betty.ancestry import (
 )
 from betty.ancestry.event_type import Unknown as UnknownEventType, EventType
 from betty.ancestry.gender import Unknown as UnknownGender
-from betty.ancestry.place_type import PlaceType, Unknown
+from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.error import FileNotFound
 from betty.gramps.error import GrampsError, UserFacingGrampsError
@@ -58,6 +58,7 @@ from betty.model.graph import EntityGraphBuilder
 from betty.path import rootname
 
 if TYPE_CHECKING:
+    from betty.ancestry.place_type import PlaceType
     from betty.ancestry.presence_role import PresenceRole
     from betty.ancestry.gender import Gender
     from betty.factory import Factory
@@ -694,7 +695,7 @@ class GrampsLoader:
         try:
             place_type_type = self._place_type_map[gramps_type]
         except KeyError:
-            place_type_type = Unknown
+            place_type_type = UnknownPlaceType
             getLogger(__name__).warning(
                 self._localizer._(
                     'Betty is unfamiliar with Gramps place "{place_id}"\'s type of "{gramps_place_type}". The place was imported, but its type was set to "{betty_place_type}".',
