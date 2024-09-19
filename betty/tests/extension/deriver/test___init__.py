@@ -4,10 +4,6 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.extension.deriver import Deriver
-from betty.load import load
-from betty.locale.date import DateRange, Date
-from betty.model.collections import record_added
 from betty.ancestry import Person, Presence, Event
 from betty.ancestry.event_type import (
     DerivableEventType,
@@ -18,8 +14,12 @@ from betty.ancestry.event_type import (
     EndOfLifeEventType,
 )
 from betty.ancestry.presence_role import Subject
+from betty.extension.deriver import Deriver
+from betty.locale.date import DateRange, Date
+from betty.model.collections import record_added
 from betty.project import Project
 from betty.project.config import ExtensionConfiguration
+from betty.project.load import load
 from betty.test_utils.ancestry.event_type import DummyEventType
 from betty.test_utils.project.extension import ExtensionTestBase
 

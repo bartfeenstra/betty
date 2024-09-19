@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 @command(help="Generate a static site.")
 @pass_project
 async def generate(project: Project) -> None:  # noqa D103
-    from betty import generate, load
+    from betty.project import generate, load
 
     await load.load(project)
     await generate.generate(project)

@@ -19,7 +19,6 @@ from betty.app import App
 from betty.extension.webpack import build
 from betty.extension.webpack.build import webpack_build_id
 from betty.extension.webpack.jinja2.filter import FILTERS
-from betty.generate import GenerateSiteEvent
 from betty.html import CssProvider
 from betty.jinja2 import Jinja2Provider, Filters, ContextVars
 from betty.job import Context
@@ -28,6 +27,7 @@ from betty.os import copy_tree
 from betty.plugin import ShorthandPluginBase
 from betty.project import Project, extension
 from betty.project.extension import Extension
+from betty.project.generate import GenerateSiteEvent
 from betty.requirement import (
     Requirement,
     AllRequirements,

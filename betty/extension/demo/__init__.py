@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
-from betty import load, generate, serve
+from betty import serve
 from betty.ancestry import (
     Place,
     Name,
@@ -31,19 +31,20 @@ from betty.extension.http_api_doc import HttpApiDoc
 from betty.extension.maps import Maps
 from betty.extension.trees import Trees
 from betty.extension.wikipedia import Wikipedia
-from betty.load import LoadAncestryEvent
 from betty.locale.date import Date, DateRange
 from betty.locale.localizable import static
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.plugin import ShorthandPluginBase
 from betty.project import Project
+from betty.project import load, generate
 from betty.project.config import (
     LocaleConfiguration,
     ExtensionConfiguration,
     EntityReference,
 )
 from betty.project.extension import Extension
+from betty.project.load import LoadAncestryEvent
 from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
-from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
     from betty.plugin import PluginIdentifier

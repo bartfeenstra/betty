@@ -30,7 +30,6 @@ from betty.extension.maps import Maps
 from betty.extension.trees import Trees
 from betty.extension.webpack import Webpack, WebpackEntryPointProvider
 from betty.functools import Uniquifier
-from betty.generate import GenerateSiteEvent
 from betty.html import CssProvider
 from betty.jinja2 import (
     Jinja2Provider,
@@ -40,8 +39,9 @@ from betty.locale.date import Date, Datey
 from betty.locale.localizable import _, static
 from betty.model import GeneratedEntityId
 from betty.os import link_or_copy
-from betty.project.extension import ConfigurableExtension, Theme, Extension
 from betty.plugin import ShorthandPluginBase
+from betty.project.extension import ConfigurableExtension, Theme, Extension
+from betty.project.generate import GenerateSiteEvent
 
 if TYPE_CHECKING:
     from betty.plugin import PluginIdentifier

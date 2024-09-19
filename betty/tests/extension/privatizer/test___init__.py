@@ -5,8 +5,6 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.extension.privatizer import Privatizer
-from betty.load import load
 from betty.ancestry import (
     Person,
     Presence,
@@ -18,8 +16,10 @@ from betty.ancestry import (
 )
 from betty.ancestry.event_type import Birth
 from betty.ancestry.presence_role import Subject
+from betty.extension.privatizer import Privatizer
 from betty.project import Project
 from betty.project.config import ExtensionConfiguration
+from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase
 
 if TYPE_CHECKING:

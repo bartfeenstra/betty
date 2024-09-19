@@ -11,10 +11,10 @@ from typing_extensions import override
 
 from betty.extension.gramps.config import GrampsConfiguration
 from betty.gramps.loader import GrampsLoader
-from betty.load import LoadAncestryEvent
 from betty.locale.localizable import static, _
 from betty.plugin import ShorthandPluginBase
 from betty.project.extension import ConfigurableExtension
+from betty.project.load import LoadAncestryEvent
 
 if TYPE_CHECKING:
     from betty.event_dispatcher import EventHandlerRegistry
