@@ -9,13 +9,13 @@ Genders inherit from :py:class:`betty.ancestry.gender.Gender`.
 
 Built-in genders
 ----------------
-:py:class:`betty.ancestry.gender.NonBinary`
-    A person who is `non-binary <https://en.wikipedia.org/wiki/Non-binary_gender>`_.
-:py:class:`betty.ancestry.gender.Female`
+``female`` (:py:class:`betty.ancestry.gender.genders.Female`)
     A person who is `female <https://en.wikipedia.org/wiki/Female>`_.
-:py:class:`betty.ancestry.gender.Male`
+``male`` (:py:class:`betty.ancestry.gender.genders.Male`)
     A person who is `male <https://en.wikipedia.org/wiki/Male>`_.
-:py:class:`betty.ancestry.gender.Unknown`
+``non-binary`` (:py:class:`betty.ancestry.gender.genders.NonBinary`)
+    A person who is `non-binary <https://en.wikipedia.org/wiki/Non-binary_gender>`_.
+``unknown`` (:py:class:`betty.ancestry.gender.genders.Unknown`)
     A person whose gender is unknown.
 
 See also
