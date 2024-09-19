@@ -4,11 +4,12 @@ from typing import Sequence, Mapping, Any, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.ancestry import PersonName, Event, Presence, Citation
+from betty.ancestry import Event, Presence, Citation
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.gender.genders import Unknown as UnknownGender, NonBinary
 from betty.ancestry.link import Link
 from betty.ancestry.person import Person
+from betty.ancestry.person_name import PersonName
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.privacy import Privacy
 from betty.ancestry.source import Source

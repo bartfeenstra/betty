@@ -1,11 +1,11 @@
 from pathlib import Path
 
 from betty.ancestry import (
-    PersonName,
     Event,
     Presence,
     FileReference,
 )
+from betty.ancestry.person_name import PersonName
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.file import File
 from betty.ancestry.person import Person

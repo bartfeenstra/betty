@@ -1,7 +1,7 @@
 Person Name
 ===========
 
-A :py:class:`betty.ancestry.PersonName` describes a name for a :doc:`person </usage/ancestry/person>`.
+A :py:class:`betty.ancestry.person_name.PersonName` describes a name for a :doc:`person </usage/ancestry/person>`.
 
 Fields
 ------

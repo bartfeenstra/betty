@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from betty.ancestry import PersonName
+from betty.ancestry.person_name import PersonName
 from betty.ancestry.file import File
 from betty.ancestry.name import Name
 from betty.ancestry.person import Person

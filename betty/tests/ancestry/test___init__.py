@@ -6,14 +6,7 @@ from typing import Any, Sequence, TYPE_CHECKING
 import pytest
 from typing_extensions import override
 
-from betty.ancestry import (
-    Event,
-    Presence,
-    PersonName,
-    Citation,
-    Ancestry,
-    FileReference,
-)
+from betty.ancestry import Event, Presence, Citation, Ancestry, FileReference
 from betty.ancestry.event_type.event_types import Birth, Unknown as UnknownEventType
 from betty.ancestry.file import File
 from betty.ancestry.has_citations import HasCitations
@@ -28,7 +21,6 @@ from betty.ancestry.presence_role.presence_roles import (
 from betty.ancestry.privacy import Privacy
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
-from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model.association import OneToOne
 from betty.test_utils.ancestry.date import DummyHasDate
@@ -38,7 +30,6 @@ from betty.test_utils.model import DummyEntity, EntityTestBase
 if TYPE_CHECKING:
     from collections.abc import Mapping
     from betty.model import Entity
-    from betty.serde.dump import Dump, DumpMapping
 
 
 class DummyHasDateWithContextDefinitions(DummyHasDate):
@@ -511,126 +502,6 @@ class TestEvent(EntityTestBase):
         }
         actual = await assert_dumps_linked_data(event)
         assert actual == expected
-
-
-class TestPersonName(EntityTestBase):
-    @override
-    def get_sut_class(self) -> type[PersonName]:
-        return PersonName
-
-    @override
-    async def get_sut_instances(self) -> Sequence[Entity]:
-        return [
-            PersonName(individual="Jane"),
-            PersonName(affiliation="Doe"),
-            PersonName(individual="Jane", affiliation="Doe"),
-        ]
-
-    async def test_person(self) -> None:
-        person = Person(id="1")
-        sut = PersonName(
-            person=person,
-            individual="Janet",
-            affiliation="Not a Girl",
-        )
-        assert sut.person == person
-        assert [sut] == list(person.names)
-
-    async def test_locale(self) -> None:
-        person = Person(id="1")
-        sut = PersonName(
-            person=person,
-            individual="Janet",
-            affiliation="Not a Girl",
-        )
-        assert sut.locale is UNDETERMINED_LOCALE
-
-    async def test_citations(self) -> None:
-        person = Person(id="1")
-        sut = PersonName(
-            person=person,
-            individual="Janet",
-            affiliation="Not a Girl",
-        )
-        assert list(sut.citations) == []
-
-    async def test_individual(self) -> None:
-        person = Person(id="1")
-        individual = "Janet"
-        sut = PersonName(
-            person=person,
-            individual=individual,
-            affiliation="Not a Girl",
-        )
-        assert sut.individual == individual
-
-    async def test_affiliation(self) -> None:
-        person = Person(id="1")
-        affiliation = "Not a Girl"
-        sut = PersonName(
-            person=person,
-            individual="Janet",
-            affiliation=affiliation,
-        )
-        assert sut.affiliation == affiliation
-
-    @pytest.mark.parametrize(
-        ("expected", "sut"),
-        [
-            (
-                {
-                    "@context": {
-                        "individual": "https://schema.org/givenName",
-                    },
-                    "individual": "Jane",
-                    "locale": UNDETERMINED_LOCALE,
-                    "private": False,
-                    "citations": [],
-                },
-                PersonName(individual="Jane"),
-            ),
-            (
-                {
-                    "@context": {
-                        "affiliation": "https://schema.org/familyName",
-                    },
-                    "affiliation": "Dough",
-                    "locale": UNDETERMINED_LOCALE,
-                    "private": False,
-                    "citations": [],
-                },
-                PersonName(affiliation="Dough"),
-            ),
-            (
-                {
-                    "@context": {
-                        "individual": "https://schema.org/givenName",
-                        "affiliation": "https://schema.org/familyName",
-                    },
-                    "individual": "Jane",
-                    "affiliation": "Dough",
-                    "locale": "nl-NL",
-                    "private": False,
-                    "citations": [],
-                },
-                PersonName(individual="Jane", affiliation="Dough", locale="nl-NL"),
-            ),
-            (
-                {
-                    "locale": "nl-NL",
-                    "private": True,
-                    "citations": [],
-                },
-                PersonName(
-                    individual="Jane", affiliation="Dough", locale="nl-NL", private=True
-                ),
-            ),
-        ],
-    )
-    async def test_dump_linked_data(
-        self, expected: DumpMapping[Dump], sut: PersonName
-    ) -> None:
-        assert await assert_dumps_linked_data(sut) == expected
 
 
 class _TestAncestry_OneToOne_Left(DummyEntity):

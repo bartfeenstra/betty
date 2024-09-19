@@ -14,6 +14,7 @@ from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.note import HasNotes, Note
+from betty.ancestry.person_name import PersonName
 from betty.ancestry.presence_role import PresenceRoleSchema
 from betty.ancestry.privacy import HasPrivacy, Privacy
 from betty.functools import Uniquifier
@@ -31,7 +32,7 @@ from betty.model.association import ManyToMany, OneToMany
 from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
-    from betty.ancestry import Presence, PersonName, Citation, FileReference
+    from betty.ancestry import Presence, Citation, FileReference
     from betty.ancestry.gender import Gender
     from betty.project import Project
     from betty.serde.dump import DumpMapping, Dump
@@ -74,9 +75,9 @@ class Person(
         "person",
     )
     names = OneToMany["Person", "PersonName"](
-        "betty.ancestry:Person",
+        "betty.ancestry.person:Person",
         "names",
-        "betty.ancestry:PersonName",
+        "betty.ancestry.person_name:PersonName",
         "person",
     )
 
@@ -226,8 +227,6 @@ class Person(
     @override
     @classmethod
     async def linked_data_schema(cls, project: Project) -> Object:
-        from betty.ancestry import PersonName
-
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "names",
