@@ -30,7 +30,8 @@ from betty.plugin import ShorthandPluginBase
 from betty.ancestry.privacy import HasPrivacy
 
 if TYPE_CHECKING:
-    from betty.ancestry import Event, Enclosure
+    from betty.ancestry import Event
+    from betty.ancestry.enclosure import Enclosure
     from betty.ancestry.place_type import PlaceType
     from betty.ancestry.privacy import Privacy
     from geopy import Point
@@ -65,13 +66,13 @@ class Place(
     enclosed_by = OneToMany["Place", "Enclosure"](
         "betty.ancestry:Place",
         "enclosed_by",
-        "betty.ancestry:Enclosure",
+        "betty.ancestry.enclosure:Enclosure",
         "encloses",
     )
     encloses = OneToMany["Place", "Enclosure"](
         "betty.ancestry:Place",
         "encloses",
-        "betty.ancestry:Enclosure",
+        "betty.ancestry.enclosure:Enclosure",
         "enclosed_by",
     )
 

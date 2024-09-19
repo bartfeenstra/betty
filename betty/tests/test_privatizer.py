@@ -11,9 +11,9 @@ from betty.ancestry import (
     Event,
     Source,
     Citation,
-    Enclosure,
     FileReference,
 )
+from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.event_type.event_types import Death, Birth, Marriage
 from betty.ancestry.file import File
 from betty.ancestry.person import Person

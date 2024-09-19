@@ -28,10 +28,10 @@ from betty.ancestry import (
     Event,
     PersonName,
     Presence,
-    Enclosure,
     FileReference,
     Ancestry,
 )
+from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.file import File
 from betty.ancestry.gender.genders import Unknown as UnknownGender

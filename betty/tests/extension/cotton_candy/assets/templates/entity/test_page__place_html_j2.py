@@ -1,4 +1,5 @@
-from betty.ancestry import Event, Enclosure
+from betty.ancestry import Event
+from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place

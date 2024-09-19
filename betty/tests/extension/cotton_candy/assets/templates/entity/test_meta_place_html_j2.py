@@ -1,4 +1,4 @@
-from betty.ancestry import Enclosure
+from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place
 from betty.extension.cotton_candy import CottonCandy

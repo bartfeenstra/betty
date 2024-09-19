@@ -409,47 +409,6 @@ class Citation(
 
 
 @final
-class Enclosure(ShorthandPluginBase, HasDate, HasCitations, Entity):
-    """
-    The enclosure of one place by another.
-
-    Enclosures describe the outer (```enclosed_by`) and inner(``encloses``) places, and their relationship.
-    """
-
-    _plugin_id = "enclosure"
-    _plugin_label = _("Enclosure")
-
-    #: The outer place.
-    enclosed_by = ManyToOne["Enclosure", "Place"](
-        "betty.ancestry:Enclosure",
-        "enclosed_by",
-        "betty.ancestry:Place",
-        "encloses",
-    )
-    #: The inner place.
-    encloses = ManyToOne["Enclosure", "Place"](
-        "betty.ancestry:Enclosure",
-        "encloses",
-        "betty.ancestry:Place",
-        "enclosed_by",
-    )
-
-    def __init__(
-        self,
-        encloses: Place | None = None,
-        enclosed_by: Place | None = None,
-    ):
-        super().__init__()
-        self.encloses = encloses
-        self.enclosed_by = enclosed_by
-
-    @override
-    @classmethod
-    def plugin_label_plural(cls) -> Localizable:
-        return _("Enclosures")
-
-
-@final
 class Presence(ShorthandPluginBase, HasPrivacy, Entity):
     """
     The presence of a :py:class:`betty.ancestry.Person` at an :py:class:`betty.ancestry.Event`.
