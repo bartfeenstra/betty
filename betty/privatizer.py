@@ -14,11 +14,11 @@ from betty.ancestry import (
     Event,
     HasFileReferences,
     HasCitations,
-    HasNotes,
     Source,
     Presence,
     Place,
 )
+from betty.ancestry.note import HasNotes
 from betty.ancestry.event_type.event_types import EndOfLifeEventType
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.privacy import Privacy, HasPrivacy

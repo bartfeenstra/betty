@@ -19,11 +19,11 @@ from betty.ancestry import (
     Citation,
     Event,
     Enclosure,
-    Note,
 )
 from betty.ancestry.event_type.event_types import Marriage, Birth, Death
 from betty.ancestry.link import Link
 from betty.ancestry.name import Name
+from betty.ancestry.note import Note
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import Date, DateRange
 from betty.extension.cotton_candy import CottonCandy
