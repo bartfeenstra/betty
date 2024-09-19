@@ -7,7 +7,7 @@ from typing_extensions import override
 from betty.ancestry import Citation, Note, Source, File, Event, Person, Place
 from betty.ancestry.event_type import Birth
 from betty.ancestry.gender import NonBinary
-from betty.ancestry.place_type import City
+from betty.ancestry.place_type.place_types import City
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.app import App
 from betty.extension.gramps import Gramps

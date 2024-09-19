@@ -7,47 +7,47 @@ house number. They inherit from :py:class:`betty.ancestry.place_type.PlaceType`.
 Built-in place types
 --------------------
 
-:py:class:`betty.ancestry.place_type.Borough`
+``borough`` (:py:class:`betty.ancestry.place_type.place_types.Borough`)
     A `borough <https://en.wikipedia.org/wiki/Borough>`_.
-:py:class:`betty.ancestry.place_type.Building`
+``building`` (:py:class:`betty.ancestry.place_type.place_types.Building`)
     A building.
-:py:class:`betty.ancestry.place_type.City`
+``city`` (:py:class:`betty.ancestry.place_type.place_types.City`)
     A `city <https://en.wikipedia.org/wiki/City>`_.
-:py:class:`betty.ancestry.place_type.Country`
+``country`` (:py:class:`betty.ancestry.place_type.place_types.Country`)
     A `country <https://en.wikipedia.org/wiki/Country>`_.
-:py:class:`betty.ancestry.place_type.County`
+``county`` (:py:class:`betty.ancestry.place_type.place_types.County`)
     A `county <https://en.wikipedia.org/wiki/County>`_.
-:py:class:`betty.ancestry.place_type.Department`
+``department`` (:py:class:`betty.ancestry.place_type.place_types.Department`)
     A `department <https://en.wikipedia.org/wiki/Department_(administrative_division)>`_.
-:py:class:`betty.ancestry.place_type.District`
+``district`` (:py:class:`betty.ancestry.place_type.place_types.District`)
     A `district <https://en.wikipedia.org/wiki/District>`_.
-:py:class:`betty.ancestry.place_type.Farm`
+``farm`` (:py:class:`betty.ancestry.place_type.place_types.Farm`)
     A `farm <https://en.wikipedia.org/wiki/Farm>`_.
-:py:class:`betty.ancestry.place_type.Hamlet`
+``hamlet`` (:py:class:`betty.ancestry.place_type.place_types.Hamlet`)
     A `hamlet <https://en.wikipedia.org/wiki/Hamlet_(place)>`_.
-:py:class:`betty.ancestry.place_type.Locality`
+``locality`` (:py:class:`betty.ancestry.place_type.place_types.Locality`)
     A `locality <https://en.wikipedia.org/wiki/Human_settlement>`_.
-:py:class:`betty.ancestry.place_type.Municipality`
+``municipality`` (:py:class:`betty.ancestry.place_type.place_types.Municipality`)
     A `municipality <https://en.wikipedia.org/wiki/Municipality>`_.
-:py:class:`betty.ancestry.place_type.Neighborhood`
+``neighborhood`` (:py:class:`betty.ancestry.place_type.place_types.Neighborhood`)
     A `neighborhood <https://en.wikipedia.org/wiki/Neighbourhood>`_.
-:py:class:`betty.ancestry.place_type.Number`
+``number`` (:py:class:`betty.ancestry.place_type.place_types.Number`)
     A `(house) number <https://en.wikipedia.org/wiki/House_numbering>`_.
-:py:class:`betty.ancestry.place_type.Parish`
+``parish`` (:py:class:`betty.ancestry.place_type.place_types.Parish`)
     A `parish <https://en.wikipedia.org/wiki/Parish_(administrative_division)>`_.
-:py:class:`betty.ancestry.place_type.Province`
+``province`` (:py:class:`betty.ancestry.place_type.place_types.Province`)
     A `province <https://en.wikipedia.org/wiki/Province>`_.
-:py:class:`betty.ancestry.place_type.Region`
+``region`` (:py:class:`betty.ancestry.place_type.place_types.Region`)
     A `region <https://en.wikipedia.org/wiki/Region>`_.
-:py:class:`betty.ancestry.place_type.State`
+``state`` (:py:class:`betty.ancestry.place_type.place_types.State`)
     A `state <https://en.wikipedia.org/wiki/Federated_state>`_.
-:py:class:`betty.ancestry.place_type.Street`
+``street`` (:py:class:`betty.ancestry.place_type.place_types.Street`)
     A street.
-:py:class:`betty.ancestry.place_type.Town`
+``town`` (:py:class:`betty.ancestry.place_type.place_types.Town`)
     A `town <https://en.wikipedia.org/wiki/Town>`_.
-:py:class:`betty.ancestry.place_type.Unknown`
+``unknown`` (:py:class:`betty.ancestry.place_type.place_types.Unknown`)
     A place of an unknown type.
-:py:class:`betty.ancestry.place_type.Village`
+``village`` (:py:class:`betty.ancestry.place_type.place_types.Village`)
     A `village <https://en.wikipedia.org/wiki/Village>`_.
 
 See also

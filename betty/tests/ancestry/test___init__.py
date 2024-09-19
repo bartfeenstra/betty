@@ -40,7 +40,7 @@ from betty.ancestry import (
 )
 from betty.ancestry.event_type import Birth, Unknown as UnknownEventType
 from betty.ancestry.gender import Unknown as UnknownGender, NonBinary
-from betty.ancestry.place_type import Unknown as UnknownPlaceType
+from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence_role.presence_roles import (
     Subject,
     Unknown as UnknownPresenceRole,

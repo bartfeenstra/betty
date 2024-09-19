@@ -18,7 +18,7 @@ from betty.ancestry.event_type import (
     EVENT_TYPE_REPOSITORY,
 )
 from betty.ancestry.gender import Gender, Unknown as UnknownGender
-from betty.ancestry.place_type import PlaceType, Unknown as UnknownPlaceType
+from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence_role import PresenceRole, PresenceRoleSchema
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.asyncio import wait_to_thread
@@ -72,6 +72,7 @@ from betty.plugin import ShorthandPluginBase
 from betty.string import camel_case_to_kebab_case
 
 if TYPE_CHECKING:
+    from betty.ancestry.place_type import PlaceType
     from betty.serde.dump import DumpMapping, Dump
     from betty.image import FocusArea
     from betty.project import Project
