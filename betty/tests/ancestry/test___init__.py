@@ -19,14 +19,14 @@ from betty.ancestry import (
     Enclosure,
     Source,
     Citation,
-    HasCitations,
     Ancestry,
     FileReference,
 )
 from betty.ancestry.event_type.event_types import Birth, Unknown as UnknownEventType
 from betty.ancestry.gender.genders import Unknown as UnknownGender, NonBinary
+from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
-from betty.ancestry.link import HasLinks, Link
+from betty.ancestry.link import Link
 from betty.ancestry.name import Name
 from betty.ancestry.note import Note
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
@@ -754,37 +754,6 @@ class TestCitation(EntityTestBase):
         }
         actual = await assert_dumps_linked_data(citation)
         assert actual == expected
-
-
-class TestHasCitations:
-    async def test_citations(self) -> None:
-        sut = DummyHasCitations()
-        assert list(sut.citations) == []
-        citation = Citation(source=Source())
-        sut.citations = [citation]
-        assert list(sut.citations) == [citation]
-
-    @pytest.mark.parametrize(
-        ("expected", "sut"),
-        [
-            (
-                {"citations": []},
-                DummyHasCitations(),
-            ),
-            (
-                {"citations": []},
-                DummyHasCitations(citations=[Citation()]),
-            ),
-            (
-                {"citations": ["/citation/my-first-citation/index.json"]},
-                DummyHasCitations(citations=[Citation(id="my-first-citation")]),
-            ),
-        ],
-    )
-    async def test_dump_linked_data(
-        self, expected: DumpMapping[Dump], sut: HasLinks
-    ) -> None:
-        assert await assert_dumps_linked_data(sut) == expected
 
 
 class TestEnclosure(EntityTestBase):

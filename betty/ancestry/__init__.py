@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from contextlib import suppress
 from reprlib import recursive_repr
-from typing import Iterable, Any, TYPE_CHECKING, final
+from typing import Iterable, TYPE_CHECKING, final
 from urllib.parse import quote
 
 from typing_extensions import override
@@ -16,6 +16,7 @@ from betty.ancestry.description import HasDescription
 from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.gender.genders import Unknown as UnknownGender
+from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.link import Link, HasLinks
 from betty.ancestry.locale import HasLocale
@@ -80,51 +81,6 @@ if TYPE_CHECKING:
     from geopy import Point
     from pathlib import Path
     from collections.abc import MutableSequence, Iterator, Mapping
-
-
-class HasCitations(Entity):
-    """
-    An entity with citations that support it.
-    """
-
-    citations = ManyToMany["HasCitations & Entity", "Citation"](
-        "betty.ancestry:HasCitations",
-        "citations",
-        "betty.ancestry:Citation",
-        "facts",
-    )
-
-    def __init__(
-        self: HasCitations & Entity,
-        *args: Any,
-        citations: Iterable[Citation] | None = None,
-        **kwargs: Any,
-    ):
-        super().__init__(  # type: ignore[misc]
-            *args,
-            **kwargs,
-        )
-        if citations is not None:
-            self.citations = citations
-
-    @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
-        dump = await super().dump_linked_data(project)
-        dump["citations"] = [
-            project.static_url_generator.generate(
-                f"/citation/{quote(citation.id)}/index.json"
-            )
-            for citation in self.citations
-            if not isinstance(citation.id, GeneratedEntityId)
-        ]
-        return dump
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project) -> Object:
-        schema = await super().linked_data_schema(project)
-        schema.add_property("citations", EntityReferenceCollectionSchema(Citation))
-        return schema
 
 
 @final
@@ -479,7 +435,7 @@ class Citation(
     facts = ManyToMany["Citation", HasCitations](
         "betty.ancestry:Citation",
         "facts",
-        "betty.ancestry:HasCitations",
+        "betty.ancestry.has_citations:HasCitations",
         "citations",
     )
     source = ManyToOne["Citation", Source](
