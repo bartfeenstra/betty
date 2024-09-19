@@ -1,11 +1,10 @@
 from unittest.mock import PropertyMock
 
-
-from betty.extension.wikipedia import Wikipedia
-from betty.ancestry import HasLinks, Link
-from betty.test_utils.assets.templates import TemplateTestBase
 from pytest_mock import MockerFixture
 
+from betty.ancestry.link import HasLinks, Link
+from betty.extension.wikipedia import Wikipedia
+from betty.test_utils.assets.templates import TemplateTestBase
 from betty.test_utils.model import DummyEntity
 from betty.wikipedia import _Retriever, Summary
 

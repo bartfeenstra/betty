@@ -15,7 +15,6 @@ from betty.ancestry import (
     Person,
     Presence,
     PersonName,
-    Link,
     Source,
     Citation,
     Event,
@@ -23,15 +22,16 @@ from betty.ancestry import (
     Note,
 )
 from betty.ancestry.event_type.event_types import Marriage, Birth, Death
+from betty.ancestry.link import Link
 from betty.ancestry.name import Name
 from betty.ancestry.presence_role.presence_roles import Subject
+from betty.date import Date, DateRange
 from betty.extension.cotton_candy import CottonCandy
 from betty.extension.cotton_candy.config import CottonCandyConfiguration
 from betty.extension.http_api_doc import HttpApiDoc
 from betty.extension.maps import Maps
 from betty.extension.trees import Trees
 from betty.extension.wikipedia import Wikipedia
-from betty.date import Date, DateRange
 from betty.locale.localizable import static
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import ShorthandPluginBase

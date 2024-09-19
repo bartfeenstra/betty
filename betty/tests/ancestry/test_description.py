@@ -1,14 +1,15 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 
 from betty.test_utils.ancestry.description import DummyHasDescription
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
-    from betty.ancestry import HasLinks
+    from betty.ancestry.link import HasLinks
 
 
 class TestHasDescription:

@@ -7,7 +7,7 @@ from xml.etree.ElementTree import Element
 
 from html5lib import parse
 
-from betty.ancestry import Link, HasLinks
+from betty.ancestry.link import Link, HasLinks
 from betty.asyncio import gather
 from betty.fetch import Fetcher, FetchError
 from betty.media_type import MediaType, InvalidMediaType
