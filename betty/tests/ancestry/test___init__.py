@@ -49,7 +49,6 @@ from betty.project import Project
 from betty.test_utils.ancestry import (
     DummyHasLocale,
     DummyHasDate,
-    DummyHasDescription,
 )
 from betty.test_utils.ancestry.place_type import DummyPlaceType
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
@@ -371,33 +370,6 @@ class TestHasNotes:
     )
     async def test_dump_linked_data(
         self, expected: DumpMapping[Dump], sut: HasNotes
-    ) -> None:
-        assert await assert_dumps_linked_data(sut) == expected
-
-
-class TestHasDescription:
-    async def test_description(self) -> None:
-        sut = DummyHasDescription()
-        assert not sut.description
-
-    @pytest.mark.parametrize(
-        ("expected", "sut"),
-        [
-            (
-                {},
-                DummyHasDescription(),
-            ),
-            (
-                {
-                    "@context": {"description": "https://schema.org/description"},
-                    "description": {"translations": {"und": "Hello, world!"}},
-                },
-                DummyHasDescription(description="Hello, world!"),
-            ),
-        ],
-    )
-    async def test_dump_linked_data(
-        self, expected: DumpMapping[Dump], sut: HasLinks
     ) -> None:
         assert await assert_dumps_linked_data(sut) == expected
 
