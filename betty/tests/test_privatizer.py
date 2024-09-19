@@ -9,7 +9,6 @@ import pytest
 from betty.ancestry import (
     Presence,
     Event,
-    Source,
     Citation,
     FileReference,
 )
@@ -23,6 +22,7 @@ from betty.ancestry.presence_role.presence_roles import (
     Unknown as UnknownPresenceRole,
 )
 from betty.ancestry.privacy import Privacy
+from betty.ancestry.source import Source
 from betty.date import Date, DateRange
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.privatizer import Privatizer

@@ -13,7 +13,6 @@ from betty import serve
 from betty.ancestry import (
     Presence,
     PersonName,
-    Source,
     Citation,
     Event,
 )
@@ -25,6 +24,7 @@ from betty.ancestry.note import Note
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import Subject
+from betty.ancestry.source import Source
 from betty.date import Date, DateRange
 from betty.extension.cotton_candy import CottonCandy
 from betty.extension.cotton_candy.config import CottonCandyConfiguration

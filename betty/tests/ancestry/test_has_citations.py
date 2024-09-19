@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.ancestry import Citation, Source
+from betty.ancestry import Citation
+from betty.ancestry.source import Source
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.tests.ancestry.test___init__ import DummyHasCitations
 

@@ -9,7 +9,6 @@ from betty.ancestry import (
     Presence,
     Event,
     Citation,
-    Source,
     PersonName,
     FileReference,
 )
@@ -27,6 +26,7 @@ from betty.ancestry.presence_role.presence_roles import (
     Unknown as UnknownPresenceRole,
 )
 from betty.ancestry.privacy import Privacy
+from betty.ancestry.source import Source
 from betty.date import Datey, Date, DateRange
 from betty.extension.cotton_candy import (
     person_timeline_events,

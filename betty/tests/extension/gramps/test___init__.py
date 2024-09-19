@@ -4,7 +4,7 @@ import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
-from betty.ancestry import Citation, Source, Event
+from betty.ancestry import Citation, Event
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.file import File
 from betty.ancestry.gender.genders import NonBinary
@@ -13,6 +13,7 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.place_type.place_types import City
 from betty.ancestry.presence_role.presence_roles import Subject
+from betty.ancestry.source import Source
 from betty.app import App
 from betty.extension.gramps import Gramps
 from betty.extension.gramps.config import (

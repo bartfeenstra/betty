@@ -1,7 +1,7 @@
 Link
 ====
 
-A :py:class:`betty.ancestry.Link` adds external links to entities.
+A :py:class:`betty.ancestry.link.Link` adds external links to entities.
 
 Fields
 ------
