@@ -21,7 +21,7 @@ from betty.date import Datey, Date, DateRange
 from betty.locale.localizable import StaticTranslationsLocalizable
 from betty.locale.localized import Localized, LocalizedStr
 from betty.media_type import MediaType
-from betty.test_utils.ancestry import DummyHasDate
+from betty.test_utils.ancestry.date import DummyHasDate
 from betty.test_utils.assets.templates import TemplateTestBase
 from betty.test_utils.model import DummyEntity
 

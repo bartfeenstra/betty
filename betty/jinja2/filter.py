@@ -55,10 +55,10 @@ from betty.string import (
 from betty.typing import void_none, none_void
 
 if TYPE_CHECKING:
+    from betty.ancestry.date import HasDate
     from betty.date import Datey
     from betty.locale.localizable import Localizable
     from jinja2.nodes import EvalContext
-    from betty.ancestry import HasDate
     from betty.media_type import MediaType
     from pathlib import Path
     from collections.abc import Awaitable
