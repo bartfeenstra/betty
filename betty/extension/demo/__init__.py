@@ -500,6 +500,10 @@ async def demo_project(app: App) -> AsyncIterator[Project]:
             "en-US": "A Betty demonstration",
             "nl-NL": "Een demonstratie van Betty",
         }
+        project.configuration.author = {
+            "en-US": "Bart Feenstra and contributors",
+            "nl-NL": "Bart Feenstra en bijdragers",
+        }
         project.configuration.extensions.append(ExtensionConfiguration(Demo))
         project.configuration.extensions.append(
             ExtensionConfiguration(

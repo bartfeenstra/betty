@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-17 10:32+0100\n"
+"POT-Creation-Date: 2024-09-19 09:10+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -594,6 +594,9 @@ msgstr ""
 msgid "Privatizing..."
 msgstr ""
 
+msgid "Project author"
+msgstr ""
+
 msgid "Province"
 msgstr ""
 
@@ -945,7 +948,9 @@ msgstr ""
 msgid "{individual_name} {affiliation_name}"
 msgstr ""
 
-#, python-format
-msgid "© Copyright %(author)s, unless otherwise credited"
+msgid "© Copyright the author, unless otherwise credited"
+msgstr ""
+
+msgid "© Copyright {author}, unless otherwise credited"
 msgstr ""
 

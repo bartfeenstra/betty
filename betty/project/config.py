@@ -29,6 +29,7 @@ from betty.assertion import (
     assert_positive_number,
     assert_int,
     assert_path,
+    assert_mapping,
 )
 from betty.assertion.error import AssertionFailed
 from betty.classtools import repr_instance
@@ -38,10 +39,13 @@ from betty.config.collections.mapping import (
     OrderedConfigurationMapping,
 )
 from betty.config.collections.sequence import ConfigurationSequence
+from betty.copyright import Copyright
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
-from betty.locale.localizable import _, ShorthandStaticTranslations
+from betty.locale.localizable import _, ShorthandStaticTranslations, Localizable
+from betty.locale.localizable.assertion import assert_static_translations
 from betty.locale.localizable.config import (
     OptionalStaticTranslationsLocalizableConfigurationAttr,
+    RequiredStaticTranslationsLocalizableConfigurationAttr,
 )
 from betty.machine_name import assert_machine_name
 from betty.model import Entity, UserFacingEntity
@@ -630,6 +634,94 @@ class LocaleConfigurationMapping(OrderedConfigurationMapping[str, LocaleConfigur
         return len(self) > 1
 
 
+class CopyrightConfiguration(PluginConfiguration):
+    """
+    Configuration to define :py:class:`betty.copyright.Copyright` plugins.
+    """
+
+    summary = RequiredStaticTranslationsLocalizableConfigurationAttr("summary")
+    text = RequiredStaticTranslationsLocalizableConfigurationAttr("text")
+
+    def __init__(
+        self,
+        plugin_id: MachineName,
+        label: ShorthandStaticTranslations,
+        *,
+        summary: ShorthandStaticTranslations,
+        text: ShorthandStaticTranslations,
+        description: ShorthandStaticTranslations | None = None,
+    ):
+        super().__init__(plugin_id, label, description=description)
+        self.summary = summary
+        self.text = text
+
+    @override
+    def update(self, other: Self) -> None:
+        super().update(self)
+        self.summary.update(other.summary)
+        self.text.update(other.text)
+
+    @override
+    def load(self, dump: Dump) -> None:
+        mapping = assert_mapping()(dump)
+        assert_fields(
+            RequiredField(
+                "summary",
+                assert_static_translations() | assert_setattr(self, "summary"),
+            ),
+            RequiredField(
+                "text",
+                assert_static_translations() | assert_setattr(self, "text"),
+            ),
+        )(mapping)
+        del mapping["summary"]
+        del mapping["text"]
+        super().load(mapping)
+
+    @override
+    def dump(self) -> DumpMapping[Dump]:
+        return minimize(
+            {**super().dump(), "summary": self.summary.dump(), "text": self.text.dump()}
+        )
+
+
+class CopyrightConfigurationMapping(
+    PluginConfigurationMapping[Copyright, CopyrightConfiguration]
+):
+    """
+    A configuration mapping for copyrights.
+    """
+
+    @override
+    def _create_plugin(self, configuration: CopyrightConfiguration) -> type[Copyright]:
+        class _ProjectConfigurationCopyright(ShorthandPluginBase, Copyright):
+            _plugin_id = configuration.id
+            _plugin_label = configuration.label
+            _plugin_description = configuration.description
+
+            @override
+            @property
+            def summary(self) -> Localizable:
+                return configuration.summary
+
+            @override
+            @property
+            def text(self) -> Localizable:
+                return configuration.text
+
+        return _ProjectConfigurationCopyright
+
+    @override
+    def load_item(self, dump: Dump) -> CopyrightConfiguration:
+        item = CopyrightConfiguration("-", "", summary="", text="")
+        item.load(dump)
+        return item
+
+    @classmethod
+    def _create_default_item(cls, configuration_key: str) -> CopyrightConfiguration:
+        return CopyrightConfiguration(configuration_key, {}, summary="", text="")
+
+
 class EventTypeConfigurationMapping(
     PluginConfigurationPluginConfigurationMapping[EventType]
 ):
@@ -704,6 +796,8 @@ class ProjectConfiguration(Configuration):
 
     title = OptionalStaticTranslationsLocalizableConfigurationAttr("title")
     author = OptionalStaticTranslationsLocalizableConfigurationAttr("author")
+    #: The ID of the project-wide :py:class:`betty.copyright.Copyright` plugin to use.
+    copyright: MachineName
 
     def __init__(
         self,
@@ -717,6 +811,8 @@ class ProjectConfiguration(Configuration):
         event_types: Iterable[PluginConfiguration] | None = None,
         place_types: Iterable[PluginConfiguration] | None = None,
         presence_roles: Iterable[PluginConfiguration] | None = None,
+        copyright: MachineName | None = None,  # noqa A002
+        copyrights: Iterable[CopyrightConfiguration] | None = None,
         genders: Iterable[PluginConfiguration] | None = None,
         extensions: Iterable[ExtensionConfiguration] | None = None,
         debug: bool = False,
@@ -725,6 +821,8 @@ class ProjectConfiguration(Configuration):
         name: MachineName | None = None,
         logo: Path | None = None,
     ):
+        from betty.copyright.copyrights import ProjectAuthor
+
         super().__init__()
         self._configuration_file_path = configuration_file_path
         self._name = name
@@ -755,6 +853,10 @@ class ProjectConfiguration(Configuration):
                 ),
             ]
         )
+        self.copyright = copyright or ProjectAuthor.plugin_id()
+        self._copyrights = CopyrightConfigurationMapping()
+        if copyrights is not None:
+            self._copyrights.append(*copyrights)
         self._event_types = EventTypeConfigurationMapping()
         if event_types is not None:
             self._event_types.append(*event_types)
@@ -959,16 +1061,25 @@ class ProjectConfiguration(Configuration):
         self._logo = logo
 
     @property
+    def copyrights(
+        self,
+    ) -> PluginConfigurationMapping[Copyright, CopyrightConfiguration]:
+        """
+        The :py:class:`betty.copyright.Copyright` plugins created by this project.
+        """
+        return self._copyrights
+
+    @property
     def event_types(self) -> PluginConfigurationMapping[EventType, PluginConfiguration]:
         """
-        The event types.
+        The event type plugins created by this project.
         """
         return self._event_types
 
     @property
     def place_types(self) -> PluginConfigurationMapping[PlaceType, PluginConfiguration]:
         """
-        The place types.
+        The place type plugins created by this project.
         """
         return self._place_types
 
@@ -977,7 +1088,7 @@ class ProjectConfiguration(Configuration):
         self,
     ) -> PluginConfigurationMapping[PresenceRole, PluginConfiguration]:
         """
-        The presence roles.
+        The presence role plugins created by this project.
         """
         return self._presence_roles
 
@@ -986,7 +1097,7 @@ class ProjectConfiguration(Configuration):
         self,
     ) -> PluginConfigurationMapping[Gender, PluginConfiguration]:
         """
-        The genders.
+        The gender plugins created by this project.
         """
         return self._genders
 
@@ -1002,6 +1113,7 @@ class ProjectConfiguration(Configuration):
         self._locales.update(other._locales)
         self._extensions.update(other._extensions)
         self._entity_types.update(other._entity_types)
+        self._copyrights.update(other._copyrights)
         self._event_types.update(other._event_types)
         self._genders.update(other._genders)
         self._place_types.update(other._place_types)
@@ -1027,6 +1139,10 @@ class ProjectConfiguration(Configuration):
             OptionalField("locales", self.locales.load),
             OptionalField("extensions", self.extensions.load),
             OptionalField("entity_types", self.entity_types.load),
+            OptionalField(
+                "copyright", assert_machine_name() | assert_setattr(self, "copyright")
+            ),
+            OptionalField("copyrights", self.copyrights.load),
             OptionalField("event_types", self.event_types.load),
             OptionalField("genders", self.genders.load),
             OptionalField("place_types", self.place_types.load),
@@ -1048,6 +1164,8 @@ class ProjectConfiguration(Configuration):
                 "locales": self.locales.dump(),
                 "extensions": self.extensions.dump(),
                 "entity_types": self.entity_types.dump(),
+                "copyright": self.copyright if self.copyright else Void,
+                "copyrights": self.copyrights.dump(),
                 "event_types": self.event_types.dump(),
                 "genders": self.genders.dump(),
                 "place_types": self.place_types.dump(),

@@ -2,6 +2,7 @@
 Test utilities for :py:mod:`betty.plugin`.
 """
 
+from collections.abc import Sequence
 from typing import Generic, TypeVar, Any
 
 from typing_extensions import override
@@ -55,6 +56,18 @@ class PluginTestBase(Generic[_PluginT]):
         description = self.get_sut_class().plugin_description()
         if description is not None:
             assert description.localize(DEFAULT_LOCALIZER)
+
+
+class PluginInstanceTestBase(Generic[_PluginT], PluginTestBase[_PluginT]):
+    """
+    A base class for testing :py:class:`betty.plugin.Plugin` implementation instances.
+    """
+
+    def get_sut_instances(self) -> Sequence[_PluginT]:
+        """
+        Produce instances of the plugin under test.
+        """
+        raise NotImplementedError
 
 
 class DummyPlugin(Plugin):

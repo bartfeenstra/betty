@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 from multiprocessing import get_context
 from os import environ
 from pathlib import Path
-from typing import TYPE_CHECKING, Self, Any, final
+from typing import TYPE_CHECKING, Self, Any, final, TypeVar, cast
 
 import aiohttp
 from aiofiles.tempfile import TemporaryDirectory
@@ -32,6 +32,9 @@ from betty.locale.localizer import Localizer, LocalizerRepository
 if TYPE_CHECKING:
     from betty.cache import Cache
     from collections.abc import AsyncIterator, Callable
+
+
+_T = TypeVar("_T")
 
 
 @final
@@ -195,7 +198,7 @@ class App(Configurable[AppConfiguration], DependentFactory[Any], CoreComponent):
         return self._process_pool
 
     @override
-    async def new(self, cls: type[Any]) -> Any:
+    async def new(self, cls: type[_T]) -> _T:
         if issubclass(cls, AppDependentFactory):
-            return await cls.new_for_app(self)
+            return cast(_T, await cls.new_for_app(self))
         return await new(cls)

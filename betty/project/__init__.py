@@ -20,6 +20,7 @@ from typing import (
     TypeVar,
     Iterator,
     overload,
+    cast,
 )
 
 from aiofiles.tempfile import TemporaryDirectory
@@ -36,6 +37,7 @@ from betty.asyncio import wait_to_thread
 from betty.config import (
     Configurable,
 )
+from betty.copyright import Copyright, COPYRIGHT_REPOSITORY
 from betty.core import CoreComponent
 from betty.event_dispatcher import EventDispatcher, EventHandlerRegistry
 from betty.factory import DependentFactory
@@ -74,6 +76,7 @@ if TYPE_CHECKING:
     from betty.jinja2 import Environment
     from betty.plugin import PluginRepository
 
+_T = TypeVar("_T")
 _EntityT = TypeVar("_EntityT", bound=Entity)
 
 
@@ -109,6 +112,8 @@ class Project(Configurable[ProjectConfiguration], DependentFactory[Any], CoreCom
         self._extensions: ProjectExtensions | None = None
         self._event_dispatcher: EventDispatcher | None = None
         self._entity_types: set[type[Entity]] | None = None
+        self._copyright: Copyright | None = None
+        self._copyrights: PluginRepository[Copyright] | None = None
         self._event_types: PluginRepository[EventType] | None = None
         self._place_types: PluginRepository[PlaceType] | None = None
         self._presence_roles: PluginRepository[PresenceRole] | None = None
@@ -326,9 +331,9 @@ class Project(Configurable[ProjectConfiguration], DependentFactory[Any], CoreCom
         return self._event_dispatcher
 
     @override
-    async def new(self, cls: type[Any]) -> Any:
+    async def new(self, cls: type[_T]) -> _T:
         if issubclass(cls, ProjectDependentFactory):
-            return await cls.new_for_project(self)
+            return cast(_T, await cls.new_for_project(self))
         return await self.app.new(cls)
 
     @property
@@ -340,6 +345,34 @@ class Project(Configurable[ProjectConfiguration], DependentFactory[Any], CoreCom
             self._configuration.logo
             or fs.ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png"
         )
+
+    @property
+    def copyright(self) -> Copyright:
+        """
+        The overall project copyright.
+        """
+        if self._copyright is None:
+            self._copyright = wait_to_thread(self._init_copyright())
+        return self._copyright
+
+    async def _init_copyright(self) -> Copyright:
+        return await self.new(await self.copyrights.get(self.configuration.copyright))
+
+    @property
+    def copyrights(self) -> PluginRepository[Copyright]:
+        """
+        The copyrights available to this project.
+
+        Read more about :doc:`/development/plugin/copyright`.
+        """
+        if self._copyrights is None:
+            self._assert_bootstrapped()
+            self._copyrights = ProxyPluginRepository(
+                COPYRIGHT_REPOSITORY,
+                StaticPluginRepository(*self.configuration.copyrights.plugins),
+            )
+
+        return self._copyrights
 
     @property
     def event_types(self) -> PluginRepository[EventType]:
