@@ -13,7 +13,6 @@ from betty.ancestry import (
     Source,
     File,
     Citation,
-    Privacy,
     Place,
     Enclosure,
     FileReference,
@@ -23,6 +22,7 @@ from betty.ancestry.presence_role.presence_roles import (
     Subject,
     Unknown as UnknownPresenceRole,
 )
+from betty.ancestry.privacy import Privacy
 from betty.locale.date import Date, DateRange
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.privatizer import Privatizer

@@ -460,7 +460,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/ancestry/__init__.py": {
-        "resolve_privacy": TestKnownToBeMissing,
         "HasDate": {
             # This is static.
             "dated_linked_data_contexts": TestKnownToBeMissing,
@@ -469,18 +468,15 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             # This is static.
             "dated_linked_data_contexts": TestKnownToBeMissing,
         },
-        "HasPrivacy": {
-            "own_privacy": TestKnownToBeMissing,
-            "privacy": TestKnownToBeMissing,
-            "private": TestKnownToBeMissing,
-            "public": TestKnownToBeMissing,
-        },
         "Note": {
             "entity": TestKnownToBeMissing,
         },
         "Place": {
             "associated_files": TestKnownToBeMissing,
         },
+    },
+    "betty/ancestry/privacy.py": {
+        # This is an enum.
         "Privacy": TestKnownToBeMissing,
     },
     # This contains static items only.
@@ -632,6 +628,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "betty/test_utils/ancestry/event_type.py": TestKnownToBeMissing,
         "betty/test_utils/ancestry/gender.py": TestKnownToBeMissing,
         "betty/test_utils/ancestry/place_type.py": TestKnownToBeMissing,
+        "betty/test_utils/ancestry/privacy.py": TestKnownToBeMissing,
         "betty/test_utils/assertion/__init__.py": TestKnownToBeMissing,
         "betty/test_utils/assertion/error.py": TestKnownToBeMissing,
         "betty/test_utils/assets/templates.py": TestKnownToBeMissing,

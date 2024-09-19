@@ -17,12 +17,11 @@ from betty.ancestry import (
     HasNotes,
     Source,
     Presence,
-    Privacy,
-    HasPrivacy,
     Place,
 )
 from betty.ancestry.event_type.event_types import EndOfLifeEventType
 from betty.ancestry.presence_role.presence_roles import Subject
+from betty.ancestry.privacy import Privacy, HasPrivacy
 from betty.locale.date import DateRange, Date
 from betty.model import Entity
 

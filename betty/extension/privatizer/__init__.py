@@ -8,7 +8,8 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
-from betty.ancestry import Person, HasPrivacy
+from betty.ancestry import Person
+from betty.ancestry.privacy import HasPrivacy
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
 from betty.privatizer import Privatizer as PrivatizerApi

@@ -16,7 +16,6 @@ from betty.ancestry import (
     Event,
     Person,
     Presence,
-    is_public,
     HasFileReferences,
     Place,
     FileReference,
@@ -26,6 +25,7 @@ from betty.ancestry.event_type.event_types import (
     EndOfLifeEventType,
 )
 from betty.ancestry.presence_role.presence_roles import Subject
+from betty.ancestry.privacy import is_public
 from betty.asyncio import gather
 from betty.extension.cotton_candy.config import CottonCandyConfiguration
 from betty.extension.cotton_candy.search import Index

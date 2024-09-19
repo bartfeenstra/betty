@@ -37,7 +37,7 @@ from aiofiles.os import makedirs
 from aiofiles.threadpool.text import AsyncTextIOWrapper
 
 from betty import model
-from betty.ancestry import is_public
+from betty.ancestry.privacy import is_public
 from betty.asyncio import gather
 from betty.locale import get_display_name
 from betty.locale.localizable import _

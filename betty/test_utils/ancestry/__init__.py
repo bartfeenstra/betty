@@ -4,7 +4,7 @@ Test utilities for :py:mod:`betty.ancestry`.
 
 from typing_extensions import override
 
-from betty.ancestry import HasDate, HasPrivacy, HasDescription, HasLocale
+from betty.ancestry import HasDate, HasDescription, HasLocale
 from betty.json.linked_data import LinkedDataDumpable
 from betty.json.schema import Object
 from betty.project import Project
@@ -36,14 +36,6 @@ class DummyHasDescription(HasDescription, _LinkedDataObjectSchema):
 class DummyHasLocale(HasLocale, _LinkedDataObjectSchema):
     """
     A dummy :py:class:`betty.ancestry.HasLocale` implementation.
-    """
-
-    pass
-
-
-class DummyHasPrivacy(HasPrivacy, _LinkedDataObjectSchema):
-    """
-    A dummy :py:class:`betty.ancestry.HasPrivacy` implementation.
     """
 
     pass
