@@ -34,7 +34,8 @@ from jinja2.runtime import Context, Macro
 from markupsafe import Markup, escape
 from pdf2image.pdf2image import convert_from_path
 
-from betty.ancestry import File, FileReference
+from betty.ancestry import FileReference
+from betty.ancestry.file import File
 from betty.hashid import hashid_file_meta, hashid
 from betty.image import resize_cover, Size, FocusArea
 from betty.locale import (

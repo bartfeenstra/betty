@@ -5,8 +5,9 @@ from typing import Any, TYPE_CHECKING
 
 import pytest
 
-from betty.ancestry import Person, File, Source, Event, Citation
+from betty.ancestry import Person, Source, Event, Citation
 from betty.ancestry.event_type.event_types import Death
+from betty.ancestry.file import File
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place
 from betty.model import UserFacingEntity

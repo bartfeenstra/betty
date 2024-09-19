@@ -1,18 +1,18 @@
 from pathlib import Path
 
-from betty.extension.cotton_candy import CottonCandy
-from betty.date import Date
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.ancestry import (
     Person,
     PersonName,
-    File,
     Event,
     Presence,
     FileReference,
 )
 from betty.ancestry.event_type.event_types import Birth
+from betty.ancestry.file import File
 from betty.ancestry.presence_role.presence_roles import Subject
+from betty.date import Date
+from betty.extension.cotton_candy import CottonCandy
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.test_utils.assets.templates import TemplateTestBase
 
 

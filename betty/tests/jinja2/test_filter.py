@@ -5,7 +5,8 @@ from typing import Any, Iterable, TYPE_CHECKING
 
 import pytest
 
-from betty.ancestry import File, FileReference
+from betty.ancestry import FileReference
+from betty.ancestry.file import File
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.date import Datey, Date, DateRange
 from betty.fs import ASSETS_DIRECTORY_PATH

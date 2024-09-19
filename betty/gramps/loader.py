@@ -23,7 +23,6 @@ from lxml import etree
 from typing_extensions import override
 
 from betty.ancestry import (
-    File,
     Source,
     Citation,
     Event,
@@ -35,6 +34,7 @@ from betty.ancestry import (
     Ancestry,
 )
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
+from betty.ancestry.file import File
 from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.name import Name

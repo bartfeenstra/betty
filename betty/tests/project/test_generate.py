@@ -4,8 +4,9 @@ from tempfile import NamedTemporaryFile
 import aiofiles
 from pytest_mock import MockerFixture
 
-from betty.ancestry import Person, Source, File, Event, Citation
+from betty.ancestry import Person, Source, Event, Citation
 from betty.ancestry.event_type.event_types import Birth
+from betty.ancestry.file import File
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place
 from betty.app import App

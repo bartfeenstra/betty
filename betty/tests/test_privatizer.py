@@ -11,12 +11,12 @@ from betty.ancestry import (
     Presence,
     Event,
     Source,
-    File,
     Citation,
     Enclosure,
     FileReference,
 )
 from betty.ancestry.event_type.event_types import Death, Birth, Marriage
+from betty.ancestry.file import File
 from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import (
     Subject,

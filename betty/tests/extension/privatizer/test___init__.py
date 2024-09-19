@@ -10,11 +10,11 @@ from betty.ancestry import (
     Presence,
     Event,
     Source,
-    File,
     Citation,
     FileReference,
 )
 from betty.ancestry.event_type.event_types import Birth
+from betty.ancestry.file import File
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.extension.privatizer import Privatizer
 from betty.project import Project
