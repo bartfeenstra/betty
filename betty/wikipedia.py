@@ -18,9 +18,10 @@ from urllib.parse import quote, urlparse
 
 from geopy import Point
 
-from betty.ancestry import Place, File, FileReference
+from betty.ancestry import File, FileReference
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.link import HasLinks, Link
+from betty.ancestry.place import Place
 from betty.asyncio import gather
 from betty.concurrent import Lock, AsynchronizedLock, RateLimiter
 from betty.fetch import FetchError

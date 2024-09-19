@@ -4,8 +4,9 @@ from typing import Any, TYPE_CHECKING
 
 import pytest
 
-from betty.ancestry import Person, Place
+from betty.ancestry import Person
 from betty.ancestry.name import Name
+from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import (
     Subject,
     Witness,

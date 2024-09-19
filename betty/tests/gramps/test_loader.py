@@ -7,7 +7,7 @@ import aiofiles
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
-from betty.ancestry import Ancestry, Citation, Source, File, Event, Person, Place
+from betty.ancestry import Ancestry, Citation, Source, File, Event, Person
 from betty.ancestry.event_type.event_types import (
     Birth,
     Death,
@@ -15,6 +15,7 @@ from betty.ancestry.event_type.event_types import (
 )
 from betty.ancestry.gender.genders import Unknown as UnknownGender, NonBinary
 from betty.ancestry.note import Note
+from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.privacy import Privacy
 from betty.app import App

@@ -1,7 +1,7 @@
 Name
 ====
 
-A :py:class:`betty.ancestry.Name` describes a name that can be translated, and has
+A :py:class:`betty.ancestry.name.Name` describes a name that can be translated, and has
 a date to indicate its usage.
 
 Fields
