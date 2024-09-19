@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.ancestry import (
-    Person,
     Presence,
     Event,
     Source,
@@ -17,6 +16,7 @@ from betty.ancestry import (
 )
 from betty.ancestry.event_type.event_types import Death, Birth, Marriage
 from betty.ancestry.file import File
+from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import (
     Subject,

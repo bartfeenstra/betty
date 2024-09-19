@@ -2,7 +2,6 @@ from pathlib import Path
 
 from betty.ancestry import (
     Event,
-    Person,
     Presence,
     Citation,
     Source,
@@ -11,6 +10,7 @@ from betty.ancestry import (
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.file import File
 from betty.ancestry.name import Name
+from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.extension.cotton_candy import CottonCandy

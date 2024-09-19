@@ -6,7 +6,6 @@ from typing import Iterator, TYPE_CHECKING
 import pytest
 
 from betty.ancestry import (
-    Person,
     Presence,
     Event,
     Citation,
@@ -21,6 +20,7 @@ from betty.ancestry.event_type.event_types import (
 )
 from betty.ancestry.file import File
 from betty.ancestry.has_file_references import HasFileReferences
+from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import (
     Subject,

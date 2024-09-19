@@ -8,13 +8,13 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
+from betty.ancestry.event_type import EventType
 from betty.locale.localizable import _
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import ShorthandPluginBase
-from betty.ancestry.event_type import EventType
 
 if TYPE_CHECKING:
-    from betty.ancestry import Person
+    from betty.ancestry.person import Person
 
 
 @final

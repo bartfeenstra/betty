@@ -26,7 +26,6 @@ from betty.ancestry import (
     Source,
     Citation,
     Event,
-    Person,
     PersonName,
     Presence,
     Enclosure,
@@ -39,6 +38,7 @@ from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.name import Name
 from betty.ancestry.note import HasNotes, Note
+from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
