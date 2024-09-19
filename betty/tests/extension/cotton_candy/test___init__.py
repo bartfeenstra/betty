@@ -31,7 +31,7 @@ from betty.extension.cotton_candy import (
     person_timeline_events,
     associated_file_references,
 )
-from betty.locale.date import Datey, Date, DateRange
+from betty.date import Datey, Date, DateRange
 from betty.model import (
     GeneratedEntityId,
 )

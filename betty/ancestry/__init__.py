@@ -37,7 +37,7 @@ from betty.json.schema import (
     Number,
 )
 from betty.locale import UNDETERMINED_LOCALE, LocaleSchema
-from betty.locale.date import Datey, DateySchema, Date
+from betty.date import Datey, DateySchema, Date
 from betty.locale.localizable import (
     _,
     Localizable,

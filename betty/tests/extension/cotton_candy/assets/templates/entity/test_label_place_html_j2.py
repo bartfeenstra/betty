@@ -6,7 +6,7 @@ import pytest
 
 from betty.ancestry import Place, Name
 from betty.extension.cotton_candy import CottonCandy
-from betty.locale.date import DateRange, Date
+from betty.date import DateRange, Date
 from betty.test_utils.assets.templates import TemplateTestBase
 
 if TYPE_CHECKING:

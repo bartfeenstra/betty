@@ -20,7 +20,7 @@ from betty.app import App
 from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsLoader, LoaderUsedAlready, GrampsFileNotFound
 from betty.locale import UNDETERMINED_LOCALE
-from betty.locale.date import Date, DateRange
+from betty.date import Date, DateRange
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.path import rootname

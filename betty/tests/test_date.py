@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Sequence, TYPE_CHECKING, cast
 
 import pytest
-from betty.locale.date import (
+from betty.date import (
     Date,
     DateRange,
     Datey,

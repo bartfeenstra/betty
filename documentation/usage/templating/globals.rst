@@ -10,5 +10,5 @@ In addition to Jinja2's built-in globals, Betty provides the following:
     The currently running Betty application.
 ``project`` (:py:class:`betty.project.Project`)
     The project the template is being rendered for.
-``today`` (:py:class:`betty.locale.date.Date`)
+``today`` (:py:class:`betty.date.Date`)
     The current date.

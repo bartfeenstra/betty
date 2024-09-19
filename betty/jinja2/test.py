@@ -15,7 +15,7 @@ from betty.ancestry.presence_role.presence_roles import Subject, Witness
 from betty.ancestry.privacy import is_private, is_public
 from betty.asyncio import wait_to_thread
 from betty.json.linked_data import LinkedDataDumpable
-from betty.locale.date import DateRange
+from betty.date import DateRange
 from betty.model import (
     Entity,
     GeneratedEntityId,

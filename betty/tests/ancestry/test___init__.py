@@ -41,7 +41,7 @@ from betty.ancestry.presence_role.presence_roles import (
 from betty.ancestry.privacy import Privacy
 from betty.app import App
 from betty.locale import UNDETERMINED_LOCALE
-from betty.locale.date import Date, DateRange
+from betty.date import Date, DateRange
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import HTML, PLAIN_TEXT
 from betty.model.association import OneToOne

@@ -38,7 +38,7 @@ from betty.jinja2 import (
     Jinja2Provider,
     Filters,
 )
-from betty.locale.date import Date, Datey
+from betty.date import Date, Datey
 from betty.locale.localizable import _, static
 from betty.model import GeneratedEntityId
 from betty.os import link_or_copy

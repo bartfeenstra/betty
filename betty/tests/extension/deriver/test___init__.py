@@ -14,7 +14,7 @@ from betty.ancestry.event_type.event_types import (
 )
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.extension.deriver import Deriver
-from betty.locale.date import DateRange, Date
+from betty.date import DateRange, Date
 from betty.model.collections import record_added
 from betty.project import Project
 from betty.project.config import ExtensionConfiguration
