@@ -15,7 +15,7 @@ from betty.serde.dump import DumpMapping, Dump
 
 if TYPE_CHECKING:
     from betty.project import Project
-    from betty.ancestry import Link
+    from betty.ancestry.link import Link
 
 
 _SchemaTypeT = TypeVar("_SchemaTypeT", bound=Schema, covariant=True)

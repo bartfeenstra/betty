@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.ancestry import Link
+from betty.ancestry.link import Link
 from betty.extension.wikipedia import Wikipedia
 from betty.job import Context
 from betty.project import Project

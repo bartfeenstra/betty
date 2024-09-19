@@ -18,8 +18,6 @@ from betty.ancestry import (
     Presence,
     PersonName,
     Enclosure,
-    Link,
-    HasLinks,
     HasNotes,
     HasFileReferences,
     Source,
@@ -27,11 +25,10 @@ from betty.ancestry import (
     HasCitations,
     Ancestry,
     FileReference,
-    LinkCollectionSchema,
-    LinkSchema,
 )
 from betty.ancestry.event_type.event_types import Birth, Unknown as UnknownEventType
 from betty.ancestry.gender.genders import Unknown as UnknownGender, NonBinary
+from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.name import Name
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence_role.presence_roles import (
@@ -39,23 +36,19 @@ from betty.ancestry.presence_role.presence_roles import (
     Unknown as UnknownPresenceRole,
 )
 from betty.ancestry.privacy import Privacy
-from betty.app import App
 from betty.date import Date, DateRange
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.media_type.media_types import HTML, PLAIN_TEXT
+from betty.media_type.media_types import PLAIN_TEXT
 from betty.model.association import OneToOne
-from betty.project import Project
 from betty.test_utils.ancestry.date import DummyHasDate
 from betty.test_utils.ancestry.place_type import DummyPlaceType
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.json.schema import SchemaTestBase
 from betty.test_utils.model import DummyEntity, EntityTestBase
 
 if TYPE_CHECKING:
     from betty.model import Entity
     from betty.serde.dump import Dump, DumpMapping
-    from betty.json.schema import Schema
 
 
 class DummyHasDateWithContextDefinitions(DummyHasDate):
@@ -178,107 +171,6 @@ class TestHasNotes:
     )
     async def test_dump_linked_data(
         self, expected: DumpMapping[Dump], sut: HasNotes
-    ) -> None:
-        assert await assert_dumps_linked_data(sut) == expected
-
-
-class TestLink:
-    async def test_url(self) -> None:
-        url = "https://example.com"
-        sut = Link(url)
-        assert sut.url == url
-
-    async def test_media_type(self) -> None:
-        url = "https://example.com"
-        sut = Link(url)
-        assert sut.media_type is None
-
-    async def test_locale(self) -> None:
-        url = "https://example.com"
-        sut = Link(url)
-        assert sut.locale is UNDETERMINED_LOCALE
-
-    async def test_description(self) -> None:
-        url = "https://example.com"
-        sut = Link(url)
-        assert not sut.description
-
-    async def test_relationship(self) -> None:
-        url = "https://example.com"
-        sut = Link(url)
-        assert sut.relationship is None
-
-    async def test_label(self) -> None:
-        url = "https://example.com"
-        sut = Link(url)
-        assert not sut.label
-
-    async def test_dump_linked_data_should_dump_minimal(self) -> None:
-        link = Link("https://example.com")
-        expected: Mapping[str, Any] = {
-            "url": "https://example.com",
-            "locale": "und",
-        }
-        actual = await assert_dumps_linked_data(link)
-        assert actual == expected
-
-    async def test_dump_linked_data_should_dump_full(self) -> None:
-        link = Link(
-            "https://example.com",
-            label="The Link",
-            relationship="external",
-            locale="nl-NL",
-            media_type=HTML,
-        )
-        expected: Mapping[str, Any] = {
-            "url": "https://example.com",
-            "relationship": "external",
-            "label": {"translations": {UNDETERMINED_LOCALE: "The Link"}},
-            "locale": "nl-NL",
-            "mediaType": "text/html",
-        }
-        actual = await assert_dumps_linked_data(link)
-        assert actual == expected
-
-
-class TestLinkSchema(SchemaTestBase):
-    @override
-    async def get_sut_instances(
-        self,
-    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
-        return [
-            (
-                LinkSchema(),
-                _DUMMY_LINK_DUMPS,
-                [True, False, None, 123, "abc", [], {}],
-            )
-        ]
-
-
-class DummyHasLinks(HasLinks, DummyEntity):
-    pass
-
-
-class TestHasLinks:
-    async def test_links(self) -> None:
-        sut = DummyHasLinks()
-        assert sut.links == []
-
-    @pytest.mark.parametrize(
-        ("expected", "sut"),
-        [
-            (
-                {"links": []},
-                DummyHasLinks(),
-            ),
-            (
-                {"links": [{"url": "https://example.com", "locale": "und"}]},
-                DummyHasLinks(links=[Link("https://example.com")]),
-            ),
-        ],
-    )
-    async def test_dump_linked_data(
-        self, expected: DumpMapping[Dump], sut: HasLinks
     ) -> None:
         assert await assert_dumps_linked_data(sut) == expected
 
@@ -2175,49 +2067,3 @@ class TestFileReference:
         referee = DummyHasFileReferences()
         sut = FileReference(referee)
         assert sut.referee is referee
-
-
-_DUMMY_LINK_DUMPS: Sequence[DumpMapping[Dump]] = (
-    {
-        "url": "https://example.com",
-    },
-    {
-        "url": "https://example.com",
-        "relationship": "canonical",
-    },
-    {
-        "url": "https://example.com",
-        "label": {"translations": {UNDETERMINED_LOCALE: "Hello, world!"}},
-    },
-    {
-        "url": "https://example.com",
-        "privacy": True,
-    },
-)
-
-
-class TestLinkCollectionSchema(SchemaTestBase):
-    @override
-    async def get_sut_instances(
-        self,
-    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
-        schemas = []
-        valid_datas: Sequence[Dump] = [
-            *[[data] for data in _DUMMY_LINK_DUMPS],  # type: ignore[list-item]
-            list(_DUMMY_LINK_DUMPS),
-        ]
-        invalid_datas: Sequence[Dump] = [True, False, None, 123, "abc", {}]
-        async with (
-            App.new_temporary() as app,
-            app,
-            Project.new_temporary(app) as project,
-            project,
-        ):
-            schemas.append(
-                (
-                    LinkCollectionSchema(),
-                    valid_datas,
-                    invalid_datas,
-                )
-            )
-        return schemas

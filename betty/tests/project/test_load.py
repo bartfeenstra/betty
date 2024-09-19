@@ -1,7 +1,7 @@
 import pytest
 from aioresponses import aioresponses
 
-from betty.ancestry import Link, HasLinks
+from betty.ancestry.link import Link, HasLinks
 from betty.app import App
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project

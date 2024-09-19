@@ -33,8 +33,6 @@ from betty.ancestry import (
     PersonName,
     Presence,
     Enclosure,
-    HasLinks,
-    Link,
     HasFileReferences,
     HasCitations,
     HasNotes,
@@ -43,14 +41,15 @@ from betty.ancestry import (
 )
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.gender.genders import Unknown as UnknownGender
+from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.name import Name
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.ancestry.privacy import HasPrivacy
+from betty.date import DateRange, Datey, Date
 from betty.error import FileNotFound
 from betty.gramps.error import GrampsError, UserFacingGrampsError
 from betty.locale import UNDETERMINED_LOCALE
-from betty.date import DateRange, Datey, Date
 from betty.locale.localizable import _, plain
 from betty.media_type import MediaType, InvalidMediaType
 from betty.model import Entity, AliasedEntity, AliasableEntity
