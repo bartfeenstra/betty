@@ -6,11 +6,11 @@ from typing import TYPE_CHECKING
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
 
-from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider, EntityContexts
 from betty.ancestry import (
     Citation,
-    HasFileReferences,
 )
+from betty.ancestry.has_file_references import HasFileReferences
+from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider, EntityContexts
 from betty.project import Project
 from betty.test_utils.assets.templates import TemplateTestBase
 from betty.test_utils.model import DummyEntity

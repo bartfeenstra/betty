@@ -4,11 +4,10 @@ from pathlib import Path
 from typing import Any, Iterable, TYPE_CHECKING
 
 import pytest
-from betty.ancestry import (
-    File,
-    FileReference,
-    HasFileReferences,
-)
+
+from betty.ancestry import File, FileReference
+from betty.ancestry.has_file_references import HasFileReferences
+from betty.date import Datey, Date, DateRange
 from betty.fs import ASSETS_DIRECTORY_PATH
 from betty.locale import (
     NO_LINGUISTIC_CONTENT,
@@ -17,7 +16,6 @@ from betty.locale import (
     UNCODED_LOCALE,
     DEFAULT_LOCALE,
 )
-from betty.date import Datey, Date, DateRange
 from betty.locale.localizable import StaticTranslationsLocalizable
 from betty.locale.localized import Localized, LocalizedStr
 from betty.media_type import MediaType

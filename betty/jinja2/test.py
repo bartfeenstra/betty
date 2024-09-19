@@ -6,17 +6,17 @@ from __future__ import annotations
 
 from typing import Any, TYPE_CHECKING
 
-from betty.ancestry import HasFileReferences, Event
 from betty.ancestry.event_type.event_types import (
     StartOfLifeEventType,
     EndOfLifeEventType,
 )
+from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.link import HasLinks
 from betty.ancestry.presence_role.presence_roles import Subject, Witness
 from betty.ancestry.privacy import is_private, is_public
 from betty.asyncio import wait_to_thread
-from betty.json.linked_data import LinkedDataDumpable
 from betty.date import DateRange
+from betty.json.linked_data import LinkedDataDumpable
 from betty.model import (
     Entity,
     GeneratedEntityId,
@@ -25,6 +25,7 @@ from betty.model import (
 )
 
 if TYPE_CHECKING:
+    from betty.ancestry import Event
     from betty.plugin import PluginIdentifier
 
 
