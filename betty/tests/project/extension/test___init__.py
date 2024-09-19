@@ -158,12 +158,12 @@ class TestExtension:
             sut = DummyExtension(project)
             assert sut.project is project
 
-    async def test_project_with_new_for_project(self, new_temporary_app: App) -> None:
+    async def test_project_with_new(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
-            sut = await DummyExtension.new_for_project(project)
+            sut = await DummyExtension.new(project)
             assert sut.project is project
 
     async def test_register_event_handlers(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
-            sut = await DummyExtension.new_for_project(project)
+            sut = await DummyExtension.new(project)
             sut.register_event_handlers(EventHandlerRegistry())

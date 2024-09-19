@@ -40,7 +40,7 @@ from betty.config import (
 from betty.copyright import Copyright, COPYRIGHT_REPOSITORY
 from betty.core import CoreComponent
 from betty.event_dispatcher import EventDispatcher, EventHandlerRegistry
-from betty.factory import DependentFactory
+from betty.factory import FactoryProvider
 from betty.hashid import hashid
 from betty.job import Context
 from betty.json.schema import (
@@ -84,7 +84,7 @@ _ProjectDependentT = TypeVar("_ProjectDependentT")
 
 
 @final
-class Project(Configurable[ProjectConfiguration], DependentFactory[Any], CoreComponent):
+class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComponent):
     """
     Define a Betty project.
 
@@ -332,8 +332,22 @@ class Project(Configurable[ProjectConfiguration], DependentFactory[Any], CoreCom
 
     @override
     async def new(self, cls: type[_T]) -> _T:
+        """
+        Create a new instance.
+
+        :return:
+            #. If ``cls`` extends :py:class:`betty.project.factory.ProjectDependentFactory`, this will call return
+                ``cls``'s ``new()``'s return value.
+            #. If ``cls`` extends :py:class:`betty.app.factory.AppDependentFactory`, this will call return ``cls``'s
+                ``new()``'s return value.
+            #. If ``cls`` extends :py:class:`betty.factory.IndependentFactory`, this will call return ``cls``'s
+                ``new()``'s return value.
+            #. Otherwise ``cls()`` will be called without arguments, and the resulting instance will be returned.
+
+        :raises FactoryError: raised when ``cls`` could not be instantiated.
+        """
         if issubclass(cls, ProjectDependentFactory):
-            return cast(_T, await cls.new_for_project(self))
+            return cast(_T, await cls.new(self))
         return await self.app.new(cls)
 
     @property
