@@ -10,6 +10,7 @@ from typing import Iterable, Any, TYPE_CHECKING, final
 from urllib.parse import quote
 
 from typing_extensions import override
+from betty.ancestry.description import HasDescription
 
 from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
@@ -129,40 +130,6 @@ class HasDate(LinkedDataDumpable[Object]):
     async def linked_data_schema(cls, project: Project) -> Object:
         schema = await super().linked_data_schema(project)
         schema.add_property("date", DateySchema(), False)
-        return schema
-
-
-class HasDescription(LinkedDataDumpable[Object]):
-    """
-    A resource with a description.
-    """
-
-    #: The human-readable description.
-    description = OptionalStaticTranslationsLocalizableAttr("description")
-
-    def __init__(
-        self,
-        *args: Any,
-        description: ShorthandStaticTranslations | None = None,
-        **kwargs: Any,
-    ):
-        super().__init__(*args, **kwargs)
-        if description is not None:
-            self.description.replace(description)
-
-    @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
-        dump = await super().dump_linked_data(project)
-        if self.description:
-            dump["description"] = await self.description.dump_linked_data(project)
-            dump_context(dump, description="https://schema.org/description")
-        return dump
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project) -> Object:
-        schema = await super().linked_data_schema(project)
-        schema.add_property("description", StaticTranslationsLocalizableSchema(), False)
         return schema
 
 

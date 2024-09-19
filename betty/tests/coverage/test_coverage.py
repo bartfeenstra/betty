@@ -625,6 +625,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     # We do not test our test utilities.
     **{
         "betty/test_utils/ancestry/__init__.py": TestKnownToBeMissing,
+        "betty/test_utils/ancestry/description.py": TestKnownToBeMissing,
         "betty/test_utils/ancestry/event_type.py": TestKnownToBeMissing,
         "betty/test_utils/ancestry/gender.py": TestKnownToBeMissing,
         "betty/test_utils/ancestry/place_type.py": TestKnownToBeMissing,
