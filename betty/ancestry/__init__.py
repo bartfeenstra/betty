@@ -51,7 +51,8 @@ from betty.locale.localizable import (
     RequiredStaticTranslationsLocalizableAttr,
 )
 from betty.locale.localized import Localized
-from betty.media_type import MediaType, MediaTypeSchema, HTML, JSON_LD
+from betty.media_type import MediaType, MediaTypeSchema
+from betty.media_type.media_types import HTML, JSON_LD
 from betty.model import (
     Entity,
     UserFacingEntity,

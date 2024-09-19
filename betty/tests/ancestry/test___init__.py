@@ -49,7 +49,7 @@ from betty.app import App
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.date import Date, DateRange
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.media_type import HTML, PLAIN_TEXT
+from betty.media_type.media_types import HTML, PLAIN_TEXT
 from betty.model.association import OneToOne
 from betty.project import Project
 from betty.test_utils.ancestry import (

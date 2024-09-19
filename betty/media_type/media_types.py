@@ -1,0 +1,18 @@
+"""
+Provide media types.
+"""
+
+from __future__ import annotations
+
+from betty.media_type import MediaType
+
+#: The media type for HTML content.
+HTML = MediaType("text/html")
+
+
+#: The media type for JSON-LD content.
+JSON_LD = MediaType("application/ld+json")
+
+
+#: The media type for plain text content.
+PLAIN_TEXT = MediaType("text/plain")

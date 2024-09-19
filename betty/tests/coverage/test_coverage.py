@@ -415,10 +415,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "npgettext": TestKnownToBeMissing,
         "pgettext": TestKnownToBeMissing,
     },
-    "betty/media_type.py": {
+    "betty/media_type/__init__.py": {
         # This is an empty class.
         "InvalidMediaType": TestKnownToBeMissing,
     },
+    # This contains static definitions only.
+    "betty/media_type/media_types.py": TestKnownToBeMissing,
     "betty/model/__init__.py": {
         "unalias": TestKnownToBeMissing,
         "AliasedEntity": TestKnownToBeMissing,

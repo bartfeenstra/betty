@@ -120,15 +120,3 @@ class MediaTypeSchema(String):
             title="Media type",
             description="An IANA media type (https://www.iana.org/assignments/media-types/media-types.xhtml).",
         )
-
-
-#: The media type for HTML content.
-HTML = MediaType("text/html")
-
-
-#: The media type for JSON-LD content.
-JSON_LD = MediaType("application/ld+json")
-
-
-#: The media type for plain text content.
-PLAIN_TEXT = MediaType("text/plain")
