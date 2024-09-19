@@ -5,7 +5,8 @@ from typing import Sequence, TYPE_CHECKING, Any
 import pytest
 from typing_extensions import override
 
-from betty.media_type import MediaType, InvalidMediaType, MediaTypeSchema, PLAIN_TEXT
+from betty.media_type import MediaType, InvalidMediaType, MediaTypeSchema
+from betty.media_type.media_types import PLAIN_TEXT
 from betty.test_utils.json.schema import SchemaTestBase
 
 if TYPE_CHECKING:

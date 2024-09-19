@@ -40,7 +40,8 @@ from betty.locale import (
 from betty.locale.error import LocaleError
 from betty.locale.localizable import plain
 from betty.locale.localized import Localized
-from betty.media_type import MediaType, HTML
+from betty.media_type import MediaType
+from betty.media_type.media_types import HTML
 
 if TYPE_CHECKING:
     from betty.project import Project
