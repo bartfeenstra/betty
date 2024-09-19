@@ -19,7 +19,6 @@ from betty.ancestry import (
     Name,
     PersonName,
     Enclosure,
-    HasMediaType,
     Link,
     HasLinks,
     HasNotes,
@@ -399,36 +398,6 @@ class TestHasDescription:
     )
     async def test_dump_linked_data(
         self, expected: DumpMapping[Dump], sut: HasLinks
-    ) -> None:
-        assert await assert_dumps_linked_data(sut) == expected
-
-
-class DummyHasMediaType(HasMediaType, DummyEntity):
-    pass
-
-
-class TestHasMediaType:
-    async def test_media_type(self) -> None:
-        sut = DummyHasMediaType()
-        assert sut.media_type is None
-
-    @pytest.mark.parametrize(
-        ("expected", "sut"),
-        [
-            (
-                {},
-                DummyHasMediaType(),
-            ),
-            (
-                {
-                    "mediaType": "text/plain",
-                },
-                DummyHasMediaType(media_type=PLAIN_TEXT),
-            ),
-        ],
-    )
-    async def test_dump_linked_data(
-        self, expected: DumpMapping[Dump], sut: HasNotes
     ) -> None:
         assert await assert_dumps_linked_data(sut) == expected
 
