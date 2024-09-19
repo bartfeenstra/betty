@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 @command(help="Explore a demonstration site.")
 @pass_app
 async def demo(app: App) -> None:  # noqa D103
-    from betty.extension.demo import DemoServer
+    from betty.project.extension.demo import DemoServer
 
     async with DemoServer(app=app) as server:
         await server.show()

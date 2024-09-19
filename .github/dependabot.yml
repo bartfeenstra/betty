@@ -28,7 +28,7 @@ updates:
       prefix: npm dependencies (development)
       include: scope
   - package-ecosystem: npm
-    directory: betty/extension/cotton_candy/webpack/
+    directory: betty/project/extension/cotton_candy/webpack/
     schedule:
       interval: weekly
     assignees:
@@ -37,7 +37,7 @@ updates:
       prefix: npm dependencies (Cotton Candy extension)
       include: scope
   - package-ecosystem: npm
-    directory: betty/extension/http_api_doc/webpack/
+    directory: betty/project/extension/http_api_doc/webpack/
     schedule:
       interval: weekly
     assignees:
@@ -46,7 +46,7 @@ updates:
       prefix: npm dependencies (HttpApiDoc extension)
       include: scope
   - package-ecosystem: npm
-    directory: betty/extension/maps/webpack/
+    directory: betty/project/extension/maps/webpack/
     schedule:
       interval: weekly
     assignees:
@@ -55,7 +55,7 @@ updates:
       prefix: npm dependencies (Maps extension)
       include: scope
   - package-ecosystem: npm
-    directory: betty/extension/trees/webpack/
+    directory: betty/project/extension/trees/webpack/
     schedule:
       interval: weekly
     assignees:

@@ -213,85 +213,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "handlers": TestKnownToBeMissing,
         },
     },
-    "betty/extension/__init__.py": TestKnownToBeMissing,
-    "betty/extension/cotton_candy/__init__.py": {
-        "person_descendant_families": TestKnownToBeMissing,
-        "person_timeline_events": TestKnownToBeMissing,
-        "CottonCandy": TestKnownToBeMissing,
-    },
-    "betty/extension/cotton_candy/config.py": {
-        "CottonCandyConfiguration": {
-            "update": TestKnownToBeMissing,
-            "featured_entities": TestKnownToBeMissing,
-            "link_active_color": TestKnownToBeMissing,
-            "link_inactive_color": TestKnownToBeMissing,
-            "primary_active_color": TestKnownToBeMissing,
-            "primary_inactive_color": TestKnownToBeMissing,
-        },
-    },
-    "betty/extension/demo/__init__.py": {
-        "DemoServer": {
-            "public_url": TestKnownToBeMissing,
-            "start": TestKnownToBeMissing,
-            "stop": TestKnownToBeMissing,
-        },
-    },
-    "betty/extension/gramps/config.py": {
-        "FamilyTreeConfiguration": {
-            "file_path": TestKnownToBeMissing,
-        },
-        "GrampsConfiguration": {
-            "family_trees": TestKnownToBeMissing,
-        },
-    },
-    "betty/extension/http_api_doc/__init__.py": {
-        "HttpApiDoc": {
-            "webpack_entry_point_cache_keys": TestKnownToBeMissing,
-        },
-    },
-    "betty/extension/maps/__init__.py": {
-        "Maps": {
-            "webpack_entry_point_cache_keys": TestKnownToBeMissing,
-        },
-    },
-    "betty/extension/privatizer/__init__.py": {
-        "Privatizer": {
-            "privatize": TestKnownToBeMissing,
-        },
-    },
-    "betty/extension/trees/__init__.py": {
-        "Trees": {
-            "webpack_entry_point_cache_keys": TestKnownToBeMissing,
-        },
-    },
-    "betty/extension/webpack/__init__.py": {
-        "PrebuiltAssetsRequirement": {
-            "summary": TestKnownToBeMissing,
-        },
-        "Webpack": {
-            "build_requirement": TestKnownToBeMissing,
-            "filters": TestKnownToBeMissing,
-            "new_context_vars": TestKnownToBeMissing,
-            "public_css_paths": TestKnownToBeMissing,
-        },
-        # This is an interface.
-        "WebpackEntryPointProvider": TestKnownToBeMissing,
-    },
-    "betty/extension/webpack/build.py": {
-        "webpack_build_id": TestKnownToBeMissing,
-    },
-    "betty/extension/webpack/jinja2/__init__.py": TestKnownToBeMissing,
-    "betty/extension/webpack/jinja2/filter.py": TestKnownToBeMissing,
-    "betty/extension/wikipedia/__init__.py": {
-        "Wikipedia": {
-            "filters": TestKnownToBeMissing,
-        },
-    },
-    "betty/extension/wikipedia/config.py": {
-        "WikipediaConfiguration": {
-            "populate_images": TestKnownToBeMissing,
-        },
-    },
     "betty/factory.py": {
         # This is an abstract class.
         "FactoryProvider": TestKnownToBeMissing,
@@ -558,9 +479,87 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         # This is an empty class.
         "Theme": TestKnownToBeMissing,
     },
+    "betty/project/extension/cotton_candy/__init__.py": {
+        "person_descendant_families": TestKnownToBeMissing,
+        "person_timeline_events": TestKnownToBeMissing,
+        "CottonCandy": TestKnownToBeMissing,
+    },
+    "betty/project/extension/cotton_candy/config.py": {
+        "CottonCandyConfiguration": {
+            "update": TestKnownToBeMissing,
+            "featured_entities": TestKnownToBeMissing,
+            "link_active_color": TestKnownToBeMissing,
+            "link_inactive_color": TestKnownToBeMissing,
+            "primary_active_color": TestKnownToBeMissing,
+            "primary_inactive_color": TestKnownToBeMissing,
+        },
+    },
+    "betty/project/extension/demo/__init__.py": {
+        "DemoServer": {
+            "public_url": TestKnownToBeMissing,
+            "start": TestKnownToBeMissing,
+            "stop": TestKnownToBeMissing,
+        },
+    },
+    "betty/project/extension/gramps/config.py": {
+        "FamilyTreeConfiguration": {
+            "file_path": TestKnownToBeMissing,
+        },
+        "GrampsConfiguration": {
+            "family_trees": TestKnownToBeMissing,
+        },
+    },
+    "betty/project/extension/http_api_doc/__init__.py": {
+        "HttpApiDoc": {
+            "webpack_entry_point_cache_keys": TestKnownToBeMissing,
+        },
+    },
+    "betty/project/extension/maps/__init__.py": {
+        "Maps": {
+            "webpack_entry_point_cache_keys": TestKnownToBeMissing,
+        },
+    },
+    "betty/project/extension/privatizer/__init__.py": {
+        "Privatizer": {
+            "privatize": TestKnownToBeMissing,
+        },
+    },
     "betty/project/extension/requirement.py": {
         "Dependencies": TestKnownToBeMissing,
         "Dependents": TestKnownToBeMissing,
+    },
+    "betty/project/extension/trees/__init__.py": {
+        "Trees": {
+            "webpack_entry_point_cache_keys": TestKnownToBeMissing,
+        },
+    },
+    "betty/project/extension/webpack/__init__.py": {
+        "PrebuiltAssetsRequirement": {
+            "summary": TestKnownToBeMissing,
+        },
+        "Webpack": {
+            "build_requirement": TestKnownToBeMissing,
+            "filters": TestKnownToBeMissing,
+            "new_context_vars": TestKnownToBeMissing,
+            "public_css_paths": TestKnownToBeMissing,
+        },
+        # This is an interface.
+        "WebpackEntryPointProvider": TestKnownToBeMissing,
+    },
+    "betty/project/extension/webpack/build.py": {
+        "webpack_build_id": TestKnownToBeMissing,
+    },
+    "betty/project/extension/webpack/jinja2/__init__.py": TestKnownToBeMissing,
+    "betty/project/extension/webpack/jinja2/filter.py": TestKnownToBeMissing,
+    "betty/project/extension/wikipedia/__init__.py": {
+        "Wikipedia": {
+            "filters": TestKnownToBeMissing,
+        },
+    },
+    "betty/project/extension/wikipedia/config.py": {
+        "WikipediaConfiguration": {
+            "populate_images": TestKnownToBeMissing,
+        },
     },
     "betty/project/generate.py": {
         "create_file": TestKnownToBeMissing,
