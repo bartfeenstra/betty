@@ -8,7 +8,7 @@ from betty.ancestry import Citation, Note, Source, File, Event, Person, Place
 from betty.ancestry.event_type import Birth
 from betty.ancestry.gender import NonBinary
 from betty.ancestry.place_type import City
-from betty.ancestry.presence_role import Subject
+from betty.ancestry.presence_role.presence_roles import Subject
 from betty.app import App
 from betty.extension.gramps import Gramps
 from betty.extension.gramps.config import (

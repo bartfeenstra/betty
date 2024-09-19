@@ -25,7 +25,7 @@ from betty.ancestry.event_type import (
     EventType,
 )
 from betty.ancestry.gender import Unknown as UnknownGender, Gender, NonBinary
-from betty.ancestry.presence_role import PresenceRole, Subject
+from betty.ancestry.presence_role.presence_roles import Subject
 from betty.app import App
 from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsLoader, LoaderUsedAlready, GrampsFileNotFound
@@ -37,6 +37,7 @@ from betty.path import rootname
 from betty.project import Project
 
 if TYPE_CHECKING:
+    from betty.ancestry.presence_role import PresenceRole
     from collections.abc import Mapping
 
 

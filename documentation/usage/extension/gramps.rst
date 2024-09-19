@@ -278,14 +278,20 @@ Betty supports the following Gramps presence roles without any additional config
 
    * - Gramps role
      - Betty presence role
-   * - ``Celebrant``
-     - ``celebrant``
+   * - ``Aide``
+     - ``attendee``
    * - ``Bride``
      - ``subject``
+   * - ``Celebrant``
+     - ``celebrant``
+   * - ``Clergy``
+     - ``celebrant``
    * - ``Family``
      - ``subject``
    * - ``Groom``
      - ``subject``
+   * - ``Informant``
+     - ``informant``
    * - ``Primary``
      - ``subject``
    * - ``Unknown``

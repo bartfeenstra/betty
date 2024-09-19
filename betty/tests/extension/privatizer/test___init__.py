@@ -15,7 +15,7 @@ from betty.ancestry import (
     FileReference,
 )
 from betty.ancestry.event_type import Birth
-from betty.ancestry.presence_role import Subject
+from betty.ancestry.presence_role.presence_roles import Subject
 from betty.extension.privatizer import Privatizer
 from betty.project import Project
 from betty.project.config import ExtensionConfiguration

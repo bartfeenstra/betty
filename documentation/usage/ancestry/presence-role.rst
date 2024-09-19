@@ -6,22 +6,24 @@ They inherit from :py:class:`betty.ancestry.presence_role.PresenceRole`.
 
 Built-in presence roles
 -----------------------
-:py:class:`betty.ancestry.presence_role.Subject`
-    The person was a primary subject at the event, such as the person being born at a birth, or one of the happy couple at a wedding.
-:py:class:`betty.ancestry.presence_role.Witness`
-    The person was a witness at an event where other people were the subjects.
-:py:class:`betty.ancestry.presence_role.Beneficiary`
-    The person was the event's beneficiary, such as when a will was read.
-:py:class:`betty.ancestry.presence_role.Attendee`
+``attendee`` (:py:class:`betty.ancestry.presence_role.presence_roles.Attendee`)
     The person was an attendee at the event and no additional details about their involvement are known.
-:py:class:`betty.ancestry.presence_role.Speaker`
-    The person performed public speaking at the event.
-:py:class:`betty.ancestry.presence_role.Celebrant`
+``beneficiary`` (:py:class:`betty.ancestry.presence_role.presence_roles.Beneficiary`)
+    The person was the event's beneficiary, such as when a will was read.
+``celebrant`` (:py:class:`betty.ancestry.presence_role.presence_roles.Celebrant`)
     The person was the celebrant or officiant at the event, such as a civil servant or a clergyperson.
-:py:class:`betty.ancestry.presence_role.Organizer`
+``informant`` (:py:class:`betty.ancestry.presence_role.presence_roles.Informant`)
+    The person was the informant of an event, e.g. they reported it with a record-keeping institution.
+``organizer`` (:py:class:`betty.ancestry.presence_role.presence_roles.Organizer`)
     The person organized the event.
-:py:class:`betty.ancestry.presence_role.Unknown`
+``speaker`` (:py:class:`betty.ancestry.presence_role.presence_roles.Speaker`)
+    The person performed public speaking at the event.
+``subject`` (:py:class:`betty.ancestry.presence_role.presence_roles.Subject`)
+    The person was a primary subject at the event, such as the person being born at a birth, or one of the happy couple at a wedding.
+``unknown`` (:py:class:`betty.ancestry.presence_role.presence_roles.Unknown`)
     The person's role in the event is unknown.
+``witness`` (:py:class:`betty.ancestry.presence_role.presence_roles.Witness`)
+    The person was a witness at an event where other people were the subjects.
 
 See also
 --------

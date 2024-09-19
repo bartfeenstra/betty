@@ -19,7 +19,8 @@ from betty.ancestry.event_type import (
 )
 from betty.ancestry.gender import Gender, Unknown as UnknownGender
 from betty.ancestry.place_type import PlaceType, Unknown as UnknownPlaceType
-from betty.ancestry.presence_role import PresenceRole, Subject, PresenceRoleSchema
+from betty.ancestry.presence_role import PresenceRole, PresenceRoleSchema
+from betty.ancestry.presence_role.presence_roles import Subject
 from betty.asyncio import wait_to_thread
 from betty.classtools import repr_instance
 from betty.functools import Uniquifier

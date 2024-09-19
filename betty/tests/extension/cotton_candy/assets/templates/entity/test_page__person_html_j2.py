@@ -12,7 +12,7 @@ from betty.ancestry import (
     FileReference,
 )
 from betty.ancestry.event_type import Birth
-from betty.ancestry.presence_role import Subject
+from betty.ancestry.presence_role.presence_roles import Subject
 from betty.test_utils.assets.templates import TemplateTestBase
 
 

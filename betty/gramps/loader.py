@@ -46,7 +46,7 @@ from betty.ancestry import (
 from betty.ancestry.event_type import Unknown as UnknownEventType, EventType
 from betty.ancestry.gender import Unknown as UnknownGender
 from betty.ancestry.place_type import PlaceType, Unknown
-from betty.ancestry.presence_role import PresenceRole, Unknown as UnknownPresenceRole
+from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.error import FileNotFound
 from betty.gramps.error import GrampsError, UserFacingGrampsError
 from betty.locale import UNDETERMINED_LOCALE
@@ -58,6 +58,7 @@ from betty.model.graph import EntityGraphBuilder
 from betty.path import rootname
 
 if TYPE_CHECKING:
+    from betty.ancestry.presence_role import PresenceRole
     from betty.ancestry.gender import Gender
     from betty.factory import Factory
     from betty.locale.localizer import Localizer

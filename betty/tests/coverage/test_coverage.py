@@ -501,7 +501,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         # This is an abstract class.
         "PlaceType": TestKnownToBeMissing,
     },
-    "betty/ancestry/presence_role.py": {
+    "betty/ancestry/presence_role/__init__.py": {
         # This is an interface.
         "PresenceRole": TestKnownToBeMissing,
     },

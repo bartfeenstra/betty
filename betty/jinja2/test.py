@@ -14,7 +14,7 @@ from betty.ancestry import (
     Event,
 )
 from betty.ancestry.event_type import StartOfLifeEventType, EndOfLifeEventType
-from betty.ancestry.presence_role import Subject, Witness
+from betty.ancestry.presence_role.presence_roles import Subject, Witness
 from betty.asyncio import wait_to_thread
 from betty.json.linked_data import LinkedDataDumpable
 from betty.locale.date import DateRange

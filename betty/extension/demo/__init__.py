@@ -24,7 +24,7 @@ from betty.ancestry import (
     Note,
 )
 from betty.ancestry.event_type import Marriage, Birth, Death
-from betty.ancestry.presence_role import Subject
+from betty.ancestry.presence_role.presence_roles import Subject
 from betty.extension.cotton_candy import CottonCandy
 from betty.extension.cotton_candy.config import CottonCandyConfiguration
 from betty.extension.http_api_doc import HttpApiDoc

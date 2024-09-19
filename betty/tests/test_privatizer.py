@@ -19,7 +19,10 @@ from betty.ancestry import (
     FileReference,
 )
 from betty.ancestry.event_type import Death, Birth, Marriage
-from betty.ancestry.presence_role import Subject, Unknown as UnknownPresenceRole
+from betty.ancestry.presence_role.presence_roles import (
+    Subject,
+    Unknown as UnknownPresenceRole,
+)
 from betty.locale.date import Date, DateRange
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.privatizer import Privatizer

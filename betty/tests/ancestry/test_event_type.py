@@ -29,7 +29,7 @@ from betty.ancestry.event_type import (
     Unknown,
     Will,
 )
-from betty.ancestry.presence_role import Subject
+from betty.ancestry.presence_role.presence_roles import Subject
 from betty.locale.date import Date
 from betty.test_utils.ancestry.event_type import EventTypeTestBase
 

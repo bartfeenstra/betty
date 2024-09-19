@@ -53,11 +53,13 @@ from betty.ancestry.place_type import (
     Unknown as UnknownPlaceType,
     Village,
 )
-from betty.ancestry.presence_role import (
+from betty.ancestry.presence_role.presence_roles import (
     Celebrant,
     Subject,
     Unknown as UnknownPresenceRole,
     Witness,
+    Attendee,
+    Informant,
 )
 from betty.assertion import (
     RequiredField,
@@ -207,10 +209,13 @@ class FamilyTreeConfiguration(Configuration):
         )
         self._presence_roles = presence_roles or PluginMapping(
             {
-                "Celebrant": Celebrant.plugin_id(),
+                "Aide": Attendee.plugin_id(),
                 "Bride": Subject.plugin_id(),
+                "Celebrant": Celebrant.plugin_id(),
+                "Clergy": Celebrant.plugin_id(),
                 "Family": Subject.plugin_id(),
                 "Groom": Subject.plugin_id(),
+                "Informant": Informant.plugin_id(),
                 "Primary": Subject.plugin_id(),
                 "Unknown": UnknownPresenceRole.plugin_id(),
                 "Witness": Witness.plugin_id(),
