@@ -14,7 +14,7 @@ from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.link import HasLinks, Link
-from betty.ancestry.note import HasNotes, Note
+from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.presence_role import PresenceRoleSchema
 from betty.ancestry.privacy import HasPrivacy, Privacy
@@ -33,6 +33,7 @@ from betty.model.association import ManyToMany, OneToMany
 from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
+    from betty.ancestry.note import Note
     from betty.ancestry.file_reference import FileReference
     from betty.ancestry.citation import Citation
     from betty.ancestry.presence import Presence

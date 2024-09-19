@@ -11,8 +11,8 @@ from typing_extensions import override
 
 from betty.ancestry.date import HasDate
 from betty.ancestry.has_file_references import HasFileReferences
+from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks, Link
-from betty.ancestry.note import HasNotes, Note
 from betty.ancestry.privacy import HasPrivacy, Privacy, merge_privacies
 from betty.json.linked_data import dump_context
 from betty.locale.localizable import (
@@ -34,6 +34,7 @@ from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
     from betty.ancestry.citation import Citation  # noqa F401
+    from betty.ancestry.note import Note
     from betty.ancestry.file_reference import FileReference
     from betty.serde.dump import DumpMapping, Dump
     from betty.project import Project
