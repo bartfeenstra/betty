@@ -4,23 +4,17 @@ Providing typing utilities.
 
 from __future__ import annotations
 
-import re
 from typing import TypeVar, TypeAlias, cast
+
+from betty.docstring import append
 
 _T = TypeVar("_T")
 
 
-_INTERNAL_INDENTATION_PATTERN = re.compile(r"( +)")
-
-
 def _internal(target: _T) -> _T:
-    doc = target.__doc__ or ""
-    doc_last_line = doc.rsplit("\n")[-1]
-    indentation_match = _INTERNAL_INDENTATION_PATTERN.match(doc_last_line)
-    indentation = indentation_match.group(0) if indentation_match else ""
-    target.__doc__ = (
-        doc
-        + f"\n\n{indentation}This is internal. It **MAY** be used anywhere in Betty's source code, but **MUST NOT** be used by third-party code."
+    target.__doc__ = append(
+        target.__doc__ or "",
+        "This is internal. It **MAY** be used anywhere in Betty's source code, but **MUST NOT** be used by third-party code.",
     )
     return target
 
