@@ -4,7 +4,7 @@ from typing import Sequence, Mapping, Any, MutableMapping, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.ancestry import Citation
+from betty.ancestry.citation import Citation
 from betty.ancestry.link import Link
 from betty.ancestry.privacy import Privacy
 from betty.ancestry.source import Source

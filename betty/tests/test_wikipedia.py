@@ -9,7 +9,7 @@ import pytest
 from geopy import Point
 from multidict import CIMultiDict
 
-from betty.ancestry import Citation
+from betty.ancestry.citation import Citation
 from betty.ancestry.link import Link
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source

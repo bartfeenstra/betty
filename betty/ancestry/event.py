@@ -10,7 +10,7 @@ from urllib.parse import quote
 
 from typing_extensions import override
 
-from betty.ancestry import Presence, Citation
+from betty.ancestry import Presence
 from betty.ancestry.date import HasDate
 from betty.ancestry.description import HasDescription
 from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY, EventType
@@ -34,6 +34,7 @@ from betty.model.association import ManyToOne, OneToMany
 from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
+    from betty.ancestry.citation import Citation
     from betty.ancestry.file_reference import FileReference
     from betty.date import Datey
     from betty.project import Project

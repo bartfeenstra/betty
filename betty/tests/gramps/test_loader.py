@@ -7,7 +7,7 @@ import aiofiles
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
-from betty.ancestry import Ancestry, Citation
+from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
     Birth,
@@ -33,6 +33,7 @@ from betty.path import rootname
 from betty.project import Project
 
 if TYPE_CHECKING:
+    from betty.ancestry import Ancestry
     from betty.ancestry.event_type import EventType
     from betty.ancestry.gender import Gender
     from betty.ancestry.presence_role import PresenceRole

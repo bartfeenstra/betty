@@ -5,7 +5,8 @@ from typing import Iterator, TYPE_CHECKING
 
 import pytest
 
-from betty.ancestry import Presence, Citation
+from betty.ancestry import Presence
+from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
     Birth,
@@ -29,9 +30,7 @@ from betty.extension.cotton_candy import (
     person_timeline_events,
     associated_file_references,
 )
-from betty.model import (
-    GeneratedEntityId,
-)
+from betty.model import GeneratedEntityId
 from betty.project.config import DEFAULT_LIFETIME_THRESHOLD
 from betty.test_utils.model import DummyEntity
 

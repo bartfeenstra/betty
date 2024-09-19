@@ -4,7 +4,7 @@ import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
-from betty.ancestry import Citation
+from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.file import File

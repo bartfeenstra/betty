@@ -46,7 +46,7 @@ if TYPE_CHECKING:
     from betty.project.extension import Extension
     from betty.project import Project
     from betty.project.config import ProjectConfiguration
-    from betty.ancestry import Citation
+    from betty.ancestry.citation import Citation
     from pathlib import Path
     from collections.abc import (
         MutableMapping,

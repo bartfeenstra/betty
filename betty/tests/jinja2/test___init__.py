@@ -6,9 +6,7 @@ from typing import TYPE_CHECKING
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
 
-from betty.ancestry import (
-    Citation,
-)
+from betty.ancestry.citation import Citation
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider, EntityContexts
 from betty.project import Project

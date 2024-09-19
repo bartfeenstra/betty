@@ -1,4 +1,4 @@
-from betty.ancestry import Citation
+from betty.ancestry.citation import Citation
 from betty.extension.cotton_candy import CottonCandy
 from betty.jinja2 import _Citer
 from betty.test_utils.assets.templates import TemplateTestBase
