@@ -55,4 +55,4 @@ async def hashid_file_content(file_path: Path) -> str:
     """
     async with aiofiles.open(file_path, "rb") as f:
         file_content = await f.read()
-    return hashid_sequence(str(file_path), file_content)
+    return hashid(file_content)
