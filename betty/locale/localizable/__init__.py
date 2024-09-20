@@ -6,24 +6,26 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Mapping, Sequence, MutableMapping
-from typing import Any, cast, TypeAlias, Self, final, TYPE_CHECKING
+from typing import Any, cast, TypeAlias, Self, final, TYPE_CHECKING, overload, TypeVar
 from warnings import warn
 
 from typing_extensions import override
 
-from betty.attr import SettableAttr, DeletableAttr
 from betty.classtools import repr_instance
 from betty.json.linked_data import LinkedDataDumpable
 from betty.json.schema import Object
 from betty.locale import UNDETERMINED_LOCALE
+from betty.locale import negotiate_locale, to_locale
 from betty.locale.localized import LocalizedStr
+from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localizer import Localizer
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
     from betty.project import Project
-from betty.locale import negotiate_locale, to_locale
-from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.locale.localizer import Localizer
+
+
+_T = TypeVar("_T")
 
 
 class Localizable(ABC):
@@ -395,18 +397,36 @@ def static(translations: ShorthandStaticTranslations) -> Localizable:
     return StaticTranslationsLocalizable(assert_static_translations()(translations))
 
 
-class _StaticTranslationsLocalizableAttr(
-    SettableAttr[object, StaticTranslationsLocalizable, ShorthandStaticTranslations]
-):
+class _StaticTranslationsLocalizableAttr:
     _required: bool
 
-    @override
-    def new_attr(self, instance: object) -> StaticTranslationsLocalizable:
-        return StaticTranslationsLocalizable(None, required=self._required)
+    def __init__(self, attr_name: str):
+        self._attr_name = f"_{attr_name}"
 
-    @override
-    def set_attr(self, instance: object, value: ShorthandStaticTranslations) -> None:
-        self.get_attr(instance).replace(value)
+    @overload
+    def __get__(self, instance: None, owner: type[object]) -> Self:
+        pass
+
+    @overload
+    def __get__(self, instance: _T, owner: type[_T]) -> StaticTranslationsLocalizable:
+        pass
+
+    def __get__(
+        self, instance: object | None, owner: type[object]
+    ) -> StaticTranslationsLocalizable | Self:
+        if instance is None:
+            return self  # type: ignore[return-value]
+        try:
+            return cast(
+                StaticTranslationsLocalizable, getattr(instance, self._attr_name)
+            )
+        except AttributeError:
+            value = StaticTranslationsLocalizable(None, required=self._required)
+            setattr(instance, self._attr_name, value)
+            return value
+
+    def __set__(self, instance: object, value: ShorthandStaticTranslations) -> None:
+        self.__get__(instance, type(instance)).replace(value)
 
 
 @final
@@ -419,16 +439,12 @@ class RequiredStaticTranslationsLocalizableAttr(_StaticTranslationsLocalizableAt
 
 
 @final
-class OptionalStaticTranslationsLocalizableAttr(
-    _StaticTranslationsLocalizableAttr,
-    DeletableAttr[object, StaticTranslationsLocalizable, ShorthandStaticTranslations],
-):
+class OptionalStaticTranslationsLocalizableAttr(_StaticTranslationsLocalizableAttr):
     """
     An instance attribute that contains :py:class:`betty.locale.localizable.StaticTranslationsLocalizable`.
     """
 
     _required = False
 
-    @override
-    def del_attr(self, instance: object) -> None:
-        self.get_attr(instance).replace({})
+    def __delete__(self, instance: object) -> None:
+        self.__get__(instance, type(instance)).replace({})

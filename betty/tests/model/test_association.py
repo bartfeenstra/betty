@@ -21,12 +21,7 @@ class TestAssociationRegistry:
     @pytest.fixture(scope="class", autouse=True)
     def associations(
         self,
-    ) -> Iterator[
-        tuple[
-            Association[Any, Any, Any, Any],
-            Association[Any, Any, Any, Any],
-        ]
-    ]:
+    ) -> Iterator[tuple[Association[Any, Any], Association[Any, Any]]]:
         parent_association = ToOne[
             _TestAssociationRegistry_ParentEntity,
             _TestAssociationRegistry_ChildEntity,
@@ -51,10 +46,7 @@ class TestAssociationRegistry:
 
     async def test_get_associations_with_parent_class_should_return_parent_associations(
         self,
-        associations: tuple[
-            Association[Any, Any, Any, Any],
-            Association[Any, Any, Any, Any],
-        ],
+        associations: tuple[Association[Any, Any], Association[Any, Any]],
     ) -> None:
         parent_registration, _ = associations
         assert {parent_registration} == AssociationRegistry.get_all_associations(
@@ -63,10 +55,7 @@ class TestAssociationRegistry:
 
     async def test_get_associations_with_child_class_should_return_child_associations(
         self,
-        associations: tuple[
-            Association[Any, Any, Any, Any],
-            Association[Any, Any, Any, Any],
-        ],
+        associations: tuple[Association[Any, Any], Association[Any, Any]],
     ) -> None:
         parent_association, child_association = associations
         assert {

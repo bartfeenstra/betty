@@ -3,12 +3,11 @@ Provide localizable configuration.
 """
 
 from contextlib import suppress
-from typing import Self, final
+from typing import Self, final, overload, cast, TypeVar
 
 from typing_extensions import override
 
 from betty.assertion import assert_len
-from betty.attr import SettableAttr, DeletableAttr
 from betty.config import Configuration
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import (
@@ -18,6 +17,8 @@ from betty.locale.localizable import (
 from betty.locale.localizable.assertion import assert_static_translations
 from betty.serde.dump import Dump, minimize
 from betty.typing import Voidable
+
+_T = TypeVar("_T")
 
 
 @final
@@ -51,20 +52,39 @@ class StaticTranslationsLocalizableConfiguration(
         return minimize(self._translations, True)
 
 
-class _StaticTranslationsLocalizableConfigurationAttr(
-    SettableAttr[
-        object, StaticTranslationsLocalizableConfiguration, ShorthandStaticTranslations
-    ],
-):
+class _StaticTranslationsLocalizableConfigurationAttr:
     _required: bool
 
-    @override
-    def new_attr(self, instance: object) -> StaticTranslationsLocalizableConfiguration:
-        return StaticTranslationsLocalizableConfiguration(required=self._required)
+    def __init__(self, attr_name: str):
+        self._attr_name = f"_{attr_name}"
 
-    @override
-    def set_attr(self, instance: object, value: ShorthandStaticTranslations) -> None:
-        self.get_attr(instance).replace(value)
+    @overload
+    def __get__(self, instance: None, owner: type[object]) -> Self:
+        pass
+
+    @overload
+    def __get__(
+        self, instance: _T, owner: type[_T]
+    ) -> StaticTranslationsLocalizableConfiguration:
+        pass
+
+    def __get__(
+        self, instance: object | None, owner: type[object]
+    ) -> StaticTranslationsLocalizableConfiguration | Self:
+        if instance is None:
+            return self  # type: ignore[return-value]
+        try:
+            return cast(
+                StaticTranslationsLocalizableConfiguration,
+                getattr(instance, self._attr_name),
+            )
+        except AttributeError:
+            value = StaticTranslationsLocalizableConfiguration(required=self._required)
+            setattr(instance, self._attr_name, value)
+            return value
+
+    def __set__(self, instance: object, value: ShorthandStaticTranslations) -> None:
+        self.__get__(instance, type(instance)).replace(value)
 
 
 @final
@@ -80,10 +100,7 @@ class RequiredStaticTranslationsLocalizableConfigurationAttr(
 
 @final
 class OptionalStaticTranslationsLocalizableConfigurationAttr(
-    _StaticTranslationsLocalizableConfigurationAttr,
-    DeletableAttr[
-        object, StaticTranslationsLocalizableConfiguration, ShorthandStaticTranslations
-    ],
+    _StaticTranslationsLocalizableConfigurationAttr
 ):
     """
     An instance attribute that contains :py:class:`betty.locale.localizable.config.StaticTranslationsLocalizableConfiguration`.
@@ -91,6 +108,5 @@ class OptionalStaticTranslationsLocalizableConfigurationAttr(
 
     _required = False
 
-    @override
-    def del_attr(self, instance: object) -> None:
-        self.get_attr(instance).replace({})
+    def __delete__(self, instance: object) -> None:
+        self.__get__(instance, type(instance)).replace({})
