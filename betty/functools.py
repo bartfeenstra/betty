@@ -11,7 +11,6 @@ from time import time
 from typing import (
     Any,
     Iterable,
-    Sized,
     TypeVar,
     Callable,
     Iterator,
@@ -25,29 +24,6 @@ if TYPE_CHECKING:
     from collections.abc import MutableSequence
 
 _T = TypeVar("_T")
-
-
-def slice_to_range(indices: slice, iterable: Sized) -> Iterable[int]:
-    """
-    Apply a slice to an iterable, and return the corresponding range.
-    """
-    length = len(iterable)
-
-    if indices.start is None:  # noqa SIM108
-        start = 0
-    else:
-        # Ensure the stop index is within range.
-        start = max(-length, min(length, indices.start))
-
-    if indices.stop is None:
-        stop = max(0, length)
-    else:
-        # Ensure the stop index is within range.
-        stop = max(-length, min(length, indices.stop))
-
-    step = 1 if indices.step is None else indices.step
-
-    return range(start, stop, step)
 
 
 def filter_suppress(
