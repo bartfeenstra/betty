@@ -122,7 +122,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "CacheItem": TestKnownToBeMissing,
     },
     "betty/cache/_base.py": TestKnownToBeMissing,
-    "betty/classtools.py": TestKnownToBeMissing,
     "betty/core.py": TestKnownToBeMissing,
     "betty/cli/__init__.py": {
         "ctx_app": TestKnownToBeMissing,
@@ -559,6 +558,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "PostLoadAncestryEvent": TestKnownToBeMissing,
     },
     "betty/render.py": TestKnownToBeMissing,
+    "betty/repr.py": TestKnownToBeMissing,
     "betty/requirement.py": {
         "Requirement": {
             "details": TestKnownToBeMissing,

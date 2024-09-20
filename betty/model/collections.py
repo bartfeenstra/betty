@@ -22,9 +22,9 @@ from typing_extensions import override
 
 from betty import model
 from betty.asyncio import wait_to_thread
-from betty.classtools import repr_instance
 from betty.functools import Uniquifier
 from betty.model import Entity
+from betty.repr import repr_instance
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName

@@ -22,8 +22,8 @@ from typing import (
 
 from typing_extensions import override
 
-from betty.classtools import repr_instance
 from betty.config import Configuration
+from betty.repr import repr_instance
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump
