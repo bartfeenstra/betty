@@ -1,19 +1,16 @@
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING
 
 import pytest
-from typing_extensions import override
 
 from betty.assertion.error import AssertionFailed
 from betty.locale import UNDETERMINED_LOCALE, DEFAULT_LOCALE
 from betty.locale.localizable import ShorthandStaticTranslations
-from betty.locale.localizable.assertion import assert_static_translations
 from betty.locale.localizable.config import (
     StaticTranslationsLocalizableConfiguration,
     OptionalStaticTranslationsLocalizableConfigurationAttr,
     RequiredStaticTranslationsLocalizableConfigurationAttr,
 )
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.test_utils.attr import DeletableAttrTestBase, SettableAttrTestBase
 from betty.typing import Void
 
 if TYPE_CHECKING:
@@ -141,64 +138,39 @@ class TestStaticTranslationsLocalizableConfiguration:
         }
 
 
-class _StaticTranslationsLocalizableConfigurationAttrTestBase(
-    SettableAttrTestBase[
-        object, StaticTranslationsLocalizableConfiguration, ShorthandStaticTranslations
-    ]
-):
-    @override
-    def assert_eq(
-        self,
-        get_value: StaticTranslationsLocalizableConfiguration,
-        set_value: ShorthandStaticTranslations,
-    ) -> None:
-        assert get_value._translations == assert_static_translations()(set_value)
+class TestRequiredStaticTranslationsLocalizableConfigurationAttr:
+    class Instance:
+        attr = RequiredStaticTranslationsLocalizableConfigurationAttr("attr")
+
+    def test___get__(self) -> None:
+        instance = self.Instance()
+        instance.attr  # noqa B018
+
+    def test___set__(self) -> None:
+        translation = "Hello, world!"
+        instance = self.Instance()
+        instance.attr = translation
+        assert instance.attr[UNDETERMINED_LOCALE] == translation
 
 
-class TestRequiredStaticTranslationsLocalizableConfigurationAttr(
-    _StaticTranslationsLocalizableConfigurationAttrTestBase
-):
-    @override
-    def get_mutable_instances(
-        self,
-    ) -> tuple[Sequence[tuple[object, Sequence[ShorthandStaticTranslations]]], str]:
-        class Instance:
-            attr = RequiredStaticTranslationsLocalizableConfigurationAttr("attr")
+class TestOptionalStaticTranslationsLocalizableConfigurationAttr:
+    class Instance:
+        attr = OptionalStaticTranslationsLocalizableConfigurationAttr("attr")
 
-        return [
-            (
-                Instance(),
-                [
-                    "Hello, world!",
-                    {
-                        DEFAULT_LOCALE: "Hello, world!",
-                    },
-                ],
-            )
-        ], "attr"
+    def test___get__(self) -> None:
+        instance = self.Instance()
+        instance.attr  # noqa B018
 
+    def test___set__(self) -> None:
+        translation = "Hello, world!"
+        instance = self.Instance()
+        instance.attr = translation
+        assert instance.attr[UNDETERMINED_LOCALE] == translation
 
-class TestOptionalStaticTranslationsLocalizableConfigurationAttr(
-    _StaticTranslationsLocalizableConfigurationAttrTestBase,
-    DeletableAttrTestBase[
-        object, StaticTranslationsLocalizableConfiguration, ShorthandStaticTranslations
-    ],
-):
-    @override
-    def get_mutable_instances(
-        self,
-    ) -> tuple[Sequence[tuple[object, Sequence[ShorthandStaticTranslations]]], str]:
-        class Instance:
-            attr = OptionalStaticTranslationsLocalizableConfigurationAttr("attr")
-
-        return [
-            (
-                Instance(),
-                [
-                    "Hello, world!",
-                    {
-                        DEFAULT_LOCALE: "Hello, world!",
-                    },
-                ],
-            )
-        ], "attr"
+    def test___delete__(self) -> None:
+        translation = "Hello, world!"
+        instance = self.Instance()
+        instance.attr = translation
+        del instance.attr
+        with pytest.raises(KeyError):
+            instance.attr[UNDETERMINED_LOCALE]  # noqa B018

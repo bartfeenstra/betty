@@ -20,6 +20,7 @@ from betty.model import (
 from betty.model.association import (
     AssociationRegistry,
     ToOneAssociation,
+    ToManyAssociation,
 )
 
 
@@ -52,9 +53,9 @@ class _EntityGraphBuilder:
                     ]
                     owner = unalias(self._entities[owner_type][owner_id])
                     if isinstance(association, ToOneAssociation):
-                        association.set_attr(owner, associates[0])
-                    else:
-                        association.set_attr(owner, associates)
+                        association.__set__(owner, associates[0])
+                    elif isinstance(association, ToManyAssociation):
+                        association.__set__(owner, associates)
 
     def build(self) -> Iterator[Entity]:
         self._assert_unbuilt()

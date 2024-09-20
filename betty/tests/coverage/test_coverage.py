@@ -69,20 +69,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "prepend": TestKnownToBeMissing,
         },
     },
-    "betty/attr.py": {
-        "Attr": {
-            # This is an abstract method.
-            "new_attr": TestKnownToBeMissing,
-        },
-        "DeletableAttr": {
-            # This is an abstract method.
-            "del_attr": TestKnownToBeMissing,
-        },
-        "SettableAttr": {
-            # This is an abstract method.
-            "set_attr": TestKnownToBeMissing,
-        },
-    },
     "betty/app/__init__.py": {
         "App": {
             "assets": TestKnownToBeMissing,
@@ -353,9 +339,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/model/association.py": {
         # This abstract class is covered by numerous tests for its final subclasses.
         "Association": TestKnownToBeMissing,
-        "ToMany": {
-            "new_attr": TestKnownToBeMissing,
-        },
         # This abstract class is covered by numerous tests for its final subclasses.
         "ToManyAssociation": TestKnownToBeMissing,
         # This abstract class is covered by numerous tests for its final subclasses.
@@ -635,7 +618,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "betty/test_utils/assertion/__init__.py": TestKnownToBeMissing,
         "betty/test_utils/assertion/error.py": TestKnownToBeMissing,
         "betty/test_utils/assets/templates.py": TestKnownToBeMissing,
-        "betty/test_utils/attr.py": TestKnownToBeMissing,
         "betty/test_utils/cli.py": TestKnownToBeMissing,
         "betty/test_utils/concurrent.py": TestKnownToBeMissing,
         "betty/test_utils/conftest.py": TestKnownToBeMissing,
