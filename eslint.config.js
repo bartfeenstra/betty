@@ -26,11 +26,11 @@ export default [
     // The Webpack extension and other extensions using it.
     {
         files: [
-            'betty/extension/cotton_candy/webpack/**',
-            'betty/extension/http_api_doc/webpack/**',
-            'betty/extension/maps/webpack/**',
-            'betty/extension/trees/webpack/**',
-            'betty/extension/webpack/webpack/**',
+            'betty/project/extension/cotton_candy/webpack/**',
+            'betty/project/extension/http_api_doc/webpack/**',
+            'betty/project/extension/maps/webpack/**',
+            'betty/project/extension/trees/webpack/**',
+            'betty/project/extension/webpack/webpack/**',
         ],
         languageOptions: {
             globals: {

@@ -8,16 +8,19 @@ from betty.assertion import assert_path, assert_str, assert_locale
 from betty.cli.commands import command, pass_app
 from betty.cli.error import user_facing_error_to_bad_parameter
 from betty.config import write_configuration_file
-from betty.extension.cotton_candy import CottonCandy
-from betty.extension.deriver import Deriver
-from betty.extension.gramps import Gramps
-from betty.extension.gramps.config import GrampsConfiguration, FamilyTreeConfiguration
-from betty.extension.http_api_doc import HttpApiDoc
-from betty.extension.maps import Maps
-from betty.extension.privatizer import Privatizer
-from betty.extension.trees import Trees
-from betty.extension.webpack import Webpack
-from betty.extension.wikipedia import Wikipedia
+from betty.project.extension.cotton_candy import CottonCandy
+from betty.project.extension.deriver import Deriver
+from betty.project.extension.gramps import Gramps
+from betty.project.extension.gramps.config import (
+    GrampsConfiguration,
+    FamilyTreeConfiguration,
+)
+from betty.project.extension.http_api_doc import HttpApiDoc
+from betty.project.extension.maps import Maps
+from betty.project.extension.privatizer import Privatizer
+from betty.project.extension.trees import Trees
+from betty.project.extension.webpack import Webpack
+from betty.project.extension.wikipedia import Wikipedia
 from betty.locale import DEFAULT_LOCALE, get_display_name
 from betty.machine_name import assert_machine_name, machinify
 from betty.project.config import (
