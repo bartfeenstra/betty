@@ -46,14 +46,6 @@ class ConfigurationSequence(
         super().__init__(configurations)
 
     @override
-    def to_index(self, configuration_key: int) -> int:
-        return configuration_key
-
-    @override
-    def to_key(self, index: int) -> int:
-        return index
-
-    @override
     @overload
     def __getitem__(self, configuration_key: int) -> _ConfigurationT:
         pass

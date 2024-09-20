@@ -3,33 +3,9 @@ from typing import Any, TypeVar
 
 import pytest
 
-from betty.functools import slice_to_range, Do, Uniquifier
+from betty.functools import Do, Uniquifier
 
 _T = TypeVar("_T")
-
-
-class TestSliceToRange:
-    @pytest.mark.parametrize(
-        ("expected_range_items", "ranged_slice"),
-        [
-            ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], slice(0, 16, 1)),
-            ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], slice(0, None, 1)),
-            ([0], slice(None, 1, 1)),
-            (
-                [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-                slice(None, None, 1),
-            ),
-            ([9, 10, 11, 12, 13, 14, 15], slice(9, None, 1)),
-            ([0, 3, 6, 9, 12, 15], slice(None, None, 3)),
-            # Test a slice that is longer than the iterable.
-            ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], slice(0, 99)),
-        ],
-    )
-    async def test(
-        self, expected_range_items: Sequence[int], ranged_slice: slice
-    ) -> None:
-        iterable = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-        assert expected_range_items == list(slice_to_range(ranged_slice, iterable))
 
 
 class TestDo:

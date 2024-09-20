@@ -51,14 +51,6 @@ class _ConfigurationMapping(
         return False
 
     @override
-    def to_index(self, configuration_key: _ConfigurationKeyT) -> int:
-        return list(self._configurations.keys()).index(configuration_key)
-
-    @override
-    def to_key(self, index: int) -> _ConfigurationKeyT:
-        return list(self._configurations.keys())[index]
-
-    @override
     def __getitem__(self, configuration_key: _ConfigurationKeyT) -> _ConfigurationT:
         return self._configurations[configuration_key]
 

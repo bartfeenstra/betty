@@ -24,7 +24,6 @@ from typing_extensions import override
 
 from betty.classtools import repr_instance
 from betty.config import Configuration
-from betty.functools import slice_to_range
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump
@@ -110,41 +109,6 @@ class ConfigurationCollection(
 
     def _post_remove(self, configuration: _ConfigurationT) -> None:
         pass
-
-    @abstractmethod
-    def to_index(self, configuration_key: _ConfigurationKeyT) -> int:
-        """
-        Get the index for the given key.
-        """
-        pass
-
-    def to_indices(self, *configuration_keys: _ConfigurationKeyT) -> Iterator[int]:
-        """
-        Get the indices for the given keys.
-        """
-        for configuration_key in configuration_keys:
-            yield self.to_index(configuration_key)
-
-    @abstractmethod
-    def to_key(self, index: int) -> _ConfigurationKeyT:
-        """
-        Get the key for the item at the given index.
-        """
-        pass
-
-    def to_keys(self, *indices: int | slice) -> Iterator[_ConfigurationKeyT]:
-        """
-        Get the keys for the items at the given indices.
-        """
-        unique_indices = set()
-        for index in indices:
-            if isinstance(index, slice):
-                for slice_index in slice_to_range(index, self._configurations):
-                    unique_indices.add(slice_index)
-            else:
-                unique_indices.add(index)
-        for index in sorted(unique_indices):
-            yield self.to_key(index)
 
     @abstractmethod
     def load_item(self, dump: Dump) -> _ConfigurationT:
