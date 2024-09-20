@@ -11,7 +11,6 @@ from typing_extensions import override
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.locale import HasLocale
 from betty.ancestry.privacy import HasPrivacy, Privacy, merge_privacies
-from betty.classtools import repr_instance
 from betty.json.linked_data import dump_context
 from betty.json.schema import Object, String
 from betty.locale import UNDETERMINED_LOCALE
@@ -19,6 +18,7 @@ from betty.locale.localizable import _, Localizable
 from betty.model import Entity
 from betty.model.association import ManyToOne
 from betty.plugin import ShorthandPluginBase
+from betty.repr import repr_instance
 
 if TYPE_CHECKING:
     from betty.project import Project

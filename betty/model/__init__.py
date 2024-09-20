@@ -16,7 +16,6 @@ from uuid import uuid4
 
 from typing_extensions import override
 
-from betty.classtools import repr_instance
 from betty.json.linked_data import LinkedDataDumpable, JsonLdObject
 from betty.json.schema import (
     JsonSchemaReference,
@@ -28,6 +27,7 @@ from betty.locale.localizable import _, Localizable
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import PluginRepository, Plugin
 from betty.plugin.entry_point import EntryPointPluginRepository
+from betty.repr import repr_instance
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:

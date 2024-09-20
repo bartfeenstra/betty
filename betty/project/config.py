@@ -35,7 +35,6 @@ from betty.assertion import (
     assert_mapping,
 )
 from betty.assertion.error import AssertionFailed
-from betty.classtools import repr_instance
 from betty.config import Configuration
 from betty.config.collections.mapping import (
     ConfigurationMapping,
@@ -61,6 +60,7 @@ from betty.plugin.config import (
 )
 from betty.project import extension
 from betty.project.extension import Extension, ConfigurableExtension
+from betty.repr import repr_instance
 from betty.serde.dump import (
     Dump,
     minimize,

@@ -10,7 +10,6 @@ from urllib.parse import quote
 
 from typing_extensions import override
 
-from betty.ancestry.presence import Presence
 from betty.ancestry.date import HasDate
 from betty.ancestry.description import HasDescription
 from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY, EventType
@@ -21,17 +20,18 @@ from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
+from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role import PresenceRoleSchema
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.privacy import HasPrivacy, Privacy
 from betty.asyncio import wait_to_thread
-from betty.classtools import repr_instance
 from betty.json.linked_data import dump_context, JsonLdObject
 from betty.json.schema import Object, Enum, Array, String
 from betty.locale.localizable import _, ShorthandStaticTranslations, Localizable, call
 from betty.model import UserFacingEntity, GeneratedEntityId, EntityReferenceSchema
 from betty.model.association import ManyToOne, OneToMany
 from betty.plugin import ShorthandPluginBase
+from betty.repr import repr_instance
 
 if TYPE_CHECKING:
     from betty.ancestry.citation import Citation

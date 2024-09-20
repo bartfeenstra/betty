@@ -11,10 +11,10 @@ from typing import Generic, cast, Any, Iterable, TypeVar, final, Self, overload
 from basedtyping import Intersection
 from typing_extensions import override
 
-from betty.classtools import repr_instance
 from betty.importlib import import_any
 from betty.model import Entity
 from betty.model.collections import EntityCollection, SingleTypeEntityCollection
+from betty.repr import repr_instance
 from betty.typing import internal
 
 _EntityT = TypeVar("_EntityT", bound=Entity)

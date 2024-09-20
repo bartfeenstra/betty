@@ -1,5 +1,5 @@
 """
-Provide class utilities.
+Provide utilities to represent values as strings.
 """
 
 from typing import Any
