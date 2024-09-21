@@ -1,5 +1,5 @@
 """
-Provide copyrights.
+Provide copyright notices.
 """
 
 from abc import abstractmethod
@@ -9,13 +9,13 @@ from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
 
 
-class Copyright(Plugin):
+class CopyrightNotice(Plugin):
     """
-    A copyright.
+    A copyright notice.
 
-    Read more about :doc:`/development/plugin/copyright`.
+    Read more about :doc:`/development/plugin/copyright-notice`.
 
-    To test your own subclasses, use :py:class:`betty.test_utils.copyright.CopyrightTestBase`.
+    To test your own subclasses, use :py:class:`betty.test_utils.copyright_notice.CopyrightNoticeTestBase`.
     """
 
     @property
@@ -35,11 +35,11 @@ class Copyright(Plugin):
         pass
 
 
-COPYRIGHT_REPOSITORY: PluginRepository[Copyright] = EntryPointPluginRepository(
-    "betty.copyright"
+COPYRIGHT_NOTICE_REPOSITORY: PluginRepository[CopyrightNotice] = (
+    EntryPointPluginRepository("betty.copyright_notice")
 )
 """
-The copyright plugin repository.
+The copyright notice plugin repository.
 
-Read more about :doc:`/development/plugin/copyright`.
+Read more about :doc:`/development/plugin/copyright-notice`.
 """

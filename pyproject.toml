@@ -92,8 +92,8 @@ betty = 'betty.cli:main'
 'dev-new-translation' = 'betty.cli.commands.dev_new_translation:dev_new_translation'
 'dev-update-translations' = 'betty.cli.commands.dev_update_translations:dev_update_translations'
 
-[project.entry-points.'betty.copyright']
-'project-author' = 'betty.copyright.copyrights:ProjectAuthor'
+[project.entry-points.'betty.copyright_notice']
+'project-author' = 'betty.copyright_notice.copyright_notices:ProjectAuthor'
 
 [project.entry-points.'betty.entity_type']
 'citation' = 'betty.ancestry.citation:Citation'

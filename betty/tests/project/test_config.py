@@ -25,8 +25,8 @@ from betty.project.config import (
     PresenceRoleConfigurationMapping,
     PlaceTypeConfigurationMapping,
     GenderConfigurationMapping,
-    CopyrightConfigurationMapping,
-    CopyrightConfiguration,
+    CopyrightNoticeConfigurationMapping,
+    CopyrightNoticeConfiguration,
 )
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension
@@ -825,34 +825,34 @@ class TestEntityTypeConfigurationMapping(
         )
 
 
-class TestCopyrightConfiguration:
+class TestCopyrightNoticeConfiguration:
     def test___init___with_summary(self) -> None:
         summary = "My First Copyright Summary"
-        sut = CopyrightConfiguration("-", "", summary=summary, text="")
+        sut = CopyrightNoticeConfiguration("-", "", summary=summary, text="")
         assert sut.summary[UNDETERMINED_LOCALE] == summary
 
     def test___init___with_text(self) -> None:
         text = "My First Copyright Text"
-        sut = CopyrightConfiguration("-", "", summary="", text=text)
+        sut = CopyrightNoticeConfiguration("-", "", summary="", text=text)
         assert sut.text[UNDETERMINED_LOCALE] == text
 
     def test_summary(self) -> None:
-        sut = CopyrightConfiguration("-", "", summary="", text="")
+        sut = CopyrightNoticeConfiguration("-", "", summary="", text="")
         summary = "My First Copyright Summary"
         sut.summary = summary
         assert sut.summary[UNDETERMINED_LOCALE] == summary
 
     def test_text(self) -> None:
-        sut = CopyrightConfiguration("-", "", summary="", text="")
+        sut = CopyrightNoticeConfiguration("-", "", summary="", text="")
         text = "My First Copyright Text"
         sut.text = text
         assert sut.text[UNDETERMINED_LOCALE] == text
 
     async def test_update(self) -> None:
-        sut = CopyrightConfiguration("-", "", summary="", text="")
+        sut = CopyrightNoticeConfiguration("-", "", summary="", text="")
         summary = "My First Copyright Summary"
         text = "My First Copyright Text"
-        other = CopyrightConfiguration(
+        other = CopyrightNoticeConfiguration(
             "-", "", description="", summary=summary, text=text
         )
         sut.update(other)
@@ -868,7 +868,7 @@ class TestCopyrightConfiguration:
             "summary": summary,
             "text": text,
         }
-        sut = CopyrightConfiguration("-", "", summary="", text="")
+        sut = CopyrightNoticeConfiguration("-", "", summary="", text="")
         sut.load(dump)
         assert sut.summary[UNDETERMINED_LOCALE] == summary
         assert sut.text[UNDETERMINED_LOCALE] == text
@@ -879,7 +879,7 @@ class TestCopyrightConfiguration:
             "label": "",
             "text": "",
         }
-        sut = CopyrightConfiguration("-", "", summary="", text="")
+        sut = CopyrightNoticeConfiguration("-", "", summary="", text="")
         with pytest.raises(AssertionFailed):
             sut.load(dump)
 
@@ -889,21 +889,21 @@ class TestCopyrightConfiguration:
             "label": "",
             "summary": "",
         }
-        sut = CopyrightConfiguration("-", "", summary="", text="")
+        sut = CopyrightNoticeConfiguration("-", "", summary="", text="")
         with pytest.raises(AssertionFailed):
             sut.load(dump)
 
     async def test_dump(self) -> None:
         summary = "My First Copyright Summary"
         text = "My First Copyright Text"
-        sut = CopyrightConfiguration("-", "", summary=summary, text=text)
+        sut = CopyrightNoticeConfiguration("-", "", summary=summary, text=text)
         dump = sut.dump()
         assert dump["summary"] == summary
         assert dump["text"] == text
 
 
-class TestCopyrightConfigurationMapping(
-    ConfigurationMappingTestBase[str, CopyrightConfiguration]
+class TestCopyrightNoticeConfigurationMapping(
+    ConfigurationMappingTestBase[str, CopyrightNoticeConfiguration]
 ):
     @override
     def get_configuration_keys(self) -> tuple[str, str, str, str]:
@@ -913,23 +913,23 @@ class TestCopyrightConfigurationMapping(
     def get_configurations(
         self,
     ) -> tuple[
-        CopyrightConfiguration,
-        CopyrightConfiguration,
-        CopyrightConfiguration,
-        CopyrightConfiguration,
+        CopyrightNoticeConfiguration,
+        CopyrightNoticeConfiguration,
+        CopyrightNoticeConfiguration,
+        CopyrightNoticeConfiguration,
     ]:
         return (
-            CopyrightConfiguration("foo", "Foo", summary="", text=""),
-            CopyrightConfiguration("bar", "Bar", summary="", text=""),
-            CopyrightConfiguration("baz", "Baz", summary="", text=""),
-            CopyrightConfiguration("qux", "Qux", summary="", text=""),
+            CopyrightNoticeConfiguration("foo", "Foo", summary="", text=""),
+            CopyrightNoticeConfiguration("bar", "Bar", summary="", text=""),
+            CopyrightNoticeConfiguration("baz", "Baz", summary="", text=""),
+            CopyrightNoticeConfiguration("qux", "Qux", summary="", text=""),
         )
 
     @override
     def get_sut(
-        self, configurations: Iterable[CopyrightConfiguration] | None = None
-    ) -> CopyrightConfigurationMapping:
-        return CopyrightConfigurationMapping(configurations)
+        self, configurations: Iterable[CopyrightNoticeConfiguration] | None = None
+    ) -> CopyrightNoticeConfigurationMapping:
+        return CopyrightNoticeConfigurationMapping(configurations)
 
 
 class TestEventTypeConfigurationMapping(
@@ -1208,9 +1208,9 @@ class TestProjectConfiguration:
         sut.logo = logo
         assert sut.logo == logo
 
-    async def test_copyrights(self, tmp_path: Path) -> None:
+    async def test_copyright_notices(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        assert sut.copyrights is sut.copyrights
+        assert sut.copyright_notices is sut.copyright_notices
 
     async def test_event_types(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")

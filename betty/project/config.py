@@ -41,7 +41,7 @@ from betty.config.collections.mapping import (
     OrderedConfigurationMapping,
 )
 from betty.config.collections.sequence import ConfigurationSequence
-from betty.copyright import Copyright
+from betty.copyright_notice import CopyrightNotice
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizable import _, ShorthandStaticTranslations, Localizable
 from betty.locale.localizable.assertion import assert_static_translations
@@ -639,9 +639,9 @@ class LocaleConfigurationMapping(OrderedConfigurationMapping[str, LocaleConfigur
         return len(self) > 1
 
 
-class CopyrightConfiguration(PluginConfiguration):
+class CopyrightNoticeConfiguration(PluginConfiguration):
     """
-    Configuration to define :py:class:`betty.copyright.Copyright` plugins.
+    Configuration to define :py:class:`betty.copyright_notice.CopyrightNotice` plugins.
     """
 
     summary = RequiredStaticTranslationsLocalizableConfigurationAttr("summary")
@@ -690,16 +690,20 @@ class CopyrightConfiguration(PluginConfiguration):
         )
 
 
-class CopyrightConfigurationMapping(
-    PluginConfigurationMapping[Copyright, CopyrightConfiguration]
+class CopyrightNoticeConfigurationMapping(
+    PluginConfigurationMapping[CopyrightNotice, CopyrightNoticeConfiguration]
 ):
     """
-    A configuration mapping for copyrights.
+    A configuration mapping for copyright notices.
     """
 
     @override
-    def _create_plugin(self, configuration: CopyrightConfiguration) -> type[Copyright]:
-        class _ProjectConfigurationCopyright(ShorthandPluginBase, Copyright):
+    def _create_plugin(
+        self, configuration: CopyrightNoticeConfiguration
+    ) -> type[CopyrightNotice]:
+        class _ProjectConfigurationCopyrightNotice(
+            ShorthandPluginBase, CopyrightNotice
+        ):
             _plugin_id = configuration.id
             _plugin_label = configuration.label
             _plugin_description = configuration.description
@@ -714,17 +718,19 @@ class CopyrightConfigurationMapping(
             def text(self) -> Localizable:
                 return configuration.text
 
-        return _ProjectConfigurationCopyright
+        return _ProjectConfigurationCopyrightNotice
 
     @override
-    def load_item(self, dump: Dump) -> CopyrightConfiguration:
-        item = CopyrightConfiguration("-", "", summary="", text="")
+    def load_item(self, dump: Dump) -> CopyrightNoticeConfiguration:
+        item = CopyrightNoticeConfiguration("-", "", summary="", text="")
         item.load(dump)
         return item
 
     @classmethod
-    def _create_default_item(cls, configuration_key: str) -> CopyrightConfiguration:
-        return CopyrightConfiguration(configuration_key, {}, summary="", text="")
+    def _create_default_item(
+        cls, configuration_key: str
+    ) -> CopyrightNoticeConfiguration:
+        return CopyrightNoticeConfiguration(configuration_key, {}, summary="", text="")
 
 
 class EventTypeConfigurationMapping(
@@ -801,8 +807,8 @@ class ProjectConfiguration(Configuration):
 
     title = OptionalStaticTranslationsLocalizableConfigurationAttr("title")
     author = OptionalStaticTranslationsLocalizableConfigurationAttr("author")
-    #: The ID of the project-wide :py:class:`betty.copyright.Copyright` plugin to use.
-    copyright: MachineName
+    #: The ID of the project-wide :py:class:`betty.copyright_notice.CopyrightNotice` plugin to use.
+    copyright_notice: MachineName
 
     def __init__(
         self,
@@ -816,8 +822,8 @@ class ProjectConfiguration(Configuration):
         event_types: Iterable[PluginConfiguration] | None = None,
         place_types: Iterable[PluginConfiguration] | None = None,
         presence_roles: Iterable[PluginConfiguration] | None = None,
-        copyright: MachineName | None = None,  # noqa A002
-        copyrights: Iterable[CopyrightConfiguration] | None = None,
+        copyright_notice: MachineName | None = None,  # noqa A002
+        copyright_notices: Iterable[CopyrightNoticeConfiguration] | None = None,
         genders: Iterable[PluginConfiguration] | None = None,
         extensions: Iterable[ExtensionConfiguration] | None = None,
         debug: bool = False,
@@ -826,7 +832,7 @@ class ProjectConfiguration(Configuration):
         name: MachineName | None = None,
         logo: Path | None = None,
     ):
-        from betty.copyright.copyrights import ProjectAuthor
+        from betty.copyright_notice.copyright_notices import ProjectAuthor
 
         super().__init__()
         self._configuration_file_path = configuration_file_path
@@ -858,10 +864,10 @@ class ProjectConfiguration(Configuration):
                 ),
             ]
         )
-        self.copyright = copyright or ProjectAuthor.plugin_id()
-        self._copyrights = CopyrightConfigurationMapping()
-        if copyrights is not None:
-            self._copyrights.append(*copyrights)
+        self.copyright_notice = copyright_notice or ProjectAuthor.plugin_id()
+        self._copyright_notices = CopyrightNoticeConfigurationMapping()
+        if copyright_notices is not None:
+            self._copyright_notices.append(*copyright_notices)
         self._event_types = EventTypeConfigurationMapping()
         if event_types is not None:
             self._event_types.append(*event_types)
@@ -1066,13 +1072,13 @@ class ProjectConfiguration(Configuration):
         self._logo = logo
 
     @property
-    def copyrights(
+    def copyright_notices(
         self,
-    ) -> PluginConfigurationMapping[Copyright, CopyrightConfiguration]:
+    ) -> PluginConfigurationMapping[CopyrightNotice, CopyrightNoticeConfiguration]:
         """
-        The :py:class:`betty.copyright.Copyright` plugins created by this project.
+        The :py:class:`betty.copyright_notice.CopyrightNotice` plugins created by this project.
         """
-        return self._copyrights
+        return self._copyright_notices
 
     @property
     def event_types(self) -> PluginConfigurationMapping[EventType, PluginConfiguration]:
@@ -1118,7 +1124,7 @@ class ProjectConfiguration(Configuration):
         self._locales.update(other._locales)
         self._extensions.update(other._extensions)
         self._entity_types.update(other._entity_types)
-        self._copyrights.update(other._copyrights)
+        self._copyright_notices.update(other._copyright_notices)
         self._event_types.update(other._event_types)
         self._genders.update(other._genders)
         self._place_types.update(other._place_types)
@@ -1147,7 +1153,7 @@ class ProjectConfiguration(Configuration):
             OptionalField(
                 "copyright", assert_machine_name() | assert_setattr(self, "copyright")
             ),
-            OptionalField("copyrights", self.copyrights.load),
+            OptionalField("copyright_notices", self.copyright_notices.load),
             OptionalField("event_types", self.event_types.load),
             OptionalField("genders", self.genders.load),
             OptionalField("place_types", self.place_types.load),
@@ -1169,8 +1175,8 @@ class ProjectConfiguration(Configuration):
                 "locales": self.locales.dump(),
                 "extensions": self.extensions.dump(),
                 "entity_types": self.entity_types.dump(),
-                "copyright": self.copyright if self.copyright else Void,
-                "copyrights": self.copyrights.dump(),
+                "copyright": self.copyright_notice if self.copyright_notice else Void,
+                "copyright_notices": self.copyright_notices.dump(),
                 "event_types": self.event_types.dump(),
                 "genders": self.genders.dump(),
                 "place_types": self.place_types.dump(),

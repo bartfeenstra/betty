@@ -37,7 +37,7 @@ from betty.asyncio import wait_to_thread
 from betty.config import (
     Configurable,
 )
-from betty.copyright import Copyright, COPYRIGHT_REPOSITORY
+from betty.copyright_notice import CopyrightNotice, COPYRIGHT_NOTICE_REPOSITORY
 from betty.core import CoreComponent
 from betty.event_dispatcher import EventDispatcher, EventHandlerRegistry
 from betty.factory import FactoryProvider
@@ -112,8 +112,8 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
         self._extensions: ProjectExtensions | None = None
         self._event_dispatcher: EventDispatcher | None = None
         self._entity_types: set[type[Entity]] | None = None
-        self._copyright: Copyright | None = None
-        self._copyrights: PluginRepository[Copyright] | None = None
+        self._copyright_notice: CopyrightNotice | None = None
+        self._copyright_notices: PluginRepository[CopyrightNotice] | None = None
         self._event_types: PluginRepository[EventType] | None = None
         self._place_types: PluginRepository[PlaceType] | None = None
         self._presence_roles: PluginRepository[PresenceRole] | None = None
@@ -361,32 +361,34 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
         )
 
     @property
-    def copyright(self) -> Copyright:
+    def copyright_notice(self) -> CopyrightNotice:
         """
         The overall project copyright.
         """
-        if self._copyright is None:
-            self._copyright = wait_to_thread(self._init_copyright())
-        return self._copyright
+        if self._copyright_notice is None:
+            self._copyright_notice = wait_to_thread(self._init_copyright())
+        return self._copyright_notice
 
-    async def _init_copyright(self) -> Copyright:
-        return await self.new(await self.copyrights.get(self.configuration.copyright))
+    async def _init_copyright(self) -> CopyrightNotice:
+        return await self.new(
+            await self.copyright_notices.get(self.configuration.copyright_notice)
+        )
 
     @property
-    def copyrights(self) -> PluginRepository[Copyright]:
+    def copyright_notices(self) -> PluginRepository[CopyrightNotice]:
         """
-        The copyrights available to this project.
+        The copyright notices available to this project.
 
-        Read more about :doc:`/development/plugin/copyright`.
+        Read more about :doc:`/development/plugin/copyright-notice`.
         """
-        if self._copyrights is None:
+        if self._copyright_notices is None:
             self._assert_bootstrapped()
-            self._copyrights = ProxyPluginRepository(
-                COPYRIGHT_REPOSITORY,
-                StaticPluginRepository(*self.configuration.copyrights.plugins),
+            self._copyright_notices = ProxyPluginRepository(
+                COPYRIGHT_NOTICE_REPOSITORY,
+                StaticPluginRepository(*self.configuration.copyright_notices.plugins),
             )
 
-        return self._copyrights
+        return self._copyright_notices
 
     @property
     def event_types(self) -> PluginRepository[EventType]:

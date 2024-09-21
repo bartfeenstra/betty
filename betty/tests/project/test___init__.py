@@ -23,7 +23,7 @@ from betty.project import (
 )
 from betty.project.config import (
     ExtensionConfiguration,
-    CopyrightConfiguration,
+    CopyrightNoticeConfiguration,
 )
 from betty.project.extension import (
     Extension,
@@ -397,17 +397,17 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             assert sut.logo.exists()
 
-    async def test_copyright(self, new_temporary_app: App) -> None:
+    async def test_copyright_notice(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            assert sut.copyright is sut.copyright
+            assert sut.copyright_notice is sut.copyright_notice
 
-    async def test_copyrights(self, new_temporary_app: App) -> None:
+    async def test_copyright_notices(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.copyrights.append(
-                CopyrightConfiguration("foo", "Foo", summary="", text="")
+            sut.configuration.copyright_notices.append(
+                CopyrightNoticeConfiguration("foo", "Foo", summary="", text="")
             )
             async with sut:
-                assert await sut.copyrights.get("foo")
+                assert await sut.copyright_notices.get("foo")
 
     async def test_event_types(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
