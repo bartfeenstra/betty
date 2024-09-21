@@ -1,12 +1,12 @@
 """
-Test utilities for :py:mod:`betty.copyright`.
+Test utilities for :py:mod:`betty.copyright_notice`.
 """
 
 from __future__ import annotations
 
 from typing_extensions import override
 
-from betty.copyright import Copyright
+from betty.copyright_notice import CopyrightNotice
 from betty.locale.localizable import Localizable, plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.test_utils.plugin import (
@@ -15,29 +15,29 @@ from betty.test_utils.plugin import (
 )
 
 
-class CopyrightTestBase(PluginInstanceTestBase[Copyright]):
+class CopyrightNoticeTestBase(PluginInstanceTestBase[CopyrightNotice]):
     """
-    A base class for testing :py:class:`betty.copyright.Copyright` implementations.
+    A base class for testing :py:class:`betty.copyright_notice.CopyrightNotice` implementations.
     """
 
     def test_summary(self) -> None:
         """
-        Tests :py:meth:`betty.copyright.Copyright.summary` implementations.
+        Tests :py:meth:`betty.copyright_notice.CopyrightNotice.summary` implementations.
         """
         for sut in self.get_sut_instances():
             assert sut.summary.localize(DEFAULT_LOCALIZER)
 
     def test_text(self) -> None:
         """
-        Tests :py:meth:`betty.copyright.Copyright.text` implementations.
+        Tests :py:meth:`betty.copyright_notice.CopyrightNotice.text` implementations.
         """
         for sut in self.get_sut_instances():
             assert sut.summary.localize(DEFAULT_LOCALIZER)
 
 
-class DummyCopyright(DummyPlugin, Copyright):
+class DummyCopyrightNotice(DummyPlugin, CopyrightNotice):
     """
-    A dummy copyright implementation.
+    A dummy copyright notice implementation.
     """
 
     @override

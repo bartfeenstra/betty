@@ -1,19 +1,19 @@
 """
-Provide :py:class:`betty.copyright.Copyright` plugins.
+Provide :py:class:`betty.copyright_notice.CopyrightNotice` plugins.
 """
 
 from typing import Self
 
 from typing_extensions import override
 
-from betty.copyright import Copyright
+from betty.copyright_notice import CopyrightNotice
 from betty.locale.localizable import _, Localizable
 from betty.plugin import ShorthandPluginBase
 from betty.project import Project
 from betty.project.factory import ProjectDependentFactory
 
 
-class ProjectAuthor(ShorthandPluginBase, ProjectDependentFactory, Copyright):
+class ProjectAuthor(ShorthandPluginBase, ProjectDependentFactory, CopyrightNotice):
     """
     Copyright belonging to a project author.
     """

@@ -414,7 +414,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "PresenceRole": TestKnownToBeMissing,
     },
     # This contains an abstract class and a static value only.
-    "betty/copyright/__init__.py": TestKnownToBeMissing,
+    "betty/copyright_notice/__init__.py": TestKnownToBeMissing,
     "betty/path.py": TestKnownToBeMissing,
     "betty/plugin/__init__.py": {
         "Plugin": {
@@ -621,7 +621,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "betty/test_utils/config/collections/__init__.py": TestKnownToBeMissing,
         "betty/test_utils/config/collections/mapping.py": TestKnownToBeMissing,
         "betty/test_utils/config/collections/sequence.py": TestKnownToBeMissing,
-        "betty/test_utils/copyright.py": TestKnownToBeMissing,
+        "betty/test_utils/copyright_notice.py": TestKnownToBeMissing,
         "betty/test_utils/cache.py": TestKnownToBeMissing,
         "betty/test_utils/json/linked_data.py": TestKnownToBeMissing,
         "betty/test_utils/json/schema.py": TestKnownToBeMissing,
