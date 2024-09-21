@@ -568,20 +568,18 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
         "RequirementError": TestKnownToBeMissing,
     },
-    "betty/serde/format.py": {
+    "betty/serde/__init__.py": {
         # This is an interface.
         "Format": TestKnownToBeMissing,
         "FormatError": TestKnownToBeMissing,
-        "FormatRepository": TestKnownToBeMissing,
         "FormatStr": TestKnownToBeMissing,
-        "Json": {
-            "extensions": TestKnownToBeMissing,
-            "label": TestKnownToBeMissing,
-        },
-        "Yaml": {
-            "extensions": TestKnownToBeMissing,
-            "label": TestKnownToBeMissing,
-        },
+    },
+    "betty/serde/dump.py": TestKnownToBeMissing,
+    "betty/serde/format/__init__.py": {
+        # This is an abstract class.
+        "Format": TestKnownToBeMissing,
+        # This is an empty class.
+        "FormatError": TestKnownToBeMissing,
     },
     # This contains abstract classes only.
     "betty/serde/load.py": TestKnownToBeMissing,
@@ -604,7 +602,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         # This is an empty class.
         "ServerNotStartedError": TestKnownToBeMissing,
     },
-    "betty/serde/dump.py": TestKnownToBeMissing,
     # We do not test our test utilities.
     **{
         "betty/test_utils/ancestry/__init__.py": TestKnownToBeMissing,
@@ -633,6 +630,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "betty/test_utils/plugin/__init__.py": TestKnownToBeMissing,
         "betty/test_utils/plugin/config.py": TestKnownToBeMissing,
         "betty/test_utils/project/extension/__init__.py": TestKnownToBeMissing,
+        "betty/test_utils/serde/format.py": TestKnownToBeMissing,
         "betty/test_utils/serve.py": TestKnownToBeMissing,
     },
     "betty/typing.py": {

@@ -56,6 +56,7 @@ The following plugin types are provided by Betty itself:
 - :doc:`Place types </development/plugin/place-type>`
 - :doc:`Presence roles </development/plugin/presence-role>`
 - :doc:`Renderers </development/plugin/renderer>`
+- :doc:`Serialization formats </development/plugin/serde-format>`
 
 Creating a new plugin type
 --------------------------

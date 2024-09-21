@@ -24,10 +24,11 @@ from betty.assertion import (
     assert_file_path,
 )
 from betty.assertion.error import AssertionFailedGroup
+from betty.asyncio import wait_to_thread
 from betty.error import FileNotFound
 from betty.locale.localizable import plain
 from betty.serde.dump import Dumpable
-from betty.serde.format import FormatRepository
+from betty.serde.format import FORMAT_REPOSITORY
 from betty.serde.load import Loadable
 
 if TYPE_CHECKING:
@@ -86,8 +87,7 @@ def assert_configuration_file(
     Assert that configuration can be loaded from a file.
     """
 
-    def _assert(configuration_file_path: Path) -> _ConfigurationT:
-        formats = FormatRepository()
+    async def _assert(configuration_file_path: Path) -> _ConfigurationT:
         with (
             AssertionFailedGroup().assert_valid() as errors,
             # Change the working directory to allow relative paths to be resolved
@@ -100,14 +100,14 @@ def assert_configuration_file(
             except FileNotFoundError:
                 raise FileNotFound.new(configuration_file_path) from None
             with errors.catch(plain(f"in {str(configuration_file_path.resolve())}")):
-                configuration.load(
-                    formats.format_for(configuration_file_path.suffix).load(
-                        read_configuration
-                    )
+                serde_format_type = await FORMAT_REPOSITORY.format_for(
+                    configuration_file_path.suffix
                 )
+                serde_format = await FORMAT_REPOSITORY.new(serde_format_type)
+                configuration.load(serde_format.load(read_configuration))
             return configuration
 
-    return assert_file_path() | _assert
+    return assert_file_path().chain(lambda value: wait_to_thread(_assert(value)))
 
 
 async def write_configuration_file(
@@ -116,8 +116,11 @@ async def write_configuration_file(
     """
     Write configuration to file.
     """
-    formats = FormatRepository()
-    dump = formats.format_for(configuration_file_path.suffix).dump(configuration.dump())
+    serde_format_type = await FORMAT_REPOSITORY.format_for(
+        configuration_file_path.suffix
+    )
+    serde_format = await FORMAT_REPOSITORY.new(serde_format_type)
+    dump = serde_format.dump(configuration.dump())
     await makedirs(configuration_file_path.parent, exist_ok=True)
     async with aiofiles.open(configuration_file_path, mode="w") as f:
         await f.write(dump)

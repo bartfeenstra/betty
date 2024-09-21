@@ -1,7 +1,9 @@
+from typing import TYPE_CHECKING
+
 import pytest
 
-from betty.serde.format import Yaml, Json, FormatError
-from typing import TYPE_CHECKING
+from betty.serde.format import FormatError
+from betty.serde.format.formats import Json, Yaml
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump
