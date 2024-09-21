@@ -37,7 +37,7 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.lazy import LazyPluginRepositoryBase
 from betty.project import Project
-from betty.serde.format import FormatRepository
+from betty.serde.format import FORMAT_REPOSITORY
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -304,7 +304,7 @@ async def _read_project_configuration(
     if provided_configuration_file_path_str is None:
         try_configuration_file_paths = [
             project_directory_path / f"betty{extension}"
-            for extension in FormatRepository().extensions
+            for extension in await FORMAT_REPOSITORY.extensions()
         ]
         for try_configuration_file_path in try_configuration_file_paths:
             with suppress(FileNotFound):

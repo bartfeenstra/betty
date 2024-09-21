@@ -35,6 +35,7 @@ from betty.assertion import (
     assert_mapping,
 )
 from betty.assertion.error import AssertionFailed
+from betty.asyncio import wait_to_thread
 from betty.config import Configuration
 from betty.config.collections.mapping import (
     ConfigurationMapping,
@@ -66,7 +67,7 @@ from betty.serde.dump import (
     minimize,
     DumpMapping,
 )
-from betty.serde.format import FormatRepository
+from betty.serde.format import FORMAT_REPOSITORY
 from betty.typing import Void, Voidable, void_none
 
 if TYPE_CHECKING:
@@ -891,8 +892,7 @@ class ProjectConfiguration(Configuration):
     def configuration_file_path(self, configuration_file_path: Path) -> None:
         if configuration_file_path == self._configuration_file_path:
             return
-        formats = FormatRepository()
-        formats.format_for(configuration_file_path.suffix)
+        wait_to_thread(FORMAT_REPOSITORY.format_for(configuration_file_path.suffix))
         self._configuration_file_path = configuration_file_path
 
     @property
