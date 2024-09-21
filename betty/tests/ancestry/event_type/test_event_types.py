@@ -34,12 +34,11 @@ from betty.ancestry.event_type.event_types import (
 from betty.ancestry.person import Person
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import Date
+from betty.project.config import DEFAULT_LIFETIME_THRESHOLD
 from betty.test_utils.ancestry.event_type import EventTypeTestBase
 
 if TYPE_CHECKING:
     from betty.ancestry.event_type import EventType
-
-_LIFETIME_THRESHOLD = 125
 
 
 class TestAdoption(EventTypeTestBase):
@@ -98,7 +97,7 @@ class TestDeath(EventTypeTestBase):
     async def test_may_create_may_not_for_person_without_presences(self) -> None:
         person = Person(id="P0")
 
-        assert Death.may_create(person, _LIFETIME_THRESHOLD) is False
+        assert Death.may_create(person, DEFAULT_LIFETIME_THRESHOLD) is False
 
     async def test_may_create_may_not_within_lifetime_threshold(self) -> None:
         person = Person(id="P0")
@@ -111,7 +110,7 @@ class TestDeath(EventTypeTestBase):
             ),
         )
 
-        assert Death.may_create(person, _LIFETIME_THRESHOLD) is False
+        assert Death.may_create(person, DEFAULT_LIFETIME_THRESHOLD) is False
 
     async def test_may_create_may_over_lifetime_threshold(self) -> None:
         person = Person(id="P0")
@@ -124,7 +123,7 @@ class TestDeath(EventTypeTestBase):
             ),
         )
 
-        assert Death.may_create(person, _LIFETIME_THRESHOLD) is True
+        assert Death.may_create(person, DEFAULT_LIFETIME_THRESHOLD) is True
 
 
 class TestDivorce(EventTypeTestBase):

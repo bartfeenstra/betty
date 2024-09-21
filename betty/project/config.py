@@ -78,7 +78,9 @@ _EntityT = TypeVar("_EntityT", bound=Entity)
 
 
 #: The default age by which people are presumed dead.
-DEFAULT_LIFETIME_THRESHOLD = 125
+#: This is based on `Jeanne Louise Calment <https://www.guinnessworldrecords.com/world-records/oldest-person/>`_ who is
+#: the oldest verified person to ever have lived.
+DEFAULT_LIFETIME_THRESHOLD = 123
 
 
 @final
