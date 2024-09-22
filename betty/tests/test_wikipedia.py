@@ -9,18 +9,18 @@ import pytest
 from geopy import Point
 from multidict import CIMultiDict
 
+from betty.ancestry import Ancestry
 from betty.ancestry.citation import Citation
 from betty.ancestry.link import Link
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
+from betty.assets import AssetRepository
 from betty.fetch import FetchResponse
 from betty.fetch.static import StaticFetcher
 from betty.locale import UNDETERMINED_LOCALE
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localizer import DEFAULT_LOCALIZER, LocalizerRepository
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, PLAIN_TEXT
-from betty.project import Project
-from betty.project.config import LocaleConfiguration
 from betty.wikipedia import (
     Summary,
     _Retriever,
@@ -32,7 +32,6 @@ from betty.wikipedia import (
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from betty.app import App
     from betty.cache.file import BinaryFileCache
     from pytest_mock import MockerFixture
 
@@ -648,14 +647,18 @@ class TestRetriever:
 
 class TestPopulator:
     async def test_populate_link_should_convert_http_to_https(
-        self, mocker: MockerFixture, new_temporary_app: App
+        self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
         m_retriever = mocker.patch("betty.wikipedia._Retriever")
         link = Link("http://en.wikipedia.org/wiki/Amsterdam")
         page_language = "nl"
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = _Populator(project, m_retriever)
-            await sut.populate_link(link, page_language)
+        sut = _Populator(
+            Ancestry(),
+            [],
+            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            m_retriever,
+        )
+        await sut.populate_link(link, page_language)
         assert link.url == "https://en.wikipedia.org/wiki/Amsterdam"
 
     @pytest.mark.parametrize(
@@ -671,16 +674,20 @@ class TestPopulator:
         expected: MediaType,
         media_type: MediaType | None,
         mocker: MockerFixture,
-        new_temporary_app: App,
+        tmp_path: Path,
     ) -> None:
         m_retriever = mocker.patch("betty.wikipedia._Retriever")
         link = Link(
             "http://en.wikipedia.org/wiki/Amsterdam",
             media_type=media_type,
         )
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = _Populator(project, m_retriever)
-            await sut.populate_link(link, "en")
+        sut = _Populator(
+            Ancestry(),
+            [],
+            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            m_retriever,
+        )
+        await sut.populate_link(link, "en")
         assert expected == link.media_type
 
     @pytest.mark.parametrize(
@@ -696,14 +703,18 @@ class TestPopulator:
         expected: str,
         relationship: str | None,
         mocker: MockerFixture,
-        new_temporary_app: App,
+        tmp_path: Path,
     ) -> None:
         m_retriever = mocker.patch("betty.wikipedia._Retriever")
         link = Link("http://en.wikipedia.org/wiki/Amsterdam")
         link.relationship = relationship
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = _Populator(project, m_retriever)
-            await sut.populate_link(link, "en")
+        sut = _Populator(
+            Ancestry(),
+            [],
+            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            m_retriever,
+        )
+        await sut.populate_link(link, "en")
         assert expected == link.relationship
 
     @pytest.mark.parametrize(
@@ -720,14 +731,18 @@ class TestPopulator:
         page_language: str,
         original_link_locale: str,
         mocker: MockerFixture,
-        new_temporary_app: App,
+        tmp_path: Path,
     ) -> None:
         m_retriever = mocker.patch("betty.wikipedia._Retriever")
         link = Link(f"http://{page_language}.wikipedia.org/wiki/Amsterdam")
         link.locale = original_link_locale
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = _Populator(project, m_retriever)
-            await sut.populate_link(link, page_language)
+        sut = _Populator(
+            Ancestry(),
+            [],
+            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            m_retriever,
+        )
+        await sut.populate_link(link, page_language)
         assert expected == link.locale
 
     @pytest.mark.parametrize(
@@ -738,11 +753,7 @@ class TestPopulator:
         ],
     )
     async def test_populate_link_should_set_description(
-        self,
-        expected: str,
-        description: str,
-        mocker: MockerFixture,
-        new_temporary_app: App,
+        self, expected: str, description: str, mocker: MockerFixture, tmp_path: Path
     ) -> None:
         m_retriever = mocker.patch("betty.wikipedia._Retriever")
         link = Link(
@@ -750,9 +761,13 @@ class TestPopulator:
             description=description,
         )
         page_language = "en"
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = _Populator(project, m_retriever)
-            await sut.populate_link(link, page_language)
+        sut = _Populator(
+            Ancestry(),
+            [],
+            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            m_retriever,
+        )
+        await sut.populate_link(link, page_language)
         assert link.description.localize(DEFAULT_LOCALIZER) == expected
 
     @pytest.mark.parametrize(
@@ -763,11 +778,7 @@ class TestPopulator:
         ],
     )
     async def test_populate_link_should_set_label(
-        self,
-        expected: str,
-        label: str | None,
-        mocker: MockerFixture,
-        new_temporary_app: App,
+        self, expected: str, label: str | None, mocker: MockerFixture, tmp_path: Path
     ) -> None:
         m_retriever = mocker.patch("betty.wikipedia._Retriever")
         link = Link("http://en.wikipedia.org/wiki/Amsterdam")
@@ -779,13 +790,17 @@ class TestPopulator:
             "The city of Amsterdam",
             "Amsterdam, such a lovely place!",
         )
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = _Populator(project, m_retriever)
-            await sut.populate_link(link, "en", summary)
+        sut = _Populator(
+            Ancestry(),
+            [],
+            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            m_retriever,
+        )
+        await sut.populate_link(link, "en", summary)
         assert link.label.localize(DEFAULT_LOCALIZER) == expected
 
     async def test_populate_should_ignore_resource_without_link_support(
-        self, mocker: MockerFixture, new_temporary_app: App
+        self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
         m_retriever = mocker.patch("betty.wikipedia._Retriever")
         source = Source("The Source")
@@ -793,29 +808,37 @@ class TestPopulator:
             id="the_citation",
             source=source,
         )
-        async with Project.new_temporary(new_temporary_app) as project:
-            project.ancestry.add(resource)
-            async with project:
-                sut = _Populator(project, m_retriever)
-                await sut.populate()
+        ancestry = Ancestry()
+        ancestry.add(resource)
+        sut = _Populator(
+            ancestry,
+            [],
+            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            m_retriever,
+        )
+        await sut.populate()
 
     async def test_populate_should_ignore_resource_without_links(
-        self, mocker: MockerFixture, new_temporary_app: App
+        self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
         m_retriever = mocker.patch("betty.wikipedia._Retriever")
         resource = Source(
             id="the_source",
             name="The Source",
         )
-        async with Project.new_temporary(new_temporary_app) as project:
-            project.ancestry.add(resource)
-            async with project:
-                sut = _Populator(project, m_retriever)
-                await sut.populate()
-            assert resource.links == []
+        ancestry = Ancestry()
+        ancestry.add(resource)
+        sut = _Populator(
+            ancestry,
+            [],
+            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            m_retriever,
+        )
+        await sut.populate()
+        assert resource.links == []
 
     async def test_populate_should_ignore_non_wikipedia_links(
-        self, mocker: MockerFixture, new_temporary_app: App
+        self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
         m_retriever = mocker.patch("betty.wikipedia._Retriever")
         link = Link("https://example.com")
@@ -824,15 +847,19 @@ class TestPopulator:
             name="The Source",
             links=[link],
         )
-        async with Project.new_temporary(new_temporary_app) as project:
-            project.ancestry.add(resource)
-            async with project:
-                sut = _Populator(project, m_retriever)
-                await sut.populate()
-            assert [link] == resource.links
+        ancestry = Ancestry()
+        ancestry.add(resource)
+        sut = _Populator(
+            ancestry,
+            [],
+            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            m_retriever,
+        )
+        await sut.populate()
+        assert [link] == resource.links
 
     async def test_populate_should_populate_existing_link(
-        self, mocker: MockerFixture, new_temporary_app: App
+        self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
         m_retriever = mocker.patch(
             "betty.wikipedia._Retriever", spec=_Retriever, new_callable=AsyncMock
@@ -851,21 +878,25 @@ class TestPopulator:
             name="The Source",
             links=[link],
         )
-        async with Project.new_temporary(new_temporary_app) as project:
-            project.ancestry.add(resource)
-            async with project:
-                sut = _Populator(project, m_retriever)
-                await sut.populate()
-            m_retriever.get_summary.assert_called_once_with(page_language, page_name)
-            assert len(resource.links) == 1
-            assert link.label.localize(DEFAULT_LOCALIZER) == "Amsterdam"
-            assert link.locale == "en"
-            assert link.media_type == HTML
-            assert link.description is not None
-            assert link.relationship == "external"
+        ancestry = Ancestry()
+        ancestry.add(resource)
+        sut = _Populator(
+            ancestry,
+            [],
+            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            m_retriever,
+        )
+        await sut.populate()
+        m_retriever.get_summary.assert_called_once_with(page_language, page_name)
+        assert len(resource.links) == 1
+        assert link.label.localize(DEFAULT_LOCALIZER) == "Amsterdam"
+        assert link.locale == "en"
+        assert link.media_type == HTML
+        assert link.description is not None
+        assert link.relationship == "external"
 
     async def test_populate_should_add_translation_links(
-        self, mocker: MockerFixture, new_temporary_app: App
+        self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
         m_retriever = mocker.patch(
             "betty.wikipedia._Retriever", spec=_Retriever, new_callable=AsyncMock
@@ -898,38 +929,33 @@ class TestPopulator:
             name="The Source",
             links=[link_en],
         )
-        async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.locales["en-US"].alias = "en"
-            project.configuration.locales.append(
-                LocaleConfiguration(
-                    "nl-NL",
-                    alias="nl",
-                )
-            )
-            project.ancestry.add(resource)
-            async with project:
-                sut = _Populator(project, m_retriever)
-                await sut.populate()
+        ancestry = Ancestry()
+        ancestry.add(resource)
+        sut = _Populator(
+            ancestry,
+            ["en-US", "nl-NL"],
+            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            m_retriever,
+        )
+        await sut.populate()
 
-            m_retriever.get_summary.assert_has_calls(
-                [
-                    call(page_language, page_name),
-                    call(added_page_language, added_page_name),
-                ]
-            )
-            m_retriever.get_translations.assert_called_once_with(
-                page_language, page_name
-            )
-            assert len(resource.links) == 2
-            link_nl = [link for link in resource.links if link != link_en][0]
-            assert link_nl.label.localize(DEFAULT_LOCALIZER) == "Amsterdam"
-            assert link_nl.locale == "nl"
-            assert link_nl.media_type == HTML
-            assert link_nl.description is not None
-            assert link_nl.relationship == "external"
+        m_retriever.get_summary.assert_has_calls(
+            [
+                call(page_language, page_name),
+                call(added_page_language, added_page_name),
+            ]
+        )
+        m_retriever.get_translations.assert_called_once_with(page_language, page_name)
+        assert len(resource.links) == 2
+        link_nl = [link for link in resource.links if link != link_en][0]
+        assert link_nl.label.localize(DEFAULT_LOCALIZER) == "Amsterdam"
+        assert link_nl.locale == "nl"
+        assert link_nl.media_type == HTML
+        assert link_nl.description is not None
+        assert link_nl.relationship == "external"
 
     async def test_populate_place_should_add_coordinates(
-        self, mocker: MockerFixture, new_temporary_app: App
+        self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
         m_retriever = mocker.patch(
             "betty.wikipedia._Retriever", spec=_Retriever, new_callable=AsyncMock
@@ -945,16 +971,20 @@ class TestPopulator:
         wikipedia_link = Link(f"https://{page_language}.wikipedia.org/wiki/{page_name}")
         other_link = Link("https://example.com")
         place = Place(links=[wikipedia_link, other_link])
-        async with Project.new_temporary(new_temporary_app) as project:
-            project.ancestry.add(place)
-            async with project:
-                sut = _Populator(project, m_retriever)
-                await sut.populate()
+        ancestry = Ancestry()
+        ancestry.add(place)
+        sut = _Populator(
+            ancestry,
+            [],
+            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            m_retriever,
+        )
+        await sut.populate()
 
-            assert coordinates is place.coordinates
+        assert coordinates is place.coordinates
 
     async def test_populate_has_links(
-        self, mocker: MockerFixture, new_temporary_app: App
+        self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
         m_retriever = mocker.patch(
             "betty.wikipedia._Retriever", spec=_Retriever, new_callable=AsyncMock
@@ -974,12 +1004,16 @@ class TestPopulator:
 
         link = Link(f"https://{page_language}.wikipedia.org/wiki/{page_name}")
         place = Place(links=[link])
-        async with Project.new_temporary(new_temporary_app) as project:
-            project.ancestry.add(place)
-            async with project:
-                sut = _Populator(project, m_retriever)
-                await sut.populate()
+        ancestry = Ancestry()
+        ancestry.add(place)
+        sut = _Populator(
+            ancestry,
+            [],
+            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            m_retriever,
+        )
+        await sut.populate()
 
-            file_reference = place.file_references[0]
-            assert file_reference.file
-            assert file_reference.file.path == image.path
+        file_reference = place.file_references[0]
+        assert file_reference.file
+        assert file_reference.file.path == image.path

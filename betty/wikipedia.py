@@ -41,7 +41,8 @@ from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
 
 if TYPE_CHECKING:
-    from betty.project import Project
+    from betty.ancestry import Ancestry
+    from betty.locale.localizer import LocalizerRepository
     from betty.fetch import Fetcher
     from collections.abc import (
         Sequence,
@@ -331,8 +332,16 @@ class _Retriever:
 
 
 class _Populator:
-    def __init__(self, project: Project, retriever: _Retriever):
-        self._project = project
+    def __init__(
+        self,
+        ancestry: Ancestry,
+        locales: Sequence[str],
+        localizers: LocalizerRepository,
+        retriever: _Retriever,
+    ):
+        self._ancestry = ancestry
+        self._locales = locales
+        self._localizers = localizers
         self._retriever = retriever
         self._image_files: MutableMapping[Image, File] = {}
         self._image_files_locks: Mapping[Image, Lock] = defaultdict(
@@ -340,11 +349,10 @@ class _Populator:
         )
 
     async def populate(self) -> None:
-        locales = [x.alias for x in self._project.configuration.locales.values()]
         await gather(
             *(
-                self._populate_entity(entity, locales)
-                for entity in self._project.ancestry
+                self._populate_entity(entity, self._locales)
+                for entity in self._ancestry
                 if isinstance(entity, HasLinks)
             )
         )
@@ -438,7 +446,7 @@ class _Populator:
             # There are valid reasons for links in locales that aren't supported.
             with suppress(ValueError):
                 link.description = (
-                    await self._project.app.localizers.get_negotiated(link.locale)
+                    await self._localizers.get_negotiated(link.locale)
                 )._("Read more on Wikipedia.")
         if summary is not None and not link.label:
             link.label = summary.title
@@ -497,22 +505,18 @@ class _Populator:
                 file = self._image_files[image]
             except KeyError:
                 links = []
-                for (
-                    locale_configuration
-                ) in self._project.configuration.locales.values():
-                    localizer = await self._project.app.localizers.get(
-                        locale_configuration.locale
-                    )
+                for locale in self._locales:
+                    localizer = await self._localizers.get(locale)
                     links.append(
                         Link(
-                            f"{image.wikimedia_commons_url}?uselang={locale_configuration.alias}",
+                            f"{image.wikimedia_commons_url}?uselang={locale}",
                             label=localizer._(
                                 "Description, licensing, and image history"
                             ),
                             description=localizer._(
                                 "Find out more about this image on Wikimedia Commons."
                             ),
-                            locale=locale_configuration.locale,
+                            locale=locale,
                             media_type=HTML,
                         )
                     )
@@ -524,7 +528,7 @@ class _Populator:
                     links=links,
                 )
                 self._image_files[image] = file
-                self._project.ancestry.add(file)
+                self._ancestry.add(file)
             file_reference = FileReference(None, file)
-            self._project.ancestry.add(file_reference)
+            self._ancestry.add(file_reference)
             return file_reference
