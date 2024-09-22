@@ -68,7 +68,7 @@ class Extension(Plugin, CoreComponent, ProjectDependentFactory):
 
     @override
     @classmethod
-    async def new(cls, project: Project) -> Self:
+    async def new_for_project(cls, project: Project) -> Self:
         return cls(project)
 
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:

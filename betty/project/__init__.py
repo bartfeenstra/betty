@@ -347,7 +347,7 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
         :raises FactoryError: raised when ``cls`` could not be instantiated.
         """
         if issubclass(cls, ProjectDependentFactory):
-            return cast(_T, await cls.new(self))
+            return cast(_T, await cls.new_for_project(self))
         return await self.app.new(cls)
 
     @property

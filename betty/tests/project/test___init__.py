@@ -363,7 +363,7 @@ class TestProject:
                 self.project = project
 
             @classmethod
-            async def new(cls, project: Project) -> Self:
+            async def new_for_project(cls, project: Project) -> Self:
                 return cls(project)
 
         async with Project.new_temporary(new_temporary_app) as sut, sut:
@@ -377,7 +377,7 @@ class TestProject:
 
             @override
             @classmethod
-            async def new(cls, app: App) -> Self:
+            async def new_for_app(cls, app: App) -> Self:
                 return cls(app)
 
         async with Project.new_temporary(new_temporary_app) as sut, sut:

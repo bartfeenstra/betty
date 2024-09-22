@@ -19,8 +19,8 @@ class AppDependentFactory(ABC):
 
     @classmethod
     @abstractmethod
-    async def new(cls, app: App) -> Self:
+    async def new_for_app(cls, app: App) -> Self:
         """
-        Create a new instance.
+        Create a new instance using the given app.
         """
         pass

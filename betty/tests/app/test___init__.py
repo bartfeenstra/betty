@@ -27,7 +27,7 @@ class TestApp:
 
             @override
             @classmethod
-            async def new(cls, app: App) -> Self:
+            async def new_for_app(cls, app: App) -> Self:
                 return cls(app)
 
         async with App.new_temporary() as sut, sut:

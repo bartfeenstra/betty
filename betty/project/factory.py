@@ -19,8 +19,8 @@ class ProjectDependentFactory(ABC):
 
     @classmethod
     @abstractmethod
-    async def new(cls, project: Project) -> Self:
+    async def new_for_project(cls, project: Project) -> Self:
         """
-        Create a new instance.
+        Create a new instance using the given project.
         """
         pass
