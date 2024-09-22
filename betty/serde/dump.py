@@ -6,7 +6,9 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import MutableMapping, MutableSequence, Sequence, Mapping
-from typing import TypeVar, overload, Literal, TypeAlias
+from typing import overload, Literal, TypeAlias, Generic
+
+from typing_extensions import TypeVar
 
 from betty.typing import Void, Voidable
 
@@ -20,7 +22,7 @@ Dump: TypeAlias = (
     | MutableSequence["Dump"]
     | MutableMapping[str, "Dump"]
 )
-_DumpT = TypeVar("_DumpT", bound=Dump)
+_DumpT = TypeVar("_DumpT", bound=Dump, default=Dump)
 
 #: A dump which is a sequence whose values are serialized dumps.
 DumpSequence: TypeAlias = MutableSequence[_DumpT]
@@ -76,13 +78,13 @@ def minimize(
     return Void
 
 
-class Dumpable(ABC):
+class Dumpable(ABC, Generic[_DumpT]):
     """
     Instances can be produce serialized data dumps of ``self``.
     """
 
     @abstractmethod
-    def dump(self) -> Voidable[Dump]:
+    def dump(self) -> Voidable[_DumpT]:
         """
         Produce a serialized data dump of ``self``.
         """

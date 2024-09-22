@@ -103,7 +103,7 @@ class _Citer:
             return self._cited.index(citation) + 1
 
 
-class _Breadcrumb(Dumpable):
+class _Breadcrumb(Dumpable[DumpMapping[Dump]]):
     def __init__(self, label: str, url: str):
         self._label = label
         self._url = url
@@ -117,7 +117,7 @@ class _Breadcrumb(Dumpable):
         }
 
 
-class _Breadcrumbs(Dumpable):
+class _Breadcrumbs(Dumpable[Dump]):
     def __init__(self):
         self._breadcrumbs: MutableSequence[_Breadcrumb] = []
 

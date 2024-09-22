@@ -5,29 +5,19 @@ The Configuration API.
 from __future__ import annotations
 
 from abc import abstractmethod
-from collections.abc import Callable
 from contextlib import chdir
-from typing import (
-    Generic,
-    TypeVar,
-    Any,
-    Self,
-    TypeAlias,
-    TYPE_CHECKING,
-)
+from typing import Generic, Any, Self, TYPE_CHECKING
 
 import aiofiles
 from aiofiles.os import makedirs
+from typing_extensions import TypeVar
 
-from betty.assertion import (
-    AssertionChain,
-    assert_file_path,
-)
+from betty.assertion import AssertionChain, assert_file_path
 from betty.assertion.error import AssertionFailedGroup
 from betty.asyncio import wait_to_thread
 from betty.error import FileNotFound
 from betty.locale.localizable import plain
-from betty.serde.dump import Dumpable
+from betty.serde.dump import Dumpable, Dump
 from betty.serde.format import FORMAT_REPOSITORY
 from betty.serde.load import Loadable
 
@@ -35,11 +25,10 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-_ConfigurationListener: TypeAlias = Callable[[], None]
-ConfigurationListener: TypeAlias = "Configuration | _ConfigurationListener"
+_DumpT = TypeVar("_DumpT", bound=Dump, default=Dump)
 
 
-class Configuration(Loadable, Dumpable):
+class Configuration(Generic[_DumpT], Loadable, Dumpable[_DumpT]):
     """
     Any configuration object.
     """
@@ -55,7 +44,7 @@ class Configuration(Loadable, Dumpable):
         pass
 
 
-_ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
+_ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration[Dump])
 
 
 class Configurable(Generic[_ConfigurationT]):
