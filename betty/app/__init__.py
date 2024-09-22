@@ -212,5 +212,5 @@ class App(Configurable[AppConfiguration], FactoryProvider[Any], CoreComponent):
         :raises FactoryError: raised when ``cls`` could not be instantiated.
         """
         if issubclass(cls, AppDependentFactory):
-            return cast(_T, await cls.new(self))
+            return cast(_T, await cls.new_for_app(self))
         return await new(cls)

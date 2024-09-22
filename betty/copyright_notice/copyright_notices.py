@@ -26,7 +26,7 @@ class ProjectAuthor(ShorthandPluginBase, ProjectDependentFactory, CopyrightNotic
 
     @override
     @classmethod
-    async def new(cls, project: Project) -> Self:
+    async def new_for_project(cls, project: Project) -> Self:
         return cls(project.configuration.author)
 
     @property
