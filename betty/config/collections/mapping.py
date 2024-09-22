@@ -12,11 +12,10 @@ from typing import (
     Iterable,
     Iterator,
     Self,
-    TypeVar,
     TYPE_CHECKING,
 )
 
-from typing_extensions import override
+from typing_extensions import override, TypeVar
 
 from betty.assertion import assert_sequence, assert_mapping
 from betty.config import Configuration
@@ -32,13 +31,14 @@ from betty.typing import Void, Voidable
 if TYPE_CHECKING:
     from collections.abc import MutableMapping
 
+_DumpT = TypeVar("_DumpT", bound=Dump, default=Dump)
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
 
 
 class _ConfigurationMapping(
-    ConfigurationCollection[_ConfigurationKeyT, _ConfigurationT],
-    Generic[_ConfigurationKeyT, _ConfigurationT],
+    ConfigurationCollection[_ConfigurationKeyT, _ConfigurationT, _DumpT],
+    Generic[_ConfigurationKeyT, _ConfigurationT, _DumpT],
 ):
     def __init__(
         self,
@@ -106,7 +106,7 @@ class _ConfigurationMapping(
 
 
 class ConfigurationMapping(
-    _ConfigurationMapping[_ConfigurationKeyT, _ConfigurationT],
+    _ConfigurationMapping[_ConfigurationKeyT, _ConfigurationT, DumpMapping[Dump]],
     Generic[_ConfigurationKeyT, _ConfigurationT],
 ):
     """
@@ -155,7 +155,7 @@ class ConfigurationMapping(
 
 
 class OrderedConfigurationMapping(
-    _ConfigurationMapping[_ConfigurationKeyT, _ConfigurationT],
+    _ConfigurationMapping[_ConfigurationKeyT, _ConfigurationT, DumpSequence[Dump]],
     Generic[_ConfigurationKeyT, _ConfigurationT],
 ):
     """

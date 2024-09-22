@@ -4,12 +4,17 @@ Test utilities for :py:mod:`betty.config.collections.mapping`.
 
 from __future__ import annotations
 
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, TYPE_CHECKING
+
 from typing_extensions import override
 
 from betty.config import Configuration
 from betty.config.collections import ConfigurationKey
 from betty.test_utils.config.collections import ConfigurationCollectionTestBase
+
+if TYPE_CHECKING:
+    from betty.config.collections.mapping import ConfigurationMapping
+    from collections.abc import Iterable
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
@@ -19,6 +24,12 @@ class _ConfigurationMappingTestBase(
     Generic[_ConfigurationKeyT, _ConfigurationT],
     ConfigurationCollectionTestBase[_ConfigurationKeyT, _ConfigurationT],
 ):
+    @override
+    def get_sut(
+        self, configurations: Iterable[_ConfigurationT] | None = None
+    ) -> ConfigurationMapping[_ConfigurationKeyT, _ConfigurationT]:
+        raise NotImplementedError
+
     @override
     async def test___iter__(self) -> None:
         configurations = self.get_configurations()

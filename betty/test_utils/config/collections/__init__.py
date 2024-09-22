@@ -4,14 +4,16 @@ Test utilities for :py:mod:`betty.config.collections`.
 
 from __future__ import annotations
 
-from typing import Generic, Iterable, TypeVar, TYPE_CHECKING
+from typing import Generic, Iterable, TYPE_CHECKING
+
+from typing_extensions import TypeVar
 
 from betty.config import Configuration
 from betty.config.collections import ConfigurationCollection, ConfigurationKey
+from betty.serde.dump import Dump
 from betty.typing import Void
 
 if TYPE_CHECKING:
-    from betty.serde.dump import Dump
     from collections.abc import Sequence
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
@@ -25,7 +27,7 @@ class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _Configuration
 
     def get_sut(
         self, configurations: Iterable[_ConfigurationT] | None = None
-    ) -> ConfigurationCollection[_ConfigurationKeyT, _ConfigurationT]:
+    ) -> ConfigurationCollection[_ConfigurationKeyT, _ConfigurationT, Dump]:
         """
         Produce the collection under test.
         """

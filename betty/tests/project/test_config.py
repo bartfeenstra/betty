@@ -236,11 +236,13 @@ class TestEntityReferenceSequence(
             new=StaticPluginRepository(EntityReferenceSequenceTestEntity),
         )
 
+    @override
     def get_sut(
         self, configurations: Iterable[EntityReference[Entity]] | None = None
     ) -> EntityReferenceSequence[Entity]:
         return EntityReferenceSequence(configurations)
 
+    @override
     def get_configurations(
         self,
     ) -> tuple[

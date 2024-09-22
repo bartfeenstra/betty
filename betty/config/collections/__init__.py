@@ -14,28 +14,24 @@ from typing import (
     Iterator,
     Any,
     TypeAlias,
-    TypeVar,
     SupportsIndex,
     Hashable,
-    TYPE_CHECKING,
 )
 
-from typing_extensions import override
+from typing_extensions import override, TypeVar
 
 from betty.config import Configuration
 from betty.repr import repr_instance
+from betty.serde.dump import Dump
 
-if TYPE_CHECKING:
-    from betty.serde.dump import Dump
-
-
+_DumpT = TypeVar("_DumpT", bound=Dump, default=Dump)
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 ConfigurationKey: TypeAlias = SupportsIndex | Hashable | type[Any]
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
 
 
 class ConfigurationCollection(
-    Configuration, Generic[_ConfigurationKeyT, _ConfigurationT]
+    Configuration[_DumpT], Generic[_ConfigurationKeyT, _ConfigurationT, _DumpT]
 ):
     """
     Any collection of :py:class:`betty.config.Configuration` values.

@@ -30,7 +30,8 @@ _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 
 
 class ConfigurationSequence(
-    ConfigurationCollection[int, _ConfigurationT], Generic[_ConfigurationT]
+    ConfigurationCollection[int, _ConfigurationT, DumpSequence[Dump]],
+    Generic[_ConfigurationT],
 ):
     """
     A sequence of configuration values.

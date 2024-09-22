@@ -4,11 +4,16 @@ Test utilities for :py:mod:`betty.config.collections.sequence`.
 
 from __future__ import annotations
 
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, TYPE_CHECKING
+
 from typing_extensions import override
 
 from betty.config import Configuration
 from betty.test_utils.config.collections import ConfigurationCollectionTestBase
+
+if TYPE_CHECKING:
+    from betty.config.collections.sequence import ConfigurationSequence
+    from collections.abc import Iterable
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 
@@ -19,6 +24,12 @@ class ConfigurationSequenceTestBase(
     """
     A base class for testing :py:class:`betty.config.collections.sequence.ConfigurationSequence` implementations.
     """
+
+    @override
+    def get_sut(
+        self, configurations: Iterable[_ConfigurationT] | None = None
+    ) -> ConfigurationSequence[_ConfigurationT]:
+        raise NotImplementedError
 
     @override
     def get_configuration_keys(self) -> tuple[int, int, int, int]:
