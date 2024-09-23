@@ -34,8 +34,8 @@ from jinja2.runtime import Context, Macro
 from markupsafe import Markup, escape
 from pdf2image.pdf2image import convert_from_path
 
-from betty.ancestry.file_reference import FileReference
 from betty.ancestry.file import File
+from betty.ancestry.file_reference import FileReference
 from betty.hashid import hashid_file_meta, hashid
 from betty.image import resize_cover, Size, FocusArea
 from betty.locale import (
@@ -68,12 +68,11 @@ _T = TypeVar("_T")
 
 
 @pass_context
-def filter_url(
+def filter_localized_url(
     context: Context,
     resource: Any,
-    media_type: str | None = None,
-    *args: Any,
     locale: Localey | None = None,
+    media_type: str | None = None,
     **kwargs: Any,
 ) -> str:
     """
@@ -81,11 +80,10 @@ def filter_url(
     """
     from betty.jinja2 import context_project, context_localizer
 
-    return context_project(context).url_generator.generate(
+    return context_project(context).localized_url_generator.generate(
         resource,
         media_type or "text/html",
-        *args,
-        locale=locale or context_localizer(context).locale,  # type: ignore[misc]
+        locale=locale or context_localizer(context).locale,
         **kwargs,
     )
 
@@ -102,8 +100,7 @@ def filter_static_url(
     from betty.jinja2 import context_project
 
     return context_project(context).static_url_generator.generate(
-        resource,
-        absolute=absolute,
+        resource, absolute=absolute
     )
 
 
@@ -606,6 +603,7 @@ FILTERS = {
     "locale_get_data": get_data,
     "localize": filter_localize,
     "localize_html_lang": filter_localize_html_lang,
+    "localized_url": filter_localized_url,
     "map": filter_map,
     "minimize": minimize,
     "negotiate_dateds": filter_negotiate_dateds,
@@ -619,7 +617,6 @@ FILTERS = {
     "str": str,
     "unique": filter_unique,
     "upper_camel_case_to_lower_camel_case": upper_camel_case_to_lower_camel_case,
-    "url": filter_url,
     "void_none": void_none,
     "public_css": filter_public_css,
     "public_js": filter_public_js,

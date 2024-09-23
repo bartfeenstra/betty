@@ -12,7 +12,7 @@
         <section id="places">
             <h2 class="js-visually-hidden">
                 {% trans %}Places{% endtrans %}
-                {% with url = page_resource | url ~ '#places'%}
+                {% with url = page_resource | localized_url ~ '#places'%}
                     {% include 'permalink.html.j2' %}
                 {% endwith %}
             </h2>
@@ -26,7 +26,7 @@
         <section id="wikipedia">
             <h2 class="visually-hidden">
                 {% trans %}Wikipedia{% endtrans %}
-                {% with url = page_resource | url ~ '#wikipedia'%}
+                {% with url = page_resource | localized_url ~ '#wikipedia'%}
                     {% include 'permalink.html.j2' %}
                 {% endwith %}
             </h2>

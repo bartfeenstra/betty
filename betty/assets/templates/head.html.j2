@@ -24,10 +24,10 @@
             {% endif %}
         {% endif %}
     {% endif %}
-    <link rel="canonical" href="{{ page_resource | url(absolute=true) }}" hreflang="{{ localizer.locale }}" type="text/html">
+    <link rel="canonical" href="{{ page_resource | localized_url(absolute=true) }}" hreflang="{{ localizer.locale }}" type="text/html">
     {% for locale in project.configuration.locales %}
         {% if locale != localizer.locale %}
-            <link rel="alternate" href="{{ page_resource | url(locale=locale) }}" hreflang="{{ locale }}" type="text/html">
+            <link rel="alternate" href="{{ page_resource | localized_url(locale=locale) }}" hreflang="{{ locale }}" type="text/html">
 
         {% endif %}
     {% endfor %}
@@ -37,7 +37,7 @@
         </script>
     {% endif %}
     {% if page_resource is entity and page_resource is not has_generated_entity_id %}
-        <link rel="alternate" href="{{ page_resource | url(media_type='application/json') }}" hreflang="und" type="application/json">
+        <link rel="alternate" href="{{ page_resource | localized_url(media_type='application/json') }}" hreflang="und" type="application/json">
     {% endif %}
 {% endif %}
 {% set icon_url = '/logo.png' | static_url %}

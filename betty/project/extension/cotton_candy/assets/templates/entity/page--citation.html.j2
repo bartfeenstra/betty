@@ -13,7 +13,7 @@
         <section id="facts">
             <h2>
                 {% trans %}Facts{% endtrans %}
-                {% with url = page_resource | url ~ '#facts'%}
+                {% with url = page_resource | localized_url ~ '#facts'%}
                     {% include 'permalink.html.j2' %}
                 {% endwith %}
             </h2>

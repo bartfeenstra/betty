@@ -23,7 +23,7 @@
                         {{ location }}
                     {% else %}
                         {% if citation is not has_generated_entity_id %}
-                            <a href="{{ citation | url }}">
+                            <a href="{{ citation | localized_url }}">
                         {% endif %}
                         {{ location }}
                         {% if citation is not has_generated_entity_id %}

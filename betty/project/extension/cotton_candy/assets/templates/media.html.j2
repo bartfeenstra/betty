@@ -3,7 +3,7 @@
     <section id="media">
         <h2>
             {% trans %}Media{% endtrans %}
-            {% with url = page_resource | url ~ '#media'%}
+            {% with url = page_resource | localized_url ~ '#media'%}
                 {% include 'permalink.html.j2' %}
             {% endwith %}
         </h2>

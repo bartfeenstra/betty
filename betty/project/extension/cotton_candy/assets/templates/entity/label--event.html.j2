@@ -6,7 +6,7 @@
 {%- endmacro -%}
 {%- set formatted_event = event.event_type.plugin_label() | localize -%}
 {%- if event is not has_generated_entity_id and not embedded -%}
-    {% set formatted_event = ('<a href="' + event | url + '">' + formatted_event + '</a>') | safe %}
+    {% set formatted_event = ('<a href="' + event | localized_url + '">' + formatted_event + '</a>') | safe %}
 {%- endif -%}
 {%- if event.description -%}
     {% set formatted_event = formatted_event + ' (' + event.description | localize + ')' | safe %}

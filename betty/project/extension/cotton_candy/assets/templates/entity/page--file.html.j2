@@ -17,7 +17,7 @@
         <section id="appearances">
             <h2>
                 {% trans %}Appearances{% endtrans %}
-                {% with url = page_resource | url ~ '#appearances'%}
+                {% with url = page_resource | localized_url ~ '#appearances'%}
                     {% include 'permalink.html.j2' %}
                 {% endwith %}
             </h2>
@@ -38,7 +38,7 @@
         <section id="references">
             <h2>
                 {% trans %}References{% endtrans %}
-                {% with url = page_resource | url ~ '#references'%}
+                {% with url = page_resource | localized_url ~ '#references'%}
                     {% include 'permalink.html.j2' %}
                 {% endwith %}
             </h2>

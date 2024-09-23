@@ -263,12 +263,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "filter_hashid": TestKnownToBeMissing,
         "filter_json": TestKnownToBeMissing,
         "filter_localize": TestKnownToBeMissing,
+        "filter_localized_url": TestKnownToBeMissing,
         "filter_negotiate_dateds": TestKnownToBeMissing,
         "filter_negotiate_localizeds": TestKnownToBeMissing,
         "filter_public_css": TestKnownToBeMissing,
         "filter_public_js": TestKnownToBeMissing,
         "filter_static_url": TestKnownToBeMissing,
-        "filter_url": TestKnownToBeMissing,
     },
     "betty/jinja2/test.py": {
         "test_date_range": TestKnownToBeMissing,
@@ -636,11 +636,13 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/typing.py": {
         "Void": TestKnownToBeMissing,
     },
-    "betty/url.py": {
+    "betty/url/__init__.py": {
         # This is an abstract base class.
         "LocalizedUrlGenerator": TestKnownToBeMissing,
         # This is an abstract base class.
         "StaticUrlGenerator": TestKnownToBeMissing,
+        # This is an empty class.
+        "UnsupportedResource": TestKnownToBeMissing,
     },
     "betty/warnings.py": TestKnownToBeMissing,
     "betty/wikipedia.py": {

@@ -377,7 +377,7 @@ async def _generate_entity_type_list_json(
     }
     for entity in project.ancestry[entity_type]:
         cast(MutableSequence[str], data["collection"]).append(
-            project.url_generator.generate(
+            project.localized_url_generator.generate(
                 entity,
                 "application/json",
                 absolute=True,
@@ -499,7 +499,7 @@ async def _generate_sitemap(
                 continue
 
             sitemap_batch_urls.append(
-                project.url_generator.generate(
+                project.localized_url_generator.generate(
                     entity,
                     absolute=True,
                     locale=locale,

@@ -12,7 +12,7 @@
     {% endif %}
     <ul class="entities{% if hide_list | default(false) %} visually-hidden{% endif %}{% if map_hides_list | default(false) %} js-visually-hidden{% endif %}">
         {% for place in places %}
-            <li class="{{ loop.cycle('odd', 'even') }}" data-betty-place="{{ place | url(media_type='application/json') }}">
+            <li class="{{ loop.cycle('odd', 'even') }}" data-betty-place="{{ place | localized_url(media_type='application/json') }}">
                 {% include 'entity/label--place.html.j2' %}
                 {% include 'entity/meta--place.html.j2' %}
             </li>

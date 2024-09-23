@@ -2,7 +2,7 @@
     <section id="references">
         <h2>
             {% trans %}References{% endtrans %}
-            {% with url = page_resource | url ~ '#references'%}
+            {% with url = page_resource | localized_url ~ '#references'%}
                 {% include 'permalink.html.j2' %}
             {% endwith %}
         </h2>

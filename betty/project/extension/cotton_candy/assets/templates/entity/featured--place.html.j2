@@ -6,7 +6,7 @@
             'entity/label.html.j2',
         ] %}
     </h2>
-    <a href="{{ place | url }}">
+    <a href="{{ place | localized_url }}">
         {% with embedded = True %}
             {% include [
                 'entity/meta--place.html.j2',

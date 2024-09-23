@@ -3,7 +3,7 @@
 {% set person_context = entity_contexts['person'] %}
 {% set label_as_link = not embedded and person_context != person and person is not has_generated_entity_id and person is public %}
 {% if label_as_link -%}
-    <a href="{{ person | url }}">
+    <a href="{{ person | localized_url }}">
 {%- endif %}
 {% if person.private -%}
     <span class="private" title="{% trans %}This person's details are unavailable to protect their privacy.{% endtrans %}">{% trans %}private{% endtrans %}</span>
