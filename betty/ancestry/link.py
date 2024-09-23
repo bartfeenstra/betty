@@ -165,7 +165,7 @@ class HasLinks(Entity):
                     project,
                     *(
                         Link(
-                            project.url_generator.generate(
+                            project.localized_url_generator.generate(
                                 self,
                                 media_type="text/html",
                                 locale=locale,

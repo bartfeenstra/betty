@@ -2,7 +2,7 @@
 {% set page_title = entity_type.plugin_label_plural() | localize %}
 {% do breadcrumbs.append(
     page_title,
-    page_resource | url(absolute=true)
+    page_resource | localized_url(absolute=true)
 ) %}
 {% block page_content %}
 {% endblock %}

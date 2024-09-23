@@ -5,7 +5,7 @@
             'entity/label.html.j2',
         ] %}
     </h2>
-    <a href="{{ entity | url }}">
+    <a href="{{ entity | localized_url }}">
         {% with embedded = True %}
             {% include [
                 'entity/meta--' + entity.plugin_id() + '.html.j2',
@@ -19,7 +19,7 @@
     {% set image_references = entity | associated_file_references | selectattr('file', 'public') | selectattr('file.media_type.type', 'eq', 'image') | list %}
     {% if image_references | length > 0 %}
         <div class="featured-entity-feature">
-            <a href="{{ entity | url }}" class="featured-entity-feature-link">
+            <a href="{{ entity | localized_url }}" class="featured-entity-feature-link">
                 {% set image_reference = image_references[0] %}
                 <picture>
                     {% for width, height, breakpoint_width in [(500, 500, 500), (1500, 1500, 1000), (2500, 2500, 1500)] %}

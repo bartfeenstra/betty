@@ -11,9 +11,9 @@
 </script>
 <div id="page">
     <nav id="nav-primary">
-        <a id="site-title" href="{{ '/index.html' | url }}" title="{{ project.configuration.title | localize }}">{{ project.configuration.title | localize }}</a>
+        <a id="site-title" href="{{ '/index.html' | localized_url }}" title="{{ project.configuration.title | localize }}">{{ project.configuration.title | localize }}</a>
         <div id="search"
-             data-betty-search-index="{{ '/search-index.json' | url }}">
+             data-betty-search-index="{{ '/search-index.json' | localized_url }}">
             <div class="overlay-controls">
                 <span class="overlay-control overlay-close" title="{% trans %}Exit the search{% endtrans %}">{% trans %}Exit the search{% endtrans %}</span>
             </div>
@@ -49,7 +49,7 @@
                 <ul class="nav-secondary">
                     {% for entity_type_configuration in project.configuration.entity_types.values() | selectattr('generate_html_list') %}
                         <li>
-                            <a href="{{ ('/' + entity_type_configuration.entity_type.plugin_id() + '/index.html') | url }}">
+                            <a href="{{ entity_type_configuration.entity_type | localized_url }}">
                                 {% if entity_type_configuration.entity_type.plugin_id() == 'event' %}
                                     {% trans %}Timeline{% endtrans %}
                                 {% else %}
@@ -72,7 +72,7 @@
                         {% do ns.available_locales.append((available_locale_configuration.locale, available_locale_data.get_display_name())) %}
                     {% endfor %}
                     {% for available_locale, available_locale_name in ns.available_locales | sort(attribute='1') %}
-                        <li><a href="{{ page_resource | url(locale=available_locale) }}" hreflang="{{ available_locale }}" lang="{{ available_locale }}" rel="alternate">{{ available_locale_name }}</a></li>
+                        <li><a href="{{ page_resource | localized_url(locale=available_locale) }}" hreflang="{{ available_locale }}" lang="{{ available_locale }}" rel="alternate">{{ available_locale_name }}</a></li>
                     {% endfor %}
                     </ul>
                 </div>
@@ -91,7 +91,7 @@
                 <section id="external-links">
                     <h2>
                         {% trans %}External links{% endtrans %}
-                        {% with url = page_resource | url ~ '#external-links'%}
+                        {% with url = page_resource | localized_url ~ '#external-links'%}
                             {% include 'permalink.html.j2' %}
                         {% endwith %}
                     </h2>

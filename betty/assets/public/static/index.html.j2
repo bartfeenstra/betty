@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>{{ project.configuration.title | localize }}</title>
-    <meta http-equiv="refresh" content="0; url={{ '/index.html' | url(locale=project.configuration.locales.default.locale) }}">
+    <meta http-equiv="refresh" content="0; url={{ '/index.html' | localized_url(locale=project.configuration.locales.default.locale) }}">
 </head>
 <body>
 </body>

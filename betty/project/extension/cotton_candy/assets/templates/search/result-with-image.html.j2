@@ -1,5 +1,5 @@
 {% set embedded=True %}
-<a href="{{ entity | url }}" class="nav-secondary-action search-result-target">
+<a href="{{ entity | localized_url }}" class="nav-secondary-action search-result-target">
     <div class="search-result-description">
         {% include ['entity/label--' + entity.plugin_id() + '.html.j2', 'entity/label.html.j2'] %}
         {% include ['entity/meta--' + entity.plugin_id() + '.html.j2', 'entity/meta.html.j2'] ignore missing %}

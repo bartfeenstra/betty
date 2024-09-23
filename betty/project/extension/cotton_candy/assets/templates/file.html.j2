@@ -31,7 +31,7 @@
         <ul class="file-controls">
             <li><a href="{{ file | file | static_url }}" title="View original in full">⇔</a></li>
             <li><a href="{{ file | file | static_url }}" download="{{ file.path.name }}" title="Download this file">⇓</a></li>
-            <li><a href="{{ file | url }}" title="More details">ℹ</a></li>
+            <li><a href="{{ file | localized_url }}" title="More details">ℹ</a></li>
             <li class="file-extended-close"><a href="#file-{{ file_hashid }}" title="Close this file">×</a></li>
             {% if previous_file is defined %}
                 <li class="file-nav file-extended-previous"><a href="#file-extended-{{ previous_file.id | hashid }}" title="{{ previous_file.description | localize }}">←</a></li>

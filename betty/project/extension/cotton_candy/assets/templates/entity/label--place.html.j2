@@ -8,7 +8,7 @@
     {%- set name = names | first | localize -%}
 
     {%- if not embedded -%}
-        <a href="{{ place | url }}">
+        <a href="{{ place | localized_url }}">
     {%- endif -%}
     {{ name | html_lang }}
     {%- if not embedded -%}

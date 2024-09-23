@@ -61,18 +61,22 @@ from betty.project.extension import (
     Theme,
 )
 from betty.project.factory import ProjectDependentFactory
+from betty.project.url import (
+    LocalizedUrlGenerator as ProjectLocalizedUrlGenerator,
+    StaticUrlGenerator as ProjectStaticUrlGenerator,
+)
 from betty.render import Renderer, SequentialRenderer, RENDERER_REPOSITORY
 from betty.string import kebab_case_to_lower_camel_case
 from betty.typing import internal
 
 if TYPE_CHECKING:
+    from betty.url import LocalizedUrlGenerator, StaticUrlGenerator
     from betty.ancestry.event_type import EventType
     from betty.machine_name import MachineName
     from betty.plugin import PluginIdentifier
     from collections.abc import Sequence
     from collections.abc import AsyncIterator
     from betty.app import App
-    from betty.url import LocalizedUrlGenerator, StaticUrlGenerator
     from betty.jinja2 import Environment
     from betty.plugin import PluginRepository
 
@@ -206,27 +210,27 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
         return self._localizers
 
     @property
-    def url_generator(self) -> LocalizedUrlGenerator:
+    def localized_url_generator(self) -> LocalizedUrlGenerator:
         """
-        The (localized) URL generator.
+        The URL generator for localizable resources.
         """
         if self._url_generator is None:
-            from betty.url import ProjectUrlGenerator
-
             self._assert_bootstrapped()
-            self._url_generator = ProjectUrlGenerator(self)
+            self._url_generator = wait_to_thread(
+                ProjectLocalizedUrlGenerator.new_for_project(self)
+            )
         return self._url_generator
 
     @property
     def static_url_generator(self) -> StaticUrlGenerator:
         """
-        The static URL generator.
+        The URL generator for static resources.
         """
         if self._static_url_generator is None:
-            from betty.url import StaticPathUrlGenerator
-
             self._assert_bootstrapped()
-            self._static_url_generator = StaticPathUrlGenerator(self.configuration)
+            self._static_url_generator = wait_to_thread(
+                ProjectStaticUrlGenerator.new_for_project(self)
+            )
         return self._static_url_generator
 
     @property

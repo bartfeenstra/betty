@@ -344,9 +344,9 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             sut.static_url_generator  # noqa B018
 
-    async def test_url_generator(self, new_temporary_app: App) -> None:
+    async def test_localized_url_generator(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            sut.url_generator  # noqa B018
+            sut.localized_url_generator  # noqa B018
 
     async def test_new(self, new_temporary_app: App) -> None:
         class Dependent:
