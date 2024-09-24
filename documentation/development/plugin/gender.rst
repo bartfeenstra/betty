@@ -8,7 +8,7 @@ Gender plugins
    * -  Type
      -  :py:class:`betty.ancestry.gender.Gender`
    * -  Repository
-     -  :py:class:`betty.project.Project.genders`
+     -  :py:attr:`betty.project.Project.genders`
             All genders, including those defined in the project configuration
         :py:class:`betty.ancestry.gender.GENDER_REPOSITORY`
             Only genders available to any project
