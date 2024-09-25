@@ -24,6 +24,9 @@ class AssetRepository:
     """
 
     def __init__(self, *assets_directory_paths: Path):
+        """
+        :param assets_directory_paths: Earlier paths have priority over later paths.
+        """
         self._assets_directory_paths = assets_directory_paths
         self.__assets: Mapping[Path, Path] | None = None
         self._lock = AsynchronizedLock.threading()
@@ -60,10 +63,10 @@ class AssetRepository:
 
         :param asset_directory_path: If given, only asses under the directory are returned.
         """
+        asset_directory_path_str = str(asset_directory_path)
         for asset_path in await self._assets():
-            if (
-                asset_directory_path is None
-                or asset_directory_path in asset_path.parents
+            if asset_directory_path is None or str(asset_path).startswith(
+                asset_directory_path_str
             ):
                 yield asset_path
 
