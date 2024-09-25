@@ -1,8 +1,10 @@
 import pytest
-from aioresponses import aioresponses
+from multidict import CIMultiDict
 
 from betty.ancestry.link import Link, HasLinks
 from betty.app import App
+from betty.fetch import FetchResponse
+from betty.fetch.static import StaticFetcher
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project
 from betty.project.load import load
@@ -14,21 +16,23 @@ class DummyHasLinks(HasLinks, DummyEntity):
 
 
 class TestLoad:
-    async def test_should_fetch_link_with_unsupported_content_type(
-        self,
-        aioresponses: aioresponses,
-        new_temporary_app: App,
-    ) -> None:
+    async def test_should_fetch_link_with_unsupported_content_type(self) -> None:
         link_url = "https://example.com"
-
-        aioresponses.get(
-            link_url,
-            body="Hello, world!",
-            headers={"Content-Type": "text/plain"},
-        )
-
         link = Link(link_url)
-        async with Project.new_temporary(new_temporary_app) as project:
+        fetcher = StaticFetcher(
+            fetch_map={
+                link_url: FetchResponse(
+                    CIMultiDict({"Content-Type": "text/plain"}),
+                    "Hello, world!".encode("utf-8"),
+                    "utf-8",
+                )
+            }
+        )
+        async with (
+            App.new_temporary(fetcher=fetcher) as app,
+            app,
+            Project.new_temporary(app) as project,
+        ):
             project.ancestry.add(DummyHasLinks(links=[link]))
             async with project:
                 await load(project)
@@ -44,22 +48,25 @@ class TestLoad:
         ],
     )
     async def test_should_fetch_link_with_invalid_html(
-        self,
-        link_page_content_type: str,
-        aioresponses: aioresponses,
-        new_temporary_app: App,
+        self, link_page_content_type: str
     ) -> None:
         link_url = "https://example.com"
         link_page_html = "<html></html>"
-
-        aioresponses.get(
-            link_url,
-            body=link_page_html,
-            headers={"Content-Type": link_page_content_type},
-        )
-
         link = Link(link_url)
-        async with Project.new_temporary(new_temporary_app) as project:
+        fetcher = StaticFetcher(
+            fetch_map={
+                link_url: FetchResponse(
+                    CIMultiDict({"Content-Type": link_page_content_type}),
+                    link_page_html.encode("utf-8"),
+                    "utf-8",
+                )
+            }
+        )
+        async with (
+            App.new_temporary(fetcher=fetcher) as app,
+            app,
+            Project.new_temporary(app) as project,
+        ):
             project.ancestry.add(DummyHasLinks(links=[link]))
             async with project:
                 await load(project)
@@ -75,25 +82,28 @@ class TestLoad:
         ],
     )
     async def test_should_fetch_link_label_from_valid_html_with_title(
-        self,
-        link_page_content_type: str,
-        aioresponses: aioresponses,
-        new_temporary_app: App,
+        self, link_page_content_type: str
     ) -> None:
         link_url = "https://example.com"
         link_page_title = "Hello, world!"
         link_page_html = (
             f"<html><head><title>{link_page_title}</title></head><body></body></html>"
         )
-
-        aioresponses.get(
-            link_url,
-            body=link_page_html,
-            headers={"Content-Type": link_page_content_type},
-        )
-
         link = Link(link_url)
-        async with Project.new_temporary(new_temporary_app) as project:
+        fetcher = StaticFetcher(
+            fetch_map={
+                link_url: FetchResponse(
+                    CIMultiDict({"Content-Type": link_page_content_type}),
+                    link_page_html.encode("utf-8"),
+                    "utf-8",
+                )
+            }
+        )
+        async with (
+            App.new_temporary(fetcher=fetcher) as app,
+            app,
+            Project.new_temporary(app) as project,
+        ):
             project.ancestry.add(DummyHasLinks(links=[link]))
             async with project:
                 await load(project)
@@ -108,22 +118,25 @@ class TestLoad:
         ],
     )
     async def test_should_fetch_link_label_with_valid_html_without_title(
-        self,
-        link_page_content_type: str,
-        aioresponses: aioresponses,
-        new_temporary_app: App,
+        self, link_page_content_type: str
     ) -> None:
         link_url = "https://example.com"
         link_page_html = "<html><head></head><body></body></html>"
-
-        aioresponses.get(
-            link_url,
-            body=link_page_html,
-            headers={"Content-Type": link_page_content_type},
-        )
-
         link = Link(link_url)
-        async with Project.new_temporary(new_temporary_app) as project:
+        fetcher = StaticFetcher(
+            fetch_map={
+                link_url: FetchResponse(
+                    CIMultiDict({"Content-Type": "text/plain"}),
+                    link_page_html.encode("utf-8"),
+                    "utf-8",
+                )
+            }
+        )
+        async with (
+            App.new_temporary(fetcher=fetcher) as app,
+            app,
+            Project.new_temporary(app) as project,
+        ):
             project.ancestry.add(DummyHasLinks(links=[link]))
             async with project:
                 await load(project)
@@ -140,25 +153,26 @@ class TestLoad:
         ],
     )
     async def test_should_fetch_link_description_from_valid_html_with_meta_description(
-        self,
-        link_page_content_type: str,
-        meta_attr_name: str,
-        meta_attr_value: str,
-        aioresponses: aioresponses,
-        new_temporary_app: App,
+        self, link_page_content_type: str, meta_attr_name: str, meta_attr_value: str
     ) -> None:
         link_url = "https://example.com"
         link_page_meta_description = "'Hello, world!' is a common internet greeting."
         link_page_html = f'<html><head><title>Hello, world!</title><meta {meta_attr_name}="{meta_attr_value}" content="{link_page_meta_description}"></head><body></body></html>'
-
-        aioresponses.get(
-            link_url,
-            body=link_page_html,
-            headers={"Content-Type": link_page_content_type},
-        )
-
         link = Link(link_url)
-        async with Project.new_temporary(new_temporary_app) as project:
+        fetcher = StaticFetcher(
+            fetch_map={
+                link_url: FetchResponse(
+                    CIMultiDict({"Content-Type": link_page_content_type}),
+                    link_page_html.encode("utf-8"),
+                    "utf-8",
+                )
+            }
+        )
+        async with (
+            App.new_temporary(fetcher=fetcher) as app,
+            app,
+            Project.new_temporary(app) as project,
+        ):
             project.ancestry.add(DummyHasLinks(links=[link]))
             async with project:
                 await load(project)

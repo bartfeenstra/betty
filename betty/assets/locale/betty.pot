@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-25 08:16+0100\n"
+"POT-Creation-Date: 2024-09-25 10:58+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -89,9 +89,6 @@ msgstr[1] ""
 
 #, python-format
 msgid "%(person_individual_name)s is the child of %(parent_labels)s."
-msgstr ""
-
-msgid "<a href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\">Copyright</a> Wikipedia and its contributors."
 msgstr ""
 
 msgid "A family history as told by <a href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
@@ -218,6 +215,12 @@ msgstr ""
 
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
+msgstr ""
+
+msgid "Copyright Wikipedia contributors"
+msgstr ""
+
+msgid "Copyright of these works lies with the original authors who contributed them to Wikipedia."
 msgstr ""
 
 msgid "Correspondence"
@@ -791,6 +794,9 @@ msgid "Which language should your project site be generated in? Enter an IETF BC
 msgstr ""
 
 msgid "Wikipedia"
+msgstr ""
+
+msgid "Wikipedia contributors"
 msgstr ""
 
 msgid "Will"

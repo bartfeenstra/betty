@@ -645,7 +645,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "UnsupportedResource": TestKnownToBeMissing,
     },
     "betty/warnings.py": TestKnownToBeMissing,
-    "betty/wikipedia.py": {
+    "betty/wikipedia/__init__.py": {
         "Image": TestKnownToBeMissing,
         # This is an empty class.
         "NotAPageError": TestKnownToBeMissing,

@@ -34,6 +34,13 @@ class CopyrightNotice(Plugin):
         """
         pass
 
+    @property
+    def url(self) -> Localizable | None:
+        """
+        The URL to an external human-readable resource with more information about this copyright.
+        """
+        return None
+
 
 COPYRIGHT_NOTICE_REPOSITORY: PluginRepository[CopyrightNotice] = (
     EntryPointPluginRepository("betty.copyright_notice")

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-25 08:16+0100\n"
+"POT-Creation-Date: 2024-09-25 10:58+0100\n"
 "PO-Revision-Date: 2024-02-08 13:08+0000\n"
 "Last-Translator: Rainer Thieringer <rainerthi@gmail.com>\n"
 "Language: uk\n"
@@ -109,14 +109,6 @@ msgstr[2] ""
 #, python-format
 msgid "%(person_individual_name)s is the child of %(parent_labels)s."
 msgstr "%(person_individual_name)s дитина %(parent_labels)s."
-
-msgid ""
-"<a "
-"href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\">Copyright</a>"
-" Wikipedia and its contributors."
-msgstr ""
-"<a href=\"https://uk.wikipedia.org/wiki/Вікіпедія:Авторські "
-"права\">Авторські права</a> на Вікіпедію та її дописувачів."
 
 msgid ""
 "A family history as told by <a "
@@ -264,6 +256,14 @@ msgstr "Миропомазання"
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr "Продовжуйте читати у <a href=\"%(url)s\">Вікіпедії</a>."
+
+msgid "Copyright Wikipedia contributors"
+msgstr ""
+
+msgid ""
+"Copyright of these works lies with the original authors who contributed "
+"them to Wikipedia."
+msgstr ""
 
 msgid "Correspondence"
 msgstr "Листування"
@@ -891,6 +891,9 @@ msgid ""
 msgstr ""
 
 msgid "Wikipedia"
+msgstr ""
+
+msgid "Wikipedia contributors"
 msgstr ""
 
 msgid "Will"

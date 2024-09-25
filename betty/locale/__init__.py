@@ -47,6 +47,8 @@ def merge_locales(*locales: str) -> str:
 def to_babel_identifier(locale: Localey) -> str:
     """
     Convert a locale or locale metadata to a Babel locale identifier.
+
+    :raises ValueError:
     """
     if isinstance(locale, Locale):
         return str(locale)
