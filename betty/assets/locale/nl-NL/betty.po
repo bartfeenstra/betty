@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-19 15:11+0100\n"
+"POT-Creation-Date: 2024-09-25 08:16+0100\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -753,6 +753,9 @@ msgstr "Projectauteur"
 msgid "Province"
 msgstr "Provincie"
 
+msgid "Public domain"
+msgstr "Publiek domein"
+
 msgid "Read more on Wikipedia."
 msgstr "Lees meer op Wikipedia."
 
@@ -994,6 +997,14 @@ msgstr "Getuige"
 
 msgid "Witnesses"
 msgstr "Getuigen"
+
+msgid ""
+"Works in the public domain can be used or referenced without permission, "
+"because nobody holds any exclusive rights over these works (anymore)."
+msgstr ""
+"Werken in het publieke domein mogen gebruikt of naar verwezen worden "
+"zonder toestemming, omdat niemand (meer) exclusieve rechten over deze "
+"werken heeft."
 
 #, python-format
 msgid ""

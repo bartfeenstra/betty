@@ -94,6 +94,7 @@ betty = 'betty.cli:main'
 
 [project.entry-points.'betty.copyright_notice']
 'project-author' = 'betty.copyright_notice.copyright_notices:ProjectAuthor'
+'public-domain' = 'betty.copyright_notice.copyright_notices:PublicDomain'
 
 [project.entry-points.'betty.entity_type']
 'citation' = 'betty.ancestry.citation:Citation'

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-19 15:11+0100\n"
+"POT-Creation-Date: 2024-09-25 08:16+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -603,6 +603,9 @@ msgstr ""
 msgid "Province"
 msgstr ""
 
+msgid "Public domain"
+msgstr ""
+
 msgid "Read more on Wikipedia."
 msgstr ""
 
@@ -797,6 +800,9 @@ msgid "Witness"
 msgstr ""
 
 msgid "Witnesses"
+msgstr ""
+
+msgid "Works in the public domain can be used or referenced without permission, because nobody holds any exclusive rights over these works (anymore)."
 msgstr ""
 
 #, python-format
