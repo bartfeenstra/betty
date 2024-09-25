@@ -14,7 +14,7 @@ class TestAssetRepository:
                 sut = AssetRepository(source_path_1, source_path_2)
                 assert sut.assets_directory_paths == (source_path_1, source_path_2)
 
-    async def test___getitem___with_override(
+    async def test_get_with_override(
         self,
     ) -> None:
         async with TemporaryDirectory() as source_path_str_1:
@@ -24,9 +24,9 @@ class TestAssetRepository:
                 (source_path_1 / "apples").touch()
                 (source_path_2 / "apples").touch()
                 sut = AssetRepository(source_path_1, source_path_2)
-                assert sut[Path("apples")] == source_path_1 / "apples"
+                assert await sut.get(Path("apples")) == source_path_1 / "apples"
 
-    async def test___getitem___without_override(
+    async def test_get_without_override(
         self,
     ) -> None:
         async with TemporaryDirectory() as source_path_str_1:
@@ -36,7 +36,7 @@ class TestAssetRepository:
                 (source_path_1 / "apples").touch()
                 (source_path_2 / "oranges").touch()
                 sut = AssetRepository(source_path_1, source_path_2)
-                assert sut[Path("oranges")] == source_path_2 / "oranges"
+                assert await sut.get(Path("oranges")) == source_path_2 / "oranges"
 
     async def test_walk_with_override(self) -> None:
         async with TemporaryDirectory() as source_path_str_1:
@@ -46,7 +46,7 @@ class TestAssetRepository:
                 (source_path_1 / "apples").touch()
                 (source_path_2 / "apples").touch()
                 sut = AssetRepository(source_path_1, source_path_2)
-                assert set(sut.walk()) == {Path("apples")}
+                assert {path async for path in sut.walk()} == {Path("apples")}
 
     async def test_walk_without_override(self) -> None:
         async with TemporaryDirectory() as source_path_str_1:
@@ -56,7 +56,7 @@ class TestAssetRepository:
                 (source_path_1 / "apples").touch()
                 (source_path_2 / "oranges").touch()
                 sut = AssetRepository(source_path_1, source_path_2)
-                assert set(sut.walk()) == {
+                assert {path async for path in sut.walk()} == {
                     Path("apples"),
                     Path("oranges"),
                 }
@@ -75,7 +75,9 @@ class TestAssetRepository:
                 (source_path_1 / "vegetables" / "peppers").touch()
                 (source_path_2 / "vegetables" / "peppers").touch()
                 sut = AssetRepository(source_path_1, source_path_2)
-                assert set(sut.walk(Path("fruits"))) == {Path("fruits") / "apples"}
+                assert {path async for path in sut.walk(Path("fruits"))} == {
+                    Path("fruits") / "apples"
+                }
 
     async def test_walk_without_override_with_filter(self) -> None:
         async with TemporaryDirectory() as source_path_str_1:
@@ -91,7 +93,7 @@ class TestAssetRepository:
                 (source_path_1 / "vegetables" / "peppers").touch()
                 (source_path_2 / "vegetables" / "oranges").touch()
                 sut = AssetRepository(source_path_1, source_path_2)
-                assert set(sut.walk(Path("fruits"))) == {
+                assert {path async for path in sut.walk(Path("fruits"))} == {
                     Path("fruits") / "apples",
                     Path("fruits") / "oranges",
                 }

@@ -236,9 +236,7 @@ async def _generate_public_asset(
     )
     await makedirs(file_destination_path.parent, exist_ok=True)
     await to_thread(
-        shutil.copy2,
-        project.assets[asset_path],
-        file_destination_path,
+        shutil.copy2, await project.assets.get(asset_path), file_destination_path
     )
     await project.renderer.render_file(
         file_destination_path,
@@ -262,10 +260,10 @@ async def _generate_public(
         )
     )
     await gather(
-        *(
+        *[
             _generate_public_asset(asset_path, project, job_context, locale)
-            for asset_path in project.assets.walk(Path("public") / "localized")
-        )
+            async for asset_path in project.assets.walk(Path("public") / "localized")
+        ]
     )
 
 
@@ -278,9 +276,7 @@ async def _generate_static_public_asset(
     )
     await makedirs(file_destination_path.parent, exist_ok=True)
     await to_thread(
-        shutil.copy2,
-        project.assets[asset_path],
-        file_destination_path,
+        shutil.copy2, await project.assets.get(asset_path), file_destination_path
     )
     await project.renderer.render_file(file_destination_path, job_context=job_context)
 
@@ -294,16 +290,16 @@ async def _generate_static_public(
         app.localizer._("Generating static public files...")
     )
     await gather(
-        *(
+        *[
             _generate_static_public_asset(asset_path, project, job_context)
-            for asset_path in project.assets.walk(Path("public") / "static")
-        ),
+            async for asset_path in project.assets.walk(Path("public") / "static")
+        ],
         # Ensure favicon.ico exists, otherwise servers of Betty sites would log
         # many a 404 Not Found for it, because some clients eagerly try to see
         # if it exists.
         to_thread(
             shutil.copy2,
-            project.assets[Path("public") / "static" / "betty.ico"],
+            await project.assets.get(Path("public") / "static" / "betty.ico"),
             project.configuration.www_directory_path / "favicon.ico",
         ),
         _generate_json_error_responses(project),
