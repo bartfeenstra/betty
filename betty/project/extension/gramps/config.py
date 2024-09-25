@@ -84,6 +84,68 @@ if TYPE_CHECKING:
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 
+DEFAULT_EVENT_TYPE_MAP: Mapping[str, MachineName] = {
+    "Adopted": Adoption.plugin_id(),
+    "Baptism": Baptism.plugin_id(),
+    "Birth": Birth.plugin_id(),
+    "Burial": Burial.plugin_id(),
+    "Confirmation": Confirmation.plugin_id(),
+    "Cremation": Cremation.plugin_id(),
+    "Death": Death.plugin_id(),
+    "Divorce": Divorce.plugin_id(),
+    "Divorce Filing": DivorceAnnouncement.plugin_id(),
+    "Emigration": Emigration.plugin_id(),
+    "Engagement": Engagement.plugin_id(),
+    "Immigration": Immigration.plugin_id(),
+    "Marriage": Marriage.plugin_id(),
+    "Marriage Banns": MarriageAnnouncement.plugin_id(),
+    "Occupation": Occupation.plugin_id(),
+    "Residence": Residence.plugin_id(),
+    "Retirement": Retirement.plugin_id(),
+    "Will": Will.plugin_id(),
+}
+DEFAULT_PLACE_TYPE_MAP: Mapping[str, MachineName] = {
+    "Borough": Borough.plugin_id(),
+    "Building": Building.plugin_id(),
+    "City": City.plugin_id(),
+    "Country": Country.plugin_id(),
+    "County": County.plugin_id(),
+    "Department": Department.plugin_id(),
+    "District": District.plugin_id(),
+    "Farm": Farm.plugin_id(),
+    "Hamlet": Hamlet.plugin_id(),
+    "Locality": Locality.plugin_id(),
+    "Municipality": Municipality.plugin_id(),
+    "Neighborhood": Neighborhood.plugin_id(),
+    "Number": Number.plugin_id(),
+    "Parish": Parish.plugin_id(),
+    "Province": Province.plugin_id(),
+    "Region": Region.plugin_id(),
+    "State": State.plugin_id(),
+    "Street": Street.plugin_id(),
+    "Town": Town.plugin_id(),
+    "Unknown": UnknownPlaceType.plugin_id(),
+    "Village": Village.plugin_id(),
+}
+
+DEFAULT_PRESENCE_ROLE_MAP: Mapping[str, MachineName] = {
+    "Aide": Attendee.plugin_id(),
+    "Bride": Subject.plugin_id(),
+    "Celebrant": Celebrant.plugin_id(),
+    "Clergy": Celebrant.plugin_id(),
+    "Family": Subject.plugin_id(),
+    "Groom": Subject.plugin_id(),
+    "Informant": Informant.plugin_id(),
+    "Primary": Subject.plugin_id(),
+    "Unknown": UnknownPresenceRole.plugin_id(),
+    "Witness": Witness.plugin_id(),
+}
+DEFAULT_GENDER_MAP: Mapping[str, MachineName] = {
+    "F": Female.plugin_id(),
+    "M": Male.plugin_id(),
+    "U": UnknownGender.plugin_id(),
+}
+
 
 def _assert_gramps_type(value: Any) -> str:
     event_type = assert_str()(value)
@@ -153,80 +215,22 @@ class FamilyTreeConfiguration(Configuration):
         self,
         file_path: Path,
         *,
-        event_types: PluginMapping | None = None,
-        place_types: PluginMapping | None = None,
-        presence_roles: PluginMapping | None = None,
-        genders: PluginMapping | None = None,
+        event_types: Mapping[str, MachineName] | None = None,
+        place_types: Mapping[str, MachineName] | None = None,
+        presence_roles: Mapping[str, MachineName] | None = None,
+        genders: Mapping[str, MachineName] | None = None,
     ):
         super().__init__()
         self.file_path = file_path
-        self._event_types = event_types or PluginMapping(
-            {
-                "Adopted": Adoption.plugin_id(),
-                "Baptism": Baptism.plugin_id(),
-                "Birth": Birth.plugin_id(),
-                "Burial": Burial.plugin_id(),
-                "Confirmation": Confirmation.plugin_id(),
-                "Cremation": Cremation.plugin_id(),
-                "Death": Death.plugin_id(),
-                "Divorce": Divorce.plugin_id(),
-                "Divorce Filing": DivorceAnnouncement.plugin_id(),
-                "Emigration": Emigration.plugin_id(),
-                "Engagement": Engagement.plugin_id(),
-                "Immigration": Immigration.plugin_id(),
-                "Marriage": Marriage.plugin_id(),
-                "Marriage Banns": MarriageAnnouncement.plugin_id(),
-                "Occupation": Occupation.plugin_id(),
-                "Residence": Residence.plugin_id(),
-                "Retirement": Retirement.plugin_id(),
-                "Will": Will.plugin_id(),
-            }
+        self._event_types = PluginMapping(
+            {**DEFAULT_EVENT_TYPE_MAP, **(event_types or {})}
         )
-        self._place_types = place_types or PluginMapping(
-            {
-                "Borough": Borough.plugin_id(),
-                "Building": Building.plugin_id(),
-                "City": City.plugin_id(),
-                "Country": Country.plugin_id(),
-                "County": County.plugin_id(),
-                "Department": Department.plugin_id(),
-                "District": District.plugin_id(),
-                "Farm": Farm.plugin_id(),
-                "Hamlet": Hamlet.plugin_id(),
-                "Locality": Locality.plugin_id(),
-                "Municipality": Municipality.plugin_id(),
-                "Neighborhood": Neighborhood.plugin_id(),
-                "Number": Number.plugin_id(),
-                "Parish": Parish.plugin_id(),
-                "Province": Province.plugin_id(),
-                "Region": Region.plugin_id(),
-                "State": State.plugin_id(),
-                "Street": Street.plugin_id(),
-                "Town": Town.plugin_id(),
-                "Unknown": UnknownPlaceType.plugin_id(),
-                "Village": Village.plugin_id(),
-            }
+        self._genders = PluginMapping({**DEFAULT_GENDER_MAP, **(genders or {})})
+        self._place_types = PluginMapping(
+            {**DEFAULT_PLACE_TYPE_MAP, **(place_types or {})}
         )
-        self._presence_roles = presence_roles or PluginMapping(
-            {
-                "Aide": Attendee.plugin_id(),
-                "Bride": Subject.plugin_id(),
-                "Celebrant": Celebrant.plugin_id(),
-                "Clergy": Celebrant.plugin_id(),
-                "Family": Subject.plugin_id(),
-                "Groom": Subject.plugin_id(),
-                "Informant": Informant.plugin_id(),
-                "Primary": Subject.plugin_id(),
-                "Unknown": UnknownPresenceRole.plugin_id(),
-                "Witness": Witness.plugin_id(),
-            }
-        )
-        self._genders = genders or PluginMapping(
-            {
-                "F": Female.plugin_id(),
-                "M": Male.plugin_id(),
-                "U": UnknownGender.plugin_id(),
-            }
+        self._presence_roles = PluginMapping(
+            {**DEFAULT_PRESENCE_ROLE_MAP, **(presence_roles or {})}
         )
 
     @override
@@ -279,6 +283,7 @@ class FamilyTreeConfiguration(Configuration):
         assert_record(
             RequiredField("file", assert_path() | assert_setattr(self, "file_path")),
             OptionalField("event_types", self.event_types.load),
+            OptionalField("genders", self.genders.load),
             OptionalField("place_types", self.place_types.load),
             OptionalField("presence_roles", self.presence_roles.load),
         )(dump)
@@ -289,6 +294,7 @@ class FamilyTreeConfiguration(Configuration):
             {
                 "file": str(self.file_path) if self.file_path else None,
                 "event_types": self.event_types.dump(),
+                "genders": self.genders.dump(),
                 "place_types": self.place_types.dump(),
                 "presence_roles": self.presence_roles.dump(),
             }
@@ -297,6 +303,10 @@ class FamilyTreeConfiguration(Configuration):
     @override
     def update(self, other: Self) -> None:
         self.file_path = other.file_path
+        self.event_types.update(other.event_types)
+        self.genders.update(other.genders)
+        self.place_types.update(other.place_types)
+        self.presence_roles.update(other.presence_roles)
 
 
 class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfiguration]):
