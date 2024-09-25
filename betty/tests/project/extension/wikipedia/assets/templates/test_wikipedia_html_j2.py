@@ -3,10 +3,12 @@ from unittest.mock import PropertyMock
 from pytest_mock import MockerFixture
 
 from betty.ancestry.link import HasLinks, Link
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project.extension.wikipedia import Wikipedia
 from betty.test_utils.assets.templates import TemplateTestBase
 from betty.test_utils.model import DummyEntity
 from betty.wikipedia import _Retriever, Summary
+from betty.wikipedia.copyright_notice import WikipediaContributors
 
 
 class DummyResource(HasLinks, DummyEntity):
@@ -86,4 +88,15 @@ class Test(TemplateTestBase):
             }
         ) as (actual, _):
             assert summary.content in actual
+            wikipedia_contributors_copyright_notice = WikipediaContributors()
+            assert (
+                wikipedia_contributors_copyright_notice.summary.localize(
+                    DEFAULT_LOCALIZER
+                )
+                in actual
+            )
+            assert (
+                wikipedia_contributors_copyright_notice.url.localize(DEFAULT_LOCALIZER)
+                in actual
+            )
         m_retriever.get_summary.assert_called_once_with("en", "Amsterdam")

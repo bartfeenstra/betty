@@ -25,6 +25,7 @@ from betty.config import Configurable, assert_configuration_file
 from betty.core import CoreComponent
 from betty.factory import new, FactoryProvider
 from betty.fetch import Fetcher, http
+from betty.fetch.static import StaticFetcher
 from betty.fs import HOME_DIRECTORY_PATH
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizer import Localizer, LocalizerRepository
@@ -49,6 +50,7 @@ class App(Configurable[AppConfiguration], FactoryProvider[Any], CoreComponent):
         cache_directory_path: Path,
         *,
         cache_factory: Callable[[Self], Cache[Any]],
+        fetcher: Fetcher | None = None,
     ):
         super().__init__()
         self._configuration = configuration
@@ -57,7 +59,7 @@ class App(Configurable[AppConfiguration], FactoryProvider[Any], CoreComponent):
         self._localizer: Localizer | None = None
         self._localizers: LocalizerRepository | None = None
         self._http_client: aiohttp.ClientSession | None = None
-        self._fetcher: Fetcher | None = None
+        self._fetcher: Fetcher | None = fetcher
         self._cache_directory_path = cache_directory_path
         self._cache: Cache[Any] | None = None
         self._cache_factory = cache_factory
@@ -81,7 +83,9 @@ class App(Configurable[AppConfiguration], FactoryProvider[Any], CoreComponent):
 
     @classmethod
     @asynccontextmanager
-    async def new_temporary(cls) -> AsyncIterator[Self]:
+    async def new_temporary(
+        cls, *, fetcher: Fetcher | None = None
+    ) -> AsyncIterator[Self]:
         """
         Creat a new, temporary, isolated application.
 
@@ -95,6 +99,7 @@ class App(Configurable[AppConfiguration], FactoryProvider[Any], CoreComponent):
                 AppConfiguration(),
                 Path(cache_directory_path_str),
                 cache_factory=lambda app: NoOpCache(),
+                fetcher=fetcher or StaticFetcher(),
             )
 
     @property

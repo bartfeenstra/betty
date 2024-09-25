@@ -9,10 +9,10 @@ from typing import Iterable, TYPE_CHECKING, final
 from jinja2 import pass_context
 from typing_extensions import override
 
-from betty.asyncio import gather
+from betty.asyncio import gather, wait_to_thread
 from betty.project.extension.wikipedia.config import WikipediaConfiguration
 from betty.fetch import FetchError
-from betty.jinja2 import Jinja2Provider, context_localizer, Filters
+from betty.jinja2 import Jinja2Provider, context_localizer, Filters, Globals
 from betty.locale import negotiate_locale
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
@@ -81,6 +81,18 @@ Display <a href="https://www.wikipedia.org/">Wikipedia</a> summaries for resourc
             self._assert_bootstrapped()
             self._retriever = _Retriever(self.project.app.fetcher)
         return self._retriever
+
+    @override
+    @property
+    def globals(self) -> Globals:
+        return wait_to_thread(self._init_globals())
+
+    async def _init_globals(self) -> Globals:
+        return {
+            "wikipedia_contributors_copyright_notice": await self.project.new(
+                await self.project.copyright_notices.get("wikipedia-contributors")
+            )
+        }
 
     @override
     @property

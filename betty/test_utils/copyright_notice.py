@@ -34,6 +34,15 @@ class CopyrightNoticeTestBase(PluginInstanceTestBase[CopyrightNotice]):
         for sut in self.get_sut_instances():
             assert sut.summary.localize(DEFAULT_LOCALIZER)
 
+    def test_url(self) -> None:
+        """
+        Tests :py:meth:`betty.copyright_notice.CopyrightNotice.url` implementations.
+        """
+        for sut in self.get_sut_instances():
+            url = sut.url
+            if url is not None:
+                assert url.localize(DEFAULT_LOCALIZER)
+
 
 class DummyCopyrightNotice(DummyPlugin, CopyrightNotice):
     """

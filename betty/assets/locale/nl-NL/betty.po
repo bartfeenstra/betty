@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-25 08:16+0100\n"
+"POT-Creation-Date: 2024-09-25 10:58+0100\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -135,15 +135,6 @@ msgstr[1] "%(person_individual_name)s had %(child_count)s kinderen."
 #, python-format
 msgid "%(person_individual_name)s is the child of %(parent_labels)s."
 msgstr "%(person_individual_name)s is het kind van %(parent_labels)s."
-
-msgid ""
-"<a "
-"href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\">Copyright</a>"
-" Wikipedia and its contributors."
-msgstr ""
-"<a "
-"href=\"https://nl.wikipedia.org/wiki/Wikipedia:Auteursrechten\">Copyright</a>"
-" Wikipedia en bijdragers."
 
 msgid ""
 "A family history as told by <a "
@@ -312,6 +303,16 @@ msgstr "Geloofsbelijdenis"
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr "Lees verder op <a href=\"%(url)s\">Wikipedia</a>."
+
+msgid "Copyright Wikipedia contributors"
+msgstr "Copyright Wikipedia-bijdragers"
+
+msgid ""
+"Copyright of these works lies with the original authors who contributed "
+"them to Wikipedia."
+msgstr ""
+"Het copyright op deze werken ligt bij de originele auteurs die ze aan "
+"Wikipedia bijgedragen hebben."
 
 msgid "Correspondence"
 msgstr "Correspondentie"
@@ -988,6 +989,9 @@ msgstr ""
 
 msgid "Wikipedia"
 msgstr "Wikipedia"
+
+msgid "Wikipedia contributors"
+msgstr "Wikipedia-bijdragers"
 
 msgid "Will"
 msgstr "Testament"
