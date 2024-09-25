@@ -1023,7 +1023,7 @@ msgid ""
 "Your project has no theme enabled. This means your site's pages may look "
 "bare. Try the \"cotton-candy\" extension."
 msgstr ""
-"Er is geen thema ingeschakeld voor je project. Dit betekent datde "
+"Er is geen thema ingeschakeld voor je project. Dit betekent dat de "
 "pagina's van je site er leeg uit kunnen zien. Probeer de \"cotton-"
 "candy\"-extensie."
 
