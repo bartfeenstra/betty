@@ -242,19 +242,20 @@ betty = [
     'py.typed',
 
     # Assets.
-    'assets/**',
-    'project/extension/*/assets/**',
+    'assets/**/*',
+    'assets/public/localized/.error/*',
+    'project/extension/*/assets/**/*',
 
     # JSON Schemas.
-    'json/schemas/**/*',
+    'json/schemas/*',
 
     # Webpack.
     '../.browserslistrc',
     '../tsconfig.json',
-    'project/extension/*/webpack/**',
+    'project/extension/*/webpack/**/*',
 
     # Prebuilt assets.
-    '../prebuild/**',
+    '../prebuild/**/*',
 ]
 
 [tool.setuptools.exclude-package-data]
