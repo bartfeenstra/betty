@@ -42,3 +42,24 @@ class ProjectAuthor(ShorthandPluginBase, ProjectDependentFactory, CopyrightNotic
     @override
     def text(self) -> Localizable:
         return self.summary
+
+
+class PublicDomain(ShorthandPluginBase, CopyrightNotice):
+    """
+    A work is in the `public domain <https://en.wikipedia.org/wiki/Public_domain>`.
+    """
+
+    _plugin_id = "public-domain"
+    _plugin_label = _("Public domain")
+
+    @property
+    @override
+    def summary(self) -> Localizable:
+        return _("Public domain")
+
+    @property
+    @override
+    def text(self) -> Localizable:
+        return _(
+            "Works in the public domain can be used or referenced without permission, because nobody holds any exclusive rights over these works (anymore)."
+        )

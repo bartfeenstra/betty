@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-19 15:11+0100\n"
+"POT-Creation-Date: 2024-09-25 08:16+0100\n"
 "PO-Revision-Date: 2024-02-08 13:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de\n"
@@ -738,6 +738,9 @@ msgstr ""
 msgid "Province"
 msgstr ""
 
+msgid "Public domain"
+msgstr ""
+
 msgid "Read more on Wikipedia."
 msgstr "Lies mehr auf Wikipedia."
 
@@ -973,6 +976,11 @@ msgstr "Zeuge"
 
 msgid "Witnesses"
 msgstr "Zeugen"
+
+msgid ""
+"Works in the public domain can be used or referenced without permission, "
+"because nobody holds any exclusive rights over these works (anymore)."
+msgstr ""
 
 #, python-format
 msgid ""
