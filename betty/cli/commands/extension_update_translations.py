@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     required=True,
     callback=parameter_callback(
         lambda extension_id: wait_to_thread(
-            extension.EXTENSION_REPOSITORY.get(extension_id)
+            extension.EXTENSION_REPOSITORY.get, extension_id
         )
     ),
 )
@@ -47,8 +47,10 @@ if TYPE_CHECKING:
     callback=parameter_callback(assert_sequence(assert_directory_path())),
 )
 @pass_app
-async def extension_update_translations(  # noqa D103
+def extension_update_translations(  # noqa D103
     app: App, extension: type[Extension], source: Path, exclude: tuple[Path]
 ) -> None:
     with user_facing_error_to_bad_parameter(app.localizer):
-        await translation.update_extension_translations(extension, source, set(exclude))
+        wait_to_thread(
+            translation.update_extension_translations, extension, source, set(exclude)
+        )

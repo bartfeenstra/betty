@@ -42,7 +42,7 @@ from betty.serde.format import FORMAT_REPOSITORY
 if TYPE_CHECKING:
     from betty.app import App
     from betty.machine_name import MachineName
-    from collections.abc import Callable, Coroutine
+    from collections.abc import Callable
 
 _T = TypeVar("_T")
 _P = ParamSpec("_P")
@@ -164,7 +164,7 @@ _BettyCommandT = TypeVar("_BettyCommandT", bound=BettyCommand)
 
 
 @overload
-def command(name: Callable[..., Coroutine[Any, Any, Any]]) -> BettyCommand:
+def command(name: Callable[..., Any]) -> BettyCommand:
     pass
 
 
@@ -173,7 +173,7 @@ def command(
     name: str | None,
     cls: type[_BettyCommandT],
     **attrs: Any,
-) -> Callable[[Callable[..., Coroutine[Any, Any, Any]]], _BettyCommandT]:
+) -> Callable[[Callable[..., Any]], _BettyCommandT]:
     pass
 
 
@@ -183,25 +183,22 @@ def command(
     *,
     cls: type[_BettyCommandT],
     **attrs: Any,
-) -> Callable[[Callable[..., Coroutine[Any, Any, Any]]], _BettyCommandT]:
+) -> Callable[[Callable[..., Any]], _BettyCommandT]:
     pass
 
 
 @overload
 def command(
     name: str | None = None, cls: None = None, **attrs: Any
-) -> Callable[[Callable[..., Coroutine[Any, Any, Any]]], BettyCommand]:
+) -> Callable[[Callable[..., Any]], BettyCommand]:
     pass
 
 
 def command(
-    name: str | None | Callable[..., Coroutine[Any, Any, Any]] = None,
+    name: str | None | Callable[..., Any] = None,
     cls: type[BettyCommand] | None = None,
     **attrs: Any,
-) -> (
-    click.Command
-    | Callable[[Callable[..., Coroutine[Any, Any, Any]]], click.Command | BettyCommand]
-):
+) -> click.Command | Callable[[Callable[..., Any]], click.Command | BettyCommand]:
     """
     Mark something a Betty command.
 
@@ -216,7 +213,7 @@ def command(
     if cls is None:
         cls = BettyCommand
 
-    def decorator(f: Callable[..., Coroutine[Any, Any, Any]]) -> BettyCommand:
+    def decorator(f: Callable[..., Any]) -> BettyCommand:
         @click.command(cast(str | None, name), cls, **attrs)
         @click.option(
             "-v",
@@ -252,7 +249,7 @@ def command(
         )
         @wraps(f)
         def _command(*args: _P.args, **kwargs: _P.kwargs) -> None:
-            wait_to_thread(f(*args, **kwargs))
+            f(*args, **kwargs)
 
         return _command  # type: ignore[return-value]
 
@@ -364,7 +361,7 @@ def pass_project(
         project: Project = ctx.with_resource(  # type: ignore[attr-defined]
             SynchronizedContextManager(Project.new_temporary(ctx_app(ctx)))
         )
-        wait_to_thread(_read_project_configuration(project, configuration_file_path))
+        wait_to_thread(_read_project_configuration, project, configuration_file_path)
         ctx.with_resource(  # type: ignore[attr-defined]
             SynchronizedContextManager(project)
         )

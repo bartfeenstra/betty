@@ -33,7 +33,7 @@ class Dependencies(AllRequirements):
             return [
                 (
                     wait_to_thread(
-                        extension.EXTENSION_REPOSITORY.get(dependency_identifier)
+                        extension.EXTENSION_REPOSITORY.get, dependency_identifier
                     )
                     if isinstance(dependency_identifier, str)
                     else dependency_identifier
@@ -51,7 +51,7 @@ class Dependencies(AllRequirements):
                 lambda localizer: ", ".join(
                     (
                         wait_to_thread(
-                            extension.EXTENSION_REPOSITORY.get(dependency_identifier)
+                            extension.EXTENSION_REPOSITORY.get, dependency_identifier
                         )
                         if isinstance(dependency_identifier, str)
                         else dependency_identifier
@@ -90,7 +90,7 @@ class Dependents(Requirement):
             dependent_labels=call(
                 lambda localizer: ", ".join(
                     dependent.plugin_label().localize(localizer)
-                    for dependent in wait_to_thread(self._dependents())
+                    for dependent in wait_to_thread(self._dependents)
                 )
             ),
         )

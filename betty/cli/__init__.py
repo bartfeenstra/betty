@@ -85,7 +85,7 @@ class _BettyCommands(BettyCommand, click.MultiCommand):
         self._bootstrap()
         return [
             command.plugin_id()
-            for command in wait_to_thread(commands.COMMAND_REPOSITORY.select())
+            for command in wait_to_thread(commands.COMMAND_REPOSITORY.select)
         ]
 
     @override
@@ -95,7 +95,7 @@ class _BettyCommands(BettyCommand, click.MultiCommand):
         self._bootstrap()
         try:
             return wait_to_thread(
-                commands.COMMAND_REPOSITORY.get(cmd_name)
+                commands.COMMAND_REPOSITORY.get, cmd_name
             ).click_command()
         except PluginNotFound:
             return None

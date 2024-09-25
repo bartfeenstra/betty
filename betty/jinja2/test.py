@@ -45,7 +45,7 @@ def test_entity(
     :param entity_type_id: If given, additionally ensure the value is an entity of this type.
     """
     if isinstance(entity_type_identifier, str):
-        entity_type = wait_to_thread(ENTITY_TYPE_REPOSITORY.get(entity_type_identifier))
+        entity_type = wait_to_thread(ENTITY_TYPE_REPOSITORY.get, entity_type_identifier)
     elif entity_type_identifier:
         entity_type = entity_type_identifier
     else:

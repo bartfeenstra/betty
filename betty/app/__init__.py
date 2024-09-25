@@ -120,9 +120,8 @@ class App(Configurable[AppConfiguration], FactoryProvider[Any], CoreComponent):
         if self._localizer is None:
             self._assert_bootstrapped()
             self._localizer = wait_to_thread(
-                self.localizers.get_negotiated(
-                    self.configuration.locale or DEFAULT_LOCALE
-                )
+                self.localizers.get_negotiated,
+                self.configuration.locale or DEFAULT_LOCALE,
             )
         return self._localizer
 
@@ -150,7 +149,7 @@ class App(Configurable[AppConfiguration], FactoryProvider[Any], CoreComponent):
                 },
             )
             wait_to_thread(
-                self._async_exit_stack.enter_async_context(self._http_client)
+                self._async_exit_stack.enter_async_context, self._http_client
             )
         return self._http_client
 

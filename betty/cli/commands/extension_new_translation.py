@@ -26,14 +26,14 @@ if TYPE_CHECKING:
     required=True,
     callback=parameter_callback(
         lambda extension_id: wait_to_thread(
-            extension.EXTENSION_REPOSITORY.get(extension_id)
+            extension.EXTENSION_REPOSITORY.get, extension_id
         )
     ),
 )
 @click.argument("locale", required=True, callback=parameter_callback(assert_locale()))
 @pass_app
-async def extension_new_translation(  # noqa D103
+def extension_new_translation(  # noqa D103
     app: App, extension: type[Extension], locale: str
 ) -> None:
     with user_facing_error_to_bad_parameter(app.localizer):
-        await translation.new_extension_translation(locale, extension)
+        wait_to_thread(translation.new_extension_translation, locale, extension)

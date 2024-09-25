@@ -17,7 +17,7 @@ betty_replacements: dict[str, str] = {}
 assets = AssetRepository(fs.ASSETS_DIRECTORY_PATH)
 localizers = LocalizerRepository(assets)
 for locale in localizers.locales:
-    coverage = wait_to_thread(localizers.coverage(locale))
+    coverage = wait_to_thread(localizers.coverage, locale)
     betty_replacements[f"translation-coverage-{locale}"] = str(
         int(round(100 / (coverage[1] / coverage[0])))
     )

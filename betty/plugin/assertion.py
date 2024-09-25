@@ -25,7 +25,7 @@ def assert_plugin(
     ) -> type[_PluginT]:
         plugin_id = assert_str()(value)
         try:
-            return wait_to_thread(plugin_repository.get(plugin_id))
+            return wait_to_thread(plugin_repository.get, plugin_id)
         except PluginNotFound:
             raise AssertionFailed(
                 join(
@@ -35,7 +35,7 @@ def assert_plugin(
                     do_you_mean(
                         *(
                             f'"{plugin.plugin_id()}"'
-                            for plugin in wait_to_thread(plugin_repository.select())
+                            for plugin in wait_to_thread(plugin_repository.select)
                         )
                     ),
                 )

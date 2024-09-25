@@ -85,7 +85,7 @@ Display <a href="https://www.wikipedia.org/">Wikipedia</a> summaries for resourc
     @override
     @property
     def globals(self) -> Globals:
-        return wait_to_thread(self._init_globals())
+        return wait_to_thread(self._init_globals)
 
     async def _init_globals(self) -> Globals:
         return {

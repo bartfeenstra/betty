@@ -80,7 +80,7 @@ class JsonLdObject(Object):
             title=title,
             description=description,
         )
-        self._schema["allOf"] = [wait_to_thread(JsonLdSchema.new()).embed(self)]
+        self._schema["allOf"] = [wait_to_thread(JsonLdSchema.new).embed(self)]
 
 
 class LinkedDataDumpableJsonLdObject(

@@ -10,6 +10,7 @@ from betty.assertion import (
     assert_none,
     assert_sequence,
 )
+from betty.asyncio import wait_to_thread
 from betty.cli.commands import command, pass_project, parameter_callback
 from betty.locale import translation
 from betty.typing import internal
@@ -31,9 +32,12 @@ if TYPE_CHECKING:
     callback=parameter_callback(assert_sequence(assert_directory_path())),
 )
 @pass_project
-async def update_translations(  # noqa D103
+def update_translations(  # noqa D103
     project: Project, source: Path | None, exclude: tuple[Path]
 ) -> None:
-    await translation.update_project_translations(
-        project.configuration.project_directory_path, source, set(exclude)
+    wait_to_thread(
+        translation.update_project_translations,
+        project.configuration.project_directory_path,
+        source,
+        set(exclude),
     )

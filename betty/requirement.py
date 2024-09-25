@@ -54,8 +54,8 @@ class Requirement(Localizable):
 
     @override
     def localize(self, localizer: Localizer) -> LocalizedStr:
-        super_localized = wait_to_thread(self.summary()).localize(localizer)
-        details = wait_to_thread(self.details())
+        super_localized = wait_to_thread(self.summary).localize(localizer)
+        details = wait_to_thread(self.details)
         localized: str = super_localized
         if details is not None:
             localized += f'\n{"-" * len(localized)}'

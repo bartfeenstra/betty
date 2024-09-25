@@ -8,5 +8,5 @@ class TestWaitToThread:
         async def _async() -> str:
             return expected
 
-        actual = wait_to_thread(_async())
+        actual = wait_to_thread(_async)
         assert actual == expected

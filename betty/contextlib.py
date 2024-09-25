@@ -19,7 +19,7 @@ class SynchronizedContextManager(Generic[_ContextT]):
         self._context_manager = context_manager
 
     def __enter__(self) -> _ContextT:
-        return wait_to_thread(self._context_manager.__aenter__())
+        return wait_to_thread(self._context_manager.__aenter__)
 
     def __exit__(
         self,
@@ -28,5 +28,5 @@ class SynchronizedContextManager(Generic[_ContextT]):
         exc_tb: TracebackType | None,
     ) -> bool | None:
         return wait_to_thread(
-            self._context_manager.__aexit__(exc_type, exc_val, exc_tb)
+            self._context_manager.__aexit__, exc_type, exc_val, exc_tb
         )

@@ -206,7 +206,7 @@ class Event(
             Enum(
                 *[
                     presence_role.plugin_id()
-                    for presence_role in wait_to_thread(EVENT_TYPE_REPOSITORY.select())
+                    for presence_role in wait_to_thread(EVENT_TYPE_REPOSITORY.select)
                 ],
                 title="Event type",
             ),

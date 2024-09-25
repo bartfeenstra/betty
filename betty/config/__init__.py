@@ -107,7 +107,7 @@ def assert_configuration_file(
                 configuration.load(serde_format.load(read_configuration))
             return configuration
 
-    return assert_file_path().chain(lambda value: wait_to_thread(_assert(value)))
+    return assert_file_path().chain(lambda value: wait_to_thread(_assert, value))
 
 
 async def write_configuration_file(

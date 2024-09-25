@@ -39,7 +39,7 @@ class PresenceRoleSchema(Enum):
         super().__init__(
             *[
                 presence_role.plugin_id()
-                for presence_role in wait_to_thread(PRESENCE_ROLE_REPOSITORY.select())
+                for presence_role in wait_to_thread(PRESENCE_ROLE_REPOSITORY.select)
             ],
             def_name="presenceRole",
             title="Presence role",

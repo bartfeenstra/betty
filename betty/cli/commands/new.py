@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 
 import click
 from betty.assertion import assert_path, assert_str, assert_locale
+from betty.asyncio import wait_to_thread
 from betty.cli.commands import command, pass_app
 from betty.cli.error import user_facing_error_to_bad_parameter
 from betty.config import write_configuration_file
@@ -54,7 +55,11 @@ def _assert_url(value: Any) -> str:
 @internal
 @command(help="Create a new project.")
 @pass_app
-async def new(app: App) -> None:  # noqa D103
+def new(app: App) -> None:  # noqa D103
+    wait_to_thread(_new, app)
+
+
+async def _new(app: App) -> None:
     configuration_file_path = click.prompt(
         app.localizer._("Where do you want to save your project's configuration file?"),
         value_proc=user_facing_error_to_bad_parameter(app.localizer)(

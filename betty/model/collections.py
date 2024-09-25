@@ -328,7 +328,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
         self, entity_type_id: MachineName
     ) -> SingleTypeEntityCollection[Entity]:
         return self._get_collection(
-            wait_to_thread(model.ENTITY_TYPE_REPOSITORY.get(entity_type_id)),
+            wait_to_thread(model.ENTITY_TYPE_REPOSITORY.get, entity_type_id),
         )
 
     def _getitem_by_index(self, index: int) -> _TargetT & Entity:
@@ -362,7 +362,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
 
     def _delitem_by_entity_type_id(self, entity_type_id: MachineName) -> None:
         self._delitem_by_entity_type(
-            wait_to_thread(model.ENTITY_TYPE_REPOSITORY.get(entity_type_id)),  # type: ignore[arg-type]
+            wait_to_thread(model.ENTITY_TYPE_REPOSITORY.get, entity_type_id),  # type: ignore[arg-type]
         )
 
     @override

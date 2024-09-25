@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 import click
 
 from betty.app import config as app_config
+from betty.asyncio import wait_to_thread
 from betty.cli.commands import command, pass_app
 from betty.config import write_configuration_file
 from betty.locale import DEFAULT_LOCALE, get_display_name
@@ -24,7 +25,11 @@ if TYPE_CHECKING:
     help="Set the locale for Betty's user interface. This must be an IETF BCP 47 language tag.",
 )
 @pass_app
-async def config(app: App, *, locale: str) -> None:  # noqa D103
+def config(app: App, *, locale: str) -> None:  # noqa D103
+    wait_to_thread(_config, app, locale=locale)
+
+
+async def _config(app: App, *, locale: str) -> None:
     logger = getLogger(__name__)
     app.configuration.locale = locale
     localizer = await app.localizers.get(locale)

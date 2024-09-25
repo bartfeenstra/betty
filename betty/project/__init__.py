@@ -220,7 +220,7 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
         if self._url_generator is None:
             self._assert_bootstrapped()
             self._url_generator = wait_to_thread(
-                ProjectLocalizedUrlGenerator.new_for_project(self)
+                ProjectLocalizedUrlGenerator.new_for_project, self
             )
         return self._url_generator
 
@@ -232,7 +232,7 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
         if self._static_url_generator is None:
             self._assert_bootstrapped()
             self._static_url_generator = wait_to_thread(
-                ProjectStaticUrlGenerator.new_for_project(self)
+                ProjectStaticUrlGenerator.new_for_project, self
             )
         return self._static_url_generator
 
@@ -256,7 +256,7 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
         """
         if not self._renderer:
             self._assert_bootstrapped()
-            self._renderer = wait_to_thread(self._init_renderer())
+            self._renderer = wait_to_thread(self._init_renderer)
 
         return self._renderer
 
@@ -272,7 +272,7 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
         """
         if self._extensions is None:
             self._assert_bootstrapped()
-            self._extensions = wait_to_thread(self._init_extensions())
+            self._extensions = wait_to_thread(self._init_extensions)
 
         return self._extensions
 
@@ -373,7 +373,7 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
         The overall project copyright.
         """
         if self._copyright_notice is None:
-            self._copyright_notice = wait_to_thread(self._init_copyright())
+            self._copyright_notice = wait_to_thread(self._init_copyright)
         return self._copyright_notice
 
     async def _init_copyright(self) -> CopyrightNotice:
@@ -511,7 +511,7 @@ class ProjectExtensions:
     ) -> Extension:
         if isinstance(extension_identifier, str):
             extension_type = wait_to_thread(
-                extension.EXTENSION_REPOSITORY.get(extension_identifier)
+                extension.EXTENSION_REPOSITORY.get, extension_identifier
             )
         else:
             extension_type = extension_identifier

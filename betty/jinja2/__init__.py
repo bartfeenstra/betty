@@ -165,7 +165,7 @@ class EntityContexts:
     ) -> Entity | None:
         if isinstance(entity_type_or_type_name, str):
             entity_type = wait_to_thread(
-                model.ENTITY_TYPE_REPOSITORY.get(entity_type_or_type_name)
+                model.ENTITY_TYPE_REPOSITORY.get, entity_type_or_type_name
             )
         else:
             entity_type = entity_type_or_type_name

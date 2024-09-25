@@ -13,9 +13,15 @@ from typing import (
     cast,
     Coroutine,
     Any,
+    ParamSpec,
+    TYPE_CHECKING,
 )
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
 _T = TypeVar("_T")
+_P = ParamSpec("_P")
 
 
 async def gather(*coroutines: Coroutine[Any, None, _T]) -> tuple[_T, ...]:
@@ -31,20 +37,26 @@ async def gather(*coroutines: Coroutine[Any, None, _T]) -> tuple[_T, ...]:
     return tuple(task.result() for task in tasks)
 
 
-def wait_to_thread(f: Awaitable[_T]) -> _T:
+def wait_to_thread(
+    f: Callable[_P, Awaitable[_T]], *args: _P.args, **kwargs: _P.kwargs
+) -> _T:
     """
     Wait for an awaitable in another thread.
     """
-    synced = _WaiterThread(f)
+    synced = _WaiterThread(f, *args, **kwargs)
     synced.start()
     synced.join()
     return synced.return_value
 
 
 class _WaiterThread(Thread, Generic[_T]):
-    def __init__(self, awaitable: Awaitable[_T]):
+    def __init__(
+        self, f: Callable[_P, Awaitable[_T]], *args: _P.args, **kwargs: _P.kwargs
+    ):
         super().__init__()
-        self._awaitable = awaitable
+        self._f = f
+        self._args = args
+        self._kwargs = kwargs
         self._return_value: _T | None = None
         self._e: BaseException | None = None
 
@@ -59,7 +71,7 @@ class _WaiterThread(Thread, Generic[_T]):
 
     async def _run(self) -> None:
         try:
-            self._return_value = await self._awaitable
+            self._return_value = await self._f(*self._args, **self._kwargs)
         except BaseException as e:  # noqa: B036
             # Store the exception, so it can be reraised when the calling thread
             # gets self.return_value.

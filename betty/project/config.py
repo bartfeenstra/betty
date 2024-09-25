@@ -996,7 +996,7 @@ class ProjectConfiguration(Configuration):
     def configuration_file_path(self, configuration_file_path: Path) -> None:
         if configuration_file_path == self._configuration_file_path:
             return
-        wait_to_thread(FORMAT_REPOSITORY.format_for(configuration_file_path.suffix))
+        wait_to_thread(FORMAT_REPOSITORY.format_for, configuration_file_path.suffix)
         self._configuration_file_path = configuration_file_path
 
     @property
