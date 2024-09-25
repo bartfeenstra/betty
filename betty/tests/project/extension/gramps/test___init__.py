@@ -16,14 +16,13 @@ from betty.ancestry.place_type.place_types import City
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.app import App
+from betty.project import Project
+from betty.project.config import ExtensionConfiguration
 from betty.project.extension.gramps import Gramps
 from betty.project.extension.gramps.config import (
     FamilyTreeConfiguration,
     GrampsConfiguration,
-    PluginMapping,
 )
-from betty.project import Project
-from betty.project.config import ExtensionConfiguration
 from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase
 
@@ -66,7 +65,7 @@ class TestGramps(ExtensionTestBase):
                         family_trees=[
                             FamilyTreeConfiguration(
                                 file_path=gramps_family_tree_path,
-                                event_types=PluginMapping({"Birth": "birth"}),
+                                event_types={"Birth": "birth"},
                             )
                         ],
                     ),
@@ -107,7 +106,7 @@ class TestGramps(ExtensionTestBase):
                         family_trees=[
                             FamilyTreeConfiguration(
                                 file_path=gramps_family_tree_path,
-                                place_types=PluginMapping({"City": "city"}),
+                                place_types={"City": "city"},
                             )
                         ],
                     ),
@@ -156,9 +155,7 @@ class TestGramps(ExtensionTestBase):
                         family_trees=[
                             FamilyTreeConfiguration(
                                 file_path=gramps_family_tree_path,
-                                presence_roles=PluginMapping(
-                                    {"MyFirstRole": "subject"}
-                                ),
+                                presence_roles={"MyFirstRole": "subject"},
                             )
                         ],
                     ),
@@ -202,7 +199,7 @@ class TestGramps(ExtensionTestBase):
                         family_trees=[
                             FamilyTreeConfiguration(
                                 file_path=gramps_family_tree_path,
-                                genders=PluginMapping({"MyFirstGender": "non-binary"}),
+                                genders={"MyFirstGender": "non-binary"},
                             )
                         ],
                     ),
