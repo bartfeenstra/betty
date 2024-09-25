@@ -4,12 +4,15 @@ The Assets API.
 
 from __future__ import annotations
 
+from asyncio import to_thread
 from os import walk
-from typing import Sequence, TYPE_CHECKING
 from pathlib import Path
+from typing import Sequence, TYPE_CHECKING
+
+from betty.concurrent import AsynchronizedLock
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Mapping, AsyncIterator
 
 
 class AssetRepository:
@@ -22,14 +25,25 @@ class AssetRepository:
 
     def __init__(self, *assets_directory_paths: Path):
         self._assets_directory_paths = assets_directory_paths
-        self._assets = {}
-        for assets_directory_path in reversed(assets_directory_paths):
-            for directory_path, _, file_names in walk(assets_directory_path):
-                for file_name in file_names:
-                    file_path = Path(directory_path) / file_name
-                    self._assets[file_path.relative_to(assets_directory_path)] = (
-                        file_path
-                    )
+        self.__assets: Mapping[Path, Path] | None = None
+        self._lock = AsynchronizedLock.threading()
+
+    async def _assets(self) -> Mapping[Path, Path]:
+        if self.__assets is None:
+            async with self._lock:
+                self.__assets = await to_thread(self._init_assets)
+        return self.__assets
+
+    def _init_assets(self) -> Mapping[Path, Path]:
+        return {
+            (Path(directory_path) / file_name).relative_to(assets_directory_path): Path(
+                directory_path
+            )
+            / file_name
+            for assets_directory_path in reversed(self._assets_directory_paths)
+            for directory_path, _, file_names in walk(assets_directory_path)
+            for file_name in file_names
+        }
 
     @property
     def assets_directory_paths(self) -> Sequence[Path]:
@@ -38,24 +52,26 @@ class AssetRepository:
         """
         return self._assets_directory_paths
 
-    def walk(self, asset_directory_path: Path | None = None) -> Iterator[Path]:
+    async def walk(
+        self, asset_directory_path: Path | None = None
+    ) -> AsyncIterator[Path]:
         """
         Get virtual paths to available assets.
 
         :param asset_directory_path: If given, only asses under the directory are returned.
         """
-        for asset_path in self._assets:
+        for asset_path in await self._assets():
             if (
                 asset_directory_path is None
                 or asset_directory_path in asset_path.parents
             ):
                 yield asset_path
 
-    def __getitem__(self, path: Path) -> Path:
+    async def get(self, path: Path) -> Path:
         """
         Get the path to a single asset file.
 
         :param path: The virtual asset path.
         :return: The path to the actual file on disk.
         """
-        return self._assets[path]
+        return (await self._assets())[path]
