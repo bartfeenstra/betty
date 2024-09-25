@@ -55,23 +55,28 @@ class _CacheItemLock(Lock):
 
     @override
     async def acquire(self, *, wait: bool = True) -> bool:
-        async with self._cache_lock:
-            if wait:
-                while not self._can_acquire():
-                    await sleep(0)
-            else:
-                if not self._can_acquire():
-                    return False
-            self._cache_items_locked[self._cache_item_id] = True
-            return True
+        if wait:
+            while True:
+                async with self._cache_lock:
+                    if self._can_acquire():
+                        return self._acquire()
+                await sleep(0)
+        else:
+            async with self._cache_lock:
+                if self._can_acquire():
+                    return self._acquire()
+                return False
 
     def _can_acquire(self) -> bool:
         return not self._cache_items_locked[self._cache_item_id]
 
+    def _acquire(self) -> bool:
+        self._cache_items_locked[self._cache_item_id] = True
+        return True
+
     @override
     async def release(self) -> None:
-        async with self._cache_lock:
-            self._cache_items_locked[self._cache_item_id] = False
+        self._cache_items_locked[self._cache_item_id] = False
 
 
 class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueContraT]):
@@ -83,11 +88,13 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
         self._scopes = scopes or ()
         self._scoped_caches: MutableMapping[str, Self] = {}
         self._cache_lock = AsynchronizedLock.threading()
-        self._cache_items_locked: MutableMapping[str, bool] = defaultdict(lambda: False)
+        self.__cache_items_locked: MutableMapping[str, bool] = defaultdict(
+            lambda: False
+        )
 
     def _cache_item_lock(self, cache_item_id: str, *, wait: bool = True) -> Lock:
         return _CacheItemLock(
-            cache_item_id, wait, self._cache_lock, self._cache_items_locked
+            cache_item_id, wait, self._cache_lock, self.__cache_items_locked
         )
 
     @override
