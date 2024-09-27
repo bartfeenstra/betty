@@ -24,35 +24,35 @@ class Enclosure(ShorthandPluginBase, HasDate, HasCitations, Entity):
     """
     The enclosure of one place by another.
 
-    Enclosures describe the outer (```enclosed_by`) and inner(``encloses``) places, and their relationship.
+    Enclosures describe the outer (```encloser`) and inner(``enclosee``) places, and their relationship.
     """
 
     _plugin_id = "enclosure"
     _plugin_label = _("Enclosure")
 
     #: The outer place.
-    enclosed_by = ManyToOne["Enclosure", "Place"](
+    encloser = ManyToOne["Enclosure", "Place"](
         "betty.ancestry.enclosure:Enclosure",
-        "enclosed_by",
+        "encloser",
         "betty.ancestry.place:Place",
-        "encloses",
+        "enclosee",
     )
     #: The inner place.
-    encloses = ManyToOne["Enclosure", "Place"](
+    enclosee = ManyToOne["Enclosure", "Place"](
         "betty.ancestry.enclosure:Enclosure",
-        "encloses",
+        "enclosee",
         "betty.ancestry.place:Place",
-        "enclosed_by",
+        "encloser",
     )
 
     def __init__(
         self,
-        encloses: Place | None = None,
-        enclosed_by: Place | None = None,
+        enclosee: Place | None = None,
+        encloser: Place | None = None,
     ):
         super().__init__()
-        self.encloses = encloses
-        self.enclosed_by = enclosed_by
+        self.enclosee = enclosee
+        self.encloser = encloser
 
     @override
     @classmethod

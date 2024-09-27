@@ -729,22 +729,20 @@ class GrampsLoader:
             aliased_place,  # type: ignore[arg-type]
         )
 
-        for enclosed_by_handle in self._load_handles("placeref", element):
-            aliased_enclosure = AliasedEntity(
-                Enclosure(encloses=None, enclosed_by=None)
-            )
+        for encloser_handle in self._load_handles("placeref", element):
+            aliased_enclosure = AliasedEntity(Enclosure(enclosee=None, encloser=None))
             self._add_entity(
                 aliased_enclosure,  # type: ignore[arg-type]
             )
             self._add_association(
-                Enclosure, aliased_enclosure.id, "encloses", Place, place_handle
+                Enclosure, aliased_enclosure.id, "enclosee", Place, place_handle
             )
             self._add_association(
                 Enclosure,
                 aliased_enclosure.id,
-                "enclosed_by",
+                "encloser",
                 Place,
-                enclosed_by_handle,
+                encloser_handle,
             )
 
     def _load_coordinates(self, element: ElementTree.Element) -> Point | None:

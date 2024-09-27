@@ -89,7 +89,7 @@ async def _load_ancestry(event: LoadAncestryEvent) -> None:
             Link("https://www.noord-holland.nl/Home"),
         ],
     )
-    _load(Enclosure(encloses=north_holland, enclosed_by=netherlands))
+    _load(Enclosure(enclosee=north_holland, encloser=netherlands))
     _load(north_holland)
 
     amsterdam_note = Note(
@@ -109,7 +109,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
         ],
         notes=[amsterdam_note],
     )
-    _load(Enclosure(encloses=amsterdam, enclosed_by=north_holland))
+    _load(Enclosure(enclosee=amsterdam, encloser=north_holland))
     _load(amsterdam)
 
     ilpendam = Place(
@@ -124,7 +124,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
         ],
         links=[Link("https://nl.wikipedia.org/wiki/Ilpendam")],
     )
-    _load(Enclosure(encloses=ilpendam, enclosed_by=north_holland))
+    _load(Enclosure(enclosee=ilpendam, encloser=north_holland))
     _load(ilpendam)
 
     personal_accounts = Source(
