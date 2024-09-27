@@ -309,7 +309,7 @@ class TestGrampsLoader:
         assert place == event.place
         assert event in place.events
 
-    async def test_place_should_include_enclosed_by(self) -> None:
+    async def test_place_should_include_encloser(self) -> None:
         ancestry = await self._load_partial(
             """
 <places>
@@ -325,15 +325,17 @@ class TestGrampsLoader:
 """
         )
         assert (
-            ancestry[Place]["P0000"]
-            == ancestry[Place]["P0002"].enclosed_by[0].enclosed_by
+            ancestry[Place]["P0000"] == ancestry[Place]["P0002"].enclosers[0].encloser
         )
         assert (
-            ancestry[Place]["P0001"]
-            == ancestry[Place]["P0002"].enclosed_by[1].enclosed_by
+            ancestry[Place]["P0001"] == ancestry[Place]["P0002"].enclosers[1].encloser
         )
-        assert ancestry[Place]["P0002"] == ancestry[Place]["P0000"].encloses[0].encloses
-        assert ancestry[Place]["P0002"] == ancestry[Place]["P0001"].encloses[0].encloses
+        assert (
+            ancestry[Place]["P0002"] == ancestry[Place]["P0000"].enclosees[0].enclosee
+        )
+        assert (
+            ancestry[Place]["P0002"] == ancestry[Place]["P0001"].enclosees[0].enclosee
+        )
 
     async def test_person_should_include_names(self) -> None:
         ancestry = await self._load_partial(

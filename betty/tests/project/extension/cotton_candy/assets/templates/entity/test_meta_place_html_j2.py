@@ -32,12 +32,12 @@ class Test(TemplateTestBase):
             id="P1",
             names=[Name("The Enclosing Place")],
         )
-        Enclosure(encloses=place, enclosed_by=enclosing_place)
+        Enclosure(enclosee=place, encloser=enclosing_place)
         all_enclosing_place = Place(
             id="P2",
             names=[Name("The All-enclosing Place")],
         )
-        Enclosure(encloses=enclosing_place, enclosed_by=all_enclosing_place)
+        Enclosure(enclosee=enclosing_place, encloser=all_enclosing_place)
         expected = '<div class="meta">in <span><a href="/place/P1/index.html"><span lang="und">The Enclosing Place</span></a></span>, <span><a href="/place/P2/index.html"><span lang="und">The All-enclosing Place</span></a></span></div>'
         async with self._render(
             data={
@@ -55,12 +55,12 @@ class Test(TemplateTestBase):
             id="P1",
             names=[Name("The Enclosing Place")],
         )
-        Enclosure(encloses=place, enclosed_by=enclosing_place)
+        Enclosure(enclosee=place, encloser=enclosing_place)
         all_enclosing_place = Place(
             id="P2",
             names=[Name("The All-enclosing Place")],
         )
-        Enclosure(encloses=enclosing_place, enclosed_by=all_enclosing_place)
+        Enclosure(enclosee=enclosing_place, encloser=all_enclosing_place)
         expected = '<div class="meta">in <span><a href="/place/P1/index.html"><span lang="und">The Enclosing Place</span></a></span></div>'
         async with self._render(
             data={
@@ -79,12 +79,12 @@ class Test(TemplateTestBase):
             id="P1",
             names=[Name("The Enclosing Place")],
         )
-        Enclosure(encloses=place, enclosed_by=enclosing_place)
+        Enclosure(enclosee=place, encloser=enclosing_place)
         all_enclosing_place = Place(
             id="P2",
             names=[Name("The All-enclosing Place")],
         )
-        Enclosure(encloses=enclosing_place, enclosed_by=all_enclosing_place)
+        Enclosure(enclosee=enclosing_place, encloser=all_enclosing_place)
         unrelated_place = Place(
             id="P999",
             names=[Name("Far Far Away")],

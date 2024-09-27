@@ -65,63 +65,63 @@ class TestPlace(EntityTestBase):
         assert list(sut.events) == []
         assert event.place is None
 
-    async def test_enclosed_by(self) -> None:
+    async def test_enclosers(self) -> None:
         sut = Place(
             id="P1",
             names=[Name("The Place")],
         )
-        assert list(sut.enclosed_by) == []
+        assert list(sut.enclosers) == []
         enclosing_place = Place(
             id="P2",
             names=[Name("The Other Place")],
         )
-        enclosure = Enclosure(encloses=sut, enclosed_by=enclosing_place)
-        assert enclosure in sut.enclosed_by
-        assert sut == enclosure.encloses
-        sut.enclosed_by.remove(enclosure)
-        assert list(sut.enclosed_by) == []
-        assert enclosure.encloses is None
+        enclosure = Enclosure(enclosee=sut, encloser=enclosing_place)
+        assert enclosure in sut.enclosers
+        assert sut == enclosure.enclosee
+        sut.enclosers.remove(enclosure)
+        assert list(sut.enclosers) == []
+        assert enclosure.enclosee is None
 
-    async def test_encloses(self) -> None:
+    async def test_enclosees(self) -> None:
         sut = Place(
             id="P1",
             names=[Name("The Place")],
         )
-        assert list(sut.encloses) == []
+        assert list(sut.enclosees) == []
         enclosed_place = Place(
             id="P2",
             names=[Name("The Other Place")],
         )
-        enclosure = Enclosure(encloses=enclosed_place, enclosed_by=sut)
-        assert enclosure in sut.encloses
-        assert sut == enclosure.enclosed_by
-        sut.encloses.remove(enclosure)
-        assert list(sut.encloses) == []
-        assert enclosure.enclosed_by is None
+        enclosure = Enclosure(enclosee=enclosed_place, encloser=sut)
+        assert enclosure in sut.enclosees
+        assert sut == enclosure.encloser
+        sut.enclosees.remove(enclosure)
+        assert list(sut.enclosees) == []
+        assert enclosure.encloser is None
 
-    async def test_walk_encloses_without_encloses(self) -> None:
+    async def test_walk_enclosees_without_enclosees(self) -> None:
         sut = Place(
             id="P1",
             names=[Name("The Place")],
         )
-        assert list(sut.walk_encloses) == []
+        assert list(sut.walk_enclosees) == []
 
-    async def test_walk_encloses_with_encloses(self) -> None:
+    async def test_walk_enclosees_with_enclosees(self) -> None:
         sut = Place(
             id="P1",
             names=[Name("The Place")],
         )
-        encloses_place = Place(
+        child_enclosee = Place(
             id="P2",
             names=[Name("The Other Place")],
         )
-        encloses = Enclosure(encloses_place, sut)
-        encloses_encloses_place = Place(
+        enclosure = Enclosure(child_enclosee, sut)
+        grandchild_enclosee = Place(
             id="P2",
             names=[Name("The Other Other Place")],
         )
-        encloses_encloses = Enclosure(encloses_encloses_place, encloses_place)
-        assert list(sut.walk_encloses) == [encloses, encloses_encloses]
+        child_enclosure = Enclosure(grandchild_enclosee, child_enclosee)
+        assert list(sut.walk_enclosees) == [enclosure, child_enclosure]
 
     async def test_id(self) -> None:
         place_id = "C1"
@@ -162,16 +162,16 @@ class TestPlace(EntityTestBase):
         expected: Mapping[str, Any] = {
             "@context": {
                 "names": "https://schema.org/name",
-                "enclosedBy": "https://schema.org/containedInPlace",
-                "encloses": "https://schema.org/containsPlace",
+                "enclosers": "https://schema.org/containedInPlace",
+                "enclosees": "https://schema.org/containsPlace",
                 "events": "https://schema.org/event",
             },
             "@id": "https://example.com/place/the_place/index.json",
             "@type": "https://schema.org/Place",
             "id": place_id,
             "names": [],
-            "enclosedBy": [],
-            "encloses": [],
+            "enclosers": [],
+            "enclosees": [],
             "events": [],
             "notes": [],
             "links": [
@@ -214,13 +214,13 @@ class TestPlace(EntityTestBase):
             links=[link],
         )
         place.coordinates = coordinates
-        Enclosure(encloses=place, enclosed_by=Place(id="the_enclosing_place"))
-        Enclosure(encloses=Place(id="the_enclosed_place"), enclosed_by=place)
+        Enclosure(enclosee=place, encloser=Place(id="the_enclosing_place"))
+        Enclosure(enclosee=Place(id="the_enclosed_place"), encloser=place)
         expected: Mapping[str, Any] = {
             "@context": {
                 "names": "https://schema.org/name",
-                "enclosedBy": "https://schema.org/containedInPlace",
-                "encloses": "https://schema.org/containsPlace",
+                "enclosers": "https://schema.org/containedInPlace",
+                "enclosees": "https://schema.org/containsPlace",
                 "events": "https://schema.org/event",
                 "coordinates": "https://schema.org/geo",
             },
@@ -264,10 +264,10 @@ class TestPlace(EntityTestBase):
                 "latitude": latitude,
                 "longitude": longitude,
             },
-            "encloses": [
+            "enclosees": [
                 "/place/the_enclosed_place/index.json",
             ],
-            "enclosedBy": [
+            "enclosers": [
                 "/place/the_enclosing_place/index.json",
             ],
             "private": False,

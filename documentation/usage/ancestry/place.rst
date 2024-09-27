@@ -10,10 +10,10 @@ Places inherit from:
 
 - :doc:`/usage/ancestry/privacy`
 
-``encloses`` (optional ``Place``)
-    Another place this place encloses or contains.
-``enclosed_by`` (optional ``Place``)
-    Another place this place is enclosed or contained by.
+``enclosees`` (``Iterable[Place]``)
+    Other places this place encloses or contains.
+``enclosers`` (``Iterable[Place]``)
+    Other places this place is enclosed or contained by.
 ``events`` (iterable of :doc:`Event </usage/ancestry/event>`)
     The events that took place here.
 ``files`` (iterable of :doc:`File </usage/ancestry/file>`)

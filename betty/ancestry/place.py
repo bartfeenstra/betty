@@ -64,17 +64,17 @@ class Place(
     events = OneToMany["Place", "Event"](
         "betty.ancestry.place:Place", "events", "betty.ancestry.event:Event", "place"
     )
-    enclosed_by = OneToMany["Place", "Enclosure"](
+    enclosers = OneToMany["Place", "Enclosure"](
         "betty.ancestry.place:Place",
-        "enclosed_by",
+        "encloser",
         "betty.ancestry.enclosure:Enclosure",
-        "encloses",
+        "enclosee",
     )
-    encloses = OneToMany["Place", "Enclosure"](
+    enclosees = OneToMany["Place", "Enclosure"](
         "betty.ancestry.place:Place",
-        "encloses",
+        "enclosee",
         "betty.ancestry.enclosure:Enclosure",
-        "enclosed_by",
+        "encloser",
     )
 
     def __init__(
@@ -83,8 +83,8 @@ class Place(
         id: str | None = None,  # noqa A002
         names: MutableSequence[Name] | None = None,
         events: Iterable[Event] | None = None,
-        enclosed_by: Iterable["Enclosure"] | None = None,
-        encloses: Iterable["Enclosure"] | None = None,
+        enclosers: Iterable["Enclosure"] | None = None,
+        enclosees: Iterable["Enclosure"] | None = None,
         notes: Iterable[Note] | None = None,
         coordinates: Point | None = None,
         links: MutableSequence[Link] | None = None,
@@ -105,21 +105,21 @@ class Place(
         self._coordinates = coordinates
         if events is not None:
             self.events = events
-        if enclosed_by is not None:
-            self.enclosed_by = enclosed_by
-        if encloses is not None:
-            self.encloses = encloses
+        if enclosers is not None:
+            self.enclosers = enclosers
+        if enclosees is not None:
+            self.enclosees = enclosees
         self._place_type = place_type or UnknownPlaceType()
 
     @property
-    def walk_encloses(self) -> Iterator["Enclosure"]:
+    def walk_enclosees(self) -> Iterator["Enclosure"]:
         """
         All enclosed places.
         """
-        for enclosure in self.encloses:
+        for enclosure in self.enclosees:
             yield enclosure
-            if enclosure.encloses is not None:
-                yield from enclosure.encloses.walk_encloses
+            if enclosure.enclosee is not None:
+                yield from enclosure.enclosee.walk_enclosees
 
     @override
     @classmethod
@@ -171,8 +171,8 @@ class Place(
             dump,
             names="https://schema.org/name",
             events="https://schema.org/event",
-            enclosedBy="https://schema.org/containedInPlace",
-            encloses="https://schema.org/containsPlace",
+            enclosers="https://schema.org/containedInPlace",
+            enclosees="https://schema.org/containsPlace",
         )
         dump["@type"] = "https://schema.org/Place"
         dump["names"] = [await name.dump_linked_data(project) for name in self.names]
@@ -183,21 +183,21 @@ class Place(
             for event in self.events
             if not isinstance(event.id, GeneratedEntityId)
         ]
-        dump["enclosedBy"] = [
+        dump["enclosers"] = [
             project.static_url_generator.generate(
-                f"/place/{quote(enclosure.enclosed_by.id)}/index.json"
+                f"/place/{quote(enclosure.encloser.id)}/index.json"
             )
-            for enclosure in self.enclosed_by
-            if enclosure.enclosed_by is not None
-            and not isinstance(enclosure.enclosed_by.id, GeneratedEntityId)
+            for enclosure in self.enclosers
+            if enclosure.encloser is not None
+            and not isinstance(enclosure.encloser.id, GeneratedEntityId)
         ]
-        dump["encloses"] = [
+        dump["enclosees"] = [
             project.static_url_generator.generate(
-                f"/place/{quote(enclosure.encloses.id)}/index.json"
+                f"/place/{quote(enclosure.enclosee.id)}/index.json"
             )
-            for enclosure in self.encloses
-            if enclosure.encloses is not None
-            and not isinstance(enclosure.encloses.id, GeneratedEntityId)
+            for enclosure in self.enclosees
+            if enclosure.enclosee is not None
+            and not isinstance(enclosure.enclosee.id, GeneratedEntityId)
         ]
         if self.coordinates is not None:
             dump["coordinates"] = {
@@ -225,8 +225,8 @@ class Place(
         schema.add_property(
             "names", Array(await Name.linked_data_schema(project), title="Names")
         )
-        schema.add_property("enclosedBy", EntityReferenceCollectionSchema(Place))
-        schema.add_property("encloses", EntityReferenceCollectionSchema(Place))
+        schema.add_property("enclosers", EntityReferenceCollectionSchema(Place))
+        schema.add_property("enclosees", EntityReferenceCollectionSchema(Place))
         coordinate_schema = Number(title="Coordinate")
         coordinates_schema = JsonLdObject(title="Coordinates")
         coordinates_schema.add_property("latitude", coordinate_schema, False)

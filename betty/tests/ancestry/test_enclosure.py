@@ -26,31 +26,31 @@ class TestEnclosure(EntityTestBase):
             Enclosure(),
         ]
 
-    async def test_encloses(self) -> None:
-        encloses = Place()
-        enclosed_by = Place()
-        sut = Enclosure(encloses=encloses, enclosed_by=enclosed_by)
-        assert sut.encloses is encloses
+    async def test_enclosee(self) -> None:
+        enclosee = Place()
+        encloser = Place()
+        sut = Enclosure(enclosee=enclosee, encloser=encloser)
+        assert sut.enclosee is enclosee
 
-    async def test_enclosed_by(self) -> None:
-        encloses = Place()
-        enclosed_by = Place()
-        sut = Enclosure(encloses=encloses, enclosed_by=enclosed_by)
-        assert sut.enclosed_by is enclosed_by
+    async def test_encloser(self) -> None:
+        enclosee = Place()
+        encloser = Place()
+        sut = Enclosure(enclosee=enclosee, encloser=encloser)
+        assert sut.encloser is encloser
 
     async def test_date(self) -> None:
-        encloses = Place()
-        enclosed_by = Place()
-        sut = Enclosure(encloses=encloses, enclosed_by=enclosed_by)
+        enclosee = Place()
+        encloser = Place()
+        sut = Enclosure(enclosee=enclosee, encloser=encloser)
         date = Date()
         assert sut.date is None
         sut.date = date
         assert sut.date is date
 
     async def test_citations(self) -> None:
-        encloses = Place()
-        enclosed_by = Place()
-        sut = Enclosure(encloses=encloses, enclosed_by=enclosed_by)
+        enclosee = Place()
+        encloser = Place()
+        sut = Enclosure(enclosee=enclosee, encloser=encloser)
         citation = Citation(source=Source())
         assert sut.date is None
         sut.citations = [citation]

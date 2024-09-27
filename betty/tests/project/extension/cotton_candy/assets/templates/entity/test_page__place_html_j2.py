@@ -34,11 +34,11 @@ class TestTemplate(TemplateTestBase):
 
         enclosed_name = Name("public enclosed name")
         enclosed = Place(names=[enclosed_name])
-        Enclosure(encloses=enclosed, enclosed_by=place)
+        Enclosure(enclosee=enclosed, encloser=place)
 
         enclosing_name = Name("public enclosing name")
         enclosing = Place(names=[enclosing_name])
-        Enclosure(encloses=place, enclosed_by=enclosing)
+        Enclosure(enclosee=place, encloser=enclosing)
 
         public_enclosed_event = Event(
             event_type=Birth(),
