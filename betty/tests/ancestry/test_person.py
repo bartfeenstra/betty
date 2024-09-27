@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import Sequence, Mapping, Any, TYPE_CHECKING
 
+import pytest
 from typing_extensions import override
 
-from betty.ancestry.presence import Presence
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth
@@ -12,10 +12,12 @@ from betty.ancestry.gender.genders import Unknown as UnknownGender, NonBinary
 from betty.ancestry.link import Link
 from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
+from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.privacy import Privacy
 from betty.ancestry.source import Source
 from betty.locale import UNDETERMINED_LOCALE
+from betty.model.association import AssociationRequired
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 
@@ -30,15 +32,21 @@ class TestPerson(EntityTestBase):
 
     @override
     async def get_sut_instances(self) -> Sequence[Entity]:
+        person_with_private_names_only = Person()
+        PersonName(
+            person=person_with_private_names_only,
+            individual="Jane",
+            affiliation="Doe",
+            private=True,
+        )
+        person_with_one_public_name = Person()
+        PersonName(
+            person=person_with_one_public_name, individual="Jane", affiliation="Doe"
+        )
         return [
-            # No names.
             Person(),
-            # No public names.
-            Person(
-                names=[PersonName(individual="Jane", affiliation="Doe", private=True)]
-            ),
-            # One public name.
-            Person(names=[PersonName(individual="Jane", affiliation="Doe")]),
+            person_with_private_names_only,
+            person_with_one_public_name,
         ]
 
     async def test_parents(self) -> None:
@@ -70,7 +78,8 @@ class TestPerson(EntityTestBase):
         assert sut == presence.person
         sut.presences.remove(presence)
         assert list(sut.presences) == []
-        assert presence.person is None
+        with pytest.raises(AssociationRequired):
+            presence.person  # noqa B018
 
     async def test_names(self) -> None:
         sut = Person(id="1")
@@ -83,7 +92,8 @@ class TestPerson(EntityTestBase):
         assert sut == name.person
         sut.names.remove(name)
         assert list(sut.names) == []
-        assert name.person is None
+        with pytest.raises(AssociationRequired):
+            name.person  # noqa B018
 
     async def test_id(self) -> None:
         person_id = "P1"

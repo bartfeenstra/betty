@@ -23,25 +23,25 @@ class TestEnclosure(EntityTestBase):
     @override
     async def get_sut_instances(self) -> Sequence[Entity]:
         return [
-            Enclosure(),
+            Enclosure(Place(), Place()),
         ]
 
     async def test_enclosee(self) -> None:
         enclosee = Place()
         encloser = Place()
-        sut = Enclosure(enclosee=enclosee, encloser=encloser)
+        sut = Enclosure(enclosee, encloser)
         assert sut.enclosee is enclosee
 
     async def test_encloser(self) -> None:
         enclosee = Place()
         encloser = Place()
-        sut = Enclosure(enclosee=enclosee, encloser=encloser)
+        sut = Enclosure(enclosee, encloser)
         assert sut.encloser is encloser
 
     async def test_date(self) -> None:
         enclosee = Place()
         encloser = Place()
-        sut = Enclosure(enclosee=enclosee, encloser=encloser)
+        sut = Enclosure(enclosee, encloser)
         date = Date()
         assert sut.date is None
         sut.date = date
@@ -50,7 +50,7 @@ class TestEnclosure(EntityTestBase):
     async def test_citations(self) -> None:
         enclosee = Place()
         encloser = Place()
-        sut = Enclosure(enclosee=enclosee, encloser=encloser)
+        sut = Enclosure(enclosee, encloser)
         citation = Citation(source=Source())
         assert sut.date is None
         sut.citations = [citation]

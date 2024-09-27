@@ -136,12 +136,9 @@ class SingleTypeEntityCollection(Generic[_TargetT], EntityCollection[_TargetT]):
 
     __slots__ = "_entities", "_target_type"
 
-    def __init__(
-        self,
-        target_type: type[_TargetT],
-    ):
+    def __init__(self, target_type: type[_TargetT], *entities: _TargetT & Entity):
         super().__init__()
-        self._entities: MutableSequence[_TargetT & Entity] = []
+        self._entities: MutableSequence[_TargetT & Entity] = [*entities]
         self._target_type = target_type
 
     @override  # type: ignore[callable-functiontype]
@@ -252,11 +249,12 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
 
     __slots__ = "_collections"
 
-    def __init__(self):
+    def __init__(self, *entities: _TargetT & Entity):
         super().__init__()
         self._collections: MutableMapping[
             type[Entity], SingleTypeEntityCollection[Entity]
         ] = {}
+        self.add(*entities)
 
     @override  # type: ignore[callable-functiontype]
     @recursive_repr()

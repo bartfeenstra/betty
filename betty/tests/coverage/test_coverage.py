@@ -329,19 +329,27 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/media_type/media_types.py": TestKnownToBeMissing,
     "betty/model/__init__.py": {
         "unalias": TestKnownToBeMissing,
-        "AliasedEntity": TestKnownToBeMissing,
         "Entity": TestKnownToBeMissing,
         "GeneratedEntityId": TestKnownToBeMissing,
         # This is an interface.
         "UserFacingEntity": TestKnownToBeMissing,
     },
     "betty/model/association.py": {
-        # This abstract class is covered by numerous tests for its final subclasses.
-        "Association": TestKnownToBeMissing,
-        # This abstract class is covered by numerous tests for its final subclasses.
-        "ToManyAssociation": TestKnownToBeMissing,
-        # This abstract class is covered by numerous tests for its final subclasses.
-        "ToOneAssociation": TestKnownToBeMissing,
+        "BidirectionalToOne": {
+            # This is covered by a different test method.
+            "__set__": TestKnownToBeMissing,
+        },
+        "BidirectionalToZeroOrOne": {
+            # This is covered by a different test method.
+            "__set__": TestKnownToBeMissing,
+        },
+        "resolve": TestKnownToBeMissing,
+        # This is an abstract class.
+        "ToManyResolver": TestKnownToBeMissing,
+        # This is an abstract class.
+        "ToOneResolver": TestKnownToBeMissing,
+        # This is an abstract class.
+        "ToZeroOrOneResolver": TestKnownToBeMissing,
     },
     "betty/model/collections.py": {
         "EntityCollection": TestKnownToBeMissing,

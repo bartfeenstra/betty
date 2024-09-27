@@ -523,7 +523,6 @@ class TestGrampsLoader:
         person = ancestry[Person]["I0000"]
         assert person.file_references
         file_reference = person.file_references[0]
-        assert file_reference.file
         assert file_reference.focus == (1, 2, 3, 4)
         assert file_reference.file.id == "O0000"
 

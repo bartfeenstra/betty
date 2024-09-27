@@ -2,19 +2,21 @@ from __future__ import annotations
 
 from typing import Sequence, Mapping, Any, TYPE_CHECKING
 
+import pytest
 from typing_extensions import override
 
-from betty.ancestry.presence import Presence
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType, Birth
 from betty.ancestry.name import Name
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
+from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.privacy import Privacy
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
+from betty.model.association import AssociationRequired
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 
@@ -64,7 +66,8 @@ class TestEvent(EntityTestBase):
         assert sut == presence.event
         sut.presences.remove(presence)
         assert list(sut.presences) == []
-        assert presence.event is None
+        with pytest.raises(AssociationRequired):
+            presence.event  # noqa B018
 
     async def test_date(self) -> None:
         sut = Event(event_type=UnknownEventType())

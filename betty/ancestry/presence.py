@@ -11,7 +11,7 @@ from typing_extensions import override
 from betty.ancestry.privacy import HasPrivacy, Privacy, merge_privacies
 from betty.locale.localizable import _, Localizable
 from betty.model import Entity
-from betty.model.association import ManyToOne
+from betty.model.association import BidirectionalToOne, ToOneResolver
 from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
@@ -30,14 +30,14 @@ class Presence(ShorthandPluginBase, HasPrivacy, Entity):
     _plugin_label = _("Presence")
 
     #: The person whose presence is described.
-    person = ManyToOne["Presence", "Person"](
+    person = BidirectionalToOne["Presence", "Person"](
         "betty.ancestry.presence:Presence",
         "person",
         "betty.ancestry.person:Person",
         "presences",
     )
     #: The event the person was present at.
-    event = ManyToOne["Presence", "Event"](
+    event = BidirectionalToOne["Presence", "Event"](
         "betty.ancestry.presence:Presence",
         "event",
         "betty.ancestry.event:Event",
@@ -48,9 +48,9 @@ class Presence(ShorthandPluginBase, HasPrivacy, Entity):
 
     def __init__(
         self,
-        person: Person | None,
+        person: Person | ToOneResolver[Person],
         role: PresenceRole,
-        event: Event | None,
+        event: Event | ToOneResolver[Event],
     ):
         super().__init__(None)
         self.person = person

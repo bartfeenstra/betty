@@ -21,7 +21,11 @@ from betty.model import (
     UserFacingEntity,
     Entity,
 )
-from betty.model.association import ManyToOne
+from betty.model.association import (
+    ToOneResolver,
+    BidirectionalToZeroOrOne,
+    ToZeroOrOneResolver,
+)
 from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
@@ -41,7 +45,7 @@ class Note(ShorthandPluginBase, UserFacingEntity, HasPrivacy, HasLinks, Entity):
     _plugin_label = _("Note")
 
     #: The entity the note belongs to.
-    entity = ManyToOne["Note", "HasNotes"](
+    entity = BidirectionalToZeroOrOne["Note", "HasNotes"](
         "betty.ancestry.note:Note",
         "entity",
         "betty.ancestry.has_notes:HasNotes",
@@ -56,7 +60,10 @@ class Note(ShorthandPluginBase, UserFacingEntity, HasPrivacy, HasLinks, Entity):
         text: ShorthandStaticTranslations,
         *,
         id: str | None = None,  # noqa A002  # noqa A002
-        entity: HasNotes & Entity | None = None,
+        entity: HasNotes & Entity
+        | ToZeroOrOneResolver[HasNotes]
+        | ToOneResolver[HasNotes]
+        | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,

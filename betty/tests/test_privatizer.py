@@ -603,27 +603,11 @@ class TestPrivatizer:
             ),
             (Privacy.PRIVATE, Privacy.UNDETERMINED, [Event(private=True)], []),
             (
-                Privacy.PRIVATE,
-                Privacy.UNDETERMINED,
-                [],
-                [
-                    Enclosure(None, None),
-                ],
-            ),
-            (
                 Privacy.UNDETERMINED,
                 Privacy.UNDETERMINED,
                 [],
                 [
-                    Enclosure(Place(public=True), None),
-                ],
-            ),
-            (
-                Privacy.PRIVATE,
-                Privacy.UNDETERMINED,
-                [],
-                [
-                    Enclosure(Place(private=True), None),
+                    Enclosure(Place(public=True), Place()),
                 ],
             ),
         ],
@@ -645,24 +629,13 @@ class TestPrivatizer:
         )
         assert place.privacy is expected
 
-    async def test_privatize_place_should_privatize_encloser(self) -> None:
-        encloser = Place()
-        place = Place(
-            private=True,
-            enclosers=[Enclosure(None, encloser)],
-        )
-        Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(
-            place
-        )
-        assert encloser.private
-
     async def test_privatize_place_should_not_privatize_public_encloser(
         self,
     ) -> None:
         encloser = Place(public=True)
         place = Place(
             private=True,
-            enclosers=[Enclosure(None, encloser)],
+            enclosers=[Enclosure(Place(), encloser)],
         )
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(
             place
@@ -673,11 +646,11 @@ class TestPrivatizer:
         self,
     ) -> None:
         encloser = Place(
-            enclosees=[Enclosure(Place(), None)],
+            enclosees=[Enclosure(Place(), Place())],
         )
         place = Place(
             private=True,
-            enclosers=[Enclosure(None, encloser)],
+            enclosers=[Enclosure(Place(), encloser)],
         )
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(
             place
@@ -686,10 +659,8 @@ class TestPrivatizer:
 
     async def test_privatize_place_should_privatize_enclosees(self) -> None:
         enclosee = Place()
-        place = Place(
-            private=True,
-            enclosees=[Enclosure(enclosee, None)],
-        )
+        place = Place(private=True)
+        Enclosure(enclosee, place)
         Privatizer(DEFAULT_LIFETIME_THRESHOLD, localizer=DEFAULT_LOCALIZER).privatize(
             place
         )

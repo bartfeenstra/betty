@@ -31,11 +31,13 @@ class TestHasCitations:
             ),
             (
                 {"citations": []},
-                DummyHasCitations(citations=[Citation()]),
+                DummyHasCitations(citations=[Citation(source=Source())]),
             ),
             (
                 {"citations": ["/citation/my-first-citation/index.json"]},
-                DummyHasCitations(citations=[Citation(id="my-first-citation")]),
+                DummyHasCitations(
+                    citations=[Citation(source=Source(), id="my-first-citation")]
+                ),
             ),
         ],
     )

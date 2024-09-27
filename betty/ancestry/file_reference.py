@@ -4,14 +4,15 @@ Data types to reference files on disk.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from typing_extensions import override
 
 from betty.ancestry.file import File
 from betty.locale.localizable import _, Localizable
 from betty.model import Entity
-from betty.model.association import ManyToOne
+from betty.model.association import BidirectionalToOne, ToOneResolver
 from betty.plugin import ShorthandPluginBase
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from betty.image import FocusArea
@@ -29,14 +30,14 @@ class FileReference(ShorthandPluginBase, Entity):
     _plugin_label = _("File reference")
 
     #: The entity that references the file.
-    referee = ManyToOne["FileReference", "HasFileReferences"](
+    referee = BidirectionalToOne["FileReference", "HasFileReferences"](
         "betty.ancestry.file_reference:FileReference",
         "referee",
         "betty.ancestry.has_file_references:HasFileReferences",
         "file_references",
     )
     #: The referenced file.
-    file = ManyToOne["FileReference", File](
+    file = BidirectionalToOne["FileReference", File](
         "betty.ancestry.file_reference:FileReference",
         "file",
         "betty.ancestry.file:File",
@@ -45,8 +46,8 @@ class FileReference(ShorthandPluginBase, Entity):
 
     def __init__(
         self,
-        referee: HasFileReferences & Entity | None = None,
-        file: File | None = None,
+        referee: HasFileReferences & Entity | ToOneResolver[HasFileReferences & Entity],
+        file: File | ToOneResolver[File],
         focus: FocusArea | None = None,
     ):
         super().__init__()

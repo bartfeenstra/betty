@@ -13,8 +13,8 @@ from betty.ancestry.citation import Citation
 from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
-from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.has_notes import HasNotes
+from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.presence_role import PresenceRoleSchema
 from betty.ancestry.privacy import HasPrivacy, Privacy
@@ -29,7 +29,7 @@ from betty.model import (
     EntityReferenceCollectionSchema,
     EntityReferenceSchema,
 )
-from betty.model.association import ManyToMany, OneToMany
+from betty.model.association import ToManyResolver, BidirectionalToMany
 from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
@@ -60,25 +60,25 @@ class Person(
     _plugin_id = "person"
     _plugin_label = _("Person")
 
-    parents = ManyToMany["Person", "Person"](
+    parents = BidirectionalToMany["Person", "Person"](
         "betty.ancestry.person:Person",
         "parents",
         "betty.ancestry.person:Person",
         "children",
     )
-    children = ManyToMany["Person", "Person"](
+    children = BidirectionalToMany["Person", "Person"](
         "betty.ancestry.person:Person",
         "children",
         "betty.ancestry.person:Person",
         "parents",
     )
-    presences = OneToMany["Person", "Presence"](
+    presences = BidirectionalToMany["Person", "Presence"](
         "betty.ancestry.person:Person",
         "presences",
         "betty.ancestry.presence:Presence",
         "person",
     )
-    names = OneToMany["Person", "PersonName"](
+    names = BidirectionalToMany["Person", "PersonName"](
         "betty.ancestry.person:Person",
         "names",
         "betty.ancestry.person_name:PersonName",
@@ -89,17 +89,19 @@ class Person(
         self,
         *,
         id: str | None = None,  # noqa A002
-        file_references: Iterable[FileReference] | None = None,
-        citations: Iterable["Citation"] | None = None,
+        file_references: Iterable[FileReference]
+        | ToManyResolver[FileReference]
+        | None = None,
+        citations: Iterable["Citation"] | ToManyResolver["Citation"] | None = None,
         links: MutableSequence[Link] | None = None,
-        notes: Iterable[Note] | None = None,
+        notes: Iterable[Note] | ToManyResolver[Note] | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
-        parents: Iterable[Person] | None = None,
-        children: Iterable[Person] | None = None,
-        presences: Iterable["Presence"] | None = None,
-        names: Iterable["PersonName"] | None = None,
+        parents: Iterable[Person] | ToManyResolver[Person] | None = None,
+        children: Iterable[Person] | ToManyResolver[Person] | None = None,
+        presences: Iterable["Presence"] | ToManyResolver["Presence"] | None = None,
+        names: Iterable["PersonName"] | ToManyResolver["PersonName"] | None = None,
         gender: Gender | None = None,
     ):
         super().__init__(
@@ -200,8 +202,7 @@ class Person(
         dump["presences"] = [
             self._dump_person_presence(presence, project)
             for presence in self.presences
-            if presence.event is not None
-            and not isinstance(presence.event.id, GeneratedEntityId)
+            if not isinstance(presence.event.id, GeneratedEntityId)
         ]
         if self.public:
             dump["names"] = [

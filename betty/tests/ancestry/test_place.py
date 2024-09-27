@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Sequence, Mapping, Any, TYPE_CHECKING
 
+import pytest
 from geopy import Point
 from typing_extensions import override
 
@@ -14,6 +15,7 @@ from betty.ancestry.place import Place
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.date import Date
 from betty.locale import UNDETERMINED_LOCALE
+from betty.model.association import AssociationRequired
 from betty.test_utils.ancestry.place_type import DummyPlaceType
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
@@ -71,16 +73,17 @@ class TestPlace(EntityTestBase):
             names=[Name("The Place")],
         )
         assert list(sut.enclosers) == []
-        enclosing_place = Place(
+        encloser = Place(
             id="P2",
             names=[Name("The Other Place")],
         )
-        enclosure = Enclosure(enclosee=sut, encloser=enclosing_place)
+        enclosure = Enclosure(enclosee=sut, encloser=encloser)
         assert enclosure in sut.enclosers
         assert sut == enclosure.enclosee
         sut.enclosers.remove(enclosure)
         assert list(sut.enclosers) == []
-        assert enclosure.enclosee is None
+        with pytest.raises(AssociationRequired):
+            enclosure.enclosee  # noqa B018
 
     async def test_enclosees(self) -> None:
         sut = Place(
@@ -88,16 +91,17 @@ class TestPlace(EntityTestBase):
             names=[Name("The Place")],
         )
         assert list(sut.enclosees) == []
-        enclosed_place = Place(
+        enclosee = Place(
             id="P2",
             names=[Name("The Other Place")],
         )
-        enclosure = Enclosure(enclosee=enclosed_place, encloser=sut)
+        enclosure = Enclosure(enclosee=enclosee, encloser=sut)
         assert enclosure in sut.enclosees
         assert sut == enclosure.encloser
         sut.enclosees.remove(enclosure)
         assert list(sut.enclosees) == []
-        assert enclosure.encloser is None
+        with pytest.raises(AssociationRequired):
+            enclosure.encloser  # noqa B018
 
     async def test_walk_enclosees_without_enclosees(self) -> None:
         sut = Place(

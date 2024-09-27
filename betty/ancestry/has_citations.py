@@ -9,9 +9,9 @@ from urllib.parse import quote
 
 from typing_extensions import override
 
-from betty.model import Entity, GeneratedEntityId, EntityReferenceCollectionSchema
-from betty.model.association import ManyToMany
 from betty.ancestry.citation import Citation
+from betty.model import Entity, GeneratedEntityId, EntityReferenceCollectionSchema
+from betty.model.association import BidirectionalToMany, ToManyResolver
 
 if TYPE_CHECKING:
     from betty.json.schema import Object
@@ -24,7 +24,7 @@ class HasCitations(Entity):
     An entity with citations that support it.
     """
 
-    citations = ManyToMany["HasCitations & Entity", "Citation"](
+    citations = BidirectionalToMany["HasCitations & Entity", "Citation"](
         "betty.ancestry.has_citations:HasCitations",
         "citations",
         "betty.ancestry.citation:Citation",
@@ -34,7 +34,7 @@ class HasCitations(Entity):
     def __init__(
         self: HasCitations & Entity,
         *args: Any,
-        citations: Iterable[Citation] | None = None,
+        citations: Iterable[Citation] | ToManyResolver[Citation] | None = None,
         **kwargs: Any,
     ):
         super().__init__(  # type: ignore[misc]

@@ -28,9 +28,6 @@ class TestPresence(EntityTestBase):
     @override
     async def get_sut_instances(self) -> Sequence[Entity]:
         return [
-            Presence(None, UnknownPresenceRole(), None),
-            Presence(Person(), UnknownPresenceRole(), None),
-            Presence(None, UnknownPresenceRole(), Event()),
             Presence(Person(), UnknownPresenceRole(), Event()),
         ]
 

@@ -29,7 +29,11 @@ from betty.json.linked_data import dump_context, JsonLdObject
 from betty.json.schema import Object, Enum, Array, String
 from betty.locale.localizable import _, ShorthandStaticTranslations, Localizable, call
 from betty.model import UserFacingEntity, GeneratedEntityId, EntityReferenceSchema
-from betty.model.association import ManyToOne, OneToMany
+from betty.model.association import (
+    BidirectionalToZeroOrOne,
+    BidirectionalToMany,
+    ToManyResolver,
+)
 from betty.plugin import ShorthandPluginBase
 from betty.repr import repr_instance
 
@@ -62,10 +66,10 @@ class Event(
     _plugin_label = _("Event")
 
     #: The place the event happened.
-    place = ManyToOne["Event", Place](
+    place = BidirectionalToZeroOrOne["Event", Place](
         "betty.ancestry.event:Event", "place", "betty.ancestry.place:Place", "events"
     )
-    presences = OneToMany["Event", Presence](
+    presences = BidirectionalToMany["Event", Presence](
         "betty.ancestry.event:Event",
         "presences",
         "betty.ancestry.presence:Presence",
@@ -78,9 +82,11 @@ class Event(
         id: str | None = None,  # noqa A002
         event_type: EventType | None = None,
         date: Datey | None = None,
-        file_references: Iterable[FileReference] | None = None,
-        citations: Iterable[Citation] | None = None,
-        notes: Iterable[Note] | None = None,
+        file_references: Iterable[FileReference]
+        | ToManyResolver[FileReference]
+        | None = None,
+        citations: Iterable[Citation] | ToManyResolver[Citation] | None = None,
+        notes: Iterable[Note] | ToManyResolver[Note] | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
@@ -121,7 +127,6 @@ class Event(
             for presence in self.presences
             if presence.public
             and isinstance(presence.role, Subject)
-            and presence.person is not None
             and presence.person.public
         ]
         if subjects:
@@ -172,9 +177,7 @@ class Event(
         dump["eventStatus"] = "https://schema.org/EventScheduled"
         dump["presences"] = presences = []
         for presence in self.presences:
-            if presence.person and not isinstance(
-                presence.person.id, GeneratedEntityId
-            ):
+            if not isinstance(presence.person.id, GeneratedEntityId):
                 presences.append(self._dump_event_presence(presence, project))
         if self.place is not None and not isinstance(self.place.id, GeneratedEntityId):
             dump["place"] = project.static_url_generator.generate(
