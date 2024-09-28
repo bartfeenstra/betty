@@ -13,7 +13,7 @@ from betty.ancestry.date import HasDate
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks, Link
-from betty.ancestry.privacy import HasPrivacy, Privacy, merge_privacies
+from betty.privacy import HasPrivacy, Privacy, merge_privacies
 from betty.json.linked_data import dump_context
 from betty.locale.localizable import (
     _,

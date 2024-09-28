@@ -15,7 +15,7 @@ from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.name import Name
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
-from betty.ancestry.privacy import HasPrivacy
+from betty.privacy import HasPrivacy
 from betty.json.linked_data import dump_context, JsonLdObject
 from betty.json.schema import Object, Array, Number
 from betty.locale.localizable import _, Localizable
@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     from betty.ancestry.event import Event
     from betty.ancestry.enclosure import Enclosure
     from betty.ancestry.place_type import PlaceType
-    from betty.ancestry.privacy import Privacy
+    from betty.privacy import Privacy
     from geopy import Point
     from betty.project import Project
     from betty.serde.dump import DumpMapping, Dump

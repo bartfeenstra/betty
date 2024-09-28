@@ -8,7 +8,7 @@ from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.has_citations import HasCitations
-from betty.ancestry.privacy import Privacy
+from betty.privacy import Privacy
 from betty.ancestry.source import Source
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.test_utils.json.linked_data import assert_dumps_linked_data

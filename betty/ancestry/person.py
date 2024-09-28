@@ -17,7 +17,7 @@ from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.presence_role import PresenceRoleSchema
-from betty.ancestry.privacy import HasPrivacy, Privacy
+from betty.privacy import HasPrivacy, Privacy
 from betty.functools import Uniquifier
 from betty.json.linked_data import dump_context, JsonLdObject
 from betty.json.schema import Object, Array, Enum

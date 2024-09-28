@@ -12,7 +12,7 @@ from typing_extensions import override
 from betty.ancestry.date import HasDate
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.link import HasLinks
-from betty.ancestry.privacy import HasPrivacy, Privacy, merge_privacies
+from betty.privacy import HasPrivacy, Privacy, merge_privacies
 from betty.ancestry.source import Source
 from betty.json.schema import Object, Array, String
 from betty.locale.localizable import (

@@ -20,7 +20,7 @@ from betty.ancestry.event_type.event_types import (
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.ancestry.privacy import is_public
+from betty.privacy import is_public
 from betty.asyncio import gather
 from betty.date import Date, Datey
 from betty.functools import Uniquifier

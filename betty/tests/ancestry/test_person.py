@@ -14,7 +14,7 @@ from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.ancestry.privacy import Privacy
+from betty.privacy import Privacy
 from betty.ancestry.source import Source
 from betty.locale import UNDETERMINED_LOCALE
 from betty.model.association import AssociationRequired

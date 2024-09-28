@@ -8,7 +8,7 @@ from typing import Any, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.ancestry.privacy import is_public
+from betty.privacy import is_public
 from betty.date import Datey, Date, DateySchema
 from betty.json.linked_data import LinkedDataDumpable
 from betty.json.schema import Object

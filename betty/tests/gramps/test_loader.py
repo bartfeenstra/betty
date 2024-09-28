@@ -20,7 +20,7 @@ from betty.ancestry.note import Note
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.ancestry.privacy import Privacy
+from betty.privacy import Privacy
 from betty.ancestry.source import Source
 from betty.app import App
 from betty.date import Date, DateRange

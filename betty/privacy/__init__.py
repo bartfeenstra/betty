@@ -1,5 +1,5 @@
 """
-The Ancestry Privacy API.
+The Privacy API.
 """
 
 from __future__ import annotations
@@ -67,10 +67,10 @@ class HasPrivacy(LinkedDataDumpable[Object]):
         """
         The resource's own privacy.
 
-        This returns the value that was set for :py:attr:`betty.ancestry.privacy.HasPrivacy.privacy` and ignores
+        This returns the value that was set for :py:attr:`betty.privacy.HasPrivacy.privacy` and ignores
         computed privacies.
 
-        For access control and permissions checking, use :py:attr:`betty.ancestry.privacy.HasPrivacy.privacy`.
+        For access control and permissions checking, use :py:attr:`betty.privacy.HasPrivacy.privacy`.
         """
         return self._privacy
 

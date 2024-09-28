@@ -8,7 +8,7 @@ from typing import final, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.ancestry.privacy import HasPrivacy, Privacy, merge_privacies
+from betty.privacy import HasPrivacy, Privacy, merge_privacies
 from betty.locale.localizable import _, Localizable
 from betty.model import Entity
 from betty.model.association import BidirectionalToOne, ToOneResolver

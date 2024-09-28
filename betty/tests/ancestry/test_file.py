@@ -11,7 +11,7 @@ from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.ancestry.note import Note
 from betty.ancestry.person import Person
-from betty.ancestry.privacy import Privacy
+from betty.privacy import Privacy
 from betty.ancestry.source import Source
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import PLAIN_TEXT

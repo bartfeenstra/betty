@@ -19,11 +19,11 @@ from betty.ancestry.presence_role.presence_roles import (
     Subject,
     Unknown as UnknownPresenceRole,
 )
-from betty.ancestry.privacy import Privacy
+from betty.privacy import Privacy
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.privatizer import Privatizer
+from betty.privacy.privatizer import Privatizer
 from betty.project.config import DEFAULT_LIFETIME_THRESHOLD
 
 if TYPE_CHECKING:

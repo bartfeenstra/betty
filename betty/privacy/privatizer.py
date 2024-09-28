@@ -18,7 +18,7 @@ from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.ancestry.privacy import Privacy, HasPrivacy
+from betty.privacy import Privacy, HasPrivacy
 from betty.ancestry.source import Source
 from betty.date import DateRange, Date
 from betty.model import Entity
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from collections.abc import MutableSequence
     from betty.locale.localizer import Localizer
 
-Expirable: TypeAlias = Person | Event | Date | None
+_Expirable: TypeAlias = Person | Event | Date | None
 
 
 class Privatizer:
@@ -243,7 +243,7 @@ class Privatizer:
 
     def has_expired(
         self,
-        subject: Expirable,
+        subject: _Expirable,
         generations_ago: int = 0,
     ) -> bool:
         """
