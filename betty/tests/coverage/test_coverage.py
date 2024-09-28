@@ -274,7 +274,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "test_date_range": TestKnownToBeMissing,
         "test_end_of_life_event": TestKnownToBeMissing,
         "test_has_file_references": TestKnownToBeMissing,
-        "test_has_generated_entity_id": TestKnownToBeMissing,
         "test_has_links": TestKnownToBeMissing,
         "test_linked_data_dumpable": TestKnownToBeMissing,
         "test_start_of_life_event": TestKnownToBeMissing,

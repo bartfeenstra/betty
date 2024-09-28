@@ -1,12 +1,30 @@
 from typing import Sequence
 
-from betty.model import EntityReferenceSchema, EntityReferenceCollectionSchema
-from betty.test_utils.model import DummyEntity
+import pytest
 from typing_extensions import override
 
 from betty.json.schema import Schema
+from betty.model import (
+    EntityReferenceSchema,
+    EntityReferenceCollectionSchema,
+    Entity,
+    has_generated_entity_id,
+)
 from betty.serde.dump import Dump
 from betty.test_utils.json.schema import SchemaTestBase
+from betty.test_utils.model import DummyEntity
+
+
+class TestHasGeneratedEntityId:
+    @pytest.mark.parametrize(
+        ("expected", "entity"),
+        [
+            (True, DummyEntity()),
+            (False, DummyEntity("my-first-entity-id")),
+        ],
+    )
+    def test(self, expected: bool, entity: Entity) -> None:
+        assert has_generated_entity_id(entity) == expected
 
 
 class TestEntityReferenceSchema(SchemaTestBase):
