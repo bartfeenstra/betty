@@ -8,8 +8,8 @@ from typing import final, TYPE_CHECKING
 
 from betty.ancestry.date import HasDate
 from betty.locale.localizable import (
-    StaticTranslationsLocalizable,
     ShorthandStaticTranslations,
+    RequiredStaticTranslationsLocalizableAttr,
 )
 
 if TYPE_CHECKING:
@@ -17,20 +17,21 @@ if TYPE_CHECKING:
 
 
 @final
-class Name(HasDate, StaticTranslationsLocalizable):
+class Name(HasDate):
     """
     A name.
 
     A name can be translated, and have a date expressing the period the name was in use.
     """
 
+    #: The name.
+    name = RequiredStaticTranslationsLocalizableAttr("name")
+
     def __init__(
         self,
-        translations: ShorthandStaticTranslations,
+        name: ShorthandStaticTranslations,
         *,
         date: Datey | None = None,
     ):
-        super().__init__(
-            translations,
-            date=date,
-        )
+        super().__init__(date=date)
+        self.name = name

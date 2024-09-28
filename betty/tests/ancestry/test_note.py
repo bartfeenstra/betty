@@ -54,7 +54,7 @@ class TestNote(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_note",
             "private": False,
-            "text": {"translations": {"und": "The Note"}},
+            "text": {"und": "The Note"},
             "entity": None,
             "links": [],
         }

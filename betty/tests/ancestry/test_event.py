@@ -119,7 +119,7 @@ class TestEvent(EntityTestBase):
             "citations": [],
             "notes": [],
             "links": [],
-            "description": {"translations": {}},
+            "description": {},
             "fileReferences": [],
             "place": None,
         }
@@ -196,7 +196,7 @@ class TestEvent(EntityTestBase):
             },
             "place": "/place/the_place/index.json",
             "links": [],
-            "description": {"translations": {}},
+            "description": {},
             "fileReferences": [],
         }
         actual = await assert_dumps_linked_data(event)

@@ -222,7 +222,7 @@ class TestGrampsLoader:
         names = place.names
         assert len(names) == 1
         name = names[0]
-        assert name.localize(DEFAULT_LOCALIZER) == "Amsterdam"
+        assert name.name.localize(DEFAULT_LOCALIZER) == "Amsterdam"
 
     async def test_place_should_include_note(self) -> None:
         ancestry = await self._load_partial(

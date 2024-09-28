@@ -4,8 +4,8 @@ from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place
 from betty.date import Date
-from betty.project.extension.cotton_candy import CottonCandy
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.project.extension.cotton_candy import CottonCandy
 from betty.test_utils.assets.templates import TemplateTestBase
 
 
@@ -62,15 +62,15 @@ class TestTemplate(TemplateTestBase):
                 "entity": place,
             },
         ) as (actual, _):
-            assert place_name
-            assert place_name.localize(DEFAULT_LOCALIZER) in actual
+            assert place_name.name
+            assert place_name.name.localize(DEFAULT_LOCALIZER) in actual
             assert public_place_event.description
             assert public_place_event.description.localize(DEFAULT_LOCALIZER) in actual
-            assert enclosed_name
-            assert enclosed_name.localize(DEFAULT_LOCALIZER) in actual
-            assert enclosing_name
-            assert enclosing_name.localize(DEFAULT_LOCALIZER) in actual
-            assert enclosing_name.localize(DEFAULT_LOCALIZER) in actual
+            assert enclosed_name.name
+            assert enclosed_name.name.localize(DEFAULT_LOCALIZER) in actual
+            assert enclosing_name.name
+            assert enclosing_name.name.localize(DEFAULT_LOCALIZER) in actual
+            assert enclosing_name.name.localize(DEFAULT_LOCALIZER) in actual
             assert public_enclosed_event.description
             assert (
                 public_enclosed_event.description.localize(DEFAULT_LOCALIZER) in actual

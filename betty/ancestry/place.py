@@ -167,7 +167,7 @@ class Place(
     @property
     def label(self) -> Localizable:
         with suppress(IndexError):
-            return self.names[0]
+            return self.names[0].name
         return super().label
 
     @override

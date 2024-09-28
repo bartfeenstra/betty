@@ -1,6 +1,6 @@
 {% extends 'entity/page.html.j2' %}
 {% set place = place | default(entity) %}
-{% set page_title = place.names | first | localize %}
+{% set page_title = (place.names | first).name | localize %}
 {% block page_content %}
     {% include 'entity/meta--place.html.j2' %}
 

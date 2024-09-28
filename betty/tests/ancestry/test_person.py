@@ -285,11 +285,9 @@ class TestPerson(EntityTestBase):
                 {
                     "@context": {"description": "https://schema.org/description"},
                     "url": "https://example.com/the-person",
-                    "label": {
-                        "translations": {UNDETERMINED_LOCALE: "The Person Online"}
-                    },
+                    "label": {UNDETERMINED_LOCALE: "The Person Online"},
                     "locale": "und",
-                    "description": {"translations": {}},
+                    "description": {},
                 },
             ],
             "fileReferences": [],

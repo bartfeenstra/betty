@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from betty.ancestry.presence import Presence
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
@@ -9,10 +8,11 @@ from betty.ancestry.file_reference import FileReference
 from betty.ancestry.name import Name
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
+from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
-from betty.project.extension.cotton_candy import CottonCandy
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.project.extension.cotton_candy import CottonCandy
 from betty.test_utils.assets.templates import TemplateTestBase
 
 
@@ -72,8 +72,8 @@ class TestTemplate(TemplateTestBase):
         ) as (actual, _):
             assert public_file.description
             assert public_file.description.localize(DEFAULT_LOCALIZER) in actual
-            assert place_name
-            assert place_name.localize(DEFAULT_LOCALIZER) in actual
+            assert place_name.name
+            assert place_name.name.localize(DEFAULT_LOCALIZER) in actual
             assert (
                 public_person_for_presence.label.localize(DEFAULT_LOCALIZER) in actual
             )

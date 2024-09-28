@@ -217,9 +217,7 @@ class TestPlace(EntityTestBase):
             "@id": "https://example.com/place/the_place/index.json",
             "@type": "https://schema.org/Place",
             "id": place_id,
-            "names": [
-                {"translations": {UNDETERMINED_LOCALE: name}},
-            ],
+            "names": [{"name": {UNDETERMINED_LOCALE: name}}],
             "events": [
                 "/event/E1/index.json",
             ],
@@ -228,11 +226,9 @@ class TestPlace(EntityTestBase):
                 {
                     "@context": {"description": "https://schema.org/description"},
                     "url": "https://example.com/the-place",
-                    "label": {
-                        "translations": {UNDETERMINED_LOCALE: "The Place Online"}
-                    },
+                    "label": {UNDETERMINED_LOCALE: "The Place Online"},
                     "locale": "und",
-                    "description": {"translations": {}},
+                    "description": {},
                 },
             ],
             "coordinates": {
