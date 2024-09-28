@@ -45,7 +45,7 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import (
     UserFacingEntity,
     Entity,
-    GeneratedEntityId,
+    has_generated_entity_id,
 )
 from betty.openapi import Specification
 from betty.project import ProjectEvent, ProjectSchema, ProjectContext
@@ -179,7 +179,7 @@ async def _run_jobs(job_context: ProjectContext) -> AsyncIterator[Task[None]]:
             semaphore, _generate_entity_type_list_json, job_context, entity_type
         )
         for entity in project.ancestry[entity_type]:
-            if isinstance(entity.id, GeneratedEntityId):
+            if has_generated_entity_id(entity):
                 continue
 
             yield _run_job(
@@ -489,7 +489,7 @@ async def _generate_sitemap(
     sitemap_batches.append(sitemap_batch_urls)
     for locale in project.configuration.locales:
         for entity in project.ancestry:
-            if isinstance(entity.id, GeneratedEntityId):
+            if has_generated_entity_id(entity):
                 continue
             if not isinstance(entity, UserFacingEntity):
                 continue

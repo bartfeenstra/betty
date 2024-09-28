@@ -51,6 +51,10 @@ class GeneratedEntityId(str):
 
     Entities must have IDs for identification. However, not all entities can be provided with an ID that exists in the
     original data set (such as a third-party family tree loaded into Betty), so IDs can be generated.
+
+    Generated IDs are helpful in case there is no external ID that can be used. However, as generated IDs do not persist
+    when reloading an ancestry, they *MUST NOT* be in contexts where persistent identifiers are expected, such as in
+    URLs.
     """
 
     __slots__ = ()
@@ -131,7 +135,7 @@ class Entity(LinkedDataDumpable[Object], Plugin):
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
 
-        if not isinstance(self.id, GeneratedEntityId):
+        if not has_generated_entity_id(self):
             dump["@id"] = project.static_url_generator.generate(
                 f"/{kebab_case_to_lower_camel_case(self.type.plugin_id())}/{self.id}/index.json",
                 absolute=True,
@@ -153,6 +157,15 @@ class Entity(LinkedDataDumpable[Object], Plugin):
 
 
 AncestryEntityId: TypeAlias = tuple[type[Entity], str]
+
+
+def has_generated_entity_id(entity: Entity) -> bool:
+    """
+    Test if an entity has a generated ID.
+
+    See :py:class:`betty.model.GeneratedEntityId`.
+    """
+    return isinstance(entity.id, GeneratedEntityId)
 
 
 class UserFacingEntity:

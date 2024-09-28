@@ -19,9 +19,9 @@ from betty.date import DateRange
 from betty.json.linked_data import LinkedDataDumpable
 from betty.model import (
     Entity,
-    GeneratedEntityId,
     UserFacingEntity,
     ENTITY_TYPE_REPOSITORY,
+    has_generated_entity_id,
 )
 
 if TYPE_CHECKING:
@@ -74,17 +74,6 @@ def test_has_file_references(value: Any) -> bool:
     return isinstance(value, HasFileReferences)
 
 
-def test_has_generated_entity_id(value: Any) -> bool:
-    """
-    Test if a value is a generated entity ID, or if it is an entity and has a generated entity ID.
-    """
-    if isinstance(value, GeneratedEntityId):
-        return True
-    if isinstance(value, Entity):
-        return isinstance(value.id, GeneratedEntityId)
-    return False
-
-
 def test_subject_role(value: Any) -> bool:
     """
     Test if a presence role is that of Subject.
@@ -125,7 +114,7 @@ TESTS = {
     "end_of_life_event": test_end_of_life_event,
     "entity": test_entity,
     "has_file_references": test_has_file_references,
-    "has_generated_entity_id": test_has_generated_entity_id,
+    "has_generated_entity_id": has_generated_entity_id,
     "has_links": test_has_links,
     "linked_data_dumpable": test_linked_data_dumpable,
     "private": is_private,

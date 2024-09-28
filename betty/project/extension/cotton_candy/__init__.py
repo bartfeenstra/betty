@@ -23,11 +23,6 @@ from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.privacy import is_public
 from betty.asyncio import gather
 from betty.date import Date, Datey
-from betty.project.extension.cotton_candy.config import CottonCandyConfiguration
-from betty.project.extension.cotton_candy.search import Index
-from betty.project.extension.maps import Maps
-from betty.project.extension.trees import Trees
-from betty.project.extension.webpack import Webpack, WebpackEntryPointProvider
 from betty.functools import Uniquifier
 from betty.html import CssProvider
 from betty.jinja2 import (
@@ -35,10 +30,15 @@ from betty.jinja2 import (
     Filters,
 )
 from betty.locale.localizable import _, static
-from betty.model import GeneratedEntityId
+from betty.model import has_generated_entity_id
 from betty.os import link_or_copy
 from betty.plugin import ShorthandPluginBase
 from betty.project.extension import ConfigurableExtension, Theme, Extension
+from betty.project.extension.cotton_candy.config import CottonCandyConfiguration
+from betty.project.extension.cotton_candy.search import Index
+from betty.project.extension.maps import Maps
+from betty.project.extension.trees import Trees
+from betty.project.extension.webpack import Webpack, WebpackEntryPointProvider
 from betty.project.generate import GenerateSiteEvent
 
 if TYPE_CHECKING:
@@ -342,7 +342,7 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
                     (StartOfLifeEventType, EndOfLifeEventType),
                 ):
                     continue
-                if isinstance(associated_presence.event.id, GeneratedEntityId):
+                if has_generated_entity_id(associated_presence.event):
                     continue
                 if not isinstance(associated_presence.role, Subject):
                     continue
