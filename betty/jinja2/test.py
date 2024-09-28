@@ -13,7 +13,7 @@ from betty.ancestry.event_type.event_types import (
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.link import HasLinks
 from betty.ancestry.presence_role.presence_roles import Subject, Witness
-from betty.ancestry.privacy import is_private, is_public
+from betty.privacy import is_private, is_public
 from betty.asyncio import wait_to_thread
 from betty.date import DateRange
 from betty.json.linked_data import LinkedDataDumpable

@@ -3,7 +3,7 @@ from pathlib import Path
 from betty.ancestry.file_reference import FileReference
 from betty.ancestry.file import File
 from betty.ancestry.has_file_references import HasFileReferences
-from betty.ancestry.privacy import HasPrivacy
+from betty.privacy import HasPrivacy
 from betty.project.extension.cotton_candy import CottonCandy
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.test_utils.assets.templates import TemplateTestBase

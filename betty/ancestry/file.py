@@ -14,7 +14,7 @@ from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.media_type import HasMediaType
-from betty.ancestry.privacy import HasPrivacy, Privacy
+from betty.privacy import HasPrivacy, Privacy
 from betty.json.schema import Object, Array, String
 from betty.locale.localizable import _, ShorthandStaticTranslations, Localizable
 from betty.model import UserFacingEntity, Entity, GeneratedEntityId

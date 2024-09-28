@@ -23,7 +23,7 @@ from betty.ancestry.presence_role.presence_roles import (
     Subject,
     Unknown as UnknownPresenceRole,
 )
-from betty.ancestry.privacy import Privacy
+from betty.privacy import Privacy
 from betty.ancestry.source import Source
 from betty.date import Datey, Date, DateRange
 from betty.project.extension.cotton_candy import (

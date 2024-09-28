@@ -162,7 +162,7 @@ class Death(CreatableDerivableEventType, EndOfLifeEventType, ShorthandPluginBase
     @override
     @classmethod
     def may_create(cls, person: Person, lifetime_threshold: int) -> bool:
-        from betty.privatizer import Privatizer
+        from betty.privacy.privatizer import Privatizer
 
         return Privatizer(lifetime_threshold, localizer=DEFAULT_LOCALIZER).has_expired(
             person, 1

@@ -11,7 +11,7 @@ from typing_extensions import override
 from betty.ancestry.description import HasDescription
 from betty.ancestry.locale import HasLocale
 from betty.ancestry.media_type import HasMediaType
-from betty.ancestry.privacy import is_public
+from betty.privacy import is_public
 from betty.json.linked_data import LinkedDataDumpable, JsonLdObject, dump_link
 from betty.json.schema import Object, String, Array
 from betty.locale import UNDETERMINED_LOCALE

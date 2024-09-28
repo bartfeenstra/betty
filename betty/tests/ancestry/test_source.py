@@ -6,7 +6,7 @@ from typing_extensions import override
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.link import Link
-from betty.ancestry.privacy import Privacy
+from betty.privacy import Privacy
 from betty.ancestry.source import Source
 from betty.date import Date
 from betty.locale import UNDETERMINED_LOCALE

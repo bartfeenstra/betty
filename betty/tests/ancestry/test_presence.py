@@ -13,7 +13,7 @@ from betty.ancestry.presence_role.presence_roles import (
     Unknown as UnknownPresenceRole,
     Subject,
 )
-from betty.ancestry.privacy import Privacy
+from betty.privacy import Privacy
 from betty.test_utils.model import EntityTestBase
 
 if TYPE_CHECKING:

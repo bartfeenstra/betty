@@ -23,7 +23,7 @@ from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role import PresenceRoleSchema
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.ancestry.privacy import HasPrivacy, Privacy
+from betty.privacy import HasPrivacy, Privacy
 from betty.asyncio import wait_to_thread
 from betty.json.linked_data import dump_context, JsonLdObject
 from betty.json.schema import Object, Enum, Array, String

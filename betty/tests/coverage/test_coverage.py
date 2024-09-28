@@ -386,10 +386,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "dated_linked_data_contexts": TestKnownToBeMissing,
         },
     },
-    "betty/ancestry/privacy.py": {
-        # This is an enum.
-        "Privacy": TestKnownToBeMissing,
-    },
     # This contains static items only.
     "betty/ancestry/event_type/__init__.py": TestKnownToBeMissing,
     "betty/ancestry/event_type/event_types.py": {
@@ -448,7 +444,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "PluginConfigurationMapping": TestKnownToBeMissing,
     },
     "betty/plugin/lazy.py": TestKnownToBeMissing,
-    "betty/privatizer.py": {
+    "betty/privacy/__init__.py": {
+        # This is an enum.
+        "Privacy": TestKnownToBeMissing,
+    },
+    "betty/privacy/privatizer.py": {
         "Privatizer": {
             "has_expired": TestKnownToBeMissing,
         },

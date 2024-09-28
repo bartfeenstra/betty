@@ -5,7 +5,7 @@ from typing import Sequence, Any, TYPE_CHECKING
 import pytest
 from typing_extensions import override
 
-from betty.ancestry.privacy import (
+from betty.privacy import (
     Privacy,
     HasPrivacy,
     is_public,
@@ -14,7 +14,7 @@ from betty.ancestry.privacy import (
     is_private,
     resolve_privacy,
 )
-from betty.test_utils.ancestry.privacy import DummyHasPrivacy
+from betty.test_utils.privacy import DummyHasPrivacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.json.schema import SchemaTestBase
 

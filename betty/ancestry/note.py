@@ -9,7 +9,7 @@ from typing import final, TYPE_CHECKING
 from typing_extensions import override
 
 from betty.ancestry.link import HasLinks
-from betty.ancestry.privacy import HasPrivacy, Privacy
+from betty.privacy import HasPrivacy, Privacy
 from betty.locale.localizable import (
     _,
     RequiredStaticTranslationsLocalizableAttr,
