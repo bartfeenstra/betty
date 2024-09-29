@@ -32,7 +32,7 @@ class LicenseTestBase(PluginInstanceTestBase[License]):
         Tests :py:meth:`betty.license.License.text` implementations.
         """
         for sut in self.get_sut_instances():
-            assert sut.summary.localize(DEFAULT_LOCALIZER)
+            assert sut.text.localize(DEFAULT_LOCALIZER)
 
     def test_url(self) -> None:
         """
@@ -52,9 +52,9 @@ class DummyLicense(DummyPlugin, License):
     @override
     @property
     def summary(self) -> Localizable:
-        return plain("")
+        return plain("")  # pragma: nocover
 
     @override
     @property
     def text(self) -> Localizable:
-        return plain("")
+        return plain("")  # pragma: nocover
