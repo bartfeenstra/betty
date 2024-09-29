@@ -42,17 +42,37 @@ class TestSchema(SchemaTestBase):
         sut = Schema(def_name=def_name)
         assert sut.def_name == def_name
 
-    def test_title_from___init__(self) -> None:
+    def test___init__with_title(self) -> None:
         title = "My First Definition"
         sut = Schema(title=title)
         assert "title" in sut.schema
-        assert sut.schema["title"] == title
+        assert sut.title == title
 
-    def test_description_from___init__(self) -> None:
+    def test___init__with_description(self) -> None:
         description = "My First Definition"
         sut = Schema(description=description)
         assert "description" in sut.schema
-        assert sut.schema["description"] == description
+        assert sut.description == description
+
+    def test_title(self) -> None:
+        title = "My First Definition"
+        sut = Schema()
+        sut.title = title
+        assert sut.title == title
+
+    def test_title_default(self) -> None:
+        sut = Schema()
+        assert sut.title is None
+
+    def test_description(self) -> None:
+        description = "My First Definition"
+        sut = Schema()
+        sut.description = description
+        assert sut.description == description
+
+    def test_description_default(self) -> None:
+        sut = Schema()
+        assert sut.description is None
 
 
 class TestArray(SchemaTestBase):

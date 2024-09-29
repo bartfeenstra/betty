@@ -2,12 +2,13 @@
 Test utilities for :py:mod:`betty.json.schema`.
 """
 
-from collections.abc import Sequence, MutableMapping, Callable
+from collections.abc import Sequence, MutableMapping
 
 import pytest
+from jsonschema.exceptions import ValidationError
+
 from betty.json.schema import Schema, JsonSchemaSchema, String
 from betty.serde.dump import Dump
-from jsonschema.exceptions import ValidationError
 
 DUMMY_SCHEMAS: Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]] = (
     (
@@ -87,54 +88,3 @@ class SchemaTestBase:
             for invalid_data in invalid_datas:
                 with pytest.raises(ValidationError):
                     sut.validate(invalid_data)
-
-    @pytest.mark.parametrize(
-        (
-            "expected_def_name",
-            "expected_title",
-            "expected_description",
-            "other_factory",
-        ),
-        [
-            (None, None, None, Schema),
-            (
-                "myFirstDefinition",
-                None,
-                None,
-                lambda: Schema(def_name="myFirstDefinition"),
-            ),
-            (
-                None,
-                "My First Definition",
-                None,
-                lambda: Schema(title="My First Definition"),
-            ),
-            (
-                None,
-                None,
-                "My First Definition",
-                lambda: Schema(description="My First Definition"),
-            ),
-        ],
-    )
-    async def test_wraps(
-        self,
-        expected_def_name: str | None,
-        expected_title: str | None,
-        expected_description: str | None,
-        other_factory: Callable[[], Schema],
-    ) -> None:
-        """
-        Tests :py:meth:`betty.json.schema.Schema.wraps` implementations.
-        """
-        for sut, _, __ in await self.get_sut_instances():
-            other = other_factory()
-            sut.wraps(other)
-            if expected_def_name is not None:
-                assert sut.def_name == expected_def_name
-            if expected_title is not None:
-                assert "title" in sut.schema
-                assert sut.schema["title"] == expected_title
-            if expected_description is not None:
-                assert "description" in sut.schema
-                assert sut.schema["description"] == expected_description
