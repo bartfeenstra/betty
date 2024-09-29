@@ -113,9 +113,9 @@ class TestSource(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_source",
             "private": False,
-            "name": {"translations": {"und": "The Source"}},
-            "author": {"translations": {}},
-            "publisher": {"translations": {}},
+            "name": {"und": "The Source"},
+            "author": {},
+            "publisher": {},
             "fileReferences": [],
             "contains": [],
             "containedBy": None,
@@ -159,9 +159,9 @@ class TestSource(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_source",
             "private": False,
-            "name": {"translations": {"und": "The Source"}},
-            "author": {"translations": {"und": "The Author"}},
-            "publisher": {"translations": {"und": "The Publisher"}},
+            "name": {"und": "The Source"},
+            "author": {"und": "The Author"},
+            "publisher": {"und": "The Publisher"},
             "fileReferences": [],
             "contains": [
                 "/source/the_contained_source/index.json",
@@ -182,11 +182,9 @@ class TestSource(EntityTestBase):
                 {
                     "@context": {"description": "https://schema.org/description"},
                     "url": "https://example.com/the-source",
-                    "label": {
-                        "translations": {UNDETERMINED_LOCALE: "The Source Online"}
-                    },
+                    "label": {UNDETERMINED_LOCALE: "The Source Online"},
                     "locale": "und",
-                    "description": {"translations": {}},
+                    "description": {},
                 },
             ],
         }
@@ -273,9 +271,9 @@ class TestSource(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_source",
             "private": False,
-            "name": {"translations": {}},
-            "author": {"translations": {}},
-            "publisher": {"translations": {}},
+            "name": {},
+            "author": {},
+            "publisher": {},
             "fileReferences": [],
             "contains": [
                 "/source/the_contained_source/index.json",

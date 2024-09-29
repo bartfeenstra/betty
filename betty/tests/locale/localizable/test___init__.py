@@ -169,34 +169,21 @@ class TestStaticTranslationsLocalizable:
         ("expected", "translations"),
         [
             (
-                {"translations": {}},
+                {},
                 {},
             ),
             (
-                {
-                    "translations": {
-                        UNDETERMINED_LOCALE: "Hello, world!",
-                    }
-                },
+                {UNDETERMINED_LOCALE: "Hello, world!"},
                 "Hello, world!",
             ),
             (
-                {
-                    "translations": {
-                        "en-US": "Hello, world!",
-                    }
-                },
+                {"en-US": "Hello, world!"},
                 {
                     "en-US": "Hello, world!",
                 },
             ),
             (
-                {
-                    "translations": {
-                        "nl-NL": "Hallo, wereld!",
-                        "en": "Hello, world!",
-                    }
-                },
+                {"nl-NL": "Hallo, wereld!", "en": "Hello, world!"},
                 {
                     "nl-NL": "Hallo, wereld!",
                     "en": "Hello, world!",
@@ -220,8 +207,8 @@ class TestStaticTranslationsLocalizableSchema(SchemaTestBase):
         self,
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
         valid_datas: Sequence[Dump] = [
-            {"translations": {DEFAULT_LOCALE: "Hello, world!"}},
-            {"translations": {"nl": "Hallo, wereld!", "uk": "Привіт Світ!"}},
+            {DEFAULT_LOCALE: "Hello, world!"},
+            {"nl": "Hallo, wereld!", "uk": "Привіт Світ!"},
         ]
         invalid_datas: Sequence[Dump] = [
             True,

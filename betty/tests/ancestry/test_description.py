@@ -24,14 +24,14 @@ class TestHasDescription:
             (
                 {
                     "@context": {"description": "https://schema.org/description"},
-                    "description": {"translations": cast(Mapping[str, str], {})},
+                    "description": cast(Mapping[str, str], {}),
                 },
                 DummyHasDescription(),
             ),
             (
                 {
                     "@context": {"description": "https://schema.org/description"},
-                    "description": {"translations": {"und": "Hello, world!"}},
+                    "description": {"und": "Hello, world!"},
                 },
                 DummyHasDescription(description="Hello, world!"),
             ),

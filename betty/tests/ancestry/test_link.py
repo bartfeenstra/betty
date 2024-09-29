@@ -27,7 +27,7 @@ _DUMMY_LINK_DUMPS: Sequence[DumpMapping[Dump]] = (
     },
     {
         "url": "https://example.com",
-        "label": {"translations": {UNDETERMINED_LOCALE: "Hello, world!"}},
+        "label": {UNDETERMINED_LOCALE: "Hello, world!"},
     },
     {
         "url": "https://example.com",
@@ -73,8 +73,8 @@ class TestLink:
             "@context": {"description": "https://schema.org/description"},
             "url": "https://example.com",
             "locale": "und",
-            "label": {"translations": {}},
-            "description": {"translations": {}},
+            "label": {},
+            "description": {},
         }
         actual = await assert_dumps_linked_data(link)
         assert actual == expected
@@ -91,10 +91,10 @@ class TestLink:
             "@context": {"description": "https://schema.org/description"},
             "url": "https://example.com",
             "relationship": "external",
-            "label": {"translations": {UNDETERMINED_LOCALE: "The Link"}},
+            "label": {UNDETERMINED_LOCALE: "The Link"},
             "locale": "nl-NL",
             "mediaType": "text/html",
-            "description": {"translations": {}},
+            "description": {},
         }
         actual = await assert_dumps_linked_data(link)
         assert actual == expected
@@ -166,8 +166,8 @@ class TestHasLinks:
                             },
                             "url": "https://example.com",
                             "locale": "und",
-                            "label": {"translations": {}},
-                            "description": {"translations": {}},
+                            "label": {},
+                            "description": {},
                         }
                     ]
                 },

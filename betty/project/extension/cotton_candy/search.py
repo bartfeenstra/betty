@@ -101,7 +101,7 @@ class Index:
             "text": " ".join(
                 translation.lower()
                 for name in place.names
-                for translation in name.translations.values()
+                for translation in name.name.translations.values()
             ),
             "result": await self._render_entity(place),
         }

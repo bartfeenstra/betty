@@ -160,7 +160,7 @@ class TestFile(EntityTestBase):
                 "notes": [],
                 "links": [],
                 "referees": [],
-                "description": {"translations": {}},
+                "description": {},
             }
             actual = await assert_dumps_linked_data(file)
             assert actual == expected
@@ -208,7 +208,7 @@ class TestFile(EntityTestBase):
                         "file": "/file/the_file/index.json",
                     },
                 ],
-                "description": {"translations": {}},
+                "description": {},
             }
             actual = await assert_dumps_linked_data(file)
             assert actual == expected

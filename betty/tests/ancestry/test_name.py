@@ -17,4 +17,4 @@ class TestName:
     async def test_name(self) -> None:
         name = "Ikke"
         sut = Name(name)
-        assert sut.localize(DEFAULT_LOCALIZER) == name
+        assert sut.name.localize(DEFAULT_LOCALIZER) == name

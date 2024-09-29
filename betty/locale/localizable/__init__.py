@@ -16,7 +16,7 @@ from betty.json.linked_data import (
     LinkedDataDumpableJsonLdObject,
     JsonLdObject,
 )
-from betty.json.schema import Object, OneOf, Null, Schema
+from betty.json.schema import OneOf, Null, Schema
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale import negotiate_locale, to_locale
 from betty.locale.localized import LocalizedStr
@@ -288,16 +288,15 @@ class StaticTranslationsLocalizableSchema(JsonLdObject):
         self, *, title: str = "Static translations", description: str | None = None
     ):
         super().__init__(
-            def_name="staticTranslations", title=title, description=description
+            title=title,
+            description=(
+                (description or "") + "Keys are IETF BCP-47 language tags."
+            ).strip(),
         )
-        translations_schema = Object(
-            title="Translations", description="Keys are IETF BCP-47 language tags."
-        )
-        translations_schema._schema["additionalProperties"] = {
+        self._schema["additionalProperties"] = {
             "type": "string",
             "description": "A human-readable translation.",
         }
-        self.add_property("translations", translations_schema)
 
 
 class StaticTranslationsLocalizable(
@@ -381,9 +380,7 @@ class StaticTranslationsLocalizable(
 
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
-        return {
-            "translations": {**self._translations},
-        }
+        return {**self._translations}
 
     @override
     @classmethod
