@@ -38,10 +38,10 @@ class Schema:
             # The entire API assumes this dialect, so enforce it.
             "$schema": "https://json-schema.org/draft/2020-12/schema",
         }
-        if title:
-            self._schema["title"] = title
-        if description:
-            self._schema["description"] = description
+        if title is not None:
+            self.title = title
+        if description is not None:
+            self.description = description
 
     @property
     def def_name(self) -> str | None:
@@ -57,20 +57,33 @@ class Schema:
         """
         return self._schema
 
-    def wraps(self, other: Schema) -> None:
+    @property
+    def title(self) -> str | None:
         """
-        Wrap the other schema.
+        The schema's human-readable US English (short) title.
+        """
+        try:
+            return cast(str, self._schema["title"])
+        except KeyError:
+            return None
 
-        This moves the other's schema name, title, and definition into ``self``, and changes ``self``'s
-        'appearance' only. It does not functionally wrap anything.
+    @title.setter
+    def title(self, title: str) -> None:
+        self._schema["title"] = title
+
+    @property
+    def description(self) -> str | None:
         """
-        if other.def_name is not None:
-            self._def_name = other.def_name
-            other._def_name = None
-        if "title" in other.schema:
-            self.schema["title"] = other.schema["title"]
-        if "description" in other.schema:
-            self.schema["description"] = other.schema["description"]
+        The schema's human-readable US English (long) description.
+        """
+        try:
+            return cast(str, self._schema["description"])
+        except KeyError:
+            return None
+
+    @description.setter
+    def description(self, description: str) -> None:
+        self._schema["description"] = description
 
     @property
     def defs(self) -> DumpMapping[Dump]:
@@ -287,11 +300,8 @@ class _Container(Schema):
         def_name: str | None = None,
         title: str | None = None,
         description: str | None = None,
-        wraps_first_item: bool = False,
     ):
         super().__init__(def_name=def_name, title=title, description=description)
-        if wraps_first_item:
-            self.wraps(items[0])
         self._schema[self._type] = [item.embed(self) for item in items]
 
 
