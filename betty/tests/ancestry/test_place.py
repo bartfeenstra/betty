@@ -13,7 +13,6 @@ from betty.ancestry.link import Link
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
-from betty.date import Date
 from betty.locale import UNDETERMINED_LOCALE
 from betty.model.association import AssociationRequired
 from betty.test_utils.ancestry.place_type import DummyPlaceType
@@ -178,21 +177,9 @@ class TestPlace(EntityTestBase):
             "enclosees": [],
             "events": [],
             "notes": [],
-            "links": [
-                {
-                    "url": "/place/the_place/index.json",
-                    "relationship": "canonical",
-                    "mediaType": "application/ld+json",
-                    "locale": "und",
-                },
-                {
-                    "url": "/place/the_place/index.html",
-                    "relationship": "alternate",
-                    "mediaType": "text/html",
-                    "locale": "en-US",
-                },
-            ],
+            "links": [],
             "private": False,
+            "fileReferences": [],
         }
         actual = await assert_dumps_linked_data(place)
         assert actual == expected
@@ -200,7 +187,6 @@ class TestPlace(EntityTestBase):
     async def test_dump_linked_data_should_dump_full(self) -> None:
         place_id = "the_place"
         name = "The Place"
-        locale = "nl-NL"
         latitude = 12.345
         longitude = -54.321
         coordinates = Point(latitude, longitude)
@@ -208,7 +194,7 @@ class TestPlace(EntityTestBase):
         link.label = "The Place Online"
         place = Place(
             id=place_id,
-            names=[Name({locale: name}, date=Date(1970, 1, 1))],
+            names=[Name(name)],
             events=[
                 Event(
                     id="E1",
@@ -218,8 +204,8 @@ class TestPlace(EntityTestBase):
             links=[link],
         )
         place.coordinates = coordinates
-        Enclosure(enclosee=place, encloser=Place(id="the_enclosing_place"))
-        Enclosure(enclosee=Place(id="the_enclosed_place"), encloser=place)
+        encloser = Enclosure(enclosee=place, encloser=Place(id="the_enclosing_place"))
+        enclosee = Enclosure(enclosee=Place(id="the_enclosed_place"), encloser=place)
         expected: Mapping[str, Any] = {
             "@context": {
                 "names": "https://schema.org/name",
@@ -232,7 +218,7 @@ class TestPlace(EntityTestBase):
             "@type": "https://schema.org/Place",
             "id": place_id,
             "names": [
-                {"translations": {"nl-NL": name}},
+                {"translations": {UNDETERMINED_LOCALE: name}},
             ],
             "events": [
                 "/event/E1/index.json",
@@ -240,23 +226,13 @@ class TestPlace(EntityTestBase):
             "notes": [],
             "links": [
                 {
+                    "@context": {"description": "https://schema.org/description"},
                     "url": "https://example.com/the-place",
                     "label": {
                         "translations": {UNDETERMINED_LOCALE: "The Place Online"}
                     },
                     "locale": "und",
-                },
-                {
-                    "url": "/place/the_place/index.json",
-                    "relationship": "canonical",
-                    "mediaType": "application/ld+json",
-                    "locale": "und",
-                },
-                {
-                    "url": "/place/the_place/index.html",
-                    "relationship": "alternate",
-                    "mediaType": "text/html",
-                    "locale": "en-US",
+                    "description": {"translations": {}},
                 },
             ],
             "coordinates": {
@@ -269,12 +245,23 @@ class TestPlace(EntityTestBase):
                 "longitude": longitude,
             },
             "enclosees": [
-                "/place/the_enclosed_place/index.json",
+                {
+                    "id": enclosee.id,
+                    "enclosee": "/place/the_enclosed_place/index.json",
+                    "encloser": "/place/the_place/index.json",
+                    "citations": [],
+                }
             ],
             "enclosers": [
-                "/place/the_enclosing_place/index.json",
+                {
+                    "id": encloser.id,
+                    "enclosee": "/place/the_place/index.json",
+                    "encloser": "/place/the_enclosing_place/index.json",
+                    "citations": [],
+                }
             ],
             "private": False,
+            "fileReferences": [],
         }
         actual = await assert_dumps_linked_data(place)
         assert actual == expected

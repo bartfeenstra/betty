@@ -180,20 +180,8 @@ class TestPerson(EntityTestBase):
             "presences": [],
             "citations": [],
             "notes": [],
-            "links": [
-                {
-                    "url": "/person/the_person/index.json",
-                    "relationship": "canonical",
-                    "mediaType": "application/ld+json",
-                    "locale": "und",
-                },
-                {
-                    "url": "/person/the_person/index.html",
-                    "relationship": "alternate",
-                    "mediaType": "text/html",
-                    "locale": "en-US",
-                },
-            ],
+            "links": [],
+            "fileReferences": [],
         }
         actual = await assert_dumps_linked_data(person)
         assert actual == expected
@@ -213,7 +201,7 @@ class TestPerson(EntityTestBase):
         person_affiliation_name = "Person"
         person_individual_name = "The"
         person = Person(id=person_id, public=True, gender=NonBinary())
-        PersonName(
+        name = PersonName(
             person=person,
             individual=person_individual_name,
             affiliation=person_affiliation_name,
@@ -235,7 +223,7 @@ class TestPerson(EntityTestBase):
                 ),
             )
         )
-        Presence(
+        presence = Presence(
             person,
             Subject(),
             Event(
@@ -262,11 +250,13 @@ class TestPerson(EntityTestBase):
                         "individual": "https://schema.org/givenName",
                         "affiliation": "https://schema.org/familyName",
                     },
+                    "id": name.id,
                     "individual": person_individual_name,
                     "affiliation": person_affiliation_name,
                     "locale": "en-US",
                     "citations": [],
                     "private": False,
+                    "person": "/person/the_person/index.json",
                 },
             ],
             "parents": [
@@ -280,11 +270,11 @@ class TestPerson(EntityTestBase):
             ],
             "presences": [
                 {
-                    "@context": {
-                        "event": "https://schema.org/performerIn",
-                    },
+                    "id": presence.id,
                     "role": "subject",
                     "event": "/event/the_event/index.json",
+                    "person": "/person/the_person/index.json",
+                    "private": False,
                 },
             ],
             "citations": [
@@ -293,25 +283,16 @@ class TestPerson(EntityTestBase):
             "notes": [],
             "links": [
                 {
+                    "@context": {"description": "https://schema.org/description"},
                     "url": "https://example.com/the-person",
                     "label": {
                         "translations": {UNDETERMINED_LOCALE: "The Person Online"}
                     },
                     "locale": "und",
-                },
-                {
-                    "url": "/person/the_person/index.json",
-                    "relationship": "canonical",
-                    "mediaType": "application/ld+json",
-                    "locale": "und",
-                },
-                {
-                    "url": "/person/the_person/index.html",
-                    "relationship": "alternate",
-                    "mediaType": "text/html",
-                    "locale": "en-US",
+                    "description": {"translations": {}},
                 },
             ],
+            "fileReferences": [],
         }
         actual = await assert_dumps_linked_data(person)
         assert actual == expected
@@ -334,7 +315,7 @@ class TestPerson(EntityTestBase):
             id=person_id,
             private=True,
         )
-        PersonName(
+        name = PersonName(
             person=person,
             individual=person_individual_name,
             affiliation=person_affiliation_name,
@@ -353,7 +334,7 @@ class TestPerson(EntityTestBase):
                 ),
             )
         )
-        Presence(
+        presence = Presence(
             person,
             Subject(),
             Event(
@@ -372,7 +353,15 @@ class TestPerson(EntityTestBase):
             "@id": "https://example.com/person/the_person/index.json",
             "@type": "https://schema.org/Person",
             "id": person_id,
-            "names": [],
+            "names": [
+                {
+                    "id": name.id,
+                    "citations": [],
+                    "locale": None,
+                    "person": "/person/the_person/index.json",
+                    "private": True,
+                }
+            ],
             "parents": [
                 "/person/the_parent/index.json",
             ],
@@ -385,24 +374,18 @@ class TestPerson(EntityTestBase):
             "private": True,
             "presences": [
                 {
-                    "@context": {
-                        "event": "https://schema.org/performerIn",
-                    },
+                    "id": presence.id,
                     "event": "/event/the_event/index.json",
+                    "person": "/person/the_person/index.json",
+                    "private": True,
                 },
             ],
             "citations": [
                 "/citation/the_citation/index.json",
             ],
             "notes": [],
-            "links": [
-                {
-                    "url": "/person/the_person/index.json",
-                    "relationship": "canonical",
-                    "mediaType": "application/ld+json",
-                    "locale": "und",
-                },
-            ],
+            "links": [],
+            "fileReferences": [],
         }
         actual = await assert_dumps_linked_data(person)
         assert actual == expected

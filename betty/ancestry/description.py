@@ -8,12 +8,10 @@ from typing import Any, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.json.linked_data import LinkedDataDumpable, dump_context
-from betty.json.schema import Object
+from betty.json.linked_data import dump_context, LinkedDataDumpableJsonLdObject
 from betty.locale.localizable import (
     OptionalStaticTranslationsLocalizableAttr,
     ShorthandStaticTranslations,
-    StaticTranslationsLocalizableSchema,
 )
 
 if TYPE_CHECKING:
@@ -21,13 +19,15 @@ if TYPE_CHECKING:
     from betty.project import Project
 
 
-class HasDescription(LinkedDataDumpable[Object]):
+class HasDescription(LinkedDataDumpableJsonLdObject):
     """
     A resource with a description.
     """
 
     #: The human-readable description.
-    description = OptionalStaticTranslationsLocalizableAttr("description")
+    description = OptionalStaticTranslationsLocalizableAttr(
+        "description", title="Description"
+    )
 
     def __init__(
         self,
@@ -42,14 +42,5 @@ class HasDescription(LinkedDataDumpable[Object]):
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
-        if self.description:
-            dump["description"] = await self.description.dump_linked_data(project)
-            dump_context(dump, description="https://schema.org/description")
+        dump_context(dump, description="https://schema.org/description")
         return dump
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project) -> Object:
-        schema = await super().linked_data_schema(project)
-        schema.add_property("description", StaticTranslationsLocalizableSchema(), False)
-        return schema

@@ -9,8 +9,8 @@ from typing import Any, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.json.linked_data import LinkedDataDumpable
-from betty.json.schema import Object, Boolean
+from betty.json.linked_data import LinkedDataDumpableJsonLdObject, JsonLdObject
+from betty.json.schema import Boolean
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
@@ -35,7 +35,7 @@ class Privacy(enum.Enum):
     UNDETERMINED = 3
 
 
-class HasPrivacy(LinkedDataDumpable[Object]):
+class HasPrivacy(LinkedDataDumpableJsonLdObject):
     """
     A resource that has privacy.
     """
@@ -123,7 +123,7 @@ class HasPrivacy(LinkedDataDumpable[Object]):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Object:
+    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property("private", PrivacySchema())
         return schema

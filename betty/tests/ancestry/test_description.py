@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, cast
 
 import pytest
 
@@ -21,7 +22,10 @@ class TestHasDescription:
         ("expected", "sut"),
         [
             (
-                {},
+                {
+                    "@context": {"description": "https://schema.org/description"},
+                    "description": {"translations": cast(Mapping[str, str], {})},
+                },
                 DummyHasDescription(),
             ),
             (

@@ -4,24 +4,16 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from reprlib import recursive_repr
-from typing import (
-    TypeVar,
-    Any,
-    Self,
-    TypeAlias,
-    TYPE_CHECKING,
-)
+from typing import TypeVar, Any, Self, TypeAlias, TYPE_CHECKING
 from uuid import uuid4
 
 from typing_extensions import override
 
-from betty.json.linked_data import LinkedDataDumpable, JsonLdObject
-from betty.json.schema import (
-    JsonSchemaReference,
-    Array,
-    String,
-    Object,
+from betty.json.linked_data import (
+    LinkedDataDumpableJsonLdObject,
+    JsonLdObject,
 )
+from betty.json.schema import JsonSchemaReference, Array, String
 from betty.locale.localizable import _, Localizable
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import PluginRepository, Plugin
@@ -30,8 +22,8 @@ from betty.repr import repr_instance
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
-    from betty.project import Project
     from betty.serde.dump import DumpMapping, Dump
+    from betty.project import Project
     import builtins
 
 
@@ -63,7 +55,7 @@ class GeneratedEntityId(str):
         return super().__new__(cls, entity_id or str(uuid4()))
 
 
-class Entity(LinkedDataDumpable[Object], Plugin):
+class Entity(LinkedDataDumpableJsonLdObject, Plugin):
     """
     An entity is a uniquely identifiable data container.
 
@@ -135,24 +127,24 @@ class Entity(LinkedDataDumpable[Object], Plugin):
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
 
-        if not has_generated_entity_id(self):
+        if not has_generated_entity_id(self) and isinstance(self, UserFacingEntity):
             dump["@id"] = project.static_url_generator.generate(
-                f"/{kebab_case_to_lower_camel_case(self.type.plugin_id())}/{self.id}/index.json",
+                f"/{self.type.plugin_id()}/{self.id}/index.json",
                 absolute=True,
             )
-            dump["id"] = self.id
+        dump["id"] = self.id
 
         return dump
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Object:
-        schema = JsonLdObject(
-            def_name=f"{kebab_case_to_lower_camel_case(cls.plugin_id())}Entity",
-            title=cls.plugin_label().localize(DEFAULT_LOCALIZER),
-        )
+    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+        schema = await super().linked_data_schema(project)
+        schema._def_name = f"{kebab_case_to_lower_camel_case(cls.plugin_id())}Entity"
+        schema.title = cls.plugin_label().localize(DEFAULT_LOCALIZER)
         schema.add_property("$schema", JsonSchemaReference())
         schema.add_property("id", String(title="Entity ID"), False)
+
         return schema
 
 
@@ -184,11 +176,10 @@ class EntityReferenceSchema(String):
     A schema for a reference to another entity resource.
     """
 
-    def __init__(self, entity_type: type[Entity], *, title: str | None = None):
+    def __init__(self, *, title: str | None = None, description: str | None = None):
         super().__init__(
-            def_name=f"{kebab_case_to_lower_camel_case(entity_type.plugin_id())}EntityReference",
-            title=title,
-            description=f"A reference to the JSON resource for a {entity_type.plugin_label().localize(DEFAULT_LOCALIZER)} entity.",
+            title=title or "Entity reference",
+            description=description or "A reference to an entity's JSON resource",
             format=String.Format.URI,
         )
 
@@ -198,10 +189,9 @@ class EntityReferenceCollectionSchema(Array):
     A schema for a collection of references to other entity resources.
     """
 
-    def __init__(self, entity_type: type[Entity], *, title: str | None = None):
+    def __init__(self, *, title: str | None = None, description: str | None = None):
         super().__init__(
-            EntityReferenceSchema(entity_type),
-            title=title,
-            description=f"References to the JSON resources for {entity_type.plugin_label().localize(DEFAULT_LOCALIZER)} entities.",
-            def_name=f"{kebab_case_to_lower_camel_case(entity_type.plugin_id())}EntityReferenceCollection",
+            EntityReferenceSchema(),
+            title=title or "Entity reference collection",
+            description=description or "References to entities' JSON resources",
         )

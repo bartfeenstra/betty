@@ -11,10 +11,10 @@ from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.ancestry.note import Note
 from betty.ancestry.person import Person
-from betty.privacy import Privacy
 from betty.ancestry.source import Source
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import PLAIN_TEXT
+from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 from betty.tests.ancestry.test___init__ import DummyHasFileReferences
@@ -152,26 +152,15 @@ class TestFile(EntityTestBase):
                 path=Path(f.name),
             )
             expected: Mapping[str, Any] = {
+                "@context": {"description": "https://schema.org/description"},
                 "@id": "https://example.com/file/the_file/index.json",
                 "id": "the_file",
                 "private": False,
-                "entities": [],
                 "citations": [],
                 "notes": [],
-                "links": [
-                    {
-                        "url": "/file/the_file/index.json",
-                        "relationship": "canonical",
-                        "mediaType": "application/ld+json",
-                        "locale": "und",
-                    },
-                    {
-                        "url": "/file/the_file/index.html",
-                        "relationship": "alternate",
-                        "mediaType": "text/html",
-                        "locale": "en-US",
-                    },
-                ],
+                "links": [],
+                "referees": [],
+                "description": {"translations": {}},
             }
             actual = await assert_dumps_linked_data(file)
             assert actual == expected
@@ -189,7 +178,7 @@ class TestFile(EntityTestBase):
                     text="The Note",
                 )
             )
-            FileReference(Person(id="the_person"), file)
+            reference = FileReference(Person(id="the_person"), file)
             file.citations.add(
                 Citation(
                     id="the_citation",
@@ -200,33 +189,26 @@ class TestFile(EntityTestBase):
                 )
             )
             expected: Mapping[str, Any] = {
+                "@context": {"description": "https://schema.org/description"},
                 "@id": "https://example.com/file/the_file/index.json",
                 "id": "the_file",
                 "private": False,
                 "mediaType": "text/plain",
-                "entities": [
-                    "/person/the_person/index.json",
-                ],
                 "citations": [
                     "/citation/the_citation/index.json",
                 ],
                 "notes": [
                     "/note/the_note/index.json",
                 ],
-                "links": [
+                "links": [],
+                "referees": [
                     {
-                        "url": "/file/the_file/index.json",
-                        "relationship": "canonical",
-                        "mediaType": "application/ld+json",
-                        "locale": "und",
-                    },
-                    {
-                        "url": "/file/the_file/index.html",
-                        "relationship": "alternate",
-                        "mediaType": "text/html",
-                        "locale": "en-US",
+                        "id": reference.id,
+                        "referee": "/person/the_person/index.json",
+                        "file": "/file/the_file/index.json",
                     },
                 ],
+                "description": {"translations": {}},
             }
             actual = await assert_dumps_linked_data(file)
             assert actual == expected
@@ -245,7 +227,7 @@ class TestFile(EntityTestBase):
                     text="The Note",
                 )
             )
-            FileReference(Person(id="the_person"), file)
+            reference = FileReference(Person(id="the_person"), file)
             file.citations.add(
                 Citation(
                     id="the_citation",
@@ -256,26 +238,25 @@ class TestFile(EntityTestBase):
                 )
             )
             expected: Mapping[str, Any] = {
+                "@context": {"description": "https://schema.org/description"},
                 "@id": "https://example.com/file/the_file/index.json",
                 "id": "the_file",
                 "private": True,
-                "entities": [
-                    "/person/the_person/index.json",
-                ],
                 "citations": [
                     "/citation/the_citation/index.json",
                 ],
                 "notes": [
                     "/note/the_note/index.json",
                 ],
-                "links": [
+                "links": [],
+                "referees": [
                     {
-                        "url": "/file/the_file/index.json",
-                        "relationship": "canonical",
-                        "mediaType": "application/ld+json",
-                        "locale": "und",
+                        "id": reference.id,
+                        "referee": "/person/the_person/index.json",
+                        "file": "/file/the_file/index.json",
                     },
                 ],
+                "description": None,
             }
             actual = await assert_dumps_linked_data(file)
             assert actual == expected

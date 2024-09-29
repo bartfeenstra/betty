@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.note import Note
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import DummyEntity
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
@@ -26,21 +27,29 @@ class TestHasNotes:
         [
             (
                 {
+                    "id": "my-first-has-notes",
                     "notes": [],
                 },
-                DummyHasNotes(),
+                DummyHasNotes(id="my-first-has-notes"),
             ),
             (
                 {
+                    "id": "my-first-has-notes",
                     "notes": [],
                 },
-                DummyHasNotes(notes=[Note(text="Hello, world!")]),
+                DummyHasNotes(
+                    notes=[Note(text="Hello, world!")], id="my-first-has-notes"
+                ),
             ),
             (
                 {
+                    "id": "my-first-has-notes",
                     "notes": ["/note/my-first-note/index.json"],
                 },
-                DummyHasNotes(notes=[Note(text="Hello, world!", id="my-first-note")]),
+                DummyHasNotes(
+                    notes=[Note(text="Hello, world!", id="my-first-note")],
+                    id="my-first-has-notes",
+                ),
             ),
         ],
     )

@@ -586,9 +586,7 @@ class ProjectSchema(Schema):
             schema.defs[def_name] = {
                 "type": "object",
                 "properties": {
-                    "collection": EntityReferenceCollectionSchema(entity_type).embed(
-                        schema
-                    ),
+                    "collection": EntityReferenceCollectionSchema().embed(schema),
                 },
             }
 

@@ -10,14 +10,14 @@ from typing_extensions import override
 
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.locale import HasLocale
-from betty.privacy import HasPrivacy, Privacy, merge_privacies
-from betty.json.linked_data import dump_context
-from betty.json.schema import Object, String
+from betty.json.linked_data import dump_context, JsonLdObject
+from betty.json.schema import String
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import _, Localizable
 from betty.model import Entity
 from betty.model.association import BidirectionalToOne, ToOneResolver
 from betty.plugin import ShorthandPluginBase
+from betty.privacy import HasPrivacy, Privacy, merge_privacies
 from betty.repr import repr_instance
 
 if TYPE_CHECKING:
@@ -41,6 +41,7 @@ class PersonName(ShorthandPluginBase, HasLocale, HasCitations, HasPrivacy, Entit
         "person",
         "betty.ancestry.person:Person",
         "names",
+        title="Person",
     )
 
     def __init__(
@@ -134,7 +135,7 @@ class PersonName(ShorthandPluginBase, HasLocale, HasCitations, HasPrivacy, Entit
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Object:
+    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "individual",

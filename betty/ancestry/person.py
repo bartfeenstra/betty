@@ -15,24 +15,22 @@ from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks, Link
-from betty.ancestry.person_name import PersonName
-from betty.ancestry.presence_role import PresenceRoleSchema
-from betty.privacy import HasPrivacy, Privacy
 from betty.functools import Uniquifier
 from betty.json.linked_data import dump_context, JsonLdObject
-from betty.json.schema import Object, Array, Enum
+from betty.json.schema import Enum
 from betty.locale.localizable import _, Localizable
 from betty.model import (
     UserFacingEntity,
     Entity,
-    GeneratedEntityId,
     EntityReferenceCollectionSchema,
-    EntityReferenceSchema,
+    has_generated_entity_id,
 )
 from betty.model.association import ToManyResolver, BidirectionalToMany
 from betty.plugin import ShorthandPluginBase
+from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:
+    from betty.ancestry.person_name import PersonName
     from betty.ancestry.note import Note
     from betty.ancestry.file_reference import FileReference
     from betty.ancestry.citation import Citation
@@ -65,24 +63,31 @@ class Person(
         "parents",
         "betty.ancestry.person:Person",
         "children",
+        title="Parents",
     )
     children = BidirectionalToMany["Person", "Person"](
         "betty.ancestry.person:Person",
         "children",
         "betty.ancestry.person:Person",
         "parents",
+        title="Children",
     )
     presences = BidirectionalToMany["Person", "Presence"](
         "betty.ancestry.person:Person",
         "presences",
         "betty.ancestry.presence:Presence",
         "person",
+        title="Presences",
+        description="This person's presences at events",
+        linked_data_embedded=True,
     )
     names = BidirectionalToMany["Person", "PersonName"](
         "betty.ancestry.person:Person",
         "names",
         "betty.ancestry.person_name:PersonName",
         "person",
+        title="Names",
+        linked_data_embedded=True,
     )
 
     def __init__(
@@ -178,41 +183,15 @@ class Person(
             siblings="https://schema.org/sibling",
         )
         dump["@type"] = "https://schema.org/Person"
-        dump["parents"] = [
-            project.static_url_generator.generate(
-                f"/person/{quote(parent.id)}/index.json"
-            )
-            for parent in self.parents
-            if not isinstance(parent.id, GeneratedEntityId)
-        ]
-        dump["children"] = [
-            project.static_url_generator.generate(
-                f"/person/{quote(child.id)}/index.json"
-            )
-            for child in self.children
-            if not isinstance(child.id, GeneratedEntityId)
-        ]
         dump["siblings"] = [
             project.static_url_generator.generate(
                 f"/person/{quote(sibling.id)}/index.json"
             )
             for sibling in self.siblings
-            if not isinstance(sibling.id, GeneratedEntityId)
-        ]
-        dump["presences"] = [
-            self._dump_person_presence(presence, project)
-            for presence in self.presences
-            if not isinstance(presence.event.id, GeneratedEntityId)
+            if not has_generated_entity_id(sibling)
         ]
         if self.public:
-            dump["names"] = [
-                await name.dump_linked_data(project)
-                for name in self.names
-                if name.public
-            ]
             dump["gender"] = self.gender.plugin_id()
-        else:
-            dump["names"] = []
         return dump
 
     def _dump_person_presence(
@@ -230,12 +209,8 @@ class Person(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Object:
+    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        schema.add_property(
-            "names",
-            Array(await PersonName.linked_data_schema(project), title="Names"),
-        )
         schema.add_property(
             "gender",
             Enum(
@@ -244,23 +219,7 @@ class Person(
             ),
             property_required=False,
         )
-        schema.add_property("parents", EntityReferenceCollectionSchema(Person))
-        schema.add_property("children", EntityReferenceCollectionSchema(Person))
-        schema.add_property("siblings", EntityReferenceCollectionSchema(Person))
         schema.add_property(
-            "presences", Array(_PersonPresenceSchema(), title="Presences")
+            "siblings", EntityReferenceCollectionSchema(title="Siblings")
         )
         return schema
-
-
-class _PersonPresenceSchema(JsonLdObject):
-    """
-    A schema for the :py:class:`betty.ancestry.presence.Presence` associations on a :py:class:`betty.ancestry.person.Person`.
-    """
-
-    def __init__(self):
-        from betty.ancestry.event import Event
-
-        super().__init__(title="Presence (person)")
-        self.add_property("role", PresenceRoleSchema(), False)
-        self.add_property("event", EntityReferenceSchema(Event))

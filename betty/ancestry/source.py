@@ -5,7 +5,6 @@ Data types to describe information sources.
 from __future__ import annotations
 
 from typing import final, Iterable, MutableSequence, Iterator, TYPE_CHECKING
-from urllib.parse import quote
 
 from typing_extensions import override
 
@@ -13,21 +12,16 @@ from betty.ancestry.date import HasDate
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks, Link
-from betty.privacy import HasPrivacy, Privacy, merge_privacies
 from betty.json.linked_data import dump_context
 from betty.locale.localizable import (
     _,
     OptionalStaticTranslationsLocalizableAttr,
     ShorthandStaticTranslations,
     Localizable,
-    StaticTranslationsLocalizableSchema,
 )
 from betty.model import (
     UserFacingEntity,
     Entity,
-    GeneratedEntityId,
-    EntityReferenceCollectionSchema,
-    EntityReferenceSchema,
 )
 from betty.model.association import (
     BidirectionalToZeroOrOne,
@@ -37,6 +31,7 @@ from betty.model.association import (
     ToZeroOrOneResolver,
 )
 from betty.plugin import ShorthandPluginBase
+from betty.privacy import HasPrivacy, Privacy, merge_privacies
 
 if TYPE_CHECKING:
     from betty.ancestry.citation import Citation  # noqa F401
@@ -44,7 +39,6 @@ if TYPE_CHECKING:
     from betty.ancestry.file_reference import FileReference
     from betty.serde.dump import DumpMapping, Dump
     from betty.project import Project
-    from betty.json.schema import Object
     from betty.date import Datey
 
 
@@ -72,28 +66,36 @@ class Source(
         "contained_by",
         "betty.ancestry.source:Source",
         "contains",
+        title="Contained by",
+        description="Another source this source may be contained by",
     )
     contains = BidirectionalToMany["Source", "Source"](
         "betty.ancestry.source:Source",
         "contains",
         "betty.ancestry.source:Source",
         "contained_by",
+        title="Contains",
+        description="Other sources this source may contain",
     )
     citations = BidirectionalToMany["Source", "Citation"](
         "betty.ancestry.source:Source",
         "citations",
         "betty.ancestry.citation:Citation",
         "source",
+        title="Citations",
+        description="The citations referencing this source",
     )
 
     #: The human-readable source name.
-    name = OptionalStaticTranslationsLocalizableAttr("name")
+    name = OptionalStaticTranslationsLocalizableAttr("name", title="Name")
 
     #: The human-readable author.
-    author = OptionalStaticTranslationsLocalizableAttr("author")
+    author = OptionalStaticTranslationsLocalizableAttr("author", title="Author")
 
     #: The human-readable publisher.
-    publisher = OptionalStaticTranslationsLocalizableAttr("publisher")
+    publisher = OptionalStaticTranslationsLocalizableAttr(
+        "publisher", title="Publisher"
+    )
 
     def __init__(
         self,
@@ -168,52 +170,5 @@ class Source(
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         dump["@type"] = "https://schema.org/Thing"
-        dump["contains"] = [
-            project.static_url_generator.generate(
-                f"/source/{quote(contained.id)}/index.json"
-            )
-            for contained in self.contains
-            if not isinstance(contained.id, GeneratedEntityId)
-        ]
-        dump["citations"] = [
-            project.static_url_generator.generate(
-                f"/citation/{quote(citation.id)}/index.json"
-            )
-            for citation in self.citations
-            if not isinstance(citation.id, GeneratedEntityId)
-        ]
-        if self.contained_by is not None and not isinstance(
-            self.contained_by.id, GeneratedEntityId
-        ):
-            dump["containedBy"] = project.static_url_generator.generate(
-                f"/source/{quote(self.contained_by.id)}/index.json"
-            )
-        if self.public:
-            if self.name:
-                dump_context(dump, name="https://schema.org/name")
-                dump["name"] = await self.name.dump_linked_data(project)
-            if self.author:
-                dump["author"] = await self.author.dump_linked_data(project)
-            if self.publisher:
-                dump["publisher"] = await self.publisher.dump_linked_data(project)
+        dump_context(dump, name="https://schema.org/name")
         return dump
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project) -> Object:
-        from betty.ancestry.citation import Citation
-
-        schema = await super().linked_data_schema(project)
-        schema.add_property(
-            "name", StaticTranslationsLocalizableSchema(title="Name"), False
-        )
-        schema.add_property(
-            "author", StaticTranslationsLocalizableSchema(title="Author"), False
-        )
-        schema.add_property(
-            "publisher", StaticTranslationsLocalizableSchema(title="Publisher"), False
-        )
-        schema.add_property("contains", EntityReferenceCollectionSchema(Source))
-        schema.add_property("citations", EntityReferenceCollectionSchema(Citation))
-        schema.add_property("containedBy", EntityReferenceSchema(Source), False)
-        return schema

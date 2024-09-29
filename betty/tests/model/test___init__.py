@@ -34,7 +34,7 @@ class TestEntityReferenceSchema(SchemaTestBase):
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
         return [
             (
-                EntityReferenceSchema(DummyEntity),
+                EntityReferenceSchema(),
                 [
                     "https://example.com",
                 ],
@@ -50,7 +50,7 @@ class TestEntityReferenceCollectionSchema(SchemaTestBase):
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
         return [
             (
-                EntityReferenceCollectionSchema(DummyEntity),
+                EntityReferenceCollectionSchema(),
                 [
                     [],
                     ["https://example.com"],

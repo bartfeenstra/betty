@@ -11,13 +11,18 @@ from warnings import warn
 
 from typing_extensions import override
 
-from betty.json.linked_data import LinkedDataDumpable
-from betty.json.schema import Object
+from betty.json.linked_data import (
+    LinkedDataDumpableProvider,
+    LinkedDataDumpableJsonLdObject,
+    JsonLdObject,
+)
+from betty.json.schema import Object, OneOf, Null, Schema
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale import negotiate_locale, to_locale
 from betty.locale.localized import LocalizedStr
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizer import Localizer
+from betty.privacy import is_private
 from betty.repr import repr_instance
 
 if TYPE_CHECKING:
@@ -274,7 +279,7 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
 
 
-class StaticTranslationsLocalizableSchema(Object):
+class StaticTranslationsLocalizableSchema(JsonLdObject):
     """
     A JSON Schema for :py:class:`betty.locale.localizable.StaticTranslationsLocalizable`.
     """
@@ -296,7 +301,7 @@ class StaticTranslationsLocalizableSchema(Object):
 
 
 class StaticTranslationsLocalizable(
-    _FormattableLocalizable, LinkedDataDumpable[Object]
+    _FormattableLocalizable, LinkedDataDumpableJsonLdObject
 ):
     """
     Provide a :py:class:`betty.locale.localizable.Localizable` backed by static translations.
@@ -382,9 +387,7 @@ class StaticTranslationsLocalizable(
 
     @override
     @classmethod
-    async def linked_data_schema(
-        cls, project: Project
-    ) -> StaticTranslationsLocalizableSchema:
+    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         return StaticTranslationsLocalizableSchema()
 
 
@@ -397,11 +400,15 @@ def static(translations: ShorthandStaticTranslations) -> Localizable:
     return StaticTranslationsLocalizable(assert_static_translations()(translations))
 
 
-class _StaticTranslationsLocalizableAttr:
+class _StaticTranslationsLocalizableAttr(LinkedDataDumpableProvider[object]):
     _required: bool
 
-    def __init__(self, attr_name: str):
+    def __init__(
+        self, attr_name: str, title: str | None = None, description: str | None = None
+    ):
         self._attr_name = f"_{attr_name}"
+        self._title = title
+        self._description = description
 
     @overload
     def __get__(self, instance: None, owner: type[object]) -> Self:
@@ -427,6 +434,21 @@ class _StaticTranslationsLocalizableAttr:
 
     def __set__(self, instance: object, value: ShorthandStaticTranslations) -> None:
         self.__get__(instance, type(instance)).replace(value)
+
+    @override
+    async def linked_data_schema_for(self, project: Project) -> Schema:
+        return OneOf(
+            await StaticTranslationsLocalizable.linked_data_schema(project),
+            Null(),
+            title=self._title,
+            description=self._description,
+        )
+
+    @override
+    async def dump_linked_data_for(self, project: Project, target: object) -> Dump:
+        if is_private(target):
+            return None
+        return await self.__get__(target, type(target)).dump_linked_data(project)
 
 
 @final

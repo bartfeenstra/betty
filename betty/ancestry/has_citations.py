@@ -5,18 +5,12 @@ Tools to build data types have citations.
 from __future__ import annotations
 
 from typing import Any, Iterable, TYPE_CHECKING
-from urllib.parse import quote
 
-from typing_extensions import override
-
-from betty.ancestry.citation import Citation
-from betty.model import Entity, GeneratedEntityId, EntityReferenceCollectionSchema
+from betty.model import Entity
 from betty.model.association import BidirectionalToMany, ToManyResolver
 
 if TYPE_CHECKING:
-    from betty.json.schema import Object
-    from betty.serde.dump import DumpMapping, Dump
-    from betty.project import Project
+    from betty.ancestry.citation import Citation
 
 
 class HasCitations(Entity):
@@ -29,6 +23,8 @@ class HasCitations(Entity):
         "citations",
         "betty.ancestry.citation:Citation",
         "facts",
+        title="Citations",
+        description="The citations backing up the claims made by this entity",
     )
 
     def __init__(
@@ -43,22 +39,3 @@ class HasCitations(Entity):
         )
         if citations is not None:
             self.citations = citations
-
-    @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
-        dump = await super().dump_linked_data(project)
-        dump["citations"] = [
-            project.static_url_generator.generate(
-                f"/citation/{quote(citation.id)}/index.json"
-            )
-            for citation in self.citations
-            if not isinstance(citation.id, GeneratedEntityId)
-        ]
-        return dump
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project) -> Object:
-        schema = await super().linked_data_schema(project)
-        schema.add_property("citations", EntityReferenceCollectionSchema(Citation))
-        return schema

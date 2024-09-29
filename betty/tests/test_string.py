@@ -6,6 +6,7 @@ from betty.string import (
     upper_camel_case_to_lower_camel_case,
     snake_case_to_upper_camel_case,
     kebab_case_to_lower_camel_case,
+    snake_case_to_lower_camel_case,
 )
 
 
@@ -13,6 +14,11 @@ class TestCamelCaseToSnakeCase:
     @pytest.mark.parametrize(
         ("expected", "string"),
         [
+            ("", ""),
+            ("s", "s"),
+            ("s", "S"),
+            ("sn", "sn"),
+            ("sn", "Sn"),
             ("snake_case", "snakeCase"),
             ("snake_case", "SnakeCase"),
             ("snake__case", "Snake_Case"),
@@ -26,11 +32,15 @@ class TestCamelCaseToKebabCase:
     @pytest.mark.parametrize(
         ("expected", "string"),
         [
+            ("", ""),
+            ("s", "s"),
+            ("s", "S"),
+            ("sn", "sn"),
+            ("sn", "Sn"),
             ("snake-case", "snakeCase"),
             ("snake-case", "SnakeCase"),
             ("snake--case", "Snake-Case"),
             ("123", "123"),
-            ("", ""),
             (" ", " "),
         ],
     )
@@ -42,11 +52,12 @@ class TestUpperCamelCaseToLowerCamelCase:
     @pytest.mark.parametrize(
         ("expected", "string"),
         [
-            ("snakeCase", "snakeCase"),
+            ("", ""),
+            ("s", "S"),
+            ("sn", "Sn"),
             ("snakeCase", "SnakeCase"),
             ("123SnakeCase", "123SnakeCase"),
             ("123", "123"),
-            ("", ""),
             (" ", " "),
         ],
     )
@@ -58,12 +69,14 @@ class TestSnakeCaseToUpperCamelCase:
     @pytest.mark.parametrize(
         ("expected", "string"),
         [
+            ("", ""),
+            ("S", "s"),
+            ("Sn", "sn"),
             ("SnakeCase", "snake_case"),
             ("SnakeCase", "_snake_case"),
             ("123snakeCase", "123snake_case"),
             ("SnakeCase123", "snake_case_123"),
             ("123", "123"),
-            ("", ""),
             (" ", " "),
         ],
     )
@@ -71,16 +84,37 @@ class TestSnakeCaseToUpperCamelCase:
         assert expected == snake_case_to_upper_camel_case(string)
 
 
+class TestSnakeCaseToLowerCamelCase:
+    @pytest.mark.parametrize(
+        ("expected", "string"),
+        [
+            ("", ""),
+            ("s", "s"),
+            ("sn", "sn"),
+            ("snakeCase", "snake_case"),
+            ("snakeCase", "_snake_case"),
+            ("123snakeCase", "123snake_case"),
+            ("snakeCase123", "snake_case_123"),
+            ("123", "123"),
+            (" ", " "),
+        ],
+    )
+    async def test(self, expected: str, string: str) -> None:
+        assert expected == snake_case_to_lower_camel_case(string)
+
+
 class TestKebabCaseToLowerCamelCase:
     @pytest.mark.parametrize(
         ("expected", "string"),
         [
+            ("", ""),
+            ("s", "s"),
+            ("sn", "sn"),
             ("snakeCase", "snake-case"),
             ("snakeCase", "-snake-case"),
             ("123snakeCase", "123snake-case"),
             ("snakeCase123", "snake-case-123"),
             ("123", "123"),
-            ("", ""),
             (" ", " "),
         ],
     )

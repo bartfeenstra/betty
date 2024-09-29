@@ -35,6 +35,8 @@ class FileReference(ShorthandPluginBase, Entity):
         "referee",
         "betty.ancestry.has_file_references:HasFileReferences",
         "file_references",
+        title="Referee",
+        description="The entity referencing the file",
     )
     #: The referenced file.
     file = BidirectionalToOne["FileReference", File](
@@ -42,6 +44,8 @@ class FileReference(ShorthandPluginBase, Entity):
         "file",
         "betty.ancestry.file:File",
         "referees",
+        title="File",
+        description="The file being referenced",
     )
 
     def __init__(

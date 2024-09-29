@@ -6,11 +6,11 @@ from typing_extensions import override
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.link import Link
-from betty.privacy import Privacy
 from betty.ancestry.source import Source
 from betty.date import Date
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 
@@ -114,23 +114,14 @@ class TestSource(EntityTestBase):
             "id": "the_source",
             "private": False,
             "name": {"translations": {"und": "The Source"}},
+            "author": {"translations": {}},
+            "publisher": {"translations": {}},
+            "fileReferences": [],
             "contains": [],
+            "containedBy": None,
             "citations": [],
             "notes": [],
-            "links": [
-                {
-                    "url": "/source/the_source/index.json",
-                    "relationship": "canonical",
-                    "mediaType": "application/ld+json",
-                    "locale": "und",
-                },
-                {
-                    "url": "/source/the_source/index.html",
-                    "relationship": "alternate",
-                    "mediaType": "text/html",
-                    "locale": "en-US",
-                },
-            ],
+            "links": [],
         }
         actual = await assert_dumps_linked_data(source)
         assert actual == expected
@@ -171,6 +162,7 @@ class TestSource(EntityTestBase):
             "name": {"translations": {"und": "The Source"}},
             "author": {"translations": {"und": "The Author"}},
             "publisher": {"translations": {"und": "The Publisher"}},
+            "fileReferences": [],
             "contains": [
                 "/source/the_contained_source/index.json",
             ],
@@ -188,23 +180,13 @@ class TestSource(EntityTestBase):
             },
             "links": [
                 {
+                    "@context": {"description": "https://schema.org/description"},
                     "url": "https://example.com/the-source",
                     "label": {
                         "translations": {UNDETERMINED_LOCALE: "The Source Online"}
                     },
                     "locale": "und",
-                },
-                {
-                    "url": "/source/the_source/index.json",
-                    "relationship": "canonical",
-                    "mediaType": "application/ld+json",
-                    "locale": "und",
-                },
-                {
-                    "url": "/source/the_source/index.html",
-                    "relationship": "alternate",
-                    "mediaType": "text/html",
-                    "locale": "en-US",
+                    "description": {"translations": {}},
                 },
             ],
         }
@@ -238,10 +220,17 @@ class TestSource(EntityTestBase):
             source=source,
         )
         expected: Mapping[str, Any] = {
+            "@context": {
+                "name": "https://schema.org/name",
+            },
             "@id": "https://example.com/source/the_source/index.json",
             "@type": "https://schema.org/Thing",
             "id": "the_source",
             "private": True,
+            "name": None,
+            "author": None,
+            "publisher": None,
+            "fileReferences": [],
             "contains": [
                 "/source/the_contained_source/index.json",
             ],
@@ -277,10 +266,17 @@ class TestSource(EntityTestBase):
             private=True,
         )
         expected: Mapping[str, Any] = {
+            "@context": {
+                "name": "https://schema.org/name",
+            },
             "@id": "https://example.com/source/the_source/index.json",
             "@type": "https://schema.org/Thing",
             "id": "the_source",
             "private": False,
+            "name": {"translations": {}},
+            "author": {"translations": {}},
+            "publisher": {"translations": {}},
+            "fileReferences": [],
             "contains": [
                 "/source/the_contained_source/index.json",
             ],

@@ -42,6 +42,14 @@ def snake_case_to_upper_camel_case(string: str) -> str:
     )
 
 
+def snake_case_to_lower_camel_case(string: str) -> str:
+    """
+    Convert snake case to lower camel case.
+    """
+    string = snake_case_to_upper_camel_case(string)
+    return string[0].lower() + string[1:] if string else ""
+
+
 def kebab_case_to_lower_camel_case(string: str) -> str:
     """
     Convert kebab case to lower camel case.

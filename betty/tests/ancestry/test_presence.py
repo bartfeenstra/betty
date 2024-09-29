@@ -14,9 +14,11 @@ from betty.ancestry.presence_role.presence_roles import (
     Subject,
 )
 from betty.privacy import Privacy
+from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 
 if TYPE_CHECKING:
+    from betty.serde.dump import DumpMapping, Dump
     from betty.model import Entity
 
 
@@ -67,3 +69,34 @@ class TestPresence(EntityTestBase):
         sut.privacy = presence_privacy
 
         assert sut.privacy == expected
+
+    async def test_dump_linked_data_should_dump(self) -> None:
+        person = Person(id="my-first-person")
+        event = Event(id="my-first-event")
+        role = Subject()
+        sut = Presence(person, role, event)
+
+        expected: DumpMapping[Dump] = {
+            "id": sut.id,
+            "event": "/event/my-first-event/index.json",
+            "person": "/person/my-first-person/index.json",
+            "private": False,
+            "role": role.plugin_id(),
+        }
+        actual = await assert_dumps_linked_data(sut)
+        assert actual == expected
+
+    async def test_dump_linked_data_should_dump_private(self) -> None:
+        person = Person(id="my-first-person")
+        event = Event(id="my-first-event")
+        role = Subject()
+        sut = Presence(person, role, event, private=True)
+
+        expected: DumpMapping[Dump] = {
+            "id": sut.id,
+            "event": "/event/my-first-event/index.json",
+            "person": "/person/my-first-person/index.json",
+            "private": True,
+        }
+        actual = await assert_dumps_linked_data(sut)
+        assert actual == expected

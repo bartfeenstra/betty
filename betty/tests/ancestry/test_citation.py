@@ -8,9 +8,9 @@ from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.has_citations import HasCitations
-from betty.privacy import Privacy
 from betty.ancestry.source import Source
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase, DummyEntity
 
@@ -81,21 +81,11 @@ class TestCitation(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_citation",
             "private": False,
+            "location": {"translations": {}},
             "facts": [],
-            "links": [
-                {
-                    "url": "/citation/the_citation/index.json",
-                    "relationship": "canonical",
-                    "mediaType": "application/ld+json",
-                    "locale": "und",
-                },
-                {
-                    "url": "/citation/the_citation/index.html",
-                    "relationship": "alternate",
-                    "mediaType": "text/html",
-                    "locale": "en-US",
-                },
-            ],
+            "links": [],
+            "fileReferences": [],
+            "source": None,
         }
         actual = await assert_dumps_linked_data(citation)
         assert actual == expected
@@ -119,22 +109,11 @@ class TestCitation(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_citation",
             "private": False,
+            "location": {"translations": {}},
             "source": "/source/the_source/index.json",
             "facts": ["/event/the_event/index.json"],
-            "links": [
-                {
-                    "url": "/citation/the_citation/index.json",
-                    "relationship": "canonical",
-                    "mediaType": "application/ld+json",
-                    "locale": "und",
-                },
-                {
-                    "url": "/citation/the_citation/index.html",
-                    "relationship": "alternate",
-                    "mediaType": "text/html",
-                    "locale": "en-US",
-                },
-            ],
+            "links": [],
+            "fileReferences": [],
         }
         actual = await assert_dumps_linked_data(citation)
         assert actual == expected
@@ -159,16 +138,11 @@ class TestCitation(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_citation",
             "private": True,
+            "location": None,
             "source": "/source/the_source/index.json",
             "facts": ["/event/the_event/index.json"],
-            "links": [
-                {
-                    "url": "/citation/the_citation/index.json",
-                    "relationship": "canonical",
-                    "mediaType": "application/ld+json",
-                    "locale": "und",
-                },
-            ],
+            "links": [],
+            "fileReferences": [],
         }
         actual = await assert_dumps_linked_data(citation)
         assert actual == expected

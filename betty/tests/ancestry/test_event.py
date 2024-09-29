@@ -13,10 +13,10 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.privacy import Privacy
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
 from betty.model.association import AssociationRequired
+from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 
@@ -104,6 +104,8 @@ class TestEvent(EntityTestBase):
         )
         expected: Mapping[str, Any] = {
             "@context": {
+                "description": "https://schema.org/description",
+                "place": "https://schema.org/location",
                 "presences": "https://schema.org/performer",
             },
             "@id": "https://example.com/event/the_event/index.json",
@@ -116,20 +118,10 @@ class TestEvent(EntityTestBase):
             "presences": [],
             "citations": [],
             "notes": [],
-            "links": [
-                {
-                    "url": "/event/the_event/index.json",
-                    "relationship": "canonical",
-                    "mediaType": "application/ld+json",
-                    "locale": "und",
-                },
-                {
-                    "url": "/event/the_event/index.html",
-                    "relationship": "alternate",
-                    "mediaType": "text/html",
-                    "locale": "en-US",
-                },
-            ],
+            "links": [],
+            "description": {"translations": {}},
+            "fileReferences": [],
+            "place": None,
         }
         actual = await assert_dumps_linked_data(event)
         assert actual == expected
@@ -144,7 +136,7 @@ class TestEvent(EntityTestBase):
                 names=[Name("The Place")],
             ),
         )
-        Presence(Person(id="the_person"), Subject(), event)
+        presence = Presence(Person(id="the_person"), Subject(), event)
         event.citations.add(
             Citation(
                 id="the_citation",
@@ -156,6 +148,7 @@ class TestEvent(EntityTestBase):
         )
         expected: Mapping[str, Any] = {
             "@context": {
+                "description": "https://schema.org/description",
                 "place": "https://schema.org/location",
                 "presences": "https://schema.org/performer",
             },
@@ -168,9 +161,11 @@ class TestEvent(EntityTestBase):
             "eventStatus": "https://schema.org/EventScheduled",
             "presences": [
                 {
-                    "@type": "https://schema.org/Person",
+                    "id": presence.id,
                     "role": "subject",
                     "person": "/person/the_person/index.json",
+                    "event": "/event/the_event/index.json",
+                    "private": False,
                 },
             ],
             "citations": [
@@ -200,20 +195,9 @@ class TestEvent(EntityTestBase):
                 },
             },
             "place": "/place/the_place/index.json",
-            "links": [
-                {
-                    "url": "/event/the_event/index.json",
-                    "relationship": "canonical",
-                    "mediaType": "application/ld+json",
-                    "locale": "und",
-                },
-                {
-                    "url": "/event/the_event/index.html",
-                    "relationship": "alternate",
-                    "mediaType": "text/html",
-                    "locale": "en-US",
-                },
-            ],
+            "links": [],
+            "description": {"translations": {}},
+            "fileReferences": [],
         }
         actual = await assert_dumps_linked_data(event)
         assert actual == expected
@@ -229,7 +213,7 @@ class TestEvent(EntityTestBase):
                 names=[Name("The Place")],
             ),
         )
-        Presence(Person(id="the_person"), Subject(), event)
+        presence = Presence(Person(id="the_person"), Subject(), event)
         event.citations.add(
             Citation(
                 id="the_citation",
@@ -241,6 +225,7 @@ class TestEvent(EntityTestBase):
         )
         expected: Mapping[str, Any] = {
             "@context": {
+                "description": "https://schema.org/description",
                 "place": "https://schema.org/location",
                 "presences": "https://schema.org/performer",
             },
@@ -253,8 +238,10 @@ class TestEvent(EntityTestBase):
             "eventStatus": "https://schema.org/EventScheduled",
             "presences": [
                 {
-                    "@type": "https://schema.org/Person",
+                    "id": presence.id,
                     "person": "/person/the_person/index.json",
+                    "event": "/event/the_event/index.json",
+                    "private": True,
                 },
             ],
             "citations": [
@@ -262,14 +249,9 @@ class TestEvent(EntityTestBase):
             ],
             "notes": [],
             "place": "/place/the_place/index.json",
-            "links": [
-                {
-                    "url": "/event/the_event/index.json",
-                    "relationship": "canonical",
-                    "mediaType": "application/ld+json",
-                    "locale": "und",
-                },
-            ],
+            "links": [],
+            "description": None,
+            "fileReferences": [],
         }
         actual = await assert_dumps_linked_data(event)
         assert actual == expected

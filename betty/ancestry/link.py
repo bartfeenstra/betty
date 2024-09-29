@@ -11,26 +11,28 @@ from typing_extensions import override
 from betty.ancestry.description import HasDescription
 from betty.ancestry.locale import HasLocale
 from betty.ancestry.media_type import HasMediaType
-from betty.privacy import is_public
-from betty.json.linked_data import LinkedDataDumpable, JsonLdObject, dump_link
-from betty.json.schema import Object, String, Array
+from betty.json.linked_data import (
+    JsonLdObject,
+    dump_link,
+    LinkedDataDumpableJsonLdObject,
+)
+from betty.json.schema import String, Array
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import (
     OptionalStaticTranslationsLocalizableAttr,
     ShorthandStaticTranslations,
     StaticTranslationsLocalizableSchema,
 )
-from betty.media_type.media_types import JSON_LD, HTML
-from betty.model import Entity, GeneratedEntityId
+from betty.privacy import is_public
 
 if TYPE_CHECKING:
-    from betty.project import Project
     from betty.serde.dump import DumpMapping, Dump
+    from betty.project import Project
     from betty.media_type import MediaType
 
 
 @final
-class Link(HasMediaType, HasLocale, HasDescription, LinkedDataDumpable[Object]):
+class Link(HasMediaType, HasLocale, HasDescription, LinkedDataDumpableJsonLdObject):
     """
     An external link.
     """
@@ -40,7 +42,7 @@ class Link(HasMediaType, HasLocale, HasDescription, LinkedDataDumpable[Object]):
     #: The link's `IANA link relationship <https://www.iana.org/assignments/link-relations/link-relations.xhtml>`_.
     relationship: str | None
     #: The link's human-readable label.
-    label = OptionalStaticTranslationsLocalizableAttr("label")
+    label = OptionalStaticTranslationsLocalizableAttr("label", title="Label")
 
     def __init__(
         self,
@@ -117,7 +119,7 @@ class LinkCollectionSchema(Array):
         super().__init__(LinkSchema(), def_name="linkCollection", title="Links")
 
 
-class HasLinks(Entity):
+class HasLinks(LinkedDataDumpableJsonLdObject):
     """
     A resource that has external links.
     """
@@ -147,42 +149,11 @@ class HasLinks(Entity):
             *(self.links if is_public(self) else ()),
         )
 
-        if not isinstance(self.id, GeneratedEntityId):
-            await dump_link(
-                dump,
-                project,
-                Link(
-                    project.static_url_generator.generate(
-                        f"/{self.type.plugin_id()}/{self.id}/index.json"
-                    ),
-                    relationship="canonical",
-                    media_type=JSON_LD,
-                ),
-            )
-            if is_public(self):
-                await dump_link(
-                    dump,
-                    project,
-                    *(
-                        Link(
-                            project.localized_url_generator.generate(
-                                self,
-                                media_type="text/html",
-                                locale=locale,
-                            ),
-                            relationship="alternate",
-                            media_type=HTML,
-                            locale=locale,
-                        )
-                        for locale in project.configuration.locales
-                    ),
-                )
-
         return dump
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Object:
+    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property("links", LinkCollectionSchema())
         return schema
