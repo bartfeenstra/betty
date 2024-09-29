@@ -189,7 +189,6 @@ class Event(
     def _dump_event_presence(
         self, presence: Presence, project: Project
     ) -> DumpMapping[Dump]:
-        assert presence.person
         dump: DumpMapping[Dump] = {
             "@type": "https://schema.org/Person",
             "person": project.static_url_generator.generate(

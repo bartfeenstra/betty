@@ -8,7 +8,6 @@ import weakref
 from abc import abstractmethod, ABC
 from typing import Generic, cast, Any, Iterable, TypeVar, final, Self, overload
 
-from basedtyping import Intersection
 from typing_extensions import override
 
 from betty.importlib import import_any
@@ -18,8 +17,8 @@ from betty.typing import internal
 
 _T = TypeVar("_T")
 _EntityT = TypeVar("_EntityT", bound=Entity)
-_OwnerT = TypeVar("_OwnerT")
-_AssociateT = TypeVar("_AssociateT")
+_OwnerT = TypeVar("_OwnerT", bound=Entity)
+_AssociateT = TypeVar("_AssociateT", bound=Entity)
 
 
 class AssociationRequired(RuntimeError):
@@ -28,7 +27,7 @@ class AssociationRequired(RuntimeError):
     """
 
     @classmethod
-    def new(cls, association: _Association[_T, Any], owner: _T & Entity) -> Self:
+    def new(cls, association: _Association[_OwnerT, Any], owner: _OwnerT) -> Self:
         """
         Create a new instance.
         """
@@ -74,10 +73,7 @@ class ToManyResolver(Generic[_EntityT], _Resolver[Iterable[_EntityT]]):
 
 class _Association(Generic[_OwnerT, _AssociateT]):
     def __init__(
-        self,
-        owner_type_name: str,
-        owner_attr_name: str,
-        associate_type_name: str,
+        self, owner_type_name: str, owner_attr_name: str, associate_type_name: str
     ):
         self._owner_type_name = owner_type_name
         self._owner_attr_name = owner_attr_name
@@ -123,25 +119,21 @@ class _Association(Generic[_OwnerT, _AssociateT]):
         )
 
     @abstractmethod
-    def resolve(self, owner: _OwnerT & Entity) -> None:
+    def resolve(self, owner: _OwnerT) -> None:
         """
         Resolve any associates the owner may have for this association.
         """
         pass
 
     @abstractmethod
-    def associate(
-        self, owner: _OwnerT & Entity, associate: _AssociateT & Entity
-    ) -> None:
+    def associate(self, owner: _OwnerT, associate: _AssociateT) -> None:
         """
         Associate two entities.
         """
         pass
 
     @abstractmethod
-    def disassociate(
-        self, owner: _OwnerT & Entity, associate: _AssociateT & Entity
-    ) -> None:
+    def disassociate(self, owner: _OwnerT, associate: _AssociateT) -> None:
         """
         Disassociate two entities.
 
@@ -151,7 +143,7 @@ class _Association(Generic[_OwnerT, _AssociateT]):
         pass
 
     @abstractmethod
-    def get_associates(self, owner: _OwnerT & Entity) -> Iterable[_AssociateT & Entity]:
+    def get_associates(self, owner: _OwnerT) -> Iterable[_AssociateT]:
         """
         Get the associates for the given owner.
         """
@@ -162,28 +154,22 @@ class _ToOneAssociation(
     Generic[_OwnerT, _AssociateT], _Association[_OwnerT, _AssociateT]
 ):
     @override
-    def associate(
-        self, owner: _OwnerT & Entity, associate: _AssociateT & Entity
-    ) -> None:
+    def associate(self, owner: _OwnerT, associate: _AssociateT) -> None:
         self.__set__(owner, associate)
 
     @override
-    def disassociate(
-        self, owner: _OwnerT & Entity, associate: _AssociateT & Entity
-    ) -> None:
+    def disassociate(self, owner: _OwnerT, associate: _AssociateT) -> None:
         setattr(owner, self._internal_owner_attr_name, None)
 
     @overload
-    def __get__(self, instance: None, owner: type[_OwnerT & Entity]) -> Self:
+    def __get__(self, instance: None, owner: type[_OwnerT]) -> Self:
         pass
 
     @overload
-    def __get__(
-        self, instance: _OwnerT & Entity, owner: type[_OwnerT & Entity]
-    ) -> _AssociateT & Entity:
+    def __get__(self, instance: _OwnerT, owner: type[_OwnerT]) -> _AssociateT:
         pass
 
-    def __get__(self, instance: _OwnerT & Entity | None, owner: type[_OwnerT & Entity]):
+    def __get__(self, instance: _OwnerT | None, owner: type[_OwnerT]):
         if instance is None:
             return self  # type: ignore[return-value]
         try:
@@ -194,17 +180,15 @@ class _ToOneAssociation(
             if value is None:
                 raise AssociationRequired.new(self, instance)
             assert not isinstance(value, _Resolver)
-            return cast(Intersection[_AssociateT, Entity], value)
+            return cast(_AssociateT, value)
 
     def __set__(
-        self,
-        instance: _OwnerT & Entity,
-        value: _AssociateT & Entity | ToOneResolver[_AssociateT & Entity],
+        self, instance: _OwnerT, value: _AssociateT | ToOneResolver[_AssociateT]
     ) -> None:
         setattr(instance, self._internal_owner_attr_name, value)
 
     @override
-    def get_associates(self, owner: _OwnerT & Entity) -> Iterable[_AssociateT & Entity]:
+    def get_associates(self, owner: _OwnerT) -> Iterable[_AssociateT]:
         yield self.__get__(owner, type(owner))
 
 
@@ -212,29 +196,23 @@ class _ToZeroOrOneAssociation(
     Generic[_OwnerT, _AssociateT], _Association[_OwnerT, _AssociateT]
 ):
     @override
-    def associate(
-        self, owner: _OwnerT & Entity, associate: _AssociateT & Entity
-    ) -> None:
+    def associate(self, owner: _OwnerT, associate: _AssociateT) -> None:
         self.__set__(owner, associate)
 
     @override
-    def disassociate(
-        self, owner: _OwnerT & Entity, associate: _AssociateT & Entity
-    ) -> None:
+    def disassociate(self, owner: _OwnerT, associate: _AssociateT) -> None:
         if associate == self.__get__(owner, type(owner)):
             self.__delete__(owner)
 
     @overload
-    def __get__(self, instance: None, owner: type[_OwnerT & Entity]) -> Self:
+    def __get__(self, instance: None, owner: type[_OwnerT]) -> Self:
         pass
 
     @overload
-    def __get__(
-        self, instance: _OwnerT & Entity, owner: type[_OwnerT & Entity]
-    ) -> _AssociateT & Entity | None:
+    def __get__(self, instance: _OwnerT, owner: type[_OwnerT]) -> _AssociateT | None:
         pass
 
-    def __get__(self, instance: _OwnerT & Entity | None, owner: type[_OwnerT & Entity]):
+    def __get__(self, instance: _OwnerT | None, owner: type[_OwnerT]):
         if instance is None:
             return self  # type: ignore[return-value]
         try:
@@ -244,23 +222,23 @@ class _ToZeroOrOneAssociation(
             return None
         else:
             assert not isinstance(value, _Resolver)
-            return cast(Intersection[_AssociateT, Entity] | None, value)
+            return cast(_AssociateT | None, value)
 
     def __set__(
         self,
-        instance: _OwnerT & Entity,
-        value: _AssociateT & Entity
-        | ToZeroOrOneResolver[_AssociateT & Entity]
-        | ToOneResolver[_AssociateT & Entity]
+        instance: _OwnerT,
+        value: _AssociateT
+        | ToZeroOrOneResolver[_AssociateT]
+        | ToOneResolver[_AssociateT]
         | None,
     ) -> None:
         setattr(instance, self._internal_owner_attr_name, value)
 
-    def __delete__(self, instance: _OwnerT & Entity) -> None:
+    def __delete__(self, instance: _OwnerT) -> None:
         self.__set__(instance, None)
 
     @override
-    def get_associates(self, owner: _OwnerT & Entity) -> Iterable[_AssociateT & Entity]:
+    def get_associates(self, owner: _OwnerT) -> Iterable[_AssociateT]:
         associate = self.__get__(owner, type(owner))
         if associate is not None:
             yield associate
@@ -270,22 +248,20 @@ class _ToZeroOrOneAssociation(
 class _ToManyAssociation(
     Generic[_OwnerT, _AssociateT], _Association[_OwnerT, _AssociateT]
 ):
-    def _new_collection(
-        self, instance: _OwnerT & Entity
-    ) -> EntityCollection[_AssociateT]:
+    def _new_collection(self, instance: _OwnerT) -> EntityCollection[_AssociateT]:
         return SingleTypeEntityCollection[_AssociateT](self.associate_type)
 
     @overload
-    def __get__(self, instance: None, owner: type[_OwnerT & Entity]) -> Self:
+    def __get__(self, instance: None, owner: type[_OwnerT]) -> Self:
         pass
 
     @overload
     def __get__(
-        self, instance: _OwnerT & Entity, owner: type[_OwnerT & Entity]
+        self, instance: _OwnerT, owner: type[_OwnerT]
     ) -> EntityCollection[_AssociateT]:
         pass
 
-    def __get__(self, instance: _OwnerT & Entity | None, owner: type[_OwnerT & Entity]):
+    def __get__(self, instance: _OwnerT | None, owner: type[_OwnerT]):
         if instance is None:
             return self  # type: ignore[return-value]
         try:
@@ -300,35 +276,31 @@ class _ToManyAssociation(
 
     def __set__(
         self,
-        instance: _OwnerT & Entity,
-        value: Iterable[_AssociateT & Entity] | ToManyResolver[_AssociateT & Entity],
+        instance: _OwnerT,
+        value: Iterable[_AssociateT] | ToManyResolver[_AssociateT],
     ) -> None:
         if isinstance(value, _Resolver):
             setattr(instance, self._internal_owner_attr_name, value)
         else:
             self.__get__(instance, type(instance)).replace(*value)
 
-    def __delete__(self, instance: _OwnerT & Entity) -> None:
+    def __delete__(self, instance: _OwnerT) -> None:
         self.__get__(instance, type(instance)).clear()
 
     @override
-    def associate(
-        self, owner: _OwnerT & Entity, associate: _AssociateT & Entity
-    ) -> None:
+    def associate(self, owner: _OwnerT, associate: _AssociateT) -> None:
         self.__get__(owner, type(owner)).add(associate)
 
     @override
-    def disassociate(
-        self, owner: _OwnerT & Entity, associate: _AssociateT & Entity
-    ) -> None:
+    def disassociate(self, owner: _OwnerT, associate: _AssociateT) -> None:
         self.__get__(owner, type(owner)).remove(associate)
 
     @override
-    def get_associates(self, owner: _OwnerT & Entity) -> Iterable[_AssociateT & Entity]:
+    def get_associates(self, owner: _OwnerT) -> Iterable[_AssociateT]:
         yield from self.__get__(owner, type(owner))
 
     @override
-    def resolve(self, owner: _OwnerT & Entity) -> None:
+    def resolve(self, owner: _OwnerT) -> None:
         value = getattr(owner, self._internal_owner_attr_name, None)
         if isinstance(value, _Resolver):
             collection = self._new_collection(owner)
@@ -372,9 +344,7 @@ class _BidirectionalAssociation(
         """
         return self._associate_attr_name
 
-    def inverse(
-        self,
-    ) -> _BidirectionalAssociation[_AssociateT, _OwnerT]:
+    def inverse(self) -> _BidirectionalAssociation[_AssociateT, _OwnerT]:
         """
         Get the inverse association.
         """
@@ -396,10 +366,10 @@ class BidirectionalToZeroOrOne(
 
     def __set__(
         self,
-        instance: _OwnerT & Entity,
-        value: _AssociateT & Entity
-        | ToZeroOrOneResolver[_AssociateT & Entity]
-        | ToOneResolver[_AssociateT & Entity]
+        instance: _OwnerT,
+        value: _AssociateT
+        | ToZeroOrOneResolver[_AssociateT]
+        | ToOneResolver[_AssociateT]
         | None,
     ) -> None:
         previous_associate = self.__get__(instance, type(instance))
@@ -412,7 +382,7 @@ class BidirectionalToZeroOrOne(
             self.inverse().associate(value, instance)
 
     @override
-    def resolve(self, owner: _OwnerT & Entity) -> None:
+    def resolve(self, owner: _OwnerT) -> None:
         value = getattr(owner, self._internal_owner_attr_name, None)
         if isinstance(value, _Resolver):
             associate = value.resolve()
@@ -431,7 +401,7 @@ class BidirectionalToOne(
     """
 
     @override
-    def resolve(self, owner: _OwnerT & Entity) -> None:
+    def resolve(self, owner: _OwnerT) -> None:
         value = getattr(owner, self._internal_owner_attr_name, None)
         if value is None:
             raise AssociationRequired.new(self, owner)
@@ -441,9 +411,7 @@ class BidirectionalToOne(
             self.inverse().associate(associate, owner)
 
     def __set__(
-        self,
-        instance: _OwnerT & Entity,
-        value: _AssociateT & Entity | ToOneResolver[_AssociateT & Entity],
+        self, instance: _OwnerT, value: _AssociateT | ToOneResolver[_AssociateT]
     ) -> None:
         try:
             previous_associate = self.__get__(instance, type(instance))
@@ -468,9 +436,7 @@ class BidirectionalToMany(
     """
 
     @override
-    def _new_collection(
-        self, instance: _OwnerT & Entity
-    ) -> EntityCollection[_AssociateT]:
+    def _new_collection(self, instance: _OwnerT) -> EntityCollection[_AssociateT]:
         return _BidirectionalAssociateCollection(
             instance,
             self,
@@ -486,7 +452,7 @@ class UnidirectionalToZeroOrOne(
     """
 
     @override
-    def resolve(self, owner: _OwnerT & Entity) -> None:
+    def resolve(self, owner: _OwnerT) -> None:
         value = getattr(owner, self._internal_owner_attr_name, None)
         if isinstance(value, _Resolver):
             setattr(owner, self._internal_owner_attr_name, value.resolve())
@@ -501,7 +467,7 @@ class UnidirectionalToOne(
     """
 
     @override
-    def resolve(self, owner: _OwnerT & Entity) -> None:
+    def resolve(self, owner: _OwnerT) -> None:
         value = getattr(owner, self._internal_owner_attr_name, None)
         if value is None:
             raise AssociationRequired.new(self, owner)
@@ -542,7 +508,7 @@ class AssociationRegistry:
 
     @classmethod
     def get_association(
-        cls, owner: type[_OwnerT] | _OwnerT & Entity, owner_attr_name: str
+        cls, owner: type[_OwnerT] | _OwnerT, owner_attr_name: str
     ) -> _Association[_OwnerT, Any]:
         """
         Get the association for a given owner and attribute name.
@@ -566,7 +532,7 @@ class _BidirectionalAssociateCollection(
 
     def __init__(
         self,
-        owner: _OwnerT & Entity,
+        owner: _OwnerT,
         association: _BidirectionalAssociation[_OwnerT, _AssociateT],
     ):
         super().__init__(association.associate_type)
@@ -574,7 +540,7 @@ class _BidirectionalAssociateCollection(
         self.__owner = weakref.ref(owner)
 
     @property
-    def _owner(self) -> _OwnerT & Entity:
+    def _owner(self) -> _OwnerT:
         owner = self.__owner()
         assert (
             owner is not None
@@ -582,13 +548,13 @@ class _BidirectionalAssociateCollection(
         return owner
 
     @override
-    def _on_add(self, *entities: _AssociateT & Entity) -> None:
+    def _on_add(self, *entities: _AssociateT) -> None:
         super()._on_add(*entities)
         for associate in entities:
             self._association.inverse().associate(associate, self._owner)
 
     @override
-    def _on_remove(self, *entities: _AssociateT & Entity) -> None:
+    def _on_remove(self, *entities: _AssociateT) -> None:
         super()._on_remove(*entities)
         for associate in entities:
             self._association.inverse().disassociate(associate, self._owner)
