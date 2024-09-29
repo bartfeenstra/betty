@@ -66,8 +66,8 @@ class Presence(ShorthandPluginBase, HasPrivacy, Entity):
     @property
     def label(self) -> Localizable:
         return _("Presence of {person} at {event}").format(
-            person=self.person.label if self.person else _("Unknown"),
-            event=self.event.label if self.event else _("Unknown"),
+            person=self.person.label,
+            event=self.event.label,
         )
 
     @override

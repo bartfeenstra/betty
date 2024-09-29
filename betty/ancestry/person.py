@@ -218,7 +218,6 @@ class Person(
     def _dump_person_presence(
         self, presence: "Presence", project: Project
     ) -> DumpMapping[Dump]:
-        assert presence.event
         dump: DumpMapping[Dump] = {
             "event": project.static_url_generator.generate(
                 f"/event/{quote(presence.event.id)}/index.json"

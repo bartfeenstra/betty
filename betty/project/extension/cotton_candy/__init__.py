@@ -181,8 +181,6 @@ class CottonCandy(
 def _is_person_timeline_presence(presence: Presence) -> bool:
     if presence.private:
         return False
-    if not presence.event:
-        return False
     if not presence.event.date:
         return False
     if not presence.event.date.comparable:
