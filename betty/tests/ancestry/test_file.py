@@ -12,6 +12,10 @@ from betty.ancestry.file_reference import FileReference
 from betty.ancestry.note import Note
 from betty.ancestry.person import Person
 from betty.ancestry.source import Source
+from betty.copyright_notice.copyright_notices import (
+    PublicDomain as PublicDomainCopyrightNotice,
+)
+from betty.license.licenses import PublicDomain as PublicDomainLicense
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import PLAIN_TEXT
 from betty.privacy import Privacy
@@ -171,6 +175,8 @@ class TestFile(EntityTestBase):
                 id="the_file",
                 path=Path(f.name),
                 media_type=PLAIN_TEXT,
+                copyright_notice=PublicDomainCopyrightNotice(),
+                license=PublicDomainLicense(),
             )
             file.notes.add(
                 Note(
@@ -209,6 +215,8 @@ class TestFile(EntityTestBase):
                     },
                 ],
                 "description": {},
+                "copyrightNotice": "public-domain",
+                "license": "public-domain",
             }
             actual = await assert_dumps_linked_data(file)
             assert actual == expected

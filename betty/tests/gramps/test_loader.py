@@ -7,6 +7,10 @@ import aiofiles
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
+from betty.copyright_notice.copyright_notices import (
+    PublicDomain as PublicDomainCopyrightNotice,
+)
+from betty.license.licenses import PublicDomain as PublicDomainLicense
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
@@ -50,6 +54,8 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new,
                 localizer=DEFAULT_LOCALIZER,
+                copyright_notices=project.copyright_notices,
+                licenses=project.licenses,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_gramps(Path(__file__).parent / "assets" / "minimal.gramps")
@@ -62,6 +68,8 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new,
                 localizer=DEFAULT_LOCALIZER,
+                copyright_notices=project.copyright_notices,
+                licenses=project.licenses,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(GrampsFileNotFound):
@@ -73,6 +81,8 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new,
                 localizer=DEFAULT_LOCALIZER,
+                copyright_notices=project.copyright_notices,
+                licenses=project.licenses,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_gpkg(Path(__file__).parent / "assets" / "minimal.gpkg")
@@ -85,6 +95,8 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new,
                 localizer=DEFAULT_LOCALIZER,
+                copyright_notices=project.copyright_notices,
+                licenses=project.licenses,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(GrampsFileNotFound):
@@ -104,6 +116,8 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new,
                 localizer=DEFAULT_LOCALIZER,
+                copyright_notices=project.copyright_notices,
+                licenses=project.licenses,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_file(file_path)
@@ -118,6 +132,8 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new,
                 localizer=DEFAULT_LOCALIZER,
+                copyright_notices=project.copyright_notices,
+                licenses=project.licenses,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(GrampsFileNotFound):
@@ -131,6 +147,8 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new,
                 localizer=DEFAULT_LOCALIZER,
+                copyright_notices=project.copyright_notices,
+                licenses=project.licenses,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(UserFacingGrampsError):
@@ -157,6 +175,8 @@ class TestGrampsLoader:
                     project.ancestry,
                     factory=project.new,
                     localizer=DEFAULT_LOCALIZER,
+                    copyright_notices=project.copyright_notices,
+                    licenses=project.licenses,
                     attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
                     event_type_map=event_type_map,
                     gender_map=gender_map,
@@ -203,6 +223,8 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new,
                 localizer=DEFAULT_LOCALIZER,
+                copyright_notices=project.copyright_notices,
+                licenses=project.licenses,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             async with aiofiles.open(gramps_file_path) as f:
@@ -1342,6 +1364,62 @@ class TestGrampsLoader:
         assert file.notes
         note = file.notes[0]
         assert note.id == "N0000"
+
+    async def test_file_should_include_copyright_notice(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<objects>
+    <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
+        <file src="/tmp/file.txt" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <attribute type="betty:copyright-notice" value="public-domain"/>
+    </object>
+</objects>
+"""
+        )
+        file = ancestry[File]["O0000"]
+        assert isinstance(file.copyright_notice, PublicDomainCopyrightNotice)
+
+    async def test_file_should_ignore_unknown_copyright_notice(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<objects>
+    <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
+        <file src="/tmp/file.txt" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <attribute type="betty:copyright-notice" value="non-existent-copyright-notice"/>
+    </object>
+</objects>
+"""
+        )
+        file = ancestry[File]["O0000"]
+        assert file.copyright_notice is None
+
+    async def test_file_should_include_license(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<objects>
+    <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
+        <file src="/tmp/file.txt" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <attribute type="betty:license" value="public-domain"/>
+    </object>
+</objects>
+"""
+        )
+        file = ancestry[File]["O0000"]
+        assert isinstance(file.license, PublicDomainLicense)
+
+    async def test_file_should_ignore_unknown_license(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<objects>
+    <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
+        <file src="/tmp/file.txt" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <attribute type="betty:license" value="non-existent-license"/>
+    </object>
+</objects>
+"""
+        )
+        file = ancestry[File]["O0000"]
+        assert file.license is None
 
     @pytest.mark.parametrize(
         ("expected", "attribute_value"),

@@ -38,7 +38,6 @@ from betty.ancestry.place import Place
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
-from betty.privacy import HasPrivacy
 from betty.ancestry.source import Source
 from betty.date import DateRange, Datey, Date
 from betty.error import FileNotFound
@@ -54,8 +53,14 @@ from betty.model.association import (
 )
 from betty.model.collections import MultipleTypesEntityCollection
 from betty.path import rootname
+from betty.privacy import HasPrivacy
+from betty.typing import internal
+from betty.plugin import PluginNotFound
 
 if TYPE_CHECKING:
+    from betty.copyright_notice import CopyrightNotice
+    from betty.license import License
+    from betty.plugin import PluginRepository
     from betty.ancestry import Ancestry
     from betty.ancestry.has_notes import HasNotes
     from betty.ancestry.has_citations import HasCitations
@@ -143,6 +148,7 @@ class _ToManyResolver(Generic[_EntityT], ToManyResolver[_EntityT]):
             yield cast(_EntityT, self._handles_to_entities[handle])
 
 
+@internal
 class GrampsLoader:
     """
     Load Gramps family history data into a project.
@@ -154,6 +160,8 @@ class GrampsLoader:
         *,
         factory: Factory[Any],
         localizer: Localizer,
+        copyright_notices: PluginRepository[CopyrightNotice],
+        licenses: PluginRepository[License],
         attribute_prefix_key: str | None = None,
         event_type_map: Mapping[str, type[EventType]] | None = None,
         gender_map: Mapping[str, type[Gender]] | None = None,
@@ -173,6 +181,8 @@ class GrampsLoader:
         self._gramps_tree_directory_path: Path | None = None
         self._loaded = False
         self._localizer = localizer
+        self._copyright_notices = copyright_notices
+        self._licenses = licenses
         self._event_type_map = event_type_map or {}
         self._gender_map = gender_map or {}
         self._place_type_map = place_type_map or {}
@@ -518,6 +528,30 @@ class GrampsLoader:
             element,
             "attribute",
         )
+        copyright_notice_id = self._load_attribute(
+            "copyright-notice", element, "attribute"
+        )
+        if copyright_notice_id:
+            try:
+                file.copyright_notice = await self._copyright_notices.new(
+                    copyright_notice_id
+                )
+            except PluginNotFound:
+                getLogger(__name__).warning(
+                    self._localizer._(
+                        'Betty is unfamiliar with Gramps file "{file_id}"\'s copyright notice ID of "{copyright_notice_id}" and ignored it.',
+                    ).format(file_id=file_id, copyright_notice_id=copyright_notice_id)
+                )
+        license_id = self._load_attribute("license", element, "attribute")
+        if license_id:
+            try:
+                file.license = await self._licenses.new(license_id)
+            except PluginNotFound:
+                getLogger(__name__).warning(
+                    self._localizer._(
+                        'Betty is unfamiliar with Gramps file "{file_id}"\'s license ID of "{license_id}" and ignored it.',
+                    ).format(file_id=file_id, license_id=license_id)
+                )
 
         self._add_entity(file, file_handle)
         file.citations = self._resolve(
