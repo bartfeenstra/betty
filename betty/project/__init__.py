@@ -47,6 +47,7 @@ from betty.json.schema import (
     Schema,
     JsonSchemaReference,
 )
+from betty.license import License, LICENSE_REPOSITORY
 from betty.locale.localizable import _
 from betty.locale.localizer import LocalizerRepository
 from betty.model import Entity, EntityReferenceCollectionSchema
@@ -118,6 +119,8 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
         self._entity_types: set[type[Entity]] | None = None
         self._copyright_notice: CopyrightNotice | None = None
         self._copyright_notices: PluginRepository[CopyrightNotice] | None = None
+        self._license: License | None = None
+        self._licenses: PluginRepository[License] | None = None
         self._event_types: PluginRepository[EventType] | None = None
         self._place_types: PluginRepository[PlaceType] | None = None
         self._presence_roles: PluginRepository[PresenceRole] | None = None
@@ -393,6 +396,34 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
             )
 
         return self._copyright_notices
+
+    @property
+    def license(self) -> License:
+        """
+        The overall project license.
+        """
+        if self._license is None:
+            self._license = wait_to_thread(self._init_license())
+        return self._license
+
+    async def _init_license(self) -> License:
+        return await self.new(await self.licenses.get(self.configuration.license))
+
+    @property
+    def licenses(self) -> PluginRepository[License]:
+        """
+        The license available to this project.
+
+        Read more about :doc:`/development/plugin/license`.
+        """
+        if self._licenses is None:
+            self._assert_bootstrapped()
+            self._licenses = ProxyPluginRepository(
+                LICENSE_REPOSITORY,
+                StaticPluginRepository(*self.configuration.licenses.plugins),
+            )
+
+        return self._licenses
 
     @property
     def event_types(self) -> PluginRepository[EventType]:

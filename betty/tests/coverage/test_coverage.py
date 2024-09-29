@@ -418,6 +418,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     # This contains an abstract class and a static value only.
     "betty/copyright_notice/__init__.py": TestKnownToBeMissing,
+    # This contains an abstract class and a static value only.
+    "betty/license/__init__.py": TestKnownToBeMissing,
     "betty/path.py": TestKnownToBeMissing,
     "betty/plugin/__init__.py": {
         "Plugin": {

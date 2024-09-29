@@ -1,6 +1,9 @@
 <p>
     {{ project.copyright_notice.summary | localize | html_lang }}
 </p>
+<p>
+    {{ project.license.summary | localize | html_lang }}
+</p>
 <p>{% trans %}A family history as told by <a href="https://github.com/bartfeenstra/betty">Betty👵</a>{% endtrans %}</p>
 {% if 'http-api-doc' in project.extensions %}
     <p><a href="{{ '/api/index.html' | static_url }}">{% trans %}API documentation{% endtrans %}</a></p>

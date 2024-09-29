@@ -27,6 +27,8 @@ from betty.project.config import (
     GenderConfigurationMapping,
     CopyrightNoticeConfigurationMapping,
     CopyrightNoticeConfiguration,
+    LicenseConfiguration,
+    LicenseConfigurationMapping,
 )
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension
@@ -932,6 +934,113 @@ class TestCopyrightNoticeConfigurationMapping(
         return CopyrightNoticeConfigurationMapping(configurations)
 
 
+class TestLicenseConfiguration:
+    def test___init___with_summary(self) -> None:
+        summary = "My First License Summary"
+        sut = LicenseConfiguration("-", "", summary=summary, text="")
+        assert sut.summary[UNDETERMINED_LOCALE] == summary
+
+    def test___init___with_text(self) -> None:
+        text = "My First License Text"
+        sut = LicenseConfiguration("-", "", summary="", text=text)
+        assert sut.text[UNDETERMINED_LOCALE] == text
+
+    def test_summary(self) -> None:
+        sut = LicenseConfiguration("-", "", summary="", text="")
+        summary = "My First License Summary"
+        sut.summary = summary
+        assert sut.summary[UNDETERMINED_LOCALE] == summary
+
+    def test_text(self) -> None:
+        sut = LicenseConfiguration("-", "", summary="", text="")
+        text = "My First License Text"
+        sut.text = text
+        assert sut.text[UNDETERMINED_LOCALE] == text
+
+    async def test_update(self) -> None:
+        sut = LicenseConfiguration("-", "", summary="", text="")
+        summary = "My First License Summary"
+        text = "My First License Text"
+        other = LicenseConfiguration(
+            "-", "", description="", summary=summary, text=text
+        )
+        sut.update(other)
+        assert sut.summary[UNDETERMINED_LOCALE] == "My First License Summary"
+        assert sut.text[UNDETERMINED_LOCALE] == "My First License Text"
+
+    async def test_load(self) -> None:
+        summary = "My First License Summary"
+        text = "My First License Text"
+        dump: Dump = {
+            "id": "hello-world",
+            "label": "",
+            "summary": summary,
+            "text": text,
+        }
+        sut = LicenseConfiguration("-", "", summary="", text="")
+        sut.load(dump)
+        assert sut.summary[UNDETERMINED_LOCALE] == summary
+        assert sut.text[UNDETERMINED_LOCALE] == text
+
+    async def test_load_with_missing_summary(self) -> None:
+        dump: Dump = {
+            "id": "hello-world",
+            "label": "",
+            "text": "",
+        }
+        sut = LicenseConfiguration("-", "", summary="", text="")
+        with pytest.raises(AssertionFailed):
+            sut.load(dump)
+
+    async def test_load_with_missing_text(self) -> None:
+        dump: Dump = {
+            "id": "hello-world",
+            "label": "",
+            "summary": "",
+        }
+        sut = LicenseConfiguration("-", "", summary="", text="")
+        with pytest.raises(AssertionFailed):
+            sut.load(dump)
+
+    async def test_dump(self) -> None:
+        summary = "My First License Summary"
+        text = "My First License Text"
+        sut = LicenseConfiguration("-", "", summary=summary, text=text)
+        dump = sut.dump()
+        assert dump["summary"] == summary
+        assert dump["text"] == text
+
+
+class TestLicenseConfigurationMapping(
+    ConfigurationMappingTestBase[str, LicenseConfiguration]
+):
+    @override
+    def get_configuration_keys(self) -> tuple[str, str, str, str]:
+        return "foo", "bar", "baz", "qux"
+
+    @override
+    def get_configurations(
+        self,
+    ) -> tuple[
+        LicenseConfiguration,
+        LicenseConfiguration,
+        LicenseConfiguration,
+        LicenseConfiguration,
+    ]:
+        return (
+            LicenseConfiguration("foo", "Foo", summary="", text=""),
+            LicenseConfiguration("bar", "Bar", summary="", text=""),
+            LicenseConfiguration("baz", "Baz", summary="", text=""),
+            LicenseConfiguration("qux", "Qux", summary="", text=""),
+        )
+
+    @override
+    def get_sut(
+        self, configurations: Iterable[LicenseConfiguration] | None = None
+    ) -> LicenseConfigurationMapping:
+        return LicenseConfigurationMapping(configurations)
+
+
 class TestEventTypeConfigurationMapping(
     ConfigurationMappingTestBase[str, PluginConfiguration]
 ):
@@ -1211,6 +1320,10 @@ class TestProjectConfiguration:
     async def test_copyright_notices(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
         assert sut.copyright_notices is sut.copyright_notices
+
+    async def test_licenses(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        assert sut.licenses is sut.licenses
 
     async def test_event_types(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")

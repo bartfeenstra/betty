@@ -24,6 +24,7 @@ from betty.project import (
 from betty.project.config import (
     ExtensionConfiguration,
     CopyrightNoticeConfiguration,
+    LicenseConfiguration,
 )
 from betty.project.extension import (
     Extension,
@@ -408,6 +409,18 @@ class TestProject:
             )
             async with sut:
                 assert await sut.copyright_notices.get("foo")
+
+    async def test_license(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
+            assert sut.license is sut.license
+
+    async def test_licenses(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as sut:
+            sut.configuration.licenses.append(
+                LicenseConfiguration("foo", "Foo", summary="", text="")
+            )
+            async with sut:
+                assert await sut.licenses.get("foo")
 
     async def test_event_types(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
