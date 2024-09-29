@@ -96,6 +96,10 @@ betty = 'betty.cli:main'
 'public-domain' = 'betty.copyright_notice.copyright_notices:PublicDomain'
 'wikipedia-contributors' = 'betty.wikipedia.copyright_notice:WikipediaContributors'
 
+[project.entry-points.'betty.license']
+'all-rights-reserved' = 'betty.license.licenses:AllRightsReserved'
+'public-domain' = 'betty.license.licenses:PublicDomain'
+
 [project.entry-points.'betty.entity_type']
 'citation' = 'betty.ancestry.citation:Citation'
 'enclosure' = 'betty.ancestry.enclosure:Enclosure'
