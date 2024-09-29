@@ -32,7 +32,7 @@ class CopyrightNoticeTestBase(PluginInstanceTestBase[CopyrightNotice]):
         Tests :py:meth:`betty.copyright_notice.CopyrightNotice.text` implementations.
         """
         for sut in self.get_sut_instances():
-            assert sut.summary.localize(DEFAULT_LOCALIZER)
+            assert sut.text.localize(DEFAULT_LOCALIZER)
 
     def test_url(self) -> None:
         """

@@ -5,8 +5,14 @@ from typing import Iterable, Self, Any, TYPE_CHECKING
 import pytest
 from typing_extensions import override
 
+from betty.ancestry.event_type import EventType
+from betty.ancestry.gender import Gender
+from betty.ancestry.place_type import PlaceType
+from betty.ancestry.presence_role import PresenceRole
 from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
+from betty.copyright_notice import CopyrightNotice
+from betty.license import License
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity, UserFacingEntity
@@ -36,6 +42,7 @@ from betty.test_utils.assertion.error import raises_error
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.test_utils.model import DummyEntity
+from betty.test_utils.plugin.config import PluginConfigurationMappingTestBase
 from betty.test_utils.project.extension import (
     DummyExtension,
     DummyConfigurableExtension,
@@ -905,7 +912,7 @@ class TestCopyrightNoticeConfiguration:
 
 
 class TestCopyrightNoticeConfigurationMapping(
-    ConfigurationMappingTestBase[str, CopyrightNoticeConfiguration]
+    PluginConfigurationMappingTestBase[CopyrightNotice, CopyrightNoticeConfiguration]
 ):
     @override
     def get_configuration_keys(self) -> tuple[str, str, str, str]:
@@ -1012,7 +1019,7 @@ class TestLicenseConfiguration:
 
 
 class TestLicenseConfigurationMapping(
-    ConfigurationMappingTestBase[str, LicenseConfiguration]
+    PluginConfigurationMappingTestBase[License, LicenseConfiguration]
 ):
     @override
     def get_configuration_keys(self) -> tuple[str, str, str, str]:
@@ -1042,7 +1049,7 @@ class TestLicenseConfigurationMapping(
 
 
 class TestEventTypeConfigurationMapping(
-    ConfigurationMappingTestBase[str, PluginConfiguration]
+    PluginConfigurationMappingTestBase[EventType, PluginConfiguration]
 ):
     @override
     def get_configuration_keys(self) -> tuple[str, str, str, str]:
@@ -1072,7 +1079,7 @@ class TestEventTypeConfigurationMapping(
 
 
 class TestPlaceTypeConfigurationMapping(
-    ConfigurationMappingTestBase[str, PluginConfiguration]
+    PluginConfigurationMappingTestBase[PlaceType, PluginConfiguration]
 ):
     @override
     def get_configuration_keys(self) -> tuple[str, str, str, str]:
@@ -1102,7 +1109,7 @@ class TestPlaceTypeConfigurationMapping(
 
 
 class TestPresenceRoleConfigurationMapping(
-    ConfigurationMappingTestBase[str, PluginConfiguration]
+    PluginConfigurationMappingTestBase[PresenceRole, PluginConfiguration]
 ):
     @override
     def get_configuration_keys(self) -> tuple[str, str, str, str]:
@@ -1132,7 +1139,7 @@ class TestPresenceRoleConfigurationMapping(
 
 
 class TestGenderConfigurationMapping(
-    ConfigurationMappingTestBase[str, PluginConfiguration]
+    PluginConfigurationMappingTestBase[Gender, PluginConfiguration]
 ):
     @override
     def get_configuration_keys(self) -> tuple[str, str, str, str]:
