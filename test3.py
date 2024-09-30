@@ -1,25 +1,26 @@
-from asyncio import run_coroutine_threadsafe, get_running_loop, run
+from asyncio import run_coroutine_threadsafe, get_running_loop, run, AbstractEventLoop
+from collections.abc import Callable, Awaitable
 from threading import Thread
 
 
-async def main_async() -> None:
-    foo()
-    pass
+async def _some_other_async_function() -> None:
+    print("BUT THIS IS NOT PRINTED")
 
 
-def _main_async(loop) -> None:
-    run_coroutine_threadsafe(main_async(), loop).result()
+def _helper(loop: AbstractEventLoop, f: Callable[[], Awaitable[None]]) -> None:
+    print("THIS IS PRINTED")
+    run_coroutine_threadsafe(f(), loop).result()
 
 
-def main_sync() -> None:
-    thread = Thread(target=_main_async, args=[get_running_loop()])
+def _some_sync_function(loop: AbstractEventLoop) -> None:
+    thread = Thread(target=_helper, args=[loop, _some_other_async_function])
     thread.start()
     thread.join()
 
 
-async def main() -> None:
-    main_sync()
+async def _async_main() -> None:
+    _some_sync_function(get_running_loop())
 
 
 if __name__ == "__main__":
-    run(main())
+    run(_async_main())
