@@ -17,7 +17,6 @@ _BASELINE = Module(
     "betty",
     missing=MissingReason.SHOULD_BE_COVERED,
     children={
-        InternalModule("betty._patch"),
         Module(
             "betty.about",
             missing=MissingReason.SHOULD_BE_COVERED,

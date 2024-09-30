@@ -180,6 +180,7 @@ class Module(_HasChildren[Union["Module", None], Union["Module", "Class", "Funct
     @override
     def _auto_children(self) -> None:
         # @todo Also add ignores from get_coveragerc_ignore_modules()
+        # @todo, No, do that in the Betty-specific concrete test!
         if self.testable_file_path.name == "__init__.py":
             child_testable_names = {
                 child.testable_name
