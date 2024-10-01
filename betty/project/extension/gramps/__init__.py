@@ -33,7 +33,7 @@ async def _load_ancestry(event: LoadAncestryEvent) -> None:
                 project.ancestry,
                 attribute_prefix_key=project.configuration.name,
                 factory=project.new,
-                localizer=project.app.localizer,
+                localizer=await project.app.localizer,
                 copyright_notices=project.copyright_notices,
                 licenses=project.licenses,
                 event_type_map=await family_tree_configuration.event_types.to_plugins(

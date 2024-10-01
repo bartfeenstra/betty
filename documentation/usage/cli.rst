@@ -158,7 +158,7 @@ Update all translations for your project
 
 .. code-block::
 
-    Usage: betty update-translations [OPTIONS] [SOURCE]...
+    Usage: betty update-translations [OPTIONS]
 
     Options:
       -v, --verbose             Show verbose output, including informative log
@@ -167,10 +167,41 @@ Update all translations for your project
                                 messages.
       -vvv, --most-verbose      Show most verbose output, including all log
                                 messages.
+      --source TEXT
+      --exclude TEXT
       -c, --configuration TEXT  The path to a Betty project configuration file.
                                 Defaults to betty.json|yaml|yml in the current
                                 working directory.
       --help                    Show this message and exit.
+
+
+Create a new translation for your extension
+-------------------------------------------
+
+.. code-block::
+
+    Usage: betty extension-new-translation [OPTIONS] EXTENSION LOCALE
+
+    Options:
+      -v, --verbose         Show verbose output, including informative log messages.
+      -vv, --more-verbose   Show more verbose output, including debug log messages.
+      -vvv, --most-verbose  Show most verbose output, including all log messages.
+      --help                Show this message and exit.
+
+
+Update all translations for your extension
+------------------------------------------
+
+.. code-block::
+
+    Usage: betty extension-update-translations [OPTIONS] EXTENSION SOURCE
+
+    Options:
+      -v, --verbose         Show verbose output, including informative log messages.
+      -vv, --more-verbose   Show more verbose output, including debug log messages.
+      -vvv, --most-verbose  Show most verbose output, including all log messages.
+      --exclude TEXT
+      --help                Show this message and exit.
 
 
 Serve your project's generated site

@@ -14,6 +14,7 @@ from requests import Response
 from sphinx.errors import ExtensionError
 from sphinx.util import import_object
 
+from betty.app import App
 from betty.cli import _BettyCommands
 from betty.cli.commands import COMMAND_REPOSITORY
 from betty.documentation import DocumentationServer
@@ -39,31 +40,33 @@ class TestDocumentationServer:
 
 
 class TestDocumentation:
-    async def _get_help(self, command: str | None = None) -> str:
+    async def _get_help(self, app: App, command: str | None = None) -> str:
         _BettyCommands.terminal_width = 80
         args: tuple[str, ...] = ("--help",)
         if command is not None:
             args = (command, *args)
-        expected = (await run(*args)).stdout.strip()
+        expected = (await run(app, *args)).stdout.strip()
         if sys.platform.startswith("win32"):
             expected = expected.replace("\r\n", "\n")
         return "\n".join(
             (f"    {line}" if line.strip() else "" for line in expected.split("\n"))
         )
 
-    async def test_should_contain_cli_help(self) -> None:
+    async def test_should_contain_cli_help(self, new_temporary_app: App) -> None:
         async with aiofiles.open(
             ROOT_DIRECTORY_PATH / "documentation" / "usage" / "cli.rst"
         ) as f:
             actual = await f.read()
-        assert await self._get_help() in actual
+        assert await self._get_help(new_temporary_app) in actual
         async for command in COMMAND_REPOSITORY:
             if command.plugin_id() in (
                 "dev-new-translation",
                 "dev-update-translations",
             ):
                 continue
-            assert await self._get_help(command.plugin_id()) in actual
+            assert (
+                await self._get_help(new_temporary_app, command.plugin_id()) in actual
+            )
 
     @pytest.mark.parametrize(
         ("language", "serde_format"),

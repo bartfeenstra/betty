@@ -3,13 +3,13 @@ Provide Sphinx configuration.
 """
 
 import sys
+from asyncio import run
 from pathlib import Path
 
 import betty
 from betty import fs
-from betty.asyncio import wait_to_thread
-from betty.fs import ROOT_DIRECTORY_PATH
 from betty.assets import AssetRepository
+from betty.fs import ROOT_DIRECTORY_PATH
 from betty.locale.localizer import LocalizerRepository
 
 betty_replacements: dict[str, str] = {}
@@ -17,7 +17,7 @@ betty_replacements: dict[str, str] = {}
 assets = AssetRepository(fs.ASSETS_DIRECTORY_PATH)
 localizers = LocalizerRepository(assets)
 for locale in localizers.locales:
-    coverage = wait_to_thread(localizers.coverage(locale))
+    coverage = run(localizers.coverage(locale))
     betty_replacements[f"translation-coverage-{locale}"] = str(
         int(round(100 / (coverage[1] / coverage[0])))
     )

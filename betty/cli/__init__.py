@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import logging
 from asyncio import run
+from dataclasses import dataclass
 from logging import (
     Handler,
     CRITICAL,
@@ -20,15 +21,16 @@ from sys import stderr
 from typing import final, IO, Any, TYPE_CHECKING
 
 import click
-from betty import about
-from betty.app import App
-from betty.asyncio import wait_to_thread
-from betty.cli.commands import BettyCommand
-from betty.plugin import PluginNotFound
 from typing_extensions import override, ClassVar
 
+from betty import about
+from betty.app import App
+from betty.cli.commands import BettyCommand, Command
+
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from betty.locale.localizer import Localizer
+    from betty.machine_name import MachineName
+    from collections.abc import Iterable, Mapping
 
 
 @final
@@ -65,11 +67,33 @@ class _BettyCommands(BettyCommand, click.MultiCommand):
     terminal_width: ClassVar[int | None] = None
     _bootstrapped = False
     _app: ClassVar[App]
+    _localizer: ClassVar[Localizer]
+    _commands: ClassVar[Mapping[MachineName, type[Command]]]
 
     @classmethod
-    def new_type_for_app(cls, app: App) -> type[_BettyCommands]:
+    async def new_type_for_app(cls, app: App) -> type[_BettyCommands]:
+        from betty.cli import commands
+
+        return await cls._new_type(
+            app,
+            await app.localizer,
+            {
+                command.plugin_id(): command
+                async for command in commands.COMMAND_REPOSITORY
+            },
+        )
+
+    @classmethod
+    async def _new_type(
+        cls,
+        app: App,
+        localizer: Localizer,
+        commands: Mapping[MachineName, type[Command]],
+    ) -> type[_BettyCommands]:
         class __BettyCommands(_BettyCommands):
             _app = app
+            _localizer = localizer
+            _commands = commands
 
         return __BettyCommands
 
@@ -80,24 +104,15 @@ class _BettyCommands(BettyCommand, click.MultiCommand):
 
     @override
     def list_commands(self, ctx: click.Context) -> Iterable[str]:
-        from betty.cli import commands
-
         self._bootstrap()
-        return [
-            command.plugin_id()
-            for command in wait_to_thread(commands.COMMAND_REPOSITORY.select())
-        ]
+        return list(self._commands)
 
     @override
     def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
-        from betty.cli import commands
-
         self._bootstrap()
         try:
-            return wait_to_thread(
-                commands.COMMAND_REPOSITORY.get(cmd_name)
-            ).click_command()
-        except PluginNotFound:
+            return self._commands[cmd_name].click_command()
+        except KeyError:
             return None
 
     @override
@@ -111,18 +126,24 @@ class _BettyCommands(BettyCommand, click.MultiCommand):
         if self.terminal_width is not None:
             extra["terminal_width"] = self.terminal_width
         ctx = super().make_context(info_name, args, parent, **extra)
-        ctx.obj = self._app
+        ctx.obj = _ContextAppObject(self._app, self._localizer)
         return ctx
 
 
-def ctx_app(ctx: click.Context) -> App:
+@dataclass
+class _ContextAppObject:
+    app: App
+    localizer: Localizer
+
+
+def ctx_app_object(ctx: click.Context) -> _ContextAppObject:
     """
-    Get the running application from a context.
+    Get the running application object from a context.
 
     :param ctx: The context to get the application from. Defaults to the current context.
     """
-    app = ctx.find_object(App)
-    assert isinstance(app, App)
+    app = ctx.find_object(_ContextAppObject)
+    assert isinstance(app, _ContextAppObject)
     return app
 
 
@@ -137,7 +158,8 @@ def main(*args: str) -> Any:
 
 async def _main(*args: str) -> Any:
     async with App.new_from_environment() as app, app:
-        return (await new_main_command(app))(*args)
+        main_command = await new_main_command(app)
+        return main_command(*args)
 
 
 async def new_main_command(app: App) -> click.Command:
@@ -147,7 +169,7 @@ async def new_main_command(app: App) -> click.Command:
 
     @click.command(
         "betty",
-        cls=_BettyCommands.new_type_for_app(app),
+        cls=await _BettyCommands.new_type_for_app(app),
         # Set an empty help text so Click does not automatically use the function's docstring.
         help="",
     )

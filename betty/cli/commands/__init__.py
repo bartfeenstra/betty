@@ -150,13 +150,13 @@ class BettyCommand(click.Command):
 
     @override
     def invoke(self, ctx: click.Context) -> Any:
-        from betty.cli import ctx_app
+        from betty.cli import ctx_app_object
 
         try:
             return super().invoke(ctx)
         except UserFacingError as error:
             raise click.ClickException(
-                error.localize(ctx_app(ctx).localizer)
+                error.localize(ctx_app_object(ctx).localizer)
             ) from error
 
 
@@ -270,11 +270,11 @@ def pass_app(
     """
     Decorate a command to receive the currently running :py:class:`betty.app.App` as its first argument.
     """
-    from betty.cli import ctx_app
+    from betty.cli import ctx_app_object
 
     @wraps(f)
     def _command(*args: _P.args, **kwargs: _P.kwargs) -> _ReturnT:
-        return f(ctx_app(click.get_current_context()), *args, **kwargs)
+        return f(ctx_app_object(click.get_current_context()).app, *args, **kwargs)
 
     return _command
 
@@ -287,11 +287,10 @@ def parameter_callback(
 
     This handles errors so Click can gracefully exit.
     """
-    from betty.cli import ctx_app
+    from betty.cli import ctx_app_object
 
     def _callback(ctx: Context, __: Parameter, value: _T) -> _ReturnT:
-        app = ctx_app(ctx)
-        with user_facing_error_to_bad_parameter(app.localizer):
+        with user_facing_error_to_bad_parameter(ctx_app_object(ctx).localizer):
             return f(value, *args, **kwargs)
 
     return _callback
@@ -334,17 +333,18 @@ async def _read_project_configuration(
 async def _read_project_configuration_file(
     project: Project, configuration_file_path: Path
 ) -> None:
+    localizer = await project.app.localizer
     logger = logging.getLogger(__name__)
     assert_configuration = assert_configuration_file(project.configuration)
     try:
         assert_configuration(configuration_file_path)
     except UserFacingError as error:
-        logger.debug(error.localize(project.app.localizer))
+        logger.debug(error.localize(localizer))
         raise
     else:
         project.configuration.configuration_file_path = configuration_file_path
         logger.info(
-            project.app.localizer._(
+            localizer._(
                 "Loaded the configuration from {configuration_file_path}."
             ).format(configuration_file_path=str(configuration_file_path)),
         )
@@ -356,13 +356,13 @@ def pass_project(
     """
     Decorate a command to receive the currently running :py:class:`betty.project.Project` as its first argument.
     """
-    from betty.cli import ctx_app
+    from betty.cli import ctx_app_object
 
     def _project(
         ctx: Context, __: Parameter, configuration_file_path: str | None
     ) -> Project:
         project: Project = ctx.with_resource(  # type: ignore[attr-defined]
-            SynchronizedContextManager(Project.new_temporary(ctx_app(ctx)))
+            SynchronizedContextManager(Project.new_temporary(ctx_app_object(ctx).app))
         )
         wait_to_thread(_read_project_configuration(project, configuration_file_path))
         ctx.with_resource(  # type: ignore[attr-defined]

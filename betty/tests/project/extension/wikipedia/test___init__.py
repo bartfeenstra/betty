@@ -73,7 +73,7 @@ class TestWikipedia(ExtensionTestBase):
             project.configuration.extensions.enable(Wikipedia)
             async with project:
                 wikipedia = project.extensions[Wikipedia]
-                wikipedia.retriever  # noqa B018
+                await wikipedia.retriever
 
     async def test_globals(self, new_temporary_app: App) -> None:
         fetcher = StaticFetcher()

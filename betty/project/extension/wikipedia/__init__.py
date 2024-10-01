@@ -27,6 +27,7 @@ from betty.wikipedia import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Awaitable
     from betty.project import Project
     from betty.event_dispatcher import EventHandlerRegistry
     from jinja2.runtime import Context
@@ -40,7 +41,7 @@ async def _populate_ancestry(event: PostLoadAncestryEvent) -> None:
         project.ancestry,
         list(project.configuration.locales.keys()),
         project.localizers,
-        wikipedia.retriever,
+        await wikipedia.retriever,
     )
     await populator.populate()
 
@@ -73,13 +74,16 @@ Display <a href="https://www.wikipedia.org/">Wikipedia</a> summaries for resourc
         registry.add_handler(PostLoadAncestryEvent, _populate_ancestry)
 
     @property
-    def retriever(self) -> _Retriever:
+    def retriever(self) -> Awaitable[_Retriever]:
         """
         The Wikipedia content retriever.
         """
+        return self._get_retriever()
+
+    async def _get_retriever(self) -> _Retriever:
         if self._retriever is None:
             self._assert_bootstrapped()
-            self._retriever = _Retriever(self.project.app.fetcher)
+            return _Retriever(await self.project.app.fetcher)
         return self._retriever
 
     @override
@@ -126,7 +130,8 @@ Display <a href="https://www.wikipedia.org/">Wikipedia</a> summaries for resourc
         if negotiate_locale(locale, [page_language]) is None:
             return None
         try:
-            return await self.retriever.get_summary(page_language, page_name)
+            retriever = await self.retriever
+            return await retriever.get_summary(page_language, page_name)
         except FetchError as error:
             logger = logging.getLogger(__name__)
             logger.warning(str(error))

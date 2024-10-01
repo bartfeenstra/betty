@@ -16,9 +16,6 @@ from typing_extensions import override
 from betty import fs
 from betty._npm import NpmRequirement, NpmUnavailable
 from betty.app import App
-from betty.project.extension.webpack import build
-from betty.project.extension.webpack.build import webpack_build_id
-from betty.project.extension.webpack.jinja2.filter import FILTERS
 from betty.html import CssProvider
 from betty.jinja2 import Jinja2Provider, Filters, ContextVars
 from betty.job import Context
@@ -27,6 +24,9 @@ from betty.os import copy_tree
 from betty.plugin import ShorthandPluginBase
 from betty.project import Project, extension
 from betty.project.extension import Extension
+from betty.project.extension.webpack import build
+from betty.project.extension.webpack.build import webpack_build_id
+from betty.project.extension.webpack.jinja2.filter import FILTERS
 from betty.project.generate import GenerateSiteEvent
 from betty.requirement import (
     Requirement,
@@ -195,10 +195,11 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
         Prebuild the Webpack assets.
         """
         async with TemporaryDirectory() as working_directory_path_str:
-            build_directory_path = await self._new_builder(
+            builder = await self._new_builder(
                 Path(working_directory_path_str),
                 job_context=job_context,
-            ).build()
+            )
+            build_directory_path = await builder.build()
             await self._copy_build_directory(
                 build_directory_path,
                 _prebuilt_webpack_build_directory_path(
@@ -206,7 +207,7 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
                 ),
             )
 
-    def _new_builder(
+    async def _new_builder(
         self,
         working_directory_path: Path,
         *,
@@ -218,7 +219,7 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
             self._project.configuration.debug,
             self._project.renderer,
             job_context=job_context,
-            localizer=self._project.app.localizer,
+            localizer=await self._project.app.localizer,
         )
 
     async def _copy_build_directory(
@@ -233,7 +234,7 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
         *,
         job_context: Context,
     ) -> Path:
-        builder = self._new_builder(
+        builder = await self._new_builder(
             self._project.app.binary_file_cache.with_scope("webpack").path,
             job_context=job_context,
         )

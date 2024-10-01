@@ -18,7 +18,6 @@ from betty.app import config
 from betty.app.config import AppConfiguration
 from betty.app.factory import AppDependentFactory
 from betty.assets import AssetRepository
-from betty.asyncio import wait_to_thread
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.config import Configurable, assert_configuration_file
@@ -32,8 +31,7 @@ from betty.locale.localizer import Localizer, LocalizerRepository
 
 if TYPE_CHECKING:
     from betty.cache import Cache
-    from collections.abc import AsyncIterator, Callable
-
+    from collections.abc import AsyncIterator, Callable, Awaitable
 
 _T = TypeVar("_T")
 
@@ -59,7 +57,7 @@ class App(Configurable[AppConfiguration], FactoryProvider[Any], CoreComponent):
         self._localizer: Localizer | None = None
         self._localizers: LocalizerRepository | None = None
         self._http_client: aiohttp.ClientSession | None = None
-        self._fetcher: Fetcher | None = fetcher
+        self._fetcher = fetcher
         self._cache_directory_path = cache_directory_path
         self._cache: Cache[Any] | None = None
         self._cache_factory = cache_factory
@@ -113,16 +111,17 @@ class App(Configurable[AppConfiguration], FactoryProvider[Any], CoreComponent):
         return self._assets
 
     @property
-    def localizer(self) -> Localizer:
+    def localizer(self) -> Awaitable[Localizer]:
         """
         Get the application's localizer.
         """
+        return self._get_localizer()
+
+    async def _get_localizer(self) -> Localizer:
         if self._localizer is None:
             self._assert_bootstrapped()
-            self._localizer = wait_to_thread(
-                self.localizers.get_negotiated(
-                    self.configuration.locale or DEFAULT_LOCALE
-                )
+            self._localizer = await self.localizers.get_negotiated(
+                self.configuration.locale or DEFAULT_LOCALE
             )
         return self._localizer
 
@@ -137,32 +136,36 @@ class App(Configurable[AppConfiguration], FactoryProvider[Any], CoreComponent):
         return self._localizers
 
     @property
-    def http_client(self) -> aiohttp.ClientSession:
+    def http_client(self) -> Awaitable[aiohttp.ClientSession]:
         """
         The HTTP client.
         """
+        return self._get_http_client()
+
+    async def _get_http_client(self) -> aiohttp.ClientSession:
         if self._http_client is None:
             self._assert_bootstrapped()
             self._http_client = aiohttp.ClientSession(
                 connector=aiohttp.TCPConnector(limit_per_host=5),
                 headers={
-                    "User-Agent": "Betty (https://github.com/bartfeenstra/betty)",
+                    "User-Agent": "Betty (https://betty.readthedocs.io/)",
                 },
             )
-            wait_to_thread(
-                self._async_exit_stack.enter_async_context(self._http_client)
-            )
+            await self._async_exit_stack.enter_async_context(self._http_client)
         return self._http_client
 
     @property
-    def fetcher(self) -> Fetcher:
+    def fetcher(self) -> Awaitable[Fetcher]:
         """
         The fetcher.
         """
+        return self._get_fetcher()
+
+    async def _get_fetcher(self) -> Fetcher:
         if self._fetcher is None:
             self._assert_bootstrapped()
             self._fetcher = http.HttpFetcher(
-                self.http_client,
+                await self.http_client,
                 self.cache.with_scope("fetch"),
                 self.binary_file_cache.with_scope("fetch"),
             )

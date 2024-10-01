@@ -9,9 +9,17 @@ from betty.app.factory import AppDependentFactory
 
 
 class TestApp:
+    async def test_localizer(self) -> None:
+        async with App.new_temporary() as sut, sut:
+            assert await sut.localizer is not None
+
+    async def test_http_client(self) -> None:
+        async with App.new_temporary() as sut, sut:
+            assert await sut.http_client is not None
+
     async def test_fetcher(self) -> None:
         async with App.new_temporary() as sut, sut:
-            assert sut.fetcher is not None
+            assert await sut.fetcher is not None
 
     async def test_new(self) -> None:
         class Dependent:

@@ -25,7 +25,7 @@ class _NoOpCommand(Command):
 
 @pytest.fixture
 async def new_temporary_app(mocker: MockerFixture) -> AsyncIterator[App]:
-    async with App.new_temporary() as app:
+    async with App.new_temporary() as app, app:
         m_new_from_environment = mocker.AsyncMock()
         m_new_from_environment.__aenter__.return_value = app
         mocker.patch(

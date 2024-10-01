@@ -74,8 +74,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "assets": TestKnownToBeMissing,
             "binary_file_cache": TestKnownToBeMissing,
             "cache": TestKnownToBeMissing,
-            "http_client": TestKnownToBeMissing,
-            "localizer": TestKnownToBeMissing,
             "localizers": TestKnownToBeMissing,
             "process_pool": TestKnownToBeMissing,
         },
@@ -124,7 +122,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/cache/_base.py": TestKnownToBeMissing,
     "betty/core.py": TestKnownToBeMissing,
     "betty/cli/__init__.py": {
-        "ctx_app": TestKnownToBeMissing,
+        "ctx_app_object": TestKnownToBeMissing,
     },
     "betty/cli/error.py": {
         "user_facing_error_to_bad_parameter": TestKnownToBeMissing,
@@ -414,10 +412,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/ancestry/gender/__init__.py": TestKnownToBeMissing,
     # This contains an abstract class and a static value only.
     "betty/ancestry/place_type/__init__.py": TestKnownToBeMissing,
-    "betty/ancestry/presence_role/__init__.py": {
-        # This is an interface.
-        "PresenceRole": TestKnownToBeMissing,
-    },
+    # This contains an abstract class and a static value only.
+    "betty/ancestry/presence_role/__init__.py": TestKnownToBeMissing,
     # This contains an abstract class and a static value only.
     "betty/copyright_notice/__init__.py": TestKnownToBeMissing,
     # This contains an abstract class and a static value only.

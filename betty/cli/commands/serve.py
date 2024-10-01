@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 async def serve(project: Project) -> None:  # noqa D103
     from betty import serve
 
-    async with serve.BuiltinProjectServer(project) as server:
+    async with await serve.BuiltinProjectServer.new_for_project(project) as server:
         await server.show()
         while True:
             await asyncio.sleep(999)

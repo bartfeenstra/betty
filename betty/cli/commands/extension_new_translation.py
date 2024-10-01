@@ -35,5 +35,5 @@ if TYPE_CHECKING:
 async def extension_new_translation(  # noqa D103
     app: App, extension: type[Extension], locale: str
 ) -> None:
-    with user_facing_error_to_bad_parameter(app.localizer):
+    with user_facing_error_to_bad_parameter(await app.localizer):
         await translation.new_extension_translation(locale, extension)

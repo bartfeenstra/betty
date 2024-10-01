@@ -44,12 +44,12 @@ async def load(project: Project) -> None:
 
 async def _fetch_link_titles(project: Project) -> None:
     await gather(
-        *(
-            _fetch_link_title(project.app.fetcher, link)
+        *[
+            _fetch_link_title(await project.app.fetcher, link)
             for entity in project.ancestry
             if isinstance(entity, HasLinks)
             for link in entity.links
-        )
+        ]
     )
 
 

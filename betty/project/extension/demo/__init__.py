@@ -473,9 +473,9 @@ class DemoServer(Server):
             project = await self._exit_stack.enter_async_context(
                 demo_project(self._app)
             )
-            self._localizer = self._app.localizer
+            self._localizer = await self._app.localizer
             await load.load(project)
-            self._server = serve.BuiltinProjectServer(project)
+            self._server = await serve.BuiltinProjectServer.new_for_project(project)
             await self._exit_stack.enter_async_context(self._server)
             project.configuration.url = self._server.public_url
             await generate.generate(project)

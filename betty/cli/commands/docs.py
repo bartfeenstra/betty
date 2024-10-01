@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 async def docs(app: App):  # noqa D103
     server = documentation.DocumentationServer(
         app.binary_file_cache.path,
-        localizer=app.localizer,
+        localizer=await app.localizer,
     )
     async with server:
         await server.show()
