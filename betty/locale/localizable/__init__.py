@@ -24,6 +24,7 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizer import Localizer
 from betty.privacy import is_private
 from betty.repr import repr_instance
+from betty.typing import internal
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
@@ -397,7 +398,12 @@ def static(translations: ShorthandStaticTranslations) -> Localizable:
     return StaticTranslationsLocalizable(assert_static_translations()(translations))
 
 
-class _StaticTranslationsLocalizableAttr(LinkedDataDumpableProvider[object]):
+@internal
+class StaticTranslationsLocalizableAttr(LinkedDataDumpableProvider[object]):
+    """
+    An instance attribute that contains :py:class:`betty.locale.localizable.StaticTranslationsLocalizable`.
+    """
+
     _required: bool
 
     def __init__(
@@ -449,7 +455,7 @@ class _StaticTranslationsLocalizableAttr(LinkedDataDumpableProvider[object]):
 
 
 @final
-class RequiredStaticTranslationsLocalizableAttr(_StaticTranslationsLocalizableAttr):
+class RequiredStaticTranslationsLocalizableAttr(StaticTranslationsLocalizableAttr):
     """
     An instance attribute that contains :py:class:`betty.locale.localizable.StaticTranslationsLocalizable`.
     """
@@ -458,7 +464,7 @@ class RequiredStaticTranslationsLocalizableAttr(_StaticTranslationsLocalizableAt
 
 
 @final
-class OptionalStaticTranslationsLocalizableAttr(_StaticTranslationsLocalizableAttr):
+class OptionalStaticTranslationsLocalizableAttr(StaticTranslationsLocalizableAttr):
     """
     An instance attribute that contains :py:class:`betty.locale.localizable.StaticTranslationsLocalizable`.
     """

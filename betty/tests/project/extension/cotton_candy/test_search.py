@@ -111,8 +111,8 @@ class TestIndex:
                     project, Context(), await project.localizers.get(locale)
                 ).build()
 
-                assert actual[0]["text"] == "jane"
-                assert expected in actual[0]["result"]
+                assert actual[0].text == {"jane"}
+                assert expected in actual[0].result
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
@@ -147,8 +147,8 @@ class TestIndex:
                     project, Context(), await project.localizers.get(locale)
                 ).build()
 
-                assert actual[0]["text"] == "doughnut"
-                assert expected in actual[0]["result"]
+                assert actual[0].text == {"doughnut"}
+                assert expected in actual[0].result
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
@@ -185,8 +185,8 @@ class TestIndex:
                     project, Context(), await project.localizers.get(locale)
                 ).build()
 
-                assert actual[0]["text"] == "jane doughnut"
-                assert expected in actual[0]["result"]
+                assert actual[0].text == {"jane", "doughnut"}
+                assert expected in actual[0].result
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
@@ -226,8 +226,8 @@ class TestIndex:
                     project, Context(), await project.localizers.get(locale)
                 ).build()
 
-                assert actual[0]["text"] == "netherlands nederland"
-                assert expected in actual[0]["result"]
+                assert actual[0].text == {"netherlands", "nederland"}
+                assert expected in actual[0].result
 
     async def test_build_private_place(self, new_temporary_app: App) -> None:
         place_id = "P1"
@@ -302,8 +302,15 @@ class TestIndex:
                     project, Context(), await project.localizers.get(locale)
                 ).build()
 
-                assert actual[0]["text"] == '"file" is dutch for "traffic jam"'
-                assert expected in actual[0]["result"]
+                assert actual[0].text == {
+                    '"file"',
+                    "is",
+                    "dutch",
+                    "for",
+                    '"traffic',
+                    'jam"',
+                }
+                assert expected in actual[0].result
 
     async def test_build_private_file(self, new_temporary_app: App) -> None:
         file_id = "F1"
