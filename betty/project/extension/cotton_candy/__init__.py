@@ -85,7 +85,12 @@ async def _generate_search_index_for_locale(
     search_index = {
         "resultContainerTemplate": _RESULT_CONTAINER_TEMPLATE,
         "resultsContainerTemplate": _RESULTS_CONTAINER_TEMPLATE,
-        "index": await Index(event.project, event.job_context, localizer).build(),
+        "index": [
+            {"text": " ".join(entry.text), "result": entry.result}
+            for entry in await Index(
+                event.project, event.job_context, localizer
+            ).build()
+        ],
     }
     search_index_json = json.dumps(search_index)
     async with aiofiles.open(

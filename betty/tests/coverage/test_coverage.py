@@ -319,6 +319,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ngettext": TestKnownToBeMissing,
         "npgettext": TestKnownToBeMissing,
         "pgettext": TestKnownToBeMissing,
+        # This is an internal base class.
+        "StaticTranslationsLocalizableAttr": TestKnownToBeMissing,
     },
     "betty/media_type/__init__.py": {
         # This is an empty class.
