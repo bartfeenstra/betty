@@ -24,7 +24,6 @@ from math import floor
 from pathlib import Path
 from typing import (
     cast,
-    AsyncContextManager,
     ParamSpec,
     Callable,
     Awaitable,
@@ -34,21 +33,21 @@ from typing import (
 
 import aiofiles
 from aiofiles.os import makedirs
-from aiofiles.threadpool.text import AsyncTextIOWrapper
 
 from betty import model
-from betty.privacy import is_public
 from betty.asyncio import gather
 from betty.locale import get_display_name
 from betty.locale.localizable import _
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.model import (
-    UserFacingEntity,
-    Entity,
-    has_generated_entity_id,
-)
+from betty.model import UserFacingEntity, Entity, has_generated_entity_id
 from betty.openapi import Specification
+from betty.privacy import is_public
 from betty.project import ProjectEvent, ProjectSchema, ProjectContext
+from betty.project.generate.file import (
+    create_file,
+    create_html_resource,
+    create_json_resource,
+)
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
@@ -197,31 +196,6 @@ async def _run_jobs(job_context: ProjectContext) -> AsyncIterator[Task[None]]:
                     )
 
 
-async def create_file(path: Path) -> AsyncContextManager[AsyncTextIOWrapper]:
-    """
-    Create the file for a resource.
-    """
-    await makedirs(path.parent, exist_ok=True)
-    return cast(
-        AsyncContextManager[AsyncTextIOWrapper],
-        aiofiles.open(path, "w", encoding="utf-8"),
-    )
-
-
-async def create_html_resource(path: Path) -> AsyncContextManager[AsyncTextIOWrapper]:
-    """
-    Create the file for an HTML resource.
-    """
-    return await create_file(path / "index.html")
-
-
-async def create_json_resource(path: Path) -> AsyncContextManager[AsyncTextIOWrapper]:
-    """
-    Create the file for a JSON resource.
-    """
-    return await create_file(path / "index.json")
-
-
 async def _generate_dispatch(job_context: ProjectContext) -> None:
     project = job_context.project
     await project.event_dispatcher.dispatch(GenerateSiteEvent(job_context))
@@ -313,7 +287,7 @@ async def _generate_json_error_responses(project: Project) -> None:
         (404, _("I'm sorry, dear, but it seems this page does not exist.")),
     ]:
         for locale in project.configuration.locales:
-            async with await create_file(
+            async with create_file(
                 project.configuration.localize_www_directory_path(locale)
                 / ".error"
                 / f"{code}.json"
@@ -352,7 +326,7 @@ async def _generate_entity_type_list_html(
         entity_type=entity_type,
         entities=project.ancestry[entity_type],
     )
-    async with await create_html_resource(entity_type_path) as f:
+    async with create_html_resource(entity_type_path) as f:
         await f.write(rendered_html)
 
 
@@ -380,7 +354,7 @@ async def _generate_entity_type_list_json(
             )
         )
     rendered_json = json.dumps(data)
-    async with await create_json_resource(entity_type_path) as f:
+    async with create_json_resource(entity_type_path) as f:
         await f.write(rendered_json)
 
 
@@ -410,7 +384,7 @@ async def _generate_entity_html(
         entity_type=entity.type,
         entity=entity,
     )
-    async with await create_html_resource(entity_path) as f:
+    async with create_html_resource(entity_path) as f:
         await f.write(rendered_html)
 
 
@@ -425,7 +399,7 @@ async def _generate_entity_json(
     )
     entity = project.ancestry[entity_type][entity_id]
     rendered_json = json.dumps(await entity.dump_linked_data(project))
-    async with await create_json_resource(entity_path) as f:
+    async with create_json_resource(entity_path) as f:
         await f.write(rendered_json)
 
 
@@ -559,7 +533,7 @@ async def _generate_json_schema(
     )
     schema = await ProjectSchema.new(project)
     rendered_json = json.dumps(schema.schema)
-    async with await create_file(ProjectSchema.www_path(project)) as f:
+    async with create_file(ProjectSchema.www_path(project)) as f:
         await f.write(rendered_json)
 
 
@@ -573,5 +547,5 @@ async def _generate_openapi(
     )
     api_directory_path = project.configuration.www_directory_path / "api"
     rendered_json = json.dumps(await Specification(project).build())
-    async with await create_json_resource(api_directory_path) as f:
+    async with create_json_resource(api_directory_path) as f:
         await f.write(rendered_json)

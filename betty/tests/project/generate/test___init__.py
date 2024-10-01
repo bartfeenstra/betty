@@ -447,7 +447,7 @@ class TestSitemapGenerate:
         ):
             await generate(project)
             schema_doc = etree.parse(
-                Path(__file__).parent / "test_generate_assets" / "sitemap.xsd"
+                Path(__file__).parent / "test___init___assets" / "sitemap.xsd"
             )
             schema = etree.XMLSchema(schema_doc)
             sitemap_doc = etree.parse(
