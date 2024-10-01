@@ -117,6 +117,11 @@ class _Testable(ABC, Generic[_ParentT]):
     def test_name(self) -> str:
         pass
 
+    @property
+    @abstractmethod
+    def test_file_path(self) -> Path:
+        pass
+
     def test_exists(self) -> bool:
         return self._exists(self.test_name)
 
@@ -172,7 +177,19 @@ class _HasChildren(_Testable[_ParentT], Generic[_ParentT, _ChildT]):
             yield from child.validate()
 
 
-class Module(_HasChildren[Union["Module", None], Union["Module", "Class", "Function"]]):
+class Module(_Testable[_ParentT], Generic[_ParentT]):
+    pass
+
+
+# @todo Riiiight, and this cannot extend Module directly, because parents and children are different...
+# @todo
+# @todo
+class RootModule(Module[None]):
+    pass
+
+
+
+class ChildModule(_HasChildren[Module, Union[Module, "Class", "Function"]]):
     """
     A testable module.
     """
@@ -211,13 +228,22 @@ class Module(_HasChildren[Union["Module", None], Union["Module", "Class", "Funct
     @override
     @property
     def test_name(self) -> str:
+        # @todo Require a parent!!!
+        # @todo
+        # @todo
+        # @todo We want something like a root module so we can stop hardcoding "betty.tests."
+        # @todo
+        # @todo
         if self.testable_file_path.name == "__init__.py":
             return f"betty.tests.{self.testable_name[6:]}.test___init__"
         else:
             return f"betty.tests.{self.testable_name[6:-len(self.testable_module_name)]}test_{self.testable_module_name}"
 
-    def _prefix(self):
-        pass
+    @override
+    @property
+    def test_file_path(self) -> Path:
+        raise NotImplementedError
+
 
 
 class InternalModule(Module):
