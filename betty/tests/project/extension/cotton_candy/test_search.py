@@ -28,14 +28,9 @@ class TestIndex:
                 )
             )
             async with project:
-                indexed = [
-                    item
-                    async for item in Index(
-                        project, Context(), DEFAULT_LOCALIZER
-                    ).build()
-                ]
+                actual = await Index(project, Context(), DEFAULT_LOCALIZER).build()
 
-                assert indexed == []
+                assert actual == []
 
     async def test_build_person_without_names(self, new_temporary_app: App) -> None:
         person_id = "P1"
@@ -52,14 +47,9 @@ class TestIndex:
             )
             project.ancestry.add(person)
             async with project:
-                indexed = [
-                    item
-                    async for item in Index(
-                        project, Context(), DEFAULT_LOCALIZER
-                    ).build()
-                ]
+                actual = await Index(project, Context(), DEFAULT_LOCALIZER).build()
 
-                assert indexed == []
+                assert actual == []
 
     async def test_build_private_person(self, new_temporary_app: App) -> None:
         person_id = "P1"
@@ -84,14 +74,9 @@ class TestIndex:
             )
             project.ancestry.add(person)
             async with project:
-                indexed = [
-                    item
-                    async for item in Index(
-                        project, Context(), DEFAULT_LOCALIZER
-                    ).build()
-                ]
+                actual = await Index(project, Context(), DEFAULT_LOCALIZER).build()
 
-                assert indexed == []
+                assert actual == []
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
@@ -122,15 +107,12 @@ class TestIndex:
             )
             project.ancestry.add(person)
             async with project:
-                indexed = [
-                    item
-                    async for item in Index(
-                        project, Context(), await project.localizers.get(locale)
-                    ).build()
-                ]
+                actual = await Index(
+                    project, Context(), await project.localizers.get(locale)
+                ).build()
 
-                assert indexed[0]["text"] == "jane"
-                assert expected in indexed[0]["result"]
+                assert actual[0]["text"] == "jane"
+                assert expected in actual[0]["result"]
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
@@ -161,15 +143,12 @@ class TestIndex:
             )
             project.ancestry.add(person)
             async with project:
-                indexed = [
-                    item
-                    async for item in Index(
-                        project, Context(), await project.localizers.get(locale)
-                    ).build()
-                ]
+                actual = await Index(
+                    project, Context(), await project.localizers.get(locale)
+                ).build()
 
-                assert indexed[0]["text"] == "doughnut"
-                assert expected in indexed[0]["result"]
+                assert actual[0]["text"] == "doughnut"
+                assert expected in actual[0]["result"]
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
@@ -202,15 +181,12 @@ class TestIndex:
             )
             project.ancestry.add(person)
             async with project:
-                indexed = [
-                    item
-                    async for item in Index(
-                        project, Context(), await project.localizers.get(locale)
-                    ).build()
-                ]
+                actual = await Index(
+                    project, Context(), await project.localizers.get(locale)
+                ).build()
 
-                assert indexed[0]["text"] == "jane doughnut"
-                assert expected in indexed[0]["result"]
+                assert actual[0]["text"] == "jane doughnut"
+                assert expected in actual[0]["result"]
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
@@ -246,15 +222,12 @@ class TestIndex:
             )
             project.ancestry.add(place)
             async with project:
-                indexed = [
-                    item
-                    async for item in Index(
-                        project, Context(), await project.localizers.get(locale)
-                    ).build()
-                ]
+                actual = await Index(
+                    project, Context(), await project.localizers.get(locale)
+                ).build()
 
-                assert indexed[0]["text"] == "netherlands nederland"
-                assert expected in indexed[0]["result"]
+                assert actual[0]["text"] == "netherlands nederland"
+                assert expected in actual[0]["result"]
 
     async def test_build_private_place(self, new_temporary_app: App) -> None:
         place_id = "P1"
@@ -271,14 +244,9 @@ class TestIndex:
             project.configuration.locales["en-US"].alias = "en"
             project.ancestry.add(place)
             async with project:
-                indexed = [
-                    item
-                    async for item in Index(
-                        project, Context(), DEFAULT_LOCALIZER
-                    ).build()
-                ]
+                actual = await Index(project, Context(), DEFAULT_LOCALIZER).build()
 
-                assert indexed == []
+                assert actual == []
 
     async def test_build_file_without_description(self, new_temporary_app: App) -> None:
         file_id = "F1"
@@ -298,14 +266,9 @@ class TestIndex:
             )
             project.ancestry.add(file)
             async with project:
-                indexed = [
-                    item
-                    async for item in Index(
-                        project, Context(), DEFAULT_LOCALIZER
-                    ).build()
-                ]
+                actual = await Index(project, Context(), DEFAULT_LOCALIZER).build()
 
-                assert indexed == []
+                assert actual == []
 
     @pytest.mark.parametrize(
         ("expected", "locale"),
@@ -335,15 +298,12 @@ class TestIndex:
             )
             project.ancestry.add(file)
             async with project:
-                indexed = [
-                    item
-                    async for item in Index(
-                        project, Context(), await project.localizers.get(locale)
-                    ).build()
-                ]
+                actual = await Index(
+                    project, Context(), await project.localizers.get(locale)
+                ).build()
 
-                assert indexed[0]["text"] == '"file" is dutch for "traffic jam"'
-                assert expected in indexed[0]["result"]
+                assert actual[0]["text"] == '"file" is dutch for "traffic jam"'
+                assert expected in actual[0]["result"]
 
     async def test_build_private_file(self, new_temporary_app: App) -> None:
         file_id = "F1"
@@ -359,11 +319,6 @@ class TestIndex:
             project.configuration.locales["en-US"].alias = "en"
             project.ancestry.add(file)
             async with project:
-                indexed = [
-                    item
-                    async for item in Index(
-                        project, Context(), DEFAULT_LOCALIZER
-                    ).build()
-                ]
+                actual = await Index(project, Context(), DEFAULT_LOCALIZER).build()
 
-                assert indexed == []
+                assert actual == []
