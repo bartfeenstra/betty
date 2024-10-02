@@ -17,14 +17,15 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.asyncio import gather
+from betty.locale.localizable import StaticTranslationsLocalizableAttr
 from betty.model import Entity
 from betty.privacy import is_private
 from betty.typing import internal
-from betty.locale.localizable import StaticTranslationsLocalizableAttr
 
 if TYPE_CHECKING:
+    from betty.jinja2 import Environment
+    from betty.ancestry import Ancestry
     from betty.locale.localizable import StaticTranslationsLocalizable
-    from betty.project import Project
     from betty.locale.localizer import Localizer
     from betty.job import Context
     from collections.abc import Iterable, Sequence
@@ -100,13 +101,16 @@ class Index:
     Build search indexes.
     """
 
+    @internal
     def __init__(
         self,
-        project: Project,
+        ancestry: Ancestry,
+        jinja2_environment: Environment,
         job_context: Context | None,
         localizer: Localizer,
     ):
-        self._project = project
+        self._ancestry = ancestry
+        self._jinja2_environment = jinja2_environment
         self._job_context = job_context
         self._localizer = localizer
 
@@ -132,7 +136,7 @@ class Index:
         return await gather(
             *(
                 self._build_entity(indexer, entity)
-                for entity in self._project.ancestry[entity_type]
+                for entity in self._ancestry[entity_type]
             )
         )
 
@@ -147,7 +151,7 @@ class Index:
         return _Entry(text, await self._render_entity(entity))
 
     async def _render_entity(self, entity: Entity) -> str:
-        return await self._project.jinja2_environment.select_template(
+        return await self._jinja2_environment.select_template(
             [
                 f"search/result--{entity.plugin_id()}.html.j2",
                 "search/result.html.j2",

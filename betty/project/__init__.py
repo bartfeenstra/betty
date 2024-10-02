@@ -21,6 +21,7 @@ from typing import (
     Iterator,
     overload,
     cast,
+    Awaitable,
 )
 
 from aiofiles.tempfile import TemporaryDirectory
@@ -150,7 +151,7 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
     async def bootstrap(self) -> None:
         await super().bootstrap()
         try:
-            for project_extension_batch in self.extensions:
+            for project_extension_batch in await self.extensions:
                 batch_event_handlers = EventHandlerRegistry()
                 for project_extension in project_extension_batch:
                     await self._async_exit_stack.enter_async_context(project_extension)
@@ -186,14 +187,18 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
         return self._ancestry
 
     @property
-    def assets(self) -> AssetRepository:
+    def assets(self) -> Awaitable[AssetRepository]:
         """
         The assets file system.
         """
+        return self._get_assets()
+
+    async def _get_assets(self) -> AssetRepository:
         if self._assets is None:
             self._assert_bootstrapped()
             asset_paths = [self.configuration.assets_directory_path]
-            for extension in self.extensions.flatten():
+            extensions = await self.extensions
+            for extension in extensions.flatten():
                 extension_assets_directory_path = extension.assets_directory_path()
                 if extension_assets_directory_path is not None:
                     asset_paths.append(extension_assets_directory_path)
@@ -203,13 +208,16 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
         return self._assets
 
     @property
-    def localizers(self) -> LocalizerRepository:
+    def localizers(self) -> Awaitable[LocalizerRepository]:
         """
         The available localizers.
         """
+        return self._get_localizers()
+
+    async def _get_localizers(self) -> LocalizerRepository:
         if self._localizers is None:
             self._assert_bootstrapped()
-            self._localizers = LocalizerRepository(self.assets)
+            self._localizers = LocalizerRepository(await self.assets)
         return self._localizers
 
     @property
@@ -237,46 +245,53 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
         return self._static_url_generator
 
     @property
-    def jinja2_environment(self) -> Environment:
+    def jinja2_environment(self) -> Awaitable[Environment]:
         """
         The Jinja2 environment.
         """
+        return self._get_jinja2_environment()
+
+    async def _get_jinja2_environment(self) -> Environment:
         if not self._jinja2_environment:
             from betty.jinja2 import Environment
 
             self._assert_bootstrapped()
-            self._jinja2_environment = Environment(self)
+            self._jinja2_environment = await Environment.new_for_project(self)
 
         return self._jinja2_environment
 
     @property
-    def renderer(self) -> Renderer:
+    def renderer(self) -> Awaitable[Renderer]:
         """
         The (file) content renderer.
         """
+        return self._get_renderer()
+
+    async def _get_renderer(self) -> Renderer:
         if not self._renderer:
             self._assert_bootstrapped()
-            self._renderer = wait_to_thread(self._init_renderer())
-
+            self._renderer = SequentialRenderer(
+                [
+                    await self.new(plugin)
+                    for plugin in await RENDERER_REPOSITORY.select()
+                ]
+            )
         return self._renderer
 
-    async def _init_renderer(self) -> Renderer:
-        return SequentialRenderer(
-            [await self.new(plugin) for plugin in await RENDERER_REPOSITORY.select()]
-        )
-
     @property
-    def extensions(self) -> ProjectExtensions:
+    def extensions(self) -> Awaitable[ProjectExtensions]:
         """
         The enabled extensions.
         """
-        if self._extensions is None:
-            self._assert_bootstrapped()
-            self._extensions = wait_to_thread(self._init_extensions())
+        return self._get_extensions()
 
+    async def _get_extensions(self) -> ProjectExtensions:
+        if self._extensions is None:
+            self._extensions = await self._init_extensions()
         return self._extensions
 
     async def _init_extensions(self) -> ProjectExtensions:
+        self._assert_bootstrapped()
         extension_types_enabled_in_configuration = set()
         for project_extension_configuration in self.configuration.extensions.values():
             if project_extension_configuration.enabled:
@@ -368,18 +383,19 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
         )
 
     @property
-    def copyright_notice(self) -> CopyrightNotice:
+    def copyright_notice(self) -> Awaitable[CopyrightNotice]:
         """
         The overall project copyright.
         """
-        if self._copyright_notice is None:
-            self._copyright_notice = wait_to_thread(self._init_copyright())
-        return self._copyright_notice
+        return self._get_copyright_notice()
 
-    async def _init_copyright(self) -> CopyrightNotice:
-        return await self.new(
-            await self.copyright_notices.get(self.configuration.copyright_notice)
-        )
+    async def _get_copyright_notice(self) -> CopyrightNotice:
+        if self._copyright_notice is None:
+            self._assert_bootstrapped()
+            self._copyright_notice = await self.new(
+                await self.copyright_notices.get(self.configuration.copyright_notice)
+            )
+        return self._copyright_notice
 
     @property
     def copyright_notices(self) -> PluginRepository[CopyrightNotice]:
@@ -392,22 +408,26 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
             self._assert_bootstrapped()
             self._copyright_notices = ProxyPluginRepository(
                 COPYRIGHT_NOTICE_REPOSITORY,
-                StaticPluginRepository(*self.configuration.copyright_notices.plugins),
+                StaticPluginRepository(
+                    *self.configuration.copyright_notices.plugins, factory=self.new
+                ),
             )
 
         return self._copyright_notices
 
     @property
-    def license(self) -> License:
+    def license(self) -> Awaitable[License]:
         """
         The overall project license.
         """
-        if self._license is None:
-            self._license = wait_to_thread(self._init_license())
-        return self._license
+        return self._get_license()
 
-    async def _init_license(self) -> License:
-        return await self.new(await self.licenses.get(self.configuration.license))
+    async def _get_license(self) -> License:
+        if self._license is None:
+            self._license = await self.new(
+                await self.licenses.get(self.configuration.license)
+            )
+        return self._license
 
     @property
     def licenses(self) -> PluginRepository[License]:

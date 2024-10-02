@@ -35,7 +35,9 @@ async def _generate_people_json(event: GenerateSiteEvent) -> None:
 async def _generate_people_json_for_locale(
     event: GenerateSiteEvent, locale: str
 ) -> None:
-    localizer = await event.project.localizers.get(locale)
+    project = event.project
+    localizers = await project.localizers
+    localizer = await localizers.get(locale)
     private_label = localizer._("private")
     people = {
         person.id: {
@@ -43,16 +45,16 @@ async def _generate_people_json_for_locale(
             "label": person.label.localize(localizer)
             if person.public
             else private_label,
-            "url": event.project.localized_url_generator.generate(person, "text/html"),
+            "url": project.localized_url_generator.generate(person, "text/html"),
             "parentIds": [parent.id for parent in person.parents],
             "childIds": [child.id for child in person.children],
             "private": person.private,
         }
-        for person in event.project.ancestry[Person]
+        for person in project.ancestry[Person]
     }
     people_json = json.dumps(people)
     async with aiofiles.open(
-        event.project.configuration.localize_www_directory_path(locale) / "people.json",
+        project.configuration.localize_www_directory_path(locale) / "people.json",
         mode="w",
     ) as f:
         await f.write(people_json)

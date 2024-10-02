@@ -98,7 +98,7 @@ class TemplateTestBase:
             project.configuration.extensions.enable(*self.extensions)
             async with project:
                 rendered = await template_factory(
-                    project.jinja2_environment, template
+                    await project.jinja2_environment, template
                 ).render_async(**data)
                 yield rendered, project
 

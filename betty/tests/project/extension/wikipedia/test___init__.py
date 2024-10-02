@@ -46,7 +46,8 @@ class TestWikipedia(ExtensionTestBase):
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.append(ExtensionConfiguration(Wikipedia))
             async with project:
-                actual = await project.jinja2_environment.from_string(
+                jinja2_environment = await project.jinja2_environment
+                actual = await jinja2_environment.from_string(
                     "{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}"
                 ).render_async(
                     job_context=Context(),
@@ -72,7 +73,8 @@ class TestWikipedia(ExtensionTestBase):
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.enable(Wikipedia)
             async with project:
-                wikipedia = project.extensions[Wikipedia]
+                extensions = await project.extensions
+                wikipedia = extensions[Wikipedia]
                 await wikipedia.retriever
 
     async def test_globals(self, new_temporary_app: App) -> None:
@@ -84,5 +86,6 @@ class TestWikipedia(ExtensionTestBase):
         ):
             project.configuration.extensions.enable(Wikipedia)
             async with project:
-                sut = project.extensions[Wikipedia]
+                extensions = await project.extensions
+                sut = extensions[Wikipedia]
                 assert sut.globals

@@ -26,11 +26,11 @@ from typing_extensions import override
 
 from betty import model
 from betty.asyncio import wait_to_thread
+from betty.date import Date
 from betty.html import CssProvider, JsProvider
 from betty.jinja2.filter import FILTERS
 from betty.jinja2.test import TESTS
 from betty.job import Context as JobContext
-from betty.date import Date
 from betty.locale.localizable import Localizable, plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizer import Localizer
@@ -38,9 +38,10 @@ from betty.plugin import Plugin
 from betty.project.factory import ProjectDependentFactory
 from betty.render import Renderer
 from betty.serde.dump import Dumpable, DumpMapping, Dump
-from betty.typing import Void, Voidable
+from betty.typing import Void, Voidable, internal
 
 if TYPE_CHECKING:
+    from betty.assets import AssetRepository
     from betty.machine_name import MachineName
     from betty.model import Entity
     from betty.project.extension import Extension
@@ -230,7 +231,7 @@ class Jinja2Provider:
         return {}
 
 
-class Environment(Jinja2Environment):
+class Environment(ProjectDependentFactory, Jinja2Environment):
     """
     Betty's Jinja2 environment.
     """
@@ -239,9 +240,12 @@ class Environment(Jinja2Environment):
     filters: dict[str, Callable[..., Any]]
     tests: dict[str, Callable[..., bool | Awaitable[bool]]]  # type: ignore[assignment]
 
-    def __init__(self, project: Project):
+    @internal
+    def __init__(
+        self, project: Project, extensions: Sequence[Extension], assets: AssetRepository
+    ):
         template_directory_paths = [
-            str(path / "templates") for path in project.assets.assets_directory_paths
+            str(path / "templates") for path in assets.assets_directory_paths
         ]
         super().__init__(
             loader=FileSystemLoader(template_directory_paths),
@@ -261,6 +265,7 @@ class Environment(Jinja2Environment):
 
         self._context_class: type[Context] | None = None
         self._project = project
+        self._extensions = extensions
 
         if project.configuration.debug:
             self.add_extension("jinja2.ext.debug")
@@ -270,6 +275,12 @@ class Environment(Jinja2Environment):
         self.filters.update(FILTERS)
         self.tests.update(TESTS)
         self._init_extensions()
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project) -> Self:
+        extensions = await project.extensions
+        return cls(project, list(extensions.flatten()), await project.assets)
 
     @property
     def project(self) -> Project:
@@ -293,7 +304,7 @@ class Environment(Jinja2Environment):
         if self._context_class is None:
             jinja2_providers: Sequence[Jinja2Provider & Extension] = [
                 extension
-                for extension in self.project.extensions.flatten()
+                for extension in self._extensions
                 if isinstance(extension, Jinja2Provider)
             ]
 
@@ -375,13 +386,13 @@ class Environment(Jinja2Environment):
         # Ideally we would use the Dispatcher for this. However, it is asynchronous only.
         self.globals["public_css_paths"] = [
             path
-            for extension in self.project.extensions.flatten()
+            for extension in self._extensions
             if isinstance(extension, CssProvider)
             for path in extension.public_css_paths
         ]
         self.globals["public_js_paths"] = [
             path
-            for extension in self.project.extensions.flatten()
+            for extension in self._extensions
             if isinstance(extension, JsProvider)
             for path in extension.public_js_paths
         ]
@@ -389,7 +400,7 @@ class Environment(Jinja2Environment):
         self.globals["localizer"] = DEFAULT_LOCALIZER
 
     def _init_extensions(self) -> None:
-        for extension in self.project.extensions.flatten():
+        for extension in self._extensions:
             if isinstance(extension, Jinja2Provider):
                 self.globals.update(extension.globals)
                 self.filters.update(extension.filters)
@@ -419,7 +430,7 @@ class Jinja2Renderer(Renderer, ProjectDependentFactory, Plugin):
     @override
     @classmethod
     async def new_for_project(cls, project: Project) -> Self:
-        return cls(project.jinja2_environment, project.configuration)
+        return cls(await project.jinja2_environment, project.configuration)
 
     @override
     @property

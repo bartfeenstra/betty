@@ -7,7 +7,7 @@ from __future__ import annotations
 import enum
 from json import loads
 from pathlib import Path
-from typing import Any, Self, cast
+from typing import Any, Self, cast, final
 
 import aiofiles
 from jsonschema.validators import Draft202012Validator
@@ -427,6 +427,7 @@ class FileBasedSchema(Schema):
         return schema
 
 
+@final
 class JsonSchemaSchema(FileBasedSchema):
     """
     The JSON Schema Draft 2020-12 schema.

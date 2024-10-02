@@ -206,15 +206,15 @@ async def _generate_dispatch(job_context: ProjectContext) -> None:
 async def _generate_public_asset(
     asset_path: Path, project: Project, job_context: ProjectContext, locale: str
 ) -> None:
+    assets = await project.assets
     www_directory_path = project.configuration.localize_www_directory_path(locale)
     file_destination_path = www_directory_path / asset_path.relative_to(
         Path("public") / "localized"
     )
     await makedirs(file_destination_path.parent, exist_ok=True)
-    await to_thread(
-        shutil.copy2, await project.assets.get(asset_path), file_destination_path
-    )
-    await project.renderer.render_file(
+    await to_thread(shutil.copy2, await assets.get(asset_path), file_destination_path)
+    renderer = await project.renderer
+    await renderer.render_file(
         file_destination_path,
         job_context=job_context,
         localizer=await project.app.localizers.get(locale),
@@ -226,6 +226,7 @@ async def _generate_public(
     locale: str,
 ) -> None:
     project = job_context.project
+    assets = await project.assets
     localizer = await project.app.localizer
     locale_label = get_display_name(locale, localizer.locale)
     logging.getLogger(__name__).debug(
@@ -237,7 +238,7 @@ async def _generate_public(
     await gather(
         *[
             _generate_public_asset(asset_path, project, job_context, locale)
-            async for asset_path in project.assets.walk(Path("public") / "localized")
+            async for asset_path in assets.walk(Path("public") / "localized")
         ]
     )
 
@@ -245,15 +246,15 @@ async def _generate_public(
 async def _generate_static_public_asset(
     asset_path: Path, project: Project, job_context: ProjectContext
 ) -> None:
+    assets = await project.assets
     file_destination_path = (
         project.configuration.www_directory_path
         / asset_path.relative_to(Path("public") / "static")
     )
     await makedirs(file_destination_path.parent, exist_ok=True)
-    await to_thread(
-        shutil.copy2, await project.assets.get(asset_path), file_destination_path
-    )
-    await project.renderer.render_file(file_destination_path, job_context=job_context)
+    await to_thread(shutil.copy2, await assets.get(asset_path), file_destination_path)
+    renderer = await project.renderer
+    await renderer.render_file(file_destination_path, job_context=job_context)
 
 
 async def _generate_static_public(
@@ -261,19 +262,20 @@ async def _generate_static_public(
 ) -> None:
     project = job_context.project
     app = project.app
+    assets = await project.assets
     localizer = await app.localizer
     logging.getLogger(__name__).info(localizer._("Generating static public files..."))
     await gather(
         *[
             _generate_static_public_asset(asset_path, project, job_context)
-            async for asset_path in project.assets.walk(Path("public") / "static")
+            async for asset_path in assets.walk(Path("public") / "static")
         ],
         # Ensure favicon.ico exists, otherwise servers of Betty sites would log
         # many a 404 Not Found for it, because some clients eagerly try to see
         # if it exists.
         to_thread(
             shutil.copy2,
-            await project.assets.get(Path("public") / "static" / "betty.ico"),
+            await assets.get(Path("public") / "static" / "betty.ico"),
             project.configuration.www_directory_path / "favicon.ico",
         ),
         _generate_json_error_responses(project),
@@ -309,11 +311,12 @@ async def _generate_entity_type_list_html(
 ) -> None:
     project = job_context.project
     app = project.app
+    jinja2_environment = await project.jinja2_environment
     entity_type_path = (
         project.configuration.localize_www_directory_path(locale)
         / entity_type.plugin_id()
     )
-    template = project.jinja2_environment.select_template(
+    template = jinja2_environment.select_template(
         [
             f"entity/page-list--{entity_type.plugin_id()}.html.j2",
             "entity/page-list.html.j2",
@@ -366,13 +369,14 @@ async def _generate_entity_html(
 ) -> None:
     project = job_context.project
     app = project.app
+    jinja2_environment = await project.jinja2_environment
     entity = project.ancestry[entity_type][entity_id]
     entity_path = (
         project.configuration.localize_www_directory_path(locale)
         / entity_type.plugin_id()
         / entity.id
     )
-    rendered_html = await project.jinja2_environment.select_template(
+    rendered_html = await jinja2_environment.select_template(
         [
             f"entity/page--{entity_type.plugin_id()}.html.j2",
             "entity/page.html.j2",

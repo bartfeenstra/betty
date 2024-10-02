@@ -107,7 +107,7 @@ class TestLinkSchema(SchemaTestBase):
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
         return [
             (
-                LinkSchema(),
+                await LinkSchema.new(),
                 _DUMMY_LINK_DUMPS,
                 [True, False, None, 123, "abc", [], {}],
             )
@@ -133,7 +133,7 @@ class TestLinkCollectionSchema(SchemaTestBase):
         ):
             schemas.append(
                 (
-                    LinkCollectionSchema(),
+                    await LinkCollectionSchema.new(),
                     valid_datas,
                     invalid_datas,
                 )

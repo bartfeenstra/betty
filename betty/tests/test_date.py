@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import Sequence, TYPE_CHECKING, cast
 
 import pytest
+from typing_extensions import override
+
 from betty.date import (
     Date,
     DateRange,
@@ -14,7 +16,6 @@ from betty.date import (
 from betty.serde.dump import Dump, DumpMapping
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.json.schema import SchemaTestBase
-from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.json.schema import Schema
@@ -500,7 +501,7 @@ class TestDateSchema(SchemaTestBase):
     async def get_sut_instances(
         self,
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
-        return [(DateSchema(), *_DUMMY_DATE_DUMPS)]
+        return [(await DateSchema.new(), *_DUMMY_DATE_DUMPS)]
 
 
 class TestDateRangeSchema(SchemaTestBase):
@@ -508,7 +509,7 @@ class TestDateRangeSchema(SchemaTestBase):
     async def get_sut_instances(
         self,
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
-        return [(DateRangeSchema(), *_DUMMY_DATE_RANGE_DUMPS)]
+        return [(await DateRangeSchema.new(), *_DUMMY_DATE_RANGE_DUMPS)]
 
 
 class TestDateySchema(SchemaTestBase):
@@ -516,4 +517,4 @@ class TestDateySchema(SchemaTestBase):
     async def get_sut_instances(
         self,
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
-        return [(DateySchema(), *_DUMMY_DATEY_DUMPS)]
+        return [(await DateySchema.new(), *_DUMMY_DATEY_DUMPS)]

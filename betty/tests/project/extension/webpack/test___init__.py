@@ -9,11 +9,11 @@ from typing_extensions import override
 from betty import fs
 from betty._npm import NpmUnavailable
 from betty.app import App
-from betty.project.extension.webpack import PrebuiltAssetsRequirement, Webpack
-from betty.project.extension.webpack.build import webpack_build_id
 from betty.job import Context
 from betty.project import Project
 from betty.project.config import ProjectConfiguration
+from betty.project.extension.webpack import PrebuiltAssetsRequirement, Webpack
+from betty.project.extension.webpack.build import webpack_build_id
 from betty.project.generate import generate
 from betty.requirement import RequirementError
 from betty.test_utils.project.extension import ExtensionTestBase
@@ -149,7 +149,8 @@ class TestWebpack(ExtensionTestBase):
             async with Project.new_temporary(new_temporary_app) as project:
                 project.configuration.extensions.enable(Webpack)
                 async with project:
-                    webpack = project.extensions[Webpack]
+                    extensions = await project.extensions
+                    webpack = extensions[Webpack]
                     await webpack.prebuild(job_context)
                     async with aiofiles.open(
                         prebuilt_assets_directory_path

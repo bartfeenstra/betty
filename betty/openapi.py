@@ -3,7 +3,7 @@ Provide the OpenAPI specification.
 """
 
 from pathlib import Path
-from typing import Self
+from typing import Self, final
 
 from betty import about, model
 from betty.json.schema import FileBasedSchema
@@ -174,6 +174,7 @@ class Specification:
         return specification
 
 
+@final
 class SpecificationSchema(FileBasedSchema):
     """
     The OpenAPI Specification schema.

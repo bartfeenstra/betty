@@ -39,7 +39,9 @@ class TestJinja2Provider:
 class TestJinja2Renderer:
     async def test_render_file(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = Jinja2Renderer(project.jinja2_environment, project.configuration)
+            sut = Jinja2Renderer(
+                await project.jinja2_environment, project.configuration
+            )
             template = "{% if true %}true{% endif %}"
             expected_output = "true"
             async with TemporaryDirectory() as working_directory_path_str:
@@ -54,7 +56,9 @@ class TestJinja2Renderer:
 
     async def test_file_extensions(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = Jinja2Renderer(project.jinja2_environment, project.configuration)
+            sut = Jinja2Renderer(
+                await project.jinja2_environment, project.configuration
+            )
             sut.file_extensions  # noqa B018
 
 

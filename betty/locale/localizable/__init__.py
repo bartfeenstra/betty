@@ -13,10 +13,9 @@ from typing_extensions import override
 
 from betty.json.linked_data import (
     LinkedDataDumpableProvider,
-    LinkedDataDumpableJsonLdObject,
-    JsonLdObject,
+    LinkedDataDumpable,
 )
-from betty.json.schema import OneOf, Null, Schema
+from betty.json.schema import OneOf, Null, Schema, Object
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale import negotiate_locale, to_locale
 from betty.locale.localized import LocalizedStr
@@ -25,9 +24,9 @@ from betty.locale.localizer import Localizer
 from betty.privacy import is_private
 from betty.repr import repr_instance
 from betty.typing import internal
+from betty.serde.dump import DumpMapping, Dump
 
 if TYPE_CHECKING:
-    from betty.serde.dump import DumpMapping, Dump
     from betty.project import Project
 
 
@@ -280,7 +279,7 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
 
 
-class StaticTranslationsLocalizableSchema(JsonLdObject):
+class StaticTranslationsLocalizableSchema(Object):
     """
     A JSON Schema for :py:class:`betty.locale.localizable.StaticTranslationsLocalizable`.
     """
@@ -301,7 +300,7 @@ class StaticTranslationsLocalizableSchema(JsonLdObject):
 
 
 class StaticTranslationsLocalizable(
-    _FormattableLocalizable, LinkedDataDumpableJsonLdObject
+    _FormattableLocalizable, LinkedDataDumpable[Object, DumpMapping[Dump]]
 ):
     """
     Provide a :py:class:`betty.locale.localizable.Localizable` backed by static translations.
@@ -385,7 +384,7 @@ class StaticTranslationsLocalizable(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project) -> Object:
         return StaticTranslationsLocalizableSchema()
 
 

@@ -4,7 +4,7 @@ The Link API allows data to reference external resources.
 
 from __future__ import annotations
 
-from typing import final, Any, MutableSequence, TYPE_CHECKING
+from typing import final, Any, MutableSequence, TYPE_CHECKING, Self
 
 from typing_extensions import override
 
@@ -15,6 +15,7 @@ from betty.json.linked_data import (
     JsonLdObject,
     dump_link,
     LinkedDataDumpableJsonLdObject,
+    JsonLdSchema,
 )
 from betty.json.schema import String, Array
 from betty.locale import UNDETERMINED_LOCALE
@@ -77,16 +78,17 @@ class Link(HasMediaType, HasLocale, HasDescription, LinkedDataDumpableJsonLdObje
     @override
     @classmethod
     async def linked_data_schema(cls, project: Project) -> LinkSchema:
-        return LinkSchema()
+        return await LinkSchema.new()
 
 
+@final
 class LinkSchema(JsonLdObject):
     """
     A JSON Schema for :py:class:`betty.ancestry.link.Link`.
     """
 
-    def __init__(self):
-        super().__init__(def_name="link", title="Link")
+    def __init__(self, json_ld_schema: JsonLdSchema):
+        super().__init__(json_ld_schema, def_name="link", title="Link")
         self.add_property(
             "url",
             String(
@@ -109,14 +111,28 @@ class LinkSchema(JsonLdObject):
             False,
         )
 
+    @classmethod
+    async def new(cls) -> Self:
+        """
+        Create a new instance.
+        """
+        return cls(await JsonLdSchema.new())
+
 
 class LinkCollectionSchema(Array):
     """
     A JSON Schema for :py:class:`betty.ancestry.link.Link` collections.
     """
 
-    def __init__(self):
-        super().__init__(LinkSchema(), def_name="linkCollection", title="Links")
+    def __init__(self, link_schema: LinkSchema):
+        super().__init__(link_schema, def_name="linkCollection", title="Links")
+
+    @classmethod
+    async def new(cls) -> Self:
+        """
+        Create a new instance.
+        """
+        return cls(await LinkSchema.new())
 
 
 class HasLinks(LinkedDataDumpableJsonLdObject):
@@ -155,5 +171,5 @@ class HasLinks(LinkedDataDumpableJsonLdObject):
     @classmethod
     async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        schema.add_property("links", LinkCollectionSchema())
+        schema.add_property("links", await LinkCollectionSchema.new())
         return schema
