@@ -4,7 +4,7 @@ Perform Webpack builds.
 
 from __future__ import annotations
 
-from asyncio import to_thread
+from asyncio import to_thread, gather
 from json import dumps, loads
 from logging import getLogger
 from pathlib import Path
@@ -15,7 +15,6 @@ import aiofiles
 from aiofiles.os import makedirs
 
 from betty import _npm
-from betty.asyncio import gather
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.hashid import hashid, hashid_sequence, hashid_file_content
 from betty.os import copy_tree

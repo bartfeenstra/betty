@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 import logging
+from asyncio import gather
 from pathlib import Path
 from typing import Iterable, TYPE_CHECKING, final, Self
 
 from jinja2 import pass_context
 from typing_extensions import override
 
-from betty.asyncio import gather
 from betty.fetch import FetchError
 from betty.jinja2 import Jinja2Provider, context_localizer, Filters, Globals
 from betty.locale import negotiate_locale

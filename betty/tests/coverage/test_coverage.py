@@ -111,9 +111,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "valid": TestKnownToBeMissing,
         },
     },
-    "betty/asyncio.py": {
-        "gather": TestKnownToBeMissing,
-    },
     "betty/cache/__init__.py": {
         # This is an interface.
         "Cache": TestKnownToBeMissing,

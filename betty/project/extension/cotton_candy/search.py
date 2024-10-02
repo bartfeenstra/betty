@@ -5,6 +5,7 @@ Provide Cotton Candy's search functionality.
 from __future__ import annotations
 
 from abc import ABC
+from asyncio import gather
 from dataclasses import dataclass
 from inspect import getmembers
 from typing import TYPE_CHECKING, TypeVar, Generic, final
@@ -16,7 +17,6 @@ from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
-from betty.asyncio import gather
 from betty.locale.localizable import StaticTranslationsLocalizableAttr
 from betty.model import Entity
 from betty.privacy import is_private

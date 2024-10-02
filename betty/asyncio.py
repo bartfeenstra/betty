@@ -4,32 +4,12 @@ Provide asynchronous programming utilities.
 
 from __future__ import annotations
 
-from asyncio import TaskGroup, run
+from asyncio import run
 from inspect import isawaitable
 from threading import Thread
-from typing import (
-    Awaitable,
-    TypeVar,
-    Generic,
-    cast,
-    Coroutine,
-    Any,
-)
+from typing import Awaitable, TypeVar, Generic, cast
 
 _T = TypeVar("_T")
-
-
-async def gather(*coroutines: Coroutine[Any, None, _T]) -> tuple[_T, ...]:
-    """
-    Gather multiple coroutines.
-
-    This is like Python's own ``asyncio.gather``, but with improved error handling.
-    """
-    tasks = []
-    async with TaskGroup() as task_group:
-        for coroutine in coroutines:
-            tasks.append(task_group.create_task(coroutine))
-    return tuple(task.result() for task in tasks)
 
 
 def wait_to_thread(f: Awaitable[_T]) -> _T:

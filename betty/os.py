@@ -7,12 +7,11 @@ from __future__ import annotations
 import asyncio
 import os
 import shutil
+from asyncio import gather
 from contextlib import suppress
 from os import walk
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
-
-from betty.asyncio import gather
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Awaitable

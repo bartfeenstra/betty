@@ -4,6 +4,7 @@ Provide the Dispatch API.
 
 from __future__ import annotations
 
+from asyncio import gather
 from collections import defaultdict
 from typing import (
     Sequence,
@@ -14,8 +15,6 @@ from typing import (
     TYPE_CHECKING,
     final,
 )
-
-from betty.asyncio import gather
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping, MutableSequence, Mapping
@@ -96,8 +95,4 @@ class EventDispatcher(_EventHandlerRegistry):
         Dispatch an event.
         """
         for handler_batch in self._handlers[type(event)]:
-            await gather(
-                *(  # type: ignore[arg-type]
-                    handler(event) for handler in handler_batch
-                )
-            )
+            await gather(*(handler(event) for handler in handler_batch))
