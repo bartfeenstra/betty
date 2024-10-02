@@ -94,7 +94,7 @@ Display <a href="https://www.wikipedia.org/">Wikipedia</a> summaries for resourc
 
     async def _init_globals(self) -> Globals:
         return {
-            "wikipedia_contributors_copyright_notice": await self.project.new(
+            "wikipedia_contributors_copyright_notice": await self.project.new_target(
                 await self.project.copyright_notices.get("wikipedia-contributors")
             )
         }

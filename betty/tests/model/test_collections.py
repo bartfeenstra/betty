@@ -238,7 +238,7 @@ class MultipleTypesEntityCollectionTestEntityOther(DummyEntity):
 
 class TestMultipleTypesEntityCollection:
     async def test_add(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = await MultipleTypesEntityCollection[Entity].new()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other1 = MultipleTypesEntityCollectionTestEntityOther()
         entity_other2 = MultipleTypesEntityCollectionTestEntityOther()
@@ -250,7 +250,7 @@ class TestMultipleTypesEntityCollection:
         )
 
     async def test_add_with_duplicate_entities(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = await MultipleTypesEntityCollection[Entity].new()
         entity1 = MultipleTypesEntityCollectionTestEntityOne()
         entity2 = MultipleTypesEntityCollectionTestEntityOther()
         entity3 = MultipleTypesEntityCollectionTestEntityOne()
@@ -296,7 +296,7 @@ class TestMultipleTypesEntityCollection:
         )
 
     async def test_remove(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = await MultipleTypesEntityCollection[Entity].new()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
         sut[MultipleTypesEntityCollectionTestEntityOne].add(entity_one)
@@ -307,7 +307,7 @@ class TestMultipleTypesEntityCollection:
         assert list(sut) == []
 
     async def test___getitem___by_index(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = await MultipleTypesEntityCollection[Entity].new()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
         sut.add(entity_one, entity_other)
@@ -317,7 +317,7 @@ class TestMultipleTypesEntityCollection:
             sut[2]
 
     async def test___getitem___by_indices(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = await MultipleTypesEntityCollection[Entity].new()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
         sut.add(entity_one, entity_other)
@@ -325,7 +325,7 @@ class TestMultipleTypesEntityCollection:
         assert list(sut[1::1]) == [entity_other]
 
     async def test___getitem___by_entity_type(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = await MultipleTypesEntityCollection[Entity].new()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
         sut.add(entity_one, entity_other)
@@ -335,7 +335,7 @@ class TestMultipleTypesEntityCollection:
         assert list(sut[DummyEntity]) == []
 
     async def test___getitem___by_entity_type_id(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = await MultipleTypesEntityCollection[Entity].new()
         # Use an existing ancestry entity type, because converting an entity type name to an entity type only works for
         # entity types in a single module namespace.
         entity = Person()
@@ -346,7 +346,7 @@ class TestMultipleTypesEntityCollection:
             sut["NonExistentEntityType"]
 
     async def test___delitem___by_entity(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = await MultipleTypesEntityCollection[Entity].new()
         entity1 = MultipleTypesEntityCollectionTestEntityOne()
         entity2 = MultipleTypesEntityCollectionTestEntityOne()
         entity3 = MultipleTypesEntityCollectionTestEntityOne()
@@ -357,7 +357,7 @@ class TestMultipleTypesEntityCollection:
         assert list(sut) == [entity1, entity3]
 
     async def test___delitem___by_entity_type(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = await MultipleTypesEntityCollection[Entity].new()
         entity = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
         sut.add(entity, entity_other)
@@ -374,7 +374,7 @@ class TestMultipleTypesEntityCollection:
                 MultipleTypesEntityCollectionTestEntityOther,
             ),
         )
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = await MultipleTypesEntityCollection[Entity].new()
         entity = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
         sut.add(entity, entity_other)
@@ -384,7 +384,7 @@ class TestMultipleTypesEntityCollection:
         assert list(sut) == [entity_other]
 
     async def test_iter(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = await MultipleTypesEntityCollection[Entity].new()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
         sut[MultipleTypesEntityCollectionTestEntityOne].add(entity_one)
@@ -392,7 +392,7 @@ class TestMultipleTypesEntityCollection:
         assert list(sut) == [entity_one, entity_other]
 
     async def test_len(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = await MultipleTypesEntityCollection[Entity].new()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other = MultipleTypesEntityCollectionTestEntityOther()
         sut[MultipleTypesEntityCollectionTestEntityOne].add(entity_one)
@@ -400,7 +400,7 @@ class TestMultipleTypesEntityCollection:
         assert len(sut) == 2
 
     async def test_contain_by_entity(self) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = await MultipleTypesEntityCollection[Entity].new()
         entity_one = MultipleTypesEntityCollectionTestEntityOne()
         entity_other1 = MultipleTypesEntityCollectionTestEntityOther()
         entity_other2 = MultipleTypesEntityCollectionTestEntityOther()
@@ -419,7 +419,7 @@ class TestMultipleTypesEntityCollection:
         ],
     )
     async def test___contains___by_unsupported_type(self, value: Any) -> None:
-        sut = MultipleTypesEntityCollection[Entity]()
+        sut = await MultipleTypesEntityCollection[Entity].new()
         entity = MultipleTypesEntityCollectionTestEntityOne()
         sut.add(entity)
 

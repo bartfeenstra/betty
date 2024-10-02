@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 from collections import defaultdict
 from pathlib import Path
-from typing import Iterable, cast, TYPE_CHECKING, final
+from typing import Iterable, cast, TYPE_CHECKING, final, Self
 
 import aiofiles
 from typing_extensions import override
@@ -40,8 +40,10 @@ from betty.project.extension.maps import Maps
 from betty.project.extension.trees import Trees
 from betty.project.extension.webpack import Webpack, WebpackEntryPointProvider
 from betty.project.generate import GenerateSiteEvent
+from betty.typing import internal
 
 if TYPE_CHECKING:
+    from betty.project import Project
     from betty.ancestry.presence import Presence
     from betty.ancestry.file_reference import FileReference
     from betty.ancestry.has_file_references import HasFileReferences
@@ -123,6 +125,20 @@ class CottonCandy(
     _plugin_label = static("Cotton Candy")
     _plugin_description = _("Cotton Candy is Betty's default theme.")
 
+    @internal
+    def __init__(self, project: Project, public_css_paths: Sequence[str]):
+        super().__init__(project)
+        self._public_css_paths = public_css_paths
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project) -> Self:
+        static_url_generator = await project.static_url_generator
+        return cls(
+            project,
+            [static_url_generator.generate("/css/cotton-candy.css")],
+        )
+
     @override
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
         registry.add_handler(
@@ -162,9 +178,7 @@ class CottonCandy(
     @override
     @property
     def public_css_paths(self) -> Sequence[str]:
-        return [
-            self.project.static_url_generator.generate("/css/cotton-candy.css"),
-        ]
+        return self._public_css_paths
 
     @override
     @classmethod

@@ -111,7 +111,7 @@ class TestWebpack(ExtensionTestBase):
             Path(prebuilt_assets_directory_path) / "does-not-exist"
         )
         try:
-            project = Project(
+            project = await Project.new(
                 new_temporary_app,
                 ProjectConfiguration(tmp_path / "project" / "betty.json"),
             )

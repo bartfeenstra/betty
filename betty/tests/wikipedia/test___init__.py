@@ -653,7 +653,7 @@ class TestPopulator:
         link = Link("http://en.wikipedia.org/wiki/Amsterdam")
         page_language = "nl"
         sut = _Populator(
-            Ancestry(),
+            await Ancestry.new(),
             [],
             LocalizerRepository(AssetRepository(tmp_path / "assets")),
             m_retriever,
@@ -682,7 +682,7 @@ class TestPopulator:
             media_type=media_type,
         )
         sut = _Populator(
-            Ancestry(),
+            await Ancestry.new(),
             [],
             LocalizerRepository(AssetRepository(tmp_path / "assets")),
             m_retriever,
@@ -709,7 +709,7 @@ class TestPopulator:
         link = Link("http://en.wikipedia.org/wiki/Amsterdam")
         link.relationship = relationship
         sut = _Populator(
-            Ancestry(),
+            await Ancestry.new(),
             [],
             LocalizerRepository(AssetRepository(tmp_path / "assets")),
             m_retriever,
@@ -737,7 +737,7 @@ class TestPopulator:
         link = Link(f"http://{page_language}.wikipedia.org/wiki/Amsterdam")
         link.locale = original_link_locale
         sut = _Populator(
-            Ancestry(),
+            await Ancestry.new(),
             [],
             LocalizerRepository(AssetRepository(tmp_path / "assets")),
             m_retriever,
@@ -762,7 +762,7 @@ class TestPopulator:
         )
         page_language = "en"
         sut = _Populator(
-            Ancestry(),
+            await Ancestry.new(),
             [],
             LocalizerRepository(AssetRepository(tmp_path / "assets")),
             m_retriever,
@@ -791,7 +791,7 @@ class TestPopulator:
             "Amsterdam, such a lovely place!",
         )
         sut = _Populator(
-            Ancestry(),
+            await Ancestry.new(),
             [],
             LocalizerRepository(AssetRepository(tmp_path / "assets")),
             m_retriever,
@@ -808,7 +808,7 @@ class TestPopulator:
             id="the_citation",
             source=source,
         )
-        ancestry = Ancestry()
+        ancestry = await Ancestry.new()
         ancestry.add(resource)
         sut = _Populator(
             ancestry,
@@ -826,7 +826,7 @@ class TestPopulator:
             id="the_source",
             name="The Source",
         )
-        ancestry = Ancestry()
+        ancestry = await Ancestry.new()
         ancestry.add(resource)
         sut = _Populator(
             ancestry,
@@ -847,7 +847,7 @@ class TestPopulator:
             name="The Source",
             links=[link],
         )
-        ancestry = Ancestry()
+        ancestry = await Ancestry.new()
         ancestry.add(resource)
         sut = _Populator(
             ancestry,
@@ -878,7 +878,7 @@ class TestPopulator:
             name="The Source",
             links=[link],
         )
-        ancestry = Ancestry()
+        ancestry = await Ancestry.new()
         ancestry.add(resource)
         sut = _Populator(
             ancestry,
@@ -929,7 +929,7 @@ class TestPopulator:
             name="The Source",
             links=[link_en],
         )
-        ancestry = Ancestry()
+        ancestry = await Ancestry.new()
         ancestry.add(resource)
         sut = _Populator(
             ancestry,
@@ -971,7 +971,7 @@ class TestPopulator:
         wikipedia_link = Link(f"https://{page_language}.wikipedia.org/wiki/{page_name}")
         other_link = Link("https://example.com")
         place = Place(links=[wikipedia_link, other_link])
-        ancestry = Ancestry()
+        ancestry = await Ancestry.new()
         ancestry.add(place)
         sut = _Populator(
             ancestry,
@@ -1004,7 +1004,7 @@ class TestPopulator:
 
         link = Link(f"https://{page_language}.wikipedia.org/wiki/{page_name}")
         place = Place(links=[link])
-        ancestry = Ancestry()
+        ancestry = await Ancestry.new()
         ancestry.add(place)
         sut = _Populator(
             ancestry,

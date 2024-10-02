@@ -68,7 +68,7 @@ _T = TypeVar("_T")
 
 
 @pass_context
-def filter_localized_url(
+async def filter_localized_url(
     context: Context,
     resource: Any,
     locale: Localey | None = None,
@@ -80,7 +80,8 @@ def filter_localized_url(
     """
     from betty.jinja2 import context_project, context_localizer
 
-    return context_project(context).localized_url_generator.generate(
+    localized_url_generator = await context_project(context).localized_url_generator
+    return localized_url_generator.generate(
         resource,
         media_type or "text/html",
         locale=locale or context_localizer(context).locale,
@@ -89,7 +90,7 @@ def filter_localized_url(
 
 
 @pass_context
-def filter_static_url(
+async def filter_static_url(
     context: Context,
     resource: Any,
     absolute: bool = False,
@@ -99,9 +100,8 @@ def filter_static_url(
     """
     from betty.jinja2 import context_project
 
-    return context_project(context).static_url_generator.generate(
-        resource, absolute=absolute
-    )
+    static_url_generator = await context_project(context).static_url_generator
+    return static_url_generator.generate(resource, absolute=absolute)
 
 
 @pass_context

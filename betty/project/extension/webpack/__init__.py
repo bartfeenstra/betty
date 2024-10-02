@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from abc import abstractmethod, ABC
 from pathlib import Path
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, final, Self
 
 from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
@@ -145,6 +145,17 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
     _plugin_id = "webpack"
     _plugin_label = static("Webpack")
 
+    @internal
+    def __init__(self, project: Project, public_css_paths: Sequence[str]):
+        super().__init__(project)
+        self._public_css_paths = public_css_paths
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project) -> Self:
+        static_url_generator = await project.static_url_generator
+        return cls(project, [static_url_generator.generate("/css/vendor.css")])
+
     @override
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
         registry.add_handler(GenerateSiteEvent, _generate_assets)
@@ -168,9 +179,7 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
     @override
     @property
     def public_css_paths(self) -> Sequence[str]:
-        return [
-            self._project.static_url_generator.generate("/css/vendor.css"),
-        ]
+        return self._public_css_paths
 
     @override
     def new_context_vars(self) -> ContextVars:

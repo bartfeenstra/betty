@@ -297,7 +297,9 @@ async def _generate_json_error_responses(project: Project) -> None:
                 await f.write(
                     json.dumps(
                         {
-                            "$schema": ProjectSchema.def_url(project, "errorResponse"),
+                            "$schema": await ProjectSchema.def_url(
+                                project, "errorResponse"
+                            ),
                             "message": message.localize(DEFAULT_LOCALIZER),
                         }
                     )
@@ -338,11 +340,13 @@ async def _generate_entity_type_list_json(
     entity_type: type[Entity],
 ) -> None:
     project = job_context.project
+    await project.static_url_generator
+    localized_url_generator = await project.localized_url_generator
     entity_type_path = (
         project.configuration.www_directory_path / entity_type.plugin_id()
     )
     data: DumpMapping[Dump] = {
-        "$schema": ProjectSchema.def_url(
+        "$schema": await ProjectSchema.def_url(
             project,
             f"{kebab_case_to_lower_camel_case(entity_type.plugin_id())}EntityCollectionResponse",
         ),
@@ -350,7 +354,7 @@ async def _generate_entity_type_list_json(
     }
     for entity in project.ancestry[entity_type]:
         cast(MutableSequence[str], data["collection"]).append(
-            project.localized_url_generator.generate(
+            localized_url_generator.generate(
                 entity,
                 "application/json",
                 absolute=True,
@@ -413,19 +417,19 @@ _ROBOTS_TXT_TEMPLATE = """Sitemap: {{{ sitemap }}}"""
 async def _generate_robots_txt(
     job_context: ProjectContext,
 ) -> None:
+    project = job_context.project
+    static_url_generator = await project.static_url_generator
     rendered_robots_txt = _ROBOTS_TXT_TEMPLATE.replace(
         "{{{ sitemap }}}",
-        job_context.project.static_url_generator.generate(
-            "/sitemap.xml", absolute=True
-        ),
+        static_url_generator.generate("/sitemap.xml", absolute=True),
     )
     await to_thread(
-        job_context.project.configuration.www_directory_path.mkdir,
+        project.configuration.www_directory_path.mkdir,
         exist_ok=True,
         parents=True,
     )
     async with aiofiles.open(
-        job_context.project.configuration.www_directory_path / "robots.txt", mode="w"
+        project.configuration.www_directory_path / "robots.txt", mode="w"
     ) as f:
         await f.write(rendered_robots_txt)
 
@@ -461,6 +465,8 @@ async def _generate_sitemap(
     job_context: ProjectContext,
 ) -> None:
     project = job_context.project
+    static_url_generator = await project.static_url_generator
+    localized_url_generator = await project.localized_url_generator
     sitemap_batches = []
     sitemap_batch_urls: MutableSequence[str] = []
     sitemap_batch_urls_length = 0
@@ -473,7 +479,7 @@ async def _generate_sitemap(
                 continue
 
             sitemap_batch_urls.append(
-                project.localized_url_generator.generate(
+                localized_url_generator.generate(
                     entity,
                     absolute=True,
                     locale=locale,
@@ -490,7 +496,7 @@ async def _generate_sitemap(
     sitemap_urls = []
     for sitemap_batch_index, sitemap_batch_urls in enumerate(sitemap_batches):
         sitemap_urls.append(
-            project.static_url_generator.generate(
+            static_url_generator.generate(
                 f"/sitemap-{sitemap_batch_index}.xml",
                 absolute=True,
             )
@@ -534,7 +540,7 @@ async def _generate_json_schema(
     project = job_context.project
     localizer = await project.app.localizer
     logging.getLogger(__name__).debug(localizer._("Generating JSON Schema..."))
-    schema = await ProjectSchema.new(project)
+    schema = await ProjectSchema.new_for_project(project)
     rendered_json = json.dumps(schema.schema)
     async with create_file(ProjectSchema.www_path(project)) as f:
         await f.write(rendered_json)

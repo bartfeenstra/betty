@@ -51,11 +51,10 @@ from betty.model.association import (
     ToOneResolver,
     resolve,
 )
-from betty.model.collections import MultipleTypesEntityCollection
 from betty.path import rootname
+from betty.plugin import PluginNotFound
 from betty.privacy import HasPrivacy
 from betty.typing import internal
-from betty.plugin import PluginNotFound
 
 if TYPE_CHECKING:
     from betty.copyright_notice import CopyrightNotice
@@ -170,7 +169,6 @@ class GrampsLoader:
     ):
         super().__init__()
         self._ancestry = ancestry
-        self._entities = MultipleTypesEntityCollection[Entity]()
         self._handles_to_entities: MutableMapping[str, Entity] = {}
         self._factory = factory
         self._attribute_prefix_key = attribute_prefix_key
@@ -307,66 +305,65 @@ class GrampsLoader:
 
         database = self._tree.getroot()
 
-        await self._load_notes(database)
-        logger.info(
-            self._localizer._("Loaded {note_count} notes.").format(
-                note_count=self._added_entity_counts[Note]
-            )
-        )
-        await self._load_objects(database, self._gramps_tree_directory_path)
-        logger.info(
-            self._localizer._("Loaded {file_count} files.").format(
-                file_count=self._added_entity_counts[File]
-            )
-        )
-
-        await self._load_repositories(database)
-        repository_count = self._added_entity_counts[Source]
-        logger.info(
-            self._localizer._(
-                "Loaded {repository_count} repositories as sources."
-            ).format(repository_count=repository_count)
-        )
-
-        await self._load_sources(database)
-        logger.info(
-            self._localizer._("Loaded {source_count} sources.").format(
-                source_count=self._added_entity_counts[Source] - repository_count
-            )
-        )
-
-        await self._load_citations(database)
-        logger.info(
-            self._localizer._("Loaded {citation_count} citations.").format(
-                citation_count=self._added_entity_counts[Citation]
-            )
-        )
-
-        await self._load_places(database)
-        logger.info(
-            self._localizer._("Loaded {place_count} places.").format(
-                place_count=self._added_entity_counts[Place]
-            )
-        )
-
-        await self._load_events(database)
-        logger.info(
-            self._localizer._("Loaded {event_count} events.").format(
-                event_count=self._added_entity_counts[Event]
-            )
-        )
-
-        await self._load_people(database)
-        logger.info(
-            self._localizer._("Loaded {person_count} people.").format(
-                person_count=self._added_entity_counts[Person]
-            )
-        )
-
-        await self._load_families(database)
-
         with self._ancestry.unchecked():
-            self._ancestry.add(*self._entities)
+            await self._load_notes(database)
+            logger.info(
+                self._localizer._("Loaded {note_count} notes.").format(
+                    note_count=self._added_entity_counts[Note]
+                )
+            )
+            await self._load_objects(database, self._gramps_tree_directory_path)
+            logger.info(
+                self._localizer._("Loaded {file_count} files.").format(
+                    file_count=self._added_entity_counts[File]
+                )
+            )
+
+            await self._load_repositories(database)
+            repository_count = self._added_entity_counts[Source]
+            logger.info(
+                self._localizer._(
+                    "Loaded {repository_count} repositories as sources."
+                ).format(repository_count=repository_count)
+            )
+
+            await self._load_sources(database)
+            logger.info(
+                self._localizer._("Loaded {source_count} sources.").format(
+                    source_count=self._added_entity_counts[Source] - repository_count
+                )
+            )
+
+            await self._load_citations(database)
+            logger.info(
+                self._localizer._("Loaded {citation_count} citations.").format(
+                    citation_count=self._added_entity_counts[Citation]
+                )
+            )
+
+            await self._load_places(database)
+            logger.info(
+                self._localizer._("Loaded {place_count} places.").format(
+                    place_count=self._added_entity_counts[Place]
+                )
+            )
+
+            await self._load_events(database)
+            logger.info(
+                self._localizer._("Loaded {event_count} events.").format(
+                    event_count=self._added_entity_counts[Event]
+                )
+            )
+
+            await self._load_people(database)
+            logger.info(
+                self._localizer._("Loaded {person_count} people.").format(
+                    person_count=self._added_entity_counts[Person]
+                )
+            )
+
+            await self._load_families(database)
+
         resolve(*self._ancestry)
 
     def _resolve1(
@@ -380,7 +377,7 @@ class GrampsLoader:
         return _ToManyResolver(self._handles_to_entities, *handles)
 
     def _add_entity(self, entity: Entity, handle: str | None = None) -> None:
-        self._entities.add(entity)
+        self._ancestry.add(entity)
         if handle is not None:
             self._handles_to_entities[handle] = entity
         self._added_entity_counts[entity.type] += 1
@@ -533,7 +530,7 @@ class GrampsLoader:
         )
         if copyright_notice_id:
             try:
-                file.copyright_notice = await self._copyright_notices.new(
+                file.copyright_notice = await self._copyright_notices.new_target(
                     copyright_notice_id
                 )
             except PluginNotFound:
@@ -545,7 +542,7 @@ class GrampsLoader:
         license_id = self._load_attribute("license", element, "attribute")
         if license_id:
             try:
-                file.license = await self._licenses.new(license_id)
+                file.license = await self._licenses.new_target(license_id)
             except PluginNotFound:
                 getLogger(__name__).warning(
                     self._localizer._(

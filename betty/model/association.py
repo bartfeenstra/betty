@@ -44,12 +44,13 @@ _OwnerT = TypeVar("_OwnerT", bound=Entity)
 _AssociateT = TypeVar("_AssociateT", bound=Entity)
 
 
-def _generate_associate_url(project: Project, associate: Entity) -> str | None:
+async def _generate_associate_url(project: Project, associate: Entity) -> str | None:
     if has_generated_entity_id(associate):
         return None
     if not isinstance(associate, UserFacingEntity):
         return None
-    return project.static_url_generator.generate(
+    static_url_generator = await project.static_url_generator
+    return static_url_generator.generate(
         f"/{associate.type.plugin_id()}/{quote(associate.id)}/index.json"
     )
 
@@ -263,7 +264,7 @@ class _ToOneAssociation(
         if self._linked_data_embedded:
             return await associate.dump_linked_data(project)
         else:
-            return _generate_associate_url(project, associate)
+            return await _generate_associate_url(project, associate)
 
 
 class _ToZeroOrOneAssociation(
@@ -341,7 +342,7 @@ class _ToZeroOrOneAssociation(
         if self._linked_data_embedded:
             return await associate.dump_linked_data(project)
         else:
-            return _generate_associate_url(project, associate)
+            return await _generate_associate_url(project, associate)
 
 
 @internal
@@ -431,10 +432,10 @@ class _ToManyAssociation(
         return list(
             filter(
                 None,
-                (
-                    _generate_associate_url(project, associate)
+                [
+                    await _generate_associate_url(project, associate)
                     for associate in associates
-                ),
+                ],
             )
         )
 

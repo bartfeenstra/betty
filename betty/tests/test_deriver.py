@@ -5,13 +5,13 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.ancestry import Ancestry
-from betty.ancestry.presence import Presence
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
     DerivableEventType,
     CreatableDerivableEventType,
 )
 from betty.ancestry.person import Person
+from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import DateRange, Date, Datey
 from betty.deriver import Deriver
@@ -104,10 +104,10 @@ class TestDeriver:
         self, event_type: type[DerivableEventType]
     ) -> None:
         person = Person(id="P0")
-        ancestry = Ancestry()
+        ancestry = await Ancestry.new()
         ancestry.add(person)
 
-        with record_added(ancestry) as added:
+        async with record_added(ancestry) as added:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,
@@ -135,10 +135,10 @@ class TestDeriver:
         person = Person(id="P0")
         derivable_event = Event(event_type=Ignored())
         Presence(person, Subject(), derivable_event)
-        ancestry = Ancestry()
+        ancestry = await Ancestry.new()
         ancestry.add(person)
 
-        with record_added(ancestry) as added:
+        async with record_added(ancestry) as added:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,
@@ -168,10 +168,10 @@ class TestDeriver:
         Presence(person, Subject(), Event(event_type=Ignored()))
         derivable_event = Event(event_type=event_type)
         Presence(person, Subject(), derivable_event)
-        ancestry = Ancestry()
+        ancestry = await Ancestry.new()
         ancestry.add(person)
 
-        with record_added(ancestry) as added:
+        async with record_added(ancestry) as added:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,
@@ -396,10 +396,10 @@ class TestDeriver:
             date=derivable_datey,
         )
         Presence(person, Subject(), derivable_event)
-        ancestry = Ancestry()
+        ancestry = await Ancestry.new()
         ancestry.add(person)
 
-        with record_added(ancestry) as added:
+        async with record_added(ancestry) as added:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,
@@ -454,10 +454,10 @@ class TestDeriver:
                 date=before_datey,
             ),
         )
-        ancestry = Ancestry()
+        ancestry = await Ancestry.new()
         ancestry.add(person)
 
-        with record_added(ancestry) as added:
+        async with record_added(ancestry) as added:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,
@@ -697,10 +697,10 @@ class TestDeriver:
             date=derivable_datey,
         )
         Presence(person, Subject(), derivable_event)
-        ancestry = Ancestry()
+        ancestry = await Ancestry.new()
         ancestry.add(person)
 
-        with record_added(ancestry) as added:
+        async with record_added(ancestry) as added:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,
@@ -756,10 +756,10 @@ class TestDeriver:
                 date=after_datey,
             ),
         )
-        ancestry = Ancestry()
+        ancestry = await Ancestry.new()
         ancestry.add(person)
 
-        with record_added(ancestry) as added:
+        async with record_added(ancestry) as added:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,
@@ -810,10 +810,10 @@ class TestDeriver:
                 date=after_datey,
             ),
         )
-        ancestry = Ancestry()
+        ancestry = await Ancestry.new()
         ancestry.add(person)
 
-        with record_added(ancestry) as added:
+        async with record_added(ancestry) as added:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,

@@ -36,6 +36,7 @@ async def _generate_people_json_for_locale(
     event: GenerateSiteEvent, locale: str
 ) -> None:
     project = event.project
+    localized_url_generator = await project.localized_url_generator
     localizers = await project.localizers
     localizer = await localizers.get(locale)
     private_label = localizer._("private")
@@ -45,7 +46,7 @@ async def _generate_people_json_for_locale(
             "label": person.label.localize(localizer)
             if person.public
             else private_label,
-            "url": project.localized_url_generator.generate(person, "text/html"),
+            "url": localized_url_generator.generate(person, "text/html"),
             "parentIds": [parent.id for parent in person.parents],
             "childIds": [child.id for child in person.children],
             "private": person.private,

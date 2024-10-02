@@ -5,7 +5,7 @@ Entity collections.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from contextlib import contextmanager
+from contextlib import asynccontextmanager
 from reprlib import recursive_repr
 from typing import (
     Generic,
@@ -16,19 +16,19 @@ from typing import (
     cast,
     TypeVar,
     TYPE_CHECKING,
+    Self,
 )
 
 from typing_extensions import override
 
-from betty import model
-from betty.asyncio import wait_to_thread
 from betty.functools import Uniquifier
 from betty.model import Entity
 from betty.repr import repr_instance
 
 if TYPE_CHECKING:
+    from betty.plugin import PluginIdToTypeMap
     from betty.machine_name import MachineName
-    from collections.abc import Sequence, MutableSequence, MutableMapping
+    from collections.abc import Sequence, MutableSequence, MutableMapping, AsyncIterator
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
 _TargetT = TypeVar("_TargetT")
@@ -247,14 +247,30 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
     Collect entities of multiple types.
     """
 
-    __slots__ = "_collections"
+    __slots__ = ("_collections", "_entity_type_id_to_type_map")
 
-    def __init__(self, *entities: _TargetT & Entity):
+    def __init__(
+        self,
+        *entities: _TargetT & Entity,
+        entity_type_id_to_type_map: PluginIdToTypeMap[Entity],
+    ):
         super().__init__()
+        self._entity_type_id_to_type_map = entity_type_id_to_type_map
         self._collections: MutableMapping[
             type[Entity], SingleTypeEntityCollection[Entity]
         ] = {}
         self.add(*entities)
+
+    @classmethod
+    async def new(cls, *entities: _TargetT & Entity) -> Self:
+        """
+        Create a new instance.
+        """
+        from betty.model import ENTITY_TYPE_REPOSITORY
+
+        return cls(
+            *entities, entity_type_id_to_type_map=await ENTITY_TYPE_REPOSITORY.map()
+        )
 
     @override  # type: ignore[callable-functiontype]
     @recursive_repr()
@@ -327,9 +343,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
     def _getitem_by_entity_type_id(
         self, entity_type_id: MachineName
     ) -> SingleTypeEntityCollection[Entity]:
-        return self._get_collection(
-            wait_to_thread(model.ENTITY_TYPE_REPOSITORY.get(entity_type_id)),
-        )
+        return self._get_collection(self._entity_type_id_to_type_map[entity_type_id])
 
     def _getitem_by_index(self, index: int) -> _TargetT & Entity:
         return self.view[index]
@@ -362,7 +376,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
 
     def _delitem_by_entity_type_id(self, entity_type_id: MachineName) -> None:
         self._delitem_by_entity_type(
-            wait_to_thread(model.ENTITY_TYPE_REPOSITORY.get(entity_type_id)),  # type: ignore[arg-type]
+            self._entity_type_id_to_type_map[entity_type_id]  # type: ignore [arg-type]
         )
 
     @override
@@ -409,14 +423,14 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
             self._on_remove(*removed_entities)
 
 
-@contextmanager
-def record_added(
+@asynccontextmanager
+async def record_added(
     entities: EntityCollection[_EntityT],
-) -> Iterator[MultipleTypesEntityCollection[_EntityT]]:
+) -> AsyncIterator[MultipleTypesEntityCollection[_EntityT]]:
     """
     Record all entities that are added to a collection.
     """
     original = [*entities]
-    added = MultipleTypesEntityCollection[_EntityT]()
+    added = await MultipleTypesEntityCollection[_EntityT].new()
     yield added
     added.add(*[entity for entity in entities if entity not in original])

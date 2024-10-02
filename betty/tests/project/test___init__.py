@@ -272,7 +272,7 @@ class TestProject:
     async def test_ancestry_with___init___ancestry(
         self, new_temporary_app: App
     ) -> None:
-        ancestry = Ancestry()
+        ancestry = await Ancestry.new()
         async with (
             Project.new_temporary(new_temporary_app, ancestry=ancestry) as sut,
             sut,
@@ -350,18 +350,18 @@ class TestProject:
 
     async def test_static_url_generator(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            sut.static_url_generator  # noqa B018
+            await sut.static_url_generator
 
     async def test_localized_url_generator(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            sut.localized_url_generator  # noqa B018
+            await sut.localized_url_generator
 
-    async def test_new(self, new_temporary_app: App) -> None:
+    async def test_new_target(self, new_temporary_app: App) -> None:
         class Dependent:
             pass
 
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            await sut.new(Dependent)
+            await sut.new_target(Dependent)
 
     async def test_new_with_project_dependent_factory(
         self, new_temporary_app: App
@@ -375,7 +375,7 @@ class TestProject:
                 return cls(project)
 
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            dependent = await sut.new(Dependent)
+            dependent = await sut.new_target(Dependent)
             assert dependent.project is sut
 
     async def test_new_with_app_dependent_factory(self, new_temporary_app: App) -> None:
@@ -389,7 +389,7 @@ class TestProject:
                 return cls(app)
 
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            dependent = await sut.new(Dependent)
+            dependent = await sut.new_target(Dependent)
             assert dependent.app is new_temporary_app
 
     async def test_logo_with_configuration(
@@ -496,7 +496,7 @@ class TestProjectSchema(SchemaTestBase):
                     async with project:
                         schemas.append(
                             (
-                                await ProjectSchema.new(project),
+                                await ProjectSchema.new_for_project(project),
                                 [
                                     await betty.ancestry.person.Person().dump_linked_data(
                                         project
@@ -522,18 +522,18 @@ class TestProjectSchema(SchemaTestBase):
     )
     async def test_new(self, clean_urls: bool, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = await ProjectSchema.new(project)
+            sut = await ProjectSchema.new_for_project(project)
         json_schema = await JsonSchemaSchema.new()
         json_schema.validate(sut.schema)
 
     async def test_def_url(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
             def_name = "myFirstDefinition"
-            assert def_name in ProjectSchema.def_url(project, def_name)
+            assert def_name in await ProjectSchema.def_url(project, def_name)
 
     async def test_url(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            assert "http" in ProjectSchema.url(project)
+            assert "http" in await ProjectSchema.url(project)
 
     async def test_www_path(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:

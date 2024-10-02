@@ -52,7 +52,7 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new,
+                factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
                 copyright_notices=project.copyright_notices,
                 licenses=project.licenses,
@@ -66,7 +66,7 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new,
+                factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
                 copyright_notices=project.copyright_notices,
                 licenses=project.licenses,
@@ -79,7 +79,7 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new,
+                factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
                 copyright_notices=project.copyright_notices,
                 licenses=project.licenses,
@@ -93,7 +93,7 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new,
+                factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
                 copyright_notices=project.copyright_notices,
                 licenses=project.licenses,
@@ -114,7 +114,7 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new,
+                factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
                 copyright_notices=project.copyright_notices,
                 licenses=project.licenses,
@@ -130,7 +130,7 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new,
+                factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
                 copyright_notices=project.copyright_notices,
                 licenses=project.licenses,
@@ -145,7 +145,7 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new,
+                factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
                 copyright_notices=project.copyright_notices,
                 licenses=project.licenses,
@@ -173,7 +173,7 @@ class TestGrampsLoader:
             async with project:
                 loader = GrampsLoader(
                     project.ancestry,
-                    factory=project.new,
+                    factory=project.new_target,
                     localizer=DEFAULT_LOCALIZER,
                     copyright_notices=project.copyright_notices,
                     licenses=project.licenses,
@@ -221,7 +221,7 @@ class TestGrampsLoader:
             gramps_file_path = Path(__file__).parent / "assets" / "minimal.xml"
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new,
+                factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
                 copyright_notices=project.copyright_notices,
                 licenses=project.licenses,

@@ -6,18 +6,14 @@ from typing_extensions import override
 
 from betty.factory import Factory, new
 from betty.machine_name import MachineName
-from betty.plugin import (
-    PluginNotFound,
-    Plugin,
-    PluginRepository,
-)
+from betty.plugin import PluginNotFound, Plugin, PluginRepository, PluginIdToTypeMap
 from betty.plugin.static import StaticPluginRepository
 from betty.test_utils.plugin import DummyPlugin
 
 
 class TestPluginNotFound:
     async def test_new(self) -> None:
-        await PluginNotFound.new("my-first-plugin-id", StaticPluginRepository())
+        PluginNotFound.new("my-first-plugin-id", [])
 
 
 class TestPlugin:
@@ -88,7 +84,32 @@ class _TestPluginRepositoryPluginRepository(PluginRepository[DummyPlugin]):
             yield plugin
 
 
+class TestPluginIdToTypeMap:
+    async def test_new(self) -> None:
+        await PluginIdToTypeMap.new(StaticPluginRepository())
+
+    async def test___getitem__(self) -> None:
+        sut = await PluginIdToTypeMap.new(StaticPluginRepository(DummyPlugin))
+        assert sut[DummyPlugin.plugin_id()] is DummyPlugin
+
+
 class TestPluginRepository:
+    async def test_map_without_plugins(self) -> None:
+        sut = _TestPluginRepositoryPluginRepository()
+        await sut.map()
+
+    async def test_map_with_plugins(self) -> None:
+        sut = _TestPluginRepositoryPluginRepository(
+            _TestPluginRepositoryPluginOne,
+            _TestPluginRepositoryPluginOneTwo,
+            _TestPluginRepositoryPluginOneTwoThree,
+        )
+        plugin_id_to_type_map = await sut.map()
+        assert (
+            plugin_id_to_type_map[_TestPluginRepositoryPluginOne.plugin_id()]
+            is _TestPluginRepositoryPluginOne
+        )
+
     async def test_select_without_plugins(self) -> None:
         sut = _TestPluginRepositoryPluginRepository()
         assert len(await sut.select()) == 0
@@ -164,20 +185,20 @@ class TestPluginRepository:
 
         assert list(await sut.select(*mixins)) == list(expected)
 
-    async def test_new_with_default_factory(self) -> None:
+    async def test_new_target_with_default_factory(self) -> None:
         sut = _TestPluginRepositoryPluginRepository(
             _TestPluginRepositoryPluginDefaultFactory
         )
         assert isinstance(
-            await sut.new(_TestPluginRepositoryPluginDefaultFactory),
+            await sut.new_target(_TestPluginRepositoryPluginDefaultFactory),
             _TestPluginRepositoryPluginDefaultFactory,
         )
         assert isinstance(
-            await sut.new(_TestPluginRepositoryPluginDefaultFactory.plugin_id()),
+            await sut.new_target(_TestPluginRepositoryPluginDefaultFactory.plugin_id()),
             _TestPluginRepositoryPluginDefaultFactory,
         )
 
-    async def test_new_with_custom_factory(self) -> None:
+    async def test_new_target_with_custom_factory(self) -> None:
         async def factory(
             cls: type[DummyPlugin],
         ) -> DummyPlugin:
@@ -191,10 +212,10 @@ class TestPluginRepository:
             _TestPluginRepositoryPluginCustomFactory, factory=factory
         )
         assert isinstance(
-            await sut.new(_TestPluginRepositoryPluginCustomFactory),
+            await sut.new_target(_TestPluginRepositoryPluginCustomFactory),
             _TestPluginRepositoryPluginCustomFactory,
         )
         assert isinstance(
-            await sut.new(_TestPluginRepositoryPluginCustomFactory.plugin_id()),
+            await sut.new_target(_TestPluginRepositoryPluginCustomFactory.plugin_id()),
             _TestPluginRepositoryPluginCustomFactory,
         )
