@@ -23,12 +23,13 @@ if TYPE_CHECKING:
 
 
 async def _privatize_ancestry(event: PostLoadAncestryEvent) -> None:
+    localizer = await event.project.app.localizer
     logger = getLogger(__name__)
-    logger.info(event.project.app.localizer._("Privatizing..."))
+    logger.info(localizer._("Privatizing..."))
 
     privatizer = PrivatizerApi(
         event.project.configuration.lifetime_threshold,
-        localizer=event.project.app.localizer,
+        localizer=localizer,
     )
 
     newly_privatized: MutableMapping[type[HasPrivacy & Entity], int] = defaultdict(
@@ -50,7 +51,7 @@ async def _privatize_ancestry(event: PostLoadAncestryEvent) -> None:
 
     if newly_privatized[Person] > 0:
         logger.info(
-            event.project.app.localizer._(
+            localizer._(
                 "Privatized {count} people because they are likely still alive."
             ).format(
                 count=str(newly_privatized[Person]),
@@ -59,13 +60,11 @@ async def _privatize_ancestry(event: PostLoadAncestryEvent) -> None:
     for entity_type in set(newly_privatized) - {Person}:
         if newly_privatized[entity_type] > 0:
             logger.info(
-                event.project.app.localizer._(
+                localizer._(
                     "Privatized {count} {entity_type}, because they are associated with private information."
                 ).format(
                     count=str(newly_privatized[entity_type]),
-                    entity_type=entity_type.plugin_label_plural().localize(
-                        event.project.app.localizer
-                    ),
+                    entity_type=entity_type.plugin_label_plural().localize(localizer),
                 )
             )
 

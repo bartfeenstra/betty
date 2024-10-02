@@ -25,8 +25,9 @@ if TYPE_CHECKING:
 
 
 async def _derive_ancestry(event: PostLoadAncestryEvent) -> None:
+    localizer = await event.project.app.localizer
     logger = getLogger(__name__)
-    logger.info(event.project.app.localizer._("Deriving..."))
+    logger.info(localizer._("Deriving..."))
 
     deriver = DeriverApi(
         event.project.ancestry,
@@ -36,7 +37,7 @@ async def _derive_ancestry(event: PostLoadAncestryEvent) -> None:
                 DerivableEventType  # type: ignore[type-abstract]
             )
         ),
-        localizer=event.project.app.localizer,
+        localizer=localizer,
     )
     await deriver.derive()
 

@@ -321,7 +321,7 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
             logging.getLogger().warning(
                 _(
                     'Your project has no theme enabled. This means your site\'s pages may look bare. Try the "cotton-candy" extension.'
-                ).localize(self.app.localizer)
+                ).localize(await self.app.localizer)
             )
 
         return initialized_extensions

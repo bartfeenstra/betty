@@ -72,9 +72,10 @@ async def generate(project: Project) -> None:
     logger = logging.getLogger(__name__)
     job_context = ProjectContext(project)
     app = project.app
+    localizer = await app.localizer
 
     logger.info(
-        app.localizer._("Generating your site to {output_directory}.").format(
+        localizer._("Generating your site to {output_directory}.").format(
             output_directory=project.configuration.output_directory_path
         )
     )
@@ -107,10 +108,11 @@ async def generate(project: Project) -> None:
 
 
 async def _log_jobs(app: App, jobs: Sequence[Task[None]]) -> None:
+    localizer = await app.localizer
     total_job_count = len(jobs)
     completed_job_count = len([job for job in jobs if job.done()])
     logging.getLogger(__name__).info(
-        app.localizer._(
+        localizer._(
             "Generated {completed_job_count} out of {total_job_count} items ({completed_job_percentage}%)."
         ).format(
             completed_job_count=completed_job_count,
@@ -224,11 +226,10 @@ async def _generate_public(
     locale: str,
 ) -> None:
     project = job_context.project
-    locale_label = get_display_name(locale, project.app.localizer.locale)
+    localizer = await project.app.localizer
+    locale_label = get_display_name(locale, localizer.locale)
     logging.getLogger(__name__).debug(
-        project.app.localizer._(
-            "Generating localized public files in {locale}..."
-        ).format(
+        localizer._("Generating localized public files in {locale}...").format(
             locale=locale_label,
             localizer=await project.app.localizers.get(locale),
         )
@@ -260,9 +261,8 @@ async def _generate_static_public(
 ) -> None:
     project = job_context.project
     app = project.app
-    logging.getLogger(__name__).info(
-        app.localizer._("Generating static public files...")
-    )
+    localizer = await app.localizer
+    logging.getLogger(__name__).info(localizer._("Generating static public files..."))
     await gather(
         *[
             _generate_static_public_asset(asset_path, project, job_context)
@@ -528,9 +528,8 @@ async def _generate_json_schema(
     job_context: ProjectContext,
 ) -> None:
     project = job_context.project
-    logging.getLogger(__name__).debug(
-        project.app.localizer._("Generating JSON Schema...")
-    )
+    localizer = await project.app.localizer
+    logging.getLogger(__name__).debug(localizer._("Generating JSON Schema..."))
     schema = await ProjectSchema.new(project)
     rendered_json = json.dumps(schema.schema)
     async with create_file(ProjectSchema.www_path(project)) as f:
@@ -542,8 +541,9 @@ async def _generate_openapi(
 ) -> None:
     project = job_context.project
     app = project.app
+    localizer = await app.localizer
     logging.getLogger(__name__).debug(
-        app.localizer._("Generating OpenAPI specification...")
+        localizer._("Generating OpenAPI specification...")
     )
     api_directory_path = project.configuration.www_directory_path / "api"
     rendered_json = json.dumps(await Specification(project).build())

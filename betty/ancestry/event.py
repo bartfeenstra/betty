@@ -21,7 +21,6 @@ from betty.ancestry.link import HasLinks
 from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.asyncio import wait_to_thread
 from betty.json.linked_data import dump_context, JsonLdObject
 from betty.json.schema import Enum, String
 from betty.locale.localizable import _, ShorthandStaticTranslations, Localizable, call
@@ -206,7 +205,7 @@ class Event(
             Enum(
                 *[
                     presence_role.plugin_id()
-                    for presence_role in wait_to_thread(EVENT_TYPE_REPOSITORY.select())
+                    async for presence_role in EVENT_TYPE_REPOSITORY
                 ],
                 title="Event type",
             ),

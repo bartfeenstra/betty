@@ -55,9 +55,10 @@ def _assert_url(value: Any) -> str:
 @command(help="Create a new project.")
 @pass_app
 async def new(app: App) -> None:  # noqa D103
+    localizer = await app.localizer
     configuration_file_path = click.prompt(
-        app.localizer._("Where do you want to save your project's configuration file?"),
-        value_proc=user_facing_error_to_bad_parameter(app.localizer)(
+        localizer._("Where do you want to save your project's configuration file?"),
+        value_proc=user_facing_error_to_bad_parameter(localizer)(
             _assert_project_configuration_file_path
         ),
     )
@@ -77,24 +78,24 @@ async def new(app: App) -> None:  # noqa D103
     configuration.locales.replace(
         LocaleConfiguration(
             click.prompt(
-                app.localizer._(
+                localizer._(
                     "Which language should your project site be generated in? Enter an IETF BCP 47 language code."
                 ),
                 default=DEFAULT_LOCALE,
-                value_proc=user_facing_error_to_bad_parameter(app.localizer)(
+                value_proc=user_facing_error_to_bad_parameter(localizer)(
                     assert_locale()
                 ),
             )
         )
     )
-    while click.confirm(app.localizer._("Do you want to add another locale?")):
+    while click.confirm(localizer._("Do you want to add another locale?")):
         configuration.locales.append(
             LocaleConfiguration(
                 click.prompt(
-                    app.localizer._(
+                    localizer._(
                         "Which language should your project site be generated in? Enter an IETF BCP 47 language code."
                     ),
-                    value_proc=user_facing_error_to_bad_parameter(app.localizer)(
+                    value_proc=user_facing_error_to_bad_parameter(localizer)(
                         assert_locale()
                     ),
                 )
@@ -104,33 +105,31 @@ async def new(app: App) -> None:  # noqa D103
 
     configuration.title = _prompt_static_translations(
         locales,
-        app.localizer._("What is your project called in {locale}?"),
+        localizer._("What is your project called in {locale}?"),
     )
 
     configuration.name = click.prompt(
-        app.localizer._("What is your project's machine name?"),
+        localizer._("What is your project's machine name?"),
         default=machinify(
             configuration.title.localize(
                 await app.localizers.get(configuration.locales.default.locale)
             )
         ),
-        value_proc=user_facing_error_to_bad_parameter(app.localizer)(
-            assert_machine_name()
-        ),
+        value_proc=user_facing_error_to_bad_parameter(localizer)(assert_machine_name()),
     )
 
     configuration.author = _prompt_static_translations(
         locales,
-        app.localizer._("What is the project author called in {locale}?"),
+        localizer._("What is the project author called in {locale}?"),
     )
 
     configuration.url = click.prompt(
-        app.localizer._("At which URL will your site be published?"),
+        localizer._("At which URL will your site be published?"),
         default="https://example.com",
-        value_proc=user_facing_error_to_bad_parameter(app.localizer)(_assert_url),
+        value_proc=user_facing_error_to_bad_parameter(localizer)(_assert_url),
     )
 
-    if click.confirm(app.localizer._("Do you want to load a Gramps family tree?")):
+    if click.confirm(localizer._("Do you want to load a Gramps family tree?")):
         configuration.extensions.append(
             ExtensionConfiguration(
                 Gramps,
@@ -138,11 +137,11 @@ async def new(app: App) -> None:  # noqa D103
                     family_trees=[
                         FamilyTreeConfiguration(
                             click.prompt(
-                                app.localizer._(
+                                localizer._(
                                     "What is the path to your exported Gramps family tree file?"
                                 ),
                                 value_proc=user_facing_error_to_bad_parameter(
-                                    app.localizer
+                                    localizer
                                 )(assert_path()),
                             )
                         )
@@ -153,7 +152,7 @@ async def new(app: App) -> None:  # noqa D103
 
     await write_configuration_file(configuration, configuration.configuration_file_path)
     click.secho(
-        app.localizer._("Saved your project to {configuration_file}.").format(
+        localizer._("Saved your project to {configuration_file}.").format(
             configuration_file=str(configuration_file_path)
         ),
         fg="green",

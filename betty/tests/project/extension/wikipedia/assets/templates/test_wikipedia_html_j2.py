@@ -42,10 +42,14 @@ class Test(TemplateTestBase):
         wikipedia_url = "https://en.wikipedia.org/wiki/Amsterdam"
         m_retriever = mocker.AsyncMock(spec=_Retriever)
         m_retriever.get_summary.return_value = None
+
+        async def _awaitable_retriever():
+            return m_retriever  # type: ignore[no-any-return]
+
         mocker.patch(
             "betty.project.extension.wikipedia.Wikipedia.retriever",
             new_callable=PropertyMock,
-            return_value=m_retriever,
+            return_value=_awaitable_retriever(),
         )
         resource = DummyResource()
         resource.links.append(Link(wikipedia_url))
@@ -75,10 +79,14 @@ class Test(TemplateTestBase):
         )
         m_retriever = mocker.AsyncMock(spec=_Retriever)
         m_retriever.get_summary.return_value = summary
+
+        async def _awaitable_retriever():
+            return m_retriever  # type: ignore[no-any-return]
+
         mocker.patch(
             "betty.project.extension.wikipedia.Wikipedia.retriever",
             new_callable=PropertyMock,
-            return_value=m_retriever,
+            return_value=_awaitable_retriever(),
         )
         resource = DummyResource()
         resource.links.append(Link(wikipedia_url))

@@ -8,7 +8,7 @@ from typing import final, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.ancestry.presence_role import PresenceRoleSchema
+from betty.json.schema import Enum
 from betty.locale.localizable import _, Localizable
 from betty.model import Entity
 from betty.model.association import BidirectionalToOne, ToOneResolver
@@ -92,7 +92,19 @@ class Presence(ShorthandPluginBase, HasPrivacy, Entity):
     @classmethod
     async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        schema.add_property("role", PresenceRoleSchema(), False)
+        schema.add_property(
+            "role",
+            Enum(
+                *[
+                    presence_role.plugin_id()
+                    async for presence_role in project.presence_roles
+                ],
+                def_name="presenceRole",
+                title="Presence role",
+                description="A person's role in an event.",
+            ),
+            False,
+        )
         return schema
 
     @override

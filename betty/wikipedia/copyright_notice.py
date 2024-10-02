@@ -32,9 +32,10 @@ class WikipediaContributors(ShorthandPluginBase, AppDependentFactory, CopyrightN
     @override
     @classmethod
     async def new_for_app(cls, app: App) -> Self:
+        fetcher = await app.fetcher
         available_locales = []
         try:
-            languages_response = await app.fetcher.fetch(
+            languages_response = await fetcher.fetch(
                 "https://en.wikipedia.org/w/api.php?action=query&titles=Wikipedia:Copyrights&prop=langlinks&lllimit=500&format=json&formatversion=2"
             )
         except FetchError:

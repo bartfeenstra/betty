@@ -15,4 +15,5 @@ if TYPE_CHECKING:
 @pass_app
 async def clear_caches(app: App) -> None:  # noqa D103
     await app.cache.clear()
-    logging.getLogger(__name__).info(app.localizer._("All caches cleared."))
+    localizer = await app.localizer
+    logging.getLogger(__name__).info(localizer._("All caches cleared."))

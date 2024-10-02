@@ -14,7 +14,7 @@ from http.client import HTTPConnection
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 from io import StringIO
 from pathlib import Path
-from typing import Any, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING, Self
 from typing import final
 from urllib.parse import urlparse
 
@@ -25,6 +25,7 @@ from typing_extensions import override
 from betty.error import UserFacingError
 from betty.functools import Do
 from betty.locale.localizable import _
+from betty.project.factory import ProjectDependentFactory
 
 if TYPE_CHECKING:
     from betty.locale.localizer import Localizer
@@ -143,14 +144,19 @@ class Server(ABC):
         assert 400 > response.status >= 200
 
 
-class ProjectServer(Server):
+class ProjectServer(ProjectDependentFactory, Server):
     """
     A web server for a Betty project.
     """
 
-    def __init__(self, project: Project) -> None:
-        super().__init__(localizer=project.app.localizer)
+    def __init__(self, localizer: Localizer, project: Project) -> None:
+        super().__init__(localizer)
         self._project = project
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project) -> Self:
+        return cls(await project.app.localizer, project)
 
 
 @final
@@ -253,12 +259,12 @@ class BuiltinProjectServer(ProjectServer):
     A built-in server for a Betty project.
     """
 
-    def __init__(self, project: Project) -> None:
-        super().__init__(project)
+    def __init__(self, localizer: Localizer, project: Project) -> None:
+        super().__init__(localizer, project)
         self._server = BuiltinServer(
             project.configuration.www_directory_path,
             root_path=project.configuration.root_path,
-            localizer=project.app.localizer,
+            localizer=localizer,
         )
 
     @override
