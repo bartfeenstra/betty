@@ -15,12 +15,9 @@ from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.name import Name
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.json.linked_data import dump_context, JsonLdObject
-from betty.json.schema import Array, Number
+from betty.json.schema import Array, Number, Object
 from betty.locale.localizable import _, Localizable
-from betty.model import (
-    UserFacingEntity,
-    Entity,
-)
+from betty.model import UserFacingEntity, Entity
 from betty.model.association import BidirectionalToMany, ToManyResolver
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy
@@ -207,7 +204,7 @@ class Place(
             "names", Array(await Name.linked_data_schema(project), title="Names")
         )
         coordinate_schema = Number(title="Coordinate")
-        coordinates_schema = JsonLdObject(title="Coordinates")
+        coordinates_schema = Object(title="Coordinates")
         coordinates_schema.add_property("latitude", coordinate_schema, False)
         coordinates_schema.add_property("longitude", coordinate_schema, False)
         schema.add_property("coordinates", coordinates_schema, False)

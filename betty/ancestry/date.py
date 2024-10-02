@@ -64,5 +64,5 @@ class HasDate(LinkedDataDumpableJsonLdObject):
     @classmethod
     async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        schema.add_property("date", DateySchema(), False)
+        schema.add_property("date", await DateySchema.new(), False)
         return schema

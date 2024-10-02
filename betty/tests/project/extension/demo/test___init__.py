@@ -11,12 +11,12 @@ from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
-from betty.project.extension.demo import Demo
-from betty.project.extension.demo import DemoServer, demo_project
 from betty.fetch.static import StaticFetcher
 from betty.functools import Do
 from betty.project import Project
 from betty.project.config import ExtensionConfiguration
+from betty.project.extension.demo import Demo
+from betty.project.extension.demo import DemoServer, demo_project
 from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase
 
@@ -59,4 +59,4 @@ class TestDemoServer:
 class TestDemoProject:
     async def test(self, new_temporary_app: App) -> None:
         async with demo_project(new_temporary_app) as project:
-            assert Demo.plugin_id() in project.extensions
+            assert Demo.plugin_id() in await project.extensions

@@ -8,11 +8,10 @@ from abc import abstractmethod, ABC
 from collections.abc import MutableSequence
 from inspect import getmembers
 from pathlib import Path
-from typing import TYPE_CHECKING, cast, Self, Generic
+from typing import TYPE_CHECKING, cast, Self, Generic, final
 
 from typing_extensions import TypeVar, override
 
-from betty.asyncio import wait_to_thread
 from betty.json.schema import FileBasedSchema, Schema, Object
 from betty.serde.dump import DumpMapping, Dump
 from betty.string import snake_case_to_lower_camel_case
@@ -70,6 +69,7 @@ class JsonLdObject(Object):
 
     def __init__(
         self,
+        json_ld_schema: JsonLdSchema,
         *,
         def_name: str | None = None,
         title: str | None = None,
@@ -80,7 +80,7 @@ class JsonLdObject(Object):
             title=title,
             description=description,
         )
-        self._schema["allOf"] = [wait_to_thread(JsonLdSchema.new()).embed(self)]
+        self._schema["allOf"] = [json_ld_schema.embed(self)]
 
 
 class LinkedDataDumpableJsonLdObject(
@@ -97,7 +97,7 @@ class LinkedDataDumpableJsonLdObject(
     @override
     @classmethod
     async def linked_data_schema(cls, project: Project) -> JsonLdObject:
-        schema = JsonLdObject()
+        schema = JsonLdObject(await JsonLdSchema.new())
         for attr_name, class_attr_value in getmembers(cls):
             if isinstance(class_attr_value, LinkedDataDumpableProvider):
                 linked_data_dumpable = class_attr_value
@@ -161,6 +161,7 @@ async def dump_link(dump: DumpMapping[Dump], project: Project, *links: Link) -> 
         link_dump.append(await link.dump_linked_data(project))
 
 
+@final
 class JsonLdSchema(FileBasedSchema):
     """
     A `JSON-LD <https://json-ld.org/>`_ JSON Schema reference.

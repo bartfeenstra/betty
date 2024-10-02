@@ -7,7 +7,7 @@ from __future__ import annotations
 import calendar
 import operator
 from functools import total_ordering
-from typing import Any, Callable, TypeAlias, Mapping, TYPE_CHECKING
+from typing import Any, Callable, TypeAlias, Mapping, TYPE_CHECKING, final, Self
 
 from typing_extensions import override
 
@@ -15,14 +15,9 @@ from betty.json.linked_data import (
     dump_context,
     JsonLdObject,
     LinkedDataDumpableJsonLdObject,
+    JsonLdSchema,
 )
-from betty.json.schema import (
-    String,
-    Boolean,
-    Null,
-    OneOf,
-    Number,
-)
+from betty.json.schema import String, Boolean, Null, OneOf, Number
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
@@ -37,13 +32,14 @@ class IncompleteDateError(ValueError):
     pass  # pragma: no cover
 
 
+@final
 class DateSchema(JsonLdObject):
     """
     A JSON Schema for :py:type:`betty.date.Date`.
     """
 
-    def __init__(self, *, title: str = "Date"):
-        super().__init__(def_name="date", title=title)
+    def __init__(self, json_ld_schema: JsonLdSchema):
+        super().__init__(json_ld_schema, def_name="date", title="Date")
         self.add_property("fuzzy", Boolean(title="Fuzzy"))
         self.add_property("year", Number(title="Year"), False)
         self.add_property("month", Number(title="Month"), False)
@@ -55,6 +51,13 @@ class DateSchema(JsonLdObject):
             ),
             False,
         )
+
+    @classmethod
+    async def new(cls) -> Self:
+        """
+        Create a new instance.
+        """
+        return cls(await JsonLdSchema.new())
 
 
 class Date(LinkedDataDumpableJsonLdObject):
@@ -193,7 +196,7 @@ class Date(LinkedDataDumpableJsonLdObject):
     @override
     @classmethod
     async def linked_data_schema(cls, project: Project) -> DateSchema:
-        return DateSchema()
+        return await DateSchema.new()
 
 
 def _dump_date_iso8601(date: Date) -> str | None:
@@ -205,16 +208,24 @@ def _dump_date_iso8601(date: Date) -> str | None:
     return f"{date.year:04d}-{date.month:02d}-{date.day:02d}"
 
 
+@final
 class DateRangeSchema(JsonLdObject):
     """
     A JSON Schema for :py:type:`betty.date.DateRange`.
     """
 
-    def __init__(self):
-        super().__init__(def_name="dateRange", title="Date range")
+    def __init__(self, json_ld_schema: JsonLdSchema, date_schema: DateSchema):
+        super().__init__(json_ld_schema, def_name="dateRange", title="Date range")
         self._schema["additionalProperties"] = False
-        self.add_property("start", OneOf(DateSchema(title="Start date"), Null()))
-        self.add_property("end", OneOf(DateSchema(title="End date"), Null()))
+        self.add_property("start", OneOf(date_schema, Null(), title="Start date"))
+        self.add_property("end", OneOf(date_schema, Null(), title="End date"))
+
+    @classmethod
+    async def new(cls) -> Self:
+        """
+        Create a new instance.
+        """
+        return cls(await JsonLdSchema.new(), await DateSchema.new())
 
 
 @total_ordering
@@ -330,7 +341,7 @@ class DateRange(LinkedDataDumpableJsonLdObject):
     @override
     @classmethod
     async def linked_data_schema(cls, project: Project) -> DateRangeSchema:
-        return DateRangeSchema()
+        return await DateRangeSchema.new()
 
     def _get_comparable_date(self, date: Date | None) -> Date | None:
         if date and date.comparable:
@@ -491,13 +502,20 @@ class DateySchema(OneOf):
     A JSON Schema for :py:type:`betty.date.Datey`.
     """
 
-    def __init__(self):
+    def __init__(self, date_schema: DateSchema, date_range_schema: DateRangeSchema):
         super().__init__(
-            DateSchema(),
-            DateRangeSchema(),
+            date_schema,
+            date_range_schema,
             def_name="datey",
             title="Date or date range",
         )
+
+    @classmethod
+    async def new(cls) -> Self:
+        """
+        Create a new instance.
+        """
+        return cls(await DateSchema.new(), await DateRangeSchema.new())
 
 
 Datey: TypeAlias = Date | DateRange

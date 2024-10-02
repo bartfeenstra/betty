@@ -2,16 +2,17 @@ from collections.abc import Sequence
 from pathlib import Path
 
 import pytest
+from pytest_mock import MockerFixture
+
 from betty._npm import NpmUnavailable
 from betty.app import App
-from betty.project.extension.webpack import WebpackEntryPointProvider
-from betty.project.extension.webpack.build import Builder
 from betty.job import Context
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
+from betty.project.extension.webpack import WebpackEntryPointProvider
+from betty.project.extension.webpack.build import Builder
 from betty.test_utils.project.extension import DummyExtension
-from pytest_mock import MockerFixture
 
 
 class DummyEntryPointProviderExtension(WebpackEntryPointProvider, DummyExtension):
@@ -47,19 +48,16 @@ class TestBuilder:
                     )
                 job_context = Context()
                 async with project:
+                    extensions = await project.extensions
                     sut = Builder(
                         tmp_path,
                         (
-                            [
-                                project.extensions[  # type: ignore[list-item]
-                                    DummyEntryPointProviderExtension.plugin_id()
-                                ]
-                            ]
+                            [extensions[DummyEntryPointProviderExtension]]
                             if with_entry_point_provider
                             else []
                         ),
                         False,
-                        project.renderer,
+                        await project.renderer,
                         job_context=job_context,
                         localizer=DEFAULT_LOCALIZER,
                     )

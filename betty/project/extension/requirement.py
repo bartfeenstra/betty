@@ -76,9 +76,10 @@ class Dependents(Requirement):
 
     async def _dependents(self) -> Sequence[Extension]:
         if self.__dependents is None:
+            extensions = await self._dependency.project.extensions
             self.__dependents = [
                 project_extension
-                for project_extension in self._dependency.project.extensions.flatten()
+                for project_extension in extensions.flatten()
                 if self._dependency.plugin_id() in project_extension.depends_on()
             ]
         return self.__dependents

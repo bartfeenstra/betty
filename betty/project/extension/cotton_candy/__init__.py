@@ -20,7 +20,6 @@ from betty.ancestry.event_type.event_types import (
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.privacy import is_public
 from betty.asyncio import gather
 from betty.date import Date, Datey
 from betty.functools import Uniquifier
@@ -33,6 +32,7 @@ from betty.locale.localizable import _, static
 from betty.model import has_generated_entity_id
 from betty.os import link_or_copy
 from betty.plugin import ShorthandPluginBase
+from betty.privacy import is_public
 from betty.project.extension import ConfigurableExtension, Theme, Extension
 from betty.project.extension.cotton_candy.config import CottonCandyConfiguration
 from betty.project.extension.cotton_candy.search import Index
@@ -81,14 +81,19 @@ async def _generate_search_index(event: GenerateSiteEvent) -> None:
 async def _generate_search_index_for_locale(
     event: GenerateSiteEvent, locale: str
 ) -> None:
-    localizer = await event.project.localizers.get(locale)
+    project = event.project
+    localizers = await project.localizers
+    localizer = await localizers.get(locale)
     search_index = {
         "resultContainerTemplate": _RESULT_CONTAINER_TEMPLATE,
         "resultsContainerTemplate": _RESULTS_CONTAINER_TEMPLATE,
         "index": [
             {"text": " ".join(entry.text), "result": entry.result}
             for entry in await Index(
-                event.project, event.job_context, localizer
+                project.ancestry,
+                await project.jinja2_environment,
+                event.job_context,
+                localizer,
             ).build()
         ],
     }

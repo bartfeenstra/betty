@@ -109,7 +109,8 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.extensions.enable(DummyExtension)
             async with sut:
-                extension = sut.extensions[DummyExtension.plugin_id()]
+                extensions = await sut.extensions
+                extension = extensions[DummyExtension.plugin_id()]
                 assert extension._bootstrapped
 
     @pytest.mark.usefixtures("_extensions")
@@ -117,7 +118,8 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.extensions.enable(DummyExtension)
             async with sut:
-                extension = sut.extensions[DummyExtension.plugin_id()]
+                extensions = await sut.extensions
+                extension = extensions[DummyExtension.plugin_id()]
                 assert isinstance(extension, DummyExtension)
 
     @pytest.mark.usefixtures("_extensions")
@@ -135,7 +137,8 @@ class TestProject:
                 )
             )
             async with sut:
-                extension = sut.extensions[DummyConfigurableExtension]
+                extensions = await sut.extensions
+                extension = extensions[DummyConfigurableExtension]
                 assert isinstance(extension, DummyConfigurableExtension)
                 assert check == extension.configuration.check
 
@@ -148,7 +151,7 @@ class TestProject:
                 _DependsOnNonConfigurableExtensionExtensionExtension
             )
             async with sut:
-                extensions = [list(batch) for batch in sut.extensions]
+                extensions = [list(batch) for batch in await sut.extensions]
                 assert len(extensions) == 3
                 assert len(extensions[0]) == 1
                 assert isinstance(extensions[0][0], DummyExtension)
@@ -174,7 +177,7 @@ class TestProject:
                 _AlsoDependsOnNonConfigurableExtensionExtension
             )
             async with sut:
-                extensions = [list(batch) for batch in sut.extensions]
+                extensions = [list(batch) for batch in await sut.extensions]
                 assert len(extensions) == 2
                 assert len(extensions[0]) == 1
                 assert isinstance(extensions[0][0], DummyExtension)
@@ -206,7 +209,7 @@ class TestProject:
                 _ComesBeforeNonConfigurableExtensionExtension
             )
             async with sut:
-                extensions = [list(batch) for batch in sut.extensions]
+                extensions = [list(batch) for batch in await sut.extensions]
                 assert len(extensions) == 2
                 assert len(extensions[0]) == 1
                 assert isinstance(
@@ -224,7 +227,7 @@ class TestProject:
                 _ComesBeforeNonConfigurableExtensionExtension
             )
             async with sut:
-                extensions = [list(batch) for batch in sut.extensions]
+                extensions = [list(batch) for batch in await sut.extensions]
                 assert len(extensions) == 1
                 assert len(extensions[0]) == 1
                 assert isinstance(
@@ -241,7 +244,7 @@ class TestProject:
             )
             sut.configuration.extensions.enable(DummyExtension)
             async with sut:
-                extensions = [list(batch) for batch in sut.extensions]
+                extensions = [list(batch) for batch in await sut.extensions]
                 assert len(extensions) == 2
                 assert len(extensions[0]) == 1
                 assert isinstance(extensions[0][0], DummyExtension)
@@ -259,7 +262,7 @@ class TestProject:
                 _ComesAfterNonConfigurableExtensionExtension
             )
             async with sut:
-                extensions = [list(batch) for batch in sut.extensions]
+                extensions = [list(batch) for batch in await sut.extensions]
                 assert len(extensions) == 1
                 assert len(extensions[0]) == 1
                 assert isinstance(
@@ -288,7 +291,8 @@ class TestProject:
 
     async def test_assets_without_extensions(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            assert len(sut.assets.assets_directory_paths) == 2
+            assets = await sut.assets
+            assert len(assets.assets_directory_paths) == 2
 
     async def test_assets_with_extension_without_assets_directory(
         self, new_temporary_app: App
@@ -296,7 +300,8 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.extensions.enable(DummyExtension)
             async with sut:
-                assert len(sut.assets.assets_directory_paths) == 2
+                assets = await sut.assets
+                assert len(assets.assets_directory_paths) == 2
 
     async def test_assets_with_extension_with_assets_directory(
         self, new_temporary_app: App, tmp_path: Path
@@ -310,7 +315,8 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.extensions.enable(_DummyExtensionWithAssetsDirectory)
             async with sut:
-                assert len(sut.assets.assets_directory_paths) == 3
+                assets = await sut.assets
+                assert len(assets.assets_directory_paths) == 3
 
     async def test_event_dispatcher(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
@@ -318,11 +324,12 @@ class TestProject:
 
     async def test_jinja2_environment(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            sut.jinja2_environment  # noqa B018
+            await sut.jinja2_environment
 
     async def test_localizers(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            assert len(list(sut.localizers.locales)) > 0
+            localizers = await sut.localizers
+            assert len(list(localizers.locales)) > 0
 
     async def test_name_with_configuration_name(self, new_temporary_app: App) -> None:
         name = "hello-world"
@@ -339,7 +346,7 @@ class TestProject:
 
     async def test_renderer(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            sut.renderer  # noqa B018
+            await sut.renderer
 
     async def test_static_url_generator(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
@@ -400,7 +407,7 @@ class TestProject:
 
     async def test_copyright_notice(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            assert sut.copyright_notice is sut.copyright_notice
+            assert await sut.copyright_notice is await sut.copyright_notice
 
     async def test_copyright_notices(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
@@ -412,7 +419,7 @@ class TestProject:
 
     async def test_license(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            assert sut.license is sut.license
+            assert await sut.license is await sut.license
 
     async def test_licenses(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:

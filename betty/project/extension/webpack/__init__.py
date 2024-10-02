@@ -67,7 +67,8 @@ async def _prebuild_webpack_assets() -> None:
                 )
             )
             async with project:
-                webpack = project.extensions[Webpack]
+                extensions = await project.extensions
+                webpack = extensions[Webpack]
                 await webpack.prebuild(job_context=job_context)
 
 
@@ -115,13 +116,15 @@ class PrebuiltAssetsRequirement(Requirement):
 
 
 async def _generate_assets(event: GenerateSiteEvent) -> None:
-    webpack = event.project.extensions[Webpack]
+    project = event.project
+    extensions = await project.extensions
+    webpack = extensions[Webpack]
     build_directory_path = await webpack._generate_ensure_build_directory(
         job_context=event.job_context,
     )
     event.job_context._webpack_build_directory_path = build_directory_path  # type: ignore[attr-defined]
     await webpack._copy_build_directory(
-        build_directory_path, event.project.configuration.www_directory_path
+        build_directory_path, project.configuration.www_directory_path
     )
 
 
@@ -180,13 +183,13 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
     def filters(self) -> Filters:
         return FILTERS
 
-    @property
-    def _project_entry_point_providers(
+    async def _project_entry_point_providers(
         self,
     ) -> Sequence[WebpackEntryPointProvider & Extension]:
+        extensions = await self._project.extensions
         return [
             extension
-            for extension in self._project.extensions.flatten()
+            for extension in extensions.flatten()
             if isinstance(extension, WebpackEntryPointProvider)
         ]
 
@@ -203,7 +206,7 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
             await self._copy_build_directory(
                 build_directory_path,
                 _prebuilt_webpack_build_directory_path(
-                    self._project_entry_point_providers, False
+                    await self._project_entry_point_providers(), False
                 ),
             )
 
@@ -215,9 +218,9 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
     ) -> build.Builder:
         return build.Builder(
             working_directory_path,
-            self._project_entry_point_providers,
+            await self._project_entry_point_providers(),
             self._project.configuration.debug,
-            self._project.renderer,
+            await self._project.renderer,
             job_context=job_context,
             localizer=await self._project.app.localizer,
         )
@@ -246,7 +249,8 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
 
         # Use prebuilt assets if they exist.
         prebuilt_webpack_build_directory_path = _prebuilt_webpack_build_directory_path(
-            self._project_entry_point_providers, self._project.configuration.debug
+            await self._project_entry_point_providers(),
+            self._project.configuration.debug,
         )
         if prebuilt_webpack_build_directory_path.exists():
             return prebuilt_webpack_build_directory_path
