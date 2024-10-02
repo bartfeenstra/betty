@@ -135,7 +135,7 @@ async def assert_betty_json(project: Project, url_path: str, def_name: str) -> P
         betty_json = await f.read()
     betty_json_data = json.loads(betty_json)
 
-    project_schema = await ProjectSchema.new(project)
+    project_schema = await ProjectSchema.new_for_project(project)
     # Somehow $ref cannot be top-level in our case, so wrap it.
     schema = AllOf(Ref(def_name))
     project_schema.embed(schema)

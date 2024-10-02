@@ -38,7 +38,7 @@ async def dump_schema(
 
     schema = await linked_data_dumpable.linked_data_schema(project)
     if schema.def_name:
-        dump["$schema"] = ProjectSchema.def_url(project, schema.def_name)
+        dump["$schema"] = await ProjectSchema.def_url(project, schema.def_name)
 
 
 class LinkedDataDumpable(Generic[_SchemaTypeT, _DumpT]):

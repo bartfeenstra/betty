@@ -26,13 +26,12 @@ class Specification:
         """
         Build the OpenAPI specification.
         """
+        static_url_generator = await self._project.static_url_generator
         specification: DumpMapping[Dump] = {
             "openapi": "3.1.0",
             "servers": [
                 {
-                    "url": self._project.static_url_generator.generate(
-                        "/", absolute=True
-                    ),
+                    "url": static_url_generator.generate("/", absolute=True),
                 }
             ],
             "info": {
@@ -47,7 +46,7 @@ class Specification:
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": ProjectSchema.def_url(
+                                    "$ref": await ProjectSchema.def_url(
                                         self._project, "errorResponse"
                                     ),
                                 },
@@ -59,7 +58,7 @@ class Specification:
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": ProjectSchema.def_url(
+                                    "$ref": await ProjectSchema.def_url(
                                         self._project, "errorResponse"
                                     ),
                                 },
@@ -71,7 +70,7 @@ class Specification:
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": ProjectSchema.def_url(
+                                    "$ref": await ProjectSchema.def_url(
                                         self._project, "errorResponse"
                                     ),
                                 },
@@ -92,7 +91,7 @@ class Specification:
                 },
                 "schemas": {
                     "betty": {
-                        "$ref": ProjectSchema.url(self._project),
+                        "$ref": await ProjectSchema.url(self._project),
                     },
                 },
             },
@@ -119,7 +118,7 @@ class Specification:
                                     "content": {
                                         "application/json": {
                                             "schema": {
-                                                "$ref": ProjectSchema.def_url(
+                                                "$ref": await ProjectSchema.def_url(
                                                     self._project,
                                                     f"{kebab_case_to_lower_camel_case(entity_type.plugin_id())}EntityCollectionResponse",
                                                 ),
@@ -140,7 +139,7 @@ class Specification:
                                     "content": {
                                         "application/json": {
                                             "schema": {
-                                                "$ref": ProjectSchema.def_url(
+                                                "$ref": await ProjectSchema.def_url(
                                                     self._project,
                                                     f"{kebab_case_to_lower_camel_case(entity_type.plugin_id())}Entity",
                                                 ),

@@ -58,13 +58,13 @@ async def new(cls: type[_T]) -> _T:
         raise FactoryError.new(cls) from error
 
 
-class FactoryProvider(ABC, Generic[_T]):
+class TargetFactory(ABC, Generic[_T]):
     """
     Provide a factory for classes that depend on ``self``.
     """
 
     @abstractmethod
-    async def new(self, cls: type[_T]) -> _T:
+    async def new_target(self, cls: type[_T]) -> _T:
         """
         Create a new instance.
 

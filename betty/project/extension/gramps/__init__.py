@@ -32,7 +32,7 @@ async def _load_ancestry(event: LoadAncestryEvent) -> None:
             await GrampsLoader(
                 project.ancestry,
                 attribute_prefix_key=project.configuration.name,
-                factory=project.new,
+                factory=project.new_target,
                 localizer=await project.app.localizer,
                 copyright_notices=project.copyright_notices,
                 licenses=project.licenses,

@@ -34,14 +34,13 @@ from betty.ancestry.gender import GENDER_REPOSITORY, Gender
 from betty.ancestry.place_type import PLACE_TYPE_REPOSITORY, PlaceType
 from betty.ancestry.presence_role import PRESENCE_ROLE_REPOSITORY, PresenceRole
 from betty.assets import AssetRepository
-from betty.asyncio import wait_to_thread
 from betty.config import (
     Configurable,
 )
 from betty.copyright_notice import CopyrightNotice, COPYRIGHT_NOTICE_REPOSITORY
 from betty.core import CoreComponent
 from betty.event_dispatcher import EventDispatcher, EventHandlerRegistry
-from betty.factory import FactoryProvider
+from betty.factory import TargetFactory
 from betty.hashid import hashid
 from betty.job import Context
 from betty.json.schema import (
@@ -54,7 +53,6 @@ from betty.locale.localizer import LocalizerRepository
 from betty.model import Entity, EntityReferenceCollectionSchema
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.plugin.static import StaticPluginRepository
-from betty.project import extension
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import (
     Extension,
@@ -90,7 +88,7 @@ _ProjectDependentT = TypeVar("_ProjectDependentT")
 
 
 @final
-class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComponent):
+class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreComponent):
     """
     Define a Betty project.
 
@@ -102,12 +100,12 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
         app: App,
         configuration: ProjectConfiguration,
         *,
-        ancestry: Ancestry | None = None,
+        ancestry: Ancestry,
     ):
         super().__init__()
         self._app = app
         self._configuration = configuration
-        self._ancestry = Ancestry() if ancestry is None else ancestry
+        self._ancestry = ancestry
 
         self._assets: AssetRepository | None = None
         self._localizers: LocalizerRepository | None = None
@@ -128,6 +126,23 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
         self._genders: PluginRepository[Gender] | None = None
 
     @classmethod
+    async def new(
+        cls,
+        app: App,
+        configuration: ProjectConfiguration,
+        *,
+        ancestry: Ancestry | None = None,
+    ) -> Self:
+        """
+        Create a new instance.
+        """
+        return cls(
+            app,
+            configuration,
+            ancestry=await Ancestry.new() if ancestry is None else ancestry,
+        )
+
+    @classmethod
     @asynccontextmanager
     async def new_temporary(
         cls, app: App, *, ancestry: Ancestry | None = None
@@ -141,7 +156,7 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
         async with (
             TemporaryDirectory() as project_directory_path_str,
         ):
-            yield cls(
+            yield await cls.new(
                 app,
                 ProjectConfiguration(Path(project_directory_path_str) / "betty.json"),
                 ancestry=ancestry,
@@ -221,26 +236,32 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
         return self._localizers
 
     @property
-    def localized_url_generator(self) -> LocalizedUrlGenerator:
+    def localized_url_generator(self) -> Awaitable[LocalizedUrlGenerator]:
         """
         The URL generator for localizable resources.
         """
+        return self._get_localized_url_generator()
+
+    async def _get_localized_url_generator(self) -> LocalizedUrlGenerator:
         if self._url_generator is None:
             self._assert_bootstrapped()
-            self._url_generator = wait_to_thread(
-                ProjectLocalizedUrlGenerator.new_for_project(self)
+            self._url_generator = await ProjectLocalizedUrlGenerator.new_for_project(
+                self
             )
         return self._url_generator
 
     @property
-    def static_url_generator(self) -> StaticUrlGenerator:
+    def static_url_generator(self) -> Awaitable[StaticUrlGenerator]:
         """
         The URL generator for static resources.
         """
+        return self._get_static_url_generator()
+
+    async def _get_static_url_generator(self) -> StaticUrlGenerator:
         if self._static_url_generator is None:
             self._assert_bootstrapped()
-            self._static_url_generator = wait_to_thread(
-                ProjectStaticUrlGenerator.new_for_project(self)
+            self._static_url_generator = (
+                await ProjectStaticUrlGenerator.new_for_project(self)
             )
         return self._static_url_generator
 
@@ -272,7 +293,7 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
             self._assert_bootstrapped()
             self._renderer = SequentialRenderer(
                 [
-                    await self.new(plugin)
+                    await self.new_target(plugin)
                     for plugin in await RENDERER_REPOSITORY.select()
                 ]
             )
@@ -310,7 +331,7 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
             extension_types_batch = extension_types_sorter.get_ready()
             extensions_batch = []
             for extension_type in extension_types_batch:
-                extension = await self.new(extension_type)
+                extension = await self.new_target(extension_type)
                 if (
                     isinstance(extension, ConfigurableExtension)
                     and extension_type in self.configuration.extensions
@@ -353,7 +374,7 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
         return self._event_dispatcher
 
     @override
-    async def new(self, cls: type[_T]) -> _T:
+    async def new_target(self, cls: type[_T]) -> _T:
         """
         Create a new instance.
 
@@ -370,7 +391,7 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
         """
         if issubclass(cls, ProjectDependentFactory):
             return cast(_T, await cls.new_for_project(self))
-        return await self.app.new(cls)
+        return await self.app.new_target(cls)
 
     @property
     def logo(self) -> Path:
@@ -392,7 +413,7 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
     async def _get_copyright_notice(self) -> CopyrightNotice:
         if self._copyright_notice is None:
             self._assert_bootstrapped()
-            self._copyright_notice = await self.new(
+            self._copyright_notice = await self.new_target(
                 await self.copyright_notices.get(self.configuration.copyright_notice)
             )
         return self._copyright_notice
@@ -409,7 +430,8 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
             self._copyright_notices = ProxyPluginRepository(
                 COPYRIGHT_NOTICE_REPOSITORY,
                 StaticPluginRepository(
-                    *self.configuration.copyright_notices.plugins, factory=self.new
+                    *self.configuration.copyright_notices.plugins,
+                    factory=self.new_target,
                 ),
             )
 
@@ -424,7 +446,7 @@ class Project(Configurable[ProjectConfiguration], FactoryProvider[Any], CoreComp
 
     async def _get_license(self) -> License:
         if self._license is None:
-            self._license = await self.new(
+            self._license = await self.new_target(
                 await self.licenses.get(self.configuration.license)
             )
         return self._license
@@ -529,16 +551,13 @@ class ProjectExtensions:
     def __getitem__(
         self, extension_identifier: PluginIdentifier[Extension]
     ) -> Extension:
-        if isinstance(extension_identifier, str):
-            extension_type = wait_to_thread(
-                extension.EXTENSION_REPOSITORY.get(extension_identifier)
-            )
-        else:
-            extension_type = extension_identifier
         for project_extension in self.flatten():
-            if type(project_extension) is extension_type:
+            if isinstance(extension_identifier, str):
+                if project_extension.plugin_id() == extension_identifier:
+                    return project_extension
+            elif type(project_extension) is extension_identifier:
                 return project_extension
-        raise KeyError(f'Unknown extension of type "{extension_type}"')
+        raise KeyError(f'Unknown extension of type "{extension_identifier}"')
 
     def __iter__(self) -> Iterator[Iterator[Extension]]:
         """
@@ -593,24 +612,25 @@ class ProjectEvent(event_dispatcher.Event):
 
 
 @final
-class ProjectSchema(Schema):
+class ProjectSchema(ProjectDependentFactory, Schema):
     """
     A JSON Schema for a project.
     """
 
     @classmethod
-    def def_url(cls, project: Project, def_name: str) -> str:
+    async def def_url(cls, project: Project, def_name: str) -> str:
         """
         Get the URL to a project's JSON Schema definition.
         """
-        return f"{cls.url(project)}#/$defs/{def_name}"
+        return f"{await cls.url(project)}#/$defs/{def_name}"
 
     @classmethod
-    def url(cls, project: Project) -> str:
+    async def url(cls, project: Project) -> str:
         """
         Get the URL to a project's JSON Schema.
         """
-        return project.static_url_generator.generate("/schema.json", absolute=True)
+        static_url_generator = await project.static_url_generator
+        return static_url_generator.generate("/schema.json", absolute=True)
 
     @classmethod
     def www_path(cls, project: Project) -> Path:
@@ -619,15 +639,13 @@ class ProjectSchema(Schema):
         """
         return project.configuration.www_directory_path / "schema.json"
 
+    @override
     @classmethod
-    async def new(cls, project: Project) -> Self:
-        """
-        Create a new schema for the given project.
-        """
+    async def new_for_project(cls, project: Project) -> Self:
         from betty import model
 
         schema = cls()
-        schema._schema["$id"] = cls.url(project)
+        schema._schema["$id"] = await cls.url(project)
 
         # Add entity schemas.
         async for entity_type in model.ENTITY_TYPE_REPOSITORY:

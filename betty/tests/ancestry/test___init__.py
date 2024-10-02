@@ -43,7 +43,7 @@ class _TestAncestry_OneToOne_Right(DummyEntity):
 
 class TestAncestry:
     async def test_add_(self) -> None:
-        sut = Ancestry()
+        sut = await Ancestry.new()
         left = _TestAncestry_OneToOne_Left()
         right = _TestAncestry_OneToOne_Right()
         left.one_right = right
@@ -52,7 +52,7 @@ class TestAncestry:
         assert right in sut
 
     async def test_unchecked(self) -> None:
-        sut = Ancestry()
+        sut = await Ancestry.new()
         left = _TestAncestry_OneToOne_Left()
         right = _TestAncestry_OneToOne_Right()
         left.one_right = right

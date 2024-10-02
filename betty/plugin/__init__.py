@@ -10,19 +10,19 @@ Read more at :doc:`/development/plugin`.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TypeVar, Generic, Self, overload, TYPE_CHECKING, TypeAlias, Any
+from typing import TypeVar, Generic, Self, overload, TYPE_CHECKING, TypeAlias
 
 from typing_extensions import override
 
 from betty.error import UserFacingError
-from betty.factory import FactoryProvider, Factory, new
+from betty.factory import TargetFactory, Factory, new
 from betty.locale.localizable import _, join, do_you_mean
 from betty.machine_name import MachineName
 from betty.typing import internal
 
 if TYPE_CHECKING:
     from betty.locale.localizable import Localizable
-    from collections.abc import AsyncIterator, Sequence
+    from collections.abc import AsyncIterator, Sequence, Mapping
 
 
 class PluginError(UserFacingError):
@@ -110,8 +110,8 @@ class PluginNotFound(PluginError):
     """
 
     @classmethod
-    async def new(
-        cls, plugin_id: MachineName, plugin_repository: PluginRepository[Any]
+    def new(
+        cls, plugin_id: MachineName, available_plugins: Sequence[type[Plugin]]
     ) -> Self:
         """
         Create a new instance.
@@ -120,7 +120,7 @@ class PluginNotFound(PluginError):
             join(
                 _('Could not find a plugin "{plugin_id}".').format(plugin_id=plugin_id),
                 do_you_mean(
-                    *[f'"{plugin.plugin_id()}"' async for plugin in plugin_repository]
+                    *[f'"{plugin.plugin_id()}"' for plugin in available_plugins]
                 ),
             )
         )
@@ -131,13 +131,43 @@ _PluginMixinTwoT = TypeVar("_PluginMixinTwoT")
 _PluginMixinThreeT = TypeVar("_PluginMixinThreeT")
 
 
-class PluginRepository(Generic[_PluginT], FactoryProvider[_PluginT], ABC):
+class PluginIdToTypeMap(Generic[_PluginT]):
+    """
+    Map plugin IDs to their types.
+    """
+
+    def __init__(self, id_to_type_map: Mapping[MachineName, type[_PluginT]]):
+        self._id_to_type_map = id_to_type_map
+
+    @classmethod
+    async def new(cls, plugins: PluginRepository[_PluginT]) -> Self:
+        """
+        Create a new instance.
+        """
+        return cls({plugin.plugin_id(): plugin async for plugin in plugins})
+
+    def __getitem__(self, plugin_id: MachineName) -> type[_PluginT]:
+        try:
+            return self._id_to_type_map[plugin_id]
+        except KeyError:
+            raise PluginNotFound.new(
+                plugin_id, list(self._id_to_type_map.values())
+            ) from None
+
+
+class PluginRepository(Generic[_PluginT], TargetFactory[_PluginT], ABC):
     """
     Discover and manage plugins.
     """
 
     def __init__(self, *, factory: Factory[_PluginT] | None = None):
         self._factory = factory or new
+
+    async def map(self) -> PluginIdToTypeMap[_PluginT]:
+        """
+        Get the plugin ID to type map.
+        """
+        return await PluginIdToTypeMap.new(self)
 
     @abstractmethod
     async def get(self, plugin_id: MachineName) -> type[_PluginT]:
@@ -224,7 +254,7 @@ class PluginRepository(Generic[_PluginT], FactoryProvider[_PluginT], ABC):
         pass
 
     @override
-    async def new(self, cls: PluginIdentifier[_PluginT]) -> _PluginT:
+    async def new_target(self, cls: PluginIdentifier[_PluginT]) -> _PluginT:
         if isinstance(cls, str):
             cls = await self.get(cls)
         return await self._factory(cls)

@@ -8,8 +8,8 @@ from typing import Generic, TypeVar, final
 from typing_extensions import override
 
 from betty.factory import Factory
-from betty.plugin import PluginRepository, Plugin, PluginNotFound
 from betty.machine_name import MachineName
+from betty.plugin import PluginRepository, Plugin, PluginNotFound
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 
@@ -31,7 +31,7 @@ class StaticPluginRepository(PluginRepository[_PluginT], Generic[_PluginT]):
         try:
             return self._plugins[plugin_id]
         except KeyError:
-            raise await PluginNotFound.new(plugin_id, self) from None
+            raise PluginNotFound.new(plugin_id, await self.select()) from None
 
     @override
     async def __aiter__(self) -> AsyncIterator[type[_PluginT]]:

@@ -9,8 +9,8 @@ from typing import Generic, TypeVar
 from typing_extensions import override
 
 from betty.factory import Factory
-from betty.plugin import PluginRepository, Plugin, PluginNotFound
 from betty.machine_name import MachineName
+from betty.plugin import PluginRepository, Plugin, PluginNotFound
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 
@@ -29,7 +29,7 @@ class LazyPluginRepositoryBase(PluginRepository[_PluginT], Generic[_PluginT]):
         try:
             return (await self._plugins())[plugin_id]
         except KeyError:
-            raise await PluginNotFound.new(plugin_id, self) from None
+            raise PluginNotFound.new(plugin_id, await self.select()) from None
 
     async def _plugins(self) -> Mapping[str, type[_PluginT]]:
         """

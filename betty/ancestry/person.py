@@ -175,6 +175,7 @@ class Person(
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
+        static_url_generator = await project.static_url_generator
         dump_context(
             dump,
             names="https://schema.org/name",
@@ -184,27 +185,12 @@ class Person(
         )
         dump["@type"] = "https://schema.org/Person"
         dump["siblings"] = [
-            project.static_url_generator.generate(
-                f"/person/{quote(sibling.id)}/index.json"
-            )
+            static_url_generator.generate(f"/person/{quote(sibling.id)}/index.json")
             for sibling in self.siblings
             if not has_generated_entity_id(sibling)
         ]
         if self.public:
             dump["gender"] = self.gender.plugin_id()
-        return dump
-
-    def _dump_person_presence(
-        self, presence: "Presence", project: Project
-    ) -> DumpMapping[Dump]:
-        dump: DumpMapping[Dump] = {
-            "event": project.static_url_generator.generate(
-                f"/event/{quote(presence.event.id)}/index.json"
-            ),
-        }
-        dump_context(dump, event="https://schema.org/performerIn")
-        if presence.public:
-            dump["role"] = presence.role.plugin_id()
         return dump
 
     @override

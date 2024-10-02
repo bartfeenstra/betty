@@ -94,7 +94,7 @@ class TestDeriver(ExtensionTestBase):
             project.configuration.extensions.append(ExtensionConfiguration(Deriver))
             project.ancestry.add(person)
             async with project:
-                with record_added(project.ancestry) as added:
+                async with record_added(project.ancestry) as added:
                     await load(project)
 
                 assert len(person.presences) == 3

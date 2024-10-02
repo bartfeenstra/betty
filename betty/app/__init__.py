@@ -22,7 +22,7 @@ from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.config import Configurable, assert_configuration_file
 from betty.core import CoreComponent
-from betty.factory import new, FactoryProvider
+from betty.factory import new, TargetFactory
 from betty.fetch import Fetcher, http
 from betty.fetch.static import StaticFetcher
 from betty.fs import HOME_DIRECTORY_PATH
@@ -37,7 +37,7 @@ _T = TypeVar("_T")
 
 
 @final
-class App(Configurable[AppConfiguration], FactoryProvider[Any], CoreComponent):
+class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
     """
     The Betty application.
     """
@@ -206,7 +206,7 @@ class App(Configurable[AppConfiguration], FactoryProvider[Any], CoreComponent):
         return self._process_pool
 
     @override
-    async def new(self, cls: type[_T]) -> _T:
+    async def new_target(self, cls: type[_T]) -> _T:
         """
         Create a new instance.
 

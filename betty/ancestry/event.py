@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from reprlib import recursive_repr
 from typing import final, Iterable, Mapping, TYPE_CHECKING
-from urllib.parse import quote
 
 from typing_extensions import override
 
@@ -181,19 +180,6 @@ class Event(
         dump["type"] = self.event_type.plugin_id()
         dump["eventAttendanceMode"] = "https://schema.org/OfflineEventAttendanceMode"
         dump["eventStatus"] = "https://schema.org/EventScheduled"
-        return dump
-
-    def _dump_event_presence(
-        self, presence: Presence, project: Project
-    ) -> DumpMapping[Dump]:
-        dump: DumpMapping[Dump] = {
-            "@type": "https://schema.org/Person",
-            "person": project.static_url_generator.generate(
-                f"/person/{quote(presence.person.id)}/index.json"
-            ),
-        }
-        if presence.public:
-            dump["role"] = presence.role.plugin_id()
         return dump
 
     @override

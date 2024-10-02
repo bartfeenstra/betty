@@ -103,7 +103,7 @@ def assert_configuration_file(
                 serde_format_type = await FORMAT_REPOSITORY.format_for(
                     configuration_file_path.suffix
                 )
-                serde_format = await FORMAT_REPOSITORY.new(serde_format_type)
+                serde_format = await FORMAT_REPOSITORY.new_target(serde_format_type)
                 configuration.load(serde_format.load(read_configuration))
             return configuration
 
@@ -119,7 +119,7 @@ async def write_configuration_file(
     serde_format_type = await FORMAT_REPOSITORY.format_for(
         configuration_file_path.suffix
     )
-    serde_format = await FORMAT_REPOSITORY.new(serde_format_type)
+    serde_format = await FORMAT_REPOSITORY.new_target(serde_format_type)
     dump = serde_format.dump(configuration.dump())
     await makedirs(configuration_file_path.parent, exist_ok=True)
     async with aiofiles.open(configuration_file_path, mode="w") as f:
