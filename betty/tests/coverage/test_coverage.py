@@ -456,9 +456,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/project/extension/__init__.py": {
         "ConfigurableExtension": TestKnownToBeMissing,
         "CyclicDependencyError": TestKnownToBeMissing,
-        "Extension": {
-            "disable_requirement": TestKnownToBeMissing,
-        },
+        "Dependencies": TestKnownToBeMissing,
         # This is an empty class.
         "ExtensionError": TestKnownToBeMissing,
         # This is an interface.
@@ -514,10 +512,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "privatize": TestKnownToBeMissing,
         },
     },
-    "betty/project/extension/requirement.py": {
-        "Dependencies": TestKnownToBeMissing,
-        "Dependents": TestKnownToBeMissing,
-    },
     "betty/project/extension/trees/__init__.py": {
         "Trees": {
             "webpack_entry_point_cache_keys": TestKnownToBeMissing,
@@ -528,7 +522,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "summary": TestKnownToBeMissing,
         },
         "Webpack": {
-            "build_requirement": TestKnownToBeMissing,
             "filters": TestKnownToBeMissing,
             "new_context_vars": TestKnownToBeMissing,
             "public_css_paths": TestKnownToBeMissing,

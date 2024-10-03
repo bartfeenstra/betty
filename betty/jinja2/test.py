@@ -13,8 +13,6 @@ from betty.ancestry.event_type.event_types import (
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.link import HasLinks
 from betty.ancestry.presence_role.presence_roles import Subject, Witness
-from betty.privacy import is_private, is_public
-from betty.asyncio import wait_to_thread
 from betty.date import DateRange
 from betty.json.linked_data import LinkedDataDumpable
 from betty.model import (
@@ -23,6 +21,7 @@ from betty.model import (
     ENTITY_TYPE_REPOSITORY,
     has_generated_entity_id,
 )
+from betty.privacy import is_private, is_public
 
 if TYPE_CHECKING:
     from betty.ancestry.event import Event
@@ -36,7 +35,7 @@ def test_linked_data_dumpable(value: Any) -> bool:
     return isinstance(value, LinkedDataDumpable)
 
 
-def test_entity(
+async def test_entity(
     value: Any, entity_type_identifier: PluginIdentifier[Any] | None = None
 ) -> bool:
     """
@@ -45,7 +44,7 @@ def test_entity(
     :param entity_type_id: If given, additionally ensure the value is an entity of this type.
     """
     if isinstance(entity_type_identifier, str):
-        entity_type = wait_to_thread(ENTITY_TYPE_REPOSITORY.get(entity_type_identifier))
+        entity_type = await ENTITY_TYPE_REPOSITORY.get(entity_type_identifier)
     elif entity_type_identifier:
         entity_type = entity_type_identifier
     else:

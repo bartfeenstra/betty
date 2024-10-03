@@ -34,19 +34,14 @@ from betty.ancestry.gender import GENDER_REPOSITORY, Gender
 from betty.ancestry.place_type import PLACE_TYPE_REPOSITORY, PlaceType
 from betty.ancestry.presence_role import PRESENCE_ROLE_REPOSITORY, PresenceRole
 from betty.assets import AssetRepository
-from betty.config import (
-    Configurable,
-)
+from betty.config import Configurable
 from betty.copyright_notice import CopyrightNotice, COPYRIGHT_NOTICE_REPOSITORY
 from betty.core import CoreComponent
 from betty.event_dispatcher import EventDispatcher, EventHandlerRegistry
 from betty.factory import TargetFactory
 from betty.hashid import hashid
 from betty.job import Context
-from betty.json.schema import (
-    Schema,
-    JsonSchemaReference,
-)
+from betty.json.schema import Schema, JsonSchemaReference
 from betty.license import License, LICENSE_REPOSITORY
 from betty.locale.localizable import _
 from betty.locale.localizer import LocalizerRepository
@@ -316,7 +311,10 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         extension_types_enabled_in_configuration = set()
         for project_extension_configuration in self.configuration.extensions.values():
             if project_extension_configuration.enabled:
-                await project_extension_configuration.extension_type.enable_requirement().assert_met()
+                extension_requirement = (
+                    await project_extension_configuration.extension_type.requirement()
+                )
+                extension_requirement.assert_met()
                 extension_types_enabled_in_configuration.add(
                     project_extension_configuration.extension_type
                 )

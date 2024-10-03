@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-30 00:24+0100\n"
+"POT-Creation-Date: 2024-10-03 10:45+0100\n"
 "PO-Revision-Date: 2024-02-08 13:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de\n"
@@ -1137,9 +1137,6 @@ msgstr "y"
 
 msgid "{date}"
 msgstr "{date}"
-
-msgid "{dependency_label} is required by {dependency_labels}."
-msgstr "{dependency_label} wird benötigt von {dependency_labels}."
 
 msgid "{dependent_label} requires {dependency_labels}."
 msgstr "{dependent_label} benötigt {dependency_labels}."

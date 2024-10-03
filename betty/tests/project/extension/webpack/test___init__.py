@@ -35,7 +35,7 @@ class TestPrebuiltAssetsRequirement:
         fs.PREBUILT_ASSETS_DIRECTORY_PATH = Path(prebuilt_assets_directory_path)
         sut = PrebuiltAssetsRequirement()
         try:
-            assert await sut.is_met() is expected
+            assert sut.is_met() is expected
         finally:
             fs.PREBUILT_ASSETS_DIRECTORY_PATH = original_prebuilt_assets_directory_path
 

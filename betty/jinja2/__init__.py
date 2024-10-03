@@ -24,8 +24,6 @@ from jinja2 import (
 from jinja2.runtime import StrictUndefined, Context, DebugUndefined
 from typing_extensions import override
 
-from betty import model
-from betty.asyncio import wait_to_thread
 from betty.date import Date
 from betty.html import CssProvider, JsProvider
 from betty.jinja2.filter import FILTERS
@@ -34,11 +32,12 @@ from betty.job import Context as JobContext
 from betty.locale.localizable import Localizable, plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizer import Localizer
-from betty.plugin import Plugin
+from betty.plugin import Plugin, PluginIdToTypeMap
 from betty.project.factory import ProjectDependentFactory
 from betty.render import Renderer
 from betty.serde.dump import Dumpable, DumpMapping, Dump
 from betty.typing import Void, Voidable, internal
+from betty.model import ENTITY_TYPE_REPOSITORY
 
 if TYPE_CHECKING:
     from betty.assets import AssetRepository
@@ -154,30 +153,39 @@ class EntityContexts:
     context.
     """
 
-    def __init__(self, *entities: Entity) -> None:
+    def __init__(
+        self, *entities: Entity, entity_type_id_to_type_map: PluginIdToTypeMap[Entity]
+    ) -> None:
+        self._entity_type_id_to_type_map = entity_type_id_to_type_map
         self._contexts: MutableMapping[type[Entity], Entity | None] = defaultdict(
             lambda: None
         )
         for entity in entities:
             self._contexts[entity.type] = entity
 
+    @classmethod
+    async def new(cls, *entities: Entity) -> Self:
+        """
+        Create a new instance.
+        """
+        return cls(
+            *entities, entity_type_id_to_type_map=await ENTITY_TYPE_REPOSITORY.map()
+        )
+
     def __getitem__(
         self, entity_type_or_type_name: type[Entity] | str
     ) -> Entity | None:
-        if isinstance(entity_type_or_type_name, str):
-            entity_type = wait_to_thread(
-                model.ENTITY_TYPE_REPOSITORY.get(entity_type_or_type_name)
-            )
-        else:
-            entity_type = entity_type_or_type_name
-        return self._contexts[entity_type]
+        return self._contexts[
+            self._entity_type_id_to_type_map[entity_type_or_type_name]
+        ]
 
     def __call__(self, *entities: Entity) -> EntityContexts:
         """
         Create a new context with the given entities.
         """
         updated_contexts = EntityContexts(
-            *(entity for entity in self._contexts.values() if entity is not None)
+            *(entity for entity in self._contexts.values() if entity is not None),
+            entity_type_id_to_type_map=self._entity_type_id_to_type_map,
         )
         for entity in entities:
             updated_contexts._contexts[entity.type] = entity
@@ -242,7 +250,11 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
 
     @internal
     def __init__(
-        self, project: Project, extensions: Sequence[Extension], assets: AssetRepository
+        self,
+        project: Project,
+        extensions: Sequence[Extension],
+        assets: AssetRepository,
+        entity_contexts: EntityContexts,
     ):
         template_directory_paths = [
             str(path / "templates") for path in assets.assets_directory_paths
@@ -266,6 +278,7 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
         self._context_class: type[Context] | None = None
         self._project = project
         self._extensions = extensions
+        self._entity_contexts = entity_contexts
 
         if project.configuration.debug:
             self.add_extension("jinja2.ext.debug")
@@ -280,7 +293,12 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
     @classmethod
     async def new_for_project(cls, project: Project) -> Self:
         extensions = await project.extensions
-        return cls(project, list(extensions.flatten()), await project.assets)
+        return cls(
+            project,
+            list(extensions.flatten()),
+            await project.assets,
+            await EntityContexts.new(),
+        )
 
     @property
     def project(self) -> Project:
@@ -396,7 +414,7 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
             if isinstance(extension, JsProvider)
             for path in extension.public_js_paths
         ]
-        self.globals["entity_contexts"] = EntityContexts()
+        self.globals["entity_contexts"] = self._entity_contexts
         self.globals["localizer"] = DEFAULT_LOCALIZER
 
     def _init_extensions(self) -> None:

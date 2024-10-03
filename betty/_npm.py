@@ -8,7 +8,8 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import Sequence, TYPE_CHECKING
+from typing import Sequence, TYPE_CHECKING, Self, final
+from typing_extensions import override
 
 from betty.error import UserFacingError
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -21,14 +22,16 @@ if TYPE_CHECKING:
     from asyncio import subprocess as aiosubprocess
 
 
-_NPM_UNAVAILABLE_MESSAGE = _(
+_NPM_SUMMARY_AVAILABLE = _("`npm` is available")
+_NPM_SUMMARY_UNAVAILABLE = _("`npm` is not available")
+_NPM_DETAILS = _(
     "npm (https://www.npmjs.com/) must be available for features that require Node.js packages to be installed. Ensure that the `npm` executable is available in your `PATH`."
 )
 
 
 class NpmUnavailable(UserFacingError, RuntimeError):
     def __init__(self):
-        super().__init__(_NPM_UNAVAILABLE_MESSAGE)
+        super().__init__(_NPM_DETAILS)
 
 
 async def npm(
@@ -50,34 +53,35 @@ async def npm(
         raise NpmUnavailable() from None
 
 
+@final
 class NpmRequirement(Requirement):
-    def __init__(self):
+    def __init__(self, met: bool):
         super().__init__()
-        self._met: bool
-        self._summary: Localizable
-        self._details = _NPM_UNAVAILABLE_MESSAGE
+        self._met = met
 
-    async def _check(self) -> None:
-        if hasattr(self, "_met"):
-            return
+    @classmethod
+    async def new(cls) -> Self:
         try:
             await npm(["--version"])
         except NpmUnavailable:
-            self._met = False
-            self._summary = _("`npm` is not available")
+            logging.getLogger(__name__).debug(
+                _NPM_SUMMARY_UNAVAILABLE.localize(DEFAULT_LOCALIZER)
+            )
+            logging.getLogger(__name__).debug(_NPM_DETAILS.localize(DEFAULT_LOCALIZER))
+            return cls(False)
         else:
-            self._met = True
-            self._summary = _("`npm` is available")
-        finally:
-            logging.getLogger(__name__).debug(self._summary.localize(DEFAULT_LOCALIZER))
+            return cls(True)
 
-    async def is_met(self) -> bool:
-        await self._check()
+    @override
+    def is_met(self) -> bool:
         return self._met
 
-    async def summary(self) -> Localizable:
-        await self._check()
-        return self._summary
+    @override
+    def summary(self) -> Localizable:
+        if self.is_met():
+            return _NPM_SUMMARY_AVAILABLE
+        return _NPM_SUMMARY_UNAVAILABLE
 
-    async def details(self) -> Localizable:
-        return self._details
+    @override
+    def details(self) -> Localizable:
+        return _NPM_DETAILS

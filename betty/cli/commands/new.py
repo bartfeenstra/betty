@@ -4,10 +4,18 @@ from typing import Any, TYPE_CHECKING
 from urllib.parse import urlparse
 
 import click
+
 from betty.assertion import assert_path, assert_str, assert_locale
 from betty.cli.commands import command, pass_app
 from betty.cli.error import user_facing_error_to_bad_parameter
 from betty.config import write_configuration_file
+from betty.locale import DEFAULT_LOCALE, get_display_name
+from betty.machine_name import assert_machine_name, machinify
+from betty.project.config import (
+    ProjectConfiguration,
+    ExtensionConfiguration,
+    LocaleConfiguration,
+)
 from betty.project.extension.cotton_candy import CottonCandy
 from betty.project.extension.deriver import Deriver
 from betty.project.extension.gramps import Gramps
@@ -21,13 +29,6 @@ from betty.project.extension.privatizer import Privatizer
 from betty.project.extension.trees import Trees
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.wikipedia import Wikipedia
-from betty.locale import DEFAULT_LOCALE, get_display_name
-from betty.machine_name import assert_machine_name, machinify
-from betty.project.config import (
-    ProjectConfiguration,
-    ExtensionConfiguration,
-    LocaleConfiguration,
-)
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -70,7 +71,8 @@ async def new(app: App) -> None:  # noqa D103
     configuration.extensions.enable(Deriver)
     configuration.extensions.enable(Privatizer)
     configuration.extensions.enable(Wikipedia)
-    if await Webpack.enable_requirement().is_met():
+    webpack_requirement = await Webpack.requirement()
+    if webpack_requirement.is_met():
         configuration.extensions.enable(HttpApiDoc)
         configuration.extensions.enable(Maps)
         configuration.extensions.enable(Trees)

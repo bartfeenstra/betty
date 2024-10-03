@@ -103,14 +103,14 @@ class PrebuiltAssetsRequirement(Requirement):
     """
 
     @override
-    async def is_met(self) -> bool:
+    def is_met(self) -> bool:
         return (fs.PREBUILT_ASSETS_DIRECTORY_PATH / "webpack").is_dir()
 
     @override
-    async def summary(self) -> Localizable:
+    def summary(self) -> Localizable:
         return (
             _("Pre-built Webpack front-end assets are available")
-            if await self.is_met()
+            if self.is_met()
             else _("Pre-built Webpack front-end assets are unavailable")
         )
 
@@ -135,13 +135,6 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
     Integrate Betty with `Webpack <https://webpack.js.org/>`_.
     """
 
-    _npm_requirement = NpmRequirement()
-    _prebuilt_assets_requirement = PrebuiltAssetsRequirement()
-    _requirement = AnyRequirement(
-        _npm_requirement,
-        _prebuilt_assets_requirement,
-    )
-
     _plugin_id = "webpack"
     _plugin_label = static("Webpack")
 
@@ -162,14 +155,11 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
 
     @override
     @classmethod
-    def enable_requirement(cls) -> Requirement:
-        return AllRequirements(super().enable_requirement(), cls._requirement)
-
-    def build_requirement(self) -> Requirement:
-        """
-        Get the requirement that must be satisfied for Webpack builds to be available.
-        """
-        return self._npm_requirement
+    async def requirement(cls) -> Requirement:
+        return AllRequirements(
+            await super().requirement(),
+            AnyRequirement(await NpmRequirement.new(), PrebuiltAssetsRequirement()),
+        )
 
     @override
     @classmethod
@@ -264,4 +254,4 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
         if prebuilt_webpack_build_directory_path.exists():
             return prebuilt_webpack_build_directory_path
 
-        raise RequirementError(self._requirement)
+        raise RequirementError(await self.requirement())

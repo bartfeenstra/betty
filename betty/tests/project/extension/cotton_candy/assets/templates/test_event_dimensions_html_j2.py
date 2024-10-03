@@ -62,7 +62,7 @@ class Test(TemplateTestBase):
         async with self._render(
             data={
                 "event": event,
-                "entity_contexts": EntityContexts(place),
+                "entity_contexts": await EntityContexts.new(place),
             }
         ) as (actual, _):
             assert actual == expected
