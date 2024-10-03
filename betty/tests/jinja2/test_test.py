@@ -21,8 +21,9 @@ if TYPE_CHECKING:
 
 class TestTestEntity(TemplateTestBase):
     @pytest.mark.parametrize(
-        ("expected", "entity_type", "data"),
+        ("expected", "entity_type_identifier", "data"),
         [
+            ("true", None, Person(id="P1")),
             ("true", Person, Person(id="P1")),
             (
                 "false",
@@ -46,9 +47,17 @@ class TestTestEntity(TemplateTestBase):
         ],
     )
     async def test(
-        self, expected: str, entity_type: type[Entity], data: Mapping[str, Any]
+        self,
+        expected: str,
+        entity_type_identifier: type[Entity] | None,
+        data: Mapping[str, Any],
     ) -> None:
-        template = f'{{% if data is entity("{entity_type.plugin_id()}") %}}true{{% else %}}false{{% endif %}}'
+        entity_type_identifier_arg = (
+            ""
+            if entity_type_identifier is None
+            else f'"{entity_type_identifier.plugin_id()}"'
+        )
+        template = f"{{% if data is entity({entity_type_identifier_arg}) %}}true{{% else %}}false{{% endif %}}"
         async with self._render(
             template_string=template,
             data={

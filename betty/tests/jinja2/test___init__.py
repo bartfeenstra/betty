@@ -104,23 +104,23 @@ class EntityContextsTestEntityB(DummyEntity):
 
 class TestEntityContexts:
     async def test___getitem__(self) -> None:
-        sut = EntityContexts()
+        sut = await EntityContexts.new()
         assert sut[EntityContextsTestEntityA] is None
 
     async def test___getitem___with___init__(self) -> None:
         a = EntityContextsTestEntityA()
-        sut = EntityContexts(a)
+        sut = await EntityContexts.new(a)
         assert sut[EntityContextsTestEntityA] is a
 
     async def test___call__(self) -> None:
         a = EntityContextsTestEntityA()
-        contexts = EntityContexts()
+        contexts = await EntityContexts.new()
         sut = contexts(a)
         assert sut[EntityContextsTestEntityA] is a
 
     async def test___call___with___init__(self) -> None:
         a = EntityContextsTestEntityA()
         b = EntityContextsTestEntityA()
-        contexts = EntityContexts(a)
+        contexts = await EntityContexts.new(a)
         sut = contexts(b)
         assert sut[EntityContextsTestEntityA] is b

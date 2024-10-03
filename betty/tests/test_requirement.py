@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing_extensions import override
+
 import pytest
 
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -16,14 +18,14 @@ from betty.requirement import (
 class TestRequirement:
     async def test_assert_met_should_raise_error_if_unmet(self) -> None:
         with pytest.raises(RequirementError):
-            await _UnmetRequirement().assert_met()
+            _UnmetRequirement().assert_met()
 
     async def test_assert_met_should_do_nothing_if_met(self) -> None:
-        await _MetRequirement().assert_met()
+        _MetRequirement().assert_met()
 
     async def test_localize_with_details(self) -> None:
         class _Requirement(_MetRequirement):
-            async def details(self) -> Localizable:
+            def details(self) -> Localizable:
                 return _("Dolor sit amet")
 
         assert (
@@ -96,30 +98,37 @@ class TestRequirementCollection:
 
 
 class _RequirementCollection(RequirementCollection):
-    async def is_met(self) -> bool:
+    @override
+    def is_met(self) -> bool:
         return True  # pragma: no cover
 
-    async def summary(self) -> Localizable:
+    @override
+    def summary(self) -> Localizable:
         return static("Lorem ipsum")
 
 
 class _MetRequirement(Requirement):
-    async def is_met(self) -> bool:
+    @override
+    def is_met(self) -> bool:
         return True
 
-    async def summary(self) -> Localizable:
+    @override
+    def summary(self) -> Localizable:
         return static("Lorem ipsum")
 
 
 class _UnmetRequirement(Requirement):
-    async def is_met(self) -> bool:
+    @override
+    def is_met(self) -> bool:
         return False
 
-    async def summary(self) -> Localizable:
+    @override
+    def summary(self) -> Localizable:
         return static("Lorem ipsum")
 
 
 class _ReducedToNoneRequirement(_MetRequirement):
+    @override
     def reduce(self) -> Requirement | None:
         return None
 
@@ -130,29 +139,29 @@ class _UnreducedRequirement(_MetRequirement):
 
 class TestAnyRequirement:
     async def test_is_met_with_one_met(self) -> None:
-        assert await AnyRequirement(
+        assert AnyRequirement(
             _UnmetRequirement(), _UnmetRequirement(), _MetRequirement()
         ).is_met()
 
     async def test_is_met_without_any_met(self) -> None:
-        assert not await AnyRequirement(
+        assert not AnyRequirement(
             _UnmetRequirement(), _UnmetRequirement(), _UnmetRequirement()
         ).is_met()
 
     async def test_summary(self) -> None:
-        assert (await AnyRequirement().summary()).localize(DEFAULT_LOCALIZER)
+        assert (AnyRequirement().summary()).localize(DEFAULT_LOCALIZER)
 
 
 class TestAllRequirements:
     async def test_is_met_with_all_but_one_met(self) -> None:
-        assert not await AllRequirements(
+        assert not AllRequirements(
             _MetRequirement(), _MetRequirement(), _UnmetRequirement()
         ).is_met()
 
     async def test_is_met_with_all_met(self) -> None:
-        assert await AllRequirements(
+        assert AllRequirements(
             _MetRequirement(), _MetRequirement(), _MetRequirement()
         ).is_met()
 
     async def test_summary(self) -> None:
-        assert (await AllRequirements().summary()).localize(DEFAULT_LOCALIZER)
+        assert (AllRequirements().summary()).localize(DEFAULT_LOCALIZER)

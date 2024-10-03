@@ -5,21 +5,18 @@ from __future__ import annotations
 from abc import abstractmethod
 from collections import defaultdict
 from collections.abc import MutableMapping
-from typing import (
-    TypeVar,
-    Iterable,
-    TYPE_CHECKING,
-    Generic,
-    Self,
-)
+from typing import TypeVar, Iterable, TYPE_CHECKING, Generic, Self, Sequence
 
 from typing_extensions import override
 
 from betty.config import Configurable, Configuration
 from betty.core import CoreComponent
-from betty.plugin import Plugin, PluginRepository, PluginIdentifier
+from betty.locale.localizable import Localizable, _, call
+from betty.plugin import Plugin, PluginRepository, PluginIdentifier, PluginIdToTypeMap
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.project.factory import ProjectDependentFactory
+from betty.typing import internal
+from betty.requirement import AllRequirements
 
 if TYPE_CHECKING:
     from betty.event_dispatcher import EventHandlerRegistry
@@ -110,25 +107,13 @@ class Extension(Plugin, CoreComponent, ProjectDependentFactory):
         return set()
 
     @classmethod
-    def enable_requirement(cls) -> Requirement:
+    async def requirement(cls) -> Requirement:
         """
         Define the requirement for this extension to be enabled.
 
         This defaults to the extension's dependencies.
         """
-        from betty.project.extension.requirement import Dependencies
-
-        return Dependencies(cls)
-
-    def disable_requirement(self) -> Requirement:
-        """
-        Define the requirement for this extension to be disabled.
-
-        This defaults to the extension's dependents.
-        """
-        from betty.project.extension.requirement import Dependents
-
-        return Dependents(self)
+        return await Dependencies.new(cls)  # type: ignore[no-any-return]
 
     @classmethod
     def assets_directory_path(cls) -> Path | None:
@@ -232,3 +217,55 @@ async def _extend_extension_type_graph(
         graph[extension_type].add(dependency)
         if not seen_dependency:
             await _extend_extension_type_graph(graph, dependency)
+
+
+class Dependencies(AllRequirements):
+    """
+    Check a dependent's dependency requirements.
+    """
+
+    @internal
+    def __init__(
+        self,
+        dependent: type[Extension],
+        extension_id_to_type_map: PluginIdToTypeMap[Extension],
+        dependency_requirements: Sequence[Requirement],
+    ):
+        super().__init__(*dependency_requirements)
+        self._dependent = dependent
+        self._extension_id_to_type_map = extension_id_to_type_map
+
+    @classmethod
+    async def new(cls, dependent: type[Extension]) -> Self:
+        """
+        Create a new instance.
+        """
+        try:
+            dependency_requirements = [
+                await (
+                    await EXTENSION_REPOSITORY.get(dependency_identifier)
+                    if isinstance(dependency_identifier, str)
+                    else dependency_identifier
+                ).requirement()
+                for dependency_identifier in dependent.depends_on()
+            ]
+        except RecursionError:
+            raise CyclicDependencyError([dependent]) from None
+        else:
+            return cls(
+                dependent, await EXTENSION_REPOSITORY.map(), dependency_requirements
+            )
+
+    @override
+    def summary(self) -> Localizable:
+        return _("{dependent_label} requires {dependency_labels}.").format(
+            dependent_label=self._dependent.plugin_label(),
+            dependency_labels=call(
+                lambda localizer: ", ".join(
+                    self._extension_id_to_type_map[dependency_identifier]
+                    .plugin_label()
+                    .localize(localizer)
+                    for dependency_identifier in self._dependent.depends_on()
+                ),
+            ),
+        )

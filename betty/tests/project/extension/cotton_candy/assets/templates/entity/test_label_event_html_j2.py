@@ -82,7 +82,7 @@ class Test(TemplateTestBase):
         async with self._render(
             data={
                 "entity": event,
-                "entity_contexts": EntityContexts(person),
+                "entity_contexts": await EntityContexts.new(person),
             }
         ) as (actual, _):
             assert actual == expected
@@ -97,7 +97,7 @@ class Test(TemplateTestBase):
         async with self._render(
             data={
                 "entity": event,
-                "entity_contexts": EntityContexts(person),
+                "entity_contexts": await EntityContexts.new(person),
             }
         ) as (actual, _):
             assert actual == expected

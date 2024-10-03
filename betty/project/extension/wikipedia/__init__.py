@@ -4,29 +4,24 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Iterable, TYPE_CHECKING, final
+from typing import Iterable, TYPE_CHECKING, final, Self
 
 from jinja2 import pass_context
 from typing_extensions import override
 
-from betty.asyncio import gather, wait_to_thread
-from betty.project.extension.wikipedia.config import WikipediaConfiguration
+from betty.asyncio import gather
 from betty.fetch import FetchError
 from betty.jinja2 import Jinja2Provider, context_localizer, Filters, Globals
 from betty.locale import negotiate_locale
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
 from betty.project.extension import ConfigurableExtension
+from betty.project.extension.wikipedia.config import WikipediaConfiguration
 from betty.project.load import PostLoadAncestryEvent
-from betty.wikipedia import (
-    Summary,
-    _parse_url,
-    NotAPageError,
-    _Retriever,
-    _Populator,
-)
+from betty.wikipedia import Summary, _parse_url, NotAPageError, _Retriever, _Populator
 
 if TYPE_CHECKING:
+    from betty.copyright_notice import CopyrightNotice
     from collections.abc import Awaitable
     from betty.project import Project
     from betty.event_dispatcher import EventHandlerRegistry
@@ -55,9 +50,26 @@ class Wikipedia(
     Integrates Betty with `Wikipedia <https://wikipedia.org>`_.
     """
 
-    def __init__(self, project: Project):
+    def __init__(
+        self,
+        project: Project,
+        wikipedia_contributors_copyright_notice: CopyrightNotice,
+    ):
         super().__init__(project)
+        self._wikipedia_contributors_copyright_notice = (
+            wikipedia_contributors_copyright_notice
+        )
         self._retriever: _Retriever | None = None
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project) -> Self:
+        return cls(
+            project,
+            await project.new_target(
+                await project.copyright_notices.get("wikipedia-contributors")
+            ),
+        )
 
     _plugin_id = "wikipedia"
     _plugin_label = _("Wikipedia")
@@ -90,13 +102,8 @@ Display <a href="https://www.wikipedia.org/">Wikipedia</a> summaries for resourc
     @override
     @property
     def globals(self) -> Globals:
-        return wait_to_thread(self._init_globals())
-
-    async def _init_globals(self) -> Globals:
         return {
-            "wikipedia_contributors_copyright_notice": await self.project.new_target(
-                await self.project.copyright_notices.get("wikipedia-contributors")
-            )
+            "wikipedia_contributors_copyright_notice": self._wikipedia_contributors_copyright_notice
         }
 
     @override

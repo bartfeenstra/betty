@@ -65,7 +65,7 @@ class Test(TemplateTestBase):
         async with self._render(
             data={
                 "entity": place,
-                "entity_contexts": EntityContexts(all_enclosing_place),
+                "entity_contexts": await EntityContexts.new(all_enclosing_place),
             }
         ) as (actual, _):
             assert actual == expected
@@ -93,7 +93,7 @@ class Test(TemplateTestBase):
         async with self._render(
             data={
                 "entity": place,
-                "entity_contexts": EntityContexts(unrelated_place),
+                "entity_contexts": await EntityContexts.new(unrelated_place),
             }
         ) as (actual, _):
             assert actual == expected
