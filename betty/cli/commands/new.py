@@ -3,7 +3,7 @@ from __future__ import annotations  # noqa D100
 from typing import Any, TYPE_CHECKING
 from urllib.parse import urlparse
 
-import click
+import asyncclick as click
 
 from betty.assertion import assert_path, assert_str, assert_locale
 from betty.cli.commands import command, pass_app
@@ -179,9 +179,9 @@ def _prompt_static_translations(
             text.format(locale=get_display_name(locale)),
             default,
             hide_input,
-            confirmation_prompt,  # type: ignore[arg-type]
+            confirmation_prompt,
             type,
-            value_proc,  # type: ignore[arg-type]
+            value_proc,
             prompt_suffix,
             show_default,
             err,

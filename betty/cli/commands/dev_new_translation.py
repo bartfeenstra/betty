@@ -1,6 +1,6 @@
 from __future__ import annotations  # noqa D100
 
-import click
+import asyncclick as click
 
 from betty.assertion import assert_locale
 from betty.cli.commands import command, parameter_callback

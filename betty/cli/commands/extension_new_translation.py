@@ -2,7 +2,7 @@ from __future__ import annotations  # noqa D100
 
 from typing import TYPE_CHECKING
 
-import click
+import asyncclick as click
 
 from betty.assertion import assert_locale
 from betty.asyncio import wait_to_thread

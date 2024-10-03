@@ -4,6 +4,8 @@ from collections.abc import AsyncIterator
 from logging import CRITICAL, ERROR, WARNING, INFO, DEBUG, FATAL, WARN, NOTSET
 
 import pytest
+from pytest_mock import MockerFixture
+
 from betty.app import App
 from betty.cli import _ClickHandler, new_main_command
 from betty.cli.commands import command, Command
@@ -11,7 +13,6 @@ from betty.config import write_configuration_file
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.test_utils.cli import run
-from pytest_mock import MockerFixture
 
 
 @command(name="no-op")
@@ -24,7 +25,7 @@ class _NoOpCommand(Command):
 
 
 @pytest.fixture
-async def new_temporary_app(mocker: MockerFixture) -> AsyncIterator[App]:
+async def app(mocker: MockerFixture) -> AsyncIterator[App]:
     async with App.new_temporary() as app, app:
         m_new_from_environment = mocker.AsyncMock()
         m_new_from_environment.__aenter__.return_value = app
@@ -35,22 +36,26 @@ async def new_temporary_app(mocker: MockerFixture) -> AsyncIterator[App]:
 
 
 class TestMain:
-    async def test_without_arguments(self, new_temporary_app: App) -> None:
-        await run(new_temporary_app)
+    async def test_without_arguments(self) -> None:
+        async with App.new_temporary() as app, app:
+            await run(app)
 
-    async def test_help(self, new_temporary_app: App) -> None:
-        await run(new_temporary_app, "--help")
+    async def test_help(self) -> None:
+        async with App.new_temporary() as app, app:
+            await run(app, "--help")
 
 
 class TestVersion:
-    async def test(self, new_temporary_app: App) -> None:
-        result = await run(new_temporary_app, "--version")
-        assert "Betty" in result.stdout
+    async def test(self) -> None:
+        async with App.new_temporary() as app, app:
+            result = await run(app, "--version")
+            assert "Betty" in result.stdout
 
 
 class TestUnknownCommand:
-    async def test(self, new_temporary_app: App) -> None:
-        await run(new_temporary_app, "unknown-command", expected_exit_code=2)
+    async def test(self) -> None:
+        async with App.new_temporary() as app, app:
+            await run(app, "unknown-command", expected_exit_code=2)
 
 
 class TestVerbosity:
@@ -62,19 +67,18 @@ class TestVerbosity:
             "-vvv",
         ],
     )
-    async def test(
-        self, mocker: MockerFixture, new_temporary_app: App, verbosity: str
-    ) -> None:
+    async def test(self, mocker: MockerFixture, verbosity: str) -> None:
         command_repository = StaticPluginRepository(_NoOpCommand)
         mocker.patch(
             "betty.cli.commands.COMMAND_REPOSITORY",
             new=command_repository,
         )
-        async with Project.new_temporary(new_temporary_app) as project:
-            await write_configuration_file(
-                project.configuration, project.configuration.configuration_file_path
-            )
-            await run(new_temporary_app, "no-op", verbosity)
+        async with App.new_temporary() as app, app:
+            async with app, Project.new_temporary(app) as project:
+                await write_configuration_file(
+                    project.configuration, project.configuration.configuration_file_path
+                )
+            await run(app, "no-op", verbosity)
 
 
 class TestClickHandler:
@@ -103,6 +107,7 @@ class TestClickHandler:
 
 
 class TestNewMainCommand:
-    async def test(self, new_temporary_app: App) -> None:
-        main_command = await new_main_command(new_temporary_app)
-        assert main_command("--help", standalone_mode=False) == 0
+    async def test(self) -> None:
+        async with App.new_temporary() as app, app:
+            main_command = await new_main_command(app)
+            assert await main_command.main("--help", standalone_mode=False) == 0

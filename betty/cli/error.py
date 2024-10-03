@@ -8,7 +8,7 @@ import logging
 from contextlib import contextmanager
 from typing import Iterator, TYPE_CHECKING
 
-import click
+import asyncclick as click
 
 from betty.error import UserFacingError
 from betty.locale.localizer import DEFAULT_LOCALIZER

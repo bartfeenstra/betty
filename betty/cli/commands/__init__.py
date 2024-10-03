@@ -5,6 +5,7 @@ Provide the Command Line Interface.
 from __future__ import annotations
 
 import logging
+from asyncio import run
 from contextlib import suppress
 from functools import wraps
 from importlib import metadata
@@ -21,16 +22,13 @@ from typing import (
     cast,
 )
 
-import click
-from click import Context, option, Parameter
+import asyncclick as click
 from typing_extensions import override
 
 from betty import about
 from betty.assertion.error import AssertionFailed
-from betty.asyncio import wait_to_thread
 from betty.cli.error import user_facing_error_to_bad_parameter
 from betty.config import assert_configuration_file
-from betty.contextlib import SynchronizedContextManager
 from betty.error import UserFacingError, FileNotFound
 from betty.locale.localizable import _, Localizable, plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -67,12 +65,13 @@ class Command(Plugin):
     @override
     @classmethod
     def plugin_id(cls) -> MachineName:
-        return cls.click_command().name
+        # @todo Finish this
+        return str(cls.click_command().name)
 
     @override
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return plain(cls.click_command().name)
+        return plain(cls.plugin_id())
 
     @override
     @classmethod
@@ -251,10 +250,10 @@ def command(
             callback=_command_build_init_ctx_verbosity(logging.NOTSET, logging.NOTSET),
         )
         @wraps(f)
-        def _command(*args: _P.args, **kwargs: _P.kwargs) -> None:
-            wait_to_thread(f(*args, **kwargs))
+        async def _command(*args: _P.args, **kwargs: _P.kwargs) -> None:
+            await f(*args, **kwargs)
 
-        return _command  # type: ignore[return-value]
+        return _command
 
     if callable(name):
         return decorator(name)
@@ -281,7 +280,7 @@ def pass_app(
 
 def parameter_callback(
     f: Callable[Concatenate[_T, _P], _ReturnT], *args: _P.args, **kwargs: _P.kwargs
-) -> Callable[[Context, Parameter, _T], _ReturnT]:
+) -> Callable[[click.Context, click.Parameter, _T], _ReturnT]:
     """
     Convert a callback that takes a parameter (option, argument) value and returns it after processing.
 
@@ -289,7 +288,7 @@ def parameter_callback(
     """
     from betty.cli import ctx_app_object
 
-    def _callback(ctx: Context, __: Parameter, value: _T) -> _ReturnT:
+    def _callback(ctx: click.Context, __: click.Parameter, value: _T) -> _ReturnT:
         with user_facing_error_to_bad_parameter(ctx_app_object(ctx).localizer):
             return f(value, *args, **kwargs)
 
@@ -358,19 +357,19 @@ def pass_project(
     """
     from betty.cli import ctx_app_object
 
-    def _project(
-        ctx: Context, __: Parameter, configuration_file_path: str | None
+    async def _project(
+        ctx: click.Context, __: click.Parameter, configuration_file_path: str | None
     ) -> Project:
-        project: Project = ctx.with_resource(  # type: ignore[attr-defined]
-            SynchronizedContextManager(Project.new_temporary(ctx_app_object(ctx).app))
-        )
-        wait_to_thread(_read_project_configuration(project, configuration_file_path))
-        ctx.with_resource(  # type: ignore[attr-defined]
-            SynchronizedContextManager(project)
-        )
+        project_factory = Project.new_temporary(ctx_app_object(ctx).app)
+        project = run(project_factory.__aenter__())
+        ctx.call_on_close(lambda: run(project_factory.__aexit__(None, None, None)))
+
+        run(_read_project_configuration(project, configuration_file_path))
+        run(project.bootstrap())
+        ctx.call_on_close(project.shutdown)
         return project
 
-    return option(  # type: ignore[return-value]
+    return click.option(  # type: ignore[return-value]
         "--configuration",
         "-c",
         "project",
