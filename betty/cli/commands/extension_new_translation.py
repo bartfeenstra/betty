@@ -1,39 +1,64 @@
 from __future__ import annotations  # noqa D100
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, final, Self
 
 import click
+from typing_extensions import override
 
+from betty.app.factory import AppDependentFactory
 from betty.assertion import assert_locale
-from betty.asyncio import wait_to_thread
-from betty.cli.commands import command, pass_app, parameter_callback
-from betty.cli.error import user_facing_error_to_bad_parameter
+from betty.cli.commands import command, parameter_callback, Command
 from betty.locale import translation
+from betty.locale.localizable import _
+from betty.plugin import ShorthandPluginBase
 from betty.project import extension
-from betty.typing import internal
 
 if TYPE_CHECKING:
     from betty.app import App
     from betty.project.extension import Extension
 
 
-@internal
-@command(
-    short_help="Create a new translation for an extension",
-)
-@click.argument(
-    "extension",
-    required=True,
-    callback=parameter_callback(
-        lambda extension_id: wait_to_thread(
-            extension.EXTENSION_REPOSITORY.get(extension_id)
+@final
+class ExtensionNewTranslation(ShorthandPluginBase, AppDependentFactory, Command):
+    """
+    A command to create new translations for an extension.
+    """
+
+    _plugin_id = "extension-new-translation"
+    _plugin_label = _("Create a new translation for an extension")
+
+    def __init__(self, app: App):
+        self._app = app
+
+    @override
+    @classmethod
+    async def new_for_app(cls, app: App) -> Self:
+        return cls(app)
+
+    @override
+    async def click_command(self) -> click.Command:
+        localizer = await self._app.localizer
+        extension_id_to_type_map = await extension.EXTENSION_REPOSITORY.map()
+        description = self.plugin_description()
+
+        @command(
+            self.plugin_id(),
+            short_help=self.plugin_label().localize(localizer),
+            help=description.localize(localizer)
+            if description
+            else self.plugin_label().localize(localizer),
         )
-    ),
-)
-@click.argument("locale", required=True, callback=parameter_callback(assert_locale()))
-@pass_app
-async def extension_new_translation(  # noqa D103
-    app: App, extension: type[Extension], locale: str
-) -> None:
-    with user_facing_error_to_bad_parameter(await app.localizer):
-        await translation.new_extension_translation(locale, extension)
+        @click.argument(
+            "extension",
+            required=True,
+            callback=parameter_callback(extension_id_to_type_map.get),
+        )
+        @click.argument(
+            "locale", required=True, callback=parameter_callback(assert_locale())
+        )
+        async def extension_new_translation(  # noqa D103
+            extension: type[Extension], locale: str
+        ) -> None:
+            await translation.new_extension_translation(locale, extension)
+
+        return extension_new_translation

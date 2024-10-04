@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-03 10:45+0100\n"
+"POT-Creation-Date: 2024-10-04 18:24+0100\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -310,8 +310,14 @@ msgstr "Verwijzingen"
 msgid "City"
 msgstr "Stad"
 
+msgid "Clear all caches"
+msgstr "Leeg alle caches"
+
 msgid "Conference"
 msgstr "Conferentie"
+
+msgid "Configure Betty"
+msgstr "Configureer Betty"
 
 msgid "Confirmation"
 msgstr "Geloofsbelijdenis"
@@ -369,6 +375,18 @@ msgstr "Land"
 
 msgid "County"
 msgstr "Graafschap"
+
+msgid "Create a new project"
+msgstr "Maak een nieuw project"
+
+msgid "Create a new translation"
+msgstr "Maak een nieuwe vertaling"
+
+msgid "Create a new translation for Betty itself"
+msgstr "Maak een nieuwe vertaling voor Betty zelf"
+
+msgid "Create a new translation for an extension"
+msgstr "Maak een nieuwe vertaling voor een extensie"
 
 msgid ""
 "Create events such as births and deaths by deriving their details from "
@@ -480,6 +498,9 @@ msgstr "Precies {expected} items zijn vereist, maar er waren er {actual} gevonde
 msgid "Exit the search"
 msgstr "Stop met zoeken"
 
+msgid "Explore a demonstration site"
+msgstr "Ontdek een demonstratiesite"
+
 msgid "External links"
 msgstr "Externe links"
 
@@ -512,6 +533,9 @@ msgstr "Vind meer informatie over deze afbeelding op Wikimedia Commons."
 
 msgid "Funeral"
 msgstr "Uitvaart"
+
+msgid "Generate a static site"
+msgstr "Genereer een statische site"
 
 msgid ""
 "Generated {completed_job_count} out of {total_job_count} items "
@@ -800,6 +824,9 @@ msgstr "Pensioen"
 msgid "Saved your project to {configuration_file}."
 msgstr "Configuratie naar \"{configuration_file}\" opgeslagen."
 
+msgid "Serve a generated site"
+msgstr "Serveer een gegenereerde site"
+
 msgid "Serving your site at {url}..."
 msgstr "Je site op {url} aan het serveren..."
 
@@ -973,6 +1000,15 @@ msgstr ""
 msgid "Unknown key: {unknown_key}."
 msgstr "Onbekende sleutel: {unknown_key}."
 
+msgid "Update all existing translations"
+msgstr "Update alle bestaande vertalingen"
+
+msgid "Update all existing translations for Betty itself"
+msgstr "Update alle bestaande vertalingen voor Betty self"
+
+msgid "Update all existing translations for an extension"
+msgstr "Update alle bestaande vertalingen voor een extensie"
+
 msgid ""
 "Updated {updated_derivations} {event_type} events based on existing "
 "information."
@@ -986,6 +1022,9 @@ msgid ""
 msgstr ""
 "Gebruik <kbd>↑</kbd> en <kbd>↓</kbd> om door de resultaten te bladeren, "
 "of <kbd>esc</kbd> om te stoppen met zoeken."
+
+msgid "View the documentation"
+msgstr "Bekijk de documentatie"
 
 msgid "Village"
 msgstr "Dorp"

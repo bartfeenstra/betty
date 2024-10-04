@@ -88,6 +88,10 @@ class TestPluginIdToTypeMap:
     async def test_new(self) -> None:
         await PluginIdToTypeMap.new(StaticPluginRepository())
 
+    async def test_get(self) -> None:
+        sut = await PluginIdToTypeMap.new(StaticPluginRepository(DummyPlugin))
+        assert sut.get(DummyPlugin.plugin_id()) is DummyPlugin
+
     async def test___getitem__(self) -> None:
         sut = await PluginIdToTypeMap.new(StaticPluginRepository(DummyPlugin))
         assert sut[DummyPlugin.plugin_id()] is DummyPlugin

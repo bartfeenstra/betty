@@ -1,15 +1,18 @@
 from pathlib import Path
 from unittest.mock import ANY
 
+from pytest_mock import MockerFixture
+
 from betty.app import App
 from betty.config import write_configuration_file
 from betty.project import Project
 from betty.test_utils.cli import run
-from pytest_mock import MockerFixture
 
 
 class TestUpdateTranslations:
-    async def test(self, mocker: MockerFixture, new_temporary_app: App) -> None:
+    async def test_click_command(
+        self, mocker: MockerFixture, new_temporary_app: App
+    ) -> None:
         m_update_project_translations = mocker.patch(
             "betty.locale.translation.update_project_translations"
         )
@@ -25,7 +28,7 @@ class TestUpdateTranslations:
             )
         m_update_project_translations.assert_awaited_once_with(ANY, None, set())
 
-    async def test_with_source(
+    async def test_click_command_with_source(
         self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
     ) -> None:
         source = tmp_path / "source"
@@ -47,7 +50,7 @@ class TestUpdateTranslations:
             )
         m_update_project_translations.assert_awaited_once_with(ANY, source, set())
 
-    async def test_with_exclude(
+    async def test_click_command_with_exclude(
         self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
     ) -> None:
         source = tmp_path / "source"
@@ -71,7 +74,7 @@ class TestUpdateTranslations:
             )
         m_update_project_translations.assert_awaited_once_with(ANY, None, set(excludes))
 
-    async def test_with_invalid_source_directory(
+    async def test_click_command_with_invalid_source_directory(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
         await run(

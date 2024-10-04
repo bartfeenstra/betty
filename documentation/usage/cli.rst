@@ -12,17 +12,17 @@ The command line is the primary way to interact with Betty:
       --help     Show this message and exit.
 
     Commands:
-      clear-caches                   Clear all caches.
-      config                         Configure Betty.
-      demo                           Explore a demonstration site.
-      docs                           View the documentation.
+      clear-caches                   Clear all caches
+      config                         Configure Betty
+      demo                           Explore a demonstration site
+      docs                           View the documentation
       extension-new-translation      Create a new translation for an extension
       extension-update-translations  Update all existing translations for an
                                      extension
-      generate                       Generate a static site.
-      new                            Create a new project.
+      generate                       Generate a static site
+      new                            Create a new project
       new-translation                Create a new translation
-      serve                          Serve a generated site.
+      serve                          Serve a generated site
       update-translations            Update all existing translations
       dev-new-translation            Create a new translation for Betty itself
       dev-update-translations        Update all existing translations for Betty
@@ -36,7 +36,7 @@ Clearing caches
 
     Usage: betty clear-caches [OPTIONS]
 
-      Clear all caches.
+      Clear all caches
 
     Options:
       -v, --verbose         Show verbose output, including informative log messages.
@@ -52,7 +52,7 @@ Configuring the Betty application
 
     Usage: betty config [OPTIONS]
 
-      Configure Betty.
+      Configure Betty
 
     Options:
       -v, --verbose         Show verbose output, including informative log messages.
@@ -70,7 +70,7 @@ Explore a Betty demonstration site
 
     Usage: betty demo [OPTIONS]
 
-      Explore a demonstration site.
+      Explore a demonstration site
 
     Options:
       -v, --verbose         Show verbose output, including informative log messages.
@@ -86,7 +86,7 @@ View the Betty documentation
 
     Usage: betty docs [OPTIONS]
 
-      View the documentation.
+      View the documentation
 
     Options:
       -v, --verbose         Show verbose output, including informative log messages.
@@ -102,7 +102,7 @@ Generate a site for your project
 
     Usage: betty generate [OPTIONS]
 
-      Generate a static site.
+      Generate a static site
 
     Options:
       -v, --verbose             Show verbose output, including informative log
@@ -124,7 +124,7 @@ Create a new project
 
     Usage: betty new [OPTIONS]
 
-      Create a new project.
+      Create a new project
 
     Options:
       -v, --verbose         Show verbose output, including informative log messages.
@@ -139,6 +139,8 @@ Create a new translation for your project
 .. code-block::
 
     Usage: betty new-translation [OPTIONS] LOCALE
+
+      Create a new translation
 
     Options:
       -v, --verbose             Show verbose output, including informative log
@@ -159,6 +161,8 @@ Update all translations for your project
 .. code-block::
 
     Usage: betty update-translations [OPTIONS]
+
+      Update all existing translations
 
     Options:
       -v, --verbose             Show verbose output, including informative log
@@ -182,6 +186,8 @@ Create a new translation for your extension
 
     Usage: betty extension-new-translation [OPTIONS] EXTENSION LOCALE
 
+      Create a new translation for an extension
+
     Options:
       -v, --verbose         Show verbose output, including informative log messages.
       -vv, --more-verbose   Show more verbose output, including debug log messages.
@@ -195,6 +201,8 @@ Update all translations for your extension
 .. code-block::
 
     Usage: betty extension-update-translations [OPTIONS] EXTENSION SOURCE
+
+      Update all existing translations for an extension
 
     Options:
       -v, --verbose         Show verbose output, including informative log messages.
@@ -211,7 +219,7 @@ Serve your project's generated site
 
     Usage: betty serve [OPTIONS]
 
-      Serve a generated site.
+      Serve a generated site
 
     Options:
       -v, --verbose             Show verbose output, including informative log

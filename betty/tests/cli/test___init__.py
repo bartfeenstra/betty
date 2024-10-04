@@ -3,7 +3,11 @@ import logging
 from collections.abc import AsyncIterator
 from logging import CRITICAL, ERROR, WARNING, INFO, DEBUG, FATAL, WARN, NOTSET
 
+import click
 import pytest
+from pytest_mock import MockerFixture
+from typing_extensions import override
+
 from betty.app import App
 from betty.cli import _ClickHandler, new_main_command
 from betty.cli.commands import command, Command
@@ -11,16 +15,17 @@ from betty.config import write_configuration_file
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.test_utils.cli import run
-from pytest_mock import MockerFixture
+from betty.test_utils.plugin import DummyPlugin
 
 
-@command(name="no-op")
-async def _no_op_command() -> None:
-    pass
+class _NoOpCommand(Command, DummyPlugin):
+    @override
+    async def click_command(self) -> click.Command:
+        @command(self.plugin_id())
+        async def _no_op_command() -> None:
+            pass
 
-
-class _NoOpCommand(Command):
-    _click_command = _no_op_command
+        return _no_op_command
 
 
 @pytest.fixture
@@ -74,7 +79,7 @@ class TestVerbosity:
             await write_configuration_file(
                 project.configuration, project.configuration.configuration_file_path
             )
-            await run(new_temporary_app, "no-op", verbosity)
+            await run(new_temporary_app, "no-op-command", verbosity)
 
 
 class TestClickHandler:

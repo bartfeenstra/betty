@@ -1,14 +1,17 @@
 from aiofiles.os import makedirs
+from pytest_mock import MockerFixture
+
 from betty.app import App
 from betty.config import write_configuration_file
 from betty.project import Project
 from betty.test_utils.cli import run
 from betty.test_utils.serve import NoOpProjectServer
-from pytest_mock import MockerFixture
 
 
 class TestServe:
-    async def test(self, mocker: MockerFixture, new_temporary_app: App) -> None:
+    async def test_click_command(
+        self, mocker: MockerFixture, new_temporary_app: App
+    ) -> None:
         mocker.patch("asyncio.sleep", side_effect=KeyboardInterrupt)
         mocker.patch("betty.serve.BuiltinProjectServer", new=NoOpProjectServer)
         async with Project.new_temporary(new_temporary_app) as project:
