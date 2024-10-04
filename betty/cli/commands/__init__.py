@@ -11,14 +11,11 @@ from functools import wraps
 from pathlib import Path
 from typing import Any, Concatenate, ParamSpec, TYPE_CHECKING, overload, TypeVar, cast
 
-import click
-from click import Context, Parameter
-from typing_extensions import override
+import asyncclick as click
 
 from betty import about
 from betty.assertion import assert_path, assert_none, assert_or
 from betty.assertion.error import AssertionFailed
-from betty.asyncio import wait_to_thread
 from betty.cli.error import user_facing_error_to_bad_parameter
 from betty.config import assert_configuration_file
 from betty.error import UserFacingError, FileNotFound
@@ -32,7 +29,7 @@ from betty.serde.format import FORMAT_REPOSITORY
 
 if TYPE_CHECKING:
     from betty.cli import ContextAppObject
-    from collections.abc import Callable, Awaitable
+    from collections.abc import Callable, Coroutine
 
 _T = TypeVar("_T")
 _P = ParamSpec("_P")
@@ -92,83 +89,54 @@ def _command_build_init_ctx_verbosity(
     return _init_ctx_verbosity
 
 
-class BettyCommand(click.Command):
-    """
-    A Click command for Betty.
-
-    See :py:func:`betty.cli.commands.command`.
-    """
-
-    @override
-    def invoke(self, ctx: click.Context) -> Any:
-        from betty.cli import ctx_app_object
-
-        try:
-            return super().invoke(ctx)
-        except UserFacingError as error:
-            raise click.ClickException(
-                error.localize(ctx_app_object(ctx).localizer)
-            ) from error
-
-
-_BettyCommandT = TypeVar("_BettyCommandT", bound=BettyCommand)
-
-
 @overload
-def command(name: Callable[..., Awaitable[Any]]) -> BettyCommand:
+def command(
+    name: Callable[..., Coroutine[Any, Any, Any]],
+) -> click.Command:
     pass
 
 
 @overload
 def command(
     name: str | None,
-    cls: type[_BettyCommandT],
     **attrs: Any,
-) -> Callable[[Callable[..., Awaitable[Any]]], _BettyCommandT]:
+) -> Callable[[Callable[..., Coroutine[Any, Any, Any]]], click.Command]:
     pass
 
 
 @overload
 def command(
     name: None = None,
-    *,
-    cls: type[_BettyCommandT],
     **attrs: Any,
-) -> Callable[[Callable[..., Awaitable[Any]]], _BettyCommandT]:
+) -> Callable[[Callable[..., Coroutine[Any, Any, Any]]], click.Command]:
     pass
 
 
 @overload
 def command(
-    name: str | None = None, cls: None = None, **attrs: Any
-) -> Callable[[Callable[..., Awaitable[Any]]], BettyCommand]:
+    name: str | None = None,
+    **attrs: Any,
+) -> Callable[[Callable[..., Coroutine[Any, Any, Any]]], click.Command]:
     pass
 
 
 def command(
-    name: str | None | Callable[..., Awaitable[Any]] = None,
-    cls: type[BettyCommand] | None = None,
+    name: str | None | Callable[..., Coroutine[Any, Any, Any]] = None,
     **attrs: Any,
-) -> (
-    click.Command
-    | Callable[[Callable[..., Awaitable[Any]]], click.Command | BettyCommand]
-):
+) -> click.Command | Callable[[Callable[..., Coroutine[Any, Any, Any]]], click.Command]:
     """
     Mark something a Betty command.
 
-    This is almost identical to :py:func:`click.command`, except that ``cls`` must extend
-    :py:class:`betty.cli.commands.BettyCommand`.
+    This is almost identical to :py:func:`asyncclick.command`.
 
     Functions decorated with ``@command`` may choose to raise :py:class:`betty.error.UserFacingError`, which will
-    automatically be localized and reraised as :py:class:`click.ClickException`.
+    automatically be localized and reraised as :py:class:`asyncclick.ClickException`.
 
     Read more about :doc:`/development/plugin/command`.
     """
-    if cls is None:
-        cls = BettyCommand
 
-    def decorator(f: Callable[..., Awaitable[Any]]) -> BettyCommand:
-        @click.command(cast(str | None, name), cls, **attrs)
+    def decorator(f: Callable[..., Coroutine[Any, Any, Any]]) -> click.Command:
+        @click.command(cast(str | None, name), **attrs)
         @click.option(
             "-v",
             "--verbose",
@@ -201,11 +169,17 @@ def command(
             help="Show most verbose output, including all log messages.",
             callback=_command_build_init_ctx_verbosity(logging.NOTSET, logging.NOTSET),
         )
+        @click.pass_obj
         @wraps(f)
-        def _command(*args: _P.args, **kwargs: _P.kwargs) -> None:
-            wait_to_thread(f(*args, **kwargs))
+        async def _command(
+            obj: ContextAppObject, *args: _P.args, **kwargs: _P.kwargs
+        ) -> Any:
+            try:
+                return await f(*args, **kwargs)
+            except UserFacingError as error:
+                raise click.ClickException(error.localize(obj.localizer)) from error
 
-        return _command  # type: ignore[return-value]
+        return cast(click.Command, _command)
 
     if callable(name):
         return decorator(name)
@@ -217,7 +191,7 @@ _ReturnT = TypeVar("_ReturnT")
 
 def parameter_callback(
     f: Callable[Concatenate[_T, _P], _ReturnT], *args: _P.args, **kwargs: _P.kwargs
-) -> Callable[[Context, Parameter, _T], _ReturnT]:
+) -> Callable[[click.Context, click.Parameter, _T], _ReturnT]:
     """
     Convert a callback that takes a parameter (option, argument) value and returns it after processing.
 
@@ -225,7 +199,7 @@ def parameter_callback(
     """
     from betty.cli import ctx_app_object
 
-    def _callback(ctx: Context, __: Parameter, value: _T) -> _ReturnT:
+    def _callback(ctx: click.Context, __: click.Parameter, value: _T) -> _ReturnT:
         with user_facing_error_to_bad_parameter(ctx_app_object(ctx).localizer):
             return f(value, *args, **kwargs)
 
@@ -287,8 +261,8 @@ async def _read_project_configuration_file(
 
 
 def project_option(
-    f: Callable[Concatenate[Project, _P], Awaitable[_ReturnT]],
-) -> Callable[_P, Awaitable[_ReturnT]]:
+    f: Callable[Concatenate[Project, _P], Coroutine[Any, Any, _ReturnT]],
+) -> Callable[_P, Coroutine[Any, Any, _ReturnT]]:
     """
     Decorate a command that requires a :py:class:`betty.project.Project`.
     """

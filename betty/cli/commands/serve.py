@@ -12,7 +12,7 @@ from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
     from betty.project import Project
-    import click
+    import asyncclick as click
     from betty.app import App
 
 
