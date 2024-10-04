@@ -15,7 +15,7 @@ from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks, Link
-from betty.functools import Uniquifier
+from betty.functools import unique
 from betty.json.linked_data import dump_context, JsonLdObject
 from betty.json.schema import Enum
 from betty.locale.localizable import _, Localizable
@@ -148,7 +148,7 @@ class Person(
         """
         All siblings.
         """
-        yield from Uniquifier(
+        yield from unique(
             sibling
             for parent in self.parents
             for sibling in parent.children

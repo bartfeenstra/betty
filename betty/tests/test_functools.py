@@ -3,7 +3,7 @@ from typing import Any, TypeVar
 
 import pytest
 
-from betty.functools import Do, Uniquifier, passthrough
+from betty.functools import Do, passthrough, unique
 
 _T = TypeVar("_T")
 
@@ -86,7 +86,7 @@ class TestDo:
             )
 
 
-class TestUniquifier:
+class TestUnique:
     @pytest.mark.parametrize(
         ("expected", "values", "key"),
         [
@@ -112,7 +112,7 @@ class TestUniquifier:
         values: Iterable[Iterable[_T]],
         key: Callable[[_T], Any] | None,
     ) -> None:
-        sut = Uniquifier(*values, key=key)
+        sut = unique(*values, key=key)
         assert list(sut) == expected
 
 

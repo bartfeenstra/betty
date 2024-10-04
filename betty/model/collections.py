@@ -21,7 +21,7 @@ from typing import (
 
 from typing_extensions import override
 
-from betty.functools import Uniquifier
+from betty.functools import unique
 from betty.model import Entity
 from betty.repr import repr_instance
 
@@ -116,12 +116,12 @@ class EntityCollection(Generic[_TargetT], ABC):
         pass
 
     def _known(self, *entities: _TargetT & Entity) -> Iterable[_TargetT & Entity]:
-        for entity in Uniquifier(entities):
+        for entity in unique(entities):
             if entity in self:
                 yield entity
 
     def _unknown(self, *entities: _TargetT & Entity) -> Iterable[_TargetT & Entity]:
-        for entity in Uniquifier(entities):
+        for entity in unique(entities):
             if entity not in self:
                 yield entity
 

@@ -22,7 +22,7 @@ from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.asyncio import gather
 from betty.date import Date, Datey
-from betty.functools import Uniquifier
+from betty.functools import unique
 from betty.html import CssProvider
 from betty.jinja2 import (
     Jinja2Provider,
@@ -211,7 +211,7 @@ def person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable[
     """
     Gather all events for a person's timeline.
     """
-    yield from Uniquifier(_person_timeline_events(person, lifetime_threshold))
+    yield from unique(_person_timeline_events(person, lifetime_threshold))
 
 
 def person_descendant_families(
@@ -236,7 +236,7 @@ def associated_file_references(
     """
     Get the associated file references for an entity that has file references.
     """
-    yield from Uniquifier(
+    yield from unique(
         _associated_file_references(has_file_references),
         key=lambda file_reference: file_reference.file,
     )
