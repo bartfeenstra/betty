@@ -16,13 +16,10 @@ from typing import (
     Generic,
     ParamSpec,
     Awaitable,
-    TYPE_CHECKING,
 )
 
 from betty.asyncio import ensure_await
 
-if TYPE_CHECKING:
-    from collections.abc import MutableSequence
 
 _T = TypeVar("_T")
 
@@ -101,7 +98,9 @@ _ValueT = TypeVar("_ValueT")
 _KeyT = TypeVar("_KeyT")
 
 
-class Uniquifier(Generic[_ValueT]):
+def unique(
+    *values: Iterable[_ValueT], key: Callable[[_ValueT], Any] | None = None
+) -> Iterator[_ValueT]:
     """
     Yield the first occurrences of values in a sequence.
 
@@ -110,26 +109,14 @@ class Uniquifier(Generic[_ValueT]):
     supports non-hashable values. It is therefore slightly slower
     than :py:class:`set`.
     """
-
-    def __init__(
-        self,
-        *values: Iterable[_ValueT],
-        key: Callable[[_ValueT], Any] | None = None,
-    ):
-        self._values = chain(*values)
-        self._key = key or passthrough
-        self._seen: MutableSequence[Any] = []
-
-    def __iter__(self) -> Iterator[_ValueT]:
-        return self
-
-    def __next__(self) -> _ValueT:
-        value = next(self._values)
-        key = self._key(value)
-        if key in self._seen:
-            return next(self)
-        self._seen.append(key)
-        return value
+    seen_value_keys = []
+    if key is None:
+        key = passthrough
+    for value in chain(*values):
+        value_key = key(value)
+        if value_key not in seen_value_keys:
+            seen_value_keys.append(value_key)
+            yield value
 
 
 def passthrough(value: _T) -> _T:

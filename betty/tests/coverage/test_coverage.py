@@ -230,10 +230,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/fetch/static.py": TestKnownToBeMissing,
     "betty/functools.py": {
         "filter_suppress": TestKnownToBeMissing,
-        "Uniquifier": {
-            "__iter__": TestKnownToBeMissing,
-            "__next__": TestKnownToBeMissing,
-        },
     },
     "betty/gramps/error.py": TestKnownToBeMissing,
     "betty/gramps/loader.py": {
