@@ -3,7 +3,7 @@ from typing import Any, TypeVar
 
 import pytest
 
-from betty.functools import Do, Uniquifier
+from betty.functools import Do, Uniquifier, passthrough
 
 _T = TypeVar("_T")
 
@@ -114,3 +114,9 @@ class TestUniquifier:
     ) -> None:
         sut = Uniquifier(*values, key=key)
         assert list(sut) == expected
+
+
+class TestPassthrough:
+    def test(self) -> None:
+        value = object()
+        assert passthrough(value) is value
