@@ -5,7 +5,6 @@ Provide functional programming utilities.
 from __future__ import annotations
 
 from asyncio import sleep
-from inspect import isawaitable
 from itertools import chain
 from time import time
 from typing import (
@@ -19,6 +18,8 @@ from typing import (
     Awaitable,
     TYPE_CHECKING,
 )
+
+from betty.asyncio import ensure_await
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence
@@ -78,18 +79,11 @@ class Do(Generic[_DoFP, _DoFReturnT]):
         while True:
             retries -= 1
             try:
-                do_result_or_coroutine = self._do(*self._do_args, **self._do_kwargs)
-                if isawaitable(do_result_or_coroutine):
-                    do_result = await do_result_or_coroutine
-                else:
-                    do_result = do_result_or_coroutine
+                do_result = await ensure_await(
+                    self._do(*self._do_args, **self._do_kwargs)
+                )
                 for condition in conditions:
-                    condition_result_or_coroutine = condition(do_result)
-                    if isawaitable(condition_result_or_coroutine):
-                        condition_result = await condition_result_or_coroutine
-                    else:
-                        condition_result = condition_result_or_coroutine
-                    if condition_result is False:
+                    if await ensure_await(condition(do_result)) is False:
                         raise RuntimeError(
                             f"Condition {condition} was not met for {do_result}."
                         )
