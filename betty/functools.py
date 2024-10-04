@@ -93,7 +93,7 @@ class Do(Generic[_DoFP, _DoFReturnT]):
                         raise RuntimeError(
                             f"Condition {condition} was not met for {do_result}."
                         )
-            except BaseException:
+            except Exception:
                 if retries == 0:
                     raise
                 if time() - start_time > timeout:
