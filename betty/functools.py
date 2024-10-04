@@ -123,12 +123,8 @@ class Uniquifier(Generic[_ValueT]):
         key: Callable[[_ValueT], Any] | None = None,
     ):
         self._values = chain(*values)
-        self._key = key or self._passthrough
+        self._key = key or passthrough
         self._seen: MutableSequence[Any] = []
-
-    @staticmethod
-    def _passthrough(value: _ValueT) -> Any:
-        return value
 
     def __iter__(self) -> Iterator[_ValueT]:
         return self
@@ -140,3 +136,10 @@ class Uniquifier(Generic[_ValueT]):
             return next(self)
         self._seen.append(key)
         return value
+
+
+def passthrough(value: _T) -> _T:
+    """
+    Return the value.
+    """
+    return value
