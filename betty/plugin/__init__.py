@@ -146,9 +146,10 @@ class PluginIdToTypeMap(Generic[_PluginT]):
         """
         return cls({plugin.plugin_id(): plugin async for plugin in plugins})
 
-    def __getitem__(
-        self, plugin_identifier: MachineName | type[_PluginT]
-    ) -> type[_PluginT]:
+    def get(self, plugin_identifier: MachineName | type[_PluginT]) -> type[_PluginT]:
+        """
+        Get the type for the given plugin identifier.
+        """
         if isinstance(plugin_identifier, type):
             return plugin_identifier
         try:
@@ -157,6 +158,11 @@ class PluginIdToTypeMap(Generic[_PluginT]):
             raise PluginNotFound.new(
                 plugin_identifier, list(self._id_to_type_map.values())
             ) from None
+
+    def __getitem__(
+        self, plugin_identifier: MachineName | type[_PluginT]
+    ) -> type[_PluginT]:
+        return self.get(plugin_identifier)
 
 
 class PluginRepository(Generic[_PluginT], TargetFactory[_PluginT], ABC):

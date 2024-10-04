@@ -1,21 +1,56 @@
 from __future__ import annotations  # noqa D100
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, final, Self
 
 import click
+from typing_extensions import override
 
+from betty.app.factory import AppDependentFactory
 from betty.assertion import assert_locale
-from betty.cli.commands import command, pass_project, parameter_callback
+from betty.cli.commands import command, Command, parameter_callback, project_option
 from betty.locale import translation
-from betty.typing import internal
+from betty.locale.localizable import _
+from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
     from betty.project import Project
+    from betty.app import App
 
 
-@internal
-@command(short_help="Create a new translation")
-@click.argument("locale", required=True, callback=parameter_callback(assert_locale()))
-@pass_project
-async def new_translation(project: Project, locale: str) -> None:  # noqa D103
-    await translation.new_project_translation(locale, project)
+@final
+class NewTranslation(ShorthandPluginBase, AppDependentFactory, Command):
+    """
+    A command to create a new translation for a project.
+    """
+
+    _plugin_id = "new-translation"
+    _plugin_label = _("Create a new translation")
+
+    def __init__(self, app: App):
+        self._app = app
+
+    @override
+    @classmethod
+    async def new_for_app(cls, app: App) -> Self:
+        return cls(app)
+
+    @override
+    async def click_command(self) -> click.Command:
+        localizer = await self._app.localizer
+        description = self.plugin_description()
+
+        @command(
+            self.plugin_id(),
+            short_help=self.plugin_label().localize(localizer),
+            help=description.localize(localizer)
+            if description
+            else self.plugin_label().localize(localizer),
+        )
+        @click.argument(
+            "locale", required=True, callback=parameter_callback(assert_locale())
+        )
+        @project_option
+        async def new_translation(project: Project, locale: str) -> None:
+            await translation.new_project_translation(locale, project)
+
+        return new_translation

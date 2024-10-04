@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-03 10:45+0100\n"
+"POT-Creation-Date: 2024-10-04 18:24+0100\n"
 "PO-Revision-Date: 2024-02-08 13:08+0000\n"
 "Last-Translator: Rainer Thieringer <rainerthi@gmail.com>\n"
 "Language: uk\n"
@@ -260,7 +260,13 @@ msgstr ""
 msgid "City"
 msgstr ""
 
+msgid "Clear all caches"
+msgstr ""
+
 msgid "Conference"
+msgstr ""
+
+msgid "Configure Betty"
 msgstr ""
 
 msgid "Confirmation"
@@ -310,6 +316,18 @@ msgid "Country"
 msgstr ""
 
 msgid "County"
+msgstr ""
+
+msgid "Create a new project"
+msgstr ""
+
+msgid "Create a new translation"
+msgstr ""
+
+msgid "Create a new translation for Betty itself"
+msgstr ""
+
+msgid "Create a new translation for an extension"
 msgstr ""
 
 msgid ""
@@ -409,6 +427,9 @@ msgstr ""
 msgid "Exit the search"
 msgstr "Вийдіть із пошуку"
 
+msgid "Explore a demonstration site"
+msgstr ""
+
 msgid "External links"
 msgstr "Зовнішні посилання"
 
@@ -441,6 +462,9 @@ msgstr ""
 
 msgid "Funeral"
 msgstr "Похорон"
+
+msgid "Generate a static site"
+msgstr ""
 
 msgid ""
 "Generated {completed_job_count} out of {total_job_count} items "
@@ -715,6 +739,9 @@ msgstr "Вихід на пенсію"
 msgid "Saved your project to {configuration_file}."
 msgstr ""
 
+msgid "Serve a generated site"
+msgstr ""
+
 msgid "Serving your site at {url}..."
 msgstr ""
 
@@ -874,6 +901,15 @@ msgstr ""
 msgid "Unknown key: {unknown_key}."
 msgstr ""
 
+msgid "Update all existing translations"
+msgstr ""
+
+msgid "Update all existing translations for Betty itself"
+msgstr ""
+
+msgid "Update all existing translations for an extension"
+msgstr ""
+
 msgid ""
 "Updated {updated_derivations} {event_type} events based on existing "
 "information."
@@ -885,6 +921,9 @@ msgid ""
 msgstr ""
 "Використовуйте <kbd>↑</kbd> і <kbd>↓</kbd> для переміщення по результатах"
 " або <kbd>esc</kbd> для виходу з пошуку."
+
+msgid "View the documentation"
+msgstr ""
 
 msgid "Village"
 msgstr ""

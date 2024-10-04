@@ -4,10 +4,10 @@ from typing import cast
 
 from betty.app import App
 from betty.config import assert_configuration_file
-from betty.project.extension.gramps import Gramps
-from betty.project.extension.gramps.config import GrampsConfiguration
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project.config import ProjectConfiguration
+from betty.project.extension.gramps import Gramps
+from betty.project.extension.gramps.config import GrampsConfiguration
 from betty.test_utils.cli import run
 
 
@@ -20,7 +20,9 @@ class TestNew:
         configuration = ProjectConfiguration(configuration_file_path)
         return assert_configuration_file(configuration)(configuration_file_path)
 
-    async def test_minimal(self, new_temporary_app: App, tmp_path: Path) -> None:
+    async def test_click_command_minimal(
+        self, new_temporary_app: App, tmp_path: Path
+    ) -> None:
         title = "My First Project"
         author = "My First Author"
         url = "https://exampleexampleexample.com/example"
@@ -39,7 +41,7 @@ class TestNew:
         assert configuration.author.localize(DEFAULT_LOCALIZER) == author
         assert configuration.url == url
 
-    async def test_with_single_locale(
+    async def test_click_command_with_single_locale(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
         locale = "nl-NL"
@@ -58,7 +60,7 @@ class TestNew:
         assert len(locale_configurations) == 1
         locale_configurations[locale]
 
-    async def test_with_multiple_locales(
+    async def test_click_command_with_multiple_locales(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
         default_locale = "nl-NL"
@@ -84,7 +86,9 @@ class TestNew:
         assert locale_configurations.default.locale == default_locale
         locale_configurations[other_locale]
 
-    async def test_with_name(self, new_temporary_app: App, tmp_path: Path) -> None:
+    async def test_click_command_with_name(
+        self, new_temporary_app: App, tmp_path: Path
+    ) -> None:
         name = "project-first-my"
         inputs = [
             str(tmp_path),
@@ -99,7 +103,9 @@ class TestNew:
         configuration = await self._assert_new(new_temporary_app, tmp_path, inputs)
         assert configuration.name == name
 
-    async def test_with_gramps(self, new_temporary_app: App, tmp_path: Path) -> None:
+    async def test_click_command_with_gramps(
+        self, new_temporary_app: App, tmp_path: Path
+    ) -> None:
         gramps_family_tree_file_path = tmp_path / "gramps"
         inputs = [
             str(tmp_path),

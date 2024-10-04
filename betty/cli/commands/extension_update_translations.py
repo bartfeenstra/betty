@@ -1,54 +1,81 @@
 from __future__ import annotations  # noqa D100
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, final, Self
 
 import click
+from typing_extensions import override
 
+from betty.app.factory import AppDependentFactory
 from betty.assertion import (
-    assert_sequence,
-    assert_directory_path,
     assert_or,
     assert_none,
+    assert_directory_path,
+    assert_sequence,
 )
-from betty.asyncio import wait_to_thread
-from betty.cli.commands import command, parameter_callback, pass_app
-from betty.cli.error import user_facing_error_to_bad_parameter
+from betty.cli.commands import command, Command, parameter_callback
 from betty.locale import translation
+from betty.locale.localizable import _
+from betty.plugin import ShorthandPluginBase
 from betty.project import extension
-from betty.typing import internal
 
 if TYPE_CHECKING:
-    from betty.app import App
     from pathlib import Path
+    from betty.app import App
     from betty.project.extension import Extension
 
 
-@internal
-@command(
-    short_help="Update all existing translations for an extension",
-)
-@click.argument(
-    "extension",
-    required=True,
-    callback=parameter_callback(
-        lambda extension_id: wait_to_thread(
-            extension.EXTENSION_REPOSITORY.get(extension_id)
+@final
+class ExtensionUpdateTranslations(ShorthandPluginBase, AppDependentFactory, Command):
+    """
+    A command to update all of an extension's translations.
+    """
+
+    _plugin_id = "extension-update-translations"
+    _plugin_label = _("Update all existing translations for an extension")
+
+    def __init__(self, app: App):
+        self._app = app
+
+    @override
+    @classmethod
+    async def new_for_app(cls, app: App) -> Self:
+        return cls(app)
+
+    @override
+    async def click_command(self) -> click.Command:
+        localizer = await self._app.localizer
+        description = self.plugin_description()
+        extension_id_to_type_map = await extension.EXTENSION_REPOSITORY.map()
+
+        @command(
+            self.plugin_id(),
+            short_help=self.plugin_label().localize(localizer),
+            help=description.localize(localizer)
+            if description
+            else self.plugin_label().localize(localizer),
         )
-    ),
-)
-@click.argument(
-    "source",
-    required=True,
-    callback=parameter_callback(assert_or(assert_none(), assert_directory_path())),
-)
-@click.option(
-    "--exclude",
-    multiple=True,
-    callback=parameter_callback(assert_sequence(assert_directory_path())),
-)
-@pass_app
-async def extension_update_translations(  # noqa D103
-    app: App, extension: type[Extension], source: Path, exclude: tuple[Path]
-) -> None:
-    with user_facing_error_to_bad_parameter(await app.localizer):
-        await translation.update_extension_translations(extension, source, set(exclude))
+        @click.argument(
+            "extension",
+            required=True,
+            callback=parameter_callback(extension_id_to_type_map.get),
+        )
+        @click.argument(
+            "source",
+            required=True,
+            callback=parameter_callback(
+                assert_or(assert_none(), assert_directory_path())
+            ),
+        )
+        @click.option(
+            "--exclude",
+            multiple=True,
+            callback=parameter_callback(assert_sequence(assert_directory_path())),
+        )
+        async def extension_update_translations(
+            extension: type[Extension], source: Path, exclude: tuple[Path]
+        ) -> None:
+            await translation.update_extension_translations(
+                extension, source, set(exclude)
+            )
+
+        return extension_update_translations

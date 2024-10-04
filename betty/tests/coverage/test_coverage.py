@@ -122,6 +122,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/cache/_base.py": TestKnownToBeMissing,
     "betty/core.py": TestKnownToBeMissing,
     "betty/cli/__init__.py": {
+        "ContextAppObject": TestKnownToBeMissing,
         "ctx_app_object": TestKnownToBeMissing,
     },
     "betty/cli/error.py": {
@@ -134,8 +135,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "CommandRepository": TestKnownToBeMissing,
         "discover_commands": TestKnownToBeMissing,
         "parameter_callback": TestKnownToBeMissing,
-        "pass_app": TestKnownToBeMissing,
-        "pass_project": TestKnownToBeMissing,
+        "project_option": TestKnownToBeMissing,
     },
     "betty/concurrent.py": {
         "AsynchronizedLock": {

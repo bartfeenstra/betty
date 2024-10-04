@@ -9,7 +9,7 @@ from betty.tests.cli.commands import ExtensionTranslationTestBase
 
 
 class TestExtensionUpdateTranslations(ExtensionTranslationTestBase):
-    async def test(
+    async def test_click_command(
         self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
     ) -> None:
         source = tmp_path / "source"
@@ -25,7 +25,7 @@ class TestExtensionUpdateTranslations(ExtensionTranslationTestBase):
         )
         m_update_extension_translations.assert_awaited_once_with(ANY, source, set())
 
-    async def test_with_exclude(
+    async def test_click_command_with_exclude(
         self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
     ) -> None:
         source = tmp_path / "source"
@@ -47,7 +47,7 @@ class TestExtensionUpdateTranslations(ExtensionTranslationTestBase):
             ANY, source, set(excludes)
         )
 
-    async def test_with_unknown_extension(
+    async def test_click_command_with_unknown_extension(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
         source = tmp_path / "source"
@@ -60,7 +60,7 @@ class TestExtensionUpdateTranslations(ExtensionTranslationTestBase):
             expected_exit_code=2,
         )
 
-    async def test_with_extension_without_assets_directory(
+    async def test_click_command_with_extension_without_assets_directory(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
         source = tmp_path / "source"
@@ -70,10 +70,10 @@ class TestExtensionUpdateTranslations(ExtensionTranslationTestBase):
             "extension-update-translations",
             "without-assets",
             str(source),
-            expected_exit_code=2,
+            expected_exit_code=1,
         )
 
-    async def test_with_invalid_source_directory(
+    async def test_click_command_with_invalid_source_directory(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
         await run(

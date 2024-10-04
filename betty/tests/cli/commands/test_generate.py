@@ -1,14 +1,17 @@
 from unittest.mock import AsyncMock
 
+from pytest_mock import MockerFixture
+
 from betty.app import App
 from betty.config import write_configuration_file
 from betty.project import Project
 from betty.test_utils.cli import run
-from pytest_mock import MockerFixture
 
 
 class TestGenerate:
-    async def test(self, mocker: MockerFixture, new_temporary_app: App) -> None:
+    async def test_click_command(
+        self, mocker: MockerFixture, new_temporary_app: App
+    ) -> None:
         m_generate = mocker.patch(
             "betty.project.generate.generate", new_callable=AsyncMock
         )

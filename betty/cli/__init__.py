@@ -25,7 +25,7 @@ from typing_extensions import override, ClassVar
 
 from betty import about
 from betty.app import App
-from betty.cli.commands import BettyCommand, Command
+from betty.cli.commands import BettyCommand
 
 if TYPE_CHECKING:
     from betty.locale.localizer import Localizer
@@ -68,7 +68,7 @@ class _BettyCommands(BettyCommand, click.MultiCommand):
     _bootstrapped = False
     _app: ClassVar[App]
     _localizer: ClassVar[Localizer]
-    _commands: ClassVar[Mapping[MachineName, type[Command]]]
+    _commands: ClassVar[Mapping[MachineName, click.Command]]
 
     @classmethod
     async def new_type_for_app(cls, app: App) -> type[_BettyCommands]:
@@ -78,7 +78,9 @@ class _BettyCommands(BettyCommand, click.MultiCommand):
             app,
             await app.localizer,
             {
-                command.plugin_id(): command
+                command.plugin_id(): await (
+                    await app.new_target(command)
+                ).click_command()
                 async for command in commands.COMMAND_REPOSITORY
             },
         )
@@ -88,7 +90,7 @@ class _BettyCommands(BettyCommand, click.MultiCommand):
         cls,
         app: App,
         localizer: Localizer,
-        commands: Mapping[MachineName, type[Command]],
+        commands: Mapping[MachineName, click.Command],
     ) -> type[_BettyCommands]:
         class __BettyCommands(_BettyCommands):
             _app = app
@@ -111,7 +113,7 @@ class _BettyCommands(BettyCommand, click.MultiCommand):
     def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
         self._bootstrap()
         try:
-            return self._commands[cmd_name].click_command()
+            return self._commands[cmd_name]
         except KeyError:
             return None
 
@@ -126,24 +128,28 @@ class _BettyCommands(BettyCommand, click.MultiCommand):
         if self.terminal_width is not None:
             extra["terminal_width"] = self.terminal_width
         ctx = super().make_context(info_name, args, parent, **extra)
-        ctx.obj = _ContextAppObject(self._app, self._localizer)
+        ctx.obj = ContextAppObject(self._app, self._localizer)
         return ctx
 
 
 @dataclass
-class _ContextAppObject:
+class ContextAppObject:
+    """
+    The running Betty application and it localizer.
+    """
+
     app: App
     localizer: Localizer
 
 
-def ctx_app_object(ctx: click.Context) -> _ContextAppObject:
+def ctx_app_object(ctx: click.Context) -> ContextAppObject:
     """
     Get the running application object from a context.
 
     :param ctx: The context to get the application from. Defaults to the current context.
     """
-    app = ctx.find_object(_ContextAppObject)
-    assert isinstance(app, _ContextAppObject)
+    app = ctx.find_object(ContextAppObject)
+    assert isinstance(app, ContextAppObject)
     return app
 
 
