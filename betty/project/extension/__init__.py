@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 
 
-class ExtensionError(BaseException):
+class ExtensionError(Exception):
     """
     A generic extension API error.
     """

@@ -34,7 +34,7 @@ async def run_process(
                 *runnee, cwd=cwd, stderr=PIPE, stdout=PIPE
             )
         stdout, stderr = await process.communicate()
-    except BaseException as error:
+    except Exception as error:
         logger.debug(
             f'Subprocess `{command}` raised an error:\n{" ".join(format_exception(error))}'
         )
