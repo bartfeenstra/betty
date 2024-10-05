@@ -126,6 +126,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "user_facing_error_to_bad_parameter": TestKnownToBeMissing,
     },
     "betty/cli/commands/__init__.py": {
+        "BettyCommand": TestKnownToBeMissing,
         "command": TestKnownToBeMissing,
         "Command": TestKnownToBeMissing,
         "CommandRepository": TestKnownToBeMissing,

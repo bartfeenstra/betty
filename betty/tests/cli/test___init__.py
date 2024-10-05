@@ -3,7 +3,7 @@ import logging
 from collections.abc import AsyncIterator
 from logging import CRITICAL, ERROR, WARNING, INFO, DEBUG, FATAL, WARN, NOTSET
 
-import asyncclick as click
+import click
 import pytest
 from pytest_mock import MockerFixture
 from typing_extensions import override
@@ -110,4 +110,4 @@ class TestClickHandler:
 class TestNewMainCommand:
     async def test(self, new_temporary_app: App) -> None:
         main_command = await new_main_command(new_temporary_app)
-        assert await main_command.main("--help", standalone_mode=False) == 0
+        assert main_command("--help", standalone_mode=False) == 0

@@ -3,7 +3,7 @@ from __future__ import annotations  # noqa D100
 from typing import TYPE_CHECKING, final, Self, Any
 from urllib.parse import urlparse
 
-import asyncclick as click
+import click
 from typing_extensions import override
 
 from betty.app.factory import AppDependentFactory
@@ -216,9 +216,9 @@ def _prompt_static_translations(
             text.format(locale=get_display_name(locale)),
             default,
             hide_input,
-            confirmation_prompt,
+            confirmation_prompt,  # type: ignore[arg-type]
             type,
-            value_proc,
+            value_proc,  # type: ignore[arg-type]
             prompt_suffix,
             show_default,
             err,
