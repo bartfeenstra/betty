@@ -6,7 +6,6 @@ from typing import Any, TypeVar
 
 from betty.assertion import AssertionChain, assert_str
 from betty.assertion.error import AssertionFailed
-from betty.asyncio import wait_to_thread
 from betty.locale.localizable import _, join, do_you_mean
 from betty.plugin import Plugin, PluginRepository, PluginNotFound
 
@@ -20,12 +19,12 @@ def assert_plugin(
     Assert that a value is a plugin ID.
     """
 
-    def _assert(
+    async def _assert(
         value: Any,
     ) -> type[_PluginT]:
-        plugin_id = assert_str()(value)
+        plugin_id = await assert_str()(value)
         try:
-            return wait_to_thread(plugin_repository.get(plugin_id))
+            return await plugin_repository.get(plugin_id)
         except PluginNotFound:
             raise AssertionFailed(
                 join(
@@ -33,10 +32,10 @@ def assert_plugin(
                         'Cannot find and import "{plugin_id}".',
                     ).format(plugin_id=plugin_id),
                     do_you_mean(
-                        *(
+                        *[
                             f'"{plugin.plugin_id()}"'
-                            for plugin in wait_to_thread(plugin_repository.select())
-                        )
+                            async for plugin in plugin_repository
+                        ]
                     ),
                 )
             ) from None

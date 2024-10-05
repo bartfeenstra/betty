@@ -111,7 +111,7 @@ class ConfigurationCollection(
         pass
 
     @abstractmethod
-    def load_item(self, dump: Dump) -> _ConfigurationT:
+    async def load_item(self, dump: Dump) -> _ConfigurationT:
         """
         Create and load a new item from the given dump, or raise an assertion error.
 

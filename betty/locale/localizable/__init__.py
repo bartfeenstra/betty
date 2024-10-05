@@ -348,8 +348,8 @@ class StaticTranslationsLocalizable(
         if isinstance(translations, StaticTranslationsLocalizable):
             self._translations = translations._translations
         else:
-            translations = assert_static_translations()(translations)
-            assert_len(minimum=1 if self._required else 0)(translations)
+            translations = await assert_static_translations()(translations)
+            await assert_len(minimum=1 if self._required else 0)(translations)
             self._translations = dict(translations)
 
     @property

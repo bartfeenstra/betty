@@ -36,11 +36,11 @@ class StaticTranslationsLocalizableConfiguration(
         self._translations = other._translations
 
     @override
-    def load(self, dump: Dump) -> None:
+    async def load(self, dump: Dump) -> None:
         self._translations.clear()
 
-        translations = assert_static_translations()(dump)
-        assert_len(minimum=1 if self._required else 0)(translations)
+        translations = await assert_static_translations()(dump)
+        await assert_len(minimum=1 if self._required else 0)(translations)
         for locale, translation in translations.items():
             self[locale] = translation
 

@@ -107,7 +107,7 @@ class TestEntityReference:
         )
         entity_id = "123"
         dump = entity_id
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.entity_id == entity_id
 
     @pytest.mark.parametrize(
@@ -132,7 +132,7 @@ class TestEntityReference:
             EntityReferenceTestEntityOne, entity_type_is_constrained=True
         )
         with raises_error(error_type=AssertionFailed):
-            sut.load(dump)
+            await sut.load(dump)
 
     async def test_load_without_constraint(self, mocker: MockerFixture) -> None:
         mocker.patch(
@@ -146,7 +146,7 @@ class TestEntityReference:
             "entity": entity_id,
         }
         sut = EntityReference[EntityReferenceTestEntityOne]()
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.entity_type == entity_type
         assert sut.entity_id == entity_id
 
@@ -159,7 +159,7 @@ class TestEntityReference:
         }
         sut = EntityReference[EntityReferenceTestEntityOne]()
         with raises_error(error_type=AssertionFailed):
-            sut.load(dump)
+            await sut.load(dump)
 
     async def test_load_without_constraint_without_string_entity_type_should_error(
         self,
@@ -171,7 +171,7 @@ class TestEntityReference:
         }
         sut = EntityReference[EntityReferenceTestEntityOne]()
         with raises_error(error_type=AssertionFailed):
-            sut.load(dump)
+            await sut.load(dump)
 
     async def test_load_without_constraint_without_importable_entity_type_should_error(
         self,
@@ -183,7 +183,7 @@ class TestEntityReference:
         }
         sut = EntityReference[EntityReferenceTestEntityOne]()
         with raises_error(error_type=AssertionFailed):
-            sut.load(dump)
+            await sut.load(dump)
 
     async def test_load_without_constraint_without_string_entity_id_should_error(
         self,
@@ -195,7 +195,7 @@ class TestEntityReference:
         }
         sut = EntityReference[EntityReferenceTestEntityOne]()
         with raises_error(error_type=AssertionFailed):
-            sut.load(dump)
+            await sut.load(dump)
 
     async def test_dump_with_constraint(self) -> None:
         sut = EntityReference[Entity](Entity, None, entity_type_is_constrained=True)
@@ -325,14 +325,14 @@ class TestLocaleConfiguration:
         dump: Dump = {}
         sut = LocaleConfiguration(DEFAULT_LOCALE)
         with raises_error(error_type=AssertionFailed):
-            sut.load(dump)
+            await sut.load(dump)
 
     async def test_load_with_locale(self) -> None:
         dump: Dump = {
             "locale": UNDETERMINED_LOCALE,
         }
         sut = LocaleConfiguration(DEFAULT_LOCALE)
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.locale == UNDETERMINED_LOCALE
 
     async def test_load_with_alias(self) -> None:
@@ -341,7 +341,7 @@ class TestLocaleConfiguration:
             "alias": "UNDETERMINED_LOCALE",
         }
         sut = LocaleConfiguration(DEFAULT_LOCALE)
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.alias == "UNDETERMINED_LOCALE"
 
     async def test_dump_should_dump_minimal(self) -> None:
@@ -476,7 +476,7 @@ class _DummyConfiguration(Configuration):
         pass  # pragma: no cover
 
     @override
-    def load(self, dump: Dump) -> None:
+    async def load(self, dump: Dump) -> None:
         pass  # pragma: no cover
 
     @override
@@ -516,24 +516,24 @@ class TestExtensionConfiguration:
 
     async def test_load_without_extension(self) -> None:
         with raises_error(error_type=AssertionFailed):
-            ExtensionConfiguration(DummyExtension).load({})
+            await ExtensionConfiguration(DummyExtension).load({})
 
     async def test_load_with_extension(self) -> None:
         sut = ExtensionConfiguration(DummyExtension)
-        sut.load({"extension": DummyConfigurableExtension.plugin_id()})
+        await sut.load({"extension": DummyConfigurableExtension.plugin_id()})
         assert sut.extension_type == DummyConfigurableExtension
         assert sut.enabled
 
     async def test_load_with_enabled(self) -> None:
         sut = ExtensionConfiguration(DummyExtension)
-        sut.load(
+        await sut.load(
             {"extension": DummyConfigurableExtension.plugin_id(), "enabled": False}
         )
         assert not sut.enabled
 
     async def test_load_with_configuration(self) -> None:
         sut = ExtensionConfiguration(DummyConfigurableExtension)
-        sut.load(
+        await sut.load(
             {
                 "extension": DummyConfigurableExtension.plugin_id(),
                 "configuration": {
@@ -552,7 +552,7 @@ class TestExtensionConfiguration:
     ) -> None:
         sut = ExtensionConfiguration(DummyExtension)
         with pytest.raises(AssertionFailed):
-            sut.load(
+            await sut.load(
                 {
                     "extension": DummyExtension.plugin_id(),
                     "configuration": {
@@ -706,7 +706,7 @@ class TestEntityTypeConfiguration:
         dump: Dump = {}
         sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
         with raises_error(error_type=AssertionFailed):
-            sut.load(dump)
+            await sut.load(dump)
 
     async def test_load_with_minimal_configuration(self, mocker: MockerFixture) -> None:
         mocker.patch(
@@ -717,7 +717,7 @@ class TestEntityTypeConfiguration:
             "entity_type": EntityTypeConfigurationTestEntityOne.plugin_id(),
         }
         sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
-        sut.load(dump)
+        await sut.load(dump)
 
     @pytest.mark.parametrize(
         "generate_html_list,",
@@ -738,7 +738,7 @@ class TestEntityTypeConfiguration:
             "generate_html_list": generate_html_list,
         }
         sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.generate_html_list == generate_html_list
 
     async def test_dump_with_minimal_configuration(self) -> None:
@@ -878,7 +878,7 @@ class TestCopyrightNoticeConfiguration:
             "text": text,
         }
         sut = CopyrightNoticeConfiguration("-", "", summary="", text="")
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.summary[UNDETERMINED_LOCALE] == summary
         assert sut.text[UNDETERMINED_LOCALE] == text
 
@@ -890,7 +890,7 @@ class TestCopyrightNoticeConfiguration:
         }
         sut = CopyrightNoticeConfiguration("-", "", summary="", text="")
         with pytest.raises(AssertionFailed):
-            sut.load(dump)
+            await sut.load(dump)
 
     async def test_load_with_missing_text(self) -> None:
         dump: Dump = {
@@ -900,7 +900,7 @@ class TestCopyrightNoticeConfiguration:
         }
         sut = CopyrightNoticeConfiguration("-", "", summary="", text="")
         with pytest.raises(AssertionFailed):
-            sut.load(dump)
+            await sut.load(dump)
 
     async def test_dump(self) -> None:
         summary = "My First Copyright Summary"
@@ -985,7 +985,7 @@ class TestLicenseConfiguration:
             "text": text,
         }
         sut = LicenseConfiguration("-", "", summary="", text="")
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.summary[UNDETERMINED_LOCALE] == summary
         assert sut.text[UNDETERMINED_LOCALE] == text
 
@@ -997,7 +997,7 @@ class TestLicenseConfiguration:
         }
         sut = LicenseConfiguration("-", "", summary="", text="")
         with pytest.raises(AssertionFailed):
-            sut.load(dump)
+            await sut.load(dump)
 
     async def test_load_with_missing_text(self) -> None:
         dump: Dump = {
@@ -1007,7 +1007,7 @@ class TestLicenseConfiguration:
         }
         sut = LicenseConfiguration("-", "", summary="", text="")
         with pytest.raises(AssertionFailed):
-            sut.load(dump)
+            await sut.load(dump)
 
     async def test_dump(self) -> None:
         summary = "My First License Summary"
@@ -1215,7 +1215,7 @@ class TestProjectConfiguration:
 
     async def test_lifetime_threshold(self, tmp_path: Path) -> None:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
-        sut.lifetime_threshold = 999
+        await sut.set_lifetime_threshold(999)
         assert sut.lifetime_threshold == 999
 
     async def test_locales(self, tmp_path: Path) -> None:
@@ -1251,7 +1251,7 @@ class TestProjectConfiguration:
     async def test_name(self, tmp_path: Path) -> None:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         name = "my-first-betty-site"
-        sut.name = name
+        await sut.set_name(name)
         assert sut.name == name
 
     async def test_url(self, tmp_path: Path) -> None:
@@ -1351,7 +1351,7 @@ class TestProjectConfiguration:
     async def test_load_should_load_minimal(self, tmp_path: Path) -> None:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         dump = sut.dump()
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.url == dump["url"]
         assert sut.title.localize(DEFAULT_LOCALIZER) == "Betty"
         assert not sut.author
@@ -1363,7 +1363,7 @@ class TestProjectConfiguration:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         dump = sut.dump()
         dump["name"] = name
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.name == name
 
     async def test_load_should_load_title(self, tmp_path: Path) -> None:
@@ -1371,7 +1371,7 @@ class TestProjectConfiguration:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         dump = sut.dump()
         dump["title"] = title
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.title.localize(DEFAULT_LOCALIZER) == title
 
     async def test_load_should_load_author(self, tmp_path: Path) -> None:
@@ -1379,7 +1379,7 @@ class TestProjectConfiguration:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         dump = sut.dump()
         dump["author"] = author
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.author.localize(DEFAULT_LOCALIZER) == author
 
     async def test_load_should_load_logo(self, tmp_path: Path) -> None:
@@ -1387,7 +1387,7 @@ class TestProjectConfiguration:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         dump = sut.dump()
         dump["logo"] = str(logo)
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.logo == logo
 
     async def test_load_should_load_locale_locale(self, tmp_path: Path) -> None:
@@ -1395,7 +1395,7 @@ class TestProjectConfiguration:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         dump = sut.dump()
         dump["locales"] = [{"locale": locale}]
-        sut.load(dump)
+        await sut.load(dump)
         assert len(sut.locales) == 1
         assert locale in sut.locales
 
@@ -1405,7 +1405,7 @@ class TestProjectConfiguration:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         dump = sut.dump()
         dump["locales"] = [{"locale": locale, "alias": alias}]
-        sut.load(dump)
+        await sut.load(dump)
         assert len(sut.locales) == 1
         assert locale in sut.locales
         actual = sut.locales[locale]
@@ -1416,7 +1416,7 @@ class TestProjectConfiguration:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         dump = sut.dump()
         dump["clean_urls"] = clean_urls
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.clean_urls == clean_urls
 
     @pytest.mark.parametrize(
@@ -1430,7 +1430,7 @@ class TestProjectConfiguration:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         dump = sut.dump()
         dump["debug"] = debug
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.debug == debug
 
     async def test_load_should_load_one_extension_with_configuration(
@@ -1450,7 +1450,7 @@ class TestProjectConfiguration:
                 "configuration": extension_configuration,
             },
         }
-        sut.load(dump)
+        await sut.load(dump)
         actual = sut.extensions[DummyConfigurableExtension]
         assert actual.enabled
         assert isinstance(
@@ -1469,7 +1469,7 @@ class TestProjectConfiguration:
         dump["extensions"] = {
             _DummyNonConfigurableExtension.plugin_id(): {},
         }
-        sut.load(dump)
+        await sut.load(dump)
         actual = sut.extensions[_DummyNonConfigurableExtension]
         assert actual.enabled
         assert actual.extension_configuration is None
@@ -1483,7 +1483,7 @@ class TestProjectConfiguration:
             DummyConfigurableExtension.plugin_id(): 1337,
         }
         with raises_error(error_type=AssertionFailed):
-            sut.load(dump)
+            await sut.load(dump)
 
     async def test_load_unknown_extension_type_name_should_error(
         self, tmp_path: Path
@@ -1494,7 +1494,7 @@ class TestProjectConfiguration:
             "non.existent.type": {},
         }
         with raises_error(error_type=AssertionFailed):
-            sut.load(dump)
+            await sut.load(dump)
 
     async def test_load_not_an_extension_type_name_should_error(
         self, tmp_path: Path
@@ -1505,7 +1505,7 @@ class TestProjectConfiguration:
             f"{self.__class__.__module__}.{self.__class__.__name__}": {}
         }
         with raises_error(error_type=AssertionFailed):
-            sut.load(dump)
+            await sut.load(dump)
 
     @pytest.mark.parametrize(
         "event_types_configuration",
@@ -1520,7 +1520,7 @@ class TestProjectConfiguration:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         dump = sut.dump()
         dump["event_types"] = event_types_configuration
-        sut.load(dump)
+        await sut.load(dump)
         if event_types_configuration:
             assert sut.dump()["event_types"] == event_types_configuration
 
@@ -1537,7 +1537,7 @@ class TestProjectConfiguration:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         dump = sut.dump()
         dump["place_types"] = place_types_configuration
-        sut.load(dump)
+        await sut.load(dump)
         if place_types_configuration:
             assert sut.dump()["place_types"] == place_types_configuration
 
@@ -1554,7 +1554,7 @@ class TestProjectConfiguration:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         dump = sut.dump()
         dump["presence_roles"] = presence_roles_configuration
-        sut.load(dump)
+        await sut.load(dump)
         if presence_roles_configuration:
             assert sut.dump()["presence_roles"] == presence_roles_configuration
 
@@ -1571,7 +1571,7 @@ class TestProjectConfiguration:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         dump = sut.dump()
         dump["genders"] = genders_configuration
-        sut.load(dump)
+        await sut.load(dump)
         if genders_configuration:
             assert sut.dump()["genders"] == genders_configuration
 
@@ -1579,7 +1579,7 @@ class TestProjectConfiguration:
         dump: Dump = {}
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         with raises_error(error_type=AssertionFailed):
-            sut.load(dump)
+            await sut.load(dump)
 
     async def test_dump_should_dump_minimal(self, tmp_path: Path) -> None:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
@@ -1601,7 +1601,7 @@ class TestProjectConfiguration:
     async def test_dump_should_dump_name(self, tmp_path: Path) -> None:
         name = "my-first-betty-site"
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
-        sut.name = name
+        await sut.set_name(name)
         dump = sut.dump()
         assert dump["name"] == name
 
@@ -1726,7 +1726,7 @@ class TestProjectConfiguration:
         dump: Dump = {}
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         with raises_error(error_type=AssertionFailed):
-            sut.load(dump)
+            await sut.load(dump)
 
     async def test_update(self, tmp_path: Path) -> None:
         url = "https://betty.example.com"

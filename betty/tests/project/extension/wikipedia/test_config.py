@@ -15,12 +15,12 @@ if TYPE_CHECKING:
 class TestWikipediaConfiguration:
     async def test_load_with_minimal_configuration(self) -> None:
         dump: Mapping[str, Any] = {}
-        WikipediaConfiguration().load(dump)
+        await WikipediaConfiguration().load(dump)
 
     async def test_load_without_dict_should_error(self) -> None:
         dump = None
         with raises_error(error_type=AssertionFailed):
-            WikipediaConfiguration().load(dump)
+            await WikipediaConfiguration().load(dump)
 
     @pytest.mark.parametrize(
         "populate_images",
@@ -36,7 +36,7 @@ class TestWikipediaConfiguration:
             "populate_images": populate_images,
         }
         sut = WikipediaConfiguration()
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.populate_images == populate_images
 
     async def test_dump_with_minimal_configuration(self) -> None:

@@ -169,7 +169,7 @@ class TestGrampsLoader:
             app,
             Project.new_temporary(app) as project,
         ):
-            project.configuration.name = self.PROJECT_NAME
+            await project.configuration.set_name(self.PROJECT_NAME)
             async with project:
                 loader = GrampsLoader(
                     project.ancestry,

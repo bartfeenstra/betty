@@ -494,7 +494,7 @@ async def demo_project(app: App) -> AsyncIterator[Project]:
     Create a new demonstration project.
     """
     async with Project.new_temporary(app) as project:
-        project.configuration.name = Demo.plugin_id()
+        await project.configuration.set_name(Demo.plugin_id())
         project.configuration.title = {
             "en-US": "A Betty demonstration",
             "nl-NL": "Een demonstratie van Betty",

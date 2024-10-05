@@ -4,7 +4,7 @@ The Assertion API.
 
 from __future__ import annotations
 
-from collections.abc import Mapping, MutableSequence
+from collections.abc import Mapping, MutableSequence, Awaitable
 from collections.abc import Sized, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -21,6 +21,7 @@ from typing import (
 )
 
 from betty.assertion.error import AssertionFailedGroup, AssertionFailed, Key, Index
+from betty.asyncio import ensure_await
 from betty.error import FileNotFound, UserFacingError
 from betty.locale import (
     get_data,
@@ -41,11 +42,17 @@ Assertion: TypeAlias = Callable[
     [
         _AssertionValueT,
     ],
-    _AssertionReturnT,
+    Awaitable[_AssertionReturnT],
 ]
 
 _AssertionsExtendReturnT = TypeVar("_AssertionsExtendReturnT")
 _AssertionsIntermediateValueReturnT = TypeVar("_AssertionsIntermediateValueReturnT")
+
+
+_ChainableAssertion: TypeAlias = (
+    Assertion[_AssertionValueT, _AssertionReturnT]
+    | Callable[[_AssertionValueT], _AssertionReturnT]
+)
 
 
 class AssertionChain(Generic[_AssertionValueT, _AssertionReturnT]):
@@ -64,23 +71,31 @@ class AssertionChain(Generic[_AssertionValueT, _AssertionReturnT]):
     like mypy can confirm that all assertions in any given chain are compatible with each other.
     """
 
-    def __init__(self, _assertion: Assertion[_AssertionValueT, _AssertionReturnT]):
+    def __init__(
+        self, _assertion: _ChainableAssertion[_AssertionValueT, _AssertionReturnT]
+    ):
         self._assertion = _assertion
 
     def chain(
-        self, assertion: Assertion[_AssertionReturnT, _AssertionsExtendReturnT]
+        self,
+        assertion: _ChainableAssertion[_AssertionReturnT, _AssertionsExtendReturnT],
     ) -> AssertionChain[_AssertionValueT, _AssertionsExtendReturnT]:
         """
         Extend the chain with the given assertion.
         """
-        return AssertionChain(lambda value: assertion(self(value)))
+
+        async def _assertion(value: _AssertionValueT) -> _AssertionsExtendReturnT:
+            return await ensure_await(assertion(await self(value)))
+
+        return AssertionChain(_assertion)
 
     def __or__(
-        self, _assertion: Assertion[_AssertionReturnT, _AssertionsExtendReturnT]
+        self,
+        _assertion: _ChainableAssertion[_AssertionReturnT, _AssertionsExtendReturnT],
     ) -> AssertionChain[_AssertionValueT, _AssertionsExtendReturnT]:
         return self.chain(_assertion)
 
-    def __call__(self, value: _AssertionValueT) -> _AssertionReturnT:
+    async def __call__(self, value: _AssertionValueT) -> _AssertionReturnT:
         """
         Invoke the chain with a value.
 
@@ -89,7 +104,7 @@ class AssertionChain(Generic[_AssertionValueT, _AssertionReturnT]):
         :raises betty.assertion.error.AssertionFailed: Raised if any part of the
             assertion chain fails.
         """
-        return self._assertion(value)
+        return await ensure_await(self._assertion(value))
 
 
 @dataclass(frozen=True)
@@ -172,12 +187,12 @@ def assert_or(
     Assert that at least one of the given assertions passed.
     """
 
-    def _assert_or(value: Any) -> _AssertionReturnT | _AssertionReturnU:
+    async def _assert_or(value: Any) -> _AssertionReturnT | _AssertionReturnU:
         assertions = (if_assertion, else_assertion)
         errors = AssertionFailedGroup()
         for assertion in assertions:
             try:
-                return assertion(value)
+                return await assertion(value)
             except AssertionFailed as e:
                 errors.append(e)
         raise errors
@@ -285,7 +300,7 @@ def assert_sequence(
     Optionally assert that values are of a given type.
     """
 
-    def _assert_sequence(value: Any) -> MutableSequence[_AssertionReturnT]:
+    async def _assert_sequence(value: Any) -> MutableSequence[_AssertionReturnT]:
         sequence = _assert_type(
             value,
             Sequence,  # type: ignore[type-abstract]
@@ -296,7 +311,7 @@ def assert_sequence(
         with AssertionFailedGroup().assert_valid() as errors:
             for value_index, value_value in enumerate(sequence):
                 with errors.catch(Index(value_index)):
-                    asserted_sequence.append(value_assertion(value_value))
+                    asserted_sequence.append(await value_assertion(value_value))
         return asserted_sequence
 
     return AssertionChain(_assert_sequence)
@@ -343,7 +358,7 @@ def assert_mapping(
     Optionally assert that keys and/or values are of a given type.
     """
 
-    def _assert_mapping(
+    async def _assert_mapping(
         value: Any,
     ) -> MutableMapping[_AssertionKeyT, _AssertionReturnT]:
         mapping = _assert_type(
@@ -358,11 +373,11 @@ def assert_mapping(
                 asserted_value_key = value_key
                 if key_assertion:
                     with errors.catch(Key(value_key)):
-                        asserted_value_key = key_assertion(value_key)
+                        asserted_value_key = await key_assertion(value_key)
                 asserted_value_value = value_value
                 if value_assertion:
                     with errors.catch(Key(value_key)):
-                        asserted_value_value = value_assertion(value_value)
+                        asserted_value_value = await value_assertion(value_value)
                 asserted_mapping[asserted_value_key] = asserted_value_value
         return asserted_mapping
 
@@ -441,7 +456,7 @@ def assert_record(
     if not len(fields):
         raise ValueError("One or more fields are required.")
 
-    def _assert_record(value: Mapping[Any, Any]) -> MutableMapping[str, Any]:
+    async def _assert_record(value: Mapping[Any, Any]) -> MutableMapping[str, Any]:
         known_keys = {x.name for x in fields}
         unknown_keys = set(value.keys()) - known_keys
         with AssertionFailedGroup().assert_valid() as errors:
@@ -455,14 +470,14 @@ def assert_record(
                             do_you_mean(*(f'"{x}"' for x in sorted(known_keys))),
                         )
                     )
-            return assert_fields(*fields)(value)
+            return await assert_fields(*fields)(value)
 
     return assert_mapping() | _assert_record
 
 
 def assert_isinstance(
     alleged_type: type[_AssertionValueT],
-) -> Assertion[Any, _AssertionValueT]:
+) -> AssertionChain[Any, _AssertionValueT]:
     """
     Assert that a value is an instance of the given type.
 
@@ -475,7 +490,7 @@ def assert_isinstance(
             return value
         raise AssertionFailed(plain(f"{value} must be an instance of {alleged_type}."))
 
-    return _assert
+    return AssertionChain(_assert)
 
 
 def assert_path() -> AssertionChain[Any, Path]:

@@ -95,7 +95,7 @@ class TestDocumentation:
         dump = match[1]
         assert dump is not None
         configuration = await ProjectConfiguration.new(tmp_path / "betty.json")
-        configuration.load(serde_format.load(dump))
+        await configuration.load(serde_format.load(dump))
 
 
 class TestDocstringSphinxReferences:

@@ -9,13 +9,7 @@ from typing import final, Self
 from typing_extensions import override
 
 from betty import fs
-from betty.assertion import (
-    assert_record,
-    OptionalField,
-    assert_str,
-    assert_setattr,
-    assert_locale,
-)
+from betty.assertion import assert_record, OptionalField, assert_str, assert_locale
 from betty.config import Configuration
 from betty.serde.dump import Dump, minimize, DumpMapping
 from betty.typing import void_none
@@ -44,19 +38,22 @@ class AppConfiguration(Configuration):
         """
         return self._locale
 
-    @locale.setter
-    def locale(self, locale: str) -> None:
-        self._locale = assert_locale()(locale)
+    async def set_locale(self, locale: str) -> str | None:
+        """
+        Set :py:attr:`betty.app.config.AppConfiguration.locale`.
+        """
+        self._locale = await assert_locale()(locale)
+        return self.locale
 
     @override
     def update(self, other: Self) -> None:
         self._locale = other._locale
 
     @override
-    def load(self, dump: Dump) -> None:
-        assert_record(
-            OptionalField("locale", assert_str() | assert_setattr(self, "locale"))
-        )(dump)
+    async def load(self, dump: Dump) -> None:
+        await assert_record(OptionalField("locale", assert_str() | self.set_locale))(
+            dump
+        )
 
     @override
     def dump(self) -> DumpMapping[Dump]:

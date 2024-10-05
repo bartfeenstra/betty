@@ -5,13 +5,13 @@ from typing import Any, TYPE_CHECKING
 import pytest
 
 from betty.assertion.error import AssertionFailed
+from betty.model import UserFacingEntity
+from betty.plugin.static import StaticPluginRepository
+from betty.project.config import EntityReference
 from betty.project.extension.cotton_candy.config import (
     ColorConfiguration,
     CottonCandyConfiguration,
 )
-from betty.model import UserFacingEntity
-from betty.plugin.static import StaticPluginRepository
-from betty.project.config import EntityReference
 from betty.test_utils.assertion.error import raises_error
 from betty.test_utils.model import DummyEntity
 
@@ -44,7 +44,7 @@ class TestColorConfiguration:
         hex_value = "#000000"
         dump = hex_value
         sut = ColorConfiguration("#ffffff")
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.hex == hex_value
 
     @pytest.mark.parametrize(
@@ -59,7 +59,7 @@ class TestColorConfiguration:
     async def test_load_with_invalid_value(self, dump: Dump) -> None:
         sut = ColorConfiguration("#ffffff")
         with pytest.raises(AssertionFailed):
-            sut.load(dump)
+            await sut.load(dump)
 
     async def test_dump_with_value(self) -> None:
         hex_value = "#000000"
@@ -84,12 +84,12 @@ class CottonCandyConfigurationTestEntitytest_load_with_featured_entities:
 class TestCottonCandyConfiguration:
     async def test_load_with_minimal_configuration(self) -> None:
         dump: Mapping[str, Any] = {}
-        CottonCandyConfiguration().load(dump)
+        await CottonCandyConfiguration().load(dump)
 
     async def test_load_without_dict_should_error(self) -> None:
         dump = None
         with raises_error(error_type=AssertionFailed):
-            CottonCandyConfiguration().load(dump)
+            await CottonCandyConfiguration().load(dump)
 
     async def test_load_with_featured_entities(self, mocker: MockerFixture) -> None:
         mocker.patch(
@@ -107,7 +107,7 @@ class TestCottonCandyConfiguration:
             ],
         }
         sut = CottonCandyConfiguration()
-        sut.load(dump)
+        await sut.load(dump)
         assert entity_type is sut.featured_entities[0].entity_type
         assert sut.featured_entities[0].entity_id == entity_id
 
@@ -117,7 +117,7 @@ class TestCottonCandyConfiguration:
             "primary_inactive_color": hex_value,
         }
         sut = CottonCandyConfiguration()
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.primary_inactive_color.hex == hex_value
 
     async def test_load_with_primary_active_color(self) -> None:
@@ -126,7 +126,7 @@ class TestCottonCandyConfiguration:
             "primary_active_color": hex_value,
         }
         sut = CottonCandyConfiguration()
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.primary_active_color.hex == hex_value
 
     async def test_load_with_link_inactive_color(self) -> None:
@@ -135,7 +135,7 @@ class TestCottonCandyConfiguration:
             "link_inactive_color": hex_value,
         }
         sut = CottonCandyConfiguration()
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.link_inactive_color.hex == hex_value
 
     async def test_load_with_link_active_color(self) -> None:
@@ -144,7 +144,7 @@ class TestCottonCandyConfiguration:
             "link_active_color": hex_value,
         }
         sut = CottonCandyConfiguration()
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.link_active_color.hex == hex_value
 
     async def test_dump_with_minimal_configuration(self) -> None:

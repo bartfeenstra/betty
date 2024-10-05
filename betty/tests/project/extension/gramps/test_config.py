@@ -65,7 +65,7 @@ class TestFamilyTreeConfiguration:
     async def test_load_with_minimal_configuration(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
         dump: Dump = {"file": str(file_path)}
-        FamilyTreeConfiguration(tmp_path).load(dump)
+        await FamilyTreeConfiguration(tmp_path).load(dump)
 
     async def test_load_with_event_types(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
@@ -74,7 +74,7 @@ class TestFamilyTreeConfiguration:
             "event_types": {"my-first-gramps-type": "my-first-betty-plugin-id"},
         }
         sut = FamilyTreeConfiguration(tmp_path)
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.event_types["my-first-gramps-type"] == "my-first-betty-plugin-id"
 
     async def test_load_with_genders(self, tmp_path: Path) -> None:
@@ -84,7 +84,7 @@ class TestFamilyTreeConfiguration:
             "genders": {"my-first-gramps-type": "my-first-betty-plugin-id"},
         }
         sut = FamilyTreeConfiguration(tmp_path)
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.genders["my-first-gramps-type"] == "my-first-betty-plugin-id"
 
     async def test_load_with_place_types(self, tmp_path: Path) -> None:
@@ -94,7 +94,7 @@ class TestFamilyTreeConfiguration:
             "place_types": {"my-first-gramps-type": "my-first-betty-plugin-id"},
         }
         sut = FamilyTreeConfiguration(tmp_path)
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.place_types["my-first-gramps-type"] == "my-first-betty-plugin-id"
 
     async def test_load_with_presence_roles(self, tmp_path: Path) -> None:
@@ -104,13 +104,13 @@ class TestFamilyTreeConfiguration:
             "presence_roles": {"my-first-gramps-type": "my-first-betty-plugin-id"},
         }
         sut = FamilyTreeConfiguration(tmp_path)
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.presence_roles["my-first-gramps-type"] == "my-first-betty-plugin-id"
 
     async def test_load_without_dict_should_error(self, tmp_path: Path) -> None:
         dump = None
         with raises_error(error_type=AssertionFailed):
-            FamilyTreeConfiguration(tmp_path).load(dump)
+            await FamilyTreeConfiguration(tmp_path).load(dump)
 
     async def test_dump_with_minimal_configuration(self, tmp_path: Path) -> None:
         sut = FamilyTreeConfiguration(tmp_path)
@@ -208,15 +208,15 @@ class TestFamilyTreeConfiguration:
 
 
 class TestPluginMapping:
-    def test_load_without_values(self) -> None:
+    async def test_load_without_values(self) -> None:
         sut = PluginMapping()
-        sut.load({})
+        await sut.load({})
         assert sut.dump() is Void
 
-    def test_load_with_values(self) -> None:
+    async def test_load_with_values(self) -> None:
         dump: Dump = {"my-first-gramps-type": "my-first-betty-plugin-id"}
         sut = PluginMapping()
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.dump() == dump
         assert sut["my-first-gramps-type"] == "my-first-betty-plugin-id"
 
@@ -231,10 +231,10 @@ class TestPluginMapping:
             [],
         ],
     )
-    def test_load_should_error(self, dump: Dump) -> None:
+    async def test_load_should_error(self, dump: Dump) -> None:
         sut = PluginMapping()
         with pytest.raises(AssertionFailed):
-            sut.load(dump)
+            await sut.load(dump)
 
     @pytest.mark.parametrize(
         ("expected", "sut"),
@@ -295,12 +295,12 @@ class TestPluginMapping:
 class TestGrampsConfiguration:
     async def test_load_with_minimal_configuration(self) -> None:
         dump: Dump = {}
-        GrampsConfiguration().load(dump)
+        await GrampsConfiguration().load(dump)
 
     async def test_load_without_dict_should_error(self) -> None:
         dump = None
         with raises_error(error_type=AssertionFailed):
-            GrampsConfiguration().load(dump)
+            await GrampsConfiguration().load(dump)
 
     async def test_load_with_family_tree(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
@@ -312,7 +312,7 @@ class TestGrampsConfiguration:
             ],
         }
         sut = GrampsConfiguration()
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.family_trees[0].file_path == file_path
 
     async def test_dump_with_minimal_configuration(self) -> None:

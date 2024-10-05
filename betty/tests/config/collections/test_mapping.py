@@ -40,8 +40,8 @@ class ConfigurationMappingTestConfiguration(Configuration):
         pass  # pragma: no cover
 
     @override
-    def load(self, dump: Dump) -> None:
-        assert_record(
+    async def load(self, dump: Dump) -> None:
+        await assert_record(
             RequiredField("key", assert_str() | assert_setattr(self, "key")),
             RequiredField("value", assert_int() | assert_setattr(self, "value")),
         )(dump)
@@ -91,13 +91,13 @@ class TestConfigurationMapping(
 
     async def test_load_without_items(self) -> None:
         sut = self.get_sut()
-        sut.load({})
+        await sut.load({})
         assert len(sut) == 0
 
     async def test_load_with_items(self) -> None:
         sut = self.get_sut()
         configurations = self.get_configurations()
-        sut.load({item.key: item.dump() for item in configurations})
+        await sut.load({item.key: item.dump() for item in configurations})
         assert len(sut) == len(configurations)
 
     async def test_dump_without_items(self) -> None:
@@ -120,15 +120,15 @@ class ConfigurationMappingTestConfigurationMapping(
     ConfigurationMapping[str, ConfigurationMappingTestConfiguration]
 ):
     @override
-    def load_item(self, dump: Dump) -> ConfigurationMappingTestConfiguration:
+    async def load_item(self, dump: Dump) -> ConfigurationMappingTestConfiguration:
         configuration = ConfigurationMappingTestConfiguration("", 0)
-        configuration.load(dump)
+        await configuration.load(dump)
         return configuration
 
     def _get_key(self, configuration: ConfigurationMappingTestConfiguration) -> str:
         return configuration.key
 
-    def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
+    async def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
         item_dump["key"] = key_dump
 
     def _dump_key(self, item_dump: DumpMapping[Dump]) -> str:
@@ -174,13 +174,13 @@ class TestOrderedConfigurationMapping(
 
     async def test_load_without_items(self) -> None:
         sut = self.get_sut()
-        sut.load([])
+        await sut.load([])
         assert len(sut) == 0
 
     async def test_load_with_items(self) -> None:
         sut = self.get_sut()
         configurations = self.get_configurations()
-        sut.load([item.dump() for item in configurations])
+        await sut.load([item.dump() for item in configurations])
         assert len(sut) == len(configurations)
 
     async def test_dump_without_items(self) -> None:
@@ -201,9 +201,9 @@ class OrderedConfigurationMappingTestOrderedConfigurationMapping(
     OrderedConfigurationMapping[str, ConfigurationMappingTestConfiguration]
 ):
     @override
-    def load_item(self, dump: Dump) -> ConfigurationMappingTestConfiguration:
+    async def load_item(self, dump: Dump) -> ConfigurationMappingTestConfiguration:
         configuration = ConfigurationMappingTestConfiguration("", 0)
-        configuration.load(dump)
+        await configuration.load(dump)
         return configuration
 
     @override

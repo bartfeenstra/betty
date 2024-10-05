@@ -334,7 +334,7 @@ class TestProject:
     async def test_name_with_configuration_name(self, new_temporary_app: App) -> None:
         name = "hello-world"
         async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.name = name
+            await sut.configuration.set_name(name)
             async with sut:
                 assert sut.name == name
 

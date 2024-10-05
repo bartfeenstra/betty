@@ -84,8 +84,8 @@ class ConfigurationSequence(
         self.append(*configurations)
 
     @override
-    def load(self, dump: Dump) -> None:
-        self.replace(*assert_sequence(self.load_item)(dump))
+    async def load(self, dump: Dump) -> None:
+        self.replace(*await assert_sequence(self.load_item)(dump))
 
     @override
     def dump(self) -> Voidable[DumpSequence[Dump]]:

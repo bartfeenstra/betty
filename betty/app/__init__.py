@@ -72,7 +72,7 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
         """
         configuration = AppConfiguration()
         if config.CONFIGURATION_FILE_PATH.exists():
-            (await assert_configuration_file(configuration))(
+            await assert_configuration_file(configuration)(
                 config.CONFIGURATION_FILE_PATH
             )
         yield cls(

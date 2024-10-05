@@ -147,9 +147,9 @@ DEFAULT_GENDER_MAP: Mapping[str, MachineName] = {
 }
 
 
-def _assert_gramps_type(value: Any) -> str:
-    event_type = assert_str()(value)
-    assert_len(minimum=1)(event_type)
+async def _assert_gramps_type(value: Any) -> str:
+    event_type = await assert_str()(value)
+    await assert_len(minimum=1)(event_type)
     return event_type
 
 
@@ -179,8 +179,10 @@ class PluginMapping(Configuration):
         }
 
     @override
-    def load(self, dump: Dump) -> None:
-        self._mapping = assert_mapping(assert_machine_name(), _assert_gramps_type)(dump)
+    async def load(self, dump: Dump) -> None:
+        self._mapping = await assert_mapping(
+            assert_machine_name(), _assert_gramps_type
+        )(dump)
 
     @override
     def dump(self) -> Voidable[Dump]:
@@ -279,8 +281,8 @@ class FamilyTreeConfiguration(Configuration):
         return self._presence_roles
 
     @override
-    def load(self, dump: Dump) -> None:
-        assert_record(
+    async def load(self, dump: Dump) -> None:
+        await assert_record(
             RequiredField("file", assert_path() | assert_setattr(self, "file_path")),
             OptionalField("event_types", self.event_types.load),
             OptionalField("genders", self.genders.load),
@@ -315,11 +317,11 @@ class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfigurat
     """
 
     @override
-    def load_item(self, dump: Dump) -> FamilyTreeConfiguration:
+    async def load_item(self, dump: Dump) -> FamilyTreeConfiguration:
         # Use a dummy path to satisfy initializer arguments.
         # It will be overridden when loading the fump.
         item = FamilyTreeConfiguration(Path())
-        item.load(dump)
+        await item.load(dump)
         return item
 
 
@@ -346,8 +348,8 @@ class GrampsConfiguration(Configuration):
         self._family_trees.update(other._family_trees)
 
     @override
-    def load(self, dump: Dump) -> None:
-        assert_record(OptionalField("family_trees", self.family_trees.load))(dump)
+    async def load(self, dump: Dump) -> None:
+        await assert_record(OptionalField("family_trees", self.family_trees.load))(dump)
 
     @override
     def dump(self) -> Voidable[DumpMapping[Dump]]:
