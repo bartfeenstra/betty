@@ -8,7 +8,7 @@ import logging
 from contextlib import contextmanager
 from typing import Iterator, TYPE_CHECKING
 
-import click
+import asyncclick as click
 
 from betty.error import UserFacingError
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -22,7 +22,7 @@ def user_facing_error_to_bad_parameter(
     localizer: Localizer = DEFAULT_LOCALIZER,
 ) -> Iterator[None]:
     """
-    Convert a :py:class:`betty.error.UserFacingError` exception to a :py:class:`click.BadParameter` exception.
+    Convert a :py:class:`betty.error.UserFacingError` exception to a :py:class:`asyncclick.BadParameter` exception.
     """
     try:
         yield
