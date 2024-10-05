@@ -6,7 +6,7 @@ from typing import IO, Any
 
 from betty.app import App
 from betty.cli import new_main_command
-from click.testing import Result, CliRunner
+from asyncclick.testing import Result, CliRunner
 
 
 async def run(
@@ -19,7 +19,7 @@ async def run(
     Run a Betty CLI command.
     """
     runner = CliRunner(mix_stderr=False)
-    result = runner.invoke(
+    result = await runner.invoke(
         await new_main_command(app), args, catch_exceptions=False, input=input
     )
     if result.exit_code != expected_exit_code:

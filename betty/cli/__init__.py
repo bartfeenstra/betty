@@ -5,6 +5,7 @@ Provide the Command Line Interface.
 from __future__ import annotations
 
 import logging
+import sys
 from asyncio import run
 from dataclasses import dataclass
 from logging import (
@@ -20,23 +21,22 @@ from logging import (
 from sys import stderr
 from typing import final, IO, Any, TYPE_CHECKING
 
-import click
+import asyncclick as click
 from typing_extensions import override, ClassVar
 
 from betty import about
 from betty.app import App
-from betty.cli.commands import BettyCommand
 
 if TYPE_CHECKING:
     from betty.locale.localizer import Localizer
     from betty.machine_name import MachineName
-    from collections.abc import Iterable, Mapping
+    from collections.abc import Mapping
 
 
 @final
 class _ClickHandler(Handler):
     """
-    Output log records to stderr with :py:func:`click.secho`.
+    Output log records to stderr with :py:func:`asyncclick.secho`.
     """
 
     COLOR_LEVELS = {
@@ -63,7 +63,7 @@ class _ClickHandler(Handler):
         return self.COLOR_LEVELS[NOTSET]
 
 
-class _BettyCommands(BettyCommand, click.MultiCommand):
+class _BettyCommands(click.MultiCommand):
     terminal_width: ClassVar[int | None] = None
     _bootstrapped = False
     _app: ClassVar[App]
@@ -105,7 +105,7 @@ class _BettyCommands(BettyCommand, click.MultiCommand):
             self._bootstrapped = True
 
     @override
-    def list_commands(self, ctx: click.Context) -> Iterable[str]:
+    def list_commands(self, ctx: click.Context) -> list[str]:
         self._bootstrap()
         return list(self._commands)
 
@@ -118,16 +118,16 @@ class _BettyCommands(BettyCommand, click.MultiCommand):
             return None
 
     @override
-    def make_context(
+    async def make_context(
         self,
-        info_name: str,
+        info_name: str | None,
         args: list[str],
         parent: click.Context | None = None,
         **extra: Any,
     ) -> click.Context:
         if self.terminal_width is not None:
             extra["terminal_width"] = self.terminal_width
-        ctx = super().make_context(info_name, args, parent, **extra)
+        ctx = await super().make_context(info_name, args, parent, **extra)
         ctx.obj = ContextAppObject(self._app, self._localizer)
         return ctx
 
@@ -153,19 +153,19 @@ def ctx_app_object(ctx: click.Context) -> ContextAppObject:
     return app
 
 
-def main(*args: str) -> Any:
+def main() -> Any:
     """
     Launch Betty's Command-Line Interface.
 
     This is a stand-alone entry point that will manage an event loop and Betty application.
     """
-    return run(_main(*args))
+    return run(_main())
 
 
-async def _main(*args: str) -> Any:
+async def _main() -> Any:
     async with App.new_from_environment() as app, app:
         main_command = await new_main_command(app)
-        return main_command(*args)
+        return await main_command.main(sys.argv[1:])
 
 
 async def new_main_command(app: App) -> click.Command:

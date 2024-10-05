@@ -11,7 +11,7 @@ from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
-    import click
+    import asyncclick as click
     from betty.app import App
 
 

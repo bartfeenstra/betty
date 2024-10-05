@@ -2,7 +2,7 @@ from __future__ import annotations  # noqa D100
 
 from typing import TYPE_CHECKING, final, Self
 
-import click
+import asyncclick as click
 from typing_extensions import override
 
 from betty.app.factory import AppDependentFactory
