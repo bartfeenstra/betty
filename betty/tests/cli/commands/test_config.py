@@ -26,5 +26,5 @@ class TestConfig:
             locale,
         )
         configuration = AppConfiguration()
-        assert_configuration_file(configuration)(configuration_file_path)
+        (await assert_configuration_file(configuration))(configuration_file_path)
         assert configuration.locale == locale

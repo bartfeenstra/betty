@@ -24,11 +24,10 @@ from betty.assertion import (
     assert_file_path,
 )
 from betty.assertion.error import AssertionFailedGroup
-from betty.asyncio import wait_to_thread
 from betty.error import FileNotFound
 from betty.locale.localizable import plain
 from betty.serde.dump import Dumpable
-from betty.serde.format import FORMAT_REPOSITORY
+from betty.serde.format import FORMAT_REPOSITORY, format_for
 from betty.serde.load import Loadable
 
 if TYPE_CHECKING:
@@ -80,14 +79,18 @@ class Configurable(Generic[_ConfigurationT]):
         return self._configuration
 
 
-def assert_configuration_file(
+async def assert_configuration_file(
     configuration: _ConfigurationT,
 ) -> AssertionChain[Path, _ConfigurationT]:
     """
     Assert that configuration can be loaded from a file.
     """
+    available_formats = {
+        available_format: await FORMAT_REPOSITORY.new_target(available_format)
+        async for available_format in FORMAT_REPOSITORY
+    }
 
-    async def _assert(configuration_file_path: Path) -> _ConfigurationT:
+    def _assert(configuration_file_path: Path) -> _ConfigurationT:
         with (
             AssertionFailedGroup().assert_valid() as errors,
             # Change the working directory to allow relative paths to be resolved
@@ -100,14 +103,13 @@ def assert_configuration_file(
             except FileNotFoundError:
                 raise FileNotFound.new(configuration_file_path) from None
             with errors.catch(plain(f"in {str(configuration_file_path.resolve())}")):
-                serde_format_type = await FORMAT_REPOSITORY.format_for(
-                    configuration_file_path.suffix
-                )
-                serde_format = await FORMAT_REPOSITORY.new_target(serde_format_type)
-                configuration.load(serde_format.load(read_configuration))
+                configuration_file_format = available_formats[
+                    format_for(list(available_formats), configuration_file_path.suffix)
+                ]
+                configuration.load(configuration_file_format.load(read_configuration))
             return configuration
 
-    return assert_file_path().chain(lambda value: wait_to_thread(_assert(value)))
+    return assert_file_path() | _assert
 
 
 async def write_configuration_file(
@@ -116,8 +118,8 @@ async def write_configuration_file(
     """
     Write configuration to file.
     """
-    serde_format_type = await FORMAT_REPOSITORY.format_for(
-        configuration_file_path.suffix
+    serde_format_type = format_for(
+        await FORMAT_REPOSITORY.select(), configuration_file_path.suffix
     )
     serde_format = await FORMAT_REPOSITORY.new_target(serde_format_type)
     dump = serde_format.dump(configuration.dump())

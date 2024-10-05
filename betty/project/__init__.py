@@ -153,7 +153,9 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         ):
             yield await cls.new(
                 app,
-                ProjectConfiguration(Path(project_directory_path_str) / "betty.json"),
+                await ProjectConfiguration.new(
+                    Path(project_directory_path_str) / "betty.json"
+                ),
                 ancestry=ancestry,
             )
 

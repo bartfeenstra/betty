@@ -72,7 +72,9 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
         """
         configuration = AppConfiguration()
         if config.CONFIGURATION_FILE_PATH.exists():
-            assert_configuration_file(configuration)(config.CONFIGURATION_FILE_PATH)
+            (await assert_configuration_file(configuration))(
+                config.CONFIGURATION_FILE_PATH
+            )
         yield cls(
             configuration,
             Path(environ.get("BETTY_CACHE_DIRECTORY", HOME_DIRECTORY_PATH / "cache")),

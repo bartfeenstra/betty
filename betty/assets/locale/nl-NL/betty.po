@@ -992,10 +992,10 @@ msgstr "Onbekend"
 
 msgid ""
 "Unknown file format \"{extension}\". Supported formats are: "
-"{supported_formats}."
+"{available_formats}."
 msgstr ""
 "Onbekend bestandstype \"{extension}\". Ondersteunde bestandstypes zijn: "
-"{supported_formats}."
+"{available_formats}."
 
 msgid "Unknown key: {unknown_key}."
 msgstr "Onbekende sleutel: {unknown_key}."

@@ -41,8 +41,6 @@ class Format(Plugin):
     def extensions(cls) -> set[str]:
         """
         The file extensions this format can (de)serialize.
-
-        Extensions MUST NOT include a leading dot.
         """
         pass
 
@@ -91,22 +89,6 @@ class FormatRepository(PluginRepository[Format]):
             for extension in serde_format.extensions()
         }
 
-    async def format_for(self, extension: str) -> type[Format]:
-        """
-        Get the (de)serialization format for the given file extension.
-
-        The extension MUST NOT include a leading dot.
-        """
-        serde_formats = await self.select()
-        for serde_format in serde_formats:
-            if extension in serde_format.extensions():
-                return serde_format
-        raise FormatError(
-            _(
-                'Unknown file format "{extension}". Supported formats are: {supported_formats}.'
-            ).format(extension=extension, supported_formats=FormatStr(serde_formats))
-        )
-
 
 FORMAT_REPOSITORY = FormatRepository()
 """
@@ -136,3 +118,19 @@ class FormatStr(Localizable):
                 ]
             )
         )
+
+
+def format_for(
+    available_formats: Sequence[type[Format]], extension: str
+) -> type[Format]:
+    """
+    Get the (de)serialization format for the given file extension.
+    """
+    for available_format in available_formats:
+        if extension in available_format.extensions():
+            return available_format
+    raise FormatError(
+        _(
+            'Unknown file format "{extension}". Supported formats are: {available_formats}.'
+        ).format(extension=extension, available_formats=FormatStr(available_formats))
+    )

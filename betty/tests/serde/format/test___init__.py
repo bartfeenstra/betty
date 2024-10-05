@@ -8,7 +8,13 @@ from betty.locale.localizable import plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import ShorthandPluginBase, PluginNotFound
 from betty.serde.dump import Dump
-from betty.serde.format import FormatStr, Format, FormatRepository, FormatError
+from betty.serde.format import (
+    FormatStr,
+    Format,
+    FormatRepository,
+    FormatError,
+    format_for,
+)
 from betty.typing import Voidable
 
 
@@ -64,15 +70,6 @@ class TestFormatRepository:
             ),
         )
 
-    async def test_format_for(self, mocker: MockerFixture) -> None:
-        sut = FormatRepository()
-        assert await sut.format_for(".one") is FormatOne
-
-    async def test_format_for_with_unknown_format(self, mocker: MockerFixture) -> None:
-        sut = FormatRepository()
-        with pytest.raises(FormatError):
-            assert await sut.format_for(".three")
-
     async def test___aiter__(self) -> None:
         sut = FormatRepository()
         assert [serde_format async for serde_format in sut] == [FormatOne, FormatTwo]
@@ -95,3 +92,12 @@ class TestFormatStr:
     def test_localize(self) -> None:
         sut = FormatStr([FormatOne, FormatTwo])
         assert sut.localize(DEFAULT_LOCALIZER) == ".one (One), .two (Two)"
+
+
+class TestFormatFor:
+    async def test_with_known_format(self) -> None:
+        assert format_for([FormatOne], ".one") is FormatOne
+
+    async def test_format_for_with_unknown_format(self) -> None:
+        with pytest.raises(FormatError):
+            assert format_for([], ".unknown")
