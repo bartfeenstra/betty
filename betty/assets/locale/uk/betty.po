@@ -895,7 +895,7 @@ msgstr "Невідомо"
 
 msgid ""
 "Unknown file format \"{extension}\". Supported formats are: "
-"{supported_formats}."
+"{available_formats}."
 msgstr ""
 
 msgid "Unknown key: {unknown_key}."

@@ -965,10 +965,10 @@ msgstr "Unbekannt"
 
 msgid ""
 "Unknown file format \"{extension}\". Supported formats are: "
-"{supported_formats}."
+"{available_formats}."
 msgstr ""
 "Unbekanntes Dateiformat \"{extension}\". Unterstützte Formate sind: "
-"{supported_formats}."
+"{available_formats}."
 
 msgid "Unknown key: {unknown_key}."
 msgstr "Unbekannter Schlüssel: {unknown_key}."

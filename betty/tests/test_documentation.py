@@ -94,7 +94,7 @@ class TestDocumentation:
         assert match is not None
         dump = match[1]
         assert dump is not None
-        configuration = ProjectConfiguration(tmp_path / "betty.json")
+        configuration = await ProjectConfiguration.new(tmp_path / "betty.json")
         configuration.load(serde_format.load(dump))
 
 

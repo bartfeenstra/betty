@@ -35,7 +35,6 @@ from betty.assertion import (
     assert_mapping,
 )
 from betty.assertion.error import AssertionFailed
-from betty.asyncio import wait_to_thread
 from betty.config import Configuration
 from betty.config.collections.mapping import (
     ConfigurationMapping,
@@ -69,10 +68,11 @@ from betty.serde.dump import (
     minimize,
     DumpMapping,
 )
-from betty.serde.format import FORMAT_REPOSITORY
+from betty.serde.format import Format, format_for, FORMAT_REPOSITORY
 from betty.typing import Void, Voidable, void_none
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from betty.machine_name import MachineName
     from pathlib import Path
 
@@ -907,6 +907,7 @@ class ProjectConfiguration(Configuration):
         self,
         configuration_file_path: Path,
         *,
+        available_formats: Sequence[type[Format]],
         url: str = "https://example.com",
         clean_urls: bool = False,
         title: ShorthandStaticTranslations = "Betty",
@@ -930,6 +931,7 @@ class ProjectConfiguration(Configuration):
         from betty.copyright_notice.copyright_notices import ProjectAuthor
 
         super().__init__()
+        self._available_formats = available_formats
         self._configuration_file_path = configuration_file_path
         self._name = name
         self._computed_name: str | None = None
@@ -985,6 +987,58 @@ class ProjectConfiguration(Configuration):
         self._lifetime_threshold = lifetime_threshold
         self._logo = logo
 
+    @classmethod
+    async def new(
+        cls,
+        configuration_file_path: Path,
+        *,
+        url: str = "https://example.com",
+        clean_urls: bool = False,
+        title: ShorthandStaticTranslations = "Betty",
+        author: ShorthandStaticTranslations | None = None,
+        entity_types: Iterable[EntityTypeConfiguration] | None = None,
+        event_types: Iterable[PluginConfiguration] | None = None,
+        place_types: Iterable[PluginConfiguration] | None = None,
+        presence_roles: Iterable[PluginConfiguration] | None = None,
+        copyright_notice: MachineName | None = None,  # noqa A002
+        copyright_notices: Iterable[CopyrightNoticeConfiguration] | None = None,
+        license: MachineName | None = None,  # noqa A002
+        licenses: Iterable[LicenseConfiguration] | None = None,
+        genders: Iterable[PluginConfiguration] | None = None,
+        extensions: Iterable[ExtensionConfiguration] | None = None,
+        debug: bool = False,
+        locales: Iterable[LocaleConfiguration] | None = None,
+        lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
+        name: MachineName | None = None,
+        logo: Path | None = None,
+    ) -> Self:
+        """
+        Create a new instance.
+        """
+        return cls(
+            configuration_file_path,
+            available_formats=await FORMAT_REPOSITORY.select(),
+            url=url,
+            clean_urls=clean_urls,
+            title=title,
+            author=author,
+            entity_types=entity_types,
+            event_types=event_types,
+            place_types=place_types,
+            presence_roles=presence_roles,
+            copyright_notice=copyright_notice,
+            copyright_notices=copyright_notices,
+            license=license,
+            licenses=licenses,
+            genders=genders,
+            extensions=extensions,
+            debug=debug,
+            locales=locales,
+            lifetime_threshold=lifetime_threshold,
+            name=name,
+            logo=logo,
+        )
+
     @property
     def configuration_file_path(self) -> Path:
         """
@@ -996,7 +1050,7 @@ class ProjectConfiguration(Configuration):
     def configuration_file_path(self, configuration_file_path: Path) -> None:
         if configuration_file_path == self._configuration_file_path:
             return
-        wait_to_thread(FORMAT_REPOSITORY.format_for(configuration_file_path.suffix))
+        format_for(self._available_formats, configuration_file_path.suffix)
         self._configuration_file_path = configuration_file_path
 
     @property

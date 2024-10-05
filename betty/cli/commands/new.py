@@ -78,7 +78,7 @@ class New(ShorthandPluginBase, AppDependentFactory, Command):
                     _assert_project_configuration_file_path
                 ),
             )
-            configuration = ProjectConfiguration(
+            configuration = await ProjectConfiguration.new(
                 configuration_file_path,
             )
 
