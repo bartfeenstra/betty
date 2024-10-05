@@ -62,7 +62,7 @@ Creating a command
                  setup(**SETUP)
               
 #. Build the Click command, decorated with :py:func:`betty.cli.commands.command` (which works almost identically to
-   :py:func:`asyncclick.command`), by returning it from your :py:meth:`betty.cli.commands.Command.click_command`
+   :py:func:`click.command`), by returning it from your :py:meth:`betty.cli.commands.Command.click_command`
    implementation:
 
    .. code-block:: python

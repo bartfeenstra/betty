@@ -12,7 +12,7 @@ from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
-    import asyncclick as click
+    import click
     from betty.app import App
 
 
