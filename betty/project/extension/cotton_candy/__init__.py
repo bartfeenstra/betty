@@ -5,6 +5,7 @@ Provide Betty's default theme.
 from __future__ import annotations
 
 import json
+from asyncio import gather
 from collections import defaultdict
 from pathlib import Path
 from typing import Iterable, cast, TYPE_CHECKING, final, Self
@@ -20,7 +21,6 @@ from betty.ancestry.event_type.event_types import (
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.asyncio import gather
 from betty.date import Date, Datey
 from betty.functools import unique
 from betty.html import CssProvider

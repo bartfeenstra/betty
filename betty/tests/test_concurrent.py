@@ -1,11 +1,10 @@
 import asyncio
 import threading
 import time
-from asyncio import create_task, sleep, wait_for
+from asyncio import create_task, sleep, wait_for, gather
 
 import pytest
 
-from betty.asyncio import gather
 from betty.concurrent import (
     RateLimiter,
     asynchronize_acquire,

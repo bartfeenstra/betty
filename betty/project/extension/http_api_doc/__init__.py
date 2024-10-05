@@ -2,18 +2,17 @@
 
 from __future__ import annotations
 
-from asyncio import to_thread
+from asyncio import to_thread, gather
 from pathlib import Path
 from shutil import copy2
 from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
-from betty.asyncio import gather
-from betty.project.extension.webpack import Webpack, WebpackEntryPointProvider
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
 from betty.project.extension import Extension
+from betty.project.extension.webpack import Webpack, WebpackEntryPointProvider
 from betty.project.generate import GenerateSiteEvent
 
 if TYPE_CHECKING:

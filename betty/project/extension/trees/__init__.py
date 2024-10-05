@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from asyncio import gather
 from pathlib import Path
 from typing import TYPE_CHECKING, final
 
@@ -10,7 +11,6 @@ import aiofiles
 from typing_extensions import override
 
 from betty.ancestry.person import Person
-from betty.asyncio import gather
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
 from betty.project.extension import Extension

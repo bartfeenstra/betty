@@ -17,6 +17,7 @@ from asyncio import (
     CancelledError,
     sleep,
     to_thread,
+    gather,
 )
 from collections.abc import MutableSequence
 from contextlib import suppress
@@ -35,7 +36,6 @@ import aiofiles
 from aiofiles.os import makedirs
 
 from betty import model
-from betty.asyncio import gather
 from betty.locale import get_display_name
 from betty.locale.localizable import _
 from betty.locale.localizer import DEFAULT_LOCALIZER

@@ -117,11 +117,8 @@ class TestWebpack(ExtensionTestBase):
             )
             project.configuration.extensions.enable(Webpack)
             async with project:
-                with pytest.raises(ExceptionGroup) as exc_info:
+                with pytest.raises(RequirementError):
                     await generate(project)
-                error = exc_info.value
-                assert isinstance(error, ExceptionGroup)
-                assert error.subgroup(RequirementError) is not None
         finally:
             fs.PREBUILT_ASSETS_DIRECTORY_PATH = original_prebuilt_assets_directory_path
 

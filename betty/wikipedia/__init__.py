@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import logging
 import re
+from asyncio import gather
 from collections import defaultdict
 from collections.abc import (
     Mapping,
@@ -18,12 +19,11 @@ from urllib.parse import quote, urlparse
 
 from geopy import Point
 
-from betty.ancestry.file_reference import FileReference
 from betty.ancestry.file import File
+from betty.ancestry.file_reference import FileReference
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.place import Place
-from betty.asyncio import gather
 from betty.concurrent import Lock, AsynchronizedLock, RateLimiter
 from betty.fetch import FetchError
 from betty.functools import filter_suppress
