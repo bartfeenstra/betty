@@ -17,8 +17,8 @@ requires-python = '~= 3.11'
 dependencies = [
     'aiofiles ~= 24.1',
     'aiohttp ~= 3.9',
+    'asyncclick ~= 8.1',
     'babel ~= 2.15',
-    'click ~= 8.1',
     'furo == 2024.8.6',
     'geopy ~= 2.4',
     'html5lib ~= 1.1',
