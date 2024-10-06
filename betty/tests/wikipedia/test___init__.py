@@ -91,54 +91,6 @@ class TestSummary:
         sut = Summary("nl", "Amsterdam", "Title for Amsterdam", "Content for Amsterdam")
         assert sut.url == "https://nl.wikipedia.org/wiki/Amsterdam"
 
-    async def test_title(self) -> None:
-        title = "Title for Amsterdam"
-        sut = Summary("nl", "Amsterdam", title, "Content for Amsterdam")
-        assert sut.title == title
-
-    async def test_content(self) -> None:
-        content = "Content for Amsterdam"
-        sut = Summary("nl", "Amsterdam", "Title for Amsterdam", content)
-        assert sut.content == content
-
-    @pytest.mark.parametrize(
-        ("expected", "left", "right"),
-        [
-            (
-                True,
-                Summary("en", "name", "title", "content"),
-                Summary("en", "name", "title", "content"),
-            ),
-            (
-                False,
-                Summary("en", "name", "title", "content"),
-                Summary("nl", "name", "title", "content"),
-            ),
-            (
-                False,
-                Summary("en", "name", "title", "content"),
-                Summary("en", "not-a-name", "title", "content"),
-            ),
-            (
-                False,
-                Summary("en", "name", "title", "content"),
-                Summary("en", "name", "not-a-title", "content"),
-            ),
-            (
-                False,
-                Summary("en", "name", "title", "content"),
-                Summary("en", "name", "title", "not-a-content"),
-            ),
-            (
-                False,
-                Summary("en", "name", "title", "content"),
-                123,
-            ),
-        ],
-    )
-    async def test___eq__(self, expected: bool, left: Summary, right: object) -> None:
-        assert (left == right) is expected
-
 
 class TestRetriever:
     @pytest.mark.parametrize(

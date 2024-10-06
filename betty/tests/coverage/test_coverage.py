@@ -221,7 +221,13 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             # This is inherited from @dataclass.
             "__eq__": TestKnownToBeMissing,
             # This is inherited from @dataclass.
+            "__delattr__": TestKnownToBeMissing,
+            # This is inherited from @dataclass.
+            "__hash__": TestKnownToBeMissing,
+            # This is inherited from @dataclass.
             "__replace__": TestKnownToBeMissing,
+            # This is inherited from @dataclass.
+            "__setattr__": TestKnownToBeMissing,
         },
     },
     "betty/fetch/static.py": TestKnownToBeMissing,
@@ -608,11 +614,21 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/warnings.py": TestKnownToBeMissing,
     "betty/wikipedia/__init__.py": {
+        # This is a dataclass.
         "Image": TestKnownToBeMissing,
         # This is an empty class.
         "NotAPageError": TestKnownToBeMissing,
         "Summary": {
-            "name": TestKnownToBeMissing,
+            # This is inherited from @dataclass.
+            "__eq__": TestKnownToBeMissing,
+            # This is inherited from @dataclass.
+            "__delattr__": TestKnownToBeMissing,
+            # This is inherited from @dataclass.
+            "__hash__": TestKnownToBeMissing,
+            # This is inherited from @dataclass.
+            "__replace__": TestKnownToBeMissing,
+            # This is inherited from @dataclass.
+            "__setattr__": TestKnownToBeMissing,
         },
     },
 }

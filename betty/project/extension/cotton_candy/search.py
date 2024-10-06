@@ -89,7 +89,7 @@ class _SourceIndexer(_EntityTypeIndexer[Source]):
 
 
 @final
-@dataclass
+@dataclass(frozen=True)
 class _Entry:
     text: set[str]
     result: str
