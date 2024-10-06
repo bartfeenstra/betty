@@ -18,6 +18,7 @@ from typing import (
     overload,
     cast,
     TypeAlias,
+    final,
 )
 
 from betty.assertion.error import AssertionFailedGroup, AssertionFailed, Key, Index
@@ -98,6 +99,7 @@ class _Field(Generic[_AssertionValueT, _AssertionReturnT]):
     assertion: Assertion[_AssertionValueT, _AssertionReturnT] | None = None
 
 
+@final
 @dataclass(frozen=True)
 class RequiredField(
     Generic[_AssertionValueT, _AssertionReturnT],
@@ -110,6 +112,7 @@ class RequiredField(
     pass  # pragma: no cover
 
 
+@final
 @dataclass(frozen=True)
 class OptionalField(
     Generic[_AssertionValueT, _AssertionReturnT],

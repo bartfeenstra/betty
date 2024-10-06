@@ -132,7 +132,8 @@ class _BettyCommands(click.MultiCommand):
         return ctx
 
 
-@dataclass
+@final
+@dataclass(frozen=True)
 class ContextAppObject:
     """
     The running Betty application and it localizer.

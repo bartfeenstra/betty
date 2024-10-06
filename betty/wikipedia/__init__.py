@@ -8,16 +8,13 @@ import logging
 import re
 from asyncio import gather
 from collections import defaultdict
-from collections.abc import (
-    Mapping,
-)
+from collections.abc import Mapping
 from contextlib import suppress, contextmanager
+from dataclasses import dataclass
 from json import JSONDecodeError
 from pathlib import Path
-from typing import cast, Any, TYPE_CHECKING
+from typing import cast, Any, TYPE_CHECKING, final
 from urllib.parse import quote, urlparse
-
-from geopy import Point
 
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
@@ -36,20 +33,15 @@ from betty.locale import (
 )
 from betty.locale.error import LocaleError
 from betty.locale.localizable import plain
-from betty.locale.localized import Localized
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
+from geopy import Point
 
 if TYPE_CHECKING:
     from betty.ancestry import Ancestry
     from betty.locale.localizer import LocalizerRepository
     from betty.fetch import Fetcher
-    from collections.abc import (
-        Sequence,
-        MutableSequence,
-        MutableMapping,
-        Iterator,
-    )
+    from collections.abc import Sequence, MutableSequence, MutableMapping, Iterator
 
 
 class NotAPageError(ValueError):
@@ -70,117 +62,38 @@ def _parse_url(url: str) -> tuple[str, str]:
     return cast(tuple[str, str], match.groups())
 
 
-class Summary(Localized):
+@final
+@dataclass(frozen=True)
+class Summary:
     """
     A Wikipedia page summary.
     """
 
-    def __init__(self, locale: str, name: str, title: str, content: str):
-        self._name = name
-        self._title = title
-        self._content = content
-        self._locale = locale
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Summary):
-            return False
-        if self.name != other.name:
-            return False
-        if self.url != other.url:
-            return False
-        if self.title != other.title:
-            return False
-        if self.content != other.content:
-            return False
-        return True
-
-    @property
-    def name(self) -> str:
-        """
-        The page's machine name.
-        """
-        return self._name
+    locale: str
+    name: str
+    title: str
+    content: str
 
     @property
     def url(self) -> str:
         """
         The URL to the web page.
         """
-        return f"https://{self.locale}.wikipedia.org/wiki/{self._name}"
-
-    @property
-    def title(self) -> str:
-        """
-        The page's human-readable title.
-        """
-        return self._title
-
-    @property
-    def content(self) -> str:
-        """
-        The page's human-readable summary content.
-        """
-        return self._content
+        return f"https://{self.locale}.wikipedia.org/wiki/{self.name}"
 
 
+@final
+@dataclass(frozen=True)
 class Image:
     """
     An image from Wikimedia Commons.
     """
 
-    def __init__(
-        self,
-        path: Path,
-        media_type: MediaType,
-        title: str,
-        wikimedia_commons_url: str,
-        name: str,
-    ):
-        self._path = path
-        self._media_type = media_type
-        self._title = title
-        self._wikimedia_commons_url = wikimedia_commons_url
-        self._name = name
-
-    def __hash__(self) -> int:
-        return hash(
-            (self.path, self.media_type, self.title, self.wikimedia_commons_url)
-        )
-
-    @property
-    def path(self) -> Path:
-        """
-        The path to the image on disk.
-        """
-        return self._path
-
-    @property
-    def media_type(self) -> MediaType:
-        """
-        The image's media type.
-        """
-        return self._media_type
-
-    @property
-    def title(self) -> str:
-        """
-        The human-readable image title.
-        """
-        return self._title
-
-    @property
-    def wikimedia_commons_url(self) -> str:
-        """
-        The URL to the Wikimedia Commons web page for this image.
-        """
-        return self._wikimedia_commons_url
-
-    @property
-    def name(self) -> str:
-        """
-        The image's file name.
-        """
-        return self._name
+    path: Path
+    media_type: MediaType
+    title: str
+    wikimedia_commons_url: str
+    name: str
 
 
 class _Retriever:

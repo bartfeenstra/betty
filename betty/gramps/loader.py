@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from enum import Enum
 from logging import getLogger
 from pathlib import Path
-from typing import Iterable, Any, IO, cast, TYPE_CHECKING, TypeVar, Generic
+from typing import Iterable, Any, IO, cast, TYPE_CHECKING, TypeVar, Generic, final
 from xml.etree import ElementTree
 
 import aiofiles
@@ -112,6 +112,7 @@ class GrampsEntityType(Enum):
     SOURCE = "source"
 
 
+@final
 @dataclass(frozen=True)
 class GrampsEntityReference:
     """

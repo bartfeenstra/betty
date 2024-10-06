@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from json import loads
 from pathlib import Path
-from typing import Any
+from typing import Any, final
 
 from multidict import CIMultiDict
 
@@ -21,7 +21,8 @@ class FetchError(UserFacingError, RuntimeError):
     pass  # pragma: no cover
 
 
-@dataclass
+@final
+@dataclass(frozen=True)
 class FetchResponse:
     """
     An HTTP response.
