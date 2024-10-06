@@ -46,6 +46,7 @@ from betty.locale import (
     SPECIAL_LOCALES,
 )
 from betty.locale.localized import Localized, negotiate_localizeds, LocalizedStr
+from betty.media_type.media_types import HTML
 from betty.os import link_or_copy
 from betty.serde.dump import minimize
 from betty.string import (
@@ -54,13 +55,13 @@ from betty.string import (
     upper_camel_case_to_lower_camel_case,
 )
 from betty.typing import void_none, none_void
+from betty.media_type import MediaType
 
 if TYPE_CHECKING:
     from betty.ancestry.date import HasDate
     from betty.date import Datey
     from betty.locale.localizable import Localizable
     from jinja2.nodes import EvalContext
-    from betty.media_type import MediaType
     from pathlib import Path
     from collections.abc import Awaitable
 
@@ -83,7 +84,7 @@ async def filter_localized_url(
     localized_url_generator = await context_project(context).localized_url_generator
     return localized_url_generator.generate(
         resource,
-        media_type or "text/html",
+        MediaType(media_type) if media_type else HTML,
         locale=locale or context_localizer(context).locale,
         **kwargs,
     )

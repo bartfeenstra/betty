@@ -6,6 +6,8 @@ from pytest_mock import MockerFixture
 
 from betty.app import App
 from betty.locale import Localey, DEFAULT_LOCALE
+from betty.media_type import MediaType
+from betty.media_type.media_types import HTML
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.project.config import LocaleConfiguration
@@ -66,7 +68,7 @@ class TestLocalizedUrlGenerator:
                     {DEFAULT_LOCALE: DEFAULT_LOCALE},
                     False,
                     path,
-                    "text/html",
+                    HTML,
                     False,
                     None,
                 )
@@ -90,7 +92,7 @@ class TestLocalizedUrlGenerator:
                     {DEFAULT_LOCALE: DEFAULT_LOCALE},
                     False,
                     path,
-                    "text/html",
+                    HTML,
                     True,
                     None,
                 )
@@ -114,7 +116,7 @@ class TestLocalizedUrlGenerator:
                     {DEFAULT_LOCALE: DEFAULT_LOCALE},
                     True,
                     path,
-                    "text/html",
+                    HTML,
                     False,
                     None,
                 )
@@ -139,7 +141,7 @@ class TestLocalizedUrlGenerator:
         locales: Mapping[str, str],
         clean_urls: bool,
         resource: str,
-        media_type: str,
+        media_type: MediaType,
         absolute: bool,
         locale: Localey | None,
         new_temporary_app: App,

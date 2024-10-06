@@ -10,6 +10,7 @@ from typing import Any, TYPE_CHECKING, Self
 from betty.locale import negotiate_locale, Localey, to_locale
 
 if TYPE_CHECKING:
+    from betty.media_type import MediaType
     from collections.abc import Mapping
 
 
@@ -51,7 +52,7 @@ class LocalizedUrlGenerator(_UrlGenerator):
     def generate(
         self,
         resource: Any,
-        media_type: str,
+        media_type: MediaType,
         *,
         absolute: bool = False,
         locale: Localey | None = None,

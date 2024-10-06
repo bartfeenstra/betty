@@ -3,9 +3,11 @@ Provide proxy URL generators.
 """
 
 from typing import final, Any
+
 from typing_extensions import override
 
 from betty.locale import Localey
+from betty.media_type import MediaType
 from betty.url import LocalizedUrlGenerator, UnsupportedResource
 
 
@@ -26,7 +28,7 @@ class ProxyLocalizedUrlGenerator(LocalizedUrlGenerator):
     def generate(
         self,
         resource: Any,
-        media_type: str,
+        media_type: MediaType,
         *,
         absolute: bool = False,
         locale: Localey | None = None,

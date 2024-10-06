@@ -10,6 +10,10 @@ from betty.media_type import MediaType
 HTML = MediaType("text/html")
 
 
+#: The media type for JSON content.
+JSON = MediaType("application/json")
+
+
 #: The media type for JSON-LD content.
 JSON_LD = MediaType("application/ld+json")
 
