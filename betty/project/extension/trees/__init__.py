@@ -12,6 +12,7 @@ from typing_extensions import override
 
 from betty.ancestry.person import Person
 from betty.locale.localizable import _
+from betty.media_type.media_types import HTML
 from betty.plugin import ShorthandPluginBase
 from betty.project.extension import Extension
 from betty.project.extension.webpack import Webpack, WebpackEntryPointProvider
@@ -46,7 +47,7 @@ async def _generate_people_json_for_locale(
             "label": person.label.localize(localizer)
             if person.public
             else private_label,
-            "url": localized_url_generator.generate(person, "text/html"),
+            "url": localized_url_generator.generate(person, HTML),
             "parentIds": [parent.id for parent in person.parents],
             "childIds": [child.id for child in person.children],
             "private": person.private,

@@ -1,10 +1,12 @@
 from collections.abc import Sequence
 from typing import Any
-from typing_extensions import override
 
 import pytest
+from typing_extensions import override
 
 from betty.locale import Localey
+from betty.media_type import MediaType
+from betty.media_type.media_types import HTML, JSON
 from betty.url import LocalizedUrlGenerator, UnsupportedResource
 from betty.url.proxy import ProxyLocalizedUrlGenerator
 
@@ -19,7 +21,7 @@ class TestProxyLocalizedUrlGenerator:
         def generate(
             self,
             resource: Any,
-            media_type: str,
+            media_type: MediaType,
             *,
             absolute: bool = False,
             locale: Localey | None = None,
@@ -35,7 +37,7 @@ class TestProxyLocalizedUrlGenerator:
         def generate(
             self,
             resource: Any,
-            media_type: str,
+            media_type: MediaType,
             *,
             absolute: bool = False,
             locale: Localey | None = None,
@@ -70,28 +72,28 @@ class TestProxyLocalizedUrlGenerator:
             (
                 "/\ntext/html\nFalse\nNone",
                 "/",
-                "text/html",
+                HTML,
                 False,
                 None,
             ),
             (
                 "/\napplication/json\nFalse\nNone",
                 "/",
-                "application/json",
+                JSON,
                 False,
                 None,
             ),
             (
                 "/\ntext/html\nTrue\nNone",
                 "/",
-                "text/html",
+                HTML,
                 True,
                 None,
             ),
             (
                 "/\ntext/html\nFalse\nnl-NL",
                 "/",
-                "text/html",
+                HTML,
                 False,
                 "nl-NL",
             ),
@@ -101,7 +103,7 @@ class TestProxyLocalizedUrlGenerator:
         self,
         expected: str,
         resource: Any,
-        media_type: str,
+        media_type: MediaType,
         absolute: bool,
         locale: Localey | None,
     ) -> None:

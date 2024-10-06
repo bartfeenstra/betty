@@ -21,7 +21,6 @@ from asyncio import (
 )
 from collections.abc import MutableSequence
 from contextlib import suppress
-from math import floor
 from pathlib import Path
 from typing import (
     cast,
@@ -34,11 +33,13 @@ from typing import (
 
 import aiofiles
 from aiofiles.os import makedirs
+from math import floor
 
 from betty import model
 from betty.locale import get_display_name
 from betty.locale.localizable import _
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.media_type.media_types import JSON, HTML
 from betty.model import UserFacingEntity, Entity, has_generated_entity_id
 from betty.openapi import Specification
 from betty.privacy import is_public
@@ -356,7 +357,7 @@ async def _generate_entity_type_list_json(
         cast(MutableSequence[str], data["collection"]).append(
             localized_url_generator.generate(
                 entity,
-                "application/json",
+                JSON,
                 absolute=True,
             )
         )
@@ -483,7 +484,7 @@ async def _generate_sitemap(
                     entity,
                     absolute=True,
                     locale=locale,
-                    media_type="text/html",
+                    media_type=HTML,
                 )
             )
             sitemap_batch_urls_length += 1

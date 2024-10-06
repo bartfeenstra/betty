@@ -10,6 +10,7 @@ from urllib.parse import quote
 from typing_extensions import override
 
 from betty import model
+from betty.media_type.media_types import HTML, JSON, JSON_LD
 from betty.project.factory import ProjectDependentFactory
 from betty.string import camel_case_to_kebab_case
 from betty.typing import internal
@@ -21,6 +22,7 @@ from betty.url import (
 from betty.url.proxy import ProxyLocalizedUrlGenerator
 
 if TYPE_CHECKING:
+    from betty.media_type import MediaType
     from betty.project import Project
     from betty.model import Entity
     from betty.locale import Localey
@@ -70,7 +72,7 @@ class _LocalizedPathUrlGenerator(_ProjectUrlGenerator, StdLocalizedUrlGenerator)
     def generate(
         self,
         resource: Any,
-        media_type: str,
+        media_type: MediaType,
         *,
         absolute: bool = False,
         locale: Localey | None = None,
@@ -137,11 +139,11 @@ class _EntityTypeDependentUrlGenerator(_ProjectUrlGenerator, StdLocalizedUrlGene
         )
 
     def _get_extension_and_locale(
-        self, media_type: str, *, locale: Localey | None
+        self, media_type: MediaType, *, locale: Localey | None
     ) -> tuple[str, Localey | None]:
-        if media_type == "text/html":
+        if media_type == HTML:
             return "html", locale or self._default_locale
-        elif media_type == "application/json":
+        elif media_type in (JSON, JSON_LD):
             return "json", None
         else:
             raise ValueError(f'Unknown entity media type "{media_type}".')
@@ -159,7 +161,7 @@ class _EntityTypeUrlGenerator(_EntityTypeDependentUrlGenerator):
     def generate(
         self,
         resource: Entity,
-        media_type: str,
+        media_type: MediaType,
         *,
         absolute: bool = False,
         locale: Localey | None = None,
@@ -187,7 +189,7 @@ class _EntityUrlGenerator(_EntityTypeDependentUrlGenerator):
     def generate(
         self,
         resource: Entity,
-        media_type: str,
+        media_type: MediaType,
         *,
         absolute: bool = False,
         locale: Localey | None = None,
@@ -249,7 +251,7 @@ class LocalizedUrlGenerator(StdLocalizedUrlGenerator, ProjectDependentFactory):
     def generate(
         self,
         resource: Any,
-        media_type: str,
+        media_type: MediaType,
         *,
         absolute: bool = False,
         locale: Localey | None = None,
