@@ -7,9 +7,12 @@ import threading
 import time
 from abc import ABC, abstractmethod
 from asyncio import sleep
-from math import floor
+from collections import defaultdict
+from collections.abc import Hashable
 from types import TracebackType
-from typing import Self, final
+from typing import Self, final, MutableMapping
+
+from math import floor
 
 from typing_extensions import override
 
@@ -139,3 +142,58 @@ class RateLimiter:
                 if self._available < 1:
                     await asyncio.sleep(0.1)
             self._available -= 1
+
+
+class _OrchestratedLock(Lock):
+    def __init__(
+        self,
+        target: Hashable,
+        orchestrator_lock: Lock,
+        identifiers: MutableMapping[Hashable, bool],
+    ):
+        self._target = target
+        self._orchestrator_lock = orchestrator_lock
+        self._targets = identifiers
+
+    @override
+    async def acquire(self, *, wait: bool = True) -> bool:
+        if wait:
+            while True:
+                async with self._orchestrator_lock:
+                    if self._can_acquire():
+                        return self._acquire()
+                await sleep(0)
+        else:
+            async with self._orchestrator_lock:
+                if self._can_acquire():
+                    return self._acquire()
+                return False
+
+    def _can_acquire(self) -> bool:
+        return not self._targets[self._target]
+
+    def _acquire(self) -> bool:
+        self._targets[self._target] = True
+        return True
+
+    @override
+    async def release(self) -> None:
+        self._targets[self._target] = False
+
+
+class LockOrchestrator:
+    """
+    Orchestrate the lazy creation of locks, using a primary orchestrator lock to guard all administrative tasks.
+
+    The primary orchestrator lock is released once a orchestrated lock is acquired.
+    """
+
+    def __init__(self, orchestrator_lock: Lock):
+        self._orchestrator_lock = orchestrator_lock
+        self._targets: MutableMapping[Hashable, bool] = defaultdict(lambda: False)
+
+    def orchestrate(self, target: Hashable) -> Lock:
+        """
+        Create a new lock for the given target.
+        """
+        return _OrchestratedLock(target, self._orchestrator_lock, self._targets)

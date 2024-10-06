@@ -145,6 +145,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             # This is an abstract method.
             "release": TestKnownToBeMissing,
         },
+        "LockOrchestrator": TestKnownToBeMissing,
         "RateLimiter": {
             "__aenter__": TestKnownToBeMissing,
             "__aexit__": TestKnownToBeMissing,
