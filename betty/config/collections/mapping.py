@@ -133,13 +133,17 @@ class ConfigurationMapping(
     async def load(self, dump: Dump) -> None:
         self.clear()
         self.replace(
-            *await assert_mapping(self.load_item)(
-                {
-                    item_key_dump: self.__load_item_key(item_value_dump, item_key_dump)
-                    for item_key_dump, item_value_dump in (
-                        await assert_mapping(assert_mapping())(dump)
-                    ).items()
-                }
+            *(
+                await assert_mapping(self.load_item)(
+                    {
+                        item_key_dump: self.__load_item_key(
+                            item_value_dump, item_key_dump
+                        )
+                        for item_key_dump, item_value_dump in (
+                            await assert_mapping(assert_mapping())(dump)
+                        ).items()
+                    }
+                )
             ).values()
         )
 

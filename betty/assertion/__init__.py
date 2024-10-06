@@ -23,10 +23,7 @@ from typing import (
 from betty.assertion.error import AssertionFailedGroup, AssertionFailed, Key, Index
 from betty.asyncio import ensure_await
 from betty.error import FileNotFound, UserFacingError
-from betty.locale import (
-    get_data,
-    UNDETERMINED_LOCALE,
-)
+from betty.locale import get_data, UNDETERMINED_LOCALE
 from betty.locale.localizable import _, Localizable, plain, join, do_you_mean
 from betty.typing import Void, Voidable
 
@@ -42,17 +39,11 @@ Assertion: TypeAlias = Callable[
     [
         _AssertionValueT,
     ],
-    Awaitable[_AssertionReturnT],
+    _AssertionReturnT,
 ]
 
 _AssertionsExtendReturnT = TypeVar("_AssertionsExtendReturnT")
 _AssertionsIntermediateValueReturnT = TypeVar("_AssertionsIntermediateValueReturnT")
-
-
-_ChainableAssertion: TypeAlias = (
-    Assertion[_AssertionValueT, _AssertionReturnT]
-    | Callable[[_AssertionValueT], _AssertionReturnT]
-)
 
 
 class AssertionChain(Generic[_AssertionValueT, _AssertionReturnT]):
@@ -71,14 +62,12 @@ class AssertionChain(Generic[_AssertionValueT, _AssertionReturnT]):
     like mypy can confirm that all assertions in any given chain are compatible with each other.
     """
 
-    def __init__(
-        self, _assertion: _ChainableAssertion[_AssertionValueT, _AssertionReturnT]
-    ):
+    def __init__(self, _assertion: Assertion[_AssertionValueT, _AssertionReturnT]):
         self._assertion = _assertion
 
     def chain(
         self,
-        assertion: _ChainableAssertion[_AssertionReturnT, _AssertionsExtendReturnT],
+        assertion: Assertion[_AssertionReturnT, _AssertionsExtendReturnT],
     ) -> AssertionChain[_AssertionValueT, _AssertionsExtendReturnT]:
         """
         Extend the chain with the given assertion.
@@ -91,7 +80,7 @@ class AssertionChain(Generic[_AssertionValueT, _AssertionReturnT]):
 
     def __or__(
         self,
-        _assertion: _ChainableAssertion[_AssertionReturnT, _AssertionsExtendReturnT],
+        _assertion: Assertion[_AssertionReturnT, _AssertionsExtendReturnT],
     ) -> AssertionChain[_AssertionValueT, _AssertionsExtendReturnT]:
         return self.chain(_assertion)
 
@@ -192,7 +181,7 @@ def assert_or(
         errors = AssertionFailedGroup()
         for assertion in assertions:
             try:
-                return await assertion(value)
+                return await ensure_await(assertion(value))
             except AssertionFailed as e:
                 errors.append(e)
         raise errors
@@ -311,7 +300,7 @@ def assert_sequence(
         with AssertionFailedGroup().assert_valid() as errors:
             for value_index, value_value in enumerate(sequence):
                 with errors.catch(Index(value_index)):
-                    asserted_sequence.append(await value_assertion(value_value))
+                    asserted_sequence.append(await ensure_await(value_assertion(value_value)))
         return asserted_sequence
 
     return AssertionChain(_assert_sequence)
@@ -373,11 +362,11 @@ def assert_mapping(
                 asserted_value_key = value_key
                 if key_assertion:
                     with errors.catch(Key(value_key)):
-                        asserted_value_key = await key_assertion(value_key)
+                        asserted_value_key = await ensure_await(key_assertion(value_key))
                 asserted_value_value = value_value
                 if value_assertion:
                     with errors.catch(Key(value_key)):
-                        asserted_value_value = await value_assertion(value_value)
+                        asserted_value_value = await ensure_await(value_assertion(value_value))
                 asserted_mapping[asserted_value_key] = asserted_value_value
         return asserted_mapping
 
