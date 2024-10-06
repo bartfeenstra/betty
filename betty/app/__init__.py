@@ -11,6 +11,9 @@ from typing import TYPE_CHECKING, Self, Any, final, TypeVar, cast
 
 import aiohttp
 from aiofiles.tempfile import TemporaryDirectory
+from betty.license import License, LICENSE_REPOSITORY
+from betty.license.licenses import SpdxLicenseRepository
+from betty.plugin.proxy import ProxyPluginRepository
 from typing_extensions import override
 
 from betty import fs
@@ -30,6 +33,7 @@ from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizer import Localizer, LocalizerRepository
 
 if TYPE_CHECKING:
+    from betty.plugin import PluginRepository
     from betty.cache import Cache
     from collections.abc import AsyncIterator, Callable, Awaitable
 
@@ -63,6 +67,7 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
         self._cache_factory = cache_factory
         self._binary_file_cache: BinaryFileCache | None = None
         self._process_pool: Executor | None = None
+        self._licenses: PluginRepository[License] | None = None
 
     @classmethod
     @asynccontextmanager
@@ -224,3 +229,28 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
         if issubclass(cls, AppDependentFactory):
             return cast(_T, await cls.new_for_app(self))
         return await new(cls)
+
+    @property
+    def licenses(self) -> Awaitable[PluginRepository[License]]:
+        """
+        The licenses available to this application.
+
+        Read more about :doc:`/development/plugin/license`.
+        """
+        return self._get_licenses()
+
+    async def _get_licenses(self) -> PluginRepository[License]:
+        if self._licenses is None:
+            self.assert_bootstrapped()
+            self._licenses = ProxyPluginRepository(
+                LICENSE_REPOSITORY,
+                SpdxLicenseRepository(
+                    binary_file_cache=self.binary_file_cache.with_scope("spdx"),
+                    fetcher=await self.fetcher,
+                    localizer=await self.localizer,
+                    factory=self.new_target,
+                    process_pool=self.process_pool,
+                ),
+            )
+
+        return self._licenses

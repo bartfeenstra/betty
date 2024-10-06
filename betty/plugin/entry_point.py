@@ -2,8 +2,9 @@
 Integrates the plugin API with `distribution packages <https://packaging.python.org/en/latest/glossary/#term-Distribution-Package>`_.
 """
 
+from collections.abc import Sequence
 from importlib import metadata
-from typing import Generic, TypeVar, final, Mapping
+from typing import Generic, TypeVar, final
 
 from betty.plugin import Plugin
 from betty.plugin.lazy import LazyPluginRepositoryBase
@@ -51,10 +52,10 @@ class EntryPointPluginRepository(LazyPluginRepositoryBase[_PluginT], Generic[_Pl
         super().__init__()
         self._entry_point_group = entry_point_group
 
-    async def _load_plugins(self) -> Mapping[str, type[_PluginT]]:
-        return {
-            entry_point.name: entry_point.load()
+    async def _load_plugins(self) -> Sequence[type[_PluginT]]:
+        return [
+            entry_point.load()
             for entry_point in metadata.entry_points(
                 group=self._entry_point_group,
             )
-        }
+        ]

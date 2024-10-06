@@ -25,8 +25,6 @@ from typing import (
 )
 
 from aiofiles.tempfile import TemporaryDirectory
-from typing_extensions import override
-
 from betty import fs, event_dispatcher
 from betty.ancestry import Ancestry
 from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY
@@ -42,7 +40,6 @@ from betty.factory import TargetFactory
 from betty.hashid import hashid
 from betty.job import Context
 from betty.json.schema import Schema, JsonSchemaReference
-from betty.license import License, LICENSE_REPOSITORY
 from betty.locale.localizable import _
 from betty.locale.localizer import LocalizerRepository
 from betty.model import Entity, EntityReferenceCollectionSchema
@@ -63,8 +60,10 @@ from betty.project.url import (
 from betty.render import Renderer, SequentialRenderer, RENDERER_REPOSITORY
 from betty.string import kebab_case_to_lower_camel_case
 from betty.typing import internal
+from typing_extensions import override
 
 if TYPE_CHECKING:
+    from betty.license import License
     from betty.url import LocalizedUrlGenerator, StaticUrlGenerator
     from betty.ancestry.event_type import EventType
     from betty.machine_name import MachineName
@@ -447,22 +446,26 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
 
     async def _get_license(self) -> License:
         if self._license is None:
+            licenses = await self.licenses
             self._license = await self.new_target(
-                await self.licenses.get(self.configuration.license)
+                await licenses.get(self.configuration.license)
             )
         return self._license
 
     @property
-    def licenses(self) -> PluginRepository[License]:
+    def licenses(self) -> Awaitable[PluginRepository[License]]:
         """
-        The license available to this project.
+        The licenses available to this project.
 
         Read more about :doc:`/development/plugin/license`.
         """
+        return self._get_licenses()
+
+    async def _get_licenses(self) -> PluginRepository[License]:
         if self._licenses is None:
             self.assert_bootstrapped()
             self._licenses = ProxyPluginRepository(
-                LICENSE_REPOSITORY,
+                await self._app.licenses,
                 StaticPluginRepository(*self.configuration.licenses.plugins),
             )
 
