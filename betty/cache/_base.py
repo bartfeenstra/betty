@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Generic, Self, overload, AsyncContextManager, Literal, TypeVar
 
 from betty.cache import Cache, CacheItem, CacheItemValueSetter
-from betty.concurrent import AsynchronizedLock, LockOrchestrator
+from betty.concurrent import AsynchronizedLock, Ledger
 from typing_extensions import override
 
 _CacheItemValueCoT = TypeVar("_CacheItemValueCoT", covariant=True)
@@ -42,7 +42,7 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
         self._scopes = scopes or ()
         self._scoped_caches: MutableMapping[str, Self] = {}
         self._cache_lock = AsynchronizedLock.threading()
-        self._cache_item_lock_orchestrator = LockOrchestrator(self._cache_lock)
+        self._cache_item_lock_ledger = Ledger(self._cache_lock)
 
     @override
     def with_scope(self, scope: str) -> Self:
@@ -61,7 +61,7 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
     async def get(
         self, cache_item_id: str
     ) -> AsyncIterator[CacheItem[_CacheItemValueContraT] | None]:
-        async with self._cache_item_lock_orchestrator.orchestrate(cache_item_id):
+        async with self._cache_item_lock_ledger.ledger(cache_item_id):
             yield await self._get(cache_item_id)
 
     @abstractmethod
@@ -78,7 +78,7 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
         *,
         modified: int | float | None = None,
     ) -> None:
-        async with self._cache_item_lock_orchestrator.orchestrate(cache_item_id):
+        async with self._cache_item_lock_ledger.ledger(cache_item_id):
             await self._set(cache_item_id, value, modified=modified)
 
     @abstractmethod
@@ -122,7 +122,7 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
             CacheItemValueSetter[_CacheItemValueContraT] | None,
         ]
     ]:
-        lock = self._cache_item_lock_orchestrator.orchestrate(cache_item_id)
+        lock = self._cache_item_lock_ledger.ledger(cache_item_id)
         if await lock.acquire(wait=wait):
             try:
 
@@ -137,7 +137,7 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
 
     @override
     async def delete(self, cache_item_id: str) -> None:
-        async with self._cache_item_lock_orchestrator.orchestrate(cache_item_id):
+        async with self._cache_item_lock_ledger.ledger(cache_item_id):
             await self._delete(cache_item_id)
 
     @abstractmethod

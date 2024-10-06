@@ -144,56 +144,56 @@ class RateLimiter:
             self._available -= 1
 
 
-class _OrchestratedLock(Lock):
+class _Transaction(Lock):
     def __init__(
         self,
-        target: Hashable,
+        transaction_id: Hashable,
         orchestrator_lock: Lock,
-        identifiers: MutableMapping[Hashable, bool],
+        ledger: MutableMapping[Hashable, bool],
     ):
-        self._target = target
-        self._orchestrator_lock = orchestrator_lock
-        self._targets = identifiers
+        self._transaction_id = transaction_id
+        self._ledger_lock = orchestrator_lock
+        self._ledger = ledger
 
     @override
     async def acquire(self, *, wait: bool = True) -> bool:
         if wait:
             while True:
-                async with self._orchestrator_lock:
+                async with self._ledger_lock:
                     if self._can_acquire():
                         return self._acquire()
                 await sleep(0)
         else:
-            async with self._orchestrator_lock:
+            async with self._ledger_lock:
                 if self._can_acquire():
                     return self._acquire()
                 return False
 
     def _can_acquire(self) -> bool:
-        return not self._targets[self._target]
+        return not self._ledger[self._transaction_id]
 
     def _acquire(self) -> bool:
-        self._targets[self._target] = True
+        self._ledger[self._transaction_id] = True
         return True
 
     @override
     async def release(self) -> None:
-        self._targets[self._target] = False
+        self._ledger[self._transaction_id] = False
 
 
-class LockOrchestrator:
+class Ledger:
     """
-    Orchestrate the lazy creation of locks, using a primary orchestrator lock to guard all administrative tasks.
+    Lazily create locks by keeping a ledger.
 
-    The primary orchestrator lock is released once a orchestrated lock is acquired.
+    The ledger lock is released once a transaction lock is acquired.
     """
 
-    def __init__(self, orchestrator_lock: Lock):
-        self._orchestrator_lock = orchestrator_lock
-        self._targets: MutableMapping[Hashable, bool] = defaultdict(lambda: False)
+    def __init__(self, ledger_lock: Lock):
+        self._ledger_lock = ledger_lock
+        self._ledger: MutableMapping[Hashable, bool] = defaultdict(lambda: False)
 
-    def orchestrate(self, target: Hashable) -> Lock:
+    def ledger(self, transaction_id: Hashable) -> Lock:
         """
-        Create a new lock for the given target.
+        Ledger a new lock for the given transaction ID.
         """
-        return _OrchestratedLock(target, self._orchestrator_lock, self._targets)
+        return _Transaction(transaction_id, self._ledger_lock, self._ledger)
