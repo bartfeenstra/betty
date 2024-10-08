@@ -5,7 +5,6 @@ An API to load serializable data dumps.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -18,7 +17,7 @@ class Loadable(ABC):
     """
 
     @abstractmethod
-    def load(self, dump: Dump) -> None:
+    async def load(self, dump: Dump) -> None:
         """
         Load a serialized data dump into ``self``.
 

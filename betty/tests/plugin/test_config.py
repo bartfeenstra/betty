@@ -38,7 +38,7 @@ class TestPluginConfiguration:
             "label": "",
         }
         sut = PluginConfiguration("-", "")
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.id == plugin_id
 
     async def test_load_with_undetermined_label(self) -> None:
@@ -48,7 +48,7 @@ class TestPluginConfiguration:
             "label": label,
         }
         sut = PluginConfiguration("-", "")
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.label[UNDETERMINED_LOCALE] == label
 
     async def test_load_with_expanded_label(self) -> None:
@@ -60,7 +60,7 @@ class TestPluginConfiguration:
             },
         }
         sut = PluginConfiguration("-", "")
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.label[DEFAULT_LOCALIZER.locale] == label
 
     async def test_load_with_undetermined_description(self) -> None:
@@ -71,7 +71,7 @@ class TestPluginConfiguration:
             "description": description,
         }
         sut = PluginConfiguration("-", "")
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.description[UNDETERMINED_LOCALE] == description
 
     async def test_load_with_expanded_description(self) -> None:
@@ -84,7 +84,7 @@ class TestPluginConfiguration:
             },
         }
         sut = PluginConfiguration("-", "")
-        sut.load(dump)
+        await sut.load(dump)
         assert sut.description[DEFAULT_LOCALIZER.locale] == description
 
     async def test_dump(self) -> None:

@@ -16,12 +16,12 @@ from betty.string import camel_case_to_kebab_case
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 
 
-def assert_plugin_identifier(value: Any, plugin_type: type[_PluginT]) -> None:
+async def assert_plugin_identifier(value: Any, plugin_type: type[_PluginT]) -> None:
     """
     Assert that something is a plugin identifier.
     """
     if isinstance(value, str):
-        assert_machine_name()(value)
+        await assert_machine_name()(value)
     else:
         assert issubclass(value, plugin_type)
 
@@ -49,7 +49,7 @@ class PluginTestBase(Generic[_PluginT]):
         """
         Tests :py:meth:`betty.plugin.Plugin.plugin_id` implementations.
         """
-        assert_machine_name()(self.get_sut_class().plugin_id())
+        await assert_machine_name()(self.get_sut_class().plugin_id())
 
     async def test_plugin_label(self) -> None:
         """

@@ -18,7 +18,7 @@ class TestNew:
         configuration_file_path = project_directory_path / "betty.yaml"
         await run(app, "new", input="\n".join(inputs))
         configuration = await ProjectConfiguration.new(configuration_file_path)
-        return (await assert_configuration_file(configuration))(configuration_file_path)
+        return await assert_configuration_file(configuration)(configuration_file_path)
 
     async def test_click_command_minimal(
         self, new_temporary_app: App, tmp_path: Path

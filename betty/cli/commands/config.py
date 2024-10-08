@@ -55,7 +55,7 @@ class Config(ShorthandPluginBase, AppDependentFactory, Command):
         )
         async def config(*, locale: str) -> None:
             logger = getLogger(__name__)
-            self._app.configuration.locale = locale
+            await self._app.configuration.set_locale(locale)
             new_localizer = await self._app.localizers.get(locale)
             logger.info(
                 new_localizer._("Betty will talk to you in {locale}").format(

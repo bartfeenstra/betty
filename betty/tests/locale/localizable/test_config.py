@@ -85,12 +85,12 @@ class TestStaticTranslationsLocalizableConfiguration:
     async def test_load_without_translations_should_error(self) -> None:
         sut = StaticTranslationsLocalizableConfiguration()
         with pytest.raises(AssertionFailed):
-            sut.load({})
+            await sut.load({})
 
     async def test_load_with_single_undetermined_translation(self) -> None:
         dump = "Hello, world!"
         sut = StaticTranslationsLocalizableConfiguration()
-        sut.load(dump)
+        await sut.load(dump)
         assert sut[UNDETERMINED_LOCALE] == "Hello, world!"
 
     async def test_load_with_multiple_translations(self) -> None:
@@ -99,7 +99,7 @@ class TestStaticTranslationsLocalizableConfiguration:
             "nl-NL": "Hallo, wereld!",
         }
         sut = StaticTranslationsLocalizableConfiguration()
-        sut.load(dump)
+        await sut.load(dump)
         assert sut[DEFAULT_LOCALIZER.locale] == "Hello, world!"
         assert sut["nl-NL"] == "Hallo, wereld!"
 

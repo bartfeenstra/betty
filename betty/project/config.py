@@ -63,11 +63,7 @@ from betty.plugin.config import (
 from betty.project import extension
 from betty.project.extension import Extension, ConfigurableExtension
 from betty.repr import repr_instance
-from betty.serde.dump import (
-    Dump,
-    minimize,
-    DumpMapping,
-)
+from betty.serde.dump import Dump, minimize, DumpMapping
 from betty.serde.format import Format, format_for, FORMAT_REPOSITORY
 from betty.typing import Void, Voidable, void_none
 
@@ -148,12 +144,12 @@ class EntityReference(Configuration, Generic[_EntityT]):
         self._entity_id = other._entity_id
 
     @override
-    def load(
+    async def load(
         self,
         dump: Dump,
     ) -> None:
         if isinstance(dump, dict) or not self.entity_type_is_constrained:
-            assert_record(
+            await assert_record(
                 RequiredField(
                     "entity_type",
                     assert_plugin(model.ENTITY_TYPE_REPOSITORY)
@@ -165,8 +161,8 @@ class EntityReference(Configuration, Generic[_EntityT]):
                 ),
             )(dump)
         else:
-            assert_str()(dump)
-            assert_setattr(self, "entity_id")(dump)
+            await assert_str()(dump)
+            await assert_setattr(self, "entity_id")(dump)
 
     @override
     def dump(self) -> Voidable[DumpMapping[Dump] | str]:
@@ -203,7 +199,7 @@ class EntityReferenceSequence(
         super().__init__(entity_references)
 
     @override
-    def load_item(self, dump: Dump) -> EntityReference[_EntityT]:
+    async def load_item(self, dump: Dump) -> EntityReference[_EntityT]:
         configuration = EntityReference[_EntityT](
             # Use a dummy entity type for now to satisfy the initializer.
             # It will be overridden when loading the dump.
@@ -212,7 +208,7 @@ class EntityReferenceSequence(
             else self._entity_type_constraint,
             entity_type_is_constrained=self._entity_type_constraint is not None,
         )
-        configuration.load(dump)
+        await configuration.load(dump)
         return configuration
 
     @override
@@ -316,8 +312,8 @@ class ExtensionConfiguration(Configuration):
         self._set_extension_configuration(other._extension_configuration)
 
     @override
-    def load(self, dump: Dump) -> None:
-        assert_record(
+    async def load(self, dump: Dump) -> None:
+        await assert_record(
             RequiredField(
                 "extension",
                 assert_plugin(extension.EXTENSION_REPOSITORY)
@@ -333,10 +329,10 @@ class ExtensionConfiguration(Configuration):
     def _assert_load_extension_configuration(
         self, extension_type: type[Extension]
     ) -> Assertion[Any, Configuration]:
-        def _assertion(value: Any) -> Configuration:
+        async def _assertion(value: Any) -> Configuration:
             extension_configuration = self._extension_configuration
             if isinstance(extension_configuration, Configuration):
-                extension_configuration.load(value)
+                await extension_configuration.load(value)
                 return extension_configuration
             raise AssertionFailed(
                 _("{extension_type} is not configurable.").format(
@@ -381,12 +377,12 @@ class ExtensionConfigurationMapping(
         super().__init__(configurations)
 
     @override
-    def load_item(self, dump: Dump) -> ExtensionConfiguration:
-        fields_dump = assert_fields(
+    async def load_item(self, dump: Dump) -> ExtensionConfiguration:
+        fields_dump = await assert_fields(
             RequiredField("extension", assert_plugin(extension.EXTENSION_REPOSITORY))
         )(dump)
         configuration = ExtensionConfiguration(fields_dump["extension"])
-        configuration.load(dump)
+        await configuration.load(dump)
         return configuration
 
     @override
@@ -394,7 +390,7 @@ class ExtensionConfigurationMapping(
         return configuration.extension_type
 
     @override
-    def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
+    async def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
         item_dump["extension"] = key_dump
 
     @override
@@ -458,8 +454,8 @@ class EntityTypeConfiguration(Configuration):
         self._generate_html_list = other._generate_html_list
 
     @override
-    def load(self, dump: Dump) -> None:
-        assert_record(
+    async def load(self, dump: Dump) -> None:
+        await assert_record(
             RequiredField[Any, type[Entity]](
                 "entity_type",
                 assert_str()
@@ -503,8 +499,8 @@ class EntityTypeConfigurationMapping(
         return configuration.entity_type
 
     @override
-    def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
-        assert_plugin(model.ENTITY_TYPE_REPOSITORY)(key_dump)
+    async def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
+        await assert_plugin(model.ENTITY_TYPE_REPOSITORY)(key_dump)
         item_dump["entity_type"] = key_dump
 
     @override
@@ -512,13 +508,13 @@ class EntityTypeConfigurationMapping(
         return cast(str, item_dump.pop("entity_type"))
 
     @override
-    def load_item(self, dump: Dump) -> EntityTypeConfiguration:
+    async def load_item(self, dump: Dump) -> EntityTypeConfiguration:
         # Use a dummy entity type for now to satisfy the initializer.
         # It will be overridden when loading the dump.
         configuration = EntityTypeConfiguration(
             Entity  # type: ignore[type-abstract]
         )
-        configuration.load(dump)
+        await configuration.load(dump)
         return configuration
 
 
@@ -571,8 +567,8 @@ class LocaleConfiguration(Configuration):
         self._alias = other._alias
 
     @override
-    def load(self, dump: Dump) -> None:
-        assert_record(
+    async def load(self, dump: Dump) -> None:
+        await assert_record(
             RequiredField("locale", assert_locale() | assert_setattr(self, "_locale")),
             OptionalField("alias", assert_str() | assert_setattr(self, "alias")),
         )(dump)
@@ -618,9 +614,9 @@ class LocaleConfigurationMapping(OrderedConfigurationMapping[str, LocaleConfigur
         self._ensure_locale()
 
     @override
-    def load_item(self, dump: Dump) -> LocaleConfiguration:
+    async def load_item(self, dump: Dump) -> LocaleConfiguration:
         item = LocaleConfiguration(UNDETERMINED_LOCALE)
-        item.load(dump)
+        await item.load(dump)
         return item
 
     @override
@@ -670,9 +666,9 @@ class CopyrightNoticeConfiguration(PluginConfiguration):
         self.text.update(other.text)
 
     @override
-    def load(self, dump: Dump) -> None:
-        mapping = assert_mapping()(dump)
-        assert_fields(
+    async def load(self, dump: Dump) -> None:
+        mapping = await assert_mapping()(dump)
+        await assert_fields(
             RequiredField(
                 "summary",
                 assert_static_translations() | assert_setattr(self, "summary"),
@@ -684,7 +680,7 @@ class CopyrightNoticeConfiguration(PluginConfiguration):
         )(mapping)
         del mapping["summary"]
         del mapping["text"]
-        super().load(mapping)
+        await super().load(mapping)
 
     @override
     def dump(self) -> DumpMapping[Dump]:
@@ -724,9 +720,9 @@ class CopyrightNoticeConfigurationMapping(
         return _ProjectConfigurationCopyrightNotice
 
     @override
-    def load_item(self, dump: Dump) -> CopyrightNoticeConfiguration:
+    async def load_item(self, dump: Dump) -> CopyrightNoticeConfiguration:
         item = CopyrightNoticeConfiguration("-", "", summary="", text="")
-        item.load(dump)
+        await item.load(dump)
         return item
 
     @classmethod
@@ -764,9 +760,9 @@ class LicenseConfiguration(PluginConfiguration):
         self.text.update(other.text)
 
     @override
-    def load(self, dump: Dump) -> None:
-        mapping = assert_mapping()(dump)
-        assert_fields(
+    async def load(self, dump: Dump) -> None:
+        mapping = await assert_mapping()(dump)
+        await assert_fields(
             RequiredField(
                 "summary",
                 assert_static_translations() | assert_setattr(self, "summary"),
@@ -778,7 +774,7 @@ class LicenseConfiguration(PluginConfiguration):
         )(mapping)
         del mapping["summary"]
         del mapping["text"]
-        super().load(mapping)
+        await super().load(mapping)
 
     @override
     def dump(self) -> DumpMapping[Dump]:
@@ -814,9 +810,9 @@ class LicenseConfigurationMapping(
         return _ProjectConfigurationLicense
 
     @override
-    def load_item(self, dump: Dump) -> LicenseConfiguration:
+    async def load_item(self, dump: Dump) -> LicenseConfiguration:
         item = LicenseConfiguration("-", "", summary="", text="")
-        item.load(dump)
+        await item.load(dump)
         return item
 
     @classmethod
@@ -1060,9 +1056,11 @@ class ProjectConfiguration(Configuration):
         """
         return self._name
 
-    @name.setter
-    def name(self, name: MachineName) -> None:
-        self._name = assert_machine_name()(name)
+    async def set_name(self, name: MachineName) -> None:
+        """
+        Set :py:attr:`betty.project.config.ProjectConfiguration.name`.
+        """
+        self._name = await assert_machine_name()(name)
 
     @property
     def project_directory_path(self) -> Path:
@@ -1207,10 +1205,13 @@ class ProjectConfiguration(Configuration):
         """
         return self._lifetime_threshold
 
-    @lifetime_threshold.setter
-    def lifetime_threshold(self, lifetime_threshold: int) -> None:
-        assert_positive_number()(lifetime_threshold)
+    async def set_lifetime_threshold(self, lifetime_threshold: int) -> int:
+        """
+        Set :py:attr:`betty.project.config.ProjectConfiguration.lifetime_threshold`.
+        """
+        await assert_positive_number()(lifetime_threshold)
         self._lifetime_threshold = lifetime_threshold
+        return self.lifetime_threshold
 
     @property
     def logo(self) -> Path | None:
@@ -1293,8 +1294,8 @@ class ProjectConfiguration(Configuration):
         self._presence_roles.update(other._presence_roles)
 
     @override
-    def load(self, dump: Dump) -> None:
-        assert_record(
+    async def load(self, dump: Dump) -> None:
+        await assert_record(
             OptionalField("name", assert_str() | assert_setattr(self, "name")),
             RequiredField("url", assert_str() | assert_setattr(self, "url")),
             OptionalField("title", self.title.load),
@@ -1306,8 +1307,7 @@ class ProjectConfiguration(Configuration):
             ),
             OptionalField("debug", assert_bool() | assert_setattr(self, "debug")),
             OptionalField(
-                "lifetime_threshold",
-                assert_int() | assert_setattr(self, "lifetime_threshold"),
+                "lifetime_threshold", assert_int() | self.set_lifetime_threshold
             ),
             OptionalField("locales", self.locales.load),
             OptionalField("extensions", self.extensions.load),

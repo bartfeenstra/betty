@@ -9,11 +9,7 @@ from typing import Self, Sequence, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.assertion import (
-    assert_str,
-    assert_record,
-    OptionalField,
-)
+from betty.assertion import assert_str, assert_record, OptionalField
 from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
 from betty.locale.localizable import _
@@ -65,8 +61,8 @@ class ColorConfiguration(Configuration):
         self.hex = other.hex
 
     @override
-    def load(self, dump: Dump) -> None:
-        self._hex = (assert_str() | self._assert_hex)(dump)
+    async def load(self, dump: Dump) -> None:
+        self._hex = await assert_str().chain(self._assert_hex)(dump)
 
     @override
     def dump(self) -> Voidable[Dump]:
@@ -147,8 +143,8 @@ class CottonCandyConfiguration(Configuration):
         self.link_active_color.update(other.link_active_color)
 
     @override
-    def load(self, dump: Dump) -> None:
-        assert_record(
+    async def load(self, dump: Dump) -> None:
+        await assert_record(
             OptionalField("featured_entities", self.featured_entities.load),
             OptionalField("primary_inactive_color", self.primary_inactive_color.load),
             OptionalField("primary_active_color", self.primary_active_color.load),

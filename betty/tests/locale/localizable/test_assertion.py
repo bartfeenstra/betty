@@ -17,7 +17,7 @@ class TestAssertStaticTranslations:
         ],
     )
     async def test_with_valid_value(self, value: ShorthandStaticTranslations) -> None:
-        assert_static_translations()(value)
+        await assert_static_translations()(value)
 
     @pytest.mark.parametrize(
         "value",
@@ -39,4 +39,4 @@ class TestAssertStaticTranslations:
     )
     async def test_with_invalid_value(self, value: ShorthandStaticTranslations) -> None:
         with pytest.raises(UserFacingError):
-            assert_static_translations()(value)
+            await assert_static_translations()(value)

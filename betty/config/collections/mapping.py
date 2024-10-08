@@ -116,28 +116,34 @@ class ConfigurationMapping(
     """
 
     @abstractmethod
-    def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
+    async def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
         pass
 
     @abstractmethod
     def _dump_key(self, item_dump: DumpMapping[Dump]) -> str:
         pass
 
-    def __load_item_key(self, value_dump: DumpMapping[Dump], key_dump: str) -> Dump:
-        self._load_key(value_dump, key_dump)
+    async def __load_item_key(
+        self, value_dump: DumpMapping[Dump], key_dump: str
+    ) -> Dump:
+        await self._load_key(value_dump, key_dump)
         return value_dump
 
     @override
-    def load(self, dump: Dump) -> None:
+    async def load(self, dump: Dump) -> None:
         self.clear()
         self.replace(
-            *assert_mapping(self.load_item)(
-                {
-                    item_key_dump: self.__load_item_key(item_value_dump, item_key_dump)
-                    for item_key_dump, item_value_dump in assert_mapping(
-                        assert_mapping()
-                    )(dump).items()
-                }
+            *(
+                await assert_mapping(self.load_item)(
+                    {
+                        item_key_dump: self.__load_item_key(
+                            item_value_dump, item_key_dump
+                        )
+                        for item_key_dump, item_value_dump in (
+                            await assert_mapping(assert_mapping())(dump)
+                        ).items()
+                    }
+                )
             ).values()
         )
 
@@ -165,8 +171,8 @@ class OrderedConfigurationMapping(
     """
 
     @override
-    def load(self, dump: Dump) -> None:
-        self.replace(*assert_sequence(self.load_item)(dump))
+    async def load(self, dump: Dump) -> None:
+        self.replace(*await assert_sequence(self.load_item)(dump))
 
     @override
     def dump(self) -> Voidable[DumpSequence[Dump]]:

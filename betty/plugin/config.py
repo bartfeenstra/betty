@@ -43,7 +43,7 @@ class PluginConfiguration(Configuration):
         description: ShorthandStaticTranslations | None = None,
     ):
         super().__init__()
-        self._id = assert_machine_name()(plugin_id)
+        self._id = plugin_id
         self.label = label
         if description is not None:
             self.description = description
@@ -62,8 +62,8 @@ class PluginConfiguration(Configuration):
         self.description.update(other.description)
 
     @override
-    def load(self, dump: Dump) -> None:
-        assert_record(
+    async def load(self, dump: Dump) -> None:
+        await assert_record(
             RequiredField("id", assert_machine_name() | assert_setattr(self, "_id")),
             RequiredField("label", self.label.load),
             OptionalField("description", self.description.load),
@@ -119,7 +119,7 @@ class PluginConfigurationMapping(
         return configuration.id
 
     @override
-    def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
+    async def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
         item_dump["id"] = key_dump
 
     @override
@@ -135,9 +135,9 @@ class PluginConfigurationPluginConfigurationMapping(
     """
 
     @override
-    def load_item(self, dump: Dump) -> PluginConfiguration:
+    async def load_item(self, dump: Dump) -> PluginConfiguration:
         item = PluginConfiguration("-", "")
-        item.load(dump)
+        await item.load(dump)
         return item
 
     @classmethod

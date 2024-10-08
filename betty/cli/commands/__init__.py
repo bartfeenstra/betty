@@ -245,9 +245,9 @@ async def _read_project_configuration_file(
 ) -> None:
     localizer = await project.app.localizer
     logger = logging.getLogger(__name__)
-    assert_configuration = await assert_configuration_file(project.configuration)
+    assert_configuration = assert_configuration_file(project.configuration)
     try:
-        assert_configuration(configuration_file_path)
+        await assert_configuration(configuration_file_path)
     except UserFacingError as error:
         logger.debug(error.localize(localizer))
         raise

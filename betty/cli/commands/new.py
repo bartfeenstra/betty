@@ -125,18 +125,20 @@ class New(ShorthandPluginBase, AppDependentFactory, Command):
                 localizer._("What is your project called in {locale}?"),
             )
 
-            configuration.name = click.prompt(
-                localizer._("What is your project's machine name?"),
-                default=machinify(
-                    configuration.title.localize(
-                        await self._app.localizers.get(
-                            configuration.locales.default.locale
+            await configuration.set_name(
+                click.prompt(
+                    localizer._("What is your project's machine name?"),
+                    default=machinify(
+                        configuration.title.localize(
+                            await self._app.localizers.get(
+                                configuration.locales.default.locale
+                            )
                         )
-                    )
-                ),
-                value_proc=user_facing_error_to_bad_parameter(localizer)(
-                    assert_machine_name()
-                ),
+                    ),
+                    value_proc=user_facing_error_to_bad_parameter(localizer)(
+                        assert_machine_name()
+                    ),
+                )
             )
 
             configuration.author = _prompt_static_translations(
@@ -184,15 +186,15 @@ class New(ShorthandPluginBase, AppDependentFactory, Command):
         return new
 
 
-def _assert_project_configuration_file_path(value: Any) -> Path:
-    configuration_file_path = assert_path()(value)
+async def _assert_project_configuration_file_path(value: Any) -> Path:
+    configuration_file_path = await assert_path()(value)
     if not configuration_file_path.suffix:
         configuration_file_path /= "betty.yaml"
     return configuration_file_path
 
 
-def _assert_url(value: Any) -> str:
-    url = assert_str()(value)
+async def _assert_url(value: Any) -> str:
+    url = await assert_str()(value)
     parsed_url = urlparse(url)
     scheme = parsed_url.scheme or "http"
     return f"{scheme}://{parsed_url.netloc}{parsed_url.path}"

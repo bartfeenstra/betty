@@ -22,7 +22,7 @@ from betty.typing import internal
 
 if TYPE_CHECKING:
     from betty.locale.localizable import Localizable
-    from collections.abc import AsyncIterator, Sequence, Mapping
+    from collections.abc import AsyncIterator, Sequence, Mapping, Iterator
 
 
 class PluginError(UserFacingError):
@@ -163,6 +163,13 @@ class PluginIdToTypeMap(Generic[_PluginT]):
         self, plugin_identifier: MachineName | type[_PluginT]
     ) -> type[_PluginT]:
         return self.get(plugin_identifier)
+
+    @property
+    def types(self) -> Iterator[type[_PluginT]]:
+        """
+        Get the available plugin types.
+        """
+        yield from self._id_to_type_map.values()
 
 
 class PluginRepository(Generic[_PluginT], TargetFactory[_PluginT], ABC):

@@ -6,12 +6,7 @@ from typing import Self
 
 from typing_extensions import override
 
-from betty.assertion import (
-    OptionalField,
-    assert_record,
-    assert_bool,
-    assert_setattr,
-)
+from betty.assertion import OptionalField, assert_record, assert_bool, assert_setattr
 from betty.config import Configuration
 from betty.serde.dump import Dump, DumpMapping
 
@@ -41,8 +36,8 @@ class WikipediaConfiguration(Configuration):
         self._populate_images = other._populate_images
 
     @override
-    def load(self, dump: Dump) -> None:
-        assert_record(
+    async def load(self, dump: Dump) -> None:
+        await assert_record(
             OptionalField(
                 "populate_images",
                 assert_bool() | assert_setattr(self, "populate_images"),

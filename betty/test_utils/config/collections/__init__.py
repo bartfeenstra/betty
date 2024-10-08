@@ -63,7 +63,7 @@ class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _Configuration
         ]
         assert non_void_dumps, "At least one configuration object must return a configuration dump that is not Void"
         for dump in non_void_dumps:
-            sut.load_item(dump)
+            await sut.load_item(dump)
 
     async def test_replace_without_items(self) -> None:
         """

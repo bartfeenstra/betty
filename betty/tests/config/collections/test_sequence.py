@@ -23,8 +23,8 @@ class ConfigurationSequenceTestConfiguration(Configuration):
         pass  # pragma: no cover
 
     @override
-    def load(self, dump: Dump) -> None:
-        assert_record(
+    async def load(self, dump: Dump) -> None:
+        await assert_record(
             RequiredField("value", assert_int() | assert_setattr(self, "value")),
         )(dump)
 
@@ -61,13 +61,13 @@ class TestConfigurationSequence(
 
     async def test_load_without_items(self) -> None:
         sut = self.get_sut()
-        sut.load([])
+        await sut.load([])
         assert len(sut) == 0
 
     async def test_load_with_items(self) -> None:
         sut = self.get_sut()
         configurations = self.get_configurations()
-        sut.load([item.dump() for item in configurations])
+        await sut.load([item.dump() for item in configurations])
         assert len(sut) == len(configurations)
 
 
@@ -75,7 +75,7 @@ class ConfigurationSequenceTestConfigurationSequence(
     ConfigurationSequence[ConfigurationSequenceTestConfiguration]
 ):
     @override
-    def load_item(self, dump: Dump) -> ConfigurationSequenceTestConfiguration:
+    async def load_item(self, dump: Dump) -> ConfigurationSequenceTestConfiguration:
         configuration = ConfigurationSequenceTestConfiguration(0)
-        configuration.load(dump)
+        await configuration.load(dump)
         return configuration

@@ -47,7 +47,7 @@ class ExtensionTestBase(PluginTestBase[Extension]):
         Tests :py:meth:`betty.project.extension.Extension.depends_on` implementations.
         """
         for extension_id in self.get_sut_class().depends_on():
-            assert_plugin_identifier(
+            await assert_plugin_identifier(
                 extension_id,
                 Extension,  # type: ignore[type-abstract]
             )
@@ -57,7 +57,7 @@ class ExtensionTestBase(PluginTestBase[Extension]):
         Tests :py:meth:`betty.project.extension.Extension.comes_after` implementations.
         """
         for extension_id in self.get_sut_class().comes_after():
-            assert_plugin_identifier(
+            await assert_plugin_identifier(
                 extension_id,
                 Extension,  # type: ignore[type-abstract]
             )
@@ -67,7 +67,7 @@ class ExtensionTestBase(PluginTestBase[Extension]):
         Tests :py:meth:`betty.project.extension.Extension.comes_before` implementations.
         """
         for extension_id in self.get_sut_class().comes_before():
-            assert_plugin_identifier(
+            await assert_plugin_identifier(
                 extension_id,
                 Extension,  # type: ignore[type-abstract]
             )
@@ -104,8 +104,8 @@ class DummyConfigurableExtensionConfiguration(Configuration):
         self.check = other.check
 
     @override
-    def load(self, dump: Dump) -> None:
-        assert_record(
+    async def load(self, dump: Dump) -> None:
+        await assert_record(
             RequiredField("check", assert_bool() | assert_setattr(self, "check"))
         )(dump)
 
