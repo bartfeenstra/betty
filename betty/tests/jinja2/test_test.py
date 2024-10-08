@@ -46,7 +46,7 @@ class TestTestEntity(TemplateTestBase):
             ("false", Person, object()),
         ],
     )
-    async def test(
+    async def test___call__(
         self,
         expected: str,
         entity_type_identifier: type[Entity] | None,

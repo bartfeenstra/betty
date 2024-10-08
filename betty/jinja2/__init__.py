@@ -6,11 +6,9 @@ from __future__ import annotations
 
 import datetime
 from collections import defaultdict
-from collections.abc import (
-    Mapping,
-)
+from collections.abc import Mapping
 from threading import Lock
-from typing import Callable, Any, cast, TYPE_CHECKING, TypeAlias, final, Awaitable, Self
+from typing import Callable, Any, cast, TYPE_CHECKING, TypeAlias, final, Self
 
 import aiofiles
 from aiofiles import os as aiofiles_os
@@ -26,18 +24,18 @@ from typing_extensions import override
 
 from betty.date import Date
 from betty.html import CssProvider, JsProvider
-from betty.jinja2.filter import FILTERS
-from betty.jinja2.test import TESTS
+from betty.jinja2.filter import filters
+from betty.jinja2.test import tests
 from betty.job import Context as JobContext
 from betty.locale.localizable import Localizable, plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizer import Localizer
+from betty.model import ENTITY_TYPE_REPOSITORY
 from betty.plugin import Plugin, PluginIdToTypeMap
 from betty.project.factory import ProjectDependentFactory
 from betty.render import Renderer
 from betty.serde.dump import Dumpable, DumpMapping, Dump
 from betty.typing import Void, Voidable, internal
-from betty.model import ENTITY_TYPE_REPOSITORY
 
 if TYPE_CHECKING:
     from betty.assets import AssetRepository
@@ -48,12 +46,7 @@ if TYPE_CHECKING:
     from betty.project.config import ProjectConfiguration
     from betty.ancestry.citation import Citation
     from pathlib import Path
-    from collections.abc import (
-        MutableMapping,
-        Iterator,
-        Sequence,
-        MutableSequence,
-    )
+    from collections.abc import MutableMapping, Iterator, Sequence, MutableSequence
 
 
 def context_project(context: Context) -> Project:
@@ -246,7 +239,7 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
 
     globals: dict[str, Any]
     filters: dict[str, Callable[..., Any]]
-    tests: dict[str, Callable[..., bool | Awaitable[bool]]]  # type: ignore[assignment]
+    tests: dict[str, Callable[..., bool]]  # type: ignore[assignment]
 
     @internal
     def __init__(
@@ -255,6 +248,8 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
         extensions: Sequence[Extension],
         assets: AssetRepository,
         entity_contexts: EntityContexts,
+        filters: Mapping[str, Callable[..., Any]],
+        tests: Mapping[str, Callable[..., bool]],
     ):
         template_directory_paths = [
             str(path / "templates") for path in assets.assets_directory_paths
@@ -285,8 +280,8 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
 
         self._init_i18n()
         self._init_globals()
-        self.filters.update(FILTERS)
-        self.tests.update(TESTS)
+        self.filters.update(filters)
+        self.tests.update(tests)
         self._init_extensions()
 
     @override
@@ -298,6 +293,8 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
             list(extensions.flatten()),
             await project.assets,
             await EntityContexts.new(),
+            await filters(),
+            await tests(),
         )
 
     @property
