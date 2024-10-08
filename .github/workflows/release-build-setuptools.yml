@@ -11,9 +11,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: 'Python 3.12'
+          - name: 'Python 3.13'
             os: ubuntu-latest
-            python: '3.12'
+            python: '3.13'
     steps:
       - name: Check out the source code
         uses: actions/checkout@v4
