@@ -266,6 +266,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "filter_public_css": TestKnownToBeMissing,
         "filter_public_js": TestKnownToBeMissing,
         "filter_static_url": TestKnownToBeMissing,
+        # This is covered statically.
+        "filters": TestKnownToBeMissing,
     },
     "betty/jinja2/test.py": {
         "test_date_range": TestKnownToBeMissing,
@@ -275,6 +277,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "test_linked_data_dumpable": TestKnownToBeMissing,
         "test_start_of_life_event": TestKnownToBeMissing,
         "test_user_facing_entity": TestKnownToBeMissing,
+        # This is covered statically.
+        "tests": TestKnownToBeMissing,
     },
     "betty/job.py": {
         "Context": {
