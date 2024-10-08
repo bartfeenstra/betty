@@ -327,6 +327,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         extension_types_sorter.prepare()
 
         extensions = []
+        theme_count = 0
         while extension_types_sorter.is_active():
             extension_types_batch = extension_types_sorter.get_ready()
             extensions_batch = []
@@ -341,6 +342,8 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
                             extension_type
                         ].extension_configuration
                     )
+                if isinstance(extension, Theme):
+                    theme_count += 1
                 extensions_batch.append(extension)
                 extension_types_sorter.done(extension_type)
             extensions.append(
@@ -350,9 +353,6 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
 
         # Users may not realize no theme is enabled, and be confused by their site looking bare.
         # Warn them out of courtesy.
-        theme_count = len(
-            [extension for extension in extensions if isinstance(extension, Theme)]
-        )
         if theme_count == 0:
             logging.getLogger().warning(
                 _(
