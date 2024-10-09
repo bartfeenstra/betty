@@ -27,7 +27,7 @@ from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase
 
 
-class TestGramps(ExtensionTestBase):
+class TestGramps(ExtensionTestBase[Gramps]):
     @override
     def get_sut_class(self) -> type[Gramps]:
         return Gramps

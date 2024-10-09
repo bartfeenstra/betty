@@ -5,18 +5,18 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.ancestry.presence import Presence
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.ancestry.person import Person
+from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
-from betty.project.extension.privatizer import Privatizer
 from betty.project import Project
 from betty.project.config import ExtensionConfiguration
+from betty.project.extension.privatizer import Privatizer
 from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase
 
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from betty.app import App
 
 
-class TestPrivatizer(ExtensionTestBase):
+class TestPrivatizer(ExtensionTestBase[Privatizer]):
     @override
     def get_sut_class(self) -> type[Privatizer]:
         return Privatizer

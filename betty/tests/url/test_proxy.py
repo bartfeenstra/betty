@@ -42,7 +42,7 @@ class TestProxyLocalizedUrlGenerator:
             absolute: bool = False,
             locale: Localey | None = None,
         ) -> str:
-            raise UnsupportedResource.new(resource)
+            raise UnsupportedResource.new(resource)  # pragma: nocover
 
     @pytest.mark.parametrize(
         ("expected", "upstreams", "resource"),

@@ -58,7 +58,7 @@ def _indent_mapping_item(key: str, value: str, max_indentation: int) -> Iterator
         yield f'{" " * max_indentation}    {line}'
 
 
-async def report() -> str:
+def report() -> str:
     """
     Produce a human-readable report about the current Betty installation.
 

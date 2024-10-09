@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
 
-class TestDemo(ExtensionTestBase):
+class TestDemo(ExtensionTestBase[Demo]):
     @override
     def get_sut_class(self) -> type[Demo]:
         return Demo

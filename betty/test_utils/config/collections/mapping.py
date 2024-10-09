@@ -42,19 +42,7 @@ class ConfigurationMappingTestBase(
     A base class for testing :py:class:`betty.config.collections.mapping.ConfigurationMapping` implementations.
     """
 
-    @override
-    async def test___iter__(self) -> None:
-        configurations = self.get_configurations()
-        sut = self.get_sut(
-            [
-                configurations[0],
-                configurations[1],
-            ]
-        )
-        assert list(iter(sut)) == [
-            self.get_configuration_keys()[0],
-            self.get_configuration_keys()[1],
-        ]
+    pass
 
 
 class OrderedConfigurationMappingTestBase(
@@ -64,3 +52,5 @@ class OrderedConfigurationMappingTestBase(
     """
     A base class for testing :py:class:`betty.config.collections.mapping.OrderedConfigurationMapping` implementations.
     """
+
+    pass

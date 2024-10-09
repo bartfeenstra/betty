@@ -481,7 +481,7 @@ class _DummyConfiguration(Configuration):
 
     @override
     def dump(self) -> Voidable[Dump]:
-        return Void
+        return Void  # pragma: nocover
 
 
 class TestExtensionConfiguration:

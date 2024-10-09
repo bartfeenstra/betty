@@ -4,22 +4,34 @@ import time
 from asyncio import create_task, sleep, wait_for, gather
 
 import pytest
+from typing_extensions import override
 
-from betty.concurrent import (
-    RateLimiter,
-    asynchronize_acquire,
-    AsynchronizedLock,
-)
-from betty.test_utils.concurrent import DummyLock
+from betty.concurrent import RateLimiter, asynchronize_acquire, AsynchronizedLock, Lock
+
+
+class _LockTestDummyLock(Lock):
+    def __init__(self, acquire: bool):
+        self._acquire = acquire
+
+    @override
+    async def acquire(self, *, wait: bool = True) -> bool:
+        if self._acquire:
+            return True
+        await sleep(999999999)
+        return False  # pragma: nocover
+
+    @override
+    async def release(self) -> None:
+        pass
 
 
 class TestLock:
     async def test___aenter___and___aexit___with_acquisition(self) -> None:
-        async with DummyLock(True):
+        async with _LockTestDummyLock(True):
             pass
 
     async def test___aenter___and___aexit___without_acquisition(self) -> None:
-        sut = DummyLock(False)
+        sut = _LockTestDummyLock(False)
         with pytest.raises(asyncio.TimeoutError):
             await wait_for(sut.__aenter__(), 0.000000001)
 

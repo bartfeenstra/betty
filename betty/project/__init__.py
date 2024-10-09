@@ -207,7 +207,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
 
     async def _get_assets(self) -> AssetRepository:
         if self._assets is None:
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             asset_paths = [self.configuration.assets_directory_path]
             extensions = await self.extensions
             for extension in extensions.flatten():
@@ -228,7 +228,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
 
     async def _get_localizers(self) -> LocalizerRepository:
         if self._localizers is None:
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             self._localizers = LocalizerRepository(await self.assets)
         return self._localizers
 
@@ -241,7 +241,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
 
     async def _get_localized_url_generator(self) -> LocalizedUrlGenerator:
         if self._url_generator is None:
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             self._url_generator = await ProjectLocalizedUrlGenerator.new_for_project(
                 self
             )
@@ -256,7 +256,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
 
     async def _get_static_url_generator(self) -> StaticUrlGenerator:
         if self._static_url_generator is None:
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             self._static_url_generator = (
                 await ProjectStaticUrlGenerator.new_for_project(self)
             )
@@ -273,7 +273,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         if not self._jinja2_environment:
             from betty.jinja2 import Environment
 
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             self._jinja2_environment = await Environment.new_for_project(self)
 
         return self._jinja2_environment
@@ -287,7 +287,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
 
     async def _get_renderer(self) -> Renderer:
         if not self._renderer:
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             self._renderer = SequentialRenderer(
                 [
                     await self.new_target(plugin)
@@ -309,7 +309,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         return self._extensions
 
     async def _init_extensions(self) -> ProjectExtensions:
-        self._assert_bootstrapped()
+        self.assert_bootstrapped()
         extension_types_enabled_in_configuration = set()
         for project_extension_configuration in self.configuration.extensions.values():
             if project_extension_configuration.enabled:
@@ -368,7 +368,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         The event dispatcher.
         """
         if self._event_dispatcher is None:
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             self._event_dispatcher = EventDispatcher()
 
         return self._event_dispatcher
@@ -412,7 +412,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
 
     async def _get_copyright_notice(self) -> CopyrightNotice:
         if self._copyright_notice is None:
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             self._copyright_notice = await self.new_target(
                 await self.copyright_notices.get(self.configuration.copyright_notice)
             )
@@ -426,7 +426,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         Read more about :doc:`/development/plugin/copyright-notice`.
         """
         if self._copyright_notices is None:
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             self._copyright_notices = ProxyPluginRepository(
                 COPYRIGHT_NOTICE_REPOSITORY,
                 StaticPluginRepository(
@@ -459,7 +459,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         Read more about :doc:`/development/plugin/license`.
         """
         if self._licenses is None:
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             self._licenses = ProxyPluginRepository(
                 LICENSE_REPOSITORY,
                 StaticPluginRepository(*self.configuration.licenses.plugins),
@@ -473,7 +473,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         The event types available to this project.
         """
         if self._event_types is None:
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             self._event_types = ProxyPluginRepository(
                 EVENT_TYPE_REPOSITORY,
                 StaticPluginRepository(*self.configuration.event_types.plugins),
@@ -487,7 +487,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         The place types available to this project.
         """
         if self._place_types is None:
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             self._place_types = ProxyPluginRepository(
                 PLACE_TYPE_REPOSITORY,
                 StaticPluginRepository(*self.configuration.place_types.plugins),
@@ -501,7 +501,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         The presence roles available to this project.
         """
         if self._presence_roles is None:
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             self._presence_roles = ProxyPluginRepository(
                 PRESENCE_ROLE_REPOSITORY,
                 StaticPluginRepository(*self.configuration.presence_roles.plugins),
@@ -517,7 +517,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         Read more about :doc:`/development/plugin/gender`.
         """
         if self._genders is None:
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             self._genders = ProxyPluginRepository(
                 GENDER_REPOSITORY,
                 StaticPluginRepository(*self.configuration.genders.plugins),
