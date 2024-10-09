@@ -8,10 +8,15 @@ from asyncio import run
 from inspect import isawaitable
 from threading import Thread
 from typing import Awaitable, TypeVar, Generic, cast
+from typing_extensions import deprecated
+
+from betty.typing import internal
 
 _T = TypeVar("_T")
 
 
+@internal
+@deprecated("This function is deprecated and will be removed without an alternative.")
 def wait_to_thread(f: Awaitable[_T]) -> _T:
     """
     Wait for an awaitable in another thread.
