@@ -82,10 +82,6 @@ class Date(LinkedDataDumpableJsonLdObject):
         self.day = day
         self.fuzzy = fuzzy
 
-    @override
-    def __repr__(self) -> str:
-        return f"<{self.__class__.__module__}.{self.__class__.__name__}({self.year}, {self.month}, {self.day})>"
-
     @property
     def comparable(self) -> bool:
         """
@@ -146,12 +142,10 @@ class Date(LinkedDataDumpableJsonLdObject):
             selfish = selfish.to_range()  # type: ignore[assignment]
         return comparator(selfish, other)
 
-    def __contains__(self, other: Any) -> bool:
+    def __contains__(self, other: Datey) -> bool:
         if isinstance(other, Date):
             return self == other
-        if isinstance(other, DateRange):
-            return self in other
-        raise TypeError(f"Expected to check a {Datey}, but a {type(other)} was given")
+        return self in other
 
     def __lt__(self, other: Any) -> bool:
         return self._compare(other, operator.lt)
@@ -251,10 +245,6 @@ class DateRange(LinkedDataDumpableJsonLdObject):
         self.end = end
         self.end_is_boundary = end_is_boundary
 
-    @override
-    def __repr__(self) -> str:
-        return f"{self.__class__.__module__}.{self.__class__.__name__}({repr(self.start)}, {repr(self.end)}, start_is_boundary={repr(self.start_is_boundary)}, end_is_boundary={repr(self.end_is_boundary)})"
-
     @property
     def comparable(self) -> bool:
         """
@@ -267,13 +257,13 @@ class DateRange(LinkedDataDumpableJsonLdObject):
             and self.end.comparable
         )
 
-    def __contains__(self, other: Any) -> bool:
+    def __contains__(self, other: Datey) -> bool:
         if not self.comparable:
             return False
 
         if isinstance(other, Date):
             others = [other]
-        elif isinstance(other, DateRange):
+        else:
             if not other.comparable:
                 return False
             others = []
@@ -281,10 +271,6 @@ class DateRange(LinkedDataDumpableJsonLdObject):
                 others.append(other.start)
             if other.end is not None and other.end.comparable:
                 others.append(other.end)
-        else:
-            raise TypeError(
-                f"Expected to check a {Datey}, but a {type(other)} was given"
-            )
 
         if self.start is not None and self.end is not None:
             if isinstance(other, DateRange) and (

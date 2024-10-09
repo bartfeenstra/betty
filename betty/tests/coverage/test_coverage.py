@@ -159,17 +159,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/date.py": {
-        "Date": {
-            "__contains__": TestKnownToBeMissing,
-            "__ge__": TestKnownToBeMissing,
-            "__le__": TestKnownToBeMissing,
-        },
-        "DateRange": {
-            "__contains__": TestKnownToBeMissing,
-            "__ge__": TestKnownToBeMissing,
-            "__le__": TestKnownToBeMissing,
-            "comparable": TestKnownToBeMissing,
-        },
         # This is an empty class.
         "IncompleteDateError": TestKnownToBeMissing,
     },
