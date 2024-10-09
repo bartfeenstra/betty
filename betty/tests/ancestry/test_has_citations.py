@@ -15,6 +15,11 @@ if TYPE_CHECKING:
 
 
 class TestHasCitations:
+    async def test___init___with_citations(self) -> None:
+        citation = Citation(source=Source())
+        sut = DummyHasCitations(citations=[citation])
+        assert list(sut.citations) == [citation]
+
     async def test_citations(self) -> None:
         sut = DummyHasCitations()
         assert list(sut.citations) == []

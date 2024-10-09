@@ -105,6 +105,53 @@ class ToManyResolver(Generic[_EntityT], _Resolver[Iterable[_EntityT]]):
     pass
 
 
+class _TemporaryResolver(Generic[_T], _Resolver[_T]):
+    @override
+    def resolve(self) -> _T:
+        raise RuntimeError(
+            "This temporary resolver was supposed to be replaced. It intentionally cannot resolve itself."
+        )
+
+
+class TemporaryToZeroOrOneResolver(
+    Generic[_EntityT], _TemporaryResolver[_EntityT], ToZeroOrOneResolver[_EntityT]
+):
+    """
+    A 'temporary' to-zero-or-one resolver.
+
+    This is helpful to satisfy association requirements in multiple steps. Users **MUST** ensure that this resolver
+    is replaced by a real value, because the resolver will never be able to resolve itself.
+    """
+
+    pass
+
+
+class TemporaryToOneResolver(
+    Generic[_EntityT], _TemporaryResolver[_EntityT], ToOneResolver[_EntityT]
+):
+    """
+    A 'temporary' to-one resolver.
+
+    This is helpful to satisfy association requirements in multiple steps. Users **MUST** ensure that this resolver
+    is replaced by a real value, because the resolver will never be able to resolve itself.
+    """
+
+    pass
+
+
+class TemporaryToManyResolver(
+    Generic[_EntityT], _TemporaryResolver[_EntityT], ToManyResolver[_EntityT]
+):
+    """
+    A 'temporary' to-many resolver.
+
+    This is helpful to satisfy association requirements in multiple steps. Users **MUST** ensure that this resolver
+    is replaced by a real value, because the resolver will never be able to resolve itself.
+    """
+
+    pass
+
+
 class _Association(LinkedDataDumpableProvider[_OwnerT], Generic[_OwnerT, _AssociateT]):
     def __init__(
         self,
@@ -545,8 +592,8 @@ class BidirectionalToOne(
         self, instance: _OwnerT, value: _AssociateT | ToOneResolver[_AssociateT]
     ) -> None:
         try:
-            previous_associate = self.__get__(instance, type(instance))
-        except AssociationRequired:
+            previous_associate = getattr(self, self._internal_owner_attr_name)
+        except AttributeError:
             previous_associate = None
         if previous_associate == value:
             return

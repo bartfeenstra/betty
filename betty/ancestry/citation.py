@@ -18,9 +18,7 @@ from betty.locale.localizable import (
     ShorthandStaticTranslations,
     Localizable,
 )
-from betty.model import (
-    UserFacingEntity,
-)
+from betty.model import UserFacingEntity
 from betty.model.association import (
     BidirectionalToMany,
     BidirectionalToOne,

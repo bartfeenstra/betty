@@ -14,7 +14,7 @@ from betty.ancestry.name import Name
 from betty.ancestry.place import Place
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.locale import UNDETERMINED_LOCALE
-from betty.model.association import AssociationRequired
+from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.test_utils.ancestry.place_type import DummyPlaceType
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
@@ -39,6 +39,24 @@ class TestPlace(EntityTestBase):
         sut = Place()
         assert isinstance(sut.place_type, UnknownPlaceType)
 
+    async def test___init___with_events(self) -> None:
+        event = Event()
+        sut = Place(events=[event])
+        assert list(sut.events) == [event]
+        assert event.place is sut
+
+    async def test___init___with_enclosers(self) -> None:
+        enclosure = Enclosure(enclosee=TemporaryToOneResolver(), encloser=Place())
+        sut = Place(enclosers=[enclosure])
+        assert list(sut.enclosers) == [enclosure]
+        assert enclosure.enclosee is sut
+
+    async def test___init___with_enclosees(self) -> None:
+        enclosure = Enclosure(enclosee=Place(), encloser=TemporaryToOneResolver())
+        sut = Place(enclosees=[enclosure])
+        assert list(sut.enclosees) == [enclosure]
+        assert enclosure.encloser is sut
+
     def test___init___with_place_type(self) -> None:
         place_type = DummyPlaceType()
         sut = Place(place_type=place_type)
@@ -51,14 +69,8 @@ class TestPlace(EntityTestBase):
         assert sut.place_type is place_type
 
     async def test_events(self) -> None:
-        sut = Place(
-            id="P1",
-            names=[Name("The Place")],
-        )
-        event = Event(
-            id="1",
-            event_type=Birth(),
-        )
+        sut = Place()
+        event = Event()
         sut.events.add(event)
         assert event in sut.events
         assert sut == event.place
@@ -67,15 +79,9 @@ class TestPlace(EntityTestBase):
         assert event.place is None
 
     async def test_enclosers(self) -> None:
-        sut = Place(
-            id="P1",
-            names=[Name("The Place")],
-        )
+        sut = Place()
         assert list(sut.enclosers) == []
-        encloser = Place(
-            id="P2",
-            names=[Name("The Other Place")],
-        )
+        encloser = Place()
         enclosure = Enclosure(enclosee=sut, encloser=encloser)
         assert enclosure in sut.enclosers
         assert sut == enclosure.enclosee
@@ -85,15 +91,9 @@ class TestPlace(EntityTestBase):
             enclosure.enclosee  # noqa B018
 
     async def test_enclosees(self) -> None:
-        sut = Place(
-            id="P1",
-            names=[Name("The Place")],
-        )
+        sut = Place()
         assert list(sut.enclosees) == []
-        enclosee = Place(
-            id="P2",
-            names=[Name("The Other Place")],
-        )
+        enclosee = Place()
         enclosure = Enclosure(enclosee=enclosee, encloser=sut)
         assert enclosure in sut.enclosees
         assert sut == enclosure.encloser
@@ -103,58 +103,32 @@ class TestPlace(EntityTestBase):
             enclosure.encloser  # noqa B018
 
     async def test_walk_enclosees_without_enclosees(self) -> None:
-        sut = Place(
-            id="P1",
-            names=[Name("The Place")],
-        )
+        sut = Place()
         assert list(sut.walk_enclosees) == []
 
     async def test_walk_enclosees_with_enclosees(self) -> None:
-        sut = Place(
-            id="P1",
-            names=[Name("The Place")],
-        )
-        child_enclosee = Place(
-            id="P2",
-            names=[Name("The Other Place")],
-        )
+        sut = Place()
+        child_enclosee = Place()
         enclosure = Enclosure(child_enclosee, sut)
-        grandchild_enclosee = Place(
-            id="P2",
-            names=[Name("The Other Other Place")],
-        )
+        grandchild_enclosee = Place()
         child_enclosure = Enclosure(grandchild_enclosee, child_enclosee)
         assert list(sut.walk_enclosees) == [enclosure, child_enclosure]
 
     async def test_id(self) -> None:
         place_id = "C1"
-        sut = Place(
-            id=place_id,
-            names=[Name("one")],
-        )
+        sut = Place(id=place_id)
         assert sut.id == place_id
 
     async def test_links(self) -> None:
-        sut = Place(
-            id="P1",
-            names=[Name("The Place")],
-        )
+        sut = Place()
         assert list(sut.links) == []
 
     async def test_names(self) -> None:
-        name = Name("The Place")
-        sut = Place(
-            id="P1",
-            names=[name],
-        )
-        assert list(sut.names) == [name]
+        sut = Place()
+        assert sut.names is sut.names
 
     async def test_coordinates(self) -> None:
-        name = Name("The Place")
-        sut = Place(
-            id="P1",
-            names=[name],
-        )
+        sut = Place()
         coordinates = Point()
         sut.coordinates = coordinates
         assert sut.coordinates == coordinates

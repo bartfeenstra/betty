@@ -52,6 +52,7 @@ class FileReference(ShorthandPluginBase, Entity):
         self,
         referee: HasFileReferences & Entity | ToOneResolver[HasFileReferences & Entity],
         file: File | ToOneResolver[File],
+        *,
         focus: FocusArea | None = None,
     ):
         super().__init__()

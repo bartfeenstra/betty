@@ -15,7 +15,7 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
-from betty.model.association import AssociationRequired
+from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
@@ -34,7 +34,22 @@ class TestEvent(EntityTestBase):
         return [
             Event(),
             Event(description="My First Event"),
+            Event(
+                description="My First Event",
+                presences=[Presence(Person(), Subject(), TemporaryToOneResolver())],
+            ),
         ]
+
+    def test___init___with_place(self) -> None:
+        place = Place()
+        sut = Event(place=place)
+        assert sut.place is place
+
+    def test___init___with_presences(self) -> None:
+        presence = Presence(Person(), Subject(), TemporaryToOneResolver())
+        sut = Event(presences=[presence])
+        assert presence in sut.presences
+        assert presence.event is sut
 
     async def test_id(self) -> None:
         event_id = "E1"

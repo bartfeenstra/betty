@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TypeVar, TYPE_CHECKING
 
+import pytest
 from typing_extensions import override
 
 from betty.model import Entity, UserFacingEntity
@@ -17,6 +18,9 @@ from betty.model.association import (
     ToOneResolver,
     ToZeroOrOneResolver,
     ToManyResolver,
+    TemporaryToZeroOrOneResolver,
+    TemporaryToOneResolver,
+    TemporaryToManyResolver,
 )
 from betty.project import Project
 from betty.test_utils.json.linked_data import assert_dumps_linked_data_for
@@ -1077,3 +1081,24 @@ class TestAssociationRequired:
         association = self._Owner.associate
         owner = self._Owner()
         AssociationRequired.new(association, owner)
+
+
+class TestTemporaryToZeroOrOneResolver:
+    def test_resolve(self) -> None:
+        sut = TemporaryToZeroOrOneResolver[Entity]()
+        with pytest.raises(RuntimeError):
+            sut.resolve()
+
+
+class TestTemporaryToOneResolver:
+    def test_resolve(self) -> None:
+        sut = TemporaryToOneResolver[Entity]()
+        with pytest.raises(RuntimeError):
+            sut.resolve()
+
+
+class TestTemporaryToManyResolver:
+    def test_resolve(self) -> None:
+        sut = TemporaryToManyResolver[Entity]()
+        with pytest.raises(RuntimeError):
+            sut.resolve()
