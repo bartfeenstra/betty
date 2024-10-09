@@ -182,7 +182,7 @@ async def new_main_command(app: App) -> click.Command:
     )
     @click.version_option(
         about.version_label(),
-        message=await about.report(),
+        message=about.report(),
         prog_name="Betty",
     )
     def main_command(*args: str) -> None:

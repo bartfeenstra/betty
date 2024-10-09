@@ -95,7 +95,7 @@ Display <a href="https://www.wikipedia.org/">Wikipedia</a> summaries for resourc
 
     async def _get_retriever(self) -> _Retriever:
         if self._retriever is None:
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             return _Retriever(await self.project.app.fetcher)
         return self._retriever
 

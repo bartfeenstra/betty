@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from typing_extensions import override
 
 from betty.ancestry.link import Link
+from betty.app import App
 from betty.fetch.static import StaticFetcher
 from betty.job import Context
 from betty.project import Project
@@ -13,16 +14,20 @@ from betty.project.extension.wikipedia import Wikipedia
 from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase
 from betty.wikipedia import Summary
-from betty.app import App
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
 
-class TestWikipedia(ExtensionTestBase):
+class TestWikipedia(ExtensionTestBase[Wikipedia]):
     @override
     def get_sut_class(self) -> type[Wikipedia]:
         return Wikipedia
+
+    async def test_filters(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = await project.new_target(self.get_sut_class())
+            assert len(sut.filters)
 
     async def test_filter(self, mocker: MockerFixture, new_temporary_app: App) -> None:
         language = "en"

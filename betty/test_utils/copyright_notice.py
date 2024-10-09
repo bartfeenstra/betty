@@ -52,9 +52,9 @@ class DummyCopyrightNotice(DummyPlugin, CopyrightNotice):
     @override
     @property
     def summary(self) -> Localizable:
-        return plain("")
+        return plain("Dummy Copyright Notice Summary")  # pragma: no cover
 
     @override
     @property
     def text(self) -> Localizable:
-        return plain("")
+        return plain("Dummy Copyright Notice Text")  # pragma: no cover

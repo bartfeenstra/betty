@@ -10,11 +10,12 @@ from typing import Iterator
 
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
+from typing_extensions import override
+
 from betty.app import App
 from betty.locale.translation import (
     update_project_translations,
 )
-from typing_extensions import override
 
 
 class PotFileTestBase:
@@ -82,19 +83,19 @@ class ProjectPotFileTestBase(PotFileTestBase):
 
     @override
     def command(self) -> str:
-        return "betty update-translations"
+        return "betty update-translations"  # pragma: no cover
 
     def source_directory_path(self) -> Path | None:
         """
         The path to a source directory to include.
         """
-        return None
+        return None  # pragma: no cover
 
     def exclude_source_directory_paths(self) -> set[Path]:
         """
         The paths to any descendant source directories to exclude.
         """
-        return set()
+        return set()  # pragma: no cover
 
     @override
     def assets_directory_path(self) -> Path:
@@ -107,7 +108,7 @@ class ProjectPotFileTestBase(PotFileTestBase):
         raise NotImplementedError(repr(self))
 
     @override
-    async def update_translations(
+    async def update_translations(  # pragma: no cover
         self, output_assets_directory_path_override: Path
     ) -> None:
         async with App.new_temporary() as app, app:

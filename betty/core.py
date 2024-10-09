@@ -24,16 +24,29 @@ class CoreComponent(ABC):  # noqa B024
         self._bootstrapped = False
         self._async_exit_stack = AsyncExitStack()
 
+    @property
+    def bootstrapped(self) -> bool:
+        """
+        Whether the component has been bootstrapped.
+        """
+        return self._bootstrapped
+
     @public
-    def _assert_bootstrapped(self) -> None:
-        if not self._bootstrapped:
+    def assert_bootstrapped(self) -> None:
+        """
+        Assert that the component has been bootstrapped.
+        """
+        if not self.bootstrapped:
             message = f"{self} was not bootstrapped yet."
             warn(message, stacklevel=2)
             raise RuntimeError(message)
 
     @public
-    def _assert_not_yet_bootstrapped(self) -> None:
-        if self._bootstrapped:
+    def assert_not_bootstrapped(self) -> None:
+        """
+        Assert that the component was not bootstrapped.
+        """
+        if self.bootstrapped:
             message = f"{self} was bootstrapped already."
             warn(message, stacklevel=2)
             raise RuntimeError(message)
@@ -43,7 +56,7 @@ class CoreComponent(ABC):  # noqa B024
         """
         Bootstrap the component.
         """
-        self._assert_not_yet_bootstrapped()
+        self.assert_not_bootstrapped()
         self._bootstrapped = True
 
     @public
@@ -51,12 +64,12 @@ class CoreComponent(ABC):  # noqa B024
         """
         Shut the component down.
         """
-        self._assert_bootstrapped()
+        self.assert_bootstrapped()
         await self._async_exit_stack.aclose()
         self._bootstrapped = False
 
     def __del__(self) -> None:
-        if self._bootstrapped:
+        if self.bootstrapped:
             warn(f"{self} was bootstrapped, but never shut down.", stacklevel=2)
 
     async def __aenter__(self) -> Self:

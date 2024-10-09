@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.ancestry.presence import Presence
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
     DerivableEventType,
@@ -14,12 +13,13 @@ from betty.ancestry.event_type.event_types import (
     EndOfLifeEventType,
 )
 from betty.ancestry.person import Person
+from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import DateRange, Date
-from betty.project.extension.deriver import Deriver
 from betty.model.collections import record_added
 from betty.project import Project
 from betty.project.config import ExtensionConfiguration
+from betty.project.extension.deriver import Deriver
 from betty.project.load import load
 from betty.test_utils.ancestry.event_type import DummyEventType
 from betty.test_utils.project.extension import ExtensionTestBase
@@ -77,7 +77,7 @@ class ComesBeforeAndAfterCreatableDerivable(
     pass
 
 
-class TestDeriver(ExtensionTestBase):
+class TestDeriver(ExtensionTestBase[Deriver]):
     @override
     def get_sut_class(self) -> type[Deriver]:
         return Deriver

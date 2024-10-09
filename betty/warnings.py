@@ -12,7 +12,7 @@ class BettyDeprecationWarning(DeprecationWarning):
     Raised for deprecated Betty functionality.
     """
 
-    pass  # pragma: no cover
+    pass
 
 
 def deprecate(message: str, stacklevel: int = 1):

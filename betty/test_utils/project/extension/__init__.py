@@ -2,7 +2,7 @@
 Test utilities for :py:mod:`betty.project.extension`.
 """
 
-from typing import Self
+from typing import Self, TypeVar, Generic
 
 from typing_extensions import override
 
@@ -20,8 +20,10 @@ from betty.test_utils.plugin import (
 )
 from betty.typing import Voidable
 
+_ExtensionT = TypeVar("_ExtensionT", bound=Extension)
 
-class ExtensionTestBase(PluginTestBase[Extension]):
+
+class ExtensionTestBase(Generic[_ExtensionT], PluginTestBase[_ExtensionT]):
     """
     A base class for testing :py:class:`betty.project.extension.Extension` implementations.
     """

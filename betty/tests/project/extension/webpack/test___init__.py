@@ -40,12 +40,22 @@ class TestPrebuiltAssetsRequirement:
             fs.PREBUILT_ASSETS_DIRECTORY_PATH = original_prebuilt_assets_directory_path
 
 
-class TestWebpack(ExtensionTestBase):
+class TestWebpack(ExtensionTestBase[Webpack]):
     _SENTINEL = "s3nt1n3l"
 
     @override
     def get_sut_class(self) -> type[Webpack]:
         return Webpack
+
+    async def test_filters(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = await project.new_target(self.get_sut_class())
+            assert len(sut.filters)
+
+    async def test_public_css_paths(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = await project.new_target(self.get_sut_class())
+            assert len(sut.public_css_paths)
 
     async def test_generate_with_npm(
         self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path

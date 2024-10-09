@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import Iterator, TYPE_CHECKING
 
 import pytest
+from typing_extensions import override
 
-from betty.ancestry.presence import Presence
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
@@ -19,22 +19,28 @@ from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.place import Place
+from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import (
     Subject,
     Unknown as UnknownPresenceRole,
 )
-from betty.privacy import Privacy
 from betty.ancestry.source import Source
 from betty.date import Datey, Date, DateRange
+from betty.model import GeneratedEntityId
+from betty.privacy import Privacy
+from betty.project import Project
+from betty.project.config import DEFAULT_LIFETIME_THRESHOLD
 from betty.project.extension.cotton_candy import (
     person_timeline_events,
     associated_file_references,
+    CottonCandy,
 )
-from betty.model import GeneratedEntityId
-from betty.project.config import DEFAULT_LIFETIME_THRESHOLD
 from betty.test_utils.model import DummyEntity
+from betty.test_utils.project.extension import ExtensionTestBase
+from betty.test_utils.project.extension.webpack import WebpackEntryPointProviderTestBase
 
 if TYPE_CHECKING:
+    from betty.app import App
     from betty.ancestry.event_type import EventType
     from betty.ancestry.presence_role import PresenceRole
 
@@ -356,3 +362,21 @@ class TestAssociatedFileReferences:
         assert [
             file_reference.file for file_reference in associated_file_references(place)
         ] == [file1, file2, file3, file4]
+
+
+class TestCottonCandy(
+    WebpackEntryPointProviderTestBase, ExtensionTestBase[CottonCandy]
+):
+    @override
+    def get_sut_class(self) -> type[CottonCandy]:
+        return CottonCandy
+
+    async def test_filters(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = await project.new_target(self.get_sut_class())
+            assert len(sut.filters)
+
+    async def test_public_css_paths(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = await project.new_target(self.get_sut_class())
+            assert len(sut.public_css_paths)

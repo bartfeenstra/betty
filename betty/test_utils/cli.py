@@ -4,9 +4,10 @@ Test utilities for :py:mod:`betty.cli`.
 
 from typing import IO, Any
 
+from asyncclick.testing import Result, CliRunner
+
 from betty.app import App
 from betty.cli import new_main_command
-from asyncclick.testing import Result, CliRunner
 
 
 async def run(
@@ -22,14 +23,11 @@ async def run(
     result = await runner.invoke(
         await new_main_command(app), args, catch_exceptions=False, input=input
     )
-    if result.exit_code != expected_exit_code:
-        raise AssertionError(
-            f"""
+    assert result.exit_code == expected_exit_code, f"""
 The Betty command `{" ".join(args)}` unexpectedly exited with code {result.exit_code}, but {expected_exit_code} was expected.
 Stdout:
 {result.stdout}
 Stderr:
 {result.stderr}
 """
-        )
     return result

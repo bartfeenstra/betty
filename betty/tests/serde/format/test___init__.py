@@ -21,11 +21,11 @@ from betty.typing import Voidable
 class _Format(ShorthandPluginBase, Format):
     @override
     def load(self, dump: str) -> Dump:
-        return None
+        return None  # pragma: nocover
 
     @override
     def dump(self, dump: Voidable[Dump]) -> str:
-        return ""
+        return ""  # pragma: nocover
 
 
 class FormatOne(_Format):

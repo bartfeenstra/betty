@@ -6,7 +6,7 @@ This module is internal.
 
 from __future__ import annotations
 
-from abc import abstractmethod, ABC
+from abc import abstractmethod
 from pathlib import Path
 from typing import TYPE_CHECKING, final, Self
 
@@ -72,7 +72,7 @@ async def _prebuild_webpack_assets() -> None:
                 await webpack.prebuild(job_context=job_context)
 
 
-class WebpackEntryPointProvider(ABC):
+class WebpackEntryPointProvider(Extension):
     """
     An extension that provides Webpack entry points.
     """

@@ -93,7 +93,8 @@ class TestRequirementCollection:
         requirement_1 = _MetRequirement()
         requirement_2 = _MetRequirement()
         assert _RequirementCollection(
-            _RequirementCollection(requirement_1), requirement_2
+            _ReduceToRequirementCollectionRequirementCollection(requirement_1),
+            requirement_2,
         ).reduce() == _RequirementCollection(requirement_1, requirement_2)
 
 
@@ -101,6 +102,16 @@ class _RequirementCollection(RequirementCollection):
     @override
     def is_met(self) -> bool:
         return True  # pragma: no cover
+
+    @override
+    def summary(self) -> Localizable:
+        return static("Lorem ipsum")
+
+
+class _ReduceToRequirementCollectionRequirementCollection(_RequirementCollection):
+    @override
+    def reduce(self) -> Requirement | None:
+        return _RequirementCollection(*self._requirements)
 
     @override
     def summary(self) -> Localizable:
@@ -165,3 +176,10 @@ class TestAllRequirements:
 
     async def test_summary(self) -> None:
         assert (AllRequirements().summary()).localize(DEFAULT_LOCALIZER)
+
+
+class TestRequirementError:
+    def test_requirement(self) -> None:
+        requirement = _UnmetRequirement()
+        sut = RequirementError(requirement)
+        assert sut.requirement() is requirement

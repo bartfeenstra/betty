@@ -56,26 +56,12 @@ _ModuleIgnore = _ModuleExistsIgnore | type[TestKnownToBeMissing]
 # This baseline MUST NOT be extended. It SHOULD decrease in size as more coverage is added to Betty over time.
 _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/__init__.py": TestKnownToBeMissing,
-    "betty/about.py": {
-        "is_development": TestKnownToBeMissing,
-        "is_stable": TestKnownToBeMissing,
-        "report": TestKnownToBeMissing,
-    },
     "betty/assets.py": {
         "AssetRepository": {
             "__len__": TestKnownToBeMissing,
             "clear": TestKnownToBeMissing,
             "paths": TestKnownToBeMissing,
             "prepend": TestKnownToBeMissing,
-        },
-    },
-    "betty/app/__init__.py": {
-        "App": {
-            "assets": TestKnownToBeMissing,
-            "binary_file_cache": TestKnownToBeMissing,
-            "cache": TestKnownToBeMissing,
-            "localizers": TestKnownToBeMissing,
-            "process_pool": TestKnownToBeMissing,
         },
     },
     "betty/app/config.py": {
@@ -117,7 +103,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "CacheItem": TestKnownToBeMissing,
     },
     "betty/cache/_base.py": TestKnownToBeMissing,
-    "betty/core.py": TestKnownToBeMissing,
     "betty/cli/__init__.py": {
         "ContextAppObject": TestKnownToBeMissing,
         "ctx_app_object": TestKnownToBeMissing,
@@ -231,9 +216,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/fetch/static.py": TestKnownToBeMissing,
-    "betty/functools.py": {
-        "filter_suppress": TestKnownToBeMissing,
-    },
     "betty/gramps/error.py": TestKnownToBeMissing,
     "betty/gramps/loader.py": {
         # This is checked statically.
@@ -279,11 +261,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "test_user_facing_entity": TestKnownToBeMissing,
         # This is covered statically.
         "tests": TestKnownToBeMissing,
-    },
-    "betty/job.py": {
-        "Context": {
-            "cache": TestKnownToBeMissing,
-        },
     },
     "betty/json/linked_data.py": TestKnownToBeMissing,
     "betty/locale/__init__.py": {
@@ -473,7 +450,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/project/extension/cotton_candy/__init__.py": {
         "person_descendant_families": TestKnownToBeMissing,
         "person_timeline_events": TestKnownToBeMissing,
-        "CottonCandy": TestKnownToBeMissing,
     },
     "betty/project/extension/cotton_candy/config.py": {
         "CottonCandyConfiguration": {
@@ -500,24 +476,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "family_trees": TestKnownToBeMissing,
         },
     },
-    "betty/project/extension/http_api_doc/__init__.py": {
-        "HttpApiDoc": {
-            "webpack_entry_point_cache_keys": TestKnownToBeMissing,
-        },
-    },
-    "betty/project/extension/maps/__init__.py": {
-        "Maps": {
-            "webpack_entry_point_cache_keys": TestKnownToBeMissing,
-        },
-    },
     "betty/project/extension/privatizer/__init__.py": {
         "Privatizer": {
             "privatize": TestKnownToBeMissing,
-        },
-    },
-    "betty/project/extension/trees/__init__.py": {
-        "Trees": {
-            "webpack_entry_point_cache_keys": TestKnownToBeMissing,
         },
     },
     "betty/project/extension/webpack/__init__.py": {
@@ -525,9 +486,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "summary": TestKnownToBeMissing,
         },
         "Webpack": {
-            "filters": TestKnownToBeMissing,
             "new_context_vars": TestKnownToBeMissing,
-            "public_css_paths": TestKnownToBeMissing,
         },
         # This is an interface.
         "WebpackEntryPointProvider": TestKnownToBeMissing,
@@ -537,11 +496,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/project/extension/webpack/jinja2/__init__.py": TestKnownToBeMissing,
     "betty/project/extension/webpack/jinja2/filter.py": TestKnownToBeMissing,
-    "betty/project/extension/wikipedia/__init__.py": {
-        "Wikipedia": {
-            "filters": TestKnownToBeMissing,
-        },
-    },
     "betty/project/extension/wikipedia/config.py": {
         "WikipediaConfiguration": {
             "populate_images": TestKnownToBeMissing,
@@ -559,12 +513,15 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/repr.py": TestKnownToBeMissing,
     "betty/requirement.py": {
         "Requirement": {
+            # This is an abstract method.
             "details": TestKnownToBeMissing,
+            # This is an abstract method.
             "is_met": TestKnownToBeMissing,
+            # This is an abstract method.
             "reduce": TestKnownToBeMissing,
+            # This is an abstract method.
             "summary": TestKnownToBeMissing,
         },
-        "RequirementError": TestKnownToBeMissing,
     },
     "betty/serde/__init__.py": {
         # This is an interface.
@@ -616,7 +573,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         # This is an empty class.
         "UnsupportedResource": TestKnownToBeMissing,
     },
-    "betty/warnings.py": TestKnownToBeMissing,
+    "betty/warnings.py": {
+        # This is an empty class.
+        "BettyDeprecationWarning": TestKnownToBeMissing,
+    },
     "betty/wikipedia/__init__.py": {
         # This is a dataclass.
         "Image": TestKnownToBeMissing,
@@ -902,7 +862,9 @@ class _ModuleClassCoverageTester:
         self._ignore = ignore
 
     async def test(self) -> AsyncIterable[str]:
-        expected_test_class_name = f"Test{self._src_class.__name__}"
+        expected_test_class_name = (
+            f"Test{self._src_class.__name__[0].upper()}{self._src_class.__name__[1:]}"
+        )
 
         if expected_test_class_name in self._test_classes:
             if self._ignore is TestKnownToBeMissing:

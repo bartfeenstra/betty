@@ -108,7 +108,7 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
         The assets file system.
         """
         if self._assets is None:
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             self._assets = AssetRepository(fs.ASSETS_DIRECTORY_PATH)
         return self._assets
 
@@ -121,7 +121,7 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
 
     async def _get_localizer(self) -> Localizer:
         if self._localizer is None:
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             self._localizer = await self.localizers.get_negotiated(
                 self.configuration.locale or DEFAULT_LOCALE
             )
@@ -133,7 +133,7 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
         The available localizers.
         """
         if self._localizers is None:
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             self._localizers = LocalizerRepository(self.assets)
         return self._localizers
 
@@ -146,7 +146,7 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
 
     async def _get_http_client(self) -> aiohttp.ClientSession:
         if self._http_client is None:
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             self._http_client = aiohttp.ClientSession(
                 connector=aiohttp.TCPConnector(limit_per_host=5),
                 headers={
@@ -165,7 +165,7 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
 
     async def _get_fetcher(self) -> Fetcher:
         if self._fetcher is None:
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             self._fetcher = http.HttpFetcher(
                 await self.http_client,
                 self.cache.with_scope("fetch"),
@@ -179,7 +179,7 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
         The cache.
         """
         if self._cache is None:
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             self._cache = self._cache_factory(self)
         return self._cache
 
@@ -189,7 +189,7 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
         The binary file cache.
         """
         if self._binary_file_cache is None:
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             self._binary_file_cache = BinaryFileCache(self._cache_directory_path)
         return self._binary_file_cache
 
@@ -201,7 +201,7 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
         Use this to run CPU/computationally-heavy tasks in other processes.
         """
         if self._process_pool is None:
-            self._assert_bootstrapped()
+            self.assert_bootstrapped()
             # Avoid `fork` so as not to start worker processes with unneeded resources.
             # Settle for `spawn` so all environments use the same start method.
             self._process_pool = ProcessPoolExecutor(mp_context=get_context("spawn"))

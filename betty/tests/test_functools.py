@@ -3,7 +3,7 @@ from typing import Any, TypeVar
 
 import pytest
 
-from betty.functools import Do, passthrough, unique
+from betty.functools import Do, passthrough, unique, filter_suppress
 
 _T = TypeVar("_T")
 
@@ -120,3 +120,14 @@ class TestPassthrough:
     def test(self) -> None:
         value = object()
         assert passthrough(value) is value
+
+
+class TestFilterSuppress:
+    def test(self) -> None:
+        def _raising_filter(value: int) -> None:
+            if value % 2 > 0:
+                raise ValueError
+
+        assert list(
+            filter_suppress(_raising_filter, ValueError, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+        ) == [0, 2, 4, 6, 8]

@@ -2,14 +2,14 @@ import aiofiles
 from typing_extensions import override
 
 from betty.app import App
-from betty.project.extension.maps import Maps
 from betty.project import Project
 from betty.project.config import ExtensionConfiguration
+from betty.project.extension.maps import Maps
 from betty.project.generate import generate
-from betty.test_utils.project.extension import ExtensionTestBase
+from betty.test_utils.project.extension.webpack import WebpackEntryPointProviderTestBase
 
 
-class TestMaps(ExtensionTestBase):
+class TestMaps(WebpackEntryPointProviderTestBase):
     @override
     def get_sut_class(self) -> type[Maps]:
         return Maps
