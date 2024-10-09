@@ -488,7 +488,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         # This is an empty class.
         "PostLoadAncestryEvent": TestKnownToBeMissing,
     },
-    "betty/render.py": TestKnownToBeMissing,
+    "betty/render.py": {
+        # This is an abstract class.
+        "Renderer": TestKnownToBeMissing,
+    },
     "betty/repr.py": TestKnownToBeMissing,
     "betty/requirement.py": {
         "Requirement": {
