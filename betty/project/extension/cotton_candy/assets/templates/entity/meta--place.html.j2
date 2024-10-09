@@ -2,7 +2,7 @@
 {%- set embedded = embedded | default(False) -%}
 {%- set place_context = entity_contexts['place'] -%}
 {%- macro _encloser_place_label(place) -%}
-    {%- set encloser_enclosure = place.enclosers | negotiate_dateds(date_context | default(none)) -%}
+    {%- set encloser_enclosure = place.enclosers | negotiate_has_dates(date_context | default(none)) -%}
     {%- if encloser_enclosure is not none and (place_context is none or place_context != encloser_enclosure.encloser) -%}
         {%- with place=encloser_enclosure.encloser -%}
             {%- include 'entity/label--place.html.j2' -%}

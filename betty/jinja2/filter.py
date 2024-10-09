@@ -474,8 +474,11 @@ def filter_negotiate_localizeds(
     Try to find an object whose locale matches the context's current locale.
     """
     from betty.jinja2 import context_localizer
+    from betty.locale import localized
 
-    return negotiate_localizeds(context_localizer(context).locale, list(localizeds))
+    return localized.negotiate_localizeds(
+        context_localizer(context).locale, list(localizeds)
+    )
 
 
 @pass_context
@@ -529,27 +532,27 @@ def filter_select_localizeds(
 
 
 @pass_context
-def filter_negotiate_dateds(
-    context: Context, dateds: Iterable[HasDate], date: Datey | None
+def filter_negotiate_has_dates(
+    context: Context, has_dates: Iterable[HasDate], date: Datey | None
 ) -> HasDate | None:
     """
     Try to find an object whose date falls in the given date.
 
-    :param date: A date to select by. If None, then today's date is used.
+    :param date: A date to select by. If ``None``, then today's date is used.
     """
     with suppress(StopIteration):
-        return next(filter_select_has_dates(context, dateds, date))
+        return next(filter_select_has_dates(context, has_dates, date))
     return None
 
 
 @pass_context
 def filter_select_has_dates(
-    context: Context, dateds: Iterable[HasDate], date: Datey | None
+    context: Context, has_dates: Iterable[HasDate], date: Datey | None
 ) -> Iterator[HasDate]:
     """
     Select all objects whose date falls in the given date.
 
-    :param date: A date to select by. If None, then today's date is used.
+    :param date: A date to select by. If ``None``, then today's date is used.
     """
     if date is None:
         date = context.resolve_or_missing("today")
@@ -557,7 +560,7 @@ def filter_select_has_dates(
         lambda dated: dated.date is None
         or dated.date.comparable
         and dated.date in date,
-        dateds,
+        has_dates,
     )
 
 
@@ -612,7 +615,7 @@ async def filters() -> Mapping[str, Callable[..., Any]]:
         "localized_url": filter_localized_url,
         "map": filter_map,
         "minimize": minimize,
-        "negotiate_dateds": filter_negotiate_dateds,
+        "negotiate_has_dates": filter_negotiate_has_dates,
         "negotiate_localizeds": filter_negotiate_localizeds,
         "none_void": none_void,
         "paragraphs": filter_paragraphs,

@@ -21,7 +21,7 @@ In addition to Jinja2's built-in filters, Betty provides the following:
 - :py:func:`localized_url <betty.jinja2.filter.filter_localized_url>`
 - :py:func:`map <betty.jinja2.filter.filter_map>`
 - :py:func:`minimize <betty.serde.dump.minimize>`
-- :py:func:`negotiate_dateds <betty.jinja2.filter.filter_negotiate_dateds>`
+- :py:func:`negotiate_has_dates <betty.jinja2.filter.filter_negotiate_has_dates>`
 - :py:func:`negotiate_localizeds <betty.jinja2.filter.filter_negotiate_localizeds>`
 - :py:func:`none_void <betty.typing.none_void>`
 - :py:func:`paragraphs <betty.jinja2.filter.filter_paragraphs>`

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from betty.locale.localizable import Localizable, plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.model import Entity
+from betty.model import Entity, UserFacingEntity
 from betty.test_utils.plugin import DummyPlugin, PluginTestBase
 from typing_extensions import override
 from typing import TYPE_CHECKING
@@ -43,10 +43,18 @@ class EntityTestBase(PluginTestBase[Entity]):
 
 class DummyEntity(DummyPlugin, Entity):
     """
-    A dummy plugin implementation.
+    A dummy entity.
     """
 
     @override
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
         return plain(cls.__name__)
+
+
+class DummyUserFacingEntity(UserFacingEntity, DummyEntity):
+    """
+    A dummy user-facing entity.
+    """
+
+    pass

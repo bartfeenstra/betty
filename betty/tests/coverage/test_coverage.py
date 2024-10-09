@@ -239,26 +239,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Environment": TestKnownToBeMissing,
     },
     "betty/jinja2/filter.py": {
-        "filter_hashid": TestKnownToBeMissing,
-        "filter_json": TestKnownToBeMissing,
-        "filter_localize": TestKnownToBeMissing,
-        "filter_localized_url": TestKnownToBeMissing,
-        "filter_negotiate_dateds": TestKnownToBeMissing,
-        "filter_negotiate_localizeds": TestKnownToBeMissing,
-        "filter_public_css": TestKnownToBeMissing,
-        "filter_public_js": TestKnownToBeMissing,
-        "filter_static_url": TestKnownToBeMissing,
         # This is covered statically.
         "filters": TestKnownToBeMissing,
     },
     "betty/jinja2/test.py": {
-        "test_date_range": TestKnownToBeMissing,
-        "test_end_of_life_event": TestKnownToBeMissing,
-        "test_has_file_references": TestKnownToBeMissing,
-        "test_has_links": TestKnownToBeMissing,
-        "test_linked_data_dumpable": TestKnownToBeMissing,
-        "test_start_of_life_event": TestKnownToBeMissing,
-        "test_user_facing_entity": TestKnownToBeMissing,
         # This is covered statically.
         "tests": TestKnownToBeMissing,
     },
