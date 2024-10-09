@@ -18,7 +18,6 @@ from betty.error import UserFacingError
 from betty.factory import TargetFactory, Factory, new
 from betty.locale.localizable import _, join, do_you_mean
 from betty.machine_name import MachineName
-from betty.typing import internal
 
 if TYPE_CHECKING:
     from betty.locale.localizable import Localizable
@@ -75,7 +74,6 @@ class Plugin(ABC):
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 
 
-@internal
 class ShorthandPluginBase(Plugin):
     """
     Allow shorthand declaration of plugins.

@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from betty.typing import internal, public, none_void, Void, void_none, Voidable
+from betty.typing import internal, public, none_void, Void, void_none, Voidable, private
 
 
 class TestInternal:
@@ -21,6 +21,17 @@ class TestPublic:
         sentinel = object()
 
         @public
+        def _target() -> object:
+            return sentinel
+
+        assert _target() is sentinel
+
+
+class TestPrivate:
+    def test(self) -> None:
+        sentinel = object()
+
+        @private
         def _target() -> object:
             return sentinel
 

@@ -101,7 +101,6 @@ class Index:
     Build search indexes.
     """
 
-    @internal
     def __init__(
         self,
         ancestry: Ancestry,

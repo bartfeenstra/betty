@@ -35,7 +35,7 @@ from betty.plugin import Plugin, PluginIdToTypeMap
 from betty.project.factory import ProjectDependentFactory
 from betty.render import Renderer
 from betty.serde.dump import Dumpable, DumpMapping, Dump
-from betty.typing import Void, Voidable, internal
+from betty.typing import Void, Voidable, private
 
 if TYPE_CHECKING:
     from betty.assets import AssetRepository
@@ -241,7 +241,7 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
     filters: dict[str, Callable[..., Any]]
     tests: dict[str, Callable[..., bool]]  # type: ignore[assignment]
 
-    @internal
+    @private
     def __init__(
         self,
         project: Project,

@@ -42,6 +42,19 @@ def public(target: _T) -> _T:
     return target
 
 
+def private(target: _T) -> _T:
+    """
+    Mark a target as private to its containing scope.
+
+    This is intended for items that cannot be marked private by prefixing their names with an underscore.
+    """
+    target.__doc__ = append(
+        target.__doc__ or "",
+        "This is private. It **MUST NOT** be used anywhere outside its containing scope.",
+    )
+    return target
+
+
 class Void:
     """
     A sentinel that describes the absence of a value.

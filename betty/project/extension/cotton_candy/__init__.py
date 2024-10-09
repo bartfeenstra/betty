@@ -40,7 +40,7 @@ from betty.project.extension.maps import Maps
 from betty.project.extension.trees import Trees
 from betty.project.extension.webpack import Webpack, WebpackEntryPointProvider
 from betty.project.generate import GenerateSiteEvent
-from betty.typing import internal
+from betty.typing import private
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -125,7 +125,7 @@ class CottonCandy(
     _plugin_label = static("Cotton Candy")
     _plugin_description = _("Cotton Candy is Betty's default theme.")
 
-    @internal
+    @private
     def __init__(self, project: Project, public_css_paths: Sequence[str]):
         super().__init__(project)
         self._public_css_paths = public_css_paths
