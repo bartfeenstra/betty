@@ -13,7 +13,7 @@ from betty import model
 from betty.media_type.media_types import HTML, JSON, JSON_LD
 from betty.project.factory import ProjectDependentFactory
 from betty.string import camel_case_to_kebab_case
-from betty.typing import internal
+from betty.typing import private
 from betty.url import (
     generate_from_path,
     LocalizedUrlGenerator as StdLocalizedUrlGenerator,
@@ -212,7 +212,7 @@ class LocalizedUrlGenerator(StdLocalizedUrlGenerator, ProjectDependentFactory):
     Generate URLs for all resources provided by a Betty project.
     """
 
-    @internal
+    @private
     def __init__(
         self,
         *upstreams: StdLocalizedUrlGenerator,

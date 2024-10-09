@@ -15,8 +15,8 @@ from betty.locale.localizable import Localizable, _, call
 from betty.plugin import Plugin, PluginRepository, PluginIdentifier, PluginIdToTypeMap
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.project.factory import ProjectDependentFactory
-from betty.typing import internal
 from betty.requirement import AllRequirements
+from betty.typing import private
 
 if TYPE_CHECKING:
     from betty.event_dispatcher import EventHandlerRegistry
@@ -113,7 +113,7 @@ class Extension(Plugin, CoreComponent, ProjectDependentFactory):
 
         This defaults to the extension's dependencies.
         """
-        return await Dependencies.new(cls)  # type: ignore[no-any-return]
+        return await Dependencies.new(cls)
 
     @classmethod
     def assets_directory_path(cls) -> Path | None:
@@ -224,7 +224,7 @@ class Dependencies(AllRequirements):
     Check a dependent's dependency requirements.
     """
 
-    @internal
+    @private
     def __init__(
         self,
         dependent: type[Extension],

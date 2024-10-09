@@ -34,7 +34,7 @@ from betty.requirement import (
     AnyRequirement,
     RequirementError,
 )
-from betty.typing import internal
+from betty.typing import internal, private
 
 if TYPE_CHECKING:
     from betty.event_dispatcher import EventHandlerRegistry
@@ -138,7 +138,7 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
     _plugin_id = "webpack"
     _plugin_label = static("Webpack")
 
-    @internal
+    @private
     def __init__(self, project: Project, public_css_paths: Sequence[str]):
         super().__init__(project)
         self._public_css_paths = public_css_paths
