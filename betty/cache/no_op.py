@@ -13,11 +13,13 @@ from typing import (
     overload,
     Literal,
     TYPE_CHECKING,
+    final,
 )
 
 from typing_extensions import override
 
 from betty.cache import CacheItem, Cache, CacheItemValueSetter
+from betty.typing import threadsafe
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -49,6 +51,8 @@ class _NoOpGetSet:
         return
 
 
+@final
+@threadsafe
 class NoOpCache(Cache[Any]):
     """
     Provide a cache that does nothing.

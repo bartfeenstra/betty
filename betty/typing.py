@@ -55,6 +55,17 @@ def private(target: _T) -> _T:
     return target
 
 
+def threadsafe(target: _T) -> _T:
+    """
+    Mark a target as thread-safe.
+    """
+    target.__doc__ = append(
+        target.__doc__ or "",
+        "This is thread-safe, which means you can safely use this between different threads.",
+    )
+    return target
+
+
 class Void:
     """
     A sentinel that describes the absence of a value.
