@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
+from typing_extensions import override
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.has_file_references import HasFileReferences
@@ -13,6 +14,7 @@ from betty.jinja2 import Jinja2Renderer, _Citer, Jinja2Provider, EntityContexts
 from betty.project import Project
 from betty.test_utils.assets.templates import TemplateTestBase
 from betty.test_utils.model import DummyEntity
+from betty.test_utils.plugin import PluginTestBase
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -36,7 +38,11 @@ class TestJinja2Provider:
         assert isinstance(sut.new_context_vars(), dict)
 
 
-class TestJinja2Renderer:
+class TestJinja2Renderer(PluginTestBase[Jinja2Renderer]):
+    @override
+    def get_sut_class(self) -> type[Jinja2Renderer]:
+        return Jinja2Renderer
+
     async def test_render_file(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = Jinja2Renderer(

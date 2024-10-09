@@ -1,5 +1,5 @@
 """
-Provide testing utilities for locale functionality.
+Test utilities for :py:mod:`betty.locale`.
 """
 
 from __future__ import annotations

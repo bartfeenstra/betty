@@ -5,10 +5,9 @@ from typing import Any, Iterable, TYPE_CHECKING
 
 import pytest
 
-from betty.ancestry.file_reference import FileReference
 from betty.ancestry.file import File
-from betty.ancestry.has_file_references import HasFileReferences
-from betty.date import Datey, Date, DateRange
+from betty.ancestry.file_reference import FileReference
+from betty.date import Date, DateRange, Datey
 from betty.fs import ASSETS_DIRECTORY_PATH
 from betty.locale import (
     NO_LINGUISTIC_CONTENT,
@@ -17,19 +16,34 @@ from betty.locale import (
     UNCODED_LOCALE,
     DEFAULT_LOCALE,
 )
-from betty.locale.localizable import StaticTranslationsLocalizable
+from betty.locale.localizable import StaticTranslationsLocalizable, plain
 from betty.locale.localized import Localized, LocalizedStr
 from betty.media_type import MediaType
 from betty.test_utils.ancestry.date import DummyHasDate
 from betty.test_utils.assets.templates import TemplateTestBase
-from betty.test_utils.model import DummyEntity
+from betty.test_utils.locale.localized import DummyLocalized
+from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 
 if TYPE_CHECKING:
     from collections.abc import Sequence, MutableMapping
 
 
-class DummyHasFileReferencesEntity(HasFileReferences, DummyEntity):
-    pass
+class _DummyHasDate(DummyHasDate):
+    def __init__(self, value: str, date: Datey | None = None):
+        super().__init__(date=date)
+        self.value = value
+
+    def __str__(self) -> str:
+        return self.value
+
+
+class _DummyLocalized(DummyLocalized):
+    def __init__(self, value: str, locale: str):
+        super().__init__(locale)
+        self.value = value
+
+    def __str__(self) -> str:
+        return self.value
 
 
 class TestFilterFile(TemplateTestBase):
@@ -216,7 +230,7 @@ class TestFilterImageResizeCover(TemplateTestBase):
                 "/file/F1-99x99.png",
                 "{{ filey | filter_image_resize_cover((99, 99)) }}",
                 FileReference(
-                    DummyHasFileReferencesEntity(),
+                    DummyHasFileReferences(),
                     File(
                         id="F1",
                         path=image_path,
@@ -228,7 +242,7 @@ class TestFilterImageResizeCover(TemplateTestBase):
                 "/file/F1-99x99-0x0x9x9.png",
                 "{{ filey | filter_image_resize_cover((99, 99)) }}",
                 FileReference(
-                    DummyHasFileReferencesEntity(),
+                    DummyHasFileReferences(),
                     File(
                         id="F1",
                         path=image_path,
@@ -254,21 +268,13 @@ class TestFilterImageResizeCover(TemplateTestBase):
 
 
 class TestFilterSelectHasDates(TemplateTestBase):
-    class _DummyHasDate(DummyHasDate):
-        def __init__(self, value: str, date: Datey | None = None):
-            super().__init__(date=date)
-            self._value = value
-
-        def __str__(self) -> str:
-            return self._value
-
     @pytest.mark.parametrize(
         ("expected", "data"),
         [
             (
                 "Apple",
                 {
-                    "dateds": [
+                    "has_dates": [
                         _DummyHasDate("Apple"),
                     ],
                     "date": None,
@@ -277,7 +283,7 @@ class TestFilterSelectHasDates(TemplateTestBase):
             (
                 "Apple",
                 {
-                    "dateds": [
+                    "has_dates": [
                         _DummyHasDate("Apple"),
                     ],
                     "date": Date(),
@@ -286,7 +292,7 @@ class TestFilterSelectHasDates(TemplateTestBase):
             (
                 "Apple",
                 {
-                    "dateds": [
+                    "has_dates": [
                         _DummyHasDate("Apple"),
                     ],
                     "date": Date(1970, 1, 1),
@@ -295,7 +301,7 @@ class TestFilterSelectHasDates(TemplateTestBase):
             (
                 "",
                 {
-                    "dateds": [
+                    "has_dates": [
                         _DummyHasDate("Apple", Date(1970, 1, 1)),
                     ],
                     "date": None,
@@ -304,7 +310,7 @@ class TestFilterSelectHasDates(TemplateTestBase):
             (
                 "",
                 {
-                    "dateds": [
+                    "has_dates": [
                         _DummyHasDate("Apple", Date(1970, 1, 1)),
                     ],
                     "date": Date(),
@@ -313,7 +319,7 @@ class TestFilterSelectHasDates(TemplateTestBase):
             (
                 "Apple",
                 {
-                    "dateds": [
+                    "has_dates": [
                         _DummyHasDate("Apple", Date(1970, 1, 1)),
                     ],
                     "date": Date(1970, 1, 1),
@@ -322,7 +328,7 @@ class TestFilterSelectHasDates(TemplateTestBase):
             (
                 "Apple, Strawberry",
                 {
-                    "dateds": [
+                    "has_dates": [
                         _DummyHasDate("Apple", Date(1971, 1, 1)),
                         _DummyHasDate("Strawberry", Date(1970, 1, 1)),
                         _DummyHasDate("Banana", Date(1969, 1, 1)),
@@ -334,15 +340,9 @@ class TestFilterSelectHasDates(TemplateTestBase):
         ],
     )
     async def test(self, expected: str, data: MutableMapping[str, Any]) -> None:
-        template = '{{ dateds | select_has_dates(date=date) | join(", ") }}'
+        template = '{{ has_dates | select_has_dates(date=date) | join(", ") }}'
         async with self._render(template_string=template, data=data) as (actual, _):
             assert actual == expected
-
-
-class DummyLocalized(Localized):
-    def __init__(self, value: str, *, locale: str):
-        self._locale = locale
-        self.value = value
 
 
 class TestFilterSelectLocalizeds(TemplateTestBase):
@@ -351,60 +351,35 @@ class TestFilterSelectLocalizeds(TemplateTestBase):
         [
             ("", "en", []),
             (
-                "Apple",
                 "en",
-                [
-                    DummyLocalized(
-                        value="Apple",
-                        locale="en",
-                    )
-                ],
+                "en",
+                [DummyLocalized(locale="en")],
             ),
             (
-                "Apple",
-                "en",
-                [
-                    DummyLocalized(
-                        value="Apple",
-                        locale="en-US",
-                    )
-                ],
-            ),
-            (
-                "Apple",
                 "en-US",
-                [
-                    DummyLocalized(
-                        value="Apple",
-                        locale="en",
-                    )
-                ],
+                "en",
+                [DummyLocalized(locale="en-US")],
+            ),
+            (
+                "en",
+                "en-US",
+                [DummyLocalized(locale="en")],
             ),
             (
                 "",
                 "nl",
-                [
-                    DummyLocalized(
-                        value="Apple",
-                        locale="en",
-                    )
-                ],
+                [DummyLocalized(locale="en")],
             ),
             (
                 "",
                 "nl-NL",
-                [
-                    DummyLocalized(
-                        value="Apple",
-                        locale="en",
-                    )
-                ],
+                [DummyLocalized(locale="en")],
             ),
         ],
     )
     async def test(self, expected: str, locale: str, data: Iterable[Localized]) -> None:
         template = (
-            '{{ data | select_localizeds | map(attribute="value") | join(", ") }}'
+            '{{ data | select_localizeds | map(attribute="locale") | join(", ") }}'
         )
 
         async with self._render(
@@ -417,24 +392,12 @@ class TestFilterSelectLocalizeds(TemplateTestBase):
             assert actual == expected
 
     async def test_include_unspecified(self) -> None:
-        template = '{{ data | select_localizeds(include_unspecified=true) | map(attribute="value") | join(", ") }}'
+        template = '{{ data | select_localizeds(include_unspecified=true) | map(attribute="locale") | join(", ") }}'
         data = [
-            DummyLocalized(
-                value="Apple",
-                locale=NO_LINGUISTIC_CONTENT,
-            ),
-            DummyLocalized(
-                value="Apple",
-                locale=UNDETERMINED_LOCALE,
-            ),
-            DummyLocalized(
-                value="Apple",
-                locale=MULTIPLE_LOCALES,
-            ),
-            DummyLocalized(
-                value="Apple",
-                locale=UNCODED_LOCALE,
-            ),
+            DummyLocalized(locale=NO_LINGUISTIC_CONTENT),
+            DummyLocalized(locale=UNDETERMINED_LOCALE),
+            DummyLocalized(locale=MULTIPLE_LOCALES),
+            DummyLocalized(locale=UNCODED_LOCALE),
         ]
 
         async with self._render(
@@ -444,7 +407,7 @@ class TestFilterSelectLocalizeds(TemplateTestBase):
             },
             locale="en-US",
         ) as (actual, _):
-            assert actual == "Apple, Apple, Apple, Apple"
+            assert actual == "zxx, und, mul, mis"
 
 
 class TestFilterSortLocalizeds(TemplateTestBase):
@@ -462,36 +425,21 @@ class TestFilterSortLocalizeds(TemplateTestBase):
             self.WithLocalizedDummyLocalizeds(
                 "third",
                 [
-                    DummyLocalized(
-                        value="3",
-                        locale="nl-NL",
-                    ),
+                    _DummyLocalized("3", "nl-NL"),
                 ],
             ),
             self.WithLocalizedDummyLocalizeds(
                 "second",
                 [
-                    DummyLocalized(
-                        value="2",
-                        locale="en",
-                    ),
-                    DummyLocalized(
-                        value="1",
-                        locale="nl-NL",
-                    ),
+                    _DummyLocalized("2", "en"),
+                    _DummyLocalized("1", "nl-NL"),
                 ],
             ),
             self.WithLocalizedDummyLocalizeds(
                 "first",
                 [
-                    DummyLocalized(
-                        value="2",
-                        locale="nl-NL",
-                    ),
-                    DummyLocalized(
-                        value="1",
-                        locale="en-US",
-                    ),
+                    _DummyLocalized("2", "nl-NL"),
+                    _DummyLocalized("1", "en-US"),
                 ],
             ),
         ]
@@ -566,6 +514,190 @@ class TestFilterLocalizeHtmlLang(TemplateTestBase):
             template_string=template,
             data={
                 "localizable": localizable,
+            },
+        ) as (actual, _):
+            assert actual == expected
+
+
+class TestFilterHashid(TemplateTestBase):
+    async def test(self) -> None:
+        template = "{{ data | hashid }}"
+        async with self._render(
+            template_string=template,
+            data={"data": "Hello, world!"},
+        ) as (actual, _):
+            assert actual == "6cd3556deb0da54bca060b4c39479839"
+
+
+class TestFilterJson(TemplateTestBase):
+    async def test(self) -> None:
+        template = "{{ data | json }}"
+        async with self._render(
+            template_string=template,
+            data={"data": [1, 2, 3]},
+        ) as (actual, _):
+            assert actual == "[1, 2, 3]"
+
+
+class TestFilterLocalize(TemplateTestBase):
+    async def test(self) -> None:
+        template = "{{ data | localize }}"
+        async with self._render(
+            template_string=template,
+            data={"data": plain("Hello, world!")},
+        ) as (actual, _):
+            assert actual == "Hello, world!"
+
+
+class TestFilterLocalizedUrl(TemplateTestBase):
+    @pytest.mark.parametrize(
+        ("expected", "data", "absolute"),
+        [
+            ("/index.html", "/index.html", False),
+            ("https://example.com/index.html", "/index.html", True),
+        ],
+    )
+    async def test(self, expected: str, data: Any, absolute: bool) -> None:
+        template = "{{ data | localized_url(absolute=absolute) }}"
+        async with self._render(
+            template_string=template,
+            data={
+                "data": data,
+                "absolute": absolute,
+            },
+        ) as (actual, _):
+            assert actual == expected
+
+
+class TestFilterNegotiateHasDates(TemplateTestBase):
+    @pytest.mark.parametrize(
+        ("expected", "data"),
+        [
+            (
+                "Apple",
+                {
+                    "has_dates": [
+                        _DummyHasDate("Apple"),
+                    ],
+                    "date": None,
+                },
+            ),
+            (
+                "Apple",
+                {
+                    "has_dates": [
+                        _DummyHasDate("Apple"),
+                    ],
+                    "date": Date(),
+                },
+            ),
+            (
+                "Apple",
+                {
+                    "has_dates": [
+                        _DummyHasDate("Apple"),
+                    ],
+                    "date": Date(1970, 1, 1),
+                },
+            ),
+            (
+                "",
+                {
+                    "has_dates": [
+                        _DummyHasDate("Apple", Date(1970, 1, 1)),
+                    ],
+                    "date": None,
+                },
+            ),
+            (
+                "",
+                {
+                    "has_dates": [
+                        _DummyHasDate("Apple", Date(1970, 1, 1)),
+                    ],
+                    "date": Date(),
+                },
+            ),
+            (
+                "Apple",
+                {
+                    "has_dates": [
+                        _DummyHasDate("Apple", Date(1970, 1, 1)),
+                    ],
+                    "date": Date(1970, 1, 1),
+                },
+            ),
+            (
+                "Apple",
+                {
+                    "has_dates": [
+                        _DummyHasDate("Apple", Date(1971, 1, 1)),
+                        _DummyHasDate("Strawberry", Date(1970, 1, 1)),
+                        _DummyHasDate("Banana", Date(1969, 1, 1)),
+                        _DummyHasDate("Orange", Date(1972, 12, 31)),
+                    ],
+                    "date": DateRange(Date(1970, 1, 1), Date(1971, 1, 1)),
+                },
+            ),
+        ],
+    )
+    async def test(self, expected: str, data: MutableMapping[str, Any]) -> None:
+        template = '{{ has_dates | negotiate_has_dates(date=date) or "" }}'
+        async with self._render(template_string=template, data=data) as (actual, _):
+            assert actual == expected
+
+
+class TestFilterNegotiateLocalizeds(TemplateTestBase):
+    class _Localized(Localized):
+        def __init__(self, locale: str):
+            self._locale = locale
+
+    async def test(self) -> None:
+        localized_en = self._Localized("en")
+        localized_nl = self._Localized("nl")
+        localizeds = [localized_en, localized_nl]
+        template = "{{ (data | negotiate_localizeds).locale }}"
+        async with self._render(
+            template_string=template, data={"data": localizeds}, locale="nl"
+        ) as (actual, _):
+            assert actual == "nl"
+
+
+class TestFilterPublicCss(TemplateTestBase):
+    async def test(self) -> None:
+        template = "{{ data | public_css }}{{ public_css_paths | safe }}"
+        async with self._render(
+            template_string=template,
+            data={"data": "/css/my-first-css.css"},
+        ) as (actual, _):
+            assert actual == "None['/css/my-first-css.css']"
+
+
+class TestFilterPublicJs(TemplateTestBase):
+    async def test(self) -> None:
+        template = "{{ data | public_js }}{{ public_js_paths | safe }}"
+        async with self._render(
+            template_string=template,
+            data={"data": "/js/my-first-js.js"},
+        ) as (actual, _):
+            assert actual == "None['/js/my-first-js.js']"
+
+
+class TestFilterStaticUrl(TemplateTestBase):
+    @pytest.mark.parametrize(
+        ("expected", "data", "absolute"),
+        [
+            ("/index.html", "/index.html", False),
+            ("https://example.com/index.html", "/index.html", True),
+        ],
+    )
+    async def test(self, expected: str, data: Any, absolute: bool) -> None:
+        template = "{{ data | static_url(absolute=absolute) }}"
+        async with self._render(
+            template_string=template,
+            data={
+                "data": data,
+                "absolute": absolute,
             },
         ) as (actual, _):
             assert actual == expected
