@@ -13,6 +13,7 @@ from collections.abc import (
     MutableSequence,
 )
 from configparser import ConfigParser
+from enum import Enum
 from importlib import import_module
 from inspect import getmembers, isfunction, isclass, isdatadescriptor
 from os import walk
@@ -37,17 +38,24 @@ from betty.tests.coverage.fixtures import (
 )
 
 
-class TestKnownToBeMissing:
-    pass  # pragma: no cover
+class MissingReason(Enum):
+    """
+    Reasons why test coverage is missing.
+    """
+
+    ABSTRACT = "This testable is abstract"
+    INTERNAL = "This testable is internal to Betty itself"
+    SHOULD_BE_COVERED = "This testable should be covered by a test but isn't yet"
+    STATIC_CONTENT_ONLY = "This testable has no testable components"
 
 
 _ModuleFunctionExistsIgnore: TypeAlias = None
-_ModuleFunctionIgnore = _ModuleFunctionExistsIgnore | type[TestKnownToBeMissing]
+_ModuleFunctionIgnore = _ModuleFunctionExistsIgnore | MissingReason
 _ModuleClassExistsIgnore = Mapping[str, _ModuleFunctionIgnore]
-_ModuleClassIgnore = _ModuleClassExistsIgnore | type[TestKnownToBeMissing]
+_ModuleClassIgnore = _ModuleClassExistsIgnore | MissingReason
 _ModuleMemberIgnore = _ModuleFunctionIgnore | _ModuleClassIgnore
 _ModuleExistsIgnore = Mapping[str, _ModuleMemberIgnore]
-_ModuleIgnore = _ModuleExistsIgnore | type[TestKnownToBeMissing]
+_ModuleIgnore = _ModuleExistsIgnore | MissingReason
 
 
 # Keys are paths to module files with ignore rules. These paths area relative to the project root directory.
@@ -55,515 +63,449 @@ _ModuleIgnore = _ModuleExistsIgnore | type[TestKnownToBeMissing]
 # of the module's top-level functions and classes to ignore.
 # This baseline MUST NOT be extended. It SHOULD decrease in size as more coverage is added to Betty over time.
 _BASELINE: Mapping[str, _ModuleIgnore] = {
-    "betty/__init__.py": TestKnownToBeMissing,
+    "betty/__init__.py": MissingReason.SHOULD_BE_COVERED,
     "betty/assets.py": {
         "AssetRepository": {
-            "__len__": TestKnownToBeMissing,
-            "clear": TestKnownToBeMissing,
-            "paths": TestKnownToBeMissing,
-            "prepend": TestKnownToBeMissing,
+            "__len__": MissingReason.SHOULD_BE_COVERED,
+            "clear": MissingReason.SHOULD_BE_COVERED,
+            "paths": MissingReason.SHOULD_BE_COVERED,
+            "prepend": MissingReason.SHOULD_BE_COVERED,
         },
     },
     "betty/app/config.py": {
-        "AppConfiguration": TestKnownToBeMissing,
+        "AppConfiguration": MissingReason.SHOULD_BE_COVERED,
     },
     # This contains a single abstract class.
-    "betty/app/factory.py": TestKnownToBeMissing,
+    "betty/app/factory.py": MissingReason.SHOULD_BE_COVERED,
     "betty/assertion/__init__.py": {
-        "assert_assertions": TestKnownToBeMissing,
-        "assert_entity_type": TestKnownToBeMissing,
-        "assert_locale": TestKnownToBeMissing,
-        "assert_none": TestKnownToBeMissing,
-        "assert_setattr": TestKnownToBeMissing,
-        "Fields": TestKnownToBeMissing,
-        "OptionalField": TestKnownToBeMissing,
-        "RequiredField": TestKnownToBeMissing,
+        "assert_assertions": MissingReason.SHOULD_BE_COVERED,
+        "assert_entity_type": MissingReason.SHOULD_BE_COVERED,
+        "assert_locale": MissingReason.SHOULD_BE_COVERED,
+        "assert_none": MissingReason.SHOULD_BE_COVERED,
+        "assert_setattr": MissingReason.SHOULD_BE_COVERED,
+        "Fields": MissingReason.SHOULD_BE_COVERED,
+        "OptionalField": MissingReason.SHOULD_BE_COVERED,
+        "RequiredField": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/assertion/error.py": {
-        # This is an abstract class.
-        "AssertionContext": TestKnownToBeMissing,
+        "AssertionContext": MissingReason.ABSTRACT,
         "AssertionFailed": {
-            "contexts": TestKnownToBeMissing,
-            "raised": TestKnownToBeMissing,
+            "contexts": MissingReason.SHOULD_BE_COVERED,
+            "raised": MissingReason.SHOULD_BE_COVERED,
         },
         "AssertionFailedGroup": {
-            "__iter__": TestKnownToBeMissing,
-            "__len__": TestKnownToBeMissing,
-            "__reduce__": TestKnownToBeMissing,
-            "append": TestKnownToBeMissing,
-            "assert_valid": TestKnownToBeMissing,
-            "invalid": TestKnownToBeMissing,
-            "raised": TestKnownToBeMissing,
-            "valid": TestKnownToBeMissing,
+            "__iter__": MissingReason.SHOULD_BE_COVERED,
+            "__len__": MissingReason.SHOULD_BE_COVERED,
+            "__reduce__": MissingReason.SHOULD_BE_COVERED,
+            "append": MissingReason.SHOULD_BE_COVERED,
+            "assert_valid": MissingReason.SHOULD_BE_COVERED,
+            "invalid": MissingReason.SHOULD_BE_COVERED,
+            "raised": MissingReason.SHOULD_BE_COVERED,
+            "valid": MissingReason.SHOULD_BE_COVERED,
         },
     },
     "betty/cache/__init__.py": {
-        # This is an interface.
-        "Cache": TestKnownToBeMissing,
-        "CacheItem": TestKnownToBeMissing,
+        "Cache": MissingReason.ABSTRACT,
+        "CacheItem": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/cache/_base.py": TestKnownToBeMissing,
+    "betty/cache/_base.py": MissingReason.SHOULD_BE_COVERED,
     "betty/cli/__init__.py": {
-        "ContextAppObject": TestKnownToBeMissing,
-        "ctx_app_object": TestKnownToBeMissing,
+        "ContextAppObject": MissingReason.SHOULD_BE_COVERED,
+        "ctx_app_object": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/cli/error.py": {
-        "user_facing_error_to_bad_parameter": TestKnownToBeMissing,
+        "user_facing_error_to_bad_parameter": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/cli/commands/__init__.py": {
-        "command": TestKnownToBeMissing,
-        "Command": TestKnownToBeMissing,
-        "CommandRepository": TestKnownToBeMissing,
-        "discover_commands": TestKnownToBeMissing,
-        "parameter_callback": TestKnownToBeMissing,
-        "project_option": TestKnownToBeMissing,
+        "command": MissingReason.SHOULD_BE_COVERED,
+        "Command": MissingReason.SHOULD_BE_COVERED,
+        "CommandRepository": MissingReason.SHOULD_BE_COVERED,
+        "discover_commands": MissingReason.SHOULD_BE_COVERED,
+        "parameter_callback": MissingReason.SHOULD_BE_COVERED,
+        "project_option": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/concurrent.py": {
         "AsynchronizedLock": {
-            "release": TestKnownToBeMissing,
+            "release": MissingReason.SHOULD_BE_COVERED,
         },
         "Lock": {
             # This is covered by another test method.
-            "__aexit__": TestKnownToBeMissing,
-            # This is an abstract method.
-            "acquire": TestKnownToBeMissing,
-            # This is an abstract method.
-            "release": TestKnownToBeMissing,
+            "__aexit__": MissingReason.SHOULD_BE_COVERED,
+            "acquire": MissingReason.ABSTRACT,
+            "release": MissingReason.ABSTRACT,
         },
-        "Ledger": TestKnownToBeMissing,
+        "Ledger": MissingReason.SHOULD_BE_COVERED,
         "RateLimiter": {
-            "__aenter__": TestKnownToBeMissing,
-            "__aexit__": TestKnownToBeMissing,
+            "__aenter__": MissingReason.SHOULD_BE_COVERED,
+            "__aexit__": MissingReason.SHOULD_BE_COVERED,
         },
     },
     "betty/config/__init__.py": {
-        "assert_configuration_file": TestKnownToBeMissing,
-        "Configurable": TestKnownToBeMissing,
-        # This is an abstract class.
-        "Configuration": TestKnownToBeMissing,
-        "write_configuration_file": TestKnownToBeMissing,
+        "assert_configuration_file": MissingReason.SHOULD_BE_COVERED,
+        "Configurable": MissingReason.SHOULD_BE_COVERED,
+        "Configuration": MissingReason.ABSTRACT,
+        "write_configuration_file": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/config/collections/__init__.py": TestKnownToBeMissing,
+    "betty/config/collections/__init__.py": MissingReason.SHOULD_BE_COVERED,
     "betty/config/collections/sequence.py": {
         "ConfigurationSequence": {
-            "dump": TestKnownToBeMissing,
-            "to_index": TestKnownToBeMissing,
-            "to_key": TestKnownToBeMissing,
-            "update": TestKnownToBeMissing,
+            "dump": MissingReason.SHOULD_BE_COVERED,
+            "to_index": MissingReason.SHOULD_BE_COVERED,
+            "to_key": MissingReason.SHOULD_BE_COVERED,
+            "update": MissingReason.SHOULD_BE_COVERED,
         },
     },
     "betty/contextlib.py": {
         "SynchronizedContextManager": {
-            "__enter__": TestKnownToBeMissing,
-            "__exit__": TestKnownToBeMissing,
+            "__enter__": MissingReason.SHOULD_BE_COVERED,
+            "__exit__": MissingReason.SHOULD_BE_COVERED,
         },
     },
     "betty/date.py": {
-        # This is an empty class.
-        "IncompleteDateError": TestKnownToBeMissing,
+        "IncompleteDateError": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/deriver.py": {
         # This is an enum.
-        "Derivation": TestKnownToBeMissing
+        "Derivation": MissingReason.SHOULD_BE_COVERED
     },
     "betty/documentation.py": {
         "DocumentationServer": {
-            "public_url": TestKnownToBeMissing,
-            "start": TestKnownToBeMissing,
-            "stop": TestKnownToBeMissing,
+            "public_url": MissingReason.SHOULD_BE_COVERED,
+            "start": MissingReason.SHOULD_BE_COVERED,
+            "stop": MissingReason.SHOULD_BE_COVERED,
         },
     },
-    "betty/error.py": TestKnownToBeMissing,
+    "betty/error.py": MissingReason.SHOULD_BE_COVERED,
     "betty/event_dispatcher.py": {
-        # This is an interface.
-        "Event": TestKnownToBeMissing,
+        "Event": MissingReason.ABSTRACT,
         "EventHandlerRegistry": {
             # This is covered by another test.
-            "handlers": TestKnownToBeMissing,
+            "handlers": MissingReason.SHOULD_BE_COVERED,
         },
     },
     "betty/factory.py": {
-        # This is an abstract class.
-        "IndependentFactory": TestKnownToBeMissing,
-        # This is an abstract class.
-        "TargetFactory": TestKnownToBeMissing,
+        "IndependentFactory": MissingReason.ABSTRACT,
+        "TargetFactory": MissingReason.ABSTRACT,
     },
     "betty/fetch/__init__.py": {
-        # This is an interface.
-        "Fetcher": TestKnownToBeMissing,
+        "Fetcher": MissingReason.ABSTRACT,
         "FetchResponse": {
             # This is inherited from @dataclass.
-            "__eq__": TestKnownToBeMissing,
+            "__eq__": MissingReason.SHOULD_BE_COVERED,
             # This is inherited from @dataclass.
-            "__delattr__": TestKnownToBeMissing,
+            "__delattr__": MissingReason.SHOULD_BE_COVERED,
             # This is inherited from @dataclass.
-            "__hash__": TestKnownToBeMissing,
+            "__hash__": MissingReason.SHOULD_BE_COVERED,
             # This is inherited from @dataclass.
-            "__replace__": TestKnownToBeMissing,
+            "__replace__": MissingReason.SHOULD_BE_COVERED,
             # This is inherited from @dataclass.
-            "__setattr__": TestKnownToBeMissing,
+            "__setattr__": MissingReason.SHOULD_BE_COVERED,
         },
     },
-    "betty/fetch/static.py": TestKnownToBeMissing,
-    "betty/gramps/error.py": TestKnownToBeMissing,
+    "betty/fetch/static.py": MissingReason.SHOULD_BE_COVERED,
+    "betty/gramps/error.py": MissingReason.SHOULD_BE_COVERED,
     "betty/gramps/loader.py": {
         # This is checked statically.
-        "GrampsEntityReference": TestKnownToBeMissing,
+        "GrampsEntityReference": MissingReason.SHOULD_BE_COVERED,
         # This is an enum.
-        "GrampsEntityType": TestKnownToBeMissing,
-        # This is an empty class.
-        "GrampsFileNotFound": TestKnownToBeMissing,
-        # This is an empty class.
-        "GrampsLoaderError": TestKnownToBeMissing,
-        # This is an empty class.
-        "LoaderUsedAlready": TestKnownToBeMissing,
-        # This is an empty class.
-        "XPathError": TestKnownToBeMissing,
+        "GrampsEntityType": MissingReason.SHOULD_BE_COVERED,
+        "GrampsFileNotFound": MissingReason.STATIC_CONTENT_ONLY,
+        "GrampsLoaderError": MissingReason.STATIC_CONTENT_ONLY,
+        "LoaderUsedAlready": MissingReason.STATIC_CONTENT_ONLY,
+        "XPathError": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/html.py": TestKnownToBeMissing,
+    "betty/html.py": MissingReason.SHOULD_BE_COVERED,
     "betty/jinja2/__init__.py": {
-        "context_job_context": TestKnownToBeMissing,
-        "context_localizer": TestKnownToBeMissing,
-        "context_project": TestKnownToBeMissing,
-        "Environment": TestKnownToBeMissing,
+        "context_job_context": MissingReason.SHOULD_BE_COVERED,
+        "context_localizer": MissingReason.SHOULD_BE_COVERED,
+        "context_project": MissingReason.SHOULD_BE_COVERED,
+        "Environment": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/jinja2/filter.py": {
         # This is covered statically.
-        "filters": TestKnownToBeMissing,
+        "filters": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/jinja2/test.py": {
         # This is covered statically.
-        "tests": TestKnownToBeMissing,
+        "tests": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/json/linked_data.py": TestKnownToBeMissing,
+    "betty/json/linked_data.py": MissingReason.SHOULD_BE_COVERED,
     "betty/locale/__init__.py": {
-        "get_data": TestKnownToBeMissing,
-        "get_display_name": TestKnownToBeMissing,
-        "LocaleNotFoundError": TestKnownToBeMissing,
-        "to_babel_identifier": TestKnownToBeMissing,
-        "to_locale": TestKnownToBeMissing,
+        "get_data": MissingReason.SHOULD_BE_COVERED,
+        "get_display_name": MissingReason.SHOULD_BE_COVERED,
+        "LocaleNotFoundError": MissingReason.SHOULD_BE_COVERED,
+        "to_babel_identifier": MissingReason.SHOULD_BE_COVERED,
+        "to_locale": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/locale/error.py": {
-        "InvalidLocale": TestKnownToBeMissing,
-        # This is an interface.
-        "LocaleError": TestKnownToBeMissing,
-        "LocaleNotFound": TestKnownToBeMissing,
+        "InvalidLocale": MissingReason.SHOULD_BE_COVERED,
+        "LocaleError": MissingReason.STATIC_CONTENT_ONLY,
+        "LocaleNotFound": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/locale/babel.py": {
-        "run_babel": TestKnownToBeMissing,
+        "run_babel": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/locale/translation.py": {
-        "find_source_files": TestKnownToBeMissing,
-        "new_dev_translation": TestKnownToBeMissing,
-        "new_project_translation": TestKnownToBeMissing,
-        "new_extension_translation": TestKnownToBeMissing,
-        "update_dev_translations": TestKnownToBeMissing,
-        "update_project_translations": TestKnownToBeMissing,
-        "update_extension_translations": TestKnownToBeMissing,
+        "find_source_files": MissingReason.SHOULD_BE_COVERED,
+        "new_dev_translation": MissingReason.SHOULD_BE_COVERED,
+        "new_project_translation": MissingReason.SHOULD_BE_COVERED,
+        "new_extension_translation": MissingReason.SHOULD_BE_COVERED,
+        "update_dev_translations": MissingReason.SHOULD_BE_COVERED,
+        "update_project_translations": MissingReason.SHOULD_BE_COVERED,
+        "update_extension_translations": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/locale/localizable/__init__.py": {
-        "call": TestKnownToBeMissing,
-        "format": TestKnownToBeMissing,
-        "gettext": TestKnownToBeMissing,
-        # This is an interface.
-        "Localizable": TestKnownToBeMissing,
-        "ngettext": TestKnownToBeMissing,
-        "npgettext": TestKnownToBeMissing,
-        "pgettext": TestKnownToBeMissing,
-        # This is an internal base class.
-        "StaticTranslationsLocalizableAttr": TestKnownToBeMissing,
+        "call": MissingReason.SHOULD_BE_COVERED,
+        "format": MissingReason.SHOULD_BE_COVERED,
+        "gettext": MissingReason.SHOULD_BE_COVERED,
+        "Localizable": MissingReason.ABSTRACT,
+        "ngettext": MissingReason.SHOULD_BE_COVERED,
+        "npgettext": MissingReason.SHOULD_BE_COVERED,
+        "pgettext": MissingReason.SHOULD_BE_COVERED,
+        "StaticTranslationsLocalizableAttr": MissingReason.INTERNAL,
     },
     "betty/media_type/__init__.py": {
-        # This is an empty class.
-        "InvalidMediaType": TestKnownToBeMissing,
+        "InvalidMediaType": MissingReason.STATIC_CONTENT_ONLY,
     },
-    # This contains static definitions only.
-    "betty/media_type/media_types.py": TestKnownToBeMissing,
+    "betty/media_type/media_types.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/model/__init__.py": {
-        "unalias": TestKnownToBeMissing,
-        "Entity": TestKnownToBeMissing,
-        "GeneratedEntityId": TestKnownToBeMissing,
-        # This is an interface.
-        "UserFacingEntity": TestKnownToBeMissing,
+        "unalias": MissingReason.SHOULD_BE_COVERED,
+        "Entity": MissingReason.SHOULD_BE_COVERED,
+        "GeneratedEntityId": MissingReason.SHOULD_BE_COVERED,
+        "UserFacingEntity": MissingReason.ABSTRACT,
     },
     "betty/model/association.py": {
         "BidirectionalToOne": {
             # This is covered by a different test method.
-            "__set__": TestKnownToBeMissing,
+            "__set__": MissingReason.SHOULD_BE_COVERED,
         },
         "BidirectionalToZeroOrOne": {
             # This is covered by a different test method.
-            "__set__": TestKnownToBeMissing,
+            "__set__": MissingReason.SHOULD_BE_COVERED,
         },
-        "resolve": TestKnownToBeMissing,
-        # This is an abstract class.
-        "ToManyResolver": TestKnownToBeMissing,
-        # This is an abstract class.
-        "ToOneResolver": TestKnownToBeMissing,
-        # This is an abstract class.
-        "ToZeroOrOneResolver": TestKnownToBeMissing,
+        "resolve": MissingReason.SHOULD_BE_COVERED,
+        "ToManyResolver": MissingReason.ABSTRACT,
+        "ToOneResolver": MissingReason.ABSTRACT,
+        "ToZeroOrOneResolver": MissingReason.ABSTRACT,
     },
     "betty/model/collections.py": {
-        "EntityCollection": TestKnownToBeMissing,
+        "EntityCollection": MissingReason.SHOULD_BE_COVERED,
         "MultipleTypesEntityCollection": {
-            "__iter__": TestKnownToBeMissing,
-            "__len__": TestKnownToBeMissing,
-            "clear": TestKnownToBeMissing,
+            "__iter__": MissingReason.SHOULD_BE_COVERED,
+            "__len__": MissingReason.SHOULD_BE_COVERED,
+            "clear": MissingReason.SHOULD_BE_COVERED,
         },
         "SingleTypeEntityCollection": {
-            "__iter__": TestKnownToBeMissing,
-            "__len__": TestKnownToBeMissing,
+            "__iter__": MissingReason.SHOULD_BE_COVERED,
+            "__len__": MissingReason.SHOULD_BE_COVERED,
         },
-        "record_added": TestKnownToBeMissing,
+        "record_added": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/model/graph.py": {
         "EntityGraphBuilder": {
-            "add_association": TestKnownToBeMissing,
-            "add_entity": TestKnownToBeMissing,
+            "add_association": MissingReason.SHOULD_BE_COVERED,
+            "add_entity": MissingReason.SHOULD_BE_COVERED,
         },
     },
     "betty/ancestry/date.py": {
         "HasDate": {
-            # This is static.
-            "dated_linked_data_contexts": TestKnownToBeMissing,
+            "dated_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
     "betty/ancestry/event.py": {
         "Event": {
-            # This is static.
-            "dated_linked_data_contexts": TestKnownToBeMissing,
+            "dated_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
-    # This contains static items only.
-    "betty/ancestry/event_type/__init__.py": TestKnownToBeMissing,
+    "betty/ancestry/event_type/__init__.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/ancestry/event_type/event_types.py": {
-        # This is an abstract class.
-        "CreatableDerivableEventType": TestKnownToBeMissing,
-        # This is an abstract class.
-        "CreatableEventType": TestKnownToBeMissing,
-        # This is an abstract class.
-        "DerivableEventType": TestKnownToBeMissing,
-        # This is an abstract class.
-        "DuringLifeEventType": TestKnownToBeMissing,
-        # This is an abstract class.
-        "EndOfLifeEventType": TestKnownToBeMissing,
-        # This is an abstract class.
-        "FinalDispositionEventType": TestKnownToBeMissing,
-        # This is an abstract class.
-        "PostDeathEventType": TestKnownToBeMissing,
-        # This is an abstract class.
-        "PreBirthEventType": TestKnownToBeMissing,
-        # This is an abstract class.
-        "StartOfLifeEventType": TestKnownToBeMissing,
+        "CreatableDerivableEventType": MissingReason.ABSTRACT,
+        "CreatableEventType": MissingReason.ABSTRACT,
+        "DerivableEventType": MissingReason.ABSTRACT,
+        "DuringLifeEventType": MissingReason.ABSTRACT,
+        "EndOfLifeEventType": MissingReason.ABSTRACT,
+        "FinalDispositionEventType": MissingReason.ABSTRACT,
+        "PostDeathEventType": MissingReason.ABSTRACT,
+        "PreBirthEventType": MissingReason.ABSTRACT,
+        "StartOfLifeEventType": MissingReason.ABSTRACT,
     },
-    # This contains an abstract class and a static value only.
-    "betty/ancestry/gender/__init__.py": TestKnownToBeMissing,
-    # This contains an abstract class and a static value only.
-    "betty/ancestry/place_type/__init__.py": TestKnownToBeMissing,
-    # This contains an abstract class and a static value only.
-    "betty/ancestry/presence_role/__init__.py": TestKnownToBeMissing,
-    # This contains an abstract class and a static value only.
-    "betty/copyright_notice/__init__.py": TestKnownToBeMissing,
-    # This contains an abstract class and a static value only.
-    "betty/license/__init__.py": TestKnownToBeMissing,
-    "betty/path.py": TestKnownToBeMissing,
+    "betty/ancestry/gender/__init__.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/ancestry/place_type/__init__.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/ancestry/presence_role/__init__.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/copyright_notice/__init__.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/license/__init__.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/path.py": MissingReason.SHOULD_BE_COVERED,
     "betty/plugin/__init__.py": {
         "Plugin": {
-            # This is an interface method.
-            "plugin_id": TestKnownToBeMissing,
-            # This is an interface method.
-            "plugin_label": TestKnownToBeMissing,
+            "plugin_id": MissingReason.ABSTRACT,
+            "plugin_label": MissingReason.ABSTRACT,
         },
-        "ShorthandPluginBase": TestKnownToBeMissing,
+        "ShorthandPluginBase": MissingReason.SHOULD_BE_COVERED,
         # This is a base/sentinel class.
-        "PluginError": TestKnownToBeMissing,
+        "PluginError": MissingReason.SHOULD_BE_COVERED,
         "PluginRepository": {
-            # This is an interface method.
-            "__aiter__": TestKnownToBeMissing,
-            # This is an interface method.
-            "get": TestKnownToBeMissing,
+            "__aiter__": MissingReason.ABSTRACT,
+            "get": MissingReason.ABSTRACT,
         },
     },
     "betty/plugin/assertion.py": {
-        "assert_plugin": TestKnownToBeMissing,
+        "assert_plugin": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/plugin/config.py": {
         # This is tested as part of PluginConfigurationPluginConfigurationMapping.
-        "PluginConfigurationMapping": TestKnownToBeMissing,
+        "PluginConfigurationMapping": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/plugin/lazy.py": TestKnownToBeMissing,
+    "betty/plugin/lazy.py": MissingReason.SHOULD_BE_COVERED,
     "betty/privacy/__init__.py": {
         # This is an enum.
-        "Privacy": TestKnownToBeMissing,
+        "Privacy": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/privacy/privatizer.py": {
         "Privatizer": {
-            "has_expired": TestKnownToBeMissing,
+            "has_expired": MissingReason.SHOULD_BE_COVERED,
         },
     },
     "betty/project/extension/__init__.py": {
-        "ConfigurableExtension": TestKnownToBeMissing,
-        "CyclicDependencyError": TestKnownToBeMissing,
-        "Dependencies": TestKnownToBeMissing,
-        # This is an empty class.
-        "ExtensionError": TestKnownToBeMissing,
-        # This is an interface.
-        "Extensions": TestKnownToBeMissing,
-        # This is an empty class.
-        "ExtensionTypeError": TestKnownToBeMissing,
-        "ExtensionTypeInvalidError": TestKnownToBeMissing,
-        # This is an empty class.
-        "Theme": TestKnownToBeMissing,
+        "ConfigurableExtension": MissingReason.SHOULD_BE_COVERED,
+        "CyclicDependencyError": MissingReason.SHOULD_BE_COVERED,
+        "Dependencies": MissingReason.SHOULD_BE_COVERED,
+        "ExtensionError": MissingReason.STATIC_CONTENT_ONLY,
+        "ExtensionTypeError": MissingReason.STATIC_CONTENT_ONLY,
+        "ExtensionTypeInvalidError": MissingReason.SHOULD_BE_COVERED,
+        "Theme": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/project/extension/cotton_candy/__init__.py": {
-        "person_descendant_families": TestKnownToBeMissing,
-        "person_timeline_events": TestKnownToBeMissing,
+        "person_descendant_families": MissingReason.SHOULD_BE_COVERED,
+        "person_timeline_events": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/project/extension/cotton_candy/config.py": {
         "CottonCandyConfiguration": {
-            "update": TestKnownToBeMissing,
-            "featured_entities": TestKnownToBeMissing,
-            "link_active_color": TestKnownToBeMissing,
-            "link_inactive_color": TestKnownToBeMissing,
-            "primary_active_color": TestKnownToBeMissing,
-            "primary_inactive_color": TestKnownToBeMissing,
+            "update": MissingReason.SHOULD_BE_COVERED,
+            "featured_entities": MissingReason.SHOULD_BE_COVERED,
+            "link_active_color": MissingReason.SHOULD_BE_COVERED,
+            "link_inactive_color": MissingReason.SHOULD_BE_COVERED,
+            "primary_active_color": MissingReason.SHOULD_BE_COVERED,
+            "primary_inactive_color": MissingReason.SHOULD_BE_COVERED,
         },
     },
     "betty/project/extension/demo/__init__.py": {
         "DemoServer": {
-            "public_url": TestKnownToBeMissing,
-            "start": TestKnownToBeMissing,
-            "stop": TestKnownToBeMissing,
+            "public_url": MissingReason.SHOULD_BE_COVERED,
+            "start": MissingReason.SHOULD_BE_COVERED,
+            "stop": MissingReason.SHOULD_BE_COVERED,
         },
     },
     "betty/project/extension/gramps/config.py": {
         "FamilyTreeConfiguration": {
-            "file_path": TestKnownToBeMissing,
+            "file_path": MissingReason.SHOULD_BE_COVERED,
         },
         "GrampsConfiguration": {
-            "family_trees": TestKnownToBeMissing,
+            "family_trees": MissingReason.SHOULD_BE_COVERED,
         },
     },
     "betty/project/extension/privatizer/__init__.py": {
         "Privatizer": {
-            "privatize": TestKnownToBeMissing,
+            "privatize": MissingReason.SHOULD_BE_COVERED,
         },
     },
     "betty/project/extension/webpack/__init__.py": {
         "PrebuiltAssetsRequirement": {
-            "summary": TestKnownToBeMissing,
+            "summary": MissingReason.SHOULD_BE_COVERED,
         },
         "Webpack": {
-            "new_context_vars": TestKnownToBeMissing,
+            "new_context_vars": MissingReason.SHOULD_BE_COVERED,
         },
         # This is an interface.
-        "WebpackEntryPointProvider": TestKnownToBeMissing,
+        "WebpackEntryPointProvider": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/project/extension/webpack/build.py": {
-        "webpack_build_id": TestKnownToBeMissing,
+        "webpack_build_id": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/project/extension/webpack/jinja2/__init__.py": TestKnownToBeMissing,
-    "betty/project/extension/webpack/jinja2/filter.py": TestKnownToBeMissing,
+    "betty/project/extension/webpack/jinja2/__init__.py": MissingReason.SHOULD_BE_COVERED,
+    "betty/project/extension/webpack/jinja2/filter.py": MissingReason.SHOULD_BE_COVERED,
     "betty/project/extension/wikipedia/config.py": {
         "WikipediaConfiguration": {
-            "populate_images": TestKnownToBeMissing,
+            "populate_images": MissingReason.SHOULD_BE_COVERED,
         },
     },
     # This contains a single abstract class.
-    "betty/project/factory.py": TestKnownToBeMissing,
+    "betty/project/factory.py": MissingReason.SHOULD_BE_COVERED,
     "betty/project/load.py": {
-        # This is an empty class.
-        "LoadAncestryEvent": TestKnownToBeMissing,
-        # This is an empty class.
-        "PostLoadAncestryEvent": TestKnownToBeMissing,
+        "LoadAncestryEvent": MissingReason.STATIC_CONTENT_ONLY,
+        "PostLoadAncestryEvent": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/render.py": {
-        # This is an abstract class.
-        "Renderer": TestKnownToBeMissing,
+        "Renderer": MissingReason.ABSTRACT,
     },
-    "betty/repr.py": TestKnownToBeMissing,
+    "betty/repr.py": MissingReason.SHOULD_BE_COVERED,
     "betty/requirement.py": {
         "Requirement": {
-            # This is an abstract method.
-            "details": TestKnownToBeMissing,
-            # This is an abstract method.
-            "is_met": TestKnownToBeMissing,
-            # This is an abstract method.
-            "reduce": TestKnownToBeMissing,
-            # This is an abstract method.
-            "summary": TestKnownToBeMissing,
+            "details": MissingReason.ABSTRACT,
+            "is_met": MissingReason.ABSTRACT,
+            "reduce": MissingReason.ABSTRACT,
+            "summary": MissingReason.ABSTRACT,
         },
     },
     "betty/serde/__init__.py": {
         # This is an interface.
-        "Format": TestKnownToBeMissing,
-        "FormatError": TestKnownToBeMissing,
-        "FormatStr": TestKnownToBeMissing,
+        "Format": MissingReason.SHOULD_BE_COVERED,
+        "FormatError": MissingReason.SHOULD_BE_COVERED,
+        "FormatStr": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/serde/dump.py": TestKnownToBeMissing,
+    "betty/serde/dump.py": MissingReason.SHOULD_BE_COVERED,
     "betty/serde/format/__init__.py": {
-        # This is an abstract class.
-        "Format": TestKnownToBeMissing,
-        # This is an empty class.
-        "FormatError": TestKnownToBeMissing,
+        "Format": MissingReason.ABSTRACT,
+        "FormatError": MissingReason.STATIC_CONTENT_ONLY,
     },
     # This contains abstract classes only.
-    "betty/serde/load.py": TestKnownToBeMissing,
+    "betty/serde/load.py": MissingReason.SHOULD_BE_COVERED,
     "betty/serve.py": {
-        "ProjectServer": TestKnownToBeMissing,
+        "ProjectServer": MissingReason.SHOULD_BE_COVERED,
         "BuiltinProjectServer": {
             # This method is covered by another test method.
-            "public_url": TestKnownToBeMissing,
+            "public_url": MissingReason.SHOULD_BE_COVERED,
             # This method is covered by another test method.
-            "start": TestKnownToBeMissing,
+            "start": MissingReason.SHOULD_BE_COVERED,
             # This method is covered by another test method.
-            "stop": TestKnownToBeMissing,
+            "stop": MissingReason.SHOULD_BE_COVERED,
         },
-        "BuiltinServer": TestKnownToBeMissing,
-        "NoPublicUrlBecauseServerNotStartedError": TestKnownToBeMissing,
-        # This is an empty class.
-        "OsError": TestKnownToBeMissing,
-        # This is an interface.
-        "Server": TestKnownToBeMissing,
-        # This is an empty class.
-        "ServerNotStartedError": TestKnownToBeMissing,
+        "BuiltinServer": MissingReason.SHOULD_BE_COVERED,
+        "NoPublicUrlBecauseServerNotStartedError": MissingReason.SHOULD_BE_COVERED,
+        "OsError": MissingReason.STATIC_CONTENT_ONLY,
+        "Server": MissingReason.ABSTRACT,
+        "ServerNotStartedError": MissingReason.STATIC_CONTENT_ONLY,
     },
     # We do not test our test utilities.
     **{
-        str(path): TestKnownToBeMissing
+        str(path): MissingReason.SHOULD_BE_COVERED
         for path in (Path("betty") / "test_utils").rglob("**/*.py")
     },
     "betty/typing.py": {
-        "Void": TestKnownToBeMissing,
+        "Void": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/url/__init__.py": {
-        # This is an abstract base class.
-        "LocalizedUrlGenerator": TestKnownToBeMissing,
-        # This is an abstract base class.
-        "StaticUrlGenerator": TestKnownToBeMissing,
-        # This is an empty class.
-        "UnsupportedResource": TestKnownToBeMissing,
+        "LocalizedUrlGenerator": MissingReason.ABSTRACT,
+        "StaticUrlGenerator": MissingReason.ABSTRACT,
+        "UnsupportedResource": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/warnings.py": {
-        # This is an empty class.
-        "BettyDeprecationWarning": TestKnownToBeMissing,
+        "BettyDeprecationWarning": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/wikipedia/__init__.py": {
         # This is a dataclass.
-        "Image": TestKnownToBeMissing,
-        # This is an empty class.
-        "NotAPageError": TestKnownToBeMissing,
+        "Image": MissingReason.SHOULD_BE_COVERED,
+        "NotAPageError": MissingReason.STATIC_CONTENT_ONLY,
         "Summary": {
             # This is inherited from @dataclass.
-            "__eq__": TestKnownToBeMissing,
+            "__eq__": MissingReason.SHOULD_BE_COVERED,
             # This is inherited from @dataclass.
-            "__delattr__": TestKnownToBeMissing,
+            "__delattr__": MissingReason.SHOULD_BE_COVERED,
             # This is inherited from @dataclass.
-            "__hash__": TestKnownToBeMissing,
+            "__hash__": MissingReason.SHOULD_BE_COVERED,
             # This is inherited from @dataclass.
-            "__replace__": TestKnownToBeMissing,
+            "__replace__": MissingReason.SHOULD_BE_COVERED,
             # This is inherited from @dataclass.
-            "__setattr__": TestKnownToBeMissing,
+            "__setattr__": MissingReason.SHOULD_BE_COVERED,
         },
     },
 }
@@ -632,7 +574,7 @@ class CoverageTester:
                 for module_file_path_str, members in _BASELINE.items()
             },
             **{
-                module_file_path: TestKnownToBeMissing
+                module_file_path: MissingReason.SHOULD_BE_COVERED
                 for module_file_path in self._get_coveragerc_ignore_modules()
             },
         }
@@ -691,11 +633,11 @@ class _ModuleCoverageTester:
             return
 
         if self._test_module_path.exists():
-            if self._ignore is TestKnownToBeMissing:
+            if isinstance(self._ignore, MissingReason):
                 yield f"{self._src_module_path} has a matching test file at {self._test_module_path}, which was unexpectedly declared as known to be missing."
                 return
             else:
-                assert self._ignore is not TestKnownToBeMissing
+                assert not isinstance(self._ignore, MissingReason)
                 test_module_name, _, test_classes = self._get_module_data(
                     self._test_module_path
                 )
@@ -707,7 +649,7 @@ class _ModuleCoverageTester:
                         test_module_name,
                         cast(
                             _ModuleFunctionIgnore,
-                            self._ignore.get(src_function.__name__, None),  # type: ignore[union-attr]
+                            self._ignore.get(src_function.__name__, None),
                         ),
                     ).test():
                         yield error
@@ -719,14 +661,13 @@ class _ModuleCoverageTester:
                         self._src_module_name,
                         test_module_name,
                         cast(
-                            _ModuleClassIgnore,
-                            self._ignore.get(src_class.__name__, {}),  # type: ignore[union-attr]
+                            _ModuleClassIgnore, self._ignore.get(src_class.__name__, {})
                         ),
                     ).test():
                         yield error
             return
 
-        if self._ignore is TestKnownToBeMissing:
+        if isinstance(self._ignore, MissingReason):
             return
 
         if await self._test_python_file_contains_docstring_only(self._src_module_path):
@@ -805,11 +746,11 @@ class _ModuleFunctionCoverageTester:
         )
 
         if expected_test_class_name in self._test_classes:
-            if self._ignore is TestKnownToBeMissing:
+            if isinstance(self._ignore, MissingReason):
                 yield f"The source function {self._src_module_name}.{self._src_function.__name__} has a matching test class at {self._test_classes[expected_test_class_name].__module__}.{self._test_classes[expected_test_class_name].__name__}, which was unexpectedly declared as known to be missing."
             return
 
-        if self._ignore is TestKnownToBeMissing:
+        if isinstance(self._ignore, MissingReason):
             return
 
         yield f"Failed to find the test class {self._test_module_name}.{expected_test_class_name} for the source function {self._src_module_name}.{self._src_function.__name__}()."
@@ -838,18 +779,17 @@ class _ModuleClassCoverageTester:
         )
 
         if expected_test_class_name in self._test_classes:
-            if self._ignore is TestKnownToBeMissing:
+            if isinstance(self._ignore, MissingReason):
                 yield f"The source class {self._src_class.__module__}.{self._src_class.__name__} has a matching test class at {self._test_classes[expected_test_class_name].__module__}.{self._test_classes[expected_test_class_name].__name__}, which was unexpectedly declared as known to be missing."
                 return
-            assert self._ignore is not TestKnownToBeMissing
+            assert not isinstance(self._ignore, MissingReason)
             for error in self._test_members(
-                self._test_classes[expected_test_class_name],
-                self._ignore,  # type: ignore[arg-type]
+                self._test_classes[expected_test_class_name], self._ignore
             ):
                 yield error
             return
 
-        if self._ignore is TestKnownToBeMissing:
+        if isinstance(self._ignore, MissingReason):
             return
 
         yield f"Failed to find the test class {self._test_module_name}.{expected_test_class_name} for the source class {self._src_module_name}.{self._src_class.__name__}."
@@ -915,14 +855,14 @@ class _ModuleClassCoverageTester:
             or name.startswith(expected_test_member_name_prefix)
         ]
         if test_members:
-            if ignore is TestKnownToBeMissing:
+            if isinstance(ignore, MissingReason):
                 formatted_test_members = ", ".join(
                     (f"{test_member.__name__}()" for test_member in test_members)
                 )
                 yield f"The source member {self._src_class.__module__}.{self._src_class.__name__}.{src_member_name}() has (a) matching test method(s) {formatted_test_members} in {test_class.__module__}.{test_class.__name__}, which was unexpectedly declared as known to be missing."
             return
 
-        if ignore is TestKnownToBeMissing:
+        if isinstance(ignore, MissingReason):
             return
 
         yield f"Failed to find a test method named {expected_test_member_name}() or any methods whose names start with `{expected_test_member_name_prefix}` in {self._test_module_name}.{test_class.__name__} for the source member {self._src_module_name}.{self._src_class.__name__}.{src_member_name}()."
@@ -932,11 +872,11 @@ class Test_ModuleCoverageTester:
     @pytest.mark.parametrize(
         ("errors_expected", "module", "ignore"),
         [
-            (False, _module_private, TestKnownToBeMissing),
+            (False, _module_private, MissingReason.SHOULD_BE_COVERED),
             (False, _module_private, {}),
-            (True, module_with_test, TestKnownToBeMissing),
+            (True, module_with_test, MissingReason.SHOULD_BE_COVERED),
             (False, module_with_test, {}),
-            (False, module_without_test, TestKnownToBeMissing),
+            (False, module_without_test, MissingReason.SHOULD_BE_COVERED),
             (True, module_without_test, {}),
         ],
     )
@@ -959,8 +899,8 @@ class Test_ModuleFunctionCoverageTester:
     @pytest.mark.parametrize(
         ("errors_expected", "module", "ignore"),
         [
-            (True, module_function_with_test, TestKnownToBeMissing),
-            (False, module_function_without_test, TestKnownToBeMissing),
+            (True, module_function_with_test, MissingReason.SHOULD_BE_COVERED),
+            (False, module_function_without_test, MissingReason.SHOULD_BE_COVERED),
             (False, module_function_with_test, {}),
             (True, module_function_without_test, {}),
         ],
@@ -983,22 +923,22 @@ class Test_ModuleClassCoverageTester:
     @pytest.mark.parametrize(
         ("errors_expected", "module", "ignore"),
         [
-            (True, module_class_with_test, TestKnownToBeMissing),
-            (False, module_class_without_test, TestKnownToBeMissing),
+            (True, module_class_with_test, MissingReason.SHOULD_BE_COVERED),
+            (False, module_class_without_test, MissingReason.SHOULD_BE_COVERED),
             (False, module_class_with_test, {}),
             (True, module_class_without_test, {}),
             (
                 True,
                 module_class_function_with_test,
                 {
-                    "src": TestKnownToBeMissing,
+                    "src": MissingReason.SHOULD_BE_COVERED,
                 },
             ),
             (
                 False,
                 module_class_function_without_test,
                 {
-                    "src": TestKnownToBeMissing,
+                    "src": MissingReason.SHOULD_BE_COVERED,
                 },
             ),
             (False, module_class_function_with_test, {}),
