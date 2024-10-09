@@ -14,10 +14,10 @@ from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.privacy import Privacy
 from betty.ancestry.source import Source
 from betty.locale import UNDETERMINED_LOCALE
-from betty.model.association import AssociationRequired
+from betty.model.association import AssociationRequired, TemporaryToOneResolver
+from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 
@@ -49,9 +49,38 @@ class TestPerson(EntityTestBase):
             person_with_one_public_name,
         ]
 
+    async def test___init___with_children(self) -> None:
+        child = Person()
+        sut = Person(children=[child])
+        assert list(sut.children) == [child]
+        assert [sut] == list(child.parents)
+
+    async def test___init___with_parents(self) -> None:
+        parent = Person()
+        sut = Person(parents=[parent])
+        assert list(sut.parents) == [parent]
+        assert [sut] == list(parent.children)
+
+    async def test___init___with_presences(self) -> None:
+        event = Event(event_type=Birth())
+        presence = Presence(TemporaryToOneResolver(), Subject(), event)
+        sut = Person(presences=[presence])
+        assert list(sut.presences) == [presence]
+        assert sut == presence.person
+
+    async def test___init___with_names(self) -> None:
+        name = PersonName(
+            person=TemporaryToOneResolver(),
+            individual="Janet",
+            affiliation="Not a Girl",
+        )
+        sut = Person(names=[name])
+        assert list(sut.names) == [name]
+        assert sut == name.person
+
     async def test_parents(self) -> None:
-        sut = Person(id="1")
-        parent = Person(id="2")
+        sut = Person()
+        parent = Person()
         sut.parents.add(parent)
         assert list(sut.parents) == [parent]
         assert [sut] == list(parent.children)
@@ -60,8 +89,8 @@ class TestPerson(EntityTestBase):
         assert list(parent.children) == []
 
     async def test_children(self) -> None:
-        sut = Person(id="1")
-        child = Person(id="2")
+        sut = Person()
+        child = Person()
         sut.children.add(child)
         assert list(sut.children) == [child]
         assert [sut] == list(child.parents)
@@ -71,7 +100,7 @@ class TestPerson(EntityTestBase):
 
     async def test_presences(self) -> None:
         event = Event(event_type=Birth())
-        sut = Person(id="1")
+        sut = Person()
         presence = Presence(sut, Subject(), event)
         sut.presences.add(presence)
         assert list(sut.presences) == [presence]
@@ -82,7 +111,7 @@ class TestPerson(EntityTestBase):
             presence.person  # noqa B018
 
     async def test_names(self) -> None:
-        sut = Person(id="1")
+        sut = Person()
         name = PersonName(
             person=sut,
             individual="Janet",
@@ -101,19 +130,19 @@ class TestPerson(EntityTestBase):
         assert sut.id == person_id
 
     async def test_file_references(self) -> None:
-        sut = Person(id="1")
+        sut = Person()
         assert list(sut.file_references) == []
 
     async def test_citations(self) -> None:
-        sut = Person(id="1")
+        sut = Person()
         assert list(sut.citations) == []
 
     async def test_links(self) -> None:
-        sut = Person(id="1")
+        sut = Person()
         assert list(sut.links) == []
 
     async def test_private(self) -> None:
-        sut = Person(id="1")
+        sut = Person()
         assert sut.privacy is Privacy.UNDETERMINED
 
     async def test_siblings_without_parents(self) -> None:
@@ -121,16 +150,16 @@ class TestPerson(EntityTestBase):
         assert list(sut.siblings) == []
 
     async def test_siblings_with_one_common_parent(self) -> None:
-        sut = Person(id="1")
-        sibling = Person(id="2")
-        parent = Person(id="3")
+        sut = Person()
+        sibling = Person()
+        parent = Person()
         parent.children = [sut, sibling]
         assert list(sut.siblings) == [sibling]
 
     async def test_siblings_with_multiple_common_parents(self) -> None:
-        sut = Person(id="1")
-        sibling = Person(id="2")
-        parent = Person(id="3")
+        sut = Person()
+        sibling = Person()
+        parent = Person()
         parent.children = [sut, sibling]
         assert list(sut.siblings) == [sibling]
 
@@ -139,10 +168,10 @@ class TestPerson(EntityTestBase):
         assert list(sut.ancestors) == []
 
     async def test_ancestors_with_parent(self) -> None:
-        sut = Person(id="1")
-        parent = Person(id="3")
+        sut = Person()
+        parent = Person()
         sut.parents.add(parent)
-        grandparent = Person(id="2")
+        grandparent = Person()
         parent.parents.add(grandparent)
         assert list(sut.ancestors) == [parent, grandparent]
 
@@ -151,10 +180,10 @@ class TestPerson(EntityTestBase):
         assert list(sut.descendants) == []
 
     async def test_descendants_with_parent(self) -> None:
-        sut = Person(id="1")
-        child = Person(id="3")
+        sut = Person()
+        child = Person()
         sut.children.add(child)
-        grandchild = Person(id="2")
+        grandchild = Person()
         child.children.add(grandchild)
         assert list(sut.descendants) == [child, grandchild]
 

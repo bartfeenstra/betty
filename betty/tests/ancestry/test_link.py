@@ -8,6 +8,7 @@ from typing_extensions import override
 from betty.ancestry.link import Link, LinkSchema, LinkCollectionSchema, HasLinks
 from betty.app import App
 from betty.locale import UNDETERMINED_LOCALE
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import HTML
 from betty.project import Project
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
@@ -37,6 +38,12 @@ _DUMMY_LINK_DUMPS: Sequence[DumpMapping[Dump]] = (
 
 
 class TestLink:
+    async def test___init___with_label(self) -> None:
+        url = "https://example.com"
+        label = "Hello, world!"
+        sut = Link(url, label=label)
+        assert sut.label.localize(DEFAULT_LOCALIZER) == label
+
     async def test_url(self) -> None:
         url = "https://example.com"
         sut = Link(url)
@@ -146,9 +153,14 @@ class DummyHasLinks(HasLinks):
 
 
 class TestHasLinks:
+    async def test___init___with_links(self) -> None:
+        link = Link("https://example.com")
+        sut = DummyHasLinks(links=[link])
+        assert sut.links == [link]
+
     async def test_links(self) -> None:
         sut = DummyHasLinks()
-        assert sut.links == []
+        assert sut.links is sut.links
 
     @pytest.mark.parametrize(
         ("expected", "sut"),

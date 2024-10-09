@@ -30,14 +30,42 @@ class TestSource(EntityTestBase):
             Source(name="My First Source"),
         ]
 
+    def test___init___with_name(self) -> None:
+        name = "The Source"
+        sut = Source(name=name)
+        assert sut.name.localize(DEFAULT_LOCALIZER) == name
+
+    def test___init___with_author(self) -> None:
+        author = "Me"
+        sut = Source(author=author)
+        assert sut.author.localize(DEFAULT_LOCALIZER) == author
+
+    def test___init___with_publisher(self) -> None:
+        publisher = "Me"
+        sut = Source(publisher=publisher)
+        assert sut.publisher.localize(DEFAULT_LOCALIZER) == publisher
+
+    def test___init___with_contained_by(self) -> None:
+        contained_by_source = Source()
+        sut = Source(contained_by=contained_by_source)
+        assert sut.contained_by is contained_by_source
+
+    def test___init___with_contains(self) -> None:
+        contains_source = Source()
+        sut = Source(contains=[contains_source])
+        assert list(sut.contains) == [contains_source]
+        assert contains_source.contained_by is sut
+
     async def test_id(self) -> None:
         source_id = "S1"
         sut = Source(id=source_id)
         assert sut.id == source_id
 
     async def test_name(self) -> None:
+        sut = Source()
+        assert not sut.name.localize(DEFAULT_LOCALIZER)
         name = "The Source"
-        sut = Source(name=name)
+        sut.name = name
         assert sut.name.localize(DEFAULT_LOCALIZER) == name
 
     async def test_contained_by(self) -> None:

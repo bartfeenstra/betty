@@ -349,11 +349,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "add_entity": TestKnownToBeMissing,
         },
     },
-    "betty/ancestry/__init__.py": {
-        "Place": {
-            "associated_files": TestKnownToBeMissing,
-        },
-    },
     "betty/ancestry/date.py": {
         "HasDate": {
             # This is static.

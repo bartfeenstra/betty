@@ -96,6 +96,7 @@ class Event(
         private: bool | None = None,
         place: Place | None = None,
         description: ShorthandStaticTranslations | None = None,
+        presences: Iterable[Presence] | ToManyResolver[Presence] | None = None,
     ):
         super().__init__(
             id,
@@ -111,6 +112,8 @@ class Event(
         self._event_type = event_type or UnknownEventType()
         if place is not None:
             self.place = place
+        if presences is not None:
+            self.presences = presences
 
     @override
     def dated_linked_data_contexts(self) -> tuple[str | None, str | None, str | None]:
