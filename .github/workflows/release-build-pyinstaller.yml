@@ -14,11 +14,11 @@ jobs:
           - name: macOS
             os: macos-latest
             dist_name: betty-macos
-            python: '3.12'
+            python: '3.13'
           - name: Windows
             os: windows-2019
             dist_name: betty-windows
-            python: '3.12'
+            python: '3.13'
     steps:
       - name: Check out the source code
         uses: actions/checkout@v4

@@ -307,6 +307,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "FetchResponse": {
             # This is inherited from @dataclass.
             "__eq__": TestKnownToBeMissing,
+            # This is inherited from @dataclass.
+            "__replace__": TestKnownToBeMissing,
         },
     },
     "betty/fs.py": {
