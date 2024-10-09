@@ -17,6 +17,7 @@ from betty.jinja2 import Environment
 from betty.json.schema import Ref, AllOf
 from betty.project import Project, ProjectSchema
 from betty.project.extension import Extension
+from betty.typing import internal
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping
@@ -24,6 +25,7 @@ if TYPE_CHECKING:
     from jinja2 import Template
 
 
+@internal
 class TemplateTestBase:
     """
     A base class for testing Jinja2 templates.
