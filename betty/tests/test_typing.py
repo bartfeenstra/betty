@@ -2,7 +2,16 @@ from typing import Any
 
 import pytest
 
-from betty.typing import internal, public, none_void, Void, void_none, Voidable, private
+from betty.typing import (
+    internal,
+    public,
+    none_void,
+    Void,
+    void_none,
+    Voidable,
+    private,
+    threadsafe,
+)
 
 
 class TestInternal:
@@ -32,6 +41,17 @@ class TestPrivate:
         sentinel = object()
 
         @private
+        def _target() -> object:
+            return sentinel
+
+        assert _target() is sentinel
+
+
+class TestThreadsafe:
+    def test(self) -> None:
+        sentinel = object()
+
+        @threadsafe
         def _target() -> object:
             return sentinel
 

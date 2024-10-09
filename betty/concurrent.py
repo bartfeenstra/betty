@@ -13,8 +13,9 @@ from types import TracebackType
 from typing import Self, final, MutableMapping
 
 from math import floor
-
 from typing_extensions import override
+
+from betty.typing import threadsafe
 
 
 class Lock(ABC):
@@ -90,13 +91,12 @@ class AsynchronizedLock(Lock):
 
 
 @final
+@threadsafe
 class RateLimiter:
     """
     Rate-limit operations.
 
     This class implements the `Token Bucket algorithm <https://en.wikipedia.org/wiki/Token_bucket>`_.
-
-    This class is thread-safe.
     """
 
     _PERIOD = 1

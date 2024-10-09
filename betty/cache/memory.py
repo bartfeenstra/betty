@@ -11,6 +11,7 @@ from typing_extensions import override
 
 from betty.cache import CacheItem
 from betty.cache._base import _CommonCacheBase, _StaticCacheItem
+from betty.typing import threadsafe
 
 _CacheItemValueContraT = TypeVar("_CacheItemValueContraT", contravariant=True)
 
@@ -21,6 +22,7 @@ _MemoryCacheStore: TypeAlias = MutableMapping[
 
 
 @final
+@threadsafe
 class MemoryCache(
     _CommonCacheBase[_CacheItemValueContraT], Generic[_CacheItemValueContraT]
 ):
