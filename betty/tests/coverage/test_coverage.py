@@ -47,6 +47,9 @@ class MissingReason(Enum):
     INTERNAL = "This testable is internal to Betty itself"
     SHOULD_BE_COVERED = "This testable should be covered by a test but isn't yet"
     STATIC_CONTENT_ONLY = "This testable has no testable components"
+    COVERED_ELSEWHERE = "This testable is covered by another test"
+    DATACLASS = "This testable is inherited from @dataclass"
+    ENUM = "This testable is inherited from Enum"
 
 
 _ModuleFunctionExistsIgnore: TypeAlias = None
@@ -59,26 +62,14 @@ _ModuleIgnore = _ModuleExistsIgnore | MissingReason
 
 
 # Keys are paths to module files with ignore rules. These paths area relative to the project root directory.
-# Values are either the type :py:class:`TestModuleKnownToBeMissing` as a value, or a set containing the names
-# of the module's top-level functions and classes to ignore.
 # This baseline MUST NOT be extended. It SHOULD decrease in size as more coverage is added to Betty over time.
 _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/__init__.py": MissingReason.SHOULD_BE_COVERED,
-    "betty/assets.py": {
-        "AssetRepository": {
-            "__len__": MissingReason.SHOULD_BE_COVERED,
-            "clear": MissingReason.SHOULD_BE_COVERED,
-            "paths": MissingReason.SHOULD_BE_COVERED,
-            "prepend": MissingReason.SHOULD_BE_COVERED,
-        },
-    },
     "betty/app/config.py": {
         "AppConfiguration": MissingReason.SHOULD_BE_COVERED,
     },
-    # This contains a single abstract class.
-    "betty/app/factory.py": MissingReason.SHOULD_BE_COVERED,
+    "betty/app/factory.py": MissingReason.ABSTRACT,
     "betty/assertion/__init__.py": {
-        "assert_assertions": MissingReason.SHOULD_BE_COVERED,
         "assert_entity_type": MissingReason.SHOULD_BE_COVERED,
         "assert_locale": MissingReason.SHOULD_BE_COVERED,
         "assert_none": MissingReason.SHOULD_BE_COVERED,
@@ -108,7 +99,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Cache": MissingReason.ABSTRACT,
         "CacheItem": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/cache/_base.py": MissingReason.SHOULD_BE_COVERED,
+    "betty/cache/_base.py": MissingReason.COVERED_ELSEWHERE,
     "betty/cli/__init__.py": {
         "ContextAppObject": MissingReason.SHOULD_BE_COVERED,
         "ctx_app_object": MissingReason.SHOULD_BE_COVERED,
@@ -120,7 +111,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "command": MissingReason.SHOULD_BE_COVERED,
         "Command": MissingReason.SHOULD_BE_COVERED,
         "CommandRepository": MissingReason.SHOULD_BE_COVERED,
-        "discover_commands": MissingReason.SHOULD_BE_COVERED,
         "parameter_callback": MissingReason.SHOULD_BE_COVERED,
         "project_option": MissingReason.SHOULD_BE_COVERED,
     },
@@ -129,8 +119,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "release": MissingReason.SHOULD_BE_COVERED,
         },
         "Lock": {
-            # This is covered by another test method.
-            "__aexit__": MissingReason.SHOULD_BE_COVERED,
+            "__aexit__": MissingReason.COVERED_ELSEWHERE,
             "acquire": MissingReason.ABSTRACT,
             "release": MissingReason.ABSTRACT,
         },
@@ -150,8 +139,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/config/collections/sequence.py": {
         "ConfigurationSequence": {
             "dump": MissingReason.SHOULD_BE_COVERED,
-            "to_index": MissingReason.SHOULD_BE_COVERED,
-            "to_key": MissingReason.SHOULD_BE_COVERED,
             "update": MissingReason.SHOULD_BE_COVERED,
         },
     },
@@ -164,10 +151,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/date.py": {
         "IncompleteDateError": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/deriver.py": {
-        # This is an enum.
-        "Derivation": MissingReason.SHOULD_BE_COVERED
-    },
+    "betty/deriver.py": {"Derivation": MissingReason.ENUM},
     "betty/documentation.py": {
         "DocumentationServer": {
             "public_url": MissingReason.SHOULD_BE_COVERED,
@@ -179,8 +163,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/event_dispatcher.py": {
         "Event": MissingReason.ABSTRACT,
         "EventHandlerRegistry": {
-            # This is covered by another test.
-            "handlers": MissingReason.SHOULD_BE_COVERED,
+            "handlers": MissingReason.COVERED_ELSEWHERE,
         },
     },
     "betty/factory.py": {
@@ -190,27 +173,19 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/fetch/__init__.py": {
         "Fetcher": MissingReason.ABSTRACT,
         "FetchResponse": {
-            # This is inherited from @dataclass.
-            "__eq__": MissingReason.SHOULD_BE_COVERED,
-            # This is inherited from @dataclass.
-            "__delattr__": MissingReason.SHOULD_BE_COVERED,
-            # This is inherited from @dataclass.
-            "__hash__": MissingReason.SHOULD_BE_COVERED,
-            # This is inherited from @dataclass.
-            "__replace__": MissingReason.SHOULD_BE_COVERED,
-            # This is inherited from @dataclass.
-            "__setattr__": MissingReason.SHOULD_BE_COVERED,
+            "__eq__": MissingReason.DATACLASS,
+            "__delattr__": MissingReason.DATACLASS,
+            "__hash__": MissingReason.DATACLASS,
+            "__replace__": MissingReason.DATACLASS,
+            "__setattr__": MissingReason.DATACLASS,
         },
     },
     "betty/fetch/static.py": MissingReason.SHOULD_BE_COVERED,
     "betty/gramps/error.py": MissingReason.SHOULD_BE_COVERED,
     "betty/gramps/loader.py": {
-        # This is checked statically.
         "GrampsEntityReference": MissingReason.SHOULD_BE_COVERED,
-        # This is an enum.
-        "GrampsEntityType": MissingReason.SHOULD_BE_COVERED,
+        "GrampsEntityType": MissingReason.ENUM,
         "GrampsFileNotFound": MissingReason.STATIC_CONTENT_ONLY,
-        "GrampsLoaderError": MissingReason.STATIC_CONTENT_ONLY,
         "LoaderUsedAlready": MissingReason.STATIC_CONTENT_ONLY,
         "XPathError": MissingReason.STATIC_CONTENT_ONLY,
     },
@@ -222,12 +197,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Environment": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/jinja2/filter.py": {
-        # This is covered statically.
-        "filters": MissingReason.SHOULD_BE_COVERED,
+        "filters": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/jinja2/test.py": {
-        # This is covered statically.
-        "tests": MissingReason.SHOULD_BE_COVERED,
+        "tests": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/json/linked_data.py": MissingReason.SHOULD_BE_COVERED,
     "betty/locale/__init__.py": {
@@ -269,19 +242,16 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/media_type/media_types.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/model/__init__.py": {
-        "unalias": MissingReason.SHOULD_BE_COVERED,
         "Entity": MissingReason.SHOULD_BE_COVERED,
         "GeneratedEntityId": MissingReason.SHOULD_BE_COVERED,
         "UserFacingEntity": MissingReason.ABSTRACT,
     },
     "betty/model/association.py": {
         "BidirectionalToOne": {
-            # This is covered by a different test method.
-            "__set__": MissingReason.SHOULD_BE_COVERED,
+            "__set__": MissingReason.COVERED_ELSEWHERE,
         },
         "BidirectionalToZeroOrOne": {
-            # This is covered by a different test method.
-            "__set__": MissingReason.SHOULD_BE_COVERED,
+            "__set__": MissingReason.COVERED_ELSEWHERE,
         },
         "resolve": MissingReason.SHOULD_BE_COVERED,
         "ToManyResolver": MissingReason.ABSTRACT,
@@ -300,12 +270,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "__len__": MissingReason.SHOULD_BE_COVERED,
         },
         "record_added": MissingReason.SHOULD_BE_COVERED,
-    },
-    "betty/model/graph.py": {
-        "EntityGraphBuilder": {
-            "add_association": MissingReason.SHOULD_BE_COVERED,
-            "add_entity": MissingReason.SHOULD_BE_COVERED,
-        },
     },
     "betty/ancestry/date.py": {
         "HasDate": {
@@ -341,8 +305,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "plugin_label": MissingReason.ABSTRACT,
         },
         "ShorthandPluginBase": MissingReason.SHOULD_BE_COVERED,
-        # This is a base/sentinel class.
-        "PluginError": MissingReason.SHOULD_BE_COVERED,
+        "PluginError": MissingReason.ABSTRACT,
         "PluginRepository": {
             "__aiter__": MissingReason.ABSTRACT,
             "get": MissingReason.ABSTRACT,
@@ -353,12 +316,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/plugin/config.py": {
         # This is tested as part of PluginConfigurationPluginConfigurationMapping.
-        "PluginConfigurationMapping": MissingReason.SHOULD_BE_COVERED,
+        "PluginConfigurationMapping": MissingReason.COVERED_ELSEWHERE,
     },
     "betty/plugin/lazy.py": MissingReason.SHOULD_BE_COVERED,
     "betty/privacy/__init__.py": {
-        # This is an enum.
-        "Privacy": MissingReason.SHOULD_BE_COVERED,
+        "Privacy": MissingReason.ENUM,
     },
     "betty/privacy/privatizer.py": {
         "Privatizer": {
@@ -415,8 +377,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Webpack": {
             "new_context_vars": MissingReason.SHOULD_BE_COVERED,
         },
-        # This is an interface.
-        "WebpackEntryPointProvider": MissingReason.SHOULD_BE_COVERED,
+        "WebpackEntryPointProvider": MissingReason.ABSTRACT,
     },
     "betty/project/extension/webpack/build.py": {
         "webpack_build_id": MissingReason.SHOULD_BE_COVERED,
@@ -428,8 +389,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "populate_images": MissingReason.SHOULD_BE_COVERED,
         },
     },
-    # This contains a single abstract class.
-    "betty/project/factory.py": MissingReason.SHOULD_BE_COVERED,
+    "betty/project/factory.py": MissingReason.ABSTRACT,
     "betty/project/load.py": {
         "LoadAncestryEvent": MissingReason.STATIC_CONTENT_ONLY,
         "PostLoadAncestryEvent": MissingReason.STATIC_CONTENT_ONLY,
@@ -446,28 +406,18 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "summary": MissingReason.ABSTRACT,
         },
     },
-    "betty/serde/__init__.py": {
-        # This is an interface.
-        "Format": MissingReason.SHOULD_BE_COVERED,
-        "FormatError": MissingReason.SHOULD_BE_COVERED,
-        "FormatStr": MissingReason.SHOULD_BE_COVERED,
-    },
     "betty/serde/dump.py": MissingReason.SHOULD_BE_COVERED,
     "betty/serde/format/__init__.py": {
         "Format": MissingReason.ABSTRACT,
         "FormatError": MissingReason.STATIC_CONTENT_ONLY,
     },
-    # This contains abstract classes only.
-    "betty/serde/load.py": MissingReason.SHOULD_BE_COVERED,
+    "betty/serde/load.py": MissingReason.ABSTRACT,
     "betty/serve.py": {
         "ProjectServer": MissingReason.SHOULD_BE_COVERED,
         "BuiltinProjectServer": {
-            # This method is covered by another test method.
-            "public_url": MissingReason.SHOULD_BE_COVERED,
-            # This method is covered by another test method.
-            "start": MissingReason.SHOULD_BE_COVERED,
-            # This method is covered by another test method.
-            "stop": MissingReason.SHOULD_BE_COVERED,
+            "public_url": MissingReason.COVERED_ELSEWHERE,
+            "start": MissingReason.COVERED_ELSEWHERE,
+            "stop": MissingReason.COVERED_ELSEWHERE,
         },
         "BuiltinServer": MissingReason.SHOULD_BE_COVERED,
         "NoPublicUrlBecauseServerNotStartedError": MissingReason.SHOULD_BE_COVERED,
@@ -477,7 +427,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     # We do not test our test utilities.
     **{
-        str(path): MissingReason.SHOULD_BE_COVERED
+        str(path): MissingReason.INTERNAL
         for path in (Path("betty") / "test_utils").rglob("**/*.py")
     },
     "betty/typing.py": {
@@ -492,20 +442,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "BettyDeprecationWarning": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/wikipedia/__init__.py": {
-        # This is a dataclass.
-        "Image": MissingReason.SHOULD_BE_COVERED,
+        "Image": MissingReason.DATACLASS,
         "NotAPageError": MissingReason.STATIC_CONTENT_ONLY,
         "Summary": {
-            # This is inherited from @dataclass.
-            "__eq__": MissingReason.SHOULD_BE_COVERED,
-            # This is inherited from @dataclass.
-            "__delattr__": MissingReason.SHOULD_BE_COVERED,
-            # This is inherited from @dataclass.
-            "__hash__": MissingReason.SHOULD_BE_COVERED,
-            # This is inherited from @dataclass.
-            "__replace__": MissingReason.SHOULD_BE_COVERED,
-            # This is inherited from @dataclass.
-            "__setattr__": MissingReason.SHOULD_BE_COVERED,
+            "__eq__": MissingReason.DATACLASS,
+            "__delattr__": MissingReason.DATACLASS,
+            "__hash__": MissingReason.DATACLASS,
+            "__replace__": MissingReason.DATACLASS,
+            "__setattr__": MissingReason.DATACLASS,
         },
     },
 }
