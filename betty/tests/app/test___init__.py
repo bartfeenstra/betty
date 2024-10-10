@@ -10,37 +10,44 @@ from betty.locale import DEFAULT_LOCALE
 
 
 class TestApp:
+    async def test_new_from_environment(self) -> None:
+        async with App.new_from_environment() as sut, sut:
+            assert sut.cache is sut.cache
+            assert await sut.fetcher is await sut.fetcher
+
     async def test_assets(self) -> None:
         async with App.new_temporary() as sut, sut:
-            sut.assets  # noqa B018
+            assert sut.assets is sut.assets
 
     async def test_binary_file_cache(self) -> None:
         async with App.new_temporary() as sut, sut:
-            sut.binary_file_cache  # noqa B018
+            assert sut.binary_file_cache is sut.binary_file_cache
 
     async def test_cache(self) -> None:
         async with App.new_temporary() as sut, sut:
-            sut.cache  # noqa B018
+            assert sut.cache is sut.cache
 
     async def test_fetcher(self) -> None:
         async with App.new_temporary() as sut, sut:
-            assert await sut.fetcher is not None
+            assert await sut.fetcher is await sut.fetcher
 
     async def test_http_client(self) -> None:
         async with App.new_temporary() as sut, sut:
-            assert await sut.http_client is not None
+            assert await sut.http_client is await sut.http_client
 
     async def test_localizer(self) -> None:
         async with App.new_temporary() as sut, sut:
-            assert await sut.localizer is not None
+            assert await sut.localizer is await sut.localizer
 
     async def test_localizers(self) -> None:
         async with App.new_temporary() as sut, sut:
-            await sut.localizers.get(DEFAULT_LOCALE)
+            localizer = sut.localizers
+            assert localizer is sut.localizers
+            assert (await localizer.get(DEFAULT_LOCALE)).locale == DEFAULT_LOCALE
 
     async def test_process_pool(self) -> None:
         async with App.new_temporary() as sut, sut:
-            sut.process_pool  # noqa B018
+            assert sut.process_pool is sut.process_pool
 
     async def test_new_target(self) -> None:
         class Dependent:
