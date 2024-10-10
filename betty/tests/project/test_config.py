@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable, Self, TYPE_CHECKING
+from typing import Iterable, TYPE_CHECKING
 
 import pytest
 from typing_extensions import override
@@ -10,7 +10,6 @@ from betty.ancestry.gender import Gender
 from betty.ancestry.place_type import PlaceType
 from betty.ancestry.presence_role import PresenceRole
 from betty.assertion.error import AssertionFailed
-from betty.config import Configuration
 from betty.copyright_notice import CopyrightNotice
 from betty.license import License
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
@@ -39,6 +38,7 @@ from betty.project.config import (
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension
 from betty.test_utils.assertion.error import raises_error
+from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.test_utils.model import DummyEntity
@@ -50,6 +50,7 @@ from betty.test_utils.project.extension import (
 )
 
 if TYPE_CHECKING:
+    from betty.config import Configuration
     from betty.serde.dump import Dump, DumpMapping
     from pytest_mock import MockerFixture
     from pathlib import Path
@@ -392,13 +393,6 @@ class TestLocaleConfigurationMapping(
             LocaleConfiguration("fr"),
         )
 
-    async def test_update(self) -> None:
-        sut = LocaleConfigurationMapping()
-        configurations = self.get_configurations()
-        other = LocaleConfigurationMapping(configurations)
-        sut.update(other)
-        assert list(sut) == list(other)
-
     async def test___delitem__(self) -> None:
         configurations = self.get_configurations()
         sut = self.get_sut([configurations[0]])
@@ -469,20 +463,6 @@ class TestLocaleConfigurationMapping(
         assert sut.multilingual
 
 
-class _DummyConfiguration(Configuration):
-    @override
-    def update(self, other: Self) -> None:
-        pass  # pragma: no cover
-
-    @override
-    def load(self, dump: Dump) -> None:
-        pass  # pragma: no cover
-
-    @override
-    def dump(self) -> Dump:
-        return None  # pragma: nocover
-
-
 class TestExtensionConfiguration:
     @pytest.fixture(autouse=True)
     def _extensions(self, mocker: MockerFixture) -> None:
@@ -506,7 +486,7 @@ class TestExtensionConfiguration:
         sut.enabled = False
 
     async def test_extension_configuration(self) -> None:
-        extension_type_configuration = _DummyConfiguration()
+        extension_type_configuration = DummyConfiguration()
         sut = ExtensionConfiguration(
             DummyConfigurableExtension,
             extension_configuration=extension_type_configuration,
@@ -658,13 +638,6 @@ class TestExtensionConfigurationMapping(
     async def test_enable(self) -> None:
         sut = ExtensionConfigurationMapping()
         sut.enable(DummyExtension)
-        assert sut[DummyExtension].enabled
-
-    async def test_update(self) -> None:
-        other = ExtensionConfigurationMapping()
-        other.enable(DummyExtension)
-        sut = ExtensionConfigurationMapping()
-        sut.update(other)
         assert sut[DummyExtension].enabled
 
 

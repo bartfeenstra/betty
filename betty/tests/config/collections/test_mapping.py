@@ -1,12 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence, Mapping
-from typing import (
-    Iterable,
-    Self,
-    TYPE_CHECKING,
-    cast,
-)
+from typing import Iterable, Self, TYPE_CHECKING, cast
 
 from typing_extensions import override
 
@@ -88,23 +83,23 @@ class TestConfigurationMapping(
             ),
         )
 
-    async def test_load_without_items(self) -> None:
+    def test_load_without_items(self) -> None:
         sut = self.get_sut()
         sut.load({})
         assert len(sut) == 0
 
-    async def test_load_with_items(self) -> None:
+    def test_load_with_items(self) -> None:
         sut = self.get_sut()
         configurations = self.get_configurations()
         sut.load({item.key: item.dump() for item in configurations})
         assert len(sut) == len(configurations)
 
-    async def test_dump_without_items(self) -> None:
+    def test_dump_without_items(self) -> None:
         sut = self.get_sut()
         dump = sut.dump()
         assert dump == {}
 
-    async def test_dump_with_items(self) -> None:
+    def test_dump_with_items(self) -> None:
         configurations = self.get_configurations()
         sut = self.get_sut()
         sut.replace(*configurations)
@@ -171,23 +166,23 @@ class TestOrderedConfigurationMapping(
             ),
         )
 
-    async def test_load_without_items(self) -> None:
+    def test_load_without_items(self) -> None:
         sut = self.get_sut()
         sut.load([])
         assert len(sut) == 0
 
-    async def test_load_with_items(self) -> None:
+    def test_load_with_items(self) -> None:
         sut = self.get_sut()
         configurations = self.get_configurations()
         sut.load([item.dump() for item in configurations])
         assert len(sut) == len(configurations)
 
-    async def test_dump_without_items(self) -> None:
+    def test_dump_without_items(self) -> None:
         sut = self.get_sut()
         dump = sut.dump()
         assert dump == []
 
-    async def test_dump_with_items(self) -> None:
+    def test_dump_with_items(self) -> None:
         configurations = self.get_configurations()
         sut = self.get_sut()
         sut.replace(*configurations)
