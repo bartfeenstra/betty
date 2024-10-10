@@ -65,9 +65,6 @@ _ModuleIgnore = _ModuleExistsIgnore | MissingReason
 # This baseline MUST NOT be extended. It SHOULD decrease in size as more coverage is added to Betty over time.
 _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/__init__.py": MissingReason.SHOULD_BE_COVERED,
-    "betty/app/config.py": {
-        "AppConfiguration": MissingReason.SHOULD_BE_COVERED,
-    },
     "betty/app/factory.py": MissingReason.ABSTRACT,
     "betty/assertion/__init__.py": {
         "assert_entity_type": MissingReason.SHOULD_BE_COVERED,
