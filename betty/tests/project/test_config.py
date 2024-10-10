@@ -48,7 +48,6 @@ from betty.test_utils.project.extension import (
     DummyConfigurableExtension,
     DummyConfigurableExtensionConfiguration,
 )
-from betty.typing import Void, Voidable
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
@@ -166,7 +165,7 @@ class TestEntityReference:
     ) -> None:
         entity_id = "123"
         dump: Dump = {
-            "entity_type": None,
+            "entity_type": 123,
             "entity": entity_id,
         }
         sut = EntityReference[EntityReferenceTestEntityOne]()
@@ -346,7 +345,7 @@ class TestLocaleConfiguration:
 
     async def test_dump_should_dump_minimal(self) -> None:
         sut = LocaleConfiguration("nl-NL")
-        expected = {"locale": "nl-NL"}
+        expected = {"locale": "nl-NL", "alias": None}
         assert sut.dump() == expected
 
     async def test_dump_should_dump_alias(self) -> None:
@@ -480,8 +479,8 @@ class _DummyConfiguration(Configuration):
         pass  # pragma: no cover
 
     @override
-    def dump(self) -> Voidable[Dump]:
-        return Void  # pragma: nocover
+    def dump(self) -> Dump:
+        return None  # pragma: nocover
 
 
 class TestExtensionConfiguration:
@@ -745,6 +744,7 @@ class TestEntityTypeConfiguration:
         sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
         expected = {
             "entity_type": EntityTypeConfigurationTestEntityOne.plugin_id(),
+            "generate_html_list": False,
         }
         assert sut.dump() == expected
 
@@ -1508,72 +1508,84 @@ class TestProjectConfiguration:
             sut.load(dump)
 
     @pytest.mark.parametrize(
-        "event_types_configuration",
+        ("expected", "event_types_configuration"),
         [
-            {},
-            {"foo": {"label": "Foo"}},
+            ({}, {}),
+            ({"foo": {"label": "Foo", "description": {}}}, {"foo": {"label": "Foo"}}),
         ],
     )
     async def test_load_should_load_event_types(
-        self, event_types_configuration: DumpMapping[Dump], tmp_path: Path
+        self,
+        expected: DumpMapping[Dump],
+        event_types_configuration: DumpMapping[Dump],
+        tmp_path: Path,
     ) -> None:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         dump = sut.dump()
         dump["event_types"] = event_types_configuration
         sut.load(dump)
         if event_types_configuration:
-            assert sut.dump()["event_types"] == event_types_configuration
+            assert sut.dump()["event_types"] == expected
 
     @pytest.mark.parametrize(
-        "place_types_configuration",
+        ("expected", "place_types_configuration"),
         [
-            {},
-            {"foo": {"label": "Foo"}},
+            ({}, {}),
+            ({"foo": {"label": "Foo", "description": {}}}, {"foo": {"label": "Foo"}}),
         ],
     )
     async def test_load_should_load_place_types(
-        self, place_types_configuration: DumpMapping[Dump], tmp_path: Path
+        self,
+        expected: DumpMapping[Dump],
+        place_types_configuration: DumpMapping[Dump],
+        tmp_path: Path,
     ) -> None:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         dump = sut.dump()
         dump["place_types"] = place_types_configuration
         sut.load(dump)
         if place_types_configuration:
-            assert sut.dump()["place_types"] == place_types_configuration
+            assert sut.dump()["place_types"] == expected
 
     @pytest.mark.parametrize(
-        "presence_roles_configuration",
+        ("expected", "presence_roles_configuration"),
         [
-            {},
-            {"foo": {"label": "Foo"}},
+            ({}, {}),
+            ({"foo": {"label": "Foo", "description": {}}}, {"foo": {"label": "Foo"}}),
         ],
     )
     async def test_load_should_load_presence_roles(
-        self, presence_roles_configuration: DumpMapping[Dump], tmp_path: Path
+        self,
+        expected: DumpMapping[Dump],
+        presence_roles_configuration: DumpMapping[Dump],
+        tmp_path: Path,
     ) -> None:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         dump = sut.dump()
         dump["presence_roles"] = presence_roles_configuration
         sut.load(dump)
         if presence_roles_configuration:
-            assert sut.dump()["presence_roles"] == presence_roles_configuration
+            assert sut.dump()["presence_roles"] == expected
 
     @pytest.mark.parametrize(
-        "genders_configuration",
+        ("expected", "genders_configuration"),
         [
-            {},
-            {"foo": {"label": "Foo"}},
+            ({}, {}),
+            ({"foo": {"label": "Foo", "description": {}}}, {"foo": {"label": "Foo"}}),
         ],
     )
     async def test_load_should_load_genders(
-        self, genders_configuration: DumpMapping[Dump], tmp_path: Path
+        self,
+        expected: DumpMapping[Dump],
+        genders_configuration: DumpMapping[Dump],
+        tmp_path: Path,
     ) -> None:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         dump = sut.dump()
         dump["genders"] = genders_configuration
         sut.load(dump)
         if genders_configuration:
-            assert sut.dump()["genders"] == genders_configuration
+            assert sut.dump()["genders"] == expected
 
     async def test_load_should_error_if_invalid_config(self, tmp_path: Path) -> None:
         dump: Dump = {}
@@ -1627,7 +1639,10 @@ class TestProjectConfiguration:
         sut.locales.replace(locale_configuration)
         dump = sut.dump()
         assert dump["locales"] == [
-            {"locale": locale},
+            {
+                "locale": locale,
+                "alias": None,
+            },
         ]
 
     async def test_dump_should_dump_locale_alias(self, tmp_path: Path) -> None:
@@ -1698,28 +1713,48 @@ class TestProjectConfiguration:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         sut.event_types.append(PluginConfiguration("foo", "Foo"))
         dump = sut.dump()
-        expected = {"foo": {"label": "Foo"}}
+        expected: DumpMapping[Dump] = {
+            "foo": {
+                "label": "Foo",
+                "description": {},
+            }
+        }
         assert dump["event_types"] == expected
 
     async def test_dump_should_dump_place_types(self, tmp_path: Path) -> None:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         sut.place_types.append(PluginConfiguration("foo", "Foo"))
         dump = sut.dump()
-        expected = {"foo": {"label": "Foo"}}
+        expected: DumpMapping[Dump] = {
+            "foo": {
+                "label": "Foo",
+                "description": {},
+            }
+        }
         assert dump["place_types"] == expected
 
     async def test_dump_should_dump_presence_roles(self, tmp_path: Path) -> None:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         sut.presence_roles.append(PluginConfiguration("foo", "Foo"))
         dump = sut.dump()
-        expected = {"foo": {"label": "Foo"}}
+        expected: DumpMapping[Dump] = {
+            "foo": {
+                "label": "Foo",
+                "description": {},
+            }
+        }
         assert dump["presence_roles"] == expected
 
     async def test_dump_should_dump_genders(self, tmp_path: Path) -> None:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         sut.genders.append(PluginConfiguration("foo", "Foo"))
         dump = sut.dump()
-        expected = {"foo": {"label": "Foo"}}
+        expected: DumpMapping[Dump] = {
+            "foo": {
+                "label": "Foo",
+                "description": {},
+            }
+        }
         assert dump["genders"] == expected
 
     async def test_dump_should_error_if_invalid_config(self, tmp_path: Path) -> None:

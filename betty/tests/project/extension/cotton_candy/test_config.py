@@ -5,20 +5,20 @@ from typing import Any, TYPE_CHECKING
 import pytest
 
 from betty.assertion.error import AssertionFailed
+from betty.model import UserFacingEntity
+from betty.plugin.static import StaticPluginRepository
+from betty.project.config import EntityReference
 from betty.project.extension.cotton_candy.config import (
     ColorConfiguration,
     CottonCandyConfiguration,
 )
-from betty.model import UserFacingEntity
-from betty.plugin.static import StaticPluginRepository
-from betty.project.config import EntityReference
 from betty.test_utils.assertion.error import raises_error
 from betty.test_utils.model import DummyEntity
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
     from pytest_mock import MockerFixture
-    from betty.serde.dump import Dump
+    from betty.serde.dump import Dump, DumpMapping
 
 
 class TestColorConfiguration:
@@ -149,7 +149,8 @@ class TestCottonCandyConfiguration:
 
     async def test_dump_with_minimal_configuration(self) -> None:
         sut = CottonCandyConfiguration()
-        expected = {
+        expected: DumpMapping[Dump] = {
+            "featured_entities": [],
             "primary_inactive_color": CottonCandyConfiguration.DEFAULT_PRIMARY_INACTIVE_COLOR,
             "primary_active_color": CottonCandyConfiguration.DEFAULT_PRIMARY_ACTIVE_COLOR,
             "link_inactive_color": CottonCandyConfiguration.DEFAULT_LINK_INACTIVE_COLOR,

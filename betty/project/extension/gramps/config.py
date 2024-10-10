@@ -75,10 +75,10 @@ from betty.config import Configuration
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.machine_name import assert_machine_name, MachineName
 from betty.plugin import PluginRepository, Plugin
-from betty.serde.dump import minimize, Dump, DumpMapping
-from betty.typing import internal, Void, Voidable
+from betty.typing import internal
 
 if TYPE_CHECKING:
+    from betty.serde.dump import Dump, DumpMapping
     from collections.abc import Mapping, MutableMapping, Iterable
 
 
@@ -183,9 +183,7 @@ class PluginMapping(Configuration):
         self._mapping = assert_mapping(assert_machine_name(), _assert_gramps_type)(dump)
 
     @override
-    def dump(self) -> Voidable[Dump]:
-        if not self._mapping:
-            return Void
+    def dump(self) -> Dump:
         # Dumps are mutable, so return a new dict which may then be changed without impacting ``self``.
         return dict(self._mapping)
 
@@ -290,15 +288,13 @@ class FamilyTreeConfiguration(Configuration):
 
     @override
     def dump(self) -> DumpMapping[Dump]:
-        return minimize(
-            {
-                "file": str(self.file_path) if self.file_path else None,
-                "event_types": self.event_types.dump(),
-                "genders": self.genders.dump(),
-                "place_types": self.place_types.dump(),
-                "presence_roles": self.presence_roles.dump(),
-            }
-        )
+        return {
+            "file": str(self.file_path) if self.file_path else None,
+            "event_types": self.event_types.dump(),
+            "genders": self.genders.dump(),
+            "place_types": self.place_types.dump(),
+            "presence_roles": self.presence_roles.dump(),
+        }
 
     @override
     def update(self, other: Self) -> None:
@@ -350,5 +346,5 @@ class GrampsConfiguration(Configuration):
         assert_record(OptionalField("family_trees", self.family_trees.load))(dump)
 
     @override
-    def dump(self) -> Voidable[DumpMapping[Dump]]:
-        return minimize({"family_trees": self.family_trees.dump()}, True)
+    def dump(self) -> DumpMapping[Dump]:
+        return {"family_trees": self.family_trees.dump()}

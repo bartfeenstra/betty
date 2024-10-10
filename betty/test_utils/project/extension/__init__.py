@@ -18,7 +18,6 @@ from betty.test_utils.plugin import (
     PluginTestBase,
     assert_plugin_identifier,
 )
-from betty.typing import Voidable
 
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)
 
@@ -112,7 +111,7 @@ class DummyConfigurableExtensionConfiguration(Configuration):
         )(dump)
 
     @override
-    def dump(self) -> Voidable[Dump]:
+    def dump(self) -> Dump:
         return {
             "check": self.check,
         }

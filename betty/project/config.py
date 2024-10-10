@@ -33,6 +33,8 @@ from betty.assertion import (
     assert_int,
     assert_path,
     assert_mapping,
+    assert_none,
+    assert_or,
 )
 from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
@@ -63,15 +65,13 @@ from betty.plugin.config import (
 from betty.project import extension
 from betty.project.extension import Extension, ConfigurableExtension
 from betty.repr import repr_instance
-from betty.serde.dump import (
-    Dump,
-    minimize,
-    DumpMapping,
-)
 from betty.serde.format import Format, format_for, FORMAT_REPOSITORY
-from betty.typing import Void, Voidable, void_none
 
 if TYPE_CHECKING:
+    from betty.serde.dump import (
+        Dump,
+        DumpMapping,
+    )
     from collections.abc import Sequence
     from betty.machine_name import MachineName
     from pathlib import Path
@@ -148,16 +148,16 @@ class EntityReference(Configuration, Generic[_EntityT]):
         self._entity_id = other._entity_id
 
     @override
-    def load(
-        self,
-        dump: Dump,
-    ) -> None:
+    def load(self, dump: Dump) -> None:
         if isinstance(dump, dict) or not self.entity_type_is_constrained:
             assert_record(
                 RequiredField(
                     "entity_type",
-                    assert_plugin(model.ENTITY_TYPE_REPOSITORY)
-                    | assert_setattr(self, "entity_type"),
+                    assert_or(
+                        assert_none(),
+                        assert_plugin(model.ENTITY_TYPE_REPOSITORY)
+                        | assert_setattr(self, "_entity_type"),
+                    ),
                 ),
                 OptionalField(
                     "entity",
@@ -169,20 +169,18 @@ class EntityReference(Configuration, Generic[_EntityT]):
             assert_setattr(self, "entity_id")(dump)
 
     @override
-    def dump(self) -> Voidable[DumpMapping[Dump] | str]:
+    def dump(self) -> DumpMapping[Dump] | str | None:
         if self.entity_type_is_constrained:
-            return void_none(self.entity_id)
+            return self.entity_id
 
-        entity_type = self.entity_type
-        if entity_type is None or self.entity_id is None:
-            return Void
-
-        return minimize(
-            {
-                "entity_type": entity_type.plugin_id(),
-                "entity": self._entity_id,
-            }
-        )
+        dump: DumpMapping[Dump] = {
+            "entity_type": None
+            if self.entity_type is None
+            else self.entity_type.plugin_id()
+        }
+        if self.entity_id is not None:
+            dump["entity"] = self.entity_id
+        return dump
 
 
 @final
@@ -348,18 +346,16 @@ class ExtensionConfiguration(Configuration):
 
     @override
     def dump(self) -> DumpMapping[Dump]:
-        return minimize(
-            {
-                "extension": self.extension_type.plugin_id(),
-                "enabled": self.enabled,
-                "configuration": (
-                    self.extension_configuration.dump()
-                    if issubclass(self.extension_type, ConfigurableExtension)
-                    and self.extension_configuration
-                    else Void
-                ),
-            }
-        )
+        dump: DumpMapping[Dump] = {
+            "extension": self.extension_type.plugin_id(),
+            "enabled": self.enabled,
+        }
+        if (
+            issubclass(self.extension_type, ConfigurableExtension)
+            and self.extension_configuration
+        ):
+            dump["configuration"] = self.extension_configuration.dump()
+        return dump
 
 
 @final
@@ -369,10 +365,6 @@ class ExtensionConfigurationMapping(
     """
     Configure a project's extensions.
     """
-
-    @override
-    def _void_minimized_item_dump(self) -> bool:
-        return True
 
     def __init__(
         self,
@@ -422,11 +414,11 @@ class EntityTypeConfiguration(Configuration):
         self,
         entity_type: type[Entity],
         *,
-        generate_html_list: bool | None = None,
+        generate_html_list: bool = False,
     ):
         super().__init__()
         self._entity_type = entity_type
-        self.generate_html_list = generate_html_list  # type: ignore[assignment]
+        self.generate_html_list = generate_html_list
 
     @property
     def entity_type(self) -> type[Entity]:
@@ -440,10 +432,10 @@ class EntityTypeConfiguration(Configuration):
         """
         Whether to generate listing web pages for entities of this type.
         """
-        return self._generate_html_list or False
+        return self._generate_html_list
 
     @generate_html_list.setter
-    def generate_html_list(self, generate_html_list: bool | None) -> None:
+    def generate_html_list(self, generate_html_list: bool) -> None:
         if generate_html_list and not issubclass(self._entity_type, UserFacingEntity):
             raise AssertionFailed(
                 _(
@@ -474,16 +466,10 @@ class EntityTypeConfiguration(Configuration):
 
     @override
     def dump(self) -> DumpMapping[Dump]:
-        return minimize(
-            {
-                "entity_type": self._entity_type.plugin_id(),
-                "generate_html_list": (
-                    Void
-                    if self._generate_html_list is None
-                    else self._generate_html_list
-                ),
-            }
-        )
+        return {
+            "entity_type": self._entity_type.plugin_id(),
+            "generate_html_list": (self._generate_html_list),
+        }
 
 
 @final
@@ -493,10 +479,6 @@ class EntityTypeConfigurationMapping(
     """
     Configure the entity types for a project.
     """
-
-    @override
-    def _void_minimized_item_dump(self) -> bool:
-        return True
 
     @override
     def _get_key(self, configuration: EntityTypeConfiguration) -> type[Entity]:
@@ -574,12 +556,15 @@ class LocaleConfiguration(Configuration):
     def load(self, dump: Dump) -> None:
         assert_record(
             RequiredField("locale", assert_locale() | assert_setattr(self, "_locale")),
-            OptionalField("alias", assert_str() | assert_setattr(self, "alias")),
+            OptionalField(
+                "alias",
+                assert_or(assert_str() | assert_setattr(self, "alias"), assert_none()),
+            ),
         )(dump)
 
     @override
-    def dump(self) -> Voidable[Dump]:
-        return minimize({"locale": self.locale, "alias": void_none(self._alias)})
+    def dump(self) -> Dump:
+        return {"locale": self.locale, "alias": self._alias}
 
 
 @final
@@ -688,9 +673,11 @@ class CopyrightNoticeConfiguration(PluginConfiguration):
 
     @override
     def dump(self) -> DumpMapping[Dump]:
-        return minimize(
-            {**super().dump(), "summary": self.summary.dump(), "text": self.text.dump()}
-        )
+        return {
+            **super().dump(),
+            "summary": self.summary.dump(),
+            "text": self.text.dump(),
+        }
 
 
 class CopyrightNoticeConfigurationMapping(
@@ -782,9 +769,11 @@ class LicenseConfiguration(PluginConfiguration):
 
     @override
     def dump(self) -> DumpMapping[Dump]:
-        return minimize(
-            {**super().dump(), "summary": self.summary.dump(), "text": self.text.dump()}
-        )
+        return {
+            **super().dump(),
+            "summary": self.summary.dump(),
+            "text": self.text.dump(),
+        }
 
 
 class LicenseConfigurationMapping(
@@ -1295,11 +1284,17 @@ class ProjectConfiguration(Configuration):
     @override
     def load(self, dump: Dump) -> None:
         assert_record(
-            OptionalField("name", assert_str() | assert_setattr(self, "name")),
+            OptionalField(
+                "name",
+                assert_or(assert_str() | assert_setattr(self, "name"), assert_none()),
+            ),
             RequiredField("url", assert_str() | assert_setattr(self, "url")),
             OptionalField("title", self.title.load),
             OptionalField("author", self.author.load),
-            OptionalField("logo", assert_path() | assert_setattr(self, "logo")),
+            OptionalField(
+                "logo",
+                assert_or(assert_path() | assert_setattr(self, "logo"), assert_none()),
+            ),
             OptionalField(
                 "clean_urls",
                 assert_bool() | assert_setattr(self, "clean_urls"),
@@ -1328,26 +1323,25 @@ class ProjectConfiguration(Configuration):
 
     @override
     def dump(self) -> DumpMapping[Dump]:
-        return minimize(
-            {
-                "name": void_none(self.name),
-                "url": self.url,
-                "title": self.title.dump(),
-                "clean_urls": void_none(self.clean_urls),
-                "author": self.author.dump(),
-                "logo": str(self._logo) if self._logo else Void,
-                "debug": void_none(self.debug),
-                "lifetime_threshold": void_none(self.lifetime_threshold),
-                "locales": self.locales.dump(),
-                "extensions": self.extensions.dump(),
-                "entity_types": self.entity_types.dump(),
-                "copyright": void_none(self.copyright_notice),
-                "copyright_notices": self.copyright_notices.dump(),
-                "license": void_none(self.license),
-                "licenses": self.licenses.dump(),
-                "event_types": self.event_types.dump(),
-                "genders": self.genders.dump(),
-                "place_types": self.place_types.dump(),
-                "presence_roles": self.presence_roles.dump(),
-            }
-        )
+        dump: DumpMapping[Dump] = {
+            "name": self.name,
+            "url": self.url,
+            "title": self.title.dump(),
+            "clean_urls": self.clean_urls,
+            "author": self.author.dump(),
+            "logo": str(self._logo) if self._logo else None,
+            "debug": self.debug,
+            "lifetime_threshold": self.lifetime_threshold,
+            "locales": self.locales.dump(),
+            "extensions": self.extensions.dump(),
+            "entity_types": self.entity_types.dump(),
+            "copyright": self.copyright_notice,
+            "copyright_notices": self.copyright_notices.dump(),
+            "license": self.license,
+            "licenses": self.licenses.dump(),
+            "event_types": self.event_types.dump(),
+            "genders": self.genders.dump(),
+            "place_types": self.place_types.dump(),
+            "presence_roles": self.presence_roles.dump(),
+        }
+        return dump

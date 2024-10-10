@@ -49,13 +49,12 @@ from betty.locale.localized import Localized, negotiate_localizeds, LocalizedStr
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
 from betty.os import link_or_copy
-from betty.serde.dump import minimize
 from betty.string import (
     camel_case_to_snake_case,
     camel_case_to_kebab_case,
     upper_camel_case_to_lower_camel_case,
 )
-from betty.typing import void_none, none_void, internal
+from betty.typing import internal
 
 if TYPE_CHECKING:
     from betty.ancestry.date import HasDate
@@ -614,10 +613,8 @@ async def filters() -> Mapping[str, Callable[..., Any]]:
         "localize_html_lang": filter_localize_html_lang,
         "localized_url": filter_localized_url,
         "map": filter_map,
-        "minimize": minimize,
         "negotiate_has_dates": filter_negotiate_has_dates,
         "negotiate_localizeds": filter_negotiate_localizeds,
-        "none_void": none_void,
         "paragraphs": filter_paragraphs,
         "select_has_dates": filter_select_has_dates,
         "select_localizeds": filter_select_localizeds,
@@ -626,7 +623,6 @@ async def filters() -> Mapping[str, Callable[..., Any]]:
         "str": str,
         "unique": filter_unique,
         "upper_camel_case_to_lower_camel_case": upper_camel_case_to_lower_camel_case,
-        "void_none": void_none,
         "public_css": filter_public_css,
         "public_js": filter_public_js,
     }

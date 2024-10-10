@@ -22,7 +22,7 @@ from betty.locale.localizable.config import (
 )
 from betty.machine_name import assert_machine_name, MachineName
 from betty.plugin import Plugin
-from betty.serde.dump import Dump, minimize, DumpMapping
+from betty.serde.dump import Dump, DumpMapping
 
 _PluginCoT = TypeVar("_PluginCoT", bound=Plugin, covariant=True)
 
@@ -71,13 +71,11 @@ class PluginConfiguration(Configuration):
 
     @override
     def dump(self) -> DumpMapping[Dump]:
-        return minimize(
-            {
-                "id": self.id,
-                "label": self.label.dump(),
-                "description": self.description.dump(),
-            }
-        )
+        return {
+            "id": self.id,
+            "label": self.label.dump(),
+            "description": self.description.dump(),
+        }
 
 
 _PluginConfigurationT = TypeVar("_PluginConfigurationT", bound=PluginConfiguration)
@@ -109,10 +107,6 @@ class PluginConfigurationMapping(
         The plugin (class) for the given configuration.
         """
         raise NotImplementedError
-
-    @override
-    def _void_minimized_item_dump(self) -> bool:
-        return True
 
     @override
     def _get_key(self, configuration: _PluginConfigurationT) -> str:

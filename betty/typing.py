@@ -4,7 +4,7 @@ Providing typing utilities.
 
 from __future__ import annotations
 
-from typing import TypeVar, TypeAlias, cast
+from typing import TypeVar, TypeAlias
 
 from betty.docstring import append
 
@@ -79,17 +79,3 @@ class Void:
 
 
 Voidable: TypeAlias = _T | type[Void]
-
-
-def void_none(value: _T | None) -> Voidable[_T]:
-    """
-    Passthrough a value, but convert ``None`` to :py:class:`betty.typing.Void`.
-    """
-    return Void if value is None else value
-
-
-def none_void(value: Voidable[_T]) -> _T | None:
-    """
-    Passthrough a value, but convert :py:class:`betty.typing.Void` to ``None``.
-    """
-    return None if value is Void else cast(_T, value)

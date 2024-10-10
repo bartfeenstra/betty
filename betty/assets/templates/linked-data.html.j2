@@ -1,8 +1,6 @@
 {% set linked_data=[
-    breadcrumbs.dump(),
-] | minimize(true) | none_void %}
-{% if linked_data %}
-    <script type="application/ld+json">
-        {{ linked_data | json | safe }}
-    </script>
-{% endif %}
+    breadcrumbs.dump()
+] %}
+<script type="application/ld+json">
+    {{ linked_data | json | safe }}
+</script>

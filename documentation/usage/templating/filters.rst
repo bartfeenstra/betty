@@ -20,10 +20,8 @@ In addition to Jinja2's built-in filters, Betty provides the following:
 - :py:func:`localize_html_lang <betty.jinja2.filter.filter_localize_html_lang>`
 - :py:func:`localized_url <betty.jinja2.filter.filter_localized_url>`
 - :py:func:`map <betty.jinja2.filter.filter_map>`
-- :py:func:`minimize <betty.serde.dump.minimize>`
 - :py:func:`negotiate_has_dates <betty.jinja2.filter.filter_negotiate_has_dates>`
 - :py:func:`negotiate_localizeds <betty.jinja2.filter.filter_negotiate_localizeds>`
-- :py:func:`none_void <betty.typing.none_void>`
 - :py:func:`paragraphs <betty.jinja2.filter.filter_paragraphs>`
 - :py:func:`select_has_dates <betty.jinja2.filter.filter_select_has_dates>`
 - :py:func:`select_localizeds <betty.jinja2.filter.filter_select_localizeds>`
@@ -31,4 +29,3 @@ In addition to Jinja2's built-in filters, Betty provides the following:
 - :py:func:`sort_localizeds <betty.jinja2.filter.filter_sort_localizeds>`
 - :py:func:`unique <betty.jinja2.filter.filter_unique>`
 - :py:func:`upper_camel_case_to_lower_camel_case <betty.string.upper_camel_case_to_lower_camel_case>`
-- :py:func:`void_none <betty.typing.void_none>`

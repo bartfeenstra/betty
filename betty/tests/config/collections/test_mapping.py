@@ -23,7 +23,6 @@ from betty.config.collections.mapping import (
     OrderedConfigurationMapping,
 )
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
-from betty.typing import Void
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
@@ -103,7 +102,7 @@ class TestConfigurationMapping(
     async def test_dump_without_items(self) -> None:
         sut = self.get_sut()
         dump = sut.dump()
-        assert dump is Void
+        assert dump == {}
 
     async def test_dump_with_items(self) -> None:
         configurations = self.get_configurations()
@@ -113,7 +112,7 @@ class TestConfigurationMapping(
         assert isinstance(dump, Mapping)
         assert len(dump) == len(configurations)
         for configuration_key in self.get_configuration_keys():
-            assert configuration_key in dump  # type: ignore[operator]
+            assert configuration_key in dump
 
 
 class ConfigurationMappingTestConfigurationMapping(
@@ -186,7 +185,7 @@ class TestOrderedConfigurationMapping(
     async def test_dump_without_items(self) -> None:
         sut = self.get_sut()
         dump = sut.dump()
-        assert dump is Void
+        assert dump == []
 
     async def test_dump_with_items(self) -> None:
         configurations = self.get_configurations()

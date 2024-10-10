@@ -1,5 +1,6 @@
-from betty.app.config import AppConfiguration
 from typing import TYPE_CHECKING
+
+from betty.app.config import AppConfiguration
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
@@ -43,7 +44,7 @@ class TestAppConfiguration:
     def test_dump_minimal(self) -> None:
         sut = AppConfiguration()
         actual = sut.dump()
-        assert actual == {}
+        assert actual == {"locale": None}
 
     def test_dump_with_locale(self) -> None:
         locale = "nl-NL"
