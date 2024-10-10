@@ -18,7 +18,6 @@ from betty.serde.dump import Dump
 from betty.test_utils.assertion.error import raises_error
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.test_utils.plugin import DummyPlugin
-from betty.typing import Void
 
 
 class TestFamilyTreeConfigurationSequence(
@@ -211,7 +210,7 @@ class TestPluginMapping:
     def test_load_without_values(self) -> None:
         sut = PluginMapping()
         sut.load({})
-        assert sut.dump() is Void
+        assert sut.dump() == {}
 
     def test_load_with_values(self) -> None:
         dump: Dump = {"my-first-gramps-type": "my-first-betty-plugin-id"}
@@ -239,7 +238,7 @@ class TestPluginMapping:
     @pytest.mark.parametrize(
         ("expected", "sut"),
         [
-            (Void, PluginMapping()),
+            ({}, PluginMapping()),
             (
                 {"my-first-gramps-type": "my-first-betty-plugin-id"},
                 PluginMapping({"my-first-gramps-type": "my-first-betty-plugin-id"}),
@@ -317,7 +316,7 @@ class TestGrampsConfiguration:
 
     async def test_dump_with_minimal_configuration(self) -> None:
         sut = GrampsConfiguration()
-        assert sut.dump() is Void
+        assert sut.dump() == {"family_trees": []}
 
     async def test_dump_with_family_tree(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"

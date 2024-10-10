@@ -18,10 +18,9 @@ from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
 from betty.locale.localizable import _
 from betty.project.config import EntityReference, EntityReferenceSequence
-from betty.serde.dump import Dump, minimize, DumpMapping
 
 if TYPE_CHECKING:
-    from betty.typing import Voidable
+    from betty.serde.dump import Dump, DumpMapping
     from betty.model import UserFacingEntity, Entity
 
 
@@ -69,7 +68,7 @@ class ColorConfiguration(Configuration):
         self._hex = (assert_str() | self._assert_hex)(dump)
 
     @override
-    def dump(self) -> Voidable[Dump]:
+    def dump(self) -> Dump:
         return self._hex
 
 
@@ -158,12 +157,10 @@ class CottonCandyConfiguration(Configuration):
 
     @override
     def dump(self) -> DumpMapping[Dump]:
-        return minimize(
-            {
-                "featured_entities": self.featured_entities.dump(),
-                "primary_inactive_color": self._primary_inactive_color.dump(),
-                "primary_active_color": self._primary_active_color.dump(),
-                "link_inactive_color": self._link_inactive_color.dump(),
-                "link_active_color": self._link_active_color.dump(),
-            }
-        )
+        return {
+            "featured_entities": self.featured_entities.dump(),
+            "primary_inactive_color": self._primary_inactive_color.dump(),
+            "primary_active_color": self._primary_active_color.dump(),
+            "link_inactive_color": self._link_inactive_color.dump(),
+            "link_active_color": self._link_active_color.dump(),
+        }

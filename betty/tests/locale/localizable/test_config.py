@@ -11,7 +11,6 @@ from betty.locale.localizable.config import (
     RequiredStaticTranslationsLocalizableConfigurationAttr,
 )
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.typing import Void
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump
@@ -105,7 +104,7 @@ class TestStaticTranslationsLocalizableConfiguration:
 
     async def test_dump_without_translations(self) -> None:
         sut = StaticTranslationsLocalizableConfiguration()
-        assert sut.dump() is Void
+        assert sut.dump() == {}
 
     async def test_dump_with_single_determined_translation(self) -> None:
         sut = StaticTranslationsLocalizableConfiguration(

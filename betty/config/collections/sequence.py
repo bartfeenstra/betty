@@ -21,10 +21,9 @@ from typing_extensions import override
 from betty.assertion import assert_sequence
 from betty.config import Configuration
 from betty.config.collections import ConfigurationCollection
-from betty.serde.dump import Dump, minimize, DumpSequence
 
 if TYPE_CHECKING:
-    from betty.typing import Voidable
+    from betty.serde.dump import Dump, DumpSequence
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 
@@ -88,10 +87,8 @@ class ConfigurationSequence(
         self.replace(*assert_sequence(self.load_item)(dump))
 
     @override
-    def dump(self) -> Voidable[DumpSequence[Dump]]:
-        return minimize(
-            [configuration.dump() for configuration in self._configurations], True
-        )
+    def dump(self) -> DumpSequence[Dump]:
+        return [configuration.dump() for configuration in self._configurations]
 
     @override
     def prepend(self, *configurations: _ConfigurationT) -> None:

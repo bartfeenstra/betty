@@ -35,7 +35,7 @@ from betty.plugin import Plugin, PluginIdToTypeMap
 from betty.project.factory import ProjectDependentFactory
 from betty.render import Renderer
 from betty.serde.dump import Dumpable, DumpMapping, Dump
-from betty.typing import Void, Voidable, private
+from betty.typing import private
 
 if TYPE_CHECKING:
     from betty.assets import AssetRepository
@@ -118,9 +118,9 @@ class _Breadcrumbs(Dumpable):
         self._breadcrumbs.append(_Breadcrumb(label, url))
 
     @override
-    def dump(self) -> Voidable[Dump]:
+    def dump(self) -> Dump:
         if not self._breadcrumbs:
-            return Void
+            return {}
         return {
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",

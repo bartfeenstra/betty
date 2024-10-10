@@ -21,15 +21,9 @@ from typing_extensions import override
 from betty.assertion import assert_sequence, assert_mapping
 from betty.config import Configuration
 from betty.config.collections import ConfigurationCollection, ConfigurationKey
-from betty.serde.dump import (
-    Dump,
-    minimize,
-    DumpMapping,
-    DumpSequence,
-)
-from betty.typing import Void, Voidable
 
 if TYPE_CHECKING:
+    from betty.serde.dump import Dump, DumpMapping, DumpSequence
     from collections.abc import MutableMapping
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
@@ -46,9 +40,6 @@ class _ConfigurationMapping(
     ):
         self._configurations: MutableMapping[_ConfigurationKeyT, _ConfigurationT] = {}
         super().__init__(configurations)
-
-    def _void_minimized_item_dump(self) -> bool:
-        return False
 
     @override
     def __getitem__(self, configuration_key: _ConfigurationKeyT) -> _ConfigurationT:
@@ -142,16 +133,14 @@ class ConfigurationMapping(
         )
 
     @override
-    def dump(self) -> Voidable[DumpMapping[Dump]]:
-        dump = {}
+    def dump(self) -> DumpMapping[Dump]:
+        dump: DumpMapping[Dump] = {}
         for configuration_item in self._configurations.values():
             item_dump = configuration_item.dump()
-            if item_dump is not Void:
-                assert isinstance(item_dump, Mapping)
-                configuration_key = self._dump_key(item_dump)
-                item_dump = minimize(item_dump, self._void_minimized_item_dump())
-                dump[configuration_key] = item_dump
-        return minimize(dump, True)
+            assert isinstance(item_dump, Mapping)
+            configuration_key = self._dump_key(item_dump)
+            dump[configuration_key] = item_dump
+        return dump
 
 
 class OrderedConfigurationMapping(
@@ -169,11 +158,8 @@ class OrderedConfigurationMapping(
         self.replace(*assert_sequence(self.load_item)(dump))
 
     @override
-    def dump(self) -> Voidable[DumpSequence[Dump]]:
-        return minimize(
-            [
-                configuration_item.dump()
-                for configuration_item in self._configurations.values()
-            ],
-            True,
-        )
+    def dump(self) -> DumpSequence[Dump]:
+        return [
+            configuration_item.dump()
+            for configuration_item in self._configurations.values()
+        ]
