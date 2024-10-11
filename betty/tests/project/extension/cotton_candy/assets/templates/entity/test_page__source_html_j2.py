@@ -6,14 +6,14 @@ from betty.ancestry.file_reference import FileReference
 from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.source import Source
-from betty.project.extension.cotton_candy import CottonCandy
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.test_utils.assets.templates import TemplateTestBase
+from betty.project.extension.cotton_candy import CottonCandy
+from betty.test_utils.jinja2 import TemplateFileTestBase
 
 
-class TestTemplate(TemplateTestBase):
+class TestTemplate(TemplateFileTestBase):
     extensions = {CottonCandy}
-    template_file = "entity/page--source.html.j2"
+    template = "entity/page--source.html.j2"
 
     async def test_privacy(self, tmp_path: Path) -> None:
         file_path = tmp_path / "file"
@@ -369,7 +369,7 @@ class TestTemplate(TemplateTestBase):
             private_citation_for_private_contained_source
         )
 
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "page_resource": source,
                 "entity_type": Source,

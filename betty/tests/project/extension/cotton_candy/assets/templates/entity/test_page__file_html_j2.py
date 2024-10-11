@@ -1,12 +1,12 @@
 from pathlib import Path
 
-from betty.ancestry.file_reference import FileReference
 from betty.ancestry.file import File
+from betty.ancestry.file_reference import FileReference
 from betty.ancestry.has_file_references import HasFileReferences
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.privacy import HasPrivacy
 from betty.project.extension.cotton_candy import CottonCandy
-from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.test_utils.assets.templates import TemplateTestBase
+from betty.test_utils.jinja2 import TemplateFileTestBase
 from betty.test_utils.model import DummyEntity
 
 
@@ -16,9 +16,9 @@ class DummyHasFileReferencesHasPrivacyEntity(
     pass
 
 
-class TestTemplate(TemplateTestBase):
+class TestTemplate(TemplateFileTestBase):
     extensions = {CottonCandy}
-    template_file = "entity/page--file.html.j2"
+    template = "entity/page--file.html.j2"
 
     async def test_privacy(self) -> None:
         file = File(
@@ -33,7 +33,7 @@ class TestTemplate(TemplateTestBase):
         private_referee.private = True
         FileReference(private_referee, file)
 
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "page_resource": file,
                 "entity_type": File,

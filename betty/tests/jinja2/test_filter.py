@@ -23,7 +23,7 @@ from betty.locale.localizable import StaticTranslationsLocalizable, plain
 from betty.locale.localized import Localized, LocalizedStr
 from betty.media_type import MediaType
 from betty.test_utils.ancestry.date import DummyHasDate
-from betty.test_utils.assets.templates import TemplateTestBase
+from betty.test_utils.jinja2 import TemplateStringTestBase
 from betty.test_utils.locale.localized import DummyLocalized
 from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 
@@ -46,7 +46,7 @@ class _DummyLocalized(DummyLocalized):
         self.value = value
 
 
-class TestFilterFile(TemplateTestBase):
+class TestFilterFile(TemplateStringTestBase):
     _PARAMETER_ARGNAMES = ("expected", "template", "file")
     _PARAMETER_ARGVALUES = [
         (
@@ -69,8 +69,8 @@ class TestFilterFile(TemplateTestBase):
 
     @pytest.mark.parametrize(_PARAMETER_ARGNAMES, _PARAMETER_ARGVALUES)
     async def test(self, expected: str, template: str, file: File) -> None:
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "file": file,
             },
@@ -85,8 +85,8 @@ class TestFilterFile(TemplateTestBase):
     async def test_with_job_context(
         self, expected: str, template: str, file: File
     ) -> None:
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "file": file,
                 "job_context": Context(),
@@ -99,7 +99,7 @@ class TestFilterFile(TemplateTestBase):
                 ).exists()
 
 
-class TestFilterFlatten(TemplateTestBase):
+class TestFilterFlatten(TemplateStringTestBase):
     @pytest.mark.parametrize(
         ("expected", "template"),
         [
@@ -112,11 +112,11 @@ class TestFilterFlatten(TemplateTestBase):
         ],
     )
     async def test(self, expected: str, template: str) -> None:
-        async with self._render(template_string=template) as (actual, _):
+        async with self.assert_template_string(template=template) as (actual, _):
             assert actual == expected
 
 
-class TestFilterParagraphs(TemplateTestBase):
+class TestFilterParagraphs(TemplateStringTestBase):
     @pytest.mark.parametrize(
         ("expected", "autoescape", "template"),
         [
@@ -135,14 +135,16 @@ class TestFilterParagraphs(TemplateTestBase):
         ],
     )
     async def test(self, expected: str, autoescape: bool, template: str) -> None:
-        async with self._render(template_string=template, autoescape=autoescape) as (
+        async with self.assert_template_string(
+            template=template, autoescape=autoescape
+        ) as (
             actual,
             _,
         ):
             assert actual == expected
 
 
-class TestFilterFormatDegrees(TemplateTestBase):
+class TestFilterFormatDegrees(TemplateStringTestBase):
     @pytest.mark.parametrize(
         ("expected", "template"),
         [
@@ -151,11 +153,11 @@ class TestFilterFormatDegrees(TemplateTestBase):
         ],
     )
     async def test(self, expected: str, template: str) -> None:
-        async with self._render(template_string=template) as (actual, _):
+        async with self.assert_template_string(template=template) as (actual, _):
             assert actual == expected
 
 
-class TestFilterUnique(TemplateTestBase):
+class TestFilterUnique(TemplateStringTestBase):
     async def test(self) -> None:
         data: Sequence[Any] = [
             999,
@@ -163,8 +165,8 @@ class TestFilterUnique(TemplateTestBase):
             999,
             {},
         ]
-        async with self._render(
-            template_string='{{ data | unique | join(", ") }}',
+        async with self.assert_template_string(
+            template='{{ data | unique | join(", ") }}',
             data={
                 "data": data,
             },
@@ -172,7 +174,7 @@ class TestFilterUnique(TemplateTestBase):
             assert actual == "999, {}"
 
 
-class TestFilterMap(TemplateTestBase):
+class TestFilterMap(TemplateStringTestBase):
     class MapData:
         def __init__(self, label: str):
             self.label = label
@@ -193,8 +195,8 @@ class TestFilterMap(TemplateTestBase):
         ],
     )
     async def test(self, expected: str, template: str, data: MapData) -> None:
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "data": data,
             },
@@ -202,7 +204,7 @@ class TestFilterMap(TemplateTestBase):
             assert actual == expected
 
 
-class TestFilterImageResizeCover(TemplateTestBase):
+class TestFilterImageResizeCover(TemplateStringTestBase):
     _IMAGE_PATH = ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png"
     _PARAMETER_ARGNAMES = ("expected", "template", "filey")
     _PARAMETER_ARGVALUES = [
@@ -280,8 +282,8 @@ class TestFilterImageResizeCover(TemplateTestBase):
 
     @pytest.mark.parametrize(_PARAMETER_ARGNAMES, _PARAMETER_ARGVALUES)
     async def test(self, expected: str, template: str, filey: File) -> None:
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "filey": filey,
             },
@@ -296,8 +298,8 @@ class TestFilterImageResizeCover(TemplateTestBase):
     async def test_with_job_context(
         self, expected: str, template: str, filey: File
     ) -> None:
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "filey": filey,
                 "job_context": Context(),
@@ -315,8 +317,8 @@ class TestFilterImageResizeCover(TemplateTestBase):
             await f.write(
                 '<?xml version="1.0" encoding="UTF-8"?><svg version="1.1" xmlns="http://www.w3.org/2000/svg"></svg>'
             )
-        async with self._render(
-            template_string="{{ filey | filter_image_resize_cover }}",
+        async with self.assert_template_string(
+            template="{{ filey | filter_image_resize_cover }}",
             data={
                 "filey": File(
                     id="F1",
@@ -335,8 +337,8 @@ class TestFilterImageResizeCover(TemplateTestBase):
         image_path = tmp_path / "image.pdf"
         image = Image.new("1", (1, 1))
         image.save(image_path)
-        async with self._render(
-            template_string="{{ filey | filter_image_resize_cover }}",
+        async with self.assert_template_string(
+            template="{{ filey | filter_image_resize_cover }}",
             data={
                 "filey": File(
                     id="F1",
@@ -355,8 +357,8 @@ class TestFilterImageResizeCover(TemplateTestBase):
         file_path = tmp_path / "not-an-image.txt"
         file_path.touch()
         with pytest.raises(ValueError):  # noqa PT011
-            async with self._render(
-                template_string="{{ filey | filter_image_resize_cover }}",
+            async with self.assert_template_string(
+                template="{{ filey | filter_image_resize_cover }}",
                 data={
                     "filey": File(
                         id="F1",
@@ -369,14 +371,14 @@ class TestFilterImageResizeCover(TemplateTestBase):
 
     async def test_with_file_without_media_type(self, tmp_path: Path) -> None:
         with pytest.raises(ValueError):  # noqa PT011
-            async with self._render(
-                template_string="{{ filey | filter_image_resize_cover }}",
+            async with self.assert_template_string(
+                template="{{ filey | filter_image_resize_cover }}",
                 data={"filey": File(id="F1", path=self._IMAGE_PATH)},
             ):
                 pass  # pragma: nocover
 
 
-class TestFilterSelectHasDates(TemplateTestBase):
+class TestFilterSelectHasDates(TemplateStringTestBase):
     @pytest.mark.parametrize(
         ("expected", "data"),
         [
@@ -450,11 +452,14 @@ class TestFilterSelectHasDates(TemplateTestBase):
     )
     async def test(self, expected: str, data: MutableMapping[str, Any]) -> None:
         template = '{{ has_dates | select_has_dates(date=date) | join(", ") }}'
-        async with self._render(template_string=template, data=data) as (actual, _):
+        async with self.assert_template_string(template=template, data=data) as (
+            actual,
+            _,
+        ):
             assert actual == expected
 
 
-class TestFilterSelectLocalizeds(TemplateTestBase):
+class TestFilterSelectLocalizeds(TemplateStringTestBase):
     @pytest.mark.parametrize(
         ("expected", "locale", "data"),
         [
@@ -491,8 +496,8 @@ class TestFilterSelectLocalizeds(TemplateTestBase):
             '{{ data | select_localizeds | map(attribute="locale") | join(", ") }}'
         )
 
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "data": data,
             },
@@ -509,8 +514,8 @@ class TestFilterSelectLocalizeds(TemplateTestBase):
             DummyLocalized(locale=UNCODED_LOCALE),
         ]
 
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "data": data,
             },
@@ -519,7 +524,7 @@ class TestFilterSelectLocalizeds(TemplateTestBase):
             assert actual == "zxx, und, mul, mis"
 
 
-class TestFilterSortLocalizeds(TemplateTestBase):
+class TestFilterSortLocalizeds(TemplateStringTestBase):
     class WithLocalizedDummyLocalizeds:
         def __init__(self, identifier: str, names: Sequence[DummyLocalized]):
             self.id = identifier
@@ -552,8 +557,8 @@ class TestFilterSortLocalizeds(TemplateTestBase):
                 ],
             ),
         ]
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "data": data,
             },
@@ -562,8 +567,8 @@ class TestFilterSortLocalizeds(TemplateTestBase):
 
     async def test_with_empty_iterable(self) -> None:
         template = '{{ data | sort_localizeds(localized_attribute="names", sort_attribute="value") }}'
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "data": [],
             },
@@ -571,12 +576,12 @@ class TestFilterSortLocalizeds(TemplateTestBase):
             assert actual == "[]"
 
 
-class TestFilterFormatDatey(TemplateTestBase):
+class TestFilterFormatDatey(TemplateStringTestBase):
     async def test(self) -> None:
         template = "{{ date | format_datey }}"
         date = Date(1970, 1, 1)
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "date": date,
             },
@@ -584,7 +589,7 @@ class TestFilterFormatDatey(TemplateTestBase):
             assert actual == "January 1, 1970"
 
 
-class TestFilterHtmlLang(TemplateTestBase):
+class TestFilterHtmlLang(TemplateStringTestBase):
     @pytest.mark.parametrize(
         ("expected", "autoescape", "localized_locale"),
         [
@@ -599,8 +604,8 @@ class TestFilterHtmlLang(TemplateTestBase):
     ) -> None:
         template = "{{ localized | html_lang }}"
         localized = LocalizedStr("Hallo, wereld!", locale=localized_locale)
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "localized": localized,
             },
@@ -609,7 +614,7 @@ class TestFilterHtmlLang(TemplateTestBase):
             assert actual == expected
 
 
-class TestFilterLocalizeHtmlLang(TemplateTestBase):
+class TestFilterLocalizeHtmlLang(TemplateStringTestBase):
     @pytest.mark.parametrize(
         ("expected", "localized_locale"),
         [
@@ -624,8 +629,8 @@ class TestFilterLocalizeHtmlLang(TemplateTestBase):
                 localized_locale: "Hallo, wereld!",
             }
         )
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "localizable": localizable,
             },
@@ -633,37 +638,37 @@ class TestFilterLocalizeHtmlLang(TemplateTestBase):
             assert actual == expected
 
 
-class TestFilterHashid(TemplateTestBase):
+class TestFilterHashid(TemplateStringTestBase):
     async def test(self) -> None:
         template = "{{ data | hashid }}"
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={"data": "Hello, world!"},
         ) as (actual, _):
             assert actual == "6cd3556deb0da54bca060b4c39479839"
 
 
-class TestFilterJson(TemplateTestBase):
+class TestFilterJson(TemplateStringTestBase):
     async def test(self) -> None:
         template = "{{ data | json }}"
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={"data": [1, 2, 3]},
         ) as (actual, _):
             assert actual == "[1, 2, 3]"
 
 
-class TestFilterLocalize(TemplateTestBase):
+class TestFilterLocalize(TemplateStringTestBase):
     async def test(self) -> None:
         template = "{{ data | localize }}"
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={"data": plain("Hello, world!")},
         ) as (actual, _):
             assert actual == "Hello, world!"
 
 
-class TestFilterLocalizedUrl(TemplateTestBase):
+class TestFilterLocalizedUrl(TemplateStringTestBase):
     @pytest.mark.parametrize(
         ("expected", "data", "absolute"),
         [
@@ -673,8 +678,8 @@ class TestFilterLocalizedUrl(TemplateTestBase):
     )
     async def test(self, expected: str, data: Any, absolute: bool) -> None:
         template = "{{ data | localized_url(absolute=absolute) }}"
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "data": data,
                 "absolute": absolute,
@@ -683,7 +688,7 @@ class TestFilterLocalizedUrl(TemplateTestBase):
             assert actual == expected
 
 
-class TestFilterNegotiateHasDates(TemplateTestBase):
+class TestFilterNegotiateHasDates(TemplateStringTestBase):
     @pytest.mark.parametrize(
         ("expected", "data"),
         [
@@ -757,11 +762,14 @@ class TestFilterNegotiateHasDates(TemplateTestBase):
     )
     async def test(self, expected: str, data: MutableMapping[str, Any]) -> None:
         template = '{{ has_dates | negotiate_has_dates(date=date) or "" }}'
-        async with self._render(template_string=template, data=data) as (actual, _):
+        async with self.assert_template_string(template=template, data=data) as (
+            actual,
+            _,
+        ):
             assert actual == expected
 
 
-class TestFilterNegotiateLocalizeds(TemplateTestBase):
+class TestFilterNegotiateLocalizeds(TemplateStringTestBase):
     class _Localized(Localized):
         def __init__(self, locale: str):
             self._locale = locale
@@ -771,33 +779,33 @@ class TestFilterNegotiateLocalizeds(TemplateTestBase):
         localized_nl = self._Localized("nl")
         localizeds = [localized_en, localized_nl]
         template = "{{ (data | negotiate_localizeds).locale }}"
-        async with self._render(
-            template_string=template, data={"data": localizeds}, locale="nl"
+        async with self.assert_template_string(
+            template=template, data={"data": localizeds}, locale="nl"
         ) as (actual, _):
             assert actual == "nl"
 
 
-class TestFilterPublicCss(TemplateTestBase):
+class TestFilterPublicCss(TemplateStringTestBase):
     async def test(self) -> None:
         template = "{{ data | public_css }}{{ public_css_paths | safe }}"
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={"data": "/css/my-first-css.css"},
         ) as (actual, _):
             assert actual == "None{'/css/my-first-css.css'}"
 
 
-class TestFilterPublicJs(TemplateTestBase):
+class TestFilterPublicJs(TemplateStringTestBase):
     async def test(self) -> None:
         template = "{{ data | public_js }}{{ public_js_paths | safe }}"
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={"data": "/js/my-first-js.js"},
         ) as (actual, _):
             assert actual == "None{'/js/my-first-js.js'}"
 
 
-class TestFilterStaticUrl(TemplateTestBase):
+class TestFilterStaticUrl(TemplateStringTestBase):
     @pytest.mark.parametrize(
         ("expected", "data", "absolute"),
         [
@@ -807,8 +815,8 @@ class TestFilterStaticUrl(TemplateTestBase):
     )
     async def test(self, expected: str, data: Any, absolute: bool) -> None:
         template = "{{ data | static_url(absolute=absolute) }}"
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "data": data,
                 "absolute": absolute,

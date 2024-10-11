@@ -6,12 +6,13 @@ from betty.ancestry.place import Place
 from betty.date import Date
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project.extension.cotton_candy import CottonCandy
-from betty.test_utils.assets.templates import TemplateTestBase
+
+from betty.test_utils.jinja2 import TemplateFileTestBase
 
 
-class TestTemplate(TemplateTestBase):
+class TestTemplate(TemplateFileTestBase):
     extensions = {CottonCandy}
-    template_file = "entity/page--place.html.j2"
+    template = "entity/page--place.html.j2"
 
     async def test_privacy(self) -> None:
         place_name = Name("place name")
@@ -55,7 +56,7 @@ class TestTemplate(TemplateTestBase):
             description="private enclosed event",
         )
 
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "page_resource": place,
                 "entity_type": Place,

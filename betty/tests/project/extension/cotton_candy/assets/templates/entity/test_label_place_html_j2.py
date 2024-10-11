@@ -8,15 +8,15 @@ from betty.ancestry.name import Name
 from betty.ancestry.place import Place
 from betty.date import DateRange, Date
 from betty.project.extension.cotton_candy import CottonCandy
-from betty.test_utils.assets.templates import TemplateTestBase
+from betty.test_utils.jinja2 import TemplateFileTestBase
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping
 
 
-class Test(TemplateTestBase):
+class Test(TemplateFileTestBase):
     extensions = {CottonCandy}
-    template_file = "entity/label--place.html.j2"
+    template = "entity/label--place.html.j2"
 
     @pytest.mark.parametrize(
         ("expected", "data", "locale"),
@@ -89,5 +89,5 @@ class Test(TemplateTestBase):
     async def test(
         self, expected: str, data: MutableMapping[str, Any], locale: str | None
     ) -> None:
-        async with self._render(data=data, locale=locale) as (actual, _):
+        async with self.assert_template_file(data=data, locale=locale) as (actual, _):
             assert actual == expected

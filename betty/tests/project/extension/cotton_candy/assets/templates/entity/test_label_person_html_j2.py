@@ -1,13 +1,13 @@
-from betty.ancestry.person_name import PersonName
 from betty.ancestry.person import Person
-from betty.project.extension.cotton_candy import CottonCandy
+from betty.ancestry.person_name import PersonName
 from betty.jinja2 import EntityContexts
-from betty.test_utils.assets.templates import TemplateTestBase
+from betty.project.extension.cotton_candy import CottonCandy
+from betty.test_utils.jinja2 import TemplateFileTestBase
 
 
-class Test(TemplateTestBase):
+class Test(TemplateFileTestBase):
     extensions = {CottonCandy}
-    template_file = "entity/label--person.html.j2"
+    template = "entity/label--person.html.j2"
 
     async def test_with_name(self) -> None:
         person = Person(id="P0")
@@ -17,7 +17,7 @@ class Test(TemplateTestBase):
             affiliation="Dough",
         )
         expected = '<a href="/person/P0/index.html"><span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span> <span property="foaf:familyName">Dough</span></span></a>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "entity": person,
             }
@@ -27,7 +27,7 @@ class Test(TemplateTestBase):
     async def test_without_name(self) -> None:
         person = Person(id="P0")
         expected = '<a href="/person/P0/index.html"><span class="nn" title="This person\'s name is unknown.">n.n.</span></a>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "entity": person,
             }
@@ -39,7 +39,7 @@ class Test(TemplateTestBase):
         expected = (
             '<span class="nn" title="This person\'s name is unknown.">n.n.</span>'
         )
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "entity": person,
                 "embedded": True,
@@ -52,7 +52,7 @@ class Test(TemplateTestBase):
         expected = (
             '<span class="nn" title="This person\'s name is unknown.">n.n.</span>'
         )
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "entity": person,
                 "entity_contexts": await EntityContexts.new(person),
@@ -66,7 +66,7 @@ class Test(TemplateTestBase):
             private=True,
         )
         expected = '<span class="private" title="This person\'s details are unavailable to protect their privacy.">private</span>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "entity": person,
             }
@@ -81,7 +81,7 @@ class Test(TemplateTestBase):
             affiliation="Dough",
         )
         expected = '<a href="/person/P0/index.html"><span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span> <span property="foaf:familyName">Dough</span></span></a>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "entity": person,
             }

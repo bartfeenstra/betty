@@ -1,14 +1,14 @@
 from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place
-from betty.project.extension.cotton_candy import CottonCandy
 from betty.jinja2 import EntityContexts
-from betty.test_utils.assets.templates import TemplateTestBase
+from betty.project.extension.cotton_candy import CottonCandy
+from betty.test_utils.jinja2 import TemplateFileTestBase
 
 
-class Test(TemplateTestBase):
+class Test(TemplateFileTestBase):
     extensions = {CottonCandy}
-    template_file = "entity/meta--place.html.j2"
+    template = "entity/meta--place.html.j2"
 
     async def test_without_enclosing_places(self) -> None:
         place = Place(
@@ -16,7 +16,7 @@ class Test(TemplateTestBase):
             names=[Name("The Place")],
         )
         expected = '<div class="meta"></div>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "entity": place,
             }
@@ -39,7 +39,7 @@ class Test(TemplateTestBase):
         )
         Enclosure(enclosee=enclosing_place, encloser=all_enclosing_place)
         expected = '<div class="meta">in <span><a href="/place/P1/index.html"><span lang="und">The Enclosing Place</span></a></span>, <span><a href="/place/P2/index.html"><span lang="und">The All-enclosing Place</span></a></span></div>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "entity": place,
             }
@@ -62,7 +62,7 @@ class Test(TemplateTestBase):
         )
         Enclosure(enclosee=enclosing_place, encloser=all_enclosing_place)
         expected = '<div class="meta">in <span><a href="/place/P1/index.html"><span lang="und">The Enclosing Place</span></a></span></div>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "entity": place,
                 "entity_contexts": await EntityContexts.new(all_enclosing_place),
@@ -90,7 +90,7 @@ class Test(TemplateTestBase):
             names=[Name("Far Far Away")],
         )
         expected = '<div class="meta">in <span><a href="/place/P1/index.html"><span lang="und">The Enclosing Place</span></a></span>, <span><a href="/place/P2/index.html"><span lang="und">The All-enclosing Place</span></a></span></div>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "entity": place,
                 "entity_contexts": await EntityContexts.new(unrelated_place),

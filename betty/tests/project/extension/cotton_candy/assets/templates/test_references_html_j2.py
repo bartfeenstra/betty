@@ -2,16 +2,17 @@ from betty.ancestry.citation import Citation
 from betty.ancestry.source import Source
 from betty.html import Citer
 from betty.project.extension.cotton_candy import CottonCandy
-from betty.test_utils.assets.templates import TemplateTestBase
+
+from betty.test_utils.jinja2 import TemplateFileTestBase
 
 
-class Test(TemplateTestBase):
+class Test(TemplateFileTestBase):
     extensions = {CottonCandy}
-    template_file = "references.html.j2"
+    template = "references.html.j2"
 
     async def test_without_references(self) -> None:
         citer = Citer()
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "citer": citer,
                 "page_resource": "/",
@@ -28,7 +29,7 @@ class Test(TemplateTestBase):
         )
         citer = Citer()
         citer.cite(citation)
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "citer": citer,
                 "page_resource": "/",
@@ -45,7 +46,7 @@ class Test(TemplateTestBase):
         )
         citer = Citer()
         citer.cite(citation)
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "citer": citer,
                 "page_resource": "/",

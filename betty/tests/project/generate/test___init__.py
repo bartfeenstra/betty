@@ -21,7 +21,7 @@ from betty.project import Project, ProjectContext
 from betty.project.config import LocaleConfiguration, EntityTypeConfiguration
 from betty.project.generate import generate, GenerateSiteEvent
 from betty.string import camel_case_to_kebab_case, kebab_case_to_lower_camel_case
-from betty.test_utils.assets.templates import assert_betty_html, assert_betty_json
+from betty.test_utils.jinja2 import assert_betty_html, assert_betty_json
 from betty.test_utils.model import DummyEntity
 
 

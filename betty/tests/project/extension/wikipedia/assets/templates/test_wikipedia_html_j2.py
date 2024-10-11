@@ -5,7 +5,7 @@ from pytest_mock import MockerFixture
 from betty.ancestry.link import HasLinks, Link
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project.extension.wikipedia import Wikipedia
-from betty.test_utils.assets.templates import TemplateTestBase
+from betty.test_utils.jinja2 import TemplateFileTestBase
 from betty.test_utils.model import DummyEntity
 from betty.wikipedia import _Retriever, Summary
 from betty.wikipedia.copyright_notice import WikipediaContributors
@@ -15,13 +15,13 @@ class DummyResource(HasLinks, DummyEntity):
     pass
 
 
-class Test(TemplateTestBase):
+class Test(TemplateFileTestBase):
     extensions = {Wikipedia}
-    template_file = "wikipedia.html.j2"
+    template = "wikipedia.html.j2"
 
     async def test_without_links(self) -> None:
         resource = DummyResource()
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "resource": resource,
             }
@@ -31,7 +31,7 @@ class Test(TemplateTestBase):
     async def test_with_links_without_wikipedia_links(self) -> None:
         resource = DummyResource()
         resource.links.append(Link("https://example.com"))
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "resource": resource,
             }
@@ -53,7 +53,7 @@ class Test(TemplateTestBase):
         )
         resource = DummyResource()
         resource.links.append(Link(wikipedia_url))
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "resource": resource,
             }
@@ -65,7 +65,7 @@ class Test(TemplateTestBase):
         wikipedia_url = "https://nl.wikipedia.org/wiki/Amsterdam"
         resource = DummyResource()
         resource.links.append(Link(wikipedia_url))
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "resource": resource,
             }
@@ -90,7 +90,7 @@ class Test(TemplateTestBase):
         )
         resource = DummyResource()
         resource.links.append(Link(wikipedia_url))
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "resource": resource,
             }

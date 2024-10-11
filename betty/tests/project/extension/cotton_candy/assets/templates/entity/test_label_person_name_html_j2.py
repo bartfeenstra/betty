@@ -3,12 +3,13 @@ from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.source import Source
 from betty.project.extension.cotton_candy import CottonCandy
-from betty.test_utils.assets.templates import TemplateTestBase
+
+from betty.test_utils.jinja2 import TemplateFileTestBase
 
 
-class Test(TemplateTestBase):
+class Test(TemplateFileTestBase):
     extensions = {CottonCandy}
-    template_file = "entity/label--person-name.html.j2"
+    template = "entity/label--person-name.html.j2"
 
     async def test_with_full_name(self) -> None:
         person = Person()
@@ -18,7 +19,7 @@ class Test(TemplateTestBase):
             affiliation="Dough",
         )
         expected = '<span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span> <span property="foaf:familyName">Dough</span></span>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "person_name": person_name,
             }
@@ -32,7 +33,7 @@ class Test(TemplateTestBase):
             individual="Jane",
         )
         expected = '<span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span></span>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "person_name": person_name,
             }
@@ -46,7 +47,7 @@ class Test(TemplateTestBase):
             affiliation="Dough",
         )
         expected = '<span class="person-label" typeof="foaf:Person">… <span property="foaf:familyName">Dough</span></span>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "person_name": person_name,
             }
@@ -64,7 +65,7 @@ class Test(TemplateTestBase):
         citation = Citation(source=source)
         person_name.citations.add(citation)
         expected = '<span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span> <span property="foaf:familyName">Dough</span></span>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "person_name": person_name,
                 "embedded": True,
@@ -82,7 +83,7 @@ class Test(TemplateTestBase):
         citation = Citation(source=source)
         person_name.citations.add(citation)
         expected = '<span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Jane</span></span><a href="#reference-1" class="citation">[1]</a>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "person_name": person_name,
             }

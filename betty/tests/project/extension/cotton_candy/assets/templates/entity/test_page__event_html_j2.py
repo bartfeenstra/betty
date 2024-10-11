@@ -13,12 +13,12 @@ from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project.extension.cotton_candy import CottonCandy
-from betty.test_utils.assets.templates import TemplateTestBase
+from betty.test_utils.jinja2 import TemplateFileTestBase
 
 
-class TestTemplate(TemplateTestBase):
+class TestTemplate(TemplateFileTestBase):
     extensions = {CottonCandy}
-    template_file = "entity/page--event.html.j2"
+    template = "entity/page--event.html.j2"
 
     async def test_privacy(self, tmp_path: Path) -> None:
         file_path = tmp_path / "file"
@@ -63,7 +63,7 @@ class TestTemplate(TemplateTestBase):
         )
         private_citation.facts.add(event)
 
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "page_resource": event,
                 "entity_type": Event,
