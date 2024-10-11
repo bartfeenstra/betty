@@ -35,3 +35,11 @@ ignore = [
     'D104',
     'D106',
 ]
+"betty/test_utils/coverage_fixtures/*" = [
+    'D100',
+    'D101',
+    'D102',
+    'D103',
+    'D104',
+    'D106',
+]
