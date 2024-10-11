@@ -156,7 +156,7 @@ class AssertionFailed(UserFacingError, ValueError):
         Add a message describing the error's context.
         """
         self_copy = self._copy()
-        self_copy._contexts = (*self._contexts, *contexts)
+        self_copy._contexts = (*reversed(contexts), *self._contexts)
         return self_copy
 
     def _copy(self) -> Self:
