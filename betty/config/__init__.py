@@ -7,24 +7,13 @@ from __future__ import annotations
 from abc import abstractmethod
 from collections.abc import Callable
 from contextlib import chdir
-from typing import (
-    Generic,
-    TypeVar,
-    Any,
-    Self,
-    TypeAlias,
-    TYPE_CHECKING,
-)
+from typing import Generic, TypeVar, Self, TypeAlias, TYPE_CHECKING
 
 import aiofiles
 from aiofiles.os import makedirs
 
-from betty.assertion import (
-    AssertionChain,
-    assert_file_path,
-)
+from betty.assertion import AssertionChain, assert_file_path
 from betty.assertion.error import AssertionFailedGroup
-from betty.error import FileNotFound
 from betty.locale.localizable import plain
 from betty.serde.dump import Dumpable
 from betty.serde.format import FORMAT_REPOSITORY, format_for
@@ -43,9 +32,6 @@ class Configuration(Loadable, Dumpable):
     Any configuration object.
     """
 
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
-
     @abstractmethod
     def update(self, other: Self) -> None:
         """
@@ -63,9 +49,6 @@ class Configurable(Generic[_ConfigurationT]):
     """
 
     _configuration: _ConfigurationT
-
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
 
     @property
     def configuration(self) -> _ConfigurationT:
@@ -97,11 +80,8 @@ async def assert_configuration_file(
             # against the configuration file's directory path.
             chdir(configuration_file_path.parent),
         ):
-            try:
-                with open(configuration_file_path) as f:
-                    read_configuration = f.read()
-            except FileNotFoundError:
-                raise FileNotFound.new(configuration_file_path) from None
+            with open(configuration_file_path) as f:
+                read_configuration = f.read()
             with errors.catch(plain(f"in {str(configuration_file_path.resolve())}")):
                 configuration_file_format = available_formats[
                     format_for(list(available_formats), configuration_file_path.suffix)

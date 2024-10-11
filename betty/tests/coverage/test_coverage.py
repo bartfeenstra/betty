@@ -127,18 +127,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/config/__init__.py": {
-        "assert_configuration_file": MissingReason.SHOULD_BE_COVERED,
-        "Configurable": MissingReason.SHOULD_BE_COVERED,
         "Configuration": MissingReason.ABSTRACT,
-        "write_configuration_file": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/config/collections/__init__.py": MissingReason.SHOULD_BE_COVERED,
-    "betty/config/collections/sequence.py": {
-        "ConfigurationSequence": {
-            "dump": MissingReason.SHOULD_BE_COVERED,
-            "update": MissingReason.SHOULD_BE_COVERED,
-        },
-    },
+    "betty/config/collections/__init__.py": MissingReason.ABSTRACT,
     "betty/contextlib.py": {
         "SynchronizedContextManager": {
             "__enter__": MissingReason.SHOULD_BE_COVERED,

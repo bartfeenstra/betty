@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable, Self, TYPE_CHECKING
+from typing import Iterable, Self, TYPE_CHECKING, Sequence
 
 from typing_extensions import override
 
@@ -69,6 +69,21 @@ class TestConfigurationSequence(
         configurations = self.get_configurations()
         sut.load([item.dump() for item in configurations])
         assert len(sut) == len(configurations)
+
+    async def test_dump_without_items(self) -> None:
+        sut = self.get_sut()
+        dump = sut.dump()
+        assert dump == []
+
+    async def test_dump_with_items(self) -> None:
+        configurations = self.get_configurations()
+        sut = self.get_sut()
+        sut.replace(*configurations)
+        dump = sut.dump()
+        assert isinstance(dump, Sequence)
+        assert len(dump) == len(configurations)
+        for configuration_key in self.get_configuration_keys():
+            assert configuration_key < len(dump)
 
 
 class ConfigurationSequenceTestConfigurationSequence(
