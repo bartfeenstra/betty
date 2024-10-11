@@ -1,6 +1,6 @@
 from betty.ancestry.citation import Citation
 from betty.ancestry.source import Source
-from betty.jinja2 import _Citer
+from betty.html import Citer
 from betty.project.extension.cotton_candy import CottonCandy
 from betty.test_utils.assets.templates import TemplateTestBase
 
@@ -10,7 +10,7 @@ class Test(TemplateTestBase):
     template_file = "references.html.j2"
 
     async def test_without_references(self) -> None:
-        citer = _Citer()
+        citer = Citer()
         async with self._render(
             data={
                 "citer": citer,
@@ -26,7 +26,7 @@ class Test(TemplateTestBase):
             location="On the shelf over there",
             public=True,
         )
-        citer = _Citer()
+        citer = Citer()
         citer.cite(citation)
         async with self._render(
             data={
@@ -43,7 +43,7 @@ class Test(TemplateTestBase):
             location="On the shelf over there",
             private=True,
         )
-        citer = _Citer()
+        citer = Citer()
         citer.cite(citation)
         async with self._render(
             data={

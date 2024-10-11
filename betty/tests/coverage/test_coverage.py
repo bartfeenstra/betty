@@ -164,12 +164,15 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "LoaderUsedAlready": MissingReason.STATIC_CONTENT_ONLY,
         "XPathError": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/html.py": MissingReason.SHOULD_BE_COVERED,
+    "betty/html.py": {
+        "CssProvider": MissingReason.ABSTRACT,
+        "JsProvider": MissingReason.ABSTRACT,
+    },
     "betty/jinja2/__init__.py": {
         "context_job_context": MissingReason.SHOULD_BE_COVERED,
         "context_localizer": MissingReason.SHOULD_BE_COVERED,
         "context_project": MissingReason.SHOULD_BE_COVERED,
-        "Environment": MissingReason.SHOULD_BE_COVERED,
+        "Environment": {},
     },
     "betty/jinja2/filter.py": {
         "filters": MissingReason.STATIC_CONTENT_ONLY,
