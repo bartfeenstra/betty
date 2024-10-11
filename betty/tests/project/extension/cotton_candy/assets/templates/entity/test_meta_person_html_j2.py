@@ -1,24 +1,24 @@
-from betty.ancestry.presence import Presence
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth, Death
 from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
+from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.date import Date
 from betty.project.extension.cotton_candy import CottonCandy
-from betty.test_utils.assets.templates import TemplateTestBase
+from betty.test_utils.jinja2 import TemplateFileTestBase
 
 
-class Test(TemplateTestBase):
+class Test(TemplateFileTestBase):
     extensions = {CottonCandy}
-    template_file = "entity/meta--person.html.j2"
+    template = "entity/meta--person.html.j2"
 
     async def test_without_meta(self) -> None:
         person = Person(id="P0")
         expected = '<div class="meta person-meta"></div>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "entity": person,
             }
@@ -31,7 +31,7 @@ class Test(TemplateTestBase):
             private=True,
         )
         expected = '<div class="meta person-meta"><p>This person\'s details are unavailable to protect their privacy.</p></div>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "entity": person,
             }
@@ -52,7 +52,7 @@ class Test(TemplateTestBase):
         )
         name.citations.add(Citation(source=Source(name="The Source")))
         expected = '<div class="meta person-meta"><span class="aka">Also known as <span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Janet</span> <span property="foaf:familyName">Doughnut</span></span><a href="#reference-1" class="citation">[1]</a></span></div>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "entity": person,
             }
@@ -77,7 +77,7 @@ class Test(TemplateTestBase):
             affiliation="Of Doughnuton",
         )
         expected = '<div class="meta person-meta"><span class="aka">Also known as <span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Janet</span> <span property="foaf:familyName">Doughnut</span></span>, <span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Janetar</span> <span property="foaf:familyName">Of Doughnuton</span></span></span></div>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "entity": person,
             }
@@ -95,7 +95,7 @@ class Test(TemplateTestBase):
             ),
         )
         expected = '<div class="meta person-meta"><dl><div><dt>Birth</dt><dd>1970</dd></div></dl></div>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "entity": person,
             }
@@ -113,7 +113,7 @@ class Test(TemplateTestBase):
             ),
         )
         expected = '<div class="meta person-meta"><dl><div><dt>Death</dt><dd>1970</dd></div></dl></div>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "entity": person,
             }
@@ -142,7 +142,7 @@ class Test(TemplateTestBase):
         )
         name.citations.add(Citation(source=Source(name="The Source")))
         expected = '<div class="meta person-meta"><span class="aka">Also known as <span class="person-label" typeof="foaf:Person"><span property="foaf:individualName">Janet</span> <span property="foaf:familyName">Doughnut</span></span></span><dl><div><dt>Birth</dt><dd>1970</dd></div></dl></div>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "entity": person,
                 "embedded": True,

@@ -5,19 +5,19 @@ from betty.ancestry.name import Name
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.date import Date
-from betty.project.extension.cotton_candy import CottonCandy
 from betty.jinja2 import EntityContexts
-from betty.test_utils.assets.templates import TemplateTestBase
+from betty.project.extension.cotton_candy import CottonCandy
+from betty.test_utils.jinja2 import TemplateFileTestBase
 
 
-class Test(TemplateTestBase):
+class Test(TemplateFileTestBase):
     extensions = {CottonCandy}
-    template_file = "event-dimensions.html.j2"
+    template = "event-dimensions.html.j2"
 
     async def test_without_meta(self) -> None:
         event = Event(event_type=Birth())
         expected = ""
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "event": event,
             }
@@ -30,7 +30,7 @@ class Test(TemplateTestBase):
             date=Date(1970),
         )
         expected = "1970"
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "event": event,
             }
@@ -44,7 +44,7 @@ class Test(TemplateTestBase):
             names=[Name("The Place")],
         )
         expected = 'in <span><a href="/place/P0/index.html"><span lang="und">The Place</span></a></span>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "event": event,
             }
@@ -59,7 +59,7 @@ class Test(TemplateTestBase):
         )
         event.place = place
         expected = ""
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "event": event,
                 "entity_contexts": await EntityContexts.new(place),
@@ -77,7 +77,7 @@ class Test(TemplateTestBase):
             names=[Name("The Place")],
         )
         expected = '1970 in <span><a href="/place/P0/index.html"><span lang="und">The Place</span></a></span>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "event": event,
             }
@@ -88,7 +88,7 @@ class Test(TemplateTestBase):
         event = Event(event_type=Birth())
         event.citations.add(Citation(source=Source(name="The Source")))
         expected = '<a href="#reference-1" class="citation">[1]</a>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "event": event,
             }
@@ -106,7 +106,7 @@ class Test(TemplateTestBase):
         )
         event.citations.add(Citation(source=Source(name="The Source")))
         expected = '1970 in <span><span lang="und">The Place</span></span>'
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "event": event,
                 "embedded": True,

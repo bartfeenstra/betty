@@ -3,10 +3,9 @@ from __future__ import annotations
 from betty.ancestry.citation import Citation
 from betty.ancestry.source import Source
 from betty.html import Citer, Breadcrumbs
-from betty.test_utils.assets.templates import TemplateTestBase
 
 
-class TestCiter(TemplateTestBase):
+class TestCiter:
     def test_cite(self) -> None:
         citation1 = Citation(source=Source())
         citation2 = Citation(source=Source())

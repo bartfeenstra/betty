@@ -21,7 +21,7 @@ from betty.ancestry.presence_role.presence_roles import (
 from betty.date import DateRange, Date
 from betty.json.linked_data import LinkedDataDumpableJsonLdObject
 from betty.test_utils.ancestry.event_type import DummyEventType
-from betty.test_utils.assets.templates import TemplateTestBase
+from betty.test_utils.jinja2 import TemplateStringTestBase
 from betty.test_utils.model import DummyUserFacingEntity
 from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 from betty.tests.ancestry.test_link import DummyHasLinks
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from betty.model import Entity
 
 
-class TestTestEntity(TemplateTestBase):
+class TestTestEntity(TemplateStringTestBase):
     @pytest.mark.parametrize(
         ("expected", "entity_type_identifier", "data"),
         [
@@ -66,8 +66,8 @@ class TestTestEntity(TemplateTestBase):
             else f'"{entity_type_identifier.plugin_id()}"'
         )
         template = f"{{% if data is entity({entity_type_identifier_arg}) %}}true{{% else %}}false{{% endif %}}"
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "data": data,
             },
@@ -75,7 +75,7 @@ class TestTestEntity(TemplateTestBase):
             assert actual == expected
 
 
-class TestTestSubjectRole(TemplateTestBase):
+class TestTestSubjectRole(TemplateStringTestBase):
     @pytest.mark.parametrize(
         ("expected", "data"),
         [
@@ -87,8 +87,8 @@ class TestTestSubjectRole(TemplateTestBase):
     )
     async def test(self, expected: str, data: Any) -> None:
         template = "{% if data is subject_role %}true{% else %}false{% endif %}"
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "data": data,
             },
@@ -96,7 +96,7 @@ class TestTestSubjectRole(TemplateTestBase):
             assert actual == expected
 
 
-class TestTestWitnessRole(TemplateTestBase):
+class TestTestWitnessRole(TemplateStringTestBase):
     @pytest.mark.parametrize(
         ("expected", "data"),
         [
@@ -108,8 +108,8 @@ class TestTestWitnessRole(TemplateTestBase):
     )
     async def test(self, expected: str, data: Any) -> None:
         template = "{% if data is witness_role %}true{% else %}false{% endif %}"
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "data": data,
             },
@@ -117,7 +117,7 @@ class TestTestWitnessRole(TemplateTestBase):
             assert actual == expected
 
 
-class TestTestDateRange(TemplateTestBase):
+class TestTestDateRange(TemplateStringTestBase):
     @pytest.mark.parametrize(
         ("expected", "data"),
         [
@@ -129,8 +129,8 @@ class TestTestDateRange(TemplateTestBase):
     )
     async def test(self, expected: str, data: Any) -> None:
         template = "{% if data is date_range %}true{% else %}false{% endif %}"
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "data": data,
             },
@@ -138,7 +138,7 @@ class TestTestDateRange(TemplateTestBase):
             assert actual == expected
 
 
-class TestTestEndOfLifeEvent(TemplateTestBase):
+class TestTestEndOfLifeEvent(TemplateStringTestBase):
     class _EndOfLife(EndOfLifeEventType, DummyEventType):
         pass
 
@@ -152,8 +152,8 @@ class TestTestEndOfLifeEvent(TemplateTestBase):
     )
     async def test(self, expected: str, data: Any) -> None:
         template = "{% if data is end_of_life_event %}true{% else %}false{% endif %}"
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "data": data,
             },
@@ -161,7 +161,7 @@ class TestTestEndOfLifeEvent(TemplateTestBase):
             assert actual == expected
 
 
-class TestTestHasFileReferences(TemplateTestBase):
+class TestTestHasFileReferences(TemplateStringTestBase):
     @pytest.mark.parametrize(
         ("expected", "data"),
         [
@@ -172,8 +172,8 @@ class TestTestHasFileReferences(TemplateTestBase):
     )
     async def test(self, expected: str, data: Any) -> None:
         template = "{% if data is has_file_references %}true{% else %}false{% endif %}"
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "data": data,
             },
@@ -181,7 +181,7 @@ class TestTestHasFileReferences(TemplateTestBase):
             assert actual == expected
 
 
-class TestTestHasLinks(TemplateTestBase):
+class TestTestHasLinks(TemplateStringTestBase):
     @pytest.mark.parametrize(
         ("expected", "data"),
         [
@@ -192,8 +192,8 @@ class TestTestHasLinks(TemplateTestBase):
     )
     async def test(self, expected: str, data: Any) -> None:
         template = "{% if data is has_links %}true{% else %}false{% endif %}"
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "data": data,
             },
@@ -201,7 +201,7 @@ class TestTestHasLinks(TemplateTestBase):
             assert actual == expected
 
 
-class TestTestLinkedDataDumpable(TemplateTestBase):
+class TestTestLinkedDataDumpable(TemplateStringTestBase):
     @pytest.mark.parametrize(
         ("expected", "data"),
         [
@@ -212,8 +212,8 @@ class TestTestLinkedDataDumpable(TemplateTestBase):
     )
     async def test(self, expected: str, data: Any) -> None:
         template = "{% if data is linked_data_dumpable %}true{% else %}false{% endif %}"
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "data": data,
             },
@@ -221,7 +221,7 @@ class TestTestLinkedDataDumpable(TemplateTestBase):
             assert actual == expected
 
 
-class TestTestStartOfLifeEvent(TemplateTestBase):
+class TestTestStartOfLifeEvent(TemplateStringTestBase):
     class _StartOfLife(StartOfLifeEventType, DummyEventType):
         pass
 
@@ -235,8 +235,8 @@ class TestTestStartOfLifeEvent(TemplateTestBase):
     )
     async def test(self, expected: str, data: Any) -> None:
         template = "{% if data is start_of_life_event %}true{% else %}false{% endif %}"
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "data": data,
             },
@@ -244,7 +244,7 @@ class TestTestStartOfLifeEvent(TemplateTestBase):
             assert actual == expected
 
 
-class TestTestUserFacingEntity(TemplateTestBase):
+class TestTestUserFacingEntity(TemplateStringTestBase):
     @pytest.mark.parametrize(
         ("expected", "data"),
         [
@@ -255,8 +255,8 @@ class TestTestUserFacingEntity(TemplateTestBase):
     )
     async def test(self, expected: str, data: Any) -> None:
         template = "{% if data is user_facing_entity %}true{% else %}false{% endif %}"
-        async with self._render(
-            template_string=template,
+        async with self.assert_template_string(
+            template=template,
             data={
                 "data": data,
             },

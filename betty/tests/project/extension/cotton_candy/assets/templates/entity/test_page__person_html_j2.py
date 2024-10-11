@@ -1,22 +1,22 @@
 from pathlib import Path
 
-from betty.ancestry.presence import Presence
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
+from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import Date
-from betty.project.extension.cotton_candy import CottonCandy
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.test_utils.assets.templates import TemplateTestBase
+from betty.project.extension.cotton_candy import CottonCandy
+from betty.test_utils.jinja2 import TemplateFileTestBase
 
 
-class TestTemplate(TemplateTestBase):
+class TestTemplate(TemplateFileTestBase):
     extensions = {CottonCandy}
-    template_file = "entity/page--person.html.j2"
+    template = "entity/page--person.html.j2"
 
     async def test_descendant_names(self) -> None:
         person = Person(id="P0")
@@ -36,7 +36,7 @@ class TestTemplate(TemplateTestBase):
             person=child_two,
             affiliation="FamilyTwoAssociationName",
         )
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "page_resource": person,
                 "entity_type": Person,
@@ -203,7 +203,7 @@ class TestTemplate(TemplateTestBase):
         )
         Presence(person, Subject(), public_event_public_presence)
         Presence(person, Subject(), private_event_public_presence)
-        async with self._render(
+        async with self.assert_template_file(
             data={
                 "page_resource": person,
                 "entity_type": Person,
