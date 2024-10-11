@@ -413,6 +413,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Server": MissingReason.ABSTRACT,
         "ServerNotStartedError": MissingReason.STATIC_CONTENT_ONLY,
     },
+    "betty/subprocess.py": {
+        "CalledSubprocessError": MissingReason.STATIC_CONTENT_ONLY,
+        "FileNotFound": MissingReason.STATIC_CONTENT_ONLY,
+        "SubprocessError": MissingReason.STATIC_CONTENT_ONLY,
+    },
     # We do not test our test utilities.
     **{
         str(path): MissingReason.INTERNAL
