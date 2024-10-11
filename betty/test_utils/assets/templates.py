@@ -58,6 +58,7 @@ class TemplateTestBase:
         template_file: str | None = None,
         template_string: str | None = None,
         locale: Localey | None = None,
+        autoescape: bool | None = None,
     ) -> AsyncIterator[tuple[str, Project]]:
         if self.template_string is not None and self.template_file is not None:
             class_name = self.__class__.__name__
@@ -99,8 +100,11 @@ class TemplateTestBase:
                 data["localizer"] = await app.localizers.get(locale)
             project.configuration.extensions.enable(*self.extensions)
             async with project:
+                jinja2_environment = await project.jinja2_environment
+                if autoescape is not None:
+                    jinja2_environment.autoescape = autoescape
                 rendered = await template_factory(
-                    await project.jinja2_environment, template
+                    jinja2_environment, template
                 ).render_async(**data)
                 yield rendered, project
 

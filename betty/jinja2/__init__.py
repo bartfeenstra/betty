@@ -7,7 +7,6 @@ from __future__ import annotations
 import datetime
 from collections import defaultdict
 from collections.abc import Mapping
-from threading import Lock
 from typing import Callable, Any, cast, TYPE_CHECKING, TypeAlias, final, Self
 
 import aiofiles
@@ -23,7 +22,7 @@ from jinja2.runtime import StrictUndefined, Context, DebugUndefined
 from typing_extensions import override
 
 from betty.date import Date
-from betty.html import CssProvider, JsProvider
+from betty.html import CssProvider, JsProvider, Citer, Breadcrumbs
 from betty.jinja2.filter import filters
 from betty.jinja2.test import tests
 from betty.job import Context as JobContext
@@ -34,7 +33,6 @@ from betty.model import ENTITY_TYPE_REPOSITORY
 from betty.plugin import Plugin, PluginIdToTypeMap
 from betty.project.factory import ProjectDependentFactory
 from betty.render import Renderer
-from betty.serde.dump import Dumpable, DumpMapping, Dump
 from betty.typing import private
 
 if TYPE_CHECKING:
@@ -44,9 +42,8 @@ if TYPE_CHECKING:
     from betty.project.extension import Extension
     from betty.project import Project
     from betty.project.config import ProjectConfiguration
-    from betty.ancestry.citation import Citation
     from pathlib import Path
-    from collections.abc import MutableMapping, Iterator, Sequence, MutableSequence
+    from collections.abc import MutableMapping, Iterator, Sequence
 
 
 def context_project(context: Context) -> Project:
@@ -74,64 +71,6 @@ def context_localizer(context: Context) -> Localizer:
     raise RuntimeError(
         "No `localizer` context variable exists in this Jinja2 template."
     )
-
-
-class _Citer:
-    __slots__ = "_lock", "_cited"
-
-    def __init__(self):
-        self._lock = Lock()
-        self._cited: MutableSequence[Citation] = []
-
-    def __iter__(self) -> enumerate[Citation]:
-        return enumerate(self._cited, 1)
-
-    def __len__(self) -> int:
-        return len(self._cited)
-
-    def cite(self, citation: Citation) -> int:
-        with self._lock:
-            if citation not in self._cited:
-                self._cited.append(citation)
-            return self._cited.index(citation) + 1
-
-
-class _Breadcrumb(Dumpable):
-    def __init__(self, label: str, url: str):
-        self._label = label
-        self._url = url
-
-    @override
-    def dump(self) -> DumpMapping[Dump]:
-        return {
-            "@type": "ListItem",
-            "name": self._label,
-            "item": self._url,
-        }
-
-
-class _Breadcrumbs(Dumpable):
-    def __init__(self):
-        self._breadcrumbs: MutableSequence[_Breadcrumb] = []
-
-    def append(self, label: str, url: str) -> None:
-        self._breadcrumbs.append(_Breadcrumb(label, url))
-
-    @override
-    def dump(self) -> Dump:
-        if not self._breadcrumbs:
-            return {}
-        return {
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            "itemListElement": [
-                {
-                    "position": position,
-                    **breadcrumb.dump(),
-                }
-                for position, breadcrumb in enumerate(self._breadcrumbs, 1)
-            ],
-        }
 
 
 class EntityContexts:
@@ -333,9 +272,9 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
                     globals: MutableMapping[str, Any] | None = None,  # noqa A002
                 ):
                     if "citer" not in parent:
-                        parent["citer"] = _Citer()
+                        parent["citer"] = Citer()
                     if "breadcrumbs" not in parent:
-                        parent["breadcrumbs"] = _Breadcrumbs()
+                        parent["breadcrumbs"] = Breadcrumbs()
                     for jinja2_provider in jinja2_providers:
                         for key, value in jinja2_provider.new_context_vars().items():
                             if key not in parent:
@@ -399,18 +338,18 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
         today = datetime.date.today()
         self.globals["today"] = Date(today.year, today.month, today.day)
         # Ideally we would use the Dispatcher for this. However, it is asynchronous only.
-        self.globals["public_css_paths"] = [
+        self.globals["public_css_paths"] = {
             path
             for extension in self._extensions
             if isinstance(extension, CssProvider)
             for path in extension.public_css_paths
-        ]
-        self.globals["public_js_paths"] = [
+        }
+        self.globals["public_js_paths"] = {
             path
             for extension in self._extensions
             if isinstance(extension, JsProvider)
             for path in extension.public_js_paths
-        ]
+        }
         self.globals["entity_contexts"] = self._entity_contexts
         self.globals["localizer"] = DEFAULT_LOCALIZER
 

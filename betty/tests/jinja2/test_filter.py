@@ -3,12 +3,15 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Iterable, TYPE_CHECKING
 
+import aiofiles
 import pytest
+from PIL import Image
 
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.date import Date, DateRange, Datey
 from betty.fs import ASSETS_DIRECTORY_PATH
+from betty.job import Context
 from betty.locale import (
     NO_LINGUISTIC_CONTENT,
     UNDETERMINED_LOCALE,
@@ -42,37 +45,51 @@ class _DummyLocalized(DummyLocalized):
         super().__init__(locale)
         self.value = value
 
-    def __str__(self) -> str:
-        return self.value
-
 
 class TestFilterFile(TemplateTestBase):
-    @pytest.mark.parametrize(
-        ("expected", "template", "file"),
-        [
-            (
-                "/file/F1/file/test_filter.py",
-                "{{ file | file }}",
-                File(
-                    id="F1",
-                    path=Path(__file__),
-                ),
+    _PARAMETER_ARGNAMES = ("expected", "template", "file")
+    _PARAMETER_ARGVALUES = [
+        (
+            "/file/F1/file/test_filter.py",
+            "{{ file | file }}",
+            File(
+                id="F1",
+                path=Path(__file__),
             ),
-            (
-                "/file/F1/file/test_filter.py:/file/F1/file/test_filter.py",
-                "{{ file | file }}:{{ file | file }}",
-                File(
-                    id="F1",
-                    path=Path(__file__),
-                ),
+        ),
+        (
+            "/file/F1/file/test_filter.py:/file/F1/file/test_filter.py",
+            "{{ file | file }}:{{ file | file }}",
+            File(
+                id="F1",
+                path=Path(__file__),
             ),
-        ],
-    )
+        ),
+    ]
+
+    @pytest.mark.parametrize(_PARAMETER_ARGNAMES, _PARAMETER_ARGVALUES)
     async def test(self, expected: str, template: str, file: File) -> None:
         async with self._render(
             template_string=template,
             data={
                 "file": file,
+            },
+        ) as (actual, project):
+            assert actual == expected
+            for file_path in actual.split(":"):
+                assert (
+                    project.configuration.www_directory_path / file_path[1:]
+                ).exists()
+
+    @pytest.mark.parametrize(_PARAMETER_ARGNAMES, _PARAMETER_ARGVALUES)
+    async def test_with_job_context(
+        self, expected: str, template: str, file: File
+    ) -> None:
+        async with self._render(
+            template_string=template,
+            data={
+                "file": file,
+                "job_context": Context(),
             },
         ) as (actual, project):
             assert actual == expected
@@ -101,17 +118,27 @@ class TestFilterFlatten(TemplateTestBase):
 
 class TestFilterParagraphs(TemplateTestBase):
     @pytest.mark.parametrize(
-        ("expected", "template"),
+        ("expected", "autoescape", "template"),
         [
-            ("<p></p>", '{{ "" | paragraphs }}'),
+            ("<p></p>", True, '{{ "" | paragraphs }}'),
+            ("<p></p>", False, '{{ "" | paragraphs }}'),
             (
                 "<p>Apples <br>\n and <br>\n oranges</p>",
+                True,
+                '{{ "Apples \n and \n oranges" | paragraphs }}',
+            ),
+            (
+                "<p>Apples <br>\n and <br>\n oranges</p>",
+                False,
                 '{{ "Apples \n and \n oranges" | paragraphs }}',
             ),
         ],
     )
-    async def test(self, expected: str, template: str) -> None:
-        async with self._render(template_string=template) as (actual, _):
+    async def test(self, expected: str, autoescape: bool, template: str) -> None:
+        async with self._render(template_string=template, autoescape=autoescape) as (
+            actual,
+            _,
+        ):
             assert actual == expected
 
 
@@ -176,83 +203,82 @@ class TestFilterMap(TemplateTestBase):
 
 
 class TestFilterImageResizeCover(TemplateTestBase):
-    image_path = ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png"
+    _IMAGE_PATH = ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png"
+    _PARAMETER_ARGNAMES = ("expected", "template", "filey")
+    _PARAMETER_ARGVALUES = [
+        (
+            "/file/F1-99x-.png",
+            "{{ filey | filter_image_resize_cover((99, none)) }}",
+            File(
+                id="F1",
+                path=_IMAGE_PATH,
+                media_type=MediaType("image/png"),
+            ),
+        ),
+        (
+            "/file/F1--x99.png",
+            "{{ filey | filter_image_resize_cover((none, 99)) }}",
+            File(
+                id="F1",
+                path=_IMAGE_PATH,
+                media_type=MediaType("image/png"),
+            ),
+        ),
+        (
+            "/file/F1-99x99.png",
+            "{{ filey | filter_image_resize_cover((99, 99)) }}",
+            File(
+                id="F1",
+                path=_IMAGE_PATH,
+                media_type=MediaType("image/png"),
+            ),
+        ),
+        (
+            "/file/F1-99x99-1x2x3x4.png",
+            "{{ filey | filter_image_resize_cover((99, 99), focus=(1, 2, 3, 4)) }}",
+            File(
+                id="F1",
+                path=_IMAGE_PATH,
+                media_type=MediaType("image/png"),
+            ),
+        ),
+        (
+            "/file/F1-99x99.png:/file/F1-99x99.png",
+            "{{ filey | filter_image_resize_cover((99, 99)) }}:{{ filey | filter_image_resize_cover((99, 99)) }}",
+            File(
+                id="F1",
+                path=_IMAGE_PATH,
+                media_type=MediaType("image/png"),
+            ),
+        ),
+        (
+            "/file/F1-99x99.png",
+            "{{ filey | filter_image_resize_cover((99, 99)) }}",
+            FileReference(
+                DummyHasFileReferences(),
+                File(
+                    id="F1",
+                    path=_IMAGE_PATH,
+                    media_type=MediaType("image/png"),
+                ),
+            ),
+        ),
+        (
+            "/file/F1-99x99-0x0x9x9.png",
+            "{{ filey | filter_image_resize_cover((99, 99)) }}",
+            FileReference(
+                DummyHasFileReferences(),
+                File(
+                    id="F1",
+                    path=_IMAGE_PATH,
+                    media_type=MediaType("image/png"),
+                ),
+                focus=(0, 0, 9, 9),
+            ),
+        ),
+    ]
 
-    @pytest.mark.parametrize(
-        ("expected", "template", "filey"),
-        [
-            (
-                "/file/F1-99x-.png",
-                "{{ filey | filter_image_resize_cover((99, none)) }}",
-                File(
-                    id="F1",
-                    path=image_path,
-                    media_type=MediaType("image/png"),
-                ),
-            ),
-            (
-                "/file/F1--x99.png",
-                "{{ filey | filter_image_resize_cover((none, 99)) }}",
-                File(
-                    id="F1",
-                    path=image_path,
-                    media_type=MediaType("image/png"),
-                ),
-            ),
-            (
-                "/file/F1-99x99.png",
-                "{{ filey | filter_image_resize_cover((99, 99)) }}",
-                File(
-                    id="F1",
-                    path=image_path,
-                    media_type=MediaType("image/png"),
-                ),
-            ),
-            (
-                "/file/F1-99x99-1x2x3x4.png",
-                "{{ filey | filter_image_resize_cover((99, 99), focus=(1, 2, 3, 4)) }}",
-                File(
-                    id="F1",
-                    path=image_path,
-                    media_type=MediaType("image/png"),
-                ),
-            ),
-            (
-                "/file/F1-99x99.png:/file/F1-99x99.png",
-                "{{ filey | filter_image_resize_cover((99, 99)) }}:{{ filey | filter_image_resize_cover((99, 99)) }}",
-                File(
-                    id="F1",
-                    path=image_path,
-                    media_type=MediaType("image/png"),
-                ),
-            ),
-            (
-                "/file/F1-99x99.png",
-                "{{ filey | filter_image_resize_cover((99, 99)) }}",
-                FileReference(
-                    DummyHasFileReferences(),
-                    File(
-                        id="F1",
-                        path=image_path,
-                        media_type=MediaType("image/png"),
-                    ),
-                ),
-            ),
-            (
-                "/file/F1-99x99-0x0x9x9.png",
-                "{{ filey | filter_image_resize_cover((99, 99)) }}",
-                FileReference(
-                    DummyHasFileReferences(),
-                    File(
-                        id="F1",
-                        path=image_path,
-                        media_type=MediaType("image/png"),
-                    ),
-                    focus=(0, 0, 9, 9),
-                ),
-            ),
-        ],
-    )
+    @pytest.mark.parametrize(_PARAMETER_ARGNAMES, _PARAMETER_ARGVALUES)
     async def test(self, expected: str, template: str, filey: File) -> None:
         async with self._render(
             template_string=template,
@@ -265,6 +291,89 @@ class TestFilterImageResizeCover(TemplateTestBase):
                 assert (
                     project.configuration.www_directory_path / file_path[1:]
                 ).exists()
+
+    @pytest.mark.parametrize(_PARAMETER_ARGNAMES, _PARAMETER_ARGVALUES)
+    async def test_with_job_context(
+        self, expected: str, template: str, filey: File
+    ) -> None:
+        async with self._render(
+            template_string=template,
+            data={
+                "filey": filey,
+                "job_context": Context(),
+            },
+        ) as (actual, project):
+            assert actual == expected
+            for file_path in actual.split(":"):
+                assert (
+                    project.configuration.www_directory_path / file_path[1:]
+                ).exists()
+
+    async def test_with_svg(self, tmp_path: Path) -> None:
+        image_path = tmp_path / "image.svg"
+        async with aiofiles.open(image_path, "w") as f:
+            await f.write(
+                '<?xml version="1.0" encoding="UTF-8"?><svg version="1.1" xmlns="http://www.w3.org/2000/svg"></svg>'
+            )
+        async with self._render(
+            template_string="{{ filey | filter_image_resize_cover }}",
+            data={
+                "filey": File(
+                    id="F1",
+                    path=image_path,
+                    media_type=MediaType("image/svg+xml"),
+                )
+            },
+        ) as (actual, project):
+            assert actual == "/file/F1/file/image.svg"
+            for file_path in actual.split(":"):
+                assert (
+                    project.configuration.www_directory_path / file_path[1:]
+                ).exists()
+
+    async def test_with_pdf(self, tmp_path: Path) -> None:
+        image_path = tmp_path / "image.pdf"
+        image = Image.new("1", (1, 1))
+        image.save(image_path)
+        async with self._render(
+            template_string="{{ filey | filter_image_resize_cover }}",
+            data={
+                "filey": File(
+                    id="F1",
+                    path=image_path,
+                    media_type=MediaType("application/pdf"),
+                )
+            },
+        ) as (actual, project):
+            assert actual == "/file/F1-.jpg"
+            for file_path in actual.split(":"):
+                assert (
+                    project.configuration.www_directory_path / file_path[1:]
+                ).exists()
+
+    async def test_with_invalid_image(self, tmp_path: Path) -> None:
+        file_path = tmp_path / "not-an-image.txt"
+        file_path.touch()
+        with pytest.raises(ValueError):  # noqa PT011
+            async with self._render(
+                template_string="{{ filey | filter_image_resize_cover }}",
+                data={
+                    "filey": File(
+                        id="F1",
+                        path=file_path,
+                        media_type=MediaType("text/plain"),
+                    )
+                },
+            ):
+                pass  # pragma: nocover
+
+    async def test_with_file_without_media_type(self, tmp_path: Path) -> None:
+        with pytest.raises(ValueError):  # noqa PT011
+            async with self._render(
+                template_string="{{ filey | filter_image_resize_cover }}",
+                data={"filey": File(id="F1", path=self._IMAGE_PATH)},
+            ):
+                pass  # pragma: nocover
 
 
 class TestFilterSelectHasDates(TemplateTestBase):
@@ -477,13 +586,17 @@ class TestFilterFormatDatey(TemplateTestBase):
 
 class TestFilterHtmlLang(TemplateTestBase):
     @pytest.mark.parametrize(
-        ("expected", "localized_locale"),
+        ("expected", "autoescape", "localized_locale"),
         [
-            ("Hallo, wereld!", DEFAULT_LOCALE),
-            ('<span lang="nl">Hallo, wereld!</span>', "nl"),
+            ("Hallo, wereld!", True, DEFAULT_LOCALE),
+            ("Hallo, wereld!", False, DEFAULT_LOCALE),
+            ('<span lang="nl">Hallo, wereld!</span>', True, "nl"),
+            ('<span lang="nl">Hallo, wereld!</span>', False, "nl"),
         ],
     )
-    async def test(self, expected: str, localized_locale: str) -> None:
+    async def test(
+        self, expected: str, autoescape: bool, localized_locale: str
+    ) -> None:
         template = "{{ localized | html_lang }}"
         localized = LocalizedStr("Hallo, wereld!", locale=localized_locale)
         async with self._render(
@@ -491,6 +604,7 @@ class TestFilterHtmlLang(TemplateTestBase):
             data={
                 "localized": localized,
             },
+            autoescape=autoescape,
         ) as (actual, _):
             assert actual == expected
 
@@ -670,7 +784,7 @@ class TestFilterPublicCss(TemplateTestBase):
             template_string=template,
             data={"data": "/css/my-first-css.css"},
         ) as (actual, _):
-            assert actual == "None['/css/my-first-css.css']"
+            assert actual == "None{'/css/my-first-css.css'}"
 
 
 class TestFilterPublicJs(TemplateTestBase):
@@ -680,7 +794,7 @@ class TestFilterPublicJs(TemplateTestBase):
             template_string=template,
             data={"data": "/js/my-first-js.js"},
         ) as (actual, _):
-            assert actual == "None['/js/my-first-js.js']"
+            assert actual == "None{'/js/my-first-js.js'}"
 
 
 class TestFilterStaticUrl(TemplateTestBase):

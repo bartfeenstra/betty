@@ -5,6 +5,7 @@ Provide Betty's default Jinja2 tests.
 from __future__ import annotations
 
 from typing import Any, TYPE_CHECKING, Self
+
 from typing_extensions import override
 
 from betty.ancestry.event_type.event_types import (
@@ -27,9 +28,10 @@ from betty.privacy import is_private, is_public
 from betty.typing import internal
 
 if TYPE_CHECKING:
+    from betty.machine_name import MachineName
     from collections.abc import Mapping, Callable
     from betty.ancestry.event import Event
-    from betty.plugin import PluginIdentifier, PluginIdToTypeMap
+    from betty.plugin import PluginIdToTypeMap
 
 
 def test_linked_data_dumpable(value: Any) -> bool:
@@ -53,15 +55,13 @@ class TestEntity(IndependentFactory):
         return cls(await ENTITY_TYPE_REPOSITORY.map())
 
     def __call__(
-        self, value: Any, entity_type_identifier: PluginIdentifier[Any] | None = None
+        self, value: Any, entity_type_identifier: MachineName | None = None
     ) -> bool:
         """
         :param entity_type_id: If given, additionally ensure the value is an entity of this type.
         """
-        if isinstance(entity_type_identifier, str):
+        if entity_type_identifier is not None:
             entity_type = self._entity_type_id_to_type_map[entity_type_identifier]
-        elif entity_type_identifier:
-            entity_type = entity_type_identifier
         else:
             entity_type = Entity  # type: ignore[type-abstract]
         return isinstance(value, entity_type)
