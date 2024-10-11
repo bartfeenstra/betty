@@ -23,10 +23,7 @@ from typing import (
 
 from betty.assertion.error import AssertionFailedGroup, AssertionFailed, Key, Index
 from betty.error import FileNotFound, UserFacingError
-from betty.locale import (
-    get_data,
-    UNDETERMINED_LOCALE,
-)
+from betty.locale import get_data, UNDETERMINED_LOCALE
 from betty.locale.localizable import _, Localizable, plain, join, do_you_mean
 from betty.typing import Void, Voidable
 
@@ -385,8 +382,11 @@ def assert_fields(
             for field in fields:
                 with errors.catch(Key(field.name)):
                     if field.name in value:
-                        if field.assertion:
-                            mapping[field.name] = field.assertion(value[field.name])
+                        mapping[field.name] = (
+                            field.assertion(value[field.name])
+                            if field.assertion
+                            else value[field.name]
+                        )
                     elif isinstance(field, RequiredField):
                         raise AssertionFailed(_("This field is required."))
         return mapping
@@ -424,8 +424,6 @@ def assert_field(
         try:
             return cast("Voidable[_AssertionReturnT]", fields[field.name])
         except KeyError:
-            if isinstance(field, RequiredField):
-                raise
             return Void
 
     return assert_fields(field) | _assert_field
@@ -441,8 +439,6 @@ def assert_record(
     MUST be provided. Any keys present in the value for which no field assertions
     are provided will cause the entire record assertion to fail.
     """
-    if not len(fields):
-        raise ValueError("One or more fields are required.")
 
     def _assert_record(value: Mapping[Any, Any]) -> MutableMapping[str, Any]:
         known_keys = {x.name for x in fields}

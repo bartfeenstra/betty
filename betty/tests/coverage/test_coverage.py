@@ -67,29 +67,16 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/__init__.py": MissingReason.SHOULD_BE_COVERED,
     "betty/app/factory.py": MissingReason.ABSTRACT,
     "betty/assertion/__init__.py": {
-        "assert_entity_type": MissingReason.SHOULD_BE_COVERED,
-        "assert_locale": MissingReason.SHOULD_BE_COVERED,
-        "assert_none": MissingReason.SHOULD_BE_COVERED,
-        "assert_setattr": MissingReason.SHOULD_BE_COVERED,
-        "Fields": MissingReason.SHOULD_BE_COVERED,
-        "OptionalField": MissingReason.SHOULD_BE_COVERED,
-        "RequiredField": MissingReason.SHOULD_BE_COVERED,
+        "OptionalField": MissingReason.DATACLASS,
+        "RequiredField": MissingReason.DATACLASS,
     },
     "betty/assertion/error.py": {
         "AssertionContext": MissingReason.ABSTRACT,
         "AssertionFailed": {
-            "contexts": MissingReason.SHOULD_BE_COVERED,
-            "raised": MissingReason.SHOULD_BE_COVERED,
+            "contexts": MissingReason.COVERED_ELSEWHERE,
         },
         "AssertionFailedGroup": {
-            "__iter__": MissingReason.SHOULD_BE_COVERED,
-            "__len__": MissingReason.SHOULD_BE_COVERED,
-            "__reduce__": MissingReason.SHOULD_BE_COVERED,
-            "append": MissingReason.SHOULD_BE_COVERED,
-            "assert_valid": MissingReason.SHOULD_BE_COVERED,
-            "invalid": MissingReason.SHOULD_BE_COVERED,
-            "raised": MissingReason.SHOULD_BE_COVERED,
-            "valid": MissingReason.SHOULD_BE_COVERED,
+            "invalid": MissingReason.COVERED_ELSEWHERE,
         },
     },
     "betty/cache/__init__.py": {
