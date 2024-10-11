@@ -173,9 +173,9 @@ class AssertionFailedGroup(AssertionFailed):
         errors: Sequence[AssertionFailed] | None = None,
     ):
         super().__init__(_("The following errors occurred"))
-        self._errors: MutableSequence[AssertionFailed] = (
-            [] if errors is None else list(errors)
-        )
+        self._errors: MutableSequence[AssertionFailed] = []
+        if errors is not None:
+            self.append(*errors)
 
     def __iter__(self) -> Iterator[AssertionFailed]:
         yield from self._errors

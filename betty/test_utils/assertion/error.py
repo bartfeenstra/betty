@@ -24,7 +24,7 @@ def assert_error(
     actual_error: AssertionFailed | AssertionFailedGroup,
     *,
     error: AssertionFailed,
-    error_type: None = None,
+    error_type: type[AssertionFailed] = AssertionFailed,
     error_message: None = None,
     error_contexts: None = None,
 ) -> Sequence[AssertionFailed]:
@@ -47,7 +47,7 @@ def assert_error(
     actual_error: AssertionFailed | AssertionFailedGroup,
     *,
     error: AssertionFailed | None = None,
-    error_type: type[AssertionFailed] | None = AssertionFailed,
+    error_type: type[AssertionFailed] = AssertionFailed,
     error_message: str | None = None,
     error_contexts: Sequence[Contextey] | None = None,
 ) -> Sequence[AssertionFailed]:
@@ -72,7 +72,7 @@ def assert_error(
             for context in localizable_contexts(*error.contexts)
         ]
     else:
-        expected_error_type = error_type  # type: ignore[assignment]
+        expected_error_type = error_type
         if error_message is not None:
             expected_error_message = error_message
         if error_contexts is not None:
