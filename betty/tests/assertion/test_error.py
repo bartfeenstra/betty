@@ -50,19 +50,19 @@ class TestLocalizableContexts:
             ),
             (
                 ["My First Context", "data.attr"],
-                [plain("My First Context"), Attr("attr")],
+                [Attr("attr"), plain("My First Context")],
             ),
             (
                 ["data.attr", "My First Context"],
-                [Attr("attr"), plain("My First Context")],
+                [plain("My First Context"), Attr("attr")],
             ),
             (
                 ["My First Context", 'data.attr[0]["key"]', "My First Context"],
                 [
                     plain("My First Context"),
-                    Attr("attr"),
-                    Index(0),
                     Key("key"),
+                    Index(0),
+                    Attr("attr"),
                     plain("My First Context"),
                 ],
             ),
@@ -89,7 +89,7 @@ class TestAssertionFailed:
         sut = sut.with_context(static("Somewhere else, too..."))
         assert (
             sut.localize(DEFAULT_LOCALIZER)
-            == "Something went wrong!\n- Somewhere, at some point...\n- Somewhere else, too..."
+            == "Something went wrong!\n- Somewhere else, too...\n- Somewhere, at some point..."
         )
 
     async def test_with_context(self) -> None:
@@ -148,7 +148,7 @@ class TestAssertionFailedGroup:
         assert not len(error_2.contexts)
         assert (
             sut.localize(DEFAULT_LOCALIZER)
-            == "Something went wrong!\n- Somewhere, at some point...\n- Somewhere else, too...\n\nSomething else went wrong, too!\n- Somewhere, at some point...\n- Somewhere else, too..."
+            == "Something went wrong!\n- Somewhere else, too...\n- Somewhere, at some point...\n\nSomething else went wrong, too!\n- Somewhere else, too...\n- Somewhere, at some point..."
         )
 
     async def test_with_context(self) -> None:
