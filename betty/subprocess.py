@@ -4,12 +4,36 @@ Provide a subprocess API.
 
 import logging
 import os
+import subprocess
 from asyncio import create_subprocess_exec, create_subprocess_shell
 from asyncio.subprocess import Process
 from collections.abc import Sequence
 from pathlib import Path
-from subprocess import CalledProcessError, PIPE
-from traceback import format_exception
+from subprocess import PIPE
+
+
+class SubprocessError(Exception):
+    """
+    Raised when a subprocess failed.
+    """
+
+    pass
+
+
+class CalledSubprocessError(subprocess.CalledProcessError, SubprocessError):
+    """
+    Raised when a subprocess was successfully invoked, but subsequently failed during its own execution.
+    """
+
+    pass
+
+
+class FileNotFound(FileNotFoundError, SubprocessError):
+    """
+    Raised when a command could not be found.
+    """
+
+    pass
 
 
 async def run_process(
@@ -19,6 +43,8 @@ async def run_process(
 ) -> Process:
     """
     Run a command in a subprocess.
+
+    :raise betty.subprocess.SubprocessError:
     """
     command = " ".join(runnee)
     logger = logging.getLogger(__name__)
@@ -34,11 +60,9 @@ async def run_process(
                 *runnee, cwd=cwd, stderr=PIPE, stdout=PIPE
             )
         stdout, stderr = await process.communicate()
-    except Exception as error:
-        logger.debug(
-            f'Subprocess `{command}` raised an error:\n{" ".join(format_exception(error))}'
-        )
-        raise
+    except FileNotFoundError as error:
+        logger.debug(str(error))
+        raise FileNotFound(str(error)) from None
 
     if process.returncode == 0:
         return process
@@ -52,7 +76,7 @@ async def run_process(
         logger.debug(f"Subprocess `{command}` stderr:\n{stderr_str}")
 
     assert process.returncode is not None
-    raise CalledProcessError(
+    raise CalledSubprocessError(
         process.returncode,
         " ".join(runnee),
         stdout_str,
