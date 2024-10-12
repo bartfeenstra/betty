@@ -3,12 +3,18 @@ from typing import Self
 import pytest
 from typing_extensions import override
 
-from betty.factory import FactoryError, new, IndependentFactory
+from betty.factory import FactoryError, new, IndependentFactory, InitFactoryError
 
 
 class TestFactoryError:
     def test_new(self) -> None:
         sut = FactoryError.new(self.__class__)
+        assert str(sut)
+
+
+class TestInitFactoryError:
+    def test_new(self) -> None:
+        sut = InitFactoryError.new(self.__class__)
         assert str(sut)
 
 
