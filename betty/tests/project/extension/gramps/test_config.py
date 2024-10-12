@@ -163,22 +163,6 @@ class TestFamilyTreeConfiguration:
         assert isinstance(actual, Mapping)
         assert actual["my-first-gramps-type"] == "my-first-betty-plugin-id"
 
-    # @todo UGH err remove __eq__ altogether?
-    async def test___eq___is_equal(self, tmp_path: Path) -> None:
-        sut = FamilyTreeConfiguration(tmp_path)
-        other = FamilyTreeConfiguration(tmp_path)
-        assert sut == other
-
-    async def test___eq___is_not_equal_type(self, tmp_path: Path) -> None:
-        sut = FamilyTreeConfiguration(tmp_path)
-        assert sut != 123
-
-    async def test___eq___is_not_equal(self, tmp_path: Path) -> None:
-        sut = FamilyTreeConfiguration(tmp_path)
-        sut.file_path = tmp_path / "ancestry.gramps"
-        other = FamilyTreeConfiguration(tmp_path)
-        assert sut != other
-
 
 class TestPluginMapping:
     def test_load_without_values(self) -> None:
