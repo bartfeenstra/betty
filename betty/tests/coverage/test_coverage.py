@@ -327,7 +327,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "primary_inactive_color": MissingReason.SHOULD_BE_COVERED,
         },
     },
-    "betty/project/extension/demo/__init__.py": {
+    "betty/project/extension/demo/serve.py": {
         "DemoServer": {
             "public_url": MissingReason.SHOULD_BE_COVERED,
             "start": MissingReason.SHOULD_BE_COVERED,

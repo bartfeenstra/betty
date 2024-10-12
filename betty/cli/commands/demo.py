@@ -45,7 +45,7 @@ class Demo(ShorthandPluginBase, AppDependentFactory, Command):
             else self.plugin_label().localize(localizer),
         )
         async def demo() -> None:
-            from betty.project.extension.demo import DemoServer
+            from betty.project.extension.demo.serve import DemoServer
 
             async with DemoServer(app=self._app) as server:
                 await server.show()
