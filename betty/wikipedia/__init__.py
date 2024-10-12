@@ -16,6 +16,8 @@ from pathlib import Path
 from typing import cast, Any, TYPE_CHECKING, final
 from urllib.parse import quote, urlparse
 
+from geopy import Point
+
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.ancestry.has_file_references import HasFileReferences
@@ -35,7 +37,7 @@ from betty.locale.error import LocaleError
 from betty.locale.localizable import plain
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
-from geopy import Point
+from betty.wikipedia.copyright_notice import WikipediaContributors
 
 if TYPE_CHECKING:
     from betty.ancestry import Ancestry
@@ -439,6 +441,7 @@ class _Populator:
                     path=image.path,
                     media_type=image.media_type,
                     links=links,
+                    copyright_notice=WikipediaContributors(),
                 )
                 self._image_files[image] = file
                 self._ancestry.add(file)
