@@ -45,6 +45,7 @@ async def create_project(app: App) -> AsyncIterator[Project]:
 
     async with Project.new_temporary(app) as project:
         project.configuration.name = Demo.plugin_id()
+        project.configuration.license = "spdx-gpl-3--0-or-later"
         project.configuration.title = {
             "en-US": "A Betty demonstration",
             "nl-NL": "Een demonstratie van Betty",

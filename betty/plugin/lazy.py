@@ -3,14 +3,13 @@ Lazily load plugins.
 """
 
 from abc import abstractmethod
-from collections.abc import AsyncIterator, Mapping
+from collections.abc import AsyncIterator, Mapping, Sequence
 from typing import Generic, TypeVar
-
-from typing_extensions import override
 
 from betty.factory import Factory
 from betty.machine_name import MachineName
 from betty.plugin import PluginRepository, Plugin, PluginNotFound
+from typing_extensions import override
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 
@@ -36,11 +35,13 @@ class LazyPluginRepositoryBase(PluginRepository[_PluginT], Generic[_PluginT]):
         Get the plugins, lazily loading them when needed.
         """
         if self.__plugins is None:
-            self.__plugins = await self._load_plugins()
+            self.__plugins = {
+                plugin.plugin_id(): plugin for plugin in await self._load_plugins()
+            }
         return self.__plugins
 
     @abstractmethod
-    async def _load_plugins(self) -> Mapping[str, type[_PluginT]]:
+    async def _load_plugins(self) -> Sequence[type[_PluginT]]:
         """
         Load the plugins.
         """

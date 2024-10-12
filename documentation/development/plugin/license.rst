@@ -10,8 +10,10 @@ License plugins
    * -  Repository
      -  :py:attr:`betty.project.Project.licenses`
             All licenses, including those defined in the project configuration
+        :py:class:`betty.app.App.licenses`
+            Only licenses available to any bootstrapped application, and those available globally
         :py:class:`betty.license.LICENSE_REPOSITORY`
-            Only licenses available to any project
+            Only licenses available globally
 
 
 Creating a license

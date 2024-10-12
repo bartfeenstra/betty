@@ -148,7 +148,7 @@ class File(
         schema.add_property(
             "license",
             Enum(
-                *[plugin.plugin_id() async for plugin in project.licenses],  # noqa A002
+                *[plugin.plugin_id() async for plugin in await project.licenses],  # noqa A002
                 title="License",
                 description="A license plugin ID",
             ),

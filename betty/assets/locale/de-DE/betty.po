@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-04 18:24+0100\n"
+"POT-Creation-Date: 2024-10-12 23:15+0100\n"
 "PO-Revision-Date: 2024-02-08 13:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de\n"
@@ -200,6 +200,9 @@ msgstr "Taufe"
 
 msgid "Beneficiary"
 msgstr "Begünstigter"
+
+msgid "Betty could not load the SPDX licenses"
+msgstr ""
 
 msgid ""
 "Betty is unfamiliar with Gramps event \"{event_id}\"'s type of "

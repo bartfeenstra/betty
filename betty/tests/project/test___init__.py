@@ -427,7 +427,8 @@ class TestProject:
                 LicenseConfiguration("foo", "Foo", summary="", text="")
             )
             async with sut:
-                assert await sut.licenses.get("foo")
+                licenses = await sut.licenses
+                assert await licenses.get("foo")
 
     async def test_event_types(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
