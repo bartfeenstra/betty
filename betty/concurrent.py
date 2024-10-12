@@ -140,7 +140,7 @@ class RateLimiter:
             while self._available < 1:
                 self._add_tokens()
                 if self._available < 1:
-                    await asyncio.sleep(0.1)
+                    await asyncio.sleep(0)
             self._available -= 1
 
 
