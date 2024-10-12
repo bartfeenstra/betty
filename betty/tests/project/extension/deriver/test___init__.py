@@ -25,6 +25,7 @@ from betty.test_utils.ancestry.event_type import DummyEventType
 from betty.test_utils.project.extension import ExtensionTestBase
 
 if TYPE_CHECKING:
+    from betty.plugin import PluginIdentifier
     from betty.ancestry.event_type import EventType
     from betty.app import App
 
@@ -43,7 +44,7 @@ class ComesAfterReference(DummyEventType):
 
 class ComesBeforeDerivable(DerivableEventType):
     @classmethod
-    def comes_before(cls) -> set[type[EventType]]:
+    def comes_before(cls) -> set[PluginIdentifier[EventType]]:
         return {ComesBeforeReference}
 
 
@@ -53,7 +54,7 @@ class ComesBeforeCreatableDerivable(CreatableDerivableEventType, ComesBeforeDeri
 
 class ComesAfterDerivable(DerivableEventType, DummyEventType):
     @classmethod
-    def comes_after(cls) -> set[type[EventType]]:
+    def comes_after(cls) -> set[PluginIdentifier[EventType]]:
         return {ComesAfterReference}
 
 
@@ -63,11 +64,11 @@ class ComesAfterCreatableDerivable(CreatableDerivableEventType, ComesAfterDeriva
 
 class ComesBeforeAndAfterDerivable(DerivableEventType, DummyEventType):
     @classmethod
-    def comes_before(cls) -> set[type[EventType]]:
+    def comes_before(cls) -> set[PluginIdentifier[EventType]]:
         return {Ignored}
 
     @classmethod
-    def comes_after(cls) -> set[type[EventType]]:
+    def comes_after(cls) -> set[PluginIdentifier[EventType]]:
         return {Ignored}
 
 

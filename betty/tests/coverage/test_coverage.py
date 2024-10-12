@@ -278,16 +278,18 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/license/__init__.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/path.py": MissingReason.SHOULD_BE_COVERED,
     "betty/plugin/__init__.py": {
+        "DependentPlugin": MissingReason.ABSTRACT,
+        "OrderedPlugin": MissingReason.ABSTRACT,
         "Plugin": {
             "plugin_id": MissingReason.ABSTRACT,
             "plugin_label": MissingReason.ABSTRACT,
         },
-        "ShorthandPluginBase": MissingReason.SHOULD_BE_COVERED,
         "PluginError": MissingReason.ABSTRACT,
         "PluginRepository": {
             "__aiter__": MissingReason.ABSTRACT,
             "get": MissingReason.ABSTRACT,
         },
+        "ShorthandPluginBase": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/plugin/assertion.py": {
         "assert_plugin": MissingReason.SHOULD_BE_COVERED,
@@ -307,7 +309,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/project/extension/__init__.py": {
         "ConfigurableExtension": MissingReason.SHOULD_BE_COVERED,
-        "CyclicDependencyError": MissingReason.SHOULD_BE_COVERED,
         "Dependencies": MissingReason.SHOULD_BE_COVERED,
         "ExtensionError": MissingReason.STATIC_CONTENT_ONLY,
         "ExtensionTypeError": MissingReason.STATIC_CONTENT_ONLY,

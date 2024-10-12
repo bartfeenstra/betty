@@ -11,7 +11,7 @@ from typing_extensions import override
 from betty.ancestry.event_type import EventType
 from betty.locale.localizable import _
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.plugin import ShorthandPluginBase
+from betty.plugin import ShorthandPluginBase, PluginIdentifier
 
 if TYPE_CHECKING:
     from betty.ancestry.person import Person
@@ -55,7 +55,7 @@ class PreBirthEventType(EventType):
 
     @override
     @classmethod
-    def comes_before(cls) -> set[type[EventType]]:
+    def comes_before(cls) -> set[PluginIdentifier[EventType]]:
         return {Birth}  # pragma: no cover
 
 
@@ -78,12 +78,12 @@ class DuringLifeEventType(EventType):
 
     @override
     @classmethod
-    def comes_after(cls) -> set[type[EventType]]:
+    def comes_after(cls) -> set[PluginIdentifier[EventType]]:
         return {Birth}  # pragma: no cover
 
     @override
     @classmethod
-    def comes_before(cls) -> set[type[EventType]]:
+    def comes_before(cls) -> set[PluginIdentifier[EventType]]:
         return {Death}  # pragma: no cover
 
 
@@ -106,7 +106,7 @@ class PostDeathEventType(EventType):
 
     @override
     @classmethod
-    def comes_after(cls) -> set[type[EventType]]:
+    def comes_after(cls) -> set[PluginIdentifier[EventType]]:
         return {Death}  # pragma: no cover
 
 
@@ -121,8 +121,8 @@ class Birth(CreatableDerivableEventType, StartOfLifeEventType, ShorthandPluginBa
 
     @override
     @classmethod
-    def comes_before(cls) -> set[type[EventType]]:
-        return {DuringLifeEventType}  # type: ignore[type-abstract]  # pragma: no cover
+    def comes_before(cls) -> set[PluginIdentifier[EventType]]:
+        return {DuringLifeEventType}  # pragma: no cover
 
 
 @final
@@ -156,8 +156,8 @@ class Death(CreatableDerivableEventType, EndOfLifeEventType, ShorthandPluginBase
 
     @override
     @classmethod
-    def comes_after(cls) -> set[type[EventType]]:
-        return {DuringLifeEventType}  # type: ignore[type-abstract]  # pragma: no cover
+    def comes_after(cls) -> set[PluginIdentifier[EventType]]:
+        return {DuringLifeEventType}  # pragma: no cover
 
     @override
     @classmethod
@@ -230,7 +230,7 @@ class Engagement(DuringLifeEventType, ShorthandPluginBase):
 
     @override
     @classmethod
-    def comes_before(cls) -> set[type[EventType]]:
+    def comes_before(cls) -> set[PluginIdentifier[EventType]]:
         return {Marriage}  # pragma: no cover
 
 
@@ -255,7 +255,7 @@ class MarriageAnnouncement(DuringLifeEventType, ShorthandPluginBase):
 
     @override
     @classmethod
-    def comes_before(cls) -> set[type[EventType]]:
+    def comes_before(cls) -> set[PluginIdentifier[EventType]]:
         return {Marriage}  # pragma: no cover
 
 
@@ -270,7 +270,7 @@ class Divorce(DuringLifeEventType, ShorthandPluginBase):
 
     @override
     @classmethod
-    def comes_after(cls) -> set[type[EventType]]:
+    def comes_after(cls) -> set[PluginIdentifier[EventType]]:
         return {Marriage}  # pragma: no cover
 
 
@@ -285,12 +285,12 @@ class DivorceAnnouncement(DuringLifeEventType, ShorthandPluginBase):
 
     @override
     @classmethod
-    def comes_after(cls) -> set[type[EventType]]:
+    def comes_after(cls) -> set[PluginIdentifier[EventType]]:
         return {Marriage}  # pragma: no cover
 
     @override
     @classmethod
-    def comes_before(cls) -> set[type[EventType]]:
+    def comes_before(cls) -> set[PluginIdentifier[EventType]]:
         return {Divorce}  # pragma: no cover
 
 
