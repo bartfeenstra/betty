@@ -65,13 +65,6 @@ class TestColorConfiguration:
         hex_value = "#000000"
         assert hex_value == ColorConfiguration(hex_value=hex_value).dump()
 
-    async def test_update(self) -> None:
-        hex_value = "#000000"
-        other = ColorConfiguration(hex_value)
-        sut = ColorConfiguration("#ffffff")
-        sut.update(other)
-        assert sut.hex == hex_value
-
 
 class CottonCandyConfigurationTestEntity(UserFacingEntity, DummyEntity):
     pass

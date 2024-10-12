@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable, Self, TYPE_CHECKING, Sequence
+from typing import Iterable, TYPE_CHECKING, Sequence
 
 from typing_extensions import override
 
@@ -17,10 +17,6 @@ class ConfigurationSequenceTestConfiguration(Configuration):
     def __init__(self, configuration_value: int):
         super().__init__()
         self.value = configuration_value
-
-    @override
-    def update(self, other: Self) -> None:
-        pass  # pragma: no cover
 
     @override
     def load(self, dump: Dump) -> None:

@@ -215,21 +215,6 @@ class TestEntityReference:
         }
         assert sut.dump() == expected
 
-    async def test_update(self) -> None:
-        entity_type = EntityReferenceTestEntityOne
-        entity_id = "ENTITY1"
-        entity_type_is_constrained = True
-        other = EntityReference[EntityReferenceTestEntityOne](
-            entity_type,
-            entity_id,
-            entity_type_is_constrained=entity_type_is_constrained,
-        )
-        sut = EntityReference[EntityReferenceTestEntityOne]()
-        sut.update(other)
-        assert sut.entity_type == entity_type
-        assert sut.entity_id == entity_id
-        assert sut.entity_type_is_constrained == entity_type_is_constrained
-
 
 class EntityReferenceSequenceTestEntity(DummyEntity):
     pass
@@ -353,15 +338,6 @@ class TestLocaleConfiguration:
         sut = LocaleConfiguration("nl-NL", alias="nl")
         expected = {"locale": "nl-NL", "alias": "nl"}
         assert sut.dump() == expected
-
-    async def test_update(self) -> None:
-        locale = "nl-NL"
-        alias = "nl"
-        other = LocaleConfiguration(locale, alias=alias)
-        sut = LocaleConfiguration(DEFAULT_LOCALE)
-        sut.update(other)
-        assert sut.locale == locale
-        assert sut.alias == alias
 
 
 class TestLocaleConfigurationMapping(
@@ -559,25 +535,6 @@ class TestExtensionConfiguration:
         }
         assert sut.dump() == expected
 
-    async def test_update_should_update_minimal(self) -> None:
-        class _OtherDummyExtension(DummyExtension):
-            pass
-
-        other = ExtensionConfiguration(_OtherDummyExtension)
-        sut = ExtensionConfiguration(DummyExtension)
-        sut.update(other)
-        assert sut.extension_type is _OtherDummyExtension
-        assert sut.enabled
-        assert sut.extension_configuration is None
-
-    async def test_update_should_update_extension_configuration(self) -> None:
-        other = ExtensionConfiguration(DummyConfigurableExtension)
-        sut = ExtensionConfiguration(DummyExtension)
-        sut.update(other)
-        assert isinstance(
-            sut.extension_configuration, DummyConfigurableExtensionConfiguration
-        )
-
 
 class ExtensionTypeConfigurationMappingTestExtension0(DummyExtension):
     pass
@@ -732,18 +689,6 @@ class TestEntityTypeConfiguration:
         }
         assert sut.dump() == expected
 
-    async def test_update(self) -> None:
-        other = EntityTypeConfiguration(
-            entity_type=EntityTypeConfigurationTestEntityOne,
-            generate_html_list=True,
-        )
-        sut = EntityTypeConfiguration(
-            entity_type=EntityTypeConfigurationTestEntityOther
-        )
-        sut.update(other)
-        assert sut.entity_type is EntityTypeConfigurationTestEntityOne
-        assert sut.generate_html_list
-
 
 class EntityTypeConfigurationMappingTestEntity0(DummyEntity):
     pass
@@ -829,17 +774,6 @@ class TestCopyrightNoticeConfiguration:
         text = "My First Copyright Text"
         sut.text = text
         assert sut.text[UNDETERMINED_LOCALE] == text
-
-    async def test_update(self) -> None:
-        sut = CopyrightNoticeConfiguration("-", "", summary="", text="")
-        summary = "My First Copyright Summary"
-        text = "My First Copyright Text"
-        other = CopyrightNoticeConfiguration(
-            "-", "", description="", summary=summary, text=text
-        )
-        sut.update(other)
-        assert sut.summary[UNDETERMINED_LOCALE] == "My First Copyright Summary"
-        assert sut.text[UNDETERMINED_LOCALE] == "My First Copyright Text"
 
     async def test_load(self) -> None:
         summary = "My First Copyright Summary"
@@ -936,17 +870,6 @@ class TestLicenseConfiguration:
         text = "My First License Text"
         sut.text = text
         assert sut.text[UNDETERMINED_LOCALE] == text
-
-    async def test_update(self) -> None:
-        sut = LicenseConfiguration("-", "", summary="", text="")
-        summary = "My First License Summary"
-        text = "My First License Text"
-        other = LicenseConfiguration(
-            "-", "", description="", summary=summary, text=text
-        )
-        sut.update(other)
-        assert sut.summary[UNDETERMINED_LOCALE] == "My First License Summary"
-        assert sut.text[UNDETERMINED_LOCALE] == "My First License Text"
 
     async def test_load(self) -> None:
         summary = "My First License Summary"
@@ -1735,67 +1658,3 @@ class TestProjectConfiguration:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         with raises_error(error_type=AssertionFailed):
             sut.load(dump)
-
-    async def test_update(self, tmp_path: Path) -> None:
-        url = "https://betty.example.com"
-        name = "my-first-betty-site"
-        title = "My First Betty Site"
-        author = "Bart Feenstra"
-        clean_urls = True
-        debug = True
-        lifetime_threshold = 99
-        locales = [LocaleConfiguration("nl-NL")]
-        extensions = [ExtensionConfiguration(DummyExtension)]
-        entity_types = [EntityTypeConfiguration(DummyEntity)]
-        other = await ProjectConfiguration.new(
-            tmp_path / "other" / "betty.json",
-            url=url,
-            name=name,
-            title=title,
-            author=author,
-            clean_urls=clean_urls,
-            debug=debug,
-            lifetime_threshold=lifetime_threshold,
-            locales=locales,
-            extensions=extensions,
-            entity_types=entity_types,
-            event_types=[
-                PluginConfiguration("my-first-event-type", "My First Event Type")
-            ],
-            place_types=[
-                PluginConfiguration("my-first-place-type", "My First Place Type")
-            ],
-            presence_roles=[
-                PluginConfiguration("my-first-presence-role", "My First Presence Role")
-            ],
-            genders=[PluginConfiguration("my-first-gender", "My First Gender")],
-        )
-        sut = await ProjectConfiguration.new(tmp_path / "sut" / "betty.json")
-        sut.update(other)
-        assert sut.url == url
-        assert sut.title.localize(DEFAULT_LOCALIZER) == title
-        assert sut.author.localize(DEFAULT_LOCALIZER) == author
-        assert sut.clean_urls == clean_urls
-        assert sut.debug == debug
-        assert sut.lifetime_threshold == lifetime_threshold
-        assert list(sut.locales.values()) == locales
-        assert list(sut.extensions.values()) == extensions
-        assert list(sut.entity_types.values()) == entity_types
-        assert (
-            sut.event_types["my-first-event-type"].label.localize(DEFAULT_LOCALIZER)
-            == "My First Event Type"
-        )
-        assert (
-            sut.genders["my-first-gender"].label.localize(DEFAULT_LOCALIZER)
-            == "My First Gender"
-        )
-        assert (
-            sut.place_types["my-first-place-type"].label.localize(DEFAULT_LOCALIZER)
-            == "My First Place Type"
-        )
-        assert (
-            sut.presence_roles["my-first-presence-role"].label.localize(
-                DEFAULT_LOCALIZER
-            )
-            == "My First Presence Role"
-        )

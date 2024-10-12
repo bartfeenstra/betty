@@ -22,13 +22,6 @@ class TestAppConfiguration:
         sut.locale = locale
         assert sut.locale == locale
 
-    def test_update(self) -> None:
-        locale = "nl-NL"
-        sut = AppConfiguration()
-        other = AppConfiguration(locale=locale)
-        sut.update(other)
-        assert sut.locale == locale
-
     def test_load_minimal(self) -> None:
         sut = AppConfiguration()
         dump: DumpMapping[Dump] = {}

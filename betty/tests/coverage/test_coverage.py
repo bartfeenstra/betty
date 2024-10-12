@@ -320,7 +320,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/project/extension/cotton_candy/config.py": {
         "CottonCandyConfiguration": {
-            "update": MissingReason.SHOULD_BE_COVERED,
             "featured_entities": MissingReason.SHOULD_BE_COVERED,
             "link_active_color": MissingReason.SHOULD_BE_COVERED,
             "link_inactive_color": MissingReason.SHOULD_BE_COVERED,

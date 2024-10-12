@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence, Mapping
-from typing import Iterable, Self, TYPE_CHECKING, cast
+from typing import Iterable, TYPE_CHECKING, cast
 
 from typing_extensions import override
 
@@ -28,10 +28,6 @@ class ConfigurationMappingTestConfiguration(Configuration):
         super().__init__()
         self.key = configuration_key
         self.value = configuration_value
-
-    @override
-    def update(self, other: Self) -> None:
-        pass  # pragma: no cover
 
     @override
     def load(self, dump: Dump) -> None:

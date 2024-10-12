@@ -19,18 +19,6 @@ if TYPE_CHECKING:
 
 
 class TestPluginConfiguration:
-    async def test_update(self) -> None:
-        sut = PluginConfiguration("hello-world", "")
-        other = PluginConfiguration(
-            "hello-other-world",
-            "Hello, other world!",
-            description="Hello, very big other world!",
-        )
-        sut.update(other)
-        assert sut.id == "hello-other-world"
-        assert sut.label[UNDETERMINED_LOCALE] == "Hello, other world!"
-        assert sut.description[UNDETERMINED_LOCALE] == "Hello, very big other world!"
-
     async def test_load(self) -> None:
         plugin_id = "hello-world"
         dump: Dump = {
