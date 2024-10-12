@@ -5,7 +5,7 @@ Provide configuration for the :py:class:`betty.project.extension.gramps.Gramps` 
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Self, final, TYPE_CHECKING, TypeVar
+from typing import Any, final, TYPE_CHECKING, TypeVar
 
 from typing_extensions import override
 
@@ -187,10 +187,6 @@ class PluginMapping(Configuration):
         # Dumps are mutable, so return a new dict which may then be changed without impacting ``self``.
         return dict(self._mapping)
 
-    @override
-    def update(self, other: Self) -> None:
-        self._mapping = dict(other._mapping)
-
     def _default_mapping(self) -> Mapping[str, MachineName]:
         return {}
 
@@ -296,14 +292,6 @@ class FamilyTreeConfiguration(Configuration):
             "presence_roles": self.presence_roles.dump(),
         }
 
-    @override
-    def update(self, other: Self) -> None:
-        self.file_path = other.file_path
-        self.event_types.update(other.event_types)
-        self.genders.update(other.genders)
-        self.place_types.update(other.place_types)
-        self.presence_roles.update(other.presence_roles)
-
 
 class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfiguration]):
     """
@@ -336,10 +324,6 @@ class GrampsConfiguration(Configuration):
         The Gramps family trees to load.
         """
         return self._family_trees
-
-    @override
-    def update(self, other: Self) -> None:
-        self._family_trees.update(other._family_trees)
 
     @override
     def load(self, dump: Dump) -> None:

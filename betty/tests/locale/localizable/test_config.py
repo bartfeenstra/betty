@@ -73,14 +73,6 @@ class TestStaticTranslationsLocalizableConfiguration:
         )
         assert sut.localize(DEFAULT_LOCALIZER) == "Hello, world!"
 
-    async def test_update(self) -> None:
-        sut = StaticTranslationsLocalizableConfiguration()
-        other = StaticTranslationsLocalizableConfiguration(
-            {DEFAULT_LOCALIZER.locale: "Hello, world!"}
-        )
-        sut.update(other)
-        assert sut[DEFAULT_LOCALIZER.locale] == "Hello, world!"
-
     async def test_load_without_translations_should_error(self) -> None:
         sut = StaticTranslationsLocalizableConfiguration()
         with pytest.raises(AssertionFailed):

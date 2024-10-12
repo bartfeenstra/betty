@@ -2,7 +2,7 @@
 Test utilities for :py:mod:`betty.project.extension`.
 """
 
-from typing import Self, TypeVar, Generic
+from typing import TypeVar, Generic
 
 from typing_extensions import override
 
@@ -99,10 +99,6 @@ class DummyConfigurableExtensionConfiguration(Configuration):
     def __init__(self, *, check: bool = False):
         super().__init__()
         self.check = check
-
-    @override
-    def update(self, other: Self) -> None:
-        self.check = other.check
 
     @override
     def load(self, dump: Dump) -> None:

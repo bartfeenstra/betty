@@ -11,7 +11,6 @@ from typing import (
     Generic,
     Iterable,
     Iterator,
-    Self,
     TypeVar,
     TYPE_CHECKING,
 )
@@ -56,10 +55,6 @@ class _ConfigurationMapping(
     @override
     def values(self) -> Iterator[_ConfigurationT]:
         yield from self._configurations.values()
-
-    @override
-    def update(self, other: Self) -> None:
-        self.replace(*other.values())
 
     @override
     def replace(self, *configurations: _ConfigurationT) -> None:

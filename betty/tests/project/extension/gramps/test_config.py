@@ -163,32 +163,6 @@ class TestFamilyTreeConfiguration:
         assert isinstance(actual, Mapping)
         assert actual["my-first-gramps-type"] == "my-first-betty-plugin-id"
 
-    async def test_update(self, tmp_path: Path) -> None:
-        file_path = tmp_path / "ancestry.gramps"
-        sut = FamilyTreeConfiguration(tmp_path)
-        other = FamilyTreeConfiguration(
-            tmp_path,
-            event_types={"my-first-gramps-event-type": "my-first-betty-event-id"},
-            genders={"my-first-gramps-gender": "my-first-betty-gender-id"},
-            place_types={"my-first-gramps-place-type": "my-first-betty-place-type-id"},
-            presence_roles={"my-first-gramps-role": "my-first-betty-presence-role-id"},
-        )
-        other.file_path = file_path
-        sut.update(other)
-        assert sut.file_path == file_path
-        assert (
-            sut.event_types["my-first-gramps-event-type"] == "my-first-betty-event-id"
-        )
-        assert sut.genders["my-first-gramps-gender"] == "my-first-betty-gender-id"
-        assert (
-            sut.place_types["my-first-gramps-place-type"]
-            == "my-first-betty-place-type-id"
-        )
-        assert (
-            sut.presence_roles["my-first-gramps-role"]
-            == "my-first-betty-presence-role-id"
-        )
-
     # @todo UGH err remove __eq__ altogether?
     async def test___eq___is_equal(self, tmp_path: Path) -> None:
         sut = FamilyTreeConfiguration(tmp_path)
@@ -247,12 +221,6 @@ class TestPluginMapping:
     )
     def test_dump(self, expected: Dump, sut: PluginMapping) -> None:
         assert sut.dump() == expected
-
-    def test_update(self) -> None:
-        sut = PluginMapping()
-        other = PluginMapping({"my-first-gramps-type": "my-first-betty-plugin-id"})
-        sut.update(other)
-        assert sut["my-first-gramps-type"] == "my-first-betty-plugin-id"
 
     def test___getitem__(self) -> None:
         sut = PluginMapping({"my-first-gramps-type": "my-first-betty-plugin-id"})
@@ -335,11 +303,3 @@ class TestGrampsConfiguration:
             ],
         }
         assert actual == expected
-
-    async def test_update(self, tmp_path: Path) -> None:
-        file_path = tmp_path / "ancestry.gramps"
-        sut = GrampsConfiguration()
-        other = GrampsConfiguration()
-        other.family_trees.append(FamilyTreeConfiguration(file_path=file_path))
-        sut.update(other)
-        assert sut.family_trees[0].file_path == file_path

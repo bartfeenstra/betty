@@ -11,7 +11,6 @@ from typing import (
     overload,
     Sequence,
     Iterator,
-    Self,
     TypeVar,
     TYPE_CHECKING,
 )
@@ -71,11 +70,6 @@ class ConfigurationSequence(
     @override
     def values(self) -> Iterator[_ConfigurationT]:
         yield from self._configurations
-
-    @override
-    def update(self, other: Self) -> None:
-        self.clear()
-        self.append(*other)
 
     @override
     def replace(self, *configurations: _ConfigurationT) -> None:

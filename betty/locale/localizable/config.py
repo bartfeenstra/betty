@@ -31,10 +31,6 @@ class StaticTranslationsLocalizableConfiguration(
     """
 
     @override
-    def update(self, other: Self) -> None:
-        self._translations = other._translations
-
-    @override
     def load(self, dump: Dump) -> None:
         self._translations.clear()
 

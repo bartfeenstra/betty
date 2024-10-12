@@ -4,10 +4,9 @@ The Configuration API.
 
 from __future__ import annotations
 
-from abc import abstractmethod
 from collections.abc import Callable
 from contextlib import chdir
-from typing import Generic, TypeVar, Self, TypeAlias, TYPE_CHECKING
+from typing import Generic, TypeVar, TypeAlias, TYPE_CHECKING
 
 import aiofiles
 from aiofiles.os import makedirs
@@ -32,12 +31,7 @@ class Configuration(Loadable, Dumpable):
     Any configuration object.
     """
 
-    @abstractmethod
-    def update(self, other: Self) -> None:
-        """
-        Update this configuration with the values from ``other``.
-        """
-        pass
+    pass
 
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)

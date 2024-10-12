@@ -3,7 +3,7 @@ Provide plugin configuration.
 """
 
 from collections.abc import Sequence
-from typing import Self, TypeVar, Generic, cast
+from typing import TypeVar, Generic, cast
 
 from typing_extensions import override
 
@@ -54,12 +54,6 @@ class PluginConfiguration(Configuration):
         The configured plugin ID.
         """
         return self._id
-
-    @override
-    def update(self, other: Self) -> None:
-        self._id = other.id
-        self.label.update(other.label)
-        self.description.update(other.description)
 
     @override
     def load(self, dump: Dump) -> None:

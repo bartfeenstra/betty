@@ -142,12 +142,6 @@ class EntityReference(Configuration, Generic[_EntityT]):
         return self._entity_type_is_constrained
 
     @override
-    def update(self, other: Self) -> None:
-        self._entity_type = other._entity_type
-        self._entity_type_is_constrained = other._entity_type_is_constrained
-        self._entity_id = other._entity_id
-
-    @override
     def load(self, dump: Dump) -> None:
         if isinstance(dump, dict) or not self.entity_type_is_constrained:
             assert_record(
@@ -308,12 +302,6 @@ class ExtensionConfiguration(Configuration):
         self._extension_configuration = extension_configuration
 
     @override
-    def update(self, other: Self) -> None:
-        self._extension_type = other._extension_type
-        self._enabled = other._enabled
-        self._set_extension_configuration(other._extension_configuration)
-
-    @override
     def load(self, dump: Dump) -> None:
         assert_record(
             RequiredField(
@@ -445,11 +433,6 @@ class EntityTypeConfiguration(Configuration):
         self._generate_html_list = generate_html_list
 
     @override
-    def update(self, other: Self) -> None:
-        self._entity_type = other._entity_type
-        self._generate_html_list = other._generate_html_list
-
-    @override
     def load(self, dump: Dump) -> None:
         assert_record(
             RequiredField[Any, type[Entity]](
@@ -548,11 +531,6 @@ class LocaleConfiguration(Configuration):
         self._alias = alias
 
     @override
-    def update(self, other: Self) -> None:
-        self._locale = other._locale
-        self._alias = other._alias
-
-    @override
     def load(self, dump: Dump) -> None:
         assert_record(
             RequiredField("locale", assert_locale() | assert_setattr(self, "_locale")),
@@ -588,12 +566,6 @@ class LocaleConfigurationMapping(OrderedConfigurationMapping[str, LocaleConfigur
     def _ensure_locale(self) -> None:
         if len(self) == 0:
             self.append(LocaleConfiguration(DEFAULT_LOCALE))
-
-    @override
-    def update(self, other: Self) -> None:
-        # Prevent the events from being dispatched.
-        self._configurations.clear()
-        self.append(*other.values())
 
     @override
     def replace(self, *configurations: LocaleConfiguration) -> None:
@@ -647,12 +619,6 @@ class CopyrightNoticeConfiguration(PluginConfiguration):
         super().__init__(plugin_id, label, description=description)
         self.summary = summary
         self.text = text
-
-    @override
-    def update(self, other: Self) -> None:
-        super().update(self)
-        self.summary.update(other.summary)
-        self.text.update(other.text)
 
     @override
     def load(self, dump: Dump) -> None:
@@ -743,12 +709,6 @@ class LicenseConfiguration(PluginConfiguration):
         super().__init__(plugin_id, label, description=description)
         self.summary = summary
         self.text = text
-
-    @override
-    def update(self, other: Self) -> None:
-        super().update(self)
-        self.summary.update(other.summary)
-        self.text.update(other.text)
 
     @override
     def load(self, dump: Dump) -> None:
@@ -1261,25 +1221,6 @@ class ProjectConfiguration(Configuration):
         The gender plugins created by this project.
         """
         return self._genders
-
-    @override
-    def update(self, other: Self) -> None:
-        self._url = other._url
-        self.title.update(other.title)
-        self.author.update(other.author)
-        self.logo = other.logo
-        self._clean_urls = other._clean_urls
-        self._debug = other._debug
-        self._lifetime_threshold = other._lifetime_threshold
-        self._locales.update(other._locales)
-        self._extensions.update(other._extensions)
-        self._entity_types.update(other._entity_types)
-        self._copyright_notices.update(other._copyright_notices)
-        self._licenses.update(other._licenses)
-        self._event_types.update(other._event_types)
-        self._genders.update(other._genders)
-        self._place_types.update(other._place_types)
-        self._presence_roles.update(other._presence_roles)
 
     @override
     def load(self, dump: Dump) -> None:

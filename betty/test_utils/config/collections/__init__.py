@@ -173,13 +173,3 @@ class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _Configuration
             configurations[3],
             configurations[1],
         ]
-
-    def test_update(self) -> None:
-        """
-        Tests :py:meth:`betty.config.Configuration.update` implementations.
-        """
-        sut = self.get_sut()
-        configurations = self.get_configurations()
-        other = self.get_sut(configurations)
-        sut.update(other)
-        assert len(sut) == len(configurations)

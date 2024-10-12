@@ -2,8 +2,6 @@
 Provide configuration for the Wikipedia extension.
 """
 
-from typing import Self
-
 from typing_extensions import override
 
 from betty.assertion import (
@@ -35,10 +33,6 @@ class WikipediaConfiguration(Configuration):
     @populate_images.setter
     def populate_images(self, populate_images: bool) -> None:
         self._populate_images = populate_images
-
-    @override
-    def update(self, other: Self) -> None:
-        self._populate_images = other._populate_images
 
     @override
     def load(self, dump: Dump) -> None:

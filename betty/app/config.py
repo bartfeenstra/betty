@@ -4,7 +4,7 @@ Provide application configuration.
 
 from __future__ import annotations
 
-from typing import final, Self, TYPE_CHECKING
+from typing import final, TYPE_CHECKING
 
 from typing_extensions import override
 
@@ -48,10 +48,6 @@ class AppConfiguration(Configuration):
     @locale.setter
     def locale(self, locale: str) -> None:
         self._locale = assert_locale()(locale)
-
-    @override
-    def update(self, other: Self) -> None:
-        self._locale = other._locale
 
     @override
     def load(self, dump: Dump) -> None:

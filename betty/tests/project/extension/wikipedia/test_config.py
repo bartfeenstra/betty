@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Any, TYPE_CHECKING
 
 import pytest
@@ -53,10 +52,3 @@ class TestWikipediaConfiguration:
             "populate_images": False,
         }
         assert sut.dump() == expected
-
-    async def test_update(self, tmp_path: Path) -> None:
-        sut = WikipediaConfiguration()
-        other = WikipediaConfiguration()
-        other.populate_images = False
-        sut.update(other)
-        assert sut.populate_images is False

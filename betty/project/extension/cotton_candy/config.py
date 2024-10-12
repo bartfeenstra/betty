@@ -5,7 +5,7 @@ Provide configuration for the Cotton Candy extension.
 from __future__ import annotations
 
 import re
-from typing import Self, Sequence, TYPE_CHECKING
+from typing import Sequence, TYPE_CHECKING
 
 from typing_extensions import override
 
@@ -58,10 +58,6 @@ class ColorConfiguration(Configuration):
     def hex(self, hex_value: str) -> None:
         self._assert_hex(hex_value)
         self._hex = hex_value
-
-    @override
-    def update(self, other: Self) -> None:
-        self.hex = other.hex
 
     @override
     def load(self, dump: Dump) -> None:
@@ -136,14 +132,6 @@ class CottonCandyConfiguration(Configuration):
         The color for active hyperlinks.
         """
         return self._link_active_color
-
-    @override
-    def update(self, other: Self) -> None:
-        self.featured_entities.update(other.featured_entities)
-        self.primary_inactive_color.update(other.primary_inactive_color)
-        self.primary_active_color.update(other.primary_active_color)
-        self.link_inactive_color.update(other.link_inactive_color)
-        self.link_active_color.update(other.link_active_color)
 
     @override
     def load(self, dump: Dump) -> None:
