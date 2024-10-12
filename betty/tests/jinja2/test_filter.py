@@ -22,6 +22,7 @@ from betty.locale import (
 from betty.locale.localizable import StaticTranslationsLocalizable, plain
 from betty.locale.localized import Localized, LocalizedStr
 from betty.media_type import MediaType
+from betty.media_type.media_types import SVG
 from betty.test_utils.ancestry.date import DummyHasDate
 from betty.test_utils.jinja2 import TemplateStringTestBase
 from betty.test_utils.locale.localized import DummyLocalized
@@ -323,7 +324,7 @@ class TestFilterImageResizeCover(TemplateStringTestBase):
                 "filey": File(
                     id="F1",
                     path=image_path,
-                    media_type=MediaType("image/svg+xml"),
+                    media_type=SVG,
                 )
             },
         ) as (actual, project):

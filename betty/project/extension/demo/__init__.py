@@ -47,5 +47,5 @@ class Demo(ShorthandPluginBase, Extension):
     @override
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
         registry.add_handler(
-            LoadAncestryEvent, lambda event: load_ancestry(event.project.ancestry)
+            LoadAncestryEvent, lambda event: load_ancestry(event.project)
         )

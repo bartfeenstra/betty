@@ -20,7 +20,7 @@ from betty.fetch.static import StaticFetcher
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER, LocalizerRepository
 from betty.media_type import MediaType
-from betty.media_type.media_types import HTML, PLAIN_TEXT
+from betty.media_type.media_types import HTML, PLAIN_TEXT, SVG
 from betty.wikipedia import (
     Summary,
     _Retriever,
@@ -528,7 +528,7 @@ class TestRetriever:
             (
                 Image(
                     Path(__file__),
-                    MediaType("image/svg+xml"),
+                    SVG,
                     "An Example Image",
                     "https://example.com/description",
                     "example.svg",

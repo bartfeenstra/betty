@@ -47,7 +47,7 @@ from betty.locale import (
 )
 from betty.locale.localized import Localized, negotiate_localizeds, LocalizedStr
 from betty.media_type import MediaType
-from betty.media_type.media_types import HTML
+from betty.media_type.media_types import HTML, SVG
 from betty.os import link_or_copy
 from betty.string import (
     camel_case_to_snake_case,
@@ -311,12 +311,7 @@ async def filter_image_resize_cover(
         focus = file_reference.focus
 
     # Treat SVGs as regular files.
-    if (
-        file.media_type
-        and file.media_type.type == "image"
-        and file.media_type.subtype == "svg"
-        and file.media_type.suffix == "+xml"
-    ):
+    if file.media_type and file.media_type == SVG:
         return await filter_file(context, file)
 
     project = context_project(context)

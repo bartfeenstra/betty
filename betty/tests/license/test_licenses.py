@@ -69,7 +69,7 @@ class TestSpdxLicenseRepository:
         spdx_directory_path = tmp_path / "spdx"
         spdx_directory_path.mkdir()
         licenses_data: DumpMapping[Dump] = {
-            "licenseListVersion": "3.25.0",
+            "licenseListVersion": SpdxLicenseRepository.SPDX_VERSION,
             "licenses": [],
             "releaseDate": "2024-08-19",
         }
@@ -104,7 +104,7 @@ class TestSpdxLicenseRepository:
         spdx_directory_path = tmp_path / "spdx"
         spdx_directory_path.mkdir()
         licenses_data: DumpMapping[Dump] = {
-            "licenseListVersion": "3.25.0",
+            "licenseListVersion": SpdxLicenseRepository.SPDX_VERSION,
             "licenses": [
                 {
                     "reference": "https://spdx.org/licenses/0BSD.html",
