@@ -66,9 +66,7 @@ class Wikipedia(
     async def new_for_project(cls, project: Project) -> Self:
         return cls(
             project,
-            await project.new_target(
-                await project.copyright_notices.get("wikipedia-contributors")
-            ),
+            await project.copyright_notices.new_target("wikipedia-contributors"),
         )
 
     _plugin_id = "wikipedia"

@@ -8,6 +8,8 @@ from abc import abstractmethod, ABC
 from collections.abc import Callable, Awaitable
 from typing import TypeVar, Self, Generic, TypeAlias, cast
 
+from typing_extensions import override
+
 
 class FactoryError(RuntimeError):
     """
@@ -17,8 +19,19 @@ class FactoryError(RuntimeError):
     @classmethod
     def new(cls, new_cls: type) -> Self:
         """
-        Create a new instance for a class that failed to instantiate.
+        Create a new instance.
         """
+        return cls(f"Could not instantiate {new_cls}")
+
+
+class InitFactoryError(FactoryError):
+    """
+    Raised when a class could not be instantiated by calling it directly.
+    """
+
+    @override
+    @classmethod
+    def new(cls, new_cls: type) -> Self:
         return cls(f"Could not instantiate {new_cls} by calling {new_cls.__name__}()")
 
 
@@ -55,7 +68,7 @@ async def new(cls: type[_T]) -> _T:
     try:
         return cls()
     except Exception as error:
-        raise FactoryError.new(cls) from error
+        raise InitFactoryError.new(cls) from error
 
 
 class TargetFactory(ABC, Generic[_T]):
