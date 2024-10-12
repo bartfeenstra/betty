@@ -13,10 +13,10 @@ from typing_extensions import override
 from betty.ancestry import event_type
 from betty.ancestry.event_type.event_types import DerivableEventType
 from betty.deriver import Deriver as DeriverApi
-from betty.project.extension.privatizer import Privatizer
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
 from betty.project.extension import Extension
+from betty.project.extension.privatizer import Privatizer
 from betty.project.load import PostLoadAncestryEvent
 
 if TYPE_CHECKING:
@@ -25,13 +25,15 @@ if TYPE_CHECKING:
 
 
 async def _derive_ancestry(event: PostLoadAncestryEvent) -> None:
-    localizer = await event.project.app.localizer
+    project = event.project
+    localizer = await project.app.localizer
     logger = getLogger(__name__)
     logger.info(localizer._("Deriving..."))
 
     deriver = DeriverApi(
-        event.project.ancestry,
-        event.project.configuration.lifetime_threshold,
+        project.ancestry,
+        project.configuration.lifetime_threshold,
+        project.event_types,
         set(
             await event_type.EVENT_TYPE_REPOSITORY.select(
                 DerivableEventType  # type: ignore[type-abstract]

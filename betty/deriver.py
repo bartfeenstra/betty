@@ -11,17 +11,18 @@ from typing import Iterable, cast, final, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.ancestry.presence import Presence
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
     DerivableEventType,
     CreatableDerivableEventType,
 )
 from betty.ancestry.person import Person
+from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import DateRange, Date
 
 if TYPE_CHECKING:
+    from betty.plugin import PluginRepository
     from betty.ancestry import Ancestry
     from betty.ancestry.event_type import EventType
     from collections.abc import Sequence
@@ -53,6 +54,7 @@ class Deriver:
         self,
         ancestry: Ancestry,
         lifetime_threshold: int,
+        event_types: PluginRepository[EventType],
         derivable_event_types: set[type[DerivableEventType]],
         *,
         localizer: Localizer,
@@ -60,6 +62,7 @@ class Deriver:
         super().__init__()
         self._ancestry = ancestry
         self._lifetime_threshold = lifetime_threshold
+        self._event_types = event_types
         self._derivable_event_type = derivable_event_types
         self._localizer = localizer
 
@@ -72,7 +75,9 @@ class Deriver:
             created_derivations = 0
             updated_derivations = 0
             for person in self._ancestry[Person]:
-                created, updated = self._derive_person(person, derivable_event_type)
+                created, updated = await self._derive_person(
+                    person, derivable_event_type
+                )
                 created_derivations += created
                 updated_derivations += updated
             if updated_derivations > 0:
@@ -98,7 +103,7 @@ class Deriver:
                     )
                 )
 
-    def _derive_person(
+    async def _derive_person(
         self, person: Person, derivable_event_type: type[DerivableEventType]
     ) -> tuple[int, int]:
         # Gather any existing events that could be derived, or create a new derived event if needed.
@@ -130,8 +135,16 @@ class Deriver:
                 return 0, 0
 
         # Aggregate event type order from references and backreferences.
-        comes_before_event_types = derivable_event_type.comes_before()
-        comes_after_event_types = derivable_event_type.comes_after()
+        comes_before_event_types = set(
+            await self._event_types.resolve_identifiers(
+                derivable_event_type.comes_before()
+            )
+        )
+        comes_after_event_types = set(
+            await self._event_types.resolve_identifiers(
+                derivable_event_type.comes_after()
+            )
+        )
         for other_event_type in self._derivable_event_type:
             if derivable_event_type in other_event_type.comes_before():
                 comes_after_event_types.add(other_event_type)

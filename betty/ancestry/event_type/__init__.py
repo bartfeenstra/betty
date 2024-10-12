@@ -4,11 +4,11 @@ Provide Betty's ancestry event types.
 
 from __future__ import annotations
 
-from betty.plugin import Plugin, PluginRepository
+from betty.plugin import PluginRepository, OrderedPlugin
 from betty.plugin.entry_point import EntryPointPluginRepository
 
 
-class EventType(Plugin):
+class EventType(OrderedPlugin["EventType"]):
     """
     Define an :py:class:`betty.ancestry.event.Event` type.
 
@@ -17,23 +17,7 @@ class EventType(Plugin):
     To test your own subclasses, use :py:class:`betty.test_utils.ancestry.event_type.EventTypeTestBase`.
     """
 
-    @classmethod
-    def comes_before(cls) -> set[type[EventType]]:
-        """
-        Get the event types that this event type comes before.
-
-        The returned event types come after this event type.
-        """
-        return set()  # pragma: no cover
-
-    @classmethod
-    def comes_after(cls) -> set[type[EventType]]:
-        """
-        Get the event types that this event type comes after.
-
-        The returned event types come before this event type.
-        """
-        return set()  # pragma: no cover
+    pass
 
 
 EVENT_TYPE_REPOSITORY: PluginRepository[EventType] = EntryPointPluginRepository(

@@ -52,8 +52,8 @@ from betty.project.config import ProjectConfiguration
 from betty.project.extension import (
     Extension,
     ConfigurableExtension,
-    build_extension_type_graph,
     Theme,
+    sort_extension_type_graph,
 )
 from betty.project.factory import ProjectDependentFactory
 from betty.project.url import (
@@ -321,8 +321,9 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
                     project_extension_configuration.extension_type
                 )
 
-        extension_types_sorter = TopologicalSorter(
-            await build_extension_type_graph(extension_types_enabled_in_configuration)
+        extension_types_sorter = TopologicalSorter[type[Extension]]()
+        await sort_extension_type_graph(
+            extension_types_sorter, extension_types_enabled_in_configuration
         )
         extension_types_sorter.prepare()
 

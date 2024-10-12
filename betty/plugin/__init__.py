@@ -10,7 +10,15 @@ Read more at :doc:`/development/plugin`.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TypeVar, Generic, Self, overload, TYPE_CHECKING, TypeAlias
+from typing import (
+    TypeVar,
+    Generic,
+    Self,
+    overload,
+    TYPE_CHECKING,
+    TypeAlias,
+    Iterable,
+)
 
 from typing_extensions import override
 
@@ -20,11 +28,12 @@ from betty.locale.localizable import _, join, do_you_mean
 from betty.machine_name import MachineName
 
 if TYPE_CHECKING:
+    from graphlib import TopologicalSorter
     from betty.locale.localizable import Localizable
-    from collections.abc import AsyncIterator, Sequence, Mapping
+    from collections.abc import AsyncIterator, Sequence, Mapping, Iterable
 
 
-class PluginError(UserFacingError):
+class PluginError(Exception):
     """
     Any error originating from the Plugin API.
     """
@@ -74,6 +83,43 @@ class Plugin(ABC):
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 
 
+class OrderedPlugin(Generic[_PluginT], Plugin):
+    """
+    A plugin that can declare its order with respect to other plugins.
+    """
+
+    @classmethod
+    def comes_before(cls) -> set[PluginIdentifier[_PluginT]]:
+        """
+        Get the plugins that this plugin comes before.
+
+        The returned plugins come after this plugin.
+        """
+        return set()
+
+    @classmethod
+    def comes_after(cls) -> set[PluginIdentifier[_PluginT]]:
+        """
+        Get the plugins that this plugin comes after.
+
+        The returned plugins come before this plugin.
+        """
+        return set()
+
+
+class DependentPlugin(Generic[_PluginT], Plugin):
+    """
+    A plugin that can declare its dependency on other plugins.
+    """
+
+    @classmethod
+    def depends_on(cls) -> set[PluginIdentifier[_PluginT]]:
+        """
+        The plugins this one depends on.
+        """
+        return set()
+
+
 class ShorthandPluginBase(Plugin):
     """
     Allow shorthand declaration of plugins.
@@ -102,7 +148,7 @@ class ShorthandPluginBase(Plugin):
 PluginIdentifier: TypeAlias = type[_PluginT] | MachineName
 
 
-class PluginNotFound(PluginError):
+class PluginNotFound(PluginError, UserFacingError):
     """
     Raised when a plugin cannot be found.
     """
@@ -170,6 +216,27 @@ class PluginRepository(Generic[_PluginT], TargetFactory[_PluginT], ABC):
 
     def __init__(self, *, factory: Factory[_PluginT] | None = None):
         self._factory = factory or new
+
+    async def resolve_identifier(
+        self, plugin_identifier: PluginIdentifier[_PluginT]
+    ) -> type[_PluginT]:
+        """
+        Resolve a plugin identifier to a plugin type.
+        """
+        if isinstance(plugin_identifier, type):
+            return plugin_identifier
+        return await self.get(plugin_identifier)
+
+    async def resolve_identifiers(
+        self, plugin_identifiers: Iterable[PluginIdentifier[_PluginT]]
+    ) -> Sequence[type[_PluginT]]:
+        """
+        Resolve plugin identifiers to plugin types.
+        """
+        return [
+            await self.resolve_identifier(plugin_identifier)
+            for plugin_identifier in plugin_identifiers
+        ]
 
     async def map(self) -> PluginIdToTypeMap[_PluginT]:
         """
@@ -266,3 +333,66 @@ class PluginRepository(Generic[_PluginT], TargetFactory[_PluginT], ABC):
         if isinstance(cls, str):
             cls = await self.get(cls)
         return await self._factory(cls)
+
+
+class CyclicDependencyError(PluginError):
+    """
+    Raised when plugins define a cyclic dependency, e.g. two plugins depend on each other.
+    """
+
+    def __init__(self, plugin_types: Iterable[type[Plugin]]):
+        plugin_names = ", ".join([plugin.plugin_id() for plugin in plugin_types])
+        super().__init__(
+            f"The following plugins have cyclic dependencies: {plugin_names}"
+        )
+
+
+async def sort_ordered_plugin_graph(
+    sorter: TopologicalSorter[type[_PluginT]],
+    plugins: PluginRepository[_PluginT & OrderedPlugin[_PluginT]],
+    entry_point_plugins: Iterable[type[_PluginT & OrderedPlugin[_PluginT]]],
+) -> None:
+    """
+    Build a graph of the given plugins.
+    """
+    entry_point_plugins = list(entry_point_plugins)
+    for entry_point_plugin in entry_point_plugins:
+        sorter.add(entry_point_plugin)
+        for before_identifier in entry_point_plugin.comes_before():
+            before = (
+                await plugins.get(before_identifier)
+                if isinstance(before_identifier, str)
+                else before_identifier
+            )
+            if before in entry_point_plugins:
+                sorter.add(before, entry_point_plugin)
+        for after_identifier in entry_point_plugin.comes_after():
+            after = (
+                await plugins.get(after_identifier)
+                if isinstance(after_identifier, str)
+                else after_identifier
+            )
+            if after in entry_point_plugins:
+                sorter.add(entry_point_plugin, after)
+
+
+async def sort_dependent_plugin_graph(
+    sorter: TopologicalSorter[type[_PluginT]],
+    plugins: PluginRepository[_PluginT],
+    entry_point_plugins: Iterable[type[_PluginT & DependentPlugin[_PluginT]]],
+) -> None:
+    """
+    Build a graph of the given plugins and their dependencies.
+    """
+    for entry_point_plugin in entry_point_plugins:
+        dependencies = entry_point_plugin.depends_on()
+        sorter.add(
+            entry_point_plugin,
+            *(await plugins.resolve_identifiers(dependencies)),
+        )
+        await sort_dependent_plugin_graph(
+            sorter,
+            plugins,
+            # We have not quite figured out how to type this correctly, so ignore any errors for now.
+            dependencies,  # type: ignore[arg-type]
+        )

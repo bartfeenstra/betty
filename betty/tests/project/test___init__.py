@@ -12,6 +12,7 @@ from betty.ancestry import Ancestry
 from betty.app import App
 from betty.app.factory import AppDependentFactory
 from betty.json.schema import JsonSchemaSchema
+from betty.plugin import CyclicDependencyError
 from betty.plugin.config import PluginConfiguration
 from betty.plugin.static import StaticPluginRepository
 from betty.project import (
@@ -26,10 +27,6 @@ from betty.project.config import (
     CopyrightNoticeConfiguration,
     LicenseConfiguration,
 )
-from betty.project.extension import (
-    Extension,
-    CyclicDependencyError,
-)
 from betty.project.factory import ProjectDependentFactory
 from betty.test_utils.json.schema import SchemaTestBase
 from betty.test_utils.project.extension import (
@@ -39,6 +36,9 @@ from betty.test_utils.project.extension import (
 )
 
 if TYPE_CHECKING:
+    from betty.project.extension import (
+        Extension,
+    )
     from betty.plugin import PluginIdentifier
     from pathlib import Path
     from betty.json.schema import Schema

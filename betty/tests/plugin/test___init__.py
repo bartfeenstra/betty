@@ -1,14 +1,30 @@
-from collections.abc import AsyncIterator, Sequence
-from typing import Self, Literal
+from __future__ import annotations
+
+from graphlib import TopologicalSorter
+from typing import Self, Literal, TYPE_CHECKING
 
 import pytest
 from typing_extensions import override
 
 from betty.factory import Factory, new
-from betty.machine_name import MachineName
-from betty.plugin import PluginNotFound, Plugin, PluginRepository, PluginIdToTypeMap
+from betty.plugin import (
+    PluginNotFound,
+    Plugin,
+    PluginRepository,
+    PluginIdToTypeMap,
+    sort_ordered_plugin_graph,
+    PluginIdentifier,
+    OrderedPlugin,
+    DependentPlugin,
+    sort_dependent_plugin_graph,
+    CyclicDependencyError,
+)
 from betty.plugin.static import StaticPluginRepository
 from betty.test_utils.plugin import DummyPlugin
+
+if TYPE_CHECKING:
+    from betty.machine_name import MachineName
+    from collections.abc import AsyncIterator, Sequence
 
 
 class TestPluginNotFound:
@@ -76,7 +92,10 @@ class _TestPluginRepositoryPluginRepository(PluginRepository[DummyPlugin]):
 
     @override
     async def get(self, plugin_id: MachineName) -> type[DummyPlugin]:
-        return self._plugins[plugin_id]
+        try:
+            return self._plugins[plugin_id]
+        except KeyError:
+            raise PluginNotFound.new(plugin_id, []) from None
 
     @override
     async def __aiter__(self) -> AsyncIterator[type[DummyPlugin]]:
@@ -98,6 +117,46 @@ class TestPluginIdToTypeMap:
 
 
 class TestPluginRepository:
+    async def test_resolve_identifier_with_unknown_plugin_id(self) -> None:
+        sut = _TestPluginRepositoryPluginRepository()
+        with pytest.raises(PluginNotFound):
+            await sut.resolve_identifier("unknown-plugin")
+
+    async def test_resolve_identifier_with_known_plugin_id(self) -> None:
+        sut = _TestPluginRepositoryPluginRepository(_TestPluginRepositoryPluginOne)
+        assert (
+            await sut.resolve_identifier(_TestPluginRepositoryPluginOne.plugin_id())
+            == _TestPluginRepositoryPluginOne
+        )
+
+    async def test_resolve_identifier_with_known_plugin(self) -> None:
+        sut = _TestPluginRepositoryPluginRepository(_TestPluginRepositoryPluginOne)
+        assert (
+            await sut.resolve_identifier(_TestPluginRepositoryPluginOne)
+            is _TestPluginRepositoryPluginOne
+        )
+
+    async def test_resolve_identifiers_without_identifiers(self) -> None:
+        sut = _TestPluginRepositoryPluginRepository()
+        assert await sut.resolve_identifiers([]) == []
+
+    async def test_resolve_identifiers_with_unknown_plugin_id(self) -> None:
+        sut = _TestPluginRepositoryPluginRepository()
+        with pytest.raises(PluginNotFound):
+            await sut.resolve_identifiers(["unknown-plugin"])
+
+    async def test_resolve_identifiers_with_known_plugin_id(self) -> None:
+        sut = _TestPluginRepositoryPluginRepository(_TestPluginRepositoryPluginOne)
+        assert await sut.resolve_identifiers(
+            [_TestPluginRepositoryPluginOne.plugin_id()]
+        ) == [_TestPluginRepositoryPluginOne]
+
+    async def test_resolve_identifiers_with_known_plugin(self) -> None:
+        sut = _TestPluginRepositoryPluginRepository(_TestPluginRepositoryPluginOne)
+        assert await sut.resolve_identifiers([_TestPluginRepositoryPluginOne]) == [
+            _TestPluginRepositoryPluginOne
+        ]
+
     async def test_map_without_plugins(self) -> None:
         sut = _TestPluginRepositoryPluginRepository()
         await sut.map()
@@ -223,3 +282,176 @@ class TestPluginRepository:
             await sut.new_target(_TestPluginRepositoryPluginCustomFactory.plugin_id()),
             _TestPluginRepositoryPluginCustomFactory,
         )
+
+
+class _DummyOrderedPlugin(OrderedPlugin["_DummyOrderedPlugin"], DummyPlugin):
+    pass
+
+
+class ComesBeforeTargetPlugin(_DummyOrderedPlugin):
+    pass
+
+
+class HasComesBeforePlugin(_DummyOrderedPlugin):
+    @override
+    @classmethod
+    def comes_before(cls) -> set[PluginIdentifier[_DummyOrderedPlugin]]:
+        return {ComesBeforeTargetPlugin}
+
+
+class ComesAfterTargetPlugin(_DummyOrderedPlugin):
+    pass
+
+
+class HasComesAfterPlugin(_DummyOrderedPlugin):
+    @override
+    @classmethod
+    def comes_after(cls) -> set[PluginIdentifier[_DummyOrderedPlugin]]:
+        return {ComesAfterTargetPlugin}
+
+
+class IsolatedOrderedPluginOne(_DummyOrderedPlugin):
+    pass
+
+
+class IsolatedOrderedPluginTwo(_DummyOrderedPlugin):
+    pass
+
+
+class TestSortOrderedPluginGraph:
+    _PLUGINS = StaticPluginRepository[_DummyOrderedPlugin](
+        ComesBeforeTargetPlugin,
+        HasComesBeforePlugin,
+        ComesAfterTargetPlugin,
+        HasComesAfterPlugin,
+        IsolatedOrderedPluginOne,
+        IsolatedOrderedPluginTwo,
+    )
+
+    async def test_without_entry_point_plugins(self) -> None:
+        sorter = TopologicalSorter[type[_DummyOrderedPlugin]]()
+        await sort_ordered_plugin_graph(sorter, self._PLUGINS, [])
+        assert list(sorter.static_order()) == []
+
+    async def test_with_isolated_entry_point_plugins(self) -> None:
+        sorter = TopologicalSorter[type[_DummyOrderedPlugin]]()
+        await sort_ordered_plugin_graph(
+            sorter, self._PLUGINS, [IsolatedOrderedPluginOne, IsolatedOrderedPluginTwo]
+        )
+        assert list(sorter.static_order()) == [
+            IsolatedOrderedPluginOne,
+            IsolatedOrderedPluginTwo,
+        ]
+
+    async def test_with_unknown_comes_after(self) -> None:
+        plugins = {HasComesAfterPlugin}
+        sorter = TopologicalSorter[type[_DummyOrderedPlugin]]()
+        await sort_ordered_plugin_graph(sorter, self._PLUGINS, plugins)
+        assert list(sorter.static_order()) == [HasComesAfterPlugin]
+
+    async def test_with_known_comes_after(self) -> None:
+        plugins = {ComesAfterTargetPlugin, HasComesAfterPlugin}
+        sorter = TopologicalSorter[type[_DummyOrderedPlugin]]()
+        await sort_ordered_plugin_graph(sorter, self._PLUGINS, plugins)
+        assert list(sorter.static_order()) == [
+            ComesAfterTargetPlugin,
+            HasComesAfterPlugin,
+        ]
+
+    async def test_with_unknown_comes_before(self) -> None:
+        sorter = TopologicalSorter[type[_DummyOrderedPlugin]]()
+        await sort_ordered_plugin_graph(sorter, self._PLUGINS, [HasComesBeforePlugin])
+        assert list(sorter.static_order()) == [HasComesBeforePlugin]
+
+    async def test_with_known_comes_before(self) -> None:
+        sorter = TopologicalSorter[type[_DummyOrderedPlugin]]()
+        await sort_ordered_plugin_graph(
+            sorter, self._PLUGINS, [ComesBeforeTargetPlugin, HasComesBeforePlugin]
+        )
+        assert list(sorter.static_order()) == [
+            HasComesBeforePlugin,
+            ComesBeforeTargetPlugin,
+        ]
+
+
+class _DummyDependentPlugin(DependentPlugin["_DummyDependentPlugin"], DummyPlugin):
+    pass
+
+
+class DownStream(_DummyDependentPlugin):
+    pass
+
+
+class Upstream(_DummyDependentPlugin):
+    @override
+    @classmethod
+    def depends_on(cls) -> set[PluginIdentifier[_DummyDependentPlugin]]:
+        return {UpstreamAndDownstream}
+
+
+class UpstreamAndDownstream(_DummyDependentPlugin):
+    @override
+    @classmethod
+    def depends_on(cls) -> set[PluginIdentifier[_DummyDependentPlugin]]:
+        return {DownStream}
+
+
+class IsolatedDependentPluginOne(_DummyDependentPlugin):
+    pass
+
+
+class IsolatedDependentPluginTwo(_DummyDependentPlugin):
+    pass
+
+
+class TestSortDependentPluginGraph:
+    _PLUGINS = StaticPluginRepository[_DummyDependentPlugin](
+        DownStream,
+        Upstream,
+        UpstreamAndDownstream,
+        IsolatedDependentPluginOne,
+        IsolatedDependentPluginTwo,
+    )
+
+    async def test_without_entry_point_plugins(self) -> None:
+        sorter = TopologicalSorter[type[_DummyDependentPlugin]]()
+        await sort_dependent_plugin_graph(sorter, self._PLUGINS, [])
+        assert list(sorter.static_order()) == []
+
+    async def test_with_isolated_entry_point_plugins(self) -> None:
+        sorter = TopologicalSorter[type[_DummyDependentPlugin]]()
+        await sort_dependent_plugin_graph(
+            sorter,
+            self._PLUGINS,
+            [IsolatedDependentPluginOne, IsolatedDependentPluginTwo],
+        )
+        assert list(sorter.static_order()) == [
+            IsolatedDependentPluginOne,
+            IsolatedDependentPluginTwo,
+        ]
+
+    async def test_with_unknown_dependencies(self) -> None:
+        sorter = TopologicalSorter[type[_DummyDependentPlugin]]()
+        await sort_dependent_plugin_graph(sorter, self._PLUGINS, [Upstream])
+        assert list(sorter.static_order()) == [
+            DownStream,
+            UpstreamAndDownstream,
+            Upstream,
+        ]
+
+    async def test_with_known_dependencies(self) -> None:
+        sorter = TopologicalSorter[type[_DummyDependentPlugin]]()
+        await sort_dependent_plugin_graph(
+            sorter, self._PLUGINS, [Upstream, UpstreamAndDownstream, DownStream]
+        )
+        assert list(sorter.static_order()) == [
+            DownStream,
+            UpstreamAndDownstream,
+            Upstream,
+        ]
+
+
+class TestCyclicDependencyError:
+    def test(self) -> None:
+        sut = CyclicDependencyError([DummyPlugin])
+        assert str(sut)

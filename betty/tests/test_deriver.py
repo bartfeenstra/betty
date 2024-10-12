@@ -17,10 +17,12 @@ from betty.date import DateRange, Date, Datey
 from betty.deriver import Deriver
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model.collections import record_added
+from betty.plugin.static import StaticPluginRepository
 from betty.project.config import DEFAULT_LIFETIME_THRESHOLD
 from betty.test_utils.ancestry.event_type import DummyEventType
 
 if TYPE_CHECKING:
+    from betty.plugin import PluginIdentifier, PluginRepository
     from betty.ancestry.event_type import EventType
 
 
@@ -38,7 +40,7 @@ class ComesAfterReference(DummyEventType):
 
 class ComesBeforeDerivable(DummyEventType, DerivableEventType):
     @classmethod
-    def comes_before(cls) -> set[type[EventType]]:
+    def comes_before(cls) -> set[PluginIdentifier[EventType]]:
         return {ComesBeforeReference}
 
 
@@ -48,7 +50,7 @@ class ComesBeforeCreatableDerivable(ComesBeforeDerivable, CreatableDerivableEven
 
 class ComesAfterDerivable(DummyEventType, DerivableEventType):
     @classmethod
-    def comes_after(cls) -> set[type[EventType]]:
+    def comes_after(cls) -> set[PluginIdentifier[EventType]]:
         return {ComesAfterReference}
 
 
@@ -58,11 +60,11 @@ class ComesAfterCreatableDerivable(ComesAfterDerivable, CreatableDerivableEventT
 
 class ComesBeforeAndAfterDerivable(DummyEventType, DerivableEventType):
     @classmethod
-    def comes_before(cls) -> set[type[EventType]]:
+    def comes_before(cls) -> set[PluginIdentifier[EventType]]:
         return {Ignored}
 
     @classmethod
-    def comes_after(cls) -> set[type[EventType]]:
+    def comes_after(cls) -> set[PluginIdentifier[EventType]]:
         return {Ignored}
 
 
@@ -78,17 +80,20 @@ class MayNotCreateComesAfterCreatableDerivable(ComesAfterCreatableDerivable):
         return False
 
 
-_EVENT_TYPES: set[type[DerivableEventType]] = {
-    ComesBeforeDerivable,
-    ComesBeforeCreatableDerivable,
-    ComesAfterDerivable,
-    ComesAfterCreatableDerivable,
-    ComesBeforeAndAfterDerivable,
-    ComesBeforeAndAfterCreatableDerivable,
-}
-
-
 class TestDeriver:
+    _DERIVABLE_EVENT_TYPES: set[type[DerivableEventType]] = {
+        ComesAfterCreatableDerivable,
+        ComesAfterDerivable,
+        ComesBeforeAndAfterCreatableDerivable,
+        ComesBeforeAndAfterDerivable,
+        ComesBeforeCreatableDerivable,
+        ComesBeforeDerivable,
+    }
+
+    _EVENT_TYPE_REPOSITORY: PluginRepository[EventType] = StaticPluginRepository(
+        *_DERIVABLE_EVENT_TYPES, ComesAfterReference, ComesBeforeReference, Ignored
+    )
+
     @pytest.mark.parametrize(
         "event_type",
         [
@@ -111,7 +116,8 @@ class TestDeriver:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,
-                _EVENT_TYPES,
+                self._EVENT_TYPE_REPOSITORY,
+                self._DERIVABLE_EVENT_TYPES,
                 localizer=DEFAULT_LOCALIZER,
             ).derive()
 
@@ -142,7 +148,8 @@ class TestDeriver:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,
-                _EVENT_TYPES,
+                self._EVENT_TYPE_REPOSITORY,
+                self._DERIVABLE_EVENT_TYPES,
                 localizer=DEFAULT_LOCALIZER,
             ).derive()
 
@@ -175,7 +182,8 @@ class TestDeriver:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,
-                _EVENT_TYPES,
+                self._EVENT_TYPE_REPOSITORY,
+                self._DERIVABLE_EVENT_TYPES,
                 localizer=DEFAULT_LOCALIZER,
             ).derive()
 
@@ -403,6 +411,7 @@ class TestDeriver:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,
+                self._EVENT_TYPE_REPOSITORY,
                 {ComesBeforeDerivable},
                 localizer=DEFAULT_LOCALIZER,
             ).derive()
@@ -461,6 +470,7 @@ class TestDeriver:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,
+                self._EVENT_TYPE_REPOSITORY,
                 {ComesBeforeCreatableDerivable},
                 localizer=DEFAULT_LOCALIZER,
             ).derive()
@@ -704,6 +714,7 @@ class TestDeriver:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,
+                self._EVENT_TYPE_REPOSITORY,
                 {ComesAfterDerivable},
                 localizer=DEFAULT_LOCALIZER,
             ).derive()
@@ -763,6 +774,7 @@ class TestDeriver:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,
+                self._EVENT_TYPE_REPOSITORY,
                 {ComesAfterCreatableDerivable},
                 localizer=DEFAULT_LOCALIZER,
             ).derive()
@@ -817,6 +829,7 @@ class TestDeriver:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,
+                self._EVENT_TYPE_REPOSITORY,
                 {MayNotCreateComesAfterCreatableDerivable},
                 localizer=DEFAULT_LOCALIZER,
             ).derive()
