@@ -158,8 +158,12 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
                     "User-Agent": "Betty (https://betty.readthedocs.io/)",
                 },
             )
-            await self._async_exit_stack.enter_async_context(self._http_client)
+            self._shutdown_stack.append(self._shutdown_http_client)
         return self._http_client
+
+    async def _shutdown_http_client(self, *, wait: bool) -> None:
+        if self._http_client is not None:
+            await self._http_client.close()
 
     @property
     def fetcher(self) -> Awaitable[Fetcher]:
@@ -207,10 +211,14 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
         """
         if self._process_pool is None:
             self.assert_bootstrapped()
-            # Avoid `fork` so as not to start worker processes with unneeded resources.
-            # Settle for `spawn` so all environments use the same start method.
+            # Use ``spawn``, which is the Python 3.14 default for all platforms.
             self._process_pool = ProcessPoolExecutor(mp_context=get_context("spawn"))
+            self._shutdown_stack.append(self._shutdown_process_pool)
         return self._process_pool
+
+    async def _shutdown_process_pool(self, *, wait: bool) -> None:
+        if self._process_pool is not None:
+            self._process_pool.shutdown(wait, cancel_futures=not wait)
 
     @override
     async def new_target(self, cls: type[_T]) -> _T:

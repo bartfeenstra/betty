@@ -50,6 +50,7 @@ class MissingReason(Enum):
     COVERED_ELSEWHERE = "This testable is covered by another test"
     DATACLASS = "This testable is inherited from @dataclass"
     ENUM = "This testable is inherited from Enum"
+    TYPED_DICT = "This testable is inherited from TypedDict"
 
 
 _ModuleFunctionExistsIgnore: TypeAlias = None
@@ -121,6 +122,13 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "SynchronizedContextManager": {
             "__enter__": MissingReason.SHOULD_BE_COVERED,
             "__exit__": MissingReason.SHOULD_BE_COVERED,
+        },
+    },
+    "betty/core.py": {
+        "Shutdownable": MissingReason.ABSTRACT,
+        "ShutdownCallbackKwargs": MissingReason.TYPED_DICT,
+        "ShutdownStack": {
+            "append": MissingReason.COVERED_ELSEWHERE,
         },
     },
     "betty/date.py": {

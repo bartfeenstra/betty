@@ -19,7 +19,7 @@ from asyncio import (
     to_thread,
     gather,
 )
-from collections.abc import MutableSequence
+from collections.abc import MutableSequence, Coroutine
 from contextlib import suppress
 from pathlib import Path
 from typing import (
@@ -29,6 +29,7 @@ from typing import (
     Awaitable,
     Sequence,
     TYPE_CHECKING,
+    Any,
 )
 
 import aiofiles
@@ -90,11 +91,21 @@ async def generate(project: Project) -> None:
     # generated before anything else.
     await _generate_static_public(job_context)
 
-    jobs = [job async for job in _run_jobs(job_context)]
-    log_job = create_task(_log_jobs_forever(app, jobs))
-    for completed_job in as_completed(jobs):
-        await completed_job
-    log_job.cancel()
+    jobs = []
+    log_job: Task[None] | None = None
+    try:
+        async for job_coroutine in _run_jobs(job_context):
+            jobs.append(create_task(job_coroutine))
+        log_job = create_task(_log_jobs_forever(app, jobs))
+        for completed_job in as_completed(jobs):
+            await completed_job
+    except BaseException:
+        for job in jobs:
+            job.cancel()
+        raise
+    finally:
+        if log_job is not None:  # type: ignore[redundant-expr]
+            log_job.cancel()
     await _log_jobs(app, jobs)
 
     project.configuration.output_directory_path.chmod(0o755)
@@ -140,15 +151,17 @@ def _run_job(
     f: Callable[_JobP, Awaitable[None]],
     *args: _JobP.args,
     **kwargs: _JobP.kwargs,
-) -> Task[None]:
+) -> Coroutine[Any, Any, None]:
     async def _job():
         async with semaphore:
             await f(*args, **kwargs)
 
-    return create_task(_job())
+    return _job()
 
 
-async def _run_jobs(job_context: ProjectContext) -> AsyncIterator[Task[None]]:
+async def _run_jobs(
+    job_context: ProjectContext,
+) -> AsyncIterator[Coroutine[Any, Any, None]]:
     project = job_context.project
     semaphore = Semaphore(512)
     yield _run_job(semaphore, _generate_dispatch, job_context)
