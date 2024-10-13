@@ -165,7 +165,8 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
             for project_extension_batch in await self.extensions:
                 batch_event_handlers = EventHandlerRegistry()
                 for project_extension in project_extension_batch:
-                    await self._async_exit_stack.enter_async_context(project_extension)
+                    await project_extension.bootstrap()
+                    self._shutdown_stack.append(project_extension)
                     project_extension.register_event_handlers(batch_event_handlers)
                 self.event_dispatcher.add_registry(batch_event_handlers)
         except BaseException:
