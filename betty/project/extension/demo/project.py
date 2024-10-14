@@ -5,12 +5,16 @@ Provide the demonstration project.
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from random import choice
 from typing import AsyncIterator, TYPE_CHECKING
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Marriage, Birth, Death
+from betty.ancestry.file import File
+from betty.ancestry.file_reference import FileReference
+from betty.ancestry.gender.genders import Female, Male
 from betty.ancestry.link import Link
 from betty.ancestry.name import Name
 from betty.ancestry.note import Note
@@ -21,6 +25,9 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
+from betty.fs import DATA_DIRECTORY_PATH
+from betty.license.licenses import spdx_license_id_to_license_id
+from betty.media_type.media_types import SVG
 from betty.project import Project
 from betty.project.config import (
     ExtensionConfiguration,
@@ -29,10 +36,12 @@ from betty.project.config import (
 )
 from betty.project.extension.cotton_candy import CottonCandy
 from betty.project.extension.cotton_candy.config import CottonCandyConfiguration
+from betty.project.extension.demo.copyright_notice import Streetmix
 from betty.typing import internal
 
 if TYPE_CHECKING:
-    from betty.ancestry import Ancestry
+    from betty.machine_name import MachineName
+    from collections.abc import Mapping, Sequence
     from betty.app import App
 
 
@@ -95,10 +104,27 @@ async def create_project(app: App) -> AsyncIterator[Project]:
 
 
 @internal
-async def load_ancestry(ancestry: Ancestry) -> None:
+async def load_ancestry(project: Project) -> None:
     """
     Load the demo ancestry.
     """
+    ancestry = project.ancestry
+
+    streetmix_files_per_gender, fallback_streetmix_files = await _load_streetmix_images(
+        project
+    )
+
+    def _streetmix_image(person: Person) -> None:
+        if person.file_references:
+            return
+
+        try:
+            streetmix_files = streetmix_files_per_gender[person.gender.plugin_id()]
+        except KeyError:
+            streetmix_files = fallback_streetmix_files
+        streetmix_file = choice(streetmix_files)
+        ancestry.add(FileReference(person, streetmix_file))
+
     netherlands = Place(
         id="betty-demo-netherlands",
         names=[
@@ -129,7 +155,7 @@ async def load_ancestry(ancestry: Ancestry) -> None:
         ],
         links=[
             Link("https://en.wikipedia.org/wiki/North_Holland"),
-            Link("https://www.noord-holland.nl/Home"),
+            Link("https://www.noord-holland.nl/"),
         ],
     )
     ancestry.add(Enclosure(enclosee=north_holland, encloser=netherlands))
@@ -198,7 +224,10 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
     )
     ancestry.add(bevolkingsregister_amsterdam)
 
-    david_marinus_lankester = Person(id="betty-demo-david-marinus-lankester")
+    david_marinus_lankester = Person(
+        id="betty-demo-david-marinus-lankester", gender=Male()
+    )
+    _streetmix_image(david_marinus_lankester)
     ancestry.add(
         PersonName(
             person=david_marinus_lankester,
@@ -208,7 +237,8 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
         david_marinus_lankester,
     )
 
-    geertruida_van_ling = Person(id="betty-demo-geertruida-van-ling")
+    geertruida_van_ling = Person(id="betty-demo-geertruida-van-ling", gender=Female())
+    _streetmix_image(geertruida_van_ling)
     ancestry.add(
         PersonName(
             person=geertruida_van_ling,
@@ -244,8 +274,10 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
 
     dirk_jacobus_lankester = Person(
         id="betty-demo-dirk-jacobus-lankester",
-        parents=(david_marinus_lankester, geertruida_van_ling),
+        gender=Male(),
+        parents=[david_marinus_lankester, geertruida_van_ling],
     )
+    _streetmix_image(dirk_jacobus_lankester)
     ancestry.add(
         PersonName(
             person=dirk_jacobus_lankester,
@@ -285,8 +317,10 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
 
     marinus_david_lankester = Person(
         id="betty-demo-marinus-david-lankester",
-        parents=(david_marinus_lankester, geertruida_van_ling),
+        gender=Male(),
+        parents=[david_marinus_lankester, geertruida_van_ling],
     )
+    _streetmix_image(marinus_david_lankester)
     ancestry.add(
         PersonName(
             person=marinus_david_lankester,
@@ -308,8 +342,10 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
 
     jacoba_gesina_lankester = Person(
         id="betty-demo-jacoba-gesina-lankester",
-        parents=(david_marinus_lankester, geertruida_van_ling),
+        gender=Female(),
+        parents=[david_marinus_lankester, geertruida_van_ling],
     )
+    _streetmix_image(jacoba_gesina_lankester)
     ancestry.add(
         PersonName(
             person=jacoba_gesina_lankester,
@@ -320,7 +356,8 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
     )
     ancestry.add(jacoba_gesina_lankester)
 
-    jannigje_palsen = Person(id="betty-demo-jannigje-palsen")
+    jannigje_palsen = Person(id="betty-demo-jannigje-palsen", gender=Female())
+    _streetmix_image(jannigje_palsen)
     ancestry.add(
         PersonName(
             person=jannigje_palsen,
@@ -376,9 +413,11 @@ Did you know that Liberta "Betty" Lankester is Betty's namesake?
 
     liberta_lankester = Person(
         id="betty-demo-liberta-lankester",
-        parents=(dirk_jacobus_lankester, jannigje_palsen),
+        gender=Female(),
+        parents=[dirk_jacobus_lankester, jannigje_palsen],
         notes=[liberta_lankester_note],
     )
+    _streetmix_image(liberta_lankester)
     ancestry.add(
         PersonName(
             person=liberta_lankester,
@@ -416,7 +455,8 @@ Did you know that Liberta "Betty" Lankester is Betty's namesake?
     )
     ancestry.add(death_of_johan_de_boer)
 
-    johan_de_boer = Person(id="betty-demo-johan-de-boer")
+    johan_de_boer = Person(id="betty-demo-johan-de-boer", gender=Male())
+    _streetmix_image(johan_de_boer)
     ancestry.add(
         PersonName(
             person=johan_de_boer,
@@ -439,8 +479,9 @@ Did you know that Liberta "Betty" Lankester is Betty's namesake?
 
     parent_of_bart_feenstra_child_of_liberta_lankester = Person(
         id="betty-demo-parent-of-bart-feenstra-child-of-liberta-lankester",
-        parents=(johan_de_boer, liberta_lankester),
+        parents=[johan_de_boer, liberta_lankester],
     )
+    _streetmix_image(parent_of_bart_feenstra_child_of_liberta_lankester)
     ancestry.add(
         PersonName(
             person=parent_of_bart_feenstra_child_of_liberta_lankester,
@@ -451,8 +492,10 @@ Did you know that Liberta "Betty" Lankester is Betty's namesake?
 
     bart_feenstra = Person(
         id="betty-demo-bart-feenstra",
-        parents=(parent_of_bart_feenstra_child_of_liberta_lankester,),
+        gender=Male(),
+        parents=[parent_of_bart_feenstra_child_of_liberta_lankester],
     )
+    _streetmix_image(bart_feenstra)
     ancestry.add(
         PersonName(
             person=bart_feenstra,
@@ -461,3 +504,55 @@ Did you know that Liberta "Betty" Lankester is Betty's namesake?
         )
     )
     ancestry.add(bart_feenstra)
+
+
+async def _load_streetmix_images(
+    project: Project,
+) -> tuple[Mapping[MachineName, Sequence[File]], Sequence[File]]:
+    licenses = await project.licenses
+    license = await licenses.new_target(  # noqa A001
+        spdx_license_id_to_license_id("AGPL-3.0-or-later")
+    )
+    copyright_notice = await project.copyright_notices.new_target(Streetmix)
+    streetmix_image_directory_path = DATA_DIRECTORY_PATH / "images" / "streetmix"
+    masculine: Sequence[File] = []
+    feminine: Sequence[File] = []
+    androgynous: Sequence[File] = []
+    file_names = [
+        ("johnny-01.svg", masculine),
+        ("johnny-02.svg", masculine),
+        ("junebug-01.svg", feminine),
+        ("junebug-02.svg", feminine),
+        ("people-01.svg", feminine),
+        ("people-02.svg", androgynous),
+        ("people-06.svg", androgynous),
+        ("people-07.svg", feminine),
+        ("people-08.svg", feminine),
+        ("people-09.svg", androgynous),
+        ("people-11.svg", masculine),
+        ("people-13.svg", feminine),
+        ("people-14.svg", masculine),
+        ("people-15.svg", masculine),
+        ("people-16.svg", androgynous),
+        ("people-17.svg", feminine),
+        ("people-18.svg", feminine),
+        ("people-19.svg", feminine),
+        ("people-23.svg", feminine),
+        ("people-24.svg", androgynous),
+        ("people-31.svg", masculine),
+    ]
+    for file_name, appearance in file_names:
+        file = File(
+            streetmix_image_directory_path / file_name,
+            id=f"streetmix-{file_name}",
+            media_type=SVG,
+            copyright_notice=copyright_notice,
+            license=license,
+        )
+        appearance.append(file)
+        project.ancestry.add(file)
+
+    return {
+        Female.plugin_id(): feminine + androgynous,
+        Male.plugin_id(): masculine + androgynous,
+    }, androgynous

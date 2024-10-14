@@ -20,3 +20,7 @@ JSON_LD = MediaType("application/ld+json")
 
 #: The media type for plain text content.
 PLAIN_TEXT = MediaType("text/plain")
+
+
+#: The media type for SVG images.
+SVG = MediaType("image/svg+xml")
