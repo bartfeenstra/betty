@@ -282,7 +282,9 @@ def project_option(
         configuration_file_path: Path | None,
         **kwargs: Any,
     ) -> _ReturnT:
-        project = await Project.new(obj.app, await ProjectConfiguration.new(Path()))
+        project = await Project.new(
+            obj.app, configuration=await ProjectConfiguration.new(Path())
+        )
         await _read_project_configuration(project, configuration_file_path)
         async with project:
             return await f(project, *args, **kwargs)
