@@ -9,9 +9,6 @@ Copyright notice plugins
      -  :py:class:`betty.copyright_notice.CopyrightNotice`
    * -  Repository
      -  :py:attr:`betty.project.Project.copyright_notices`
-            All copyright notices, including those defined in the project configuration
-        :py:class:`betty.copyright_notice.COPYRIGHT_NOTICE_REPOSITORY`
-            Only copyright notices available to any project
 
 
 Creating a copyright

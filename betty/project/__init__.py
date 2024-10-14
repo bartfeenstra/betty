@@ -457,10 +457,8 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
             self.assert_bootstrapped()
             self._copyright_notices = ProxyPluginRepository(
                 COPYRIGHT_NOTICE_REPOSITORY,
-                StaticPluginRepository(
-                    *self.configuration.copyright_notices.plugins,
-                    factory=self.new_target,
-                ),
+                StaticPluginRepository(*self.configuration.copyright_notices.plugins),
+                factory=self.new_target,
             )
 
         return self._copyright_notices
@@ -495,8 +493,9 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
             if self._licenses is None:
                 self.assert_bootstrapped()
                 self._licenses = ProxyPluginRepository(
-                    await self._app.licenses,
+                    await self._app.spdx_licenses,
                     StaticPluginRepository(*self.configuration.licenses.plugins),
+                    factory=self.new_target,
                 )
 
         return self._licenses
@@ -511,6 +510,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
             self._event_types = ProxyPluginRepository(
                 EVENT_TYPE_REPOSITORY,
                 StaticPluginRepository(*self.configuration.event_types.plugins),
+                factory=self.new_target,
             )
 
         return self._event_types
@@ -525,6 +525,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
             self._place_types = ProxyPluginRepository(
                 PLACE_TYPE_REPOSITORY,
                 StaticPluginRepository(*self.configuration.place_types.plugins),
+                factory=self.new_target,
             )
 
         return self._place_types
@@ -539,6 +540,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
             self._presence_roles = ProxyPluginRepository(
                 PRESENCE_ROLE_REPOSITORY,
                 StaticPluginRepository(*self.configuration.presence_roles.plugins),
+                factory=self.new_target,
             )
 
         return self._presence_roles
@@ -555,6 +557,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
             self._genders = ProxyPluginRepository(
                 GENDER_REPOSITORY,
                 StaticPluginRepository(*self.configuration.genders.plugins),
+                factory=self.new_target,
             )
 
         return self._genders

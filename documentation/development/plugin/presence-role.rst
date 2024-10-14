@@ -9,9 +9,6 @@ Presence role plugins
      -  :py:class:`betty.ancestry.presence_role.PresenceRole`
    * -  Repository
      -  :py:attr:`betty.project.Project.presence_roles`
-            All presence roles, including those defined in the project configuration
-     -  :py:class:`betty.ancestry.presence_role.PRESENCE_ROLE_REPOSITORY`
-            Only presence roles available to any project
 
 Presence roles are used to indicate the **role** a :doc:`/usage/ancestry/person` has in an :doc:`/usage/ancestry/event`,
 such as the subject, a witness, or an officiant.

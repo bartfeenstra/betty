@@ -9,9 +9,6 @@ Event type plugins
      -  :py:class:`betty.ancestry.event_type.EventType`
    * -  Repository
      -  :py:attr:`betty.project.Project.event_types`
-            All event types, including those defined in the project configuration
-        :py:class:`betty.ancestry.event_type.EVENT_TYPE_REPOSITORY`
-            Only event types available to any project
 
 Event types are used to indicate the **type** of an :doc:`/usage/ancestry/event`, such as a birth, a death, or an marriage.
 
