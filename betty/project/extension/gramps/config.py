@@ -84,6 +84,7 @@ if TYPE_CHECKING:
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 
+
 DEFAULT_EVENT_TYPE_MAP: Mapping[str, MachineName] = {
     "Adopted": Adoption.plugin_id(),
     "Baptism": Baptism.plugin_id(),
@@ -104,6 +105,8 @@ DEFAULT_EVENT_TYPE_MAP: Mapping[str, MachineName] = {
     "Retirement": Retirement.plugin_id(),
     "Will": Will.plugin_id(),
 }
+
+
 DEFAULT_PLACE_TYPE_MAP: Mapping[str, MachineName] = {
     "Borough": Borough.plugin_id(),
     "Building": Building.plugin_id(),
@@ -128,6 +131,7 @@ DEFAULT_PLACE_TYPE_MAP: Mapping[str, MachineName] = {
     "Village": Village.plugin_id(),
 }
 
+
 DEFAULT_PRESENCE_ROLE_MAP: Mapping[str, MachineName] = {
     "Aide": Attendee.plugin_id(),
     "Bride": Subject.plugin_id(),
@@ -140,6 +144,8 @@ DEFAULT_PRESENCE_ROLE_MAP: Mapping[str, MachineName] = {
     "Unknown": UnknownPresenceRole.plugin_id(),
     "Witness": Witness.plugin_id(),
 }
+
+
 DEFAULT_GENDER_MAP: Mapping[str, MachineName] = {
     "F": Female.plugin_id(),
     "M": Male.plugin_id(),
@@ -160,12 +166,14 @@ class PluginMapping(Configuration):
     Map Gramps types to Betty plugin IDs.
     """
 
-    def __init__(self, mapping: Mapping[str, MachineName] | None = None):
+    def __init__(
+        self,
+        default_mapping: Mapping[str, MachineName],
+        mapping: Mapping[str, MachineName],
+    ):
         super().__init__()
-        self._mapping: MutableMapping[str, MachineName] = {
-            **self._default_mapping(),
-            **(mapping or {}),
-        }
+        self._default_mapping = default_mapping
+        self._mapping: MutableMapping[str, MachineName] = {**default_mapping, **mapping}
 
     async def to_plugins(
         self, plugins: PluginRepository[_PluginT]
@@ -180,15 +188,15 @@ class PluginMapping(Configuration):
 
     @override
     def load(self, dump: Dump) -> None:
-        self._mapping = assert_mapping(assert_machine_name(), _assert_gramps_type)(dump)
+        self._mapping = {
+            **self._default_mapping,
+            **assert_mapping(assert_machine_name(), _assert_gramps_type)(dump),
+        }
 
     @override
     def dump(self) -> Dump:
         # Dumps are mutable, so return a new dict which may then be changed without impacting ``self``.
         return dict(self._mapping)
-
-    def _default_mapping(self) -> Mapping[str, MachineName]:
-        return {}
 
     def __getitem__(self, gramps_type: str) -> MachineName:
         return self._mapping[gramps_type]
@@ -216,15 +224,11 @@ class FamilyTreeConfiguration(Configuration):
     ):
         super().__init__()
         self.file_path = file_path
-        self._event_types = PluginMapping(
-            {**DEFAULT_EVENT_TYPE_MAP, **(event_types or {})}
-        )
-        self._genders = PluginMapping({**DEFAULT_GENDER_MAP, **(genders or {})})
-        self._place_types = PluginMapping(
-            {**DEFAULT_PLACE_TYPE_MAP, **(place_types or {})}
-        )
+        self._event_types = PluginMapping(DEFAULT_EVENT_TYPE_MAP, event_types or {})
+        self._genders = PluginMapping(DEFAULT_GENDER_MAP, genders or {})
+        self._place_types = PluginMapping(DEFAULT_PLACE_TYPE_MAP, place_types or {})
         self._presence_roles = PluginMapping(
-            {**DEFAULT_PRESENCE_ROLE_MAP, **(presence_roles or {})}
+            DEFAULT_PRESENCE_ROLE_MAP, presence_roles or {}
         )
 
     @property
