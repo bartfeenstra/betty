@@ -123,8 +123,8 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
     async def new(
         cls,
         app: App,
-        configuration: ProjectConfiguration,
         *,
+        configuration: ProjectConfiguration,
         ancestry: Ancestry | None = None,
     ) -> Self:
         """
@@ -139,7 +139,11 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
     @classmethod
     @asynccontextmanager
     async def new_temporary(
-        cls, app: App, *, ancestry: Ancestry | None = None
+        cls,
+        app: App,
+        *,
+        configuration: ProjectConfiguration | None = None,
+        ancestry: Ancestry | None = None,
     ) -> AsyncIterator[Self]:
         """
         Creat a new, temporary, isolated project.
@@ -152,9 +156,11 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         ):
             yield await cls.new(
                 app,
-                await ProjectConfiguration.new(
+                configuration=await ProjectConfiguration.new(
                     Path(project_directory_path_str) / "betty.json"
-                ),
+                )
+                if configuration is None
+                else configuration,
                 ancestry=ancestry,
             )
 

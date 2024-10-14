@@ -26,6 +26,7 @@ from betty.project.config import (
     ExtensionConfiguration,
     CopyrightNoticeConfiguration,
     LicenseConfiguration,
+    ProjectConfiguration,
 )
 from betty.project.factory import ProjectDependentFactory
 from betty.test_utils.json.schema import SchemaTestBase
@@ -36,9 +37,7 @@ from betty.test_utils.project.extension import (
 )
 
 if TYPE_CHECKING:
-    from betty.project.extension import (
-        Extension,
-    )
+    from betty.project.extension import Extension
     from betty.plugin import PluginIdentifier
     from pathlib import Path
     from betty.json.schema import Schema
@@ -103,6 +102,40 @@ class TestProject:
                 _CyclicDependencyTwoExtension,
             ),
         )
+
+    async def test_new_without_ancestry(
+        self, new_temporary_app: App, tmp_path: Path
+    ) -> None:
+        await Project.new(
+            new_temporary_app,
+            configuration=await ProjectConfiguration.new(tmp_path / "betty.json"),
+        )
+
+    async def test_new_with_ancestry(
+        self, new_temporary_app: App, tmp_path: Path
+    ) -> None:
+        ancestry = await Ancestry.new()
+        sut = await Project.new(
+            new_temporary_app,
+            configuration=await ProjectConfiguration.new(tmp_path / "betty.json"),
+            ancestry=ancestry,
+        )
+        assert sut.ancestry is ancestry
+
+    async def test_new_temporary_without_configuration(
+        self, new_temporary_app: App, tmp_path: Path
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app):
+            pass
+
+    async def test_new_temporary_with_configuration(
+        self, new_temporary_app: App, tmp_path: Path
+    ) -> None:
+        configuration = await ProjectConfiguration.new(tmp_path / "betty.json")
+        async with Project.new_temporary(
+            new_temporary_app, configuration=configuration
+        ) as sut:
+            assert sut.configuration is configuration
 
     @pytest.mark.usefixtures("_extensions")
     async def test_bootstrap(self, new_temporary_app: App) -> None:

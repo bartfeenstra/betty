@@ -123,7 +123,9 @@ class TestWebpack(ExtensionTestBase[Webpack]):
         try:
             project = await Project.new(
                 new_temporary_app,
-                await ProjectConfiguration.new(tmp_path / "project" / "betty.json"),
+                configuration=await ProjectConfiguration.new(
+                    tmp_path / "project" / "betty.json"
+                ),
             )
             project.configuration.extensions.enable(Webpack)
             async with project:
