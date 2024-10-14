@@ -32,6 +32,7 @@ from betty.ancestry.gender import GENDER_REPOSITORY, Gender
 from betty.ancestry.place_type import PLACE_TYPE_REPOSITORY, PlaceType
 from betty.ancestry.presence_role import PRESENCE_ROLE_REPOSITORY, PresenceRole
 from betty.assets import AssetRepository
+from betty.concurrent import AsynchronizedLock
 from betty.config import Configurable
 from betty.copyright_notice import CopyrightNotice, COPYRIGHT_NOTICE_REPOSITORY
 from betty.core import CoreComponent
@@ -102,18 +103,28 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         self._ancestry = ancestry
 
         self._assets: AssetRepository | None = None
+        self._assets_lock = AsynchronizedLock.threading()
         self._localizers: LocalizerRepository | None = None
-        self._url_generator: LocalizedUrlGenerator | None = None
+        self._localizers_lock = AsynchronizedLock.threading()
+        self._localized_url_generator: LocalizedUrlGenerator | None = None
+        self._localized_url_generator_lock = AsynchronizedLock.threading()
         self._static_url_generator: StaticUrlGenerator | None = None
+        self._static_url_generator_lock = AsynchronizedLock.threading()
         self._jinja2_environment: Environment | None = None
+        self._jinja2_environment_lock = AsynchronizedLock.threading()
         self._renderer: Renderer | None = None
+        self._renderer_lock = AsynchronizedLock.threading()
         self._extensions: ProjectExtensions | None = None
+        self._extensions_lock = AsynchronizedLock.threading()
         self._event_dispatcher: EventDispatcher | None = None
         self._entity_types: set[type[Entity]] | None = None
         self._copyright_notice: CopyrightNotice | None = None
+        self._copyright_notice_lock = AsynchronizedLock.threading()
         self._copyright_notices: PluginRepository[CopyrightNotice] | None = None
         self._license: License | None = None
+        self._license_lock = AsynchronizedLock.threading()
         self._licenses: PluginRepository[License] | None = None
+        self._licenses_lock = AsynchronizedLock.threading()
         self._event_types: PluginRepository[EventType] | None = None
         self._place_types: PluginRepository[PlaceType] | None = None
         self._presence_roles: PluginRepository[PresenceRole] | None = None
@@ -212,17 +223,18 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         return self._get_assets()
 
     async def _get_assets(self) -> AssetRepository:
-        if self._assets is None:
-            self.assert_bootstrapped()
-            asset_paths = [self.configuration.assets_directory_path]
-            extensions = await self.extensions
-            for extension in extensions.flatten():
-                extension_assets_directory_path = extension.assets_directory_path()
-                if extension_assets_directory_path is not None:
-                    asset_paths.append(extension_assets_directory_path)
-            # Mimic :py:attr:`betty.app.App.assets`.
-            asset_paths.append(fs.ASSETS_DIRECTORY_PATH)
-            self._assets = AssetRepository(*asset_paths)
+        async with self._assets_lock:
+            if self._assets is None:
+                self.assert_bootstrapped()
+                asset_paths = [self.configuration.assets_directory_path]
+                extensions = await self.extensions
+                for extension in extensions.flatten():
+                    extension_assets_directory_path = extension.assets_directory_path()
+                    if extension_assets_directory_path is not None:
+                        asset_paths.append(extension_assets_directory_path)
+                # Mimic :py:attr:`betty.app.App.assets`.
+                asset_paths.append(fs.ASSETS_DIRECTORY_PATH)
+                self._assets = AssetRepository(*asset_paths)
         return self._assets
 
     @property
@@ -233,9 +245,10 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         return self._get_localizers()
 
     async def _get_localizers(self) -> LocalizerRepository:
-        if self._localizers is None:
-            self.assert_bootstrapped()
-            self._localizers = LocalizerRepository(await self.assets)
+        async with self._localizers_lock:
+            if self._localizers is None:
+                self.assert_bootstrapped()
+                self._localizers = LocalizerRepository(await self.assets)
         return self._localizers
 
     @property
@@ -246,12 +259,13 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         return self._get_localized_url_generator()
 
     async def _get_localized_url_generator(self) -> LocalizedUrlGenerator:
-        if self._url_generator is None:
-            self.assert_bootstrapped()
-            self._url_generator = await ProjectLocalizedUrlGenerator.new_for_project(
-                self
-            )
-        return self._url_generator
+        async with self._localized_url_generator_lock:
+            if self._localized_url_generator is None:
+                self.assert_bootstrapped()
+                self._localized_url_generator = (
+                    await ProjectLocalizedUrlGenerator.new_for_project(self)
+                )
+        return self._localized_url_generator
 
     @property
     def static_url_generator(self) -> Awaitable[StaticUrlGenerator]:
@@ -261,11 +275,12 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         return self._get_static_url_generator()
 
     async def _get_static_url_generator(self) -> StaticUrlGenerator:
-        if self._static_url_generator is None:
-            self.assert_bootstrapped()
-            self._static_url_generator = (
-                await ProjectStaticUrlGenerator.new_for_project(self)
-            )
+        async with self._static_url_generator_lock:
+            if self._static_url_generator is None:
+                self.assert_bootstrapped()
+                self._static_url_generator = (
+                    await ProjectStaticUrlGenerator.new_for_project(self)
+                )
         return self._static_url_generator
 
     @property
@@ -276,11 +291,12 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         return self._get_jinja2_environment()
 
     async def _get_jinja2_environment(self) -> Environment:
-        if not self._jinja2_environment:
-            from betty.jinja2 import Environment
+        async with self._jinja2_environment_lock:
+            if not self._jinja2_environment:
+                from betty.jinja2 import Environment
 
-            self.assert_bootstrapped()
-            self._jinja2_environment = await Environment.new_for_project(self)
+                self.assert_bootstrapped()
+                self._jinja2_environment = await Environment.new_for_project(self)
 
         return self._jinja2_environment
 
@@ -292,14 +308,15 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         return self._get_renderer()
 
     async def _get_renderer(self) -> Renderer:
-        if not self._renderer:
-            self.assert_bootstrapped()
-            self._renderer = SequentialRenderer(
-                [
-                    await self.new_target(plugin)
-                    for plugin in await RENDERER_REPOSITORY.select()
-                ]
-            )
+        async with self._renderer_lock:
+            if not self._renderer:
+                self.assert_bootstrapped()
+                self._renderer = SequentialRenderer(
+                    [
+                        await self.new_target(plugin)
+                        for plugin in await RENDERER_REPOSITORY.select()
+                    ]
+                )
         return self._renderer
 
     @property
@@ -310,8 +327,9 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         return self._get_extensions()
 
     async def _get_extensions(self) -> ProjectExtensions:
-        if self._extensions is None:
-            self._extensions = await self._init_extensions()
+        async with self._extensions_lock:
+            if self._extensions is None:
+                self._extensions = await self._init_extensions()
         return self._extensions
 
     async def _init_extensions(self) -> ProjectExtensions:
@@ -418,11 +436,14 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         return self._get_copyright_notice()
 
     async def _get_copyright_notice(self) -> CopyrightNotice:
-        if self._copyright_notice is None:
-            self.assert_bootstrapped()
-            self._copyright_notice = await self.new_target(
-                await self.copyright_notices.get(self.configuration.copyright_notice)
-            )
+        async with self._copyright_notice_lock:
+            if self._copyright_notice is None:
+                self.assert_bootstrapped()
+                self._copyright_notice = await self.new_target(
+                    await self.copyright_notices.get(
+                        self.configuration.copyright_notice
+                    )
+                )
         return self._copyright_notice
 
     @property
@@ -452,11 +473,12 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         return self._get_license()
 
     async def _get_license(self) -> License:
-        if self._license is None:
-            licenses = await self.licenses
-            self._license = await self.new_target(
-                await licenses.get(self.configuration.license)
-            )
+        async with self._license_lock:
+            if self._license is None:
+                licenses = await self.licenses
+                self._license = await self.new_target(
+                    await licenses.get(self.configuration.license)
+                )
         return self._license
 
     @property
@@ -469,12 +491,13 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         return self._get_licenses()
 
     async def _get_licenses(self) -> PluginRepository[License]:
-        if self._licenses is None:
-            self.assert_bootstrapped()
-            self._licenses = ProxyPluginRepository(
-                await self._app.licenses,
-                StaticPluginRepository(*self.configuration.licenses.plugins),
-            )
+        async with self._licenses_lock:
+            if self._licenses is None:
+                self.assert_bootstrapped()
+                self._licenses = ProxyPluginRepository(
+                    await self._app.licenses,
+                    StaticPluginRepository(*self.configuration.licenses.plugins),
+                )
 
         return self._licenses
 

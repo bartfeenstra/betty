@@ -11,6 +11,8 @@ from typing import TYPE_CHECKING, Self, Any, final, TypeVar, cast
 
 import aiohttp
 from aiofiles.tempfile import TemporaryDirectory
+
+from betty.concurrent import AsynchronizedLock
 from betty.license import License, LICENSE_REPOSITORY
 from betty.license.licenses import SpdxLicenseRepository
 from betty.plugin.proxy import ProxyPluginRepository
@@ -59,15 +61,19 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
         self._assets: AssetRepository | None = None
         self._localization_initialized = False
         self._localizer: Localizer | None = None
+        self._localizer_lock = AsynchronizedLock.threading()
         self._localizers: LocalizerRepository | None = None
         self._http_client: aiohttp.ClientSession | None = None
+        self._http_client_lock = AsynchronizedLock.threading()
         self._fetcher = fetcher
+        self._fetcher_lock = AsynchronizedLock.threading()
         self._cache_directory_path = cache_directory_path
         self._cache: Cache[Any] | None = None
         self._cache_factory = cache_factory
         self._binary_file_cache: BinaryFileCache | None = None
         self._process_pool: Executor | None = None
         self._licenses: PluginRepository[License] | None = None
+        self._licenses_lock = AsynchronizedLock.threading()
 
     @classmethod
     @asynccontextmanager
@@ -125,11 +131,12 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
         return self._get_localizer()
 
     async def _get_localizer(self) -> Localizer:
-        if self._localizer is None:
-            self.assert_bootstrapped()
-            self._localizer = await self.localizers.get_negotiated(
-                self.configuration.locale or DEFAULT_LOCALE
-            )
+        async with self._localizer_lock:
+            if self._localizer is None:
+                self.assert_bootstrapped()
+                self._localizer = await self.localizers.get_negotiated(
+                    self.configuration.locale or DEFAULT_LOCALE
+                )
         return self._localizer
 
     @property
@@ -150,15 +157,16 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
         return self._get_http_client()
 
     async def _get_http_client(self) -> aiohttp.ClientSession:
-        if self._http_client is None:
-            self.assert_bootstrapped()
-            self._http_client = aiohttp.ClientSession(
-                connector=aiohttp.TCPConnector(limit_per_host=5),
-                headers={
-                    "User-Agent": "Betty (https://betty.readthedocs.io/)",
-                },
-            )
-            self._shutdown_stack.append(self._shutdown_http_client)
+        async with self._http_client_lock:
+            if self._http_client is None:
+                self.assert_bootstrapped()
+                self._http_client = aiohttp.ClientSession(
+                    connector=aiohttp.TCPConnector(limit_per_host=5),
+                    headers={
+                        "User-Agent": "Betty (https://betty.readthedocs.io/)",
+                    },
+                )
+                self._shutdown_stack.append(self._shutdown_http_client)
         return self._http_client
 
     async def _shutdown_http_client(self, *, wait: bool) -> None:
@@ -173,13 +181,14 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
         return self._get_fetcher()
 
     async def _get_fetcher(self) -> Fetcher:
-        if self._fetcher is None:
-            self.assert_bootstrapped()
-            self._fetcher = http.HttpFetcher(
-                await self.http_client,
-                self.cache.with_scope("fetch"),
-                self.binary_file_cache.with_scope("fetch"),
-            )
+        async with self._fetcher_lock:
+            if self._fetcher is None:
+                self.assert_bootstrapped()
+                self._fetcher = http.HttpFetcher(
+                    await self.http_client,
+                    self.cache.with_scope("fetch"),
+                    self.binary_file_cache.with_scope("fetch"),
+                )
         return self._fetcher
 
     @property
@@ -248,17 +257,18 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
         return self._get_licenses()
 
     async def _get_licenses(self) -> PluginRepository[License]:
-        if self._licenses is None:
-            self.assert_bootstrapped()
-            self._licenses = ProxyPluginRepository(
-                LICENSE_REPOSITORY,
-                SpdxLicenseRepository(
-                    binary_file_cache=self.binary_file_cache.with_scope("spdx"),
-                    fetcher=await self.fetcher,
-                    localizer=await self.localizer,
-                    factory=self.new_target,
-                    process_pool=self.process_pool,
-                ),
-            )
+        async with self._licenses_lock:
+            if self._licenses is None:
+                self.assert_bootstrapped()
+                self._licenses = ProxyPluginRepository(
+                    LICENSE_REPOSITORY,
+                    SpdxLicenseRepository(
+                        binary_file_cache=self.binary_file_cache.with_scope("spdx"),
+                        fetcher=await self.fetcher,
+                        localizer=await self.localizer,
+                        factory=self.new_target,
+                        process_pool=self.process_pool,
+                    ),
+                )
 
         return self._licenses
