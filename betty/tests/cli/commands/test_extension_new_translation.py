@@ -37,7 +37,7 @@ class TestExtensionNewTranslation(ExtensionTranslationTestBase):
             "extension-new-translation",
             "without-assets",
             "nl-NL",
-            expected_exit_code=1,
+            expected_exit_code=2,
         )
 
     async def test_click_command_with_invalid_locale(
