@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from pathlib import Path
-from typing import TYPE_CHECKING, final, Self
+from typing import TYPE_CHECKING, final, Self, ClassVar
 
 from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
@@ -137,6 +137,7 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
 
     _plugin_id = "webpack"
     _plugin_label = static("Webpack")
+    _requirement: ClassVar[Requirement | None] = None
 
     @private
     def __init__(self, project: Project, public_css_paths: Sequence[str]):
@@ -156,10 +157,12 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
     @override
     @classmethod
     async def requirement(cls) -> Requirement:
-        return AllRequirements(
-            await super().requirement(),
-            AnyRequirement(await NpmRequirement.new(), PrebuiltAssetsRequirement()),
-        )
+        if cls._requirement is None:
+            cls._requirement = AllRequirements(
+                await super().requirement(),
+                AnyRequirement(await NpmRequirement.new(), PrebuiltAssetsRequirement()),
+            )
+        return cls._requirement
 
     @override
     @classmethod
