@@ -25,7 +25,10 @@ if TYPE_CHECKING:
     from betty.project.extension import Extension
 
 
-def _assert_extension_assets_directory_path(extension: type[Extension]) -> Path:
+def assert_extension_assets_directory_path(extension: type[Extension]) -> Path:
+    """
+    Check that the given extension has an assets directory, and return its path.
+    """
     assets_directory_path = extension.assets_directory_path()
     if assets_directory_path is None:
         raise UserFacingError(
@@ -40,7 +43,7 @@ async def new_extension_translation(locale: str, extension: type[Extension]) -> 
     """
     Create a new translation for the given extension.
     """
-    await _new_translation(locale, _assert_extension_assets_directory_path(extension))
+    await _new_translation(locale, assert_extension_assets_directory_path(extension))
 
 
 async def new_project_translation(locale: str, project: Project) -> None:
@@ -105,7 +108,7 @@ async def update_extension_translations(
         source_file_paths = set()
     await _update_translations(
         source_file_paths,
-        _assert_extension_assets_directory_path(extension),
+        assert_extension_assets_directory_path(extension),
         _output_assets_directory_path_override,
     )
 

@@ -10,6 +10,7 @@ from betty.assertion import assert_locale
 from betty.cli.commands import command, parameter_callback, Command
 from betty.locale import translation
 from betty.locale.localizable import _
+from betty.locale.translation import assert_extension_assets_directory_path
 from betty.plugin import ShorthandPluginBase
 from betty.project import extension
 
@@ -51,7 +52,11 @@ class ExtensionNewTranslation(ShorthandPluginBase, AppDependentFactory, Command)
         @click.argument(
             "extension",
             required=True,
-            callback=parameter_callback(extension_id_to_type_map.get),
+            callback=parameter_callback(
+                lambda extension_id: assert_extension_assets_directory_path(
+                    extension_id_to_type_map.get(extension_id)
+                )
+            ),
         )
         @click.argument(
             "locale", required=True, callback=parameter_callback(assert_locale())
