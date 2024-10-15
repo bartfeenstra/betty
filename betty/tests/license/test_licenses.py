@@ -1,7 +1,6 @@
 import tarfile
-from concurrent.futures import ProcessPoolExecutor
+from collections.abc import Iterator
 from json import dumps
-from multiprocessing import get_context
 from pathlib import Path
 from typing import Sequence, TYPE_CHECKING
 
@@ -18,6 +17,7 @@ from betty.license.licenses import (
     spdx_license_id_to_license_id,
 )
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugin import PluginNotFound
 from betty.test_utils.license import LicenseTestBase
 
@@ -65,7 +65,7 @@ class TestSpdxLicenseRepository:
     @pytest.fixture
     def sut_without_licenses(
         self, binary_file_cache: BinaryFileCache, tmp_path: Path
-    ) -> SpdxLicenseRepository:
+    ) -> Iterator[SpdxLicenseRepository]:
         spdx_directory_path = tmp_path / "spdx"
         spdx_directory_path.mkdir()
         licenses_data: DumpMapping[Dump] = {
@@ -89,18 +89,19 @@ class TestSpdxLicenseRepository:
         fetcher = StaticFetcher(
             fetch_file_map={SpdxLicenseRepository.URL: spdx_tar_file_path}
         )
-        sut = SpdxLicenseRepository(
-            binary_file_cache=binary_file_cache,
-            fetcher=fetcher,
-            localizer=DEFAULT_LOCALIZER,
-            process_pool=ProcessPoolExecutor(mp_context=get_context("spawn")),
-        )
-        return sut
+        with ProcessPoolExecutor() as process_pool:
+            sut = SpdxLicenseRepository(
+                binary_file_cache=binary_file_cache,
+                fetcher=fetcher,
+                localizer=DEFAULT_LOCALIZER,
+                process_pool=process_pool,
+            )
+            yield sut
 
     @pytest.fixture
     def sut_with_licenses(
         self, binary_file_cache: BinaryFileCache, tmp_path: Path
-    ) -> SpdxLicenseRepository:
+    ) -> Iterator[SpdxLicenseRepository]:
         spdx_directory_path = tmp_path / "spdx"
         spdx_directory_path.mkdir()
         licenses_data: DumpMapping[Dump] = {
@@ -181,13 +182,14 @@ class TestSpdxLicenseRepository:
         fetcher = StaticFetcher(
             fetch_file_map={SpdxLicenseRepository.URL: spdx_tar_file_path}
         )
-        sut = SpdxLicenseRepository(
-            binary_file_cache=binary_file_cache,
-            fetcher=fetcher,
-            localizer=DEFAULT_LOCALIZER,
-            process_pool=ProcessPoolExecutor(mp_context=get_context("spawn")),
-        )
-        return sut
+        with ProcessPoolExecutor() as process_pool:
+            sut = SpdxLicenseRepository(
+                binary_file_cache=binary_file_cache,
+                fetcher=fetcher,
+                localizer=DEFAULT_LOCALIZER,
+                process_pool=process_pool,
+            )
+            yield sut
 
     async def test_get(self, sut_with_licenses: SpdxLicenseRepository) -> None:
         zero_bsd_type = await sut_with_licenses.get("spdx-0bsd")
