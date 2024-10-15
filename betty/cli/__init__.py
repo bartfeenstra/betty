@@ -160,7 +160,14 @@ def main() -> Any:
 
     This is a stand-alone entry point that will manage an event loop and Betty application.
     """
-    return run(_main())
+    # Because this function creates and owns the event loop, Click cannot handle exceptions that are the result of the
+    # event loop shutting down. To allow for graceful cancellations, catch any propagated KeyboardInterrupt from the
+    # loop, and handle it as similar to how Click does it as possible.
+    try:
+        return run(_main())
+    except KeyboardInterrupt:
+        print("Aborted!")  # noqa T201
+        sys.exit(1)
 
 
 async def _main() -> Any:
