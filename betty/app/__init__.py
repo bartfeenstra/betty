@@ -2,20 +2,13 @@
 
 from __future__ import annotations
 
-from concurrent.futures import Executor, ProcessPoolExecutor
 from contextlib import asynccontextmanager
-from multiprocessing import get_context
 from os import environ
 from pathlib import Path
 from typing import TYPE_CHECKING, Self, Any, final, TypeVar, cast
 
 import aiohttp
 from aiofiles.tempfile import TemporaryDirectory
-
-from betty.concurrent import AsynchronizedLock
-from betty.license import License, LICENSE_REPOSITORY
-from betty.license.licenses import SpdxLicenseRepository
-from betty.plugin.proxy import ProxyPluginRepository
 from typing_extensions import override
 
 from betty import fs
@@ -25,16 +18,22 @@ from betty.app.factory import AppDependentFactory
 from betty.assets import AssetRepository
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
+from betty.concurrent import AsynchronizedLock
 from betty.config import Configurable, assert_configuration_file
 from betty.core import CoreComponent
 from betty.factory import new, TargetFactory
 from betty.fetch import Fetcher, http
 from betty.fetch.static import StaticFetcher
 from betty.fs import HOME_DIRECTORY_PATH
+from betty.license import License, LICENSE_REPOSITORY
+from betty.license.licenses import SpdxLicenseRepository
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizer import Localizer, LocalizerRepository
+from betty.multiprocessing import ProcessPoolExecutor
+from betty.plugin.proxy import ProxyPluginRepository
 
 if TYPE_CHECKING:
+    from concurrent.futures import Executor
     from betty.plugin import PluginRepository
     from betty.cache import Cache
     from collections.abc import AsyncIterator, Callable, Awaitable
@@ -220,8 +219,7 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
         """
         if self._process_pool is None:
             self.assert_bootstrapped()
-            # Use ``spawn``, which is the Python 3.14 default for all platforms.
-            self._process_pool = ProcessPoolExecutor(mp_context=get_context("spawn"))
+            self._process_pool = ProcessPoolExecutor()
             self._shutdown_stack.append(self._shutdown_process_pool)
         return self._process_pool
 

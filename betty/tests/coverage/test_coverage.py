@@ -285,6 +285,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/copyright_notice/__init__.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/license/__init__.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/path.py": MissingReason.SHOULD_BE_COVERED,
+    "betty/multiprocessing.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugin/__init__.py": {
         "DependentPlugin": MissingReason.ABSTRACT,
         "OrderedPlugin": MissingReason.ABSTRACT,
