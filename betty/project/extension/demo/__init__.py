@@ -13,6 +13,7 @@ from betty.plugin import ShorthandPluginBase
 from betty.project.extension import Extension
 from betty.project.extension.cotton_candy import CottonCandy
 from betty.project.extension.demo.project import load_ancestry
+from betty.project.extension.deriver import Deriver
 from betty.project.extension.http_api_doc import HttpApiDoc
 from betty.project.extension.maps import Maps
 from betty.project.extension.trees import Trees
@@ -38,6 +39,7 @@ class Demo(ShorthandPluginBase, Extension):
     def depends_on(cls) -> set[PluginIdentifier[Extension]]:
         return {
             CottonCandy,
+            Deriver,
             HttpApiDoc,
             Maps,
             Trees,
