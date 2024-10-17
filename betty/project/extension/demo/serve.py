@@ -4,7 +4,9 @@ Tools to serve demonstration sites.
 
 from __future__ import annotations
 
+from asyncio import to_thread
 from contextlib import AsyncExitStack
+from shutil import rmtree
 from typing import final, TYPE_CHECKING
 
 from typing_extensions import override
@@ -25,10 +27,7 @@ class DemoServer(Server):
     Serve the Betty demonstration site.
     """
 
-    def __init__(
-        self,
-        app: App,
-    ):
+    def __init__(self, app: App):
         super().__init__(localizer=DEFAULT_LOCALIZER)
         self._app = app
         self._server: Server | None = None
@@ -43,17 +42,22 @@ class DemoServer(Server):
 
     @override
     async def start(self) -> None:
+        project_directory_path = self._app.binary_file_cache.with_scope("demo").path
+        project = await create_project(self._app, project_directory_path)
+        await self._exit_stack.enter_async_context(project)
         try:
-            project = await self._exit_stack.enter_async_context(
-                create_project(self._app)
-            )
-            self._localizer = await self._app.localizer
             await load.load(project)
+            if not project_directory_path.is_dir():
+                try:
+                    await generate.generate(project)
+                except BaseException:
+                    # Ensure that we never leave a partial build.
+                    await to_thread(rmtree, project_directory_path)
+                    raise
             self._server = await serve.BuiltinProjectServer.new_for_project(project)
             await self._exit_stack.enter_async_context(self._server)
-            project.configuration.url = self._server.public_url
-            await generate.generate(project)
         except BaseException:
+            # __aexit__() is not called when __aenter__() raises an exception, so ensure we clean up our resources.
             await self.stop()
             raise
 
