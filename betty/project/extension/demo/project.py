@@ -4,9 +4,8 @@ Provide the demonstration project.
 
 from __future__ import annotations
 
-from contextlib import asynccontextmanager
 from random import choice
-from typing import AsyncIterator, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.enclosure import Enclosure
@@ -33,6 +32,7 @@ from betty.project.config import (
     ExtensionConfiguration,
     EntityReference,
     LocaleConfiguration,
+    ProjectConfiguration,
 )
 from betty.project.extension.cotton_candy import CottonCandy
 from betty.project.extension.cotton_candy.config import CottonCandyConfiguration
@@ -40,31 +40,32 @@ from betty.project.extension.demo.copyright_notice import Streetmix
 from betty.typing import internal
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from betty.machine_name import MachineName
     from collections.abc import Mapping, Sequence
     from betty.app import App
 
 
-@asynccontextmanager
-async def create_project(app: App) -> AsyncIterator[Project]:
+async def create_project(app: App, project_directory_path: Path) -> Project:
     """
     Create a new demonstration project.
     """
     from betty.project.extension.demo import Demo
 
-    async with Project.new_temporary(app) as project:
-        project.configuration.name = Demo.plugin_id()
-        project.configuration.license = "spdx-gpl-3--0-or-later"
-        project.configuration.title = {
+    configuration = await ProjectConfiguration.new(
+        project_directory_path / "betty.json",
+        name=Demo.plugin_id(),
+        license="spdx-gpl-3--0-or-later",
+        title={
             "en-US": "A Betty demonstration",
             "nl-NL": "Een demonstratie van Betty",
-        }
-        project.configuration.author = {
+        },
+        author={
             "en-US": "Bart Feenstra and contributors",
             "nl-NL": "Bart Feenstra en bijdragers",
-        }
-        project.configuration.extensions.append(ExtensionConfiguration(Demo))
-        project.configuration.extensions.append(
+        },
+        extensions=[
+            ExtensionConfiguration(Demo),
             ExtensionConfiguration(
                 CottonCandy,
                 extension_configuration=CottonCandyConfiguration(
@@ -74,10 +75,9 @@ async def create_project(app: App) -> AsyncIterator[Project]:
                         EntityReference(Place, "betty-demo-netherlands"),
                     ],
                 ),
-            )
-        )
-        # Include all of the translations Betty ships with.
-        project.configuration.locales.replace(
+            ),
+        ],
+        locales=[
             LocaleConfiguration(
                 "en-US",
                 alias="en",
@@ -98,9 +98,9 @@ async def create_project(app: App) -> AsyncIterator[Project]:
                 "de-DE",
                 alias="de",
             ),
-        )
-        async with project:
-            yield project
+        ],
+    )
+    return await Project.new(app, configuration=configuration)
 
 
 @internal

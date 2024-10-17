@@ -25,10 +25,7 @@ class DemoServer(Server):
     Serve the Betty demonstration site.
     """
 
-    def __init__(
-        self,
-        app: App,
-    ):
+    def __init__(self, app: App):
         super().__init__(localizer=DEFAULT_LOCALIZER)
         self._app = app
         self._server: Server | None = None
@@ -43,16 +40,17 @@ class DemoServer(Server):
 
     @override
     async def start(self) -> None:
+        project_directory_path = self._app.binary_file_cache.with_scope("demo").path
         try:
-            project = await self._exit_stack.enter_async_context(
-                create_project(self._app)
+            project = await create_project(
+                self._app, project_directory_path
             )
-            self._localizer = await self._app.localizer
-            await load.load(project)
             self._server = await serve.BuiltinProjectServer.new_for_project(project)
             await self._exit_stack.enter_async_context(self._server)
             project.configuration.url = self._server.public_url
-            await generate.generate(project)
+            async with project:
+                await load.load(project)
+                await generate.generate(project)
         except BaseException:
             await self.stop()
             raise
