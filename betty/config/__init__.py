@@ -49,6 +49,8 @@ class Configurable(Generic[_ConfigurationT]):
         """
         The object's configuration.
         """
+        # @todo Add an __init__ so we won't have to use hasattr()
+        # @todo This would also work nicely with the removal of ConfigurableExtension.default_configuration()
         if not hasattr(self, "_configuration"):
             raise RuntimeError(
                 f"{self} has no configuration. {type(self)}.__init__() must ensure it is set."
