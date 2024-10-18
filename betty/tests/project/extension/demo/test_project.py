@@ -10,12 +10,15 @@ from betty.test_utils.project.extension.demo.project import demo_project_fetcher
 
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from betty.fetch import Fetcher
 
 
 class TestCreateProject:
-    async def test(self, new_temporary_app: App) -> None:
-        async with create_project(new_temporary_app) as project:
+    async def test(self, new_temporary_app: App, tmp_path: Path) -> None:
+        project = await create_project(new_temporary_app, tmp_path)
+        async with project:
+            assert project.configuration.project_directory_path == tmp_path
             assert Demo.plugin_id() in await project.extensions
 
 

@@ -9,7 +9,7 @@ site from the entire project.
 from __future__ import annotations
 
 import logging
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, AsyncExitStack
 from graphlib import TopologicalSorter
 from pathlib import Path
 from typing import (
@@ -25,6 +25,8 @@ from typing import (
 )
 
 from aiofiles.tempfile import TemporaryDirectory
+from typing_extensions import override
+
 from betty import fs, event_dispatcher
 from betty.ancestry import Ancestry
 from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY
@@ -61,7 +63,6 @@ from betty.project.url import (
 from betty.render import Renderer, SequentialRenderer, RENDERER_REPOSITORY
 from betty.string import kebab_case_to_lower_camel_case
 from betty.typing import internal
-from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.license import License
@@ -162,18 +163,18 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         The project will not leave any traces on the system, except when it uses
         global Betty functionality such as caches.
         """
-        async with (
-            TemporaryDirectory() as project_directory_path_str,
-        ):
-            yield await cls.new(
-                app,
-                configuration=await ProjectConfiguration.new(
-                    Path(project_directory_path_str) / "betty.json"
+        async with AsyncExitStack() as stack:
+            if configuration is None:
+                project_directory_path_str = await stack.enter_async_context(
+                    TemporaryDirectory()
                 )
-                if configuration is None
-                else configuration,
-                ancestry=ancestry,
-            )
+                configuration = await ProjectConfiguration.new(
+                    Path(
+                        project_directory_path_str,  # type: ignore[arg-type]
+                    )
+                    / "betty.json"
+                )
+            yield await cls.new(app, configuration=configuration, ancestry=ancestry)
 
     @override
     async def bootstrap(self) -> None:
