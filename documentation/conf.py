@@ -9,7 +9,7 @@ from pathlib import Path
 import betty
 from betty import fs
 from betty.assets import AssetRepository
-from betty.fs import ROOT_DIRECTORY_PATH
+from betty.fs import ASSETS_DIRECTORY_PATH
 from betty.locale.localizer import LocalizerRepository
 
 betty_replacements: dict[str, str] = {}
@@ -38,12 +38,8 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
     "referencing": ("https://referencing.readthedocs.io/en/stable/", None),
 }
-html_favicon = str(
-    ROOT_DIRECTORY_PATH / "betty" / "assets" / "public" / "static" / "betty.ico"
-)
-html_logo = str(
-    ROOT_DIRECTORY_PATH / "betty" / "assets" / "public" / "static" / "betty-32x32.png"
-)
+html_favicon = str(ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png")
+html_logo = str(ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png")
 html_context = {
     "display_github": True,
     "github_user": "bartfeenstra",
