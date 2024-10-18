@@ -30,7 +30,7 @@ from betty.machine_name import MachineName
 if TYPE_CHECKING:
     from graphlib import TopologicalSorter
     from betty.locale.localizable import Localizable
-    from collections.abc import AsyncIterator, Sequence, Mapping, Iterable
+    from collections.abc import AsyncIterator, Sequence, Mapping, Iterable, Iterator
 
 
 class PluginError(Exception):
@@ -207,6 +207,12 @@ class PluginIdToTypeMap(Generic[_PluginT]):
         self, plugin_identifier: MachineName | type[_PluginT]
     ) -> type[_PluginT]:
         return self.get(plugin_identifier)
+
+    def __iter__(self) -> Iterator[MachineName]:
+        yield from self._id_to_type_map
+
+    def values(self) -> Iterator[type[_PluginT]]:
+        return self._id_to_type_map.values()
 
 
 class PluginRepository(Generic[_PluginT], TargetFactory[_PluginT], ABC):

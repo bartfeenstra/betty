@@ -27,6 +27,7 @@ from betty.date import Date, DateRange
 from betty.fs import DATA_DIRECTORY_PATH
 from betty.license.licenses import spdx_license_id_to_license_id
 from betty.media_type.media_types import SVG
+from betty.model import ENTITY_TYPE_REPOSITORY
 from betty.project import Project
 from betty.project.config import (
     ExtensionConfiguration,
@@ -52,6 +53,8 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
     """
     from betty.project.extension.demo import Demo
 
+    entity_type_id_to_type_map = await ENTITY_TYPE_REPOSITORY.map()
+
     configuration = await ProjectConfiguration.new(
         project_directory_path / "betty.json",
         name=Demo.plugin_id(),
@@ -70,9 +73,21 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                 CottonCandy,
                 extension_configuration=CottonCandyConfiguration(
                     featured_entities=[
-                        EntityReference(Place, "betty-demo-amsterdam"),
-                        EntityReference(Person, "betty-demo-liberta-lankester"),
-                        EntityReference(Place, "betty-demo-netherlands"),
+                        EntityReference(
+                            Place,
+                            "betty-demo-amsterdam",
+                            entity_type_id_to_type_map=entity_type_id_to_type_map,
+                        ),
+                        EntityReference(
+                            Person,
+                            "betty-demo-liberta-lankester",
+                            entity_type_id_to_type_map=entity_type_id_to_type_map,
+                        ),
+                        EntityReference(
+                            Place,
+                            "betty-demo-netherlands",
+                            entity_type_id_to_type_map=entity_type_id_to_type_map,
+                        ),
                     ],
                 ),
             ),

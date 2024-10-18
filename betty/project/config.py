@@ -10,7 +10,6 @@ from urllib.parse import urlparse
 
 from typing_extensions import override
 
-from betty import model
 from betty.ancestry.event import Event
 from betty.ancestry.event_type import EventType
 from betty.ancestry.gender import Gender
@@ -54,16 +53,19 @@ from betty.locale.localizable.config import (
     RequiredStaticTranslationsLocalizableConfigurationAttr,
 )
 from betty.machine_name import assert_machine_name
-from betty.model import Entity, UserFacingEntity
-from betty.plugin import ShorthandPluginBase
+from betty.model import Entity, UserFacingEntity, ENTITY_TYPE_REPOSITORY
+from betty.plugin import ShorthandPluginBase, PluginIdToTypeMap
 from betty.plugin.assertion import assert_plugin
 from betty.plugin.config import (
     PluginConfigurationPluginConfigurationMapping,
     PluginConfiguration,
     PluginConfigurationMapping,
 )
-from betty.project import extension
-from betty.project.extension import Extension, ConfigurableExtension
+from betty.project.extension import (
+    Extension,
+    ConfigurableExtension,
+    EXTENSION_REPOSITORY,
+)
 from betty.repr import repr_instance
 from betty.serde.format import Format, format_for, FORMAT_REPOSITORY
 
@@ -72,7 +74,6 @@ if TYPE_CHECKING:
         Dump,
         DumpMapping,
     )
-    from collections.abc import Sequence
     from betty.machine_name import MachineName
     from pathlib import Path
 
@@ -97,11 +98,13 @@ class EntityReference(Configuration, Generic[_EntityT]):
         entity_type: type[_EntityT] | None = None,
         entity_id: str | None = None,
         *,
+        entity_type_id_to_type_map: PluginIdToTypeMap[Entity],
         entity_type_is_constrained: bool = False,
     ):
         super().__init__()
         self._entity_type = entity_type
         self._entity_id = entity_id
+        self._entity_type_id_to_type_map = entity_type_id_to_type_map
         self._entity_type_is_constrained = entity_type_is_constrained
 
     @property
@@ -149,7 +152,7 @@ class EntityReference(Configuration, Generic[_EntityT]):
                     "entity_type",
                     assert_or(
                         assert_none(),
-                        assert_plugin(model.ENTITY_TYPE_REPOSITORY)
+                        assert_plugin(self._entity_type_id_to_type_map)
                         | assert_setattr(self, "_entity_type"),
                     ),
                 ),
@@ -189,9 +192,11 @@ class EntityReferenceSequence(
         self,
         entity_references: Iterable[EntityReference[_EntityT]] | None = None,
         *,
+        entity_type_id_to_type_map: PluginIdToTypeMap[Entity],
         entity_type_constraint: type[_EntityT] | None = None,
     ):
         self._entity_type_constraint = entity_type_constraint
+        self._entity_type_id_to_type_map = entity_type_id_to_type_map
         super().__init__(entity_references)
 
     @override
@@ -203,6 +208,7 @@ class EntityReferenceSequence(
             if self._entity_type_constraint is None
             else self._entity_type_constraint,
             entity_type_is_constrained=self._entity_type_constraint is not None,
+            entity_type_id_to_type_map=self._entity_type_id_to_type_map,
         )
         configuration.load(dump)
         return configuration
@@ -259,11 +265,13 @@ class ExtensionConfiguration(Configuration):
         self,
         extension_type: type[Extension],
         *,
+        extension_id_to_type_map: PluginIdToTypeMap[Extension],
         enabled: bool = True,
         extension_configuration: Configuration | None = None,
     ):
         super().__init__()
         self._extension_type = extension_type
+        self._extension_id_to_type_map = extension_id_to_type_map
         self._enabled = enabled
         if extension_configuration is None and issubclass(
             extension_type, ConfigurableExtension
@@ -306,7 +314,7 @@ class ExtensionConfiguration(Configuration):
         assert_record(
             RequiredField(
                 "extension",
-                assert_plugin(extension.EXTENSION_REPOSITORY)
+                assert_plugin(self._extension_id_to_type_map)
                 | assert_setattr(self, "_extension_type"),
             ),
             OptionalField("enabled", assert_bool() | assert_setattr(self, "enabled")),
@@ -357,15 +365,21 @@ class ExtensionConfigurationMapping(
     def __init__(
         self,
         configurations: Iterable[ExtensionConfiguration] | None = None,
+        *,
+        extension_id_to_type_map: PluginIdToTypeMap[Extension],
     ):
         super().__init__(configurations)
+        self._extension_id_to_type_map = extension_id_to_type_map
 
     @override
     def load_item(self, dump: Dump) -> ExtensionConfiguration:
         fields_dump = assert_fields(
-            RequiredField("extension", assert_plugin(extension.EXTENSION_REPOSITORY))
+            RequiredField("extension", assert_plugin(self._extension_id_to_type_map))
         )(dump)
-        configuration = ExtensionConfiguration(fields_dump["extension"])
+        configuration = ExtensionConfiguration(
+            fields_dump["extension"],
+            extension_id_to_type_map=self._extension_id_to_type_map,
+        )
         configuration.load(dump)
         return configuration
 
@@ -389,7 +403,12 @@ class ExtensionConfigurationMapping(
             try:
                 self._configurations[extension_type].enabled = True
             except KeyError:
-                self.append(ExtensionConfiguration(extension_type))
+                self.append(
+                    ExtensionConfiguration(
+                        extension_type,
+                        extension_id_to_type_map=self._extension_id_to_type_map,
+                    )
+                )
 
 
 @final
@@ -402,11 +421,13 @@ class EntityTypeConfiguration(Configuration):
         self,
         entity_type: type[Entity],
         *,
+        entity_type_id_to_type_map: PluginIdToTypeMap[Entity],
         generate_html_list: bool = False,
     ):
         super().__init__()
         self._entity_type = entity_type
         self.generate_html_list = generate_html_list
+        self._entity_type_id_to_type_map = entity_type_id_to_type_map
 
     @property
     def entity_type(self) -> type[Entity]:
@@ -438,7 +459,7 @@ class EntityTypeConfiguration(Configuration):
             RequiredField[Any, type[Entity]](
                 "entity_type",
                 assert_str()
-                | assert_plugin(model.ENTITY_TYPE_REPOSITORY)
+                | assert_plugin(self._entity_type_id_to_type_map)
                 | assert_setattr(self, "_entity_type"),
             ),
             OptionalField(
@@ -463,13 +484,22 @@ class EntityTypeConfigurationMapping(
     Configure the entity types for a project.
     """
 
+    def __init__(
+        self,
+        configurations: Iterable[EntityTypeConfiguration] | None = None,
+        *,
+        entity_type_id_to_type_map: PluginIdToTypeMap[Entity],
+    ):
+        super().__init__(configurations)
+        self._entity_type_id_to_type_map = entity_type_id_to_type_map
+
     @override
     def _get_key(self, configuration: EntityTypeConfiguration) -> type[Entity]:
         return configuration.entity_type
 
     @override
     def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
-        assert_plugin(model.ENTITY_TYPE_REPOSITORY)(key_dump)
+        assert_plugin(self._entity_type_id_to_type_map)(key_dump)
         item_dump["entity_type"] = key_dump
 
     @override
@@ -481,7 +511,8 @@ class EntityTypeConfigurationMapping(
         # Use a dummy entity type for now to satisfy the initializer.
         # It will be overridden when loading the dump.
         configuration = EntityTypeConfiguration(
-            Entity  # type: ignore[type-abstract]
+            Entity,  # type: ignore[type-abstract]
+            entity_type_id_to_type_map=self._entity_type_id_to_type_map,
         )
         configuration.load(dump)
         return configuration
@@ -856,7 +887,9 @@ class ProjectConfiguration(Configuration):
         self,
         configuration_file_path: Path,
         *,
-        available_formats: Sequence[type[Format]],
+        entity_type_id_to_type_map: PluginIdToTypeMap[Entity],
+        extension_id_to_type_map: PluginIdToTypeMap[Extension],
+        format_id_to_type_map: PluginIdToTypeMap[Format],
         url: str = "https://example.com",
         clean_urls: bool = False,
         title: ShorthandStaticTranslations = "Betty",
@@ -880,7 +913,9 @@ class ProjectConfiguration(Configuration):
         from betty.copyright_notice.copyright_notices import ProjectAuthor
 
         super().__init__()
-        self._available_formats = available_formats
+        self._entity_type_id_to_type_map = entity_type_id_to_type_map
+        self._extension_id_to_type_map = extension_id_to_type_map
+        self._format_id_to_type_map = format_id_to_type_map
         self._configuration_file_path = configuration_file_path
         self._name = name
         self._computed_name: str | None = None
@@ -895,20 +930,25 @@ class ProjectConfiguration(Configuration):
                 EntityTypeConfiguration(
                     entity_type=Person,
                     generate_html_list=True,
+                    entity_type_id_to_type_map=self._entity_type_id_to_type_map,
                 ),
                 EntityTypeConfiguration(
                     entity_type=Event,
                     generate_html_list=True,
+                    entity_type_id_to_type_map=self._entity_type_id_to_type_map,
                 ),
                 EntityTypeConfiguration(
                     entity_type=Place,
                     generate_html_list=True,
+                    entity_type_id_to_type_map=self._entity_type_id_to_type_map,
                 ),
                 EntityTypeConfiguration(
                     entity_type=Source,
                     generate_html_list=True,
+                    entity_type_id_to_type_map=self._entity_type_id_to_type_map,
                 ),
-            ]
+            ],
+            entity_type_id_to_type_map=self._entity_type_id_to_type_map,
         )
         self.copyright_notice = copyright_notice or ProjectAuthor.plugin_id()
         self._copyright_notices = CopyrightNoticeConfigurationMapping()
@@ -930,7 +970,9 @@ class ProjectConfiguration(Configuration):
         self._genders = GenderConfigurationMapping()
         if genders is not None:
             self._genders.append(*genders)
-        self._extensions = ExtensionConfigurationMapping(extensions or ())
+        self._extensions = ExtensionConfigurationMapping(
+            extensions or (), extension_id_to_type_map=extension_id_to_type_map
+        )
         self._debug = debug
         self._locales = LocaleConfigurationMapping(locales or ())
         self._lifetime_threshold = lifetime_threshold
@@ -966,7 +1008,9 @@ class ProjectConfiguration(Configuration):
         """
         return cls(
             configuration_file_path,
-            available_formats=await FORMAT_REPOSITORY.select(),
+            entity_type_id_to_type_map=await ENTITY_TYPE_REPOSITORY.map(),
+            extension_id_to_type_map=await EXTENSION_REPOSITORY.map(),
+            format_id_to_type_map=await FORMAT_REPOSITORY.map(),
             url=url,
             clean_urls=clean_urls,
             title=title,
@@ -999,7 +1043,9 @@ class ProjectConfiguration(Configuration):
     def configuration_file_path(self, configuration_file_path: Path) -> None:
         if configuration_file_path == self._configuration_file_path:
             return
-        format_for(self._available_formats, configuration_file_path.suffix)
+        format_for(
+            list(self._format_id_to_type_map.values()), configuration_file_path.suffix
+        )
         self._configuration_file_path = configuration_file_path
 
     @property
