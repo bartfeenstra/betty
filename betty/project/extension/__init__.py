@@ -123,13 +123,21 @@ class ConfigurableExtension(
         super().__init__(project)
         self._configuration = self.default_configuration()
 
-    @classmethod
-    @abstractmethod
-    def default_configuration(cls) -> _ConfigurationT:
-        """
-        Get this extension's default configuration.
-        """
-        pass
+
+    # @todo For some extensions, config can only be created asynchrnously.
+    # @todo However, default_configuration() is called from __init__() and unussable.
+    # @todo Now that extensions all have an async factory method, they can instantiate their default config there.
+    # @todo
+    # @todo
+    # @todo
+
+    # @classmethod
+    # @abstractmethod
+    # def default_configuration(cls) -> _ConfigurationT:
+    #     """
+    #     Get this extension's default configuration.
+    #     """
+    #     pass
 
 
 async def sort_extension_type_graph(
