@@ -33,6 +33,7 @@ from typing import (
 )
 
 import aiofiles
+from PIL import Image
 from aiofiles.os import makedirs
 from math import floor
 
@@ -89,7 +90,7 @@ async def generate(project: Project) -> None:
 
     # The static public assets may be overridden depending on the number of locales rendered, so ensure they are
     # generated before anything else.
-    await _generate_static_public(job_context)
+    await _generate_static_public_assets(job_context)
 
     jobs = []
     log_job: Task[None] | None = None
@@ -164,6 +165,8 @@ async def _run_jobs(
 ) -> AsyncIterator[Coroutine[Any, Any, None]]:
     project = job_context.project
     semaphore = Semaphore(512)
+    yield _run_job(semaphore, _generate_favicon, job_context)
+    yield _run_job(semaphore, _generate_json_error_responses, project)
     yield _run_job(semaphore, _generate_dispatch, job_context)
     yield _run_job(semaphore, _generate_robots_txt, job_context)
     yield _run_job(semaphore, _generate_sitemap, job_context)
@@ -173,7 +176,9 @@ async def _run_jobs(
     locales = list(project.configuration.locales.keys())
 
     for locale in locales:
-        yield _run_job(semaphore, _generate_public, job_context, locale)
+        yield _run_job(
+            semaphore, _generate_localized_public_assets, job_context, locale
+        )
 
     async for entity_type in model.ENTITY_TYPE_REPOSITORY:
         if not issubclass(entity_type, UserFacingEntity):
@@ -217,7 +222,7 @@ async def _generate_dispatch(job_context: ProjectContext) -> None:
     await project.event_dispatcher.dispatch(GenerateSiteEvent(job_context))
 
 
-async def _generate_public_asset(
+async def _generate_localized_public_asset(
     asset_path: Path, project: Project, job_context: ProjectContext, locale: str
 ) -> None:
     assets = await project.assets
@@ -235,7 +240,7 @@ async def _generate_public_asset(
     )
 
 
-async def _generate_public(
+async def _generate_localized_public_assets(
     job_context: ProjectContext,
     locale: str,
 ) -> None:
@@ -251,7 +256,7 @@ async def _generate_public(
     )
     await gather(
         *[
-            _generate_public_asset(asset_path, project, job_context, locale)
+            _generate_localized_public_asset(asset_path, project, job_context, locale)
             async for asset_path in assets.walk(Path("public") / "localized")
         ]
     )
@@ -271,7 +276,7 @@ async def _generate_static_public_asset(
     await renderer.render_file(file_destination_path, job_context=job_context)
 
 
-async def _generate_static_public(
+async def _generate_static_public_assets(
     job_context: ProjectContext,
 ) -> None:
     project = job_context.project
@@ -283,17 +288,29 @@ async def _generate_static_public(
         *[
             _generate_static_public_asset(asset_path, project, job_context)
             async for asset_path in assets.walk(Path("public") / "static")
-        ],
-        # Ensure favicon.ico exists, otherwise servers of Betty sites would log
-        # many a 404 Not Found for it, because some clients eagerly try to see
-        # if it exists.
-        to_thread(
-            shutil.copy2,
-            await assets.get(Path("public") / "static" / "betty.ico"),
-            project.configuration.www_directory_path / "favicon.ico",
-        ),
-        _generate_json_error_responses(project),
+        ]
     )
+
+
+async def _generate_favicon(
+    job_context: ProjectContext,
+) -> None:
+    """
+    Ensure favicon.ico exists.
+
+    Without a favicon.ico, servers of Betty sites would log many a 404 Not Found for it, because some clients eagerly
+    try to see if it exists.
+    """
+    project = job_context.project
+    await to_thread(
+        __generate_favicon, project.logo, project.configuration.www_directory_path
+    )
+
+
+def __generate_favicon(logo_file_path: Path, www_directory_path: Path) -> None:
+    with open(logo_file_path, "rb") as logo_f:
+        image = Image.open(logo_f)
+        image.save(www_directory_path / "favicon.ico")
 
 
 async def _generate_json_error_responses(project: Project) -> None:
