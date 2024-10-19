@@ -18,7 +18,6 @@ from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import DateRange, Date
 from betty.model.collections import record_added
 from betty.project import Project
-from betty.project.config import ExtensionConfiguration
 from betty.project.extension.deriver import Deriver
 from betty.project.load import load
 from betty.test_utils.ancestry.event_type import DummyEventType
@@ -92,7 +91,7 @@ class TestDeriver(ExtensionTestBase[Deriver]):
         Presence(person, Subject(), event)
 
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.extensions.append(ExtensionConfiguration(Deriver))
+            project.configuration.extensions.enable(Deriver)
             project.ancestry.add(person)
             async with project:
                 async with record_added(project.ancestry) as added:

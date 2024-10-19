@@ -183,7 +183,9 @@ class CottonCandy(
     @override
     @classmethod
     def default_configuration(cls) -> CottonCandyConfiguration:
-        return CottonCandyConfiguration(entity_type_id_to_type_map=await ENTITY_TYPE_REPOSITORY.map())
+        return CottonCandyConfiguration(
+            entity_type_id_to_type_map=await ENTITY_TYPE_REPOSITORY.map()
+        )
 
     @override
     @property

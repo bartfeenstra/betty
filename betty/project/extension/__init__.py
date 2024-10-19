@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from abc import abstractmethod
 from typing import TypeVar, TYPE_CHECKING, Generic, Self, Sequence
 
 from typing_extensions import override
@@ -119,25 +118,8 @@ class ConfigurableExtension(
     A configurable extension.
     """
 
-    def __init__(self, project: Project):
-        super().__init__(project)
-        self._configuration = self.default_configuration()
-
-
-    # @todo For some extensions, config can only be created asynchrnously.
-    # @todo However, default_configuration() is called from __init__() and unussable.
-    # @todo Now that extensions all have an async factory method, they can instantiate their default config there.
-    # @todo
-    # @todo
-    # @todo
-
-    # @classmethod
-    # @abstractmethod
-    # def default_configuration(cls) -> _ConfigurationT:
-    #     """
-    #     Get this extension's default configuration.
-    #     """
-    #     pass
+    def __init__(self, project: Project,*,configuration:_ConfigurationT):
+        super().__init__(project,configuration=configuration)
 
 
 async def sort_extension_type_graph(

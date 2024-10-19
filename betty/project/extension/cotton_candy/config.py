@@ -82,7 +82,7 @@ class CottonCandyConfiguration(Configuration):
     def __init__(
         self,
         *,
-            entity_type_id_to_type_map: PluginIdToTypeMap[Entity],
+        entity_type_id_to_type_map: PluginIdToTypeMap[Entity],
         featured_entities: (
             Sequence[EntityReference[UserFacingEntity & Entity]] | None
         ) = None,
@@ -92,9 +92,10 @@ class CottonCandyConfiguration(Configuration):
         link_active_color: str = DEFAULT_LINK_ACTIVE_COLOR,
     ):
         super().__init__()
-        self._entity_type_id_to_type_map=entity_type_id_to_type_map
+        self._entity_type_id_to_type_map = entity_type_id_to_type_map
         self._featured_entities = EntityReferenceSequence["UserFacingEntity & Entity"](
-            featured_entities or (), entity_type_id_to_type_map=self._entity_type_id_to_type_map
+            featured_entities or (),
+            entity_type_id_to_type_map=self._entity_type_id_to_type_map,
         )
         self._primary_inactive_color = ColorConfiguration(primary_inactive_color)
         self._primary_active_color = ColorConfiguration(primary_active_color)

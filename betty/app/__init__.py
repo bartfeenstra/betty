@@ -55,8 +55,7 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
         cache_factory: Callable[[Self], Cache[Any]],
         fetcher: Fetcher | None = None,
     ):
-        super().__init__()
-        self._configuration = configuration
+        super().__init__(configuration=configuration)
         self._assets: AssetRepository | None = None
         self._localization_initialized = False
         self._localizer: Localizer | None = None
