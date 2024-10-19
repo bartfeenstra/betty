@@ -98,9 +98,8 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         *,
         ancestry: Ancestry,
     ):
-        super().__init__()
+        super().__init__(configuration=configuration)
         self._app = app
-        self._configuration = configuration
         self._ancestry = ancestry
 
         self._assets: AssetRepository | None = None

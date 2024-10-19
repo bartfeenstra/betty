@@ -29,7 +29,7 @@ from betty.jinja2 import (
     Filters,
 )
 from betty.locale.localizable import _, static
-from betty.model import has_generated_entity_id
+from betty.model import has_generated_entity_id, ENTITY_TYPE_REPOSITORY
 from betty.os import link_or_copy
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import is_public
@@ -183,7 +183,9 @@ class CottonCandy(
     @override
     @classmethod
     def default_configuration(cls) -> CottonCandyConfiguration:
-        return CottonCandyConfiguration()
+        return CottonCandyConfiguration(
+            entity_type_id_to_type_map=await ENTITY_TYPE_REPOSITORY.map()
+        )
 
     @override
     @property

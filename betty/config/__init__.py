@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from contextlib import chdir
-from typing import Generic, TypeVar, TypeAlias, TYPE_CHECKING
+from typing import Generic, TypeVar, TypeAlias, TYPE_CHECKING, Any
 
 import aiofiles
 from aiofiles.os import makedirs
@@ -42,17 +42,15 @@ class Configurable(Generic[_ConfigurationT]):
     Any configurable object.
     """
 
-    _configuration: _ConfigurationT
+    def __init__(self, *args: Any, configuration: _ConfigurationT, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self._configuration = configuration
 
     @property
     def configuration(self) -> _ConfigurationT:
         """
         The object's configuration.
         """
-        if not hasattr(self, "_configuration"):
-            raise RuntimeError(
-                f"{self} has no configuration. {type(self)}.__init__() must ensure it is set."
-            )
         return self._configuration
 
 
