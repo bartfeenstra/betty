@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from contextlib import chdir
-from typing import Generic, TypeVar, TypeAlias, TYPE_CHECKING
+from typing import Generic, TypeVar, TypeAlias, TYPE_CHECKING, Self
 
 import aiofiles
 from aiofiles.os import makedirs
@@ -31,7 +31,11 @@ class Configuration(Loadable, Dumpable):
     Any configuration object.
     """
 
-    pass
+    def update(self, other: Self) -> None:
+        """
+        Update this configuration with the values from ``other``.
+        """
+        self.load(other.dump())
 
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)

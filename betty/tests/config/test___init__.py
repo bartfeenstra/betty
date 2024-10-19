@@ -5,15 +5,38 @@ import aiofiles
 import pytest
 from typing_extensions import override
 
+from betty.assertion import assert_int
 from betty.assertion.error import AssertionFailed
 from betty.config import (
     Configurable,
     assert_configuration_file,
     write_configuration_file,
+    Configuration,
 )
 from betty.error import FileNotFound
 from betty.serde.dump import Dump
 from betty.test_utils.config import DummyConfiguration
+
+
+class TestConfiguration:
+    class _DummyConfiguration(Configuration):
+        def __init__(self, value: int):
+            self.value = value
+
+        @override
+        def load(self, dump: Dump) -> None:
+            self.value = assert_int()(dump)
+
+        @override
+        def dump(self) -> Dump:
+            return self.value
+
+    def test_update(self) -> None:
+        sut = self._DummyConfiguration(123)
+        value = 456
+        other = self._DummyConfiguration(value)
+        sut.update(other)
+        assert sut.value == value
 
 
 class TestConfigurable:
