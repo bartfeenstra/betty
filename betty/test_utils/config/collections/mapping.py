@@ -5,6 +5,7 @@ Test utilities for :py:mod:`betty.config.collections.mapping`.
 from __future__ import annotations
 
 from typing import Generic, TypeVar
+
 from typing_extensions import override
 
 from betty.config import Configuration
@@ -21,8 +22,8 @@ class _ConfigurationMappingTestBase(
 ):
     @override
     async def test___iter__(self) -> None:
-        configurations = self.get_configurations()
-        sut = self.get_sut(
+        configurations = await self.get_configurations()
+        sut = await self.get_sut(
             [
                 configurations[0],
                 configurations[1],

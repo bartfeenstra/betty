@@ -32,7 +32,7 @@ class ConfigurationSequenceTestConfiguration(Configuration):
 class TestConfigurationSequence(
     ConfigurationSequenceTestBase[ConfigurationSequenceTestConfiguration]
 ):
-    def get_sut(
+    async def get_sut(
         self,
         configurations: (
             Iterable[ConfigurationSequenceTestConfiguration] | None
@@ -40,7 +40,7 @@ class TestConfigurationSequence(
     ) -> ConfigurationSequenceTestConfigurationSequence:
         return ConfigurationSequenceTestConfigurationSequence(configurations)
 
-    def get_configurations(
+    async def get_configurations(
         self,
     ) -> tuple[
         ConfigurationSequenceTestConfiguration,
@@ -56,24 +56,24 @@ class TestConfigurationSequence(
         )
 
     async def test_load_without_items(self) -> None:
-        sut = self.get_sut()
+        sut = await self.get_sut()
         sut.load([])
         assert len(sut) == 0
 
     async def test_load_with_items(self) -> None:
-        sut = self.get_sut()
-        configurations = self.get_configurations()
+        sut = await self.get_sut()
+        configurations = await self.get_configurations()
         sut.load([item.dump() for item in configurations])
         assert len(sut) == len(configurations)
 
     async def test_dump_without_items(self) -> None:
-        sut = self.get_sut()
+        sut = await self.get_sut()
         dump = sut.dump()
         assert dump == []
 
     async def test_dump_with_items(self) -> None:
-        configurations = self.get_configurations()
-        sut = self.get_sut()
+        configurations = await self.get_configurations()
+        sut = await self.get_sut()
         sut.replace(*configurations)
         dump = sut.dump()
         assert isinstance(dump, Sequence)

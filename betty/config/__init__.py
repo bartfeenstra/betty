@@ -4,9 +4,10 @@ The Configuration API.
 
 from __future__ import annotations
 
+from abc import abstractmethod
 from collections.abc import Callable
 from contextlib import chdir
-from typing import Generic, TypeVar, TypeAlias, TYPE_CHECKING, Self
+from typing import Generic, TypeVar, TypeAlias, TYPE_CHECKING, Self, Any
 
 import aiofiles
 from aiofiles.os import makedirs
@@ -46,18 +47,30 @@ class Configurable(Generic[_ConfigurationT]):
     Any configurable object.
     """
 
-    _configuration: _ConfigurationT
+    def __init__(self, *args: Any, configuration: _ConfigurationT, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self._configuration = configuration
 
     @property
     def configuration(self) -> _ConfigurationT:
         """
         The object's configuration.
         """
-        if not hasattr(self, "_configuration"):
-            raise RuntimeError(
-                f"{self} has no configuration. {type(self)}.__init__() must ensure it is set."
-            )
         return self._configuration
+
+
+class DefaultConfigurable(Configurable[_ConfigurationT], Generic[_ConfigurationT]):
+    """
+    A configurable type that can provide its own default configuration.
+    """
+
+    @classmethod
+    @abstractmethod
+    def new_default_configuration(cls) -> _ConfigurationT:
+        """
+        Create this extension's default configuration.
+        """
+        pass
 
 
 async def assert_configuration_file(

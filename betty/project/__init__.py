@@ -98,9 +98,8 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         *,
         ancestry: Ancestry,
     ):
-        super().__init__()
+        super().__init__(configuration=configuration)
         self._app = app
-        self._configuration = configuration
         self._ancestry = ancestry
 
         self._assets: AssetRepository | None = None
@@ -339,11 +338,11 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         for project_extension_configuration in self.configuration.extensions.values():
             if project_extension_configuration.enabled:
                 extension_requirement = (
-                    await project_extension_configuration.extension_type.requirement()
+                    await project_extension_configuration.plugin.requirement()
                 )
                 extension_requirement.assert_met()
                 extension_types_enabled_in_configuration.add(
-                    project_extension_configuration.extension_type
+                    project_extension_configuration.plugin
                 )
 
         extension_types_sorter = TopologicalSorter[type[Extension]]()
@@ -363,11 +362,11 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
                     isinstance(extension, ConfigurableExtension)
                     and extension_type in self.configuration.extensions
                 ):
-                    extension.configuration.update(
-                        self.configuration.extensions[
-                            extension_type
-                        ].extension_configuration
-                    )
+                    extension_configuration = self.configuration.extensions[
+                        extension_type
+                    ].plugin_configuration
+                    if extension_configuration:
+                        extension.configuration.update(extension_configuration)
                 if isinstance(extension, Theme):
                     theme_count += 1
                 extensions_batch.append(extension)

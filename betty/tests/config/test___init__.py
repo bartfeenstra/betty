@@ -41,18 +41,11 @@ class TestConfiguration:
 
 class TestConfigurable:
     class _DummyConfigurable(Configurable[DummyConfiguration]):
-        def __init__(self, configuration: DummyConfiguration | None = None):
-            if configuration is not None:
-                self._configuration = configuration
+        pass
 
-    def test_configuration_without_configuration(self) -> None:
-        sut = self._DummyConfigurable()
-        with pytest.raises(RuntimeError):
-            sut.configuration  # noqa B018
-
-    def test_configuration_with_configuration(self) -> None:
+    def test_configuration(self) -> None:
         configuration = DummyConfiguration()
-        sut = self._DummyConfigurable(configuration)
+        sut = self._DummyConfigurable(configuration=configuration)
         assert sut.configuration is configuration
 
 

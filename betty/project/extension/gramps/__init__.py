@@ -9,11 +9,11 @@ from typing import final
 
 from typing_extensions import override
 
-from betty.project.extension.gramps.config import GrampsConfiguration
 from betty.gramps.loader import GrampsLoader
 from betty.locale.localizable import static, _
 from betty.plugin import ShorthandPluginBase
 from betty.project.extension import ConfigurableExtension
+from betty.project.extension.gramps.config import GrampsConfiguration
 from betty.project.load import LoadAncestryEvent
 
 if TYPE_CHECKING:
@@ -22,9 +22,7 @@ if TYPE_CHECKING:
 
 async def _load_ancestry(event: LoadAncestryEvent) -> None:
     project = event.project
-    gramps_configuration = project.configuration.extensions[
-        Gramps
-    ].extension_configuration
+    gramps_configuration = project.configuration.extensions[Gramps].plugin_configuration
     assert isinstance(gramps_configuration, GrampsConfiguration)
     for family_tree_configuration in gramps_configuration.family_trees:
         file_path = family_tree_configuration.file_path
@@ -65,7 +63,7 @@ class Gramps(ShorthandPluginBase, ConfigurableExtension[GrampsConfiguration]):
 
     @override
     @classmethod
-    def default_configuration(cls) -> GrampsConfiguration:
+    def new_default_configuration(cls) -> GrampsConfiguration:
         return GrampsConfiguration()
 
     @override

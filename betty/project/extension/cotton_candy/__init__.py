@@ -126,8 +126,14 @@ class CottonCandy(
     _plugin_description = _("Cotton Candy is Betty's default theme.")
 
     @private
-    def __init__(self, project: Project, public_css_paths: Sequence[str]):
-        super().__init__(project)
+    def __init__(
+        self,
+        project: Project,
+        public_css_paths: Sequence[str],
+        *,
+        configuration: CottonCandyConfiguration,
+    ):
+        super().__init__(project, configuration=configuration)
         self._public_css_paths = public_css_paths
 
     @override
@@ -137,6 +143,7 @@ class CottonCandy(
         return cls(
             project,
             [static_url_generator.generate("/css/cotton-candy.css")],
+            configuration=cls.new_default_configuration(),
         )
 
     @override
@@ -182,7 +189,7 @@ class CottonCandy(
 
     @override
     @classmethod
-    def default_configuration(cls) -> CottonCandyConfiguration:
+    def new_default_configuration(cls) -> CottonCandyConfiguration:
         return CottonCandyConfiguration()
 
     @override

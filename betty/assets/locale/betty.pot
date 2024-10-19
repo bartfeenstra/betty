@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-12 23:15+0100\n"
+"POT-Creation-Date: 2024-10-21 00:53+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1003,9 +1003,6 @@ msgid "{event_type} ({event_description}) of {subjects}"
 msgstr ""
 
 msgid "{event_type} of {subjects}"
-msgstr ""
-
-msgid "{extension_type} is not configurable."
 msgstr ""
 
 msgid "{extension} does not have an assets directory."

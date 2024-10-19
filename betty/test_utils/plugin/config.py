@@ -25,17 +25,17 @@ class PluginConfigurationMappingTestBase(
     """
 
     @override
-    def get_sut(
+    async def get_sut(
         self, configurations: Iterable[_PluginConfigurationT] | None = None
     ) -> PluginConfigurationMapping[_PluginCoT, _PluginConfigurationT]:
         raise NotImplementedError
 
-    def test_plugins(self) -> None:
+    async def test_plugins(self) -> None:
         """
         Tests :py:meth:`betty.plugin.config.PluginConfigurationMapping.plugins` implementations.
         """
-        configurations = self.get_configurations()
-        sut = self.get_sut(configurations)
+        configurations = await self.get_configurations()
+        sut = await self.get_sut(configurations)
         for configuration, plugin in zip(configurations, sut.plugins, strict=True):
             assert plugin.plugin_id() == configuration.id
             assert plugin.plugin_label() == configuration.label

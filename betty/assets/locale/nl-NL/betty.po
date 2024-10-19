@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-12 23:15+0100\n"
+"POT-Creation-Date: 2024-10-21 00:53+0100\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -1232,9 +1232,6 @@ msgstr "{event_type} ({event_description}) van {subjects}"
 
 msgid "{event_type} of {subjects}"
 msgstr "{event_type} van {subjects}"
-
-msgid "{extension_type} is not configurable."
-msgstr "\"{extension_type}\" kan niet ingesteld worden."
 
 msgid "{extension} does not have an assets directory."
 msgstr "{extension} heeft geen assets-directory."

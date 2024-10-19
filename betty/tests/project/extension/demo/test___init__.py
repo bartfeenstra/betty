@@ -11,7 +11,6 @@ from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.app import App
 from betty.project import Project
-from betty.project.config import ExtensionConfiguration
 from betty.project.extension.demo import Demo
 from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase
@@ -38,7 +37,7 @@ class TestDemo(ExtensionTestBase[Demo]):
             app,
             Project.new_temporary(app) as project,
         ):
-            project.configuration.extensions.append(ExtensionConfiguration(Demo))
+            await project.configuration.extensions.enable(Demo)
             async with project:
                 await load(project)
             assert len(project.ancestry[Person]) != 0
