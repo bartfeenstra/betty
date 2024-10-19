@@ -363,11 +363,11 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
                     isinstance(extension, ConfigurableExtension)
                     and extension_type in self.configuration.extensions
                 ):
-                    # This is a hack because we do not yet have a way to inject configuration into extensions **when
-                    # initializing them**.
-                    extension._configuration = self.configuration.extensions[
-                        extension_type
-                    ].extension_configuration
+                    extension.configuration.update(
+                        self.configuration.extensions[
+                            extension_type
+                        ].extension_configuration
+                    )
                 if isinstance(extension, Theme):
                     theme_count += 1
                 extensions_batch.append(extension)

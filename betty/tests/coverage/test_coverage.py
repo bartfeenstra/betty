@@ -114,9 +114,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "__aexit__": MissingReason.SHOULD_BE_COVERED,
         },
     },
-    "betty/config/__init__.py": {
-        "Configuration": MissingReason.ABSTRACT,
-    },
     "betty/config/collections/__init__.py": MissingReason.ABSTRACT,
     "betty/contextlib.py": {
         "SynchronizedContextManager": {

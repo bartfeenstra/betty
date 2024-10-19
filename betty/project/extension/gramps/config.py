@@ -299,7 +299,7 @@ class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfigurat
     @override
     def load_item(self, dump: Dump) -> FamilyTreeConfiguration:
         # Use a dummy path to satisfy initializer arguments.
-        # It will be overridden when loading the fump.
+        # It will be overridden when loading the dump.
         item = FamilyTreeConfiguration(Path())
         item.load(dump)
         return item
