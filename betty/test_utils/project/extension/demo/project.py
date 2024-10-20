@@ -170,9 +170,8 @@ def demo_project_fetcher(binary_file_cache: BinaryFileCache, tmp_path: Path) -> 
             f.write(dumps(license_data))
 
     spdx_tar_file_path = tmp_path / "spdx.tar.gz"
-    spdx_tar_file = tarfile.open(spdx_tar_file_path, "w:gz")
-    spdx_tar_file.add(spdx_directory_path, "/")
-    spdx_tar_file.close()
+    with tarfile.open(spdx_tar_file_path, "w:gz") as spdx_tar_file:
+        spdx_tar_file.add(spdx_directory_path, "/")
     fetcher = StaticFetcher(
         fetch_file_map={SpdxLicenseRepository.URL: spdx_tar_file_path}
     )
