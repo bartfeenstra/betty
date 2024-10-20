@@ -187,23 +187,23 @@ class SpdxLicenseRepository(PluginRepository[License]):
     def _extract_licenses(
         cls, spdx_licenses_data_path: Path, cache_directory_path: Path
     ):
-        tar_file = tarfile.open(spdx_licenses_data_path, "r:gz")
-        tar_file.extractall(
-            cache_directory_path,
-            members=[
-                tar_file.getmember(
-                    f"license-list-data-{cls.SPDX_VERSION}/json/licenses.json"
-                ),
-                *[
-                    tar_info
-                    for tar_info in tar_file.getmembers()
-                    if tar_info.name.startswith(
-                        f"license-list-data-{cls.SPDX_VERSION}/json/details/"
-                    )
+        with tarfile.open(spdx_licenses_data_path, "r:gz") as tar_file:
+            tar_file.extractall(
+                cache_directory_path,
+                members=[
+                    tar_file.getmember(
+                        f"license-list-data-{cls.SPDX_VERSION}/json/licenses.json"
+                    ),
+                    *[
+                        tar_info
+                        for tar_info in tar_file.getmembers()
+                        if tar_info.name.startswith(
+                            f"license-list-data-{cls.SPDX_VERSION}/json/details/"
+                        )
+                    ],
                 ],
-            ],
-            filter="data",
-        )
+                filter="data",
+            )
 
     async def _load_license(self, license_id: MachineName) -> type[License]:
         await self._load_licenses()

@@ -8,12 +8,12 @@ import gzip
 import re
 import tarfile
 from collections import defaultdict
-from contextlib import suppress
+from contextlib import suppress, ExitStack
 from dataclasses import dataclass
 from enum import Enum
 from logging import getLogger
 from pathlib import Path
-from typing import Iterable, Any, IO, cast, TYPE_CHECKING, TypeVar, Generic, final
+from typing import Iterable, Any, cast, TYPE_CHECKING, TypeVar, Generic, final
 from xml.etree import ElementTree
 
 import aiofiles
@@ -251,26 +251,24 @@ class GrampsLoader:
         :raises betty.gramps.error.GrampsError:
         """
         gpkg_path = gpkg_path.resolve()
-        try:
-            tar_file: IO[bytes] = gzip.open(gpkg_path)  # type: ignore[assignment]
-        except FileNotFoundError:
-            raise GrampsFileNotFound.new(gpkg_path) from None
-        else:
-            async with TemporaryDirectory() as cache_directory_path_str:
-                try:
-                    tarfile.open(
-                        fileobj=tar_file,
-                    ).extractall(cache_directory_path_str, filter="data")
-                except (OSError, tarfile.ReadError) as error:
-                    raise UserFacingGrampsError(
-                        _(
-                            "Could not extract {file_path} as a gzipped tar file  (*.tar.gz)."
-                        ).format(file_path=str(gpkg_path))
-                    ) from error
-                else:
-                    await self.load_gramps(
-                        Path(cache_directory_path_str) / "data.gramps"
+        with ExitStack() as stack:
+            try:
+                tar_file = stack.enter_context(
+                    tarfile.open(  # noqa SIM115
+                        name=gpkg_path, mode="r:gz"
                     )
+                )
+            except FileNotFoundError:
+                raise GrampsFileNotFound.new(gpkg_path) from None
+            except (OSError, tarfile.ReadError) as error:
+                raise UserFacingGrampsError(
+                    _(
+                        "Could not extract {file_path} as a gzipped tar file  (*.tar.gz)."
+                    ).format(file_path=str(gpkg_path))
+                ) from error
+            async with TemporaryDirectory() as cache_directory_path_str:
+                tar_file.extractall(cache_directory_path_str, filter="data")
+                await self.load_gramps(Path(cache_directory_path_str) / "data.gramps")
 
     async def load_xml(self, xml: str, gramps_tree_directory_path: Path) -> None:
         """
