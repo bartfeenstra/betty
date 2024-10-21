@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-21 17:57+0100\n"
+"POT-Creation-Date: 2024-10-21 21:22+0100\n"
 "PO-Revision-Date: 2024-02-08 13:08+0000\n"
 "Last-Translator: Rainer Thieringer <rainerthi@gmail.com>\n"
 "Language: uk\n"
@@ -285,6 +285,9 @@ msgstr "Миропомазання"
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr "Продовжуйте читати у <a href=\"%(url)s\">Вікіпедії</a>."
 
+msgid "Copyright"
+msgstr "Авторське право"
+
 msgid "Copyright Wikipedia contributors"
 msgstr ""
 
@@ -543,6 +546,9 @@ msgstr "Мова"
 #, python-format
 msgid "Last modified on %(last_modified)s"
 msgstr ""
+
+msgid "License"
+msgstr "Ліцензія"
 
 msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
 msgstr ""

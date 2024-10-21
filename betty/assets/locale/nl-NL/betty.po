@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-21 17:57+0100\n"
+"POT-Creation-Date: 2024-10-21 21:22+0100\n"
 "PO-Revision-Date: 2024-02-11 15:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl\n"
@@ -335,6 +335,9 @@ msgstr "Geloofsbelijdenis"
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr "Lees verder op <a href=\"%(url)s\">Wikipedia</a>."
 
+msgid "Copyright"
+msgstr "Auteursrecht"
+
 msgid "Copyright Wikipedia contributors"
 msgstr "Copyright Wikipedia-bijdragers"
 
@@ -616,6 +619,9 @@ msgstr "Taal"
 #, python-format
 msgid "Last modified on %(last_modified)s"
 msgstr "Laatst bijgewerkt op %(last_modified)s"
+
+msgid "License"
+msgstr "Licentie"
 
 msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
 msgstr "Laad <a href=\"https://gramps-project.org/\">Gramps-</a>stambomen."

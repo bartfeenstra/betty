@@ -9,6 +9,34 @@
             </a>
         </div>
     {% endif %}
+    {% if file.copyright_notice is not none %}
+        <div class="has-copyright-notice">
+            <h2>{% trans %}Copyright{% endtrans %}</h2>
+            <p>
+                {% if file.copyright_notice.url is not none %}
+                    <a href="{{ file.copyright_notice.url | localize }}">
+                {% endif %}
+                {{ file.copyright_notice.summary | localize | html_lang }}
+                {% if file.copyright_notice.url is not none %}
+                    </a>
+                {% endif %}
+            </p>
+        </div>
+    {% endif %}
+    {% if file.license is not none %}
+        <div class="has-license">
+            <h2>{% trans %}License{% endtrans %}</h2>
+            <p>
+                {% if file.license.url is not none %}
+                    <a href="{{ file.license.url | localize }}">
+                {% endif %}
+                {{ file.license.summary | localize | html_lang }}
+                {% if file.license.url is not none %}
+                    </a>
+                {% endif %}
+            </p>
+        </div>
+    {% endif %}
     {% with notes = file.notes %}
         {% include 'section-notes.html.j2' %}
     {% endwith %}
