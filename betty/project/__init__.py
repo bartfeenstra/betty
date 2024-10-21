@@ -13,7 +13,6 @@ from contextlib import asynccontextmanager, AsyncExitStack
 from graphlib import TopologicalSorter
 from pathlib import Path
 from typing import (
-    Any,
     final,
     Self,
     TYPE_CHECKING,
@@ -80,7 +79,7 @@ _ProjectDependentT = TypeVar("_ProjectDependentT")
 
 
 @final
-class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreComponent):
+class Project(Configurable[ProjectConfiguration], TargetFactory, CoreComponent):
     """
     Define a Betty project.
 

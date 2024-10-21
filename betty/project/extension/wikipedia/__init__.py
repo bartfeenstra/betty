@@ -19,6 +19,7 @@ from betty.project.extension import ConfigurableExtension
 from betty.project.extension.wikipedia.config import WikipediaConfiguration
 from betty.project.load import PostLoadAncestryEvent
 from betty.wikipedia import Summary, _parse_url, NotAPageError, _Retriever, _Populator
+from betty.wikipedia.copyright_notice import WikipediaContributors
 
 if TYPE_CHECKING:
     from betty.copyright_notice import CopyrightNotice
@@ -38,6 +39,7 @@ async def _populate_ancestry(event: PostLoadAncestryEvent) -> None:
         list(project.configuration.locales.keys()),
         await project.localizers,
         await wikipedia.retriever,
+        await project.copyright_notice_repository.new_target(WikipediaContributors),
     )
     await populator.populate()
 

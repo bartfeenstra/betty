@@ -6,10 +6,11 @@ from abc import abstractmethod
 from collections.abc import AsyncIterator, Mapping, Sequence
 from typing import Generic, TypeVar
 
+from typing_extensions import override
+
 from betty.factory import Factory
 from betty.machine_name import MachineName
 from betty.plugin import PluginRepository, Plugin, PluginNotFound
-from typing_extensions import override
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 
@@ -19,7 +20,7 @@ class LazyPluginRepositoryBase(PluginRepository[_PluginT], Generic[_PluginT]):
     Lazily load plugins.
     """
 
-    def __init__(self, *, factory: Factory[_PluginT] | None = None):
+    def __init__(self, *, factory: Factory | None = None):
         super().__init__(factory=factory)
         self.__plugins: Mapping[str, type[_PluginT]] | None = None
 

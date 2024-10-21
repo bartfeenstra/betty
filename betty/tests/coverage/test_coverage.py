@@ -51,6 +51,7 @@ class MissingReason(Enum):
     DATACLASS = "This testable is inherited from @dataclass"
     ENUM = "This testable is inherited from Enum"
     TYPED_DICT = "This testable is inherited from TypedDict"
+    PROTOCOL = "This testable is a Protocol"
 
 
 _ModuleFunctionExistsIgnore: TypeAlias = None
@@ -151,6 +152,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/factory.py": {
+        "Factory": MissingReason.PROTOCOL,
         "IndependentFactory": MissingReason.ABSTRACT,
         "TargetFactory": MissingReason.ABSTRACT,
     },

@@ -20,9 +20,7 @@ class StaticPluginRepository(PluginRepository[_PluginT], Generic[_PluginT]):
     A repository that is given a static collection of plugins, and exposes those.
     """
 
-    def __init__(
-        self, *plugins: type[_PluginT], factory: Factory[_PluginT] | None = None
-    ):
+    def __init__(self, *plugins: type[_PluginT], factory: Factory | None = None):
         super().__init__(factory=factory)
         self._plugins = {plugin.plugin_id(): plugin for plugin in plugins}
 

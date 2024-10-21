@@ -33,6 +33,9 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Sequence, Mapping, Iterable
 
 
+_T = TypeVar("_T")
+
+
 class PluginError(Exception):
     """
     Any error originating from the Plugin API.
@@ -209,12 +212,12 @@ class PluginIdToTypeMap(Generic[_PluginT]):
         return self.get(plugin_identifier)
 
 
-class PluginRepository(Generic[_PluginT], TargetFactory[_PluginT], ABC):
+class PluginRepository(Generic[_PluginT], TargetFactory, ABC):
     """
     Discover and manage plugins.
     """
 
-    def __init__(self, *, factory: Factory[_PluginT] | None = None):
+    def __init__(self, *, factory: Factory | None = None):
         self._factory = factory or new
 
     async def resolve_identifier(
@@ -328,11 +331,17 @@ class PluginRepository(Generic[_PluginT], TargetFactory[_PluginT], ABC):
     def __aiter__(self) -> AsyncIterator[type[_PluginT]]:
         pass
 
+    @overload
+    async def new_target(self, cls: type[_T]) -> _T:
+        pass
+
+    @overload
+    async def new_target(self, cls: MachineName) -> _PluginT:
+        pass
+
     @override
-    async def new_target(self, cls: PluginIdentifier[_PluginT]) -> _PluginT:
-        if isinstance(cls, str):
-            cls = await self.get(cls)
-        return await self._factory(cls)
+    async def new_target(self, cls: type[_T] | MachineName) -> _T | _PluginT:
+        return await self._factory(await self.get(cls) if isinstance(cls, str) else cls)
 
 
 class CyclicDependencyError(PluginError):

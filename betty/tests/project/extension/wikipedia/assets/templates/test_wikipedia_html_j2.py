@@ -96,7 +96,7 @@ class Test(TemplateFileTestBase):
             }
         ) as (actual, _):
             assert summary.content in actual
-            wikipedia_contributors_copyright_notice = WikipediaContributors()
+            wikipedia_contributors_copyright_notice = WikipediaContributors({})
             assert (
                 wikipedia_contributors_copyright_notice.summary.localize(
                     DEFAULT_LOCALIZER

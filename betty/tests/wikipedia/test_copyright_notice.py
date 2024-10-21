@@ -19,10 +19,11 @@ class TestWikipediaContributors(CopyrightNoticeTestBase):
     @override
     def get_sut_instances(self) -> Sequence[CopyrightNotice]:
         return [
-            WikipediaContributors(),
-            WikipediaContributors([]),
-            WikipediaContributors(["en"]),
-            WikipediaContributors(["en", "nl"]),
+            WikipediaContributors({}),
+            WikipediaContributors({"en": "Wikipedia:Copyrights"}),
+            WikipediaContributors(
+                {"en": "Wikipedia:Copyrights", "nl": "Wikipedia:Auteursrechten"}
+            ),
         ]
 
     async def test_new_for_app(self) -> None:

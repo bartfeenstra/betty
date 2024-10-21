@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from graphlib import TopologicalSorter
-from typing import Self, Literal, TYPE_CHECKING
+from typing import Self, Literal, TYPE_CHECKING, TypeVar
 
 import pytest
 from typing_extensions import override
@@ -25,6 +25,9 @@ from betty.test_utils.plugin import DummyPlugin
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
     from collections.abc import AsyncIterator, Sequence
+
+
+_T = TypeVar("_T")
 
 
 class TestPluginNotFound:
@@ -84,9 +87,7 @@ class _TestPluginRepositoryPluginCustomFactory(DummyPlugin):
 
 
 class _TestPluginRepositoryPluginRepository(PluginRepository[DummyPlugin]):
-    def __init__(
-        self, *plugins: type[DummyPlugin], factory: Factory[DummyPlugin] | None = None
-    ):
+    def __init__(self, *plugins: type[DummyPlugin], factory: Factory | None = None):
         super().__init__(factory=factory)
         self._plugins = {plugin.plugin_id(): plugin for plugin in plugins}
 
@@ -263,10 +264,10 @@ class TestPluginRepository:
 
     async def test_new_target_with_custom_factory(self) -> None:
         async def factory(
-            cls: type[DummyPlugin],
-        ) -> DummyPlugin:
+            cls: type[_T],
+        ) -> _T:
             return (
-                cls.new_custom()
+                cls.new_custom()  # type: ignore[return-value]
                 if issubclass(cls, _TestPluginRepositoryPluginCustomFactory)
                 else await new(cls)  # type: ignore[arg-type]
             )

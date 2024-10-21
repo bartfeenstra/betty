@@ -94,7 +94,7 @@ class SpdxLicenseRepository(PluginRepository[License]):
         localizer: Localizer,
         binary_file_cache: BinaryFileCache,
         process_pool: Executor,
-        factory: Factory[License] | None = None,
+        factory: Factory | None = None,
     ):
         super().__init__(factory=factory)
         self._fetcher = fetcher

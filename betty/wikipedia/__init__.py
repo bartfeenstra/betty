@@ -37,9 +37,9 @@ from betty.locale.error import LocaleError
 from betty.locale.localizable import plain
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
-from betty.wikipedia.copyright_notice import WikipediaContributors
 
 if TYPE_CHECKING:
+    from betty.wikipedia.copyright_notice import WikipediaContributors
     from betty.ancestry import Ancestry
     from betty.locale.localizer import LocalizerRepository
     from betty.fetch import Fetcher
@@ -253,6 +253,7 @@ class _Populator:
         locales: Sequence[str],
         localizers: LocalizerRepository,
         retriever: _Retriever,
+        copyright_notice: WikipediaContributors,
     ):
         self._ancestry = ancestry
         self._locales = locales
@@ -262,6 +263,7 @@ class _Populator:
         self._image_files_locks: Mapping[Image, Lock] = defaultdict(
             AsynchronizedLock.threading
         )
+        self._copyright_notice = copyright_notice
 
     async def populate(self) -> None:
         await gather(
@@ -441,7 +443,7 @@ class _Populator:
                     path=image.path,
                     media_type=image.media_type,
                     links=links,
-                    copyright_notice=WikipediaContributors(),
+                    copyright_notice=self._copyright_notice,
                 )
                 self._image_files[image] = file
                 self._ancestry.add(file)

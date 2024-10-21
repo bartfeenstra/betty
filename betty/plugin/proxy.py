@@ -6,12 +6,13 @@ from collections.abc import AsyncIterator
 from contextlib import suppress
 from typing import Generic, TypeVar, final
 
-from typing_extensions import override
+from typing_extensions import override, overload
 
 from betty.factory import Factory, FactoryError
 from betty.machine_name import MachineName
-from betty.plugin import PluginRepository, Plugin, PluginNotFound, PluginIdentifier
+from betty.plugin import PluginRepository, Plugin, PluginNotFound
 
+_T = TypeVar("_T")
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 
 
@@ -24,21 +25,32 @@ class ProxyPluginRepository(PluginRepository[_PluginT], Generic[_PluginT]):
     def __init__(
         self,
         *upstreams: PluginRepository[_PluginT],
-        factory: Factory[_PluginT] | None = None,
+        factory: Factory | None = None,
     ):
         super().__init__(factory=factory)
         self._upstreams = upstreams
 
+    @overload
+    async def new_target(self, cls: type[_T]) -> _T:
+        pass
+
+    @overload
+    async def new_target(self, cls: MachineName) -> _PluginT:
+        pass
+
     @override
-    async def new_target(self, cls: PluginIdentifier[_PluginT]) -> _PluginT:
+    async def new_target(self, cls: type[_T] | MachineName) -> _T | _PluginT:
         with suppress(FactoryError):
             return await super().new_target(cls)
-        if isinstance(cls, str):
-            cls = await self.get(cls)
+        resolved_cls = await self.get(cls) if isinstance(cls, str) else cls
         for upstream in self._upstreams:
+            if issubclass(resolved_cls, Plugin):
+                try:
+                    await upstream.get(resolved_cls.plugin_id())
+                except PluginNotFound:
+                    continue
             with suppress(PluginNotFound, FactoryError):
-                await upstream.get(cls.plugin_id())
-                return await upstream.new_target(cls)
+                return await upstream.new_target(resolved_cls)
         raise FactoryError()
 
     @override

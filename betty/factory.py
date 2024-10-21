@@ -5,8 +5,7 @@ Functionality for creating new class instances.
 from __future__ import annotations
 
 from abc import abstractmethod, ABC
-from collections.abc import Callable, Awaitable
-from typing import TypeVar, Self, Generic, TypeAlias, cast
+from typing import TypeVar, Self, cast, Protocol
 
 from typing_extensions import override
 
@@ -71,7 +70,7 @@ async def new(cls: type[_T]) -> _T:
         raise InitFactoryError.new(cls) from error
 
 
-class TargetFactory(ABC, Generic[_T]):
+class TargetFactory(ABC):
     """
     Provide a factory for classes that depend on ``self``.
     """
@@ -86,4 +85,15 @@ class TargetFactory(ABC, Generic[_T]):
         pass
 
 
-Factory: TypeAlias = Callable[[type[_T]], Awaitable[_T]]
+class Factory(Protocol):
+    """
+    A callable to create a new instance.
+    """
+
+    async def __call__(self, cls: type[_T]) -> _T:
+        """
+        Create a new instance.
+
+        :raises FactoryError: raised when ``cls`` could not be instantiated.
+        """
+        pass

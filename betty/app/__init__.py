@@ -42,7 +42,7 @@ _T = TypeVar("_T")
 
 
 @final
-class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
+class App(Configurable[AppConfiguration], TargetFactory, CoreComponent):
     """
     The Betty application.
     """

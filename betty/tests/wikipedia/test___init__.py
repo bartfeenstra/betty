@@ -29,6 +29,7 @@ from betty.wikipedia import (
     _Populator,
     Image,
 )
+from betty.wikipedia.copyright_notice import WikipediaContributors
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -609,6 +610,7 @@ class TestPopulator:
             [],
             LocalizerRepository(AssetRepository(tmp_path / "assets")),
             m_retriever,
+            WikipediaContributors({}),
         )
         await sut.populate_link(link, page_language)
         assert link.url == "https://en.wikipedia.org/wiki/Amsterdam"
@@ -638,6 +640,7 @@ class TestPopulator:
             [],
             LocalizerRepository(AssetRepository(tmp_path / "assets")),
             m_retriever,
+            WikipediaContributors({}),
         )
         await sut.populate_link(link, "en")
         assert expected == link.media_type
@@ -665,6 +668,7 @@ class TestPopulator:
             [],
             LocalizerRepository(AssetRepository(tmp_path / "assets")),
             m_retriever,
+            WikipediaContributors({}),
         )
         await sut.populate_link(link, "en")
         assert expected == link.relationship
@@ -693,6 +697,7 @@ class TestPopulator:
             [],
             LocalizerRepository(AssetRepository(tmp_path / "assets")),
             m_retriever,
+            WikipediaContributors({}),
         )
         await sut.populate_link(link, page_language)
         assert expected == link.locale
@@ -718,6 +723,7 @@ class TestPopulator:
             [],
             LocalizerRepository(AssetRepository(tmp_path / "assets")),
             m_retriever,
+            WikipediaContributors({}),
         )
         await sut.populate_link(link, page_language)
         assert link.description.localize(DEFAULT_LOCALIZER) == expected
@@ -747,6 +753,7 @@ class TestPopulator:
             [],
             LocalizerRepository(AssetRepository(tmp_path / "assets")),
             m_retriever,
+            WikipediaContributors({}),
         )
         await sut.populate_link(link, "en", summary)
         assert link.label.localize(DEFAULT_LOCALIZER) == expected
@@ -767,6 +774,7 @@ class TestPopulator:
             [],
             LocalizerRepository(AssetRepository(tmp_path / "assets")),
             m_retriever,
+            WikipediaContributors({}),
         )
         await sut.populate()
 
@@ -785,6 +793,7 @@ class TestPopulator:
             [],
             LocalizerRepository(AssetRepository(tmp_path / "assets")),
             m_retriever,
+            WikipediaContributors({}),
         )
         await sut.populate()
         assert resource.links == []
@@ -806,6 +815,7 @@ class TestPopulator:
             [],
             LocalizerRepository(AssetRepository(tmp_path / "assets")),
             m_retriever,
+            WikipediaContributors({}),
         )
         await sut.populate()
         assert [link] == resource.links
@@ -837,6 +847,7 @@ class TestPopulator:
             [],
             LocalizerRepository(AssetRepository(tmp_path / "assets")),
             m_retriever,
+            WikipediaContributors({}),
         )
         await sut.populate()
         m_retriever.get_summary.assert_called_once_with(page_language, page_name)
@@ -888,6 +899,7 @@ class TestPopulator:
             ["en-US", "nl-NL"],
             LocalizerRepository(AssetRepository(tmp_path / "assets")),
             m_retriever,
+            WikipediaContributors({}),
         )
         await sut.populate()
 
@@ -930,6 +942,7 @@ class TestPopulator:
             [],
             LocalizerRepository(AssetRepository(tmp_path / "assets")),
             m_retriever,
+            WikipediaContributors({}),
         )
         await sut.populate()
 
@@ -963,6 +976,7 @@ class TestPopulator:
             [],
             LocalizerRepository(AssetRepository(tmp_path / "assets")),
             m_retriever,
+            WikipediaContributors({}),
         )
         await sut.populate()
 

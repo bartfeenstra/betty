@@ -2,7 +2,7 @@
 Wikipedia copyright notices.
 """
 
-from collections.abc import Sequence
+from collections.abc import Mapping
 from contextlib import suppress
 from typing import Self
 
@@ -11,10 +11,9 @@ from typing_extensions import override
 from betty.app import App
 from betty.app.factory import AppDependentFactory
 from betty.copyright_notice import CopyrightNotice
-from betty.fetch import FetchError
+from betty.fetch import FetchError, Fetcher
 from betty.locale import negotiate_locale, to_babel_identifier
 from betty.locale.localizable import _, Localizable, call
-from betty.locale.localizer import Localizer
 from betty.plugin import ShorthandPluginBase
 
 
@@ -26,14 +25,15 @@ class WikipediaContributors(ShorthandPluginBase, AppDependentFactory, CopyrightN
     _plugin_id = "wikipedia-contributors"
     _plugin_label = _("Wikipedia contributors")
 
-    def __init__(self, available_locales: Sequence[str] | None = None):
-        self._available_locales = available_locales or []
+    def __init__(self, urls: Mapping[str, str]):
+        self._urls = {"en": "Wikipedia:Copyrights", **urls}
 
-    @override
     @classmethod
-    async def new_for_app(cls, app: App) -> Self:
-        fetcher = await app.fetcher
-        available_locales = []
+    async def new(cls, fetcher: Fetcher) -> Self:
+        """
+        Create a new instance.
+        """
+        urls = {}
         try:
             languages_response = await fetcher.fetch(
                 "https://en.wikipedia.org/w/api.php?action=query&titles=Wikipedia:Copyrights&prop=langlinks&lllimit=500&format=json&formatversion=2"
@@ -43,8 +43,13 @@ class WikipediaContributors(ShorthandPluginBase, AppDependentFactory, CopyrightN
         else:
             for link in languages_response.json["query"]["pages"][0]["langlinks"]:
                 with suppress(ValueError):
-                    available_locales.append(to_babel_identifier(link["lang"]))
-        return cls(available_locales)
+                    urls[to_babel_identifier(link["lang"])] = link["title"]
+        return cls(urls)
+
+    @override
+    @classmethod
+    async def new_for_app(cls, app: App) -> Self:
+        return await cls.new(await app.fetcher)
 
     @override
     @property
@@ -61,8 +66,10 @@ class WikipediaContributors(ShorthandPluginBase, AppDependentFactory, CopyrightN
     @override
     @property
     def url(self) -> Localizable:
-        return call(self._localize_url)
+        return call(lambda localizer: self._localize_url(localizer.locale))
 
-    def _localize_url(self, localizer: Localizer) -> str:
-        locale = negotiate_locale([localizer.locale, "en"], self._available_locales)
-        return f"https://{locale}.wikipedia.org/wiki/Wikipedia:Copyrights"
+    def _localize_url(self, locale: str) -> str:
+        locale = negotiate_locale([locale, "en"], list(self._urls.keys()))
+        # We know there's always "en" (English).
+        assert locale is not None
+        return f"https://{locale}.wikipedia.org/wiki/{self._urls[locale.language]}"

@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from enum import Enum
 from logging import getLogger
 from pathlib import Path
-from typing import Iterable, Any, cast, TYPE_CHECKING, TypeVar, Generic, final
+from typing import Iterable, cast, TYPE_CHECKING, TypeVar, Generic, final
 from xml.etree import ElementTree
 
 import aiofiles
@@ -154,7 +154,7 @@ class GrampsLoader:
         self,
         ancestry: Ancestry,
         *,
-        factory: Factory[Any],
+        factory: Factory,
         localizer: Localizer,
         copyright_notices: PluginRepository[CopyrightNotice],
         licenses: PluginRepository[License],
