@@ -194,7 +194,7 @@ class PluginInstanceConfiguration(Configuration, Generic[_PluginT]):
         if issubclass(plugin, DefaultConfigurable):
             configuration = plugin.new_default_configuration()
             self._plugin_configuration = configuration
-            fields.append(RequiredField("configuration", configuration.load))
+            fields.append(OptionalField("configuration", configuration.load))
         assert_record(*fields)(dump)
 
     def _fields(self) -> Sequence[Field[Any, Any]]:
