@@ -30,6 +30,8 @@ from betty.ancestry.event_type.event_types import (
     Retirement,
     Unknown,
     Will,
+    BarMitzvah,
+    BatMitzvah,
 )
 from betty.ancestry.person import Person
 from betty.ancestry.presence_role.presence_roles import Subject
@@ -51,6 +53,18 @@ class TestBaptism(EventTypeTestBase):
     @override
     def get_sut_class(self) -> type[EventType]:
         return Baptism
+
+
+class TestBarMitzvah(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return BarMitzvah
+
+
+class TestBatMitzvah(EventTypeTestBase):
+    @override
+    def get_sut_class(self) -> type[EventType]:
+        return BatMitzvah
 
 
 class TestBirth(EventTypeTestBase):

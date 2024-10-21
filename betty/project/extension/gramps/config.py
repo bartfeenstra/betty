@@ -28,6 +28,8 @@ from betty.ancestry.event_type.event_types import (
     Residence,
     Retirement,
     Will,
+    BarMitzvah,
+    BatMitzvah,
 )
 from betty.ancestry.gender.genders import Female, Male, Unknown as UnknownGender
 from betty.ancestry.place_type.place_types import (
@@ -87,9 +89,13 @@ _PluginT = TypeVar("_PluginT", bound=Plugin)
 
 DEFAULT_EVENT_TYPE_MAP: Mapping[str, MachineName] = {
     "Adopted": Adoption.plugin_id(),
+    "Adult Christening": Baptism.plugin_id(),
     "Baptism": Baptism.plugin_id(),
+    "Bar Mitzvah": BarMitzvah.plugin_id(),
+    "Bat Mitzvah": BatMitzvah.plugin_id(),
     "Birth": Birth.plugin_id(),
     "Burial": Burial.plugin_id(),
+    "Christening": Baptism.plugin_id(),
     "Confirmation": Confirmation.plugin_id(),
     "Cremation": Cremation.plugin_id(),
     "Death": Death.plugin_id(),

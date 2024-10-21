@@ -178,12 +178,20 @@ Betty supports the following Gramps event types without any additional configura
      - Betty event type
    * - ``Adopted``
      - ``adoption``
+   * - ``Adult Christening``
+     - ``baptism``
    * - ``Baptism``
      - ``baptism``
+   * - ``Bar Mitzvah``
+     - ``bar-mitzvah``
+   * - ``Bat Mitzvah``
+     - ``bat-mitzvah``
    * - ``Birth``
      - ``birth``
    * - ``Burial``
      - ``burial``
+   * - ``Christening``
+     - ``baptism``
    * - ``Confirmation``
      - ``confirmation``
    * - ``Cremation``

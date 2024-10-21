@@ -136,6 +136,26 @@ class Baptism(DuringLifeEventType, StartOfLifeEventType, ShorthandPluginBase):
 
 
 @final
+class BarMitzvah(DuringLifeEventType, StartOfLifeEventType, ShorthandPluginBase):
+    """
+    Someone's `bar mitzvah <https://en.wikipedia.org/wiki/Bar_and_bat_mitzvah>`_ took place.
+    """
+
+    _plugin_id = "bar-mitzvah"
+    _plugin_label = _("Bar mitzvah")
+
+
+@final
+class BatMitzvah(DuringLifeEventType, StartOfLifeEventType, ShorthandPluginBase):
+    """
+    Someone's `bat mitzvah <https://en.wikipedia.org/wiki/Bar_and_bat_mitzvah>`_ took place.
+    """
+
+    _plugin_id = "bat-mitzvah"
+    _plugin_label = _("Bat mitzvah")
+
+
+@final
 class Adoption(DuringLifeEventType, ShorthandPluginBase):
     """
     Someone was adopted.
