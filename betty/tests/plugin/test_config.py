@@ -238,40 +238,40 @@ class TestPluginInstanceConfiguration:
         with pytest.raises(ValueError):  # noqa PT011
             PluginInstanceConfiguration(
                 plugin,
-                plugin_repository=StaticPluginRepository(plugin),
-                plugin_configuration=self._DummyDefaultConfigurablePluginConfiguration(),
+                repository=StaticPluginRepository(plugin),
+                configuration=self._DummyDefaultConfigurablePluginConfiguration(),
             )
 
     def test_plugin(self) -> None:
         plugin = DummyPlugin
         sut = PluginInstanceConfiguration(
-            plugin, plugin_repository=StaticPluginRepository(plugin)
+            plugin, repository=StaticPluginRepository(plugin)
         )
         assert sut.plugin == plugin
 
-    def test_plugin_configuration(self) -> None:
+    def test_configuration(self) -> None:
         plugin = self._DummyDefaultConfigurablePlugin
-        plugin_configuration = self._DummyDefaultConfigurablePluginConfiguration()
+        configuration = self._DummyDefaultConfigurablePluginConfiguration()
         sut = PluginInstanceConfiguration(
             plugin,
-            plugin_configuration=plugin_configuration,
-            plugin_repository=StaticPluginRepository(plugin),
+            configuration=configuration,
+            repository=StaticPluginRepository(plugin),
         )
-        assert sut.plugin_configuration is plugin_configuration
+        assert sut.configuration is configuration
 
     def test_load_without_id(self) -> None:
         plugin = DummyPlugin
         with raises_error(error_type=AssertionFailed):
             (
                 PluginInstanceConfiguration(
-                    plugin, plugin_repository=StaticPluginRepository(plugin)
+                    plugin, repository=StaticPluginRepository(plugin)
                 )
             ).load({})
 
     def test_load_minimal(self) -> None:
         plugin = DummyPlugin
         sut = PluginInstanceConfiguration(
-            plugin, plugin_repository=StaticPluginRepository(plugin)
+            plugin, repository=StaticPluginRepository(plugin)
         )
         sut.load({"id": DummyPlugin.plugin_id()})
         assert sut.plugin == DummyPlugin
@@ -279,7 +279,7 @@ class TestPluginInstanceConfiguration:
     def test_load_with_configuration(self) -> None:
         plugin = self._DummyDefaultConfigurablePlugin
         sut = PluginInstanceConfiguration(
-            plugin, plugin_repository=StaticPluginRepository(plugin)
+            plugin, repository=StaticPluginRepository(plugin)
         )
         sut.load(
             {
@@ -289,18 +289,18 @@ class TestPluginInstanceConfiguration:
                 },
             }
         )
-        plugin_configuration = sut.plugin_configuration
+        configuration = sut.configuration
         assert isinstance(
-            plugin_configuration, self._DummyDefaultConfigurablePluginConfiguration
+            configuration, self._DummyDefaultConfigurablePluginConfiguration
         )
-        assert plugin_configuration.check
+        assert configuration.check
 
     def test_load_with_configuration_for_non_configurable_plugin_should_error(
         self,
     ) -> None:
         plugin = DummyPlugin
         sut = PluginInstanceConfiguration(
-            plugin, plugin_repository=StaticPluginRepository(plugin)
+            plugin, repository=StaticPluginRepository(plugin)
         )
         with pytest.raises(AssertionFailed):
             sut.load(
@@ -313,17 +313,17 @@ class TestPluginInstanceConfiguration:
     def test_dump_should_dump_minimal(self) -> None:
         plugin = DummyPlugin
         sut = PluginInstanceConfiguration(
-            plugin, plugin_repository=StaticPluginRepository(plugin)
+            plugin, repository=StaticPluginRepository(plugin)
         )
         expected = {
             "id": DummyPlugin.plugin_id(),
         }
         assert sut.dump() == expected
 
-    def test_dump_should_dump_plugin_configuration(self) -> None:
+    def test_dump_should_dump_configuration(self) -> None:
         plugin = self._DummyDefaultConfigurablePlugin
         sut = PluginInstanceConfiguration(
-            plugin, plugin_repository=StaticPluginRepository(plugin)
+            plugin, repository=StaticPluginRepository(plugin)
         )
         expected = {
             "id": self._DummyDefaultConfigurablePlugin.plugin_id(),

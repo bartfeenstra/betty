@@ -336,14 +336,13 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         self.assert_bootstrapped()
         extension_types_enabled_in_configuration = set()
         for project_extension_configuration in self.configuration.extensions.values():
-            if project_extension_configuration.enabled:
-                extension_requirement = (
-                    await project_extension_configuration.plugin.requirement()
-                )
-                extension_requirement.assert_met()
-                extension_types_enabled_in_configuration.add(
-                    project_extension_configuration.plugin
-                )
+            extension_requirement = (
+                await project_extension_configuration.plugin.requirement()
+            )
+            extension_requirement.assert_met()
+            extension_types_enabled_in_configuration.add(
+                project_extension_configuration.plugin
+            )
 
         extension_types_sorter = TopologicalSorter[type[Extension]]()
         await sort_extension_type_graph(
@@ -364,7 +363,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
                 ):
                     extension_configuration = self.configuration.extensions[
                         extension_type
-                    ].plugin_configuration
+                    ].configuration
                     if extension_configuration:
                         extension.configuration.update(extension_configuration)
                 if isinstance(extension, Theme):

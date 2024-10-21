@@ -29,11 +29,11 @@ from betty.license.licenses import spdx_license_id_to_license_id
 from betty.media_type.media_types import SVG
 from betty.project import Project
 from betty.project.config import (
-    ExtensionConfiguration,
     EntityReference,
     LocaleConfiguration,
     ProjectConfiguration,
 )
+from betty.project.extension.config import ExtensionInstanceConfiguration
 from betty.project.extension.cotton_candy import CottonCandy
 from betty.project.extension.cotton_candy.config import CottonCandyConfiguration
 from betty.project.extension.demo.copyright_notice import Streetmix
@@ -65,10 +65,10 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
             "nl-NL": "Bart Feenstra en bijdragers",
         },
         extensions=[
-            ExtensionConfiguration(Demo),
-            ExtensionConfiguration(
+            ExtensionInstanceConfiguration(Demo),
+            ExtensionInstanceConfiguration(
                 CottonCandy,
-                extension_configuration=CottonCandyConfiguration(
+                configuration=CottonCandyConfiguration(
                     featured_entities=[
                         EntityReference(Place, "betty-demo-amsterdam"),
                         EntityReference(Person, "betty-demo-liberta-lankester"),

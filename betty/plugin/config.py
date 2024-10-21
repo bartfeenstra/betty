@@ -145,29 +145,29 @@ class PluginInstanceConfiguration(Configuration, Generic[_PluginT]):
     Configure a single plugin instance.
 
     Plugins that extend :py:class:`betty.config.DefaultConfigurable` may receive their configuration from
-    :py:attr:`betty.plugin.config.PluginInstanceConfiguration.plugin_configuration` / the `"configuration"` dump key.
+    :py:attr:`betty.plugin.config.PluginInstanceConfiguration.configuration` / the `"configuration"` dump key.
     """
 
     def __init__(
         self,
         plugin: type[_PluginT],
         *,
-        plugin_repository: PluginRepository[_PluginT],
-        plugin_configuration: Configuration | None = None,
+        repository: PluginRepository[_PluginT],
+        configuration: Configuration | None = None,
     ):
-        if plugin_configuration and not issubclass(plugin, DefaultConfigurable):
+        if configuration and not issubclass(plugin, DefaultConfigurable):
             raise ValueError(
                 f"{plugin} is not configurable (it must extend {DefaultConfigurable}), but configuration was given."
             )
         if (
             issubclass(plugin, DefaultConfigurable)  # type: ignore[redundant-expr]
-            and not plugin_configuration  # type: ignore[unreachable]
+            and not configuration  # type: ignore[unreachable]
         ):
-            plugin_configuration = plugin.new_default_configuration()  # type: ignore[unreachable]
+            configuration = plugin.new_default_configuration()  # type: ignore[unreachable]
         super().__init__()
         self._plugin = plugin
-        self._plugin_configuration = plugin_configuration
-        self._plugin_repository = plugin_repository
+        self._plugin_configuration = configuration
+        self._plugin_repository = repository
 
     @property
     def plugin(self) -> type[_PluginT]:
@@ -177,7 +177,7 @@ class PluginInstanceConfiguration(Configuration, Generic[_PluginT]):
         return self._plugin
 
     @property
-    def plugin_configuration(self) -> Configuration | None:
+    def configuration(self) -> Configuration | None:
         """
         Get the plugin's own configuration.
         """
@@ -204,5 +204,5 @@ class PluginInstanceConfiguration(Configuration, Generic[_PluginT]):
     def dump(self) -> DumpMapping[Dump]:
         dump: DumpMapping[Dump] = {"id": self.plugin.plugin_id()}
         if issubclass(self.plugin, DefaultConfigurable):  # type: ignore[redundant-expr]
-            dump["configuration"] = self.plugin_configuration.dump()  # type: ignore[unreachable]
+            dump["configuration"] = self.configuration.dump()  # type: ignore[unreachable]
         return dump

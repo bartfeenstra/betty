@@ -34,7 +34,6 @@ from betty.assertion import (
     assert_mapping,
     assert_none,
     assert_or,
-    Field,
     assert_field,
 )
 from betty.assertion.error import AssertionFailed
@@ -65,7 +64,8 @@ from betty.plugin.config import (
     PluginInstanceConfiguration,
 )
 from betty.project import extension
-from betty.project.extension import Extension, ConfigurableExtension
+from betty.project.extension import Extension
+from betty.project.extension.config import ExtensionInstanceConfiguration
 from betty.repr import repr_instance
 from betty.serde.format import Format, format_for, FORMAT_REPOSITORY
 
@@ -249,56 +249,8 @@ class EntityReferenceSequence(
 
 
 @final
-class ExtensionConfiguration(PluginInstanceConfiguration[Extension]):
-    """
-    Configure a single extension for a project.
-    """
-
-    def __init__(
-        self,
-        extension_type: type[Extension],
-        *,
-        enabled: bool = True,
-        extension_configuration: Configuration | None = None,
-    ):
-        if not extension_configuration and issubclass(
-            extension_type, ConfigurableExtension
-        ):
-            extension_configuration = extension_type.new_default_configuration()
-        super().__init__(
-            extension_type,
-            plugin_configuration=extension_configuration,
-            plugin_repository=extension.EXTENSION_REPOSITORY,
-        )
-        self._enabled = enabled
-
-    @property
-    def enabled(self) -> bool:
-        """
-        Whether the extension is enabled.
-        """
-        return self._enabled
-
-    @enabled.setter
-    def enabled(self, enabled: bool) -> None:
-        self._enabled = enabled
-
-    @override
-    def _fields(self) -> Sequence[Field[Any, Any]]:
-        return [
-            OptionalField("enabled", assert_bool() | assert_setattr(self, "enabled"))
-        ]
-
-    @override
-    def dump(self) -> DumpMapping[Dump]:
-        dump = super().dump()
-        dump["enabled"] = self.enabled
-        return dump
-
-
-@final
 class ExtensionConfigurationMapping(
-    ConfigurationMapping[type[Extension], ExtensionConfiguration]
+    ConfigurationMapping[type[Extension], PluginInstanceConfiguration[Extension]]
 ):
     """
     Configure a project's extensions.
@@ -306,27 +258,23 @@ class ExtensionConfigurationMapping(
 
     def __init__(
         self,
-        configurations: Iterable[ExtensionConfiguration] | None = None,
+        configurations: Iterable[PluginInstanceConfiguration[Extension]] | None = None,
     ):
         super().__init__(configurations)
 
     @override
-    def load_item(self, dump: Dump) -> ExtensionConfiguration:
+    def load_item(self, dump: Dump) -> PluginInstanceConfiguration[Extension]:
         extension_type = assert_field(
             RequiredField("id", assert_plugin(extension.EXTENSION_REPOSITORY))
         )(dump)
-        configuration = ExtensionConfiguration(
-            extension_type,
-            extension_configuration=extension_type.new_default_configuration()
-            # @todo Move this check to the parent class.
-            if issubclass(extension_type, ConfigurableExtension)
-            else None,
-        )
+        configuration = ExtensionInstanceConfiguration(extension_type)
         configuration.load(dump)
         return configuration
 
     @override
-    def _get_key(self, configuration: ExtensionConfiguration) -> type[Extension]:
+    def _get_key(
+        self, configuration: PluginInstanceConfiguration[Extension]
+    ) -> type[Extension]:
         return configuration.plugin
 
     @override
@@ -342,10 +290,8 @@ class ExtensionConfigurationMapping(
         Enable the given extensions.
         """
         for extension_type in extension_types:
-            try:
-                self._configurations[extension_type].enabled = True
-            except KeyError:
-                self.append(ExtensionConfiguration(extension_type))
+            if extension_type not in self._configurations:
+                self.append(ExtensionInstanceConfiguration(extension_type))
 
 
 @final
@@ -826,7 +772,7 @@ class ProjectConfiguration(Configuration):
         license: MachineName | None = None,  # noqa A002
         licenses: Iterable[LicenseConfiguration] | None = None,
         genders: Iterable[PluginConfiguration] | None = None,
-        extensions: Iterable[ExtensionConfiguration] | None = None,
+        extensions: Iterable[PluginInstanceConfiguration[Extension]] | None = None,
         debug: bool = False,
         locales: Iterable[LocaleConfiguration] | None = None,
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
@@ -910,7 +856,7 @@ class ProjectConfiguration(Configuration):
         license: MachineName | None = None,  # noqa A002
         licenses: Iterable[LicenseConfiguration] | None = None,
         genders: Iterable[PluginConfiguration] | None = None,
-        extensions: Iterable[ExtensionConfiguration] | None = None,
+        extensions: Iterable[PluginInstanceConfiguration[Extension]] | None = None,
         debug: bool = False,
         locales: Iterable[LocaleConfiguration] | None = None,
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,

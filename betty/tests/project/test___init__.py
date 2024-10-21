@@ -23,17 +23,17 @@ from betty.project import (
     ProjectContext,
 )
 from betty.project.config import (
-    ExtensionConfiguration,
     CopyrightNoticeConfiguration,
     LicenseConfiguration,
     ProjectConfiguration,
 )
+from betty.project.extension.config import ExtensionInstanceConfiguration
 from betty.project.factory import ProjectDependentFactory
+from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.json.schema import SchemaTestBase
 from betty.test_utils.project.extension import (
     DummyExtension,
     DummyConfigurableExtension,
-    DummyConfigurableExtensionConfiguration,
 )
 
 if TYPE_CHECKING:
@@ -160,20 +160,18 @@ class TestProject:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            check = True
+            value = "Hello, world!"
             sut.configuration.extensions.append(
-                ExtensionConfiguration(
+                ExtensionInstanceConfiguration(
                     DummyConfigurableExtension,
-                    extension_configuration=DummyConfigurableExtensionConfiguration(
-                        check=check,
-                    ),
+                    configuration=DummyConfiguration(value=value),
                 )
             )
             async with sut:
                 extensions = await sut.extensions
                 extension = extensions[DummyConfigurableExtension]
                 assert isinstance(extension, DummyConfigurableExtension)
-                assert check == extension.configuration.check
+                assert extension.configuration.value == value
 
     @pytest.mark.usefixtures("_extensions")
     async def test_extensions_with_one_extension_with_single_chained_dependency(

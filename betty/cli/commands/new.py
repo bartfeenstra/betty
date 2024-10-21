@@ -16,10 +16,10 @@ from betty.locale.localizable import _, StaticTranslations
 from betty.machine_name import machinify, assert_machine_name
 from betty.plugin import ShorthandPluginBase
 from betty.project.config import (
-    ExtensionConfiguration,
     LocaleConfiguration,
     ProjectConfiguration,
 )
+from betty.project.extension.config import ExtensionInstanceConfiguration
 from betty.project.extension.cotton_candy import CottonCandy
 from betty.project.extension.deriver import Deriver
 from betty.project.extension.gramps import Gramps
@@ -149,9 +149,9 @@ class New(ShorthandPluginBase, AppDependentFactory, Command):
 
             if click.confirm(localizer._("Do you want to load a Gramps family tree?")):
                 configuration.extensions.append(
-                    ExtensionConfiguration(
+                    ExtensionInstanceConfiguration(
                         Gramps,
-                        extension_configuration=GrampsConfiguration(
+                        configuration=GrampsConfiguration(
                             family_trees=[
                                 FamilyTreeConfiguration(
                                     click.prompt(

@@ -15,14 +15,13 @@ from betty.license import License
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity, UserFacingEntity
-from betty.plugin.config import PluginConfiguration
+from betty.plugin.config import PluginConfiguration, PluginInstanceConfiguration
 from betty.plugin.static import StaticPluginRepository
 from betty.project.config import (
     EntityReference,
     EntityReferenceSequence,
     LocaleConfiguration,
     LocaleConfigurationMapping,
-    ExtensionConfiguration,
     ExtensionConfigurationMapping,
     EntityTypeConfiguration,
     EntityTypeConfigurationMapping,
@@ -37,7 +36,9 @@ from betty.project.config import (
 )
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension
+from betty.project.extension.config import ExtensionInstanceConfiguration
 from betty.test_utils.assertion.error import raises_error
+from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.test_utils.model import DummyEntity
@@ -45,7 +46,6 @@ from betty.test_utils.plugin.config import PluginConfigurationMappingTestBase
 from betty.test_utils.project.extension import (
     DummyExtension,
     DummyConfigurableExtension,
-    DummyConfigurableExtensionConfiguration,
 )
 
 if TYPE_CHECKING:
@@ -438,37 +438,6 @@ class TestLocaleConfigurationMapping(
         assert sut.multilingual
 
 
-class TestExtensionConfiguration:
-    @pytest.fixture(autouse=True)
-    def _extensions(self, mocker: MockerFixture) -> None:
-        mocker.patch(
-            "betty.project.extension.EXTENSION_REPOSITORY",
-            new=StaticPluginRepository(DummyExtension),
-        )
-
-    async def test_enabled(self) -> None:
-        sut = ExtensionConfiguration(
-            DummyExtension,
-            enabled=True,
-        )
-        assert sut.enabled
-        sut.enabled = False
-        assert not sut.enabled
-
-    async def test_load_with_enabled(self) -> None:
-        sut = ExtensionConfiguration(DummyExtension)
-        sut.load({"id": DummyExtension.plugin_id(), "enabled": False})
-        assert not sut.enabled
-
-    async def test_dump_should_dump_enabled(self) -> None:
-        sut = ExtensionConfiguration(DummyExtension)
-        expected = {
-            "id": DummyExtension.plugin_id(),
-            "enabled": True,
-        }
-        assert sut.dump() == expected
-
-
 class ExtensionTypeConfigurationMappingTestExtension0(DummyExtension):
     pass
 
@@ -486,7 +455,9 @@ class ExtensionTypeConfigurationMappingTestExtension3(DummyExtension):
 
 
 class TestExtensionConfigurationMapping(
-    ConfigurationMappingTestBase[type[Extension], ExtensionConfiguration]
+    ConfigurationMappingTestBase[
+        type[Extension], PluginInstanceConfiguration[Extension]
+    ]
 ):
     def get_configuration_keys(
         self,
@@ -499,23 +470,24 @@ class TestExtensionConfigurationMapping(
         )
 
     async def get_sut(
-        self, configurations: Iterable[ExtensionConfiguration] | None = None
+        self,
+        configurations: Iterable[PluginInstanceConfiguration[Extension]] | None = None,
     ) -> ExtensionConfigurationMapping:
         return ExtensionConfigurationMapping(configurations)
 
     async def get_configurations(
         self,
     ) -> tuple[
-        ExtensionConfiguration,
-        ExtensionConfiguration,
-        ExtensionConfiguration,
-        ExtensionConfiguration,
+        ExtensionInstanceConfiguration,
+        ExtensionInstanceConfiguration,
+        ExtensionInstanceConfiguration,
+        ExtensionInstanceConfiguration,
     ]:
         return (
-            ExtensionConfiguration(self.get_configuration_keys()[0]),
-            ExtensionConfiguration(self.get_configuration_keys()[1]),
-            ExtensionConfiguration(self.get_configuration_keys()[2], enabled=False),
-            ExtensionConfiguration(self.get_configuration_keys()[3], enabled=False),
+            ExtensionInstanceConfiguration(self.get_configuration_keys()[0]),
+            ExtensionInstanceConfiguration(self.get_configuration_keys()[1]),
+            ExtensionInstanceConfiguration(self.get_configuration_keys()[2]),
+            ExtensionInstanceConfiguration(self.get_configuration_keys()[3]),
         )
 
     @pytest.fixture(autouse=True)
@@ -528,7 +500,7 @@ class TestExtensionConfigurationMapping(
     async def test_enable(self) -> None:
         sut = ExtensionConfigurationMapping()
         await sut.enable(DummyExtension)
-        assert sut[DummyExtension].enabled
+        assert DummyExtension in sut
 
 
 class EntityTypeConfigurationTestEntityOne(UserFacingEntity, DummyEntity):
@@ -1271,20 +1243,16 @@ class TestProjectConfiguration:
         )
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         dump = sut.dump()
-        extension_configuration: DumpMapping[Dump] = {
-            "check": False,
-        }
+        value = "Hello, world!"
         dump["extensions"] = {
             DummyConfigurableExtension.plugin_id(): {
-                "configuration": extension_configuration,
+                "configuration": {"value": value},
             },
         }
         sut.load(dump)
         actual = sut.extensions[DummyConfigurableExtension]
-        assert actual.enabled
-        assert isinstance(
-            actual.plugin_configuration, DummyConfigurableExtensionConfiguration
-        )
+        assert isinstance(actual.configuration, DummyConfiguration)
+        assert actual.configuration.value == value
 
     async def test_load_should_load_one_extension_without_configuration(
         self, mocker: MockerFixture, tmp_path: Path
@@ -1300,8 +1268,7 @@ class TestProjectConfiguration:
         }
         sut.load(dump)
         actual = sut.extensions[_DummyNonConfigurableExtension]
-        assert actual.enabled
-        assert actual.plugin_configuration is None
+        assert actual.configuration is None
 
     async def test_load_extension_with_invalid_configuration_should_raise_error(
         self, tmp_path: Path
@@ -1512,18 +1479,18 @@ class TestProjectConfiguration:
         self, tmp_path: Path
     ) -> None:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        value = "Hello, world!"
         sut.extensions.append(
-            ExtensionConfiguration(
+            ExtensionInstanceConfiguration(
                 DummyConfigurableExtension,
-                extension_configuration=DummyConfigurableExtensionConfiguration(),
+                configuration=DummyConfiguration(value=value),
             )
         )
         dump = sut.dump()
         expected = {
             DummyConfigurableExtension.plugin_id(): {
-                "enabled": True,
                 "configuration": {
-                    "check": False,
+                    "value": value,
                 },
             }
         }
@@ -1535,7 +1502,7 @@ class TestProjectConfiguration:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         await sut.extensions.enable(_DummyNonConfigurableExtension)
         dump = sut.dump()
-        expected = {_DummyNonConfigurableExtension.plugin_id(): {"enabled": True}}
+        expected: Dump = {_DummyNonConfigurableExtension.plugin_id(): {}}
         assert dump["extensions"] == expected
 
     async def test_dump_should_dump_event_types(self, tmp_path: Path) -> None:

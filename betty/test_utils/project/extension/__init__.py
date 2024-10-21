@@ -7,12 +7,10 @@ from typing import TypeVar, Generic
 from typing_extensions import override
 
 from betty.app import App
-from betty.assertion import assert_record, RequiredField, assert_bool, assert_setattr
-from betty.config import Configuration
 from betty.event_dispatcher import EventHandlerRegistry
 from betty.project import Project
 from betty.project.extension import Extension, ConfigurableExtension
-from betty.serde.dump import Dump
+from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.plugin import (
     DummyPlugin,
     PluginTestBase,
@@ -91,30 +89,8 @@ class DummyExtension(DummyPlugin, Extension):
     pass
 
 
-class DummyConfigurableExtensionConfiguration(Configuration):
-    """
-    A dummy :py:class:`betty.config.Configuration` implementation for :py:class:`betty.test_utils.project.extension.DummyConfigurableExtension`.
-    """
-
-    def __init__(self, *, check: bool = False):
-        super().__init__()
-        self.check = check
-
-    @override
-    def load(self, dump: Dump) -> None:
-        assert_record(
-            RequiredField("check", assert_bool() | assert_setattr(self, "check"))
-        )(dump)
-
-    @override
-    def dump(self) -> Dump:
-        return {
-            "check": self.check,
-        }
-
-
 class DummyConfigurableExtension(
-    DummyExtension, ConfigurableExtension[DummyConfigurableExtensionConfiguration]
+    DummyExtension, ConfigurableExtension[DummyConfiguration]
 ):
     """
     A dummy :py:class:`betty.project.extension.ConfigurableExtension` implementation.
@@ -122,5 +98,5 @@ class DummyConfigurableExtension(
 
     @override
     @classmethod
-    def new_default_configuration(cls) -> DummyConfigurableExtensionConfiguration:
-        return DummyConfigurableExtensionConfiguration()
+    def new_default_configuration(cls) -> DummyConfiguration:
+        return DummyConfiguration()
