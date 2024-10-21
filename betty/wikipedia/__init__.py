@@ -24,6 +24,7 @@ from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.place import Place
 from betty.concurrent import Lock, AsynchronizedLock, RateLimiter
+from betty.copyright_notice import CopyrightNotice
 from betty.fetch import FetchError
 from betty.functools import filter_suppress
 from betty.locale import (
@@ -108,6 +109,7 @@ class _Retriever:
         self._fetcher = fetcher
         self._images: MutableMapping[str, Image | None] = {}
         self._rate_limiter = RateLimiter(self._WIKIPEDIA_RATE_LIMIT)
+
 
     @contextmanager
     def _catch_exceptions(self) -> Iterator[None]:
@@ -262,6 +264,12 @@ class _Populator:
         self._image_files_locks: Mapping[Image, Lock] = defaultdict(
             AsynchronizedLock.threading
         )
+        self.__copyright_notice: CopyrightNotice|None=None
+
+    async def _copyright_notice(self)->CopyrightNotice:
+        if self.__copyright_notice is None:
+            self.__copyright_notice = await WikipediaContributors.new(self._fetcher)
+        return self.__copyright_notice
 
     async def populate(self) -> None:
         await gather(
@@ -441,7 +449,7 @@ class _Populator:
                     path=image.path,
                     media_type=image.media_type,
                     links=links,
-                    copyright_notice=WikipediaContributors(),
+                    copyright_notice=self._co,
                 )
                 self._image_files[image] = file
                 self._ancestry.add(file)

@@ -11,7 +11,7 @@ from typing_extensions import override
 from betty.app import App
 from betty.app.factory import AppDependentFactory
 from betty.copyright_notice import CopyrightNotice
-from betty.fetch import FetchError
+from betty.fetch import FetchError, Fetcher
 from betty.locale import negotiate_locale, to_babel_identifier
 from betty.locale.localizable import _, Localizable, call
 from betty.locale.localizer import Localizer
@@ -26,13 +26,14 @@ class WikipediaContributors(ShorthandPluginBase, AppDependentFactory, CopyrightN
     _plugin_id = "wikipedia-contributors"
     _plugin_label = _("Wikipedia contributors")
 
-    def __init__(self, available_locales: Sequence[str] | None = None):
-        self._available_locales = available_locales or []
+    def __init__(self, available_locales: Sequence[str]):
+        self._available_locales = available_locales
 
-    @override
     @classmethod
-    async def new_for_app(cls, app: App) -> Self:
-        fetcher = await app.fetcher
+    async def new(cls, fetcher: Fetcher) -> Self:
+        """
+        Create a new instance.
+        """
         available_locales = []
         try:
             languages_response = await fetcher.fetch(
@@ -45,6 +46,11 @@ class WikipediaContributors(ShorthandPluginBase, AppDependentFactory, CopyrightN
                 with suppress(ValueError):
                     available_locales.append(to_babel_identifier(link["lang"]))
         return cls(available_locales)
+
+    @override
+    @classmethod
+    async def new_for_app(cls, app: App) -> Self:
+        return cls.new(await app.fetcher)
 
     @override
     @property
