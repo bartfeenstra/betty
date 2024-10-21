@@ -778,7 +778,7 @@ msgid ""
 "they are likely still alive."
 msgstr ""
 "Persoon {privatized_person_id} ({privatized_person}) geprivatiseerd omdat"
-" men waarschijnlijk nog leeft."
+" hen waarschijnlijk nog leeft."
 
 msgid ""
 "Privatized place {privatized_place_id} ({privatized_place}) because it is"
@@ -926,25 +926,25 @@ msgstr "Er zijn geen mogelijkheden beschikbaar."
 
 #, python-format
 msgid "They are the child of %(parent_labels)s."
-msgstr "Men is het kind van %(parent_labels)s."
+msgstr "Hen is het kind van %(parent_labels)s."
 
 #, python-format
 msgid "They grew up with a sibling."
 msgid_plural "They grew up with %(sibling_count)s siblings."
-msgstr[0] "Men groeide op met een brus."
-msgstr[1] "Men groeide op met %(sibling_count)s brussen."
+msgstr[0] "Hen groeide op met een brus."
+msgstr[1] "Hen groeide op met %(sibling_count)s brussen."
 
 #, python-format
 msgid "They had a child with %(co_parent_labels)s."
 msgid_plural "They had %(child_count)s children with %(co_parent_labels)s."
-msgstr[0] "Men had een kind met %(co_parent_labels)s."
-msgstr[1] "Men had %(child_count)s kinderen met %(co_parent_labels)s."
+msgstr[0] "Hen had een kind met %(co_parent_labels)s."
+msgstr[1] "Hen had %(child_count)s kinderen met %(co_parent_labels)s."
 
 #, python-format
 msgid "They had a child."
 msgid_plural "They had %(child_count)s children."
-msgstr[0] "Men had een kind."
-msgstr[1] "Men had %(child_count)skinderen."
+msgstr[0] "Hen had een kind."
+msgstr[1] "Hen had %(child_count)skinderen."
 
 msgid "This citation's details are unavailable to protect people's privacy."
 msgstr ""
