@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-21 17:57+0100\n"
+"POT-Creation-Date: 2024-10-21 21:22+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -239,6 +239,9 @@ msgstr ""
 
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
+msgstr ""
+
+msgid "Copyright"
 msgstr ""
 
 msgid "Copyright Wikipedia contributors"
@@ -478,6 +481,9 @@ msgstr ""
 
 #, python-format
 msgid "Last modified on %(last_modified)s"
+msgstr ""
+
+msgid "License"
 msgstr ""
 
 msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
