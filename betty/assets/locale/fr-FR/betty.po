@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-21 00:53+0100\n"
+"POT-Creation-Date: 2024-10-21 17:57+0100\n"
 "PO-Revision-Date: 2024-02-08 13:24+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: fr\n"
@@ -171,6 +171,12 @@ msgstr "Participant"
 
 msgid "Baptism"
 msgstr "Baptême"
+
+msgid "Bar mitzvah"
+msgstr "Bar-mitsvah"
+
+msgid "Bat mitzvah"
+msgstr "Bat-mitsvah"
 
 msgid "Beneficiary"
 msgstr "Bénéficiaire"

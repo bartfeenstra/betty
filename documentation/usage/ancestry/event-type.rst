@@ -10,6 +10,10 @@ Built-in event types
     A person's `adoption <https://en.wikipedia.org/wiki/Adoption>`_.
 ``baptism`` (:py:class:`betty.ancestry.event_type.event_types.Baptism`)
     A person's `baptism <https://en.wikipedia.org/wiki/Baptism>`_.
+``bar-mitzvah`` (:py:class:`betty.ancestry.event_type.event_types.BarMitzvah`)
+    A person's `bar mitzvah <https://en.wikipedia.org/wiki/Bar_and_bat_mitzvah>`_.
+``bat-mitzvah`` (:py:class:`betty.ancestry.event_type.event_types.BatMitzvah`)
+    A person's `bat mitzvah <https://en.wikipedia.org/wiki/Bar_and_bat_mitzvah>`_.
 ``birth`` (:py:class:`betty.ancestry.event_type.event_types.Birth`)
     A person's birth. This event type often receives special treatment and is considered the authoritative
     type to determine when somebody's life started.

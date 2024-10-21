@@ -115,6 +115,8 @@ betty = 'betty.cli:main'
 [project.entry-points.'betty.event_type']
 'adoption' = 'betty.ancestry.event_type.event_types:Adoption'
 'baptism' = 'betty.ancestry.event_type.event_types:Baptism'
+'bar-mitzvah' = 'betty.ancestry.event_type.event_types:BarMitzvah'
+'bat-mitzvah' = 'betty.ancestry.event_type.event_types:BatMitzvah'
 'birth' = 'betty.ancestry.event_type.event_types:Birth'
 'burial' = 'betty.ancestry.event_type.event_types:Burial'
 'conference' = 'betty.ancestry.event_type.event_types:Conference'
