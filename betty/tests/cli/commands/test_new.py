@@ -122,6 +122,6 @@ class TestNew:
         assert Gramps in configuration.extensions
         family_trees = cast(
             GrampsConfiguration,
-            configuration.extensions[Gramps].plugin_configuration,
+            configuration.extensions[Gramps].configuration,
         ).family_trees
         assert family_trees[0].file_path == gramps_family_tree_file_path

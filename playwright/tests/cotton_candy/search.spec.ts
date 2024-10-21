@@ -15,7 +15,6 @@ const test = base.extend<{
       extensions: {
         'cotton-candy': {},
         'gramps': {
-          enabled: true,
           configuration: {
             family_trees: [
               {
