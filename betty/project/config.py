@@ -26,7 +26,6 @@ from betty.assertion import (
     OptionalField,
     assert_str,
     assert_bool,
-    Assertion,
     assert_fields,
     assert_locale,
     assert_positive_number,
@@ -35,6 +34,8 @@ from betty.assertion import (
     assert_mapping,
     assert_none,
     assert_or,
+    Field,
+    assert_field,
 )
 from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
@@ -61,6 +62,7 @@ from betty.plugin.config import (
     PluginConfigurationPluginConfigurationMapping,
     PluginConfiguration,
     PluginConfigurationMapping,
+    PluginInstanceConfiguration,
 )
 from betty.project import extension
 from betty.project.extension import Extension, ConfigurableExtension
@@ -68,10 +70,7 @@ from betty.repr import repr_instance
 from betty.serde.format import Format, format_for, FORMAT_REPOSITORY
 
 if TYPE_CHECKING:
-    from betty.serde.dump import (
-        Dump,
-        DumpMapping,
-    )
+    from betty.serde.dump import Dump, DumpMapping
     from collections.abc import Sequence
     from betty.machine_name import MachineName
     from pathlib import Path
@@ -250,7 +249,7 @@ class EntityReferenceSequence(
 
 
 @final
-class ExtensionConfiguration(Configuration):
+class ExtensionConfiguration(PluginInstanceConfiguration[Extension]):
     """
     Configure a single extension for a project.
     """
@@ -262,21 +261,16 @@ class ExtensionConfiguration(Configuration):
         enabled: bool = True,
         extension_configuration: Configuration | None = None,
     ):
-        super().__init__()
-        self._extension_type = extension_type
-        self._enabled = enabled
-        if extension_configuration is None and issubclass(
+        if not extension_configuration and issubclass(
             extension_type, ConfigurableExtension
         ):
-            extension_configuration = extension_type.default_configuration()
-        self._set_extension_configuration(extension_configuration)
-
-    @property
-    def extension_type(self) -> type[Extension]:
-        """
-        The extension type.
-        """
-        return self._extension_type
+            extension_configuration = extension_type.new_default_configuration()
+        super().__init__(
+            extension_type,
+            plugin_configuration=extension_configuration,
+            plugin_repository=extension.EXTENSION_REPOSITORY,
+        )
+        self._enabled = enabled
 
     @property
     def enabled(self) -> bool:
@@ -289,60 +283,16 @@ class ExtensionConfiguration(Configuration):
     def enabled(self, enabled: bool) -> None:
         self._enabled = enabled
 
-    @property
-    def extension_configuration(self) -> Configuration | None:
-        """
-        Get the extension's own configuration.
-        """
-        return self._extension_configuration
-
-    def _set_extension_configuration(
-        self, extension_configuration: Configuration | None
-    ) -> None:
-        self._extension_configuration = extension_configuration
-
     @override
-    def load(self, dump: Dump) -> None:
-        assert_record(
-            RequiredField(
-                "extension",
-                assert_plugin(extension.EXTENSION_REPOSITORY)
-                | assert_setattr(self, "_extension_type"),
-            ),
-            OptionalField("enabled", assert_bool() | assert_setattr(self, "enabled")),
-            OptionalField(
-                "configuration",
-                self._assert_load_extension_configuration(self.extension_type),
-            ),
-        )(dump)
-
-    def _assert_load_extension_configuration(
-        self, extension_type: type[Extension]
-    ) -> Assertion[Any, Configuration]:
-        def _assertion(value: Any) -> Configuration:
-            extension_configuration = self._extension_configuration
-            if isinstance(extension_configuration, Configuration):
-                extension_configuration.load(value)
-                return extension_configuration
-            raise AssertionFailed(
-                _("{extension_type} is not configurable.").format(
-                    extension_type=extension_type.plugin_id()
-                )
-            )
-
-        return _assertion
+    def _fields(self) -> Sequence[Field[Any, Any]]:
+        return [
+            OptionalField("enabled", assert_bool() | assert_setattr(self, "enabled"))
+        ]
 
     @override
     def dump(self) -> DumpMapping[Dump]:
-        dump: DumpMapping[Dump] = {
-            "extension": self.extension_type.plugin_id(),
-            "enabled": self.enabled,
-        }
-        if (
-            issubclass(self.extension_type, ConfigurableExtension)
-            and self.extension_configuration
-        ):
-            dump["configuration"] = self.extension_configuration.dump()
+        dump = super().dump()
+        dump["enabled"] = self.enabled
         return dump
 
 
@@ -362,26 +312,32 @@ class ExtensionConfigurationMapping(
 
     @override
     def load_item(self, dump: Dump) -> ExtensionConfiguration:
-        fields_dump = assert_fields(
-            RequiredField("extension", assert_plugin(extension.EXTENSION_REPOSITORY))
+        extension_type = assert_field(
+            RequiredField("id", assert_plugin(extension.EXTENSION_REPOSITORY))
         )(dump)
-        configuration = ExtensionConfiguration(fields_dump["extension"])
+        configuration = ExtensionConfiguration(
+            extension_type,
+            extension_configuration=extension_type.new_default_configuration()
+            # @todo Move this check to the parent class.
+            if issubclass(extension_type, ConfigurableExtension)
+            else None,
+        )
         configuration.load(dump)
         return configuration
 
     @override
     def _get_key(self, configuration: ExtensionConfiguration) -> type[Extension]:
-        return configuration.extension_type
+        return configuration.plugin
 
     @override
     def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
-        item_dump["extension"] = key_dump
+        item_dump["id"] = key_dump
 
     @override
     def _dump_key(self, item_dump: DumpMapping[Dump]) -> str:
-        return cast(str, item_dump.pop("extension"))
+        return cast(str, item_dump.pop("id"))
 
-    def enable(self, *extension_types: type[Extension]) -> None:
+    async def enable(self, *extension_types: type[Extension]) -> None:
         """
         Enable the given extensions.
         """

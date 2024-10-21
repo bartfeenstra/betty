@@ -54,8 +54,10 @@ class Wikipedia(
         self,
         project: Project,
         wikipedia_contributors_copyright_notice: CopyrightNotice,
+        *,
+        configuration: WikipediaConfiguration,
     ):
-        super().__init__(project)
+        super().__init__(project, configuration=configuration)
         self._wikipedia_contributors_copyright_notice = (
             wikipedia_contributors_copyright_notice
         )
@@ -67,6 +69,7 @@ class Wikipedia(
         return cls(
             project,
             await project.copyright_notices.new_target("wikipedia-contributors"),
+            configuration=cls.new_default_configuration(),
         )
 
     _plugin_id = "wikipedia"
@@ -150,5 +153,5 @@ Display <a href="https://www.wikipedia.org/">Wikipedia</a> summaries for resourc
 
     @override
     @classmethod
-    def default_configuration(cls) -> WikipediaConfiguration:
+    def new_default_configuration(cls) -> WikipediaConfiguration:
         return WikipediaConfiguration()

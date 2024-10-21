@@ -58,13 +58,13 @@ async def _prebuild_webpack_assets() -> None:
     async with App.new_temporary() as app, app:
         job_context = Context()
         async with Project.new_temporary(app) as project:
-            project.configuration.extensions.enable(Webpack)
-            project.configuration.extensions.enable(
+            await project.configuration.extensions.enable(
+                Webpack,
                 *(
                     await extension.EXTENSION_REPOSITORY.select(
                         WebpackEntryPointProvider  # type: ignore[type-abstract]
                     )
-                )
+                ),
             )
             async with project:
                 extensions = await project.extensions

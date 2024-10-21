@@ -38,7 +38,6 @@ from betty.project.config import (
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension
 from betty.test_utils.assertion.error import raises_error
-from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.test_utils.model import DummyEntity
@@ -230,12 +229,12 @@ class TestEntityReferenceSequence(
             new=StaticPluginRepository(EntityReferenceSequenceTestEntity),
         )
 
-    def get_sut(
+    async def get_sut(
         self, configurations: Iterable[EntityReference[Entity]] | None = None
     ) -> EntityReferenceSequence[Entity]:
         return EntityReferenceSequence(configurations)
 
-    def get_configurations(
+    async def get_configurations(
         self,
     ) -> tuple[
         EntityReference[Entity],
@@ -344,7 +343,7 @@ class TestLocaleConfigurationMapping(
     ConfigurationMappingTestBase[str, LocaleConfiguration]
 ):
     @override
-    def get_sut(
+    async def get_sut(
         self, configurations: Iterable[Configuration] | None = None
     ) -> LocaleConfigurationMapping:
         return LocaleConfigurationMapping(configurations)  # type: ignore[arg-type]
@@ -354,7 +353,7 @@ class TestLocaleConfigurationMapping(
         return ("en", "nl", "uk", "fr")
 
     @override
-    def get_configurations(
+    async def get_configurations(
         self,
     ) -> tuple[
         LocaleConfiguration,
@@ -370,8 +369,8 @@ class TestLocaleConfigurationMapping(
         )
 
     async def test___delitem__(self) -> None:
-        configurations = self.get_configurations()
-        sut = self.get_sut([configurations[0]])
+        configurations = await self.get_configurations()
+        sut = await self.get_sut([configurations[0]])
         del sut[configurations[0].locale]
         with pytest.raises(KeyError):
             sut[configurations[0].locale]
@@ -379,8 +378,8 @@ class TestLocaleConfigurationMapping(
         assert DEFAULT_LOCALE in sut
 
     async def test___delitem___with_locale(self) -> None:
-        configurations = self.get_configurations()
-        sut = self.get_sut([configurations[0], configurations[1]])
+        configurations = await self.get_configurations()
+        sut = await self.get_sut([configurations[0], configurations[1]])
         del sut[configurations[0].locale]
         with pytest.raises(KeyError):
             sut[configurations[0].locale]
@@ -413,29 +412,29 @@ class TestLocaleConfigurationMapping(
 
     @override
     async def test_replace_without_items(self) -> None:
-        sut = self.get_sut()
+        sut = await self.get_sut()
         sut.clear()
         assert len(sut) == 1
-        self.get_configurations()
+        await self.get_configurations()
         sut.replace()
         assert len(sut) == 1
 
     @override
     async def test_replace_with_items(self) -> None:
-        sut = self.get_sut()
+        sut = await self.get_sut()
         sut.clear()
         assert len(sut) == 1
-        configurations = self.get_configurations()
+        configurations = await self.get_configurations()
         sut.replace(*configurations)
         assert len(sut) == len(configurations)
 
-    def test_multilingual_with_one_configuration(self) -> None:
-        sut = self.get_sut()
+    async def test_multilingual_with_one_configuration(self) -> None:
+        sut = await self.get_sut()
         assert not sut.multilingual
 
-    def test_multilingual_with_multiple_configurations(self) -> None:
-        sut = self.get_sut()
-        sut.replace(*self.get_configurations())
+    async def test_multilingual_with_multiple_configurations(self) -> None:
+        sut = await self.get_sut()
+        sut.replace(*await self.get_configurations())
         assert sut.multilingual
 
 
@@ -444,94 +443,28 @@ class TestExtensionConfiguration:
     def _extensions(self, mocker: MockerFixture) -> None:
         mocker.patch(
             "betty.project.extension.EXTENSION_REPOSITORY",
-            new=StaticPluginRepository(DummyExtension, DummyConfigurableExtension),
+            new=StaticPluginRepository(DummyExtension),
         )
-
-    async def test_extension_type(self) -> None:
-        extension_type = DummyExtension
-        sut = ExtensionConfiguration(extension_type)
-        assert sut.extension_type == extension_type
 
     async def test_enabled(self) -> None:
-        enabled = True
         sut = ExtensionConfiguration(
             DummyExtension,
-            enabled=enabled,
+            enabled=True,
         )
-        assert sut.enabled == enabled
-        sut.enabled = False
-
-    async def test_extension_configuration(self) -> None:
-        extension_type_configuration = DummyConfiguration()
-        sut = ExtensionConfiguration(
-            DummyConfigurableExtension,
-            extension_configuration=extension_type_configuration,
-        )
-        assert sut.extension_configuration == extension_type_configuration
-
-    async def test_load_without_extension(self) -> None:
-        with raises_error(error_type=AssertionFailed):
-            ExtensionConfiguration(DummyExtension).load({})
-
-    async def test_load_with_extension(self) -> None:
-        sut = ExtensionConfiguration(DummyExtension)
-        sut.load({"extension": DummyConfigurableExtension.plugin_id()})
-        assert sut.extension_type == DummyConfigurableExtension
         assert sut.enabled
+        sut.enabled = False
+        assert not sut.enabled
 
     async def test_load_with_enabled(self) -> None:
         sut = ExtensionConfiguration(DummyExtension)
-        sut.load(
-            {"extension": DummyConfigurableExtension.plugin_id(), "enabled": False}
-        )
+        sut.load({"id": DummyExtension.plugin_id(), "enabled": False})
         assert not sut.enabled
 
-    async def test_load_with_configuration(self) -> None:
-        sut = ExtensionConfiguration(DummyConfigurableExtension)
-        sut.load(
-            {
-                "extension": DummyConfigurableExtension.plugin_id(),
-                "configuration": {
-                    "check": True,
-                },
-            }
-        )
-        extension_configuration = sut.extension_configuration
-        assert isinstance(
-            extension_configuration, DummyConfigurableExtensionConfiguration
-        )
-        assert extension_configuration.check
-
-    async def test_load_with_configuration_for_non_configurable_extension_should_error(
-        self,
-    ) -> None:
-        sut = ExtensionConfiguration(DummyExtension)
-        with pytest.raises(AssertionFailed):
-            sut.load(
-                {
-                    "extension": DummyExtension.plugin_id(),
-                    "configuration": {
-                        "check": True,
-                    },
-                }
-            )
-
-    async def test_dump_should_dump_minimal(self) -> None:
+    async def test_dump_should_dump_enabled(self) -> None:
         sut = ExtensionConfiguration(DummyExtension)
         expected = {
-            "extension": DummyExtension.plugin_id(),
+            "id": DummyExtension.plugin_id(),
             "enabled": True,
-        }
-        assert sut.dump() == expected
-
-    async def test_dump_should_dump_extension_configuration(self) -> None:
-        sut = ExtensionConfiguration(DummyConfigurableExtension)
-        expected = {
-            "extension": DummyConfigurableExtension.plugin_id(),
-            "enabled": True,
-            "configuration": {
-                "check": False,
-            },
         }
         assert sut.dump() == expected
 
@@ -565,12 +498,12 @@ class TestExtensionConfigurationMapping(
             ExtensionTypeConfigurationMappingTestExtension3,
         )
 
-    def get_sut(
+    async def get_sut(
         self, configurations: Iterable[ExtensionConfiguration] | None = None
     ) -> ExtensionConfigurationMapping:
         return ExtensionConfigurationMapping(configurations)
 
-    def get_configurations(
+    async def get_configurations(
         self,
     ) -> tuple[
         ExtensionConfiguration,
@@ -594,7 +527,7 @@ class TestExtensionConfigurationMapping(
 
     async def test_enable(self) -> None:
         sut = ExtensionConfigurationMapping()
-        sut.enable(DummyExtension)
+        await sut.enable(DummyExtension)
         assert sut[DummyExtension].enabled
 
 
@@ -731,12 +664,12 @@ class TestEntityTypeConfigurationMapping(
             EntityTypeConfigurationMappingTestEntity3,
         )
 
-    def get_sut(
+    async def get_sut(
         self, configurations: Iterable[EntityTypeConfiguration] | None = None
     ) -> EntityTypeConfigurationMapping:
         return EntityTypeConfigurationMapping(configurations)
 
-    def get_configurations(
+    async def get_configurations(
         self,
     ) -> tuple[
         EntityTypeConfiguration,
@@ -826,7 +759,7 @@ class TestCopyrightNoticeConfigurationMapping(
         return "foo", "bar", "baz", "qux"
 
     @override
-    def get_configurations(
+    async def get_configurations(
         self,
     ) -> tuple[
         CopyrightNoticeConfiguration,
@@ -842,7 +775,7 @@ class TestCopyrightNoticeConfigurationMapping(
         )
 
     @override
-    def get_sut(
+    async def get_sut(
         self, configurations: Iterable[CopyrightNoticeConfiguration] | None = None
     ) -> CopyrightNoticeConfigurationMapping:
         return CopyrightNoticeConfigurationMapping(configurations)
@@ -922,7 +855,7 @@ class TestLicenseConfigurationMapping(
         return "foo", "bar", "baz", "qux"
 
     @override
-    def get_configurations(
+    async def get_configurations(
         self,
     ) -> tuple[
         LicenseConfiguration,
@@ -938,7 +871,7 @@ class TestLicenseConfigurationMapping(
         )
 
     @override
-    def get_sut(
+    async def get_sut(
         self, configurations: Iterable[LicenseConfiguration] | None = None
     ) -> LicenseConfigurationMapping:
         return LicenseConfigurationMapping(configurations)
@@ -952,7 +885,7 @@ class TestEventTypeConfigurationMapping(
         return "foo", "bar", "baz", "qux"
 
     @override
-    def get_configurations(
+    async def get_configurations(
         self,
     ) -> tuple[
         PluginConfiguration,
@@ -968,7 +901,7 @@ class TestEventTypeConfigurationMapping(
         )
 
     @override
-    def get_sut(
+    async def get_sut(
         self, configurations: Iterable[PluginConfiguration] | None = None
     ) -> EventTypeConfigurationMapping:
         return EventTypeConfigurationMapping(configurations)
@@ -982,7 +915,7 @@ class TestPlaceTypeConfigurationMapping(
         return "foo", "bar", "baz", "qux"
 
     @override
-    def get_configurations(
+    async def get_configurations(
         self,
     ) -> tuple[
         PluginConfiguration,
@@ -998,7 +931,7 @@ class TestPlaceTypeConfigurationMapping(
         )
 
     @override
-    def get_sut(
+    async def get_sut(
         self, configurations: Iterable[PluginConfiguration] | None = None
     ) -> PlaceTypeConfigurationMapping:
         return PlaceTypeConfigurationMapping(configurations)
@@ -1012,7 +945,7 @@ class TestPresenceRoleConfigurationMapping(
         return "foo", "bar", "baz", "qux"
 
     @override
-    def get_configurations(
+    async def get_configurations(
         self,
     ) -> tuple[
         PluginConfiguration,
@@ -1028,7 +961,7 @@ class TestPresenceRoleConfigurationMapping(
         )
 
     @override
-    def get_sut(
+    async def get_sut(
         self, configurations: Iterable[PluginConfiguration] | None = None
     ) -> PresenceRoleConfigurationMapping:
         return PresenceRoleConfigurationMapping(configurations)
@@ -1042,7 +975,7 @@ class TestGenderConfigurationMapping(
         return "foo", "bar", "baz", "qux"
 
     @override
-    def get_configurations(
+    async def get_configurations(
         self,
     ) -> tuple[
         PluginConfiguration,
@@ -1058,7 +991,7 @@ class TestGenderConfigurationMapping(
         )
 
     @override
-    def get_sut(
+    async def get_sut(
         self, configurations: Iterable[PluginConfiguration] | None = None
     ) -> GenderConfigurationMapping:
         return GenderConfigurationMapping(configurations)
@@ -1350,7 +1283,7 @@ class TestProjectConfiguration:
         actual = sut.extensions[DummyConfigurableExtension]
         assert actual.enabled
         assert isinstance(
-            actual.extension_configuration, DummyConfigurableExtensionConfiguration
+            actual.plugin_configuration, DummyConfigurableExtensionConfiguration
         )
 
     async def test_load_should_load_one_extension_without_configuration(
@@ -1368,7 +1301,7 @@ class TestProjectConfiguration:
         sut.load(dump)
         actual = sut.extensions[_DummyNonConfigurableExtension]
         assert actual.enabled
-        assert actual.extension_configuration is None
+        assert actual.plugin_configuration is None
 
     async def test_load_extension_with_invalid_configuration_should_raise_error(
         self, tmp_path: Path
@@ -1600,7 +1533,7 @@ class TestProjectConfiguration:
         self, tmp_path: Path
     ) -> None:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
-        sut.extensions.enable(_DummyNonConfigurableExtension)
+        await sut.extensions.enable(_DummyNonConfigurableExtension)
         dump = sut.dump()
         expected = {_DummyNonConfigurableExtension.plugin_id(): {"enabled": True}}
         assert dump["extensions"] == expected

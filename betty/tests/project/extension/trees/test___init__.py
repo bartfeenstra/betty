@@ -3,7 +3,6 @@ from typing_extensions import override
 
 from betty.app import App
 from betty.project import Project
-from betty.project.config import ExtensionConfiguration
 from betty.project.extension.trees import Trees
 from betty.project.generate import generate
 from betty.test_utils.project.extension.webpack import WebpackEntryPointProviderTestBase
@@ -17,7 +16,7 @@ class TestTrees(WebpackEntryPointProviderTestBase):
     async def test_generate(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.debug = True
-            project.configuration.extensions.append(ExtensionConfiguration(Trees))
+            await project.configuration.extensions.enable(Trees)
             async with project:
                 await generate(project)
                 async with aiofiles.open(

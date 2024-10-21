@@ -15,7 +15,6 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.project import Project
-from betty.project.config import ExtensionConfiguration
 from betty.project.extension.privatizer import Privatizer
 from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase
@@ -57,7 +56,7 @@ class TestPrivatizer(ExtensionTestBase[Privatizer]):
         FileReference(citation, citation_file)
 
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.extensions.append(ExtensionConfiguration(Privatizer))
+            await project.configuration.extensions.enable(Privatizer)
             project.ancestry.add(person, source, citation)
             async with project:
                 await load(project)

@@ -31,12 +31,12 @@ from betty.test_utils.plugin import DummyPlugin
 class TestFamilyTreeConfigurationSequence(
     ConfigurationSequenceTestBase[FamilyTreeConfiguration]
 ):
-    def get_sut(
+    async def get_sut(
         self, configurations: Iterable[FamilyTreeConfiguration] | None = None
     ) -> FamilyTreeConfigurationSequence:
         return FamilyTreeConfigurationSequence(configurations)
 
-    def get_configurations(
+    async def get_configurations(
         self,
     ) -> tuple[
         FamilyTreeConfiguration,

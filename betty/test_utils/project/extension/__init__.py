@@ -122,5 +122,5 @@ class DummyConfigurableExtension(
 
     @override
     @classmethod
-    def default_configuration(cls) -> DummyConfigurableExtensionConfiguration:
+    def new_default_configuration(cls) -> DummyConfigurableExtensionConfiguration:
         return DummyConfigurableExtensionConfiguration()

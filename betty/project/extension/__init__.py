@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-from abc import abstractmethod
 from typing import TypeVar, TYPE_CHECKING, Generic, Self, Sequence
 
 from typing_extensions import override
 
-from betty.config import Configurable, Configuration
+from betty.config import Configuration, DefaultConfigurable
 from betty.core import CoreComponent
 from betty.locale.localizable import Localizable, _, call
 from betty.plugin import (
@@ -113,23 +112,16 @@ class Theme(Extension):
 
 
 class ConfigurableExtension(
-    Extension, Generic[_ConfigurationT], Configurable[_ConfigurationT]
+    DefaultConfigurable[_ConfigurationT], Extension, Generic[_ConfigurationT]
 ):
     """
     A configurable extension.
     """
 
-    def __init__(self, project: Project):
-        super().__init__(project)
-        self._configuration = self.default_configuration()
-
+    @override
     @classmethod
-    @abstractmethod
-    def default_configuration(cls) -> _ConfigurationT:
-        """
-        Get this extension's default configuration.
-        """
-        pass
+    async def new_for_project(cls, project: Project) -> Self:
+        return cls(project, configuration=cls.new_default_configuration())
 
 
 async def sort_extension_type_graph(

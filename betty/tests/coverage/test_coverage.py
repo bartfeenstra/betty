@@ -68,6 +68,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/__init__.py": MissingReason.SHOULD_BE_COVERED,
     "betty/app/factory.py": MissingReason.ABSTRACT,
     "betty/assertion/__init__.py": {
+        "Field": MissingReason.INTERNAL,
         "OptionalField": MissingReason.DATACLASS,
         "RequiredField": MissingReason.DATACLASS,
     },
@@ -113,6 +114,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "__aenter__": MissingReason.SHOULD_BE_COVERED,
             "__aexit__": MissingReason.SHOULD_BE_COVERED,
         },
+    },
+    "betty/config/__init__.py": {
+        "DefaultConfigurable": MissingReason.ABSTRACT,
     },
     "betty/config/collections/__init__.py": MissingReason.ABSTRACT,
     "betty/contextlib.py": {

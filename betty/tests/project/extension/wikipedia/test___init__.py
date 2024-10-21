@@ -9,7 +9,6 @@ from betty.app import App
 from betty.fetch.static import StaticFetcher
 from betty.job import Context
 from betty.project import Project
-from betty.project.config import ExtensionConfiguration
 from betty.project.extension.wikipedia import Wikipedia
 from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase
@@ -49,7 +48,7 @@ class TestWikipedia(ExtensionTestBase[Wikipedia]):
         ]
 
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.extensions.append(ExtensionConfiguration(Wikipedia))
+            await project.configuration.extensions.enable(Wikipedia)
             async with project:
                 jinja2_environment = await project.jinja2_environment
                 actual = await jinja2_environment.from_string(
@@ -68,7 +67,7 @@ class TestWikipedia(ExtensionTestBase[Wikipedia]):
         m_populate = mocker.patch("betty.wikipedia._Populator.populate")
 
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.extensions.append(ExtensionConfiguration(Wikipedia))
+            await project.configuration.extensions.enable(Wikipedia)
             async with project:
                 await load(project)
 
@@ -76,7 +75,7 @@ class TestWikipedia(ExtensionTestBase[Wikipedia]):
 
     async def test_retriever(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.extensions.enable(Wikipedia)
+            await project.configuration.extensions.enable(Wikipedia)
             async with project:
                 extensions = await project.extensions
                 wikipedia = extensions[Wikipedia]
@@ -89,7 +88,7 @@ class TestWikipedia(ExtensionTestBase[Wikipedia]):
             app,
             Project.new_temporary(app) as project,
         ):
-            project.configuration.extensions.enable(Wikipedia)
+            await project.configuration.extensions.enable(Wikipedia)
             async with project:
                 extensions = await project.extensions
                 sut = extensions[Wikipedia]

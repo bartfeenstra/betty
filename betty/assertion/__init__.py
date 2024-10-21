@@ -25,7 +25,7 @@ from betty.assertion.error import AssertionFailedGroup, AssertionFailed, Key, In
 from betty.error import FileNotFound, UserFacingError
 from betty.locale import get_data, UNDETERMINED_LOCALE
 from betty.locale.localizable import _, Localizable, plain, join, do_you_mean
-from betty.typing import Void, Voidable
+from betty.typing import Void, Voidable, internal
 
 Number: TypeAlias = int | float
 
@@ -90,8 +90,16 @@ class AssertionChain(Generic[_AssertionValueT, _AssertionReturnT]):
         return self._assertion(value)
 
 
+@internal
 @dataclass(frozen=True)
-class _Field(Generic[_AssertionValueT, _AssertionReturnT]):
+class Field(Generic[_AssertionValueT, _AssertionReturnT]):
+    """
+    A key-value mapping field.
+
+    Do not instantiate this class directly. Use :py:class:`betty.assertion.RequiredField` or
+    :py:class:`betty.assertion.OptionalField` instead.
+    """
+
     name: str
     assertion: Assertion[_AssertionValueT, _AssertionReturnT] | None = None
 
@@ -100,7 +108,7 @@ class _Field(Generic[_AssertionValueT, _AssertionReturnT]):
 @dataclass(frozen=True)
 class RequiredField(
     Generic[_AssertionValueT, _AssertionReturnT],
-    _Field[_AssertionValueT, _AssertionReturnT],
+    Field[_AssertionValueT, _AssertionReturnT],
 ):
     """
     A required key-value mapping field.
@@ -113,7 +121,7 @@ class RequiredField(
 @dataclass(frozen=True)
 class OptionalField(
     Generic[_AssertionValueT, _AssertionReturnT],
-    _Field[_AssertionValueT, _AssertionReturnT],
+    Field[_AssertionValueT, _AssertionReturnT],
 ):
     """
     An optional key-value mapping field.
@@ -370,7 +378,7 @@ def assert_mapping(
 
 
 def assert_fields(
-    *fields: _Field[Any, Any],
+    *fields: Field[Any, Any],
 ) -> AssertionChain[Any, MutableMapping[str, Any]]:
     """
     Assert that a value is a key-value mapping of arbitrary value types, and assert several of its values.
@@ -409,7 +417,7 @@ def assert_field(
 
 
 def assert_field(
-    field: _Field[_AssertionValueT, _AssertionReturnT],
+    field: Field[_AssertionValueT, _AssertionReturnT],
 ) -> (
     AssertionChain[_AssertionValueT, _AssertionReturnT]
     | AssertionChain[_AssertionValueT, Voidable[_AssertionReturnT]]
@@ -430,7 +438,7 @@ def assert_field(
 
 
 def assert_record(
-    *fields: _Field[Any, Any],
+    *fields: Field[Any, Any],
 ) -> AssertionChain[Any, MutableMapping[str, Any]]:
     """
     Assert that a value is a record: a key-value mapping of arbitrary value types, with a known structure.
