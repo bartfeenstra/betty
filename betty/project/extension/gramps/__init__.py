@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 async def _load_ancestry(event: LoadAncestryEvent) -> None:
     project = event.project
-    gramps_configuration = project.configuration.extensions[Gramps].plugin_configuration
+    gramps_configuration = project.configuration.extensions[Gramps].configuration
     assert isinstance(gramps_configuration, GrampsConfiguration)
     for family_tree_configuration in gramps_configuration.family_trees:
         file_path = family_tree_configuration.file_path

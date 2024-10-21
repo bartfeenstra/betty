@@ -17,7 +17,7 @@ from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.app import App
 from betty.project import Project
-from betty.project.config import ExtensionConfiguration
+from betty.project.extension.config import ExtensionInstanceConfiguration
 from betty.project.extension.gramps import Gramps
 from betty.project.extension.gramps.config import (
     FamilyTreeConfiguration,
@@ -59,9 +59,9 @@ class TestGramps(ExtensionTestBase[Gramps]):
 
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.append(
-                ExtensionConfiguration(
+                ExtensionInstanceConfiguration(
                     Gramps,
-                    extension_configuration=GrampsConfiguration(
+                    configuration=GrampsConfiguration(
                         family_trees=[
                             FamilyTreeConfiguration(
                                 file_path=gramps_family_tree_path,
@@ -100,9 +100,9 @@ class TestGramps(ExtensionTestBase[Gramps]):
 
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.append(
-                ExtensionConfiguration(
+                ExtensionInstanceConfiguration(
                     Gramps,
-                    extension_configuration=GrampsConfiguration(
+                    configuration=GrampsConfiguration(
                         family_trees=[
                             FamilyTreeConfiguration(
                                 file_path=gramps_family_tree_path,
@@ -149,9 +149,9 @@ class TestGramps(ExtensionTestBase[Gramps]):
 
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.append(
-                ExtensionConfiguration(
+                ExtensionInstanceConfiguration(
                     Gramps,
-                    extension_configuration=GrampsConfiguration(
+                    configuration=GrampsConfiguration(
                         family_trees=[
                             FamilyTreeConfiguration(
                                 file_path=gramps_family_tree_path,
@@ -193,9 +193,9 @@ class TestGramps(ExtensionTestBase[Gramps]):
 
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.append(
-                ExtensionConfiguration(
+                ExtensionInstanceConfiguration(
                     Gramps,
-                    extension_configuration=GrampsConfiguration(
+                    configuration=GrampsConfiguration(
                         family_trees=[
                             FamilyTreeConfiguration(
                                 file_path=gramps_family_tree_path,
@@ -326,9 +326,9 @@ class TestGramps(ExtensionTestBase[Gramps]):
 
             async with Project.new_temporary(new_temporary_app) as project:
                 project.configuration.extensions.append(
-                    ExtensionConfiguration(
+                    ExtensionInstanceConfiguration(
                         Gramps,
-                        extension_configuration=GrampsConfiguration(
+                        configuration=GrampsConfiguration(
                             family_trees=[
                                 FamilyTreeConfiguration(
                                     file_path=gramps_family_tree_one_path
