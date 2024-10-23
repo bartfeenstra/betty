@@ -1,13 +1,12 @@
 from collections.abc import Sequence
 from pathlib import Path
-from typing import cast
 
 from betty.app import App
 from betty.config import assert_configuration_file
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project.config import ProjectConfiguration
+from betty.project.extension import EXTENSION_REPOSITORY
 from betty.project.extension.gramps import Gramps
-from betty.project.extension.gramps.config import GrampsConfiguration
 from betty.test_utils.cli import run
 
 
@@ -120,8 +119,11 @@ class TestNew:
         ]
         configuration = await self._assert_new(new_temporary_app, tmp_path, inputs)
         assert Gramps in configuration.extensions
-        family_trees = cast(
-            GrampsConfiguration,
-            configuration.extensions[Gramps].configuration,
-        ).family_trees
-        assert family_trees[0].file_path == gramps_family_tree_file_path
+        gramps = await configuration.extensions[Gramps].new_plugin_instance(
+            EXTENSION_REPOSITORY
+        )
+        assert isinstance(gramps, Gramps)
+        assert (
+            gramps.configuration.family_trees[0].file_path
+            == gramps_family_tree_file_path
+        )

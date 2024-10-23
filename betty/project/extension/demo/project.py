@@ -27,13 +27,13 @@ from betty.date import Date, DateRange
 from betty.fs import DATA_DIRECTORY_PATH
 from betty.license.licenses import spdx_license_id_to_license_id
 from betty.media_type.media_types import SVG
+from betty.plugin.config import PluginInstanceConfiguration
 from betty.project import Project
 from betty.project.config import (
     EntityReference,
     LocaleConfiguration,
     ProjectConfiguration,
 )
-from betty.project.extension.config import ExtensionInstanceConfiguration
 from betty.project.extension.cotton_candy import CottonCandy
 from betty.project.extension.cotton_candy.config import CottonCandyConfiguration
 from betty.project.extension.demo.copyright_notice import Streetmix
@@ -65,8 +65,8 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
             "nl-NL": "Bart Feenstra en bijdragers",
         },
         extensions=[
-            ExtensionInstanceConfiguration(Demo),
-            ExtensionInstanceConfiguration(
+            PluginInstanceConfiguration(Demo),
+            PluginInstanceConfiguration(
                 CottonCandy,
                 configuration=CottonCandyConfiguration(
                     featured_entities=[

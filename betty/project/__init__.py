@@ -51,9 +51,9 @@ from betty.plugin.static import StaticPluginRepository
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import (
     Extension,
-    ConfigurableExtension,
     Theme,
     sort_extension_type_graph,
+    EXTENSION_REPOSITORY,
 )
 from betty.project.factory import ProjectDependentFactory
 from betty.project.url import (
@@ -334,46 +334,38 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
 
     async def _init_extensions(self) -> ProjectExtensions:
         self.assert_bootstrapped()
-        extension_types_enabled_in_configuration = set()
-        for project_extension_configuration in self.configuration.extensions.values():
-            extension_requirement = (
-                await project_extension_configuration.plugin.requirement()
-            )
+        extensions = {}
+        for extension_configuration in self.configuration.extensions.values():
+            extension = await EXTENSION_REPOSITORY.get(extension_configuration.id)
+            extension_requirement = await extension.requirement()
             extension_requirement.assert_met()
-            extension_types_enabled_in_configuration.add(
-                project_extension_configuration.plugin
-            )
+            extensions[extension] = extension_configuration
 
-        extension_types_sorter = TopologicalSorter[type[Extension]]()
-        await sort_extension_type_graph(
-            extension_types_sorter, extension_types_enabled_in_configuration
-        )
-        extension_types_sorter.prepare()
+        extensions_sorter = TopologicalSorter[type[Extension]]()
+        await sort_extension_type_graph(extensions_sorter, extensions)
+        extensions_sorter.prepare()
 
-        extensions = []
         theme_count = 0
-        while extension_types_sorter.is_active():
-            extension_types_batch = extension_types_sorter.get_ready()
-            extensions_batch = []
-            for extension_type in extension_types_batch:
-                extension = await self.new_target(extension_type)
-                if (
-                    isinstance(extension, ConfigurableExtension)
-                    and extension_type in self.configuration.extensions
-                ):
-                    extension_configuration = self.configuration.extensions[
-                        extension_type
-                    ].configuration
-                    if extension_configuration:
-                        extension.configuration.update(extension_configuration)
-                if isinstance(extension, Theme):
+        project_extension_instances = []
+        while extensions_sorter.is_active():
+            extensions_batch = extensions_sorter.get_ready()
+            extension_instances_batch = []
+            for extension in extensions_batch:
+                if issubclass(extension, Theme):
                     theme_count += 1
-                extensions_batch.append(extension)
-                extension_types_sorter.done(extension_type)
-            extensions.append(
-                sorted(extensions_batch, key=lambda extension: extension.plugin_id())
+                extension_instances_batch.append(
+                    await extensions[extension].new_plugin_instance(
+                        EXTENSION_REPOSITORY
+                    )
+                )
+                extensions_sorter.done(extension)
+            project_extension_instances.append(
+                sorted(
+                    extension_instances_batch,
+                    key=lambda extension_instance: extension_instance.plugin_id(),
+                )
             )
-        initialized_extensions = ProjectExtensions(extensions)
+        initialized_extensions = ProjectExtensions(project_extension_instances)
 
         # Users may not realize no theme is enabled, and be confused by their site looking bare.
         # Warn them out of courtesy.
@@ -456,7 +448,9 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
             self.assert_bootstrapped()
             self._copyright_notices = ProxyPluginRepository(
                 COPYRIGHT_NOTICE_REPOSITORY,
-                StaticPluginRepository(*self.configuration.copyright_notices.plugins),
+                StaticPluginRepository(
+                    *self.configuration.copyright_notices.new_plugins
+                ),
                 factory=self.new_target,
             )
 
@@ -493,7 +487,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
                 self.assert_bootstrapped()
                 self._licenses = ProxyPluginRepository(
                     await self._app.spdx_licenses,
-                    StaticPluginRepository(*self.configuration.licenses.plugins),
+                    StaticPluginRepository(*self.configuration.licenses.new_plugins),
                     factory=self.new_target,
                 )
 
@@ -508,7 +502,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
             self.assert_bootstrapped()
             self._event_types = ProxyPluginRepository(
                 EVENT_TYPE_REPOSITORY,
-                StaticPluginRepository(*self.configuration.event_types.plugins),
+                StaticPluginRepository(*self.configuration.event_types.new_plugins),
                 factory=self.new_target,
             )
 
@@ -523,7 +517,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
             self.assert_bootstrapped()
             self._place_types = ProxyPluginRepository(
                 PLACE_TYPE_REPOSITORY,
-                StaticPluginRepository(*self.configuration.place_types.plugins),
+                StaticPluginRepository(*self.configuration.place_types.new_plugins),
                 factory=self.new_target,
             )
 
@@ -538,7 +532,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
             self.assert_bootstrapped()
             self._presence_roles = ProxyPluginRepository(
                 PRESENCE_ROLE_REPOSITORY,
-                StaticPluginRepository(*self.configuration.presence_roles.plugins),
+                StaticPluginRepository(*self.configuration.presence_roles.new_plugins),
                 factory=self.new_target,
             )
 
@@ -555,7 +549,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
             self.assert_bootstrapped()
             self._genders = ProxyPluginRepository(
                 GENDER_REPOSITORY,
-                StaticPluginRepository(*self.configuration.genders.plugins),
+                StaticPluginRepository(*self.configuration.genders.new_plugins),
                 factory=self.new_target,
             )
 

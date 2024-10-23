@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-21 21:22+0100\n"
+"POT-Creation-Date: 2024-10-24 22:30+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -613,6 +613,9 @@ msgid "Place"
 msgstr ""
 
 msgid "Places"
+msgstr ""
+
+msgid "Plugin {plugin_label} ({plugin_id}) is not configurable, but configuration was given."
 msgstr ""
 
 msgid "Pre-built Webpack front-end assets are available"
