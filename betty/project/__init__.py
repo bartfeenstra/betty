@@ -48,13 +48,9 @@ from betty.locale.localizer import LocalizerRepository
 from betty.model import Entity, EntityReferenceCollectionSchema
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.plugin.static import StaticPluginRepository
+from betty.project import extension
 from betty.project.config import ProjectConfiguration
-from betty.project.extension import (
-    Extension,
-    ConfigurableExtension,
-    Theme,
-    sort_extension_type_graph,
-)
+from betty.project.extension import Extension, Theme, sort_extension_type_graph
 from betty.project.factory import ProjectDependentFactory
 from betty.project.url import (
     LocalizedUrlGenerator as ProjectLocalizedUrlGenerator,
@@ -120,15 +116,18 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         self._entity_types: set[type[Entity]] | None = None
         self._copyright_notice: CopyrightNotice | None = None
         self._copyright_notice_lock = AsynchronizedLock.threading()
-        self._copyright_notices: PluginRepository[CopyrightNotice] | None = None
+        self._copyright_notice_repository: PluginRepository[CopyrightNotice] | None = (
+            None
+        )
         self._license: License | None = None
         self._license_lock = AsynchronizedLock.threading()
-        self._licenses: PluginRepository[License] | None = None
+        self._license_repository: PluginRepository[License] | None = None
         self._licenses_lock = AsynchronizedLock.threading()
-        self._event_types: PluginRepository[EventType] | None = None
-        self._place_types: PluginRepository[PlaceType] | None = None
-        self._presence_roles: PluginRepository[PresenceRole] | None = None
-        self._genders: PluginRepository[Gender] | None = None
+        self._event_type_repository: PluginRepository[EventType] | None = None
+        self._place_type_repository: PluginRepository[PlaceType] | None = None
+        self._presence_role_repository: PluginRepository[PresenceRole] | None = None
+        self._gender_repository: PluginRepository[Gender] | None = None
+        self._extension_repository: PluginRepository[Extension] | None = None
 
     @classmethod
     async def new(
@@ -334,46 +333,42 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
 
     async def _init_extensions(self) -> ProjectExtensions:
         self.assert_bootstrapped()
-        extension_types_enabled_in_configuration = set()
-        for project_extension_configuration in self.configuration.extensions.values():
-            extension_requirement = (
-                await project_extension_configuration.plugin.requirement()
-            )
+        extensions = {}
+        for extension_configuration in self.configuration.extensions.values():
+            extension = await self.extension_repository.get(extension_configuration.id)
+            extension_requirement = await extension.requirement()
             extension_requirement.assert_met()
-            extension_types_enabled_in_configuration.add(
-                project_extension_configuration.plugin
-            )
+            extensions[extension] = extension_configuration
 
-        extension_types_sorter = TopologicalSorter[type[Extension]]()
-        await sort_extension_type_graph(
-            extension_types_sorter, extension_types_enabled_in_configuration
-        )
-        extension_types_sorter.prepare()
+        extensions_sorter = TopologicalSorter[type[Extension]]()
+        await sort_extension_type_graph(extensions_sorter, extensions)
+        extensions_sorter.prepare()
 
-        extensions = []
         theme_count = 0
-        while extension_types_sorter.is_active():
-            extension_types_batch = extension_types_sorter.get_ready()
-            extensions_batch = []
-            for extension_type in extension_types_batch:
-                extension = await self.new_target(extension_type)
-                if (
-                    isinstance(extension, ConfigurableExtension)
-                    and extension_type in self.configuration.extensions
-                ):
-                    extension_configuration = self.configuration.extensions[
-                        extension_type
-                    ].configuration
-                    if extension_configuration:
-                        extension.configuration.update(extension_configuration)
-                if isinstance(extension, Theme):
+        project_extension_instances = []
+        while extensions_sorter.is_active():
+            extensions_batch = extensions_sorter.get_ready()
+            extension_instances_batch = []
+            for extension in extensions_batch:
+                if issubclass(extension, Theme):
                     theme_count += 1
-                extensions_batch.append(extension)
-                extension_types_sorter.done(extension_type)
-            extensions.append(
-                sorted(extensions_batch, key=lambda extension: extension.plugin_id())
+                if extension in extensions:
+                    extension_instance = await extensions[
+                        extension
+                    ].new_plugin_instance(self.extension_repository)
+                else:
+                    extension_instance = await self.extension_repository.new_target(
+                        extension
+                    )
+                extension_instances_batch.append(extension_instance)
+                extensions_sorter.done(extension)
+            project_extension_instances.append(
+                sorted(
+                    extension_instances_batch,
+                    key=lambda extension_instance: extension_instance.plugin_id(),
+                )
             )
-        initialized_extensions = ProjectExtensions(extensions)
+        initialized_extensions = ProjectExtensions(project_extension_instances)
 
         # Users may not realize no theme is enabled, and be confused by their site looking bare.
         # Warn them out of courtesy.
@@ -439,28 +434,30 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
             if self._copyright_notice is None:
                 self.assert_bootstrapped()
                 self._copyright_notice = await self.new_target(
-                    await self.copyright_notices.get(
+                    await self.copyright_notice_repository.get(
                         self.configuration.copyright_notice
                     )
                 )
         return self._copyright_notice
 
     @property
-    def copyright_notices(self) -> PluginRepository[CopyrightNotice]:
+    def copyright_notice_repository(self) -> PluginRepository[CopyrightNotice]:
         """
         The copyright notices available to this project.
 
         Read more about :doc:`/development/plugin/copyright-notice`.
         """
-        if self._copyright_notices is None:
+        if self._copyright_notice_repository is None:
             self.assert_bootstrapped()
-            self._copyright_notices = ProxyPluginRepository(
+            self._copyright_notice_repository = ProxyPluginRepository(
                 COPYRIGHT_NOTICE_REPOSITORY,
-                StaticPluginRepository(*self.configuration.copyright_notices.plugins),
+                StaticPluginRepository(
+                    *self.configuration.copyright_notices.new_plugins
+                ),
                 factory=self.new_target,
             )
 
-        return self._copyright_notices
+        return self._copyright_notice_repository
 
     @property
     def license(self) -> Awaitable[License]:
@@ -472,14 +469,14 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
     async def _get_license(self) -> License:
         async with self._license_lock:
             if self._license is None:
-                licenses = await self.licenses
+                licenses = await self.license_repository
                 self._license = await self.new_target(
                     await licenses.get(self.configuration.license)
                 )
         return self._license
 
     @property
-    def licenses(self) -> Awaitable[PluginRepository[License]]:
+    def license_repository(self) -> Awaitable[PluginRepository[License]]:
         """
         The licenses available to this project.
 
@@ -489,77 +486,92 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
 
     async def _get_licenses(self) -> PluginRepository[License]:
         async with self._licenses_lock:
-            if self._licenses is None:
+            if self._license_repository is None:
                 self.assert_bootstrapped()
-                self._licenses = ProxyPluginRepository(
-                    await self._app.spdx_licenses,
-                    StaticPluginRepository(*self.configuration.licenses.plugins),
+                self._license_repository = ProxyPluginRepository(
+                    await self._app.spdx_license_repository,
+                    StaticPluginRepository(*self.configuration.licenses.new_plugins),
                     factory=self.new_target,
                 )
 
-        return self._licenses
+        return self._license_repository
 
     @property
-    def event_types(self) -> PluginRepository[EventType]:
+    def event_type_repository(self) -> PluginRepository[EventType]:
         """
         The event types available to this project.
         """
-        if self._event_types is None:
+        if self._event_type_repository is None:
             self.assert_bootstrapped()
-            self._event_types = ProxyPluginRepository(
+            self._event_type_repository = ProxyPluginRepository(
                 EVENT_TYPE_REPOSITORY,
-                StaticPluginRepository(*self.configuration.event_types.plugins),
+                StaticPluginRepository(*self.configuration.event_types.new_plugins),
                 factory=self.new_target,
             )
 
-        return self._event_types
+        return self._event_type_repository
 
     @property
-    def place_types(self) -> PluginRepository[PlaceType]:
+    def place_type_repository(self) -> PluginRepository[PlaceType]:
         """
         The place types available to this project.
         """
-        if self._place_types is None:
+        if self._place_type_repository is None:
             self.assert_bootstrapped()
-            self._place_types = ProxyPluginRepository(
+            self._place_type_repository = ProxyPluginRepository(
                 PLACE_TYPE_REPOSITORY,
-                StaticPluginRepository(*self.configuration.place_types.plugins),
+                StaticPluginRepository(*self.configuration.place_types.new_plugins),
                 factory=self.new_target,
             )
 
-        return self._place_types
+        return self._place_type_repository
 
     @property
-    def presence_roles(self) -> PluginRepository[PresenceRole]:
+    def presence_role_repository(self) -> PluginRepository[PresenceRole]:
         """
         The presence roles available to this project.
         """
-        if self._presence_roles is None:
+        if self._presence_role_repository is None:
             self.assert_bootstrapped()
-            self._presence_roles = ProxyPluginRepository(
+            self._presence_role_repository = ProxyPluginRepository(
                 PRESENCE_ROLE_REPOSITORY,
-                StaticPluginRepository(*self.configuration.presence_roles.plugins),
+                StaticPluginRepository(*self.configuration.presence_roles.new_plugins),
                 factory=self.new_target,
             )
 
-        return self._presence_roles
+        return self._presence_role_repository
 
     @property
-    def genders(self) -> PluginRepository[Gender]:
+    def gender_repository(self) -> PluginRepository[Gender]:
         """
         The genders available to this project.
 
         Read more about :doc:`/development/plugin/gender`.
         """
-        if self._genders is None:
+        if self._gender_repository is None:
             self.assert_bootstrapped()
-            self._genders = ProxyPluginRepository(
+            self._gender_repository = ProxyPluginRepository(
                 GENDER_REPOSITORY,
-                StaticPluginRepository(*self.configuration.genders.plugins),
+                StaticPluginRepository(*self.configuration.genders.new_plugins),
                 factory=self.new_target,
             )
 
-        return self._genders
+        return self._gender_repository
+
+    @property
+    def extension_repository(self) -> PluginRepository[Extension]:
+        """
+        The extensions available to this project.
+
+        Read more about :doc:`/development/plugin/extension`.
+        """
+        if self._extension_repository is None:
+            self.assert_bootstrapped()
+            self._extension_repository = ProxyPluginRepository(
+                extension.EXTENSION_REPOSITORY, factory=self.new_target
+            )
+
+        return self._extension_repository
 
 
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)

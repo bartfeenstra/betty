@@ -34,6 +34,23 @@ class _ConfigurationMappingTestBase(
             self.get_configuration_keys()[1],
         ]
 
+    async def test___contains__(self) -> None:
+        """
+        Tests :py:meth:`betty.config.collections.mapping.ConfigurationMapping.__contains__` implementations.
+        """
+        configurations = await self.get_configurations()
+        keys = self.get_configuration_keys()
+        sut = await self.get_sut(
+            [
+                configurations[0],
+                configurations[1],
+            ]
+        )
+        assert keys[0] in sut
+        assert keys[1] in sut
+        assert keys[2] not in sut
+        assert keys[3] not in sut
+
 
 class ConfigurationMappingTestBase(
     Generic[_ConfigurationKeyT, _ConfigurationT],

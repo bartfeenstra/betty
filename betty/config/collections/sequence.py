@@ -43,6 +43,9 @@ class ConfigurationSequence(
         self._configurations: MutableSequence[_ConfigurationT] = []
         super().__init__(configurations)
 
+    def __contains__(self, configuration: _ConfigurationT) -> bool:
+        return configuration in self._configurations
+
     @override
     @overload
     def __getitem__(self, configuration_key: int) -> _ConfigurationT:

@@ -70,7 +70,7 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
         self._cache_factory = cache_factory
         self._binary_file_cache: BinaryFileCache | None = None
         self._process_pool: Executor | None = None
-        self._spdx_licenses: PluginRepository[License] | None = None
+        self._spdx_license_repository: PluginRepository[License] | None = None
         self._spdx_licenses_lock = AsynchronizedLock.threading()
 
     @classmethod
@@ -245,7 +245,7 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
         return await new(cls)
 
     @property
-    def spdx_licenses(self) -> Awaitable[PluginRepository[License]]:
+    def spdx_license_repository(self) -> Awaitable[PluginRepository[License]]:
         """
         The SPDX licenses available to this application.
         """
@@ -253,9 +253,9 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
 
     async def _get_spdx_licenses(self) -> PluginRepository[License]:
         async with self._spdx_licenses_lock:
-            if self._spdx_licenses is None:
+            if self._spdx_license_repository is None:
                 self.assert_bootstrapped()
-                self._spdx_licenses = ProxyPluginRepository(
+                self._spdx_license_repository = ProxyPluginRepository(
                     LICENSE_REPOSITORY,
                     SpdxLicenseRepository(
                         binary_file_cache=self.binary_file_cache.with_scope("spdx"),
@@ -266,4 +266,4 @@ class App(Configurable[AppConfiguration], TargetFactory[Any], CoreComponent):
                     ),
                 )
 
-        return self._spdx_licenses
+        return self._spdx_license_repository

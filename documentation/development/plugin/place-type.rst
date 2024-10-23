@@ -8,7 +8,7 @@ Place type plugins
    * -  Type
      -  :py:class:`betty.ancestry.place_type.PlaceType`
    * -  Repository
-     -  :py:attr:`betty.project.Project.place_types`
+     -  :py:attr:`betty.project.Project.place_type_repository`
 
 Place types are used to indicate the **type** of a :doc:`/usage/ancestry/place`, such as a country, a city, or a house
 number.

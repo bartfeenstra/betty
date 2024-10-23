@@ -200,7 +200,7 @@ class Person(
         schema.add_property(
             "gender",
             Enum(
-                *[gender.plugin_id() async for gender in project.genders],
+                *[gender.plugin_id() async for gender in project.gender_repository],
                 title="Gender",
             ),
             property_required=False,

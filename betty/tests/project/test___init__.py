@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING, Self, Sequence
 
 import pytest
@@ -13,7 +14,7 @@ from betty.app import App
 from betty.app.factory import AppDependentFactory
 from betty.json.schema import JsonSchemaSchema
 from betty.plugin import CyclicDependencyError
-from betty.plugin.config import PluginConfiguration
+from betty.plugin.config import PluginConfiguration, PluginInstanceConfiguration
 from betty.plugin.static import StaticPluginRepository
 from betty.project import (
     Project,
@@ -27,7 +28,6 @@ from betty.project.config import (
     LicenseConfiguration,
     ProjectConfiguration,
 )
-from betty.project.extension.config import ExtensionInstanceConfiguration
 from betty.project.factory import ProjectDependentFactory
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.json.schema import SchemaTestBase
@@ -39,7 +39,6 @@ from betty.test_utils.project.extension import (
 if TYPE_CHECKING:
     from betty.project.extension import Extension
     from betty.plugin import PluginIdentifier
-    from pathlib import Path
     from betty.json.schema import Schema
     from collections.abc import MutableSequence
     from pytest_mock import MockerFixture
@@ -88,6 +87,13 @@ class _ComesAfterNonConfigurableExtensionExtension(DummyExtension):
         return {DummyExtension}
 
 
+class _DummyExtensionWithAssetsDirectory(DummyExtension):
+    @override
+    @classmethod
+    def assets_directory_path(cls) -> Path | None:
+        return Path(__file__).parent / cls.plugin_id() / "assets"
+
+
 class TestProject:
     @pytest.fixture
     def _extensions(self, mocker: MockerFixture) -> None:
@@ -96,8 +102,12 @@ class TestProject:
             new=StaticPluginRepository(
                 DummyExtension,
                 DummyConfigurableExtension,
+                _AlsoDependsOnNonConfigurableExtensionExtension,
+                _ComesBeforeNonConfigurableExtensionExtension,
+                _ComesAfterNonConfigurableExtensionExtension,
                 _DependsOnNonConfigurableExtensionExtension,
                 _DependsOnNonConfigurableExtensionExtensionExtension,
+                _DummyExtensionWithAssetsDirectory,
                 _CyclicDependencyOneExtension,
                 _CyclicDependencyTwoExtension,
             ),
@@ -162,7 +172,7 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut:
             value = "Hello, world!"
             sut.configuration.extensions.append(
-                ExtensionInstanceConfiguration(
+                PluginInstanceConfiguration(
                     DummyConfigurableExtension,
                     configuration=DummyConfiguration(value=value),
                 )
@@ -321,6 +331,7 @@ class TestProject:
             assets = await sut.assets
             assert len(assets.assets_directory_paths) == 2
 
+    @pytest.mark.usefixtures("_extensions")
     async def test_assets_with_extension_without_assets_directory(
         self, new_temporary_app: App
     ) -> None:
@@ -330,15 +341,10 @@ class TestProject:
                 assets = await sut.assets
                 assert len(assets.assets_directory_paths) == 2
 
+    @pytest.mark.usefixtures("_extensions")
     async def test_assets_with_extension_with_assets_directory(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
-        class _DummyExtensionWithAssetsDirectory(DummyExtension):
-            @override
-            @classmethod
-            def assets_directory_path(cls) -> Path | None:
-                return tmp_path / cls.plugin_id() / "assets"
-
         async with Project.new_temporary(new_temporary_app) as sut:
             await sut.configuration.extensions.enable(
                 _DummyExtensionWithAssetsDirectory
@@ -438,50 +444,54 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             assert await sut.copyright_notice is await sut.copyright_notice
 
-    async def test_copyright_notices(self, new_temporary_app: App) -> None:
+    async def test_copyright_notice_repository(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.copyright_notices.append(
                 CopyrightNoticeConfiguration("foo", "Foo", summary="", text="")
             )
             async with sut:
-                assert await sut.copyright_notices.get("foo")
+                assert await sut.copyright_notice_repository.get("foo")
 
     async def test_license(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             assert await sut.license is await sut.license
 
-    async def test_licenses(self, new_temporary_app: App) -> None:
+    async def test_license_repository(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.licenses.append(
                 LicenseConfiguration("foo", "Foo", summary="", text="")
             )
             async with sut:
-                licenses = await sut.licenses
+                licenses = await sut.license_repository
                 assert await licenses.get("foo")
 
-    async def test_event_types(self, new_temporary_app: App) -> None:
+    async def test_event_type_repository(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.event_types.append(PluginConfiguration("foo", "Foo"))
             async with sut:
-                assert await sut.event_types.get("foo")
+                assert await sut.event_type_repository.get("foo")
 
-    async def test_place_types(self, new_temporary_app: App) -> None:
+    async def test_place_type_repository(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.place_types.append(PluginConfiguration("foo", "Foo"))
             async with sut:
-                assert await sut.place_types.get("foo")
+                assert await sut.place_type_repository.get("foo")
 
-    async def test_presence_roles(self, new_temporary_app: App) -> None:
+    async def test_presence_role_repository(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.presence_roles.append(PluginConfiguration("foo", "Foo"))
             async with sut:
-                assert await sut.presence_roles.get("foo")
+                assert await sut.presence_role_repository.get("foo")
 
-    async def test_genders(self, new_temporary_app: App) -> None:
+    async def test_gender_repository(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.genders.append(PluginConfiguration("foo", "Foo"))
             async with sut:
-                assert await sut.genders.get("foo")
+                assert await sut.gender_repository.get("foo")
+
+    async def test_extension_repository(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
+            assert await sut.extension_repository.get("cotton-candy")
 
 
 class TestProjectContext:

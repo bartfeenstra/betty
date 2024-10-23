@@ -22,8 +22,8 @@ if TYPE_CHECKING:
 
 async def _load_ancestry(event: LoadAncestryEvent) -> None:
     project = event.project
-    gramps_configuration = project.configuration.extensions[Gramps].configuration
-    assert isinstance(gramps_configuration, GrampsConfiguration)
+    extensions = await project.extensions
+    gramps_configuration = extensions[Gramps].configuration
     for family_tree_configuration in gramps_configuration.family_trees:
         file_path = family_tree_configuration.file_path
         if file_path:
@@ -32,19 +32,19 @@ async def _load_ancestry(event: LoadAncestryEvent) -> None:
                 attribute_prefix_key=project.configuration.name,
                 factory=project.new_target,
                 localizer=await project.app.localizer,
-                copyright_notices=project.copyright_notices,
-                licenses=await project.licenses,
+                copyright_notices=project.copyright_notice_repository,
+                licenses=await project.license_repository,
                 event_type_map=await family_tree_configuration.event_types.to_plugins(
-                    project.event_types
+                    project.event_type_repository
                 ),
                 gender_map=await family_tree_configuration.genders.to_plugins(
-                    project.genders
+                    project.gender_repository
                 ),
                 place_type_map=await family_tree_configuration.place_types.to_plugins(
-                    project.place_types
+                    project.place_type_repository
                 ),
                 presence_role_map=await family_tree_configuration.presence_roles.to_plugins(
-                    project.presence_roles
+                    project.presence_role_repository
                 ),
             ).load_file(file_path)
 

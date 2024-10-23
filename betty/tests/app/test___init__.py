@@ -70,6 +70,6 @@ class TestApp:
             dependent = await sut.new_target(Dependent)
             assert dependent.app is sut
 
-    async def test_spdx_licenses(self, new_temporary_app: App) -> None:
+    async def test_spdx_license_repository(self, new_temporary_app: App) -> None:
         async with App.new_temporary() as sut, sut:
-            await sut.spdx_licenses
+            await sut.spdx_license_repository

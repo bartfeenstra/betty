@@ -60,9 +60,6 @@ class ConfigurationCollection(
     def __iter__(self) -> Iterator[_ConfigurationKeyT] | Iterator[_ConfigurationT]:
         pass
 
-    def __contains__(self, item: Any) -> bool:
-        return item in self._configurations
-
     @abstractmethod
     def __getitem__(self, configuration_key: _ConfigurationKeyT) -> _ConfigurationT:
         pass

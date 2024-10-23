@@ -20,8 +20,8 @@ class Bootstrapped:
     """
 
     def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
         self._bootstrapped = False
+        super().__init__(*args, **kwargs)
 
     @final
     @property

@@ -27,13 +27,13 @@ from betty.date import Date, DateRange
 from betty.fs import DATA_DIRECTORY_PATH
 from betty.license.licenses import spdx_license_id_to_license_id
 from betty.media_type.media_types import SVG
+from betty.plugin.config import PluginInstanceConfiguration
 from betty.project import Project
 from betty.project.config import (
     EntityReference,
     LocaleConfiguration,
     ProjectConfiguration,
 )
-from betty.project.extension.config import ExtensionInstanceConfiguration
 from betty.project.extension.cotton_candy import CottonCandy
 from betty.project.extension.cotton_candy.config import CottonCandyConfiguration
 from betty.project.extension.demo.copyright_notice import Streetmix
@@ -65,8 +65,8 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
             "nl-NL": "Bart Feenstra en bijdragers",
         },
         extensions=[
-            ExtensionInstanceConfiguration(Demo),
-            ExtensionInstanceConfiguration(
+            PluginInstanceConfiguration(Demo),
+            PluginInstanceConfiguration(
                 CottonCandy,
                 configuration=CottonCandyConfiguration(
                     featured_entities=[
@@ -509,11 +509,11 @@ Did you know that Liberta "Betty" Lankester is Betty's namesake?
 async def _load_streetmix_images(
     project: Project,
 ) -> tuple[Mapping[MachineName, Sequence[File]], Sequence[File]]:
-    licenses = await project.licenses
+    licenses = await project.license_repository
     license = await licenses.new_target(  # noqa A001
         spdx_license_id_to_license_id("AGPL-3.0-or-later")
     )
-    copyright_notice = await project.copyright_notices.new_target(Streetmix)
+    copyright_notice = await project.copyright_notice_repository.new_target(Streetmix)
     streetmix_image_directory_path = DATA_DIRECTORY_PATH / "images" / "streetmix"
     masculine: Sequence[File] = []
     feminine: Sequence[File] = []

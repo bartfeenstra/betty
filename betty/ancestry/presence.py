@@ -97,7 +97,7 @@ class Presence(ShorthandPluginBase, HasPrivacy, Entity):
             Enum(
                 *[
                     presence_role.plugin_id()
-                    async for presence_role in project.presence_roles
+                    async for presence_role in project.presence_role_repository
                 ],
                 def_name="presenceRole",
                 title="Presence role",

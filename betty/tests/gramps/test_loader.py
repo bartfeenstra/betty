@@ -54,8 +54,8 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
-                copyright_notices=project.copyright_notices,
-                licenses=await project.licenses,
+                copyright_notices=project.copyright_notice_repository,
+                licenses=await project.license_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_gramps(Path(__file__).parent / "assets" / "minimal.gramps")
@@ -68,8 +68,8 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
-                copyright_notices=project.copyright_notices,
-                licenses=await project.licenses,
+                copyright_notices=project.copyright_notice_repository,
+                licenses=await project.license_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(GrampsFileNotFound):
@@ -81,8 +81,8 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
-                copyright_notices=project.copyright_notices,
-                licenses=await project.licenses,
+                copyright_notices=project.copyright_notice_repository,
+                licenses=await project.license_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_gpkg(Path(__file__).parent / "assets" / "minimal.gpkg")
@@ -95,8 +95,8 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
-                copyright_notices=project.copyright_notices,
-                licenses=await project.licenses,
+                copyright_notices=project.copyright_notice_repository,
+                licenses=await project.license_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(GrampsFileNotFound):
@@ -116,8 +116,8 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
-                copyright_notices=project.copyright_notices,
-                licenses=await project.licenses,
+                copyright_notices=project.copyright_notice_repository,
+                licenses=await project.license_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_file(file_path)
@@ -132,8 +132,8 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
-                copyright_notices=project.copyright_notices,
-                licenses=await project.licenses,
+                copyright_notices=project.copyright_notice_repository,
+                licenses=await project.license_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(GrampsFileNotFound):
@@ -147,8 +147,8 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
-                copyright_notices=project.copyright_notices,
-                licenses=await project.licenses,
+                copyright_notices=project.copyright_notice_repository,
+                licenses=await project.license_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(UserFacingGrampsError):
@@ -175,8 +175,8 @@ class TestGrampsLoader:
                     project.ancestry,
                     factory=project.new_target,
                     localizer=DEFAULT_LOCALIZER,
-                    copyright_notices=project.copyright_notices,
-                    licenses=await project.licenses,
+                    copyright_notices=project.copyright_notice_repository,
+                    licenses=await project.license_repository,
                     attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
                     event_type_map=event_type_map,
                     gender_map=gender_map,
@@ -223,8 +223,8 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
-                copyright_notices=project.copyright_notices,
-                licenses=await project.licenses,
+                copyright_notices=project.copyright_notice_repository,
+                licenses=await project.license_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             async with aiofiles.open(gramps_file_path) as f:

@@ -40,6 +40,9 @@ class _ConfigurationMapping(
         self._configurations: MutableMapping[_ConfigurationKeyT, _ConfigurationT] = {}
         super().__init__(configurations)
 
+    def __contains__(self, configuration_key: _ConfigurationKeyT) -> bool:
+        return configuration_key in self._configurations
+
     @override
     def __getitem__(self, configuration_key: _ConfigurationKeyT) -> _ConfigurationT:
         return self._configurations[configuration_key]

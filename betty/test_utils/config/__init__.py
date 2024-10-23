@@ -21,7 +21,7 @@ class DummyConfiguration(Configuration):
     A dummy :py:class:`betty.config.Configuration` implementation.
     """
 
-    def __init__(self, *, value: str | None = None):
+    def __init__(self, value: str | None = None):
         super().__init__()
         self.value = value
 

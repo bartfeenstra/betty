@@ -8,7 +8,7 @@ Extension plugins
    * -  Type
      -  :py:class:`betty.project.extension.Extension`
    * -  Repository
-     -  :py:class:`betty.project.extension.EXTENSION_REPOSITORY`
+     -  :py:class:`betty.project.Project.extension_repository`
 
 Extensions are core application components, and can be enabled and configured per project. An extension
 can do many things, such as loading new or expanding existing ancestry data, or generating additional

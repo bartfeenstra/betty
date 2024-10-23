@@ -8,7 +8,7 @@ License plugins
    * -  Type
      -  :py:class:`betty.license.License`
    * -  Repository
-     -  :py:attr:`betty.project.Project.licenses`
+     -  :py:attr:`betty.project.Project.license_repository`
 
 
 Creating a license

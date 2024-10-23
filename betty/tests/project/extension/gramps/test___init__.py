@@ -16,8 +16,8 @@ from betty.ancestry.place_type.place_types import City
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.app import App
+from betty.plugin.config import PluginInstanceConfiguration
 from betty.project import Project
-from betty.project.extension.config import ExtensionInstanceConfiguration
 from betty.project.extension.gramps import Gramps
 from betty.project.extension.gramps.config import (
     FamilyTreeConfiguration,
@@ -59,7 +59,7 @@ class TestGramps(ExtensionTestBase[Gramps]):
 
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.append(
-                ExtensionInstanceConfiguration(
+                PluginInstanceConfiguration(
                     Gramps,
                     configuration=GrampsConfiguration(
                         family_trees=[
@@ -100,7 +100,7 @@ class TestGramps(ExtensionTestBase[Gramps]):
 
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.append(
-                ExtensionInstanceConfiguration(
+                PluginInstanceConfiguration(
                     Gramps,
                     configuration=GrampsConfiguration(
                         family_trees=[
@@ -149,7 +149,7 @@ class TestGramps(ExtensionTestBase[Gramps]):
 
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.append(
-                ExtensionInstanceConfiguration(
+                PluginInstanceConfiguration(
                     Gramps,
                     configuration=GrampsConfiguration(
                         family_trees=[
@@ -193,7 +193,7 @@ class TestGramps(ExtensionTestBase[Gramps]):
 
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.append(
-                ExtensionInstanceConfiguration(
+                PluginInstanceConfiguration(
                     Gramps,
                     configuration=GrampsConfiguration(
                         family_trees=[
@@ -326,7 +326,7 @@ class TestGramps(ExtensionTestBase[Gramps]):
 
             async with Project.new_temporary(new_temporary_app) as project:
                 project.configuration.extensions.append(
-                    ExtensionInstanceConfiguration(
+                    PluginInstanceConfiguration(
                         Gramps,
                         configuration=GrampsConfiguration(
                             family_trees=[

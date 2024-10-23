@@ -35,3 +35,19 @@ class ConfigurationSequenceTestBase(
             ]
         )
         assert list(iter(sut)) == [configurations[0], configurations[1]]
+
+    async def test___contains__(self) -> None:
+        """
+        Tests :py:meth:`betty.config.collections.sequence.ConfigurationSequence.__contains__` implementations.
+        """
+        configurations = await self.get_configurations()
+        sut = await self.get_sut(
+            [
+                configurations[0],
+                configurations[1],
+            ]
+        )
+        assert configurations[0] in sut
+        assert configurations[1] in sut
+        assert configurations[2] not in sut
+        assert configurations[3] not in sut

@@ -34,7 +34,6 @@ from betty.assertion import (
     assert_mapping,
     assert_none,
     assert_or,
-    assert_field,
 )
 from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
@@ -53,6 +52,7 @@ from betty.locale.localizable.config import (
     OptionalStaticTranslationsLocalizableConfigurationAttr,
     RequiredStaticTranslationsLocalizableConfigurationAttr,
 )
+from betty.machine_name import MachineName
 from betty.machine_name import assert_machine_name
 from betty.model import Entity, UserFacingEntity
 from betty.plugin import ShorthandPluginBase
@@ -62,17 +62,15 @@ from betty.plugin.config import (
     PluginConfiguration,
     PluginConfigurationMapping,
     PluginInstanceConfiguration,
+    PluginInstanceConfigurationMapping,
 )
-from betty.project import extension
-from betty.project.extension import Extension
-from betty.project.extension.config import ExtensionInstanceConfiguration
 from betty.repr import repr_instance
 from betty.serde.format import Format, format_for, FORMAT_REPOSITORY
 
 if TYPE_CHECKING:
+    from betty.project.extension import Extension
     from betty.serde.dump import Dump, DumpMapping
     from collections.abc import Sequence
-    from betty.machine_name import MachineName
     from pathlib import Path
 
 
@@ -249,49 +247,32 @@ class EntityReferenceSequence(
 
 
 @final
-class ExtensionConfigurationMapping(
-    ConfigurationMapping[type[Extension], PluginInstanceConfiguration[Extension]]
-):
+class ExtensionInstanceConfigurationMapping(PluginInstanceConfigurationMapping):
     """
-    Configure a project's extensions.
+    Configure a project's enabled extensions.
     """
 
-    def __init__(
-        self,
-        configurations: Iterable[PluginInstanceConfiguration[Extension]] | None = None,
-    ):
-        super().__init__(configurations)
+    @override
+    def __getitem__(
+        self, configuration_key: MachineName | type[Extension]
+    ) -> PluginInstanceConfiguration:
+        if isinstance(configuration_key, type):
+            configuration_key = configuration_key.plugin_id()
+        return self._configurations[configuration_key]
 
     @override
-    def load_item(self, dump: Dump) -> PluginInstanceConfiguration[Extension]:
-        extension_type = assert_field(
-            RequiredField("id", assert_plugin(extension.EXTENSION_REPOSITORY))
-        )(dump)
-        configuration = ExtensionInstanceConfiguration(extension_type)
-        configuration.load(dump)
-        return configuration
+    def __contains__(self, configuration_key: MachineName | type[Extension]) -> bool:
+        if isinstance(configuration_key, type):
+            configuration_key = configuration_key.plugin_id()
+        return configuration_key in self._configurations
 
-    @override
-    def _get_key(
-        self, configuration: PluginInstanceConfiguration[Extension]
-    ) -> type[Extension]:
-        return configuration.plugin
-
-    @override
-    def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
-        item_dump["id"] = key_dump
-
-    @override
-    def _dump_key(self, item_dump: DumpMapping[Dump]) -> str:
-        return cast(str, item_dump.pop("id"))
-
-    async def enable(self, *extension_types: type[Extension]) -> None:
+    async def enable(self, *extension_types: type[Extension] | MachineName) -> None:
         """
         Enable the given extensions.
         """
         for extension_type in extension_types:
             if extension_type not in self._configurations:
-                self.append(ExtensionInstanceConfiguration(extension_type))
+                self.append(PluginInstanceConfiguration(extension_type))
 
 
 @final
@@ -556,7 +537,7 @@ class CopyrightNoticeConfigurationMapping(
     """
 
     @override
-    def _create_plugin(
+    def _new_plugin(
         self, configuration: CopyrightNoticeConfiguration
     ) -> type[CopyrightNotice]:
         class _ProjectConfigurationCopyrightNotice(
@@ -646,7 +627,7 @@ class LicenseConfigurationMapping(
     """
 
     @override
-    def _create_plugin(self, configuration: LicenseConfiguration) -> type[License]:
+    def _new_plugin(self, configuration: LicenseConfiguration) -> type[License]:
         class _ProjectConfigurationLicense(ShorthandPluginBase, License):
             _plugin_id = configuration.id
             _plugin_label = configuration.label
@@ -683,7 +664,7 @@ class EventTypeConfigurationMapping(
     """
 
     @override
-    def _create_plugin(self, configuration: PluginConfiguration) -> type[EventType]:
+    def _new_plugin(self, configuration: PluginConfiguration) -> type[EventType]:
         class _ProjectConfigurationEventType(ShorthandPluginBase, EventType):
             _plugin_id = configuration.id
             _plugin_label = configuration.label
@@ -700,7 +681,7 @@ class PlaceTypeConfigurationMapping(
     """
 
     @override
-    def _create_plugin(self, configuration: PluginConfiguration) -> type[PlaceType]:
+    def _new_plugin(self, configuration: PluginConfiguration) -> type[PlaceType]:
         class _ProjectConfigurationPlaceType(ShorthandPluginBase, PlaceType):
             _plugin_id = configuration.id
             _plugin_label = configuration.label
@@ -717,7 +698,7 @@ class PresenceRoleConfigurationMapping(
     """
 
     @override
-    def _create_plugin(self, configuration: PluginConfiguration) -> type[PresenceRole]:
+    def _new_plugin(self, configuration: PluginConfiguration) -> type[PresenceRole]:
         class _ProjectConfigurationPresenceRole(ShorthandPluginBase, PresenceRole):
             _plugin_id = configuration.id
             _plugin_label = configuration.label
@@ -732,7 +713,7 @@ class GenderConfigurationMapping(PluginConfigurationPluginConfigurationMapping[G
     """
 
     @override
-    def _create_plugin(self, configuration: PluginConfiguration) -> type[Gender]:
+    def _new_plugin(self, configuration: PluginConfiguration) -> type[Gender]:
         class _ProjectConfigurationGender(ShorthandPluginBase, Gender):
             _plugin_id = configuration.id
             _plugin_label = configuration.label
@@ -772,7 +753,7 @@ class ProjectConfiguration(Configuration):
         license: MachineName | None = None,  # noqa A002
         licenses: Iterable[LicenseConfiguration] | None = None,
         genders: Iterable[PluginConfiguration] | None = None,
-        extensions: Iterable[PluginInstanceConfiguration[Extension]] | None = None,
+        extensions: Iterable[PluginInstanceConfiguration] | None = None,
         debug: bool = False,
         locales: Iterable[LocaleConfiguration] | None = None,
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
@@ -832,7 +813,7 @@ class ProjectConfiguration(Configuration):
         self._genders = GenderConfigurationMapping()
         if genders is not None:
             self._genders.append(*genders)
-        self._extensions = ExtensionConfigurationMapping(extensions or ())
+        self._extensions = ExtensionInstanceConfigurationMapping(extensions or ())
         self._debug = debug
         self._locales = LocaleConfigurationMapping(locales or ())
         self._lifetime_threshold = lifetime_threshold
@@ -856,7 +837,7 @@ class ProjectConfiguration(Configuration):
         license: MachineName | None = None,  # noqa A002
         licenses: Iterable[LicenseConfiguration] | None = None,
         genders: Iterable[PluginConfiguration] | None = None,
-        extensions: Iterable[PluginInstanceConfiguration[Extension]] | None = None,
+        extensions: Iterable[PluginInstanceConfiguration] | None = None,
         debug: bool = False,
         locales: Iterable[LocaleConfiguration] | None = None,
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
@@ -1022,7 +1003,7 @@ class ProjectConfiguration(Configuration):
         return self._entity_types
 
     @property
-    def extensions(self) -> ExtensionConfigurationMapping:
+    def extensions(self) -> ExtensionInstanceConfigurationMapping:
         """
         Then extensions running within this application.
         """

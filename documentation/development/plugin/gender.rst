@@ -8,7 +8,7 @@ Gender plugins
    * -  Type
      -  :py:class:`betty.ancestry.gender.Gender`
    * -  Repository
-     -  :py:attr:`betty.project.Project.genders`
+     -  :py:attr:`betty.project.Project.gender_repository`
 
 
 Creating a gender

@@ -4,7 +4,7 @@ Provide plugin configuration.
 
 from __future__ import annotations
 
-from typing import TypeVar, Generic, cast, Sequence, Any, TYPE_CHECKING
+from typing import TypeVar, Generic, cast, Sequence, TYPE_CHECKING
 
 from typing_extensions import override
 
@@ -13,20 +13,22 @@ from betty.assertion import (
     assert_record,
     OptionalField,
     assert_setattr,
-    Field,
     assert_field,
 )
+from betty.assertion.error import AssertionFailed
 from betty.config import Configuration, DefaultConfigurable
 from betty.config.collections.mapping import ConfigurationMapping
+from betty.locale.localizable import _
 from betty.locale.localizable.config import (
     OptionalStaticTranslationsLocalizableConfigurationAttr,
     RequiredStaticTranslationsLocalizableConfigurationAttr,
 )
 from betty.machine_name import assert_machine_name, MachineName
 from betty.plugin import Plugin, PluginRepository
-from betty.plugin.assertion import assert_plugin
+from betty.typing import Void, Voidable
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
     from betty.locale.localizable import ShorthandStaticTranslations
     from betty.serde.dump import Dump, DumpMapping
 
@@ -91,7 +93,7 @@ class PluginConfigurationMapping(
     """
 
     @property
-    def plugins(self) -> Sequence[type[_PluginCoT]]:
+    def new_plugins(self) -> Sequence[type[_PluginCoT]]:
         """
         The plugins for this configuration.
 
@@ -99,11 +101,11 @@ class PluginConfigurationMapping(
         when this configuration changes.
         """
         return tuple(
-            self._create_plugin(plugin_configuration)
+            self._new_plugin(plugin_configuration)
             for plugin_configuration in self.values()
         )
 
-    def _create_plugin(self, configuration: _PluginConfigurationT) -> type[_PluginCoT]:
+    def _new_plugin(self, configuration: _PluginConfigurationT) -> type[_PluginCoT]:
         """
         The plugin (class) for the given configuration.
         """
@@ -140,7 +142,7 @@ class PluginConfigurationPluginConfigurationMapping(
         return PluginConfiguration(configuration_key, {})
 
 
-class PluginInstanceConfiguration(Configuration, Generic[_PluginT]):
+class PluginInstanceConfiguration(Configuration):
     """
     Configure a single plugin instance.
 
@@ -150,59 +152,101 @@ class PluginInstanceConfiguration(Configuration, Generic[_PluginT]):
 
     def __init__(
         self,
-        plugin: type[_PluginT],
+        plugin_id: type[Plugin] | MachineName,
         *,
-        repository: PluginRepository[_PluginT],
-        configuration: Configuration | None = None,
+        configuration: Voidable[Configuration | Dump] = Void,
     ):
-        if configuration and not issubclass(plugin, DefaultConfigurable):
-            raise ValueError(
-                f"{plugin} is not configurable (it must extend {DefaultConfigurable}), but configuration was given."
-            )
-        if (
-            issubclass(plugin, DefaultConfigurable)  # type: ignore[redundant-expr]
-            and not configuration  # type: ignore[unreachable]
-        ):
-            configuration = plugin.new_default_configuration()  # type: ignore[unreachable]
         super().__init__()
-        self._plugin = plugin
-        self._plugin_configuration = configuration
-        self._plugin_repository = repository
+        self._id = (
+            assert_machine_name()(plugin_id)
+            if isinstance(plugin_id, str)
+            else plugin_id.plugin_id()
+        )
+        self._configuration = (
+            configuration.dump()
+            if isinstance(configuration, Configuration)
+            else configuration
+        )
 
     @property
-    def plugin(self) -> type[_PluginT]:
+    def id(self) -> MachineName:
         """
-        The plugin.
+        The plugin ID.
         """
-        return self._plugin
+        return self._id
 
     @property
-    def configuration(self) -> Configuration | None:
+    def configuration(self) -> Voidable[Dump]:
         """
         Get the plugin's own configuration.
         """
-        return self._plugin_configuration
+        return self._configuration
+
+    # @todo Allow assertion contexts to be passed on?
+    # @todo Evaluate this based on calling code.
+    async def new_plugin_instance(
+        self, repository: PluginRepository[_PluginT]
+    ) -> _PluginT:
+        """
+        Create a new plugin instance.
+        """
+        plugin = await repository.new_target(self.id)
+        if self.configuration is not Void:
+            if not isinstance(plugin, DefaultConfigurable):  # type: ignore[redundant-expr]
+                raise AssertionFailed(
+                    _(
+                        "Plugin {plugin_label} ({plugin_id}) is not configurable, but configuration was given."
+                    ).format(
+                        plugin_id=plugin.plugin_id(), plugin_label=plugin.plugin_label()
+                    )
+                )
+            plugin.configuration.load(self.configuration)  # type: ignore[unreachable]
+        return plugin
 
     @override
     def load(self, dump: Dump) -> None:
-        id_field = RequiredField(
-            "id",
-            assert_plugin(self._plugin_repository) | assert_setattr(self, "_plugin"),
-        )
-        plugin = assert_field(id_field)(dump)
-        fields = [id_field, *self._fields()]
-        if issubclass(plugin, DefaultConfigurable):
-            configuration = plugin.new_default_configuration()
-            self._plugin_configuration = configuration
-            fields.append(OptionalField("configuration", configuration.load))
-        assert_record(*fields)(dump)
-
-    def _fields(self) -> Sequence[Field[Any, Any]]:
-        return []
+        assert_record(
+            RequiredField("id", assert_machine_name() | assert_setattr(self, "_id")),
+            OptionalField("configuration", assert_setattr(self, "_configuration")),
+        )(dump)
 
     @override
     def dump(self) -> DumpMapping[Dump]:
-        dump: DumpMapping[Dump] = {"id": self.plugin.plugin_id()}
-        if issubclass(self.plugin, DefaultConfigurable):  # type: ignore[redundant-expr]
-            dump["configuration"] = self.configuration.dump()  # type: ignore[unreachable]
+        dump: DumpMapping[Dump] = {"id": self.id}
+        configuration = self.configuration
+        if configuration is not Void:
+            dump["configuration"] = configuration  # type: ignore[assignment]
         return dump
+
+
+class PluginInstanceConfigurationMapping(
+    ConfigurationMapping[MachineName, PluginInstanceConfiguration]
+):
+    """
+    Configure plugin instances, keyed by their plugin IDs.
+    """
+
+    def __init__(
+        self,
+        configurations: Iterable[PluginInstanceConfiguration] | None = None,
+    ):
+        super().__init__(configurations)
+
+    @override
+    def load_item(self, dump: Dump) -> PluginInstanceConfiguration:
+        plugin_id = assert_field(RequiredField("id", assert_machine_name()))(dump)
+        configuration = PluginInstanceConfiguration(plugin_id)
+        configuration.load(dump)
+        return configuration
+
+    @override
+    def _get_key(self, configuration: PluginInstanceConfiguration) -> MachineName:
+        return configuration.id
+
+    @override
+    def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
+        item_dump["id"] = key_dump
+
+    @override
+    def _dump_key(self, item_dump: DumpMapping[Dump]) -> str:
+        return cast(str, item_dump.pop("id"))

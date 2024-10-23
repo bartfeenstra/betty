@@ -68,7 +68,9 @@ class Wikipedia(
     async def new_for_project(cls, project: Project) -> Self:
         return cls(
             project,
-            await project.copyright_notices.new_target("wikipedia-contributors"),
+            await project.copyright_notice_repository.new_target(
+                "wikipedia-contributors"
+            ),
             configuration=cls.new_default_configuration(),
         )
 

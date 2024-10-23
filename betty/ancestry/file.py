@@ -139,7 +139,10 @@ class File(
         schema.add_property(
             "copyrightNotice",
             Enum(
-                *[plugin.plugin_id() async for plugin in project.copyright_notices],  # noqa A002
+                *[
+                    plugin.plugin_id()
+                    async for plugin in project.copyright_notice_repository
+                ],  # noqa A002
                 title="Copyright notice",
                 description="A copyright notice plugin ID",
             ),
@@ -148,7 +151,10 @@ class File(
         schema.add_property(
             "license",
             Enum(
-                *[plugin.plugin_id() async for plugin in await project.licenses],  # noqa A002
+                *[
+                    plugin.plugin_id()
+                    async for plugin in await project.license_repository
+                ],  # noqa A002
                 title="License",
                 description="A license plugin ID",
             ),
