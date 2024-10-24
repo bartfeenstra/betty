@@ -14,8 +14,12 @@ from betty.copyright_notice import CopyrightNotice
 from betty.license import License
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.machine_name import MachineName
 from betty.model import Entity, UserFacingEntity
-from betty.plugin.config import PluginConfiguration, PluginInstanceConfiguration
+from betty.plugin.config import (
+    PluginConfiguration,
+    PluginInstanceConfiguration,
+)
 from betty.plugin.static import StaticPluginRepository
 from betty.project.config import (
     EntityReference,
@@ -35,8 +39,6 @@ from betty.project.config import (
     LicenseConfigurationMapping,
 )
 from betty.project.config import ProjectConfiguration
-from betty.project.extension import Extension
-from betty.project.extension.config import ExtensionInstanceConfiguration
 from betty.test_utils.assertion.error import raises_error
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
@@ -455,46 +457,40 @@ class ExtensionTypeConfigurationMappingTestExtension3(DummyExtension):
 
 
 class TestExtensionConfigurationMapping(
-    ConfigurationMappingTestBase[
-        type[Extension], PluginInstanceConfiguration[Extension]
-    ]
+    ConfigurationMappingTestBase[MachineName, PluginInstanceConfiguration]
 ):
+    @override
     def get_configuration_keys(
         self,
-    ) -> tuple[type[Extension], type[Extension], type[Extension], type[Extension]]:
+    ) -> tuple[MachineName, MachineName, MachineName, MachineName]:
         return (
-            ExtensionTypeConfigurationMappingTestExtension0,
-            ExtensionTypeConfigurationMappingTestExtension1,
-            ExtensionTypeConfigurationMappingTestExtension2,
-            ExtensionTypeConfigurationMappingTestExtension3,
+            ExtensionTypeConfigurationMappingTestExtension0.plugin_id(),
+            ExtensionTypeConfigurationMappingTestExtension1.plugin_id(),
+            ExtensionTypeConfigurationMappingTestExtension2.plugin_id(),
+            ExtensionTypeConfigurationMappingTestExtension3.plugin_id(),
         )
 
+    @override
     async def get_sut(
         self,
-        configurations: Iterable[PluginInstanceConfiguration[Extension]] | None = None,
+        configurations: Iterable[PluginInstanceConfiguration] | None = None,
     ) -> ExtensionConfigurationMapping:
         return ExtensionConfigurationMapping(configurations)
 
+    @override
     async def get_configurations(
         self,
     ) -> tuple[
-        ExtensionInstanceConfiguration,
-        ExtensionInstanceConfiguration,
-        ExtensionInstanceConfiguration,
-        ExtensionInstanceConfiguration,
+        PluginInstanceConfiguration,
+        PluginInstanceConfiguration,
+        PluginInstanceConfiguration,
+        PluginInstanceConfiguration,
     ]:
         return (
-            ExtensionInstanceConfiguration(self.get_configuration_keys()[0]),
-            ExtensionInstanceConfiguration(self.get_configuration_keys()[1]),
-            ExtensionInstanceConfiguration(self.get_configuration_keys()[2]),
-            ExtensionInstanceConfiguration(self.get_configuration_keys()[3]),
-        )
-
-    @pytest.fixture(autouse=True)
-    def _extensions(self, mocker: MockerFixture) -> None:
-        mocker.patch(
-            "betty.project.extension.EXTENSION_REPOSITORY",
-            new=StaticPluginRepository(*self.get_configuration_keys()),
+            PluginInstanceConfiguration(self.get_configuration_keys()[0]),
+            PluginInstanceConfiguration(self.get_configuration_keys()[1]),
+            PluginInstanceConfiguration(self.get_configuration_keys()[2]),
+            PluginInstanceConfiguration(self.get_configuration_keys()[3]),
         )
 
     async def test_enable(self) -> None:
@@ -1234,40 +1230,20 @@ class TestProjectConfiguration:
         sut.load(dump)
         assert sut.debug == debug
 
-    async def test_load_should_load_one_extension_with_configuration(
+    async def test_load_should_load_extension(
         self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
         mocker.patch(
             "betty.project.extension.EXTENSION_REPOSITORY",
-            new=StaticPluginRepository(DummyConfigurableExtension),
-        )
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
-        dump = sut.dump()
-        value = "Hello, world!"
-        dump["extensions"] = {
-            DummyConfigurableExtension.plugin_id(): {
-                "configuration": {"value": value},
-            },
-        }
-        sut.load(dump)
-        actual = sut.extensions[DummyConfigurableExtension]
-        assert isinstance(actual.configuration, DummyConfiguration)
-        assert actual.configuration.value == value
-
-    async def test_load_should_load_one_extension_without_configuration(
-        self, mocker: MockerFixture, tmp_path: Path
-    ) -> None:
-        mocker.patch(
-            "betty.project.extension.EXTENSION_REPOSITORY",
-            new=StaticPluginRepository(_DummyNonConfigurableExtension),
+            new=StaticPluginRepository(DummyExtension),
         )
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         dump = sut.dump()
         dump["extensions"] = {
-            _DummyNonConfigurableExtension.plugin_id(): {},
+            DummyExtension.plugin_id(): {},
         }
         sut.load(dump)
-        actual = sut.extensions[_DummyNonConfigurableExtension]
+        actual = sut.extensions[DummyExtension]
         assert actual.configuration is None
 
     async def test_load_extension_with_invalid_configuration_should_raise_error(
@@ -1481,7 +1457,7 @@ class TestProjectConfiguration:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         value = "Hello, world!"
         sut.extensions.append(
-            ExtensionInstanceConfiguration(
+            PluginInstanceConfiguration(
                 DummyConfigurableExtension,
                 configuration=DummyConfiguration(value=value),
             )

@@ -13,7 +13,7 @@ from betty.app import App
 from betty.app.factory import AppDependentFactory
 from betty.json.schema import JsonSchemaSchema
 from betty.plugin import CyclicDependencyError
-from betty.plugin.config import PluginConfiguration
+from betty.plugin.config import PluginConfiguration, PluginInstanceConfiguration
 from betty.plugin.static import StaticPluginRepository
 from betty.project import (
     Project,
@@ -27,7 +27,6 @@ from betty.project.config import (
     LicenseConfiguration,
     ProjectConfiguration,
 )
-from betty.project.extension.config import ExtensionInstanceConfiguration
 from betty.project.factory import ProjectDependentFactory
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.json.schema import SchemaTestBase
@@ -162,7 +161,7 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut:
             value = "Hello, world!"
             sut.configuration.extensions.append(
-                ExtensionInstanceConfiguration(
+                PluginInstanceConfiguration(
                     DummyConfigurableExtension,
                     configuration=DummyConfiguration(value=value),
                 )

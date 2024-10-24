@@ -15,8 +15,8 @@ from betty.plugin.config import (
     PluginConfiguration,
     PluginConfigurationPluginConfigurationMapping,
     PluginInstanceConfiguration,
+    PluginInstanceConfigurationMapping,
 )
-from betty.plugin.static import StaticPluginRepository
 from betty.serde.dump import Dump
 from betty.test_utils.assertion.error import raises_error
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
@@ -238,70 +238,50 @@ class TestPluginInstanceConfiguration:
         with pytest.raises(ValueError):  # noqa PT011
             PluginInstanceConfiguration(
                 plugin,
-                repository=StaticPluginRepository(plugin),
                 configuration=self._DummyDefaultConfigurablePluginConfiguration(),
             )
 
     def test_plugin(self) -> None:
         plugin = DummyPlugin
-        sut = PluginInstanceConfiguration(
-            plugin, repository=StaticPluginRepository(plugin)
-        )
-        assert sut.plugin == plugin
+        sut = PluginInstanceConfiguration(plugin)
+        assert sut.id == plugin.plugin_id()
 
     def test_configuration(self) -> None:
         plugin = self._DummyDefaultConfigurablePlugin
         configuration = self._DummyDefaultConfigurablePluginConfiguration()
-        sut = PluginInstanceConfiguration(
-            plugin,
-            configuration=configuration,
-            repository=StaticPluginRepository(plugin),
-        )
-        assert sut.configuration is configuration
+        sut = PluginInstanceConfiguration(plugin, configuration=configuration)
+        assert sut.configuration == configuration.dump()
 
     def test_load_without_id(self) -> None:
         plugin = DummyPlugin
         with raises_error(error_type=AssertionFailed):
-            (
-                PluginInstanceConfiguration(
-                    plugin, repository=StaticPluginRepository(plugin)
-                )
-            ).load({})
+            (PluginInstanceConfiguration(plugin)).load({})
 
     def test_load_minimal(self) -> None:
         plugin = DummyPlugin
-        sut = PluginInstanceConfiguration(
-            plugin, repository=StaticPluginRepository(plugin)
-        )
+        sut = PluginInstanceConfiguration(plugin)
         sut.load({"id": DummyPlugin.plugin_id()})
-        assert sut.plugin == DummyPlugin
+        assert sut.id == DummyPlugin.plugin_id()
 
     def test_load_with_configuration(self) -> None:
         plugin = self._DummyDefaultConfigurablePlugin
-        sut = PluginInstanceConfiguration(
-            plugin, repository=StaticPluginRepository(plugin)
-        )
+        sut = PluginInstanceConfiguration(plugin)
+        configuration: Dump = {
+            "check": True,
+        }
         sut.load(
             {
                 "id": self._DummyDefaultConfigurablePlugin.plugin_id(),
-                "configuration": {
-                    "check": True,
-                },
+                "configuration": configuration,
             }
         )
-        configuration = sut.configuration
-        assert isinstance(
-            configuration, self._DummyDefaultConfigurablePluginConfiguration
-        )
-        assert configuration.check
+        assert sut.configuration == configuration
 
     def test_load_with_configuration_for_non_configurable_plugin_should_error(
         self,
     ) -> None:
         plugin = DummyPlugin
-        sut = PluginInstanceConfiguration(
-            plugin, repository=StaticPluginRepository(plugin)
-        )
+        sut = PluginInstanceConfiguration(plugin)
         with pytest.raises(AssertionFailed):
             sut.load(
                 {
@@ -312,9 +292,7 @@ class TestPluginInstanceConfiguration:
 
     def test_dump_should_dump_minimal(self) -> None:
         plugin = DummyPlugin
-        sut = PluginInstanceConfiguration(
-            plugin, repository=StaticPluginRepository(plugin)
-        )
+        sut = PluginInstanceConfiguration(plugin)
         expected = {
             "id": DummyPlugin.plugin_id(),
         }
@@ -322,9 +300,7 @@ class TestPluginInstanceConfiguration:
 
     def test_dump_should_dump_configuration(self) -> None:
         plugin = self._DummyDefaultConfigurablePlugin
-        sut = PluginInstanceConfiguration(
-            plugin, repository=StaticPluginRepository(plugin)
-        )
+        sut = PluginInstanceConfiguration(plugin)
         expected = {
             "id": self._DummyDefaultConfigurablePlugin.plugin_id(),
             "configuration": {
@@ -332,3 +308,57 @@ class TestPluginInstanceConfiguration:
             },
         }
         assert sut.dump() == expected
+
+
+class PluginInstanceConfigurationMappingTestDummyPlugin0(DummyPlugin):
+    pass
+
+
+class PluginInstanceConfigurationMappingTestDummyPlugin1(DummyPlugin):
+    pass
+
+
+class PluginInstanceConfigurationMappingTestDummyPlugin2(DummyPlugin):
+    pass
+
+
+class PluginInstanceConfigurationMappingTestDummyPlugin3(DummyPlugin):
+    pass
+
+
+class TestPluginInstanceConfigurationMapping(
+    ConfigurationMappingTestBase[MachineName, PluginInstanceConfiguration]
+):
+    @override
+    def get_configuration_keys(
+        self,
+    ) -> tuple[MachineName, MachineName, MachineName, MachineName]:
+        return (
+            PluginInstanceConfigurationMappingTestDummyPlugin0.plugin_id(),
+            PluginInstanceConfigurationMappingTestDummyPlugin1.plugin_id(),
+            PluginInstanceConfigurationMappingTestDummyPlugin2.plugin_id(),
+            PluginInstanceConfigurationMappingTestDummyPlugin3.plugin_id(),
+        )
+
+    @override
+    async def get_sut(
+        self,
+        configurations: Iterable[PluginInstanceConfiguration] | None = None,
+    ) -> PluginInstanceConfigurationMapping:
+        return PluginInstanceConfigurationMapping(configurations)
+
+    @override
+    async def get_configurations(
+        self,
+    ) -> tuple[
+        PluginInstanceConfiguration,
+        PluginInstanceConfiguration,
+        PluginInstanceConfiguration,
+        PluginInstanceConfiguration,
+    ]:
+        return (
+            PluginInstanceConfiguration(self.get_configuration_keys()[0]),
+            PluginInstanceConfiguration(self.get_configuration_keys()[1]),
+            PluginInstanceConfiguration(self.get_configuration_keys()[2]),
+            PluginInstanceConfiguration(self.get_configuration_keys()[3]),
+        )
