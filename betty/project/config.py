@@ -4,6 +4,7 @@ Provide project configuration.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from reprlib import recursive_repr
 from typing import final, Generic, Self, Iterable, Any, TYPE_CHECKING, TypeVar, cast
 from urllib.parse import urlparse
@@ -351,13 +352,16 @@ class EntityTypeConfigurationMapping(
         return configuration.entity_type
 
     @override
-    def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
+    def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
+        assert isinstance(item_dump, Mapping)
         assert_plugin(model.ENTITY_TYPE_REPOSITORY)(key_dump)
         item_dump["entity_type"] = key_dump
+        return item_dump
 
     @override
-    def _dump_key(self, item_dump: DumpMapping[Dump]) -> str:
-        return cast(str, item_dump.pop("entity_type"))
+    def _dump_key(self, item_dump: Dump) -> tuple[Dump, str]:
+        assert isinstance(item_dump, Mapping)
+        return item_dump, cast(str, item_dump.pop("entity_type"))
 
     @override
     def load_item(self, dump: Dump) -> EntityTypeConfiguration:

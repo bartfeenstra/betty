@@ -5,7 +5,6 @@ Define and provide key-value mappings of :py:class:`betty.config.Configuration` 
 from __future__ import annotations
 
 from abc import abstractmethod
-from collections.abc import Mapping
 from contextlib import suppress
 from typing import (
     Generic,
@@ -105,15 +104,15 @@ class ConfigurationMapping(
     """
 
     @abstractmethod
-    def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
+    def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
         pass
 
     @abstractmethod
-    def _dump_key(self, item_dump: DumpMapping[Dump]) -> str:
+    def _dump_key(self, item_dump: Dump) -> tuple[Dump, str]:
         pass
 
     def __load_item_key(self, value_dump: DumpMapping[Dump], key_dump: str) -> Dump:
-        self._load_key(value_dump, key_dump)
+        value_dump = self._load_key(value_dump, key_dump)
         return value_dump
 
     @override
@@ -135,8 +134,7 @@ class ConfigurationMapping(
         dump: DumpMapping[Dump] = {}
         for configuration_item in self._configurations.values():
             item_dump = configuration_item.dump()
-            assert isinstance(item_dump, Mapping)
-            configuration_key = self._dump_key(item_dump)
+            item_dump, configuration_key = self._dump_key(item_dump)
             dump[configuration_key] = item_dump
         return dump
 

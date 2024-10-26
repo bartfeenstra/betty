@@ -20,7 +20,7 @@ from betty.config.collections.mapping import (
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 
 if TYPE_CHECKING:
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde.dump import Dump
 
 
 class ConfigurationMappingTestConfiguration(Configuration):
@@ -118,11 +118,14 @@ class ConfigurationMappingTestConfigurationMapping(
     def _get_key(self, configuration: ConfigurationMappingTestConfiguration) -> str:
         return configuration.key
 
-    def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
+    def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
+        assert isinstance(item_dump, Mapping)
         item_dump["key"] = key_dump
+        return item_dump
 
-    def _dump_key(self, item_dump: DumpMapping[Dump]) -> str:
-        return cast(str, item_dump.pop("key"))
+    def _dump_key(self, item_dump: Dump) -> tuple[Dump, str]:
+        assert isinstance(item_dump, Mapping)
+        return item_dump, cast(str, item_dump.pop("key"))
 
 
 class TestOrderedConfigurationMapping(

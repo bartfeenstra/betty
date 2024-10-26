@@ -263,8 +263,8 @@ class TestPluginInstanceConfiguration:
     def test_load_minimal(self) -> None:
         plugin = DummyPlugin
         sut = PluginInstanceConfiguration(plugin)
-        sut.load({"id": DummyPlugin.plugin_id()})
-        assert sut.id == DummyPlugin.plugin_id()
+        sut.load({"id": plugin.plugin_id()})
+        assert sut.id == plugin.plugin_id()
 
     def test_load_with_configuration(self) -> None:
         plugin = _DummyDefaultConfigurablePlugin
@@ -283,10 +283,7 @@ class TestPluginInstanceConfiguration:
     def test_dump_should_dump_minimal(self) -> None:
         plugin = DummyPlugin
         sut = PluginInstanceConfiguration(plugin)
-        expected = {
-            "id": DummyPlugin.plugin_id(),
-        }
-        assert sut.dump() == expected
+        assert sut.dump() == plugin.plugin_id()
 
     def test_dump_should_dump_configuration(self) -> None:
         plugin = _DummyDefaultConfigurablePlugin

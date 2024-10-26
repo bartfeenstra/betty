@@ -4,6 +4,7 @@ Provide plugin configuration.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import TypeVar, Generic, cast, Sequence, TYPE_CHECKING
 
 from typing_extensions import override
@@ -13,7 +14,7 @@ from betty.assertion import (
     assert_record,
     OptionalField,
     assert_setattr,
-    assert_field,
+    assert_or,
 )
 from betty.assertion.error import AssertionFailed
 from betty.config import Configuration, DefaultConfigurable
@@ -116,12 +117,15 @@ class PluginConfigurationMapping(
         return configuration.id
 
     @override
-    def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
+    def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
+        assert isinstance(item_dump, Mapping)
         item_dump["id"] = key_dump
+        return item_dump
 
     @override
-    def _dump_key(self, item_dump: DumpMapping[Dump]) -> str:
-        return cast(str, item_dump.pop("id"))
+    def _dump_key(self, item_dump: Dump) -> tuple[Dump, str]:
+        assert isinstance(item_dump, Mapping)
+        return item_dump, cast(str, item_dump.pop("id"))
 
 
 class PluginConfigurationPluginConfigurationMapping(
@@ -182,8 +186,6 @@ class PluginInstanceConfiguration(Configuration):
         """
         return self._configuration
 
-    # @todo Allow assertion contexts to be passed on?
-    # @todo Evaluate this based on calling code.
     async def new_plugin_instance(
         self, repository: PluginRepository[_PluginT]
     ) -> _PluginT:
@@ -205,18 +207,24 @@ class PluginInstanceConfiguration(Configuration):
 
     @override
     def load(self, dump: Dump) -> None:
-        assert_record(
-            RequiredField("id", assert_machine_name() | assert_setattr(self, "_id")),
-            OptionalField("configuration", assert_setattr(self, "_configuration")),
+        id_assertion = assert_machine_name() | assert_setattr(self, "_id")
+        assert_or(
+            id_assertion,
+            assert_record(
+                RequiredField("id", id_assertion),
+                OptionalField("configuration", assert_setattr(self, "_configuration")),
+            ),
         )(dump)
 
     @override
-    def dump(self) -> DumpMapping[Dump]:
-        dump: DumpMapping[Dump] = {"id": self.id}
+    def dump(self) -> Dump:
         configuration = self.configuration
-        if configuration is not Void:
-            dump["configuration"] = configuration  # type: ignore[assignment]
-        return dump
+        if configuration is Void:
+            return self.id
+        return {
+            "id": self.id,
+            "configuration": configuration,  # type: ignore[dict-item]
+        }
 
 
 class PluginInstanceConfigurationMapping(
@@ -234,8 +242,7 @@ class PluginInstanceConfigurationMapping(
 
     @override
     def load_item(self, dump: Dump) -> PluginInstanceConfiguration:
-        plugin_id = assert_field(RequiredField("id", assert_machine_name()))(dump)
-        configuration = PluginInstanceConfiguration(plugin_id)
+        configuration = PluginInstanceConfiguration("-")
         configuration.load(dump)
         return configuration
 
@@ -244,9 +251,16 @@ class PluginInstanceConfigurationMapping(
         return configuration.id
 
     @override
-    def _load_key(self, item_dump: DumpMapping[Dump], key_dump: str) -> None:
+    def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
+        if not item_dump:
+            return key_dump
+        assert isinstance(item_dump, Mapping)
         item_dump["id"] = key_dump
+        return item_dump
 
     @override
-    def _dump_key(self, item_dump: DumpMapping[Dump]) -> str:
-        return cast(str, item_dump.pop("id"))
+    def _dump_key(self, item_dump: Dump) -> tuple[Dump, str]:
+        if isinstance(item_dump, str):
+            return {}, item_dump
+        assert isinstance(item_dump, Mapping)
+        return item_dump, cast(str, item_dump.pop("id"))
