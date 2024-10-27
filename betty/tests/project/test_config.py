@@ -11,7 +11,9 @@ from betty.ancestry.place_type import PlaceType
 from betty.ancestry.presence_role import PresenceRole
 from betty.assertion.error import AssertionFailed
 from betty.copyright_notice import CopyrightNotice
+from betty.copyright_notice.copyright_notices import ProjectAuthor
 from betty.license import License
+from betty.license.licenses import AllRightsReserved
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
@@ -1172,6 +1174,57 @@ class TestProjectConfiguration:
         sut.load(dump)
         assert sut.title.localize(DEFAULT_LOCALIZER) == title
 
+    async def test_load_should_load_copyright_notice(self, tmp_path: Path) -> None:
+        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        dump = sut.dump()
+        copyright_notice_id = "my-first-copyright-notice"
+        dump["copyright_notice"] = copyright_notice_id
+        sut.load(dump)
+        assert sut.copyright_notice.id == copyright_notice_id
+
+    async def test_load_should_load_copyright_notices(self, tmp_path: Path) -> None:
+        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        dump = sut.dump()
+        copyright_notice_id = "my-first-copyright-notice"
+        copyright_notice_label = "My First Copyright Notice"
+        dump["copyright_notices"] = {
+            copyright_notice_id: {
+                "label": copyright_notice_label,
+                "summary": "This is My First Copyright Notice.",
+                "text": "My First Copyright Notice is the best copyright notice.",
+            }
+        }
+        sut.load(dump)
+        assert (
+            sut.copyright_notices[copyright_notice_id].label.localize(DEFAULT_LOCALIZER)
+            == copyright_notice_label
+        )
+
+    async def test_load_should_load_license(self, tmp_path: Path) -> None:
+        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        dump = sut.dump()
+        license_id = "my-first-license"
+        dump["license"] = license_id
+        sut.load(dump)
+        assert sut.license.id == license_id
+
+    async def test_load_should_load_licenses(self, tmp_path: Path) -> None:
+        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        dump = sut.dump()
+        license_id = "my-first-license"
+        license_label = "My First License"
+        dump["licenses"] = {
+            license_id: {
+                "label": license_label,
+                "summary": "This is My First License.",
+                "text": "My First License is the best license.",
+            }
+        }
+        sut.load(dump)
+        assert (
+            sut.licenses[license_id].label.localize(DEFAULT_LOCALIZER) == license_label
+        )
+
     async def test_load_should_load_author(self, tmp_path: Path) -> None:
         author = "Bart"
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
@@ -1513,3 +1566,70 @@ class TestProjectConfiguration:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         with raises_error(error_type=AssertionFailed):
             sut.load(dump)
+
+    async def test_dump_should_dump_copyright_notice(self, tmp_path: Path) -> None:
+        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        assert sut.dump()["copyright_notice"] == ProjectAuthor.plugin_id()
+
+    async def test_dump_should_dump_copyright_notices_without_items(
+        self, tmp_path: Path
+    ) -> None:
+        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        assert sut.dump()["copyright_notices"] == {}
+
+    async def test_dump_should_dump_copyright_notices_with_items(
+        self, tmp_path: Path
+    ) -> None:
+        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        copyright_notice_id = "my-first-copyright-notice"
+        copyright_notice_label = "My First Copyright Notice"
+        copyright_notice_summary = "This is My First Copyright Notice."
+        copyright_notice_text = (
+            "My First Copyright Notice is the best copyright notice."
+        )
+        sut.copyright_notices.append(
+            CopyrightNoticeConfiguration(
+                copyright_notice_id,
+                copyright_notice_label,
+                summary=copyright_notice_summary,
+                text=copyright_notice_text,
+            )
+        )
+        assert sut.dump()["copyright_notices"] == {
+            copyright_notice_id: {
+                "label": copyright_notice_label,
+                "summary": copyright_notice_summary,
+                "text": copyright_notice_text,
+                "description": {},
+            }
+        }
+
+    async def test_dump_should_dump_license(self, tmp_path: Path) -> None:
+        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        assert sut.dump()["license"] == AllRightsReserved.plugin_id()
+
+    async def test_dump_should_dump_licenses_without_items(
+        self, tmp_path: Path
+    ) -> None:
+        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        assert sut.dump()["licenses"] == {}
+
+    async def test_dump_should_dump_licenses_with_items(self, tmp_path: Path) -> None:
+        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        license_id = "my-first-license"
+        license_label = "My First License"
+        license_summary = "This is My First License."
+        license_text = "My First License is the best license."
+        sut.licenses.append(
+            LicenseConfiguration(
+                license_id, license_label, summary=license_summary, text=license_text
+            )
+        )
+        assert sut.dump()["licenses"] == {
+            license_id: {
+                "label": license_label,
+                "summary": license_summary,
+                "text": license_text,
+                "description": {},
+            }
+        }
