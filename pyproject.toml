@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    'setuptools ~= 75.0',
+    'setuptools ~= 75.2',
 ]
 build-backend = 'setuptools.build_meta'
 
@@ -16,9 +16,9 @@ authors = [
 requires-python = '~= 3.11'
 dependencies = [
     'aiofiles ~= 24.1',
-    'aiohttp ~= 3.9',
+    'aiohttp ~= 3.10',
     'asyncclick ~= 8.1',
-    'babel ~= 2.15',
+    'babel ~= 2.16',
     'furo == 2024.8.6',
     'geopy ~= 2.4',
     'html5lib ~= 1.1',
@@ -27,13 +27,13 @@ dependencies = [
     'langcodes ~= 3.4',
     'lxml ~= 5.3',
     'markupsafe ~= 3.0',
-    'multidict ~= 6.0',
+    'multidict ~= 6.1',
     'pdf2image ~= 1.17',
     'polib ~= 1.2',
     'Pillow ~= 11.0',
     'pyyaml ~= 6.0',
     'referencing ~= 0.35',
-    'sphinx ~= 8.0',
+    'sphinx ~= 8.1',
     'sphinx-design ~= 0.6',
     'typing_extensions ~= 4.12',
 ]
@@ -201,29 +201,29 @@ betty = 'betty.cli:main'
 [project.optional-dependencies]
 setuptools = [
     'twine ~= 5.1',
-    'wheel ~= 0.43',
+    'wheel ~= 0.44',
 ]
 test = [
     'aioresponses ~= 0.7',
-    'basedmypy ~= 2.5',
+    'basedmypy ~= 2.6',
     'coverage ~= 7.6',
     'packaging ~= 24.1',
     'pytest ~= 8.3',
     'pytest-aioresponses ~= 0.2',
     'pytest-asyncio ~= 0.24',
     'pytest-mock ~= 3.14',
+    'requests ~= 2.32',
     'ruff ~= 0.7',
     'types-aiofiles ~= 24.1',
     'types-babel ~= 2.11',
-    'types-click ~= 7.1',
     'types-html5lib ~= 1.1',
     'types-jsonschema ~= 4.23',
-    'types-lxml >= 2024.8.7',
+    'types-lxml >= 2024.9.16',
     'types-polib ~= 1.2',
     'types-pyyaml ~= 6.0',
     'types-requests ~= 2.32',
-    'types-setuptools ~= 75.0',
-    'virtualenv ~= 20.26',
+    'types-setuptools ~= 75.2',
+    'virtualenv ~= 20.27',
     'betty[setuptools]',
 ]
 development = [
