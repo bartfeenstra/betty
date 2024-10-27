@@ -9,7 +9,7 @@ async function initializeToggles () :Promise<void> { // eslint-disable-line @typ
 
 function initializeToggle (toggle: Element) :void {
   toggle.addEventListener('click', (event: PointerEvent) => {
-    const container: Element | null = getContainer(event.target as Element) // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+    const container: Element | null = getContainer(event.target as Element)
     if (container) {
       container.classList.toggle('show-shown')
     }
