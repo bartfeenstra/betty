@@ -75,87 +75,86 @@ from betty.assertion import (
 )
 from betty.config import Configuration
 from betty.config.collections.sequence import ConfigurationSequence
-from betty.machine_name import assert_machine_name, MachineName
-from betty.plugin import PluginRepository, Plugin
+from betty.plugin import Plugin
+from betty.plugin.config import PluginInstanceConfiguration
 from betty.typing import internal
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
-    from collections.abc import Mapping, MutableMapping, Iterable
-
+    from collections.abc import Mapping, MutableMapping, Iterable, Iterator
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 
 
-DEFAULT_EVENT_TYPE_MAP: Mapping[str, MachineName] = {
-    "Adopted": Adoption.plugin_id(),
-    "Adult Christening": Baptism.plugin_id(),
-    "Baptism": Baptism.plugin_id(),
-    "Bar Mitzvah": BarMitzvah.plugin_id(),
-    "Bat Mitzvah": BatMitzvah.plugin_id(),
-    "Birth": Birth.plugin_id(),
-    "Burial": Burial.plugin_id(),
-    "Christening": Baptism.plugin_id(),
-    "Confirmation": Confirmation.plugin_id(),
-    "Cremation": Cremation.plugin_id(),
-    "Death": Death.plugin_id(),
-    "Divorce": Divorce.plugin_id(),
-    "Divorce Filing": DivorceAnnouncement.plugin_id(),
-    "Emigration": Emigration.plugin_id(),
-    "Engagement": Engagement.plugin_id(),
-    "Immigration": Immigration.plugin_id(),
-    "Marriage": Marriage.plugin_id(),
-    "Marriage Banns": MarriageAnnouncement.plugin_id(),
-    "Occupation": Occupation.plugin_id(),
-    "Residence": Residence.plugin_id(),
-    "Retirement": Retirement.plugin_id(),
-    "Will": Will.plugin_id(),
+DEFAULT_EVENT_TYPE_MAP: Mapping[str, PluginInstanceConfiguration] = {
+    "Adopted": PluginInstanceConfiguration(Adoption),
+    "Adult Christening": PluginInstanceConfiguration(Baptism),
+    "Baptism": PluginInstanceConfiguration(Baptism),
+    "Bar Mitzvah": PluginInstanceConfiguration(BarMitzvah),
+    "Bat Mitzvah": PluginInstanceConfiguration(BatMitzvah),
+    "Birth": PluginInstanceConfiguration(Birth),
+    "Burial": PluginInstanceConfiguration(Burial),
+    "Christening": PluginInstanceConfiguration(Baptism),
+    "Confirmation": PluginInstanceConfiguration(Confirmation),
+    "Cremation": PluginInstanceConfiguration(Cremation),
+    "Death": PluginInstanceConfiguration(Death),
+    "Divorce": PluginInstanceConfiguration(Divorce),
+    "Divorce Filing": PluginInstanceConfiguration(DivorceAnnouncement),
+    "Emigration": PluginInstanceConfiguration(Emigration),
+    "Engagement": PluginInstanceConfiguration(Engagement),
+    "Immigration": PluginInstanceConfiguration(Immigration),
+    "Marriage": PluginInstanceConfiguration(Marriage),
+    "Marriage Banns": PluginInstanceConfiguration(MarriageAnnouncement),
+    "Occupation": PluginInstanceConfiguration(Occupation),
+    "Residence": PluginInstanceConfiguration(Residence),
+    "Retirement": PluginInstanceConfiguration(Retirement),
+    "Will": PluginInstanceConfiguration(Will),
 }
 
 
-DEFAULT_PLACE_TYPE_MAP: Mapping[str, MachineName] = {
-    "Borough": Borough.plugin_id(),
-    "Building": Building.plugin_id(),
-    "City": City.plugin_id(),
-    "Country": Country.plugin_id(),
-    "County": County.plugin_id(),
-    "Department": Department.plugin_id(),
-    "District": District.plugin_id(),
-    "Farm": Farm.plugin_id(),
-    "Hamlet": Hamlet.plugin_id(),
-    "Locality": Locality.plugin_id(),
-    "Municipality": Municipality.plugin_id(),
-    "Neighborhood": Neighborhood.plugin_id(),
-    "Number": Number.plugin_id(),
-    "Parish": Parish.plugin_id(),
-    "Province": Province.plugin_id(),
-    "Region": Region.plugin_id(),
-    "State": State.plugin_id(),
-    "Street": Street.plugin_id(),
-    "Town": Town.plugin_id(),
-    "Unknown": UnknownPlaceType.plugin_id(),
-    "Village": Village.plugin_id(),
+DEFAULT_PLACE_TYPE_MAP: Mapping[str, PluginInstanceConfiguration] = {
+    "Borough": PluginInstanceConfiguration(Borough),
+    "Building": PluginInstanceConfiguration(Building),
+    "City": PluginInstanceConfiguration(City),
+    "Country": PluginInstanceConfiguration(Country),
+    "County": PluginInstanceConfiguration(County),
+    "Department": PluginInstanceConfiguration(Department),
+    "District": PluginInstanceConfiguration(District),
+    "Farm": PluginInstanceConfiguration(Farm),
+    "Hamlet": PluginInstanceConfiguration(Hamlet),
+    "Locality": PluginInstanceConfiguration(Locality),
+    "Municipality": PluginInstanceConfiguration(Municipality),
+    "Neighborhood": PluginInstanceConfiguration(Neighborhood),
+    "Number": PluginInstanceConfiguration(Number),
+    "Parish": PluginInstanceConfiguration(Parish),
+    "Province": PluginInstanceConfiguration(Province),
+    "Region": PluginInstanceConfiguration(Region),
+    "State": PluginInstanceConfiguration(State),
+    "Street": PluginInstanceConfiguration(Street),
+    "Town": PluginInstanceConfiguration(Town),
+    "Unknown": PluginInstanceConfiguration(UnknownPlaceType),
+    "Village": PluginInstanceConfiguration(Village),
 }
 
 
-DEFAULT_PRESENCE_ROLE_MAP: Mapping[str, MachineName] = {
-    "Aide": Attendee.plugin_id(),
-    "Bride": Subject.plugin_id(),
-    "Celebrant": Celebrant.plugin_id(),
-    "Clergy": Celebrant.plugin_id(),
-    "Family": Subject.plugin_id(),
-    "Groom": Subject.plugin_id(),
-    "Informant": Informant.plugin_id(),
-    "Primary": Subject.plugin_id(),
-    "Unknown": UnknownPresenceRole.plugin_id(),
-    "Witness": Witness.plugin_id(),
+DEFAULT_PRESENCE_ROLE_MAP: Mapping[str, PluginInstanceConfiguration] = {
+    "Aide": PluginInstanceConfiguration(Attendee),
+    "Bride": PluginInstanceConfiguration(Subject),
+    "Celebrant": PluginInstanceConfiguration(Celebrant),
+    "Clergy": PluginInstanceConfiguration(Celebrant),
+    "Family": PluginInstanceConfiguration(Subject),
+    "Groom": PluginInstanceConfiguration(Subject),
+    "Informant": PluginInstanceConfiguration(Informant),
+    "Primary": PluginInstanceConfiguration(Subject),
+    "Unknown": PluginInstanceConfiguration(UnknownPresenceRole),
+    "Witness": PluginInstanceConfiguration(Witness),
 }
 
 
-DEFAULT_GENDER_MAP: Mapping[str, MachineName] = {
-    "F": Female.plugin_id(),
-    "M": Male.plugin_id(),
-    "U": UnknownGender.plugin_id(),
+DEFAULT_GENDER_MAP: Mapping[str, PluginInstanceConfiguration] = {
+    "F": PluginInstanceConfiguration(Female),
+    "M": PluginInstanceConfiguration(Male),
+    "U": PluginInstanceConfiguration(UnknownGender),
 }
 
 
@@ -169,49 +168,53 @@ def _assert_gramps_type(value: Any) -> str:
 @final
 class PluginMapping(Configuration):
     """
-    Map Gramps types to Betty plugin IDs.
+    Map Gramps types to Betty plugin instances.
     """
 
     def __init__(
         self,
-        default_mapping: Mapping[str, MachineName],
-        mapping: Mapping[str, MachineName],
+        default_mapping: Mapping[str, PluginInstanceConfiguration],
+        mapping: Mapping[str, PluginInstanceConfiguration],
     ):
         super().__init__()
         self._default_mapping = default_mapping
-        self._mapping: MutableMapping[str, MachineName] = {**default_mapping, **mapping}
-
-    async def to_plugins(
-        self, plugins: PluginRepository[_PluginT]
-    ) -> Mapping[str, type[_PluginT]]:
-        """
-        Hydrate the mapping into plugins.
-        """
-        return {
-            gramps_type: await plugins.get(plugin_id)
-            for gramps_type, plugin_id in self._mapping.items()
+        self._mapping: MutableMapping[str, PluginInstanceConfiguration] = {
+            **default_mapping,
+            **mapping,
         }
 
     @override
     def load(self, dump: Dump) -> None:
         self._mapping = {
             **self._default_mapping,
-            **assert_mapping(assert_machine_name(), _assert_gramps_type)(dump),
+            **assert_mapping(self._load_item, _assert_gramps_type)(dump),
         }
+
+    def _load_item(self, dump: Dump) -> PluginInstanceConfiguration:
+        configuration = PluginInstanceConfiguration("-")
+        configuration.load(dump)
+        return configuration
 
     @override
     def dump(self) -> Dump:
-        # Dumps are mutable, so return a new dict which may then be changed without impacting ``self``.
-        return dict(self._mapping)
+        return {
+            gramps_type: configuration.dump()
+            for gramps_type, configuration in self._mapping.items()
+        }
 
-    def __getitem__(self, gramps_type: str) -> MachineName:
+    def __getitem__(self, gramps_type: str) -> PluginInstanceConfiguration:
         return self._mapping[gramps_type]
 
-    def __setitem__(self, gramps_type: str, plugin_id: MachineName) -> None:
-        self._mapping[gramps_type] = plugin_id
+    def __setitem__(
+        self, gramps_type: str, configuration: PluginInstanceConfiguration
+    ) -> None:
+        self._mapping[gramps_type] = configuration
 
     def __delitem__(self, gramps_type: str) -> None:
         del self._mapping[gramps_type]
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self._mapping)
 
 
 class FamilyTreeConfiguration(Configuration):
@@ -223,10 +226,10 @@ class FamilyTreeConfiguration(Configuration):
         self,
         file_path: Path,
         *,
-        event_types: Mapping[str, MachineName] | None = None,
-        place_types: Mapping[str, MachineName] | None = None,
-        presence_roles: Mapping[str, MachineName] | None = None,
-        genders: Mapping[str, MachineName] | None = None,
+        event_types: Mapping[str, PluginInstanceConfiguration] | None = None,
+        place_types: Mapping[str, PluginInstanceConfiguration] | None = None,
+        presence_roles: Mapping[str, PluginInstanceConfiguration] | None = None,
+        genders: Mapping[str, PluginInstanceConfiguration] | None = None,
     ):
         super().__init__()
         self.file_path = file_path

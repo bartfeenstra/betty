@@ -36,7 +36,9 @@ class PluginConfigurationMappingTestBase(
         """
         configurations = await self.get_configurations()
         sut = await self.get_sut(configurations)
-        for configuration, plugin in zip(configurations, sut.new_plugins, strict=True):
+        for configuration, plugin in zip(
+            configurations, sut.new_plugins(), strict=True
+        ):
             assert plugin.plugin_id() == configuration.id
             assert plugin.plugin_label() == configuration.label
             assert plugin.plugin_description() == configuration.description

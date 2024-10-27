@@ -26,6 +26,7 @@ from betty.locale.localizable.config import (
 )
 from betty.machine_name import assert_machine_name, MachineName
 from betty.plugin import Plugin, PluginRepository
+from betty.repr import repr_instance
 from betty.typing import Void, Voidable
 
 if TYPE_CHECKING:
@@ -57,6 +58,9 @@ class PluginConfiguration(Configuration):
         self.label = label
         if description is not None:
             self.description = description
+
+    def __repr__(self) -> str:
+        return repr_instance(self, id=self.id, label=self.label)
 
     @property
     def id(self) -> str:
@@ -93,10 +97,9 @@ class PluginConfigurationMapping(
     Configure a collection of plugins.
     """
 
-    @property
     def new_plugins(self) -> Sequence[type[_PluginCoT]]:
         """
-        The plugins for this configuration.
+        Create the plugins for this configuration.
 
         You SHOULD NOT cache the value anywhere, as it *will* change
         when this configuration changes.
@@ -171,6 +174,9 @@ class PluginInstanceConfiguration(Configuration):
             if isinstance(configuration, Configuration)
             else configuration
         )
+
+    def __repr__(self) -> str:
+        return repr_instance(self, id=self.id, configuration=self.configuration)
 
     @property
     def id(self) -> MachineName:

@@ -734,10 +734,10 @@ class ProjectConfiguration(Configuration):
 
     title = OptionalStaticTranslationsLocalizableConfigurationAttr("title")
     author = OptionalStaticTranslationsLocalizableConfigurationAttr("author")
-    #: The ID of the project-wide :py:class:`betty.copyright_notice.CopyrightNotice` plugin to use.
-    copyright_notice: MachineName
-    #: The ID of the project-wide :py:class:`betty.license.License` plugin to use.
-    license: MachineName
+    #: The project-wide :py:class:`betty.copyright_notice.CopyrightNotice` plugin to use.
+    copyright_notice: PluginInstanceConfiguration
+    #: The project-wide :py:class:`betty.license.License` plugin to use.
+    license: PluginInstanceConfiguration
 
     def __init__(
         self,
@@ -752,9 +752,9 @@ class ProjectConfiguration(Configuration):
         event_types: Iterable[PluginConfiguration] | None = None,
         place_types: Iterable[PluginConfiguration] | None = None,
         presence_roles: Iterable[PluginConfiguration] | None = None,
-        copyright_notice: MachineName | None = None,  # noqa A002
+        copyright_notice: PluginInstanceConfiguration | None = None,  # noqa A002
         copyright_notices: Iterable[CopyrightNoticeConfiguration] | None = None,
-        license: MachineName | None = None,  # noqa A002
+        license: PluginInstanceConfiguration | None = None,  # noqa A002
         licenses: Iterable[LicenseConfiguration] | None = None,
         genders: Iterable[PluginConfiguration] | None = None,
         extensions: Iterable[PluginInstanceConfiguration] | None = None,
@@ -797,11 +797,13 @@ class ProjectConfiguration(Configuration):
                 ),
             ]
         )
-        self.copyright_notice = copyright_notice or ProjectAuthor.plugin_id()
+        self.copyright_notice = copyright_notice or PluginInstanceConfiguration(
+            ProjectAuthor
+        )
         self._copyright_notices = CopyrightNoticeConfigurationMapping()
         if copyright_notices is not None:
             self._copyright_notices.append(*copyright_notices)
-        self.license = license or AllRightsReserved.plugin_id()
+        self.license = license or PluginInstanceConfiguration(AllRightsReserved)
         self._licenses = LicenseConfigurationMapping()
         if licenses is not None:
             self._licenses.append(*licenses)
@@ -836,9 +838,9 @@ class ProjectConfiguration(Configuration):
         event_types: Iterable[PluginConfiguration] | None = None,
         place_types: Iterable[PluginConfiguration] | None = None,
         presence_roles: Iterable[PluginConfiguration] | None = None,
-        copyright_notice: MachineName | None = None,  # noqa A002
+        copyright_notice: PluginInstanceConfiguration | None = None,  # noqa A002
         copyright_notices: Iterable[CopyrightNoticeConfiguration] | None = None,
-        license: MachineName | None = None,  # noqa A002
+        license: PluginInstanceConfiguration | None = None,  # noqa A002
         licenses: Iterable[LicenseConfiguration] | None = None,
         genders: Iterable[PluginConfiguration] | None = None,
         extensions: Iterable[PluginInstanceConfiguration] | None = None,
@@ -1135,13 +1137,9 @@ class ProjectConfiguration(Configuration):
             OptionalField("locales", self.locales.load),
             OptionalField("extensions", self.extensions.load),
             OptionalField("entity_types", self.entity_types.load),
-            OptionalField(
-                "copyright", assert_machine_name() | assert_setattr(self, "copyright")
-            ),
+            OptionalField("copyright", self.copyright_notice.load),
             OptionalField("copyright_notices", self.copyright_notices.load),
-            OptionalField(
-                "license", assert_machine_name() | assert_setattr(self, "license")
-            ),
+            OptionalField("license", self.license.load),
             OptionalField("licenses", self.licenses.load),
             OptionalField("event_types", self.event_types.load),
             OptionalField("genders", self.genders.load),
@@ -1163,9 +1161,9 @@ class ProjectConfiguration(Configuration):
             "locales": self.locales.dump(),
             "extensions": self.extensions.dump(),
             "entity_types": self.entity_types.dump(),
-            "copyright": self.copyright_notice,
+            "copyright": self.copyright_notice.dump(),
             "copyright_notices": self.copyright_notices.dump(),
-            "license": self.license,
+            "license": self.license.dump(),
             "licenses": self.licenses.dump(),
             "event_types": self.event_types.dump(),
             "genders": self.genders.dump(),

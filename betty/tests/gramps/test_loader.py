@@ -7,10 +7,6 @@ import aiofiles
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
-from betty.copyright_notice.copyright_notices import (
-    PublicDomain as PublicDomainCopyrightNotice,
-)
-from betty.license.licenses import PublicDomain as PublicDomainLicense
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
@@ -24,16 +20,20 @@ from betty.ancestry.note import Note
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.privacy import Privacy
 from betty.ancestry.source import Source
 from betty.app import App
+from betty.copyright_notice.copyright_notices import (
+    PublicDomain as PublicDomainCopyrightNotice,
+)
 from betty.date import Date, DateRange
 from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsLoader, LoaderUsedAlready, GrampsFileNotFound
+from betty.license.licenses import PublicDomain as PublicDomainLicense
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.path import rootname
+from betty.privacy import Privacy
 from betty.project import Project
 
 if TYPE_CHECKING:
@@ -41,7 +41,7 @@ if TYPE_CHECKING:
     from betty.ancestry.event_type import EventType
     from betty.ancestry.gender import Gender
     from betty.ancestry.presence_role import PresenceRole
-    from collections.abc import Mapping
+    from collections.abc import Mapping, Awaitable, Callable
 
 
 class TestGrampsLoader:
@@ -160,9 +160,14 @@ class TestGrampsLoader:
         self,
         xml: str,
         *,
-        event_type_map: Mapping[str, type[EventType]] | None = None,
-        gender_map: Mapping[str, type[Gender]] | None = None,
-        presence_role_map: Mapping[str, type[PresenceRole]] | None = None,
+        event_type_map: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
+        | None = None,
+        gender_map: Mapping[str, Callable[[], Gender | Awaitable[Gender]]]
+        | None = None,
+        presence_role_map: Mapping[
+            str, Callable[[], PresenceRole | Awaitable[PresenceRole]]
+        ]
+        | None = None,
     ) -> Ancestry:
         async with (
             App.new_temporary() as app,
@@ -193,9 +198,14 @@ class TestGrampsLoader:
         self,
         xml: str,
         *,
-        event_type_map: Mapping[str, type[EventType]] | None = None,
-        gender_map: Mapping[str, type[Gender]] | None = None,
-        presence_role_map: Mapping[str, type[PresenceRole]] | None = None,
+        event_type_map: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
+        | None = None,
+        gender_map: Mapping[str, Callable[[], Gender | Awaitable[Gender]]]
+        | None = None,
+        presence_role_map: Mapping[
+            str, Callable[[], PresenceRole | Awaitable[PresenceRole]]
+        ]
+        | None = None,
     ) -> Ancestry:
         return await self._load(
             f"""

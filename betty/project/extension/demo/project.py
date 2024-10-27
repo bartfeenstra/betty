@@ -55,7 +55,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
     configuration = await ProjectConfiguration.new(
         project_directory_path / "betty.json",
         name=Demo.plugin_id(),
-        license="spdx-gpl-3--0-or-later",
+        license=PluginInstanceConfiguration("spdx-gpl-3--0-or-later"),
         title={
             "en-US": "A Betty demonstration",
             "nl-NL": "Een demonstratie van Betty",

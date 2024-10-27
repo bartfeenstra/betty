@@ -65,7 +65,9 @@ class TestGramps(ExtensionTestBase[Gramps]):
                         family_trees=[
                             FamilyTreeConfiguration(
                                 file_path=gramps_family_tree_path,
-                                event_types={"Birth": "birth"},
+                                event_types={
+                                    "Birth": PluginInstanceConfiguration("birth")
+                                },
                             )
                         ],
                     ),
@@ -106,7 +108,9 @@ class TestGramps(ExtensionTestBase[Gramps]):
                         family_trees=[
                             FamilyTreeConfiguration(
                                 file_path=gramps_family_tree_path,
-                                place_types={"City": "city"},
+                                place_types={
+                                    "City": PluginInstanceConfiguration("city")
+                                },
                             )
                         ],
                     ),
@@ -155,7 +159,11 @@ class TestGramps(ExtensionTestBase[Gramps]):
                         family_trees=[
                             FamilyTreeConfiguration(
                                 file_path=gramps_family_tree_path,
-                                presence_roles={"MyFirstRole": "subject"},
+                                presence_roles={
+                                    "MyFirstRole": PluginInstanceConfiguration(
+                                        "subject"
+                                    )
+                                },
                             )
                         ],
                     ),
@@ -199,7 +207,11 @@ class TestGramps(ExtensionTestBase[Gramps]):
                         family_trees=[
                             FamilyTreeConfiguration(
                                 file_path=gramps_family_tree_path,
-                                genders={"MyFirstGender": "non-binary"},
+                                genders={
+                                    "MyFirstGender": PluginInstanceConfiguration(
+                                        "non-binary"
+                                    )
+                                },
                             )
                         ],
                     ),

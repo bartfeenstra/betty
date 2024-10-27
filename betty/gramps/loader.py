@@ -39,6 +39,7 @@ from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.ancestry.source import Source
+from betty.asyncio import ensure_await
 from betty.date import DateRange, Datey, Date
 from betty.error import FileNotFound
 from betty.gramps.error import GrampsError, UserFacingGrampsError
@@ -46,11 +47,7 @@ from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import _, plain
 from betty.media_type import MediaType, InvalidMediaType
 from betty.model import Entity
-from betty.model.association import (
-    ToManyResolver,
-    ToOneResolver,
-    resolve,
-)
+from betty.model.association import ToManyResolver, ToOneResolver, resolve
 from betty.path import rootname
 from betty.plugin import PluginNotFound
 from betty.privacy import HasPrivacy
@@ -70,8 +67,7 @@ if TYPE_CHECKING:
     from betty.ancestry.gender import Gender
     from betty.factory import Factory
     from betty.locale.localizer import Localizer
-    from collections.abc import MutableMapping, Mapping, Sequence
-
+    from collections.abc import MutableMapping, Mapping, Sequence, Awaitable, Callable
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
 
@@ -163,10 +159,16 @@ class GrampsLoader:
         copyright_notices: PluginRepository[CopyrightNotice],
         licenses: PluginRepository[License],
         attribute_prefix_key: str | None = None,
-        event_type_map: Mapping[str, type[EventType]] | None = None,
-        gender_map: Mapping[str, type[Gender]] | None = None,
-        place_type_map: Mapping[str, type[PlaceType]] | None = None,
-        presence_role_map: Mapping[str, type[PresenceRole]] | None = None,
+        event_type_map: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
+        | None = None,
+        gender_map: Mapping[str, Callable[[], Gender | Awaitable[Gender]]]
+        | None = None,
+        place_type_map: Mapping[str, Callable[[], PlaceType | Awaitable[PlaceType]]]
+        | None = None,
+        presence_role_map: Mapping[
+            str, Callable[[], PresenceRole | Awaitable[PresenceRole]]
+        ]
+        | None = None,
     ):
         super().__init__()
         self._ancestry = ancestry
@@ -569,20 +571,23 @@ class GrampsLoader:
             gramps_gender = self._xpath1(element, "./ns:gender").text
             assert gramps_gender is not None
 
+        gender: Gender
         try:
-            gender_type = self._gender_map[gramps_gender]
+            gender_factory = self._gender_map[gramps_gender]
         except KeyError:
-            gender_type = UnknownGender
+            gender = UnknownGender()
             getLogger(__name__).warning(
                 self._localizer._(
                     'Betty is unfamiliar with Gramps person "{person_id}"\'s gender of "{gramps_gender}". The person was imported, but their gender was set to "{betty_gender}".',
                 ).format(
                     person_id=person_id,
                     gramps_gender=gramps_gender,
-                    betty_gender=gender_type.plugin_label().localize(self._localizer),
+                    betty_gender=gender.plugin_label().localize(self._localizer),
                 )
             )
-        person = Person(id=element.get("id"), gender=await self._factory(gender_type))
+        else:
+            gender = await ensure_await(gender_factory())
+        person = Person(id=element.get("id"), gender=gender)
 
         name_elements = sorted(
             self._xpath(element, "./ns:name"), key=lambda x: x.get("alt") == "1"
@@ -671,12 +676,11 @@ class GrampsLoader:
         assert event_handle is not None
         gramps_presence_role = cast(str, eventref.get("role"))
 
+        presence_role: PresenceRole
         try:
-            presence_role_type: type[PresenceRole] = self._presence_role_map[
-                gramps_presence_role
-            ]
+            presence_role_factory = self._presence_role_map[gramps_presence_role]
         except KeyError:
-            presence_role_type = UnknownPresenceRole
+            presence_role = UnknownPresenceRole()
             getLogger(__name__).warning(
                 self._localizer._(
                     'Betty is unfamiliar with person "{person_id}"\'s Gramps presence role of "{gramps_presence_role}" for the event with Gramps handle "{event_handle}". The role was imported, but set to "{betty_presence_role}".',
@@ -684,14 +688,16 @@ class GrampsLoader:
                     person_id=person.id,
                     event_handle=event_handle,
                     gramps_presence_role=gramps_presence_role,
-                    betty_presence_role=presence_role_type.plugin_label().localize(
+                    betty_presence_role=presence_role.plugin_label().localize(
                         self._localizer
                     ),
                 )
             )
+        else:
+            presence_role = await ensure_await(presence_role_factory())
         presence = Presence(
             person,
-            await self._factory(presence_role_type),
+            presence_role,
             self._resolve1(Event, event_handle),
         )
         if eventref.get("priv") == "1":
@@ -731,26 +737,29 @@ class GrampsLoader:
                 )
             )
 
+        place_type: PlaceType
         try:
-            place_type_type = self._place_type_map[gramps_type]
+            place_type_factory = self._place_type_map[gramps_type]
         except KeyError:
-            place_type_type = UnknownPlaceType
+            place_type = UnknownPlaceType()
             getLogger(__name__).warning(
                 self._localizer._(
                     'Betty is unfamiliar with Gramps place "{place_id}"\'s type of "{gramps_place_type}". The place was imported, but its type was set to "{betty_place_type}".',
                 ).format(
                     place_id=place_id,
                     gramps_place_type=gramps_type,
-                    betty_place_type=place_type_type.plugin_label().localize(
+                    betty_place_type=place_type.plugin_label().localize(
                         self._localizer
                     ),
                 )
             )
+        else:
+            place_type = await ensure_await(place_type_factory())
 
         place = Place(
             id=place_id,
             names=names,
-            place_type=await self._factory(place_type_type),
+            place_type=place_type,
         )
 
         coordinates = self._load_coordinates(element)
@@ -798,25 +807,28 @@ class GrampsLoader:
         gramps_type = self._xpath1(element, "./ns:type").text
         assert gramps_type is not None
 
+        event_type: EventType
         try:
-            event_type_type = self._event_type_map[gramps_type]
+            event_type_factory = self._event_type_map[gramps_type]
         except KeyError:
-            event_type_type = UnknownEventType
+            event_type = UnknownEventType()
             getLogger(__name__).warning(
                 self._localizer._(
                     'Betty is unfamiliar with Gramps event "{event_id}"\'s type of "{gramps_event_type}". The event was imported, but its type was set to "{betty_event_type}".',
                 ).format(
                     event_id=event_id,
                     gramps_event_type=gramps_type,
-                    betty_event_type=event_type_type.plugin_label().localize(
+                    betty_event_type=event_type.plugin_label().localize(
                         self._localizer
                     ),
                 )
             )
+        else:
+            event_type = await ensure_await(event_type_factory())
 
         event = Event(
             id=event_id,
-            event_type=await self._factory(event_type_type),
+            event_type=event_type,
         )
 
         event.date = self._load_date(element)

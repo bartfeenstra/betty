@@ -433,9 +433,9 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
         async with self._copyright_notice_lock:
             if self._copyright_notice is None:
                 self.assert_bootstrapped()
-                self._copyright_notice = await self.new_target(
-                    await self.copyright_notice_repository.get(
-                        self.configuration.copyright_notice
+                self._copyright_notice = (
+                    await self.configuration.copyright_notice.new_plugin_instance(
+                        self.copyright_notice_repository
                     )
                 )
         return self._copyright_notice
@@ -452,7 +452,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
             self._copyright_notice_repository = ProxyPluginRepository(
                 COPYRIGHT_NOTICE_REPOSITORY,
                 StaticPluginRepository(
-                    *self.configuration.copyright_notices.new_plugins
+                    *self.configuration.copyright_notices.new_plugins()
                 ),
                 factory=self.new_target,
             )
@@ -469,9 +469,8 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
     async def _get_license(self) -> License:
         async with self._license_lock:
             if self._license is None:
-                licenses = await self.license_repository
-                self._license = await self.new_target(
-                    await licenses.get(self.configuration.license)
+                self._license = await self.configuration.license.new_plugin_instance(
+                    await self.license_repository
                 )
         return self._license
 
@@ -490,7 +489,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
                 self.assert_bootstrapped()
                 self._license_repository = ProxyPluginRepository(
                     await self._app.spdx_license_repository,
-                    StaticPluginRepository(*self.configuration.licenses.new_plugins),
+                    StaticPluginRepository(*self.configuration.licenses.new_plugins()),
                     factory=self.new_target,
                 )
 
@@ -505,7 +504,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
             self.assert_bootstrapped()
             self._event_type_repository = ProxyPluginRepository(
                 EVENT_TYPE_REPOSITORY,
-                StaticPluginRepository(*self.configuration.event_types.new_plugins),
+                StaticPluginRepository(*self.configuration.event_types.new_plugins()),
                 factory=self.new_target,
             )
 
@@ -520,7 +519,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
             self.assert_bootstrapped()
             self._place_type_repository = ProxyPluginRepository(
                 PLACE_TYPE_REPOSITORY,
-                StaticPluginRepository(*self.configuration.place_types.new_plugins),
+                StaticPluginRepository(*self.configuration.place_types.new_plugins()),
                 factory=self.new_target,
             )
 
@@ -535,7 +534,9 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
             self.assert_bootstrapped()
             self._presence_role_repository = ProxyPluginRepository(
                 PRESENCE_ROLE_REPOSITORY,
-                StaticPluginRepository(*self.configuration.presence_roles.new_plugins),
+                StaticPluginRepository(
+                    *self.configuration.presence_roles.new_plugins()
+                ),
                 factory=self.new_target,
             )
 
@@ -552,7 +553,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory[Any], CoreCompon
             self.assert_bootstrapped()
             self._gender_repository = ProxyPluginRepository(
                 GENDER_REPOSITORY,
-                StaticPluginRepository(*self.configuration.genders.new_plugins),
+                StaticPluginRepository(*self.configuration.genders.new_plugins()),
                 factory=self.new_target,
             )
 
