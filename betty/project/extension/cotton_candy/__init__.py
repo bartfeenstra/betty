@@ -147,6 +147,20 @@ class CottonCandy(
         )
 
     @override
+    async def bootstrap(self) -> None:
+        await super().bootstrap()
+        try:
+            await self._assert_configuration()
+        except BaseException:
+            await self.shutdown()
+            raise
+
+    async def _assert_configuration(self) -> None:
+        await self.configuration.featured_entities.validate(
+            self.project.entity_type_repository
+        )
+
+    @override
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
         registry.add_handler(
             GenerateSiteEvent, _generate_favicon, _generate_search_index

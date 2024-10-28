@@ -26,7 +26,7 @@ from typing import (
 from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
-from betty import fs, event_dispatcher
+from betty import fs, event_dispatcher, model
 from betty.ancestry import Ancestry
 from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY
 from betty.ancestry.gender import GENDER_REPOSITORY, Gender
@@ -45,6 +45,7 @@ from betty.json.schema import Schema, JsonSchemaReference
 from betty.locale.localizable import _
 from betty.locale.localizer import LocalizerRepository
 from betty.model import Entity, EntityReferenceCollectionSchema
+from betty.plugin import resolve_identifier
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.plugin.static import StaticPluginRepository
 from betty.project import extension
@@ -112,7 +113,6 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, CoreComponent):
         self._extensions: ProjectExtensions | None = None
         self._extensions_lock = AsynchronizedLock.threading()
         self._event_dispatcher: EventDispatcher | None = None
-        self._entity_types: set[type[Entity]] | None = None
         self._copyright_notice: CopyrightNotice | None = None
         self._copyright_notice_lock = AsynchronizedLock.threading()
         self._copyright_notice_repository: PluginRepository[CopyrightNotice] | None = (
@@ -126,6 +126,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, CoreComponent):
         self._place_type_repository: PluginRepository[PlaceType] | None = None
         self._presence_role_repository: PluginRepository[PresenceRole] | None = None
         self._gender_repository: PluginRepository[Gender] | None = None
+        self._entity_type_repository: PluginRepository[Entity] | None = None
         self._extension_repository: PluginRepository[Extension] | None = None
 
     @classmethod
@@ -184,9 +185,13 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, CoreComponent):
                     self._shutdown_stack.append(project_extension)
                     project_extension.register_event_handlers(batch_event_handlers)
                 self.event_dispatcher.add_registry(batch_event_handlers)
+            await self._assert_configuration()
         except BaseException:
             await self.shutdown()
             raise
+
+    async def _assert_configuration(self) -> None:
+        await self.configuration.entity_types.validate(self.entity_type_repository)
 
     @property
     def app(self) -> App:
@@ -559,6 +564,21 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, CoreComponent):
         return self._gender_repository
 
     @property
+    def entity_type_repository(self) -> PluginRepository[Entity]:
+        """
+        The entity types available to this project.
+
+        Read more about :doc:`/development/plugin/entity-type`.
+        """
+        if self._entity_type_repository is None:
+            self.assert_bootstrapped()
+            self._entity_type_repository = ProxyPluginRepository(
+                model.ENTITY_TYPE_REPOSITORY, factory=self.new_target
+            )
+
+        return self._entity_type_repository
+
+    @property
     def extension_repository(self) -> PluginRepository[Extension]:
         """
         The extensions available to this project.
@@ -599,11 +619,9 @@ class ProjectExtensions:
     def __getitem__(
         self, extension_identifier: PluginIdentifier[Extension]
     ) -> Extension:
+        extension_id = resolve_identifier(extension_identifier)
         for project_extension in self.flatten():
-            if isinstance(extension_identifier, str):
-                if project_extension.plugin_id() == extension_identifier:
-                    return project_extension
-            elif type(project_extension) is extension_identifier:
+            if project_extension.plugin_id() == extension_id:
                 return project_extension
         raise KeyError(f'Unknown extension of type "{extension_identifier}"')
 

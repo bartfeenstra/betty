@@ -117,9 +117,11 @@ class AssertionFailed(UserFacingError, ValueError):
     An assertion failure.
     """
 
-    def __init__(self, message: Localizable):
+    def __init__(
+        self, message: Localizable, *, contexts: tuple[Contextey, ...] | None = None
+    ):
         super().__init__(message)
-        self._contexts: tuple[Contextey, ...] = ()
+        self._contexts: tuple[Contextey, ...] = contexts or ()
 
     @override
     def localize(self, localizer: Localizer) -> LocalizedStr:
@@ -209,13 +211,13 @@ class AssertionFailedGroup(AssertionFailed):
         return not self.valid
 
     @contextmanager
-    def assert_valid(self) -> Iterator[Self]:
+    def assert_valid(self, *contexts: Contextey) -> Iterator[Self]:
         """
         Assert that this collection contains no errors.
         """
         if self.invalid:
             raise self
-        with self.catch():
+        with self.catch(*contexts):
             yield self
         if self.invalid:  # type: ignore[redundant-expr]
             raise self

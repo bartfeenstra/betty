@@ -1,4 +1,5 @@
 from collections.abc import Iterable
+from typing import TypeVar, Mapping, cast
 
 import pytest
 from typing_extensions import override
@@ -10,21 +11,22 @@ from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import ShorthandStaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
+from betty.plugin import Plugin
 from betty.plugin.config import (
     PluginConfiguration,
     PluginConfigurationPluginConfigurationMapping,
     PluginInstanceConfiguration,
     PluginInstanceConfigurationMapping,
+    PluginIdentifierKeyConfigurationMapping,
 )
 from betty.plugin.static import StaticPluginRepository
+from betty.serde.dump import Dump
 from betty.test_utils.assertion.error import raises_error
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.plugin import DummyPlugin
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from betty.serde.dump import Dump
+_PluginT = TypeVar("_PluginT", bound=Plugin)
 
 
 class _DummyDefaultConfigurablePlugin(
@@ -377,7 +379,7 @@ class TestPluginInstanceConfigurationMapping(
     async def get_sut(
         self,
         configurations: Iterable[PluginInstanceConfiguration] | None = None,
-    ) -> PluginInstanceConfigurationMapping:
+    ) -> PluginInstanceConfigurationMapping[DummyPlugin]:
         return PluginInstanceConfigurationMapping(configurations)
 
     @override
@@ -395,3 +397,49 @@ class TestPluginInstanceConfigurationMapping(
             PluginInstanceConfiguration(self.get_configuration_keys()[2]),
             PluginInstanceConfiguration(self.get_configuration_keys()[3]),
         )
+
+
+class _DummyPluginIdentifierKeyConfigurationMapping(
+    PluginIdentifierKeyConfigurationMapping[DummyPlugin, DummyConfiguration]
+):
+    @override
+    def _dump_key(self, item_dump: Dump) -> tuple[Dump, str]:
+        if isinstance(item_dump, str):
+            return None, item_dump
+        assert isinstance(item_dump, Mapping)
+        return None, cast(str, item_dump["value"])
+
+    @override
+    def _get_key(self, configuration: DummyConfiguration) -> MachineName:
+        assert configuration.value
+        return configuration.value
+
+    @override
+    def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
+        return {"value": key_dump}
+
+    @override
+    def _load_item(self, dump: Dump) -> DummyConfiguration:
+        raise NotImplementedError
+
+
+class TestPluginIdentifierKeyConfigurationMapping:
+    def test___contains___with_plugin(self) -> None:
+        item = DummyConfiguration(DummyPlugin.plugin_id())
+        sut = _DummyPluginIdentifierKeyConfigurationMapping([item])
+        assert DummyPlugin in sut
+
+    def test___contains___with_plugin_id(self) -> None:
+        item = DummyConfiguration(DummyPlugin.plugin_id())
+        sut = _DummyPluginIdentifierKeyConfigurationMapping([item])
+        assert DummyPlugin.plugin_id() in sut
+
+    def test___getitem___with_plugin(self) -> None:
+        item = DummyConfiguration(DummyPlugin.plugin_id())
+        sut = _DummyPluginIdentifierKeyConfigurationMapping([item])
+        assert sut[DummyPlugin] is item
+
+    def test___getitem___with_plugin_id(self) -> None:
+        item = DummyConfiguration(DummyPlugin.plugin_id())
+        sut = _DummyPluginIdentifierKeyConfigurationMapping([item])
+        assert sut[DummyPlugin.plugin_id()] is item

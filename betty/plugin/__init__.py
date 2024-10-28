@@ -30,8 +30,7 @@ from betty.machine_name import MachineName
 if TYPE_CHECKING:
     from graphlib import TopologicalSorter
     from betty.locale.localizable import Localizable
-    from collections.abc import AsyncIterator, Sequence, Mapping, Iterable
-
+    from collections.abc import AsyncIterator, Sequence, Mapping, Iterable, Iterator
 
 _T = TypeVar("_T")
 
@@ -151,6 +150,15 @@ class ShorthandPluginBase(Plugin):
 PluginIdentifier: TypeAlias = type[_PluginT] | MachineName
 
 
+def resolve_identifier(plugin_identifier: PluginIdentifier[Plugin]) -> MachineName:
+    """
+    Resolve a plugin identifier to a plugin ID.
+    """
+    if isinstance(plugin_identifier, str):
+        return plugin_identifier
+    return plugin_identifier.plugin_id()
+
+
 class PluginNotFound(PluginError, UserFacingError):
     """
     Raised when a plugin cannot be found.
@@ -210,6 +218,9 @@ class PluginIdToTypeMapping(Generic[_PluginT]):
         self, plugin_identifier: MachineName | type[_PluginT]
     ) -> type[_PluginT]:
         return self.get(plugin_identifier)
+
+    def __iter__(self) -> Iterator[MachineName]:
+        yield from self._id_to_type_mapping
 
 
 class PluginRepository(Generic[_PluginT], TargetFactory, ABC):

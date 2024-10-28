@@ -17,15 +17,13 @@ from betty.license.licenses import AllRightsReserved
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
-from betty.model import Entity, UserFacingEntity
+from betty.model import UserFacingEntity
 from betty.plugin.config import (
     PluginConfiguration,
     PluginInstanceConfiguration,
 )
 from betty.plugin.static import StaticPluginRepository
 from betty.project.config import (
-    EntityReference,
-    EntityReferenceSequence,
     LocaleConfiguration,
     LocaleConfigurationMapping,
     ExtensionInstanceConfigurationMapping,
@@ -44,7 +42,6 @@ from betty.project.config import ProjectConfiguration
 from betty.test_utils.assertion.error import raises_error
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
-from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.test_utils.model import DummyEntity
 from betty.test_utils.plugin.config import PluginConfigurationMappingTestBase
 from betty.test_utils.project.extension import (
@@ -62,223 +59,6 @@ if TYPE_CHECKING:
 
 class _DummyNonConfigurableExtension(DummyExtension):
     pass
-
-
-class EntityReferenceTestEntityOne(DummyEntity):
-    pass
-
-
-class EntityReferenceTestEntityTwo(DummyEntity):
-    pass
-
-
-class TestEntityReference:
-    async def test_entity_type_with_constraint(self) -> None:
-        entity_type = EntityReferenceTestEntityOne
-        sut = EntityReference[EntityReferenceTestEntityOne](
-            entity_type, None, entity_type_is_constrained=True
-        )
-        assert sut.entity_type == entity_type
-        with pytest.raises(AttributeError):
-            sut.entity_type = entity_type
-
-    async def test_entity_type_without_constraint(self) -> None:
-        entity_type = EntityReferenceTestEntityOne
-        sut = EntityReference[EntityReferenceTestEntityOne]()
-        assert sut.entity_type is None
-        sut.entity_type = entity_type
-        assert sut.entity_type == entity_type
-
-    async def test_entity_type_is_constrained(self) -> None:
-        entity_type = EntityReferenceTestEntityOne
-        sut = EntityReference[EntityReferenceTestEntityOne](
-            entity_type, None, entity_type_is_constrained=True
-        )
-        assert sut.entity_type_is_constrained
-
-    async def test_entity_id(self) -> None:
-        entity_id = "123"
-        sut = EntityReference[EntityReferenceTestEntityOne]()
-        assert sut.entity_id is None
-        sut.entity_id = entity_id
-        assert sut.entity_id == entity_id
-        del sut.entity_id
-        assert sut.entity_id is None
-
-    async def test_load_with_constraint(self) -> None:
-        sut = EntityReference(
-            EntityReferenceTestEntityOne, entity_type_is_constrained=True
-        )
-        entity_id = "123"
-        dump = entity_id
-        sut.load(dump)
-        assert sut.entity_id == entity_id
-
-    @pytest.mark.parametrize(
-        "dump",
-        [
-            {
-                "entity_type": EntityReferenceTestEntityOne,
-                "entity": "123",
-            },
-            {
-                "entity_type": EntityReferenceTestEntityTwo,
-                "entity": "123",
-            },
-            False,
-            123,
-        ],
-    )
-    async def test_load_with_constraint_without_string_should_error(
-        self, dump: Dump
-    ) -> None:
-        sut = EntityReference(
-            EntityReferenceTestEntityOne, entity_type_is_constrained=True
-        )
-        with raises_error(error_type=AssertionFailed):
-            sut.load(dump)
-
-    async def test_load_without_constraint(self, mocker: MockerFixture) -> None:
-        mocker.patch(
-            "betty.model.ENTITY_TYPE_REPOSITORY",
-            new=StaticPluginRepository(EntityReferenceTestEntityOne),
-        )
-        entity_type = EntityReferenceTestEntityOne
-        entity_id = "123"
-        dump: Dump = {
-            "entity_type": entity_type.plugin_id(),
-            "entity": entity_id,
-        }
-        sut = EntityReference[EntityReferenceTestEntityOne]()
-        sut.load(dump)
-        assert sut.entity_type == entity_type
-        assert sut.entity_id == entity_id
-
-    async def test_load_without_constraint_without_entity_type_should_error(
-        self,
-    ) -> None:
-        entity_id = "123"
-        dump: Dump = {
-            "entity": entity_id,
-        }
-        sut = EntityReference[EntityReferenceTestEntityOne]()
-        with raises_error(error_type=AssertionFailed):
-            sut.load(dump)
-
-    async def test_load_without_constraint_without_string_entity_type_should_error(
-        self,
-    ) -> None:
-        entity_id = "123"
-        dump: Dump = {
-            "entity_type": 123,
-            "entity": entity_id,
-        }
-        sut = EntityReference[EntityReferenceTestEntityOne]()
-        with raises_error(error_type=AssertionFailed):
-            sut.load(dump)
-
-    async def test_load_without_constraint_without_importable_entity_type_should_error(
-        self,
-    ) -> None:
-        entity_id = "123"
-        dump: Dump = {
-            "entity_type": "betty.non_existent.Entity",
-            "entity": entity_id,
-        }
-        sut = EntityReference[EntityReferenceTestEntityOne]()
-        with raises_error(error_type=AssertionFailed):
-            sut.load(dump)
-
-    async def test_load_without_constraint_without_string_entity_id_should_error(
-        self,
-    ) -> None:
-        entity_type = EntityReferenceTestEntityOne
-        dump: Dump = {
-            "entity_type": entity_type.plugin_id(),
-            "entity": None,
-        }
-        sut = EntityReference[EntityReferenceTestEntityOne]()
-        with raises_error(error_type=AssertionFailed):
-            sut.load(dump)
-
-    async def test_dump_with_constraint(self) -> None:
-        sut = EntityReference[Entity](Entity, None, entity_type_is_constrained=True)
-        entity_id = "123"
-        sut.entity_id = entity_id
-        assert sut.dump() == entity_id
-
-    async def test_dump_without_constraint(self) -> None:
-        sut = EntityReference[EntityReferenceTestEntityOne]()
-        entity_type = EntityReferenceTestEntityOne
-        entity_id = "123"
-        sut.entity_type = entity_type
-        sut.entity_id = entity_id
-        expected = {
-            "entity_type": entity_type.plugin_id(),
-            "entity": entity_id,
-        }
-        assert sut.dump() == expected
-
-
-class EntityReferenceSequenceTestEntity(DummyEntity):
-    pass
-
-
-class TestEntityReferenceSequence(
-    ConfigurationSequenceTestBase[EntityReference[Entity]]
-):
-    @pytest.fixture(autouse=True)
-    def _entity_types(self, mocker: MockerFixture) -> None:
-        mocker.patch(
-            "betty.model.ENTITY_TYPE_REPOSITORY",
-            new=StaticPluginRepository(EntityReferenceSequenceTestEntity),
-        )
-
-    async def get_sut(
-        self, configurations: Iterable[EntityReference[Entity]] | None = None
-    ) -> EntityReferenceSequence[Entity]:
-        return EntityReferenceSequence(configurations)
-
-    async def get_configurations(
-        self,
-    ) -> tuple[
-        EntityReference[Entity],
-        EntityReference[Entity],
-        EntityReference[Entity],
-        EntityReference[Entity],
-    ]:
-        return (
-            EntityReference[Entity](),
-            EntityReference[Entity](EntityReferenceSequenceTestEntity),
-            EntityReference[Entity](EntityReferenceSequenceTestEntity, "123"),
-            EntityReference[Entity](
-                EntityReferenceSequenceTestEntity,
-                "123",
-                entity_type_is_constrained=True,
-            ),
-        )
-
-    async def test_pre_add_with_missing_required_entity_type(self) -> None:
-        class DummyConstraintedEntity(DummyEntity):
-            pass
-
-        sut = EntityReferenceSequence(entity_type_constraint=DummyConstraintedEntity)
-        with pytest.raises(AssertionFailed):
-            sut.append(
-                EntityReference(DummyEntity)  # type: ignore[arg-type]
-            )
-
-    async def test_pre_add_with_invalid_required_entity_type(self) -> None:
-        class DummyConstraintedEntity(DummyEntity):
-            pass
-
-        sut = EntityReferenceSequence(entity_type_constraint=DummyConstraintedEntity)
-        with pytest.raises(AssertionFailed):
-            sut.append(EntityReference())
-
-    async def test_pre_add_with_valid_value(self) -> None:
-        sut = EntityReferenceSequence(entity_type_constraint=DummyEntity)
-        sut.append(EntityReference(DummyEntity))
 
 
 class TestLocaleConfiguration:
@@ -443,19 +223,19 @@ class TestLocaleConfigurationMapping(
         assert sut.multilingual
 
 
-class ExtensionTypeConfigurationMappingTestExtension0(DummyExtension):
+class ExtensionInstanceConfigurationMappingTestExtension0(DummyExtension):
     pass
 
 
-class ExtensionTypeConfigurationMappingTestExtension1(DummyExtension):
+class ExtensionInstanceConfigurationMappingTestExtension1(DummyExtension):
     pass
 
 
-class ExtensionTypeConfigurationMappingTestExtension2(DummyExtension):
+class ExtensionInstanceConfigurationMappingTestExtension2(DummyExtension):
     pass
 
 
-class ExtensionTypeConfigurationMappingTestExtension3(DummyExtension):
+class ExtensionInstanceConfigurationMappingTestExtension3(DummyExtension):
     pass
 
 
@@ -467,10 +247,10 @@ class TestExtensionInstanceConfigurationMapping(
         self,
     ) -> tuple[MachineName, MachineName, MachineName, MachineName]:
         return (
-            ExtensionTypeConfigurationMappingTestExtension0.plugin_id(),
-            ExtensionTypeConfigurationMappingTestExtension1.plugin_id(),
-            ExtensionTypeConfigurationMappingTestExtension2.plugin_id(),
-            ExtensionTypeConfigurationMappingTestExtension3.plugin_id(),
+            ExtensionInstanceConfigurationMappingTestExtension0.plugin_id(),
+            ExtensionInstanceConfigurationMappingTestExtension1.plugin_id(),
+            ExtensionInstanceConfigurationMappingTestExtension2.plugin_id(),
+            ExtensionInstanceConfigurationMappingTestExtension3.plugin_id(),
         )
 
     @override
@@ -511,10 +291,15 @@ class EntityTypeConfigurationTestEntityOther(UserFacingEntity, DummyEntity):
 
 
 class TestEntityTypeConfiguration:
-    async def test_entity_type(self) -> None:
+    async def test_id_with___init___entity_type(self) -> None:
         entity_type = EntityTypeConfigurationTestEntityOne
         sut = EntityTypeConfiguration(entity_type)
-        assert sut.entity_type == entity_type
+        assert sut.id == entity_type.plugin_id()
+
+    async def test_id_with___init___entity_type_id(self) -> None:
+        entity_type_id = EntityTypeConfigurationTestEntityOne.plugin_id()
+        sut = EntityTypeConfiguration(entity_type_id)
+        assert sut.id == entity_type_id
 
     @pytest.mark.parametrize(
         "generate_html_list,",
@@ -528,13 +313,6 @@ class TestEntityTypeConfiguration:
         sut.generate_html_list = generate_html_list
         assert sut.generate_html_list == generate_html_list
 
-    async def test_generate_html_list_for_non_user_facing_entity_should_error(
-        self,
-    ) -> None:
-        sut = EntityTypeConfiguration(DummyEntity)
-        with pytest.raises(AssertionFailed):
-            sut.generate_html_list = True
-
     async def test_load_with_empty_configuration(self) -> None:
         dump: Dump = {}
         sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
@@ -547,7 +325,7 @@ class TestEntityTypeConfiguration:
             new=StaticPluginRepository(EntityTypeConfigurationTestEntityOne),
         )
         dump: Dump = {
-            "entity_type": EntityTypeConfigurationTestEntityOne.plugin_id(),
+            "id": EntityTypeConfigurationTestEntityOne.plugin_id(),
         }
         sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
         sut.load(dump)
@@ -567,7 +345,7 @@ class TestEntityTypeConfiguration:
             new=StaticPluginRepository(EntityTypeConfigurationTestEntityOne),
         )
         dump: Dump = {
-            "entity_type": EntityTypeConfigurationTestEntityOne.plugin_id(),
+            "id": EntityTypeConfigurationTestEntityOne.plugin_id(),
             "generate_html_list": generate_html_list,
         }
         sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
@@ -577,21 +355,28 @@ class TestEntityTypeConfiguration:
     async def test_dump_with_minimal_configuration(self) -> None:
         sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
         expected = {
-            "entity_type": EntityTypeConfigurationTestEntityOne.plugin_id(),
+            "id": EntityTypeConfigurationTestEntityOne.plugin_id(),
             "generate_html_list": False,
         }
         assert sut.dump() == expected
 
     async def test_dump_with_generate_html_list(self) -> None:
         sut = EntityTypeConfiguration(
-            entity_type=EntityTypeConfigurationTestEntityOne,
-            generate_html_list=False,
+            EntityTypeConfigurationTestEntityOne, generate_html_list=False
         )
         expected = {
-            "entity_type": EntityTypeConfigurationTestEntityOne.plugin_id(),
+            "id": EntityTypeConfigurationTestEntityOne.plugin_id(),
             "generate_html_list": False,
         }
         assert sut.dump() == expected
+
+    async def test_validate_with_generate_html_list_without_user_facing_entity_type_should_error(
+        self,
+    ) -> None:
+        plugin = DummyEntity
+        sut = EntityTypeConfiguration(plugin, generate_html_list=True)
+        with pytest.raises(AssertionFailed):
+            await sut.validate(StaticPluginRepository(plugin))
 
 
 class EntityTypeConfigurationMappingTestEntity0(DummyEntity):
@@ -611,7 +396,7 @@ class EntityTypeConfigurationMappingTestEntity3(DummyEntity):
 
 
 class TestEntityTypeConfigurationMapping(
-    ConfigurationMappingTestBase[type[Entity], EntityTypeConfiguration]
+    ConfigurationMappingTestBase[MachineName, EntityTypeConfiguration]
 ):
     @pytest.fixture(autouse=True)
     def _entity_types(self, mocker: MockerFixture) -> None:
@@ -627,12 +412,12 @@ class TestEntityTypeConfigurationMapping(
 
     def get_configuration_keys(
         self,
-    ) -> tuple[type[Entity], type[Entity], type[Entity], type[Entity]]:
+    ) -> tuple[MachineName, MachineName, MachineName, MachineName]:
         return (
-            EntityTypeConfigurationMappingTestEntity0,
-            EntityTypeConfigurationMappingTestEntity1,
-            EntityTypeConfigurationMappingTestEntity2,
-            EntityTypeConfigurationMappingTestEntity3,
+            EntityTypeConfigurationMappingTestEntity0.plugin_id(),
+            EntityTypeConfigurationMappingTestEntity1.plugin_id(),
+            EntityTypeConfigurationMappingTestEntity2.plugin_id(),
+            EntityTypeConfigurationMappingTestEntity3.plugin_id(),
         )
 
     async def get_sut(
@@ -654,6 +439,14 @@ class TestEntityTypeConfigurationMapping(
             EntityTypeConfiguration(self.get_configuration_keys()[2]),
             EntityTypeConfiguration(self.get_configuration_keys()[3]),
         )
+
+    async def test_validate_with_item_error_should_error(self) -> None:
+        plugin = DummyEntity
+        sut = EntityTypeConfigurationMapping(
+            [EntityTypeConfiguration(plugin, generate_html_list=True)]
+        )
+        with pytest.raises(AssertionFailed):
+            await sut.validate(StaticPluginRepository(plugin))
 
 
 class TestCopyrightNoticeConfiguration:

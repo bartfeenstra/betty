@@ -7,7 +7,7 @@ import pytest
 from betty.assertion.error import AssertionFailed
 from betty.model import UserFacingEntity
 from betty.plugin.static import StaticPluginRepository
-from betty.project.config import EntityReference
+from betty.model.config import EntityReference
 from betty.project.extension.cotton_candy.config import (
     ColorConfiguration,
     CottonCandyConfiguration,
@@ -70,10 +70,6 @@ class CottonCandyConfigurationTestEntity(UserFacingEntity, DummyEntity):
     pass
 
 
-class CottonCandyConfigurationTestEntitytest_load_with_featured_entities:
-    pass
-
-
 class TestCottonCandyConfiguration:
     async def test_load_with_minimal_configuration(self) -> None:
         dump: Mapping[str, Any] = {}
@@ -101,7 +97,7 @@ class TestCottonCandyConfiguration:
         }
         sut = CottonCandyConfiguration()
         sut.load(dump)
-        assert entity_type is sut.featured_entities[0].entity_type
+        assert sut.featured_entities[0].entity_type == entity_type.plugin_id()
         assert sut.featured_entities[0].entity_id == entity_id
 
     async def test_load_with_primary_inactive_color(self) -> None:

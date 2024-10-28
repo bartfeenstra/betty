@@ -17,7 +17,7 @@ from betty.assertion import (
 from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
 from betty.locale.localizable import _
-from betty.project.config import EntityReference, EntityReferenceSequence
+from betty.model.config import EntityReference, EntityReferenceSequence
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping

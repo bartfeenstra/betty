@@ -48,12 +48,13 @@
             <div class="nav-primary-expanded">
                 <ul class="nav-secondary">
                     {% for entity_type_configuration in project.configuration.entity_types.values() | selectattr('generate_html_list') %}
+                        {% set entity_type = project.entity_type_repository.get(entity_type_configuration.id) %}
                         <li>
-                            <a href="{{ entity_type_configuration.entity_type | localized_url }}">
-                                {% if entity_type_configuration.entity_type.plugin_id() == 'event' %}
+                            <a href="{{ entity_type | localized_url }}">
+                                {% if entity_type.plugin_id() == 'event' %}
                                     {% trans %}Timeline{% endtrans %}
                                 {% else %}
-                                    {{ entity_type_configuration.entity_type.plugin_label_plural() | localize }}
+                                    {{ entity_type.plugin_label_plural() | localize }}
                                 {% endif %}
                             </a>
                         </li>

@@ -15,7 +15,10 @@ from betty.ancestry.source import Source
 from betty.app import App
 from betty.model import (
     UserFacingEntity,
+    ENTITY_TYPE_REPOSITORY,
+    Entity,
 )
+from betty.plugin.proxy import ProxyPluginRepository
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project, ProjectContext
 from betty.project.config import LocaleConfiguration, EntityTypeConfiguration
@@ -180,7 +183,9 @@ class TestGenerate:
     async def test_third_party_entities(self, mocker: MockerFixture) -> None:
         mocker.patch(
             "betty.model.ENTITY_TYPE_REPOSITORY",
-            new=StaticPluginRepository(ThirdPartyEntity),
+            new=ProxyPluginRepository[Entity](
+                StaticPluginRepository(ThirdPartyEntity), ENTITY_TYPE_REPOSITORY
+            ),
         )
         async with (
             App.new_temporary() as app,
@@ -188,10 +193,7 @@ class TestGenerate:
             Project.new_temporary(app) as project,
         ):
             project.configuration.entity_types.append(
-                EntityTypeConfiguration(
-                    entity_type=ThirdPartyEntity,
-                    generate_html_list=True,
-                )
+                EntityTypeConfiguration(ThirdPartyEntity, generate_html_list=True)
             )
             async with project:
                 await generate(project)
@@ -208,7 +210,9 @@ class TestGenerate:
     async def test_third_party_entity(self, mocker: MockerFixture) -> None:
         mocker.patch(
             "betty.model.ENTITY_TYPE_REPOSITORY",
-            new=StaticPluginRepository(ThirdPartyEntity),
+            new=ProxyPluginRepository[Entity](
+                StaticPluginRepository(ThirdPartyEntity), ENTITY_TYPE_REPOSITORY
+            ),
         )
         async with (
             App.new_temporary() as app,
@@ -238,10 +242,7 @@ class TestGenerate:
             Project.new_temporary(app) as project,
         ):
             project.configuration.entity_types.append(
-                EntityTypeConfiguration(
-                    entity_type=File,
-                    generate_html_list=True,
-                )
+                EntityTypeConfiguration(File, generate_html_list=True)
             )
             async with project:
                 await generate(project)

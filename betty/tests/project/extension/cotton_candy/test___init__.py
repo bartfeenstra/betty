@@ -25,8 +25,10 @@ from betty.ancestry.presence_role.presence_roles import (
     Unknown as UnknownPresenceRole,
 )
 from betty.ancestry.source import Source
+from betty.assertion.error import AssertionFailed
 from betty.date import Datey, Date, DateRange
 from betty.model import persistent_id
+from betty.model.config import EntityReference
 from betty.privacy import Privacy
 from betty.project import Project
 from betty.project.config import DEFAULT_LIFETIME_THRESHOLD
@@ -380,3 +382,15 @@ class TestCottonCandy(
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = await project.new_target(self.get_sut_class())
             assert len(sut.public_css_paths)
+
+    async def test_bootstrap_should_validate_featured_entities_configuration(
+        self, new_temporary_app: App
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = await CottonCandy.new_for_project(project)
+            sut.configuration.featured_entities.replace(
+                EntityReference("non-existent-entity")
+            )
+            with pytest.raises(AssertionFailed):
+                async with sut:
+                    pass

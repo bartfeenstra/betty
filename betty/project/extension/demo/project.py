@@ -30,10 +30,10 @@ from betty.media_type.media_types import SVG
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project import Project
 from betty.project.config import (
-    EntityReference,
     LocaleConfiguration,
     ProjectConfiguration,
 )
+from betty.model.config import EntityReference
 from betty.project.extension.cotton_candy import CottonCandy
 from betty.project.extension.cotton_candy.config import CottonCandyConfiguration
 from betty.project.extension.demo.copyright_notice import Streetmix

@@ -8,6 +8,8 @@ from betty.app import App
 from betty.locale import Localey, DEFAULT_LOCALE
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
+from betty.model import ENTITY_TYPE_REPOSITORY, Entity
+from betty.plugin.proxy import ProxyPluginRepository
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.project.config import LocaleConfiguration
@@ -42,7 +44,9 @@ class TestLocalizedUrlGenerator:
     ) -> None:
         mocker.patch(
             "betty.model.ENTITY_TYPE_REPOSITORY",
-            new=StaticPluginRepository(DummyEntity),
+            new=ProxyPluginRepository[Entity](
+                StaticPluginRepository(DummyEntity), ENTITY_TYPE_REPOSITORY
+            ),
         )
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = await LocalizedUrlGenerator.new_for_project(project)
@@ -149,7 +153,9 @@ class TestLocalizedUrlGenerator:
     ) -> None:
         mocker.patch(
             "betty.model.ENTITY_TYPE_REPOSITORY",
-            new=StaticPluginRepository(DummyEntity),
+            new=ProxyPluginRepository[Entity](
+                StaticPluginRepository(DummyEntity), ENTITY_TYPE_REPOSITORY
+            ),
         )
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.url = url

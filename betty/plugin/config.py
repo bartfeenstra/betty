@@ -18,6 +18,7 @@ from betty.assertion import (
 )
 from betty.assertion.error import AssertionFailed
 from betty.config import Configuration, DefaultConfigurable
+from betty.config.collections import ConfigurationKey
 from betty.config.collections.mapping import ConfigurationMapping
 from betty.locale.localizable import _
 from betty.locale.localizable.config import (
@@ -25,7 +26,7 @@ from betty.locale.localizable.config import (
     RequiredStaticTranslationsLocalizableConfigurationAttr,
 )
 from betty.machine_name import assert_machine_name, MachineName
-from betty.plugin import Plugin, PluginRepository
+from betty.plugin import Plugin, PluginRepository, PluginIdentifier, resolve_identifier
 from betty.repr import repr_instance
 from betty.typing import Void, Voidable
 
@@ -34,8 +35,29 @@ if TYPE_CHECKING:
     from betty.locale.localizable import ShorthandStaticTranslations
     from betty.serde.dump import Dump, DumpMapping
 
+_ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
+_ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 _PluginCoT = TypeVar("_PluginCoT", bound=Plugin, covariant=True)
+
+
+class PluginIdentifierKeyConfigurationMapping(
+    ConfigurationMapping[MachineName, _ConfigurationT],
+    Generic[_PluginT, _ConfigurationT],
+):
+    """
+    A mapping of configuration, keyed by a plugin identifier.
+    """
+
+    @override
+    def __getitem__(
+        self, configuration_key: PluginIdentifier[_PluginT]
+    ) -> _ConfigurationT:
+        return super().__getitem__(resolve_identifier(configuration_key))
+
+    @override
+    def __contains__(self, configuration_key: PluginIdentifier[_PluginT]) -> bool:
+        return super().__contains__(resolve_identifier(configuration_key))
 
 
 class PluginConfiguration(Configuration):
@@ -234,7 +256,8 @@ class PluginInstanceConfiguration(Configuration):
 
 
 class PluginInstanceConfigurationMapping(
-    ConfigurationMapping[MachineName, PluginInstanceConfiguration]
+    PluginIdentifierKeyConfigurationMapping[_PluginT, PluginInstanceConfiguration],
+    Generic[_PluginT],
 ):
     """
     Configure plugin instances, keyed by their plugin IDs.

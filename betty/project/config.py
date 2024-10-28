@@ -6,12 +6,11 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from reprlib import recursive_repr
-from typing import final, Generic, Self, Iterable, Any, TYPE_CHECKING, TypeVar, cast
+from typing import final, Self, Iterable, Any, TYPE_CHECKING, cast
 from urllib.parse import urlparse
 
 from typing_extensions import override
 
-from betty import model
 from betty.ancestry.event import Event
 from betty.ancestry.event_type import EventType
 from betty.ancestry.gender import Gender
@@ -36,13 +35,11 @@ from betty.assertion import (
     assert_none,
     assert_or,
 )
-from betty.assertion.error import AssertionFailed
+from betty.assertion.error import AssertionFailed, AssertionFailedGroup, Key
 from betty.config import Configuration
 from betty.config.collections.mapping import (
-    ConfigurationMapping,
     OrderedConfigurationMapping,
 )
-from betty.config.collections.sequence import ConfigurationSequence
 from betty.copyright_notice import CopyrightNotice
 from betty.license import License
 from betty.license.licenses import AllRightsReserved
@@ -56,26 +53,26 @@ from betty.locale.localizable.config import (
 from betty.machine_name import MachineName
 from betty.machine_name import assert_machine_name
 from betty.model import Entity, UserFacingEntity
-from betty.plugin import ShorthandPluginBase
-from betty.plugin.assertion import assert_plugin
+from betty.plugin import (
+    ShorthandPluginBase,
+    PluginRepository,
+)
 from betty.plugin.config import (
     PluginConfigurationPluginConfigurationMapping,
     PluginConfiguration,
     PluginConfigurationMapping,
     PluginInstanceConfiguration,
     PluginInstanceConfigurationMapping,
+    PluginIdentifierKeyConfigurationMapping,
 )
+from betty.project.extension import Extension
 from betty.repr import repr_instance
 from betty.serde.format import Format, format_for, FORMAT_REPOSITORY
 
 if TYPE_CHECKING:
-    from betty.project.extension import Extension
     from betty.serde.dump import Dump, DumpMapping
     from collections.abc import Sequence
     from pathlib import Path
-
-
-_EntityT = TypeVar("_EntityT", bound=Entity)
 
 
 #: The default age by which people are presumed dead.
@@ -85,187 +82,12 @@ DEFAULT_LIFETIME_THRESHOLD = 123
 
 
 @final
-class EntityReference(Configuration, Generic[_EntityT]):
-    """
-    Configuration that references an entity from the project's ancestry.
-    """
-
-    def __init__(
-        self,
-        entity_type: type[_EntityT] | None = None,
-        entity_id: str | None = None,
-        *,
-        entity_type_is_constrained: bool = False,
-    ):
-        super().__init__()
-        self._entity_type = entity_type
-        self._entity_id = entity_id
-        self._entity_type_is_constrained = entity_type_is_constrained
-
-    @property
-    def entity_type(self) -> type[_EntityT] | None:
-        """
-        The referenced entity's type.
-        """
-        return self._entity_type
-
-    @entity_type.setter
-    def entity_type(self, entity_type: type[_EntityT]) -> None:
-        if self._entity_type_is_constrained:
-            raise AttributeError(
-                f"The entity type cannot be set, as it is already constrained to {self._entity_type}."
-            )
-        self._entity_type = entity_type
-
-    @property
-    def entity_id(self) -> str | None:
-        """
-        The referenced entity's ID.
-        """
-        return self._entity_id
-
-    @entity_id.setter
-    def entity_id(self, entity_id: str) -> None:
-        self._entity_id = entity_id
-
-    @entity_id.deleter
-    def entity_id(self) -> None:
-        self._entity_id = None
-
-    @property
-    def entity_type_is_constrained(self) -> bool:
-        """
-        Whether the entity type may be changed.
-        """
-        return self._entity_type_is_constrained
-
-    @override
-    def load(self, dump: Dump) -> None:
-        if isinstance(dump, dict) or not self.entity_type_is_constrained:
-            assert_record(
-                RequiredField(
-                    "entity_type",
-                    assert_or(
-                        assert_none(),
-                        assert_plugin(model.ENTITY_TYPE_REPOSITORY)
-                        | assert_setattr(self, "_entity_type"),
-                    ),
-                ),
-                OptionalField(
-                    "entity",
-                    assert_str() | assert_setattr(self, "entity_id"),
-                ),
-            )(dump)
-        else:
-            assert_str()(dump)
-            assert_setattr(self, "entity_id")(dump)
-
-    @override
-    def dump(self) -> DumpMapping[Dump] | str | None:
-        if self.entity_type_is_constrained:
-            return self.entity_id
-
-        dump: DumpMapping[Dump] = {
-            "entity_type": None
-            if self.entity_type is None
-            else self.entity_type.plugin_id()
-        }
-        if self.entity_id is not None:
-            dump["entity"] = self.entity_id
-        return dump
-
-
-@final
-class EntityReferenceSequence(
-    Generic[_EntityT], ConfigurationSequence[EntityReference[_EntityT]]
+class ExtensionInstanceConfigurationMapping(
+    PluginInstanceConfigurationMapping[Extension]
 ):
-    """
-    Configuration for a sequence of references to entities from the project's ancestry.
-    """
-
-    def __init__(
-        self,
-        entity_references: Iterable[EntityReference[_EntityT]] | None = None,
-        *,
-        entity_type_constraint: type[_EntityT] | None = None,
-    ):
-        self._entity_type_constraint = entity_type_constraint
-        super().__init__(entity_references)
-
-    @override
-    def _load_item(self, dump: Dump) -> EntityReference[_EntityT]:
-        configuration = EntityReference[_EntityT](
-            # Use a dummy entity type for now to satisfy the initializer.
-            # It will be overridden when loading the dump.
-            Entity  # type: ignore[arg-type]
-            if self._entity_type_constraint is None
-            else self._entity_type_constraint,
-            entity_type_is_constrained=self._entity_type_constraint is not None,
-        )
-        configuration.load(dump)
-        return configuration
-
-    @override
-    def _pre_add(self, configuration: EntityReference[_EntityT]) -> None:
-        super()._pre_add(configuration)
-
-        entity_type_constraint = self._entity_type_constraint
-        entity_reference_entity_type = configuration._entity_type
-
-        if entity_type_constraint is None:
-            configuration._entity_type_is_constrained = False
-            return
-
-        configuration._entity_type_is_constrained = True
-
-        if (
-            entity_reference_entity_type == entity_type_constraint
-            and configuration.entity_type_is_constrained
-        ):
-            return
-
-        expected_entity_type_label = entity_type_constraint.plugin_label()
-
-        if entity_reference_entity_type is None:
-            raise AssertionFailed(
-                _(
-                    "The entity reference must be for an entity of type {expected_entity_type_label}, but instead does not specify an entity type at all."
-                ).format(
-                    expected_entity_type_label=expected_entity_type_label,
-                )
-            )
-
-        actual_entity_type_label = entity_type_constraint.plugin_label()
-
-        raise AssertionFailed(
-            _(
-                "The entity reference must be for an entity of type {expected_entity_type_label}, but instead is for an entity of type {actual_entity_type_label}."
-            ).format(
-                expected_entity_type_label=expected_entity_type_label,
-                actual_entity_type_label=actual_entity_type_label,
-            )
-        )
-
-
-@final
-class ExtensionInstanceConfigurationMapping(PluginInstanceConfigurationMapping):
     """
     Configure a project's enabled extensions.
     """
-
-    @override
-    def __getitem__(
-        self, configuration_key: MachineName | type[Extension]
-    ) -> PluginInstanceConfiguration:
-        if isinstance(configuration_key, type):
-            configuration_key = configuration_key.plugin_id()
-        return self._configurations[configuration_key]
-
-    @override
-    def __contains__(self, configuration_key: MachineName | type[Extension]) -> bool:
-        if isinstance(configuration_key, type):
-            configuration_key = configuration_key.plugin_id()
-        return configuration_key in self._configurations
 
     async def enable(self, *extension_types: type[Extension] | MachineName) -> None:
         """
@@ -284,20 +106,24 @@ class EntityTypeConfiguration(Configuration):
 
     def __init__(
         self,
-        entity_type: type[Entity],
+        entity_type_id: MachineName | type[Entity],
         *,
         generate_html_list: bool = False,
     ):
         super().__init__()
-        self._entity_type = entity_type
+        self._id = (
+            entity_type_id
+            if isinstance(entity_type_id, str)
+            else entity_type_id.plugin_id()
+        )
         self.generate_html_list = generate_html_list
 
     @property
-    def entity_type(self) -> type[Entity]:
+    def id(self) -> MachineName:
         """
-        The configured entity type.
+        The ID of the configured entity type.
         """
-        return self._entity_type
+        return self._id
 
     @property
     def generate_html_list(self) -> bool:
@@ -308,22 +134,13 @@ class EntityTypeConfiguration(Configuration):
 
     @generate_html_list.setter
     def generate_html_list(self, generate_html_list: bool) -> None:
-        if generate_html_list and not issubclass(self._entity_type, UserFacingEntity):
-            raise AssertionFailed(
-                _(
-                    "Cannot generate pages for {entity_type}, because it is not a user-facing entity type."
-                ).format(entity_type=self._entity_type.plugin_label())
-            )
         self._generate_html_list = generate_html_list
 
     @override
     def load(self, dump: Dump) -> None:
         assert_record(
             RequiredField[Any, type[Entity]](
-                "entity_type",
-                assert_str()
-                | assert_plugin(model.ENTITY_TYPE_REPOSITORY)
-                | assert_setattr(self, "_entity_type"),
+                "id", assert_machine_name() | assert_setattr(self, "_id")
             ),
             OptionalField(
                 "generate_html_list",
@@ -334,44 +151,62 @@ class EntityTypeConfiguration(Configuration):
     @override
     def dump(self) -> DumpMapping[Dump]:
         return {
-            "entity_type": self._entity_type.plugin_id(),
-            "generate_html_list": (self._generate_html_list),
+            "id": self.id,
+            "generate_html_list": self.generate_html_list,
         }
+
+    async def validate(self, entity_type_repository: PluginRepository[Entity]) -> None:
+        """
+        Validate the configuration.
+        """
+        entity_type = await entity_type_repository.get(self.id)
+        if self.generate_html_list and not issubclass(entity_type, UserFacingEntity):
+            raise AssertionFailed(
+                _(
+                    "Cannot generate pages for {entity_type}, because it is not a user-facing entity type."
+                ).format(entity_type=entity_type.plugin_label())
+            )
 
 
 @final
 class EntityTypeConfigurationMapping(
-    ConfigurationMapping[type[Entity], EntityTypeConfiguration]
+    PluginIdentifierKeyConfigurationMapping[Entity, EntityTypeConfiguration]
 ):
     """
     Configure the entity types for a project.
     """
 
     @override
-    def _get_key(self, configuration: EntityTypeConfiguration) -> type[Entity]:
-        return configuration.entity_type
+    def _get_key(self, configuration: EntityTypeConfiguration) -> MachineName:
+        return configuration.id
 
     @override
     def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
         assert isinstance(item_dump, Mapping)
-        assert_plugin(model.ENTITY_TYPE_REPOSITORY)(key_dump)
-        item_dump["entity_type"] = key_dump
+        item_dump["id"] = key_dump
         return item_dump
 
     @override
     def _dump_key(self, item_dump: Dump) -> tuple[Dump, str]:
         assert isinstance(item_dump, Mapping)
-        return item_dump, cast(str, item_dump.pop("entity_type"))
+        return item_dump, cast(str, item_dump.pop("id"))
 
     @override
     def _load_item(self, dump: Dump) -> EntityTypeConfiguration:
         # Use a dummy entity type for now to satisfy the initializer.
         # It will be overridden when loading the dump.
-        configuration = EntityTypeConfiguration(
-            Entity  # type: ignore[type-abstract]
-        )
+        configuration = EntityTypeConfiguration(Entity)
         configuration.load(dump)
         return configuration
+
+    async def validate(self, entity_type_repository: PluginRepository[Entity]) -> None:
+        """
+        Validate the configuration.
+        """
+        with AssertionFailedGroup().assert_valid() as errors:
+            for configuration in self.values():
+                with errors.catch(Key(configuration.id)):
+                    await configuration.validate(entity_type_repository)
 
 
 @final
@@ -779,22 +614,10 @@ class ProjectConfiguration(Configuration):
         self._entity_types = EntityTypeConfigurationMapping(
             entity_types
             or [
-                EntityTypeConfiguration(
-                    entity_type=Person,
-                    generate_html_list=True,
-                ),
-                EntityTypeConfiguration(
-                    entity_type=Event,
-                    generate_html_list=True,
-                ),
-                EntityTypeConfiguration(
-                    entity_type=Place,
-                    generate_html_list=True,
-                ),
-                EntityTypeConfiguration(
-                    entity_type=Source,
-                    generate_html_list=True,
-                ),
+                EntityTypeConfiguration(Person, generate_html_list=True),
+                EntityTypeConfiguration(Event, generate_html_list=True),
+                EntityTypeConfiguration(Place, generate_html_list=True),
+                EntityTypeConfiguration(Source, generate_html_list=True),
             ]
         )
         self.copyright_notice = copyright_notice or PluginInstanceConfiguration(

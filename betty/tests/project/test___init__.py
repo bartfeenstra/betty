@@ -12,6 +12,7 @@ import betty.ancestry.place
 from betty.ancestry import Ancestry
 from betty.app import App
 from betty.app.factory import AppDependentFactory
+from betty.assertion.error import AssertionFailed
 from betty.json.schema import JsonSchemaSchema
 from betty.plugin import CyclicDependencyError
 from betty.plugin.config import PluginConfiguration, PluginInstanceConfiguration
@@ -27,10 +28,12 @@ from betty.project.config import (
     CopyrightNoticeConfiguration,
     LicenseConfiguration,
     ProjectConfiguration,
+    EntityTypeConfiguration,
 )
 from betty.project.factory import ProjectDependentFactory
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.json.schema import SchemaTestBase
+from betty.test_utils.model import DummyEntity
 from betty.test_utils.project.extension import (
     DummyExtension,
     DummyConfigurableExtension,
@@ -148,13 +151,30 @@ class TestProject:
             assert sut.configuration is configuration
 
     @pytest.mark.usefixtures("_extensions")
-    async def test_bootstrap(self, new_temporary_app: App) -> None:
+    async def test_bootstrap_should_initialize_extensions(
+        self, new_temporary_app: App
+    ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
             await sut.configuration.extensions.enable(DummyExtension)
             async with sut:
                 extensions = await sut.extensions
                 extension = extensions[DummyExtension.plugin_id()]
                 assert extension._bootstrapped
+
+    async def test_bootstrap_should_validate_entity_type_configuration(
+        self, mocker: MockerFixture, new_temporary_app: App
+    ) -> None:
+        plugin = DummyEntity
+        mocker.patch(
+            "betty.model.ENTITY_TYPE_REPOSITORY", new=StaticPluginRepository(plugin)
+        )
+        async with Project.new_temporary(new_temporary_app) as sut:
+            sut.configuration.entity_types.replace(
+                EntityTypeConfiguration(plugin, generate_html_list=True)
+            )
+            with pytest.raises(AssertionFailed):
+                async with sut:
+                    pass
 
     @pytest.mark.usefixtures("_extensions")
     async def test_extensions_with_one_extension(self, new_temporary_app: App) -> None:
@@ -488,6 +508,10 @@ class TestProject:
             sut.configuration.genders.append(PluginConfiguration("foo", "Foo"))
             async with sut:
                 assert await sut.gender_repository.get("foo")
+
+    async def test_entity_type_repository(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
+            assert await sut.entity_type_repository.get("person")
 
     async def test_extension_repository(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:

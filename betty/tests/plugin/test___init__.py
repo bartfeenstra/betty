@@ -18,6 +18,7 @@ from betty.plugin import (
     DependentPlugin,
     sort_dependent_plugin_graph,
     CyclicDependencyError,
+    resolve_identifier,
 )
 from betty.plugin.static import StaticPluginRepository
 from betty.test_utils.plugin import DummyPlugin
@@ -28,6 +29,14 @@ if TYPE_CHECKING:
 
 
 _T = TypeVar("_T")
+
+
+class TestResolveIdentifier:
+    def test_with_plugin(self) -> None:
+        assert resolve_identifier(DummyPlugin) == DummyPlugin.plugin_id()
+
+    def test_with_plugin_id(self) -> None:
+        assert resolve_identifier(DummyPlugin.plugin_id()) == DummyPlugin.plugin_id()
 
 
 class TestPluginNotFound:
@@ -115,6 +124,10 @@ class TestPluginIdToTypeMapping:
     async def test___getitem__(self) -> None:
         sut = await PluginIdToTypeMapping.new(StaticPluginRepository(DummyPlugin))
         assert sut[DummyPlugin.plugin_id()] is DummyPlugin
+
+    async def test___iter__(self) -> None:
+        sut = await PluginIdToTypeMapping.new(StaticPluginRepository(DummyPlugin))
+        assert list(iter(sut)) == [DummyPlugin.plugin_id()]
 
 
 class TestPluginRepository:
