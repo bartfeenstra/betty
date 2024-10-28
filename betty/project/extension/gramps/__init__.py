@@ -50,28 +50,28 @@ async def _load_ancestry(event: LoadAncestryEvent) -> None:
             localizer=await project.app.localizer,
             copyright_notices=project.copyright_notice_repository,
             licenses=await project.license_repository,
-            event_type_map={
+            event_type_mapping={
                 gramps_type: _new_plugin_instance_factory(
                     family_tree_configuration.event_types[gramps_type],
                     project.event_type_repository,
                 )
                 for gramps_type in family_tree_configuration.event_types
             },
-            gender_map={
+            gender_mapping={
                 gramps_type: _new_plugin_instance_factory(
                     family_tree_configuration.genders[gramps_type],
                     project.gender_repository,
                 )
                 for gramps_type in family_tree_configuration.genders
             },
-            place_type_map={
+            place_type_mapping={
                 gramps_type: _new_plugin_instance_factory(
                     family_tree_configuration.place_types[gramps_type],
                     project.place_type_repository,
                 )
                 for gramps_type in family_tree_configuration.place_types
             },
-            presence_role_map={
+            presence_role_mapping={
                 gramps_type: _new_plugin_instance_factory(
                     family_tree_configuration.presence_roles[gramps_type],
                     project.presence_role_repository,

@@ -159,13 +159,13 @@ class GrampsLoader:
         copyright_notices: PluginRepository[CopyrightNotice],
         licenses: PluginRepository[License],
         attribute_prefix_key: str | None = None,
-        event_type_map: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
+        event_type_mapping: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
         | None = None,
-        gender_map: Mapping[str, Callable[[], Gender | Awaitable[Gender]]]
+        gender_mapping: Mapping[str, Callable[[], Gender | Awaitable[Gender]]]
         | None = None,
-        place_type_map: Mapping[str, Callable[[], PlaceType | Awaitable[PlaceType]]]
+        place_type_mapping: Mapping[str, Callable[[], PlaceType | Awaitable[PlaceType]]]
         | None = None,
-        presence_role_map: Mapping[
+        presence_role_mapping: Mapping[
             str, Callable[[], PresenceRole | Awaitable[PresenceRole]]
         ]
         | None = None,
@@ -184,10 +184,10 @@ class GrampsLoader:
         self._localizer = localizer
         self._copyright_notices = copyright_notices
         self._licenses = licenses
-        self._event_type_map = event_type_map or {}
-        self._gender_map = gender_map or {}
-        self._place_type_map = place_type_map or {}
-        self._presence_role_map = presence_role_map or {}
+        self._event_type_mapping = event_type_mapping or {}
+        self._gender_mapping = gender_mapping or {}
+        self._place_type_mapping = place_type_mapping or {}
+        self._presence_role_mapping = presence_role_mapping or {}
 
     async def load_file(self, file_path: Path) -> None:
         """
@@ -573,7 +573,7 @@ class GrampsLoader:
 
         gender: Gender
         try:
-            gender_factory = self._gender_map[gramps_gender]
+            gender_factory = self._gender_mapping[gramps_gender]
         except KeyError:
             gender = UnknownGender()
             getLogger(__name__).warning(
@@ -678,7 +678,7 @@ class GrampsLoader:
 
         presence_role: PresenceRole
         try:
-            presence_role_factory = self._presence_role_map[gramps_presence_role]
+            presence_role_factory = self._presence_role_mapping[gramps_presence_role]
         except KeyError:
             presence_role = UnknownPresenceRole()
             getLogger(__name__).warning(
@@ -739,7 +739,7 @@ class GrampsLoader:
 
         place_type: PlaceType
         try:
-            place_type_factory = self._place_type_map[gramps_type]
+            place_type_factory = self._place_type_mapping[gramps_type]
         except KeyError:
             place_type = UnknownPlaceType()
             getLogger(__name__).warning(
@@ -809,7 +809,7 @@ class GrampsLoader:
 
         event_type: EventType
         try:
-            event_type_factory = self._event_type_map[gramps_type]
+            event_type_factory = self._event_type_mapping[gramps_type]
         except KeyError:
             event_type = UnknownEventType()
             getLogger(__name__).warning(

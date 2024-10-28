@@ -32,7 +32,7 @@ class TestGramps(ExtensionTestBase[Gramps]):
     def get_sut_class(self) -> type[Gramps]:
         return Gramps
 
-    async def test_load_with_event_type_map(
+    async def test_load_with_event_type_mapping(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
         family_tree_xml = """
@@ -77,7 +77,7 @@ class TestGramps(ExtensionTestBase[Gramps]):
                 await load(project)
             assert isinstance(project.ancestry[Event]["E0000"].event_type, Birth)
 
-    async def test_load_with_place_type_map(
+    async def test_load_with_place_type_mapping(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
         family_tree_xml = """

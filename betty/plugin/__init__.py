@@ -178,13 +178,13 @@ _PluginMixinTwoT = TypeVar("_PluginMixinTwoT")
 _PluginMixinThreeT = TypeVar("_PluginMixinThreeT")
 
 
-class PluginIdToTypeMap(Generic[_PluginT]):
+class PluginIdToTypeMapping(Generic[_PluginT]):
     """
     Map plugin IDs to their types.
     """
 
-    def __init__(self, id_to_type_map: Mapping[MachineName, type[_PluginT]]):
-        self._id_to_type_map = id_to_type_map
+    def __init__(self, id_to_type_mapping: Mapping[MachineName, type[_PluginT]]):
+        self._id_to_type_mapping = id_to_type_mapping
 
     @classmethod
     async def new(cls, plugins: PluginRepository[_PluginT]) -> Self:
@@ -200,10 +200,10 @@ class PluginIdToTypeMap(Generic[_PluginT]):
         if isinstance(plugin_identifier, type):
             return plugin_identifier
         try:
-            return self._id_to_type_map[plugin_identifier]
+            return self._id_to_type_mapping[plugin_identifier]
         except KeyError:
             raise PluginNotFound.new(
-                plugin_identifier, list(self._id_to_type_map.values())
+                plugin_identifier, list(self._id_to_type_mapping.values())
             ) from None
 
     def __getitem__(
@@ -241,11 +241,11 @@ class PluginRepository(Generic[_PluginT], TargetFactory, ABC):
             for plugin_identifier in plugin_identifiers
         ]
 
-    async def map(self) -> PluginIdToTypeMap[_PluginT]:
+    async def mapping(self) -> PluginIdToTypeMapping[_PluginT]:
         """
-        Get the plugin ID to type map.
+        Get the plugin ID to type mapping.
         """
-        return await PluginIdToTypeMap.new(self)
+        return await PluginIdToTypeMapping.new(self)
 
     @abstractmethod
     async def get(self, plugin_id: MachineName) -> type[_PluginT]:

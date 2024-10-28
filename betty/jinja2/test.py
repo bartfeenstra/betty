@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from betty.machine_name import MachineName
     from collections.abc import Mapping, Callable
     from betty.ancestry.event import Event
-    from betty.plugin import PluginIdToTypeMap
+    from betty.plugin import PluginIdToTypeMapping
 
 
 def test_linked_data_dumpable(value: Any) -> bool:
@@ -46,13 +46,13 @@ class TestEntity(IndependentFactory):
     Test if a value is an entity.
     """
 
-    def __init__(self, entity_type_id_to_type_map: PluginIdToTypeMap[Entity]):
-        self._entity_type_id_to_type_map = entity_type_id_to_type_map
+    def __init__(self, entity_type_id_to_type_mapping: PluginIdToTypeMapping[Entity]):
+        self._entity_type_id_to_type_mapping = entity_type_id_to_type_mapping
 
     @override
     @classmethod
     async def new(cls) -> Self:
-        return cls(await ENTITY_TYPE_REPOSITORY.map())
+        return cls(await ENTITY_TYPE_REPOSITORY.mapping())
 
     def __call__(
         self, value: Any, entity_type_identifier: MachineName | None = None
@@ -61,7 +61,7 @@ class TestEntity(IndependentFactory):
         :param entity_type_id: If given, additionally ensure the value is an entity of this type.
         """
         if entity_type_identifier is not None:
-            entity_type = self._entity_type_id_to_type_map[entity_type_identifier]
+            entity_type = self._entity_type_id_to_type_mapping[entity_type_identifier]
         else:
             entity_type = Entity  # type: ignore[type-abstract]
         return isinstance(value, entity_type)

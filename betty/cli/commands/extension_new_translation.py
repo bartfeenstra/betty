@@ -39,7 +39,7 @@ class ExtensionNewTranslation(ShorthandPluginBase, AppDependentFactory, Command)
     @override
     async def click_command(self) -> click.Command:
         localizer = await self._app.localizer
-        extension_id_to_type_map = await extension.EXTENSION_REPOSITORY.map()
+        extension_id_to_type_map = await extension.EXTENSION_REPOSITORY.mapping()
         description = self.plugin_description()
 
         @command(

@@ -46,7 +46,7 @@ class ExtensionUpdateTranslations(ShorthandPluginBase, AppDependentFactory, Comm
     async def click_command(self) -> click.Command:
         localizer = await self._app.localizer
         description = self.plugin_description()
-        extension_id_to_type_map = await extension.EXTENSION_REPOSITORY.map()
+        extension_id_to_type_mapping = await extension.EXTENSION_REPOSITORY.mapping()
 
         @command(
             self.plugin_id(),
@@ -60,7 +60,7 @@ class ExtensionUpdateTranslations(ShorthandPluginBase, AppDependentFactory, Comm
             required=True,
             callback=parameter_callback(
                 lambda extension_id: assert_extension_assets_directory_path(
-                    extension_id_to_type_map.get(extension_id)
+                    extension_id_to_type_mapping.get(extension_id)
                 )
             ),
         )

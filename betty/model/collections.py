@@ -26,7 +26,7 @@ from betty.model import Entity
 from betty.repr import repr_instance
 
 if TYPE_CHECKING:
-    from betty.plugin import PluginIdToTypeMap
+    from betty.plugin import PluginIdToTypeMapping
     from betty.machine_name import MachineName
     from collections.abc import Sequence, MutableSequence, MutableMapping, AsyncIterator
 
@@ -247,15 +247,15 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
     Collect entities of multiple types.
     """
 
-    __slots__ = ("_collections", "_entity_type_id_to_type_map")
+    __slots__ = ("_collections", "_entity_type_id_to_type_mapping")
 
     def __init__(
         self,
         *entities: _TargetT & Entity,
-        entity_type_id_to_type_map: PluginIdToTypeMap[Entity],
+        entity_type_id_to_type_mapping: PluginIdToTypeMapping[Entity],
     ):
         super().__init__()
-        self._entity_type_id_to_type_map = entity_type_id_to_type_map
+        self._entity_type_id_to_type_mapping = entity_type_id_to_type_mapping
         self._collections: MutableMapping[
             type[Entity], SingleTypeEntityCollection[Entity]
         ] = {}
@@ -269,7 +269,8 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
         from betty.model import ENTITY_TYPE_REPOSITORY
 
         return cls(
-            *entities, entity_type_id_to_type_map=await ENTITY_TYPE_REPOSITORY.map()
+            *entities,
+            entity_type_id_to_type_mapping=await ENTITY_TYPE_REPOSITORY.mapping(),
         )
 
     @override  # type: ignore[callable-functiontype]
@@ -343,7 +344,9 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
     def _getitem_by_entity_type_id(
         self, entity_type_id: MachineName
     ) -> SingleTypeEntityCollection[Entity]:
-        return self._get_collection(self._entity_type_id_to_type_map[entity_type_id])
+        return self._get_collection(
+            self._entity_type_id_to_type_mapping[entity_type_id]
+        )
 
     def _getitem_by_index(self, index: int) -> _TargetT & Entity:
         return self.view[index]
@@ -376,7 +379,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
 
     def _delitem_by_entity_type_id(self, entity_type_id: MachineName) -> None:
         self._delitem_by_entity_type(
-            self._entity_type_id_to_type_map[entity_type_id]  # type: ignore [arg-type]
+            self._entity_type_id_to_type_mapping[entity_type_id]  # type: ignore [arg-type]
         )
 
     @override

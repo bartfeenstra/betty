@@ -11,7 +11,7 @@ from betty.core import CoreComponent
 from betty.locale.localizable import Localizable, _, call
 from betty.plugin import (
     PluginRepository,
-    PluginIdToTypeMap,
+    PluginIdToTypeMapping,
     OrderedPlugin,
     CyclicDependencyError,
     DependentPlugin,
@@ -144,12 +144,12 @@ class Dependencies(AllRequirements):
     def __init__(
         self,
         dependent: type[Extension],
-        extension_id_to_type_map: PluginIdToTypeMap[Extension],
+        extension_id_to_type_mapping: PluginIdToTypeMapping[Extension],
         dependency_requirements: Sequence[Requirement],
     ):
         super().__init__(*dependency_requirements)
         self._dependent = dependent
-        self._extension_id_to_type_map = extension_id_to_type_map
+        self._extension_id_to_type_mapping = extension_id_to_type_mapping
 
     @classmethod
     async def new(cls, dependent: type[Extension]) -> Self:
@@ -169,7 +169,7 @@ class Dependencies(AllRequirements):
             raise CyclicDependencyError([dependent]) from None
         else:
             return cls(
-                dependent, await EXTENSION_REPOSITORY.map(), dependency_requirements
+                dependent, await EXTENSION_REPOSITORY.mapping(), dependency_requirements
             )
 
     @override
@@ -178,7 +178,7 @@ class Dependencies(AllRequirements):
             dependent_label=self._dependent.plugin_label(),
             dependency_labels=call(
                 lambda localizer: ", ".join(
-                    self._extension_id_to_type_map[dependency_identifier]
+                    self._extension_id_to_type_mapping[dependency_identifier]
                     .plugin_label()
                     .localize(localizer)
                     for dependency_identifier in self._dependent.depends_on()

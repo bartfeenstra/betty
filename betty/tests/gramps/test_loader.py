@@ -160,11 +160,11 @@ class TestGrampsLoader:
         self,
         xml: str,
         *,
-        event_type_map: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
+        event_type_mapping: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
         | None = None,
-        gender_map: Mapping[str, Callable[[], Gender | Awaitable[Gender]]]
+        gender_mapping: Mapping[str, Callable[[], Gender | Awaitable[Gender]]]
         | None = None,
-        presence_role_map: Mapping[
+        presence_role_mapping: Mapping[
             str, Callable[[], PresenceRole | Awaitable[PresenceRole]]
         ]
         | None = None,
@@ -183,9 +183,9 @@ class TestGrampsLoader:
                     copyright_notices=project.copyright_notice_repository,
                     licenses=await project.license_repository,
                     attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-                    event_type_map=event_type_map,
-                    gender_map=gender_map,
-                    presence_role_map=presence_role_map,
+                    event_type_mapping=event_type_mapping,
+                    gender_mapping=gender_mapping,
+                    presence_role_mapping=presence_role_mapping,
                 )
                 async with TemporaryDirectory() as tree_directory_path_str:
                     await loader.load_xml(
@@ -198,11 +198,11 @@ class TestGrampsLoader:
         self,
         xml: str,
         *,
-        event_type_map: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
+        event_type_mapping: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
         | None = None,
-        gender_map: Mapping[str, Callable[[], Gender | Awaitable[Gender]]]
+        gender_mapping: Mapping[str, Callable[[], Gender | Awaitable[Gender]]]
         | None = None,
-        presence_role_map: Mapping[
+        presence_role_mapping: Mapping[
             str, Callable[[], PresenceRole | Awaitable[PresenceRole]]
         ]
         | None = None,
@@ -221,9 +221,9 @@ class TestGrampsLoader:
     {xml}
 </database>
 """,
-            event_type_map=event_type_map,
-            gender_map=gender_map,
-            presence_role_map=presence_role_map,
+            event_type_mapping=event_type_mapping,
+            gender_mapping=gender_mapping,
+            presence_role_mapping=presence_role_mapping,
         )
 
     async def test_load_xml(self, new_temporary_app: App) -> None:
@@ -415,7 +415,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """,
-            presence_role_map={"MyFirstRole": Subject},
+            presence_role_mapping={"MyFirstRole": Subject},
         )
         event = ancestry[Person]["I0000"].presences[0].event
         assert event is not None
@@ -469,7 +469,7 @@ class TestGrampsLoader:
     </person>
 </people>
 """,
-            gender_map={"U": NonBinary},
+            gender_mapping={"U": NonBinary},
         )
         person = ancestry[Person]["I0000"]
         assert isinstance(person.gender, NonBinary)
@@ -484,7 +484,7 @@ class TestGrampsLoader:
     </person>
 </people>
 """,
-            gender_map={"U": NonBinary},
+            gender_mapping={"U": NonBinary},
         )
         person = ancestry[Person]["I0000"]
         assert isinstance(person.gender, UnknownGender)
@@ -653,7 +653,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """,
-            event_type_map={"MyFirstEventType": Birth},
+            event_type_mapping={"MyFirstEventType": Birth},
         )
         assert isinstance(ancestry[Event]["E0000"].event_type, Birth)
 
@@ -666,7 +666,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """,
-            event_type_map={"Death": Death},
+            event_type_mapping={"Death": Death},
         )
         assert isinstance(ancestry[Event]["E0000"].event_type, Death)
 
@@ -1538,7 +1538,7 @@ class TestGrampsLoader:
     </event>
 </events>
 """,
-            presence_role_map={"MyFirstRole": Subject},
+            presence_role_mapping={"MyFirstRole": Subject},
         )
         person = ancestry[Person]["I0000"]
         presence = person.presences[0]

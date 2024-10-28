@@ -12,7 +12,7 @@ from betty.model.association import AssociationRegistry
 from betty.model.collections import MultipleTypesEntityCollection
 
 if TYPE_CHECKING:
-    from betty.plugin import PluginIdToTypeMap
+    from betty.plugin import PluginIdToTypeMapping
     from collections.abc import Iterator
 
 
@@ -23,10 +23,12 @@ class Ancestry(MultipleTypesEntityCollection[Entity]):
     """
 
     def __init__(
-        self, *entities: Entity, entity_type_id_to_type_map: PluginIdToTypeMap[Entity]
+        self,
+        *entities: Entity,
+        entity_type_id_to_type_mapping: PluginIdToTypeMapping[Entity],
     ):
         super().__init__(
-            *entities, entity_type_id_to_type_map=entity_type_id_to_type_map
+            *entities, entity_type_id_to_type_mapping=entity_type_id_to_type_mapping
         )
         self._check_graph = True
 

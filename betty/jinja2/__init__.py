@@ -30,7 +30,7 @@ from betty.locale.localizable import Localizable, plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizer import Localizer
 from betty.model import ENTITY_TYPE_REPOSITORY
-from betty.plugin import Plugin, PluginIdToTypeMap
+from betty.plugin import Plugin, PluginIdToTypeMapping
 from betty.project.factory import ProjectDependentFactory
 from betty.render import Renderer
 from betty.typing import private
@@ -86,9 +86,11 @@ class EntityContexts:
     """
 
     def __init__(
-        self, *entities: Entity, entity_type_id_to_type_map: PluginIdToTypeMap[Entity]
+        self,
+        *entities: Entity,
+        entity_type_id_to_type_mapping: PluginIdToTypeMapping[Entity],
     ) -> None:
-        self._entity_type_id_to_type_map = entity_type_id_to_type_map
+        self._entity_type_id_to_type_mapping = entity_type_id_to_type_mapping
         self._contexts: MutableMapping[type[Entity], Entity | None] = defaultdict(
             lambda: None
         )
@@ -101,14 +103,15 @@ class EntityContexts:
         Create a new instance.
         """
         return cls(
-            *entities, entity_type_id_to_type_map=await ENTITY_TYPE_REPOSITORY.map()
+            *entities,
+            entity_type_id_to_type_mapping=await ENTITY_TYPE_REPOSITORY.mapping(),
         )
 
     def __getitem__(
         self, entity_type_or_type_name: type[Entity] | str
     ) -> Entity | None:
         return self._contexts[
-            self._entity_type_id_to_type_map[entity_type_or_type_name]
+            self._entity_type_id_to_type_mapping[entity_type_or_type_name]
         ]
 
     def __call__(self, *entities: Entity) -> EntityContexts:
@@ -117,7 +120,7 @@ class EntityContexts:
         """
         updated_contexts = EntityContexts(
             *(entity for entity in self._contexts.values() if entity is not None),
-            entity_type_id_to_type_map=self._entity_type_id_to_type_map,
+            entity_type_id_to_type_mapping=self._entity_type_id_to_type_mapping,
         )
         for entity in entities:
             updated_contexts._contexts[entity.type] = entity

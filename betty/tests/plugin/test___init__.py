@@ -11,7 +11,7 @@ from betty.plugin import (
     PluginNotFound,
     Plugin,
     PluginRepository,
-    PluginIdToTypeMap,
+    PluginIdToTypeMapping,
     sort_ordered_plugin_graph,
     PluginIdentifier,
     OrderedPlugin,
@@ -104,16 +104,16 @@ class _TestPluginRepositoryPluginRepository(PluginRepository[DummyPlugin]):
             yield plugin
 
 
-class TestPluginIdToTypeMap:
+class TestPluginIdToTypeMapping:
     async def test_new(self) -> None:
-        await PluginIdToTypeMap.new(StaticPluginRepository())
+        await PluginIdToTypeMapping.new(StaticPluginRepository())
 
     async def test_get(self) -> None:
-        sut = await PluginIdToTypeMap.new(StaticPluginRepository(DummyPlugin))
+        sut = await PluginIdToTypeMapping.new(StaticPluginRepository(DummyPlugin))
         assert sut.get(DummyPlugin.plugin_id()) is DummyPlugin
 
     async def test___getitem__(self) -> None:
-        sut = await PluginIdToTypeMap.new(StaticPluginRepository(DummyPlugin))
+        sut = await PluginIdToTypeMapping.new(StaticPluginRepository(DummyPlugin))
         assert sut[DummyPlugin.plugin_id()] is DummyPlugin
 
 
@@ -158,19 +158,19 @@ class TestPluginRepository:
             _TestPluginRepositoryPluginOne
         ]
 
-    async def test_map_without_plugins(self) -> None:
+    async def test_mapping_without_plugins(self) -> None:
         sut = _TestPluginRepositoryPluginRepository()
-        await sut.map()
+        await sut.mapping()
 
-    async def test_map_with_plugins(self) -> None:
+    async def test_mapping_with_plugins(self) -> None:
         sut = _TestPluginRepositoryPluginRepository(
             _TestPluginRepositoryPluginOne,
             _TestPluginRepositoryPluginOneTwo,
             _TestPluginRepositoryPluginOneTwoThree,
         )
-        plugin_id_to_type_map = await sut.map()
+        plugin_id_to_type_mapping = await sut.mapping()
         assert (
-            plugin_id_to_type_map[_TestPluginRepositoryPluginOne.plugin_id()]
+            plugin_id_to_type_mapping[_TestPluginRepositoryPluginOne.plugin_id()]
             is _TestPluginRepositoryPluginOne
         )
 
