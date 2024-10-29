@@ -26,7 +26,7 @@ from betty.ancestry.presence_role.presence_roles import (
 )
 from betty.ancestry.source import Source
 from betty.date import Datey, Date, DateRange
-from betty.model import GeneratedEntityId
+from betty.model import persistent_id
 from betty.privacy import Privacy
 from betty.project import Project
 from betty.project.config import DEFAULT_LIFETIME_THRESHOLD
@@ -204,7 +204,7 @@ class TestPersonLifetimeEvents:
 
             if event_id is None:
                 return None
-            if isinstance(event_id, GeneratedEntityId):
+            if not persistent_id(event_id):
                 return event_id
             event_ids += 1
             return f"{event_id}-{event_ids}"

@@ -232,7 +232,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/media_type/media_types.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/model/__init__.py": {
         "Entity": MissingReason.SHOULD_BE_COVERED,
-        "GeneratedEntityId": MissingReason.SHOULD_BE_COVERED,
+        "NonPersistentId": MissingReason.SHOULD_BE_COVERED,
         "UserFacingEntity": MissingReason.ABSTRACT,
     },
     "betty/model/association.py": {

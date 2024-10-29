@@ -37,14 +37,14 @@ Read more about :doc:`/development/plugin/entity-type`.
 """
 
 
-class GeneratedEntityId(str):
+class NonPersistentId(str):
     """
-    Generate a unique entity ID.
+    A randomly generated ID that is not persistent.
 
     Entities must have IDs for identification. However, not all entities can be provided with an ID that exists in the
-    original data set (such as a third-party family tree loaded into Betty), so IDs can be generated.
+    original data set (such as a third-party family tree loaded into Betty).
 
-    Generated IDs are helpful in case there is no external ID that can be used. However, as generated IDs do not persist
+    Non-persistent IDs are helpful in case there is no external ID that can be used. However, as they do not persist
     when reloading an ancestry, they *MUST NOT* be in contexts where persistent identifiers are expected, such as in
     URLs.
     """
@@ -70,7 +70,7 @@ class Entity(LinkedDataDumpableJsonLdObject, Plugin):
         *args: Any,
         **kwargs: Any,
     ):
-        self._id = GeneratedEntityId() if id is None else id
+        self._id = NonPersistentId() if id is None else id
         super().__init__(*args, **kwargs)
 
     def __hash__(self) -> int:
@@ -127,7 +127,7 @@ class Entity(LinkedDataDumpableJsonLdObject, Plugin):
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
 
-        if not has_generated_entity_id(self) and isinstance(self, UserFacingEntity):
+        if persistent_id(self) and isinstance(self, UserFacingEntity):
             static_url_generator = await project.static_url_generator
             dump["@id"] = static_url_generator.generate(
                 f"/{self.type.plugin_id()}/{self.id}/index.json",
@@ -152,13 +152,16 @@ class Entity(LinkedDataDumpableJsonLdObject, Plugin):
 AncestryEntityId: TypeAlias = tuple[type[Entity], str]
 
 
-def has_generated_entity_id(entity: Entity) -> bool:
+def persistent_id(entity_or_id: Entity | str) -> bool:
     """
-    Test if an entity has a generated ID.
+    Test if an entity ID is persistent.
 
-    See :py:class:`betty.model.GeneratedEntityId`.
+    See :py:class:`betty.model.NonPersistentId`.
     """
-    return isinstance(entity.id, GeneratedEntityId)
+    return not isinstance(
+        entity_or_id if isinstance(entity_or_id, str) else entity_or_id.id,
+        NonPersistentId,
+    )
 
 
 class UserFacingEntity:

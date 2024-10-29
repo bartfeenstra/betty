@@ -8,7 +8,7 @@
     {% with file_references = citation.file_references %}
         {% include 'media.html.j2' %}
     {% endwith %}
-    {% set facts = citation.facts | select('public') | reject('has_generated_entity_id') | list %}
+    {% set facts = citation.facts | select('public') | select('persistent_entity_id') | list %}
     {% if facts | length > 0 %}
         <section id="facts">
             <h2>

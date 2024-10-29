@@ -23,7 +23,7 @@ from betty.model import (
     UserFacingEntity,
     Entity,
     EntityReferenceCollectionSchema,
-    has_generated_entity_id,
+    persistent_id,
 )
 from betty.model.association import ToManyResolver, BidirectionalToMany
 from betty.plugin import ShorthandPluginBase
@@ -187,7 +187,7 @@ class Person(
         dump["siblings"] = [
             static_url_generator.generate(f"/person/{quote(sibling.id)}/index.json")
             for sibling in self.siblings
-            if not has_generated_entity_id(sibling)
+            if persistent_id(sibling)
         ]
         if self.public:
             dump["gender"] = self.gender.plugin_id()

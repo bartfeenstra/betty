@@ -36,7 +36,7 @@
           {{ page_resource.dump_linked_data(project) | tojson }}
         </script>
     {% endif %}
-    {% if page_resource is entity and page_resource is not has_generated_entity_id %}
+    {% if page_resource is entity and page_resource is persistent_entity_id %}
         <link rel="alternate" href="{{ page_resource | localized_url(media_type='application/json') }}" hreflang="und" type="application/json">
     {% endif %}
 {% endif %}

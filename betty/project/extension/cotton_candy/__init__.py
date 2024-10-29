@@ -29,7 +29,7 @@ from betty.jinja2 import (
     Filters,
 )
 from betty.locale.localizable import _, static
-from betty.model import has_generated_entity_id
+from betty.model import persistent_id
 from betty.os import link_or_copy
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import is_public
@@ -366,7 +366,7 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
                     (StartOfLifeEventType, EndOfLifeEventType),
                 ):
                     continue
-                if has_generated_entity_id(associated_presence.event):
+                if not persistent_id(associated_presence.event):
                     continue
                 if not isinstance(associated_presence.role, Subject):
                     continue

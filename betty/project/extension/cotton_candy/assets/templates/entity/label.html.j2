@@ -1,8 +1,8 @@
 {%- set embedded = embedded | default(False) -%}
-{%- if not embedded and entity is public and entity is not has_generated_entity_id -%}
+{%- if not embedded and entity is public and entity is persistent_entity_id -%}
     <a href="{{ entity | localized_url }}">
 {%- endif -%}
 {{ entity.label | localize }}
-{%- if not embedded and entity is public and entity is not has_generated_entity_id -%}
+{%- if not embedded and entity is public and entity is persistent_entity_id -%}
     </a>
 {%- endif -%}

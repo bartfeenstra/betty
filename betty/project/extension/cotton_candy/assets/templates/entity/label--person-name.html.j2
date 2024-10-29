@@ -2,7 +2,7 @@
 {% set person_name = person_name | default(entity) %}
 {% set embedded = embedded | default(False) %}
 {% set person_context = entity_contexts['person'] %}
-{% set label_as_link = not embedded and person_context != person_name.person and person_name is not has_generated_entity_id and person_name is public %}
+{% set label_as_link = not embedded and person_context != person_name.person and person_name is persistent_entity_id and person_name is public %}
 {% if label_as_link -%}
     <a href="{{ person_name | localized_url }}">
 {%- endif %}

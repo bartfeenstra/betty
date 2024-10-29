@@ -42,7 +42,7 @@ from betty.locale import get_display_name
 from betty.locale.localizable import _
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import JSON, HTML
-from betty.model import UserFacingEntity, Entity, has_generated_entity_id
+from betty.model import UserFacingEntity, Entity, persistent_id
 from betty.openapi import Specification
 from betty.privacy import is_public
 from betty.project import ProjectEvent, ProjectSchema, ProjectContext
@@ -199,7 +199,7 @@ async def _run_jobs(
             semaphore, _generate_entity_type_list_json, job_context, entity_type
         )
         for entity in project.ancestry[entity_type]:
-            if has_generated_entity_id(entity):
+            if not persistent_id(entity):
                 continue
 
             yield _run_job(
@@ -504,7 +504,7 @@ async def _generate_sitemap(
     sitemap_batches.append(sitemap_batch_urls)
     for locale in project.configuration.locales:
         for entity in project.ancestry:
-            if has_generated_entity_id(entity):
+            if not persistent_id(entity):
                 continue
             if not isinstance(entity, UserFacingEntity):
                 continue

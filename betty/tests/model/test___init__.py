@@ -8,23 +8,23 @@ from betty.model import (
     EntityReferenceSchema,
     EntityReferenceCollectionSchema,
     Entity,
-    has_generated_entity_id,
+    persistent_id,
 )
 from betty.serde.dump import Dump
 from betty.test_utils.json.schema import SchemaTestBase
 from betty.test_utils.model import DummyEntity
 
 
-class TestHasGeneratedEntityId:
+class TestPersistentId:
     @pytest.mark.parametrize(
         ("expected", "entity"),
         [
-            (True, DummyEntity()),
-            (False, DummyEntity("my-first-entity-id")),
+            (False, DummyEntity()),
+            (True, DummyEntity("my-first-entity-id")),
         ],
     )
     def test(self, expected: bool, entity: Entity) -> None:
-        assert has_generated_entity_id(entity) == expected
+        assert persistent_id(entity) == expected
 
 
 class TestEntityReferenceSchema(SchemaTestBase):

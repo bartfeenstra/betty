@@ -5,7 +5,7 @@
     {% include 'entity/label--person.html.j2' %}
 {%- endmacro -%}
 {%- set formatted_event = event.event_type.plugin_label() | localize -%}
-{%- if event is not has_generated_entity_id and not embedded -%}
+{%- if event is persistent_entity_id and not embedded -%}
     {% set formatted_event = ('<a href="' + event | localized_url + '">' + formatted_event + '</a>') | safe %}
 {%- endif -%}
 {%- if event.description -%}

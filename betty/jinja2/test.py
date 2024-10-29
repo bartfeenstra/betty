@@ -22,7 +22,7 @@ from betty.model import (
     Entity,
     UserFacingEntity,
     ENTITY_TYPE_REPOSITORY,
-    has_generated_entity_id,
+    persistent_id,
 )
 from betty.privacy import is_private, is_public
 from betty.typing import internal
@@ -133,7 +133,7 @@ async def tests() -> Mapping[str, Callable[..., bool]]:
         "end_of_life_event": test_end_of_life_event,
         "entity": await TestEntity.new(),
         "has_file_references": test_has_file_references,
-        "has_generated_entity_id": has_generated_entity_id,
+        "persistent_entity_id": persistent_id,
         "has_links": test_has_links,
         "linked_data_dumpable": test_linked_data_dumpable,
         "private": is_private,

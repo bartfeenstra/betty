@@ -13,7 +13,7 @@
     {% with file_references = have_file_references | selectattr('public') | map(attribute='file_references') | flatten | unique %}
         {% include 'media.html.j2' %}
     {% endwith %}
-    {% set facts = sources | map(attribute='citations') | flatten | select('public') | map(attribute='facts') | flatten | select('public') | reject('has_generated_entity_id') | unique | list %}
+    {% set facts = sources | map(attribute='citations') | flatten | select('public') | map(attribute='facts') | flatten | select('public') | select('persistent_entity_id') | unique | list %}
     {% if facts | length > 0 %}
         <h2>{% trans %}Facts{% endtrans %}</h2>
         <ul class="entities">

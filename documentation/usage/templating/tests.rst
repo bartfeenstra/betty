@@ -9,7 +9,7 @@ In addition to Jinja2's built-in tests, Betty provides the following:
 - :py:func:`end_of_life_event <betty.jinja2.test.test_end_of_life_event>`
 - :py:func:`entity <betty.jinja2.test.TestEntity>`
 - :py:func:`has_file_references <betty.jinja2.test.test_has_file_references>`
-- :py:func:`has_generated_entity_id <betty.model.has_generated_entity_id>`
+- :py:func:`persistent_entity_id <betty.model.persistent_id>`
 - :py:func:`has_links <betty.jinja2.test.test_has_links>`
 - :py:func:`linked_data_dumpable <betty.jinja2.test.test_linked_data_dumpable>`
 - :py:func:`private <betty.privacy.is_private>`
