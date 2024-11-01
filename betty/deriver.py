@@ -7,6 +7,7 @@ from __future__ import annotations
 import logging
 from enum import Enum
 from typing import Iterable, cast
+from uuid import uuid5, NAMESPACE_URL
 
 from betty.locale import DateRange, Date, Localizer
 from betty.model.ancestry import Person, Presence, Event, Subject, Ancestry
@@ -30,6 +31,15 @@ class Derivation(Enum):
 
     #: The derivation updated existing data.
     UPDATE = 3
+
+
+def _derive_event_id(derivable_event_type: type[EventType], person: Person) -> str:
+    return str(
+        uuid5(
+            NAMESPACE_URL,
+            f"betty-deriver://{derivable_event_type.name()}/{person.id}",
+        )
+    )
 
 
 class Deriver:
@@ -111,7 +121,13 @@ class Deriver:
                 self._lifetime_threshold,
             ):
                 derivable_events = [
-                    (Event(event_type=derivable_event_type), Derivation.CREATE),
+                    (
+                        Event(
+                            id=_derive_event_id(derivable_event_type, person),
+                            event_type=derivable_event_type,
+                        ),
+                        Derivation.CREATE,
+                    ),
                 ]
             else:
                 return 0, 0
