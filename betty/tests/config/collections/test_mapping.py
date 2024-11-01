@@ -110,7 +110,7 @@ class ConfigurationMappingTestConfigurationMapping(
     ConfigurationMapping[str, ConfigurationMappingTestConfiguration]
 ):
     @override
-    def load_item(self, dump: Dump) -> ConfigurationMappingTestConfiguration:
+    def _load_item(self, dump: Dump) -> ConfigurationMappingTestConfiguration:
         configuration = ConfigurationMappingTestConfiguration("", 0)
         configuration.load(dump)
         return configuration
@@ -194,7 +194,7 @@ class OrderedConfigurationMappingTestOrderedConfigurationMapping(
     OrderedConfigurationMapping[str, ConfigurationMappingTestConfiguration]
 ):
     @override
-    def load_item(self, dump: Dump) -> ConfigurationMappingTestConfiguration:
+    def _load_item(self, dump: Dump) -> ConfigurationMappingTestConfiguration:
         configuration = ConfigurationMappingTestConfiguration("", 0)
         configuration.load(dump)
         return configuration

@@ -81,7 +81,7 @@ class ConfigurationSequence(
 
     @override
     def load(self, dump: Dump) -> None:
-        self.replace(*assert_sequence(self.load_item)(dump))
+        self.replace(*assert_sequence(self._load_item)(dump))
 
     @override
     def dump(self) -> DumpSequence[Dump]:

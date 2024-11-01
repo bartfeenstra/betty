@@ -139,7 +139,7 @@ class PluginConfigurationPluginConfigurationMapping(
     """
 
     @override
-    def load_item(self, dump: Dump) -> PluginConfiguration:
+    def _load_item(self, dump: Dump) -> PluginConfiguration:
         item = PluginConfiguration("-", "")
         item.load(dump)
         return item
@@ -247,7 +247,7 @@ class PluginInstanceConfigurationMapping(
         super().__init__(configurations)
 
     @override
-    def load_item(self, dump: Dump) -> PluginInstanceConfiguration:
+    def _load_item(self, dump: Dump) -> PluginInstanceConfiguration:
         configuration = PluginInstanceConfiguration("-")
         configuration.load(dump)
         return configuration

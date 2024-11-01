@@ -44,15 +44,6 @@ class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _Configuration
         """
         raise NotImplementedError
 
-    async def test_load_item(self) -> None:
-        """
-        Tests :py:meth:`betty.config.collections.ConfigurationCollection.load_item` implementations.
-        """
-        configurations = await self.get_configurations()
-        sut = await self.get_sut(configurations)
-        for configuration in configurations:
-            sut.load_item(configuration.dump())
-
     async def test_replace_without_items(self) -> None:
         """
         Tests :py:meth:`betty.config.collections.ConfigurationCollection.replace` implementations.

@@ -193,7 +193,7 @@ class EntityReferenceSequence(
         super().__init__(entity_references)
 
     @override
-    def load_item(self, dump: Dump) -> EntityReference[_EntityT]:
+    def _load_item(self, dump: Dump) -> EntityReference[_EntityT]:
         configuration = EntityReference[_EntityT](
             # Use a dummy entity type for now to satisfy the initializer.
             # It will be overridden when loading the dump.
@@ -364,7 +364,7 @@ class EntityTypeConfigurationMapping(
         return item_dump, cast(str, item_dump.pop("entity_type"))
 
     @override
-    def load_item(self, dump: Dump) -> EntityTypeConfiguration:
+    def _load_item(self, dump: Dump) -> EntityTypeConfiguration:
         # Use a dummy entity type for now to satisfy the initializer.
         # It will be overridden when loading the dump.
         configuration = EntityTypeConfiguration(
@@ -462,7 +462,7 @@ class LocaleConfigurationMapping(OrderedConfigurationMapping[str, LocaleConfigur
         self._ensure_locale()
 
     @override
-    def load_item(self, dump: Dump) -> LocaleConfiguration:
+    def _load_item(self, dump: Dump) -> LocaleConfiguration:
         item = LocaleConfiguration(UNDETERMINED_LOCALE)
         item.load(dump)
         return item
@@ -564,7 +564,7 @@ class CopyrightNoticeConfigurationMapping(
         return _ProjectConfigurationCopyrightNotice
 
     @override
-    def load_item(self, dump: Dump) -> CopyrightNoticeConfiguration:
+    def _load_item(self, dump: Dump) -> CopyrightNoticeConfiguration:
         item = CopyrightNoticeConfiguration("-", "", summary="", text="")
         item.load(dump)
         return item
@@ -650,7 +650,7 @@ class LicenseConfigurationMapping(
         return _ProjectConfigurationLicense
 
     @override
-    def load_item(self, dump: Dump) -> LicenseConfiguration:
+    def _load_item(self, dump: Dump) -> LicenseConfiguration:
         item = LicenseConfiguration("-", "", summary="", text="")
         item.load(dump)
         return item
