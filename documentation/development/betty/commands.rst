@@ -24,8 +24,6 @@ Helpful commands
     Run `ESLint <https://eslint.org/>`_ tests.
 ``./bin/test-mypy``
     Run `mypy <https://www.mypy-lang.org/>`_ tests.
-``./bin/test-playwright``
-    Run `Playwright <https://playwright.dev>`_ tests.
 ``./bin/test-pytest``
     Run `pytest <https://docs.pytest.org/en/stable/>`_ tests.
 ``./bin/test-ruff``

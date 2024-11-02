@@ -6,8 +6,6 @@ cd "$(dirname "$0")/.."
 
 # Install Python dependencies.
 pip install '.[ci]'
+./bin/build-playwright
 
-# Install JavaScript dependencies.
-npm install
-npm install --no-save "@types/node@$(node -e 'console.log(process.versions.node.split(".")[0])')"
-npx playwright install --with-deps
+./bin/build-dev-npm

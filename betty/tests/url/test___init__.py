@@ -15,7 +15,6 @@ class TestGenerateFromPath:
     @pytest.mark.parametrize(
         (
             "expected",
-            "base_url",
             "root_path",
             "locales",
             "clean_urls",
@@ -28,7 +27,6 @@ class TestGenerateFromPath:
             *[
                 (
                     expected,
-                    "https://example.com",
                     "/",
                     {DEFAULT_LOCALE: DEFAULT_LOCALE},
                     False,
@@ -48,7 +46,6 @@ class TestGenerateFromPath:
             *[
                 (
                     expected,
-                    "https://example.com",
                     "/",
                     {DEFAULT_LOCALE: DEFAULT_LOCALE},
                     False,
@@ -68,7 +65,6 @@ class TestGenerateFromPath:
             *[
                 (
                     expected,
-                    "https://example.com",
                     "/",
                     {DEFAULT_LOCALE: DEFAULT_LOCALE},
                     True,
@@ -88,7 +84,6 @@ class TestGenerateFromPath:
             *[
                 (
                     expected,
-                    "https://example.com",
                     "/",
                     {DEFAULT_LOCALE: DEFAULT_LOCALE, "nl-NL": "nl"},
                     False,
@@ -109,7 +104,6 @@ class TestGenerateFromPath:
     async def test(
         self,
         expected: str,
-        base_url: str,
         root_path: str,
         locales: Mapping[str, str],
         clean_urls: bool,
@@ -122,7 +116,7 @@ class TestGenerateFromPath:
                 path,
                 absolute=absolute,
                 locale=locale,
-                base_url=base_url,
+                base_url="https://example.com",
                 root_path=root_path,
                 locales=locales,
                 clean_urls=clean_urls,

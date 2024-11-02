@@ -3,7 +3,6 @@
     "node": ">= 20"
   },
   "devDependencies": {
-    "@playwright/test": "^1.49.0",
     "@stylistic/eslint-plugin": "^2.10.1",
     "@types/node": "*",
     "@types/webpack": "^5.28.5",
@@ -15,7 +14,6 @@
     "eslint": "^9.15.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-n": "^17.13.2",
-    "eslint-plugin-playwright": "^2.1.0",
     "eslint-plugin-promise": "^7.1.0",
     "stylelint": "^16.10.0",
     "stylelint-config-standard": "^36.0.1",

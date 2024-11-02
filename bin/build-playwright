@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+cd "$(dirname "$0")/.."
+
+# Install Playwright browser dependencies, but allow those
+# to fail as Playwright runs on very few systems only.
+playwright install --with-deps || true

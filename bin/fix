@@ -12,4 +12,4 @@ ruff format .
 ./node_modules/.bin/stylelint --fix "./betty/**/*.css" "./betty/**/*.scss"
 
 # Fix JS code style violations.
-./node_modules/.bin/eslint --fix -c ./eslint.config.js ./betty ./playwright
+./node_modules/.bin/eslint --fix -c ./eslint.config.js ./betty

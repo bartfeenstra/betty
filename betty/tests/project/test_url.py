@@ -199,7 +199,6 @@ class TestStaticUrlGenerator:
     @pytest.mark.parametrize(
         (
             "expected",
-            "base_url",
             "root_path",
             "locales",
             "clean_urls",
@@ -209,7 +208,6 @@ class TestStaticUrlGenerator:
         [
             (
                 "/index.html",
-                "https://example.com",
                 "/",
                 {DEFAULT_LOCALE: DEFAULT_LOCALE},
                 False,
@@ -219,7 +217,6 @@ class TestStaticUrlGenerator:
             # Absolute URLs.
             (
                 "https://example.com/index.html",
-                "https://example.com",
                 "/",
                 {DEFAULT_LOCALE: DEFAULT_LOCALE},
                 False,
@@ -229,7 +226,6 @@ class TestStaticUrlGenerator:
             # Clean URLs.
             (
                 "/",
-                "https://example.com",
                 "/",
                 {DEFAULT_LOCALE: DEFAULT_LOCALE},
                 True,
@@ -241,12 +237,11 @@ class TestStaticUrlGenerator:
     async def test_generate(
         self,
         expected: str,
-        base_url: str,
         root_path: str,
         locales: Mapping[str, str],
         clean_urls: bool,
         resource: str,
         absolute: bool,
     ) -> None:
-        sut = StaticUrlGenerator(base_url, root_path, locales, clean_urls)
+        sut = StaticUrlGenerator("https://example.com", root_path, locales, clean_urls)
         assert sut.generate(resource, absolute=absolute) == expected

@@ -3,7 +3,6 @@
 import eslint from '@eslint/js'
 import stylistic from '@stylistic/eslint-plugin'
 import globals from 'globals'
-import playwright from 'eslint-plugin-playwright'
 import tseslint from 'typescript-eslint'
 
 const typescriptFiles = [
@@ -37,15 +36,6 @@ export default [
                 ...globals.browser,
             },
         },
-    },
-
-    // Playwright tests.
-    {
-        files: [
-            'playwright/tests/**',
-        ],
-        ...playwright.configs['flat/recommended'],
-
     },
 
     // Generic EcmaScript.

@@ -6,3 +6,4 @@ cd "$(dirname "$0")/.."
 
 # Install Python dependencies.
 pip install -e '.[development]'
+./bin/build-playwright

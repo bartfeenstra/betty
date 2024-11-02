@@ -6,4 +6,4 @@ cd "$(dirname "$0")/.."
 
 echo 'Running ESLint...'
 
-./node_modules/.bin/eslint -c ./eslint.config.js ./betty ./playwright "$@"
+./node_modules/.bin/eslint -c ./eslint.config.js ./betty "$@"
