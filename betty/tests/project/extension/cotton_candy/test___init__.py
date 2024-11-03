@@ -4,8 +4,6 @@ from pathlib import Path
 from typing import Iterator, TYPE_CHECKING
 
 import pytest
-from typing_extensions import override
-
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
@@ -27,21 +25,26 @@ from betty.ancestry.presence_role.presence_roles import (
 from betty.ancestry.source import Source
 from betty.assertion.error import AssertionFailed
 from betty.date import Datey, Date, DateRange
-from betty.model import persistent_id
+from betty.model import persistent_id, ENTITY_TYPE_REPOSITORY, Entity
 from betty.model.config import EntityReference
+from betty.plugin.proxy import ProxyPluginRepository
+from betty.plugin.static import StaticPluginRepository
 from betty.privacy import Privacy
 from betty.project import Project
-from betty.project.config import DEFAULT_LIFETIME_THRESHOLD
+from betty.project.config import DEFAULT_LIFETIME_THRESHOLD, EntityTypeConfiguration
 from betty.project.extension.cotton_candy import (
     person_timeline_events,
     associated_file_references,
     CottonCandy,
 )
-from betty.test_utils.model import DummyEntity
+from betty.project.generate import generate
+from betty.test_utils.model import DummyEntity, DummyUserFacingEntity
 from betty.test_utils.project.extension import ExtensionTestBase
 from betty.test_utils.project.extension.webpack import WebpackEntryPointProviderTestBase
+from typing_extensions import override
 
 if TYPE_CHECKING:
+    from pytest_mock import MockerFixture
     from betty.app import App
     from betty.ancestry.event_type import EventType
     from betty.ancestry.presence_role import PresenceRole
@@ -394,3 +397,25 @@ class TestCottonCandy(
             with pytest.raises(AssertionFailed):
                 async with sut:
                     pass
+
+    async def test_generate_html_list_for_third_party_entity(
+        self, mocker: MockerFixture, new_temporary_app: App
+    ) -> None:
+        mocker.patch(
+            "betty.model.ENTITY_TYPE_REPOSITORY",
+            new=ProxyPluginRepository[Entity](
+                StaticPluginRepository(DummyUserFacingEntity), ENTITY_TYPE_REPOSITORY
+            ),
+        )
+        async with Project.new_temporary(new_temporary_app) as project:
+            await project.configuration.extensions.enable(CottonCandy)
+            project.configuration.entity_types.replace(
+                EntityTypeConfiguration(DummyUserFacingEntity, generate_html_list=True)
+            )
+            async with project:
+                await generate(project)
+            assert (
+                project.configuration.www_directory_path
+                / DummyUserFacingEntity.plugin_id()
+                / "index.html"
+            ).is_file()

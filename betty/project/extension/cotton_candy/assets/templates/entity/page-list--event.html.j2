@@ -2,7 +2,7 @@
 {% set events = events | default(entities) | list %}
 {% set page_title = _('Events') %}
 {% block page_content %}
-    {% if events | length > 0 %}
+    {% if events | select('public') | list | length > 0 %}
         {% include 'entity/list--event.html.j2' %}
     {% else %}
         <p>{% trans %}I'm sorry, dear, but it seems there are no events.{% endtrans %}</p>

@@ -5,12 +5,16 @@
     {%- if names | length == 0 -%}
         {%- set names = place.names -%}
     {%- endif -%}
-    {%- set name = (names | first).name | localize -%}
+    {%- if names -%}
+        {%- set name = (names | first).name -%}
+    {%- else -%}
+        {%- set name = place.label -%}
+    {%- endif -%}
 
     {%- if not embedded -%}
         <a href="{{ place | localized_url }}">
     {%- endif -%}
-    {{ name | html_lang }}
+    {{ name | localize | html_lang }}
     {%- if not embedded -%}
         </a>
     {%- endif -%}

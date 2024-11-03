@@ -2,7 +2,7 @@
 {% set people = people | default(entities) %}
 {% set page_title = _('People') %}
 {% block page_content %}
-    {% if people | length > 0 %}
+    {% if people | select('public') | list | length > 0 %}
         {% include 'entity/list--person.html.j2' %}
     {% else %}
         <p>{% trans %}I'm sorry, dear, but it seems there are no people.{% endtrans %}</p>

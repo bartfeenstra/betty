@@ -2,8 +2,8 @@
 {% set files = files | default(entities) %}
 {% set page_title = _('Media') %}
 {% block page_content %}
-    {% if files | length > 0 %}
-        {% include 'entity/list--file.html.j2' %}
+    {% if files | select('public') | list | length > 0 %}
+        {% include ['entity/list--file.html.j2', 'entity/list.html.j2'] %}
     {% else %}
         <p>{% trans %}I'm sorry, dear, but it seems there are no media.{% endtrans %}</p>
     {% endif %}

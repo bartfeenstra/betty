@@ -2,7 +2,7 @@
 {% set places = places | default(entities) %}
 {% set page_title = _('Places') %}
 {% block page_content %}
-    {% if places | length > 0 %}
+    {% if places | select('public') | list | length > 0 %}
         {% with canonical=True %}
             {% include 'entity/list--place.html.j2' %}
         {% endwith %}

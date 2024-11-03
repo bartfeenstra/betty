@@ -2,7 +2,7 @@
 {% set sources = sources | default(entities) %}
 {% set page_title = _('Sources') %}
 {% block page_content %}
-    {% if sources | length > 0 %}
+    {% if sources | select('public') | list | length > 0 %}
         {% include 'entity/list--source.html.j2' %}
     {% else %}
         <p>{% trans %}I'm sorry, dear, but it seems there are no sources.{% endtrans %}</p>
