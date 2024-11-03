@@ -35,6 +35,6 @@ class TestNewTranslation:
         await run(
             new_temporary_app,
             "new-translation",
-            "123",
+            "",
             expected_exit_code=2,
         )

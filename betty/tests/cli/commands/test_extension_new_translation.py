@@ -47,6 +47,6 @@ class TestExtensionNewTranslation(ExtensionTranslationTestBase):
             new_temporary_app,
             "extension-new-translation",
             "with-assets",
-            "123",
+            "",
             expected_exit_code=2,
         )

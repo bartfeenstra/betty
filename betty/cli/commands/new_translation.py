@@ -6,7 +6,7 @@ import asyncclick as click
 from typing_extensions import override
 
 from betty.app.factory import AppDependentFactory
-from betty.assertion import assert_locale
+from betty.assertion import assert_locale_identifier
 from betty.cli.commands import command, Command, parameter_callback, project_option
 from betty.locale import translation
 from betty.locale.localizable import _
@@ -47,7 +47,9 @@ class NewTranslation(ShorthandPluginBase, AppDependentFactory, Command):
             else self.plugin_label().localize(localizer),
         )
         @click.argument(
-            "locale", required=True, callback=parameter_callback(assert_locale())
+            "locale",
+            required=True,
+            callback=parameter_callback(assert_locale_identifier()),
         )
         @project_option
         async def new_translation(project: Project, locale: str) -> None:

@@ -540,7 +540,14 @@ def assert_locale() -> AssertionChain[Any, str]:
             raise AssertionFailed(error) from error
         return value
 
-    return assert_str() | _assert_locale
+    return assert_locale_identifier() | _assert_locale
+
+
+def assert_locale_identifier() -> AssertionChain[Any, str]:
+    """
+    Assert that a value could be a valid `IETF BCP 47 language tag <https://en.wikipedia.org/wiki/IETF_language_tag>`_.
+    """
+    return assert_str() | assert_len(minimum=1) | str
 
 
 def assert_setattr(

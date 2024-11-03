@@ -6,7 +6,7 @@ import asyncclick as click
 from typing_extensions import override
 
 from betty.app.factory import AppDependentFactory
-from betty.assertion import assert_locale
+from betty.assertion import assert_locale_identifier
 from betty.cli.commands import command, parameter_callback, Command
 from betty.locale import translation
 from betty.locale.localizable import _
@@ -59,7 +59,9 @@ class ExtensionNewTranslation(ShorthandPluginBase, AppDependentFactory, Command)
             ),
         )
         @click.argument(
-            "locale", required=True, callback=parameter_callback(assert_locale())
+            "locale",
+            required=True,
+            callback=parameter_callback(assert_locale_identifier()),
         )
         async def extension_new_translation(  # noqa D103
             extension: type[Extension], locale: str

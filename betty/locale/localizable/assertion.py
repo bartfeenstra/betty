@@ -11,7 +11,7 @@ from betty.assertion import (
     assert_or,
     assert_str,
     assert_mapping,
-    assert_locale,
+    assert_locale_identifier,
 )
 from betty.locale import UNDETERMINED_LOCALE
 
@@ -25,5 +25,5 @@ def assert_static_translations() -> AssertionChain[Any, StaticTranslations]:
     """
     return assert_or(
         assert_str().chain(lambda translation: {UNDETERMINED_LOCALE: translation}),
-        assert_mapping(assert_str(), assert_locale()),
+        assert_mapping(assert_str(), assert_locale_identifier()),
     )

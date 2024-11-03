@@ -1,4 +1,5 @@
 import pytest
+
 from betty.error import UserFacingError
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import ShorthandStaticTranslations
@@ -13,6 +14,7 @@ class TestAssertStaticTranslations:
             {
                 "en-US": "Hello, world!",
                 "nl-NL": "Hallo, wereld!",
+                "unknown-locale": "H3ll0, w0rld!",
             },
         ],
     )
@@ -33,7 +35,7 @@ class TestAssertStaticTranslations:
                 123: "a valid translation",
             },
             {
-                "notalocale": "a valid translation",
+                "": "a valid translation",
             },
         ],
     )

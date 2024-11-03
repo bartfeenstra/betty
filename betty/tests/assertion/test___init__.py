@@ -33,6 +33,7 @@ from betty.assertion import (
     assert_none,
     assert_locale,
     assert_setattr,
+    assert_locale_identifier,
 )
 from betty.assertion.error import AssertionFailed, Index, Key
 from betty.error import UserFacingError
@@ -539,6 +540,7 @@ class TestAssertLocale:
             True,
             False,
             123,
+            "",
             "non-existent-locale",
             object(),
             [],
@@ -548,6 +550,37 @@ class TestAssertLocale:
     def test_with_invalid_value(self, value: Any) -> None:
         with pytest.raises(AssertionFailed):
             assert_locale()(value)
+
+
+class TestAssertLocaleIdentifier:
+    @pytest.mark.parametrize(
+        "value",
+        [
+            UNDETERMINED_LOCALE,
+            DEFAULT_LOCALE,
+            "nl-NL",
+            "uk",
+            "non-existent-locale",
+        ],
+    )
+    def test_with_valid_value(self, value: str) -> None:
+        assert assert_locale_identifier()(value) == value
+
+    @pytest.mark.parametrize(
+        "value",
+        [
+            True,
+            False,
+            123,
+            "",
+            object(),
+            [],
+            {},
+        ],
+    )
+    def test_with_invalid_value(self, value: Any) -> None:
+        with pytest.raises(AssertionFailed):
+            assert_locale_identifier()(value)
 
 
 class TestAssertSetattr:
