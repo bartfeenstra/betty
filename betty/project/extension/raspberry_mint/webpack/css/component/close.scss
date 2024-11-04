@@ -1,0 +1,9 @@
+.btn-close {
+  border: 3px solid $white;
+
+  &:focus {
+    background-color: var(--betty-focus-color);
+    border-color: var(--betty-focus-contrast-color);
+    color: var(--betty-focus-contrast-color);
+  }
+}

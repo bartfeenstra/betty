@@ -1,0 +1,15 @@
+{%- macro source_containment_label(source, source_context = none) -%}
+    {%- with entity = source -%}
+        {%- include ['entity/label--source.html.j2', 'entity/label.html.j2'] -%}
+    {%- endwith -%}
+    {{ _source_containment_label(source, source_context) }}
+{%- endmacro -%}
+
+{%- macro _source_containment_label(source, source_context = none) -%}
+    {%- if source.contained_by is not none and (source_context is none or source_context != source.contained_by) -%}
+        {%- with entity = source.contained_by -%}
+            , {% include ['entity/label--source.html.j2', 'entity/label.html.j2'] -%}
+        {%- endwith -%}
+        {{ _source_containment_label(source.contained_by, source_context) }}
+    {%- endif -%}
+{%- endmacro -%}

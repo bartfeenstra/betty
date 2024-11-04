@@ -1,0 +1,12 @@
+{%- set embedded = embedded | default(False) -%}
+{% if entity is public %}
+    {%- if not embedded and entity is public and entity is persistent_entity_id -%}
+        <a href="{{ entity | url }}">
+    {%- endif -%}
+    {{ entity.label | localize | html_lang }}
+    {%- if not embedded and entity is public and entity is persistent_entity_id -%}
+        </a>
+    {%- endif -%}
+{% else %}
+    {% include 'entity/private.html.j2' %}
+{%- endif -%}

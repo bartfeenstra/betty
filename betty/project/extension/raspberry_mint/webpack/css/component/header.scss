@@ -1,0 +1,69 @@
+@use '../mixins/text';
+
+.header-site-logo {
+  height: 1.5em;
+  margin-bottom: $spacer * .25;
+  margin-top: $spacer * .25;
+  width: 1.5em;
+}
+
+.header-site-title {
+  color: var(--bs-body-color);
+  font-weight: bold;
+  margin-bottom: $spacer * .25;
+  margin-top: $spacer * .25;
+  text-decoration: none;
+
+  &:focus {
+    @include text.link-focus;
+  }
+}
+
+.header-primary-navigation li a {
+  color: var(--bs-body-color);
+  display: inline-block;
+  padding: $spacer * .25;
+  text-decoration: none;
+
+  &:hover {
+    background-color: var(--bs-body-color);
+    color: var(--bs-body-bg);
+  }
+}
+
+.header-entry-point {
+  @include font-size($h5-font-size);
+
+  background-position: center;
+  background-repeat: no-repeat;
+  text-indent: -999rem;
+  width: 1lh;
+}
+
+#nav-menu .header-entry-point {
+  height: 2lh;
+}
+
+.header-entry-point-menu {
+  background-image: #{icon-primary-navigation($white)};
+
+  &:focus {
+    background-image: #{icon-primary-navigation($black)};
+  }
+}
+
+.header-entry-point-search {
+  background-image: #{icon-search($white)};
+
+  &:focus {
+    background-image: #{icon-search($black)};
+  }
+}
+
+.header-entry-point-language {
+  background-image: #{icon-language($white)};
+
+  &:focus {
+    background-image: #{icon-language($black)};
+  }
+}

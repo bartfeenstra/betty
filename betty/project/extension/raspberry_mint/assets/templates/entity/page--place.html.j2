@@ -1,0 +1,53 @@
+{% extends 'entity/page.html.j2' %}
+{% block page_content %}
+    {% include 'section/wikipedia.html.j2' %}
+
+    {% set enclosees = entity.walk_enclosees | map(attribute='enclosee') | select('entity_plugin', 'place') | select('public') | list %}
+
+    {% with places = enclosees + [entity] %}
+        {% include 'section/map.html.j2' %}
+    {% endwith %}
+
+    {% if enclosees | length > 0 %}
+        {% with entities = enclosees %}
+            <div class="mt-5">
+                <div class="container">
+                    <div class="row">
+                        <div class="col col-12 col-lg-8">
+                            {% set accordion_item_body %}
+                                {% with entities = enclosees %}
+                                    {% include 'entity/list.html.j2' %}
+                                {% endwith %}
+                            {% endset %}
+                            {% with accordion_heading_element = 'h2',
+                                accordion_id = 'enclosees',
+                                accordion_items = [{
+                                   'header': _('Other places contained by this one'),
+                                   'body': accordion_item_body,
+                                }]
+                            %}
+                                {% include 'component/accordion.html.j2' %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endwith %}
+    {% endif %}
+
+    {% include 'section/notes.html.j2' %}
+
+
+    {% set ns = namespace(events = []) %}
+    {% do ns.events.extend(entity.events) %}
+    {% for enclosee in enclosees %}
+        {% do ns.events.extend(enclosee.events) %}
+    {% endfor %}
+    {% with events = ns.events %}
+        {% include 'section/timeline.html.j2' %}
+    {% endwith %}
+
+    {% with file_references = entity | associated_file_references %}
+        {% include 'section/media.html.j2' %}
+    {% endwith %}
+{% endblock %}

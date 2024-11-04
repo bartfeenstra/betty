@@ -1,0 +1,36 @@
+from pathlib import Path
+from PIL import Image
+from betty.ancestry.file import File
+from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.media_type import MediaType
+from betty.project.extension.raspberry_mint import RaspberryMint
+from betty.test_utils.jinja2 import TemplateFileTestBase
+
+
+class Test(TemplateFileTestBase):
+    extensions = {RaspberryMint}
+    template = "search/result--file.html.j2"
+
+    async def test_minimal(self) -> None:
+        entity = File(Path(__file__))
+        async with self.assert_template_file(
+            data={
+                "entity": entity,
+            }
+        ) as (actual, _):
+            assert entity.label.localize(DEFAULT_LOCALIZER) in actual
+            assert entity.id in actual
+
+    async def test_with_image(self, tmp_path: Path) -> None:
+        image_path = tmp_path / "image.png"
+        image = Image.new("1", (1, 1))
+        image.save(image_path)
+        entity = File(image_path, media_type=MediaType("image/png"))
+        async with self.assert_template_file(
+            data={
+                "entity": entity,
+            }
+        ) as (actual, _):
+            assert entity.label.localize(DEFAULT_LOCALIZER) in actual
+            assert entity.id in actual
+            assert "<img" in actual

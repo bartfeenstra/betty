@@ -1,0 +1,19 @@
+{% if accordion_items | length > 0 %}    
+    <div class="accordion{% if html_class is defined %} {{ html_class | join(' ') }}{% endif %}" id="{{ accordion_id }}">
+        {% for item in accordion_items %}
+            <div class="accordion-item">
+                <{{ accordion_heading_element }} class="accordion-header{% if accordion_heading_class is defined %} {{ accordion_heading_class }}{% endif %}">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#{{ accordion_id }}-{{ loop.index }}" aria-controls="{{ accordion_id }}-{{ loop.index }}">
+                        {{ item['header'] }}
+                    </button>
+                </{{ accordion_heading_element }}>
+                <div id="{{ accordion_id }}-{{ loop.index }}" class="accordion-collapse collapse" data-bs-parent="#{{ accordion_id }}">
+                    <div class="accordion-body">
+                        {{ item['body'] }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

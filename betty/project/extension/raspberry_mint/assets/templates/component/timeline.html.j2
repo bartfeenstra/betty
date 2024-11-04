@@ -1,0 +1,23 @@
+{% set person_context = entity_contexts['person'] %}
+{% set events = events | rejectattr('date', 'none') | selectattr('date.comparable') | select('public') | list | sort(attribute='date') %}
+{% if events | length > 0 %}
+    <ul class="timeline" style="--timeline-item-count: {{ events | length }};">
+        {% for entity in events %}
+            {% set ns = namespace(is_attendee = False, is_subject = False) %}
+            {% if person_context is not none %}
+                {% for presence in entity.presences %}
+                    {% if presence.person == person_context %}
+                        {% set ns.is_attendee = True %}
+                        {% if presence.role is presence_role_plugin('subject') %}
+                            {% set ns.is_subject = True %}
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            <li{% if ns.is_attendee %} class="timeline-attendee{% if ns.is_subject %} timeline-attendee--subject{% endif %}"{% endif %}>
+                {% include 'entity/label--event.html.j2' %}
+                {% include 'entity/summary--event.html.j2' %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}

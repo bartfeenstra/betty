@@ -1,0 +1,26 @@
+<div class="background-embellished py-3" data-bs-theme="light-secondary">
+    <div class="container">
+        <div class="row row-gap-3">
+            <div class="col col-12 col-sm-9">
+                <h1 class="page-intro-title">{{ page_title | html_lang }}</h1>
+                {% block page_summary %}
+                    {% if page_resource is entity_plugin %}
+                        {% with entity = page_resource %}
+                            {% include 'entity/summary--' + entity.plugin_id() + '.html.j2' ignore missing %}
+                        {% endwith %}
+                    {% endif %}
+                {% endblock %}
+            </div>
+            {% if page_resource is has_file_references %}
+                {% set page_image_reference = page_resource.file_references | selectattr('file', 'public') | selectattr('file.media_type', 'image_supported_media_type') | first %}
+                {% if page_image_reference is defined %}
+                    <div class="align-items-center col-12 col-sm-3 d-flex justify-content-center">
+                        <a href="{{ page_image_reference.file | url }}" class="page-intro-image-link rounded-circle">
+                            <img src="{{ ('betty-static://' ~ page_image_reference | image_resize_cover((500, 500))) | url }}" class="image page-intro-image rounded-circle" alt="{{ page_image_reference.file.label | localize }}">
+                        </a>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>

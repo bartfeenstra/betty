@@ -1,0 +1,18 @@
+@mixin link() {
+  text-decoration-color: var(--betty-link-decoration-color);
+  text-decoration-thickness: 2px;
+
+  &:hover {
+    color: var(--bs-link-hover-color);
+    text-decoration-color: var(--betty-link-hover-decoration-color);
+  }
+}
+
+@mixin link-focus() {
+  background-color: var(--betty-focus-color);
+  color: var(--betty-focus-contrast-color);
+  outline: none;
+  text-decoration-color: var(--betty-focus-contrast-color);
+  text-decoration-style: underline;
+  text-decoration-thickness: 2px;
+}

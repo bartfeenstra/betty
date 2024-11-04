@@ -1,0 +1,13 @@
+{% extends 'base.html.j2' %}
+{% set page_title = entity.label | localize %}
+{% set entity_contexts = entity_contexts(entity) %}
+{% do breadcrumbs.append(
+    entity_type.plugin_label_plural() | localize,
+    entity_type | url(absolute=true)
+) %}
+{% do breadcrumbs.append(
+    page_title,
+    page_resource | url(absolute=true)
+) %}
+{% block page_content %}
+{% endblock %}

@@ -1,0 +1,35 @@
+<div class="background-embellished py-5" data-bs-theme="dark-secondary">
+    <div class="container">
+        <div class="row">
+            <div class="col col-12 col-lg-6 p-3">
+                <p>
+                    {{ project.copyright_notice.summary | localize | html_lang }}
+                </p>
+                <p>
+                    {{ project.license.summary | localize | html_lang }}
+                </p>
+            </div>
+            <div class="col col-12 col-lg-6 p-3">
+                {% if job_context is defined %}
+                    <p>
+                        {% trans last_modified = localizer.format_datetime_datetime(job_context.start) -%}
+                            Last modified on {{ last_modified }}
+                        {%- endtrans %}
+                    </p>
+                {% endif %}
+                {% for link in secondary_navigation_links %}
+                    <p>
+                        <a href="{{ link.url | url }}">{{ link.label | localize | html_lang }}</a>
+                    </p>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="d-flex justify-content-center">
+            <div class="mt-3 pt-3 px-2 border-top border-white">
+                <small>
+                    A family history as told by <a href="https://betty.readthedocs.io">Betty</a>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>

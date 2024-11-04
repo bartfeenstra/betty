@@ -1,0 +1,23 @@
+{% extends 'entity/page-list-base.html.j2' %}
+{% set entities = entities | select('public') | list %}
+{% block page_content %}
+    {{ super() }}
+
+    <div class="my-5">
+        {% with places = entities %}
+            {% include 'section/map.html.j2' %}
+        {% endwith %}
+
+        <div class="container mt-4">
+            <div class="row">
+                <div class="col col-12 col-lg-8">
+                    {% if entities | length > 0 %}
+                        {% include ['entity/list--' + entity_type.plugin_id() + '.html.j2', 'entity/list.html.j2'] %}
+                    {% else %}
+                        <p>{% trans %}I'm sorry, dear, but it seems there is nothing to show.{% endtrans %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

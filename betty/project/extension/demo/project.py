@@ -37,9 +37,9 @@ from betty.model.config import EntityReference
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project import Project
 from betty.project.config import LocaleConfiguration, ProjectConfiguration
-from betty.project.extension.cotton_candy import CottonCandy
-from betty.project.extension.cotton_candy.config import CottonCandyConfiguration
 from betty.project.extension.demo.copyright_notice import Streetmix
+from betty.project.extension.raspberry_mint import RaspberryMint
+from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -75,8 +75,8 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
         extensions=[
             PluginInstanceConfiguration(Demo),
             PluginInstanceConfiguration(
-                CottonCandy,
-                configuration=CottonCandyConfiguration(
+                RaspberryMint,
+                configuration=RaspberryMintConfiguration(
                     featured_entities=[
                         EntityReference(Place, "betty-demo-amsterdam"),
                         EntityReference(Person, "betty-demo-liberta-lankester"),

@@ -1,0 +1,22 @@
+{% set referees = file_references | map(attribute='referee') | select('public') | list %}
+{% if referees | length > 0 %}
+    <div class="my-5">
+        <div class="container">
+            <div class="row">
+                <div class="col col-12 col-lg-8">
+                    <section id="notes" class="section">
+                        <h2 class="section-heading">
+                            {% trans %}Appearances{% endtrans %}
+                            {% with url = page_resource | url ~ '#appearances' %}
+                                {% include 'component/permalink.html.j2' %}
+                            {% endwith %}
+                        </h2>
+                        {% with entities = referees %}
+                            {% include 'entity/list.html.j2' %}
+                        {% endwith %}
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}

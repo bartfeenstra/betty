@@ -7,6 +7,13 @@ Betty is copyright Bart Feenstra and [contributors](https://github.com/bartfeens
 For some components that are bundle with Betty, copyright lies with third parties, and their licenses
 allow us to bundle them with Betty for your convenience.
 
+### Ionicons
+
+The Ionicons icons used by Raspberry Mint are copyright *Ionic* and were originally published under the *MIT License*
+(`MIT`).
+
+Read more at [https://ionic.io/ionicons](https://ionic.io/ionicons).
+
 ### Streetmix images
 
 The images contained in `./betty/data/images/streetmix/` are copyright *Streetmix LLC* and were originally

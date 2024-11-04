@@ -179,6 +179,13 @@ const webpackConfiguration = {
         generator: {
           filename: 'images/[hash][ext]'
         }
+      },
+      {
+        test: /.*\.woff|woff2/,
+        type: 'asset/resource',
+        generator: {
+          filename: 'fonts/[hash][ext]'
+        }
       }
     ]
   }

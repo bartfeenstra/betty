@@ -1,0 +1,4 @@
+// Use `fieldset legend` to be more specific than Bootstrap's own `legend`.
+fieldset legend {
+  @extend .h6;
+}

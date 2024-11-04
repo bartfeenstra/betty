@@ -1,0 +1,20 @@
+{% set facts = facts | select('public') | list %}
+{% if facts | length > 0 %}
+    <div class="container my-5">
+        <div class="row">
+            <div class="col col-12 col-lg-8">
+                <section id="facts" class="section">
+                    <h2 class="section-heading">
+                        {% trans %}Facts{% endtrans %}
+                        {% with url = page_resource | url ~ '#facts'%}
+                            {% include 'component/permalink.html.j2' %}
+                        {% endwith %}
+                    </h2>
+                    {% with entities = facts %}
+                        {% include 'entity/list.html.j2' %}
+                    {% endwith %}
+                </section>
+            </div>
+        </div>
+    </div>
+{% endif %}

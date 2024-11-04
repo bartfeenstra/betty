@@ -1,0 +1,17 @@
+.form-check {
+  &:focus-within {
+    .form-check-label {
+      background-color: var(--betty-focus-color);
+      box-shadow: 0 0 var(--betty-focus-color), 0 2px var(--betty-focus-contrast-color);
+      color: var(--betty-focus-contrast-color);
+      text-decoration-color: var(--betty-focus-contrast-color);
+      outline: none;
+
+    }
+
+    .form-check-input {
+      background-color: var(--betty-focus-color);
+      border-color: var(--betty-focus-contrast-color);
+    }
+  }
+}

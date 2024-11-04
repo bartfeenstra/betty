@@ -1,0 +1,17 @@
+{% extends 'entity/page-list-base.html.j2' %}
+{% block page_content %}
+    {{ super() }}
+
+    <div class="container my-5">
+        <div class="row">
+            <div class="col col-12">
+                {% set events = entities | select('public') | list %}
+                {% if events | length > 0 %}
+                    {% include 'component/timeline.html.j2' %}
+                {% else %}
+                    <p>{% trans %}I'm sorry, dear, but it seems there is nothing to show.{% endtrans %}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
