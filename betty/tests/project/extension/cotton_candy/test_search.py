@@ -19,7 +19,7 @@ from betty.project.extension.cotton_candy.search import Index
 class TestIndex:
     async def test_build_empty(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
-            await project.configuration.extensions.enable(CottonCandy)
+            project.configuration.extensions.enable(CottonCandy)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
                 LocaleConfiguration(
@@ -42,7 +42,7 @@ class TestIndex:
         person = Person(id=person_id)
 
         async with Project.new_temporary(new_temporary_app) as project:
-            await project.configuration.extensions.enable(CottonCandy)
+            project.configuration.extensions.enable(CottonCandy)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
                 LocaleConfiguration(
@@ -74,7 +74,7 @@ class TestIndex:
         )
 
         async with Project.new_temporary(new_temporary_app) as project:
-            await project.configuration.extensions.enable(CottonCandy)
+            project.configuration.extensions.enable(CottonCandy)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
                 LocaleConfiguration(
@@ -112,7 +112,7 @@ class TestIndex:
         )
 
         async with Project.new_temporary(new_temporary_app) as project:
-            await project.configuration.extensions.enable(CottonCandy)
+            project.configuration.extensions.enable(CottonCandy)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
                 LocaleConfiguration(
@@ -152,7 +152,7 @@ class TestIndex:
         )
 
         async with Project.new_temporary(new_temporary_app) as project:
-            await project.configuration.extensions.enable(CottonCandy)
+            project.configuration.extensions.enable(CottonCandy)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
                 LocaleConfiguration(
@@ -194,7 +194,7 @@ class TestIndex:
         )
 
         async with Project.new_temporary(new_temporary_app) as project:
-            await project.configuration.extensions.enable(CottonCandy)
+            project.configuration.extensions.enable(CottonCandy)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
                 LocaleConfiguration(
@@ -239,7 +239,7 @@ class TestIndex:
         )
 
         async with Project.new_temporary(new_temporary_app) as project:
-            await project.configuration.extensions.enable(CottonCandy)
+            project.configuration.extensions.enable(CottonCandy)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
                 LocaleConfiguration(
@@ -271,7 +271,7 @@ class TestIndex:
         )
 
         async with Project.new_temporary(new_temporary_app) as project:
-            await project.configuration.extensions.enable(CottonCandy)
+            project.configuration.extensions.enable(CottonCandy)
             project.configuration.locales["en-US"].alias = "en"
             project.ancestry.add(place)
             async with project:
@@ -292,7 +292,7 @@ class TestIndex:
         )
 
         async with Project.new_temporary(new_temporary_app) as project:
-            await project.configuration.extensions.enable(CottonCandy)
+            project.configuration.extensions.enable(CottonCandy)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
                 LocaleConfiguration(
@@ -329,7 +329,7 @@ class TestIndex:
         )
 
         async with Project.new_temporary(new_temporary_app) as project:
-            await project.configuration.extensions.enable(CottonCandy)
+            project.configuration.extensions.enable(CottonCandy)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
                 LocaleConfiguration(
@@ -367,7 +367,7 @@ class TestIndex:
         )
 
         async with Project.new_temporary(new_temporary_app) as project:
-            await project.configuration.extensions.enable(CottonCandy)
+            project.configuration.extensions.enable(CottonCandy)
             project.configuration.locales["en-US"].alias = "en"
             project.ancestry.add(file)
             async with project:

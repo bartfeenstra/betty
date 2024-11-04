@@ -276,9 +276,9 @@ class TestExtensionInstanceConfigurationMapping(
             PluginInstanceConfiguration(self.get_configuration_keys()[3]),
         )
 
-    async def test_enable(self) -> None:
+    def test_enable(self) -> None:
         sut = ExtensionInstanceConfigurationMapping()
-        await sut.enable(DummyExtension)
+        sut.enable(DummyExtension)
         assert DummyExtension in sut
 
 
@@ -1301,7 +1301,7 @@ class TestProjectConfiguration:
         self, tmp_path: Path
     ) -> None:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
-        await sut.extensions.enable(_DummyNonConfigurableExtension)
+        sut.extensions.enable(_DummyNonConfigurableExtension)
         dump = sut.dump()
         expected: Dump = {_DummyNonConfigurableExtension.plugin_id(): {}}
         assert dump["extensions"] == expected

@@ -89,7 +89,7 @@ class ExtensionInstanceConfigurationMapping(
     Configure a project's enabled extensions.
     """
 
-    async def enable(self, *extension_types: type[Extension] | MachineName) -> None:
+    def enable(self, *extension_types: type[Extension] | MachineName) -> None:
         """
         Enable the given extensions.
         """

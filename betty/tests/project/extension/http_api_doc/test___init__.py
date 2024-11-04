@@ -14,7 +14,7 @@ class TestHttpApiDoc(WebpackEntryPointProviderTestBase):
 
     async def test_generate(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
-            await project.configuration.extensions.enable(HttpApiDoc)
+            project.configuration.extensions.enable(HttpApiDoc)
             async with project:
                 await generate(project)
                 assert (

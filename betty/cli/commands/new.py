@@ -79,12 +79,10 @@ class New(ShorthandPluginBase, AppDependentFactory, Command):
                 configuration_file_path,
             )
 
-            await configuration.extensions.enable(
-                CottonCandy, Deriver, Privatizer, Wikipedia
-            )
+            configuration.extensions.enable(CottonCandy, Deriver, Privatizer, Wikipedia)
             webpack_requirement = await Webpack.requirement()
             if webpack_requirement.is_met():
-                await configuration.extensions.enable(HttpApiDoc, Maps, Trees)
+                configuration.extensions.enable(HttpApiDoc, Maps, Trees)
 
             configuration.locales.replace(
                 LocaleConfiguration(

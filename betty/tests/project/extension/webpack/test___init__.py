@@ -70,7 +70,7 @@ class TestWebpack(ExtensionTestBase[Webpack]):
             await f.write(self._SENTINEL)
 
         async with Project.new_temporary(new_temporary_app) as project:
-            await project.configuration.extensions.enable(Webpack)
+            project.configuration.extensions.enable(Webpack)
             async with project:
                 await generate(project)
 
@@ -98,7 +98,7 @@ class TestWebpack(ExtensionTestBase[Webpack]):
         fs.PREBUILT_ASSETS_DIRECTORY_PATH = tmp_path
         try:
             async with Project.new_temporary(new_temporary_app) as project:
-                await project.configuration.extensions.enable(Webpack)
+                project.configuration.extensions.enable(Webpack)
                 async with project:
                     await generate(project)
                     async with aiofiles.open(
@@ -127,7 +127,7 @@ class TestWebpack(ExtensionTestBase[Webpack]):
                     tmp_path / "project" / "betty.json"
                 ),
             )
-            await project.configuration.extensions.enable(Webpack)
+            project.configuration.extensions.enable(Webpack)
             async with project:
                 with pytest.raises(RequirementError):
                     await generate(project)
@@ -156,7 +156,7 @@ class TestWebpack(ExtensionTestBase[Webpack]):
         try:
             job_context = Context()
             async with Project.new_temporary(new_temporary_app) as project:
-                await project.configuration.extensions.enable(Webpack)
+                project.configuration.extensions.enable(Webpack)
                 async with project:
                     extensions = await project.extensions
                     webpack = extensions[Webpack]

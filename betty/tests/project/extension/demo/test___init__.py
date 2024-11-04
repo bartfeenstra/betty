@@ -37,7 +37,7 @@ class TestDemo(ExtensionTestBase[Demo]):
             app,
             Project.new_temporary(app) as project,
         ):
-            await project.configuration.extensions.enable(Demo)
+            project.configuration.extensions.enable(Demo)
             async with project:
                 await load(project)
             assert len(project.ancestry[Person]) != 0

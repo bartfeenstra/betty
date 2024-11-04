@@ -16,7 +16,7 @@ class TestMaps(WebpackEntryPointProviderTestBase):
     async def test_generate(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.debug = True
-            await project.configuration.extensions.enable(Maps)
+            project.configuration.extensions.enable(Maps)
             async with project:
                 await generate(project)
                 async with aiofiles.open(

@@ -155,7 +155,7 @@ class TestProject:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            await sut.configuration.extensions.enable(DummyExtension)
+            sut.configuration.extensions.enable(DummyExtension)
             async with sut:
                 extensions = await sut.extensions
                 extension = extensions[DummyExtension.plugin_id()]
@@ -179,7 +179,7 @@ class TestProject:
     @pytest.mark.usefixtures("_extensions")
     async def test_extensions_with_one_extension(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            await sut.configuration.extensions.enable(DummyExtension)
+            sut.configuration.extensions.enable(DummyExtension)
             async with sut:
                 extensions = await sut.extensions
                 extension = extensions[DummyExtension.plugin_id()]
@@ -208,7 +208,7 @@ class TestProject:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            await sut.configuration.extensions.enable(
+            sut.configuration.extensions.enable(
                 _DependsOnNonConfigurableExtensionExtensionExtension
             )
             async with sut:
@@ -231,7 +231,7 @@ class TestProject:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            await sut.configuration.extensions.enable(
+            sut.configuration.extensions.enable(
                 _DependsOnNonConfigurableExtensionExtension,
                 _AlsoDependsOnNonConfigurableExtensionExtension,
             )
@@ -253,7 +253,7 @@ class TestProject:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            await sut.configuration.extensions.enable(_CyclicDependencyOneExtension)
+            sut.configuration.extensions.enable(_CyclicDependencyOneExtension)
             with pytest.raises(CyclicDependencyError):  # noqa PT012
                 async with sut:
                     pass  # pragma: no cover
@@ -263,7 +263,7 @@ class TestProject:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            await sut.configuration.extensions.enable(
+            sut.configuration.extensions.enable(
                 DummyExtension, _ComesBeforeNonConfigurableExtensionExtension
             )
             async with sut:
@@ -281,7 +281,7 @@ class TestProject:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            await sut.configuration.extensions.enable(
+            sut.configuration.extensions.enable(
                 _ComesBeforeNonConfigurableExtensionExtension
             )
             async with sut:
@@ -297,7 +297,7 @@ class TestProject:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            await sut.configuration.extensions.enable(
+            sut.configuration.extensions.enable(
                 _ComesAfterNonConfigurableExtensionExtension, DummyExtension
             )
             async with sut:
@@ -315,7 +315,7 @@ class TestProject:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            await sut.configuration.extensions.enable(
+            sut.configuration.extensions.enable(
                 _ComesAfterNonConfigurableExtensionExtension
             )
             async with sut:
@@ -356,7 +356,7 @@ class TestProject:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            await sut.configuration.extensions.enable(DummyExtension)
+            sut.configuration.extensions.enable(DummyExtension)
             async with sut:
                 assets = await sut.assets
                 assert len(assets.assets_directory_paths) == 2
@@ -366,9 +366,7 @@ class TestProject:
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            await sut.configuration.extensions.enable(
-                _DummyExtensionWithAssetsDirectory
-            )
+            sut.configuration.extensions.enable(_DummyExtensionWithAssetsDirectory)
             async with sut:
                 assets = await sut.assets
                 assert len(assets.assets_directory_paths) == 3

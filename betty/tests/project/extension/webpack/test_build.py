@@ -43,7 +43,7 @@ class TestBuilder:
             async with Project.new_temporary(new_temporary_app) as project:
                 project.configuration.debug = debug
                 if with_entry_point_provider:
-                    await project.configuration.extensions.enable(
+                    project.configuration.extensions.enable(
                         DummyEntryPointProviderExtension
                     )
                 job_context = Context()

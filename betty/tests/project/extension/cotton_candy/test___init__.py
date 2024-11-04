@@ -408,7 +408,7 @@ class TestCottonCandy(
             ),
         )
         async with Project.new_temporary(new_temporary_app) as project:
-            await project.configuration.extensions.enable(CottonCandy)
+            project.configuration.extensions.enable(CottonCandy)
             project.configuration.entity_types.replace(
                 EntityTypeConfiguration(DummyUserFacingEntity, generate_html_list=True)
             )
