@@ -2,12 +2,9 @@ from pathlib import Path
 
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
-from typing_extensions import override
-
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth
-from betty.ancestry.file import File
 from betty.ancestry.gender.genders import NonBinary
 from betty.ancestry.note import Note
 from betty.ancestry.person import Person
@@ -25,6 +22,7 @@ from betty.project.extension.gramps.config import (
 )
 from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase
+from typing_extensions import override
 
 
 class TestGramps(ExtensionTestBase[Gramps]):
@@ -232,11 +230,6 @@ class TestGramps(ExtensionTestBase[Gramps]):
     <researcher>
     </researcher>
   </header>
-  <objects>
-    <object handle="_e21e77b318dcbf5114e53d2ccf" change="1553878032" id="O0001">
-      <file src="1px.gif" mime="image/gif" checksum="c4f9b77f41082b633d120e2915c1ea2e" description="1px"/>
-    </object>
-  </objects>
   <people>
     <person handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="I0001">
         <gender>U</gender>
@@ -284,11 +277,6 @@ class TestGramps(ExtensionTestBase[Gramps]):
     <researcher>
     </researcher>
   </header>
-  <objects>
-    <object handle="_e21e77b318dcbf5114e53d2ccf" change="1553878032" id="O0002">
-      <file src="1px.gif" mime="image/gif" checksum="c4f9b77f41082b633d120e2915c1ea2e" description="1px"/>
-    </object>
-  </objects>
   <people>
     <person handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="I0002">
         <gender>U</gender>
@@ -354,8 +342,6 @@ class TestGramps(ExtensionTestBase[Gramps]):
                 )
                 async with project:
                     await load(project)
-                assert "O0001" in project.ancestry[File]
-                assert "O0002" in project.ancestry[File]
                 assert "I0001" in project.ancestry[Person]
                 assert "I0002" in project.ancestry[Person]
                 assert "P0001" in project.ancestry[Place]

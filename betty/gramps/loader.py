@@ -18,10 +18,6 @@ from xml.etree import ElementTree
 
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
-from geopy import Point
-from lxml import etree
-from typing_extensions import override
-
 from betty.ancestry.citation import Citation
 from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.event import Event
@@ -48,10 +44,12 @@ from betty.locale.localizable import _, plain
 from betty.media_type import MediaType, InvalidMediaType
 from betty.model import Entity
 from betty.model.association import ToManyResolver, ToOneResolver, resolve
-from betty.path import rootname
 from betty.plugin import PluginNotFound
 from betty.privacy import HasPrivacy
 from betty.typing import internal
+from geopy import Point
+from lxml import etree
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.copyright_notice import CopyrightNotice
@@ -80,7 +78,7 @@ class LoaderUsedAlready(GrampsError):
     pass  # pragma: no cover
 
 
-class GrampsFileNotFound(GrampsError, FileNotFound):
+class GrampsFileNotFound(UserFacingGrampsError, FileNotFound):
     """
     Raised when a Gramps family tree file cannot be found.
     """
@@ -179,7 +177,6 @@ class GrampsLoader:
             lambda: 0
         )
         self._tree: ElementTree.ElementTree | None = None
-        self._gramps_tree_directory_path: Path | None = None
         self._loaded = False
         self._localizer = localizer
         self._copyright_notices = copyright_notices
@@ -203,22 +200,17 @@ class GrampsLoader:
             )
         )
 
-        with suppress(UserFacingGrampsError):
-            await self.load_gpkg(file_path)
-            return
-
-        with suppress(UserFacingGrampsError):
-            await self.load_gramps(file_path)
-            return
-
-        try:
-            async with aiofiles.open(file_path, mode="rb") as f:
-                xml = await f.read()
-        except FileNotFoundError:
-            raise GrampsFileNotFound.new(file_path) from None
-        with suppress(UserFacingGrampsError):
-            await self._load_xml(xml, Path(file_path.anchor))
-            return
+        if file_path.suffix == ".gpkg":
+            return await self.load_gpkg(file_path)
+        if file_path.suffix == ".gramps":
+            return await self.load_gramps(file_path)
+        if file_path.suffix == ".xml":
+            try:
+                async with aiofiles.open(file_path, mode="r") as f:
+                    xml = await f.read()
+            except FileNotFoundError:
+                raise GrampsFileNotFound.new(file_path) from None
+            return await self.load_xml(xml)
 
         raise UserFacingGrampsError(
             _(
@@ -236,7 +228,7 @@ class GrampsLoader:
         try:
             with gzip.open(gramps_path) as f:
                 xml = f.read()
-            await self._load_xml(xml, rootname(gramps_path))
+            await self._load_xml(xml)
         except FileNotFoundError:
             raise GrampsFileNotFound.new(gramps_path) from None
         except OSError as error:
@@ -272,26 +264,24 @@ class GrampsLoader:
                 tar_file.extractall(cache_directory_path_str, filter="data")
                 await self.load_gramps(Path(cache_directory_path_str) / "data.gramps")
 
-    async def load_xml(self, xml: str, gramps_tree_directory_path: Path) -> None:
+    async def load_xml(self, xml: str) -> None:
         """
         Load family history data from XML.
 
         :raises betty.gramps.error.GrampsError:
         """
-        await self._load_xml(xml.encode("utf-8"), gramps_tree_directory_path)
+        await self._load_xml(xml.encode("utf-8"))
 
-    async def _load_xml(self, xml: bytes, gramps_tree_directory_path: Path) -> None:
+    async def _load_xml(self, xml: bytes) -> None:
         try:
             tree = cast(  # type: ignore[bad-cast]
                 ElementTree.ElementTree, etree.ElementTree(etree.fromstring(xml))
             )
         except etree.ParseError as error:
             raise UserFacingGrampsError(plain(str(error))) from error
-        await self._load_tree(tree, gramps_tree_directory_path)
+        await self._load_tree(tree)
 
-    async def _load_tree(
-        self, tree: ElementTree.ElementTree, gramps_tree_directory_path: Path
-    ) -> None:
+    async def _load_tree(self, tree: ElementTree.ElementTree) -> None:
         """
         Load family history data from a Gramps XML tree.
         """
@@ -300,11 +290,19 @@ class GrampsLoader:
 
         self._loaded = True
         self._tree = tree
-        self._gramps_tree_directory_path = gramps_tree_directory_path.resolve()
 
         logger = getLogger(__name__)
 
         database = self._tree.getroot()
+
+        media_path: Path | None = None
+        try:
+            mediapath = self._xpath1(database, "./ns:header/ns:mediapath")
+        except XPathError:
+            pass
+        else:
+            if mediapath.text is not None:
+                media_path = Path(mediapath.text).resolve()
 
         with self._ancestry.unchecked():
             await self._load_notes(database)
@@ -313,7 +311,7 @@ class GrampsLoader:
                     note_count=self._added_entity_counts[Note]
                 )
             )
-            await self._load_objects(database, self._gramps_tree_directory_path)
+            await self._load_objects(database, media_path)
             logger.info(
                 self._localizer._("Loaded {file_count} files.").format(
                     file_count=self._added_entity_counts[File]
@@ -493,20 +491,28 @@ class GrampsLoader:
         owner.notes = self._resolve(Note, *self._load_handles("noteref", element))
 
     async def _load_objects(
-        self, database: ElementTree.Element, gramps_tree_directory_path: Path
+        self, database: ElementTree.Element, media_path: Path | None
     ) -> None:
         for element in self._xpath(database, "./ns:objects/ns:object"):
-            await self._load_object(element, gramps_tree_directory_path)
+            await self._load_object(element, media_path)
 
     async def _load_object(
-        self, element: ElementTree.Element, gramps_tree_directory_path: Path
+        self, element: ElementTree.Element, media_path: Path | None
     ) -> None:
         file_handle = element.get("handle")
         file_id = element.get("id")
         file_element = self._xpath1(element, "./ns:file")
         src = file_element.get("src")
         assert src is not None
-        file_path = gramps_tree_directory_path / src
+        file_path = Path(src)
+        if media_path is not None:
+            file_path = media_path / file_path
+        if not file_path.is_absolute():
+            raise UserFacingGrampsError(
+                _(
+                    'Cannot load Gramps file with relative path {file_path}, because your family tree does not include a base path. In Gramps, add a "base path for relative media paths" to your family tree, and export it again.'
+                ).format(file_path=str(file_path))
+            )
         file = File(
             id=file_id,
             path=file_path,

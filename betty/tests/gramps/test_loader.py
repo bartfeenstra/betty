@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+import gzip
+import tarfile
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import aiofiles
 import pytest
-from aiofiles.tempfile import TemporaryDirectory
-
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
@@ -32,7 +32,6 @@ from betty.license.licenses import PublicDomain as PublicDomainLicense
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
-from betty.path import rootname
 from betty.privacy import Privacy
 from betty.project import Project
 
@@ -44,11 +43,36 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Awaitable, Callable
 
 
+_MINIMAL_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"
+"http://gramps-project.org/xml/1.7.1/grampsxml.dtd">
+<database xmlns="http://gramps-project.org/xml/1.7.1/">
+  <header>
+    <created date="2019-03-29" version="4.2.8"/>
+    <researcher>
+    </researcher>
+  </header>
+  <people>
+    <person handle="_e21e77455147d79f6b4cc1c76a4" change="1553878037" id="I0000">
+      <gender>U</gender>
+      <name type="Birth Name">
+        <first>Janet</first>
+        <surname>Dough</surname>
+      </name>
+    </person>
+  </people>
+</database>
+"""
+
+
 class TestGrampsLoader:
     ATTRIBUTE_PREFIX_KEY = "pre3f1x"
     PROJECT_NAME = "pr0j3ct"
 
-    async def test_load_gramps(self, new_temporary_app: App) -> None:
+    async def test_load_gramps(self, new_temporary_app: App, tmp_path: Path) -> None:
+        gramps_file_path = tmp_path / "gramps.gramps"
+        with gzip.open(gramps_file_path, "w") as f:
+            f.write(_MINIMAL_XML.encode("utf-8"))
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
@@ -58,7 +82,7 @@ class TestGrampsLoader:
                 licenses=await project.license_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
-            await sut.load_gramps(Path(__file__).parent / "assets" / "minimal.gramps")
+            await sut.load_gramps(gramps_file_path)
 
     async def test_load_gramps_with_non_existent_file(
         self, new_temporary_app: App, tmp_path: Path
@@ -75,7 +99,15 @@ class TestGrampsLoader:
             with pytest.raises(GrampsFileNotFound):
                 await sut.load_gramps(tmp_path / "non-existent-file")
 
-    async def test_load_gpkg(self, new_temporary_app: App) -> None:
+    async def test_load_gpkg(self, new_temporary_app: App, tmp_path: Path) -> None:
+        gramps_file_path = tmp_path / "gramps.gramps"
+        with gzip.open(gramps_file_path, "w") as f:
+            f.write(_MINIMAL_XML.encode("utf-8"))
+        gpkg_file_path = tmp_path / "gramps.gpkg"
+        with tarfile.open(  # noqa SIM115
+            name=gpkg_file_path, mode="w:gz"
+        ) as tar_file:
+            tar_file.add(gramps_file_path, "/data.gramps")
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
@@ -85,7 +117,7 @@ class TestGrampsLoader:
                 licenses=await project.license_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
-            await sut.load_gpkg(Path(__file__).parent / "assets" / "minimal.gpkg")
+            await sut.load_gpkg(gpkg_file_path)
 
     async def test_load_gpkg_with_non_existent_file(
         self, new_temporary_app: App, tmp_path: Path
@@ -102,15 +134,12 @@ class TestGrampsLoader:
             with pytest.raises(GrampsFileNotFound):
                 await sut.load_gpkg(tmp_path / "non-existent-file")
 
-    @pytest.mark.parametrize(
-        "file_path",
-        [
-            Path(__file__).parent / "assets" / "minimal.gramps",
-            Path(__file__).parent / "assets" / "minimal.gpkg",
-            Path(__file__).parent / "assets" / "minimal.xml",
-        ],
-    )
-    async def test_load_file(self, file_path: Path, new_temporary_app: App) -> None:
+    async def test_load_file_with_gramps(
+        self, new_temporary_app: App, tmp_path: Path
+    ) -> None:
+        gramps_file_path = tmp_path / "gramps.gramps"
+        with gzip.open(gramps_file_path, "w") as f:
+            f.write(_MINIMAL_XML.encode("utf-8"))
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
@@ -120,9 +149,52 @@ class TestGrampsLoader:
                 licenses=await project.license_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
-            await sut.load_file(file_path)
+            await sut.load_file(gramps_file_path)
             with pytest.raises(LoaderUsedAlready):
-                await sut.load_file(file_path)
+                await sut.load_file(gramps_file_path)
+
+    async def test_load_file_with_gpkg(
+        self, new_temporary_app: App, tmp_path: Path
+    ) -> None:
+        gramps_file_path = tmp_path / "gramps.gramps"
+        with gzip.open(gramps_file_path, "w") as f:
+            f.write(_MINIMAL_XML.encode("utf-8"))
+        gpkg_file_path = tmp_path / "gramps.gpkg"
+        with tarfile.open(  # noqa SIM115
+            name=gpkg_file_path, mode="w:gz"
+        ) as tar_file:
+            tar_file.add(gramps_file_path, "/data.gramps")
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = GrampsLoader(
+                project.ancestry,
+                factory=project.new_target,
+                localizer=DEFAULT_LOCALIZER,
+                copyright_notices=project.copyright_notice_repository,
+                licenses=await project.license_repository,
+                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            )
+            await sut.load_file(gpkg_file_path)
+            with pytest.raises(LoaderUsedAlready):
+                await sut.load_file(gpkg_file_path)
+
+    async def test_load_file_with_xml(
+        self, new_temporary_app: App, tmp_path: Path
+    ) -> None:
+        xml_file_path = tmp_path / "gramps.xml"
+        async with aiofiles.open(xml_file_path, "w") as f:
+            await f.write(_MINIMAL_XML)
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = GrampsLoader(
+                project.ancestry,
+                factory=project.new_target,
+                localizer=DEFAULT_LOCALIZER,
+                copyright_notices=project.copyright_notice_repository,
+                licenses=await project.license_repository,
+                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            )
+            await sut.load_file(xml_file_path)
+            with pytest.raises(LoaderUsedAlready):
+                await sut.load_file(xml_file_path)
 
     async def test_load_file_with_non_existent_file(
         self, new_temporary_app: App, tmp_path: Path
@@ -136,7 +208,7 @@ class TestGrampsLoader:
                 licenses=await project.license_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
-            with pytest.raises(GrampsFileNotFound):
+            with pytest.raises(UserFacingGrampsError):
                 await sut.load_file(tmp_path / "non-existent-file")
 
     async def test_load_file_with_invalid_file(
@@ -187,17 +259,14 @@ class TestGrampsLoader:
                     gender_mapping=gender_mapping,
                     presence_role_mapping=presence_role_mapping,
                 )
-                async with TemporaryDirectory() as tree_directory_path_str:
-                    await loader.load_xml(
-                        xml.strip(),
-                        Path(tree_directory_path_str),
-                    )
+                await loader.load_xml(xml.strip())
                 return project.ancestry
 
     async def _load_partial(
         self,
         xml: str,
         *,
+        media_path: Path | None = None,
         event_type_mapping: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
         | None = None,
         gender_mapping: Mapping[str, Callable[[], Gender | Awaitable[Gender]]]
@@ -207,6 +276,7 @@ class TestGrampsLoader:
         ]
         | None = None,
     ) -> Ancestry:
+        mediapath = "" if media_path is None else f"<mediapath>{media_path}</mediapath>"
         return await self._load(
             f"""
 <?xml version="1.0" encoding="UTF-8"?>
@@ -217,6 +287,7 @@ class TestGrampsLoader:
         <created date="2019-03-09" version="4.2.8"/>
         <researcher>
         </researcher>
+        {mediapath}
     </header>
     {xml}
 </database>
@@ -228,7 +299,6 @@ class TestGrampsLoader:
 
     async def test_load_xml(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            gramps_file_path = Path(__file__).parent / "assets" / "minimal.xml"
             sut = GrampsLoader(
                 project.ancestry,
                 factory=project.new_target,
@@ -237,8 +307,7 @@ class TestGrampsLoader:
                 licenses=await project.license_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
-            async with aiofiles.open(gramps_file_path) as f:
-                await sut.load_xml(await f.read(), rootname(gramps_file_path))
+            await sut.load_xml(_MINIMAL_XML)
 
     async def test_place_should_include_name(self) -> None:
         ancestry = await self._load_partial(
@@ -534,9 +603,9 @@ class TestGrampsLoader:
         note = person.notes[0]
         assert note.id == "N0000"
 
-    async def test_person_should_include_file(self) -> None:
+    async def test_person_should_include_file(self, tmp_path: Path) -> None:
         ancestry = await self._load_partial(
-            """
+            f"""
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
         <gender>U</gender>
@@ -547,7 +616,7 @@ class TestGrampsLoader:
 </people>
 <objects>
     <object handle="_e1cb35d7e6c1984b0e8361e1aee" change="1551643112" id="O0000">
-        <file src="/tmp/file.png" mime="image/png" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <file src="{tmp_path/'file.path'}" mime="image/png" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
     </object>
 </objects>
 """
@@ -1329,6 +1398,59 @@ class TestGrampsLoader:
         event = ancestry[Event]["E0000"]
         assert expected == event.privacy
 
+    async def _assert_file_should_include_path(
+        self, expected: Path, file_src: Path, media_path: Path | None
+    ) -> None:
+        ancestry = await self._load_partial(
+            f"""
+<objects>
+    <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
+        <file src="{file_src}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+    </object>
+</objects>
+""",
+            media_path=media_path,
+        )
+        file = ancestry[File]["O0000"]
+        assert file.path == expected
+        assert file.path.is_absolute()
+
+    async def test_file_should_include_path_with_media_path_with_relative_file_path(
+        self, tmp_path: Path
+    ) -> None:
+        media_path = tmp_path / "media"
+        file_path = Path("file.path")
+        await self._assert_file_should_include_path(
+            media_path / file_path, file_path, media_path
+        )
+
+    async def test_file_should_include_path_with_media_path_with_absolute_file_path(
+        self, tmp_path: Path
+    ) -> None:
+        media_path = tmp_path / "media"
+        file_path = tmp_path / "somewhere-outside-the-media-path" / "file.path"
+        await self._assert_file_should_include_path(file_path, file_path, media_path)
+
+    async def test_file_should_include_path_without_media_path_with_relative_file_path(
+        self,
+    ) -> None:
+        with pytest.raises(UserFacingGrampsError):
+            await self._load_partial(
+                f"""
+    <objects>
+        <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
+            <file src="{Path("file.path")}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        </object>
+    </objects>
+    """
+            )
+
+    async def test_file_should_include_path_without_media_path_with_absolute_file_path(
+        self, tmp_path: Path
+    ) -> None:
+        file_path = tmp_path / "somewhere-outside-the-media-path" / "file.path"
+        await self._assert_file_should_include_path(file_path, file_path, None)
+
     @pytest.mark.parametrize(
         ("expected", "attribute_value"),
         [
@@ -1339,13 +1461,13 @@ class TestGrampsLoader:
         ],
     )
     async def test_file_should_include_privacy_from_attribute(
-        self, expected: Privacy, attribute_value: str
+        self, expected: Privacy, attribute_value: str, tmp_path: Path
     ) -> None:
         ancestry = await self._load_partial(
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
-        <file src="/tmp/file.txt" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <file src="{tmp_path/'file.path'}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
         <attribute type="betty:privacy" value="{attribute_value}"/>
     </object>
 </objects>
@@ -1354,12 +1476,12 @@ class TestGrampsLoader:
         file = ancestry[File]["O0000"]
         assert expected == file.privacy
 
-    async def test_file_should_include_note(self) -> None:
+    async def test_file_should_include_note(self, tmp_path: Path) -> None:
         ancestry = await self._load_partial(
-            """
+            f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
-        <file src="/tmp/file.txt" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <file src="{tmp_path/'file.path'}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
         <noteref hlink="_e1cb35d7e6c1984b0e8361e1aee"/>
     </object>
 </objects>
@@ -1375,12 +1497,12 @@ class TestGrampsLoader:
         note = file.notes[0]
         assert note.id == "N0000"
 
-    async def test_file_should_include_copyright_notice(self) -> None:
+    async def test_file_should_include_copyright_notice(self, tmp_path: Path) -> None:
         ancestry = await self._load_partial(
-            """
+            f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
-        <file src="/tmp/file.txt" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <file src="{tmp_path/'file.path'}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
         <attribute type="betty:copyright-notice" value="public-domain"/>
     </object>
 </objects>
@@ -1389,12 +1511,14 @@ class TestGrampsLoader:
         file = ancestry[File]["O0000"]
         assert isinstance(file.copyright_notice, PublicDomainCopyrightNotice)
 
-    async def test_file_should_ignore_unknown_copyright_notice(self) -> None:
+    async def test_file_should_ignore_unknown_copyright_notice(
+        self, tmp_path: Path
+    ) -> None:
         ancestry = await self._load_partial(
-            """
+            f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
-        <file src="/tmp/file.txt" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <file src="{tmp_path/'file.path'}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
         <attribute type="betty:copyright-notice" value="non-existent-copyright-notice"/>
     </object>
 </objects>
@@ -1403,12 +1527,12 @@ class TestGrampsLoader:
         file = ancestry[File]["O0000"]
         assert file.copyright_notice is None
 
-    async def test_file_should_include_license(self) -> None:
+    async def test_file_should_include_license(self, tmp_path: Path) -> None:
         ancestry = await self._load_partial(
-            """
+            f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
-        <file src="/tmp/file.txt" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <file src="{tmp_path/'file.path'}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
         <attribute type="betty:license" value="public-domain"/>
     </object>
 </objects>
@@ -1417,12 +1541,12 @@ class TestGrampsLoader:
         file = ancestry[File]["O0000"]
         assert isinstance(file.license, PublicDomainLicense)
 
-    async def test_file_should_ignore_unknown_license(self) -> None:
+    async def test_file_should_ignore_unknown_license(self, tmp_path: Path) -> None:
         ancestry = await self._load_partial(
-            """
+            f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
-        <file src="/tmp/file.txt" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <file src="{tmp_path/'file.path'}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
         <attribute type="betty:license" value="non-existent-license"/>
     </object>
 </objects>
