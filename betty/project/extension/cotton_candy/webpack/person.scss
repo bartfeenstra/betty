@@ -33,7 +33,7 @@
   margin: 3rem 0;
 }
 
-@media (min-width: 768px) {
+@media (width >= 768px) {
   .family {
     display: grid;
   }

@@ -150,7 +150,7 @@ footer {
   width: 3rem;
 }
 
-@media (min-width: 768px) {
+@media (width >= 768px) {
   #nav-primary {
     padding: 3rem;
     width: calc(100% - 6rem);

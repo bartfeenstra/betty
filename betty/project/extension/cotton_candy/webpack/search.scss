@@ -104,13 +104,10 @@
   background-size: 3rem 10%;
   background-repeat: repeat-x;
   background-position: top;
-  bottom: 0;
+  inset: 0 -3rem;
   content: "";
-  left: -3rem;
   pointer-events: none;
   position: absolute;
-  right: -3rem;
-  top: 0;
 }
 
 #search-results-container {
@@ -138,7 +135,7 @@
   font-size: 0.9rem;
 }
 
-@media (min-width: 768px) {
+@media (width >= 768px) {
   #search.overlay form {
     margin-left: 6rem;
     margin-top: 3rem;

@@ -6,4 +6,4 @@ cd "$(dirname "$0")/.."
 
 echo 'Running Stylelint...'
 
-./node_modules/.bin/stylelint "./betty/**/*.css"
+./node_modules/.bin/stylelint "./betty/**/*.css" "./betty/**/*.scss"
