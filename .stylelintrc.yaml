@@ -1,10 +1,9 @@
-extends: stylelint-config-standard
+extends:
+  - stylelint-config-standard
+  - stylelint-config-standard-scss
 plugins:
   - stylelint-no-unsupported-browser-features
   - stylelint-scss
 rules:
-  at-rule-no-unknown: null
-  function-no-unknown: null
   import-notation: string
   no-descending-specificity: ~
-  scss/at-rule-no-unknown: true
