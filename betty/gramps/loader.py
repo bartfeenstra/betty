@@ -501,6 +501,7 @@ class GrampsLoader:
     ) -> None:
         file_handle = element.get("handle")
         file_id = element.get("id")
+        assert file_id is not None
         file_element = self._xpath1(element, "./ns:file")
         src = file_element.get("src")
         assert src is not None
@@ -510,8 +511,14 @@ class GrampsLoader:
         if not file_path.is_absolute():
             raise UserFacingGrampsError(
                 _(
-                    'Cannot load Gramps file with relative path {file_path}, because your family tree does not include a base path. In Gramps, add a "base path for relative media paths" to your family tree, and export it again.'
-                ).format(file_path=str(file_path))
+                    'Cannot load Gramps file {file_id} with relative path {file_path}, because your family tree does not include a base path. In Gramps, add a "base path for relative media paths" to your family tree, and export it again.'
+                ).format(file_id=file_id, file_path=str(file_path))
+            )
+        if not file_path.is_file():
+            raise UserFacingGrampsError(
+                _(
+                    "Cannot load Gramps file {file_id}, because {file_path} is not a file."
+                ).format(file_id=file_id, file_path=str(file_path))
             )
         file = File(
             id=file_id,

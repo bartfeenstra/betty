@@ -604,6 +604,8 @@ class TestGrampsLoader:
         assert note.id == "N0000"
 
     async def test_person_should_include_file(self, tmp_path: Path) -> None:
+        file_path = tmp_path / "file.path"
+        file_path.touch()
         ancestry = await self._load_partial(
             f"""
 <people>
@@ -616,7 +618,7 @@ class TestGrampsLoader:
 </people>
 <objects>
     <object handle="_e1cb35d7e6c1984b0e8361e1aee" change="1551643112" id="O0000">
-        <file src="{tmp_path/'file.path'}" mime="image/png" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <file src="{file_path}" mime="image/png" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
     </object>
 </objects>
 """
@@ -1419,7 +1421,9 @@ class TestGrampsLoader:
         self, tmp_path: Path
     ) -> None:
         media_path = tmp_path / "media"
+        media_path.mkdir()
         file_path = Path("file.path")
+        (media_path / file_path).touch()
         await self._assert_file_should_include_path(
             media_path / file_path, file_path, media_path
         )
@@ -1429,6 +1433,8 @@ class TestGrampsLoader:
     ) -> None:
         media_path = tmp_path / "media"
         file_path = tmp_path / "somewhere-outside-the-media-path" / "file.path"
+        file_path.parent.mkdir()
+        file_path.touch()
         await self._assert_file_should_include_path(file_path, file_path, media_path)
 
     async def test_file_should_include_path_without_media_path_with_relative_file_path(
@@ -1449,7 +1455,21 @@ class TestGrampsLoader:
         self, tmp_path: Path
     ) -> None:
         file_path = tmp_path / "somewhere-outside-the-media-path" / "file.path"
+        file_path.parent.mkdir()
+        file_path.touch()
         await self._assert_file_should_include_path(file_path, file_path, None)
+
+    async def test_file_not_exists_should_error(self) -> None:
+        with pytest.raises(UserFacingGrampsError):
+            await self._load_partial(
+                f"""
+    <objects>
+        <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
+            <file src="{Path("non-existent-file.path")}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        </object>
+    </objects>
+    """
+            )
 
     @pytest.mark.parametrize(
         ("expected", "attribute_value"),
@@ -1463,11 +1483,13 @@ class TestGrampsLoader:
     async def test_file_should_include_privacy_from_attribute(
         self, expected: Privacy, attribute_value: str, tmp_path: Path
     ) -> None:
+        file_path = tmp_path / "file.path"
+        file_path.touch()
         ancestry = await self._load_partial(
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
-        <file src="{tmp_path/'file.path'}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <file src="{file_path}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
         <attribute type="betty:privacy" value="{attribute_value}"/>
     </object>
 </objects>
@@ -1477,11 +1499,13 @@ class TestGrampsLoader:
         assert expected == file.privacy
 
     async def test_file_should_include_note(self, tmp_path: Path) -> None:
+        file_path = tmp_path / "file.path"
+        file_path.touch()
         ancestry = await self._load_partial(
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
-        <file src="{tmp_path/'file.path'}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <file src="{file_path}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
         <noteref hlink="_e1cb35d7e6c1984b0e8361e1aee"/>
     </object>
 </objects>
@@ -1498,11 +1522,13 @@ class TestGrampsLoader:
         assert note.id == "N0000"
 
     async def test_file_should_include_copyright_notice(self, tmp_path: Path) -> None:
+        file_path = tmp_path / "file.path"
+        file_path.touch()
         ancestry = await self._load_partial(
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
-        <file src="{tmp_path/'file.path'}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <file src="{file_path}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
         <attribute type="betty:copyright-notice" value="public-domain"/>
     </object>
 </objects>
@@ -1514,11 +1540,13 @@ class TestGrampsLoader:
     async def test_file_should_ignore_unknown_copyright_notice(
         self, tmp_path: Path
     ) -> None:
+        file_path = tmp_path / "file.path"
+        file_path.touch()
         ancestry = await self._load_partial(
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
-        <file src="{tmp_path/'file.path'}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <file src="{file_path}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
         <attribute type="betty:copyright-notice" value="non-existent-copyright-notice"/>
     </object>
 </objects>
@@ -1528,11 +1556,13 @@ class TestGrampsLoader:
         assert file.copyright_notice is None
 
     async def test_file_should_include_license(self, tmp_path: Path) -> None:
+        file_path = tmp_path / "file.path"
+        file_path.touch()
         ancestry = await self._load_partial(
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
-        <file src="{tmp_path/'file.path'}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <file src="{file_path}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
         <attribute type="betty:license" value="public-domain"/>
     </object>
 </objects>
@@ -1542,11 +1572,13 @@ class TestGrampsLoader:
         assert isinstance(file.license, PublicDomainLicense)
 
     async def test_file_should_ignore_unknown_license(self, tmp_path: Path) -> None:
+        file_path = tmp_path / "file.path"
+        file_path.touch()
         ancestry = await self._load_partial(
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
-        <file src="{tmp_path/'file.path'}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <file src="{file_path}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
         <attribute type="betty:license" value="non-existent-license"/>
     </object>
 </objects>
