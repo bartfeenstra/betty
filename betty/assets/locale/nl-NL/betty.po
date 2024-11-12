@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2024-11-11 21:53+0000\n"
-"PO-Revision-Date: 2024-11-12 21:54+0000\n"
+"PO-Revision-Date: 2024-11-13 23:10+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/betty/betty/nl/>\n"
 "Language: nl-NL\n"
@@ -274,7 +274,7 @@ msgid "Birth"
 msgstr "Geboorte"
 
 msgid "Borough"
-msgstr ""
+msgstr "Borough"
 
 msgid "Building"
 msgstr "Gebouw"
@@ -607,12 +607,14 @@ msgstr "Het spijt me, schat, maar het lijkt erop dat er geen bronnen zijn."
 
 msgid "I'm sorry, dear, but it seems this page does not exist."
 msgstr ""
+"Het spijt me, lieverd, maar het lijkt erop dat deze pagina niet bestaat."
 
 msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
 msgstr ""
+"Het spijt me, lieverd, maar het lijkt erop dat je deze pagina niet mag zien."
 
 msgid "I'm sorry, dear, but it seems you're not logged in."
-msgstr ""
+msgstr "Het spijt me, lieverd, maar het lijkt erop dat je niet ingelogd bent."
 
 msgid "Immigration"
 msgstr "Immigratie"
@@ -673,7 +675,7 @@ msgid "Locale aliases must not contain slashes."
 msgstr "Taalregioaliassen mogen geen schuine streep bevatten."
 
 msgid "Locality"
-msgstr ""
+msgstr "Plaats"
 
 msgid "MMMM"
 msgstr "MMMM"
@@ -748,7 +750,7 @@ msgid "Page not found"
 msgstr "Pagina niet gevonden"
 
 msgid "Parish"
-msgstr ""
+msgstr "Parish"
 
 msgid "People"
 msgstr "Personen"
@@ -1014,13 +1016,13 @@ msgid "Timeline"
 msgstr "Tijdlijn"
 
 msgid "Town"
-msgstr ""
+msgstr "Town"
 
 msgid "Trees"
 msgstr "Stambomen"
 
 msgid "Unauthorized"
-msgstr ""
+msgstr "Onbevoegd"
 
 msgid "Unknown"
 msgstr "Onbekend"
