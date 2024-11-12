@@ -8,14 +8,15 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2024-11-11 21:53+0000\n"
-"PO-Revision-Date: 2024-02-11 15:31+0000\n"
+"PO-Revision-Date: 2024-11-12 21:54+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
-"Language: nl\n"
-"Language-Team: nl <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language-Team: Dutch <https://hosted.weblate.org/projects/betty/betty/nl/>\n"
+"Language: nl-NL\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.9-dev\n"
 "Generated-By: Babel 2.16.0\n"
 
 msgid ""
@@ -150,7 +151,7 @@ msgid "About"
 msgstr "Over"
 
 msgid "Access denied"
-msgstr ""
+msgstr "Toegang geweigerd"
 
 #, python-format
 msgid "Accessed %(date)s"
@@ -744,7 +745,7 @@ msgid "Other attendees"
 msgstr "Overige aanwezigen"
 
 msgid "Page not found"
-msgstr ""
+msgstr "Pagina niet gevonden"
 
 msgid "Parish"
 msgstr ""
@@ -1275,4 +1276,3 @@ msgstr "© Copyright de auteur, tenzij anders vermeld"
 
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Copyright {author}, tenzij anders vermeld"
-
