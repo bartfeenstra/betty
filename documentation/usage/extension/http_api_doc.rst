@@ -1,7 +1,7 @@
 The *HTTP API Documentation* extension
 ====================================
 The ``http-api-doc`` extension renders interactive and user-friendly HTTP API documentation using
-`ReDoc <https://github.com/Redocly/redoc>`_.
+`Swagger UI <https://swagger.io/tools/swagger-ui/>`_.
 
 .. important::
     This extension requires :doc:`npm </usage/npm>`.

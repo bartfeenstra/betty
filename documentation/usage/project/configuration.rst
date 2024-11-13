@@ -31,6 +31,9 @@ structure. Example configuration:
           event_types:
             moon-landing:
               label: Moon Landing
+          genders:
+            genderqueer:
+              label: Genderqueer
           place_types:
             moon:
               label: Moon
@@ -74,6 +77,11 @@ structure. Example configuration:
                 "label": "Moon Landing"
               }
             },
+            "genders": {
+              "genderqueer": {
+                "label": "Genderqueer"
+              }
+            },
             "place_types": {
               "moon": {
                 "label": "Moon"
@@ -111,6 +119,10 @@ All configuration options
 
   - ``label`` (required): The event type's human-readable label. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
   - ``description`` (optional): The event type's human-readable long description. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
+- ``genders`` (optional): Keys are gender (plugin) IDs, and values are objects containing the following keys:
+
+  - ``label`` (required): The gender's human-readable label. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
+  - ``description`` (optional): The gender's human-readable long description. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
 - ``place_types`` (optional): Keys are place type (plugin) IDs, and values are objects containing the following keys:
 
   - ``label`` (required): The place type's human-readable label. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.

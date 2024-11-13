@@ -41,7 +41,12 @@ This extension is configurable:
                     event-types:
                       GrampsEventType: betty-event-type
                       AnotherGrampsEventType: another-betty-event-type
-                    event-types:
+                    genders:
+                      F: female
+                      M: male
+                      U: unknown
+                      NonBinary: non-binary
+                    place-types:
                       GrampsPlaceType: betty-place-type
                       AnotherGrampsPlaceType: another-betty-place-type
                     presence-roles:
@@ -62,6 +67,12 @@ This extension is configurable:
                       "event-types": {
                         "GrampsEventType: "betty-event-type",
                         "AnotherGrampsEventType: "another-betty-event-type"
+                      },
+                      "genders": {
+                        "F: "female",
+                        "M: "male",
+                        "U: "unknown",
+                        "NonBinary: "non-binary"
                       },
                       "place-types": {
                         "GrampsPlaceType: "betty-place-type",
@@ -87,6 +98,8 @@ All configuration options
   - ``file`` (required): the path to a *Gramps XML* or *Gramps XML Package* file.
   - ``event_types`` (optional): how to map Gramps event types to Betty event types. Each keys is a Gramps event type,
     and each value is the plugin ID of the Betty event type to import the Gramps event type as.
+  - ``genders`` (optional): how to map Gramps genders to Betty genders. Each keys is a Gramps gender,
+    and each value is the plugin ID of the Betty gender to import the Gramps gender as.
   - ``place_types`` (optional): how to map Gramps place types to Betty place types. Each keys is a Gramps place type,
     and each value is the plugin ID of the Betty place type to import the Gramps place type as.
   - ``presence_roles`` (optional): how to map Gramps roles to Betty presence roles. Each keys is a Gramps role,
@@ -220,6 +233,24 @@ Betty supports the following Gramps event types without any additional configura
      - ``retirement``
    * - ``Will``
      - ``will``
+
+Genders
+-------
+
+Betty supports the following Gramps genders without any additional configuration:
+
+.. list-table:: Genders
+   :align: left
+   :header-rows: 1
+
+   * - Gramps gender
+     - Betty gender
+   * - ``F``
+     - ``female``
+   * - ``M``
+     - ``male``
+   * - ``U``
+     - ``unknown``
 
 Place types
 -----------

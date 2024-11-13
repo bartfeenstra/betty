@@ -44,10 +44,10 @@ This extension is configurable:
                 link_inactive_color: '#149988'
                 link_active_color: '#2a615a'
                 featured_entities:
-                  - entity_type: Person
-                    entity_id: P123
-                  - entity_type: Place
-                    entity_id: Amsterdam
+                  - entity_type: person
+                    entity: P123
+                  - entity_type: place
+                    entity: Amsterdam
 
    .. tab-item:: JSON
 
@@ -63,12 +63,12 @@ This extension is configurable:
                   "link_active_color": "#2a615a",
                   "featured_entities": [
                     {
-                      "entity_type": "Person",
-                      "entity_id": "P123"
+                      "entity_type": "person",
+                      "entity": "P123"
                     },
                     {
-                      "entity_type": "Place",
-                      "entity_id": "Amsterdam"
+                      "entity_type": "place",
+                      "entity": "Amsterdam"
                     }
                   ],
                 }
@@ -88,5 +88,5 @@ All configuration options
 - ``featured_entities`` (optional): A list of entities to feature on the front page. Each item has the following
   configuration:
 
-  - ``entity_type`` (required): The name of the entity type to feature, e.g. ``Person``.
-  - ``entity_id`` (required):  The ID of the entity type to feature, e.g. ``P123``.
+  - ``entity_type`` (required): The **entity type ID** of the entity (type) to feature, e.g. ``person``.
+  - ``entity`` (required):  The **entity ID** of the entity to feature, e.g. ``P123``.
