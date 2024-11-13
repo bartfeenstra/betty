@@ -90,23 +90,51 @@ This extension is configurable:
           }
 
 
-All configuration options
-^^^^^^^^^^^^^^^^^^^^^^^^^
-- ``family_trees`` (required): An array defining zero or more Gramps family trees to load. Each item is an object with
-  the following keys:
+``family_trees``
+^^^^^^^^^^^^^^^^
+:sup:`required`
 
-  - ``file`` (required): the path to a *Gramps XML* or *Gramps XML Package* file.
-  - ``event_types`` (optional): how to map Gramps event types to Betty event types. Each keys is a Gramps event type,
-    and each value is the plugin ID of the Betty event type to import the Gramps event type as.
-  - ``genders`` (optional): how to map Gramps genders to Betty genders. Each keys is a Gramps gender,
-    and each value is the plugin ID of the Betty gender to import the Gramps gender as.
-  - ``place_types`` (optional): how to map Gramps place types to Betty place types. Each keys is a Gramps place type,
-    and each value is the plugin ID of the Betty place type to import the Gramps place type as.
-  - ``presence_roles`` (optional): how to map Gramps roles to Betty presence roles. Each keys is a Gramps role,
-    and each value is the plugin ID of the Betty presence role to import the Gramps role as.
+An array defining zero or more Gramps family trees to load.
 
-  If multiple family trees contain entities of the same type and with the same ID (e.g. a person with ID ``I1234``) each
-  entity will overwrite any previously loaded entity.
+If multiple family trees contain entities of the same type and with the same ID (e.g. a person with ID ``I1234``) each
+entity will overwrite any previously loaded entity.
+
+Each item is an object with the following keys:
+
+``family_trees[].file``
+~~~~~~~~~~~~~~~~~~~~~~~
+:sup:`required`
+
+the path to a *Gramps XML* or *Gramps XML Package* file.
+
+``family_trees[].event_types``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:sup:`optional`
+
+How to map Gramps event types to Betty event types. Each keys is a Gramps event type, and each value is the plugin ID of
+the Betty event type to import the Gramps event type as.
+
+``family_trees[].genders``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:sup:`optional`
+
+How to map Gramps genders to Betty genders. Each keys is a Gramps gender, and each value is the plugin ID of the Betty
+gender to import the Gramps gender as.
+
+``family_trees[].place_types``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:sup:`optional`
+
+How to map Gramps place types to Betty place types. Each keys is a Gramps place type, and each value is the plugin ID
+of the Betty place type to import the Gramps place type as.
+
+``family_trees[].presence_roles``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:sup:`optional`
+
+How to map Gramps roles to Betty presence roles. Each keys is a Gramps role, and each value is the plugin ID of the
+Betty presence role to import the Gramps role as.
+
 
 Attributes
 ----------

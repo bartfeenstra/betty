@@ -76,17 +76,44 @@ This extension is configurable:
             }
           }
 
-All configuration options
-^^^^^^^^^^^^^^^^^^^^^^^^^
-- ``primary_inactive_color`` (optional): The case-insensitive hexadecimal code for the primary color. Defaults to
-  ``#ffc0cb``.
-- ``primary_active_color`` (optional): The case-insensitive hexadecimal code for the primary color for actively
-  engaged elements. Defaults to ``#ff69b4``.
-- ``link_inactive_color`` (optional): The case-insensitive hexadecimal code for the link color. Defaults to ``#149988``.
-- ``link_active_color`` (optional): The case-insensitive hexadecimal code for the color of actively engaged links.
-  Defaults to ``#2a615a``.
-- ``featured_entities`` (optional): A list of entities to feature on the front page. Each item has the following
-  configuration:
+``primary_inactive_color``
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+:sup:`optional`
 
-  - ``entity_type`` (required): The **entity type ID** of the entity (type) to feature, e.g. ``person``.
-  - ``entity`` (required):  The **entity ID** of the entity to feature, e.g. ``P123``.
+The case-insensitive hexadecimal code for the primary color. Defaults to ``#ffc0cb``.
+
+``primary_active_color``
+^^^^^^^^^^^^^^^^^^^^^^^^
+:sup:`optional`
+
+The case-insensitive hexadecimal code for the primary color for actively engaged elements. Defaults to ``#ff69b4``.
+
+``link_inactive_color``
+^^^^^^^^^^^^^^^^^^^^^^^
+:sup:`optional`
+
+The case-insensitive hexadecimal code for the link color. Defaults to ``#149988``.
+
+``link_active_color``
+^^^^^^^^^^^^^^^^^^^^^
+:sup:`optional`
+
+The case-insensitive hexadecimal code for the color of actively engaged links. Defaults to ``#2a615a``.
+
+``featured_entities``
+^^^^^^^^^^^^^^^^^^^^^
+:sup:`optional`
+
+A list of entities to feature on the front page. Each item has the following configuration:
+
+``featured_entities[].entity_type``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:sup:`required`
+
+The **entity type ID** of the entity (type) to feature, e.g. ``person``.
+
+``featured_entities[].entity``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:sup:`required`
+
+The **entity ID** of the entity to feature, e.g. ``P123``.

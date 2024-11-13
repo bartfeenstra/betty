@@ -53,10 +53,11 @@ This extension is configurable:
           }
 
 
-All configuration options
-^^^^^^^^^^^^^^^^^^^^^^^^^
-- ``populate_images`` (optional): A boolean indicating whether to download images from the Wikipedia
-  links in the ancestry. Defaults to ``true``.
+``populate_images``
+^^^^^^^^^^^^^^^^^^^
+:sup:`optional`
+
+A boolean indicating whether to download images from the Wikipedia links in the ancestry. Defaults to ``true``.
 
 Links
 -----
