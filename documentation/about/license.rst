@@ -1,6 +1,7 @@
 Copyright & license
 ===================
-Betty is copyright Bart Feenstra and contributors, and released under the **GPL**. This means that
+Betty is copyright Bart Feenstra and `contributors <https://github.com/bartfeenstra/betty/graphs/contributors>`_, and
+released under the **GPL**. This means that
 
 - You may use Betty at no charge
 - You may use Betty for commercial purposes

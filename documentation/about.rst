@@ -11,30 +11,17 @@ About Betty
 
 Philosophy
 ----------
-
-Storytelling
-^^^^^^^^^^^^
 Betty builds sites that tell a story. Raw family data is visualized in different, sometimes interactive ways.
 Additional information is added automatically from a variety of third-party sources, augmenting your family trees
 with further encyclopedic information, imagery, and maps.
 
-Simplicity
-^^^^^^^^^^
-Anyone should be able to generate a site and view it. We aim for Betty to be simple to use, out of the box, for everyone.
-
-Speed
-^^^^^
-Betty sites are fast. Faster than most other sites we use on a daily basis.
-
-Security and maintenance
-^^^^^^^^^^^^^^^^^^^^^^^^
-A Betty site is secure and requires almost no maintenance.
-
-.. important::
-    This is about generated sites. You are still advised to install updates to your installation of Betty when they become available.
+Name
+----
+Betty was named after `Liberta "Betty" Lankester <https://ancestry.bartfeenstra.com/en/person/I0004/>`_, grandmother
+to the original project author.
 
 What is Betty not?
-^^^^^^^^^^^^^^^^^^
+------------------
 Betty does not help you gather or manage the data for your family history. For that purpose, use a product such as
 `Gramps <https://gramps-project.org>`_, or a service like `Ancestry.com <https://www.ancestry.com>`_.
 
