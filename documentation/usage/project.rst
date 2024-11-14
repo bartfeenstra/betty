@@ -22,14 +22,22 @@ You can create and tailor projects using :doc:`configuration files </usage/proje
 
 The project directory
 --------------------
-``./assets/``
-    Your project's :doc:`assets </usage/assets>`, through which you can override translations, HTML templates, and more.
-``./betty.yaml`` **or** ``./betty.yml`` **or** ``./betty.json``
-    Your project's configuration file.
-``./output/``
-    This is where Betty puts all the things it generates for you.
-``./output/www``
-    This is where Betty puts your generated site.
+
+``assets/``
+^^^^^^^^^^^
+Your project's :doc:`assets </usage/assets>`, through which you can override translations, HTML templates, and more.
+
+``betty.yaml`` **or** ``betty.yml`` **or** ``betty.json``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Your project's configuration file.
+
+``output/``
+^^^^^^^^^^^
+This is where Betty puts all the things it generates for you.
+
+``output/www/``
+^^^^^^^^^^^^^^^
+This is where Betty puts your generated site.
 
 In this section
 ---------------
