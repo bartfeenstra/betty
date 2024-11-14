@@ -16,8 +16,7 @@ authors = [
 requires-python = '~= 3.11'
 dependencies = [
     'aiofiles ~= 24.1',
-    # @todo Remove the upper bound once https://github.com/bartfeenstra/betty/issues/2203 is fixed.
-    'aiohttp ~= 3.10, < 3.11',
+    'aiohttp ~= 3.10, != 3.11.0',
     'asyncclick ~= 8.1',
     'babel ~= 2.16',
     'furo == 2024.8.6',
