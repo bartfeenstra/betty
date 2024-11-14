@@ -10,14 +10,8 @@ Ancestry
    ancestry/*
 
 An ancestry is Betty's main data model. It organizes all the information in your family history
-in a way that can easily be used across all parts of Betty. The main components are:
-
-Entities
-    An entity is an object that describes a thing, such as a place or a person.
-Fields
-    Individual pieces of information belonging to an entity, such as a place or person name.
-Associations
-    A reference between entities, stored in a field on each entity.
+in a way that can easily be used across all parts of Betty. The main components are entities, fields on entities, and
+associations between entities.
 
 A model with lots of data is a graph, a network, like a web of information that can be traversed,
 analyzed, expanded, and ultimately generated into a site.

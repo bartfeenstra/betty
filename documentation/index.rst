@@ -11,6 +11,7 @@ Betty Documentation
    usage
    development
    API Documentation <modindex>
+   glossary
    About <about>
 
 Betty visualizes and publishes your family history by building interactive, encyclopedia-like genealogy websites out of your
@@ -18,9 +19,8 @@ Betty visualizes and publishes your family history by building interactive, ency
 
 Features
 --------
-Betty generates generates a `static site <https://en.wikipedia.org/wiki/Static_web_page>`_ from your genealogy records.
-This means that once your site has been generated, you will not need any special software to publish it. It's **fast and
-secure**.
+Betty generates generates a :term:`static site` from your genealogy records. This means that once your site has been
+generated, you will not need any special software to publish it. It's **fast and secure**.
 
 * Builds pages for people, places, events, and media
 * Renders interactive maps and family trees
