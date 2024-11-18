@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "swagger-ui-dist": "^5.17.14"
+    "swagger-ui-dist": "^5.18.2"
   },
   "type": "module"
 }

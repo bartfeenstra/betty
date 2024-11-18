@@ -3,8 +3,8 @@
     "node": ">= 20"
   },
   "devDependencies": {
-    "@playwright/test": "^1.48.2",
-    "@stylistic/eslint-plugin": "^2.9.0",
+    "@playwright/test": "^1.49.0",
+    "@stylistic/eslint-plugin": "^2.10.1",
     "@types/node": "*",
     "@types/webpack": "^5.28.5",
     "betty.extension.cotton-candy": "file:./betty/extension/cotton_candy/webpack",
@@ -12,18 +12,18 @@
     "betty.project.extension.maps": "file:./betty/extension/maps/webpack",
     "betty.project.extension.trees": "file:./betty/extension/trees/webpack",
     "betty.project.extension.webpack": "file:./betty/extension/webpack/webpack",
-    "eslint": "^9.14.0 <9.15.0",
+    "eslint": "^9.15.0",
     "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-n": "^17.11.1",
-    "eslint-plugin-playwright": "^2.0.0",
+    "eslint-plugin-n": "^17.13.2",
+    "eslint-plugin-playwright": "^2.1.0",
     "eslint-plugin-promise": "^7.1.0",
     "stylelint": "^16.10.0",
     "stylelint-config-standard": "^36.0.1",
     "stylelint-config-standard-scss": "^13.1.0",
-    "stylelint-no-unsupported-browser-features": "^8.0.1",
-    "stylelint-scss": "^6.8.1",
+    "stylelint-no-unsupported-browser-features": "^8.0.2",
+    "stylelint-scss": "^6.9.0",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.11.0"
+    "typescript-eslint": "^8.15.0"
   },
   "type": "module"
 }
