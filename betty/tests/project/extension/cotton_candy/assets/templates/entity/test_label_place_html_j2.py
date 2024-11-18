@@ -22,7 +22,7 @@ class Test(TemplateFileTestBase):
         ("expected", "data", "locale"),
         [
             (
-                '<span><a href="/place/P0/index.html"><span lang="und">The Place</span></a></span>',
+                '<span><a href="/place/P0/index.html"><span lang="und" dir="auto">The Place</span></a></span>',
                 {
                     "entity": Place(
                         id="P0",
@@ -54,7 +54,7 @@ class Test(TemplateFileTestBase):
                 "nl",
             ),
             (
-                '<span><span lang="und">The Place</span></span>',
+                '<span><span lang="und" dir="auto">The Place</span></span>',
                 {
                     "entity": Place(
                         id="P0",

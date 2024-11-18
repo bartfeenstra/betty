@@ -43,7 +43,7 @@ class Test(TemplateFileTestBase):
             id="P0",
             names=[Name("The Place")],
         )
-        expected = 'in <span><a href="/place/P0/index.html"><span lang="und">The Place</span></a></span>'
+        expected = 'in <span><a href="/place/P0/index.html"><span lang="und" dir="auto">The Place</span></a></span>'
         async with self.assert_template_file(
             data={
                 "event": event,
@@ -76,7 +76,7 @@ class Test(TemplateFileTestBase):
             id="P0",
             names=[Name("The Place")],
         )
-        expected = '1970 in <span><a href="/place/P0/index.html"><span lang="und">The Place</span></a></span>'
+        expected = '1970 in <span><a href="/place/P0/index.html"><span lang="und" dir="auto">The Place</span></a></span>'
         async with self.assert_template_file(
             data={
                 "event": event,
@@ -105,7 +105,7 @@ class Test(TemplateFileTestBase):
             names=[Name("The Place")],
         )
         event.citations.add(Citation(source=Source(name="The Source")))
-        expected = '1970 in <span><span lang="und">The Place</span></span>'
+        expected = '1970 in <span><span lang="und" dir="auto">The Place</span></span>'
         async with self.assert_template_file(
             data={
                 "event": event,

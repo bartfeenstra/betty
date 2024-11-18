@@ -45,6 +45,7 @@ from betty.locale import (
     UNDETERMINED_LOCALE,
     SPECIAL_LOCALES,
 )
+from betty.locale.error import LocaleError
 from betty.locale.localized import Localized, negotiate_localizeds, LocalizedStr
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, SVG
@@ -117,6 +118,12 @@ def filter_localize(
     return localizable.localize(context_localizer(context))
 
 
+_CHARACTER_ORDER_TO_HTML_LANG_MAP = {
+    "left-to-right": "ltr",
+    "right-to-left": "rtl",
+}
+
+
 @pass_context
 def filter_html_lang(
     context: Context,
@@ -130,7 +137,22 @@ def filter_html_lang(
     localizer = context_localizer(context)
     result: str | Markup = localized
     if localized.locale != localizer.locale:
-        result = f'<span lang="{localized.locale}">{localized}</span>'
+        localizer_locale_data = get_data(localizer.locale)
+        localizer_dir = _CHARACTER_ORDER_TO_HTML_LANG_MAP[
+            localizer_locale_data.character_order
+        ]
+        try:
+            localized_locale_data = get_data(localized.locale)
+        except LocaleError:
+            localized_dir = "auto"
+        else:
+            localized_dir = _CHARACTER_ORDER_TO_HTML_LANG_MAP[
+                localized_locale_data.character_order
+            ]
+        dir_attribute = (
+            f' dir="{localized_dir}"' if localized_dir != localizer_dir else ""
+        )
+        result = f'<span lang="{localized.locale}"{dir_attribute}>{localized}</span>'
     if context.eval_ctx.autoescape:
         result = Markup(result)
     return result

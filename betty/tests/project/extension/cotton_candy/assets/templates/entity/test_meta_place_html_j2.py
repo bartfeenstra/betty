@@ -38,7 +38,7 @@ class Test(TemplateFileTestBase):
             names=[Name("The All-enclosing Place")],
         )
         Enclosure(enclosee=enclosing_place, encloser=all_enclosing_place)
-        expected = '<div class="meta">in <span><a href="/place/P1/index.html"><span lang="und">The Enclosing Place</span></a></span>, <span><a href="/place/P2/index.html"><span lang="und">The All-enclosing Place</span></a></span></div>'
+        expected = '<div class="meta">in <span><a href="/place/P1/index.html"><span lang="und" dir="auto">The Enclosing Place</span></a></span>, <span><a href="/place/P2/index.html"><span lang="und" dir="auto">The All-enclosing Place</span></a></span></div>'
         async with self.assert_template_file(
             data={
                 "entity": place,
@@ -61,7 +61,7 @@ class Test(TemplateFileTestBase):
             names=[Name("The All-enclosing Place")],
         )
         Enclosure(enclosee=enclosing_place, encloser=all_enclosing_place)
-        expected = '<div class="meta">in <span><a href="/place/P1/index.html"><span lang="und">The Enclosing Place</span></a></span></div>'
+        expected = '<div class="meta">in <span><a href="/place/P1/index.html"><span lang="und" dir="auto">The Enclosing Place</span></a></span></div>'
         async with self.assert_template_file(
             data={
                 "entity": place,
@@ -89,7 +89,7 @@ class Test(TemplateFileTestBase):
             id="P999",
             names=[Name("Far Far Away")],
         )
-        expected = '<div class="meta">in <span><a href="/place/P1/index.html"><span lang="und">The Enclosing Place</span></a></span>, <span><a href="/place/P2/index.html"><span lang="und">The All-enclosing Place</span></a></span></div>'
+        expected = '<div class="meta">in <span><a href="/place/P1/index.html"><span lang="und" dir="auto">The Enclosing Place</span></a></span>, <span><a href="/place/P2/index.html"><span lang="und" dir="auto">The All-enclosing Place</span></a></span></div>'
         async with self.assert_template_file(
             data={
                 "entity": place,

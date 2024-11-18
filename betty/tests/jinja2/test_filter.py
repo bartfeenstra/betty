@@ -17,7 +17,6 @@ from betty.locale import (
     UNDETERMINED_LOCALE,
     MULTIPLE_LOCALES,
     UNCODED_LOCALE,
-    DEFAULT_LOCALE,
 )
 from betty.locale.localizable import plain
 from betty.locale.localized import Localized, LocalizedStr
@@ -592,16 +591,22 @@ class TestFilterFormatDatey(TemplateStringTestBase):
 
 class TestFilterHtmlLang(TemplateStringTestBase):
     @pytest.mark.parametrize(
-        ("expected", "autoescape", "localized_locale"),
+        ("expected", "autoescape", "localized_locale", "localizer_locale"),
         [
-            ("Hallo, wereld!", True, DEFAULT_LOCALE),
-            ("Hallo, wereld!", False, DEFAULT_LOCALE),
-            ('<span lang="nl">Hallo, wereld!</span>', True, "nl"),
-            ('<span lang="nl">Hallo, wereld!</span>', False, "nl"),
+            ("Hallo, wereld!", True, "nl", "nl"),
+            ("Hallo, wereld!", False, "nl", "nl"),
+            ('<span lang="nl">Hallo, wereld!</span>', True, "nl", "en"),
+            ('<span lang="nl">Hallo, wereld!</span>', False, "nl", "en"),
+            ('<span lang="nl" dir="ltr">Hallo, wereld!</span>', True, "nl", "ar"),
+            ('<span lang="nl" dir="ltr">Hallo, wereld!</span>', False, "nl", "ar"),
         ],
     )
     async def test(
-        self, expected: str, autoescape: bool, localized_locale: str
+        self,
+        expected: str,
+        autoescape: bool,
+        localized_locale: str,
+        localizer_locale: str,
     ) -> None:
         template = "{{ localized | html_lang }}"
         localized = LocalizedStr("Hallo, wereld!", locale=localized_locale)
@@ -611,6 +616,7 @@ class TestFilterHtmlLang(TemplateStringTestBase):
                 "localized": localized,
             },
             autoescape=autoescape,
+            locale=localizer_locale,
         ) as (actual, _):
             assert actual == expected
 
