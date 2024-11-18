@@ -118,24 +118,6 @@ def filter_localize(
 
 
 @pass_context
-def filter_localize_html_lang(
-    context: Context,
-    localizable: Localizable,
-) -> str | Markup:
-    """
-    Localize a value using the context's current localizer.
-
-    This optionally adds the necessary HTML that indicates the localized
-    string is of a different locale than the surrounding HTML.
-    """
-    from betty.jinja2 import context_localizer
-
-    localizer = context_localizer(context)
-    localized = localizable.localize(localizer)
-    return filter_html_lang(context, localized)
-
-
-@pass_context
 def filter_html_lang(
     context: Context,
     localized: LocalizedStr,
@@ -599,7 +581,6 @@ async def filters() -> Mapping[str, Callable[..., Any]]:
         "json": filter_json,
         "locale_get_data": get_data,
         "localize": filter_localize,
-        "localize_html_lang": filter_localize_html_lang,
         "localized_url": filter_localized_url,
         "map": filter_map,
         "negotiate_has_dates": filter_negotiate_has_dates,

@@ -19,7 +19,7 @@ from betty.locale import (
     UNCODED_LOCALE,
     DEFAULT_LOCALE,
 )
-from betty.locale.localizable import StaticTranslationsLocalizable, plain
+from betty.locale.localizable import plain
 from betty.locale.localized import Localized, LocalizedStr
 from betty.media_type import MediaType
 from betty.media_type.media_types import SVG
@@ -611,30 +611,6 @@ class TestFilterHtmlLang(TemplateStringTestBase):
                 "localized": localized,
             },
             autoescape=autoescape,
-        ) as (actual, _):
-            assert actual == expected
-
-
-class TestFilterLocalizeHtmlLang(TemplateStringTestBase):
-    @pytest.mark.parametrize(
-        ("expected", "localized_locale"),
-        [
-            ("Hallo, wereld!", DEFAULT_LOCALE),
-            ('<span lang="nl">Hallo, wereld!</span>', "nl"),
-        ],
-    )
-    async def test(self, expected: str, localized_locale: str) -> None:
-        template = "{{ localizable | localize_html_lang }}"
-        localizable = StaticTranslationsLocalizable(
-            {
-                localized_locale: "Hallo, wereld!",
-            }
-        )
-        async with self.assert_template_string(
-            template=template,
-            data={
-                "localizable": localizable,
-            },
         ) as (actual, _):
             assert actual == expected
 
