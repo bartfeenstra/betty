@@ -35,3 +35,4 @@ In this section
 ---------------
 - :doc:`/about/contributing`
 - :doc:`/about/license`
+- :doc:`/about/versions`
