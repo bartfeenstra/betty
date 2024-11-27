@@ -8,19 +8,20 @@ from __future__ import annotations
 
 import logging
 import sys
+from subprocess import CalledProcessError
 from typing import Sequence, TYPE_CHECKING, Self, final
+
 from typing_extensions import override
 
+from betty import subprocess
 from betty.error import UserFacingError
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizable import _, Localizable
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.requirement import Requirement
-from betty.subprocess import run_process
 
 if TYPE_CHECKING:
     from pathlib import Path
     from asyncio import subprocess as aiosubprocess
-
 
 _NPM_SUMMARY_AVAILABLE = _("`npm` is available")
 _NPM_SUMMARY_UNAVAILABLE = _("`npm` is not available")
@@ -42,7 +43,7 @@ async def npm(
     Run an npm command.
     """
     try:
-        return await run_process(
+        return await subprocess.run_process(
             ["npm", *arguments],
             cwd=cwd,
             # Use a shell on Windows so subprocess can find the executables it needs (see
@@ -67,6 +68,10 @@ class NpmRequirement(Requirement):
             logging.getLogger(__name__).debug(
                 _NPM_SUMMARY_UNAVAILABLE.localize(DEFAULT_LOCALIZER)
             )
+            logging.getLogger(__name__).debug(_NPM_DETAILS.localize(DEFAULT_LOCALIZER))
+            return cls(False)
+        except CalledProcessError as error:
+            logging.getLogger(__name__).exception(error)
             logging.getLogger(__name__).debug(_NPM_DETAILS.localize(DEFAULT_LOCALIZER))
             return cls(False)
         else:
