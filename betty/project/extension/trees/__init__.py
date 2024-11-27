@@ -11,15 +11,16 @@ import aiofiles
 from typing_extensions import override
 
 from betty.ancestry.person import Person
-from betty.locale.localizable import _
+from betty.locale.localizable import _, static
 from betty.media_type.media_types import HTML
 from betty.plugin import ShorthandPluginBase
+from betty.project.extension import Extension
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.generate import GenerateSiteEvent
+from betty.typing import internal
 
 if TYPE_CHECKING:
-    from betty.project.extension import Extension
     from betty.event_dispatcher import EventHandlerRegistry
     from betty.plugin import PluginIdentifier
     from collections.abc import Sequence
@@ -63,8 +64,33 @@ async def _generate_people_json_for_locale(
         await f.write(people_json)
 
 
+@internal
 @final
-class Trees(ShorthandPluginBase, EntryPointProvider):
+class TreesWebpackEntryPointProvider(ShorthandPluginBase, EntryPointProvider):
+    """
+    Integrate :py:class:`betty.project.extension.trees.Trees` with :py:class:`betty.project.extension.webpack.Webpack`.
+    """
+
+    _plugin_id = "trees-webpack"
+    _plugin_label = static(_plugin_id)
+
+    @override
+    @classmethod
+    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
+        return {Webpack}
+
+    @override
+    @classmethod
+    def webpack_entry_point_directory_path(cls) -> Path:
+        return Path(__file__).parent / "webpack"
+
+    @override
+    async def webpack_entry_point_cache_keys(self) -> Sequence[str]:
+        return ()
+
+
+@final
+class Trees(ShorthandPluginBase, Extension):
     """
     Provide interactive family trees for use in web pages.
     """
@@ -77,18 +103,9 @@ class Trees(ShorthandPluginBase, EntryPointProvider):
 
     @override
     @classmethod
-    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
-        return {Webpack}
+    def depended_on_by(cls) -> set[PluginIdentifier[Extension]]:
+        return {TreesWebpackEntryPointProvider}
 
     @override
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
         registry.add_handler(GenerateSiteEvent, _generate_people_json)
-
-    @override
-    @classmethod
-    def webpack_entry_point_directory_path(cls) -> Path:
-        return Path(__file__).parent / "webpack"
-
-    @override
-    def webpack_entry_point_cache_keys(self) -> Sequence[str]:
-        return ()

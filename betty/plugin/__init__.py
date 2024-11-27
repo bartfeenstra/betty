@@ -122,6 +122,19 @@ class DependentPlugin(Generic[_PluginT], Plugin):
         return set()
 
 
+class DependedOnByPlugin(Generic[_PluginT], Plugin):
+    """
+    A plugin that can declare other plugins that depend on it.
+    """
+
+    @classmethod
+    def depended_on_by(cls) -> set[PluginIdentifier[_PluginT]]:
+        """
+        The plugins that depend on this one.
+        """
+        return set()
+
+
 class ShorthandPluginBase(Plugin):
     """
     Allow shorthand declaration of plugins.
@@ -407,12 +420,22 @@ async def sort_dependent_plugin_graph(
     for entry_point_plugin in entry_point_plugins:
         dependencies = entry_point_plugin.depends_on()
         sorter.add(
-            entry_point_plugin,
-            *(await plugins.resolve_identifiers(dependencies)),
+            entry_point_plugin, *(await plugins.resolve_identifiers(dependencies))
         )
+        if issubclass(entry_point_plugin, DependedOnByPlugin):
+            dependents = await plugins.resolve_identifiers(
+                entry_point_plugin.depended_on_by()
+            )
+            for dependent in dependents:
+                sorter.add(
+                    dependent,
+                    entry_point_plugin,  # type: ignore[arg-type]
+                )
+        else:
+            dependents = []
         await sort_dependent_plugin_graph(
             sorter,
             plugins,
             # We have not quite figured out how to type this correctly, so ignore any errors for now.
-            dependencies,  # type: ignore[arg-type]
+            [*dependencies, *dependents],  # type: ignore[list-item]
         )

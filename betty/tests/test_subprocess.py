@@ -1,12 +1,15 @@
 import logging
+from asyncio import create_task
 from asyncio.subprocess import Process
+from os import environ
 from pathlib import Path
 
 import aiofiles
 import pytest
 from _pytest.logging import LogCaptureFixture
 
-from betty.subprocess import run_process, SubprocessError
+from betty.functools import Do
+from betty.subprocess import run_process, SubprocessError, run_process_in_terminal
 
 
 class TestRunProcess:
@@ -79,3 +82,25 @@ sys.exit(1)"""
     ) -> None:
         with pytest.raises(SubprocessError), caplog.at_level(logging.NOTSET):
             await run_process(["non-existent-command"], shell=shell)
+
+
+@pytest.mark.skipif(
+    environ.get("BETTY_TEST_HEADED", None) == "false",
+    reason="Cannot test GUI functionality on a headless system",
+)
+class TestRunProcessInTerminal:
+    async def test(self, tmp_path: Path) -> None:
+        sentinel_path = tmp_path / "s3nt1n3l"
+        task = create_task(
+            run_process_in_terminal(
+                [
+                    "python",
+                    "-c",
+                    f"from pathlib import Path; Path('{sentinel_path}').touch()",
+                ]
+            )
+        )
+        try:
+            await Do(lambda: None).until(lambda _: sentinel_path.exists(), retries=50)
+        finally:
+            task.cancel()

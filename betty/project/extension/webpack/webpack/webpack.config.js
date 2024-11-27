@@ -1,10 +1,9 @@
 'use strict'
 
-import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import path from 'path'
-import { readFile } from 'node:fs/promises'
+import {readFile} from 'node:fs/promises'
 import TerserPlugin from 'terser-webpack-plugin'
 import url from 'node:url'
 import webpack from 'webpack'
@@ -72,7 +71,7 @@ const webpackConfiguration = {
   devtool: configuration.debug ? 'eval-source-map' : false,
   entry: configuration.entry,
   output: {
-    path: path.resolve(__dirname, configuration.buildDirectoryPath),
+    path: path.join(configuration.outputDirectoryPath,'www'),
     filename: 'js/[name].js'
   },
   optimization: {
@@ -108,7 +107,6 @@ const webpackConfiguration = {
     runtimeChunk: 'single'
   },
   plugins: [
-    new CleanWebpackPlugin(),
     new EntryScriptCollector(),
     new MiniCssExtractPlugin({
       filename: 'css/[name].css'

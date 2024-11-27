@@ -3,15 +3,16 @@ from __future__ import annotations  # noqa D100
 import asyncio
 from typing import TYPE_CHECKING, final, Self
 
+import asyncclick as click
 from typing_extensions import override
 
+from betty import about
 from betty.app.factory import AppDependentFactory
 from betty.cli.commands import command, Command
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
-    import asyncclick as click
     from betty.app import App
 
 
@@ -44,12 +45,20 @@ class Demo(ShorthandPluginBase, AppDependentFactory, Command):
             if description
             else self.plugin_label().localize(localizer),
         )
-        async def demo() -> None:
+        async def demo(*, dev_watch: bool = False) -> None:
             from betty.project.extension.demo.serve import DemoServer
 
-            async with DemoServer(app=self._app) as server:
+            async with DemoServer(app=self._app, watch=dev_watch) as server:
                 await server.show()
                 while True:
                     await asyncio.sleep(999)
+
+        if about.is_development():
+            demo = click.option(
+                "--dev-watch",
+                help="Watch for changes, and regenerate automatically.",
+                default=False,
+                is_flag=True,
+            )(demo)
 
         return demo

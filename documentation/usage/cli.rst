@@ -76,6 +76,7 @@ Explore a Betty demonstration site
       -v, --verbose         Show verbose output, including informative log messages.
       -vv, --more-verbose   Show more verbose output, including debug log messages.
       -vvv, --most-verbose  Show most verbose output, including all log messages.
+      --dev-watch           Watch for changes, and regenerate automatically.
       --help                Show this message and exit.
 
 

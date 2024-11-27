@@ -8,6 +8,7 @@ Environment variables
 
 These impact the ``./bin/test`` command:
 
+* ``BETTY_TEST_HEADED=false``: Whether the tests should assume they are run in a headed (non-headless) environment.
 * ``BETTY_TEST_SKIP_SHELLCHECK=true``: Skip ShellCheck tests.
 * ``BETTY_TEST_SKIP_RUFF=true``: Skip Ruff tests.
 * ``BETTY_TEST_SKIP_MYPY=true``: Skip mypy tests.

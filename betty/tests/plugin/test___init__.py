@@ -19,6 +19,7 @@ from betty.plugin import (
     sort_dependent_plugin_graph,
     CyclicDependencyError,
     resolve_identifier,
+    DependedOnByPlugin,
 )
 from betty.plugin.static import StaticPluginRepository
 from betty.test_utils.plugin import DummyPlugin
@@ -388,26 +389,60 @@ class TestSortOrderedPluginGraph:
         ]
 
 
-class _DummyDependentPlugin(DependentPlugin["_DummyDependentPlugin"], DummyPlugin):
+class _DummyDependentPlugin(
+    DependentPlugin["_DummyDependentPlugin"],
+    DependedOnByPlugin["_DummyDependentPlugin"],
+    DummyPlugin,
+):
     pass
 
 
-class DownStream(_DummyDependentPlugin):
+class IsDependency(_DummyDependentPlugin):
     pass
 
 
-class Upstream(_DummyDependentPlugin):
+class HasDependency(_DummyDependentPlugin):
     @override
     @classmethod
     def depends_on(cls) -> set[PluginIdentifier[_DummyDependentPlugin]]:
-        return {UpstreamAndDownstream}
+        return {IsAndHasDependency}
 
 
-class UpstreamAndDownstream(_DummyDependentPlugin):
+class IsAndHasDependency(_DummyDependentPlugin):
     @override
     @classmethod
     def depends_on(cls) -> set[PluginIdentifier[_DummyDependentPlugin]]:
-        return {DownStream}
+        return {IsDependency}
+
+
+class IsDependent(_DummyDependentPlugin):
+    pass
+
+
+class HasDependent(_DummyDependentPlugin):
+    @override
+    @classmethod
+    def depended_on_by(cls) -> set[PluginIdentifier[_DummyDependentPlugin]]:
+        return {IsAndHasDependent}
+
+
+class IsAndHasDependent(_DummyDependentPlugin):
+    @override
+    @classmethod
+    def depended_on_by(cls) -> set[PluginIdentifier[_DummyDependentPlugin]]:
+        return {IsDependent}
+
+
+class HasDependencyAndDependent(_DummyDependentPlugin):
+    @override
+    @classmethod
+    def depends_on(cls) -> set[PluginIdentifier[_DummyDependentPlugin]]:
+        return {IsAndHasDependency}
+
+    @override
+    @classmethod
+    def depended_on_by(cls) -> set[PluginIdentifier[_DummyDependentPlugin]]:
+        return {IsAndHasDependent}
 
 
 class IsolatedDependentPluginOne(_DummyDependentPlugin):
@@ -420,9 +455,9 @@ class IsolatedDependentPluginTwo(_DummyDependentPlugin):
 
 class TestSortDependentPluginGraph:
     _PLUGINS = StaticPluginRepository[_DummyDependentPlugin](
-        DownStream,
-        Upstream,
-        UpstreamAndDownstream,
+        IsDependency,
+        HasDependency,
+        IsAndHasDependency,
         IsolatedDependentPluginOne,
         IsolatedDependentPluginTwo,
     )
@@ -446,22 +481,76 @@ class TestSortDependentPluginGraph:
 
     async def test_with_unknown_dependencies(self) -> None:
         sorter = TopologicalSorter[type[_DummyDependentPlugin]]()
-        await sort_dependent_plugin_graph(sorter, self._PLUGINS, [Upstream])
+        await sort_dependent_plugin_graph(sorter, self._PLUGINS, [HasDependency])
         assert list(sorter.static_order()) == [
-            DownStream,
-            UpstreamAndDownstream,
-            Upstream,
+            IsDependency,
+            IsAndHasDependency,
+            HasDependency,
         ]
 
     async def test_with_known_dependencies(self) -> None:
         sorter = TopologicalSorter[type[_DummyDependentPlugin]]()
         await sort_dependent_plugin_graph(
-            sorter, self._PLUGINS, [Upstream, UpstreamAndDownstream, DownStream]
+            sorter, self._PLUGINS, [HasDependency, IsAndHasDependency, IsDependency]
         )
         assert list(sorter.static_order()) == [
-            DownStream,
-            UpstreamAndDownstream,
-            Upstream,
+            IsDependency,
+            IsAndHasDependency,
+            HasDependency,
+        ]
+
+    async def test_with_unknown_dependents(self) -> None:
+        sorter = TopologicalSorter[type[_DummyDependentPlugin]]()
+        await sort_dependent_plugin_graph(sorter, self._PLUGINS, [HasDependent])
+        assert list(sorter.static_order()) == [
+            HasDependent,
+            IsAndHasDependent,
+            IsDependent,
+        ]
+
+    async def test_with_known_dependents(self) -> None:
+        sorter = TopologicalSorter[type[_DummyDependentPlugin]]()
+        await sort_dependent_plugin_graph(
+            sorter, self._PLUGINS, [HasDependent, IsAndHasDependent, IsDependent]
+        )
+        assert list(sorter.static_order()) == [
+            HasDependent,
+            IsAndHasDependent,
+            IsDependent,
+        ]
+
+    async def test_with_unknown_dependencies_and_dependents(self) -> None:
+        sorter = TopologicalSorter[type[_DummyDependentPlugin]]()
+        await sort_dependent_plugin_graph(
+            sorter, self._PLUGINS, [HasDependencyAndDependent]
+        )
+        assert list(sorter.static_order()) == [
+            IsDependency,
+            IsAndHasDependency,
+            HasDependencyAndDependent,
+            IsAndHasDependent,
+            IsDependent,
+        ]
+
+    async def test_with_known_dependencies_and_dependents(self) -> None:
+        sorter = TopologicalSorter[type[_DummyDependentPlugin]]()
+        await sort_dependent_plugin_graph(
+            sorter,
+            self._PLUGINS,
+            [
+                HasDependencyAndDependent,
+                IsAndHasDependency,
+                IsDependency,
+                IsAndHasDependent,
+                IsDependent,
+            ],
+        )
+        assert list(sorter.static_order()) == [
+            IsDependency,
+            IsAndHasDependency,
+            HasDependencyAndDependent,
+            IsAndHasDependent,
+            IsDependent,
         ]
 
 

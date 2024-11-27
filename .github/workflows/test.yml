@@ -10,6 +10,9 @@ on:
     tags:
       - '*'
 
+env:
+  BETTY_TEST_HEADED: false
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}

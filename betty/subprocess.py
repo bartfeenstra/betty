@@ -5,11 +5,14 @@ Provide a subprocess API.
 import logging
 import os
 import subprocess
+import sys
 from asyncio import create_subprocess_exec, create_subprocess_shell
 from asyncio.subprocess import Process
 from collections.abc import Sequence
+from contextlib import suppress
 from pathlib import Path
-from subprocess import PIPE
+
+from betty.typing import internal
 
 
 class SubprocessError(Exception):
@@ -53,11 +56,14 @@ async def run_process(
     try:
         if shell:
             process = await create_subprocess_shell(
-                " ".join(runnee), cwd=cwd, stderr=PIPE, stdout=PIPE
+                " ".join(runnee),
+                cwd=cwd,
+                stderr=subprocess.PIPE,
+                stdout=subprocess.PIPE,
             )
         else:
             process = await create_subprocess_exec(
-                *runnee, cwd=cwd, stderr=PIPE, stdout=PIPE
+                *runnee, cwd=cwd, stderr=subprocess.PIPE, stdout=subprocess.PIPE
             )
         stdout, stderr = await process.communicate()
     except FileNotFoundError as error:
@@ -82,3 +88,31 @@ async def run_process(
         stdout_str,
         stderr_str,
     )
+
+
+@internal
+async def run_process_in_terminal(
+    runnee: Sequence[str], cwd: Path | None = None
+) -> Process:
+    """
+    Run a command in a subprocess in a new terminal window.
+
+    :raise betty.subprocess.SubprocessError:
+    """
+    # @todo macOS too
+    # Windows.
+    if sys.platform.startswith("win32"):
+        return await run_process(["cmd.exe", "/k", *runnee], cwd=cwd)
+    # Linux.
+    else:
+        commands = [
+            ["gnome-terminal", "--", *runnee],
+            ["xterm", "-e", *runnee],
+        ]
+        for command in commands:
+            with suppress(FileNotFoundError):
+                return await run_process(command, cwd=cwd)
+        terminals = [command[0] for command in commands]
+        raise FileNotFound(
+            f"Could not launch any of the following terminals: {terminals}"
+        )

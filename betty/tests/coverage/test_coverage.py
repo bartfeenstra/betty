@@ -290,6 +290,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/path.py": MissingReason.SHOULD_BE_COVERED,
     "betty/multiprocessing.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugin/__init__.py": {
+        "DependedOnByPlugin": MissingReason.ABSTRACT,
         "DependentPlugin": MissingReason.ABSTRACT,
         "OrderedPlugin": MissingReason.ABSTRACT,
         "Plugin": {
@@ -370,7 +371,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/project/extension/webpack/build.py": {
         "EntryPointProvider": MissingReason.ABSTRACT,
-        "webpack_build_id": MissingReason.SHOULD_BE_COVERED,
+        "get_build_id": MissingReason.SHOULD_BE_COVERED,
+        "get_prebuilt_build_directory_path": MissingReason.SHOULD_BE_COVERED,
+        "prebuild": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/project/extension/webpack/jinja2/__init__.py": MissingReason.SHOULD_BE_COVERED,
     "betty/project/extension/webpack/jinja2/filter.py": MissingReason.SHOULD_BE_COVERED,

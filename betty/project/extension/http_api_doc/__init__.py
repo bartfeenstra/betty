@@ -47,5 +47,5 @@ class HttpApiDoc(ShorthandPluginBase, EntryPointProvider):
         return Path(__file__).parent / "webpack"
 
     @override
-    def webpack_entry_point_cache_keys(self) -> Sequence[str]:
+    async def webpack_entry_point_cache_keys(self) -> Sequence[str]:
         return ()

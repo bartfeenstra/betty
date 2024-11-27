@@ -36,6 +36,7 @@ from betty.project.extension.cotton_candy import (
     person_timeline_events,
     associated_file_references,
     CottonCandy,
+    CottonCandyWebpackEntryPointProvider,
 )
 from betty.project.generate import generate
 from betty.test_utils.model import DummyEntity, DummyUserFacingEntity
@@ -369,7 +370,23 @@ class TestAssociatedFileReferences:
         ] == [file1, file2, file3, file4]
 
 
-class TestCottonCandy(EntryPointProviderTestBase, ExtensionTestBase[CottonCandy]):
+class TestCottonCandyWebpackEntryPointProvider(
+    EntryPointProviderTestBase, ExtensionTestBase[CottonCandyWebpackEntryPointProvider]
+):
+    @override
+    def get_sut_class(self) -> type[CottonCandyWebpackEntryPointProvider]:
+        return CottonCandyWebpackEntryPointProvider
+
+    @override
+    async def test_webpack_entry_point_cache_keys(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.enable(CottonCandy)
+            async with project:
+                sut = await project.new_target(self.get_sut_class())
+                await sut.webpack_entry_point_cache_keys()
+
+
+class TestCottonCandy(ExtensionTestBase[CottonCandy]):
     @override
     def get_sut_class(self) -> type[CottonCandy]:
         return CottonCandy

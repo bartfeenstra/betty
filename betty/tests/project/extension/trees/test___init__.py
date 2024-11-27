@@ -3,12 +3,21 @@ from typing_extensions import override
 
 from betty.app import App
 from betty.project import Project
-from betty.project.extension.trees import Trees
+from betty.project.extension.trees import Trees, TreesWebpackEntryPointProvider
 from betty.project.generate import generate
+from betty.test_utils.project.extension import ExtensionTestBase
 from betty.test_utils.project.extension.webpack.build import EntryPointProviderTestBase
 
 
-class TestTrees(EntryPointProviderTestBase):
+class TestTreesWebpackEntryPointProvider(
+    EntryPointProviderTestBase, ExtensionTestBase[TreesWebpackEntryPointProvider]
+):
+    @override
+    def get_sut_class(self) -> type[TreesWebpackEntryPointProvider]:
+        return TreesWebpackEntryPointProvider
+
+
+class TestTrees(ExtensionTestBase[Trees]):
     @override
     def get_sut_class(self) -> type[Trees]:
         return Trees
@@ -20,13 +29,17 @@ class TestTrees(EntryPointProviderTestBase):
             async with project:
                 await generate(project)
                 async with aiofiles.open(
-                    project.configuration.www_directory_path / "js" / "trees.js",
+                    project.configuration.www_directory_path
+                    / "js"
+                    / "trees-webpack.js",
                     encoding="utf-8",
                 ) as f:
                     betty_js = await f.read()
                 assert Trees.plugin_id() in betty_js
                 async with aiofiles.open(
-                    project.configuration.www_directory_path / "css" / "trees.css",
+                    project.configuration.www_directory_path
+                    / "css"
+                    / "trees-webpack.css",
                     encoding="utf-8",
                 ) as f:
                     betty_css = await f.read()

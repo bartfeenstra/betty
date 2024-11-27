@@ -41,7 +41,7 @@ from betty.project.extension.trees import Trees
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.generate import GenerateSiteEvent
-from betty.typing import private
+from betty.typing import private, internal
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -109,6 +109,39 @@ async def _generate_search_index_for_locale(
         await f.write(search_index_json)
 
 
+@internal
+@final
+class CottonCandyWebpackEntryPointProvider(ShorthandPluginBase, EntryPointProvider):
+    """
+    Integrate :py:class:`betty.project.extension.cotton_candy.CottonCandy` with :py:class:`betty.project.extension.webpack.Webpack`.
+    """
+
+    _plugin_id = "cotton-candy-webpack"
+    _plugin_label = static(_plugin_id)
+
+    @override
+    @classmethod
+    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
+        return {Webpack}
+
+    @override
+    @classmethod
+    def webpack_entry_point_directory_path(cls) -> Path:
+        return Path(__file__).parent / "webpack"
+
+    @override
+    async def webpack_entry_point_cache_keys(self) -> Sequence[str]:
+        extensions = await self.project.extensions
+        cotton_candy = extensions[CottonCandy]
+        return (
+            self.project.configuration.root_path,
+            cotton_candy.configuration.primary_inactive_color.hex,
+            cotton_candy.configuration.primary_active_color.hex,
+            cotton_candy.configuration.link_inactive_color.hex,
+            cotton_candy.configuration.link_active_color.hex,
+        )
+
+
 @final
 class CottonCandy(
     ShorthandPluginBase,
@@ -116,7 +149,6 @@ class CottonCandy(
     CssProvider,
     ConfigurableExtension[CottonCandyConfiguration],
     Jinja2Provider,
-    EntryPointProvider,
 ):
     """
     Provide Betty's default front-end theme.
@@ -143,7 +175,7 @@ class CottonCandy(
         static_url_generator = await project.static_url_generator
         return cls(
             project,
-            [static_url_generator.generate("/css/cotton-candy.css")],
+            [static_url_generator.generate("/css/cotton-candy-webpack.css")],
             configuration=cls.new_default_configuration(),
         )
 
@@ -167,8 +199,8 @@ class CottonCandy(
 
     @override
     @classmethod
-    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
-        return {Webpack}
+    def depended_on_by(cls) -> set[PluginIdentifier[Extension]]:
+        return {CottonCandyWebpackEntryPointProvider}
 
     @override
     @classmethod
@@ -179,21 +211,6 @@ class CottonCandy(
     @classmethod
     def assets_directory_path(cls) -> Path:
         return Path(__file__).parent / "assets"
-
-    @override
-    @classmethod
-    def webpack_entry_point_directory_path(cls) -> Path:
-        return Path(__file__).parent / "webpack"
-
-    @override
-    def webpack_entry_point_cache_keys(self) -> Sequence[str]:
-        return (
-            self.project.configuration.root_path,
-            self._configuration.primary_inactive_color.hex,
-            self._configuration.primary_active_color.hex,
-            self._configuration.link_inactive_color.hex,
-            self._configuration.link_active_color.hex,
-        )
 
     @override
     @property

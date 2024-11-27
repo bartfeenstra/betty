@@ -17,6 +17,7 @@ from betty.plugin import (
     DependentPlugin,
     sort_dependent_plugin_graph,
     sort_ordered_plugin_graph,
+    DependedOnByPlugin,
 )
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.project.factory import ProjectDependentFactory
@@ -37,6 +38,7 @@ _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 class Extension(
     OrderedPlugin["Extension"],
     DependentPlugin["Extension"],
+    DependedOnByPlugin["Extension"],
     CoreComponent,
     ProjectDependentFactory,
 ):
