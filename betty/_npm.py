@@ -8,27 +8,29 @@ from __future__ import annotations
 
 import logging
 import sys
+from subprocess import CalledProcessError
 from typing import Sequence, TYPE_CHECKING
 
+from betty import subprocess
 from betty.asyncio import wait_to_thread
 from betty.error import UserFacingError
 from betty.locale import Str, DEFAULT_LOCALIZER
 from betty.requirement import Requirement
-from betty.subprocess import run_process
 
 if TYPE_CHECKING:
     from pathlib import Path
     from asyncio import subprocess as aiosubprocess
 
-
-_NPM_UNAVAILABLE_MESSAGE = Str._(
+_NPM_SUMMARY_AVAILABLE = Str._("`npm` is available")
+_NPM_SUMMARY_UNAVAILABLE = Str._("`npm` is not available")
+_NPM_DETAILS = Str._(
     "npm (https://www.npmjs.com/) must be available for features that require Node.js packages to be installed. Ensure that the `npm` executable is available in your `PATH`."
 )
 
 
 class NpmUnavailable(UserFacingError, RuntimeError):
     def __init__(self):
-        super().__init__(_NPM_UNAVAILABLE_MESSAGE)
+        super().__init__(_NPM_DETAILS)
 
 
 async def npm(
@@ -39,7 +41,7 @@ async def npm(
     Run an npm command.
     """
     try:
-        return await run_process(
+        return await subprocess.run_process(
             ["npm", *arguments],
             cwd=cwd,
             # Use a shell on Windows so subprocess can find the executables it needs (see
@@ -55,7 +57,7 @@ class NpmRequirement(Requirement):
         super().__init__()
         self._met: bool
         self._summary: Str
-        self._details = _NPM_UNAVAILABLE_MESSAGE
+        self._details = _NPM_DETAILS
 
     def _check(self) -> None:
         if hasattr(self, "_met"):
@@ -64,10 +66,15 @@ class NpmRequirement(Requirement):
             wait_to_thread(npm(["--version"]))
         except NpmUnavailable:
             self._met = False
-            self._summary = Str._("`npm` is not available")
+            self._summary = _NPM_SUMMARY_UNAVAILABLE
+        except CalledProcessError as error:
+            logging.getLogger(__name__).exception(error)
+            logging.getLogger(__name__).debug(_NPM_DETAILS.localize(DEFAULT_LOCALIZER))
+            self._met = False
+            self._summary = _NPM_SUMMARY_UNAVAILABLE
         else:
             self._met = True
-            self._summary = Str._("`npm` is available")
+            self._summary = _NPM_SUMMARY_AVAILABLE
         finally:
             logging.getLogger(__name__).debug(self._summary.localize(DEFAULT_LOCALIZER))
 
