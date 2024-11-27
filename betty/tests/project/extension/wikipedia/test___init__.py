@@ -28,7 +28,9 @@ class TestWikipedia(ExtensionTestBase[Wikipedia]):
             sut = await project.new_target(self.get_sut_class())
             assert len(sut.filters)
 
-    async def test_filter(self, mocker: MockerFixture, new_temporary_app: App) -> None:
+    async def test_filter_wikipedia_links(
+        self, mocker: MockerFixture, new_temporary_app: App
+    ) -> None:
         language = "en"
         name = "Amsterdam"
         title = "Amstelredam"

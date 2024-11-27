@@ -14,7 +14,7 @@
         {% set page_image_reference = page_resource.file_references | selectattr('file', 'public') | selectattr('file.media_type.type', 'eq', 'image') | first %}
         {% if page_image_reference is defined %}
             {% set page_image = page_image_reference.file %}
-            {% set page_image_url = page_image_reference | filter_image_resize_cover((500, 500)) | static_url(absolute=true) %}
+            {% set page_image_url = page_image_reference | image_resize_cover((500, 500)) | static_url(absolute=true) %}
             <meta name="og:image" content="{{ page_image_url }}">
             <meta name="og:image:type" content="{{ page_image.media_type }}">
             <meta name="twitter:image" content="{{ page_image_url }}">

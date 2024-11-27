@@ -70,3 +70,17 @@ The extension will attempt the following for any entity that has a Wikipedia lin
 - for places, add coordinates if a place has none already
 - for any entity, add additional links to the translations of the given Wikipedia page 
 - for any entity that has files, add the primary image of the linked Wikipedia page
+
+Templating
+----------
+
+Globals
+^^^^^^^
+
+``wikipedia_contributors_copyright_notice`` (:py:class:`betty.wikipedia.copyright_notice.WikipediaContributors`)
+    The copyright notice plugin instance for Wikipedia contributors.
+
+Filters
+^^^^^^^
+
+- :py:meth:`wikipedia <betty.project.extension.wikipedia.Wikipedia.filter_wikipedia_links>`

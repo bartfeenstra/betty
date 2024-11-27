@@ -115,13 +115,16 @@ Display <a href="https://www.wikipedia.org/">Wikipedia</a> summaries for resourc
     @property
     def filters(self) -> Filters:
         return {
-            "wikipedia": self._filter_wikipedia_links,
+            "wikipedia": self.filter_wikipedia_links,
         }
 
     @pass_context
-    async def _filter_wikipedia_links(
+    async def filter_wikipedia_links(
         self, context: Context, links: Iterable[Link]
     ) -> Iterable[Summary]:
+        """
+        Given a sequence of links, return any Wikipedia summaries for them.
+        """
         return filter(
             None,
             await gather(

@@ -5,7 +5,7 @@
     {% if file.media_type and file.media_type.type == 'image' %}
         <div class="featured image">
             <a href="{{ file | file | static_url }}">
-                <img src="{{ file | filter_image_resize_cover((1500, 1500)) | static_url }}"{% if file.description %} alt="{{ file.description | localize }}"{% endif %}>
+                <img src="{{ file | image_resize_cover((1500, 1500)) | static_url }}"{% if file.description %} alt="{{ file.description | localize }}"{% endif %}>
             </a>
         </div>
     {% endif %}

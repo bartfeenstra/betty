@@ -23,9 +23,9 @@
                 {% set image_reference = image_references[0] %}
                 <picture>
                     {% for width, height, breakpoint_width in [(500, 500, 500), (1500, 1500, 1000), (2500, 2500, 1500)] %}
-                        <source srcset="{{ image_reference | filter_image_resize_cover((width, height)) | static_url }}" media="(min-width: {{ breakpoint_width }}px)">
+                        <source srcset="{{ image_reference | image_resize_cover((width, height)) | static_url }}" media="(min-width: {{ breakpoint_width }}px)">
                     {% endfor %}
-                    <img src="{{ image_reference | filter_image_resize_cover((500, 500)) | static_url }}"{% if image_reference.file.description %} alt="{{ image_reference.file.description | localize }}"{% endif %}>
+                    <img src="{{ image_reference | image_resize_cover((500, 500)) | static_url }}"{% if image_reference.file.description %} alt="{{ image_reference.file.description | localize }}"{% endif %}>
                 </picture>
             </a>
         </div>

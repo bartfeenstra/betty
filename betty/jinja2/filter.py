@@ -46,7 +46,6 @@ from betty.locale import (
     SPECIAL_LOCALES,
 )
 from betty.locale.error import LocaleError
-from betty.locale.localized import Localized, negotiate_localizeds, LocalizedStr
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, SVG
 from betty.os import link_or_copy
@@ -58,6 +57,7 @@ from betty.string import (
 from betty.typing import internal
 
 if TYPE_CHECKING:
+    from betty.locale.localized import Localized, LocalizedStr
     from betty.ancestry.date import HasDate
     from betty.date import Datey
     from betty.locale.localizable import Localizable
@@ -489,16 +489,12 @@ def filter_sort_localizeds(
     """
     Sort localized objects.
     """
-    from betty.jinja2 import context_localizer
-
     get_localized_attr = make_attrgetter(context.environment, localized_attribute)
     get_sort_attr = make_attrgetter(context.environment, sort_attribute)
 
     def _get_sort_key(x: Localized) -> Any:
         return get_sort_attr(
-            negotiate_localizeds(
-                context_localizer(context).locale, get_localized_attr(x)
-            )
+            filter_negotiate_localizeds(context, get_localized_attr(x))
         )
 
     return sorted(localizeds, key=_get_sort_key)
@@ -562,19 +558,12 @@ def filter_select_has_dates(
     )
 
 
-def filter_hashid(source: str) -> str:
-    """
-    Create a hash ID.
-    """
-    return hashid(source)
-
-
 @pass_context
 def filter_public_css(context: Context, public_path: str) -> None:
     """
     Add a CSS file to the current page.
     """
-    context.resolve_or_missing("public_css_paths").add(public_path)
+    context.resolve_or_missing("public_css_paths").append(public_path)
 
 
 @pass_context
@@ -582,7 +571,10 @@ def filter_public_js(context: Context, public_path: str) -> None:
     """
     Add a JavaScript file to the current page.
     """
-    context.resolve_or_missing("public_js_paths").add(public_path)
+    context.resolve_or_missing("public_js_paths").append(public_path)
+
+
+locale_get_data = get_data
 
 
 @internal
@@ -597,11 +589,11 @@ async def filters() -> Mapping[str, Callable[..., Any]]:
         "flatten": filter_flatten,
         "format_datey": filter_format_datey,
         "format_degrees": filter_format_degrees,
-        "hashid": filter_hashid,
-        "filter_image_resize_cover": filter_image_resize_cover,
+        "hashid": hashid,
+        "image_resize_cover": filter_image_resize_cover,
         "html_lang": filter_html_lang,
         "json": filter_json,
-        "locale_get_data": get_data,
+        "locale_get_data": locale_get_data,
         "localize": filter_localize,
         "localized_url": filter_localized_url,
         "map": filter_map,

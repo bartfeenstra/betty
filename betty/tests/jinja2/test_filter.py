@@ -210,7 +210,7 @@ class TestFilterImageResizeCover(TemplateStringTestBase):
     _PARAMETER_ARGVALUES = [
         (
             "/file/F1-99x-.png",
-            "{{ filey | filter_image_resize_cover((99, none)) }}",
+            "{{ filey | image_resize_cover((99, none)) }}",
             File(
                 id="F1",
                 path=_IMAGE_PATH,
@@ -219,7 +219,7 @@ class TestFilterImageResizeCover(TemplateStringTestBase):
         ),
         (
             "/file/F1--x99.png",
-            "{{ filey | filter_image_resize_cover((none, 99)) }}",
+            "{{ filey | image_resize_cover((none, 99)) }}",
             File(
                 id="F1",
                 path=_IMAGE_PATH,
@@ -228,7 +228,7 @@ class TestFilterImageResizeCover(TemplateStringTestBase):
         ),
         (
             "/file/F1-99x99.png",
-            "{{ filey | filter_image_resize_cover((99, 99)) }}",
+            "{{ filey | image_resize_cover((99, 99)) }}",
             File(
                 id="F1",
                 path=_IMAGE_PATH,
@@ -237,7 +237,7 @@ class TestFilterImageResizeCover(TemplateStringTestBase):
         ),
         (
             "/file/F1-99x99-1x2x3x4.png",
-            "{{ filey | filter_image_resize_cover((99, 99), focus=(1, 2, 3, 4)) }}",
+            "{{ filey | image_resize_cover((99, 99), focus=(1, 2, 3, 4)) }}",
             File(
                 id="F1",
                 path=_IMAGE_PATH,
@@ -246,7 +246,7 @@ class TestFilterImageResizeCover(TemplateStringTestBase):
         ),
         (
             "/file/F1-99x99.png:/file/F1-99x99.png",
-            "{{ filey | filter_image_resize_cover((99, 99)) }}:{{ filey | filter_image_resize_cover((99, 99)) }}",
+            "{{ filey | image_resize_cover((99, 99)) }}:{{ filey | image_resize_cover((99, 99)) }}",
             File(
                 id="F1",
                 path=_IMAGE_PATH,
@@ -255,7 +255,7 @@ class TestFilterImageResizeCover(TemplateStringTestBase):
         ),
         (
             "/file/F1-99x99.png",
-            "{{ filey | filter_image_resize_cover((99, 99)) }}",
+            "{{ filey | image_resize_cover((99, 99)) }}",
             FileReference(
                 DummyHasFileReferences(),
                 File(
@@ -267,7 +267,7 @@ class TestFilterImageResizeCover(TemplateStringTestBase):
         ),
         (
             "/file/F1-99x99-0x0x9x9.png",
-            "{{ filey | filter_image_resize_cover((99, 99)) }}",
+            "{{ filey | image_resize_cover((99, 99)) }}",
             FileReference(
                 DummyHasFileReferences(),
                 File(
@@ -318,7 +318,7 @@ class TestFilterImageResizeCover(TemplateStringTestBase):
                 '<?xml version="1.0" encoding="UTF-8"?><svg version="1.1" xmlns="http://www.w3.org/2000/svg"></svg>'
             )
         async with self.assert_template_string(
-            template="{{ filey | filter_image_resize_cover }}",
+            template="{{ filey | image_resize_cover }}",
             data={
                 "filey": File(
                     id="F1",
@@ -338,7 +338,7 @@ class TestFilterImageResizeCover(TemplateStringTestBase):
         image = Image.new("1", (1, 1))
         image.save(image_path)
         async with self.assert_template_string(
-            template="{{ filey | filter_image_resize_cover }}",
+            template="{{ filey | image_resize_cover }}",
             data={
                 "filey": File(
                     id="F1",
@@ -358,7 +358,7 @@ class TestFilterImageResizeCover(TemplateStringTestBase):
         file_path.touch()
         with pytest.raises(ValueError):  # noqa PT011
             async with self.assert_template_string(
-                template="{{ filey | filter_image_resize_cover }}",
+                template="{{ filey | image_resize_cover }}",
                 data={
                     "filey": File(
                         id="F1",
@@ -372,7 +372,7 @@ class TestFilterImageResizeCover(TemplateStringTestBase):
     async def test_with_file_without_media_type(self, tmp_path: Path) -> None:
         with pytest.raises(ValueError):  # noqa PT011
             async with self.assert_template_string(
-                template="{{ filey | filter_image_resize_cover }}",
+                template="{{ filey | image_resize_cover }}",
                 data={"filey": File(id="F1", path=self._IMAGE_PATH)},
             ):
                 pass  # pragma: nocover
@@ -775,7 +775,7 @@ class TestFilterPublicCss(TemplateStringTestBase):
             template=template,
             data={"data": "/css/my-first-css.css"},
         ) as (actual, _):
-            assert actual == "None{'/css/my-first-css.css'}"
+            assert actual == "None['/css/my-first-css.css']"
 
 
 class TestFilterPublicJs(TemplateStringTestBase):
@@ -785,7 +785,7 @@ class TestFilterPublicJs(TemplateStringTestBase):
             template=template,
             data={"data": "/js/my-first-js.js"},
         ) as (actual, _):
-            assert actual == "None{'/js/my-first-js.js'}"
+            assert actual == "None['/js/my-first-js.js']"
 
 
 class TestFilterStaticUrl(TemplateStringTestBase):

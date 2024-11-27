@@ -20,6 +20,8 @@ from betty.cli.commands import COMMAND_REPOSITORY
 from betty.documentation import DocumentationServer
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.functools import Do
+from betty.jinja2.filter import filters
+from betty.jinja2.test import tests
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project.config import ProjectConfiguration
 from betty.serde.format import Format
@@ -96,6 +98,26 @@ class TestDocumentation:
         assert dump is not None
         configuration = await ProjectConfiguration.new(tmp_path / "betty.json")
         configuration.load(serde_format.load(dump))
+
+    async def test_should_contain_builtin_jinja2_filters(self) -> None:
+        with open(
+            ROOT_DIRECTORY_PATH
+            / "documentation"
+            / "usage"
+            / "templating"
+            / "filters.rst"
+        ) as f:
+            documentation = f.read()
+        for filter_name in await filters():
+            assert f":`{filter_name} <" in documentation
+
+    async def test_should_contain_builtin_jinja2_tests(self) -> None:
+        with open(
+            ROOT_DIRECTORY_PATH / "documentation" / "usage" / "templating" / "tests.rst"
+        ) as f:
+            documentation = f.read()
+        for test_name in await tests():
+            assert f":`{test_name} <" in documentation
 
 
 class TestDocstringSphinxReferences:

@@ -5,7 +5,7 @@
     </div>
     {% if entity.media_type and entity.media_type.type== 'image' %}
         <div class="search-result-preview">
-            <img src="{{ entity | filter_image_resize_cover((50, 50)) | static_url }}" class="image"{% if entity.description %} alt="{{ entity.description | localize }}"{% endif %}>
+            <img src="{{ entity | image_resize_cover((50, 50)) | static_url }}" class="image"{% if entity.description %} alt="{{ entity.description | localize }}"{% endif %}>
         </div>
     {% endif %}
 </a>

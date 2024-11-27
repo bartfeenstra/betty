@@ -4,11 +4,12 @@ Provide Jinja2 filters to integrate with Webpack.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from jinja2 import pass_context
 
-from betty.project.extension.webpack.jinja2 import _context_js_entry_points
 from betty.jinja2.filter import filter_public_js
-from typing import TYPE_CHECKING
+from betty.project.extension.webpack.jinja2 import _context_js_entry_points
 
 if TYPE_CHECKING:
     from betty.jinja2 import Filters

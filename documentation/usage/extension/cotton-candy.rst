@@ -117,3 +117,13 @@ The **entity type ID** of the entity (type) to feature, e.g. ``person``.
 :sup:`required`
 
 The **entity ID** of the entity to feature, e.g. ``P123``.
+
+Templating
+----------
+
+Filters
+^^^^^^^
+
+- :py:func:`associated_file_references <betty.project.extension.cotton_candy.associated_file_references>`
+- :py:func:`person_descendant_families <betty.project.extension.cotton_candy.person_descendant_families>`
+- :py:func:`person_timeline_events <betty.project.extension.cotton_candy.person_timeline_events>`

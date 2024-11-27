@@ -341,18 +341,18 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
         today = datetime.date.today()
         self.globals["today"] = Date(today.year, today.month, today.day)
         # Ideally we would use the Dispatcher for this. However, it is asynchronous only.
-        self.globals["public_css_paths"] = {
+        self.globals["public_css_paths"] = [
             path
             for extension in self._extensions
             if isinstance(extension, CssProvider)
             for path in extension.public_css_paths
-        }
-        self.globals["public_js_paths"] = {
+        ]
+        self.globals["public_js_paths"] = [
             path
             for extension in self._extensions
             if isinstance(extension, JsProvider)
             for path in extension.public_js_paths
-        }
+        ]
         self.globals["entity_contexts"] = self._entity_contexts
         self.globals["localizer"] = DEFAULT_LOCALIZER
 

@@ -1,5 +1,5 @@
 <figure>
-    <img src="{{ file | filter_image_resize_cover((500, 500), focus=focus) | static_url }}"{% if file.description %} alt="{{ file.description | localize }}"{% endif %}>
+    <img src="{{ file | image_resize_cover((500, 500), focus=focus) | static_url }}"{% if file.description %} alt="{{ file.description | localize }}"{% endif %}>
     {% if file.description %}
         <figcaption>{{ file.description | localize }}</figcaption>
     {% endif %}
