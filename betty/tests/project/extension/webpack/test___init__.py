@@ -61,7 +61,9 @@ class TestWebpack(ExtensionTestBase[Webpack]):
         self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
     ) -> None:
         webpack_build_directory_path = tmp_path
-        m_build = mocker.patch("betty.project.extension.webpack.build.Builder.build")
+        m_build = mocker.patch(
+            "betty.project.extension.webpack.build.DirectoryBuilder.build"
+        )
         m_build.return_value = webpack_build_directory_path
 
         async with aiofiles.open(
@@ -82,7 +84,9 @@ class TestWebpack(ExtensionTestBase[Webpack]):
     async def test_generate_without_npm_with_prebuild(
         self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
     ) -> None:
-        m_build = mocker.patch("betty.project.extension.webpack.build.Builder.build")
+        m_build = mocker.patch(
+            "betty.project.extension.webpack.build.DirectoryBuilder.build"
+        )
         m_build.side_effect = NpmUnavailable()
 
         webpack_build_directory_path = (
@@ -113,7 +117,9 @@ class TestWebpack(ExtensionTestBase[Webpack]):
     ) -> None:
         prebuilt_assets_directory_path = tmp_path
 
-        m_build = mocker.patch("betty.project.extension.webpack.build.Builder.build")
+        m_build = mocker.patch(
+            "betty.project.extension.webpack.build.DirectoryBuilder.build"
+        )
         m_build.side_effect = NpmUnavailable()
 
         original_prebuilt_assets_directory_path = fs.PREBUILT_ASSETS_DIRECTORY_PATH
@@ -142,7 +148,9 @@ class TestWebpack(ExtensionTestBase[Webpack]):
         )
         prebuilt_assets_directory_path = tmp_path / "prebuild"
 
-        m_build = mocker.patch("betty.project.extension.webpack.build.Builder.build")
+        m_build = mocker.patch(
+            "betty.project.extension.webpack.build.DirectoryBuilder.build"
+        )
         m_build.return_value = webpack_build_directory_path
 
         await makedirs(webpack_build_directory_path)

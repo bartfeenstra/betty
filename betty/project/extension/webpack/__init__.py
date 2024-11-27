@@ -72,6 +72,7 @@ async def _prebuild_webpack_assets() -> None:
                 await webpack.prebuild(job_context=job_context)
 
 
+@internal
 class WebpackEntryPointProvider(Extension):
     """
     An extension that provides Webpack entry points.
@@ -97,6 +98,7 @@ class WebpackEntryPointProvider(Extension):
         pass
 
 
+@internal
 class PrebuiltAssetsRequirement(Requirement):
     """
     Check if prebuilt assets are available.
@@ -217,11 +219,11 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
         working_directory_path: Path,
         *,
         job_context: Context,
-    ) -> build.Builder:
-        return build.Builder(
+    ) -> build.DirectoryBuilder:
+        return await build.DirectoryBuilder.new(
             working_directory_path,
-            await self._project_entry_point_providers(),
             self._project.configuration.debug,
+            await self._project_entry_point_providers(),
             await self._project.renderer,
             job_context=job_context,
             localizer=await self._project.app.localizer,

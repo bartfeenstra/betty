@@ -75,6 +75,11 @@ const webpackConfiguration = {
     path: path.resolve(__dirname, configuration.buildDirectoryPath),
     filename: 'js/[name].js'
   },
+  devServer: {
+      watchFiles: {
+          paths: configuration.watchFiles,
+      }
+  },
   optimization: {
     concatenateModules: true,
     minimize: !configuration.debug,

@@ -24,7 +24,8 @@
     "webpack-cli": "^5.1.4"
   },
   "scripts": {
-    "webpack": "webpack --config webpack.config.js"
+    "build": "webpack --config webpack.config.js",
+    "build-watch": "webpack serve --config webpack.config.js --open --watch"
   },
   "type": "module"
 }

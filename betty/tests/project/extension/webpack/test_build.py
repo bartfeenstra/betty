@@ -11,7 +11,7 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.project.extension.webpack import WebpackEntryPointProvider
-from betty.project.extension.webpack.build import Builder
+from betty.project.extension.webpack.build import DirectoryBuilder
 from betty.test_utils.project.extension import DummyExtension
 
 
@@ -24,7 +24,7 @@ class DummyEntryPointProviderExtension(WebpackEntryPointProvider, DummyExtension
         return ()
 
 
-class TestBuilder:
+class TestDirectoryBuilder:
     @pytest.fixture(autouse=True)
     def _extensions(self, mocker: MockerFixture) -> None:
         mocker.patch(
@@ -49,14 +49,14 @@ class TestBuilder:
                 job_context = Context()
                 async with project:
                     extensions = await project.extensions
-                    sut = Builder(
+                    sut = await DirectoryBuilder.new(
                         tmp_path,
+                        False,
                         (
                             [extensions[DummyEntryPointProviderExtension]]
                             if with_entry_point_provider
                             else []
                         ),
-                        False,
                         await project.renderer,
                         job_context=job_context,
                         localizer=DEFAULT_LOCALIZER,
@@ -83,10 +83,10 @@ class TestBuilder:
 
         job_context = Context()
         m_renderer = mocker.AsyncMock()
-        sut = Builder(
+        sut = await DirectoryBuilder.new(
             tmp_path,
-            [],
             False,
+            [],
             m_renderer,
             job_context=job_context,
             localizer=DEFAULT_LOCALIZER,

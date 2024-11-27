@@ -89,6 +89,7 @@ betty = 'betty.cli:main'
 [project.entry-points.'betty.dev.command']
 'dev-new-translation' = 'betty.cli.commands.dev_new_translation:DevNewTranslation'
 'dev-update-translations' = 'betty.cli.commands.dev_update_translations:DevUpdateTranslations'
+'dev-webpack-serve' = 'betty.cli.commands.dev_webpack_serve:DevWebpackServe'
 
 [project.entry-points.'betty.copyright_notice']
 'project-author' = 'betty.copyright_notice.copyright_notices:ProjectAuthor'
