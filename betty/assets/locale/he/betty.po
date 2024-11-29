@@ -1,0 +1,1021 @@
+# Hebrew translations for Betty.
+# Copyright (C) 2024 Bart Feenstra & contributors
+# This file is distributed under the same license as the Betty project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Betty VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2024-11-29 14:39+0000\n"
+"PO-Revision-Date: 2024-11-29 14:59+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: he\n"
+"Language-Team: he <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.16.0\n"
+
+msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
+msgstr ""
+
+msgid "\"{invalid_locale}\" is not a valid IETF BCP 47 language tag."
+msgstr ""
+
+msgid "\"{path}\" is not a directory."
+msgstr ""
+
+msgid "\"{value}\" is not a valid machine name: only lowercase letters, digits, and hyphens (-) are allowed."
+msgstr ""
+
+#, python-format
+msgid "%(date)s in %(place)s"
+msgstr ""
+
+#, python-format
+msgid "%(event)s of %(subjects)s"
+msgstr ""
+
+#, python-format
+msgid "%(event)s with %(subjects)s"
+msgstr ""
+
+#, python-format
+msgid "%(person_individual_name)s had a child with %(co_parent_labels)s."
+msgid_plural "%(person_individual_name)s had %(child_count)s children with %(co_parent_labels)s."
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid "%(person_individual_name)s had a child."
+msgid_plural "%(person_individual_name)s had %(child_count)s children."
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid "%(person_individual_name)s is the child of %(parent_labels)s."
+msgstr ""
+
+msgid "A family history as told by <a href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
+msgstr ""
+
+msgid "API documentation"
+msgstr ""
+
+msgid "About"
+msgstr ""
+
+msgid "Access denied"
+msgstr ""
+
+#, python-format
+msgid "Accessed %(date)s"
+msgstr ""
+
+msgid "Adoption"
+msgstr ""
+
+msgid "All caches cleared."
+msgstr ""
+
+msgid "All of these requirements must be met"
+msgstr ""
+
+msgid "All rights reserved"
+msgstr ""
+
+#, python-format
+msgid "Also known as %(names)s"
+msgstr ""
+
+msgid "Ancestral names include"
+msgstr ""
+
+msgid "Announcement of divorce"
+msgstr ""
+
+msgid "Announcement of marriage"
+msgstr ""
+
+msgid "Appearances"
+msgstr ""
+
+msgid "At least {expected} items are required, but found {actual}."
+msgstr ""
+
+msgid "At most {expected} items are allowed, but found {actual}."
+msgstr ""
+
+msgid "At which URL will your site be published?"
+msgstr ""
+
+msgid "Attendee"
+msgstr ""
+
+msgid "Baptism"
+msgstr ""
+
+msgid "Bar mitzvah"
+msgstr ""
+
+msgid "Bat mitzvah"
+msgstr ""
+
+msgid "Beneficiary"
+msgstr ""
+
+msgid "Betty could not load the SPDX licenses"
+msgstr ""
+
+msgid "Betty is an application that takes a family tree and builds a website out of it, much like the one you are viewing right now. The more information your genealogical research contains, the more interactivity Betty can add to your site, such as media galleries, maps, and browsable family trees."
+msgstr ""
+
+msgid "Betty is unfamiliar with Gramps event \"{event_id}\"'s type of \"{gramps_event_type}\". The event was imported, but its type was set to \"{betty_event_type}\"."
+msgstr ""
+
+msgid "Betty is unfamiliar with Gramps file \"{file_id}\"'s copyright notice ID of \"{copyright_notice_id}\" and ignored it."
+msgstr ""
+
+msgid "Betty is unfamiliar with Gramps file \"{file_id}\"'s license ID of \"{license_id}\" and ignored it."
+msgstr ""
+
+msgid "Betty is unfamiliar with Gramps person \"{person_id}\"'s gender of \"{gramps_gender}\". The person was imported, but their gender was set to \"{betty_gender}\"."
+msgstr ""
+
+msgid "Betty is unfamiliar with Gramps place \"{place_id}\"'s type of \"{gramps_place_type}\". The place was imported, but its type was set to \"{betty_place_type}\"."
+msgstr ""
+
+msgid "Betty is unfamiliar with person \"{person_id}\"'s Gramps presence role of \"{gramps_presence_role}\" for the event with Gramps handle \"{event_handle}\". The role was imported, but set to \"{betty_presence_role}\"."
+msgstr ""
+
+#, python-format
+msgid "Betty was named after %(liberta_lankester_label)s, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
+msgstr ""
+
+msgid "Betty will talk to you in {locale}"
+msgstr ""
+
+msgid "Birth"
+msgstr ""
+
+msgid "Borough"
+msgstr ""
+
+msgid "Building"
+msgstr ""
+
+msgid "Built the Webpack front-end assets."
+msgstr ""
+
+msgid "Burial"
+msgstr ""
+
+msgid "Cannot find an available port to bind the web server to."
+msgstr ""
+
+msgid "Cannot find and import \"{plugin_id}\"."
+msgstr ""
+
+msgid "Cannot find locale {locale}."
+msgstr ""
+
+msgid "Cannot generate pages for {entity_type}, because it is not a user-facing entity type."
+msgstr ""
+
+msgid "Cannot load Gramps file {file_id} with relative path {file_path}, because your family tree does not include a base path. In Gramps, add a \"base path for relative media paths\" to your family tree, and export it again."
+msgstr ""
+
+msgid "Cannot load Gramps file {file_id}, because {file_path} is not a file."
+msgstr ""
+
+msgid "Cannot load coordinates \"{coordinates}\", because they are in an unknown format."
+msgstr ""
+
+msgid "Celebrant"
+msgstr ""
+
+msgid "Citation"
+msgstr ""
+
+msgid "Citations"
+msgstr ""
+
+msgid "City"
+msgstr ""
+
+msgid "Clear all caches"
+msgstr ""
+
+msgid "Conference"
+msgstr ""
+
+msgid "Configure Betty"
+msgstr ""
+
+msgid "Confirmation"
+msgstr ""
+
+#, python-format
+msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
+msgstr ""
+
+msgid "Copyright"
+msgstr ""
+
+msgid "Copyright Wikipedia contributors"
+msgstr ""
+
+msgid "Copyright of these works lies with the original authors who contributed them to Wikipedia."
+msgstr ""
+
+msgid "Correspondence"
+msgstr ""
+
+msgid "Cotton Candy is Betty's default theme."
+msgstr ""
+
+msgid "Could not extract {file_path} as a gzip file  (*.gz)."
+msgstr ""
+
+msgid "Could not extract {file_path} as a gzipped tar file  (*.tar.gz)."
+msgstr ""
+
+msgid "Could not find a plugin \"{plugin_id}\"."
+msgstr ""
+
+msgid "Could not find any of the following configuration files in {project_directory_path}: {configuration_file_names}."
+msgstr ""
+
+msgid "Could not find the file \"{file_path}\"."
+msgstr ""
+
+msgid "Could not load \"{file_path}\" as a *.gpkg, a *.gramps, or an *.xml family tree."
+msgstr ""
+
+msgid "Country"
+msgstr ""
+
+msgid "County"
+msgstr ""
+
+msgid "Create a new project"
+msgstr ""
+
+msgid "Create a new translation"
+msgstr ""
+
+msgid "Create a new translation for Betty itself"
+msgstr ""
+
+msgid "Create a new translation for an extension"
+msgstr ""
+
+msgid "Create events such as births and deaths by deriving their details from existing information."
+msgstr ""
+
+msgid "Created {created_derivations} additional {event_type} events based on existing information."
+msgstr ""
+
+msgid "Cremation"
+msgstr ""
+
+msgid "Death"
+msgstr ""
+
+msgid "Department"
+msgstr ""
+
+msgid "Deriver"
+msgstr ""
+
+msgid "Deriving..."
+msgstr ""
+
+msgid "Descendant names include"
+msgstr ""
+
+msgid "Description, licensing, and image history"
+msgstr ""
+
+msgid "Determine if people can be proven to have died. If not, mark them and their associated entities private."
+msgstr ""
+
+msgid "Display interactive family trees using <a href=\"https://cytoscape.org/\">Cytoscape</a>."
+msgstr ""
+
+msgid "Display lists of places as interactive maps using <a href=\"https://leafletjs.com/\">Leaflet</a>."
+msgstr ""
+
+msgid "Display the HTTP API documentation in a user-friendly way using <a href=\"https://swagger.io/tools/swagger-ui\">Swagger UI</a>."
+msgstr ""
+
+msgid "District"
+msgstr ""
+
+msgid "Divorce"
+msgstr ""
+
+msgid "Do you mean one of {available_options}?"
+msgstr ""
+
+msgid "Do you mean {available_option}?"
+msgstr ""
+
+msgid "Do you want to add another locale?"
+msgstr ""
+
+msgid "Do you want to load a Gramps family tree?"
+msgstr ""
+
+#, python-format
+msgid "E.g. \"%(example)s\""
+msgstr ""
+
+msgid "Emigration"
+msgstr ""
+
+msgid "Enclosure"
+msgstr ""
+
+msgid "Enclosures"
+msgstr ""
+
+msgid "Engagement"
+msgstr ""
+
+msgid "Enhance your ancestry with information from Wikipedia"
+msgstr ""
+
+msgid "Event"
+msgstr ""
+
+msgid "Events"
+msgstr ""
+
+msgid "Exactly {expected} items are required, but found {actual}."
+msgstr ""
+
+msgid "Exit the search"
+msgstr ""
+
+msgid "Explore a demonstration site"
+msgstr ""
+
+msgid "External links"
+msgstr ""
+
+msgid "Facts"
+msgstr ""
+
+msgid "Family"
+msgstr ""
+
+msgid "Farm"
+msgstr ""
+
+msgid "Female"
+msgstr ""
+
+msgid "File"
+msgstr ""
+
+msgid "File reference"
+msgstr ""
+
+msgid "File references"
+msgstr ""
+
+msgid "Files"
+msgstr ""
+
+msgid "Find out more about this image on Wikimedia Commons."
+msgstr ""
+
+msgid "Funeral"
+msgstr ""
+
+msgid "Generate a static site"
+msgstr ""
+
+msgid "Generated {completed_job_count} out of {total_job_count} items ({completed_job_percentage}%)."
+msgstr ""
+
+msgid "Generating JSON Schema..."
+msgstr ""
+
+msgid "Generating OpenAPI specification..."
+msgstr ""
+
+msgid "Generating localized public files in {locale}..."
+msgstr ""
+
+msgid "Generating static public files..."
+msgstr ""
+
+msgid "Generating your site to {output_directory}."
+msgstr ""
+
+msgid "HTTP API Documentation"
+msgstr ""
+
+msgid "Hamlet"
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems there are no events."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems there are no media."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems there are no people."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems there are no places."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems there are no sources."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems this page does not exist."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems you're not logged in."
+msgstr ""
+
+msgid "Immigration"
+msgstr ""
+
+msgid "Informant"
+msgstr ""
+
+msgid "Invalid JSON: {error}."
+msgstr ""
+
+msgid "Invalid YAML: {error}."
+msgstr ""
+
+msgid "Language"
+msgstr ""
+
+#, python-format
+msgid "Last modified on %(last_modified)s"
+msgstr ""
+
+msgid "License"
+msgstr ""
+
+msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
+msgstr ""
+
+msgid "Loaded the configuration from {configuration_file_path}."
+msgstr ""
+
+msgid "Loaded {citation_count} citations."
+msgstr ""
+
+msgid "Loaded {event_count} events."
+msgstr ""
+
+msgid "Loaded {file_count} files."
+msgstr ""
+
+msgid "Loaded {note_count} notes."
+msgstr ""
+
+msgid "Loaded {person_count} people."
+msgstr ""
+
+msgid "Loaded {place_count} places."
+msgstr ""
+
+msgid "Loaded {repository_count} repositories as sources."
+msgstr ""
+
+msgid "Loaded {source_count} sources."
+msgstr ""
+
+msgid "Loading \"{file_path}\"..."
+msgstr ""
+
+msgid "Locale aliases must not contain slashes."
+msgstr ""
+
+msgid "Locality"
+msgstr ""
+
+msgid "MMMM"
+msgstr ""
+
+msgid "MMMM d"
+msgstr ""
+
+msgid "MMMM d, y"
+msgstr ""
+
+msgid "MMMM, y"
+msgstr ""
+
+msgid "Male"
+msgstr ""
+
+msgid "Maps"
+msgstr ""
+
+msgid "Marriage"
+msgstr ""
+
+msgid "Media"
+msgstr ""
+
+msgid "Menu"
+msgstr ""
+
+msgid "Missing"
+msgstr ""
+
+msgid "Municipality"
+msgstr ""
+
+msgid "Neighborhood"
+msgstr ""
+
+msgid "No part may be reproduced or distributed in any form or by any means, without express written permission from the copyright holder, or unless permitted by copyright law."
+msgstr ""
+
+msgid "Non-binary"
+msgstr ""
+
+msgid "Note"
+msgstr ""
+
+msgid "Notes"
+msgstr ""
+
+msgid "Number"
+msgstr ""
+
+msgid "Occupation"
+msgstr ""
+
+msgid "One or more of these requirements must be met"
+msgstr ""
+
+msgid "Organizer"
+msgstr ""
+
+msgid "Other attendees"
+msgstr ""
+
+msgid "Page not found"
+msgstr ""
+
+msgid "Parish"
+msgstr ""
+
+msgid "People"
+msgstr ""
+
+msgid "Permanent link to this section."
+msgstr ""
+
+msgid "Person"
+msgstr ""
+
+msgid "Person name"
+msgstr ""
+
+msgid "Person names"
+msgstr ""
+
+msgid "Place"
+msgstr ""
+
+msgid "Places"
+msgstr ""
+
+msgid "Plugin {plugin_label} ({plugin_id}) is not configurable, but configuration was given."
+msgstr ""
+
+msgid "Pre-built Webpack front-end assets are available"
+msgstr ""
+
+msgid "Pre-built Webpack front-end assets are unavailable"
+msgstr ""
+
+msgid "Presence"
+msgstr ""
+
+msgid "Presence of {person} at {event}"
+msgstr ""
+
+msgid "Presences"
+msgstr ""
+
+msgid "Privatized person {privatized_person_id} ({privatized_person}) because they are likely still alive."
+msgstr ""
+
+msgid "Privatized place {privatized_place_id} ({privatized_place}) because it is not associated with any public information."
+msgstr ""
+
+msgid "Privatized {count} people because they are likely still alive."
+msgstr ""
+
+msgid "Privatized {count} {entity_type}, because they are associated with private information."
+msgstr ""
+
+msgid "Privatized {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity})."
+msgstr ""
+
+msgid "Privatizer"
+msgstr ""
+
+msgid "Privatizing..."
+msgstr ""
+
+msgid "Project author"
+msgstr ""
+
+msgid "Province"
+msgstr ""
+
+msgid "Public domain"
+msgstr ""
+
+msgid "Read more on Wikipedia."
+msgstr ""
+
+msgid "References"
+msgstr ""
+
+msgid "Region"
+msgstr ""
+
+msgid "Residence"
+msgstr ""
+
+msgid "Retirement"
+msgstr ""
+
+msgid "Saved your project to {configuration_file}."
+msgstr ""
+
+msgid "Serve a generated site"
+msgstr ""
+
+msgid "Serving your site at {url}..."
+msgstr ""
+
+msgid "Source"
+msgstr ""
+
+msgid "Sources"
+msgstr ""
+
+msgid "Speaker"
+msgstr ""
+
+msgid "Starting Python's built-in web server..."
+msgstr ""
+
+msgid "State"
+msgstr ""
+
+msgid "Street"
+msgstr ""
+
+msgid "Subject"
+msgstr ""
+
+msgid "The Gramps {gramps_entity_reference} entity has a \"betty:link-{link_name}:media_type\" attribute with value \"{media_type}\", which is not a valid IANA media type. This media type was ignored."
+msgstr ""
+
+msgid "The Gramps {gramps_entity_reference} entity requires a \"betty:link-{link_name}:url\" attribute. This link was ignored."
+msgstr ""
+
+msgid "The URL must include a host."
+msgstr ""
+
+msgid "The URL must start with a scheme such as https:// or http://."
+msgstr ""
+
+msgid "The betty:privacy Gramps attribute must have a value of \"public\" or \"private\", but \"{privacy_value}\" was given for {entity_type} {entity_id} ({entity_label}), which was ignored."
+msgstr ""
+
+msgid "The entity reference must be for an entity of type {expected_entity_type_id}, but instead does not specify an entity type at all."
+msgstr ""
+
+msgid "The entity reference must be for an entity of type {expected_entity_type_id}, but instead is for an entity of type {actual_entity_type_id}."
+msgstr ""
+
+msgid "The following errors occurred"
+msgstr ""
+
+msgid "The server at {url} was unreachable after starting."
+msgstr ""
+
+msgid "There are no available options."
+msgstr ""
+
+#, python-format
+msgid "They are the child of %(parent_labels)s."
+msgstr ""
+
+#, python-format
+msgid "They grew up with a sibling."
+msgid_plural "They grew up with %(sibling_count)s siblings."
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid "They had a child with %(co_parent_labels)s."
+msgid_plural "They had %(child_count)s children with %(co_parent_labels)s."
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid "They had a child."
+msgid_plural "They had %(child_count)s children."
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "This citation's details are unavailable to protect people's privacy."
+msgstr ""
+
+msgid "This field is required."
+msgstr ""
+
+msgid "This must be a boolean."
+msgstr ""
+
+msgid "This must be a decimal number."
+msgstr ""
+
+msgid "This must be a key-value mapping."
+msgstr ""
+
+msgid "This must be a positive number."
+msgstr ""
+
+msgid "This must be a sequence."
+msgstr ""
+
+msgid "This must be a string."
+msgstr ""
+
+msgid "This must be a whole number."
+msgstr ""
+
+msgid "This must be none/null."
+msgstr ""
+
+msgid "This person's details are unavailable to protect their privacy."
+msgstr ""
+
+msgid "This person's name is unavailable to protect their privacy."
+msgstr ""
+
+msgid "This person's name is unknown."
+msgstr ""
+
+msgid "This source's details are unavailable to protect people's privacy."
+msgstr ""
+
+msgid "Timeline"
+msgstr ""
+
+msgid "Town"
+msgstr ""
+
+msgid "Trees"
+msgstr ""
+
+msgid "Unauthorized"
+msgstr ""
+
+msgid "Unknown"
+msgstr ""
+
+msgid "Unknown file format \"{extension}\". Supported formats are: {available_formats}."
+msgstr ""
+
+msgid "Unknown key: {unknown_key}."
+msgstr ""
+
+msgid "Update all existing translations"
+msgstr ""
+
+msgid "Update all existing translations for Betty itself"
+msgstr ""
+
+msgid "Update all existing translations for an extension"
+msgstr ""
+
+msgid "Updated {updated_derivations} {event_type} events based on existing information."
+msgstr ""
+
+msgid "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> to exit the search."
+msgstr ""
+
+msgid "View the documentation"
+msgstr ""
+
+msgid "Village"
+msgstr ""
+
+#, python-format
+msgid "Welcome to %(project_title)s"
+msgstr ""
+
+msgid "What is the path to your exported Gramps family tree file?"
+msgstr ""
+
+msgid "What is the project author called in {locale}?"
+msgstr ""
+
+msgid "What is your project called in {locale}?"
+msgstr ""
+
+msgid "What is your project's machine name?"
+msgstr ""
+
+msgid "Where do you want to save your project's configuration file?"
+msgstr ""
+
+msgid "Which language should your project site be generated in? Enter an IETF BCP 47 language code."
+msgstr ""
+
+msgid "Wikipedia"
+msgstr ""
+
+msgid "Wikipedia contributors"
+msgstr ""
+
+msgid "Will"
+msgstr ""
+
+msgid "Witness"
+msgstr ""
+
+msgid "Witnesses"
+msgstr ""
+
+msgid "Works in the public domain can be used or referenced without permission, because nobody holds any exclusive rights over these works (anymore)."
+msgstr ""
+
+#, python-format
+msgid "Your browser cannot show PDF documents. <a href=\"%(file_url)s\">Download %(file_name)s</a> to view it on your device instead."
+msgstr ""
+
+msgid "Your project has no theme enabled. This means your site's pages may look bare. Try the \"cotton-candy\" extension."
+msgstr ""
+
+msgid "`npm` is available"
+msgstr ""
+
+msgid "`npm` is not available"
+msgstr ""
+
+msgid "around {date}"
+msgstr ""
+
+msgid "from around {start_date}"
+msgstr ""
+
+msgid "from around {start_date} until around {end_date}"
+msgstr ""
+
+msgid "from around {start_date} until sometime before around {end_date}"
+msgstr ""
+
+msgid "from around {start_date} until sometime before {end_date}"
+msgstr ""
+
+msgid "from around {start_date} until {end_date}"
+msgstr ""
+
+msgid "from sometime after around {start_date} until around {end_date}"
+msgstr ""
+
+msgid "from sometime after around {start_date} until {end_date}"
+msgstr ""
+
+msgid "from sometime after {start_date} until around {end_date}"
+msgstr ""
+
+msgid "from sometime after {start_date} until {end_date}"
+msgstr ""
+
+msgid "from {start_date}"
+msgstr ""
+
+msgid "from {start_date} until around {end_date}"
+msgstr ""
+
+msgid "from {start_date} until sometime before around {end_date}"
+msgstr ""
+
+msgid "from {start_date} until sometime before {end_date}"
+msgstr ""
+
+msgid "from {start_date} until {end_date}"
+msgstr ""
+
+#, python-format
+msgid "in %(place)s"
+msgstr ""
+
+msgid "npm (https://www.npmjs.com/) must be available for features that require Node.js packages to be installed. Ensure that the `npm` executable is available in your `PATH`."
+msgstr ""
+
+msgid "private"
+msgstr ""
+
+#, python-format
+msgid "show %(name_count)s more"
+msgid_plural "show %(name_count)s more"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "show fewer"
+msgstr ""
+
+msgid "show less"
+msgstr ""
+
+msgid "show more"
+msgstr ""
+
+msgid "sometime after around {start_date}"
+msgstr ""
+
+msgid "sometime after {start_date}"
+msgstr ""
+
+msgid "sometime before around {end_date}"
+msgstr ""
+
+msgid "sometime before {end_date}"
+msgstr ""
+
+msgid "sometime between around {start_date} and around {end_date}"
+msgstr ""
+
+msgid "sometime between around {start_date} and {end_date}"
+msgstr ""
+
+msgid "sometime between {start_date} and around {end_date}"
+msgstr ""
+
+msgid "sometime between {start_date} and {end_date}"
+msgstr ""
+
+msgid "unknown date"
+msgstr ""
+
+msgid "until around {end_date}"
+msgstr ""
+
+msgid "until {end_date}"
+msgstr ""
+
+msgid "y"
+msgstr ""
+
+msgid "{date}"
+msgstr ""
+
+msgid "{dependent_label} requires {dependency_labels}."
+msgstr ""
+
+msgid "{entity_type} {entity_id}"
+msgstr ""
+
+msgid "{event_type}"
+msgstr ""
+
+msgid "{event_type} ({event_description})"
+msgstr ""
+
+msgid "{event_type} ({event_description}) of {subjects}"
+msgstr ""
+
+msgid "{event_type} of {subjects}"
+msgstr ""
+
+msgid "{extension} does not have an assets directory."
+msgstr ""
+
+msgid "{individual_name} {affiliation_name}"
+msgstr ""
+
+msgid "© Copyright the author, unless otherwise credited"
+msgstr ""
+
+msgid "© Copyright {author}, unless otherwise credited"
+msgstr ""
+

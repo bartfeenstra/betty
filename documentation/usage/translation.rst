@@ -47,6 +47,8 @@ Built-in translations
 
 Betty ships with the following translations:
 
+Arabic (``ar``)
+    Translations are {{{ translation-coverage-ar }}}% complete.
 Dutch (``nl-NL``)
     Translations are {{{ translation-coverage-nl-NL }}}% complete.
 English (``en-US``)
@@ -55,6 +57,8 @@ French (``fr-FR``)
     Translations are {{{ translation-coverage-fr-FR }}}% complete.
 German (``de-DE``)
     Translations are {{{ translation-coverage-de-DE }}}% complete.
+Hebrew (``he``)
+    Translations are {{{ translation-coverage-he }}}% complete.
 Ukrainian (``uk``)
     Translations are {{{ translation-coverage-uk }}}% complete.
 

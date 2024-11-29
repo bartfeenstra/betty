@@ -19,7 +19,7 @@ localizers = LocalizerRepository(assets)
 for locale in localizers.locales:
     coverage = run(localizers.coverage(locale))
     betty_replacements[f"translation-coverage-{locale}"] = str(
-        int(round(100 / (coverage[1] / coverage[0])))
+        int(round(100 / (coverage[1] / coverage[0]) if coverage[0] else 0))
     )
 
 sys.path.insert(0, str(Path(betty.__file__).parent.parent))
