@@ -8,14 +8,16 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2024-11-29 14:39+0000\n"
-"PO-Revision-Date: 2024-11-29 14:59+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2024-11-30 19:00+0000\n"
+"Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
+"Language-Team: Arabic <https://hosted.weblate.org/projects/betty/betty/ar/>\n"
 "Language: ar\n"
-"Language-Team: ar <LL@li.org>\n"
-"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=0 && n%100<=2 ? 4 : 5);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=0 && n%100<=2 ? 4 : 5);\n"
+"X-Generator: Weblate 5.9-dev\n"
 "Generated-By: Babel 2.16.0\n"
 
 msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
@@ -92,7 +94,7 @@ msgid "All of these requirements must be met"
 msgstr ""
 
 msgid "All rights reserved"
-msgstr ""
+msgstr "جميع الحقوق محفوظة"
 
 #, python-format
 msgid "Also known as %(names)s"
@@ -166,7 +168,7 @@ msgid "Betty will talk to you in {locale}"
 msgstr ""
 
 msgid "Birth"
-msgstr ""
+msgstr "الولادة"
 
 msgid "Borough"
 msgstr ""
@@ -290,7 +292,7 @@ msgid "Cremation"
 msgstr ""
 
 msgid "Death"
-msgstr ""
+msgstr "موت"
 
 msgid "Department"
 msgstr ""
@@ -378,7 +380,7 @@ msgid "Facts"
 msgstr ""
 
 msgid "Family"
-msgstr ""
+msgstr "أسرة"
 
 msgid "Farm"
 msgstr ""
@@ -535,7 +537,7 @@ msgid "Maps"
 msgstr ""
 
 msgid "Marriage"
-msgstr ""
+msgstr "زواج"
 
 msgid "Media"
 msgstr ""
@@ -586,13 +588,13 @@ msgid "Parish"
 msgstr ""
 
 msgid "People"
-msgstr ""
+msgstr "الناس"
 
 msgid "Permanent link to this section."
 msgstr ""
 
 msgid "Person"
-msgstr ""
+msgstr "شخص"
 
 msgid "Person name"
 msgstr ""
@@ -601,10 +603,10 @@ msgid "Person names"
 msgstr ""
 
 msgid "Place"
-msgstr ""
+msgstr "مكان"
 
 msgid "Places"
-msgstr ""
+msgstr "أماكن"
 
 msgid "Plugin {plugin_label} ({plugin_id}) is not configurable, but configuration was given."
 msgstr ""
@@ -658,7 +660,7 @@ msgid "Read more on Wikipedia."
 msgstr ""
 
 msgid "References"
-msgstr ""
+msgstr "مراجع"
 
 msgid "Region"
 msgstr ""
@@ -679,10 +681,10 @@ msgid "Serving your site at {url}..."
 msgstr ""
 
 msgid "Source"
-msgstr ""
+msgstr "مصدر"
 
 msgid "Sources"
-msgstr ""
+msgstr "مصادر"
 
 msgid "Speaker"
 msgstr ""
@@ -806,7 +808,7 @@ msgid "This source's details are unavailable to protect people's privacy."
 msgstr ""
 
 msgid "Timeline"
-msgstr ""
+msgstr "الخط الزمني"
 
 msgid "Town"
 msgstr ""
@@ -1042,4 +1044,3 @@ msgstr ""
 
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr ""
-
