@@ -457,7 +457,7 @@ msgstr "Документи-додатки"
 msgid "Engagement"
 msgstr "Заручини"
 
-msgid "Enhance your ancestry with information from Wikipedia"
+msgid "Enrich your ancestry with information from Wikipedia"
 msgstr ""
 
 msgid "Event"

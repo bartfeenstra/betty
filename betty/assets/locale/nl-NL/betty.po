@@ -464,7 +464,7 @@ msgstr "Omsluitingen"
 msgid "Engagement"
 msgstr "Verloving"
 
-msgid "Enhance your ancestry with information from Wikipedia"
+msgid "Enrich your ancestry with information from Wikipedia"
 msgstr ""
 
 msgid "Event"

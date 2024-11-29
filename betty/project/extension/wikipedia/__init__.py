@@ -78,7 +78,7 @@ class Wikipedia(
 
     _plugin_id = "wikipedia"
     _plugin_label = _("Wikipedia")
-    _plugin_description = _("Enhance your ancestry with information from Wikipedia")
+    _plugin_description = _("Enrich your ancestry with information from Wikipedia")
 
     @override
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:

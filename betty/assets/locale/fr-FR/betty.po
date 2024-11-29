@@ -404,7 +404,7 @@ msgstr ""
 msgid "Engagement"
 msgstr "Fiançailles"
 
-msgid "Enhance your ancestry with information from Wikipedia"
+msgid "Enrich your ancestry with information from Wikipedia"
 msgstr ""
 
 msgid "Event"
