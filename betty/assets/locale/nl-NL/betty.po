@@ -923,7 +923,7 @@ msgstr[1] "Hen had %(child_count)s kinderen met %(co_parent_labels)s."
 msgid "They had a child."
 msgid_plural "They had %(child_count)s children."
 msgstr[0] "Hen had een kind."
-msgstr[1] "Hen had %(child_count)skinderen."
+msgstr[1] "Hen had %(child_count)s kinderen."
 
 msgid "This citation's details are unavailable to protect people's privacy."
 msgstr ""
@@ -1026,7 +1026,7 @@ msgstr "Dorp"
 
 #, python-format
 msgid "Welcome to %(project_title)s"
-msgstr "Welkom bij %(project_title)s\n"
+msgstr "Welkom bij %(project_title)s"
 
 msgid "What is the path to your exported Gramps family tree file?"
 msgstr "Wat is het pad naar je geëxporteerde Gramps-stamboombestand?"
@@ -1305,3 +1305,6 @@ msgstr ""
 "    {{% include 'wikipedia.html.j2' %}}\n"
 "{{% endwith %}}\n"
 "</code></pre>"
+
+msgid "Enhance your ancestry with information from Wikipedia"
+msgstr "Verrijk je familiegeschiedenis met informatie van Wikipedia"
