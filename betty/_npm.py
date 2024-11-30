@@ -37,7 +37,9 @@ class NpmUnavailable(UserFacingError, RuntimeError):
 
 async def npm(
     arguments: Sequence[str],
+    *,
     cwd: Path | None = None,
+    shell: bool = False,
 ) -> aiosubprocess.Process:
     """
     Run an npm command.
@@ -48,7 +50,7 @@ async def npm(
             cwd=cwd,
             # Use a shell on Windows so subprocess can find the executables it needs (see
             # https://bugs.python.org/issue17023).
-            shell=sys.platform.startswith("win32"),
+            shell=shell or sys.platform.startswith("win32"),
         )
     except FileNotFoundError:
         raise NpmUnavailable() from None

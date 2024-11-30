@@ -9,7 +9,6 @@ from asyncio import create_subprocess_exec, create_subprocess_shell
 from asyncio.subprocess import Process
 from collections.abc import Sequence
 from pathlib import Path
-from subprocess import PIPE
 
 
 class SubprocessError(Exception):
@@ -53,11 +52,14 @@ async def run_process(
     try:
         if shell:
             process = await create_subprocess_shell(
-                " ".join(runnee), cwd=cwd, stderr=PIPE, stdout=PIPE
+                " ".join(runnee),
+                cwd=cwd,
+                stderr=subprocess.PIPE,
+                stdout=subprocess.PIPE,
             )
         else:
             process = await create_subprocess_exec(
-                *runnee, cwd=cwd, stderr=PIPE, stdout=PIPE
+                *runnee, cwd=cwd, stderr=subprocess.PIPE, stdout=subprocess.PIPE
             )
         stdout, stderr = await process.communicate()
     except FileNotFoundError as error:

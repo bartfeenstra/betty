@@ -58,11 +58,18 @@ class DevWebpackServe(ShorthandPluginBase, AppDependentFactory, Command):
             if description
             else self.plugin_label().localize(localizer),
         )
+        @click.option("--pre-build-only", default=False, is_flag=True)
         @click.argument("workspace", required=True, callback=_workspace_callback)
-        async def dev_webpack_serve(*, workspace: WatchBuildWorkspace) -> None:
+        async def dev_webpack_serve(
+            *, workspace: WatchBuildWorkspace, pre_build_only: bool
+        ) -> None:
             async with WatchBuilder.new(
                 await workspace.new_for_app(self._app), self._app
             ) as builder:
-                await builder.build()
+                # @todo This won't work simply because we create new builders and new projects.
+                if pre_build_only:
+                    await builder.pre_build()
+                else:
+                    await builder.build()
 
         return dev_webpack_serve

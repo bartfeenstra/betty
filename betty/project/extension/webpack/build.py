@@ -37,6 +37,7 @@ if TYPE_CHECKING:
 _NPM_PROJECT_DIRECTORIES_PATH = Path(__file__).parent / "webpack"
 
 
+# @todo move this to DirectoryBuilder?
 async def _npm_project_id(
     entry_point_providers: Sequence[WebpackEntryPointProvider & Extension],
 ) -> str:
@@ -52,6 +53,7 @@ async def _npm_project_id(
     )
 
 
+# @todo move this to DirectoryBuilder?
 async def _npm_project_directory_path(
     working_directory_path: Path,
     entry_point_providers: Sequence[WebpackEntryPointProvider & Extension],
@@ -59,6 +61,7 @@ async def _npm_project_directory_path(
     return working_directory_path / await _npm_project_id(entry_point_providers)
 
 
+# @todo move this to DirectoryBuilder?
 def webpack_build_id(
     entry_point_providers: Sequence[WebpackEntryPointProvider & Extension], debug: bool
 ) -> str:
@@ -79,6 +82,7 @@ def webpack_build_id(
     )
 
 
+# @todo move this to DirectoryBuilder?
 def _webpack_build_directory_path(
     npm_project_directory_path: Path,
     entry_point_providers: Sequence[WebpackEntryPointProvider & Extension],
@@ -149,7 +153,12 @@ class _Builder:
                 ),
                 "debug": self._debug,
                 "entry": webpack_entry,
-                "watchFiles": workspace.watch_files() if workspace else [],
+                "workspace": workspace.name() if workspace else None,
+                "watchFiles": list(map(str, workspace.watch_files()))
+                if workspace
+                else [],
+                # @todo Should we split this out into subclasses?
+                # "staticDirectory":
             }
         )
         async with aiofiles.open(
@@ -349,8 +358,8 @@ class WatchBuilder(_Builder):
 
     def __init__(self, workspace: WatchBuildWorkspace, project: Project) -> None:
         super().__init__(
-            project.configuration.project_directory_path,
-            project.configuration.project_directory_path / "webpack",
+            project.configuration.project_directory_path / "npm",
+            project.configuration.project_directory_path / "npm" / "webpack",
             True,
         )
         self._workspace = workspace
@@ -376,6 +385,17 @@ class WatchBuilder(_Builder):
             )
             await _npm.npm(("run", "build-watch"), cwd=npm_project_directory_path)
 
+    async def pre_build(self) -> None:
+        """
+        Build the Webpack assets continuously.
+        """
+        await self._workspace.pre_build(self._project)
+        async with self._project:
+            npm_project_directory_path, _ = await self._prepare_build(
+                workspace=self._workspace
+            )
+            await _npm.npm(("run", "build-watch"), cwd=npm_project_directory_path)
+
     @override
     async def _do_prepare_working_directory(
         self,
@@ -386,7 +406,8 @@ class WatchBuilder(_Builder):
         *,
         workspace: WatchBuildWorkspace | None,
     ) -> None:
-        raise NotImplementedError
+        # @todo Finish this
+        pass
 
 
 class WatchBuildWorkspace(AppDependentFactory, ABC):
@@ -402,6 +423,19 @@ class WatchBuildWorkspace(AppDependentFactory, ABC):
     async def new_for_app(cls, app: App) -> Self:
         return cls(app)
 
+    @classmethod
+    def name(cls) -> str:
+        """
+        Get the workspace's fully qualified name.
+
+        The returned value is importable using :py:func:`betty.importlib.import_any`.
+        """
+        return f"{cls.__module__}:{cls.__name__}"
+
+    # @todo This is only useful if we are to subsequently allow the Python code here to rebuild.
+    # @todo
+    # @todo
+    # @todo
     @abstractmethod
     def watch_files(self) -> set[Path]:
         """

@@ -7,6 +7,7 @@ from pathlib import Path
 
 from typing_extensions import override
 
+from betty.fs import ROOT_DIRECTORY_PATH
 from betty.project import Project
 from betty.project.extension.webpack.build import WatchBuildWorkspace
 
@@ -19,9 +20,10 @@ class Workspace(WatchBuildWorkspace):
 
     @override
     def watch_files(self) -> set[Path]:
-        return {Path(__file__).parent / "data"}
+        return {ROOT_DIRECTORY_PATH}
 
     @override
     async def pre_build(self, project: Project) -> None:
         # @todo Finish this
-        raise NotImplementedError("ooooh we are not quite here yet!")
+        pass
+        # raise NotImplementedError("ooooh we are not quite here yet!")
