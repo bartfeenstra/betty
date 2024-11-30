@@ -52,14 +52,17 @@ async def run_process(
     try:
         if shell:
             process = await create_subprocess_shell(
+                # @todo
+                # " ".join(runnee), cwd=cwd, stderr=subprocess.PIPE, stdout=subprocess.PIPE
                 " ".join(runnee),
                 cwd=cwd,
-                stderr=subprocess.PIPE,
-                stdout=subprocess.PIPE,
             )
         else:
             process = await create_subprocess_exec(
-                *runnee, cwd=cwd, stderr=subprocess.PIPE, stdout=subprocess.PIPE
+                # @todo
+                # *runnee, cwd=cwd, stderr=subprocess.PIPE, stdout=subprocess.PIPE
+                *runnee,
+                cwd=cwd,
             )
         stdout, stderr = await process.communicate()
     except FileNotFoundError as error:

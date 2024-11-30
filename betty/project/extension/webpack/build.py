@@ -6,12 +6,11 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from asyncio import to_thread, gather
-from contextlib import asynccontextmanager
 from json import dumps, loads
 from logging import getLogger
 from pathlib import Path
 from shutil import copy2
-from typing import TYPE_CHECKING, final, Self, AsyncIterator
+from typing import TYPE_CHECKING, final, Self
 from typing_extensions import override
 
 import aiofiles
@@ -23,9 +22,9 @@ from betty.fs import ROOT_DIRECTORY_PATH
 from betty.hashid import hashid, hashid_sequence, hashid_file_content
 from betty.os import copy_tree
 from betty.typing import internal
-from betty.project import Project
 
 if TYPE_CHECKING:
+    from betty.project import Project
     from betty.app import App
     from betty.project.extension import Extension
     from betty.job import Context
@@ -153,7 +152,10 @@ class _Builder:
                 ),
                 "debug": self._debug,
                 "entry": webpack_entry,
-                "workspace": workspace.name() if workspace else None,
+                # @todo Should we split this out into subclasses?
+                "workspaceProjectConfigurationFilePath": workspace.name()
+                if workspace
+                else None,
                 "watchFiles": list(map(str, workspace.watch_files()))
                 if workspace
                 else [],
@@ -365,15 +367,6 @@ class WatchBuilder(_Builder):
         self._workspace = workspace
         self._project = project
 
-    @classmethod
-    @asynccontextmanager
-    async def new(cls, workspace: WatchBuildWorkspace, app: App) -> AsyncIterator[Self]:
-        """
-        Create a new instance.
-        """
-        async with Project.new_temporary(app) as project:
-            yield cls(workspace, project)
-
     async def build(self) -> None:
         """
         Build the Webpack assets continuously.
@@ -390,11 +383,6 @@ class WatchBuilder(_Builder):
         Build the Webpack assets continuously.
         """
         await self._workspace.pre_build(self._project)
-        async with self._project:
-            npm_project_directory_path, _ = await self._prepare_build(
-                workspace=self._workspace
-            )
-            await _npm.npm(("run", "build-watch"), cwd=npm_project_directory_path)
 
     @override
     async def _do_prepare_working_directory(

@@ -1,5 +1,7 @@
 from __future__ import annotations  # noqa D100
 
+from contextlib import AsyncExitStack
+from pathlib import Path
 from typing import TYPE_CHECKING, final, Self, cast
 
 import asyncclick as click
@@ -10,6 +12,8 @@ from betty.cli.commands import command, Command
 from betty.importlib import import_any
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
+from betty.project import Project
+from betty.project.config import ProjectConfiguration
 from betty.project.extension.webpack.build import WatchBuilder, WatchBuildWorkspace
 
 if TYPE_CHECKING:
@@ -58,18 +62,34 @@ class DevWebpackServe(ShorthandPluginBase, AppDependentFactory, Command):
             if description
             else self.plugin_label().localize(localizer),
         )
-        @click.option("--pre-build-only", default=False, is_flag=True)
+        @click.option(
+            "--pre-build-project-configuration-path",
+            callback=lambda _, __, pre_build_project_configuration_path_str: Path(
+                pre_build_project_configuration_path_str
+            ),
+        )
         @click.argument("workspace", required=True, callback=_workspace_callback)
         async def dev_webpack_serve(
-            *, workspace: WatchBuildWorkspace, pre_build_only: bool
+            *,
+            workspace: WatchBuildWorkspace,
+            pre_build_project_configuration_path: Path | None,
         ) -> None:
-            async with WatchBuilder.new(
-                await workspace.new_for_app(self._app), self._app
-            ) as builder:
-                # @todo This won't work simply because we create new builders and new projects.
-                if pre_build_only:
+            workspace = await workspace.new_for_app(self._app)
+            async with AsyncExitStack() as stack:
+                if pre_build_project_configuration_path:
+                    project = await Project.new(
+                        self._app,
+                        configuration=await ProjectConfiguration.new(
+                            pre_build_project_configuration_path
+                        ),
+                    )
+                    builder = WatchBuilder(workspace, project)
                     await builder.pre_build()
                 else:
+                    project = await stack.enter_async_context(
+                        Project.new_temporary(self._app)
+                    )
+                    builder = WatchBuilder(workspace, project)
                     await builder.build()
 
         return dev_webpack_serve

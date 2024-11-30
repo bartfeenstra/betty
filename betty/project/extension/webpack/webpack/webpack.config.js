@@ -72,10 +72,8 @@ class WatchBuildWorkspaceIntegrator {
   apply (compiler) {
     compiler.hooks.initialize.tap('WatchBuildWorkspaceIntegrator', () => {
       compiler.hooks.watchRun.tapAsync(
-        'WatchBuildWorkspaceIntegrator',
-        (compiler) => {
-            // @todo
-            // execSync(`betty dev-webpack-serve --pre-build-only ${configuration.workspace}`)
+        'WatchBuildWorkspaceIntegrator', () => {
+          execSync(`betty dev-webpack-serve --pre-build-only ${configuration.workspaceProjectConfigurationFilePath}`)
         }
       )
     })
