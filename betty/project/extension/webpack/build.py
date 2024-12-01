@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import sys
 from abc import ABC, abstractmethod
 from asyncio import to_thread, gather, create_task
 from json import dumps, loads
@@ -26,7 +25,7 @@ from betty.app.factory import AppDependentFactory
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.hashid import hashid, hashid_sequence, hashid_file_content
 from betty.os import copy_tree
-from betty.subprocess import run_process
+from betty.subprocess import run_process, console_args
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -281,7 +280,7 @@ class DirectoryBuilder(_Builder):
             localizer=localizer,
         )
 
-    async def build(self) -> Path:
+    async def build(self, *, watch: bool = False) -> Path:
         """
         Build the Webpack assets.
 
@@ -292,7 +291,22 @@ class DirectoryBuilder(_Builder):
             npm_project_directory_path,
             webpack_build_directory_path,
         ) = await self._prepare_build(workspace=None)
-        await _npm.npm(("run", "build"), cwd=npm_project_directory_path)
+
+        if watch:
+            webpack_task = create_task(
+                run_process(
+                    [*console_args(), "npm", "run", "build-watch"],
+                    cwd=npm_project_directory_path,
+                    shell=True,
+                )
+            )
+            try:
+                # @todo Finish this
+                pass
+            finally:
+                webpack_task.cancel()
+        else:
+            await _npm.npm(("run", "build"), cwd=npm_project_directory_path)
         getLogger(__name__).info(
             self._localizer._("Built the Webpack front-end assets.")
         )
@@ -382,20 +396,13 @@ class WatchBuilder(_Builder):
             npm_project_directory_path, _ = await self._prepare_build(
                 workspace=self._workspace
             )
-            args = ["npm", "run", "build-watch"]
-            # @todo macOS too
-            if sys.platform.startswith("win32"):
-                # @todo How to keep the window open?
-                webpack = run_process(
-                    ["cmd.exe", "/k", *args], cwd=npm_project_directory_path
-                )
-            else:
-                webpack = run_process(
-                    ["xterm", "-hold", "-e", *args],
+            webpack_task = create_task(
+                run_process(
+                    [*console_args(), "npm", "run", "build-watch"],
                     cwd=npm_project_directory_path,
                     shell=True,
                 )
-            webpack_task = create_task(webpack)
+            )
             try:
                 event_handler = LoggingEventHandler(logger=logging.getLogger(__name__))
                 for watch_file in self._workspace.watch_files():

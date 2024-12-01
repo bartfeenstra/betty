@@ -27,9 +27,10 @@ class DemoServer(Server):
     Serve the Betty demonstration site.
     """
 
-    def __init__(self, app: App):
+    def __init__(self, app: App, *, watch: bool = False):
         super().__init__(localizer=DEFAULT_LOCALIZER)
         self._app = app
+        self._watch = watch
         self._server: Server | None = None
         self._exit_stack = AsyncExitStack()
 
@@ -49,7 +50,7 @@ class DemoServer(Server):
             await load.load(project)
             if not project_directory_path.is_dir():
                 try:
-                    await generate.generate(project)
+                    await generate.generate(project, watch=self._watch)
                 except BaseException:
                     # Ensure that we never leave a partial build.
                     await to_thread(rmtree, project_directory_path)

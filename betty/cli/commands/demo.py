@@ -48,7 +48,7 @@ class Demo(ShorthandPluginBase, AppDependentFactory, Command):
         async def demo(*, dev_watch: bool = False) -> None:
             from betty.project.extension.demo.serve import DemoServer
 
-            async with DemoServer(app=self._app) as server:
+            async with DemoServer(app=self._app, watch=dev_watch) as server:
                 await server.show()
                 while True:
                     await asyncio.sleep(999)

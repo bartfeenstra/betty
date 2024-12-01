@@ -5,10 +5,13 @@ Provide a subprocess API.
 import logging
 import os
 import subprocess
+import sys
 from asyncio import create_subprocess_exec, create_subprocess_shell
 from asyncio.subprocess import Process
 from collections.abc import Sequence
 from pathlib import Path
+
+from betty.typing import internal
 
 
 class SubprocessError(Exception):
@@ -84,3 +87,15 @@ async def run_process(
         stdout_str,
         stderr_str,
     )
+
+
+@internal
+def console_args() -> Sequence[str]:
+    """
+    Get the arguments to launch a console/terminal window.
+    """
+    # @todo macOS too
+    if sys.platform.startswith("win32"):
+        # @todo How to keep the window open?
+        return ["cmd.exe", "/k"]
+    return ["xterm", "-hold", "-e"]
