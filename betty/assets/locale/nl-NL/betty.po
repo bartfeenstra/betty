@@ -379,7 +379,7 @@ msgid ""
 "Created {created_derivations} additional {event_type} events based on "
 "existing information."
 msgstr ""
-"{created_derivations} nieuwe {event-type}-gebeurtenissen toegevoegd "
+"{created_derivations} nieuwe {event_type}-gebeurtenissen toegevoegd "
 "gebaseerd op bestaande informatie."
 
 msgid "Cremation"
