@@ -8,10 +8,10 @@ from betty.app.factory import AppDependentFactory
 from betty.cli.commands import command, Command, project_option
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
+import asyncclick as click
 
 if TYPE_CHECKING:
     from betty.project import Project
-    import asyncclick as click
     from betty.app import App
 
 
@@ -45,6 +45,12 @@ class Generate(ShorthandPluginBase, AppDependentFactory, Command):
             else self.plugin_label().localize(localizer),
         )
         @project_option
+        @click.option(
+            "--watch",
+            help="Watch your project for changes, and regenerate automatically",
+            default=False,
+            is_flag=True,
+        )
         async def generate(project: Project) -> None:
             from betty.project import generate, load
 

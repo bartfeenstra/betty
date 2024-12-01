@@ -65,10 +65,12 @@ class GenerateSiteEvent(ProjectEvent):
     Dispatched to generate (part of) a project's site.
     """
 
-    pass
+    def __init__(self, job_context: ProjectContext, *, watch: bool):
+        super().__init__(job_context)
+        self.watch = watch
 
 
-async def generate(project: Project) -> None:
+async def generate(project: Project, *, watch: bool = False) -> None:
     """
     Generate a new site.
     """
@@ -95,7 +97,7 @@ async def generate(project: Project) -> None:
     jobs = []
     log_job: Task[None] | None = None
     try:
-        async for job_coroutine in _run_jobs(job_context):
+        async for job_coroutine in _run_jobs(job_context, watch=watch):
             jobs.append(create_task(job_coroutine))
         log_job = create_task(_log_jobs_forever(app, jobs))
         for completed_job in as_completed(jobs):
@@ -161,13 +163,13 @@ def _run_job(
 
 
 async def _run_jobs(
-    job_context: ProjectContext,
+    job_context: ProjectContext, *, watch: bool
 ) -> AsyncIterator[Coroutine[Any, Any, None]]:
     project = job_context.project
     semaphore = Semaphore(512)
     yield _run_job(semaphore, _generate_favicon, job_context)
     yield _run_job(semaphore, _generate_json_error_responses, project)
-    yield _run_job(semaphore, _generate_dispatch, job_context)
+    yield _run_job(semaphore, _generate_dispatch, job_context, watch=watch)
     yield _run_job(semaphore, _generate_robots_txt, job_context)
     yield _run_job(semaphore, _generate_sitemap, job_context)
     yield _run_job(semaphore, _generate_json_schema, job_context)
@@ -217,9 +219,9 @@ async def _run_jobs(
                     )
 
 
-async def _generate_dispatch(job_context: ProjectContext) -> None:
+async def _generate_dispatch(job_context: ProjectContext, *, watch: bool) -> None:
     project = job_context.project
-    await project.event_dispatcher.dispatch(GenerateSiteEvent(job_context))
+    await project.event_dispatcher.dispatch(GenerateSiteEvent(job_context, watch=watch))
 
 
 async def _generate_localized_public_asset(

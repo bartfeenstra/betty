@@ -4,23 +4,29 @@ Perform Webpack builds.
 
 from __future__ import annotations
 
+import asyncio
+import logging
+import sys
 from abc import ABC, abstractmethod
-from asyncio import to_thread, gather
+from asyncio import to_thread, gather, create_task
 from json import dumps, loads
 from logging import getLogger
 from pathlib import Path
 from shutil import copy2
 from typing import TYPE_CHECKING, final, Self
-from typing_extensions import override
 
 import aiofiles
 from aiofiles.os import makedirs
+from typing_extensions import override
+from watchdog.events import LoggingEventHandler
+from watchdog.observers import Observer
 
 from betty import _npm
 from betty.app.factory import AppDependentFactory
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.hashid import hashid, hashid_sequence, hashid_file_content
 from betty.os import copy_tree
+from betty.subprocess import run_process
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -376,13 +382,31 @@ class WatchBuilder(_Builder):
             npm_project_directory_path, _ = await self._prepare_build(
                 workspace=self._workspace
             )
-            await _npm.npm(("run", "build-watch"), cwd=npm_project_directory_path)
+            args = ["npm", "run", "build-watch"]
+            # @todo macOS too
+            if sys.platform.startswith("win32"):
+                # @todo How to keep the window open?
+                webpack = run_process(
+                    ["cmd.exe", "/k", *args], cwd=npm_project_directory_path
+                )
+            else:
+                webpack = run_process(
+                    ["xterm", "-hold", "-e", *args],
+                    cwd=npm_project_directory_path,
+                    shell=True,
+                )
+            webpack_task = create_task(webpack)
+            try:
+                event_handler = LoggingEventHandler(logger=logging.getLogger(__name__))
+                for watch_file in self._workspace.watch_files():
+                    observer = Observer()
+                    observer.schedule(event_handler, str(watch_file), recursive=True)
+                    observer.start()
 
-    async def pre_build(self) -> None:
-        """
-        Build the Webpack assets continuously.
-        """
-        await self._workspace.pre_build(self._project)
+                while True:
+                    await asyncio.sleep(999)
+            finally:
+                webpack_task.cancel()
 
     @override
     async def _do_prepare_working_directory(

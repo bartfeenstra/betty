@@ -118,6 +118,7 @@ class PrebuiltAssetsRequirement(Requirement):
 
 
 async def _generate_assets(event: GenerateSiteEvent) -> None:
+    # @todo Implement event.watch
     project = event.project
     extensions = await project.extensions
     webpack = extensions[Webpack]

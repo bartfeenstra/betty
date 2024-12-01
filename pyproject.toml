@@ -230,6 +230,7 @@ test = [
 ]
 development = [
     'pytest-repeat ~= 0.9',
+    'watchdog ~= 6.0',
     'betty[test]',
 ]
 ci = [

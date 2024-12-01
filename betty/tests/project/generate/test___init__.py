@@ -461,6 +461,6 @@ class TestGenerateSiteEvent:
     async def test_job_context(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
             job_context = ProjectContext(project)
-            sut = GenerateSiteEvent(job_context)
+            sut = GenerateSiteEvent(job_context, watch=False)
             assert sut.project is project
             assert sut.job_context is job_context

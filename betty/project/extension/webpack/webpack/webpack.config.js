@@ -8,7 +8,6 @@ import {readFile} from 'node:fs/promises'
 import TerserPlugin from 'terser-webpack-plugin'
 import url from 'node:url'
 import webpack from 'webpack'
-import {execSync} from 'node:child_process'
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const configuration = JSON.parse(await readFile('./webpack.config.json'))
@@ -68,18 +67,6 @@ class EntryScriptCollector {
   }
 }
 
-class WatchBuildWorkspaceIntegrator {
-  apply (compiler) {
-    compiler.hooks.initialize.tap('WatchBuildWorkspaceIntegrator', () => {
-      compiler.hooks.watchRun.tapAsync(
-        'WatchBuildWorkspaceIntegrator', () => {
-          execSync(`betty dev-webpack-serve --pre-build-only ${configuration.workspaceProjectConfigurationFilePath}`)
-        }
-      )
-    })
-  }
-}
-
 const webpackConfiguration = {
   mode: configuration.debug ? 'development' : 'production',
   devtool: configuration.debug ? 'eval-source-map' : false,
@@ -131,7 +118,6 @@ const webpackConfiguration = {
   plugins: [
     new CleanWebpackPlugin(),
     new EntryScriptCollector(),
-    new WatchBuildWorkspaceIntegrator(),
     new MiniCssExtractPlugin({
       filename: 'css/[name].css'
     })
