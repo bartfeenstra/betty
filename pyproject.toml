@@ -200,7 +200,7 @@ betty = 'betty.cli:main'
 
 [project.optional-dependencies]
 setuptools = [
-    'twine ~= 5.1',
+    'twine ~= 6.0',
     'wheel ~= 0.44',
 ]
 test = [
