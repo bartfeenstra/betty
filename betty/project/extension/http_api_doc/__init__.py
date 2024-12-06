@@ -11,7 +11,8 @@ from typing_extensions import override
 
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
-from betty.project.extension.webpack import Webpack, WebpackEntryPointProvider
+from betty.project.extension.webpack import Webpack
+from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.generate import GenerateSiteEvent
 
 if TYPE_CHECKING:
@@ -43,7 +44,7 @@ async def _generate_swagger_ui(event: GenerateSiteEvent) -> None:
 
 
 @final
-class HttpApiDoc(ShorthandPluginBase, WebpackEntryPointProvider):
+class HttpApiDoc(ShorthandPluginBase, EntryPointProvider):
     """
     Provide user-friendly HTTP API documentation.
     """

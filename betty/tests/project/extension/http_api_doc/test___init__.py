@@ -4,10 +4,10 @@ from betty.app import App
 from betty.project import Project
 from betty.project.extension.http_api_doc import HttpApiDoc
 from betty.project.generate import generate
-from betty.test_utils.project.extension.webpack import WebpackEntryPointProviderTestBase
+from betty.test_utils.project.extension.webpack.build import EntryPointProviderTestBase
 
 
-class TestHttpApiDoc(WebpackEntryPointProviderTestBase):
+class TestHttpApiDoc(EntryPointProviderTestBase):
     @override
     def get_sut_class(self) -> type[HttpApiDoc]:
         return HttpApiDoc

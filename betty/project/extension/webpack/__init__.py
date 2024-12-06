@@ -6,7 +6,6 @@ This module is internal.
 
 from __future__ import annotations
 
-from abc import abstractmethod
 from pathlib import Path
 from typing import TYPE_CHECKING, final, Self, ClassVar
 
@@ -25,7 +24,7 @@ from betty.plugin import ShorthandPluginBase
 from betty.project import Project, extension
 from betty.project.extension import Extension
 from betty.project.extension.webpack import build
-from betty.project.extension.webpack.build import webpack_build_id
+from betty.project.extension.webpack.build import webpack_build_id, EntryPointProvider
 from betty.project.extension.webpack.jinja2.filter import FILTERS
 from betty.project.generate import GenerateSiteEvent
 from betty.requirement import (
@@ -42,7 +41,7 @@ if TYPE_CHECKING:
 
 
 def _prebuilt_webpack_build_directory_path(
-    entry_point_providers: Sequence[WebpackEntryPointProvider & Extension], debug: bool
+    entry_point_providers: Sequence[EntryPointProvider & Extension], debug: bool
 ) -> Path:
     return (
         fs.PREBUILT_ASSETS_DIRECTORY_PATH
@@ -62,7 +61,7 @@ async def _prebuild_webpack_assets() -> None:
                 Webpack,
                 *(
                     await extension.EXTENSION_REPOSITORY.select(
-                        WebpackEntryPointProvider  # type: ignore[type-abstract]
+                        EntryPointProvider  # type: ignore[type-abstract]
                     )
                 ),
             )
@@ -70,31 +69,6 @@ async def _prebuild_webpack_assets() -> None:
                 extensions = await project.extensions
                 webpack = extensions[Webpack]
                 await webpack.prebuild(job_context=job_context)
-
-
-class WebpackEntryPointProvider(Extension):
-    """
-    An extension that provides Webpack entry points.
-    """
-
-    @classmethod
-    @abstractmethod
-    def webpack_entry_point_directory_path(cls) -> Path:
-        """
-        Get the path to the directory with the entry point assets.
-
-        The directory must include at least a ``package.json`` and ``main.ts``.
-        """
-        pass
-
-    @abstractmethod
-    def webpack_entry_point_cache_keys(self) -> Sequence[str]:
-        """
-        Get the keys that make a Webpack build for this provider unique.
-
-        Providers that can be cached regardless may ``return ()``.
-        """
-        pass
 
 
 class PrebuiltAssetsRequirement(Requirement):
@@ -187,12 +161,12 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
 
     async def _project_entry_point_providers(
         self,
-    ) -> Sequence[WebpackEntryPointProvider & Extension]:
+    ) -> Sequence[EntryPointProvider & Extension]:
         extensions = await self._project.extensions
         return [
             extension
             for extension in extensions.flatten()
-            if isinstance(extension, WebpackEntryPointProvider)
+            if isinstance(extension, EntryPointProvider)
         ]
 
     async def prebuild(self, job_context: Context) -> None:

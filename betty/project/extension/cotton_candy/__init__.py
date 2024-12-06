@@ -38,7 +38,8 @@ from betty.project.extension.cotton_candy.config import CottonCandyConfiguration
 from betty.project.extension.cotton_candy.search import Index
 from betty.project.extension.maps import Maps
 from betty.project.extension.trees import Trees
-from betty.project.extension.webpack import Webpack, WebpackEntryPointProvider
+from betty.project.extension.webpack import Webpack
+from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.generate import GenerateSiteEvent
 from betty.typing import private
 
@@ -115,7 +116,7 @@ class CottonCandy(
     CssProvider,
     ConfigurableExtension[CottonCandyConfiguration],
     Jinja2Provider,
-    WebpackEntryPointProvider,
+    EntryPointProvider,
 ):
     """
     Provide Betty's default front-end theme.

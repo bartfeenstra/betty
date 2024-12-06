@@ -14,7 +14,8 @@ from betty.ancestry.person import Person
 from betty.locale.localizable import _
 from betty.media_type.media_types import HTML
 from betty.plugin import ShorthandPluginBase
-from betty.project.extension.webpack import Webpack, WebpackEntryPointProvider
+from betty.project.extension.webpack import Webpack
+from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.generate import GenerateSiteEvent
 
 if TYPE_CHECKING:
@@ -63,7 +64,7 @@ async def _generate_people_json_for_locale(
 
 
 @final
-class Trees(ShorthandPluginBase, WebpackEntryPointProvider):
+class Trees(ShorthandPluginBase, EntryPointProvider):
     """
     Provide interactive family trees for use in web pages.
     """

@@ -5,10 +5,10 @@ from betty.app import App
 from betty.project import Project
 from betty.project.extension.trees import Trees
 from betty.project.generate import generate
-from betty.test_utils.project.extension.webpack import WebpackEntryPointProviderTestBase
+from betty.test_utils.project.extension.webpack.build import EntryPointProviderTestBase
 
 
-class TestTrees(WebpackEntryPointProviderTestBase):
+class TestTrees(EntryPointProviderTestBase):
     @override
     def get_sut_class(self) -> type[Trees]:
         return Trees

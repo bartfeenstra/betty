@@ -9,7 +9,8 @@ from typing_extensions import override
 
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
-from betty.project.extension.webpack import Webpack, WebpackEntryPointProvider
+from betty.project.extension.webpack import Webpack
+from betty.project.extension.webpack.build import EntryPointProvider
 
 if TYPE_CHECKING:
     from betty.project.extension import Extension
@@ -18,7 +19,7 @@ if TYPE_CHECKING:
 
 
 @final
-class Maps(ShorthandPluginBase, WebpackEntryPointProvider):
+class Maps(ShorthandPluginBase, EntryPointProvider):
     """
     Provide interactive maps for use on web pages.
     """

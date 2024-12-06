@@ -367,9 +367,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Webpack": {
             "new_context_vars": MissingReason.SHOULD_BE_COVERED,
         },
-        "WebpackEntryPointProvider": MissingReason.ABSTRACT,
     },
     "betty/project/extension/webpack/build.py": {
+        "EntryPointProvider": MissingReason.ABSTRACT,
         "webpack_build_id": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/project/extension/webpack/jinja2/__init__.py": MissingReason.SHOULD_BE_COVERED,

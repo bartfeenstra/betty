@@ -10,12 +10,12 @@ from betty.job import Context
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
-from betty.project.extension.webpack import WebpackEntryPointProvider
+from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.extension.webpack.build import Builder
 from betty.test_utils.project.extension import DummyExtension
 
 
-class DummyEntryPointProviderExtension(WebpackEntryPointProvider, DummyExtension):
+class DummyEntryPointProviderExtension(EntryPointProvider, DummyExtension):
     @classmethod
     def webpack_entry_point_directory_path(cls) -> Path:
         return Path(__file__).parent / "test_build_webpack_entry_point"

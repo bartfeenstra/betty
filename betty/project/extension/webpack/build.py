@@ -4,12 +4,13 @@ Perform Webpack builds.
 
 from __future__ import annotations
 
+from abc import abstractmethod
 from asyncio import to_thread, gather
 from json import dumps, loads
 from logging import getLogger
 from pathlib import Path
 from shutil import copy2
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
 
 import aiofiles
 from aiofiles.os import makedirs
@@ -18,21 +19,44 @@ from betty import _npm
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.hashid import hashid, hashid_sequence, hashid_file_content
 from betty.os import copy_tree
+from betty.project.extension import Extension
 
 if TYPE_CHECKING:
-    from betty.project.extension import Extension
     from betty.job import Context
     from betty.locale.localizer import Localizer
     from betty.render import Renderer
     from collections.abc import Sequence, MutableMapping
-    from betty.project.extension.webpack import WebpackEntryPointProvider
-
 
 _NPM_PROJECT_DIRECTORIES_PATH = Path(__file__).parent / "webpack"
 
 
+class EntryPointProvider(Extension):
+    """
+    An extension that provides Webpack entry points.
+    """
+
+    @classmethod
+    @abstractmethod
+    def webpack_entry_point_directory_path(cls) -> Path:
+        """
+        Get the path to the directory with the entry point assets.
+
+        The directory must include at least a ``package.json`` and ``main.ts``.
+        """
+        pass
+
+    @abstractmethod
+    def webpack_entry_point_cache_keys(self) -> Sequence[str]:
+        """
+        Get the keys that make a Webpack build for this provider unique.
+
+        Providers that can be cached regardless may ``return ()``.
+        """
+        pass
+
+
 async def _npm_project_id(
-    entry_point_providers: Sequence[WebpackEntryPointProvider & Extension],
+    entry_point_providers: Sequence[EntryPointProvider & Extension],
 ) -> str:
     return hashid_sequence(
         await hashid_file_content(_NPM_PROJECT_DIRECTORIES_PATH / "package.json"),
@@ -48,13 +72,13 @@ async def _npm_project_id(
 
 async def _npm_project_directory_path(
     working_directory_path: Path,
-    entry_point_providers: Sequence[WebpackEntryPointProvider & Extension],
+    entry_point_providers: Sequence[EntryPointProvider & Extension],
 ) -> Path:
     return working_directory_path / await _npm_project_id(entry_point_providers)
 
 
 def webpack_build_id(
-    entry_point_providers: Sequence[WebpackEntryPointProvider & Extension], debug: bool
+    entry_point_providers: Sequence[EntryPointProvider & Extension], debug: bool
 ) -> str:
     """
     Generate the ID for a Webpack build.
@@ -75,7 +99,7 @@ def webpack_build_id(
 
 def _webpack_build_directory_path(
     npm_project_directory_path: Path,
-    entry_point_providers: Sequence[WebpackEntryPointProvider & Extension],
+    entry_point_providers: Sequence[EntryPointProvider & Extension],
     debug: bool,
 ) -> Path:
     return (
@@ -92,7 +116,7 @@ class Builder:
     def __init__(
         self,
         working_directory_path: Path,
-        entry_point_providers: Sequence[WebpackEntryPointProvider & Extension],
+        entry_point_providers: Sequence[EntryPointProvider & Extension],
         debug: bool,
         renderer: Renderer,
         *,
@@ -128,7 +152,7 @@ class Builder:
     async def _prepare_webpack_entry_point_provider(
         self,
         npm_project_directory_path: Path,
-        entry_point_provider: type[WebpackEntryPointProvider & Extension],
+        entry_point_provider: type[EntryPointProvider & Extension],
         npm_project_package_json_dependencies: MutableMapping[str, str],
         webpack_entry: MutableMapping[str, str],
     ) -> None:

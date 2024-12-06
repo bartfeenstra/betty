@@ -5,10 +5,10 @@ from betty.app import App
 from betty.project import Project
 from betty.project.extension.maps import Maps
 from betty.project.generate import generate
-from betty.test_utils.project.extension.webpack import WebpackEntryPointProviderTestBase
+from betty.test_utils.project.extension.webpack.build import EntryPointProviderTestBase
 
 
-class TestMaps(WebpackEntryPointProviderTestBase):
+class TestMaps(EntryPointProviderTestBase):
     @override
     def get_sut_class(self) -> type[Maps]:
         return Maps

@@ -40,7 +40,7 @@ from betty.project.extension.cotton_candy import (
 from betty.project.generate import generate
 from betty.test_utils.model import DummyEntity, DummyUserFacingEntity
 from betty.test_utils.project.extension import ExtensionTestBase
-from betty.test_utils.project.extension.webpack import WebpackEntryPointProviderTestBase
+from betty.test_utils.project.extension.webpack.build import EntryPointProviderTestBase
 from typing_extensions import override
 
 if TYPE_CHECKING:
@@ -369,9 +369,7 @@ class TestAssociatedFileReferences:
         ] == [file1, file2, file3, file4]
 
 
-class TestCottonCandy(
-    WebpackEntryPointProviderTestBase, ExtensionTestBase[CottonCandy]
-):
+class TestCottonCandy(EntryPointProviderTestBase, ExtensionTestBase[CottonCandy]):
     @override
     def get_sut_class(self) -> type[CottonCandy]:
         return CottonCandy
