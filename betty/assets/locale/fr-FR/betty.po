@@ -984,12 +984,6 @@ msgid ""
 "bare. Try the \"cotton-candy\" extension."
 msgstr ""
 
-msgid "`npm` is available"
-msgstr ""
-
-msgid "`npm` is not available"
-msgstr ""
-
 msgid "around {date}"
 msgstr "vers {date}"
 
@@ -1059,6 +1053,12 @@ msgid ""
 "npm (https://www.npmjs.com/) must be available for features that require "
 "Node.js packages to be installed. Ensure that the `npm` executable is "
 "available in your `PATH`."
+msgstr ""
+
+msgid "npm is available"
+msgstr ""
+
+msgid "npm is not available"
 msgstr ""
 
 msgid "private"

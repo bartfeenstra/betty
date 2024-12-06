@@ -1087,12 +1087,6 @@ msgstr ""
 "У вашому проєкті не ввімкнено тему. Це означає, що сторінки вашого сайту "
 "можуть виглядати пусто. Спробуйте розширення \"cotton-candy\"."
 
-msgid "`npm` is available"
-msgstr "`npm` доступний"
-
-msgid "`npm` is not available"
-msgstr "`npm` недоступний"
-
 msgid "around {date}"
 msgstr "близько {date}"
 
@@ -1150,6 +1144,12 @@ msgstr ""
 "npm (https://www.npmjs.com/) має бути доступним для функцій, які вимагають "
 "встановлення пакетів Node.js. Переконайтеся, що виконуваний файл `npm` "
 "доступний у вашому `PATH`."
+
+msgid "npm is available"
+msgstr "npm доступний"
+
+msgid "npm is not available"
+msgstr "npm недоступний"
 
 msgid "private"
 msgstr "приватні"

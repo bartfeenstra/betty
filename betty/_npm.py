@@ -23,8 +23,8 @@ if TYPE_CHECKING:
     from pathlib import Path
     from asyncio import subprocess as aiosubprocess
 
-_NPM_SUMMARY_AVAILABLE = _("`npm` is available")
-_NPM_SUMMARY_UNAVAILABLE = _("`npm` is not available")
+_NPM_SUMMARY_AVAILABLE = _("npm is available")
+_NPM_SUMMARY_UNAVAILABLE = _("npm is not available")
 _NPM_DETAILS = _(
     "npm (https://www.npmjs.com/) must be available for features that require Node.js packages to be installed. Ensure that the `npm` executable is available in your `PATH`."
 )

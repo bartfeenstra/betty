@@ -1088,12 +1088,6 @@ msgstr ""
 "Er is geen thema ingeschakeld voor je project. Dit betekent dat de pagina's "
 "van je site er leeg uit kunnen zien. Probeer de \"cotton-candy\"-extensie."
 
-msgid "`npm` is available"
-msgstr "`npm` is beschikbaar"
-
-msgid "`npm` is not available"
-msgstr "`npm` is niet beschikbaar"
-
 msgid "around {date}"
 msgstr "rond {date}"
 
@@ -1151,6 +1145,12 @@ msgstr ""
 "npm (https://www.npmjs.com/) moet beschikbaar zijn voor functionaliteit "
 "waarvoor Node.js packages geïnstalleerd moeten worden. Zorg ervoor dat het "
 "`npm`-programma beschikbaar is in je `PATH`."
+
+msgid "npm is available"
+msgstr "npm is beschikbaar"
+
+msgid "npm is not available"
+msgstr "npm is niet beschikbaar"
 
 msgid "private"
 msgstr "privé"
