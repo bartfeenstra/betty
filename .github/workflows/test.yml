@@ -92,8 +92,15 @@ jobs:
 
       - name: Run the tests
         if: ${{ ! startsWith(runner.os, 'Linux') }}
-        run: BETTY_TEST_SKIP_SHELLCHECK=true BETTY_TEST_SKIP_RUFF=true BETTY_TEST_SKIP_MYPY=true BETTY_TEST_SKIP_STYLELINT=true BETTY_TEST_SKIP_ESLINT=true BETTY_TEST_SKIP_PLAYWRIGHT=true ./bin/test
+        run: ./bin/test
         shell: bash
+        env:
+          BETTY_TEST_SKIP_SHELLCHECK: true
+          BETTY_TEST_SKIP_RUFF: true
+          BETTY_TEST_SKIP_MYPY: true
+          BETTY_TEST_SKIP_STYLELINT: true
+          BETTY_TEST_SKIP_ESLINT: true
+          BETTY_TEST_SKIP_PLAYWRIGHT: true
 
       - name: Upload code coverage
         uses: codecov/codecov-action@v5
