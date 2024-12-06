@@ -1,21 +1,15 @@
+{% do 'http-api-doc' | webpack_entry_point_js %}
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
     <title>{% trans %}API documentation{% endtrans %} - {{ project.configuration.title | localize }}</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="{{ '/css/http-api-doc.css' | static_url }}" />
 </head>
 <body>
-<div id="swagger-ui"></div>
-<script src="{{ '/js/http-api-doc.js' | static_url }}" crossorigin></script>
-<script>
-  window.onload = () => {
-    window.ui = SwaggerUIBundle({
-      url: '{{ '/api/index.json' | static_url }}',
-      dom_id: '#swagger-ui',
-    });
-  };
-</script>
+<div id="swagger-ui" data-betty-openapi-url="{{ '/api/index.json' | static_url }}"></div>
+{% include 'webpack-entry-loader.html.j2' %}
+{% include 'stylesheets.html.j2' %}
+{% include 'scripts.html.j2' %}
 </body>
 </html>
