@@ -5,13 +5,13 @@ import CopyWebpackPlugin from 'copy-webpack-plugin'
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import path from 'path'
-import { readFile } from 'node:fs/promises'
+import { readFileSync } from 'node:fs'
 import TerserPlugin from 'terser-webpack-plugin'
 import url from 'node:url'
 import webpack from 'webpack'
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
-const configuration = JSON.parse(await readFile('./webpack.config.json'))
+const configuration = JSON.parse(readFileSync('./webpack.config.json'))
 
 /**
  * Collect the scripts needed for all entry points, and build a loader.
