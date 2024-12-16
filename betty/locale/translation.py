@@ -203,14 +203,16 @@ async def _update_translations(
         await run_babel(
             "",
             "update",
-            "-i",
-            str(pot_file_path),
-            "-o",
-            str(output_po_file_path),
-            "-l",
-            str(locale_data),
-            "-D",
+            "--domain",
             "betty",
+            "--input-file",
+            str(pot_file_path),
+            "--ignore-obsolete",
+            "--locale",
+            str(locale_data),
+            "--no-fuzzy-matching",
+            "--output-file",
+            str(output_po_file_path),
         )
 
 
