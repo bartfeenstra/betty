@@ -3,9 +3,6 @@
 {% for place in places %}
     {% do ns.place_urls.append((place | localized_url, place.coordinates.latitude, place.coordinates.longitude, place.label | localize)) %}
 {% endfor %}
-<div{% if featured %} class="featured"{% endif %}>
-    <div class="map" data-betty-places="{{ ns.place_urls | json }}">
-    </div>
-</div>
+<div class="map" data-betty-places="{{ ns.place_urls | json }}"></div>
 {% do '/css/maps.css' | public_css %}
 {% do 'maps' | webpack_entry_point_js %}

@@ -1,0 +1,3 @@
+<div class="tree" data-betty-person="{{ person.id }}" data-betty-people="{{ '/people.json' | localized_url }}"></div>
+{% do '/css/trees.css' | public_css %}
+{% do 'trees' | webpack_entry_point_js %}

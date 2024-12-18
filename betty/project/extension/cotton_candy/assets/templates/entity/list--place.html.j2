@@ -7,12 +7,12 @@
 {% endfor %}
 {% set places = ns.places_and_names | sort(attribute=1) | map(attribute=0) | list %}
 <div class="places{% if 'maps' in project.extensions %} with-map{% endif %}">
-    {% if 'maps' in project.extensions and places | rejectattr('coordinates', 'none') | list | length > 0 %}
+    {% if 'maps' in project.extensions %}
         {% include 'map.html.j2' %}
     {% endif %}
     <ul class="entities{% if hide_list | default(false) %} visually-hidden{% endif %}{% if map_hides_list | default(false) %} js-visually-hidden{% endif %}">
         {% for place in places %}
-            <li class="{{ loop.cycle('odd', 'even') }}" data-betty-place="{{ place | localized_url(media_type='application/json') }}">
+            <li class="{{ loop.cycle('odd', 'even') }}">
                 {% include 'entity/label--place.html.j2' %}
                 {% include 'entity/meta--place.html.j2' %}
             </li>
