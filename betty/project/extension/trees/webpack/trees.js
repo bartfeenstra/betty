@@ -9,7 +9,7 @@ cytoscape.use(dagre)
 
 async function initializeAncestryTrees () {
   const trees = document.getElementsByClassName('tree')
-  await Promise.allSettled(Array.from(trees).map(tree => initializeAncestryTree(tree, tree.dataset.bettyPersonId)))
+  await Promise.allSettled(Array.from(trees).map(tree => initializeAncestryTree(tree, tree.dataset.bettyPerson)))
 }
 
 async function initializeAncestryTree (tree, personId) {

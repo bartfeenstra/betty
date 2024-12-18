@@ -1,6 +1,4 @@
-.with-js .tree.featured {
-  background-color: #eee;
-
-  /* Trees are full width, so leave enough vertical space for scrolling. */
-  height: 50vh;
+.tree {
+  height: 100%;
+  width: 100%;
 }

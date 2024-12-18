@@ -1,0 +1,9 @@
+.with-js .featured .map {
+  /* Maps are full width, so leave enough vertical space for scrolling. */
+  height: 50vh;
+}
+
+.featured-entity-feature .with-map,
+.featured-entity-feature .map {
+  height: 100%;
+}
