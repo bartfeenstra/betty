@@ -387,9 +387,7 @@ class _EntityTypeAssociation(Generic[OwnerT, AssociateT]):
             self._associate_type = import_any(self._associate_type_name)
         return self._associate_type
 
-    def register(  # type: ignore[misc]
-        self: ToAny[OwnerT, AssociateT],
-    ) -> None:
+    def register(self: ToAny[OwnerT, AssociateT]) -> None:
         EntityTypeAssociationRegistry._register(self)
 
         original_init = self._owner_type.__init__

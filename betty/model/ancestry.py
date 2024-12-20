@@ -486,9 +486,8 @@ class HasLinksEntity(HasLinks):
     """
 
     @override
-    async def dump_linked_data(  # type: ignore[misc]
-        self: HasLinksEntity & Entity,
-        app: App,
+    async def dump_linked_data(
+        self: HasLinksEntity & Entity, app: App
     ) -> DictDump[Dump]:
         dump: DictDump[Dump] = await super().dump_linked_data(app)  # type: ignore[misc]
 
@@ -597,7 +596,7 @@ class HasNotes(LinkedDataDumpable):
     An entity that has notes associated with it.
     """
 
-    def __init__(  # type: ignore[misc]
+    def __init__(
         self: HasNotes & Entity,
         *args: Any,
         notes: Iterable[Note] | None = None,
@@ -655,7 +654,7 @@ class HasCitations(LinkedDataDumpable):
     An entity with citations that support it.
     """
 
-    def __init__(  # type: ignore[misc]
+    def __init__(
         self: HasCitations & Entity,
         *args: Any,
         citations: Iterable[Citation] | None = None,
@@ -834,7 +833,7 @@ class HasFiles:
     An entity that has associated :py:class:`betty.model.ancestry.File` entities.
     """
 
-    def __init__(  # type: ignore[misc]
+    def __init__(
         self: HasFiles & Entity,
         *args: Any,
         files: Iterable[File] | None = None,

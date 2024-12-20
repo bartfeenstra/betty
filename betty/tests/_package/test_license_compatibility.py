@@ -13,12 +13,16 @@ class TestPackageLicenses:
         # "This package contains code from cpython and is licensed under the same terms as cpython itself.",
         # as per https://pypi.org/project/aiohappyeyeballs/.
         "aiohappyeyeballs",
+        # attrs is released under the MIT license.
+        "attrs",
         # We do not include basedtyping in any Betty distribution.
         "basedtyping",
         # We do not include PyInstaller in any Betty distributions.
         "pyinstaller",
         # The SIP license has been confirmed compatible by SIP.
         "PyQt6-sip",
+        # attrs is released under the Apache 2.0 license.
+        "types-lxml",
     )
 
     _GPL_V3_COMPATIBLE_LICENSES = (
