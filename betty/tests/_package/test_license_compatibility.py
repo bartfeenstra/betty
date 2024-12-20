@@ -21,7 +21,7 @@ class TestPackageLicenses:
         "pyinstaller",
         # The SIP license has been confirmed compatible by SIP.
         "PyQt6-sip",
-        # attrs is released under the Apache 2.0 license.
+        # types-lxml is released under the Apache 2.0 license.
         "types-lxml",
     )
 
