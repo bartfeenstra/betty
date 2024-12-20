@@ -8,7 +8,7 @@ import logging
 from contextlib import redirect_stdout
 from io import StringIO
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeVar
 
 from aiofiles.os import makedirs
 from aiofiles.ospath import exists
@@ -18,11 +18,14 @@ from betty.error import UserFacingError
 from betty.locale import get_data
 from betty.locale.babel import run_babel
 from betty.locale.localizable import _
+from betty.project.extension import Extension
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from betty.project import Project
-    from betty.project.extension import Extension
+
+
+ExtensionT = TypeVar("ExtensionT", bound=Extension)
 
 
 def assert_extension_assets_directory_path(extension: type[Extension]) -> Path:
@@ -37,6 +40,16 @@ def assert_extension_assets_directory_path(extension: type[Extension]) -> Path:
             )
         )
     return assets_directory_path
+
+
+def assert_extension_has_assets_directory_path(
+    extension: type[ExtensionT],
+) -> type[ExtensionT]:
+    """
+    Check that the given extension has an assets directory, and return it.
+    """
+    assert_extension_assets_directory_path(extension)
+    return extension
 
 
 async def new_extension_translation(locale: str, extension: type[Extension]) -> None:
