@@ -1,6 +1,5 @@
 'use strict'
 
-import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 import CopyWebpackPlugin from 'copy-webpack-plugin'
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
@@ -109,7 +108,6 @@ const webpackConfiguration = {
     runtimeChunk: 'single'
   },
   plugins: [
-    new CleanWebpackPlugin(),
     new CopyWebpackPlugin({
       patterns: [
         // The HttpApiDoc extension does not have a Webpack build as such (yet), but simply
