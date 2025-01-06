@@ -1,5 +1,6 @@
 import json
 from asyncio import sleep
+from collections.abc import Mapping
 from pathlib import Path
 from unittest.mock import AsyncMock
 
@@ -74,6 +75,7 @@ class TestProjectWindow:
             betty_qtbot.app.project.configuration.configuration_file_path
         ) as f:
             read_configuration_dump = json.loads(await f.read())
+        assert isinstance(read_configuration_dump, Mapping)
         assert read_configuration_dump == betty_qtbot.app.project.configuration.dump()
         assert read_configuration_dump["title"] == title
 

@@ -47,7 +47,7 @@ def walk(item: Any, attribute_name: str) -> Iterable[Any]:
 
     # Otherwise loop over the children and yield their attributes.
     try:
-        child_children = iter(child)
+        child_children = iter(child)  # type: ignore[call-overload]
     except TypeError:
         return
     for child_child in child_children:

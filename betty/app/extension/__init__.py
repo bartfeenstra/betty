@@ -442,7 +442,7 @@ class ExtensionDispatcher(Dispatcher):
                 for target_extension_batch in self._extensions
                 for result in await gather(
                     *(
-                        getattr(target_extension, target_method_name)(*args, **kwargs)
+                        getattr(target_extension, target_method_name)(*args, **kwargs)  # type: ignore[operator]
                         for target_extension in target_extension_batch
                         if isinstance(target_extension, target_type)
                     )

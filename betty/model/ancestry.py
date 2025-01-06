@@ -1074,7 +1074,7 @@ class Source(
     f"This class is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. No direct replacement is available. Instead, set the privacy for {Source} entities accordingly."
 )
 class AnonymousSource(Source):  # noqa D101
-    @property  # type: ignore[override]
+    @property
     def name(self) -> str:  # noqa D102
         return "private"
 
@@ -1195,7 +1195,7 @@ class Citation(Dated, HasFiles, HasPrivacy, HasLinksEntity, UserFacingEntity, En
     f"This class is deprecated as of Betty 0.3.2, and will be removed in Betty 0.4.x. No direct replacement is available. Instead, set the privacy for {Citation} entities accordingly."
 )
 class AnonymousCitation(Citation):  # noqa D101
-    @property  # type: ignore[override]
+    @property
     def location(self) -> Str:  # noqa D102
         return Str._(
             "private (in order to protect people's privacy)"
