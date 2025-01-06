@@ -1,4 +1,5 @@
 import json as stdjson
+from collections.abc import Mapping
 from pathlib import Path
 
 import aiofiles
@@ -22,6 +23,7 @@ class TestSpecification:
             Path(__file__).parent / "test_openapi_assets" / "openapi-schema.json"
         ) as f:
             schema = stdjson.loads(await f.read())
+            assert isinstance(schema, Mapping)
         async with App.new_temporary() as app, app:
             app.project.configuration.clean_urls = clean_urls
             sut = Specification(app)

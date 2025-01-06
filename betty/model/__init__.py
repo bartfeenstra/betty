@@ -505,7 +505,7 @@ class ToOneEntityTypeAssociation(
         """
         Get the associate from the given owner.
         """
-        return getattr(owner, self._owner_private_attr_name)  # type: ignore[no-any-return]
+        return getattr(owner, self._owner_private_attr_name)  # type: ignore[return-value]
 
     def set(
         self, owner: OwnerT & Entity, associate: AssociateT & Entity | None
@@ -895,7 +895,7 @@ class EntityTypeAssociationRegistry:
         """
         Get the associates for a given owner and association.
         """
-        associates: AssociateT | None | Iterable[AssociateT] = getattr(
+        associates: AssociateT | None | Iterable[AssociateT] = getattr(  # type: ignore[assignment]
             owner, f"_{association.owner_attr_name}"
         )
         if isinstance(association, ToOneEntityTypeAssociation):

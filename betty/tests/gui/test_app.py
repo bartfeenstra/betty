@@ -1,4 +1,5 @@
 import json
+from collections.abc import Mapping
 from pathlib import Path
 
 import aiofiles
@@ -142,5 +143,6 @@ class TestApplicationConfiguration:
             betty_qtbot.app.configuration.configuration_file_path
         ) as f:
             read_configuration_dump = json.loads(await f.read())
+        assert isinstance(read_configuration_dump, Mapping)
         assert read_configuration_dump == betty_qtbot.app.configuration.dump()
         assert read_configuration_dump["locale"] == locale

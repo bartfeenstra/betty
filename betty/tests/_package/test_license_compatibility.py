@@ -1,6 +1,7 @@
 import io
 import json
 import sys
+from collections.abc import Sequence, Mapping
 from importlib.metadata import metadata, PackageNotFoundError
 from typing import Iterator, Any
 
@@ -43,7 +44,7 @@ class TestPackageLicenses:
         "The Unlicense (Unlicense)",
     )
 
-    def assert_is_compatible(self, package_license: dict[str, Any]) -> None:
+    def assert_is_compatible(self, package_license: Mapping[str, Any]) -> None:
         for compatible_license in self._GPL_V3_COMPATIBLE_LICENSES:
             if compatible_license in package_license["License"]:
                 return
@@ -105,8 +106,10 @@ class TestPackageLicenses:
             sys.stdout = piplicenses_stdout
             piplicenses.main()
             package_licenses = json.loads(piplicenses_stdout.getvalue())
+            assert isinstance(package_licenses, Sequence)
             assert len(package_licenses) > 1
             for package_license in package_licenses:
+                assert isinstance(package_license, Mapping)
                 self.assert_is_compatible(package_license)
         finally:
             sys.argv = argv

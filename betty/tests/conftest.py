@@ -5,7 +5,7 @@ Integrate Betty with pytest.
 from __future__ import annotations
 
 import logging
-from typing import TypeVar, cast, TypeGuard, TYPE_CHECKING
+from typing import TypeVar, cast, TypeGuard, TYPE_CHECKING, Any
 from warnings import filterwarnings
 
 import pytest
@@ -115,21 +115,22 @@ class BettyQtBot:
         """
         Navigate a window's menus and actions.
         """
+        attribute_item: Any = item
         if attributes:
             attribute = attributes.pop(0)
-            item = getattr(item, attribute)
-            if isinstance(item, QMenu):
-                self.mouse_click(item)
-            elif isinstance(item, QAction):
-                self.assert_interactive(item)
-                item.trigger()
+            attribute_item = getattr(attribute_item, attribute)
+            if isinstance(attribute_item, QMenu):
+                self.mouse_click(attribute_item)
+            elif isinstance(attribute_item, QAction):
+                self.assert_interactive(attribute_item)
+                attribute_item.trigger()
             else:
                 raise RuntimeError(
                     'Can only navigate to menus and actions, but attribute "%s" contains %s.'
-                    % (attribute, type(item))
+                    % (attribute, type(attribute_item))
                 )
 
-            self.navigate(item, attributes)
+            self.navigate(attribute_item, attributes)
 
     def assert_window(
         self, window_type: type[QMainWindowT] | QMainWindowT

@@ -18,6 +18,7 @@ from betty import _npm
 from betty.asyncio import gather
 from betty.fs import ROOT_DIRECTORY_PATH, iterfiles
 from betty.hashid import hashid, hashid_sequence, hashid_file_content
+from collections.abc import Mapping
 
 if TYPE_CHECKING:
     from betty.app.extension import Extension
@@ -217,7 +218,8 @@ class Builder:
             npm_project_package_json_path, "r"
         ) as npm_project_package_json_f:
             npm_project_package_json = loads(await npm_project_package_json_f.read())
-        npm_project_package_json["dependencies"].update(
+        assert isinstance(npm_project_package_json, Mapping)
+        npm_project_package_json["dependencies"].update(  # type: ignore[union-attr]
             npm_project_package_json_dependencies
         )
         async with aiofiles.open(

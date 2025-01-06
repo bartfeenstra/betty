@@ -259,10 +259,10 @@ class Date(LinkedDataDumpable):
 
     def _compare(self, other: Any, comparator: Callable[[Any, Any], bool]) -> bool:
         if not isinstance(other, Date):
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
         selfish = self
         if not selfish.comparable or not other.comparable:
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
         if selfish.complete and other.complete:
             return comparator(selfish.parts, other.parts)
         if not other.complete:
@@ -1237,7 +1237,8 @@ class _GettextStr(Str):
     @override
     def localize(self, localizer: Localizer) -> str:
         return cast(
-            str, getattr(localizer, self._gettext_method_name)(*self._gettext_args)
+            str,
+            getattr(localizer, self._gettext_method_name)(*self._gettext_args),  # type: ignore[operator]
         ).format(**self._localize_format_kwargs(localizer, **self._format_kwargs))
 
 
