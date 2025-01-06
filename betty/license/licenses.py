@@ -6,7 +6,7 @@ import logging
 import re
 import tarfile
 from asyncio import get_running_loop, gather
-from collections.abc import Iterator, Mapping, AsyncIterator
+from collections.abc import Iterator, Mapping, AsyncIterator, Sequence
 from concurrent.futures import Executor
 from contextlib import contextmanager
 from json import loads
@@ -162,9 +162,15 @@ class SpdxLicenseRepository(PluginRepository[License]):
                 / "licenses.json"
             ) as spdx_licenses_data_f:
                 spdx_licenses_data_json = await spdx_licenses_data_f.read()
-            spdx_licenses_data = loads(spdx_licenses_data_json)
+            spdx_data = loads(spdx_licenses_data_json)
+            assert isinstance(spdx_data, Mapping)
 
-            for spdx_license_data in spdx_licenses_data["licenses"]:
+            spdx_licenses_data = spdx_data["licenses"]
+            assert isinstance(spdx_licenses_data, Sequence)
+
+            for spdx_license_data in spdx_licenses_data:
+                assert isinstance(spdx_license_data, Mapping)
+
                 if spdx_license_data.get("isDeprecatedLicenseId", False):
                     continue
 
@@ -244,14 +250,12 @@ class SpdxLicenseRepository(PluginRepository[License]):
             / f"{self._license_id_to_spdx_license_id_map[license_id]}.json"
         ) as spdx_license_data_f:
             spdx_license_data_json = await spdx_license_data_f.read()
-        spdx_license_data = loads(spdx_license_data_json)
 
         with self._catch_json_errors():
-            url = self._license_id_to_spdx_reference_map[license_id]
+            spdx_license_data = loads(spdx_license_data_json)
+            assert isinstance(spdx_license_data, Mapping)
 
-            license_id = spdx_license_data["licenseId"]
-            assert isinstance(license_id, str)
-            plugin_id = spdx_license_id_to_license_id(license_id)
+            url = self._license_id_to_spdx_reference_map[license_id]
 
             license_name = spdx_license_data["name"]
             assert isinstance(license_name, str)
@@ -261,7 +265,7 @@ class SpdxLicenseRepository(PluginRepository[License]):
             assert isinstance(license_text, str)
 
             class _SpdxLicense(ShorthandPluginBase, License):
-                _plugin_id = plugin_id
+                _plugin_id = license_id
                 _plugin_label = plugin_label
 
                 @override
@@ -272,7 +276,9 @@ class SpdxLicenseRepository(PluginRepository[License]):
                 @override
                 @property
                 def text(self) -> Localizable:
-                    return plain(license_text)
+                    return plain(
+                        license_text  # type: ignore[arg-type]
+                    )
 
                 @override
                 @property

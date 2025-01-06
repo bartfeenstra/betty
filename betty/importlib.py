@@ -14,6 +14,10 @@ def import_any(fully_qualified_type_name: str) -> Any:
     try:
         module_name, attrs = fully_qualified_type_name.rsplit(":", 1)
         module = import_module(module_name)
-        return reduce(getattr, attrs.split("."), module)
+        return reduce(
+            getattr,  # type: ignore[arg-type]
+            attrs.split("."),
+            module,
+        )
     except (AttributeError, ImportError, ValueError):
         raise ImportError(f'Cannot import "{fully_qualified_type_name}".') from None

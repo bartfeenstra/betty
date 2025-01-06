@@ -225,7 +225,7 @@ class Builder:
             npm_project_package_json_path, "r"
         ) as npm_project_package_json_f:
             npm_project_package_json = loads(await npm_project_package_json_f.read())
-        npm_project_package_json["dependencies"].update(
+        npm_project_package_json["dependencies"].update(  # type: ignore[call-overload,index,union-attr]
             npm_project_package_json_dependencies
         )
         async with aiofiles.open(
