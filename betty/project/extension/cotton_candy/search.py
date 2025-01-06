@@ -8,7 +8,7 @@ from abc import ABC
 from asyncio import gather
 from dataclasses import dataclass
 from inspect import getmembers
-from typing import TYPE_CHECKING, TypeVar, Generic, final
+from typing import TYPE_CHECKING, TypeVar, Generic, final, cast
 
 from typing_extensions import override
 
@@ -21,11 +21,11 @@ from betty.locale.localizable import StaticTranslationsLocalizableAttr
 from betty.model import Entity
 from betty.privacy import is_private
 from betty.typing import internal
+from betty.locale.localizable import StaticTranslationsLocalizable
 
 if TYPE_CHECKING:
     from betty.jinja2 import Environment
     from betty.ancestry import Ancestry
-    from betty.locale.localizable import StaticTranslationsLocalizable
     from betty.locale.localizer import Localizer
     from betty.job import Context
     from collections.abc import Iterable, Sequence
@@ -54,7 +54,11 @@ class _EntityTypeIndexer(Generic[_EntityT], ABC):
 
         for attr_name, class_attr_value in getmembers(type(entity)):
             if isinstance(class_attr_value, StaticTranslationsLocalizableAttr):
-                text.update(_static_translations_to_text(getattr(entity, attr_name)))
+                text.update(
+                    _static_translations_to_text(
+                        cast(StaticTranslationsLocalizable, getattr(entity, attr_name))
+                    )
+                )
 
         return text
 

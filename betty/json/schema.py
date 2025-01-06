@@ -423,7 +423,7 @@ class FileBasedSchema(Schema):
         async with aiofiles.open(file_path) as f:
             raw_schema = await f.read()
         schema = cls(def_name=def_name, title=title, description=description)
-        schema._schema = loads(raw_schema)
+        schema._schema = loads(raw_schema)  # type: ignore[assignment]
         return schema
 
 

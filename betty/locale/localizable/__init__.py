@@ -132,7 +132,8 @@ class _GettextLocalizable(_FormattableLocalizable):
     def localize(self, localizer: Localizer) -> LocalizedStr:
         return LocalizedStr(
             cast(
-                str, getattr(localizer, self._gettext_method_name)(*self._gettext_args)
+                str,
+                getattr(localizer, self._gettext_method_name)(*self._gettext_args),  # type: ignore[operator]
             ),
             locale=localizer.locale,
         )

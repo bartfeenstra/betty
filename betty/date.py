@@ -20,6 +20,7 @@ from betty.json.linked_data import (
 from betty.json.schema import String, Boolean, Null, OneOf, Number
 
 if TYPE_CHECKING:
+    from types import NotImplementedType
     from betty.serde.dump import DumpMapping, Dump
     from betty.project import Project
 
@@ -128,12 +129,14 @@ class Date(LinkedDataDumpableJsonLdObject):
             Date(self.year, month_start, day_start), Date(self.year, month_end, day_end)
         )
 
-    def _compare(self, other: Any, comparator: Callable[[Any, Any], bool]) -> bool:
+    def _compare(
+        self, other: Any, comparator: Callable[[Any, Any], bool]
+    ) -> bool | NotImplementedType:
         if not isinstance(other, Date):
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
         selfish = self
         if not selfish.comparable or not other.comparable:
-            return NotImplemented
+            return NotImplemented  # type: ignore[no-any-return]
         if selfish.complete and other.complete:
             return comparator(selfish.parts, other.parts)
         if not other.complete:

@@ -417,7 +417,7 @@ class _ToManyAssociation(
         except AttributeError:
             value = self._new_collection(instance)
             setattr(instance, self._internal_owner_attr_name, value)
-            return value  # type: ignore[no-any-return]
+            return value
         else:
             assert not isinstance(value, _Resolver)
             return cast(EntityCollection[_AssociateT], value)
@@ -592,7 +592,9 @@ class BidirectionalToOne(
         self, instance: _OwnerT, value: _AssociateT | ToOneResolver[_AssociateT]
     ) -> None:
         try:
-            previous_associate = getattr(self, self._internal_owner_attr_name)
+            previous_associate = cast(
+                _AssociateT | None, getattr(self, self._internal_owner_attr_name)
+            )
         except AttributeError:
             previous_associate = None
         if previous_associate == value:
