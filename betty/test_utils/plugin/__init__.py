@@ -41,9 +41,9 @@ class PluginTestBase(Generic[_PluginT]):
         """
         Tests that the plugin class is public.
         """
-        assert not self.get_sut_class().__name__.startswith(
-            "_"
-        ), f"Failed asserting that plugin class {self.get_sut_class()} is public (its name must not start with an underscore)"
+        assert not self.get_sut_class().__name__.startswith("_"), (
+            f"Failed asserting that plugin class {self.get_sut_class()} is public (its name must not start with an underscore)"
+        )
 
     async def test_plugin_id(self) -> None:
         """

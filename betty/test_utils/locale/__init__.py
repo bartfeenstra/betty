@@ -71,9 +71,9 @@ class PotFileTestBase:
                 list(actual_pot_contents),
                 list(expected_pot_contents),
             )
-            assert (
-                len(list(diff)) == 0
-            ), f"The gettext *.po files are not up to date. Did you run `{self.command()}`?"
+            assert len(list(diff)) == 0, (
+                f"The gettext *.po files are not up to date. Did you run `{self.command()}`?"
+            )
 
 
 class ProjectPotFileTestBase(PotFileTestBase):

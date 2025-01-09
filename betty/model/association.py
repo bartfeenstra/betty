@@ -722,9 +722,9 @@ class _BidirectionalAssociateCollection(
     @property
     def _owner(self) -> _OwnerT:
         owner = self.__owner()
-        assert (
-            owner is not None
-        ), "This associate collection's owner no longer exists in memory."
+        assert owner is not None, (
+            "This associate collection's owner no longer exists in memory."
+        )
         return owner
 
     @override

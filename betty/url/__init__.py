@@ -100,9 +100,9 @@ def generate_from_path(
     """
     url = base_url.rstrip("/") if absolute else ""
     url += root_path.rstrip("/")
-    assert path.startswith(
-        "/"
-    ), f'Paths must be root-relative (start with a forward slash), but "{path}" was given'
+    assert path.startswith("/"), (
+        f'Paths must be root-relative (start with a forward slash), but "{path}" was given'
+    )
     path = path.strip("/")
     if locale and len(locales) > 1:
         locale = to_locale(locale)

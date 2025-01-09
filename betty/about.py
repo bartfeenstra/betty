@@ -53,9 +53,9 @@ def _indent_mapping(items: Mapping[str, str]) -> str:
 
 def _indent_mapping_item(key: str, value: str, max_indentation: int) -> Iterator[str]:
     lines = value.split("\n")
-    yield f'{key}{" " * (max_indentation - len(key))}    {lines[0]}'
+    yield f"{key}{' ' * (max_indentation - len(key))}    {lines[0]}"
     for line in lines[1:]:
-        yield f'{" " * max_indentation}    {line}'
+        yield f"{' ' * max_indentation}    {line}"
 
 
 def report() -> str:

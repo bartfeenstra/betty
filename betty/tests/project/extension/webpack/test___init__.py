@@ -138,7 +138,7 @@ class TestWebpack(ExtensionTestBase[Webpack]):
         self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
     ) -> None:
         webpack_build_directory_path = (
-            tmp_path / "webpack" / f"build-{webpack_build_id((),False)}"
+            tmp_path / "webpack" / f"build-{webpack_build_id((), False)}"
         )
         prebuilt_assets_directory_path = tmp_path / "prebuild"
 
@@ -164,7 +164,7 @@ class TestWebpack(ExtensionTestBase[Webpack]):
                     async with aiofiles.open(
                         prebuilt_assets_directory_path
                         / "webpack"
-                        / f"build-{webpack_build_id((),False)}"
+                        / f"build-{webpack_build_id((), False)}"
                         / self._SENTINEL
                     ) as f:
                         assert await f.read() == self._SENTINEL

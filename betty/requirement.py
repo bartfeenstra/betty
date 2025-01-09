@@ -58,7 +58,7 @@ class Requirement(Localizable):
         details = self.details()
         localized: str = super_localized
         if details is not None:
-            localized += f'\n{"-" * len(localized)}'
+            localized += f"\n{'-' * len(localized)}"
             localized += f"\n{details.localize(localizer)}"
         return LocalizedStr(localized, locale=super_localized.locale)
 
@@ -113,7 +113,7 @@ class RequirementCollection(Requirement):
         super_localized = super().localize(localizer)
         localized: str = super_localized
         for requirement in self._requirements:
-            localized += f'\n-{indent(requirement.localize(localizer), "  ")[1:]}'
+            localized += f"\n-{indent(requirement.localize(localizer), '  ')[1:]}"
         return LocalizedStr(localized, locale=super_localized.locale)
 
     @override
