@@ -796,7 +796,7 @@ class GrampsLoader:
         with suppress(XPathError):
             coord_element = self._xpath1(element, "./ns:coord")
 
-            coordinates = f'{coord_element.get("lat")}; {coord_element.get("long")}'
+            coordinates = f"{coord_element.get('lat')}; {coord_element.get('long')}"
             try:
                 return Point.from_string(coordinates)
             except ValueError:

@@ -59,21 +59,19 @@ _BEFORE_REFERENCE_DATE = Date(1900, 1, 1)
 _AFTER_REFERENCE_DATE = Date(2000, 1, 1)
 
 
-def _parameterize_with_associated_events() -> (
-    Iterator[
-        tuple[
-            bool,
-            PresenceRole,
-            str | None,
-            Privacy,
-            EventType,
-            Datey | None,
-            Privacy,
-            EventType,
-            Datey | None,
-        ]
+def _parameterize_with_associated_events() -> Iterator[
+    tuple[
+        bool,
+        PresenceRole,
+        str | None,
+        Privacy,
+        EventType,
+        Datey | None,
+        Privacy,
+        EventType,
+        Datey | None,
     ]
-):
+]:
     ids = (
         (True, "E1"),
         (False, None),
