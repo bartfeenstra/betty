@@ -1,6 +1,6 @@
 <a href="{{ entity | localized_url }}" class="nav-secondary-action search-result-target">
     <div class="search-result-description">
-        {{ entity.description | localize }}
+        {{ entity.label | localize }}
         <div class="search-result-file-type">{% trans %}Media{% endtrans %}</div>
     </div>
     {% if entity.media_type and entity.media_type.type== 'image' %}

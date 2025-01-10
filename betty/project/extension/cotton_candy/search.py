@@ -44,7 +44,7 @@ def _static_translations_to_text(
 
 
 class _EntityTypeIndexer(Generic[_EntityT], ABC):
-    def text(self, entity: _EntityT) -> set[str]:
+    def text(self, localizer: Localizer, entity: _EntityT) -> set[str]:
         text = set()
 
         # Each note is owner by a single other entity, so index it as part of that entity.
@@ -65,8 +65,8 @@ class _EntityTypeIndexer(Generic[_EntityT], ABC):
 
 class _PersonIndexer(_EntityTypeIndexer[Person]):
     @override
-    def text(self, entity: Person) -> set[str]:
-        text = super().text(entity)
+    def text(self, localizer: Localizer, entity: Person) -> set[str]:
+        text = super().text(localizer, entity)
         for name in entity.names:
             if name.individual is not None:
                 text.update(set(name.individual.lower().split()))
@@ -77,15 +77,19 @@ class _PersonIndexer(_EntityTypeIndexer[Person]):
 
 class _PlaceIndexer(_EntityTypeIndexer[Place]):
     @override
-    def text(self, entity: Place) -> set[str]:
-        text = super().text(entity)
+    def text(self, localizer: Localizer, entity: Place) -> set[str]:
+        text = super().text(localizer, entity)
         for name in entity.names:
             text.update(_static_translations_to_text(name.name))
         return text
 
 
 class _FileIndexer(_EntityTypeIndexer[File]):
-    pass
+    @override
+    def text(self, localizer: Localizer, entity: File) -> set[str]:
+        text = super().text(localizer, entity)
+        text.update(entity.label.localize(localizer).strip().lower().split())
+        return text
 
 
 class _SourceIndexer(_EntityTypeIndexer[Source]):
@@ -148,7 +152,7 @@ class Index:
     ) -> _Entry | None:
         if is_private(entity):
             return None
-        text = indexer.text(entity)
+        text = indexer.text(self._localizer, entity)
         if not text:
             return None
         return _Entry(text, await self._render_entity(entity))
