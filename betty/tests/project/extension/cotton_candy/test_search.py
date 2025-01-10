@@ -284,48 +284,68 @@ class TestIndex:
 
                 assert actual == []
 
-    async def test_build_file_without_description(self, new_temporary_app: App) -> None:
-        file_id = "F1"
-        file = File(
-            id=file_id,
-            path=Path(__file__),
-        )
-
-        async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.extensions.enable(CottonCandy)
-            project.configuration.locales["en-US"].alias = "en"
-            project.configuration.locales.append(
-                LocaleConfiguration(
-                    "nl-NL",
-                    alias="nl",
-                )
-            )
-            project.ancestry.add(file)
-            async with project:
-                actual = await Index(
-                    project.ancestry,
-                    await project.jinja2_environment,
-                    Context(),
-                    DEFAULT_LOCALIZER,
-                ).build()
-
-                assert actual == []
-
     @pytest.mark.parametrize(
-        ("expected", "locale"),
+        ("expected_text", "expected_result", "description", "locale"),
         [
-            ("/nl/file/F1/index.html", "nl-NL"),
-            ("/en/file/F1/index.html", "en-US"),
+            (
+                {
+                    '"file"',
+                    "is",
+                    "dutch",
+                    "for",
+                    '"traffic',
+                    'jam"',
+                },
+                "/nl/file/F1/index.html",
+                '"file" is Dutch for "traffic jam"',
+                "nl-NL",
+            ),
+            (
+                {
+                    '"file"',
+                    "is",
+                    "dutch",
+                    "for",
+                    '"traffic',
+                    'jam"',
+                },
+                "/en/file/F1/index.html",
+                '"file" is Dutch for "traffic jam"',
+                "en-US",
+            ),
+            (
+                {
+                    "bestand",
+                    "f1",
+                },
+                "/nl/file/F1/index.html",
+                None,
+                "nl-NL",
+            ),
+            (
+                {
+                    "file",
+                    "f1",
+                },
+                "/en/file/F1/index.html",
+                None,
+                "en-US",
+            ),
         ],
     )
     async def test_build_file(
-        self, expected: str, locale: str, new_temporary_app: App
+        self,
+        expected_text: set[str],
+        expected_result: str,
+        description: str | None,
+        locale: str,
+        new_temporary_app: App,
     ) -> None:
         file_id = "F1"
         file = File(
             id=file_id,
             path=Path(__file__),
-            description='"file" is Dutch for "traffic jam"',
+            description=description,
         )
 
         async with Project.new_temporary(new_temporary_app) as project:
@@ -347,15 +367,8 @@ class TestIndex:
                     await localizers.get(locale),
                 ).build()
 
-                assert actual[0].text == {
-                    '"file"',
-                    "is",
-                    "dutch",
-                    "for",
-                    '"traffic',
-                    'jam"',
-                }
-                assert expected in actual[0].result
+                assert actual[0].text == expected_text
+                assert expected_result in actual[0].result
 
     async def test_build_private_file(self, new_temporary_app: App) -> None:
         file_id = "F1"
