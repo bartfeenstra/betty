@@ -6,6 +6,7 @@ from typing import Any, Iterable, TYPE_CHECKING
 import aiofiles
 import pytest
 from PIL import Image
+from puremagic import what
 
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
@@ -348,10 +349,12 @@ class TestFilterImageResizeCover(TemplateStringTestBase):
             },
         ) as (actual, project):
             assert actual == "/file/F1-.jpg"
-            for file_path in actual.split(":"):
-                assert (
-                    project.configuration.www_directory_path / file_path[1:]
-                ).exists()
+            for public_file_path in actual.split(":"):
+                file_path = (
+                    project.configuration.www_directory_path / public_file_path[1:]
+                )
+                assert (file_path).exists()
+                assert what(file_path) == "jpeg"
 
     async def test_with_invalid_image(self, tmp_path: Path) -> None:
         file_path = tmp_path / "not-an-image.txt"

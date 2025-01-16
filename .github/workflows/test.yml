@@ -81,6 +81,20 @@ jobs:
         with:
           node-version-file: ./package.json
 
+      - name: Install APT dependencies
+        if: startsWith(runner.os, 'Linux')
+        run: sudo apt-get install poppler-utils
+
+      - name: Install Brew dependencies
+        if: startsWith(runner.os, 'macOS')
+        run: brew install poppler
+
+      - name: Install Scoop dependencies
+        if: startsWith(runner.os, 'Windows')
+        uses: MinoruSekine/setup-scoop@v4.0.1
+        with:
+          apps: poppler
+
       - name: Build the development environment
         run: ./bin/build-ci
         shell: bash

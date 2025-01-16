@@ -37,7 +37,12 @@ from pdf2image.pdf2image import convert_from_path
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.hashid import hashid_file_meta, hashid
-from betty.image import resize_cover, Size, FocusArea
+from betty.image import (
+    resize_cover,
+    Size,
+    FocusArea,
+    image_file_path_format,
+)
 from betty.locale import (
     negotiate_locale,
     Localey,
@@ -366,7 +371,6 @@ async def filter_image_resize_cover(
             _execute_filter_image,
             image_loader,
             file.path,
-            file.media_type,
             project.app.binary_file_cache.with_scope("image").cache_item_file_path(
                 cache_item_id
             ),
@@ -380,10 +384,7 @@ async def filter_image_resize_cover(
     return destination_public_path
 
 
-async def _load_image_image(
-    file_path: Path,
-    media_type: MediaType,
-) -> Image.Image:
+async def _load_image_image(file_path: Path) -> Image.Image:
     # We want to read the image asynchronously and prevent Pillow from keeping too many file
     # descriptors open simultaneously, so we read the image ourselves and store the contents
     # in a synchronous file object.
@@ -391,24 +392,20 @@ async def _load_image_image(
         image_f = BytesIO(await f.read())
     # Ignore warnings about decompression bombs, because we know where the files come from.
     with warnings.catch_warnings(action="ignore", category=DecompressionBombWarning):
-        image = Image.open(image_f, formats=[media_type.subtype])
+        image = Image.open(image_f, formats=[image_file_path_format(file_path)])
     return image
 
 
-async def _load_image_application_pdf(
-    file_path: Path,
-    media_type: MediaType,
-) -> Image.Image:
+async def _load_image_application_pdf(file_path: Path) -> Image.Image:
     # Ignore warnings about decompression bombs, because we know where the files come from.
     with warnings.catch_warnings(action="ignore", category=DecompressionBombWarning):
-        image = convert_from_path(file_path, fmt="jpeg")[0]
+        image = convert_from_path(file_path)[0]
     return image
 
 
 def _execute_filter_image(
-    image_loader: Callable[[Path, MediaType], Awaitable[Image.Image]],
+    image_loader: Callable[[Path], Awaitable[Image.Image]],
     file_path: Path,
-    media_type: MediaType,
     cache_item_file_path: Path,
     destination_directory_path: Path,
     destination_name: str,
@@ -419,7 +416,6 @@ def _execute_filter_image(
         __execute_filter_image(
             image_loader,
             file_path,
-            media_type,
             cache_item_file_path,
             destination_directory_path,
             destination_name,
@@ -430,9 +426,8 @@ def _execute_filter_image(
 
 
 async def __execute_filter_image(
-    image_loader: Callable[[Path, MediaType], Awaitable[Image.Image]],
+    image_loader: Callable[[Path], Awaitable[Image.Image]],
     file_path: Path,
-    media_type: MediaType,
     cache_item_file_path: Path,
     destination_directory_path: Path,
     destination_name: str,
@@ -443,7 +438,7 @@ async def __execute_filter_image(
     await makedirs(destination_directory_path, exist_ok=True)
 
     # If no customizations are needed, work straight from the source.
-    if size is None:
+    if size is None and file_path.suffix == destination_file_path.suffix:
         await link_or_copy(file_path, destination_file_path)
         return
 
@@ -452,15 +447,19 @@ async def __execute_filter_image(
         await link_or_copy(cache_item_file_path, destination_file_path)
     except FileNotFoundError:
         # Apply customizations, and cache the customized image.
-        image = await image_loader(file_path, media_type)
+        original_image = converted_image = await image_loader(file_path)
         try:
             await makedirs(cache_item_file_path.parent, exist_ok=True)
-            converted_image = resize_cover(image, size, focus=focus)
-            converted_image.save(cache_item_file_path, format=media_type.subtype)
+            if size is not None:
+                converted_image = resize_cover(converted_image, size, focus=focus)
+            converted_image.save(
+                cache_item_file_path,
+                format=image_file_path_format(destination_file_path),
+            )
             del converted_image
         finally:
-            image.close()
-            del image
+            original_image.close()
+            del original_image
         await link_or_copy(cache_item_file_path, destination_file_path)
 
 
