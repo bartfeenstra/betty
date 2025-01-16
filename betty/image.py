@@ -2,12 +2,12 @@
 Manipulate images.
 """
 
+import math
+from pathlib import Path
 from typing import TypeAlias
 
-import math
-
-from PIL.Image import Image
-
+from PIL import UnidentifiedImageError
+from PIL.Image import Image, EXTENSION, preinit, init
 
 Percentage: TypeAlias = int
 Pixel: TypeAlias = int
@@ -15,6 +15,21 @@ OneDimensionalSize: TypeAlias = tuple[Pixel, None] | tuple[None, Pixel]
 TwoDimensionalSize: TypeAlias = tuple[Pixel, Pixel]
 Size: TypeAlias = OneDimensionalSize | TwoDimensionalSize
 FocusArea: TypeAlias = tuple[Percentage, Percentage, Percentage, Percentage]
+
+
+def image_file_path_format(image_file_path: Path) -> str:
+    """
+    Get the PIL image format for an image's file path.
+    """
+    if image_file_path.suffix not in EXTENSION:
+        preinit()
+        if image_file_path.suffix not in EXTENSION:
+            init()
+            if image_file_path.suffix not in EXTENSION:
+                raise UnidentifiedImageError(
+                    f"cannot identify image file {image_file_path}"
+                )
+    return EXTENSION[image_file_path.suffix]
 
 
 def _assert_size(size: Size) -> None:

@@ -1,7 +1,30 @@
-import pytest
-from PIL import Image, ImageDraw
+from pathlib import Path
 
-from betty.image import resize_cover, FocusArea, Size, Pixel
+import pytest
+from PIL import Image, ImageDraw, UnidentifiedImageError
+
+
+from betty.image import resize_cover, FocusArea, Size, Pixel, image_file_path_format
+
+
+class TestImageFilePathFormat:
+    @pytest.mark.parametrize(
+        ("expected", "file_path"),
+        [
+            # A preinit() format.
+            ("PNG", Path("my-first-png.png")),
+            # An init() format.
+            ("PDF", Path("my-first-pdf.pdf")),
+        ],
+    )
+    async def test(self, expected: str, file_path: Path) -> None:
+        assert image_file_path_format(file_path) == expected
+
+    async def test_unidentifiable(self) -> None:
+        with pytest.raises(UnidentifiedImageError):
+            image_file_path_format(
+                Path("some-unidentifiable-image.unidentifiableextension")
+            )
 
 
 class TestResizeCover:
