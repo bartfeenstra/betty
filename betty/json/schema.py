@@ -120,7 +120,7 @@ class Schema:
         schema = self.schema
         if "$id" not in schema:
             schema["$id"] = "https://betty.example.com"
-        schema_registry = Resource.from_contents(schema) @ Registry()  # type: ignore[operator, var-annotated]
+        schema_registry = Resource.from_contents(schema) @ Registry()
         validator = Draft202012Validator(
             schema,
             registry=schema_registry,
