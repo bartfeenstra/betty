@@ -7,13 +7,13 @@ from collections.abc import Callable, Awaitable
 from logging import getLogger
 from pathlib import Path
 from time import time
-from typing import TypeVar
+from typing import TypeVar, AsyncContextManager
+from urllib.parse import urlparse
 
 from aiohttp import ClientSession, ClientResponse, ClientError
-from betty.cache import Cache
+from betty.cache import Cache, CacheItem, CacheItemValueSetter
 from betty.cache.file import BinaryFileCache
 from betty.fetch import Fetcher, FetchResponse, FetchError
-from betty.hashid import hashid
 from betty.locale.localizable import plain
 from typing_extensions import override
 
@@ -42,13 +42,19 @@ class HttpFetcher(Fetcher):
     async def _fetch(
         self,
         url: str,
-        cache: Cache[_CacheItemValueT],
+        getsetter: Callable[
+            [],
+            AsyncContextManager[
+                tuple[
+                    CacheItem[_CacheItemValueT] | None,
+                    CacheItemValueSetter[_CacheItemValueT],
+                ]
+            ],
+        ],
         response_mapper: Callable[[ClientResponse], Awaitable[_CacheItemValueT]],
-    ) -> tuple[_CacheItemValueT, str]:
-        cache_item_id = hashid(url)
-
+    ) -> _CacheItemValueT:
         response_data: _CacheItemValueT | None = None
-        async with cache.getset(cache_item_id) as (cache_item, setter):
+        async with getsetter() as (cache_item, setter):
             if cache_item and cache_item.modified + self._ttl > time():
                 response_data = await cache_item.value()
             else:
@@ -75,7 +81,7 @@ class HttpFetcher(Fetcher):
                     )
                 )
 
-        return response_data, cache_item_id
+        return response_data
 
     async def _map_response(self, response: ClientResponse) -> FetchResponse:
         return FetchResponse(
@@ -89,10 +95,9 @@ class HttpFetcher(Fetcher):
         """
         Fetch an HTTP resource.
         """
-        response_data, _ = await self._fetch(
-            url, self._response_cache, self._map_response
+        return await self._fetch(
+            url, lambda: self._response_cache.getset(url), self._map_response
         )
-        return response_data
 
     @override
     async def fetch_file(self, url: str) -> Path:
@@ -101,7 +106,12 @@ class HttpFetcher(Fetcher):
 
         :return: The path to the file on disk.
         """
-        _, cache_item_id = await self._fetch(
-            url, self._binary_file_cache, ClientResponse.read
+        suffix = Path(urlparse(url).path).suffix or None
+        if suffix:
+            suffix = suffix.lower()
+        await self._fetch(
+            url,
+            lambda: self._binary_file_cache.getset(url, suffix=suffix),
+            ClientResponse.read,
         )
-        return self._binary_file_cache.cache_item_file_path(cache_item_id)
+        return self._binary_file_cache.cache_item_file_path(url, suffix)

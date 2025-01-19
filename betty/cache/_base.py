@@ -2,7 +2,15 @@ from abc import abstractmethod
 from collections.abc import Sequence, MutableMapping, AsyncIterator
 from contextlib import asynccontextmanager
 from datetime import datetime
-from typing import Generic, Self, overload, AsyncContextManager, Literal, TypeVar
+from typing import (
+    Generic,
+    Self,
+    overload,
+    AsyncContextManager,
+    Literal,
+    TypeVar,
+    Protocol,
+)
 
 from betty.cache import Cache, CacheItem, CacheItemValueSetter
 from betty.concurrent import AsynchronizedLock, Ledger
@@ -10,6 +18,24 @@ from typing_extensions import override
 
 _CacheItemValueCoT = TypeVar("_CacheItemValueCoT", covariant=True)
 _CacheItemValueContraT = TypeVar("_CacheItemValueContraT", contravariant=True)
+
+
+class _CommonCacheBaseGetter(Generic[_CacheItemValueCoT], Protocol):
+    async def __call__(
+        self, cache_item_id: str
+    ) -> CacheItem[_CacheItemValueCoT] | None:
+        pass
+
+
+class _CommonCacheBaseSetter(Generic[_CacheItemValueContraT], Protocol):
+    async def __call__(
+        self,
+        cache_item_id: str,
+        value: _CacheItemValueContraT,
+        *,
+        modified: int | float | None = None,
+    ) -> None:
+        pass
 
 
 class _StaticCacheItem(CacheItem[_CacheItemValueCoT], Generic[_CacheItemValueCoT]):
@@ -113,9 +139,24 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
     ]:
         pass
 
-    @asynccontextmanager  # type: ignore[misc]
-    async def getset(
+    def getset(
         self, cache_item_id: str, *, wait: bool = True
+    ) -> AsyncContextManager[
+        tuple[
+            CacheItem[_CacheItemValueContraT] | None,
+            CacheItemValueSetter[_CacheItemValueContraT] | None,
+        ]
+    ]:
+        return self._getset(cache_item_id, self._get, self._set, wait=wait)
+
+    @asynccontextmanager
+    async def _getset(
+        self,
+        cache_item_id: str,
+        getter: _CommonCacheBaseGetter[_CacheItemValueContraT],
+        setter: _CommonCacheBaseSetter[_CacheItemValueContraT],
+        *,
+        wait: bool = True,
     ) -> AsyncIterator[
         tuple[
             CacheItem[_CacheItemValueContraT] | None,
@@ -127,9 +168,9 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
             try:
 
                 async def _setter(value: _CacheItemValueContraT) -> None:
-                    await self._set(cache_item_id, value)
+                    await setter(cache_item_id, value)
 
-                yield await self._get(cache_item_id), _setter
+                yield await getter(cache_item_id), _setter
                 return
             finally:
                 await lock.release()
