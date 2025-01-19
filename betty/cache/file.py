@@ -8,15 +8,25 @@ import asyncio
 import shutil
 from abc import abstractmethod
 from contextlib import suppress
+from functools import partial
 from os import utime
 from pickle import dumps, loads
-from typing import Generic, Self, TYPE_CHECKING, TypeVar, final
+from typing import (
+    Generic,
+    Self,
+    TYPE_CHECKING,
+    TypeVar,
+    final,
+    AsyncContextManager,
+    overload,
+    Literal,
+)
 
 import aiofiles
 from aiofiles.ospath import getmtime
 from typing_extensions import override
 
-from betty.cache import CacheItem
+from betty.cache import CacheItem, CacheItemValueSetter
 from betty.cache._base import _CommonCacheBase
 from betty.hashid import hashid
 from betty.typing import threadsafe
@@ -95,8 +105,16 @@ class _FileCache(
     def _with_scope(self, scope: str) -> Self:
         return type(self)(self._root_path, scopes=(*self._scopes, scope))
 
-    def _cache_item_file_path(self, cache_item_id: str) -> Path:
-        return self._path / hashid(cache_item_id)
+    def _cache_item_file_path(
+        self, cache_item_id: str, suffix: str | None = None
+    ) -> Path:
+        cache_item_file_path = self._path / hashid(cache_item_id)
+        if suffix is not None:
+            assert suffix.startswith(".")
+            cache_item_file_path = cache_item_file_path.parent / (
+                cache_item_file_path.name + suffix
+            )
+        return cache_item_file_path
 
     @abstractmethod
     def _dump_value(self, value: _CacheItemValueContraT) -> bytes:
@@ -104,10 +122,10 @@ class _FileCache(
 
     @override
     async def _get(
-        self, cache_item_id: str
+        self, cache_item_id: str, *, suffix: str | None = None
     ) -> CacheItem[_CacheItemValueContraT] | None:
         try:
-            cache_item_file_path = self._cache_item_file_path(cache_item_id)
+            cache_item_file_path = self._cache_item_file_path(cache_item_id, suffix)
             return self._cache_item_cls(
                 await getmtime(cache_item_file_path),
                 cache_item_file_path,
@@ -121,10 +139,11 @@ class _FileCache(
         cache_item_id: str,
         value: _CacheItemValueContraT,
         *,
+        suffix: str | None = None,
         modified: int | float | None = None,
     ) -> None:
         value = self._dump_value(value)
-        cache_item_file_path = self._cache_item_file_path(cache_item_id)
+        cache_item_file_path = self._cache_item_file_path(cache_item_id, suffix)
         try:
             await self._write(cache_item_file_path, value, modified)
         except FileNotFoundError:
@@ -143,9 +162,9 @@ class _FileCache(
             await asyncio.to_thread(utime, cache_item_file_path, (modified, modified))
 
     @override
-    async def _delete(self, cache_item_id: str) -> None:
+    async def _delete(self, cache_item_id: str, *, suffix: str | None = None) -> None:
         with suppress(FileNotFoundError):
-            await aiofiles.os.remove(self._cache_item_file_path(cache_item_id))
+            await aiofiles.os.remove(self._cache_item_file_path(cache_item_id, suffix))
 
     @override
     async def _clear(self) -> None:
@@ -155,6 +174,48 @@ class _FileCache(
     @property
     def _path(self) -> Path:
         return self._root_path.joinpath(*self._scopes)
+
+    @overload
+    def getset(
+        self, cache_item_id: str, *, suffix: str | None = None
+    ) -> AsyncContextManager[
+        tuple[
+            CacheItem[_CacheItemValueContraT] | None,
+            CacheItemValueSetter[_CacheItemValueContraT],
+        ]
+    ]:
+        pass
+
+    @overload
+    def getset(
+        self,
+        cache_item_id: str,
+        *,
+        suffix: str | None = None,
+        wait: Literal[False] = False,
+    ) -> AsyncContextManager[
+        tuple[
+            CacheItem[_CacheItemValueContraT] | None,
+            CacheItemValueSetter[_CacheItemValueContraT] | None,
+        ]
+    ]:
+        pass
+
+    @override
+    def getset(
+        self, cache_item_id: str, *, suffix: str | None = None, wait: bool = True
+    ) -> AsyncContextManager[
+        tuple[
+            CacheItem[_CacheItemValueContraT] | None,
+            CacheItemValueSetter[_CacheItemValueContraT] | None,
+        ]
+    ]:
+        return self._getset(
+            cache_item_id,
+            partial(self._get, suffix=suffix),
+            partial(self._set, suffix=suffix),
+            wait=wait,
+        )
 
 
 @final
@@ -193,10 +254,12 @@ class BinaryFileCache(_FileCache[bytes]):
         """
         return self._path
 
-    def cache_item_file_path(self, cache_item_id: str) -> Path:
+    def cache_item_file_path(
+        self, cache_item_id: str, suffix: str | None = None
+    ) -> Path:
         """
         Get the file path for a cache item with the given ID.
 
         The cache item itself may or may not exist.
         """
-        return self._cache_item_file_path(cache_item_id)
+        return self._cache_item_file_path(cache_item_id, suffix)
