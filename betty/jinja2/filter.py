@@ -60,9 +60,10 @@ from betty.string import (
     upper_camel_case_to_lower_camel_case,
 )
 from betty.typing import internal
+from betty.locale.localized import LocalizedStr
 
 if TYPE_CHECKING:
-    from betty.locale.localized import Localized, LocalizedStr
+    from betty.locale.localized import Localized
     from betty.ancestry.date import HasDate
     from betty.date import Datey
     from betty.locale.localizable import Localizable
@@ -132,12 +133,15 @@ _CHARACTER_ORDER_TO_HTML_LANG_MAP = {
 @pass_context
 def filter_html_lang(
     context: Context,
-    localized: LocalizedStr,
+    localized: LocalizedStr | str,
 ) -> str | Markup:
     """
     Optionally add the necessary HTML to indicate the localized string has a different locale than the surrounding HTML.
     """
     from betty.jinja2 import context_localizer
+
+    if not isinstance(localized, LocalizedStr):
+        return localized
 
     localizer = context_localizer(context)
     result: str | Markup = localized

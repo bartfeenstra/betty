@@ -594,25 +594,51 @@ class TestFilterFormatDatey(TemplateStringTestBase):
 
 class TestFilterHtmlLang(TemplateStringTestBase):
     @pytest.mark.parametrize(
-        ("expected", "autoescape", "localized_locale", "localizer_locale"),
+        ("expected", "autoescape", "localized", "localizer_locale"),
         [
-            ("Hallo, wereld!", True, "nl", "nl"),
-            ("Hallo, wereld!", False, "nl", "nl"),
-            ('<span lang="nl">Hallo, wereld!</span>', True, "nl", "en"),
-            ('<span lang="nl">Hallo, wereld!</span>', False, "nl", "en"),
-            ('<span lang="nl" dir="ltr">Hallo, wereld!</span>', True, "nl", "ar"),
-            ('<span lang="nl" dir="ltr">Hallo, wereld!</span>', False, "nl", "ar"),
+            ("Hallo, wereld!", True, "Hallo, wereld!", "nl"),
+            ("Hallo, wereld!", True, "Hallo, wereld!", "ar"),
+            ("Hallo, wereld!", True, LocalizedStr("Hallo, wereld!", locale="nl"), "nl"),
+            (
+                "Hallo, wereld!",
+                False,
+                LocalizedStr("Hallo, wereld!", locale="nl"),
+                "nl",
+            ),
+            (
+                '<span lang="nl">Hallo, wereld!</span>',
+                True,
+                LocalizedStr("Hallo, wereld!", locale="nl"),
+                "en",
+            ),
+            (
+                '<span lang="nl">Hallo, wereld!</span>',
+                False,
+                LocalizedStr("Hallo, wereld!", locale="nl"),
+                "en",
+            ),
+            (
+                '<span lang="nl" dir="ltr">Hallo, wereld!</span>',
+                True,
+                LocalizedStr("Hallo, wereld!", locale="nl"),
+                "ar",
+            ),
+            (
+                '<span lang="nl" dir="ltr">Hallo, wereld!</span>',
+                False,
+                LocalizedStr("Hallo, wereld!", locale="nl"),
+                "ar",
+            ),
         ],
     )
     async def test(
         self,
         expected: str,
         autoescape: bool,
-        localized_locale: str,
+        localized: LocalizedStr | str,
         localizer_locale: str,
     ) -> None:
         template = "{{ localized | html_lang }}"
-        localized = LocalizedStr("Hallo, wereld!", locale=localized_locale)
         async with self.assert_template_string(
             template=template,
             data={
