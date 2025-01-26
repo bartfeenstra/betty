@@ -3,7 +3,7 @@ The *Trees* extension
 The ``trees`` extension renders interactive family trees using `Cytoscape.js <http://js.cytoscape.org/>`_.
 
 .. important::
-    This extension requires :doc:`npm </usage/npm>`.
+    This extension requires :ref:`Node.js <installation-requirements-nodejs>`.
 
 Enable this extension in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
