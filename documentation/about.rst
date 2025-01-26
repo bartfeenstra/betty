@@ -36,3 +36,4 @@ In this section
 - :doc:`/about/contributing`
 - :doc:`/about/license`
 - :doc:`/about/versions`
+- :doc:`/about/sponsors`

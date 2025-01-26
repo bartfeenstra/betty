@@ -12,3 +12,7 @@ View a Betty example site at [ancestry.bartfeenstra.com](https://ancestry.bartfe
 ## Documentation
 
 View the documentation at [https://betty.readthedocs.io/](https://betty.readthedocs.io/0.4.x).
+
+## Sponsors
+
+[Weblate](https://weblate.org/>) supports Betty by providing Libre Hosting of their collaborative localization platform.
