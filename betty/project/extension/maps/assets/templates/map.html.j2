@@ -1,8 +1,10 @@
 {% set places = places | select('public') | rejectattr('coordinates', 'none') | list %}
-{% set ns = namespace(place_urls=[]) %}
-{% for place in places %}
-    {% do ns.place_urls.append((place | localized_url, place.coordinates.latitude, place.coordinates.longitude, place.label | localize)) %}
-{% endfor %}
-<div class="map" data-betty-places="{{ ns.place_urls | json }}"></div>
-{% do '/css/maps.css' | public_css %}
-{% do 'maps' | webpack_entry_point_js %}
+{% if places | length > 0 %}
+    {% set ns = namespace(place_urls=[]) %}
+    {% for place in places %}
+        {% do ns.place_urls.append((place | localized_url, place.coordinates.latitude, place.coordinates.longitude, place.label | localize)) %}
+    {% endfor %}
+    <div class="map" data-betty-places="{{ ns.place_urls | json }}"></div>
+    {% do '/css/maps.css' | public_css %}
+    {% do 'maps' | webpack_entry_point_js %}
+{% endif %}
