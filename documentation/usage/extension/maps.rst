@@ -4,7 +4,7 @@ The ``maps`` extension renders interactive maps using `Leaflet <https://leafletj
 `OpenStreetMap <https://www.openstreetmap.org/>`_.
 
 .. important::
-    This extension requires :doc:`npm </usage/npm>`.
+    This extension requires :ref:`Node.js <installation-requirements-nodejs>`.
 
 Enable this extension in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 

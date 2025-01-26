@@ -3,7 +3,7 @@ The *Cotton Candy* extension
 The ``cotton-candy`` extension provides Betty's default theme.
 
 .. important::
-    This extension requires :doc:`npm </usage/npm>`.
+    This extension requires :ref:`Node.js <installation-requirements-nodejs>`.
 
 Enable this extension in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
