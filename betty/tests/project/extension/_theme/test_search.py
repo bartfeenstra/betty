@@ -12,8 +12,8 @@ from betty.job import Context
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project
 from betty.project.config import LocaleConfiguration
+from betty.project.extension._theme.search import Index
 from betty.project.extension.cotton_candy import CottonCandy
-from betty.project.extension.cotton_candy.search import Index
 
 
 class TestIndex:

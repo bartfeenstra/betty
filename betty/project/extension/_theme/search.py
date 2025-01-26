@@ -4,12 +4,14 @@ Provide Cotton Candy's search functionality.
 
 from __future__ import annotations
 
+import json
 from abc import ABC
 from asyncio import gather
 from dataclasses import dataclass
 from inspect import getmembers
 from typing import TYPE_CHECKING, TypeVar, Generic, final, cast
 
+import aiofiles
 from typing_extensions import override
 
 from betty.ancestry.file import File
@@ -17,13 +19,15 @@ from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
+from betty.locale.localizable import StaticTranslationsLocalizable, Localizable
 from betty.locale.localizable import StaticTranslationsLocalizableAttr
 from betty.model import Entity
 from betty.privacy import is_private
 from betty.typing import internal
-from betty.locale.localizable import StaticTranslationsLocalizable
 
 if TYPE_CHECKING:
+    from betty.machine_name import MachineName
+    from betty.project import Project
     from betty.jinja2 import Environment
     from betty.ancestry import Ancestry
     from betty.locale.localizer import Localizer
@@ -31,6 +35,62 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
+
+
+async def generate_search_index(
+    project: Project,
+    result_container_template: Localizable,
+    results_container_template: Localizable,
+    *,
+    job_context: Context,
+) -> None:
+    await gather(
+        *(
+            _generate_search_index_for_locale(
+                project,
+                result_container_template,
+                results_container_template,
+                locale,
+                job_context=job_context,
+            )
+            for locale in project.configuration.locales
+        )
+    )
+
+
+async def _generate_search_index_for_locale(
+    project: Project,
+    result_container_template: Localizable,
+    results_container_template: Localizable,
+    locale: str,
+    *,
+    job_context: Context,
+) -> None:
+    localizers = await project.localizers
+    localizer = await localizers.get(locale)
+    search_index = {
+        "resultContainerTemplate": result_container_template.localize(localizer),
+        "resultsContainerTemplate": results_container_template.localize(localizer),
+        "index": [
+            {
+                "entityTypeId": entry.entity_type_id,
+                "text": " ".join(entry.text),
+                "result": entry.result,
+            }
+            for entry in await Index(
+                project.ancestry,
+                await project.jinja2_environment,
+                job_context,
+                localizer,
+            ).build()
+        ],
+    }
+    search_index_json = json.dumps(search_index)
+    async with aiofiles.open(
+        project.configuration.localize_www_directory_path(locale) / "search-index.json",
+        mode="w",
+    ) as f:
+        await f.write(search_index_json)
 
 
 def _static_translations_to_text(
@@ -99,8 +159,9 @@ class _SourceIndexer(_EntityTypeIndexer[Source]):
 @final
 @dataclass(frozen=True)
 class _Entry:
-    text: set[str]
+    entity_type_id: MachineName
     result: str
+    text: set[str]
 
 
 @internal
@@ -155,7 +216,7 @@ class Index:
         text = indexer.text(self._localizer, entity)
         if not text:
             return None
-        return _Entry(text, await self._render_entity(entity))
+        return _Entry(entity.plugin_id(), await self._render_entity(entity), text)
 
     async def _render_entity(self, entity: Entity) -> str:
         return await self._jinja2_environment.select_template(

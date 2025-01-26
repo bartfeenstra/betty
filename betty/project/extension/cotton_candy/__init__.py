@@ -4,26 +4,20 @@ Provide the Cotton Candy theme.
 
 from __future__ import annotations
 
-import json
-from asyncio import gather
 from pathlib import Path
 from typing import TYPE_CHECKING, final, Self
 
-import aiofiles
 from typing_extensions import override
 
 from betty.html import CssProvider
-from betty.jinja2 import (
-    Jinja2Provider,
-    Filters,
-)
-from betty.locale.localizable import _, static
+from betty.jinja2 import Jinja2Provider, Filters
+from betty.locale.localizable import _, static, plain
 from betty.os import link_or_copy
 from betty.plugin import ShorthandPluginBase
 from betty.project.extension import ConfigurableExtension, Theme, Extension
 from betty.project.extension._theme import jinja2_filters
+from betty.project.extension._theme.search import generate_search_index
 from betty.project.extension.cotton_candy.config import CottonCandyConfiguration
-from betty.project.extension.cotton_candy.search import Index
 from betty.project.extension.maps import Maps
 from betty.project.extension.trees import Trees
 from betty.project.extension.webpack import Webpack
@@ -37,17 +31,17 @@ if TYPE_CHECKING:
     from betty.event_dispatcher import EventHandlerRegistry
     from collections.abc import Sequence
 
-_RESULT_CONTAINER_TEMPLATE = """
+_RESULT_CONTAINER_TEMPLATE = plain("""
 <li class="search-result">
     {{{ betty-search-result }}}
 </li>
-"""
+""")
 
-_RESULTS_CONTAINER_TEMPLATE = """
+_RESULTS_CONTAINER_TEMPLATE = plain("""
 <ul id="search-results" class="nav-secondary">
     {{{ betty-search-results }}}
 </ul>
-"""
+""")
 
 
 async def _generate_logo(event: GenerateSiteEvent) -> None:
@@ -57,40 +51,12 @@ async def _generate_logo(event: GenerateSiteEvent) -> None:
 
 
 async def _generate_search_index(event: GenerateSiteEvent) -> None:
-    await gather(
-        *(
-            _generate_search_index_for_locale(event, locale)
-            for locale in event.project.configuration.locales
-        )
+    await generate_search_index(
+        event.project,
+        _RESULT_CONTAINER_TEMPLATE,
+        _RESULTS_CONTAINER_TEMPLATE,
+        job_context=event.job_context,
     )
-
-
-async def _generate_search_index_for_locale(
-    event: GenerateSiteEvent, locale: str
-) -> None:
-    project = event.project
-    localizers = await project.localizers
-    localizer = await localizers.get(locale)
-    search_index = {
-        "resultContainerTemplate": _RESULT_CONTAINER_TEMPLATE,
-        "resultsContainerTemplate": _RESULTS_CONTAINER_TEMPLATE,
-        "index": [
-            {"text": " ".join(entry.text), "result": entry.result}
-            for entry in await Index(
-                project.ancestry,
-                await project.jinja2_environment,
-                event.job_context,
-                localizer,
-            ).build()
-        ],
-    }
-    search_index_json = json.dumps(search_index)
-    async with aiofiles.open(
-        event.project.configuration.localize_www_directory_path(locale)
-        / "search-index.json",
-        mode="w",
-    ) as f:
-        await f.write(search_index_json)
 
 
 @final
