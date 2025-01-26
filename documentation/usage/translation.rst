@@ -14,15 +14,6 @@ Each time a message is translated, Betty finds the translation as follows:
 
 Read more about :doc:`asset directories </usage/assets>`.
 
-gettext
--------
-
-Betty uses `gettext <https://www.gnu.org/software/gettext/>`_ to manage its translations:
-
-- Betty will compile ``*.mo`` files internally. You will never have to do this manually
-- Betty will manage ``*.pot`` and ``*.po`` files automatically if you use the ``*-translations`` commands
-- You will have to add translations to ``*.po`` files yourself
-
 Project translations
 --------------------
 

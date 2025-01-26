@@ -24,7 +24,6 @@ The command line is the primary way to interact with Betty:
       new-translation                Create a new translation
       serve                          Serve a generated site
       update-translations            Update all existing translations
-      dev-new-translation            Create a new translation for Betty itself
       dev-update-translations        Update all existing translations for Betty
                                      itself
 

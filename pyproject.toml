@@ -87,7 +87,6 @@ betty = 'betty.cli:main'
 'update-translations' = 'betty.cli.commands.update_translations:UpdateTranslations'
 
 [project.entry-points.'betty.dev.command']
-'dev-new-translation' = 'betty.cli.commands.dev_new_translation:DevNewTranslation'
 'dev-update-translations' = 'betty.cli.commands.dev_update_translations:DevUpdateTranslations'
 
 [project.entry-points.'betty.copyright_notice']

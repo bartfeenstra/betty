@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2024-12-07 15:18+0000\n"
+"POT-Creation-Date: 2025-01-26 19:48+0000\n"
 "PO-Revision-Date: 2024-11-30 19:00+0000\n"
 "Last-Translator: Illia Maier <Illia-M@users.noreply.hosted.weblate.org>\n"
 "Language: uk\n"
@@ -363,9 +363,6 @@ msgstr "Створити новий проєкт"
 
 msgid "Create a new translation"
 msgstr "Створити новий переклад"
-
-msgid "Create a new translation for Betty itself"
-msgstr "Створити новий переклад для самої Betty"
 
 msgid "Create a new translation for an extension"
 msgstr "Створити новий переклад для розширення"
