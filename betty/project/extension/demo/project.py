@@ -27,13 +27,10 @@ from betty.date import Date, DateRange
 from betty.fs import DATA_DIRECTORY_PATH
 from betty.license.licenses import spdx_license_id_to_license_id
 from betty.media_type.media_types import SVG
+from betty.model.config import EntityReference
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project import Project
-from betty.project.config import (
-    LocaleConfiguration,
-    ProjectConfiguration,
-)
-from betty.model.config import EntityReference
+from betty.project.config import LocaleConfiguration, ProjectConfiguration
 from betty.project.extension.cotton_candy import CottonCandy
 from betty.project.extension.cotton_candy.config import CottonCandyConfiguration
 from betty.project.extension.demo.copyright_notice import Streetmix
@@ -57,12 +54,17 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
         name=Demo.plugin_id(),
         license=PluginInstanceConfiguration("spdx-gpl-3--0-or-later"),
         title={
-            "en-US": "A Betty demonstration",
-            "nl-NL": "Een demonstratie van Betty",
+            "en-US": "a Betty demonstration",
+            "de-DE": "eine Betty-Demonstration",
+            "fr-FR": "une démonstration de Betty",
+            "nl-NL": "een demonstratie van Betty",
+            "uk": "демонстрація Betty",
         },
         author={
             "en-US": "Bart Feenstra and contributors",
+            "fr-FR": "Bart Feenstra et contributeurs",
             "nl-NL": "Bart Feenstra en bijdragers",
+            "uk": "Bart Feenstra і учасники",
         },
         extensions=[
             PluginInstanceConfiguration(Demo),
@@ -82,21 +84,23 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                 "en-US",
                 alias="en",
             ),
+            LocaleConfiguration("ar"),
             LocaleConfiguration(
-                "nl-NL",
-                alias="nl",
+                "de-DE",
+                alias="de",
             ),
             LocaleConfiguration(
                 "fr-FR",
                 alias="fr",
             ),
+            LocaleConfiguration("he"),
+            LocaleConfiguration(
+                "nl-NL",
+                alias="nl",
+            ),
             LocaleConfiguration(
                 "uk",
                 alias="uk",
-            ),
-            LocaleConfiguration(
-                "de-DE",
-                alias="de",
             ),
         ],
     )
@@ -406,9 +410,10 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
     ancestry.add(death_of_liberta_lankester)
 
     liberta_lankester_note = Note(
-        """
-Did you know that Liberta "Betty" Lankester is Betty's namesake?
-    """
+        {
+            "en-US": """Did you know that Liberta "Betty" Lankester is Betty's namesake?""",
+            "nl": """Wist je dat Betty vernoemd is naar Liberta "Betty" Lankester?""",
+        }
     )
 
     liberta_lankester = Person(
