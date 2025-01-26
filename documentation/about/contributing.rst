@@ -15,7 +15,7 @@ Betty is Free and Open Source Software, designed and maintained by volunteers. A
 
 Examples of contributions:
 
-- :doc:`translations </development/betty/translation>`
+- :doc:`translations </development/betty/localization>`
 - UX and graphic design
 - coding in Python, JavaScript, HTML, CSS, and more
 

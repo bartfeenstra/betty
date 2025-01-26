@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-12-07 15:18+0000\n"
+"POT-Creation-Date: 2025-01-26 19:48+0000\n"
 "PO-Revision-Date: 2024-11-29 18:58+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -337,9 +337,6 @@ msgid "Create a new project"
 msgstr ""
 
 msgid "Create a new translation"
-msgstr ""
-
-msgid "Create a new translation for Betty itself"
 msgstr ""
 
 msgid "Create a new translation for an extension"

@@ -19,5 +19,5 @@ In this section
 
 - :doc:`Install a Betty development environment </development/betty/installation>`.
 - :doc:`/development/betty/test`
-- :doc:`/development/betty/translation`
+- :doc:`/development/betty/localization`
 - :doc:`/development/betty/commands`

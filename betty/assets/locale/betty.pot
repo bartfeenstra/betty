@@ -1,14 +1,14 @@
 # Translations template for Betty.
-# Copyright (C) 2024 Bart Feenstra & contributors
+# Copyright (C) 2025 Bart Feenstra & contributors
 # This file is distributed under the same license as the Betty project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-12-07 15:18+0000\n"
+"POT-Creation-Date: 2025-01-26 19:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -306,9 +306,6 @@ msgid "Create a new project"
 msgstr ""
 
 msgid "Create a new translation"
-msgstr ""
-
-msgid "Create a new translation for Betty itself"
 msgstr ""
 
 msgid "Create a new translation for an extension"
