@@ -3,7 +3,7 @@ extends:
   - stylelint-config-standard-scss
 plugins:
   - stylelint-no-unsupported-browser-features
-  - stylelint-scss
 rules:
   import-notation: string
   no-descending-specificity: ~
+  scss/at-extend-no-missing-placeholder: null
