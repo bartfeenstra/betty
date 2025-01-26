@@ -124,6 +124,6 @@ Templating
 Filters
 ^^^^^^^
 
-- :py:func:`associated_file_references <betty.project.extension.cotton_candy.associated_file_references>`
-- :py:func:`person_descendant_families <betty.project.extension.cotton_candy.person_descendant_families>`
-- :py:func:`person_timeline_events <betty.project.extension.cotton_candy.person_timeline_events>`
+- :py:func:`associated_file_references <betty.project.extension._theme.associated_file_references>`
+- :py:func:`person_descendant_families <betty.project.extension._theme.person_descendant_families>`
+- :py:func:`person_timeline_events <betty.project.extension._theme.person_timeline_events>`

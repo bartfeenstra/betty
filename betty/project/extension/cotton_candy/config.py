@@ -4,68 +4,18 @@ Provide configuration for the Cotton Candy extension.
 
 from __future__ import annotations
 
-import re
 from typing import Sequence, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.assertion import (
-    assert_str,
-    assert_record,
-    OptionalField,
-)
-from betty.assertion.error import AssertionFailed
+from betty.assertion import assert_record, OptionalField
 from betty.config import Configuration
-from betty.locale.localizable import _
 from betty.model.config import EntityReference, EntityReferenceSequence
+from betty.project.extension._theme import ColorConfiguration
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
     from betty.model import UserFacingEntity, Entity
-
-
-class ColorConfiguration(Configuration):
-    """
-    Configure a color.
-    """
-
-    _HEX_PATTERN = re.compile(r"^#[a-zA-Z0-9]{6}$")
-
-    def __init__(self, hex_value: str):
-        super().__init__()
-        self._hex: str
-        self.hex = hex_value
-
-    def _assert_hex(self, hex_value: str) -> str:
-        if not self._HEX_PATTERN.match(hex_value):
-            raise AssertionFailed(
-                _(
-                    '"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.'
-                ).format(
-                    hex_value=hex_value,
-                )
-            )
-        return hex_value
-
-    @property
-    def hex(self) -> str:
-        """
-        The color's hexadecimal value.
-        """
-        return self._hex
-
-    @hex.setter
-    def hex(self, hex_value: str) -> None:
-        self._assert_hex(hex_value)
-        self._hex = hex_value
-
-    @override
-    def load(self, dump: Dump) -> None:
-        self._hex = (assert_str() | self._assert_hex)(dump)
-
-    @override
-    def dump(self) -> Dump:
-        return self._hex
 
 
 class CottonCandyConfiguration(Configuration):

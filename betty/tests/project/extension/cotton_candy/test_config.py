@@ -2,16 +2,11 @@ from __future__ import annotations
 
 from typing import Any, TYPE_CHECKING
 
-import pytest
-
 from betty.assertion.error import AssertionFailed
 from betty.model import UserFacingEntity
-from betty.plugin.static import StaticPluginRepository
 from betty.model.config import EntityReference
-from betty.project.extension.cotton_candy.config import (
-    ColorConfiguration,
-    CottonCandyConfiguration,
-)
+from betty.plugin.static import StaticPluginRepository
+from betty.project.extension.cotton_candy.config import CottonCandyConfiguration
 from betty.test_utils.assertion.error import raises_error
 from betty.test_utils.model import DummyEntity
 
@@ -19,51 +14,6 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
     from pytest_mock import MockerFixture
     from betty.serde.dump import Dump, DumpMapping
-
-
-class TestColorConfiguration:
-    async def test_hex_with_valid_value(self) -> None:
-        hex_value = "#000000"
-        sut = ColorConfiguration("#ffffff")
-        sut.hex = hex_value
-        assert sut.hex == hex_value
-
-    @pytest.mark.parametrize(
-        "hex_value",
-        [
-            "rgb(0,0,0)",
-            "pink",
-        ],
-    )
-    async def test_hex_with_invalid_value(self, hex_value: str) -> None:
-        sut = ColorConfiguration("#ffffff")
-        with pytest.raises(AssertionFailed):
-            sut.hex = hex_value
-
-    async def test_load_with_valid_hex_value(self) -> None:
-        hex_value = "#000000"
-        dump = hex_value
-        sut = ColorConfiguration("#ffffff")
-        sut.load(dump)
-        assert sut.hex == hex_value
-
-    @pytest.mark.parametrize(
-        "dump",
-        [
-            False,
-            123,
-            "rgb(0,0,0)",
-            "pink",
-        ],
-    )
-    async def test_load_with_invalid_value(self, dump: Dump) -> None:
-        sut = ColorConfiguration("#ffffff")
-        with pytest.raises(AssertionFailed):
-            sut.load(dump)
-
-    async def test_dump_with_value(self) -> None:
-        hex_value = "#000000"
-        assert hex_value == ColorConfiguration(hex_value=hex_value).dump()
 
 
 class CottonCandyConfigurationTestEntity(UserFacingEntity, DummyEntity):
