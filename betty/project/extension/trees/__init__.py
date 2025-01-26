@@ -81,6 +81,11 @@ class Trees(ShorthandPluginBase, EntryPointProvider):
         return {Webpack}
 
     @override
+    @classmethod
+    def assets_directory_path(cls) -> Path | None:
+        return Path(__file__).parent / "assets"
+
+    @override
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
         registry.add_handler(GenerateSiteEvent, _generate_people_json)
 
