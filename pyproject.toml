@@ -61,7 +61,7 @@ classifiers = [
     'Natural Language :: French',
     'Natural Language :: German',
     'Natural Language :: Ukrainian',
-    'Typing :: Typed ',
+    'Typing :: Typed',
 ]
 
 [project.urls]
