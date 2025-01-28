@@ -15,4 +15,4 @@ View the documentation at [https://betty.readthedocs.io/](https://betty.readthed
 
 ## Sponsors
 
-[Weblate](https://weblate.org/>) supports Betty by providing Libre Hosting of their collaborative localization platform.
+[Weblate](https://weblate.org/) supports Betty by providing Libre Hosting of their collaborative localization platform.
