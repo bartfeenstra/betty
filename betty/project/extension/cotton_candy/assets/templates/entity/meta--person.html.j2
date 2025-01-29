@@ -18,7 +18,7 @@
         {%- if alternative_names -%}
             <span class="aka">{%- trans names=alternative_names | map(_embedded_person_name_label if embedded else _person_name_label) | list | join(', ') -%}Also known as {{ names }}{%- endtrans -%}</span>
         {%- endif -%}
-        {% set events = person.presences | selectattr('role', 'subject_role') | map(attribute='event') | reject('none') | select('public') | list %}
+        {% set events = person.presences | selectattr('role', 'presence_role_plugin', 'subject') | map(attribute='event') | reject('none') | select('public') | list %}
         {% set start_of_life_events = events | select('start_of_life_event') | list %}
         {%- if start_of_life_events | length -%}
             {% set start_of_life_event = start_of_life_events | first %}

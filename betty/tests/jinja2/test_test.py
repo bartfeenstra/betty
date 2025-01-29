@@ -19,15 +19,49 @@ from betty.ancestry.presence_role.presence_roles import (
     Unknown as UnknownPresenceRole,
 )
 from betty.date import DateRange, Date
+from betty.jinja2.test import PluginTester
 from betty.json.linked_data import LinkedDataDumpableJsonLdObject
 from betty.test_utils.ancestry.event_type import DummyEventType
 from betty.test_utils.jinja2 import TemplateStringTestBase
 from betty.test_utils.model import DummyUserFacingEntity
+from betty.test_utils.plugin import DummyPlugin
 from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 from betty.tests.ancestry.test_link import DummyHasLinks
+from betty.warnings import BettyDeprecationWarning
 
 if TYPE_CHECKING:
+    from betty.machine_name import MachineName
     from betty.model import Entity
+
+
+class DummyPluginOne(DummyPlugin):
+    pass
+
+
+class DummyPluginTwo(DummyPlugin):
+    pass
+
+
+class TestPluginTester(TemplateStringTestBase):
+    def test_tests(self):
+        sut = PluginTester(DummyPlugin, "dummy_plugin")
+        assert "dummy_plugin_plugin" in sut.tests()
+
+    @pytest.mark.parametrize(
+        ("expected", "plugin_identifier", "data"),
+        [
+            (True, None, DummyPluginOne()),
+            (True, DummyPluginOne.plugin_id(), DummyPluginOne()),
+            (False, DummyPluginOne.plugin_id(), DummyPluginTwo()),
+            (False, None, None),
+            (False, None, object()),
+        ],
+    )
+    async def test___call__(
+        self, expected: bool, plugin_identifier: MachineName | None, data: Any
+    ) -> None:
+        sut = PluginTester(DummyPlugin, "dummy_plugin")
+        assert sut(data, plugin_identifier) == expected
 
 
 class TestTestEntity(TemplateStringTestBase):
@@ -66,13 +100,14 @@ class TestTestEntity(TemplateStringTestBase):
             else f'"{entity_type_identifier.plugin_id()}"'
         )
         template = f"{{% if data is entity({entity_type_identifier_arg}) %}}true{{% else %}}false{{% endif %}}"
-        async with self.assert_template_string(
-            template=template,
-            data={
-                "data": data,
-            },
-        ) as (actual, _):
-            assert actual == expected
+        with pytest.warns(BettyDeprecationWarning):
+            async with self.assert_template_string(
+                template=template,
+                data={
+                    "data": data,
+                },
+            ) as (actual, _):
+                assert actual == expected
 
 
 class TestTestSubjectRole(TemplateStringTestBase):
@@ -87,13 +122,14 @@ class TestTestSubjectRole(TemplateStringTestBase):
     )
     async def test(self, expected: str, data: Any) -> None:
         template = "{% if data is subject_role %}true{% else %}false{% endif %}"
-        async with self.assert_template_string(
-            template=template,
-            data={
-                "data": data,
-            },
-        ) as (actual, _):
-            assert actual == expected
+        with pytest.warns(BettyDeprecationWarning):
+            async with self.assert_template_string(
+                template=template,
+                data={
+                    "data": data,
+                },
+            ) as (actual, _):
+                assert actual == expected
 
 
 class TestTestWitnessRole(TemplateStringTestBase):
@@ -108,13 +144,14 @@ class TestTestWitnessRole(TemplateStringTestBase):
     )
     async def test(self, expected: str, data: Any) -> None:
         template = "{% if data is witness_role %}true{% else %}false{% endif %}"
-        async with self.assert_template_string(
-            template=template,
-            data={
-                "data": data,
-            },
-        ) as (actual, _):
-            assert actual == expected
+        with pytest.warns(BettyDeprecationWarning):
+            async with self.assert_template_string(
+                template=template,
+                data={
+                    "data": data,
+                },
+            ) as (actual, _):
+                assert actual == expected
 
 
 class TestTestDateRange(TemplateStringTestBase):
