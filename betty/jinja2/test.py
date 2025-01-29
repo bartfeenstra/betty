@@ -4,28 +4,36 @@ Provide Betty's default Jinja2 tests.
 
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING, Self
+from typing import Any, TYPE_CHECKING, Self, Generic, TypeVar
 
 from typing_extensions import override
 
+from betty.ancestry.event_type import EventType
 from betty.ancestry.event_type.event_types import (
     StartOfLifeEventType,
     EndOfLifeEventType,
 )
+from betty.ancestry.gender import Gender
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.link import HasLinks
+from betty.ancestry.place_type import PlaceType
+from betty.ancestry.presence_role import PresenceRole
 from betty.ancestry.presence_role.presence_roles import Subject, Witness
+from betty.copyright_notice import CopyrightNotice
 from betty.date import DateRange
 from betty.factory import IndependentFactory
 from betty.json.linked_data import LinkedDataDumpable
+from betty.license import License
 from betty.model import (
     Entity,
     UserFacingEntity,
     ENTITY_TYPE_REPOSITORY,
     persistent_id,
 )
+from betty.plugin import Plugin
 from betty.privacy import is_private, is_public
 from betty.typing import internal
+from betty.warnings import deprecated
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
@@ -33,12 +41,42 @@ if TYPE_CHECKING:
     from betty.ancestry.event import Event
     from betty.plugin import PluginIdToTypeMapping
 
+_PluginT = TypeVar("_PluginT", bound=Plugin)
+
 
 def test_linked_data_dumpable(value: Any) -> bool:
     """
     Test if a value can be dumped to Linked Data.
     """
     return isinstance(value, LinkedDataDumpable)
+
+
+class PluginTester(Generic[_PluginT]):
+    """
+    Provides tests for a specific plugin type.
+    """
+
+    def __init__(self, plugin_type: type[_PluginT], plugin_type_name: str):
+        self._plugin_type = plugin_type
+        self._plugin_type_name = plugin_type_name
+
+    def tests(self) -> Mapping[str, Callable[..., bool]]:
+        """
+        Get the available tests, keyed by test name.
+        """
+        return {f"{self._plugin_type_name}_plugin": self}
+
+    def __call__(
+        self, value: Any, plugin_identifier: MachineName | None = None
+    ) -> bool:
+        """
+        :param entity_type_id: If given, additionally ensure the value is an entity of this type.
+        """
+        if not isinstance(value, self._plugin_type):
+            return False
+        if plugin_identifier is not None and value.plugin_id() != plugin_identifier:
+            return False
+        return True
 
 
 class TestEntity(IndependentFactory):
@@ -54,6 +92,9 @@ class TestEntity(IndependentFactory):
     async def new(cls) -> Self:
         return cls(await ENTITY_TYPE_REPOSITORY.mapping())
 
+    @deprecated(
+        "This test has been deprecated since Betty 0.4.5, and will be removed in Betty 0.5. Instead use the `entity_plugin` test."
+    )
     def __call__(
         self, value: Any, entity_type_identifier: MachineName | None = None
     ) -> bool:
@@ -88,6 +129,9 @@ def test_has_file_references(value: Any) -> bool:
     return isinstance(value, HasFileReferences)
 
 
+@deprecated(
+    "This test has been deprecated since Betty 0.4.5, and will be removed in Betty 0.5. Instead use the `presence_role_plugin` test."
+)
 def test_subject_role(value: Any) -> bool:
     """
     Test if a presence role is that of Subject.
@@ -95,6 +139,9 @@ def test_subject_role(value: Any) -> bool:
     return isinstance(value, Subject)
 
 
+@deprecated(
+    "This test has been deprecated since Betty 0.4.5, and will be removed in Betty 0.5. Instead use the `presence_role_plugin` test."
+)
 def test_witness_role(value: Any) -> bool:
     """
     Test if a presence role is that of Witness.
@@ -142,4 +189,46 @@ async def tests() -> Mapping[str, Callable[..., bool]]:
         "subject_role": test_subject_role,
         "user_facing_entity": test_user_facing_entity,
         "witness_role": test_witness_role,
+        **(
+            PluginTester(
+                CopyrightNotice,  # type: ignore[type-abstract]
+                "copyright_notice",
+            )
+        ).tests(),
+        **(
+            PluginTester(
+                Entity,  # type: ignore[type-abstract]
+                "entity",
+            )
+        ).tests(),
+        **(
+            PluginTester(
+                EventType,  # type: ignore[type-abstract]
+                "event_type",
+            )
+        ).tests(),
+        **(
+            PluginTester(
+                Gender,  # type: ignore[type-abstract]
+                "gender",
+            )
+        ).tests(),
+        **(
+            PluginTester(
+                License,  # type: ignore[type-abstract]
+                "license",
+            )
+        ).tests(),
+        **(
+            PluginTester(
+                PlaceType,  # type: ignore[type-abstract]
+                "place_type",
+            )
+        ).tests(),
+        **(
+            PluginTester(
+                PresenceRole,  # type: ignore[type-abstract]
+                "presence_role",
+            )
+        ).tests(),
     }

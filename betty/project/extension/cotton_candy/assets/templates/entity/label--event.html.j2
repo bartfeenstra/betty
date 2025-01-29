@@ -11,7 +11,7 @@
 {%- if event.description -%}
     {% set formatted_event = formatted_event + ' (' + event.description | localize + ')' | safe %}
 {%- endif -%}
-{%- set subjects = event.presences | select('public') | selectattr('role', 'subject_role') | map(attribute='person') | select('public') | list -%}
+{%- set subjects = event.presences | select('public') | selectattr('role', 'presence_role_plugin', 'subject') | map(attribute='person') | select('public') | list -%}
 {%- set non_context_subjects = subjects | reject('eq', person_context) | list -%}
 {%- set formatted_subjects = non_context_subjects | map(person_label) | join(', ') %}
 {%- if non_context_subjects | length == 0 -%}
