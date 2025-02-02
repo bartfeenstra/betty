@@ -15,6 +15,8 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
+from betty.locale import UNDETERMINED_LOCALE
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
@@ -50,6 +52,11 @@ class TestEvent(EntityTestBase):
         sut = Event(presences=[presence])
         assert presence in sut.presences
         assert presence.event is sut
+
+    def test___init___with_name(self) -> None:
+        name = "The Event"
+        sut = Event(name=name)
+        assert sut.name.localize(DEFAULT_LOCALIZER) == name
 
     async def test_id(self) -> None:
         event_id = "E1"
@@ -112,6 +119,12 @@ class TestEvent(EntityTestBase):
         sut = Event(event_type=event_type)
         assert sut.event_type is event_type
 
+    async def test_name(self) -> None:
+        name = "The Event"
+        sut = Event()
+        sut.name = name
+        assert sut.name.localize(DEFAULT_LOCALIZER) == name
+
     async def test_dump_linked_data_should_dump_minimal(self) -> None:
         event = Event(
             id="the_event",
@@ -134,6 +147,7 @@ class TestEvent(EntityTestBase):
             "citations": [],
             "notes": [],
             "links": [],
+            "name": {},
             "description": {},
             "fileReferences": [],
             "place": None,
@@ -150,6 +164,7 @@ class TestEvent(EntityTestBase):
                 id="the_place",
                 names=[Name("The Place")],
             ),
+            name="The Event",
         )
         presence = Presence(Person(id="the_person"), Subject(), event)
         event.citations.add(
@@ -211,6 +226,7 @@ class TestEvent(EntityTestBase):
             },
             "place": "/place/the_place/index.json",
             "links": [],
+            "name": {UNDETERMINED_LOCALE: "The Event"},
             "description": {},
             "fileReferences": [],
         }
@@ -265,6 +281,7 @@ class TestEvent(EntityTestBase):
             "notes": [],
             "place": "/place/the_place/index.json",
             "links": [],
+            "name": None,
             "description": None,
             "fileReferences": [],
         }
