@@ -175,10 +175,10 @@ you may add links using those:
      - The URL the link targets.
    * - ``betty:link-LINKNAME:description``
      - optional
-     - A human-friendly longer link description.
+     - A human-friendly longer link description. This may contain :ref:`static translations <gramps-attributes-static-translations>`.
    * - ``betty:link-LINKNAME:label``
      - optional
-     - A human-friendly short link label.
+     - A human-friendly short link label. This may contain :ref:`static translations <gramps-attributes-static-translations>`.
    * - ``betty:link-LINKNAME:locale``
      - optional
      - An `IETF BCP 47 language tag <https://en.wikipedia.org/wiki/IETF_language_tag>`_.
@@ -199,6 +199,20 @@ Where ``LINKNAME`` may be any value of your choosing, but must be unique per lin
      - ``Learn about cheese``
    * - ``betty:link-cheese:description``
      - ``Read the Wikipedia article about cheese``
+
+.. _gramps-attributes-static-translations:
+
+Static translations
+^^^^^^^^^^^^^^^^^^^
+Static translations are not attributes on their own per se, but they are used by other attributes, such as links.
+
+If another attribute defines itself as containing static translations, that means you may add multiple variants of the
+attribute, each with a translation for a different locale.
+
+For example, given a translatable attribute called ``betty:my-text``, you may add an actual attribute ``betty:my-text``
+with any translation for a locale which Betty will consider *undetermined*. You may also add any number of
+``betty:my-text:LOCALE`` attributes, where ``LOCALE`` is an `IETF BCP 47 <https://tools.ietf.org/html/bcp47>`_ language
+tag, and the value is the translation for that specific locale/language.
 
 Dates
 -----
