@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-01-26 19:48+0000\n"
+"POT-Creation-Date: 2025-02-02 10:13+0000\n"
 "PO-Revision-Date: 2024-12-08 20:00+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -17,19 +17,23 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.16.0\n"
+"Generated-By: Babel 2.17.0\n"
 
+#, python-brace-format
 msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
 msgstr ""
 "\"{hex_value}\" is geen geldige hexadecimale kleur, zoals bijvoorbeeld "
 "#ffc0cb."
 
+#, python-brace-format
 msgid "\"{invalid_locale}\" is not a valid IETF BCP 47 language tag."
 msgstr "\"{invalid_locale}\" is geen geldige IETF BCP 47 taaltag."
 
+#, python-brace-format
 msgid "\"{path}\" is not a directory."
 msgstr "\"{path}\" is geen directory."
 
+#, python-brace-format
 msgid ""
 "\"{value}\" is not a valid machine name: only lowercase letters, digits, "
 "and hyphens (-) are allowed."
@@ -117,11 +121,13 @@ msgstr "Huwelijksaankondiging"
 msgid "Appearances"
 msgstr "Verschijningen"
 
+#, python-brace-format
 msgid "At least {expected} items are required, but found {actual}."
 msgstr ""
 "Minimaal {expected} items zijn vereist, maar er waren er {actual} "
 "gevonden."
 
+#, python-brace-format
 msgid "At most {expected} items are allowed, but found {actual}."
 msgstr ""
 "Maximaal {expected} items zijn toegestaan, maar er waren er {actual} "
@@ -160,6 +166,7 @@ msgstr ""
 "genealogisch onderzoek bevat, des te meer interactiviteit Betty aan je "
 "site toe kan voegen, zoals mediagalerijen, kaarten, en visuele stambomen."
 
+#, python-brace-format
 msgid ""
 "Betty is unfamiliar with Gramps event \"{event_id}\"'s type of "
 "\"{gramps_event_type}\". The event was imported, but its type was set to "
@@ -169,6 +176,7 @@ msgstr ""
 "gebeurtenis \"{event_id}\" niet. De gebeurtenis is geladen, maar hun type"
 " is nu \"{betty_event_type}\"."
 
+#, python-brace-format
 msgid ""
 "Betty is unfamiliar with Gramps file \"{file_id}\"'s copyright notice ID "
 "of \"{copyright_notice_id}\" and ignored it."
@@ -176,6 +184,7 @@ msgstr ""
 "Betty kent copyrightvermelding-ID \"{copyright_notice_id}\" van Gramps-"
 "bestand \"{file_id}\" niet en heeft het genegeerd."
 
+#, python-brace-format
 msgid ""
 "Betty is unfamiliar with Gramps file \"{file_id}\"'s license ID of "
 "\"{license_id}\" and ignored it."
@@ -183,6 +192,7 @@ msgstr ""
 "Betty kent licentie-ID \"{license_id}\" van Gramps-bestand \"{file_id}\" "
 "niet en heeft het genegeerd."
 
+#, python-brace-format
 msgid ""
 "Betty is unfamiliar with Gramps person \"{person_id}\"'s gender of "
 "\"{gramps_gender}\". The person was imported, but their gender was set to"
@@ -192,6 +202,7 @@ msgstr ""
 "\"{person_id}\" niet. De persoon is geladen, maar hun geslacht is nu "
 "\"{betty_gender}\"."
 
+#, python-brace-format
 msgid ""
 "Betty is unfamiliar with Gramps place \"{place_id}\"'s type of "
 "\"{gramps_place_type}\". The place was imported, but its type was set to "
@@ -201,6 +212,7 @@ msgstr ""
 "\"{place_id}\" niet. De plaats is geladen, maar hun type is nu "
 "\"{betty_place_type}\"."
 
+#, python-brace-format
 msgid ""
 "Betty is unfamiliar with person \"{person_id}\"'s Gramps presence role of"
 " \"{gramps_presence_role}\" for the event with Gramps handle "
@@ -222,6 +234,7 @@ msgstr ""
 "haar en haar familie bekijken om een idee te krijgen van hoe een Betty-"
 "site eruit ziet."
 
+#, python-brace-format
 msgid "Betty will talk to you in {locale}"
 msgstr "Betty zal in het {locale} tegen je praten"
 
@@ -243,12 +256,15 @@ msgstr "Begravenis"
 msgid "Cannot find an available port to bind the web server to."
 msgstr "Kan geen beschikbare poort voor de webserver vinden."
 
+#, python-brace-format
 msgid "Cannot find and import \"{plugin_id}\"."
 msgstr "Kan plugin \"{plugin_id}\" niet vinden en importeren."
 
+#, python-brace-format
 msgid "Cannot find locale {locale}."
 msgstr "Kan taalregio {locale} niet vinden."
 
+#, python-brace-format
 msgid ""
 "Cannot generate pages for {entity_type}, because it is not a user-facing "
 "entity type."
@@ -256,6 +272,7 @@ msgstr ""
 "Kan geen pagina's genereren voor {entity_type}, omdat het entiteitstype "
 "niet zichtbaar is voor gebruikers."
 
+#, python-brace-format
 msgid ""
 "Cannot load Gramps file {file_id} with relative path {file_path}, because"
 " your family tree does not include a base path. In Gramps, add a \"base "
@@ -266,9 +283,11 @@ msgstr ""
 "voor relatieve mediapaden\" in voor je stamboom, en exporteer deze "
 "opnieuw."
 
+#, python-brace-format
 msgid "Cannot load Gramps file {file_id}, because {file_path} is not a file."
 msgstr "Kan Grampsbestand {file_id} niet laden, omdat {file_path} geen bestand is."
 
+#, python-brace-format
 msgid ""
 "Cannot load coordinates \"{coordinates}\", because they are in an unknown"
 " format."
@@ -323,17 +342,21 @@ msgstr "Correspondentie"
 msgid "Cotton Candy is Betty's default theme."
 msgstr "Cotton Candy is Betty's standaardthema."
 
+#, python-brace-format
 msgid "Could not extract {file_path} as a gzip file  (*.gz)."
 msgstr "Kan het bestand {file_path} niet als een gzip-bestand (*.gz) uitpakken."
 
+#, python-brace-format
 msgid "Could not extract {file_path} as a gzipped tar file  (*.tar.gz)."
 msgstr ""
 "Kan het bestand {file_path} niet als een ge-gzipt tar-bestand (*.tar.gz) "
 "uitpakken."
 
+#, python-brace-format
 msgid "Could not find a plugin \"{plugin_id}\"."
 msgstr "Kan de plugin \"{plugin_id}\" niet vinden."
 
+#, python-brace-format
 msgid ""
 "Could not find any of the following configuration files in "
 "{project_directory_path}: {configuration_file_names}."
@@ -341,9 +364,11 @@ msgstr ""
 "Kon geen van de volgende configuratiebestanden vinden in "
 "{project_directory_path}: {configuration_file_names}."
 
+#, python-brace-format
 msgid "Could not find the file \"{file_path}\"."
 msgstr "Kan het bestand \"{file_path}\" niet vinden."
 
+#, python-brace-format
 msgid ""
 "Could not load \"{file_path}\" as a *.gpkg, a *.gramps, or an *.xml "
 "family tree."
@@ -373,6 +398,7 @@ msgstr ""
 "Maak gebeurtenissen zoals geboortes en overlijdens door de details "
 "hiervoor af te leiden van bestaande informatie."
 
+#, python-brace-format
 msgid ""
 "Created {created_derivations} additional {event_type} events based on "
 "existing information."
@@ -436,9 +462,11 @@ msgstr "District"
 msgid "Divorce"
 msgstr "Echtscheiding"
 
+#, python-brace-format
 msgid "Do you mean one of {available_options}?"
 msgstr "Bedoel je één van {available_options}?"
 
+#, python-brace-format
 msgid "Do you mean {available_option}?"
 msgstr "Bedoel je {available_option}?"
 
@@ -473,6 +501,7 @@ msgstr "Gebeurtenis"
 msgid "Events"
 msgstr "Gebeurtenissen"
 
+#, python-brace-format
 msgid "Exactly {expected} items are required, but found {actual}."
 msgstr "Precies {expected} items zijn vereist, maar er waren er {actual} gevonden."
 
@@ -518,6 +547,7 @@ msgstr "Uitvaart"
 msgid "Generate a static site"
 msgstr "Genereer een statische site"
 
+#, python-brace-format
 msgid ""
 "Generated {completed_job_count} out of {total_job_count} items "
 "({completed_job_percentage}%)."
@@ -531,12 +561,14 @@ msgstr "JSON Schema aan het genereren..."
 msgid "Generating OpenAPI specification..."
 msgstr "OpenAPI-specificatie aan het genereren..."
 
+#, python-brace-format
 msgid "Generating localized public files in {locale}..."
 msgstr "Gelokaliseerde publieke bestanden in het {locale} aan het genereren..."
 
 msgid "Generating static public files..."
 msgstr "Statische publieke bestanden aan het genereren..."
 
+#, python-brace-format
 msgid "Generating your site to {output_directory}."
 msgstr "Bezig je site te genereren naar {output_directory}."
 
@@ -578,9 +610,11 @@ msgstr "Immigratie"
 msgid "Informant"
 msgstr "Informant"
 
+#, python-brace-format
 msgid "Invalid JSON: {error}."
 msgstr "Ongeldige JSON: {error}."
 
+#, python-brace-format
 msgid "Invalid YAML: {error}."
 msgstr "Ongeldige YAML: {error}."
 
@@ -597,33 +631,43 @@ msgstr "Licentie"
 msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
 msgstr "Laad <a href=\"https://gramps-project.org/\">Gramps-</a>stambomen."
 
+#, python-brace-format
 msgid "Loaded the configuration from {configuration_file_path}."
 msgstr "Configuratie vanuit \"{configuration_file_path}\" geladen."
 
+#, python-brace-format
 msgid "Loaded {citation_count} citations."
 msgstr "{citation_count} verwijzingen geladen."
 
+#, python-brace-format
 msgid "Loaded {event_count} events."
 msgstr "{event_count} gebeurtenissen geladen."
 
+#, python-brace-format
 msgid "Loaded {file_count} files."
 msgstr "{file_count} bestanden geladen."
 
+#, python-brace-format
 msgid "Loaded {note_count} notes."
 msgstr "{note_count} notities geladen."
 
+#, python-brace-format
 msgid "Loaded {person_count} people."
 msgstr "{person_count} personen geladen."
 
+#, python-brace-format
 msgid "Loaded {place_count} places."
 msgstr "{place_count} plaatsen geladen."
 
+#, python-brace-format
 msgid "Loaded {repository_count} repositories as sources."
 msgstr "{repository_count} bibliotheken als bronnen geladen."
 
+#, python-brace-format
 msgid "Loaded {source_count} sources."
 msgstr "{source_count} bronnen geladen."
 
+#, python-brace-format
 msgid "Loading \"{file_path}\"..."
 msgstr "\"{file_path}\" aan het laden..."
 
@@ -729,6 +773,7 @@ msgstr "Plaats"
 msgid "Places"
 msgstr "Plaatsen"
 
+#, python-brace-format
 msgid ""
 "Plugin {plugin_label} ({plugin_id}) is not configurable, but "
 "configuration was given."
@@ -745,12 +790,14 @@ msgstr "Vooraf gebouwde Webpack front-end assets zijn niet beschikbaar"
 msgid "Presence"
 msgstr "Aanwezigheid"
 
+#, python-brace-format
 msgid "Presence of {person} at {event}"
 msgstr "Aanwezigheid van {person} bij {event}"
 
 msgid "Presences"
 msgstr "Aanwezigheden"
 
+#, python-brace-format
 msgid ""
 "Privatized person {privatized_person_id} ({privatized_person}) because "
 "they are likely still alive."
@@ -758,6 +805,7 @@ msgstr ""
 "Persoon {privatized_person_id} ({privatized_person}) geprivatiseerd omdat"
 " hen waarschijnlijk nog leeft."
 
+#, python-brace-format
 msgid ""
 "Privatized place {privatized_place_id} ({privatized_place}) because it is"
 " not associated with any public information."
@@ -765,9 +813,11 @@ msgstr ""
 "Plaats {privatized_place_id} ({privatized_place}) geprivatiseerd omdat "
 "deze niet met enige openbare informatie geassocieerd is."
 
+#, python-brace-format
 msgid "Privatized {count} people because they are likely still alive."
 msgstr "{count} personen geprivatiseerd omdat zij waarschijnlijk nog leven."
 
+#, python-brace-format
 msgid ""
 "Privatized {count} {entity_type}, because they are associated with "
 "private information."
@@ -775,6 +825,7 @@ msgstr ""
 "{count} {entity_type} geprivatiseerd, omdat deze met privéinformatie "
 "geassocieerd zijn."
 
+#, python-brace-format
 msgid ""
 "Privatized {privatized_entity_type} {privatized_entity_id} "
 "({privatized_entity}) because of {reason_entity_type} {reason_entity_id} "
@@ -814,12 +865,14 @@ msgstr "Woonplaats"
 msgid "Retirement"
 msgstr "Pensioen"
 
+#, python-brace-format
 msgid "Saved your project to {configuration_file}."
 msgstr "Configuratie naar \"{configuration_file}\" opgeslagen."
 
 msgid "Serve a generated site"
 msgstr "Serveer een gegenereerde site"
 
+#, python-brace-format
 msgid "Serving your site at {url}..."
 msgstr "Je site op {url} aan het serveren..."
 
@@ -844,6 +897,7 @@ msgstr "Straat"
 msgid "Subject"
 msgstr "Onderwerp"
 
+#, python-brace-format
 msgid ""
 "The Gramps {gramps_entity_reference} entity has a "
 "\"betty:link-{link_name}:media_type\" attribute with value "
@@ -854,6 +908,7 @@ msgstr ""
 "\"betty:link-{link_name}:media_type\" met waarde \"{media_type}\", wat "
 "geen geldig IANA-mediatype is. Dit mediatype is genegeerd."
 
+#, python-brace-format
 msgid ""
 "The Gramps {gramps_entity_reference} entity requires a "
 "\"betty:link-{link_name}:url\" attribute. This link was ignored."
@@ -867,6 +922,7 @@ msgstr "De URL moet een host bevatten."
 msgid "The URL must start with a scheme such as https:// or http://."
 msgstr "De URL moet beginnen met een protocol, zoals https:// of http://."
 
+#, python-brace-format
 msgid ""
 "The betty:privacy Gramps attribute must have a value of \"public\" or "
 "\"private\", but \"{privacy_value}\" was given for {entity_type} "
@@ -876,6 +932,7 @@ msgstr ""
 "maar {entity_type} {entity_id} ({entity_label}) bevat "
 "\"{privacy_value}\", en is daarom genegeerd."
 
+#, python-brace-format
 msgid ""
 "The entity reference must be for an entity of type "
 "{expected_entity_type_id}, but instead does not specify an entity type at"
@@ -884,6 +941,7 @@ msgstr ""
 "De entiteitsverwijzing moet verwijzen naar een entiteit van het type "
 "{expected_entity_type_id}, maar geen entiteitstype is ingesteld."
 
+#, python-brace-format
 msgid ""
 "The entity reference must be for an entity of type "
 "{expected_entity_type_id}, but instead is for an entity of type "
@@ -896,6 +954,7 @@ msgstr ""
 msgid "The following errors occurred"
 msgstr "De volgende problemen zijn voorgekomen"
 
+#, python-brace-format
 msgid "The server at {url} was unreachable after starting."
 msgstr "De server op {url} was onbereikbaar na het starten."
 
@@ -983,6 +1042,7 @@ msgstr "Onbevoegd"
 msgid "Unknown"
 msgstr "Onbekend"
 
+#, python-brace-format
 msgid ""
 "Unknown file format \"{extension}\". Supported formats are: "
 "{available_formats}."
@@ -990,6 +1050,7 @@ msgstr ""
 "Onbekend bestandstype \"{extension}\". Ondersteunde bestandstypes zijn: "
 "{available_formats}."
 
+#, python-brace-format
 msgid "Unknown key: {unknown_key}."
 msgstr "Onbekende sleutel: {unknown_key}."
 
@@ -1002,6 +1063,7 @@ msgstr "Update alle bestaande vertalingen voor Betty self"
 msgid "Update all existing translations for an extension"
 msgstr "Update alle bestaande vertalingen voor een extensie"
 
+#, python-brace-format
 msgid ""
 "Updated {updated_derivations} {event_type} events based on existing "
 "information."
@@ -1029,9 +1091,11 @@ msgstr "Welkom bij %(project_title)s"
 msgid "What is the path to your exported Gramps family tree file?"
 msgstr "Wat is het pad naar je geëxporteerde Gramps-stamboombestand?"
 
+#, python-brace-format
 msgid "What is the project author called in {locale}?"
 msgstr "Hoe heet de auteur van het project in het {locale}?"
 
+#, python-brace-format
 msgid "What is your project called in {locale}?"
 msgstr "Hoe heet je project in het {locale}?"
 
@@ -1088,48 +1152,63 @@ msgstr ""
 "pagina's van je site er leeg uit kunnen zien. Probeer de \"cotton-"
 "candy\"-extensie."
 
+#, python-brace-format
 msgid "around {date}"
 msgstr "rond {date}"
 
+#, python-brace-format
 msgid "from around {start_date}"
 msgstr "van ongeveer {start_date}"
 
+#, python-brace-format
 msgid "from around {start_date} until around {end_date}"
 msgstr "van ongeveer {start_date} tot ongeveer {end_date}"
 
+#, python-brace-format
 msgid "from around {start_date} until sometime before around {end_date}"
 msgstr "van ongeveer {start_date} tot ergens voor ongeveer {end_date}"
 
+#, python-brace-format
 msgid "from around {start_date} until sometime before {end_date}"
 msgstr "van ongeveer {start_date} tot ergens voor {end_date}"
 
+#, python-brace-format
 msgid "from around {start_date} until {end_date}"
 msgstr "van ongeveer {start_date} tot en met {end_date}"
 
+#, python-brace-format
 msgid "from sometime after around {start_date} until around {end_date}"
 msgstr "van ergens na ongeveer {start_date} tot ongeveer {end_date}"
 
+#, python-brace-format
 msgid "from sometime after around {start_date} until {end_date}"
 msgstr "van ergens na ongeveer {start_date} tot en met {end_date}"
 
+#, python-brace-format
 msgid "from sometime after {start_date} until around {end_date}"
 msgstr "van ergens na {start_date} tot ongeveer {end_date}"
 
+#, python-brace-format
 msgid "from sometime after {start_date} until {end_date}"
 msgstr "van ergens na {start_date} tot en met {end_date}"
 
+#, python-brace-format
 msgid "from {start_date}"
 msgstr "vanaf {start_date}"
 
+#, python-brace-format
 msgid "from {start_date} until around {end_date}"
 msgstr "vanaf {start_date} tot ongeveer {end_date}"
 
+#, python-brace-format
 msgid "from {start_date} until sometime before around {end_date}"
 msgstr "vanaf {start_date} tot ergens voor ongeveer {end_date}"
 
+#, python-brace-format
 msgid "from {start_date} until sometime before {end_date}"
 msgstr "vanaf {start_date} tot ergens voor {end_date}"
 
+#, python-brace-format
 msgid "from {start_date} until {end_date}"
 msgstr "vanaf {start_date} tot en met {end_date}"
 
@@ -1170,72 +1249,92 @@ msgstr "toon minder"
 msgid "show more"
 msgstr "toon meer"
 
+#, python-brace-format
 msgid "sometime after around {start_date}"
 msgstr "ergens na ongeveer {start_date}"
 
+#, python-brace-format
 msgid "sometime after {start_date}"
 msgstr "ergens na {start_date}"
 
+#, python-brace-format
 msgid "sometime before around {end_date}"
 msgstr "ergens voor ongeveer {end_date}"
 
+#, python-brace-format
 msgid "sometime before {end_date}"
 msgstr "ergens voor {end_date}"
 
+#, python-brace-format
 msgid "sometime between around {start_date} and around {end_date}"
 msgstr "ergens tussen ongeveer {start_date} en ongeveer {end_date}"
 
+#, python-brace-format
 msgid "sometime between around {start_date} and {end_date}"
 msgstr "ergens tussen ongeveer {start_date} en {end_date}"
 
+#, python-brace-format
 msgid "sometime between {start_date} and around {end_date}"
 msgstr "ergens tussen {start_date} en ongeveer {end_date}"
 
+#, python-brace-format
 msgid "sometime between {start_date} and {end_date}"
 msgstr "ergens tussen {start_date} en {end_date}"
 
 msgid "unknown date"
 msgstr "onbekend"
 
+#, python-brace-format
 msgid "until around {end_date}"
 msgstr "tot ongeveer {end_date}"
 
+#, python-brace-format
 msgid "until {end_date}"
 msgstr "tot en met {end_date}"
 
 msgid "y"
 msgstr "y"
 
+#, python-brace-format
 msgid "{date}"
 msgstr "{date}"
 
+#, python-brace-format
 msgid "{dependent_label} requires {dependency_labels}."
 msgstr "{dependent_label} vereist {dependency_labels}."
 
+#, python-brace-format
 msgid "{entity_type} {entity_id}"
 msgstr "{entity_type} {entity_id}"
 
+#, python-brace-format
 msgid "{event_type}"
 msgstr "{event_type}"
 
+#, python-brace-format
 msgid "{event_type} ({event_description})"
 msgstr "{event_type} ({event_description})"
 
+#, python-brace-format
 msgid "{event_type} ({event_description}) of {subjects}"
 msgstr "{event_type} ({event_description}) van {subjects}"
 
+#, python-brace-format
 msgid "{event_type} of {subjects}"
 msgstr "{event_type} van {subjects}"
 
+#, python-brace-format
 msgid "{extension} does not have an assets directory."
 msgstr "{extension} heeft geen assets-directory."
 
+#, python-brace-format
 msgid "{individual_name} {affiliation_name}"
 msgstr "{individual_name} {affiliation_name}"
 
 msgid "© Copyright the author, unless otherwise credited"
 msgstr "© Copyright de auteur, tenzij anders vermeld"
 
+#, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Copyright {author}, tenzij anders vermeld"
 
