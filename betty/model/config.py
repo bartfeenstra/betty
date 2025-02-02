@@ -30,18 +30,18 @@ if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-_EntityT = TypeVar("_EntityT", bound=Entity)
+_EntityCoT = TypeVar("_EntityCoT", bound=Entity, covariant=True)
 
 
 @final
-class EntityReference(Configuration, Generic[_EntityT]):
+class EntityReference(Configuration, Generic[_EntityCoT]):
     """
     Configuration that references an entity from the project's ancestry.
     """
 
     def __init__(
         self,
-        entity_type: PluginIdentifier[_EntityT] | None = None,
+        entity_type: PluginIdentifier[_EntityCoT] | None = None,
         entity_id: str | None = None,
         *,
         entity_type_is_constrained: bool = False,
@@ -61,7 +61,7 @@ class EntityReference(Configuration, Generic[_EntityT]):
         return self._entity_type
 
     @entity_type.setter
-    def entity_type(self, entity_type: PluginIdentifier[_EntityT]) -> None:
+    def entity_type(self, entity_type: PluginIdentifier[_EntityCoT]) -> None:
         if self._entity_type_is_constrained:
             raise AttributeError(
                 f"The entity type cannot be set, as it is already constrained to {self._entity_type}."
@@ -129,7 +129,7 @@ class EntityReference(Configuration, Generic[_EntityT]):
 
 @final
 class EntityReferenceSequence(
-    Generic[_EntityT], ConfigurationSequence[EntityReference[_EntityT]]
+    Generic[_EntityCoT], ConfigurationSequence[EntityReference[_EntityCoT]]
 ):
     """
     Configuration for a sequence of references to entities from the project's ancestry.
@@ -137,9 +137,9 @@ class EntityReferenceSequence(
 
     def __init__(
         self,
-        entity_references: Iterable[EntityReference[_EntityT]] | None = None,
+        entity_references: Iterable[EntityReference[_EntityCoT]] | None = None,
         *,
-        entity_type_constraint: PluginIdentifier[_EntityT] | None = None,
+        entity_type_constraint: PluginIdentifier[_EntityCoT] | None = None,
     ):
         self._entity_type_constraint = (
             None
@@ -149,8 +149,8 @@ class EntityReferenceSequence(
         super().__init__(entity_references)
 
     @override
-    def _load_item(self, dump: Dump) -> EntityReference[_EntityT]:
-        configuration = EntityReference[_EntityT](
+    def _load_item(self, dump: Dump) -> EntityReference[_EntityCoT]:
+        configuration = EntityReference[_EntityCoT](
             # Use a dummy entity type for now to satisfy the initializer.
             # It will be overridden when loading the dump.
             Entity  # type: ignore[arg-type]
@@ -162,7 +162,7 @@ class EntityReferenceSequence(
         return configuration
 
     @override
-    def _pre_add(self, configuration: EntityReference[_EntityT]) -> None:
+    def _pre_add(self, configuration: EntityReference[_EntityCoT]) -> None:
         super()._pre_add(configuration)
 
         entity_type_constraint = self._entity_type_constraint
