@@ -22,7 +22,13 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.json.linked_data import dump_context, JsonLdObject
 from betty.json.schema import Enum, String
-from betty.locale.localizable import _, ShorthandStaticTranslations, Localizable, call
+from betty.locale.localizable import (
+    _,
+    ShorthandStaticTranslations,
+    Localizable,
+    call,
+    OptionalStaticTranslationsLocalizableAttr,
+)
 from betty.model import UserFacingEntity
 from betty.model.association import (
     BidirectionalToZeroOrOne,
@@ -80,6 +86,9 @@ class Event(
         linked_data_embedded=True,
     )
 
+    #: The human-readable event name.
+    name = OptionalStaticTranslationsLocalizableAttr("name", title="Name")
+
     def __init__(
         self,
         *,
@@ -97,6 +106,7 @@ class Event(
         place: Place | None = None,
         description: ShorthandStaticTranslations | None = None,
         presences: Iterable[Presence] | ToManyResolver[Presence] | None = None,
+        name: ShorthandStaticTranslations | None = None,
     ):
         super().__init__(
             id,
@@ -114,6 +124,8 @@ class Event(
             self.place = place
         if presences is not None:
             self.presences = presences
+        if name:
+            self.name = name
 
     @override
     def dated_linked_data_contexts(self) -> tuple[str | None, str | None, str | None]:
@@ -126,6 +138,9 @@ class Event(
     @override
     @property
     def label(self) -> Localizable:
+        if self.name:
+            return self.name
+
         format_kwargs: Mapping[str, str | Localizable] = {
             "event_type": self._event_type.plugin_label(),
         }
