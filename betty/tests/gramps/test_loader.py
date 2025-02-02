@@ -29,7 +29,7 @@ from betty.date import Date, DateRange
 from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsLoader, LoaderUsedAlready, GrampsFileNotFound
 from betty.license.licenses import PublicDomain as PublicDomainLicense
-from betty.locale import UNDETERMINED_LOCALE
+from betty.locale import UNDETERMINED_LOCALE, DEFAULT_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.privacy import Privacy
@@ -1252,49 +1252,75 @@ class TestGrampsLoader:
         note = source.notes[0]
         assert note.id == "N0000"
 
-    async def test_source_from_source_should_include_attribute_links(self) -> None:
-        link_minimal_url = "http://example.com"
-        link_full_url = "https://example.com"
-        link_full_description = "Check out the world's Example Domain!"
-        link_full_label = "Example.com"
-        link_full_locale = "en"
-        link_full_media_type = "text/plain"
-        link_full_relationship = "external"
+    async def test__load_attribute_links_should_include_attribute_links_minimal(
+        self,
+    ) -> None:
+        url = "http://example.com"
         ancestry = await self._load_partial(
             f"""
 <sources>
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
-      <srcattribute type="betty:link-minimal:url" value="{link_minimal_url}"/>
-      <srcattribute type="betty:link-full:url" value="{link_full_url}"/>
-      <srcattribute type="betty:link-full:description" value="{link_full_description}"/>
-      <srcattribute type="betty:link-full:label" value="{link_full_label}"/>
-      <srcattribute type="betty:link-full:locale" value="{link_full_locale}"/>
-      <srcattribute type="betty:link-full:media_type" value="{link_full_media_type}"/>
-      <srcattribute type="betty:link-full:relationship" value="{link_full_relationship}"/>
+      <srcattribute type="betty:link-minimal:url" value="{url}"/>
     </source>
 </sources>
 """
         )
         source = ancestry[Source]["S0000"]
         assert source.links
-        link_minimal = source.links[0]
-        link_full = source.links[1]
-        assert link_minimal.url == link_minimal_url
-        assert not link_minimal.description
-        assert not link_minimal.label
-        assert link_minimal.locale is UNDETERMINED_LOCALE
-        assert link_minimal.media_type is None
-        assert link_minimal.relationship is None
-        assert link_full.url == link_full_url
-        assert (
-            link_full.description.localize(DEFAULT_LOCALIZER) == link_full_description
-        )
-        assert link_full.label.localize(DEFAULT_LOCALIZER) == link_full_label
-        assert link_full.locale == link_full_locale
-        assert link_full.media_type == MediaType(link_full_media_type)
-        assert link_full.relationship == link_full_relationship
+        link = source.links[0]
+        assert link.url == url
+        assert not link.description
+        assert not link.label
+        assert link.locale is UNDETERMINED_LOCALE
+        assert link.media_type is None
+        assert link.relationship is None
 
-    async def test_source_from_source_should_warn_about_attribute_link_without_url(
+    async def test__load_attribute_links_should_include_attribute_links_full(
+        self,
+    ) -> None:
+        url = "https://example.com"
+        label_und = "Example.com"
+        label_default = "Also Example.com"
+        description_und = "Check out the world's example domain!"
+        description_default = (
+            "This is supposed to be a translation into the default locale."
+        )
+        locale = "en"
+        media_type = "text/plain"
+        relationship = "external"
+        ancestry = await self._load_partial(
+            f"""
+<sources>
+    <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
+      <srcattribute type="betty:link-full:url" value="{url}"/>
+      <srcattribute type="betty:link-full:label" value="{label_und}"/>
+      <srcattribute type="betty:link-full:label:{DEFAULT_LOCALE}" value="{label_default}"/>
+      <srcattribute type="betty:link-full:description" value="{description_und}"/>
+      <srcattribute type="betty:link-full:description:{DEFAULT_LOCALE}" value="{description_default}"/>
+      <srcattribute type="betty:link-full:locale" value="{locale}"/>
+      <srcattribute type="betty:link-full:media_type" value="{media_type}"/>
+      <srcattribute type="betty:link-full:relationship" value="{relationship}"/>
+    </source>
+</sources>
+"""
+        )
+        source = ancestry[Source]["S0000"]
+        assert source.links
+        link = source.links[0]
+        assert link.url == url
+        assert link.label.translations == {
+            UNDETERMINED_LOCALE: label_und,
+            DEFAULT_LOCALE: label_default,
+        }
+        assert link.description.translations == {
+            UNDETERMINED_LOCALE: description_und,
+            DEFAULT_LOCALE: description_default,
+        }
+        assert link.locale == locale
+        assert link.media_type == MediaType(media_type)
+        assert link.relationship == relationship
+
+    async def test__load_attribute_links_should_warn_about_attribute_link_without_url(
         self,
     ) -> None:
         ancestry = await self._load_partial(
@@ -1309,7 +1335,7 @@ class TestGrampsLoader:
         source = ancestry[Source]["S0000"]
         assert not source.links
 
-    async def test_source_from_source_should_warn_about_attribute_link_invalid_media_type(
+    async def test__load_attribute_links_should_warn_about_attribute_link_invalid_media_type(
         self,
     ) -> None:
         ancestry = await self._load_partial(

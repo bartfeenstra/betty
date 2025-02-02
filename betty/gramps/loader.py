@@ -40,7 +40,7 @@ from betty.date import DateRange, Datey, Date
 from betty.error import FileNotFound
 from betty.gramps.error import GrampsError, UserFacingGrampsError
 from betty.locale import UNDETERMINED_LOCALE
-from betty.locale.localizable import _, plain
+from betty.locale.localizable import _, plain, StaticTranslations
 from betty.media_type import MediaType, InvalidMediaType
 from betty.model import Entity
 from betty.model.association import ToManyResolver, ToOneResolver, resolve
@@ -1049,6 +1049,27 @@ class GrampsLoader:
             )
         )
 
+    _STATIC_TRANSLATION_ATTRIBUTE_SUFFIX_PATTERN = re.compile(r"^:[^:]+$")
+
+    def _parse_attribute_static_translations(
+        self, element: ElementTree.Element, tag: str, name: str
+    ) -> StaticTranslations:
+        translations = {}
+        name_length = len(name)
+        for attribute_key, attribute_value in self._load_attributes(
+            element, tag
+        ).items():
+            if attribute_key == name:
+                translations[UNDETERMINED_LOCALE] = attribute_value
+            elif (
+                self._STATIC_TRANSLATION_ATTRIBUTE_SUFFIX_PATTERN.fullmatch(
+                    attribute_key[name_length:]
+                )
+                is not None
+            ):
+                translations[attribute_key[name_length + 1 :]] = attribute_value
+        return translations
+
     _LINK_ATTRIBUTE_PATTERN = re.compile(r"^link-([^:]+?):(.+?)$")
 
     def _load_attribute_links(
@@ -1085,9 +1106,13 @@ class GrampsLoader:
             link = Link(link_attributes["url"])
             entity.links.append(link)
             if "description" in link_attributes:
-                link.description = link_attributes["description"]
+                link.description = self._parse_attribute_static_translations(
+                    element, tag, f"link-{link_name}:description"
+                )
             if "label" in link_attributes:
-                link.label = link_attributes["label"]
+                link.label = self._parse_attribute_static_translations(
+                    element, tag, f"link-{link_name}:label"
+                )
             if "locale" in link_attributes:
                 link.locale = link_attributes["locale"]
             if "media_type" in link_attributes:
