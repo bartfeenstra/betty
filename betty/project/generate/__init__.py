@@ -164,7 +164,7 @@ async def _run_jobs(
     job_context: ProjectContext,
 ) -> AsyncIterator[Coroutine[Any, Any, None]]:
     project = job_context.project
-    semaphore = Semaphore(512)
+    semaphore = Semaphore(256)
     yield _run_job(semaphore, _generate_favicon, job_context)
     yield _run_job(semaphore, _generate_json_error_responses, project)
     yield _run_job(semaphore, _generate_dispatch, job_context)
