@@ -5,8 +5,10 @@ from typing import Sequence, TYPE_CHECKING
 import pytest
 from typing_extensions import override
 
+from betty.ancestry.citation import Citation
 from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
+from betty.ancestry.source import Source
 from betty.locale import UNDETERMINED_LOCALE
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
@@ -32,6 +34,11 @@ class TestPersonName(EntityTestBase):
     def test___init___should_require_at_least_one_type_of_name(self) -> None:
         with pytest.raises(ValueError):  # noqa PT011
             PersonName(person=Person())
+
+    async def test___init___with_citations(self) -> None:
+        citation = Citation(source=Source())
+        sut = PersonName(person=Person(), individual="Jane", citations=[citation])
+        assert list(sut.citations) == [citation]
 
     async def test_person(self) -> None:
         person = Person(id="1")
