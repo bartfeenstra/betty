@@ -20,6 +20,12 @@ from betty.ancestry.note import Note
 from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.place import Place
+from betty.ancestry.place_type.place_types import (
+    Province,
+    Country,
+    Municipality,
+    Village,
+)
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
@@ -142,6 +148,7 @@ async def load_ancestry(project: Project) -> None:
             ),
         ],
         links=[Link("https://en.wikipedia.org/wiki/Netherlands")],
+        place_type=Country(),
     )
     ancestry.add(netherlands)
 
@@ -161,6 +168,7 @@ async def load_ancestry(project: Project) -> None:
             Link("https://en.wikipedia.org/wiki/North_Holland"),
             Link("https://www.noord-holland.nl/"),
         ],
+        place_type=Province(),
     )
     ancestry.add(Enclosure(enclosee=north_holland, encloser=netherlands))
     ancestry.add(north_holland)
@@ -181,6 +189,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
             Link("https://www.amsterdam.nl/"),
         ],
         notes=[amsterdam_note],
+        place_type=Municipality(),
     )
     ancestry.add(Enclosure(enclosee=amsterdam, encloser=north_holland))
     ancestry.add(amsterdam)
@@ -196,6 +205,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
             ),
         ],
         links=[Link("https://nl.wikipedia.org/wiki/Ilpendam")],
+        place_type=Village(),
     )
     ancestry.add(Enclosure(enclosee=ilpendam, encloser=north_holland))
     ancestry.add(ilpendam)
@@ -209,6 +219,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
     cite_first_person_account = Citation(
         id="betty-demo-first-person-account",
         source=personal_accounts,
+        location="Bart Feenstra",
     )
     ancestry.add(cite_first_person_account)
 
@@ -432,6 +443,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
         PersonName(
             person=liberta_lankester,
             individual="Betty",
+            citations=[cite_first_person_account],
         ),
         Presence(liberta_lankester, Subject(), birth_of_liberta_lankester),
         Presence(liberta_lankester, Subject(), death_of_liberta_lankester),
@@ -495,11 +507,20 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
     )
     ancestry.add(parent_of_bart_feenstra_child_of_liberta_lankester)
 
+    birth_of_bart_feenstra = Event(
+        id="betty-demo-birth-of-bart-feenstra",
+        event_type=Birth(),
+        date=DateRange(Date(1970, 1, 1), start_is_boundary=True),
+        place=netherlands,
+    )
+    ancestry.add(birth_of_johan_de_boer)
+
     bart_feenstra = Person(
         id="betty-demo-bart-feenstra",
         gender=Male(),
         parents=[parent_of_bart_feenstra_child_of_liberta_lankester],
     )
+    Presence(bart_feenstra, Subject(), birth_of_bart_feenstra)
     _streetmix_image(bart_feenstra)
     ancestry.add(
         PersonName(
