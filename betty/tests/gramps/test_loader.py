@@ -811,6 +811,26 @@ class TestGrampsLoader:
         expected_people = [ancestry[Person]["I0000"]]
         assert expected_people == [presence.person for presence in event.presences]
 
+    async def test_event_should_include_name(self) -> None:
+        name_und = "Some name"
+        name_default = "The default name"
+        ancestry = await self._load_partial(
+            f"""
+<events>
+    <event handle="_e56068c37402fda8741678a115a" change="1577021208" id="E0000">
+        <type>Birth</type>
+        <attribute type="betty:name" value="{name_und}"/>
+        <attribute type="betty:name:{DEFAULT_LOCALE}" value="{name_default}"/>
+    </event>
+</events>
+"""
+        )
+        event = ancestry[Event]["E0000"]
+        assert event.name.translations == {
+            UNDETERMINED_LOCALE: name_und,
+            DEFAULT_LOCALE: name_default,
+        }
+
     async def test_event_should_include_description(self) -> None:
         ancestry = await self._load_partial(
             """

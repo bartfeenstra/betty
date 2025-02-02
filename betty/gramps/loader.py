@@ -870,6 +870,9 @@ class GrampsLoader:
             element,
             "attribute",
         )
+        event.name = self._parse_attribute_static_translations(
+            element, "attribute", "name"
+        )
 
         self._add_entity(event, event_handle)
 

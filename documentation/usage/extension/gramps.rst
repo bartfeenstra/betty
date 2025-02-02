@@ -158,6 +158,10 @@ Gender
 To set a person's gender to a gender that is available in Betty, but not in Gramps, add a ``betty:gender`` attribute,
 whose value is the ID of the :doc:`/usage/ancestry/gender` you want to use.
 
+Event names
+^^^^^^^^^^^
+Event names can be set using ``betty:name``. Values are :ref:`static translations <gramps-attributes-static-translations>`.
+
 Links
 ^^^^^
 
