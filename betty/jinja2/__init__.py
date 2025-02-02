@@ -24,6 +24,7 @@ from typing_extensions import override
 from betty.date import Date
 from betty.html import CssProvider, JsProvider, Citer, Breadcrumbs
 from betty.jinja2.filter import filters
+from betty.jinja2.globals import generate_html_id, HtmlId
 from betty.jinja2.test import tests
 from betty.job import Context as JobContext
 from betty.locale.localizable import Localizable, plain
@@ -278,6 +279,8 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
                         parent["citer"] = Citer()
                     if "breadcrumbs" not in parent:
                         parent["breadcrumbs"] = Breadcrumbs()
+                    if "html_id" not in parent:
+                        parent["html_id"] = HtmlId()
                     for jinja2_provider in jinja2_providers:
                         for key, value in jinja2_provider.new_context_vars().items():
                             if key not in parent:
@@ -355,6 +358,7 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
         ]
         self.globals["entity_contexts"] = self._entity_contexts
         self.globals["localizer"] = DEFAULT_LOCALIZER
+        self.globals["generate_html_id"] = generate_html_id
 
     def _init_extensions(self) -> None:
         for extension in self._extensions:
