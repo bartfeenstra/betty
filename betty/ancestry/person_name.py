@@ -4,7 +4,7 @@ Data types to describe people's names.
 
 from __future__ import annotations
 
-from typing import final, TYPE_CHECKING
+from typing import final, TYPE_CHECKING, Iterable
 
 from typing_extensions import override
 
@@ -15,12 +15,13 @@ from betty.json.schema import String
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import _, Localizable
 from betty.model import Entity
-from betty.model.association import BidirectionalToOne, ToOneResolver
+from betty.model.association import BidirectionalToOne, ToOneResolver, ToManyResolver
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy, merge_privacies
 from betty.repr import repr_instance
 
 if TYPE_CHECKING:
+    from betty.ancestry.citation import Citation
     from betty.project import Project
     from betty.serde.dump import DumpMapping, Dump
     from betty.ancestry.person import Person
@@ -55,6 +56,7 @@ class PersonName(ShorthandPluginBase, HasLocale, HasCitations, HasPrivacy, Entit
         public: bool | None = None,
         private: bool | None = None,
         locale: str = UNDETERMINED_LOCALE,
+        citations: Iterable[Citation] | ToManyResolver[Citation] | None = None,
     ):
         if not individual and not affiliation:
             raise ValueError(
@@ -66,6 +68,7 @@ class PersonName(ShorthandPluginBase, HasLocale, HasCitations, HasPrivacy, Entit
             public=public,
             private=private,
             locale=locale,
+            citations=citations,
         )
         self._individual = individual
         self._affiliation = affiliation
