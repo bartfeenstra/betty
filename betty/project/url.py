@@ -9,7 +9,6 @@ from urllib.parse import quote
 
 from typing_extensions import override
 
-from betty import model
 from betty.media_type.media_types import HTML, JSON, JSON_LD
 from betty.project.factory import ProjectDependentFactory
 from betty.string import camel_case_to_kebab_case
@@ -20,11 +19,11 @@ from betty.url import (
     StaticUrlGenerator as StdStaticUrlGenerator,
 )
 from betty.url.proxy import ProxyLocalizedUrlGenerator
+from betty.model import Entity
 
 if TYPE_CHECKING:
     from betty.media_type import MediaType
     from betty.project import Project
-    from betty.model import Entity
     from betty.locale import Localey
     from collections.abc import Mapping
 
@@ -122,7 +121,7 @@ class StaticUrlGenerator(
 
 
 class _EntityTypeDependentUrlGenerator(_ProjectUrlGenerator, StdLocalizedUrlGenerator):
-    _pattern_pattern: str
+    _pattern: str
 
     def __init__(
         self,
@@ -130,13 +129,8 @@ class _EntityTypeDependentUrlGenerator(_ProjectUrlGenerator, StdLocalizedUrlGene
         root_path: str,
         locales: Mapping[str, str],
         clean_urls: bool,
-        entity_type: type[Entity],
     ):
         super().__init__(base_url, root_path, locales, clean_urls)
-        self._entity_type = entity_type
-        self._pattern = self._pattern_pattern.format(
-            entity_type=camel_case_to_kebab_case(entity_type.plugin_id())
-        )
 
     def _get_extension_and_locale(
         self, media_type: MediaType, *, locale: Localey | None
@@ -151,11 +145,11 @@ class _EntityTypeDependentUrlGenerator(_ProjectUrlGenerator, StdLocalizedUrlGene
 
 @final
 class _EntityTypeUrlGenerator(_EntityTypeDependentUrlGenerator):
-    _pattern_pattern = "/{entity_type}/index.{{extension}}"
+    _pattern = "/{entity_type}/index.{extension}"
 
     @override
     def supports(self, resource: Any) -> bool:
-        return resource is self._entity_type
+        return isinstance(resource, type) and issubclass(resource, Entity)
 
     @override
     def generate(
@@ -170,6 +164,7 @@ class _EntityTypeUrlGenerator(_EntityTypeDependentUrlGenerator):
         extension, locale = self._get_extension_and_locale(media_type, locale=locale)
         return self._generate_from_path(
             self._pattern.format(
+                entity_type=camel_case_to_kebab_case(resource.plugin_id()),
                 extension=extension,
             ),
             absolute=absolute,
@@ -179,11 +174,11 @@ class _EntityTypeUrlGenerator(_EntityTypeDependentUrlGenerator):
 
 @final
 class _EntityUrlGenerator(_EntityTypeDependentUrlGenerator):
-    _pattern_pattern = "/{entity_type}/{{entity_id}}/index.{{extension}}"
+    _pattern = "/{entity_type}/{entity_id}/index.{extension}"
 
     @override
     def supports(self, resource: Any) -> bool:
-        return isinstance(resource, self._entity_type)
+        return isinstance(resource, Entity)
 
     @override
     def generate(
@@ -198,6 +193,7 @@ class _EntityUrlGenerator(_EntityTypeDependentUrlGenerator):
         extension, locale = self._get_extension_and_locale(media_type, locale=locale)
         return self._generate_from_path(
             self._pattern.format(
+                entity_type=camel_case_to_kebab_case(resource.plugin_id()),
                 entity_id=quote(resource.id),
                 extension=extension,
             ),
@@ -232,14 +228,8 @@ class LocalizedUrlGenerator(StdLocalizedUrlGenerator, ProjectDependentFactory):
             project.configuration.clean_urls,
         )
         return cls(
-            *(
-                _EntityTypeUrlGenerator(*args, entity_type)
-                for entity_type in await model.ENTITY_TYPE_REPOSITORY.select()
-            ),
-            *(
-                _EntityUrlGenerator(*args, entity_type)
-                for entity_type in await model.ENTITY_TYPE_REPOSITORY.select()
-            ),
+            _EntityTypeUrlGenerator(*args),
+            _EntityUrlGenerator(*args),
             _LocalizedPathUrlGenerator(*args),
         )
 
