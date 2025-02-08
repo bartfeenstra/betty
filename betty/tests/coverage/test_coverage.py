@@ -327,10 +327,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ExtensionTypeInvalidError": MissingReason.SHOULD_BE_COVERED,
         "Theme": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/project/extension/cotton_candy/__init__.py": {
-        "person_descendant_families": MissingReason.SHOULD_BE_COVERED,
-        "person_timeline_events": MissingReason.SHOULD_BE_COVERED,
-    },
     "betty/project/extension/cotton_candy/config.py": {
         "CottonCandyConfiguration": {
             "featured_entities": MissingReason.SHOULD_BE_COVERED,
