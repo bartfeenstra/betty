@@ -654,23 +654,23 @@ class TestGrampsLoader:
     <family handle="_e1dd3b84f9e5d832ffc17baa46c" change="1552127019" id="F0000">
         <rel type="Unknown"/>
         <father hlink="_e1dd3bf1f0041d92f586f9d8683"/>
+        <mother hlink="_e1dd36c700f7fa6564d3ac839db"/>
+        <childref hlink="_e1dd3b41b052be747e10b86c4a" mrel="Unknown" frel="Unknown"/>
+    </family>
+    <family handle="_e1dd6b69f2d6c31de58efd91ddf" change="1552127019" id="F0001">
+        <rel type="Unknown"/>
+        <father hlink="_e1dd3bf1f0041d92f586f9d8683"/>
         <mother hlink="_e1dd3c1caf863ee0081cc2cc16f"/>
-        <childref hlink="_e1dd36c700f7fa6564d3ac839db" mrel="Unknown" frel="Unknown"/>
         <childref hlink="_e1dd3b41b052be747e10b86c4a" mrel="Unknown" frel="Unknown"/>
     </family>
 </families>
 """
         )
-        expected_parents = [
-            ancestry[Person]["I0002"],
-            ancestry[Person]["I0003"],
-        ]
-        children = [
-            ancestry[Person]["I0000"],
-            ancestry[Person]["I0001"],
-        ]
-        for child in children:
-            assert expected_parents == list(child.parents)
+        father = ancestry[Person]["I0002"]
+        mother_one = ancestry[Person]["I0000"]
+        mother_two = ancestry[Person]["I0003"]
+        child = ancestry[Person]["I0001"]
+        assert list(child.parents) == [father, mother_one, mother_two]
 
     async def test_family_should_set_children(self) -> None:
         ancestry = await self._load_partial(
@@ -699,21 +699,21 @@ class TestGrampsLoader:
         <father hlink="_e1dd3bf1f0041d92f586f9d8683"/>
         <mother hlink="_e1dd3c1caf863ee0081cc2cc16f"/>
         <childref hlink="_e1dd36c700f7fa6564d3ac839db" mrel="Unknown" frel="Unknown"/>
+    </family>
+    <family handle="_e1dd6b69f2d6c31de58efd91ddf" change="1552127019" id="F0001">
+        <rel type="Unknown"/>
+        <mother hlink="_e1dd3c1caf863ee0081cc2cc16f"/>
         <childref hlink="_e1dd3b41b052be747e10b86c4a" mrel="Unknown" frel="Unknown"/>
     </family>
 </families>
 """
         )
-        parents = [
-            ancestry[Person]["I0002"],
-            ancestry[Person]["I0003"],
-        ]
-        expected_children = [
-            ancestry[Person]["I0000"],
-            ancestry[Person]["I0001"],
-        ]
-        for parent in parents:
-            assert expected_children == list(parent.children)
+        father = ancestry[Person]["I0002"]
+        mother = ancestry[Person]["I0003"]
+        common_child = ancestry[Person]["I0000"]
+        mother_only_child = ancestry[Person]["I0001"]
+        assert list(father.children) == [common_child]
+        assert list(mother.children) == [common_child, mother_only_child]
 
     async def test_event_should_map_type(self) -> None:
         ancestry = await self._load_partial(

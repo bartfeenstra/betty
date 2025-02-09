@@ -673,7 +673,7 @@ class GrampsLoader:
             parent = self._handles_to_entities[parent_handle]
             assert isinstance(parent, Person)
             await self._load_eventrefs(parent, element)
-            parent.children = children
+            parent.children.add(*children)
 
     async def _load_eventrefs(
         self, person: Person, element: ElementTree.Element
