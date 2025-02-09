@@ -60,11 +60,11 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
         name=Demo.plugin_id(),
         license=PluginInstanceConfiguration("spdx-gpl-3--0-or-later"),
         title={
-            "en-US": "a Betty demonstration",
-            "de-DE": "eine Betty-Demonstration",
-            "fr-FR": "une démonstration de Betty",
-            "nl-NL": "een demonstratie van Betty",
-            "uk": "демонстрація Betty",
+            "en-US": "A Betty demonstration",
+            "de-DE": "Eine Betty-Demonstration",
+            "fr-FR": "Une démonstration de Betty",
+            "nl-NL": "Een demonstratie van Betty",
+            "uk": "Демонстрація Betty",
         },
         author={
             "en-US": "Bart Feenstra and contributors",
@@ -512,6 +512,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
         event_type=Birth(),
         date=DateRange(Date(1970, 1, 1), start_is_boundary=True),
         place=netherlands,
+        citations=[cite_first_person_account],
     )
     ancestry.add(birth_of_johan_de_boer)
 
