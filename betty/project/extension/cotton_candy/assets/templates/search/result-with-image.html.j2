@@ -4,9 +4,8 @@
         {% include ['entity/label--' + entity.plugin_id() + '.html.j2', 'entity/label.html.j2'] %}
         {% include ['entity/meta--' + entity.plugin_id() + '.html.j2', 'entity/meta.html.j2'] ignore missing %}
     </div>
-    {% set file_references = entity.file_references | selectattr('file', 'public') | list %}
-    {% if file_references | length > 0 %}
-        {% set image_reference = file_references | selectattr('file', 'public') | selectattr('file.media_type.type', 'eq', 'image') | first %}
+    {% set image_reference = entity.file_references | selectattr('file', 'public') | selectattr('file', 'public') | selectattr('file.media_type') | selectattr('file.media_type.type', 'eq', 'image') | first %}
+    {% if image_reference is defined %}
         <div class="search-result-preview">
             <img src="{{ image_reference | image_resize_cover((50, 50)) | static_url }}" class="image"{% if image_reference.file.description %} alt="{{ image_reference.file.description | localize }}"{% endif %}>
         </div>
