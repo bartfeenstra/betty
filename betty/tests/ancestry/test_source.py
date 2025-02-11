@@ -156,7 +156,7 @@ class TestSource(EntityTestBase):
 
     async def test_dump_linked_data_should_dump_full(self) -> None:
         link = Link("https://example.com/the-source")
-        link.label = "The Source Online"
+        link.label = "The Source Online"  # type: ignore[assignment]
         source = Source(
             id="the_source",
             name="The Source",
@@ -221,7 +221,7 @@ class TestSource(EntityTestBase):
 
     async def test_dump_linked_data_should_dump_private(self) -> None:
         link = Link("https://example.com/the-source")
-        link.label = "The Source Online"
+        link.label = "The Source Online"  # type: ignore[assignment]
         source = Source(
             id="the_source",
             name="The Source",

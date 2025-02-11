@@ -1026,7 +1026,7 @@ class GrampsLoader:
             link.relationship = "external"
             description = url_element.get("description")
             if description:
-                link.label = description
+                link.label = description  # type: ignore[assignment]
             owner.links.append(link)
 
     def _load_attribute_privacy(
@@ -1113,7 +1113,7 @@ class GrampsLoader:
                     element, tag, f"link-{link_name}:description"
                 )
             if "label" in link_attributes:
-                link.label = self._parse_attribute_static_translations(
+                link.label = self._parse_attribute_static_translations(  # type: ignore[assignment]
                     element, tag, f"link-{link_name}:label"
                 )
             if "locale" in link_attributes:

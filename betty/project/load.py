@@ -75,7 +75,7 @@ async def _fetch_link_title(fetcher: Fetcher, link: Link) -> None:
     document = parse(response.text)
     title = _extract_html_title(document)
     if title is not None:
-        link.label = title
+        link.label = title  # type: ignore[assignment]
     if not link.description:
         description = _extract_html_meta_description(document)
         if description is not None:
