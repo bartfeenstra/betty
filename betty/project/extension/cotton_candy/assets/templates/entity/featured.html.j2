@@ -16,7 +16,7 @@
 </div>
 
 {% if entity is has_file_references %}
-    {% set image_references = entity | associated_file_references | selectattr('file', 'public') | selectattr('file.media_type') | selectattr('file.media_type.type', 'eq', 'image') | list %}
+    {% set image_references = entity | associated_file_references | selectattr('file', 'public') | selectattr('file.media_type', 'image_supported_media_type') | list %}
     {% if image_references | length > 0 %}
         <div class="featured-entity-feature">
             <a href="{{ entity | localized_url }}" class="featured-entity-feature-link">

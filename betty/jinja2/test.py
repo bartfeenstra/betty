@@ -22,6 +22,7 @@ from betty.ancestry.presence_role.presence_roles import Subject, Witness
 from betty.copyright_notice import CopyrightNotice
 from betty.date import DateRange
 from betty.factory import IndependentFactory
+from betty.image import is_supported_media_type
 from betty.json.linked_data import LinkedDataDumpable
 from betty.license import License
 from betty.model import (
@@ -36,6 +37,7 @@ from betty.typing import internal
 from betty.warnings import deprecated
 
 if TYPE_CHECKING:
+    from betty.media_type import MediaType
     from betty.machine_name import MachineName
     from collections.abc import Mapping, Callable
     from betty.ancestry.event import Event
@@ -170,6 +172,15 @@ def test_end_of_life_event(event: Event) -> bool:
     return isinstance(event.event_type, EndOfLifeEventType)
 
 
+def test_image_supported_media_type(media_type: MediaType | None) -> bool:
+    """
+    Test if a media type is supported by the image API.
+    """
+    if media_type is None:
+        return False
+    return is_supported_media_type(media_type)
+
+
 @internal
 async def tests() -> Mapping[str, Callable[..., bool]]:
     """
@@ -182,6 +193,7 @@ async def tests() -> Mapping[str, Callable[..., bool]]:
         "has_file_references": test_has_file_references,
         "persistent_entity_id": persistent_id,
         "has_links": test_has_links,
+        "image_supported_media_type": test_image_supported_media_type,
         "linked_data_dumpable": test_linked_data_dumpable,
         "private": is_private,
         "public": is_public,

@@ -2,7 +2,7 @@
 {% set file = file | default(entity) %}
 {% set page_title = file.label | localize %}
 {% block page_content %}
-    {% if file.media_type and (file.media_type.type == 'image' or file.media_type | str == 'application/pdf') %}
+    {% if file.media_type is image_supported_media_type %}
         <div class="featured image">
             <a href="{{ file | file | static_url }}">
                 <img src="{{ file | image_resize_cover((1500, 1500)) | static_url }}"{% if file.description %} alt="{{ file.description | localize }}"{% endif %}>
