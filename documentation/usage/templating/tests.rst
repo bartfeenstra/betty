@@ -17,6 +17,7 @@ In addition to Jinja2's built-in tests, Betty provides the following:
 - :py:func:`gender_plugin <betty.jinja2.test.PluginTester.__call__>`
 - :py:func:`has_file_references <betty.jinja2.test.test_has_file_references>`
 - :py:func:`has_links <betty.jinja2.test.test_has_links>`
+- :py:func:`image_supported_media_type <betty.jinja2.test.test_image_supported_media_type>`
 - :py:func:`license_plugin <betty.jinja2.test.PluginTester.__call__>`
 - :py:func:`linked_data_dumpable <betty.jinja2.test.test_linked_data_dumpable>`
 - :py:func:`persistent_entity_id <betty.model.persistent_id>`

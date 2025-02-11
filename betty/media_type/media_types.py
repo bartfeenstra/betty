@@ -18,6 +18,10 @@ JSON = MediaType("application/json")
 JSON_LD = MediaType("application/ld+json")
 
 
+#: The media type for PDF documents.
+PDF = MediaType("application/pdf")
+
+
 #: The media type for plain text content.
 PLAIN_TEXT = MediaType("text/plain")
 

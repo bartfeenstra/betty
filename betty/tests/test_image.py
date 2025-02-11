@@ -4,7 +4,33 @@ import pytest
 from PIL import Image, ImageDraw, UnidentifiedImageError
 
 
-from betty.image import resize_cover, FocusArea, Size, Pixel, image_file_path_format
+from betty.image import (
+    resize_cover,
+    FocusArea,
+    Size,
+    Pixel,
+    image_file_path_format,
+    is_supported_media_type,
+)
+from betty.media_type import MediaType
+from betty.media_type.media_types import PDF, SVG
+
+
+class TestIsSupportedMediaType:
+    @pytest.mark.parametrize(
+        ("expected", "media_type"),
+        [
+            (True, PDF),
+            (True, SVG),
+            (True, MediaType("image/gif")),
+            (True, MediaType("image/jpeg")),
+            (True, MediaType("image/png")),
+            (False, MediaType("text/plain")),
+            (False, MediaType("application/json")),
+        ],
+    )
+    async def test(self, expected: bool, media_type: MediaType) -> None:
+        assert is_supported_media_type(media_type) == expected
 
 
 class TestImageFilePathFormat:

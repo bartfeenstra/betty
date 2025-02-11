@@ -21,6 +21,8 @@ from betty.ancestry.presence_role.presence_roles import (
 from betty.date import DateRange, Date
 from betty.jinja2.test import PluginTester
 from betty.json.linked_data import LinkedDataDumpableJsonLdObject
+from betty.media_type import MediaType
+from betty.media_type.media_types import PDF, SVG
 from betty.test_utils.ancestry.event_type import DummyEventType
 from betty.test_utils.jinja2 import TemplateStringTestBase
 from betty.test_utils.model import DummyUserFacingEntity
@@ -292,6 +294,33 @@ class TestTestUserFacingEntity(TemplateStringTestBase):
     )
     async def test(self, expected: str, data: Any) -> None:
         template = "{% if data is user_facing_entity %}true{% else %}false{% endif %}"
+        async with self.assert_template_string(
+            template=template,
+            data={
+                "data": data,
+            },
+        ) as (actual, _):
+            assert actual == expected
+
+
+class TestTestImageSupportedMediaType(TemplateStringTestBase):
+    @pytest.mark.parametrize(
+        ("expected", "data"),
+        [
+            ("true", PDF),
+            ("true", SVG),
+            ("true", MediaType("image/gif")),
+            ("true", MediaType("image/jpeg")),
+            ("true", MediaType("image/png")),
+            ("false", MediaType("text/plain")),
+            ("false", MediaType("application/json")),
+            ("false", None),
+        ],
+    )
+    async def test(self, expected: str, data: Any) -> None:
+        template = (
+            "{% if data is image_supported_media_type %}true{% else %}false{% endif %}"
+        )
         async with self.assert_template_string(
             template=template,
             data={

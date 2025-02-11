@@ -9,12 +9,26 @@ from typing import TypeAlias
 from PIL import UnidentifiedImageError
 from PIL.Image import Image, EXTENSION, preinit, init
 
+from betty.media_type import MediaType
+from betty.media_type.media_types import PDF
+
 Percentage: TypeAlias = int
 Pixel: TypeAlias = int
 OneDimensionalSize: TypeAlias = tuple[Pixel, None] | tuple[None, Pixel]
 TwoDimensionalSize: TypeAlias = tuple[Pixel, Pixel]
 Size: TypeAlias = OneDimensionalSize | TwoDimensionalSize
 FocusArea: TypeAlias = tuple[Percentage, Percentage, Percentage, Percentage]
+
+
+def is_supported_media_type(media_type: MediaType) -> bool:
+    """
+    Test if a media type is supported by the image API.
+    """
+    if media_type.type == "image":
+        return True
+    if media_type == PDF:
+        return True
+    return False
 
 
 def image_file_path_format(image_file_path: Path) -> str:
