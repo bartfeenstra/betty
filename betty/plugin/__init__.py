@@ -83,6 +83,7 @@ class Plugin(ABC):
 
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
+_PluginCoT = TypeVar("_PluginCoT", bound=Plugin, covariant=True)
 
 
 class OrderedPlugin(Generic[_PluginT], Plugin):
@@ -186,22 +187,24 @@ _PluginMixinTwoT = TypeVar("_PluginMixinTwoT")
 _PluginMixinThreeT = TypeVar("_PluginMixinThreeT")
 
 
-class PluginIdToTypeMapping(Generic[_PluginT]):
+class PluginIdToTypeMapping(Generic[_PluginCoT]):
     """
     Map plugin IDs to their types.
     """
 
-    def __init__(self, id_to_type_mapping: Mapping[MachineName, type[_PluginT]]):
+    def __init__(self, id_to_type_mapping: Mapping[MachineName, type[_PluginCoT]]):
         self._id_to_type_mapping = id_to_type_mapping
 
     @classmethod
-    async def new(cls, plugins: PluginRepository[_PluginT]) -> Self:
+    async def new(cls, plugins: PluginRepository[_PluginCoT]) -> Self:
         """
         Create a new instance.
         """
         return cls({plugin.plugin_id(): plugin async for plugin in plugins})
 
-    def get(self, plugin_identifier: MachineName | type[_PluginT]) -> type[_PluginT]:
+    def get(
+        self, plugin_identifier: MachineName | type[_PluginCoT]
+    ) -> type[_PluginCoT]:
         """
         Get the type for the given plugin identifier.
         """
@@ -215,8 +218,8 @@ class PluginIdToTypeMapping(Generic[_PluginT]):
             ) from None
 
     def __getitem__(
-        self, plugin_identifier: MachineName | type[_PluginT]
-    ) -> type[_PluginT]:
+        self, plugin_identifier: MachineName | type[_PluginCoT]
+    ) -> type[_PluginCoT]:
         return self.get(plugin_identifier)
 
     def __iter__(self) -> Iterator[MachineName]:
