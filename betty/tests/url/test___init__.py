@@ -4,11 +4,35 @@ from __future__ import annotations
 import pytest
 
 from betty.locale import DEFAULT_LOCALE, Localey
-from betty.url import generate_from_path
-from typing import TYPE_CHECKING
+from betty.media_type.media_types import HTML
+from betty.url import generate_from_path, PassthroughLocalizedUrlGenerator
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
+
+
+class TestPassthroughLocalizedUrlGenerator:
+    @pytest.mark.parametrize(
+        ("expected", "resource"),
+        [
+            (False, ""),
+            (False, "wwwexamplecom"),
+            (False, "www.example.com"),
+            (False, "http://["),
+            (True, "http://www.example.com"),
+            (True, "https://www.example.com"),
+            (True, "some-scheme://www.example.com"),
+        ],
+    )
+    async def test_supports(self, expected: bool, resource: Any) -> None:
+        sut = PassthroughLocalizedUrlGenerator()
+        assert sut.supports(resource) == expected
+
+    async def test_generate(self) -> None:
+        resource = "some-scheme://www.example.com"
+        sut = PassthroughLocalizedUrlGenerator()
+        assert sut.generate(resource, HTML) == resource
 
 
 class TestGenerateFromPath:

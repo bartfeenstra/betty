@@ -6,6 +6,9 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import Any, TYPE_CHECKING, Self
+from urllib.parse import urlparse
+
+from typing_extensions import override
 
 from betty.locale import negotiate_locale, Localey, to_locale
 
@@ -63,6 +66,33 @@ class LocalizedUrlGenerator(_UrlGenerator):
         :raise UnsupportedResource:
         """
         pass
+
+
+class PassthroughLocalizedUrlGenerator(LocalizedUrlGenerator):
+    """
+    Returns resources verbatim if they are absolute URLs already.
+    """
+
+    @override
+    def supports(self, resource: Any) -> bool:
+        if not isinstance(resource, str):
+            return False
+        try:
+            return bool(urlparse(resource).scheme)
+        except ValueError:
+            return False
+
+    @override
+    def generate(
+        self,
+        resource: Any,
+        media_type: MediaType,
+        *,
+        absolute: bool = False,
+        locale: Localey | None = None,
+    ) -> str:
+        assert isinstance(resource, str)
+        return resource
 
 
 class StaticUrlGenerator(_UrlGenerator):

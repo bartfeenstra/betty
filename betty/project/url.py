@@ -5,7 +5,7 @@ URL generators for project resources.
 from __future__ import annotations
 
 from typing import final, Any, Self, TYPE_CHECKING
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 
 from typing_extensions import override
 
@@ -17,18 +17,20 @@ from betty.url import (
     generate_from_path,
     LocalizedUrlGenerator as StdLocalizedUrlGenerator,
     StaticUrlGenerator as StdStaticUrlGenerator,
+    PassthroughLocalizedUrlGenerator,
 )
 from betty.url.proxy import ProxyLocalizedUrlGenerator
 from betty.model import Entity
 
 if TYPE_CHECKING:
+    from betty.ancestry import Ancestry
     from betty.media_type import MediaType
     from betty.project import Project
     from betty.locale import Localey
     from collections.abc import Mapping
 
 
-class _ProjectUrlGenerator:
+class _ProjectUrlGenerator(ProjectDependentFactory):
     def __init__(
         self,
         base_url: str,
@@ -42,6 +44,21 @@ class _ProjectUrlGenerator:
         assert len(locales)
         self._default_locale = next(iter(locales))
         self._clean_urls = clean_urls
+
+    @classmethod
+    async def new_for_project(cls, project: Project) -> Self:
+        """
+        Create a new instance using the given project.
+        """
+        return cls(
+            project.configuration.base_url,
+            project.configuration.root_path,
+            {
+                locale_configuration.locale: locale_configuration.alias
+                for locale_configuration in project.configuration.locales.values()
+            },
+            project.configuration.clean_urls,
+        )
 
     def _generate_from_path(
         self, path: str, *, absolute: bool = False, locale: Localey | None = None
@@ -85,25 +102,10 @@ class _LocalizedPathUrlGenerator(_ProjectUrlGenerator, StdLocalizedUrlGenerator)
 
 
 @final
-class StaticUrlGenerator(
-    ProjectDependentFactory, _ProjectUrlGenerator, StdStaticUrlGenerator
-):
+class StaticUrlGenerator(_ProjectUrlGenerator, StdStaticUrlGenerator):
     """
     Generate URLs for static (non-localized) file paths.
     """
-
-    @override
-    @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
-        return cls(
-            project.configuration.base_url,
-            project.configuration.root_path,
-            {
-                locale_configuration.locale: locale_configuration.alias
-                for locale_configuration in project.configuration.locales.values()
-            },
-            project.configuration.clean_urls,
-        )
 
     @override
     def supports(self, resource: Any) -> bool:
@@ -120,31 +122,19 @@ class StaticUrlGenerator(
         return self._generate_from_path(resource, absolute=absolute)
 
 
-class _EntityTypeDependentUrlGenerator(_ProjectUrlGenerator, StdLocalizedUrlGenerator):
-    _pattern: str
-
-    def __init__(
-        self,
-        base_url: str,
-        root_path: str,
-        locales: Mapping[str, str],
-        clean_urls: bool,
-    ):
-        super().__init__(base_url, root_path, locales, clean_urls)
-
-    def _get_extension_and_locale(
-        self, media_type: MediaType, *, locale: Localey | None
-    ) -> tuple[str, Localey | None]:
-        if media_type == HTML:
-            return "html", locale or self._default_locale
-        elif media_type in (JSON, JSON_LD):
-            return "json", None
-        else:
-            raise ValueError(f'Unknown entity media type "{media_type}".')
+def _get_extension_and_locale(
+    media_type: MediaType, default_locale: str, *, locale: Localey | None
+) -> tuple[str, Localey | None]:
+    if media_type == HTML:
+        return "html", locale or default_locale
+    elif media_type in (JSON, JSON_LD):
+        return "json", None
+    else:
+        raise ValueError(f'Unknown entity media type "{media_type}".')
 
 
 @final
-class _EntityTypeUrlGenerator(_EntityTypeDependentUrlGenerator):
+class _EntityTypeUrlGenerator(_ProjectUrlGenerator, StdLocalizedUrlGenerator):
     _pattern = "/{entity_type}/index.{extension}"
 
     @override
@@ -161,7 +151,9 @@ class _EntityTypeUrlGenerator(_EntityTypeDependentUrlGenerator):
         locale: Localey | None = None,
     ) -> str:
         assert self.supports(resource)
-        extension, locale = self._get_extension_and_locale(media_type, locale=locale)
+        extension, locale = _get_extension_and_locale(
+            media_type, self._default_locale, locale=locale
+        )
         return self._generate_from_path(
             self._pattern.format(
                 entity_type=camel_case_to_kebab_case(resource.plugin_id()),
@@ -173,7 +165,7 @@ class _EntityTypeUrlGenerator(_EntityTypeDependentUrlGenerator):
 
 
 @final
-class _EntityUrlGenerator(_EntityTypeDependentUrlGenerator):
+class _EntityUrlGenerator(_ProjectUrlGenerator, StdLocalizedUrlGenerator):
     _pattern = "/{entity_type}/{entity_id}/index.{extension}"
 
     @override
@@ -190,7 +182,9 @@ class _EntityUrlGenerator(_EntityTypeDependentUrlGenerator):
         locale: Localey | None = None,
     ) -> str:
         assert self.supports(resource)
-        extension, locale = self._get_extension_and_locale(media_type, locale=locale)
+        extension, locale = _get_extension_and_locale(
+            media_type, self._default_locale, locale=locale
+        )
         return self._generate_from_path(
             self._pattern.format(
                 entity_type=camel_case_to_kebab_case(resource.plugin_id()),
@@ -199,6 +193,45 @@ class _EntityUrlGenerator(_EntityTypeDependentUrlGenerator):
             ),
             absolute=absolute,
             locale=locale,
+        )
+
+
+class _EntityUrlUrlGenerator(StdLocalizedUrlGenerator):
+    def __init__(self, ancestry: Ancestry, entity_url_generator: _EntityUrlGenerator):
+        self._ancestry = ancestry
+        self._entity_url_generator = entity_url_generator
+
+    @override
+    def supports(self, resource: Any) -> bool:
+        if not isinstance(resource, str):
+            return False
+        try:
+            parsed_url = urlparse(resource)
+        except ValueError:
+            return False
+        if parsed_url.scheme != "betty-entity":
+            return False
+        if not parsed_url.netloc:
+            return False
+        if not len(parsed_url.path) >= 2:
+            return False
+        return True
+
+    @override
+    def generate(
+        self,
+        resource: str,
+        media_type: MediaType,
+        *,
+        absolute: bool = False,
+        locale: Localey | None = None,
+    ) -> str:
+        parsed_url = urlparse(resource)
+        entity_type_id = parsed_url.netloc
+        entity_id = parsed_url.path[1:]
+        entity = self._ancestry[entity_type_id][entity_id]
+        return self._entity_url_generator.generate(
+            entity, media_type, absolute=absolute, locale=locale
         )
 
 
@@ -218,19 +251,13 @@ class LocalizedUrlGenerator(StdLocalizedUrlGenerator, ProjectDependentFactory):
     @override
     @classmethod
     async def new_for_project(cls, project: Project) -> Self:
-        args = (
-            project.configuration.base_url,
-            project.configuration.root_path,
-            {
-                locale_configuration.locale: locale_configuration.alias
-                for locale_configuration in project.configuration.locales.values()
-            },
-            project.configuration.clean_urls,
-        )
+        entity_url_generator = await _EntityUrlGenerator.new_for_project(project)
         return cls(
-            _EntityTypeUrlGenerator(*args),
-            _EntityUrlGenerator(*args),
-            _LocalizedPathUrlGenerator(*args),
+            await _EntityTypeUrlGenerator.new_for_project(project),
+            entity_url_generator,
+            _EntityUrlUrlGenerator(project.ancestry, entity_url_generator),
+            await _LocalizedPathUrlGenerator.new_for_project(project),
+            PassthroughLocalizedUrlGenerator(),
         )
 
     @override
