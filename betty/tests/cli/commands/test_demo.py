@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pytest_mock import MockerFixture
 
 from betty.app import App
@@ -13,3 +15,18 @@ class TestDemo:
         mocker.patch("betty.project.extension.demo.serve.DemoServer", new=NoOpServer)
 
         await run(new_temporary_app, "demo", expected_exit_code=1)
+
+    async def test_click_command_with_path(
+        self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
+    ) -> None:
+        m_load = mocker.patch("betty.project.load.load")
+        m_generate_with_cleanup = mocker.patch(
+            "betty.project.extension.demo.generate_with_cleanup"
+        )
+
+        project_directory_path = tmp_path / "project"
+
+        await run(new_temporary_app, "demo", "--path", str(project_directory_path))
+
+        m_load.assert_called_once()
+        m_generate_with_cleanup.assert_called_once()

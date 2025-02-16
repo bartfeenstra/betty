@@ -4,18 +4,16 @@ Tools to serve demonstration sites.
 
 from __future__ import annotations
 
-from asyncio import to_thread
 from contextlib import AsyncExitStack
-from shutil import rmtree
 from typing import final, TYPE_CHECKING
-
-from typing_extensions import override
 
 from betty import serve
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.project import load, generate
+from betty.project.extension.demo import generate_with_cleanup
 from betty.project.extension.demo.project import create_project
+from betty.project.load import load
 from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -46,14 +44,8 @@ class DemoServer(Server):
         project = await create_project(self._app, project_directory_path)
         await self._exit_stack.enter_async_context(project)
         try:
-            await load.load(project)
-            if not project_directory_path.is_dir():
-                try:
-                    await generate.generate(project)
-                except BaseException:
-                    # Ensure that we never leave a partial build.
-                    await to_thread(rmtree, project_directory_path)
-                    raise
+            await load(project)
+            await generate_with_cleanup(project)
             self._server = await serve.BuiltinProjectServer.new_for_project(project)
             await self._exit_stack.enter_async_context(self._server)
         except BaseException:

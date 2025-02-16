@@ -75,6 +75,9 @@ Explore a Betty demonstration site
       -v, --verbose         Show verbose output, including informative log messages.
       -vv, --more-verbose   Show more verbose output, including debug log messages.
       -vvv, --most-verbose  Show most verbose output, including all log messages.
+      --path TEXT           The path to the project directory to generate the
+                            demonstration site into instead of serving the site in a
+                            browser window.
       --help                Show this message and exit.
 
 
