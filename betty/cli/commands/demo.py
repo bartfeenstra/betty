@@ -1,17 +1,20 @@
 from __future__ import annotations  # noqa D100
 
 import asyncio
+from pathlib import Path
 from typing import TYPE_CHECKING, final, Self
 
-from typing_extensions import override
-
+import asyncclick as click
 from betty.app.factory import AppDependentFactory
 from betty.cli.commands import command, Command
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
+import betty.project.extension.demo as stddemo
+from betty.project import load
+from betty.project.extension.demo.project import create_project
+from typing_extensions import override
 
 if TYPE_CHECKING:
-    import asyncclick as click
     from betty.app import App
 
 
@@ -44,12 +47,23 @@ class Demo(ShorthandPluginBase, AppDependentFactory, Command):
             if description
             else self.plugin_label().localize(localizer),
         )
-        async def demo() -> None:
+        @click.option(
+            "--path",
+            "path",
+            help="The path to the project directory to generate the demonstration site into instead of serving the site in a browser window.",
+        )
+        async def demo(*, path: str | None) -> None:
             from betty.project.extension.demo.serve import DemoServer
 
-            async with DemoServer(app=self._app) as server:
-                await server.show()
-                while True:
-                    await asyncio.sleep(999)
+            if path is None:
+                async with DemoServer(app=self._app) as server:
+                    await server.show()
+                    while True:
+                        await asyncio.sleep(999)
+            else:
+                project = await create_project(self._app, Path(path))
+                async with project:
+                    await load.load(project)
+                    await stddemo.generate_with_cleanup(project)
 
         return demo

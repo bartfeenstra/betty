@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from typing_extensions import override
-
+import pytest
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.person import Person
@@ -11,14 +10,50 @@ from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.app import App
 from betty.project import Project
-from betty.project.extension.demo import Demo
+from betty.project.extension.demo import Demo, generate_with_cleanup
 from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase
 from betty.test_utils.project.extension.demo.project import demo_project_fetcher  # noqa F401
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.fetch import Fetcher
     from pytest_mock import MockerFixture
+
+
+class TestGenerateWithCleanup:
+    async def test_without_error(
+        self, mocker: MockerFixture, new_temporary_app: App
+    ) -> None:
+        async def _generate(project: Project) -> None:
+            project.configuration.output_directory_path.mkdir(parents=True)
+
+        m_generate = mocker.patch("betty.project.generate.generate")
+        m_generate.side_effect = _generate
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            (project.configuration.project_directory_path / "sentinel").touch()
+            await generate_with_cleanup(project)
+            assert project.configuration.project_directory_path.is_dir()
+            assert project.configuration.output_directory_path.is_dir()
+            assert not (
+                project.configuration.project_directory_path / "sentinel"
+            ).exists()
+
+    async def test_with_error(
+        self, mocker: MockerFixture, new_temporary_app: App
+    ) -> None:
+        error_message = "generation error"
+
+        async def _generate(project: Project) -> None:
+            project.configuration.output_directory_path.mkdir(parents=True)
+            raise RuntimeError(error_message)
+
+        m_generate = mocker.patch("betty.project.generate.generate")
+        m_generate.side_effect = _generate
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            with pytest.raises(RuntimeError, match=error_message):
+                await generate_with_cleanup(project)
+            assert not project.configuration.project_directory_path.exists()
 
 
 class TestDemo(ExtensionTestBase[Demo]):
