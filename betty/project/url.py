@@ -235,6 +235,70 @@ class _EntityUrlUrlGenerator(StdLocalizedUrlGenerator):
         )
 
 
+class _LocalizedPathUrlUrlGenerator(_ProjectUrlGenerator, StdLocalizedUrlGenerator):
+    @override
+    def supports(self, resource: Any) -> bool:
+        if not isinstance(resource, str):
+            return False
+        try:
+            parsed_url = urlparse(resource)
+        except ValueError:
+            return False
+        if parsed_url.scheme != "betty":
+            return False
+        if not parsed_url.netloc and not parsed_url.path:
+            return False
+        return True
+
+    @override
+    def generate(
+        self,
+        resource: str,
+        media_type: MediaType,
+        *,
+        absolute: bool = False,
+        locale: Localey | None = None,
+    ) -> str:
+        assert self.supports(resource)
+        parsed_url = urlparse(resource)
+        url_path = "/" + (parsed_url.netloc + parsed_url.path).lstrip("/")
+        return self._generate_from_path(
+            url_path,
+            absolute=absolute,
+            locale=locale or self._default_locale,
+        )
+
+
+class _StaticPathUrlUrlGenerator(_ProjectUrlGenerator, StdLocalizedUrlGenerator):
+    @override
+    def supports(self, resource: Any) -> bool:
+        if not isinstance(resource, str):
+            return False
+        try:
+            parsed_url = urlparse(resource)
+        except ValueError:
+            return False
+        if parsed_url.scheme != "betty-static":
+            return False
+        if not parsed_url.netloc and not parsed_url.path:
+            return False
+        return True
+
+    @override
+    def generate(
+        self,
+        resource: str,
+        media_type: MediaType,
+        *,
+        absolute: bool = False,
+        locale: Localey | None = None,
+    ) -> str:
+        assert self.supports(resource)
+        parsed_url = urlparse(resource)
+        url_path = "/" + (parsed_url.netloc + parsed_url.path).lstrip("/")
+        return self._generate_from_path(url_path, absolute=absolute)
+
+
 @final
 class LocalizedUrlGenerator(StdLocalizedUrlGenerator, ProjectDependentFactory):
     """
@@ -256,6 +320,8 @@ class LocalizedUrlGenerator(StdLocalizedUrlGenerator, ProjectDependentFactory):
             await _EntityTypeUrlGenerator.new_for_project(project),
             entity_url_generator,
             _EntityUrlUrlGenerator(project.ancestry, entity_url_generator),
+            await _LocalizedPathUrlUrlGenerator.new_for_project(project),
+            await _StaticPathUrlUrlGenerator.new_for_project(project),
             await _LocalizedPathUrlGenerator.new_for_project(project),
             PassthroughLocalizedUrlGenerator(),
         )
