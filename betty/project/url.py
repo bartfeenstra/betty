@@ -102,7 +102,7 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
 
     def _generate_from_entity_type(
         self,
-        entity: Entity,
+        entity_type: type[Entity],
         pattern: str,
         *,
         media_type: MediaType | None,
@@ -110,13 +110,13 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
         absolute: bool,
     ) -> str:
         if media_type not in [HTML, JSON_LD, JSON]:
-            raise InvalidMediaType.new(entity, media_type)
+            raise InvalidMediaType.new(entity_type, media_type)
         extension, locale = _get_extension_and_locale(
             media_type, self._default_locale, locale=locale
         )
         return self._generate_from_path(
             pattern.format(
-                entity_type=camel_case_to_kebab_case(entity.plugin_id()),
+                entity_type=camel_case_to_kebab_case(entity_type.plugin_id()),
                 extension=extension,
             ),
             absolute=absolute,
@@ -213,7 +213,7 @@ class _EntityTypeUrlGenerator(__EntityTypeUrlGenerator, UrlGenerator):
     @override
     def generate(
         self,
-        resource: Entity,
+        resource: type[Entity],
         *,
         media_type: MediaType | None = None,
         absolute: bool = False,
@@ -236,7 +236,7 @@ class _EntityTypeLocalizedUrlGenerator(
     @override
     def generate(
         self,
-        resource: Entity,
+        resource: type[Entity],
         media_type: MediaType,
         *,
         absolute: bool = False,
