@@ -52,6 +52,7 @@ class MissingReason(Enum):
     ENUM = "This testable is inherited from Enum"
     TYPED_DICT = "This testable is inherited from TypedDict"
     PROTOCOL = "This testable is a Protocol"
+    INHERITED = "This testable is inherited"
 
 
 _ModuleFunctionExistsIgnore: TypeAlias = None
@@ -380,6 +381,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "LoadAncestryEvent": MissingReason.STATIC_CONTENT_ONLY,
         "PostLoadAncestryEvent": MissingReason.STATIC_CONTENT_ONLY,
     },
+    "betty/project/url.py": {
+        "LocalizedUrlGenerator": {
+            "__init_subclass__": MissingReason.INHERITED,
+        },
+        "StaticUrlGenerator": {
+            "__init_subclass__": MissingReason.INHERITED,
+        },
+    },
     "betty/render.py": {
         "Renderer": MissingReason.ABSTRACT,
     },
@@ -425,9 +434,17 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Void": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/url/__init__.py": {
+        "GenerationError": MissingReason.ABSTRACT,
+        "InvalidMediaType": MissingReason.STATIC_CONTENT_ONLY,
         "LocalizedUrlGenerator": MissingReason.ABSTRACT,
         "StaticUrlGenerator": MissingReason.ABSTRACT,
         "UnsupportedResource": MissingReason.STATIC_CONTENT_ONLY,
+        "UrlGenerator": MissingReason.ABSTRACT,
+    },
+    "betty/url/proxy.py": {
+        "ProxyLocalizedUrlGenerator": {
+            "__init_subclass__": MissingReason.INHERITED,
+        },
     },
     "betty/warnings.py": {
         "BettyDeprecationWarning": MissingReason.STATIC_CONTENT_ONLY,

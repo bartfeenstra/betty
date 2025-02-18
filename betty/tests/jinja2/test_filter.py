@@ -26,7 +26,9 @@ from betty.media_type.media_types import SVG
 from betty.test_utils.ancestry.date import DummyHasDate
 from betty.test_utils.jinja2 import TemplateStringTestBase
 from betty.test_utils.locale.localized import DummyLocalized
+from betty.test_utils.model import DummyEntity
 from betty.tests.ancestry.test___init__ import DummyHasFileReferences
+from betty.warnings import BettyDeprecationWarning
 
 if TYPE_CHECKING:
     from collections.abc import Sequence, MutableMapping
@@ -680,6 +682,27 @@ class TestFilterLocalize(TemplateStringTestBase):
             assert actual == "Hello, world!"
 
 
+class TestFilterUrl(TemplateStringTestBase):
+    @pytest.mark.parametrize(
+        ("expected", "data", "absolute"),
+        [
+            ("/index.html", "betty:///index.html", False),
+            ("/index.html", "betty-static:///index.html", False),
+            ("https://example.com/dummy-entity/E0/index.html", DummyEntity("E0"), True),
+        ],
+    )
+    async def test(self, expected: str, data: Any, absolute: bool) -> None:
+        template = "{{ data | url(absolute=absolute) }}"
+        async with self.assert_template_string(
+            template=template,
+            data={
+                "data": data,
+                "absolute": absolute,
+            },
+        ) as (actual, _):
+            assert actual == expected
+
+
 class TestFilterLocalizedUrl(TemplateStringTestBase):
     @pytest.mark.parametrize(
         ("expected", "data", "absolute"),
@@ -690,14 +713,15 @@ class TestFilterLocalizedUrl(TemplateStringTestBase):
     )
     async def test(self, expected: str, data: Any, absolute: bool) -> None:
         template = "{{ data | localized_url(absolute=absolute) }}"
-        async with self.assert_template_string(
-            template=template,
-            data={
-                "data": data,
-                "absolute": absolute,
-            },
-        ) as (actual, _):
-            assert actual == expected
+        with pytest.warns(BettyDeprecationWarning):
+            async with self.assert_template_string(
+                template=template,
+                data={
+                    "data": data,
+                    "absolute": absolute,
+                },
+            ) as (actual, _):
+                assert actual == expected
 
 
 class TestFilterNegotiateHasDates(TemplateStringTestBase):
@@ -827,11 +851,12 @@ class TestFilterStaticUrl(TemplateStringTestBase):
     )
     async def test(self, expected: str, data: Any, absolute: bool) -> None:
         template = "{{ data | static_url(absolute=absolute) }}"
-        async with self.assert_template_string(
-            template=template,
-            data={
-                "data": data,
-                "absolute": absolute,
-            },
-        ) as (actual, _):
-            assert actual == expected
+        with pytest.warns(BettyDeprecationWarning):
+            async with self.assert_template_string(
+                template=template,
+                data={
+                    "data": data,
+                    "absolute": absolute,
+                },
+            ) as (actual, _):
+                assert actual == expected

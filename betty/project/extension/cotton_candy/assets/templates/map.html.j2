@@ -1,7 +1,7 @@
 {% set places = places | select('public') | rejectattr('coordinates', 'none') | list %}
 {% set ns = namespace(place_urls=[]) %}
 {% for place in places %}
-    {% do ns.place_urls.append((place | localized_url, place.coordinates.latitude, place.coordinates.longitude, place.label | localize)) %}
+    {% do ns.place_urls.append((place | url, place.coordinates.latitude, place.coordinates.longitude, place.label | localize)) %}
 {% endfor %}
 <div{% if featured %} class="featured"{% endif %}>
     <div class="map" data-betty-places="{{ ns.place_urls | json }}">

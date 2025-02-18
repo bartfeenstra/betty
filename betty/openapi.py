@@ -26,12 +26,12 @@ class Specification:
         """
         Build the OpenAPI specification.
         """
-        static_url_generator = await self._project.static_url_generator
+        url_generator = await self._project.url_generator
         specification: DumpMapping[Dump] = {
             "openapi": "3.1.0",
             "servers": [
                 {
-                    "url": static_url_generator.generate("/", absolute=True),
+                    "url": url_generator.generate("betty-static:///", absolute=True),
                 }
             ],
             "info": {

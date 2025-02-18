@@ -15,7 +15,7 @@ class Test(TemplateFileTestBase):
         async with self.assert_template_file(
             data={
                 "citer": citer,
-                "page_resource": "/",
+                "page_resource": "betty:///",
             }
         ) as (actual, _):
             assert actual == ""
@@ -32,7 +32,7 @@ class Test(TemplateFileTestBase):
         async with self.assert_template_file(
             data={
                 "citer": citer,
-                "page_resource": "/",
+                "page_resource": "betty:///",
             }
         ) as (actual, _):
             assert 'href="/citation/C1/index.html"' in actual
@@ -49,7 +49,7 @@ class Test(TemplateFileTestBase):
         async with self.assert_template_file(
             data={
                 "citer": citer,
-                "page_resource": "/",
+                "page_resource": "betty:///",
             }
         ) as (actual, _):
             assert (

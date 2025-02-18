@@ -128,9 +128,9 @@ class Entity(LinkedDataDumpableJsonLdObject, Plugin):
         dump = await super().dump_linked_data(project)
 
         if persistent_id(self) and isinstance(self, UserFacingEntity):
-            static_url_generator = await project.static_url_generator
-            dump["@id"] = static_url_generator.generate(
-                f"/{self.type.plugin_id()}/{self.id}/index.json",
+            url_generator = await project.url_generator
+            dump["@id"] = url_generator.generate(
+                f"betty-static:///{self.type.plugin_id()}/{self.id}/index.json",
                 absolute=True,
             )
         dump["id"] = self.id

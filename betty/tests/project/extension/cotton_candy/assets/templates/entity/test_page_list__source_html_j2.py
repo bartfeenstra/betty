@@ -10,7 +10,7 @@ class TestTemplate(TemplateFileTestBase):
     async def test_without_entities(self) -> None:
         async with self.assert_template_file(
             data={
-                "page_resource": f"/{Source.plugin_id()}/index.html",
+                "page_resource": f"betty:///{Source.plugin_id()}/index.html",
                 "entity_type": Source,
                 "entities": [],
             },
@@ -22,7 +22,7 @@ class TestTemplate(TemplateFileTestBase):
 
         async with self.assert_template_file(
             data={
-                "page_resource": f"/{Source.plugin_id()}/index.html",
+                "page_resource": f"betty:///{Source.plugin_id()}/index.html",
                 "entity_type": Source,
                 "entities": [source],
             },
@@ -34,7 +34,7 @@ class TestTemplate(TemplateFileTestBase):
 
         async with self.assert_template_file(
             data={
-                "page_resource": f"/{Source.plugin_id()}/index.html",
+                "page_resource": f"betty:///{Source.plugin_id()}/index.html",
                 "entity_type": Source,
                 "entities": [source],
             },

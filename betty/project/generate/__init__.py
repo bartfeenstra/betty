@@ -358,7 +358,7 @@ async def _generate_entity_type_list_html(
     rendered_html = await template.render_async(
         job_context=job_context,
         localizer=await app.localizers.get(locale),
-        page_resource=f"/{entity_type.plugin_id()}/index.html",
+        page_resource=entity_type,
         entity_type=entity_type,
         entities=project.ancestry[entity_type],
     )
@@ -371,8 +371,7 @@ async def _generate_entity_type_list_json(
     entity_type: type[Entity],
 ) -> None:
     project = job_context.project
-    await project.static_url_generator
-    localized_url_generator = await project.localized_url_generator
+    url_generator = await project.url_generator
     entity_type_path = (
         project.configuration.www_directory_path / entity_type.plugin_id()
     )
@@ -385,9 +384,9 @@ async def _generate_entity_type_list_json(
     }
     for entity in project.ancestry[entity_type]:
         cast(MutableSequence[str], data["collection"]).append(
-            localized_url_generator.generate(
+            url_generator.generate(
                 entity,
-                JSON,
+                media_type=JSON,
                 absolute=True,
             )
         )
@@ -449,10 +448,10 @@ async def _generate_robots_txt(
     job_context: ProjectContext,
 ) -> None:
     project = job_context.project
-    static_url_generator = await project.static_url_generator
+    url_generator = await project.url_generator
     rendered_robots_txt = _ROBOTS_TXT_TEMPLATE.replace(
         "{{{ sitemap }}}",
-        static_url_generator.generate("/sitemap.xml", absolute=True),
+        url_generator.generate("betty-static:///sitemap.xml", absolute=True),
     )
     await to_thread(
         project.configuration.www_directory_path.mkdir,
@@ -496,8 +495,7 @@ async def _generate_sitemap(
     job_context: ProjectContext,
 ) -> None:
     project = job_context.project
-    static_url_generator = await project.static_url_generator
-    localized_url_generator = await project.localized_url_generator
+    url_generator = await project.url_generator
     sitemap_batches = []
     sitemap_batch_urls: MutableSequence[str] = []
     sitemap_batch_urls_length = 0
@@ -510,7 +508,7 @@ async def _generate_sitemap(
                 continue
 
             sitemap_batch_urls.append(
-                localized_url_generator.generate(
+                url_generator.generate(
                     entity,
                     absolute=True,
                     locale=locale,
@@ -527,8 +525,8 @@ async def _generate_sitemap(
     sitemap_urls = []
     for sitemap_batch_index, sitemap_batch_urls in enumerate(sitemap_batches):
         sitemap_urls.append(
-            static_url_generator.generate(
-                f"/sitemap-{sitemap_batch_index}.xml",
+            url_generator.generate(
+                f"betty-static:///sitemap-{sitemap_batch_index}.xml",
                 absolute=True,
             )
         )

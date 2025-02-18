@@ -107,7 +107,7 @@ class TestJinja2Renderer(PluginTestBase[Jinja2Renderer]):
             async with aiofiles.open(
                 project.configuration.www_directory_path / "betty.html"
             ) as f:
-                assert (await f.read()).strip() == "/betty.html"
+                assert (await f.read()).strip() == "betty:///betty.html"
             assert not template_file_path.exists()
 
     async def test_render_file_in_www_directory_multilingual_with_static_resource(
@@ -128,7 +128,7 @@ class TestJinja2Renderer(PluginTestBase[Jinja2Renderer]):
                 async with aiofiles.open(
                     project.configuration.www_directory_path / "betty.html"
                 ) as f:
-                    assert (await f.read()).strip() == "/betty.html"
+                    assert (await f.read()).strip() == "betty:///betty.html"
                 assert not template_file_path.exists()
 
     async def test_render_file_in_www_directory_multilingual_with_localized_resource(
@@ -156,7 +156,7 @@ class TestJinja2Renderer(PluginTestBase[Jinja2Renderer]):
                     / locale_alias
                     / "betty.html"
                 ) as f:
-                    assert (await f.read()).strip() == "/betty.html"
+                    assert (await f.read()).strip() == "betty:///betty.html"
                 assert not template_file_path.exists()
 
     async def test_file_extensions(self, new_temporary_app: App) -> None:

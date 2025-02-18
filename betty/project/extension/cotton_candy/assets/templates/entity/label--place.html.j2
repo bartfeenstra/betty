@@ -12,7 +12,7 @@
     {%- endif -%}
 
     {%- if not embedded -%}
-        <a href="{{ place | localized_url }}">
+        <a href="{{ place | url }}">
     {%- endif -%}
     {{ name | localize | html_lang }}
     {%- if not embedded -%}

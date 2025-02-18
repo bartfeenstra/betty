@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from typing import Any, TYPE_CHECKING, Self
 from urllib.parse import urlparse
 
-from typing_extensions import override
+from typing_extensions import override, deprecated
 
 from betty.locale import negotiate_locale, Localey, to_locale
 
@@ -17,7 +17,15 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
 
-class UnsupportedResource(RuntimeError):
+class GenerationError(RuntimeError):
+    """
+    A URL generation error.
+    """
+
+    pass
+
+
+class UnsupportedResource(GenerationError):
     """
     Raised when a URL generator cannot generate a URL for a resource.
 
@@ -33,6 +41,21 @@ class UnsupportedResource(RuntimeError):
         return cls(f"Unsupported resource: {resource}")
 
 
+class InvalidMediaType(GenerationError):
+    """
+    Raised when a URL generator cannot generate a URL for a resource with the given media type.
+    """
+
+    @classmethod
+    def new(cls, resource: Any, media_type: MediaType | None) -> Self:
+        """
+        Create a new instance.
+        """
+        if media_type:
+            return cls(f"Unsupported media type '{media_type}' for resource {resource}")
+        return cls(f"Missing media type for resource {resource}")
+
+
 class _UrlGenerator(ABC):
     """
     Generate URLs for localizable resources.
@@ -46,6 +69,32 @@ class _UrlGenerator(ABC):
         pass
 
 
+class UrlGenerator(_UrlGenerator):
+    """
+    Generate URLs for resources.
+    """
+
+    @abstractmethod
+    def generate(
+        self,
+        resource: Any,
+        *,
+        media_type: MediaType | None = None,
+        absolute: bool = False,
+        locale: Localey | None = None,
+    ) -> str:
+        """
+        Generate a URL for a resource.
+
+        :raise UnsupportedResource:
+        :raise InvalidMediaType:
+        """
+        pass
+
+
+@deprecated(
+    f"This class has been deprecated since Betty 0.4.8, and will be removed in Betty 0.5. Instead use {UrlGenerator}."
+)
 class LocalizedUrlGenerator(_UrlGenerator):
     """
     Generate URLs for localizable resources.
@@ -61,14 +110,15 @@ class LocalizedUrlGenerator(_UrlGenerator):
         locale: Localey | None = None,
     ) -> str:
         """
-        Generate a localized URL for a localizable resource.
+        Generate a URL for a resource.
 
         :raise UnsupportedResource:
+        :raise InvalidMediaType:
         """
         pass
 
 
-class PassthroughLocalizedUrlGenerator(LocalizedUrlGenerator):
+class PassthroughUrlGenerator(UrlGenerator):
     """
     Returns resources verbatim if they are absolute URLs already.
     """
@@ -86,8 +136,8 @@ class PassthroughLocalizedUrlGenerator(LocalizedUrlGenerator):
     def generate(
         self,
         resource: Any,
-        media_type: MediaType,
         *,
+        media_type: MediaType | None = None,
         absolute: bool = False,
         locale: Localey | None = None,
     ) -> str:
@@ -95,6 +145,9 @@ class PassthroughLocalizedUrlGenerator(LocalizedUrlGenerator):
         return resource
 
 
+@deprecated(
+    f"This class has been deprecated since Betty 0.4.8, and will be removed in Betty 0.5. Instead use {UrlGenerator}."
+)
 class StaticUrlGenerator(_UrlGenerator):
     """
     Generate URLs for static (non-localizable) resources.
@@ -111,6 +164,7 @@ class StaticUrlGenerator(_UrlGenerator):
         Generate a static URL for a static resource.
 
         :raise UnsupportedResource:
+        :raise InvalidMediaType:
         """
         pass
 
