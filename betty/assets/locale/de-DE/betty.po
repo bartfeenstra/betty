@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-02-02 10:13+0000\n"
+"POT-Creation-Date: 2025-02-18 17:46+0000\n"
 "PO-Revision-Date: 2024-11-29 18:58+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -513,6 +513,9 @@ msgstr ""
 msgid "Files"
 msgstr "Dateien"
 
+msgid "Find Betty on Github"
+msgstr ""
+
 msgid "Find out more about this image on Wikimedia Commons."
 msgstr "Mehr über dieses Bild erfährst du auf Wikimedia Commons."
 
@@ -816,6 +819,9 @@ msgstr ""
 
 msgid "Read more on Wikipedia."
 msgstr "Lies mehr auf Wikipedia."
+
+msgid "Read the Betty documentation"
+msgstr ""
 
 msgid "References"
 msgstr "Referenzen"

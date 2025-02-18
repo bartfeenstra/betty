@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-02-02 10:13+0000\n"
+"POT-Creation-Date: 2025-02-18 17:46+0000\n"
 "PO-Revision-Date: 2024-12-08 20:00+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -538,6 +538,9 @@ msgstr "Bestandsverwijzingen"
 msgid "Files"
 msgstr "Bestanden"
 
+msgid "Find Betty on Github"
+msgstr ""
+
 msgid "Find out more about this image on Wikimedia Commons."
 msgstr "Vind meer informatie over deze afbeelding op Wikimedia Commons."
 
@@ -852,6 +855,9 @@ msgstr "Publiek domein"
 
 msgid "Read more on Wikipedia."
 msgstr "Lees meer op Wikipedia."
+
+msgid "Read the Betty documentation"
+msgstr ""
 
 msgid "References"
 msgstr "Referenties"

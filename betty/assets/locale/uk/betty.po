@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-02-02 10:13+0000\n"
+"POT-Creation-Date: 2025-02-18 17:46+0000\n"
 "PO-Revision-Date: 2024-11-30 19:00+0000\n"
 "Last-Translator: Illia Maier <Illia-M@users.noreply.hosted.weblate.org>\n"
 "Language: uk\n"
@@ -538,6 +538,9 @@ msgstr "Посилання на файли"
 msgid "Files"
 msgstr "Файли"
 
+msgid "Find Betty on Github"
+msgstr ""
+
 msgid "Find out more about this image on Wikimedia Commons."
 msgstr "Дізнайтеся більше про це зображення на Wikimedia Commons."
 
@@ -852,6 +855,9 @@ msgstr "Публічний домен"
 
 msgid "Read more on Wikipedia."
 msgstr "Детальніше читайте у Вікіпедії."
+
+msgid "Read the Betty documentation"
+msgstr ""
 
 msgid "References"
 msgstr "Референції"
