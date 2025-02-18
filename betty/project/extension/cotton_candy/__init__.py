@@ -90,10 +90,10 @@ class CottonCandy(
     @override
     @classmethod
     async def new_for_project(cls, project: Project) -> Self:
-        static_url_generator = await project.static_url_generator
+        url_generator = await project.url_generator
         return cls(
             project,
-            [static_url_generator.generate("/css/cotton-candy.css")],
+            [url_generator.generate("betty-static:///css/cotton-candy.css")],
             configuration=cls.new_default_configuration(),
         )
 

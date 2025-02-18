@@ -20,8 +20,10 @@ from betty.project.url import (
     _EntityUrlUrlGenerator,
     _StaticPathUrlUrlGenerator,
     _LocalizedPathUrlUrlGenerator,
+    new_project_url_generator,
 )
 from betty.test_utils.model import DummyEntity
+from betty.warnings import BettyDeprecationWarning
 
 
 class Test_EntityUrlUrlGenerator:
@@ -69,14 +71,14 @@ class Test_EntityUrlUrlGenerator:
         assert (
             sut.generate(
                 f"betty-entity://{DummyEntity.plugin_id()}/{self._ENTITY_ID}",
-                HTML,
+                media_type=HTML,
                 absolute=True,
                 locale=locale,
             )
             == url
         )
         m_entity_url_generator.generate.assert_called_once_with(
-            entity, HTML, absolute=True, locale=locale
+            entity, media_type=HTML, absolute=True, locale=locale
         )
 
 
@@ -187,7 +189,7 @@ class Test_LocalizedPathUrlUrlGenerator:
                 assert (
                     sut.generate(
                         resource,
-                        media_type,
+                        media_type=media_type,
                         absolute=absolute,
                         locale=locale,
                     )
@@ -282,7 +284,125 @@ class Test_StaticPathUrlUrlGenerator:
                 assert (
                     sut.generate(
                         resource,
-                        media_type,
+                        media_type=media_type,
+                        absolute=absolute,
+                        locale=locale,
+                    )
+                    == expected
+                )
+
+
+class TestNewProjectUrlGenerator:
+    @pytest.mark.parametrize(
+        ("expected", "resource"),
+        [
+            (True, DummyEntity()),
+            (True, "betty://some/path/index.html"),
+            (True, "betty:///some/path/index.html"),
+            (True, "betty-static://some/path/index.html"),
+            (True, "betty-static:///some/path/index.html"),
+            (False, ""),
+            (False, "/"),
+            (False, "index.html"),
+            (False, "example"),
+            (False, "/example"),
+            (False, "example/"),
+            (False, "/example/"),
+            (False, "example/index.html"),
+            (False, "/example/index.html"),
+            (False, object()),
+        ],
+    )
+    async def test_supports(
+        self,
+        expected: bool,
+        resource: Any,
+        new_temporary_app: App,
+        mocker: MockerFixture,
+    ) -> None:
+        mocker.patch(
+            "betty.model.ENTITY_TYPE_REPOSITORY",
+            new=ProxyPluginRepository[Entity](
+                StaticPluginRepository(DummyEntity), ENTITY_TYPE_REPOSITORY
+            ),
+        )
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = await new_project_url_generator(project)
+            assert sut.supports(resource) == expected
+
+    @pytest.mark.parametrize(
+        (
+            "expected",
+            "clean_urls",
+            "resource",
+            "media_type",
+            "absolute",
+            "locale",
+            "additional_project_locale",
+        ),
+        [
+            # Entities
+            (
+                "https://example.com/dummy-entity/E0/index.html",
+                False,
+                DummyEntity("E0"),
+                HTML,
+                True,
+                None,
+                None,
+            ),
+            # betty:// URLs
+            (
+                "https://example.com/some/path/index.html",
+                False,
+                "betty:///some/path/index.html",
+                HTML,
+                True,
+                None,
+                None,
+            ),
+            # betty-static:// URLs
+            (
+                "https://example.com/some/path/index.html",
+                False,
+                "betty-static:///some/path/index.html",
+                HTML,
+                True,
+                None,
+                None,
+            ),
+        ],
+    )
+    async def test_generate(
+        self,
+        expected: str,
+        clean_urls: bool,
+        resource: str,
+        media_type: MediaType,
+        absolute: bool,
+        locale: Localey | None,
+        additional_project_locale: str | None,
+        new_temporary_app: App,
+        mocker: MockerFixture,
+    ) -> None:
+        mocker.patch(
+            "betty.model.ENTITY_TYPE_REPOSITORY",
+            new=ProxyPluginRepository[Entity](
+                StaticPluginRepository(DummyEntity), ENTITY_TYPE_REPOSITORY
+            ),
+        )
+        async with Project.new_temporary(new_temporary_app) as project:
+            if additional_project_locale:
+                project.configuration.locales.append(
+                    LocaleConfiguration(additional_project_locale)
+                )
+            project.configuration.clean_urls = clean_urls
+            async with project:
+                sut = await new_project_url_generator(project)
+                assert (
+                    sut.generate(
+                        resource,
+                        media_type=media_type,
                         absolute=absolute,
                         locale=locale,
                     )
@@ -300,10 +420,6 @@ class TestLocalizedUrlGenerator:
             (True, "/example/"),
             (True, "/example/index.html"),
             (True, DummyEntity()),
-            (True, "betty://some/path/index.html"),
-            (True, "betty:///some/path/index.html"),
-            (True, "betty-static://some/path/index.html"),
-            (True, "betty-static:///some/path/index.html"),
             (False, ""),
             (False, "index.html"),
             (False, "example"),
@@ -326,7 +442,8 @@ class TestLocalizedUrlGenerator:
             ),
         )
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = await LocalizedUrlGenerator.new_for_project(project)
+            with pytest.warns(BettyDeprecationWarning):
+                sut = await LocalizedUrlGenerator.new_for_project(project)
             assert sut.supports(resource) == expected
 
     @pytest.mark.parametrize(
@@ -413,28 +530,6 @@ class TestLocalizedUrlGenerator:
                     ),
                 ]
             ],
-            # betty:// URLs
-            (
-                "https://example.com/some/path/index.html",
-                "https://example.com/",
-                {DEFAULT_LOCALE: DEFAULT_LOCALE},
-                False,
-                "betty:///some/path/index.html",
-                HTML,
-                True,
-                None,
-            ),
-            # betty-static:// URLs
-            (
-                "https://example.com/some/path/index.html",
-                "https://example.com/",
-                {DEFAULT_LOCALE: DEFAULT_LOCALE},
-                False,
-                "betty-static:///some/path/index.html",
-                HTML,
-                True,
-                None,
-            ),
         ],
     )
     async def test_generate(
@@ -466,7 +561,8 @@ class TestLocalizedUrlGenerator:
             )
             project.configuration.clean_urls = clean_urls
             async with project:
-                sut = await LocalizedUrlGenerator.new_for_project(project)
+                with pytest.warns(BettyDeprecationWarning):
+                    sut = await LocalizedUrlGenerator.new_for_project(project)
                 assert (
                     sut.generate(resource, media_type, absolute=absolute, locale=locale)
                     == expected
@@ -490,9 +586,10 @@ class TestStaticUrlGenerator:
         ],
     )
     async def test_supports(self, expected: bool, resource: Any) -> None:
-        sut = StaticUrlGenerator(
-            "https://example.com", "/", {DEFAULT_LOCALE: DEFAULT_LOCALE}, False
-        )
+        with pytest.warns(BettyDeprecationWarning):
+            sut = StaticUrlGenerator(
+                "https://example.com", "/", {DEFAULT_LOCALE: DEFAULT_LOCALE}, False
+            )
         assert sut.supports(resource) == expected
 
     @pytest.mark.parametrize(
@@ -542,5 +639,8 @@ class TestStaticUrlGenerator:
         resource: str,
         absolute: bool,
     ) -> None:
-        sut = StaticUrlGenerator("https://example.com", root_path, locales, clean_urls)
+        with pytest.warns(BettyDeprecationWarning):
+            sut = StaticUrlGenerator(
+                "https://example.com", root_path, locales, clean_urls
+            )
         assert sut.generate(resource, absolute=absolute) == expected

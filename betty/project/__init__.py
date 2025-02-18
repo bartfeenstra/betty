@@ -55,14 +55,16 @@ from betty.project.factory import ProjectDependentFactory
 from betty.project.url import (
     LocalizedUrlGenerator as ProjectLocalizedUrlGenerator,
     StaticUrlGenerator as ProjectStaticUrlGenerator,
+    new_project_url_generator,
 )
 from betty.render import Renderer, SequentialRenderer, RENDERER_REPOSITORY
 from betty.string import kebab_case_to_lower_camel_case
 from betty.typing import internal
+from betty.warnings import deprecated
 
 if TYPE_CHECKING:
     from betty.license import License
-    from betty.url import LocalizedUrlGenerator, StaticUrlGenerator
+    from betty.url import LocalizedUrlGenerator, StaticUrlGenerator, UrlGenerator
     from betty.ancestry.event_type import EventType
     from betty.machine_name import MachineName
     from betty.plugin import PluginIdentifier
@@ -74,7 +76,6 @@ if TYPE_CHECKING:
 
 _T = TypeVar("_T")
 _EntityT = TypeVar("_EntityT", bound=Entity)
-
 
 _ProjectDependentT = TypeVar("_ProjectDependentT")
 
@@ -102,6 +103,8 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, CoreComponent):
         self._assets_lock = AsynchronizedLock.threading()
         self._localizers: LocalizerRepository | None = None
         self._localizers_lock = AsynchronizedLock.threading()
+        self._url_generator: UrlGenerator | None = None
+        self._url_generator_lock = AsynchronizedLock.threading()
         self._localized_url_generator: LocalizedUrlGenerator | None = None
         self._localized_url_generator_lock = AsynchronizedLock.threading()
         self._static_url_generator: StaticUrlGenerator | None = None
@@ -255,6 +258,23 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, CoreComponent):
         return self._localizers
 
     @property
+    def url_generator(self) -> Awaitable[UrlGenerator]:
+        """
+        The URL generator.
+        """
+        return self._get_url_generator()
+
+    async def _get_url_generator(self) -> UrlGenerator:
+        async with self._url_generator_lock:
+            if self._url_generator is None:
+                self.assert_bootstrapped()
+                self._url_generator = await new_project_url_generator(self)
+        return self._url_generator
+
+    @property
+    @deprecated(
+        "This service has been deprecated since Betty 0.4.8, and will be removed in Betty 0.5. Instead use `Project.url_generator`."
+    )
     def localized_url_generator(self) -> Awaitable[LocalizedUrlGenerator]:
         """
         The URL generator for localizable resources.
@@ -271,6 +291,9 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, CoreComponent):
         return self._localized_url_generator
 
     @property
+    @deprecated(
+        "This service has been deprecated since Betty 0.4.8, and will be removed in Betty 0.5. Instead use `Project.url_generator`."
+    )
     def static_url_generator(self) -> Awaitable[StaticUrlGenerator]:
         """
         The URL generator for static resources.
@@ -695,8 +718,8 @@ class ProjectSchema(ProjectDependentFactory, Schema):
         """
         Get the URL to a project's JSON Schema.
         """
-        static_url_generator = await project.static_url_generator
-        return static_url_generator.generate("/schema.json", absolute=True)
+        url_generator = await project.url_generator
+        return url_generator.generate("betty-static:///schema.json", absolute=True)
 
     @classmethod
     def www_path(cls, project: Project) -> Path:

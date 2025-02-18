@@ -4,8 +4,8 @@
 {% block page_content %}
     {% if file.media_type is image_supported_media_type %}
         <div class="featured image">
-            <a href="{{ file | file | static_url }}">
-                <img src="{{ file | image_resize_cover((1500, 1500)) | static_url }}"{% if file.description %} alt="{{ file.description | localize }}"{% endif %}>
+            <a href="{{ ('betty-static://' ~ file | file) | url }}">
+                <img src="{{ ('betty-static://' ~ file | image_resize_cover((1500, 1500))) | url }}"{% if file.description %} alt="{{ file.description | localize }}"{% endif %}>
             </a>
         </div>
     {% endif %}
@@ -45,7 +45,7 @@
         <section id="appearances">
             <h2>
                 {% trans %}Appearances{% endtrans %}
-                {% with url = page_resource | localized_url ~ '#appearances'%}
+                {% with url = page_resource | url ~ '#appearances'%}
                     {% include 'permalink.html.j2' %}
                 {% endwith %}
             </h2>
@@ -66,7 +66,7 @@
         <section id="references">
             <h2>
                 {% trans %}References{% endtrans %}
-                {% with url = page_resource | localized_url ~ '#references'%}
+                {% with url = page_resource | url ~ '#references'%}
                     {% include 'permalink.html.j2' %}
                 {% endwith %}
             </h2>

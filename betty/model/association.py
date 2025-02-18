@@ -49,9 +49,9 @@ async def _generate_associate_url(project: Project, associate: Entity) -> str | 
         return None
     if not isinstance(associate, UserFacingEntity):
         return None
-    static_url_generator = await project.static_url_generator
-    return static_url_generator.generate(
-        f"/{associate.type.plugin_id()}/{quote(associate.id)}/index.json"
+    url_generator = await project.url_generator
+    return url_generator.generate(
+        f"betty-static:///{associate.type.plugin_id()}/{quote(associate.id)}/index.json"
     )
 
 

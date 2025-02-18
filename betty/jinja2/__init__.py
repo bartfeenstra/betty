@@ -426,7 +426,7 @@ class Jinja2Renderer(Renderer, ProjectDependentFactory, Plugin):
                     x.alias for x in self._configuration.locales.values()
                 ):
                     resource = "/".join(resource_parts[1:])
-            data["page_resource"] = f"/{resource}"
+            data["page_resource"] = f"betty:///{resource}"
         template = await self._environment.from_file(file_path)
         rendered = await template.render_async(data)
         async with aiofiles.open(destination_file_path, "w", encoding="utf-8") as f:

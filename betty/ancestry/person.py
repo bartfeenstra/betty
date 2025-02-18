@@ -175,7 +175,7 @@ class Person(
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
-        static_url_generator = await project.static_url_generator
+        url_generator = await project.url_generator
         dump_context(
             dump,
             names="https://schema.org/name",
@@ -185,7 +185,9 @@ class Person(
         )
         dump["@type"] = "https://schema.org/Person"
         dump["siblings"] = [
-            static_url_generator.generate(f"/person/{quote(sibling.id)}/index.json")
+            url_generator.generate(
+                f"betty-static:///person/{quote(sibling.id)}/index.json"
+            )
             for sibling in self.siblings
             if persistent_id(sibling)
         ]

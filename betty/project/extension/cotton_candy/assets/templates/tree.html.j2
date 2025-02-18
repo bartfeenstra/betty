@@ -1,5 +1,5 @@
 <div class="featured">
-    <div class="tree" data-betty-person="{{ person.id }}" data-betty-people="{{ '/people.json' | localized_url }}">
+    <div class="tree" data-betty-person="{{ person.id }}" data-betty-people="{{ 'betty-static:///people.json' | url }}">
     </div>
 </div>
 {% do '/css/trees.css' | public_css %}

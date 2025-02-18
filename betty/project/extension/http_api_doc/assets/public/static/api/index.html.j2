@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-<div id="swagger-ui" data-betty-openapi-url="{{ 'betty-static:///api/index.json' | localized_url }}"></div>
+<div id="swagger-ui" data-betty-openapi-url="{{ 'betty-static:///api/index.json' | url }}"></div>
 {% include 'webpack-entry-loader.html.j2' %}
 {% include 'stylesheets.html.j2' %}
 {% include 'scripts.html.j2' %}

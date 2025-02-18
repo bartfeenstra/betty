@@ -61,6 +61,7 @@ from betty.string import (
 )
 from betty.typing import internal
 from betty.locale.localized import LocalizedStr
+from betty.warnings import deprecated
 
 if TYPE_CHECKING:
     from betty.locale.localized import Localized
@@ -74,6 +75,31 @@ if TYPE_CHECKING:
 _T = TypeVar("_T")
 
 
+@pass_context
+async def filter_url(
+    context: Context,
+    resource: Any,
+    locale: Localey | None = None,
+    media_type: str | None = None,
+    **kwargs: Any,
+) -> str:
+    """
+    Generate a URL for a resource.
+    """
+    from betty.jinja2 import context_project, context_localizer
+
+    url_generator = await context_project(context).url_generator
+    return url_generator.generate(
+        resource,
+        media_type=MediaType(media_type) if media_type else HTML,
+        locale=locale or context_localizer(context).locale,
+        **kwargs,
+    )
+
+
+@deprecated(
+    "This filter has been deprecated since Betty 0.4.8, and will be removed in Betty 0.5. Instead use the `url` filter."
+)
 @pass_context
 async def filter_localized_url(
     context: Context,
@@ -96,6 +122,9 @@ async def filter_localized_url(
     )
 
 
+@deprecated(
+    "This filter has been deprecated since Betty 0.4.8, and will be removed in Betty 0.5. Instead use the `url` filter."
+)
 @pass_context
 async def filter_static_url(
     context: Context,
@@ -612,4 +641,5 @@ async def filters() -> Mapping[str, Callable[..., Any]]:
         "upper_camel_case_to_lower_camel_case": upper_camel_case_to_lower_camel_case,
         "public_css": filter_public_css,
         "public_js": filter_public_js,
+        "url": filter_url,
     }

@@ -17,10 +17,13 @@ from betty.url import (
     generate_from_path,
     LocalizedUrlGenerator as StdLocalizedUrlGenerator,
     StaticUrlGenerator as StdStaticUrlGenerator,
-    PassthroughLocalizedUrlGenerator,
+    PassthroughUrlGenerator,
+    InvalidMediaType,
+    UrlGenerator,
 )
-from betty.url.proxy import ProxyLocalizedUrlGenerator
+from betty.url.proxy import ProxyLocalizedUrlGenerator, ProxyUrlGenerator
 from betty.model import Entity
+from betty.warnings import deprecated
 
 if TYPE_CHECKING:
     from betty.ancestry import Ancestry
@@ -73,6 +76,53 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
             clean_urls=self._clean_urls,
         )
 
+    def _generate_from_entity(
+        self,
+        entity: Entity,
+        pattern: str,
+        *,
+        media_type: MediaType | None,
+        locale: Localey | None,
+        absolute: bool,
+    ) -> str:
+        if media_type not in [HTML, JSON_LD, JSON]:
+            raise InvalidMediaType.new(entity, media_type)
+        extension, locale = _get_extension_and_locale(
+            media_type, self._default_locale, locale=locale
+        )
+        return self._generate_from_path(
+            pattern.format(
+                entity_type=camel_case_to_kebab_case(entity.plugin_id()),
+                entity_id=quote(entity.id),
+                extension=extension,
+            ),
+            absolute=absolute,
+            locale=locale,
+        )
+
+    def _generate_from_entity_type(
+        self,
+        entity: Entity,
+        pattern: str,
+        *,
+        media_type: MediaType | None,
+        locale: Localey | None,
+        absolute: bool,
+    ) -> str:
+        if media_type not in [HTML, JSON_LD, JSON]:
+            raise InvalidMediaType.new(entity, media_type)
+        extension, locale = _get_extension_and_locale(
+            media_type, self._default_locale, locale=locale
+        )
+        return self._generate_from_path(
+            pattern.format(
+                entity_type=camel_case_to_kebab_case(entity.plugin_id()),
+                extension=extension,
+            ),
+            absolute=absolute,
+            locale=locale,
+        )
+
 
 def _supports_path(resource: Any) -> bool:
     return isinstance(resource, str) and resource.startswith("/")
@@ -101,6 +151,24 @@ class _LocalizedPathUrlGenerator(_ProjectUrlGenerator, StdLocalizedUrlGenerator)
         )
 
 
+async def new_project_url_generator(project: Project) -> UrlGenerator:
+    """
+    Generate URLs for all resources provided by a Betty project.
+    """
+    entity_url_generator = await _EntityUrlGenerator.new_for_project(project)
+    return ProxyUrlGenerator(
+        await _EntityTypeUrlGenerator.new_for_project(project),
+        entity_url_generator,
+        _EntityUrlUrlGenerator(project.ancestry, entity_url_generator),
+        await _LocalizedPathUrlUrlGenerator.new_for_project(project),
+        await _StaticPathUrlUrlGenerator.new_for_project(project),
+        PassthroughUrlGenerator(),
+    )
+
+
+@deprecated(
+    f"This class has been deprecated since Betty 0.4.8, and will be removed in Betty 0.5. Instead use {new_project_url_generator}."
+)
 @final
 class StaticUrlGenerator(_ProjectUrlGenerator, StdStaticUrlGenerator):
     """
@@ -133,45 +201,38 @@ def _get_extension_and_locale(
         raise ValueError(f'Unknown entity media type "{media_type}".')
 
 
-@final
-class _EntityTypeUrlGenerator(_ProjectUrlGenerator, StdLocalizedUrlGenerator):
+class __EntityTypeUrlGenerator(_ProjectUrlGenerator):
     _pattern = "/{entity_type}/index.{extension}"
 
-    @override
     def supports(self, resource: Any) -> bool:
         return isinstance(resource, type) and issubclass(resource, Entity)
 
+
+@final
+class _EntityTypeUrlGenerator(__EntityTypeUrlGenerator, UrlGenerator):
     @override
     def generate(
         self,
         resource: Entity,
-        media_type: MediaType,
         *,
+        media_type: MediaType | None = None,
         absolute: bool = False,
         locale: Localey | None = None,
     ) -> str:
         assert self.supports(resource)
-        extension, locale = _get_extension_and_locale(
-            media_type, self._default_locale, locale=locale
-        )
-        return self._generate_from_path(
-            self._pattern.format(
-                entity_type=camel_case_to_kebab_case(resource.plugin_id()),
-                extension=extension,
-            ),
-            absolute=absolute,
+        return self._generate_from_entity_type(
+            resource,
+            self._pattern,
+            media_type=media_type,
             locale=locale,
+            absolute=absolute,
         )
 
 
 @final
-class _EntityUrlGenerator(_ProjectUrlGenerator, StdLocalizedUrlGenerator):
-    _pattern = "/{entity_type}/{entity_id}/index.{extension}"
-
-    @override
-    def supports(self, resource: Any) -> bool:
-        return isinstance(resource, Entity)
-
+class _EntityTypeLocalizedUrlGenerator(
+    __EntityTypeUrlGenerator, StdLocalizedUrlGenerator
+):
     @override
     def generate(
         self,
@@ -182,21 +243,65 @@ class _EntityUrlGenerator(_ProjectUrlGenerator, StdLocalizedUrlGenerator):
         locale: Localey | None = None,
     ) -> str:
         assert self.supports(resource)
-        extension, locale = _get_extension_and_locale(
-            media_type, self._default_locale, locale=locale
-        )
-        return self._generate_from_path(
-            self._pattern.format(
-                entity_type=camel_case_to_kebab_case(resource.plugin_id()),
-                entity_id=quote(resource.id),
-                extension=extension,
-            ),
-            absolute=absolute,
+        return self._generate_from_entity_type(
+            resource,
+            self._pattern,
+            media_type=media_type,
             locale=locale,
+            absolute=absolute,
         )
 
 
-class _EntityUrlUrlGenerator(StdLocalizedUrlGenerator):
+class __EntityUrlGenerator(_ProjectUrlGenerator):
+    _pattern = "/{entity_type}/{entity_id}/index.{extension}"
+
+    def supports(self, resource: Any) -> bool:
+        return isinstance(resource, Entity)
+
+
+@final
+class _EntityUrlGenerator(__EntityUrlGenerator, UrlGenerator):
+    @override
+    def generate(
+        self,
+        resource: Entity,
+        *,
+        media_type: MediaType | None = None,
+        absolute: bool = False,
+        locale: Localey | None = None,
+    ) -> str:
+        assert self.supports(resource)
+        return self._generate_from_entity(
+            resource,
+            self._pattern,
+            media_type=media_type,
+            locale=locale,
+            absolute=absolute,
+        )
+
+
+@final
+class _EntityLocalizedUrlGenerator(__EntityUrlGenerator, StdLocalizedUrlGenerator):
+    @override
+    def generate(
+        self,
+        resource: Entity,
+        media_type: MediaType,
+        *,
+        absolute: bool = False,
+        locale: Localey | None = None,
+    ) -> str:
+        assert self.supports(resource)
+        return self._generate_from_entity(
+            resource,
+            self._pattern,
+            media_type=media_type,
+            locale=locale,
+            absolute=absolute,
+        )
+
+
+class _EntityUrlUrlGenerator(UrlGenerator):
     def __init__(self, ancestry: Ancestry, entity_url_generator: _EntityUrlGenerator):
         self._ancestry = ancestry
         self._entity_url_generator = entity_url_generator
@@ -221,8 +326,8 @@ class _EntityUrlUrlGenerator(StdLocalizedUrlGenerator):
     def generate(
         self,
         resource: str,
-        media_type: MediaType,
         *,
+        media_type: MediaType | None = None,
         absolute: bool = False,
         locale: Localey | None = None,
     ) -> str:
@@ -231,11 +336,11 @@ class _EntityUrlUrlGenerator(StdLocalizedUrlGenerator):
         entity_id = parsed_url.path[1:]
         entity = self._ancestry[entity_type_id][entity_id]
         return self._entity_url_generator.generate(
-            entity, media_type, absolute=absolute, locale=locale
+            entity, media_type=media_type, absolute=absolute, locale=locale
         )
 
 
-class _LocalizedPathUrlUrlGenerator(_ProjectUrlGenerator, StdLocalizedUrlGenerator):
+class _LocalizedPathUrlUrlGenerator(_ProjectUrlGenerator, UrlGenerator):
     @override
     def supports(self, resource: Any) -> bool:
         if not isinstance(resource, str):
@@ -254,8 +359,8 @@ class _LocalizedPathUrlUrlGenerator(_ProjectUrlGenerator, StdLocalizedUrlGenerat
     def generate(
         self,
         resource: str,
-        media_type: MediaType,
         *,
+        media_type: MediaType | None = None,
         absolute: bool = False,
         locale: Localey | None = None,
     ) -> str:
@@ -269,7 +374,7 @@ class _LocalizedPathUrlUrlGenerator(_ProjectUrlGenerator, StdLocalizedUrlGenerat
         )
 
 
-class _StaticPathUrlUrlGenerator(_ProjectUrlGenerator, StdLocalizedUrlGenerator):
+class _StaticPathUrlUrlGenerator(_ProjectUrlGenerator, UrlGenerator):
     @override
     def supports(self, resource: Any) -> bool:
         if not isinstance(resource, str):
@@ -288,8 +393,8 @@ class _StaticPathUrlUrlGenerator(_ProjectUrlGenerator, StdLocalizedUrlGenerator)
     def generate(
         self,
         resource: str,
-        media_type: MediaType,
         *,
+        media_type: MediaType | None = None,
         absolute: bool = False,
         locale: Localey | None = None,
     ) -> str:
@@ -299,6 +404,9 @@ class _StaticPathUrlUrlGenerator(_ProjectUrlGenerator, StdLocalizedUrlGenerator)
         return self._generate_from_path(url_path, absolute=absolute)
 
 
+@deprecated(
+    f"This class has been deprecated since Betty 0.4.8, and will be removed in Betty 0.5. Instead use {UrlGenerator}."
+)
 @final
 class LocalizedUrlGenerator(StdLocalizedUrlGenerator, ProjectDependentFactory):
     """
@@ -315,15 +423,10 @@ class LocalizedUrlGenerator(StdLocalizedUrlGenerator, ProjectDependentFactory):
     @override
     @classmethod
     async def new_for_project(cls, project: Project) -> Self:
-        entity_url_generator = await _EntityUrlGenerator.new_for_project(project)
         return cls(
-            await _EntityTypeUrlGenerator.new_for_project(project),
-            entity_url_generator,
-            _EntityUrlUrlGenerator(project.ancestry, entity_url_generator),
-            await _LocalizedPathUrlUrlGenerator.new_for_project(project),
-            await _StaticPathUrlUrlGenerator.new_for_project(project),
+            await _EntityTypeLocalizedUrlGenerator.new_for_project(project),
+            await _EntityLocalizedUrlGenerator.new_for_project(project),
             await _LocalizedPathUrlGenerator.new_for_project(project),
-            PassthroughLocalizedUrlGenerator(),
         )
 
     @override

@@ -121,8 +121,8 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
     @override
     @classmethod
     async def new_for_project(cls, project: Project) -> Self:
-        static_url_generator = await project.static_url_generator
-        return cls(project, [static_url_generator.generate("/css/vendor.css")])
+        url_generator = await project.url_generator
+        return cls(project, [url_generator.generate("betty-static:///css/vendor.css")])
 
     @override
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
