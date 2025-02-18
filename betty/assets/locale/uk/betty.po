@@ -549,7 +549,7 @@ msgid "Filters"
 msgstr ""
 
 msgid "Find Betty on GitHub"
-msgstr "Знайдіть Бетті на GitHub"
+msgstr "Знайдіть Betty на GitHub"
 
 msgid "Find out more about this image on Wikimedia Commons."
 msgstr "Дізнайтеся більше про це зображення на Wikimedia Commons."
