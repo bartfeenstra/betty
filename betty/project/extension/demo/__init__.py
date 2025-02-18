@@ -7,9 +7,12 @@ from __future__ import annotations
 from asyncio import to_thread
 from contextlib import suppress
 from shutil import rmtree
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, final, Sequence
 
-from betty.locale.localizable import static
+from typing_extensions import override
+
+from betty.html import NavigationLinkProvider, NavigationLink
+from betty.locale.localizable import static, _
 from betty.plugin import ShorthandPluginBase
 from betty.project import generate
 from betty.project.extension import Extension
@@ -22,7 +25,6 @@ from betty.project.extension.trees import Trees
 from betty.project.extension.wikipedia import Wikipedia
 from betty.project.load import LoadAncestryEvent
 from betty.typing import internal
-from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -46,7 +48,7 @@ async def generate_with_cleanup(project: Project) -> None:
 
 
 @final
-class Demo(ShorthandPluginBase, Extension):
+class Demo(ShorthandPluginBase, NavigationLinkProvider, Extension):
     """
     Provide demonstration site functionality.
     """
@@ -71,3 +73,14 @@ class Demo(ShorthandPluginBase, Extension):
         registry.add_handler(
             LoadAncestryEvent, lambda event: load_ancestry(event.project)
         )
+
+    @override
+    def secondary_navigation_links(self) -> Sequence[NavigationLink]:
+        return [
+            NavigationLink(
+                "https://github.com/bartfeenstra/betty", _("Find Betty on Github")
+            ),
+            NavigationLink(
+                "https://betty.readthedocs.io/", _("Read the Betty documentation")
+            ),
+        ]
