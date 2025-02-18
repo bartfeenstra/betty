@@ -143,6 +143,8 @@ Extensions can optionally provide the following functionality:
     Add additional CSS files to generated pages.
 :py:class:`betty.html.JsProvider`
     Add additional JavaScript files to generated pages.
+:py:class:`betty.html.NavigationLinkProvider`
+    Add additional navigation links to generated pages.
 :py:class:`betty.jinja2.Jinja2Provider`
     Integrate the extension with :doc:`Jinja2 </usage/templating>`.
 

@@ -5,9 +5,9 @@
     {{ project.license.summary | localize | html_lang }}
 </p>
 <p>{% trans %}A family history as told by <a href="https://github.com/bartfeenstra/betty">Betty👵</a>{% endtrans %}</p>
-{% if 'http-api-doc' in project.extensions %}
-    <p><a href="{{ 'betty-static:///api/index.html' | url }}">{% trans %}API documentation{% endtrans %}</a></p>
-{% endif %}
+{% for link in secondary_navigation_links %}
+    <p><a href="{{ link.url | url }}">{{ link.label | localize | html_lang }}</a></p>
+{% endfor %}
 {% if job_context is defined %}
     <p>{% trans last_modified = localizer.format_datetime_datetime(job_context.start) %}Last modified on {{ last_modified }}{% endtrans %}</p>
 {% endif %}

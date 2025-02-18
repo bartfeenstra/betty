@@ -22,7 +22,13 @@ from jinja2.runtime import StrictUndefined, Context, DebugUndefined
 from typing_extensions import override
 
 from betty.date import Date
-from betty.html import CssProvider, JsProvider, Citer, Breadcrumbs
+from betty.html import (
+    CssProvider,
+    JsProvider,
+    Citer,
+    Breadcrumbs,
+    NavigationLinkProvider,
+)
 from betty.jinja2.filter import filters
 from betty.jinja2.globals import generate_html_id, HtmlId
 from betty.jinja2.test import tests
@@ -355,6 +361,18 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
             for extension in self._extensions
             if isinstance(extension, JsProvider)
             for path in extension.public_js_paths
+        ]
+        self.globals["primary_navigation_links"] = [
+            link
+            for extension in self._extensions
+            if isinstance(extension, NavigationLinkProvider)
+            for link in extension.primary_navigation_links()
+        ]
+        self.globals["secondary_navigation_links"] = [
+            link
+            for extension in self._extensions
+            if isinstance(extension, NavigationLinkProvider)
+            for link in extension.secondary_navigation_links()
         ]
         self.globals["entity_contexts"] = self._entity_contexts
         self.globals["localizer"] = DEFAULT_LOCALIZER

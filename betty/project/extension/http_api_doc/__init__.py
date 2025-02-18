@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
+from betty.html import NavigationLinkProvider, NavigationLink
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
 from betty.project.extension.webpack import Webpack
@@ -20,7 +21,7 @@ if TYPE_CHECKING:
 
 
 @final
-class HttpApiDoc(ShorthandPluginBase, EntryPointProvider):
+class HttpApiDoc(ShorthandPluginBase, EntryPointProvider, NavigationLinkProvider):
     """
     Provide user-friendly HTTP API documentation.
     """
@@ -49,3 +50,9 @@ class HttpApiDoc(ShorthandPluginBase, EntryPointProvider):
     @override
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:
         return ()
+
+    @override
+    def secondary_navigation_links(self) -> Sequence[NavigationLink]:
+        return [
+            NavigationLink("betty-static:///api/index.html", _("API documentation")),
+        ]

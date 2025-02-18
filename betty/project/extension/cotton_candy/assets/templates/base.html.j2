@@ -59,6 +59,13 @@
                             </a>
                         </li>
                     {% endfor %}
+                    {% for link in primary_navigation_links %}
+                        <li>
+                            <a href="{% if link.static %}{{ link.url | static_url }}{% else %}{{ link.url | localized_url }}{% endif %}">
+                                {{ link.label | localize | html_lang }}
+                            </a>
+                        </li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>

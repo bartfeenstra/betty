@@ -193,6 +193,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "tests": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/json/linked_data.py": MissingReason.SHOULD_BE_COVERED,
+    "betty/link.py": MissingReason.ABSTRACT,
     "betty/locale/__init__.py": {
         "get_data": MissingReason.SHOULD_BE_COVERED,
         "get_display_name": MissingReason.SHOULD_BE_COVERED,

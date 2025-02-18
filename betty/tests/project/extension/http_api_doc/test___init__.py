@@ -23,3 +23,11 @@ class TestHttpApiDoc(EntryPointProviderTestBase):
                 assert (
                     project.configuration.www_directory_path / "js" / "http-api-doc.js"
                 ).is_file()
+
+    async def test_secondary_navigation_links(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.extensions.enable(HttpApiDoc)
+            async with project:
+                extensions = await project.extensions
+                sut = extensions[HttpApiDoc]
+                sut.secondary_navigation_links()

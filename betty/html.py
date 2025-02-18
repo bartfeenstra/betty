@@ -6,13 +6,17 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from threading import Lock
-from typing import MutableSequence, TYPE_CHECKING
+from typing import MutableSequence, TYPE_CHECKING, final
 
 from typing_extensions import override
 
+from betty.link import Link
 from betty.serde.dump import Dumpable, DumpMapping, Dump
 
 if TYPE_CHECKING:
+    from betty.locale.localizable import (
+        Localizable,
+    )
     from betty.ancestry.citation import Citation
     from collections.abc import Sequence
 
@@ -43,6 +47,45 @@ class JsProvider(ABC):
         The public URL paths to the JavaScript files to include in each HTML page.
         """
         pass
+
+
+@final
+class NavigationLink(Link):
+    """
+    A navigation link.
+    """
+
+    def __init__(self, url: str, label: Localizable):
+        self._url = url
+        self._label = label
+
+    @override
+    @property
+    def url(self) -> str:
+        return self._url
+
+    @override
+    @property
+    def label(self) -> Localizable:
+        return self._label
+
+
+class NavigationLinkProvider:
+    """
+    Provide navigation links for HTML pages.
+    """
+
+    def primary_navigation_links(self) -> Sequence[NavigationLink]:
+        """
+        The primary navigation links.
+        """
+        return ()
+
+    def secondary_navigation_links(self) -> Sequence[NavigationLink]:
+        """
+        The secondary navigation links.
+        """
+        return ()
 
 
 class Citer:

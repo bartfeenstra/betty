@@ -366,7 +366,7 @@ class _Populator:
                     await self._localizers.get_negotiated(link.locale)
                 )._("Read more on Wikipedia.")
         if summary is not None and not link.label:
-            link.label = summary.title
+            link.label = summary.title  # type: ignore[assignment]
 
     async def _populate_place(self, place: Place) -> None:
         await self._populate_place_coordinates(place)

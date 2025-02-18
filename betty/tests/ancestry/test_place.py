@@ -165,7 +165,7 @@ class TestPlace(EntityTestBase):
         longitude = -54.321
         coordinates = Point(latitude, longitude)
         link = Link("https://example.com/the-place")
-        link.label = "The Place Online"
+        link.label = "The Place Online"  # type: ignore[assignment]
         place = Place(
             id=place_id,
             names=[Name(name)],

@@ -741,7 +741,7 @@ class TestPopulator:
         m_retriever = mocker.patch("betty.wikipedia._Retriever")
         link = Link("http://en.wikipedia.org/wiki/Amsterdam")
         if label:
-            link.label = label
+            link.label = label  # type: ignore[assignment]
         summary = Summary(
             "en",
             "The_city_of_Amsterdam",

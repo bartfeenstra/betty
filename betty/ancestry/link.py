@@ -18,11 +18,13 @@ from betty.json.linked_data import (
     JsonLdSchema,
 )
 from betty.json.schema import String, Array
+from betty.link import Link as StdLink
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import (
     OptionalStaticTranslationsLocalizableAttr,
     ShorthandStaticTranslations,
     StaticTranslationsLocalizableSchema,
+    StaticTranslationsLocalizable,
 )
 from betty.privacy import is_public
 
@@ -33,17 +35,16 @@ if TYPE_CHECKING:
 
 
 @final
-class Link(HasMediaType, HasLocale, HasDescription, LinkedDataDumpableJsonLdObject):
+class Link(
+    StdLink, HasMediaType, HasLocale, HasDescription, LinkedDataDumpableJsonLdObject
+):
     """
     An external link.
     """
 
-    #: The link's absolute URL
-    url: str
     #: The link's `IANA link relationship <https://www.iana.org/assignments/link-relations/link-relations.xhtml>`_.
     relationship: str | None
-    #: The link's human-readable label.
-    label = OptionalStaticTranslationsLocalizableAttr("label", title="Label")
+    _label = OptionalStaticTranslationsLocalizableAttr("_label", title="Label")
 
     def __init__(
         self,
@@ -60,17 +61,39 @@ class Link(HasMediaType, HasLocale, HasDescription, LinkedDataDumpableJsonLdObje
             description=description,
             locale=locale,
         )
-        self.url = url
+        self._url = url
         if label:
-            self.label = label
+            self._label = label
         self.relationship = relationship
+
+    @override
+    @property
+    def url(self) -> str:
+        return self._url
+
+    @url.setter
+    def url(self, url: str) -> None:
+        self._url = url
+
+    @override
+    @property
+    def label(self) -> StaticTranslationsLocalizable:
+        return self._label
+
+    @label.setter
+    def label(self, label: ShorthandStaticTranslations) -> None:
+        self._label = label
+
+    @label.deleter
+    def label(self) -> None:
+        del self._label
 
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         dump["url"] = self.url
-        if self.label:
-            dump["label"] = await self.label.dump_linked_data(project)
+        if self._label:
+            dump["label"] = await self._label.dump_linked_data(project)
         if self.relationship is not None:
             dump["relationship"] = self.relationship
         return dump
