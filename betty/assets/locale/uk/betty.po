@@ -548,8 +548,8 @@ msgstr "Файли"
 msgid "Filters"
 msgstr ""
 
-msgid "Find Betty on Github"
-msgstr "Знайдіть Бетті на Github"
+msgid "Find Betty on GitHub"
+msgstr "Знайдіть Бетті на GitHub"
 
 msgid "Find out more about this image on Wikimedia Commons."
 msgstr "Дізнайтеся більше про це зображення на Wikimedia Commons."
