@@ -7,17 +7,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-02-18 18:42+0000\n"
-"PO-Revision-Date: 2024-11-30 19:00+0000\n"
-"Last-Translator: Illia Maier <Illia-M@users.noreply.hosted.weblate.org>\n"
+"POT-Creation-Date: 2025-02-18 17:46+0000\n"
+"PO-Revision-Date: 2025-02-19 15:28+0000\n"
+"Last-Translator: Максим Горпиніч <maksimgorpinic2005a@gmail.com>\n"
+"Language-Team: Ukrainian <https://hosted.weblate.org/projects/betty/betty/uk/"
+">\n"
 "Language: uk\n"
-"Language-Team: Ukrainian "
-"<https://hosted.weblate.org/projects/betty/betty/uk/>\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Weblate 5.10.1-dev\n"
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
@@ -548,7 +549,7 @@ msgid "Filters"
 msgstr ""
 
 msgid "Find Betty on Github"
-msgstr ""
+msgstr "Знайдіть Бетті на Github"
 
 msgid "Find out more about this image on Wikimedia Commons."
 msgstr "Дізнайтеся більше про це зображення на Wikimedia Commons."
@@ -881,7 +882,7 @@ msgid "Read more on Wikipedia."
 msgstr "Детальніше читайте у Вікіпедії."
 
 msgid "Read the Betty documentation"
-msgstr ""
+msgstr "Прочитайте документацію Betty"
 
 msgid "References"
 msgstr "Референції"
@@ -1402,4 +1403,3 @@ msgstr "© Авторське право належить автору, якщо
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Авторське право {author}, якщо не зазначено інше"
-
