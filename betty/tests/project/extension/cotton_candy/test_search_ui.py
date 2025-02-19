@@ -11,12 +11,12 @@ from betty.project import Project
 from betty.project.extension.cotton_candy import CottonCandy
 from betty.project.generate import generate
 from betty.serve import Server
-from betty.tests.playwright import check_skip
+from betty.tests.conftest import check_skip_playwright
 
 
 class TestSearchUi:
     @pytest.fixture(scope="session")
-    @check_skip
+    @check_skip_playwright
     async def served_project(self) -> AsyncIterator[tuple[Project, Server]]:
         person_id = "I0001"
         person = Person(id=person_id)
@@ -37,7 +37,7 @@ class TestSearchUi:
                     yield project, server
 
     @pytest.mark.asyncio(loop_scope="session")
-    @check_skip
+    @check_skip_playwright
     async def test(self, page: Page, served_project: tuple[Project, Server]) -> None:
         project, server = served_project
         person = project.ancestry[Person]["I0001"]
