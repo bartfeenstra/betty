@@ -1,0 +1,97 @@
+{% extends 'entity/page.html.j2' %}
+{% set page_title = entity.label | localize %}
+{% block page_content %}
+    {% if entity.media_type and (entity.media_type.type == 'image' or entity.media_type | str == 'application/pdf') %}
+        <div class="py-2" data-bs-theme="dark">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col">
+                        <figure>
+                            <picture>
+                                {% for size, breakpoint in [(1300, 900), (900, 500)] %}
+                                    <source srcset="{{ ('betty-static://' ~ entity | image_resize_cover((size, size))) | url }}" media="(min-width: {{ breakpoint }}px)">
+                                {% endfor %}
+                                <img src="{{ ('betty-static://' ~ entity | image_resize_cover((500, 500))) | url }}" alt="{{ entity.label | localize }}" class="image">
+                            </picture>
+                            <figcaption class="mt-1">{{ entity.label | localize }}</figcaption>
+                        </figure>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="file-usage py-2">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <a href="{{ ('betty-static://' ~ entity | file) | url }}" class="file-view-original">View original</a>
+                </div>
+            </div>
+            {% if entity.copyright_notice is not none or entity.license is not none %}
+                <div class="row mt-2">
+                    {% if entity.copyright_notice is not none %}
+                        <div class="col col-12 col-lg-6">
+                            <h2>{% trans %}Copyright{% endtrans %}</h2>
+                            <p>
+                                {% if entity.copyright_notice.url is not none %}
+                                    <a href="{{ entity.copyright_notice.url | localize }}">
+                                {% endif %}
+                                {{ entity.copyright_notice.summary | localize | html_lang }}
+                                {% if entity.copyright_notice.url is not none %}
+                                    </a>
+                                {% endif %}
+                            </p>
+                        </div>
+                    {% endif %}
+                    {% if entity.license is not none %}
+                        <div class="col col-12 col-lg-6">
+                            <h2>{% trans %}License{% endtrans %}</h2>
+                            <p>
+                                {% if entity.license.url is not none %}
+                                    <a href="{{ entity.license.url | localize }}">
+                                {% endif %}
+                                {{ entity.license.summary | localize | html_lang }}
+                                {% if entity.license.url is not none %}
+                                    </a>
+                                {% endif %}
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% with notes = entity.notes %}
+        {% include 'section/notes.html.j2' %}
+    {% endwith %}
+
+    {% with file_references = entity.referees %}
+        {% include 'entity/appearances.html.j2' %}
+    {% endwith %}
+
+    {# These are the citations for the file itself. #}
+    {% set citations = entity.citations | select('public') | list %}
+    {% if citations | length  > 0 %}
+        <div class="container my-5">
+            <div class="row">
+                <div class="col col-12 col-lg-8">
+                    <section id="media-references">
+                        <h2 class="section-heading">
+                            {% trans %}Media references{% endtrans %}
+                            {% with url = page_resource | url ~ '#references'%}
+                                {% include 'component/permalink.html.j2' %}
+                            {% endwith %}
+                        </h2>
+                        <ul>
+                            {% for entity in citations %}
+                                <li>{% include 'entity/label--citation.html.j2' %}</li>
+                            {% endfor %}
+                        </ul>
+                    </section>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

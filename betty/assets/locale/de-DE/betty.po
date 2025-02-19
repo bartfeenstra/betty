@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-02-18 17:46+0000\n"
+"POT-Creation-Date: 2025-02-18 18:42+0000\n"
 "PO-Revision-Date: 2024-11-29 18:58+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -292,6 +292,9 @@ msgstr ""
 msgid "Clear all caches"
 msgstr ""
 
+msgid "Close"
+msgstr ""
+
 msgid "Conference"
 msgstr "Konferenz"
 
@@ -319,8 +322,8 @@ msgstr ""
 msgid "Correspondence"
 msgstr "Schriftverkehr"
 
-msgid "Cotton Candy is Betty's default theme."
-msgstr "Cotton Candy ist Betty's Standard-Thema."
+msgid "Cotton Candy is Betty's legacy theme."
+msgstr ""
 
 #, python-brace-format
 msgid "Could not extract {file_path} as a gzip file  (*.gz)."
@@ -470,6 +473,9 @@ msgstr "Verlobung"
 msgid "Enrich your ancestry with information from Wikipedia"
 msgstr ""
 
+msgid "Entity type"
+msgstr ""
+
 msgid "Event"
 msgstr "Ereignis"
 
@@ -513,6 +519,9 @@ msgstr ""
 msgid "Files"
 msgstr "Dateien"
 
+msgid "Filters"
+msgstr ""
+
 msgid "Find Betty on Github"
 msgstr ""
 
@@ -548,6 +557,9 @@ msgstr "Erzeuge statische, öffentliche Dateien..."
 msgid "Generating your site to {output_directory}."
 msgstr "Erzeuge deine Site nach {output_directory}."
 
+msgid "Go to the front page"
+msgstr ""
+
 msgid "HTTP API Documentation"
 msgstr "HTTP API Dokumentation"
 
@@ -568,6 +580,9 @@ msgstr "Es tut mir leid, aber sieht so aus, als ob es keine Orte gibt."
 
 msgid "I'm sorry, dear, but it seems there are no sources."
 msgstr "Es tut mir leid, aber sieht so aus, als ob es keine Quellen gibt."
+
+msgid "I'm sorry, dear, but it seems there is nothing to show."
+msgstr ""
 
 msgid "I'm sorry, dear, but it seems this page does not exist."
 msgstr ""
@@ -591,6 +606,9 @@ msgstr "Invalid JSON: {error}."
 #, python-brace-format
 msgid "Invalid YAML: {error}."
 msgstr "Invalid YAML: {error}."
+
+msgid "Keywords"
+msgstr ""
 
 msgid "Language"
 msgstr "Sprache"
@@ -675,6 +693,9 @@ msgstr "Hochzeit"
 msgid "Media"
 msgstr "Medien"
 
+msgid "Media references"
+msgstr ""
+
 msgid "Menu"
 msgstr "Menü"
 
@@ -716,6 +737,9 @@ msgstr "Veranstalter"
 
 msgid "Other attendees"
 msgstr "Andere Teilnehmer"
+
+msgid "Other places contained by this one"
+msgstr ""
 
 msgid "Page not found"
 msgstr ""
@@ -829,14 +853,24 @@ msgstr "Referenzen"
 msgid "Region"
 msgstr ""
 
+msgid "Reset"
+msgstr ""
+
 msgid "Residence"
 msgstr "Wohnort"
+
+#, python-brace-format
+msgid "Results ({{{ betty-search-results-count }}})"
+msgstr ""
 
 msgid "Retirement"
 msgstr "Ruhestand"
 
 #, python-brace-format
 msgid "Saved your project to {configuration_file}."
+msgstr ""
+
+msgid "Search"
 msgstr ""
 
 msgid "Serve a generated site"
@@ -866,6 +900,9 @@ msgstr ""
 
 msgid "Subject"
 msgstr "Betreff"
+
+msgid "Subjects"
+msgstr ""
 
 #, python-brace-format
 msgid ""
@@ -955,6 +992,9 @@ msgstr ""
 msgid "This field is required."
 msgstr "Diese Feld ist erforderlich."
 
+msgid "This information is unavailable to protect people's privacy."
+msgstr ""
+
 msgid "This must be a boolean."
 msgstr "Es muss ein Boolean sein."
 
@@ -996,7 +1036,19 @@ msgstr ""
 msgid "Timeline"
 msgstr "Zeitschiene"
 
+msgid "Toggle menu"
+msgstr ""
+
+msgid "Toggle search"
+msgstr ""
+
+msgid "Toggle translations"
+msgstr ""
+
 msgid "Town"
+msgstr ""
+
+msgid "Translations"
 msgstr ""
 
 msgid "Trees"
@@ -1107,7 +1159,7 @@ msgstr ""
 
 msgid ""
 "Your project has no theme enabled. This means your site's pages may look "
-"bare. Try the \"cotton-candy\" extension."
+"bare. Try the \"raspberry-mint\" extension."
 msgstr ""
 
 #, python-brace-format
@@ -1174,6 +1226,10 @@ msgstr "von {start_date} bis {end_date}"
 msgid "in %(place)s"
 msgstr "in %(place)s"
 
+#, python-format
+msgid "in %(source)s"
+msgstr ""
+
 msgid ""
 "npm (https://www.npmjs.com/) must be available for features that require "
 "Node.js packages to be installed. Ensure that the `npm` executable is "
@@ -1206,6 +1262,9 @@ msgstr "zeige weniger"
 
 msgid "show more"
 msgstr "zeige mehr"
+
+msgid "sometime"
+msgstr ""
 
 #, python-brace-format
 msgid "sometime after around {start_date}"

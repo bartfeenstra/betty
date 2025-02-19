@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-02-18 17:46+0000\n"
+"POT-Creation-Date: 2025-02-18 18:42+0000\n"
 "PO-Revision-Date: 2024-11-30 19:00+0000\n"
 "Last-Translator: Illia Maier <Illia-M@users.noreply.hosted.weblate.org>\n"
 "Language: uk\n"
@@ -313,6 +313,9 @@ msgstr "Місто"
 msgid "Clear all caches"
 msgstr "Очистити всі кеші"
 
+msgid "Close"
+msgstr ""
+
 msgid "Conference"
 msgstr "Конференція"
 
@@ -342,8 +345,8 @@ msgstr ""
 msgid "Correspondence"
 msgstr "Листування"
 
-msgid "Cotton Candy is Betty's default theme."
-msgstr "Тема за замовчуванням для Betty — Cotton Candy."
+msgid "Cotton Candy is Betty's legacy theme."
+msgstr ""
 
 #, python-brace-format
 msgid "Could not extract {file_path} as a gzip file  (*.gz)."
@@ -495,6 +498,9 @@ msgstr "Заручини"
 msgid "Enrich your ancestry with information from Wikipedia"
 msgstr "Збагатити своїх предків з інформацією з Вікіпедії"
 
+msgid "Entity type"
+msgstr ""
+
 msgid "Event"
 msgstr "Подія"
 
@@ -538,6 +544,9 @@ msgstr "Посилання на файли"
 msgid "Files"
 msgstr "Файли"
 
+msgid "Filters"
+msgstr ""
+
 msgid "Find Betty on Github"
 msgstr ""
 
@@ -575,6 +584,9 @@ msgstr "Генерація статичних публічних файлів...
 msgid "Generating your site to {output_directory}."
 msgstr "Генерація вашого сайту в {output_directory}."
 
+msgid "Go to the front page"
+msgstr ""
+
 msgid "HTTP API Documentation"
 msgstr "документація HTTP API"
 
@@ -595,6 +607,9 @@ msgstr "Вибачте, любий, але, здається, немає міс�
 
 msgid "I'm sorry, dear, but it seems there are no sources."
 msgstr "Вибачте, любий, але, здається, немає джерел."
+
+msgid "I'm sorry, dear, but it seems there is nothing to show."
+msgstr ""
 
 msgid "I'm sorry, dear, but it seems this page does not exist."
 msgstr "Вибачте, любий, але, здається, ця сторінка не існує."
@@ -618,6 +633,9 @@ msgstr "Недійсний JSON: {error}."
 #, python-brace-format
 msgid "Invalid YAML: {error}."
 msgstr "Недійсний YAML: {error}."
+
+msgid "Keywords"
+msgstr ""
 
 msgid "Language"
 msgstr "Мова"
@@ -704,6 +722,9 @@ msgstr "Шлюб"
 msgid "Media"
 msgstr "Медіа"
 
+msgid "Media references"
+msgstr ""
+
 msgid "Menu"
 msgstr "Меню"
 
@@ -748,6 +769,9 @@ msgstr "Організатор"
 
 msgid "Other attendees"
 msgstr "Інші учасники"
+
+msgid "Other places contained by this one"
+msgstr ""
 
 msgid "Page not found"
 msgstr "Сторінку не знайдено"
@@ -865,8 +889,15 @@ msgstr "Референції"
 msgid "Region"
 msgstr "Регіон"
 
+msgid "Reset"
+msgstr ""
+
 msgid "Residence"
 msgstr "Проживання"
+
+#, python-brace-format
+msgid "Results ({{{ betty-search-results-count }}})"
+msgstr ""
 
 msgid "Retirement"
 msgstr "Вихід на пенсію"
@@ -874,6 +905,9 @@ msgstr "Вихід на пенсію"
 #, python-brace-format
 msgid "Saved your project to {configuration_file}."
 msgstr "Проєкт збережено у {configuration_file}."
+
+msgid "Search"
+msgstr ""
 
 msgid "Serve a generated site"
 msgstr "Запустити згенерований сайт"
@@ -902,6 +936,9 @@ msgstr "Вулиця"
 
 msgid "Subject"
 msgstr "Предмет"
+
+msgid "Subjects"
+msgstr ""
 
 #, python-brace-format
 msgid ""
@@ -998,6 +1035,9 @@ msgstr "Деталі цієї цитати недоступні для захи�
 msgid "This field is required."
 msgstr "Це поле є обов’язковим."
 
+msgid "This information is unavailable to protect people's privacy."
+msgstr ""
+
 msgid "This must be a boolean."
 msgstr "Це має бути булеве значення."
 
@@ -1037,8 +1077,20 @@ msgstr "Деталі цього джерела недоступні для за�
 msgid "Timeline"
 msgstr "Хронологія"
 
+msgid "Toggle menu"
+msgstr ""
+
+msgid "Toggle search"
+msgstr ""
+
+msgid "Toggle translations"
+msgstr ""
+
 msgid "Town"
 msgstr "Містечко"
+
+msgid "Translations"
+msgstr ""
 
 msgid "Trees"
 msgstr "Дерева"
@@ -1152,7 +1204,7 @@ msgstr ""
 
 msgid ""
 "Your project has no theme enabled. This means your site's pages may look "
-"bare. Try the \"cotton-candy\" extension."
+"bare. Try the \"raspberry-mint\" extension."
 msgstr ""
 "У вашому проєкті не ввімкнено тему. Це означає, що сторінки вашого сайту "
 "можуть виглядати пусто. Спробуйте розширення \"cotton-candy\"."
@@ -1221,6 +1273,10 @@ msgstr "з {start_date} до {end_date}"
 msgid "in %(place)s"
 msgstr "в %(place)s"
 
+#, python-format
+msgid "in %(source)s"
+msgstr ""
+
 msgid ""
 "npm (https://www.npmjs.com/) must be available for features that require "
 "Node.js packages to be installed. Ensure that the `npm` executable is "
@@ -1254,6 +1310,9 @@ msgstr "показати менше"
 
 msgid "show more"
 msgstr "показати більше"
+
+msgid "sometime"
+msgstr ""
 
 #, python-brace-format
 msgid "sometime after around {start_date}"

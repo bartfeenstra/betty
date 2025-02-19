@@ -1,0 +1,23 @@
+.search-result {
+  position: relative;
+
+  &:focus-within {
+    .link {
+      background-color: var(--betty-focus-color);
+      color: var(--betty-focus-contrast-color);
+      text-decoration-color: var(--betty-focus-contrast-color);
+      outline: none;
+    }
+  }
+
+  .search-result-preview .image {
+    aspect-ratio: 1;
+    width: 50px;
+  }
+}
+
+@include media-breakpoint-up(lg) {
+  .search-result .search-result-preview .image {
+    width: 100px;
+  }
+}

@@ -1,0 +1,20 @@
+{% set embedded = embedded | default(False) %}
+{% set place_context = entity_contexts['place'] %}
+{% set label_as_link = not embedded and place_context != entity and entity is persistent_entity_id and entity is public %}
+{%- set names = entity.names | select_has_dates(date_context | default(none)) | list -%}
+{%- if names | length == 0 -%}
+    {%- set names = entity.names -%}
+{%- endif -%}
+{%- if names -%}
+    {%- set name = (names | first).name -%}
+{%- else -%}
+    {%- set name = entity.label -%}
+{%- endif -%}
+
+{%- if label_as_link -%}
+    <a href="{{ entity | url }}">
+{%- endif -%}
+{{ name | localize | html_lang }}
+{%- if label_as_link -%}
+    </a>
+{%- endif -%}

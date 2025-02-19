@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-02-18 17:46+0000\n"
+"POT-Creation-Date: 2025-02-18 18:42+0000\n"
 "PO-Revision-Date: 2024-12-08 20:00+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -310,6 +310,9 @@ msgstr "Stad"
 msgid "Clear all caches"
 msgstr "Leeg alle caches"
 
+msgid "Close"
+msgstr "Sluiten"
+
 msgid "Conference"
 msgstr "Conferentie"
 
@@ -339,8 +342,8 @@ msgstr ""
 msgid "Correspondence"
 msgstr "Correspondentie"
 
-msgid "Cotton Candy is Betty's default theme."
-msgstr "Cotton Candy is Betty's standaardthema."
+msgid "Cotton Candy is Betty's legacy theme."
+msgstr ""
 
 #, python-brace-format
 msgid "Could not extract {file_path} as a gzip file  (*.gz)."
@@ -495,6 +498,9 @@ msgstr "Verloving"
 msgid "Enrich your ancestry with information from Wikipedia"
 msgstr "Verrijk je familiegeschiedenis met informatie van Wikipedia"
 
+msgid "Entity type"
+msgstr "Entiteitstype"
+
 msgid "Event"
 msgstr "Gebeurtenis"
 
@@ -538,6 +544,9 @@ msgstr "Bestandsverwijzingen"
 msgid "Files"
 msgstr "Bestanden"
 
+msgid "Filters"
+msgstr "Filters"
+
 msgid "Find Betty on Github"
 msgstr ""
 
@@ -575,6 +584,9 @@ msgstr "Statische publieke bestanden aan het genereren..."
 msgid "Generating your site to {output_directory}."
 msgstr "Bezig je site te genereren naar {output_directory}."
 
+msgid "Go to the front page"
+msgstr ""
+
 msgid "HTTP API Documentation"
 msgstr "HTTP API-documentatie"
 
@@ -595,6 +607,9 @@ msgstr "Het spijt me, schat, maar het lijkt erop dat er geen plaatsen zijn."
 
 msgid "I'm sorry, dear, but it seems there are no sources."
 msgstr "Het spijt me, schat, maar het lijkt erop dat er geen bronnen zijn."
+
+msgid "I'm sorry, dear, but it seems there is nothing to show."
+msgstr "Het spijt me, schat, maar het lijkt erop dat er niets is om te laten zien."
 
 msgid "I'm sorry, dear, but it seems this page does not exist."
 msgstr "Het spijt me, lieverd, maar het lijkt erop dat deze pagina niet bestaat."
@@ -620,6 +635,9 @@ msgstr "Ongeldige JSON: {error}."
 #, python-brace-format
 msgid "Invalid YAML: {error}."
 msgstr "Ongeldige YAML: {error}."
+
+msgid "Keywords"
+msgstr ""
 
 msgid "Language"
 msgstr "Taal"
@@ -704,6 +722,9 @@ msgstr "Huwelijk"
 msgid "Media"
 msgstr "Media"
 
+msgid "Media references"
+msgstr ""
+
 msgid "Menu"
 msgstr "Menu"
 
@@ -748,6 +769,9 @@ msgstr "Organisator"
 
 msgid "Other attendees"
 msgstr "Overige aanwezigen"
+
+msgid "Other places contained by this one"
+msgstr ""
 
 msgid "Page not found"
 msgstr "Pagina niet gevonden"
@@ -865,8 +889,15 @@ msgstr "Referenties"
 msgid "Region"
 msgstr "Regio"
 
+msgid "Reset"
+msgstr "Reset"
+
 msgid "Residence"
 msgstr "Woonplaats"
+
+#, python-brace-format
+msgid "Results ({{{ betty-search-results-count }}})"
+msgstr "Resultaten  ({{{ betty-search-results-count }}})"
 
 msgid "Retirement"
 msgstr "Pensioen"
@@ -874,6 +905,9 @@ msgstr "Pensioen"
 #, python-brace-format
 msgid "Saved your project to {configuration_file}."
 msgstr "Configuratie naar \"{configuration_file}\" opgeslagen."
+
+msgid "Search"
+msgstr "Zoeken"
 
 msgid "Serve a generated site"
 msgstr "Serveer een gegenereerde site"
@@ -902,6 +936,9 @@ msgstr "Straat"
 
 msgid "Subject"
 msgstr "Onderwerp"
+
+msgid "Subjects"
+msgstr ""
 
 #, python-brace-format
 msgid ""
@@ -997,6 +1034,9 @@ msgstr ""
 msgid "This field is required."
 msgstr "Dit veld is vereist."
 
+msgid "This information is unavailable to protect people's privacy."
+msgstr ""
+
 msgid "This must be a boolean."
 msgstr "Dit moet een booleaan zijn."
 
@@ -1036,8 +1076,20 @@ msgstr "De gegevens van deze bron zijn niet beschikbaar vanwege privacyredenen."
 msgid "Timeline"
 msgstr "Tijdlijn"
 
+msgid "Toggle menu"
+msgstr ""
+
+msgid "Toggle search"
+msgstr ""
+
+msgid "Toggle translations"
+msgstr ""
+
 msgid "Town"
 msgstr "Town"
+
+msgid "Translations"
+msgstr "Vertalingen"
 
 msgid "Trees"
 msgstr "Stambomen"
@@ -1152,7 +1204,7 @@ msgstr ""
 
 msgid ""
 "Your project has no theme enabled. This means your site's pages may look "
-"bare. Try the \"cotton-candy\" extension."
+"bare. Try the \"raspberry-mint\" extension."
 msgstr ""
 "Er is geen thema ingeschakeld voor je project. Dit betekent dat de "
 "pagina's van je site er leeg uit kunnen zien. Probeer de \"cotton-"
@@ -1222,6 +1274,10 @@ msgstr "vanaf {start_date} tot en met {end_date}"
 msgid "in %(place)s"
 msgstr "te %(place)s"
 
+#, python-format
+msgid "in %(source)s"
+msgstr ""
+
 msgid ""
 "npm (https://www.npmjs.com/) must be available for features that require "
 "Node.js packages to be installed. Ensure that the `npm` executable is "
@@ -1254,6 +1310,9 @@ msgstr "toon minder"
 
 msgid "show more"
 msgstr "toon meer"
+
+msgid "sometime"
+msgstr ""
 
 #, python-brace-format
 msgid "sometime after around {start_date}"

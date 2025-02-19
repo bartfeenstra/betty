@@ -1,0 +1,31 @@
+{%- set embedded = embedded | default(False) -%}
+{%- set person_context = entity_contexts['person'] -%}
+{%- macro person_label(entity) -%}
+    {% include 'entity/label--person.html.j2' %}
+{%- endmacro -%}
+{%- if entity.name -%}
+    {%- set formatted_event = entity.name | localize | html_lang | safe -%}
+{%- else -%}
+    {%- set formatted_event = entity.event_type.plugin_label() | localize | html_lang | safe -%}
+{%- endif -%}
+{%- if entity is persistent_entity_id and not embedded -%}
+    {%- set formatted_event -%}
+        <a href="{{ entity | url }}">{{ formatted_event }}</a>
+    {%- endset -%}
+{%- endif -%}
+{%- set subjects = entity.presences | select('public') | selectattr('role', 'presence_role_plugin', 'subject') | map(attribute='person') | select('public') | list -%}
+{%- set non_context_subjects = subjects | reject('eq', person_context) | list -%}
+{%- set formatted_subjects = non_context_subjects | map(person_label) | join(', ') %}
+{%- if non_context_subjects | length == 0 -%}
+    {{ formatted_event }}
+{%- else -%}
+    {%- if person_context in subjects -%}
+        {% trans event = formatted_event, subjects = formatted_subjects -%}
+            {{ event }} with {{ subjects }}
+        {%- endtrans %}
+    {%- else -%}
+        {% trans event = formatted_event, subjects = formatted_subjects -%}
+            {{ event }} of {{ subjects }}
+        {%- endtrans %}
+    {%- endif -%}
+{%- endif -%}

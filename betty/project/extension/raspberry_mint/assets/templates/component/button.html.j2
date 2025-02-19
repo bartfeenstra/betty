@@ -1,0 +1,1 @@
+<button type="button"{% if html_id is defined %} id="{{ html_id }}"{% endif %} class="btn {% if button_secondary | default(false) %}btn-secondary{% else %}btn-primary{% endif %}{% if html_class is defined %} {{ html_class | join(' ') }}{% endif %}">{{ button_label }}</button>

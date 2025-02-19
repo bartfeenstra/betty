@@ -1,0 +1,57 @@
+{# Citation formatting is inspired by the MLA style guide(https://style.mla.org/) #}
+{% set citation_context = entity_contexts['citation'] %}
+{% if entity.source and entity.source.public %}
+    {% if entity.source.public %}
+        {% if entity.source.author %}
+            {% set formatted_source_author %}
+                {{ entity.source.author | localize }}.
+            {% endset %}
+        {% endif %}
+        {% set formatted_source_label %}
+            <i>"{% with entity = entity.source %}{% include ['entity/label--source.html.j2', 'entity/label.html.j2'] %}{% endwith %}"</i>.
+        {% endset %}
+        {% if entity.source.publisher %}
+            {% set formatted_source_publisher %}
+                {{ entity.source.publisher | localize }}{% if entity.public and (entity.location or entity.date) %},{% else %}.{% endif %}
+            {% endset %}
+        {% endif %}
+    {% else %}
+        {% set formatted_source_label %}
+            {% include 'entity/private.html.j2' %}
+        {% endset %}
+    {% endif %}
+{% endif %}
+{% if entity.public %}
+    {% if entity.location %}
+        {% set formatted_citation_location %}
+            {%- set location = entity.location | localize -%}
+            {%- if citation_context != entity and entity is persistent_entity_id -%}
+                <a href="{{ entity | url }}">
+            {%- endif -%}
+            {{ location }}
+            {%- if citation_context != entity and entity is persistent_entity_id -%}
+                </a>
+            {%- endif -%}.
+        {% endset %}
+    {% endif %}
+    {% if entity.date %}
+        {% set formatted_citation_date %}
+            {% trans date = entity.date | format_datey %}Accessed {{ date }}{% endtrans %}.
+        {% endset %}
+    {% endif %}
+{% else %}
+    {% set formatted_citation_label %}
+        <span class="citation-location">
+            {%- include 'entity/private.html.j2' -%}
+        </span>
+{% endset %}
+{% endif -%}
+
+{{ [
+    formatted_source_author,
+    formatted_source_label,
+    formatted_source_publisher,
+    formatted_citation_location,
+    formatted_citation_date,
+    formatted_citation_label,
+] | map('default', '') | map('trim') | reject('eq', '') | join(' ') | trim }}

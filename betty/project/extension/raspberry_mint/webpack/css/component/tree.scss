@@ -1,0 +1,13 @@
+.tree-section {
+  /* Trees are full width, so leave enough vertical space for scrolling. */
+  height: 50vh;
+
+  .tree {
+    margin-left: -$border-width;
+    margin-right: -$border-width;
+  }
+}
+
+.tree {
+  border: $border-width solid var(--betty-border-color);
+}

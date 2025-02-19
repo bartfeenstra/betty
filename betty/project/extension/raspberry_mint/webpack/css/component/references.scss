@@ -1,0 +1,5 @@
+.reference {
+  &:target {
+    background-color: var(--betty-focus-color);
+  }
+}

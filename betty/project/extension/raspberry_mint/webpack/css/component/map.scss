@@ -1,0 +1,19 @@
+.map-section {
+  /* Maps are full width, so leave enough vertical space for scrolling. */
+  height: 50vh;
+
+  .map {
+    margin-left: -$border-width;
+    margin-right: -$border-width;
+  }
+}
+
+.map {
+  border: $border-width solid var(--betty-border-color);
+
+
+  &:focus {
+    border-color: var(--betty-focus-color);
+    outline: none;
+  }
+}

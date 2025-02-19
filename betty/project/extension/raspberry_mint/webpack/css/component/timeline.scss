@@ -1,0 +1,84 @@
+.timeline {
+  --timeline-column-gap: 0.75em;
+
+  display: grid;
+  gap: $spacer * 2 var(--timeline-column-gap);
+  grid-auto-columns: max-content;
+  grid-template-columns: $border-width 1fr;
+  list-style: none;
+  padding-left: 1em;
+
+  &::before {
+    content: "";
+    grid-column: 1;
+    grid-row: 1 / span calc(var(--timeline-item-count) * 2);
+    background: $black;
+  }
+
+  li {
+    position: relative;
+    grid-column: 2;
+    grid-row: span 2;
+
+    &::before, &::after {
+      aspect-ratio: 1;
+      border-radius: 50%;
+      content: "";
+      left: calc(-1 * (var(--timeline-column-gap) + $border-width / 2));
+      position: absolute;
+      transform: translate(-50%);
+    }
+
+    &::before {
+      background: $white;
+      border: $border-width solid $black;
+      top: 0;
+      width: $border-width * 9;
+    }
+
+    &.timeline-attendee::after {
+      background: $primary-200;
+      top: $border-width * 3;
+      width: $border-width * 3;
+    }
+
+    &.timeline-attendee--subject::after { /* stylelint-disable-line selector-class-pattern */
+      background: $primary;
+    }
+  }
+}
+
+
+@include media-breakpoint-up(lg) {
+  .timeline {
+    grid-template-columns: 1fr $border-width 1fr;
+    pading-left: 0;
+
+    &::before {
+      grid-column: 2;
+      grid-row: 1 / span var(--timeline-item-count);
+    }
+
+    li {
+      &::before, &::after {
+        transform: translate(-50%);
+      }
+
+      &:nth-child(odd) {
+        grid-column: 1;
+
+        &::before, &::after {
+          left: calc(100% + var(--timeline-column-gap) + $border-width / 2);
+        }
+      }
+
+      &:nth-child(even) {
+        grid-column: 3;
+      }
+
+      &:nth-child(2) {
+        grid-row: 2/4;
+      }
+    }
+  }
+}

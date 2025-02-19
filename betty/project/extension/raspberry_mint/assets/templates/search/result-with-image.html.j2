@@ -1,0 +1,12 @@
+{% set embedded=True %}
+<div class="flex-grow-1 search-result-description">
+    <span class="link">{% include ['entity/label--' + entity.plugin_id() + '.html.j2', 'entity/label.html.j2'] %}</span>
+    {% include 'entity/summary--' + entity.plugin_id() + '.html.j2' ignore missing %}
+</div>
+{% set image_reference = entity.file_references | selectattr('file', 'public') | selectattr('file.media_type', 'image_supported_media_type') | first %}
+{% if image_reference is defined %}
+    <div class="search-result-preview">
+        <img src="{{ ('betty-static://' ~ image_reference | image_resize_cover((100, 100))) | url }}" class="image rounded-circle" alt="{{ image_reference.file.label | localize }}">
+    </div>
+{% endif %}
+<a href="{{ entity | url }}" class="stretched-link"><span class="visually-hidden">View {{ entity.label | localize | html_lang }}</span></a>

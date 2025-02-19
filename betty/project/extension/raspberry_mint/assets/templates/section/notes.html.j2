@@ -1,0 +1,20 @@
+{% set notes = entity.notes | select('public') | list %}
+{% if notes | length > 0 %}
+    <div class="container my-5">
+        <div class="row">
+            <div class="col col-12 col-lg-8">
+                <section id="notes" class="section">
+                    <h2 class="section-heading">
+                        {% trans %}Notes{% endtrans %}
+                        {% with url = page_resource | url ~ '#notes'%}
+                            {% include 'component/permalink.html.j2' %}
+                        {% endwith %}
+                    </h2>
+                    {% for note in notes %}
+                        {{ note.text | localize | paragraphs }}
+                    {% endfor %}
+                </section>
+            </div>
+        </div>
+    </div>
+{% endif %}

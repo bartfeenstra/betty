@@ -1,0 +1,30 @@
+.section {
+  position: relative;
+
+  &:target::before {
+    background-color: var(--betty-focus-color);
+    content: "";
+    display: block;
+    height: 100%;
+    left: $border-width * -2;
+    position: absolute;
+    width: $border-width;
+  }
+}
+
+.section-heading {
+  padding-left: $border-width * 4;
+  position: relative;
+  z-index:1;
+
+  &::before {
+    background-color: var(--betty-heading-embellishment-color);
+    content:"";
+    display: block;
+    height: 1lh;
+    left: 0;
+    position: absolute;
+    width: $border-width * 2;
+    z-index:-1;
+  }
+}

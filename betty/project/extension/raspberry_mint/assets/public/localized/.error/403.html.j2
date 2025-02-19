@@ -1,0 +1,11 @@
+{% extends 'base.html.j2' %}
+{% set page_title = _('Access denied') %}
+{% block page_content %}
+    <div class="container">
+        <div class="row">
+            <div class="col col-12 col-lg-8">
+                <p>{% trans %}I'm sorry, dear, but it seems you're not allowed to view this page.{% endtrans %}</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

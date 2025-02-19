@@ -1,0 +1,16 @@
+{%- macro place_enclosure_label(place, place_context = none, date_context = none) -%}
+    {%- with entity = place -%}
+        {%- include ['entity/label--place.html.j2', 'entity/label.html.j2'] -%}
+    {%- endwith -%}
+    {{ _place_enclosure_label(place, place_context, date_context) }}
+{%- endmacro -%}
+
+{%- macro _place_enclosure_label(place, place_context = none, date_context = none) -%}
+    {%- set encloser_enclosure = place.enclosers | negotiate_has_dates(date_context | default(none)) -%}
+    {%- if encloser_enclosure is not none and (place_context is none or place_context != encloser_enclosure.encloser) -%}
+        {%- with entity = encloser_enclosure.encloser -%}
+            , {% include 'entity/label--place.html.j2' -%}
+        {%- endwith -%}
+        {{ _place_enclosure_label(encloser_enclosure.encloser, place_context) }}
+    {%- endif -%}
+{%- endmacro -%}

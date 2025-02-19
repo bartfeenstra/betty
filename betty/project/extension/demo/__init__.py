@@ -16,11 +16,11 @@ from betty.locale.localizable import static, _
 from betty.plugin import ShorthandPluginBase
 from betty.project import generate
 from betty.project.extension import Extension
-from betty.project.extension.cotton_candy import CottonCandy
 from betty.project.extension.demo.project import load_ancestry
 from betty.project.extension.deriver import Deriver
 from betty.project.extension.http_api_doc import HttpApiDoc
 from betty.project.extension.maps import Maps
+from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.trees import Trees
 from betty.project.extension.wikipedia import Wikipedia
 from betty.project.load import LoadAncestryEvent
@@ -60,10 +60,10 @@ class Demo(ShorthandPluginBase, NavigationLinkProvider, Extension):
     @classmethod
     def depends_on(cls) -> set[PluginIdentifier[Extension]]:
         return {
-            CottonCandy,
             Deriver,
             HttpApiDoc,
             Maps,
+            RaspberryMint,
             Trees,
             Wikipedia,
         }

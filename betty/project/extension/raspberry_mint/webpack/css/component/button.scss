@@ -1,0 +1,32 @@
+.btn {
+  &:focus {
+    background-color: var(--betty-focus-color);
+    border-color: var(--betty-focus-contrast-color);
+    color: var(--betty-focus-contrast-color);
+  }
+}
+
+@mixin button {
+  --bs-btn-active-bg: #{$primary-800};
+  --bs-btn-active-border-color: #{$primary-800};
+  --bs-btn-active-color: #{$white};
+  --bs-btn-hover-bg: #{$primary-700};
+  --bs-btn-hover-border-color: #{$primary-700};
+  --bs-btn-hover-color: #{$white};
+}
+
+.btn.btn-primary {
+  @include button;
+
+  --bs-btn-bg: #{$primary};
+  --bs-btn-border-color: #{$primary};
+  --bs-btn-color: #{$white};
+}
+
+.btn.btn-secondary {
+  @include button;
+
+  --bs-btn-bg: #{$white};
+  --bs-btn-border-color: #{$primary};
+  --bs-btn-color: #{$primary};
+}

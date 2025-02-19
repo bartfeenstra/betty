@@ -1,0 +1,17 @@
+.accordion-button {
+  margin-bottom: 0;
+
+  &:focus {
+    background-color: var(--betty-focus-color);
+    box-shadow: 0 0 var(--betty-focus-color), 0 2px var(--betty-focus-contrast-color);
+    color: var(--betty-focus-contrast-color) !important;
+    text-decoration-color: var(--betty-focus-contrast-color);
+  }
+}
+
+.accordion-body {
+  @extend .mb-3;
+
+  border-right: $border-width solid $black;
+  margin-right: calc((1.5em - $border-width) / 2);
+}

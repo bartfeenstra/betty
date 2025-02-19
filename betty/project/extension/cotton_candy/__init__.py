@@ -74,7 +74,7 @@ class CottonCandy(
 
     _plugin_id = "cotton-candy"
     _plugin_label = static("Cotton Candy")
-    _plugin_description = _("Cotton Candy is Betty's default theme.")
+    _plugin_description = _("Cotton Candy is Betty's legacy theme.")
 
     @private
     def __init__(

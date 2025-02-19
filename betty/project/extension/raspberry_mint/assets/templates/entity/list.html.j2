@@ -1,0 +1,16 @@
+{% set entities = entities | select('public') | list %}
+{% set ns = namespace(entities_and_names = []) %}
+{% for entity in entities %}
+    {% do ns.entities_and_names.append((entity, entity.label | localize)) %}
+{% endfor %}
+{% set entities = ns.entities_and_names | sort(attribute=1) | map(attribute=0) | list %}
+{% if entities | length > 0 %}
+    <ul class="entity-list">
+        {% for entity in entities %}
+            <li>
+                {% include ['entity/label--' + entity.plugin_id() + '.html.j2', 'entity/label.html.j2'] %}
+                {% include 'entity/summary--' + entity.plugin_id() + '.html.j2' ignore missing %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}

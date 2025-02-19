@@ -1,0 +1,36 @@
+.aka {
+  .person-label {
+    font-style: italic;
+  }
+}
+
+a.file-view-original {
+  background-image: icon-expand($primary);
+  background-position-y: center;
+  background-repeat: no-repeat;
+  background-size: 1lh 1lh;
+  display: inline-block;
+  margin-top: $spacer / 2;
+  padding-left: 1.25lh;
+
+  &:focus {
+    background-image: icon-expand($black);
+  }
+}
+
+.file-usage {
+  background-color: $gray-100;
+}
+
+.entity-list {
+  list-style: none;
+  padding-left: 0;
+
+  li {
+    padding: $spacer / 2;
+
+    &:nth-child(odd) {
+      background-color: $gray-100;
+    }
+  }
+}

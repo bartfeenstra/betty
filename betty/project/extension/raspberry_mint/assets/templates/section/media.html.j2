@@ -1,0 +1,37 @@
+{% set file_references = file_references | selectattr('file', 'public') | list %}
+{% if file_references | length > 0 %}
+    <div class="my-5 py-5" data-bs-theme="dark">
+        <div class="container">
+            <section id="media" class="section">
+                <div class="row">
+                    <div class="col col-12 col-lg-8">
+                        <h2 class="section-heading">
+                            {% trans %}Media{% endtrans %}
+                            {% with url = page_resource | url ~ '#media' %}
+                                {% include 'component/permalink.html.j2' %}
+                            {% endwith %}
+                        </h2>
+                    </div>
+                </div>
+                <div class="media row row-cols-md-2 row-cols-lg-3 row-cols-xxl-4">
+                    {% for file_reference in file_references %}
+                        <div class="col media-file mt-3 position-relative">
+                            {% if file_reference.file.media_type is image_supported_media_type %}
+                                <figure>
+                                    <picture>
+                                        <source srcset="{{ ('betty-static://' ~ file_reference | image_resize_cover((900, 900))) | url }}" media="(min-width: 500px)">
+                                        <img src="{{ ('betty-static://' ~ file_reference | image_resize_cover((500, 500))) | url }}" alt="{{ file_reference.file.label | localize }}" class="image">
+                                    </picture>
+                                    <figcaption class="mt-1 small text-truncate">{{ file_reference.file.label | localize | html_lang }}</figcaption>
+                                </figure>
+                            {% else %}
+                                <p class="small">{{ file_reference.file.label | localize | html_lang }}</p>
+                            {% endif %}
+                            <a href="{{ file_reference.file | url }}" class="stretched-link"><span class="visually-hidden">View {{ file_reference.file.label | localize | html_lang }}</span></a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+    </div>
+{% endif %}

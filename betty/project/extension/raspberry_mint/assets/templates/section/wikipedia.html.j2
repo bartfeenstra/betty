@@ -1,0 +1,24 @@
+{% if 'wikipedia' in project.extensions %}
+    {% set content -%}
+        {% with resource = entity %}
+            {% include 'wikipedia.html.j2' %}
+        {% endwith %}
+    {%- endset %}
+    {% if content %}
+        <div class="container my-5">
+            <div class="row">
+                <div class="col col-12 col-lg-8">
+                    <section id="wikipedia" class="section">
+                        <h2 class="visually-hidden">
+                            {% trans %}About{% endtrans %}
+                            {% with url = page_resource | url ~ '#wikipedia' %}
+                                {% include 'component/permalink.html.j2' %}
+                            {% endwith %}
+                        </h2>
+                        {{ content }}
+                    </section>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endif %}

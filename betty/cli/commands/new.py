@@ -17,7 +17,6 @@ from betty.machine_name import machinify, assert_machine_name
 from betty.plugin import ShorthandPluginBase
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project.config import LocaleConfiguration, ProjectConfiguration
-from betty.project.extension.cotton_candy import CottonCandy
 from betty.project.extension.deriver import Deriver
 from betty.project.extension.gramps import Gramps
 from betty.project.extension.gramps.config import (
@@ -27,6 +26,7 @@ from betty.project.extension.gramps.config import (
 from betty.project.extension.http_api_doc import HttpApiDoc
 from betty.project.extension.maps import Maps
 from betty.project.extension.privatizer import Privatizer
+from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.trees import Trees
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.wikipedia import Wikipedia
@@ -79,7 +79,9 @@ class New(ShorthandPluginBase, AppDependentFactory, Command):
                 configuration_file_path,
             )
 
-            configuration.extensions.enable(CottonCandy, Deriver, Privatizer, Wikipedia)
+            configuration.extensions.enable(
+                Deriver, Privatizer, RaspberryMint, Wikipedia
+            )
             webpack_requirement = await Webpack.requirement()
             if webpack_requirement.is_met():
                 configuration.extensions.enable(HttpApiDoc, Maps, Trees)

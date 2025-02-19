@@ -13,13 +13,13 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project
 from betty.project.config import LocaleConfiguration
 from betty.project.extension._theme.search import Index
-from betty.project.extension.cotton_candy import CottonCandy
+from betty.project.extension.raspberry_mint import RaspberryMint
 
 
 class TestIndex:
     async def test_build_empty(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.extensions.enable(CottonCandy)
+            project.configuration.extensions.enable(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
                 LocaleConfiguration(
@@ -42,7 +42,7 @@ class TestIndex:
         person = Person(id=person_id)
 
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.extensions.enable(CottonCandy)
+            project.configuration.extensions.enable(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
                 LocaleConfiguration(
@@ -74,7 +74,7 @@ class TestIndex:
         )
 
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.extensions.enable(CottonCandy)
+            project.configuration.extensions.enable(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
                 LocaleConfiguration(
@@ -112,7 +112,7 @@ class TestIndex:
         )
 
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.extensions.enable(CottonCandy)
+            project.configuration.extensions.enable(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
                 LocaleConfiguration(
@@ -152,7 +152,7 @@ class TestIndex:
         )
 
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.extensions.enable(CottonCandy)
+            project.configuration.extensions.enable(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
                 LocaleConfiguration(
@@ -194,7 +194,7 @@ class TestIndex:
         )
 
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.extensions.enable(CottonCandy)
+            project.configuration.extensions.enable(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
                 LocaleConfiguration(
@@ -239,7 +239,7 @@ class TestIndex:
         )
 
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.extensions.enable(CottonCandy)
+            project.configuration.extensions.enable(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
                 LocaleConfiguration(
@@ -271,7 +271,7 @@ class TestIndex:
         )
 
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.extensions.enable(CottonCandy)
+            project.configuration.extensions.enable(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.ancestry.add(place)
             async with project:
@@ -349,7 +349,7 @@ class TestIndex:
         )
 
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.extensions.enable(CottonCandy)
+            project.configuration.extensions.enable(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
                 LocaleConfiguration(
@@ -380,7 +380,7 @@ class TestIndex:
         )
 
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.extensions.enable(CottonCandy)
+            project.configuration.extensions.enable(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.ancestry.add(file)
             async with project:
