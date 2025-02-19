@@ -78,6 +78,8 @@ Explore a Betty demonstration site
       --path TEXT           The path to the project directory to generate the
                             demonstration site into instead of serving the site in a
                             browser window.
+      --url TEXT            The site's public project URL. Used only when `--path`
+                            is given.
       --help                Show this message and exit.
 
 
