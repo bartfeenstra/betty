@@ -119,6 +119,7 @@ class Builder:
         entry_point_providers: Sequence[EntryPointProvider & Extension],
         debug: bool,
         renderer: Renderer,
+        root_path: str,
         *,
         job_context: Context,
         localizer: Localizer,
@@ -127,6 +128,7 @@ class Builder:
         self._entry_point_providers = entry_point_providers
         self._debug = debug
         self._renderer = renderer
+        self._root_path = root_path
         self._job_context = job_context
         self._localizer = localizer
 
@@ -205,6 +207,7 @@ class Builder:
         )
         webpack_configuration_json = dumps(
             {
+                "rootPath": self._root_path,
                 # Use a relative path so we avoid portability issues with
                 # leading root slashes or drive letters.
                 "buildDirectoryPath": str(

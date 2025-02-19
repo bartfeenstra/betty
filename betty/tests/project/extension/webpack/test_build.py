@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 from pytest_mock import MockerFixture
-
+import aiofiles
 from betty._npm import NpmUnavailable
 from betty.app import App
 from betty.job import Context
@@ -34,46 +34,68 @@ class TestBuilder:
 
     async def test_build(self, new_temporary_app: App, tmp_path: Path) -> None:
         # Loop instead of parameterization, so we can reuse caches.
-        for with_entry_point_provider, debug in [
+        for with_entry_point_provider, debug, root_path in [
             # With an entry point provider and debug.
-            (True, True),
+            (True, True, ""),
+            # With an entry point provider and a root path.
+            (True, False, "/root-path"),
             # Without an entry point provider or debug.
-            (False, False),
+            (False, False, ""),
         ]:
-            async with Project.new_temporary(new_temporary_app) as project:
-                project.configuration.debug = debug
-                if with_entry_point_provider:
-                    project.configuration.extensions.enable(
-                        DummyEntryPointProviderExtension
-                    )
-                job_context = Context()
-                async with project:
-                    extensions = await project.extensions
-                    sut = Builder(
-                        tmp_path,
-                        (
-                            [extensions[DummyEntryPointProviderExtension]]
-                            if with_entry_point_provider
-                            else []
-                        ),
-                        False,
-                        await project.renderer,
-                        job_context=job_context,
-                        localizer=DEFAULT_LOCALIZER,
-                    )
-                    # Build twice, to test with warm caches as well.
-                    await sut.build()
-                    webpack_build_directory_path = await sut.build()
-                assert (webpack_build_directory_path / "css" / "vendor.css").exists()
-                assert (
+            await self._test_build(
+                new_temporary_app, tmp_path, with_entry_point_provider, debug, root_path
+            )
+
+    async def _test_build(
+        self,
+        new_temporary_app: App,
+        tmp_path: Path,
+        with_entry_point_provider: bool,
+        debug: bool,
+        root_path: str,
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app) as project:
+            job_context = Context()
+            async with project:
+                sut = Builder(
+                    tmp_path,
+                    (
+                        [
+                            await DummyEntryPointProviderExtension.new_for_project(
+                                project
+                            )
+                        ]
+                        if with_entry_point_provider
+                        else []
+                    ),
+                    debug,
+                    await project.renderer,
+                    root_path,
+                    job_context=job_context,
+                    localizer=DEFAULT_LOCALIZER,
+                )
+                # Build twice, to test with warm caches as well.
+                await sut.build()
+                webpack_build_directory_path = await sut.build()
+            assert (webpack_build_directory_path / "css" / "vendor.css").exists()
+            assert (
+                webpack_build_directory_path / "js" / "webpack-entry-loader.js"
+            ).exists()
+            if with_entry_point_provider:
+                async with aiofiles.open(
                     webpack_build_directory_path / "js" / "webpack-entry-loader.js"
+                ) as f:
+                    webpack_entry_loader_js = await f.read()
+                assert f"{root_path}/js/runtime.js" in webpack_entry_loader_js
+                assert (
+                    f"{root_path}/js/{DummyEntryPointProviderExtension.plugin_id()}.js"
+                    in webpack_entry_loader_js
+                )
+                assert (
+                    webpack_build_directory_path
+                    / "js"
+                    / f"{DummyEntryPointProviderExtension.plugin_id()}.js"
                 ).exists()
-                if with_entry_point_provider:
-                    assert (
-                        webpack_build_directory_path
-                        / "js"
-                        / f"{DummyEntryPointProviderExtension.plugin_id()}.js"
-                    ).exists()
 
     async def test_build_with_npm_unavailable(
         self, mocker: MockerFixture, tmp_path: Path
@@ -88,6 +110,7 @@ class TestBuilder:
             [],
             False,
             m_renderer,
+            "",
             job_context=job_context,
             localizer=DEFAULT_LOCALIZER,
         )

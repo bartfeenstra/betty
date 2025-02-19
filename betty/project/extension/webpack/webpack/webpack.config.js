@@ -40,7 +40,7 @@ class EntryScriptCollector {
                   .get(entryName)
                   .getFiles()
                   .filter(entryFile => extensionRegexp.test(entryFile))
-                  .map(entryFile => `/${entryFile}`)
+                  .map(entryFile => `${configuration.rootPath}/${entryFile}`)
               }
 
               const webpackEntryLoader = `
