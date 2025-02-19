@@ -52,7 +52,12 @@ class Demo(ShorthandPluginBase, AppDependentFactory, Command):
             "path",
             help="The path to the project directory to generate the demonstration site into instead of serving the site in a browser window.",
         )
-        async def demo(*, path: str | None) -> None:
+        @click.option(
+            "--url",
+            "url",
+            help="The site's public project URL. Used only when `--path` is given.",
+        )
+        async def demo(*, path: str | None, url: str | None) -> None:
             from betty.project.extension.demo.serve import DemoServer
 
             if path is None:
@@ -62,6 +67,8 @@ class Demo(ShorthandPluginBase, AppDependentFactory, Command):
                         await asyncio.sleep(999)
             else:
                 project = await create_project(self._app, Path(path))
+                if url is not None:
+                    project.configuration.url = url
                 async with project:
                     await load.load(project)
                     await stddemo.generate_with_cleanup(project)
