@@ -417,10 +417,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ProjectServer": MissingReason.SHOULD_BE_COVERED,
         "BuiltinProjectServer": {
             "public_url": MissingReason.COVERED_ELSEWHERE,
-            "start": MissingReason.COVERED_ELSEWHERE,
             "stop": MissingReason.COVERED_ELSEWHERE,
         },
-        "BuiltinServer": MissingReason.SHOULD_BE_COVERED,
+        "BuiltinServer": {
+            "public_url": MissingReason.COVERED_ELSEWHERE,
+            "stop": MissingReason.COVERED_ELSEWHERE,
+        },
         "NoPublicUrlBecauseServerNotStartedError": MissingReason.SHOULD_BE_COVERED,
         "OsError": MissingReason.STATIC_CONTENT_ONLY,
         "Server": MissingReason.ABSTRACT,
