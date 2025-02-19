@@ -285,8 +285,8 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
                         parent["citer"] = Citer()
                     if "breadcrumbs" not in parent:
                         parent["breadcrumbs"] = Breadcrumbs()
-                    if "html_id" not in parent:
-                        parent["html_id"] = HtmlId()
+                    if "_html_id_generator" not in parent:
+                        parent["_html_id_generator"] = HtmlId()
                     for jinja2_provider in jinja2_providers:
                         for key, value in jinja2_provider.new_context_vars().items():
                             if key not in parent:
