@@ -28,7 +28,7 @@ Betty does not help you gather or manage the data for your family history. For t
 Find Betty on
 -------------
 - `Twitter <https://twitter.com/Betty_Project>`_
-- `Github <https://github.com/bartfeenstra/betty>`_
+- `GitHub <https://github.com/bartfeenstra/betty>`_
 - `PyPI <https://pypi.org/project/betty>`_
 
 In this section

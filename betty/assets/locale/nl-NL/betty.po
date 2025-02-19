@@ -547,7 +547,7 @@ msgstr "Bestanden"
 msgid "Filters"
 msgstr "Filters"
 
-msgid "Find Betty on Github"
+msgid "Find Betty on GitHub"
 msgstr ""
 
 msgid "Find out more about this image on Wikimedia Commons."

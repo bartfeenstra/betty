@@ -78,7 +78,7 @@ class Demo(ShorthandPluginBase, NavigationLinkProvider, Extension):
     def secondary_navigation_links(self) -> Sequence[NavigationLink]:
         return [
             NavigationLink(
-                "https://github.com/bartfeenstra/betty", _("Find Betty on Github")
+                "https://github.com/bartfeenstra/betty", _("Find Betty on GitHub")
             ),
             NavigationLink(
                 "https://betty.readthedocs.io/", _("Read the Betty documentation")
