@@ -28,7 +28,7 @@ ignore = [
 ]
 
 [lint.per-file-ignores]
-"betty/{tests,tests_playwright}/*" = [
+"betty/tests/*" = [
     'D100',
     'D101',
     'D102',

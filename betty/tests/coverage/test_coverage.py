@@ -541,8 +541,6 @@ class CoverageTester:
         # Skip tests.
         if ROOT_DIRECTORY_PATH / "betty" / "tests" in file_path.parents:
             return
-        if ROOT_DIRECTORY_PATH / "betty" / "tests_playwright" in file_path.parents:
-            return
 
         src_module_path = file_path.resolve()
         expected_test_module_path = (
