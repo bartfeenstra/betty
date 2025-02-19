@@ -29,7 +29,7 @@ def generate_html_id(context: Context) -> str:
     """
     Generate an HTML ID unique within the current render call.
     """
-    html_id = context.resolve_or_missing("html_id")
+    html_id = context.resolve_or_missing("_html_id_generator")
     if not isinstance(html_id, HtmlId):
         raise RuntimeError(
             "No `html_id` context variable exists in this Jinja2 template."
