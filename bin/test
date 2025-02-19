@@ -22,7 +22,4 @@ if [ -z "${BETTY_TEST_SKIP_ESLINT-}" ]; then
   ./bin/test-eslint
 fi
 ./bin/test-pytest
-if [ -z "${BETTY_TEST_SKIP_PLAYWRIGHT-}" ]; then
-  ./bin/test-playwright
-fi
 ./bin/test-build-setuptools

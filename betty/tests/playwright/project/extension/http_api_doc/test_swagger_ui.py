@@ -9,10 +9,12 @@ from betty.project import Project
 from betty.project.extension.http_api_doc import HttpApiDoc
 from betty.project.generate import generate
 from betty.serve import Server
+from betty.tests.playwright import check_skip
 
 
 class TestSwaggerUi:
     @pytest.fixture(scope="session")
+    @check_skip
     async def served_project(self) -> AsyncIterator[tuple[Project, Server]]:
         async with (
             App.new_temporary() as app,
@@ -28,6 +30,7 @@ class TestSwaggerUi:
                     yield project, server
 
     @pytest.mark.asyncio(loop_scope="session")
+    @check_skip
     async def test(self, page: Page, served_project: tuple[Project, Server]) -> None:
         project, server = served_project
         await page.goto(server.public_url + "/api/index.html")
