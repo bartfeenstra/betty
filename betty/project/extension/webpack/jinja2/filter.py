@@ -17,11 +17,13 @@ if TYPE_CHECKING:
 
 
 @pass_context
-def filter_webpack_entry_point_js(context: Context, entry_point_name: str) -> None:
+async def filter_webpack_entry_point_js(
+    context: Context, entry_point_name: str
+) -> None:
     """
     Add a Webpack entry point's JavaScript files to the current page.
     """
-    filter_public_js(context, "/js/webpack-entry-loader.js")
+    await filter_public_js(context, "betty-static:///js/webpack-entry-loader.js")
     _context_js_entry_points(context).add(entry_point_name)
 
 
