@@ -201,6 +201,7 @@ class BuiltinServer(Server):
             for root_path_component in self._root_path.split("/"):
                 temporary_www_directory /= root_path_component
             if temporary_www_directory != temporary_root_directory_path:
+                temporary_www_directory.parent.mkdir(parents=True, exist_ok=True)
                 await symlink(self._www_directory_path, temporary_www_directory)
             www_directory_path = temporary_root_directory_path
         else:
