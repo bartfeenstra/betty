@@ -73,7 +73,8 @@ const webpackConfiguration = {
   entry: configuration.entry,
   output: {
     path: path.resolve(__dirname, configuration.buildDirectoryPath),
-    filename: 'js/[name].js'
+    filename: 'js/[name].js',
+    publicPath: `${configuration.rootPath}/`,
   },
   optimization: {
     concatenateModules: true,
@@ -144,9 +145,6 @@ const webpackConfiguration = {
         use: [
           {
             loader: MiniCssExtractPlugin.loader,
-            options: {
-              publicPath: '/'
-            }
           },
           {
             loader: 'css-loader',
