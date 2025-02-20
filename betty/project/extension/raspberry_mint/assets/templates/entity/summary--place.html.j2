@@ -7,7 +7,7 @@
     {%- endif -%}
     {%- set encloser_enclosure = entity.enclosers | negotiate_has_dates(date_context | default(none)) -%}
     {%- if encloser_enclosure -%}
-        {%- set encloser_label = place_enclosure_label(entity, place_context) -%}
+        {%- set encloser_label = place_enclosure_label(encloser_enclosure.encloser, place_context) -%}
         {%- if encloser_label -%}
             {%- trans place = encloser_label | html_lang -%}
                 in {{ place }}
