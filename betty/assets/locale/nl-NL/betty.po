@@ -75,10 +75,10 @@ msgstr "%(person_individual_name)s is het kind van %(parent_labels)s."
 
 msgid ""
 "A family history as told by <a "
-"href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
+"href=\"https://betty.readthedocs.io\">Betty👵</a>"
 msgstr ""
 "Een familieverhaal verteld door <a "
-"href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
+"href=\"https://betty.readthedocs.io\">Betty👵</a>"
 
 msgid "API documentation"
 msgstr "API-documentatie"
