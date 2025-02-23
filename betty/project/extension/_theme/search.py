@@ -105,7 +105,7 @@ def _static_translations_to_text(
 
 class _EntityTypeIndexer(Generic[_EntityT], ABC):
     def text(self, localizer: Localizer, entity: _EntityT) -> set[str]:
-        text = set()
+        text = {entity.id.lower()}
 
         # Each note is owner by a single other entity, so index it as part of that entity.
         if isinstance(entity, HasNotes):
@@ -148,7 +148,9 @@ class _FileIndexer(_EntityTypeIndexer[File]):
     @override
     def text(self, localizer: Localizer, entity: File) -> set[str]:
         text = super().text(localizer, entity)
-        text.update(entity.label.localize(localizer).strip().lower().split())
+        text.update(entity.path.name.strip().lower().split())
+        if entity.description:
+            text.update(entity.description.localize(localizer).strip().lower().split())
         return text
 
 
