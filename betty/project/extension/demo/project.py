@@ -513,6 +513,10 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
         date=DateRange(Date(1970, 1, 1), start_is_boundary=True),
         place=netherlands,
         citations=[cite_first_person_account],
+        description={
+            "en-US": "The 'birth of the author', so to speak.",
+            "nl-NL": "De 'geboorte van de auteur', om het zo maar te zeggen.",
+        },
     )
     ancestry.add(birth_of_johan_de_boer)
 
