@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-02-23 10:30+0000\n"
+"POT-Creation-Date: 2025-02-23 11:06+0000\n"
 "PO-Revision-Date: 2025-02-19 16:48+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: uk\n"
@@ -1382,14 +1382,6 @@ msgstr "{entity_type} {entity_id}"
 #, python-brace-format
 msgid "{event_type}"
 msgstr "{event_type}"
-
-#, python-brace-format
-msgid "{event_type} ({event_description})"
-msgstr "{event_type} ({event_description})"
-
-#, python-brace-format
-msgid "{event_type} ({event_description}) of {subjects}"
-msgstr "{event_type} ({event_description}) для {subjects}"
 
 #, python-brace-format
 msgid "{event_type} of {subjects}"

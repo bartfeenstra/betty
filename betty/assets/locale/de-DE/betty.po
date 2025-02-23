@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-02-23 10:30+0000\n"
+"POT-Creation-Date: 2025-02-23 11:06+0000\n"
 "PO-Revision-Date: 2024-11-29 18:58+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -1334,14 +1334,6 @@ msgstr "{entity_type} {entity_id}"
 #, python-brace-format
 msgid "{event_type}"
 msgstr "{event_type}"
-
-#, python-brace-format
-msgid "{event_type} ({event_description})"
-msgstr "{event_type} ({event_description})"
-
-#, python-brace-format
-msgid "{event_type} ({event_description}) of {subjects}"
-msgstr "{event_type} ({event_description}) von {subjects}"
 
 #, python-brace-format
 msgid "{event_type} of {subjects}"
