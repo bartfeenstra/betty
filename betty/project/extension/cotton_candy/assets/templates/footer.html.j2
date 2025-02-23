@@ -4,7 +4,7 @@
 <p>
     {{ project.license.summary | localize | html_lang }}
 </p>
-<p>{% trans %}A family history as told by <a href="https://github.com/bartfeenstra/betty">Betty👵</a>{% endtrans %}</p>
+<p>{% trans %}A family history as told by <a href="https://betty.readthedocs.io">Betty👵</a>{% endtrans %}</p>
 {% for link in secondary_navigation_links %}
     <p><a href="{{ link.url | url }}">{{ link.label | localize | html_lang }}</a></p>
 {% endfor %}

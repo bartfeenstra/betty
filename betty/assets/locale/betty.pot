@@ -67,7 +67,7 @@ msgstr ""
 
 msgid ""
 "A family history as told by <a "
-"href=\"https://github.com/bartfeenstra/betty\">Betty👵</a>"
+"href=\"https://betty.readthedocs.io\">Betty👵</a>"
 msgstr ""
 
 msgid "API documentation"
