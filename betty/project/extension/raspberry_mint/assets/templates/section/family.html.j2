@@ -58,7 +58,7 @@
                 {% for family_parents, family_children in entity | person_descendant_families %}
                     {% set family_section_count = family_section_count + 1 %}
                     {% if family_section_count > 1 %}
-                        <hr />
+                        <hr>
                     {% endif %}
                     <div class="mt-2 row row-cols-1 row-cols-lg-2 row-cols-xxl-3 row-gap-3{% if loop.index0 % 2 == 0 %} flex-row-reverse{% endif %}">
                         {% set family_parents = family_parents | reject('eq', entity) | list %}
