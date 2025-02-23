@@ -157,20 +157,10 @@ class Event(
                     person.label.localize(localizer) for person in subjects
                 )
             )
-        if self.description:
-            format_kwargs["event_description"] = self.description
 
         if subjects:
-            if self.description:
-                return _("{event_type} ({event_description}) of {subjects}").format(
-                    **format_kwargs
-                )
-            else:
-                return _("{event_type} of {subjects}").format(**format_kwargs)
-        if self.description:
-            return _("{event_type} ({event_description})").format(**format_kwargs)
-        else:
-            return _("{event_type}").format(**format_kwargs)
+            return _("{event_type} of {subjects}").format(**format_kwargs)
+        return _("{event_type}").format(**format_kwargs)
 
     @override  # type: ignore[callable-functiontype]
     @recursive_repr()
