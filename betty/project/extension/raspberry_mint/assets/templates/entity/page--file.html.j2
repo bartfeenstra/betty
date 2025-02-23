@@ -7,12 +7,14 @@
                 <div class="row justify-content-center">
                     <div class="col">
                         <figure>
-                            <picture>
-                                {% for size, breakpoint in [(1300, 900), (900, 500)] %}
-                                    <source srcset="{{ ('betty-static://' ~ entity | image_resize_cover((size, size))) | url }}" media="(min-width: {{ breakpoint }}px)">
-                                {% endfor %}
-                                <img src="{{ ('betty-static://' ~ entity | image_resize_cover((500, 500))) | url }}" alt="{{ entity.label | localize }}" class="image">
-                            </picture>
+                            <a href="{{ ('betty-static://' ~ entity | file) | url }}" class="image-link">
+                                <picture>
+                                    {% for size, breakpoint in [(1300, 900), (900, 500)] %}
+                                        <source srcset="{{ ('betty-static://' ~ entity | image_resize_cover((size, size))) | url }}" media="(min-width: {{ breakpoint }}px)">
+                                    {% endfor %}
+                                    <img src="{{ ('betty-static://' ~ entity | image_resize_cover((500, 500))) | url }}" alt="{{ entity.label | localize }}" class="image">
+                                </picture>
+                            </a>
                             <figcaption class="mt-1">{{ entity.label | localize }}</figcaption>
                         </figure>
                     </div>

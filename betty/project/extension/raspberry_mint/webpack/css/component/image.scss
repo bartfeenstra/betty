@@ -6,3 +6,7 @@
   object-fit: cover;
   width: 100%;
 }
+
+.image-link:focus .image {
+  border-color: var(--betty-focus-color);
+}

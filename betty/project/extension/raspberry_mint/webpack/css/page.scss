@@ -10,8 +10,4 @@
   .page-intro-image {
     aspect-ratio: 1;
   }
-
-  &:focus .page-intro-image {
-    border-color: var(--betty-focus-color);
-  }
 }
