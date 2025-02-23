@@ -1,0 +1,11 @@
+{% if entity.private -%}
+    {% include 'entity/private.html.j2' %}
+{%- else -%}
+    {%- if entity.individual is not none -%}
+        {{ entity.individual }}
+    {%- else -%}
+        …
+    {%- endif -%}
+    {%- if entity.affiliation is not none %} {{ entity.affiliation }}
+    {%- endif -%}
+{%- endif -%}

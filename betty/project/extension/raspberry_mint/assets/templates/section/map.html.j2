@@ -1,0 +1,6 @@
+{% set places = places | select('public') | rejectattr('coordinates', 'none') | list %}
+{% if places | length > 0 %}
+    <div class="map-section">
+        {% include 'map.html.j2' %}
+    </div>
+{% endif %}

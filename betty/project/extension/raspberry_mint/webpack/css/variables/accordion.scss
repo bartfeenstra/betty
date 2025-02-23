@@ -1,0 +1,9 @@
+$accordion-button-active-bg: none;
+$accordion-button-active-color: inherit;
+$accordion-button-active-icon: icon-chevron-collapse($accordion-icon-color);
+$accordion-button-icon: icon-chevron-expand($accordion-icon-color);
+$accordion-button-padding-y: 0;
+$accordion-button-padding-x: 0;
+$accordion-border-width: 0;
+$accordion-icon-transform: rotateX(-180deg);
+$accordion-icon-width: 1.5em;

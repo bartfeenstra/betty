@@ -1,0 +1,14 @@
+<div class="container">
+    <div class="justify-content-center my-5 row row-cols-1 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-4 row-gap-3">
+        {% for featured_entity_reference in featured_entity_references %}
+            <div class="col">
+                {% with entity = project.ancestry[featured_entity_reference.entity_type][featured_entity_reference.entity_id] %}
+                    {% include [
+                        'entity/card--' + entity.plugin_id() + '.html.j2',
+                        'entity/card.html.j2',
+                    ] %}
+                {% endwith %}
+            </div>
+        {% endfor %}
+    </div>
+</div>

@@ -61,7 +61,7 @@ from betty.string import (
 )
 from betty.typing import internal
 from betty.locale.localized import LocalizedStr
-from betty.warnings import deprecated
+from betty.warnings import deprecated, deprecate
 
 if TYPE_CHECKING:
     from betty.locale.localized import Localized
@@ -591,19 +591,33 @@ def filter_select_has_dates(
 
 
 @pass_context
-def filter_public_css(context: Context, public_path: str) -> None:
+async def filter_public_css(context: Context, public_path: str) -> None:
     """
     Add a CSS file to the current page.
     """
-    context.resolve_or_missing("public_css_paths").append(public_path)
+    if public_path.startswith("/") and len(public_path) >= 2:
+        deprecate(
+            f"Calling `public_css` with a URL path has been deprecated since Betty 0.4.8, and will be removed in Betty 0.5. Instead, prefix the URL path with betty-static://: 'betty-static://{public_path}'."
+        )
+        public_path = f"betty-static://{public_path}"
+    context.resolve_or_missing("public_css_paths").append(
+        await filter_url(context, public_path)
+    )
 
 
 @pass_context
-def filter_public_js(context: Context, public_path: str) -> None:
+async def filter_public_js(context: Context, public_path: str) -> None:
     """
     Add a JavaScript file to the current page.
     """
-    context.resolve_or_missing("public_js_paths").append(public_path)
+    if public_path.startswith("/") and len(public_path) >= 2:
+        deprecate(
+            f"Calling `public_js` with a URL path has been deprecated since Betty 0.4.8, and will be removed in Betty 0.5. Instead, prefix the URL path with betty-static://: 'betty-static://{public_path}'."
+        )
+        public_path = f"betty-static://{public_path}"
+    context.resolve_or_missing("public_js_paths").append(
+        await filter_url(context, public_path)
+    )
 
 
 locale_get_data = get_data

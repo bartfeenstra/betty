@@ -1,0 +1,39 @@
+@function -to-rgb($color) {
+  @return "rgb(#{to-rgb($color)})"
+}
+
+@function icon-chevron-collapse($color) {
+  @return url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="#{-to-rgb($color)}" class="ionicon" viewBox="0 0 512 512"><path d="M102.145 108.514L256 241.855l153.855-133.341-31.437-36.273L256 178.337 133.582 72.241l-31.437 36.273zm0 294.972L256 270.145l153.855 133.341-31.437 36.273L256 333.663 133.582 439.759l-31.437-36.273z"/></svg>');
+}
+
+@function icon-chevron-expand($color) {
+  @return url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="#{-to-rgb($color)}" class="ionicon" viewBox="0 0 512 512"><path d="M136 208l120-104 120 104M136 304l120 104 120-104" fill="none" stroke="currentColor" stroke-width="48" stroke-linecap="square"/></svg>');
+}
+
+@function icon-close($color) {
+  @return url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="#{-to-rgb($color)}" class="ionicon" viewBox="0 0 512 512"><path d="M400 145.49L366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49z"/></svg>');
+}
+
+@function icon-language($color) {
+  @return url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="#{-to-rgb($color)}" class="ionicon" viewBox="0 0 512 512"><path d="M363 176L246 464h47.24l24.49-58h90.54l24.49 58H480zm-26.69 186L363 279.85 389.69 362zM272 320c-.25-.19-20.59-15.77-45.42-42.67 39.58-53.64 62-114.61 71.15-143.33H352V90H214V48h-44v42H32v44h219.25c-9.52 26.95-27.05 69.5-53.79 108.36-32.68-43.44-47.14-75.88-47.33-76.22L143 152l-38 22 6.87 13.86c.89 1.56 17.19 37.9 54.71 86.57.92 1.21 1.85 2.39 2.78 3.57-49.72 56.86-89.15 79.09-89.66 79.47L64 368l23 36 19.3-11.47c2.2-1.67 41.33-24 92-80.78 24.52 26.28 43.22 40.83 44.3 41.67L255 362z"/></svg>');
+}
+
+@function icon-link($color) {
+  @return url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="#{-to-rgb($color)}" class="ionicon" viewBox="0 0 512 512"><path d="M200.66 352H144a96 96 0 010-192h55.41M312.59 160H368a96 96 0 010 192h-56.66M169.07 256h175.86" fill="none" stroke="currentColor" stroke-linecap="square" stroke-linejoin="round" stroke-width="48"/></svg>');
+}
+
+@function icon-primary-navigation($color) {
+  @return url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="#{-to-rgb($color)}" class="ionicon" viewBox="0 0 512 512"><path d="M64 384h384v-42.67H64zm0-106.67h384v-42.66H64zM64 128v42.67h384V128z"/></svg>');
+}
+
+@function icon-search($color) {
+  @return url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="#{-to-rgb($color)}" class="ionicon" viewBox="0 0 512 512"><path d="M464 428L339.92 303.9a160.48 160.48 0 0030.72-94.58C370.64 120.37 298.27 48 209.32 48S48 120.37 48 209.32s72.37 161.32 161.32 161.32a160.48 160.48 0 0094.58-30.72L428 464zM209.32 319.69a110.38 110.38 0 11110.37-110.37 110.5 110.5 0 01-110.37 110.37z"/></svg>');
+}
+
+@function icon-arrow-right($color) {
+  @return url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="#{-to-rgb($color)}" stroke-linecap="square" stroke-miterlimit="10" stroke-width="48" d="M268 112l144 144-144 144M392 256H100"/></svg>');
+}
+
+@function icon-expand($color) {
+  @return url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="#{-to-rgb($color)}" stroke-linecap="square" stroke-miterlimit="10" stroke-width="32" d="M432 320v112H320M421.8 421.77L304 304M80 192V80h112M90.2 90.23L208 208M320 80h112v112M421.77 90.2L304 208M192 432H80V320M90.23 421.8L208 304"/></svg>');
+}

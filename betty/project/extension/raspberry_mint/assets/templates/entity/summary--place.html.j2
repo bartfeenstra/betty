@@ -1,0 +1,17 @@
+{% from 'entity/place-enclosure-label.html.j2' import place_enclosure_label %}
+{%- set embedded = embedded | default(False) -%}
+{%- set place_context = entity_contexts['place'] -%}
+<div class="small">
+    {%- if entity.place_type.plugin_id() != 'unknown' -%}
+        <p class="m-0">{{ entity.place_type.plugin_label() | localize | html_lang }}</p>
+    {%- endif -%}
+    {%- set encloser_enclosure = entity.enclosers | negotiate_has_dates(date_context | default(none)) -%}
+    {%- if encloser_enclosure -%}
+        {%- set encloser_label = place_enclosure_label(encloser_enclosure.encloser, place_context) -%}
+        {%- if encloser_label -%}
+            {%- trans place = encloser_label | html_lang -%}
+                in {{ place }}
+            {%- endtrans -%}
+        {%- endif -%}
+    {%- endif -%}
+</div>

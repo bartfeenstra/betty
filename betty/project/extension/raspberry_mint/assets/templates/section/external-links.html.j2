@@ -1,0 +1,30 @@
+{% if page_resource is has_links %}
+    {% set links = page_resource.links | list %}
+    {% set links = (links | select_localizeds(include_unspecified=true) | list + links | selectattr('locale', 'none') | list) | unique | list %}
+    {% if links | length > 0 %}
+        <div class="container my-5">
+            <section id="external-links" class="section">
+                <h2 class="section-heading">
+                    {% trans %}External links{% endtrans %}
+                    {% with url = page_resource | url ~ '#external-links' %}
+                        {% include 'component/permalink.html.j2' %}
+                    {% endwith %}
+                </h2>
+                <ul>
+                    {% for link in links %}
+                        <li>
+                            <a href="{{ link.url }}"{% if link.locale is not none %}
+                               hreflang="{{ link.locale }}"{% endif %}
+                                    {% if link.relationship is not none %} rel="{{ link.relationship }}"{% endif %}
+                                    {% if link.media_type is not none %}
+                               type="{{ link.media_type }}"{% endif %}>{{ link.label | localize or link.url }}</a>
+                            {% if link.description %}
+                                <p class="small">{{ link.description | localize }}</p>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        </div>
+    {% endif %}
+{% endif %}

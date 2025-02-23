@@ -329,6 +329,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ExtensionTypeInvalidError": MissingReason.SHOULD_BE_COVERED,
         "Theme": MissingReason.STATIC_CONTENT_ONLY,
     },
+    "betty/project/extension/cotton_candy/__init__.py": {
+        "CottonCandy": {
+            "__init_subclass__": MissingReason.INHERITED,
+        },
+    },
     "betty/project/extension/cotton_candy/config.py": {
         "CottonCandyConfiguration": {
             "featured_entities": MissingReason.SHOULD_BE_COVERED,
@@ -417,10 +422,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ProjectServer": MissingReason.SHOULD_BE_COVERED,
         "BuiltinProjectServer": {
             "public_url": MissingReason.COVERED_ELSEWHERE,
-            "start": MissingReason.COVERED_ELSEWHERE,
             "stop": MissingReason.COVERED_ELSEWHERE,
         },
-        "BuiltinServer": MissingReason.SHOULD_BE_COVERED,
+        "BuiltinServer": {
+            "public_url": MissingReason.COVERED_ELSEWHERE,
+            "stop": MissingReason.COVERED_ELSEWHERE,
+        },
         "NoPublicUrlBecauseServerNotStartedError": MissingReason.SHOULD_BE_COVERED,
         "OsError": MissingReason.STATIC_CONTENT_ONLY,
         "Server": MissingReason.ABSTRACT,

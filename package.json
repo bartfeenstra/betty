@@ -3,7 +3,7 @@
     "node": ">= 20"
   },
   "devDependencies": {
-    "@stylistic/eslint-plugin": "^3.0.1",
+    "@stylistic/eslint-plugin": "^4.0.1",
     "@types/node": "*",
     "@types/webpack": "^5.28.5",
     "betty.extension.cotton-candy": "file:./betty/extension/cotton_candy/webpack",

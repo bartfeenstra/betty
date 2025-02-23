@@ -197,6 +197,7 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
             await self._project_entry_point_providers(),
             self._project.configuration.debug,
             await self._project.renderer,
+            self._project.configuration.root_path,
             job_context=job_context,
             localizer=await self._project.app.localizer,
         )

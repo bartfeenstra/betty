@@ -1,0 +1,6 @@
+{% set embedded=True %}
+<div class="search-result-description">
+    <span class="link">{% include ['entity/label--' + entity.plugin_id() + '.html.j2', 'entity/label.html.j2'] %}</span>
+    {% include 'entity/summary--' + entity.plugin_id() + '.html.j2' ignore missing %}
+</div>
+<a href="{{ entity | url }}" class="stretched-link"><span class="visually-hidden">View {{ entity.label | localize | html_lang }}</span></a>

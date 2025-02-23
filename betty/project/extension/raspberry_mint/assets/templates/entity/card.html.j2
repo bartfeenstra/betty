@@ -1,0 +1,23 @@
+<div class="card h-100 m-1">
+    <h4 class="card-header" data-bs-theme="dark-secondary">
+        {% with embedded = True %}
+            {% include [
+                'entity/label--' + entity.plugin_id() + '.html.j2',
+                'entity/label.html.j2',
+            ] %}
+        {% endwith %}
+    </h4>
+    <div class="card-body">
+        {% with embedded = True %}
+            {% include 'entity/summary--' + entity.plugin_id() + '.html.j2' ignore missing %}
+        {% endwith %}
+        <a href="{{ entity | url }}" class="stretched-link view-more">Read more</a>
+    </div>
+    {% if entity is has_file_references %}
+        {% set image_references = entity | associated_file_references | selectattr('file', 'public') | selectattr('file.media_type', 'image_supported_media_type') | list %}
+        {% if image_references | length > 0 %}
+            {% set image_reference = image_references[0] %}
+            <img src="{{ ('betty-static://' ~ image_reference | image_resize_cover((500, 500))) | url }}" alt="{{ image_reference.file.label | localize }}" class="card-img-bottom">
+        {% endif %}
+    {% endif %}
+</div>

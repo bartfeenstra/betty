@@ -1,0 +1,44 @@
+@use './mixins/text';
+
+.link {
+  color: var(--bs-link-color);
+  text-decoration: $link-hover-decoration;
+
+  @include text.link;
+}
+
+a:not(.no-link) {
+  @include text.link;
+
+  &:focus {
+    @include text.link-focus;
+  }
+}
+
+a.view-more {
+  background-image: icon-arrow-right($primary);
+  background-position-y: center;
+  background-repeat: no-repeat;
+  background-size: 1lh 1lh;
+  display: inline-block;
+  margin-top: $spacer * 0.5;
+  padding-left: 1.25lh;
+
+  &:focus {
+    background-image: icon-arrow-right($black);
+  }
+}
+
+.card a.view-more.stretched-link:focus {
+  border: none;
+}
+
+::selection {
+  background-color: var(--betty-selection-color);
+  color: var(--betty-selection-contrast-color) !important;
+}
+
+.private {
+  cursor: help;
+  text-decoration: dotted underline 2px;
+}

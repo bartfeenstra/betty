@@ -1,0 +1,60 @@
+@mixin common {;
+  --betty-focus-color: #{$tertiary-300};
+  --betty-focus-contrast-color: #{$black};
+  --betty-selection-color: #{$tertiary-100};
+  --betty-selection-contrast-color: #{$black};
+
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+}
+
+@mixin light {
+  --betty-background-contrast-color: #{$gray-100};
+  --betty-border-color: #{$gray-200};
+  --betty-heading-embellishment-color: #{$primary-200};
+  --betty-link-hover-decoration-color: #{$secondary-800};
+  --betty-link-decoration-color: #{$secondary-600};
+}
+
+@mixin dark {
+  --bs-body-bg: #{$body-bg-dark};
+  --bs-body-color: #{$body-color-dark};
+  --bs-body-color-rgb: #{to-rgb($body-color-dark)};
+  --bs-card-color: #{$card-color-dark} !important;
+  --bs-link-color: #{$secondary-200};
+  --bs-link-color-rgb: #{to-rgb($secondary-200)};
+  --bs-link-hover-color: #{$secondary-100};
+  --betty-background-contrast-color: #{$gray-900};
+  --betty-border-color: #{$gray-800};
+  --betty-heading-embellishment-color: #{$primary-800};
+  --betty-link-hover-decoration-color: #{$secondary-200};
+  --betty-link-decoration-color: #{$secondary-400};
+}
+
+:root, [data-bs-theme="light"] {
+  @include common;
+  @include light;
+}
+
+[data-bs-theme="light-secondary"] {
+  @include common;
+  @include light;
+
+  --bs-body-bg: #{$secondary-100};
+  --betty-background-contrast-color: #{$secondary-200};
+  --betty-border-color: #{$secondary-300};
+}
+
+[data-bs-theme="dark"] {
+  @include common;
+  @include dark;
+}
+
+[data-bs-theme="dark-secondary"] {
+  @include common;
+  @include dark;
+
+  --bs-body-bg: #{$secondary-900};
+  --betty-background-contrast-color: #{$secondary-800};
+  --betty-border-color: #{$secondary-700};
+}

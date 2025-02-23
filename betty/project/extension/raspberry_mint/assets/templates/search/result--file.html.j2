@@ -1,0 +1,10 @@
+<div class="flex-grow-1 search-result-description">
+    <span class="link">{{ entity.label | localize }}</span>
+    {% include 'entity/summary--file.html.j2' %}
+</div>
+{% if entity.media_type and entity.media_type.type== 'image' %}
+    <div class="search-result-preview">
+        <img src="{{ ('betty-static://' ~ entity | image_resize_cover((100, 100))) | url }}" class="image"{% if entity.description %} alt="{{ entity.description | localize }}"{% endif %}>
+    </div>
+    {% endif %}
+<a href="{{ entity | url }}" class="stretched-link"><span class="visually-hidden">View {{ entity.label | localize | html_lang }}</span></a>

@@ -7,7 +7,7 @@ updates:
     assignees:
       - bartfeenstra
     commit-message:
-      prefix: Github Actions dependencies
+      prefix: GitHub Actions dependencies
       include: scope
   - package-ecosystem: pip
     directory: /

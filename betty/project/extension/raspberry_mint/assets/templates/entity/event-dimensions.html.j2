@@ -1,0 +1,35 @@
+{%- set embedded = embedded | default(False) -%}
+{%- set citation_context = entity_contexts['citation'] -%}
+{%- set place_context = entity_contexts['place'] -%}
+{%- set formatted_date = '' -%}
+{%- if event.date -%}
+    {%- set formatted_date = event.date | format_datey -%}
+{%- endif -%}
+
+{%- set formatted_place = '' -%}
+{%- if event.place and event.place != place_context -%}
+    {%- set formatted_place -%}
+        {%- with entity = event.place, date_context=event.date -%}
+            {%- include 'entity/label--place.html.j2' -%}
+        {%- endwith -%}
+    {%- endset -%}
+{%- endif -%}
+
+{%- if formatted_date and formatted_place -%}
+    {%- trans date = formatted_date, place=formatted_place -%}
+        {{ date }} in {{ place }}
+    {%- endtrans -%}
+{%- elif formatted_date -%}
+    {{ formatted_date }}
+{%- elif formatted_place -%}
+    {%- trans place = formatted_place -%}
+        in {{ place }}
+    {%- endtrans -%}
+{%- else -%}
+    {% trans %}sometime{% endtrans %}
+{%- endif -%}
+{%- if not embedded -%}
+    {% with citations = event.citations | reject('eq', citation_context) %}
+        {% include 'component/reference.html.j2' %}
+    {% endwith %}
+{%- endif -%}

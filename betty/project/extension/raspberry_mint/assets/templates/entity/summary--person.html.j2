@@ -1,0 +1,67 @@
+{%- macro _person_name_label(entity) -%}
+    {% include 'entity/label--person-name.html.j2' %}
+{%- endmacro -%}
+{%- macro _embedded_person_name_label(entity) -%}
+    {% set embedded = True %}
+    {% include 'entity/label--person-name.html.j2' %}
+{%- endmacro -%}
+
+{%- if not embedded is defined -%}
+    {%- set embedded = False -%}
+{%- endif -%}
+<div class="small">
+    {%- if entity.private -%}
+        <p>{%- trans -%}This information is unavailable to protect people's privacy.{%- endtrans -%}</p>
+    {%- else -%}
+        {% if entity.gender.plugin_id() != 'unknown' %}
+            <p class="m-0">{{ entity.gender.plugin_label() | localize | html_lang }}</p>
+        {% endif %}
+        {% set alternative_names = (entity.names | select('public') | list)[1:] %}
+        {%- if alternative_names -%}
+            <span class="aka">{%- trans names = alternative_names | map(_embedded_person_name_label if embedded else _person_name_label) | list | join(', ') -%}Also known as {{ names }}{%- endtrans -%}</span>
+        {%- endif -%}
+        {% set events = entity.presences | selectattr('role', 'presence_role_plugin', 'subject') | map(attribute='event') | reject('none') | select('public') | list %}
+        {% set start_of_life_events = events | select('start_of_life_event') | list %}
+        {%- if start_of_life_events | length -%}
+            {% set start_of_life_event = start_of_life_events | first %}
+            {%- set formatted_start -%}
+                {%- with event = start_of_life_event -%}
+                    {%- include 'entity/event-dimensions.html.j2' -%}
+                {%- endwith -%}
+            {%- endset -%}
+        {%- endif -%}
+        {% set end_of_life_events = events | select('end_of_life_event') | list %}
+        {%- if end_of_life_events | length -%}
+            {% set end_of_life_event = end_of_life_events | first %}
+            {%- set formatted_end -%}
+                {%- with event = end_of_life_event -%}
+                    {%- include 'entity/event-dimensions.html.j2' -%}
+                {%- endwith -%}
+            {%- endset -%}
+        {%- endif -%}
+        {%- if formatted_start is defined and formatted_start or formatted_end is defined and formatted_end -%}
+            <dl class="d-table">
+                {%- if formatted_start is defined and formatted_start -%}
+                    <div class="d-table-row">
+                        <dt class="d-table-cell pe-2">
+                            {{ start_of_life_event.event_type.plugin_label() | localize | html_lang }}
+                        </dt>
+                        <dd class="d-table-cell">
+                            {{ formatted_start }}
+                        </dd>
+                    </div>
+                {%- endif -%}
+                {%- if formatted_end is defined and formatted_end -%}
+                    <div class="d-table-row">
+                        <dt class="d-table-cell pe-2">
+                            {{ end_of_life_event.event_type.plugin_label() | localize | html_lang }}
+                        </dt>
+                        <dd class="d-table-cell">
+                            {{ formatted_end }}
+                        </dd>
+                    </div>
+                {%- endif -%}
+            </dl>
+        {%- endif -%}
+    {%- endif -%}
+</div>

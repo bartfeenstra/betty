@@ -66,7 +66,7 @@ classifiers = [
 
 [project.urls]
 Documentation = 'https://betty.readthedocs.io'
-Github = 'https://github.com/bartfeenstra/betty'
+GitHub = 'https://github.com/bartfeenstra/betty'
 Twitter = 'https://twitter.com/BettyProject'
 X = 'https://twitter.com/BettyProject'
 
@@ -146,6 +146,7 @@ betty = 'betty.cli:main'
 'http-api-doc' = 'betty.project.extension.http_api_doc:HttpApiDoc'
 'maps' = 'betty.project.extension.maps:Maps'
 'privatizer' = 'betty.project.extension.privatizer:Privatizer'
+'raspberry-mint' = 'betty.project.extension.raspberry_mint:RaspberryMint'
 'trees' = 'betty.project.extension.trees:Trees'
 'webpack' = 'betty.project.extension.webpack:Webpack'
 'wikipedia' = 'betty.project.extension.wikipedia:Wikipedia'

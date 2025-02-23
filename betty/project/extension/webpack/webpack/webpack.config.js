@@ -40,7 +40,7 @@ class EntryScriptCollector {
                   .get(entryName)
                   .getFiles()
                   .filter(entryFile => extensionRegexp.test(entryFile))
-                  .map(entryFile => `/${entryFile}`)
+                  .map(entryFile => `${configuration.rootPath}/${entryFile}`)
               }
 
               const webpackEntryLoader = `
@@ -73,7 +73,8 @@ const webpackConfiguration = {
   entry: configuration.entry,
   output: {
     path: path.resolve(__dirname, configuration.buildDirectoryPath),
-    filename: 'js/[name].js'
+    filename: 'js/[name].js',
+    publicPath: `${configuration.rootPath}/`,
   },
   optimization: {
     concatenateModules: true,
@@ -144,9 +145,6 @@ const webpackConfiguration = {
         use: [
           {
             loader: MiniCssExtractPlugin.loader,
-            options: {
-              publicPath: '/'
-            }
           },
           {
             loader: 'css-loader',
@@ -178,6 +176,13 @@ const webpackConfiguration = {
         type: 'asset/resource',
         generator: {
           filename: 'images/[hash][ext]'
+        }
+      },
+      {
+        test: /.*\.woff|woff2/,
+        type: 'asset/resource',
+        generator: {
+          filename: 'fonts/[hash][ext]'
         }
       }
     ]

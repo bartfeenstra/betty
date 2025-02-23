@@ -1,0 +1,20 @@
+{% extends 'entity/page.html.j2' %}
+{% block page_content %}
+    {% include 'section/wikipedia.html.j2' %}
+
+    {% with places = entity.presences | select('public') | selectattr('event', 'public') | map(attribute='event.place') | reject('none') | unique | list %}
+        {% include 'section/map.html.j2' %}
+    {% endwith %}
+
+    {% include 'section/notes.html.j2' %}
+
+    {% include 'section/family.html.j2' %}
+
+    {% with events = entity | person_timeline_events %}
+        {% include 'section/timeline.html.j2' %}
+    {% endwith %}
+
+    {% with file_references = entity | associated_file_references %}
+        {% include 'section/media.html.j2' %}
+    {% endwith %}
+{% endblock %}

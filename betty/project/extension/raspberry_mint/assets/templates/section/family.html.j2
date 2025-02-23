@@ -1,0 +1,104 @@
+{%- set parents = entity.parents | list -%}
+{%- set siblings = entity.siblings | list -%}
+{%- set children = entity.children | list -%}
+
+{%- set has_family =  parents | length > 0 or siblings | length > 0 or children | length > 0 -%}
+
+{% macro person_label(person) -%}
+    {%- with entity = person, entity_contexts=entity_contexts(entity) -%}
+        {%- include 'entity/label--person.html.j2' -%}
+    {%- endwith -%}
+{%- endmacro %}
+
+{%- if has_family -%}
+    <div class="container my-5">
+        <section id="family" class="section">
+            <h2 class="section-heading">
+                {% trans %}Family{% endtrans %}
+                {% with url = page_resource | url ~ '#family'%}
+                    {% include 'component/permalink.html.j2' %}
+                {% endwith %}
+            </h2>
+            {% set family_section_count = 0 %}
+            {% if parents | length > 0 or siblings | length > 0 %}
+                {% set family_section_count = family_section_count + 1 %}
+                <div class="mt-2 row row-cols-1 row-cols-lg-2 row-cols-xxl-3 row-gap-3">
+                    <div class="col d-flex flex-column justify-content-center">
+                        <p>
+                            {% if parents | length > 0 %}
+                                {% trans parent_labels = parents | map(person_label) | join(', ') %}They are the child of {{ parent_labels }}.{% endtrans %}
+                            {% endif %}
+
+                            {% if siblings | length > 0 %}
+                                {%- trans sibling_count = siblings | length -%}
+                                    They grew up with a sibling.
+                                {%- pluralize -%}
+                                    They grew up with {{ sibling_count }} siblings.
+                                {%- endtrans -%}
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% set public_siblings = siblings | select('public') | list %}
+                    {% for public_sibling in public_siblings %}
+                        <div class="col">
+                            <div class="card">
+                                <div class="card-body">
+                                    {%- with entity = public_sibling, entity_contexts=entity_contexts(entity) -%}
+                                        {%- include 'entity/label--person.html.j2' -%}
+                                        {%- include 'entity/summary--person.html.j2' -%}
+                                    {%- endwith -%}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% if children | length > 0 %}
+                {% for family_parents, family_children in entity | person_descendant_families %}
+                    {% set family_section_count = family_section_count + 1 %}
+                    {% if family_section_count > 1 %}
+                        <hr />
+                    {% endif %}
+                    <div class="mt-2 row row-cols-1 row-cols-lg-2 row-cols-xxl-3 row-gap-3{% if loop.index0 % 2 == 0 %} flex-row-reverse{% endif %}">
+                        {% set family_parents = family_parents | reject('eq', entity) | list %}
+                        <div class="col d-flex flex-column justify-content-center">
+                            <p>
+                                {%- if family_parents | length > 0 -%}
+                                    {%- trans child_count = family_children | length, co_parent_labels = family_parents | map(person_label) | join(', ') -%}
+                                        They had a child with {{ co_parent_labels }}.
+                                    {%- pluralize -%}
+                                        They had {{ child_count }} children with {{ co_parent_labels }}.
+                                    {%- endtrans -%}
+                                {%- else -%}
+                                    {%- trans child_count = family_children | length -%}
+                                        They had a child.
+                                    {%- pluralize -%}
+                                        They had {{ child_count }} children.
+                                    {%- endtrans -%}
+                                {%- endif -%}
+                            </p>
+                        </div>
+                        {% set public_family_children = family_children | select('public') | list %}
+                        {% for public_family_child in public_family_children %}
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-body">
+                                        {%- with entity = public_family_child, entity_contexts=entity_contexts(entity) -%}
+                                            {%- include 'entity/label--person.html.j2' -%}
+                                            {%- include 'entity/summary--person.html.j2' -%}
+                                        {%- endwith -%}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </section>
+    </div>
+
+    {% with person = entity %}
+        {% include 'section/tree.html.j2' %}
+    {% endwith %}
+{%- endif -%}

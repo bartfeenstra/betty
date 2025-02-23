@@ -1,0 +1,25 @@
+.permalink {
+  box-shadow: none;
+  display: inline-block;
+
+  &:hover .permalink-wrapper {
+    background-color: var(--bs-link-hover-color);
+  }
+
+  &:focus {
+    background-color: var(--betty-focus-color);
+    box-shadow: 0 0 var(--betty-focus-color), 0 2px var(--betty-focus-contrast-color);
+
+    .permalink-wrapper {
+      background-color: var(--betty-focus-contrast-color);
+    }
+  }
+
+  .permalink-wrapper {
+    background-color: var(--bs-link-color);
+    display: block;
+    height: 0.75em;
+    mask-image: icon-link($black);
+    width: 0.75em;
+  }
+}

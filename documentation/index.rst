@@ -45,8 +45,14 @@ generated, you will not need any special software to publish it. It's **fast and
         :columns: 12 6 6 6
         :text-align: center
 
+        .. button-link:: https://bartfeenstra.github.io/betty-demo
+            :color: primary
+            :shadow:
+
+            View the official Betty demonstration site
+
         .. button-link:: https://ancestry.bartfeenstra.com
             :color: primary
             :shadow:
 
-            View an example site
+            View the author's own Betty site

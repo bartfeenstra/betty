@@ -7,7 +7,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, final, Self
 
-from typing_extensions import override
+from typing_extensions import override, deprecated
 
 from betty.html import CssProvider
 from betty.jinja2 import Jinja2Provider, Filters
@@ -60,6 +60,9 @@ async def _generate_search_index(event: GenerateSiteEvent) -> None:
 
 
 @final
+@deprecated(
+    "The Cotton Candy theme has been deprecated since Betty 0.4.9, and will be removed in Betty 0.5. Instead use Raspberry Mint (`raspberry-mint`)."
+)
 class CottonCandy(
     ShorthandPluginBase,
     Theme,
@@ -74,7 +77,7 @@ class CottonCandy(
 
     _plugin_id = "cotton-candy"
     _plugin_label = static("Cotton Candy")
-    _plugin_description = _("Cotton Candy is Betty's default theme.")
+    _plugin_description = _("Cotton Candy is Betty's legacy theme.")
 
     @private
     def __init__(

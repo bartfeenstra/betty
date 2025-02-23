@@ -1,0 +1,17 @@
+{% extends 'entity/page.html.j2' %}
+{% block page_content %}
+    {% include 'section/wikipedia.html.j2' %}
+
+    {% include 'section/notes.html.j2' %}
+
+    {% set sources = [entity] + entity.walk_contains | select('public') | list %}
+
+    {% set facts = sources | map(attribute='citations') | flatten | map(attribute='facts') | flatten | unique | list %}
+    {% include 'section/facts.html.j2' %}
+
+    {% set have_file_references = sources %}
+    {% set have_file_references = have_file_references + sources | map(attribute='citations') | flatten | list %}
+    {% with file_references = have_file_references | selectattr('public') | map(attribute='file_references') | flatten | unique %}
+        {% include 'section/media.html.j2' %}
+    {% endwith %}
+{% endblock %}

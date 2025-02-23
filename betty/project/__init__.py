@@ -402,7 +402,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, CoreComponent):
         if theme_count == 0:
             logging.getLogger().warning(
                 _(
-                    'Your project has no theme enabled. This means your site\'s pages may look bare. Try the "cotton-candy" extension.'
+                    'Your project has no theme enabled. This means your site\'s pages may look bare. Try the "raspberry-mint" extension.'
                 ).localize(await self.app.localizer)
             )
 

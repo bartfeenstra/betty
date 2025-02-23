@@ -1,0 +1,18 @@
+{% extends 'base.html.j2' %}
+{% set page_title %}
+    {{ project.configuration.title | localize }}
+{% endset %}
+{% block page_summary %}
+{% if 'demo' in project.extensions %}
+    {% include '-front-demo-summary.html.j2' %}
+{% endif %}
+{% endblock %}
+{% block page_content %}
+{% if 'demo' in project.extensions %}
+    {% include '-front-demo-content.html.j2' %}
+{% endif %}
+{% set featured_entity_references = project.extensions['raspberry-mint'].configuration.featured_entities %}
+{% if featured_entity_references %}
+    {% include '-front-featured-entities.html.j2' %}
+{% endif %}
+{% endblock %}

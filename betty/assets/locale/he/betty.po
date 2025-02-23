@@ -266,6 +266,9 @@ msgstr ""
 msgid "Clear all caches"
 msgstr ""
 
+msgid "Close"
+msgstr ""
+
 msgid "Conference"
 msgstr ""
 
@@ -293,7 +296,7 @@ msgstr ""
 msgid "Correspondence"
 msgstr ""
 
-msgid "Cotton Candy is Betty's default theme."
+msgid "Cotton Candy is Betty's legacy theme."
 msgstr ""
 
 #, python-brace-format
@@ -430,6 +433,9 @@ msgstr ""
 msgid "Enrich your ancestry with information from Wikipedia"
 msgstr ""
 
+msgid "Entity type"
+msgstr ""
+
 msgid "Event"
 msgstr ""
 
@@ -473,7 +479,10 @@ msgstr ""
 msgid "Files"
 msgstr ""
 
-msgid "Find Betty on Github"
+msgid "Filters"
+msgstr ""
+
+msgid "Find Betty on GitHub"
 msgstr ""
 
 msgid "Find out more about this image on Wikimedia Commons."
@@ -508,6 +517,9 @@ msgstr ""
 msgid "Generating your site to {output_directory}."
 msgstr ""
 
+msgid "Go to the front page"
+msgstr ""
+
 msgid "HTTP API Documentation"
 msgstr ""
 
@@ -527,6 +539,9 @@ msgid "I'm sorry, dear, but it seems there are no places."
 msgstr ""
 
 msgid "I'm sorry, dear, but it seems there are no sources."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems there is nothing to show."
 msgstr ""
 
 msgid "I'm sorry, dear, but it seems this page does not exist."
@@ -550,6 +565,9 @@ msgstr ""
 
 #, python-brace-format
 msgid "Invalid YAML: {error}."
+msgstr ""
+
+msgid "Keywords"
 msgstr ""
 
 msgid "Language"
@@ -635,6 +653,9 @@ msgstr ""
 msgid "Media"
 msgstr ""
 
+msgid "Media references"
+msgstr ""
+
 msgid "Menu"
 msgstr ""
 
@@ -675,6 +696,9 @@ msgid "Organizer"
 msgstr ""
 
 msgid "Other attendees"
+msgstr ""
+
+msgid "Other places contained by this one"
 msgstr ""
 
 msgid "Page not found"
@@ -782,7 +806,14 @@ msgstr ""
 msgid "Region"
 msgstr ""
 
+msgid "Reset"
+msgstr ""
+
 msgid "Residence"
+msgstr ""
+
+#, python-brace-format
+msgid "Results ({{{ betty-search-results-count }}})"
 msgstr ""
 
 msgid "Retirement"
@@ -790,6 +821,9 @@ msgstr ""
 
 #, python-brace-format
 msgid "Saved your project to {configuration_file}."
+msgstr ""
+
+msgid "Search"
 msgstr ""
 
 msgid "Serve a generated site"
@@ -818,6 +852,9 @@ msgid "Street"
 msgstr ""
 
 msgid "Subject"
+msgstr ""
+
+msgid "Subjects"
 msgstr ""
 
 #, python-brace-format
@@ -899,6 +936,9 @@ msgstr ""
 msgid "This field is required."
 msgstr ""
 
+msgid "This information is unavailable to protect people's privacy."
+msgstr ""
+
 msgid "This must be a boolean."
 msgstr ""
 
@@ -938,7 +978,19 @@ msgstr ""
 msgid "Timeline"
 msgstr ""
 
+msgid "Toggle menu"
+msgstr ""
+
+msgid "Toggle search"
+msgstr ""
+
+msgid "Toggle translations"
+msgstr ""
+
 msgid "Town"
+msgstr ""
+
+msgid "Translations"
 msgstr ""
 
 msgid "Trees"
@@ -1040,7 +1092,7 @@ msgstr ""
 
 msgid ""
 "Your project has no theme enabled. This means your site's pages may look "
-"bare. Try the \"cotton-candy\" extension."
+"bare. Try the \"raspberry-mint\" extension."
 msgstr ""
 
 #, python-brace-format
@@ -1107,6 +1159,10 @@ msgstr ""
 msgid "in %(place)s"
 msgstr ""
 
+#, python-format
+msgid "in %(source)s"
+msgstr ""
+
 msgid ""
 "npm (https://www.npmjs.com/) must be available for features that require "
 "Node.js packages to be installed. Ensure that the `npm` executable is "
@@ -1135,6 +1191,9 @@ msgid "show less"
 msgstr ""
 
 msgid "show more"
+msgstr ""
+
+msgid "sometime"
 msgstr ""
 
 #, python-brace-format

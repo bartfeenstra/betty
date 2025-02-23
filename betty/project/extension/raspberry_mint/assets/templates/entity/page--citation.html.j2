@@ -1,0 +1,12 @@
+{% extends 'entity/page.html.j2' %}
+{% block page_content %}
+    {% include 'section/wikipedia.html.j2' %}
+
+    {% with facts = entity.facts %}
+        {% include 'section/facts.html.j2' %}
+    {% endwith %}
+
+    {% with file_references = entity.file_references %}
+        {% include 'section/media.html.j2' %}
+    {% endwith %}
+{% endblock %}

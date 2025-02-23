@@ -1,0 +1,70 @@
+@use "sass:color";
+
+/** Base colors */
+@import "./colors-config";
+
+$gray: #808080;
+
+/* Primary shades */
+$primary-100: color.mix(white, $primary, 80%);
+$primary-200: color.mix(white, $primary, 60%);
+$primary-300: color.mix(white, $primary, 40%);
+$primary-400: color.mix(white, $primary, 20%);
+$primary-500: $primary;
+$primary-600: color.mix(black, $primary, 20%);
+$primary-700: color.mix(black, $primary, 40%);
+$primary-800: color.mix(black, $primary, 60%);
+$primary-900: color.mix(black, $primary, 80%);
+
+/* Secondary shades */
+$secondary-100: color.mix(white, $secondary, 80%);
+$secondary-200: color.mix(white, $secondary, 60%);
+$secondary-300: color.mix(white, $secondary, 40%);
+$secondary-400: color.mix(white, $secondary, 20%);
+$secondary-500: $secondary;
+$secondary-600: color.mix(black, $secondary, 20%);
+$secondary-700: color.mix(black, $secondary, 40%);
+$secondary-800: color.mix(black, $secondary, 60%);
+$secondary-900: color.mix(black, $secondary, 80%);
+
+/* Tertiary shades */
+$tertiary-100: color.mix(white, $tertiary, 80%);
+$tertiary-200: color.mix(white, $tertiary, 60%);
+$tertiary-300: color.mix(white, $tertiary, 40%);
+$tertiary-400: color.mix(white, $tertiary, 20%);
+$tertiary-500: $tertiary;
+$tertiary-600: color.mix(black, $tertiary, 20%);
+$tertiary-700: color.mix(black, $tertiary, 40%);
+$tertiary-800: color.mix(black, $tertiary, 60%);
+$tertiary-900: color.mix(black, $tertiary, 80%);
+
+/* Gray shades */
+$gray-100: color.mix(white, $gray, 80%);
+$gray-200: color.mix(white, $gray, 60%);
+$gray-300: color.mix(white, $gray, 40%);
+$gray-400: color.mix(white, $gray, 20%);
+$gray-500: $gray;
+$gray-600: color.mix(black, $gray, 20%);
+$gray-700: color.mix(black, $gray, 40%);
+$gray-800: color.mix(black, $gray, 60%);
+$gray-900: color.mix(black, $gray, 80%);
+
+/* Black and white */
+$black: #000;
+$white: #fff;
+
+/* Overrides */
+$accordion-icon-color: $black;
+$accordion-icon-active-color: $black;
+$body-bg: $white;
+$body-bg-dark: $black;
+$body-color: $black;
+$body-color-dark: $white;
+$card-bg: $gray-100;
+$card-bg-dark: $white;
+$card-color: $black;
+$card-color-dark: $white;
+$link-color: $secondary-800;
+$link-hover-color: $secondary-900;
+$link-hover-underline-color: $secondary-800;
+$link-underline-color: $secondary-600;

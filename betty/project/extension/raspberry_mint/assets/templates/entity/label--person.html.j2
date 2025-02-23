@@ -1,0 +1,20 @@
+{% set embedded = embedded | default(False) %}
+{% set person_context = entity_contexts['person'] %}
+{% set label_as_link = not embedded and person_context != entity and entity is persistent_entity_id and entity is public %}
+{% if label_as_link -%}
+    <a href="{{ entity | url }}">
+{%- endif %}
+{% if entity.private -%}
+    {% include 'entity/private.html.j2' %}
+{%- else -%}
+    {%- if entity.names | length -%}
+        {% with entity = entity.names | select('public') | first | default(entity.names | first) %}
+            {% include 'entity/person-name-label.html.j2' %}
+        {% endwith %}
+    {%- else -%}
+        <span title="{% trans %}This person's name is unknown.{% endtrans %}">n.n.</span>
+    {%- endif -%}
+{%- endif -%}
+{%- if label_as_link -%}
+    </a>
+{%- endif -%}

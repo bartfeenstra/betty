@@ -5,9 +5,11 @@
 Betty visualizes and publishes your family history by building interactive, encyclopedia-like genealogy websites out of your
 [Gramps](https://gramps-project.org/) and [GEDCOM](https://en.wikipedia.org/wiki/GEDCOM) family trees.
 
-## View an example site
+## Demonstration & examples
 
-View a Betty example site at [ancestry.bartfeenstra.com](https://ancestry.bartfeenstra.com).
+View the official Betty demonstration site at [bartfeenstra.github.io/betty-demo](https://bartfeenstra.github.io/betty-demo).
+
+View the author's own Betty site at [ancestry.bartfeenstra.com](https://ancestry.bartfeenstra.com).
 
 ## Documentation
 

@@ -1,0 +1,11 @@
+.media {
+  .media-file {
+    .image {
+      aspect-ratio: 1;
+    }
+
+    &:focus-within .image {
+      border-color: var(--betty-focus-color);
+    }
+  }
+}

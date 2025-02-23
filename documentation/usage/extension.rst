@@ -23,6 +23,7 @@ Built-in extensions
 - :doc:`/usage/extension/http-api-doc`
 - :doc:`/usage/extension/maps`
 - :doc:`/usage/extension/privatizer`
+- :doc:`/usage/extension/raspberry-mint`
 - :doc:`/usage/extension/trees`
 - :doc:`/usage/extension/wikipedia`
 

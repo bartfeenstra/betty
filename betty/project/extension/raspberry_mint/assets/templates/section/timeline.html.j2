@@ -1,0 +1,20 @@
+{%- set timeline -%}
+    {% include 'component/timeline.html.j2' %}
+{%- endset -%}
+{%- if timeline -%}
+    <div class="container my-5">
+        <div class="row">
+            <div class="col col-12">
+                <section id="timeline" class="section">
+                    <h2 class="section-heading">
+                        {% trans %}Timeline{% endtrans %}
+                        {% with url = page_resource | url ~ '#timeline' %}
+                            {% include 'component/permalink.html.j2' %}
+                        {% endwith %}
+                    </h2>
+                    {{ timeline }}
+                </section>
+            </div>
+        </div>
+    </div>
+{%- endif -%}

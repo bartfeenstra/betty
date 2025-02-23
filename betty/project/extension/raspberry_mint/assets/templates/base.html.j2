@@ -1,0 +1,24 @@
+{% do 'raspberry-mint' | webpack_entry_point_js %}
+<!doctype html>
+<html lang="{{ localizer.locale }}">
+<head>
+    {% include 'head.html.j2' %}
+    <link rel="manifest" href="{{ 'betty-static:///betty.webmanifest' | url }}">
+</head>
+<body>
+<div class="visually-hidden-focusable h4 text-center my-3">
+    <a href="#main-content">Skip to main content</a>
+</div>
+{% include 'header.html.j2' %}
+<div id="main-content"></div>
+{% include 'intro.html.j2' %}
+{% block page_content required %}{% endblock %}
+{% include 'section/external-links.html.j2' %}
+{% include 'outro.html.j2' %}
+{% include 'footer.html.j2' %}
+{% include 'linked-data.html.j2' %}
+{% include 'stylesheets.html.j2' %}
+{% include 'webpack-entry-loader.html.j2' %}
+{% include 'scripts.html.j2' %}
+</body>
+</html>

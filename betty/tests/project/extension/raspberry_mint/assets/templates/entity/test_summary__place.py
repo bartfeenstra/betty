@@ -1,0 +1,40 @@
+from betty.ancestry.enclosure import Enclosure
+from betty.ancestry.place import Place
+from betty.ancestry.place_type.place_types import Country
+from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.project.extension.raspberry_mint import RaspberryMint
+from betty.test_utils.jinja2 import TemplateFileTestBase
+
+
+class Test(TemplateFileTestBase):
+    extensions = {RaspberryMint}
+    template = "entity/summary--place.html.j2"
+
+    async def test_minimal(self) -> None:
+        place = Place()
+        async with self.assert_template_file(
+            data={
+                "entity": place,
+            }
+        ) as (actual, _):
+            assert actual == '<div class="small"></div>'
+
+    async def test_with_non_unknown_place_type(self) -> None:
+        place = Place(place_type=Country())
+        async with self.assert_template_file(
+            data={
+                "entity": place,
+            }
+        ) as (actual, _):
+            assert Country.plugin_label().localize(DEFAULT_LOCALIZER) in actual
+
+    async def test_with_encloser(self) -> None:
+        encloser_place = Place()
+        place = Place()
+        Enclosure(place, encloser_place)
+        async with self.assert_template_file(
+            data={
+                "entity": place,
+            }
+        ) as (actual, _):
+            assert encloser_place.id in actual

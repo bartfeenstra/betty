@@ -1,6 +1,6 @@
 The *Cotton Candy* extension
 ==========================
-The ``cotton-candy`` extension provides Betty's default theme.
+The ``cotton-candy`` extension provides Betty's legacy theme.
 
 .. important::
     This extension requires :ref:`Node.js <installation-requirements-nodejs>`.

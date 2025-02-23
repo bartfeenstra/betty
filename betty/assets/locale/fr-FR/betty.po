@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-02-18 17:46+0000\n"
+"POT-Creation-Date: 2025-02-18 18:42+0000\n"
 "PO-Revision-Date: 2024-11-29 18:58+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: fr_FR\n"
@@ -270,6 +270,9 @@ msgstr ""
 msgid "Clear all caches"
 msgstr ""
 
+msgid "Close"
+msgstr ""
+
 msgid "Conference"
 msgstr ""
 
@@ -297,7 +300,7 @@ msgstr ""
 msgid "Correspondence"
 msgstr "Correspondance"
 
-msgid "Cotton Candy is Betty's default theme."
+msgid "Cotton Candy is Betty's legacy theme."
 msgstr ""
 
 #, python-brace-format
@@ -434,6 +437,9 @@ msgstr "Fiançailles"
 msgid "Enrich your ancestry with information from Wikipedia"
 msgstr ""
 
+msgid "Entity type"
+msgstr ""
+
 msgid "Event"
 msgstr "Evénement"
 
@@ -477,7 +483,10 @@ msgstr ""
 msgid "Files"
 msgstr ""
 
-msgid "Find Betty on Github"
+msgid "Filters"
+msgstr ""
+
+msgid "Find Betty on GitHub"
 msgstr ""
 
 msgid "Find out more about this image on Wikimedia Commons."
@@ -512,6 +521,9 @@ msgstr ""
 msgid "Generating your site to {output_directory}."
 msgstr ""
 
+msgid "Go to the front page"
+msgstr ""
+
 msgid "HTTP API Documentation"
 msgstr ""
 
@@ -531,6 +543,9 @@ msgid "I'm sorry, dear, but it seems there are no places."
 msgstr ""
 
 msgid "I'm sorry, dear, but it seems there are no sources."
+msgstr ""
+
+msgid "I'm sorry, dear, but it seems there is nothing to show."
 msgstr ""
 
 msgid "I'm sorry, dear, but it seems this page does not exist."
@@ -554,6 +569,9 @@ msgstr ""
 
 #, python-brace-format
 msgid "Invalid YAML: {error}."
+msgstr ""
+
+msgid "Keywords"
 msgstr ""
 
 msgid "Language"
@@ -639,6 +657,9 @@ msgstr "Mariage"
 msgid "Media"
 msgstr "Média"
 
+msgid "Media references"
+msgstr ""
+
 msgid "Menu"
 msgstr "Menu"
 
@@ -680,6 +701,9 @@ msgstr ""
 
 msgid "Other attendees"
 msgstr "Autres participants"
+
+msgid "Other places contained by this one"
+msgstr ""
 
 msgid "Page not found"
 msgstr ""
@@ -786,14 +810,24 @@ msgstr "Références"
 msgid "Region"
 msgstr ""
 
+msgid "Reset"
+msgstr ""
+
 msgid "Residence"
 msgstr "Résidence"
+
+#, python-brace-format
+msgid "Results ({{{ betty-search-results-count }}})"
+msgstr ""
 
 msgid "Retirement"
 msgstr "Retraite"
 
 #, python-brace-format
 msgid "Saved your project to {configuration_file}."
+msgstr ""
+
+msgid "Search"
 msgstr ""
 
 msgid "Serve a generated site"
@@ -823,6 +857,9 @@ msgstr ""
 
 msgid "Subject"
 msgstr "Sujet"
+
+msgid "Subjects"
+msgstr ""
 
 #, python-brace-format
 msgid ""
@@ -903,6 +940,9 @@ msgstr ""
 msgid "This field is required."
 msgstr ""
 
+msgid "This information is unavailable to protect people's privacy."
+msgstr ""
+
 msgid "This must be a boolean."
 msgstr ""
 
@@ -946,7 +986,19 @@ msgstr ""
 msgid "Timeline"
 msgstr "Chronologie"
 
+msgid "Toggle menu"
+msgstr ""
+
+msgid "Toggle search"
+msgstr ""
+
+msgid "Toggle translations"
+msgstr ""
+
 msgid "Town"
+msgstr ""
+
+msgid "Translations"
 msgstr ""
 
 msgid "Trees"
@@ -1050,7 +1102,7 @@ msgstr ""
 
 msgid ""
 "Your project has no theme enabled. This means your site's pages may look "
-"bare. Try the \"cotton-candy\" extension."
+"bare. Try the \"raspberry-mint\" extension."
 msgstr ""
 
 #, python-brace-format
@@ -1133,6 +1185,10 @@ msgstr "du {start_date} au {end_date} OK2"
 msgid "in %(place)s"
 msgstr "à %(place)s"
 
+#, python-format
+msgid "in %(source)s"
+msgstr ""
+
 msgid ""
 "npm (https://www.npmjs.com/) must be available for features that require "
 "Node.js packages to be installed. Ensure that the `npm` executable is "
@@ -1162,6 +1218,9 @@ msgstr "voir moins"
 
 msgid "show more"
 msgstr "voir plus"
+
+msgid "sometime"
+msgstr ""
 
 #, python-brace-format
 msgid "sometime after around {start_date}"
