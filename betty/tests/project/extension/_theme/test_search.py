@@ -59,7 +59,7 @@ class TestIndex:
                     DEFAULT_LOCALIZER,
                 ).build()
 
-                assert actual == []
+                assert actual[0].text == {"p1"}
 
     async def test_build_private_person(self, new_temporary_app: App) -> None:
         person_id = "P1"
@@ -130,7 +130,7 @@ class TestIndex:
                     await localizers.get(locale),
                 ).build()
 
-                assert actual[0].text == {"jane"}
+                assert actual[0].text == {"p1", "jane"}
                 assert expected in actual[0].result
 
     @pytest.mark.parametrize(
@@ -170,7 +170,7 @@ class TestIndex:
                     await localizers.get(locale),
                 ).build()
 
-                assert actual[0].text == {"doughnut"}
+                assert actual[0].text == {"p1", "doughnut"}
                 assert expected in actual[0].result
 
     @pytest.mark.parametrize(
@@ -212,7 +212,7 @@ class TestIndex:
                     await localizers.get(locale),
                 ).build()
 
-                assert actual[0].text == {"jane", "doughnut"}
+                assert actual[0].text == {"p1", "jane", "doughnut"}
                 assert expected in actual[0].result
 
     @pytest.mark.parametrize(
@@ -257,7 +257,7 @@ class TestIndex:
                     await localizers.get(locale),
                 ).build()
 
-                assert actual[0].text == {"netherlands", "nederland"}
+                assert actual[0].text == {"p1", "netherlands", "nederland"}
                 assert expected in actual[0].result
 
     async def test_build_private_place(self, new_temporary_app: App) -> None:
@@ -289,6 +289,8 @@ class TestIndex:
         [
             (
                 {
+                    Path(__file__).name,
+                    "f1",
                     '"file"',
                     "is",
                     "dutch",
@@ -302,6 +304,8 @@ class TestIndex:
             ),
             (
                 {
+                    Path(__file__).name,
+                    "f1",
                     '"file"',
                     "is",
                     "dutch",
@@ -315,7 +319,7 @@ class TestIndex:
             ),
             (
                 {
-                    "bestand",
+                    Path(__file__).name,
                     "f1",
                 },
                 "/nl/file/F1/index.html",
@@ -324,7 +328,7 @@ class TestIndex:
             ),
             (
                 {
-                    "file",
+                    Path(__file__).name,
                     "f1",
                 },
                 "/en/file/F1/index.html",
