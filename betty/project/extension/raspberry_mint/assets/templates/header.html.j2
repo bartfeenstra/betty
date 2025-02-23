@@ -16,7 +16,7 @@
         <nav class="d-flex gap-2">
             <div class="d-flex flex-column flex-grow-1">
                 <div class="d-flex gap-1">
-                    <img src="{{ ('betty-static:///logo' ~ project.logo.suffix) | url }}" class="header-site-logo">
+                    <img src="{{ ('betty-static:///logo' ~ project.logo.suffix) | url }}" alt="{% trans project_title = project.configuration.title | localize %}The '{{ project_title }}' logo{% endtrans %}" class="header-site-logo">
                     <a class="flex-grow-1 header-site-title no-link" href="{{ 'betty:///index.html' | url }}" title="{% trans %}Go to the front page{% endtrans %}">
                         {{ project.configuration.title | localize }}
                     </a>
