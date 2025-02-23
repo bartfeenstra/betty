@@ -8,16 +8,17 @@ msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
 "POT-Creation-Date: 2025-02-23 11:06+0000\n"
-"PO-Revision-Date: 2025-02-19 16:48+0000\n"
-"Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
+"PO-Revision-Date: 2025-02-23 12:22+0000\n"
+"Last-Translator: Максим Горпиніч <maksimgorpinic2005a@gmail.com>\n"
+"Language-Team: Ukrainian <https://hosted.weblate.org/projects/betty/betty/uk/"
+">\n"
 "Language: uk\n"
-"Language-Team: Ukrainian "
-"<https://hosted.weblate.org/projects/betty/betty/uk/>\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Weblate 5.10.1-dev\n"
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
@@ -314,7 +315,7 @@ msgid "Clear all caches"
 msgstr "Очистити всі кеші"
 
 msgid "Close"
-msgstr ""
+msgstr "Закрити"
 
 msgid "Conference"
 msgstr "Конференція"
@@ -346,7 +347,7 @@ msgid "Correspondence"
 msgstr "Листування"
 
 msgid "Cotton Candy is Betty's legacy theme."
-msgstr ""
+msgstr "Цукрова вата - тема спадщини Бетті."
 
 #, python-brace-format
 msgid "Could not extract {file_path} as a gzip file  (*.gz)."
@@ -499,7 +500,7 @@ msgid "Enrich your ancestry with information from Wikipedia"
 msgstr "Збагатити своїх предків з інформацією з Вікіпедії"
 
 msgid "Entity type"
-msgstr ""
+msgstr "Тип сутності"
 
 msgid "Event"
 msgstr "Подія"
@@ -545,7 +546,7 @@ msgid "Files"
 msgstr "Файли"
 
 msgid "Filters"
-msgstr ""
+msgstr "Фільтри"
 
 msgid "Find Betty on GitHub"
 msgstr "Знайдіть Betty на GitHub"
@@ -585,7 +586,7 @@ msgid "Generating your site to {output_directory}."
 msgstr "Генерація вашого сайту в {output_directory}."
 
 msgid "Go to the front page"
-msgstr ""
+msgstr "Перейти на першу сторінку"
 
 msgid "HTTP API Documentation"
 msgstr "документація HTTP API"
@@ -609,7 +610,7 @@ msgid "I'm sorry, dear, but it seems there are no sources."
 msgstr "Вибачте, любий, але, здається, немає джерел."
 
 msgid "I'm sorry, dear, but it seems there is nothing to show."
-msgstr ""
+msgstr "Вибачте, любий, але, здається, нема чого показати."
 
 msgid "I'm sorry, dear, but it seems this page does not exist."
 msgstr "Вибачте, любий, але, здається, ця сторінка не існує."
@@ -635,7 +636,7 @@ msgid "Invalid YAML: {error}."
 msgstr "Недійсний YAML: {error}."
 
 msgid "Keywords"
-msgstr ""
+msgstr "Ключові слова"
 
 msgid "Language"
 msgstr "Мова"
@@ -723,7 +724,7 @@ msgid "Media"
 msgstr "Медіа"
 
 msgid "Media references"
-msgstr ""
+msgstr "Медіа посилання"
 
 msgid "Menu"
 msgstr "Меню"
@@ -771,7 +772,7 @@ msgid "Other attendees"
 msgstr "Інші учасники"
 
 msgid "Other places contained by this one"
-msgstr ""
+msgstr "Інші місця, які містяться в цьому"
 
 msgid "Page not found"
 msgstr "Сторінку не знайдено"
@@ -890,14 +891,14 @@ msgid "Region"
 msgstr "Регіон"
 
 msgid "Reset"
-msgstr ""
+msgstr "Скинути"
 
 msgid "Residence"
 msgstr "Проживання"
 
 #, python-brace-format
 msgid "Results ({{{ betty-search-results-count }}})"
-msgstr ""
+msgstr "Результати ({{{ betty-search-results-count }}})"
 
 msgid "Retirement"
 msgstr "Вихід на пенсію"
@@ -907,7 +908,7 @@ msgid "Saved your project to {configuration_file}."
 msgstr "Проєкт збережено у {configuration_file}."
 
 msgid "Search"
-msgstr ""
+msgstr "Пошук"
 
 msgid "Serve a generated site"
 msgstr "Запустити згенерований сайт"
@@ -938,11 +939,11 @@ msgid "Subject"
 msgstr "Предмет"
 
 msgid "Subjects"
-msgstr ""
+msgstr "Предмети"
 
 #, python-format
 msgid "The '%(project_title)s' logo"
-msgstr ""
+msgstr "Логотип «%(project_title)s»"
 
 #, python-brace-format
 msgid ""
@@ -1040,7 +1041,7 @@ msgid "This field is required."
 msgstr "Це поле є обов’язковим."
 
 msgid "This information is unavailable to protect people's privacy."
-msgstr ""
+msgstr "Ця інформація недоступна для захисту конфіденційності людей."
 
 msgid "This must be a boolean."
 msgstr "Це має бути булеве значення."
@@ -1082,19 +1083,19 @@ msgid "Timeline"
 msgstr "Хронологія"
 
 msgid "Toggle menu"
-msgstr ""
+msgstr "Переключити меню"
 
 msgid "Toggle search"
-msgstr ""
+msgstr "Увімкнути пошук"
 
 msgid "Toggle translations"
-msgstr ""
+msgstr "Переключити переклади"
 
 msgid "Town"
 msgstr "Містечко"
 
 msgid "Translations"
-msgstr ""
+msgstr "Переклади"
 
 msgid "Trees"
 msgstr "Дерева"
@@ -1142,7 +1143,7 @@ msgstr ""
 " або <kbd>esc</kbd> для виходу з пошуку."
 
 msgid "View original"
-msgstr ""
+msgstr "Переглянути оригінал"
 
 msgid "View the documentation"
 msgstr "Переглянути документацію"
@@ -1282,7 +1283,7 @@ msgstr "в %(place)s"
 
 #, python-format
 msgid "in %(source)s"
-msgstr ""
+msgstr "в %(source)s"
 
 msgid ""
 "npm (https://www.npmjs.com/) must be available for features that require "
@@ -1319,7 +1320,7 @@ msgid "show more"
 msgstr "показати більше"
 
 msgid "sometime"
-msgstr ""
+msgstr "колись"
 
 #, python-brace-format
 msgid "sometime after around {start_date}"
@@ -1401,4 +1402,3 @@ msgstr "© Авторське право належить автору, якщо
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Авторське право {author}, якщо не зазначено інше"
-
