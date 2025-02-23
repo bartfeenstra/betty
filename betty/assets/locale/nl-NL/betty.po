@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-02-23 11:06+0000\n"
-"PO-Revision-Date: 2025-02-19 16:48+0000\n"
+"PO-Revision-Date: 2025-02-23 12:22+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
-"Language: nl_NL\n"
-"Language-Team: Dutch "
-"<https://hosted.weblate.org/projects/betty/betty/nl/>\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"Language-Team: Dutch <https://hosted.weblate.org/projects/betty/betty/nl/>\n"
+"Language: nl-NL\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.10.1-dev\n"
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
@@ -343,7 +343,7 @@ msgid "Correspondence"
 msgstr "Correspondentie"
 
 msgid "Cotton Candy is Betty's legacy theme."
-msgstr ""
+msgstr "Cotton Candy is het oude thema van Betty."
 
 #, python-brace-format
 msgid "Could not extract {file_path} as a gzip file  (*.gz)."
@@ -585,7 +585,7 @@ msgid "Generating your site to {output_directory}."
 msgstr "Bezig je site te genereren naar {output_directory}."
 
 msgid "Go to the front page"
-msgstr ""
+msgstr "Ga naar de voorpagina"
 
 msgid "HTTP API Documentation"
 msgstr "HTTP API-documentatie"
@@ -637,7 +637,7 @@ msgid "Invalid YAML: {error}."
 msgstr "Ongeldige YAML: {error}."
 
 msgid "Keywords"
-msgstr ""
+msgstr "Zoekwoorden"
 
 msgid "Language"
 msgstr "Taal"
@@ -723,7 +723,7 @@ msgid "Media"
 msgstr "Media"
 
 msgid "Media references"
-msgstr ""
+msgstr "Mediaverwijzingen"
 
 msgid "Menu"
 msgstr "Menu"
@@ -771,7 +771,7 @@ msgid "Other attendees"
 msgstr "Overige aanwezigen"
 
 msgid "Other places contained by this one"
-msgstr ""
+msgstr "Overige plaatsen binnen deze"
 
 msgid "Page not found"
 msgstr "Pagina niet gevonden"
@@ -938,11 +938,11 @@ msgid "Subject"
 msgstr "Onderwerp"
 
 msgid "Subjects"
-msgstr ""
+msgstr "Onderwerpen"
 
 #, python-format
 msgid "The '%(project_title)s' logo"
-msgstr ""
+msgstr "Het logo van '%(project_title)s'"
 
 #, python-brace-format
 msgid ""
@@ -1040,6 +1040,7 @@ msgstr "Dit veld is vereist."
 
 msgid "This information is unavailable to protect people's privacy."
 msgstr ""
+"Deze informatie is niet beschikbaar om mensen hun privacy te beschermen."
 
 msgid "This must be a boolean."
 msgstr "Dit moet een booleaan zijn."
@@ -1081,13 +1082,13 @@ msgid "Timeline"
 msgstr "Tijdlijn"
 
 msgid "Toggle menu"
-msgstr ""
+msgstr "Schakel menu"
 
 msgid "Toggle search"
-msgstr ""
+msgstr "Schakel zoeken"
 
 msgid "Toggle translations"
-msgstr ""
+msgstr "Schakel vertalingen"
 
 msgid "Town"
 msgstr "Town"
@@ -1141,7 +1142,7 @@ msgstr ""
 "of <kbd>esc</kbd> om te stoppen met zoeken."
 
 msgid "View original"
-msgstr ""
+msgstr "Bekijk origineel"
 
 msgid "View the documentation"
 msgstr "Bekijk de documentatie"
@@ -1283,7 +1284,7 @@ msgstr "te %(place)s"
 
 #, python-format
 msgid "in %(source)s"
-msgstr ""
+msgstr "in %(source)s"
 
 msgid ""
 "npm (https://www.npmjs.com/) must be available for features that require "
@@ -1319,7 +1320,7 @@ msgid "show more"
 msgstr "toon meer"
 
 msgid "sometime"
-msgstr ""
+msgstr "ooit"
 
 #, python-brace-format
 msgid "sometime after around {start_date}"
@@ -1401,4 +1402,3 @@ msgstr "© Copyright de auteur, tenzij anders vermeld"
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Copyright {author}, tenzij anders vermeld"
-
