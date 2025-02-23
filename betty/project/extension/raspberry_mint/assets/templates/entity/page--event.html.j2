@@ -1,5 +1,17 @@
 {% extends 'entity/page.html.j2' %}
 {% block page_content %}
+    {% if entity.description %}
+        <div class="container my-5">
+            <div class="row">
+                <div class="col col-12 col-lg-8">
+                    <p>
+                        {{ entity.description | localize | html_lang }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
     {% if entity.place is not none %}
         {% with places = [entity.place] %}
             {% include 'section/map.html.j2' %}
