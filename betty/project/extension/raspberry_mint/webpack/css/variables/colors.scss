@@ -53,6 +53,9 @@ $gray-900: color.mix(black, $gray, 80%);
 $black: #000;
 $white: #fff;
 
+/* Interactions */
+$focus: $tertiary-300;
+
 /* Overrides */
 $accordion-icon-color: $black;
 $accordion-icon-active-color: $black;
