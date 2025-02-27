@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TypeVar, TYPE_CHECKING, Generic, Self, Sequence
+from typing import TypeVar, TYPE_CHECKING, Generic, Self, Sequence, final
 
 from typing_extensions import override
 
@@ -19,9 +19,12 @@ from betty.plugin import (
     sort_ordered_plugin_graph,
 )
 from betty.plugin.entry_point import EntryPointPluginRepository
-from betty.project.factory import ProjectDependentFactory
+from betty.project.factory import (
+    ProjectDependentFactory,
+    ProjectDependentTargetFactory,
+)
 from betty.requirement import AllRequirements
-from betty.typing import private
+from betty.typing import private, internal
 
 if TYPE_CHECKING:
     from graphlib import TopologicalSorter
@@ -52,6 +55,12 @@ class Extension(
         assert type(self) is not Extension
         super().__init__()
         self._project = project
+
+    def reduce(self) -> ProjectDependentTargetFactory[Self]:
+        """
+        Serialize this extension to a value that can be unserialized using a project.
+        """
+        raise NotImplementedError
 
     @override
     @classmethod
@@ -91,6 +100,21 @@ class Extension(
 
 
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)
+
+
+@internal
+@final
+class ReducedExtension(ProjectDependentTargetFactory[_ExtensionT]):
+    """
+    A reduced extension that can be pickled.
+    """
+
+    def __init__(self, extension_type: type[_ExtensionT]):
+        self._extension_type = extension_type
+
+    @override
+    async def new_for_project(self, project: Project) -> _ExtensionT:
+        return await self._extension_type.new_for_project(project)
 
 
 EXTENSION_REPOSITORY: PluginRepository[Extension] = EntryPointPluginRepository(

@@ -32,6 +32,9 @@ from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY
 from betty.ancestry.gender import GENDER_REPOSITORY, Gender
 from betty.ancestry.place_type import PLACE_TYPE_REPOSITORY, PlaceType
 from betty.ancestry.presence_role import PRESENCE_ROLE_REPOSITORY, PresenceRole
+from betty.app.factory import (
+    AppDependentTargetFactory,
+)
 from betty.assets import AssetRepository
 from betty.concurrent import AsynchronizedLock
 from betty.config import Configurable
@@ -192,6 +195,12 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, CoreComponent):
         except BaseException:
             await self.shutdown()
             raise
+
+    def reduce(self) -> AppDependentTargetFactory[Self]:
+        """
+        Serialize this project to a value that can be unserialized using an app.
+        """
+        return ReducedProject(self)
 
     async def _assert_configuration(self) -> None:
         await self.configuration.entity_types.validate(self.entity_type_repository)
@@ -615,6 +624,23 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, CoreComponent):
             )
 
         return self._extension_repository
+
+
+@internal
+@final
+class ReducedProject(AppDependentTargetFactory[Project]):
+    """
+    A reduced project that can be pickled.
+    """
+
+    def __init__(self, project: Project):
+        self._configuration = project.configuration
+        self._ancestry = project.ancestry
+
+    @override
+    async def new_for_app(self, app: App) -> Project:
+        # @todo Finish this. What else?
+        return Project(app, self._configuration, ancestry=self._ancestry)
 
 
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)

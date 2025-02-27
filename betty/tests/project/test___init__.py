@@ -1,15 +1,16 @@
 from __future__ import annotations
 
+import pickle
 from pathlib import Path
 from typing import TYPE_CHECKING, Self, Sequence
 
 import pytest
 from typing_extensions import override
 
-import betty.ancestry.event
-import betty.ancestry.person
-import betty.ancestry.place
 from betty.ancestry import Ancestry
+from betty.ancestry.event import Event
+from betty.ancestry.person import Person
+from betty.ancestry.place import Place
 from betty.app import App
 from betty.app.factory import AppDependentFactory
 from betty.assertion.error import AssertionFailed
@@ -23,6 +24,7 @@ from betty.project import (
     ProjectSchema,
     ProjectExtensions,
     ProjectContext,
+    ReducedProject,
 )
 from betty.project.config import (
     CopyrightNoticeConfiguration,
@@ -522,6 +524,32 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             assert await sut.extension_repository.get("cotton-candy")
 
+    async def test_reduce(self) -> None:
+        raise AssertionError
+
+
+class TestReducedProject:
+    async def test_reduce_with_configuration(self, new_temporary_app: App) -> None:
+        url = "https://betty.example.com"
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.url = url
+            async with project:
+                sut = ReducedProject(project)
+                unpickled_sut: ReducedProject = pickle.loads(pickle.dumps(sut))
+                unreduced_project = await unpickled_sut.new_for_app(new_temporary_app)
+                assert unreduced_project.configuration.url == url
+        raise AssertionError
+
+    async def test_reduce_with_ancestry(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.ancestry.add(Person())
+            async with project:
+                sut = ReducedProject(project)
+                unpickled_sut: ReducedProject = pickle.loads(pickle.dumps(sut))
+                unreduced_project = await unpickled_sut.new_for_app(new_temporary_app)
+                assert len(unreduced_project.ancestry) == len(project.ancestry)
+        raise AssertionError
+
 
 class TestProjectContext:
     async def test_project(self, new_temporary_app: App) -> None:
@@ -567,15 +595,9 @@ class TestProjectSchema(SchemaTestBase):
                             (
                                 await ProjectSchema.new_for_project(project),
                                 [
-                                    await betty.ancestry.person.Person().dump_linked_data(
-                                        project
-                                    ),
-                                    await betty.ancestry.place.Place().dump_linked_data(
-                                        project
-                                    ),
-                                    await betty.ancestry.event.Event().dump_linked_data(
-                                        project
-                                    ),
+                                    await Person().dump_linked_data(project),
+                                    await Place().dump_linked_data(project),
+                                    await Event().dump_linked_data(project),
                                 ],
                                 [],
                             )
