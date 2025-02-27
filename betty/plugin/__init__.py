@@ -403,19 +403,27 @@ async def sort_dependent_plugin_graph(
     sorter: TopologicalSorter[type[_PluginT]],
     plugins: PluginRepository[_PluginT],
     entry_point_plugins: Iterable[type[_PluginT & DependentPlugin[_PluginT]]],
-) -> None:
+) -> Sequence[type[_PluginT & DependentPlugin[_PluginT]]]:
     """
     Build a graph of the given plugins and their dependencies.
     """
+    updated_entry_point_plugins = []
     for entry_point_plugin in entry_point_plugins:
-        dependencies = entry_point_plugin.depends_on()
-        sorter.add(
-            entry_point_plugin,
-            *(await plugins.resolve_identifiers(dependencies)),
+        if entry_point_plugin not in updated_entry_point_plugins:
+            updated_entry_point_plugins.append(entry_point_plugin)
+        dependencies = await plugins.resolve_identifiers(
+            entry_point_plugin.depends_on()
         )
+        for dependency in dependencies:
+            if dependency not in updated_entry_point_plugins:
+                updated_entry_point_plugins.append(
+                    dependency,  # type: ignore[arg-type]
+                )
+        sorter.add(entry_point_plugin, *dependencies)
         await sort_dependent_plugin_graph(
             sorter,
             plugins,
             # We have not quite figured out how to type this correctly, so ignore any errors for now.
             dependencies,  # type: ignore[arg-type]
         )
+    return updated_entry_point_plugins
