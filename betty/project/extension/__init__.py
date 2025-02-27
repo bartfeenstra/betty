@@ -131,8 +131,13 @@ async def sort_extension_type_graph(
     """
     Sort an extension graph.
     """
-    await sort_dependent_plugin_graph(sorter, EXTENSION_REPOSITORY, extension_types)
-    await sort_ordered_plugin_graph(sorter, EXTENSION_REPOSITORY, extension_types)
+    await sort_ordered_plugin_graph(
+        sorter,
+        EXTENSION_REPOSITORY,
+        await sort_dependent_plugin_graph(
+            sorter, EXTENSION_REPOSITORY, extension_types
+        ),
+    )
 
 
 class Dependencies(AllRequirements):
