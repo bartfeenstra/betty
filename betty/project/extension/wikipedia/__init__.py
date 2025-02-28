@@ -10,6 +10,7 @@ from typing import Iterable, TYPE_CHECKING, final, Self
 from jinja2 import pass_context
 from typing_extensions import override
 
+from betty.core import service
 from betty.fetch import FetchError
 from betty.jinja2 import Jinja2Provider, context_localizer, Filters, Globals
 from betty.locale import negotiate_locale
@@ -23,7 +24,6 @@ from betty.wikipedia.copyright_notice import WikipediaContributors
 
 if TYPE_CHECKING:
     from betty.copyright_notice import CopyrightNotice
-    from collections.abc import Awaitable
     from betty.project import Project
     from betty.event_dispatcher import EventHandlerRegistry
     from jinja2.runtime import Context
@@ -63,7 +63,6 @@ class Wikipedia(
         self._wikipedia_contributors_copyright_notice = (
             wikipedia_contributors_copyright_notice
         )
-        self._retriever: _Retriever | None = None
 
     @override
     @classmethod
@@ -84,18 +83,12 @@ class Wikipedia(
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
         registry.add_handler(PostLoadAncestryEvent, _populate_ancestry)
 
-    @property
-    def retriever(self) -> Awaitable[_Retriever]:
+    @service
+    async def retriever(self) -> _Retriever:
         """
         The Wikipedia content retriever.
         """
-        return self._get_retriever()
-
-    async def _get_retriever(self) -> _Retriever:
-        if self._retriever is None:
-            self.assert_bootstrapped()
-            return _Retriever(await self.project.app.fetcher)
-        return self._retriever
+        return _Retriever(await self.project.app.fetcher)
 
     @override
     @property

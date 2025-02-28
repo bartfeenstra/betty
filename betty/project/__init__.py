@@ -20,7 +20,6 @@ from typing import (
     Iterator,
     overload,
     cast,
-    Awaitable,
 )
 
 from aiofiles.tempfile import TemporaryDirectory
@@ -33,10 +32,9 @@ from betty.ancestry.gender import GENDER_REPOSITORY, Gender
 from betty.ancestry.place_type import PLACE_TYPE_REPOSITORY, PlaceType
 from betty.ancestry.presence_role import PRESENCE_ROLE_REPOSITORY, PresenceRole
 from betty.assets import AssetRepository
-from betty.concurrent import AsynchronizedLock
 from betty.config import Configurable
 from betty.copyright_notice import CopyrightNotice, COPYRIGHT_NOTICE_REPOSITORY
-from betty.core import CoreComponent
+from betty.core import CoreComponent, service
 from betty.event_dispatcher import EventDispatcher, EventHandlerRegistry
 from betty.factory import TargetFactory
 from betty.hashid import hashid
@@ -98,39 +96,6 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, CoreComponent):
         super().__init__(configuration=configuration)
         self._app = app
         self._ancestry = ancestry
-
-        self._assets: AssetRepository | None = None
-        self._assets_lock = AsynchronizedLock.threading()
-        self._localizers: LocalizerRepository | None = None
-        self._localizers_lock = AsynchronizedLock.threading()
-        self._url_generator: UrlGenerator | None = None
-        self._url_generator_lock = AsynchronizedLock.threading()
-        self._localized_url_generator: LocalizedUrlGenerator | None = None
-        self._localized_url_generator_lock = AsynchronizedLock.threading()
-        self._static_url_generator: StaticUrlGenerator | None = None
-        self._static_url_generator_lock = AsynchronizedLock.threading()
-        self._jinja2_environment: Environment | None = None
-        self._jinja2_environment_lock = AsynchronizedLock.threading()
-        self._renderer: Renderer | None = None
-        self._renderer_lock = AsynchronizedLock.threading()
-        self._extensions: ProjectExtensions | None = None
-        self._extensions_lock = AsynchronizedLock.threading()
-        self._event_dispatcher: EventDispatcher | None = None
-        self._copyright_notice: CopyrightNotice | None = None
-        self._copyright_notice_lock = AsynchronizedLock.threading()
-        self._copyright_notice_repository: PluginRepository[CopyrightNotice] | None = (
-            None
-        )
-        self._license: License | None = None
-        self._license_lock = AsynchronizedLock.threading()
-        self._license_repository: PluginRepository[License] | None = None
-        self._licenses_lock = AsynchronizedLock.threading()
-        self._event_type_repository: PluginRepository[EventType] | None = None
-        self._place_type_repository: PluginRepository[PlaceType] | None = None
-        self._presence_role_repository: PluginRepository[PresenceRole] | None = None
-        self._gender_repository: PluginRepository[Gender] | None = None
-        self._entity_type_repository: PluginRepository[Entity] | None = None
-        self._extension_repository: PluginRepository[Extension] | None = None
 
     @classmethod
     async def new(
@@ -221,145 +186,81 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, CoreComponent):
         """
         return self._ancestry
 
-    @property
-    def assets(self) -> Awaitable[AssetRepository]:
+    @service
+    async def assets(self) -> AssetRepository:
         """
         The assets file system.
         """
-        return self._get_assets()
+        asset_paths = [self.configuration.assets_directory_path]
+        extensions = await self.extensions
+        for project_extension in extensions.flatten():
+            extension_assets_directory_path = project_extension.assets_directory_path()
+            if extension_assets_directory_path is not None:
+                asset_paths.append(extension_assets_directory_path)
+        # Mimic :py:attr:`betty.app.App.assets`.
+        asset_paths.append(fs.ASSETS_DIRECTORY_PATH)
+        return AssetRepository(*asset_paths)
 
-    async def _get_assets(self) -> AssetRepository:
-        async with self._assets_lock:
-            if self._assets is None:
-                self.assert_bootstrapped()
-                asset_paths = [self.configuration.assets_directory_path]
-                extensions = await self.extensions
-                for extension in extensions.flatten():
-                    extension_assets_directory_path = extension.assets_directory_path()
-                    if extension_assets_directory_path is not None:
-                        asset_paths.append(extension_assets_directory_path)
-                # Mimic :py:attr:`betty.app.App.assets`.
-                asset_paths.append(fs.ASSETS_DIRECTORY_PATH)
-                self._assets = AssetRepository(*asset_paths)
-        return self._assets
-
-    @property
-    def localizers(self) -> Awaitable[LocalizerRepository]:
+    @service
+    async def localizers(self) -> LocalizerRepository:
         """
         The available localizers.
         """
-        return self._get_localizers()
+        return LocalizerRepository(await self.assets)
 
-    async def _get_localizers(self) -> LocalizerRepository:
-        async with self._localizers_lock:
-            if self._localizers is None:
-                self.assert_bootstrapped()
-                self._localizers = LocalizerRepository(await self.assets)
-        return self._localizers
-
-    @property
-    def url_generator(self) -> Awaitable[UrlGenerator]:
+    @service
+    async def url_generator(self) -> UrlGenerator:
         """
         The URL generator.
         """
-        return self._get_url_generator()
+        return await new_project_url_generator(self)
 
-    async def _get_url_generator(self) -> UrlGenerator:
-        async with self._url_generator_lock:
-            if self._url_generator is None:
-                self.assert_bootstrapped()
-                self._url_generator = await new_project_url_generator(self)
-        return self._url_generator
-
-    @property
+    @service
     @deprecated(
         "This service has been deprecated since Betty 0.4.8, and will be removed in Betty 0.5. Instead use `Project.url_generator`."
     )
-    def localized_url_generator(self) -> Awaitable[LocalizedUrlGenerator]:
+    async def localized_url_generator(self) -> LocalizedUrlGenerator:
         """
         The URL generator for localizable resources.
         """
-        return self._get_localized_url_generator()
+        return await ProjectLocalizedUrlGenerator.new_for_project(self)
 
-    async def _get_localized_url_generator(self) -> LocalizedUrlGenerator:
-        async with self._localized_url_generator_lock:
-            if self._localized_url_generator is None:
-                self.assert_bootstrapped()
-                self._localized_url_generator = (
-                    await ProjectLocalizedUrlGenerator.new_for_project(self)
-                )
-        return self._localized_url_generator
-
-    @property
+    @service
     @deprecated(
         "This service has been deprecated since Betty 0.4.8, and will be removed in Betty 0.5. Instead use `Project.url_generator`."
     )
-    def static_url_generator(self) -> Awaitable[StaticUrlGenerator]:
+    async def static_url_generator(self) -> StaticUrlGenerator:
         """
         The URL generator for static resources.
         """
-        return self._get_static_url_generator()
+        return await ProjectStaticUrlGenerator.new_for_project(self)
 
-    async def _get_static_url_generator(self) -> StaticUrlGenerator:
-        async with self._static_url_generator_lock:
-            if self._static_url_generator is None:
-                self.assert_bootstrapped()
-                self._static_url_generator = (
-                    await ProjectStaticUrlGenerator.new_for_project(self)
-                )
-        return self._static_url_generator
-
-    @property
-    def jinja2_environment(self) -> Awaitable[Environment]:
+    @service
+    async def jinja2_environment(self) -> Environment:
         """
         The Jinja2 environment.
         """
-        return self._get_jinja2_environment()
+        from betty.jinja2 import Environment
 
-    async def _get_jinja2_environment(self) -> Environment:
-        async with self._jinja2_environment_lock:
-            if not self._jinja2_environment:
-                from betty.jinja2 import Environment
+        return await Environment.new_for_project(self)
 
-                self.assert_bootstrapped()
-                self._jinja2_environment = await Environment.new_for_project(self)
-
-        return self._jinja2_environment
-
-    @property
-    def renderer(self) -> Awaitable[Renderer]:
+    @service
+    async def renderer(self) -> Renderer:
         """
         The (file) content renderer.
         """
-        return self._get_renderer()
+        return SequentialRenderer(
+            [
+                await self.new_target(plugin)
+                for plugin in await RENDERER_REPOSITORY.select()
+            ]
+        )
 
-    async def _get_renderer(self) -> Renderer:
-        async with self._renderer_lock:
-            if not self._renderer:
-                self.assert_bootstrapped()
-                self._renderer = SequentialRenderer(
-                    [
-                        await self.new_target(plugin)
-                        for plugin in await RENDERER_REPOSITORY.select()
-                    ]
-                )
-        return self._renderer
-
-    @property
-    def extensions(self) -> Awaitable[ProjectExtensions]:
+    @service
+    async def extensions(self) -> ProjectExtensions:
         """
         The enabled extensions.
         """
-        return self._get_extensions()
-
-    async def _get_extensions(self) -> ProjectExtensions:
-        async with self._extensions_lock:
-            if self._extensions is None:
-                self._extensions = await self._init_extensions()
-        return self._extensions
-
-    async def _init_extensions(self) -> ProjectExtensions:
-        self.assert_bootstrapped()
         extensions = {}
         for extension_configuration in self.configuration.extensions.values():
             extension = await self.extension_repository.get(extension_configuration.id)
@@ -408,16 +309,12 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, CoreComponent):
 
         return initialized_extensions
 
-    @property
+    @service
     def event_dispatcher(self) -> EventDispatcher:
         """
         The event dispatcher.
         """
-        if self._event_dispatcher is None:
-            self.assert_bootstrapped()
-            self._event_dispatcher = EventDispatcher()
-
-        return self._event_dispatcher
+        return EventDispatcher()
 
     @override
     async def new_target(self, cls: type[_T]) -> _T:
@@ -449,172 +346,117 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, CoreComponent):
             or fs.ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png"
         )
 
-    @property
-    def copyright_notice(self) -> Awaitable[CopyrightNotice]:
+    @service
+    async def copyright_notice(self) -> CopyrightNotice:
         """
         The overall project copyright.
         """
-        return self._get_copyright_notice()
+        return await self.configuration.copyright_notice.new_plugin_instance(
+            self.copyright_notice_repository
+        )
 
-    async def _get_copyright_notice(self) -> CopyrightNotice:
-        async with self._copyright_notice_lock:
-            if self._copyright_notice is None:
-                self.assert_bootstrapped()
-                self._copyright_notice = (
-                    await self.configuration.copyright_notice.new_plugin_instance(
-                        self.copyright_notice_repository
-                    )
-                )
-        return self._copyright_notice
-
-    @property
+    @service
     def copyright_notice_repository(self) -> PluginRepository[CopyrightNotice]:
         """
         The copyright notices available to this project.
 
         Read more about :doc:`/development/plugin/copyright-notice`.
         """
-        if self._copyright_notice_repository is None:
-            self.assert_bootstrapped()
-            self._copyright_notice_repository = ProxyPluginRepository(
-                COPYRIGHT_NOTICE_REPOSITORY,
-                StaticPluginRepository(
-                    *self.configuration.copyright_notices.new_plugins()
-                ),
-                factory=self.new_target,
-            )
+        return ProxyPluginRepository(
+            COPYRIGHT_NOTICE_REPOSITORY,
+            StaticPluginRepository(*self.configuration.copyright_notices.new_plugins()),
+            factory=self.new_target,
+        )
 
-        return self._copyright_notice_repository
-
-    @property
-    def license(self) -> Awaitable[License]:
+    @service
+    async def license(self) -> License:
         """
         The overall project license.
         """
-        return self._get_license()
+        return await self.configuration.license.new_plugin_instance(
+            await self.license_repository
+        )
 
-    async def _get_license(self) -> License:
-        async with self._license_lock:
-            if self._license is None:
-                self._license = await self.configuration.license.new_plugin_instance(
-                    await self.license_repository
-                )
-        return self._license
-
-    @property
-    def license_repository(self) -> Awaitable[PluginRepository[License]]:
+    @service
+    async def license_repository(self) -> PluginRepository[License]:
         """
         The licenses available to this project.
 
         Read more about :doc:`/development/plugin/license`.
         """
-        return self._get_licenses()
+        return ProxyPluginRepository(
+            await self._app.spdx_license_repository,
+            StaticPluginRepository(*self.configuration.licenses.new_plugins()),
+            factory=self.new_target,
+        )
 
-    async def _get_licenses(self) -> PluginRepository[License]:
-        async with self._licenses_lock:
-            if self._license_repository is None:
-                self.assert_bootstrapped()
-                self._license_repository = ProxyPluginRepository(
-                    await self._app.spdx_license_repository,
-                    StaticPluginRepository(*self.configuration.licenses.new_plugins()),
-                    factory=self.new_target,
-                )
-
-        return self._license_repository
-
-    @property
+    @service
     def event_type_repository(self) -> PluginRepository[EventType]:
         """
         The event types available to this project.
         """
-        if self._event_type_repository is None:
-            self.assert_bootstrapped()
-            self._event_type_repository = ProxyPluginRepository(
-                EVENT_TYPE_REPOSITORY,
-                StaticPluginRepository(*self.configuration.event_types.new_plugins()),
-                factory=self.new_target,
-            )
+        return ProxyPluginRepository(
+            EVENT_TYPE_REPOSITORY,
+            StaticPluginRepository(*self.configuration.event_types.new_plugins()),
+            factory=self.new_target,
+        )
 
-        return self._event_type_repository
-
-    @property
+    @service
     def place_type_repository(self) -> PluginRepository[PlaceType]:
         """
         The place types available to this project.
         """
-        if self._place_type_repository is None:
-            self.assert_bootstrapped()
-            self._place_type_repository = ProxyPluginRepository(
-                PLACE_TYPE_REPOSITORY,
-                StaticPluginRepository(*self.configuration.place_types.new_plugins()),
-                factory=self.new_target,
-            )
+        return ProxyPluginRepository(
+            PLACE_TYPE_REPOSITORY,
+            StaticPluginRepository(*self.configuration.place_types.new_plugins()),
+            factory=self.new_target,
+        )
 
-        return self._place_type_repository
-
-    @property
+    @service
     def presence_role_repository(self) -> PluginRepository[PresenceRole]:
         """
         The presence roles available to this project.
         """
-        if self._presence_role_repository is None:
-            self.assert_bootstrapped()
-            self._presence_role_repository = ProxyPluginRepository(
-                PRESENCE_ROLE_REPOSITORY,
-                StaticPluginRepository(
-                    *self.configuration.presence_roles.new_plugins()
-                ),
-                factory=self.new_target,
-            )
+        return ProxyPluginRepository(
+            PRESENCE_ROLE_REPOSITORY,
+            StaticPluginRepository(*self.configuration.presence_roles.new_plugins()),
+            factory=self.new_target,
+        )
 
-        return self._presence_role_repository
-
-    @property
+    @service
     def gender_repository(self) -> PluginRepository[Gender]:
         """
         The genders available to this project.
 
         Read more about :doc:`/development/plugin/gender`.
         """
-        if self._gender_repository is None:
-            self.assert_bootstrapped()
-            self._gender_repository = ProxyPluginRepository(
-                GENDER_REPOSITORY,
-                StaticPluginRepository(*self.configuration.genders.new_plugins()),
-                factory=self.new_target,
-            )
+        return ProxyPluginRepository(
+            GENDER_REPOSITORY,
+            StaticPluginRepository(*self.configuration.genders.new_plugins()),
+            factory=self.new_target,
+        )
 
-        return self._gender_repository
-
-    @property
+    @service
     def entity_type_repository(self) -> PluginRepository[Entity]:
         """
         The entity types available to this project.
 
         Read more about :doc:`/development/plugin/entity-type`.
         """
-        if self._entity_type_repository is None:
-            self.assert_bootstrapped()
-            self._entity_type_repository = ProxyPluginRepository(
-                model.ENTITY_TYPE_REPOSITORY, factory=self.new_target
-            )
+        return ProxyPluginRepository(
+            model.ENTITY_TYPE_REPOSITORY, factory=self.new_target
+        )
 
-        return self._entity_type_repository
-
-    @property
+    @service
     def extension_repository(self) -> PluginRepository[Extension]:
         """
         The extensions available to this project.
 
         Read more about :doc:`/development/plugin/extension`.
         """
-        if self._extension_repository is None:
-            self.assert_bootstrapped()
-            self._extension_repository = ProxyPluginRepository(
-                extension.EXTENSION_REPOSITORY, factory=self.new_target
-            )
-
-        return self._extension_repository
+        return ProxyPluginRepository(
+            extension.EXTENSION_REPOSITORY, factory=self.new_target
+        )
 
 
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)
