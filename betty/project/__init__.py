@@ -34,7 +34,7 @@ from betty.ancestry.presence_role import PRESENCE_ROLE_REPOSITORY, PresenceRole
 from betty.assets import AssetRepository
 from betty.config import Configurable
 from betty.copyright_notice import CopyrightNotice, COPYRIGHT_NOTICE_REPOSITORY
-from betty.core import CoreComponent, service
+from betty.core import ServiceProvider, service
 from betty.event_dispatcher import EventDispatcher, EventHandlerRegistry
 from betty.factory import TargetFactory
 from betty.hashid import hashid
@@ -79,7 +79,7 @@ _ProjectDependentT = TypeVar("_ProjectDependentT")
 
 
 @final
-class Project(Configurable[ProjectConfiguration], TargetFactory, CoreComponent):
+class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider):
     """
     Define a Betty project.
 

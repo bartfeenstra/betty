@@ -7,7 +7,7 @@ from typing import TypeVar, TYPE_CHECKING, Generic, Self, Sequence
 from typing_extensions import override
 
 from betty.config import Configuration, DefaultConfigurable
-from betty.core import CoreComponent
+from betty.core import ServiceProvider
 from betty.locale.localizable import Localizable, _, call
 from betty.plugin import (
     PluginRepository,
@@ -37,7 +37,7 @@ _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 class Extension(
     OrderedPlugin["Extension"],
     DependentPlugin["Extension"],
-    CoreComponent,
+    ServiceProvider,
     ProjectDependentFactory,
 ):
     """

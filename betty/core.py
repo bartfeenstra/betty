@@ -113,11 +113,12 @@ class ShutdownStack(Bootstrapped, Shutdownable):
 
 
 @internal
-class CoreComponent(Bootstrapped, Shutdownable):
+class ServiceProvider(Bootstrapped, Shutdownable):
     """
-    A core component.
+    A service provider.
 
-    Core components can manage their resources by being bootstrapped and shut down.
+    Service providers make up a running Betty 'application'. They can provide services through
+    :py:func:`betty.core.service`, and manage their resources by being bootstrapped and shut down.
     """
 
     def __init__(self, *args: Any, **kwargs: Any):
@@ -157,25 +158,27 @@ class CoreComponent(Bootstrapped, Shutdownable):
         await self.shutdown(wait=exc_val is None)
 
 
-_CoreComponentT = TypeVar("_CoreComponentT", bound=CoreComponent)
+_ServiceProviderT = TypeVar("_ServiceProviderT", bound=ServiceProvider)
 
 
-class _Service(Generic[_CoreComponentT, _T]):
-    def __init__(self, f: Callable[[_CoreComponentT], _T]):
+class _Service(Generic[_ServiceProviderT, _T]):
+    def __init__(self, f: Callable[[_ServiceProviderT], _T]):
         self._f = f
         f_name = f.__name__  # type: ignore[attr-defined]
         self._attr_name = f"_{f_name}"
 
     @overload
-    def __get__(self, instance: None, owner: type[_CoreComponentT]) -> Self:
+    def __get__(self, instance: None, owner: type[_ServiceProviderT]) -> Self:
         pass
 
     @overload
-    def __get__(self, instance: _CoreComponentT, owner: type[_CoreComponentT]) -> _T:
+    def __get__(
+        self, instance: _ServiceProviderT, owner: type[_ServiceProviderT]
+    ) -> _T:
         pass
 
     def __get__(
-        self, instance: _CoreComponentT | None, owner: type[_CoreComponentT]
+        self, instance: _ServiceProviderT | None, owner: type[_ServiceProviderT]
     ) -> _T | Self:
         if instance is None:
             return self  # type: ignore[return-value]
@@ -185,12 +188,12 @@ class _Service(Generic[_CoreComponentT, _T]):
         return self._get(instance)
 
     @abstractmethod
-    def _get(self, instance: _CoreComponentT) -> _T:
+    def _get(self, instance: _ServiceProviderT) -> _T:
         pass
 
 
-class _AsynchronousService(_Service[_CoreComponentT, Awaitable[_T]]):
-    async def _get(self, instance: _CoreComponentT) -> _T:
+class _AsynchronousService(_Service[_ServiceProviderT, Awaitable[_T]]):
+    async def _get(self, instance: _ServiceProviderT) -> _T:
         service = cast(_T | None, getattr(instance, self._attr_name, None))
         if service is not None:
             return service
@@ -207,8 +210,8 @@ class _AsynchronousService(_Service[_CoreComponentT, Awaitable[_T]]):
             return service
 
 
-class _SynchronousService(_Service[_CoreComponentT, _T]):
-    def _get(self, instance: _CoreComponentT) -> _T:
+class _SynchronousService(_Service[_ServiceProviderT, _T]):
+    def _get(self, instance: _ServiceProviderT) -> _T:
         service = cast(_T | None, getattr(instance, self._attr_name, None))
         if service is not None:
             return service
@@ -218,9 +221,9 @@ class _SynchronousService(_Service[_CoreComponentT, _T]):
         return service
 
 
-def service(f: Callable[[_CoreComponentT], _T]) -> _Service[_CoreComponentT, _T]:
+def service(f: Callable[[_ServiceProviderT], _T]) -> _Service[_ServiceProviderT, _T]:
     """
-    Decorate a :py:class:`betty.core.CoreComponent`'s method to be a service property.
+    Decorate a :py:class:`betty.core.ServiceProvider`'s method to be a service property.
 
     The decorated function should return a new service instance. The decorator will handle caching and concurrency.
     """
