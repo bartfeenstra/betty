@@ -1,12 +1,18 @@
 from __future__ import annotations
 
-from typing import Self
+import pickle
+from typing import Self, TYPE_CHECKING, cast
 
-from typing_extensions import override
-
+import pytest
 from betty.app import App
 from betty.app.factory import AppDependentFactory
+from betty.cache.memory import MemoryCache
 from betty.locale import DEFAULT_LOCALE
+from betty.service import StaticService
+from typing_extensions import override
+
+if TYPE_CHECKING:
+    from multiprocessing.managers import SyncManager
 
 
 class TestApp:
@@ -70,6 +76,66 @@ class TestApp:
             dependent = await sut.new_target(Dependent)
             assert dependent.app is sut
 
-    async def test_spdx_license_repository(self, new_temporary_app: App) -> None:
+    async def test_spdx_license_repository(self) -> None:
         async with App.new_temporary() as sut, sut:
             await sut.spdx_license_repository
+
+    async def test___getstate___not_yet_bootstrapped_should_error(self) -> None:
+        async with App.new_temporary() as sut:
+            with pytest.raises(RuntimeError):
+                pickle.loads(pickle.dumps(sut))
+
+    async def test___getstate___minimal(self) -> None:
+        async with App.new_temporary() as sut, sut:
+            unpickled_sut = pickle.loads(pickle.dumps(sut))
+
+        await unpickled_sut.shutdown()
+
+    async def test___getstate___full(
+        self, multiprocessing_manager: SyncManager
+    ) -> None:
+        async with (
+            App.new_temporary(
+                cache_factory=StaticService(
+                    MemoryCache(manager=multiprocessing_manager)
+                )
+            ) as sut,
+            sut,
+        ):
+            unpickled_sut = cast(App, pickle.loads(pickle.dumps(sut)))
+
+            # Test the cache.
+            cache_item_id = "my-first-cache-item-id"
+            cache_item_value = "My first cache item"
+            cache = sut.cache
+            unpickled_cache = unpickled_sut.cache
+            await cache.set(cache_item_id, cache_item_value)
+            async with unpickled_cache.get(cache_item_id) as cache_item:
+                assert cache_item
+                assert await cache_item.value() == cache_item_value
+
+            # Test the binary file cache.
+            binary_file_cache_item_id = "my-first-cache-item-id"
+            binary_file_cache_item_value = b"My first cache item"
+            binary_file_cache = sut.binary_file_cache
+            unpickled_binary_file_cache = unpickled_sut.binary_file_cache
+            await binary_file_cache.set(
+                binary_file_cache_item_id, binary_file_cache_item_value
+            )
+            async with unpickled_binary_file_cache.get(
+                binary_file_cache_item_id
+            ) as cache_item:
+                assert cache_item
+                assert await cache_item.value() == binary_file_cache_item_value
+
+            # Test that other services can be requested.
+            unpickled_sut.assets  # noqa B018
+            await unpickled_sut.localizer
+            unpickled_sut.localizers  # noqa B018
+            await unpickled_sut.http_client
+            await unpickled_sut.fetcher
+            unpickled_sut.process_pool  # noqa B018
+            unpickled_sut.multiprocessing_manager  # noqa B018
+            await unpickled_sut.spdx_license_repository
+
+            await unpickled_sut.shutdown()

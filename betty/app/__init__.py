@@ -30,7 +30,8 @@ from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizer import Localizer, LocalizerRepository
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugin.proxy import ProxyPluginRepository
-from betty.service import ServiceProvider, service, ServiceFactory
+from betty.service import ServiceProvider, service, ServiceFactory, StaticService
+from betty.typing import processsafe
 
 if TYPE_CHECKING:
     from multiprocessing.managers import SyncManager
@@ -43,6 +44,7 @@ _T = TypeVar("_T")
 
 
 @final
+@processsafe
 class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
     """
     The Betty application.
@@ -62,6 +64,17 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
             cls.fetcher.override(self, fetcher)
         self._cache_directory_path = cache_directory_path
         cls.cache.override_factory(self, cache_factory)
+
+    def __getstate__(self) -> dict[str, Any]:
+        cls = type(self)
+        return {
+            **super().__getstate__(),
+            "_bootstrapped": True,
+            "_cache_directory_path": self._cache_directory_path,
+            "_configuration": self._configuration,
+            **cls.binary_file_cache.get_state(self),
+            **cls.cache.get_state(self),
+        }
 
     @classmethod
     @asynccontextmanager
@@ -85,10 +98,13 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
     @classmethod
     @asynccontextmanager
     async def new_temporary(
-        cls, *, fetcher: Fetcher | None = None
+        cls,
+        *,
+        cache_factory: ServiceFactory[Self, Cache[Any]] | None = None,
+        fetcher: Fetcher | None = None,
     ) -> AsyncIterator[Self]:
         """
-        Creat a new, temporary, isolated application.
+        Create a new, temporary, isolated application.
 
         The application will not use any persistent caches, or leave
         any traces on the system.
@@ -99,7 +115,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
             yield cls(
                 AppConfiguration(),
                 Path(cache_directory_path_str),
-                cache_factory=lambda app: NoOpCache(),
+                cache_factory=cache_factory or StaticService(NoOpCache()),
                 fetcher=fetcher or StaticFetcher(),
             )
 
@@ -155,14 +171,14 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
             self.binary_file_cache.with_scope("fetch"),
         )
 
-    @service
+    @service(shared=True)
     def cache(self) -> Cache[Any]:
         """
         The cache.
         """
         raise NotImplementedError
 
-    @service
+    @service(shared=True)
     def binary_file_cache(self) -> BinaryFileCache:
         """
         The binary file cache.

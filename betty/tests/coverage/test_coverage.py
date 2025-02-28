@@ -127,6 +127,13 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/service.py": {
+        "BootstrappedError": MissingReason.ABSTRACT,
+        "NotBootstrappedError": MissingReason.ABSTRACT,
+        "ServiceError": MissingReason.ABSTRACT,
+        "ServiceInitializedError": MissingReason.ABSTRACT,
+        "ServiceProvider": {
+            "__setstate__": MissingReason.COVERED_ELSEWHERE,
+        },
         "Shutdownable": MissingReason.ABSTRACT,
         "ShutdownCallbackKwargs": MissingReason.TYPED_DICT,
         "ShutdownStack": {
