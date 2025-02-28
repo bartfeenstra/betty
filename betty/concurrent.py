@@ -3,19 +3,27 @@ Provide utilities for concurrent programming.
 """
 
 import asyncio
+import multiprocessing
 import threading
 import time
 from abc import ABC, abstractmethod
 from asyncio import sleep
 from collections import defaultdict
 from collections.abc import Hashable
-from types import TracebackType
-from typing import Self, final, MutableMapping
-
 from math import floor
+from multiprocessing import synchronize
+from types import TracebackType
+from typing import final, MutableMapping, TypeAlias, Generic, TypeVar, Union
+
 from typing_extensions import override
 
 from betty.typing import threadsafe
+
+ThreadingLockType = type(threading.Lock())
+MultiprocessingLockType = synchronize.Lock
+LockTypes = (ThreadingLockType, MultiprocessingLockType)
+Lockey: TypeAlias = Union[threading.Lock, synchronize.Lock]
+_LockeyT = TypeVar("_LockeyT", bound=Lockey)
 
 
 class Lock(ABC):
@@ -49,11 +57,11 @@ class Lock(ABC):
         pass
 
 
-async def asynchronize_acquire(lock: threading.Lock, *, wait: bool = True) -> bool:
+async def asynchronize_acquire(lock: Lockey, *, wait: bool = True) -> bool:
     """
     Acquire a synchronous lock asynchronously.
     """
-    while not lock.acquire(blocking=False):
+    while not acquire(lock, wait=False):
         if not wait:
             return False
         # Sleeping for zero seconds does not actually sleep, but gives the event
@@ -63,16 +71,36 @@ async def asynchronize_acquire(lock: threading.Lock, *, wait: bool = True) -> bo
     return True
 
 
+def acquire(lock: Lockey, *, wait: bool = True) -> bool:
+    """
+    Acquire a synchronous lock asynchronously.
+    """
+    kwargs = {
+        "block"
+        # multiprocessing.Lock is similar to threading.Lock, but uses a different keyword argument to indicate blocking.
+        if isinstance(lock, MultiprocessingLockType)
+        else "blocking": wait,
+    }
+    return lock.acquire(**kwargs)
+
+
 @final
-class AsynchronizedLock(Lock):
+class AsynchronizedLock(Generic[_LockeyT], Lock):
     """
     Make a sychronous (blocking) lock asynchronous (non-blocking).
     """
 
     __slots__ = "_lock"
 
-    def __init__(self, lock: threading.Lock):
+    def __init__(self, lock: _LockeyT):
         self._lock = lock
+
+    @property
+    def lock(self) -> _LockeyT:
+        """
+        The underlying, synchronous lock.
+        """
+        return self._lock
 
     @override
     async def acquire(self, *, wait: bool = True) -> bool:
@@ -83,11 +111,18 @@ class AsynchronizedLock(Lock):
         self._lock.release()
 
     @classmethod
-    def threading(cls) -> Self:
+    def threading(cls) -> "AsynchronizedLock[threading.Lock]":
         """
         Create a new thread-safe, asynchronous lock.
         """
-        return cls(threading.Lock())
+        return AsynchronizedLock(threading.Lock())
+
+    @classmethod
+    def multiprocessing(cls) -> "AsynchronizedLock[synchronize.Lock]":
+        """
+        Create a new process-safe, asynchronous lock.
+        """
+        return AsynchronizedLock(multiprocessing.Lock())
 
 
 @final
