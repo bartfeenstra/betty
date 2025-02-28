@@ -1,7 +1,13 @@
 from typing_extensions import override
 
 import pytest
-from betty.core import CoreComponent, Bootstrapped, ShutdownStack, Shutdownable, service
+from betty.core import (
+    ServiceProvider,
+    Bootstrapped,
+    ShutdownStack,
+    Shutdownable,
+    service,
+)
 
 
 class TestBootstrapped:
@@ -76,24 +82,24 @@ class TestShutdownStack:
         await sut.shutdown(wait=True)
 
 
-class TestCoreComponent:
+class TestServiceProvider:
     async def test___aenter__(self) -> None:
-        async with CoreComponent() as sut:
+        async with ServiceProvider() as sut:
             assert sut.bootstrapped
 
     async def test___aexit__(self) -> None:
-        async with CoreComponent() as sut:
+        async with ServiceProvider() as sut:
             pass
         assert not sut.bootstrapped
 
     async def test___del__(self) -> None:
-        sut = CoreComponent()
+        sut = ServiceProvider()
         await sut.bootstrap()
         with pytest.warns():
             del sut
 
     async def test_bootstrap(self) -> None:
-        sut = CoreComponent()
+        sut = ServiceProvider()
         await sut.bootstrap()
         try:
             assert sut.bootstrapped
@@ -101,14 +107,14 @@ class TestCoreComponent:
             await sut.shutdown()
 
     async def test_shutdown(self) -> None:
-        sut = CoreComponent()
+        sut = ServiceProvider()
         await sut.bootstrap()
         await sut.shutdown()
         assert not sut.bootstrapped
 
 
 class TestService:
-    class _Component(CoreComponent):
+    class _ServiceProvider(ServiceProvider):
         @service
         async def my_first_asynchronous_service(self) -> object:
             return object()
@@ -118,12 +124,12 @@ class TestService:
             return object()
 
     async def test_get_class_attr_with_asynchronous_method(self) -> None:
-        self._Component.my_first_asynchronous_service  # noqa: B018
+        self._ServiceProvider.my_first_asynchronous_service  # noqa: B018
 
     async def test_get_instance_attr_with_asynchronous_method_with_bootstrapped(
         self,
     ) -> None:
-        async with self._Component() as component:
+        async with self._ServiceProvider() as component:
             assert (
                 await component.my_first_asynchronous_service
                 is await component.my_first_asynchronous_service
@@ -132,17 +138,17 @@ class TestService:
     async def test_get_instance_attr_with_asynchronous_method_without_bootstrapped(
         self,
     ) -> None:
-        component = self._Component()
+        component = self._ServiceProvider()
         with pytest.raises(RuntimeError):
             await component.my_first_asynchronous_service
 
     async def test_get_class_attr_with_synchronous_method(self) -> None:
-        self._Component.my_first_synchronous_service  # noqa: B018
+        self._ServiceProvider.my_first_synchronous_service  # noqa: B018
 
     async def test_get_instance_attr_with_synchronous_method_with_bootstrapped(
         self,
     ) -> None:
-        async with self._Component() as component:
+        async with self._ServiceProvider() as component:
             assert (
                 component.my_first_synchronous_service
                 is component.my_first_synchronous_service
@@ -151,6 +157,6 @@ class TestService:
     async def test_get_instance_attr_with_synchronous_method_without_bootstrapped(
         self,
     ) -> None:
-        component = self._Component()
+        component = self._ServiceProvider()
         with pytest.raises(RuntimeError):
             component.my_first_synchronous_service  # noqa: B018

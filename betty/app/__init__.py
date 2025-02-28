@@ -19,7 +19,7 @@ from betty.assets import AssetRepository
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.config import Configurable, assert_configuration_file
-from betty.core import CoreComponent, service
+from betty.core import ServiceProvider, service
 from betty.factory import new, TargetFactory
 from betty.fetch import Fetcher, http
 from betty.fetch.static import StaticFetcher
@@ -41,7 +41,7 @@ _T = TypeVar("_T")
 
 
 @final
-class App(Configurable[AppConfiguration], TargetFactory, CoreComponent):
+class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
     """
     The Betty application.
     """
