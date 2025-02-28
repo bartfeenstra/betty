@@ -18,9 +18,8 @@ from betty.app.factory import AppDependentFactory
 from betty.assets import AssetRepository
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
-from betty.concurrent import AsynchronizedLock
 from betty.config import Configurable, assert_configuration_file
-from betty.core import CoreComponent
+from betty.core import CoreComponent, service
 from betty.factory import new, TargetFactory
 from betty.fetch import Fetcher, http
 from betty.fetch.static import StaticFetcher
@@ -36,7 +35,7 @@ if TYPE_CHECKING:
     from concurrent.futures import Executor
     from betty.plugin import PluginRepository
     from betty.cache import Cache
-    from collections.abc import AsyncIterator, Callable, Awaitable
+    from collections.abc import AsyncIterator, Callable
 
 _T = TypeVar("_T")
 
@@ -56,22 +55,9 @@ class App(Configurable[AppConfiguration], TargetFactory, CoreComponent):
         fetcher: Fetcher | None = None,
     ):
         super().__init__(configuration=configuration)
-        self._assets: AssetRepository | None = None
-        self._localization_initialized = False
-        self._localizer: Localizer | None = None
-        self._localizer_lock = AsynchronizedLock.threading()
-        self._localizers: LocalizerRepository | None = None
-        self._http_client: aiohttp.ClientSession | None = None
-        self._http_client_lock = AsynchronizedLock.threading()
         self._fetcher = fetcher
-        self._fetcher_lock = AsynchronizedLock.threading()
         self._cache_directory_path = cache_directory_path
-        self._cache: Cache[Any] | None = None
         self._cache_factory = cache_factory
-        self._binary_file_cache: BinaryFileCache | None = None
-        self._process_pool: Executor | None = None
-        self._spdx_license_repository: PluginRepository[License] | None = None
-        self._spdx_licenses_lock = AsynchronizedLock.threading()
 
     @classmethod
     @asynccontextmanager
@@ -111,120 +97,86 @@ class App(Configurable[AppConfiguration], TargetFactory, CoreComponent):
                 fetcher=fetcher or StaticFetcher(),
             )
 
-    @property
+    @service
     def assets(self) -> AssetRepository:
         """
         The assets file system.
         """
-        if self._assets is None:
-            self.assert_bootstrapped()
-            self._assets = AssetRepository(fs.ASSETS_DIRECTORY_PATH)
-        return self._assets
+        return AssetRepository(fs.ASSETS_DIRECTORY_PATH)
 
-    @property
-    def localizer(self) -> Awaitable[Localizer]:
+    @service
+    async def localizer(self) -> Localizer:
         """
         Get the application's localizer.
         """
-        return self._get_localizer()
+        return await self.localizers.get_negotiated(
+            self.configuration.locale or DEFAULT_LOCALE
+        )
 
-    async def _get_localizer(self) -> Localizer:
-        async with self._localizer_lock:
-            if self._localizer is None:
-                self.assert_bootstrapped()
-                self._localizer = await self.localizers.get_negotiated(
-                    self.configuration.locale or DEFAULT_LOCALE
-                )
-        return self._localizer
-
-    @property
+    @service
     def localizers(self) -> LocalizerRepository:
         """
         The available localizers.
         """
-        if self._localizers is None:
-            self.assert_bootstrapped()
-            self._localizers = LocalizerRepository(self.assets)
-        return self._localizers
+        return LocalizerRepository(self.assets)
 
-    @property
-    def http_client(self) -> Awaitable[aiohttp.ClientSession]:
+    @service
+    async def http_client(self) -> aiohttp.ClientSession:
         """
         The HTTP client.
         """
-        return self._get_http_client()
+        http_client = aiohttp.ClientSession(
+            connector=aiohttp.TCPConnector(limit_per_host=5),
+            headers={
+                "User-Agent": "Betty (https://betty.readthedocs.io/)",
+            },
+        )
 
-    async def _get_http_client(self) -> aiohttp.ClientSession:
-        async with self._http_client_lock:
-            if self._http_client is None:
-                self.assert_bootstrapped()
-                self._http_client = aiohttp.ClientSession(
-                    connector=aiohttp.TCPConnector(limit_per_host=5),
-                    headers={
-                        "User-Agent": "Betty (https://betty.readthedocs.io/)",
-                    },
-                )
-                self._shutdown_stack.append(self._shutdown_http_client)
-        return self._http_client
+        async def _shutdown(wait: bool) -> None:
+            await http_client.close()
 
-    async def _shutdown_http_client(self, *, wait: bool) -> None:
-        if self._http_client is not None:
-            await self._http_client.close()
+        self._shutdown_stack.append(_shutdown)
+        return http_client
 
-    @property
-    def fetcher(self) -> Awaitable[Fetcher]:
+    @service
+    async def fetcher(self) -> Fetcher:
         """
         The fetcher.
         """
-        return self._get_fetcher()
+        return http.HttpFetcher(
+            await self.http_client,
+            self.cache.with_scope("fetch"),
+            self.binary_file_cache.with_scope("fetch"),
+        )
 
-    async def _get_fetcher(self) -> Fetcher:
-        async with self._fetcher_lock:
-            if self._fetcher is None:
-                self.assert_bootstrapped()
-                self._fetcher = http.HttpFetcher(
-                    await self.http_client,
-                    self.cache.with_scope("fetch"),
-                    self.binary_file_cache.with_scope("fetch"),
-                )
-        return self._fetcher
-
-    @property
+    @service
     def cache(self) -> Cache[Any]:
         """
         The cache.
         """
-        if self._cache is None:
-            self.assert_bootstrapped()
-            self._cache = self._cache_factory(self)
-        return self._cache
+        return self._cache_factory(self)
 
-    @property
+    @service
     def binary_file_cache(self) -> BinaryFileCache:
         """
         The binary file cache.
         """
-        if self._binary_file_cache is None:
-            self.assert_bootstrapped()
-            self._binary_file_cache = BinaryFileCache(self._cache_directory_path)
-        return self._binary_file_cache
+        return BinaryFileCache(self._cache_directory_path)
 
-    @property
+    @service
     def process_pool(self) -> Executor:
         """
         The shared process pool.
 
         Use this to run CPU/computationally-heavy tasks in other processes.
         """
-        if self._process_pool is None:
-            self.assert_bootstrapped()
-            self._process_pool = ProcessPoolExecutor()
-            self._shutdown_stack.append(self._shutdown_process_pool)
-        return self._process_pool
+        process_pool = ProcessPoolExecutor()
 
-    async def _shutdown_process_pool(self, *, wait: bool) -> None:
-        if self._process_pool is not None:
-            self._process_pool.shutdown(wait, cancel_futures=not wait)
+        async def _shutdown(wait: bool) -> None:
+            process_pool.shutdown(wait, cancel_futures=not wait)
+
+        self._shutdown_stack.append(_shutdown)
+        return process_pool
 
     @override
     async def new_target(self, cls: type[_T]) -> _T:
@@ -244,26 +196,18 @@ class App(Configurable[AppConfiguration], TargetFactory, CoreComponent):
             return cast(_T, await cls.new_for_app(self))
         return await new(cls)
 
-    @property
-    def spdx_license_repository(self) -> Awaitable[PluginRepository[License]]:
+    @service
+    async def spdx_license_repository(self) -> PluginRepository[License]:
         """
         The SPDX licenses available to this application.
         """
-        return self._get_spdx_licenses()
-
-    async def _get_spdx_licenses(self) -> PluginRepository[License]:
-        async with self._spdx_licenses_lock:
-            if self._spdx_license_repository is None:
-                self.assert_bootstrapped()
-                self._spdx_license_repository = ProxyPluginRepository(
-                    LICENSE_REPOSITORY,
-                    SpdxLicenseRepository(
-                        binary_file_cache=self.binary_file_cache.with_scope("spdx"),
-                        fetcher=await self.fetcher,
-                        localizer=await self.localizer,
-                        factory=self.new_target,
-                        process_pool=self.process_pool,
-                    ),
-                )
-
-        return self._spdx_license_repository
+        return ProxyPluginRepository(
+            LICENSE_REPOSITORY,
+            SpdxLicenseRepository(
+                binary_file_cache=self.binary_file_cache.with_scope("spdx"),
+                fetcher=await self.fetcher,
+                localizer=await self.localizer,
+                factory=self.new_target,
+                process_pool=self.process_pool,
+            ),
+        )

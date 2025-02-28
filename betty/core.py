@@ -4,13 +4,18 @@ Provide tools to build core application components.
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable, MutableSequence, Awaitable
+from inspect import iscoroutinefunction
 from types import TracebackType
-from typing import Self, Any, final, TypedDict, Unpack, TypeAlias
+from typing import Self, Any, final, TypedDict, Unpack, TypeAlias, cast, Generic
+from typing import overload, TypeVar
 from warnings import warn
 
 from typing_extensions import override
 
+from betty.concurrent import AsynchronizedLock, Lock
 from betty.typing import internal, public
+
+_T = TypeVar("_T")
 
 
 @internal
@@ -108,7 +113,7 @@ class ShutdownStack(Bootstrapped, Shutdownable):
 
 
 @internal
-class CoreComponent(Bootstrapped, Shutdownable, ABC):  # noqa B024
+class CoreComponent(Bootstrapped, Shutdownable):
     """
     A core component.
 
@@ -150,3 +155,76 @@ class CoreComponent(Bootstrapped, Shutdownable, ABC):  # noqa B024
         exc_tb: TracebackType | None,
     ) -> None:
         await self.shutdown(wait=exc_val is None)
+
+
+_CoreComponentT = TypeVar("_CoreComponentT", bound=CoreComponent)
+
+
+class _Service(Generic[_CoreComponentT, _T]):
+    def __init__(self, f: Callable[[_CoreComponentT], _T]):
+        self._f = f
+        f_name = f.__name__  # type: ignore[attr-defined]
+        self._attr_name = f"_{f_name}"
+
+    @overload
+    def __get__(self, instance: None, owner: type[_CoreComponentT]) -> Self:
+        pass
+
+    @overload
+    def __get__(self, instance: _CoreComponentT, owner: type[_CoreComponentT]) -> _T:
+        pass
+
+    def __get__(
+        self, instance: _CoreComponentT | None, owner: type[_CoreComponentT]
+    ) -> _T | Self:
+        if instance is None:
+            return self  # type: ignore[return-value]
+
+        instance.assert_bootstrapped()
+
+        return self._get(instance)
+
+    @abstractmethod
+    def _get(self, instance: _CoreComponentT) -> _T:
+        pass
+
+
+class _AsynchronousService(_Service[_CoreComponentT, Awaitable[_T]]):
+    async def _get(self, instance: _CoreComponentT) -> _T:
+        service = cast(_T | None, getattr(instance, self._attr_name, None))
+        if service is not None:
+            return service
+
+        lock_attr_name = f"_{self._attr_name}_lock"
+        try:
+            lock = cast(Lock, getattr(instance, lock_attr_name))
+        except AttributeError:
+            lock = AsynchronizedLock.threading()
+            setattr(instance, lock_attr_name, lock)
+        async with lock:
+            service = await self._f(instance)
+            setattr(instance, self._attr_name, service)
+            return service
+
+
+class _SynchronousService(_Service[_CoreComponentT, _T]):
+    def _get(self, instance: _CoreComponentT) -> _T:
+        service = cast(_T | None, getattr(instance, self._attr_name, None))
+        if service is not None:
+            return service
+
+        service = self._f(instance)
+        setattr(instance, self._attr_name, service)
+        return service
+
+
+def service(f: Callable[[_CoreComponentT], _T]) -> _Service[_CoreComponentT, _T]:
+    """
+    Decorate a :py:class:`betty.core.CoreComponent`'s method to be a service property.
+
+    The decorated function should return a new service instance. The decorator will handle caching and concurrency.
+    """
+    if iscoroutinefunction(f):
+        return _AsynchronousService(f)  # type: ignore[return-value]
+    else:
+        return _SynchronousService(f)

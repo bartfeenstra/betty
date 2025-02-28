@@ -1,7 +1,7 @@
 from typing_extensions import override
 
 import pytest
-from betty.core import CoreComponent, Bootstrapped, ShutdownStack, Shutdownable
+from betty.core import CoreComponent, Bootstrapped, ShutdownStack, Shutdownable, service
 
 
 class TestBootstrapped:
@@ -105,3 +105,52 @@ class TestCoreComponent:
         await sut.bootstrap()
         await sut.shutdown()
         assert not sut.bootstrapped
+
+
+class TestService:
+    class _Component(CoreComponent):
+        @service
+        async def my_first_asynchronous_service(self) -> object:
+            return object()
+
+        @service
+        def my_first_synchronous_service(self) -> object:
+            return object()
+
+    async def test_get_class_attr_with_asynchronous_method(self) -> None:
+        self._Component.my_first_asynchronous_service  # noqa: B018
+
+    async def test_get_instance_attr_with_asynchronous_method_with_bootstrapped(
+        self,
+    ) -> None:
+        async with self._Component() as component:
+            assert (
+                await component.my_first_asynchronous_service
+                is await component.my_first_asynchronous_service
+            )
+
+    async def test_get_instance_attr_with_asynchronous_method_without_bootstrapped(
+        self,
+    ) -> None:
+        component = self._Component()
+        with pytest.raises(RuntimeError):
+            await component.my_first_asynchronous_service
+
+    async def test_get_class_attr_with_synchronous_method(self) -> None:
+        self._Component.my_first_synchronous_service  # noqa: B018
+
+    async def test_get_instance_attr_with_synchronous_method_with_bootstrapped(
+        self,
+    ) -> None:
+        async with self._Component() as component:
+            assert (
+                component.my_first_synchronous_service
+                is component.my_first_synchronous_service
+            )
+
+    async def test_get_instance_attr_with_synchronous_method_without_bootstrapped(
+        self,
+    ) -> None:
+        component = self._Component()
+        with pytest.raises(RuntimeError):
+            component.my_first_synchronous_service  # noqa: B018
