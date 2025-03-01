@@ -8,8 +8,7 @@ import threading
 import time
 from abc import ABC, abstractmethod
 from asyncio import sleep
-from collections import defaultdict
-from collections.abc import Hashable
+from collections.abc import Hashable, Callable, Iterator
 from math import floor
 from multiprocessing import synchronize
 from types import TracebackType
@@ -17,13 +16,15 @@ from typing import final, MutableMapping, TypeAlias, Generic, TypeVar, Union
 
 from typing_extensions import override
 
-from betty.typing import threadsafe
+from betty.typing import threadsafe, processsafe
 
 ThreadingLockType = type(threading.Lock())
 MultiprocessingLockType = synchronize.Lock
 LockTypes = (ThreadingLockType, MultiprocessingLockType)
 Lockey: TypeAlias = Union[threading.Lock, synchronize.Lock]
 _LockeyT = TypeVar("_LockeyT", bound=Lockey)
+_KeyT = TypeVar("_KeyT")
+_ValueT = TypeVar("_ValueT")
 
 
 class Lock(ABC):
@@ -183,11 +184,11 @@ class _Transaction(Lock):
     def __init__(
         self,
         transaction_id: Hashable,
-        orchestrator_lock: Lock,
+        ledger_lock: Lock,
         ledger: MutableMapping[Hashable, bool],
     ):
         self._transaction_id = transaction_id
-        self._ledger_lock = orchestrator_lock
+        self._ledger_lock = ledger_lock
         self._ledger = ledger
 
     @override
@@ -216,7 +217,11 @@ class _Transaction(Lock):
         self._ledger[self._transaction_id] = False
 
 
-@threadsafe
+def _ledger_default() -> bool:
+    return False
+
+
+@processsafe
 class Ledger:
     """
     Lazily create locks by keeping a ledger.
@@ -226,10 +231,46 @@ class Ledger:
 
     def __init__(self, ledger_lock: Lock):
         self._ledger_lock = ledger_lock
-        self._ledger: MutableMapping[Hashable, bool] = defaultdict(lambda: False)
+        self._ledger: MutableMapping[Hashable, bool] = DefaultDict(_ledger_default)
 
     def ledger(self, transaction_id: Hashable) -> Lock:
         """
         Ledger a new lock for the given transaction ID.
         """
         return _Transaction(transaction_id, self._ledger_lock, self._ledger)
+
+
+@processsafe
+class DefaultDict(Generic[_KeyT, _ValueT], MutableMapping[_KeyT, _ValueT]):
+    """
+    A multiprocessing-safe dictionary that creates default values for missing keys.
+    """
+
+    def __init__(self, default_factory: Callable[[], _ValueT]):
+        self._default_factory = default_factory
+        self._lock = multiprocessing.Lock()
+        self._dict: MutableMapping[_KeyT, _ValueT] = multiprocessing.Manager().dict()
+
+    def __delitem__(self, key: _KeyT) -> None:
+        del self._dict[key]
+
+    def __getitem__(self, key: _KeyT) -> _ValueT:
+        with self._lock:
+            try:
+                return self._dict[key]
+            except KeyError:
+                value = self._default_factory()
+                self._dict[key] = value
+                return value
+
+    def __iter__(self) -> Iterator[_KeyT]:
+        return iter(self._dict)
+
+    def __len__(self) -> int:
+        return len(self._dict)
+
+    def __setitem__(self, key: _KeyT, value: _ValueT) -> None:
+        self._dict[key] = value
+
+    def __repr__(self) -> str:
+        return f"<{type(self).__name__}: {repr(dict(self._dict))}>"
