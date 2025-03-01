@@ -1,5 +1,7 @@
+import multiprocessing
 from collections.abc import Sequence, AsyncIterator, Iterator
 from contextlib import asynccontextmanager
+from multiprocessing.managers import SyncManager
 from pathlib import Path
 from typing import Any
 
@@ -20,7 +22,10 @@ class TestPickledFileCache(CacheTestBase[Any]):
         scopes: Sequence[str] | None = None,
     ) -> AsyncIterator[PickledFileCache[Any]]:
         async with TemporaryDirectory() as cache_directory_path_str:
-            yield PickledFileCache(Path(cache_directory_path_str), scopes=scopes)
+            with multiprocessing.Manager() as manager:
+                yield PickledFileCache(
+                    Path(cache_directory_path_str), scopes=scopes, manager=manager
+                )
 
     @override
     def _values(self) -> Iterator[Any]:
@@ -41,7 +46,10 @@ class TestBinaryFileCache(CacheTestBase[bytes]):
         scopes: Sequence[str] | None = None,
     ) -> AsyncIterator[BinaryFileCache]:
         async with TemporaryDirectory() as cache_directory_path_str:
-            yield BinaryFileCache(Path(cache_directory_path_str), scopes=scopes)
+            with multiprocessing.Manager() as manager:
+                yield BinaryFileCache(
+                    Path(cache_directory_path_str), scopes=scopes, manager=manager
+                )
 
     @override
     def _values(self) -> Iterator[bytes]:
@@ -54,8 +62,15 @@ class TestBinaryFileCache(CacheTestBase[bytes]):
             ("scopey", "dopey"),
         ],
     )
-    def test_path(self, scopes: Sequence[str], tmp_path: Path) -> None:
-        sut = BinaryFileCache(Path(tmp_path), scopes=scopes)
+    def test_path(
+        self,
+        multiprocessing_manager: SyncManager,
+        scopes: Sequence[str],
+        tmp_path: Path,
+    ) -> None:
+        sut = BinaryFileCache(
+            Path(tmp_path), scopes=scopes, manager=multiprocessing_manager
+        )
         assert sut.path == tmp_path.joinpath(*scopes)
 
     @pytest.mark.parametrize(
@@ -78,10 +93,13 @@ class TestBinaryFileCache(CacheTestBase[bytes]):
     def test_cache_item_file_path(
         self,
         expected_path_components: Sequence[str],
+        multiprocessing_manager: SyncManager,
         scopes: Sequence[str],
         tmp_path: Path,
     ) -> None:
-        sut = BinaryFileCache(Path(tmp_path), scopes=scopes)
+        sut = BinaryFileCache(
+            Path(tmp_path), scopes=scopes, manager=multiprocessing_manager
+        )
         assert sut.cache_item_file_path("id") == tmp_path.joinpath(
             *expected_path_components
         )

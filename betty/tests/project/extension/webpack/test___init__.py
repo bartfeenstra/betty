@@ -1,3 +1,4 @@
+from multiprocessing.managers import SyncManager
 from pathlib import Path
 
 import aiofiles
@@ -135,7 +136,11 @@ class TestWebpack(ExtensionTestBase[Webpack]):
             fs.PREBUILT_ASSETS_DIRECTORY_PATH = original_prebuilt_assets_directory_path
 
     async def test_prebuild(
-        self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
+        self,
+        mocker: MockerFixture,
+        multiprocessing_manager: SyncManager,
+        new_temporary_app: App,
+        tmp_path: Path,
     ) -> None:
         webpack_build_directory_path = (
             tmp_path / "webpack" / f"build-{webpack_build_id((), False)}"
@@ -154,7 +159,7 @@ class TestWebpack(ExtensionTestBase[Webpack]):
         original_prebuilt_assets_directory_path = fs.PREBUILT_ASSETS_DIRECTORY_PATH
         fs.PREBUILT_ASSETS_DIRECTORY_PATH = prebuilt_assets_directory_path
         try:
-            job_context = Context()
+            job_context = Context(manager=multiprocessing_manager)
             async with Project.new_temporary(new_temporary_app) as project:
                 project.configuration.extensions.enable(Webpack)
                 async with project:

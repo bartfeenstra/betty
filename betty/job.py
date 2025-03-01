@@ -8,8 +8,10 @@ from datetime import datetime
 from typing import Any, TYPE_CHECKING
 
 from betty.cache.memory import MemoryCache
+from betty.concurrent import ensure_manager
 
 if TYPE_CHECKING:
+    from multiprocessing.managers import SyncManager
     from betty.cache import Cache
 
 
@@ -18,8 +20,9 @@ class Context:
     Define a job context.
     """
 
-    def __init__(self):
-        self._cache: Cache[Any] = MemoryCache()
+    def __init__(self, *, manager: SyncManager | None = None):
+        manager = ensure_manager(manager)
+        self._cache: Cache[Any] = MemoryCache(manager=manager)
         self._start = datetime.now()
 
     @property

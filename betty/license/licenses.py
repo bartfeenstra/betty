@@ -10,13 +10,14 @@ from collections.abc import Iterator, Mapping, AsyncIterator, Sequence
 from concurrent.futures import Executor
 from contextlib import contextmanager
 from json import loads
+from multiprocessing.managers import SyncManager
 from pathlib import Path
 
 import aiofiles
 from typing_extensions import override
 
 from betty.cache.file import BinaryFileCache
-from betty.concurrent import Ledger, AsynchronizedLock
+from betty.concurrent import Ledger, AsynchronizedLock, ensure_manager
 from betty.error import UserFacingError
 from betty.factory import Factory
 from betty.fetch import Fetcher, FetchError
@@ -97,8 +98,10 @@ class SpdxLicenseRepository(PluginRepository[License]):
         binary_file_cache: BinaryFileCache,
         process_pool: Executor,
         factory: Factory | None = None,
+        manager: SyncManager | None = None,
     ):
         super().__init__(factory=factory)
+        manager = ensure_manager(manager)
         self._fetcher = fetcher
         self._localizer = localizer
         self._cache_directory_path = binary_file_cache.with_scope(
@@ -108,8 +111,8 @@ class SpdxLicenseRepository(PluginRepository[License]):
         self._license_id_to_spdx_reference_map: Mapping[MachineName, str]
         self._license_id_to_spdx_details_url_map: Mapping[MachineName, str]
         self._licenses: Mapping[str, type[License] | None]
-        self._lock = AsynchronizedLock.threading()
-        self._ledger = Ledger(self._lock)
+        self._lock = AsynchronizedLock(manager.Lock())
+        self._ledger = Ledger(self._lock, manager=manager)
         self._licenses_loaded = False
         self._process_pool = process_pool
 

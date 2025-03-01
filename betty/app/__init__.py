@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import multiprocessing
 from contextlib import asynccontextmanager
 from os import environ
 from pathlib import Path
@@ -19,7 +20,6 @@ from betty.assets import AssetRepository
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.config import Configurable, assert_configuration_file
-from betty.service import ServiceProvider, service, ServiceFactory
 from betty.factory import new, TargetFactory
 from betty.fetch import Fetcher, http
 from betty.fetch.static import StaticFetcher
@@ -30,8 +30,10 @@ from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizer import Localizer, LocalizerRepository
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugin.proxy import ProxyPluginRepository
+from betty.service import ServiceProvider, service, ServiceFactory
 
 if TYPE_CHECKING:
+    from multiprocessing.managers import SyncManager
     from concurrent.futures import Executor
     from betty.plugin import PluginRepository
     from betty.cache import Cache
@@ -75,7 +77,9 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         yield cls(
             configuration,
             Path(environ.get("BETTY_CACHE_DIRECTORY", HOME_DIRECTORY_PATH / "cache")),
-            cache_factory=lambda app: PickledFileCache[Any](app._cache_directory_path),
+            cache_factory=lambda app: PickledFileCache[Any](
+                app._cache_directory_path, manager=app.multiprocessing_manager
+            ),
         )
 
     @classmethod
@@ -163,7 +167,9 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         """
         The binary file cache.
         """
-        return BinaryFileCache(self._cache_directory_path)
+        return BinaryFileCache(
+            self._cache_directory_path, manager=self.multiprocessing_manager
+        )
 
     @service
     def process_pool(self) -> Executor:
@@ -179,6 +185,21 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
 
         self._shutdown_stack.append(_shutdown)
         return process_pool
+
+    @service
+    def multiprocessing_manager(self) -> SyncManager:
+        """
+        The multiprocessing manager.
+
+        Use this to create process-safe synchronization primitives.
+        """
+        manager = multiprocessing.Manager()
+
+        async def _shutdown(wait: bool) -> None:
+            manager.shutdown(wait)
+
+        self._shutdown_stack.append(_shutdown)
+        return manager
 
     @override
     async def new_target(self, cls: type[_T]) -> _T:
@@ -211,5 +232,6 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
                 localizer=await self.localizer,
                 factory=self.new_target,
                 process_pool=self.process_pool,
+                manager=self.multiprocessing_manager,
             ),
         )

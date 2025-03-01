@@ -33,6 +33,7 @@ from betty.wikipedia import (
 from betty.wikipedia.copyright_notice import WikipediaContributors
 
 if TYPE_CHECKING:
+    from multiprocessing.managers import SyncManager
     from collections.abc import Mapping
     from betty.cache.file import BinaryFileCache
     from pytest_mock import MockerFixture
@@ -147,6 +148,7 @@ class TestRetriever:
         expected: Mapping[str, str],
         fetch_json: Mapping[str, Any],
         mocker: MockerFixture,
+        multiprocessing_manager: SyncManager,
         binary_file_cache: BinaryFileCache,
     ) -> None:
         mocker.patch("sys.stderr")
@@ -156,14 +158,15 @@ class TestRetriever:
         fetcher = StaticFetcher(
             fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
         )
-        translations = await _Retriever(fetcher, RateLimiter(1)).get_translations(
-            page_language, page_name
-        )
+        translations = await _Retriever(
+            fetcher, RateLimiter(1, manager=multiprocessing_manager)
+        ).get_translations(page_language, page_name)
         assert expected == translations
 
     async def test_get_translations_with_invalid_json_response_should_return_none(
         self,
         mocker: MockerFixture,
+        multiprocessing_manager: SyncManager,
         binary_file_cache: BinaryFileCache,
     ) -> None:
         mocker.patch("sys.stderr")
@@ -179,9 +182,9 @@ class TestRetriever:
                 )
             }
         )
-        actual = await _Retriever(fetcher, RateLimiter(1)).get_translations(
-            page_language, page_name
-        )
+        actual = await _Retriever(
+            fetcher, RateLimiter(1, manager=multiprocessing_manager)
+        ).get_translations(page_language, page_name)
         assert actual == {}
 
     @pytest.mark.parametrize(
@@ -197,6 +200,7 @@ class TestRetriever:
         self,
         response_json: Mapping[str, Any],
         mocker: MockerFixture,
+        multiprocessing_manager: SyncManager,
         binary_file_cache: BinaryFileCache,
     ) -> None:
         mocker.patch("sys.stderr")
@@ -206,9 +210,9 @@ class TestRetriever:
         fetcher = StaticFetcher(
             fetch_map={fetch_url: _new_json_fetch_response(response_json)}
         )
-        actual = await _Retriever(fetcher, RateLimiter(1)).get_translations(
-            page_language, page_name
-        )
+        actual = await _Retriever(
+            fetcher, RateLimiter(1, manager=multiprocessing_manager)
+        ).get_translations(page_language, page_name)
         assert actual == {}
 
     @pytest.mark.parametrize(
@@ -274,6 +278,7 @@ class TestRetriever:
         expected: Summary | None,
         fetch_json: Mapping[str, Any],
         binary_file_cache: BinaryFileCache,
+        multiprocessing_manager: SyncManager,
     ) -> None:
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
@@ -283,7 +288,7 @@ class TestRetriever:
         fetcher = StaticFetcher(
             fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
         )
-        retriever = _Retriever(fetcher, RateLimiter(1))
+        retriever = _Retriever(fetcher, RateLimiter(1, manager=multiprocessing_manager))
         actual = await retriever.get_summary(page_language, page_name)
         assert actual == expected
 
@@ -425,6 +430,7 @@ class TestRetriever:
         expected: Point | None,
         fetch_json: Mapping[str, Any],
         mocker: MockerFixture,
+        multiprocessing_manager: SyncManager,
         binary_file_cache: BinaryFileCache,
     ) -> None:
         mocker.patch("sys.stderr")
@@ -434,9 +440,9 @@ class TestRetriever:
         fetcher = StaticFetcher(
             fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
         )
-        actual = await _Retriever(fetcher, RateLimiter(1)).get_place_coordinates(
-            page_language, page_name
-        )
+        actual = await _Retriever(
+            fetcher, RateLimiter(1, manager=multiprocessing_manager)
+        ).get_place_coordinates(page_language, page_name)
         assert actual == expected
 
     @pytest.mark.parametrize(
@@ -573,6 +579,7 @@ class TestRetriever:
         page_fetch_json: Mapping[str, Any],
         file_fetch_json: Mapping[str, Any] | None,
         mocker: MockerFixture,
+        multiprocessing_manager: SyncManager,
         binary_file_cache: BinaryFileCache,
         tmp_path: Path,
     ) -> None:
@@ -592,9 +599,9 @@ class TestRetriever:
             fetch_file_map["https://example.com/image"] = image_file_path
         fetcher = StaticFetcher(fetch_map=fetch_map, fetch_file_map=fetch_file_map)
 
-        actual = await _Retriever(fetcher, RateLimiter(1)).get_image(
-            page_language, page_name
-        )
+        actual = await _Retriever(
+            fetcher, RateLimiter(1, manager=multiprocessing_manager)
+        ).get_image(page_language, page_name)
         if expected is None:
             assert actual is None
         else:

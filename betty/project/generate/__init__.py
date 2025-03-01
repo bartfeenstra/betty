@@ -73,7 +73,7 @@ async def generate(project: Project) -> None:
     Generate a new site.
     """
     logger = logging.getLogger(__name__)
-    job_context = ProjectContext(project)
+    job_context = ProjectContext(project, manager=project.app.multiprocessing_manager)
     app = project.app
     localizer = await app.localizer
 

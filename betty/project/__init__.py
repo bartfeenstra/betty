@@ -32,6 +32,7 @@ from betty.ancestry.gender import GENDER_REPOSITORY, Gender
 from betty.ancestry.place_type import PLACE_TYPE_REPOSITORY, PlaceType
 from betty.ancestry.presence_role import PRESENCE_ROLE_REPOSITORY, PresenceRole
 from betty.assets import AssetRepository
+from betty.concurrent import ensure_manager
 from betty.config import Configurable
 from betty.copyright_notice import CopyrightNotice, COPYRIGHT_NOTICE_REPOSITORY
 from betty.service import ServiceProvider, service
@@ -61,6 +62,7 @@ from betty.typing import internal
 from betty.warnings import deprecated
 
 if TYPE_CHECKING:
+    from multiprocessing.managers import SyncManager
     from betty.license import License
     from betty.url import LocalizedUrlGenerator, StaticUrlGenerator, UrlGenerator
     from betty.ancestry.event_type import EventType
@@ -618,8 +620,9 @@ class ProjectContext(Context):
     A job context for a project.
     """
 
-    def __init__(self, project: Project):
-        super().__init__()
+    def __init__(self, project: Project, manager: SyncManager | None = None):
+        manager = ensure_manager(manager)
+        super().__init__(manager=manager)
         self._project = project
 
     @property

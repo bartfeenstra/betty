@@ -11,12 +11,14 @@ from asyncio import sleep
 from collections.abc import Hashable, Callable, Iterator
 from ctypes import c_longdouble
 from math import floor
+from multiprocessing.managers import SyncManager
 from types import TracebackType
 from typing import final, MutableMapping, Generic, TypeVar, Self
 
 from typing_extensions import override
 
 from betty.typing import processsafe
+from betty.warnings import deprecate
 
 _KeyT = TypeVar("_KeyT")
 _ValueT = TypeVar("_ValueT")
@@ -100,13 +102,6 @@ class AsynchronizedLock(Lock):
         """
         return cls(threading.Lock())
 
-    @classmethod
-    def multiprocessing(cls) -> Self:
-        """
-        Create a new process-safe, asynchronous lock.
-        """
-        return cls(multiprocessing.Manager().Lock())
-
 
 @final
 @processsafe
@@ -117,19 +112,20 @@ class RateLimiter:
     This class implements the `Token Bucket algorithm <https://en.wikipedia.org/wiki/Token_bucket>`_.
     """
 
-    def __init__(self, maximum: int, period: int = 1):
-        self._lock = AsynchronizedLock.multiprocessing()
+    def __init__(
+        self, maximum: int, period: int = 1, *, manager: SyncManager | None = None
+    ):
+        manager = ensure_manager(manager)
+        self._lock = AsynchronizedLock(manager.Lock())
         self._maximum = maximum
         self._period = period
-        self._available = multiprocessing.Manager().Value(c_longdouble, maximum)
+        self._available = manager.Value(c_longdouble, maximum)
         # A Token Bucket fills as time passes. However, we want callers to be able to start
         # using the limiter immediately, so we 'preload' the first's period's tokens, and
         # set the last added time to the end of the first period. This ensures there is no
         # needless waiting if the number of tokens consumed in total is less than the limit
         # per period.
-        self._last_add = multiprocessing.Manager().Value(
-            c_longdouble, time.monotonic() + self._period
-        )
+        self._last_add = manager.Value(c_longdouble, time.monotonic() + self._period)
 
     def _add_tokens(self):
         now = time.monotonic()
@@ -220,9 +216,12 @@ class Ledger:
     The ledger lock is released once a transaction lock is acquired.
     """
 
-    def __init__(self, ledger_lock: Lock):
+    def __init__(self, ledger_lock: Lock, *, manager: SyncManager | None = None):
+        manager = ensure_manager(manager)
         self._ledger_lock = ledger_lock
-        self._ledger: MutableMapping[Hashable, bool] = DefaultDict(_ledger_default)
+        self._ledger: MutableMapping[Hashable, bool] = DefaultDict(
+            _ledger_default, manager=manager
+        )
 
     def ledger(self, transaction_id: Hashable) -> Lock:
         """
@@ -237,10 +236,10 @@ class DefaultDict(Generic[_KeyT, _ValueT], MutableMapping[_KeyT, _ValueT]):
     A multiprocessing-safe dictionary that creates default values for missing keys.
     """
 
-    def __init__(self, default_factory: Callable[[], _ValueT]):
+    def __init__(self, default_factory: Callable[[], _ValueT], *, manager: SyncManager):
         self._default_factory = default_factory
-        self._lock = multiprocessing.Manager().Lock()
-        self._dict: MutableMapping[_KeyT, _ValueT] = multiprocessing.Manager().dict()
+        self._lock = manager.Lock()
+        self._dict: MutableMapping[_KeyT, _ValueT] = manager.dict()
 
     def __delitem__(self, key: _KeyT) -> None:
         del self._dict[key]
@@ -262,3 +261,16 @@ class DefaultDict(Generic[_KeyT, _ValueT], MutableMapping[_KeyT, _ValueT]):
 
     def __setitem__(self, key: _KeyT, value: _ValueT) -> None:
         self._dict[key] = value
+
+
+def ensure_manager(manager: SyncManager | None, *, stacklevel: int = 1) -> SyncManager:
+    """
+    Ensure that a value is a multiprocessing manager.
+    """
+    if manager:
+        return manager
+    deprecate(
+        "Not providing a multiprocessing manager is deprecated as of Betty 0.4.10.",
+        stacklevel=stacklevel,
+    )
+    return multiprocessing.Manager()

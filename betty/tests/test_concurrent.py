@@ -5,6 +5,7 @@ import pickle
 import threading
 import time
 from asyncio import create_task, sleep, wait_for, gather
+from multiprocessing.managers import SyncManager
 from typing import TypeVar, Any
 
 import pytest
@@ -17,7 +18,9 @@ from betty.concurrent import (
     Lock,
     Ledger,
     DefaultDict,
+    ensure_manager,
 )
+from betty.warnings import BettyDeprecationWarning
 
 _KeyT = TypeVar("_KeyT")
 
@@ -56,8 +59,10 @@ class TestAsynchronizeAcquire:
         assert not await asynchronize_acquire(lock, wait=False)
         lock.release()
 
-    async def test_should_acquire_immediately_with_multiprocessing(self) -> None:
-        lock = multiprocessing.Manager().Lock()
+    async def test_should_acquire_immediately_with_multiprocessing(
+        self, multiprocessing_manager: SyncManager
+    ) -> None:
+        lock = multiprocessing_manager.Lock()
         assert await asynchronize_acquire(lock)
         assert not await asynchronize_acquire(lock, wait=False)
         lock.release()
@@ -70,8 +75,10 @@ class TestAsynchronizeAcquire:
         lock.release()
         assert await task
 
-    async def test_should_acquire_after_waiting_with_multiprocessing(self) -> None:
-        lock = multiprocessing.Manager().Lock()
+    async def test_should_acquire_after_waiting_with_multiprocessing(
+        self, multiprocessing_manager: SyncManager
+    ) -> None:
+        lock = multiprocessing_manager.Lock()
         lock.acquire()
         task = create_task(asynchronize_acquire(lock))
         await sleep(1)
@@ -84,8 +91,10 @@ class TestAsynchronizeAcquire:
         assert not await asynchronize_acquire(lock, wait=False)
         lock.release()
 
-    async def test_should_not_acquire_if_not_waiting_with_multiprocessing(self) -> None:
-        lock = multiprocessing.Manager().Lock()
+    async def test_should_not_acquire_if_not_waiting_with_multiprocessing(
+        self, multiprocessing_manager: SyncManager
+    ) -> None:
+        lock = multiprocessing_manager.Lock()
         lock.acquire()
         assert not await asynchronize_acquire(lock, wait=False)
         lock.release()
@@ -123,9 +132,6 @@ class TestAsynchronizedLock:
     def test_threading(self) -> None:
         AsynchronizedLock.threading()
 
-    def test_multiprocessing(self) -> None:
-        AsynchronizedLock.multiprocessing()
-
 
 class TestRateLimiter:
     @pytest.mark.parametrize(
@@ -136,8 +142,10 @@ class TestRateLimiter:
             (1, 101),
         ],
     )
-    async def test_wait(self, expected: int, iterations: int) -> None:
-        sut = RateLimiter(100)
+    async def test_wait(
+        self, expected: int, iterations: int, multiprocessing_manager: SyncManager
+    ) -> None:
+        sut = RateLimiter(100, manager=multiprocessing_manager)
 
         async def _task() -> None:
             async with sut:
@@ -149,8 +157,8 @@ class TestRateLimiter:
         duration = end - start
         assert expected == round(duration)
 
-    async def test_is_available(self) -> None:
-        sut = RateLimiter(1, 1)
+    async def test_is_available(self, multiprocessing_manager: SyncManager) -> None:
+        sut = RateLimiter(1, 1, manager=multiprocessing_manager)
 
         await sut.wait()
         assert not await sut.is_available()
@@ -161,8 +169,10 @@ class TestRateLimiter:
     def _test_wait_concurrently_target(cls, sut: RateLimiter):
         asyncio.run(sut.wait())
 
-    async def test_wait_concurrently(self) -> None:
-        sut = RateLimiter(1, 1)
+    async def test_wait_concurrently(
+        self, multiprocessing_manager: SyncManager
+    ) -> None:
+        sut = RateLimiter(1, 1, manager=multiprocessing_manager)
 
         process = multiprocessing.Process(
             target=self._test_wait_concurrently_target, args=(sut,)
@@ -174,29 +184,44 @@ class TestRateLimiter:
         await sleep(2)
         assert await sut.is_available()
 
-    def test_pickle(self) -> None:
-        sut = RateLimiter(1)
+    def test_pickle(self, multiprocessing_manager: SyncManager) -> None:
+        sut = RateLimiter(1, manager=multiprocessing_manager)
         pickle.loads(pickle.dumps(sut))
 
 
 class TestLedger:
-    async def test_ledger_with_wait_with_unlocked(self) -> None:
+    async def test_ledger_with_wait_with_unlocked(
+        self, multiprocessing_manager: SyncManager
+    ) -> None:
         transaction_id = "my-first-transaction-id"
-        sut = Ledger(AsynchronizedLock.threading())
+        sut = Ledger(
+            AsynchronizedLock(multiprocessing_manager.Lock()),
+            manager=multiprocessing_manager,
+        )
         lock = sut.ledger(transaction_id)
         assert await lock.acquire()
         await lock.release()
 
-    async def test_ledger_without_wait_with_unlocked(self) -> None:
+    async def test_ledger_without_wait_with_unlocked(
+        self, multiprocessing_manager: SyncManager
+    ) -> None:
         transaction_id = "my-first-transaction-id"
-        sut = Ledger(AsynchronizedLock.threading())
+        sut = Ledger(
+            AsynchronizedLock(multiprocessing_manager.Lock()),
+            manager=multiprocessing_manager,
+        )
         lock = sut.ledger(transaction_id)
         assert await lock.acquire(wait=False)
         await lock.release()
 
-    async def test_ledger_with_wait_with_locked(self) -> None:
+    async def test_ledger_with_wait_with_locked(
+        self, multiprocessing_manager: SyncManager
+    ) -> None:
         transaction_id = "my-first-transaction-id"
-        sut = Ledger(AsynchronizedLock.threading())
+        sut = Ledger(
+            AsynchronizedLock(multiprocessing_manager.Lock()),
+            manager=multiprocessing_manager,
+        )
         lock = sut.ledger(transaction_id)
         await lock.acquire()
         task = create_task(lock.acquire())
@@ -204,16 +229,24 @@ class TestLedger:
         await lock.release()
         assert await task
 
-    async def test_ledger_without_wait_with_locked(self) -> None:
+    async def test_ledger_without_wait_with_locked(
+        self, multiprocessing_manager: SyncManager
+    ) -> None:
         transaction_id = "my-first-transaction-id"
-        sut = Ledger(AsynchronizedLock.threading())
+        sut = Ledger(
+            AsynchronizedLock(multiprocessing_manager.Lock()),
+            manager=multiprocessing_manager,
+        )
         lock = sut.ledger(transaction_id)
         await lock.acquire()
         assert not await lock.acquire(wait=False)
         await lock.release()
 
-    def test_pickle(self) -> None:
-        sut = Ledger(AsynchronizedLock.multiprocessing())
+    def test_pickle(self, multiprocessing_manager: SyncManager) -> None:
+        sut = Ledger(
+            AsynchronizedLock(multiprocessing_manager.Lock()),
+            manager=multiprocessing_manager,
+        )
         pickle.loads(pickle.dumps(sut))
 
 
@@ -229,28 +262,40 @@ class TestDefaultDict:
         time.sleep(2)
         return os.getpid()
 
-    def test___delitem__(self) -> None:
+    def test___delitem__(self, multiprocessing_manager: SyncManager) -> None:
         key = "my-first-key"
-        sut = DefaultDict[str, int](self._default_factory)
+        sut = DefaultDict[str, int](
+            self._default_factory, manager=multiprocessing_manager
+        )
         sut[key] = 123456789
         assert key in sut
         del sut[key]
         assert key not in list(sut)
 
-    def test___getitem__(self) -> None:
+    def test___getitem__(self, multiprocessing_manager: SyncManager) -> None:
         key = "my-first-key"
         value = 123456789
-        sut = DefaultDict[str, int](self._default_factory)
+        sut = DefaultDict[str, int](
+            self._default_factory, manager=multiprocessing_manager
+        )
         sut[key] = value
         assert sut[key] == value
 
-    def test___getitem___should_create_default(self) -> None:
-        sut = DefaultDict[str, int](self._default_factory)
+    def test___getitem___should_create_default(
+        self, multiprocessing_manager: SyncManager
+    ) -> None:
+        sut = DefaultDict[str, int](
+            self._default_factory, manager=multiprocessing_manager
+        )
         assert sut["my-first-key"] == os.getpid()
 
-    def test___getitem___should_create_default_concurrently(self) -> None:
+    def test___getitem___should_create_default_concurrently(
+        self, multiprocessing_manager: SyncManager
+    ) -> None:
         key = "my-first-key"
-        sut = DefaultDict[str, int](self._delayed_default_factory)
+        sut = DefaultDict[str, int](
+            self._delayed_default_factory, manager=multiprocessing_manager
+        )
         process = multiprocessing.Process(
             target=_test_default_dict_process_target, args=(sut, key)
         )
@@ -258,20 +303,36 @@ class TestDefaultDict:
         time.sleep(1)
         assert sut[key] != os.getpid()
 
-    def test___iter__(self) -> None:
+    def test___iter__(self, multiprocessing_manager: SyncManager) -> None:
         key = "my-first-key"
-        sut = DefaultDict[str, int](self._default_factory)
+        sut = DefaultDict[str, int](
+            self._default_factory, manager=multiprocessing_manager
+        )
         sut[key] = 123456789
         assert list(iter(sut)) == [key]
 
-    def test___len__(self) -> None:
-        sut = DefaultDict[str, int](self._default_factory)
+    def test___len__(self, multiprocessing_manager: SyncManager) -> None:
+        sut = DefaultDict[str, int](
+            self._default_factory, manager=multiprocessing_manager
+        )
         sut["my-first-key"] = 123456789
         assert len(sut) == 1
 
-    def test___setitem__(self) -> None:
+    def test___setitem__(self, multiprocessing_manager: SyncManager) -> None:
         key = "my-first-key"
         value = 123456789
-        sut = DefaultDict[str, int](self._default_factory)
+        sut = DefaultDict[str, int](
+            self._default_factory, manager=multiprocessing_manager
+        )
         sut[key] = value
         assert sut[key] == value
+
+
+class TestEnsureManager:
+    def test_with_manager(self) -> None:
+        manager = SyncManager()
+        assert ensure_manager(manager) is manager
+
+    def test_without_manager(self) -> None:
+        with pytest.warns(BettyDeprecationWarning):
+            ensure_manager(None)
