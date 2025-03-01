@@ -4,7 +4,7 @@ Providing typing utilities.
 
 from __future__ import annotations
 
-from typing import TypeVar, TypeAlias, final
+from typing import TypeVar, TypeAlias, final, Any
 
 from typing_extensions import TypeIs
 
@@ -13,11 +13,20 @@ from betty.docstring import append
 _T = TypeVar("_T")
 
 
+def _should_mark(target: Any, key: str) -> bool:
+    attr_name = f"_betty_typing_{key}"
+    if hasattr(target, attr_name):
+        return False
+    setattr(target, attr_name, True)
+    return True
+
+
 def _internal(target: _T) -> _T:
-    target.__doc__ = append(
-        target.__doc__ or "",
-        "This is internal. It **MAY** be used anywhere in Betty's source code, but **MUST NOT** be used by third-party code.",
-    )
+    if _should_mark(target, "internal"):
+        target.__doc__ = append(
+            target.__doc__ or "",
+            "This is internal. It **MAY** be used anywhere in Betty's source code, but **MUST NOT** be used by third-party code.",
+        )
     return target
 
 
@@ -50,10 +59,23 @@ def private(target: _T) -> _T:
 
     This is intended for items that cannot be marked private by prefixing their names with an underscore.
     """
-    target.__doc__ = append(
-        target.__doc__ or "",
-        "This is private. It **MUST NOT** be used anywhere outside its containing scope.",
-    )
+    if _should_mark(target, "private"):
+        target.__doc__ = append(
+            target.__doc__ or "",
+            "This is private. It **MUST NOT** be used anywhere outside its containing scope.",
+        )
+    return target
+
+
+def pickleable(target: _T) -> _T:
+    """
+    Mark a target as pickleable.
+    """
+    if _should_mark(target, "pickleable"):
+        target.__doc__ = append(
+            target.__doc__ or "",
+            "This can be pickled.",
+        )
     return target
 
 
@@ -61,10 +83,25 @@ def threadsafe(target: _T) -> _T:
     """
     Mark a target as thread-safe.
     """
-    target.__doc__ = append(
-        target.__doc__ or "",
-        "This is thread-safe, which means you can safely use this between different threads.",
-    )
+    if _should_mark(target, "threadsafe"):
+        target.__doc__ = append(
+            target.__doc__ or "",
+            "This is thread-safe, which means you can safely use this between different threads.",
+        )
+    return target
+
+
+def processsafe(target: _T) -> _T:
+    """
+    Mark a target as process-safe.
+    """
+    if _should_mark(target, "processsafe"):
+        target = pickleable(target)
+        target = threadsafe(target)
+        target.__doc__ = append(
+            target.__doc__ or "",
+            "This is process-safe, which means you can safely use this between different processes.",
+        )
     return target
 
 

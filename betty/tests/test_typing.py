@@ -1,4 +1,13 @@
-from betty.typing import internal, public, private, threadsafe, not_void, Void
+from betty.typing import (
+    internal,
+    public,
+    private,
+    threadsafe,
+    not_void,
+    Void,
+    pickleable,
+    processsafe,
+)
 
 
 class TestInternal:
@@ -34,11 +43,33 @@ class TestPrivate:
         assert _target() is sentinel
 
 
+class TestPickleable:
+    def test(self) -> None:
+        sentinel = object()
+
+        @pickleable
+        def _target() -> object:
+            return sentinel
+
+        assert _target() is sentinel
+
+
 class TestThreadsafe:
     def test(self) -> None:
         sentinel = object()
 
         @threadsafe
+        def _target() -> object:
+            return sentinel
+
+        assert _target() is sentinel
+
+
+class TestProcesssafe:
+    def test(self) -> None:
+        sentinel = object()
+
+        @processsafe
         def _target() -> object:
             return sentinel
 
