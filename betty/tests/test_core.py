@@ -1,12 +1,16 @@
-from typing_extensions import override
+from typing import Awaitable
 
 import pytest
+from typing_extensions import override
+
 from betty.core import (
     ServiceProvider,
     Bootstrapped,
     ShutdownStack,
     Shutdownable,
     service,
+    StaticService,
+    ServiceFactory,
 )
 
 
@@ -113,50 +117,149 @@ class TestServiceProvider:
         assert not sut.bootstrapped
 
 
+class _AsynchronousServiceProvider(ServiceProvider):
+    @service
+    async def my_first_asynchronous_service(self) -> object:
+        return object()
+
+
+class _SynchronousServiceProvider(ServiceProvider):
+    @service
+    def my_first_synchronous_service(self) -> object:
+        return object()
+
+
+class _AsynchronousServiceProviderWithInit(ServiceProvider):
+    def __init__(self, service: object):
+        super().__init__()
+        type(self).my_first_asynchronous_service.init(self, service)
+
+    @service
+    async def my_first_asynchronous_service(self) -> object:
+        raise NotImplementedError
+
+
+class _SynchronousServiceProviderWithInit(ServiceProvider):
+    def __init__(self, service: object):
+        super().__init__()
+        type(self).my_first_synchronous_service.init(self, service)
+
+    @service
+    def my_first_synchronous_service(self) -> object:
+        raise NotImplementedError
+
+
+class _AsynchronousServiceProviderWithInitFactory(ServiceProvider):
+    def __init__(
+        self,
+        service_factory: ServiceFactory[
+            "_AsynchronousServiceProviderWithInitFactory", Awaitable[object]
+        ],
+    ):
+        super().__init__()
+        type(self).my_first_asynchronous_service.init_factory(self, service_factory)
+
+    @service
+    async def my_first_asynchronous_service(self) -> object:
+        raise NotImplementedError
+
+
+class _SynchronousServiceProviderWithInitFactory(ServiceProvider):
+    def __init__(
+        self,
+        service_factory: ServiceFactory[
+            "_SynchronousServiceProviderWithInitFactory", object
+        ],
+    ):
+        super().__init__()
+        type(self).my_first_synchronous_service.init_factory(self, service_factory)
+
+    @service
+    def my_first_synchronous_service(self) -> object:
+        raise NotImplementedError
+
+
 class TestService:
-    class _ServiceProvider(ServiceProvider):
-        @service
-        async def my_first_asynchronous_service(self) -> object:
-            return object()
-
-        @service
-        def my_first_synchronous_service(self) -> object:
-            return object()
-
     async def test_get_class_attr_with_asynchronous_method(self) -> None:
-        self._ServiceProvider.my_first_asynchronous_service  # noqa: B018
+        _AsynchronousServiceProvider.my_first_asynchronous_service  # noqa: B018
 
     async def test_get_instance_attr_with_asynchronous_method_with_bootstrapped(
         self,
     ) -> None:
-        async with self._ServiceProvider() as component:
+        async with _AsynchronousServiceProvider() as service_provider:
             assert (
-                await component.my_first_asynchronous_service
-                is await component.my_first_asynchronous_service
+                await service_provider.my_first_asynchronous_service
+                is await service_provider.my_first_asynchronous_service
             )
 
     async def test_get_instance_attr_with_asynchronous_method_without_bootstrapped(
         self,
     ) -> None:
-        component = self._ServiceProvider()
+        service_provider = _AsynchronousServiceProvider()
         with pytest.raises(RuntimeError):
-            await component.my_first_asynchronous_service
+            await service_provider.my_first_asynchronous_service
+
+    async def test_get_instance_attr_with_asynchronous_method_with_init(
+        self,
+    ) -> None:
+        service = object()
+        async with _AsynchronousServiceProviderWithInit(service) as service_provider:
+            assert await service_provider.my_first_asynchronous_service is service
+
+    async def test_get_instance_attr_with_asynchronous_method_with_init_factory(
+        self,
+    ) -> None:
+        service = object()
+
+        async def _service_factory(
+            _: _AsynchronousServiceProviderWithInitFactory,
+        ) -> object:
+            return service
+
+        async with _AsynchronousServiceProviderWithInitFactory(
+            _service_factory
+        ) as service_provider:
+            assert await service_provider.my_first_asynchronous_service is service
 
     async def test_get_class_attr_with_synchronous_method(self) -> None:
-        self._ServiceProvider.my_first_synchronous_service  # noqa: B018
+        _SynchronousServiceProvider.my_first_synchronous_service  # noqa: B018
 
     async def test_get_instance_attr_with_synchronous_method_with_bootstrapped(
         self,
     ) -> None:
-        async with self._ServiceProvider() as component:
+        async with _SynchronousServiceProvider() as service_provider:
             assert (
-                component.my_first_synchronous_service
-                is component.my_first_synchronous_service
+                service_provider.my_first_synchronous_service
+                is service_provider.my_first_synchronous_service
             )
 
     async def test_get_instance_attr_with_synchronous_method_without_bootstrapped(
         self,
     ) -> None:
-        component = self._ServiceProvider()
+        service_provider = _SynchronousServiceProvider()
         with pytest.raises(RuntimeError):
-            component.my_first_synchronous_service  # noqa: B018
+            service_provider.my_first_synchronous_service  # noqa: B018
+
+    async def test_get_instance_attr_with_synchronous_method_with_init(
+        self,
+    ) -> None:
+        service = object()
+        async with _SynchronousServiceProviderWithInit(service) as service_provider:
+            assert service_provider.my_first_synchronous_service is service
+
+    async def test_get_instance_attr_with_synchronous_method_with_init_factory(
+        self,
+    ) -> None:
+        service = object()
+        async with _SynchronousServiceProviderWithInitFactory(
+            lambda _: service
+        ) as service_provider:
+            assert service_provider.my_first_synchronous_service is service
+
+
+class TestStaticService:
+    def test___call__(self) -> None:
+        service = object()
+        service_provider = ServiceProvider()
+        sut = StaticService[ServiceProvider, object](service)
+        assert sut(service_provider) is service

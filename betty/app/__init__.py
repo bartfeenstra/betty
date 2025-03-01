@@ -19,7 +19,7 @@ from betty.assets import AssetRepository
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.config import Configurable, assert_configuration_file
-from betty.core import ServiceProvider, service
+from betty.core import ServiceProvider, service, ServiceFactory
 from betty.factory import new, TargetFactory
 from betty.fetch import Fetcher, http
 from betty.fetch.static import StaticFetcher
@@ -35,7 +35,7 @@ if TYPE_CHECKING:
     from concurrent.futures import Executor
     from betty.plugin import PluginRepository
     from betty.cache import Cache
-    from collections.abc import AsyncIterator, Callable
+    from collections.abc import AsyncIterator
 
 _T = TypeVar("_T")
 
@@ -51,13 +51,15 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         configuration: AppConfiguration,
         cache_directory_path: Path,
         *,
-        cache_factory: Callable[[Self], Cache[Any]],
+        cache_factory: ServiceFactory[Self, Cache[Any]],
         fetcher: Fetcher | None = None,
     ):
+        cls = type(self)
         super().__init__(configuration=configuration)
-        self._fetcher = fetcher
+        if fetcher is not None:
+            cls.fetcher.init(self, fetcher)
         self._cache_directory_path = cache_directory_path
-        self._cache_factory = cache_factory
+        cls.cache.init_factory(self, cache_factory)
 
     @classmethod
     @asynccontextmanager
@@ -154,7 +156,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         """
         The cache.
         """
-        return self._cache_factory(self)
+        raise NotImplementedError
 
     @service
     def binary_file_cache(self) -> BinaryFileCache:
