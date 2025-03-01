@@ -8,7 +8,6 @@ from asyncio import create_task, sleep, wait_for, gather
 from typing import TypeVar, Any
 
 import pytest
-from pytest_mock import MockerFixture
 from typing_extensions import override
 
 from betty.concurrent import (
@@ -16,10 +15,6 @@ from betty.concurrent import (
     asynchronize_acquire,
     AsynchronizedLock,
     Lock,
-    acquire,
-    Lockey,
-    ThreadingLockType,
-    MultiprocessingLockType,
     Ledger,
     DefaultDict,
 )
@@ -55,68 +50,44 @@ class TestLock:
 
 
 class TestAsynchronizeAcquire:
-    @pytest.mark.parametrize(
-        "lock",
-        [
-            threading.Lock(),
-            multiprocessing.Lock(),
-        ],
-    )
-    async def test_should_acquire_immediately(self, lock: Lockey) -> None:
+    async def test_should_acquire_immediately_with_threading(self) -> None:
+        lock = threading.Lock()
         assert await asynchronize_acquire(lock)
         assert not await asynchronize_acquire(lock, wait=False)
         lock.release()
 
-    @pytest.mark.parametrize(
-        "lock",
-        [
-            threading.Lock(),
-            multiprocessing.Lock(),
-        ],
-    )
-    async def test_should_acquire_after_waiting(self, lock: Lockey) -> None:
+    async def test_should_acquire_immediately_with_multiprocessing(self) -> None:
+        lock = multiprocessing.Manager().Lock()
+        assert await asynchronize_acquire(lock)
+        assert not await asynchronize_acquire(lock, wait=False)
+        lock.release()
+
+    async def test_should_acquire_after_waiting_with_threading(self) -> None:
+        lock = threading.Lock()
         lock.acquire()
         task = create_task(asynchronize_acquire(lock))
         await sleep(1)
         lock.release()
         assert await task
 
-    @pytest.mark.parametrize(
-        "lock",
-        [
-            threading.Lock(),
-            multiprocessing.Lock(),
-        ],
-    )
-    async def test_should_not_acquire_if_not_waiting(self, lock: Lockey) -> None:
+    async def test_should_acquire_after_waiting_with_multiprocessing(self) -> None:
+        lock = multiprocessing.Manager().Lock()
+        lock.acquire()
+        task = create_task(asynchronize_acquire(lock))
+        await sleep(1)
+        lock.release()
+        assert await task
+
+    async def test_should_not_acquire_if_not_waiting_with_threading(self) -> None:
+        lock = threading.Lock()
         lock.acquire()
         assert not await asynchronize_acquire(lock, wait=False)
         lock.release()
 
-
-class TestAcquire:
-    @pytest.mark.parametrize(
-        "lock",
-        [
-            threading.Lock(),
-            multiprocessing.Lock(),
-        ],
-    )
-    def test_should_acquire_immediately(self, lock: Lockey) -> None:
-        assert acquire(lock) is True
-        assert not acquire(lock, wait=False)
-        lock.release()
-
-    @pytest.mark.parametrize(
-        "lock",
-        [
-            threading.Lock(),
-            multiprocessing.Lock(),
-        ],
-    )
-    def test_should_not_acquire_if_not_waiting(self, lock: Lockey) -> None:
+    async def test_should_not_acquire_if_not_waiting_with_multiprocessing(self) -> None:
+        lock = multiprocessing.Manager().Lock()
         lock.acquire()
-        assert not acquire(lock, wait=False)
+        assert not await asynchronize_acquire(lock, wait=False)
         lock.release()
 
 
@@ -150,12 +121,10 @@ class TestAsynchronizedLock:
         assert AsynchronizedLock(lock).lock is lock
 
     def test_threading(self) -> None:
-        sut = AsynchronizedLock.threading()
-        assert isinstance(sut.lock, ThreadingLockType)
+        AsynchronizedLock.threading()
 
     def test_multiprocessing(self) -> None:
-        sut = AsynchronizedLock.multiprocessing()
-        assert isinstance(sut.lock, MultiprocessingLockType)
+        AsynchronizedLock.multiprocessing()
 
 
 class TestRateLimiter:
@@ -214,8 +183,7 @@ class TestLedger:
         assert not await lock.acquire(wait=False)
         await lock.release()
 
-    def test_pickle(self, mocker: MockerFixture) -> None:
-        mocker.patch("multiprocessing.context.assert_spawning")
+    def test_pickle(self) -> None:
         sut = Ledger(AsynchronizedLock.multiprocessing())
         pickle.loads(pickle.dumps(sut))
 

@@ -10,19 +10,13 @@ from abc import ABC, abstractmethod
 from asyncio import sleep
 from collections.abc import Hashable, Callable, Iterator
 from math import floor
-from multiprocessing import synchronize
 from types import TracebackType
-from typing import final, MutableMapping, TypeAlias, Generic, TypeVar, Union
+from typing import final, MutableMapping, Generic, TypeVar, Self
 
 from typing_extensions import override
 
 from betty.typing import threadsafe, processsafe
 
-ThreadingLockType = type(threading.Lock())
-MultiprocessingLockType = synchronize.Lock
-LockTypes = (ThreadingLockType, MultiprocessingLockType)
-Lockey: TypeAlias = Union[threading.Lock, synchronize.Lock]
-_LockeyT = TypeVar("_LockeyT", bound=Lockey)
 _KeyT = TypeVar("_KeyT")
 _ValueT = TypeVar("_ValueT")
 
@@ -58,11 +52,11 @@ class Lock(ABC):
         pass
 
 
-async def asynchronize_acquire(lock: Lockey, *, wait: bool = True) -> bool:
+async def asynchronize_acquire(lock: threading.Lock, *, wait: bool = True) -> bool:
     """
     Acquire a synchronous lock asynchronously.
     """
-    while not acquire(lock, wait=False):
+    while not lock.acquire(blocking=False):
         if not wait:
             return False
         # Sleeping for zero seconds does not actually sleep, but gives the event
@@ -72,32 +66,19 @@ async def asynchronize_acquire(lock: Lockey, *, wait: bool = True) -> bool:
     return True
 
 
-def acquire(lock: Lockey, *, wait: bool = True) -> bool:
-    """
-    Acquire a synchronous lock asynchronously.
-    """
-    kwargs = {
-        "block"
-        # multiprocessing.Lock is similar to threading.Lock, but uses a different keyword argument to indicate blocking.
-        if isinstance(lock, MultiprocessingLockType)
-        else "blocking": wait,
-    }
-    return lock.acquire(**kwargs)
-
-
 @final
-class AsynchronizedLock(Generic[_LockeyT], Lock):
+class AsynchronizedLock(Lock):
     """
     Make a sychronous (blocking) lock asynchronous (non-blocking).
     """
 
     __slots__ = "_lock"
 
-    def __init__(self, lock: _LockeyT):
+    def __init__(self, lock: threading.Lock):
         self._lock = lock
 
     @property
-    def lock(self) -> _LockeyT:
+    def lock(self) -> threading.Lock:
         """
         The underlying, synchronous lock.
         """
@@ -112,18 +93,18 @@ class AsynchronizedLock(Generic[_LockeyT], Lock):
         self._lock.release()
 
     @classmethod
-    def threading(cls) -> "AsynchronizedLock[threading.Lock]":
+    def threading(cls) -> Self:
         """
         Create a new thread-safe, asynchronous lock.
         """
-        return AsynchronizedLock(threading.Lock())
+        return cls(threading.Lock())
 
     @classmethod
-    def multiprocessing(cls) -> "AsynchronizedLock[synchronize.Lock]":
+    def multiprocessing(cls) -> Self:
         """
         Create a new process-safe, asynchronous lock.
         """
-        return AsynchronizedLock(multiprocessing.Lock())
+        return cls(multiprocessing.Manager().Lock())
 
 
 @final
@@ -248,7 +229,7 @@ class DefaultDict(Generic[_KeyT, _ValueT], MutableMapping[_KeyT, _ValueT]):
 
     def __init__(self, default_factory: Callable[[], _ValueT]):
         self._default_factory = default_factory
-        self._lock = multiprocessing.Lock()
+        self._lock = multiprocessing.Manager().Lock()
         self._dict: MutableMapping[_KeyT, _ValueT] = multiprocessing.Manager().dict()
 
     def __delitem__(self, key: _KeyT) -> None:
