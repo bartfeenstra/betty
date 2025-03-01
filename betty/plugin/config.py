@@ -28,7 +28,7 @@ from betty.locale.localizable.config import (
 from betty.machine_name import assert_machine_name, MachineName
 from betty.plugin import Plugin, PluginRepository, PluginIdentifier, resolve_identifier
 from betty.repr import repr_instance
-from betty.typing import Void, Voidable
+from betty.typing import Void, Voidable, not_void
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -221,7 +221,7 @@ class PluginInstanceConfiguration(Configuration):
         Create a new plugin instance.
         """
         plugin = await repository.new_target(self.id)
-        if self.configuration is not Void:
+        if not_void(self.configuration):
             if not isinstance(plugin, DefaultConfigurable):  # type: ignore[redundant-expr]
                 raise AssertionFailed(
                     _(

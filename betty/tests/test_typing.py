@@ -1,4 +1,4 @@
-from betty.typing import internal, public, private, threadsafe
+from betty.typing import internal, public, private, threadsafe, not_void, Void
 
 
 class TestInternal:
@@ -43,3 +43,11 @@ class TestThreadsafe:
             return sentinel
 
         assert _target() is sentinel
+
+
+class TestNotVoid:
+    def test_with_void(self) -> None:
+        assert not not_void(Void)
+
+    def test_without_void(self) -> None:
+        assert not_void(123)
