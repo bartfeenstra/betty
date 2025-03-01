@@ -6,16 +6,23 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable, MutableSequence, Awaitable
 from inspect import iscoroutinefunction
 from types import TracebackType
-from typing import Self, Any, final, TypedDict, Unpack, TypeAlias, cast, Generic
+from typing import (
+    Self,
+    Any,
+    final,
+    TypedDict,
+    Unpack,
+    TypeAlias,
+    cast,
+    Generic,
+)
 from typing import overload, TypeVar
 from warnings import warn
 
 from typing_extensions import override
 
 from betty.concurrent import AsynchronizedLock, Lock
-from betty.typing import internal, public
-
-_T = TypeVar("_T")
+from betty.typing import internal, public, Void, not_void, processsafe
 
 
 @internal
@@ -159,13 +166,19 @@ class ServiceProvider(Bootstrapped, Shutdownable):
 
 
 _ServiceProviderT = TypeVar("_ServiceProviderT", bound=ServiceProvider)
+_ServiceT = TypeVar("_ServiceT")
+_ServiceGetT = TypeVar("_ServiceGetT")
+
+ServiceFactory: TypeAlias = Callable[[_ServiceProviderT], _ServiceT]
 
 
-class _Service(Generic[_ServiceProviderT, _T]):
-    def __init__(self, f: Callable[[_ServiceProviderT], _T]):
-        self._f = f
-        f_name = f.__name__  # type: ignore[attr-defined]
-        self._attr_name = f"_{f_name}"
+class _Service(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
+    def __init__(self, factory: ServiceFactory[_ServiceProviderT, _ServiceGetT]):
+        self._factory = factory
+        self._service_name = factory.__name__  # type: ignore[attr-defined]
+        self._attr_name = f"_{self._service_name}"
+        self._explicit_attr_name = f"{self._attr_name}_explicit"
+        self._factory_attr_name = f"{self._attr_name}_factory"
 
     @overload
     def __get__(self, instance: None, owner: type[_ServiceProviderT]) -> Self:
@@ -174,12 +187,12 @@ class _Service(Generic[_ServiceProviderT, _T]):
     @overload
     def __get__(
         self, instance: _ServiceProviderT, owner: type[_ServiceProviderT]
-    ) -> _T:
+    ) -> _ServiceGetT:
         pass
 
     def __get__(
         self, instance: _ServiceProviderT | None, owner: type[_ServiceProviderT]
-    ) -> _T | Self:
+    ) -> _ServiceGetT | Self:
         if instance is None:
             return self  # type: ignore[return-value]
 
@@ -188,46 +201,136 @@ class _Service(Generic[_ServiceProviderT, _T]):
         return self._get(instance)
 
     @abstractmethod
-    def _get(self, instance: _ServiceProviderT) -> _T:
+    def _get(self, instance: _ServiceProviderT) -> _ServiceGetT:
         pass
 
+    def _get_attr(self, instance: _ServiceProviderT) -> _ServiceT | type[Void]:
+        return getattr(instance, self._attr_name, Void)  # type: ignore[return-value]
 
-class _AsynchronousService(_Service[_ServiceProviderT, Awaitable[_T]]):
-    async def _get(self, instance: _ServiceProviderT) -> _T:
-        service = cast(_T | None, getattr(instance, self._attr_name, None))
-        if service is not None:
-            return service
+    def _get_factory(
+        self, instance: _ServiceProviderT
+    ) -> ServiceFactory[_ServiceProviderT, _ServiceGetT]:
+        factory = cast(
+            ServiceFactory[_ServiceProviderT, _ServiceGetT] | None,
+            getattr(instance, self._factory_attr_name, None),
+        )
+        if factory is not None:
+            return factory
+        return self._factory
 
+    def _assert_not_initialized(self, instance: _ServiceProviderT):
+        if not_void(self._get_attr(instance)):
+            raise RuntimeError(
+                f"{instance}.{self._service_name} was initialized already."
+            )
+
+    def init(self, instance: _ServiceProviderT, service: _ServiceT) -> None:
+        """
+        Explicitly initialize the service for the given instance.
+
+        This MUST only be called from ``instance.__init__()``.
+
+        The provided service MUST be pickleable.
+        """
+        self._assert_not_initialized(instance)
+        setattr(instance, self._attr_name, service)
+        setattr(instance, self._explicit_attr_name, True)
+
+    def init_factory(
+        self,
+        instance: _ServiceProviderT,
+        factory: ServiceFactory[_ServiceProviderT, _ServiceGetT],
+    ) -> None:
+        """
+        Explicitly override the default service factory for the given instance.
+
+        This MUST only be called from ``instance.__init__()``. It will override the existing service factory method
+        defined on the instance.
+
+        The provided factory MUST be pickleable.
+        """
+        self._assert_not_initialized(instance)
+        setattr(instance, self._factory_attr_name, factory)
+
+
+class _AsynchronousService(
+    Generic[_ServiceProviderT, _ServiceT],
+    _Service[_ServiceProviderT, Awaitable[_ServiceT], _ServiceT],
+):
+    def _lock(self, instance: _ServiceProviderT) -> Lock:
         lock_attr_name = f"_{self._attr_name}_lock"
         try:
-            lock = cast(Lock, getattr(instance, lock_attr_name))
+            return cast(Lock, getattr(instance, lock_attr_name))
         except AttributeError:
             lock = AsynchronizedLock.threading()
             setattr(instance, lock_attr_name, lock)
-        async with lock:
-            service = await self._f(instance)
-            setattr(instance, self._attr_name, service)
+            return lock
+
+    async def _get(self, instance: _ServiceProviderT) -> _ServiceT:
+        service = self._get_attr(instance)
+        if not_void(service):
             return service
 
+        async with self._lock(instance):
+            new_service = await self._get_factory(instance)(instance)
+            setattr(instance, self._attr_name, new_service)
+            return new_service
 
-class _SynchronousService(_Service[_ServiceProviderT, _T]):
-    def _get(self, instance: _ServiceProviderT) -> _T:
-        service = cast(_T | None, getattr(instance, self._attr_name, None))
-        if service is not None:
+
+class _SynchronousService(
+    Generic[_ServiceProviderT, _ServiceT],
+    _Service[_ServiceProviderT, _ServiceT, _ServiceT],
+):
+    def _get(self, instance: _ServiceProviderT) -> _ServiceT:
+        service = self._get_attr(instance)
+        if not_void(service):
             return service
 
-        service = self._f(instance)
-        setattr(instance, self._attr_name, service)
-        return service
+        new_service = self._get_factory(instance)(instance)
+        setattr(instance, self._attr_name, new_service)
+        return new_service
 
 
-def service(f: Callable[[_ServiceProviderT], _T]) -> _Service[_ServiceProviderT, _T]:
+@overload
+def service(  # type: ignore[overload-overlap]
+    factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]],
+) -> _AsynchronousService[_ServiceProviderT, _ServiceT]:
+    pass
+
+
+@overload
+def service(
+    factory: Callable[[_ServiceProviderT], _ServiceT],
+) -> _SynchronousService[_ServiceProviderT, _ServiceT]:
+    pass
+
+
+def service(
+    factory: Callable[[_ServiceProviderT], _ServiceT],
+) -> _Service[_ServiceProviderT, _ServiceT, Any]:
     """
     Decorate a :py:class:`betty.core.ServiceProvider`'s method to be a service property.
 
     The decorated function should return a new service instance. The decorator will handle caching and concurrency.
     """
-    if iscoroutinefunction(f):
-        return _AsynchronousService(f)  # type: ignore[return-value]
+    if iscoroutinefunction(factory):
+        return _AsynchronousService(factory)  # type: ignore[return-value]
     else:
-        return _SynchronousService(f)
+        return _SynchronousService(factory)
+
+
+@internal
+@processsafe
+class StaticService(Generic[_ServiceProviderT, _ServiceT]):
+    """
+    A service factory that returns a static, predefined service.
+    """
+
+    def __init__(self, service: _ServiceT):
+        self._service = service
+
+    def __call__(self, service_provider: _ServiceProviderT) -> _ServiceT:
+        """
+        Return the service.
+        """
+        return self._service
