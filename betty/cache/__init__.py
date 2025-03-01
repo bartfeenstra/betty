@@ -10,6 +10,7 @@ from typing import Self, Generic, TypeAlias, AsyncContextManager, overload, Lite
 
 from typing_extensions import TypeVar
 
+from betty.typing import threadsafe
 
 _CacheItemValueT = TypeVar("_CacheItemValueT")
 _CacheItemValueCoT = TypeVar("_CacheItemValueCoT", covariant=True)
@@ -40,11 +41,13 @@ class CacheItem(Generic[_CacheItemValueCoT], ABC):
 CacheItemValueSetter: TypeAlias = Callable[[_CacheItemValueT], Awaitable[None]]
 
 
+@threadsafe
 class Cache(Generic[_CacheItemValueContraT], ABC):
     """
-    Provide a cache.
+    A cache.
 
-    Implementations MUST be thread-safe.
+    Implementations SHOULD be multiprocessing-safe. It is deprecated for implementations not to be multiprocessing-safe
+    as of Betty 0.4.10. As of Betty 0.5.0, implementations MUST be multiprocessing-safe.
 
     To test your own subclasses, use :py:class:`betty.test_utils.cache.CacheTestBase`.
     """

@@ -19,12 +19,11 @@ from typing import (
 from typing_extensions import override
 
 from betty.cache import CacheItem, Cache, CacheItemValueSetter
-from betty.typing import threadsafe
+from betty.typing import processsafe
 
 if TYPE_CHECKING:
     from types import TracebackType
     from collections.abc import AsyncIterator
-
 
 _GetSet: TypeAlias = tuple[
     CacheItem[Any] | None,
@@ -52,7 +51,7 @@ class _NoOpGetSet:
 
 
 @final
-@threadsafe
+@processsafe
 class NoOpCache(Cache[Any]):
     """
     Provide a cache that does nothing.
