@@ -11,7 +11,7 @@ from jinja2 import pass_context
 from typing_extensions import override
 
 from betty.concurrent import RateLimiter
-from betty.core import service
+from betty.service import service
 from betty.fetch import FetchError
 from betty.jinja2 import Jinja2Provider, context_localizer, Filters, Globals
 from betty.locale import negotiate_locale

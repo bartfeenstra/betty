@@ -7,7 +7,7 @@ from typing import TypeVar, TYPE_CHECKING, Generic, Self, Sequence
 from typing_extensions import override
 
 from betty.config import Configuration, DefaultConfigurable
-from betty.core import ServiceProvider
+from betty.service import ServiceProvider
 from betty.locale.localizable import Localizable, _, call
 from betty.plugin import (
     PluginRepository,

@@ -126,7 +126,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "__exit__": MissingReason.SHOULD_BE_COVERED,
         },
     },
-    "betty/core.py": {
+    "betty/service.py": {
         "Shutdownable": MissingReason.ABSTRACT,
         "ShutdownCallbackKwargs": MissingReason.TYPED_DICT,
         "ShutdownStack": {

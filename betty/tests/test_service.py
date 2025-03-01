@@ -3,7 +3,7 @@ from typing import Awaitable
 import pytest
 from typing_extensions import override
 
-from betty.core import (
+from betty.service import (
     ServiceProvider,
     Bootstrapped,
     ShutdownStack,
