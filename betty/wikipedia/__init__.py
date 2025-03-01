@@ -46,6 +46,9 @@ if TYPE_CHECKING:
     from collections.abc import Sequence, MutableSequence, MutableMapping, Iterator
 
 
+RATE_LIMIT = 200
+
+
 class NotAPageError(ValueError):
     """
     Raised when a URL does not point to a Wikipedia page.
@@ -99,15 +102,10 @@ class Image:
 
 
 class _Retriever:
-    _WIKIPEDIA_RATE_LIMIT = 200
-
-    def __init__(
-        self,
-        fetcher: Fetcher,
-    ):
+    def __init__(self, fetcher: Fetcher, rate_limiter: RateLimiter):
         self._fetcher = fetcher
         self._images: MutableMapping[str, Image | None] = {}
-        self._rate_limiter = RateLimiter(self._WIKIPEDIA_RATE_LIMIT)
+        self._rate_limiter = rate_limiter
 
     @contextmanager
     def _catch_exceptions(self) -> Iterator[None]:

@@ -15,6 +15,7 @@ from betty.ancestry.link import Link
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.assets import AssetRepository
+from betty.concurrent import RateLimiter
 from betty.fetch import FetchResponse
 from betty.fetch.static import StaticFetcher
 from betty.locale import UNDETERMINED_LOCALE
@@ -155,7 +156,7 @@ class TestRetriever:
         fetcher = StaticFetcher(
             fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
         )
-        translations = await _Retriever(fetcher).get_translations(
+        translations = await _Retriever(fetcher, RateLimiter(1)).get_translations(
             page_language, page_name
         )
         assert expected == translations
@@ -178,7 +179,9 @@ class TestRetriever:
                 )
             }
         )
-        actual = await _Retriever(fetcher).get_translations(page_language, page_name)
+        actual = await _Retriever(fetcher, RateLimiter(1)).get_translations(
+            page_language, page_name
+        )
         assert actual == {}
 
     @pytest.mark.parametrize(
@@ -203,7 +206,9 @@ class TestRetriever:
         fetcher = StaticFetcher(
             fetch_map={fetch_url: _new_json_fetch_response(response_json)}
         )
-        actual = await _Retriever(fetcher).get_translations(page_language, page_name)
+        actual = await _Retriever(fetcher, RateLimiter(1)).get_translations(
+            page_language, page_name
+        )
         assert actual == {}
 
     @pytest.mark.parametrize(
@@ -278,7 +283,7 @@ class TestRetriever:
         fetcher = StaticFetcher(
             fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
         )
-        retriever = _Retriever(fetcher)
+        retriever = _Retriever(fetcher, RateLimiter(1))
         actual = await retriever.get_summary(page_language, page_name)
         assert actual == expected
 
@@ -429,7 +434,7 @@ class TestRetriever:
         fetcher = StaticFetcher(
             fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
         )
-        actual = await _Retriever(fetcher).get_place_coordinates(
+        actual = await _Retriever(fetcher, RateLimiter(1)).get_place_coordinates(
             page_language, page_name
         )
         assert actual == expected
@@ -587,7 +592,9 @@ class TestRetriever:
             fetch_file_map["https://example.com/image"] = image_file_path
         fetcher = StaticFetcher(fetch_map=fetch_map, fetch_file_map=fetch_file_map)
 
-        actual = await _Retriever(fetcher).get_image(page_language, page_name)
+        actual = await _Retriever(fetcher, RateLimiter(1)).get_image(
+            page_language, page_name
+        )
         if expected is None:
             assert actual is None
         else:
