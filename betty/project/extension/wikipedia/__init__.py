@@ -10,6 +10,7 @@ from typing import Iterable, TYPE_CHECKING, final, Self
 from jinja2 import pass_context
 from typing_extensions import override
 
+from betty.concurrent import RateLimiter
 from betty.core import service
 from betty.fetch import FetchError
 from betty.jinja2 import Jinja2Provider, context_localizer, Filters, Globals
@@ -19,7 +20,14 @@ from betty.plugin import ShorthandPluginBase
 from betty.project.extension import ConfigurableExtension
 from betty.project.extension.wikipedia.config import WikipediaConfiguration
 from betty.project.load import PostLoadAncestryEvent
-from betty.wikipedia import Summary, _parse_url, NotAPageError, _Retriever, _Populator
+from betty.wikipedia import (
+    Summary,
+    _parse_url,
+    NotAPageError,
+    _Retriever,
+    _Populator,
+    RATE_LIMIT,
+)
 from betty.wikipedia.copyright_notice import WikipediaContributors
 
 if TYPE_CHECKING:
@@ -84,11 +92,18 @@ class Wikipedia(
         registry.add_handler(PostLoadAncestryEvent, _populate_ancestry)
 
     @service
+    async def rate_limiter(self) -> RateLimiter:
+        """
+        The Wikipedia API rate limiter.
+        """
+        return RateLimiter(RATE_LIMIT)
+
+    @service
     async def retriever(self) -> _Retriever:
         """
         The Wikipedia content retriever.
         """
-        return _Retriever(await self.project.app.fetcher)
+        return _Retriever(await self.project.app.fetcher, await self.rate_limiter)
 
     @override
     @property
