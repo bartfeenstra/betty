@@ -25,6 +25,7 @@ from betty.locale.localizable import _, Localizable, plain
 from betty.locale.localizer import Localizer
 from betty.machine_name import MachineName
 from betty.plugin import ShorthandPluginBase, PluginRepository, PluginNotFound
+from betty.typing import threadsafe
 
 
 class AllRightsReserved(ShorthandPluginBase, License):
@@ -79,6 +80,7 @@ def spdx_license_id_to_license_id(spdx_license_id: str) -> MachineName:
     return f"spdx-{_SPDX_LICENSE_ID_PATTERN.sub('--', spdx_license_id.lower())}"
 
 
+@threadsafe
 class SpdxLicenseRepository(PluginRepository[License]):
     """
     Provide licenses from the `SPDX License List <https://spdx.org/licenses/>`_.

@@ -16,6 +16,8 @@ from betty.cache import Cache, CacheItem, CacheItemValueSetter
 from betty.concurrent import AsynchronizedLock, Ledger
 from typing_extensions import override
 
+from betty.typing import threadsafe
+
 _CacheItemValueCoT = TypeVar("_CacheItemValueCoT", covariant=True)
 _CacheItemValueContraT = TypeVar("_CacheItemValueContraT", contravariant=True)
 
@@ -59,6 +61,7 @@ class _StaticCacheItem(CacheItem[_CacheItemValueCoT], Generic[_CacheItemValueCoT
         return self._modified
 
 
+@threadsafe
 class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueContraT]):
     def __init__(
         self,

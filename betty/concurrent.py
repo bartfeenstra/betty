@@ -216,6 +216,7 @@ class _Transaction(Lock):
         self._ledger[self._transaction_id] = False
 
 
+@threadsafe
 class Ledger:
     """
     Lazily create locks by keeping a ledger.

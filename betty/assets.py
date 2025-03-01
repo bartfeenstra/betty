@@ -10,11 +10,13 @@ from pathlib import Path
 from typing import Sequence, TYPE_CHECKING
 
 from betty.concurrent import AsynchronizedLock
+from betty.typing import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, AsyncIterator
 
 
+@threadsafe
 class AssetRepository:
     """
     Manages a set of assets.
