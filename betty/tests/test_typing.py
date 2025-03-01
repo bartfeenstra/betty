@@ -1,3 +1,7 @@
+import pickle
+
+import pytest
+
 from betty.typing import (
     internal,
     public,
@@ -7,6 +11,7 @@ from betty.typing import (
     Void,
     pickleable,
     processsafe,
+    unpickleable,
 )
 
 
@@ -52,6 +57,22 @@ class TestPickleable:
             return sentinel
 
         assert _target() is sentinel
+
+
+@unpickleable
+class _Unpickleable:
+    def __call__(self, sentinel: object) -> object:
+        return sentinel
+
+
+class TestUnpickleable:
+    def test(self) -> None:
+        sentinel = object()
+
+        sut = _Unpickleable()
+        assert sut(sentinel) is sentinel
+        with pytest.raises(RuntimeError):
+            pickle.dumps(sut)
 
 
 class TestThreadsafe:
