@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Sequence, Mapping, Any, TYPE_CHECKING
+import pickle
+from typing import Sequence, Mapping, Any, TYPE_CHECKING, cast
 
 import pytest
 from geopy import Point
@@ -14,7 +15,9 @@ from betty.ancestry.name import Name
 from betty.ancestry.place import Place
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.locale import UNDETERMINED_LOCALE
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
+from betty.privacy import Privacy
 from betty.test_utils.ancestry.place_type import DummyPlaceType
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
@@ -235,3 +238,27 @@ class TestPlace(EntityTestBase):
         }
         actual = await assert_dumps_linked_data(place)
         assert actual == expected
+
+    def test_pickle(self) -> None:
+        coordinates = Point(1, 2)
+        place_id = "my-first-place"
+        link_url = "https://betty.example.com"
+        links = [Link(link_url)]
+        name = "My First Place"
+        place_type = UnknownPlaceType()
+        privacy = Privacy.PRIVATE
+        sut = Place(
+            coordinates=coordinates,
+            id=place_id,
+            links=links,
+            names=[Name(name)],
+            place_type=place_type,
+            privacy=privacy,
+        )
+        unpickled_sut = cast(Place, pickle.loads(pickle.dumps(sut)))
+        assert unpickled_sut.coordinates == coordinates
+        assert unpickled_sut.id == place_id
+        assert unpickled_sut.links[0].url == link_url
+        assert unpickled_sut.names[0].name.localize(DEFAULT_LOCALIZER) == name
+        assert isinstance(unpickled_sut.place_type, type(place_type))
+        assert unpickled_sut.privacy == privacy

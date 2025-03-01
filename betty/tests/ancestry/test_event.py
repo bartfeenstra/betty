@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Sequence, Mapping, Any, TYPE_CHECKING
+import pickle
+from typing import Sequence, Mapping, Any, TYPE_CHECKING, cast
 
 import pytest
 from typing_extensions import override
@@ -19,6 +20,7 @@ from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.privacy import Privacy
+from betty.test_utils.ancestry.event_type import DummyEventType
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 
@@ -287,3 +289,26 @@ class TestEvent(EntityTestBase):
         }
         actual = await assert_dumps_linked_data(event)
         assert actual == expected
+
+    def test_pickle(self) -> None:
+        date = Date(1970, 1, 1)
+        description = "My first description"
+        event_id = "my-first-event"
+        event_type = DummyEventType()
+        name = "My First Event"
+        privacy = Privacy.PRIVATE
+        sut = Event(
+            date=date,
+            description=description,
+            event_type=event_type,
+            id=event_id,
+            name=name,
+            privacy=privacy,
+        )
+        unpickled_sut = cast(Event, pickle.loads(pickle.dumps(sut)))
+        assert unpickled_sut.date == date
+        assert unpickled_sut.description.localize(DEFAULT_LOCALIZER) == description
+        assert isinstance(unpickled_sut.event_type, type(event_type))
+        assert unpickled_sut.id == event_id
+        assert unpickled_sut.name.localize(DEFAULT_LOCALIZER) == name
+        assert unpickled_sut.privacy == privacy

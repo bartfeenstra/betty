@@ -1,14 +1,16 @@
 from __future__ import annotations
 
+import pickle
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Sequence, Mapping, Any, TYPE_CHECKING
+from typing import Sequence, Mapping, Any, TYPE_CHECKING, cast
 
 from typing_extensions import override
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
+from betty.ancestry.link import Link
 from betty.ancestry.note import Note
 from betty.ancestry.person import Person
 from betty.ancestry.source import Source
@@ -17,9 +19,12 @@ from betty.copyright_notice.copyright_notices import (
 )
 from betty.license.licenses import PublicDomain as PublicDomainLicense
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.media_type import MediaType
 from betty.media_type.media_types import PLAIN_TEXT
 from betty.privacy import Privacy
+from betty.test_utils.copyright_notice import DummyCopyrightNotice
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
+from betty.test_utils.license import DummyLicense
 from betty.test_utils.model import EntityTestBase
 from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 
@@ -268,3 +273,36 @@ class TestFile(EntityTestBase):
             }
             actual = await assert_dumps_linked_data(file)
             assert actual == expected
+
+    def test_pickle(self) -> None:
+        copyright_notice = DummyCopyrightNotice()
+        description = "My first description"
+        file_id = "my-first-file"
+        license = DummyLicense()  # noqa A001
+        link_url = "https://betty.example.com"
+        links = [Link(link_url)]
+        media_type = MediaType("my-first/media-type")
+        name = "my-first-file.file"
+        path = Path(__file__)
+        privacy = Privacy.PRIVATE
+        sut = File(
+            path,
+            copyright_notice=copyright_notice,
+            description=description,
+            id=file_id,
+            license=license,
+            links=links,
+            media_type=media_type,
+            name=name,
+            privacy=privacy,
+        )
+        unpickled_sut = cast(File, pickle.loads(pickle.dumps(sut)))
+        assert isinstance(unpickled_sut.copyright_notice, type(copyright_notice))
+        assert unpickled_sut.description.localize(DEFAULT_LOCALIZER) == description
+        assert unpickled_sut.id == file_id
+        assert isinstance(unpickled_sut.license, type(license))
+        assert unpickled_sut.links[0].url == link_url
+        assert unpickled_sut.media_type == media_type
+        assert unpickled_sut.name == name
+        assert unpickled_sut.path == path
+        assert unpickled_sut.privacy == privacy

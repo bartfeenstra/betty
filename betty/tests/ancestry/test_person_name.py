@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Sequence, TYPE_CHECKING
+import pickle
+from typing import Sequence, TYPE_CHECKING, cast
 
 import pytest
 from typing_extensions import override
@@ -10,6 +11,7 @@ from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.source import Source
 from betty.locale import UNDETERMINED_LOCALE
+from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 
@@ -164,3 +166,24 @@ class TestPersonName(EntityTestBase):
         self, expected: DumpMapping[Dump], sut: PersonName
     ) -> None:
         assert await assert_dumps_linked_data(sut) == expected
+
+    def test_pickle(self) -> None:
+        affiliation = "Dough"
+        person_name_id = "my-first-person-name"
+        individual = "Jane"
+        locale = "nl-NL"
+        privacy = Privacy.PRIVATE
+        sut = PersonName(
+            affiliation=affiliation,
+            id=person_name_id,
+            individual=individual,
+            locale=locale,
+            person=Person(),
+            privacy=privacy,
+        )
+        unpickled_sut = cast(PersonName, pickle.loads(pickle.dumps(sut)))
+        assert unpickled_sut.affiliation == affiliation
+        assert unpickled_sut.id == person_name_id
+        assert unpickled_sut.individual == individual
+        assert unpickled_sut.locale == locale
+        assert unpickled_sut.privacy == privacy

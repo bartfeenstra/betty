@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-from typing import Sequence, Mapping, Any, TYPE_CHECKING
+import pickle
+from typing import Sequence, Mapping, Any, TYPE_CHECKING, cast
 
 from typing_extensions import override
 
 from betty.ancestry.note import Note
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 from betty.tests.ancestry.test_has_notes import DummyHasNotes
@@ -77,3 +79,17 @@ class TestNote(EntityTestBase):
         }
         actual = await assert_dumps_linked_data(note)
         assert actual == expected
+
+    def test_pickle(self) -> None:
+        note_id = "my-first-entity-id"
+        privacy = Privacy.PRIVATE
+        text = "My first note"
+        sut = Note(
+            id=note_id,
+            text=text,
+            privacy=privacy,
+        )
+        unpickled_sut = cast(Note, pickle.loads(pickle.dumps(sut)))
+        assert unpickled_sut.id == note_id
+        assert unpickled_sut.privacy == privacy
+        assert unpickled_sut.text.localize(DEFAULT_LOCALIZER) == text

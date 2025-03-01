@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Sequence, TYPE_CHECKING
+import pickle
+from typing import Sequence, TYPE_CHECKING, cast
 
 import pytest
 from typing_extensions import override
@@ -100,3 +101,21 @@ class TestPresence(EntityTestBase):
         }
         actual = await assert_dumps_linked_data(sut)
         assert actual == expected
+
+    def test_pickle(self) -> None:
+        person = Person()
+        role = Subject()
+        event = Event()
+        privacy = Privacy.PRIVATE
+        sut = Presence(
+            person,
+            role,
+            event,
+            privacy=privacy,
+        )
+        unpickled_sut = cast(Presence, pickle.loads(pickle.dumps(sut)))
+        assert unpickled_sut.id == sut.id
+        assert unpickled_sut.person.id == person.id
+        assert isinstance(unpickled_sut.role, type(role))
+        assert unpickled_sut.event.id == event.id
+        assert unpickled_sut.privacy == privacy

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Sequence, Mapping, Any, TYPE_CHECKING
+import pickle
+from typing import Sequence, Mapping, Any, TYPE_CHECKING, cast
 
 from typing_extensions import override
 
@@ -9,6 +10,7 @@ from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.source import Source
+from betty.date import Date
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
@@ -156,6 +158,24 @@ class TestCitation(EntityTestBase):
         }
         actual = await assert_dumps_linked_data(citation)
         assert actual == expected
+
+    def test_pickle(self) -> None:
+        date = Date(1970, 1, 1)
+        citation_id = "my-first-citation"
+        location = "My First Location"
+        privacy = Privacy.PRIVATE
+        sut = Citation(
+            date=date,
+            id=citation_id,
+            location=location,
+            privacy=privacy,
+            source=Source(),
+        )
+        unpickled_sut = cast(Citation, pickle.loads(pickle.dumps(sut)))
+        assert unpickled_sut.date == date
+        assert unpickled_sut.id == citation_id
+        assert unpickled_sut.location.localize(DEFAULT_LOCALIZER) == location
+        assert unpickled_sut.privacy == privacy
 
 
 class DummyHasCitations(HasCitations, DummyEntity):

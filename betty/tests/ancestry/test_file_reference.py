@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import pickle
 from pathlib import Path
-from typing import Sequence, TYPE_CHECKING
+from typing import Sequence, TYPE_CHECKING, cast
 
 from typing_extensions import override
 
@@ -43,3 +44,14 @@ class TestFileReference(EntityTestBase):
         referee = DummyHasFileReferences()
         sut = FileReference(referee, File(Path()))
         assert sut.referee is referee
+
+    def test_pickle(self) -> None:
+        focus = (1, 2, 3, 4)
+        sut = FileReference(
+            DummyHasFileReferences(),
+            File(Path(__file__)),
+            focus=focus,
+        )
+        unpickled_sut = cast(FileReference, pickle.loads(pickle.dumps(sut)))
+        assert unpickled_sut.focus == focus
+        assert unpickled_sut.id == sut.id

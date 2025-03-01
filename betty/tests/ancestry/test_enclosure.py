@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pickle
 from typing import Sequence, TYPE_CHECKING
 
 from typing_extensions import override
@@ -55,3 +56,7 @@ class TestEnclosure(EntityTestBase):
         assert sut.date is None
         sut.citations = [citation]
         assert list(sut.citations) == [citation]
+
+    def test_pickle(self) -> None:
+        sut = Enclosure(Place(), Place())
+        pickle.loads(pickle.dumps(sut))

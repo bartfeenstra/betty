@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Sequence, Mapping, Any, MutableMapping, TYPE_CHECKING
+import pickle
+from typing import Sequence, Mapping, Any, MutableMapping, TYPE_CHECKING, cast
 
 from typing_extensions import override
 
@@ -318,3 +319,27 @@ class TestSource(EntityTestBase):
         assert isinstance(actual, MutableMapping)
         actual.pop("links")
         assert actual == expected
+
+    def test_pickle(self) -> None:
+        source_id = "my-first-entity-id"
+        link_url = "https://betty.example.com"
+        links = [Link(link_url)]
+        privacy = Privacy.PRIVATE
+        author = "My First Author"
+        publisher = "My First Publisher"
+        date = Date(1970, 1, 1)
+        sut = Source(
+            author=author,
+            date=date,
+            id=source_id,
+            links=links,
+            privacy=privacy,
+            publisher=publisher,
+        )
+        unpickled_sut = cast(Source, pickle.loads(pickle.dumps(sut)))
+        assert unpickled_sut.author.localize(DEFAULT_LOCALIZER) == author
+        assert unpickled_sut.date == date
+        assert unpickled_sut.id == source_id
+        assert unpickled_sut.links[0].url == link_url
+        assert unpickled_sut.privacy == privacy
+        assert unpickled_sut.publisher.localize(DEFAULT_LOCALIZER) == publisher

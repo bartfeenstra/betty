@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Sequence, Mapping, Any, TYPE_CHECKING
+import pickle
+from typing import Sequence, Mapping, Any, TYPE_CHECKING, cast
 
 import pytest
 from typing_extensions import override
@@ -416,3 +417,21 @@ class TestPerson(EntityTestBase):
         }
         actual = await assert_dumps_linked_data(person)
         assert actual == expected
+
+    def test_pickle(self) -> None:
+        person_id = "my-first-entity-id"
+        link_url = "https://betty.example.com"
+        links = [Link(link_url)]
+        privacy = Privacy.PRIVATE
+        gender = NonBinary()
+        sut = Person(
+            gender=gender,
+            id=person_id,
+            links=links,
+            privacy=privacy,
+        )
+        unpickled_sut = cast(Person, pickle.loads(pickle.dumps(sut)))
+        assert isinstance(unpickled_sut.gender, type(gender))
+        assert unpickled_sut.id == person_id
+        assert unpickled_sut.links[0].url == link_url
+        assert unpickled_sut.privacy == privacy
