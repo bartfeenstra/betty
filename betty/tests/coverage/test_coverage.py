@@ -111,7 +111,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "acquire": MissingReason.ABSTRACT,
             "release": MissingReason.ABSTRACT,
         },
-        "Ledger": MissingReason.SHOULD_BE_COVERED,
         "RateLimiter": {
             "__aenter__": MissingReason.SHOULD_BE_COVERED,
             "__aexit__": MissingReason.SHOULD_BE_COVERED,
