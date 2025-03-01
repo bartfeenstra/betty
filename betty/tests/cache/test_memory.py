@@ -1,3 +1,4 @@
+import multiprocessing
 from collections.abc import Sequence, AsyncIterator, Iterator
 from contextlib import asynccontextmanager
 from typing import Any
@@ -16,7 +17,8 @@ class TestMemoryCache(CacheTestBase[Any]):
         *,
         scopes: Sequence[str] | None = None,
     ) -> AsyncIterator[MemoryCache[Any]]:
-        yield MemoryCache(scopes=scopes)
+        with multiprocessing.Manager() as manager:
+            yield MemoryCache(scopes=scopes, manager=manager)
 
     @override
     def _values(self) -> Iterator[Any]:

@@ -1,3 +1,4 @@
+from multiprocessing.managers import SyncManager
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
@@ -458,9 +459,11 @@ class TestSitemapGenerate:
 
 
 class TestGenerateSiteEvent:
-    async def test_job_context(self, new_temporary_app: App) -> None:
+    async def test_job_context(
+        self, multiprocessing_manager: SyncManager, new_temporary_app: App
+    ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            job_context = ProjectContext(project)
+            job_context = ProjectContext(project, manager=multiprocessing_manager)
             sut = GenerateSiteEvent(job_context)
             assert sut.project is project
             assert sut.job_context is job_context

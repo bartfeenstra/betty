@@ -1,4 +1,5 @@
 import asyncio
+from multiprocessing.managers import SyncManager
 from typing import AsyncIterator
 
 import aiofiles
@@ -15,10 +16,14 @@ from betty.fetch.http import HttpFetcher
 class TestHttpFetcher:
     @pytest.fixture
     async def sut(
-        self, binary_file_cache: BinaryFileCache
+        self, binary_file_cache: BinaryFileCache, multiprocessing_manager: SyncManager
     ) -> AsyncIterator[HttpFetcher]:
         async with ClientSession() as http_client:
-            yield HttpFetcher(http_client, MemoryCache(), binary_file_cache)
+            yield HttpFetcher(
+                http_client,
+                MemoryCache(manager=multiprocessing_manager),
+                binary_file_cache,
+            )
 
     async def test_fetch_should_return(
         self, aioresponses: aioresponses, sut: HttpFetcher
@@ -68,12 +73,13 @@ class TestHttpFetcher:
         aioresponses: aioresponses,
         binary_file_cache: BinaryFileCache,
         error: Exception,
+        multiprocessing_manager: SyncManager,
         sut: HttpFetcher,
     ) -> None:
         async with ClientSession() as http_client:
             sut = HttpFetcher(
                 http_client,
-                MemoryCache(),
+                MemoryCache(manager=multiprocessing_manager),
                 binary_file_cache,
                 # A negative TTL ensures every cache item is considered expired a long time ago.
                 -999999999,
@@ -145,12 +151,13 @@ class TestHttpFetcher:
         aioresponses: aioresponses,
         binary_file_cache: BinaryFileCache,
         error: Exception,
+        multiprocessing_manager: SyncManager,
         sut: HttpFetcher,
     ) -> None:
         async with ClientSession() as http_client:
             sut = HttpFetcher(
                 http_client,
-                MemoryCache(),
+                MemoryCache(manager=multiprocessing_manager),
                 binary_file_cache,
                 # A negative TTL ensures every cache item is considered expired a long time ago.
                 -999999999,

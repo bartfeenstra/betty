@@ -2,6 +2,7 @@ from abc import abstractmethod
 from collections.abc import Sequence, MutableMapping, AsyncIterator
 from contextlib import asynccontextmanager
 from datetime import datetime
+from multiprocessing.managers import SyncManager
 from typing import (
     Generic,
     Self,
@@ -13,7 +14,7 @@ from typing import (
 )
 
 from betty.cache import Cache, CacheItem, CacheItemValueSetter
-from betty.concurrent import AsynchronizedLock, Ledger
+from betty.concurrent import AsynchronizedLock, Ledger, ensure_manager
 from typing_extensions import override
 
 from betty.typing import threadsafe
@@ -64,14 +65,13 @@ class _StaticCacheItem(CacheItem[_CacheItemValueCoT], Generic[_CacheItemValueCoT
 @threadsafe
 class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueContraT]):
     def __init__(
-        self,
-        *,
-        scopes: Sequence[str] | None = None,
+        self, *, scopes: Sequence[str] | None = None, manager: SyncManager | None = None
     ):
+        self._manager = ensure_manager(manager)
         self._scopes = scopes or ()
         self._scoped_caches: MutableMapping[str, Self] = {}
         self._cache_lock = AsynchronizedLock.threading()
-        self._cache_item_lock_ledger = Ledger(self._cache_lock)
+        self._cache_item_lock_ledger = Ledger(self._cache_lock, manager=self._manager)
 
     @override
     def with_scope(self, scope: str) -> Self:

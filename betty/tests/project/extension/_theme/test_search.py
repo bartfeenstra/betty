@@ -1,3 +1,4 @@
+from multiprocessing.managers import SyncManager
 from pathlib import Path
 
 import pytest
@@ -17,7 +18,9 @@ from betty.project.extension.raspberry_mint import RaspberryMint
 
 
 class TestIndex:
-    async def test_build_empty(self, new_temporary_app: App) -> None:
+    async def test_build_empty(
+        self, multiprocessing_manager: SyncManager, new_temporary_app: App
+    ) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
@@ -31,13 +34,15 @@ class TestIndex:
                 actual = await Index(
                     project.ancestry,
                     await project.jinja2_environment,
-                    Context(),
+                    Context(manager=multiprocessing_manager),
                     DEFAULT_LOCALIZER,
                 ).build()
 
                 assert actual == []
 
-    async def test_build_person_without_names(self, new_temporary_app: App) -> None:
+    async def test_build_person_without_names(
+        self, multiprocessing_manager: SyncManager, new_temporary_app: App
+    ) -> None:
         person_id = "P1"
         person = Person(id=person_id)
 
@@ -55,13 +60,15 @@ class TestIndex:
                 actual = await Index(
                     project.ancestry,
                     await project.jinja2_environment,
-                    Context(),
+                    Context(manager=multiprocessing_manager),
                     DEFAULT_LOCALIZER,
                 ).build()
 
                 assert actual[0].text == {"p1"}
 
-    async def test_build_private_person(self, new_temporary_app: App) -> None:
+    async def test_build_private_person(
+        self, multiprocessing_manager: SyncManager, new_temporary_app: App
+    ) -> None:
         person_id = "P1"
         individual_name = "Jane"
         person = Person(
@@ -87,7 +94,7 @@ class TestIndex:
                 actual = await Index(
                     project.ancestry,
                     await project.jinja2_environment,
-                    Context(),
+                    Context(manager=multiprocessing_manager),
                     DEFAULT_LOCALIZER,
                 ).build()
 
@@ -101,7 +108,11 @@ class TestIndex:
         ],
     )
     async def test_build_person_with_individual_name(
-        self, expected: str, locale: str, new_temporary_app: App
+        self,
+        expected: str,
+        locale: str,
+        multiprocessing_manager: SyncManager,
+        new_temporary_app: App,
     ) -> None:
         person_id = "P1"
         individual_name = "Jane"
@@ -126,7 +137,7 @@ class TestIndex:
                 actual = await Index(
                     project.ancestry,
                     await project.jinja2_environment,
-                    Context(),
+                    Context(manager=multiprocessing_manager),
                     await localizers.get(locale),
                 ).build()
 
@@ -141,7 +152,11 @@ class TestIndex:
         ],
     )
     async def test_build_person_with_affiliation_name(
-        self, expected: str, locale: str, new_temporary_app: App
+        self,
+        expected: str,
+        locale: str,
+        multiprocessing_manager: SyncManager,
+        new_temporary_app: App,
     ) -> None:
         person_id = "P1"
         affiliation_name = "Doughnut"
@@ -166,7 +181,7 @@ class TestIndex:
                 actual = await Index(
                     project.ancestry,
                     await project.jinja2_environment,
-                    Context(),
+                    Context(manager=multiprocessing_manager),
                     await localizers.get(locale),
                 ).build()
 
@@ -181,7 +196,11 @@ class TestIndex:
         ],
     )
     async def test_build_person_with_individual_and_affiliation_names(
-        self, expected: str, locale: str, new_temporary_app: App
+        self,
+        expected: str,
+        locale: str,
+        multiprocessing_manager: SyncManager,
+        new_temporary_app: App,
     ) -> None:
         person_id = "P1"
         individual_name = "Jane"
@@ -208,7 +227,7 @@ class TestIndex:
                 actual = await Index(
                     project.ancestry,
                     await project.jinja2_environment,
-                    Context(),
+                    Context(manager=multiprocessing_manager),
                     await localizers.get(locale),
                 ).build()
 
@@ -223,7 +242,11 @@ class TestIndex:
         ],
     )
     async def test_build_place(
-        self, expected: str, locale: str, new_temporary_app: App
+        self,
+        expected: str,
+        locale: str,
+        multiprocessing_manager: SyncManager,
+        new_temporary_app: App,
     ) -> None:
         place_id = "P1"
         place = Place(
@@ -253,14 +276,16 @@ class TestIndex:
                 actual = await Index(
                     project.ancestry,
                     await project.jinja2_environment,
-                    Context(),
+                    Context(manager=multiprocessing_manager),
                     await localizers.get(locale),
                 ).build()
 
                 assert actual[0].text == {"p1", "netherlands", "nederland"}
                 assert expected in actual[0].result
 
-    async def test_build_private_place(self, new_temporary_app: App) -> None:
+    async def test_build_private_place(
+        self, multiprocessing_manager: SyncManager, new_temporary_app: App
+    ) -> None:
         place_id = "P1"
         place = Place(
             id=place_id,
@@ -278,7 +303,7 @@ class TestIndex:
                 actual = await Index(
                     project.ancestry,
                     await project.jinja2_environment,
-                    Context(),
+                    Context(manager=multiprocessing_manager),
                     DEFAULT_LOCALIZER,
                 ).build()
 
@@ -343,6 +368,7 @@ class TestIndex:
         expected_result: str,
         description: str | None,
         locale: str,
+        multiprocessing_manager: SyncManager,
         new_temporary_app: App,
     ) -> None:
         file_id = "F1"
@@ -367,14 +393,16 @@ class TestIndex:
                 actual = await Index(
                     project.ancestry,
                     await project.jinja2_environment,
-                    Context(),
+                    Context(manager=multiprocessing_manager),
                     await localizers.get(locale),
                 ).build()
 
                 assert actual[0].text == expected_text
                 assert expected_result in actual[0].result
 
-    async def test_build_private_file(self, new_temporary_app: App) -> None:
+    async def test_build_private_file(
+        self, multiprocessing_manager: SyncManager, new_temporary_app: App
+    ) -> None:
         file_id = "F1"
         file = File(
             id=file_id,
@@ -391,7 +419,7 @@ class TestIndex:
                 actual = await Index(
                     project.ancestry,
                     await project.jinja2_environment,
-                    Context(),
+                    Context(manager=multiprocessing_manager),
                     DEFAULT_LOCALIZER,
                 ).build()
 

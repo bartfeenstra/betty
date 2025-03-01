@@ -21,16 +21,19 @@ from betty.app import App
 from betty.cache.file import BinaryFileCache
 
 if TYPE_CHECKING:
+    from multiprocessing.managers import SyncManager
     from pathlib import Path
     from collections.abc import AsyncIterator
 
 
 @pytest.fixture
-async def binary_file_cache(tmp_path: Path) -> BinaryFileCache:
+async def binary_file_cache(
+    multiprocessing_manager: SyncManager, tmp_path: Path
+) -> BinaryFileCache:
     """
     Create a temporary binary file cache.
     """
-    return BinaryFileCache(tmp_path)
+    return BinaryFileCache(tmp_path, manager=multiprocessing_manager)
 
 
 @pytest.fixture

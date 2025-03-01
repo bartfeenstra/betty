@@ -31,6 +31,7 @@ from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 from betty.warnings import BettyDeprecationWarning
 
 if TYPE_CHECKING:
+    from multiprocessing.managers import SyncManager
     from collections.abc import Sequence, MutableMapping
 
 
@@ -86,13 +87,17 @@ class TestFilterFile(TemplateStringTestBase):
 
     @pytest.mark.parametrize(_PARAMETER_ARGNAMES, _PARAMETER_ARGVALUES)
     async def test_with_job_context(
-        self, expected: str, template: str, file: File
+        self,
+        expected: str,
+        template: str,
+        file: File,
+        multiprocessing_manager: SyncManager,
     ) -> None:
         async with self.assert_template_string(
             template=template,
             data={
                 "file": file,
-                "job_context": Context(),
+                "job_context": Context(manager=multiprocessing_manager),
             },
         ) as (actual, project):
             assert actual == expected
@@ -299,13 +304,17 @@ class TestFilterImageResizeCover(TemplateStringTestBase):
 
     @pytest.mark.parametrize(_PARAMETER_ARGNAMES, _PARAMETER_ARGVALUES)
     async def test_with_job_context(
-        self, expected: str, template: str, filey: File
+        self,
+        expected: str,
+        template: str,
+        filey: File,
+        multiprocessing_manager: SyncManager,
     ) -> None:
         async with self.assert_template_string(
             template=template,
             data={
                 "filey": filey,
-                "job_context": Context(),
+                "job_context": Context(manager=multiprocessing_manager),
             },
         ) as (actual, project):
             assert actual == expected

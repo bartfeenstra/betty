@@ -36,7 +36,7 @@ async def load(project: Project) -> None:
     """
     Load an ancestry.
     """
-    job_context = ProjectContext(project)
+    job_context = ProjectContext(project, manager=project.app.multiprocessing_manager)
     await project.event_dispatcher.dispatch(LoadAncestryEvent(job_context))
     await project.event_dispatcher.dispatch(PostLoadAncestryEvent(job_context))
     await _fetch_link_titles(project)

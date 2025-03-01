@@ -41,6 +41,7 @@ from betty.test_utils.project.extension import (
 from betty.warnings import BettyDeprecationWarning
 
 if TYPE_CHECKING:
+    from multiprocessing.managers import SyncManager
     from betty.project.extension import Extension
     from betty.plugin import PluginIdentifier
     from betty.json.schema import Schema
@@ -524,21 +525,27 @@ class TestProject:
 
 
 class TestProjectContext:
-    async def test_project(self, new_temporary_app: App) -> None:
+    async def test_project(
+        self, multiprocessing_manager: SyncManager, new_temporary_app: App
+    ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = ProjectContext(project)
+            sut = ProjectContext(project, manager=multiprocessing_manager)
             assert sut.project is project
 
 
 class TestProjectEvent:
-    async def test_project(self, new_temporary_app: App) -> None:
+    async def test_project(
+        self, multiprocessing_manager: SyncManager, new_temporary_app: App
+    ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = ProjectEvent(ProjectContext(project))
+            sut = ProjectEvent(ProjectContext(project, manager=multiprocessing_manager))
             assert sut.project is project
 
-    async def test_job_context(self, new_temporary_app: App) -> None:
+    async def test_job_context(
+        self, multiprocessing_manager: SyncManager, new_temporary_app: App
+    ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            job_context = ProjectContext(project)
+            job_context = ProjectContext(project, manager=multiprocessing_manager)
             sut = ProjectEvent(job_context)
             assert sut.job_context is job_context
 

@@ -32,6 +32,7 @@ from betty.hashid import hashid
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
+    from multiprocessing.managers import SyncManager
     from pathlib import Path
     from collections.abc import Sequence
 
@@ -97,13 +98,16 @@ class _FileCache(
         cache_directory_path: Path,
         *,
         scopes: Sequence[str] | None = None,
+        manager: SyncManager | None = None,
     ):
-        super().__init__(scopes=scopes)
+        super().__init__(scopes=scopes, manager=manager)
         self._root_path = cache_directory_path
 
     @override
     def _with_scope(self, scope: str) -> Self:
-        return type(self)(self._root_path, scopes=(*self._scopes, scope))
+        return type(self)(
+            self._root_path, scopes=(*self._scopes, scope), manager=self._manager
+        )
 
     def _cache_item_file_path(
         self, cache_item_id: str, suffix: str | None = None

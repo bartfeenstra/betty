@@ -21,6 +21,7 @@ from betty.test_utils.model import DummyEntity
 from betty.test_utils.plugin import PluginTestBase
 
 if TYPE_CHECKING:
+    from multiprocessing.managers import SyncManager
     from pathlib import Path
     from betty.app import App
 
@@ -61,7 +62,10 @@ class TestJinja2Renderer(PluginTestBase[Jinja2Renderer]):
             assert not template_file_path.exists()
 
     async def test_render_file_with_job_context(
-        self, new_temporary_app: App, tmp_path: Path
+        self,
+        multiprocessing_manager: SyncManager,
+        new_temporary_app: App,
+        tmp_path: Path,
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = await Jinja2Renderer.new_for_project(project)
@@ -69,7 +73,7 @@ class TestJinja2Renderer(PluginTestBase[Jinja2Renderer]):
             template_file_path = tmp_path / "betty.html.j2"
             async with aiofiles.open(template_file_path, "w") as f:
                 await f.write(template)
-            job_context = Context()
+            job_context = Context(manager=multiprocessing_manager)
             await sut.render_file(template_file_path, job_context=job_context)
             async with aiofiles.open(tmp_path / "betty.html") as f:
                 assert (await f.read()).strip() == str(job_context.start)
