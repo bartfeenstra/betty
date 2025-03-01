@@ -37,6 +37,7 @@ from betty.locale.error import LocaleError
 from betty.locale.localizable import plain
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
+from betty.typing import threadsafe
 
 if TYPE_CHECKING:
     from betty.wikipedia.copyright_notice import WikipediaContributors
@@ -244,6 +245,7 @@ class _Retriever:
                 ) from error
 
 
+@threadsafe
 class _Populator:
     def __init__(
         self,

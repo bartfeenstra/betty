@@ -36,6 +36,8 @@ from betty.date import (
 )
 from polib import pofile
 
+from betty.typing import threadsafe
+
 if TYPE_CHECKING:
     from collections.abc import MutableMapping
     from betty.assets import AssetRepository
@@ -278,6 +280,7 @@ DEFAULT_LOCALIZER = Localizer(DEFAULT_LOCALE, gettext.NullTranslations())
 
 
 @final
+@threadsafe
 class LocalizerRepository:
     """
     Exposes the available localizers.
