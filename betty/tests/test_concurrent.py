@@ -149,6 +149,35 @@ class TestRateLimiter:
         duration = end - start
         assert expected == round(duration)
 
+    async def test_is_available(self) -> None:
+        sut = RateLimiter(1, 1)
+
+        await sut.wait()
+        assert not await sut.is_available()
+        await sleep(2)
+        assert await sut.is_available()
+
+    @classmethod
+    def _test_wait_concurrently_target(cls, sut: RateLimiter):
+        asyncio.run(sut.wait())
+
+    async def test_wait_concurrently(self) -> None:
+        sut = RateLimiter(1, 1)
+
+        process = multiprocessing.Process(
+            target=self._test_wait_concurrently_target, args=(sut,)
+        )
+        process.start()
+
+        await sleep(0.5)
+        assert not await sut.is_available()
+        await sleep(2)
+        assert await sut.is_available()
+
+    def test_pickle(self) -> None:
+        sut = RateLimiter(1)
+        pickle.loads(pickle.dumps(sut))
+
 
 class TestLedger:
     async def test_ledger_with_wait_with_unlocked(self) -> None:

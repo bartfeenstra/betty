@@ -9,13 +9,14 @@ import time
 from abc import ABC, abstractmethod
 from asyncio import sleep
 from collections.abc import Hashable, Callable, Iterator
+from ctypes import c_longdouble
 from math import floor
 from types import TracebackType
 from typing import final, MutableMapping, Generic, TypeVar, Self
 
 from typing_extensions import override
 
-from betty.typing import threadsafe, processsafe
+from betty.typing import processsafe
 
 _KeyT = TypeVar("_KeyT")
 _ValueT = TypeVar("_ValueT")
@@ -69,7 +70,7 @@ async def asynchronize_acquire(lock: threading.Lock, *, wait: bool = True) -> bo
 @final
 class AsynchronizedLock(Lock):
     """
-    Make a sychronous (blocking) lock asynchronous (non-blocking).
+    Make a synchronous (blocking) lock asynchronous (non-blocking).
     """
 
     __slots__ = "_lock"
@@ -108,7 +109,7 @@ class AsynchronizedLock(Lock):
 
 
 @final
-@threadsafe
+@processsafe
 class RateLimiter:
     """
     Rate-limit operations.
@@ -116,27 +117,28 @@ class RateLimiter:
     This class implements the `Token Bucket algorithm <https://en.wikipedia.org/wiki/Token_bucket>`_.
     """
 
-    _PERIOD = 1
-
-    def __init__(self, maximum: int):
-        self._lock = AsynchronizedLock.threading()
+    def __init__(self, maximum: int, period: int = 1):
+        self._lock = AsynchronizedLock.multiprocessing()
         self._maximum = maximum
-        self._available: int | float = maximum
+        self._period = period
+        self._available = multiprocessing.Manager().Value(c_longdouble, maximum)
         # A Token Bucket fills as time passes. However, we want callers to be able to start
         # using the limiter immediately, so we 'preload' the first's period's tokens, and
         # set the last added time to the end of the first period. This ensures there is no
         # needless waiting if the number of tokens consumed in total is less than the limit
         # per period.
-        self._last_add = time.monotonic() + self._PERIOD
+        self._last_add = multiprocessing.Manager().Value(
+            c_longdouble, time.monotonic() + self._period
+        )
 
     def _add_tokens(self):
         now = time.monotonic()
-        elapsed = now - self._last_add
+        elapsed = now - self._last_add.value
         added = elapsed * self._maximum
-        possibly_available = floor(self._available + added)
+        possibly_available = floor(self._available.value + added)
         if possibly_available > 0:
-            self._available = min(possibly_available, self._maximum)
-            self._last_add = now
+            self._available.value = min(possibly_available, self._maximum)
+            self._last_add.value = now
 
     async def __aenter__(self) -> None:
         await self.wait()
@@ -149,16 +151,24 @@ class RateLimiter:
     ) -> None:
         return
 
+    async def is_available(self) -> bool:
+        """
+        Whether an operation may be performed (again).
+        """
+        async with self._lock:
+            self._add_tokens()
+            return self._available.value != 0
+
     async def wait(self) -> None:
         """
         Wait until an operation may be performed (again).
         """
         async with self._lock:
-            while self._available < 1:
+            while self._available.value < 1:
                 self._add_tokens()
-                if self._available < 1:
+                if self._available.value < 1:
                     await asyncio.sleep(0)
-            self._available -= 1
+            self._available.value -= 1
 
 
 class _Transaction(Lock):
@@ -252,6 +262,3 @@ class DefaultDict(Generic[_KeyT, _ValueT], MutableMapping[_KeyT, _ValueT]):
 
     def __setitem__(self, key: _KeyT, value: _ValueT) -> None:
         self._dict[key] = value
-
-    def __repr__(self) -> str:
-        return f"<{type(self).__name__}: {repr(dict(self._dict))}>"
