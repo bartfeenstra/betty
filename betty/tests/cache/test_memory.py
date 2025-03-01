@@ -6,10 +6,10 @@ from typing import Any
 from typing_extensions import override
 
 from betty.cache.memory import MemoryCache
-from betty.test_utils.cache import CacheTestBase
+from betty.test_utils.cache import ProcesssafeCacheTestBase
 
 
-class TestMemoryCache(CacheTestBase[Any]):
+class TestMemoryCache(ProcesssafeCacheTestBase[Any]):
     @override
     @asynccontextmanager
     async def _new_sut(

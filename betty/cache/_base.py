@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from collections.abc import Sequence, MutableMapping, AsyncIterator
+from collections.abc import Sequence, AsyncIterator
 from contextlib import asynccontextmanager
 from datetime import datetime
 from multiprocessing.managers import SyncManager
@@ -11,14 +11,17 @@ from typing import (
     Literal,
     TypeVar,
     Protocol,
+    Any,
 )
 
-from betty.cache import Cache, CacheItem, CacheItemValueSetter
-from betty.concurrent import AsynchronizedLock, Ledger, ensure_manager
 from typing_extensions import override
 
-from betty.typing import threadsafe
+from betty.cache import Cache, CacheItem, CacheItemValueSetter
+from betty.concurrent import AsynchronizedLock, Ledger
+from betty.concurrent import ensure_manager
+from betty.typing import processsafe
 
+_CacheT = TypeVar("_CacheT", bound=Cache[Any])
 _CacheItemValueCoT = TypeVar("_CacheItemValueCoT", covariant=True)
 _CacheItemValueContraT = TypeVar("_CacheItemValueContraT", contravariant=True)
 
@@ -62,28 +65,32 @@ class _StaticCacheItem(CacheItem[_CacheItemValueCoT], Generic[_CacheItemValueCoT
         return self._modified
 
 
-@threadsafe
+class _CommonCacheBaseState(Generic[_CacheT]):
+    def __init__(
+        self,
+        cache_lock: AsynchronizedLock,
+        cache_item_lock_ledger: Ledger,
+    ):
+        self.cache_lock = cache_lock
+        self.cache_item_lock_ledger = cache_item_lock_ledger
+
+
+@processsafe
 class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueContraT]):
     def __init__(
-        self, *, scopes: Sequence[str] | None = None, manager: SyncManager | None = None
+        self,
+        *,
+        scopes: Sequence[str] | None = None,
+        manager: SyncManager | _CommonCacheBaseState[Self] | None = None,
     ):
-        self._manager = ensure_manager(manager)
         self._scopes = scopes or ()
-        self._scoped_caches: MutableMapping[str, Self] = {}
-        self._cache_lock = AsynchronizedLock.threading()
-        self._cache_item_lock_ledger = Ledger(self._cache_lock, manager=self._manager)
-
-    @override
-    def with_scope(self, scope: str) -> Self:
-        try:
-            return self._scoped_caches[scope]
-        except KeyError:
-            self._scoped_caches[scope] = self._with_scope(scope)
-            return self._scoped_caches[scope]
-
-    @abstractmethod
-    def _with_scope(self, scope: str) -> Self:
-        pass
+        if isinstance(manager, _CommonCacheBaseState):
+            self._cache_lock = manager.cache_lock
+            self._cache_item_lock_ledger = manager.cache_item_lock_ledger
+        else:
+            manager = ensure_manager(manager)
+            self._cache_lock = AsynchronizedLock(manager.Lock())
+            self._cache_item_lock_ledger = Ledger(self._cache_lock, manager=manager)
 
     @override
     @asynccontextmanager

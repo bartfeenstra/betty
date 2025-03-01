@@ -27,15 +27,14 @@ from aiofiles.ospath import getmtime
 from typing_extensions import override
 
 from betty.cache import CacheItem, CacheItemValueSetter
-from betty.cache._base import _CommonCacheBase
+from betty.cache._base import _CommonCacheBase, _CommonCacheBaseState
 from betty.hashid import hashid
-from betty.typing import threadsafe
+from betty.typing import processsafe
 
 if TYPE_CHECKING:
     from multiprocessing.managers import SyncManager
     from pathlib import Path
     from collections.abc import Sequence
-
 
 _CacheItemValueCoT = TypeVar("_CacheItemValueCoT", covariant=True)
 _CacheItemValueContraT = TypeVar("_CacheItemValueContraT", contravariant=True)
@@ -98,15 +97,19 @@ class _FileCache(
         cache_directory_path: Path,
         *,
         scopes: Sequence[str] | None = None,
-        manager: SyncManager | None = None,
+        manager: SyncManager | _CommonCacheBaseState[Self] | None = None,
     ):
         super().__init__(scopes=scopes, manager=manager)
         self._root_path = cache_directory_path
 
     @override
-    def _with_scope(self, scope: str) -> Self:
+    def with_scope(self, scope: str) -> Self:
         return type(self)(
-            self._root_path, scopes=(*self._scopes, scope), manager=self._manager
+            self._root_path,
+            scopes=(*self._scopes, scope),
+            manager=_CommonCacheBaseState(
+                self._cache_lock, self._cache_item_lock_ledger
+            ),
         )
 
     def _cache_item_file_path(
@@ -223,7 +226,7 @@ class _FileCache(
 
 
 @final
-@threadsafe
+@processsafe
 class PickledFileCache(
     _FileCache[_CacheItemValueContraT], Generic[_CacheItemValueContraT]
 ):
@@ -239,7 +242,7 @@ class PickledFileCache(
 
 
 @final
-@threadsafe
+@processsafe
 class BinaryFileCache(_FileCache[bytes]):
     """
     Provide a cache that persists bytes values to binary files.
