@@ -1,5 +1,5 @@
 """
-Provide tools to build core application components.
+An API for providing application-wide services.
 """
 
 from abc import ABC, abstractmethod
@@ -125,7 +125,7 @@ class ServiceProvider(Bootstrapped, Shutdownable):
     A service provider.
 
     Service providers make up a running Betty 'application'. They can provide services through
-    :py:func:`betty.core.service`, and manage their resources by being bootstrapped and shut down.
+    :py:func:`betty.service.service`, and manage their resources by being bootstrapped and shut down.
     """
 
     def __init__(self, *args: Any, **kwargs: Any):
@@ -309,7 +309,7 @@ def service(
     factory: Callable[[_ServiceProviderT], _ServiceT],
 ) -> _Service[_ServiceProviderT, _ServiceT, Any]:
     """
-    Decorate a :py:class:`betty.core.ServiceProvider`'s method to be a service property.
+    Decorate a service factory method.
 
     The decorated function should return a new service instance. The decorator will handle caching and concurrency.
     """
