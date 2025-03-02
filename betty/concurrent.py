@@ -8,12 +8,12 @@ import threading
 import time
 from abc import ABC, abstractmethod
 from asyncio import sleep
-from collections.abc import Hashable, Callable, Iterator
+from collections.abc import Hashable
 from ctypes import c_longdouble
 from math import floor
 from multiprocessing.managers import SyncManager
 from types import TracebackType
-from typing import final, MutableMapping, Generic, TypeVar, Self
+from typing import final, MutableMapping, TypeVar, Self
 
 from typing_extensions import override
 
@@ -193,7 +193,11 @@ class _Transaction(Lock):
                 return False
 
     def _can_acquire(self) -> bool:
-        return not self._ledger[self._transaction_id]
+        try:
+            return not self._ledger[self._transaction_id]
+        except KeyError:
+            self._ledger[self._transaction_id] = False
+            return True
 
     def _acquire(self) -> bool:
         self._ledger[self._transaction_id] = True
@@ -202,10 +206,6 @@ class _Transaction(Lock):
     @override
     async def release(self) -> None:
         self._ledger[self._transaction_id] = False
-
-
-def _ledger_default() -> bool:
-    return False
 
 
 @processsafe
@@ -219,48 +219,13 @@ class Ledger:
     def __init__(self, ledger_lock: Lock, *, manager: SyncManager | None = None):
         manager = ensure_manager(manager)
         self._ledger_lock = ledger_lock
-        self._ledger: MutableMapping[Hashable, bool] = DefaultDict(
-            _ledger_default, manager=manager
-        )
+        self._ledger: MutableMapping[Hashable, bool] = manager.dict()
 
     def ledger(self, transaction_id: Hashable) -> Lock:
         """
         Ledger a new lock for the given transaction ID.
         """
         return _Transaction(transaction_id, self._ledger_lock, self._ledger)
-
-
-@processsafe
-class DefaultDict(Generic[_KeyT, _ValueT], MutableMapping[_KeyT, _ValueT]):
-    """
-    A multiprocessing-safe dictionary that creates default values for missing keys.
-    """
-
-    def __init__(self, default_factory: Callable[[], _ValueT], *, manager: SyncManager):
-        self._default_factory = default_factory
-        self._lock = manager.Lock()
-        self._dict: MutableMapping[_KeyT, _ValueT] = manager.dict()
-
-    def __delitem__(self, key: _KeyT) -> None:
-        del self._dict[key]
-
-    def __getitem__(self, key: _KeyT) -> _ValueT:
-        with self._lock:
-            try:
-                return self._dict[key]
-            except KeyError:
-                value = self._default_factory()
-                self._dict[key] = value
-                return value
-
-    def __iter__(self) -> Iterator[_KeyT]:
-        return iter(self._dict)
-
-    def __len__(self) -> int:
-        return len(self._dict)
-
-    def __setitem__(self, key: _KeyT, value: _ValueT) -> None:
-        self._dict[key] = value
 
 
 def ensure_manager(manager: SyncManager | None, *, stacklevel: int = 1) -> SyncManager:
