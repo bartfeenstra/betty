@@ -20,7 +20,7 @@ class TestNew:
         return (await assert_configuration_file(configuration))(configuration_file_path)
 
     async def test_click_command_minimal(
-        self, new_temporary_app: App, tmp_path: Path
+        self, new_temporary_app_cli: App, tmp_path: Path
     ) -> None:
         title = "My First Project"
         author = "My First Author"
@@ -34,14 +34,14 @@ class TestNew:
             author,
             url,
         ]
-        configuration = await self._assert_new(new_temporary_app, tmp_path, inputs)
+        configuration = await self._assert_new(new_temporary_app_cli, tmp_path, inputs)
         assert configuration.title.localize(DEFAULT_LOCALIZER) == title
         assert configuration.name == "my-first-project"
         assert configuration.author.localize(DEFAULT_LOCALIZER) == author
         assert configuration.url == url
 
     async def test_click_command_with_single_locale(
-        self, new_temporary_app: App, tmp_path: Path
+        self, new_temporary_app_cli: App, tmp_path: Path
     ) -> None:
         locale = "nl-NL"
         inputs = [
@@ -53,14 +53,14 @@ class TestNew:
             "Mijn Eerste Auteur",
             "",
         ]
-        configuration = await self._assert_new(new_temporary_app, tmp_path, inputs)
+        configuration = await self._assert_new(new_temporary_app_cli, tmp_path, inputs)
         assert configuration.name == "mijn-eerste-project"
         locale_configurations = configuration.locales
         assert len(locale_configurations) == 1
         locale_configurations[locale]
 
     async def test_click_command_with_multiple_locales(
-        self, new_temporary_app: App, tmp_path: Path
+        self, new_temporary_app_cli: App, tmp_path: Path
     ) -> None:
         default_locale = "nl-NL"
         other_locale = "en-US"
@@ -78,7 +78,7 @@ class TestNew:
             "",
             "",
         ]
-        configuration = await self._assert_new(new_temporary_app, tmp_path, inputs)
+        configuration = await self._assert_new(new_temporary_app_cli, tmp_path, inputs)
         assert configuration.name == "mijn-eerste-project"
         locale_configurations = configuration.locales
         assert len(locale_configurations) == 2
@@ -86,7 +86,7 @@ class TestNew:
         locale_configurations[other_locale]
 
     async def test_click_command_with_name(
-        self, new_temporary_app: App, tmp_path: Path
+        self, new_temporary_app_cli: App, tmp_path: Path
     ) -> None:
         name = "project-first-my"
         inputs = [
@@ -99,11 +99,11 @@ class TestNew:
             "",
             "",
         ]
-        configuration = await self._assert_new(new_temporary_app, tmp_path, inputs)
+        configuration = await self._assert_new(new_temporary_app_cli, tmp_path, inputs)
         assert configuration.name == name
 
     async def test_click_command_with_gramps(
-        self, new_temporary_app: App, tmp_path: Path
+        self, new_temporary_app_cli: App, tmp_path: Path
     ) -> None:
         gramps_family_tree_file_path = tmp_path / "gramps"
         inputs = [
@@ -117,9 +117,9 @@ class TestNew:
             "y",
             str(gramps_family_tree_file_path),
         ]
-        configuration = await self._assert_new(new_temporary_app, tmp_path, inputs)
+        configuration = await self._assert_new(new_temporary_app_cli, tmp_path, inputs)
         assert Gramps in configuration.extensions
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(new_temporary_app_cli) as project, project:
             gramps = await configuration.extensions[Gramps].new_plugin_instance(
                 project.extension_repository
             )

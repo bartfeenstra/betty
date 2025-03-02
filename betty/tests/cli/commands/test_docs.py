@@ -7,9 +7,9 @@ from betty.test_utils.serve import NoOpServer
 
 class TestDocs:
     async def test_click_command(
-        self, mocker: MockerFixture, new_temporary_app: App
+        self, mocker: MockerFixture, new_temporary_app_cli: App
     ) -> None:
         mocker.patch("asyncio.sleep", side_effect=KeyboardInterrupt)
         mocker.patch("betty.documentation.DocumentationServer", new=NoOpServer)
 
-        await run(new_temporary_app, "docs", expected_exit_code=1)
+        await run(new_temporary_app_cli, "docs", expected_exit_code=1)

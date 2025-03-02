@@ -1,4 +1,3 @@
-from multiprocessing.managers import SyncManager
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
@@ -34,12 +33,8 @@ class ThirdPartyEntity(UserFacingEntity, DummyEntity):
 
 
 class TestGenerate:
-    async def test_html_lang(self) -> None:
-        async with (
-            App.new_temporary() as app,
-            app,
-            Project.new_temporary(app) as project,
-        ):
+    async def test_html_lang(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
                 LocaleConfiguration(
@@ -55,12 +50,8 @@ class TestGenerate:
                     html = await f.read()
                     assert '<html lang="nl-NL"' in html
 
-    async def test_root_redirect(self) -> None:
-        async with (
-            App.new_temporary() as app,
-            app,
-            Project.new_temporary(app) as project,
-        ):
+    async def test_root_redirect(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.locales.replace(
                 LocaleConfiguration(
                     "nl-NL",
@@ -81,12 +72,8 @@ class TestGenerate:
                     )
                     assert meta_redirect in await f.read()
 
-    async def test_links(self) -> None:
-        async with (
-            App.new_temporary() as app,
-            app,
-            Project.new_temporary(app) as project,
-        ):
+    async def test_links(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.locales.replace(
                 LocaleConfiguration(
                     "nl-NL",
@@ -124,12 +111,8 @@ class TestGenerate:
                         in html
                     )
 
-    async def test_links_for_entity_pages(self) -> None:
-        async with (
-            App.new_temporary() as app,
-            app,
-            Project.new_temporary(app) as project,
-        ):
+    async def test_links_for_entity_pages(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.locales.replace(
                 LocaleConfiguration(
                     "nl-NL",
@@ -181,18 +164,16 @@ class TestGenerate:
                     in html
                 )
 
-    async def test_third_party_entities(self, mocker: MockerFixture) -> None:
+    async def test_third_party_entities(
+        self, mocker: MockerFixture, new_temporary_app: App
+    ) -> None:
         mocker.patch(
             "betty.model.ENTITY_TYPE_REPOSITORY",
             new=ProxyPluginRepository[Entity](
                 StaticPluginRepository(ThirdPartyEntity), ENTITY_TYPE_REPOSITORY
             ),
         )
-        async with (
-            App.new_temporary() as app,
-            app,
-            Project.new_temporary(app) as project,
-        ):
+        async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.entity_types.append(
                 EntityTypeConfiguration(ThirdPartyEntity, generate_html_list=True)
             )
@@ -208,18 +189,16 @@ class TestGenerate:
                     f"{kebab_case_to_lower_camel_case(ThirdPartyEntity.plugin_id())}EntityCollectionResponse",
                 )
 
-    async def test_third_party_entity(self, mocker: MockerFixture) -> None:
+    async def test_third_party_entity(
+        self, mocker: MockerFixture, new_temporary_app: App
+    ) -> None:
         mocker.patch(
             "betty.model.ENTITY_TYPE_REPOSITORY",
             new=ProxyPluginRepository[Entity](
                 StaticPluginRepository(ThirdPartyEntity), ENTITY_TYPE_REPOSITORY
             ),
         )
-        async with (
-            App.new_temporary() as app,
-            app,
-            Project.new_temporary(app) as project,
-        ):
+        async with Project.new_temporary(new_temporary_app) as project:
             entity = ThirdPartyEntity(
                 id="ENTITY1",
             )
@@ -236,12 +215,8 @@ class TestGenerate:
                     f"{kebab_case_to_lower_camel_case(ThirdPartyEntity.plugin_id())}Entity",
                 )
 
-    async def test_files(self) -> None:
-        async with (
-            App.new_temporary() as app,
-            app,
-            Project.new_temporary(app) as project,
-        ):
+    async def test_files(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.entity_types.append(
                 EntityTypeConfiguration(File, generate_html_list=True)
             )
@@ -252,12 +227,8 @@ class TestGenerate:
                     project, "/file/index.json", "fileEntityCollectionResponse"
                 )
 
-    async def test_file(self) -> None:
-        async with (
-            App.new_temporary() as app,
-            app,
-            Project.new_temporary(app) as project,
-        ):
+    async def test_file(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project:
             with NamedTemporaryFile() as f:
                 file = File(
                     id="FILE1",
@@ -271,24 +242,17 @@ class TestGenerate:
                         project, f"/file/{file.id}/index.json", "fileEntity"
                     )
 
-    async def test_places(self) -> None:
-        async with (
-            App.new_temporary() as app,
-            app,
-            Project.new_temporary(app) as project,
-            project,
-        ):
+    async def test_places(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
             await generate(project)
             await assert_betty_html(project, "/place/index.html")
             await assert_betty_json(
                 project, "/place/index.json", "placeEntityCollectionResponse"
             )
 
-    async def test_place(self) -> None:
+    async def test_place(self, new_temporary_app: App) -> None:
         async with (
-            App.new_temporary() as app,
-            app,
-            Project.new_temporary(app) as project,
+            Project.new_temporary(new_temporary_app) as project,
         ):
             place = Place(
                 id="PLACE1",
@@ -302,26 +266,17 @@ class TestGenerate:
                     project, f"/place/{place.id}/index.json", "placeEntity"
                 )
 
-    async def test_people(self) -> None:
-        async with (
-            App.new_temporary() as app,
-            app,
-            Project.new_temporary(app) as project,
-            project,
-        ):
+    async def test_people(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
             await generate(project)
             await assert_betty_html(project, "/person/index.html")
             await assert_betty_json(
                 project, "/person/index.json", "personEntityCollectionResponse"
             )
 
-    async def test_person(self) -> None:
+    async def test_person(self, new_temporary_app: App) -> None:
         person = Person(id="PERSON1")
-        async with (
-            App.new_temporary() as app,
-            app,
-            Project.new_temporary(app) as project,
-        ):
+        async with Project.new_temporary(new_temporary_app) as project:
             project.ancestry.add(person)
             async with project:
                 await generate(project)
@@ -330,25 +285,16 @@ class TestGenerate:
                     project, f"/person/{person.id}/index.json", "personEntity"
                 )
 
-    async def test_events(self) -> None:
-        async with (
-            App.new_temporary() as app,
-            app,
-            Project.new_temporary(app) as project,
-            project,
-        ):
+    async def test_events(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
             await generate(project)
             await assert_betty_html(project, "/event/index.html")
             await assert_betty_json(
                 project, "/event/index.json", "eventEntityCollectionResponse"
             )
 
-    async def test_event(self) -> None:
-        async with (
-            App.new_temporary() as app,
-            app,
-            Project.new_temporary(app) as project,
-        ):
+    async def test_event(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project:
             event = Event(
                 id="EVENT1",
                 event_type=Birth(),
@@ -361,12 +307,8 @@ class TestGenerate:
                     project, f"/event/{event.id}/index.json", "eventEntity"
                 )
 
-    async def test_citation(self) -> None:
-        async with (
-            App.new_temporary() as app,
-            app,
-            Project.new_temporary(app) as project,
-        ):
+    async def test_citation(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project:
             source = Source("A Little Birdie")
             citation = Citation(
                 id="CITATION1",
@@ -380,25 +322,16 @@ class TestGenerate:
                     project, f"/citation/{citation.id}/index.json", "citationEntity"
                 )
 
-    async def test_sources(self) -> None:
-        async with (
-            App.new_temporary() as app,
-            app,
-            Project.new_temporary(app) as project,
-            project,
-        ):
+    async def test_sources(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
             await generate(project)
             await assert_betty_html(project, "/source/index.html")
             await assert_betty_json(
                 project, "/source/index.json", "sourceEntityCollectionResponse"
             )
 
-    async def test_source(self) -> None:
-        async with (
-            App.new_temporary() as app,
-            app,
-            Project.new_temporary(app) as project,
-        ):
+    async def test_source(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project:
             source = Source(
                 id="SOURCE1",
                 name="A Little Birdie",
@@ -413,12 +346,8 @@ class TestGenerate:
 
 
 class TestResourceOverride:
-    async def test(self) -> None:
-        async with (
-            App.new_temporary() as app,
-            app,
-            Project.new_temporary(app) as project,
-        ):
+    async def test(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project:
             localized_assets_directory_path = (
                 Path(project.configuration.assets_directory_path)
                 / "public"
@@ -438,15 +367,10 @@ class TestResourceOverride:
 
 
 class TestSitemapGenerate:
-    async def test_validate(self) -> None:
+    async def test_validate(self, new_temporary_app: App) -> None:
         from lxml import etree
 
-        async with (
-            App.new_temporary() as app,
-            app,
-            Project.new_temporary(app) as project,
-            project,
-        ):
+        async with Project.new_temporary(new_temporary_app) as project, project:
             await generate(project)
             schema_doc = etree.parse(
                 Path(__file__).parent / "test___init___assets" / "sitemap.xsd"
@@ -459,11 +383,11 @@ class TestSitemapGenerate:
 
 
 class TestGenerateSiteEvent:
-    async def test_job_context(
-        self, multiprocessing_manager: SyncManager, new_temporary_app: App
-    ) -> None:
+    async def test_job_context(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            job_context = ProjectContext(project, manager=multiprocessing_manager)
+            job_context = ProjectContext(
+                project, manager=new_temporary_app.multiprocessing_manager
+            )
             sut = GenerateSiteEvent(job_context)
             assert sut.project is project
             assert sut.job_context is job_context

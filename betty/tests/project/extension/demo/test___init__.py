@@ -8,7 +8,6 @@ from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
-from betty.app import App
 from betty.project import Project
 from betty.project.extension.demo import Demo, generate_with_cleanup
 from betty.project.load import load
@@ -17,6 +16,8 @@ from betty.test_utils.project.extension.demo.project import demo_project_fetcher
 from typing_extensions import override
 
 if TYPE_CHECKING:
+    from betty.app import App
+    from betty.test_utils.conftest import NewTemporaryAppFactory
     from betty.fetch import Fetcher
     from pytest_mock import MockerFixture
 
@@ -65,10 +66,11 @@ class TestDemo(ExtensionTestBase[Demo]):
         self,
         demo_project_fetcher: Fetcher,  # noqa F811
         mocker: MockerFixture,
+        new_temporary_app_factory: NewTemporaryAppFactory,
     ) -> None:
         mocker.patch("betty.wikipedia._Populator.populate")
         async with (
-            App.new_temporary(fetcher=demo_project_fetcher) as app,
+            await new_temporary_app_factory(fetcher=demo_project_fetcher) as app,
             app,
             Project.new_temporary(app) as project,
         ):

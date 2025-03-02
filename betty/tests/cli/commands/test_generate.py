@@ -10,19 +10,19 @@ from betty.test_utils.cli import run
 
 class TestGenerate:
     async def test_click_command(
-        self, mocker: MockerFixture, new_temporary_app: App
+        self, mocker: MockerFixture, new_temporary_app_cli: App
     ) -> None:
         m_generate = mocker.patch(
             "betty.project.generate.generate", new_callable=AsyncMock
         )
         m_load = mocker.patch("betty.project.load.load", new_callable=AsyncMock)
 
-        async with Project.new_temporary(new_temporary_app) as project:
+        async with Project.new_temporary(new_temporary_app_cli) as project:
             await write_configuration_file(
                 project.configuration, project.configuration.configuration_file_path
             )
             await run(
-                new_temporary_app,
+                new_temporary_app_cli,
                 "generate",
                 "-c",
                 str(project.configuration.configuration_file_path),

@@ -10,8 +10,6 @@ from typing import TYPE_CHECKING, Self, Any, final, TypeVar, cast
 
 import aiohttp
 from aiofiles.tempfile import TemporaryDirectory
-from typing_extensions import override
-
 from betty import fs
 from betty.app import config
 from betty.app.config import AppConfiguration
@@ -32,10 +30,11 @@ from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.service import ServiceProvider, service, ServiceFactory, StaticService
 from betty.typing import processsafe
+from typing_extensions import override
 
 if TYPE_CHECKING:
+    from concurrent import futures
     from multiprocessing.managers import SyncManager
-    from concurrent.futures import Executor
     from betty.plugin import PluginRepository
     from betty.cache import Cache
     from collections.abc import AsyncIterator
@@ -57,11 +56,17 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         *,
         cache_factory: ServiceFactory[Self, Cache[Any]],
         fetcher: Fetcher | None = None,
+        process_pool: futures.ProcessPoolExecutor | None = None,
+        multiprocessing_manager: SyncManager | None = None,
     ):
         cls = type(self)
         super().__init__(configuration=configuration)
         if fetcher is not None:
             cls.fetcher.override(self, fetcher)
+        if process_pool is not None:
+            cls.process_pool.override(self, process_pool)
+        if multiprocessing_manager is not None:
+            cls.multiprocessing_manager.override(self, multiprocessing_manager)
         self._cache_directory_path = cache_directory_path
         cls.cache.override_factory(self, cache_factory)
 
@@ -102,6 +107,8 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         *,
         cache_factory: ServiceFactory[Self, Cache[Any]] | None = None,
         fetcher: Fetcher | None = None,
+        process_pool: futures.ProcessPoolExecutor | None = None,
+        multiprocessing_manager: SyncManager | None = None,
     ) -> AsyncIterator[Self]:
         """
         Create a new, temporary, isolated application.
@@ -117,6 +124,8 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
                 Path(cache_directory_path_str),
                 cache_factory=cache_factory or StaticService(NoOpCache()),
                 fetcher=fetcher or StaticFetcher(),
+                process_pool=process_pool,
+                multiprocessing_manager=multiprocessing_manager,
             )
 
     @service
@@ -188,7 +197,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         )
 
     @service
-    def process_pool(self) -> Executor:
+    def process_pool(self) -> futures.ProcessPoolExecutor:
         """
         The shared process pool.
 
