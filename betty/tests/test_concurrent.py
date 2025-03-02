@@ -1,12 +1,11 @@
 import asyncio
 import multiprocessing
-import os
 import pickle
 import threading
 import time
 from asyncio import create_task, sleep, wait_for, gather
 from multiprocessing.managers import SyncManager
-from typing import TypeVar, Any
+from typing import TypeVar
 
 import pytest
 from typing_extensions import override
@@ -17,7 +16,6 @@ from betty.concurrent import (
     AsynchronizedLock,
     Lock,
     Ledger,
-    DefaultDict,
     ensure_manager,
 )
 from betty.warnings import BettyDeprecationWarning
@@ -248,84 +246,6 @@ class TestLedger:
             manager=multiprocessing_manager,
         )
         pickle.loads(pickle.dumps(sut))
-
-
-def _test_default_dict_process_target(sut: DefaultDict[_KeyT, Any], key: _KeyT):
-    assert sut[key]
-
-
-class TestDefaultDict:
-    def _default_factory(self) -> int:
-        return os.getpid()
-
-    def _delayed_default_factory(self) -> int:
-        time.sleep(2)
-        return os.getpid()
-
-    def test___delitem__(self, multiprocessing_manager: SyncManager) -> None:
-        key = "my-first-key"
-        sut = DefaultDict[str, int](
-            self._default_factory, manager=multiprocessing_manager
-        )
-        sut[key] = 123456789
-        assert key in sut
-        del sut[key]
-        assert key not in list(sut)
-
-    def test___getitem__(self, multiprocessing_manager: SyncManager) -> None:
-        key = "my-first-key"
-        value = 123456789
-        sut = DefaultDict[str, int](
-            self._default_factory, manager=multiprocessing_manager
-        )
-        sut[key] = value
-        assert sut[key] == value
-
-    def test___getitem___should_create_default(
-        self, multiprocessing_manager: SyncManager
-    ) -> None:
-        sut = DefaultDict[str, int](
-            self._default_factory, manager=multiprocessing_manager
-        )
-        assert sut["my-first-key"] == os.getpid()
-
-    def test___getitem___should_create_default_concurrently(
-        self, multiprocessing_manager: SyncManager
-    ) -> None:
-        key = "my-first-key"
-        sut = DefaultDict[str, int](
-            self._delayed_default_factory, manager=multiprocessing_manager
-        )
-        process = multiprocessing.Process(
-            target=_test_default_dict_process_target, args=(sut, key)
-        )
-        process.start()
-        time.sleep(1)
-        assert sut[key] != os.getpid()
-
-    def test___iter__(self, multiprocessing_manager: SyncManager) -> None:
-        key = "my-first-key"
-        sut = DefaultDict[str, int](
-            self._default_factory, manager=multiprocessing_manager
-        )
-        sut[key] = 123456789
-        assert list(iter(sut)) == [key]
-
-    def test___len__(self, multiprocessing_manager: SyncManager) -> None:
-        sut = DefaultDict[str, int](
-            self._default_factory, manager=multiprocessing_manager
-        )
-        sut["my-first-key"] = 123456789
-        assert len(sut) == 1
-
-    def test___setitem__(self, multiprocessing_manager: SyncManager) -> None:
-        key = "my-first-key"
-        value = 123456789
-        sut = DefaultDict[str, int](
-            self._default_factory, manager=multiprocessing_manager
-        )
-        sut[key] = value
-        assert sut[key] == value
 
 
 class TestEnsureManager:
