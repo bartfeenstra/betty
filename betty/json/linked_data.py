@@ -167,13 +167,17 @@ class JsonLdSchema(FileBasedSchema):
     A `JSON-LD <https://json-ld.org/>`_ JSON Schema reference.
     """
 
+    _instance: Self | None = None
+
     @classmethod
     async def new(cls) -> Self:
         """
         Create a new instance.
         """
-        return await cls.new_for(
-            Path(__file__).parent / "schemas" / "json-ld.json",
-            def_name="jsonLd",
-            title="JSON-LD",
-        )
+        if cls._instance is None:
+            cls._instance = await cls.new_for(
+                Path(__file__).parent / "schemas" / "json-ld.json",
+                def_name="jsonLd",
+                title="JSON-LD",
+            )
+        return cls._instance

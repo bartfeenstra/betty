@@ -12,7 +12,7 @@ from typing import Any, Self, cast, final
 import aiofiles
 from jsonschema.validators import Draft202012Validator
 from referencing import Resource, Registry
-from typing_extensions import override
+from typing_extensions import override, deprecated
 
 from betty.serde.dump import DumpMapping, Dump
 
@@ -403,6 +403,9 @@ class JsonSchemaReference(String):
         )
 
 
+@deprecated(
+    "This has been deprecated since Betty 0.4.10. There is no direct alternative."
+)
 class FileBasedSchema(Schema):
     """
     A JSON Schema that is stored in a file.
@@ -433,13 +436,17 @@ class JsonSchemaSchema(FileBasedSchema):
     The JSON Schema Draft 2020-12 schema.
     """
 
+    _instance: Self | None = None
+
     @classmethod
     async def new(cls) -> Self:
         """
         Create a new instance.
         """
-        return await cls.new_for(
-            Path(__file__).parent / "schemas" / "json-schema.json",
-            def_name="jsonSchema",
-            title="JSON Schema",
-        )
+        if cls._instance is None:
+            cls._instance = await cls.new_for(
+                Path(__file__).parent / "schemas" / "json-schema.json",
+                def_name="jsonSchema",
+                title="JSON Schema",
+            )
+        return cls._instance
