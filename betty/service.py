@@ -172,7 +172,7 @@ _ServiceGetT = TypeVar("_ServiceGetT")
 ServiceFactory: TypeAlias = Callable[[_ServiceProviderT], _ServiceT]
 
 
-class _Service(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
+class _ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
     def __init__(self, factory: ServiceFactory[_ServiceProviderT, _ServiceGetT]):
         self._factory = factory
         self._service_name = factory.__name__  # type: ignore[attr-defined]
@@ -253,9 +253,9 @@ class _Service(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
         setattr(instance, self._factory_attr_name, factory)
 
 
-class _AsynchronousService(
+class _AsynchronousServiceManager(
     Generic[_ServiceProviderT, _ServiceT],
-    _Service[_ServiceProviderT, Awaitable[_ServiceT], _ServiceT],
+    _ServiceManager[_ServiceProviderT, Awaitable[_ServiceT], _ServiceT],
 ):
     def _lock(self, instance: _ServiceProviderT) -> Lock:
         lock_attr_name = f"_{self._attr_name}_lock"
@@ -277,9 +277,9 @@ class _AsynchronousService(
             return new_service
 
 
-class _SynchronousService(
+class _SynchronousServiceManager(
     Generic[_ServiceProviderT, _ServiceT],
-    _Service[_ServiceProviderT, _ServiceT, _ServiceT],
+    _ServiceManager[_ServiceProviderT, _ServiceT, _ServiceT],
 ):
     def _get(self, instance: _ServiceProviderT) -> _ServiceT:
         service = self._get_attr(instance)
@@ -294,29 +294,32 @@ class _SynchronousService(
 @overload
 def service(  # type: ignore[overload-overlap]
     factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]],
-) -> _AsynchronousService[_ServiceProviderT, _ServiceT]:
+) -> _AsynchronousServiceManager[_ServiceProviderT, _ServiceT]:
     pass
 
 
 @overload
 def service(
     factory: Callable[[_ServiceProviderT], _ServiceT],
-) -> _SynchronousService[_ServiceProviderT, _ServiceT]:
+) -> _SynchronousServiceManager[_ServiceProviderT, _ServiceT]:
     pass
 
 
 def service(
     factory: Callable[[_ServiceProviderT], _ServiceT],
-) -> _Service[_ServiceProviderT, _ServiceT, Any]:
+) -> _ServiceManager[_ServiceProviderT, _ServiceT, Any]:
     """
     Decorate a service factory method.
 
-    The decorated function should return a new service instance. The decorator will handle caching and concurrency.
+    The factory method is replaced with a :py:class:`service manager <betty.service._ServiceManager>` which handles
+    lazy service instantiation, caching, and multiprocessing support.
+
+    The decorated factory method should return a new service instance.
     """
     if iscoroutinefunction(factory):
-        return _AsynchronousService(factory)  # type: ignore[return-value]
+        return _AsynchronousServiceManager(factory)  # type: ignore[return-value]
     else:
-        return _SynchronousService(factory)
+        return _SynchronousServiceManager(factory)
 
 
 @internal
