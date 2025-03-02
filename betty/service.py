@@ -176,9 +176,9 @@ class _ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
     def __init__(self, factory: ServiceFactory[_ServiceProviderT, _ServiceGetT]):
         self._factory = factory
         self._service_name = factory.__name__  # type: ignore[attr-defined]
-        self._attr_name = f"_{self._service_name}"
-        self._explicit_attr_name = f"{self._attr_name}_explicit"
-        self._factory_attr_name = f"{self._attr_name}_factory"
+        self._service_attr_name = f"_{self._service_name}"
+        self._service_override_attr_name = f"{self._service_attr_name}_override"
+        self._factory_override_attr_name = f"{self._service_attr_name}_factory_override"
 
     @overload
     def __get__(self, instance: None, owner: type[_ServiceProviderT]) -> Self:
@@ -205,14 +205,14 @@ class _ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
         pass
 
     def _get_attr(self, instance: _ServiceProviderT) -> _ServiceT | type[Void]:
-        return getattr(instance, self._attr_name, Void)  # type: ignore[return-value]
+        return getattr(instance, self._service_attr_name, Void)  # type: ignore[return-value]
 
     def _get_factory(
         self, instance: _ServiceProviderT
     ) -> ServiceFactory[_ServiceProviderT, _ServiceGetT]:
         factory = cast(
             ServiceFactory[_ServiceProviderT, _ServiceGetT] | None,
-            getattr(instance, self._factory_attr_name, None),
+            getattr(instance, self._factory_override_attr_name, None),
         )
         if factory is not None:
             return factory
@@ -224,25 +224,27 @@ class _ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
                 f"{instance}.{self._service_name} was initialized already."
             )
 
-    def init(self, instance: _ServiceProviderT, service: _ServiceT) -> None:
+    def override(self, instance: _ServiceProviderT, service: _ServiceT) -> None:
         """
-        Explicitly initialize the service for the given instance.
+        Override the service for the given instance.
+
+        Calling this will prevent any existing factory from being called.
 
         This MUST only be called from ``instance.__init__()``.
 
         The provided service MUST be pickleable.
         """
         self._assert_not_initialized(instance)
-        setattr(instance, self._attr_name, service)
-        setattr(instance, self._explicit_attr_name, True)
+        setattr(instance, self._service_attr_name, service)
+        setattr(instance, self._service_override_attr_name, True)
 
-    def init_factory(
+    def override_factory(
         self,
         instance: _ServiceProviderT,
         factory: ServiceFactory[_ServiceProviderT, _ServiceGetT],
     ) -> None:
         """
-        Explicitly override the default service factory for the given instance.
+        Override the default service factory for the given instance.
 
         This MUST only be called from ``instance.__init__()``. It will override the existing service factory method
         defined on the instance.
@@ -250,7 +252,7 @@ class _ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
         The provided factory MUST be pickleable.
         """
         self._assert_not_initialized(instance)
-        setattr(instance, self._factory_attr_name, factory)
+        setattr(instance, self._factory_override_attr_name, factory)
 
 
 class _AsynchronousServiceManager(
@@ -258,7 +260,7 @@ class _AsynchronousServiceManager(
     _ServiceManager[_ServiceProviderT, Awaitable[_ServiceT], _ServiceT],
 ):
     def _lock(self, instance: _ServiceProviderT) -> Lock:
-        lock_attr_name = f"_{self._attr_name}_lock"
+        lock_attr_name = f"_{self._service_attr_name}_lock"
         try:
             return cast(Lock, getattr(instance, lock_attr_name))
         except AttributeError:
@@ -273,7 +275,7 @@ class _AsynchronousServiceManager(
 
         async with self._lock(instance):
             new_service = await self._get_factory(instance)(instance)
-            setattr(instance, self._attr_name, new_service)
+            setattr(instance, self._service_attr_name, new_service)
             return new_service
 
 
@@ -287,7 +289,7 @@ class _SynchronousServiceManager(
             return service
 
         new_service = self._get_factory(instance)(instance)
-        setattr(instance, self._attr_name, new_service)
+        setattr(instance, self._service_attr_name, new_service)
         return new_service
 
 

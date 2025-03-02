@@ -59,9 +59,9 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         cls = type(self)
         super().__init__(configuration=configuration)
         if fetcher is not None:
-            cls.fetcher.init(self, fetcher)
+            cls.fetcher.override(self, fetcher)
         self._cache_directory_path = cache_directory_path
-        cls.cache.init_factory(self, cache_factory)
+        cls.cache.override_factory(self, cache_factory)
 
     @classmethod
     @asynccontextmanager
