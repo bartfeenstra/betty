@@ -17,6 +17,7 @@ from betty.assertion import (
     assert_locale,
 )
 from betty.config import Configuration
+from betty.typing import pickleable
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
@@ -25,6 +26,7 @@ CONFIGURATION_FILE_PATH = fs.HOME_DIRECTORY_PATH / "app.json"
 
 
 @final
+@pickleable
 class AppConfiguration(Configuration):
     """
     Provide configuration for :py:class:`betty.app.App`.
