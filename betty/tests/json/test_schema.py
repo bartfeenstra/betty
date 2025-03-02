@@ -165,6 +165,9 @@ class TestJsonSchemaSchema(SchemaTestBase):
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
         return [(await JsonSchemaSchema.new(), [], [])]
 
+    async def test_singleton(self) -> None:
+        assert await JsonSchemaSchema.new() is await JsonSchemaSchema.new()
+
 
 class TestString(SchemaTestBase):
     async def get_sut_instances(

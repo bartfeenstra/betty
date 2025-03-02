@@ -179,12 +179,19 @@ class SpecificationSchema(FileBasedSchema):
     The OpenAPI Specification schema.
     """
 
+    _instance: Self | None = None
+
     @classmethod
     async def new(cls) -> Self:
         """
         Create a new instance.
         """
-        return await cls.new_for(
-            Path(__file__).parent / "json" / "schemas" / "openapi-specification.json",
-            def_name="openApiSpecification",
-        )
+        if cls._instance is None:
+            cls._instance = await cls.new_for(
+                Path(__file__).parent
+                / "json"
+                / "schemas"
+                / "openapi-specification.json",
+                def_name="openApiSpecification",
+            )
+        return cls._instance

@@ -36,3 +36,6 @@ class TestSpecificationSchema(SchemaTestBase):
         return [
             (await SpecificationSchema.new(), [], []),
         ]
+
+    async def test_singleton(self) -> None:
+        assert await SpecificationSchema.new() is await SpecificationSchema.new()
