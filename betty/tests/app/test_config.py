@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING
+import pickle
+from typing import TYPE_CHECKING, cast
 
 from betty.app.config import AppConfiguration
 
@@ -44,3 +45,9 @@ class TestAppConfiguration:
         sut = AppConfiguration(locale=locale)
         actual = sut.dump()
         assert actual == {"locale": locale}
+
+    def test_pickle(self) -> None:
+        locale = "nl-NL"
+        sut = AppConfiguration(locale=locale)
+        unpickled_sut = cast(AppConfiguration, pickle.loads(pickle.dumps(sut)))
+        assert unpickled_sut.locale == locale
