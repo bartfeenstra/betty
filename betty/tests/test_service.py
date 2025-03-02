@@ -132,7 +132,7 @@ class _SynchronousServiceProvider(ServiceProvider):
 class _AsynchronousServiceProviderWithInit(ServiceProvider):
     def __init__(self, service: object):
         super().__init__()
-        type(self).my_first_asynchronous_service.init(self, service)
+        type(self).my_first_asynchronous_service.override(self, service)
 
     @service
     async def my_first_asynchronous_service(self) -> object:
@@ -142,7 +142,7 @@ class _AsynchronousServiceProviderWithInit(ServiceProvider):
 class _SynchronousServiceProviderWithInit(ServiceProvider):
     def __init__(self, service: object):
         super().__init__()
-        type(self).my_first_synchronous_service.init(self, service)
+        type(self).my_first_synchronous_service.override(self, service)
 
     @service
     def my_first_synchronous_service(self) -> object:
@@ -157,7 +157,7 @@ class _AsynchronousServiceProviderWithInitFactory(ServiceProvider):
         ],
     ):
         super().__init__()
-        type(self).my_first_asynchronous_service.init_factory(self, service_factory)
+        type(self).my_first_asynchronous_service.override_factory(self, service_factory)
 
     @service
     async def my_first_asynchronous_service(self) -> object:
@@ -172,7 +172,7 @@ class _SynchronousServiceProviderWithInitFactory(ServiceProvider):
         ],
     ):
         super().__init__()
-        type(self).my_first_synchronous_service.init_factory(self, service_factory)
+        type(self).my_first_synchronous_service.override_factory(self, service_factory)
 
     @service
     def my_first_synchronous_service(self) -> object:
