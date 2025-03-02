@@ -5,11 +5,12 @@ from typing import TYPE_CHECKING
 from betty.project import Project
 from betty.project.extension.demo import Demo
 from betty.project.extension.demo.project import create_project, load_ancestry
-from betty.app import App
 from betty.test_utils.project.extension.demo.project import demo_project_fetcher  # noqa F401
 
 
 if TYPE_CHECKING:
+    from betty.test_utils.conftest import NewTemporaryAppFactory
+    from betty.app import App
     from pathlib import Path
     from betty.fetch import Fetcher
 
@@ -26,9 +27,10 @@ class TestLoadAncestry:
     async def test(
         self,
         demo_project_fetcher: Fetcher,  # noqa F811
+        new_temporary_app_factory: NewTemporaryAppFactory,
     ) -> None:
         async with (
-            App.new_temporary(fetcher=demo_project_fetcher) as app,
+            await new_temporary_app_factory(fetcher=demo_project_fetcher) as app,
             app,
             Project.new_temporary(app) as project,
             project,

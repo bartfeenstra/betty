@@ -10,18 +10,18 @@ from betty.test_utils.serve import NoOpProjectServer
 
 class TestServe:
     async def test_click_command(
-        self, mocker: MockerFixture, new_temporary_app: App
+        self, mocker: MockerFixture, new_temporary_app_cli: App
     ) -> None:
         mocker.patch("asyncio.sleep", side_effect=KeyboardInterrupt)
         mocker.patch("betty.serve.BuiltinProjectServer", new=NoOpProjectServer)
-        async with Project.new_temporary(new_temporary_app) as project:
+        async with Project.new_temporary(new_temporary_app_cli) as project:
             await write_configuration_file(
                 project.configuration, project.configuration.configuration_file_path
             )
             await makedirs(project.configuration.www_directory_path)
 
             await run(
-                new_temporary_app,
+                new_temporary_app_cli,
                 "serve",
                 "-c",
                 str(project.configuration.configuration_file_path),

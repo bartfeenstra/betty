@@ -10,7 +10,7 @@ from betty.test_utils.cli import run
 
 class TestConfig:
     async def test_click_command(
-        self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
+        self, mocker: MockerFixture, new_temporary_app_cli: App, tmp_path: Path
     ) -> None:
         configuration_file_path = tmp_path / "app.json"
         mocker.patch(
@@ -20,7 +20,7 @@ class TestConfig:
 
         locale = "nl-NL"
         await run(
-            new_temporary_app,
+            new_temporary_app_cli,
             "config",
             "--locale",
             locale,

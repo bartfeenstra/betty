@@ -1,8 +1,8 @@
 import pytest
+from betty.test_utils.conftest import NewTemporaryAppFactory
 from multidict import CIMultiDict
 
 from betty.ancestry.link import Link, HasLinks
-from betty.app import App
 from betty.fetch import FetchResponse
 from betty.fetch.static import StaticFetcher
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -16,7 +16,9 @@ class DummyHasLinks(HasLinks, DummyEntity):
 
 
 class TestLoad:
-    async def test_should_fetch_link_with_unsupported_content_type(self) -> None:
+    async def test_should_fetch_link_with_unsupported_content_type(
+        self, new_temporary_app_factory: NewTemporaryAppFactory
+    ) -> None:
         link_url = "https://example.com"
         link = Link(link_url)
         fetcher = StaticFetcher(
@@ -29,7 +31,7 @@ class TestLoad:
             }
         )
         async with (
-            App.new_temporary(fetcher=fetcher) as app,
+            await new_temporary_app_factory(fetcher=fetcher) as app,
             app,
             Project.new_temporary(app) as project,
         ):
@@ -48,7 +50,9 @@ class TestLoad:
         ],
     )
     async def test_should_fetch_link_with_invalid_html(
-        self, link_page_content_type: str
+        self,
+        link_page_content_type: str,
+        new_temporary_app_factory: NewTemporaryAppFactory,
     ) -> None:
         link_url = "https://example.com"
         link_page_html = "<html></html>"
@@ -63,7 +67,7 @@ class TestLoad:
             }
         )
         async with (
-            App.new_temporary(fetcher=fetcher) as app,
+            await new_temporary_app_factory(fetcher=fetcher) as app,
             app,
             Project.new_temporary(app) as project,
         ):
@@ -82,7 +86,9 @@ class TestLoad:
         ],
     )
     async def test_should_fetch_link_label_from_valid_html_with_title(
-        self, link_page_content_type: str
+        self,
+        link_page_content_type: str,
+        new_temporary_app_factory: NewTemporaryAppFactory,
     ) -> None:
         link_url = "https://example.com"
         link_page_title = "Hello, world!"
@@ -100,7 +106,7 @@ class TestLoad:
             }
         )
         async with (
-            App.new_temporary(fetcher=fetcher) as app,
+            await new_temporary_app_factory(fetcher=fetcher) as app,
             app,
             Project.new_temporary(app) as project,
         ):
@@ -118,7 +124,9 @@ class TestLoad:
         ],
     )
     async def test_should_fetch_link_label_with_valid_html_without_title(
-        self, link_page_content_type: str
+        self,
+        link_page_content_type: str,
+        new_temporary_app_factory: NewTemporaryAppFactory,
     ) -> None:
         link_url = "https://example.com"
         link_page_html = "<html><head></head><body></body></html>"
@@ -133,7 +141,7 @@ class TestLoad:
             }
         )
         async with (
-            App.new_temporary(fetcher=fetcher) as app,
+            await new_temporary_app_factory(fetcher=fetcher) as app,
             app,
             Project.new_temporary(app) as project,
         ):
@@ -153,7 +161,11 @@ class TestLoad:
         ],
     )
     async def test_should_fetch_link_description_from_valid_html_with_meta_description(
-        self, link_page_content_type: str, meta_attr_name: str, meta_attr_value: str
+        self,
+        link_page_content_type: str,
+        meta_attr_name: str,
+        meta_attr_value: str,
+        new_temporary_app_factory: NewTemporaryAppFactory,
     ) -> None:
         link_url = "https://example.com"
         link_page_meta_description = "'Hello, world!' is a common internet greeting."
@@ -169,7 +181,7 @@ class TestLoad:
             }
         )
         async with (
-            App.new_temporary(fetcher=fetcher) as app,
+            await new_temporary_app_factory(fetcher=fetcher) as app,
             app,
             Project.new_temporary(app) as project,
         ):

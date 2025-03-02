@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 from typing_extensions import override
 
 from betty.ancestry.link import Link
-from betty.app import App
 from betty.fetch.static import StaticFetcher
 from betty.job import Context
 from betty.project import Project
@@ -15,6 +14,8 @@ from betty.test_utils.project.extension import ExtensionTestBase
 from betty.wikipedia import Summary
 
 if TYPE_CHECKING:
+    from betty.app import App
+    from betty.test_utils.conftest import NewTemporaryAppFactory
     from multiprocessing.managers import SyncManager
     from pytest_mock import MockerFixture
 
@@ -87,10 +88,12 @@ class TestWikipedia(ExtensionTestBase[Wikipedia]):
                 wikipedia = extensions[Wikipedia]
                 await wikipedia.retriever
 
-    async def test_globals(self, new_temporary_app: App) -> None:
+    async def test_globals(
+        self, new_temporary_app_factory: NewTemporaryAppFactory
+    ) -> None:
         fetcher = StaticFetcher()
         async with (
-            App.new_temporary(fetcher=fetcher) as app,
+            await new_temporary_app_factory(fetcher=fetcher) as app,
             app,
             Project.new_temporary(app) as project,
         ):

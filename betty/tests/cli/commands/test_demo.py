@@ -10,15 +10,15 @@ from betty.test_utils.serve import NoOpServer
 
 class TestDemo:
     async def test_click_command(
-        self, mocker: MockerFixture, new_temporary_app: App
+        self, mocker: MockerFixture, new_temporary_app_cli: App
     ) -> None:
         mocker.patch("asyncio.sleep", side_effect=KeyboardInterrupt)
         mocker.patch("betty.project.extension.demo.serve.DemoServer", new=NoOpServer)
 
-        await run(new_temporary_app, "demo", expected_exit_code=1)
+        await run(new_temporary_app_cli, "demo", expected_exit_code=1)
 
     async def test_click_command_with_path(
-        self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
+        self, mocker: MockerFixture, new_temporary_app_cli: App, tmp_path: Path
     ) -> None:
         m_load = mocker.patch("betty.project.load.load")
         m_generate_with_cleanup = mocker.patch(
@@ -27,13 +27,13 @@ class TestDemo:
 
         project_directory_path = tmp_path / "project"
 
-        await run(new_temporary_app, "demo", "--path", str(project_directory_path))
+        await run(new_temporary_app_cli, "demo", "--path", str(project_directory_path))
 
         m_load.assert_called_once()
         m_generate_with_cleanup.assert_called_once()
 
     async def test_click_command_with_path_and_url(
-        self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
+        self, mocker: MockerFixture, new_temporary_app_cli: App, tmp_path: Path
     ) -> None:
         m_load = mocker.patch("betty.project.load.load")
         m_generate_with_cleanup = mocker.patch(
@@ -44,7 +44,7 @@ class TestDemo:
         url = "https://betty.example.com"
 
         await run(
-            new_temporary_app,
+            new_temporary_app_cli,
             "demo",
             "--path",
             str(project_directory_path),

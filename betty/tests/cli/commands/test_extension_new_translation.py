@@ -9,20 +9,22 @@ from betty.tests.cli.commands import ExtensionTranslationTestBase
 
 class TestExtensionNewTranslation(ExtensionTranslationTestBase):
     async def test_click_command(
-        self, mocker: MockerFixture, new_temporary_app: App
+        self, mocker: MockerFixture, new_temporary_app_cli: App
     ) -> None:
         locale = "nl-NL"
         m_new_extension_translation = mocker.patch(
             "betty.locale.translation.new_extension_translation"
         )
-        await run(new_temporary_app, "extension-new-translation", "with-assets", locale)
+        await run(
+            new_temporary_app_cli, "extension-new-translation", "with-assets", locale
+        )
         m_new_extension_translation.assert_awaited_once_with(locale, ANY)
 
     async def test_click_command_with_unknown_extension(
-        self, new_temporary_app: App
+        self, new_temporary_app_cli: App
     ) -> None:
         await run(
-            new_temporary_app,
+            new_temporary_app_cli,
             "extension-new-translation",
             "unknown-extension-id",
             "nl-NL",
@@ -30,10 +32,10 @@ class TestExtensionNewTranslation(ExtensionTranslationTestBase):
         )
 
     async def test_click_command_with_extension_without_assets_directory(
-        self, new_temporary_app: App
+        self, new_temporary_app_cli: App
     ) -> None:
         await run(
-            new_temporary_app,
+            new_temporary_app_cli,
             "extension-new-translation",
             "without-assets",
             "nl-NL",
@@ -41,10 +43,10 @@ class TestExtensionNewTranslation(ExtensionTranslationTestBase):
         )
 
     async def test_click_command_with_invalid_locale(
-        self, new_temporary_app: App
+        self, new_temporary_app_cli: App
     ) -> None:
         await run(
-            new_temporary_app,
+            new_temporary_app_cli,
             "extension-new-translation",
             "with-assets",
             "",

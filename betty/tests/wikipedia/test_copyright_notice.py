@@ -1,8 +1,8 @@
 from collections.abc import Sequence
 
+from betty.test_utils.conftest import NewTemporaryAppFactory
 from typing_extensions import override
 
-from betty.app import App
 from betty.copyright_notice import CopyrightNotice
 from betty.fetch.static import StaticFetcher
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -26,7 +26,9 @@ class TestWikipediaContributors(CopyrightNoticeTestBase):
             ),
         ]
 
-    async def test_new_for_app(self) -> None:
+    async def test_new_for_app(
+        self, new_temporary_app_factory: NewTemporaryAppFactory
+    ) -> None:
         response_json = {
             "continue": {"llcontinue": "49479|an", "continue": "||"},
             "query": {
@@ -54,6 +56,9 @@ class TestWikipediaContributors(CopyrightNoticeTestBase):
                 )
             }
         )
-        async with App.new_temporary(fetcher=fetcher) as app, app:
+        async with (
+            await new_temporary_app_factory(fetcher=fetcher) as app,
+            app,
+        ):
             sut = await WikipediaContributors.new_for_app(app)
             assert sut.url.localize(DEFAULT_LOCALIZER)

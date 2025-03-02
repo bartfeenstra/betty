@@ -5,12 +5,12 @@ from typing import TYPE_CHECKING
 import requests
 from requests import Response
 
-from betty.app import App
 from betty.functools import Do
 from betty.project.extension.demo.serve import DemoServer
 from betty.test_utils.project.extension.demo.project import demo_project_fetcher  # noqa F401
 
 if TYPE_CHECKING:
+    from betty.test_utils.conftest import NewTemporaryAppFactory
     from betty.fetch import Fetcher
     from pytest_mock import MockerFixture
 
@@ -20,10 +20,11 @@ class TestDemoServer:
         self,
         demo_project_fetcher: Fetcher,  # noqa F811
         mocker: MockerFixture,
+        new_temporary_app_factory: NewTemporaryAppFactory,
     ) -> None:
         mocker.patch("webbrowser.open_new_tab")
         async with (
-            App.new_temporary(fetcher=demo_project_fetcher) as app,
+            await new_temporary_app_factory(fetcher=demo_project_fetcher) as app,
             app,
             DemoServer(app=app) as server,
         ):
