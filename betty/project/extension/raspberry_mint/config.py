@@ -4,7 +4,7 @@ Provide configuration for the Raspberry Mint extension.
 
 from __future__ import annotations
 
-from typing import Sequence, TYPE_CHECKING
+from typing import Sequence, TYPE_CHECKING, Iterable
 
 from typing_extensions import override
 
@@ -14,6 +14,7 @@ from betty.model.config import EntityReference, EntityReferenceSequence
 from betty.project.extension._theme import ColorConfiguration
 
 if TYPE_CHECKING:
+    from betty.mutability import Mutable
     from betty.serde.dump import Dump, DumpMapping
     from betty.model import UserFacingEntity, Entity
 
@@ -45,6 +46,15 @@ class RaspberryMintConfiguration(Configuration):
         self._secondary_color = ColorConfiguration(secondary_color)
         self._tertiary_color = ColorConfiguration(tertiary_color)
 
+    @override
+    def get_mutable_instances(self) -> Iterable[Mutable]:
+        return (
+            self._featured_entities,
+            self._primary_color,
+            self._secondary_color,
+            self._tertiary_color,
+        )
+
     @property
     def featured_entities(self) -> EntityReferenceSequence[UserFacingEntity & Entity]:
         """
@@ -75,6 +85,7 @@ class RaspberryMintConfiguration(Configuration):
 
     @override
     def load(self, dump: Dump) -> None:
+        self.assert_mutable()
         assert_record(
             OptionalField("featured_entities", self.featured_entities.load),
             OptionalField("primary_color", self.primary_color.load),

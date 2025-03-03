@@ -2,6 +2,8 @@
 Test utilities for :py:mod:`betty.config`.
 """
 
+from typing import Any
+
 from typing_extensions import override
 
 from betty.assertion import (
@@ -21,8 +23,8 @@ class DummyConfiguration(Configuration):
     A dummy :py:class:`betty.config.Configuration` implementation.
     """
 
-    def __init__(self, value: str | None = None):
-        super().__init__()
+    def __init__(self, value: str | None = None, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
         self.value = value
 
     @override

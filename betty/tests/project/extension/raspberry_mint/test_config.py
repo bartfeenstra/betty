@@ -143,3 +143,11 @@ class TestRaspberryMintConfiguration:
         dump = sut.dump()
         assert isinstance(dump, dict)
         assert hex_value == dump["tertiary_color"]
+
+    def test_get_mutable_instances(self) -> None:
+        sut = RaspberryMintConfiguration()
+        sut.immutable()
+        assert sut.featured_entities.is_immutable
+        assert sut.primary_color.is_immutable
+        assert sut.secondary_color.is_immutable
+        assert sut.tertiary_color.is_immutable

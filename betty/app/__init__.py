@@ -10,6 +10,8 @@ from typing import TYPE_CHECKING, Self, Any, final, TypeVar, cast
 
 import aiohttp
 from aiofiles.tempfile import TemporaryDirectory
+from typing_extensions import override
+
 from betty import fs
 from betty.app import config
 from betty.app.config import AppConfiguration
@@ -30,7 +32,6 @@ from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.service import ServiceProvider, service, ServiceFactory, StaticService
 from betty.typing import processsafe
-from typing_extensions import override
 
 if TYPE_CHECKING:
     from concurrent import futures

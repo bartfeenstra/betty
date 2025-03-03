@@ -93,6 +93,7 @@ class PluginConfiguration(Configuration):
 
     @override
     def load(self, dump: Dump) -> None:
+        self.assert_mutable()
         assert_record(
             RequiredField("id", assert_machine_name() | assert_setattr(self, "_id")),
             RequiredField("label", self.label.load),
@@ -235,6 +236,7 @@ class PluginInstanceConfiguration(Configuration):
 
     @override
     def load(self, dump: Dump) -> None:
+        self.assert_mutable()
         id_assertion = assert_machine_name() | assert_setattr(self, "_id")
         assert_or(
             id_assertion,

@@ -21,6 +21,7 @@ from betty.test_utils.config import DummyConfiguration
 class TestConfiguration:
     class _DummyConfiguration(Configuration):
         def __init__(self, value: int):
+            super().__init__()
             self.value = value
 
         @override

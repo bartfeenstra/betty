@@ -76,11 +76,13 @@ class ConfigurationSequence(
 
     @override
     def replace(self, *configurations: _ConfigurationT) -> None:
+        self.assert_mutable()
         self.clear()
         self.append(*configurations)
 
     @override
     def load(self, dump: Dump) -> None:
+        self.assert_mutable()
         self.replace(*assert_sequence(self._load_item)(dump))
 
     @override
@@ -89,18 +91,21 @@ class ConfigurationSequence(
 
     @override
     def prepend(self, *configurations: _ConfigurationT) -> None:
+        self.assert_mutable()
         for configuration in configurations:
             self._pre_add(configuration)
             self._configurations.insert(0, configuration)
 
     @override
     def append(self, *configurations: _ConfigurationT) -> None:
+        self.assert_mutable()
         for configuration in configurations:
             self._pre_add(configuration)
             self._configurations.append(configuration)
 
     @override
     def insert(self, index: int, *configurations: _ConfigurationT) -> None:
+        self.assert_mutable()
         for configuration in reversed(configurations):
             self._pre_add(configuration)
             self._configurations.insert(index, configuration)

@@ -80,11 +80,11 @@ from betty.plugin.config import PluginInstanceConfiguration
 from betty.typing import internal
 
 if TYPE_CHECKING:
+    from betty.mutability import Mutable
     from betty.serde.dump import Dump, DumpMapping
     from collections.abc import Mapping, MutableMapping, Iterable, Iterator
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
-
 
 DEFAULT_EVENT_TYPE_MAP: Mapping[str, PluginInstanceConfiguration] = {
     "Adopted": PluginInstanceConfiguration(Adoption),
@@ -111,7 +111,6 @@ DEFAULT_EVENT_TYPE_MAP: Mapping[str, PluginInstanceConfiguration] = {
     "Will": PluginInstanceConfiguration(Will),
 }
 
-
 DEFAULT_PLACE_TYPE_MAP: Mapping[str, PluginInstanceConfiguration] = {
     "Borough": PluginInstanceConfiguration(Borough),
     "Building": PluginInstanceConfiguration(Building),
@@ -136,7 +135,6 @@ DEFAULT_PLACE_TYPE_MAP: Mapping[str, PluginInstanceConfiguration] = {
     "Village": PluginInstanceConfiguration(Village),
 }
 
-
 DEFAULT_PRESENCE_ROLE_MAP: Mapping[str, PluginInstanceConfiguration] = {
     "Aide": PluginInstanceConfiguration(Attendee),
     "Bride": PluginInstanceConfiguration(Subject),
@@ -149,7 +147,6 @@ DEFAULT_PRESENCE_ROLE_MAP: Mapping[str, PluginInstanceConfiguration] = {
     "Unknown": PluginInstanceConfiguration(UnknownPresenceRole),
     "Witness": PluginInstanceConfiguration(Witness),
 }
-
 
 DEFAULT_GENDER_MAP: Mapping[str, PluginInstanceConfiguration] = {
     "F": PluginInstanceConfiguration(Female),
@@ -185,6 +182,7 @@ class PluginMapping(Configuration):
 
     @override
     def load(self, dump: Dump) -> None:
+        self.assert_mutable()
         self._mapping = {
             **self._default_mapping,
             **assert_mapping(self._load_item, _assert_gramps_type)(dump),
@@ -208,9 +206,11 @@ class PluginMapping(Configuration):
     def __setitem__(
         self, gramps_type: str, configuration: PluginInstanceConfiguration
     ) -> None:
+        self.assert_mutable()
         self._mapping[gramps_type] = configuration
 
     def __delitem__(self, gramps_type: str) -> None:
+        self.assert_mutable()
         del self._mapping[gramps_type]
 
     def __iter__(self) -> Iterator[str]:
@@ -240,6 +240,15 @@ class FamilyTreeConfiguration(Configuration):
             DEFAULT_PRESENCE_ROLE_MAP, presence_roles or {}
         )
 
+    @override
+    def get_mutable_instances(self) -> Iterable[Mutable]:
+        return (
+            self._event_types,
+            self._genders,
+            self._place_types,
+            self._presence_roles,
+        )
+
     @property
     def file_path(self) -> Path | None:
         """
@@ -249,6 +258,7 @@ class FamilyTreeConfiguration(Configuration):
 
     @file_path.setter
     def file_path(self, file_path: Path | None) -> None:
+        self.assert_mutable()
         self._file_path = file_path
 
     @property
@@ -281,6 +291,7 @@ class FamilyTreeConfiguration(Configuration):
 
     @override
     def load(self, dump: Dump) -> None:
+        self.assert_mutable()
         assert_record(
             RequiredField("file", assert_path() | assert_setattr(self, "file_path")),
             OptionalField("event_types", self.event_types.load),
@@ -325,6 +336,10 @@ class GrampsConfiguration(Configuration):
         super().__init__()
         self._family_trees = FamilyTreeConfigurationSequence(family_trees)
 
+    @override
+    def get_mutable_instances(self) -> Iterable[Mutable]:
+        return (self._family_trees,)
+
     @property
     def family_trees(self) -> FamilyTreeConfigurationSequence:
         """
@@ -334,6 +349,7 @@ class GrampsConfiguration(Configuration):
 
     @override
     def load(self, dump: Dump) -> None:
+        self.assert_mutable()
         assert_record(OptionalField("family_trees", self.family_trees.load))(dump)
 
     @override
