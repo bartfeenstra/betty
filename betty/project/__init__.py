@@ -368,6 +368,9 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             COPYRIGHT_NOTICE_REPOSITORY,
             StaticPluginRepository(*self.configuration.copyright_notices.new_plugins()),
             factory=self.new_target,
+            schema_template=Schema(
+                def_name="copyrightNotice", title="Copyright notice"
+            ),
         )
 
     @service
@@ -390,6 +393,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             await self._app.spdx_license_repository,
             StaticPluginRepository(*self.configuration.licenses.new_plugins()),
             factory=self.new_target,
+            schema_template=Schema(def_name="license", title="License"),
         )
 
     @service
@@ -401,6 +405,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             EVENT_TYPE_REPOSITORY,
             StaticPluginRepository(*self.configuration.event_types.new_plugins()),
             factory=self.new_target,
+            schema_template=Schema(def_name="eventType", title="Event type"),
         )
 
     @service
@@ -412,6 +417,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             PLACE_TYPE_REPOSITORY,
             StaticPluginRepository(*self.configuration.place_types.new_plugins()),
             factory=self.new_target,
+            schema_template=Schema(def_name="placeType", title="Place type"),
         )
 
     @service
@@ -423,6 +429,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             PRESENCE_ROLE_REPOSITORY,
             StaticPluginRepository(*self.configuration.presence_roles.new_plugins()),
             factory=self.new_target,
+            schema_template=Schema(def_name="presenceRole", title="Presence role"),
         )
 
     @service
@@ -436,6 +443,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             GENDER_REPOSITORY,
             StaticPluginRepository(*self.configuration.genders.new_plugins()),
             factory=self.new_target,
+            schema_template=Schema(def_name="gender", title="Gender"),
         )
 
     @service
@@ -446,7 +454,9 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         Read more about :doc:`/development/plugin/entity-type`.
         """
         return ProxyPluginRepository(
-            model.ENTITY_TYPE_REPOSITORY, factory=self.new_target
+            model.ENTITY_TYPE_REPOSITORY,
+            factory=self.new_target,
+            schema_template=Schema(def_name="entityType", title="Entity type"),
         )
 
     @service

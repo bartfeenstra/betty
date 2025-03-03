@@ -11,7 +11,6 @@ from typing_extensions import override
 
 from betty.ancestry.date import HasDate
 from betty.ancestry.description import HasDescription
-from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY, EventType
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
@@ -21,7 +20,7 @@ from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.json.linked_data import dump_context, JsonLdObject
-from betty.json.schema import Enum, String
+from betty.json.schema import String
 from betty.locale.localizable import (
     _,
     ShorthandStaticTranslations,
@@ -40,6 +39,7 @@ from betty.privacy import HasPrivacy, Privacy
 from betty.repr import repr_instance
 
 if TYPE_CHECKING:
+    from betty.ancestry.event_type import EventType
     from betty.ancestry.citation import Citation
     from betty.ancestry.note import Note
     from betty.ancestry.file_reference import FileReference
@@ -195,14 +195,7 @@ class Event(
     async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property(
-            "type",
-            Enum(
-                *[
-                    presence_role.plugin_id()
-                    async for presence_role in EVENT_TYPE_REPOSITORY
-                ],
-                title="Event type",
-            ),
+            "type", await project.event_type_repository.plugin_id_schema
         )
         schema.add_property("eventStatus", String(title="Event status"))
         schema.add_property(
