@@ -208,13 +208,15 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
 
     @override
     async def get(self) -> ScheduledJobBatch:
+        backoff = 0
         async with self._cancel_on_exception():
             while True:
                 async with self._lock:
                     batch = await self._get()
                     if batch is not None:
                         return batch
-                await sleep(0.001)
+                await sleep(0.001 * 2**backoff)
+                backoff += 1
 
     async def _get(self) -> ScheduledJobBatch | None:
         self._assert_open()
@@ -270,6 +272,7 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
 
     @override
     async def complete(self) -> None:
+        backoff = 0
         async with self._cancel_on_exception():
             while True:
                 async with self._lock:
@@ -283,4 +286,5 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
                     ):
                         self._completed = True
                         return
-                await sleep(0.001)
+                await sleep(0.001 * 2**backoff)
+                backoff += 1
