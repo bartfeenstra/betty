@@ -38,7 +38,7 @@ class TestAppConfiguration:
     def test_dump_minimal(self) -> None:
         sut = AppConfiguration()
         actual = sut.dump()
-        assert actual == {"locale": None}
+        assert actual == {}
 
     def test_dump_with_locale(self) -> None:
         locale = "nl-NL"

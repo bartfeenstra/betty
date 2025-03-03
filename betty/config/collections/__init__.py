@@ -26,8 +26,8 @@ from betty.config import Configuration
 from betty.repr import repr_instance
 
 if TYPE_CHECKING:
+    from betty.mutability import Mutable
     from betty.serde.dump import Dump
-
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 ConfigurationKey: TypeAlias = SupportsIndex | Hashable | type[Any]
@@ -86,6 +86,7 @@ class ConfigurationCollection(
         """
         Remove the given keys from the collection.
         """
+        self.assert_mutable()
         for configuration_key in configuration_keys:
             try:
                 configuration = self._configurations[configuration_key]  # type: ignore[call-overload]
@@ -150,3 +151,7 @@ class ConfigurationCollection(
         Insert the given values at the given index.
         """
         pass
+
+    @override
+    def get_mutable_instances(self) -> Iterable[Mutable]:
+        return self.values()

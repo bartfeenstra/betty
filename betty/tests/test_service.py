@@ -2,6 +2,8 @@ import pickle
 from typing import Awaitable, cast
 
 import pytest
+
+from betty.config import Configurable
 from betty.service import (
     ServiceProvider,
     Bootstrapped,
@@ -17,6 +19,8 @@ from betty.service import (
     ServiceInitializedError,
 )
 from typing_extensions import override
+
+from betty.test_utils.config import DummyConfiguration
 
 
 class TestBootstrapped:
@@ -106,6 +110,10 @@ class _ServiceProviderWithSharedServices(ServiceProvider):
         return object()
 
 
+class _ConfigurableServiceProvider(Configurable[DummyConfiguration], ServiceProvider):
+    pass
+
+
 class TestServiceProvider:
     async def test___aenter__(self) -> None:
         async with ServiceProvider() as sut:
@@ -136,6 +144,19 @@ class TestServiceProvider:
         assert sut.my_first_asynchronous_service_initialized
         assert sut.my_first_synchronous_service_initialized
         await sut.shutdown()
+
+    async def test_bootstrap_should_mark_configuration_immutable(self) -> None:
+        async with _ConfigurableServiceProvider(
+            configuration=DummyConfiguration()
+        ) as sut:
+            assert sut.configuration.is_immutable
+
+    async def test_shutdown_should_mark_configuration_mutable(self) -> None:
+        async with _ConfigurableServiceProvider(
+            configuration=DummyConfiguration()
+        ) as sut:
+            pass
+        assert sut.configuration.is_mutable
 
     async def test_shutdown(self) -> None:
         sut = ServiceProvider()

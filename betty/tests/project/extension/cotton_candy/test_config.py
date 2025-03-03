@@ -140,3 +140,12 @@ class TestCottonCandyConfiguration:
         dump = sut.dump()
         assert isinstance(dump, dict)
         assert hex_value == dump["link_active_color"]
+
+    def test_get_mutable_instances(self) -> None:
+        sut = CottonCandyConfiguration()
+        sut.immutable()
+        assert sut.featured_entities.is_immutable
+        assert sut.primary_active_color.is_immutable
+        assert sut.primary_inactive_color.is_immutable
+        assert sut.link_active_color.is_immutable
+        assert sut.link_inactive_color.is_immutable

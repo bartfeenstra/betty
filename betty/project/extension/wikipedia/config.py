@@ -32,10 +32,12 @@ class WikipediaConfiguration(Configuration):
 
     @populate_images.setter
     def populate_images(self, populate_images: bool) -> None:
+        self.assert_mutable()
         self._populate_images = populate_images
 
     @override
     def load(self, dump: Dump) -> None:
+        self.assert_mutable()
         assert_record(
             OptionalField(
                 "populate_images",

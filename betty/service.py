@@ -21,6 +21,7 @@ from typing import overload, TypeVar
 from warnings import warn
 
 from betty.concurrent import AsynchronizedLock, Lock
+from betty.config import Configurable
 from betty.typing import internal, public, Void, not_void, processsafe
 from typing_extensions import override
 
@@ -184,6 +185,11 @@ class ServiceProvider(Bootstrapped, Shutdownable):
         """
         self.assert_not_bootstrapped()
         self._bootstrapped = True
+        await self._bootstrap()
+
+    async def _bootstrap(self) -> None:
+        if isinstance(self, Configurable):
+            self.configuration.immutable()
         await self._initialize_shared_services()
 
     async def _initialize_shared_services(self) -> None:
@@ -202,21 +208,29 @@ class ServiceProvider(Bootstrapped, Shutdownable):
                 if isinstance(service_manager, _AsynchronousServiceManager):
                     await service
 
+    @public
     @override
     async def shutdown(self, *, wait: bool = True) -> None:
         self.assert_bootstrapped()
         self._bootstrapped = False
+        await self._shutdown(wait=wait)
+
+    async def _shutdown(self, *, wait: bool = True) -> None:
         await self._shutdown_stack.shutdown(wait=wait)
+        if isinstance(self, Configurable):
+            self.configuration.mutable()
 
     def __del__(self) -> None:
         if self.bootstrapped:
             warn(f"{self} was bootstrapped, but never shut down.", stacklevel=2)
 
+    @public
     @final
     async def __aenter__(self) -> Self:
         await self.bootstrap()
         return self
 
+    @public
     @final
     async def __aexit__(
         self,

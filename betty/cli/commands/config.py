@@ -7,6 +7,7 @@ import asyncclick as click
 from typing_extensions import override
 
 from betty.app import config as app_config
+from betty.app.config import AppConfiguration
 from betty.app.factory import AppDependentFactory
 from betty.cli.commands import command, Command
 from betty.config import write_configuration_file
@@ -55,7 +56,9 @@ class Config(ShorthandPluginBase, AppDependentFactory, Command):
         )
         async def config(*, locale: str) -> None:
             logger = getLogger(__name__)
-            self._app.configuration.locale = locale
+            updated_configuration = AppConfiguration()
+            updated_configuration.update(self._app.configuration)
+            updated_configuration.locale = locale
             new_localizer = await self._app.localizers.get(locale)
             logger.info(
                 new_localizer._("Betty will talk to you in {locale}").format(
@@ -64,7 +67,7 @@ class Config(ShorthandPluginBase, AppDependentFactory, Command):
             )
 
             await write_configuration_file(
-                self._app.configuration, app_config.CONFIGURATION_FILE_PATH
+                updated_configuration, app_config.CONFIGURATION_FILE_PATH
             )
 
         return config

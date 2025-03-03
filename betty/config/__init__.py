@@ -15,6 +15,7 @@ from aiofiles.os import makedirs
 from betty.assertion import AssertionChain, assert_file_path
 from betty.assertion.error import AssertionFailedGroup
 from betty.locale.localizable import plain
+from betty.mutability import Mutable
 from betty.serde.dump import Dumpable
 from betty.serde.format import FORMAT_REPOSITORY, format_for
 from betty.serde.load import Loadable
@@ -27,7 +28,7 @@ _ConfigurationListener: TypeAlias = Callable[[], None]
 ConfigurationListener: TypeAlias = "Configuration | _ConfigurationListener"
 
 
-class Configuration(Loadable, Dumpable):
+class Configuration(Loadable, Dumpable, Mutable):
     """
     Any configuration object.
     """
@@ -36,6 +37,7 @@ class Configuration(Loadable, Dumpable):
         """
         Update this configuration with the values from ``other``.
         """
+        self.assert_mutable()
         self.load(other.dump())
 
 
