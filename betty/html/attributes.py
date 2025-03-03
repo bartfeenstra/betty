@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import MutableMapping, MutableSequence, Sequence
-from inspect import getmembers
 from typing import (
     Any,
     Generic,
@@ -393,6 +392,17 @@ class Attributes:
     html_width = _StringAttribute("width")
     html_wrap = _StringAttribute("wrap")
 
+    # Compile all attributes once for this class, so we do not have to keep doing it runtime, which is expensive (e.g.
+    # when using inspect.getmembers()).
+    _ATTRIBUTES = cast(
+        Sequence[_Attribute[Any, Any]],
+        [
+            attr_value
+            for attr_name, attr_value in locals().items()
+            if attr_name.startswith("html_")
+        ],
+    )
+
     def __init__(self, **kwargs: Unpack[_AttributesKwargs]):
         self._data_attributes: MutableMapping[str, str] = {}
         self.set(**kwargs)
@@ -438,9 +448,7 @@ class Attributes:
                 *(
                     formatted_attribute
                     for formatted_attribute in (
-                        value.format(self)
-                        for _name, value in getmembers(type(self))
-                        if isinstance(value, _Attribute)
+                        attribute.format(self) for attribute in self._ATTRIBUTES
                     )
                     if formatted_attribute
                 ),
