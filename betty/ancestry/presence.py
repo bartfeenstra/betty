@@ -8,7 +8,6 @@ from typing import final, TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.json.schema import Enum
 from betty.locale.localizable import _, Localizable
 from betty.model import Entity
 from betty.model.association import BidirectionalToOne, ToOneResolver
@@ -93,17 +92,7 @@ class Presence(ShorthandPluginBase, HasPrivacy, Entity):
     async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property(
-            "role",
-            Enum(
-                *[
-                    presence_role.plugin_id()
-                    async for presence_role in project.presence_role_repository
-                ],
-                def_name="presenceRole",
-                title="Presence role",
-                description="A person's role in an event.",
-            ),
-            False,
+            "role", await project.presence_role_repository.plugin_id_schema, False
         )
         return schema
 

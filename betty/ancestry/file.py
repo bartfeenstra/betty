@@ -13,7 +13,6 @@ from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.media_type import HasMediaType
-from betty.json.schema import Enum
 from betty.locale.localizable import _, ShorthandStaticTranslations, Localizable
 from betty.model import UserFacingEntity, Entity
 from betty.model.association import BidirectionalToMany, ToManyResolver
@@ -138,27 +137,11 @@ class File(
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "copyrightNotice",
-            Enum(
-                *[
-                    plugin.plugin_id()
-                    async for plugin in project.copyright_notice_repository
-                ],  # noqa A002
-                title="Copyright notice",
-                description="A copyright notice plugin ID",
-            ),
+            await project.copyright_notice_repository.plugin_id_schema,
             False,
         )
         schema.add_property(
-            "license",
-            Enum(
-                *[
-                    plugin.plugin_id()
-                    async for plugin in await project.license_repository
-                ],  # noqa A002
-                title="License",
-                description="A license plugin ID",
-            ),
-            False,
+            "license", await (await project.license_repository).plugin_id_schema, False
         )
         return schema
 

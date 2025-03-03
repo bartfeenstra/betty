@@ -7,6 +7,7 @@ import pytest
 from typing_extensions import override
 
 from betty.factory import Factory, new
+from betty.json.schema import Schema
 from betty.plugin import (
     PluginNotFound,
     Plugin,
@@ -96,8 +97,13 @@ class _TestPluginRepositoryPluginCustomFactory(DummyPlugin):
 
 
 class _TestPluginRepositoryPluginRepository(PluginRepository[DummyPlugin]):
-    def __init__(self, *plugins: type[DummyPlugin], factory: Factory | None = None):
-        super().__init__(factory=factory)
+    def __init__(
+        self,
+        *plugins: type[DummyPlugin],
+        factory: Factory | None = None,
+        schema_template: Schema | None = None,
+    ):
+        super().__init__(factory=factory, schema_template=schema_template)
         self._plugins = {plugin.plugin_id(): plugin for plugin in plugins}
 
     @override
@@ -296,6 +302,24 @@ class TestPluginRepository:
             await sut.new_target(_TestPluginRepositoryPluginCustomFactory.plugin_id()),
             _TestPluginRepositoryPluginCustomFactory,
         )
+
+    async def test_plugin_id_schema(self) -> None:
+        def_name = "myFirstSchema"
+        title = "My First Schema"
+        sut = _TestPluginRepositoryPluginRepository(
+            _TestPluginRepositoryPluginOne,
+            _TestPluginRepositoryPluginOneTwo,
+            _TestPluginRepositoryPluginOneTwoThree,
+            schema_template=Schema(def_name=def_name, title=title),
+        )
+        actual = await sut.plugin_id_schema
+        assert actual.def_name == def_name
+        assert actual.schema["title"] == title
+        assert actual.schema["enum"] == [
+            "test-plugin-repository-plugin-one",
+            "test-plugin-repository-plugin-one-two",
+            "test-plugin-repository-plugin-one-two-three",
+        ]
 
 
 class _DummyOrderedPlugin(OrderedPlugin["_DummyOrderedPlugin"], DummyPlugin):

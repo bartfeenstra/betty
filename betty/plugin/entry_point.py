@@ -6,6 +6,7 @@ from collections.abc import Sequence
 from importlib import metadata
 from typing import Generic, TypeVar, final
 
+from betty.json.schema import Schema
 from betty.plugin import Plugin
 from betty.plugin.lazy import LazyPluginRepositoryBase
 
@@ -48,8 +49,10 @@ class EntryPointPluginRepository(LazyPluginRepositoryBase[_PluginT], Generic[_Pl
                   setup(**SETUP)
     """
 
-    def __init__(self, entry_point_group: str):
-        super().__init__()
+    def __init__(
+        self, entry_point_group: str, *, schema_template: Schema | None = None
+    ):
+        super().__init__(schema_template=schema_template)
         self._entry_point_group = entry_point_group
 
     async def _load_plugins(self) -> Sequence[type[_PluginT]]:

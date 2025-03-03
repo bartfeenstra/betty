@@ -17,7 +17,6 @@ from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks, Link
 from betty.functools import unique
 from betty.json.linked_data import dump_context, JsonLdObject
-from betty.json.schema import Enum
 from betty.locale.localizable import _, Localizable
 from betty.model import (
     UserFacingEntity,
@@ -200,12 +199,7 @@ class Person(
     async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property(
-            "gender",
-            Enum(
-                *[gender.plugin_id() async for gender in project.gender_repository],
-                title="Gender",
-            ),
-            property_required=False,
+            "gender", await project.gender_repository.plugin_id_schema, False
         )
         schema.add_property(
             "siblings", EntityReferenceCollectionSchema(title="Siblings")

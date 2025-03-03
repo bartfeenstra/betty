@@ -24,6 +24,7 @@ from typing_extensions import override
 
 from betty.error import UserFacingError
 from betty.factory import TargetFactory, Factory, new
+from betty.json.schema import Enum, Schema
 from betty.locale.localizable import _, join, do_you_mean
 from betty.machine_name import MachineName
 
@@ -231,8 +232,12 @@ class PluginRepository(Generic[_PluginT], TargetFactory, ABC):
     Discover and manage plugins.
     """
 
-    def __init__(self, *, factory: Factory | None = None):
+    def __init__(
+        self, *, factory: Factory | None = None, schema_template: Schema | None = None
+    ):
         self._factory = factory or new
+        self._schema_template = schema_template
+        self._plugin_id_schema: Enum | None = None
 
     async def resolve_identifier(
         self, plugin_identifier: PluginIdentifier[_PluginT]
@@ -356,6 +361,24 @@ class PluginRepository(Generic[_PluginT], TargetFactory, ABC):
     @override
     async def new_target(self, cls: type[_T] | MachineName) -> _T | _PluginT:
         return await self._factory(await self.get(cls) if isinstance(cls, str) else cls)
+
+    @property
+    async def plugin_id_schema(self) -> Enum:
+        """
+        Get the JSON schema for the IDs of the plugins in this repository.
+        """
+        if self._schema_template is None:
+            raise RuntimeError(
+                f"Cannot provide a JSON schema for {self} which has no schema template."
+            )
+        if self._plugin_id_schema is None:
+            self._plugin_id_schema = Enum(
+                *[plugin.plugin_id() async for plugin in self],  # noqa A002
+                def_name=self._schema_template.def_name,
+                title=self._schema_template.title,
+                description=f"A {self._schema_template.title} plugin ID",
+            )
+        return self._plugin_id_schema
 
 
 class CyclicDependencyError(PluginError):
