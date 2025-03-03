@@ -73,7 +73,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
             "uk": "Bart Feenstra і учасники",
         },
         extensions=[
-            PluginInstanceConfiguration(Demo),
+            # PluginInstanceConfiguration(Demo),
             PluginInstanceConfiguration(
                 RaspberryMint,
                 configuration=RaspberryMintConfiguration(
