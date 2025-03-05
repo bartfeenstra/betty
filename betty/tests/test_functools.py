@@ -86,48 +86,44 @@ class TestDo:
             )
 
 
-class TestUnique:
-    @pytest.mark.parametrize(
-        ("expected", "values", "key"),
-        [
-            ([], [], None),
-            ([], [[]], None),
-            (["one"], [["one"]], None),
-            (["one"], [["one", "one"]], None),
-            (["one", "two"], [["one", "two"]], None),
-            (["one", "two"], [["one", "two", "one"]], None),
-            (["one"], [["one"], ["one"]], None),
-            (["one", "two"], [["one"], ["one", "two"]], None),
-            (["one", "two"], [["one"], ["one", "two", "one"]], None),
-            (
-                ["aaa", "bbb", "ccc"],
-                [["aaa", "abc", "bbb", "bob", "ccc", "coo"]],
-                lambda value: value[0],
-            ),
-        ],
-    )
-    async def test(
-        self,
-        expected: Sequence[_T],
-        values: Iterable[Iterable[_T]],
-        key: Callable[[_T], Any] | None,
-    ) -> None:
-        sut = unique(*values, key=key)
-        assert list(sut) == expected
+@pytest.mark.parametrize(
+    ("expected", "values", "key"),
+    [
+        ([], [], None),
+        ([], [[]], None),
+        (["one"], [["one"]], None),
+        (["one"], [["one", "one"]], None),
+        (["one", "two"], [["one", "two"]], None),
+        (["one", "two"], [["one", "two", "one"]], None),
+        (["one"], [["one"], ["one"]], None),
+        (["one", "two"], [["one"], ["one", "two"]], None),
+        (["one", "two"], [["one"], ["one", "two", "one"]], None),
+        (
+            ["aaa", "bbb", "ccc"],
+            [["aaa", "abc", "bbb", "bob", "ccc", "coo"]],
+            lambda value: value[0],
+        ),
+    ],
+)
+async def test_unique(
+    expected: Sequence[_T],
+    values: Iterable[Iterable[_T]],
+    key: Callable[[_T], Any] | None,
+) -> None:
+    sut = unique(*values, key=key)
+    assert list(sut) == expected
 
 
-class TestPassthrough:
-    def test(self) -> None:
-        value = object()
-        assert passthrough(value) is value
+def test_passthrough() -> None:
+    value = object()
+    assert passthrough(value) is value
 
 
-class TestFilterSuppress:
-    def test(self) -> None:
-        def _raising_filter(value: int) -> None:
-            if value % 2 > 0:
-                raise ValueError
+def test_filter_suppress() -> None:
+    def _raising_filter(value: int) -> None:
+        if value % 2 > 0:
+            raise ValueError
 
-        assert list(
-            filter_suppress(_raising_filter, ValueError, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-        ) == [0, 2, 4, 6, 8]
+    assert list(
+        filter_suppress(_raising_filter, ValueError, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    ) == [0, 2, 4, 6, 8]

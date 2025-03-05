@@ -1,27 +1,28 @@
 from betty.ancestry.source import Source
 from betty.project.extension.raspberry_mint import RaspberryMint
-from betty.test_utils.jinja2 import TemplateFileTestBase
+from betty.test_utils.jinja2 import assert_template_file
 
 
-class Test(TemplateFileTestBase):
-    extensions = {RaspberryMint}
-    template = "entity/summary--source.html.j2"
+async def test_minimal() -> None:
+    source = Source()
+    async with assert_template_file(
+        data={
+            "entity": source,
+        },
+        extensions={RaspberryMint},
+        template="entity/summary--source.html.j2",
+    ) as (actual, _):
+        assert actual
 
-    async def test_minimal(self) -> None:
-        source = Source()
-        async with self.assert_template_file(
-            data={
-                "entity": source,
-            }
-        ) as (actual, _):
-            assert actual
 
-    async def test_with_contained_by(self) -> None:
-        contained_by_source = Source()
-        source = Source(contained_by=contained_by_source)
-        async with self.assert_template_file(
-            data={
-                "entity": source,
-            }
-        ) as (actual, _):
-            assert contained_by_source.id in actual
+async def test_with_contained_by() -> None:
+    contained_by_source = Source()
+    source = Source(contained_by=contained_by_source)
+    async with assert_template_file(
+        data={
+            "entity": source,
+        },
+        extensions={RaspberryMint},
+        template="entity/summary--source.html.j2",
+    ) as (actual, _):
+        assert contained_by_source.id in actual

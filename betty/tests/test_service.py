@@ -234,18 +234,18 @@ class _AsynchronousSharedServiceProvider(ServiceProvider):
         return self._init_service
 
 
-class TestService:
-    async def test_with_asynchronous_method(self) -> None:
-        assert isinstance(
-            _AsynchronousServiceProvider.my_first_asynchronous_service,
-            _AsynchronousServiceManager,
-        )
+async def test_service__with_asynchronous_method() -> None:
+    assert isinstance(
+        _AsynchronousServiceProvider.my_first_asynchronous_service,
+        _AsynchronousServiceManager,
+    )
 
-    async def test_with_synchronous_method(self) -> None:
-        assert isinstance(
-            _SynchronousServiceProvider.my_first_synchronous_service,
-            _SynchronousServiceManager,
-        )
+
+async def test_service__with_synchronous_method() -> None:
+    assert isinstance(
+        _SynchronousServiceProvider.my_first_synchronous_service,
+        _SynchronousServiceManager,
+    )
 
 
 class TestServiceManager:

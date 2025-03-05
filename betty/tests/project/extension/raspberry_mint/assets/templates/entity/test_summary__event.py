@@ -1,17 +1,15 @@
 from betty.ancestry.event import Event
 from betty.project.extension.raspberry_mint import RaspberryMint
-from betty.test_utils.jinja2 import TemplateFileTestBase
+from betty.test_utils.jinja2 import assert_template_file
 
 
-class Test(TemplateFileTestBase):
-    extensions = {RaspberryMint}
-    template = "entity/summary--event.html.j2"
-
-    async def test_minimal(self) -> None:
-        event = Event()
-        async with self.assert_template_file(
-            data={
-                "entity": event,
-            }
-        ) as (actual, _):
-            assert actual
+async def test_minimal() -> None:
+    event = Event()
+    async with assert_template_file(
+        data={
+            "entity": event,
+        },
+        extensions={RaspberryMint},
+        template="entity/summary--event.html.j2",
+    ) as (actual, _):
+        assert actual

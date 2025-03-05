@@ -2,18 +2,16 @@ from pathlib import Path
 
 from betty.ancestry.file import File
 from betty.project.extension.raspberry_mint import RaspberryMint
-from betty.test_utils.jinja2 import TemplateFileTestBase
+from betty.test_utils.jinja2 import assert_template_file
 
 
-class Test(TemplateFileTestBase):
-    extensions = {RaspberryMint}
-    template = "entity/summary--file.html.j2"
-
-    async def test_minimal(self) -> None:
-        file = File(Path(__file__))
-        async with self.assert_template_file(
-            data={
-                "entity": file,
-            }
-        ) as (actual, _):
-            assert actual
+async def test_minimal() -> None:
+    file = File(Path(__file__))
+    async with assert_template_file(
+        data={
+            "entity": file,
+        },
+        extensions={RaspberryMint},
+        template="entity/summary--file.html.j2",
+    ) as (actual, _):
+        assert actual

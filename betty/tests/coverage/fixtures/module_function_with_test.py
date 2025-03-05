@@ -6,5 +6,5 @@ def src() -> None:
     pass  # pragma: no cover
 
 
-class TestSrc:
+def test_src():
     pass  # pragma: no cover

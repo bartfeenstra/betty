@@ -15,48 +15,44 @@ from betty.typing import (
 )
 
 
-class TestInternal:
-    def test(self) -> None:
-        sentinel = object()
+def test_internal() -> None:
+    sentinel = object()
 
-        @internal
-        def _target() -> object:
-            return sentinel
+    @internal
+    def _target() -> object:
+        return sentinel
 
-        assert _target() is sentinel
-
-
-class TestPublic:
-    def test(self) -> None:
-        sentinel = object()
-
-        @public
-        def _target() -> object:
-            return sentinel
-
-        assert _target() is sentinel
+    assert _target() is sentinel
 
 
-class TestPrivate:
-    def test(self) -> None:
-        sentinel = object()
+def test_public() -> None:
+    sentinel = object()
 
-        @private
-        def _target() -> object:
-            return sentinel
+    @public
+    def _target() -> object:
+        return sentinel
 
-        assert _target() is sentinel
+    assert _target() is sentinel
 
 
-class TestPickleable:
-    def test(self) -> None:
-        sentinel = object()
+def test_private() -> None:
+    sentinel = object()
 
-        @pickleable
-        def _target() -> object:
-            return sentinel
+    @private
+    def _target() -> object:
+        return sentinel
 
-        assert _target() is sentinel
+    assert _target() is sentinel
+
+
+def test_pickleable() -> None:
+    sentinel = object()
+
+    @pickleable
+    def _target() -> object:
+        return sentinel
+
+    assert _target() is sentinel
 
 
 @unpickleable
@@ -65,41 +61,38 @@ class _Unpickleable:
         return sentinel
 
 
-class TestUnpickleable:
-    def test(self) -> None:
-        sentinel = object()
+def test_unpickleable() -> None:
+    sentinel = object()
 
-        sut = _Unpickleable()
-        assert sut(sentinel) is sentinel
-        with pytest.raises(RuntimeError):
-            pickle.dumps(sut)
-
-
-class TestThreadsafe:
-    def test(self) -> None:
-        sentinel = object()
-
-        @threadsafe
-        def _target() -> object:
-            return sentinel
-
-        assert _target() is sentinel
+    sut = _Unpickleable()
+    assert sut(sentinel) is sentinel
+    with pytest.raises(RuntimeError):
+        pickle.dumps(sut)
 
 
-class TestProcesssafe:
-    def test(self) -> None:
-        sentinel = object()
+def test_threadsafe() -> None:
+    sentinel = object()
 
-        @processsafe
-        def _target() -> object:
-            return sentinel
+    @threadsafe
+    def _target() -> object:
+        return sentinel
 
-        assert _target() is sentinel
+    assert _target() is sentinel
 
 
-class TestNotVoid:
-    def test_with_void(self) -> None:
-        assert not not_void(Void)
+def test_processsafe() -> None:
+    sentinel = object()
 
-    def test_without_void(self) -> None:
-        assert not_void(123)
+    @processsafe
+    def _target() -> object:
+        return sentinel
+
+    assert _target() is sentinel
+
+
+def test_not_void__with_void() -> None:
+    assert not not_void(Void)
+
+
+def test_not_void__without_void() -> None:
+    assert not_void(123)

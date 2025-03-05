@@ -292,122 +292,117 @@ class Test_StaticPathUrlUrlGenerator:
                 )
 
 
-class TestNewProjectUrlGenerator:
-    @pytest.mark.parametrize(
-        ("expected", "resource"),
-        [
-            (True, DummyEntity()),
-            (True, "betty://some/path/index.html"),
-            (True, "betty:///some/path/index.html"),
-            (True, "betty-static://some/path/index.html"),
-            (True, "betty-static:///some/path/index.html"),
-            (False, ""),
-            (False, "/"),
-            (False, "index.html"),
-            (False, "example"),
-            (False, "/example"),
-            (False, "example/"),
-            (False, "/example/"),
-            (False, "example/index.html"),
-            (False, "/example/index.html"),
-            (False, object()),
-        ],
-    )
-    async def test_supports(
-        self,
-        expected: bool,
-        resource: Any,
-        new_temporary_app: App,
-        mocker: MockerFixture,
-    ) -> None:
-        mocker.patch(
-            "betty.model.ENTITY_TYPE_REPOSITORY",
-            new=ProxyPluginRepository[Entity](
-                StaticPluginRepository(DummyEntity), ENTITY_TYPE_REPOSITORY
-            ),
-        )
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = await new_project_url_generator(project)
-            assert sut.supports(resource) == expected
-
-    @pytest.mark.parametrize(
-        (
-            "expected",
-            "clean_urls",
-            "resource",
-            "media_type",
-            "absolute",
-            "locale",
-            "additional_project_locale",
+@pytest.mark.parametrize(
+    ("expected", "resource"),
+    [
+        (True, DummyEntity()),
+        (True, "betty://some/path/index.html"),
+        (True, "betty:///some/path/index.html"),
+        (True, "betty-static://some/path/index.html"),
+        (True, "betty-static:///some/path/index.html"),
+        (False, ""),
+        (False, "/"),
+        (False, "index.html"),
+        (False, "example"),
+        (False, "/example"),
+        (False, "example/"),
+        (False, "/example/"),
+        (False, "example/index.html"),
+        (False, "/example/index.html"),
+        (False, object()),
+    ],
+)
+async def test_new_project_url_generator__supports(
+    expected: bool, resource: Any, new_temporary_app: App, mocker: MockerFixture
+) -> None:
+    mocker.patch(
+        "betty.model.ENTITY_TYPE_REPOSITORY",
+        new=ProxyPluginRepository[Entity](
+            StaticPluginRepository(DummyEntity), ENTITY_TYPE_REPOSITORY
         ),
-        [
-            # Entities
-            (
-                "https://example.com/dummy-entity/E0/index.html",
-                False,
-                DummyEntity("E0"),
-                HTML,
-                True,
-                None,
-                None,
-            ),
-            # betty:// URLs
-            (
-                "https://example.com/some/path/index.html",
-                False,
-                "betty:///some/path/index.html",
-                HTML,
-                True,
-                None,
-                None,
-            ),
-            # betty-static:// URLs
-            (
-                "https://example.com/some/path/index.html",
-                False,
-                "betty-static:///some/path/index.html",
-                HTML,
-                True,
-                None,
-                None,
-            ),
-        ],
     )
-    async def test_generate(
-        self,
-        expected: str,
-        clean_urls: bool,
-        resource: str,
-        media_type: MediaType,
-        absolute: bool,
-        locale: Localey | None,
-        additional_project_locale: str | None,
-        new_temporary_app: App,
-        mocker: MockerFixture,
-    ) -> None:
-        mocker.patch(
-            "betty.model.ENTITY_TYPE_REPOSITORY",
-            new=ProxyPluginRepository[Entity](
-                StaticPluginRepository(DummyEntity), ENTITY_TYPE_REPOSITORY
-            ),
-        )
-        async with Project.new_temporary(new_temporary_app) as project:
-            if additional_project_locale:
-                project.configuration.locales.append(
-                    LocaleConfiguration(additional_project_locale)
+    async with Project.new_temporary(new_temporary_app) as project, project:
+        sut = await new_project_url_generator(project)
+        assert sut.supports(resource) == expected
+
+
+@pytest.mark.parametrize(
+    (
+        "expected",
+        "clean_urls",
+        "resource",
+        "media_type",
+        "absolute",
+        "locale",
+        "additional_project_locale",
+    ),
+    [
+        # Entities
+        (
+            "https://example.com/dummy-entity/E0/index.html",
+            False,
+            DummyEntity("E0"),
+            HTML,
+            True,
+            None,
+            None,
+        ),
+        # betty:// URLs
+        (
+            "https://example.com/some/path/index.html",
+            False,
+            "betty:///some/path/index.html",
+            HTML,
+            True,
+            None,
+            None,
+        ),
+        # betty-static:// URLs
+        (
+            "https://example.com/some/path/index.html",
+            False,
+            "betty-static:///some/path/index.html",
+            HTML,
+            True,
+            None,
+            None,
+        ),
+    ],
+)
+async def test_new_project_url_generator__generate(
+    expected: str,
+    clean_urls: bool,
+    resource: str,
+    media_type: MediaType,
+    absolute: bool,
+    locale: Localey | None,
+    additional_project_locale: str | None,
+    new_temporary_app: App,
+    mocker: MockerFixture,
+) -> None:
+    mocker.patch(
+        "betty.model.ENTITY_TYPE_REPOSITORY",
+        new=ProxyPluginRepository[Entity](
+            StaticPluginRepository(DummyEntity), ENTITY_TYPE_REPOSITORY
+        ),
+    )
+    async with Project.new_temporary(new_temporary_app) as project:
+        if additional_project_locale:
+            project.configuration.locales.append(
+                LocaleConfiguration(additional_project_locale)
+            )
+        project.configuration.clean_urls = clean_urls
+        async with project:
+            sut = await new_project_url_generator(project)
+            assert (
+                sut.generate(
+                    resource,
+                    media_type=media_type,
+                    absolute=absolute,
+                    locale=locale,
                 )
-            project.configuration.clean_urls = clean_urls
-            async with project:
-                sut = await new_project_url_generator(project)
-                assert (
-                    sut.generate(
-                        resource,
-                        media_type=media_type,
-                        absolute=absolute,
-                        locale=locale,
-                    )
-                    == expected
-                )
+                == expected
+            )
 
 
 class TestLocalizedUrlGenerator:

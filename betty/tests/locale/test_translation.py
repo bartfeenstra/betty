@@ -16,44 +16,35 @@ from betty.test_utils.locale import PotFileTestBase
 from betty.test_utils.project.extension import DummyExtension
 
 
-class TestAssertExtensionAssetsDirectoryPath:
-    class _DummyExtensionWithAssetsDirectory(DummyExtension):
-        @override
-        @classmethod
-        def assets_directory_path(cls) -> Path | None:
-            return Path(__file__)
-
-    def test_without_assets_directory(self) -> None:
-        with pytest.raises(UserFacingError):
-            assert_extension_assets_directory_path(DummyExtension)
-
-    def test_with_assets_directory(self) -> None:
-        assert (
-            assert_extension_assets_directory_path(
-                self._DummyExtensionWithAssetsDirectory
-            )
-            == self._DummyExtensionWithAssetsDirectory.assets_directory_path()
-        )
+class _DummyExtensionWithAssetsDirectory(DummyExtension):
+    @override
+    @classmethod
+    def assets_directory_path(cls) -> Path | None:
+        return Path(__file__)
 
 
-class TestAssertExtensionHasAssetsDirectoryPath:
-    class _DummyExtensionWithAssetsDirectory(DummyExtension):
-        @override
-        @classmethod
-        def assets_directory_path(cls) -> Path | None:
-            return Path(__file__)
+def test_assert_extension_assets_directory_path__without_assets_directory() -> None:
+    with pytest.raises(UserFacingError):
+        assert_extension_assets_directory_path(DummyExtension)
 
-    def test_without_assets_directory(self) -> None:
-        with pytest.raises(UserFacingError):
-            assert_extension_has_assets_directory_path(DummyExtension)
 
-    def test_with_assets_directory(self) -> None:
-        assert (
-            assert_extension_has_assets_directory_path(
-                self._DummyExtensionWithAssetsDirectory
-            )
-            == self._DummyExtensionWithAssetsDirectory
-        )
+def test_assert_extension_assets_directory_path__with_assets_directory() -> None:
+    assert (
+        assert_extension_assets_directory_path(_DummyExtensionWithAssetsDirectory)
+        == _DummyExtensionWithAssetsDirectory.assets_directory_path()
+    )
+
+
+def test_assert_extension_has_assets_directory_path__without_assets_directory() -> None:
+    with pytest.raises(UserFacingError):
+        assert_extension_has_assets_directory_path(DummyExtension)
+
+
+def test_assert_extension_has_assets_directory_path__with_assets_directory() -> None:
+    assert (
+        assert_extension_has_assets_directory_path(_DummyExtensionWithAssetsDirectory)
+        == _DummyExtensionWithAssetsDirectory
+    )
 
 
 class TestPotFile(PotFileTestBase):

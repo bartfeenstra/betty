@@ -37,13 +37,14 @@ class _NewInitRaisesError:
         raise RuntimeError
 
 
-class TestNew:
-    async def test_with_independent_factory(self) -> None:
-        await new(_NewIndependentFactory)
+async def test_new__with_independent_factory() -> None:
+    await new(_NewIndependentFactory)
 
-    async def test_with___init__(self) -> None:
-        await new(_NewInit)
 
-    async def test_with___init___error(self) -> None:
-        with pytest.raises(FactoryError):
-            await new(_NewInitRaisesError)
+async def test_new__with___init__() -> None:
+    await new(_NewInit)
+
+
+async def test_new__with___init___error() -> None:
+    with pytest.raises(FactoryError):
+        await new(_NewInitRaisesError)

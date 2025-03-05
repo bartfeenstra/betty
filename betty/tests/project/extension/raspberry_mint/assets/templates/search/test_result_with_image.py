@@ -8,7 +8,7 @@ from betty.ancestry.has_file_references import HasFileReferences
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.project.extension.raspberry_mint import RaspberryMint
-from betty.test_utils.jinja2 import TemplateFileTestBase
+from betty.test_utils.jinja2 import assert_template_file
 from betty.test_utils.model import DummyEntity
 
 
@@ -16,31 +16,32 @@ class DummyEntityWithFileReferences(HasFileReferences, DummyEntity):
     pass
 
 
-class Test(TemplateFileTestBase):
-    extensions = {RaspberryMint}
-    template = "search/result-with-image.html.j2"
+async def test_minimal() -> None:
+    entity = DummyEntityWithFileReferences()
+    async with assert_template_file(
+        data={
+            "entity": entity,
+        },
+        extensions={RaspberryMint},
+        template="search/result-with-image.html.j2",
+    ) as (actual, _):
+        assert entity.label.localize(DEFAULT_LOCALIZER) in actual
+        assert entity.id in actual
 
-    async def test_minimal(self) -> None:
-        entity = DummyEntityWithFileReferences()
-        async with self.assert_template_file(
-            data={
-                "entity": entity,
-            }
-        ) as (actual, _):
-            assert entity.label.localize(DEFAULT_LOCALIZER) in actual
-            assert entity.id in actual
 
-    async def test_with_image(self, tmp_path: Path) -> None:
-        image_path = tmp_path / "image.png"
-        image = Image.new("1", (1, 1))
-        image.save(image_path)
-        entity = DummyEntityWithFileReferences()
-        FileReference(entity, File(image_path, media_type=MediaType("image/png")))
-        async with self.assert_template_file(
-            data={
-                "entity": entity,
-            }
-        ) as (actual, _):
-            assert entity.label.localize(DEFAULT_LOCALIZER) in actual
-            assert entity.id in actual
-            assert "<img" in actual
+async def test_with_image(tmp_path: Path) -> None:
+    image_path = tmp_path / "image.png"
+    image = Image.new("1", (1, 1))
+    image.save(image_path)
+    entity = DummyEntityWithFileReferences()
+    FileReference(entity, File(image_path, media_type=MediaType("image/png")))
+    async with assert_template_file(
+        data={
+            "entity": entity,
+        },
+        extensions={RaspberryMint},
+        template="search/result-with-image.html.j2",
+    ) as (actual, _):
+        assert entity.label.localize(DEFAULT_LOCALIZER) in actual
+        assert entity.id in actual
+        assert "<img" in actual

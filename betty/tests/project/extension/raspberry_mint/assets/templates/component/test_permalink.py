@@ -1,17 +1,15 @@
 from betty.project.extension.raspberry_mint import RaspberryMint
-from betty.test_utils.jinja2 import TemplateFileTestBase
+from betty.test_utils.jinja2 import assert_template_file
 
 
-class Test(TemplateFileTestBase):
-    extensions = {RaspberryMint}
-    template = "component/permalink.html.j2"
-
-    async def test_minimal(self) -> None:
-        url = "https://example.com/per/ma.link"
-        async with self.assert_template_file(
-            data={
-                "url": url,
-            }
-        ) as (actual, _):
-            assert "<a " in actual
-            assert url in actual
+async def test_minimal() -> None:
+    url = "https://example.com/per/ma.link"
+    async with assert_template_file(
+        data={
+            "url": url,
+        },
+        extensions={RaspberryMint},
+        template="component/permalink.html.j2",
+    ) as (actual, _):
+        assert "<a " in actual
+        assert url in actual

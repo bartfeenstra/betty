@@ -15,16 +15,15 @@ from betty.test_utils.json.schema import SchemaTestBase
 from betty.test_utils.model import DummyEntity
 
 
-class TestPersistentId:
-    @pytest.mark.parametrize(
-        ("expected", "entity"),
-        [
-            (False, DummyEntity()),
-            (True, DummyEntity("my-first-entity-id")),
-        ],
-    )
-    def test(self, expected: bool, entity: Entity) -> None:
-        assert persistent_id(entity) == expected
+@pytest.mark.parametrize(
+    ("expected", "entity"),
+    [
+        (False, DummyEntity()),
+        (True, DummyEntity("my-first-entity-id")),
+    ],
+)
+def test_persistent_id(expected: bool, entity: Entity) -> None:
+    assert persistent_id(entity) == expected
 
 
 class TestEntityReferenceSchema(SchemaTestBase):

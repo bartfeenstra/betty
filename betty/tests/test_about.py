@@ -1,26 +1,21 @@
 from betty import about
 
 
-class TestVersion:
-    async def test(self) -> None:
-        assert about.version()
+async def test_version() -> None:
+    assert about.version()
 
 
-class TestVersionLabel:
-    async def test(self) -> None:
-        assert about.version_label()
+async def test_version_label() -> None:
+    assert about.version_label()
 
 
-class TestIsDevelopment:
-    def test(self) -> None:
-        assert about.is_development()
+def test_is_development() -> None:
+    assert about.is_development()
 
 
-class TestIsStable:
-    def test(self) -> None:
-        assert not about.is_stable()
+def test_is_stable() -> None:
+    assert not about.is_stable()
 
 
-class TestReport:
-    def test(self) -> None:
-        assert len(about.report().split("\n"))
+def test_report() -> None:
+    assert len(about.report().split("\n"))

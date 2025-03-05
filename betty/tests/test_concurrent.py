@@ -50,52 +50,62 @@ class TestLock:
             await wait_for(sut.__aenter__(), 0.000000001)
 
 
-class TestAsynchronizeAcquire:
-    async def test_should_acquire_immediately_with_threading(self) -> None:
-        lock = threading.Lock()
-        assert await asynchronize_acquire(lock)
-        assert not await asynchronize_acquire(lock, wait=False)
-        lock.release()
+async def test_asynchronize_acquire__should_acquire_immediately_with_threading() -> (
+    None
+):
+    lock = threading.Lock()
+    assert await asynchronize_acquire(lock)
+    assert not await asynchronize_acquire(lock, wait=False)
+    lock.release()
 
-    async def test_should_acquire_immediately_with_multiprocessing(
-        self, multiprocessing_manager: SyncManager
-    ) -> None:
-        lock = multiprocessing_manager.Lock()
-        assert await asynchronize_acquire(lock)
-        assert not await asynchronize_acquire(lock, wait=False)
-        lock.release()
 
-    async def test_should_acquire_after_waiting_with_threading(self) -> None:
-        lock = threading.Lock()
-        lock.acquire()
-        task = create_task(asynchronize_acquire(lock))
-        await sleep(1)
-        lock.release()
-        assert await task
+async def test_asynchronize_acquire__should_acquire_immediately_with_multiprocessing(
+    multiprocessing_manager: SyncManager,
+) -> None:
+    lock = multiprocessing_manager.Lock()
+    assert await asynchronize_acquire(lock)
+    assert not await asynchronize_acquire(lock, wait=False)
+    lock.release()
 
-    async def test_should_acquire_after_waiting_with_multiprocessing(
-        self, multiprocessing_manager: SyncManager
-    ) -> None:
-        lock = multiprocessing_manager.Lock()
-        lock.acquire()
-        task = create_task(asynchronize_acquire(lock))
-        await sleep(1)
-        lock.release()
-        assert await task
 
-    async def test_should_not_acquire_if_not_waiting_with_threading(self) -> None:
-        lock = threading.Lock()
-        lock.acquire()
-        assert not await asynchronize_acquire(lock, wait=False)
-        lock.release()
+async def test_asynchronize_acquire__should_acquire_after_waiting_with_threading() -> (
+    None
+):
+    lock = threading.Lock()
+    lock.acquire()
+    task = create_task(asynchronize_acquire(lock))
+    await sleep(1)
+    lock.release()
+    assert await task
 
-    async def test_should_not_acquire_if_not_waiting_with_multiprocessing(
-        self, multiprocessing_manager: SyncManager
-    ) -> None:
-        lock = multiprocessing_manager.Lock()
-        lock.acquire()
-        assert not await asynchronize_acquire(lock, wait=False)
-        lock.release()
+
+async def test_asynchronize_acquire__should_acquire_after_waiting_with_multiprocessing(
+    multiprocessing_manager: SyncManager,
+) -> None:
+    lock = multiprocessing_manager.Lock()
+    lock.acquire()
+    task = create_task(asynchronize_acquire(lock))
+    await sleep(1)
+    lock.release()
+    assert await task
+
+
+async def test_asynchronize_acquire__should_not_acquire_if_not_waiting_with_threading() -> (
+    None
+):
+    lock = threading.Lock()
+    lock.acquire()
+    assert not await asynchronize_acquire(lock, wait=False)
+    lock.release()
+
+
+async def test_asynchronize_acquire__should_not_acquire_if_not_waiting_with_multiprocessing(
+    multiprocessing_manager: SyncManager,
+) -> None:
+    lock = multiprocessing_manager.Lock()
+    lock.acquire()
+    assert not await asynchronize_acquire(lock, wait=False)
+    lock.release()
 
 
 class TestAsynchronizedLock:
@@ -248,11 +258,11 @@ class TestLedger:
         pickle.loads(pickle.dumps(sut))
 
 
-class TestEnsureManager:
-    def test_with_manager(self) -> None:
-        manager = SyncManager()
-        assert ensure_manager(manager) is manager
+def test_ensure_manager__with_manager() -> None:
+    manager = SyncManager()
+    assert ensure_manager(manager) is manager
 
-    def test_without_manager(self) -> None:
-        with pytest.warns(BettyDeprecationWarning):
-            ensure_manager(None)
+
+def test_ensure_manager__without_manager() -> None:
+    with pytest.warns(BettyDeprecationWarning):
+        ensure_manager(None)

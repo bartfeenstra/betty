@@ -24,7 +24,7 @@ from betty.json.linked_data import LinkedDataDumpableJsonLdObject
 from betty.media_type import MediaType
 from betty.media_type.media_types import PDF, SVG
 from betty.test_utils.ancestry.event_type import DummyEventType
-from betty.test_utils.jinja2 import TemplateStringTestBase
+from betty.test_utils.jinja2 import assert_template_string
 from betty.test_utils.model import DummyUserFacingEntity
 from betty.test_utils.plugin import DummyPlugin
 from betty.tests.ancestry.test___init__ import DummyHasFileReferences
@@ -44,7 +44,7 @@ class DummyPluginTwo(DummyPlugin):
     pass
 
 
-class TestPluginTester(TemplateStringTestBase):
+class TestPluginTester:
     def test_tests(self):
         sut = PluginTester(DummyPlugin, "dummy_plugin")
         assert "dummy_plugin_plugin" in sut.tests()
@@ -66,7 +66,7 @@ class TestPluginTester(TemplateStringTestBase):
         assert sut(data, plugin_identifier) == expected
 
 
-class TestTestEntity(TemplateStringTestBase):
+class TestTestEntity:
     @pytest.mark.parametrize(
         ("expected", "entity_type_identifier", "data"),
         [
@@ -103,7 +103,7 @@ class TestTestEntity(TemplateStringTestBase):
         )
         template = f"{{% if data is entity({entity_type_identifier_arg}) %}}true{{% else %}}false{{% endif %}}"
         with pytest.warns(BettyDeprecationWarning):
-            async with self.assert_template_string(
+            async with assert_template_string(
                 template=template,
                 data={
                     "data": data,
@@ -112,63 +112,19 @@ class TestTestEntity(TemplateStringTestBase):
                 assert actual == expected
 
 
-class TestTestSubjectRole(TemplateStringTestBase):
-    @pytest.mark.parametrize(
-        ("expected", "data"),
-        [
-            ("true", Subject()),
-            ("false", Subject),
-            ("false", UnknownPresenceRole()),
-            ("false", object()),
-        ],
-    )
-    async def test(self, expected: str, data: Any) -> None:
-        template = "{% if data is subject_role %}true{% else %}false{% endif %}"
-        with pytest.warns(BettyDeprecationWarning):
-            async with self.assert_template_string(
-                template=template,
-                data={
-                    "data": data,
-                },
-            ) as (actual, _):
-                assert actual == expected
-
-
-class TestTestWitnessRole(TemplateStringTestBase):
-    @pytest.mark.parametrize(
-        ("expected", "data"),
-        [
-            ("true", Witness()),
-            ("false", Witness),
-            ("false", UnknownPresenceRole()),
-            ("false", object()),
-        ],
-    )
-    async def test(self, expected: str, data: Any) -> None:
-        template = "{% if data is witness_role %}true{% else %}false{% endif %}"
-        with pytest.warns(BettyDeprecationWarning):
-            async with self.assert_template_string(
-                template=template,
-                data={
-                    "data": data,
-                },
-            ) as (actual, _):
-                assert actual == expected
-
-
-class TestTestDateRange(TemplateStringTestBase):
-    @pytest.mark.parametrize(
-        ("expected", "data"),
-        [
-            ("true", DateRange()),
-            ("false", DateRange),
-            ("false", Date()),
-            ("false", object()),
-        ],
-    )
-    async def test(self, expected: str, data: Any) -> None:
-        template = "{% if data is date_range %}true{% else %}false{% endif %}"
-        async with self.assert_template_string(
+@pytest.mark.parametrize(
+    ("expected", "data"),
+    [
+        ("true", Subject()),
+        ("false", Subject),
+        ("false", UnknownPresenceRole()),
+        ("false", object()),
+    ],
+)
+async def test_test_subject_role(expected: str, data: Any) -> None:
+    template = "{% if data is subject_role %}true{% else %}false{% endif %}"
+    with pytest.warns(BettyDeprecationWarning):
+        async with assert_template_string(
             template=template,
             data={
                 "data": data,
@@ -177,21 +133,19 @@ class TestTestDateRange(TemplateStringTestBase):
             assert actual == expected
 
 
-class TestTestEndOfLifeEvent(TemplateStringTestBase):
-    class _EndOfLife(EndOfLifeEventType, DummyEventType):
-        pass
-
-    @pytest.mark.parametrize(
-        ("expected", "data"),
-        [
-            ("true", Event(event_type=_EndOfLife())),
-            ("false", Event(event_type=UnknownEventType())),
-            ("false", Event),
-        ],
-    )
-    async def test(self, expected: str, data: Any) -> None:
-        template = "{% if data is end_of_life_event %}true{% else %}false{% endif %}"
-        async with self.assert_template_string(
+@pytest.mark.parametrize(
+    ("expected", "data"),
+    [
+        ("true", Witness()),
+        ("false", Witness),
+        ("false", UnknownPresenceRole()),
+        ("false", object()),
+    ],
+)
+async def test_test_witness_role(expected: str, data: Any) -> None:
+    template = "{% if data is witness_role %}true{% else %}false{% endif %}"
+    with pytest.warns(BettyDeprecationWarning):
+        async with assert_template_string(
             template=template,
             data={
                 "data": data,
@@ -200,131 +154,169 @@ class TestTestEndOfLifeEvent(TemplateStringTestBase):
             assert actual == expected
 
 
-class TestTestHasFileReferences(TemplateStringTestBase):
-    @pytest.mark.parametrize(
-        ("expected", "data"),
-        [
-            ("true", DummyHasFileReferences()),
-            ("false", DummyHasFileReferences),
-            ("false", object()),
-        ],
+@pytest.mark.parametrize(
+    ("expected", "data"),
+    [
+        ("true", DateRange()),
+        ("false", DateRange),
+        ("false", Date()),
+        ("false", object()),
+    ],
+)
+async def test_test_date_range(expected: str, data: Any) -> None:
+    template = "{% if data is date_range %}true{% else %}false{% endif %}"
+    async with assert_template_string(
+        template=template,
+        data={
+            "data": data,
+        },
+    ) as (actual, _):
+        assert actual == expected
+
+
+class _EndOfLife(EndOfLifeEventType, DummyEventType):
+    pass
+
+
+@pytest.mark.parametrize(
+    ("expected", "data"),
+    [
+        ("true", Event(event_type=_EndOfLife())),
+        ("false", Event(event_type=UnknownEventType())),
+        ("false", Event),
+    ],
+)
+async def test_test_end_of_life_event(expected: str, data: Any) -> None:
+    template = "{% if data is end_of_life_event %}true{% else %}false{% endif %}"
+    async with assert_template_string(
+        template=template,
+        data={
+            "data": data,
+        },
+    ) as (actual, _):
+        assert actual == expected
+
+
+@pytest.mark.parametrize(
+    ("expected", "data"),
+    [
+        ("true", DummyHasFileReferences()),
+        ("false", DummyHasFileReferences),
+        ("false", object()),
+    ],
+)
+async def test_test_has_file_references(expected: str, data: Any) -> None:
+    template = "{% if data is has_file_references %}true{% else %}false{% endif %}"
+    async with assert_template_string(
+        template=template,
+        data={
+            "data": data,
+        },
+    ) as (actual, _):
+        assert actual == expected
+
+
+@pytest.mark.parametrize(
+    ("expected", "data"),
+    [
+        ("true", DummyHasLinks()),
+        ("false", DummyHasLinks),
+        ("false", object()),
+    ],
+)
+async def test_test_has_links(expected: str, data: Any) -> None:
+    template = "{% if data is has_links %}true{% else %}false{% endif %}"
+    async with assert_template_string(
+        template=template,
+        data={
+            "data": data,
+        },
+    ) as (actual, _):
+        assert actual == expected
+
+
+@pytest.mark.parametrize(
+    ("expected", "data"),
+    [
+        ("true", LinkedDataDumpableJsonLdObject()),
+        ("false", LinkedDataDumpableJsonLdObject),
+        ("false", object()),
+    ],
+)
+async def test_test_linked_data_dumpable(expected: str, data: Any) -> None:
+    template = "{% if data is linked_data_dumpable %}true{% else %}false{% endif %}"
+    async with assert_template_string(
+        template=template,
+        data={
+            "data": data,
+        },
+    ) as (actual, _):
+        assert actual == expected
+
+
+class _StartOfLife(StartOfLifeEventType, DummyEventType):
+    pass
+
+
+@pytest.mark.parametrize(
+    ("expected", "data"),
+    [
+        ("true", Event(event_type=_StartOfLife())),
+        ("false", Event(event_type=UnknownEventType())),
+        ("false", Event),
+    ],
+)
+async def test_test_start_of_life_event(expected: str, data: Any) -> None:
+    template = "{% if data is start_of_life_event %}true{% else %}false{% endif %}"
+    async with assert_template_string(
+        template=template,
+        data={
+            "data": data,
+        },
+    ) as (actual, _):
+        assert actual == expected
+
+
+@pytest.mark.parametrize(
+    ("expected", "data"),
+    [
+        ("true", DummyUserFacingEntity()),
+        ("false", DummyUserFacingEntity),
+        ("false", object()),
+    ],
+)
+async def test_test_user_facing_entity(expected: str, data: Any) -> None:
+    template = "{% if data is user_facing_entity %}true{% else %}false{% endif %}"
+    async with assert_template_string(
+        template=template,
+        data={
+            "data": data,
+        },
+    ) as (actual, _):
+        assert actual == expected
+
+
+@pytest.mark.parametrize(
+    ("expected", "data"),
+    [
+        ("true", PDF),
+        ("true", SVG),
+        ("true", MediaType("image/gif")),
+        ("true", MediaType("image/jpeg")),
+        ("true", MediaType("image/png")),
+        ("false", MediaType("text/plain")),
+        ("false", MediaType("application/json")),
+        ("false", None),
+    ],
+)
+async def test_test_image_supported_media_type(expected: str, data: Any) -> None:
+    template = (
+        "{% if data is image_supported_media_type %}true{% else %}false{% endif %}"
     )
-    async def test(self, expected: str, data: Any) -> None:
-        template = "{% if data is has_file_references %}true{% else %}false{% endif %}"
-        async with self.assert_template_string(
-            template=template,
-            data={
-                "data": data,
-            },
-        ) as (actual, _):
-            assert actual == expected
-
-
-class TestTestHasLinks(TemplateStringTestBase):
-    @pytest.mark.parametrize(
-        ("expected", "data"),
-        [
-            ("true", DummyHasLinks()),
-            ("false", DummyHasLinks),
-            ("false", object()),
-        ],
-    )
-    async def test(self, expected: str, data: Any) -> None:
-        template = "{% if data is has_links %}true{% else %}false{% endif %}"
-        async with self.assert_template_string(
-            template=template,
-            data={
-                "data": data,
-            },
-        ) as (actual, _):
-            assert actual == expected
-
-
-class TestTestLinkedDataDumpable(TemplateStringTestBase):
-    @pytest.mark.parametrize(
-        ("expected", "data"),
-        [
-            ("true", LinkedDataDumpableJsonLdObject()),
-            ("false", LinkedDataDumpableJsonLdObject),
-            ("false", object()),
-        ],
-    )
-    async def test(self, expected: str, data: Any) -> None:
-        template = "{% if data is linked_data_dumpable %}true{% else %}false{% endif %}"
-        async with self.assert_template_string(
-            template=template,
-            data={
-                "data": data,
-            },
-        ) as (actual, _):
-            assert actual == expected
-
-
-class TestTestStartOfLifeEvent(TemplateStringTestBase):
-    class _StartOfLife(StartOfLifeEventType, DummyEventType):
-        pass
-
-    @pytest.mark.parametrize(
-        ("expected", "data"),
-        [
-            ("true", Event(event_type=_StartOfLife())),
-            ("false", Event(event_type=UnknownEventType())),
-            ("false", Event),
-        ],
-    )
-    async def test(self, expected: str, data: Any) -> None:
-        template = "{% if data is start_of_life_event %}true{% else %}false{% endif %}"
-        async with self.assert_template_string(
-            template=template,
-            data={
-                "data": data,
-            },
-        ) as (actual, _):
-            assert actual == expected
-
-
-class TestTestUserFacingEntity(TemplateStringTestBase):
-    @pytest.mark.parametrize(
-        ("expected", "data"),
-        [
-            ("true", DummyUserFacingEntity()),
-            ("false", DummyUserFacingEntity),
-            ("false", object()),
-        ],
-    )
-    async def test(self, expected: str, data: Any) -> None:
-        template = "{% if data is user_facing_entity %}true{% else %}false{% endif %}"
-        async with self.assert_template_string(
-            template=template,
-            data={
-                "data": data,
-            },
-        ) as (actual, _):
-            assert actual == expected
-
-
-class TestTestImageSupportedMediaType(TemplateStringTestBase):
-    @pytest.mark.parametrize(
-        ("expected", "data"),
-        [
-            ("true", PDF),
-            ("true", SVG),
-            ("true", MediaType("image/gif")),
-            ("true", MediaType("image/jpeg")),
-            ("true", MediaType("image/png")),
-            ("false", MediaType("text/plain")),
-            ("false", MediaType("application/json")),
-            ("false", None),
-        ],
-    )
-    async def test(self, expected: str, data: Any) -> None:
-        template = (
-            "{% if data is image_supported_media_type %}true{% else %}false{% endif %}"
-        )
-        async with self.assert_template_string(
-            template=template,
-            data={
-                "data": data,
-            },
-        ) as (actual, _):
-            assert actual == expected
+    async with assert_template_string(
+        template=template,
+        data={
+            "data": data,
+        },
+    ) as (actual, _):
+        assert actual == expected

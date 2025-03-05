@@ -15,25 +15,22 @@ if TYPE_CHECKING:
     from betty.fetch import Fetcher
 
 
-class TestCreateProject:
-    async def test(self, new_temporary_app: App, tmp_path: Path) -> None:
-        project = await create_project(new_temporary_app, tmp_path)
-        async with project:
-            assert project.configuration.project_directory_path == tmp_path
-            assert Demo.plugin_id() in await project.extensions
+async def test_create_project(new_temporary_app: App, tmp_path: Path) -> None:
+    project = await create_project(new_temporary_app, tmp_path)
+    async with project:
+        assert project.configuration.project_directory_path == tmp_path
+        assert Demo.plugin_id() in await project.extensions
 
 
-class TestLoadAncestry:
-    async def test(
-        self,
-        demo_project_fetcher: Fetcher,  # noqa F811
-        new_temporary_app_factory: NewTemporaryAppFactory,
-    ) -> None:
-        async with (
-            await new_temporary_app_factory(fetcher=demo_project_fetcher) as app,
-            app,
-            Project.new_temporary(app) as project,
-            project,
-        ):
-            await load_ancestry(project)
-            assert len(project.ancestry)
+async def test_load_ancestry(
+    demo_project_fetcher: Fetcher,  # noqa F811
+    new_temporary_app_factory: NewTemporaryAppFactory,
+) -> None:
+    async with (
+        await new_temporary_app_factory(fetcher=demo_project_fetcher) as app,
+        app,
+        Project.new_temporary(app) as project,
+        project,
+    ):
+        await load_ancestry(project)
+        assert len(project.ancestry)

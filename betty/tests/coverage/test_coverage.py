@@ -24,7 +24,6 @@ import aiofiles
 import pytest
 
 from betty.fs import ROOT_DIRECTORY_PATH
-from betty.string import snake_case_to_upper_camel_case
 from betty.tests.coverage.fixtures import (
     module_function_with_test,
     module_function_without_test,
@@ -62,7 +61,6 @@ _ModuleClassIgnore = _ModuleClassExistsIgnore | MissingReason
 _ModuleMemberIgnore = _ModuleFunctionIgnore | _ModuleClassIgnore
 _ModuleExistsIgnore = Mapping[str, _ModuleMemberIgnore]
 _ModuleIgnore = _ModuleExistsIgnore | MissingReason
-
 
 # Keys are paths to module files with ignore rules. These paths area relative to the project root directory.
 # This baseline MUST NOT be extended. It SHOULD decrease in size as more coverage is added to Betty over time.
@@ -614,13 +612,13 @@ class _ModuleCoverageTester:
                 return
             else:
                 assert not isinstance(self._ignore, MissingReason)
-                test_module_name, _, test_classes = self._get_module_data(
+                test_module_name, test_functions, test_classes = self._get_module_data(
                     self._test_module_path
                 )
                 for src_function in self._src_functions:
                     async for error in _ModuleFunctionCoverageTester(
                         src_function,
-                        test_classes,
+                        test_functions,
                         self._src_module_name,
                         test_module_name,
                         cast(
@@ -702,34 +700,46 @@ class _ModuleCoverageTester:
 class _ModuleFunctionCoverageTester:
     def __init__(
         self,
-        src_function: Callable[..., Any] & _Importable,
-        test_classes: Sequence[type],
+        src_function: _Importable & Callable[..., Any],
+        test_functions: Sequence[_Importable & Callable[..., Any]],
         src_module_name: str,
         test_module_name: str,
         ignore: _ModuleFunctionIgnore,
     ):
         self._src_function = src_function
-        self._test_classes = {
-            test_class.__name__: test_class for test_class in test_classes
+        self._test_functions = {
+            test_function.__name__: test_function for test_function in test_functions
         }
         self._src_module_name = src_module_name
         self._test_module_name = test_module_name
         self._ignore = ignore
 
     async def test(self) -> AsyncIterable[str]:
-        expected_test_class_name = (
-            f"Test{snake_case_to_upper_camel_case(self._src_function.__name__)}"
-        )
-
-        if expected_test_class_name in self._test_classes:
+        expected_test_member_name = f"test_{self._src_function.__name__}"
+        expected_test_member_name_prefix = f"{expected_test_member_name}__"
+        test_functions = [
+            test_function
+            for test_function_name, test_function in self._test_functions.items()
+            if self._is_member(test_function_name)
+            and test_function_name == expected_test_member_name
+            or test_function_name.startswith(expected_test_member_name_prefix)
+        ]
+        if test_functions:
             if isinstance(self._ignore, MissingReason):
-                yield f"The source function {self._src_module_name}.{self._src_function.__name__} has a matching test class at {self._test_classes[expected_test_class_name].__module__}.{self._test_classes[expected_test_class_name].__name__}, which was unexpectedly declared as known to be missing."
+                formatted_test_members = ", ".join(
+                    (f"{test_function.__name__}()" for test_function in test_functions)
+                )
+                yield f"The source function {self._src_function.__module__}.{self._src_function.__name__}() has (a) matching test function(s) {formatted_test_members} in {self._test_module_name}, which was unexpectedly declared as known to be missing."
             return
 
         if isinstance(self._ignore, MissingReason):
             return
 
-        yield f"Failed to find the test class {self._test_module_name}.{expected_test_class_name} for the source function {self._src_module_name}.{self._src_function.__name__}()."
+        yield f"Failed to find a test function named {expected_test_member_name}() or any methods whose names start with `{expected_test_member_name_prefix}` in {self._test_module_name} for the source function {self._src_module_name}.{self._src_function.__name__}()."
+
+    def _is_member(self, name: str) -> bool:
+        # Skip private members.
+        return not name.startswith("_")
 
 
 class _ModuleClassCoverageTester:
@@ -884,10 +894,12 @@ class Test_ModuleFunctionCoverageTester:
     async def test(
         self, errors_expected: bool, module: _Importable, ignore: _ModuleFunctionIgnore
     ) -> None:
-        test_class = cast(type | None, getattr(module, "TestSrc", None))
+        test_function = cast(
+            "_Importable & Callable[..., Any] | None", getattr(module, "test_src", None)
+        )
         sut = _ModuleFunctionCoverageTester(
             module.src,  # type: ignore[attr-defined]
-            () if test_class is None else (test_class,),
+            () if test_function is None else (test_function,),
             module.__name__,
             module.__name__,
             ignore,
