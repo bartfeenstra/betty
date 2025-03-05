@@ -28,16 +28,15 @@ if TYPE_CHECKING:
     from betty.machine_name import MachineName
     from collections.abc import AsyncIterator, Sequence
 
-
 _T = TypeVar("_T")
 
 
-class TestResolveIdentifier:
-    def test_with_plugin(self) -> None:
-        assert resolve_identifier(DummyPlugin) == DummyPlugin.plugin_id()
+def test_resolve_identifier__with_plugin() -> None:
+    assert resolve_identifier(DummyPlugin) == DummyPlugin.plugin_id()
 
-    def test_with_plugin_id(self) -> None:
-        assert resolve_identifier(DummyPlugin.plugin_id()) == DummyPlugin.plugin_id()
+
+def test_resolve_identifier__with_plugin_id() -> None:
+    assert resolve_identifier(DummyPlugin.plugin_id()) == DummyPlugin.plugin_id()
 
 
 class TestPluginNotFound:
@@ -356,55 +355,53 @@ class IsolatedOrderedPluginTwo(_DummyOrderedPlugin):
     pass
 
 
-class TestSortOrderedPluginGraph:
-    @pytest.mark.parametrize(
-        ("expected", "initial"),
-        [
-            (
-                [],
-                [],
-            ),
-            (
-                [IsolatedOrderedPluginOne, IsolatedOrderedPluginTwo],
-                [IsolatedOrderedPluginOne, IsolatedOrderedPluginTwo],
-            ),
-            (
-                [HasComesAfterPlugin],
-                [HasComesAfterPlugin],
-            ),
-            (
-                [ComesAfterTargetPlugin, HasComesAfterPlugin],
-                [ComesAfterTargetPlugin, HasComesAfterPlugin],
-            ),
-            (
-                [HasComesBeforePlugin],
-                [HasComesBeforePlugin],
-            ),
-            (
-                [HasComesBeforePlugin, ComesBeforeTargetPlugin],
-                [ComesBeforeTargetPlugin, HasComesBeforePlugin],
-            ),
-        ],
+@pytest.mark.parametrize(
+    ("expected", "initial"),
+    [
+        (
+            [],
+            [],
+        ),
+        (
+            [IsolatedOrderedPluginOne, IsolatedOrderedPluginTwo],
+            [IsolatedOrderedPluginOne, IsolatedOrderedPluginTwo],
+        ),
+        (
+            [HasComesAfterPlugin],
+            [HasComesAfterPlugin],
+        ),
+        (
+            [ComesAfterTargetPlugin, HasComesAfterPlugin],
+            [ComesAfterTargetPlugin, HasComesAfterPlugin],
+        ),
+        (
+            [HasComesBeforePlugin],
+            [HasComesBeforePlugin],
+        ),
+        (
+            [HasComesBeforePlugin, ComesBeforeTargetPlugin],
+            [ComesBeforeTargetPlugin, HasComesBeforePlugin],
+        ),
+    ],
+)
+async def test_sort_ordered_plugin_graph(
+    expected: list[type[_DummyOrderedPlugin]],
+    initial: Sequence[type[_DummyOrderedPlugin]],
+) -> None:
+    sorter = TopologicalSorter[type[_DummyOrderedPlugin]]()
+    await sort_ordered_plugin_graph(
+        sorter,
+        StaticPluginRepository[_DummyOrderedPlugin](
+            ComesBeforeTargetPlugin,
+            HasComesBeforePlugin,
+            ComesAfterTargetPlugin,
+            HasComesAfterPlugin,
+            IsolatedOrderedPluginOne,
+            IsolatedOrderedPluginTwo,
+        ),
+        initial,
     )
-    async def test(
-        self,
-        expected: list[type[_DummyOrderedPlugin]],
-        initial: Sequence[type[_DummyOrderedPlugin]],
-    ) -> None:
-        sorter = TopologicalSorter[type[_DummyOrderedPlugin]]()
-        await sort_ordered_plugin_graph(
-            sorter,
-            StaticPluginRepository[_DummyOrderedPlugin](
-                ComesBeforeTargetPlugin,
-                HasComesBeforePlugin,
-                ComesAfterTargetPlugin,
-                HasComesAfterPlugin,
-                IsolatedOrderedPluginOne,
-                IsolatedOrderedPluginTwo,
-            ),
-            initial,
-        )
-        assert list(sorter.static_order()) == expected
+    assert list(sorter.static_order()) == expected
 
 
 class _DummyDependentPlugin(DependentPlugin["_DummyDependentPlugin"], DummyPlugin):
@@ -437,52 +434,50 @@ class IsolatedDependentPluginTwo(_DummyDependentPlugin):
     pass
 
 
-class TestSortDependentPluginGraph:
-    @pytest.mark.parametrize(
-        ("expected", "updated", "initial"),
-        [
-            (
-                [],
-                [],
-                [],
-            ),
-            (
-                [IsolatedDependentPluginOne, IsolatedDependentPluginTwo],
-                [IsolatedDependentPluginOne, IsolatedDependentPluginTwo],
-                [IsolatedDependentPluginOne, IsolatedDependentPluginTwo],
-            ),
-            (
-                [DownStream, UpstreamAndDownstream, Upstream],
-                [Upstream, UpstreamAndDownstream],
-                [Upstream],
-            ),
-            (
-                [DownStream, UpstreamAndDownstream, Upstream],
-                [Upstream, UpstreamAndDownstream, DownStream],
-                [Upstream, UpstreamAndDownstream, DownStream],
-            ),
-        ],
+@pytest.mark.parametrize(
+    ("expected", "updated", "initial"),
+    [
+        (
+            [],
+            [],
+            [],
+        ),
+        (
+            [IsolatedDependentPluginOne, IsolatedDependentPluginTwo],
+            [IsolatedDependentPluginOne, IsolatedDependentPluginTwo],
+            [IsolatedDependentPluginOne, IsolatedDependentPluginTwo],
+        ),
+        (
+            [DownStream, UpstreamAndDownstream, Upstream],
+            [Upstream, UpstreamAndDownstream],
+            [Upstream],
+        ),
+        (
+            [DownStream, UpstreamAndDownstream, Upstream],
+            [Upstream, UpstreamAndDownstream, DownStream],
+            [Upstream, UpstreamAndDownstream, DownStream],
+        ),
+    ],
+)
+async def test_sort_dependent_plugin_graph(
+    expected: list[type[_DummyDependentPlugin]],
+    updated: list[type[_DummyDependentPlugin]],
+    initial: Sequence[type[_DummyDependentPlugin]],
+) -> None:
+    sorter = TopologicalSorter[type[_DummyDependentPlugin]]()
+    updated_entry_point_plugins = await sort_dependent_plugin_graph(
+        sorter,
+        StaticPluginRepository[_DummyDependentPlugin](
+            DownStream,
+            Upstream,
+            UpstreamAndDownstream,
+            IsolatedDependentPluginOne,
+            IsolatedDependentPluginTwo,
+        ),
+        initial,
     )
-    async def test(
-        self,
-        expected: list[type[_DummyDependentPlugin]],
-        updated: list[type[_DummyDependentPlugin]],
-        initial: Sequence[type[_DummyDependentPlugin]],
-    ) -> None:
-        sorter = TopologicalSorter[type[_DummyDependentPlugin]]()
-        updated_entry_point_plugins = await sort_dependent_plugin_graph(
-            sorter,
-            StaticPluginRepository[_DummyDependentPlugin](
-                DownStream,
-                Upstream,
-                UpstreamAndDownstream,
-                IsolatedDependentPluginOne,
-                IsolatedDependentPluginTwo,
-            ),
-            initial,
-        )
-        assert list(sorter.static_order()) == expected
-        assert updated_entry_point_plugins == updated
+    assert list(sorter.static_order()) == expected
+    assert updated_entry_point_plugins == updated
 
 
 class TestCyclicDependencyError:

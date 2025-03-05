@@ -67,73 +67,71 @@ class HasComesAfterExtension(DummyExtension):
         return {ComesAfterTargetExtension}
 
 
-class TestSortExtensionTypeGraph:
-    @pytest.mark.parametrize(
-        ("expected", "initial"),
-        [
-            (
-                [],
-                [],
-            ),
-            (
-                [HasComesBeforeExtension],
-                [HasComesBeforeExtension],
-            ),
-            (
-                [HasComesAfterExtension],
-                [HasComesAfterExtension],
-            ),
-            (
-                [ComesBeforeTargetExtension, DependsOnComesBeforeTargetExtension],
-                [DependsOnComesBeforeTargetExtension],
-            ),
-            (
-                [ComesAfterTargetExtension, DependsOnHasComesAfterTargetExtension],
-                [DependsOnHasComesAfterTargetExtension],
-            ),
-            (
-                [ComesBeforeTargetExtension, DependsOnComesBeforeTargetExtension],
-                [DependsOnComesBeforeTargetExtension, ComesBeforeTargetExtension],
-            ),
-            (
-                [ComesAfterTargetExtension, DependsOnHasComesAfterTargetExtension],
-                [DependsOnHasComesAfterTargetExtension, ComesAfterTargetExtension],
-            ),
-            (
-                [
-                    HasComesBeforeExtension,
-                    ComesBeforeTargetExtension,
-                    DependsOnComesBeforeTargetExtension,
-                ],
-                [DependsOnComesBeforeTargetExtension, HasComesBeforeExtension],
-            ),
-            (
-                [
-                    ComesAfterTargetExtension,
-                    DependsOnHasComesAfterTargetExtension,
-                    HasComesAfterExtension,
-                ],
-                [DependsOnHasComesAfterTargetExtension, HasComesAfterExtension],
-            ),
-        ],
-    )
-    async def test(
-        self,
-        expected: list[type[DummyExtension]],
-        initial: Sequence[type[DummyExtension]],
-        mocker: MockerFixture,
-    ) -> None:
-        mocker.patch(
-            "betty.project.extension.EXTENSION_REPOSITORY",
-            new=StaticPluginRepository[Extension](
+@pytest.mark.parametrize(
+    ("expected", "initial"),
+    [
+        (
+            [],
+            [],
+        ),
+        (
+            [HasComesBeforeExtension],
+            [HasComesBeforeExtension],
+        ),
+        (
+            [HasComesAfterExtension],
+            [HasComesAfterExtension],
+        ),
+        (
+            [ComesBeforeTargetExtension, DependsOnComesBeforeTargetExtension],
+            [DependsOnComesBeforeTargetExtension],
+        ),
+        (
+            [ComesAfterTargetExtension, DependsOnHasComesAfterTargetExtension],
+            [DependsOnHasComesAfterTargetExtension],
+        ),
+        (
+            [ComesBeforeTargetExtension, DependsOnComesBeforeTargetExtension],
+            [DependsOnComesBeforeTargetExtension, ComesBeforeTargetExtension],
+        ),
+        (
+            [ComesAfterTargetExtension, DependsOnHasComesAfterTargetExtension],
+            [DependsOnHasComesAfterTargetExtension, ComesAfterTargetExtension],
+        ),
+        (
+            [
+                HasComesBeforeExtension,
                 ComesBeforeTargetExtension,
                 DependsOnComesBeforeTargetExtension,
-                HasComesBeforeExtension,
+            ],
+            [DependsOnComesBeforeTargetExtension, HasComesBeforeExtension],
+        ),
+        (
+            [
                 ComesAfterTargetExtension,
                 DependsOnHasComesAfterTargetExtension,
                 HasComesAfterExtension,
-            ),
-        )
-        sorter = TopologicalSorter[type[Extension]]()
-        await sort_extension_type_graph(sorter, initial)
-        assert list(sorter.static_order()) == expected
+            ],
+            [DependsOnHasComesAfterTargetExtension, HasComesAfterExtension],
+        ),
+    ],
+)
+async def test_sort_extension_type_graph(
+    expected: list[type[DummyExtension]],
+    initial: Sequence[type[DummyExtension]],
+    mocker: MockerFixture,
+) -> None:
+    mocker.patch(
+        "betty.project.extension.EXTENSION_REPOSITORY",
+        new=StaticPluginRepository[Extension](
+            ComesBeforeTargetExtension,
+            DependsOnComesBeforeTargetExtension,
+            HasComesBeforeExtension,
+            ComesAfterTargetExtension,
+            DependsOnHasComesAfterTargetExtension,
+            HasComesAfterExtension,
+        ),
+    )
+    sorter = TopologicalSorter[type[Extension]]()
+    await sort_extension_type_graph(sorter, initial)
+    assert list(sorter.static_order()) == expected

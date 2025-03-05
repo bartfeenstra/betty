@@ -26,12 +26,12 @@ class _NoOpCommand(Command, DummyPlugin):
         return _no_op_command
 
 
-class TestMain:
-    async def test_without_arguments(self, new_temporary_app_cli: App) -> None:
-        await run(new_temporary_app_cli)
+async def test_main__without_arguments(new_temporary_app_cli: App) -> None:
+    await run(new_temporary_app_cli)
 
-    async def test_help(self, new_temporary_app_cli: App) -> None:
-        await run(new_temporary_app_cli, "--help")
+
+async def test_main__help(new_temporary_app_cli: App) -> None:
+    await run(new_temporary_app_cli, "--help")
 
 
 class TestVersion:
@@ -94,7 +94,6 @@ class TestClickHandler:
         assert stream.getvalue() == "Something went wrong!\n"
 
 
-class TestNewMainCommand:
-    async def test(self, new_temporary_app_cli: App) -> None:
-        main_command = await new_main_command(new_temporary_app_cli)
-        assert await main_command.main("--help", standalone_mode=False) == 0
+async def test_new_main_command(new_temporary_app_cli: App) -> None:
+    main_command = await new_main_command(new_temporary_app_cli)
+    assert await main_command.main("--help", standalone_mode=False) == 0

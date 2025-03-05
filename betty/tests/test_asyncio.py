@@ -1,15 +1,15 @@
 from betty.asyncio import ensure_await
 
 
-class TestEnsureAwait:
-    async def test_with_awaitable(self) -> None:
-        value = object()
+async def test_ensure_await__with_awaitable() -> None:
+    value = object()
 
-        def _awaitable() -> object:
-            return value
+    def _awaitable() -> object:
+        return value
 
-        assert await ensure_await(_awaitable()) is value
+    assert await ensure_await(_awaitable()) is value
 
-    async def test_without_awaitable(self) -> None:
-        value = object()
-        assert await ensure_await(value) is value
+
+async def test_ensure_await__without_awaitable() -> None:
+    value = object()
+    assert await ensure_await(value) is value

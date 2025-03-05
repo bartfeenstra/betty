@@ -94,10 +94,10 @@ class TestFormatStr:
         assert sut.localize(DEFAULT_LOCALIZER) == ".one (One), .two (Two)"
 
 
-class TestFormatFor:
-    async def test_with_known_format(self) -> None:
-        assert format_for([FormatOne], ".one") is FormatOne
+async def test_format_for__with_known_format() -> None:
+    assert format_for([FormatOne], ".one") is FormatOne
 
-    async def test_format_for_with_unknown_format(self) -> None:
-        with pytest.raises(FormatError):
-            assert format_for([], ".unknown")
+
+async def test_format_for_with_unknown_format() -> None:
+    with pytest.raises(FormatError):
+        assert format_for([], ".unknown")

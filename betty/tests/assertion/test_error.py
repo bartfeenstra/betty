@@ -35,49 +35,50 @@ class TestKey:
         assert Key("key").format() == '["key"]'
 
 
-class TestLocalizableContexts:
-    @pytest.mark.parametrize(
-        ("expected", "contexts"),
-        [
-            ([], []),
-            (
-                ["My First Context"],
-                [plain("My First Context")],
-            ),
-            (
-                ["My First Context", "My First Context"],
-                [plain("My First Context"), plain("My First Context")],
-            ),
-            (
-                ["data.attr"],
-                [Attr("attr")],
-            ),
-            (
-                ["My First Context", "data.attr"],
-                [Attr("attr"), plain("My First Context")],
-            ),
-            (
-                ["data.attr", "My First Context"],
-                [plain("My First Context"), Attr("attr")],
-            ),
-            (
-                ["My First Context", 'data.attr[0]["key"]', "My First Context"],
-                [
-                    plain("My First Context"),
-                    Key("key"),
-                    Index(0),
-                    Attr("attr"),
-                    plain("My First Context"),
-                ],
-            ),
-        ],
-    )
-    def test(self, expected: Sequence[str], contexts: Sequence[Contextey]) -> None:
-        sut = AssertionFailed(static("Something went wrong!")).with_context(*contexts)
-        assert [
-            context.localize(DEFAULT_LOCALIZER)
-            for context in localizable_contexts(*sut.contexts)
-        ] == expected
+@pytest.mark.parametrize(
+    ("expected", "contexts"),
+    [
+        ([], []),
+        (
+            ["My First Context"],
+            [plain("My First Context")],
+        ),
+        (
+            ["My First Context", "My First Context"],
+            [plain("My First Context"), plain("My First Context")],
+        ),
+        (
+            ["data.attr"],
+            [Attr("attr")],
+        ),
+        (
+            ["My First Context", "data.attr"],
+            [Attr("attr"), plain("My First Context")],
+        ),
+        (
+            ["data.attr", "My First Context"],
+            [plain("My First Context"), Attr("attr")],
+        ),
+        (
+            ["My First Context", 'data.attr[0]["key"]', "My First Context"],
+            [
+                plain("My First Context"),
+                Key("key"),
+                Index(0),
+                Attr("attr"),
+                plain("My First Context"),
+            ],
+        ),
+    ],
+)
+def test_localizable_contexts(
+    expected: Sequence[str], contexts: Sequence[Contextey]
+) -> None:
+    sut = AssertionFailed(static("Something went wrong!")).with_context(*contexts)
+    assert [
+        context.localize(DEFAULT_LOCALIZER)
+        for context in localizable_contexts(*sut.contexts)
+    ] == expected
 
 
 class TestAssertionFailed:

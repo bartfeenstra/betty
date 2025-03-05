@@ -17,6 +17,7 @@ from betty.jinja2 import Environment
 from betty.json.schema import Ref, AllOf
 from betty.project import Project, ProjectSchema
 from betty.project.extension import Extension
+from betty.warnings import deprecated
 
 if TYPE_CHECKING:
     from jinja2 import Template
@@ -110,6 +111,9 @@ class TemplateStringTestBase(_TemplateTestBase):
     A base class for testing Jinja2 template strings.
     """
 
+    @deprecated(
+        f"This class is deprecated as of Betty 0.4.11. Use {assert_template_string} directly instead."
+    )
     def assert_template_string(
         self,
         template: str,
@@ -137,6 +141,9 @@ class TemplateFileTestBase(_TemplateTestBase):
 
     template: str
 
+    @deprecated(
+        f"This class is deprecated as of Betty 0.4.11. Use {assert_template_file} directly instead."
+    )
     def assert_template_file(
         self,
         *,

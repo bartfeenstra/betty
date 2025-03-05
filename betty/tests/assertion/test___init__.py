@@ -76,519 +76,531 @@ def _always_invalid(value: int) -> int:
     raise AssertionFailed(static(""))
 
 
-class TestAssertOr:
-    @pytest.mark.parametrize(
-        ("if_assertion", "else_assertion", "value"),
-        [
-            (_always_valid, _always_valid, 123),
-            (_always_valid, _always_invalid, 123),
-            (_always_invalid, _always_valid, 123),
-        ],
-    )
-    def test_with_valid_assertion(
-        self,
-        if_assertion: Assertion[Any, bool],
-        else_assertion: Assertion[Any, bool],
-        value: int,
-    ) -> None:
-        assert assert_or(if_assertion, else_assertion)(value) == value
-
-    def test_with_invalid_assertion(self) -> None:
-        with raises_error(error_type=AssertionFailed):
-            assert_or(_always_invalid, _always_invalid)(123)
+@pytest.mark.parametrize(
+    ("if_assertion", "else_assertion", "value"),
+    [
+        (_always_valid, _always_valid, 123),
+        (_always_valid, _always_invalid, 123),
+        (_always_invalid, _always_valid, 123),
+    ],
+)
+def test_assert_or__with_valid_assertion(
+    if_assertion: Assertion[Any, bool],
+    else_assertion: Assertion[Any, bool],
+    value: int,
+) -> None:
+    assert assert_or(if_assertion, else_assertion)(value) == value
 
 
-class TestAssertBool:
-    def test_with_valid_value(self) -> None:
-        assert_bool()(True)
-
-    def test_with_invalid_value(self) -> None:
-        with raises_error(error_type=AssertionFailed):
-            assert_bool()(123)
+def test_assert_or__with_invalid_assertion() -> None:
+    with raises_error(error_type=AssertionFailed):
+        assert_or(_always_invalid, _always_invalid)(123)
 
 
-class TestAssertInt:
-    def test_with_valid_value(self) -> None:
-        assert_int()(123)
-
-    def test_with_invalid_value(self) -> None:
-        with raises_error(error_type=AssertionFailed):
-            assert_int()(False)
+def test_assert_bool__with_valid_value() -> None:
+    assert_bool()(True)
 
 
-class TestAssertFloat:
-    def test_with_valid_value(self) -> None:
-        assert_float()(1.23)
-
-    def test_with_invalid_value(self) -> None:
-        with raises_error(error_type=AssertionFailed):
-            assert_float()(False)
+def test_assert_bool__with_invalid_value() -> None:
+    with raises_error(error_type=AssertionFailed):
+        assert_bool()(123)
 
 
-class TestAssertNumber:
-    @pytest.mark.parametrize(
-        "value",
-        [
-            3,
-            3.13,
-        ],
-    )
-    def test_with_valid_value(self, value: Number) -> None:
-        assert_number()(value)
-
-    def test_with_invalid_value(self) -> None:
-        with raises_error(error_type=AssertionFailed):
-            assert_number()(False)
+def test_assert_int__with_valid_value() -> None:
+    assert_int()(123)
 
 
-class TestAssertPositiveNumber:
-    @pytest.mark.parametrize(
-        "value",
-        [
-            0,
-            0.0,
-            1,
-            1.1,
-        ],
-    )
-    def test_with_valid_value(self, value: int | float) -> None:
-        assert_positive_number()(1.23)
-
-    @pytest.mark.parametrize(
-        "value",
-        [
-            -1,
-            -0.0000000001,
-            -1.0,
-        ],
-    )
-    def test_with_invalid_value(self, value: int | float) -> None:
-        with raises_error(error_type=AssertionFailed):
-            assert_positive_number()(value)
+def test_assert_int__with_invalid_value() -> None:
+    with raises_error(error_type=AssertionFailed):
+        assert_int()(False)
 
 
-class TestAssertStr:
-    def test_with_valid_value(self) -> None:
-        assert_str()("Hello, world!")
-
-    def test_with_invalid_value(self) -> None:
-        with raises_error(error_type=AssertionFailed):
-            assert_str()(False)
+def test_assert_float__with_valid_value() -> None:
+    assert_float()(1.23)
 
 
-class TestAssertSequence:
-    @pytest.mark.parametrize(
-        "value",
-        [
-            True,
-            False,
-            None,
-            123,
-            object(),
-            {},
-        ],
-    )
-    def test_with_invalid_top_level_value(self, value: Any) -> None:
-        with raises_error(error_type=AssertionFailed):
-            assert_sequence()(value)
-
-    def test_with_invalid_item(self) -> None:
-        with raises_error(error_type=AssertionFailed, error_contexts=[Index(0)]):
-            assert_sequence(assert_str())([123])
-
-    @pytest.mark.parametrize(
-        ("value", "value_assertion"),
-        [
-            ([], None),
-            ([], assert_str()),
-            (["abc"], assert_str()),
-        ],
-    )
-    def test_valid(
-        self, value: Any, value_assertion: Assertion[Any, Any] | None
-    ) -> None:
-        assert_sequence(value_assertion)(value)
+def test_assert_float__with_invalid_value() -> None:
+    with raises_error(error_type=AssertionFailed):
+        assert_float()(False)
 
 
-class TestAssertFields:
-    def test_with_invalid_value(self) -> None:
-        with raises_error(error_type=AssertionFailed):
-            assert_fields(OptionalField("hello", assert_str()))(None)
+@pytest.mark.parametrize(
+    "value",
+    [
+        3,
+        3.13,
+    ],
+)
+def test_assert_number__with_valid_value(value: Number) -> None:
+    assert_number()(value)
 
-    def test_required_without_key(self) -> None:
-        with raises_error(error_type=AssertionFailed, error_contexts=[Key("hello")]):
-            assert_fields(RequiredField("hello", assert_str()))({})
 
-    def test_optional_without_key(self) -> None:
-        expected: Mapping[str, Any] = {}
-        actual = assert_fields(OptionalField("hello", assert_str()))({})
-        assert actual == expected
+def test_assert_number__with_invalid_value() -> None:
+    with raises_error(error_type=AssertionFailed):
+        assert_number()(False)
 
-    def test_required_key_with_key(self) -> None:
-        expected = {
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        0,
+        0.0,
+        1,
+        1.1,
+    ],
+)
+def test_assert_positive_number__with_valid_value(value: int | float) -> None:
+    assert_positive_number()(1.23)
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        -1,
+        -0.0000000001,
+        -1.0,
+    ],
+)
+def test_assert_positive_number__with_invalid_value(value: int | float) -> None:
+    with raises_error(error_type=AssertionFailed):
+        assert_positive_number()(value)
+
+
+def test_assert_str__with_valid_value() -> None:
+    assert_str()("Hello, world!")
+
+
+def test_assert_str__with_invalid_value() -> None:
+    with raises_error(error_type=AssertionFailed):
+        assert_str()(False)
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        True,
+        False,
+        None,
+        123,
+        object(),
+        {},
+    ],
+)
+def test_assert_sequence__with_invalid_top_level_value(value: Any) -> None:
+    with raises_error(error_type=AssertionFailed):
+        assert_sequence()(value)
+
+
+def test_assert_sequence__with_invalid_item() -> None:
+    with raises_error(error_type=AssertionFailed, error_contexts=[Index(0)]):
+        assert_sequence(assert_str())([123])
+
+
+@pytest.mark.parametrize(
+    ("value", "value_assertion"),
+    [
+        ([], None),
+        ([], assert_str()),
+        (["abc"], assert_str()),
+    ],
+)
+def test_assert_sequence__valid(
+    value: Any, value_assertion: Assertion[Any, Any] | None
+) -> None:
+    assert_sequence(value_assertion)(value)
+
+
+def test_assert_fields__with_invalid_value() -> None:
+    with raises_error(error_type=AssertionFailed):
+        assert_fields(OptionalField("hello", assert_str()))(None)
+
+
+def test_assert_fields__required_without_key() -> None:
+    with raises_error(error_type=AssertionFailed, error_contexts=[Key("hello")]):
+        assert_fields(RequiredField("hello", assert_str()))({})
+
+
+def test_assert_fields__optional_without_key() -> None:
+    expected: Mapping[str, Any] = {}
+    actual = assert_fields(OptionalField("hello", assert_str()))({})
+    assert actual == expected
+
+
+def test_assert_fields__required_key_with_key() -> None:
+    expected = {
+        "hello": "World!",
+    }
+    actual = assert_fields(RequiredField("hello", assert_str()))({"hello": "World!"})
+    assert actual == expected
+
+
+def test_assert_fields__optional_key_with_key() -> None:
+    expected = {
+        "hello": "World!",
+    }
+    actual = assert_fields(OptionalField("hello", assert_str()))({"hello": "World!"})
+    assert actual == expected
+
+
+def test_assert_fields__without_field_assertion() -> None:
+    expected = {
+        "hello": "World!",
+    }
+    actual = assert_fields(RequiredField("hello"))({"hello": "World!"})
+    assert actual == expected
+
+
+def test_assert_field__with_invalid_value() -> None:
+    with raises_error(error_type=AssertionFailed):
+        assert_field(OptionalField("hello", assert_str()))(None)
+
+
+def test_assert_field__required_without_key() -> None:
+    with raises_error(error_type=AssertionFailed, error_contexts=[Key("hello")]):
+        assert_field(RequiredField("hello", assert_str()))({})
+
+
+def test_assert_field__optional_without_key() -> None:
+    expected = Void
+    actual = assert_field(OptionalField("hello", assert_str()))({})
+    assert actual == expected
+
+
+def test_assert_field__required_key_with_key() -> None:
+    expected = "World!"
+    actual = assert_field(RequiredField("hello", assert_str()))({"hello": "World!"})
+    assert actual == expected
+
+
+def test_assert_field__optional_key_with_key() -> None:
+    expected = "World!"
+    actual = assert_field(OptionalField("hello", assert_str()))({"hello": "World!"})
+    assert actual == expected
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        True,
+        False,
+        None,
+        "abc",
+        123,
+        object(),
+        [],
+    ],
+)
+def test_assert_mapping__with_invalid_top_level_value(value: Any) -> None:
+    with raises_error(error_type=AssertionFailed):
+        assert_mapping()(value)
+
+
+def test_assert_mapping__with_invalid_item_value() -> None:
+    with raises_error(error_type=AssertionFailed, error_contexts=[Key("abc")]):
+        assert_mapping(assert_str())({"abc": 123})
+
+
+def test_assert_mapping__with_invalid_item_key() -> None:
+    with raises_error(error_type=AssertionFailed, error_contexts=[Key("123")]):
+        assert_mapping(None, assert_str())({123: "abc"})
+
+
+@pytest.mark.parametrize(
+    ("value", "value_assertion", "key_assertion"),
+    [
+        ({}, None, None),
+        ({}, assert_str(), None),
+        ({}, None, assert_str()),
+        ({123: "abc"}, assert_str(), None),
+        ({"abc": 123}, None, assert_str()),
+    ],
+)
+def test_assert_mapping__valid(
+    value: Any,
+    value_assertion: Assertion[Any, Any] | None,
+    key_assertion: Assertion[Any, Any] | None,
+) -> None:
+    assert_mapping(value_assertion, key_assertion)(value)
+
+
+def test_assert_record__with_unknown_key_should_error() -> None:
+    with raises_error(error_contexts=[Key("unknown-key")]):
+        assert_record()({"unknown-key": True})
+
+
+def test_assert_record__with_optional_fields_without_items() -> None:
+    expected: Mapping[str, Any] = {}
+    actual = assert_record(OptionalField("hello", assert_str()))({})
+    assert actual == expected
+
+
+def test_assert_record__with_optional_fields_with_items() -> None:
+    expected = {
+        "hello": "WORLD!",
+    }
+    actual = assert_record(
+        OptionalField("hello", assert_str().chain(lambda x: x.upper()))
+    )({"hello": "World!"})
+    assert actual == expected
+
+
+def test_assert_record__with_required_fields_without_items() -> None:
+    with raises_error(error_type=AssertionFailed):
+        assert_record(RequiredField("hello", assert_str()))({})
+
+
+def test_assert_record__with_required_fields_with_items() -> None:
+    expected = {
+        "hello": "WORLD!",
+    }
+    actual = assert_record(
+        RequiredField("hello", assert_str().chain(lambda x: x.upper()))
+    )(
+        {
             "hello": "World!",
         }
-        actual = assert_fields(RequiredField("hello", assert_str()))(
-            {"hello": "World!"}
-        )
-        assert actual == expected
-
-    def test_optional_key_with_key(self) -> None:
-        expected = {
-            "hello": "World!",
-        }
-        actual = assert_fields(OptionalField("hello", assert_str()))(
-            {"hello": "World!"}
-        )
-        assert actual == expected
-
-    def test_without_field_assertion(self) -> None:
-        expected = {
-            "hello": "World!",
-        }
-        actual = assert_fields(RequiredField("hello"))({"hello": "World!"})
-        assert actual == expected
-
-
-class TestAssertField:
-    def test_with_invalid_value(self) -> None:
-        with raises_error(error_type=AssertionFailed):
-            assert_field(OptionalField("hello", assert_str()))(None)
-
-    def test_required_without_key(self) -> None:
-        with raises_error(error_type=AssertionFailed, error_contexts=[Key("hello")]):
-            assert_field(RequiredField("hello", assert_str()))({})
-
-    def test_optional_without_key(self) -> None:
-        expected = Void
-        actual = assert_field(OptionalField("hello", assert_str()))({})
-        assert actual == expected
-
-    def test_required_key_with_key(self) -> None:
-        expected = "World!"
-        actual = assert_field(RequiredField("hello", assert_str()))({"hello": "World!"})
-        assert actual == expected
-
-    def test_optional_key_with_key(self) -> None:
-        expected = "World!"
-        actual = assert_field(OptionalField("hello", assert_str()))({"hello": "World!"})
-        assert actual == expected
-
-
-class TestAssertMapping:
-    @pytest.mark.parametrize(
-        "value",
-        [
-            True,
-            False,
-            None,
-            "abc",
-            123,
-            object(),
-            [],
-        ],
     )
-    def test_with_invalid_top_level_value(self, value: Any) -> None:
-        with raises_error(error_type=AssertionFailed):
-            assert_mapping()(value)
-
-    def test_with_invalid_item_value(self) -> None:
-        with raises_error(error_type=AssertionFailed, error_contexts=[Key("abc")]):
-            assert_mapping(assert_str())({"abc": 123})
-
-    def test_with_invalid_item_key(self) -> None:
-        with raises_error(error_type=AssertionFailed, error_contexts=[Key("123")]):
-            assert_mapping(None, assert_str())({123: "abc"})
-
-    @pytest.mark.parametrize(
-        ("value", "value_assertion", "key_assertion"),
-        [
-            ({}, None, None),
-            ({}, assert_str(), None),
-            ({}, None, assert_str()),
-            ({123: "abc"}, assert_str(), None),
-            ({"abc": 123}, None, assert_str()),
-        ],
-    )
-    def test_valid(
-        self,
-        value: Any,
-        value_assertion: Assertion[Any, Any] | None,
-        key_assertion: Assertion[Any, Any] | None,
-    ) -> None:
-        assert_mapping(value_assertion, key_assertion)(value)
+    assert actual == expected
 
 
-class TestAssertRecord:
-    def test_with_unknown_key_should_error(self) -> None:
-        with raises_error(error_contexts=[Key("unknown-key")]):
-            assert_record()({"unknown-key": True})
-
-    def test_with_optional_fields_without_items(self) -> None:
-        expected: Mapping[str, Any] = {}
-        actual = assert_record(OptionalField("hello", assert_str()))({})
-        assert actual == expected
-
-    def test_with_optional_fields_with_items(self) -> None:
-        expected = {
-            "hello": "WORLD!",
-        }
-        actual = assert_record(
-            OptionalField("hello", assert_str().chain(lambda x: x.upper()))
-        )({"hello": "World!"})
-        assert actual == expected
-
-    def test_with_required_fields_without_items(self) -> None:
-        with raises_error(error_type=AssertionFailed):
-            assert_record(RequiredField("hello", assert_str()))({})
-
-    def test_with_required_fields_with_items(self) -> None:
-        expected = {
-            "hello": "WORLD!",
-        }
-        actual = assert_record(
-            RequiredField("hello", assert_str().chain(lambda x: x.upper()))
-        )(
-            {
-                "hello": "World!",
-            }
-        )
-        assert actual == expected
+def test_assert_path__with_valid_str_path() -> None:
+    assert_path()("~/../foo/bar")
 
 
-class TestAssertPath:
-    def test_with_valid_str_path(self) -> None:
-        assert_path()("~/../foo/bar")
-
-    def test_with_valid_path_path(self) -> None:
-        assert_path()(Path("~/../foo/bar"))
+def test_assert_path__with_valid_path_path() -> None:
+    assert_path()(Path("~/../foo/bar"))
 
 
-class TestAssertDirectoryPath:
-    def test_without_existing_path(self) -> None:
-        with raises_error(error_type=AssertionFailed):
-            assert_directory_path()("~/../foo/bar")
-
-    def test_without_directory_path(self) -> None:
-        with NamedTemporaryFile() as f, raises_error(error_type=AssertionFailed):
-            assert_directory_path()(f.name)
-
-    async def test_with_valid_path_str(self) -> None:
-        async with TemporaryDirectory() as directory_path_str:
-            assert_directory_path()(directory_path_str)
-
-    async def test_with_valid_path_path(self) -> None:
-        async with TemporaryDirectory() as directory_path_str:
-            assert_directory_path()(Path(directory_path_str))
+def test_assert_directory_path__without_existing_path() -> None:
+    with raises_error(error_type=AssertionFailed):
+        assert_directory_path()("~/../foo/bar")
 
 
-class TestAssertFilePath:
-    def test_without_existing_path(self) -> None:
-        with pytest.raises(UserFacingError):
-            assert_file_path()("~/../foo/bar")
-
-    def test_with_valid_path_str(self) -> None:
-        with NamedTemporaryFile() as f:
-            assert_file_path()(f.name)
-
-    def test_with_valid_path_path(self) -> None:
-        with NamedTemporaryFile() as f:
-            assert_file_path()(Path(f.name))
+def test_assert_directory_path__without_directory_path() -> None:
+    with NamedTemporaryFile() as f, raises_error(error_type=AssertionFailed):
+        assert_directory_path()(f.name)
 
 
-class TestAssertIsinstance:
-    def test_with_instance(self) -> None:
-        class MyClass:
-            pass
-
-        instance = MyClass()
-        assert assert_isinstance(MyClass)(instance) == instance
-
-    def test_without_instance(self) -> None:
-        class MyClass:
-            pass
-
-        with pytest.raises(AssertionFailed):
-            assert assert_isinstance(MyClass)(object())  # type: ignore[truthy-bool]
+async def test_assert_directory_path__with_valid_path_str() -> None:
+    async with TemporaryDirectory() as directory_path_str:
+        assert_directory_path()(directory_path_str)
 
 
-class TestAssertLen:
-    @pytest.mark.parametrize(
-        ("exact", "value"),
-        [
-            (0, ""),
-            (3, "abc"),
-            (0, []),
-            (3, ["a", "b", "c"]),
-            (0, {}),
-            (3, {"a": 1, "b": 2, "c": 3}),
-        ],
-    )
-    def test_exact_with_valid_value(self, exact: int, value: Sized) -> None:
+async def test_assert_directory_path__with_valid_path_path() -> None:
+    async with TemporaryDirectory() as directory_path_str:
+        assert_directory_path()(Path(directory_path_str))
+
+
+def test_assert_file_path__without_existing_path() -> None:
+    with pytest.raises(UserFacingError):
+        assert_file_path()("~/../foo/bar")
+
+
+def test_assert_file_path__with_valid_path_str() -> None:
+    with NamedTemporaryFile() as f:
+        assert_file_path()(f.name)
+
+
+def test_assert_file_path__with_valid_path_path() -> None:
+    with NamedTemporaryFile() as f:
+        assert_file_path()(Path(f.name))
+
+
+def test_assert_isinstance__with_instance() -> None:
+    class MyClass:
+        pass
+
+    instance = MyClass()
+    assert assert_isinstance(MyClass)(instance) == instance
+
+
+def test_assert_isinstance__without_instance() -> None:
+    class MyClass:
+        pass
+
+    with pytest.raises(AssertionFailed):
+        assert assert_isinstance(MyClass)(object())  # type: ignore[truthy-bool]
+
+
+@pytest.mark.parametrize(
+    ("exact", "value"),
+    [
+        (0, ""),
+        (3, "abc"),
+        (0, []),
+        (3, ["a", "b", "c"]),
+        (0, {}),
+        (3, {"a": 1, "b": 2, "c": 3}),
+    ],
+)
+def test_assert_len__exact_with_valid_value(exact: int, value: Sized) -> None:
+    assert_len(exact)(value)
+
+
+@pytest.mark.parametrize(
+    ("exact", "value"),
+    [
+        (1, ""),
+        (4, ""),
+        (4, "abc"),
+        (1, []),
+        (1, ["a", "b", "c"]),
+        (4, ["a", "b", "c"]),
+        (1, {}),
+        (1, {"a": 1, "b": 2, "c": 3}),
+        (4, {"a": 1, "b": 2, "c": 3}),
+    ],
+)
+def test_assert_len__exact_with_invalid_value(exact: int, value: Sized) -> None:
+    with pytest.raises(AssertionFailed):
         assert_len(exact)(value)
 
-    @pytest.mark.parametrize(
-        ("exact", "value"),
-        [
-            (1, ""),
-            (4, ""),
-            (4, "abc"),
-            (1, []),
-            (1, ["a", "b", "c"]),
-            (4, ["a", "b", "c"]),
-            (1, {}),
-            (1, {"a": 1, "b": 2, "c": 3}),
-            (4, {"a": 1, "b": 2, "c": 3}),
-        ],
-    )
-    def test_exact_with_invalid_value(self, exact: int, value: Sized) -> None:
-        with pytest.raises(AssertionFailed):
-            assert_len(exact)(value)
 
-    @pytest.mark.parametrize(
-        ("minimum", "maximum", "value"),
-        [
-            # Minimums that match the exact length.
-            (0, None, ""),
-            (3, None, "abc"),
-            (0, None, []),
-            (3, None, ["a", "b", "c"]),
-            (0, None, {}),
-            (3, None, {"a": 1, "b": 2, "c": 3}),
-            # Minimums that are significantly below the exact length.
-            (0, None, "abc"),
-            (0, None, ["a", "b", "c"]),
-            (0, None, {"a": 1, "b": 2, "c": 3}),
-            # Maximums that match the exact length.
-            (None, 0, ""),
-            (None, 3, "abc"),
-            (None, 0, []),
-            (None, 3, ["a", "b", "c"]),
-            (None, 0, {}),
-            (None, 3, {"a": 1, "b": 2, "c": 3}),
-            # Maximums that are significantly above the exact length.
-            (None, 9, "abc"),
-            (None, 9, ["a", "b", "c"]),
-            (None, 9, {"a": 1, "b": 2, "c": 3}),
-        ],
-    )
-    def test_bound_with_valid_value(
-        self, minimum: int | None, maximum: int | None, value: Sized
-    ) -> None:
+@pytest.mark.parametrize(
+    ("minimum", "maximum", "value"),
+    [
+        # Minimums that match the exact length.
+        (0, None, ""),
+        (3, None, "abc"),
+        (0, None, []),
+        (3, None, ["a", "b", "c"]),
+        (0, None, {}),
+        (3, None, {"a": 1, "b": 2, "c": 3}),
+        # Minimums that are significantly below the exact length.
+        (0, None, "abc"),
+        (0, None, ["a", "b", "c"]),
+        (0, None, {"a": 1, "b": 2, "c": 3}),
+        # Maximums that match the exact length.
+        (None, 0, ""),
+        (None, 3, "abc"),
+        (None, 0, []),
+        (None, 3, ["a", "b", "c"]),
+        (None, 0, {}),
+        (None, 3, {"a": 1, "b": 2, "c": 3}),
+        # Maximums that are significantly above the exact length.
+        (None, 9, "abc"),
+        (None, 9, ["a", "b", "c"]),
+        (None, 9, {"a": 1, "b": 2, "c": 3}),
+    ],
+)
+def test_assert_len__bound_with_valid_value(
+    minimum: int | None, maximum: int | None, value: Sized
+) -> None:
+    assert_len(minimum=minimum, maximum=maximum)(value)
+
+
+@pytest.mark.parametrize(
+    ("minimum", "maximum", "value"),
+    [
+        # Minimums.
+        (1, None, ""),
+        (4, None, "abc"),
+        (1, None, []),
+        (4, None, ["a", "b", "c"]),
+        (1, None, {}),
+        (4, None, {"a": 1, "b": 2, "c": 3}),
+        # Maximums.
+        (None, 2, "abc"),
+        (None, 2, ["a", "b", "c"]),
+        (None, 2, {"a": 1, "b": 2, "c": 3}),
+    ],
+)
+def test_assert_len__bound_with_invalid_value(
+    minimum: int | None, maximum: int | None, value: Sized
+) -> None:
+    with pytest.raises(AssertionFailed):
         assert_len(minimum=minimum, maximum=maximum)(value)
 
-    @pytest.mark.parametrize(
-        ("minimum", "maximum", "value"),
-        [
-            # Minimums.
-            (1, None, ""),
-            (4, None, "abc"),
-            (1, None, []),
-            (4, None, ["a", "b", "c"]),
-            (1, None, {}),
-            (4, None, {"a": 1, "b": 2, "c": 3}),
-            # Maximums.
-            (None, 2, "abc"),
-            (None, 2, ["a", "b", "c"]),
-            (None, 2, {"a": 1, "b": 2, "c": 3}),
-        ],
-    )
-    def test_bound_with_invalid_value(
-        self, minimum: int | None, maximum: int | None, value: Sized
-    ) -> None:
-        with pytest.raises(AssertionFailed):
-            assert_len(minimum=minimum, maximum=maximum)(value)
+
+def test_assert_none__with_valid_value() -> None:
+    assert_none()(None)
 
 
-class TestAssertNone:
-    def test_with_valid_value(self) -> None:
-        assert_none()(None)
-
-    @pytest.mark.parametrize(
-        "value",
-        [
-            True,
-            False,
-            123,
-            "abc",
-            object(),
-            [],
-            {},
-        ],
-    )
-    def test_with_invalid_value(self, value: Any) -> None:
-        with pytest.raises(AssertionFailed):
-            assert_none()(value)
+@pytest.mark.parametrize(
+    "value",
+    [
+        True,
+        False,
+        123,
+        "abc",
+        object(),
+        [],
+        {},
+    ],
+)
+def test_assert_none__with_invalid_value(value: Any) -> None:
+    with pytest.raises(AssertionFailed):
+        assert_none()(value)
 
 
-class TestAssertLocale:
-    @pytest.mark.parametrize(
-        "value",
-        [
-            UNDETERMINED_LOCALE,
-            DEFAULT_LOCALE,
-            "nl-NL",
-            "uk",
-        ],
-    )
-    def test_with_valid_value(self, value: str) -> None:
-        assert assert_locale()(value) == value
-
-    @pytest.mark.parametrize(
-        "value",
-        [
-            True,
-            False,
-            123,
-            "",
-            "non-existent-locale",
-            object(),
-            [],
-            {},
-        ],
-    )
-    def test_with_invalid_value(self, value: Any) -> None:
-        with pytest.raises(AssertionFailed):
-            assert_locale()(value)
+@pytest.mark.parametrize(
+    "value",
+    [
+        UNDETERMINED_LOCALE,
+        DEFAULT_LOCALE,
+        "nl-NL",
+        "uk",
+    ],
+)
+def test_assert_locale__with_valid_value(value: str) -> None:
+    assert assert_locale()(value) == value
 
 
-class TestAssertLocaleIdentifier:
-    @pytest.mark.parametrize(
-        "value",
-        [
-            UNDETERMINED_LOCALE,
-            DEFAULT_LOCALE,
-            "nl-NL",
-            "uk",
-            "non-existent-locale",
-        ],
-    )
-    def test_with_valid_value(self, value: str) -> None:
-        assert assert_locale_identifier()(value) == value
-
-    @pytest.mark.parametrize(
-        "value",
-        [
-            True,
-            False,
-            123,
-            "",
-            object(),
-            [],
-            {},
-        ],
-    )
-    def test_with_invalid_value(self, value: Any) -> None:
-        with pytest.raises(AssertionFailed):
-            assert_locale_identifier()(value)
+@pytest.mark.parametrize(
+    "value",
+    [
+        True,
+        False,
+        123,
+        "",
+        "non-existent-locale",
+        object(),
+        [],
+        {},
+    ],
+)
+def test_assert_locale__with_invalid_value(value: Any) -> None:
+    with pytest.raises(AssertionFailed):
+        assert_locale()(value)
 
 
-class TestAssertSetattr:
-    class _Instance:
-        attr: Any
+@pytest.mark.parametrize(
+    "value",
+    [
+        UNDETERMINED_LOCALE,
+        DEFAULT_LOCALE,
+        "nl-NL",
+        "uk",
+        "non-existent-locale",
+    ],
+)
+def test_assert_locale_identifier__with_valid_value(value: str) -> None:
+    assert assert_locale_identifier()(value) == value
 
-    def test(self) -> None:
-        value = "Hello, world!"
-        instance = self._Instance()
-        assert assert_setattr(instance, "attr")(value) == value
-        assert instance.attr == value
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        True,
+        False,
+        123,
+        "",
+        object(),
+        [],
+        {},
+    ],
+)
+def test_assert_locale_identifier__with_invalid_value(value: Any) -> None:
+    with pytest.raises(AssertionFailed):
+        assert_locale_identifier()(value)
+
+
+class _Instance:
+    attr: Any
+
+
+def test_assert_setattr() -> None:
+    value = "Hello, world!"
+    instance = _Instance()
+    assert assert_setattr(instance, "attr")(value) == value
+    assert instance.attr == value

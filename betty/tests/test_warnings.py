@@ -3,10 +3,9 @@ import pytest
 from betty.warnings import deprecated, BettyDeprecationWarning, deprecate
 
 
-class TestDeprecate:
-    def test(self) -> None:
-        with pytest.warns(BettyDeprecationWarning):
-            deprecate("oh noes")
+def test_deprecate() -> None:
+    with pytest.warns(BettyDeprecationWarning):
+        deprecate("oh noes")
 
 
 class TestDeprecated:

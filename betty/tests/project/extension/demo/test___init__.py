@@ -22,39 +22,37 @@ if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
 
-class TestGenerateWithCleanup:
-    async def test_without_error(
-        self, mocker: MockerFixture, new_temporary_app: App
-    ) -> None:
-        async def _generate(project: Project) -> None:
-            project.configuration.output_directory_path.mkdir(parents=True)
+async def test_generate_with_cleanup__without_error(
+    mocker: MockerFixture, new_temporary_app: App
+) -> None:
+    async def _generate(project: Project) -> None:
+        project.configuration.output_directory_path.mkdir(parents=True)
 
-        m_generate = mocker.patch("betty.project.generate.generate")
-        m_generate.side_effect = _generate
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            (project.configuration.project_directory_path / "sentinel").touch()
+    m_generate = mocker.patch("betty.project.generate.generate")
+    m_generate.side_effect = _generate
+    async with Project.new_temporary(new_temporary_app) as project, project:
+        (project.configuration.project_directory_path / "sentinel").touch()
+        await generate_with_cleanup(project)
+        assert project.configuration.project_directory_path.is_dir()
+        assert project.configuration.output_directory_path.is_dir()
+        assert not (project.configuration.project_directory_path / "sentinel").exists()
+
+
+async def test_generate_with_cleanup__with_error(
+    mocker: MockerFixture, new_temporary_app: App
+) -> None:
+    error_message = "generation error"
+
+    async def _generate(project: Project) -> None:
+        project.configuration.output_directory_path.mkdir(parents=True)
+        raise RuntimeError(error_message)
+
+    m_generate = mocker.patch("betty.project.generate.generate")
+    m_generate.side_effect = _generate
+    async with Project.new_temporary(new_temporary_app) as project, project:
+        with pytest.raises(RuntimeError, match=error_message):
             await generate_with_cleanup(project)
-            assert project.configuration.project_directory_path.is_dir()
-            assert project.configuration.output_directory_path.is_dir()
-            assert not (
-                project.configuration.project_directory_path / "sentinel"
-            ).exists()
-
-    async def test_with_error(
-        self, mocker: MockerFixture, new_temporary_app: App
-    ) -> None:
-        error_message = "generation error"
-
-        async def _generate(project: Project) -> None:
-            project.configuration.output_directory_path.mkdir(parents=True)
-            raise RuntimeError(error_message)
-
-        m_generate = mocker.patch("betty.project.generate.generate")
-        m_generate.side_effect = _generate
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            with pytest.raises(RuntimeError, match=error_message):
-                await generate_with_cleanup(project)
-            assert not project.configuration.project_directory_path.exists()
+        assert not project.configuration.project_directory_path.exists()
 
 
 class TestDemo(ExtensionTestBase[Demo]):

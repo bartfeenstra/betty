@@ -270,54 +270,50 @@ class TestOptionalStaticTranslationsLocalizableAttr:
             instance.attr[UNDETERMINED_LOCALE]  # noqa B018
 
 
-class TestStatic:
-    @pytest.mark.parametrize(
-        "translations",
-        [
-            "Hello, world!",
-            {
-                "en-US": "Hello, world!",
-                "nl-NL": "Hallo, wereld!",
-            },
-        ],
-    )
-    async def test(self, translations: ShorthandStaticTranslations) -> None:
-        static(translations)
+@pytest.mark.parametrize(
+    "translations",
+    [
+        "Hello, world!",
+        {
+            "en-US": "Hello, world!",
+            "nl-NL": "Hallo, wereld!",
+        },
+    ],
+)
+async def test_static(translations: ShorthandStaticTranslations) -> None:
+    static(translations)
 
 
-class TestPlain:
-    @pytest.mark.parametrize(
-        "string",
-        [
-            "Hello, world!",
-            "Hallo, wereld!",
-        ],
-    )
-    async def test(self, string: str) -> None:
-        assert plain(string).localize(DEFAULT_LOCALIZER) == string
+@pytest.mark.parametrize(
+    "string",
+    [
+        "Hello, world!",
+        "Hallo, wereld!",
+    ],
+)
+async def test_plain(string: str) -> None:
+    assert plain(string).localize(DEFAULT_LOCALIZER) == string
 
 
-class TestJoin:
-    @pytest.mark.parametrize(
-        ("expected", "localizables"),
-        [
-            ("", []),
-            ("foo", [plain("foo")]),
-            ("foo bar baz", [plain("foo"), plain("bar"), plain("baz")]),
-        ],
-    )
-    async def test(self, expected: str, localizables: Sequence[Localizable]) -> None:
-        assert join(*localizables).localize(DEFAULT_LOCALIZER) == expected
+@pytest.mark.parametrize(
+    ("expected", "localizables"),
+    [
+        ("", []),
+        ("foo", [plain("foo")]),
+        ("foo bar baz", [plain("foo"), plain("bar"), plain("baz")]),
+    ],
+)
+async def test_join(expected: str, localizables: Sequence[Localizable]) -> None:
+    assert join(*localizables).localize(DEFAULT_LOCALIZER) == expected
 
 
-class TestDoYouMean:
-    @pytest.mark.parametrize(
-        ("expected", "available_options"),
-        [
-            ("There are no available options.", []),
-            ("Do you mean foo?", ["foo"]),
-            ("Do you mean one of bar, baz, foo?", ["foo", "bar", "baz"]),
-        ],
-    )
-    async def test(self, expected: str, available_options: Sequence[str]) -> None:
-        assert do_you_mean(*available_options).localize(DEFAULT_LOCALIZER) == expected
+@pytest.mark.parametrize(
+    ("expected", "available_options"),
+    [
+        ("There are no available options.", []),
+        ("Do you mean foo?", ["foo"]),
+        ("Do you mean one of bar, baz, foo?", ["foo", "bar", "baz"]),
+    ],
+)
+async def test_do_you_mean(expected: str, available_options: Sequence[str]) -> None:
+    assert do_you_mean(*available_options).localize(DEFAULT_LOCALIZER) == expected

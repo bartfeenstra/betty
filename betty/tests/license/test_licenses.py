@@ -50,16 +50,15 @@ class TestPublicDomain(LicenseTestBase):
         ]
 
 
-class TestSpdxLicenseIdToLicenseId:
-    @pytest.mark.parametrize(
-        ("expected", "spdx_license_id"),
-        [
-            ("spdx-mit", "MIT"),
-            ("spdx-gpl-3--0-or-later", "GPL-3.0-or-later"),
-        ],
-    )
-    def test(self, expected: str, spdx_license_id: str) -> None:
-        assert spdx_license_id_to_license_id(spdx_license_id) == expected
+@pytest.mark.parametrize(
+    ("expected", "spdx_license_id"),
+    [
+        ("spdx-mit", "MIT"),
+        ("spdx-gpl-3--0-or-later", "GPL-3.0-or-later"),
+    ],
+)
+def test_spdx_license_id_to_license_id(expected: str, spdx_license_id: str) -> None:
+    assert spdx_license_id_to_license_id(spdx_license_id) == expected
 
 
 class TestSpdxLicenseRepository:
