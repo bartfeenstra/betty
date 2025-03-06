@@ -44,7 +44,7 @@ class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _Configuration
         """
         raise NotImplementedError
 
-    async def test_replace_without_items(self) -> None:
+    async def test_replace__without_items(self) -> None:
         """
         Tests :py:meth:`betty.config.collections.ConfigurationCollection.replace` implementations.
         """
@@ -55,7 +55,7 @@ class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _Configuration
         sut.replace()
         assert len(sut) == 0
 
-    async def test_replace_with_items(self) -> None:
+    async def test_replace__with_items(self) -> None:
         """
         Tests :py:meth:`betty.config.collections.ConfigurationCollection.replace` implementations.
         """

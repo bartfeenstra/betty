@@ -70,7 +70,7 @@ class TestPresence(EntityTestBase):
 
         assert sut.privacy == expected
 
-    async def test_dump_linked_data_should_dump(self) -> None:
+    async def test_dump_linked_data__should_dump(self) -> None:
         person = Person(id="my-first-person")
         event = Event(id="my-first-event")
         role = Subject()
@@ -86,7 +86,7 @@ class TestPresence(EntityTestBase):
         actual = await assert_dumps_linked_data(sut)
         assert actual == expected
 
-    async def test_dump_linked_data_should_dump_private(self) -> None:
+    async def test_dump_linked_data__should_dump_private(self) -> None:
         person = Person(id="my-first-person")
         event = Event(id="my-first-event")
         role = Subject()

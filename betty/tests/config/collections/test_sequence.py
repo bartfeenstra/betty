@@ -55,23 +55,23 @@ class TestConfigurationSequence(
             ConfigurationSequenceTestConfiguration(0),
         )
 
-    async def test_load_without_items(self) -> None:
+    async def test_load__without_items(self) -> None:
         sut = await self.get_sut()
         sut.load([])
         assert len(sut) == 0
 
-    async def test_load_with_items(self) -> None:
+    async def test_load__with_items(self) -> None:
         sut = await self.get_sut()
         configurations = await self.get_configurations()
         sut.load([item.dump() for item in configurations])
         assert len(sut) == len(configurations)
 
-    async def test_dump_without_items(self) -> None:
+    async def test_dump__without_items(self) -> None:
         sut = await self.get_sut()
         dump = sut.dump()
         assert dump == []
 
-    async def test_dump_with_items(self) -> None:
+    async def test_dump__with_items(self) -> None:
         configurations = await self.get_configurations()
         sut = await self.get_sut()
         sut.replace(*configurations)

@@ -157,7 +157,7 @@ class TestDate:
         sut = Date(year, month, day)
         assert sut.complete == expected
 
-    def test_to_range_when_incomparable_should_raise(self) -> None:
+    def test_to_range__when_incomparable_should_raise(self) -> None:
         with pytest.raises(ValueError):  # noqa PT011
             Date(None, 1, 1).to_range()
 
@@ -510,7 +510,7 @@ class TestDateRange:
             ),
         ],
     )
-    def test___lt___with_both_dates(
+    def test___lt____with_both_dates(
         self, expected: bool, sut: DateRange, other: Datey
     ) -> None:
         assert (sut < other) == expected

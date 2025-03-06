@@ -42,18 +42,18 @@ class TestEvent(EntityTestBase):
             ),
         ]
 
-    def test___init___with_place(self) -> None:
+    def test___init____with_place(self) -> None:
         place = Place()
         sut = Event(place=place)
         assert sut.place is place
 
-    def test___init___with_presences(self) -> None:
+    def test___init____with_presences(self) -> None:
         presence = Presence(Person(), Subject(), TemporaryToOneResolver())
         sut = Event(presences=[presence])
         assert presence in sut.presences
         assert presence.event is sut
 
-    def test___init___with_name(self) -> None:
+    def test___init____with_name(self) -> None:
         name = "The Event"
         sut = Event(name=name)
         assert sut.name.localize(DEFAULT_LOCALIZER) == name
@@ -125,7 +125,7 @@ class TestEvent(EntityTestBase):
         sut.name = name
         assert sut.name.localize(DEFAULT_LOCALIZER) == name
 
-    async def test_dump_linked_data_should_dump_minimal(self) -> None:
+    async def test_dump_linked_data__should_dump_minimal(self) -> None:
         event = Event(
             id="the_event",
             event_type=Birth(),
@@ -155,7 +155,7 @@ class TestEvent(EntityTestBase):
         actual = await assert_dumps_linked_data(event)
         assert actual == expected
 
-    async def test_dump_linked_data_should_dump_full(self) -> None:
+    async def test_dump_linked_data__should_dump_full(self) -> None:
         event = Event(
             id="the_event",
             event_type=Birth(),
@@ -233,7 +233,7 @@ class TestEvent(EntityTestBase):
         actual = await assert_dumps_linked_data(event)
         assert actual == expected
 
-    async def test_dump_linked_data_should_dump_private(self) -> None:
+    async def test_dump_linked_data__should_dump_private(self) -> None:
         event = Event(
             id="the_event",
             event_type=Birth(),

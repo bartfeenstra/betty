@@ -30,31 +30,31 @@ class TestProxyPluginRepository:
         )
         await sut.get(ProxyPluginRepositoryTestPluginOne.plugin_id())
 
-    async def test_get_not_found_without_upstreams(self) -> None:
+    async def test_get__not_found_without_upstreams(self) -> None:
         sut = ProxyPluginRepository[Plugin]()
         with pytest.raises(PluginNotFound):
             await sut.get(ProxyPluginRepositoryTestPluginOne.plugin_id())
 
-    async def test_get_not_found_with_upstreams(self) -> None:
+    async def test_get__not_found_with_upstreams(self) -> None:
         sut = ProxyPluginRepository[Plugin](
             StaticPluginRepository(), StaticPluginRepository(), StaticPluginRepository()
         )
         with pytest.raises(PluginNotFound):
             await sut.get(ProxyPluginRepositoryTestPluginOne.plugin_id())
 
-    async def test___aiter___without_upstreams(self) -> None:
+    async def test___aiter____without_upstreams(self) -> None:
         sut = ProxyPluginRepository[Plugin]()
         with pytest.raises(StopAsyncIteration):
             await anext(aiter(sut))
 
-    async def test___aiter___with_upstreams_without_plugins(self) -> None:
+    async def test___aiter____with_upstreams_without_plugins(self) -> None:
         sut = ProxyPluginRepository[Plugin](
             StaticPluginRepository(), StaticPluginRepository(), StaticPluginRepository()
         )
         with pytest.raises(StopAsyncIteration):
             await anext(aiter(sut))
 
-    async def test___aiter___with_upstreams_with_plugins(self) -> None:
+    async def test___aiter____with_upstreams_with_plugins(self) -> None:
         sut = ProxyPluginRepository[Plugin](
             StaticPluginRepository(ProxyPluginRepositoryTestPluginOne),
             StaticPluginRepository(
@@ -80,7 +80,7 @@ class TestProxyPluginRepository:
             ProxyPluginRepositoryTestPluginOne.plugin_id(),
         ],
     )
-    async def test_new_target_with_own_factory(
+    async def test_new_target__with_own_factory(
         self, target: PluginIdentifier[Plugin]
     ) -> None:
         async def _error_raising_factory(cls: type[_T]) -> _T:
@@ -100,7 +100,7 @@ class TestProxyPluginRepository:
             ProxyPluginRepositoryTestPluginOne.plugin_id(),
         ],
     )
-    async def test_new_target_with_upstream_factory(
+    async def test_new_target__with_upstream_factory(
         self, target: PluginIdentifier[Plugin]
     ) -> None:
         async def _error_raising_factory(cls: type[_T]) -> _T:
@@ -119,7 +119,7 @@ class TestProxyPluginRepository:
             ProxyPluginRepositoryTestPluginOne.plugin_id(),
         ],
     )
-    async def test_new_target_without_successful_factories(
+    async def test_new_target__without_successful_factories(
         self, target: PluginIdentifier[Plugin]
     ) -> None:
         async def _error_raising_factory(cls: type[_T]) -> _T:

@@ -57,7 +57,9 @@ class TestApp:
 
         await new_temporary_app.new_target(Dependent)
 
-    async def test_new_with_app_dependent_factory(self, new_temporary_app: App) -> None:
+    async def test_new_target__with_app_dependent_factory(
+        self, new_temporary_app: App
+    ) -> None:
         class Dependent(AppDependentFactory):
             def __init__(self, app: App):
                 self.app = app
@@ -73,16 +75,16 @@ class TestApp:
     async def test_spdx_license_repository(self, new_temporary_app: App) -> None:
         await new_temporary_app.spdx_license_repository
 
-    async def test___getstate___not_yet_bootstrapped_should_error(self) -> None:
+    async def test___getstate____not_yet_bootstrapped_should_error(self) -> None:
         async with App.new_temporary() as sut:
             with pytest.raises(RuntimeError):
                 pickle.loads(pickle.dumps(sut))
 
-    async def test___getstate___minimal(self, new_temporary_app: App) -> None:
+    async def test___getstate____minimal(self, new_temporary_app: App) -> None:
         unpickled_sut = pickle.loads(pickle.dumps(new_temporary_app))
         await unpickled_sut.shutdown()
 
-    async def test___getstate___full(
+    async def test___getstate____full(
         self, multiprocessing_manager: SyncManager
     ) -> None:
         async with (

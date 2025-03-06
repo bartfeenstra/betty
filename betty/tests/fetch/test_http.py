@@ -25,7 +25,7 @@ class TestHttpFetcher:
                 binary_file_cache,
             )
 
-    async def test_fetch_should_return(
+    async def test_fetch__should_return(
         self, aioresponses: aioresponses, sut: HttpFetcher
     ) -> None:
         url = "https://example.com"
@@ -52,7 +52,7 @@ class TestHttpFetcher:
             asyncio.TimeoutError(),
         ],
     )
-    async def test_fetch_with_cold_cache_and_get_error_should_error(
+    async def test_fetch__with_cold_cache_and_get_error_should_error(
         self, aioresponses: aioresponses, error: Exception, sut: HttpFetcher
     ) -> None:
         url = "https://example.com"
@@ -68,7 +68,7 @@ class TestHttpFetcher:
             asyncio.TimeoutError(),
         ],
     )
-    async def test_fetch_with_warm_cache_and_get_error_should_return(
+    async def test_fetch__with_warm_cache_and_get_error_should_return(
         self,
         aioresponses: aioresponses,
         binary_file_cache: BinaryFileCache,
@@ -103,7 +103,7 @@ class TestHttpFetcher:
             assert fetched_twice.text == content
             assert fetched_twice.headers["X-Betty"] == content
 
-    async def test_fetch_file_should_return(
+    async def test_fetch_file__should_return(
         self, aioresponses: aioresponses, sut: HttpFetcher
     ) -> None:
         url = "https://example.com"
@@ -130,7 +130,7 @@ class TestHttpFetcher:
             asyncio.TimeoutError(),
         ],
     )
-    async def test_fetch_file_with_cold_cache_and_get_error_should_error(
+    async def test_fetch_file__with_cold_cache_and_get_error_should_error(
         self, aioresponses: aioresponses, error: Exception, sut: HttpFetcher
     ) -> None:
         url = "https://example.com"
@@ -146,7 +146,7 @@ class TestHttpFetcher:
             asyncio.TimeoutError(),
         ],
     )
-    async def test_fetch_file_with_warm_cache_and_get_error_should_return(
+    async def test_fetch_file__with_warm_cache_and_get_error_should_return(
         self,
         aioresponses: aioresponses,
         binary_file_cache: BinaryFileCache,

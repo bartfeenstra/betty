@@ -16,14 +16,14 @@ from betty.requirement import (
 
 
 class TestRequirement:
-    async def test_assert_met_should_raise_error_if_unmet(self) -> None:
+    async def test_assert_met__should_raise_error_if_unmet(self) -> None:
         with pytest.raises(RequirementError):
             _UnmetRequirement().assert_met()
 
-    async def test_assert_met_should_do_nothing_if_met(self) -> None:
+    async def test_assert_met__should_do_nothing_if_met(self) -> None:
         _MetRequirement().assert_met()
 
-    async def test_localize_with_details(self) -> None:
+    async def test_localize__with_details(self) -> None:
         class _Requirement(_MetRequirement):
             def details(self) -> Localizable:
                 return _("Dolor sit amet")
@@ -33,37 +33,37 @@ class TestRequirement:
             == "Lorem ipsum\n-----------\nDolor sit amet"
         )
 
-    async def test_localize_without_details(self) -> None:
+    async def test_localize__without_details(self) -> None:
         assert _MetRequirement().localize(DEFAULT_LOCALIZER) == "Lorem ipsum"
 
 
 class TestRequirementCollection:
-    async def test___eq___with_incomparable_type(self) -> None:
+    async def test___eq____with_incomparable_type(self) -> None:
         assert _RequirementCollection() != 123
 
-    async def test___eq___with_empty_collections(self) -> None:
+    async def test___eq____with_empty_collections(self) -> None:
         assert _RequirementCollection() == _RequirementCollection()
 
-    async def test___eq___with_non_empty_collections(self) -> None:
+    async def test___eq____with_non_empty_collections(self) -> None:
         requirement_1 = _MetRequirement()
         requirement_2 = _MetRequirement()
         assert _RequirementCollection(
             requirement_1, requirement_2
         ) == _RequirementCollection(requirement_1, requirement_2)
 
-    async def test_localize_without_requirements(self) -> None:
+    async def test_localize__without_requirements(self) -> None:
         assert _RequirementCollection().localize(DEFAULT_LOCALIZER) == "Lorem ipsum"
 
-    async def test_localize_with_requirements(self) -> None:
+    async def test_localize__with_requirements(self) -> None:
         assert (
             _RequirementCollection(_MetRequirement()).localize(DEFAULT_LOCALIZER)
             == "Lorem ipsum\n- Lorem ipsum"
         )
 
-    async def test_reduce_without_requirements(self) -> None:
+    async def test_reduce__without_requirements(self) -> None:
         assert _RequirementCollection().reduce() is None
 
-    async def test_reduce_without_reduced_requirements(self) -> None:
+    async def test_reduce__without_reduced_requirements(self) -> None:
         unreduced_requirement_1 = _UnreducedRequirement()
         unreduced_requirement_2 = _UnreducedRequirement()
         assert _RequirementCollection(
@@ -72,7 +72,7 @@ class TestRequirementCollection:
             unreduced_requirement_1, unreduced_requirement_2
         )
 
-    async def test_reduce_with_one_reduced_requirement(self) -> None:
+    async def test_reduce__with_one_reduced_requirement(self) -> None:
         unreduced_requirement = _UnreducedRequirement()
         assert (
             _RequirementCollection(
@@ -81,7 +81,7 @@ class TestRequirementCollection:
             == unreduced_requirement
         )
 
-    async def test_reduce_with_all_reduced_requirements(self) -> None:
+    async def test_reduce__with_all_reduced_requirements(self) -> None:
         assert (
             _RequirementCollection(
                 _ReducedToNoneRequirement(), _ReducedToNoneRequirement()
@@ -89,7 +89,7 @@ class TestRequirementCollection:
             is None
         )
 
-    async def test_reduce_with_reduced_similar_requirement_collection(self) -> None:
+    async def test_reduce__with_reduced_similar_requirement_collection(self) -> None:
         requirement_1 = _MetRequirement()
         requirement_2 = _MetRequirement()
         assert _RequirementCollection(
@@ -149,12 +149,12 @@ class _UnreducedRequirement(_MetRequirement):
 
 
 class TestAnyRequirement:
-    async def test_is_met_with_one_met(self) -> None:
+    async def test_is_met__with_one_met(self) -> None:
         assert AnyRequirement(
             _UnmetRequirement(), _UnmetRequirement(), _MetRequirement()
         ).is_met()
 
-    async def test_is_met_without_any_met(self) -> None:
+    async def test_is_met__without_any_met(self) -> None:
         assert not AnyRequirement(
             _UnmetRequirement(), _UnmetRequirement(), _UnmetRequirement()
         ).is_met()
@@ -164,12 +164,12 @@ class TestAnyRequirement:
 
 
 class TestAllRequirements:
-    async def test_is_met_with_all_but_one_met(self) -> None:
+    async def test_is_met__with_all_but_one_met(self) -> None:
         assert not AllRequirements(
             _MetRequirement(), _MetRequirement(), _UnmetRequirement()
         ).is_met()
 
-    async def test_is_met_with_all_met(self) -> None:
+    async def test_is_met__with_all_met(self) -> None:
         assert AllRequirements(
             _MetRequirement(), _MetRequirement(), _MetRequirement()
         ).is_met()

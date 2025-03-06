@@ -45,7 +45,7 @@ class TestStaticTranslationsLocalizableConfiguration:
         sut = StaticTranslationsLocalizableConfiguration(translations)
         assert len(sut) == expected
 
-    async def test_set_without_minimum_translations(self) -> None:
+    async def test_set__without_minimum_translations(self) -> None:
         sut = StaticTranslationsLocalizableConfiguration(required=True)
         with pytest.raises(AssertionFailed):
             sut.replace({})
@@ -67,24 +67,24 @@ class TestStaticTranslationsLocalizableConfiguration:
         sut = StaticTranslationsLocalizableConfiguration(translations)
         assert sut.localize(DEFAULT_LOCALIZER) == expected
 
-    async def test_localize_with_translations(self) -> None:
+    async def test_localize__with_translations(self) -> None:
         sut = StaticTranslationsLocalizableConfiguration(
             {DEFAULT_LOCALIZER.locale: "Hello, world!"}
         )
         assert sut.localize(DEFAULT_LOCALIZER) == "Hello, world!"
 
-    async def test_load_without_translations_should_error(self) -> None:
+    async def test_load__without_translations_should_error(self) -> None:
         sut = StaticTranslationsLocalizableConfiguration()
         with pytest.raises(AssertionFailed):
             sut.load({})
 
-    async def test_load_with_single_undetermined_translation(self) -> None:
+    async def test_load__with_single_undetermined_translation(self) -> None:
         dump = "Hello, world!"
         sut = StaticTranslationsLocalizableConfiguration()
         sut.load(dump)
         assert sut[UNDETERMINED_LOCALE] == "Hello, world!"
 
-    async def test_load_with_multiple_translations(self) -> None:
+    async def test_load__with_multiple_translations(self) -> None:
         dump: Dump = {
             DEFAULT_LOCALIZER.locale: "Hello, world!",
             "nl-NL": "Hallo, wereld!",
@@ -94,11 +94,11 @@ class TestStaticTranslationsLocalizableConfiguration:
         assert sut[DEFAULT_LOCALIZER.locale] == "Hello, world!"
         assert sut["nl-NL"] == "Hallo, wereld!"
 
-    async def test_dump_without_translations(self) -> None:
+    async def test_dump__without_translations(self) -> None:
         sut = StaticTranslationsLocalizableConfiguration()
         assert sut.dump() == {}
 
-    async def test_dump_with_single_determined_translation(self) -> None:
+    async def test_dump__with_single_determined_translation(self) -> None:
         sut = StaticTranslationsLocalizableConfiguration(
             {
                 DEFAULT_LOCALIZER.locale: "Hello, world!",
@@ -108,7 +108,7 @@ class TestStaticTranslationsLocalizableConfiguration:
             DEFAULT_LOCALIZER.locale: "Hello, world!",
         }
 
-    async def test_dump_with_single_undetermined_translation(self) -> None:
+    async def test_dump__with_single_undetermined_translation(self) -> None:
         sut = StaticTranslationsLocalizableConfiguration(
             {
                 UNDETERMINED_LOCALE: "Hello, world!",
@@ -116,7 +116,7 @@ class TestStaticTranslationsLocalizableConfiguration:
         )
         assert sut.dump() == "Hello, world!"
 
-    async def test_dump_with_multiple_translations(self) -> None:
+    async def test_dump__with_multiple_translations(self) -> None:
         sut = StaticTranslationsLocalizableConfiguration(
             {
                 DEFAULT_LOCALIZER.locale: "Hello, world!",

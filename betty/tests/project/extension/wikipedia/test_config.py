@@ -12,11 +12,11 @@ if TYPE_CHECKING:
 
 
 class TestWikipediaConfiguration:
-    async def test_load_with_minimal_configuration(self) -> None:
+    async def test_load__with_minimal_configuration(self) -> None:
         dump: Mapping[str, Any] = {}
         WikipediaConfiguration().load(dump)
 
-    async def test_load_without_dict_should_error(self) -> None:
+    async def test_load__without_dict_should_error(self) -> None:
         dump = None
         with raises_error(error_type=AssertionFailed):
             WikipediaConfiguration().load(dump)
@@ -28,7 +28,7 @@ class TestWikipediaConfiguration:
             False,
         ],
     )
-    async def test_load_with_populate_images(
+    async def test_load__with_populate_images(
         self, populate_images: bool | None
     ) -> None:
         dump: Dump = {
@@ -38,14 +38,14 @@ class TestWikipediaConfiguration:
         sut.load(dump)
         assert sut.populate_images == populate_images
 
-    async def test_dump_with_minimal_configuration(self) -> None:
+    async def test_dump__with_minimal_configuration(self) -> None:
         sut = WikipediaConfiguration()
         expected = {
             "populate_images": True,
         }
         assert sut.dump() == expected
 
-    async def test_dump_with_populate_images(self) -> None:
+    async def test_dump__with_populate_images(self) -> None:
         sut = WikipediaConfiguration()
         sut.populate_images = False
         expected = {

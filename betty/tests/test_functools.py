@@ -44,12 +44,12 @@ class TestDo:
     def _condition_return_false(self, result: int) -> False:
         return False
 
-    async def test_until_should_return(self) -> None:
+    async def test_until__should_return(self) -> None:
         assert (
             await Do[Any, int](self._do_success, self._RESULT).until() == self._RESULT
         )
 
-    async def test_until_should_return_after_retries(self) -> None:
+    async def test_until__should_return_after_retries(self) -> None:
         assert (
             await Do[Any, int](
                 self._build_do_success_after_tries(2), self._RESULT
@@ -57,29 +57,29 @@ class TestDo:
             == self._RESULT
         )
 
-    async def test_until_raises_exception(self) -> None:
+    async def test_until__raises_exception(self) -> None:
         with pytest.raises(self._DoException):
             await Do[Any, int](self._do_raise_exception).until()
 
-    async def test_until_condition_raises_exception(self) -> None:
+    async def test_until__condition_raises_exception(self) -> None:
         with pytest.raises(self._ConditionException):
             await Do[Any, int](self._do_success, self._RESULT).until(
                 self._condition_raise_exception
             )
 
-    async def test_until_condition_returns_false(self) -> None:
+    async def test_until__condition_returns_false(self) -> None:
         with pytest.raises(RuntimeError):
             await Do[Any, int](self._do_success, self._RESULT).until(
                 self._condition_return_false
             )
 
-    async def test_until_retries_exceeded_raises_exception(self) -> None:
+    async def test_until__retries_exceeded_raises_exception(self) -> None:
         with pytest.raises(self._DoException):
             await Do[Any, int](self._do_raise_exception).until(
                 retries=1, timeout=999999999
             )
 
-    async def test_until_timeout_exceeded_raises_exception(self) -> None:
+    async def test_until__timeout_exceeded_raises_exception(self) -> None:
         with pytest.raises(self._DoException):
             await Do[Any, int](self._do_raise_exception).until(
                 timeout=0, retries=999999999

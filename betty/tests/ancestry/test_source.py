@@ -30,27 +30,27 @@ class TestSource(EntityTestBase):
             Source(name="My First Source"),
         ]
 
-    def test___init___with_name(self) -> None:
+    def test___init____with_name(self) -> None:
         name = "The Source"
         sut = Source(name=name)
         assert sut.name.localize(DEFAULT_LOCALIZER) == name
 
-    def test___init___with_author(self) -> None:
+    def test___init____with_author(self) -> None:
         author = "Me"
         sut = Source(author=author)
         assert sut.author.localize(DEFAULT_LOCALIZER) == author
 
-    def test___init___with_publisher(self) -> None:
+    def test___init____with_publisher(self) -> None:
         publisher = "Me"
         sut = Source(publisher=publisher)
         assert sut.publisher.localize(DEFAULT_LOCALIZER) == publisher
 
-    def test___init___with_contained_by(self) -> None:
+    def test___init____with_contained_by(self) -> None:
         contained_by_source = Source()
         sut = Source(contained_by=contained_by_source)
         assert sut.contained_by is contained_by_source
 
-    def test___init___with_contains(self) -> None:
+    def test___init____with_contains(self) -> None:
         contains_source = Source()
         sut = Source(contains=[contains_source])
         assert list(sut.contains) == [contains_source]
@@ -82,11 +82,11 @@ class TestSource(EntityTestBase):
         sut.contains = [contains_source]
         assert list(sut.contains) == [contains_source]
 
-    async def test_walk_contains_without_contains(self) -> None:
+    async def test_walk_contains__without_contains(self) -> None:
         sut = Source()
         assert list(sut.walk_contains) == []
 
-    async def test_walk_contains_with_contains(self) -> None:
+    async def test_walk_contains__with_contains(self) -> None:
         sut = Source()
         contains = Source(contained_by=sut)
         contains_contains = Source(contained_by=contains)
@@ -128,7 +128,7 @@ class TestSource(EntityTestBase):
         sut.private = True
         assert sut.private is True
 
-    async def test_dump_linked_data_should_dump_minimal(self) -> None:
+    async def test_dump_linked_data__should_dump_minimal(self) -> None:
         source = Source(
             id="the_source",
             name="The Source",
@@ -154,7 +154,7 @@ class TestSource(EntityTestBase):
         actual = await assert_dumps_linked_data(source)
         assert actual == expected
 
-    async def test_dump_linked_data_should_dump_full(self) -> None:
+    async def test_dump_linked_data__should_dump_full(self) -> None:
         link = Link("https://example.com/the-source")
         link.label = "The Source Online"  # type: ignore[assignment]
         source = Source(
@@ -219,7 +219,7 @@ class TestSource(EntityTestBase):
         actual = await assert_dumps_linked_data(source)
         assert actual == expected
 
-    async def test_dump_linked_data_should_dump_private(self) -> None:
+    async def test_dump_linked_data__should_dump_private(self) -> None:
         link = Link("https://example.com/the-source")
         link.label = "The Source Online"  # type: ignore[assignment]
         source = Source(
@@ -271,7 +271,9 @@ class TestSource(EntityTestBase):
         actual.pop("links")
         assert actual == expected
 
-    async def test_dump_linked_data_should_dump_with_private_associations(self) -> None:
+    async def test_dump_linked_data__should_dump_with_private_associations(
+        self,
+    ) -> None:
         contained_by_source = Source(
             id="the_containing_source",
             name="The Containing Source",

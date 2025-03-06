@@ -35,29 +35,29 @@ class TestPlace(EntityTestBase):
             Place(names=[Name("My First Place")]),
         ]
 
-    def test_place_type_default(self) -> None:
+    def test_place_type__default(self) -> None:
         sut = Place()
         assert isinstance(sut.place_type, UnknownPlaceType)
 
-    async def test___init___with_events(self) -> None:
+    async def test___init____with_events(self) -> None:
         event = Event()
         sut = Place(events=[event])
         assert list(sut.events) == [event]
         assert event.place is sut
 
-    async def test___init___with_enclosers(self) -> None:
+    async def test___init____with_enclosers(self) -> None:
         enclosure = Enclosure(enclosee=TemporaryToOneResolver(), encloser=Place())
         sut = Place(enclosers=[enclosure])
         assert list(sut.enclosers) == [enclosure]
         assert enclosure.enclosee is sut
 
-    async def test___init___with_enclosees(self) -> None:
+    async def test___init____with_enclosees(self) -> None:
         enclosure = Enclosure(enclosee=Place(), encloser=TemporaryToOneResolver())
         sut = Place(enclosees=[enclosure])
         assert list(sut.enclosees) == [enclosure]
         assert enclosure.encloser is sut
 
-    def test___init___with_place_type(self) -> None:
+    def test___init____with_place_type(self) -> None:
         place_type = DummyPlaceType()
         sut = Place(place_type=place_type)
         assert sut.place_type is place_type
@@ -102,11 +102,11 @@ class TestPlace(EntityTestBase):
         with pytest.raises(AssociationRequired):
             enclosure.encloser  # noqa B018
 
-    async def test_walk_enclosees_without_enclosees(self) -> None:
+    async def test_walk_enclosees__without_enclosees(self) -> None:
         sut = Place()
         assert list(sut.walk_enclosees) == []
 
-    async def test_walk_enclosees_with_enclosees(self) -> None:
+    async def test_walk_enclosees__with_enclosees(self) -> None:
         sut = Place()
         child_enclosee = Place()
         enclosure = Enclosure(child_enclosee, sut)
@@ -133,7 +133,7 @@ class TestPlace(EntityTestBase):
         sut.coordinates = coordinates
         assert sut.coordinates == coordinates
 
-    async def test_dump_linked_data_should_dump_minimal(self) -> None:
+    async def test_dump_linked_data__should_dump_minimal(self) -> None:
         place_id = "the_place"
         place = Place(id=place_id)
         expected: Mapping[str, Any] = {
@@ -158,7 +158,7 @@ class TestPlace(EntityTestBase):
         actual = await assert_dumps_linked_data(place)
         assert actual == expected
 
-    async def test_dump_linked_data_should_dump_full(self) -> None:
+    async def test_dump_linked_data__should_dump_full(self) -> None:
         place_id = "the_place"
         name = "The Place"
         latitude = 12.345

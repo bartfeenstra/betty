@@ -8,11 +8,11 @@ if TYPE_CHECKING:
 
 
 class TestAppConfiguration:
-    def test___init___minimal_locale(self) -> None:
+    def test___init____minimal_locale(self) -> None:
         sut = AppConfiguration()
         assert sut.locale is None
 
-    def test___init___with_locale(self) -> None:
+    def test___init____with_locale(self) -> None:
         locale = "nl-NL"
         sut = AppConfiguration(locale=locale)
         assert sut.locale == locale
@@ -23,24 +23,24 @@ class TestAppConfiguration:
         sut.locale = locale
         assert sut.locale == locale
 
-    def test_load_minimal(self) -> None:
+    def test_load__minimal(self) -> None:
         sut = AppConfiguration()
         dump: DumpMapping[Dump] = {}
         sut.load(dump)
 
-    def test_load_with_locale(self) -> None:
+    def test_load__with_locale(self) -> None:
         locale = "nl-NL"
         sut = AppConfiguration()
         dump: DumpMapping[Dump] = {"locale": locale}
         sut.load(dump)
         assert sut.locale == locale
 
-    def test_dump_minimal(self) -> None:
+    def test_dump__minimal(self) -> None:
         sut = AppConfiguration()
         actual = sut.dump()
         assert actual == {}
 
-    def test_dump_with_locale(self) -> None:
+    def test_dump__with_locale(self) -> None:
         locale = "nl-NL"
         sut = AppConfiguration(locale=locale)
         actual = sut.dump()

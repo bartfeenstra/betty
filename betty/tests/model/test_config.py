@@ -30,7 +30,7 @@ class EntityReferenceSequenceTestEntity(DummyEntity):
 
 
 class TestEntityReference:
-    async def test_entity_type_with_constraint(self) -> None:
+    async def test_entity_type__with_constraint(self) -> None:
         entity_type = EntityReferenceTestEntityOne
         sut = EntityReference[EntityReferenceTestEntityOne](
             entity_type, None, entity_type_is_constrained=True
@@ -39,7 +39,7 @@ class TestEntityReference:
         with pytest.raises(AttributeError):
             sut.entity_type = entity_type.plugin_id()
 
-    async def test_entity_type_without_constraint(self) -> None:
+    async def test_entity_type__without_constraint(self) -> None:
         entity_type = EntityReferenceTestEntityOne
         sut = EntityReference[EntityReferenceTestEntityOne]()
         assert sut.entity_type is None
@@ -62,7 +62,7 @@ class TestEntityReference:
         del sut.entity_id
         assert sut.entity_id is None
 
-    async def test_load_with_constraint(self) -> None:
+    async def test_load__with_constraint(self) -> None:
         sut = EntityReference(
             EntityReferenceTestEntityOne, entity_type_is_constrained=True
         )
@@ -86,7 +86,7 @@ class TestEntityReference:
             123,
         ],
     )
-    async def test_load_with_constraint_without_string_should_error(
+    async def test_load__with_constraint_without_string_should_error(
         self, dump: Dump
     ) -> None:
         sut = EntityReference(
@@ -95,7 +95,7 @@ class TestEntityReference:
         with raises_error(error_type=AssertionFailed):
             sut.load(dump)
 
-    async def test_load_without_constraint(self, mocker: MockerFixture) -> None:
+    async def test_load__without_constraint(self, mocker: MockerFixture) -> None:
         mocker.patch(
             "betty.model.ENTITY_TYPE_REPOSITORY",
             new=StaticPluginRepository(EntityReferenceTestEntityOne),
@@ -111,7 +111,7 @@ class TestEntityReference:
         assert sut.entity_type == entity_type.plugin_id()
         assert sut.entity_id == entity_id
 
-    async def test_load_without_constraint_without_entity_type_should_error(
+    async def test_load__without_constraint_without_entity_type_should_error(
         self,
     ) -> None:
         entity_id = "123"
@@ -122,7 +122,7 @@ class TestEntityReference:
         with raises_error(error_type=AssertionFailed):
             sut.load(dump)
 
-    async def test_load_without_constraint_without_string_entity_type_should_error(
+    async def test_load__without_constraint_without_string_entity_type_should_error(
         self,
     ) -> None:
         entity_id = "123"
@@ -134,7 +134,7 @@ class TestEntityReference:
         with raises_error(error_type=AssertionFailed):
             sut.load(dump)
 
-    async def test_load_without_constraint_without_string_entity_id_should_error(
+    async def test_load__without_constraint_without_string_entity_id_should_error(
         self,
     ) -> None:
         entity_type = EntityReferenceTestEntityOne
@@ -146,13 +146,13 @@ class TestEntityReference:
         with raises_error(error_type=AssertionFailed):
             sut.load(dump)
 
-    async def test_dump_with_constraint(self) -> None:
+    async def test_dump__with_constraint(self) -> None:
         sut = EntityReference[Entity](Entity, None, entity_type_is_constrained=True)
         entity_id = "123"
         sut.entity_id = entity_id
         assert sut.dump() == entity_id
 
-    async def test_dump_without_constraint(self) -> None:
+    async def test_dump__without_constraint(self) -> None:
         sut = EntityReference[EntityReferenceTestEntityOne]()
         entity_type = EntityReferenceTestEntityOne
         entity_id = "123"
@@ -164,7 +164,7 @@ class TestEntityReference:
         }
         assert sut.dump() == expected
 
-    async def test_validate_without_constraint_without_importable_entity_type_should_error(
+    async def test_validate__without_constraint_without_importable_entity_type_should_error(
         self,
     ) -> None:
         sut = EntityReference[Entity]("betty.non_existent.Entity")
@@ -228,7 +228,7 @@ class TestEntityReferenceSequence(
         sut = EntityReferenceSequence(entity_type_constraint=DummyEntity)
         sut.append(EntityReference(DummyEntity))
 
-    async def test_validate_with_invalid_item(
+    async def test_validate__with_invalid_item(
         self,
     ) -> None:
         sut = EntityReferenceSequence[Entity](

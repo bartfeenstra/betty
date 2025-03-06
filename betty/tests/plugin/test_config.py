@@ -226,7 +226,7 @@ class TestPluginConfigurationPluginConfigurationMapping(
 
 
 class TestPluginInstanceConfiguration:
-    def test___init___with_configuration(self):
+    def test___init____with_configuration(self):
         plugin = DummyPlugin
         value = "Hello, world!"
         sut = PluginInstanceConfiguration(
@@ -235,7 +235,7 @@ class TestPluginInstanceConfiguration:
         )
         assert sut.configuration == {"value": value}
 
-    def test___init___with_configuration_dump(self):
+    def test___init____with_configuration_dump(self):
         plugin = DummyPlugin
         configuration: Dump = {
             "value": "Hello, world!",
@@ -257,18 +257,18 @@ class TestPluginInstanceConfiguration:
         sut = PluginInstanceConfiguration(plugin, configuration=configuration)
         assert sut.configuration == configuration.dump()
 
-    def test_load_without_id(self) -> None:
+    def test_load__without_id(self) -> None:
         plugin = DummyPlugin
         with raises_error(error_type=AssertionFailed):
             (PluginInstanceConfiguration(plugin)).load({})
 
-    def test_load_minimal(self) -> None:
+    def test_load__minimal(self) -> None:
         plugin = DummyPlugin
         sut = PluginInstanceConfiguration(plugin)
         sut.load({"id": plugin.plugin_id()})
         assert sut.id == plugin.plugin_id()
 
-    def test_load_with_configuration(self) -> None:
+    def test_load__with_configuration(self) -> None:
         plugin = _DummyDefaultConfigurablePlugin
         sut = PluginInstanceConfiguration(plugin)
         configuration: Dump = {
@@ -282,12 +282,12 @@ class TestPluginInstanceConfiguration:
         )
         assert sut.configuration == configuration
 
-    def test_dump_should_dump_minimal(self) -> None:
+    def test_dump__should_dump_minimal(self) -> None:
         plugin = DummyPlugin
         sut = PluginInstanceConfiguration(plugin)
         assert sut.dump() == plugin.plugin_id()
 
-    def test_dump_should_dump_configuration(self) -> None:
+    def test_dump__should_dump_configuration(self) -> None:
         plugin = _DummyDefaultConfigurablePlugin
         value = "Hello, world!"
         sut = PluginInstanceConfiguration(
@@ -301,7 +301,7 @@ class TestPluginInstanceConfiguration:
         }
         assert sut.dump() == expected
 
-    async def test_new_plugin_instance_with_configurable_plugin_with_configuration(
+    async def test_new_plugin_instance__with_configurable_plugin_with_configuration(
         self,
     ) -> None:
         plugin = _DummyDefaultConfigurablePlugin
@@ -314,7 +314,7 @@ class TestPluginInstanceConfiguration:
         assert isinstance(instance, plugin)
         assert instance.configuration.value == value
 
-    async def test_new_plugin_instance_with_configurable_plugin_without_configuration(
+    async def test_new_plugin_instance__with_configurable_plugin_without_configuration(
         self,
     ) -> None:
         plugin = _DummyDefaultConfigurablePlugin
@@ -323,7 +323,7 @@ class TestPluginInstanceConfiguration:
         instance = await sut.new_plugin_instance(repository)
         assert isinstance(instance, plugin)
 
-    async def test_new_plugin_instance_with_non_configurable_plugin_with_configuration(
+    async def test_new_plugin_instance__with_non_configurable_plugin_with_configuration(
         self,
     ) -> None:
         plugin = DummyPlugin
@@ -335,7 +335,7 @@ class TestPluginInstanceConfiguration:
         with pytest.raises(AssertionFailed):
             await sut.new_plugin_instance(repository)
 
-    async def test_new_plugin_instance_with_non_configurable_plugin_without_configuration(
+    async def test_new_plugin_instance__with_non_configurable_plugin_without_configuration(
         self,
     ) -> None:
         plugin = DummyPlugin
@@ -424,22 +424,22 @@ class _DummyPluginIdentifierKeyConfigurationMapping(
 
 
 class TestPluginIdentifierKeyConfigurationMapping:
-    def test___contains___with_plugin(self) -> None:
+    def test___contains____with_plugin(self) -> None:
         item = DummyConfiguration(DummyPlugin.plugin_id())
         sut = _DummyPluginIdentifierKeyConfigurationMapping([item])
         assert DummyPlugin in sut
 
-    def test___contains___with_plugin_id(self) -> None:
+    def test___contains____with_plugin_id(self) -> None:
         item = DummyConfiguration(DummyPlugin.plugin_id())
         sut = _DummyPluginIdentifierKeyConfigurationMapping([item])
         assert DummyPlugin.plugin_id() in sut
 
-    def test___getitem___with_plugin(self) -> None:
+    def test___getitem____with_plugin(self) -> None:
         item = DummyConfiguration(DummyPlugin.plugin_id())
         sut = _DummyPluginIdentifierKeyConfigurationMapping([item])
         assert sut[DummyPlugin] is item
 
-    def test___getitem___with_plugin_id(self) -> None:
+    def test___getitem____with_plugin_id(self) -> None:
         item = DummyConfiguration(DummyPlugin.plugin_id())
         sut = _DummyPluginIdentifierKeyConfigurationMapping([item])
         assert sut[DummyPlugin.plugin_id()] is item

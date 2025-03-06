@@ -48,7 +48,7 @@ class TestFile(EntityTestBase):
         )
         assert sut.id == file_id
 
-    async def test_name_with_name(self, tmp_path: Path) -> None:
+    async def test_name__with_name(self, tmp_path: Path) -> None:
         name = "a-file.a-suffix"
         sut = File(
             tmp_path / "file",
@@ -79,7 +79,7 @@ class TestFile(EntityTestBase):
         sut.media_type = media_type
         assert sut.media_type == media_type
 
-    async def test_path_with_path(self) -> None:
+    async def test_path__with_path(self) -> None:
         with NamedTemporaryFile() as f:
             file_id = "BETTY01"
             file_path = Path(f.name)
@@ -89,7 +89,7 @@ class TestFile(EntityTestBase):
             )
             assert sut.path == file_path
 
-    async def test_path_with_str(self) -> None:
+    async def test_path__with_str(self) -> None:
         with NamedTemporaryFile() as f:
             file_id = "BETTY01"
             sut = File(
@@ -149,7 +149,7 @@ class TestFile(EntityTestBase):
         )
         assert list(sut.citations) == []
 
-    async def test_dump_linked_data_should_dump_minimal(self) -> None:
+    async def test_dump_linked_data__should_dump_minimal(self) -> None:
         with NamedTemporaryFile() as f:
             file = File(
                 id="the_file",
@@ -169,7 +169,7 @@ class TestFile(EntityTestBase):
             actual = await assert_dumps_linked_data(file)
             assert actual == expected
 
-    async def test_dump_linked_data_should_dump_full(self) -> None:
+    async def test_dump_linked_data__should_dump_full(self) -> None:
         with NamedTemporaryFile() as f:
             file = File(
                 id="the_file",
@@ -221,7 +221,7 @@ class TestFile(EntityTestBase):
             actual = await assert_dumps_linked_data(file)
             assert actual == expected
 
-    async def test_dump_linked_data_should_dump_private(self) -> None:
+    async def test_dump_linked_data__should_dump_private(self) -> None:
         with NamedTemporaryFile() as f:
             file = File(
                 id="the_file",

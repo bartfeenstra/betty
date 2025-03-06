@@ -82,11 +82,11 @@ def test_localizable_contexts(
 
 
 class TestAssertionFailed:
-    def test_localize_without_contexts(self) -> None:
+    def test_localize__without_contexts(self) -> None:
         sut = AssertionFailed(static("Something went wrong!"))
         assert sut.localize(DEFAULT_LOCALIZER) == "Something went wrong!"
 
-    def test_localize_with_contexts(self) -> None:
+    def test_localize__with_contexts(self) -> None:
         sut = AssertionFailed(static("Something went wrong!"))
         sut = sut.with_context(static("Somewhere, at some point..."))
         sut = sut.with_context(static("Somewhere else, too..."))
@@ -95,7 +95,7 @@ class TestAssertionFailed:
             == "Something went wrong!\n- Somewhere else, too...\n- Somewhere, at some point..."
         )
 
-    def test_with_context_and_contexts(self) -> None:
+    def test_with_context__and_contexts(self) -> None:
         sut = AssertionFailed(static("Something went wrong!"))
         sut_with_context = sut.with_context(static("Somewhere, at some point..."))
         assert sut != sut_with_context
@@ -120,16 +120,16 @@ class TestAssertionFailed:
 
 
 class TestAssertionFailedGroup:
-    def test_localize_without_errors(self) -> None:
+    def test_localize__without_errors(self) -> None:
         sut = AssertionFailedGroup()
         assert sut.localize(DEFAULT_LOCALIZER) == ""
 
-    def test_localize_with_one_error(self) -> None:
+    def test_localize__with_one_error(self) -> None:
         sut = AssertionFailedGroup()
         sut.append(AssertionFailed(static("Something went wrong!")))
         assert sut.localize(DEFAULT_LOCALIZER) == "Something went wrong!"
 
-    def test_localize_with_multiple_errors(self) -> None:
+    def test_localize__with_multiple_errors(self) -> None:
         sut = AssertionFailedGroup()
         sut.append(AssertionFailed(static("Something went wrong!")))
         sut.append(AssertionFailed(static("Something else went wrong, too!")))
@@ -138,7 +138,7 @@ class TestAssertionFailedGroup:
             == "Something went wrong!\n\nSomething else went wrong, too!"
         )
 
-    def test_localize_with_predefined_contexts(self) -> None:
+    def test_localize__with_predefined_contexts(self) -> None:
         sut = AssertionFailedGroup()
         sut = sut.with_context(static("Somewhere, at some point..."))
         sut = sut.with_context(static("Somewhere else, too..."))
@@ -153,7 +153,7 @@ class TestAssertionFailedGroup:
             == "Something went wrong!\n- Somewhere, at some point...\n- Somewhere else, too...\n\nSomething else went wrong, too!\n- Somewhere, at some point...\n- Somewhere else, too..."
         )
 
-    def test_localize_with_postdefined_contexts(self) -> None:
+    def test_localize__with_postdefined_contexts(self) -> None:
         sut = AssertionFailedGroup()
         error_1 = AssertionFailed(static("Something went wrong!"))
         error_2 = AssertionFailed(static("Something else went wrong, too!"))
@@ -177,7 +177,7 @@ class TestAssertionFailedGroup:
             for context in localizable_contexts(*sut_with_context.contexts)
         ] == ["Somewhere, at some point..."]
 
-    def test_catch_without_contexts(self) -> None:
+    def test_catch__without_contexts(self) -> None:
         sut = AssertionFailedGroup()
         error = AssertionFailed(static("Help!"))
         with sut.catch() as errors:
@@ -185,7 +185,7 @@ class TestAssertionFailedGroup:
         assert_error(errors, error=error)  # type: ignore[unreachable]
         assert_error(sut, error=error)
 
-    def test_catch_with_contexts(self) -> None:
+    def test_catch__with_contexts(self) -> None:
         sut = AssertionFailedGroup()
         error = AssertionFailed(static("Help!"))
         with sut.catch(static("Somewhere")) as errors:
@@ -202,7 +202,7 @@ class TestAssertionFailedGroup:
             (True, [AssertionFailedGroup()]),
         ],
     )
-    def test_valid_and_invalid(
+    def test_valid__and_invalid(
         self, expected: bool, errors: Sequence[AssertionFailed] | None
     ) -> None:
         sut = AssertionFailedGroup(errors)
@@ -224,18 +224,18 @@ class TestAssertionFailedGroup:
         sut = AssertionFailedGroup(errors)
         assert sut.raised(_DummyAssertionFailed) is expected
 
-    def test_assert_valid_without_errors(self) -> None:
+    def test_assert_valid__without_errors(self) -> None:
         with AssertionFailedGroup().assert_valid():
             pass
 
-    def test_assert_valid_with_prior_error(self) -> None:
+    def test_assert_valid__with_prior_error(self) -> None:
         with (
             pytest.raises(AssertionFailedGroup),
             AssertionFailedGroup([AssertionFailed(plain(""))]).assert_valid(),
         ):
             pass
 
-    def test_assert_valid_with_error_during_context_manager(self) -> None:
+    def test_assert_valid__with_error_during_context_manager(self) -> None:
         with pytest.raises(AssertionFailedGroup), AssertionFailedGroup().assert_valid():
             raise AssertionFailed(plain(""))
 
@@ -244,7 +244,7 @@ class TestAssertionFailedGroup:
         sut.append(AssertionFailed(plain("")))
         assert len(sut) == 1
 
-    def test_append_with_group(self) -> None:
+    def test_append__with_group(self) -> None:
         sut = AssertionFailedGroup()
         sut.append(AssertionFailedGroup([AssertionFailed(plain(""))]))
         assert len(sut) == 1

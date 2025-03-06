@@ -65,7 +65,7 @@ class TestStaticTranslationsLocalizable:
             ),
         ],
     )
-    async def test_localize_with_translations(
+    async def test_localize__with_translations(
         self, expected: str, locale: str, translations: ShorthandStaticTranslations
     ) -> None:
         sut = StaticTranslationsLocalizable(translations)

@@ -201,6 +201,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "FileBasedSchema": {
             "__init_subclass__": MissingReason.INHERITED,
         },
+        "Schema": {
+            "validate": MissingReason.SHOULD_BE_COVERED,
+        },
     },
     "betty/link.py": MissingReason.ABSTRACT,
     "betty/locale/__init__.py": {
@@ -828,7 +831,7 @@ class _ModuleClassCoverageTester:
         ignore: _ModuleFunctionIgnore,
     ) -> Iterable[str]:
         expected_test_member_name = f"test_{src_member_name}"
-        expected_test_member_name_prefix = f"{expected_test_member_name}_"
+        expected_test_member_name_prefix = f"{expected_test_member_name}__"
         test_members = [
             member
             for name, member in getmembers(test_class)

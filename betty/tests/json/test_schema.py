@@ -37,18 +37,18 @@ class TestSchema(SchemaTestBase):
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
         return DUMMY_SCHEMAS
 
-    def test_def_name_from___init__(self) -> None:
+    def test_def_name__from___init__(self) -> None:
         def_name = "myFirstDefinition"
         sut = Schema(def_name=def_name)
         assert sut.def_name == def_name
 
-    def test___init__with_title(self) -> None:
+    def test___init___with_title(self) -> None:
         title = "My First Definition"
         sut = Schema(title=title)
         assert "title" in sut.schema
         assert sut.title == title
 
-    def test___init__with_description(self) -> None:
+    def test___init___with_description(self) -> None:
         description = "My First Definition"
         sut = Schema(description=description)
         assert "description" in sut.schema
@@ -60,7 +60,7 @@ class TestSchema(SchemaTestBase):
         sut.title = title
         assert sut.title == title
 
-    def test_title_default(self) -> None:
+    def test_title__default(self) -> None:
         sut = Schema()
         assert sut.title is None
 
@@ -70,7 +70,7 @@ class TestSchema(SchemaTestBase):
         sut.description = description
         assert sut.description == description
 
-    def test_description_default(self) -> None:
+    def test_description__default(self) -> None:
         sut = Schema()
         assert sut.description is None
 
@@ -223,7 +223,7 @@ class TestObject(SchemaTestBase):
             "required": [property_name],
         }
 
-    def test_add_property_with_optional(self) -> None:
+    def test_add_property__with_optional(self) -> None:
         sut = Object()
         property_name = "myFirstProperty"
         property_schema = Null()

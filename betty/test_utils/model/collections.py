@@ -146,7 +146,7 @@ class EntityCollectionTestBase(Generic[_EntityT]):
             sut.replace(*others)
             assert list(sut) == list(others)
 
-    async def test___getitem___by_index(self) -> None:
+    async def test___getitem____by_index(self) -> None:
         """
         Tests :py:meth:`betty.model.collections.EntityCollection.__getitem__` implementations.
         """
@@ -155,7 +155,7 @@ class EntityCollectionTestBase(Generic[_EntityT]):
             sut.add(*entities)
             assert sut[0] == entities[0]
 
-    async def test___getitem___by_indices(self) -> None:
+    async def test___getitem____by_indices(self) -> None:
         """
         Tests :py:meth:`betty.model.collections.EntityCollection.__getitem__` implementations.
         """
