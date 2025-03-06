@@ -30,12 +30,12 @@ class TestCitation(EntityTestBase):
             Citation(source=Source(), location="My First Location"),
         ]
 
-    async def test___init___with_facts(self) -> None:
+    async def test___init____with_facts(self) -> None:
         fact = DummyHasCitations()
         sut = Citation(source=Source(), facts=[fact])
         assert list(sut.facts) == [fact]
 
-    async def test___init___with_location(self) -> None:
+    async def test___init____with_location(self) -> None:
         location = "Somewhere"
         sut = Citation(source=Source(), location=location)
         assert sut.location.localize(DEFAULT_LOCALIZER) == location
@@ -81,7 +81,7 @@ class TestCitation(EntityTestBase):
         sut.private = True
         assert sut.private is True
 
-    async def test_dump_linked_data_should_dump_minimal(self) -> None:
+    async def test_dump_linked_data__should_dump_minimal(self) -> None:
         citation = Citation(
             id="the_citation",
             source=Source(name="The Source"),
@@ -100,7 +100,7 @@ class TestCitation(EntityTestBase):
         actual = await assert_dumps_linked_data(citation)
         assert actual == expected
 
-    async def test_dump_linked_data_should_dump_full(self) -> None:
+    async def test_dump_linked_data__should_dump_full(self) -> None:
         citation = Citation(
             id="the_citation",
             source=Source(
@@ -128,7 +128,7 @@ class TestCitation(EntityTestBase):
         actual = await assert_dumps_linked_data(citation)
         assert actual == expected
 
-    async def test_dump_linked_data_should_dump_private(self) -> None:
+    async def test_dump_linked_data__should_dump_private(self) -> None:
         citation = Citation(
             id="the_citation",
             source=Source(

@@ -105,7 +105,7 @@ class TestDeriver:
             ComesBeforeAndAfterCreatableDerivable,
         ],
     )
-    async def test_derive_without_events(
+    async def test_derive__without_events(
         self, event_type: type[DerivableEventType]
     ) -> None:
         person = Person(id="P0")
@@ -135,7 +135,7 @@ class TestDeriver:
             ComesBeforeAndAfterCreatableDerivable,
         ],
     )
-    async def test_derive_create_derivable_events_without_reference_events(
+    async def test_derive__create_derivable_events_without_reference_events(
         self, event_type: type[DerivableEventType]
     ) -> None:
         person = Person(id="P0")
@@ -168,7 +168,7 @@ class TestDeriver:
             ComesBeforeAndAfterCreatableDerivable(),
         ],
     )
-    async def test_derive_update_derivable_event_without_reference_events(
+    async def test_derive__update_derivable_event_without_reference_events(
         self, event_type: DerivableEventType
     ) -> None:
         person = Person(id="P0")
@@ -376,7 +376,7 @@ class TestDeriver:
             ),
         ],
     )
-    async def test_derive_update_comes_before_derivable_event(
+    async def test_derive__update_comes_before_derivable_event(
         self,
         expected_datey: Datey | None,
         before_datey: Datey | None,
@@ -441,7 +441,7 @@ class TestDeriver:
             ),
         ],
     )
-    async def test_derive_create_comes_before_derivable_event(
+    async def test_derive__create_comes_before_derivable_event(
         self,
         expected_datey: Datey | None,
         before_datey: Datey | None,
@@ -679,7 +679,7 @@ class TestDeriver:
             ),
         ],
     )
-    async def test_derive_update_comes_after_derivable_event(
+    async def test_derive__update_comes_after_derivable_event(
         self,
         expected_datey: Datey | None,
         after_datey: Datey | None,
@@ -745,7 +745,7 @@ class TestDeriver:
             ),
         ],
     )
-    async def test_derive_create_comes_after_derivable_event(
+    async def test_derive__create_comes_after_derivable_event(
         self,
         expected_datey: Datey | None,
         after_datey: Datey | None,
@@ -809,7 +809,7 @@ class TestDeriver:
             (DateRange(Date(1970, 1, 1), Date(1999, 12, 31), end_is_boundary=True),),
         ],
     )
-    async def test_derive_may_not_create(
+    async def test_derive__may_not_create(
         self,
         after_datey: Datey | None,
     ) -> None:

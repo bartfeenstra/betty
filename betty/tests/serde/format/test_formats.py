@@ -6,6 +6,10 @@ from typing_extensions import override
 from betty.serde.format import Format, FormatError
 from betty.serde.format.formats import Json, Yaml
 from betty.test_utils.serde.format import FormatTestBase
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from betty.serde.dump import Dump
 
 
 class TestJson(FormatTestBase):
@@ -17,9 +21,22 @@ class TestJson(FormatTestBase):
     def get_format_sut_instances(self) -> Sequence[Format]:
         return [Json()]
 
-    def test_load_with_invalid_dump(self) -> None:
+    def test_load__with_invalid_dump(self) -> None:
         with pytest.raises(FormatError):
             Json().load("InvalidJson")
+
+    def test_load__with_valid_dump(self) -> None:
+        sut = Json()
+        json_dump = '{"hello": [123, "World!"]}'
+        dump = sut.load(json_dump)
+        expected = {"hello": [123, "World!"]}
+        assert expected == dump
+
+    def test_dump(self) -> None:
+        dump: Dump = {"hello": [123, "World!"]}
+        sut = Json()
+        json_dump = sut.dump(dump)
+        assert json_dump == '{"hello": [123, "World!"]}'
 
 
 class TestYaml(FormatTestBase):
@@ -31,6 +48,19 @@ class TestYaml(FormatTestBase):
     def get_format_sut_instances(self) -> Sequence[Format]:
         return [Yaml()]
 
-    def test_load_with_invalid_dump(self) -> None:
+    def test_load__with_invalid_dump(self) -> None:
         with pytest.raises(FormatError):
             Yaml().load(": :InvalidYaml: :")
+
+    def test_load__with_valid_dump(self) -> None:
+        sut = Yaml()
+        yaml_dump = "hello:\n- 123\n- World!\n"
+        dump = sut.load(yaml_dump)
+        expected = {"hello": [123, "World!"]}
+        assert expected == dump
+
+    def test_dump(self) -> None:
+        dump: Dump = {"hello": [123, "World!"]}
+        sut = Yaml()
+        yaml_dump = sut.dump(dump)
+        assert yaml_dump == "hello:\n- 123\n- World!\n"

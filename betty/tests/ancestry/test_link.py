@@ -38,7 +38,7 @@ _DUMMY_LINK_DUMPS: Sequence[DumpMapping[Dump]] = (
 
 
 class TestLink:
-    async def test___init___with_label(self) -> None:
+    async def test___init____with_label(self) -> None:
         url = "https://example.com"
         label = "Hello, world!"
         sut = Link(url, label=label)
@@ -74,7 +74,7 @@ class TestLink:
         sut = Link(url)
         assert not sut.label
 
-    async def test_dump_linked_data_should_dump_minimal(self) -> None:
+    async def test_dump_linked_data__should_dump_minimal(self) -> None:
         link = Link("https://example.com")
         expected: Mapping[str, Any] = {
             "@context": {"description": "https://schema.org/description"},
@@ -86,7 +86,7 @@ class TestLink:
         actual = await assert_dumps_linked_data(link)
         assert actual == expected
 
-    async def test_dump_linked_data_should_dump_full(self) -> None:
+    async def test_dump_linked_data__should_dump_full(self) -> None:
         link = Link(
             "https://example.com",
             label="The Link",
@@ -153,7 +153,7 @@ class DummyHasLinks(HasLinks):
 
 
 class TestHasLinks:
-    async def test___init___with_links(self) -> None:
+    async def test___init____with_links(self) -> None:
         link = Link("https://example.com")
         sut = DummyHasLinks(links=[link])
         assert sut.links == [link]

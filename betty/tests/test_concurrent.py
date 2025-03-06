@@ -40,11 +40,11 @@ class _LockTestDummyLock(Lock):
 
 
 class TestLock:
-    async def test___aenter___and___aexit___with_acquisition(self) -> None:
+    async def test___aenter____and___aexit___with_acquisition(self) -> None:
         async with _LockTestDummyLock(True):
             pass
 
-    async def test___aenter___and___aexit___without_acquisition(self) -> None:
+    async def test___aenter____and___aexit___without_acquisition(self) -> None:
         sut = _LockTestDummyLock(False)
         with pytest.raises(asyncio.TimeoutError):
             await wait_for(sut.__aenter__(), 0.000000001)
@@ -109,7 +109,7 @@ async def test_asynchronize_acquire__should_not_acquire_if_not_waiting_with_mult
 
 
 class TestAsynchronizedLock:
-    async def test_acquire_should_acquire_immediately(self) -> None:
+    async def test_acquire__should_acquire_immediately(self) -> None:
         lock = threading.Lock()
         sut = AsynchronizedLock(lock)
         assert await sut.acquire()
@@ -117,7 +117,7 @@ class TestAsynchronizedLock:
         await sut.release()
         assert not lock.locked()
 
-    async def test_acquire_should_acquire_after_waiting(self) -> None:
+    async def test_acquire__should_acquire_after_waiting(self) -> None:
         lock = threading.Lock()
         sut = AsynchronizedLock(lock)
         lock.acquire()
@@ -126,7 +126,7 @@ class TestAsynchronizedLock:
         lock.release()
         assert await task
 
-    async def test_acquire_should_not_acquire_if_not_waiting(self) -> None:
+    async def test_acquire__should_not_acquire_if_not_waiting(self) -> None:
         lock = threading.Lock()
         sut = AsynchronizedLock(lock)
         lock.acquire()
@@ -198,7 +198,7 @@ class TestRateLimiter:
 
 
 class TestLedger:
-    async def test_ledger_with_wait_with_unlocked(
+    async def test_ledger__with_wait_with_unlocked(
         self, multiprocessing_manager: SyncManager
     ) -> None:
         transaction_id = "my-first-transaction-id"
@@ -210,7 +210,7 @@ class TestLedger:
         assert await lock.acquire()
         await lock.release()
 
-    async def test_ledger_without_wait_with_unlocked(
+    async def test_ledger__without_wait_with_unlocked(
         self, multiprocessing_manager: SyncManager
     ) -> None:
         transaction_id = "my-first-transaction-id"
@@ -222,7 +222,7 @@ class TestLedger:
         assert await lock.acquire(wait=False)
         await lock.release()
 
-    async def test_ledger_with_wait_with_locked(
+    async def test_ledger__with_wait_with_locked(
         self, multiprocessing_manager: SyncManager
     ) -> None:
         transaction_id = "my-first-transaction-id"
@@ -237,7 +237,7 @@ class TestLedger:
         await lock.release()
         assert await task
 
-    async def test_ledger_without_wait_with_locked(
+    async def test_ledger__without_wait_with_locked(
         self, multiprocessing_manager: SyncManager
     ) -> None:
         transaction_id = "my-first-transaction-id"

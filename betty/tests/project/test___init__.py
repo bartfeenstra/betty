@@ -117,7 +117,7 @@ class TestProject:
             ),
         )
 
-    async def test_new_without_ancestry(
+    async def test_new__without_ancestry(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
         await Project.new(
@@ -125,7 +125,7 @@ class TestProject:
             configuration=await ProjectConfiguration.new(tmp_path / "betty.json"),
         )
 
-    async def test_new_with_ancestry(
+    async def test_new__with_ancestry(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
         ancestry = await Ancestry.new()
@@ -136,13 +136,13 @@ class TestProject:
         )
         assert sut.ancestry is ancestry
 
-    async def test_new_temporary_without_configuration(
+    async def test_new_temporary__without_configuration(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
         async with Project.new_temporary(new_temporary_app):
             pass
 
-    async def test_new_temporary_with_configuration(
+    async def test_new_temporary__with_configuration(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
         configuration = await ProjectConfiguration.new(tmp_path / "betty.json")
@@ -152,7 +152,7 @@ class TestProject:
             assert sut.configuration is configuration
 
     @pytest.mark.usefixtures("_extensions")
-    async def test_bootstrap_should_initialize_extensions(
+    async def test_bootstrap__should_initialize_extensions(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
@@ -162,7 +162,7 @@ class TestProject:
                 extension = extensions[DummyExtension.plugin_id()]
                 assert extension._bootstrapped
 
-    async def test_bootstrap_should_validate_entity_type_configuration(
+    async def test_bootstrap__should_validate_entity_type_configuration(
         self, mocker: MockerFixture, new_temporary_app: App
     ) -> None:
         plugin = DummyEntity
@@ -178,7 +178,7 @@ class TestProject:
                     pass
 
     @pytest.mark.usefixtures("_extensions")
-    async def test_extensions_with_one_extension(self, new_temporary_app: App) -> None:
+    async def test_extensions__with_one_extension(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.extensions.enable(DummyExtension)
             async with sut:
@@ -187,7 +187,7 @@ class TestProject:
                 assert isinstance(extension, DummyExtension)
 
     @pytest.mark.usefixtures("_extensions")
-    async def test_extensions_with_one_configurable_extension(
+    async def test_extensions__with_one_configurable_extension(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
@@ -205,7 +205,7 @@ class TestProject:
                 assert extension.configuration.value == value
 
     @pytest.mark.usefixtures("_extensions")
-    async def test_extensions_with_one_extension_with_single_chained_dependency(
+    async def test_extensions__with_one_extension_with_single_chained_dependency(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
@@ -228,7 +228,7 @@ class TestProject:
                 )
 
     @pytest.mark.usefixtures("_extensions")
-    async def test_extensions_with_multiple_extensions_with_duplicate_dependencies(
+    async def test_extensions__with_multiple_extensions_with_duplicate_dependencies(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
@@ -250,7 +250,7 @@ class TestProject:
                 )
 
     @pytest.mark.usefixtures("_extensions")
-    async def test_extensions_with_multiple_extensions_with_cyclic_dependencies(
+    async def test_extensions__with_multiple_extensions_with_cyclic_dependencies(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
@@ -260,7 +260,7 @@ class TestProject:
                     pass  # pragma: no cover
 
     @pytest.mark.usefixtures("_extensions")
-    async def test_extensions_with_comes_before_with_other_extension(
+    async def test_extensions__with_comes_before_with_other_extension(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
@@ -278,7 +278,7 @@ class TestProject:
                 assert isinstance(extensions[1][0], DummyExtension)
 
     @pytest.mark.usefixtures("_extensions")
-    async def test_extensions_with_comes_before_without_other_extension(
+    async def test_extensions__with_comes_before_without_other_extension(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
@@ -294,7 +294,7 @@ class TestProject:
                 )
 
     @pytest.mark.usefixtures("_extensions")
-    async def test_extensions_with_comes_after_with_other_extension(
+    async def test_extensions__with_comes_after_with_other_extension(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
@@ -312,7 +312,7 @@ class TestProject:
                 )
 
     @pytest.mark.usefixtures("_extensions")
-    async def test_extensions_with_comes_after_without_other_extension(
+    async def test_extensions__with_comes_after_without_other_extension(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
@@ -327,7 +327,7 @@ class TestProject:
                     extensions[0][0], _ComesAfterNonConfigurableExtensionExtension
                 )
 
-    async def test_ancestry_with___init___ancestry(
+    async def test_ancestry__with___init___ancestry(
         self, new_temporary_app: App
     ) -> None:
         ancestry = await Ancestry.new()
@@ -337,7 +337,7 @@ class TestProject:
         ):
             assert sut.ancestry is ancestry
 
-    async def test_ancestry_without___init___ancestry(
+    async def test_ancestry__without___init___ancestry(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
@@ -347,13 +347,13 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             assert sut.app is new_temporary_app
 
-    async def test_assets_without_extensions(self, new_temporary_app: App) -> None:
+    async def test_assets__without_extensions(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             assets = await sut.assets
             assert len(assets.assets_directory_paths) == 2
 
     @pytest.mark.usefixtures("_extensions")
-    async def test_assets_with_extension_without_assets_directory(
+    async def test_assets__with_extension_without_assets_directory(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
@@ -363,7 +363,7 @@ class TestProject:
                 assert len(assets.assets_directory_paths) == 2
 
     @pytest.mark.usefixtures("_extensions")
-    async def test_assets_with_extension_with_assets_directory(
+    async def test_assets__with_extension_with_assets_directory(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
@@ -385,14 +385,14 @@ class TestProject:
             localizers = await sut.localizers
             assert len(list(localizers.locales)) > 0
 
-    async def test_name_with_configuration_name(self, new_temporary_app: App) -> None:
+    async def test_name__with_configuration_name(self, new_temporary_app: App) -> None:
         name = "hello-world"
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.name = name
             async with sut:
                 assert sut.name == name
 
-    async def test_name_without_configuration_name(
+    async def test_name__without_configuration_name(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
@@ -423,7 +423,7 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             await sut.new_target(Dependent)
 
-    async def test_new_with_project_dependent_factory(
+    async def test_new_target__with_project_dependent_factory(
         self, new_temporary_app: App
     ) -> None:
         class Dependent(ProjectDependentFactory):
@@ -438,7 +438,9 @@ class TestProject:
             dependent = await sut.new_target(Dependent)
             assert dependent.project is sut
 
-    async def test_new_with_app_dependent_factory(self, new_temporary_app: App) -> None:
+    async def test_new_target__with_app_dependent_factory(
+        self, new_temporary_app: App
+    ) -> None:
         class Dependent(AppDependentFactory):
             def __init__(self, app: App):
                 self.app = app
@@ -452,7 +454,7 @@ class TestProject:
             dependent = await sut.new_target(Dependent)
             assert dependent.app is new_temporary_app
 
-    async def test_logo_with_configuration(
+    async def test_logo__with_configuration(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
         logo = tmp_path / "logo.png"
@@ -461,7 +463,7 @@ class TestProject:
             async with sut:
                 assert sut.logo == logo
 
-    async def test_logo_without_configuration(self, new_temporary_app: App) -> None:
+    async def test_logo__without_configuration(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             assert sut.logo.exists()
 
@@ -618,30 +620,30 @@ class TestProjectSchema(SchemaTestBase):
 
 
 class TestProjectExtensions:
-    async def test___contains___without_extensions(self) -> None:
+    async def test___contains____without_extensions(self) -> None:
         sut = ProjectExtensions([])
         assert DummyExtension not in sut
 
-    async def test___contains___with_unknown_extension(
+    async def test___contains____with_unknown_extension(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = ProjectExtensions([[DummyExtension(project)]])
             assert DummyConfigurableExtension not in sut
 
-    async def test___contains___with_known_extension(
+    async def test___contains____with_known_extension(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = ProjectExtensions([[DummyExtension(project)]])
             assert DummyExtension in sut
 
-    async def test___getitem___without_extensions(self) -> None:
+    async def test___getitem____without_extensions(self) -> None:
         sut = ProjectExtensions([])
         with pytest.raises(KeyError):
             sut[DummyExtension]
 
-    async def test___getitem___with_unknown_extension(
+    async def test___getitem____with_unknown_extension(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
@@ -649,18 +651,18 @@ class TestProjectExtensions:
             with pytest.raises(KeyError):
                 sut[DummyConfigurableExtension]
 
-    async def test___getitem___with_known_extension(
+    async def test___getitem____with_known_extension(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = ProjectExtensions([[DummyExtension(project)]])
             sut[DummyExtension]
 
-    async def test___iter___without_extensions(self) -> None:
+    async def test___iter____without_extensions(self) -> None:
         sut = ProjectExtensions([])
         assert list(iter(sut)) == []
 
-    async def test___iter___with_extensions_in_a_single_batch(
+    async def test___iter____with_extensions_in_a_single_batch(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
@@ -673,7 +675,7 @@ class TestProjectExtensions:
             assert actual[0][0] is extension_one
             assert actual[0][1] is extension_two
 
-    async def test___iter___with_extensions_in_multiple_batches(
+    async def test___iter____with_extensions_in_multiple_batches(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
@@ -687,11 +689,11 @@ class TestProjectExtensions:
             assert actual[0][0] is extension_one
             assert actual[1][0] is extension_two
 
-    async def test_flatten_without_extensions(self) -> None:
+    async def test_flatten__without_extensions(self) -> None:
         sut = ProjectExtensions([])
         assert list(sut.flatten()) == []
 
-    async def test_flatten_with_extensions_in_a_single_batch(
+    async def test_flatten__with_extensions_in_a_single_batch(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
@@ -703,7 +705,7 @@ class TestProjectExtensions:
             assert actual[0] is extension_one
             assert actual[1] is extension_two
 
-    async def test_flatten_with_extensions_in_multiple_batches(
+    async def test_flatten__with_extensions_in_multiple_batches(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:

@@ -25,7 +25,7 @@ class TestNote(EntityTestBase):
             Note("Betty wrote this."),
         ]
 
-    async def test___init___with_entity(self) -> None:
+    async def test___init____with_entity(self) -> None:
         entity = DummyHasNotes()
         sut = Note("Betty wrote this.", entity=entity)
         assert sut.entity is entity
@@ -46,7 +46,7 @@ class TestNote(EntityTestBase):
         sut.entity = entity
         assert sut.entity is entity
 
-    async def test_dump_linked_data_should_dump_full(self) -> None:
+    async def test_dump_linked_data__should_dump_full(self) -> None:
         note = Note("The Note", id="the_note")
         expected: Mapping[str, Any] = {
             "@id": "https://example.com/note/the_note/index.json",
@@ -60,7 +60,7 @@ class TestNote(EntityTestBase):
         actual = await assert_dumps_linked_data(note)
         assert actual == expected
 
-    async def test_dump_linked_data_should_dump_private(self) -> None:
+    async def test_dump_linked_data__should_dump_private(self) -> None:
         note = Note(
             "The Note",
             id="the_note",

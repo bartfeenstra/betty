@@ -38,7 +38,7 @@ class TestCottonCandy(EntryPointProviderTestBase, ExtensionTestBase[CottonCandy]
             sut = await project.new_target(self.get_sut_class())
             assert len(sut.public_css_paths)
 
-    async def test_bootstrap_should_validate_featured_entities_configuration(
+    async def test_bootstrap__should_validate_featured_entities_configuration(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
@@ -50,7 +50,7 @@ class TestCottonCandy(EntryPointProviderTestBase, ExtensionTestBase[CottonCandy]
                 async with sut:
                     pass
 
-    async def test_generate_html_list_for_third_party_entity(
+    async def test_generate_html_list__for_third_party_entity(
         self, mocker: MockerFixture, new_temporary_app: App
     ) -> None:
         mocker.patch(

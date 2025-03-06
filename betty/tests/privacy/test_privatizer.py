@@ -293,7 +293,7 @@ def _expand_person(generation: int) -> Sequence[tuple[bool, Privacy, Event | Non
 
 
 class TestPrivatizer:
-    async def test_privatize_person_should_not_privatize_if_public(self) -> None:
+    async def test_privatize__person_should_not_privatize_if_public(self) -> None:
         citation = Citation(source=Source())
         file = File(path=Path(__file__))
         person = Person(public=True)
@@ -312,7 +312,7 @@ class TestPrivatizer:
         assert presence_as_subject.privacy is Privacy.UNDETERMINED
         assert presence_as_unknown.privacy is Privacy.UNDETERMINED
 
-    async def test_privatize_person_should_privatize_if_private(self) -> None:
+    async def test_privatize__person_should_privatize_if_private(self) -> None:
         citation = Citation(source=Source())
         file = File(path=Path(__file__))
         person = Person(private=True)
@@ -332,7 +332,7 @@ class TestPrivatizer:
         assert presence_as_unknown.private
 
     @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(0))
-    async def test_privatize_person_without_relatives(
+    async def test_privatize__person_without_relatives(
         self,
         expected: bool,
         privacy: Privacy,
@@ -347,7 +347,7 @@ class TestPrivatizer:
         assert expected == person.private
 
     @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(1))
-    async def test_privatize_person_with_child(
+    async def test_privatize__person_with_child(
         self,
         expected: bool,
         privacy: Privacy,
@@ -364,7 +364,7 @@ class TestPrivatizer:
         assert expected == person.private
 
     @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(2))
-    async def test_privatize_person_with_grandchild(
+    async def test_privatize__person_with_grandchild(
         self,
         expected: bool,
         privacy: Privacy,
@@ -383,7 +383,7 @@ class TestPrivatizer:
         assert expected == person.private
 
     @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(3))
-    async def test_privatize_person_with_great_grandchild(
+    async def test_privatize__person_with_great_grandchild(
         self,
         expected: bool,
         privacy: Privacy,
@@ -404,7 +404,7 @@ class TestPrivatizer:
         assert expected == person.private
 
     @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(-1))
-    async def test_privatize_person_with_parent(
+    async def test_privatize__person_with_parent(
         self,
         expected: bool,
         privacy: Privacy,
@@ -421,7 +421,7 @@ class TestPrivatizer:
         assert expected == person.private
 
     @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(-2))
-    async def test_privatize_person_with_grandparent(
+    async def test_privatize__person_with_grandparent(
         self,
         expected: bool,
         privacy: Privacy,
@@ -440,7 +440,7 @@ class TestPrivatizer:
         assert expected == person.private
 
     @pytest.mark.parametrize(("expected", "privacy", "event"), _expand_person(-3))
-    async def test_privatize_person_with_great_grandparent(
+    async def test_privatize__person_with_great_grandparent(
         self,
         expected: bool,
         privacy: Privacy,
@@ -460,7 +460,7 @@ class TestPrivatizer:
         )
         assert expected == person.private
 
-    async def test_privatize_event_should_not_privatize_if_public(self) -> None:
+    async def test_privatize__event_should_not_privatize_if_public(self) -> None:
         citation = Citation(source=Source())
         event_file = File(path=Path(__file__))
         event = Event(
@@ -479,7 +479,7 @@ class TestPrivatizer:
         assert citation.privacy is Privacy.UNDETERMINED
         assert presence.privacy is Privacy.UNDETERMINED
 
-    async def test_privatize_event_should_privatize_if_private(self) -> None:
+    async def test_privatize__event_should_privatize_if_private(self) -> None:
         citation = Citation(source=Source())
         file = File(
             path=Path(__file__),
@@ -500,7 +500,7 @@ class TestPrivatizer:
         assert file.private
         assert citation.private
 
-    async def test_privatize_source_should_not_privatize_if_public(self) -> None:
+    async def test_privatize__source_should_not_privatize_if_public(self) -> None:
         file = File(
             path=Path(__file__),
         )
@@ -515,7 +515,7 @@ class TestPrivatizer:
         assert not source.private
         assert file.privacy is Privacy.UNDETERMINED
 
-    async def test_privatize_source_should_privatize_if_private(self) -> None:
+    async def test_privatize__source_should_privatize_if_private(self) -> None:
         file = File(
             path=Path(__file__),
         )
@@ -530,7 +530,7 @@ class TestPrivatizer:
         assert source.private
         assert file.private
 
-    async def test_privatize_citation_should_not_privatize_if_public(self) -> None:
+    async def test_privatize__citation_should_not_privatize_if_public(self) -> None:
         file = File(
             path=Path(__file__),
         )
@@ -545,7 +545,7 @@ class TestPrivatizer:
         assert citation.public
         assert file.privacy is Privacy.UNDETERMINED
 
-    async def test_privatize_citation_should_privatize_if_private(self) -> None:
+    async def test_privatize__citation_should_privatize_if_private(self) -> None:
         file = File(
             path=Path(__file__),
         )
@@ -560,7 +560,7 @@ class TestPrivatizer:
         assert citation.private
         assert file.private
 
-    async def test_privatize_file_should_not_privatize_if_public(self) -> None:
+    async def test_privatize__file_should_not_privatize_if_public(self) -> None:
         citation = Citation(source=Source())
         file = File(
             path=Path(__file__),
@@ -573,7 +573,7 @@ class TestPrivatizer:
         assert file.public
         assert citation.privacy is Privacy.UNDETERMINED
 
-    async def test_privatize_file_should_privatize_if_private(self) -> None:
+    async def test_privatize__file_should_privatize_if_private(self) -> None:
         citation = Citation(source=Source())
         file = File(
             path=Path(__file__),
@@ -612,7 +612,7 @@ class TestPrivatizer:
             ),
         ],
     )
-    async def test_privatize_place_should_determine_privacy(
+    async def test_privatize__place_should_determine_privacy(
         self,
         expected: Privacy,
         privacy: Privacy,
@@ -629,7 +629,7 @@ class TestPrivatizer:
         )
         assert place.privacy is expected
 
-    async def test_privatize_place_should_not_privatize_public_encloser(
+    async def test_privatize__place_should_not_privatize_public_encloser(
         self,
     ) -> None:
         encloser = Place(public=True)
@@ -642,7 +642,7 @@ class TestPrivatizer:
         )
         assert encloser.privacy is Privacy.PUBLIC
 
-    async def test_privatize_place_should_not_privatize_encloser_with_public_associations(
+    async def test_privatize__place_should_not_privatize_encloser_with_public_associations(
         self,
     ) -> None:
         encloser = Place(
@@ -657,7 +657,7 @@ class TestPrivatizer:
         )
         assert encloser.privacy is not Privacy.PRIVATE
 
-    async def test_privatize_place_should_privatize_enclosees(self) -> None:
+    async def test_privatize__place_should_privatize_enclosees(self) -> None:
         enclosee = Place()
         place = Place(private=True)
         Enclosure(enclosee, place)

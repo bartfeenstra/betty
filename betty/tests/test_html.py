@@ -61,11 +61,11 @@ class TestBreadcrumbs:
         sut = Breadcrumbs()
         sut.append("My First Page", "/my-first-page")
 
-    def test_dump_without_items(self) -> None:
+    def test_dump__without_items(self) -> None:
         sut = Breadcrumbs()
         assert sut.dump() == {}
 
-    def test_dump_with_items(self) -> None:
+    def test_dump__with_items(self) -> None:
         sut = Breadcrumbs()
         sut.append("My First Page", "/my-first-page")
         assert sut.dump() == {

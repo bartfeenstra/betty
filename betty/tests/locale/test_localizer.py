@@ -235,7 +235,7 @@ class TestLocalizer:
             DateRange(Date(), Date()),
         ],
     )
-    async def test_format_date_range_with_incomplete_date_range(
+    async def test_format_date_range__with_incomplete_date_range(
         self, date_range: DateRange
     ) -> None:
         sut = DEFAULT_LOCALIZER
@@ -274,7 +274,7 @@ class TestLocalizer:
             == "My First Translatable String"
         )
 
-    async def test_ngettext_with_singular(self) -> None:
+    async def test_ngettext__with_singular(self) -> None:
         sut = DEFAULT_LOCALIZER
         assert (
             sut.ngettext(
@@ -283,7 +283,7 @@ class TestLocalizer:
             == "My First Translatable String"
         )
 
-    async def test_ngettext_with_plural(self) -> None:
+    async def test_ngettext__with_plural(self) -> None:
         sut = DEFAULT_LOCALIZER
         assert (
             sut.ngettext(
@@ -292,7 +292,7 @@ class TestLocalizer:
             == "My First Translatable Strings"
         )
 
-    async def test_npgettext_with_singular(self) -> None:
+    async def test_npgettext__with_singular(self) -> None:
         sut = DEFAULT_LOCALIZER
         assert (
             sut.npgettext(
@@ -304,7 +304,7 @@ class TestLocalizer:
             == "My First Translatable String"
         )
 
-    async def test_npgettext_with_plural(self) -> None:
+    async def test_npgettext__with_plural(self) -> None:
         sut = DEFAULT_LOCALIZER
         assert (
             sut.npgettext(
@@ -325,7 +325,7 @@ class TestLocalizer:
 
 
 class TestLocalizerRepository:
-    async def test_get_with_known_translations(self, tmp_path: Path) -> None:
+    async def test_get__with_known_translations(self, tmp_path: Path) -> None:
         locale = "nl-NL"
         assets_directory_path = tmp_path / "assets"
         po_file_path = assets_directory_path / "locale" / locale / "betty.po"
@@ -338,13 +338,13 @@ class TestLocalizerRepository:
             actual = (await sut.get(locale))._("Subject")
             assert actual == "Onderwerp"
 
-    async def test_get_with_unknown_translations(self, tmp_path: Path) -> None:
+    async def test_get__with_unknown_translations(self, tmp_path: Path) -> None:
         locale = "nl-NL"
         sut = LocalizerRepository(AssetRepository(tmp_path / "assets"))
         actual = (await sut.get(locale))._("Subject")
         assert actual == "Subject"
 
-    async def test_coverage_with_default_locale(self, tmp_path: Path) -> None:
+    async def test_coverage__with_default_locale(self, tmp_path: Path) -> None:
         assets_directory_path = tmp_path / "assets"
         pot_file_path = assets_directory_path / "locale" / "betty.pot"
         pot_file_path.parent.mkdir(parents=True)
@@ -355,7 +355,7 @@ class TestLocalizerRepository:
         assert translatable_count == 1
         assert translated_count == translatable_count
 
-    async def test_coverage_with_untranslated_locale(self, tmp_path: Path) -> None:
+    async def test_coverage__with_untranslated_locale(self, tmp_path: Path) -> None:
         locale = "nl-NL"
         assets_directory_path = tmp_path / "assets"
         pot_file_path = assets_directory_path / "locale" / "betty.pot"
@@ -367,7 +367,7 @@ class TestLocalizerRepository:
         assert translatable_count == 1
         assert translated_count == 0
 
-    async def test_coverage_with_translated_locale(self, tmp_path: Path) -> None:
+    async def test_coverage__with_translated_locale(self, tmp_path: Path) -> None:
         locale = "nl-NL"
         assets_directory_path = tmp_path / "assets"
         pot_file_path = assets_directory_path / "locale" / "betty.pot"
@@ -383,19 +383,19 @@ class TestLocalizerRepository:
         assert translatable_count == 1
         assert translated_count == 1
 
-    async def test_get_negotiated_without_preferred_locales(self) -> None:
+    async def test_get_negotiated__without_preferred_locales(self) -> None:
         sut = LocalizerRepository(AssetRepository())
         assert (await sut.get_negotiated()).locale == DEFAULT_LOCALE
 
-    async def test_locales_without_assets_directories(self) -> None:
+    async def test_locales__without_assets_directories(self) -> None:
         sut = LocalizerRepository(AssetRepository())
         assert set(sut.locales) == {DEFAULT_LOCALE}
 
-    async def test_locales_with_empty_assets_directory(self, tmp_path: Path) -> None:
+    async def test_locales__with_empty_assets_directory(self, tmp_path: Path) -> None:
         sut = LocalizerRepository(AssetRepository(tmp_path / "assets"))
         assert set(sut.locales) == {DEFAULT_LOCALE}
 
-    async def test_locales_with_available_translation(self, tmp_path: Path) -> None:
+    async def test_locales__with_available_translation(self, tmp_path: Path) -> None:
         locale = "nl-NL"
         assets_directory_path = tmp_path / "assets"
         lc_messages_directory_path = assets_directory_path / "locale" / locale

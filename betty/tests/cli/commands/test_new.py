@@ -19,7 +19,7 @@ class TestNew:
         configuration = await ProjectConfiguration.new(configuration_file_path)
         return (await assert_configuration_file(configuration))(configuration_file_path)
 
-    async def test_click_command_minimal(
+    async def test_click_command__minimal(
         self, new_temporary_app_cli: App, tmp_path: Path
     ) -> None:
         title = "My First Project"
@@ -40,7 +40,7 @@ class TestNew:
         assert configuration.author.localize(DEFAULT_LOCALIZER) == author
         assert configuration.url == url
 
-    async def test_click_command_with_single_locale(
+    async def test_click_command__with_single_locale(
         self, new_temporary_app_cli: App, tmp_path: Path
     ) -> None:
         locale = "nl-NL"
@@ -59,7 +59,7 @@ class TestNew:
         assert len(locale_configurations) == 1
         locale_configurations[locale]
 
-    async def test_click_command_with_multiple_locales(
+    async def test_click_command__with_multiple_locales(
         self, new_temporary_app_cli: App, tmp_path: Path
     ) -> None:
         default_locale = "nl-NL"
@@ -85,7 +85,7 @@ class TestNew:
         assert locale_configurations.default.locale == default_locale
         locale_configurations[other_locale]
 
-    async def test_click_command_with_name(
+    async def test_click_command__with_name(
         self, new_temporary_app_cli: App, tmp_path: Path
     ) -> None:
         name = "project-first-my"
@@ -102,7 +102,7 @@ class TestNew:
         configuration = await self._assert_new(new_temporary_app_cli, tmp_path, inputs)
         assert configuration.name == name
 
-    async def test_click_command_with_gramps(
+    async def test_click_command__with_gramps(
         self, new_temporary_app_cli: App, tmp_path: Path
     ) -> None:
         gramps_family_tree_file_path = tmp_path / "gramps"

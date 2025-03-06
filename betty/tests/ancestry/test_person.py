@@ -49,26 +49,26 @@ class TestPerson(EntityTestBase):
             person_with_one_public_name,
         ]
 
-    async def test___init___with_children(self) -> None:
+    async def test___init____with_children(self) -> None:
         child = Person()
         sut = Person(children=[child])
         assert list(sut.children) == [child]
         assert [sut] == list(child.parents)
 
-    async def test___init___with_parents(self) -> None:
+    async def test___init____with_parents(self) -> None:
         parent = Person()
         sut = Person(parents=[parent])
         assert list(sut.parents) == [parent]
         assert [sut] == list(parent.children)
 
-    async def test___init___with_presences(self) -> None:
+    async def test___init____with_presences(self) -> None:
         event = Event(event_type=Birth())
         presence = Presence(TemporaryToOneResolver(), Subject(), event)
         sut = Person(presences=[presence])
         assert list(sut.presences) == [presence]
         assert sut == presence.person
 
-    async def test___init___with_names(self) -> None:
+    async def test___init____with_names(self) -> None:
         name = PersonName(
             person=TemporaryToOneResolver(),
             individual="Janet",
@@ -145,29 +145,29 @@ class TestPerson(EntityTestBase):
         sut = Person()
         assert sut.privacy is Privacy.UNDETERMINED
 
-    async def test_siblings_without_parents(self) -> None:
+    async def test_siblings__without_parents(self) -> None:
         sut = Person(id="person")
         assert list(sut.siblings) == []
 
-    async def test_siblings_with_one_common_parent(self) -> None:
+    async def test_siblings__with_one_common_parent(self) -> None:
         sut = Person()
         sibling = Person()
         parent = Person()
         parent.children = [sut, sibling]
         assert list(sut.siblings) == [sibling]
 
-    async def test_siblings_with_multiple_common_parents(self) -> None:
+    async def test_siblings__with_multiple_common_parents(self) -> None:
         sut = Person()
         sibling = Person()
         parent = Person()
         parent.children = [sut, sibling]
         assert list(sut.siblings) == [sibling]
 
-    async def test_ancestors_without_parents(self) -> None:
+    async def test_ancestors__without_parents(self) -> None:
         sut = Person(id="person")
         assert list(sut.ancestors) == []
 
-    async def test_ancestors_with_parent(self) -> None:
+    async def test_ancestors__with_parent(self) -> None:
         sut = Person()
         parent = Person()
         sut.parents.add(parent)
@@ -175,11 +175,11 @@ class TestPerson(EntityTestBase):
         parent.parents.add(grandparent)
         assert list(sut.ancestors) == [parent, grandparent]
 
-    async def test_descendants_without_parents(self) -> None:
+    async def test_descendants__without_parents(self) -> None:
         sut = Person(id="person")
         assert list(sut.descendants) == []
 
-    async def test_descendants_with_parent(self) -> None:
+    async def test_descendants__with_parent(self) -> None:
         sut = Person()
         child = Person()
         sut.children.add(child)
@@ -187,7 +187,7 @@ class TestPerson(EntityTestBase):
         child.children.add(grandchild)
         assert list(sut.descendants) == [child, grandchild]
 
-    async def test_dump_linked_data_should_dump_minimal(self) -> None:
+    async def test_dump_linked_data__should_dump_minimal(self) -> None:
         person_id = "the_person"
         person = Person(id=person_id)
         expected: Mapping[str, Any] = {
@@ -215,7 +215,7 @@ class TestPerson(EntityTestBase):
         actual = await assert_dumps_linked_data(person)
         assert actual == expected
 
-    async def test_dump_linked_data_should_dump_full(self) -> None:
+    async def test_dump_linked_data__should_dump_full(self) -> None:
         parent_id = "the_parent"
         parent = Person(id=parent_id)
 
@@ -324,7 +324,7 @@ class TestPerson(EntityTestBase):
         actual = await assert_dumps_linked_data(person)
         assert actual == expected
 
-    async def test_dump_linked_data_should_dump_private(self) -> None:
+    async def test_dump_linked_data__should_dump_private(self) -> None:
         parent_id = "the_parent"
         parent = Person(id=parent_id)
 

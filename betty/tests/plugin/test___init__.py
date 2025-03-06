@@ -136,51 +136,51 @@ class TestPluginIdToTypeMapping:
 
 
 class TestPluginRepository:
-    async def test_resolve_identifier_with_unknown_plugin_id(self) -> None:
+    async def test_resolve_identifier__with_unknown_plugin_id(self) -> None:
         sut = _TestPluginRepositoryPluginRepository()
         with pytest.raises(PluginNotFound):
             await sut.resolve_identifier("unknown-plugin")
 
-    async def test_resolve_identifier_with_known_plugin_id(self) -> None:
+    async def test_resolve_identifier__with_known_plugin_id(self) -> None:
         sut = _TestPluginRepositoryPluginRepository(_TestPluginRepositoryPluginOne)
         assert (
             await sut.resolve_identifier(_TestPluginRepositoryPluginOne.plugin_id())
             == _TestPluginRepositoryPluginOne
         )
 
-    async def test_resolve_identifier_with_known_plugin(self) -> None:
+    async def test_resolve_identifier__with_known_plugin(self) -> None:
         sut = _TestPluginRepositoryPluginRepository(_TestPluginRepositoryPluginOne)
         assert (
             await sut.resolve_identifier(_TestPluginRepositoryPluginOne)
             is _TestPluginRepositoryPluginOne
         )
 
-    async def test_resolve_identifiers_without_identifiers(self) -> None:
+    async def test_resolve_identifiers__without_identifiers(self) -> None:
         sut = _TestPluginRepositoryPluginRepository()
         assert await sut.resolve_identifiers([]) == []
 
-    async def test_resolve_identifiers_with_unknown_plugin_id(self) -> None:
+    async def test_resolve_identifiers__with_unknown_plugin_id(self) -> None:
         sut = _TestPluginRepositoryPluginRepository()
         with pytest.raises(PluginNotFound):
             await sut.resolve_identifiers(["unknown-plugin"])
 
-    async def test_resolve_identifiers_with_known_plugin_id(self) -> None:
+    async def test_resolve_identifiers__with_known_plugin_id(self) -> None:
         sut = _TestPluginRepositoryPluginRepository(_TestPluginRepositoryPluginOne)
         assert await sut.resolve_identifiers(
             [_TestPluginRepositoryPluginOne.plugin_id()]
         ) == [_TestPluginRepositoryPluginOne]
 
-    async def test_resolve_identifiers_with_known_plugin(self) -> None:
+    async def test_resolve_identifiers__with_known_plugin(self) -> None:
         sut = _TestPluginRepositoryPluginRepository(_TestPluginRepositoryPluginOne)
         assert await sut.resolve_identifiers([_TestPluginRepositoryPluginOne]) == [
             _TestPluginRepositoryPluginOne
         ]
 
-    async def test_mapping_without_plugins(self) -> None:
+    async def test_mapping__without_plugins(self) -> None:
         sut = _TestPluginRepositoryPluginRepository()
         await sut.mapping()
 
-    async def test_mapping_with_plugins(self) -> None:
+    async def test_mapping__with_plugins(self) -> None:
         sut = _TestPluginRepositoryPluginRepository(
             _TestPluginRepositoryPluginOne,
             _TestPluginRepositoryPluginOneTwo,
@@ -192,7 +192,7 @@ class TestPluginRepository:
             is _TestPluginRepositoryPluginOne
         )
 
-    async def test_select_without_plugins(self) -> None:
+    async def test_select__without_plugins(self) -> None:
         sut = _TestPluginRepositoryPluginRepository()
         assert len(await sut.select()) == 0
 
@@ -250,7 +250,7 @@ class TestPluginRepository:
             ),
         ],
     )
-    async def test_select_with_mixins(
+    async def test_select__with_mixins(
         self,
         expected: Sequence[type[DummyPlugin]],
         mixins: set[
@@ -267,7 +267,7 @@ class TestPluginRepository:
 
         assert list(await sut.select(*mixins)) == list(expected)
 
-    async def test_new_target_with_default_factory(self) -> None:
+    async def test_new_target__with_default_factory(self) -> None:
         sut = _TestPluginRepositoryPluginRepository(
             _TestPluginRepositoryPluginDefaultFactory
         )
@@ -280,7 +280,7 @@ class TestPluginRepository:
             _TestPluginRepositoryPluginDefaultFactory,
         )
 
-    async def test_new_target_with_custom_factory(self) -> None:
+    async def test_new_target__with_custom_factory(self) -> None:
         async def factory(
             cls: type[_T],
         ) -> _T:
