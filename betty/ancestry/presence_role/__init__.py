@@ -4,11 +4,12 @@ Provide presence roles.
 
 from __future__ import annotations
 
+from betty.mutability import Mutable
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
 
 
-class PresenceRole(Plugin):
+class PresenceRole(Mutable, Plugin):
     """
     A person's role at an event.
 

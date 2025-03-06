@@ -4,11 +4,12 @@ Provide Betty's ancestry genders.
 
 from __future__ import annotations
 
+from betty.mutability import Mutable
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
 
 
-class Gender(Plugin):
+class Gender(Mutable, Plugin):
     """
     Define a gender.
 

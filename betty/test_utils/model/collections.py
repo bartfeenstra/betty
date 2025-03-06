@@ -35,6 +35,12 @@ class EntityCollectionTestBase(Generic[_EntityT]):
         """
         raise NotImplementedError
 
+    async def test_entity_collection_test_base_get_entities(self) -> None:
+        """
+        Tests :py:meth:`betty.test_utils.model.collections.EntityCollectionTestBase.get_entities` implementations.
+        """
+        assert len(await self.get_entities()) >= 3
+
     async def test_add(self) -> None:
         """
         Tests :py:meth:`betty.model.collections.EntityCollection.add` implementations.
@@ -164,3 +170,14 @@ class EntityCollectionTestBase(Generic[_EntityT]):
             sut.add(*entities)
             assert list(sut[0:1:1]) == list(entities[0:1:1])
             assert list(sut[1::1]) == list(entities[1::1])
+
+    async def test_get_mutable_instances(self) -> None:
+        """
+        Tests :py:meth:`betty.model.collections.EntityCollection.get_mutable_instances` implementations.
+        """
+        for sut in await self.get_suts():
+            entities = await self.get_entities()
+            sut.add(*entities)
+            sut.immutable()
+            for entity in entities:
+                assert entity.is_immutable

@@ -5,11 +5,12 @@ Provide licenses.
 from abc import abstractmethod
 
 from betty.locale.localizable import Localizable
+from betty.mutability import Mutable
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
 
 
-class License(Plugin):
+class License(Mutable, Plugin):
     """
     A license.
 

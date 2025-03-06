@@ -28,7 +28,7 @@ _ConfigurationListener: TypeAlias = Callable[[], None]
 ConfigurationListener: TypeAlias = "Configuration | _ConfigurationListener"
 
 
-class Configuration(Loadable, Dumpable, Mutable):
+class Configuration(Mutable, Loadable, Dumpable):
     """
     Any configuration object.
     """

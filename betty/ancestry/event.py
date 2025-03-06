@@ -39,6 +39,7 @@ from betty.privacy import HasPrivacy, Privacy
 from betty.repr import repr_instance
 
 if TYPE_CHECKING:
+    from betty.mutability import Mutable
     from betty.ancestry.event_type import EventType
     from betty.ancestry.citation import Citation
     from betty.ancestry.note import Note
@@ -126,6 +127,13 @@ class Event(
             self.presences = presences
         if name:
             self.name = name
+
+    @override
+    def get_mutable_instances(self) -> Iterable[Mutable]:
+        return (
+            *super().get_mutable_instances(),
+            self.event_type,
+        )
 
     @override
     def dated_linked_data_contexts(self) -> tuple[str | None, str | None, str | None]:

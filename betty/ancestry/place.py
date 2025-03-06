@@ -23,6 +23,7 @@ from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy
 
 if TYPE_CHECKING:
+    from betty.mutability import Mutable
     from betty.ancestry.note import Note
     from betty.ancestry.event import Event
     from betty.ancestry.enclosure import Enclosure
@@ -115,6 +116,13 @@ class Place(
             self.enclosees = enclosees
         self._place_type = place_type or UnknownPlaceType()
 
+    @override
+    def get_mutable_instances(self) -> Iterable[Mutable]:
+        return (
+            *super().get_mutable_instances(),
+            self._place_type,
+        )
+
     @property
     def walk_enclosees(self) -> Iterator["Enclosure"]:
         """
@@ -138,6 +146,7 @@ class Place(
 
     @place_type.setter
     def place_type(self, place_type: PlaceType) -> None:
+        self.assert_mutable()
         self._place_type = place_type
 
     @property
@@ -158,6 +167,7 @@ class Place(
 
     @coordinates.setter
     def coordinates(self, coordinates: Point):
+        self.assert_mutable()
         self._coordinates = coordinates
 
     @override

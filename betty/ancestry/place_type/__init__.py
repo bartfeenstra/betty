@@ -4,11 +4,12 @@ Provide Betty's ancestry place types.
 
 from __future__ import annotations
 
+from betty.mutability import Mutable
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
 
 
-class PlaceType(Plugin):
+class PlaceType(Mutable, Plugin):
     """
     Define an :py:class:`betty.ancestry.place.Place` type.
 

@@ -1,18 +1,25 @@
 import pytest
-from betty.test_utils.conftest import NewTemporaryAppFactory
 from multidict import CIMultiDict
 
 from betty.ancestry.link import Link, HasLinks
+from betty.app import App
 from betty.fetch import FetchResponse
 from betty.fetch.static import StaticFetcher
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project
 from betty.project.load import load
+from betty.test_utils.conftest import NewTemporaryAppFactory
 from betty.test_utils.model import DummyEntity
 
 
 class DummyHasLinks(HasLinks, DummyEntity):
     pass
+
+
+async def test_load__should_immutable_ancestry(new_temporary_app: App) -> None:
+    async with Project.new_temporary(new_temporary_app) as project, project:
+        await load(project)
+        assert project.ancestry.is_immutable
 
 
 async def test_load__should_fetch_link_with_unsupported_content_type(

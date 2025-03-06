@@ -40,6 +40,7 @@ async def load(project: Project) -> None:
     await project.event_dispatcher.dispatch(LoadAncestryEvent(job_context))
     await project.event_dispatcher.dispatch(PostLoadAncestryEvent(job_context))
     await _fetch_link_titles(project)
+    project.ancestry.immutable()
 
 
 async def _fetch_link_titles(project: Project) -> None:

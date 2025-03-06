@@ -20,6 +20,7 @@ from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:
+    from betty.mutability import Mutable
     from betty.json.linked_data import JsonLdObject
     from betty.project import Project
     from betty.serde.dump import DumpMapping, Dump
@@ -106,6 +107,13 @@ class File(
         self._name = name
         self.copyright_notice = copyright_notice
         self.license = license
+
+    @override
+    def get_mutable_instances(self) -> Iterable[Mutable]:
+        if self.copyright_notice is not None:
+            yield self.copyright_notice
+        if self.license is not None:
+            yield self.license
 
     @property
     def name(self) -> str:

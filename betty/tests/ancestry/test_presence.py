@@ -100,3 +100,9 @@ class TestPresence(EntityTestBase):
         }
         actual = await assert_dumps_linked_data(sut)
         assert actual == expected
+
+    def test_get_mutable_instances(self) -> None:
+        role = Subject()
+        sut = Presence(Person(), role, Event())
+        sut.immutable()
+        assert sut.role.is_immutable

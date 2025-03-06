@@ -235,3 +235,8 @@ class TestPlace(EntityTestBase):
         }
         actual = await assert_dumps_linked_data(place)
         assert actual == expected
+
+    def test_get_mutable_instances(self) -> None:
+        sut = Place()
+        sut.immutable()
+        assert sut.place_type.is_immutable

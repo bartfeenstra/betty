@@ -23,6 +23,7 @@ from typing_extensions import override
 
 from betty.functools import unique
 from betty.model import Entity
+from betty.mutability import Mutable
 from betty.repr import repr_instance
 
 if TYPE_CHECKING:
@@ -34,7 +35,7 @@ _EntityT = TypeVar("_EntityT", bound=Entity)
 _TargetT = TypeVar("_TargetT")
 
 
-class EntityCollection(Generic[_TargetT], ABC):
+class EntityCollection(Mutable, Generic[_TargetT], ABC):
     """
     Provide a collection of entities.
 
@@ -43,14 +44,15 @@ class EntityCollection(Generic[_TargetT], ABC):
 
     __slots__ = ()
 
-    def __init__(self):
-        super().__init__()
-
     def _on_add(self, *entities: _TargetT & Entity) -> None:
         pass
 
     def _on_remove(self, *entities: _TargetT & Entity) -> None:
         pass
+
+    @override
+    def get_mutable_instances(self) -> Iterable[Mutable]:
+        return self
 
     @property
     def view(self) -> Sequence[_TargetT & Entity]:
