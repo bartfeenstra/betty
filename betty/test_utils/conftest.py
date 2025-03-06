@@ -34,7 +34,7 @@ if TYPE_CHECKING:
 
 
 @pytest.fixture
-async def binary_file_cache(
+def binary_file_cache(
     multiprocessing_manager: SyncManager, tmp_path: Path
 ) -> BinaryFileCache:
     """
@@ -44,7 +44,7 @@ async def binary_file_cache(
 
 
 @pytest.fixture(scope="session")
-async def process_pool() -> AsyncIterator[futures.ProcessPoolExecutor]:
+def process_pool() -> Iterator[futures.ProcessPoolExecutor]:
     """
     Create a new, temporary :py:class:`betty.app.App`.
     """
@@ -88,7 +88,7 @@ class NewTemporaryAppFactory(Protocol):
 
 
 @pytest.fixture
-async def new_temporary_app_factory(
+def new_temporary_app_factory(
     process_pool: futures.ProcessPoolExecutor, multiprocessing_manager: SyncManager
 ) -> NewTemporaryAppFactory:
     """
