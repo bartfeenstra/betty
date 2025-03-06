@@ -37,6 +37,8 @@ _TargetT = TypeVar("_TargetT")
 class EntityCollection(Generic[_TargetT], ABC):
     """
     Provide a collection of entities.
+
+    To test your own subclasses, use :py:class:`betty.test_utils.model.collections.EntityCollectionTestBase`.
     """
 
     __slots__ = ()

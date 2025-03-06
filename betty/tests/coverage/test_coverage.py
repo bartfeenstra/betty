@@ -259,16 +259,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ToZeroOrOneResolver": MissingReason.ABSTRACT,
     },
     "betty/model/collections.py": {
-        "EntityCollection": MissingReason.SHOULD_BE_COVERED,
-        "MultipleTypesEntityCollection": {
-            "__iter__": MissingReason.SHOULD_BE_COVERED,
-            "__len__": MissingReason.SHOULD_BE_COVERED,
-            "clear": MissingReason.SHOULD_BE_COVERED,
-        },
-        "SingleTypeEntityCollection": {
-            "__iter__": MissingReason.SHOULD_BE_COVERED,
-            "__len__": MissingReason.SHOULD_BE_COVERED,
-        },
+        "EntityCollection": MissingReason.ABSTRACT,
         "record_added": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/ancestry/date.py": {
