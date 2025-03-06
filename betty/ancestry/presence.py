@@ -4,7 +4,7 @@ Data types for people's presences at events.
 
 from __future__ import annotations
 
-from typing import final, TYPE_CHECKING
+from typing import final, TYPE_CHECKING, Iterable
 
 from typing_extensions import override
 
@@ -15,6 +15,7 @@ from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy, merge_privacies, is_public
 
 if TYPE_CHECKING:
+    from betty.mutability import Mutable
     from betty.json.linked_data import JsonLdObject
     from betty.project import Project
     from betty.serde.dump import DumpMapping, Dump
@@ -65,6 +66,10 @@ class Presence(ShorthandPluginBase, HasPrivacy, Entity):
         self.person = person
         self.role = role
         self.event = event
+
+    @override
+    def get_mutable_instances(self) -> Iterable[Mutable]:
+        return (self.role,)
 
     @override
     @classmethod

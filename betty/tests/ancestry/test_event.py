@@ -287,3 +287,9 @@ class TestEvent(EntityTestBase):
         }
         actual = await assert_dumps_linked_data(event)
         assert actual == expected
+
+    def test_get_mutable_instances(self) -> None:
+        sut = Event()
+        sut.immutable()
+        assert sut.event_type.is_immutable
+        assert sut.name.is_immutable

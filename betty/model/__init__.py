@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from abc import abstractmethod
+from inspect import getmembers
 from reprlib import recursive_repr
-from typing import TypeVar, Any, Self, TypeAlias, TYPE_CHECKING
+from typing import TypeVar, Any, Self, TypeAlias, TYPE_CHECKING, Iterable
 from uuid import uuid4
 
 from typing_extensions import override
@@ -14,8 +15,9 @@ from betty.json.linked_data import (
     JsonLdObject,
 )
 from betty.json.schema import JsonSchemaReference, Array, String
-from betty.locale.localizable import _, Localizable
+from betty.locale.localizable import _, Localizable, StaticTranslationsLocalizableAttr
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.mutability import Mutable
 from betty.plugin import PluginRepository, Plugin
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.repr import repr_instance
@@ -25,7 +27,6 @@ if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
     from betty.project import Project
     import builtins
-
 
 ENTITY_TYPE_REPOSITORY: PluginRepository[Entity] = EntryPointPluginRepository(
     "betty.entity_type"
@@ -55,7 +56,7 @@ class NonPersistentId(str):
         return super().__new__(cls, entity_id or str(uuid4()))
 
 
-class Entity(LinkedDataDumpableJsonLdObject, Plugin):
+class Entity(LinkedDataDumpableJsonLdObject, Mutable, Plugin):
     """
     An entity is a uniquely identifiable data container.
 
@@ -147,6 +148,13 @@ class Entity(LinkedDataDumpableJsonLdObject, Plugin):
         schema.add_property("id", String(title="Entity ID"), False)
 
         return schema
+
+    @override
+    def get_mutable_instances(self) -> Iterable[Mutable]:
+        yield from super().get_mutable_instances()
+        for __, member in getmembers(type(self)):
+            if isinstance(member, StaticTranslationsLocalizableAttr):
+                yield member.__get__(self, type(self))
 
 
 AncestryEntityId: TypeAlias = tuple[type[Entity], str]

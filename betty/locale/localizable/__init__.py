@@ -21,6 +21,7 @@ from betty.locale import negotiate_locale, to_locale
 from betty.locale.localized import LocalizedStr
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.locale.localizer import Localizer
+from betty.mutability import Mutable
 from betty.privacy import is_private
 from betty.repr import repr_instance
 from betty.typing import internal
@@ -301,7 +302,7 @@ class StaticTranslationsLocalizableSchema(Object):
 
 
 class StaticTranslationsLocalizable(
-    _FormattableLocalizable, LinkedDataDumpable[Object, DumpMapping[Dump]]
+    Mutable, _FormattableLocalizable, LinkedDataDumpable[Object, DumpMapping[Dump]]
 ):
     """
     Provide a :py:class:`betty.locale.localizable.Localizable` backed by static translations.
@@ -333,6 +334,7 @@ class StaticTranslationsLocalizable(
         return self._translations[locale]
 
     def __setitem__(self, locale: str, translation: str) -> None:
+        self.assert_mutable()
         self._translations[locale] = translation
 
     def __len__(self) -> int:
@@ -346,6 +348,7 @@ class StaticTranslationsLocalizable(
 
         from betty.locale.localizable.assertion import assert_static_translations
 
+        self.assert_mutable()
         if isinstance(translations, StaticTranslationsLocalizable):
             self._translations = translations._translations
         else:

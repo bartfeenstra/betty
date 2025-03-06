@@ -18,6 +18,7 @@ from betty.ancestry.source import Source
 from betty.locale import UNDETERMINED_LOCALE
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.privacy import Privacy
+from betty.test_utils.ancestry.gender import DummyGender
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 
@@ -416,3 +417,14 @@ class TestPerson(EntityTestBase):
         }
         actual = await assert_dumps_linked_data(person)
         assert actual == expected
+
+    def test_gender(self) -> None:
+        gender = DummyGender()
+        sut = Person()
+        sut.gender = gender
+        assert sut.gender is gender
+
+    def test_get_mutable_instances(self) -> None:
+        sut = Person()
+        sut.immutable()
+        assert sut.gender.is_immutable

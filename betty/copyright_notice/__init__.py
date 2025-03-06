@@ -5,11 +5,12 @@ Provide copyright notices.
 from abc import abstractmethod
 
 from betty.locale.localizable import Localizable
+from betty.mutability import Mutable
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
 
 
-class CopyrightNotice(Plugin):
+class CopyrightNotice(Mutable, Plugin):
     """
     A copyright notice.
 

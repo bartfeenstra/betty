@@ -29,6 +29,7 @@ from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:
+    from betty.mutability import Mutable
     from betty.ancestry.person_name import PersonName
     from betty.ancestry.note import Note
     from betty.ancestry.file_reference import FileReference
@@ -126,12 +127,31 @@ class Person(
             self.presences = presences
         if names is not None:
             self.names = names
-        self.gender = gender or UnknownGender()
+        self._gender = gender or UnknownGender()
 
     @override
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
         return _("People")
+
+    @override
+    def get_mutable_instances(self) -> Iterable[Mutable]:
+        return (
+            *super().get_mutable_instances(),
+            self.gender,
+        )
+
+    @property
+    def gender(self) -> Gender:
+        """
+        The person's gender.
+        """
+        return self._gender
+
+    @gender.setter
+    def gender(self, gender: Gender) -> None:
+        self.assert_mutable()
+        self._gender = gender
 
     @property
     def ancestors(self) -> Iterator[Person]:

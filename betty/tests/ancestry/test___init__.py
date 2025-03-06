@@ -1,12 +1,20 @@
 from __future__ import annotations
 
+
 from typing_extensions import override
 
 from betty.ancestry import Ancestry
 from betty.ancestry.has_file_references import HasFileReferences
+from betty.model import Entity
 from betty.model.association import BidirectionalToZeroOrOne
 from betty.test_utils.ancestry.date import DummyHasDate
 from betty.test_utils.model import DummyEntity
+from betty.test_utils.model.collections import EntityCollectionTestBase
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from betty.model.collections import EntityCollection
+    from collections.abc import Sequence
 
 
 class DummyHasDateWithContextDefinitions(DummyHasDate):
@@ -41,7 +49,21 @@ class _TestAncestry_OneToOne_Right(DummyEntity):
     )
 
 
-class TestAncestry:
+class TestAncestry(EntityCollectionTestBase[Entity]):
+    @override
+    async def get_suts(self) -> Sequence[EntityCollection[Entity]]:
+        return (await Ancestry.new(),)
+
+    @override
+    async def get_entities(
+        self,
+    ) -> Sequence[Entity]:
+        return (
+            _TestAncestry_OneToOne_Left(),
+            _TestAncestry_OneToOne_Right(),
+            DummyEntity(),
+        )
+
     async def test_add_(self) -> None:
         sut = await Ancestry.new()
         left = _TestAncestry_OneToOne_Left()
