@@ -3,4 +3,13 @@
 
   /* Trees are full width, so leave enough vertical space for scrolling. */
   height: 50vh;
+  position: relative;
+
+  .trees-button-full-screen {
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    z-index: 1;
+  }
 }

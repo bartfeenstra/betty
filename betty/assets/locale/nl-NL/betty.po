@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-03-13 19:12+0000\n"
+"POT-Creation-Date: 2025-03-14 14:15+0000\n"
 "PO-Revision-Date: 2025-02-23 12:22+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -1073,6 +1073,9 @@ msgstr "De gegevens van deze bron zijn niet beschikbaar vanwege privacyredenen."
 
 msgid "Timeline"
 msgstr "Tijdlijn"
+
+msgid "Toggle full screen"
+msgstr ""
 
 msgid "Toggle menu"
 msgstr "Schakel menu"

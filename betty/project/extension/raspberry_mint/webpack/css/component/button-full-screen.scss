@@ -1,0 +1,7 @@
+.btn-full-screen {
+  background-image: #{icon-full-screen($white)};
+
+  &:focus {
+    background-image: #{icon-full-screen($black)};
+  }
+}

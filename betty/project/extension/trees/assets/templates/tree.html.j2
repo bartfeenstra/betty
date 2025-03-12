@@ -1,3 +1,9 @@
-<div class="tree" data-betty-person="{{ person.id }}" data-betty-people="{{ 'betty:///people.json' | url }}"></div>
+{% set html_id = generate_html_id() %}
+<div class="tree" id="{{ html_id }}">
+    <div class="tree-content" data-betty-person="{{ person.id }}" data-betty-people="{{ 'betty:///people.json' | url }}"></div>
+    {% with target = html_id %}
+        {% include 'trees/control-full-screen.html.j2' %}
+    {% endwith %}
+</div>
 {% do 'betty-static:///css/trees.css' | public_css %}
 {% do 'trees' | webpack_entry_point_js %}

@@ -1,6 +1,0 @@
-<div class="featured">
-    <div class="tree" data-betty-person="{{ person.id }}" data-betty-people="{{ 'betty:///people.json' | url }}">
-    </div>
-</div>
-{% do 'betty-static:///css/trees.css' | public_css %}
-{% do 'trees' | webpack_entry_point_js %}

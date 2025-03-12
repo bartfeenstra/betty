@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-03-13 19:12+0000\n"
+"POT-Creation-Date: 2025-03-14 14:15+0000\n"
 "PO-Revision-Date: 2024-11-30 19:00+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ar\n"
@@ -996,6 +996,9 @@ msgstr ""
 
 msgid "Timeline"
 msgstr "الخط الزمني"
+
+msgid "Toggle full screen"
+msgstr ""
 
 msgid "Toggle menu"
 msgstr ""

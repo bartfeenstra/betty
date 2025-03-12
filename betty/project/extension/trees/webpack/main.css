@@ -1,4 +1,3 @@
-.tree {
-  height: 100%;
-  width: 100%;
+.tree, .tree-content {
+    height: 100%;
 }

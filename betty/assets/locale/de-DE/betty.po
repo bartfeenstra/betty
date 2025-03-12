@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-03-13 19:12+0000\n"
+"POT-Creation-Date: 2025-03-14 14:15+0000\n"
 "PO-Revision-Date: 2024-11-29 18:58+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -1033,6 +1033,9 @@ msgstr ""
 
 msgid "Timeline"
 msgstr "Zeitschiene"
+
+msgid "Toggle full screen"
+msgstr ""
 
 msgid "Toggle menu"
 msgstr ""

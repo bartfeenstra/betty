@@ -9,5 +9,14 @@
 }
 
 .tree {
+  background-color: $white;
   border: $border-width solid var(--betty-border-color);
+  position: relative;
+
+  .btn-full-screen {
+    position: absolute;
+    right: $spacer * 0.5;
+    top: $spacer * 0.5;
+    z-index: 1;
+  }
 }

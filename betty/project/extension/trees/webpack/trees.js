@@ -11,7 +11,7 @@ async function initializeAncestryTrees (element) {
   if (!element) {
     element = document
   }
-  const trees = element.getElementsByClassName('tree')
+  const trees = element.getElementsByClassName('tree-content')
   await Promise.allSettled(Array.from(trees).map(tree => initializeAncestryTree(tree, tree.dataset.bettyPerson)))
 }
 
@@ -27,7 +27,7 @@ async function initializeAncestryTree (tree, personId) {
   parentsToElements(person, elements, people)
   childrenToElements(person, elements, people)
   const cy = cytoscape({
-    container: document.getElementsByClassName('tree')[0],
+    container: tree,
     layout: {
       name: 'dagre'
     },
