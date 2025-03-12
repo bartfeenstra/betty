@@ -16,7 +16,7 @@ a:not(.no-link) {
 }
 
 a.view-more {
-  background-image: icon-arrow-right($primary);
+  background-image: #{icon-arrow-right($primary)};
   background-position-y: center;
   background-repeat: no-repeat;
   background-size: 1lh 1lh;
@@ -25,7 +25,7 @@ a.view-more {
   padding-left: 1.25lh;
 
   &:focus {
-    background-image: icon-arrow-right($black);
+    background-image: #{icon-arrow-right($black)};
   }
 }
 
