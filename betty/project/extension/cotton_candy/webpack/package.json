@@ -1,5 +1,6 @@
 {
-  "engines": {
-    "node": ">= 20"
+  "name": "@betty.py/betty.cotton-candy",
+  "dependencies": {
+    "@betty.py/betty": "*"
   }
 }

@@ -4,13 +4,14 @@ Perform Webpack builds.
 
 from __future__ import annotations
 
+import json
 from abc import abstractmethod
 from asyncio import to_thread, gather
 from json import dumps, loads
 from logging import getLogger
 from pathlib import Path
-from shutil import copy2
-from typing import TYPE_CHECKING, Sequence
+from shutil import copy2, copytree
+from typing import TYPE_CHECKING, Sequence, cast
 
 import aiofiles
 from aiofiles.os import makedirs
@@ -20,6 +21,9 @@ from betty.fs import ROOT_DIRECTORY_PATH
 from betty.hashid import hashid, hashid_sequence, hashid_file_content
 from betty.os import copy_tree
 from betty.project.extension import Extension
+from betty.serde.dump import Dump
+from collections.abc import Mapping
+from betty.serde.dump import DumpMapping
 
 if TYPE_CHECKING:
     from betty.job import Context
@@ -108,6 +112,10 @@ def _webpack_build_directory_path(
     )
 
 
+def _package_name_to_path(package_name: str) -> Path:
+    return Path(*package_name.split("/"))
+
+
 class Builder:
     """
     Build Webpack assets.
@@ -132,6 +140,15 @@ class Builder:
         self._job_context = job_context
         self._localizer = localizer
 
+    async def _prepare_betty(self, npm_project_directory_path: Path) -> None:
+        await to_thread(
+            copytree,
+            ROOT_DIRECTORY_PATH / "js",
+            npm_project_directory_path
+            / "packages"
+            / _package_name_to_path("@betty.py/betty"),
+        )
+
     async def _prepare_webpack_extension(
         self, npm_project_directory_path: Path
     ) -> None:
@@ -154,14 +171,15 @@ class Builder:
     async def _prepare_webpack_entry_point_provider(
         self,
         npm_project_directory_path: Path,
+        package_json: DumpMapping[Dump],
         entry_point_provider: type[EntryPointProvider & Extension],
         npm_project_package_json_dependencies: MutableMapping[str, str],
         webpack_entry: MutableMapping[str, str],
     ) -> None:
         entry_point_provider_working_directory_path = (
             npm_project_directory_path
-            / "entry_points"
-            / entry_point_provider.plugin_id()
+            / "packages"
+            / _package_name_to_path(cast(str, package_json["name"]))
         )
         await copy_tree(
             entry_point_provider.webpack_entry_point_directory_path(),
@@ -187,23 +205,120 @@ class Builder:
             )
         )
 
+    async def _extract_package_json(self, package_path: Path) -> DumpMapping[Dump]:
+        async with aiofiles.open(package_path / "package.json") as f:
+            package_json_data = await f.read()
+        return cast(DumpMapping[Dump], json.loads(package_json_data))
+
+    async def _update_package_json(
+        self,
+        npm_project_directory_path: Path,
+        package_jsons_by_package_name: MutableMapping[str, DumpMapping[Dump]],
+        package_name: str,
+    ) -> None:
+        package_json = package_jsons_by_package_name[package_name]
+        try:
+            dependencies = package_json["dependencies"]
+            assert isinstance(dependencies, Mapping)
+        except KeyError:
+            return
+        for dependency_package_name in dependencies:
+            if dependency_package_name not in package_jsons_by_package_name:
+                continue
+            # Manually compute the relative path to the dependency's package directory, because
+            # pathlib.Path.relative_to()'s walk_up argument is only available in Python 3.12 and newer.
+            dependency_package_path = Path(
+                *(
+                    [".."]
+                    * len(
+                        (
+                            npm_project_directory_path
+                            / "packages"
+                            / _package_name_to_path(package_name)
+                        )
+                        .relative_to(npm_project_directory_path)
+                        .parts
+                    )
+                ),
+                *(
+                    npm_project_directory_path
+                    / "packages"
+                    / _package_name_to_path(dependency_package_name)
+                )
+                .relative_to(npm_project_directory_path)
+                .parts,
+            )
+            dependencies[dependency_package_name] = f"file:{dependency_package_path}"
+        package_json_data = json.dumps(package_json)
+        async with aiofiles.open(
+            npm_project_directory_path / "packages" / package_name / "package.json", "w"
+        ) as f:
+            await f.write(package_json_data)
+
+    async def _update_package_jsons(
+        self,
+        npm_project_directory_path: Path,
+        package_jsons_by_package_name: MutableMapping[str, DumpMapping[Dump]],
+    ) -> None:
+        await gather(
+            *(
+                self._update_package_json(
+                    npm_project_directory_path,
+                    package_jsons_by_package_name,
+                    package_name,
+                )
+                for package_name in package_jsons_by_package_name
+            )
+        )
+
     async def _prepare_npm_project_directory(
         self, npm_project_directory_path: Path, webpack_build_directory_path: Path
     ) -> None:
+        package_paths = [
+            ROOT_DIRECTORY_PATH / "js",
+            *(
+                entry_point_provider.webpack_entry_point_directory_path()
+                for entry_point_provider in self._entry_point_providers
+            ),
+        ]
+        package_jsons_by_package_path: MutableMapping[Path, DumpMapping[Dump]] = dict(
+            zip(
+                package_paths,
+                await gather(
+                    *(
+                        self._extract_package_json(package_path)
+                        for package_path in package_paths
+                    )
+                ),
+                strict=True,
+            )
+        )
+        package_jsons_by_package_name: MutableMapping[str, DumpMapping[Dump]] = {
+            cast(str, package_json["name"]): package_json
+            for package_json in package_jsons_by_package_path.values()
+        }
+
         npm_project_package_json_dependencies: MutableMapping[str, str] = {}
         webpack_entry: MutableMapping[str, str] = {}
         await makedirs(npm_project_directory_path, exist_ok=True)
         await gather(
+            self._prepare_betty(npm_project_directory_path),
             self._prepare_webpack_extension(npm_project_directory_path),
             *(
                 self._prepare_webpack_entry_point_provider(
                     npm_project_directory_path,
+                    package_jsons_by_package_path[
+                        entry_point_provider.webpack_entry_point_directory_path()
+                    ],
                     type(entry_point_provider),
                     npm_project_package_json_dependencies,
                     webpack_entry,
                 )
                 for entry_point_provider in self._entry_point_providers
             ),
+        )
+        await self._update_package_jsons(
+            npm_project_directory_path, package_jsons_by_package_name
         )
         webpack_configuration_json = dumps(
             {
