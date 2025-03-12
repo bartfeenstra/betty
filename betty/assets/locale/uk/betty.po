@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-03-13 19:12+0000\n"
+"POT-Creation-Date: 2025-03-14 14:15+0000\n"
 "PO-Revision-Date: 2025-02-24 01:10+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: uk\n"
@@ -1075,6 +1075,9 @@ msgstr "Деталі цього джерела недоступні для за�
 
 msgid "Timeline"
 msgstr "Хронологія"
+
+msgid "Toggle full screen"
+msgstr ""
 
 msgid "Toggle menu"
 msgstr "Переключити меню"
