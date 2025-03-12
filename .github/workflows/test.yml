@@ -18,6 +18,9 @@ jobs:
         include:
           # The number of builds that submit code coverage configured here MUST be identical
           # to the number of `after_n_builds` in ./codecov.yml.
+          - name: 'Python 3.14'
+            os: ubuntu-latest
+            python: '3.14.0-alpha.5'
           - name: 'Python 3.13'
             os: ubuntu-latest
             python: '3.13'
@@ -83,7 +86,8 @@ jobs:
 
       - name: Install APT dependencies
         if: startsWith(runner.os, 'Linux')
-        run: sudo apt-get install poppler-utils
+        # libxml2 and libxslt are needed because lxml does not (yet) publish wheels for Python 3.14.
+        run: sudo apt-get install libxml2 libxslt1-dev poppler-utils
 
       - name: Install Brew dependencies
         if: startsWith(runner.os, 'macOS')
