@@ -24,7 +24,7 @@
       aspect-ratio: 1;
       border-radius: 50%;
       content: "";
-      left: calc(-1 * (var(--timeline-column-gap) + $border-width / 2));
+      left: calc(-1 * (var(--timeline-column-gap) + #{$border-width} / 2));
       position: absolute;
       transform: translate(-50%);
     }

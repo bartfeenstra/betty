@@ -13,5 +13,5 @@
   @extend .mb-3;
 
   border-right: $border-width solid $black;
-  margin-right: calc((1.5em - $border-width) / 2);
+  margin-right: calc((1.5em - #{$border-width}) / 2);
 }

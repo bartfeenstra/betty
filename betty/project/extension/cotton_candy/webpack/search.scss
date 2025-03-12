@@ -68,7 +68,7 @@
 }
 
 #search-query:focus {
-  border: 0.3rem solid $primary-active-color !important;
+  border: 0.3rem solid #{$primary-active-color} !important;
   outline: none;
 }
 

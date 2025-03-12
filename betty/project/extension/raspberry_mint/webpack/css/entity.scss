@@ -5,7 +5,7 @@
 }
 
 a.file-view-original {
-  background-image: icon-expand($primary);
+  background-image: #{icon-expand($primary)};
   background-position-y: center;
   background-repeat: no-repeat;
   background-size: 1lh 1lh;
@@ -14,7 +14,7 @@ a.file-view-original {
   padding-left: 1.25lh;
 
   &:focus {
-    background-image: icon-expand($black);
+    background-image: #{icon-expand($black)};
   }
 }
 
