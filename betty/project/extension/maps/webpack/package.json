@@ -1,8 +1,7 @@
 {
-  "engines": {
-    "node": ">= 20"
-  },
+  "name": "@betty.py/betty.maps",
   "dependencies": {
+    "@betty.py/betty": "*",
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",
     "leaflet.fullscreen": "^4.0.0",

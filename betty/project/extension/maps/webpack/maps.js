@@ -7,7 +7,7 @@ import 'leaflet/dist/leaflet.css'
 import leafletMarkerIconImage from 'leaflet/dist/images/marker-icon.png'
 import leafletMarkerIcon2xImage from 'leaflet/dist/images/marker-icon-2x.png'
 import leafletMarkerShadowImage from 'leaflet/dist/images/marker-shadow.png'
-import { GestureHandling } from 'leaflet-gesture-handling'
+import {GestureHandling} from 'leaflet-gesture-handling'
 import 'leaflet.markercluster/dist/leaflet.markercluster.js'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
@@ -19,8 +19,11 @@ L.Map.addInitHook('addHandler', 'gestureHandling', GestureHandling)
 
 let mapCount = 0
 
-async function initializeMaps () {
-  const maps = document.getElementsByClassName('map')
+async function initializeMaps (element) {
+  if (!element) {
+    element = document
+  }
+  const maps = element.getElementsByClassName('map')
   await Promise.allSettled(Array.from(maps).map(map => initializeMap(map)))
 }
 

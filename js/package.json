@@ -1,0 +1,7 @@
+{
+  "name": "@betty.py/betty",
+  "engines": {
+    "node": ">= 20"
+  },
+  "type": "module"
+}

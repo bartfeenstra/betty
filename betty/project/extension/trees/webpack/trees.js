@@ -7,8 +7,11 @@ import dagre from 'cytoscape-dagre'
 
 cytoscape.use(dagre)
 
-async function initializeAncestryTrees () {
-  const trees = document.getElementsByClassName('tree')
+async function initializeAncestryTrees (element) {
+  if (!element) {
+    element = document
+  }
+  const trees = element.getElementsByClassName('tree')
   await Promise.allSettled(Array.from(trees).map(tree => initializeAncestryTree(tree, tree.dataset.bettyPerson)))
 }
 

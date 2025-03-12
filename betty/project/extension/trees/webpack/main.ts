@@ -1,8 +1,8 @@
 'use strict'
 
-import { initializeAncestryTrees } from './trees.js'
+import {initializeAncestryTrees} from './trees.js'
+import {BETTY} from "@betty.py/betty/main.ts"
 
-async function main(): Promise<void> {
-    await initializeAncestryTrees()  // eslint-disable-line @typescript-eslint/no-unsafe-call
-}
-void main()
+await BETTY.addInitializer(
+    initializeAncestryTrees // eslint-disable-line @typescript-eslint/no-unsafe-argument
+)
