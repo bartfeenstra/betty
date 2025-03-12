@@ -135,7 +135,7 @@ def command(
     Read more about :doc:`/development/plugin/command`.
     """
 
-    def decorator(f: Callable[..., Coroutine[Any, Any, Any]]) -> click.Command:
+    def decorator(f: Callable[_P, Coroutine[Any, Any, Any]]) -> click.Command:
         @click.command(cast(str | None, name), **attrs)
         @click.option(
             "-v",
