@@ -9,84 +9,27 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, final, Self, ClassVar
 
-from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
-from betty import fs
 from betty._npm import NpmRequirement, NpmUnavailable
-from betty.app import App
 from betty.html import CssProvider
 from betty.jinja2 import Jinja2Provider, Filters, ContextVars
-from betty.job import Context
-from betty.locale.localizable import _, Localizable, static
+from betty.locale.localizable import static
 from betty.os import copy_tree
 from betty.plugin import ShorthandPluginBase
-from betty.project import Project, extension
 from betty.project.extension import Extension
 from betty.project.extension.webpack import build
-from betty.project.extension.webpack.build import webpack_build_id, EntryPointProvider
+from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.extension.webpack.jinja2.filter import FILTERS
 from betty.project.generate import GenerateSiteEvent
-from betty.requirement import (
-    Requirement,
-    AllRequirements,
-    AnyRequirement,
-    RequirementError,
-)
+from betty.requirement import Requirement, AllRequirements, RequirementError
 from betty.typing import internal, private
 
 if TYPE_CHECKING:
+    from betty.job import Context
+    from betty.project import Project
     from betty.event_dispatcher import EventHandlerRegistry
     from collections.abc import Sequence
-
-
-def _prebuilt_webpack_build_directory_path(
-    entry_point_providers: Sequence[EntryPointProvider & Extension], debug: bool
-) -> Path:
-    return (
-        fs.PREBUILT_ASSETS_DIRECTORY_PATH
-        / "webpack"
-        / f"build-{webpack_build_id(entry_point_providers, debug)}"
-    )
-
-
-async def _prebuild_webpack_assets() -> None:
-    """
-    Prebuild Webpack assets for inclusion in package builds.
-    """
-    async with App.new_temporary() as app, app:
-        job_context = Context()
-        async with Project.new_temporary(app) as project:
-            project.configuration.extensions.enable(
-                Webpack,
-                *(
-                    await extension.EXTENSION_REPOSITORY.select(
-                        EntryPointProvider  # type: ignore[type-abstract]
-                    )
-                ),
-            )
-            async with project:
-                extensions = await project.extensions
-                webpack = extensions[Webpack]
-                await webpack.prebuild(job_context=job_context)
-
-
-class PrebuiltAssetsRequirement(Requirement):
-    """
-    Check if prebuilt assets are available.
-    """
-
-    @override
-    def is_met(self) -> bool:
-        return (fs.PREBUILT_ASSETS_DIRECTORY_PATH / "webpack").is_dir()
-
-    @override
-    def summary(self) -> Localizable:
-        return (
-            _("Pre-built Webpack front-end assets are available")
-            if self.is_met()
-            else _("Pre-built Webpack front-end assets are unavailable")
-        )
 
 
 async def _generate_assets(event: GenerateSiteEvent) -> None:
@@ -134,7 +77,7 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
         if cls._requirement is None:
             cls._requirement = AllRequirements(
                 await super().requirement(),
-                AnyRequirement(await NpmRequirement.new(), PrebuiltAssetsRequirement()),
+                await NpmRequirement.new(),
             )
         return cls._requirement
 
@@ -168,23 +111,6 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
             for extension in extensions.flatten()
             if isinstance(extension, EntryPointProvider)
         ]
-
-    async def prebuild(self, job_context: Context) -> None:
-        """
-        Prebuild the Webpack assets.
-        """
-        async with TemporaryDirectory() as working_directory_path_str:
-            builder = await self._new_builder(
-                Path(working_directory_path_str),
-                job_context=job_context,
-            )
-            build_directory_path = await builder.build()
-            await self._copy_build_directory(
-                build_directory_path,
-                _prebuilt_webpack_build_directory_path(
-                    await self._project_entry_point_providers(), False
-                ),
-            )
 
     async def _new_builder(
         self,
@@ -222,14 +148,4 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
             # (Re)build the assets if `npm` is available.
             return await builder.build()
         except NpmUnavailable:
-            pass
-
-        # Use prebuilt assets if they exist.
-        prebuilt_webpack_build_directory_path = _prebuilt_webpack_build_directory_path(
-            await self._project_entry_point_providers(),
-            self._project.configuration.debug,
-        )
-        if prebuilt_webpack_build_directory_path.exists():
-            return prebuilt_webpack_build_directory_path
-
-        raise RequirementError(await self.requirement())
+            raise RequirementError(await self.requirement()) from None

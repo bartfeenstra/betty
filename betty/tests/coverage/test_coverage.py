@@ -377,9 +377,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/project/extension/webpack/__init__.py": {
-        "PrebuiltAssetsRequirement": {
-            "summary": MissingReason.SHOULD_BE_COVERED,
-        },
         "Webpack": {
             "new_context_vars": MissingReason.SHOULD_BE_COVERED,
         },
