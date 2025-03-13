@@ -264,6 +264,9 @@ betty = [
     # JSON Schemas.
     'json/schemas/*',
 
+    # JavaScript
+    '../js',
+
     # Webpack.
     '../.browserslistrc',
     '../tsconfig.json',
