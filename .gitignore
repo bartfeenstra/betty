@@ -11,7 +11,6 @@ __pycache__
 /betty.egg-info
 /build
 /dist
-/prebuild
 *.pyc
 *.pyc.*
 

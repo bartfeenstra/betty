@@ -10,7 +10,7 @@ from typing import final
 from aiofiles.os import makedirs
 from typing_extensions import override
 
-from betty import serve, fs
+from betty import serve
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.locale.localizer import Localizer
 from betty.os import copy_tree
@@ -18,13 +18,7 @@ from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
 from betty.subprocess import run_process
 
 
-async def _prebuild_documentation() -> None:
-    await _build(fs.PREBUILT_ASSETS_DIRECTORY_PATH / "documentation")
-
-
 async def _ensure_documentation_directory(cache_directory_path: Path) -> Path:
-    if (fs.PREBUILT_ASSETS_DIRECTORY_PATH / "documentation").exists():
-        return fs.PREBUILT_ASSETS_DIRECTORY_PATH / "documentation"
     cache_directory_path /= "documentation"
     if not cache_directory_path.exists():
         await _build(cache_directory_path)
