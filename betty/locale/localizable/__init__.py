@@ -133,7 +133,7 @@ class _GettextLocalizable(_FormattableLocalizable):
     def localize(self, localizer: Localizer) -> LocalizedStr:
         return LocalizedStr(
             cast(
-                str,
+                "str",
                 getattr(localizer, self._gettext_method_name)(*self._gettext_args),  # type: ignore[operator]
             ),
             locale=localizer.locale,
@@ -431,7 +431,7 @@ class StaticTranslationsLocalizableAttr(LinkedDataDumpableProvider[object]):
             return self  # type: ignore[return-value]
         try:
             return cast(
-                StaticTranslationsLocalizable, getattr(instance, self._attr_name)
+                "StaticTranslationsLocalizable", getattr(instance, self._attr_name)
             )
         except AttributeError:
             value = StaticTranslationsLocalizable(None, required=self._required)

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
 from typing import TYPE_CHECKING, cast
 
 import pytest
@@ -10,6 +9,7 @@ from betty.test_utils.ancestry.description import DummyHasDescription
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from betty.serde.dump import DumpMapping, Dump
     from betty.ancestry.link import HasLinks
 
@@ -30,7 +30,7 @@ class TestHasDescription:
             (
                 {
                     "@context": {"description": "https://schema.org/description"},
-                    "description": cast(Mapping[str, str], {}),
+                    "description": cast("Mapping[str, str]", {}),
                 },
                 DummyHasDescription(),
             ),

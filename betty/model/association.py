@@ -193,7 +193,7 @@ class _Association(LinkedDataDumpableProvider[_OwnerT], Generic[_OwnerT, _Associ
         This may be an abstract class.
         """
         return cast(
-            type[_OwnerT],
+            "type[_OwnerT]",
             import_any(self._owner_type_name),
         )
 
@@ -212,7 +212,7 @@ class _Association(LinkedDataDumpableProvider[_OwnerT], Generic[_OwnerT, _Associ
         This may be an abstract class.
         """
         return cast(
-            type[_AssociateT],
+            "type[_AssociateT]",
             import_any(self._associate_type_name),
         )
 
@@ -278,7 +278,7 @@ class _ToOneAssociation(
             if value is None:
                 raise AssociationRequired.new(self, instance)
             assert not isinstance(value, _Resolver)
-            return cast(_AssociateT, value)
+            return cast("_AssociateT", value)
 
     def __set__(
         self, instance: _OwnerT, value: _AssociateT | ToOneResolver[_AssociateT]
@@ -344,7 +344,7 @@ class _ToZeroOrOneAssociation(
             return None
         else:
             assert not isinstance(value, _Resolver)
-            return cast(_AssociateT | None, value)
+            return cast("_AssociateT | None", value)
 
     def __set__(
         self,
@@ -420,7 +420,7 @@ class _ToManyAssociation(
             return value
         else:
             assert not isinstance(value, _Resolver)
-            return cast(EntityCollection[_AssociateT], value)
+            return cast("EntityCollection[_AssociateT]", value)
 
     def __set__(
         self,
@@ -593,7 +593,7 @@ class BidirectionalToOne(
     ) -> None:
         try:
             previous_associate = cast(
-                _AssociateT | None, getattr(self, self._internal_owner_attr_name)
+                "_AssociateT | None", getattr(self, self._internal_owner_attr_name)
             )
         except AttributeError:
             previous_associate = None

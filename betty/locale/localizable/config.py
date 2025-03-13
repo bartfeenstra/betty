@@ -73,7 +73,7 @@ class _StaticTranslationsLocalizableConfigurationAttr:
             return self  # type: ignore[return-value]
         try:
             return cast(
-                StaticTranslationsLocalizableConfiguration,
+                "StaticTranslationsLocalizableConfiguration",
                 getattr(instance, self._attr_name),
             )
         except AttributeError:

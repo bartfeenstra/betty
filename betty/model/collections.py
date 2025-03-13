@@ -294,12 +294,12 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
         assert issubclass(entity_type, Entity), f"{entity_type} is not an entity type."
         try:
             return cast(
-                SingleTypeEntityCollection[_EntityT], self._collections[entity_type]
+                "SingleTypeEntityCollection[_EntityT]", self._collections[entity_type]
             )
         except KeyError:
             self._collections[entity_type] = SingleTypeEntityCollection(entity_type)
             return cast(
-                SingleTypeEntityCollection[_EntityT], self._collections[entity_type]
+                "SingleTypeEntityCollection[_EntityT]", self._collections[entity_type]
             )
 
     @overload

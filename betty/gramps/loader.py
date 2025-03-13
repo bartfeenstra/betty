@@ -14,7 +14,6 @@ from enum import Enum
 from logging import getLogger
 from pathlib import Path
 from typing import Iterable, cast, TYPE_CHECKING, TypeVar, Generic, final
-from xml.etree import ElementTree
 
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
@@ -52,6 +51,7 @@ from lxml import etree
 from typing_extensions import override
 
 if TYPE_CHECKING:
+    from xml.etree import ElementTree
     from betty.copyright_notice import CopyrightNotice
     from betty.license import License
     from betty.plugin import PluginRepository
@@ -128,7 +128,7 @@ class _ToOneResolver(Generic[_EntityT], ToOneResolver[_EntityT]):
 
     @override
     def resolve(self) -> _EntityT:
-        return cast(_EntityT, self._handles_to_entities[self._handle])
+        return cast("_EntityT", self._handles_to_entities[self._handle])
 
 
 class _ToManyResolver(Generic[_EntityT], ToManyResolver[_EntityT]):
@@ -139,7 +139,7 @@ class _ToManyResolver(Generic[_EntityT], ToManyResolver[_EntityT]):
     @override
     def resolve(self) -> Iterable[_EntityT]:
         for handle in self._handles:
-            yield cast(_EntityT, self._handles_to_entities[handle])
+            yield cast("_EntityT", self._handles_to_entities[handle])
 
 
 @internal
@@ -275,7 +275,7 @@ class GrampsLoader:
     async def _load_xml(self, xml: bytes) -> None:
         try:
             tree = cast(  # type: ignore[bad-cast]
-                ElementTree.ElementTree, etree.ElementTree(etree.fromstring(xml))
+                "ElementTree.ElementTree", etree.ElementTree(etree.fromstring(xml))
             )
         except etree.ParseError as error:
             raise UserFacingGrampsError(plain(str(error))) from error
@@ -663,7 +663,7 @@ class GrampsLoader:
 
     async def _load_family(self, element: ElementTree.Element) -> None:
         children = [
-            cast(Person, self._handles_to_entities[child_handle])
+            cast("Person", self._handles_to_entities[child_handle])
             for child_handle in self._load_handles("childref", element)
         ]
         for parent_handle_type in ("father", "mother"):
@@ -687,7 +687,7 @@ class GrampsLoader:
     ) -> None:
         event_handle = eventref.get("hlink")
         assert event_handle is not None
-        gramps_presence_role = cast(str, eventref.get("role"))
+        gramps_presence_role = cast("str", eventref.get("role"))
 
         presence_role: PresenceRole
         try:

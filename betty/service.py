@@ -308,7 +308,7 @@ class ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
         self, instance: _ServiceProviderT
     ) -> ServiceFactory[_ServiceProviderT, _ServiceGetT]:
         factory = cast(
-            ServiceFactory[_ServiceProviderT, _ServiceGetT] | None,
+            "ServiceFactory[_ServiceProviderT, _ServiceGetT] | None",
             getattr(instance, self._factory_override_attr_name, None),
         )
         if factory is not None:
@@ -381,7 +381,7 @@ class _AsynchronousServiceManager(
     def _lock(self, instance: _ServiceProviderT) -> Lock:
         lock_attr_name = f"_{self._service_attr_name}_lock"
         try:
-            return cast(Lock, getattr(instance, lock_attr_name))
+            return cast("Lock", getattr(instance, lock_attr_name))
         except AttributeError:
             # We do not need a process-safe lock here, because we only ever lazily initialize services for the current
             # thread. Services that are shared across processes are explicitly initialized and pickled by service
