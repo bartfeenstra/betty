@@ -335,7 +335,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         :raises FactoryError: raised when ``cls`` could not be instantiated.
         """
         if issubclass(cls, ProjectDependentFactory):
-            return cast(_T, await cls.new_for_project(self))
+            return cast("_T", await cls.new_for_project(self))
         return await self.app.new_target(cls)
 
     @property

@@ -174,7 +174,7 @@ class Deriver:
             dates_derived = False
             # We know _get_derivable_events() only returns events without a date or a with a date range, but Python
             # does not let us express that in a(n intersection) type, so we must instead cast here.
-            derivable_date = cast(DateRange | None, derivable_event.date)
+            derivable_date = cast("DateRange | None", derivable_event.date)
 
             if derivable_date is None or derivable_date.end is None:
                 dates_derived = dates_derived or _ComesBeforeDateDeriver.derive(
@@ -219,7 +219,7 @@ class _DateDeriver(ABC):
         )
         if derivable_event.date is not None:
             reference_events_dates = filter(
-                lambda x: cls._compare(cast(DateRange, derivable_event.date), x[1]),
+                lambda x: cls._compare(cast("DateRange", derivable_event.date), x[1]),
                 reference_events_dates,
             )
         sorted_reference_events_dates = cls._sort(reference_events_dates)
@@ -231,7 +231,7 @@ class _DateDeriver(ABC):
         if derivable_event.date is None:
             derivable_event.date = DateRange()
         cls._set(
-            cast(DateRange, derivable_event.date),
+            cast("DateRange", derivable_event.date),
             Date(
                 reference_date.year,
                 reference_date.month,

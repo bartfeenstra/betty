@@ -116,7 +116,9 @@ class _EntityTypeIndexer(Generic[_EntityT], ABC):
             if isinstance(class_attr_value, StaticTranslationsLocalizableAttr):
                 text.update(
                     _static_translations_to_text(
-                        cast(StaticTranslationsLocalizable, getattr(entity, attr_name))
+                        cast(
+                            "StaticTranslationsLocalizable", getattr(entity, attr_name)
+                        )
                     )
                 )
 

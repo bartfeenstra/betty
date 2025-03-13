@@ -8,7 +8,6 @@ import logging
 import re
 from asyncio import gather
 from collections import defaultdict
-from collections.abc import Mapping
 from contextlib import suppress, contextmanager
 from dataclasses import dataclass
 from json import JSONDecodeError
@@ -40,6 +39,7 @@ from betty.media_type.media_types import HTML
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from betty.wikipedia.copyright_notice import WikipediaContributors
     from betty.ancestry import Ancestry
     from betty.locale.localizer import LocalizerRepository
@@ -65,7 +65,7 @@ def _parse_url(url: str) -> tuple[str, str]:
     match = _URL_PATTERN.fullmatch(url)
     if match is None:
         raise NotAPageError
-    return cast(tuple[str, str], match.groups())
+    return cast("tuple[str, str]", match.groups())
 
 
 @final
@@ -137,7 +137,9 @@ class _Retriever:
         return data
 
     async def _get_query_api_data(self, url: str) -> Mapping[str, Any]:
-        return cast(Mapping[str, Any], await self._fetch_json(url, "query", "pages", 0))
+        return cast(
+            "Mapping[str, Any]", await self._fetch_json(url, "query", "pages", 0)
+        )
 
     async def _get_page_query_api_data(
         self, page_language: str, page_name: str

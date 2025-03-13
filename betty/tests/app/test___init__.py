@@ -95,7 +95,7 @@ class TestApp:
             ) as sut,
             sut,
         ):
-            unpickled_sut = cast(App, pickle.loads(pickle.dumps(sut)))
+            unpickled_sut = cast("App", pickle.loads(pickle.dumps(sut)))
 
             # Test the cache.
             cache_item_id = "my-first-cache-item-id"

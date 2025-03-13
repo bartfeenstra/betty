@@ -546,10 +546,9 @@ class CoverageTester:
                 Path(module_file_path_str).resolve(): members
                 for module_file_path_str, members in _BASELINE.items()
             },
-            **{
-                module_file_path: MissingReason.SHOULD_BE_COVERED
-                for module_file_path in self._get_coveragerc_ignore_modules()
-            },
+            **dict.fromkeys(
+                self._get_coveragerc_ignore_modules(), MissingReason.SHOULD_BE_COVERED
+            ),
         }
 
     async def _test_python_file(self, file_path: Path) -> AsyncIterable[str]:
@@ -621,7 +620,7 @@ class _ModuleCoverageTester:
                         self._src_module_name,
                         test_module_name,
                         cast(
-                            _ModuleFunctionIgnore,
+                            "_ModuleFunctionIgnore",
                             self._ignore.get(src_function.__name__, None),
                         ),
                     ).test():
@@ -634,7 +633,8 @@ class _ModuleCoverageTester:
                         self._src_module_name,
                         test_module_name,
                         cast(
-                            _ModuleClassIgnore, self._ignore.get(src_class.__name__, {})
+                            "_ModuleClassIgnore",
+                            self._ignore.get(src_class.__name__, {}),
                         ),
                     ).test():
                         yield error
@@ -689,7 +689,7 @@ class _ModuleCoverageTester:
                 continue
 
             # Ignore members that are not defined by the module under test (they may have been from other modules).
-            imported_member = cast(_Importable, getattr(module, member_name))
+            imported_member = cast("_Importable", getattr(module, member_name))
             if getattr(imported_member, "__module__", None) != module_name:
                 continue
 
@@ -935,7 +935,7 @@ class Test_ModuleClassCoverageTester:
     async def test(
         self, errors_expected: bool, module: _Importable, ignore: _ModuleClassIgnore
     ) -> None:
-        test_class = cast(type | None, getattr(module, "TestSrc", None))
+        test_class = cast("type | None", getattr(module, "TestSrc", None))
         sut = _ModuleClassCoverageTester(
             module.Src,  # type: ignore[attr-defined]
             () if test_class is None else (test_class,),

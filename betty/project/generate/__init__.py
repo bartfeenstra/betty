@@ -19,7 +19,6 @@ from asyncio import (
     to_thread,
     gather,
 )
-from collections.abc import MutableSequence, Coroutine
 from contextlib import suppress
 from pathlib import Path
 from typing import (
@@ -54,6 +53,7 @@ from betty.project.generate.file import (
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
+    from collections.abc import MutableSequence, Coroutine
     from betty.project import Project
     from betty.app import App
     from betty.serde.dump import DumpMapping, Dump
@@ -383,7 +383,7 @@ async def _generate_entity_type_list_json(
         "collection": [],
     }
     for entity in project.ancestry[entity_type]:
-        cast(MutableSequence[str], data["collection"]).append(
+        cast("MutableSequence[str]", data["collection"]).append(
             url_generator.generate(
                 entity,
                 media_type=JSON,

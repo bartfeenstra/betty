@@ -12,10 +12,10 @@ from typing_extensions import override
 
 from betty.locale.localizable import static, _
 from betty.plugin import ShorthandPluginBase
-from betty.serde.dump import Dump
 from betty.serde.format import Format, FormatError
 
 if TYPE_CHECKING:
+    from betty.serde.dump import Dump
     from betty.typing import Voidable
 
 
@@ -36,7 +36,7 @@ class Json(ShorthandPluginBase, Format):
     @override
     def load(self, dump: str) -> Dump:
         try:
-            return cast(Dump, json.loads(dump))
+            return cast("Dump", json.loads(dump))
         except json.JSONDecodeError as e:
             raise FormatError(
                 _("Invalid JSON: {error}.").format(error=str(e))
@@ -64,7 +64,7 @@ class Yaml(ShorthandPluginBase, Format):
     @override
     def load(self, dump: str) -> Dump:
         try:
-            return cast(Dump, yaml.safe_load(dump))
+            return cast("Dump", yaml.safe_load(dump))
         except yaml.YAMLError as e:
             raise FormatError(
                 _("Invalid YAML: {error}.").format(error=str(e))

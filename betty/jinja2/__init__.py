@@ -57,7 +57,7 @@ def context_project(context: Context) -> Project:
     """
     Get the current project from the Jinja2 context.
     """
-    return cast(Environment, context.environment).project
+    return cast("Environment", context.environment).project
 
 
 def context_job_context(context: Context) -> JobContext | None:
