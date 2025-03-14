@@ -578,6 +578,12 @@ msgstr "Генерація вашого сайту в {output_directory}."
 msgid "Go to the front page"
 msgstr "Перейти на першу сторінку"
 
+#, python-brace-format
+msgid ""
+"Gramps cannot import {file_path}. Supported file formats are "
+"{supported_extensions}."
+msgstr ""
+
 msgid "HTTP API Documentation"
 msgstr "документація HTTP API"
 
@@ -648,16 +654,51 @@ msgid "Loaded the configuration from {configuration_file_path}."
 msgstr "Конфігурацію завантажено з {configuration_file_path}."
 
 #, python-brace-format
+msgid "Loaded {citation_count} citation."
+msgid_plural "Loaded {citation_count} citations."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
 msgid "Loaded {citation_count} citations."
 msgstr "Завантажено {citation_count} цитат."
+
+#, python-brace-format
+msgid "Loaded {event_count} event."
+msgid_plural "Loaded {event_count} events."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #, python-brace-format
 msgid "Loaded {event_count} events."
 msgstr "Завантажено {event_count} подій."
 
 #, python-brace-format
+msgid "Loaded {family_count} family."
+msgid_plural "Loaded {family_count} families."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
 msgid "Loaded {file_count} files."
 msgstr "Завантажено {file_count} файлів."
+
+#, python-brace-format
+msgid "Loaded {media_count} media objects."
+msgid_plural "Loaded {media_count} media objects."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "Loaded {note_count} note."
+msgid_plural "Loaded {note_count} notes."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #, python-brace-format
 msgid "Loaded {note_count} notes."
@@ -668,12 +709,40 @@ msgid "Loaded {person_count} people."
 msgstr "Завантажено {person_count} осіб."
 
 #, python-brace-format
+msgid "Loaded {person_count} person."
+msgid_plural "Loaded {person_count} persons."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "Loaded {place_count} place."
+msgid_plural "Loaded {place_count} places."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
 msgid "Loaded {place_count} places."
 msgstr "Завантажено {place_count} місць."
 
 #, python-brace-format
 msgid "Loaded {repository_count} repositories as sources."
 msgstr "Завантажено {repository_count} репозиторіїв як джерела."
+
+#, python-brace-format
+msgid "Loaded {repository_count} repository."
+msgid_plural "Loaded {repository_count} repositories."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "Loaded {source_count} source."
+msgid_plural "Loaded {source_count} sources."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #, python-brace-format
 msgid "Loaded {source_count} sources."
@@ -951,6 +1020,20 @@ msgstr ""
 "Сутність Gramps {gramps_entity_reference} потребує атрибут "
 "\"betty:link-{link_name}:url\". Це посилання було проігноровано."
 
+#, python-brace-format
+msgid ""
+"The Gramps {gramps_entity_type} {gramps_entity_id} entity has a "
+"\"betty:link-{link_name}:media_type\" attribute with value "
+"\"{media_type}\", which is not a valid IANA media type. This media type "
+"was ignored."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"The Gramps {gramps_entity_type} {gramps_entity_id} entity requires a "
+"\"betty:link-{link_name}:url\" attribute. This link was ignored."
+msgstr ""
+
 msgid "The URL must include a host."
 msgstr "URL має містити хост."
 
@@ -966,6 +1049,12 @@ msgstr ""
 "Атрибут betty:privacy у Gramps повинен мати значення \"public\" або "
 "\"private\", але для {entity_type} {entity_id} ({entity_label}) було "
 "задано \"{privacy_value}\", що було проігноровано."
+
+#, python-brace-format
+msgid ""
+"The betty:privacy Gramps attribute must have a value of \"public\" or "
+"\"private\", but \"{privacy_value}\" was given, which was ignored."
+msgstr ""
 
 #, python-brace-format
 msgid ""

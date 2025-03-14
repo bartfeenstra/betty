@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import gzip
 import tarfile
+from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import aiofiles
 import pytest
 
 from betty.ancestry.citation import Citation
@@ -27,27 +27,32 @@ from betty.ancestry.place_type.place_types import City
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
-from betty.app import App
 from betty.copyright_notice.copyright_notices import (
     PublicDomain as PublicDomainCopyrightNotice,
 )
 from betty.date import Date, DateRange
 from betty.gramps.error import UserFacingGrampsError
-from betty.gramps.loader import GrampsFileNotFound, GrampsLoader, LoaderUsedAlready
+from betty.gramps.loader import (
+    GrampsLoader,
+    LoaderUsedAlready,
+    PluginMapping,
+)
 from betty.license.licenses import PublicDomain as PublicDomainLicense
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.media_type import MediaType
+from betty.plugin.static import StaticPluginRepository
 from betty.privacy import Privacy
-from betty.project import Project
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable, Mapping
-
     from betty.ancestry import Ancestry
     from betty.ancestry.event_type import EventType
+    from betty.ancestry.gender import Gender
     from betty.ancestry.place_type import PlaceType
     from betty.ancestry.presence_role import PresenceRole
+    from betty.copyright_notice import CopyrightNotice
+    from betty.license import License
+    from betty.plugin import PluginRepository
 
 _MINIMAL_XML = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"
@@ -71,96 +76,41 @@ _MINIMAL_XML = """<?xml version="1.0" encoding="UTF-8"?>
 """
 
 
-class TestGrampsLoader:
+class GrampsLoaderFactoryBase(ABC):
+    @abstractmethod
+    async def __call__(
+        self,
+        *,
+        ancestry: Ancestry | None = None,
+        attribute_prefix_key: str | None = None,
+        copyright_notices: PluginRepository[CopyrightNotice] | None = None,
+        event_type_mapping: PluginMapping[EventType] | None = None,
+        genders: PluginRepository[Gender] | None = None,
+        licenses: PluginRepository[License] | None = None,
+        localizer: Localizer = DEFAULT_LOCALIZER,
+        place_type_mapping: PluginMapping[PlaceType] | None = None,
+        presence_role_mapping: PluginMapping[PresenceRole] | None = None,
+    ) -> GrampsLoader:
+        pass
+
+
+class GrampsLoaderTestBase:
     ATTRIBUTE_PREFIX_KEY = "pre3f1x"
     PROJECT_NAME = "pr0j3ct"
 
-    async def test_load_gramps(self, new_temporary_app: App, tmp_path: Path) -> None:
-        gramps_file_path = tmp_path / "gramps.gramps"
-        with gzip.open(gramps_file_path, "w") as f:
-            f.write(_MINIMAL_XML.encode("utf-8"))
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                localizer=DEFAULT_LOCALIZER,
-                copyright_notices=project.copyright_notice_repository,
-                licenses=await project.license_repository,
-                genders=project.gender_repository,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            )
-            await sut.load_gramps(gramps_file_path)
-
-    async def test_load_gramps__with_non_existent_file(
-        self, new_temporary_app: App, tmp_path: Path
-    ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                localizer=DEFAULT_LOCALIZER,
-                copyright_notices=project.copyright_notice_repository,
-                licenses=await project.license_repository,
-                genders=project.gender_repository,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            )
-            with pytest.raises(GrampsFileNotFound):
-                await sut.load_gramps(tmp_path / "non-existent-file")
-
-    async def test_load_gpkg(self, new_temporary_app: App, tmp_path: Path) -> None:
-        gramps_file_path = tmp_path / "gramps.gramps"
-        with gzip.open(gramps_file_path, "w") as f:
-            f.write(_MINIMAL_XML.encode("utf-8"))
-        gpkg_file_path = tmp_path / "gramps.gpkg"
-        with tarfile.open(  # noqa SIM115
-            name=gpkg_file_path, mode="w:gz"
-        ) as tar_file:
-            tar_file.add(gramps_file_path, "/data.gramps")
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                localizer=DEFAULT_LOCALIZER,
-                copyright_notices=project.copyright_notice_repository,
-                licenses=await project.license_repository,
-                genders=project.gender_repository,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            )
-            await sut.load_gpkg(gpkg_file_path)
-
-    async def test_load_gpkg__with_non_existent_file(
-        self, new_temporary_app: App, tmp_path: Path
-    ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                localizer=DEFAULT_LOCALIZER,
-                copyright_notices=project.copyright_notice_repository,
-                licenses=await project.license_repository,
-                genders=project.gender_repository,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            )
-            with pytest.raises(GrampsFileNotFound):
-                await sut.load_gpkg(tmp_path / "non-existent-file")
-
     async def test_load_file__with_gramps(
-        self, new_temporary_app: App, tmp_path: Path
+        self, gramps_loader_factory: GrampsLoaderFactoryBase, tmp_path: Path
     ) -> None:
         gramps_file_path = tmp_path / "gramps.gramps"
         with gzip.open(gramps_file_path, "w") as f:
             f.write(_MINIMAL_XML.encode("utf-8"))
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                localizer=DEFAULT_LOCALIZER,
-                copyright_notices=project.copyright_notice_repository,
-                licenses=await project.license_repository,
-                genders=project.gender_repository,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            )
+        sut = await gramps_loader_factory()
+        await sut.load_file(gramps_file_path)
+        with pytest.raises(LoaderUsedAlready):
             await sut.load_file(gramps_file_path)
-            with pytest.raises(LoaderUsedAlready):
-                await sut.load_file(gramps_file_path)
 
     async def test_load_file__with_gpkg(
-        self, new_temporary_app: App, tmp_path: Path
+        self, gramps_loader_factory: GrampsLoaderFactoryBase, tmp_path: Path
     ) -> None:
         gramps_file_path = tmp_path / "gramps.gramps"
         with gzip.open(gramps_file_path, "w") as f:
@@ -170,120 +120,30 @@ class TestGrampsLoader:
             name=gpkg_file_path, mode="w:gz"
         ) as tar_file:
             tar_file.add(gramps_file_path, "/data.gramps")
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                localizer=DEFAULT_LOCALIZER,
-                copyright_notices=project.copyright_notice_repository,
-                licenses=await project.license_repository,
-                genders=project.gender_repository,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            )
+        sut = await gramps_loader_factory()
+        await sut.load_file(gpkg_file_path)
+        with pytest.raises(LoaderUsedAlready):
             await sut.load_file(gpkg_file_path)
-            with pytest.raises(LoaderUsedAlready):
-                await sut.load_file(gpkg_file_path)
-
-    async def test_load_file__with_xml(
-        self, new_temporary_app: App, tmp_path: Path
-    ) -> None:
-        xml_file_path = tmp_path / "gramps.xml"
-        async with aiofiles.open(xml_file_path, "w") as f:
-            await f.write(_MINIMAL_XML)
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                localizer=DEFAULT_LOCALIZER,
-                copyright_notices=project.copyright_notice_repository,
-                licenses=await project.license_repository,
-                genders=project.gender_repository,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            )
-            await sut.load_file(xml_file_path)
-            with pytest.raises(LoaderUsedAlready):
-                await sut.load_file(xml_file_path)
 
     async def test_load_file__with_non_existent_file(
-        self, new_temporary_app: App, tmp_path: Path
+        self, gramps_loader_factory: GrampsLoaderFactoryBase, tmp_path: Path
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                localizer=DEFAULT_LOCALIZER,
-                copyright_notices=project.copyright_notice_repository,
-                licenses=await project.license_repository,
-                genders=project.gender_repository,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            )
-            with pytest.raises(UserFacingGrampsError):
-                await sut.load_file(tmp_path / "non-existent-file")
+        sut = await gramps_loader_factory()
+        with pytest.raises(UserFacingGrampsError):
+            await sut.load_file(tmp_path / "non-existent-file.gramps")
 
     async def test_load_file__with_invalid_file(
-        self, new_temporary_app: App, tmp_path: Path
+        self, gramps_loader_factory: GrampsLoaderFactoryBase, tmp_path: Path
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                localizer=DEFAULT_LOCALIZER,
-                copyright_notices=project.copyright_notice_repository,
-                licenses=await project.license_repository,
-                genders=project.gender_repository,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            )
-            with pytest.raises(UserFacingGrampsError):
-                await sut.load_file(
-                    Path(__file__).parent / "assets" / "minimal.invalid"
-                )
-
-    async def _load(
-        self,
-        xml: str,
-        *,
-        event_type_mapping: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
-        | None = None,
-        place_type_mapping: Mapping[str, Callable[[], PlaceType | Awaitable[PlaceType]]]
-        | None = None,
-        presence_role_mapping: Mapping[
-            str, Callable[[], PresenceRole | Awaitable[PresenceRole]]
-        ]
-        | None = None,
-    ) -> Ancestry:
-        async with (
-            App.new_temporary() as app,
-            app,
-            Project.new_temporary(app) as project,
-        ):
-            project.configuration.name = self.PROJECT_NAME
-            async with project:
-                loader = GrampsLoader(
-                    project.ancestry,
-                    localizer=DEFAULT_LOCALIZER,
-                    copyright_notices=project.copyright_notice_repository,
-                    licenses=await project.license_repository,
-                    genders=project.gender_repository,
-                    attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-                    event_type_mapping=event_type_mapping,
-                    place_type_mapping=place_type_mapping,
-                    presence_role_mapping=presence_role_mapping,
-                )
-                await loader.load_xml(xml.strip())
-                return project.ancestry
+        sut = await gramps_loader_factory()
+        with pytest.raises(UserFacingGrampsError):
+            await sut.load_file(Path(__file__).parent / "assets" / "minimal.invalid")
 
     async def _load_partial(
-        self,
-        xml: str,
-        *,
-        media_path: Path | None = None,
-        event_type_mapping: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
-        | None = None,
-        place_type_mapping: Mapping[str, Callable[[], PlaceType | Awaitable[PlaceType]]]
-        | None = None,
-        presence_role_mapping: Mapping[
-            str, Callable[[], PresenceRole | Awaitable[PresenceRole]]
-        ]
-        | None = None,
+        self, loader: GrampsLoader, xml: str, *, media_path: Path | None = None
     ) -> Ancestry:
         mediapath = "" if media_path is None else f"<mediapath>{media_path}</mediapath>"
-        return await self._load(
+        await loader.load_xml(
             f"""
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"
@@ -297,26 +157,21 @@ class TestGrampsLoader:
     </header>
     {xml}
 </database>
-""",
-            event_type_mapping=event_type_mapping,
-            place_type_mapping=place_type_mapping,
-            presence_role_mapping=presence_role_mapping,
+""".strip()
         )
+        return loader.ancestry
 
-    async def test_load_xml(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = GrampsLoader(
-                project.ancestry,
-                localizer=DEFAULT_LOCALIZER,
-                copyright_notices=project.copyright_notice_repository,
-                licenses=await project.license_repository,
-                genders=project.gender_repository,
-                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
-            )
-            await sut.load_xml(_MINIMAL_XML)
+    async def test_load_xml(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
+        sut = await gramps_loader_factory()
+        await sut.load_xml(_MINIMAL_XML)
 
-    async def test_place_should_include_place_type(self) -> None:
+    async def test_place_should_include_place_type(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(place_type_mapping={"MyFirstPlaceType": City}),
             """
 <places>
     <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="MyFirstPlaceType">
@@ -324,33 +179,38 @@ class TestGrampsLoader:
     </placeobj>
 </places>
         """,
-            place_type_mapping={"MyFirstPlaceType": City},
         )
         place = ancestry[Place]["P0000"]
         assert isinstance(place.place_type, City)
 
-    async def test_place_should_ignore_unknown_place_type(self) -> None:
+    async def test_place_should_ignore_unknown_place_type(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <places>
     <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="NonExistentPlaceType">
         <pname value="Amsterdam"/>
     </placeobj>
 </places>
-        """
+        """,
         )
         place = ancestry[Place]["P0000"]
         assert isinstance(place.place_type, UnknownPlaceType)
 
-    async def test_place_should_include_name(self) -> None:
+    async def test_place_should_include_name(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <places>
     <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="Unknown">
         <pname value="Amsterdam"/>
     </placeobj>
 </places>
-        """
+        """,
         )
         place = ancestry[Place]["P0000"]
         names = place.names
@@ -358,23 +218,29 @@ class TestGrampsLoader:
         name = names[0]
         assert name.name.localize(DEFAULT_LOCALIZER) == "Amsterdam"
 
-    async def test_place_should_include_name_with_locale(self) -> None:
+    async def test_place_should_include_name_with_locale(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <places>
     <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="Unknown">
         <pname value="Amsterdam" lang="nl"/>
     </placeobj>
 </places>
-        """
+        """,
         )
         place = ancestry[Place]["P0000"]
         names = place.names
         name = names[0]
         assert name.name.localize(DEFAULT_LOCALIZER).locale == "nl"
 
-    async def test_place_should_include_note(self) -> None:
+    async def test_place_should_include_note(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <places>
     <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="Unknown">
@@ -386,7 +252,7 @@ class TestGrampsLoader:
         <text>I left this for you.</text>
     </note>
 </notes>
-"""
+""",
         )
         place = ancestry[Place]["P0000"]
         assert place.notes
@@ -410,36 +276,44 @@ class TestGrampsLoader:
         expected_longitude: float,
         latitude: str,
         longitude: str,
+        gramps_loader_factory: GrampsLoaderFactoryBase,
     ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             f"""
 <places>
     <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="Unknown">
         <coord lat="{latitude}" long="{longitude}"/>
     </placeobj>
 </places>
-        """
+        """,
         )
         coordinates = ancestry[Place]["P0000"].coordinates
         assert coordinates
         assert pytest.approx(expected_latitude) == coordinates.latitude
         assert pytest.approx(expected_longitude) == coordinates.longitude
 
-    async def test_place_should_ignore_invalid_coordinates(self) -> None:
+    async def test_place_should_ignore_invalid_coordinates(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <places>
     <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="Unknown">
         <coord lat="foo" long="bar"/>
     </placeobj>
 </places>
-        """
+        """,
         )
         coordinates = ancestry[Place]["P0000"].coordinates
         assert coordinates is None
 
-    async def test_place_should_include_events(self) -> None:
+    async def test_place_should_include_events(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <places>
     <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="Unknown">
@@ -451,15 +325,18 @@ class TestGrampsLoader:
         <place hlink="_e1dd2fb639e3f04f8cfabaa7e8a"/>
     </event>
 </events>
-"""
+""",
         )
         place = ancestry[Place]["P0000"]
         event = ancestry[Event]["E0000"]
         assert place == event.place
         assert event in place.events
 
-    async def test_place_should_include_encloser(self) -> None:
+    async def test_place_should_include_encloser(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <places>
     <placeobj handle="_e7692ea23775e80643fe4fcf91" change="1552125653" id="P0000" type="Unknown">
@@ -471,7 +348,7 @@ class TestGrampsLoader:
         <placeref hlink="_e2b5e77b4cc5c91c9ed60a6cb39"/>
     </placeobj>
 </places>
-"""
+""",
         )
         assert (
             ancestry[Place]["P0000"] == ancestry[Place]["P0002"].enclosers[0].encloser
@@ -486,8 +363,11 @@ class TestGrampsLoader:
             ancestry[Place]["P0002"] == ancestry[Place]["P0001"].enclosees[0].enclosee
         )
 
-    async def test_person_should_include_names(self) -> None:
+    async def test_person_should_include_names(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
@@ -511,7 +391,7 @@ class TestGrampsLoader:
         </name>
     </person>
 </people>
-"""
+""",
         )
         person = ancestry[Person]["I0000"]
 
@@ -524,8 +404,11 @@ class TestGrampsLoader:
         assert person.names[3].individual == "Jean"
         assert person.names[4].affiliation == "Doewie"
 
-    async def test_person_should_include_presence(self) -> None:
+    async def test_person_should_include_presence(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(presence_role_mapping={"MyFirstRole": Subject}),
             """
 <people>
     <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0000">
@@ -540,66 +423,64 @@ class TestGrampsLoader:
     </event>
 </events>
 """,
-            presence_role_mapping={"MyFirstRole": Subject},
         )
         event = ancestry[Person]["I0000"].presences[0].event
         assert event is not None
         assert event.id == "E0000"
 
-    async def test_person_should_be_private(self) -> None:
+    async def test_person_should_be_private(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <people>
     <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0000" priv="1">
         <gender>U</gender>
     </person>
 </people>
-"""
+""",
         )
         person = ancestry[Person]["I0000"]
         assert person.private
 
-    async def test_person_should_not_be_private(self) -> None:
+    async def test_person_should_not_be_private(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <people>
     <person handle="_e1dd3bf1f0041d92f586f9d8683" change="1552126972" id="I0000">
         <gender>U</gender>
     </person>
 </people>
-"""
+""",
         )
         person = ancestry[Person]["I0000"]
         assert not person.private
 
-    async def test_person_should_fallback_gender(self) -> None:
+    async def test_person_should_load_gender_element(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <people>
     <person handle="_e1dd3bf1f0041d92f586f9d8683" change="1552126972" id="I0000">
         <gender>U</gender>
     </person>
 </people>
-"""
+""",
         )
         person = ancestry[Person]["I0000"]
         assert isinstance(person.gender, UnknownGender)
 
-    async def test_person_should_load_gender_element(self) -> None:
+    async def test_person_should_load_gender_attribute(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
-            """
-<people>
-    <person handle="_e1dd3bf1f0041d92f586f9d8683" change="1552126972" id="I0000">
-        <gender>X</gender>
-    </person>
-</people>
-"""
-        )
-        person = ancestry[Person]["I0000"]
-        assert isinstance(person.gender, NonBinary)
-
-    async def test_person_should_load_gender_attribute(self) -> None:
-        ancestry = await self._load_partial(
+            await gramps_loader_factory(genders=StaticPluginRepository(NonBinary)),
             """
 <people>
     <person handle="_e1dd3bf1f0041d92f586f9d8683" change="1552126972" id="I0000">
@@ -607,13 +488,16 @@ class TestGrampsLoader:
         <attribute type="betty:gender" value="non-binary"/>
     </person>
 </people>
-"""
+""",
         )
         person = ancestry[Person]["I0000"]
         assert isinstance(person.gender, NonBinary)
 
-    async def test_person_should_include_citation(self) -> None:
+    async def test_person_should_include_citation(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
@@ -630,14 +514,17 @@ class TestGrampsLoader:
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
     </source>
 </sources>
-"""
+""",
         )
         person = ancestry[Person]["I0000"]
         citation = ancestry[Citation]["C0000"]
         assert citation in person.citations
 
-    async def test_person_should_include_note(self) -> None:
+    async def test_person_should_include_note(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
@@ -650,17 +537,20 @@ class TestGrampsLoader:
         <text>I left this for you.</text>
     </note>
 </notes>
-"""
+""",
         )
         person = ancestry[Person]["I0000"]
         assert person.notes
         note = person.notes[0]
         assert note.id == "N0000"
 
-    async def test_person_should_include_file(self, tmp_path: Path) -> None:
+    async def test_person_should_include_file(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase, tmp_path: Path
+    ) -> None:
         file_path = tmp_path / "file.path"
         file_path.touch()
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             f"""
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
@@ -674,17 +564,20 @@ class TestGrampsLoader:
         <file src="{file_path}" mime="image/png" checksum="d41d8cd98f00b204e9800998ecf8427e"/>
     </object>
 </objects>
-"""
+""",
         )
         person = ancestry[Person]["I0000"]
         assert person.file_references
         file_reference = person.file_references[0]
         assert file_reference.file.id == "O0000"
 
-    async def test_person_should_include_file_with_focus(self, tmp_path: Path) -> None:
+    async def test_person_should_include_file_with_focus(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase, tmp_path: Path
+    ) -> None:
         file_path = tmp_path / "file.path"
         file_path.touch()
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             f"""
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
@@ -699,7 +592,7 @@ class TestGrampsLoader:
         <file src="{file_path}" mime="image/png" checksum="d41d8cd98f00b204e9800998ecf8427e"/>
     </object>
 </objects>
-"""
+""",
         )
         person = ancestry[Person]["I0000"]
         assert person.file_references
@@ -707,8 +600,11 @@ class TestGrampsLoader:
         assert file_reference.focus == (1, 2, 3, 4)
         assert file_reference.file.id == "O0000"
 
-    async def test_family_should_set_parents(self) -> None:
+    async def test_family_should_set_parents(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
@@ -742,7 +638,7 @@ class TestGrampsLoader:
         <childref hlink="_e1dd3b41b052be747e10b86c4a" mrel="Unknown" frel="Unknown"/>
     </family>
 </families>
-"""
+""",
         )
         father = ancestry[Person]["I0002"]
         mother_one = ancestry[Person]["I0000"]
@@ -750,8 +646,11 @@ class TestGrampsLoader:
         child = ancestry[Person]["I0001"]
         assert list(child.parents) == [father, mother_one, mother_two]
 
-    async def test_family_should_set_children(self) -> None:
+    async def test_family_should_set_children(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
@@ -784,7 +683,7 @@ class TestGrampsLoader:
         <childref hlink="_e1dd3b41b052be747e10b86c4a" mrel="Unknown" frel="Unknown"/>
     </family>
 </families>
-"""
+""",
         )
         father = ancestry[Person]["I0002"]
         mother = ancestry[Person]["I0003"]
@@ -793,8 +692,11 @@ class TestGrampsLoader:
         assert list(father.children) == [common_child]
         assert list(mother.children) == [common_child, mother_only_child]
 
-    async def test_family_should_associate_events_with_parents(self) -> None:
+    async def test_family_should_associate_events_with_parents(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(presence_role_mapping={"Primary": Subject}),
             """
 <people>
     <person handle="_e1dd3bf1f0041d92f586f9d8683" change="1552126972" id="I0000">
@@ -820,7 +722,6 @@ class TestGrampsLoader:
     </event>
 </events>
 """,
-            presence_role_mapping={"Primary": Subject},
         )
         event = ancestry[Event]["E0000"]
         father = ancestry[Person]["I0000"]
@@ -830,8 +731,11 @@ class TestGrampsLoader:
         assert isinstance(mother.presences[0].role, Subject)
         assert mother.presences[0].event is event
 
-    async def test_event_should_map_type(self) -> None:
+    async def test_event_should_map_type(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(event_type_mapping={"MyFirstEventType": Birth}),
             """
 <events>
     <event handle="_e56068c37402fda8741678a115a" change="1577021208" id="E0000">
@@ -839,12 +743,14 @@ class TestGrampsLoader:
     </event>
 </events>
 """,
-            event_type_mapping={"MyFirstEventType": Birth},
         )
         assert isinstance(ancestry[Event]["E0000"].event_type, Birth)
 
-    async def test_event_should_be_death(self) -> None:
+    async def test_event_should_be_death(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(event_type_mapping={"Death": Death}),
             """
 <events>
     <event handle="_e1dd6b69f2d6c31de58efd91ddf" change="1552131913" id="E0000">
@@ -852,12 +758,14 @@ class TestGrampsLoader:
     </event>
 </events>
 """,
-            event_type_mapping={"Death": Death},
         )
         assert isinstance(ancestry[Event]["E0000"].event_type, Death)
 
-    async def test_event_should_load_unknown(self) -> None:
+    async def test_event_should_load_unknown(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -865,12 +773,15 @@ class TestGrampsLoader:
         <dateval val="0000-00-00" quality="calculated"/>
     </event>
 </events>
-"""
+""",
         )
         assert isinstance(ancestry[Event]["E0000"].event_type, UnknownEventType)
 
-    async def test_event_should_include_place(self) -> None:
+    async def test_event_should_include_place(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <events>
     <event handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="E0000">
@@ -883,14 +794,17 @@ class TestGrampsLoader:
         <pname value="Amsterdam"/>
     </placeobj>
 </places>
-"""
+""",
         )
         event = ancestry[Event]["E0000"]
         place = ancestry[Place]["P0000"]
         assert place == event.place
 
-    async def test_event_should_include_date(self) -> None:
+    async def test_event_should_include_date(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <events>
     <event handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="E0000">
@@ -898,7 +812,7 @@ class TestGrampsLoader:
         <dateval val="1970-01-01"/>
     </event>
 </events>
-"""
+""",
         )
         event = ancestry[Event]["E0000"]
         assert isinstance(event.date, Date)
@@ -906,8 +820,11 @@ class TestGrampsLoader:
         assert event.date.month == 1
         assert event.date.day == 1
 
-    async def test_event_should_include_people(self) -> None:
+    async def test_event_should_include_people(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <people>
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
@@ -920,16 +837,19 @@ class TestGrampsLoader:
         <type>Birth</type>
     </event>
 </events>
-"""
+""",
         )
         event = ancestry[Event]["E0000"]
         expected_people = [ancestry[Person]["I0000"]]
         assert expected_people == [presence.person for presence in event.presences]
 
-    async def test_event_should_include_name(self) -> None:
+    async def test_event_should_include_name(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         name_und = "Some name"
         name_default = "The default name"
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             f"""
 <events>
     <event handle="_e56068c37402fda8741678a115a" change="1577021208" id="E0000">
@@ -938,7 +858,7 @@ class TestGrampsLoader:
         <attribute type="betty:name:{DEFAULT_LOCALE}" value="{name_default}"/>
     </event>
 </events>
-"""
+""",
         )
         event = ancestry[Event]["E0000"]
         assert event.name.translations == {
@@ -946,8 +866,11 @@ class TestGrampsLoader:
             DEFAULT_LOCALE: name_default,
         }
 
-    async def test_event_should_include_description(self) -> None:
+    async def test_event_should_include_description(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <events>
     <event handle="_e56068c37402fda8741678a115a" change="1577021208" id="E0000">
@@ -955,13 +878,16 @@ class TestGrampsLoader:
         <description>Something happened!</description>
     </event>
 </events>
-"""
+""",
         )
         event = ancestry[Event]["E0000"]
         assert event.description.localize(DEFAULT_LOCALIZER) == "Something happened!"
 
-    async def test_event_should_include_note(self) -> None:
+    async def test_event_should_include_note(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <events>
     <event handle="_e56068c37402fda8741678a115a" change="1577021208" id="E0000">
@@ -974,7 +900,7 @@ class TestGrampsLoader:
         <text>I left this for you.</text>
     </note>
 </notes>
-"""
+""",
         )
         event = ancestry[Event]["E0000"]
         assert event.notes
@@ -984,7 +910,6 @@ class TestGrampsLoader:
     @pytest.mark.parametrize(
         ("expected", "dateval_val"),
         [
-            (Date(), "0000-00-00"),
             (Date(None, None, 1), "0000-00-01"),
             (Date(None, 1), "0000-01-00"),
             (Date(None, 1, 1), "0000-01-01"),
@@ -995,9 +920,13 @@ class TestGrampsLoader:
         ],
     )
     async def test_date_should_load_parts(
-        self, expected: Date, dateval_val: str
+        self,
+        expected: Date,
+        dateval_val: str,
+        gramps_loader_factory: GrampsLoaderFactoryBase,
     ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             f"""
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1005,12 +934,15 @@ class TestGrampsLoader:
         <dateval val="{dateval_val}" quality="calculated"/>
     </event>
 </events>
-"""
+""",
         )
         assert expected == ancestry[Event]["E0000"].date
 
-    async def test_date_should_ignore_calendar_format(self) -> None:
+    async def test_date_should_ignore_calendar_format(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <events>
     <event handle="_e560a44fed046f2f2d58662aac9" change="1576270227" id="E0000">
@@ -1018,12 +950,15 @@ class TestGrampsLoader:
       <dateval val="1349-01-01" cformat="Persian"/>
     </event>
 </events>
-"""
+""",
         )
         assert ancestry[Event]["E0000"].date is None
 
-    async def test_date_should_load_before(self) -> None:
+    async def test_date_should_load_before(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1031,7 +966,7 @@ class TestGrampsLoader:
         <dateval val="1970-01-01" type="before"/>
     </event>
 </events>
-"""
+""",
         )
         date = ancestry[Event]["E0000"].date
         assert isinstance(date, DateRange)
@@ -1043,8 +978,11 @@ class TestGrampsLoader:
         assert date.end_is_boundary
         assert not date.end.fuzzy
 
-    async def test_date_should_load_after(self) -> None:
+    async def test_date_should_load_after(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1052,7 +990,7 @@ class TestGrampsLoader:
         <dateval val="1970-01-01" type="after"/>
     </event>
 </events>
-"""
+""",
         )
         date = ancestry[Event]["E0000"].date
         assert isinstance(date, DateRange)
@@ -1064,8 +1002,11 @@ class TestGrampsLoader:
         assert date.start_is_boundary
         assert not date.start.fuzzy
 
-    async def test_date_should_load_calculated(self) -> None:
+    async def test_date_should_load_calculated(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1073,7 +1014,7 @@ class TestGrampsLoader:
         <dateval val="1970-01-01" quality="calculated"/>
     </event>
 </events>
-"""
+""",
         )
         date = ancestry[Event]["E0000"].date
         assert isinstance(date, Date)
@@ -1082,8 +1023,11 @@ class TestGrampsLoader:
         assert date.day == 1
         assert not date.fuzzy
 
-    async def test_date_should_load_estimated(self) -> None:
+    async def test_date_should_load_estimated(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1091,7 +1035,7 @@ class TestGrampsLoader:
         <dateval val="1970-01-01" quality="estimated"/>
     </event>
 </events>
-"""
+""",
         )
         date = ancestry[Event]["E0000"].date
         assert isinstance(date, Date)
@@ -1100,8 +1044,11 @@ class TestGrampsLoader:
         assert date.day == 1
         assert date.fuzzy
 
-    async def test_date_should_load_about(self) -> None:
+    async def test_date_should_load_about(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1109,7 +1056,7 @@ class TestGrampsLoader:
         <dateval val="1970-01-01" type="about"/>
     </event>
 </events>
-"""
+""",
         )
         date = ancestry[Event]["E0000"].date
         assert isinstance(date, Date)
@@ -1118,8 +1065,11 @@ class TestGrampsLoader:
         assert date.day == 1
         assert date.fuzzy
 
-    async def test_daterange_should_load(self) -> None:
+    async def test_daterange_should_load(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1127,7 +1077,7 @@ class TestGrampsLoader:
         <daterange start="1970-01-01" stop="1999-12-31"/>
     </event>
 </events>
-"""
+""",
         )
         date = ancestry[Event]["E0000"].date
         assert isinstance(date, DateRange)
@@ -1146,8 +1096,11 @@ class TestGrampsLoader:
         assert date.end_is_boundary
         assert not end.fuzzy
 
-    async def test_daterange_should_load_calculated(self) -> None:
+    async def test_daterange_should_load_calculated(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1155,7 +1108,7 @@ class TestGrampsLoader:
         <daterange start="1970-01-01" stop="1999-12-31" quality="calculated"/>
     </event>
 </events>
-"""
+""",
         )
         date = ancestry[Event]["E0000"].date
         assert isinstance(date, DateRange)
@@ -1166,8 +1119,11 @@ class TestGrampsLoader:
         assert isinstance(end, Date)
         assert not end.fuzzy
 
-    async def test_daterange_should_load_estimated(self) -> None:
+    async def test_daterange_should_load_estimated(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1175,7 +1131,7 @@ class TestGrampsLoader:
         <daterange start="1970-01-01" stop="1999-12-31" quality="estimated"/>
     </event>
 </events>
-"""
+""",
         )
         date = ancestry[Event]["E0000"].date
         assert isinstance(date, DateRange)
@@ -1186,8 +1142,11 @@ class TestGrampsLoader:
         assert isinstance(end, Date)
         assert end.fuzzy
 
-    async def test_datespan_should_load(self) -> None:
+    async def test_datespan_should_load(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1195,7 +1154,7 @@ class TestGrampsLoader:
         <datespan start="1970-01-01" stop="1999-12-31"/>
     </event>
 </events>
-"""
+""",
         )
         date = ancestry[Event]["E0000"].date
         assert isinstance(date, DateRange)
@@ -1212,8 +1171,11 @@ class TestGrampsLoader:
         assert end.day == 31
         assert not end.fuzzy
 
-    async def test_datespan_should_load_calculated(self) -> None:
+    async def test_datespan_should_load_calculated(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1221,7 +1183,7 @@ class TestGrampsLoader:
         <datespan start="1970-01-01" stop="1999-12-31" quality="calculated"/>
     </event>
 </events>
-"""
+""",
         )
         date = ancestry[Event]["E0000"].date
         assert isinstance(date, DateRange)
@@ -1232,8 +1194,11 @@ class TestGrampsLoader:
         assert isinstance(end, Date)
         assert not end.fuzzy
 
-    async def test_datespan_should_load_estimated(self) -> None:
+    async def test_datespan_should_load_estimated(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <events>
     <event handle="_e7692ea23775e80643fe4fcf91" change="1590243374" id="E0000">
@@ -1241,7 +1206,7 @@ class TestGrampsLoader:
         <datespan start="1970-01-01" stop="1999-12-31" quality="estimated"/>
     </event>
 </events>
-"""
+""",
         )
         date = ancestry[Event]["E0000"].date
         assert isinstance(date, DateRange)
@@ -1252,21 +1217,27 @@ class TestGrampsLoader:
         assert isinstance(end, Date)
         assert end.fuzzy
 
-    async def test_source_from_repository_should_include_name(self) -> None:
+    async def test_source_from_repository_should_include_name(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <repositories>
     <repository handle="_e2c257f50fd27b1c841d7497448" change="1558277216" id="R0000">
         <rname>Library of Alexandria</rname>
     </repository>
 </repositories>
-"""
+""",
         )
         source = ancestry[Source]["R0000"]
         assert source.name.localize(DEFAULT_LOCALIZER) == "Library of Alexandria"
 
-    async def test_source_from_repository_should_include_link(self) -> None:
+    async def test_source_from_repository_should_include_link(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <repositories>
     <repository handle="_e2c257f50fd27b1c841d7497448" change="1558277216" id="R0000">
@@ -1274,7 +1245,7 @@ class TestGrampsLoader:
         <url href="https://alexandria.example.com" type="Unknown" description="Library of Alexandria Catalogue"/>
     </repository>
 </repositories>
-"""
+""",
         )
         links = ancestry[Source]["R0000"].links
         assert len(links) == 1
@@ -1284,49 +1255,61 @@ class TestGrampsLoader:
             link.label.localize(DEFAULT_LOCALIZER) == "Library of Alexandria Catalogue"
         )
 
-    async def test_source_from_source_should_include_title(self) -> None:
+    async def test_source_from_source_should_include_title(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <sources>
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
         <stitle>A Whisper</stitle>
     </source>
 </sources>
-"""
+""",
         )
         source = ancestry[Source]["S0000"]
         assert source.name.localize(DEFAULT_LOCALIZER) == "A Whisper"
 
-    async def test_source_from_source_should_include_author(self) -> None:
+    async def test_source_from_source_should_include_author(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <sources>
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
         <sauthor>A Little Birdie</sauthor>
     </source>
 </sources>
-"""
+""",
         )
         source = ancestry[Source]["S0000"]
         assert source.author.localize(DEFAULT_LOCALIZER) == "A Little Birdie"
 
-    async def test_source_from_source_should_include_publisher(self) -> None:
+    async def test_source_from_source_should_include_publisher(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <sources>
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
         <spubinfo>Somewhere over the rainbow</spubinfo>
     </source>
 </sources>
-"""
+""",
         )
         source = ancestry[Source]["S0000"]
         assert (
             source.publisher.localize(DEFAULT_LOCALIZER) == "Somewhere over the rainbow"
         )
 
-    async def test_source_from_source_should_include_repository(self) -> None:
+    async def test_source_from_source_should_include_repository(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <sources>
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
@@ -1340,14 +1323,17 @@ class TestGrampsLoader:
         <url href="https://alexandria.example.com" type="Unknown" description="Library of Alexandria Catalogue"/>
     </repository>
 </repositories>
-"""
+""",
         )
         source = ancestry[Source]["S0000"]
         containing_source = ancestry[Source]["R0000"]
         assert containing_source == source.contained_by
 
-    async def test_source_from_repository_should_include_note(self) -> None:
+    async def test_source_from_repository_should_include_note(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <repositories>
     <repository handle="_e2c257f50fd27b1c841d7497448" change="1558277216" id="R0000">
@@ -1360,15 +1346,18 @@ class TestGrampsLoader:
         <text>I left this for you.</text>
     </note>
 </notes>
-"""
+""",
         )
         source = ancestry[Source]["R0000"]
         assert source.notes
         note = source.notes[0]
         assert note.id == "N0000"
 
-    async def test_source_from_source_should_include_note(self) -> None:
+    async def test_source_from_source_should_include_note(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <sources>
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
@@ -1380,7 +1369,7 @@ class TestGrampsLoader:
         <text>I left this for you.</text>
     </note>
 </notes>
-"""
+""",
         )
         source = ancestry[Source]["S0000"]
         assert source.notes
@@ -1388,17 +1377,18 @@ class TestGrampsLoader:
         assert note.id == "N0000"
 
     async def test__load_attribute_links_should_include_attribute_links_minimal(
-        self,
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
     ) -> None:
         url = "http://example.com"
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             f"""
 <sources>
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
       <srcattribute type="betty:link-minimal:url" value="{url}"/>
     </source>
 </sources>
-"""
+""",
         )
         source = ancestry[Source]["S0000"]
         assert source.links
@@ -1411,7 +1401,7 @@ class TestGrampsLoader:
         assert link.relationship is None
 
     async def test__load_attribute_links_should_include_attribute_links_full(
-        self,
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
     ) -> None:
         url = "https://example.com"
         label_und = "Example.com"
@@ -1424,6 +1414,7 @@ class TestGrampsLoader:
         media_type = "text/plain"
         relationship = "external"
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             f"""
 <sources>
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
@@ -1437,7 +1428,7 @@ class TestGrampsLoader:
       <srcattribute type="betty:link-full:relationship" value="{relationship}"/>
     </source>
 </sources>
-"""
+""",
         )
         source = ancestry[Source]["S0000"]
         assert source.links
@@ -1456,24 +1447,26 @@ class TestGrampsLoader:
         assert link.relationship == relationship
 
     async def test__load_attribute_links_should_warn_about_attribute_link_without_url(
-        self,
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
     ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <sources>
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
       <srcattribute type="betty:link-invalid:label" value="Example.com"/>
     </source>
 </sources>
-"""
+""",
         )
         source = ancestry[Source]["S0000"]
         assert not source.links
 
     async def test__load_attribute_links_should_warn_about_attribute_link_invalid_media_type(
-        self,
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
     ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <sources>
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
@@ -1481,7 +1474,7 @@ class TestGrampsLoader:
       <srcattribute type="betty:link-one:media_type" value="not-a-valid-media-type"/>
     </source>
 </sources>
-"""
+""",
         )
         source = ancestry[Source]["S0000"]
         assert source.links
@@ -1511,6 +1504,7 @@ class TestGrampsLoader:
         expected: Privacy,
         global_attribute_value: str | None,
         project_attribute_value: str | None,
+        gramps_loader_factory: GrampsLoaderFactoryBase,
     ) -> None:
         global_attribute = (
             ""
@@ -1523,6 +1517,7 @@ class TestGrampsLoader:
             else f'<attribute type="betty-{self.ATTRIBUTE_PREFIX_KEY}:privacy" value="{project_attribute_value}"/>'
         )
         ancestry = await self._load_partial(
+            await gramps_loader_factory(attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY),
             f"""
 <people>
     <person handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="I0000">
@@ -1531,20 +1526,23 @@ class TestGrampsLoader:
         {project_attribute}
     </person>
 </people>
-"""
+""",
         )
         person = ancestry[Person]["I0000"]
         assert expected == person.privacy
 
-    async def test_event_should_include_privacy_from_element(self) -> None:
+    async def test_event_should_include_privacy_from_element(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <events>
     <event handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="E0000" priv="1">
         <type>Birth</type>
     </event>
 </events>
-"""
+""",
         )
         event = ancestry[Event]["E0000"]
         assert event.private
@@ -1559,9 +1557,13 @@ class TestGrampsLoader:
         ],
     )
     async def test_event_should_include_privacy_from_attribute(
-        self, expected: Privacy, attribute_value: str
+        self,
+        expected: Privacy,
+        attribute_value: str,
+        gramps_loader_factory: GrampsLoaderFactoryBase,
     ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             f"""
 <events>
     <event handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="E0000">
@@ -1569,15 +1571,20 @@ class TestGrampsLoader:
         <attribute type="betty:privacy" value="{attribute_value}"/>
     </event>
 </events>
-"""
+""",
         )
         event = ancestry[Event]["E0000"]
         assert expected == event.privacy
 
     async def _assert_file_should_include_path(
-        self, expected: Path, file_src: Path, media_path: Path | None
+        self,
+        loader: GrampsLoader,
+        expected: Path,
+        file_src: Path,
+        media_path: Path | None,
     ) -> None:
         ancestry = await self._load_partial(
+            loader,
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
@@ -1592,87 +1599,99 @@ class TestGrampsLoader:
         assert file.path.is_absolute()
 
     async def test_file_should_include_path_with_media_path_with_relative_file_path(
-        self, tmp_path: Path
+        self, gramps_loader_factory: GrampsLoaderFactoryBase, tmp_path: Path
     ) -> None:
         media_path = tmp_path / "media"
         media_path.mkdir()
         file_path = Path("file.path")
         (media_path / file_path).touch()
         await self._assert_file_should_include_path(
-            media_path / file_path, file_path, media_path
+            await gramps_loader_factory(), media_path / file_path, file_path, media_path
         )
 
     async def test_file_should_include_path_with_media_path_with_absolute_file_path(
-        self, tmp_path: Path
+        self, gramps_loader_factory: GrampsLoaderFactoryBase, tmp_path: Path
     ) -> None:
         media_path = tmp_path / "media"
         file_path = tmp_path / "somewhere-outside-the-media-path" / "file.path"
         file_path.parent.mkdir()
         file_path.touch()
-        await self._assert_file_should_include_path(file_path, file_path, media_path)
+        await self._assert_file_should_include_path(
+            await gramps_loader_factory(), file_path, file_path, media_path
+        )
 
     async def test_file_should_include_path_without_media_path_with_relative_file_path(
-        self,
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
     ) -> None:
         with pytest.raises(UserFacingGrampsError):
             await self._load_partial(
+                await gramps_loader_factory(),
                 f"""
     <objects>
         <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
             <file src="{Path("file.path")}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e"/>
         </object>
     </objects>
-    """
+    """,
             )
 
     async def test_file_should_include_path_without_media_path_with_absolute_file_path(
-        self, tmp_path: Path
+        self, gramps_loader_factory: GrampsLoaderFactoryBase, tmp_path: Path
     ) -> None:
         file_path = tmp_path / "somewhere-outside-the-media-path" / "file.path"
         file_path.parent.mkdir()
         file_path.touch()
-        await self._assert_file_should_include_path(file_path, file_path, None)
+        await self._assert_file_should_include_path(
+            await gramps_loader_factory(), file_path, file_path, None
+        )
 
-    async def test_file_should_include_description(self, tmp_path: Path) -> None:
+    async def test_file_should_include_description(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase, tmp_path: Path
+    ) -> None:
         file_path = tmp_path / "file.path"
         file_path.touch()
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
         <file src="{file_path}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="My First Description"/>
     </object>
 </objects>
-"""
+""",
         )
         file = ancestry[File]["O0000"]
         assert file.description.localize(DEFAULT_LOCALIZER) == "My First Description"
 
-    async def test_file_not_exists_should_error(self, tmp_path: Path) -> None:
+    async def test_file_not_exists_should_error(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase, tmp_path: Path
+    ) -> None:
         with pytest.raises(UserFacingGrampsError):
             await self._load_partial(
+                await gramps_loader_factory(),
                 f"""
     <objects>
         <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
             <file src="{tmp_path / "non-existent-file.path"}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e"/>
         </object>
     </objects>
-    """
+    """,
             )
 
     async def test_file_should_include_privacy_from_element(
-        self, tmp_path: Path
+        self, gramps_loader_factory: GrampsLoaderFactoryBase, tmp_path: Path
     ) -> None:
         file_path = tmp_path / "file.path"
         file_path.touch()
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000" priv="1">
         <file src="{file_path}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e"/>
     </object>
 </objects>
-"""
+""",
         )
         file = ancestry[File]["O0000"]
         assert file.private
@@ -1687,11 +1706,16 @@ class TestGrampsLoader:
         ],
     )
     async def test_file_should_include_privacy_from_attribute(
-        self, expected: Privacy, attribute_value: str, tmp_path: Path
+        self,
+        expected: Privacy,
+        attribute_value: str,
+        gramps_loader_factory: GrampsLoaderFactoryBase,
+        tmp_path: Path,
     ) -> None:
         file_path = tmp_path / "file.path"
         file_path.touch()
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
@@ -1699,15 +1723,18 @@ class TestGrampsLoader:
         <attribute type="betty:privacy" value="{attribute_value}"/>
     </object>
 </objects>
-"""
+""",
         )
         file = ancestry[File]["O0000"]
         assert expected == file.privacy
 
-    async def test_file_should_include_note(self, tmp_path: Path) -> None:
+    async def test_file_should_include_note(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase, tmp_path: Path
+    ) -> None:
         file_path = tmp_path / "file.path"
         file_path.touch()
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
@@ -1720,17 +1747,22 @@ class TestGrampsLoader:
         <text>I left this for you.</text>
     </note>
 </notes>
-"""
+""",
         )
         file = ancestry[File]["O0000"]
         assert file.notes
         note = file.notes[0]
         assert note.id == "N0000"
 
-    async def test_file_should_include_copyright_notice(self, tmp_path: Path) -> None:
+    async def test_file_should_include_copyright_notice(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase, tmp_path: Path
+    ) -> None:
         file_path = tmp_path / "file.path"
         file_path.touch()
         ancestry = await self._load_partial(
+            await gramps_loader_factory(
+                copyright_notices=StaticPluginRepository(PublicDomainCopyrightNotice)
+            ),
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
@@ -1738,17 +1770,18 @@ class TestGrampsLoader:
         <attribute type="betty:copyright-notice" value="public-domain"/>
     </object>
 </objects>
-"""
+""",
         )
         file = ancestry[File]["O0000"]
         assert isinstance(file.copyright_notice, PublicDomainCopyrightNotice)
 
     async def test_file_should_ignore_unknown_copyright_notice(
-        self, tmp_path: Path
+        self, gramps_loader_factory: GrampsLoaderFactoryBase, tmp_path: Path
     ) -> None:
         file_path = tmp_path / "file.path"
         file_path.touch()
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
@@ -1756,15 +1789,20 @@ class TestGrampsLoader:
         <attribute type="betty:copyright-notice" value="non-existent-copyright-notice"/>
     </object>
 </objects>
-"""
+""",
         )
         file = ancestry[File]["O0000"]
         assert file.copyright_notice is None
 
-    async def test_file_should_include_license(self, tmp_path: Path) -> None:
+    async def test_file_should_include_license(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase, tmp_path: Path
+    ) -> None:
         file_path = tmp_path / "file.path"
         file_path.touch()
         ancestry = await self._load_partial(
+            await gramps_loader_factory(
+                licenses=StaticPluginRepository(PublicDomainLicense)
+            ),
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
@@ -1772,15 +1810,18 @@ class TestGrampsLoader:
         <attribute type="betty:license" value="public-domain"/>
     </object>
 </objects>
-"""
+""",
         )
         file = ancestry[File]["O0000"]
         assert isinstance(file.license, PublicDomainLicense)
 
-    async def test_file_should_ignore_unknown_license(self, tmp_path: Path) -> None:
+    async def test_file_should_ignore_unknown_license(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase, tmp_path: Path
+    ) -> None:
         file_path = tmp_path / "file.path"
         file_path.touch()
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
@@ -1788,20 +1829,23 @@ class TestGrampsLoader:
         <attribute type="betty:license" value="non-existent-license"/>
     </object>
 </objects>
-"""
+""",
         )
         file = ancestry[File]["O0000"]
         assert file.license is None
 
-    async def test_source_from_source_should_include_privacy_from_element(self) -> None:
+    async def test_source_from_source_should_include_privacy_from_element(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <sources>
     <source handle="_e1dd686b04813540eb3503a342b" change="1558277217" id="S0000" priv="1">
         <stitle>A Whisper</stitle>
     </source>
 </sources>
-"""
+""",
         )
         source = ancestry[Source]["S0000"]
         assert source.private
@@ -1816,9 +1860,13 @@ class TestGrampsLoader:
         ],
     )
     async def test_source_from_source_should_include_privacy_from_attribute(
-        self, expected: Privacy, attribute_value: str
+        self,
+        expected: Privacy,
+        attribute_value: str,
+        gramps_loader_factory: GrampsLoaderFactoryBase,
     ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             f"""
 <sources>
     <source handle="_e1dd686b04813540eb3503a342b" change="1558277217" id="S0000">
@@ -1826,13 +1874,16 @@ class TestGrampsLoader:
         <srcattribute type="betty:privacy" value="{attribute_value}"/>
     </source>
 </sources>
-"""
+""",
         )
         source = ancestry[Source]["S0000"]
         assert expected == source.privacy
 
-    async def test_citation_should_include_privacy_from_element(self) -> None:
+    async def test_citation_should_include_privacy_from_element(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <citations>
     <citation handle="_e2c25a12a097a0b24bd9eae5090" change="1558277266" id="C0000" priv="1">
@@ -1845,7 +1896,7 @@ class TestGrampsLoader:
         <stitle>A Whisper</stitle>
     </source>
 </sources>
-"""
+""",
         )
         source = ancestry[Source]["S0000"]
         source.public = True
@@ -1862,9 +1913,13 @@ class TestGrampsLoader:
         ],
     )
     async def test_citation_should_include_privacy_from_attribute(
-        self, expected: Privacy, attribute_value: str
+        self,
+        expected: Privacy,
+        attribute_value: str,
+        gramps_loader_factory: GrampsLoaderFactoryBase,
     ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             f"""
 <citations>
     <citation handle="_e2c25a12a097a0b24bd9eae5090" change="1558277266" id="C0000">
@@ -1878,41 +1933,50 @@ class TestGrampsLoader:
         <stitle>A Whisper</stitle>
     </source>
 </sources>
-"""
+""",
         )
         source = ancestry[Source]["S0000"]
         source.public = True
         citation = ancestry[Citation]["C0000"]
         assert expected == citation.privacy
 
-    async def test_note_should_include_text(self) -> None:
+    async def test_note_should_include_text(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <notes>
     <note handle="_e1cb35d7e6c1984b0e8361e1aee" change="1551643112" id="N0000" type="Transcript">
         <text>I left this for you.</text>
     </note>
 </notes>
-"""
+""",
         )
         note = ancestry[Note]["N0000"]
         assert note.text.localize(DEFAULT_LOCALIZER) == "I left this for you."
 
-    async def test_note_should_include_privacy_from_element(self) -> None:
+    async def test_note_should_include_privacy_from_element(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <notes>
     <note handle="_e1cb35d7e6c1984b0e8361e1aee" change="1551643112" id="N0000" type="Transcript" priv="1">
         <text>I left this for you.</text>
     </note>
 </notes>
-"""
+""",
         )
         note = ancestry[Note]["N0000"]
         assert note.private
 
-    async def test_citation_should_include_location_from_page(self) -> None:
+    async def test_citation_should_include_location_from_place(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <citations>
     <citation handle="_e2c25a12a097a0b24bd9eae5090" change="1558277266" id="C0000">
@@ -1926,13 +1990,16 @@ class TestGrampsLoader:
         <stitle>A Whisper</stitle>
     </source>
 </sources>
-"""
+""",
         )
         citation = ancestry[Citation]["C0000"]
         assert citation.location.localize(DEFAULT_LOCALIZER) == "My First Page"
 
-    async def test_citation_should_include_source(self) -> None:
+    async def test_citation_should_include_source(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <citations>
     <citation handle="_e2c25a12a097a0b24bd9eae5090" change="1558277266" id="C0000">
@@ -1945,14 +2012,17 @@ class TestGrampsLoader:
         <stitle>A Whisper</stitle>
     </source>
 </sources>
-"""
+""",
         )
         citation = ancestry[Citation]["C0000"]
         source = ancestry[Source]["S0000"]
         assert citation.source is source
 
-    async def test__load_eventref_should_map_presence_role(self) -> None:
+    async def test__load_eventref_should_map_presence_role(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(presence_role_mapping={"MyFirstRole": Subject}),
             """
 <people>
     <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0000">
@@ -1967,14 +2037,16 @@ class TestGrampsLoader:
     </event>
 </events>
 """,
-            presence_role_mapping={"MyFirstRole": Subject},
         )
         person = ancestry[Person]["I0000"]
         presence = person.presences[0]
         assert isinstance(presence.role, Subject)
 
-    async def test__load_eventref_should_include_privacy(self) -> None:
+    async def test__load_eventref_should_include_privacy(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <people>
     <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0000">
@@ -1988,14 +2060,17 @@ class TestGrampsLoader:
         <dateval val="0000-00-00" quality="calculated"/>
     </event>
 </events>
-"""
+""",
         )
         person = ancestry[Person]["I0000"]
         presence = person.presences[0]
         assert presence.private
 
-    async def test_url_should_include_path_as_url(self) -> None:
+    async def test_url_should_include_path_as_url(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <people>
     <person handle="_e21e77455147d79f6b4cc1c76a4" change="1553878037" id="I0000">
@@ -2003,15 +2078,18 @@ class TestGrampsLoader:
         <url href="https://alexandria.example.com" type="Unknown"/>
     </person>
 </people>
-"""
+""",
         )
         links = ancestry[Person]["I0000"].links
         assert len(links) == 1
         link = list(links)[0]
         assert link.url == "https://alexandria.example.com"
 
-    async def test_url_should_include_description_as_label(self) -> None:
+    async def test_url_should_include_description_as_label(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <people>
     <person handle="_e21e77455147d79f6b4cc1c76a4" change="1553878037" id="I0000">
@@ -2019,7 +2097,7 @@ class TestGrampsLoader:
         <url href="https://alexandria.example.com" type="Unknown" description="Library of Alexandria Catalogue"/>
     </person>
 </people>
-"""
+""",
         )
         links = ancestry[Person]["I0000"].links
         assert len(links) == 1
@@ -2028,8 +2106,11 @@ class TestGrampsLoader:
             link.label.localize(DEFAULT_LOCALIZER) == "Library of Alexandria Catalogue"
         )
 
-    async def test_url_should_include_relationship(self) -> None:
+    async def test_url_should_include_relationship(
+        self, gramps_loader_factory: GrampsLoaderFactoryBase
+    ) -> None:
         ancestry = await self._load_partial(
+            await gramps_loader_factory(),
             """
 <people>
     <person handle="_e21e77455147d79f6b4cc1c76a4" change="1553878037" id="I0000">
@@ -2037,7 +2118,7 @@ class TestGrampsLoader:
         <url href="https://alexandria.example.com" type="Unknown" description="Library of Alexandria Catalogue"/>
     </person>
 </people>
-"""
+""",
         )
         links = ancestry[Person]["I0000"].links
         assert len(links) == 1
