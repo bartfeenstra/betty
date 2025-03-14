@@ -37,28 +37,10 @@ Creating a presence role
 
 #. Tell Betty about your presence role by registering it as an entry point. Given the role above in a module ``my_package.my_module``, add the following to your Python package:
 
-.. tab-set::
+.. code-block:: toml
 
-   .. tab-item:: pyproject.toml
-
-      .. code-block:: toml
-
-          [project.entry-points.'betty.presence_role']
-          'my-module-my-presence-role' = 'my_package.my_module.MyPresenceRole'
-
-   .. tab-item:: setup.py
-
-      .. code-block:: python
-
-          SETUP = {
-              'entry_points': {
-                  'betty.presence_role': [
-                      'my-module-my-presence-role=my_package.my_module.MyPresenceRole',
-                  ],
-              },
-          }
-          if __name__ == '__main__':
-              setup(**SETUP)
+    [project.entry-points.'betty.presence_role']
+    'my-module-my-presence-role' = 'my_package.my_module.MyPresenceRole'
 
 See also
 --------

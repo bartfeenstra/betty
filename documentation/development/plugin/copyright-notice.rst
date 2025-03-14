@@ -36,28 +36,10 @@ Creating a copyright
 #. Tell Betty about your copyright notice by registering it as an entry point. Given the copyright notice above in a
 module ``my_package.my_module``, add the following to your Python package:
 
-.. tab-set::
+.. code-block:: toml
 
-   .. tab-item:: pyproject.toml
-
-      .. code-block:: toml
-
-          [project.entry-points.'betty.copyright_notice']
-          'my-module-my-copyright-notice' = 'my_package.my_module.MyCopyrightNotice'
-
-   .. tab-item:: setup.py
-
-      .. code-block:: python
-
-          SETUP = {
-              'entry_points': {
-                  'betty.copyright_notice': [
-                      'my-module-my-copyright-notice=my_package.my_module.MyCopyrightNotice',
-                  ],
-              },
-          }
-          if __name__ == '__main__':
-              setup(**SETUP)
+    [project.entry-points.'betty.copyright_notice']
+    'my-module-my-copyright-notice' = 'my_package.my_module.MyCopyrightNotice'
 
 See also
 --------

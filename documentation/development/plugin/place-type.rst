@@ -37,28 +37,10 @@ Creating a place type
 
 #. Tell Betty about your place type by registering it as an entry point. Given the place type above in a module ``my_package.my_module``, add the following to your Python package:
 
-.. tab-set::
+.. code-block:: toml
 
-   .. tab-item:: pyproject.toml
-
-      .. code-block:: toml
-
-          [project.entry-points.'betty.place_type']
-          'my-module-my-place-type' = 'my_package.my_module.MyPlaceType'
-
-   .. tab-item:: setup.py
-
-      .. code-block:: python
-
-          SETUP = {
-              'entry_points': {
-                  'betty.place_type': [
-                      'my-module-my-place-type=my_package.my_module.MyPlaceType',
-                  ],
-              },
-          }
-          if __name__ == '__main__':
-              setup(**SETUP)
+    [project.entry-points.'betty.place_type']
+    'my-module-my-place-type' = 'my_package.my_module.MyPlaceType'
 
 See also
 --------

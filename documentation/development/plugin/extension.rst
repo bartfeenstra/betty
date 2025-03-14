@@ -37,28 +37,10 @@ Creating an extension
 
 #. Tell Betty about your extension by registering it as an entry point. Given the extension above in a module ``my_package.my_module``, add the following to your Python package:
 
-.. tab-set::
+.. code-block:: toml
 
-   .. tab-item:: pyproject.toml
-
-      .. code-block:: toml
-
-          [project.entry-points.'betty.extension']
-          'my-module-my-extension' = 'my_package.my_module.MyExtension'
-
-   .. tab-item:: setup.py
-
-      .. code-block:: python
-
-          SETUP = {
-              'entry_points': {
-                  'betty.extension': [
-                      'my-module-my-extension=my_package.my_module.MyExtension',
-                  ],
-              },
-          }
-          if __name__ == '__main__':
-              setup(**SETUP)
+    [project.entry-points.'betty.extension']
+    'my-module-my-extension' = 'my_package.my_module.MyExtension'
 
 Asset management
 ----------------

@@ -37,25 +37,7 @@ Creating a renderer
 
 #. Tell Betty about your renderer by registering it as an entry point. Given the renderer above in a module ``my_package.my_module``, add the following to your Python package:
 
-.. tab-set::
+.. code-block:: toml
 
-   .. tab-item:: pyproject.toml
-
-      .. code-block:: toml
-
-          [project.entry-points.'betty.renderer']
-          'my-module-my-renderer' = 'my_package.my_module.MyRenderer'
-
-   .. tab-item:: setup.py
-
-      .. code-block:: python
-
-          SETUP = {
-              'entry_points': {
-                  'betty.renderer': [
-                      'my-module-my-renderer=my_package.my_module.MyRenderer',
-                  ],
-              },
-          }
-          if __name__ == '__main__':
-              setup(**SETUP)
+    [project.entry-points.'betty.renderer']
+    'my-module-my-renderer' = 'my_package.my_module.MyRenderer'

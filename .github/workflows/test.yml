@@ -46,7 +46,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.pip_cache_dir }}
-          key: pip-${{ runner.os }}-${{ matrix.python }}-${{ hashFiles('./setup.py') }}
+          key: pip-${{ runner.os }}-${{ matrix.python }}-${{ hashFiles('./pyproject.toml') }}
           restore-keys: |
             pip-${{ runner.os }}-${{ matrix.python }}-
 
@@ -67,7 +67,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ./.mypy_cache
-          key: mypy-${{ matrix.python }}-${{ hashFiles('./setup.py') }}
+          key: mypy-${{ matrix.python }}-${{ hashFiles('./pyproject.toml') }}
           restore-keys: |
             mypy-${{ matrix.python }}-
 
