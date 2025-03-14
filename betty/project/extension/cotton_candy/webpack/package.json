@@ -1,5 +1,5 @@
 {
-  "name": "@betty.py/betty.cotton-candy",
+  "name": "@betty.py/betty.extension.cotton-candy",
   "dependencies": {
     "@betty.py/betty": "*"
   }

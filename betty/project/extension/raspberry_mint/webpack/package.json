@@ -1,5 +1,5 @@
 {
-  "name": "@betty.py/betty.raspberry-mint",
+  "name": "@betty.py/betty.extension.raspberry-mint",
   "dependencies": {
     "@betty.py/betty": "*",
     "@popperjs/core": "^2.11.8",

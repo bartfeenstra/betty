@@ -1,8 +1,5 @@
 {
-  "name": "@betty.py/project",
-  "exports": {
-    ".": "./js"
-  },
+  "name": "@betty.py/betty.project",
   "engines": {
     "node": ">= 20"
   },
@@ -11,12 +8,12 @@
     "@types/node": "*",
     "@types/webpack": "^5.28.5",
     "@betty.py/betty": "file:./js",
-    "@betty.py/betty.cotton-candy": "file:./betty/project/extension/cotton_candy/webpack",
-    "@betty.py/betty.http-api-doc": "file:./betty/project/extension/http_api_doc/webpack",
-    "@betty.py/betty.maps": "file:./betty/project/extension/maps/webpack",
-    "@betty.py/betty.raspberry-mint": "file:./betty/project/extension/raspberry_mint/webpack",
-    "@betty.py/betty.trees": "file:./betty/project/extension/trees/webpack",
-    "@betty.py/betty.webpack": "file:./betty/project/extension/webpack/webpack",
+    "@betty.py/betty.extension.cotton-candy": "file:./betty/project/extension/cotton_candy/webpack",
+    "@betty.py/betty.extension.http-api-doc": "file:./betty/project/extension/http_api_doc/webpack",
+    "@betty.py/betty.extension.maps": "file:./betty/project/extension/maps/webpack",
+    "@betty.py/betty.extension.raspberry-mint": "file:./betty/project/extension/raspberry_mint/webpack",
+    "@betty.py/betty.extension.trees": "file:./betty/project/extension/trees/webpack",
+    "@betty.py/betty.extension.webpack": "file:./betty/project/extension/webpack/webpack",
     "eslint": "^9.15.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-n": "^17.13.2",

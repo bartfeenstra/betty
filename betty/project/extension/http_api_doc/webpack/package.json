@@ -1,5 +1,5 @@
 {
-  "name": "@betty.py/betty.http-api-doc",
+  "name": "@betty.py/betty.extension.http-api-doc",
   "dependencies": {
     "@betty.py/betty": "*",
     "swagger-ui": "^5.18.2"
