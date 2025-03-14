@@ -36,11 +36,10 @@ Creating a serialization format
        ...
 
 
-#. Tell Betty about your serialization format by registering it as an entry point. Given the serialization format above
-in a module ``my_package.my_module``, add the following to your Python package:
+#. Tell Betty about your serialization format by registering it as an entry point. Given the serialization format above in a module ``my_package.my_module``, add the following to your Python package:
 
-.. code-block:: toml
+   .. code-block:: toml
 
-    [project.entry-points.'betty.serde_format']
-    'my-module-my-format' = 'my_package.my_module.MyFormat'
+       [project.entry-points.'betty.serde_format']
+       'my-module-my-format' = 'my_package.my_module.MyFormat'
 

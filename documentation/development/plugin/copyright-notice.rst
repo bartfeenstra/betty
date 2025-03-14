@@ -33,13 +33,12 @@ Creating a copyright
        ...
 
 
-#. Tell Betty about your copyright notice by registering it as an entry point. Given the copyright notice above in a
-module ``my_package.my_module``, add the following to your Python package:
+#. Tell Betty about your copyright notice by registering it as an entry point. Given the copyright notice above in a module ``my_package.my_module``, add the following to your Python package:
 
-.. code-block:: toml
+   .. code-block:: toml
 
-    [project.entry-points.'betty.copyright_notice']
-    'my-module-my-copyright-notice' = 'my_package.my_module.MyCopyrightNotice'
+       [project.entry-points.'betty.copyright_notice']
+       'my-module-my-copyright-notice' = 'my_package.my_module.MyCopyrightNotice'
 
 See also
 --------
