@@ -35,11 +35,10 @@ Creating a gender
 
 #. Tell Betty about your gender by registering it as an entry point. Given the gender above in a module ``my_package.my_module``, add the following to your Python package:
 
+   .. code-block:: toml
 
-.. code-block:: toml
-
-    [project.entry-points.'betty.gender']
-    'my-module-my-gender' = 'my_package.my_module.MyGender'
+       [project.entry-points.'betty.gender']
+       'my-module-my-gender' = 'my_package.my_module.MyGender'
 
 See also
 --------

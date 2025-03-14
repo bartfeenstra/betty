@@ -35,13 +35,12 @@ Creating a command
       ...
 
 
-#. Tell Betty about your command by registering it as an entry point. Given the command above in a module 
-   ``my_package.my_module``, add the following to your Python package:
+#. Tell Betty about your command by registering it as an entry point. Given the command above in a module ``my_package.my_module``, add the following to your Python package:
 
-.. code-block:: toml
+   .. code-block:: toml
 
-    [project.entry-points.'betty.command']
-    'my-module-my-command' = 'my_package.my_module.MyCommand'
+       [project.entry-points.'betty.command']
+       'my-module-my-command' = 'my_package.my_module.MyCommand'
               
 #. Build the Click command, decorated with :py:func:`betty.cli.commands.command` (which works almost identically to
    :py:func:`asyncclick.command`), by returning it from your :py:meth:`betty.cli.commands.Command.click_command`

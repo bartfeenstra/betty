@@ -36,10 +36,10 @@ Creating an event type
 
 #. Tell Betty about your event type by registering it as an entry point. Given the event type above in a module ``my_package.my_module``, add the following to your Python package:
 
-.. code-block:: toml
+   .. code-block:: toml
 
-    [project.entry-points.'betty.event_type']
-    'my-module-my-event-type' = 'my_package.my_module.MyEventType'
+       [project.entry-points.'betty.event_type']
+       'my-module-my-event-type' = 'my_package.my_module.MyEventType'
 
 See also
 --------
