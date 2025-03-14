@@ -39,25 +39,8 @@ Creating a serialization format
 #. Tell Betty about your serialization format by registering it as an entry point. Given the serialization format above
 in a module ``my_package.my_module``, add the following to your Python package:
 
-.. tab-set::
+.. code-block:: toml
 
-   .. tab-item:: pyproject.toml
+    [project.entry-points.'betty.serde_format']
+    'my-module-my-format' = 'my_package.my_module.MyFormat'
 
-      .. code-block:: toml
-
-          [project.entry-points.'betty.serde_format']
-          'my-module-my-format' = 'my_package.my_module.MyFormat'
-
-   .. tab-item:: setup.py
-
-      .. code-block:: python
-
-          SETUP = {
-              'entry_points': {
-                  'betty.serde_format': [
-                      'my-module-my-format=my_package.my_module.MyFormat',
-                  ],
-              },
-          }
-          if __name__ == '__main__':
-              setup(**SETUP)

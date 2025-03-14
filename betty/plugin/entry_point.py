@@ -25,28 +25,10 @@ class EntryPointPluginRepository(LazyPluginRepositoryBase[_PluginT], Generic[_Pl
     - with a plugin class ``MyPlugin`` in the module ``my_package.my_module``
     - and a plugin ID ``my-package-plugin``:
 
-    .. tab-set::
+    .. code-block:: toml
 
-       .. tab-item:: pyproject.toml
-
-          .. code-block:: toml
-
-              [project.entry-points.'your-plugin-group']
-              'my-package-plugin' = 'my_package.my_module:MyPlugin'
-
-       .. tab-item:: setup.py
-
-          .. code-block:: python
-
-              SETUP = {
-                  'entry_points': {
-                      'your-plugin-group': [
-                          'my-package-plugin=my_package.my_module:MyPlugin',
-                      ],
-                  },
-              }
-              if __name__ == '__main__':
-                  setup(**SETUP)
+        [project.entry-points.'your-plugin-group']
+        'my-package-plugin' = 'my_package.my_module:MyPlugin'
     """
 
     def __init__(

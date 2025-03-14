@@ -38,28 +38,10 @@ Creating an entity type
 
 #. Tell Betty about your entity type by registering it as an entry point. Given the entity type above in a module ``my_package.my_module``, add the following to your Python package:
 
-.. tab-set::
+.. code-block:: toml
 
-   .. tab-item:: pyproject.toml
-
-      .. code-block:: toml
-
-          [project.entry-points.'betty.entity_type']
-          'my-module-my-entity' = 'my_package.my_module.MyEntity'
-
-   .. tab-item:: setup.py
-
-      .. code-block:: python
-
-          SETUP = {
-              'entry_points': {
-                  'betty.entity_type': [
-                      'my-module-my-entity=my_package.my_module.MyEntity',
-                  ],
-              },
-          }
-          if __name__ == '__main__':
-              setup(**SETUP)
+    [project.entry-points.'betty.entity_type']
+    'my-module-my-entity' = 'my_package.my_module.MyEntity'
 
 See also
 --------

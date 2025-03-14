@@ -36,28 +36,10 @@ Creating a license
 #. Tell Betty about your license by registering it as an entry point. Given the license above in a
 module ``my_package.my_module``, add the following to your Python package:
 
-.. tab-set::
+.. code-block:: toml
 
-   .. tab-item:: pyproject.toml
-
-      .. code-block:: toml
-
-          [project.entry-points.'betty.license']
-          'my-module-my-license' = 'my_package.my_module.MyLicense'
-
-   .. tab-item:: setup.py
-
-      .. code-block:: python
-
-          SETUP = {
-              'entry_points': {
-                  'betty.license': [
-                      'my-module-my-license=my_package.my_module.MyLicense',
-                  ],
-              },
-          }
-          if __name__ == '__main__':
-              setup(**SETUP)
+    [project.entry-points.'betty.license']
+    'my-module-my-license' = 'my_package.my_module.MyLicense'
 
 See also
 --------
