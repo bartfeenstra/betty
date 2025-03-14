@@ -1,5 +1,5 @@
 {
-  "name": "@betty.py/betty.maps",
+  "name": "@betty.py/betty.extension.maps",
   "dependencies": {
     "@betty.py/betty": "*",
     "leaflet": "^1.9.4",
