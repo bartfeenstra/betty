@@ -125,7 +125,7 @@ class CottonCandy(
 
     @override
     @classmethod
-    def comes_after(cls) -> set[PluginIdentifier[Extension]]:
+    def comes_before(cls) -> set[PluginIdentifier[Extension]]:
         return {Maps, Trees}
 
     @override
