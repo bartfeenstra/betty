@@ -239,6 +239,10 @@ ci = [
 
 [tool.setuptools.packages.find]
 where = ['.']
+include = [
+    'betty',
+    'betty.*',
+]
 exclude = [
     'betty.tests',
     'betty.tests.*',
