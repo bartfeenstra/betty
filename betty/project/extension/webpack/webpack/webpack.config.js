@@ -1,6 +1,5 @@
 'use strict'
 
-import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import path from 'path'
@@ -109,7 +108,6 @@ const webpackConfiguration = {
     runtimeChunk: 'single'
   },
   plugins: [
-    new CleanWebpackPlugin(),
     new EntryScriptCollector(),
     new MiniCssExtractPlugin({
       filename: 'css/[name].css'
