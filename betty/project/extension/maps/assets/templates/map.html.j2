@@ -4,7 +4,16 @@
     {% for place in places %}
         {% do ns.place_urls.append((place | url, place.coordinates.latitude, place.coordinates.longitude, place.label | localize)) %}
     {% endfor %}
-    <div class="map" data-betty-places="{{ ns.place_urls | json }}"></div>
+    <div class="map" data-betty-scroll-prevention-target="todo-scroll-prevention-warning-map" data-betty-places="{{ ns.place_urls | json }}"></div>
+    <div id="todo-scroll-prevention-warning-tree">OOPS NO SCROLLING!!!</div>
+    <style>
+        #todo-scroll-prevention-warning-map {
+            display: none;
+        }
+        #todo-scroll-prevention-warning-map.betty-scroll-prevention-visible {
+            display:block;
+        }
+    </style>
     {% do 'betty-static:///css/maps.css' | public_css %}
     {% do 'maps' | webpack_entry_point_js %}
 {% endif %}

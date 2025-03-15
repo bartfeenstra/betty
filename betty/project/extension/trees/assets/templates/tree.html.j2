@@ -1,3 +1,12 @@
-<div class="tree" data-betty-person="{{ person.id }}" data-betty-people="{{ 'betty:///people.json' | url }}"></div>
+<div class="tree" data-betty-scroll-prevention-target="todo-scroll-prevention-warning-tree" data-betty-person="{{ person.id }}" data-betty-people="{{ 'betty:///people.json' | url }}"></div>
+<div id="todo-scroll-prevention-warning-tree">OOPS NO SCROLLING!!!</div>
+<style>
+    #todo-scroll-prevention-warning-tree {
+        display: none;
+    }
+    #todo-scroll-prevention-warning-tree.betty-scroll-prevention-visible {
+        display:block;
+    }
+</style>
 {% do 'betty-static:///css/trees.css' | public_css %}
 {% do 'trees' | webpack_entry_point_js %}
