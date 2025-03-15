@@ -265,7 +265,8 @@ betty = [
     'json/schemas/*',
 
     # JavaScript
-    '../js',
+    '../js/*',
+    '../js/**/*',
 
     # Webpack.
     '../.browserslistrc',
