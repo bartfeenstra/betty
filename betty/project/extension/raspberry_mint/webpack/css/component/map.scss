@@ -1,6 +1,7 @@
 .map-section {
-  /* Maps are full width, so leave enough vertical space for scrolling. */
-  height: 50vh;
+  height: 75vh;
+  min-height: 500px;
+  max-height: 1000px;
 }
 
 .map {
