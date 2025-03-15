@@ -182,6 +182,10 @@ const webpackConfiguration = {
         generator: {
           filename: 'fonts/[hash][ext]'
         }
+      },
+      {
+        test: /.*\.json/,
+        type: 'asset/source',
       }
     ]
   }
