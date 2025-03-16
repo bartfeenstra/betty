@@ -1,0 +1,5 @@
+@import "bootstrap/scss/mixins/breakpoints";
+
+.overlay-background-contrast {
+  filter: drop-shadow(0 0 5px #999);
+}
