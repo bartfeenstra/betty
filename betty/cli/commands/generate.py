@@ -1,5 +1,8 @@
 from __future__ import annotations  # noqa D100
 
+from asyncio import gather, to_thread
+from contextlib import suppress
+from shutil import rmtree
 from typing import TYPE_CHECKING, final, Self
 
 from typing_extensions import override
@@ -10,9 +13,15 @@ from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from betty.project import Project
     import asyncclick as click
     from betty.app import App
+
+
+def _rmtree_if_exists(path: Path) -> None:
+    with suppress(FileNotFoundError):
+        rmtree(path)
 
 
 @final
@@ -48,7 +57,12 @@ class Generate(ShorthandPluginBase, AppDependentFactory, Command):
         async def generate(project: Project) -> None:
             from betty.project import generate, load
 
-            await load.load(project)
+            await gather(
+                load.load(project),
+                to_thread(
+                    _rmtree_if_exists, project.configuration.output_directory_path
+                ),
+            )
             await generate.generate(project)
 
         return generate
