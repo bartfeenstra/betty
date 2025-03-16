@@ -149,7 +149,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "stop": MissingReason.SHOULD_BE_COVERED,
         },
     },
-    "betty/error.py": MissingReason.SHOULD_BE_COVERED,
+    "betty/error.py": {
+        "FileNotFound": MissingReason.SHOULD_BE_COVERED,
+        "UserFacingError": MissingReason.SHOULD_BE_COVERED,
+    },
     "betty/event_dispatcher.py": {
         "Event": MissingReason.ABSTRACT,
         "EventHandlerRegistry": {

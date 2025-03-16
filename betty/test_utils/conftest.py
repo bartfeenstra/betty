@@ -12,6 +12,7 @@ __all__ = [
     "multiprocessing_manager",
     "new_temporary_app",
     "new_temporary_app_factory",
+    "page",
     "process_pool",
 ]
 
@@ -19,11 +20,15 @@ import multiprocessing
 from typing import TYPE_CHECKING, Protocol, AsyncContextManager, Any
 
 import pytest
+import pytest_asyncio
+
 from betty.app import App
 from betty.cache.file import BinaryFileCache
+from betty.error import do_raise
 from betty.multiprocessing import ProcessPoolExecutor
 
 if TYPE_CHECKING:
+    from playwright.async_api import Page, BrowserContext
     from betty.service import ServiceFactory
     from betty.cache import Cache
     from betty.fetch import Fetcher
@@ -113,3 +118,13 @@ async def new_temporary_app_factory(
         )
 
     return _new_temporary_app_factory
+
+
+@pytest_asyncio.fixture(loop_scope="session")
+async def page(context: BrowserContext) -> Page:
+    """
+    A Playwright Page instance.
+    """
+    page = await context.new_page()
+    page.on("pageerror", do_raise)
+    return page

@@ -18,7 +18,6 @@ class TestSearchUi:
     INDIVIDUAL_NAME = "Janet"
 
     @pytest.fixture(scope="session")
-    @check_skip_playwright
     async def served_project(self) -> AsyncIterator[tuple[Project, Server]]:
         person_id = "I0001"
         person = Person(id=person_id)

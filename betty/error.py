@@ -3,13 +3,22 @@ Provide error handling utilities.
 """
 
 from pathlib import Path
-from typing import Self
+from typing import Self, Never
 
 from typing_extensions import override
 
 from betty.locale.localizable import Localizable, _
 from betty.locale.localized import LocalizedStr
 from betty.locale.localizer import Localizer
+
+
+def do_raise(exception: BaseException) -> Never:
+    """
+    Raise the given exception.
+
+    This is helpful as a callback.
+    """
+    raise exception
 
 
 class UserFacingError(Exception, Localizable):
