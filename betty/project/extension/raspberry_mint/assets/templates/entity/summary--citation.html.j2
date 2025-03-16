@@ -1,9 +1,13 @@
-{% from 'entity/source-containment-label.html.j2' import source_containment_label %}
 {%- set embedded = embedded | default(False) -%}
 {%- set source_context = entity_contexts['source'] -%}
 <div class="small">
     <p class="m-0">{{ entity.type.plugin_label() | localize | html_lang }}</p>
-    {%- trans source = source_containment_label(entity.source, source_context) -%}
+    {%- set source_label -%}
+        {%- with source = entity.source -%}
+            {% include 'entity/source-containment-label.html.j2' %}
+        {%- endwith -%}
+    {%- endset -%}
+    {%- trans source = source_label -%}
         in {{ source }}
     {%- endtrans -%}
 </div>
