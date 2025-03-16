@@ -7,7 +7,7 @@ async def test_minimal() -> None:
     source = Source()
     expected = f'<span lang="und" dir="auto">Source {source.id}</span>'
     async with assert_template_string(
-        "{%- from 'entity/source-containment-label.html.j2' import source_containment_label -%}{{ source_containment_label(source) }}",
+        "{% include 'entity/source-containment-label.html.j2' %}",
         data={
             "source": source,
         },
@@ -22,7 +22,7 @@ async def test_with_contained_by() -> None:
     source = Source(contained_by=contained_by_source)
     expected = f'<span lang="und" dir="auto">Source {source.id}</span>, <span lang="und" dir="auto">Source {contained_by_source.id}</span>, <span lang="und" dir="auto">Source {contained_by_contained_by_source.id}</span>'
     async with assert_template_string(
-        "{%- from 'entity/source-containment-label.html.j2' import source_containment_label -%}{{ source_containment_label(source) }}",
+        "{% include 'entity/source-containment-label.html.j2' %}",
         data={
             "source": source,
         },
@@ -36,7 +36,7 @@ async def test_with_source_context() -> None:
     source = Source(contained_by=contained_by_source)
     expected = f'<span lang="und" dir="auto">Source {source.id}</span>'
     async with assert_template_string(
-        "{%- from 'entity/source-containment-label.html.j2' import source_containment_label -%}{{ source_containment_label(source, source_context) }}",
+        "{% include 'entity/source-containment-label.html.j2' %}",
         data={
             "source": source,
             "source_context": contained_by_source,

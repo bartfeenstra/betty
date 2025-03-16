@@ -8,7 +8,7 @@ async def test_minimal() -> None:
     place = Place()
     expected = f'<span lang="und" dir="auto">Place {place.id}</span>'
     async with assert_template_string(
-        "{%- from 'entity/place-enclosure-label.html.j2' import place_enclosure_label -%}{{ place_enclosure_label(place) }}",
+        "{% include 'entity/place-enclosure-label.html.j2' %}",
         data={
             "place": place,
         },
@@ -25,7 +25,7 @@ async def test_with_encloser() -> None:
     Enclosure(place, encloser_place)
     expected = f'<span lang="und" dir="auto">Place {place.id}</span>, <span lang="und" dir="auto">Place {encloser_place.id}</span>, <span lang="und" dir="auto">Place {encloser_encloser_place.id}</span>'
     async with assert_template_string(
-        "{%- from 'entity/place-enclosure-label.html.j2' import place_enclosure_label -%}{{ place_enclosure_label(place) }}",
+        "{% include 'entity/place-enclosure-label.html.j2' %}",
         data={
             "place": place,
         },
@@ -40,7 +40,7 @@ async def test_with_place_context() -> None:
     Enclosure(place, encloser_place)
     expected = f'<span lang="und" dir="auto">Place {place.id}</span>'
     async with assert_template_string(
-        "{%- from 'entity/place-enclosure-label.html.j2' import place_enclosure_label -%}{{ place_enclosure_label(place, place_context) }}",
+        "{% include 'entity/place-enclosure-label.html.j2' %}",
         data={
             "place": place,
             "place_context": encloser_place,

@@ -1,0 +1,9 @@
+{%- set encloser_enclosure = place.enclosers | negotiate_has_dates(date_context | default(none)) -%}
+{%- if encloser_enclosure is not none and (place_context is none or place_context != encloser_enclosure.encloser) -%}
+    {%- with entity = encloser_enclosure.encloser -%}
+        , {% include 'entity/label--place.html.j2' -%}
+    {%- endwith -%}
+    {% with place = encloser_enclosure.encloser %}
+        {% include 'entity/-place-enclosure-label.html.j2' %}
+    {% endwith %}
+{%- endif -%}

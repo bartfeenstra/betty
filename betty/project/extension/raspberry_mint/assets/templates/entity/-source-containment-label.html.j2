@@ -1,0 +1,8 @@
+{%- if source.contained_by is not none and (source_context is none or source_context != source.contained_by) -%}
+    {%- with entity = source.contained_by -%}
+        , {% include ['entity/label--source.html.j2', 'entity/label.html.j2'] -%}
+    {%- endwith -%}
+    {% with source = source.contained_by %}
+        {% include 'entity/-source-containment-label.html.j2' %}
+    {% endwith %}
+{%- endif -%}
