@@ -28,6 +28,15 @@ updates:
       prefix: npm dependencies (development)
       include: scope
   - package-ecosystem: npm
+    directory: js
+    schedule:
+      interval: weekly
+    assignees:
+      - bartfeenstra
+    commit-message:
+      prefix: npm dependencies (Betty library)
+      include: scope
+  - package-ecosystem: npm
     directory: betty/project/extension/cotton_candy/webpack/
     schedule:
       interval: weekly
@@ -53,6 +62,15 @@ updates:
       - bartfeenstra
     commit-message:
       prefix: npm dependencies (Maps extension)
+      include: scope
+  - package-ecosystem: npm
+    directory: betty/project/extension/raspberry-mint/webpack/
+    schedule:
+      interval: weekly
+    assignees:
+      - bartfeenstra
+    commit-message:
+      prefix: npm dependencies (Raspberry Mint extension)
       include: scope
   - package-ecosystem: npm
     directory: betty/project/extension/trees/webpack/
