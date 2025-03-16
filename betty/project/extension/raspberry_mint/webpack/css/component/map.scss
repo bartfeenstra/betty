@@ -9,6 +9,10 @@
   border-style: solid;
   border-width: $border-width 0 $border-width 0;
 
+  &:fullscreen {
+    border-width: 0;
+  }
+
   &:focus {
     border-color: var(--betty-focus-color);
     outline: none;

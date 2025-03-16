@@ -10,6 +10,10 @@
   border-width: $border-width 0 $border-width 0;
   position: relative;
 
+  &:fullscreen {
+    border-width: 0;
+  }
+
   .btn-full-screen {
     position: absolute;
     right: $spacer * 0.5;
