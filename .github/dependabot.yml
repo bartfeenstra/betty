@@ -64,7 +64,7 @@ updates:
       prefix: npm dependencies (Maps extension)
       include: scope
   - package-ecosystem: npm
-    directory: betty/project/extension/raspberry-mint/webpack/
+    directory: betty/project/extension/raspberry_mint/webpack/
     schedule:
       interval: weekly
     assignees:
