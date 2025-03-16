@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-03-14 14:15+0000\n"
+"POT-Creation-Date: 2025-03-16 17:10+0000\n"
 "PO-Revision-Date: 2024-11-30 19:00+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ar\n"
@@ -795,6 +795,9 @@ msgid "Province"
 msgstr ""
 
 msgid "Public domain"
+msgstr ""
+
+msgid "Read more"
 msgstr ""
 
 msgid "Read more on Wikipedia."

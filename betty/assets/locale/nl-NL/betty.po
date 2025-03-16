@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-03-14 14:15+0000\n"
+"POT-Creation-Date: 2025-03-16 17:10+0000\n"
 "PO-Revision-Date: 2025-03-16 07:01+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
-"Language-Team: Dutch <https://hosted.weblate.org/projects/betty/betty/nl/>\n"
-"Language: nl-NL\n"
+"Language: nl_NL\n"
+"Language-Team: Dutch "
+"<https://hosted.weblate.org/projects/betty/betty/nl/>\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.11-dev\n"
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
@@ -871,6 +871,9 @@ msgstr "Provincie"
 msgid "Public domain"
 msgstr "Publiek domein"
 
+msgid "Read more"
+msgstr ""
+
 msgid "Read more on Wikipedia."
 msgstr "Lees meer op Wikipedia."
 
@@ -1398,3 +1401,4 @@ msgstr "© Copyright de auteur, tenzij anders vermeld"
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Copyright {author}, tenzij anders vermeld"
+

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-03-14 14:15+0000\n"
+"POT-Creation-Date: 2025-03-16 17:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -783,6 +783,9 @@ msgid "Province"
 msgstr ""
 
 msgid "Public domain"
+msgstr ""
+
+msgid "Read more"
 msgstr ""
 
 msgid "Read more on Wikipedia."
