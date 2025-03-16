@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-03-14 14:15+0000\n"
+"POT-Creation-Date: 2025-03-16 17:10+0000\n"
 "PO-Revision-Date: 2025-03-16 07:01+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
-"Language-Team: German <https://hosted.weblate.org/projects/betty/betty/de/>\n"
-"Language: de-DE\n"
+"Language: de_DE\n"
+"Language-Team: German "
+"<https://hosted.weblate.org/projects/betty/betty/de/>\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.11-dev\n"
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
@@ -835,6 +835,9 @@ msgstr "Provinz"
 msgid "Public domain"
 msgstr "Gemeinfrei"
 
+msgid "Read more"
+msgstr ""
+
 msgid "Read more on Wikipedia."
 msgstr "Lies mehr auf Wikipedia."
 
@@ -1350,3 +1353,4 @@ msgstr ""
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Copyright {author}, außer anders erwähnt"
+
