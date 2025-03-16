@@ -330,6 +330,7 @@ class Builder:
                 ),
                 "debug": self._debug,
                 "entry": webpack_entry,
+                "jobContextId": self._job_context.id,
             }
         )
         async with aiofiles.open(
