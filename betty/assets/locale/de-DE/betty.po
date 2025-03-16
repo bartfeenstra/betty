@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-03-14 14:15+0000\n"
-"PO-Revision-Date: 2024-11-29 18:58+0000\n"
+"PO-Revision-Date: 2025-03-16 07:01+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
-"Language: de_DE\n"
-"Language-Team: German "
-"<https://hosted.weblate.org/projects/betty/betty/de/>\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"Language-Team: German <https://hosted.weblate.org/projects/betty/betty/de/>\n"
+"Language: de-DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.11-dev\n"
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
@@ -229,7 +229,7 @@ msgid "Borough"
 msgstr ""
 
 msgid "Building"
-msgstr ""
+msgstr "Gebäude"
 
 msgid "Built the Webpack front-end assets."
 msgstr "Webpack front-end assets erstellt."
@@ -287,19 +287,19 @@ msgid "Citations"
 msgstr "Zitate"
 
 msgid "City"
-msgstr ""
+msgstr "Großstadt"
 
 msgid "Clear all caches"
 msgstr ""
 
 msgid "Close"
-msgstr ""
+msgstr "Schließen"
 
 msgid "Conference"
 msgstr "Konferenz"
 
 msgid "Configure Betty"
-msgstr ""
+msgstr "Betty konfigurieren"
 
 msgid "Confirmation"
 msgstr "Bestätigung"
@@ -356,19 +356,19 @@ msgstr ""
 "family tree laden."
 
 msgid "Country"
-msgstr ""
+msgstr "Land"
 
 msgid "County"
-msgstr ""
+msgstr "Landkreis"
 
 msgid "Create a new project"
-msgstr ""
+msgstr "Neues Projekt erstellen"
 
 msgid "Create a new translation"
-msgstr ""
+msgstr "Neue Übersetzung erstellen"
 
 msgid "Create a new translation for an extension"
-msgstr ""
+msgstr "Neue Übersetzung für eine Erweiterung erstellen"
 
 msgid ""
 "Create events such as births and deaths by deriving their details from "
@@ -435,7 +435,7 @@ msgstr ""
 "href=\"https://swagger.io/tools/swagger-ui\">Swagger UI</a> an."
 
 msgid "District"
-msgstr ""
+msgstr "Bezirk"
 
 msgid "Divorce"
 msgstr "Scheidung"
@@ -502,10 +502,10 @@ msgid "Family"
 msgstr "Familie"
 
 msgid "Farm"
-msgstr ""
+msgstr "Bauernhof"
 
 msgid "Female"
-msgstr ""
+msgstr "Weiblich"
 
 msgid "File"
 msgstr "Datei"
@@ -520,7 +520,7 @@ msgid "Files"
 msgstr "Dateien"
 
 msgid "Filters"
-msgstr ""
+msgstr "Filter"
 
 msgid "Find Betty on GitHub"
 msgstr ""
@@ -564,7 +564,7 @@ msgid "HTTP API Documentation"
 msgstr "HTTP API Dokumentation"
 
 msgid "Hamlet"
-msgstr ""
+msgstr "Weiler"
 
 msgid "I'm sorry, dear, but it seems there are no events."
 msgstr "Es tut mir leid, aber sieht so aus, als ob es keine Ereignisse gibt."
@@ -597,7 +597,7 @@ msgid "Immigration"
 msgstr "Einwanderung"
 
 msgid "Informant"
-msgstr ""
+msgstr "Informant"
 
 #, python-brace-format
 msgid "Invalid JSON: {error}."
@@ -608,14 +608,14 @@ msgid "Invalid YAML: {error}."
 msgstr "Invalid YAML: {error}."
 
 msgid "Keywords"
-msgstr ""
+msgstr "Schlüsselwörter"
 
 msgid "Language"
 msgstr "Sprache"
 
 #, python-format
 msgid "Last modified on %(last_modified)s"
-msgstr ""
+msgstr "Zuletzt geändert am %(last_modified)s"
 
 msgid "License"
 msgstr "Lizenz"
@@ -633,31 +633,31 @@ msgstr ""
 
 #, python-brace-format
 msgid "Loaded {event_count} events."
-msgstr ""
+msgstr "{event_count} Ereignisse geladen."
 
 #, python-brace-format
 msgid "Loaded {file_count} files."
-msgstr ""
+msgstr "{file_count} Dateien geladen."
 
 #, python-brace-format
 msgid "Loaded {note_count} notes."
-msgstr ""
+msgstr "{note_count} Anmerkungen geladen."
 
 #, python-brace-format
 msgid "Loaded {person_count} people."
-msgstr ""
+msgstr "{person_count} Personen geladen."
 
 #, python-brace-format
 msgid "Loaded {place_count} places."
-msgstr ""
+msgstr "{place_count} Orte geladen."
 
 #, python-brace-format
 msgid "Loaded {repository_count} repositories as sources."
-msgstr ""
+msgstr "{repository_count} Repositorien als Quellen geladen."
 
 #, python-brace-format
 msgid "Loaded {source_count} sources."
-msgstr ""
+msgstr "{source_count} Quellen geladen."
 
 #, python-brace-format
 msgid "Loading \"{file_path}\"..."
@@ -667,7 +667,7 @@ msgid "Locale aliases must not contain slashes."
 msgstr "Gebietsschema-Aliase dürfen keine Schrägstriche enthalten."
 
 msgid "Locality"
-msgstr ""
+msgstr "Örtlichkeit"
 
 msgid "MMMM"
 msgstr "MMMM"
@@ -682,7 +682,7 @@ msgid "MMMM, y"
 msgstr "MMMM y"
 
 msgid "Male"
-msgstr ""
+msgstr "Männlich"
 
 msgid "Maps"
 msgstr "Karten"
@@ -694,7 +694,7 @@ msgid "Media"
 msgstr "Medien"
 
 msgid "Media references"
-msgstr ""
+msgstr "Medienreferenzen"
 
 msgid "Menu"
 msgstr "Menü"
@@ -703,10 +703,10 @@ msgid "Missing"
 msgstr "Fehlend"
 
 msgid "Municipality"
-msgstr ""
+msgstr "Gemeinde"
 
 msgid "Neighborhood"
-msgstr ""
+msgstr "Nachbarschaft"
 
 msgid ""
 "No part may be reproduced or distributed in any form or by any means, "
@@ -715,7 +715,7 @@ msgid ""
 msgstr ""
 
 msgid "Non-binary"
-msgstr ""
+msgstr "Divers"
 
 msgid "Note"
 msgstr "Notiz"
@@ -724,7 +724,7 @@ msgid "Notes"
 msgstr "Notizen"
 
 msgid "Number"
-msgstr ""
+msgstr "Nummer"
 
 msgid "Occupation"
 msgstr "Beruf"
@@ -742,10 +742,10 @@ msgid "Other places contained by this one"
 msgstr ""
 
 msgid "Page not found"
-msgstr ""
+msgstr "Seite nicht gefunden"
 
 msgid "Parish"
-msgstr ""
+msgstr "Pfarrgemeinde"
 
 msgid "People"
 msgstr "Personen"
@@ -827,13 +827,13 @@ msgid "Privatizing..."
 msgstr "Privatisieren..."
 
 msgid "Project author"
-msgstr ""
+msgstr "Projektautor"
 
 msgid "Province"
-msgstr ""
+msgstr "Provinz"
 
 msgid "Public domain"
-msgstr ""
+msgstr "Gemeinfrei"
 
 msgid "Read more on Wikipedia."
 msgstr "Lies mehr auf Wikipedia."
@@ -845,17 +845,17 @@ msgid "References"
 msgstr "Referenzen"
 
 msgid "Region"
-msgstr ""
+msgstr "Region"
 
 msgid "Reset"
-msgstr ""
+msgstr "Zurücksetzen"
 
 msgid "Residence"
 msgstr "Wohnort"
 
 #, python-brace-format
 msgid "Results ({{{ betty-search-results-count }}})"
-msgstr ""
+msgstr "Ergebnisse ({{{ betty-search-results-count }}})"
 
 msgid "Retirement"
 msgstr "Ruhestand"
@@ -865,7 +865,7 @@ msgid "Saved your project to {configuration_file}."
 msgstr ""
 
 msgid "Search"
-msgstr ""
+msgstr "Suchen"
 
 msgid "Serve a generated site"
 msgstr ""
@@ -887,20 +887,20 @@ msgid "Starting Python's built-in web server..."
 msgstr "Starte Pythons eingebauten Webserver..."
 
 msgid "State"
-msgstr ""
+msgstr "Staat"
 
 msgid "Street"
-msgstr ""
+msgstr "Straße"
 
 msgid "Subject"
 msgstr "Betreff"
 
 msgid "Subjects"
-msgstr ""
+msgstr "Betreffe"
 
 #, python-format
 msgid "The '%(project_title)s' logo"
-msgstr ""
+msgstr "Das Logo von '%(project_title)s'"
 
 #, python-brace-format
 msgid ""
@@ -960,7 +960,7 @@ msgid "The server at {url} was unreachable after starting."
 msgstr ""
 
 msgid "There are no available options."
-msgstr ""
+msgstr "Es sind keine Optionen verfügbar."
 
 #, python-format
 msgid "They are the child of %(parent_labels)s."
@@ -1006,7 +1006,7 @@ msgid "This must be a positive number."
 msgstr "Es muss einen positive Zahl sein."
 
 msgid "This must be a sequence."
-msgstr ""
+msgstr "Dies muss eine Sequenz sein."
 
 msgid "This must be a string."
 msgstr "Es muss ein Text-String sein."
@@ -1035,28 +1035,28 @@ msgid "Timeline"
 msgstr "Zeitschiene"
 
 msgid "Toggle full screen"
-msgstr ""
+msgstr "Vollbild umschalten"
 
 msgid "Toggle menu"
-msgstr ""
+msgstr "Menü umschalten"
 
 msgid "Toggle search"
-msgstr ""
+msgstr "Suche umschalten"
 
 msgid "Toggle translations"
-msgstr ""
+msgstr "Übersetzungen umschalten"
 
 msgid "Town"
-msgstr ""
+msgstr "Stadt"
 
 msgid "Translations"
-msgstr ""
+msgstr "Übersetzungen"
 
 msgid "Trees"
 msgstr "Bäume"
 
 msgid "Unauthorized"
-msgstr ""
+msgstr "Unberechtigt"
 
 msgid "Unknown"
 msgstr "Unbekannt"
@@ -1074,13 +1074,13 @@ msgid "Unknown key: {unknown_key}."
 msgstr "Unbekannter Schlüssel: {unknown_key}."
 
 msgid "Update all existing translations"
-msgstr ""
+msgstr "Alle vorhandenen Übersetzungen aktualisieren"
 
 msgid "Update all existing translations for Betty itself"
-msgstr ""
+msgstr "Alle vorhandenen Übersetzungen für Betty selbst aktualisieren"
 
 msgid "Update all existing translations for an extension"
-msgstr ""
+msgstr "Alle vorhandenen Übersetzungen für eine Erweiterung aktualisieren"
 
 #, python-brace-format
 msgid ""
@@ -1098,13 +1098,13 @@ msgstr ""
 "navigieren oder <kbd>esc</kbd> um die Suche zu verlassen."
 
 msgid "View original"
-msgstr ""
+msgstr "Original ansehen"
 
 msgid "View the documentation"
 msgstr ""
 
 msgid "Village"
-msgstr ""
+msgstr "Dorf"
 
 #, python-format
 msgid "Welcome to %(project_title)s"
@@ -1136,7 +1136,7 @@ msgid "Wikipedia"
 msgstr "Wikipedia"
 
 msgid "Wikipedia contributors"
-msgstr ""
+msgstr "Wikipedia-Mitwirkende"
 
 msgid "Will"
 msgstr "Wille"
@@ -1232,7 +1232,7 @@ msgstr "in %(place)s"
 
 #, python-format
 msgid "in %(source)s"
-msgstr ""
+msgstr "in %(source)s"
 
 msgid ""
 "npm (https://www.npmjs.com/) must be available for features that require "
@@ -1268,7 +1268,7 @@ msgid "show more"
 msgstr "zeige mehr"
 
 msgid "sometime"
-msgstr ""
+msgstr "irgendwann"
 
 #, python-brace-format
 msgid "sometime after around {start_date}"
@@ -1350,4 +1350,3 @@ msgstr ""
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Copyright {author}, außer anders erwähnt"
-
