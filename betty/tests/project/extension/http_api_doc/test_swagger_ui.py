@@ -14,7 +14,6 @@ from betty.tests.conftest import check_skip_playwright
 
 class TestSwaggerUi:
     @pytest.fixture(scope="session")
-    @check_skip_playwright
     async def served_project(self) -> AsyncIterator[tuple[Project, Server]]:
         async with (
             App.new_temporary() as app,
