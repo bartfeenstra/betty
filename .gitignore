@@ -3,7 +3,7 @@
 /venv
 
 # JavaScript development dependencies.
-/node_modules
+node_modules
 /package-lock.json
 
 # Python build artifacts.
