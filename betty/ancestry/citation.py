@@ -26,7 +26,7 @@ from betty.model.association import (
     ToManyResolver,
 )
 from betty.plugin import ShorthandPluginBase
-from betty.privacy import HasPrivacy, Privacy, merge_privacies
+from betty.privacy import HasPrivacy, Privacy, merge_secondary_privacies
 
 if TYPE_CHECKING:
     from betty.ancestry.has_citations import HasCitations  # noqa F401
@@ -108,7 +108,7 @@ class Citation(
 
     @override
     def _get_effective_privacy(self) -> Privacy:
-        return merge_privacies(super()._get_effective_privacy(), self.source)
+        return merge_secondary_privacies(super()._get_effective_privacy(), self.source)
 
     @override
     @classmethod
