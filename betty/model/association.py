@@ -16,6 +16,7 @@ from typing import (
     Self,
     overload,
     TYPE_CHECKING,
+    TypeAlias,
 )
 from urllib.parse import quote
 
@@ -749,3 +750,10 @@ def resolve(*entities: Entity) -> None:
     for entity in entities:
         for association in AssociationRegistry.get_all_associations(entity):
             association.resolve(entity)
+
+
+ToOneAssociate: TypeAlias = "_EntityT & Entity | ToOneResolver[_EntityT]"
+ToZeroOrOneAssociate: TypeAlias = (
+    "ToOneAssociate[_EntityT] | ToZeroOrOneResolver[_EntityT] | None"
+)
+ToManyAssociates: TypeAlias = Iterable[_EntityT] | ToManyResolver[_EntityT]

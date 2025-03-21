@@ -4,7 +4,7 @@ Data types for citations.
 
 from __future__ import annotations
 
-from typing import final, Iterable, TYPE_CHECKING
+from typing import final, TYPE_CHECKING
 
 from typing_extensions import override
 
@@ -22,8 +22,8 @@ from betty.model import UserFacingEntity
 from betty.model.association import (
     BidirectionalToMany,
     BidirectionalToOne,
-    ToOneResolver,
-    ToManyResolver,
+    ToManyAssociates,
+    ToOneAssociate,
 )
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy, merge_secondary_privacies
@@ -78,16 +78,12 @@ class Citation(
     def __init__(
         self,
         *,
-        source: Source | ToOneResolver[Source],
+        source: ToOneAssociate[Source],
         id: str | None = None,  # noqa A002  # noqa A002
-        facts: Iterable["HasCitations & Entity"]
-        | ToManyResolver["HasCitations"]
-        | None = None,
+        facts: ToManyAssociates["HasCitations & Entity"] | None = None,
         location: ShorthandStaticTranslations | None = None,
         date: Datey | None = None,
-        file_references: Iterable[FileReference]
-        | ToManyResolver[FileReference]
-        | None = None,
+        file_references: ToManyAssociates[FileReference] | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,

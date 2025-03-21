@@ -18,7 +18,7 @@ from betty.json.linked_data import dump_context, JsonLdObject
 from betty.json.schema import Array, Number, Object
 from betty.locale.localizable import _, Localizable
 from betty.model import UserFacingEntity, Entity
-from betty.model.association import BidirectionalToMany, ToManyResolver
+from betty.model.association import BidirectionalToMany, ToManyAssociates
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy
 
@@ -87,10 +87,10 @@ class Place(
         *,
         id: str | None = None,  # noqa A002
         names: MutableSequence[Name] | None = None,
-        events: Iterable[Event] | ToManyResolver[Event] | None = None,
-        enclosers: Iterable["Enclosure"] | ToManyResolver["Enclosure"] | None = None,
-        enclosees: Iterable["Enclosure"] | ToManyResolver["Enclosure"] | None = None,
-        notes: Iterable[Note] | ToManyResolver[Note] | None = None,
+        events: ToManyAssociates[Event] | None = None,
+        enclosers: ToManyAssociates["Enclosure"] | None = None,
+        enclosees: ToManyAssociates["Enclosure"] | None = None,
+        notes: ToManyAssociates[Note] | None = None,
         coordinates: Point | None = None,
         links: MutableSequence[Link] | None = None,
         privacy: Privacy | None = None,

@@ -12,7 +12,7 @@ from betty.ancestry.date import HasDate
 from betty.ancestry.has_citations import HasCitations
 from betty.locale.localizable import _, Localizable
 from betty.model import Entity
-from betty.model.association import ToOneResolver, BidirectionalToOne
+from betty.model.association import BidirectionalToOne, ToOneAssociate
 from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
@@ -50,9 +50,7 @@ class Enclosure(ShorthandPluginBase, HasDate, HasCitations, Entity):
     )
 
     def __init__(
-        self,
-        enclosee: Place | ToOneResolver[Place],
-        encloser: Place | ToOneResolver[Place],
+        self, enclosee: ToOneAssociate[Place], encloser: ToOneAssociate[Place]
     ):
         super().__init__()
         self.enclosee = enclosee

@@ -4,7 +4,7 @@ Data types to describe information sources.
 
 from __future__ import annotations
 
-from typing import final, Iterable, MutableSequence, Iterator, TYPE_CHECKING
+from typing import final, MutableSequence, Iterator, TYPE_CHECKING
 
 from typing_extensions import override
 
@@ -23,9 +23,8 @@ from betty.model import UserFacingEntity, Entity
 from betty.model.association import (
     BidirectionalToZeroOrOne,
     BidirectionalToMany,
-    ToOneResolver,
-    ToManyResolver,
-    ToZeroOrOneResolver,
+    ToManyAssociates,
+    ToZeroOrOneAssociate,
 )
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy, merge_privacies
@@ -101,16 +100,11 @@ class Source(
         id: str | None = None,  # noqa A002  # noqa A002
         author: ShorthandStaticTranslations | None = None,
         publisher: ShorthandStaticTranslations | None = None,
-        contained_by: Source
-        | ToZeroOrOneResolver[Source]
-        | ToOneResolver[Source]
-        | None = None,
-        contains: Iterable[Source] | ToManyResolver[Source] | None = None,
-        notes: Iterable[Note] | ToManyResolver[Note] | None = None,
+        contained_by: ToZeroOrOneAssociate[Source] = None,
+        contains: ToManyAssociates[Source] | None = None,
+        notes: ToManyAssociates[Note] | None = None,
         date: Datey | None = None,
-        file_references: Iterable["FileReference"]
-        | ToManyResolver["FileReference"]
-        | None = None,
+        file_references: ToManyAssociates["FileReference"] | None = None,
         links: MutableSequence[Link] | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,

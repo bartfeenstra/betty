@@ -15,7 +15,10 @@ from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.media_type import HasMediaType
 from betty.locale.localizable import _, ShorthandStaticTranslations, Localizable
 from betty.model import UserFacingEntity, Entity
-from betty.model.association import BidirectionalToMany, ToManyResolver
+from betty.model.association import (
+    BidirectionalToMany,
+    ToManyAssociates,
+)
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy
 
@@ -83,8 +86,8 @@ class File(
         name: str | None = None,
         media_type: MediaType | None = None,
         description: ShorthandStaticTranslations | None = None,
-        notes: Iterable[Note] | ToManyResolver[Note] | None = None,
-        citations: Iterable[Citation] | ToManyResolver[Citation] | None = None,
+        notes: ToManyAssociates[Note] | None = None,
+        citations: ToManyAssociates[Citation] | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,

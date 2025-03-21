@@ -32,7 +32,8 @@ from betty.model import UserFacingEntity
 from betty.model.association import (
     BidirectionalToZeroOrOne,
     BidirectionalToMany,
-    ToManyResolver,
+    ToZeroOrOneAssociate,
+    ToManyAssociates,
 )
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy
@@ -96,17 +97,15 @@ class Event(
         id: str | None = None,  # noqa A002
         event_type: EventType | None = None,
         date: Datey | None = None,
-        file_references: Iterable[FileReference]
-        | ToManyResolver[FileReference]
-        | None = None,
-        citations: Iterable[Citation] | ToManyResolver[Citation] | None = None,
-        notes: Iterable[Note] | ToManyResolver[Note] | None = None,
+        file_references: ToManyAssociates[FileReference] | None = None,
+        citations: ToManyAssociates[Citation] | None = None,
+        notes: ToManyAssociates[Note] | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
-        place: Place | None = None,
+        place: ToZeroOrOneAssociate[Place] = None,
         description: ShorthandStaticTranslations | None = None,
-        presences: Iterable[Presence] | ToManyResolver[Presence] | None = None,
+        presences: ToManyAssociates[Presence] | None = None,
         name: ShorthandStaticTranslations | None = None,
     ):
         super().__init__(
