@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 import aiofiles
 import pytest
+
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
@@ -704,6 +705,43 @@ class TestGrampsLoader:
         mother_only_child = ancestry[Person]["I0001"]
         assert list(father.children) == [common_child]
         assert list(mother.children) == [common_child, mother_only_child]
+
+    async def test_family_should_associate_events_with_parents(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<people>
+    <person handle="_e1dd3bf1f0041d92f586f9d8683" change="1552126972" id="I0000">
+        <gender>U</gender>
+        <parentin hlink="_e1dd3b84f9e5d832ffc17baa46c"/>
+    </person>
+    <person handle="_e1dd3c1caf863ee0081cc2cc16f" change="1552131917" id="I0001">
+        <gender>U</gender>
+        <parentin hlink="_e1dd3b84f9e5d832ffc17baa46c"/>
+    </person>
+</people>
+<families>
+    <family handle="_e1dd3b84f9e5d832ffc17baa46c" change="1552127019" id="F0000">
+        <rel type="Unknown"/>
+        <father hlink="_e1dd3bf1f0041d92f586f9d8683"/>
+        <mother hlink="_e1dd3c1caf863ee0081cc2cc16f"/>
+        <eventref hlink="_e1dd3ac2fa22e6fefa18f738bdd" role="Primary"/>
+    </family>
+</families>
+<events>
+    <event handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="E0000">
+        <type>Birth</type>
+    </event>
+</events>
+""",
+            presence_role_mapping={"Primary": Subject},
+        )
+        event = ancestry[Event]["E0000"]
+        father = ancestry[Person]["I0000"]
+        assert isinstance(father.presences[0].role, Subject)
+        assert father.presences[0].event is event
+        mother = ancestry[Person]["I0001"]
+        assert isinstance(mother.presences[0].role, Subject)
+        assert mother.presences[0].event is event
 
     async def test_event_should_map_type(self) -> None:
         ancestry = await self._load_partial(
