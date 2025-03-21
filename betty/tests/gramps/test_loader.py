@@ -38,10 +38,8 @@ from betty.project import Project
 if TYPE_CHECKING:
     from betty.ancestry import Ancestry
     from betty.ancestry.event_type import EventType
-    from betty.ancestry.gender import Gender
     from betty.ancestry.presence_role import PresenceRole
     from collections.abc import Mapping, Awaitable, Callable
-
 
 _MINIMAL_XML = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"
@@ -76,10 +74,10 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
                 copyright_notices=project.copyright_notice_repository,
                 licenses=await project.license_repository,
+                genders=project.gender_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_gramps(gramps_file_path)
@@ -90,10 +88,10 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
                 copyright_notices=project.copyright_notice_repository,
                 licenses=await project.license_repository,
+                genders=project.gender_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(GrampsFileNotFound):
@@ -111,10 +109,10 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
                 copyright_notices=project.copyright_notice_repository,
                 licenses=await project.license_repository,
+                genders=project.gender_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_gpkg(gpkg_file_path)
@@ -125,10 +123,10 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
                 copyright_notices=project.copyright_notice_repository,
                 licenses=await project.license_repository,
+                genders=project.gender_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(GrampsFileNotFound):
@@ -143,10 +141,10 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
                 copyright_notices=project.copyright_notice_repository,
                 licenses=await project.license_repository,
+                genders=project.gender_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_file(gramps_file_path)
@@ -167,10 +165,10 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
                 copyright_notices=project.copyright_notice_repository,
                 licenses=await project.license_repository,
+                genders=project.gender_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_file(gpkg_file_path)
@@ -186,10 +184,10 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
                 copyright_notices=project.copyright_notice_repository,
                 licenses=await project.license_repository,
+                genders=project.gender_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_file(xml_file_path)
@@ -202,10 +200,10 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
                 copyright_notices=project.copyright_notice_repository,
                 licenses=await project.license_repository,
+                genders=project.gender_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(UserFacingGrampsError):
@@ -217,10 +215,10 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
                 copyright_notices=project.copyright_notice_repository,
                 licenses=await project.license_repository,
+                genders=project.gender_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(UserFacingGrampsError):
@@ -233,8 +231,6 @@ class TestGrampsLoader:
         xml: str,
         *,
         event_type_mapping: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
-        | None = None,
-        gender_mapping: Mapping[str, Callable[[], Gender | Awaitable[Gender]]]
         | None = None,
         presence_role_mapping: Mapping[
             str, Callable[[], PresenceRole | Awaitable[PresenceRole]]
@@ -250,13 +246,12 @@ class TestGrampsLoader:
             async with project:
                 loader = GrampsLoader(
                     project.ancestry,
-                    factory=project.new_target,
                     localizer=DEFAULT_LOCALIZER,
                     copyright_notices=project.copyright_notice_repository,
                     licenses=await project.license_repository,
+                    genders=project.gender_repository,
                     attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
                     event_type_mapping=event_type_mapping,
-                    gender_mapping=gender_mapping,
                     presence_role_mapping=presence_role_mapping,
                 )
                 await loader.load_xml(xml.strip())
@@ -268,8 +263,6 @@ class TestGrampsLoader:
         *,
         media_path: Path | None = None,
         event_type_mapping: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
-        | None = None,
-        gender_mapping: Mapping[str, Callable[[], Gender | Awaitable[Gender]]]
         | None = None,
         presence_role_mapping: Mapping[
             str, Callable[[], PresenceRole | Awaitable[PresenceRole]]
@@ -293,7 +286,6 @@ class TestGrampsLoader:
 </database>
 """,
             event_type_mapping=event_type_mapping,
-            gender_mapping=gender_mapping,
             presence_role_mapping=presence_role_mapping,
         )
 
@@ -301,10 +293,10 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 localizer=DEFAULT_LOCALIZER,
                 copyright_notices=project.copyright_notice_repository,
                 licenses=await project.license_repository,
+                genders=project.gender_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_xml(_MINIMAL_XML)
@@ -534,11 +526,10 @@ class TestGrampsLoader:
             """
 <people>
     <person handle="_e1dd3bf1f0041d92f586f9d8683" change="1552126972" id="I0000">
-        <gender>U</gender>
+        <gender>X</gender>
     </person>
 </people>
-""",
-            gender_mapping={"U": NonBinary},
+"""
         )
         person = ancestry[Person]["I0000"]
         assert isinstance(person.gender, NonBinary)
@@ -549,14 +540,13 @@ class TestGrampsLoader:
 <people>
     <person handle="_e1dd3bf1f0041d92f586f9d8683" change="1552126972" id="I0000">
         <gender>U</gender>
-        <attribute type="betty:gender" value="unknown"/>
+        <attribute type="betty:gender" value="non-binary"/>
     </person>
 </people>
-""",
-            gender_mapping={"U": NonBinary},
+"""
         )
         person = ancestry[Person]["I0000"]
-        assert isinstance(person.gender, UnknownGender)
+        assert isinstance(person.gender, NonBinary)
 
     async def test_person_should_include_citation(self) -> None:
         ancestry = await self._load_partial(

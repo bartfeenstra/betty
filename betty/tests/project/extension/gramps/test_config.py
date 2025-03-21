@@ -4,20 +4,20 @@ from pathlib import Path
 import pytest
 
 from betty.ancestry.event_type.event_types import Birth
-from betty.ancestry.gender.genders import Female
 from betty.ancestry.place_type.place_types import Borough
 from betty.ancestry.presence_role.presence_roles import Attendee
 from betty.assertion.error import AssertionFailed
+from betty.gramps.loader import (
+    DEFAULT_EVENT_TYPES_MAPPING,
+    DEFAULT_PLACE_TYPES_MAPPING,
+    DEFAULT_PRESENCE_ROLES_MAPPING,
+)
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project.extension.gramps.config import (
     FamilyTreeConfiguration,
     GrampsConfiguration,
     FamilyTreeConfigurationSequence,
     PluginMapping,
-    DEFAULT_EVENT_TYPE_MAP,
-    DEFAULT_GENDER_MAP,
-    DEFAULT_PLACE_TYPE_MAP,
-    DEFAULT_PRESENCE_ROLE_MAP,
 )
 from betty.serde.dump import Dump
 from betty.test_utils.assertion.error import raises_error
@@ -65,7 +65,6 @@ class TestFamilyTreeConfiguration:
             tmp_path, genders={gramps_type: PluginInstanceConfiguration(plugin_id)}
         )
         assert sut.genders[gramps_type].id == plugin_id
-        assert sut.genders["F"].id == Female.plugin_id()
 
     def test___init____with_place_types(self, tmp_path: Path) -> None:
         gramps_type = "my-first-gramps-type"
@@ -89,29 +88,26 @@ class TestFamilyTreeConfiguration:
     def test_event_types(self, tmp_path: Path) -> None:
         sut = FamilyTreeConfiguration(tmp_path)
         assert sut.event_types.dump() == {
-            gramps_type: configuration.dump()
-            for gramps_type, configuration in DEFAULT_EVENT_TYPE_MAP.items()
+            gramps_type: plugin.plugin_id()
+            for gramps_type, plugin in DEFAULT_EVENT_TYPES_MAPPING.items()
         }
 
     def test_genders(self, tmp_path: Path) -> None:
         sut = FamilyTreeConfiguration(tmp_path)
-        assert sut.genders.dump() == {
-            gramps_type: configuration.dump()
-            for gramps_type, configuration in DEFAULT_GENDER_MAP.items()
-        }
+        assert sut.genders.dump() == {}
 
     def test_place_types(self, tmp_path: Path) -> None:
         sut = FamilyTreeConfiguration(tmp_path)
         assert sut.place_types.dump() == {
-            gramps_type: configuration.dump()
-            for gramps_type, configuration in DEFAULT_PLACE_TYPE_MAP.items()
+            gramps_type: plugin.plugin_id()
+            for gramps_type, plugin in DEFAULT_PLACE_TYPES_MAPPING.items()
         }
 
     def test_presence_roles(self, tmp_path: Path) -> None:
         sut = FamilyTreeConfiguration(tmp_path)
         assert sut.presence_roles.dump() == {
-            gramps_type: configuration.dump()
-            for gramps_type, configuration in DEFAULT_PRESENCE_ROLE_MAP.items()
+            gramps_type: plugin.plugin_id()
+            for gramps_type, plugin in DEFAULT_PRESENCE_ROLES_MAPPING.items()
         }
 
     async def test_load__with_minimal_configuration(self, tmp_path: Path) -> None:
@@ -139,7 +135,6 @@ class TestFamilyTreeConfiguration:
         sut = FamilyTreeConfiguration(tmp_path)
         sut.load(dump)
         assert sut.genders["my-first-gramps-type"].id == "my-first-betty-plugin-id"
-        assert sut.genders["F"].id == Female.plugin_id()
 
     async def test_load__with_place_types(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
@@ -177,9 +172,6 @@ class TestFamilyTreeConfiguration:
             actual.pop("event_types")  # type: ignore[arg-type]
         )
         assert len(
-            actual.pop("genders")  # type: ignore[arg-type]
-        )
-        assert len(
             actual.pop("place_types")  # type: ignore[arg-type]
         )
         assert len(
@@ -187,6 +179,7 @@ class TestFamilyTreeConfiguration:
         )
         assert actual == {
             "file": str(tmp_path),
+            "genders": {},
         }
 
     async def test_dump__with_event_types(self, tmp_path: Path) -> None:

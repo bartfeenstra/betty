@@ -6,63 +6,10 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any, final, TYPE_CHECKING, TypeVar
+from warnings import warn
 
 from typing_extensions import override
 
-from betty.ancestry.event_type.event_types import (
-    Adoption,
-    Baptism,
-    Birth,
-    Burial,
-    Confirmation,
-    Cremation,
-    Death,
-    Divorce,
-    DivorceAnnouncement,
-    Emigration,
-    Engagement,
-    Immigration,
-    Marriage,
-    MarriageAnnouncement,
-    Occupation,
-    Residence,
-    Retirement,
-    Will,
-    BarMitzvah,
-    BatMitzvah,
-)
-from betty.ancestry.gender.genders import Female, Male, Unknown as UnknownGender
-from betty.ancestry.place_type.place_types import (
-    Borough,
-    Building,
-    City,
-    Country,
-    County,
-    Department,
-    District,
-    Farm,
-    Hamlet,
-    Locality,
-    Municipality,
-    Neighborhood,
-    Number,
-    Parish,
-    Province,
-    Region,
-    State,
-    Street,
-    Town,
-    Unknown as UnknownPlaceType,
-    Village,
-)
-from betty.ancestry.presence_role.presence_roles import (
-    Celebrant,
-    Subject,
-    Unknown as UnknownPresenceRole,
-    Witness,
-    Attendee,
-    Informant,
-)
 from betty.assertion import (
     RequiredField,
     OptionalField,
@@ -75,6 +22,11 @@ from betty.assertion import (
 )
 from betty.config import Configuration
 from betty.config.collections.sequence import ConfigurationSequence
+from betty.gramps.loader import (
+    DEFAULT_EVENT_TYPES_MAPPING,
+    DEFAULT_PLACE_TYPES_MAPPING,
+    DEFAULT_PRESENCE_ROLES_MAPPING,
+)
 from betty.plugin import Plugin
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.typing import internal
@@ -85,74 +37,6 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, MutableMapping, Iterable, Iterator
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
-
-DEFAULT_EVENT_TYPE_MAP: Mapping[str, PluginInstanceConfiguration] = {
-    "Adopted": PluginInstanceConfiguration(Adoption),
-    "Adult Christening": PluginInstanceConfiguration(Baptism),
-    "Baptism": PluginInstanceConfiguration(Baptism),
-    "Bar Mitzvah": PluginInstanceConfiguration(BarMitzvah),
-    "Bat Mitzvah": PluginInstanceConfiguration(BatMitzvah),
-    "Birth": PluginInstanceConfiguration(Birth),
-    "Burial": PluginInstanceConfiguration(Burial),
-    "Christening": PluginInstanceConfiguration(Baptism),
-    "Confirmation": PluginInstanceConfiguration(Confirmation),
-    "Cremation": PluginInstanceConfiguration(Cremation),
-    "Death": PluginInstanceConfiguration(Death),
-    "Divorce": PluginInstanceConfiguration(Divorce),
-    "Divorce Filing": PluginInstanceConfiguration(DivorceAnnouncement),
-    "Emigration": PluginInstanceConfiguration(Emigration),
-    "Engagement": PluginInstanceConfiguration(Engagement),
-    "Immigration": PluginInstanceConfiguration(Immigration),
-    "Marriage": PluginInstanceConfiguration(Marriage),
-    "Marriage Banns": PluginInstanceConfiguration(MarriageAnnouncement),
-    "Occupation": PluginInstanceConfiguration(Occupation),
-    "Residence": PluginInstanceConfiguration(Residence),
-    "Retirement": PluginInstanceConfiguration(Retirement),
-    "Will": PluginInstanceConfiguration(Will),
-}
-
-DEFAULT_PLACE_TYPE_MAP: Mapping[str, PluginInstanceConfiguration] = {
-    "Borough": PluginInstanceConfiguration(Borough),
-    "Building": PluginInstanceConfiguration(Building),
-    "City": PluginInstanceConfiguration(City),
-    "Country": PluginInstanceConfiguration(Country),
-    "County": PluginInstanceConfiguration(County),
-    "Department": PluginInstanceConfiguration(Department),
-    "District": PluginInstanceConfiguration(District),
-    "Farm": PluginInstanceConfiguration(Farm),
-    "Hamlet": PluginInstanceConfiguration(Hamlet),
-    "Locality": PluginInstanceConfiguration(Locality),
-    "Municipality": PluginInstanceConfiguration(Municipality),
-    "Neighborhood": PluginInstanceConfiguration(Neighborhood),
-    "Number": PluginInstanceConfiguration(Number),
-    "Parish": PluginInstanceConfiguration(Parish),
-    "Province": PluginInstanceConfiguration(Province),
-    "Region": PluginInstanceConfiguration(Region),
-    "State": PluginInstanceConfiguration(State),
-    "Street": PluginInstanceConfiguration(Street),
-    "Town": PluginInstanceConfiguration(Town),
-    "Unknown": PluginInstanceConfiguration(UnknownPlaceType),
-    "Village": PluginInstanceConfiguration(Village),
-}
-
-DEFAULT_PRESENCE_ROLE_MAP: Mapping[str, PluginInstanceConfiguration] = {
-    "Aide": PluginInstanceConfiguration(Attendee),
-    "Bride": PluginInstanceConfiguration(Subject),
-    "Celebrant": PluginInstanceConfiguration(Celebrant),
-    "Clergy": PluginInstanceConfiguration(Celebrant),
-    "Family": PluginInstanceConfiguration(Subject),
-    "Groom": PluginInstanceConfiguration(Subject),
-    "Informant": PluginInstanceConfiguration(Informant),
-    "Primary": PluginInstanceConfiguration(Subject),
-    "Unknown": PluginInstanceConfiguration(UnknownPresenceRole),
-    "Witness": PluginInstanceConfiguration(Witness),
-}
-
-DEFAULT_GENDER_MAP: Mapping[str, PluginInstanceConfiguration] = {
-    "F": PluginInstanceConfiguration(Female),
-    "M": PluginInstanceConfiguration(Male),
-    "U": PluginInstanceConfiguration(UnknownGender),
-}
 
 
 def _assert_gramps_type(value: Any) -> str:
@@ -220,6 +104,8 @@ class PluginMapping(Configuration):
 class FamilyTreeConfiguration(Configuration):
     """
     Configure a single Gramps family tree.
+
+    The ``genders`` argument has been deprecated since Betty 0.4.13. There is no alternative.
     """
 
     def __init__(
@@ -233,11 +119,33 @@ class FamilyTreeConfiguration(Configuration):
     ):
         super().__init__()
         self.file_path = file_path
-        self._event_types = PluginMapping(DEFAULT_EVENT_TYPE_MAP, event_types or {})
-        self._genders = PluginMapping(DEFAULT_GENDER_MAP, genders or {})
-        self._place_types = PluginMapping(DEFAULT_PLACE_TYPE_MAP, place_types or {})
+        self._event_types = PluginMapping(
+            {
+                gramps_value: PluginInstanceConfiguration(event_type)
+                for gramps_value, event_type in DEFAULT_EVENT_TYPES_MAPPING.items()
+            },
+            event_types or {},
+        )
+        if genders is not None:
+            warn(
+                "The ``genders`` argument has been deprecated since Betty 0.4.13. There is no alternative.",
+                category=DeprecationWarning,
+                stacklevel=2,
+            )
+        self._genders = PluginMapping({}, genders or {})
+        self._place_types = PluginMapping(
+            {
+                gramps_value: PluginInstanceConfiguration(event_type)
+                for gramps_value, event_type in DEFAULT_PLACE_TYPES_MAPPING.items()
+            },
+            place_types or {},
+        )
         self._presence_roles = PluginMapping(
-            DEFAULT_PRESENCE_ROLE_MAP, presence_roles or {}
+            {
+                gramps_value: PluginInstanceConfiguration(event_type)
+                for gramps_value, event_type in DEFAULT_PRESENCE_ROLES_MAPPING.items()
+            },
+            presence_roles or {},
         )
 
     @override
