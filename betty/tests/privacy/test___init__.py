@@ -13,6 +13,7 @@ from betty.privacy import (
     PrivacySchema,
     is_private,
     resolve_privacy,
+    merge_secondary_privacies,
 )
 from betty.test_utils.privacy import DummyHasPrivacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
@@ -184,3 +185,21 @@ async def test_resolve_privacy(
 )
 async def test_merge_privacies(expected: Privacy, privacies: tuple[Privacy]) -> None:
     assert expected == merge_privacies(*privacies)
+
+
+@pytest.mark.parametrize(
+    ("expected", "privacies"),
+    [
+        (Privacy.PUBLIC, (Privacy.PUBLIC,)),
+        (Privacy.UNDETERMINED, (Privacy.UNDETERMINED,)),
+        (Privacy.PRIVATE, (Privacy.PRIVATE,)),
+        (Privacy.PUBLIC, (Privacy.PUBLIC, Privacy.UNDETERMINED)),
+        (Privacy.PRIVATE, (Privacy.PUBLIC, Privacy.PRIVATE)),
+        (Privacy.PRIVATE, (Privacy.UNDETERMINED, Privacy.PRIVATE)),
+        (Privacy.PRIVATE, (Privacy.PUBLIC, Privacy.UNDETERMINED, Privacy.PRIVATE)),
+    ],
+)
+async def test_merge_secondary_privacies(
+    expected: Privacy, privacies: tuple[Privacy]
+) -> None:
+    assert expected == merge_secondary_privacies(*privacies)

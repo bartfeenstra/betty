@@ -108,8 +108,7 @@ class Citation(
 
     @override
     def _get_effective_privacy(self) -> Privacy:
-        privacy = super()._get_effective_privacy()
-        return merge_privacies(privacy, self.source.privacy)
+        return merge_privacies(super()._get_effective_privacy(), self.source)
 
     @override
     @classmethod
