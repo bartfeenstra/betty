@@ -12,7 +12,12 @@ from betty.locale.localizable import _, Localizable
 from betty.model import Entity
 from betty.model.association import BidirectionalToOne, ToOneResolver
 from betty.plugin import ShorthandPluginBase
-from betty.privacy import HasPrivacy, Privacy, merge_privacies, is_public
+from betty.privacy import (
+    HasPrivacy,
+    Privacy,
+    is_public,
+    merge_secondary_privacies,
+)
 
 if TYPE_CHECKING:
     from betty.mutability import Mutable
@@ -86,7 +91,7 @@ class Presence(ShorthandPluginBase, HasPrivacy, Entity):
 
     @override
     def _get_effective_privacy(self) -> Privacy:
-        return merge_privacies(
+        return merge_secondary_privacies(
             super()._get_effective_privacy(),
             self.person,
             self.event,

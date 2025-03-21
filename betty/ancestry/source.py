@@ -141,7 +141,7 @@ class Source(
     def _get_effective_privacy(self) -> Privacy:
         privacy = super()._get_effective_privacy()
         if self.contained_by:
-            return merge_privacies(privacy, self.contained_by.privacy)
+            return merge_privacies(privacy, self.contained_by)
         return privacy
 
     @property

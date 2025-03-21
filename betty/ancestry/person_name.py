@@ -78,8 +78,7 @@ class PersonName(ShorthandPluginBase, HasLocale, HasCitations, HasPrivacy, Entit
 
     @override
     def _get_effective_privacy(self) -> Privacy:
-        privacy = super()._get_effective_privacy()
-        return merge_privacies(privacy, self.person.privacy)
+        return merge_privacies(super()._get_effective_privacy(), self.person)
 
     @override
     def __repr__(self) -> str:

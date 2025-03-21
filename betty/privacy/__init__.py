@@ -181,3 +181,19 @@ def merge_privacies(*privacies: Privacy | HasPrivacy | None) -> Privacy:
     if Privacy.UNDETERMINED in privacies:
         return Privacy.UNDETERMINED
     return Privacy.PUBLIC
+
+
+def merge_secondary_privacies(
+    privacy: Privacy | HasPrivacy | None,
+    *secondary_privacies: Privacy | HasPrivacy | None,
+) -> Privacy:
+    """
+    Merge multiple privacies into one.
+    """
+    privacy = resolve_privacy(privacy)
+    if Privacy.PRIVATE in {
+        privacy,
+        *(resolve_privacy(privacy) for privacy in secondary_privacies),
+    }:
+        return Privacy.PRIVATE
+    return privacy
