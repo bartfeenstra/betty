@@ -4,10 +4,13 @@ Tools to build data types that reference files.
 
 from __future__ import annotations
 
-from typing import Any, Iterable, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 from betty.model import Entity
-from betty.model.association import BidirectionalToMany, ToManyResolver
+from betty.model.association import (
+    BidirectionalToMany,
+    ToManyAssociates,
+)
 
 if TYPE_CHECKING:
     from betty.ancestry.file_reference import FileReference
@@ -32,9 +35,7 @@ class HasFileReferences(Entity):
     def __init__(
         self,
         *args: Any,
-        file_references: Iterable[FileReference]
-        | ToManyResolver[FileReference]
-        | None = None,
+        file_references: ToManyAssociates[FileReference] | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)

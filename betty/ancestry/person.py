@@ -24,7 +24,7 @@ from betty.model import (
     EntityReferenceCollectionSchema,
     persistent_id,
 )
-from betty.model.association import ToManyResolver, BidirectionalToMany
+from betty.model.association import BidirectionalToMany, ToManyAssociates
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy
 
@@ -94,19 +94,17 @@ class Person(
         self,
         *,
         id: str | None = None,  # noqa A002
-        file_references: Iterable[FileReference]
-        | ToManyResolver[FileReference]
-        | None = None,
-        citations: Iterable["Citation"] | ToManyResolver["Citation"] | None = None,
+        file_references: ToManyAssociates[FileReference] | None = None,
+        citations: ToManyAssociates["Citation"] | None = None,
         links: MutableSequence[Link] | None = None,
-        notes: Iterable[Note] | ToManyResolver[Note] | None = None,
+        notes: ToManyAssociates[Note] | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
-        parents: Iterable[Person] | ToManyResolver[Person] | None = None,
-        children: Iterable[Person] | ToManyResolver[Person] | None = None,
-        presences: Iterable["Presence"] | ToManyResolver["Presence"] | None = None,
-        names: Iterable["PersonName"] | ToManyResolver["PersonName"] | None = None,
+        parents: ToManyAssociates[Person] | None = None,
+        children: ToManyAssociates[Person] | None = None,
+        presences: ToManyAssociates["Presence"] | None = None,
+        names: ToManyAssociates["PersonName"] | None = None,
         gender: Gender | None = None,
     ):
         super().__init__(

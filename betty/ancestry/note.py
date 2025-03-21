@@ -17,9 +17,8 @@ from betty.locale.localizable import (
 )
 from betty.model import UserFacingEntity, Entity
 from betty.model.association import (
-    ToOneResolver,
     BidirectionalToZeroOrOne,
-    ToZeroOrOneResolver,
+    ToZeroOrOneAssociate,
 )
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy
@@ -57,10 +56,7 @@ class Note(ShorthandPluginBase, UserFacingEntity, HasPrivacy, HasLinks, Entity):
         text: ShorthandStaticTranslations,
         *,
         id: str | None = None,  # noqa A002  # noqa A002
-        entity: HasNotes & Entity
-        | ToZeroOrOneResolver[HasNotes]
-        | ToOneResolver[HasNotes]
-        | None = None,
+        entity: ToZeroOrOneAssociate[HasNotes] | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,

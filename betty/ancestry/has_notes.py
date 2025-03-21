@@ -4,11 +4,14 @@ Data types for entities that have notes.
 
 from __future__ import annotations
 
-from typing import Any, Iterable
+from typing import Any
 
 from betty.ancestry.note import Note
 from betty.model import Entity
-from betty.model.association import BidirectionalToMany, ToManyResolver
+from betty.model.association import (
+    BidirectionalToMany,
+    ToManyAssociates,
+)
 
 
 class HasNotes(Entity):
@@ -27,7 +30,7 @@ class HasNotes(Entity):
     def __init__(
         self,
         *args: Any,
-        notes: Iterable[Note] | ToManyResolver[Note] | None = None,
+        notes: ToManyAssociates[Note] | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)

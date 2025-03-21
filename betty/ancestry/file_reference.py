@@ -11,7 +11,7 @@ from typing_extensions import override
 from betty.ancestry.file import File
 from betty.locale.localizable import _, Localizable
 from betty.model import Entity
-from betty.model.association import BidirectionalToOne, ToOneResolver
+from betty.model.association import BidirectionalToOne, ToOneAssociate
 from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
@@ -50,8 +50,8 @@ class FileReference(ShorthandPluginBase, Entity):
 
     def __init__(
         self,
-        referee: HasFileReferences & Entity | ToOneResolver[HasFileReferences & Entity],
-        file: File | ToOneResolver[File],
+        referee: ToOneAssociate[HasFileReferences & Entity],
+        file: ToOneAssociate[File],
         *,
         focus: FocusArea | None = None,
     ):

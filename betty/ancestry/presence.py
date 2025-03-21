@@ -10,7 +10,7 @@ from typing_extensions import override
 
 from betty.locale.localizable import _, Localizable
 from betty.model import Entity
-from betty.model.association import BidirectionalToOne, ToOneResolver
+from betty.model.association import BidirectionalToOne, ToOneAssociate
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import (
     HasPrivacy,
@@ -59,9 +59,9 @@ class Presence(ShorthandPluginBase, HasPrivacy, Entity):
 
     def __init__(
         self,
-        person: Person | ToOneResolver[Person],
+        person: ToOneAssociate[Person],
         role: PresenceRole,
-        event: Event | ToOneResolver[Event],
+        event: ToOneAssociate[Event],
         *,
         privacy: Privacy | None = None,
         public: bool | None = None,
