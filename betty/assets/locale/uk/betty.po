@@ -7,18 +7,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-03-16 17:10+0000\n"
+"POT-Creation-Date: 2025-03-22 20:24+0000\n"
 "PO-Revision-Date: 2025-03-16 21:34+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic2005a@gmail.com>\n"
-"Language-Team: Ukrainian <https://hosted.weblate.org/projects/betty/betty/uk/"
-">\n"
 "Language: uk\n"
+"Language-Team: Ukrainian "
+"<https://hosted.weblate.org/projects/betty/betty/uk/>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.11-dev\n"
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
@@ -192,16 +191,6 @@ msgid ""
 msgstr ""
 "Betty не знайома з ID ліцензії файлу Gramps \"{file_id}\" як "
 "\"{license_id}\" і проігнорувала його."
-
-#, python-brace-format
-msgid ""
-"Betty is unfamiliar with Gramps person \"{person_id}\"'s gender of "
-"\"{gramps_gender}\". The person was imported, but their gender was set to"
-" \"{betty_gender}\"."
-msgstr ""
-"Betty не знайома зі статтю особи Gramps \"{person_id}\" як "
-"\"{gramps_gender}\". Особа була імпортована, але її стать змінена на "
-"\"{betty_gender}\"."
 
 #, python-brace-format
 msgid ""
@@ -1403,3 +1392,4 @@ msgstr "© Авторське право належить автору, якщо
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Авторське право {author}, якщо не зазначено інше"
+

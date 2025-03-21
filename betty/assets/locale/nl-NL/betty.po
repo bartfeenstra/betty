@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-03-16 17:10+0000\n"
+"POT-Creation-Date: 2025-03-22 20:24+0000\n"
 "PO-Revision-Date: 2025-03-16 21:34+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
-"Language-Team: Dutch <https://hosted.weblate.org/projects/betty/betty/nl/>\n"
-"Language: nl-NL\n"
+"Language: nl_NL\n"
+"Language-Team: Dutch "
+"<https://hosted.weblate.org/projects/betty/betty/nl/>\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.11-dev\n"
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
@@ -191,16 +191,6 @@ msgid ""
 msgstr ""
 "Betty kent licentie-ID \"{license_id}\" van Gramps-bestand \"{file_id}\" "
 "niet en heeft het genegeerd."
-
-#, python-brace-format
-msgid ""
-"Betty is unfamiliar with Gramps person \"{person_id}\"'s gender of "
-"\"{gramps_gender}\". The person was imported, but their gender was set to"
-" \"{betty_gender}\"."
-msgstr ""
-"Betty kent het Gramps-geslacht \"{gramps_gender}\" van persoon "
-"\"{person_id}\" niet. De persoon is geladen, maar hun geslacht is nu "
-"\"{betty_gender}\"."
 
 #, python-brace-format
 msgid ""
@@ -1401,3 +1391,4 @@ msgstr "© Copyright de auteur, tenzij anders vermeld"
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Copyright {author}, tenzij anders vermeld"
+

@@ -21,7 +21,6 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Awaitable
     from betty.event_dispatcher import EventHandlerRegistry
 
-
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 
 
@@ -46,7 +45,6 @@ async def _load_ancestry(event: LoadAncestryEvent) -> None:
         await GrampsLoader(
             project.ancestry,
             attribute_prefix_key=project.configuration.name,
-            factory=project.new_target,
             localizer=await project.app.localizer,
             copyright_notices=project.copyright_notice_repository,
             licenses=await project.license_repository,
@@ -57,13 +55,7 @@ async def _load_ancestry(event: LoadAncestryEvent) -> None:
                 )
                 for gramps_type in family_tree_configuration.event_types
             },
-            gender_mapping={
-                gramps_type: _new_plugin_instance_factory(
-                    family_tree_configuration.genders[gramps_type],
-                    project.gender_repository,
-                )
-                for gramps_type in family_tree_configuration.genders
-            },
+            genders=project.gender_repository,
             place_type_mapping={
                 gramps_type: _new_plugin_instance_factory(
                     family_tree_configuration.place_types[gramps_type],

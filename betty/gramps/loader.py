@@ -17,21 +17,81 @@ from typing import Iterable, cast, TYPE_CHECKING, TypeVar, Generic, final
 
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
+from geopy import Point
+from lxml import etree
+from typing_extensions import override
+
 from betty.ancestry.citation import Citation
 from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.event import Event
+from betty.ancestry.event_type.event_types import (
+    Adoption,
+    Baptism,
+    Birth,
+    Burial,
+    Confirmation,
+    Cremation,
+    Death,
+    Divorce,
+    DivorceAnnouncement,
+    Emigration,
+    Engagement,
+    Immigration,
+    Marriage,
+    MarriageAnnouncement,
+    Occupation,
+    Residence,
+    Retirement,
+    Will,
+    BarMitzvah,
+    BatMitzvah,
+)
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
-from betty.ancestry.gender.genders import Unknown as UnknownGender
+from betty.ancestry.gender.genders import (
+    Unknown as UnknownGender,
+    Female,
+    Male,
+    NonBinary,
+)
 from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.name import Name
 from betty.ancestry.note import Note
 from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.place import Place
+from betty.ancestry.place_type.place_types import (
+    Borough,
+    Building,
+    City,
+    Country,
+    County,
+    Department,
+    District,
+    Farm,
+    Hamlet,
+    Locality,
+    Municipality,
+    Neighborhood,
+    Number,
+    Parish,
+    Province,
+    Region,
+    State,
+    Street,
+    Town,
+    Village,
+)
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence import Presence
+from betty.ancestry.presence_role.presence_roles import (
+    Celebrant,
+    Subject,
+    Witness,
+    Attendee,
+    Informant,
+)
 from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.ancestry.source import Source
 from betty.asyncio import ensure_await
@@ -46,9 +106,6 @@ from betty.model.association import ToManyResolver, ToOneResolver, resolve
 from betty.plugin import PluginNotFound
 from betty.privacy import HasPrivacy
 from betty.typing import internal
-from geopy import Point
-from lxml import etree
-from typing_extensions import override
 
 if TYPE_CHECKING:
     from xml.etree import ElementTree
@@ -63,7 +120,6 @@ if TYPE_CHECKING:
     from betty.ancestry.place_type import PlaceType
     from betty.ancestry.presence_role import PresenceRole
     from betty.ancestry.gender import Gender
-    from betty.factory import Factory
     from betty.locale.localizer import Localizer
     from collections.abc import MutableMapping, Mapping, Sequence, Awaitable, Callable
 
@@ -142,6 +198,78 @@ class _ToManyResolver(Generic[_EntityT], ToManyResolver[_EntityT]):
             yield cast("_EntityT", self._handles_to_entities[handle])
 
 
+_GENDER_MAPPING = {
+    "F": Female,
+    "M": Male,
+    "U": UnknownGender,
+    "X": NonBinary,
+}
+
+DEFAULT_EVENT_TYPES_MAPPING = {
+    "Adopted": Adoption,
+    "Adult Christening": Baptism,
+    "Baptism": Baptism,
+    "Bar Mitzvah": BarMitzvah,
+    "Bat Mitzvah": BatMitzvah,
+    "Birth": Birth,
+    "Burial": Burial,
+    "Christening": Baptism,
+    "Confirmation": Confirmation,
+    "Cremation": Cremation,
+    "Death": Death,
+    "Divorce": Divorce,
+    "Divorce Filing": DivorceAnnouncement,
+    "Emigration": Emigration,
+    "Engagement": Engagement,
+    "Immigration": Immigration,
+    "Marriage": Marriage,
+    "Marriage Banns": MarriageAnnouncement,
+    "Occupation": Occupation,
+    "Residence": Residence,
+    "Retirement": Retirement,
+    "Will": Will,
+}
+
+
+DEFAULT_PLACE_TYPES_MAPPING = {
+    "Borough": Borough,
+    "Building": Building,
+    "City": City,
+    "Country": Country,
+    "County": County,
+    "Department": Department,
+    "District": District,
+    "Farm": Farm,
+    "Hamlet": Hamlet,
+    "Locality": Locality,
+    "Municipality": Municipality,
+    "Neighborhood": Neighborhood,
+    "Number": Number,
+    "Parish": Parish,
+    "Province": Province,
+    "Region": Region,
+    "State": State,
+    "Street": Street,
+    "Town": Town,
+    "Unknown": UnknownPlaceType,
+    "Village": Village,
+}
+
+
+DEFAULT_PRESENCE_ROLES_MAPPING = {
+    "Aide": Attendee,
+    "Bride": Subject,
+    "Celebrant": Celebrant,
+    "Clergy": Celebrant,
+    "Family": Subject,
+    "Groom": Subject,
+    "Informant": Informant,
+    "Primary": Subject,
+    "Unknown": UnknownPresenceRole,
+    "Witness": Witness,
+}
+
+
 @internal
 class GrampsLoader:
     """
@@ -152,15 +280,13 @@ class GrampsLoader:
         self,
         ancestry: Ancestry,
         *,
-        factory: Factory,
         localizer: Localizer,
         copyright_notices: PluginRepository[CopyrightNotice],
         licenses: PluginRepository[License],
         attribute_prefix_key: str | None = None,
         event_type_mapping: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
         | None = None,
-        gender_mapping: Mapping[str, Callable[[], Gender | Awaitable[Gender]]]
-        | None = None,
+        genders: PluginRepository[Gender],
         place_type_mapping: Mapping[str, Callable[[], PlaceType | Awaitable[PlaceType]]]
         | None = None,
         presence_role_mapping: Mapping[
@@ -171,7 +297,6 @@ class GrampsLoader:
         super().__init__()
         self._ancestry = ancestry
         self._handles_to_entities: MutableMapping[str, Entity] = {}
-        self._factory = factory
         self._attribute_prefix_key = attribute_prefix_key
         self._added_entity_counts: MutableMapping[type[Entity], int] = defaultdict(
             lambda: 0
@@ -182,7 +307,7 @@ class GrampsLoader:
         self._copyright_notices = copyright_notices
         self._licenses = licenses
         self._event_type_mapping = event_type_mapping or {}
-        self._gender_mapping = gender_mapping or {}
+        self._genders = genders
         self._place_type_mapping = place_type_mapping or {}
         self._presence_role_mapping = presence_role_mapping or {}
 
@@ -579,28 +704,18 @@ class GrampsLoader:
         assert person_handle is not None
         person_id = element.get("id")
         assert person_id is not None
-        gramps_gender = self._load_attribute("gender", element, "attribute")
-        if gramps_gender is None:
+        gender_target: type[Gender] | str | None = self._load_attribute(
+            "gender", element, "attribute"
+        )
+        if gender_target is None:
             gramps_gender = self._xpath1(element, "./ns:gender").text
             assert gramps_gender is not None
+            gender_target = _GENDER_MAPPING[gramps_gender]
 
-        gender: Gender
-        try:
-            gender_factory = self._gender_mapping[gramps_gender]
-        except KeyError:
-            gender = UnknownGender()
-            getLogger(__name__).warning(
-                self._localizer._(
-                    'Betty is unfamiliar with Gramps person "{person_id}"\'s gender of "{gramps_gender}". The person was imported, but their gender was set to "{betty_gender}".',
-                ).format(
-                    person_id=person_id,
-                    gramps_gender=gramps_gender,
-                    betty_gender=gender.plugin_label().localize(self._localizer),
-                )
-            )
-        else:
-            gender = await ensure_await(gender_factory())
-        person = Person(id=element.get("id"), gender=gender)
+        person = Person(
+            id=element.get("id"),
+            gender=await self._genders.new_target(gender_target),
+        )
 
         name_elements = sorted(
             self._xpath(element, "./ns:name"), key=lambda x: x.get("alt") == "1"
