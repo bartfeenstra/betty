@@ -498,6 +498,12 @@ class TestGrampsLoader:
             <first>Jen</first>
             <surname prefix="Van">Doughie</surname>
         </name>
+        <name alt="1" type="Also Known As">
+            <first>Jean</first>
+        </name>
+        <name alt="1" type="Also Known As">
+            <surname>Doewie</surname>
+        </name>
     </person>
 </people>
 """
@@ -510,6 +516,8 @@ class TestGrampsLoader:
         assert person.names[1].affiliation == "Doh"
         assert person.names[2].individual == "Jen"
         assert person.names[2].affiliation == "Van Doughie"
+        assert person.names[3].individual == "Jean"
+        assert person.names[4].affiliation == "Doewie"
 
     async def test_person_should_include_presence(self) -> None:
         ancestry = await self._load_partial(
@@ -653,13 +661,37 @@ class TestGrampsLoader:
     <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
         <gender>U</gender>
         <objref hlink="_e1cb35d7e6c1984b0e8361e1aee">
+        </objref>
+    </person>
+</people>
+<objects>
+    <object handle="_e1cb35d7e6c1984b0e8361e1aee" change="1551643112" id="O0000">
+        <file src="{file_path}" mime="image/png" checksum="d41d8cd98f00b204e9800998ecf8427e"/>
+    </object>
+</objects>
+"""
+        )
+        person = ancestry[Person]["I0000"]
+        assert person.file_references
+        file_reference = person.file_references[0]
+        assert file_reference.file.id == "O0000"
+
+    async def test_person_should_include_file_with_focus(self, tmp_path: Path) -> None:
+        file_path = tmp_path / "file.path"
+        file_path.touch()
+        ancestry = await self._load_partial(
+            f"""
+<people>
+    <person handle="_e1dd36c700f7fa6564d3ac839db" change="1552127019" id="I0000">
+        <gender>U</gender>
+        <objref hlink="_e1cb35d7e6c1984b0e8361e1aee">
             <region corner1_x="1" corner1_y="2" corner2_x="3" corner2_y="4"/>
         </objref>
     </person>
 </people>
 <objects>
     <object handle="_e1cb35d7e6c1984b0e8361e1aee" change="1551643112" id="O0000">
-        <file src="{file_path}" mime="image/png" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <file src="{file_path}" mime="image/png" checksum="d41d8cd98f00b204e9800998ecf8427e"/>
     </object>
 </objects>
 """
@@ -1499,6 +1531,19 @@ class TestGrampsLoader:
         person = ancestry[Person]["I0000"]
         assert expected == person.privacy
 
+    async def test_event_should_include_privacy_from_element(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<events>
+    <event handle="_e1dd3ac2fa22e6fefa18f738bdd" change="1552126811" id="E0000" priv="1">
+        <type>Birth</type>
+    </event>
+</events>
+"""
+        )
+        event = ancestry[Event]["E0000"]
+        assert event.private
+
     @pytest.mark.parametrize(
         ("expected", "attribute_value"),
         [
@@ -1531,7 +1576,7 @@ class TestGrampsLoader:
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
-        <file src="{file_src}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <file src="{file_src}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e"/>
     </object>
 </objects>
 """,
@@ -1569,7 +1614,7 @@ class TestGrampsLoader:
                 f"""
     <objects>
         <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
-            <file src="{Path("file.path")}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+            <file src="{Path("file.path")}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e"/>
         </object>
     </objects>
     """
@@ -1583,17 +1628,49 @@ class TestGrampsLoader:
         file_path.touch()
         await self._assert_file_should_include_path(file_path, file_path, None)
 
-    async def test_file_not_exists_should_error(self) -> None:
+    async def test_file_should_include_description(self, tmp_path: Path) -> None:
+        file_path = tmp_path / "file.path"
+        file_path.touch()
+        ancestry = await self._load_partial(
+            f"""
+<objects>
+    <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
+        <file src="{file_path}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="My First Description"/>
+    </object>
+</objects>
+"""
+        )
+        file = ancestry[File]["O0000"]
+        assert file.description.localize(DEFAULT_LOCALIZER) == "My First Description"
+
+    async def test_file_not_exists_should_error(self, tmp_path: Path) -> None:
         with pytest.raises(UserFacingGrampsError):
             await self._load_partial(
                 f"""
     <objects>
         <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
-            <file src="{Path("non-existent-file.path")}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+            <file src="{tmp_path / "non-existent-file.path"}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e"/>
         </object>
     </objects>
     """
             )
+
+    async def test_file_should_include_privacy_from_element(
+        self, tmp_path: Path
+    ) -> None:
+        file_path = tmp_path / "file.path"
+        file_path.touch()
+        ancestry = await self._load_partial(
+            f"""
+<objects>
+    <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000" priv="1">
+        <file src="{file_path}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e"/>
+    </object>
+</objects>
+"""
+        )
+        file = ancestry[File]["O0000"]
+        assert file.private
 
     @pytest.mark.parametrize(
         ("expected", "attribute_value"),
@@ -1613,7 +1690,7 @@ class TestGrampsLoader:
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
-        <file src="{file_path}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <file src="{file_path}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e"/>
         <attribute type="betty:privacy" value="{attribute_value}"/>
     </object>
 </objects>
@@ -1629,7 +1706,7 @@ class TestGrampsLoader:
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
-        <file src="{file_path}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <file src="{file_path}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e"/>
         <noteref hlink="_e1cb35d7e6c1984b0e8361e1aee"/>
     </object>
 </objects>
@@ -1652,7 +1729,7 @@ class TestGrampsLoader:
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
-        <file src="{file_path}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <file src="{file_path}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e"/>
         <attribute type="betty:copyright-notice" value="public-domain"/>
     </object>
 </objects>
@@ -1670,7 +1747,7 @@ class TestGrampsLoader:
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
-        <file src="{file_path}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <file src="{file_path}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e"/>
         <attribute type="betty:copyright-notice" value="non-existent-copyright-notice"/>
     </object>
 </objects>
@@ -1686,7 +1763,7 @@ class TestGrampsLoader:
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
-        <file src="{file_path}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <file src="{file_path}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e"/>
         <attribute type="betty:license" value="public-domain"/>
     </object>
 </objects>
@@ -1702,7 +1779,7 @@ class TestGrampsLoader:
             f"""
 <objects>
     <object handle="_e66f421249f3e9ebf6744d3b11d" change="1583534526" id="O0000">
-        <file src="{file_path}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e" description="file"/>
+        <file src="{file_path}" mime="text/plain" checksum="d41d8cd98f00b204e9800998ecf8427e"/>
         <attribute type="betty:license" value="non-existent-license"/>
     </object>
 </objects>
@@ -1710,6 +1787,19 @@ class TestGrampsLoader:
         )
         file = ancestry[File]["O0000"]
         assert file.license is None
+
+    async def test_source_from_source_should_include_privacy_from_element(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<sources>
+    <source handle="_e1dd686b04813540eb3503a342b" change="1558277217" id="S0000" priv="1">
+        <stitle>A Whisper</stitle>
+    </source>
+</sources>
+"""
+        )
+        source = ancestry[Source]["S0000"]
+        assert source.private
 
     @pytest.mark.parametrize(
         ("expected", "attribute_value"),
@@ -1735,6 +1825,27 @@ class TestGrampsLoader:
         )
         source = ancestry[Source]["S0000"]
         assert expected == source.privacy
+
+    async def test_citation_should_include_privacy_from_element(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<citations>
+    <citation handle="_e2c25a12a097a0b24bd9eae5090" change="1558277266" id="C0000" priv="1">
+        <confidence>2</confidence>
+        <sourceref hlink="_e1dd686b04813540eb3503a342b"/>
+    </citation>
+</citations>
+<sources>
+    <source handle="_e1dd686b04813540eb3503a342b" change="1558277217" id="S0000">
+        <stitle>A Whisper</stitle>
+    </source>
+</sources>
+"""
+        )
+        source = ancestry[Source]["S0000"]
+        source.public = True
+        citation = ancestry[Citation]["C0000"]
+        assert citation.private
 
     @pytest.mark.parametrize(
         ("expected", "attribute_value"),
@@ -1782,7 +1893,20 @@ class TestGrampsLoader:
         note = ancestry[Note]["N0000"]
         assert note.text.localize(DEFAULT_LOCALIZER) == "I left this for you."
 
-    async def test_citation_should_include_location_from_place(self) -> None:
+    async def test_note_should_include_privacy_from_element(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<notes>
+    <note handle="_e1cb35d7e6c1984b0e8361e1aee" change="1551643112" id="N0000" type="Transcript" priv="1">
+        <text>I left this for you.</text>
+    </note>
+</notes>
+"""
+        )
+        note = ancestry[Note]["N0000"]
+        assert note.private
+
+    async def test_citation_should_include_location_from_page(self) -> None:
         ancestry = await self._load_partial(
             """
 <citations>
@@ -1801,6 +1925,26 @@ class TestGrampsLoader:
         )
         citation = ancestry[Citation]["C0000"]
         assert citation.location.localize(DEFAULT_LOCALIZER) == "My First Page"
+
+    async def test_citation_should_include_source(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<citations>
+    <citation handle="_e2c25a12a097a0b24bd9eae5090" change="1558277266" id="C0000">
+        <confidence>2</confidence>
+        <sourceref hlink="_e1dd686b04813540eb3503a342b"/>
+    </citation>
+</citations>
+<sources>
+    <source handle="_e1dd686b04813540eb3503a342b" change="1558277217" id="S0000">
+        <stitle>A Whisper</stitle>
+    </source>
+</sources>
+"""
+        )
+        citation = ancestry[Citation]["C0000"]
+        source = ancestry[Source]["S0000"]
+        assert citation.source is source
 
     async def test__load_eventref_should_map_presence_role(self) -> None:
         ancestry = await self._load_partial(
@@ -1844,3 +1988,53 @@ class TestGrampsLoader:
         person = ancestry[Person]["I0000"]
         presence = person.presences[0]
         assert presence.private
+
+    async def test_url_should_include_path_as_url(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<people>
+    <person handle="_e21e77455147d79f6b4cc1c76a4" change="1553878037" id="I0000">
+        <gender>U</gender>
+        <url href="https://alexandria.example.com" type="Unknown"/>
+    </person>
+</people>
+"""
+        )
+        links = ancestry[Person]["I0000"].links
+        assert len(links) == 1
+        link = list(links)[0]
+        assert link.url == "https://alexandria.example.com"
+
+    async def test_url_should_include_description_as_label(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<people>
+    <person handle="_e21e77455147d79f6b4cc1c76a4" change="1553878037" id="I0000">
+        <gender>U</gender>
+        <url href="https://alexandria.example.com" type="Unknown" description="Library of Alexandria Catalogue"/>
+    </person>
+</people>
+"""
+        )
+        links = ancestry[Person]["I0000"].links
+        assert len(links) == 1
+        link = list(links)[0]
+        assert (
+            link.label.localize(DEFAULT_LOCALIZER) == "Library of Alexandria Catalogue"
+        )
+
+    async def test_url_should_include_relationship(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<people>
+    <person handle="_e21e77455147d79f6b4cc1c76a4" change="1553878037" id="I0000">
+        <gender>U</gender>
+        <url href="https://alexandria.example.com" type="Unknown" description="Library of Alexandria Catalogue"/>
+    </person>
+</people>
+"""
+        )
+        links = ancestry[Person]["I0000"].links
+        assert len(links) == 1
+        link = list(links)[0]
+        assert link.relationship == "external"
