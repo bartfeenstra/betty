@@ -20,6 +20,7 @@ from betty.ancestry.gender.genders import Unknown as UnknownGender, NonBinary
 from betty.ancestry.note import Note
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
+from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType, City
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.app import App
@@ -37,6 +38,7 @@ from betty.privacy import Privacy
 from betty.project import Project
 
 if TYPE_CHECKING:
+    from betty.ancestry.place_type import PlaceType
     from betty.ancestry import Ancestry
     from betty.ancestry.event_type import EventType
     from betty.ancestry.presence_role import PresenceRole
@@ -233,6 +235,8 @@ class TestGrampsLoader:
         *,
         event_type_mapping: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
         | None = None,
+        place_type_mapping: Mapping[str, Callable[[], PlaceType | Awaitable[PlaceType]]]
+        | None = None,
         presence_role_mapping: Mapping[
             str, Callable[[], PresenceRole | Awaitable[PresenceRole]]
         ]
@@ -253,6 +257,7 @@ class TestGrampsLoader:
                     genders=project.gender_repository,
                     attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
                     event_type_mapping=event_type_mapping,
+                    place_type_mapping=place_type_mapping,
                     presence_role_mapping=presence_role_mapping,
                 )
                 await loader.load_xml(xml.strip())
@@ -264,6 +269,8 @@ class TestGrampsLoader:
         *,
         media_path: Path | None = None,
         event_type_mapping: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
+        | None = None,
+        place_type_mapping: Mapping[str, Callable[[], PlaceType | Awaitable[PlaceType]]]
         | None = None,
         presence_role_mapping: Mapping[
             str, Callable[[], PresenceRole | Awaitable[PresenceRole]]
@@ -287,6 +294,7 @@ class TestGrampsLoader:
 </database>
 """,
             event_type_mapping=event_type_mapping,
+            place_type_mapping=place_type_mapping,
             presence_role_mapping=presence_role_mapping,
         )
 
@@ -301,6 +309,33 @@ class TestGrampsLoader:
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_xml(_MINIMAL_XML)
+
+    async def test_place_should_include_place_type(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<places>
+    <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="MyFirstPlaceType">
+        <pname value="Amsterdam"/>
+    </placeobj>
+</places>
+        """,
+            place_type_mapping={"MyFirstPlaceType": City},
+        )
+        place = ancestry[Place]["P0000"]
+        assert isinstance(place.place_type, City)
+
+    async def test_place_should_ignore_unknown_place_type(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<places>
+    <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="NonExistentPlaceType">
+        <pname value="Amsterdam"/>
+    </placeobj>
+</places>
+        """
+        )
+        place = ancestry[Place]["P0000"]
+        assert isinstance(place.place_type, UnknownPlaceType)
 
     async def test_place_should_include_name(self) -> None:
         ancestry = await self._load_partial(
