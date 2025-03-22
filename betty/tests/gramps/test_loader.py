@@ -318,6 +318,21 @@ class TestGrampsLoader:
         name = names[0]
         assert name.name.localize(DEFAULT_LOCALIZER) == "Amsterdam"
 
+    async def test_place_should_include_name_with_locale(self) -> None:
+        ancestry = await self._load_partial(
+            """
+<places>
+    <placeobj handle="_e1dd2fb639e3f04f8cfabaa7e8a" change="1552125653" id="P0000" type="Unknown">
+        <pname value="Amsterdam" lang="nl"/>
+    </placeobj>
+</places>
+        """
+        )
+        place = ancestry[Place]["P0000"]
+        names = place.names
+        name = names[0]
+        assert name.name.localize(DEFAULT_LOCALIZER).locale == "nl"
+
     async def test_place_should_include_note(self) -> None:
         ancestry = await self._load_partial(
             """
