@@ -281,9 +281,7 @@ class _ToOneAssociation(
             assert not isinstance(value, _Resolver)
             return cast("_AssociateT", value)
 
-    def __set__(
-        self, instance: _OwnerT, value: _AssociateT | ToOneResolver[_AssociateT]
-    ) -> None:
+    def __set__(self, instance: _OwnerT, value: ToOneAssociate[_AssociateT]) -> None:
         setattr(instance, self._internal_owner_attr_name, value)
 
     @override
@@ -348,12 +346,7 @@ class _ToZeroOrOneAssociation(
             return cast("_AssociateT | None", value)
 
     def __set__(
-        self,
-        instance: _OwnerT,
-        value: _AssociateT
-        | ToZeroOrOneResolver[_AssociateT]
-        | ToOneResolver[_AssociateT]
-        | None,
+        self, instance: _OwnerT, value: ToZeroOrOneAssociate[_AssociateT]
     ) -> None:
         setattr(instance, self._internal_owner_attr_name, value)
 
@@ -423,11 +416,7 @@ class _ToManyAssociation(
             assert not isinstance(value, _Resolver)
             return cast("EntityCollection[_AssociateT]", value)
 
-    def __set__(
-        self,
-        instance: _OwnerT,
-        value: Iterable[_AssociateT] | ToManyResolver[_AssociateT],
-    ) -> None:
+    def __set__(self, instance: _OwnerT, value: ToManyAssociates[_AssociateT]) -> None:
         if isinstance(value, _Resolver):
             setattr(instance, self._internal_owner_attr_name, value)
         else:
@@ -544,12 +533,7 @@ class BidirectionalToZeroOrOne(
     """
 
     def __set__(
-        self,
-        instance: _OwnerT,
-        value: _AssociateT
-        | ToZeroOrOneResolver[_AssociateT]
-        | ToOneResolver[_AssociateT]
-        | None,
+        self, instance: _OwnerT, value: ToZeroOrOneAssociate[_AssociateT]
     ) -> None:
         previous_associate = self.__get__(instance, type(instance))
         if previous_associate == value:
@@ -589,9 +573,7 @@ class BidirectionalToOne(
             setattr(owner, self._internal_owner_attr_name, associate)
             self.inverse().associate(associate, owner)
 
-    def __set__(
-        self, instance: _OwnerT, value: _AssociateT | ToOneResolver[_AssociateT]
-    ) -> None:
+    def __set__(self, instance: _OwnerT, value: ToOneAssociate[_AssociateT]) -> None:
         try:
             previous_associate = cast(
                 "_AssociateT | None", getattr(self, self._internal_owner_attr_name)

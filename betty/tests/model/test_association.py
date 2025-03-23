@@ -21,6 +21,8 @@ from betty.model.association import (
     TemporaryToZeroOrOneResolver,
     TemporaryToOneResolver,
     TemporaryToManyResolver,
+    ToZeroOrOneAssociate,
+    ToOneAssociate,
 )
 from betty.project import Project
 from betty.test_utils.json.linked_data import assert_dumps_linked_data_for
@@ -163,9 +165,9 @@ class TestUnidirectionalToZeroOrOne:
     class _Owner(DummyEntity):
         def __init__(
             self,
-            associate: "TestUnidirectionalToZeroOrOne._Associate"
-            | ToOneResolver["TestUnidirectionalToZeroOrOne._Associate"]
-            | None = None,
+            associate: ToZeroOrOneAssociate[
+                "TestUnidirectionalToZeroOrOne._Associate"
+            ] = None,
         ):
             super().__init__()
             self.associate = associate
@@ -328,9 +330,9 @@ class TestBidirectionalToZeroOrOne:
     class _Owner(DummyEntity):
         def __init__(
             self,
-            associate: "TestBidirectionalToZeroOrOne._Associate"
-            | ToZeroOrOneResolver["TestBidirectionalToZeroOrOne._Associate"]
-            | None = None,
+            associate: ToZeroOrOneAssociate[
+                "TestBidirectionalToZeroOrOne._Associate"
+            ] = None,
         ):
             super().__init__()
             self.associate = associate
@@ -518,9 +520,7 @@ class TestBidirectionalToZeroOrOne:
 class TestUnidirectionalToOne:
     class _Owner(DummyEntity):
         def __init__(
-            self,
-            associate: "TestUnidirectionalToOne._Associate"
-            | ToOneResolver["TestUnidirectionalToOne._Associate"],
+            self, associate: ToOneAssociate["TestUnidirectionalToOne._Associate"]
         ):
             super().__init__()
             self.associate = associate
@@ -636,9 +636,7 @@ class TestUnidirectionalToOne:
 class TestBidirectionalToOne:
     class _Owner(DummyEntity):
         def __init__(
-            self,
-            associate: "TestBidirectionalToOne._Associate"
-            | ToOneResolver["TestBidirectionalToOne._Associate"],
+            self, associate: ToOneAssociate["TestBidirectionalToOne._Associate"]
         ):
             super().__init__()
             self.associate = associate
