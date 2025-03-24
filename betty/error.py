@@ -10,6 +10,7 @@ from typing_extensions import override
 from betty.locale.localizable import Localizable, _
 from betty.locale.localized import LocalizedStr
 from betty.locale.localizer import Localizer
+from betty.user import UserFacing
 
 
 def do_raise(exception: BaseException) -> Never:
@@ -21,7 +22,7 @@ def do_raise(exception: BaseException) -> Never:
     raise exception
 
 
-class UserFacingError(Exception, Localizable):
+class UserFacingError(Exception, Localizable, UserFacing):
     """
     A localizable, user-facing error.
 

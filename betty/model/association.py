@@ -29,11 +29,11 @@ from betty.model import (
     Entity,
     EntityReferenceSchema,
     EntityReferenceCollectionSchema,
-    UserFacingEntity,
     persistent_id,
 )
 from betty.model.collections import EntityCollection, SingleTypeEntityCollection
 from betty.typing import internal
+from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -48,7 +48,7 @@ _AssociateT = TypeVar("_AssociateT", bound=Entity)
 async def _generate_associate_url(project: Project, associate: Entity) -> str | None:
     if not persistent_id(associate):
         return None
-    if not isinstance(associate, UserFacingEntity):
+    if not isinstance(associate, UserFacing):
         return None
     url_generator = await project.url_generator
     return url_generator.generate(
