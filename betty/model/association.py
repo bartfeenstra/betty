@@ -27,9 +27,9 @@ from betty.json.linked_data import LinkedDataDumpableProvider
 from betty.json.schema import Schema, Array, OneOf, Null
 from betty.model import (
     Entity,
-    EntityReferenceSchema,
-    EntityReferenceCollectionSchema,
     persistent_id,
+    ToZeroOrOneSchema,
+    ToManySchema,
 )
 from betty.model.collections import EntityCollection, SingleTypeEntityCollection
 from betty.typing import internal
@@ -290,17 +290,11 @@ class _ToOneAssociation(
 
     @override
     async def linked_data_schema_for(self, project: Project) -> Schema:
-        schema = (
-            await self.associate_type.linked_data_schema(project)
-            if self._linked_data_embedded
-            else EntityReferenceSchema()
-        )
-        return OneOf(
-            schema,
-            Null(description="In case the entity is not publishable."),
-            title=self._title or schema.title,
-            description=self._description or schema.description,
-        )
+        if self._linked_data_embedded:
+            return await self.associate_type.linked_data_schema(project)
+        # We must allow for the associate to be missing, for example if it has a generated entity ID and the linked data
+        # is not embedded, no URL can be generated.
+        return ToZeroOrOneSchema(title=self._title, description=self._description)
 
     @override
     async def dump_linked_data_for(
@@ -361,17 +355,14 @@ class _ToZeroOrOneAssociation(
 
     @override
     async def linked_data_schema_for(self, project: Project) -> Schema:
-        schema = (
-            await self.associate_type.linked_data_schema(project)
-            if self._linked_data_embedded
-            else EntityReferenceSchema()
-        )
-        return OneOf(
-            schema,
-            Null(description="In case the entity is not publishable."),
-            title=self._title or schema.title,
-            description=self._description or schema.description,
-        )
+        if self._linked_data_embedded:
+            return OneOf(
+                await self.associate_type.linked_data_schema(project),
+                Null(),
+                title=self._title,
+                description=self._description,
+            )
+        return ToZeroOrOneSchema(title=self._title, description=self._description)
 
     @override
     async def dump_linked_data_for(
@@ -453,9 +444,7 @@ class _ToManyAssociation(
                 title=self._title,
                 description=self._description,
             )
-        return EntityReferenceCollectionSchema(
-            title=self._title, description=self._description
-        )
+        return ToManySchema(title=self._title, description=self._description)
 
     @override
     async def dump_linked_data_for(

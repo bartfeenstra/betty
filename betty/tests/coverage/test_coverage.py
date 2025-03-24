@@ -249,6 +249,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/media_type/media_types.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/model/__init__.py": {
         "Entity": MissingReason.SHOULD_BE_COVERED,
+        "EntityReferenceCollectionSchema": MissingReason.STATIC_CONTENT_ONLY,
+        "EntityReferenceSchema": MissingReason.STATIC_CONTENT_ONLY,
         "NonPersistentId": MissingReason.SHOULD_BE_COVERED,
         "UserFacingEntity": MissingReason.ABSTRACT,
     },
