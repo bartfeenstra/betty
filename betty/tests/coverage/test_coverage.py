@@ -467,6 +467,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "__init_subclass__": MissingReason.INHERITED,
         },
     },
+    "betty/user.py": {
+        "UserFacing": MissingReason.STATIC_CONTENT_ONLY,
+    },
     "betty/warnings.py": {
         "BettyDeprecationWarning": MissingReason.STATIC_CONTENT_ONLY,
     },

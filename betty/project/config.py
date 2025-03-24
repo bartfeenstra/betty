@@ -52,7 +52,7 @@ from betty.locale.localizable.config import (
 )
 from betty.machine_name import MachineName
 from betty.machine_name import assert_machine_name
-from betty.model import Entity, UserFacingEntity
+from betty.model import Entity
 from betty.plugin import (
     ShorthandPluginBase,
     PluginRepository,
@@ -68,6 +68,7 @@ from betty.plugin.config import (
 from betty.project.extension import Extension
 from betty.repr import repr_instance
 from betty.serde.format import Format, format_for, FORMAT_REPOSITORY
+from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
@@ -160,7 +161,7 @@ class EntityTypeConfiguration(Configuration):
         Validate the configuration.
         """
         entity_type = await entity_type_repository.get(self.id)
-        if self.generate_html_list and not issubclass(entity_type, UserFacingEntity):
+        if self.generate_html_list and not issubclass(entity_type, UserFacing):
             raise AssertionFailed(
                 _(
                     "Cannot generate pages for {entity_type}, because it is not a user-facing entity type."

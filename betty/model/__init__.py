@@ -8,7 +8,7 @@ from reprlib import recursive_repr
 from typing import TypeVar, Any, Self, TypeAlias, TYPE_CHECKING, Iterable
 from uuid import uuid4
 
-from typing_extensions import override
+from typing_extensions import override, deprecated
 
 from betty.json.linked_data import (
     LinkedDataDumpableJsonLdObject,
@@ -22,6 +22,7 @@ from betty.plugin import PluginRepository, Plugin
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.repr import repr_instance
 from betty.string import kebab_case_to_lower_camel_case
+from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
@@ -128,7 +129,7 @@ class Entity(LinkedDataDumpableJsonLdObject, Mutable, Plugin):
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
 
-        if persistent_id(self) and isinstance(self, UserFacingEntity):
+        if persistent_id(self) and isinstance(self, UserFacing):
             url_generator = await project.url_generator
             dump["@id"] = url_generator.generate(
                 f"betty-static:///{self.type.plugin_id()}/{self.id}/index.json",
@@ -172,7 +173,10 @@ def persistent_id(entity_or_id: Entity | str) -> bool:
     )
 
 
-class UserFacingEntity:
+@deprecated(
+    f"This class has been deprecated since Betty 0.4.13, and will be removed in Betty 0.5. Instead use {UserFacing}."
+)
+class UserFacingEntity(UserFacing):
     """
     A sentinel to mark an entity type as being visible to users (e.g. not internal).
     """

@@ -27,13 +27,13 @@ from betty.json.linked_data import LinkedDataDumpable
 from betty.license import License
 from betty.model import (
     Entity,
-    UserFacingEntity,
     ENTITY_TYPE_REPOSITORY,
     persistent_id,
 )
 from betty.plugin import Plugin
 from betty.privacy import is_private, is_public
 from betty.typing import internal
+from betty.user import UserFacing
 from betty.warnings import deprecated
 
 if TYPE_CHECKING:
@@ -114,7 +114,7 @@ def test_user_facing_entity(value: Any) -> bool:
     """
     Test if a value is an entity of a user-facing type.
     """
-    return isinstance(value, UserFacingEntity)
+    return isinstance(value, UserFacing)
 
 
 def test_has_links(value: Any) -> bool:

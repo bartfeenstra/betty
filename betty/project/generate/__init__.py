@@ -41,7 +41,7 @@ from betty.locale import get_display_name
 from betty.locale.localizable import _
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import JSON, HTML
-from betty.model import UserFacingEntity, Entity, persistent_id
+from betty.model import Entity, persistent_id
 from betty.openapi import Specification
 from betty.privacy import is_public
 from betty.project import ProjectEvent, ProjectSchema, ProjectContext
@@ -51,6 +51,7 @@ from betty.project.generate.file import (
     create_json_resource,
 )
 from betty.string import kebab_case_to_lower_camel_case
+from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence, Coroutine
@@ -181,7 +182,7 @@ async def _run_jobs(
         )
 
     async for entity_type in model.ENTITY_TYPE_REPOSITORY:
-        if not issubclass(entity_type, UserFacingEntity):
+        if not issubclass(entity_type, UserFacing):
             continue
         if (
             entity_type in project.configuration.entity_types
@@ -504,7 +505,7 @@ async def _generate_sitemap(
         for entity in project.ancestry:
             if not persistent_id(entity):
                 continue
-            if not isinstance(entity, UserFacingEntity):
+            if not isinstance(entity, UserFacing):
                 continue
 
             sitemap_batch_urls.append(

@@ -8,10 +8,10 @@ from typing import Self, final
 from betty import about, model
 from betty.json.schema import FileBasedSchema
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.model import UserFacingEntity
 from betty.project import Project, ProjectSchema
 from betty.serde.dump import DumpMapping, Dump
 from betty.string import kebab_case_to_lower_camel_case
+from betty.user import UserFacing
 
 
 class Specification:
@@ -98,7 +98,7 @@ class Specification:
         }
 
         # Add entity operations.
-        for entity_type in await model.ENTITY_TYPE_REPOSITORY.select(UserFacingEntity):
+        for entity_type in await model.ENTITY_TYPE_REPOSITORY.select(UserFacing):
             await entity_type.linked_data_schema(self._project)
             if self._project.configuration.clean_urls:
                 collection_path = f"/{entity_type.plugin_id()}/"
