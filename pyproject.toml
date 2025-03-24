@@ -209,6 +209,7 @@ test = [
     'basedmypy ~= 2.6',
     'coverage ~= 7.6',
     'packaging ~= 24.1',
+    'playwright <= 1.51.0',
     'puremagic ~= 1.28',
     'pytest ~= 8.3',
     'pytest-aioresponses ~= 0.2',
