@@ -21,8 +21,8 @@ from betty.locale.localizable import _, Localizable
 from betty.model import (
     UserFacingEntity,
     Entity,
-    EntityReferenceCollectionSchema,
     persistent_id,
+    ToManySchema,
 )
 from betty.model.association import BidirectionalToMany, ToManyAssociates
 from betty.plugin import ShorthandPluginBase
@@ -219,7 +219,5 @@ class Person(
         schema.add_property(
             "gender", await project.gender_repository.plugin_id_schema, False
         )
-        schema.add_property(
-            "siblings", EntityReferenceCollectionSchema(title="Siblings")
-        )
+        schema.add_property("siblings", ToManySchema(title="Siblings"))
         return schema

@@ -5,10 +5,11 @@ from typing_extensions import override
 
 from betty.json.schema import Schema
 from betty.model import (
-    EntityReferenceSchema,
-    EntityReferenceCollectionSchema,
     Entity,
     persistent_id,
+    ToOneSchema,
+    ToManySchema,
+    ToZeroOrOneSchema,
 )
 from betty.serde.dump import Dump
 from betty.test_utils.json.schema import SchemaTestBase
@@ -26,14 +27,14 @@ def test_persistent_id(expected: bool, entity: Entity) -> None:
     assert persistent_id(entity) == expected
 
 
-class TestEntityReferenceSchema(SchemaTestBase):
+class TestToOneSchema(SchemaTestBase):
     @override
     async def get_sut_instances(
         self,
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
         return [
             (
-                EntityReferenceSchema(),
+                ToOneSchema(),
                 [
                     "https://example.com",
                 ],
@@ -42,14 +43,31 @@ class TestEntityReferenceSchema(SchemaTestBase):
         ]
 
 
-class TestEntityReferenceCollectionSchema(SchemaTestBase):
+class TestToZeroOrOneSchema(SchemaTestBase):
     @override
     async def get_sut_instances(
         self,
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
         return [
             (
-                EntityReferenceCollectionSchema(),
+                ToZeroOrOneSchema(),
+                [
+                    "https://example.com",
+                    None,
+                ],
+                [True, False, 123, [], {}],
+            ),
+        ]
+
+
+class TestToManySchema(SchemaTestBase):
+    @override
+    async def get_sut_instances(
+        self,
+    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
+        return [
+            (
+                ToManySchema(),
                 [
                     [],
                     ["https://example.com"],

@@ -8,13 +8,13 @@ from reprlib import recursive_repr
 from typing import TypeVar, Any, Self, TypeAlias, TYPE_CHECKING, Iterable
 from uuid import uuid4
 
-from typing_extensions import override, deprecated
+from typing_extensions import override
 
 from betty.json.linked_data import (
     LinkedDataDumpableJsonLdObject,
     JsonLdObject,
 )
-from betty.json.schema import JsonSchemaReference, Array, String
+from betty.json.schema import JsonSchemaReference, Array, String, OneOf, Null
 from betty.locale.localizable import _, Localizable, StaticTranslationsLocalizableAttr
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.mutability import Mutable
@@ -23,6 +23,7 @@ from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.repr import repr_instance
 from betty.string import kebab_case_to_lower_camel_case
 from betty.user import UserFacing
+from betty.warnings import deprecated
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
@@ -187,27 +188,68 @@ class UserFacingEntity(UserFacing):
 _EntityT = TypeVar("_EntityT", bound=Entity)
 
 
-class EntityReferenceSchema(String):
+class ToZeroOrOneSchema(OneOf):
     """
-    A schema for a reference to another entity resource.
+    A schema for a to-zero-or-one entity association.
     """
 
     def __init__(self, *, title: str | None = None, description: str | None = None):
         super().__init__(
-            title=title or "Entity reference",
-            description=description or "A reference to an entity's JSON resource",
+            String(
+                title=title or "Optional associate entity",
+                description=description
+                or "An optional reference to an associate entity's JSON resource",
+                format=String.Format.URI,
+            ),
+            Null(),
+        )
+
+
+class ToOneSchema(String):
+    """
+    A schema for a to-one entity association.
+    """
+
+    def __init__(self, *, title: str | None = None, description: str | None = None):
+        super().__init__(
+            title=title or "Associate entity",
+            description=description
+            or "A reference to an associate entity's JSON resource",
             format=String.Format.URI,
         )
 
 
-class EntityReferenceCollectionSchema(Array):
+@deprecated(
+    f"This class has been deprecated since Betty 0.4.13, and will be removed in Betty 0.5. Instead use {ToOneSchema}."
+)
+class EntityReferenceSchema(ToOneSchema):
     """
-    A schema for a collection of references to other entity resources.
+    A schema for a reference to another entity resource.
+    """
+
+    pass
+
+
+class ToManySchema(Array):
+    """
+    A schema for a to-many entity association.
     """
 
     def __init__(self, *, title: str | None = None, description: str | None = None):
         super().__init__(
-            EntityReferenceSchema(),
-            title=title or "Entity reference collection",
-            description=description or "References to entities' JSON resources",
+            ToOneSchema(),
+            title=title or "Associate entities",
+            description=description
+            or "References to associate entities' JSON resources",
         )
+
+
+@deprecated(
+    f"This class has been deprecated since Betty 0.4.13, and will be removed in Betty 0.5. Instead use {ToManySchema}."
+)
+class EntityReferenceCollectionSchema(ToManySchema):
+    """
+    A schema for a collection of references to other entity resources.
+    """
+
+    pass

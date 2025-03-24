@@ -35,7 +35,6 @@ from betty.assets import AssetRepository
 from betty.concurrent import ensure_manager
 from betty.config import Configurable
 from betty.copyright_notice import CopyrightNotice, COPYRIGHT_NOTICE_REPOSITORY
-from betty.service import ServiceProvider, service
 from betty.event_dispatcher import EventDispatcher, EventHandlerRegistry
 from betty.factory import TargetFactory
 from betty.hashid import hashid
@@ -43,7 +42,7 @@ from betty.job import Context
 from betty.json.schema import Schema, JsonSchemaReference
 from betty.locale.localizable import _
 from betty.locale.localizer import LocalizerRepository
-from betty.model import Entity, EntityReferenceCollectionSchema
+from betty.model import Entity, ToManySchema
 from betty.plugin import resolve_identifier
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.plugin.static import StaticPluginRepository
@@ -57,6 +56,7 @@ from betty.project.url import (
     new_project_url_generator,
 )
 from betty.render import Renderer, SequentialRenderer, RENDERER_REPOSITORY
+from betty.service import ServiceProvider, service
 from betty.string import kebab_case_to_lower_camel_case
 from betty.typing import internal
 from betty.warnings import deprecated
@@ -598,7 +598,7 @@ class ProjectSchema(ProjectDependentFactory, Schema):
             schema.defs[def_name] = {
                 "type": "object",
                 "properties": {
-                    "collection": EntityReferenceCollectionSchema().embed(schema),
+                    "collection": ToManySchema().embed(schema),
                 },
             }
 
