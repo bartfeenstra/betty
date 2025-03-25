@@ -6,13 +6,15 @@ This module is internal.
 
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
+from threading import Thread
 from typing import TYPE_CHECKING, final, Self, ClassVar
 
 from typing_extensions import override
 
 from betty._npm import NpmRequirement, NpmUnavailable
-from betty.html import CssProvider
+from betty.html import CssProvider, JsProvider
 from betty.jinja2 import Jinja2Provider, Filters, ContextVars
 from betty.locale.localizable import static
 from betty.os import copy_tree
@@ -47,7 +49,7 @@ async def _generate_assets(event: GenerateSiteEvent) -> None:
 
 @internal
 @final
-class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
+class Webpack(ShorthandPluginBase, Extension, CssProvider, JsProvider, Jinja2Provider):
     """
     Integrate Betty with `Webpack <https://webpack.js.org/>`_.
     """
@@ -57,15 +59,22 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
     _requirement: ClassVar[Requirement | None] = None
 
     @private
-    def __init__(self, project: Project, public_css_paths: Sequence[str]):
+    def __init__(
+        self, project: Project, _public_css_path_prefix: str, _public_js_path: str
+    ):
         super().__init__(project)
-        self._public_css_paths = public_css_paths
+        self._public_css_path_prefix = _public_css_path_prefix
+        self._public_js_path = _public_js_path
 
     @override
     @classmethod
     async def new_for_project(cls, project: Project) -> Self:
         url_generator = await project.url_generator
-        return cls(project, [url_generator.generate("betty-static:///css/vendor.css")])
+        return cls(
+            project,
+            url_generator.generate("betty-static:///css/"),
+            url_generator.generate("betty-static:///js/webpack-entry-loader.js"),
+        )
 
     @override
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
@@ -89,7 +98,26 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, Jinja2Provider):
     @override
     @property
     def public_css_paths(self) -> Sequence[str]:
-        return self._public_css_paths
+        entry_points: Sequence[EntryPointProvider & Extension] = []
+
+        def _target():
+            entry_points.extend(asyncio.run(self._project_entry_point_providers()))
+
+        thread = Thread(target=_target)
+        thread.start()
+        thread.join()
+        return (
+            f"{self._public_css_path_prefix}vendor.css",
+            *(
+                f"{self._public_css_path_prefix}{entry_point.plugin_id()}.css"
+                for entry_point in entry_points
+            ),
+        )
+
+    @override
+    @property
+    def public_js_paths(self) -> Sequence[str]:
+        return (self._public_js_path,)
 
     @override
     def new_context_vars(self) -> ContextVars:

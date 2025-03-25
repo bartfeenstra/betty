@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING
 
 from jinja2 import pass_context
 
-from betty.jinja2.filter import filter_public_js
 from betty.project.extension.webpack.jinja2 import _context_js_entry_points
 
 if TYPE_CHECKING:
@@ -23,7 +22,6 @@ async def filter_webpack_entry_point_js(
     """
     Add a Webpack entry point's JavaScript files to the current page.
     """
-    await filter_public_js(context, "betty-static:///js/webpack-entry-loader.js")
     _context_js_entry_points(context).add(entry_point_name)
 
 

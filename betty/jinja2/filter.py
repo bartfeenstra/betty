@@ -37,6 +37,7 @@ from pdf2image.pdf2image import convert_from_path
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.hashid import hashid_file_meta, hashid
+from betty.html import CssProvider, JsProvider
 from betty.image import (
     resize_cover,
     Size,
@@ -590,6 +591,9 @@ def filter_select_has_dates(
     )
 
 
+@deprecated(
+    f"This filter has been deprecated since Betty 0.4.13, and will be removed in Betty 0.5. Instead add CSS files to pages by making an extension extend {CssProvider}."
+)
 @pass_context
 async def filter_public_css(context: Context, public_path: str) -> None:
     """
@@ -605,6 +609,9 @@ async def filter_public_css(context: Context, public_path: str) -> None:
     )
 
 
+@deprecated(
+    f"This filter has been deprecated since Betty 0.4.13, and will be removed in Betty 0.5. Instead add CSS files to pages by making an extension extend {JsProvider}."
+)
 @pass_context
 async def filter_public_js(context: Context, public_path: str) -> None:
     """

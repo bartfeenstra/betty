@@ -5,20 +5,23 @@ from __future__ import annotations
 import json
 from asyncio import gather
 from pathlib import Path
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, final, Self
 
 import aiofiles
 from typing_extensions import override
 
 from betty.ancestry.person import Person
+from betty.html import CssProvider
 from betty.locale.localizable import _
 from betty.media_type.media_types import HTML
 from betty.plugin import ShorthandPluginBase
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.generate import GenerateSiteEvent
+from betty.typing import private
 
 if TYPE_CHECKING:
+    from betty.project import Project
     from betty.project.extension import Extension
     from betty.event_dispatcher import EventHandlerRegistry
     from betty.plugin import PluginIdentifier
@@ -64,7 +67,7 @@ async def _generate_people_json_for_locale(
 
 
 @final
-class Trees(ShorthandPluginBase, EntryPointProvider):
+class Trees(ShorthandPluginBase, CssProvider, EntryPointProvider):
     """
     Provide interactive family trees for use in web pages.
     """
@@ -74,6 +77,20 @@ class Trees(ShorthandPluginBase, EntryPointProvider):
     _plugin_description = _(
         'Display interactive family trees using <a href="https://cytoscape.org/">Cytoscape</a>.'
     )
+
+    @private
+    def __init__(self, project: Project, _public_css_paths: Sequence[str]):
+        super().__init__(project)
+        self._public_css_paths = _public_css_paths
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project) -> Self:
+        url_generator = await project.url_generator
+        return cls(
+            project,
+            [url_generator.generate(f"betty-static:///css/{cls.plugin_id()}.css")],
+        )
 
     @override
     @classmethod
@@ -97,3 +114,8 @@ class Trees(ShorthandPluginBase, EntryPointProvider):
     @override
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:
         return ()
+
+    @override
+    @property
+    def public_css_paths(self) -> Sequence[str]:
+        return self._public_css_paths

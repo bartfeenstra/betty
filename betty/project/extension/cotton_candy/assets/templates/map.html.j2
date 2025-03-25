@@ -7,5 +7,4 @@
     <div class="map" data-betty-places="{{ ns.place_urls | json }}">
     </div>
 </div>
-{% do 'betty-static:///css/maps.css' | public_css %}
 {% do 'maps' | webpack_entry_point_js %}
