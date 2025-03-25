@@ -5,5 +5,4 @@
         {% include 'trees/control-full-screen.html.j2' %}
     {% endwith %}
 </div>
-{% do 'betty-static:///css/trees.css' | public_css %}
 {% do 'trees' | webpack_entry_point_js %}

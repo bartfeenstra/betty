@@ -833,11 +833,12 @@ async def test_filter_negotiate_localizeds() -> None:
 
 async def test_filter_public_css() -> None:
     template = "{{ data | public_css }}{{ public_css_paths | safe }}"
-    async with assert_template_string(
-        template=template,
-        data={"data": "betty-static:///css/my-first-css.css"},
-    ) as (actual, _):
-        assert actual == "None['/css/my-first-css.css']"
+    with pytest.warns(BettyDeprecationWarning):
+        async with assert_template_string(
+            template=template,
+            data={"data": "betty-static:///css/my-first-css.css"},
+        ) as (actual, _):
+            assert actual == "None['/css/my-first-css.css']"
 
 
 async def test_filter_public_css__with_deprecated_url_path() -> None:
@@ -852,11 +853,12 @@ async def test_filter_public_css__with_deprecated_url_path() -> None:
 
 async def test_filter_public_js() -> None:
     template = "{{ data | public_js }}{{ public_js_paths | safe }}"
-    async with assert_template_string(
-        template=template,
-        data={"data": "betty-static:///js/my-first-js.js"},
-    ) as (actual, _):
-        assert actual == "None['/js/my-first-js.js']"
+    with pytest.warns(BettyDeprecationWarning):
+        async with assert_template_string(
+            template=template,
+            data={"data": "betty-static:///js/my-first-js.js"},
+        ) as (actual, _):
+            assert actual == "None['/js/my-first-js.js']"
 
 
 async def test_filter_public_js__with_deprecated_url_path() -> None:

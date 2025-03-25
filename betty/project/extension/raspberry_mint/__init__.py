@@ -109,12 +109,12 @@ class RaspberryMint(
     def __init__(
         self,
         project: Project,
-        public_css_paths: Sequence[str],
+        _public_css_paths: Sequence[str],
         *,
         configuration: RaspberryMintConfiguration,
     ):
         super().__init__(project, configuration=configuration)
-        self._public_css_paths = public_css_paths
+        self._public_css_paths = _public_css_paths
 
     @override
     @classmethod
@@ -122,7 +122,7 @@ class RaspberryMint(
         url_generator = await project.url_generator
         return cls(
             project,
-            [url_generator.generate("betty-static:///css/raspberry-mint.css")],
+            [url_generator.generate(f"betty-static:///css/{cls.plugin_id()}.css")],
             configuration=cls.new_default_configuration(),
         )
 

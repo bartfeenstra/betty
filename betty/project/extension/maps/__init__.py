@@ -3,23 +3,26 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, final, Self
 
 from typing_extensions import override
 
+from betty.html import CssProvider
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
+from betty.typing import private
 
 if TYPE_CHECKING:
+    from betty.project import Project
     from betty.project.extension import Extension
     from betty.plugin import PluginIdentifier
     from collections.abc import Sequence
 
 
 @final
-class Maps(ShorthandPluginBase, EntryPointProvider):
+class Maps(ShorthandPluginBase, CssProvider, EntryPointProvider):
     """
     Provide interactive maps for use on web pages.
     """
@@ -29,6 +32,20 @@ class Maps(ShorthandPluginBase, EntryPointProvider):
     _plugin_description = _(
         'Display lists of places as interactive maps using <a href="https://leafletjs.com/">Leaflet</a>.'
     )
+
+    @private
+    def __init__(self, project: Project, _public_css_paths: Sequence[str]):
+        super().__init__(project)
+        self._public_css_paths = _public_css_paths
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project) -> Self:
+        url_generator = await project.url_generator
+        return cls(
+            project,
+            [url_generator.generate(f"betty-static:///css/{cls.plugin_id()}.css")],
+        )
 
     @override
     @classmethod
@@ -48,3 +65,8 @@ class Maps(ShorthandPluginBase, EntryPointProvider):
     @override
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:
         return ()
+
+    @override
+    @property
+    def public_css_paths(self) -> Sequence[str]:
+        return self._public_css_paths
