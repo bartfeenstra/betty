@@ -17,6 +17,7 @@ from betty.locale.localizable import (
     OptionalStaticTranslationsLocalizableAttr,
     ShorthandStaticTranslations,
     Localizable,
+    ngettext,
 )
 from betty.model import UserFacingEntity
 from betty.model.association import (
@@ -110,6 +111,13 @@ class Citation(
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
         return _("Citations")
+
+    @override
+    @classmethod
+    def plugin_label_count(cls, count: int) -> Localizable:
+        return ngettext("{count} citation", "{count} citations", count).format(
+            count=str(count)
+        )
 
     @override
     @property

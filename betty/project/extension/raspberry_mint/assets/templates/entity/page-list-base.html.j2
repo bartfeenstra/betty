@@ -4,5 +4,8 @@
     page_title,
     page_resource | url(absolute=true)
 ) %}
-{% block page_content %}
+{% block page_summary %}
+    <p>
+        {{ entity_type.plugin_label_count(entities | length) | localize | html_lang }}
+    </p>
 {% endblock %}

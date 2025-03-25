@@ -17,7 +17,7 @@ from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks, Link
 from betty.functools import unique
 from betty.json.linked_data import dump_context, JsonLdObject
-from betty.locale.localizable import _, Localizable
+from betty.locale.localizable import _, Localizable, ngettext
 from betty.model import (
     UserFacingEntity,
     Entity,
@@ -131,6 +131,13 @@ class Person(
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
         return _("People")
+
+    @override
+    @classmethod
+    def plugin_label_count(cls, count: int) -> Localizable:
+        return ngettext("{count} person", "{count} people", count).format(
+            count=str(count)
+        )
 
     @override
     def get_mutable_instances(self) -> Iterable[Mutable]:

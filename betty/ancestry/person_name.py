@@ -13,7 +13,7 @@ from betty.ancestry.locale import HasLocale
 from betty.json.linked_data import dump_context, JsonLdObject
 from betty.json.schema import String
 from betty.locale import UNDETERMINED_LOCALE
-from betty.locale.localizable import _, Localizable
+from betty.locale.localizable import _, Localizable, ngettext
 from betty.model import Entity
 from betty.model.association import BidirectionalToOne, ToOneAssociate, ToManyAssociates
 from betty.plugin import ShorthandPluginBase
@@ -90,6 +90,13 @@ class PersonName(ShorthandPluginBase, HasLocale, HasCitations, HasPrivacy, Entit
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
         return _("Person names")
+
+    @override
+    @classmethod
+    def plugin_label_count(cls, count: int) -> Localizable:
+        return ngettext("{count} person name", "{count} person names", count).format(
+            count=str(count)
+        )
 
     @property
     def individual(self) -> str | None:

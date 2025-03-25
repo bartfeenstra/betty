@@ -248,7 +248,15 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/media_type/media_types.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/model/__init__.py": {
-        "Entity": MissingReason.SHOULD_BE_COVERED,
+        "Entity": {
+            "__hash__": MissingReason.SHOULD_BE_COVERED,
+            "ancestry_id": MissingReason.SHOULD_BE_COVERED,
+            "dump_linked_data": MissingReason.SHOULD_BE_COVERED,
+            "get_mutable_instances": MissingReason.SHOULD_BE_COVERED,
+            "id": MissingReason.SHOULD_BE_COVERED,
+            "label": MissingReason.SHOULD_BE_COVERED,
+            "type": MissingReason.SHOULD_BE_COVERED,
+        },
         "EntityReferenceCollectionSchema": MissingReason.STATIC_CONTENT_ONLY,
         "EntityReferenceSchema": MissingReason.STATIC_CONTENT_ONLY,
         "NonPersistentId": MissingReason.SHOULD_BE_COVERED,

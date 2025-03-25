@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from typing_extensions import override
 
 from betty.ancestry.file import File
-from betty.locale.localizable import _, Localizable
+from betty.locale.localizable import _, Localizable, ngettext
 from betty.model import Entity
 from betty.model.association import BidirectionalToOne, ToOneAssociate
 from betty.plugin import ShorthandPluginBase
@@ -64,6 +64,13 @@ class FileReference(ShorthandPluginBase, Entity):
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
         return _("File references")
+
+    @override
+    @classmethod
+    def plugin_label_count(cls, count: int) -> Localizable:
+        return ngettext(
+            "{count} file reference", "{count} file references", count
+        ).format(count=str(count))
 
     @property
     def focus(self) -> FocusArea | None:
