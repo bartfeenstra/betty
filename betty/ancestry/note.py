@@ -14,6 +14,7 @@ from betty.locale.localizable import (
     RequiredStaticTranslationsLocalizableAttr,
     ShorthandStaticTranslations,
     Localizable,
+    ngettext,
 )
 from betty.model import UserFacingEntity, Entity
 from betty.model.association import (
@@ -75,6 +76,11 @@ class Note(ShorthandPluginBase, UserFacingEntity, HasPrivacy, HasLinks, Entity):
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
         return _("Notes")
+
+    @override
+    @classmethod
+    def plugin_label_count(cls, count: int) -> Localizable:
+        return ngettext("{count} note", "{count} notes", count).format(count=str(count))
 
     @override
     @property

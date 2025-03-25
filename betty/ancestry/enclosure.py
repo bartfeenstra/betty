@@ -10,7 +10,7 @@ from typing_extensions import override
 
 from betty.ancestry.date import HasDate
 from betty.ancestry.has_citations import HasCitations
-from betty.locale.localizable import _, Localizable
+from betty.locale.localizable import _, Localizable, ngettext
 from betty.model import Entity
 from betty.model.association import BidirectionalToOne, ToOneAssociate
 from betty.plugin import ShorthandPluginBase
@@ -60,3 +60,10 @@ class Enclosure(ShorthandPluginBase, HasDate, HasCitations, Entity):
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
         return _("Enclosures")
+
+    @override
+    @classmethod
+    def plugin_label_count(cls, count: int) -> Localizable:
+        return ngettext("{count} enclosure", "{count} enclosures", count).format(
+            count=str(count)
+        )

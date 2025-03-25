@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-03-22 20:24+0000\n"
+"POT-Creation-Date: 2025-03-25 23:56+0000\n"
 "PO-Revision-Date: 2025-03-16 21:34+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -1356,6 +1356,78 @@ msgstr "tot en met {end_date}"
 
 msgid "y"
 msgstr "y"
+
+#, python-brace-format
+msgid "{count} citation"
+msgid_plural "{count} citations"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} enclosure"
+msgid_plural "{count} enclosures"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} entity"
+msgid_plural "{count} entities"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} event"
+msgid_plural "{count} events"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} file"
+msgid_plural "{count} files"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} file reference"
+msgid_plural "{count} file references"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} note"
+msgid_plural "{count} notes"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} person"
+msgid_plural "{count} people"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} person name"
+msgid_plural "{count} person names"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} place"
+msgid_plural "{count} places"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} presence"
+msgid_plural "{count} presences"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} source"
+msgid_plural "{count} sources"
+msgstr[0] ""
+msgstr[1] ""
 
 #, python-brace-format
 msgid "{date}"

@@ -27,6 +27,7 @@ from betty.locale.localizable import (
     Localizable,
     call,
     OptionalStaticTranslationsLocalizableAttr,
+    ngettext,
 )
 from betty.model import UserFacingEntity
 from betty.model.association import (
@@ -178,6 +179,13 @@ class Event(
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
         return _("Events")
+
+    @override
+    @classmethod
+    def plugin_label_count(cls, count: int) -> Localizable:
+        return ngettext("{count} event", "{count} events", count).format(
+            count=str(count)
+        )
 
     @property
     def event_type(self) -> EventType:

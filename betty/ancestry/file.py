@@ -13,7 +13,12 @@ from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.media_type import HasMediaType
-from betty.locale.localizable import _, ShorthandStaticTranslations, Localizable
+from betty.locale.localizable import (
+    _,
+    ShorthandStaticTranslations,
+    Localizable,
+    ngettext,
+)
 from betty.model import UserFacingEntity, Entity
 from betty.model.association import (
     BidirectionalToMany,
@@ -129,6 +134,11 @@ class File(
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
         return _("Files")
+
+    @override
+    @classmethod
+    def plugin_label_count(cls, count: int) -> Localizable:
+        return ngettext("{count} file", "{count} files", count).format(count=str(count))
 
     @property
     def path(self) -> Path:

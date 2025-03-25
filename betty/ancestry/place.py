@@ -16,7 +16,7 @@ from betty.ancestry.name import Name
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.json.linked_data import dump_context, JsonLdObject
 from betty.json.schema import Array, Number, Object
-from betty.locale.localizable import _, Localizable
+from betty.locale.localizable import _, Localizable, ngettext
 from betty.model import UserFacingEntity, Entity
 from betty.model.association import BidirectionalToMany, ToManyAssociates
 from betty.plugin import ShorthandPluginBase
@@ -136,6 +136,13 @@ class Place(
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
         return _("Places")
+
+    @override
+    @classmethod
+    def plugin_label_count(cls, count: int) -> Localizable:
+        return ngettext("{count} place", "{count} places", count).format(
+            count=str(count)
+        )
 
     @property
     def place_type(self) -> PlaceType:

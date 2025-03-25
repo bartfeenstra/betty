@@ -8,6 +8,7 @@ from reprlib import recursive_repr
 from typing import TypeVar, Any, Self, TypeAlias, TYPE_CHECKING, Iterable
 from uuid import uuid4
 
+import typing_extensions
 from typing_extensions import override
 
 from betty.json.linked_data import (
@@ -15,7 +16,12 @@ from betty.json.linked_data import (
     JsonLdObject,
 )
 from betty.json.schema import JsonSchemaReference, Array, String, OneOf, Null
-from betty.locale.localizable import _, Localizable, StaticTranslationsLocalizableAttr
+from betty.locale.localizable import (
+    _,
+    Localizable,
+    StaticTranslationsLocalizableAttr,
+    ngettext,
+)
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.mutability import Mutable
 from betty.plugin import PluginRepository, Plugin
@@ -23,7 +29,7 @@ from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.repr import repr_instance
 from betty.string import kebab_case_to_lower_camel_case
 from betty.user import UserFacing
-from betty.warnings import deprecated
+from betty.warnings import deprecated, deprecate
 
 if TYPE_CHECKING:
     from betty.serde.dump import DumpMapping, Dump
@@ -86,6 +92,18 @@ class Entity(LinkedDataDumpableJsonLdObject, Mutable, Plugin):
         The human-readable entity type label, plural.
         """
         pass
+
+    @classmethod
+    def plugin_label_count(cls, count: int) -> Localizable:
+        """
+        The human-readable entity type label for the given entity count.
+        """
+        deprecate(
+            f"Not overriding {cls}.plugin_label_count() has been deprecated since Betty 0.4.13."
+        )
+        return ngettext("{count} entity", "{count} entities", count).format(
+            count=str(count)
+        )
 
     @override  # type: ignore[callable-functiontype]
     @recursive_repr()
@@ -174,7 +192,7 @@ def persistent_id(entity_or_id: Entity | str) -> bool:
     )
 
 
-@deprecated(
+@typing_extensions.deprecated(
     f"This class has been deprecated since Betty 0.4.13, and will be removed in Betty 0.5. Instead use {UserFacing}."
 )
 class UserFacingEntity(UserFacing):

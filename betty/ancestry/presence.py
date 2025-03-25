@@ -8,7 +8,7 @@ from typing import final, TYPE_CHECKING, Iterable
 
 from typing_extensions import override
 
-from betty.locale.localizable import _, Localizable
+from betty.locale.localizable import _, Localizable, ngettext
 from betty.model import Entity
 from betty.model.association import BidirectionalToOne, ToOneAssociate
 from betty.plugin import ShorthandPluginBase
@@ -80,6 +80,13 @@ class Presence(ShorthandPluginBase, HasPrivacy, Entity):
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
         return _("Presences")
+
+    @override
+    @classmethod
+    def plugin_label_count(cls, count: int) -> Localizable:
+        return ngettext("{count} presence", "{count} presences", count).format(
+            count=str(count)
+        )
 
     @override
     @property
