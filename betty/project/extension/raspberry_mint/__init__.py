@@ -6,12 +6,11 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import TYPE_CHECKING, final, Self
+from typing import TYPE_CHECKING, final
 
 import aiofiles
 from typing_extensions import override
 
-from betty.html import CssProvider
 from betty.jinja2 import (
     Jinja2Provider,
     Filters,
@@ -29,10 +28,8 @@ from betty.project.extension.trees import Trees
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.generate import GenerateSiteEvent
-from betty.typing import private
 
 if TYPE_CHECKING:
-    from betty.project import Project
     from betty.plugin import PluginIdentifier
     from betty.event_dispatcher import EventHandlerRegistry
     from collections.abc import Sequence
@@ -93,7 +90,6 @@ async def _generate_webmanifest(event: GenerateSiteEvent) -> None:
 class RaspberryMint(
     ShorthandPluginBase,
     Theme,
-    CssProvider,
     ConfigurableExtension[RaspberryMintConfiguration],
     Jinja2Provider,
     EntryPointProvider,
@@ -104,27 +100,6 @@ class RaspberryMint(
 
     _plugin_id = "raspberry-mint"
     _plugin_label = static("Raspberry Mint")
-
-    @private
-    def __init__(
-        self,
-        project: Project,
-        _public_css_paths: Sequence[str],
-        *,
-        configuration: RaspberryMintConfiguration,
-    ):
-        super().__init__(project, configuration=configuration)
-        self._public_css_paths = _public_css_paths
-
-    @override
-    @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
-        url_generator = await project.url_generator
-        return cls(
-            project,
-            [url_generator.generate(f"betty-static:///css/{cls.plugin_id()}.css")],
-            configuration=cls.new_default_configuration(),
-        )
 
     @override
     async def bootstrap(self) -> None:
@@ -177,11 +152,6 @@ class RaspberryMint(
             self._configuration.secondary_color.hex,
             self._configuration.tertiary_color.hex,
         )
-
-    @override
-    @property
-    def public_css_paths(self) -> Sequence[str]:
-        return self._public_css_paths
 
     @override
     @classmethod

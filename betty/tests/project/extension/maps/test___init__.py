@@ -13,11 +13,6 @@ class TestMaps(EntryPointProviderTestBase):
     def get_sut_class(self) -> type[Maps]:
         return Maps
 
-    async def test_public_css_paths(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = await project.new_target(self.get_sut_class())
-            assert len(sut.public_css_paths)
-
     async def test_generate(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.debug = True
