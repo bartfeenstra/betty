@@ -4,6 +4,8 @@ import pytest
 
 from betty.jinja2.globals import HtmlId
 from betty.test_utils.jinja2 import assert_template_string
+from betty.typing import internal
+from betty.warnings import BettyDeprecationWarning
 
 
 class TestHtmlId:
@@ -34,3 +36,16 @@ class TestHtmlId:
 async def test_generate_html_id(expected: str, template: str) -> None:
     async with assert_template_string(template=template) as (actual, _):
         assert actual == expected
+
+
+@internal
+async def test_deprecate() -> None:
+    deprecation_message = "ye olde deprecation"
+    with pytest.warns(BettyDeprecationWarning, match=deprecation_message):
+        async with assert_template_string(
+            template=f"{{% do deprecate('{deprecation_message}') %}}"
+        ) as (
+            actual,
+            _,
+        ):
+            pass

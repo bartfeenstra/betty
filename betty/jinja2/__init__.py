@@ -41,6 +41,7 @@ from betty.plugin import Plugin, PluginIdToTypeMapping
 from betty.project.factory import ProjectDependentFactory
 from betty.render import Renderer
 from betty.typing import private
+from betty.warnings import deprecate
 
 if TYPE_CHECKING:
     from betty.assets import AssetRepository
@@ -377,6 +378,7 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
         self.globals["entity_contexts"] = self._entity_contexts
         self.globals["localizer"] = DEFAULT_LOCALIZER
         self.globals["generate_html_id"] = generate_html_id
+        self.globals["deprecate"] = deprecate
 
     def _init_extensions(self) -> None:
         for extension in self._extensions:
