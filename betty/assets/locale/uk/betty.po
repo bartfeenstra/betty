@@ -8,16 +8,17 @@ msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
 "POT-Creation-Date: 2025-03-25 23:56+0000\n"
-"PO-Revision-Date: 2025-03-16 21:34+0000\n"
+"PO-Revision-Date: 2025-03-27 08:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic2005a@gmail.com>\n"
+"Language-Team: Ukrainian <https://hosted.weblate.org/projects/betty/betty/uk/"
+">\n"
 "Language: uk\n"
-"Language-Team: Ukrainian "
-"<https://hosted.weblate.org/projects/betty/betty/uk/>\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Weblate 5.11-dev\n"
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
@@ -1361,86 +1362,86 @@ msgstr "y року"
 #, python-brace-format
 msgid "{count} citation"
 msgid_plural "{count} citations"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} цитата"
+msgstr[1] "{count} цитати"
+msgstr[2] "{count} цитаті"
 
 #, python-brace-format
 msgid "{count} enclosure"
 msgid_plural "{count} enclosures"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} корпус"
+msgstr[1] "{count} корпуси"
+msgstr[2] "{count} корпуси"
 
 #, python-brace-format
 msgid "{count} entity"
 msgid_plural "{count} entities"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} сутність"
+msgstr[1] "{count} сутності"
+msgstr[2] "{count} сутності"
 
 #, python-brace-format
 msgid "{count} event"
 msgid_plural "{count} events"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} подія"
+msgstr[1] "{count} події"
+msgstr[2] "{count} події"
 
 #, python-brace-format
 msgid "{count} file"
 msgid_plural "{count} files"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} файл"
+msgstr[1] "{count} файли"
+msgstr[2] "{count} файлів"
 
 #, python-brace-format
 msgid "{count} file reference"
 msgid_plural "{count} file references"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} посилання на файл"
+msgstr[1] "{count} посилання на файли"
+msgstr[2] "{count} посилання на файлів"
 
 #, python-brace-format
 msgid "{count} note"
 msgid_plural "{count} notes"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} примітка"
+msgstr[1] "{count} примітки"
+msgstr[2] "{count} примітки"
 
 #, python-brace-format
 msgid "{count} person"
 msgid_plural "{count} people"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} людина"
+msgstr[1] "{count} людей"
+msgstr[2] "{count} людини"
 
 #, python-brace-format
 msgid "{count} person name"
 msgid_plural "{count} person names"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} ім'я особи"
+msgstr[1] "{count} імена осіб"
+msgstr[2] "{count} імена осіб"
 
 #, python-brace-format
 msgid "{count} place"
 msgid_plural "{count} places"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} місце"
+msgstr[1] "{count} місць"
+msgstr[2] "{count} місць"
 
 #, python-brace-format
 msgid "{count} presence"
 msgid_plural "{count} presences"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} присутні"
+msgstr[1] "{count} присутність"
+msgstr[2] "{count} присутність"
 
 #, python-brace-format
 msgid "{count} source"
 msgid_plural "{count} sources"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} джерело"
+msgstr[1] "{count} джерела"
+msgstr[2] "{count} джерела"
 
 #, python-brace-format
 msgid "{date}"
@@ -1476,4 +1477,3 @@ msgstr "© Авторське право належить автору, якщо
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Авторське право {author}, якщо не зазначено інше"
-
