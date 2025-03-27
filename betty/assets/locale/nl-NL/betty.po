@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-03-25 23:56+0000\n"
-"PO-Revision-Date: 2025-03-16 21:34+0000\n"
+"PO-Revision-Date: 2025-03-27 09:33+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
-"Language: nl_NL\n"
-"Language-Team: Dutch "
-"<https://hosted.weblate.org/projects/betty/betty/nl/>\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"Language-Team: Dutch <https://hosted.weblate.org/projects/betty/betty/nl/>\n"
+"Language: nl-NL\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.11-dev\n"
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
@@ -884,7 +884,7 @@ msgstr "Woonplaats"
 
 #, python-brace-format
 msgid "Results ({{{ betty-search-results-count }}})"
-msgstr "Resultaten  ({{{ betty-search-results-count }}})"
+msgstr "Resultaten ({{{ betty-search-results-count }}})"
 
 msgid "Retirement"
 msgstr "Pensioen"
@@ -1360,74 +1360,74 @@ msgstr "y"
 #, python-brace-format
 msgid "{count} citation"
 msgid_plural "{count} citations"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} citaat"
+msgstr[1] "{count} citaten"
 
 #, python-brace-format
 msgid "{count} enclosure"
 msgid_plural "{count} enclosures"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} omsluiting"
+msgstr[1] "{count} omsluitingen"
 
 #, python-brace-format
 msgid "{count} entity"
 msgid_plural "{count} entities"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} entiteit"
+msgstr[1] "{count} entiteiten"
 
 #, python-brace-format
 msgid "{count} event"
 msgid_plural "{count} events"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} gebeurtenis"
+msgstr[1] "{count} gebeurtenissen"
 
 #, python-brace-format
 msgid "{count} file"
 msgid_plural "{count} files"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} bestand"
+msgstr[1] "{count} bestanden"
 
 #, python-brace-format
 msgid "{count} file reference"
 msgid_plural "{count} file references"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} bestandsverwijzing"
+msgstr[1] "{count} bestandsverwijzingen"
 
 #, python-brace-format
 msgid "{count} note"
 msgid_plural "{count} notes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} aantekening"
+msgstr[1] "{count} aantekeningen"
 
 #, python-brace-format
 msgid "{count} person"
 msgid_plural "{count} people"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} persoon"
+msgstr[1] "{count} personen"
 
 #, python-brace-format
 msgid "{count} person name"
 msgid_plural "{count} person names"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} persoonsnaam"
+msgstr[1] "{count} persoonsnamen"
 
 #, python-brace-format
 msgid "{count} place"
 msgid_plural "{count} places"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} plaats"
+msgstr[1] "{count} plaatsen"
 
 #, python-brace-format
 msgid "{count} presence"
 msgid_plural "{count} presences"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} aanwezigheid"
+msgstr[1] "{count} aanwezigheden"
 
 #, python-brace-format
 msgid "{count} source"
 msgid_plural "{count} sources"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} bron"
+msgstr[1] "{count} bronnen"
 
 #, python-brace-format
 msgid "{date}"
@@ -1463,4 +1463,3 @@ msgstr "© Copyright de auteur, tenzij anders vermeld"
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Copyright {author}, tenzij anders vermeld"
-
