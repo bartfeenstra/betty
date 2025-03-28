@@ -1,7 +1,6 @@
-{% if html_id is not defined %}
-    {% set html_id = generate_html_id() %}
-{% endif %}
-<div class="form-check{% if html_class is defined %} {{ html_class | join(' ') }}{% endif %}">
-    <input class="form-check-input" type="checkbox" value="{{ checkbox_value }}" id="{{ html_id }}"{% if checkbox_checked | default(false) %} checked{% endif %}>
-    <label class="form-check-label" for="{{ html_id }}">{{ checkbox_label }}</label>
+{% set attributes = attributes | default(new_attributes()) %}
+{% do attributes.setdefault(html_id=generate_html_id()) %}
+<div {% if form_control_attributes is defined %}{{ form_control_attributes }}{% endif %}>
+    <input class="form-check-input" type="checkbox" value="{{ checkbox_value }}" {{ attributes }}>
+    <label class="form-check-label" for="{{ attributes.html_id }}">{{ checkbox_label }}</label>
 </div>

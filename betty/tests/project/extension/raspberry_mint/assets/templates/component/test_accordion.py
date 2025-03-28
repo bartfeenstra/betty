@@ -1,5 +1,6 @@
 from markupsafe import Markup
 
+from betty.html.attributes import Attributes
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 
@@ -37,7 +38,7 @@ async def test_with_items() -> None:
         assert body in actual
 
 
-async def test_with_html_class() -> None:
+async def test_with_html_attributes() -> None:
     html_class = "my-first-class"
     async with assert_template_file(
         data={
@@ -48,7 +49,7 @@ async def test_with_html_class() -> None:
                     "body": Markup("<p>Lorem ipsum dolor sit amet</p>"),
                 },
             ],
-            "html_class": [html_class],
+            "attributes": Attributes(html_class=[html_class]),
         },
         extensions={RaspberryMint},
         template="component/accordion.html.j2",
