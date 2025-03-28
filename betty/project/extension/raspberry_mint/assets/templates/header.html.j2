@@ -132,8 +132,8 @@
                         {% set entity_type_html_id = 'betty-search-form-filter-entity-type--' + entity_type_id %}
                         {% do ns.filter_entity_type_checkboxes.append({
                             'checked': true,
-                            'class': ['search-form-filter-entity-type'],
-                            'id': entity_type_html_id,
+                            'attributes': new_attributes(html_id=entity_type_html_id),
+                            'form_control_attributes': new_attributes(html_class=['search-form-filter-entity-type']),
                             'label': project.entity_type_repository.get(entity_type_id).plugin_label() | localize,
                             'value': entity_type_id,
                         }) %}
@@ -177,8 +177,10 @@
                                 {% endwith %}
                                 {% with button_label = _('Reset'),
                                     button_secondary = True,
-                                    html_class = ['mt-3'],
-                                    html_id = 'search-form-filter-reset'
+                                    attributes=new_attributes(
+                                        html_class=['mt-3'],
+                                        html_id='search-form-filter-reset'
+                                    )
                                 %}
                                     {% include 'component/button.html.j2' %}
                                 {% endwith %}
