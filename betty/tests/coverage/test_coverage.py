@@ -24,7 +24,6 @@ import aiofiles
 import pytest
 
 from betty.fs import ROOT_DIRECTORY_PATH
-from betty.html.attributes import Attributes
 from betty.tests.coverage.fixtures import (
     module_function_with_test,
     module_function_without_test,
@@ -184,16 +183,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "LoaderUsedAlready": MissingReason.STATIC_CONTENT_ONLY,
         "XPathError": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/html/__init__.py": {
+    "betty/html.py": {
         "CssProvider": MissingReason.ABSTRACT,
         "JsProvider": MissingReason.ABSTRACT,
-    },
-    "betty/html/attributes.py": {
-        "Attributes": {
-            attr_name: MissingReason.STATIC_CONTENT_ONLY
-            for attr_name, _ in getmembers(Attributes)
-            if attr_name.startswith("html_")
-        },
     },
     "betty/jinja2/__init__.py": {
         "context_job_context": MissingReason.SHOULD_BE_COVERED,

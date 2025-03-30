@@ -1,4 +1,3 @@
-from betty.html.attributes import Attributes
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 
@@ -49,6 +48,7 @@ async def test_with_minimal_items() -> None:
 
 
 async def test_with_full_items() -> None:
+    html_class = "my-first-class"
     html_id = "my-first-id"
     async with assert_template_file(
         data={
@@ -56,7 +56,8 @@ async def test_with_full_items() -> None:
                 {
                     "label": "Check me out!",
                     "value": "Look at this treasure",
-                    "attributes": Attributes(html_id=html_id),
+                    "class": [html_class],
+                    "id": html_id,
                 }
             ],
             "checkboxes_label": "Check these out!",
@@ -64,4 +65,5 @@ async def test_with_full_items() -> None:
         extensions={RaspberryMint},
         template="component/checkboxes.html.j2",
     ) as (actual, _):
+        assert html_class in actual
         assert f'id="{html_id}"' in actual

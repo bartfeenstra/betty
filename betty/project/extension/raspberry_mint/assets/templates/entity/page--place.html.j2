@@ -20,7 +20,7 @@
                                 {% endwith %}
                             {% endset %}
                             {% with accordion_heading_element = 'h2',
-                                attributes = new_attributes(html_id='enclosees'),
+                                accordion_id = 'enclosees',
                                 accordion_items = [{
                                    'header': _('Other places contained by this one'),
                                    'body': accordion_item_body,
