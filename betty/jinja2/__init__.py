@@ -29,6 +29,7 @@ from betty.html import (
     Breadcrumbs,
     NavigationLinkProvider,
 )
+from betty.html.attributes import Attributes
 from betty.jinja2.filter import filters
 from betty.jinja2.globals import generate_html_id, HtmlId
 from betty.jinja2.test import tests
@@ -379,6 +380,7 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
         self.globals["localizer"] = DEFAULT_LOCALIZER
         self.globals["generate_html_id"] = generate_html_id
         self.globals["deprecate"] = deprecate
+        self.globals["new_attributes"] = Attributes
 
     def _init_extensions(self) -> None:
         for extension in self._extensions:

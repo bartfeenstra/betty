@@ -1,1 +1,5 @@
-<button type="button"{% if html_id is defined %} id="{{ html_id }}"{% endif %} class="btn {% if button_secondary | default(false) %}btn-secondary{% else %}btn-primary{% endif %}{% if html_class is defined %} {{ html_class | join(' ') }}{% endif %}">{{ button_label }}</button>
+{% set attributes = attributes | default(new_attributes()) %}
+{% do attributes.set(html_type='button') %}
+{% do attributes.html_class.append('btn') %}
+{% do attributes.html_class.append('btn-secondary' if button_secondary | default(false) else 'btn-primary') %}
+<button {{ attributes }}>{{ button_label }}</button>
