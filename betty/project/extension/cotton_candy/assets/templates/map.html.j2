@@ -1,10 +1,10 @@
-{% set places = places | select('public') | rejectattr('coordinates', 'none') | list %}
-{% set ns = namespace(place_urls=[]) %}
-{% for place in places %}
-    {% do ns.place_urls.append((place | url, place.coordinates.latitude, place.coordinates.longitude, place.label | localize)) %}
-{% endfor %}
-<div{% if featured %} class="featured"{% endif %}>
-    <div class="map" data-betty-places="{{ ns.place_urls | json }}">
-    </div>
-</div>
-{% do 'maps' | webpack_entry_point_js %}
+{% if 'maps' in project.extensions %}
+    {% set map -%}
+        {% include 'maps/map.html.j2' %}
+    {%- endset %}
+    {% if map %}
+        <div{% if featured %} class="featured"{% endif %}>
+            {{ map }}
+        </div>
+    {% endif %}
+{% endif %}
