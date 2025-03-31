@@ -319,6 +319,10 @@ msgstr "Lees verder op <a href=\"%(url)s\">Wikipedia</a>."
 msgid "Copyright"
 msgstr "Auteursrecht"
 
+#, python-format
+msgid "Copyright <a href=\"%(url)s\">OpenStreetMap</a> contributors"
+msgstr ""
+
 msgid "Copyright Wikipedia contributors"
 msgstr "Copyright Wikipedia-bijdragers"
 
@@ -434,12 +438,8 @@ msgstr ""
 "Geef interactieve stambomen weer door middel van <a "
 "href=\"https://cytoscape.org/\">Cytoscape</a>."
 
-msgid ""
-"Display lists of places as interactive maps using <a "
-"href=\"https://leafletjs.com/\">Leaflet</a>."
-msgstr ""
-"Geef plaatsen weer als interactieve kaarten door middel van <a "
-"href=\"https://leafletjs.com/\">Leaflet</a>."
+msgid "Display interactive maps"
+msgstr "Geef plaatsen weer als interactieve kaarten"
 
 msgid ""
 "Display the HTTP API documentation in a user-friendly way using <a "
@@ -1206,6 +1206,12 @@ msgstr ""
 "Er is geen thema ingeschakeld voor je project. Dit betekent dat de "
 "pagina's van je site er leeg uit kunnen zien. Probeer de \"cotton-"
 "candy\"-extensie."
+
+msgid "Zoom in"
+msgstr ""
+
+msgid "Zoom out"
+msgstr ""
 
 #, python-brace-format
 msgid "around {date}"

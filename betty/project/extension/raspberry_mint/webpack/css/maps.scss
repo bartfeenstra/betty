@@ -1,7 +1,140 @@
-$theme-colors: (
-  "primary": $primary,
-  "secondary": $secondary,
-  "secondary-dark": $secondary-900,
-  "secondary-light": $secondary-100,
-  "danger": $tertiary,
-);
+@import "bootstrap/scss/mixins/breakpoints";
+
+.map {
+  background-color: $gray-100;
+  container: map / size;
+  overflow: hidden;
+  position: relative;
+
+  &:not(.map-initialized)::after {
+    animation: initializer 3s ease-in-out infinite;
+    aspect-ratio: 1;
+    background-color: rgb(from #{$secondary-900} r g b / 90%);
+    border-color: transparent #{$secondary-100};
+    border-radius: 50%;
+    border-style: solid;
+    border-width: $border-width * 3;
+    box-sizing: border-box;
+    content: "";
+    left: calc(50% - 38px);
+    outline: 999px solid rgb(from #{$secondary-900} r g b / 90%);
+    position: absolute;
+    top: calc(50% - 38px);
+    width: 76px;
+  }
+
+  @keyframes initializer {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .map-control {
+    margin: $border-width * 3 $border-width * 3 $border-width * 3 auto;
+    width: max-content;
+  }
+}
+
+.map-control-zoom-in button {
+  background-image: #{icon-zoom-in($white)};
+
+  &:focus {
+    background-image: #{icon-zoom-in($black)};
+  }
+}
+
+.map-control-zoom-out button {
+  background-image: #{icon-zoom-out($white)};
+
+  &:focus {
+    background-image: #{icon-zoom-out($black)};
+  }
+}
+
+.map-selected-place-close {
+  background-image: #{icon-close($white)};
+  display: block;
+  margin: 0 0 0 auto;
+
+  &:focus {
+    background-image: #{icon-close($black)};
+  }
+}
+
+.map-selected-place {
+  --betty-map-selected-place-anchor: "bottom";
+
+  bottom: 0;
+  display: none;
+  position: absolute;
+  width: 100%;
+
+  &.map-selected-place-visible {
+    display: block;
+  }
+
+  .map-selected-place-column {
+    padding-left: calc(#{$container-padding-x} * .5);
+    padding-right: calc(#{$container-padding-x} * .5);
+
+    .map-selected-place-preview-image {
+      display: none;
+      height: 100px;
+      width: 100px;
+    }
+  }
+}
+
+@container map (min-width: 500px) {
+  @container map (max-width: 999px) {
+    .map-selected-place {
+      width: 100%;
+
+      .map-selected-place-column {
+        margin: 0 auto;
+
+        .map-selected-place-preview {
+          display: flex;
+
+          :first-child {
+            flex-grow: 1;
+          }
+
+          .map-selected-place-preview-image {
+            display: block;
+          }
+        }
+      }
+    }
+
+    @each $breakpoint, $container-max-width in $container-max-widths {
+      @include media-breakpoint-up($breakpoint, $grid-breakpoints) {
+        .map-selected-place-column {
+          max-width: $container-max-width;
+        }
+      }
+    }
+  }
+}
+
+@container map (min-width: 1000px) {
+  .map-selected-place {
+    --betty-map-selected-place-anchor: "left";
+
+    bottom: auto;
+    height: 100%;
+    left: 0;
+    max-width: 25%;
+    top: 0;
+    width: max-content;
+
+    .map-selected-place-preview {
+      display: block;
+
+      .map-selected-place-preview-image {
+        display: block;
+        margin: $spacer auto 0 auto;
+      }
+    }
+  }
+}

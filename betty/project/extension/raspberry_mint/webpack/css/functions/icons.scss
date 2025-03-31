@@ -41,3 +41,15 @@
 @function icon-full-screen($color) {
   @return url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="#{-to-rgb($color)}" class="ionicon" viewBox="0 0 512 512"><path d="M388 466h-68v-44h68a34 34 0 0034-34v-68h44v68a78.09 78.09 0 01-78 78zM466 192h-44v-68a34 34 0 00-34-34h-68V46h68a78.09 78.09 0 0178 78zM192 466h-68a78.09 78.09 0 01-78-78v-68h44v68a34 34 0 0034 34h68zM90 192H46v-68a78.09 78.09 0 0178-78h68v44h-68a34 34 0 00-34 34z"/></svg>');
 }
+
+@function icon-zoom-in($color) {
+  @return url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="#{-to-rgb($color)}" stroke-linecap="square" stroke-linejoin="round" stroke-width="32" d="M256 112v288M400 256H112"/></svg>');
+}
+
+@function icon-zoom-out($color) {
+  @return url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="#{-to-rgb($color)}" stroke-linecap="square" stroke-linejoin="round" stroke-width="32" d="M400 256H112"/></svg>');
+}
+
+@function icon-location($color) {
+  @return url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="#{-to-rgb($color)}" class="ionicon" viewBox="0 0 512 512"><path d="M256 32C167.67 32 96 96.51 96 176c0 128 160 304 160 304s160-176 160-304c0-79.49-71.67-144-160-144zm0 224a64 64 0 1164-64 64.07 64.07 0 01-64 64z"/></svg>');
+}

@@ -5,6 +5,17 @@
     {% if map %}
         <div class="map-section">
             {{ map }}
+            <div class="map-attribution py-1">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 col-lg-8">
+                            <small>
+                                {% include 'maps/attribution.html.j2' %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     {% endif %}
 {% endif %}

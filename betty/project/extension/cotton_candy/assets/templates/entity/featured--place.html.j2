@@ -22,7 +22,7 @@
         {% set places = places + [place] %}
     {% endif %}
     {% if places | length > 0 %}
-        {% with hide_list = True, featured = False %}
+        {% with embedded = true, featured = false, hide_list = true %}
             {% include 'entity/list--place.html.j2' %}
         {% endwith %}
     {% endif %}

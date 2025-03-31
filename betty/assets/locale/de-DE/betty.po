@@ -304,6 +304,10 @@ msgstr "Auf <a href=\"%(url)s\">Wikipedia</a> weiterlesen."
 msgid "Copyright"
 msgstr "Urheberrecht"
 
+#, python-format
+msgid "Copyright <a href=\"%(url)s\">OpenStreetMap</a> contributors"
+msgstr ""
+
 msgid "Copyright Wikipedia contributors"
 msgstr ""
 
@@ -413,12 +417,8 @@ msgstr ""
 "Interaktive Stammbäume mit <a "
 "href=\"https://cytoscape.org/\">Cytoscape</a> anzeigen."
 
-msgid ""
-"Display lists of places as interactive maps using <a "
-"href=\"https://leafletjs.com/\">Leaflet</a>."
-msgstr ""
-"Zeige Listen von Orten als interaktive Karten mit <a "
-"href=\"https://leafletjs.com/\">Leaflet</a> an."
+msgid "Display interactive maps"
+msgstr "Zeige Listen von Orten als interaktive Karten"
 
 msgid ""
 "Display the HTTP API documentation in a user-friendly way using <a "
@@ -1160,6 +1160,12 @@ msgstr ""
 msgid ""
 "Your project has no theme enabled. This means your site's pages may look "
 "bare. Try the \"raspberry-mint\" extension."
+msgstr ""
+
+msgid "Zoom in"
+msgstr ""
+
+msgid "Zoom out"
 msgstr ""
 
 #, python-brace-format
