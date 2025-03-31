@@ -1,7 +1,7 @@
 'use strict'
 
 import {initializeFullScreenControls} from "@betty.py/betty/full-screen.ts"
-import './css/main.scss'
+import './main.scss'
 import "bootstrap/js/dist/collapse"
 import "bootstrap/js/dist/modal"
 import {Search} from './search.ts'

@@ -1,9 +1,9 @@
 'use strict'
 
+import './main.scss'
 import {BETTY} from "@betty.py/betty/main.ts"
 import {initializeFullScreenControls} from "@betty.py/betty/full-screen.ts"
 import {initializeMaps, MapOptions} from './map.ts'
-import './main.scss'
 import optionsJson from './options.json'
 
 await BETTY.addInitializer(initializeFullScreenControls)

@@ -21,7 +21,10 @@ class TestHttpApiDoc(EntryPointProviderTestBase):
                     project.configuration.www_directory_path / "api" / "index.html"
                 ).is_file()
                 assert (
-                    project.configuration.www_directory_path / "js" / "http-api-doc.js"
+                    project.configuration.www_directory_path
+                    / "js"
+                    / "webpack"
+                    / "http-api-doc.js"
                 ).is_file()
 
     async def test_secondary_navigation_links(self, new_temporary_app: App) -> None:
