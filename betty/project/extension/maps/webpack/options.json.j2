@@ -1,0 +1,59 @@
+{% set view_padding %}
+  {% include 'maps/view-padding.json.j2' %}
+{% endset %}
+{% set cluster_maximum_feature_distance %}
+  {% include 'maps/cluster/maximum-feature-distance.json.j2' %}
+{% endset %}
+{% set cluster_minimum_cluster_distance %}
+  {% include 'maps/cluster/minimum-cluster-distance.json.j2' %}
+{% endset %}
+{% set marker_place_anchor %}
+  {% include 'maps/marker/place-anchor.json.j2' %}
+{% endset %}
+{% set control_full_screen %}
+  {% include 'maps/control/full-screen.html.j2' %}
+{% endset %}
+{% set control_zoom_in %}
+  {% include 'maps/control/zoom-in.html.j2' %}
+{% endset %}
+{% set control_zoom_out %}
+  {% include 'maps/control/zoom-out.html.j2' %}
+{% endset %}
+{% set selected_place %}
+  {% include 'maps/selected-place.html.j2' %}
+{% endset %}
+{% set marker_place %}
+  {% include 'maps/marker/place.svg.j2' %}
+{% endset %}
+{% set marker_place_selected %}
+  {% include ['maps/marker/place--selected.svg.j2', 'maps/marker/place.svg.j2'] %}
+{% endset %}
+{% set marker_place_cluster %}
+  {% include 'maps/marker/place-cluster.svg.j2' %}
+{% endset %}
+{% set marker_place_cluster_10 %}
+  {% include ['maps/marker/place-cluster--10.svg.j2', 'maps/marker/place-cluster.svg.j2'] %}
+{% endset %}
+{% set marker_place_cluster_100 %}
+  {% include ['maps/marker/place-cluster--100.svg.j2', 'maps/marker/place-cluster--10.svg.j2', 'maps/marker/place-cluster.svg.j2'] %}
+{% endset %}
+{% set marker_place_cluster_1000 %}
+  {% include ['maps/marker/place-cluster--1000.svg.j2', 'maps/marker/place-cluster--100.svg.j2', 'maps/marker/place-cluster--10.svg.j2', 'maps/marker/place-cluster.svg.j2'] %}
+{% endset %}
+
+{
+  "viewPadding": {{ view_padding | safe }},
+  "clusterMaximumFeatureDistance": {{ cluster_maximum_feature_distance | safe }},
+  "clusterMinimumClusterDistance": {{ cluster_minimum_cluster_distance | safe }},
+  "fullScreenControlButtonHtml": {{ control_full_screen | json | safe }},
+  "zoomInControlButtonHtml": {{ control_zoom_in | json | safe }},
+  "zoomOutControlButtonHtml": {{ control_zoom_out | json | safe }},
+  "selectedPlaceHtml": {{ selected_place | json | safe }},
+  "markerPlaceAnchor": {{ marker_place_anchor | safe }},
+  "markerPlaceSvg": {{ marker_place | json | safe }},
+  "markerPlaceSelectedSvg": {{ marker_place_selected | json | safe }},
+  "markerPlaceCluster1Svg": {{ marker_place_cluster | json | safe }},
+  "markerPlaceCluster10Svg": {{ marker_place_cluster_10 | json | safe }},
+  "markerPlaceCluster100Svg": {{ marker_place_cluster_100 | json | safe }},
+  "markerPlaceCluster1000Svg": {{ marker_place_cluster_1000 | json | safe }}
+}

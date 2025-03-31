@@ -282,6 +282,10 @@ msgstr "Poursuivez votre lecture sur <a href=\"%(url)s\">Wikipedia</a>."
 msgid "Copyright"
 msgstr "Copyright"
 
+#, python-format
+msgid "Copyright <a href=\"%(url)s\">OpenStreetMap</a> contributors"
+msgstr ""
+
 msgid "Copyright Wikipedia contributors"
 msgstr ""
 
@@ -381,9 +385,7 @@ msgid ""
 "href=\"https://cytoscape.org/\">Cytoscape</a>."
 msgstr ""
 
-msgid ""
-"Display lists of places as interactive maps using <a "
-"href=\"https://leafletjs.com/\">Leaflet</a>."
+msgid "Display interactive maps"
 msgstr ""
 
 msgid ""
@@ -1103,6 +1105,12 @@ msgstr ""
 msgid ""
 "Your project has no theme enabled. This means your site's pages may look "
 "bare. Try the \"raspberry-mint\" extension."
+msgstr ""
+
+msgid "Zoom in"
+msgstr ""
+
+msgid "Zoom out"
 msgstr ""
 
 #, python-brace-format

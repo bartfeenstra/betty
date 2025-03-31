@@ -3,8 +3,13 @@
         {% include 'maps/map.html.j2' %}
     {%- endset %}
     {% if map %}
-        <div{% if featured %} class="featured"{% endif %}>
+        <div{% if featured | default(false) %} class="featured"{% else %} style="height:100%;width:100%;"{% endif %}>
             {{ map }}
+            <div class="map-attribution">
+                <small>
+                    {% include 'maps/attribution.html.j2' %}
+                </small>
+            </div>
         </div>
     {% endif %}
 {% endif %}

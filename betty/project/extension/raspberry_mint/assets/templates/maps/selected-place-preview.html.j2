@@ -1,0 +1,14 @@
+<div class="map-selected-place-preview">
+    <div>
+        {% with entity = place %}
+            {% include 'entity/label--place.html.j2' %}
+            {% include 'entity/summary--place.html.j2' %}
+        {% endwith %}
+    </div>
+    {% set place_image_reference = place.file_references | selectattr('file', 'public') | selectattr('file.media_type', 'image_supported_media_type') | first %}
+    {% if place_image_reference is defined %}
+        <img src="{{ ('betty-static://' ~ place_image_reference | image_resize_cover((100, 100))) | url }}"
+             class="image map-selected-place-preview-image rounded-circle"
+             alt="{{ place_image_reference.file.label | localize }}">
+    {% endif %}
+</div>

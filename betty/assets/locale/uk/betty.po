@@ -323,6 +323,10 @@ msgstr "Продовжуйте читати у <a href=\"%(url)s\">Вікіпе�
 msgid "Copyright"
 msgstr "Авторське право"
 
+#, python-format
+msgid "Copyright <a href=\"%(url)s\">OpenStreetMap</a> contributors"
+msgstr ""
+
 msgid "Copyright Wikipedia contributors"
 msgstr "Авторське право належить учасникам Wikipedia"
 
@@ -436,12 +440,8 @@ msgstr ""
 "Відображайте інтерактивні генеалогічні дерева за допомогою <a "
 "href=\"https://cytoscape.org/\">Cytoscape</a>."
 
-msgid ""
-"Display lists of places as interactive maps using <a "
-"href=\"https://leafletjs.com/\">Leaflet</a>."
-msgstr ""
-"Відображайте списки місць у вигляді інтерактивних мап за допомогою <a "
-"href=\"https://leafletjs.com/\">Leaflet</a>."
+msgid "Display interactive maps"
+msgstr "Відображайте списки місць у вигляді інтерактивних мап"
 
 msgid ""
 "Display the HTTP API documentation in a user-friendly way using <a "
@@ -1207,6 +1207,12 @@ msgid ""
 msgstr ""
 "У вашому проекті не ввімкнено тему. Це означає, що сторінки вашого сайту "
 "можуть виглядати голими. Спробуйте нарощування «Raspberry Mint»."
+
+msgid "Zoom in"
+msgstr ""
+
+msgid "Zoom out"
+msgstr ""
 
 #, python-brace-format
 msgid "around {date}"
