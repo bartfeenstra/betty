@@ -1,7 +1,5 @@
 'use strict'
 
-import './main.css'
-
 import cytoscape from 'cytoscape'
 import dagre from 'cytoscape-dagre'
 

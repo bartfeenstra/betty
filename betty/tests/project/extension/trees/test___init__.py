@@ -20,13 +20,19 @@ class TestTrees(EntryPointProviderTestBase):
             async with project:
                 await generate(project)
                 async with aiofiles.open(
-                    project.configuration.www_directory_path / "js" / "trees.js",
+                    project.configuration.www_directory_path
+                    / "js"
+                    / "webpack"
+                    / "trees.js",
                     encoding="utf-8",
                 ) as f:
                     betty_js = await f.read()
                 assert Trees.plugin_id() in betty_js
                 async with aiofiles.open(
-                    project.configuration.www_directory_path / "css" / "trees.css",
+                    project.configuration.www_directory_path
+                    / "css"
+                    / "webpack"
+                    / "trees.css",
                     encoding="utf-8",
                 ) as f:
                     betty_css = await f.read()

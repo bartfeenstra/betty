@@ -91,7 +91,9 @@ class TestBuilder:
                 # Build twice, to test with warm caches as well.
                 await sut.build()
                 webpack_build_directory_path = await sut.build()
-            assert (webpack_build_directory_path / "css" / "vendor.css").exists()
+            assert (
+                webpack_build_directory_path / "css" / "webpack-vendor.css"
+            ).exists()
             assert (
                 webpack_build_directory_path / "js" / "webpack-entry-loader.js"
             ).exists()
@@ -100,14 +102,15 @@ class TestBuilder:
                     webpack_build_directory_path / "js" / "webpack-entry-loader.js"
                 ) as f:
                     webpack_entry_loader_js = await f.read()
-                assert f"{root_path}/js/runtime.js" in webpack_entry_loader_js
+                assert f"{root_path}/js/webpack/runtime.js" in webpack_entry_loader_js
                 assert (
-                    f"{root_path}/js/{DummyEntryPointProviderExtension.plugin_id()}.js"
+                    f"{root_path}/js/webpack/{DummyEntryPointProviderExtension.plugin_id()}.js"
                     in webpack_entry_loader_js
                 )
                 assert (
                     webpack_build_directory_path
                     / "js"
+                    / "webpack"
                     / f"{DummyEntryPointProviderExtension.plugin_id()}.js"
                 ).exists()
 

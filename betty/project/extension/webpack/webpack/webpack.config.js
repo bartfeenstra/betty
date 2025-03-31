@@ -72,7 +72,7 @@ const webpackConfiguration = {
   entry: configuration.entry,
   output: {
     path: path.resolve(__dirname, configuration.buildDirectoryPath),
-    filename: 'js/[name].js',
+    filename: 'js/webpack/[name].js',
     publicPath: `${configuration.rootPath}/`,
   },
   optimization: {
@@ -92,11 +92,11 @@ const webpackConfiguration = {
     splitChunks: {
       chunks: 'all',
       cacheGroups: {
-        // The resulting CSS files are one per entry point, and a single vendor.css.
+        // The resulting CSS files are one per entry point, and a single webpack-vendor.css.
         // This makes for easy and unconditional importing.
         vendorCss: {
           test: /[\\/]node_modules[\\/].+?\.css$/,
-          name: 'vendor',
+          name: 'webpack-vendor',
           priority: -10
         },
         vendorJs: {
@@ -110,7 +110,7 @@ const webpackConfiguration = {
   plugins: [
     new EntryScriptCollector(),
     new MiniCssExtractPlugin({
-      filename: 'css/[name].css'
+      filename: 'css/webpack/[name].css'
     })
   ],
   module: {
