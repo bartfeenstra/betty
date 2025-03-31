@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-03-25 23:56+0000\n"
-"PO-Revision-Date: 2025-03-27 09:33+0000\n"
+"PO-Revision-Date: 2025-03-31 23:44+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/betty/betty/nl/>\n"
 "Language: nl-NL\n"
@@ -321,7 +321,7 @@ msgstr "Auteursrecht"
 
 #, python-format
 msgid "Copyright <a href=\"%(url)s\">OpenStreetMap</a> contributors"
-msgstr ""
+msgstr "Copyright <a href=\"%(url)s\">OpenStreetMap</a>-bijdragers"
 
 msgid "Copyright Wikipedia contributors"
 msgstr "Copyright Wikipedia-bijdragers"
@@ -1208,10 +1208,10 @@ msgstr ""
 "candy\"-extensie."
 
 msgid "Zoom in"
-msgstr ""
+msgstr "Inzoomen"
 
 msgid "Zoom out"
-msgstr ""
+msgstr "Uitzoomen"
 
 #, python-brace-format
 msgid "around {date}"
