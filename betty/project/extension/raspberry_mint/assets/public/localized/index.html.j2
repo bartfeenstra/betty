@@ -1,7 +1,4 @@
 {% extends 'base.html.j2' %}
-{% set page_title %}
-    {{ project.configuration.title | localize }}
-{% endset %}
 {% block page_summary %}
 {% if 'demo' in project.extensions %}
     {% include '-front-demo-summary.html.j2' %}
