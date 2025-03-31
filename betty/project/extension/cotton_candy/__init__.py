@@ -5,11 +5,10 @@ Provide the Cotton Candy theme.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, final, Self
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override, deprecated
 
-from betty.html import CssProvider
 from betty.jinja2 import Jinja2Provider, Filters
 from betty.locale.localizable import _, static, plain
 from betty.os import link_or_copy
@@ -23,10 +22,8 @@ from betty.project.extension.trees import Trees
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.generate import GenerateSiteEvent
-from betty.typing import private
 
 if TYPE_CHECKING:
-    from betty.project import Project
     from betty.plugin import PluginIdentifier
     from betty.event_dispatcher import EventHandlerRegistry
     from collections.abc import Sequence
@@ -66,7 +63,6 @@ async def _generate_search_index(event: GenerateSiteEvent) -> None:
 class CottonCandy(
     ShorthandPluginBase,
     Theme,
-    CssProvider,
     ConfigurableExtension[CottonCandyConfiguration],
     Jinja2Provider,
     EntryPointProvider,
@@ -78,27 +74,6 @@ class CottonCandy(
     _plugin_id = "cotton-candy"
     _plugin_label = static("Cotton Candy")
     _plugin_description = _("Cotton Candy is Betty's legacy theme.")
-
-    @private
-    def __init__(
-        self,
-        project: Project,
-        public_css_paths: Sequence[str],
-        *,
-        configuration: CottonCandyConfiguration,
-    ):
-        super().__init__(project, configuration=configuration)
-        self._public_css_paths = public_css_paths
-
-    @override
-    @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
-        url_generator = await project.url_generator
-        return cls(
-            project,
-            [url_generator.generate("betty-static:///css/cotton-candy.css")],
-            configuration=cls.new_default_configuration(),
-        )
 
     @override
     async def bootstrap(self) -> None:
@@ -147,11 +122,6 @@ class CottonCandy(
             self._configuration.link_inactive_color.hex,
             self._configuration.link_active_color.hex,
         )
-
-    @override
-    @property
-    def public_css_paths(self) -> Sequence[str]:
-        return self._public_css_paths
 
     @override
     @classmethod

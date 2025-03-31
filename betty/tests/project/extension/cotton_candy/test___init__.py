@@ -33,11 +33,6 @@ class TestCottonCandy(EntryPointProviderTestBase, ExtensionTestBase[CottonCandy]
             sut = await project.new_target(self.get_sut_class())
             assert len(sut.filters)
 
-    async def test_public_css_paths(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = await project.new_target(self.get_sut_class())
-            assert len(sut.public_css_paths)
-
     async def test_bootstrap__should_validate_featured_entities_configuration(
         self, new_temporary_app: App
     ) -> None:
