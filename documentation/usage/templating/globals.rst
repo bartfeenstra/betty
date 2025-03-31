@@ -20,6 +20,8 @@ In addition to Jinja2's built-in globals, Betty provides the following:
     A function to generate a HTML ID unique within the current render call, such as a page.
 ``localizer`` (:py:class:`betty.locale.localizer.Localizer`)
     The localizer for the current template context.
+``new_attributes`` (:py:class:`betty.html.attributes.Attributes`)
+    Create new attributes for an HTML element.
 ``project`` (:py:class:`betty.project.Project`)
     The project the template is being rendered for.
 ``public_css_paths`` (a sequence of :py:class:`str`)
