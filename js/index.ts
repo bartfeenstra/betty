@@ -11,6 +11,9 @@ class Betty {
     }
 
     public async addInitializer(initializer: Initializer): Promise<void> {
+        if (this.initializers.includes(initializer)) {
+            return
+        }
         this.initializers.push(initializer)
         await initializer(document.body)
     }
@@ -22,6 +25,9 @@ class Betty {
     }
 
     public addFinalizer(finalizer: Finalizer): void {
+        if (this.finalizers.includes(finalizer)) {
+            return
+        }
         this.finalizers.push(finalizer)
     }
 
