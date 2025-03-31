@@ -22,7 +22,7 @@ async def test_without_links() -> None:
             "resource": resource,
         },
         extensions={Wikipedia},
-        template="wikipedia.html.j2",
+        template="wikipedia/summaries.html.j2",
     ) as (actual, _):
         assert actual == ""
 
@@ -35,7 +35,7 @@ async def test_with_links_without_wikipedia_links() -> None:
             "resource": resource,
         },
         extensions={Wikipedia},
-        template="wikipedia.html.j2",
+        template="wikipedia/summaries.html.j2",
     ) as (actual, _):
         assert actual == ""
 
@@ -60,7 +60,7 @@ async def test_without_summaries(mocker: MockerFixture) -> None:
             "resource": resource,
         },
         extensions={Wikipedia},
-        template="wikipedia.html.j2",
+        template="wikipedia/summaries.html.j2",
     ) as (actual, _):
         assert actual == ""
     m_retriever.get_summary.assert_called_once_with("en", "Amsterdam")
@@ -75,7 +75,7 @@ async def test_with_summaries_in_irrelevant_locale() -> None:
             "resource": resource,
         },
         extensions={Wikipedia},
-        template="wikipedia.html.j2",
+        template="wikipedia/summaries.html.j2",
     ) as (actual, _):
         assert actual == ""
 
@@ -101,7 +101,7 @@ async def test_with_summary_should_render(mocker: MockerFixture) -> None:
             "resource": resource,
         },
         extensions={Wikipedia},
-        template="wikipedia.html.j2",
+        template="wikipedia/summaries.html.j2",
     ) as (actual, _):
         assert summary.content in actual
         wikipedia_contributors_copyright_notice = WikipediaContributors({})

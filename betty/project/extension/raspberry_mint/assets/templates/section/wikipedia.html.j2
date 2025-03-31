@@ -1,7 +1,7 @@
 {% if 'wikipedia' in project.extensions %}
     {% set content -%}
         {% with resource = entity %}
-            {% include 'wikipedia.html.j2' %}
+            {% include 'wikipedia/summaries.html.j2' %}
         {% endwith %}
     {%- endset %}
     {% if content %}
