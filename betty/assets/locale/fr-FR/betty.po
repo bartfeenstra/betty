@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-09-15 15:11+0100\n"
+"POT-Creation-Date: 2025-09-27 00:43+0200\n"
 "PO-Revision-Date: 2024-11-29 18:58+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: fr_FR\n"
@@ -194,9 +194,6 @@ msgstr ""
 msgid "Building"
 msgstr ""
 
-msgid "Built the Webpack front-end assets."
-msgstr ""
-
 msgid "Burial"
 msgstr "Enterrement"
 
@@ -353,9 +350,6 @@ msgstr ""
 msgid "Deriver"
 msgstr ""
 
-msgid "Deriving..."
-msgstr ""
-
 msgid "Description, licensing, and image history"
 msgstr ""
 
@@ -495,20 +489,7 @@ msgstr ""
 msgid "Generate a static site"
 msgstr ""
 
-msgid "Generating JSON Schema..."
-msgstr ""
-
-msgid "Generating OpenAPI specification..."
-msgstr ""
-
-#, python-brace-format
-msgid "Generating localized public files in {locale}..."
-msgstr ""
-
 msgid "Generating site..."
-msgstr ""
-
-msgid "Generating static public files..."
 msgstr ""
 
 msgid "Go to the front page"
@@ -626,9 +607,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "Loading \"{file_path}\"..."
-msgstr ""
-
-msgid "Loading ancestry..."
 msgstr ""
 
 msgid "Locale aliases must not contain slashes."
@@ -801,9 +779,6 @@ msgid ""
 msgstr ""
 
 msgid "Privatizer"
-msgstr ""
-
-msgid "Privatizing..."
 msgstr ""
 
 msgid "Project author"

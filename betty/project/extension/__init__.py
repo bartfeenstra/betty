@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Generic, Self, TypeVar, final
 from typing_extensions import override
 
 from betty.config import Configuration, DefaultConfigurable
+from betty.job import Context
 from betty.locale.localizable import Localizable, _, call
 from betty.plugin import (
     CyclicDependencyError,
@@ -25,20 +26,17 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from pathlib import Path
 
-    from betty.event_dispatcher import EventHandlerRegistry
     from betty.machine_name import MachineName
     from betty.project import Project
     from betty.requirement import Requirement
     from betty.user import User
 
+_T = TypeVar("_T")
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
+_ContextT = TypeVar("_ContextT", bound=Context)
 
 
-class Extension(
-    DependentPlugin["Extension"],
-    ServiceProvider,
-    ProjectDependentFactory,
-):
+class Extension(DependentPlugin["Extension"], ServiceProvider, ProjectDependentFactory):
     """
     Integrate optional functionality with Betty :py:class:`betty.project.Project`s.
 
@@ -75,11 +73,6 @@ class Extension(
     def plugin_type_label(cls) -> Localizable:
         return _("Extension")
 
-    def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
-        """
-        Register event handlers with the project.
-        """
-
     @property
     def project(self) -> Project:
         """
@@ -107,7 +100,6 @@ class Extension(
 
 
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)
-
 
 EXTENSION_REPOSITORY: PluginRepository[Extension] = EntryPointPluginRepository(
     Extension, "betty.extension"

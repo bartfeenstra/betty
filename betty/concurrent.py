@@ -22,6 +22,9 @@ _KeyT = TypeVar("_KeyT")
 _ValueT = TypeVar("_ValueT")
 
 
+MAX_STRANDS = 64
+
+
 class Lock(ABC):
     """
     Provide an asynchronous lock.

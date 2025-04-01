@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-09-15 15:11+0100\n"
+"POT-Creation-Date: 2025-09-27 00:43+0200\n"
 "PO-Revision-Date: 2025-03-28 20:02+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -210,9 +210,6 @@ msgstr ""
 msgid "Building"
 msgstr "Gebäude"
 
-msgid "Built the Webpack front-end assets."
-msgstr "Webpack front-end assets erstellt."
-
 msgid "Burial"
 msgstr "Beerdigung"
 
@@ -379,9 +376,6 @@ msgstr ""
 msgid "Deriver"
 msgstr "Ableiter"
 
-msgid "Deriving..."
-msgstr "Ableiten..."
-
 msgid "Description, licensing, and image history"
 msgstr "Beschreibung, Lizenzierung und Bildgeschichte"
 
@@ -527,21 +521,8 @@ msgstr ""
 msgid "Generate a static site"
 msgstr ""
 
-msgid "Generating JSON Schema..."
-msgstr "Generiere JSON Schema..."
-
-msgid "Generating OpenAPI specification..."
-msgstr "Generiere OpenAPI Spezifikation..."
-
-#, python-brace-format
-msgid "Generating localized public files in {locale}..."
-msgstr "Erzeugen von lokalisierten öffentlichen Dateien in {locale}..."
-
 msgid "Generating site..."
 msgstr ""
-
-msgid "Generating static public files..."
-msgstr "Erzeuge statische, öffentliche Dateien..."
 
 msgid "Go to the front page"
 msgstr ""
@@ -659,9 +640,6 @@ msgstr "{source_count} Quellen geladen."
 #, python-brace-format
 msgid "Loading \"{file_path}\"..."
 msgstr "Lade \"{file_path}\"..."
-
-msgid "Loading ancestry..."
-msgstr ""
 
 msgid "Locale aliases must not contain slashes."
 msgstr "Gebietsschema-Aliase dürfen keine Schrägstriche enthalten."
@@ -841,9 +819,6 @@ msgstr ""
 
 msgid "Privatizer"
 msgstr "Privatisierer"
-
-msgid "Privatizing..."
-msgstr "Privatisieren..."
 
 msgid "Project author"
 msgstr "Projektautor"

@@ -30,7 +30,7 @@ class TestGramps(ExtensionTestBase[Gramps]):
     def get_sut_class(self) -> type[Gramps]:
         return Gramps
 
-    async def test_load_with_event_type_mapping(
+    async def test_load__with_event_type_mapping(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
         family_tree_xml = """
@@ -75,7 +75,7 @@ class TestGramps(ExtensionTestBase[Gramps]):
                 await load(project)
             assert isinstance(project.ancestry[Event]["E0000"].event_type, Birth)
 
-    async def test_load_with_place_type_mapping(
+    async def test_load__with_place_type_mapping(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
         family_tree_xml = """
@@ -118,7 +118,7 @@ class TestGramps(ExtensionTestBase[Gramps]):
                 await load(project)
             assert isinstance(project.ancestry[Place]["P0001"].place_type, City)
 
-    async def test_load_with_presence_role_map(
+    async def test_load__with_presence_role_map(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
         family_tree_xml = """
@@ -173,7 +173,9 @@ class TestGramps(ExtensionTestBase[Gramps]):
                 next(iter(project.ancestry[Person]["I0000"].presences)).role, Subject
             )
 
-    async def test_load_multiple_family_trees(self, new_temporary_app: App) -> None:
+    async def test_load__with_multiple_family_trees(
+        self, new_temporary_app: App
+    ) -> None:
         family_tree_one_xml = """
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"

@@ -46,7 +46,7 @@ class TestRaspberryMint(EntryPointProviderTestBase, ExtensionTestBase[RaspberryM
                 async with sut:
                     pass  # pragma: nocover
 
-    async def test_generate_html_list__for_third_party_entity(
+    async def test_generate__html_list_for_third_party_entity(
         self, mocker: MockerFixture, new_temporary_app: App
     ) -> None:
         mocker.patch(

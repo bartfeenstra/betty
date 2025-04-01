@@ -2,72 +2,25 @@
 
 from __future__ import annotations
 
-from collections import defaultdict
 from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
-from betty.ancestry.person import Person
 from betty.locale.localizable import _
-from betty.plugin import ShorthandPluginBase
-from betty.privacy import HasPrivacy
-from betty.privacy.privatizer import Privatizer as PrivatizerApi
+from betty.plugin import PluginIdentifier, ShorthandPluginBase
 from betty.project.extension import Extension
-from betty.project.load import PostLoadAncestryEvent
+from betty.project.extension.deriver import Deriver
+from betty.project.extension.deriver.jobs import DeriveAncestry
+from betty.project.extension.privatizer.jobs import PrivatizeAncestry
+from betty.project.load import PostLoader
 
 if TYPE_CHECKING:
-    from collections.abc import MutableMapping, MutableSequence
-
-    from betty.event_dispatcher import EventHandlerRegistry
-    from betty.model import Entity
-
-
-async def _privatize_ancestry(event: PostLoadAncestryEvent) -> None:
-    localizer = await event.project.app.localizer
-    user = event.project.app.user
-    await user.message_information(_("Privatizing..."))
-
-    privatizer = PrivatizerApi(
-        event.project.configuration.lifetime_threshold, user=user
-    )
-
-    newly_privatized: MutableMapping[type[HasPrivacy & Entity], int] = defaultdict(
-        lambda: 0
-    )
-    entities: MutableSequence[HasPrivacy & Entity] = []
-    for entity in event.project.ancestry:
-        if isinstance(entity, HasPrivacy):
-            entities.append(entity)
-            if entity.private:
-                newly_privatized[type(entity)] -= 1
-
-    for entity in entities:
-        await privatizer.privatize(entity)
-
-    for entity in entities:
-        if entity.private:
-            newly_privatized[type(entity)] += 1
-
-    if newly_privatized[Person] > 0:
-        await user.message_information(
-            _("Privatized {count} people because they are likely still alive.").format(
-                count=str(newly_privatized[Person]),
-            )
-        )
-    for entity_type in set(newly_privatized) - {Person}:
-        if newly_privatized[entity_type] > 0:
-            await user.message_information(
-                _(
-                    "Privatized {count} {entity_type}, because they are associated with private information."
-                ).format(
-                    count=str(newly_privatized[entity_type]),
-                    entity_type=entity_type.plugin_label_plural().localize(localizer),
-                )
-            )
+    from betty.job.scheduler import Scheduler
+    from betty.project import ProjectContext
 
 
 @final
-class Privatizer(ShorthandPluginBase, Extension):
+class Privatizer(ShorthandPluginBase, PostLoader, Extension):
     """
     Extend the Betty Application with privatization features.
     """
@@ -79,5 +32,16 @@ class Privatizer(ShorthandPluginBase, Extension):
     )
 
     @override
-    def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
-        registry.add_handler(PostLoadAncestryEvent, _privatize_ancestry)
+    @classmethod
+    def comes_after(cls) -> set[PluginIdentifier[Extension]]:
+        return {Deriver}
+
+    @override
+    async def post_load(self, scheduler: Scheduler[ProjectContext]) -> None:
+        await scheduler.add(
+            PrivatizeAncestry(
+                dependencies={DeriveAncestry.id_for()}
+                if Deriver in await scheduler.context.project.extensions
+                else set()
+            )
+        )
