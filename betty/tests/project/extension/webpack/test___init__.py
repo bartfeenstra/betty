@@ -7,6 +7,7 @@ from typing_extensions import override
 
 from betty._npm import NpmUnavailable
 from betty.app import App
+from betty.job.scheduler import Cancelled
 from betty.project import Project
 from betty.project.config import ProjectConfiguration
 from betty.project.extension.webpack import Webpack
@@ -37,7 +38,7 @@ class TestWebpack(ExtensionTestBase[Webpack]):
             sut = await project.new_target(self.get_sut_class())
             assert len(await sut.get_public_css_paths())
 
-    async def test_generate_with_npm(
+    async def test_generate__with_npm(
         self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
     ) -> None:
         webpack_build_directory_path = tmp_path
@@ -59,7 +60,7 @@ class TestWebpack(ExtensionTestBase[Webpack]):
                 ) as f:
                     assert await f.read() == self._SENTINEL
 
-    async def test_generate_without_npm(
+    async def test_generate__without_npm(
         self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
     ) -> None:
         m_build = mocker.patch("betty.project.extension.webpack.build.Builder.build")
@@ -73,5 +74,6 @@ class TestWebpack(ExtensionTestBase[Webpack]):
         )
         project.configuration.extensions.enable(Webpack)
         async with project:
-            with pytest.raises(RequirementError):
+            with pytest.raises(Cancelled) as exc_info:
                 await generate(project)
+            assert isinstance(exc_info.value.__cause__, RequirementError)

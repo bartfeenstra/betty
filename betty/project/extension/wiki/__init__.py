@@ -17,7 +17,8 @@ from betty.locale.localizable import _, plain
 from betty.plugin import ShorthandPluginBase
 from betty.project.extension import ConfigurableExtension
 from betty.project.extension.wiki.config import WikiConfiguration
-from betty.project.load import PostLoadAncestryEvent
+from betty.project.extension.wiki.jobs import PopulateEntity
+from betty.project.load import PostLoader
 from betty.service import service
 from betty.wiki import NotAPageError, parse_page_url, populator
 from betty.wiki.client import RATE_LIMIT, Client, Summary
@@ -30,20 +31,16 @@ if TYPE_CHECKING:
 
     from betty.ancestry.link import Link
     from betty.copyright_notice import CopyrightNotice
-    from betty.event_dispatcher import EventHandlerRegistry
-    from betty.project import Project
-
-
-async def _populate_ancestry(event: PostLoadAncestryEvent) -> None:
-    project = event.project
-    extensions = await project.extensions
-    populator = await extensions[Wiki].populator
-    await gather(*(populator.populate(entity) for entity in project.ancestry))
+    from betty.job.scheduler import Scheduler
+    from betty.project import Project, ProjectContext
 
 
 @final
 class Wiki(
-    ShorthandPluginBase, ConfigurableExtension[WikiConfiguration], Jinja2Provider
+    ShorthandPluginBase,
+    PostLoader,
+    ConfigurableExtension[WikiConfiguration],
+    Jinja2Provider,
 ):
     """
     Integrates Betty with `Wikipedia <https://wikipedia.org>`_.
@@ -79,8 +76,10 @@ class Wiki(
     )
 
     @override
-    def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
-        registry.add_handler(PostLoadAncestryEvent, _populate_ancestry)
+    async def post_load(self, scheduler: Scheduler[ProjectContext]) -> None:
+        await scheduler.add(
+            *(PopulateEntity(entity) for entity in scheduler.context.project.ancestry)
+        )
 
     @service
     async def rate_limiter(self) -> RateLimiter:

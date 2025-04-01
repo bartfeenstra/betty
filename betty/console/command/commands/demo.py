@@ -5,10 +5,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING, final, Self
 
 from betty.app.factory import AppDependentFactory
+from betty.cache.memory import MemoryCache
 from betty.console.command import Command, CommandFunction
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
 import betty.project.extension.demo as stddemo
+from betty.project import ProjectContext
 from betty.project.extension.demo.project import create_project
 from typing_extensions import override
 
@@ -59,5 +61,11 @@ class Demo(ShorthandPluginBase, AppDependentFactory, Command):
             project = await create_project(self._app, Path(path))
             if url is not None:
                 project.configuration.url = url
-            async with project:
-                await stddemo.generate_with_cleanup(project)
+            async with (
+                project,
+                project.app.user.message_progress(_("Generating site...")) as progress,
+            ):
+                job_context = ProjectContext(
+                    project, cache=MemoryCache(), progress=progress
+                )
+                await stddemo.generate_with_cleanup(project, job_context=job_context)

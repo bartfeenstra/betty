@@ -18,7 +18,6 @@ from aiofiles.os import makedirs
 
 from betty import ROOT_DIRECTORY_PATH, _npm
 from betty.hashid import hashid, hashid_file_content, hashid_sequence
-from betty.locale.localizable import _
 from betty.os import copy_tree
 from betty.project.extension import Extension
 from betty.serde.dump import Dump, DumpMapping
@@ -393,5 +392,4 @@ class Builder:
         await self._webpack_build(
             npm_project_directory_path, webpack_build_directory_path
         )
-        await self._user.message_debug(_("Built the Webpack front-end assets."))
         return webpack_build_directory_path

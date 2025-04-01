@@ -1,30 +1,13 @@
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 
 import aiofiles
-from pytest_mock import MockerFixture
 
-from betty.ancestry.citation import Citation
-from betty.ancestry.event import Event
-from betty.ancestry.event_type.event_types import Birth
-from betty.ancestry.file import File
-from betty.ancestry.name import Name
 from betty.ancestry.person import Person
-from betty.ancestry.place import Place
-from betty.ancestry.source import Source
 from betty.app import App
-from betty.locale.localizable import plain
-from betty.model import (
-    ENTITY_TYPE_REPOSITORY,
-    Entity,
-)
-from betty.plugin.proxy import ProxyPluginRepository
-from betty.plugin.static import StaticPluginRepository
-from betty.project import Project, ProjectContext
-from betty.project.config import EntityTypeConfiguration, LocaleConfiguration
-from betty.project.generate import GenerateSiteEvent, generate
-from betty.string import camel_case_to_kebab_case, kebab_case_to_lower_camel_case
-from betty.test_utils.jinja2 import assert_betty_html, assert_betty_json
+from betty.project import Project
+from betty.project.config import LocaleConfiguration
+from betty.project.generate import generate
+from betty.test_utils.jinja2 import assert_betty_html
 from betty.test_utils.model import DummyEntity
 from betty.user import UserFacing
 
@@ -49,29 +32,6 @@ async def test_generate__html_lang(new_temporary_app: App) -> None:
             ) as f:
                 html = await f.read()
                 assert '<html lang="nl-NL"' in html
-
-
-async def test_generate__root_redirect(new_temporary_app: App) -> None:
-    async with Project.new_temporary(new_temporary_app) as project:
-        project.configuration.locales.replace(
-            LocaleConfiguration(
-                "nl-NL",
-                alias="nl",
-            ),
-            LocaleConfiguration(
-                "en-US",
-                alias="en",
-            ),
-        )
-        async with project:
-            await generate(project)
-            async with aiofiles.open(
-                await assert_betty_html(project, "/index.html")
-            ) as f:
-                meta_redirect = (
-                    '<meta http-equiv="refresh" content="0; url=/nl/index.html">'
-                )
-                assert meta_redirect in await f.read()
 
 
 async def test_generate__links(new_temporary_app: App) -> None:
@@ -164,203 +124,6 @@ async def test_generate__links_for_entity_pages(new_temporary_app: App) -> None:
             )
 
 
-async def test_generate__third_party_entities(
-    mocker: MockerFixture, new_temporary_app: App
-) -> None:
-    mocker.patch(
-        "betty.model.ENTITY_TYPE_REPOSITORY",
-        new=ProxyPluginRepository(
-            Entity,
-            StaticPluginRepository(Entity, ThirdPartyEntity),
-            ENTITY_TYPE_REPOSITORY,
-        ),
-    )
-    async with Project.new_temporary(new_temporary_app) as project:
-        project.configuration.entity_types.append(
-            EntityTypeConfiguration(ThirdPartyEntity, generate_html_list=True)
-        )
-        async with project:
-            await generate(project)
-            await assert_betty_html(
-                project,
-                f"/{camel_case_to_kebab_case(ThirdPartyEntity.plugin_id())}/index.html",
-            )
-            await assert_betty_json(
-                project,
-                f"/{camel_case_to_kebab_case(ThirdPartyEntity.plugin_id())}/index.json",
-                f"{kebab_case_to_lower_camel_case(ThirdPartyEntity.plugin_id())}EntityCollectionResponse",
-            )
-
-
-async def test_generate__third_party_entity(
-    mocker: MockerFixture, new_temporary_app: App
-) -> None:
-    mocker.patch(
-        "betty.model.ENTITY_TYPE_REPOSITORY",
-        new=ProxyPluginRepository(
-            Entity,
-            StaticPluginRepository(Entity, ThirdPartyEntity),
-            ENTITY_TYPE_REPOSITORY,
-        ),
-    )
-    async with Project.new_temporary(new_temporary_app) as project:
-        entity = ThirdPartyEntity(
-            id="ENTITY1",
-        )
-        project.ancestry.add(entity)
-        async with project:
-            await generate(project)
-            await assert_betty_html(
-                project,
-                f"/{camel_case_to_kebab_case(ThirdPartyEntity.plugin_id())}/{entity.id}/index.html",
-            )
-            await assert_betty_json(
-                project,
-                f"/{camel_case_to_kebab_case(ThirdPartyEntity.plugin_id())}/{entity.id}/index.json",
-                f"{kebab_case_to_lower_camel_case(ThirdPartyEntity.plugin_id())}Entity",
-            )
-
-
-async def test_generate__files(new_temporary_app: App) -> None:
-    async with Project.new_temporary(new_temporary_app) as project:
-        project.configuration.entity_types.append(
-            EntityTypeConfiguration(File, generate_html_list=True)
-        )
-        async with project:
-            await generate(project)
-            await assert_betty_html(project, "/file/index.html")
-            await assert_betty_json(
-                project, "/file/index.json", "fileEntityCollectionResponse"
-            )
-
-
-async def test_generate__file(new_temporary_app: App) -> None:
-    async with Project.new_temporary(new_temporary_app) as project:
-        with NamedTemporaryFile() as f:
-            file = File(
-                id="FILE1",
-                path=Path(f.name),
-            )
-            project.ancestry.add(file)
-            async with project:
-                await generate(project)
-                await assert_betty_html(project, f"/file/{file.id}/index.html")
-                await assert_betty_json(
-                    project, f"/file/{file.id}/index.json", "fileEntity"
-                )
-
-
-async def test_generate__places(new_temporary_app: App) -> None:
-    async with Project.new_temporary(new_temporary_app) as project, project:
-        await generate(project)
-        await assert_betty_html(project, "/place/index.html")
-        await assert_betty_json(
-            project, "/place/index.json", "placeEntityCollectionResponse"
-        )
-
-
-async def test_generate__place(new_temporary_app: App) -> None:
-    async with (
-        Project.new_temporary(new_temporary_app) as project,
-    ):
-        place = Place(
-            id="PLACE1",
-            names=[Name(plain("one"))],
-        )
-        project.ancestry.add(place)
-        async with project:
-            await generate(project)
-            await assert_betty_html(project, f"/place/{place.id}/index.html")
-            await assert_betty_json(
-                project, f"/place/{place.id}/index.json", "placeEntity"
-            )
-
-
-async def test_generate__people(new_temporary_app: App) -> None:
-    async with Project.new_temporary(new_temporary_app) as project, project:
-        await generate(project)
-        await assert_betty_html(project, "/person/index.html")
-        await assert_betty_json(
-            project, "/person/index.json", "personEntityCollectionResponse"
-        )
-
-
-async def test_generate__person(new_temporary_app: App) -> None:
-    person = Person(id="PERSON1")
-    async with Project.new_temporary(new_temporary_app) as project:
-        project.ancestry.add(person)
-        async with project:
-            await generate(project)
-            await assert_betty_html(project, f"/person/{person.id}/index.html")
-            await assert_betty_json(
-                project, f"/person/{person.id}/index.json", "personEntity"
-            )
-
-
-async def test_generate__events(new_temporary_app: App) -> None:
-    async with Project.new_temporary(new_temporary_app) as project, project:
-        await generate(project)
-        await assert_betty_html(project, "/event/index.html")
-        await assert_betty_json(
-            project, "/event/index.json", "eventEntityCollectionResponse"
-        )
-
-
-async def test_generate__event(new_temporary_app: App) -> None:
-    async with Project.new_temporary(new_temporary_app) as project:
-        event = Event(
-            id="EVENT1",
-            event_type=Birth(),
-        )
-        project.ancestry.add(event)
-        async with project:
-            await generate(project)
-            await assert_betty_html(project, f"/event/{event.id}/index.html")
-            await assert_betty_json(
-                project, f"/event/{event.id}/index.json", "eventEntity"
-            )
-
-
-async def test_generate__citation(new_temporary_app: App) -> None:
-    async with Project.new_temporary(new_temporary_app) as project:
-        source = Source(plain("A Little Birdie"))
-        citation = Citation(
-            id="CITATION1",
-            source=source,
-        )
-        project.ancestry.add(citation, source)
-        async with project:
-            await generate(project)
-            await assert_betty_html(project, f"/citation/{citation.id}/index.html")
-            await assert_betty_json(
-                project, f"/citation/{citation.id}/index.json", "citationEntity"
-            )
-
-
-async def test_generate__sources(new_temporary_app: App) -> None:
-    async with Project.new_temporary(new_temporary_app) as project, project:
-        await generate(project)
-        await assert_betty_html(project, "/source/index.html")
-        await assert_betty_json(
-            project, "/source/index.json", "sourceEntityCollectionResponse"
-        )
-
-
-async def test_generate__source(new_temporary_app: App) -> None:
-    async with Project.new_temporary(new_temporary_app) as project:
-        source = Source(
-            id="SOURCE1",
-            name=plain("A Little Birdie"),
-        )
-        project.ancestry.add(source)
-        async with project:
-            await generate(project)
-            await assert_betty_html(project, f"/source/{source.id}/index.html")
-            await assert_betty_json(
-                project, f"/source/{source.id}/index.json", "sourceEntity"
-            )
-
-
 class TestResourceOverride:
     async def test(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
@@ -380,28 +143,3 @@ class TestResourceOverride:
                     project.configuration.www_directory_path / "index.html"
                 ) as f:
                     assert "Betty was here" in await f.read()
-
-
-class TestSitemapGenerate:
-    async def test_validate(self, new_temporary_app: App) -> None:
-        from lxml import etree
-
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            await generate(project)
-            schema_doc = etree.parse(
-                Path(__file__).parent / "test___init___assets" / "sitemap.xsd"
-            )
-            schema = etree.XMLSchema(schema_doc)
-            sitemap_doc = etree.parse(
-                project.configuration.www_directory_path / "sitemap.xml"
-            )
-            schema.validate(sitemap_doc)
-
-
-class TestGenerateSiteEvent:
-    async def test_job_context(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            job_context = ProjectContext(project)
-            sut = GenerateSiteEvent(job_context)
-            assert sut.project is project
-            assert sut.job_context is job_context

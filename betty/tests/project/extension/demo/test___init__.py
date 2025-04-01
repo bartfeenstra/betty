@@ -10,7 +10,7 @@ from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
-from betty.project import Project
+from betty.project import Project, ProjectContext
 from betty.project.extension.demo import Demo, generate_with_cleanup
 from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase
@@ -29,7 +29,9 @@ if TYPE_CHECKING:
 async def test_generate_with_cleanup__without_error(
     mocker: MockerFixture, new_temporary_app: App
 ) -> None:
-    async def _generate(project: Project) -> None:
+    async def _generate(
+        project: Project, *, job_context: ProjectContext | None = None
+    ) -> None:
         project.configuration.output_directory_path.mkdir(parents=True)
 
     m_generate = mocker.patch("betty.project.generate.generate")
@@ -47,7 +49,9 @@ async def test_generate_with_cleanup__with_error(
 ) -> None:
     error_message = "generation error"
 
-    async def _generate(project: Project) -> None:
+    async def _generate(
+        project: Project, *, job_context: ProjectContext | None = None
+    ) -> None:
         project.configuration.output_directory_path.mkdir(parents=True)
         raise RuntimeError(error_message)
 

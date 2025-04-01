@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.project import Project
+from betty.project import Project, ProjectContext
 from betty.project.extension.demo import Demo
-from betty.project.extension.demo.project import create_project, load_ancestry
+from betty.project.extension.demo.jobs import LoadAncestry
+from betty.project.extension.demo.project import create_project
+from betty.test_utils.job import do
 from betty.test_utils.project.extension.demo.project import (
     demo_project_fetcher,  # noqa F401
 )
@@ -34,5 +36,7 @@ async def test_load_ancestry(
         Project.new_temporary(app) as project,
         project,
     ):
-        await load_ancestry(project)
+        context = ProjectContext(project)
+        await do(context, LoadAncestry())
+
         assert len(project.ancestry)

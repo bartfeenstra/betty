@@ -11,21 +11,13 @@ from __future__ import annotations
 from contextlib import AsyncExitStack, asynccontextmanager
 from graphlib import TopologicalSorter
 from pathlib import Path
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Self,
-    TypeVar,
-    cast,
-    final,
-    overload,
-)
+from typing import TYPE_CHECKING, Any, Self, cast, final, overload
 
 from aiofiles.tempfile import TemporaryDirectory
-from typing_extensions import override
+from typing_extensions import TypeVar, override
 
 import betty
-from betty import event_dispatcher, model
+from betty import model
 from betty.ancestry import Ancestry
 from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY, EventType
 from betty.ancestry.gender import GENDER_REPOSITORY, Gender
@@ -34,7 +26,6 @@ from betty.ancestry.presence_role import PRESENCE_ROLE_REPOSITORY, PresenceRole
 from betty.asset import AssetRepository, ProxyAssetRepository, StaticAssetRepository
 from betty.config import Configurable
 from betty.copyright_notice import COPYRIGHT_NOTICE_REPOSITORY, CopyrightNotice
-from betty.event_dispatcher import EventDispatcher, EventHandlerRegistry
 from betty.factory import TargetFactory
 from betty.hashid import hashid
 from betty.job import Context
@@ -145,12 +136,9 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         await super().bootstrap()
         try:
             for project_extension_batch in await self.extensions:
-                batch_event_handlers = EventHandlerRegistry()
                 for project_extension in project_extension_batch:
                     await project_extension.bootstrap()
                     self._shutdown_stack.append(project_extension)
-                    project_extension.register_event_handlers(batch_event_handlers)
-                self.event_dispatcher.add_registry(batch_event_handlers)
             await self._assert_configuration()
         except BaseException:
             await self.shutdown()
@@ -256,8 +244,6 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         extensions = {}
         for extension_configuration in self.configuration.extensions.values():
             extension = await self.extension_repository.get(extension_configuration.id)
-            extension_requirement = await extension.requirement(user=self.app.user)
-            extension_requirement.assert_met()
             extensions[extension] = extension_configuration
 
         extensions_sorter = TopologicalSorter[type[Extension]]()
@@ -272,6 +258,8 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             extensions_batch = extensions_sorter.get_ready()
             extension_instances_batch = []
             for extension in extensions_batch:
+                extension_requirement = await extension.requirement(user=self.app.user)
+                extension_requirement.assert_met()
                 if issubclass(extension, Theme):
                     theme_count += 1
                 if extension in extensions:
@@ -302,13 +290,6 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             )
 
         return initialized_extensions
-
-    @service
-    def event_dispatcher(self) -> EventDispatcher:
-        """
-        The event dispatcher.
-        """
-        return EventDispatcher()
 
     @override
     async def new_target(self, cls: type[_T]) -> _T:
@@ -527,27 +508,32 @@ class ProjectExtensions:
             return True
 
 
-class ProjectEvent(event_dispatcher.Event):
+class ProjectContext(Context):
     """
-    An event that is dispatched within the context of a :py:class:`betty.project.Project`.
+    A job context for a project.
     """
 
-    def __init__(self, job_context: ProjectContext):
-        self._job_context = job_context
+    def __init__(
+        self,
+        project: Project,
+        *,
+        cache: Cache[Any] | None = None,
+        progress: Progress | None = None,
+    ):
+        super().__init__(cache=cache, progress=progress)
+        self._project = project
 
     @property
     def project(self) -> Project:
         """
-        The :py:class:`betty.project.Project` this event is dispatched within.
+        The Betty project this job context is run within.
         """
-        return self.job_context.project
+        return self._project
 
-    @property
-    def job_context(self) -> ProjectContext:
-        """
-        The site generation job context.
-        """
-        return self._job_context
+
+_ProjectContextT = TypeVar(
+    "_ProjectContextT", bound=ProjectContext, default=ProjectContext
+)
 
 
 @final
@@ -619,26 +605,3 @@ class ProjectSchema(ProjectDependentFactory, Schema):
         ]
 
         return schema
-
-
-class ProjectContext(Context):
-    """
-    A job context for a project.
-    """
-
-    def __init__(
-        self,
-        project: Project,
-        *,
-        cache: Cache[Any] | None = None,
-        progress: Progress | None = None,
-    ):
-        super().__init__(cache=cache, progress=progress)
-        self._project = project
-
-    @property
-    def project(self) -> Project:
-        """
-        The Betty project this job context is run within.
-        """
-        return self._project

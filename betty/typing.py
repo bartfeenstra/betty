@@ -122,17 +122,23 @@ def processsafe(target: _T) -> _T:
     return target
 
 
+class Sentinel:
+    """
+    A base class for types that are used as sentinel values.
+    """
+
+    def __new__(cls):  # pragma: no cover  # noqa D102
+        raise TypeError(f"The {cls} sentinel cannot be instantiated.")
+
+
 @final
-class Void:
+class Void(Sentinel):
     """
     A sentinel that describes the absence of a value.
 
     Using this sentinel allows for actual values to be ``None``. Like ``None``,
     ``Void`` is only ever used through its type, and never instantiated.
     """
-
-    def __new__(cls):  # pragma: no cover  # noqa D102
-        raise RuntimeError("The Void sentinel cannot be instantiated.")
 
 
 Voidable: TypeAlias = _T | type[Void]
