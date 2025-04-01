@@ -23,7 +23,7 @@ from betty.project.extension.maps import Maps
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.trees import Trees
 from betty.project.extension.wikipedia import Wikipedia
-from betty.project.load import LoadAncestryEvent
+from betty.project.load import LoadAncestryEvent, load
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -37,6 +37,9 @@ async def generate_with_cleanup(project: Project) -> None:
     """
     Generate a demonstration site, and clean up the project directory on any errors.
     """
+    if project.configuration.www_directory_path.exists():
+        return
+    await load(project)
     with suppress(FileNotFoundError):
         await to_thread(rmtree, project.configuration.project_directory_path)
     try:

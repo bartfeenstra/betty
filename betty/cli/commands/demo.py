@@ -10,7 +10,6 @@ from betty.cli.commands import command, Command
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
 import betty.project.extension.demo as stddemo
-from betty.project import load
 from betty.project.extension.demo.project import create_project
 from typing_extensions import override
 
@@ -70,7 +69,6 @@ class Demo(ShorthandPluginBase, AppDependentFactory, Command):
                 if url is not None:
                     project.configuration.url = url
                 async with project:
-                    await load.load(project)
                     await stddemo.generate_with_cleanup(project)
 
         return demo
