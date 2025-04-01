@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
 "POT-Creation-Date: 2025-03-25 23:56+0000\n"
-"PO-Revision-Date: 2025-03-27 08:01+0000\n"
+"PO-Revision-Date: 2025-04-02 05:02+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic2005a@gmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/betty/betty/uk/"
 ">\n"
@@ -325,7 +325,7 @@ msgstr "Авторське право"
 
 #, python-format
 msgid "Copyright <a href=\"%(url)s\">OpenStreetMap</a> contributors"
-msgstr ""
+msgstr "Авторські права авторів <a href=\"%(url)s\">OpenStreetMap</a>"
 
 msgid "Copyright Wikipedia contributors"
 msgstr "Авторське право належить учасникам Wikipedia"
@@ -1209,10 +1209,10 @@ msgstr ""
 "можуть виглядати голими. Спробуйте нарощування «Raspberry Mint»."
 
 msgid "Zoom in"
-msgstr ""
+msgstr "Збільшити масштаб"
 
 msgid "Zoom out"
-msgstr ""
+msgstr "Зменшити масштаб"
 
 #, python-brace-format
 msgid "around {date}"
