@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Generic, TypeVar, final
 
 import aiofiles
+from aiofiles.os import makedirs
 from typing_extensions import override
 
 from betty.ancestry.file import File
@@ -78,10 +79,9 @@ async def _generate_search_index_for_locale(
         ],
     }
     search_index_json = json.dumps(search_index)
-    async with aiofiles.open(
-        project.configuration.localize_www_directory_path(locale) / "search-index.json",
-        mode="w",
-    ) as f:
+    www_directory_path = project.configuration.localize_www_directory_path(locale)
+    await makedirs(www_directory_path, exist_ok=True)
+    async with aiofiles.open(www_directory_path / "search-index.json", mode="w") as f:
         await f.write(search_index_json)
 
 

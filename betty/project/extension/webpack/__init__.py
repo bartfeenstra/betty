@@ -14,41 +14,50 @@ from typing_extensions import override
 from betty._npm import NpmRequirement, NpmUnavailable
 from betty.html import CssProvider, JsProvider
 from betty.jinja2 import ContextVars, Filters, Jinja2Provider
+from betty.job import Job
 from betty.locale.localizable import static
 from betty.os import copy_tree
 from betty.plugin import ShorthandPluginBase
+from betty.project import ProjectContext
 from betty.project.extension import Extension
 from betty.project.extension.webpack import build
 from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.extension.webpack.jinja2.filter import FILTERS
-from betty.project.generate import GenerateSiteEvent
+from betty.project.generate import Generator
 from betty.requirement import AllRequirements, Requirement, RequirementError
 from betty.typing import internal
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from betty.event_dispatcher import EventHandlerRegistry
-    from betty.job import Context
+    from betty.job.scheduler import Scheduler
     from betty.user import User
 
 
-async def _generate_assets(event: GenerateSiteEvent) -> None:
-    project = event.project
-    extensions = await project.extensions
-    webpack = extensions[Webpack]
-    build_directory_path = await webpack._generate_ensure_build_directory(
-        job_context=event.job_context,
-    )
-    event.job_context._webpack_build_directory_path = build_directory_path  # type: ignore[attr-defined]
-    await webpack._copy_build_directory(
-        build_directory_path, project.configuration.www_directory_path
-    )
+class _GenerateAssets(Job[ProjectContext]):
+    def __init__(self):
+        super().__init__("webpack:generate-assets", priority=True)
+
+    @override
+    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
+        context = scheduler.context
+        project = context.project
+        extensions = await project.extensions
+        webpack = extensions[Webpack]
+        build_directory_path = await webpack._generate_ensure_build_directory(
+            job_context=context
+        )
+        context._webpack_build_directory_path = build_directory_path  # type: ignore[attr-defined]
+        await webpack._copy_build_directory(
+            build_directory_path, project.configuration.www_directory_path
+        )
 
 
 @internal
 @final
-class Webpack(ShorthandPluginBase, Extension, CssProvider, JsProvider, Jinja2Provider):
+class Webpack(
+    ShorthandPluginBase, Generator, Extension, CssProvider, JsProvider, Jinja2Provider
+):
     """
     Integrate Betty with `Webpack <https://webpack.js.org/>`_.
     """
@@ -58,8 +67,8 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, JsProvider, Jinja2Pro
     _requirement: ClassVar[Requirement | None] = None
 
     @override
-    def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
-        registry.add_handler(GenerateSiteEvent, _generate_assets)
+    async def generate(self, scheduler: Scheduler[ProjectContext]) -> None:
+        await scheduler.add(_GenerateAssets())
 
     @override
     @classmethod
@@ -118,7 +127,7 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, JsProvider, Jinja2Pro
         self,
         working_directory_path: Path,
         *,
-        job_context: Context,
+        job_context: ProjectContext,
     ) -> build.Builder:
         return build.Builder(
             working_directory_path,
@@ -140,7 +149,7 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, JsProvider, Jinja2Pro
     async def _generate_ensure_build_directory(
         self,
         *,
-        job_context: Context,
+        job_context: ProjectContext,
     ) -> Path:
         builder = await self._new_builder(
             self._project.app.binary_file_cache.with_scope("webpack").path,

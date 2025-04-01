@@ -1,29 +1,22 @@
 from __future__ import annotations  # noqa D100
 
-from asyncio import gather, to_thread
-from contextlib import suppress
-from shutil import rmtree
 from typing import TYPE_CHECKING, final, Self
 
 from typing_extensions import override
 
 from betty.app.factory import AppDependentFactory
+from betty.cache.memory import MemoryCache
 from betty.console.project import add_project_argument
 from betty.console.command import Command, CommandFunction
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
+from betty.project import ProjectContext
 
 if TYPE_CHECKING:
     import argparse
-    from pathlib import Path
 
     from betty.app import App
     from betty.project import Project
-
-
-def _rmtree_if_exists(path: Path) -> None:
-    with suppress(FileNotFoundError):
-        rmtree(path)
 
 
 @final
@@ -50,11 +43,12 @@ class Generate(ShorthandPluginBase, AppDependentFactory, Command):
     async def _command_function(self, project: Project) -> None:
         from betty.project import generate, load
 
-        async with project:
-            await gather(
-                load.load(project),
-                to_thread(
-                    _rmtree_if_exists, project.configuration.output_directory_path
-                ),
+        async with (
+            project,
+            project.app.user.message_progress(_("Generating site...")) as progress,
+        ):
+            job_context = ProjectContext(
+                project, cache=MemoryCache(), progress=progress
             )
-            await generate.generate(project)
+            await load.load(project, job_context=job_context)
+            await generate.generate(project, job_context=job_context)

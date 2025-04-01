@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-09-15 15:11+0100\n"
+"POT-Creation-Date: 2025-09-27 00:43+0200\n"
 "PO-Revision-Date: 2025-05-17 01:43+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -223,9 +223,6 @@ msgstr "Borough"
 msgid "Building"
 msgstr "Gebouw"
 
-msgid "Built the Webpack front-end assets."
-msgstr "De Webpack front-end assets gebouwd."
-
 msgid "Burial"
 msgstr "Begravenis"
 
@@ -400,9 +397,6 @@ msgstr "Departement"
 msgid "Deriver"
 msgstr "Afleider"
 
-msgid "Deriving..."
-msgstr "Afleiden..."
-
 msgid "Description, licensing, and image history"
 msgstr "Beschrijving, licentie, en afbeeldingsgeschiedenis"
 
@@ -549,21 +543,8 @@ msgstr ""
 msgid "Generate a static site"
 msgstr "Genereer een statische site"
 
-msgid "Generating JSON Schema..."
-msgstr "JSON Schema aan het genereren..."
-
-msgid "Generating OpenAPI specification..."
-msgstr "OpenAPI-specificatie aan het genereren..."
-
-#, python-brace-format
-msgid "Generating localized public files in {locale}..."
-msgstr "Gelokaliseerde publieke bestanden in het {locale} aan het genereren..."
-
 msgid "Generating site..."
 msgstr ""
-
-msgid "Generating static public files..."
-msgstr "Statische publieke bestanden aan het genereren..."
 
 msgid "Go to the front page"
 msgstr "Ga naar de voorpagina"
@@ -686,9 +667,6 @@ msgstr "{source_count} bronnen geladen."
 #, python-brace-format
 msgid "Loading \"{file_path}\"..."
 msgstr "\"{file_path}\" aan het laden..."
-
-msgid "Loading ancestry..."
-msgstr ""
 
 msgid "Locale aliases must not contain slashes."
 msgstr "Taalregioaliassen mogen geen schuine streep bevatten."
@@ -875,9 +853,6 @@ msgstr ""
 
 msgid "Privatizer"
 msgstr "Privatiseerder"
-
-msgid "Privatizing..."
-msgstr "Privatiseren..."
 
 msgid "Project author"
 msgstr "Projectauteur"

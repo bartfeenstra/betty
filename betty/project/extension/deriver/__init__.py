@@ -8,40 +8,19 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
-from betty.ancestry import event_type
-from betty.ancestry.event_type.event_types import DerivableEventType
-from betty.deriver import Deriver as DeriverApi
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
 from betty.project.extension import Extension
-from betty.project.extension.privatizer import Privatizer
-from betty.project.load import PostLoadAncestryEvent
+from betty.project.extension.deriver.jobs import DeriveAncestry
+from betty.project.load import PostLoader
 
 if TYPE_CHECKING:
-    from betty.event_dispatcher import EventHandlerRegistry
-    from betty.plugin import PluginIdentifier
-
-
-async def _derive_ancestry(event: PostLoadAncestryEvent) -> None:
-    project = event.project
-    await project.app.user.message_debug(_("Deriving..."))
-
-    deriver = DeriverApi(
-        project.ancestry,
-        project.configuration.lifetime_threshold,
-        project.event_type_repository,
-        set(
-            await event_type.EVENT_TYPE_REPOSITORY.select(
-                DerivableEventType  # type: ignore[type-abstract]
-            )
-        ),
-        user=event.project.app.user,
-    )
-    await deriver.derive()
+    from betty.job.scheduler import Scheduler
+    from betty.project import ProjectContext
 
 
 @final
-class Deriver(ShorthandPluginBase, Extension):
+class Deriver(ShorthandPluginBase, PostLoader, Extension):
     """
     Expand an ancestry by deriving additional data from existing data.
     """
@@ -53,10 +32,5 @@ class Deriver(ShorthandPluginBase, Extension):
     )
 
     @override
-    def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
-        registry.add_handler(PostLoadAncestryEvent, _derive_ancestry)
-
-    @override
-    @classmethod
-    def comes_before(cls) -> set[PluginIdentifier[Extension]]:
-        return {Privatizer}
+    async def post_load(self, scheduler: Scheduler[ProjectContext]) -> None:
+        await scheduler.add(DeriveAncestry())

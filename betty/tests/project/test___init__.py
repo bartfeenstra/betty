@@ -17,13 +17,7 @@ from betty.json.schema import JsonSchemaSchema
 from betty.locale.localizable import Localizable, plain
 from betty.plugin.config import PluginConfiguration
 from betty.plugin.static import StaticPluginRepository
-from betty.project import (
-    Project,
-    ProjectContext,
-    ProjectEvent,
-    ProjectExtensions,
-    ProjectSchema,
-)
+from betty.project import Project, ProjectContext, ProjectExtensions, ProjectSchema
 from betty.project.config import (
     CopyrightNoticeConfiguration,
     EntityTypeConfiguration,
@@ -245,10 +239,6 @@ class TestProject:
                 assets = await sut.assets
                 assert len(assets.assets_directory_paths) == 3
 
-    async def test_event_dispatcher(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as sut, sut:
-            sut.event_dispatcher  # noqa B018
-
     async def test_jinja2_environment(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             await sut.jinja2_environment
@@ -394,19 +384,6 @@ class TestProjectContext:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = ProjectContext(project)
             assert sut.project is project
-
-
-class TestProjectEvent:
-    async def test_project(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = ProjectEvent(ProjectContext(project))
-            assert sut.project is project
-
-    async def test_job_context(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            job_context = ProjectContext(project)
-            sut = ProjectEvent(job_context)
-            assert sut.job_context is job_context
 
 
 class TestProjectSchema(SchemaTestBase):

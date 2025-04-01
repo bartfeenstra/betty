@@ -15,10 +15,12 @@ from betty.jinja2 import (
     Filters,
     Jinja2Provider,
 )
+from betty.job import Job
 from betty.locale.localizable import call, plain, static
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.os import link_or_copy
 from betty.plugin import ShorthandPluginBase
+from betty.project import ProjectContext
 from betty.project.extension import ConfigurableExtension, Extension, Theme
 from betty.project.extension._theme import jinja2_filters
 from betty.project.extension._theme.search import generate_search_index
@@ -27,64 +29,81 @@ from betty.project.extension.raspberry_mint.config import RaspberryMintConfigura
 from betty.project.extension.trees import Trees
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
-from betty.project.generate import GenerateSiteEvent
+from betty.project.generate import Generator
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from betty.event_dispatcher import EventHandlerRegistry
+    from betty.job.scheduler import Scheduler
     from betty.plugin import PluginIdentifier
 
 
-async def _generate_logo(event: GenerateSiteEvent) -> None:
-    await link_or_copy(
-        event.project.logo,
-        event.project.configuration.www_directory_path
-        / ("logo" + event.project.logo.suffix),
+class _GenerateLogo(Job[ProjectContext]):
+    def __init__(self):
+        super().__init__("raspberry-mint:generate-logo")
+
+    @override
+    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
+        project = scheduler.context.project
+        await link_or_copy(
+            project.logo,
+            project.configuration.www_directory_path / ("logo" + project.logo.suffix),
+        )
+
+
+class _GenerateSearchIndex(Job[ProjectContext]):
+    _RESULT_CONTAINER_TEMPLATE = plain("""
+    <li class="d-flex gap-2 search-result">
+        {{{ betty-search-result }}}
+    </li>
+    """)
+
+    _RESULTS_CONTAINER_TEMPLATE = call(
+        lambda localizer: '<ul class="entity-list"><h3 class="h2">'
+        + localizer._("Results ({{{ betty-search-results-count }}})")
+        + "</h3>{{{ betty-search-results }}}</ul>"
     )
 
+    def __init__(self):
+        super().__init__("raspberry-mint:generate-search-index")
 
-_RESULT_CONTAINER_TEMPLATE = plain("""
-<li class="d-flex gap-2 search-result">
-    {{{ betty-search-result }}}
-</li>
-""")
-
-_RESULTS_CONTAINER_TEMPLATE = call(
-    lambda localizer: '<ul class="entity-list"><h3 class="h2">'
-    + localizer._("Results ({{{ betty-search-results-count }}})")
-    + "</h3>{{{ betty-search-results }}}</ul>"
-)
-
-
-async def _generate_search_index(event: GenerateSiteEvent) -> None:
-    await generate_search_index(
-        event.project,
-        _RESULT_CONTAINER_TEMPLATE,
-        _RESULTS_CONTAINER_TEMPLATE,
-        job_context=event.job_context,
-    )
+    @override
+    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
+        context = scheduler.context
+        await generate_search_index(
+            context.project,
+            self._RESULT_CONTAINER_TEMPLATE,
+            self._RESULTS_CONTAINER_TEMPLATE,
+            job_context=context,
+        )
 
 
-async def _generate_webmanifest(event: GenerateSiteEvent) -> None:
-    project = event.project
-    extensions = await project.extensions
-    webmanifest = json.dumps(
-        {
-            "name": project.configuration.title.localize(DEFAULT_LOCALIZER),
-            "icons": [
-                {"src": "/logo" + project.logo.suffix},
-            ],
-            "lang": project.configuration.locales.default.locale,
-            "theme_color": extensions[RaspberryMint].configuration.secondary_color.hex,
-            "background_color": "#ffffff",
-            "display": "fullscreen",
-        }
-    )
-    async with aiofiles.open(
-        project.configuration.www_directory_path / "betty.webmanifest", "w"
-    ) as f:
-        await f.write(webmanifest)
+class _GenerateWebmanifest(Job[ProjectContext]):
+    def __init__(self):
+        super().__init__("raspberry-mint:generate-webmanifest")
+
+    @override
+    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
+        project = scheduler.context.project
+        extensions = await project.extensions
+        webmanifest = json.dumps(
+            {
+                "name": project.configuration.title.localize(DEFAULT_LOCALIZER),
+                "icons": [
+                    {"src": "/logo" + project.logo.suffix},
+                ],
+                "lang": project.configuration.locales.default.locale,
+                "theme_color": extensions[
+                    RaspberryMint
+                ].configuration.secondary_color.hex,
+                "background_color": "#ffffff",
+                "display": "fullscreen",
+            }
+        )
+        async with aiofiles.open(
+            project.configuration.www_directory_path / "betty.webmanifest", "w"
+        ) as f:
+            await f.write(webmanifest)
 
 
 @final
@@ -93,6 +112,7 @@ class RaspberryMint(
     Theme,
     ConfigurableExtension[RaspberryMintConfiguration],
     Jinja2Provider,
+    Generator,
     EntryPointProvider,
 ):
     """
@@ -117,12 +137,11 @@ class RaspberryMint(
         )
 
     @override
-    def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
-        registry.add_handler(
-            GenerateSiteEvent,
-            _generate_logo,
-            _generate_search_index,
-            _generate_webmanifest,
+    async def generate(self, scheduler: Scheduler[ProjectContext]) -> None:
+        await scheduler.add(
+            _GenerateLogo(),
+            _GenerateSearchIndex(),
+            _GenerateWebmanifest(),
         )
 
     @override

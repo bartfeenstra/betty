@@ -7,7 +7,6 @@ from typing import Generic, TypeVar
 from typing_extensions import override
 
 from betty.app import App
-from betty.event_dispatcher import EventHandlerRegistry
 from betty.project import Project
 from betty.project.extension import ConfigurableExtension, Extension
 from betty.test_utils.config import DummyConfiguration
@@ -70,15 +69,6 @@ class ExtensionTestBase(Generic[_ExtensionT], PluginTestBase[_ExtensionT]):
                 extension_id,
                 Extension,  # type: ignore[type-abstract]
             )
-
-    async def test_register_event_handlers(self, new_temporary_app: App) -> None:
-        """
-        Tests :py:meth:`betty.project.extension.Extension.register_event_handlers` implementations.
-        """
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = await self.get_sut_class().new_for_project(project)
-            registry = EventHandlerRegistry()
-            sut.register_event_handlers(registry)
 
 
 class DummyExtension(DummyPluginBase, Extension):

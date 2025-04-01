@@ -156,12 +156,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/error.py": {
         "FileNotFound": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/event_dispatcher.py": {
-        "Event": MissingReason.ABSTRACT,
-        "EventHandlerRegistry": {
-            "handlers": MissingReason.COVERED_ELSEWHERE,
-        },
-    },
     "betty/exception.py": {
         "UserFacingExceptionContext": MissingReason.ABSTRACT,
         "UserFacingException": {
@@ -223,6 +217,21 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/jinja2/test.py": {
         "tests": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/job/__init__.py": {
+        "Job": {
+            "do": MissingReason.ABSTRACT,
+        },
+    },
+    "betty/job/executor/__init__.py": {
+        "Executor": MissingReason.ABSTRACT,
+    },
+    "betty/job/scheduler/__init__.py": {
+        "Cancelled": MissingReason.STATIC_CONTENT_ONLY,
+        "Closed": MissingReason.STATIC_CONTENT_ONLY,
+        "Completed": MissingReason.STATIC_CONTENT_ONLY,
+        "Released": MissingReason.STATIC_CONTENT_ONLY,
+        "Scheduler": MissingReason.ABSTRACT,
     },
     "betty/json/linked_data.py": MissingReason.SHOULD_BE_COVERED,
     "betty/json/schema.py": {
@@ -394,7 +403,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/project/extension/privatizer/__init__.py": {
         "Privatizer": {
-            "privatize": MissingReason.SHOULD_BE_COVERED,
+            "post_load": MissingReason.SHOULD_BE_COVERED,
         },
     },
     "betty/project/extension/webpack/__init__.py": {
@@ -414,9 +423,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/project/factory.py": MissingReason.ABSTRACT,
-    "betty/project/load.py": {
-        "LoadAncestryEvent": MissingReason.STATIC_CONTENT_ONLY,
-        "PostLoadAncestryEvent": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/project/generate/__init__.py": {
+        "Generator": MissingReason.ABSTRACT,
+    },
+    "betty/project/load/__init__.py": {
+        "Loader": MissingReason.ABSTRACT,
+        "PostLoader": MissingReason.ABSTRACT,
     },
     "betty/project/url.py": {
         "LocalizedUrlGenerator": {

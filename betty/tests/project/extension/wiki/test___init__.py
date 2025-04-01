@@ -12,7 +12,6 @@ from betty.project.extension.wiki import Wiki
 from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase
 from betty.wiki.client import Summary
-from betty.wiki.populator import Populator
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
@@ -69,7 +68,9 @@ class TestWiki(ExtensionTestBase[Wiki]):
     async def test_post_load(
         self, mocker: MockerFixture, new_temporary_app: App
     ) -> None:
-        mocker.patch("betty.wiki.populator.Populator", spec=Populator)
+        m_populate_ancestry = mocker.patch(
+            "betty.project.extension.wiki.jobs.PopulateEntity.do"
+        )
 
         async with Project.new_temporary(new_temporary_app) as project:
             entity = Link("https://example.com")
@@ -77,6 +78,8 @@ class TestWiki(ExtensionTestBase[Wiki]):
             project.configuration.extensions.enable(Wiki)
             async with project:
                 await load(project)
+
+            m_populate_ancestry.assert_awaited_once()
 
     async def test_client(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
