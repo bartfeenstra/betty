@@ -114,6 +114,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "__aenter__": MissingReason.SHOULD_BE_COVERED,
             "__aexit__": MissingReason.SHOULD_BE_COVERED,
         },
+        "Semaphore": {
+            "__aexit__": MissingReason.COVERED_ELSEWHERE,
+            "acquire": MissingReason.ABSTRACT,
+            "release": MissingReason.ABSTRACT,
+        },
     },
     "betty/config/__init__.py": {
         "DefaultConfigurable": MissingReason.ABSTRACT,

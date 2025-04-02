@@ -13,7 +13,7 @@ from ctypes import c_longdouble
 from math import floor
 from multiprocessing.managers import SyncManager
 from types import TracebackType
-from typing import final, MutableMapping, TypeVar, Self
+from typing import final, MutableMapping, TypeVar, Self, Union, TypeAlias
 
 from typing_extensions import override
 
@@ -55,16 +55,19 @@ class Lock(ABC):
         pass
 
 
-async def asynchronize_acquire(lock: threading.Lock, *, wait: bool = True) -> bool:
+Acquirable: TypeAlias = Union[threading.Lock, threading.Semaphore]
+
+
+async def asynchronize_acquire(acquirable: Acquirable, *, wait: bool = True) -> bool:
     """
-    Acquire a synchronous lock asynchronously.
+    Acquire a synchronous lock or semaphore asynchronously.
     """
-    while not lock.acquire(blocking=False):
+    while not acquirable.acquire(blocking=False):
         if not wait:
             return False
         # Sleeping for zero seconds does not actually sleep, but gives the event
         # loop a chance to progress other tasks while we wait for another chance
-        # to acquire the lock.
+        # to acquire the acquirable.
         await sleep(0)
     return True
 
@@ -101,6 +104,71 @@ class AsynchronizedLock(Lock):
         Create a new thread-safe, asynchronous lock.
         """
         return cls(threading.Lock())
+
+
+class Semaphore(ABC):
+    """
+    An asynchronous semaphore.
+    """
+
+    async def __aenter__(self):
+        await self.acquire()
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
+        await self.release()
+
+    @abstractmethod
+    async def acquire(self, *, wait: bool = True) -> bool:
+        """
+        Acquire the semaphore.
+        """
+        pass
+
+    @abstractmethod
+    async def release(self, n: int = 1) -> None:
+        """
+        Release the semaphore.
+        """
+        pass
+
+
+@final
+class AsynchronizedSemaphore(Semaphore):
+    """
+    Make a synchronous (blocking) semaphore asynchronous (non-blocking).
+    """
+
+    __slots__ = "_semaphore"
+
+    def __init__(self, semaphore: threading.Semaphore):
+        self._semaphore = semaphore
+
+    @property
+    def semaphore(self) -> threading.Semaphore:
+        """
+        The underlying, synchronous semaphore.
+        """
+        return self._semaphore
+
+    @override
+    async def acquire(self, *, wait: bool = True) -> bool:
+        return await asynchronize_acquire(self._semaphore, wait=wait)
+
+    @override
+    async def release(self, n: int = 1) -> None:
+        self._semaphore.release(n)
+
+    @classmethod
+    def threading(cls, n: int = 1) -> Self:
+        """
+        Create a new thread-safe, asynchronous semaphore.
+        """
+        return cls(threading.Semaphore(n))
 
 
 @final
