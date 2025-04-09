@@ -14,8 +14,8 @@ from betty.app import App
 from betty.app.factory import AppDependentFactory
 from betty.assertion.error import AssertionFailed
 from betty.json.schema import JsonSchemaSchema
-from betty.plugin import CyclicDependencyError
-from betty.plugin.config import PluginConfiguration, PluginInstanceConfiguration
+from betty.locale.localizable import plain, Localizable
+from betty.plugin.config import PluginConfiguration
 from betty.plugin.static import StaticPluginRepository
 from betty.project import (
     Project,
@@ -30,8 +30,9 @@ from betty.project.config import (
     ProjectConfiguration,
     EntityTypeConfiguration,
 )
+from betty.project.extension import EXTENSION_REPOSITORY
 from betty.project.factory import ProjectDependentFactory
-from betty.test_utils.config import DummyConfiguration
+from betty.requirement import RequirementError, Requirement
 from betty.test_utils.json.schema import SchemaTestBase
 from betty.test_utils.model import DummyEntity
 from betty.test_utils.project.extension import (
@@ -42,53 +43,10 @@ from betty.warnings import BettyDeprecationWarning
 
 if TYPE_CHECKING:
     from betty.project.extension import Extension
-    from betty.plugin import PluginIdentifier
     from betty.json.schema import Schema
     from collections.abc import MutableSequence
     from pytest_mock import MockerFixture
     from betty.serde.dump import Dump
-
-
-class _CyclicDependencyOneExtension(DummyExtension):
-    @classmethod
-    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
-        return {_CyclicDependencyTwoExtension}
-
-
-class _CyclicDependencyTwoExtension(DummyExtension):
-    @classmethod
-    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
-        return {_CyclicDependencyOneExtension}
-
-
-class _DependsOnNonConfigurableExtensionExtension(DummyExtension):
-    @classmethod
-    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
-        return {DummyExtension}
-
-
-class _AlsoDependsOnNonConfigurableExtensionExtension(DummyExtension):
-    @classmethod
-    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
-        return {DummyExtension}
-
-
-class _DependsOnNonConfigurableExtensionExtensionExtension(DummyExtension):
-    @classmethod
-    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
-        return {_DependsOnNonConfigurableExtensionExtension}
-
-
-class _ComesBeforeNonConfigurableExtensionExtension(DummyExtension):
-    @classmethod
-    def comes_before(cls) -> set[PluginIdentifier[Extension]]:
-        return {DummyExtension}
-
-
-class _ComesAfterNonConfigurableExtensionExtension(DummyExtension):
-    @classmethod
-    def comes_after(cls) -> set[PluginIdentifier[Extension]]:
-        return {DummyExtension}
 
 
 class _DummyExtensionWithAssetsDirectory(DummyExtension):
@@ -98,25 +56,32 @@ class _DummyExtensionWithAssetsDirectory(DummyExtension):
         return Path(__file__).parent / cls.plugin_id() / "assets"
 
 
-class TestProject:
-    @pytest.fixture
-    def _extensions(self, mocker: MockerFixture) -> None:
-        mocker.patch(
-            "betty.project.extension.EXTENSION_REPOSITORY",
-            new=StaticPluginRepository(
-                DummyExtension,
-                DummyConfigurableExtension,
-                _AlsoDependsOnNonConfigurableExtensionExtension,
-                _ComesBeforeNonConfigurableExtensionExtension,
-                _ComesAfterNonConfigurableExtensionExtension,
-                _DependsOnNonConfigurableExtensionExtension,
-                _DependsOnNonConfigurableExtensionExtensionExtension,
-                _DummyExtensionWithAssetsDirectory,
-                _CyclicDependencyOneExtension,
-                _CyclicDependencyTwoExtension,
-            ),
-        )
+class _UnmetRequirement(Requirement):
+    @override
+    def is_met(self) -> bool:
+        return False
 
+    @override
+    def summary(self) -> Localizable:
+        return plain("")
+
+
+class _DummyExtensionWithUnmetRequirement(DummyExtension):
+    @override
+    @classmethod
+    async def requirement(cls) -> Requirement:
+        return _UnmetRequirement()
+
+
+class _DummyExtensionA(DummyExtension):
+    pass
+
+
+class _DummyExtensionB(DummyExtension):
+    pass
+
+
+class TestProject:
     async def test_new__without_ancestry(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
@@ -151,16 +116,19 @@ class TestProject:
         ) as sut:
             assert sut.configuration is configuration
 
-    @pytest.mark.usefixtures("_extensions")
     async def test_bootstrap__should_initialize_extensions(
-        self, new_temporary_app: App
+        self, mocker: MockerFixture, new_temporary_app: App
     ) -> None:
+        mocker.patch(
+            "betty.project.extension.EXTENSION_REPOSITORY",
+            new=StaticPluginRepository(DummyExtension),
+        )
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.extensions.enable(DummyExtension)
             async with sut:
                 extensions = await sut.extensions
                 extension = extensions[DummyExtension.plugin_id()]
-                assert extension._bootstrapped
+                assert extension.bootstrapped
 
     async def test_bootstrap__should_validate_entity_type_configuration(
         self, mocker: MockerFixture, new_temporary_app: App
@@ -177,154 +145,51 @@ class TestProject:
                 async with sut:
                     pass
 
-    @pytest.mark.usefixtures("_extensions")
-    async def test_extensions__with_one_extension(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.extensions.enable(DummyExtension)
-            async with sut:
-                extensions = await sut.extensions
-                extension = extensions[DummyExtension.plugin_id()]
-                assert isinstance(extension, DummyExtension)
-
-    @pytest.mark.usefixtures("_extensions")
-    async def test_extensions__with_one_configurable_extension(
+    async def test_extensions__should_enable_betty_extensions(
         self, new_temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as sut:
-            value = "Hello, world!"
-            sut.configuration.extensions.append(
-                PluginInstanceConfiguration(
-                    DummyConfigurableExtension,
-                    configuration=DummyConfiguration(value=value),
-                )
-            )
-            async with sut:
-                extensions = await sut.extensions
-                extension = extensions[DummyConfigurableExtension]
-                assert isinstance(extension, DummyConfigurableExtension)
-                assert extension.configuration.value == value
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
+            extensions = await sut.extensions
+            async for betty_extension in EXTENSION_REPOSITORY:
+                if betty_extension.plugin_id().startswith("betty-"):
+                    assert betty_extension.plugin_id() in extensions
 
-    @pytest.mark.usefixtures("_extensions")
-    async def test_extensions__with_one_extension_with_single_chained_dependency(
-        self, new_temporary_app: App
+    async def test_extensions__should_assert_requirement(
+        self, mocker: MockerFixture, new_temporary_app: App
     ) -> None:
+        mocker.patch(
+            "betty.project.extension.EXTENSION_REPOSITORY",
+            new=StaticPluginRepository(_DummyExtensionWithUnmetRequirement),
+        )
         async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.extensions.enable(
-                _DependsOnNonConfigurableExtensionExtensionExtension
-            )
-            async with sut:
-                extensions = [list(batch) for batch in await sut.extensions]
-                assert len(extensions) == 3
-                assert len(extensions[0]) == 1
-                assert isinstance(extensions[0][0], DummyExtension)
-                assert len(extensions[1]) == 1
-                assert isinstance(
-                    extensions[1][0], _DependsOnNonConfigurableExtensionExtension
-                )
-                assert len(extensions[2]) == 1
-                assert isinstance(
-                    extensions[2][0],
-                    _DependsOnNonConfigurableExtensionExtensionExtension,
-                )
-
-    @pytest.mark.usefixtures("_extensions")
-    async def test_extensions__with_multiple_extensions_with_duplicate_dependencies(
-        self, new_temporary_app: App
-    ) -> None:
-        async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.extensions.enable(
-                _DependsOnNonConfigurableExtensionExtension,
-                _AlsoDependsOnNonConfigurableExtensionExtension,
-            )
-            async with sut:
-                extensions = [list(batch) for batch in await sut.extensions]
-                assert len(extensions) == 2
-                assert len(extensions[0]) == 1
-                assert isinstance(extensions[0][0], DummyExtension)
-                assert len(extensions[1]) == 2
-                assert isinstance(
-                    extensions[1][0], _AlsoDependsOnNonConfigurableExtensionExtension
-                )
-                assert isinstance(
-                    extensions[1][1], _DependsOnNonConfigurableExtensionExtension
-                )
-
-    @pytest.mark.usefixtures("_extensions")
-    async def test_extensions__with_multiple_extensions_with_cyclic_dependencies(
-        self, new_temporary_app: App
-    ) -> None:
-        async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.extensions.enable(_CyclicDependencyOneExtension)
-            with pytest.raises(CyclicDependencyError):  # noqa PT012
+            sut.configuration.extensions.enable(_DummyExtensionWithUnmetRequirement)
+            with pytest.raises(RequirementError):
                 async with sut:
-                    pass  # pragma: no cover
+                    pass
 
-    @pytest.mark.usefixtures("_extensions")
-    async def test_extensions__with_comes_before_with_other_extension(
-        self, new_temporary_app: App
+    @pytest.mark.parametrize(
+        "enable",
+        [
+            [_DummyExtensionA, _DummyExtensionB],
+            [_DummyExtensionB, _DummyExtensionA],
+        ],
+    )
+    async def test_extensions__should_sort_by_plugin_id(
+        self,
+        enable: Sequence[type[Extension]],
+        mocker: MockerFixture,
+        new_temporary_app: App,
     ) -> None:
+        mocker.patch(
+            "betty.project.extension.EXTENSION_REPOSITORY",
+            new=StaticPluginRepository(_DummyExtensionA, _DummyExtensionB),
+        )
         async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.extensions.enable(
-                DummyExtension, _ComesBeforeNonConfigurableExtensionExtension
-            )
+            sut.configuration.extensions.enable(*enable)
             async with sut:
-                extensions = [list(batch) for batch in await sut.extensions]
-                assert len(extensions) == 2
-                assert len(extensions[0]) == 1
-                assert isinstance(
-                    extensions[0][0], _ComesBeforeNonConfigurableExtensionExtension
-                )
-                assert len(extensions[1]) == 1
-                assert isinstance(extensions[1][0], DummyExtension)
-
-    @pytest.mark.usefixtures("_extensions")
-    async def test_extensions__with_comes_before_without_other_extension(
-        self, new_temporary_app: App
-    ) -> None:
-        async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.extensions.enable(
-                _ComesBeforeNonConfigurableExtensionExtension
-            )
-            async with sut:
-                extensions = [list(batch) for batch in await sut.extensions]
-                assert len(extensions) == 1
-                assert len(extensions[0]) == 1
-                assert isinstance(
-                    extensions[0][0], _ComesBeforeNonConfigurableExtensionExtension
-                )
-
-    @pytest.mark.usefixtures("_extensions")
-    async def test_extensions__with_comes_after_with_other_extension(
-        self, new_temporary_app: App
-    ) -> None:
-        async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.extensions.enable(
-                _ComesAfterNonConfigurableExtensionExtension, DummyExtension
-            )
-            async with sut:
-                extensions = [list(batch) for batch in await sut.extensions]
-                assert len(extensions) == 2
-                assert len(extensions[0]) == 1
-                assert isinstance(extensions[0][0], DummyExtension)
-                assert len(extensions[1]) == 1
-                assert isinstance(
-                    extensions[1][0], _ComesAfterNonConfigurableExtensionExtension
-                )
-
-    @pytest.mark.usefixtures("_extensions")
-    async def test_extensions__with_comes_after_without_other_extension(
-        self, new_temporary_app: App
-    ) -> None:
-        async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.extensions.enable(
-                _ComesAfterNonConfigurableExtensionExtension
-            )
-            async with sut:
-                extensions = [list(batch) for batch in await sut.extensions]
-                assert len(extensions) == 1
-                assert len(extensions[0]) == 1
-                assert isinstance(
-                    extensions[0][0], _ComesAfterNonConfigurableExtensionExtension
+                extensions = list(map(type, (await sut.extensions).flatten()))
+                assert extensions.index(_DummyExtensionA) < extensions.index(
+                    _DummyExtensionB
                 )
 
     async def test_ancestry__with___init___ancestry(
@@ -352,20 +217,26 @@ class TestProject:
             assets = await sut.assets
             assert len(assets.assets_directory_paths) == 2
 
-    @pytest.mark.usefixtures("_extensions")
     async def test_assets__with_extension_without_assets_directory(
-        self, new_temporary_app: App
+        self, mocker: MockerFixture, new_temporary_app: App
     ) -> None:
+        mocker.patch(
+            "betty.project.extension.EXTENSION_REPOSITORY",
+            new=StaticPluginRepository(DummyExtension),
+        )
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.extensions.enable(DummyExtension)
             async with sut:
                 assets = await sut.assets
                 assert len(assets.assets_directory_paths) == 2
 
-    @pytest.mark.usefixtures("_extensions")
     async def test_assets__with_extension_with_assets_directory(
-        self, new_temporary_app: App, tmp_path: Path
+        self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
     ) -> None:
+        mocker.patch(
+            "betty.project.extension.EXTENSION_REPOSITORY",
+            new=StaticPluginRepository(_DummyExtensionWithAssetsDirectory),
+        )
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.extensions.enable(_DummyExtensionWithAssetsDirectory)
             async with sut:
