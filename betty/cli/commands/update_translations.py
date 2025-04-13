@@ -18,9 +18,10 @@ from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
-    from betty.project import Project
     from pathlib import Path
+
     from betty.app import App
+    from betty.project import Project
 
 
 @final

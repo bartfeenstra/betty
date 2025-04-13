@@ -11,67 +11,69 @@ from asyncio import get_running_loop, run
 from contextlib import suppress
 from io import BytesIO
 from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncIterator,
     Callable,
     Iterable,
-    Any,
     Iterator,
     TypeVar,
-    AsyncIterator,
-    TYPE_CHECKING,
 )
 from urllib.parse import quote
 
 import aiofiles
-from PIL import Image
-from PIL.Image import DecompressionBombWarning
 from aiofiles.os import makedirs
 from geopy import units
 from geopy.format import DEGREES_FORMAT
 from jinja2 import pass_context, pass_eval_context
 from jinja2.async_utils import auto_aiter, auto_await
-from jinja2.filters import prepare_map, make_attrgetter
+from jinja2.filters import make_attrgetter, prepare_map
 from jinja2.runtime import Context, Macro
 from markupsafe import Markup, escape
 from pdf2image.pdf2image import convert_from_path
+from PIL import Image
+from PIL.Image import DecompressionBombWarning
 
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
-from betty.hashid import hashid_file_meta, hashid
+from betty.hashid import hashid, hashid_file_meta
 from betty.html import CssProvider, JsProvider
 from betty.image import (
-    resize_cover,
-    Size,
     FocusArea,
+    Size,
     image_file_path_format,
+    resize_cover,
 )
 from betty.locale import (
-    negotiate_locale,
+    SPECIAL_LOCALES,
+    UNDETERMINED_LOCALE,
     Localey,
     get_data,
-    UNDETERMINED_LOCALE,
-    SPECIAL_LOCALES,
+    negotiate_locale,
 )
 from betty.locale.error import LocaleError
+from betty.locale.localized import LocalizedStr
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, SVG
 from betty.os import link_or_copy
 from betty.string import (
-    camel_case_to_snake_case,
     camel_case_to_kebab_case,
+    camel_case_to_snake_case,
     upper_camel_case_to_lower_camel_case,
 )
 from betty.typing import internal
-from betty.locale.localized import LocalizedStr
-from betty.warnings import deprecated, deprecate
+from betty.warnings import deprecate, deprecated
 
 if TYPE_CHECKING:
-    from betty.locale.localized import Localized
+    from collections.abc import Awaitable, Mapping
+    from pathlib import Path
+
+    from jinja2.nodes import EvalContext
+
     from betty.ancestry.date import HasDate
     from betty.date import Datey
     from betty.locale.localizable import Localizable
-    from jinja2.nodes import EvalContext
-    from pathlib import Path
-    from collections.abc import Awaitable, Mapping
+    from betty.locale.localized import Localized
 
 _T = TypeVar("_T")
 
@@ -87,7 +89,7 @@ async def filter_url(
     """
     Generate a URL for a resource.
     """
-    from betty.jinja2 import context_project, context_localizer
+    from betty.jinja2 import context_localizer, context_project
 
     url_generator = await context_project(context).url_generator
     return url_generator.generate(
@@ -112,7 +114,7 @@ async def filter_localized_url(
     """
     Generate a localized URL for a localizable resource.
     """
-    from betty.jinja2 import context_project, context_localizer
+    from betty.jinja2 import context_localizer, context_project
 
     localized_url_generator = await context_project(context).localized_url_generator
     return localized_url_generator.generate(
@@ -297,7 +299,7 @@ async def filter_file(context: Context, file: File) -> str:
 
     :return: The public path to the preprocessed file. This can be used on a web page.
     """
-    from betty.jinja2 import context_project, context_job_context
+    from betty.jinja2 import context_job_context, context_project
 
     project = context_project(context)
     job_context = context_job_context(context)
@@ -340,7 +342,7 @@ async def filter_image_resize_cover(
 
     :return: The public path to the preprocessed file. This can be embedded in a web page.
     """
-    from betty.jinja2 import context_project, context_job_context
+    from betty.jinja2 import context_job_context, context_project
 
     file = filey if isinstance(filey, File) else filey.file
     assert file is not None

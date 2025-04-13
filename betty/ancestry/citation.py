@@ -4,7 +4,7 @@ Data types for citations.
 
 from __future__ import annotations
 
-from typing import final, TYPE_CHECKING
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
@@ -13,10 +13,10 @@ from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.link import HasLinks
 from betty.ancestry.source import Source
 from betty.locale.localizable import (
-    _,
+    Localizable,
     OptionalStaticTranslationsLocalizableAttr,
     ShorthandStaticTranslations,
-    Localizable,
+    _,
     ngettext,
 )
 from betty.model import UserFacingEntity

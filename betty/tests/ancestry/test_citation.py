@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Sequence, Mapping, Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Mapping, Sequence
 
 from typing_extensions import override
 
@@ -12,7 +12,7 @@ from betty.ancestry.source import Source
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityTestBase, DummyEntity
+from betty.test_utils.model import DummyEntity, EntityTestBase
 
 if TYPE_CHECKING:
     from betty.model import Entity

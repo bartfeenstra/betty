@@ -2,8 +2,7 @@ from pathlib import Path
 
 import aiofiles
 
-from betty.hashid import hashid_file_content, hashid_file_meta, hashid, hashid_sequence
-
+from betty.hashid import hashid, hashid_file_content, hashid_file_meta, hashid_sequence
 
 content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
 

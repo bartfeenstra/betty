@@ -9,7 +9,7 @@ from betty.media_type.media_types import PLAIN_TEXT
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 
 if TYPE_CHECKING:
-    from betty.serde.dump import DumpMapping, Dump
+    from betty.serde.dump import Dump, DumpMapping
 
 
 class DummyHasMediaType(HasMediaType):

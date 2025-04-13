@@ -3,27 +3,29 @@ An API for providing application-wide services.
 """
 
 from abc import ABC, abstractmethod
-from collections.abc import Callable, MutableSequence, Awaitable
-from inspect import iscoroutinefunction, getmembers
+from collections.abc import Awaitable, Callable, MutableSequence
+from inspect import getmembers, iscoroutinefunction
 from types import TracebackType
 from typing import (
-    Self,
     Any,
-    final,
-    TypedDict,
-    Unpack,
-    TypeAlias,
-    cast,
     Generic,
     Protocol,
+    Self,
+    TypeAlias,
+    TypedDict,
+    TypeVar,
+    Unpack,
+    cast,
+    final,
+    overload,
 )
-from typing import overload, TypeVar
 from warnings import warn
+
+from typing_extensions import override
 
 from betty.concurrent import AsynchronizedLock, Lock
 from betty.config import Configurable
-from betty.typing import internal, public, Void, not_void, processsafe
-from typing_extensions import override
+from betty.typing import Void, internal, not_void, processsafe, public
 
 
 @internal

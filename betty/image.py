@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import TypeAlias
 
 from PIL import UnidentifiedImageError
-from PIL.Image import Image, EXTENSION, preinit, init
+from PIL.Image import EXTENSION, Image, init, preinit
 
 from betty.media_type import MediaType
 from betty.media_type.media_types import PDF

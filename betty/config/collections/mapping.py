@@ -7,22 +7,23 @@ from __future__ import annotations
 from abc import abstractmethod
 from contextlib import suppress
 from typing import (
+    TYPE_CHECKING,
     Generic,
     Iterable,
     Iterator,
     TypeVar,
-    TYPE_CHECKING,
 )
 
 from typing_extensions import override
 
-from betty.assertion import assert_sequence, assert_mapping
+from betty.assertion import assert_mapping, assert_sequence
 from betty.config import Configuration
 from betty.config.collections import ConfigurationCollection, ConfigurationKey
 
 if TYPE_CHECKING:
-    from betty.serde.dump import Dump, DumpMapping, DumpSequence
     from collections.abc import MutableMapping
+
+    from betty.serde.dump import Dump, DumpMapping, DumpSequence
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)

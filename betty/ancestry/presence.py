@@ -4,11 +4,11 @@ Data types for people's presences at events.
 
 from __future__ import annotations
 
-from typing import final, TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING, Iterable, final
 
 from typing_extensions import override
 
-from betty.locale.localizable import _, Localizable, ngettext
+from betty.locale.localizable import Localizable, _, ngettext
 from betty.model import Entity
 from betty.model.association import BidirectionalToOne, ToOneAssociate
 from betty.plugin import ShorthandPluginBase
@@ -20,13 +20,13 @@ from betty.privacy import (
 )
 
 if TYPE_CHECKING:
-    from betty.mutability import Mutable
-    from betty.json.linked_data import JsonLdObject
-    from betty.project import Project
-    from betty.serde.dump import DumpMapping, Dump
+    from betty.ancestry.event import Event
     from betty.ancestry.person import Person
     from betty.ancestry.presence_role import PresenceRole
-    from betty.ancestry.event import Event
+    from betty.json.linked_data import JsonLdObject
+    from betty.mutability import Mutable
+    from betty.project import Project
+    from betty.serde.dump import Dump, DumpMapping
 
 
 @final

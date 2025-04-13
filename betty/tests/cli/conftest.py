@@ -1,6 +1,7 @@
 import pytest
-from betty.app import App
 from pytest_mock import MockerFixture
+
+from betty.app import App
 
 
 @pytest.fixture

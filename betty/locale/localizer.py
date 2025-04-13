@@ -8,40 +8,41 @@ import datetime
 import gettext
 from collections import defaultdict
 from contextlib import suppress
-from typing import final, Mapping, Iterator, AsyncIterator, TYPE_CHECKING
+from typing import TYPE_CHECKING, AsyncIterator, Iterator, Mapping, final
 
 import aiofiles
 from babel import dates
 from babel.dates import format_date
-from betty import fs
-from betty.concurrent import Lock, AsynchronizedLock
-from betty.hashid import hashid_file_meta
-from betty.locale import (
-    get_data,
-    to_babel_identifier,
-    DEFAULT_LOCALE,
-    Localey,
-    to_locale,
-    negotiate_locale,
-)
-from betty.locale.babel import run_babel
-from betty.date import (
-    DatePartsFormatters,
-    DateFormatters,
-    DateRangeFormatters,
-    Datey,
-    Date,
-    IncompleteDateError,
-    DateRange,
-)
 from polib import pofile
 
+from betty import fs
+from betty.concurrent import AsynchronizedLock, Lock
+from betty.date import (
+    Date,
+    DateFormatters,
+    DatePartsFormatters,
+    DateRange,
+    DateRangeFormatters,
+    Datey,
+    IncompleteDateError,
+)
+from betty.hashid import hashid_file_meta
+from betty.locale import (
+    DEFAULT_LOCALE,
+    Localey,
+    get_data,
+    negotiate_locale,
+    to_babel_identifier,
+    to_locale,
+)
+from betty.locale.babel import run_babel
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping
-    from betty.assets import AssetRepository
     from pathlib import Path
+
+    from betty.assets import AssetRepository
 
 
 class Localizer:

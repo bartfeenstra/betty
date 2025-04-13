@@ -1,13 +1,14 @@
 from typing import Sequence
 
 import pytest
+from typing_extensions import override
+
 from betty.app import App
 from betty.json.schema import Schema
 from betty.openapi import Specification, SpecificationSchema
 from betty.project import Project
 from betty.serde.dump import Dump
 from betty.test_utils.json.schema import SchemaTestBase
-from typing_extensions import override
 
 
 class TestSpecification:

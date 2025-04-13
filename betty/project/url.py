@@ -4,33 +4,38 @@ URL generators for project resources.
 
 from __future__ import annotations
 
-from typing import final, Any, Self, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Self, final
 from urllib.parse import quote, urlparse
 
 from typing_extensions import override
 
 from betty.media_type.media_types import HTML, JSON, JSON_LD
+from betty.model import Entity
 from betty.project.factory import ProjectDependentFactory
 from betty.string import camel_case_to_kebab_case
 from betty.typing import private
 from betty.url import (
-    generate_from_path,
-    LocalizedUrlGenerator as StdLocalizedUrlGenerator,
-    StaticUrlGenerator as StdStaticUrlGenerator,
-    PassthroughUrlGenerator,
     InvalidMediaType,
+    PassthroughUrlGenerator,
     UrlGenerator,
+    generate_from_path,
+)
+from betty.url import (
+    LocalizedUrlGenerator as StdLocalizedUrlGenerator,
+)
+from betty.url import (
+    StaticUrlGenerator as StdStaticUrlGenerator,
 )
 from betty.url.proxy import ProxyLocalizedUrlGenerator, ProxyUrlGenerator
-from betty.model import Entity
 from betty.warnings import deprecated
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from betty.ancestry import Ancestry
+    from betty.locale import Localey
     from betty.media_type import MediaType
     from betty.project import Project
-    from betty.locale import Localey
-    from collections.abc import Mapping
 
 
 class _ProjectUrlGenerator(ProjectDependentFactory):

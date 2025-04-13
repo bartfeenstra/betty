@@ -3,12 +3,12 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.assertion.error import AssertionFailed
-from betty.locale import UNDETERMINED_LOCALE, DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizable import ShorthandStaticTranslations
 from betty.locale.localizable.config import (
-    StaticTranslationsLocalizableConfiguration,
     OptionalStaticTranslationsLocalizableConfigurationAttr,
     RequiredStaticTranslationsLocalizableConfigurationAttr,
+    StaticTranslationsLocalizableConfiguration,
 )
 from betty.locale.localizer import DEFAULT_LOCALIZER
 

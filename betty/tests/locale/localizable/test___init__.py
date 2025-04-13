@@ -7,21 +7,19 @@ from typing_extensions import override
 from betty.json.schema import Schema
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizable import (
-    StaticTranslationsLocalizable,
-    plain,
-    StaticTranslations,
-    StaticTranslationsLocalizableSchema,
-    join,
-    do_you_mean,
     Localizable,
-    RequiredStaticTranslationsLocalizableAttr,
     OptionalStaticTranslationsLocalizableAttr,
-)
-from betty.locale.localizable import (
-    static,
+    RequiredStaticTranslationsLocalizableAttr,
     ShorthandStaticTranslations,
+    StaticTranslations,
+    StaticTranslationsLocalizable,
+    StaticTranslationsLocalizableSchema,
+    do_you_mean,
+    join,
+    plain,
+    static,
 )
-from betty.locale.localizer import Localizer, DEFAULT_LOCALIZER
+from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.serde.dump import Dump, DumpMapping
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.json.schema import SchemaTestBase

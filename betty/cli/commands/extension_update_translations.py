@@ -21,6 +21,7 @@ from betty.project import extension
 
 if TYPE_CHECKING:
     from pathlib import Path
+
     from betty.app import App
     from betty.project.extension import Extension
 

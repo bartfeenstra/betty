@@ -6,16 +6,16 @@ from typing_extensions import override
 
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
-    DerivableEventType,
     CreatableDerivableEventType,
+    DerivableEventType,
+    EndOfLifeEventType,
     Residence,
     StartOfLifeEventType,
-    EndOfLifeEventType,
 )
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.date import DateRange, Date
+from betty.date import Date, DateRange
 from betty.model.collections import record_added
 from betty.project import Project
 from betty.project.extension.deriver import Deriver
@@ -24,9 +24,9 @@ from betty.test_utils.ancestry.event_type import DummyEventType
 from betty.test_utils.project.extension import ExtensionTestBase
 
 if TYPE_CHECKING:
-    from betty.plugin import PluginIdentifier
     from betty.ancestry.event_type import EventType
     from betty.app import App
+    from betty.plugin import PluginIdentifier
 
 
 class Ignored(DummyEventType):

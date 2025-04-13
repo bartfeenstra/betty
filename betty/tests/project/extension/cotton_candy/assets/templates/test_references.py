@@ -2,7 +2,6 @@ from betty.ancestry.citation import Citation
 from betty.ancestry.source import Source
 from betty.html import Citer
 from betty.project.extension.cotton_candy import CottonCandy
-
 from betty.test_utils.jinja2 import assert_template_file
 
 

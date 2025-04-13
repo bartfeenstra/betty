@@ -4,27 +4,27 @@ Data types to describe people's names.
 
 from __future__ import annotations
 
-from typing import final, TYPE_CHECKING
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.locale import HasLocale
-from betty.json.linked_data import dump_context, JsonLdObject
+from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import String
 from betty.locale import UNDETERMINED_LOCALE
-from betty.locale.localizable import _, Localizable, ngettext
+from betty.locale.localizable import Localizable, _, ngettext
 from betty.model import Entity
-from betty.model.association import BidirectionalToOne, ToOneAssociate, ToManyAssociates
+from betty.model.association import BidirectionalToOne, ToManyAssociates, ToOneAssociate
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy, merge_privacies
 from betty.repr import repr_instance
 
 if TYPE_CHECKING:
     from betty.ancestry.citation import Citation
-    from betty.project import Project
-    from betty.serde.dump import DumpMapping, Dump
     from betty.ancestry.person import Person
+    from betty.project import Project
+    from betty.serde.dump import Dump, DumpMapping
 
 
 @final

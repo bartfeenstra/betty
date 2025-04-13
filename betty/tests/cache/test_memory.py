@@ -1,5 +1,5 @@
 import multiprocessing
-from collections.abc import Sequence, AsyncIterator, Iterator
+from collections.abc import AsyncIterator, Iterator, Sequence
 from contextlib import asynccontextmanager
 from typing import Any
 

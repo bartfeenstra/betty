@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Awaitable
+    from collections.abc import Awaitable, Callable
 
 
 async def link_or_copy(source_file_path: Path, destination_file_path: Path) -> None:

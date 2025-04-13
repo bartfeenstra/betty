@@ -4,7 +4,7 @@ Test utilities for :py:mod:`betty.cli`.
 
 from typing import IO, Any
 
-from asyncclick.testing import Result, CliRunner
+from asyncclick.testing import CliRunner, Result
 
 from betty.app import App
 from betty.cli import new_main_command

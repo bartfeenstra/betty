@@ -11,15 +11,14 @@ import webbrowser
 from abc import ABC, abstractmethod
 from asyncio import to_thread
 from http.client import HTTPConnection
-from http.server import SimpleHTTPRequestHandler, HTTPServer
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 from io import StringIO
 from pathlib import Path
-from typing import Any, TYPE_CHECKING, Self
-from typing import final
+from typing import TYPE_CHECKING, Any, Self, final
 from urllib.parse import urlparse
 
 from aiofiles.os import makedirs, symlink
-from aiofiles.tempfile import TemporaryDirectory, AiofilesContextManagerTempDir
+from aiofiles.tempfile import AiofilesContextManagerTempDir, TemporaryDirectory
 from typing_extensions import override
 
 from betty.error import UserFacingError
@@ -28,9 +27,10 @@ from betty.locale.localizable import _
 from betty.project.factory import ProjectDependentFactory
 
 if TYPE_CHECKING:
+    from types import TracebackType
+
     from betty.locale.localizer import Localizer
     from betty.project import Project
-    from types import TracebackType
 
 DEFAULT_PORT = 8000
 

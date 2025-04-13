@@ -5,16 +5,17 @@ Provide a URL generation API.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Any, Self
 from urllib.parse import urlparse
 
-from typing_extensions import override, deprecated
+from typing_extensions import deprecated, override
 
-from betty.locale import negotiate_locale, Localey, to_locale
+from betty.locale import Localey, negotiate_locale, to_locale
 
 if TYPE_CHECKING:
-    from betty.media_type import MediaType
     from collections.abc import Mapping
+
+    from betty.media_type import MediaType
 
 
 class GenerationError(RuntimeError):

@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from collections.abc import Callable
 from contextlib import chdir
-from typing import Generic, TypeVar, TypeAlias, TYPE_CHECKING, Self, Any
+from typing import TYPE_CHECKING, Any, Generic, Self, TypeAlias, TypeVar
 
 import aiofiles
 from aiofiles.os import makedirs

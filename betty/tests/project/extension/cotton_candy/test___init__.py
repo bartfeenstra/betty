@@ -20,6 +20,7 @@ from betty.test_utils.project.extension.webpack.build import EntryPointProviderT
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
+
     from betty.app import App
 
 

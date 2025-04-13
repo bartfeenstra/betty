@@ -1,19 +1,20 @@
 import io
 import logging
-from logging import CRITICAL, ERROR, WARNING, INFO, DEBUG, FATAL, WARN, NOTSET
+from logging import CRITICAL, DEBUG, ERROR, FATAL, INFO, NOTSET, WARN, WARNING
 
 import asyncclick as click
 import pytest
+from pytest_mock import MockerFixture
+from typing_extensions import override
+
 from betty.app import App
 from betty.cli import _ClickHandler, new_main_command
-from betty.cli.commands import command, Command
+from betty.cli.commands import Command, command
 from betty.config import write_configuration_file
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.test_utils.cli import run
 from betty.test_utils.plugin import DummyPlugin
-from pytest_mock import MockerFixture
-from typing_extensions import override
 
 
 class _NoOpCommand(Command, DummyPlugin):

@@ -3,13 +3,13 @@ Test utilities for :py:mod:`betty.plugin`.
 """
 
 from collections.abc import Sequence
-from typing import Generic, TypeVar, Any
+from typing import Any, Generic, TypeVar
 
 from typing_extensions import override
 
 from betty.locale.localizable import Localizable, plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.machine_name import assert_machine_name, MachineName
+from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin import Plugin
 from betty.string import camel_case_to_kebab_case
 

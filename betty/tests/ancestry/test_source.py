@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Sequence, Mapping, Any, MutableMapping, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Mapping, MutableMapping, Sequence
 
 from typing_extensions import override
 

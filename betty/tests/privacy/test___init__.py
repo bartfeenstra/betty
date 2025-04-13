@@ -1,27 +1,27 @@
 from __future__ import annotations
 
-from typing import Sequence, Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Sequence
 
 import pytest
 from typing_extensions import override
 
 from betty.privacy import (
-    Privacy,
     HasPrivacy,
-    is_public,
-    merge_privacies,
+    Privacy,
     PrivacySchema,
     is_private,
-    resolve_privacy,
+    is_public,
+    merge_privacies,
     merge_secondary_privacies,
+    resolve_privacy,
 )
-from betty.test_utils.privacy import DummyHasPrivacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.json.schema import SchemaTestBase
+from betty.test_utils.privacy import DummyHasPrivacy
 
 if TYPE_CHECKING:
     from betty.json.schema import Schema
-    from betty.serde.dump import DumpMapping, Dump
+    from betty.serde.dump import Dump, DumpMapping
 
 
 class TestHasPrivacy:

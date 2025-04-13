@@ -6,7 +6,7 @@ This provides tools to mark objects as mutable or immutable, and to guard agains
 
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from betty.typing import internal
 

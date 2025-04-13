@@ -6,19 +6,20 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from threading import Lock
-from typing import MutableSequence, TYPE_CHECKING, final
+from typing import TYPE_CHECKING, MutableSequence, final
 
 from typing_extensions import override
 
 from betty.link import Link
-from betty.serde.dump import Dumpable, DumpMapping, Dump
+from betty.serde.dump import Dump, Dumpable, DumpMapping
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from betty.ancestry.citation import Citation
     from betty.locale.localizable import (
         Localizable,
     )
-    from betty.ancestry.citation import Citation
-    from collections.abc import Sequence
 
 
 class CssProvider(ABC):

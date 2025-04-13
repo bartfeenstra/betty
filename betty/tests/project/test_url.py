@@ -6,7 +6,7 @@ from pytest_mock import MockerFixture
 
 from betty.ancestry import Ancestry
 from betty.app import App
-from betty.locale import Localey, DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE, Localey
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, JSON
 from betty.model import ENTITY_TYPE_REPOSITORY, Entity
@@ -15,11 +15,11 @@ from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.project.config import LocaleConfiguration
 from betty.project.url import (
-    StaticUrlGenerator,
     LocalizedUrlGenerator,
+    StaticUrlGenerator,
     _EntityUrlUrlGenerator,
-    _StaticPathUrlUrlGenerator,
     _LocalizedPathUrlUrlGenerator,
+    _StaticPathUrlUrlGenerator,
     new_project_url_generator,
 )
 from betty.test_utils.model import DummyEntity

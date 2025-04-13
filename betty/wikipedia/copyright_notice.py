@@ -11,9 +11,9 @@ from typing_extensions import override
 from betty.app import App
 from betty.app.factory import AppDependentFactory
 from betty.copyright_notice import CopyrightNotice
-from betty.fetch import FetchError, Fetcher
+from betty.fetch import Fetcher, FetchError
 from betty.locale import negotiate_locale, to_babel_identifier
-from betty.locale.localizable import _, Localizable, call
+from betty.locale.localizable import Localizable, _, call
 from betty.plugin import ShorthandPluginBase
 
 

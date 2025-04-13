@@ -4,7 +4,7 @@ The Link API allows data to reference external resources.
 
 from __future__ import annotations
 
-from typing import final, Any, MutableSequence, TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Any, MutableSequence, Self, final
 
 from typing_extensions import override
 
@@ -13,25 +13,25 @@ from betty.ancestry.locale import HasLocale
 from betty.ancestry.media_type import HasMediaType
 from betty.json.linked_data import (
     JsonLdObject,
-    dump_link,
-    LinkedDataDumpableJsonLdObject,
     JsonLdSchema,
+    LinkedDataDumpableJsonLdObject,
+    dump_link,
 )
-from betty.json.schema import String, Array
+from betty.json.schema import Array, String
 from betty.link import Link as StdLink
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import (
     OptionalStaticTranslationsLocalizableAttr,
     ShorthandStaticTranslations,
-    StaticTranslationsLocalizableSchema,
     StaticTranslationsLocalizable,
+    StaticTranslationsLocalizableSchema,
 )
 from betty.privacy import is_public
 
 if TYPE_CHECKING:
-    from betty.serde.dump import DumpMapping, Dump
-    from betty.project import Project
     from betty.media_type import MediaType
+    from betty.project import Project
+    from betty.serde.dump import Dump, DumpMapping
 
 
 @final

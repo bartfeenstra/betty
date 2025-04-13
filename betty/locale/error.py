@@ -9,7 +9,7 @@ from babel.localedata import locale_identifiers
 
 from betty.error import UserFacingError
 from betty.locale import to_locale
-from betty.locale.localizable import _, join, do_you_mean
+from betty.locale.localizable import _, do_you_mean, join
 
 
 class LocaleError(UserFacingError, Exception):

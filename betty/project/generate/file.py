@@ -5,15 +5,16 @@ File utilities for site generation.
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
-from typing import AsyncContextManager, TYPE_CHECKING
+from typing import TYPE_CHECKING, AsyncContextManager
 
 import aiofiles
 from aiofiles.os import makedirs
 
 if TYPE_CHECKING:
-    from aiofiles.threadpool.text import AsyncTextIOWrapper
     from collections.abc import AsyncIterator
     from pathlib import Path
+
+    from aiofiles.threadpool.text import AsyncTextIOWrapper
 
 
 @asynccontextmanager

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Mapping, Any
+from typing import Any, Mapping
 
 from betty.locale import UNDETERMINED_LOCALE
 from betty.test_utils.ancestry.locale import DummyHasLocale

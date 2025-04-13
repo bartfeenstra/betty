@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from typing import Iterable, TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING, Iterable, Sequence
 
 from typing_extensions import override
 
-from betty.assertion import assert_record, RequiredField, assert_int, assert_setattr
+from betty.assertion import RequiredField, assert_int, assert_record, assert_setattr
 from betty.config import Configuration
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase

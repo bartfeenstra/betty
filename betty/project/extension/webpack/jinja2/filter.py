@@ -11,8 +11,9 @@ from jinja2 import pass_context
 from betty.project.extension.webpack.jinja2 import _context_js_entry_points
 
 if TYPE_CHECKING:
-    from betty.jinja2 import Filters
     from jinja2.runtime import Context
+
+    from betty.jinja2 import Filters
 
 
 @pass_context

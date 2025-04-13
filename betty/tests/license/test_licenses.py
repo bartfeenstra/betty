@@ -3,7 +3,7 @@ from collections.abc import Iterator
 from json import dumps
 from multiprocessing.managers import SyncManager
 from pathlib import Path
-from typing import Sequence, TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
 
 import pytest
 from typing_extensions import override

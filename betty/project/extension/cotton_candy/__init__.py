@@ -7,13 +7,13 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, final
 
-from typing_extensions import override, deprecated
+from typing_extensions import deprecated, override
 
-from betty.jinja2 import Jinja2Provider, Filters
-from betty.locale.localizable import _, static, plain
+from betty.jinja2 import Filters, Jinja2Provider
+from betty.locale.localizable import _, plain, static
 from betty.os import link_or_copy
 from betty.plugin import ShorthandPluginBase
-from betty.project.extension import ConfigurableExtension, Theme, Extension
+from betty.project.extension import ConfigurableExtension, Extension, Theme
 from betty.project.extension._theme import jinja2_filters
 from betty.project.extension._theme.search import generate_search_index
 from betty.project.extension.cotton_candy.config import CottonCandyConfiguration
@@ -24,9 +24,10 @@ from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.generate import GenerateSiteEvent
 
 if TYPE_CHECKING:
-    from betty.plugin import PluginIdentifier
-    from betty.event_dispatcher import EventHandlerRegistry
     from collections.abc import Sequence
+
+    from betty.event_dispatcher import EventHandlerRegistry
+    from betty.plugin import PluginIdentifier
 
 _RESULT_CONTAINER_TEMPLATE = plain("""
 <li class="search-result">

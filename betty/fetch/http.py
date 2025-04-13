@@ -3,19 +3,20 @@ Fetch content from the internet.
 """
 
 import asyncio
-from collections.abc import Callable, Awaitable
+from collections.abc import Awaitable, Callable
 from logging import getLogger
 from pathlib import Path
 from time import time
-from typing import TypeVar, AsyncContextManager
+from typing import AsyncContextManager, TypeVar
 from urllib.parse import urlparse
 
-from aiohttp import ClientSession, ClientResponse, ClientError
+from aiohttp import ClientError, ClientResponse, ClientSession
+from typing_extensions import override
+
 from betty.cache import Cache, CacheItem, CacheItemValueSetter
 from betty.cache.file import BinaryFileCache
-from betty.fetch import Fetcher, FetchResponse, FetchError
+from betty.fetch import Fetcher, FetchError, FetchResponse
 from betty.locale.localizable import plain
-from typing_extensions import override
 
 _CacheItemValueT = TypeVar("_CacheItemValueT")
 

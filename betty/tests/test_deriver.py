@@ -7,13 +7,13 @@ import pytest
 from betty.ancestry import Ancestry
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
-    DerivableEventType,
     CreatableDerivableEventType,
+    DerivableEventType,
 )
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.date import DateRange, Date, Datey
+from betty.date import Date, DateRange, Datey
 from betty.deriver import Deriver
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model.collections import record_added
@@ -22,8 +22,8 @@ from betty.project.config import DEFAULT_LIFETIME_THRESHOLD
 from betty.test_utils.ancestry.event_type import DummyEventType
 
 if TYPE_CHECKING:
-    from betty.plugin import PluginIdentifier, PluginRepository
     from betty.ancestry.event_type import EventType
+    from betty.plugin import PluginIdentifier, PluginRepository
 
 
 class Ignored(DummyEventType):

@@ -1,6 +1,6 @@
 import pytest
 
-from betty.mutability import Mutable, immutable, mutable, MutableError, ImmutableError
+from betty.mutability import ImmutableError, Mutable, MutableError, immutable, mutable
 
 
 def test_immutable() -> None:

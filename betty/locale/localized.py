@@ -10,10 +10,10 @@ from typing import Sequence
 from typing_extensions import override
 
 from betty.locale import (
+    UNDETERMINED_LOCALE,
     Localey,
     negotiate_locale,
     to_locale,
-    UNDETERMINED_LOCALE,
 )
 
 

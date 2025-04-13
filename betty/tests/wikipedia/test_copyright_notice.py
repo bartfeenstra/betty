@@ -1,11 +1,11 @@
 from collections.abc import Sequence
 
-from betty.test_utils.conftest import NewTemporaryAppFactory
 from typing_extensions import override
 
 from betty.copyright_notice import CopyrightNotice
 from betty.fetch.static import StaticFetcher
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.test_utils.conftest import NewTemporaryAppFactory
 from betty.test_utils.copyright_notice import CopyrightNoticeTestBase
 from betty.tests.wikipedia.test___init__ import _new_json_fetch_response
 from betty.wikipedia.copyright_notice import WikipediaContributors

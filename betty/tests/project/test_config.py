@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable, TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable
 
 import pytest
 from typing_extensions import override
@@ -24,37 +24,39 @@ from betty.plugin.config import (
 )
 from betty.plugin.static import StaticPluginRepository
 from betty.project.config import (
-    LocaleConfiguration,
-    LocaleConfigurationMapping,
-    ExtensionInstanceConfigurationMapping,
+    CopyrightNoticeConfiguration,
+    CopyrightNoticeConfigurationMapping,
     EntityTypeConfiguration,
     EntityTypeConfigurationMapping,
     EventTypeConfigurationMapping,
-    PresenceRoleConfigurationMapping,
-    PlaceTypeConfigurationMapping,
+    ExtensionInstanceConfigurationMapping,
     GenderConfigurationMapping,
-    CopyrightNoticeConfigurationMapping,
-    CopyrightNoticeConfiguration,
     LicenseConfiguration,
     LicenseConfigurationMapping,
+    LocaleConfiguration,
+    LocaleConfigurationMapping,
+    PlaceTypeConfigurationMapping,
+    PresenceRoleConfigurationMapping,
+    ProjectConfiguration,
 )
-from betty.project.config import ProjectConfiguration
 from betty.test_utils.assertion.error import raises_error
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.model import DummyEntity
 from betty.test_utils.plugin.config import PluginConfigurationMappingTestBase
 from betty.test_utils.project.extension import (
-    DummyExtension,
     DummyConfigurableExtension,
+    DummyExtension,
 )
 from betty.typing import Void
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
+    from pytest_mock import MockerFixture
+
     from betty.config import Configuration
     from betty.serde.dump import Dump, DumpMapping
-    from pytest_mock import MockerFixture
-    from pathlib import Path
 
 
 class _DummyNonConfigurableExtension(DummyExtension):

@@ -7,36 +7,37 @@ from __future__ import annotations
 import datetime
 from collections import defaultdict
 from collections.abc import Mapping
-from typing import Callable, Any, cast, TYPE_CHECKING, TypeAlias, final, Self
+from typing import TYPE_CHECKING, Any, Callable, Self, TypeAlias, cast, final
 
 import aiofiles
 from aiofiles import os as aiofiles_os
 from jinja2 import (
     Environment as Jinja2Environment,
-    select_autoescape,
-    FileSystemLoader,
-    pass_context,
-    Template,
 )
-from jinja2.runtime import StrictUndefined, Context, DebugUndefined
+from jinja2 import (
+    FileSystemLoader,
+    Template,
+    pass_context,
+    select_autoescape,
+)
+from jinja2.runtime import Context, DebugUndefined, StrictUndefined
 from typing_extensions import override
 
 from betty.date import Date
 from betty.html import (
+    Breadcrumbs,
+    Citer,
     CssProvider,
     JsProvider,
-    Citer,
-    Breadcrumbs,
     NavigationLinkProvider,
 )
 from betty.html.attributes import Attributes
 from betty.jinja2.filter import filters
-from betty.jinja2.globals import generate_html_id, HtmlId
+from betty.jinja2.globals import HtmlId, generate_html_id
 from betty.jinja2.test import tests
 from betty.job import Context as JobContext
 from betty.locale.localizable import Localizable, plain
-from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.locale.localizer import Localizer
+from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.model import ENTITY_TYPE_REPOSITORY
 from betty.plugin import Plugin, PluginIdToTypeMapping
 from betty.project.factory import ProjectDependentFactory
@@ -45,14 +46,15 @@ from betty.typing import private
 from betty.warnings import deprecate
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator, MutableMapping, Sequence
+    from pathlib import Path
+
     from betty.assets import AssetRepository
     from betty.machine_name import MachineName
     from betty.model import Entity
-    from betty.project.extension import Extension
     from betty.project import Project
     from betty.project.config import ProjectConfiguration
-    from pathlib import Path
-    from collections.abc import MutableMapping, Iterator, Sequence
+    from betty.project.extension import Extension
 
 
 def context_project(context: Context) -> Project:

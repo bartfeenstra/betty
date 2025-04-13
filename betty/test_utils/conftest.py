@@ -17,7 +17,7 @@ __all__ = [
 ]
 
 import multiprocessing
-from typing import TYPE_CHECKING, Protocol, AsyncContextManager, Any
+from typing import TYPE_CHECKING, Any, AsyncContextManager, Protocol
 
 import pytest
 import pytest_asyncio
@@ -28,14 +28,15 @@ from betty.error import do_raise
 from betty.multiprocessing import ProcessPoolExecutor
 
 if TYPE_CHECKING:
-    from playwright.async_api import Page, BrowserContext
-    from betty.service import ServiceFactory
-    from betty.cache import Cache
-    from betty.fetch import Fetcher
+    from collections.abc import AsyncIterator, Iterator  # noqa I001
     from concurrent import futures
     from multiprocessing.managers import SyncManager
     from pathlib import Path
-    from collections.abc import AsyncIterator, Iterator
+
+    from betty.cache import Cache
+    from betty.fetch import Fetcher
+    from betty.service import ServiceFactory
+    from playwright.async_api import BrowserContext, Page
 
 
 @pytest.fixture

@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place
-from betty.date import DateRange, Date
+from betty.date import Date, DateRange
 from betty.project.extension.cotton_candy import CottonCandy
 from betty.test_utils.jinja2 import assert_template_file
 

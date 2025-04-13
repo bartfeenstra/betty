@@ -4,7 +4,7 @@ from typing import AsyncIterator
 
 import aiofiles
 import pytest
-from aiohttp import ClientSession, ClientError
+from aiohttp import ClientError, ClientSession
 from aioresponses import aioresponses
 
 from betty.cache.file import BinaryFileCache

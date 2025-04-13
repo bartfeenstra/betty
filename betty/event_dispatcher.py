@@ -7,17 +7,17 @@ from __future__ import annotations
 from asyncio import gather
 from collections import defaultdict
 from typing import (
-    Sequence,
-    Callable,
-    Awaitable,
-    TypeVar,
-    TypeAlias,
     TYPE_CHECKING,
+    Awaitable,
+    Callable,
+    Sequence,
+    TypeAlias,
+    TypeVar,
     final,
 )
 
 if TYPE_CHECKING:
-    from collections.abc import MutableMapping, MutableSequence, Mapping
+    from collections.abc import Mapping, MutableMapping, MutableSequence
 
 
 class Event:

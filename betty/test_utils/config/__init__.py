@@ -7,12 +7,12 @@ from typing import Any
 from typing_extensions import override
 
 from betty.assertion import (
-    assert_record,
     OptionalField,
-    assert_or,
     assert_none,
-    assert_str,
+    assert_or,
+    assert_record,
     assert_setattr,
+    assert_str,
 )
 from betty.config import Configuration
 from betty.serde.dump import Dump

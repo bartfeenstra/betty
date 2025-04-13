@@ -12,14 +12,14 @@ import aiofiles
 from typing_extensions import override
 
 from betty.jinja2 import (
-    Jinja2Provider,
     Filters,
+    Jinja2Provider,
 )
-from betty.locale.localizable import static, call, plain
+from betty.locale.localizable import call, plain, static
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.os import link_or_copy
 from betty.plugin import ShorthandPluginBase
-from betty.project.extension import Theme, Extension, ConfigurableExtension
+from betty.project.extension import ConfigurableExtension, Extension, Theme
 from betty.project.extension._theme import jinja2_filters
 from betty.project.extension._theme.search import generate_search_index
 from betty.project.extension.maps import Maps
@@ -30,9 +30,10 @@ from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.generate import GenerateSiteEvent
 
 if TYPE_CHECKING:
-    from betty.plugin import PluginIdentifier
-    from betty.event_dispatcher import EventHandlerRegistry
     from collections.abc import Sequence
+
+    from betty.event_dispatcher import EventHandlerRegistry
+    from betty.plugin import PluginIdentifier
 
 
 async def _generate_logo(event: GenerateSiteEvent) -> None:

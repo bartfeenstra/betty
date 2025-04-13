@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterator, TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterator
 
 import pytest
 
@@ -9,8 +9,10 @@ from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
     Birth,
-    Unknown as UnknownEventType,
     Death,
+)
+from betty.ancestry.event_type.event_types import (
+    Unknown as UnknownEventType,
 )
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
@@ -21,10 +23,12 @@ from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import (
     Subject,
+)
+from betty.ancestry.presence_role.presence_roles import (
     Unknown as UnknownPresenceRole,
 )
 from betty.ancestry.source import Source
-from betty.date import Datey, Date, DateRange
+from betty.date import Date, DateRange, Datey
 from betty.model import persistent_id
 from betty.privacy import Privacy
 from betty.project.config import DEFAULT_LIFETIME_THRESHOLD

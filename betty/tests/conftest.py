@@ -8,6 +8,7 @@ from os import environ
 from warnings import filterwarnings
 
 import pytest
+
 from betty.test_utils.conftest import *  # noqa F403
 from betty.warnings import BettyDeprecationWarning
 

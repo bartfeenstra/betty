@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING
 from typing_extensions import override
 
 from betty.model.collections import (
-    SingleTypeEntityCollection,
     MultipleTypesEntityCollection,
+    SingleTypeEntityCollection,
 )
 from betty.plugin import PluginIdToTypeMapping
 from betty.test_utils.model import DummyEntity

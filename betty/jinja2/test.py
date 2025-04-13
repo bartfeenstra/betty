@@ -4,14 +4,14 @@ Provide Betty's default Jinja2 tests.
 
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING, Self, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar
 
 from typing_extensions import override
 
 from betty.ancestry.event_type import EventType
 from betty.ancestry.event_type.event_types import (
-    StartOfLifeEventType,
     EndOfLifeEventType,
+    StartOfLifeEventType,
 )
 from betty.ancestry.gender import Gender
 from betty.ancestry.has_file_references import HasFileReferences
@@ -26,8 +26,8 @@ from betty.image import is_supported_media_type
 from betty.json.linked_data import LinkedDataDumpable
 from betty.license import License
 from betty.model import (
-    Entity,
     ENTITY_TYPE_REPOSITORY,
+    Entity,
     persistent_id,
 )
 from betty.plugin import Plugin
@@ -37,10 +37,11 @@ from betty.user import UserFacing
 from betty.warnings import deprecated
 
 if TYPE_CHECKING:
-    from betty.media_type import MediaType
-    from betty.machine_name import MachineName
-    from collections.abc import Mapping, Callable
+    from collections.abc import Callable, Mapping
+
     from betty.ancestry.event import Event
+    from betty.machine_name import MachineName
+    from betty.media_type import MediaType
     from betty.plugin import PluginIdToTypeMapping
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)

@@ -13,7 +13,7 @@ from ctypes import c_longdouble
 from math import floor
 from multiprocessing.managers import SyncManager
 from types import TracebackType
-from typing import final, MutableMapping, TypeVar, Self, Union, TypeAlias
+from typing import MutableMapping, Self, TypeAlias, TypeVar, Union, final
 
 from typing_extensions import override
 

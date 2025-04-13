@@ -1,4 +1,4 @@
-from json import loads, dumps
+from json import dumps, loads
 from pathlib import Path
 
 import aiofiles
@@ -9,9 +9,9 @@ from betty.assertion import assert_int
 from betty.assertion.error import AssertionFailed
 from betty.config import (
     Configurable,
+    Configuration,
     assert_configuration_file,
     write_configuration_file,
-    Configuration,
 )
 from betty.error import FileNotFound
 from betty.serde.dump import Dump

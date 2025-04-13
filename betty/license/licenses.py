@@ -5,8 +5,8 @@ Provide :py:class:`betty.license.License` plugins.
 import logging
 import re
 import tarfile
-from asyncio import get_running_loop, gather
-from collections.abc import Iterator, Mapping, AsyncIterator, Sequence
+from asyncio import gather, get_running_loop
+from collections.abc import AsyncIterator, Iterator, Mapping, Sequence
 from concurrent.futures import Executor
 from contextlib import contextmanager
 from json import loads
@@ -17,15 +17,15 @@ import aiofiles
 from typing_extensions import override
 
 from betty.cache.file import BinaryFileCache
-from betty.concurrent import Ledger, AsynchronizedLock, ensure_manager
+from betty.concurrent import AsynchronizedLock, Ledger, ensure_manager
 from betty.error import UserFacingError
 from betty.factory import Factory
 from betty.fetch import Fetcher, FetchError
 from betty.license import License
-from betty.locale.localizable import _, Localizable, plain
+from betty.locale.localizable import Localizable, _, plain
 from betty.locale.localizer import Localizer
 from betty.machine_name import MachineName
-from betty.plugin import ShorthandPluginBase, PluginRepository, PluginNotFound
+from betty.plugin import PluginNotFound, PluginRepository, ShorthandPluginBase
 from betty.typing import threadsafe
 
 

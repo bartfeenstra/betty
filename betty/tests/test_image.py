@@ -3,14 +3,13 @@ from pathlib import Path
 import pytest
 from PIL import Image, ImageDraw, UnidentifiedImageError
 
-
 from betty.image import (
-    resize_cover,
     FocusArea,
-    Size,
     Pixel,
+    Size,
     image_file_path_format,
     is_supported_media_type,
+    resize_cover,
 )
 from betty.media_type import MediaType
 from betty.media_type.media_types import PDF, SVG

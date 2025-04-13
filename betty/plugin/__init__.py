@@ -11,27 +11,28 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import (
-    TypeVar,
-    Generic,
-    Self,
-    overload,
     TYPE_CHECKING,
-    TypeAlias,
+    Generic,
     Iterable,
+    Self,
+    TypeAlias,
+    TypeVar,
+    overload,
 )
 
 from typing_extensions import override
 
 from betty.error import UserFacingError
-from betty.factory import TargetFactory, Factory, new
+from betty.factory import Factory, TargetFactory, new
 from betty.json.schema import Enum, Schema
-from betty.locale.localizable import _, join, do_you_mean
+from betty.locale.localizable import _, do_you_mean, join
 from betty.machine_name import MachineName
 
 if TYPE_CHECKING:
+    from collections.abc import AsyncIterator, Iterable, Iterator, Mapping, Sequence
     from graphlib import TopologicalSorter
+
     from betty.locale.localizable import Localizable
-    from collections.abc import AsyncIterator, Sequence, Mapping, Iterable, Iterator
 
 _T = TypeVar("_T")
 

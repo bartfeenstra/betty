@@ -5,37 +5,38 @@ from __future__ import annotations
 import logging
 from asyncio import gather
 from pathlib import Path
-from typing import Iterable, TYPE_CHECKING, final, Self
+from typing import TYPE_CHECKING, Iterable, Self, final
 
 from jinja2 import pass_context
 from typing_extensions import override
 
 from betty.concurrent import RateLimiter
-from betty.service import service
 from betty.fetch import FetchError
-from betty.jinja2 import Jinja2Provider, context_localizer, Filters, Globals
+from betty.jinja2 import Filters, Globals, Jinja2Provider, context_localizer
 from betty.locale import negotiate_locale
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
 from betty.project.extension import ConfigurableExtension
 from betty.project.extension.wikipedia.config import WikipediaConfiguration
 from betty.project.load import PostLoadAncestryEvent
+from betty.service import service
 from betty.wikipedia import (
+    RATE_LIMIT,
+    NotAPageError,
     Summary,
     _parse_url,
-    NotAPageError,
-    _Retriever,
     _Populator,
-    RATE_LIMIT,
+    _Retriever,
 )
 from betty.wikipedia.copyright_notice import WikipediaContributors
 
 if TYPE_CHECKING:
-    from betty.copyright_notice import CopyrightNotice
-    from betty.project import Project
-    from betty.event_dispatcher import EventHandlerRegistry
     from jinja2.runtime import Context
+
     from betty.ancestry.link import Link
+    from betty.copyright_notice import CopyrightNotice
+    from betty.event_dispatcher import EventHandlerRegistry
+    from betty.project import Project
 
 
 async def _populate_ancestry(event: PostLoadAncestryEvent) -> None:

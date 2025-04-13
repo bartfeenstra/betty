@@ -5,15 +5,16 @@ Provide Betty's main data model.
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import Iterable, final, TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable, final
 
 from betty.model import Entity
 from betty.model.association import AssociationRegistry
 from betty.model.collections import MultipleTypesEntityCollection
 
 if TYPE_CHECKING:
-    from betty.plugin import PluginIdToTypeMapping
     from collections.abc import Iterator
+
+    from betty.plugin import PluginIdToTypeMapping
 
 
 @final

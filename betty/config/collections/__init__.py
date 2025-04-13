@@ -7,17 +7,17 @@ from __future__ import annotations
 from abc import abstractmethod
 from reprlib import recursive_repr
 from typing import (
+    TYPE_CHECKING,
+    Any,
     Generic,
-    MutableSequence,
-    MutableMapping,
+    Hashable,
     Iterable,
     Iterator,
-    Any,
+    MutableMapping,
+    MutableSequence,
+    SupportsIndex,
     TypeAlias,
     TypeVar,
-    SupportsIndex,
-    Hashable,
-    TYPE_CHECKING,
 )
 
 from typing_extensions import override

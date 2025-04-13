@@ -4,12 +4,12 @@ Data types to represent names.
 
 from __future__ import annotations
 
-from typing import final, TYPE_CHECKING
+from typing import TYPE_CHECKING, final
 
 from betty.ancestry.date import HasDate
 from betty.locale.localizable import (
-    ShorthandStaticTranslations,
     RequiredStaticTranslationsLocalizableAttr,
+    ShorthandStaticTranslations,
 )
 
 if TYPE_CHECKING:

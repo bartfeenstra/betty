@@ -1,18 +1,19 @@
 from __future__ import annotations
 
-from typing import Sequence, TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Sequence
 
 import pytest
 from typing_extensions import override
 
-from betty.media_type import MediaType, InvalidMediaType, MediaTypeSchema
+from betty.media_type import InvalidMediaType, MediaType, MediaTypeSchema
 from betty.media_type.media_types import PLAIN_TEXT
 from betty.test_utils.json.schema import SchemaTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from betty.serde.dump import Dump
+
     from betty.json.schema import Schema
+    from betty.serde.dump import Dump
 
 
 class TestMediaType:

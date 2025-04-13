@@ -10,41 +10,41 @@ import logging
 import os
 import shutil
 from asyncio import (
-    create_task,
+    CancelledError,
+    Semaphore,
     Task,
     as_completed,
-    Semaphore,
-    CancelledError,
+    create_task,
+    gather,
     sleep,
     to_thread,
-    gather,
 )
 from contextlib import suppress
+from math import floor
 from pathlib import Path
 from typing import (
-    cast,
-    ParamSpec,
-    Callable,
-    Awaitable,
-    Sequence,
     TYPE_CHECKING,
     Any,
+    Awaitable,
+    Callable,
+    ParamSpec,
+    Sequence,
+    cast,
 )
 
 import aiofiles
-from PIL import Image
 from aiofiles.os import makedirs
-from math import floor
+from PIL import Image
 
 from betty import model
 from betty.locale import get_display_name
 from betty.locale.localizable import _
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.media_type.media_types import JSON, HTML
+from betty.media_type.media_types import HTML, JSON
 from betty.model import Entity, persistent_id
 from betty.openapi import Specification
 from betty.privacy import is_public
-from betty.project import ProjectEvent, ProjectSchema, ProjectContext
+from betty.project import ProjectContext, ProjectEvent, ProjectSchema
 from betty.project.generate.file import (
     create_file,
     create_html_resource,
@@ -54,11 +54,11 @@ from betty.string import kebab_case_to_lower_camel_case
 from betty.user import UserFacing
 
 if TYPE_CHECKING:
-    from collections.abc import MutableSequence, Coroutine
-    from betty.project import Project
+    from collections.abc import AsyncIterator, Coroutine, MutableSequence
+
     from betty.app import App
-    from betty.serde.dump import DumpMapping, Dump
-    from collections.abc import AsyncIterator
+    from betty.project import Project
+    from betty.serde.dump import Dump, DumpMapping
 
 
 class GenerateSiteEvent(ProjectEvent):

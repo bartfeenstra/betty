@@ -5,9 +5,9 @@ Define portable machine names.
 from __future__ import annotations
 
 import re
-from typing import TypeAlias, TypeGuard, Self, Any
+from typing import Any, Self, TypeAlias, TypeGuard
 
-from betty.assertion import assert_str, AssertionChain
+from betty.assertion import AssertionChain, assert_str
 from betty.error import UserFacingError
 from betty.locale.localizable import _
 

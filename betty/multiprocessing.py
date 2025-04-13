@@ -4,7 +4,7 @@ Multiprocessing functionality.
 
 from concurrent import futures
 from multiprocessing import get_context
-from signal import signal, SIGINT, SIG_IGN
+from signal import SIG_IGN, SIGINT, signal
 
 
 class ProcessPoolExecutor(futures.ProcessPoolExecutor):

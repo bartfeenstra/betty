@@ -7,7 +7,7 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project.extension.wikipedia import Wikipedia
 from betty.test_utils.jinja2 import assert_template_file
 from betty.test_utils.model import DummyEntity
-from betty.wikipedia import _Retriever, Summary
+from betty.wikipedia import Summary, _Retriever
 from betty.wikipedia.copyright_notice import WikipediaContributors
 
 

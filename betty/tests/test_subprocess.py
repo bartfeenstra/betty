@@ -6,7 +6,7 @@ import aiofiles
 import pytest
 from _pytest.logging import LogCaptureFixture
 
-from betty.subprocess import run_process, SubprocessError
+from betty.subprocess import SubprocessError, run_process
 
 
 @pytest.mark.parametrize(

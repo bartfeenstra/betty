@@ -1,6 +1,7 @@
 from collections.abc import Sequence
 
 import pytest
+
 from betty.docstring import append
 
 

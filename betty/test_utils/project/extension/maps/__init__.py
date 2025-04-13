@@ -2,14 +2,13 @@
 Test utilities for :py:mod:`betty.project.extension.maps`.
 """
 
-import re
+import re  # noqa I001
 from collections.abc import AsyncIterator, Iterable
 from pathlib import Path
 from shutil import copytree
 
 import pytest
 from geopy import Point
-from playwright.async_api import expect, Page
 
 from betty import serve
 from betty.ancestry.name import Name
@@ -21,6 +20,7 @@ from betty.project.extension.maps import Maps
 from betty.project.generate import generate
 from betty.serve import Server
 from betty.tests.conftest import check_skip_playwright
+from playwright.async_api import Page, expect
 
 _PLACE_ID = "P0001"
 _PLACE_NAME = "My First Place"

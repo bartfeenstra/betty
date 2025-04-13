@@ -6,12 +6,12 @@ from collections.abc import AsyncIterator
 from contextlib import suppress
 from typing import Generic, TypeVar, final
 
-from typing_extensions import override, overload
+from typing_extensions import overload, override
 
 from betty.factory import Factory, FactoryError
 from betty.json.schema import Schema
 from betty.machine_name import MachineName
-from betty.plugin import PluginRepository, Plugin, PluginNotFound
+from betty.plugin import Plugin, PluginNotFound, PluginRepository
 
 _T = TypeVar("_T")
 _PluginT = TypeVar("_PluginT", bound=Plugin)

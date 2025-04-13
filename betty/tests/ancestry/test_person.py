@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Sequence, Mapping, Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Mapping, Sequence
 
 import pytest
 from typing_extensions import override
@@ -8,7 +8,8 @@ from typing_extensions import override
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth
-from betty.ancestry.gender.genders import Unknown as UnknownGender, NonBinary
+from betty.ancestry.gender.genders import NonBinary
+from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.link import Link
 from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName

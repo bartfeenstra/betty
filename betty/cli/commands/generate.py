@@ -14,9 +14,11 @@ from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from betty.project import Project
+
     import asyncclick as click
+
     from betty.app import App
+    from betty.project import Project
 
 
 def _rmtree_if_exists(path: Path) -> None:

@@ -5,7 +5,7 @@ Data types to describe events.
 from __future__ import annotations
 
 from reprlib import recursive_repr
-from typing import final, Iterable, Mapping, TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable, Mapping, final
 
 from typing_extensions import override
 
@@ -19,36 +19,36 @@ from betty.ancestry.link import HasLinks
 from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.json.linked_data import dump_context, JsonLdObject
+from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import String
 from betty.locale.localizable import (
-    _,
-    ShorthandStaticTranslations,
     Localizable,
-    call,
     OptionalStaticTranslationsLocalizableAttr,
+    ShorthandStaticTranslations,
+    _,
+    call,
     ngettext,
 )
 from betty.model import UserFacingEntity
 from betty.model.association import (
-    BidirectionalToZeroOrOne,
     BidirectionalToMany,
-    ToZeroOrOneAssociate,
+    BidirectionalToZeroOrOne,
     ToManyAssociates,
+    ToZeroOrOneAssociate,
 )
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy
 from betty.repr import repr_instance
 
 if TYPE_CHECKING:
-    from betty.mutability import Mutable
-    from betty.ancestry.event_type import EventType
     from betty.ancestry.citation import Citation
-    from betty.ancestry.note import Note
+    from betty.ancestry.event_type import EventType
     from betty.ancestry.file_reference import FileReference
+    from betty.ancestry.note import Note
     from betty.date import Datey
+    from betty.mutability import Mutable
     from betty.project import Project
-    from betty.serde.dump import DumpMapping, Dump
+    from betty.serde.dump import Dump, DumpMapping
 
 
 @final

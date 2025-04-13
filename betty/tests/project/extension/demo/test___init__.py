@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
+from typing_extensions import override
+
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.person import Person
@@ -12,14 +14,16 @@ from betty.project import Project
 from betty.project.extension.demo import Demo, generate_with_cleanup
 from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase
-from betty.test_utils.project.extension.demo.project import demo_project_fetcher  # noqa F401
-from typing_extensions import override
+from betty.test_utils.project.extension.demo.project import (
+    demo_project_fetcher,  # noqa F401
+)
 
 if TYPE_CHECKING:
-    from betty.app import App
-    from betty.test_utils.conftest import NewTemporaryAppFactory
-    from betty.fetch import Fetcher
     from pytest_mock import MockerFixture
+
+    from betty.app import App
+    from betty.fetch import Fetcher
+    from betty.test_utils.conftest import NewTemporaryAppFactory
 
 
 async def test_generate_with_cleanup__without_error(

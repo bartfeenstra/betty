@@ -5,12 +5,12 @@ Provide serialization formats.
 from __future__ import annotations
 
 import json
-from typing import cast, TYPE_CHECKING, final
+from typing import TYPE_CHECKING, cast, final
 
 import yaml
 from typing_extensions import override
 
-from betty.locale.localizable import static, _
+from betty.locale.localizable import _, static
 from betty.plugin import ShorthandPluginBase
 from betty.serde.format import Format, FormatError
 

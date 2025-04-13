@@ -4,11 +4,11 @@ Fetch content from the internet.
 
 from __future__ import annotations
 
-from typing import Mapping, TYPE_CHECKING
+from typing import TYPE_CHECKING, Mapping
 
 from typing_extensions import override
 
-from betty.fetch import Fetcher, FetchResponse, FetchError
+from betty.fetch import Fetcher, FetchError, FetchResponse
 from betty.locale.localizable import static
 
 if TYPE_CHECKING:

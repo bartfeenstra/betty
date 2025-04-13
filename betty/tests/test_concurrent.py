@@ -3,7 +3,7 @@ import multiprocessing
 import pickle
 import threading
 import time
-from asyncio import create_task, sleep, wait_for, gather
+from asyncio import create_task, gather, sleep, wait_for
 from multiprocessing.managers import SyncManager
 from typing import TypeVar, cast
 
@@ -11,15 +11,15 @@ import pytest
 from typing_extensions import override
 
 from betty.concurrent import (
-    RateLimiter,
-    asynchronize_acquire,
-    AsynchronizedLock,
-    Lock,
-    Ledger,
-    ensure_manager,
-    Semaphore,
-    AsynchronizedSemaphore,
     Acquirable,
+    AsynchronizedLock,
+    AsynchronizedSemaphore,
+    Ledger,
+    Lock,
+    RateLimiter,
+    Semaphore,
+    asynchronize_acquire,
+    ensure_manager,
 )
 from betty.warnings import BettyDeprecationWarning
 

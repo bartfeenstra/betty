@@ -8,10 +8,10 @@ from typing_extensions import override
 
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.jinja2 import (
-    Jinja2Renderer,
-    Jinja2Provider,
     EntityContexts,
     Environment,
+    Jinja2Provider,
+    Jinja2Renderer,
 )
 from betty.job import Context
 from betty.locale.localizer import Localizer
@@ -23,6 +23,7 @@ from betty.test_utils.plugin import PluginTestBase
 if TYPE_CHECKING:
     from multiprocessing.managers import SyncManager
     from pathlib import Path
+
     from betty.app import App
 
 

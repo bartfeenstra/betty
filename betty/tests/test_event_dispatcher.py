@@ -1,10 +1,10 @@
-from collections.abc import Mapping, Sequence, MutableSequence
+from collections.abc import Mapping, MutableSequence, Sequence
 
 from betty.event_dispatcher import (
-    EventDispatcher,
     Event,
-    EventHandlerRegistry,
+    EventDispatcher,
     EventHandler,
+    EventHandlerRegistry,
 )
 
 

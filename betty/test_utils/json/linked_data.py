@@ -4,7 +4,7 @@ Test utilities for :py:mod:`betty.json.linked_data`.
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence, Callable, Awaitable
+from collections.abc import Awaitable, Callable, Mapping, Sequence
 from typing import TYPE_CHECKING
 
 from typing_extensions import TypeVar
@@ -14,8 +14,8 @@ from betty.project import Project
 from betty.serde.dump import Dump
 
 if TYPE_CHECKING:
-    from betty.json.schema import Schema
     from betty.json.linked_data import LinkedDataDumpable, LinkedDataDumpableProvider
+    from betty.json.schema import Schema
 
 _T = TypeVar("_T")
 _DumpT = TypeVar("_DumpT", bound=Dump, default=Dump)

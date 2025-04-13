@@ -5,7 +5,7 @@ Provide Betty's ancestry event types.
 from __future__ import annotations
 
 from betty.mutability import Mutable
-from betty.plugin import PluginRepository, OrderedPlugin
+from betty.plugin import OrderedPlugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
 
 

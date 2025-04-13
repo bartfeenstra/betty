@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from asyncio import gather, Semaphore
+from asyncio import Semaphore, gather
 from pathlib import Path
 from typing import TYPE_CHECKING, final
 
@@ -17,10 +17,11 @@ from betty.project.generate import GenerateSiteEvent
 from betty.project.generate.file import create_file
 
 if TYPE_CHECKING:
-    from betty.event_dispatcher import EventHandlerRegistry
-    from betty.project.extension import Extension
-    from betty.plugin import PluginIdentifier
     from collections.abc import Sequence
+
+    from betty.event_dispatcher import EventHandlerRegistry
+    from betty.plugin import PluginIdentifier
+    from betty.project.extension import Extension
 
 
 async def _generate_place_previews(event: GenerateSiteEvent) -> None:

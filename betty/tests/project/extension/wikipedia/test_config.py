@@ -1,4 +1,4 @@
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
@@ -8,6 +8,7 @@ from betty.test_utils.assertion.error import raises_error
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
+
     from betty.serde.dump import Dump
 
 

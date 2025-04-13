@@ -5,19 +5,19 @@ Provide configuration for the :py:class:`betty.project.extension.gramps.Gramps` 
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, final, TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, final
 from warnings import warn
 
 from typing_extensions import override
 
 from betty.assertion import (
-    RequiredField,
     OptionalField,
-    assert_record,
-    assert_path,
-    assert_setattr,
-    assert_mapping,
+    RequiredField,
     assert_len,
+    assert_mapping,
+    assert_path,
+    assert_record,
+    assert_setattr,
     assert_str,
 )
 from betty.config import Configuration
@@ -32,9 +32,10 @@ from betty.plugin.config import PluginInstanceConfiguration
 from betty.typing import internal
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Mapping, MutableMapping
+
     from betty.mutability import Mutable
     from betty.serde.dump import Dump, DumpMapping
-    from collections.abc import Mapping, MutableMapping, Iterable, Iterator
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 

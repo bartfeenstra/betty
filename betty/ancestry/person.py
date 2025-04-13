@@ -4,7 +4,7 @@ Data types describing persons.
 
 from __future__ import annotations
 
-from typing import final, Iterable, MutableSequence, Iterator, TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable, Iterator, MutableSequence, final
 from urllib.parse import quote
 
 from typing_extensions import override
@@ -16,28 +16,28 @@ from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks, Link
 from betty.functools import unique
-from betty.json.linked_data import dump_context, JsonLdObject
-from betty.locale.localizable import _, Localizable, ngettext
+from betty.json.linked_data import JsonLdObject, dump_context
+from betty.locale.localizable import Localizable, _, ngettext
 from betty.model import (
-    UserFacingEntity,
     Entity,
-    persistent_id,
     ToManySchema,
+    UserFacingEntity,
+    persistent_id,
 )
 from betty.model.association import BidirectionalToMany, ToManyAssociates
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:
-    from betty.mutability import Mutable
-    from betty.ancestry.person_name import PersonName
-    from betty.ancestry.note import Note
-    from betty.ancestry.file_reference import FileReference
     from betty.ancestry.citation import Citation
-    from betty.ancestry.presence import Presence
+    from betty.ancestry.file_reference import FileReference
     from betty.ancestry.gender import Gender
+    from betty.ancestry.note import Note
+    from betty.ancestry.person_name import PersonName
+    from betty.ancestry.presence import Presence
+    from betty.mutability import Mutable
     from betty.project import Project
-    from betty.serde.dump import DumpMapping, Dump
+    from betty.serde.dump import Dump, DumpMapping
 
 
 @final

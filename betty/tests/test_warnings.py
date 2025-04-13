@@ -1,6 +1,6 @@
 import pytest
 
-from betty.warnings import deprecated, BettyDeprecationWarning, deprecate
+from betty.warnings import BettyDeprecationWarning, deprecate, deprecated
 
 
 def test_deprecate() -> None:

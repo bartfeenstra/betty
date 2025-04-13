@@ -6,7 +6,8 @@ from __future__ import annotations
 
 import json
 from abc import abstractmethod
-from asyncio import to_thread, gather
+from asyncio import gather, to_thread
+from collections.abc import Mapping
 from json import dumps, loads
 from logging import getLogger
 from pathlib import Path
@@ -18,18 +19,17 @@ from aiofiles.os import makedirs
 
 from betty import _npm
 from betty.fs import ROOT_DIRECTORY_PATH
-from betty.hashid import hashid, hashid_sequence, hashid_file_content
+from betty.hashid import hashid, hashid_file_content, hashid_sequence
 from betty.os import copy_tree
 from betty.project.extension import Extension
-from collections.abc import Mapping
 
 if TYPE_CHECKING:
-    from betty.serde.dump import DumpMapping
-    from betty.serde.dump import Dump
+    from collections.abc import MutableMapping, Sequence
+
     from betty.job import Context
     from betty.locale.localizer import Localizer
     from betty.render import Renderer
-    from collections.abc import Sequence, MutableMapping
+    from betty.serde.dump import Dump, DumpMapping
 
 _NPM_PROJECT_DIRECTORIES_PATH = Path(__file__).parent / "webpack"
 

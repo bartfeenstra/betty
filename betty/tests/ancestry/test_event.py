@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from typing import Sequence, Mapping, Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Mapping, Sequence
 
 import pytest
 from typing_extensions import override
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
-from betty.ancestry.event_type.event_types import Unknown as UnknownEventType, Birth
+from betty.ancestry.event_type.event_types import Birth
+from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.name import Name
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place

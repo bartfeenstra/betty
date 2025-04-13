@@ -6,6 +6,7 @@ extend-select = [
     'C4',
     'D',
     'F',
+    'I',
     'INT',
     'PT',
     'PTH',
@@ -13,6 +14,7 @@ extend-select = [
     'SLOT',
     'T20',
     'TCH',
+    'RUF022',
 ]
 ignore = [
     'A005',

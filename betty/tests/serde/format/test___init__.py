@@ -1,18 +1,18 @@
-import pytest
-from importlib.metadata import EntryPoints, EntryPoint
+from importlib.metadata import EntryPoint, EntryPoints
 
+import pytest
 from pytest_mock import MockerFixture
 from typing_extensions import override
 
 from betty.locale.localizable import plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.plugin import ShorthandPluginBase, PluginNotFound
+from betty.plugin import PluginNotFound, ShorthandPluginBase
 from betty.serde.dump import Dump
 from betty.serde.format import (
-    FormatStr,
     Format,
-    FormatRepository,
     FormatError,
+    FormatRepository,
+    FormatStr,
     format_for,
 )
 from betty.typing import Voidable

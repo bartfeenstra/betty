@@ -4,14 +4,14 @@ Provide localizable assertions.
 
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from betty.assertion import (
     AssertionChain,
+    assert_locale_identifier,
+    assert_mapping,
     assert_or,
     assert_str,
-    assert_mapping,
-    assert_locale_identifier,
 )
 from betty.locale import UNDETERMINED_LOCALE
 

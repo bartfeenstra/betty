@@ -5,18 +5,18 @@ Entity associations.
 from __future__ import annotations
 
 import weakref
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 from typing import (
-    Generic,
-    cast,
-    Any,
-    Iterable,
-    TypeVar,
-    final,
-    Self,
-    overload,
     TYPE_CHECKING,
+    Any,
+    Generic,
+    Iterable,
+    Self,
     TypeAlias,
+    TypeVar,
+    cast,
+    final,
+    overload,
 )
 from urllib.parse import quote
 
@@ -24,12 +24,12 @@ from typing_extensions import override
 
 from betty.importlib import import_any
 from betty.json.linked_data import LinkedDataDumpableProvider
-from betty.json.schema import Schema, Array, OneOf, Null
+from betty.json.schema import Array, Null, OneOf, Schema
 from betty.model import (
     Entity,
-    persistent_id,
-    ToZeroOrOneSchema,
     ToManySchema,
+    ToZeroOrOneSchema,
+    persistent_id,
 )
 from betty.model.collections import EntityCollection, SingleTypeEntityCollection
 from betty.typing import internal

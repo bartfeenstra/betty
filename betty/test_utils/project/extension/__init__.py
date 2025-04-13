@@ -2,14 +2,14 @@
 Test utilities for :py:mod:`betty.project.extension`.
 """
 
-from typing import TypeVar, Generic
+from typing import Generic, TypeVar
 
 from typing_extensions import override
 
 from betty.app import App
 from betty.event_dispatcher import EventHandlerRegistry
 from betty.project import Project
-from betty.project.extension import Extension, ConfigurableExtension
+from betty.project.extension import ConfigurableExtension, Extension
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.plugin import (
     DummyPlugin,

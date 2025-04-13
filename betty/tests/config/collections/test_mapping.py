@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-from collections.abc import Sequence, Mapping
-from typing import Iterable, TYPE_CHECKING, cast
+from collections.abc import Mapping, Sequence
+from typing import TYPE_CHECKING, Iterable, cast
 
 from typing_extensions import override
 
 from betty.assertion import (
-    assert_record,
     RequiredField,
-    assert_str,
-    assert_setattr,
     assert_int,
+    assert_record,
+    assert_setattr,
+    assert_str,
 )
 from betty.config import Configuration
 from betty.config.collections.mapping import (

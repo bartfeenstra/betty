@@ -1,14 +1,16 @@
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
-    StartOfLifeEventType,
-    Unknown as UnknownEventType,
     EndOfLifeEventType,
+    StartOfLifeEventType,
+)
+from betty.ancestry.event_type.event_types import (
+    Unknown as UnknownEventType,
 )
 from betty.ancestry.name import Name
 from betty.ancestry.person import Person
@@ -16,9 +18,11 @@ from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import (
     Subject,
     Witness,
+)
+from betty.ancestry.presence_role.presence_roles import (
     Unknown as UnknownPresenceRole,
 )
-from betty.date import DateRange, Date
+from betty.date import Date, DateRange
 from betty.jinja2.test import PluginTester
 from betty.json.linked_data import LinkedDataDumpableJsonLdObject
 from betty.media_type import MediaType

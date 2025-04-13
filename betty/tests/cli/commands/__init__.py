@@ -1,8 +1,8 @@
 from pathlib import Path
 
 import pytest
-from typing_extensions import override
 from pytest_mock import MockerFixture
+from typing_extensions import override
 
 from betty.machine_name import MachineName
 from betty.plugin.static import StaticPluginRepository

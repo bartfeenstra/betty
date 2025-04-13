@@ -4,7 +4,7 @@ import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
 from pytest_mock import MockerFixture
 
-from betty.os import link_or_copy, copy_tree
+from betty.os import copy_tree, link_or_copy
 
 
 async def test_link_or_copy() -> None:

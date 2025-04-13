@@ -6,7 +6,7 @@ import multiprocessing
 from contextlib import asynccontextmanager
 from os import environ
 from pathlib import Path
-from typing import TYPE_CHECKING, Self, Any, final, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Self, TypeVar, cast, final
 
 import aiohttp
 from aiofiles.tempfile import TemporaryDirectory
@@ -20,25 +20,26 @@ from betty.assets import AssetRepository
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.config import Configurable, assert_configuration_file
-from betty.factory import new, TargetFactory
+from betty.factory import TargetFactory, new
 from betty.fetch import Fetcher, http
 from betty.fetch.static import StaticFetcher
 from betty.fs import HOME_DIRECTORY_PATH
-from betty.license import License, LICENSE_REPOSITORY
+from betty.license import LICENSE_REPOSITORY, License
 from betty.license.licenses import SpdxLicenseRepository
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizer import Localizer, LocalizerRepository
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugin.proxy import ProxyPluginRepository
-from betty.service import ServiceProvider, service, ServiceFactory, StaticService
+from betty.service import ServiceFactory, ServiceProvider, StaticService, service
 from betty.typing import processsafe
 
 if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
     from concurrent import futures
     from multiprocessing.managers import SyncManager
-    from betty.plugin import PluginRepository
+
     from betty.cache import Cache
-    from collections.abc import AsyncIterator
+    from betty.plugin import PluginRepository
 
 _T = TypeVar("_T")
 

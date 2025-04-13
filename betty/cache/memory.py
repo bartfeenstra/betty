@@ -6,17 +6,18 @@ from __future__ import annotations
 
 import multiprocessing
 from collections.abc import MutableMapping, Sequence
-from typing import TypeAlias, Generic, Self, TypeVar, final, TYPE_CHECKING
+from typing import TYPE_CHECKING, Generic, Self, TypeAlias, TypeVar, final
 
 from typing_extensions import override
 
 from betty.cache import CacheItem
-from betty.cache._base import _CommonCacheBase, _StaticCacheItem, _CommonCacheBaseState
+from betty.cache._base import _CommonCacheBase, _CommonCacheBaseState, _StaticCacheItem
 from betty.typing import processsafe
 
 if TYPE_CHECKING:
-    from betty.concurrent import Ledger, AsynchronizedLock
     from multiprocessing.managers import SyncManager
+
+    from betty.concurrent import AsynchronizedLock, Ledger
 
 _CacheItemValueContraT = TypeVar("_CacheItemValueContraT", contravariant=True)
 

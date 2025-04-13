@@ -4,21 +4,22 @@ Provide `JSON-LD <https://json-ld.org/>`_ utilities.
 
 from __future__ import annotations
 
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 from inspect import getmembers
 from pathlib import Path
-from typing import TYPE_CHECKING, cast, Self, Generic, final
+from typing import TYPE_CHECKING, Generic, Self, cast, final
 
 from typing_extensions import TypeVar, override
 
-from betty.json.schema import FileBasedSchema, Schema, Object
-from betty.serde.dump import DumpMapping, Dump
+from betty.json.schema import FileBasedSchema, Object, Schema
+from betty.serde.dump import Dump, DumpMapping
 from betty.string import snake_case_to_lower_camel_case
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence
-    from betty.project import Project
+
     from betty.ancestry.link import Link
+    from betty.project import Project
 
 
 _T = TypeVar("_T")

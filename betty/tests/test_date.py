@@ -1,17 +1,17 @@
 from __future__ import annotations
 
-from typing import Sequence, TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Sequence, cast
 
 import pytest
 from typing_extensions import override
 
-from betty.date import Date, DateRange, Datey, DateySchema, DateSchema, DateRangeSchema
+from betty.date import Date, DateRange, DateRangeSchema, DateSchema, Datey, DateySchema
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.json.schema import SchemaTestBase
 
 if TYPE_CHECKING:
-    from betty.serde.dump import Dump, DumpMapping
     from betty.json.schema import Schema
+    from betty.serde.dump import Dump, DumpMapping
 
 
 _DUMMY_DATE_DUMPS: tuple[Sequence[DumpMapping[Dump]], Sequence[DumpMapping[Dump]]] = (

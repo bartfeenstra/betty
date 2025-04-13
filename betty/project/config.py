@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from reprlib import recursive_repr
-from typing import final, Self, Iterable, Any, TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, Iterable, Self, cast, final
 from urllib.parse import urlparse
 
 from typing_extensions import override
@@ -20,20 +20,20 @@ from betty.ancestry.place_type import PlaceType
 from betty.ancestry.presence_role import PresenceRole
 from betty.ancestry.source import Source
 from betty.assertion import (
-    assert_record,
-    RequiredField,
-    assert_setattr,
     OptionalField,
-    assert_str,
+    RequiredField,
     assert_bool,
     assert_fields,
-    assert_locale,
-    assert_positive_number,
     assert_int,
-    assert_path,
+    assert_locale,
     assert_mapping,
     assert_none,
     assert_or,
+    assert_path,
+    assert_positive_number,
+    assert_record,
+    assert_setattr,
+    assert_str,
 )
 from betty.assertion.error import AssertionFailed, AssertionFailedGroup, Key
 from betty.config import Configuration
@@ -44,36 +44,36 @@ from betty.copyright_notice import CopyrightNotice
 from betty.license import License
 from betty.license.licenses import AllRightsReserved
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
-from betty.locale.localizable import _, ShorthandStaticTranslations, Localizable
+from betty.locale.localizable import Localizable, ShorthandStaticTranslations, _
 from betty.locale.localizable.assertion import assert_static_translations
 from betty.locale.localizable.config import (
     OptionalStaticTranslationsLocalizableConfigurationAttr,
     RequiredStaticTranslationsLocalizableConfigurationAttr,
 )
-from betty.machine_name import MachineName
-from betty.machine_name import assert_machine_name
+from betty.machine_name import MachineName, assert_machine_name
 from betty.model import Entity
 from betty.plugin import (
-    ShorthandPluginBase,
     PluginRepository,
+    ShorthandPluginBase,
 )
 from betty.plugin.config import (
-    PluginConfigurationPluginConfigurationMapping,
     PluginConfiguration,
     PluginConfigurationMapping,
+    PluginConfigurationPluginConfigurationMapping,
+    PluginIdentifierKeyConfigurationMapping,
     PluginInstanceConfiguration,
     PluginInstanceConfigurationMapping,
-    PluginIdentifierKeyConfigurationMapping,
 )
 from betty.project.extension import Extension
 from betty.repr import repr_instance
-from betty.serde.format import Format, format_for, FORMAT_REPOSITORY
+from betty.serde.format import FORMAT_REPOSITORY, Format, format_for
 from betty.user import UserFacing
 
 if TYPE_CHECKING:
-    from betty.serde.dump import Dump, DumpMapping
     from collections.abc import Sequence
     from pathlib import Path
+
+    from betty.serde.dump import Dump, DumpMapping
 
 
 #: The default age by which people are presumed dead.

@@ -8,11 +8,11 @@ import logging
 import re
 from asyncio import gather
 from collections import defaultdict
-from contextlib import suppress, contextmanager
+from contextlib import contextmanager, suppress
 from dataclasses import dataclass
 from json import JSONDecodeError
 from pathlib import Path
-from typing import cast, Any, TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Any, cast, final
 from urllib.parse import quote, urlparse
 
 from geopy import Point
@@ -22,15 +22,15 @@ from betty.ancestry.file_reference import FileReference
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.place import Place
-from betty.concurrent import Lock, AsynchronizedLock, RateLimiter
+from betty.concurrent import AsynchronizedLock, Lock, RateLimiter
 from betty.fetch import FetchError
 from betty.functools import filter_suppress
 from betty.locale import (
+    UNDETERMINED_LOCALE,
+    Localey,
+    get_data,
     negotiate_locale,
     to_locale,
-    get_data,
-    Localey,
-    UNDETERMINED_LOCALE,
 )
 from betty.locale.error import LocaleError
 from betty.locale.localizable import plain
@@ -39,12 +39,18 @@ from betty.media_type.media_types import HTML
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
-    from betty.wikipedia.copyright_notice import WikipediaContributors
+    from collections.abc import (
+        Iterator,
+        Mapping,
+        MutableMapping,
+        MutableSequence,
+        Sequence,
+    )
+
     from betty.ancestry import Ancestry
-    from betty.locale.localizer import LocalizerRepository
     from betty.fetch import Fetcher
-    from collections.abc import Sequence, MutableSequence, MutableMapping, Iterator
+    from betty.locale.localizer import LocalizerRepository
+    from betty.wikipedia.copyright_notice import WikipediaContributors
 
 
 RATE_LIMIT = 200

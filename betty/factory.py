@@ -4,8 +4,8 @@ Functionality for creating new class instances.
 
 from __future__ import annotations
 
-from abc import abstractmethod, ABC
-from typing import TypeVar, Self, cast, Protocol
+from abc import ABC, abstractmethod
+from typing import Protocol, Self, TypeVar, cast
 
 from typing_extensions import override
 

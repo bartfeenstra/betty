@@ -5,7 +5,7 @@ Test utilities for :py:mod:`betty.assertion.error`.
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import overload, Any, Iterator, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Iterator, overload
 
 from betty.assertion.error import (
     AssertionFailed,

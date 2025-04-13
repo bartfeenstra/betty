@@ -5,36 +5,37 @@ from __future__ import annotations
 from abc import abstractmethod
 from inspect import getmembers
 from reprlib import recursive_repr
-from typing import TypeVar, Any, Self, TypeAlias, TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING, Any, Iterable, Self, TypeAlias, TypeVar
 from uuid import uuid4
 
 import typing_extensions
 from typing_extensions import override
 
 from betty.json.linked_data import (
-    LinkedDataDumpableJsonLdObject,
     JsonLdObject,
+    LinkedDataDumpableJsonLdObject,
 )
-from betty.json.schema import JsonSchemaReference, Array, String, OneOf, Null
+from betty.json.schema import Array, JsonSchemaReference, Null, OneOf, String
 from betty.locale.localizable import (
-    _,
     Localizable,
     StaticTranslationsLocalizableAttr,
+    _,
     ngettext,
 )
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.mutability import Mutable
-from betty.plugin import PluginRepository, Plugin
+from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.repr import repr_instance
 from betty.string import kebab_case_to_lower_camel_case
 from betty.user import UserFacing
-from betty.warnings import deprecated, deprecate
+from betty.warnings import deprecate, deprecated
 
 if TYPE_CHECKING:
-    from betty.serde.dump import DumpMapping, Dump
-    from betty.project import Project
     import builtins
+
+    from betty.project import Project
+    from betty.serde.dump import Dump, DumpMapping
 
 ENTITY_TYPE_REPOSITORY: PluginRepository[Entity] = EntryPointPluginRepository(
     "betty.entity_type"

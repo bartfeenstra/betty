@@ -4,19 +4,19 @@ Data types that have a locale.
 
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from typing_extensions import override
 
-from betty.json.linked_data import LinkedDataDumpableJsonLdObject, JsonLdObject
+from betty.json.linked_data import JsonLdObject, LinkedDataDumpableJsonLdObject
 from betty.json.schema import Null, OneOf
 from betty.locale import UNDETERMINED_LOCALE, LocaleSchema
 from betty.locale.localized import Localized
 from betty.privacy import is_public
 
 if TYPE_CHECKING:
-    from betty.serde.dump import DumpMapping, Dump
     from betty.project import Project
+    from betty.serde.dump import Dump, DumpMapping
 
 
 class HasLocale(Localized, LinkedDataDumpableJsonLdObject):

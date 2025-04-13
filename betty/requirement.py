@@ -6,16 +6,17 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from textwrap import indent
-from typing import cast, Any, TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Any, cast, final
 
 from typing_extensions import override
 
 from betty.error import UserFacingError
-from betty.locale.localizable import _, Localizable
+from betty.locale.localizable import Localizable, _
 from betty.locale.localized import LocalizedStr
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence, MutableSequence
+    from collections.abc import MutableSequence, Sequence
+
     from betty.locale.localizer import Localizer
 
 

@@ -19,10 +19,11 @@ from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.generate import GenerateSiteEvent
 
 if TYPE_CHECKING:
-    from betty.project.extension import Extension
+    from collections.abc import Sequence
+
     from betty.event_dispatcher import EventHandlerRegistry
     from betty.plugin import PluginIdentifier
-    from collections.abc import Sequence
+    from betty.project.extension import Extension
 
 
 async def _generate_people_json(event: GenerateSiteEvent) -> None:

@@ -1,24 +1,24 @@
 from __future__ import annotations
 
-from _ast import Expr, Constant
-from ast import parse, iter_child_nodes
+from _ast import Constant, Expr
+from ast import iter_child_nodes, parse
 from collections import defaultdict
 from collections.abc import (
-    Sequence,
-    Callable,
-    Mapping,
     AsyncIterable,
-    MutableMapping,
+    Callable,
     Iterable,
+    Mapping,
+    MutableMapping,
     MutableSequence,
+    Sequence,
 )
 from configparser import ConfigParser
 from enum import Enum
 from importlib import import_module
-from inspect import getmembers, isfunction, isclass, isdatadescriptor
+from inspect import getmembers, isclass, isdatadescriptor, isfunction
 from os import walk
 from pathlib import Path
-from typing import Protocol, Any, cast, TypeAlias
+from typing import Any, Protocol, TypeAlias, cast
 
 import aiofiles
 import pytest
@@ -26,13 +26,13 @@ import pytest
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.html.attributes import Attributes
 from betty.tests.coverage.fixtures import (
-    module_function_with_test,
-    module_function_without_test,
-    module_class_with_test,
-    module_class_without_test,
+    _module_private,
     module_class_function_with_test,
     module_class_function_without_test,
-    _module_private,
+    module_class_with_test,
+    module_class_without_test,
+    module_function_with_test,
+    module_function_without_test,
     module_with_test,
     module_without_test,
 )

@@ -8,12 +8,12 @@ import gzip
 import re
 import tarfile
 from collections import defaultdict
-from contextlib import suppress, ExitStack
+from contextlib import ExitStack, suppress
 from dataclasses import dataclass
 from enum import Enum
 from logging import getLogger
 from pathlib import Path
-from typing import Iterable, cast, TYPE_CHECKING, TypeVar, Generic, final
+from typing import TYPE_CHECKING, Generic, Iterable, TypeVar, cast, final
 
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
@@ -27,6 +27,8 @@ from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
     Adoption,
     Baptism,
+    BarMitzvah,
+    BatMitzvah,
     Birth,
     Burial,
     Confirmation,
@@ -43,17 +45,17 @@ from betty.ancestry.event_type.event_types import (
     Residence,
     Retirement,
     Will,
-    BarMitzvah,
-    BatMitzvah,
 )
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.ancestry.gender.genders import (
-    Unknown as UnknownGender,
     Female,
     Male,
     NonBinary,
+)
+from betty.ancestry.gender.genders import (
+    Unknown as UnknownGender,
 )
 from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.name import Name
@@ -86,21 +88,21 @@ from betty.ancestry.place_type.place_types import (
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import (
+    Attendee,
     Celebrant,
+    Informant,
     Subject,
     Witness,
-    Attendee,
-    Informant,
 )
 from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.ancestry.source import Source
 from betty.asyncio import ensure_await
-from betty.date import DateRange, Datey, Date
+from betty.date import Date, DateRange, Datey
 from betty.error import FileNotFound
 from betty.gramps.error import GrampsError, UserFacingGrampsError
 from betty.locale import UNDETERMINED_LOCALE
-from betty.locale.localizable import _, plain, StaticTranslations
-from betty.media_type import MediaType, InvalidMediaType
+from betty.locale.localizable import StaticTranslations, _, plain
+from betty.media_type import InvalidMediaType, MediaType
 from betty.model import Entity
 from betty.model.association import ToManyResolver, ToOneResolver, resolve
 from betty.plugin import PluginNotFound
@@ -108,20 +110,21 @@ from betty.privacy import HasPrivacy
 from betty.typing import internal
 
 if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable, Mapping, MutableMapping, Sequence
     from xml.etree import ElementTree
-    from betty.copyright_notice import CopyrightNotice
-    from betty.license import License
-    from betty.plugin import PluginRepository
+
     from betty.ancestry import Ancestry
-    from betty.ancestry.has_notes import HasNotes
+    from betty.ancestry.event_type import EventType
+    from betty.ancestry.gender import Gender
     from betty.ancestry.has_citations import HasCitations
     from betty.ancestry.has_file_references import HasFileReferences
-    from betty.ancestry.event_type import EventType
+    from betty.ancestry.has_notes import HasNotes
     from betty.ancestry.place_type import PlaceType
     from betty.ancestry.presence_role import PresenceRole
-    from betty.ancestry.gender import Gender
+    from betty.copyright_notice import CopyrightNotice
+    from betty.license import License
     from betty.locale.localizer import Localizer
-    from collections.abc import MutableMapping, Mapping, Sequence, Awaitable, Callable
+    from betty.plugin import PluginRepository
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
 

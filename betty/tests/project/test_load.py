@@ -1,7 +1,7 @@
 import pytest
 from multidict import CIMultiDict
 
-from betty.ancestry.link import Link, HasLinks
+from betty.ancestry.link import HasLinks, Link
 from betty.app import App
 from betty.fetch import FetchResponse
 from betty.fetch.static import StaticFetcher

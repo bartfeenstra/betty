@@ -5,8 +5,7 @@ Functionality for creating new instances of types that depend on :py:class:`bett
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Self, TYPE_CHECKING
-
+from typing import TYPE_CHECKING, Self
 
 if TYPE_CHECKING:
     from betty.app import App

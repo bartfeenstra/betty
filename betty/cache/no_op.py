@@ -6,24 +6,24 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 from typing import (
-    Self,
+    TYPE_CHECKING,
     Any,
     AsyncContextManager,
-    TypeAlias,
-    overload,
     Literal,
-    TYPE_CHECKING,
+    Self,
+    TypeAlias,
     final,
+    overload,
 )
 
 from typing_extensions import override
 
-from betty.cache import CacheItem, Cache, CacheItemValueSetter
+from betty.cache import Cache, CacheItem, CacheItemValueSetter
 from betty.typing import processsafe
 
 if TYPE_CHECKING:
-    from types import TracebackType
     from collections.abc import AsyncIterator
+    from types import TracebackType
 
 _GetSet: TypeAlias = tuple[
     CacheItem[Any] | None,

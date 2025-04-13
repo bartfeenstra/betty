@@ -5,16 +5,16 @@ The Privacy API.
 from __future__ import annotations
 
 import enum
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from typing_extensions import override
 
-from betty.json.linked_data import LinkedDataDumpableJsonLdObject, JsonLdObject
+from betty.json.linked_data import JsonLdObject, LinkedDataDumpableJsonLdObject
 from betty.json.schema import Boolean
 
 if TYPE_CHECKING:
-    from betty.serde.dump import DumpMapping, Dump
     from betty.project import Project
+    from betty.serde.dump import Dump, DumpMapping
 
 
 class Privacy(enum.Enum):
