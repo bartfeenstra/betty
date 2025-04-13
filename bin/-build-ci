@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 
+# This command is internal to Betty's own CI setup.
+
 set -Eeuo pipefail
 
 cd "$(dirname "$0")/.."
 
-# Install Python dependencies.
 pip install '.[ci]'
-./bin/build-playwright
-
 ./bin/build-dev-npm

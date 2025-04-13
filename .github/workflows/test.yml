@@ -98,16 +98,40 @@ jobs:
           apps: poppler
 
       - name: Build the development environment
-        run: ./bin/build-ci
+        if: startsWith(runner.os, 'Linux')
+        run: ./bin/build-ci-linux
+        shell: bash
+
+      - name: Build the development environment
+        if: startsWith(runner.os, 'macOS')
+        run: ./bin/build-ci-macos
+        shell: bash
+
+      - name: Build the development environment
+        if: startsWith(runner.os, 'Windows')
+        run: ./bin/build-ci-windows
         shell: bash
 
       - name: Run the tests
         if: startsWith(runner.os, 'Linux')
         run: ./bin/test
         shell: bash
+        env:
+          BETTY_TEST_SKIP_RUFF: true
+          BETTY_TEST_SKIP_MYPY: true
+          BETTY_TEST_SKIP_STYLELINT: true
+          BETTY_TEST_SKIP_ESLINT: true
+          BETTY_TEST_SKIP_PLAYWRIGHT: true
 
       - name: Run the tests
-        if: ${{ ! startsWith(runner.os, 'Linux') }}
+        if: ${{ startsWith(runner.os, 'macOS') }}
+        run: ./bin/test
+        shell: bash
+        env:
+          BETTY_TEST_SKIP_SHELLCHECK: true
+
+      - name: Run the tests
+        if: ${{ startsWith(runner.os, 'Windows') }}
         run: ./bin/test
         shell: bash
         env:
