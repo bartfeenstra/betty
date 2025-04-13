@@ -9,14 +9,14 @@ from typing import TYPE_CHECKING
 from typing_extensions import override
 
 from betty.ancestry.file import File
-from betty.locale.localizable import _, Localizable, ngettext
+from betty.locale.localizable import Localizable, _, ngettext
 from betty.model import Entity
 from betty.model.association import BidirectionalToOne, ToOneAssociate
 from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
-    from betty.image import FocusArea
     from betty.ancestry.has_file_references import HasFileReferences
+    from betty.image import FocusArea
 
 
 class FileReference(ShorthandPluginBase, Entity):

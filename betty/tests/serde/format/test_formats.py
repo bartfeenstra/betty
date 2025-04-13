@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 import pytest
 from typing_extensions import override
@@ -6,7 +7,6 @@ from typing_extensions import override
 from betty.serde.format import Format, FormatError
 from betty.serde.format.formats import Json, Yaml
 from betty.test_utils.serde.format import FormatTestBase
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump

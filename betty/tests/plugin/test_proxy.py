@@ -3,7 +3,7 @@ from typing import TypeVar
 import pytest
 
 from betty.factory import FactoryError
-from betty.plugin import Plugin, PluginNotFound, PluginIdentifier
+from betty.plugin import Plugin, PluginIdentifier, PluginNotFound
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.plugin.static import StaticPluginRepository
 from betty.test_utils.plugin import DummyPlugin

@@ -3,7 +3,7 @@ from typing import Any, TypeVar
 
 import pytest
 
-from betty.functools import Do, passthrough, unique, filter_suppress
+from betty.functools import Do, filter_suppress, passthrough, unique
 
 _T = TypeVar("_T")
 

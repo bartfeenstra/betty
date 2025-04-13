@@ -1,17 +1,16 @@
 from __future__ import annotations
 
+import pytest
 from typing_extensions import override
 
-import pytest
-
+from betty.locale.localizable import Localizable, _, static
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.locale.localizable import _, Localizable, static
 from betty.requirement import (
-    RequirementCollection,
-    RequirementError,
     AllRequirements,
     AnyRequirement,
     Requirement,
+    RequirementCollection,
+    RequirementError,
 )
 
 

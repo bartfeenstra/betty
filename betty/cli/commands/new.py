@@ -32,8 +32,9 @@ from betty.project.extension.webpack import Webpack
 from betty.project.extension.wikipedia import Wikipedia
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
     from pathlib import Path
-    from collections.abc import Sequence, Callable
+
     from betty.app import App
 
 

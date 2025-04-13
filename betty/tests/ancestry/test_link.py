@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import Mapping, Any, Sequence, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Mapping, Sequence
 
 import pytest
 from typing_extensions import override
 
-from betty.ancestry.link import Link, LinkSchema, LinkCollectionSchema, HasLinks
+from betty.ancestry.link import HasLinks, Link, LinkCollectionSchema, LinkSchema
 from betty.app import App
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -15,8 +15,8 @@ from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.json.schema import SchemaTestBase
 
 if TYPE_CHECKING:
-    from betty.serde.dump import Dump, DumpMapping
     from betty.json.schema import Schema
+    from betty.serde.dump import Dump, DumpMapping
 
 _DUMMY_LINK_DUMPS: Sequence[DumpMapping[Dump]] = (
     {

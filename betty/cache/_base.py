@@ -1,24 +1,23 @@
 from abc import abstractmethod
-from collections.abc import Sequence, AsyncIterator
+from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
 from datetime import datetime
 from multiprocessing.managers import SyncManager
 from typing import (
-    Generic,
-    Self,
-    overload,
-    AsyncContextManager,
-    Literal,
-    TypeVar,
-    Protocol,
     Any,
+    AsyncContextManager,
+    Generic,
+    Literal,
+    Protocol,
+    Self,
+    TypeVar,
+    overload,
 )
 
 from typing_extensions import override
 
 from betty.cache import Cache, CacheItem, CacheItemValueSetter
-from betty.concurrent import AsynchronizedLock, Ledger
-from betty.concurrent import ensure_manager
+from betty.concurrent import AsynchronizedLock, Ledger, ensure_manager
 from betty.typing import processsafe
 
 _CacheT = TypeVar("_CacheT", bound=Cache[Any])

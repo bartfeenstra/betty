@@ -14,10 +14,11 @@ from betty.fetch.static import StaticFetcher
 from betty.license.licenses import SpdxLicenseRepository
 
 if TYPE_CHECKING:
-    from betty.serde.dump import DumpMapping, Dump
+    from pathlib import Path
+
     from betty.cache.file import BinaryFileCache
     from betty.fetch import Fetcher
-    from pathlib import Path
+    from betty.serde.dump import Dump, DumpMapping
 
 
 LICENSES_DATA: DumpMapping[Dump] = {

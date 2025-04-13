@@ -9,19 +9,19 @@ from __future__ import annotations
 import logging
 import sys
 from subprocess import CalledProcessError
-from typing import Sequence, TYPE_CHECKING, Self, final
+from typing import TYPE_CHECKING, Self, Sequence, final
 
 from typing_extensions import override
 
 from betty import subprocess
 from betty.error import UserFacingError
-from betty.locale.localizable import _, Localizable
+from betty.locale.localizable import Localizable, _
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.requirement import Requirement
 
 if TYPE_CHECKING:
-    from pathlib import Path
     from asyncio import subprocess as aiosubprocess
+    from pathlib import Path
 
 _NPM_SUMMARY_AVAILABLE = _("npm is available")
 _NPM_SUMMARY_UNAVAILABLE = _("npm is not available")

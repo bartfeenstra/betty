@@ -5,7 +5,7 @@ Provide the place entity.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import final, MutableSequence, Iterable, Iterator, TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable, Iterator, MutableSequence, final
 
 from typing_extensions import override
 
@@ -14,24 +14,25 @@ from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.name import Name
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
-from betty.json.linked_data import dump_context, JsonLdObject
+from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import Array, Number, Object
-from betty.locale.localizable import _, Localizable, ngettext
-from betty.model import UserFacingEntity, Entity
+from betty.locale.localizable import Localizable, _, ngettext
+from betty.model import Entity, UserFacingEntity
 from betty.model.association import BidirectionalToMany, ToManyAssociates
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy
 
 if TYPE_CHECKING:
-    from betty.mutability import Mutable
-    from betty.ancestry.note import Note
-    from betty.ancestry.event import Event
-    from betty.ancestry.enclosure import Enclosure
-    from betty.ancestry.place_type import PlaceType
-    from betty.privacy import Privacy
     from geopy import Point
+
+    from betty.ancestry.enclosure import Enclosure
+    from betty.ancestry.event import Event
+    from betty.ancestry.note import Note
+    from betty.ancestry.place_type import PlaceType
+    from betty.mutability import Mutable
+    from betty.privacy import Privacy
     from betty.project import Project
-    from betty.serde.dump import DumpMapping, Dump
+    from betty.serde.dump import Dump, DumpMapping
 
 
 @final

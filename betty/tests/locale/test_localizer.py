@@ -7,13 +7,13 @@ import aiofiles
 import pytest
 
 from betty.assets import AssetRepository
-from betty.locale import DEFAULT_LOCALE
 from betty.date import Date, DateRange, Datey, IncompleteDateError
+from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER, LocalizerRepository
 
 if TYPE_CHECKING:
-    from pathlib import Path
     from collections.abc import Sequence
+    from pathlib import Path
 
 
 _DUMMY_POT = """

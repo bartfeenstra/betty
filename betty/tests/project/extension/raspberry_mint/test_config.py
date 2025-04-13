@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from betty.assertion.error import AssertionFailed
 from betty.model import UserFacingEntity
@@ -12,7 +12,9 @@ from betty.test_utils.model import DummyEntity
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
+
     from pytest_mock import MockerFixture
+
     from betty.serde.dump import Dump, DumpMapping
 
 

@@ -1,10 +1,10 @@
 import pytest
 
 from betty.machine_name import (
-    validate_machine_name,
-    machinify,
-    assert_machine_name,
     InvalidMachineName,
+    assert_machine_name,
+    machinify,
+    validate_machine_name,
 )
 
 

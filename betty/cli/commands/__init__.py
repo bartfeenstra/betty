@@ -9,16 +9,16 @@ from abc import abstractmethod
 from contextlib import suppress
 from functools import wraps
 from pathlib import Path
-from typing import Any, Concatenate, ParamSpec, TYPE_CHECKING, overload, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Concatenate, ParamSpec, TypeVar, cast, overload
 
 import asyncclick as click
 
 from betty import about
-from betty.assertion import assert_path, assert_none, assert_or
+from betty.assertion import assert_none, assert_or, assert_path
 from betty.assertion.error import AssertionFailed
 from betty.cli.error import user_facing_error_to_bad_parameter
 from betty.config import assert_configuration_file
-from betty.error import UserFacingError, FileNotFound
+from betty.error import FileNotFound, UserFacingError
 from betty.locale.localizable import _
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
@@ -28,8 +28,9 @@ from betty.project.config import ProjectConfiguration
 from betty.serde.format import FORMAT_REPOSITORY
 
 if TYPE_CHECKING:
-    from betty.cli import ContextAppObject
     from collections.abc import Callable, Coroutine
+
+    from betty.cli import ContextAppObject
 
 _T = TypeVar("_T")
 _P = ParamSpec("_P")

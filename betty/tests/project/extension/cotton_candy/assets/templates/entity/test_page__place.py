@@ -6,7 +6,6 @@ from betty.ancestry.place import Place
 from betty.date import Date
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project.extension.cotton_candy import CottonCandy
-
 from betty.test_utils.jinja2 import assert_template_file
 
 

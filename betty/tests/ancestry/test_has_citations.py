@@ -11,7 +11,7 @@ from betty.tests.ancestry.test_citation import DummyHasCitations
 
 if TYPE_CHECKING:
     from betty.ancestry.link import HasLinks
-    from betty.serde.dump import DumpMapping, Dump
+    from betty.serde.dump import Dump, DumpMapping
 
 
 class TestHasCitations:

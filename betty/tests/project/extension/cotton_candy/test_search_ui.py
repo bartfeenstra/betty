@@ -1,7 +1,6 @@
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator  # noqa I001
 
 import pytest
-from playwright.async_api import expect, Page
 
 from betty import serve
 from betty.ancestry.person import Person
@@ -12,6 +11,7 @@ from betty.project.extension.cotton_candy import CottonCandy
 from betty.project.generate import generate
 from betty.serve import Server
 from betty.tests.conftest import check_skip_playwright
+from playwright.async_api import Page, expect
 
 
 class TestSearchUi:

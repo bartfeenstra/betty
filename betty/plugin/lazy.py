@@ -11,7 +11,7 @@ from typing_extensions import override
 from betty.factory import Factory
 from betty.json.schema import Schema
 from betty.machine_name import MachineName
-from betty.plugin import PluginRepository, Plugin, PluginNotFound
+from betty.plugin import Plugin, PluginNotFound, PluginRepository
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 

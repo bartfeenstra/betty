@@ -5,7 +5,7 @@ Provide serialization formats.
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Sequence, TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Sequence, final
 
 from typing_extensions import override
 
@@ -16,11 +16,12 @@ from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
 
 if TYPE_CHECKING:
-    from betty.serde.dump import Dump
-    from betty.machine_name import MachineName
     from collections.abc import AsyncIterator
-    from betty.typing import Voidable
+
     from betty.locale.localizer import Localizer
+    from betty.machine_name import MachineName
+    from betty.serde.dump import Dump
+    from betty.typing import Voidable
 
 
 class FormatError(AssertionFailed):

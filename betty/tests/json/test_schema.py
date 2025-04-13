@@ -1,30 +1,32 @@
 import json
 from pathlib import Path
-from typing import Sequence, TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
+
 import aiofiles
+from typing_extensions import override
+
 from betty.json.schema import (
-    Schema,
-    Ref,
-    JsonSchemaReference,
-    Array,
-    JsonSchemaSchema,
-    Def,
-    FileBasedSchema,
-    String,
-    Integer,
-    Number,
-    Boolean,
-    Object,
-    Null,
-    Const,
-    Enum,
     AllOf,
     AnyOf,
+    Array,
+    Boolean,
+    Const,
+    Def,
+    Enum,
+    FileBasedSchema,
+    Integer,
+    JsonSchemaReference,
+    JsonSchemaSchema,
+    Null,
+    Number,
+    Object,
     OneOf,
+    Ref,
+    Schema,
+    String,
 )
 from betty.serde.dump import Dump
-from betty.test_utils.json.schema import SchemaTestBase, DUMMY_SCHEMAS
-from typing_extensions import override
+from betty.test_utils.json.schema import DUMMY_SCHEMAS, SchemaTestBase
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence

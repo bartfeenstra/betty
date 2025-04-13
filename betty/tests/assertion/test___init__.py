@@ -2,42 +2,42 @@ from __future__ import annotations
 
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any, TypeVar, Sized, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Sized, TypeVar
 
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
 from betty.assertion import (
+    Assertion,
+    AssertionChain,
     Number,
     OptionalField,
     RequiredField,
-    Assertion,
-    AssertionChain,
-    assert_or,
     assert_bool,
     assert_directory_path,
-    assert_path,
-    assert_record,
-    assert_str,
-    assert_int,
-    assert_float,
-    assert_positive_number,
-    assert_number,
-    assert_mapping,
-    assert_sequence,
-    assert_fields,
     assert_field,
+    assert_fields,
     assert_file_path,
+    assert_float,
+    assert_int,
     assert_isinstance,
     assert_len,
-    assert_none,
     assert_locale,
-    assert_setattr,
     assert_locale_identifier,
+    assert_mapping,
+    assert_none,
+    assert_number,
+    assert_or,
+    assert_path,
+    assert_positive_number,
+    assert_record,
+    assert_sequence,
+    assert_setattr,
+    assert_str,
 )
 from betty.assertion.error import AssertionFailed, Index, Key
 from betty.error import UserFacingError
-from betty.locale import UNDETERMINED_LOCALE, DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizable import static
 from betty.test_utils.assertion.error import raises_error
 from betty.typing import Void

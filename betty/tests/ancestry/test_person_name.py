@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Sequence, TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
 
 import pytest
 from typing_extensions import override
@@ -14,8 +14,8 @@ from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityTestBase
 
 if TYPE_CHECKING:
-    from betty.serde.dump import DumpMapping, Dump
     from betty.model import Entity
+    from betty.serde.dump import Dump, DumpMapping
 
 
 class TestPersonName(EntityTestBase):

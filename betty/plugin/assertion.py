@@ -6,8 +6,8 @@ from typing import Any, TypeVar
 
 from betty.assertion import AssertionChain, assert_str
 from betty.assertion.error import AssertionFailed
-from betty.locale.localizable import _, join, do_you_mean
-from betty.plugin import Plugin, PluginNotFound, PluginIdToTypeMapping
+from betty.locale.localizable import _, do_you_mean, join
+from betty.plugin import Plugin, PluginIdToTypeMapping, PluginNotFound
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 

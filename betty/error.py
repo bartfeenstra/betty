@@ -3,7 +3,7 @@ Provide error handling utilities.
 """
 
 from pathlib import Path
-from typing import Self, Never
+from typing import Never, Self
 
 from typing_extensions import override
 

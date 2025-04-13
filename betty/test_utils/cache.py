@@ -5,8 +5,8 @@ Test utilities for :py:mod:`betty.cache`.
 import asyncio
 import multiprocessing
 import pickle
-from asyncio import sleep, create_task
-from typing import Generic, Sequence, AsyncContextManager, Iterator, TypeVar, Any
+from asyncio import create_task, sleep
+from typing import Any, AsyncContextManager, Generic, Iterator, Sequence, TypeVar
 
 import pytest
 

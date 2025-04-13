@@ -8,10 +8,10 @@ from xml.etree.ElementTree import Element
 
 from html5lib import parse
 
-from betty.ancestry.link import Link, HasLinks
+from betty.ancestry.link import HasLinks, Link
 from betty.fetch import Fetcher, FetchError
-from betty.media_type import MediaType, InvalidMediaType
-from betty.project import Project, ProjectEvent, ProjectContext
+from betty.media_type import InvalidMediaType, MediaType
+from betty.project import Project, ProjectContext, ProjectEvent
 
 
 class LoadAncestryEvent(ProjectEvent):

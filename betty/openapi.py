@@ -9,7 +9,7 @@ from betty import about, model
 from betty.json.schema import FileBasedSchema
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project, ProjectSchema
-from betty.serde.dump import DumpMapping, Dump
+from betty.serde.dump import Dump, DumpMapping
 from betty.string import kebab_case_to_lower_camel_case
 from betty.user import UserFacing
 

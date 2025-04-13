@@ -4,22 +4,22 @@ Integrate Betty with `Gramps <https://gramps-project.org>`_.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-from typing import final, TypeVar
+from typing import TYPE_CHECKING, TypeVar, final
 
 from typing_extensions import override
 
 from betty.gramps.loader import GrampsLoader
-from betty.locale.localizable import static, _
-from betty.plugin import ShorthandPluginBase, Plugin, PluginRepository
+from betty.locale.localizable import _, static
+from betty.plugin import Plugin, PluginRepository, ShorthandPluginBase
 from betty.project.extension import ConfigurableExtension
 from betty.project.extension.gramps.config import GrampsConfiguration
 from betty.project.load import LoadAncestryEvent
 
 if TYPE_CHECKING:
-    from betty.plugin.config import PluginInstanceConfiguration
-    from collections.abc import Callable, Awaitable
+    from collections.abc import Awaitable, Callable
+
     from betty.event_dispatcher import EventHandlerRegistry
+    from betty.plugin.config import PluginInstanceConfiguration
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 

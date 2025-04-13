@@ -15,8 +15,8 @@ from betty.gramps.loader import (
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project.extension.gramps.config import (
     FamilyTreeConfiguration,
-    GrampsConfiguration,
     FamilyTreeConfigurationSequence,
+    GrampsConfiguration,
     PluginMapping,
 )
 from betty.serde.dump import Dump

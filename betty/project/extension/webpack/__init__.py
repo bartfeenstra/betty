@@ -9,13 +9,13 @@ from __future__ import annotations
 import asyncio
 from pathlib import Path
 from threading import Thread
-from typing import TYPE_CHECKING, final, Self, ClassVar
+from typing import TYPE_CHECKING, ClassVar, Self, final
 
 from typing_extensions import override
 
 from betty._npm import NpmRequirement, NpmUnavailable
 from betty.html import CssProvider, JsProvider
-from betty.jinja2 import Jinja2Provider, Filters, ContextVars
+from betty.jinja2 import ContextVars, Filters, Jinja2Provider
 from betty.locale.localizable import static
 from betty.os import copy_tree
 from betty.plugin import ShorthandPluginBase
@@ -24,14 +24,15 @@ from betty.project.extension.webpack import build
 from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.extension.webpack.jinja2.filter import FILTERS
 from betty.project.generate import GenerateSiteEvent
-from betty.requirement import Requirement, AllRequirements, RequirementError
+from betty.requirement import AllRequirements, Requirement, RequirementError
 from betty.typing import internal, private
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from betty.event_dispatcher import EventHandlerRegistry
     from betty.job import Context
     from betty.project import Project
-    from betty.event_dispatcher import EventHandlerRegistry
-    from collections.abc import Sequence
 
 
 async def _generate_assets(event: GenerateSiteEvent) -> None:

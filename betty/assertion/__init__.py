@@ -4,27 +4,26 @@ The Assertion API.
 
 from __future__ import annotations
 
-from collections.abc import Mapping, MutableSequence
-from collections.abc import Sized, Sequence
+from collections.abc import Mapping, MutableSequence, Sequence, Sized
 from dataclasses import dataclass
 from pathlib import Path
 from types import NoneType
 from typing import (
-    Callable,
     Any,
+    Callable,
     Generic,
-    TypeVar,
     MutableMapping,
-    overload,
-    cast,
     TypeAlias,
+    TypeVar,
+    cast,
     final,
+    overload,
 )
 
-from betty.assertion.error import AssertionFailedGroup, AssertionFailed, Key, Index
+from betty.assertion.error import AssertionFailed, AssertionFailedGroup, Index, Key
 from betty.error import FileNotFound, UserFacingError
-from betty.locale import get_data, UNDETERMINED_LOCALE
-from betty.locale.localizable import _, Localizable, plain, join, do_you_mean
+from betty.locale import UNDETERMINED_LOCALE, get_data
+from betty.locale.localizable import Localizable, _, do_you_mean, join, plain
 from betty.typing import Void, Voidable, internal
 
 Number: TypeAlias = int | float

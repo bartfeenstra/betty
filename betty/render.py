@@ -5,7 +5,7 @@ Provide the Render API.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import final, TYPE_CHECKING
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
@@ -13,11 +13,12 @@ from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.typing import internal
 
 if TYPE_CHECKING:
-    from betty.plugin import PluginRepository, Plugin
-    from betty.locale.localizer import Localizer
-    from betty.job import Context
-    from pathlib import Path
     from collections.abc import Sequence
+    from pathlib import Path
+
+    from betty.job import Context
+    from betty.locale.localizer import Localizer
+    from betty.plugin import Plugin, PluginRepository
 
 
 class Renderer(ABC):

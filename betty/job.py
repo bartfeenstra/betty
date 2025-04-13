@@ -5,7 +5,7 @@ Provide utilities for running jobs concurrently.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from betty.cache.memory import MemoryCache
@@ -13,6 +13,7 @@ from betty.concurrent import ensure_manager
 
 if TYPE_CHECKING:
     from multiprocessing.managers import SyncManager
+
     from betty.cache import Cache
 
 

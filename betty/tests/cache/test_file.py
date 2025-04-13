@@ -1,5 +1,5 @@
 import multiprocessing
-from collections.abc import Sequence, AsyncIterator, Iterator
+from collections.abc import AsyncIterator, Iterator, Sequence
 from contextlib import asynccontextmanager
 from multiprocessing.managers import SyncManager
 from pathlib import Path
@@ -9,7 +9,7 @@ import pytest
 from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
-from betty.cache.file import PickledFileCache, BinaryFileCache
+from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.test_utils.cache import ProcesssafeCacheTestBase
 
 

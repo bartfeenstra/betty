@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place
-from betty.date import DateRange, Date
+from betty.date import Date, DateRange
 from betty.jinja2 import EntityContexts
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file

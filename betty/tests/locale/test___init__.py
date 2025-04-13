@@ -3,24 +3,25 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Sequence
 
 import pytest
-
-from betty.locale import (
-    negotiate_locale,
-    Localey,
-    to_locale,
-    merge_locales,
-    NO_LINGUISTIC_CONTENT,
-    SPECIAL_LOCALES,
-    MULTIPLE_LOCALES,
-    LocaleSchema,
-)
-from betty.test_utils.json.schema import SchemaTestBase
 from typing_extensions import override
 
+from betty.locale import (
+    MULTIPLE_LOCALES,
+    NO_LINGUISTIC_CONTENT,
+    SPECIAL_LOCALES,
+    LocaleSchema,
+    Localey,
+    merge_locales,
+    negotiate_locale,
+    to_locale,
+)
+from betty.test_utils.json.schema import SchemaTestBase
+
 if TYPE_CHECKING:
-    from betty.serde.dump import Dump
-    from betty.json.schema import Schema
     from collections.abc import Sequence
+
+    from betty.json.schema import Schema
+    from betty.serde.dump import Dump
 
 
 @pytest.mark.parametrize(

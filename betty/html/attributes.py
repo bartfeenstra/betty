@@ -5,27 +5,27 @@ Provide the HTML API, for generating HTML pages.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Sequence, MutableMapping
+from collections.abc import MutableMapping, Sequence
 from inspect import getmembers
 from typing import (
-    MutableSequence,
-    final,
-    Self,
-    cast,
-    Generic,
-    TypeVar,
-    TypedDict,
-    NotRequired,
-    Unpack,
     Any,
+    Generic,
+    MutableSequence,
+    NotRequired,
+    Self,
+    TypedDict,
+    TypeVar,
+    Unpack,
+    cast,
+    final,
 )
 
-from typing_extensions import override, overload
+from typing_extensions import overload, override
 
 from betty.string import (
     kebab_case_to_lower_camel_case,
-    snake_case_to_kebab_case,
     kebab_case_to_snake_case,
+    snake_case_to_kebab_case,
 )
 
 _AttributeGetT = TypeVar("_AttributeGetT")

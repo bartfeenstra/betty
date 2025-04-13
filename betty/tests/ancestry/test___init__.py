@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
@@ -10,11 +11,11 @@ from betty.model.association import BidirectionalToZeroOrOne
 from betty.test_utils.ancestry.date import DummyHasDate
 from betty.test_utils.model import DummyEntity
 from betty.test_utils.model.collections import EntityCollectionTestBase
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from betty.model.collections import EntityCollection
     from collections.abc import Sequence
+
+    from betty.model.collections import EntityCollection
 
 
 class DummyHasDateWithContextDefinitions(DummyHasDate):

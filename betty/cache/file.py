@@ -12,14 +12,14 @@ from functools import partial
 from os import utime
 from pickle import dumps, loads
 from typing import (
-    Generic,
-    Self,
     TYPE_CHECKING,
+    AsyncContextManager,
+    Generic,
+    Literal,
+    Self,
     TypeVar,
     final,
-    AsyncContextManager,
     overload,
-    Literal,
 )
 
 import aiofiles
@@ -32,9 +32,9 @@ from betty.hashid import hashid
 from betty.typing import processsafe
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from multiprocessing.managers import SyncManager
     from pathlib import Path
-    from collections.abc import Sequence
 
 _CacheItemValueCoT = TypeVar("_CacheItemValueCoT", covariant=True)
 _CacheItemValueContraT = TypeVar("_CacheItemValueContraT", contravariant=True)

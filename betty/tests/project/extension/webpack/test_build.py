@@ -2,17 +2,17 @@ from collections.abc import Sequence
 from multiprocessing.managers import SyncManager
 from pathlib import Path
 
+import aiofiles
 import pytest
 from pytest_mock import MockerFixture
-import aiofiles
+
 from betty._npm import NpmUnavailable
 from betty.app import App
 from betty.job import Context
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
-from betty.project.extension.webpack.build import EntryPointProvider
-from betty.project.extension.webpack.build import Builder
+from betty.project.extension.webpack.build import Builder, EntryPointProvider
 from betty.test_utils.project.extension import DummyExtension
 
 

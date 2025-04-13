@@ -4,19 +4,19 @@ Provide configuration for the Cotton Candy extension.
 
 from __future__ import annotations
 
-from typing import Sequence, TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING, Iterable, Sequence
 
 from typing_extensions import override
 
-from betty.assertion import assert_record, OptionalField
+from betty.assertion import OptionalField, assert_record
 from betty.config import Configuration
 from betty.model.config import EntityReference, EntityReferenceSequence
 from betty.project.extension._theme import ColorConfiguration
 
 if TYPE_CHECKING:
+    from betty.model import Entity, UserFacingEntity
     from betty.mutability import Mutable
     from betty.serde.dump import Dump, DumpMapping
-    from betty.model import UserFacingEntity, Entity
 
 
 class CottonCandyConfiguration(Configuration):

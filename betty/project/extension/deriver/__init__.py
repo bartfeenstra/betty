@@ -5,8 +5,7 @@ Expand an ancestry by deriving additional data from existing data.
 from __future__ import annotations
 
 from logging import getLogger
-from typing import TYPE_CHECKING
-from typing import final
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
@@ -20,8 +19,8 @@ from betty.project.extension.privatizer import Privatizer
 from betty.project.load import PostLoadAncestryEvent
 
 if TYPE_CHECKING:
-    from betty.plugin import PluginIdentifier
     from betty.event_dispatcher import EventHandlerRegistry
+    from betty.plugin import PluginIdentifier
 
 
 async def _derive_ancestry(event: PostLoadAncestryEvent) -> None:

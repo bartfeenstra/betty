@@ -13,14 +13,18 @@ from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
     Birth,
     Death,
+)
+from betty.ancestry.event_type.event_types import (
     Unknown as UnknownEventType,
 )
 from betty.ancestry.file import File
-from betty.ancestry.gender.genders import Unknown as UnknownGender, NonBinary
+from betty.ancestry.gender.genders import NonBinary
+from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.note import Note
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
-from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType, City
+from betty.ancestry.place_type.place_types import City
+from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.app import App
@@ -29,20 +33,21 @@ from betty.copyright_notice.copyright_notices import (
 )
 from betty.date import Date, DateRange
 from betty.gramps.error import UserFacingGrampsError
-from betty.gramps.loader import GrampsLoader, LoaderUsedAlready, GrampsFileNotFound
+from betty.gramps.loader import GrampsFileNotFound, GrampsLoader, LoaderUsedAlready
 from betty.license.licenses import PublicDomain as PublicDomainLicense
-from betty.locale import UNDETERMINED_LOCALE, DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.privacy import Privacy
 from betty.project import Project
 
 if TYPE_CHECKING:
-    from betty.ancestry.place_type import PlaceType
+    from collections.abc import Awaitable, Callable, Mapping
+
     from betty.ancestry import Ancestry
     from betty.ancestry.event_type import EventType
+    from betty.ancestry.place_type import PlaceType
     from betty.ancestry.presence_role import PresenceRole
-    from collections.abc import Mapping, Awaitable, Callable
 
 _MINIMAL_XML = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"

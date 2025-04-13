@@ -2,7 +2,7 @@
 Provide proxy URL generators.
 """
 
-from typing import final, Any
+from typing import Any, final
 
 from typing_extensions import override
 

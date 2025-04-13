@@ -4,7 +4,7 @@ Data types to describe information sources.
 
 from __future__ import annotations
 
-from typing import final, MutableSequence, Iterator, TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterator, MutableSequence, final
 
 from typing_extensions import override
 
@@ -14,16 +14,16 @@ from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks, Link
 from betty.json.linked_data import dump_context
 from betty.locale.localizable import (
-    _,
+    Localizable,
     OptionalStaticTranslationsLocalizableAttr,
     ShorthandStaticTranslations,
-    Localizable,
+    _,
     ngettext,
 )
-from betty.model import UserFacingEntity, Entity
+from betty.model import Entity, UserFacingEntity
 from betty.model.association import (
-    BidirectionalToZeroOrOne,
     BidirectionalToMany,
+    BidirectionalToZeroOrOne,
     ToManyAssociates,
     ToZeroOrOneAssociate,
 )

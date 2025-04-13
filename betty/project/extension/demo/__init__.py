@@ -7,12 +7,12 @@ from __future__ import annotations
 from asyncio import to_thread
 from contextlib import suppress
 from shutil import rmtree
-from typing import TYPE_CHECKING, final, Sequence
+from typing import TYPE_CHECKING, Sequence, final
 
 from typing_extensions import override
 
-from betty.html import NavigationLinkProvider, NavigationLink
-from betty.locale.localizable import static, _
+from betty.html import NavigationLink, NavigationLinkProvider
+from betty.locale.localizable import _, static
 from betty.plugin import ShorthandPluginBase
 from betty.project import generate
 from betty.project.extension import Extension
@@ -27,9 +27,9 @@ from betty.project.load import LoadAncestryEvent, load
 from betty.typing import internal
 
 if TYPE_CHECKING:
-    from betty.project import Project
-    from betty.plugin import PluginIdentifier
     from betty.event_dispatcher import EventHandlerRegistry
+    from betty.plugin import PluginIdentifier
+    from betty.project import Project
 
 
 @internal

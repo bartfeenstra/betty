@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import MutableMapping, MutableSequence
-from typing import TypeVar, TypeAlias
+from typing import TypeAlias, TypeVar
 
 #: A serialized dump.
 Dump: TypeAlias = (

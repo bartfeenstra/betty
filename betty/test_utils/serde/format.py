@@ -2,8 +2,9 @@
 Test utilities for :py:mod:`betty.serde.format`.
 """
 
-import pytest
 from collections.abc import Sequence
+
+import pytest
 
 from betty.serde.dump import Dump
 from betty.serde.format import Format

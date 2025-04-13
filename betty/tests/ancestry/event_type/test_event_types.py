@@ -4,18 +4,19 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.ancestry.presence import Presence
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
-    Death,
-    Birth,
     Adoption,
     Baptism,
+    BarMitzvah,
+    BatMitzvah,
+    Birth,
     Burial,
     Conference,
     Confirmation,
     Correspondence,
     Cremation,
+    Death,
     Divorce,
     DivorceAnnouncement,
     Emigration,
@@ -30,10 +31,9 @@ from betty.ancestry.event_type.event_types import (
     Retirement,
     Unknown,
     Will,
-    BarMitzvah,
-    BatMitzvah,
 )
 from betty.ancestry.person import Person
+from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import Date
 from betty.project.config import DEFAULT_LIFETIME_THRESHOLD

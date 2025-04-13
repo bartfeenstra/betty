@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, TYPE_CHECKING, AsyncContextManager
+from typing import TYPE_CHECKING, Any, AsyncContextManager
 
 import aiofiles
 import html5lib
@@ -14,14 +14,16 @@ from html5lib.html5parser import ParseError
 
 from betty.app import App
 from betty.jinja2 import Environment
-from betty.json.schema import Ref, AllOf
+from betty.json.schema import AllOf, Ref
 from betty.project import Project, ProjectSchema
 from betty.project.extension import Extension
 from betty.warnings import deprecated
 
 if TYPE_CHECKING:
+    from collections.abc import AsyncIterator, Callable, MutableMapping
+
     from jinja2 import Template
-    from collections.abc import MutableMapping, Callable, AsyncIterator
+
     from betty.locale import Localey
 
 

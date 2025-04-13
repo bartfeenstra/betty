@@ -3,7 +3,7 @@ from typing import Self
 import pytest
 from typing_extensions import override
 
-from betty.factory import FactoryError, new, IndependentFactory, InitFactoryError
+from betty.factory import FactoryError, IndependentFactory, InitFactoryError, new
 
 
 class TestFactoryError:

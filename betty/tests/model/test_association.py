@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeVar
 
 import pytest
 from typing_extensions import override
@@ -8,30 +8,31 @@ from typing_extensions import override
 from betty.model import Entity, UserFacingEntity
 from betty.model.association import (
     AssociationRegistry,
-    UnidirectionalToMany,
-    UnidirectionalToZeroOrOne,
-    UnidirectionalToOne,
     AssociationRequired,
-    BidirectionalToZeroOrOne,
-    BidirectionalToOne,
     BidirectionalToMany,
-    ToOneResolver,
-    ToZeroOrOneResolver,
-    ToManyResolver,
-    TemporaryToZeroOrOneResolver,
-    TemporaryToOneResolver,
+    BidirectionalToOne,
+    BidirectionalToZeroOrOne,
     TemporaryToManyResolver,
-    ToZeroOrOneAssociate,
+    TemporaryToOneResolver,
+    TemporaryToZeroOrOneResolver,
+    ToManyResolver,
     ToOneAssociate,
+    ToOneResolver,
+    ToZeroOrOneAssociate,
+    ToZeroOrOneResolver,
+    UnidirectionalToMany,
+    UnidirectionalToOne,
+    UnidirectionalToZeroOrOne,
 )
 from betty.project import Project
 from betty.test_utils.json.linked_data import assert_dumps_linked_data_for
 from betty.test_utils.model import DummyEntity
 
 if TYPE_CHECKING:
-    from betty.serde.dump import DumpMapping, Dump
-    from betty.app import App
     from collections.abc import Iterable
+
+    from betty.app import App
+    from betty.serde.dump import Dump, DumpMapping
 
 
 _EntityT = TypeVar("_EntityT", bound=Entity)

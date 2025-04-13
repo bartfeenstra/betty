@@ -7,13 +7,13 @@ from __future__ import annotations
 from asyncio import to_thread
 from os import walk
 from pathlib import Path
-from typing import Sequence, TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
 
 from betty.concurrent import AsynchronizedLock
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, AsyncIterator
+    from collections.abc import AsyncIterator, Mapping
 
 
 @threadsafe

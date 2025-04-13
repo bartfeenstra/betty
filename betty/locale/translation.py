@@ -22,6 +22,7 @@ from betty.project.extension import Extension
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+
     from betty.project import Project
 
 

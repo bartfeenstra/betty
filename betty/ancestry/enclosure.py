@@ -4,13 +4,13 @@ Data types to describe the relationships between places.
 
 from __future__ import annotations
 
-from typing import final, TYPE_CHECKING
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
 from betty.ancestry.date import HasDate
 from betty.ancestry.has_citations import HasCitations
-from betty.locale.localizable import _, Localizable, ngettext
+from betty.locale.localizable import Localizable, _, ngettext
 from betty.model import Entity
 from betty.model.association import BidirectionalToOne, ToOneAssociate
 from betty.plugin import ShorthandPluginBase

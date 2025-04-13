@@ -3,7 +3,6 @@ from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.source import Source
 from betty.project.extension.cotton_candy import CottonCandy
-
 from betty.test_utils.jinja2 import assert_template_file
 
 

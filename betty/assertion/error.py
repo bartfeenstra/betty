@@ -7,17 +7,18 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from textwrap import indent
-from typing import Iterator, Self, TYPE_CHECKING, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Iterator, Self, TypeAlias, TypeVar
 
 from typing_extensions import override
 
 from betty.error import UserFacingError
 from betty.locale import UNDETERMINED_LOCALE
-from betty.locale.localizable import _, Localizable
+from betty.locale.localizable import Localizable, _
 from betty.locale.localized import LocalizedStr
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence, MutableSequence
+    from collections.abc import MutableSequence, Sequence
+
     from betty.locale.localizer import Localizer
 
 

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.locale.localized import Localized, negotiate_localizeds, LocalizedStr
+from betty.locale.localized import Localized, LocalizedStr, negotiate_localizeds
 from betty.test_utils.locale.localized import DummyLocalized
 
 if TYPE_CHECKING:

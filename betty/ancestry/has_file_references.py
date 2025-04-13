@@ -4,7 +4,7 @@ Tools to build data types that reference files.
 
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from betty.model import Entity
 from betty.model.association import (

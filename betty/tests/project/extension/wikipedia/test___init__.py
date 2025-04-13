@@ -14,10 +14,12 @@ from betty.test_utils.project.extension import ExtensionTestBase
 from betty.wikipedia import Summary
 
 if TYPE_CHECKING:
+    from multiprocessing.managers import SyncManager
+
+    from pytest_mock import MockerFixture
+
     from betty.app import App
     from betty.test_utils.conftest import NewTemporaryAppFactory
-    from multiprocessing.managers import SyncManager
-    from pytest_mock import MockerFixture
 
 
 class TestWikipedia(ExtensionTestBase[Wikipedia]):

@@ -4,17 +4,17 @@ Configuration for the data model.
 
 from __future__ import annotations
 
-from typing import final, Generic, Iterable, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Generic, Iterable, TypeVar, final
 
 from typing_extensions import override
 
 from betty.assertion import (
-    assert_record,
-    RequiredField,
-    assert_or,
-    assert_none,
-    assert_setattr,
     OptionalField,
+    RequiredField,
+    assert_none,
+    assert_or,
+    assert_record,
+    assert_setattr,
     assert_str,
 )
 from betty.assertion.error import AssertionFailed
@@ -23,7 +23,7 @@ from betty.config.collections.sequence import ConfigurationSequence
 from betty.locale.localizable import _
 from betty.machine_name import MachineName, assert_machine_name
 from betty.model import Entity
-from betty.plugin import PluginIdentifier, resolve_identifier, PluginRepository
+from betty.plugin import PluginIdentifier, PluginRepository, resolve_identifier
 from betty.plugin.assertion import assert_plugin
 
 if TYPE_CHECKING:

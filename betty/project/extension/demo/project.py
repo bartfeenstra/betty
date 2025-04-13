@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 from betty.ancestry.citation import Citation
 from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.event import Event
-from betty.ancestry.event_type.event_types import Marriage, Birth, Death
+from betty.ancestry.event_type.event_types import Birth, Death, Marriage
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.ancestry.gender.genders import Female, Male
@@ -21,9 +21,9 @@ from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.place import Place
 from betty.ancestry.place_type.place_types import (
-    Province,
     Country,
     Municipality,
+    Province,
     Village,
 )
 from betty.ancestry.presence import Presence
@@ -43,10 +43,11 @@ from betty.project.extension.raspberry_mint.config import RaspberryMintConfigura
 from betty.typing import internal
 
 if TYPE_CHECKING:
-    from pathlib import Path
-    from betty.machine_name import MachineName
     from collections.abc import Mapping, Sequence
+    from pathlib import Path
+
     from betty.app import App
+    from betty.machine_name import MachineName
 
 
 async def create_project(app: App, project_directory_path: Path) -> Project:

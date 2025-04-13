@@ -5,16 +5,16 @@ Provide plugin configuration.
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import TypeVar, Generic, cast, Sequence, TYPE_CHECKING
+from typing import TYPE_CHECKING, Generic, Sequence, TypeVar, cast
 
 from typing_extensions import override
 
 from betty.assertion import (
-    RequiredField,
-    assert_record,
     OptionalField,
-    assert_setattr,
+    RequiredField,
     assert_or,
+    assert_record,
+    assert_setattr,
 )
 from betty.assertion.error import AssertionFailed
 from betty.config import Configuration, DefaultConfigurable
@@ -25,13 +25,14 @@ from betty.locale.localizable.config import (
     OptionalStaticTranslationsLocalizableConfigurationAttr,
     RequiredStaticTranslationsLocalizableConfigurationAttr,
 )
-from betty.machine_name import assert_machine_name, MachineName
-from betty.plugin import Plugin, PluginRepository, PluginIdentifier, resolve_identifier
+from betty.machine_name import MachineName, assert_machine_name
+from betty.plugin import Plugin, PluginIdentifier, PluginRepository, resolve_identifier
 from betty.repr import repr_instance
 from betty.typing import Void, Voidable, not_void
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+
     from betty.locale.localizable import ShorthandStaticTranslations
     from betty.serde.dump import Dump, DumpMapping
 

@@ -1,5 +1,5 @@
 from collections.abc import Iterable
-from typing import TypeVar, Mapping, cast
+from typing import Mapping, TypeVar, cast
 
 import pytest
 from typing_extensions import override
@@ -15,9 +15,9 @@ from betty.plugin import Plugin
 from betty.plugin.config import (
     PluginConfiguration,
     PluginConfigurationPluginConfigurationMapping,
+    PluginIdentifierKeyConfigurationMapping,
     PluginInstanceConfiguration,
     PluginInstanceConfigurationMapping,
-    PluginIdentifierKeyConfigurationMapping,
 )
 from betty.plugin.static import StaticPluginRepository
 from betty.serde.dump import Dump

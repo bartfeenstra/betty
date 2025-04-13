@@ -7,9 +7,8 @@ from __future__ import annotations
 import logging
 from contextlib import suppress
 from datetime import datetime
-from typing import Iterator, TypeAlias, Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Iterator, TypeAlias
 
-from betty.ancestry.presence import Presence
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import EndOfLifeEventType
 from betty.ancestry.has_citations import HasCitations
@@ -17,14 +16,16 @@ from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
+from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.privacy import Privacy, HasPrivacy
 from betty.ancestry.source import Source
-from betty.date import DateRange, Date
+from betty.date import Date, DateRange
 from betty.model import Entity
+from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence
+
     from betty.locale.localizer import Localizer
 
 _Expirable: TypeAlias = Person | Event | Date | None

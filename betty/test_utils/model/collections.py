@@ -3,7 +3,7 @@ Test utilities for :py:mod:`betty.model.collections`.
 """
 
 from collections.abc import Sequence
-from typing import TypeVar, Generic, Any
+from typing import Any, Generic, TypeVar
 
 import pytest
 

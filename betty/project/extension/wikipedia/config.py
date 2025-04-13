@@ -6,8 +6,8 @@ from typing_extensions import override
 
 from betty.assertion import (
     OptionalField,
-    assert_record,
     assert_bool,
+    assert_record,
     assert_setattr,
 )
 from betty.config import Configuration

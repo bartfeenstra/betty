@@ -8,15 +8,15 @@ from abc import ABC, abstractmethod
 from contextlib import asynccontextmanager
 from reprlib import recursive_repr
 from typing import (
-    Generic,
-    Iterator,
-    overload,
-    Any,
-    Iterable,
-    cast,
-    TypeVar,
     TYPE_CHECKING,
+    Any,
+    Generic,
+    Iterable,
+    Iterator,
     Self,
+    TypeVar,
+    cast,
+    overload,
 )
 
 from typing_extensions import override
@@ -27,9 +27,10 @@ from betty.mutability import Mutable
 from betty.repr import repr_instance
 
 if TYPE_CHECKING:
-    from betty.plugin import PluginIdToTypeMapping
+    from collections.abc import AsyncIterator, MutableMapping, MutableSequence, Sequence
+
     from betty.machine_name import MachineName
-    from collections.abc import Sequence, MutableSequence, MutableMapping, AsyncIterator
+    from betty.plugin import PluginIdToTypeMapping
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
 _TargetT = TypeVar("_TargetT")

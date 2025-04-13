@@ -7,22 +7,23 @@ from __future__ import annotations
 import calendar
 import operator
 from functools import total_ordering
-from typing import Any, Callable, TypeAlias, Mapping, TYPE_CHECKING, final, Self
+from typing import TYPE_CHECKING, Any, Callable, Mapping, Self, TypeAlias, final
 
 from typing_extensions import override
 
 from betty.json.linked_data import (
-    dump_context,
     JsonLdObject,
-    LinkedDataDumpableJsonLdObject,
     JsonLdSchema,
+    LinkedDataDumpableJsonLdObject,
+    dump_context,
 )
-from betty.json.schema import String, Boolean, Null, OneOf, Number
+from betty.json.schema import Boolean, Null, Number, OneOf, String
 
 if TYPE_CHECKING:
     from types import NotImplementedType
-    from betty.serde.dump import DumpMapping, Dump
+
     from betty.project import Project
+    from betty.serde.dump import Dump, DumpMapping
 
 
 class IncompleteDateError(ValueError):

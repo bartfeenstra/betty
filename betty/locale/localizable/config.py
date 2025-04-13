@@ -3,7 +3,7 @@ Provide localizable configuration.
 """
 
 from contextlib import suppress
-from typing import Self, final, overload, cast, TypeVar
+from typing import Self, TypeVar, cast, final, overload
 
 from typing_extensions import override
 

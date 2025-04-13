@@ -5,7 +5,7 @@ from __future__ import annotations
 import platform
 import sys
 from importlib import metadata
-from typing import Iterator, TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterator
 
 DEV_VERSION = "0.0.0"
 

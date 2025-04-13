@@ -2,12 +2,12 @@
 Test utilities for :py:mod:`betty.json.schema`.
 """
 
-from collections.abc import Sequence, MutableMapping
+from collections.abc import MutableMapping, Sequence
 
 import pytest
 from jsonschema.exceptions import ValidationError
 
-from betty.json.schema import Schema, JsonSchemaSchema, String
+from betty.json.schema import JsonSchemaSchema, Schema, String
 from betty.serde.dump import Dump
 
 DUMMY_SCHEMAS: Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]] = (

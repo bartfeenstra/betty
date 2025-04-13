@@ -9,17 +9,16 @@ from itertools import chain
 from time import time
 from typing import (
     Any,
-    Iterable,
-    TypeVar,
-    Callable,
-    Iterator,
-    Generic,
-    ParamSpec,
     Awaitable,
+    Callable,
+    Generic,
+    Iterable,
+    Iterator,
+    ParamSpec,
+    TypeVar,
 )
 
 from betty.asyncio import ensure_await
-
 
 _T = TypeVar("_T")
 

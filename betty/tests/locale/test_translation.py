@@ -8,9 +8,9 @@ from typing_extensions import override
 from betty.error import UserFacingError
 from betty.fs import ASSETS_DIRECTORY_PATH
 from betty.locale.translation import (
-    update_dev_translations,
     assert_extension_assets_directory_path,
     assert_extension_has_assets_directory_path,
+    update_dev_translations,
 )
 from betty.test_utils.locale import PotFileTestBase
 from betty.test_utils.project.extension import DummyExtension

@@ -4,7 +4,7 @@ Providing typing utilities.
 
 from __future__ import annotations
 
-from typing import TypeVar, TypeAlias, final, Any
+from typing import Any, TypeAlias, TypeVar, final
 
 from typing_extensions import TypeIs
 

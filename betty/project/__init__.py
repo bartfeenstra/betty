@@ -9,23 +9,23 @@ site from the entire project.
 from __future__ import annotations
 
 import logging
-from contextlib import asynccontextmanager, AsyncExitStack
+from contextlib import AsyncExitStack, asynccontextmanager
 from graphlib import TopologicalSorter
 from pathlib import Path
 from typing import (
-    final,
-    Self,
     TYPE_CHECKING,
-    TypeVar,
     Iterator,
-    overload,
+    Self,
+    TypeVar,
     cast,
+    final,
+    overload,
 )
 
 from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
-from betty import fs, event_dispatcher, model
+from betty import event_dispatcher, fs, model
 from betty.ancestry import Ancestry
 from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY
 from betty.ancestry.gender import GENDER_REPOSITORY, Gender
@@ -34,12 +34,12 @@ from betty.ancestry.presence_role import PRESENCE_ROLE_REPOSITORY, PresenceRole
 from betty.assets import AssetRepository
 from betty.concurrent import ensure_manager
 from betty.config import Configurable
-from betty.copyright_notice import CopyrightNotice, COPYRIGHT_NOTICE_REPOSITORY
+from betty.copyright_notice import COPYRIGHT_NOTICE_REPOSITORY, CopyrightNotice
 from betty.event_dispatcher import EventDispatcher, EventHandlerRegistry
 from betty.factory import TargetFactory
 from betty.hashid import hashid
 from betty.job import Context
-from betty.json.schema import Schema, JsonSchemaReference
+from betty.json.schema import JsonSchemaReference, Schema
 from betty.locale.localizable import _
 from betty.locale.localizer import LocalizerRepository
 from betty.model import Entity, ToManySchema
@@ -52,27 +52,30 @@ from betty.project.extension import Extension, Theme, sort_extension_type_graph
 from betty.project.factory import ProjectDependentFactory
 from betty.project.url import (
     LocalizedUrlGenerator as ProjectLocalizedUrlGenerator,
+)
+from betty.project.url import (
     StaticUrlGenerator as ProjectStaticUrlGenerator,
+)
+from betty.project.url import (
     new_project_url_generator,
 )
-from betty.render import Renderer, SequentialRenderer, RENDERER_REPOSITORY
+from betty.render import RENDERER_REPOSITORY, Renderer, SequentialRenderer
 from betty.service import ServiceProvider, service
 from betty.string import kebab_case_to_lower_camel_case
 from betty.typing import internal
 from betty.warnings import deprecated
 
 if TYPE_CHECKING:
+    from collections.abc import AsyncIterator, Sequence
     from multiprocessing.managers import SyncManager
-    from betty.license import License
-    from betty.url import LocalizedUrlGenerator, StaticUrlGenerator, UrlGenerator
+
     from betty.ancestry.event_type import EventType
-    from betty.machine_name import MachineName
-    from betty.plugin import PluginIdentifier
-    from collections.abc import Sequence
-    from collections.abc import AsyncIterator
     from betty.app import App
     from betty.jinja2 import Environment
-    from betty.plugin import PluginRepository
+    from betty.license import License
+    from betty.machine_name import MachineName
+    from betty.plugin import PluginIdentifier, PluginRepository
+    from betty.url import LocalizedUrlGenerator, StaticUrlGenerator, UrlGenerator
 
 _T = TypeVar("_T")
 _EntityT = TypeVar("_EntityT", bound=Entity)

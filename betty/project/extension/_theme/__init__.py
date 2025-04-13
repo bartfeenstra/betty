@@ -8,14 +8,14 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
-from typing import cast, TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from typing_extensions import override
 
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
-    StartOfLifeEventType,
     EndOfLifeEventType,
+    StartOfLifeEventType,
 )
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
@@ -30,13 +30,14 @@ from betty.model import persistent_id
 from betty.privacy import is_public
 
 if TYPE_CHECKING:
-    from betty.jinja2 import Filters
-    from betty.ancestry.file_reference import FileReference
-    from betty.serde.dump import Dump
-    from betty.project import Project
-    from betty.ancestry.presence import Presence
-    from betty.ancestry.has_file_references import HasFileReferences
     from collections.abc import Iterable, Sequence
+
+    from betty.ancestry.file_reference import FileReference
+    from betty.ancestry.has_file_references import HasFileReferences
+    from betty.ancestry.presence import Presence
+    from betty.jinja2 import Filters
+    from betty.project import Project
+    from betty.serde.dump import Dump
 
 
 def _is_person_timeline_presence(presence: Presence) -> bool:

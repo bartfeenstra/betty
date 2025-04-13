@@ -7,7 +7,7 @@ from typing import Any
 from typing_extensions import override
 
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.serve import Server, ProjectServer
+from betty.serve import ProjectServer, Server
 
 
 class NoOpServer(Server):

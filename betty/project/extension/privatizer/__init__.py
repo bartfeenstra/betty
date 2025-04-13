@@ -9,15 +9,16 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.ancestry.person import Person
-from betty.privacy import HasPrivacy
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
+from betty.privacy import HasPrivacy
 from betty.privacy.privatizer import Privatizer as PrivatizerApi
 from betty.project.extension import Extension
 from betty.project.load import PostLoadAncestryEvent
 
 if TYPE_CHECKING:
-    from collections.abc import MutableSequence, MutableMapping
+    from collections.abc import MutableMapping, MutableSequence
+
     from betty.event_dispatcher import EventHandlerRegistry
     from betty.model import Entity
 

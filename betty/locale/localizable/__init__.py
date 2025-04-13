@@ -5,27 +5,25 @@ The localizable API allows objects to be localized at the point of use.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Callable, Mapping, Sequence, MutableMapping
-from typing import Any, cast, TypeAlias, Self, final, TYPE_CHECKING, overload, TypeVar
+from collections.abc import Callable, Mapping, MutableMapping, Sequence
+from typing import TYPE_CHECKING, Any, Self, TypeAlias, TypeVar, cast, final, overload
 from warnings import warn
 
 from typing_extensions import override
 
 from betty.json.linked_data import (
-    LinkedDataDumpableProvider,
     LinkedDataDumpable,
+    LinkedDataDumpableProvider,
 )
-from betty.json.schema import OneOf, Null, Schema, Object
-from betty.locale import UNDETERMINED_LOCALE
-from betty.locale import negotiate_locale, to_locale
+from betty.json.schema import Null, Object, OneOf, Schema
+from betty.locale import UNDETERMINED_LOCALE, negotiate_locale, to_locale
 from betty.locale.localized import LocalizedStr
-from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.locale.localizer import Localizer
+from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.mutability import Mutable
 from betty.privacy import is_private
 from betty.repr import repr_instance
+from betty.serde.dump import Dump, DumpMapping
 from betty.typing import internal
-from betty.serde.dump import DumpMapping, Dump
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -345,7 +343,6 @@ class StaticTranslationsLocalizable(
         Replace the translations.
         """
         from betty.assertion import assert_len
-
         from betty.locale.localizable.assertion import assert_static_translations
 
         self.assert_mutable()

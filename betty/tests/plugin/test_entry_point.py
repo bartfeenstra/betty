@@ -1,11 +1,11 @@
-from importlib.metadata import EntryPoints, EntryPoint
+from importlib.metadata import EntryPoint, EntryPoints
 
 import pytest
 from pytest_mock import MockerFixture
 
 from betty.locale.localizable import Localizable, static
-from betty.plugin import Plugin, PluginNotFound
 from betty.machine_name import MachineName
+from betty.plugin import Plugin, PluginNotFound
 from betty.plugin.entry_point import EntryPointPluginRepository
 
 

@@ -5,14 +5,15 @@ Tools to serve demonstration sites.
 from __future__ import annotations
 
 from contextlib import AsyncExitStack
-from typing import final, TYPE_CHECKING
+from typing import TYPE_CHECKING, final
+
+from typing_extensions import override
 
 from betty import serve
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project.extension.demo import generate_with_cleanup
 from betty.project.extension.demo.project import create_project
-from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
-from typing_extensions import override
+from betty.serve import NoPublicUrlBecauseServerNotStartedError, Server
 
 if TYPE_CHECKING:
     from betty.app import App

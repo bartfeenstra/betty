@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 
 from betty.job import Context
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from multiprocessing.managers import SyncManager

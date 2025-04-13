@@ -10,7 +10,7 @@ from betty.event_dispatcher import EventHandlerRegistry
 from betty.plugin import PluginIdentifier
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
-from betty.project.extension import sort_extension_type_graph, Extension
+from betty.project.extension import Extension, sort_extension_type_graph
 from betty.test_utils.project.extension import DummyExtension
 
 

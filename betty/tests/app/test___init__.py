@@ -1,15 +1,16 @@
 from __future__ import annotations
 
 import pickle
-from typing import Self, TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Self, cast
 
 import pytest
+from typing_extensions import override
+
 from betty.app import App
 from betty.app.factory import AppDependentFactory
 from betty.cache.memory import MemoryCache
 from betty.locale import DEFAULT_LOCALE
 from betty.service import StaticService
-from typing_extensions import override
 
 if TYPE_CHECKING:
     from multiprocessing.managers import SyncManager

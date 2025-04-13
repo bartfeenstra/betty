@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Iterable, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Iterable
 
 import aiofiles
 import pytest
@@ -14,10 +14,10 @@ from betty.date import Date, DateRange, Datey
 from betty.fs import ASSETS_DIRECTORY_PATH
 from betty.job import Context
 from betty.locale import (
-    NO_LINGUISTIC_CONTENT,
-    UNDETERMINED_LOCALE,
     MULTIPLE_LOCALES,
+    NO_LINGUISTIC_CONTENT,
     UNCODED_LOCALE,
+    UNDETERMINED_LOCALE,
 )
 from betty.locale.localizable import plain
 from betty.locale.localized import Localized, LocalizedStr
@@ -31,8 +31,8 @@ from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 from betty.warnings import BettyDeprecationWarning
 
 if TYPE_CHECKING:
+    from collections.abc import MutableMapping, Sequence
     from multiprocessing.managers import SyncManager
-    from collections.abc import Sequence, MutableMapping
 
 
 class _DummyHasDate(DummyHasDate):

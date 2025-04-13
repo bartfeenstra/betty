@@ -6,7 +6,8 @@ from __future__ import annotations
 
 from typing import Sequence, TypeAlias
 
-from babel import Locale, negotiate_locale as babel_negotiate_locale
+from babel import Locale
+from babel import negotiate_locale as babel_negotiate_locale
 from babel.core import UnknownLocaleError
 from langcodes import Language
 

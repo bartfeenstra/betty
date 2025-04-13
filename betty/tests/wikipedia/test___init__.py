@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from json import dumps
 from pathlib import Path
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from unittest.mock import AsyncMock, call
 
 import pytest
@@ -23,20 +23,22 @@ from betty.locale.localizer import DEFAULT_LOCALIZER, LocalizerRepository
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, PLAIN_TEXT, SVG
 from betty.wikipedia import (
-    Summary,
-    _Retriever,
+    Image,
     NotAPageError,
+    Summary,
     _parse_url,
     _Populator,
-    Image,
+    _Retriever,
 )
 from betty.wikipedia.copyright_notice import WikipediaContributors
 
 if TYPE_CHECKING:
-    from multiprocessing.managers import SyncManager
     from collections.abc import Mapping
-    from betty.cache.file import BinaryFileCache
+    from multiprocessing.managers import SyncManager
+
     from pytest_mock import MockerFixture
+
+    from betty.cache.file import BinaryFileCache
 
 
 def _new_json_fetch_response(json_data: Any) -> FetchResponse:

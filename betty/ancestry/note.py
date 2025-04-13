@@ -4,19 +4,19 @@ Provide the Note entity type and utilities.
 
 from __future__ import annotations
 
-from typing import final, TYPE_CHECKING
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
 from betty.ancestry.link import HasLinks
 from betty.locale.localizable import (
-    _,
+    Localizable,
     RequiredStaticTranslationsLocalizableAttr,
     ShorthandStaticTranslations,
-    Localizable,
+    _,
     ngettext,
 )
-from betty.model import UserFacingEntity, Entity
+from betty.model import Entity, UserFacingEntity
 from betty.model.association import (
     BidirectionalToZeroOrOne,
     ToZeroOrOneAssociate,
@@ -26,8 +26,8 @@ from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:
     from betty.ancestry.has_notes import HasNotes
-    from betty.serde.dump import DumpMapping, Dump
     from betty.project import Project
+    from betty.serde.dump import Dump, DumpMapping
 
 
 @final

@@ -7,17 +7,17 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
-from betty.html import NavigationLinkProvider, NavigationLink
+from betty.html import NavigationLink, NavigationLinkProvider
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
 
-
 if TYPE_CHECKING:
-    from betty.project.extension import Extension
-    from betty.plugin import PluginIdentifier
     from collections.abc import Sequence
+
+    from betty.plugin import PluginIdentifier
+    from betty.project.extension import Extension
 
 
 @final

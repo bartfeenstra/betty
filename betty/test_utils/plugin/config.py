@@ -3,7 +3,7 @@ Test utilities for :py:mod:`betty.plugin.config`.
 """
 
 from collections.abc import Iterable
-from typing import TypeVar, Generic
+from typing import Generic, TypeVar
 
 from typing_extensions import override
 

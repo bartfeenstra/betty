@@ -9,10 +9,10 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
 from betty.model import (
     Entity,
-    persistent_id,
-    ToOneSchema,
     ToManySchema,
+    ToOneSchema,
     ToZeroOrOneSchema,
+    persistent_id,
 )
 from betty.serde.dump import Dump
 from betty.test_utils.json.schema import SchemaTestBase

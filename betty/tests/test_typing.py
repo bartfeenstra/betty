@@ -3,14 +3,14 @@ import pickle
 import pytest
 
 from betty.typing import (
-    internal,
-    public,
-    private,
-    threadsafe,
-    not_void,
     Void,
+    internal,
+    not_void,
     pickleable,
+    private,
     processsafe,
+    public,
+    threadsafe,
     unpickleable,
 )
 

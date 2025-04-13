@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
 from betty.locale import DEFAULT_LOCALE, Localey
 from betty.media_type.media_types import HTML
-from betty.url import generate_from_path, PassthroughUrlGenerator
-from typing import TYPE_CHECKING, Any
+from betty.url import PassthroughUrlGenerator, generate_from_path
 
 if TYPE_CHECKING:
     from collections.abc import Mapping

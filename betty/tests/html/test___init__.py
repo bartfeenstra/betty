@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.source import Source
-from betty.html import Citer, Breadcrumbs, NavigationLink, NavigationLinkProvider
+from betty.html import Breadcrumbs, Citer, NavigationLink, NavigationLinkProvider
 from betty.locale.localizable import plain
 
 

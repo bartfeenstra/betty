@@ -7,16 +7,15 @@ from __future__ import annotations
 import enum
 from json import loads
 from pathlib import Path
-from typing import Any, Self, cast, final, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Self, cast, final
 
 import aiofiles
 from jsonschema.validators import Draft202012Validator
-from referencing import Resource, Registry
-from typing_extensions import override, deprecated
-
+from referencing import Registry, Resource
+from typing_extensions import deprecated, override
 
 if TYPE_CHECKING:
-    from betty.serde.dump import DumpMapping, Dump
+    from betty.serde.dump import Dump, DumpMapping
 
 
 class Schema:

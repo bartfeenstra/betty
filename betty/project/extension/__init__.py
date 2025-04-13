@@ -2,34 +2,35 @@
 
 from __future__ import annotations
 
-from typing import TypeVar, TYPE_CHECKING, Generic, Self, Sequence
+from typing import TYPE_CHECKING, Generic, Self, Sequence, TypeVar
 
 from typing_extensions import override
 
 from betty.config import Configuration, DefaultConfigurable
-from betty.service import ServiceProvider
 from betty.locale.localizable import Localizable, _, call
 from betty.plugin import (
-    PluginRepository,
-    PluginIdToTypeMapping,
-    OrderedPlugin,
     CyclicDependencyError,
     DependentPlugin,
+    OrderedPlugin,
+    PluginIdToTypeMapping,
+    PluginRepository,
     sort_dependent_plugin_graph,
     sort_ordered_plugin_graph,
 )
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.project.factory import ProjectDependentFactory
 from betty.requirement import AllRequirements
+from betty.service import ServiceProvider
 from betty.typing import private
 
 if TYPE_CHECKING:
-    from graphlib import TopologicalSorter
     from collections.abc import Iterable
-    from betty.event_dispatcher import EventHandlerRegistry
-    from betty.requirement import Requirement
-    from betty.project import Project
+    from graphlib import TopologicalSorter
     from pathlib import Path
+
+    from betty.event_dispatcher import EventHandlerRegistry
+    from betty.project import Project
+    from betty.requirement import Requirement
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 

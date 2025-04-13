@@ -6,12 +6,12 @@ from betty.assertion.error import (
     AssertionFailed,
     AssertionFailedGroup,
     Attr,
-    Key,
-    Index,
     Contextey,
+    Index,
+    Key,
     localizable_contexts,
 )
-from betty.locale.localizable import static, plain
+from betty.locale.localizable import plain, static
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.test_utils.assertion.error import assert_error
 

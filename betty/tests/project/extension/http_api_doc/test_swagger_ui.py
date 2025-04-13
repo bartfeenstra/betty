@@ -1,7 +1,6 @@
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator  # noqa I001
 
 import pytest
-from playwright.async_api import expect, Page
 
 from betty import serve
 from betty.app import App
@@ -10,6 +9,7 @@ from betty.project.extension.http_api_doc import HttpApiDoc
 from betty.project.generate import generate
 from betty.serve import Server
 from betty.tests.conftest import check_skip_playwright
+from playwright.async_api import Page, expect
 
 
 class TestSwaggerUi:

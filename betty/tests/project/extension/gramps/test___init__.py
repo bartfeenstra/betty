@@ -2,6 +2,8 @@ from pathlib import Path
 
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
+from typing_extensions import override
+
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth
@@ -21,7 +23,6 @@ from betty.project.extension.gramps.config import (
 )
 from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase
-from typing_extensions import override
 
 
 class TestGramps(ExtensionTestBase[Gramps]):

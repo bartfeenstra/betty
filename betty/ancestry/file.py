@@ -4,7 +4,7 @@ Data types representing files on disk.
 
 from __future__ import annotations
 
-from typing import final, Iterable, MutableSequence, TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable, MutableSequence, final
 
 from typing_extensions import override
 
@@ -14,12 +14,12 @@ from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.media_type import HasMediaType
 from betty.locale.localizable import (
-    _,
-    ShorthandStaticTranslations,
     Localizable,
+    ShorthandStaticTranslations,
+    _,
     ngettext,
 )
-from betty.model import UserFacingEntity, Entity
+from betty.model import Entity, UserFacingEntity
 from betty.model.association import (
     BidirectionalToMany,
     ToManyAssociates,
@@ -28,17 +28,18 @@ from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:
-    from betty.mutability import Mutable
-    from betty.json.linked_data import JsonLdObject
-    from betty.project import Project
-    from betty.serde.dump import DumpMapping, Dump
-    from betty.copyright_notice import CopyrightNotice
-    from betty.license import License
-    from betty.ancestry.citation import Citation
-    from betty.ancestry.note import Note
-    from betty.ancestry.file_reference import FileReference  # noqa F401
-    from betty.media_type import MediaType
     from pathlib import Path
+
+    from betty.ancestry.citation import Citation
+    from betty.ancestry.file_reference import FileReference  # noqa F401
+    from betty.ancestry.note import Note
+    from betty.copyright_notice import CopyrightNotice
+    from betty.json.linked_data import JsonLdObject
+    from betty.license import License
+    from betty.media_type import MediaType
+    from betty.mutability import Mutable
+    from betty.project import Project
+    from betty.serde.dump import Dump, DumpMapping
 
 
 @final

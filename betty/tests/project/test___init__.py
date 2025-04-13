@@ -14,38 +14,40 @@ from betty.app import App
 from betty.app.factory import AppDependentFactory
 from betty.assertion.error import AssertionFailed
 from betty.json.schema import JsonSchemaSchema
-from betty.locale.localizable import plain, Localizable
+from betty.locale.localizable import Localizable, plain
 from betty.plugin.config import PluginConfiguration
 from betty.plugin.static import StaticPluginRepository
 from betty.project import (
     Project,
-    ProjectEvent,
-    ProjectSchema,
-    ProjectExtensions,
     ProjectContext,
+    ProjectEvent,
+    ProjectExtensions,
+    ProjectSchema,
 )
 from betty.project.config import (
     CopyrightNoticeConfiguration,
+    EntityTypeConfiguration,
     LicenseConfiguration,
     ProjectConfiguration,
-    EntityTypeConfiguration,
 )
 from betty.project.extension import EXTENSION_REPOSITORY
 from betty.project.factory import ProjectDependentFactory
-from betty.requirement import RequirementError, Requirement
+from betty.requirement import Requirement, RequirementError
 from betty.test_utils.json.schema import SchemaTestBase
 from betty.test_utils.model import DummyEntity
 from betty.test_utils.project.extension import (
-    DummyExtension,
     DummyConfigurableExtension,
+    DummyExtension,
 )
 from betty.warnings import BettyDeprecationWarning
 
 if TYPE_CHECKING:
-    from betty.project.extension import Extension
-    from betty.json.schema import Schema
     from collections.abc import MutableSequence
+
     from pytest_mock import MockerFixture
+
+    from betty.json.schema import Schema
+    from betty.project.extension import Extension
     from betty.serde.dump import Dump
 
 

@@ -7,12 +7,15 @@ from requests import Response
 
 from betty.functools import Do
 from betty.project.extension.demo.serve import DemoServer
-from betty.test_utils.project.extension.demo.project import demo_project_fetcher  # noqa F401
+from betty.test_utils.project.extension.demo.project import (
+    demo_project_fetcher,  # noqa F401
+)
 
 if TYPE_CHECKING:
-    from betty.test_utils.conftest import NewTemporaryAppFactory
-    from betty.fetch import Fetcher
     from pytest_mock import MockerFixture
+
+    from betty.fetch import Fetcher
+    from betty.test_utils.conftest import NewTemporaryAppFactory
 
 
 class TestDemoServer:

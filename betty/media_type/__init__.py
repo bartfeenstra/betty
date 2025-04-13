@@ -5,14 +5,14 @@ Provide `media type <https://en.wikipedia.org/wiki/Media_type>`_ handling utilit
 from __future__ import annotations
 
 from email.message import EmailMessage
-from typing import Any, final, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, final
 
 from typing_extensions import override
 
 from betty.json.schema import String
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence, Mapping
+    from collections.abc import Mapping, Sequence
 
 
 class InvalidMediaType(ValueError):

@@ -9,28 +9,29 @@ import sys
 from asyncio import run
 from dataclasses import dataclass
 from logging import (
-    Handler,
     CRITICAL,
-    ERROR,
-    WARNING,
-    INFO,
     DEBUG,
+    ERROR,
+    INFO,
     NOTSET,
+    WARNING,
+    Handler,
     LogRecord,
 )
 from sys import stderr
-from typing import final, IO, Any, TYPE_CHECKING
+from typing import IO, TYPE_CHECKING, Any, final
 
 import asyncclick as click
-from typing_extensions import override, ClassVar
+from typing_extensions import ClassVar, override
 
 from betty import about
 from betty.app import App
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from betty.locale.localizer import Localizer
     from betty.machine_name import MachineName
-    from collections.abc import Mapping
 
 
 @final

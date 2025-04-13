@@ -14,7 +14,7 @@ from betty import serve
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.locale.localizer import Localizer
 from betty.os import copy_tree
-from betty.serve import Server, NoPublicUrlBecauseServerNotStartedError
+from betty.serve import NoPublicUrlBecauseServerNotStartedError, Server
 from betty.subprocess import run_process
 
 

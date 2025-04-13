@@ -2,15 +2,15 @@ from typing_extensions import override
 
 from betty.ancestry.presence_role import PresenceRole
 from betty.ancestry.presence_role.presence_roles import (
-    Subject,
     Attendee,
-    Witness,
-    Speaker,
-    Celebrant,
-    Organizer,
     Beneficiary,
-    Unknown,
+    Celebrant,
     Informant,
+    Organizer,
+    Speaker,
+    Subject,
+    Unknown,
+    Witness,
 )
 from betty.test_utils.plugin import PluginTestBase
 

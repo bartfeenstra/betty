@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from graphlib import TopologicalSorter
-from typing import Self, Literal, TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING, Literal, Self, TypeVar
 
 import pytest
 from typing_extensions import override
@@ -9,24 +9,25 @@ from typing_extensions import override
 from betty.factory import Factory, new
 from betty.json.schema import Schema
 from betty.plugin import (
-    PluginNotFound,
-    Plugin,
-    PluginRepository,
-    PluginIdToTypeMapping,
-    sort_ordered_plugin_graph,
-    PluginIdentifier,
-    OrderedPlugin,
-    DependentPlugin,
-    sort_dependent_plugin_graph,
     CyclicDependencyError,
+    DependentPlugin,
+    OrderedPlugin,
+    Plugin,
+    PluginIdentifier,
+    PluginIdToTypeMapping,
+    PluginNotFound,
+    PluginRepository,
     resolve_identifier,
+    sort_dependent_plugin_graph,
+    sort_ordered_plugin_graph,
 )
 from betty.plugin.static import StaticPluginRepository
 from betty.test_utils.plugin import DummyPlugin
 
 if TYPE_CHECKING:
-    from betty.machine_name import MachineName
     from collections.abc import AsyncIterator, Sequence
+
+    from betty.machine_name import MachineName
 
 _T = TypeVar("_T")
 

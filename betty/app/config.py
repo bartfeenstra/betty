@@ -4,17 +4,17 @@ Provide application configuration.
 
 from __future__ import annotations
 
-from typing import final, TYPE_CHECKING
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
 from betty import fs
 from betty.assertion import (
-    assert_record,
     OptionalField,
-    assert_str,
-    assert_setattr,
     assert_locale,
+    assert_record,
+    assert_setattr,
+    assert_str,
 )
 from betty.config import Configuration
 from betty.typing import pickleable

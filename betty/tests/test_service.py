@@ -2,24 +2,23 @@ import pickle
 from typing import Awaitable, cast
 
 import pytest
+from typing_extensions import override
 
 from betty.config import Configurable
 from betty.service import (
-    ServiceProvider,
     Bootstrapped,
-    ShutdownStack,
-    Shutdownable,
-    service,
-    StaticService,
-    ServiceFactory,
-    NotBootstrappedError,
     BootstrappedError,
+    NotBootstrappedError,
+    ServiceFactory,
+    ServiceInitializedError,
+    ServiceProvider,
+    Shutdownable,
+    ShutdownStack,
+    StaticService,
     _AsynchronousServiceManager,
     _SynchronousServiceManager,
-    ServiceInitializedError,
+    service,
 )
-from typing_extensions import override
-
 from betty.test_utils.config import DummyConfiguration
 
 

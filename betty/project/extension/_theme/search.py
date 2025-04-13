@@ -9,7 +9,7 @@ from abc import ABC
 from asyncio import gather
 from dataclasses import dataclass
 from inspect import getmembers
-from typing import TYPE_CHECKING, TypeVar, Generic, final, cast
+from typing import TYPE_CHECKING, Generic, TypeVar, cast, final
 
 import aiofiles
 from typing_extensions import override
@@ -19,20 +19,24 @@ from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
-from betty.locale.localizable import StaticTranslationsLocalizable, Localizable
-from betty.locale.localizable import StaticTranslationsLocalizableAttr
+from betty.locale.localizable import (
+    Localizable,
+    StaticTranslationsLocalizable,
+    StaticTranslationsLocalizableAttr,
+)
 from betty.model import Entity
 from betty.privacy import is_private
 from betty.typing import internal
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+
+    from betty.ancestry import Ancestry
+    from betty.jinja2 import Environment
+    from betty.job import Context
+    from betty.locale.localizer import Localizer
     from betty.machine_name import MachineName
     from betty.project import Project
-    from betty.jinja2 import Environment
-    from betty.ancestry import Ancestry
-    from betty.locale.localizer import Localizer
-    from betty.job import Context
-    from collections.abc import Iterable, Sequence
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
 
