@@ -19,6 +19,7 @@ from asyncio import (
     sleep,
     to_thread,
 )
+from collections.abc import MutableSequence
 from contextlib import suppress
 from math import floor
 from pathlib import Path
@@ -54,7 +55,7 @@ from betty.string import kebab_case_to_lower_camel_case
 from betty.user import UserFacing
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Coroutine, MutableSequence
+    from collections.abc import AsyncIterator, Coroutine
 
     from betty.app import App
     from betty.project import Project
@@ -384,7 +385,7 @@ async def _generate_entity_type_list_json(
         "collection": [],
     }
     for entity in project.ancestry[entity_type]:
-        cast("MutableSequence[str]", data["collection"]).append(
+        cast(MutableSequence[str], data["collection"]).append(
             url_generator.generate(
                 entity,
                 media_type=JSON,

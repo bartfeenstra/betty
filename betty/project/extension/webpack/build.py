@@ -22,6 +22,7 @@ from betty.fs import ROOT_DIRECTORY_PATH
 from betty.hashid import hashid, hashid_file_content, hashid_sequence
 from betty.os import copy_tree
 from betty.project.extension import Extension
+from betty.serde.dump import Dump, DumpMapping
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping, Sequence
@@ -29,7 +30,6 @@ if TYPE_CHECKING:
     from betty.job import Context
     from betty.locale.localizer import Localizer
     from betty.render import Renderer
-    from betty.serde.dump import Dump, DumpMapping
 
 _NPM_PROJECT_DIRECTORIES_PATH = Path(__file__).parent / "webpack"
 
@@ -179,7 +179,7 @@ class Builder:
         entry_point_provider_working_directory_path = (
             npm_project_directory_path
             / "packages"
-            / _package_name_to_path(cast("str", package_json["name"]))
+            / _package_name_to_path(cast(str, package_json["name"]))
         )
         await copy_tree(
             entry_point_provider.webpack_entry_point_directory_path(),
@@ -208,7 +208,7 @@ class Builder:
     async def _extract_package_json(self, package_path: Path) -> DumpMapping[Dump]:
         async with aiofiles.open(package_path / "package.json") as f:
             package_json_data = await f.read()
-        return cast("DumpMapping[Dump]", json.loads(package_json_data))
+        return cast(DumpMapping[Dump], json.loads(package_json_data))
 
     async def _update_package_json(
         self,
@@ -294,7 +294,7 @@ class Builder:
             )
         )
         package_jsons_by_package_name: MutableMapping[str, DumpMapping[Dump]] = {
-            cast("str", package_json["name"]): package_json
+            cast(str, package_json["name"]): package_json
             for package_json in package_jsons_by_package_path.values()
         }
 

@@ -27,6 +27,7 @@ ignore = [
     'F501',
     'PTH123',
     'SIM103',
+    'TC006',
 ]
 
 [lint.per-file-ignores]

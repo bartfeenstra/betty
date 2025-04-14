@@ -137,7 +137,7 @@ def command(
     """
 
     def decorator(f: Callable[_P, Coroutine[Any, Any, Any]]) -> click.Command:
-        @click.command(cast("str | None", name), **attrs)
+        @click.command(cast(str | None, name), **attrs)
         @click.option(
             "-v",
             "--verbose",
@@ -180,7 +180,7 @@ def command(
             except UserFacingError as error:
                 raise click.ClickException(error.localize(obj.localizer)) from error
 
-        return cast("click.Command", _command)
+        return cast(click.Command, _command)
 
     if callable(name):
         return decorator(name)

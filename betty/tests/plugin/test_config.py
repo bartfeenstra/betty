@@ -407,7 +407,7 @@ class _DummyPluginIdentifierKeyConfigurationMapping(
         if isinstance(item_dump, str):
             return None, item_dump
         assert isinstance(item_dump, Mapping)
-        return None, cast("str", item_dump["value"])
+        return None, cast(str, item_dump["value"])
 
     @override
     def _get_key(self, configuration: DummyConfiguration) -> MachineName:

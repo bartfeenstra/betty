@@ -71,7 +71,7 @@ def _parse_url(url: str) -> tuple[str, str]:
     match = _URL_PATTERN.fullmatch(url)
     if match is None:
         raise NotAPageError
-    return cast("tuple[str, str]", match.groups())
+    return cast(tuple[str, str], match.groups())
 
 
 @final

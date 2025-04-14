@@ -96,7 +96,7 @@ def acquirable(
     """
     Produce :py:class:`betty.concurrent.Acquirable` instances.
     """
-    return cast("Acquirable", request.param(multiprocessing_manager))
+    return cast(Acquirable, request.param(multiprocessing_manager))
 
 
 async def test_asynchronize_acquire__should_acquire_immediately(

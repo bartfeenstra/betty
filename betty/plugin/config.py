@@ -152,7 +152,7 @@ class PluginConfigurationMapping(
     @override
     def _dump_key(self, item_dump: Dump) -> tuple[Dump, str]:
         assert isinstance(item_dump, Mapping)
-        return item_dump, cast("str", item_dump.pop("id"))
+        return item_dump, cast(str, item_dump.pop("id"))
 
 
 class PluginConfigurationPluginConfigurationMapping(
@@ -295,4 +295,4 @@ class PluginInstanceConfigurationMapping(
         if isinstance(item_dump, str):
             return {}, item_dump
         assert isinstance(item_dump, Mapping)
-        return item_dump, cast("str", item_dump.pop("id"))
+        return item_dump, cast(str, item_dump.pop("id"))

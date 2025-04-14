@@ -429,7 +429,7 @@ def assert_field(
         fields: MutableMapping[str, Any],
     ) -> Voidable[_AssertionReturnT]:
         try:
-            return cast("Voidable[_AssertionReturnT]", fields[field.name])
+            return cast(Voidable[_AssertionReturnT], fields[field.name])
         except KeyError:
             return Void
 

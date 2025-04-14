@@ -165,7 +165,7 @@ class TestServiceProvider:
 
     async def test___getstate____and___setstate__(self) -> None:
         async with ServiceProvider() as sut:
-            unpickled_sut = cast("ServiceProvider", pickle.loads(pickle.dumps(sut)))
+            unpickled_sut = cast(ServiceProvider, pickle.loads(pickle.dumps(sut)))
         await unpickled_sut.shutdown()
 
     async def test___getstate____not_bootstrapped_should_error(self) -> None:

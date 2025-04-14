@@ -19,6 +19,7 @@ dependencies = [
     'aiohttp ~= 3.10, != 3.11.0',
     'asyncclick ~= 8.1',
     'babel ~= 2.16',
+    'basedtyping ~= 0.1.10',
     'furo == 2024.8.6',
     'geopy ~= 2.4',
     'html5lib ~= 1.1',

@@ -715,7 +715,7 @@ class _ModuleCoverageTester:
                 continue
 
             # Ignore members that are not defined by the module under test (they may have been from other modules).
-            imported_member = cast("_Importable", getattr(module, member_name))
+            imported_member = cast(_Importable, getattr(module, member_name))
             if getattr(imported_member, "__module__", None) != module_name:
                 continue
 
@@ -961,7 +961,7 @@ class Test_ModuleClassCoverageTester:
     async def test(
         self, errors_expected: bool, module: _Importable, ignore: _ModuleClassIgnore
     ) -> None:
-        test_class = cast("type | None", getattr(module, "TestSrc", None))
+        test_class = cast(type | None, getattr(module, "TestSrc", None))
         sut = _ModuleClassCoverageTester(
             module.Src,  # type: ignore[attr-defined]
             () if test_class is None else (test_class,),

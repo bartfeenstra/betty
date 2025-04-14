@@ -125,7 +125,7 @@ class ConfigurationMappingTestConfigurationMapping(
 
     def _dump_key(self, item_dump: Dump) -> tuple[Dump, str]:
         assert isinstance(item_dump, Mapping)
-        return item_dump, cast("str", item_dump.pop("key"))
+        return item_dump, cast(str, item_dump.pop("key"))
 
 
 class TestOrderedConfigurationMapping(

@@ -5,6 +5,7 @@ Provide `JSON-LD <https://json-ld.org/>`_ utilities.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import MutableSequence
 from inspect import getmembers
 from pathlib import Path
 from typing import TYPE_CHECKING, Generic, Self, cast, final
@@ -16,8 +17,6 @@ from betty.serde.dump import Dump, DumpMapping
 from betty.string import snake_case_to_lower_camel_case
 
 if TYPE_CHECKING:
-    from collections.abc import MutableSequence
-
     from betty.ancestry.link import Link
     from betty.project import Project
 
@@ -148,7 +147,7 @@ def dump_context(dump: DumpMapping[Dump], **context_definitions: str) -> None:
     """
     Add one or more contexts to a dump.
     """
-    context_dump = cast("DumpMapping[Dump]", dump.setdefault("@context", {}))
+    context_dump = cast(DumpMapping[Dump], dump.setdefault("@context", {}))
     for key, context_definition in context_definitions.items():
         context_dump[key] = context_definition
 
@@ -157,7 +156,7 @@ async def dump_link(dump: DumpMapping[Dump], project: Project, *links: Link) -> 
     """
     Add one or more links to a dump.
     """
-    link_dump = cast("MutableSequence[DumpMapping[Dump]]", dump.setdefault("links", []))
+    link_dump = cast(MutableSequence[DumpMapping[Dump]], dump.setdefault("links", []))
     for link in links:
         link_dump.append(await link.dump_linked_data(project))
 

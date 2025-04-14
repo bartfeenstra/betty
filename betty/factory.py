@@ -63,7 +63,7 @@ async def new(cls: type[_T]) -> _T:
     :raises FactoryError: raised when ``cls`` could not be instantiated.
     """
     if issubclass(cls, IndependentFactory):
-        return cast("_T", await cls.new())
+        return cast(_T, await cls.new())
     try:
         return cls()
     except Exception as error:

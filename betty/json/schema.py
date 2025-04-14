@@ -7,15 +7,14 @@ from __future__ import annotations
 import enum
 from json import loads
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Self, cast, final
+from typing import Any, Self, cast, final
 
 import aiofiles
 from jsonschema.validators import Draft202012Validator
 from referencing import Registry, Resource
 from typing_extensions import deprecated, override
 
-if TYPE_CHECKING:
-    from betty.serde.dump import Dump, DumpMapping
+from betty.serde.dump import Dump, DumpMapping
 
 
 class Schema:
@@ -64,7 +63,7 @@ class Schema:
         The schema's human-readable US English (short) title.
         """
         try:
-            return cast("str", self._schema["title"])
+            return cast(str, self._schema["title"])
         except KeyError:
             return None
 
@@ -78,7 +77,7 @@ class Schema:
         The schema's human-readable US English (long) description.
         """
         try:
-            return cast("str", self._schema["description"])
+            return cast(str, self._schema["description"])
         except KeyError:
             return None
 
@@ -94,7 +93,7 @@ class Schema:
         Only top-level definitions are supported. You **MUST NOT** nest definitions. Instead, prefix or suffix
         their names.
         """
-        return cast("DumpMapping[Dump]", self._schema.setdefault("$defs", {}))
+        return cast(DumpMapping[Dump], self._schema.setdefault("$defs", {}))
 
     def embed(self, into: Schema) -> DumpMapping[Dump]:
         """
