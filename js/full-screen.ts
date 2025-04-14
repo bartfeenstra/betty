@@ -1,6 +1,6 @@
-'use strict'
+"use strict"
 
-const attributeName = 'data-betty-full-screen-target'
+const attributeName = "data-betty-full-screen-target"
 
 async function toggleFullScreen(element: Element): Promise<void> {
     const document = element.ownerDocument
@@ -18,7 +18,7 @@ function initializeFullScreenControl(control: HTMLElement): void {
     if (target === undefined) {
         throw new Error(`Element does not have the expected "${attributeName}" attribute.`)
     }
-    control.addEventListener('click', () => {
+    control.addEventListener("click", () => {
         void (async (): Promise<void> => {
             await toggleFullScreen(document.getElementById(target))
         })()

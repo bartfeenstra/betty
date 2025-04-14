@@ -39,20 +39,6 @@ export default [
     },
 
     // Generic EcmaScript.
-  {
-    plugins: {
-      '@stylistic': stylistic,
-    },
-    rules: {
-      '@stylistic/function-call-spacing': ['error', 'never'],
-      '@stylistic/object-curly-newline': 'error',
-      '@stylistic/object-property-newline': ['error', {
-          'allowAllPropertiesOnSameLine': true,
-      }],
-      '@stylistic/one-var-declaration-per-line': ['error', 'always'],
-      '@stylistic/semi': ['error', 'never'],
-    }
-  },
     eslint.configs.recommended,
     {
         languageOptions: {
@@ -61,11 +47,14 @@ export default [
             },
         },
     },
+    stylistic.configs.customize({
+        indent: 4,
+        quotes: 'double',
+    }),
 
     // Generic TypeScript.
     ...[
         ...tseslint.configs.strictTypeChecked,
-        ...tseslint.configs.stylisticTypeChecked,
         {
             languageOptions: {
                 parserOptions: {

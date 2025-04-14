@@ -1,5 +1,5 @@
-import {Betty} from "./index.ts"
+import { Betty } from "./index.ts"
 
 const BETTY = new Betty()
 
-export {BETTY}
+export { BETTY }

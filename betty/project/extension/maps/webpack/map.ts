@@ -1,43 +1,41 @@
-'use strict'
+"use strict"
 
-import Point from 'ol/geom/Point'
-import Feature from 'ol/Feature'
-import OpenLayersMap from 'ol/Map'
-import OSM from 'ol/source/OSM'
-import TileLayer from 'ol/layer/Tile'
-import View, {AnimationOptions} from 'ol/View'
-import VectorSource from 'ol/source/Vector'
-import VectorLayer from 'ol/layer/Vector'
-import Style from 'ol/style/Style'
-import {boundingExtent, getCenter} from 'ol/extent'
-import {mouseOnly, platformModifierKeyOnly} from 'ol/events/condition'
-import Kinetic from 'ol/Kinetic'
-import DoubleClickZoom from 'ol/interaction/DoubleClickZoom'
-import DragPan from 'ol/interaction/DragPan'
-import DragZoom from 'ol/interaction/DragZoom'
-import KeyboardPan from 'ol/interaction/KeyboardPan'
-import KeyboardZoom from 'ol/interaction/KeyboardZoom'
-import MouseWheelZoom from 'ol/interaction/MouseWheelZoom'
-import PinchZoom from 'ol/interaction/PinchZoom'
-import {FullScreen, SelectedPlace, ZoomIn, ZoomOut} from "./control.ts"
-import {useGeographic} from 'ol/proj'
-import Icon from 'ol/style/Icon.js'
-import Cluster from 'ol/source/Cluster'
-import {BETTY} from "@betty.py/betty/main.ts"
-import {easeOut} from "ol/easing"
-import {IconAnchorUnits} from "ol/style/Icon"
+import Point from "ol/geom/Point"
+import Feature from "ol/Feature"
+import OpenLayersMap from "ol/Map"
+import OSM from "ol/source/OSM"
+import TileLayer from "ol/layer/Tile"
+import View, { AnimationOptions } from "ol/View"
+import VectorSource from "ol/source/Vector"
+import VectorLayer from "ol/layer/Vector"
+import Style from "ol/style/Style"
+import { boundingExtent, getCenter } from "ol/extent"
+import { mouseOnly, platformModifierKeyOnly } from "ol/events/condition"
+import Kinetic from "ol/Kinetic"
+import DoubleClickZoom from "ol/interaction/DoubleClickZoom"
+import DragPan from "ol/interaction/DragPan"
+import DragZoom from "ol/interaction/DragZoom"
+import KeyboardPan from "ol/interaction/KeyboardPan"
+import KeyboardZoom from "ol/interaction/KeyboardZoom"
+import MouseWheelZoom from "ol/interaction/MouseWheelZoom"
+import PinchZoom from "ol/interaction/PinchZoom"
+import { FullScreen, SelectedPlace, ZoomIn, ZoomOut } from "./control.ts"
+import { useGeographic } from "ol/proj"
+import Icon from "ol/style/Icon.js"
+import Cluster from "ol/source/Cluster"
+import { BETTY } from "@betty.py/betty/main.ts"
+import { easeOut } from "ol/easing"
+import { IconAnchorUnits } from "ol/style/Icon"
 
 const kinetic = new Kinetic(-0.005, 0.05, 100)
-
 
 async function initializeMap(element: HTMLElement, options: MapOptions): Promise<void> {
     const map = new Map(element, options)
     await map.initialize()
 }
 
-
 async function initializeMaps(element: HTMLElement, options: MapOptions): Promise<void> {
-    await Promise.allSettled(Array.from(element.getElementsByClassName('map')).map(mapElement => {
+    await Promise.allSettled(Array.from(element.getElementsByClassName("map")).map((mapElement) => {
         void (async (): Promise<void> => {
             await initializeMap(mapElement, options)
         })()
@@ -76,7 +74,7 @@ function newIconStyle(svg: string, anchor: [number, number], anchorUnits: IconAn
             anchorYUnits: anchorUnits,
             anchor,
             zIndex,
-        })
+        }),
     })
 }
 
@@ -159,7 +157,7 @@ class Map {
                 new TileLayer({
                     source: new OSM({
                         // These are shown using templating instead.
-                        attributions: '',
+                        attributions: "",
                     }),
                 }),
                 placeLayer,
@@ -185,31 +183,33 @@ class Map {
             }))
             this.map.addInteraction(new PinchZoom())
 
-            this.map.on('pointermove', event => {
-                document.body.style.cursor = 'auto'
+            this.map.on("pointermove", (event) => {
+                document.body.style.cursor = "auto"
                 for (const feature of this.map.getFeaturesAtPixel(event.pixel)) {
-                    if (feature.get('features')?.length > 1) { // eslint-disable-line @typescript-eslint/no-unsafe-member-access
-                        document.body.style.cursor = 'zoom-in'
-                    } else {
-                        document.body.style.cursor = 'pointer'
+                    if (feature.get("features")?.length > 1) { // eslint-disable-line @typescript-eslint/no-unsafe-member-access
+                        document.body.style.cursor = "zoom-in"
+                    }
+                    else {
+                        document.body.style.cursor = "pointer"
                     }
                 }
             })
-            this.map.on('click', event => {
+            this.map.on("click", (event) => {
                 void (async (): Promise<void> => {
-                    document.body.style.cursor = 'auto'
+                    document.body.style.cursor = "auto"
                     for (const feature of this.map.getFeaturesAtPixel(event.pixel)) {
-                        const containedFeatures = feature.get('features') as Feature[]
+                        const containedFeatures = feature.get("features") as Feature[]
                         if (containedFeatures.length > 1) {
                             this.selectedPlace.unselect()
-                            const clusteredPlaces = feature.get('features') as Feature[]
+                            const clusteredPlaces = feature.get("features") as Feature[]
                             const clusteredPlacesCoordinates = clusteredPlaces
                                 .map(place => place.getGeometry())
                                 .filter(geometry => geometry instanceof Point)
                                 .map(point => point.getCoordinates())
                             this.fitView(clusteredPlacesCoordinates)
-                        } else {
-                            await this.selectedPlace.select(containedFeatures[0].get('placeId') as string)
+                        }
+                        else {
+                            await this.selectedPlace.select(containedFeatures[0].get("placeId") as string)
                         }
                     }
                 })()
@@ -221,7 +221,7 @@ class Map {
             const placeCoordinates = [placeData.longitude, placeData.latitude]
             placesCoordinates.push(placeCoordinates)
             this.placeFeatures[placeData.id] = new Feature({
-                type: 'place',
+                type: "place",
                 placeId: placeData.id,
                 geometry: new Point(placeCoordinates),
             })
@@ -249,18 +249,18 @@ class Map {
         this.view.animate({
             ...this.viewAnimationOptions,
             resolution: resolution,
-            center: getCenter(extent)
+            center: getCenter(extent),
         })
     }
 
     public async initialize(): Promise<void> {
         await BETTY.initialize(this.map.getTargetElement())
-        this.map.getTargetElement().classList.add('map-initialized')
+        this.map.getTargetElement().classList.add("map-initialized")
     }
 
     private placeLayerStyle(feature: Feature): Style {
-        if (feature.get('features').length > 1) { // eslint-disable-line @typescript-eslint/no-unsafe-member-access
-            const places = feature.get('features') as Feature[]
+        if (feature.get("features").length > 1) { // eslint-disable-line @typescript-eslint/no-unsafe-member-access
+            const places = feature.get("features") as Feature[]
             let scale = 1
             while (scale <= 1000) {
                 if (scale * 10 > places.length) {

@@ -1,23 +1,22 @@
-'use strict'
+"use strict"
 
-import OpenLayersControl from 'ol/control/Control'
-import OpenLayersMap from 'ol/Map'
-import {htmlToElement} from "./html.ts"
-import {zoomByDelta} from "./view.ts"
-import {Map} from './map.ts'
+import OpenLayersControl from "ol/control/Control"
+import OpenLayersMap from "ol/Map"
+import { htmlToElement } from "./html.ts"
+import { zoomByDelta } from "./view.ts"
+import { Map } from "./map.ts"
 import Point from "ol/geom/Point"
 import VectorSource from "ol/source/Vector"
 import Feature from "ol/Feature"
-
 
 /**
  * @internal
  */
 class Control extends OpenLayersControl {
     public constructor(element: HTMLElement, classSuffix: string) {
-        element.classList.add('map-control')
+        element.classList.add("map-control")
         element.classList.add(`map-control-${classSuffix}`)
-        super({element})
+        super({ element })
     }
 }
 
@@ -26,21 +25,21 @@ class Control extends OpenLayersControl {
  */
 class FullScreen extends Control {
     public constructor(buttonHtml: string, map: OpenLayersMap) {
-        super(document.createElement('div'), 'full-screen')
+        super(document.createElement("div"), "full-screen")
 
-        const button = htmlToElement(buttonHtml.replace('{{{ betty-maps-control-full-screen-target }}}', map.getTargetElement().id))
+        const button = htmlToElement(buttonHtml.replace("{{{ betty-maps-control-full-screen-target }}}", map.getTargetElement().id))
         this.element.appendChild(button)
     }
 }
 
 class _Zoom extends Control {
     public constructor(buttonHtml: string, delta: number, classSuffix: string) {
-        super(document.createElement('div'), classSuffix)
+        super(document.createElement("div"), classSuffix)
 
         const button = htmlToElement(buttonHtml)
         button.addEventListener(
-            'click',
-            event => {
+            "click",
+            (event) => {
                 event.preventDefault()
                 zoomByDelta(this.getMap(), delta)
             },
@@ -55,7 +54,7 @@ class _Zoom extends Control {
  */
 class ZoomIn extends _Zoom {
     public constructor(buttonHtml: string) {
-        super(buttonHtml, 1, 'zoom-in')
+        super(buttonHtml, 1, "zoom-in")
     }
 }
 
@@ -64,18 +63,18 @@ class ZoomIn extends _Zoom {
  */
 class ZoomOut extends _Zoom {
     public constructor(buttonHtml: string) {
-        super(buttonHtml, -1, 'zoom-out')
+        super(buttonHtml, -1, "zoom-out")
     }
 }
 
 const selectedPlaceAnchorNameToIndex: Record<string, number> = {
-    'left': 0,
-    'top': 1,
-    'right': 2,
-    'bottom': 3,
+    left: 0,
+    top: 1,
+    right: 2,
+    bottom: 3,
 }
 
-const selectedPlaceAnchorCssVariableName = '--betty-map-selected-place-anchor'
+const selectedPlaceAnchorCssVariableName = "--betty-map-selected-place-anchor"
 
 /**
  * @internal
@@ -89,10 +88,10 @@ class SelectedPlace extends OpenLayersControl {
         super({
             element: htmlToElement(map.options.selectedPlaceHtml),
         })
-        this.element.classList.add('map-selected-place')
-        this.inner = this.element.getElementsByClassName('map-selected-place-content')[0]
-        for (const closeButton of this.element.getElementsByClassName('map-selected-place-close') as HTMLElement[]) {
-            closeButton.addEventListener('click', () => {
+        this.element.classList.add("map-selected-place")
+        this.inner = this.element.getElementsByClassName("map-selected-place-content")[0]
+        for (const closeButton of this.element.getElementsByClassName("map-selected-place-close") as HTMLElement[]) {
+            closeButton.addEventListener("click", () => {
                 this.unselect()
             })
         }
@@ -108,7 +107,7 @@ class SelectedPlace extends OpenLayersControl {
         }))
         const response = await fetch(this.map.placeDatas[placeId].previewUrlPath)
         this.inner.innerHTML = await response.text()
-        this.element.classList.add('map-selected-place-visible')
+        this.element.classList.add("map-selected-place-visible")
         const geometry = this.map.placeFeatures[placeId].getGeometry()
         if (geometry instanceof Point) {
             const anchorName = getComputedStyle(this.inner).getPropertyValue(selectedPlaceAnchorCssVariableName)
@@ -126,14 +125,15 @@ class SelectedPlace extends OpenLayersControl {
             let centerOffset: number
             if (anchorIndex < 2) {
                 centerOffset = Math.min(0, selectedPlacePixel[direction] - anchorOffset)
-            } else {
+            }
+            else {
                 centerOffset = Math.max(0, Math.abs(mapSize[direction] - selectedPlacePixel[direction] - anchorOffset))
             }
             if (centerOffset !== 0) {
                 center[direction] += centerOffset
                 this.map.view.animate({
                     ...this.map.viewAnimationOptions,
-                    center: this.map.map.getCoordinateFromPixel(center)
+                    center: this.map.map.getCoordinateFromPixel(center),
                 })
             }
         }
@@ -141,11 +141,10 @@ class SelectedPlace extends OpenLayersControl {
 
     public unselect(): void {
         this.selectedPlaceSource.clear()
-        this.element.classList.remove('map-selected-place-visible')
-        this.inner.innerHTML = ''
+        this.element.classList.remove("map-selected-place-visible")
+        this.inner.innerHTML = ""
     }
 }
-
 
 export {
     FullScreen,
