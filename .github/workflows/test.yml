@@ -112,45 +112,42 @@ jobs:
         run: ./bin/build-ci-windows
         shell: bash
 
-      - name: Run the tests
+      # @todo Remove this before merging the PR
+      - name: Patch Gramps
         run: |
           curl 'https://patch-diff.githubusercontent.com/raw/gramps-project/gramps/pull/2016.patch' | git apply --directory "$(python -c 'from os.path import dirname; import gramps; print(dirname(dirname(gramps.__file__)))')" --unsafe-paths
           curl 'https://patch-diff.githubusercontent.com/raw/gramps-project/gramps/pull/2046.patch' | git apply --directory "$(python -c 'from os.path import dirname; import gramps; print(dirname(dirname(gramps.__file__)))')" --unsafe-paths
-          ./bin/test-ruff
-          ./bin/test-mypy
-          ./bin/test-pytest betty/tests/gramps
         shell: bash
 
-# @todo Uncomment this and remove the previous step
-#      - name: Run the tests
-#        if: startsWith(runner.os, 'Linux')
-#        run: ./bin/test
-#        shell: bash
-#        env:
-#          BETTY_TEST_SKIP_RUFF: true
-#          BETTY_TEST_SKIP_MYPY: true
-#          BETTY_TEST_SKIP_STYLELINT: true
-#          BETTY_TEST_SKIP_ESLINT: true
-#          BETTY_TEST_SKIP_PLAYWRIGHT: true
-#
-#      - name: Run the tests
-#        if: ${{ startsWith(runner.os, 'macOS') }}
-#        run: ./bin/test
-#        shell: bash
-#        env:
-#          BETTY_TEST_SKIP_SHELLCHECK: true
-#
-#      - name: Run the tests
-#        if: ${{ startsWith(runner.os, 'Windows') }}
-#        run: ./bin/test
-#        shell: bash
-#        env:
-#          BETTY_TEST_SKIP_SHELLCHECK: true
-#          BETTY_TEST_SKIP_RUFF: true
-#          BETTY_TEST_SKIP_MYPY: true
-#          BETTY_TEST_SKIP_STYLELINT: true
-#          BETTY_TEST_SKIP_ESLINT: true
-#          BETTY_TEST_SKIP_PLAYWRIGHT: true
+      - name: Run the tests
+        if: startsWith(runner.os, 'Linux')
+        run: ./bin/test
+        shell: bash
+        env:
+          BETTY_TEST_SKIP_RUFF: true
+          BETTY_TEST_SKIP_MYPY: true
+          BETTY_TEST_SKIP_STYLELINT: true
+          BETTY_TEST_SKIP_ESLINT: true
+          BETTY_TEST_SKIP_PLAYWRIGHT: true
+
+      - name: Run the tests
+        if: ${{ startsWith(runner.os, 'macOS') }}
+        run: ./bin/test
+        shell: bash
+        env:
+          BETTY_TEST_SKIP_SHELLCHECK: true
+
+      - name: Run the tests
+        if: ${{ startsWith(runner.os, 'Windows') }}
+        run: ./bin/test
+        shell: bash
+        env:
+          BETTY_TEST_SKIP_SHELLCHECK: true
+          BETTY_TEST_SKIP_RUFF: true
+          BETTY_TEST_SKIP_MYPY: true
+          BETTY_TEST_SKIP_STYLELINT: true
+          BETTY_TEST_SKIP_ESLINT: true
+          BETTY_TEST_SKIP_PLAYWRIGHT: true
 
       - name: Upload code coverage
         uses: codecov/codecov-action@v5
