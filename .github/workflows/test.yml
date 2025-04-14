@@ -112,6 +112,13 @@ jobs:
         run: ./bin/build-ci-windows
         shell: bash
 
+      # @todo Remove this before merging the PR
+      - name: Patch Gramps
+        run: |
+          curl 'https://patch-diff.githubusercontent.com/raw/gramps-project/gramps/pull/2016.patch' | git apply --directory "$(python -c 'from os.path import dirname; import gramps; print(dirname(dirname(gramps.__file__)))')" --unsafe-paths
+          curl 'https://patch-diff.githubusercontent.com/raw/gramps-project/gramps/pull/2046.patch' | git apply --directory "$(python -c 'from os.path import dirname; import gramps; print(dirname(dirname(gramps.__file__)))')" --unsafe-paths
+        shell: bash
+
       - name: Run the tests
         if: startsWith(runner.os, 'Linux')
         run: ./bin/test

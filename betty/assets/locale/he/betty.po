@@ -515,6 +515,12 @@ msgstr ""
 msgid "Go to the front page"
 msgstr ""
 
+#, python-brace-format
+msgid ""
+"Gramps cannot import {file_path}. Supported file formats are "
+"{supported_extensions}."
+msgstr ""
+
 msgid "HTTP API Documentation"
 msgstr ""
 
@@ -583,16 +589,46 @@ msgid "Loaded the configuration from {configuration_file_path}."
 msgstr ""
 
 #, python-brace-format
+msgid "Loaded {citation_count} citation."
+msgid_plural "Loaded {citation_count} citations."
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "Loaded {citation_count} citations."
 msgstr ""
+
+#, python-brace-format
+msgid "Loaded {event_count} event."
+msgid_plural "Loaded {event_count} events."
+msgstr[0] ""
+msgstr[1] ""
 
 #, python-brace-format
 msgid "Loaded {event_count} events."
 msgstr ""
 
 #, python-brace-format
+msgid "Loaded {family_count} family."
+msgid_plural "Loaded {family_count} families."
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "Loaded {file_count} files."
 msgstr ""
+
+#, python-brace-format
+msgid "Loaded {media_count} media objects."
+msgid_plural "Loaded {media_count} media objects."
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "Loaded {note_count} note."
+msgid_plural "Loaded {note_count} notes."
+msgstr[0] ""
+msgstr[1] ""
 
 #, python-brace-format
 msgid "Loaded {note_count} notes."
@@ -603,12 +639,36 @@ msgid "Loaded {person_count} people."
 msgstr ""
 
 #, python-brace-format
+msgid "Loaded {person_count} person."
+msgid_plural "Loaded {person_count} persons."
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "Loaded {place_count} place."
+msgid_plural "Loaded {place_count} places."
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "Loaded {place_count} places."
 msgstr ""
 
 #, python-brace-format
 msgid "Loaded {repository_count} repositories as sources."
 msgstr ""
+
+#, python-brace-format
+msgid "Loaded {repository_count} repository."
+msgid_plural "Loaded {repository_count} repositories."
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "Loaded {source_count} source."
+msgid_plural "Loaded {source_count} sources."
+msgstr[0] ""
+msgstr[1] ""
 
 #, python-brace-format
 msgid "Loaded {source_count} sources."
@@ -867,6 +927,20 @@ msgid ""
 "\"betty:link-{link_name}:url\" attribute. This link was ignored."
 msgstr ""
 
+#, python-brace-format
+msgid ""
+"The Gramps {gramps_entity_type} {gramps_entity_id} entity has a "
+"\"betty:link-{link_name}:media_type\" attribute with value "
+"\"{media_type}\", which is not a valid IANA media type. This media type "
+"was ignored."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"The Gramps {gramps_entity_type} {gramps_entity_id} entity requires a "
+"\"betty:link-{link_name}:url\" attribute. This link was ignored."
+msgstr ""
+
 msgid "The URL must include a host."
 msgstr ""
 
@@ -878,6 +952,12 @@ msgid ""
 "The betty:privacy Gramps attribute must have a value of \"public\" or "
 "\"private\", but \"{privacy_value}\" was given for {entity_type} "
 "{entity_id} ({entity_label}), which was ignored."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"The betty:privacy Gramps attribute must have a value of \"public\" or "
+"\"private\", but \"{privacy_value}\" was given, which was ignored."
 msgstr ""
 
 #, python-brace-format
