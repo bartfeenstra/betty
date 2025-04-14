@@ -35,6 +35,23 @@ a.file-view-original {
   }
 }
 
-.featured-entity {
-  
+.featured-entities {
+  --betty-featured-entities-padding-x: #{$container-padding-x * 0.5};
+  --betty-featured-entity-min-width-landscape: 750px;
+
+  margin: 0 auto;
+  padding: 0 var(--betty-featured-entities-padding-x);
+
+  .featured-entity {
+    // @todo Remove the background color
+    background-color: red;
+  }
+}
+
+@media (min-width: calc(2 * var(--betty-featured-entity-min-width-landscape) + 3 * var(--betty-featured-entities-padding-x))) {
+  .featured-entities {
+    display: grid;
+    gap: var(--betty-featured-entities-padding-x);
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
