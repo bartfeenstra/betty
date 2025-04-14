@@ -4,7 +4,7 @@
     "node": ">= 20"
   },
   "devDependencies": {
-    "@stylistic/eslint-plugin": "^4.0.1",
+    "@stylistic/eslint-plugin": "^4.2.0",
     "@types/node": "*",
     "@types/webpack": "^5.28.5",
     "@betty.py/betty": "file:./js",
@@ -14,17 +14,17 @@
     "@betty.py/betty.extension.raspberry-mint": "file:./betty/project/extension/raspberry_mint/webpack",
     "@betty.py/betty.extension.trees": "file:./betty/project/extension/trees/webpack",
     "@betty.py/betty.extension.webpack": "file:./betty/project/extension/webpack/webpack",
-    "eslint": "^9.15.0",
+    "eslint": "^9.24.0",
     "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-n": "^17.13.2",
-    "eslint-plugin-promise": "^7.1.0",
+    "eslint-plugin-n": "^17.17.0",
+    "eslint-plugin-promise": "^7.2.1",
     "stylelint": "^16.10.0",
     "stylelint-config-standard": "^38.0.0",
     "stylelint-config-standard-scss": "^14.0.0",
     "stylelint-no-unsupported-browser-features": "^8.0.2",
     "stylelint-scss": "^6.9.0",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.15.0"
+    "typescript-eslint": "^8.29.1"
   },
   "type": "module"
 }

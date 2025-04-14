@@ -19,21 +19,21 @@ class Search {
     private filterEntityTypeHtmlIds: Record<string, string>
 
     public constructor() {
-        this.searchFormElement = this.getElementById('search-form')
-        this.searchFormQueryElement = this.getElementById('search-form-query') as HTMLInputElement
-        this.searchFormFilterResetElement = this.getElementById('search-form-filter-reset')
-        this.resultsContainer = this.getElementById('search-results-container')
+        this.searchFormElement = this.getElementById("search-form")
+        this.searchFormQueryElement = this.getElementById("search-form-query") as HTMLInputElement
+        this.searchFormFilterResetElement = this.getElementById("search-form-filter-reset")
+        this.resultsContainer = this.getElementById("search-results-container")
         this.searchFormElement.addEventListener(
-            'submit',
+            "submit",
             (e) => {
                 void (async (): Promise<void> => {
                     await this.search(this.searchFormQueryElement.value, this.getFilterEntityTypeIds())
                 })()
                 e.preventDefault()
                 e.stopPropagation()
-            }
+            },
         )
-        this.searchFormFilterResetElement.addEventListener('click', () => {
+        this.searchFormFilterResetElement.addEventListener("click", () => {
             this.resetFilters()
         })
         this.filterEntityTypeHtmlIds = JSON.parse(this.searchFormElement.dataset.bettySearchFormFilterEntityType) as Record<string, string>
@@ -52,7 +52,7 @@ class Search {
     }
 
     private getFilterEntityTypeElements(): HTMLInputElement[] {
-        return this.searchFormElement.querySelectorAll('.search-form-filter-entity-type input')
+        return this.searchFormElement.querySelectorAll(".search-form-filter-entity-type input")
     }
 
     private getFilterEntityTypeIds(): string[] {
@@ -87,8 +87,9 @@ class Search {
         const queryParts = query.toLowerCase().split(/\s/).filter(queryPart => queryPart.trim().length)
         const index = await this.getIndex()
         if (queryParts.length) {
-            this.setSearchEntries(index, index.index.filter((entry) => this.match(queryParts, entityTypeIds, entry)))
-        } else {
+            this.setSearchEntries(index, index.index.filter(entry => this.match(queryParts, entityTypeIds, entry)))
+        }
+        else {
             this.setSearchEntries(index, [])
         }
     }
@@ -107,13 +108,13 @@ class Search {
 
     private renderResults(index: Index, entries: IndexEntry[]): string {
         return index.resultsContainerTemplate
-            .replace('{{{ betty-search-results }}}', entries.map((entry) => this.renderResult(entry)).join(''))
-            .replace('{{{ betty-search-results-count }}}', entries.length)
+            .replace("{{{ betty-search-results }}}", entries.map(entry => this.renderResult(entry)).join(""))
+            .replace("{{{ betty-search-results-count }}}", entries.length)
     }
 
     private renderResult(entry: IndexEntry): string {
         return this.index?.resultContainerTemplate
-            .replace('{{{ betty-search-result }}}', entry.result)
+            .replace("{{{ betty-search-result }}}", entry.result)
     }
 }
 

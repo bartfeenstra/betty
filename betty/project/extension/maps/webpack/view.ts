@@ -1,7 +1,7 @@
-'use strict'
+"use strict"
 
-import Map from 'ol/Map'
-import {AnimationOptions} from "ol/View"
+import Map from "ol/Map"
+import { AnimationOptions } from "ol/View"
 
 function zoomByDelta(map: Map, delta: number, options: AnimationOptions): void {
     const view = map.getView()
