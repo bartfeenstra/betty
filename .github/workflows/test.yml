@@ -120,8 +120,6 @@ jobs:
           ./bin/test-mypy
           ./bin/test-pytest betty/tests/gramps
         shell: bash
-        env:
-          GRAMPSHOME_ISOLATED: /tmp/grampshome-isolated
 
 # @todo Uncomment this and remove the previous step
 #      - name: Run the tests
