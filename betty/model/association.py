@@ -279,7 +279,7 @@ class _ToOneAssociation(
             if value is None:
                 raise AssociationRequired.new(self, instance)
             assert not isinstance(value, _Resolver)
-            return cast("_AssociateT", value)
+            return cast(_AssociateT, value)
 
     def __set__(self, instance: _OwnerT, value: ToOneAssociate[_AssociateT]) -> None:
         setattr(instance, self._internal_owner_attr_name, value)
@@ -337,7 +337,7 @@ class _ToZeroOrOneAssociation(
             return None
         else:
             assert not isinstance(value, _Resolver)
-            return cast("_AssociateT | None", value)
+            return cast(_AssociateT | None, value)
 
     def __set__(
         self, instance: _OwnerT, value: ToZeroOrOneAssociate[_AssociateT]
@@ -405,7 +405,7 @@ class _ToManyAssociation(
             return value
         else:
             assert not isinstance(value, _Resolver)
-            return cast("EntityCollection[_AssociateT]", value)
+            return cast(EntityCollection[_AssociateT], value)
 
     def __set__(self, instance: _OwnerT, value: ToManyAssociates[_AssociateT]) -> None:
         if isinstance(value, _Resolver):

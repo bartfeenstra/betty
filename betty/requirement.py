@@ -125,7 +125,7 @@ class RequirementCollection(Requirement):
             if reduced_requirement:
                 if type(reduced_requirement) is type(self):
                     reduced_requirements.extend(
-                        cast("RequirementCollection", reduced_requirement)._requirements
+                        cast(RequirementCollection, reduced_requirement)._requirements
                     )
                 else:
                     reduced_requirements.append(reduced_requirement)

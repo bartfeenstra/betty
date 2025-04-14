@@ -243,7 +243,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         :raises FactoryError: raised when ``cls`` could not be instantiated.
         """
         if issubclass(cls, AppDependentFactory):
-            return cast("_T", await cls.new_for_app(self))
+            return cast(_T, await cls.new_for_app(self))
         return await new(cls)
 
     @service

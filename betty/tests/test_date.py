@@ -6,12 +6,12 @@ import pytest
 from typing_extensions import override
 
 from betty.date import Date, DateRange, DateRangeSchema, DateSchema, Datey, DateySchema
+from betty.serde.dump import Dump, DumpMapping
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.json.schema import SchemaTestBase
 
 if TYPE_CHECKING:
     from betty.json.schema import Schema
-    from betty.serde.dump import Dump, DumpMapping
 
 
 _DUMMY_DATE_DUMPS: tuple[Sequence[DumpMapping[Dump]], Sequence[DumpMapping[Dump]]] = (
@@ -77,15 +77,15 @@ _DUMMY_DATE_RANGE_DUMPS: tuple[
 ] = (
     [
         *[
-            cast("DumpMapping[Dump]", {"start": start, "end": None})
+            cast(DumpMapping[Dump], {"start": start, "end": None})
             for start in _DUMMY_DATE_DUMPS[0]
         ],
         *[
-            cast("DumpMapping[Dump]", {"start": None, "end": end})
+            cast(DumpMapping[Dump], {"start": None, "end": end})
             for end in _DUMMY_DATE_DUMPS[0]
         ],
         *[
-            cast("DumpMapping[Dump]", {"start": start, "end": end})
+            cast(DumpMapping[Dump], {"start": start, "end": end})
             for start in _DUMMY_DATE_DUMPS[0]
             for end in _DUMMY_DATE_DUMPS[0]
         ],

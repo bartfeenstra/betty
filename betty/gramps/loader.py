@@ -187,7 +187,7 @@ class _ToOneResolver(Generic[_EntityT], ToOneResolver[_EntityT]):
 
     @override
     def resolve(self) -> _EntityT:
-        return cast("_EntityT", self._handles_to_entities[self._handle])
+        return cast(_EntityT, self._handles_to_entities[self._handle])
 
 
 class _ToManyResolver(Generic[_EntityT], ToManyResolver[_EntityT]):
@@ -198,7 +198,7 @@ class _ToManyResolver(Generic[_EntityT], ToManyResolver[_EntityT]):
     @override
     def resolve(self) -> Iterable[_EntityT]:
         for handle in self._handles:
-            yield cast("_EntityT", self._handles_to_entities[handle])
+            yield cast(_EntityT, self._handles_to_entities[handle])
 
 
 _GENDER_MAPPING = {
@@ -781,7 +781,7 @@ class GrampsLoader:
 
     async def _load_family(self, element: ElementTree.Element) -> None:
         children = [
-            cast("Person", self._handles_to_entities[child_handle])
+            cast(Person, self._handles_to_entities[child_handle])
             for child_handle in self._load_handles("childref", element)
         ]
         for parent_handle_type in ("father", "mother"):
@@ -805,7 +805,7 @@ class GrampsLoader:
     ) -> None:
         event_handle = eventref.get("hlink")
         assert event_handle is not None
-        gramps_presence_role = cast("str", eventref.get("role"))
+        gramps_presence_role = cast(str, eventref.get("role"))
 
         presence_role: PresenceRole
         try:

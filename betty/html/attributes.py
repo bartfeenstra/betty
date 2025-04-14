@@ -54,7 +54,7 @@ class _Attribute(Generic[_AttributeGetT, _AttributeSetT], ABC):
 
     def get(self, instance: Attributes) -> _AttributeGetT:
         try:
-            return cast("_AttributeGetT", getattr(instance, self._attr_name))
+            return cast(_AttributeGetT, getattr(instance, self._attr_name))
         except AttributeError:
             value = self._new_default()
             setattr(instance, self._attr_name, value)
@@ -394,7 +394,7 @@ class Attributes:
         self.set(**kwargs)
 
     def _get_attribute(self, attr_name: str) -> _Attribute[Any, Any]:
-        return cast("_Attribute[Any, Any]", getattr(type(self), attr_name))
+        return cast(_Attribute[Any, Any], getattr(type(self), attr_name))
 
     def set(self, **attributes: Unpack[_AttributesKwargs]) -> None:
         """

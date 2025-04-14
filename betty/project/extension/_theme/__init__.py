@@ -172,7 +172,7 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
 
     if start_date is None or end_date is None:
         reference_dates = sorted(
-            cast("Datey", presence.event.date)
+            cast(Datey, presence.event.date)
             for presence in person.presences
             if _is_person_timeline_presence(presence)
         )
