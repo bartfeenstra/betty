@@ -32,11 +32,7 @@
 }
 
 .header-entry-point {
-  @include font-size($h5-font-size);
-
-  background-position: center;
-  background-repeat: no-repeat;
-  text-indent: -999rem;
+  height: auto;
   width: 1lh;
 }
 

@@ -1,0 +1,7 @@
+.btn-language {
+  background-image: #{icon-language($white)};
+
+  &:focus {
+    background-image: #{icon-language($black)};
+  }
+}

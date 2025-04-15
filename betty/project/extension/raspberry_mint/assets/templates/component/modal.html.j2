@@ -1,0 +1,21 @@
+{% set attributes = attributes | default(new_attributes()) %}
+{% do attributes.html_class.append("modal") %}
+{% set dialog_attributes = dialog_attributes | default(new_attributes()) %}
+{% do dialog_attributes.html_class.append("modal-dialog") %}
+<div {{ attributes }}>
+    <div {{ dialog_attributes }}>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">{{ title }}</h2>
+                {% set close_attributes = new_attributes() %}
+                {% do close_attributes.set_data(bs_dismiss="modal") %}
+                {% with attributes = close_attributes %}
+                    {% include "component/button-close.html.j2" %}
+                {% endwith %}
+            </div>
+            <nav class="modal-body" tabindex="-1">
+                {{ body }}
+            </nav>
+        </div>
+    </div>
+</div>
