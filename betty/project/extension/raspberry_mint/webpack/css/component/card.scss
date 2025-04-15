@@ -1,3 +1,7 @@
+.card-container{
+  container: card / inline-size;
+}
+
 .card {
   border: none;
   box-shadow: $border-width $border-width $gray-300;
@@ -6,5 +10,17 @@
     &:focus {
       border: $border-width solid var(--betty-focus-color);
     }
+  }
+
+  .card-content {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+
+@container card (width > 750px) {
+  .card .card-content {
+    flex-direction: row;
   }
 }

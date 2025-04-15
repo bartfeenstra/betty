@@ -2,10 +2,7 @@
     {% for featured_entity_reference in featured_entity_references %}
         <div class="featured-entity">
             {% with entity = project.ancestry[featured_entity_reference.entity_type][featured_entity_reference.entity_id] %}
-                {% include [
-                    'entity/card--' + entity.plugin_id() + '.html.j2',
-                    'entity/card.html.j2',
-                ] %}
+                {% include 'entity/-front-featured-entity.html.j2' %}
             {% endwith %}
         </div>
     {% endfor %}

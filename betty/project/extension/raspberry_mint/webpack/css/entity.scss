@@ -35,12 +35,15 @@ a.file-view-original {
   }
 }
 
-.featured-entities {
-  --betty-featured-entities-padding-x: #{$container-padding-x * 0.5};
-  --betty-featured-entity-min-width-landscape: 750px;
+$betty-featured-entities-padding-x: $container-padding-x * 0.5;
+$betty-featured-entity-min-width-landscape: 750px;
+$betty-featured-entity-max-width-landscape: 1000px;
+$betty-featured-entity-min-width-portrait: 250px;
+$betty-featured-entity-max-width-portrait: 500px;
 
+.featured-entities {
   margin: 0 auto;
-  padding: 0 var(--betty-featured-entities-padding-x);
+  padding: 0 #{$betty-featured-entities-padding-x};
 
   .featured-entity {
     // @todo Remove the background color
@@ -48,10 +51,41 @@ a.file-view-original {
   }
 }
 
-@media (min-width: calc(2 * var(--betty-featured-entity-min-width-landscape) + 3 * var(--betty-featured-entities-padding-x))) {
-  .featured-entities {
-    display: grid;
-    gap: var(--betty-featured-entities-padding-x);
-    grid-template-columns: repeat(2, 1fr);
+// @todo If there is only a single featured entity, it must only ever be portrait on narrow screens.
+// @todo In other words, on wider screens, portrait must only be used if there are enough entities to be shown side by side.
+// @todo
+// @todo
+// @todo
+// @todo Which steps do we want to support?
+// @todo - <= portrait-max:       1 portrait      // ~500px
+// @todo - <= landscape-min:      2 portraits     // ~750px
+// @todo - <= 2 * portrait-max:   1 landscape     // ~1000px
+// @todo - <= 2 * landscape-min:  3 portraits?    // ~1500px
+// @todo - <= 2 * landscape-max:  2 landscapes    // ~2000px
+// @todo
+// @todo
+// @todo
+// @todo
+
+
+@mixin -featured-entities-grid($columns, $column_min_width, $column_max_width) {
+  @media (width >= calc($columns * $column_min_width + ($columns + 1) * $betty-featured-entities-padding-x)) {
+    .featured-entities {
+      @if $columns > 1 {
+        display: grid;
+        gap: $betty-featured-entities-padding-x;
+        grid-template-columns: repeat(2, 1fr);
+      }
+      max-width: calc($columns * $column_max_width + ($columns + 1) * $betty-featured-entities-padding-x);
+    }
   }
 }
+
+@include -featured-entities-grid(1, 0, $betty-featured-entity-max-width-portrait)
+@include -featured-entities-grid(2, $betty-featured-entity-min-width-portrait, $betty-featured-entity-min-width-landscape)
+@include -featured-entities-grid(1, 0, 2 * $betty-featured-entity-max-width-portrait)
+@include -featured-entities-grid(3, 0, 2 * $betty-featured-entity-min-width-landscape)
+@include -featured-entities-grid(2, 0, 2 * $betty-featured-entity-max-width-landscape)
+
+// @todo We know this works, this is our original breakpoint
+@include -featured-entities-grid(2, $betty-featured-entity-min-width-landscape, $betty-featured-entity-max-width-landscape)
