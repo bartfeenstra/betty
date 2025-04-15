@@ -11,6 +11,7 @@ interface Index {
 }
 
 class Search {
+    private readonly searchModalElement: HTMLElement
     private readonly searchFormElement: HTMLElement
     private readonly searchFormQueryElement: HTMLInputElement
     private readonly searchFormFilterResetElement: HTMLElement
@@ -19,10 +20,15 @@ class Search {
     private filterEntityTypeHtmlIds: Record<string, string>
 
     public constructor() {
+        this.searchModalElement = this.getElementById("nav-search")
         this.searchFormElement = this.getElementById("search-form")
         this.searchFormQueryElement = this.getElementById("search-form-query") as HTMLInputElement
         this.searchFormFilterResetElement = this.getElementById("search-form-filter-reset")
         this.resultsContainer = this.getElementById("search-results-container")
+
+        this.searchModalElement.addEventListener("shown.bs.modal", () => {
+            this.searchFormQueryElement.focus()
+        })
         this.searchFormElement.addEventListener(
             "submit",
             (e) => {

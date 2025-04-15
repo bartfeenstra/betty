@@ -48,8 +48,7 @@ class TestSearchUi:
         await expect(page.locator("#search-form")).to_be_visible()
 
         # Search for a person's name.
-        search_query = page.locator("#search-form-query")
-        await search_query.fill(self.INDIVIDUAL_NAME)
+        await page.keyboard.type(self.INDIVIDUAL_NAME)
         await page.locator(":focus").press("Enter")
 
         # Assert there is a search result.
