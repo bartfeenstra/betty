@@ -1,0 +1,6 @@
+{% with attributes = attributes | default(new_attributes()) %}
+    {% do attributes.html_class.append('btn-close') %}
+    {% do attributes.html_class.append('btn-icon') %}
+    {% set button_label = _('Close') %}
+    {% include 'component/button.html.j2' %}
+{% endwith %}

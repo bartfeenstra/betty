@@ -1,0 +1,7 @@
+.btn-menu {
+  background-image: #{icon-primary-navigation($white)};
+
+  &:focus {
+    background-image: #{icon-primary-navigation($black)};
+  }
+}

@@ -36,19 +36,19 @@
                     </ul>
                 </div>
             </div>
-            <button class="btn btn-primary d-none d-md-inline header-entry-point header-entry-point-language" type="button"
+            <button class="btn btn-primary d-none d-md-inline btn-icon btn-language header-entry-point header-entry-point-language" type="button"
                     data-bs-toggle="modal"
                     data-bs-target="#nav-language"
                     aria-controls="nav-language" aria-expanded="false" aria-label="{% trans %}Toggle translations{% endtrans %}">
                 {% trans %}Translations{% endtrans %}
             </button>
-            <button class="btn btn-primary d-none d-md-inline header-entry-point header-entry-point-search" type="button"
+            <button class="btn btn-primary d-none d-md-inline btn-icon btn-search header-entry-point header-entry-point-search" type="button"
                     data-bs-toggle="modal"
                     data-bs-target="#nav-search"
                     aria-controls="nav-search" aria-expanded="false" aria-label="{% trans %}Toggle search{% endtrans %}">
                 {% trans %}Search{% endtrans %}
             </button>
-            <button class="btn btn-primary d-block d-md-none header-entry-point header-entry-point-menu" type="button"
+            <button class="btn btn-primary d-block d-md-none btn-icon btn-menu header-entry-point header-entry-point-menu" type="button"
                     data-bs-toggle="modal"
                     data-bs-target="#nav-menu"
                     aria-controls="nav-menu" aria-expanded="false" aria-label="{% trans %}Toggle menu{% endtrans %}">
@@ -57,140 +57,131 @@
         </nav>
     </div>
 </div>
-<div id="nav-menu" class="modal">
-    <div class="modal-dialog modal-sm modal-fullscreen-md-down">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">{% trans %}Menu{% endtrans %}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans %}Close{% endtrans %}"></button>
-            </div>
-            <nav class="modal-body">
-                <div class="d-flex gap-2">
-                    <ul class="flex-grow-1 list-unstyled text-center">
-                        {% for entity_type_url, entity_type_label in ns.primary_navigation_links.items() %}
-                            <li class="h6">
-                                <a href="{{ entity_type_url }}">{{ entity_type_label }}</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                    <button class="btn btn-primary header-entry-point header-entry-point-language" type="button"
-                            data-bs-toggle="modal"
-                            data-bs-target="#nav-language"
-                            aria-controls="nav-language" aria-expanded="false" aria-label="{% trans %}Toggle translations{% endtrans %}">
-                        {% trans %}Translations{% endtrans %}
-                    </button>
-                    <button class="btn btn-primary header-entry-point header-entry-point-search" type="button"
-                            data-bs-toggle="modal"
-                            data-bs-target="#nav-search"
-                            aria-controls="nav-search" aria-expanded="false" aria-label="{% trans %}Toggle search{% endtrans %}">
-                        {% trans %}Search{% endtrans %}
-                    </button>
+{% set nav_menu_body %}
+    <div class="d-flex gap-2">
+        <ul class="flex-grow-1 list-unstyled text-center">
+            {% for entity_type_url, entity_type_label in ns.primary_navigation_links.items() %}
+                <li class="h6">
+                    <a href="{{ entity_type_url }}">{{ entity_type_label }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+        <button class="btn btn-primary btn-icon btn-language header-entry-point" type="button"
+                data-bs-toggle="modal"
+                data-bs-target="#nav-language"
+                aria-controls="nav-language" aria-expanded="false" aria-label="{% trans %}Toggle translations{% endtrans %}">
+            {% trans %}Translations{% endtrans %}
+        </button>
+        <button class="btn btn-primary btn-icon btn-search header-entry-point" type="button"
+                data-bs-toggle="modal"
+                data-bs-target="#nav-search"
+                aria-controls="nav-search" aria-expanded="false" aria-label="{% trans %}Toggle search{% endtrans %}">
+            {% trans %}Search{% endtrans %}
+        </button>
+    </div>
+{% endset %}
+{% with attributes = new_attributes(html_id="nav-menu"),
+    dialog_attributes = new_attributes(html_class=["modal-sm", "modal-fullscreen-md-down"]),
+    title = _("Menu"),
+    body = nav_menu_body
+%}
+    {% include "component/modal.html.j2" %}
+{% endwith %}
+{% set nav_language_body %}
+    <ul class="list-unstyled text-center">
+        {% set ns = namespace(available_locales = []) %}
+        {% for available_locale_configuration in project.configuration.locales.values() %}
+            {% set available_locale_data = available_locale_configuration.alias | locale_get_data %}
+            {% do ns.available_locales.append((available_locale_configuration.locale, available_locale_data.get_display_name())) %}
+        {% endfor %}
+        {% for available_locale, available_locale_name in ns.available_locales | sort(attribute='1') %}
+            <li class="h6 header-nav-link">
+                <a href="{{ page_resource | url(locale=available_locale) }}" hreflang="{{ available_locale }}" lang="{{ available_locale }}" rel="alternate">{{ available_locale_name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endset %}
+{% with attributes = new_attributes(html_id="nav-language"),
+    dialog_attributes = new_attributes(html_class=["modal-md", "modal-fullscreen-md-down"]),
+    title = _("Language"),
+    body = nav_language_body
+%}
+    {% include "component/modal.html.j2" %}
+{% endwith %}
+{% set nav_search_body %}
+    <div class="container">
+        {% set entity_type_ids = ['file', 'person', 'place', 'source'] %}
+        {% set ns = namespace(
+            filter_entity_type_checkboxes = [],
+            filter_entity_type_html_ids = {}
+        ) %}
+        {% for entity_type_id in entity_type_ids %}
+            {% set entity_type_html_id = 'betty-search-form-filter-entity-type--' + entity_type_id %}
+            {% do ns.filter_entity_type_checkboxes.append({
+                'attributes': new_attributes(html_checked=true, html_id=entity_type_html_id),
+                'form_control_attributes': new_attributes(html_class=['search-form-filter-entity-type']),
+                'label': project.entity_type_repository.get(entity_type_id).plugin_label() | localize,
+                'value': entity_type_id,
+            }) %}
+            {% do ns.filter_entity_type_html_ids.setdefault(entity_type_html_id, entity_type_id) %}
+        {% endfor %}
+        <form id="search-form" data-betty-search-form-index="{{ 'betty:///search-index.json' | url }}" data-betty-search-form-filter-entity-type="{{ ns.filter_entity_type_html_ids | json }}">
+            <div class="align-items-end d-flex gap-2">
+                <div class="flex-grow-1 form-control-text">
+                    <label for="search-form-query" class="form-label">{% trans %}Keywords{% endtrans %}</label>
+                    <input type="text" class="form-control" id="search-form-query">
                 </div>
-            </nav>
-        </div>
-    </div>
-</div>
-<div id="nav-language" class="modal">
-    <div class="modal-dialog modal-sm modal-fullscreen-md-down">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">{% trans %}Language{% endtrans %}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans %}Close{% endtrans %}"></button>
-            </div>
-            <nav class="modal-body">
-                <ul class="list-unstyled text-center">
-                    {% set ns = namespace(available_locales = []) %}
-                    {% for available_locale_configuration in project.configuration.locales.values() %}
-                        {% set available_locale_data = available_locale_configuration.alias | locale_get_data %}
-                        {% do ns.available_locales.append((available_locale_configuration.locale, available_locale_data.get_display_name())) %}
-                    {% endfor %}
-                    {% for available_locale, available_locale_name in ns.available_locales | sort(attribute='1') %}
-                        <li class="h6 header-nav-link">
-                            <a href="{{ page_resource | url(locale=available_locale) }}" hreflang="{{ available_locale }}" lang="{{ available_locale }}" rel="alternate">{{ available_locale_name }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </nav>
-        </div>
-    </div>
-</div>
-<div id="nav-search" class="modal">
-    <div class="modal-dialog modal-fullscreen">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="h1 modal-title">{% trans %}Search{% endtrans %}</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans %}Close{% endtrans %}"></button>
-            </div>
-            <div class="modal-body px-0" tabindex="-1">
-                <div class="container">
-                    {% set entity_type_ids = ['file', 'person', 'place', 'source'] %}
-                    {% set ns = namespace(
-                        filter_entity_type_checkboxes = [],
-                        filter_entity_type_html_ids = {}
-                    ) %}
-                    {% for entity_type_id in entity_type_ids %}
-                        {% set entity_type_html_id = 'betty-search-form-filter-entity-type--' + entity_type_id %}
-                        {% do ns.filter_entity_type_checkboxes.append({
-                            'attributes': new_attributes(html_checked=true, html_id=entity_type_html_id),
-                            'form_control_attributes': new_attributes(html_class=['search-form-filter-entity-type']),
-                            'label': project.entity_type_repository.get(entity_type_id).plugin_label() | localize,
-                            'value': entity_type_id,
-                        }) %}
-                        {% do ns.filter_entity_type_html_ids.setdefault(entity_type_html_id, entity_type_id) %}
-                    {% endfor %}
-                    <form id="search-form" data-betty-search-form-index="{{ 'betty:///search-index.json' | url }}" data-betty-search-form-filter-entity-type="{{ ns.filter_entity_type_html_ids | json }}">
-                        <div class="align-items-end d-flex gap-2">
-                            <div class="flex-grow-1 form-control-text">
-                                <label for="search-form-query" class="form-label">{% trans %}Keywords{% endtrans %}</label>
-                                <input type="text" class="form-control" id="search-form-query">
-                            </div>
-                            <div>
-                                {% with button_label = _('Search') %}
-                                    {% include 'component/submit.html.j2' %}
-                                {% endwith %}
-                            </div>
-                        </div>
-                        <div class="mt-3 row">
-                            <div class="col col-12 col-md-4 col-lg-3">
-                                <h3 class="h2 section-heading">{% trans %}Filters{% endtrans %}</h3>
-                                {% set search_form_filter_entity_type %}
-                                    {% with checkboxes = ns.filter_entity_type_checkboxes,
-                                        checkboxes_label = _('Entity type'),
-                                        checkboxes_label_visually_hidden = true
-                                    %}
-                                        {% include 'component/checkboxes.html.j2' %}
-                                    {% endwith %}
-                                {% endset %}
-                                {% with accordion_heading_element = 'h4',
-                                    accordion_heading_class = 'h3',
-                                    accordion_id = 'search-filters',
-                                    accordion_items = [
-                                        {
-                                            'header': _('Entity type'),
-                                            'body': search_form_filter_entity_type,
-                                        },
-                                    ],
-                                    html_class = ['mt-2']
-                                %}
-                                    {% include 'component/accordion.html.j2' %}
-                                {% endwith %}
-                                {% with button_label = _('Reset'),
-                                    button_secondary = True,
-                                    attributes=new_attributes(
-                                        html_class=['mt-3'],
-                                        html_id='search-form-filter-reset'
-                                    )
-                                %}
-                                    {% include 'component/button.html.j2' %}
-                                {% endwith %}
-                            </div>
-                            <div class="col col-12 col-md-8 col-lg-9 mt-3 mt-md-0">
-                                <div id="search-results-container"></div>
-                            </div>
-                        </div>
-                    </form>
+                <div>
+                    {% with button_label = _('Search') %}
+                        {% include 'component/submit.html.j2' %}
+                    {% endwith %}
                 </div>
             </div>
-        </div>
+            <div class="mt-3 row">
+                <div class="col col-12 col-md-4 col-lg-3">
+                    <h3 class="h2 section-heading">{% trans %}Filters{% endtrans %}</h3>
+                    {% set search_form_filter_entity_type %}
+                        {% with checkboxes = ns.filter_entity_type_checkboxes,
+                            checkboxes_label = _('Entity type'),
+                            checkboxes_label_visually_hidden = true
+                        %}
+                            {% include 'component/checkboxes.html.j2' %}
+                        {% endwith %}
+                    {% endset %}
+                    {% with accordion_heading_element = 'h4',
+                        accordion_heading_class = 'h3',
+                        accordion_id = 'search-filters',
+                        accordion_items = [
+                            {
+                                'header': _('Entity type'),
+                                'body': search_form_filter_entity_type,
+                            },
+                        ],
+                        html_class = ['mt-2']
+                    %}
+                        {% include 'component/accordion.html.j2' %}
+                    {% endwith %}
+                    {% with button_label = _('Reset'),
+                        button_secondary = True,
+                        attributes=new_attributes(
+                            html_class=['mt-3'],
+                            html_id='search-form-filter-reset'
+                        )
+                    %}
+                        {% include 'component/button.html.j2' %}
+                    {% endwith %}
+                </div>
+                <div class="col col-12 col-md-8 col-lg-9 mt-3 mt-md-0">
+                    <div id="search-results-container"></div>
+                </div>
+            </div>
+        </form>
     </div>
-</div>
+{% endset %}
+{% with attributes = new_attributes(html_id="nav-search"),
+    dialog_attributes = new_attributes(html_class=["modal-fullscreen"]),
+    title = _("Search"),
+    body = nav_search_body
+%}
+    {% include "component/modal.html.j2" %}
+{% endwith %}

@@ -1,0 +1,7 @@
+.btn-search {
+  background-image: #{icon-search($white)};
+
+  &:focus {
+    background-image: #{icon-search($black)};
+  }
+}
