@@ -1,5 +1,5 @@
 {% set attributes = attributes | default(new_attributes()) %}
 {% do attributes.set(html_type='submit') %}
-{% do attributes.html_class.append('btn') %}
-{% do attributes.html_class.append('btn-secondary' if button_secondary | default(false) else 'btn-primary') %}
+{% do attributes.html_class.append('button') %}
+{% do attributes.html_class.append('button-secondary' if button_secondary | default(false) else 'button-primary') %}
 <input value="{{ button_label }}" {{ attributes }}>

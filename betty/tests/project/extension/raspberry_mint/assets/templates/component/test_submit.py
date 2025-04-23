@@ -14,7 +14,7 @@ async def test_minimal() -> None:
     ) as (actual, _):
         assert "<input " in actual
         assert 'type="submit"' in actual
-        assert "btn-primary" in actual
+        assert "button-primary" in actual
         assert label in actual
 
 
@@ -27,7 +27,7 @@ async def test_secondary() -> None:
         extensions={RaspberryMint},
         template="component/submit.html.j2",
     ) as (actual, _):
-        assert "btn-secondary" in actual
+        assert "button-secondary" in actual
 
 
 async def test_with_html_attributes() -> None:

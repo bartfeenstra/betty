@@ -13,7 +13,7 @@ async def test_minimal() -> None:
         template="component/button.html.j2",
     ) as (actual, _):
         assert "<button " in actual
-        assert "btn-primary" in actual
+        assert "button-primary" in actual
         assert label in actual
 
 
@@ -26,7 +26,7 @@ async def test_secondary() -> None:
         extensions={RaspberryMint},
         template="component/button.html.j2",
     ) as (actual, _):
-        assert "btn-secondary" in actual
+        assert "button-secondary" in actual
 
 
 async def test_with_html_attribute() -> None:
