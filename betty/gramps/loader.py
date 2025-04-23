@@ -279,6 +279,8 @@ class GrampsLoader:
     Load Gramps family history data into a project.
     """
 
+    _SUPPORTED_GRAMPS_XML_VERSION = (1, 7, 1)
+
     def __init__(
         self,
         ancestry: Ancestry,
@@ -304,7 +306,8 @@ class GrampsLoader:
         self._added_entity_counts: MutableMapping[type[Entity], int] = defaultdict(
             lambda: 0
         )
-        self._tree: ElementTree.ElementTree | None = None
+        self._tree: ElementTree.ElementTree
+        self._tree_xml_namespace: dict[str, str]
         self._loaded = False
         self._localizer = localizer
         self._copyright_notices = copyright_notices
@@ -423,6 +426,26 @@ class GrampsLoader:
 
         database = self._tree.getroot()
 
+        match = re.fullmatch(
+            r"^{(http:\/\/gramps-project\.org\/xml\/(\d+)\.(\d+)\.(\d+)\/)}database$",
+            database.tag,
+        )
+        if match is None:
+            raise UserFacingGrampsError(_("This is not valid Gramps XML."))
+        version = (int(match.group(2)), int(match.group(3)), int(match.group(4)))
+        if not self._supports_xml_version(version):
+            raise UserFacingGrampsError(
+                _(
+                    "Gramps XML must be compatible with version {supported_gramps_xml_version}. Gramps XML {loaded_gramps_xml_version} is not supported."
+                ).format(
+                    supported_gramps_xml_version=".".join(
+                        map(str, self._SUPPORTED_GRAMPS_XML_VERSION)
+                    ),
+                    loaded_gramps_xml_version=".".join(map(str, version)),
+                )
+            )
+        self._tree_xml_namespace = {"ns": match.group(1)}
+
         media_path: Path | None = None
         try:
             mediapath = self._xpath1(database, "./ns:header/ns:mediapath")
@@ -493,6 +516,15 @@ class GrampsLoader:
 
         resolve(*self._ancestry)
 
+    def _supports_xml_version(self, version: tuple[int, int, int]) -> bool:
+        if version[0] != self._SUPPORTED_GRAMPS_XML_VERSION[0]:
+            return False
+        if version[1] != self._SUPPORTED_GRAMPS_XML_VERSION[1]:
+            return False
+        if version[2] < self._SUPPORTED_GRAMPS_XML_VERSION[2]:
+            return False
+        return True
+
     def _resolve1(
         self, entity_type: type[_EntityT], handle: str
     ) -> _ToOneResolver[_EntityT]:
@@ -509,19 +541,15 @@ class GrampsLoader:
             self._handles_to_entities[handle] = entity
         self._added_entity_counts[entity.type] += 1
 
-    _NS = {
-        "ns": "http://gramps-project.org/xml/1.7.1/",
-    }
-
     def _xpath(
         self, element: ElementTree.Element, selector: str
     ) -> Sequence[ElementTree.Element]:
-        return element.findall(selector, namespaces=self._NS)
+        return element.findall(selector, namespaces=self._tree_xml_namespace)
 
     def _xpath1(
         self, element: ElementTree.Element, selector: str
     ) -> ElementTree.Element:
-        found_element = element.find(selector, namespaces=self._NS)
+        found_element = element.find(selector, namespaces=self._tree_xml_namespace)
         if found_element is None:
             raise XPathError(
                 f'Cannot find an element "{selector}" within {str(element)}.'
