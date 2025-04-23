@@ -49,26 +49,21 @@ if TYPE_CHECKING:
     from betty.ancestry.place_type import PlaceType
     from betty.ancestry.presence_role import PresenceRole
 
-_MINIMAL_XML = """<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"
-"http://gramps-project.org/xml/1.7.1/grampsxml.dtd">
-<database xmlns="http://gramps-project.org/xml/1.7.1/">
+__MINIMAL_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML {version}//EN"
+"http://gramps-project.org/xml/{version}/grampsxml.dtd">
+<database xmlns="http://gramps-project.org/xml/{version}/">
   <header>
     <created date="2019-03-29" version="4.2.8"/>
     <researcher>
     </researcher>
   </header>
-  <people>
-    <person handle="_e21e77455147d79f6b4cc1c76a4" change="1553878037" id="I0000">
-      <gender>U</gender>
-      <name type="Birth Name">
-        <first>Janet</first>
-        <surname>Dough</surname>
-      </name>
-    </person>
-  </people>
 </database>
 """
+
+
+def _minimal_xml(version: str = "1.7.1") -> str:
+    return __MINIMAL_XML.format(version=version)
 
 
 class TestGrampsLoader:
@@ -78,7 +73,7 @@ class TestGrampsLoader:
     async def test_load_gramps(self, new_temporary_app: App, tmp_path: Path) -> None:
         gramps_file_path = tmp_path / "gramps.gramps"
         with gzip.open(gramps_file_path, "w") as f:
-            f.write(_MINIMAL_XML.encode("utf-8"))
+            f.write(_minimal_xml().encode("utf-8"))
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
@@ -108,7 +103,7 @@ class TestGrampsLoader:
     async def test_load_gpkg(self, new_temporary_app: App, tmp_path: Path) -> None:
         gramps_file_path = tmp_path / "gramps.gramps"
         with gzip.open(gramps_file_path, "w") as f:
-            f.write(_MINIMAL_XML.encode("utf-8"))
+            f.write(_minimal_xml().encode("utf-8"))
         gpkg_file_path = tmp_path / "gramps.gpkg"
         with tarfile.open(  # noqa SIM115
             name=gpkg_file_path, mode="w:gz"
@@ -145,7 +140,7 @@ class TestGrampsLoader:
     ) -> None:
         gramps_file_path = tmp_path / "gramps.gramps"
         with gzip.open(gramps_file_path, "w") as f:
-            f.write(_MINIMAL_XML.encode("utf-8"))
+            f.write(_minimal_xml().encode("utf-8"))
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
@@ -164,7 +159,7 @@ class TestGrampsLoader:
     ) -> None:
         gramps_file_path = tmp_path / "gramps.gramps"
         with gzip.open(gramps_file_path, "w") as f:
-            f.write(_MINIMAL_XML.encode("utf-8"))
+            f.write(_minimal_xml().encode("utf-8"))
         gpkg_file_path = tmp_path / "gramps.gpkg"
         with tarfile.open(  # noqa SIM115
             name=gpkg_file_path, mode="w:gz"
@@ -188,7 +183,7 @@ class TestGrampsLoader:
     ) -> None:
         xml_file_path = tmp_path / "gramps.xml"
         async with aiofiles.open(xml_file_path, "w") as f:
-            await f.write(_MINIMAL_XML)
+            await f.write(_minimal_xml())
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
@@ -313,7 +308,56 @@ class TestGrampsLoader:
                 genders=project.gender_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
-            await sut.load_xml(_MINIMAL_XML)
+            await sut.load_xml(_minimal_xml())
+
+    @pytest.mark.parametrize(
+        "version",
+        [
+            "1.7.0",
+            "1.8.0",
+            "2.0.0",
+        ],
+    )
+    async def test_load_xml_with_unsupported_version_should_error(
+        self, new_temporary_app: App, version: str
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = GrampsLoader(
+                project.ancestry,
+                localizer=DEFAULT_LOCALIZER,
+                copyright_notices=project.copyright_notice_repository,
+                licenses=await project.license_repository,
+                genders=project.gender_repository,
+                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            )
+            with pytest.raises(UserFacingGrampsError):
+                await sut.load_xml(_minimal_xml(version))
+
+    async def test_load_xml_with_invalid_xml_should_error(
+        self, new_temporary_app: App
+    ) -> None:
+        xml = """<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"
+"http://gramps-project.org/xml/1.7.1/grampsxml.dtd">
+<database>
+  <header>
+    <created date="2019-03-29" version="4.2.8"/>
+    <researcher>
+    </researcher>
+  </header>
+</database>
+"""
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = GrampsLoader(
+                project.ancestry,
+                localizer=DEFAULT_LOCALIZER,
+                copyright_notices=project.copyright_notice_repository,
+                licenses=await project.license_repository,
+                genders=project.gender_repository,
+                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            )
+            with pytest.raises(UserFacingGrampsError):
+                await sut.load_xml(xml)
 
     async def test_place_should_include_place_type(self) -> None:
         ancestry = await self._load_partial(

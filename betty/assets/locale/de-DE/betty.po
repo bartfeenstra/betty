@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-03-25 23:56+0000\n"
+"POT-Creation-Date: 2025-04-23 16:11+0100\n"
 "PO-Revision-Date: 2025-03-28 20:02+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
-"Language-Team: German <https://hosted.weblate.org/projects/betty/betty/de/>\n"
-"Language: de-DE\n"
+"Language: de_DE\n"
+"Language-Team: German "
+"<https://hosted.weblate.org/projects/betty/betty/de/>\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.11-dev\n"
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
@@ -553,6 +553,13 @@ msgstr "Erzeuge deine Site nach {output_directory}."
 msgid "Go to the front page"
 msgstr ""
 
+#, python-brace-format
+msgid ""
+"Gramps XML must be compatible with version "
+"{supported_gramps_xml_version}. Gramps XML {loaded_gramps_xml_version} is"
+" not supported."
+msgstr ""
+
 msgid "HTTP API Documentation"
 msgstr "HTTP API Dokumentation"
 
@@ -987,6 +994,9 @@ msgid "This field is required."
 msgstr "Diese Feld ist erforderlich."
 
 msgid "This information is unavailable to protect people's privacy."
+msgstr ""
+
+msgid "This is not valid Gramps XML."
 msgstr ""
 
 msgid "This must be a boolean."
@@ -1424,3 +1434,4 @@ msgstr ""
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Copyright {author}, außer anders erwähnt"
+
