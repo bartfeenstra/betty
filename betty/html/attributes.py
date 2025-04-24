@@ -161,6 +161,8 @@ class _AttributesKwargs(TypedDict):
     html_action: NotRequired[str]
     html_allow: NotRequired[str]
     html_alt: NotRequired[str]
+    html_aria_controls: NotRequired[Sequence[str]]
+    html_aria_expanded: NotRequired[bool]
     html_as: NotRequired[str]
     html_async: NotRequired[bool]
     html_autocapitalize: NotRequired[str]
@@ -281,6 +283,8 @@ class Attributes:
     html_action = _StringAttribute("action")
     html_allow = _StringAttribute("allow")
     html_alt = _StringAttribute("alt")
+    html_aria_controls = _MultipleStringAttribute("aria-controls")
+    html_aria_expanded = _BooleanAttribute("aria-expanded")
     html_as = _StringAttribute("as")
     html_async = _BooleanAttribute("async")
     html_autocapitalize = _StringAttribute("autocapitalize")

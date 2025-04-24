@@ -35,22 +35,6 @@
   }
 }
 
-.map-control-zoom-in button {
-  background-image: #{icon-zoom-in($white)};
-
-  &:focus {
-    background-image: #{icon-zoom-in($black)};
-  }
-}
-
-.map-control-zoom-out button {
-  background-image: #{icon-zoom-out($white)};
-
-  &:focus {
-    background-image: #{icon-zoom-out($black)};
-  }
-}
-
 .map-selected-place-close {
   background-image: #{icon-close($white)};
   display: block;

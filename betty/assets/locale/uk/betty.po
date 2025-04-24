@@ -1085,20 +1085,8 @@ msgstr "Хронологія"
 msgid "Toggle full screen"
 msgstr "Перемкнути на весь екран"
 
-msgid "Toggle menu"
-msgstr "Переключити меню"
-
-msgid "Toggle search"
-msgstr "Увімкнути пошук"
-
-msgid "Toggle translations"
-msgstr "Переключити переклади"
-
 msgid "Town"
 msgstr "Містечко"
-
-msgid "Translations"
-msgstr "Переклади"
 
 msgid "Trees"
 msgstr "Дерева"

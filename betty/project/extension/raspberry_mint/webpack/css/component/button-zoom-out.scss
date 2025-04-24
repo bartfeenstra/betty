@@ -1,0 +1,7 @@
+.button-zoom-out {
+  background-image: #{icon-zoom-out($white)};
+
+  &:focus {
+    background-image: #{icon-zoom-out($black)};
+  }
+}

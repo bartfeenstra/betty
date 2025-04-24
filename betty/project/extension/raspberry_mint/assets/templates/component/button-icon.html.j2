@@ -1,0 +1,5 @@
+{% with attributes = attributes | default(new_attributes()) %}
+    {% do attributes.html_class.append('button-icon') %}
+    {% do attributes.set(html_title=button_label) %}
+    {% include 'component/button.html.j2' %}
+{% endwith %}

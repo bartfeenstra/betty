@@ -1082,20 +1082,8 @@ msgstr "Tijdlijn"
 msgid "Toggle full screen"
 msgstr "Schakel volledig scherm"
 
-msgid "Toggle menu"
-msgstr "Schakel menu"
-
-msgid "Toggle search"
-msgstr "Schakel zoeken"
-
-msgid "Toggle translations"
-msgstr "Schakel vertalingen"
-
 msgid "Town"
 msgstr "Town"
-
-msgid "Translations"
-msgstr "Vertalingen"
 
 msgid "Trees"
 msgstr "Stambomen"
